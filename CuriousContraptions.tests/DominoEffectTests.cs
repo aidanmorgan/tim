@@ -14,7 +14,7 @@ public sealed class DominoEffectTests
     private static WorkshopConstruction Solved(WorkshopConstruction lesson)
     {
         var result = lesson;
-        for (var i = 0; i < 4; i++) result = result.WithInstance(WorkshopInput.Domino(new((ulong)(4 + i)), -4 + i, Upright + .01, 0, 0, 0, 0, 1));
+        for (var i = 0; i < 4; i++) result = result.WithInstance(PlacedParts.Domino(new((ulong)(4 + i)), -4 + i, Upright + .01, 0, 0, 0, 0, 1));
         return result with { Connections = new(EndToLamp) };
     }
 
@@ -27,7 +27,7 @@ public sealed class DominoEffectTests
         Assert.Equal(4u, lesson.Puzzle.InventoryCount);
         Assert.Equal(new WorkshopGoal(WorkshopGoalKind.ActivatedAfter, default, default, default, new(2), new(3), new((Half)0)), lesson.Puzzle.Goal);
         Assert.All(lesson.Instances, instance => Assert.True(instance.Locked));
-        var ball = Payloads.First(lesson); var end = lesson.Instances.Find<WorkshopDomino>()!.Value; var lamp = lesson.Instances.Find<WorkshopLamp>()!.Value;
+        var ball = Payloads.First(lesson); var end = lesson.Instances.Single(instance => instance.PartId == PartId.Domino); var lamp = lesson.Instances.Single(instance => instance.PartId == PartId.SignalLamp);
         Assert.Equal(WorkshopInput.Position(-4.4), (ball.Cell.X, ball.Local.X)); Assert.Equal(WorkshopInput.Position(3), (ball.Cell.Y, ball.Local.Y));
         Assert.Equal(WorkshopInput.Position(.1), (end.Cell.X, end.Local.X)); Assert.Equal(WorkshopInput.Position(.09), (end.Cell.Y, end.Local.Y));
         Assert.Equal(CanonicalRotation.Identity, end.Rotation);
@@ -60,12 +60,12 @@ public sealed class DominoEffectTests
     public void ForeignInventoryExhaustedTilesChangedFixturesAndWiringIntoADominoReject()
     {
         var lesson = Lesson(); var solved = Solved(lesson);
-        EditRefusal.Is(WorkshopEditRejection.InventoryExceeded, () => solved.WithInstance(WorkshopInput.Domino(new(9), 1, Upright, 0, 0, 0, 0, 1)).Validate());
+        EditRefusal.Is(WorkshopEditRejection.InventoryExceeded, () => solved.WithInstance(PlacedParts.Domino(new(9), 1, Upright, 0, 0, 0, 0, 1)).Validate());
         EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => lesson.WithInstance(WorkshopInput.Generic(PartId.Receiver, new(9), 0, 1, 0, 0, 0, 0, 1)).Validate());
         EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => lesson.WithInstance(WorkshopInput.Generic(PartId.ImpactSwitch, new(9), 0, 1, 0, 0, 0, 0, 1)).Validate());
-        EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => lesson.WithInstance(WorkshopInput.Lamp(new(9), 0, 1, 0, 0, 0, 0, 1)).Validate());
+        EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => lesson.WithInstance(PlacedParts.Lamp(new(9), 0, 1, 0, 0, 0, 0, 1)).Validate());
         EditRefusal.Is(WorkshopEditRejection.FixedPart, () => lesson.WithInstance(Payloads.First(lesson) with { Locked = false }).Validate());
-        EditRefusal.Is(WorkshopEditRejection.FixedPart, () => lesson.WithInstance(WorkshopInput.Domino(new(2), .5, .09, 0, 0, 0, 0, 1) with { Locked = true }).Validate());
+        EditRefusal.Is(WorkshopEditRejection.FixedPart, () => lesson.WithInstance(PlacedParts.Domino(new(2), .5, .09, 0, 0, 0, 0, 1, locked: true)).Validate());
         EditRefusal.Is(WorkshopEditRejection.FixedPart, () => lesson.WithoutInstance(new(2)).Validate());
         EditRefusal.Is(WorkshopEditRejection.PuzzleSettings, () => (lesson with { Puzzle = lesson.Puzzle with { InventoryCount = 3 } }).Validate());
         EditRefusal.Is(WorkshopEditRejection.PuzzleSettings, () => (lesson with { Puzzle = lesson.Puzzle with { Goal = lesson.Puzzle.Goal with { MinimumDuration = new((Half).5) } } }).Validate());

@@ -82,23 +82,15 @@ public static partial class Program
         await WarmupSimulation();
     }
 
+    /// <summary>Story 9A.21: warms the command lifecycle (Initialize, Construct, Run, Advance, Reset) on an empty bench, so it names
+    /// no element. The solver's contact, prismatic and drive paths were already warmed by the transport's synthetic scene
+    /// (<see cref="WarmupScene"/>); the per-element compile path is not warmed.</summary>
     private static async Task WarmupSimulation()
     {
         try
         {
-            var battery = WorkshopInput.Battery(new(1), -2, 0, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default);
-            var plate = WorkshopInput.PressurePlate(new(2), 0, 0, 0, 0, 0, 0, 1, WorkshopPressurePlate.PlacedMinimumMass);
-            var gate = WorkshopInput.Generic(PartId.PoweredGate, new(3), 2, 0, 0, 0, 0, 0, 1);
-
-            var wire1 = new WorkshopConnection(battery.Id, WorkshopSocket.Supply, plate.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical);
-            var wire2 = new WorkshopConnection(plate.Id, WorkshopSocket.Supply, gate.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical);
-
             var settings = WorkshopCadenceSettings.Default();
-            var construction = new WorkshopConstruction(
-                new(2),
-                settings,
-                new([battery, plate, gate]),
-                Connections: new([wire1, wire2]));
+            var construction = new WorkshopConstruction(new(2), settings, new([]));
 
             // The warm-up borrows the worker's device: disposing it retires the warm-up only, never the device.
             await using var sim = new WorkshopSimulation(Device, new CaptureClock(), settings, new(1), new WarmupInstallation(),
@@ -138,6 +130,10 @@ public static partial class Program
     /// the slot into the ring verbatim and the browser echoes the identity, so no script parses the read.</summary>
     [JSImport("publish", "workshopGpu")]
     private static partial void Publish(byte[] read, byte[] readIdentity, byte[] poseSlot, bool observationPending, bool retainOccurrence);
+    /// <summary>Story 9A.22: copies one event ring publication (the C#-composed header, then each committed record with its sequence)
+    /// into the session's event ring; the worker allocates a fresh ring, posted before any later message, when the epoch or capacity
+    /// changes. Called before every read and acknowledgement, so each committed record is published exactly once and in order.</summary>
+    [JSImport("publishEvents", "workshopGpu")] private static partial void PublishEvents(byte[] batch);
     [JSImport("reserveOccurrenceRead", "workshopGpu")] private static partial bool ReserveOccurrenceRead();
     [JSImport("releaseOccurrenceRead", "workshopGpu")] private static partial void ReleaseOccurrenceRead();
 
@@ -187,6 +183,7 @@ public static partial class Program
         var response = await routed.Response;
         var sequence = new byte[sizeof(ulong)];
         BinaryPrimitives.WriteUInt64LittleEndian(sequence, routed.Sequence.Value);
+        PublishEvents(Device.DrainEvents());
         Acknowledge(response, sequence, Trace.CanFlush(Simulation.Phase));
     }
 
@@ -434,6 +431,7 @@ public static partial class Program
         {
             Console.WriteLine("CCGPU_RETAINED " + Convert.ToBase64String(encoded));
         }
+        PublishEvents(Device.DrainEvents());
         Publish(encoded, WorkshopWireFlatBuffers.ReadIdentity(readResponse), WorkshopPoseRing.ComposeSlot(readResponse.Read.Capture?.Time.Value ?? 0, readResponse.Read.Bodies),
             Trace.CanFlush(Simulation.Phase), retainOccurrence);
     }

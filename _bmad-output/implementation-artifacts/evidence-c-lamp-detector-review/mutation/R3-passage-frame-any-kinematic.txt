@@ -1,0 +1,20 @@
+mutant R3-passage-frame-any-kinematic at 2026-10-23T09:50:08Z
+diff --git a/CuriousContraptions.Bundle/BundleValidator.cs b/CuriousContraptions.Bundle/BundleValidator.cs
+index 3fc97874..efc98592 100644
+--- a/CuriousContraptions.Bundle/BundleValidator.cs
++++ b/CuriousContraptions.Bundle/BundleValidator.cs
+@@ -586,7 +586,7 @@ public static class BundleValidator
+                     OutOfRange("Passage.RearmClearance");
+                 if (!ports.Any(port => port.Socket == PortSocket.ActivationOut && port.Domain == SimulationDomain.Signal && port.Direction == PortDirection.Output && port.Signal == PortSignalKind.Pulse))
+                     OutOfRange("Passage.Ports");
+-                if (mechanical?.KinematicMode != KinematicMode.Static)
++                if (mechanical is null)
+                     OutOfRange("Passage.Frame");
+             }
+             for (var i = 0; i < signal.Triggers.Count; i++)
+    0 Warning(s)
+    0 Error(s)
+build rc=0
+Passed!  - Failed:     0, Passed:   208, Skipped:     0, Total:   208, Duration: 5 s - CuriousContraptions.tests.dll (net10.0)
+  Failed CuriousContraptions.BundleElements.Tests.BundleValidatorTests.IndicatorAndPassageCapabilitiesAreTypedRangedAndExclusive [178 ms]
+Failed!  - Failed:     1, Passed:   163, Skipped:     0, Total:   164, Duration: 265 ms - BundleElements.Tests.dll (net10.0)

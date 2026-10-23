@@ -1,0 +1,18 @@
+build success 119642688609
+  Set up job: success
+  Run actions/checkout@v4: success
+  Run actions/setup-dotnet@v4: success
+  Install WebAssembly workload: success
+  C# static gate: success
+  Test C# game: success
+  Test C# tools: success
+  Publish production browser bundle: success
+  Check static deployment: success
+  Run actions/upload-pages-artifact@v3: success
+  Post Run actions/setup-dotnet@v4: success
+  Post Run actions/checkout@v4: success
+  Complete job: success
+deploy success 119646642563
+  Set up job: success
+  Run actions/deploy-pages@v4: success
+  Complete job: success

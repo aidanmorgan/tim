@@ -1,0 +1,364 @@
+diff --git a/CuriousContraptions.tests/BothGateTests.cs b/CuriousContraptions.tests/BothGateTests.cs
+index ab6ee32a..1982df26 100644
+--- a/CuriousContraptions.tests/BothGateTests.cs
++++ b/CuriousContraptions.tests/BothGateTests.cs
+@@ -136,8 +136,8 @@ public sealed class BothGateTests
+         var construction=Machine();
+         construction=construction with {Instances=new(construction.Instances.Concat(new IWorkshopInstance[]{
+             WorkshopInput.Latch(new(6),-9,3,3,0,0,0,1),
+-            WorkshopInput.Clock(new(7),-6,3,3,0,0,0,1,1f),
+-            WorkshopInput.Clock(new(8),-3,3,3,0,0,0,1,1.5f)}).ToArray()),
++            PlacedParts.Clock(new(7),-6,3,3,0,0,0,1,1f),
++            PlacedParts.Clock(new(8),-3,3,3,0,0,0,1,1.5f)}).ToArray()),
+             Connections=construction.Connections.Without(Link(3,4)).With(Link(3,6)).With(Link(6,4))
+                 .With(Link(1,7)).With(Link(1,8))
+                 .With(new(new(7),WorkshopSocket.ActivationOut,new(6),WorkshopSocket.SetIn,WorkshopConnectionDomain.Activation))
+@@ -158,7 +158,7 @@ public sealed class BothGateTests
+     public void EnergyProvenanceIgnoresBothConditionSourcesAndUndefinedRulesReject()
+     {
+         var construction=Machine();
+-        var clock=WorkshopInput.Clock(new(7),12,3,0,0,0,0,1,1f);
++        var clock=PlacedParts.Clock(new(7),12,3,0,0,0,0,1,1f);
+         construction=construction with {Instances=new(construction.Instances.Append(clock).ToArray()),Connections=construction.Connections.With(Link(4,7))};
+         var topology=SupplyTopology.Create(construction,DeclaredPhysics.Of);
+         Assert.Equal(new[]{new GpuBodyId(3)},topology.UpstreamSources(clock.Id));
+diff --git a/CuriousContraptions.tests/ClockTests.cs b/CuriousContraptions.tests/ClockTests.cs
+index f81e7a45..c1ad9929 100644
+--- a/CuriousContraptions.tests/ClockTests.cs
++++ b/CuriousContraptions.tests/ClockTests.cs
+@@ -174,7 +174,7 @@ public sealed class ClockTests(NativeSceneFixture godot)
+     [Fact]
+     public void Connections_AcceptsValidActivationAndElectricalLinks()
+     {
+-        var clock = WorkshopInput.Clock(new(1), 0, 0, 0, 0, 0, 0, 1, 1.0f);
++        var clock = PlacedParts.Clock(new(1), 0, 0, 0, 0, 0, 0, 1, 1.0f);
+         var battery = PlacedParts.Battery(new(2), -2, 0, 0);
+         var counter = WorkshopInput.Counter(new(3), 2, 0, 0, 0, 0, 0, 1, 5);
+ 
+@@ -195,7 +195,7 @@ public sealed class ClockTests(NativeSceneFixture godot)
+     public void ActivationNetwork_ClockPoweredPeriodicPulses_5PulsesIn5Seconds()
+     {
+         var battery = PlacedParts.Battery(new(1), -2, 0, 0);
+-        var clock = WorkshopInput.Clock(new(2), 0, 0, 0, 0, 0, 0, 1, 1.0f);
++        var clock = PlacedParts.Clock(new(2), 0, 0, 0, 0, 0, 0, 1, 1.0f);
+         var counter = WorkshopInput.Counter(new(3), 2, 0, 0, 0, 0, 0, 1, 5);
+ 
+         var conn1 = new WorkshopConnection(battery.Id, WorkshopSocket.Supply, clock.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical);
+@@ -245,7 +245,7 @@ public sealed class ClockTests(NativeSceneFixture godot)
+     [Fact]
+     public void ActivationNetwork_UnpoweredClock_EmitsZeroPulses()
+     {
+-        var clock = WorkshopInput.Clock(new(1), 0, 0, 0, 0, 0, 0, 1, 1.0f);
++        var clock = PlacedParts.Clock(new(1), 0, 0, 0, 0, 0, 0, 1, 1.0f);
+         var counter = WorkshopInput.Counter(new(2), 2, 0, 0, 0, 0, 0, 1, 5);
+ 
+         var conn = new WorkshopConnection(clock.Id, WorkshopSocket.ActivationOut, counter.Id, WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation);
+@@ -280,7 +280,7 @@ public sealed class ClockTests(NativeSceneFixture godot)
+     public void ActivationNetwork_PowerLossAtDeadlineAndRestoration()
+     {
+         var battery = PlacedParts.Battery(new(1), -2, 0, 0);
+-        var clock = WorkshopInput.Clock(new(2), 0, 0, 0, 0, 0, 0, 1, 1.0f);
++        var clock = PlacedParts.Clock(new(2), 0, 0, 0, 0, 0, 0, 1, 1.0f);
+ 
+         var conn = new WorkshopConnection(battery.Id, WorkshopSocket.Supply, clock.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical);
+ 
+@@ -343,7 +343,7 @@ public sealed class ClockTests(NativeSceneFixture godot)
+     public void ClockPhase_LivesInTheCommittedCheckpoint_SupersededCandidateLeavesItUnchanged_AndResetStopsIt()
+     {
+         var battery = PlacedParts.Battery(new(1), -2, 0, 0);
+-        var clock = WorkshopInput.Clock(new(2), 0, 0, 0, 0, 0, 0, 1, 1.0f);
++        var clock = PlacedParts.Clock(new(2), 0, 0, 0, 0, 0, 0, 1, 1.0f);
+         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new([battery, clock]),
+             Connections: new([new WorkshopConnection(battery.Id, WorkshopSocket.Supply, clock.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical)]));
+         var network = WorkshopActivationCompiler.Compile(construction);
+@@ -401,7 +401,7 @@ public sealed class ClockTests(NativeSceneFixture godot)
+     [Fact]
+     public void WireSerialization_BinaryAndFlatBuffersRoundtrip()
+     {
+-        var clock = WorkshopInput.Clock(new(10), 1, 2, 3, 0, 0, 0, 1, 2.5f);
++        var clock = PlacedParts.Clock(new(10), 1, 2, 3, 0, 0, 0, 1, 2.5f);
+         var battery = PlacedParts.Battery(new(20), -2, 0, 0);
+         var conn = new WorkshopConnection(battery.Id, WorkshopSocket.Supply, clock.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical);
+ 
+diff --git a/CuriousContraptions.tests/ConstructionDecodeBoundaryTests.cs b/CuriousContraptions.tests/ConstructionDecodeBoundaryTests.cs
+index 1c58f874..f7e956bf 100644
+--- a/CuriousContraptions.tests/ConstructionDecodeBoundaryTests.cs
++++ b/CuriousContraptions.tests/ConstructionDecodeBoundaryTests.cs
+@@ -212,7 +212,7 @@ public sealed class ConstructionDecodeBoundaryTests
+         var saved = new WorkshopSavedConstruction(
+             new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(),
+                 new WorkshopInstances(PlacedParts.Plate(new(1), 0, 1, 0, .5f),
+-                    WorkshopInput.Clock(new(2), 1, 1, 0, 0, 0, 0, 1, intervalSeconds: 2f))),
++                    PlacedParts.Clock(new(2), 1, 1, 0, 0, 0, 0, 1, intervalSeconds: 2f))),
+             new(3));
+         var save = WorkshopSaveCodec.Encode(saved);
+         Assert.Equal(2, WorkshopSaveCodec.Decode(SaveFixture.Elements,save).Construction.Instances.Count);
+diff --git a/CuriousContraptions.tests/CuriousContraptions.tests.csproj b/CuriousContraptions.tests/CuriousContraptions.tests.csproj
+index 3ae576b8..6ba24f69 100644
+--- a/CuriousContraptions.tests/CuriousContraptions.tests.csproj
++++ b/CuriousContraptions.tests/CuriousContraptions.tests.csproj
+@@ -65,6 +65,8 @@
+         <Compile Include="ElementIsolationTests.cs" />
+         <Compile Include="LampDetectorGuardTests.cs" />
+         <Compile Include="PlateGuardTests.cs" />
++        <Compile Include="ClockGuardTests.cs" />
++        <Compile Include="ProbeClockCapture.cs" />
+         <Compile Include="DeclaredContactLoadTests.cs" />
+         <Compile Include="PlacementPoseTests.cs" />        <Compile Include="DeclaredIndicatorPassageTests.cs" />        <Compile Include="SourceStoreInstanceTests.cs" />
+         <Compile Include="DeclaredPrismaticDriveTests.cs" />
+diff --git a/CuriousContraptions.tests/DeclaredPresentationTests.cs b/CuriousContraptions.tests/DeclaredPresentationTests.cs
+index 233b9a1a..b8ab1623 100644
+--- a/CuriousContraptions.tests/DeclaredPresentationTests.cs
++++ b/CuriousContraptions.tests/DeclaredPresentationTests.cs
+@@ -124,7 +124,7 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
+     public async Task ClockTicksDrivePendulumPulseAndCounterLamps(bool powered)
+     {
+         var battery = PlacedParts.Battery(new(1), -3, 3, 0, enabled: powered ? ElectricalEnable.Enabled : ElectricalEnable.Disabled);
+-        var clock = WorkshopInput.Clock(new(2), 0, 3, 0, 0, 0, 0, 1, 1f);
++        var clock = PlacedParts.Clock(new(2), 0, 3, 0, 0, 0, 0, 1, 1f);
+         var counter = WorkshopInput.Counter(new(3), 3, 3, 0, 0, 0, 0, 1, 3);
+         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(battery, clock, counter),
+             Connections: new(
+@@ -211,7 +211,7 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
+     public async Task CommittedClockAndCounterUseExactDeclaredTimesAtNonzeroOrigin()
+     {
+         var battery = PlacedParts.Battery(new(1), -3, 3, 0);
+-        var clock = WorkshopInput.Clock(new(2), 0, 3, 0, 0, 0, 0, 1, 1f);
++        var clock = PlacedParts.Clock(new(2), 0, 3, 0, 0, 0, 0, 1, 1f);
+         var counter = WorkshopInput.Counter(new(3), 3, 3, 0, 0, 0, 0, 1, 3);
+         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(battery, clock, counter),
+             Connections: new(new WorkshopConnection(battery.Id, WorkshopSocket.Supply, clock.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical),
+@@ -269,7 +269,7 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
+     public async Task CommittedClockRetainsHiddenAndSkippedFirstFrameAndResetCancelsIt()
+     {
+         var battery = PlacedParts.Battery(new(1), -3, 3, 0);
+-        var clock = WorkshopInput.Clock(new(2), 0, 3, 0, 0, 0, 0, 1, .125f);
++        var clock = PlacedParts.Clock(new(2), 0, 3, 0, 0, 0, 0, 1, .125f);
+         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(battery, clock),
+             Connections: new(new WorkshopConnection(battery.Id, WorkshopSocket.Supply, clock.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical)));
+         var reads = await WorkshopPhysicsEngineTests.Run(construction, 30);
+@@ -303,8 +303,8 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
+     [Fact]
+     public async Task CommittedLatchAndLampPreserveBothDirectionsAndDelayPhases()
+     {
+-        var setClock = WorkshopInput.Clock(new(1), -3, 0, 0, 0, 0, 0, 1, 1f);
+-        var resetClock = WorkshopInput.Clock(new(2), -3, 3, 0, 0, 0, 0, 1, 1.5f);
++        var setClock = PlacedParts.Clock(new(1), -3, 0, 0, 0, 0, 0, 1, 1f);
++        var resetClock = PlacedParts.Clock(new(2), -3, 3, 0, 0, 0, 0, 1, 1.5f);
+         var latch = WorkshopInput.Latch(new(3), 0, 0, 0, 0, 0, 0, 1);
+         var battery = PlacedParts.Battery(new(4), -6, 0, 0);
+         var lamp = PlacedParts.Lamp(new(5), 3, 0, 0, 0, 0, 0, 1);
+@@ -408,7 +408,7 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
+     public async Task SameWorldPrepareCommitRetainsConsumedHiddenAndInProgressChannels()
+     {
+         var battery = PlacedParts.Battery(new(1), -3, 3, 0);
+-        var clock = WorkshopInput.Clock(new(2), 0, 3, 0, 0, 0, 0, 1, .125f);
++        var clock = PlacedParts.Clock(new(2), 0, 3, 0, 0, 0, 0, 1, .125f);
+         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(battery, clock),
+             Connections: new(new WorkshopConnection(battery.Id, WorkshopSocket.Supply, clock.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical)));
+         var reads = await WorkshopPhysicsEngineTests.Run(construction, 15);
+diff --git a/CuriousContraptions.tests/LampDetectorGuardTests.cs b/CuriousContraptions.tests/LampDetectorGuardTests.cs
+index 9ec4b25e..73668f34 100644
+--- a/CuriousContraptions.tests/LampDetectorGuardTests.cs
++++ b/CuriousContraptions.tests/LampDetectorGuardTests.cs
+@@ -207,8 +207,8 @@ public sealed class LampDetectorGuardTests
+     [Fact]
+     public async Task ALampOnALatchFollowsItsLevelOnAndOffWhileAFirstInputLampHolds()
+     {
+-        var setClock = WorkshopInput.Clock(new(1), -3, 0, 0, 0, 0, 0, 1, 1f);
+-        var resetClock = WorkshopInput.Clock(new(2), -3, 3, 0, 0, 0, 0, 1, 1.5f);
++        var setClock = PlacedParts.Clock(new(1), -3, 0, 0, 0, 0, 0, 1, 1f);
++        var resetClock = PlacedParts.Clock(new(2), -3, 3, 0, 0, 0, 0, 1, 1.5f);
+         var latch = WorkshopInput.Latch(new(3), 0, 0, 0, 0, 0, 0, 1);
+         var battery = PlacedParts.Battery(new(4), -6, 0, 0);
+         var lamp = PlacedParts.Lamp(new(5), 3, 0, 0, 0, 0, 0, 1);
+diff --git a/CuriousContraptions.tests/NoFixedCapacityTests.cs b/CuriousContraptions.tests/NoFixedCapacityTests.cs
+index 0dcb0c93..0427b79a 100644
+--- a/CuriousContraptions.tests/NoFixedCapacityTests.cs
++++ b/CuriousContraptions.tests/NoFixedCapacityTests.cs
+@@ -80,7 +80,7 @@ public sealed class NoFixedCapacityTests
+                     parts.Add(PlacedParts.Plate(Next(), X(i), 1, 0, .5f));
+                 return (Bench(parts), scene => Assert.Equal(33, scene.ContactLoadSensors.Length));
+             case "activation-timers-32":
+-                for (var i = 0; i < 33; i++) parts.Add(WorkshopInput.Clock(Next(), X(i), 1, 0, 0, 0, 0, 1, WorkshopClock.PlacedIntervalSeconds));
++                for (var i = 0; i < 33; i++) parts.Add(PlacedParts.Clock(Next(), X(i), 1, 0, 0, 0, 0, 1, 1f));
+                 return (Bench(parts), _ => Assert.Equal(33, WorkshopActivationCompiler.Compile(Bench(parts)).Nodes.Length));
+             case "connections-8":
+                 for (var i = 0; i < 9; i++)
+@@ -226,7 +226,7 @@ public sealed class NoFixedCapacityTests
+         }
+         for (var i = 0; i < 33; i++)
+             parts.Add(PlacedParts.Plate(Next(), X(i), 1, 4, .5f));
+-        for (var i = 0; i < 33; i++) parts.Add(WorkshopInput.Clock(Next(), X(i), 1, 8, 0, 0, 0, 1, WorkshopClock.PlacedIntervalSeconds));
++        for (var i = 0; i < 33; i++) parts.Add(PlacedParts.Clock(Next(), X(i), 1, 8, 0, 0, 0, 1, 1f));
+         return Bench(parts, [.. links]);
+     }
+ 
+diff --git a/CuriousContraptions.tests/PackageRuntimeParityTests.cs b/CuriousContraptions.tests/PackageRuntimeParityTests.cs
+index ba93e5c6..1c8f98a2 100644
+--- a/CuriousContraptions.tests/PackageRuntimeParityTests.cs
++++ b/CuriousContraptions.tests/PackageRuntimeParityTests.cs
+@@ -371,7 +371,7 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
+             "clock" =>
+             [
+                 ("interval_seconds", ParameterUnit.Second, ParameterKind.Real, Lane.Single, WorkshopClock.PlacedIntervalSeconds,
+-                    Admits(value => WorkshopInput.Clock(Owner, 0, 3, 0, 0, 0, 0, 1, value)), [])
++                    Admits(value => PlacedParts.Clock(Owner, 0, 3, 0, 0, 0, 0, 1, value)), [])
+             ],
+             "basket" =>
+             [
+@@ -429,7 +429,7 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
+             WorkshopInput.Generic(id, Owner, 0, 3, 0, 0, 0, 0, 1),
+         "pressure_plate" => PlacedParts.Plate(Owner, 0, 3, 0, .5f),
+         "counter" => WorkshopInput.Counter(Owner, 0, 3, 0, 0, 0, 0, 1, WorkshopCounter.PlacedTargetCount),
+-        "clock" => WorkshopInput.Clock(Owner, 0, 3, 0, 0, 0, 0, 1, WorkshopClock.PlacedIntervalSeconds),
++        "clock" => PlacedParts.Clock(Owner, 0, 3, 0, 0, 0, 0, 1, 1f),
+         "latch" => WorkshopInput.Latch(Owner, 0, 3, 0, 0, 0, 0, 1),
+         "switch" => WorkshopInput.Generic(PartId.ImpactSwitch, Owner, 0, 3, 0, 0, 0, 0, 1),
+         "delay" => WorkshopInput.Generic(PartId.Delay, Owner, 0, 3, 0, 0, 0, 0, 1),
+diff --git a/CuriousContraptions.tests/PlacedParts.cs b/CuriousContraptions.tests/PlacedParts.cs
+index f05999b9..8334d1a9 100644
+--- a/CuriousContraptions.tests/PlacedParts.cs
++++ b/CuriousContraptions.tests/PlacedParts.cs
+@@ -55,4 +55,10 @@ internal static class PlacedParts
+         double qx = 0, double qy = 0, double qz = 0, double qw = 1, bool locked = false) =>
+         WorkshopInput.Generic(PartId.PressurePlate, id, x, y, z, qx, qy, qz, qw,
+             new([new(new("minimum_mass"), minimumMass)])) with { Locked = locked };
++
++    /// <summary>A System Clock of an interval (f32 seconds) at an f32-input pose. On the record path (base 14658883) it builds
++    /// `WorkshopClock`; C-Clock makes it the clock package's generic instance with its declared <c>interval_seconds</c>.</summary>
++    public static IWorkshopInstance Clock(GpuBodyId id, double x, double y, double z, double qx, double qy, double qz, double qw,
++        float intervalSeconds, bool locked = false) =>
++        WorkshopInput.Clock(id, x, y, z, qx, qy, qz, qw, intervalSeconds, locked);
+ }
+diff --git a/CuriousContraptions.tests/PressurePlateTests.cs b/CuriousContraptions.tests/PressurePlateTests.cs
+index 2c539ec0..8003db15 100644
+--- a/CuriousContraptions.tests/PressurePlateTests.cs
++++ b/CuriousContraptions.tests/PressurePlateTests.cs
+@@ -602,7 +602,7 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
+         ulong id = 0;
+         for (var i = 0; i < 13; i++) instances.Add(Plate(++id, -16 + 3 * (i % 7), -6 + 3 * (i / 7), .5f));
+         for (var i = 0; i < 5; i++) instances.Add(WorkshopInput.Counter(new(++id), -16 + 3 * i, 3, 6, 0, 0, 0, 1, 3));
+-        for (var i = 0; i < 5; i++) instances.Add(WorkshopInput.Clock(new(++id), -16 + 3 * i, 3, 9, 0, 0, 0, 1, 1f));
++        for (var i = 0; i < 5; i++) instances.Add(PlacedParts.Clock(new(++id), -16 + 3 * i, 3, 9, 0, 0, 0, 1, 1f));
+         for (var i = 0; i < 5; i++) instances.Add(WorkshopInput.Latch(new(++id), -16 + 3 * i, 3, 12, 0, 0, 0, 1));
+         var last = instances[12];
+         var gate = Gate(++id, -6); var battery = Battery(++id, -6);
+diff --git a/CuriousContraptions.tests/StateLatchTests.cs b/CuriousContraptions.tests/StateLatchTests.cs
+index 647a065d..49d10bc2 100644
+--- a/CuriousContraptions.tests/StateLatchTests.cs
++++ b/CuriousContraptions.tests/StateLatchTests.cs
+@@ -168,8 +168,8 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
+     [Fact]
+     public void Network_LevelIndicatorMirrorsLatchOnAndOff()
+     {
+-        var setClock = WorkshopInput.Clock(new(1), -3, 0, 0, 0, 0, 0, 1, 1f);
+-        var resetClock = WorkshopInput.Clock(new(2), -3, 3, 0, 0, 0, 0, 1, 1.5f);
++        var setClock = PlacedParts.Clock(new(1), -3, 0, 0, 0, 0, 0, 1, 1f);
++        var resetClock = PlacedParts.Clock(new(2), -3, 3, 0, 0, 0, 0, 1, 1.5f);
+         var latch = WorkshopInput.Latch(new(3), 0, 0, 0, 0, 0, 0, 1);
+         var battery = PlacedParts.Battery(new(4), -6, 0, 0);
+         var lamp = PlacedParts.Lamp(new(5), 3, 0, 0, 0, 0, 0, 1);
+@@ -205,7 +205,7 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
+     [Fact]
+     public void Connections_AdmitOneSourceOnBothInputsAndRejectForeignSockets()
+     {
+-        var source = WorkshopInput.Clock(new(1), -3, 0, 0, 0, 0, 0, 1, 1f);
++        var source = PlacedParts.Clock(new(1), -3, 0, 0, 0, 0, 0, 1, 1f);
+         var latch = WorkshopInput.Latch(new(2), 0, 0, 0, 0, 0, 0, 1);
+         var lamp = PlacedParts.Lamp(new(3), 3, 0, 0, 0, 0, 0, 1);
+         var battery = PlacedParts.Battery(new(4), -3, 2, 0);
+@@ -228,8 +228,8 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
+     public void Network_SetHoldsResetClearsAndSimultaneousRequestsResolveOff()
+     {
+         // Set clock fires every 1.0 s (ticks 120, 240, 360...), Reset clock every 1.5 s (ticks 180, 360...) at 120 Hz.
+-        var setClock = WorkshopInput.Clock(new(1), -3, 0, 0, 0, 0, 0, 1, 1f);
+-        var resetClock = WorkshopInput.Clock(new(2), -3, 3, 0, 0, 0, 0, 1, 1.5f);
++        var setClock = PlacedParts.Clock(new(1), -3, 0, 0, 0, 0, 0, 1, 1f);
++        var resetClock = PlacedParts.Clock(new(2), -3, 3, 0, 0, 0, 0, 1, 1.5f);
+         var latch = WorkshopInput.Latch(new(3), 0, 0, 0, 0, 0, 0, 1);
+         var battery = PlacedParts.Battery(new(4), -6, 0, 0);
+         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(),
+@@ -267,7 +267,7 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
+     [Fact]
+     public void Network_OneSourceWiredToBothInputsNeverTurnsOn()
+     {
+-        var clock = WorkshopInput.Clock(new(1), -3, 0, 0, 0, 0, 0, 1, 1f);
++        var clock = PlacedParts.Clock(new(1), -3, 0, 0, 0, 0, 0, 1, 1f);
+         var latch = WorkshopInput.Latch(new(2), 0, 0, 0, 0, 0, 0, 1);
+         var battery = PlacedParts.Battery(new(3), -6, 0, 0);
+         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(clock, latch, battery),
+@@ -460,7 +460,7 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
+     [Fact]
+     public void Network_ContactClosedFollowsCommittedLatchMemoryAndCounterReach()
+     {
+-        var clock = WorkshopInput.Clock(new(1), -3, 0, 0, 0, 0, 0, 1, 1f);
++        var clock = PlacedParts.Clock(new(1), -3, 0, 0, 0, 0, 0, 1, 1f);
+         var latch = WorkshopInput.Latch(new(2), 0, 0, 0, 0, 0, 0, 1);
+         var counter = WorkshopInput.Counter(new(3), 0, 3, 0, 0, 0, 0, 1, 2);
+         var battery = PlacedParts.Battery(new(4), -6, 0, 0);
+diff --git a/CuriousContraptions.tests/SwitchElectricalTests.cs b/CuriousContraptions.tests/SwitchElectricalTests.cs
+index 8d2d5058..10ee9a6d 100644
+--- a/CuriousContraptions.tests/SwitchElectricalTests.cs
++++ b/CuriousContraptions.tests/SwitchElectricalTests.cs
+@@ -131,7 +131,7 @@ public sealed class SwitchElectricalTests
+     {
+         var construction=Machine();
+         var second=WorkshopInput.Generic(PartId.ImpactSwitch,new(6),-8,1,0,0,0,0,1);
+-        var clock=WorkshopInput.Clock(new(7),6,1,0,0,0,0,1,1f);
++        var clock=PlacedParts.Clock(new(7),6,1,0,0,0,0,1,1f);
+         construction=construction with {Instances=new(construction.Instances.Concat(new IWorkshopInstance[]{second,clock}).ToArray()),
+             Connections=new(Power(2,6),Power(6,2),Power(6,7))};
+         var network=WorkshopActivationCompiler.Compile(construction);
+diff --git a/CuriousContraptions.tests/WorkbenchCapacityTests.cs b/CuriousContraptions.tests/WorkbenchCapacityTests.cs
+index 487010d8..0a52b62b 100644
+--- a/CuriousContraptions.tests/WorkbenchCapacityTests.cs
++++ b/CuriousContraptions.tests/WorkbenchCapacityTests.cs
+@@ -126,7 +126,7 @@ public sealed class WorkbenchCapacityTests
+         "powered_gate" => WorkshopInput.Generic(PartId.PoweredGate, id, x, 0, z, 0, 0, 0, 1),
+         "pressure_plate" => PlacedParts.Plate(id, x, 1, z, .5f),
+         "counter" => WorkshopInput.Counter(id, x, 1, z, 0, 0, 0, 1, WorkshopCounter.PlacedTargetCount),
+-        "clock" => WorkshopInput.Clock(id, x, 1, z, 0, 0, 0, 1, WorkshopClock.PlacedIntervalSeconds),
++        "clock" => PlacedParts.Clock(id, x, 1, z, 0, 0, 0, 1, 1f),
+         "latch" => WorkshopInput.Latch(id, x, 1, z, 0, 0, 0, 1),
+         _ => throw new ArgumentException($"Unsupported palette part '{kind}'.", nameof(kind)),
+     };
+diff --git a/CuriousContraptions.tests/WorkshopGpuDeviceTests.cs b/CuriousContraptions.tests/WorkshopGpuDeviceTests.cs
+index d882e9d3..49046df2 100644
+--- a/CuriousContraptions.tests/WorkshopGpuDeviceTests.cs
++++ b/CuriousContraptions.tests/WorkshopGpuDeviceTests.cs
+@@ -296,7 +296,7 @@ public sealed class WorkshopGpuDeviceTests
+         var transport = new HeldTransport(false); transport.Held.SetResult();
+         var device = new WorkshopGpuDevice(transport, Document);
+         var battery = PlacedParts.Battery(new(1), -2, 0, 0);
+-        var clock = WorkshopInput.Clock(new(2), 0, 0, 0, 0, 0, 0, 1, 1.0f);
++        var clock = PlacedParts.Clock(new(2), 0, 0, 0, 0, 0, 0, 1, 1.0f);
+         var counter = WorkshopInput.Counter(new(3), 2, 0, 0, 0, 0, 0, 1, 5);
+         var construction = new WorkshopConstruction(new(1), Settings, new(battery, clock, counter), Connections: new(
+             new WorkshopConnection(battery.Id, WorkshopSocket.Supply, clock.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical),
+diff --git a/CuriousContraptions.tests/WorkshopSaveRejectionTests.cs b/CuriousContraptions.tests/WorkshopSaveRejectionTests.cs
+index 4defaf15..b50100e0 100644
+--- a/CuriousContraptions.tests/WorkshopSaveRejectionTests.cs
++++ b/CuriousContraptions.tests/WorkshopSaveRejectionTests.cs
+@@ -155,7 +155,7 @@ public sealed class WorkshopSaveRejectionTests
+         PlacedParts.Detector(new(13), 10, 0, 0, 0, 0, 0, 1),
+         PlacedParts.Plate(new(14), 11, 0, 0, .5f),
+         WorkshopInput.Counter(new(15), 12, 0, 0, 0, 0, 0, 1, WorkshopCounter.PlacedTargetCount),
+-        WorkshopInput.Clock(new(16), 13, 0, 0, 0, 0, 0, 1, 1f),
++        PlacedParts.Clock(new(16), 13, 0, 0, 0, 0, 0, 1, 1f),
+         WorkshopInput.Latch(new(17), 14, 0, 0, 0, 0, 0, 1),
+         WorkshopInput.Pipe(new(18), 15, 0, 0, 0, 0, 0, 1),
+         WorkshopInput.PipeBend45(new(19), 16, 0, 0, 0, 0, 0, 1),
+diff --git a/CuriousContraptions.tests/WorkshopWireFlatBuffersTests.cs b/CuriousContraptions.tests/WorkshopWireFlatBuffersTests.cs
+index 00d694dd..6f9ebb94 100644
+--- a/CuriousContraptions.tests/WorkshopWireFlatBuffersTests.cs
++++ b/CuriousContraptions.tests/WorkshopWireFlatBuffersTests.cs
+@@ -138,7 +138,7 @@ public sealed class WorkshopWireFlatBuffersTests
+         PlacedParts.Detector(new(1), 0, 1, 0, 0, 0, 0, 1),
+         PlacedParts.Plate(new(1), 0, 1, 0, 2.25f),
+         WorkshopInput.Counter(new(1), 0, 1, 0, 0, 0, 0, 1, targetCount: 7),
+-        WorkshopInput.Clock(new(1), 0, 1, 0, 0, 0, 0, 1, intervalSeconds: 3.5f),
++        PlacedParts.Clock(new(1), 0, 1, 0, 0, 0, 0, 1, intervalSeconds: 3.5f),
+     };
+ 
+     // Story 9.4b: every encoded instance field survives the decoder. Re-encoding the decoded construction reproduces the

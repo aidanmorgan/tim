@@ -1,0 +1,13 @@
+== M8-typed-field-omits-threshold: tracked diff sha256 8c147bf79582c84a9510e35f4eb88e35abcdf08397daa31a074d5a9b5cb31b80
+    0 Error(s)
+    0 Warning(s)
+  Failed CuriousContraptions.Tests.WorkshopDominoTests.SaveRoundTripsTheGenericDominoAndRefusesAnyTypedFieldOrParameter [20 ms]
+  Failed CuriousContraptions.Tests.WorkshopSaveRejectionTests.GenericImpactParametersRejectExternalInvalidVectorsAndObsoleteScalar [7 ms]
+  Failed CuriousContraptions.Tests.WorkshopSaveRejectionTests.EveryViolationIsItsTypedRefusal(violation: "ball carrying a typed threshold", reason: OutOfRange) [< 1 ms]
+  Failed CuriousContraptions.Tests.PayloadInstanceTests.AGenericRecordCarryingAnyTypedFieldIsRefused(part: "bowling", field: Threshold, value: NaN) [< 1 ms]
+  Failed CuriousContraptions.Tests.PayloadInstanceTests.AGenericRecordCarryingAnyTypedFieldIsRefused(part: "ramp", field: Threshold, value: 4) [< 1 ms]
+  Failed CuriousContraptions.Tests.PayloadInstanceTests.AGenericRecordCarryingAnyTypedFieldIsRefused(part: "bowling", field: Threshold, value: 4) [< 1 ms]
+  Failed CuriousContraptions.Tests.PayloadInstanceTests.AGenericRecordCarryingAnyTypedFieldIsRefused(part: "domino", field: Threshold, value: 4) [< 1 ms]
+  Failed CuriousContraptions.Tests.PayloadInstanceTests.AGenericRecordCarryingAnyTypedFieldIsRefused(part: "ball", field: Threshold, value: 4) [< 1 ms]
+Failed!  - Failed:     8, Passed:   157, Skipped:     0, Total:   165, Duration: 10 s - CuriousContraptions.tests.dll (net10.0)
+Passed!  - Failed:     0, Passed:    91, Skipped:     0, Total:    91, Duration: 271 ms - BundleElements.Tests.dll (net10.0)

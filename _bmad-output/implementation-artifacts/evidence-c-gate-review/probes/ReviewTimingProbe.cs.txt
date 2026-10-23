@@ -1,0 +1,57 @@
+using System.Globalization;
+using CuriousContraptions.Gpu;
+
+namespace CuriousContraptions.Tests;
+
+// C-Gate REVIEW probe (throwaway worktree only): per-phase first-Run timing in a fresh process.
+public sealed class ReviewTimingProbe
+{
+    [Fact]
+    public async Task Phases()
+    {
+        if (Environment.GetEnvironmentVariable("REVIEW_TIMING_OUT") is not { } output) return;
+        var mode = Environment.GetEnvironmentVariable("REVIEW_WARMUP") ?? "empty";
+        var watch = System.Diagnostics.Stopwatch.StartNew();
+        await using var device = new WorkshopGpuDevice(new CuriousContraptions.Simulation.BrowserGpuTransport(), new(101, 206));
+        await device.Prepare();
+        var prepared = watch.Elapsed.TotalMilliseconds;
+        var settings = WorkshopCadenceSettings.Default();
+        if (mode != "none")
+        {
+            WorkshopConstruction warm = mode == "element" ? ElementWarmup(settings) : new(new(2), settings, new([]));
+            await using var warmup = new WorkshopSimulation(device, new WorkshopPhysicsEngineTests.StepClock(), settings, new(1),
+                new WorkshopPhysicsEngineTests.NoInstallation(), GpuDeviceOwnership.Borrowed);
+            Assert.Equal(WorkshopCommandOutcome.Applied, (await warmup.Initialize()).Outcome);
+            Assert.Equal(WorkshopCommandOutcome.Applied, (await warmup.Construct(warm)).Outcome);
+            Assert.Equal(WorkshopCommandOutcome.Applied, (await warmup.Run()).Outcome);
+            for (var step = 0; step < 5; step++) Assert.Equal(WorkshopCommandOutcome.Applied, (await warmup.Advance()).Outcome);
+            Assert.Equal(WorkshopCommandOutcome.Applied, (await warmup.Reset()).Outcome);
+        }
+        var warmed = watch.Elapsed.TotalMilliseconds;
+        await using var simulation = new WorkshopSimulation(device, new WorkshopPhysicsEngineTests.StepClock(), settings, new(1),
+            new WorkshopPhysicsEngineTests.NoInstallation(), GpuDeviceOwnership.Borrowed);
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Initialize()).Outcome);
+        var t0 = watch.Elapsed.TotalMilliseconds;
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Construct(LatchSupplyFixtureTests.Machine(null, payload: true))).Outcome);
+        var t1 = watch.Elapsed.TotalMilliseconds;
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Run()).Outcome);
+        var t2 = watch.Elapsed.TotalMilliseconds;
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Advance()).Outcome);
+        var t3 = watch.Elapsed.TotalMilliseconds;
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Advance()).Outcome);
+        var t4 = watch.Elapsed.TotalMilliseconds;
+        await File.AppendAllTextAsync(output, string.Create(CultureInfo.InvariantCulture,
+            $"mode={mode} prepare={prepared:F2} warm={warmed - prepared:F2} construct={t1 - t0:F2} run={t2 - t1:F2} adv1={t3 - t2:F2} adv2={t4 - t3:F2} runToFirstTick={t3 - t1:F2}\n"),
+            TestContext.Current.CancellationToken);
+    }
+
+    private static WorkshopConstruction ElementWarmup(WorkshopCadenceSettings settings)
+    {
+        var battery = WorkshopInput.Battery(new(1), -2, 0, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default);
+        var plate = WorkshopInput.PressurePlate(new(2), 0, 0, 0, 0, 0, 0, 1, WorkshopPressurePlate.PlacedMinimumMass);
+        var gate = WorkshopInput.Generic(PartId.PoweredGate, new(3), 2, 0, 0, 0, 0, 0, 1);
+        return new(new(2), settings, new([battery, plate, gate]), Connections: new([
+            new(battery.Id, WorkshopSocket.Supply, plate.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical),
+            new(plate.Id, WorkshopSocket.Supply, gate.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical)]));
+    }
+}

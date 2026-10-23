@@ -1,0 +1,28 @@
+candidate-production  WorkshopDomino|DominoMaterial|MapDomino (word) : 1
+./TODO.md:23:**In flight (deletion lane):** 9A.32 Domino (position 38) has an uncommitted native candidate on base 2065d3c5 in worktree `story-9a-32`. The orientation sensor is selected by a declared `SignalOrientationDescriptor`; `WorkshopDomino`/`DominoMaterial` and the four record wire fields are deleted, and the Known list goes from 207 to 181 rows. Traces, lessons and placed solutions are bit-identical to the record path. Old saves are refused with a typed reason when their fields moved or a field lies beyond the current instance table, which covers every base-encoder save holding a generic part. The domino_effect authored solution is corrected and solves at every precision. Axial spin is decided: total-rotation behaviour preserved, and the tilt rule stays open in CAT-023 §6 ([spec and current state](_bmad-output/implementation-artifacts/spec-9a-32-domino.md#current-state)). Next: independent review. Browser cases pending.
+base-production       WorkshopDomino|DominoMaterial|MapDomino (word) : 17
+candidate-production  WorkshopInput.Domino : 0
+base-production       WorkshopInput.Domino : 0
+candidate "domino" in engine/gpu + MachineWorld.Gpu.cs: 0
+base "domino" in engine/gpu + MachineWorld.Gpu.cs: 3
+candidate-production  InstanceRecord.(Add)?(Mass|Bounce|Friction|HalfExtents)|AuthoredScalar.(Mass|Bounce|Friction) : 0
+candidate all-tree (incl tests) same pattern: 0
+candidate (r|inst).(Mass|Bounce|Friction|HalfExtents) in wire+prevalidation: 0
+candidate "half_extents" in content+engine: 0
+base "half_extents" in content+engine: 30
+candidate content keys "mass"|"bounce"|"friction"|Mass/Bounce/Friction scalars in content/puzzles.json:
+4
+base same: 116
+WorkshopDomino.cs files: candidate 0, base 2
+schema InstanceRecord mass/bounce/half_extents/friction: 0
+TS workshop-wire.ts mass/bounce/halfExtents/friction accessors: 0
+new production identifiers containing domino (diff added lines, non-test, non-doc):
++**In flight (deletion lane):** 9A.32 Domino (position 38) has an uncommitted native candidate on base 2065d3c5 in worktree `story-9a-32`. The orientation sensor is selected by a declared `SignalOrientationDescriptor`; `WorkshopDomino`/`DominoMaterial` and the four record wire fields are deleted, and the Known list goes from 207 to 181 rows. Traces, lessons and placed solutions are bit-identical to the record path. Old saves are refused with a typed reason when their fields moved or a field lies beyond the current instance table, which covers every base-encoder save holding a generic part. The domino_effect authored solution is corrected and solves at every precision. Axial spin is decided: total-rotation behaviour preserved, and the tilt rule stays open in CAT-023 §6 ([spec and current state](_bmad-output/implementation-artifacts/spec-9a-32-domino.md#current-state)). Next: independent review. Browser cases pending.
++++ b/elements/Domino/DominoElementDeclaration.cs
++public sealed class DominoElementDeclaration : IMechanicalElement, IOrientationSensorElement, ISceneGeometryElement
++    /// sphere collider and no slider. A dynamic box (the domino tile) or a slider body is dynamic but no payload.</summary>
+== base control re-run (git grep -P; first run used ERE without  support)
+base WorkshopInput.Domino: 1
+base WorkshopDomino|DominoMaterial|MapDomino (word): 17
+base InstanceRecord.(Add)?(Mass|Bounce|Friction|HalfExtents)|AuthoredScalar.(Mass|Bounce|Friction): 8
+base (r|inst).(Mass|Bounce|Friction|HalfExtents) in wire+prevalidation: 7

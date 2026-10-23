@@ -1,0 +1,7 @@
+slots=16777216 capacity=16777216 byteLength=1073741888
+slots=16777217 capacity=33554432 byteLength=OverflowException
+slots=33554432 capacity=33554432 byteLength=OverflowException
+slots=33554433 capacity=67108864 byteLength=OverflowException
+slots=67108864 capacity=67108864 byteLength=OverflowException
+slots=67108865 capacity=ArgumentOutOfRangeException byteLength=-
+MaximumCapacity=67108864

@@ -1,0 +1,33 @@
+using CuriousContraptions.Gpu;
+
+namespace CuriousContraptions.Tests;
+
+// Reviewer probe (C-Clock review, throwaway candidate worktree only): the oscillator arm's own "more than one upstream source" refusal,
+// reached through a switched contact (a latch's PowerIn admits two suppliers), which construction validation does not refuse.
+public sealed class ReviewerTwoSourceProbe
+{
+    private static WorkshopConnection Supply(GpuBodyId source, GpuBodyId target) =>
+        new(source, WorkshopSocket.Supply, target, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical);
+
+    private static WorkshopConstruction Bench(bool twoBatteries)
+    {
+        IWorkshopInstance[] parts = [PlacedParts.Battery(new(1), -6, 3, 0), PlacedParts.Battery(new(2), -6, 6, 0),
+            WorkshopInput.Latch(new(3), -3, 3, 0, 0, 0, 0, 1), PlacedParts.Clock(new(4), 0, 3, 0, 0, 0, 0, 1, 1f)];
+        return new(new(2), WorkshopCadenceSettings.Default(), new(parts),
+            Connections: twoBatteries ? new(Supply(new(1), new(3)), Supply(new(2), new(3)), Supply(new(3), new(4)))
+                : new(Supply(new(1), new(3)), Supply(new(3), new(4))));
+    }
+
+    [Fact]
+    public void ConstructionValidationAdmitsTwoSuppliersOnTheLatch() => Bench(true).Validate();
+
+    [Fact]
+    public void TwoUpstreamSourcesThroughALatchAreRefusedByTheOscillatorArm() =>
+        Assert.Equal(WorkshopEditRejection.PowerInputSupplied,
+            Assert.Throws<WorkshopEditRejectedException>(() => WorkshopActivationCompiler.Compile(Bench(true))).Reason);
+
+    [Fact]
+    public void OneUpstreamSourceThroughALatchCompiles() =>
+        Assert.Equal(new GpuBodyId(1), Assert.Single(WorkshopActivationCompiler.Compile(Bench(false)).Nodes.ToArray(),
+            node => node.Owner == new GpuBodyId(4)).PowerSource);
+}

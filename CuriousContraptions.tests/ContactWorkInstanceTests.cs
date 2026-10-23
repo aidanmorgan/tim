@@ -170,7 +170,7 @@ public sealed class ContactWorkInstanceTests
     [InlineData(false)]
     public async Task ADirectlyWiredBatteryRechargesTheStoreAndAnUnwiredOneDoesNot(bool wired)
     {
-        var battery = WorkshopInput.Battery(Source, 3, 1, 0, 0, 0, 0, 1, new(new(3600f), new(10f), 1f, ElectricalEnable.Enabled));
+        var battery = PlacedParts.Battery(Source, 3, 1, 0, powerLimit: 10f);
         var bench = Drop(PartId.BowlingBall, 6, 8f);
         bench = bench with { Instances = bench.Instances.With(battery) };
         if (wired) bench = bench with { Connections = new(new WorkshopConnection(Source, WorkshopSocket.Supply, Owner, WorkshopSocket.PowerIn,
@@ -189,7 +189,7 @@ public sealed class ContactWorkInstanceTests
     [Fact]
     public void SwitchedStoreRoutingIsRefused()
     {
-        var battery = WorkshopInput.Battery(Source, 3, 1, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default);
+        var battery = PlacedParts.Battery(Source, 3, 1, 0);
         var toggle = WorkshopInput.Generic(PartId.ImpactSwitch, new(4), 5, 1, 0, 0, 0, 0, 1);
         var bench = Free(PlacedParts.Bumper(Owner, 0, 3, 0), battery, toggle) with { Connections = new(
             new WorkshopConnection(Source, WorkshopSocket.Supply, toggle.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical),

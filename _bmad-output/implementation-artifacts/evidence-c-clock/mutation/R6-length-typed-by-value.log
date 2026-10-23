@@ -1,0 +1,28 @@
+== 2026-10-23T15:24:41Z diff under test:
+ engine/gpu/WorkshopWireFlatBuffers.cs              | 14 +++------
+ engine/gpu/WorkshopWireGenerated.cs                | 19 +++++-------
+ 13 files changed, 80 insertions(+), 81 deletions(-)
+-            Presentation(entry.Presentation, entry.Metadata.Parameters, entry.Ports, entry.Electrical);
++            Presentation(entry.Presentation, entry.Metadata.Parameters, entry.Ports, entry.Electrical, entry.Signal);
+-            if (entry.Signal is { } signal) Signal(signal, entry.Metadata.Parameters, entry.Ports, entry.Mechanical, entry.Colliders);
++            if (entry.Signal is { } signal) Signal(signal, entry.Metadata.Parameters, entry.Ports, entry.Mechanical, entry.Electrical, entry.Colliders);
+-        private void Presentation(ElementPresentation value, IReadOnlyList<ParameterDescriptor> parameters, IReadOnlyList<PortDescriptor> ports, ElectricalPayload? electrical)
++        private void Presentation(ElementPresentation value, IReadOnlyList<ParameterDescriptor> parameters, IReadOnlyList<PortDescriptor> ports, ElectricalPayload? electrical,
++            SignalPayload? signal)
++                // A committed oscillator binding reads the row only a declared oscillator compiles.
++                if (binding.Driver is PresentationDriver.CommittedOscillatorPhase or PresentationDriver.CommittedOscillatorPulse &&
++                    signal?.Oscillator is null)
++                    OutOfRange("Presentation.Oscillator");
+-            MechanicalPayload? mechanical, IReadOnlyList<ColliderDescriptor> colliders)
++            MechanicalPayload? mechanical, ElectricalPayload? electrical, IReadOnlyList<ColliderDescriptor> colliders)
+-                    (signal.Orientation is null ? 0 : 1) + (signal.ContactLoad is null ? 0 : 1) > 1)
++                    (signal.Orientation is null ? 0 : 1) + (signal.ContactLoad is null ? 0 : 1) + (signal.Oscillator is null ? 0 : 1) > 1)
++            if (signal.Oscillator is { } oscillator)
++            {
++                // The interval is a declared Real second parameter with a finite positive admitted minimum (never a zero-tick interval).
++                if (!parameters.Any(parameter => parameter.Key == oscillator.IntervalParameter && parameter.Kind == ParameterKind.Real &&
++                        parameter.Unit == ParameterUnit.Second && float.IsFinite(parameter.Minimum) && parameter.Minimum > 0f))
+    0 Warning(s)
+    0 Error(s)
+CuriousContraptions.Tests.DeclaredOscillatorTests.ANegativeZeroLengthIsATypedFieldOnAGenericRecord(negative: True) [FAIL]
+Failed!  - Failed:     1, Passed:   114, Skipped:     0, Total:   115, Duration: 1 s - CuriousContraptions.tests.dll (net10.0)

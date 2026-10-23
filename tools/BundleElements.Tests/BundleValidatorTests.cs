@@ -153,12 +153,14 @@ public sealed class BundleValidatorTests
         var supply = timer with
         {
             Domains = [SimulationDomain.Electrical], Signal = null,
+            Metadata = timer.Metadata with { Parameters = StoreParameters },
             Ports = [new(PortSocket.Supply, SimulationDomain.Electrical, PortDirection.Output, null, Vector3.Zero, Vector3.UnitX)],
             Electrical = new([new("source", Abstractions.Electrical.ElectricalRole.Source, 12f, .1f, 0f, 100f)],
-                new(Abstractions.Electrical.SupplyCapabilityKind.Source, null, PortSocket.Supply))
+                new(Abstractions.Electrical.SupplyCapabilityKind.Source, null, PortSocket.Supply, Store: Store))
         };
         var logic=supply with
         {
+            Metadata=timer.Metadata,
             Ports=[
                 new(PortSocket.FirstIn,SimulationDomain.Electrical,PortDirection.Input,null,Vector3.Zero,Vector3.UnitX),
                 new(PortSocket.SecondIn,SimulationDomain.Electrical,PortDirection.Input,null,Vector3.Zero,Vector3.UnitX),
@@ -172,7 +174,8 @@ public sealed class BundleValidatorTests
         Assert.Empty(Check(logic with {Electrical=logic.Electrical! with {Supply=logic.Electrical.Supply!.Value with {Operation=Abstractions.Electrical.LogicGateOperation.Nand}}}));
         Assert.Empty(Check(logic with {Electrical=logic.Electrical! with {Supply=logic.Electrical.Supply!.Value with {Operation=Abstractions.Electrical.LogicGateOperation.Nor}}}));
         Assert.Empty(Check(logic with {Electrical=logic.Electrical! with {Supply=logic.Electrical.Supply!.Value with {Operation=Abstractions.Electrical.LogicGateOperation.Or}}}));
-        Assert.NotEmpty(Check(logic with {Electrical=logic.Electrical! with {Supply=logic.Electrical.Supply!.Value with {Operation=(Abstractions.Electrical.LogicGateOperation)4}}}));
+        Assert.Empty(Check(logic with {Electrical=logic.Electrical! with {Supply=logic.Electrical.Supply!.Value with {Operation=Abstractions.Electrical.LogicGateOperation.Xor}}}));
+        Assert.NotEmpty(Check(logic with {Electrical=logic.Electrical! with {Supply=logic.Electrical.Supply!.Value with {Operation=(Abstractions.Electrical.LogicGateOperation)5}}}));
         Assert.NotEmpty(Check(logic with {Electrical=logic.Electrical! with {Supply=logic.Electrical.Supply!.Value with {Operation=(Abstractions.Electrical.LogicGateOperation)255}}}));
         Assert.NotEmpty(Check(logic with {Ports=logic.Ports.Where(port=>port.Socket!=PortSocket.SecondIn).ToArray()}));
         Assert.NotEmpty(Check(supply with {Electrical=supply.Electrical! with {Supply=supply.Electrical.Supply!.Value with {Operation=Abstractions.Electrical.LogicGateOperation.And}}}));
@@ -187,6 +190,87 @@ public sealed class BundleValidatorTests
     private static string[] Errors(params (string Package, IPuzzleElementDeclaration Declaration)[] packages) =>
         PackageValidator.Validate(packages.Select(package => new BundlePackage(package.Package, package.Declaration)).ToArray())
             .Select(error => error.ToString()).ToArray();
+
+    // Story 9A.39: a Source declares its finite store by four of its own parameters, inside the electrical source envelope.
+    private static readonly ParameterDescriptor[] StoreParameters =
+    [
+        new("capacity", ParameterUnit.Joule, ParameterKind.Real, 60f, 14400f, 3600f, [], ParameterEditorPolicy.Clamp),
+        new("power_limit", ParameterUnit.Watt, ParameterKind.Real, 10f, 480f, 120f, [], ParameterEditorPolicy.Clamp),
+        new("initial_charge", ParameterUnit.None, ParameterKind.Real, 0f, 1f, 1f, [], ParameterEditorPolicy.Clamp),
+        new("enabled", ParameterUnit.None, ParameterKind.Choice, 0f, 1f, 1f, ["Disabled", "Enabled"], RunEdit: ParameterRunEdit.RunControl)
+    ];
+    private static readonly Abstractions.Electrical.SupplySourceStoreDescriptor Store = new("capacity", "power_limit", "initial_charge", "enabled");
+
+    private static Bundle.BundleEntry Source(IReadOnlyList<ParameterDescriptor> parameters, Abstractions.Electrical.SupplySourceStoreDescriptor? store)
+    {
+        var entry = Bundle.BundleSchema.Entry(new Fixture { Parameters = parameters });
+        return entry with
+        {
+            Domains = [SimulationDomain.Mechanical, SimulationDomain.Electrical],
+            Ports = [new(PortSocket.Supply, SimulationDomain.Electrical, PortDirection.Output, null, Vector3.Zero, Vector3.UnitX)],
+            Electrical = new([new("source", Abstractions.Electrical.ElectricalRole.Source, 12f, .1f, 0f, 100f)],
+                new(Abstractions.Electrical.SupplyCapabilityKind.Source, null, PortSocket.Supply, Store: store))
+        };
+    }
+
+    private static IReadOnlyList<Bundle.BundleError> CheckSource(IReadOnlyList<ParameterDescriptor> parameters,
+        Abstractions.Electrical.SupplySourceStoreDescriptor? store) => Bundle.BundleValidator.Validate([new("Fixture", Source(parameters, store))]);
+
+    private static ParameterDescriptor[] Replace(string key, Func<ParameterDescriptor, ParameterDescriptor> change) =>
+        StoreParameters.Select(parameter => parameter.Key == key ? change(parameter) : parameter).ToArray();
+
+    [Fact]
+    public void ASourceStoreNamesFourDistinctTypedParametersInsideTheEnvelope()
+    {
+        Assert.Empty(CheckSource(StoreParameters, Store));
+        // The envelope's own bounds are admitted.
+        Assert.Empty(CheckSource(Replace("power_limit", p => p with { Minimum = 10f, Maximum = 480f, Default = 10f }), Store));
+        foreach (var (name, parameters, store) in new (string, ParameterDescriptor[], Abstractions.Electrical.SupplySourceStoreDescriptor?)[]
+        {
+            ("missing store", StoreParameters, null),
+            ("absent capacity key", StoreParameters.Where(p => p.Key != "capacity").ToArray(), Store),
+            ("unknown key", StoreParameters, Store with { PowerLimit = "power" }),
+            ("duplicated key", [.. StoreParameters, StoreParameters[0]], Store),
+            ("two roles share one key", StoreParameters, Store with { InitialCharge = "capacity" }),
+            ("capacity in watts", Replace("capacity", p => p with { Unit = ParameterUnit.Watt }), Store),
+            ("capacity below 60 J", Replace("capacity", p => p with { Minimum = 59f }), Store),
+            ("capacity above 14400 J", Replace("capacity", p => p with { Maximum = 14401f }), Store),
+            ("power in joules", Replace("power_limit", p => p with { Unit = ParameterUnit.Joule }), Store),
+            ("power below 10 W", Replace("power_limit", p => p with { Minimum = 9.99f }), Store),
+            ("power above 480 W", Replace("power_limit", p => p with { Maximum = 480.5f }), Store),
+            ("charge above 1", Replace("initial_charge", p => p with { Maximum = 1.5f }), Store),
+            ("charge with a unit", Replace("initial_charge", p => p with { Unit = ParameterUnit.Metre }), Store),
+            ("whole-number capacity", Replace("capacity", p => p with { Kind = ParameterKind.WholeNumber }), Store),
+            ("enable is Real", Replace("enabled", p => p with { Kind = ParameterKind.Real, Options = [] }), Store),
+            ("enable is Boolean", Replace("enabled", p => p with { Kind = ParameterKind.Boolean, Options = [] }), Store),
+            ("enable options inverted", Replace("enabled", p => p with { Options = ["Enabled", "Disabled"] }), Store),
+            ("enable option misnamed", Replace("enabled", p => p with { Options = ["Off", "On"] }), Store),
+            ("enable with three options", Replace("enabled", p => p with { Maximum = 2f, Options = ["Disabled", "Enabled", "Boost"] }), Store),
+        })
+            Assert.True(CheckSource(parameters, store).Count > 0, name);
+        // A store on anything but a Source is refused.
+        var gate = Source(StoreParameters, Store);
+        Assert.NotEmpty(Bundle.BundleValidator.Validate([new("Fixture", gate with { Electrical = gate.Electrical! with
+            { Supply = new(Abstractions.Electrical.SupplyCapabilityKind.SwitchedContact, PortSocket.PowerIn, PortSocket.Supply, Store: Store) } })]));
+    }
+
+    [Fact]
+    public void ARunControlIsDeclaredOnlyOnASourceStoreEnableAndAChoiceIsNeverClamped()
+    {
+        Assert.Empty(CheckSource(StoreParameters, Store));
+        // The enable state may also be build-only: the package then offers no run-time control.
+        Assert.Empty(CheckSource(Replace("enabled", p => p with { RunEdit = ParameterRunEdit.BuildOnly }), Store));
+        Assert.Contains(CheckSource(Replace("capacity", p => p with { RunEdit = ParameterRunEdit.RunControl }), Store),
+            error => error.Detail.Contains("Metadata.Parameters[0].RunEdit", StringComparison.Ordinal));
+        Assert.NotEmpty(CheckSource(Replace("enabled", p => p with { RunEdit = (ParameterRunEdit)7 }), Store));
+        Assert.Contains(CheckSource(Replace("enabled", p => p with { EditorPolicy = ParameterEditorPolicy.Clamp }), Store),
+            error => error.Detail.Contains("Metadata.Parameters[3].EditorPolicy", StringComparison.Ordinal));
+        // Off a Source: no parameter may be run-editable.
+        Assert.NotEmpty(Errors(("Fixture", new Fixture { Parameters =
+            [new("participation", ParameterUnit.None, ParameterKind.Choice, 0f, 1f, 1f, ["Disabled", "Enabled"], RunEdit: ParameterRunEdit.RunControl)] })));
+        Assert.NotEmpty(Errors(("Fixture", new Fixture { Parameters =
+            [new("participation", ParameterUnit.None, ParameterKind.Choice, 0f, 1f, 1f, ["Disabled", "Enabled"], ParameterEditorPolicy.Clamp)] })));
+    }
 
     [Fact]
     public void AValidPackageIsAdmitted() => Assert.Empty(Errors(("Fixture", new Fixture())));
@@ -309,6 +393,19 @@ public sealed class BundleValidatorTests
         Assert.Empty(Errors(("FixtureSignal", new SignalFixture { Footprint = new(0, 0, 0), Colliders = [] })));
     }
 
+    // Story 9A.22: a declared event kind is a defined record kind, declared once; None is no record.
+    [Fact]
+    public void AnEventKindThatIsNoneUndefinedOrRepeatedIsRefused()
+    {
+        Assert.Empty(Errors(("FixtureEvents", new Fixture { Events = [new(SimulationEventKind.Impact), new(SimulationEventKind.Captured)] })));
+        Assert.Equal(["BUNDLE003 FixtureEvents.Events[0].Kind: undefined enum value"],
+            Errors(("FixtureEvents", new Fixture { Events = [new(SimulationEventKind.None)] })));
+        Assert.Equal(["BUNDLE003 FixtureEvents.Events[0].Kind: undefined enum value"],
+            Errors(("FixtureEvents", new Fixture { Events = [new((SimulationEventKind)9)] })));
+        Assert.Equal(["BUNDLE006 FixtureEvents.Events[1].Kind: outside its declared range"],
+            Errors(("FixtureEvents", new Fixture { Events = [new(SimulationEventKind.Impact), new(SimulationEventKind.Impact)] })));
+    }
+
     [Fact]
     public void ADefaultOutsideItsBoundsIsRefused() =>
         Assert.Equal(["BUNDLE006 FixtureRange.Metadata.Parameters[0].Default: outside its declared range"],
@@ -350,10 +447,293 @@ public sealed class BundleValidatorTests
                 Sliders = [Fixture.Slider() with { MovingBody = Fixture.Slider().MovingBody with { Mass = float.NaN } }]
             })));
 
+    // C-Gate (9A.19): a supplied drive is declaration data; the bundle refuses one the runtime could not admit.
+    private static string[] DriveErrors(Abstractions.Mechanical.PrismaticDriveDescriptor drive, bool powerIn = true, int sliders = 1) =>
+        Errors(("FixtureDrive", new Fixture
+        {
+            Parameters = Fixture.SpringParameters,
+            Ports = powerIn ? [Fixture.PowerIn] : [],
+            Sliders = Enumerable.Repeat(Fixture.Slider() with { Drive = drive }, sliders).ToArray()
+        }));
+
+    [Fact]
+    public void ADrivenSliderWithAPowerInIsAdmitted() => Assert.Empty(DriveErrors(Fixture.Drive()));
+
+    [Fact]
+    public void ADrivenSliderWithoutAPowerInIsRefused() =>
+        Assert.Equal(["BUNDLE007 FixtureDrive.Sliders[0].Drive: a supplied drive requires an electrical PowerIn input"],
+            DriveErrors(Fixture.Drive(), powerIn: false));
+
+    [Fact]
+    public void OnePowerInDrivesOneSlider() =>
+        Assert.Equal(["BUNDLE006 FixtureDrive.Sliders[1].Drive: outside its declared range"], DriveErrors(Fixture.Drive(), sliders: 2));
+
+    [Theory]
+    [InlineData("Target", .1f)]                     // above the slider's 0 upper limit
+    [InlineData("Target", -.3f)]                    // below its -0.25 lower limit
+    [InlineData("MaxSpeed", 0f)]
+    [InlineData("MaxSpeed", 65f)]                   // beyond the envelope's 64 m/s
+    [InlineData("StoppingAcceleration", -1f)]
+    [InlineData("MaxEffort", float.NaN)]
+    [InlineData("MaxPower", float.PositiveInfinity)]
+    public void ADriveValueOutsideItsDomainIsRefused(string field, float value)
+    {
+        var fixedValue = Abstractions.Mechanical.MechanicalValue.Fixed(value);
+        var drive = field switch
+        {
+            "Target" => Fixture.Drive() with { Target = fixedValue },
+            "MaxSpeed" => Fixture.Drive() with { MaxSpeed = fixedValue },
+            "StoppingAcceleration" => Fixture.Drive() with { StoppingAcceleration = fixedValue },
+            "MaxEffort" => Fixture.Drive() with { MaxEffort = fixedValue },
+            "MaxPower" => Fixture.Drive() with { MaxPower = fixedValue },
+            _ => throw new ArgumentOutOfRangeException(nameof(field))
+        };
+        var error = Assert.Single(DriveErrors(drive));
+        Assert.Contains($"FixtureDrive.Sliders[0].Drive.{field}", error, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void ADriveValueNamingAnUndeclaredParameterIsRefused() =>
+        Assert.Equal(["BUNDLE007 FixtureDrive.Sliders[0].Drive.MaxEffort.Parameter: 'effort' names no declared Real parameter"],
+            DriveErrors(Fixture.Drive() with { MaxEffort = Abstractions.Mechanical.MechanicalValue.FromParameter("effort") }));
+
     [Fact]
     public void AnAssemblyWithTwoDeclarationsIsRefused() =>
         Assert.Equal(["BUNDLE005 FixturePair: declares 2 elements; a package declares exactly one"],
             PackageDiscovery.FromAssembly("FixturePair", typeof(Fixture).Assembly).Errors.Select(error => error.ToString()));
+
+    // C-Lamp+Detector (D3): the indicator names a declared Signal input admitting a level; the passage aperture is finite and in range
+    // (radius 0.01–10 m, clearance 0.001–10 m) on a static frame with a pulse ActivationOut; and at most one node-selecting capability
+    // (contact, timer, indicator, passage) is declared. Every refusal is a BundleError naming its field, never a throw. Controls: the
+    // shipped lamp and detector, and each range end.
+    [Fact]
+    public void IndicatorAndPassageCapabilitiesAreTypedRangedAndExclusive()
+    {
+        var generated = BundleGenerator.Generate(TestRepository.Root);
+        var bundle = Bundle.BundleSchema.Read(generated.Json!).Elements;
+        var lamp = bundle.Single(entry => entry.Metadata.Id == "lamp");
+        var detector = bundle.Single(entry => entry.Metadata.Id == "ball_detector");
+        static IReadOnlyList<Bundle.BundleError> Check(Bundle.BundleEntry candidate) => Bundle.BundleValidator.Validate([new("Candidate", candidate)]);
+        static void Refused(Bundle.BundleEntry candidate, string field, Bundle.BundleErrorCode code = Bundle.BundleErrorCode.OutOfRange)
+        {
+            var error = Assert.Single(Check(candidate));
+            Assert.Equal((code, true), (error.Code, error.Detail.StartsWith("Candidate." + field + ":", StringComparison.Ordinal)));
+        }
+        Assert.Empty(Check(lamp));
+        Assert.Empty(Check(detector));
+        Assert.Equal(new SignalIndicatorDescriptor(PortSocket.ActivationIn), lamp.Signal!.Indicator);
+        Assert.Equal(new SignalPassageDescriptor(.65f, .02f), detector.Signal!.Passage);
+
+        // The indicator's input: declared, Signal, an input, and admitting a level.
+        Refused(lamp with { Signal = lamp.Signal with { Indicator = new(PortSocket.SetIn) } }, "Indicator.Input");
+        Refused(lamp with { Signal = lamp.Signal with { Indicator = new((PortSocket)255) } }, "Indicator.Input", Bundle.BundleErrorCode.UndefinedEnum);
+        Refused(lamp with { Ports = [lamp.Ports[0] with { Signal = PortSignalKind.Pulse }] }, "Indicator.Input");
+        var levelInputs = lamp with { Ports = [.. lamp.Ports, new(PortSocket.SetIn, SimulationDomain.Signal, PortDirection.Input, PortSignalKind.Level, Vector3.Zero, Vector3.UnitY)] };
+        Assert.Empty(Check(levelInputs with { Signal = lamp.Signal with { Indicator = new(PortSocket.SetIn) } }));
+
+        // The aperture: finite, each end of each range admitted, one step beyond refused.
+        Bundle.BundleEntry Aperture(float radius, float clearance) => detector with { Signal = detector.Signal with { Passage = new(radius, clearance) } };
+        foreach (var (radius, clearance) in new[] { (.01f, .001f), (10f, 10f) }) Assert.Empty(Check(Aperture(radius, clearance)));
+        Refused(Aperture(float.NaN, .02f), "Passage.ApertureRadius", Bundle.BundleErrorCode.NonFinite);
+        Refused(Aperture(.65f, float.PositiveInfinity), "Passage.RearmClearance", Bundle.BundleErrorCode.NonFinite);
+        Refused(Aperture(.0099f, .02f), "Passage.ApertureRadius");
+        Refused(Aperture(10.01f, .02f), "Passage.ApertureRadius");
+        Refused(Aperture(.65f, .00099f), "Passage.RearmClearance");
+        Refused(Aperture(.65f, 10.01f), "Passage.RearmClearance");
+        // The aperture needs its pulse ActivationOut and a static frame.
+        Refused(detector with { Ports = [] }, "Passage.Ports");
+        Refused(detector with { Ports = [detector.Ports[0] with { Signal = PortSignalKind.Level }] }, "Passage.Ports");
+        Refused(detector with { Mechanical = detector.Mechanical! with { KinematicMode = Abstractions.Mechanical.KinematicMode.Dynamic } }, "Passage.Frame");
+
+        // One node-selecting capability: a valid indicator beside the aperture is refused, and only for that.
+        var both = detector with
+        {
+            Ports = [.. detector.Ports, new(PortSocket.ActivationIn, SimulationDomain.Signal, PortDirection.Input, PortSignalKind.Level, Vector3.Zero, -Vector3.UnitY)],
+            Signal = detector.Signal with { Indicator = new(PortSocket.ActivationIn) }
+        };
+        Refused(both, "Capability");
+        Assert.Empty(Check(both with { Signal = both.Signal! with { Passage = null } }));
+        var contact = lamp with
+        {
+            Signal = lamp.Signal with { Triggers = [], Contact = new("speed") },
+            Metadata = lamp.Metadata with { Parameters = [new("speed", ParameterUnit.MetrePerSecond, ParameterKind.Real, 0f, 64f, .8f, [], ParameterEditorPolicy.Clamp)] },
+            Ports = [.. lamp.Ports, new(PortSocket.ActivationOut, SimulationDomain.Signal, PortDirection.Output, PortSignalKind.Pulse, Vector3.Zero, Vector3.UnitY)]
+        };
+        Refused(contact, "Capability");
+        Assert.Empty(Check(contact with { Signal = contact.Signal! with { Indicator = null } }));
+    }
+
+    // 9A.32 (D1): the orientation threshold is finite and within 4–179° (the compiled half-angle cosine's range), on a Dynamic body with
+    // a pulse ActivationOut, and it is the fifth node-selecting capability. Every refusal is a BundleError naming its field, never a
+    // throw. Controls: the shipped domino and each range end.
+    [Fact]
+    public void TheOrientationThresholdIsTypedRangedOnADynamicPulseSourceAndExclusive()
+    {
+        var generated = BundleGenerator.Generate(TestRepository.Root);
+        var bundle = Bundle.BundleSchema.Read(generated.Json!).Elements;
+        var domino = bundle.Single(entry => entry.Metadata.Id == "domino");
+        static IReadOnlyList<Bundle.BundleError> Check(Bundle.BundleEntry candidate) => Bundle.BundleValidator.Validate([new("Candidate", candidate)]);
+        static void Refused(Bundle.BundleEntry candidate, string field, Bundle.BundleErrorCode code = Bundle.BundleErrorCode.OutOfRange)
+        {
+            var error = Assert.Single(Check(candidate));
+            Assert.Equal((code, true), (error.Code, error.Detail.StartsWith("Candidate." + field + ":", StringComparison.Ordinal)));
+        }
+        Assert.Empty(Check(domino));
+        Assert.Equal(new SignalOrientationDescriptor(45f), domino.Signal!.Orientation);
+
+        Bundle.BundleEntry Threshold(float degrees) => domino with { Signal = domino.Signal with { Orientation = new(degrees) } };
+        foreach (var degrees in new[] { 4f, 179f }) Assert.Empty(Check(Threshold(degrees)));
+        Refused(Threshold(MathF.BitDecrement(4f)), "Orientation.ThresholdDegrees");
+        Refused(Threshold(MathF.BitIncrement(179f)), "Orientation.ThresholdDegrees");
+        Refused(Threshold(float.NaN), "Orientation.ThresholdDegrees", Bundle.BundleErrorCode.NonFinite);
+        Refused(Threshold(float.PositiveInfinity), "Orientation.ThresholdDegrees", Bundle.BundleErrorCode.NonFinite);
+        // The threshold needs its pulse ActivationOut and a Dynamic body.
+        Refused(domino with { Ports = [] }, "Orientation.Ports");
+        Refused(domino with { Ports = [domino.Ports[0] with { Signal = PortSignalKind.Level }] }, "Orientation.Ports");
+        Refused(domino with { Ports = [domino.Ports[0] with { Direction = PortDirection.Input }] }, "Orientation.Ports");
+        Refused(domino with { Mechanical = domino.Mechanical! with { KinematicMode = Abstractions.Mechanical.KinematicMode.Static } }, "Orientation.Body");
+        Refused(domino with { Mechanical = null }, "Orientation.Body");
+
+        // One node-selecting capability: a valid indicator beside the threshold is refused, and only for that.
+        var both = domino with
+        {
+            Ports = [.. domino.Ports, new(PortSocket.ActivationIn, SimulationDomain.Signal, PortDirection.Input, PortSignalKind.Level, Vector3.Zero, -Vector3.UnitY)],
+            Signal = domino.Signal with { Indicator = new(PortSocket.ActivationIn) }
+        };
+        Refused(both, "Capability");
+        Assert.Empty(Check(both with { Signal = both.Signal! with { Orientation = null } }));
+    }
+
+    // C-Plate (D2): the contact-load sensor names a Real kilogram parameter with a positive minimum, one of the element's own baked
+    // unrotated Box colliders as its face, a unit normal, an alignment in (0, 1], a gap and z margin in [0, 0.01] m and a hold in
+    // (0, 1] s, on a Static frame without sliders with a level ActivationOut; it is the sixth node-selecting capability. Every refusal
+    // is one BundleError naming its field, never a throw. Controls: the shipped plate and each range end.
+    [Fact]
+    public void TheContactLoadSensorIsTypedRangedOnAStaticLevelSourceAndExclusive()
+    {
+        var generated = BundleGenerator.Generate(TestRepository.Root);
+        var bundle = Bundle.BundleSchema.Read(generated.Json!).Elements;
+        var plate = bundle.Single(entry => entry.Metadata.Id == "pressure_plate");
+        static IReadOnlyList<Bundle.BundleError> Check(Bundle.BundleEntry candidate) => Bundle.BundleValidator.Validate([new("Candidate", candidate)]);
+        static void Refused(Bundle.BundleEntry candidate, string field, Bundle.BundleErrorCode code = Bundle.BundleErrorCode.OutOfRange)
+        {
+            var error = Assert.Single(Check(candidate));
+            Assert.Equal((code, true), (error.Code, error.Detail.StartsWith("Candidate." + field + ":", StringComparison.Ordinal)));
+        }
+        Assert.Empty(Check(plate));
+        var declared = plate.Signal!.ContactLoad!.Value;
+        Assert.Equal(new SignalContactLoadDescriptor("minimum_mass", 1, Vector3.UnitY, 1f - 1e-6f, 1e-4f, 1e-6f, .1f), declared);
+        Bundle.BundleEntry With(SignalContactLoadDescriptor load) => plate with { Signal = plate.Signal with { ContactLoad = load } };
+
+        // Range ends admitted.
+        foreach (var load in new[] { declared with { MinimumAlignment = 1f }, declared with { ContactDistance = 0f }, declared with { ContactDistance = .01f },
+                     declared with { DepthMargin = 0f }, declared with { DepthMargin = .01f }, declared with { ReleaseHoldSeconds = 1f },
+                     declared with { LocalNormal = -Vector3.UnitX } })
+            Assert.Empty(Check(With(load)));
+        // The parameter: absent, not kilograms, not Real, or without a positive minimum.
+        Refused(With(declared with { MinimumMassParameter = "mass" }), "ContactLoad.MinimumMassParameter");
+        var parameter = plate.Metadata.Parameters[0];
+        Bundle.BundleEntry Parameter(ParameterDescriptor changed) => plate with { Metadata = plate.Metadata with { Parameters = [changed] } };
+        Refused(Parameter(parameter with { Unit = ParameterUnit.Metre }), "ContactLoad.MinimumMassParameter");
+        Refused(Parameter(parameter with { Minimum = 0f }), "ContactLoad.MinimumMassParameter");
+        Refused(Parameter(parameter with { Kind = ParameterKind.WholeNumber, Minimum = 1f, Maximum = 16f, Default = 1f }), "ContactLoad.MinimumMassParameter");
+        // The face: out of range either side, or not a Box.
+        Refused(With(declared with { FaceCollider = -1 }), "ContactLoad.FaceCollider");
+        Refused(With(declared with { FaceCollider = plate.Colliders.Count }), "ContactLoad.FaceCollider");
+        Refused(plate with { Colliders = [plate.Colliders[0], plate.Colliders[1] with { ShapeKind = ColliderShapeKind.Sphere }] }, "ContactLoad.FaceCollider");
+        Refused(plate with { Colliders = [plate.Colliders[0], plate.Colliders[1] with { Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, .1f) }] }, "ContactLoad.FaceCollider");
+        // The normal, alignment, gap, margin and hold, each one f32 beyond its range, and non-finite.
+        Refused(With(declared with { LocalNormal = new(0, 1.001f, 0) }), "ContactLoad.LocalNormal");
+        Refused(With(declared with { LocalNormal = new(float.NaN, 1, 0) }), "ContactLoad.LocalNormal.x", Bundle.BundleErrorCode.NonFinite);
+        Refused(With(declared with { MinimumAlignment = 0f }), "ContactLoad.MinimumAlignment");
+        Refused(With(declared with { MinimumAlignment = MathF.BitIncrement(1f) }), "ContactLoad.MinimumAlignment");
+        Refused(With(declared with { ContactDistance = MathF.BitDecrement(0f) }), "ContactLoad.ContactDistance");
+        Refused(With(declared with { ContactDistance = MathF.BitIncrement(.01f) }), "ContactLoad.ContactDistance");
+        Refused(With(declared with { ContactDistance = float.PositiveInfinity }), "ContactLoad.ContactDistance", Bundle.BundleErrorCode.NonFinite);
+        Refused(With(declared with { DepthMargin = MathF.BitIncrement(.01f) }), "ContactLoad.DepthMargin");
+        Refused(With(declared with { ReleaseHoldSeconds = 0f }), "ContactLoad.ReleaseHoldSeconds");
+        Refused(With(declared with { ReleaseHoldSeconds = MathF.BitIncrement(1f) }), "ContactLoad.ReleaseHoldSeconds");
+        Refused(With(declared with { ReleaseHoldSeconds = float.NaN }), "ContactLoad.ReleaseHoldSeconds", Bundle.BundleErrorCode.NonFinite);
+        // A Static frame (no Dynamic body, no slider) and a level ActivationOut.
+        Refused(plate with { Mechanical = plate.Mechanical! with { KinematicMode = Abstractions.Mechanical.KinematicMode.Dynamic } }, "ContactLoad.Body");
+        Refused(plate with { Mechanical = null }, "ContactLoad.Body");
+        // A Static frame that carries a slider (the face would no longer be PartIdentities + 1 + FaceCollider): the gate's own slider.
+        var slider = bundle.Single(entry => entry.Metadata.Id == "powered_gate").Mechanical!.Sliders[0];
+        Refused(plate with { Mechanical = plate.Mechanical! with { Sliders = [slider] } }, "ContactLoad.Body");
+        var activation = plate.Ports.Single(port => port.Socket == PortSocket.ActivationOut);
+        Refused(plate with { Ports = [.. plate.Ports.Where(port => port != activation), activation with { Signal = PortSignalKind.Pulse }] }, "ContactLoad.Ports");
+        Refused(plate with { Ports = [.. plate.Ports.Where(port => port != activation)] }, "ContactLoad.Ports");
+
+        // One node-selecting capability: a valid indicator beside the sensor is refused, and only for that.
+        var both = plate with
+        {
+            Ports = [.. plate.Ports, new(PortSocket.ActivationIn, SimulationDomain.Signal, PortDirection.Input, PortSignalKind.Level, Vector3.Zero, -Vector3.UnitY)],
+            Signal = plate.Signal with { Indicator = new(PortSocket.ActivationIn) }
+        };
+        Refused(both, "Capability");
+        Assert.Empty(Check(both with { Signal = both.Signal! with { ContactLoad = null } }));
+    }
+
+    // C-Clock (D1): the oscillator names a Real second parameter with a finite positive minimum; it is a source (a Pulse ActivationOut,
+    // no ActivationIn) supplied through its PowerIn into a Consumer node, on a Static frame (no Dynamic body, no slider) with a collider;
+    // it is the seventh node-selecting capability, and a committed oscillator presentation binding requires it. Every refusal is one
+    // BundleError naming its field, never a throw. Controls: the shipped clock, the parameter's range ends and an explicit Static frame.
+    [Fact]
+    public void TheOscillatorIsATypedSuppliedStaticPulseSourceExclusiveAndCoupledToItsBindings()
+    {
+        var generated = BundleGenerator.Generate(TestRepository.Root);
+        var bundle = Bundle.BundleSchema.Read(generated.Json!).Elements;
+        var clock = bundle.Single(entry => entry.Metadata.Id == "clock");
+        static IReadOnlyList<Bundle.BundleError> Check(Bundle.BundleEntry candidate) => Bundle.BundleValidator.Validate([new("Candidate", candidate)]);
+        static void Refused(Bundle.BundleEntry candidate, string field, Bundle.BundleErrorCode code = Bundle.BundleErrorCode.OutOfRange)
+        {
+            var error = Assert.Single(Check(candidate));
+            Assert.Equal((code, true), (error.Code, error.Detail.StartsWith("Candidate." + field + ":", StringComparison.Ordinal)));
+        }
+        Assert.Empty(Check(clock));
+        Assert.Equal(new SignalOscillatorDescriptor("interval_seconds"), clock.Signal!.Oscillator);
+        Assert.Null(clock.Mechanical);
+        var parameter = Assert.Single(clock.Metadata.Parameters);
+        Assert.Equal(("interval_seconds", ParameterUnit.Second, ParameterKind.Real, .1f, 12f, 1f, ParameterEditorPolicy.Clamp, ParameterRunEdit.BuildOnly),
+            (parameter.Key, parameter.Unit, parameter.Kind, parameter.Minimum, parameter.Maximum, parameter.Default, parameter.EditorPolicy, parameter.RunEdit));
+        Bundle.BundleEntry Parameter(ParameterDescriptor changed) => clock with { Metadata = clock.Metadata with { Parameters = [changed] } };
+        Bundle.BundleEntry With(Bundle.SignalPayload signal) => clock with { Signal = signal };
+
+        // The interval parameter: absent, not seconds, not Real, or without a positive minimum; the smallest positive minimum is admitted.
+        Refused(With(clock.Signal with { Oscillator = new("interval") }), "Oscillator.IntervalParameter");
+        Refused(Parameter(parameter with { Unit = ParameterUnit.Metre }), "Oscillator.IntervalParameter");
+        Refused(Parameter(parameter with { Kind = ParameterKind.WholeNumber, Minimum = 1f, Maximum = 12f, Default = 1f }), "Oscillator.IntervalParameter");
+        Refused(Parameter(parameter with { Minimum = 0f }), "Oscillator.IntervalParameter");
+        Assert.Empty(Check(Parameter(parameter with { Minimum = float.Epsilon })));
+        // A source: a Pulse ActivationOut and no ActivationIn.
+        var activation = clock.Ports.Single(port => port.Socket == PortSocket.ActivationOut);
+        Refused(clock with { Ports = [.. clock.Ports.Where(port => port != activation), activation with { Signal = PortSignalKind.Level }] }, "Oscillator.Ports");
+        Refused(clock with { Ports = [.. clock.Ports.Where(port => port != activation)] }, "Oscillator.Ports");
+        Refused(clock with { Ports = [.. clock.Ports, new(PortSocket.ActivationIn, SimulationDomain.Signal, PortDirection.Input, PortSignalKind.Pulse, Vector3.Zero, -Vector3.UnitY)] },
+            "Oscillator.Ports");
+        // Supplied: its PowerIn route into a Consumer node.
+        Refused(clock with { Ports = [.. clock.Ports.Where(port => port.Socket != PortSocket.PowerIn)] }, "Oscillator.Supply");
+        var consumer = Assert.Single(clock.Electrical!.Nodes);
+        Refused(clock with { Electrical = clock.Electrical with { Nodes = [consumer with { Role = Abstractions.Electrical.ElectricalRole.Switch }] } }, "Oscillator.Supply");
+        // A Static frame: another package's Static frame is admitted; a Dynamic body or a frame with a slider is refused.
+        var wall = bundle.Single(entry => entry.Metadata.Id == "wall").Mechanical!;
+        Assert.Empty(Check(clock with { Mechanical = wall }));
+        Refused(clock with { Mechanical = bundle.Single(entry => entry.Metadata.Id == "ball").Mechanical }, "Oscillator.Body");
+        Refused(clock with { Mechanical = bundle.Single(entry => entry.Metadata.Id == "powered_gate").Mechanical }, "Oscillator.Body");
+        Assert.Contains(Check(clock with { Colliders = [] }), error => error.Detail.StartsWith("Candidate.Oscillator.Body:", StringComparison.Ordinal));
+
+        // One node-selecting capability: a valid passage aperture on the same Static frame is refused, and only for that (the control
+        // drops the oscillator with its committed oscillator bindings).
+        var both = clock with { Mechanical = wall, Signal = clock.Signal with { Passage = new(.5f, .1f) } };
+        Refused(both, "Capability");
+        Assert.Empty(Check(both with { Signal = both.Signal! with { Oscillator = null }, Presentation = clock.Presentation with { Bindings = [] } }));
+
+        // The committed oscillator bindings read the row only the capability compiles: without it each of the clock's four bindings (the
+        // pendulum phase and the flash's three colour channels) is refused.
+        var unbound = Check(With(clock.Signal with { Oscillator = null }));
+        Assert.Equal(clock.Presentation.Bindings.Count, unbound.Count);
+        Assert.All(unbound, error => Assert.StartsWith("Candidate.Presentation.Oscillator:", error.Detail, StringComparison.Ordinal));
+    }
 
     [Fact]
     public void AnAssemblyWithNoDeclarationIsRefused() =>

@@ -1,0 +1,13 @@
+tsc: /Users/aidan/.npm/_npx/02a0359277d72892/node_modules/typescript/bin/tsc (Version 6.0.3)
+typeRoots: /Users/aidan/.npm/_npx/48d230a2e2958c89/node_modules/@types
+tsc rc=0
+tsx: /Users/aidan/.npm/_npx/e6b261a129b06bcc/node_modules/tsx/dist/cli.mjs
+✔ Run/Reset snapshot: no vacuous pass (0.852792ms)
+ℹ tests 24
+ℹ suites 3
+ℹ pass 24
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 101.737916

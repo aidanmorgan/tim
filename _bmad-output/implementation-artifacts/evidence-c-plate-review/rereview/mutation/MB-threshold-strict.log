@@ -1,0 +1,10 @@
+    0 Warning(s)
+    0 Error(s)
+-        mass <= 0 ? ContactLoadPhase.Empty : mass < MinimumMass ? ContactLoadPhase.Underweight : ContactLoadPhase.Loaded;
++        mass <= 0 ? ContactLoadPhase.Empty : mass <= MinimumMass ? ContactLoadPhase.Underweight : ContactLoadPhase.Loaded;
+  Failed CuriousContraptions.Tests.PlateGuardTests.TheMinimumMassDecidesTheLevelTheLampAndTheGate(minimumMass: 16, load: FourBowlingBalls, loaded: True) [95 ms]
+  Failed CuriousContraptions.Tests.PlateGuardTests.TheMinimumMassDecidesTheLevelTheLampAndTheGate(minimumMass: 1, load: Basketball, loaded: True) [48 ms]
+  Failed CuriousContraptions.Tests.PressurePlateTests.TheInstanceMinimumMassDecidesItsOwnGate(minimum: 1, balls: 1, opens: True) [48 ms]
+  Failed CuriousContraptions.Tests.PressurePlateTests.TheInstanceMinimumMassDecidesItsOwnGate(minimum: 2, balls: 2, opens: True) [53 ms]
+  Failed CuriousContraptions.Tests.PressurePlateTests.ContactLoadPhase_IsTheInclusiveF32Comparison [< 1 ms]
+Failed!  - Failed:     5, Passed:   172, Skipped:     0, Total:   177, Duration: 5 s - CuriousContraptions.tests.dll (net10.0)

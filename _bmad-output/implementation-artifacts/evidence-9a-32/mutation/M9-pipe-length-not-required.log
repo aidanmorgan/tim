@@ -1,0 +1,7 @@
+== M9-pipe-length-not-required: tracked diff sha256 9e1acd59de8948750bb30186bae413c8325b5c9b88c6a0c8496d8d49ce9b2c00
+    0 Error(s)
+    0 Warning(s)
+  Failed CuriousContraptions.Tests.DeclaredOrientationTests.ABaseEncoderPipeSaveIsRefusedTypedAtBothBoundaries [17 ms]
+  Failed CuriousContraptions.Tests.WorkshopPipeLengthTests.TheCommandWireRejectsAPipeWithoutItsLength [< 1 ms]
+Failed!  - Failed:     2, Passed:   212, Skipped:     0, Total:   214, Duration: 10 s - CuriousContraptions.tests.dll (net10.0)
+Passed!  - Failed:     0, Passed:    91, Skipped:     0, Total:    91, Duration: 265 ms - BundleElements.Tests.dll (net10.0)

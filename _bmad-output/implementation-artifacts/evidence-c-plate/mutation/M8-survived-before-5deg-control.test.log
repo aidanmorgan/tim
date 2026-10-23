@@ -1,0 +1,2 @@
+M8 rest on any box: Vertical() always reports axis 1 (tilted tops admitted)
+Passed!  - Failed:     0, Passed:    90, Skipped:     0, Total:    90, Duration: 2 s - CuriousContraptions.tests.dll (net10.0)

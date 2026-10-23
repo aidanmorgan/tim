@@ -1,0 +1,4 @@
+34c34
+<     public const float RestSpeed = .01f;
+---
+>     public const float RestSpeed = 1e-5f;

@@ -26,8 +26,7 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
 
     /// <summary>F15-11: the Impact switch's declared trigger threshold is the compiled contact trigger's threshold, the Domino's
     /// declared topple threshold (the cosine of the topple angle) is the compiled orientation sensor's angle, and the Counter's declared
-    /// count is the runtime's placed target count, and the clock and latch declare the event kinds the activation network publishes
-    /// for them. The other signal declarations (level thresholds, pulse durations, latch modes, the other event kinds and port normals)
+    /// count is the runtime's placed target count. The other signal declarations (level thresholds, pulse durations, latch modes, the other event kinds and port normals)
     /// have no runtime reader yet (evidence-9a-14/f15-11-runtime-readers.txt): the story that makes the runtime read one adds its
     /// comparison here, and port normals are held to unit length by the bundle validator.</summary>
     [Fact]
@@ -43,16 +42,36 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
         Assert.Equal(packages["switch"].Metadata.Parameters.Single(p => p.Key == impact.Contact.ThresholdParameter).Default, trigger.Threshold.Value);
         var domino = (Abstractions.Signal.ISignalElement)packages["domino"];
         // The compiler declares this threshold on a wired tile's orientation sensor.
-        var compiledDegrees = 2 * Math.Acos((double)WorkshopDomino.ActivationThreshold.CosineHalfAngle) * 180 / Math.PI;
+        var wiredTile = WorkshopPhysicsCompiler.Compile(new WorkshopConstruction(new ConstructionRevision(1), WorkshopCadenceSettings.Default(),
+            new WorkshopInstances(PlacedParts.Domino(new(1), 0, 3, 0, 0, 0, 0, 1), PlacedParts.Lamp(new(2), 3, 1, 0, 0, 0, 0, 1)),
+            Connections: new(new WorkshopConnection(new(1), WorkshopSocket.ActivationOut, new(2), WorkshopSocket.ActivationIn,
+                WorkshopConnectionDomain.Activation))), new(1, 2));
+        var compiledDegrees = 2 * Math.Acos((double)Assert.Single(wiredTile.OrientationSensors.ToArray()).Threshold.CosineHalfAngle) * 180 / Math.PI;
         var declaredDegrees = Math.Acos(Assert.Single(domino.Triggers).Threshold) * 180 / Math.PI;
         Assert.True(Math.Abs(compiledDegrees - declaredDegrees) < .1,
             $"domino: topple threshold {declaredDegrees}° declared, {compiledDegrees}° compiled.");
+        // 9A.32: the declared f32 orientation threshold is the compiled sensor's, narrowed to the binary16 half-angle cosine lane bit-equal
+        // to the former record's OrientationThreshold.Degrees(45) (0x3b64, cos 22.5°).
+        var orientation = ((Abstractions.Signal.IOrientationSensorElement)packages["domino"]).Orientation;
+        Assert.Equal(45f, orientation.ThresholdDegrees);
+        var compiledThreshold = Assert.Single(wiredTile.OrientationSensors.ToArray()).Threshold;
+        Assert.Equal(OrientationThreshold.Degrees(orientation.ThresholdDegrees), compiledThreshold);
+        Assert.Equal(BitConverter.HalfToUInt16Bits(OrientationThreshold.Degrees(45).CosineHalfAngle), BitConverter.HalfToUInt16Bits(compiledThreshold.CosineHalfAngle));
+        Assert.Equal((ushort)0x3b64, BitConverter.HalfToUInt16Bits(compiledThreshold.CosineHalfAngle));
         var counter = (Abstractions.Signal.ISignalElement)packages["counter"];
         Assert.Equal(WorkshopCounter.PlacedTargetCount, Assert.NotNull(counter.Counter).Threshold);
-        // The activation network publishes these event kinds for these elements (ActivationNetwork: the oscillator tick and the
-        // State Latch's memory change), so each package must declare the kind the runtime publishes for it.
-        Assert.Contains(packages["clock"].Events, descriptor => descriptor.EventKind == Abstractions.SimulationEventKind.TriggerActivated);
-        Assert.Contains(packages["latch"].Events, descriptor => descriptor.EventKind == Abstractions.SimulationEventKind.LatchSet);
+        // Story 9A.22: every package's declared event kinds equal its compiled rows' kinds (EventRingProducerTests).
+        // C-Lamp+Detector: the lamp's declared indicator input selects its node, and the detector's declared f32 aperture is the
+        // compiled passage sensor's radius and rearm clearance, narrowed to the binary16 lanes bit-equal to the former record's
+        // (Half)0.65 and (Half)0.02.
+        Assert.Equal(Abstractions.PortSocket.ActivationIn, ((Abstractions.Signal.IIndicatorElement)packages["lamp"]).Indicator.Input);
+        var aperture = ((Abstractions.Signal.IPassageSensorElement)packages["ball_detector"]).Passage;
+        Assert.Equal((.65f, .02f), (aperture.ApertureRadius, aperture.RearmClearance));
+        var sensor = Assert.Single(WorkshopActivationCompiler.Compile(new WorkshopConstruction(new ConstructionRevision(1),
+            WorkshopCadenceSettings.Default(), new WorkshopInstances(Placed(PartId.BallDetector)))).PassageSensors.ToArray());
+        Assert.Equal(((ushort)0x3933, (ushort)0x251f), (BitConverter.HalfToUInt16Bits(sensor.Radius.Value), BitConverter.HalfToUInt16Bits(sensor.RearmClearance.Value)));
+        Assert.Equal((BitConverter.HalfToUInt16Bits((Half)0.65), BitConverter.HalfToUInt16Bits((Half)0.02)),
+            (BitConverter.HalfToUInt16Bits(sensor.Radius.Value), BitConverter.HalfToUInt16Bits(sensor.RearmClearance.Value)));
     }
 
     [Fact]
@@ -198,7 +217,7 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
         var options = new System.Text.Json.JsonSerializerOptions { IncludeFields = true };
         var rows = new List<System.Text.Json.Nodes.JsonNode>();
         // The immutable 9A.16 baseline predates Hold and the supplied gates; their new geometry is checked separately.
-        foreach (var package in Packages().Where(package => package.Declaration.Metadata.Id is not ("hold_timer" or "both_gate" or "electrical_nand" or "electrical_nor" or "electrical_or")).OrderBy(package => package.Package, StringComparer.Ordinal))
+        foreach (var package in Packages().Where(package => package.Declaration.Metadata.Id is not ("hold_timer" or "both_gate" or "electrical_nand" or "electrical_nor" or "electrical_or" or "electrical_xor")).OrderBy(package => package.Package, StringComparer.Ordinal))
         {
             Capture(package.Declaration.Metadata.Id, Placed(new PartId(package.Declaration.Metadata.Id)));
         }
@@ -327,14 +346,18 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
             ],
             "battery" =>
             [
-                ("enabled", ParameterUnit.None, ParameterKind.Choice, Lane.Whole, Array.IndexOf(enables, ElectricalSourceSettings.Default.Enabled),
-                    Admits(value => _ = float.IsInteger(value) && value >= 0 && value < enables.Length ? enables[(int)value] :
-                        throw new ArgumentException("No such option.")), Enum.GetNames<ElectricalEnable>())
+                // The owner defaults of 10 Oct 2026 (3600 J, 120 W, full, Enabled); the enable options are the runtime enum's names,
+                // in its order, so the declared index is the compiled state.
+                ("capacity", ParameterUnit.Joule, ParameterKind.Real, Lane.Single, 3600f, Generic(PartId.Battery, "capacity"), []),
+                ("power_limit", ParameterUnit.Watt, ParameterKind.Real, Lane.Single, 120f, Generic(PartId.Battery, "power_limit"), []),
+                ("initial_charge", ParameterUnit.None, ParameterKind.Real, Lane.Single, 1f, Generic(PartId.Battery, "initial_charge"), []),
+                ("enabled", ParameterUnit.None, ParameterKind.Choice, Lane.Whole, Array.IndexOf(enables, ElectricalEnable.Enabled),
+                    Generic(PartId.Battery, "enabled"), Enum.GetNames<ElectricalEnable>())
             ],
             "pressure_plate" =>
             [
-                ("minimum_mass", ParameterUnit.Kilogram, ParameterKind.Real, Lane.Single, WorkshopPressurePlate.PlacedMinimumMass,
-                    Admits(value => WorkshopInput.PressurePlate(Owner, 0, 3, 0, 0, 0, 0, 1, value)), [])
+                ("minimum_mass", ParameterUnit.Kilogram, ParameterKind.Real, Lane.Single, .5f,
+                    Admits(value => PlacedParts.Plate(Owner, 0, 3, 0, value)), [])
             ],
             "counter" =>
             [
@@ -343,8 +366,8 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
             ],
             "clock" =>
             [
-                ("interval_seconds", ParameterUnit.Second, ParameterKind.Real, Lane.Single, WorkshopClock.PlacedIntervalSeconds,
-                    Admits(value => WorkshopInput.Clock(Owner, 0, 3, 0, 0, 0, 0, 1, value)), [])
+                ("interval_seconds", ParameterUnit.Second, ParameterKind.Real, Lane.Single, 1f,
+                    Admits(value => PlacedParts.Clock(Owner, 0, 3, 0, 0, 0, 0, 1, value)), [])
             ],
             "basket" =>
             [
@@ -386,7 +409,7 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
     }
 
     /// <summary>One newly placed instance of the part, as MachineWorld.CaptureInstance builds it.</summary>
-    private static IWorkshopInstance Placed(PartId id) => id.Value switch
+    internal static IWorkshopInstance Placed(PartId id) => id.Value switch
     {
         "ball" => WorkshopInput.Generic(PartId.Basketball,Owner, 0, 3, 0, 0, 0, 0, 1),
         "bowling" => WorkshopInput.Generic(PartId.BowlingBall, Owner, 0, 3, 0, 0, 0, 0, 1),
@@ -394,17 +417,15 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
         "spring" => WorkshopInput.Generic(PartId.Springboard, Owner, 0, 3, 0, 0, 0, 0, 1),
         "ramp" => WorkshopInput.Generic(PartId.Ramp, Owner, 0, 3, 0, 0, 0, 0, 1),
         "wall" => WorkshopInput.Generic(PartId.Wall, Owner, 0, 3, 0, 0, 0, 0, 1),
-        "battery" => WorkshopInput.Battery(Owner, 0, 3, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default),
+        "battery" => PlacedParts.Battery(Owner, 0, 3, 0),
         "bumper" => WorkshopInput.Generic(PartId.PinballBumper, Owner, 0, 3, 0, 0, 0, 0, 1),
-        "lamp" => WorkshopInput.Lamp(Owner, 0, 3, 0, 0, 0, 0, 1),
-        "domino" => WorkshopInput.Domino(Owner, 0, 3, 0, 0, 0, 0, 1),
-        "ball_detector" => WorkshopInput.BallDetector(Owner, 0, 3, 0, 0, 0, 0, 1),
+        "domino" => PlacedParts.Domino(Owner, 0, 3, 0, 0, 0, 0, 1),
         "pipe" => WorkshopInput.Pipe(Owner, 0, 3, 0, 0, 0, 0, 1),
-        "funnel" or "pipe_bend_45" or "pipe_bend_90" or "powered_gate" or "hold_timer" or "both_gate" or "electrical_nand" or "electrical_nor" or "electrical_or" =>
+        "lamp" or "ball_detector" or "funnel" or "pipe_bend_45" or "pipe_bend_90" or "powered_gate" or "hold_timer" or "both_gate" or "electrical_nand" or "electrical_nor" or "electrical_or" or "electrical_xor" =>
             WorkshopInput.Generic(id, Owner, 0, 3, 0, 0, 0, 0, 1),
-        "pressure_plate" => WorkshopInput.PressurePlate(Owner, 0, 3, 0, 0, 0, 0, 1, WorkshopPressurePlate.PlacedMinimumMass),
+        "pressure_plate" => PlacedParts.Plate(Owner, 0, 3, 0, .5f),
         "counter" => WorkshopInput.Counter(Owner, 0, 3, 0, 0, 0, 0, 1, WorkshopCounter.PlacedTargetCount),
-        "clock" => WorkshopInput.Clock(Owner, 0, 3, 0, 0, 0, 0, 1, WorkshopClock.PlacedIntervalSeconds),
+        "clock" => PlacedParts.Clock(Owner, 0, 3, 0, 0, 0, 0, 1, 1f),
         "latch" => WorkshopInput.Latch(Owner, 0, 3, 0, 0, 0, 0, 1),
         "switch" => WorkshopInput.Generic(PartId.ImpactSwitch, Owner, 0, 3, 0, 0, 0, 0, 1),
         "delay" => WorkshopInput.Generic(PartId.Delay, Owner, 0, 3, 0, 0, 0, 0, 1),

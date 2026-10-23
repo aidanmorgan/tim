@@ -1,0 +1,20 @@
+mutant R2-reset-keeps-queued-intent file ui/WorkshopAnimation.cs
+diff --git a/ui/WorkshopAnimation.cs b/ui/WorkshopAnimation.cs
+index e2d6719a..c704fa9c 100644
+--- a/ui/WorkshopAnimation.cs
++++ b/ui/WorkshopAnimation.cs
+@@ -62,7 +62,6 @@ public partial class Workshop
+     }
+     private void ResetUiAnimations()
+     {
+-        _runControlQueued.Clear();
+         ClearGoalFeedback();
+         HideHint();
+     }
+    0 Error(s)
+    0 Warning(s)
+Build succeeded.
+  Failed CuriousContraptions.Tests.PalettePlacementTests.TheRunControlToggleSendsTypedControlsWithoutEditingAndAppearsOnlyForADeclaredRunControl [24 ms]
+Failed!  - Failed:     1, Passed:  2465, Skipped:     0, Total:  2466, Duration: 43 s - CuriousContraptions.tests.dll (net10.0)
+Passed!  - Failed:     0, Passed:   163, Skipped:     0, Total:   163, Duration: 329 ms - BundleElements.Tests.dll (net10.0)
+restored: yes

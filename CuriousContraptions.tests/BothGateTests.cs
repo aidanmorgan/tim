@@ -18,14 +18,13 @@ public sealed class BothGateTests
             WorkshopInput.Generic(Kind,new(4),3,3,0,0,0,0,1),
             WorkshopInput.Generic(PartId.PoweredGate,new(5),9,3,0,0,0,0,1)),
             Connections:new(Link(1,4,WorkshopSocket.FirstIn),Link(2,4,WorkshopSocket.SecondIn),Link(3,4),Link(4,5)));
-    private static WorkshopBattery Battery(ulong id,float x,bool enabled)=>WorkshopInput.Battery(new(id),x,3,0,0,0,0,1,
-        ElectricalSourceSettings.Default with {Enabled=enabled?ElectricalEnable.Enabled:ElectricalEnable.Disabled});
+    private static WorkshopGenericInstance Battery(ulong id,float x,bool enabled)=>PlacedParts.Battery(new(id), x, 3, 0, enabled: enabled?ElectricalEnable.Enabled:ElectricalEnable.Disabled);
     internal static ElectricalLogicRead Logic(WorkshopRead read,ulong owner=4)=>read.Presentation.Logic.ToArray().Single(row=>row.Owner.Value==owner);
     private static ActuatorDriveRead Drive(WorkshopRead read)=>read.Presentation.Actuators.ToArray().Single(row=>row.Owner.Value==5);
     private static float BladeY(WorkshopRead read)
     {
         var body=Enumerable.Range(0,read.Bodies.Count).Select(i=>read.Bodies[i].Body)
-            .Single(row=>row.Id==WorkshopPhysicsCompiler.GateBlade(new(5)));
+            .Single(row=>row.Id==WorkshopPhysicsCompiler.SliderBody(new(5), 0));
         return (body.Cell.Y+body.Local.Y)/16f;
     }
 
@@ -137,8 +136,8 @@ public sealed class BothGateTests
         var construction=Machine();
         construction=construction with {Instances=new(construction.Instances.Concat(new IWorkshopInstance[]{
             WorkshopInput.Latch(new(6),-9,3,3,0,0,0,1),
-            WorkshopInput.Clock(new(7),-6,3,3,0,0,0,1,1f),
-            WorkshopInput.Clock(new(8),-3,3,3,0,0,0,1,1.5f)}).ToArray()),
+            PlacedParts.Clock(new(7),-6,3,3,0,0,0,1,1f),
+            PlacedParts.Clock(new(8),-3,3,3,0,0,0,1,1.5f)}).ToArray()),
             Connections=construction.Connections.Without(Link(3,4)).With(Link(3,6)).With(Link(6,4))
                 .With(Link(1,7)).With(Link(1,8))
                 .With(new(new(7),WorkshopSocket.ActivationOut,new(6),WorkshopSocket.SetIn,WorkshopConnectionDomain.Activation))
@@ -159,7 +158,7 @@ public sealed class BothGateTests
     public void EnergyProvenanceIgnoresBothConditionSourcesAndUndefinedRulesReject()
     {
         var construction=Machine();
-        var clock=WorkshopInput.Clock(new(7),12,3,0,0,0,0,1,1f);
+        var clock=PlacedParts.Clock(new(7),12,3,0,0,0,0,1,1f);
         construction=construction with {Instances=new(construction.Instances.Append(clock).ToArray()),Connections=construction.Connections.With(Link(4,7))};
         var topology=SupplyTopology.Create(construction,DeclaredPhysics.Of);
         Assert.Equal(new[]{new GpuBodyId(3)},topology.UpstreamSources(clock.Id));

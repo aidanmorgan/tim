@@ -1,0 +1,5 @@
+$ git diff --check
+rc=0
+$ git diff --cached --check
+rc=0
+anvil_check: 53 changed/new files, 0 warnings, 0 errors (antipattern)

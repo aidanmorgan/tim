@@ -1,0 +1,28 @@
+F.6 F-1 impact screen: every drawer placement of a Dynamic part (basketball, bowling, domino) in tools/e2e/*.test.ts, classified
+against engine/PlacementPose.cs's rest rule (read-only static analysis by a delegated read-only subagent, 23 Oct 2026; canvas points
+mapped to world with each recipe's own screen() helper; placement plane y = 3 m, plate face top 3.08 when placed there; no browser
+run). Natively, the rule's base/candidate equality is proven for the control shapes in PlacementPoseTests.EveryOtherPlacementKeepsTheBasePose.
+
+CHANGED (all straddles of a flat plate: the part now rests on the face instead of straddling it):
+- cat-052 'domino' load (920,510) and 'dominoes' load (899,503)/(942,517): domino centre 3.0 -> 3.63.
+- cat-052 'bowling' load (920,510): bowling centre -> 3.36.
+- cat-052-two-plates bowling at PLATE_1 (920,510) / PLATE_2 (773,609): -> 3.36.
+- cat-052-lamp basketball rest / bounce / domino at (920,510): ball -> 3.42, domino -> 3.63.
+No other change: verdict = no non-straddle change (spec D6: Pass).
+
+UNCHANGED (summary): a Dynamic part placed before any Static part (engine-core-2a1/2a2/2a3/2a4/2b1/2b2/2b3, pkg-1, pkg-3, cat-005,
+cat-014, cat-015a, cat-023a, cat-023b, cat-030, cat-062, capacity-9r5b, clock-master, anim-1b, anim-1c, tube-snapping,
+palette-placement); a Static part beneath that is tilted (no horizontal top: the gate at -15 deg in cat-017/020/051/051-own-supply/
+052/052-lamp, the pipe in cat-048a, the cradle bend in capacity-9r, the plate at 30 deg in cat-052/cat-052-lamp 'rolloff'); a ball not
+over any horizontal top (cat-002, cat-020:185 detector bore; engine-core-2a3:127 wall top above the ball; cat-037:96; capacity-9r5b:76);
+domino_effect tiles away from the lamp (cat-023b:75, clock-master:172,334); non-Dynamic raw palette clicks (cat-062b, cat-050-joined:215).
+Bumper colliders are spheres: never a rest surface.
+
+Recipe sources updated for F-1 (strict tsc 6.0.3 rc 0; browser run pending at the post-catalogue E2E phase):
+- cat-052: the 38 px domino lift and the 12 px bowling lift removed (drawer only); 'rolloff' keeps its lift (tilted face, no rest).
+- cat-052-two-plates: the 12 px bowling lift removed (drawer only).
+- cat-052-lamp: the rest and domino lifts removed (drawer only); the bounce lift is 112 px from the rested pose (about 2 m above the
+  face, as before); 'rolloff' keeps its 12 px lift.
+Open browser risk (unverified, recorded for the post-catalogue run): liftSelectedPart presses 58 px above the part's original canvas
+point; a rested part projects about 24 px higher, so the bounce lift in cat-052-lamp may miss the move handle if the gizmo follows the
+part (workshop-driver.ts:789-792, ui/RotationGizmo.cs:124 hit radius 18 px).

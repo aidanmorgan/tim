@@ -1,0 +1,13 @@
+WIP 1e6d707e11577064cb97175a32594566c6e5f5e0 tree 724636af1f8555d89c2d6fb8faeea12a26d5ab3e
+merge 746d6582fc6be629f5c3714d85ff79ee5a7a8107 tree e6080ad66c25ae2c172a5fe7d16e4612587eed57 parents 1e6d707e11577064cb97175a32594566c6e5f5e0 a598a09e2b91d58135b3343a2beeea6b88578013
+## git diff --check a598a09e HEAD excluding raw evidence dirs
+exit 0
+## working tree
+exit 0
+## slice vs main (non-evidence)
+ tools/Coverage.Tests/CurrentCatalogueTests.cs      |   7 +-
+ tools/E2eRunner/ImpactRules.cs                     |   3 +-
+ 34 files changed, 1095 insertions(+), 40 deletions(-)
+## merge delta vs WIP outside main's own changes
+ TODO.md | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)

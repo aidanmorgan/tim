@@ -1,0 +1,61 @@
+== reviewer deletion greps (whole tree except _bmad-output, docs)
+-- WorkshopClock
+./TODO.md:27:**In flight (deletion lane):** C-Clock (position 42: 9A.42 + 9R.10) has an uncommitted native candidate on base 14658883 in worktree `story-c-clock`. The clock's oscillator node is selected by a declared `SignalOscillatorDescriptor`; `WorkshopClock`, `WorkshopInput.Clock`, the Clock panel, their arms and the `threshold` wire field are deleted, and the Known list goes from 166 to 136 rows. Traces, lessons and placed solutions are bit-identical to the record path; record-path saves are refused typed at both boundaries (pipe and latch saves load unchanged). `interval_seconds` is edited in the generic editor (Clamp). Next: independent review. Browser cases pending ([spec and current state](_bmad-output/implementation-artifacts/spec-c-clock.md#current-state)).
+./CuriousContraptions.tests/PlacedParts.cs:60:    /// <c>interval_seconds</c>. (On the record path at 14658883 it built `WorkshopClock`:
+./CuriousContraptions.tests/ElementIsolationTests.cs:384:        var source = "class Probe { void Test(object x) { var id = \"wall\"; if (x is WorkshopBattery) {} x.OfType<WorkshopClock>(); } }";
+./CuriousContraptions.tests/ElementIsolationTests.cs:388:        Assert.Contains(hits, hit => hit.Token == "WorkshopClock");
+count=4
+-- WorkshopInput\.Clock
+./TODO.md:27:**In flight (deletion lane):** C-Clock (position 42: 9A.42 + 9R.10) has an uncommitted native candidate on base 14658883 in worktree `story-c-clock`. The clock's oscillator node is selected by a declared `SignalOscillatorDescriptor`; `WorkshopClock`, `WorkshopInput.Clock`, the Clock panel, their arms and the `threshold` wire field are deleted, and the Known list goes from 166 to 136 rows. Traces, lessons and placed solutions are bit-identical to the record path; record-path saves are refused typed at both boundaries (pipe and latch saves load unchanged). `interval_seconds` is edited in the generic editor (Clamp). Next: independent review. Browser cases pending ([spec and current state](_bmad-output/implementation-artifacts/spec-c-clock.md#current-state)).
+count=1
+-- CanonicalIntervalSeconds|ApplyIntervalSeconds|PlacedIntervalSeconds|MinIntervalSeconds|MaxIntervalSeconds|DefaultIntervalSeconds
+count=0
+-- ApplyClockInterval|AddClockConfiguration|"ClockInterval"
+./CuriousContraptions.tests/WorkshopHandlerBoundaryTests.cs:55:        // The current handler population (C-Clock deleted the clock panel's ApplyClockInterval handler: 16 → 15).
+./CuriousContraptions.tests/ElementIsolationTests.cs:390:        foreach (var name in new[] { "AddBatteryConfiguration", "ApplyClockInterval", "CaptureBall", "AdvanceBattery", "BatterySimulation", "ResolveWallMaterial", "TickClock" }) Assert.NotNull(PackageIdentifier(name));
+./CuriousContraptions.tests/Fixtures/element-isolation-known.json:167:    {"File":"CuriousContraptions.Animation.Worker/Program.cs","Symbol":"Program.Service","Token":"ClockInterval","Count":1,"Meaning":"ClockProtocol"},
+./CuriousContraptions.tests/Fixtures/element-isolation-known.json:410:    {"File":"engine/gpu/WorkshopClockMapping.cs","Symbol":"ClockInterval.Overlaps","Token":"ClockInterval","Count":1,"Meaning":"ClockProtocol"},
+./CuriousContraptions.tests/Fixtures/element-isolation-known.json:411:    {"File":"engine/gpu/WorkshopClockMapping.cs","Symbol":"ClockInterval","Token":"ClockInterval","Count":1,"Meaning":"ClockProtocol"},
+./CuriousContraptions.tests/Fixtures/element-isolation-known.json:413:    {"File":"engine/gpu/WorkshopClockMapping.cs","Symbol":"ClockObservation","Token":"ClockInterval","Count":1,"Meaning":"ClockProtocol"},
+./CuriousContraptions.tests/Fixtures/element-isolation-known.json:431:    {"File":"engine/gpu/WorkshopClockMapping.cs","Symbol":"MappedCapture","Token":"ClockInterval","Count":1,"Meaning":"ClockProtocol"},
+./CuriousContraptions.tests/Fixtures/element-isolation-known.json:444:    {"File":"engine/gpu/WorkshopClockMapping.cs","Symbol":"WorkshopClockMapping.Expand","Token":"ClockInterval","Count":2,"Meaning":"ClockProtocol"},
+./CuriousContraptions.tests/Fixtures/element-isolation-known.json:446:    {"File":"engine/gpu/WorkshopClockMapping.cs","Symbol":"WorkshopClockMapping.Interval","Token":"ClockInterval","Count":1,"Meaning":"ClockProtocol"},
+./CuriousContraptions.tests/Fixtures/element-isolation-known.json:453:    {"File":"engine/gpu/WorkshopClockMapping.cs","Symbol":"WorkshopClockMapping.Offset","Token":"ClockInterval","Count":1,"Meaning":"ClockProtocol"},
+./CuriousContraptions.tests/Fixtures/element-isolation-known.json:458:    {"File":"engine/gpu/WorkshopClockMapping.cs","Symbol":"WorkshopClockMapping.QualifiesThroughRefresh","Token":"ClockInterval","Count":1,"Meaning":"ClockProtocol"},
+./CuriousContraptions.tests/Fixtures/element-isolation-known.json:463:    {"File":"engine/gpu/WorkshopClockMapping.cs","Symbol":"WorkshopClockMapping.Receive","Token":"ClockInterval","Count":1,"Meaning":"ClockProtocol"},
+./CuriousContraptions.tests/Fixtures/element-isolation-known.json:470:    {"File":"engine/gpu/WorkshopClockMapping.cs","Symbol":"WorkshopClockMapping.RecordLateRenewal","Token":"ClockInterval","Count":2,"Meaning":"ClockProtocol"},
+./CuriousContraptions.tests/Fixtures/element-isolation-known.json:479:    {"File":"engine/gpu/WorkshopClockMapping.cs","Symbol":"WorkshopClockMapping.TryBest","Token":"ClockInterval","Count":1,"Meaning":"ClockProtocol"},
+./CuriousContraptions.tests/Fixtures/element-isolation-known.json:482:    {"File":"engine/gpu/WorkshopClockMapping.cs","Symbol":"WorkshopClockMapping.TryMap","Token":"ClockInterval","Count":1,"Meaning":"ClockProtocol"},
+./CuriousContraptions.tests/Fixtures/element-isolation-known.json:485:    {"File":"engine/gpu/WorkshopClockMapping.cs","Symbol":"WorkshopClockMapping.TryMasterNow","Token":"ClockInterval","Count":2,"Meaning":"ClockProtocol"},
+./CuriousContraptions.tests/Fixtures/element-isolation-known.json:486:    {"File":"engine/gpu/WorkshopClockMapping.cs","Symbol":"WorkshopClockMapping.TryRetained","Token":"ClockInterval","Count":1,"Meaning":"ClockProtocol"},
+./CuriousContraptions.tests/Fixtures/element-isolation-known.json:487:    {"File":"engine/gpu/WorkshopClockMapping.cs","Symbol":"WorkshopClockMapping.UpdateAvailability","Token":"ClockInterval","Count":1,"Meaning":"ClockProtocol"},
+./CuriousContraptions.tests/Fixtures/element-isolation-known.json:492:    {"File":"engine/gpu/WorkshopClockMapping.cs","Symbol":"WorkshopClockMapping.WithinMappedWidth","Token":"ClockInterval","Count":1,"Meaning":"ClockProtocol"},
+count=19
+-- AddThreshold|\.Threshold|AuthoredScalar\.Threshold
+./CuriousContraptions.Bundle/BundleValidator.cs:139:                Finite("Presentation.Duration", binding.Duration); Finite("Presentation.Threshold", binding.Threshold);
+./CuriousContraptions.Bundle/BundleValidator.cs:396:                if (Finite("ContactWork.Threshold", work.Threshold) && (work.Threshold < 0f || work.Threshold > 64f))
+./CuriousContraptions.Bundle/BundleValidator.cs:397:                    OutOfRange("ContactWork.Threshold");
+./CuriousContraptions.Bundle/BundleValidator.cs:660:                Finite($"Triggers[{i}].Threshold", trigger.Threshold);
+./CuriousContraptions.Simulation/WorkshopConstraintSolver.cs:119:        c.Threshold = MathF.Max(c.ColA.BounceThreshold, c.ColB.BounceThreshold);
+./CuriousContraptions.Simulation/WorkshopConstraintSolver.cs:455:        if (c.Restitution == 0f || c.RelVel > -c.Threshold || c.MaxImpulse == 0f || CurrentSeparation(c) > 0f) return;
+./CuriousContraptions.tests/OrientationSensorTests.cs:70:        Assert.Equal(OrientationThreshold.Degrees(45), sensor.Threshold);
+./CuriousContraptions.tests/OrientationSensorTests.cs:71:        Assert.Equal((Half)Math.Cos(Math.PI / 8), sensor.Threshold.CosineHalfAngle);
+./CuriousContraptions.tests/WorkshopReadTests.cs:206:            declaration.Threshold,new(effect == ContactWorkEffect.Paid ? 12 : 0),effect);
+./CuriousContraptions.tests/WorkshopReadTests.cs:217:            hit with { ApproachSpeed=new(float.BitDecrement(declaration.Threshold.Value)) } })
+./CuriousContraptions.tests/DeclaredOrientationTests.cs:32:        Assert.Equal((ushort)0x3b64, BitConverter.HalfToUInt16Bits(sensor.Threshold.CosineHalfAngle));
+./CuriousContraptions.tests/DeclaredOrientationTests.cs:48:        Assert.Equal((ushort)0x3bba, BitConverter.HalfToUInt16Bits(WorkshopPhysicsCompiler.OrientationSensorFor(tile, new(30f)).Threshold.CosineHalfAngle));
+./CuriousContraptions.tests/DeclaredOrientationTests.cs:50:            Assert.Equal(OrientationThreshold.Degrees(degrees), WorkshopPhysicsCompiler.OrientationSensorFor(tile, new(degrees)).Threshold);
+./CuriousContraptions.tests/DeclaredOrientationTests.cs:51:        Assert.NotEqual(WorkshopPhysicsCompiler.OrientationSensorFor(tile, new(30f)).Threshold, WorkshopPhysicsCompiler.OrientationSensorFor(tile, new(45f)).Threshold);
+./CuriousContraptions.tests/CounterTests.cs:55:                    binding.Threshold <= 3 ? binding.To : binding.From));
+./CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:88:        _materials.Add(new(id, new((Half)value.Restitution), new((Half)value.Threshold), new((Half)value.Friction), new((Half)value.Rolling)));
+./engine/gpu/WorkshopDeclaredPresentation.cs:227:                    if (d.Driver == PresentationDriver.CommittedCount) return memory.Count >= d.Threshold ? 1 : 0;
+./engine/gpu/WorkshopDeclaredPresentation.cs:276:                    return source.Remaining.Value >= track.Capacity * d.Threshold ? 1 : 0;
+./engine/gpu/WorkshopPhysicsCompiler.cs:211:            new(work.Threshold), work.CooldownPhysicalSteps);
+./CuriousContraptions.tests/ContactActivationTests.cs:41:        Assert.Equal(new ContactSpeed(.8f), trigger.Threshold);
+count=35
+-- clock_tick
+count=0
+-- "Threshold" in content
+-- files
+ls: engine/gpu/WorkshopClock.cs: No such file or directory
+ls: engine/gpu/WorkshopClock.cs.uid: No such file or directory

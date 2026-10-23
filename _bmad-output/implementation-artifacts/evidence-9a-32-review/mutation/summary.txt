@@ -1,0 +1,97 @@
+candidate copy tracked diff identical to candidate: yes
+untracked tests identical: yes
+=== M0 control (unmutated candidate copy)
+    0 Warning(s)     0 Error(s) 
+Passed!  - Failed:     0, Passed:  2482, Skipped:     0, Total:  2482, Duration: 53 s - CuriousContraptions.tests.dll (net10.0)
+    0 Warning(s)     0 Error(s) 
+Passed!  - Failed:     0, Passed:   165, Skipped:     0, Total:   165, Duration: 274 ms - BundleElements.Tests.dll (net10.0)
+=== R1-instance-fields-11: engine/gpu/WorkshopWireFlatBuffers.cs; edit landed: 1 line(s) match 'InstanceRecordFields = 11;'
+192c192
+<     internal const int InstanceRecordFields = 10;
+---
+>     internal const int InstanceRecordFields = 11;
+    0 Warning(s)     0 Error(s) 
+Passed!  - Failed:     0, Passed:  2482, Skipped:     0, Total:  2482, Duration: 52 s - CuriousContraptions.tests.dll (net10.0)
+restored: yes
+=== R2-slot-loop-strict: engine/gpu/WorkshopWireFlatBuffers.cs; edit landed: 1 line(s) match '2 \* slot + 2 < size'
+214c214
+<             for (var slot = InstanceRecordFields; 4 + 2 * slot + 2 <= size; slot++)
+---
+>             for (var slot = InstanceRecordFields; 4 + 2 * slot + 2 < size; slot++)
+    0 Warning(s)     0 Error(s) 
+Failed!  - Failed:     3, Passed:  2479, Skipped:     0, Total:  2482, Duration: 52 s - CuriousContraptions.tests.dll (net10.0)
+Failed CuriousContraptions.Tests.DeclaredOrientationTests.ARecordHoldingAFieldBeyondTheCurrentTableIsRefusedAtBothBoundaries(name: "bare ball, empty parameters vector") [1 ms]
+Failed CuriousContraptions.Tests.DeclaredOrientationTests.ARecordHoldingAFieldBeyondTheCurrentTableIsRefusedAtBothBoundaries(name: "domino with a parameter") [< 1 ms]
+Failed CuriousContraptions.Tests.DeclaredOrientationTests.ARecordHoldingAFieldBeyondTheCurrentTableIsRefusedAtBothBoundaries(name: "lamp with a parameter") [< 1 ms]
+restored: yes
+=== R3-command-slot-24: engine/gpu/WorkshopWireFlatBuffers.cs; edit landed: 1 line(s) match 'CommandConstructionSlot = 24,'
+195c195
+<     internal const int SavedConstructionSlot = 6, CommandConstructionSlot = 26, ConstructionInstancesSlot = 10;
+---
+>     internal const int SavedConstructionSlot = 6, CommandConstructionSlot = 24, ConstructionInstancesSlot = 10;
+    0 Warning(s)     0 Error(s) 
+Failed!  - Failed:     4, Passed:  2478, Skipped:     0, Total:  2482, Duration: 52 s - CuriousContraptions.tests.dll (net10.0)
+Failed CuriousContraptions.Tests.DeclaredOrientationTests.ARecordHoldingAFieldBeyondTheCurrentTableIsRefusedAtBothBoundaries(name: "bare ball, empty parameters vector") [3 ms]
+Failed CuriousContraptions.Tests.DeclaredOrientationTests.ARecordHoldingAFieldBeyondTheCurrentTableIsRefusedAtBothBoundaries(name: "domino with a parameter") [< 1 ms]
+Failed CuriousContraptions.Tests.DeclaredOrientationTests.ARecordHoldingAFieldBeyondTheCurrentTableIsRefusedAtBothBoundaries(name: "lamp with a parameter") [< 1 ms]
+Failed CuriousContraptions.Tests.WorkshopWireFlatBuffersTests.Command_CancelWithTarget_RoundTrips [< 1 ms]
+restored: yes
+=== R4-save-rule-before-prevalidation: engine/gpu/WorkshopSaveCodec.cs; edit landed: 1 line(s) match 'OutOfRange, "x"); WorkshopSavePrevalidation'
+49c49
+<         WorkshopSavePrevalidation.Check(saved, elements);
+---
+>         if (WorkshopWireFlatBuffers.HoldsFieldBeyondTheInstanceTable(saved.ByteBuffer, WorkshopWireFlatBuffers.SavedConstructionSlot)) throw new WorkshopSaveRejectedException(WorkshopSaveRejection.OutOfRange, "x"); Wor
+    0 Warning(s)     0 Error(s) 
+Failed!  - Failed:     3, Passed:  2479, Skipped:     0, Total:  2482, Duration: 51 s - CuriousContraptions.tests.dll (net10.0)
+Failed CuriousContraptions.Tests.DeclaredIndicatorPassageTests.TheWiredRecordPathSaveIsRefusedAfterTheSlotRenumbering [< 1 ms]
+Failed CuriousContraptions.Tests.PreConversionLaunchSaveTests.APreConversionRecordIsRefusedWithATypedReasonAtBothBoundaries(name: "counter", save: MissingField, command: MissingField) [< 1 ms]
+Failed CuriousContraptions.Tests.PreConversionLaunchSaveTests.APreSourceStoreRecordIsRefusedWithATypedReasonAtBothBoundaries(name: "counter", baseEncoderSha256: "28e34c0cbb55ff4f74e5b6e9ec7f587ba8373e
+restored: yes
+=== R5-validator-lower-bound-exclusive: CuriousContraptions.Bundle/BundleValidator.cs; edit landed: 1 line(s) match 'ThresholdDegrees > 4f'
+579c579
+<                         !(orientation.ThresholdDegrees >= 4f && orientation.ThresholdDegrees <= 179f))
+---
+>                         !(orientation.ThresholdDegrees > 4f && orientation.ThresholdDegrees <= 179f))
+    0 Warning(s)     0 Error(s) 
+Failed!  - Failed:     1, Passed:   164, Skipped:     0, Total:   165, Duration: 270 ms - BundleElements.Tests.dll (net10.0)
+Failed CuriousContraptions.BundleElements.Tests.BundleValidatorTests.TheOrientationThresholdIsTypedRangedOnADynamicPulseSourceAndExclusive [16 ms]
+restored: yes
+=== R6-package-declares-44: elements/Domino/DominoElementDeclaration.cs; edit landed: 1 line(s) match 'new(44f);'
+67c67
+<     public SignalOrientationDescriptor Orientation => new(45f);
+---
+>     public SignalOrientationDescriptor Orientation => new(44f);
+    0 Warning(s)     0 Error(s) 
+Failed!  - Failed:     4, Passed:  2478, Skipped:     0, Total:  2482, Duration: 53 s - CuriousContraptions.tests.dll (net10.0)
+Failed CuriousContraptions.Tests.DeclaredOrientationTests.TheDeclaredThresholdSelectsTheSensorAndNodeOfAWiredTile [2 ms]
+Failed CuriousContraptions.Tests.OrientationSensorTests.AdmissionWritesTheSensorAndCandidateValidationEnforcesStickyOnce [2 ms]
+Failed CuriousContraptions.Tests.OrientationSensorTests.SensorAndSourceNodeCompileOnlyForAWiredDomino [1 ms]
+Failed CuriousContraptions.Tests.PackageRuntimeParityTests.EverySignalDeclarationTheRuntimeReadsEqualsTheRuntime [2 ms]
+restored: yes
+=== R7-content-no-solution-connection: content/puzzles.json; edit landed: 11 line(s) match '^    "solution_connections": \[\],$'
+1982,1990c1982
+<     "solution_connections": [
+<       {
+<         "from": "fixture_2",
+<         "to": "fixture_3",
+<         "type": "activation",
+<         "from_port": "activation_out",
+<         "to_port": "activation_in"
+    0 Warning(s)     0 Error(s) 
+Failed!  - Failed:     1, Passed:  2481, Skipped:     0, Total:  2482, Duration: 49 s - CuriousContraptions.tests.dll (net10.0)
+Failed CuriousContraptions.Tests.LaunchLessonSolveTests.TheAuthoredSolutionSolvesAtEveryPrecision(lesson: "domino_effect") [684 ms]
+restored: yes
+=== R8-content-legacy-rows: content/puzzles.json; edit landed: 35 line(s) match '^          -2.4,$'
+1775,1776c1775,1776
+<           -4,
+<           0.1,
+---
+>           -2.4,
+>           1,
+1838,1839c1838,1839
+<           -3,
+    0 Warning(s)     0 Error(s) 
+Failed!  - Failed:     1, Passed:  2481, Skipped:     0, Total:  2482, Duration: 51 s - CuriousContraptions.tests.dll (net10.0)
+Failed CuriousContraptions.Tests.LaunchLessonSolveTests.TheAuthoredSolutionSolvesAtEveryPrecision(lesson: "domino_effect") [533 ms]
+restored: yes
+=== final: candidate copy back to candidate: yes

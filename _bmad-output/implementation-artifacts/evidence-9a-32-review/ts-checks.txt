@@ -1,0 +1,14 @@
+tsc Version 6.0.3
+$ tsc --project tools/e2e/tsconfig.json --strict --noEmit --typeRoots /Users/aidan/.npm/_npx/48d230a2e2958c89/node_modules/@types
+tsc rc=0
+$ npx tsx --test tools/e2e/unit/run-reset-snapshot.test.ts
+✔ Run/Reset snapshot: no vacuous pass (0.803833ms)
+ℹ tests 24
+ℹ suites 3
+ℹ pass 24
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 161.598708
+tsx rc=0

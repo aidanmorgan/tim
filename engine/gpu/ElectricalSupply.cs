@@ -1,16 +1,17 @@
 using System;
 using System.Runtime.Intrinsics;
+using CuriousContraptions.Abstractions.Electrical;
 
 namespace CuriousContraptions.Gpu;
 
 public enum ElectricalEnable : byte { Disabled = 0, Enabled = 1 }
 public readonly record struct ElectricalTransfer(float Remaining, float Debit);
 
-/// <summary>One finite source feeding distinct declared storage loads at 120 Hz.</summary>
+/// <summary>One finite source feeding distinct declared storage loads at 120 Hz. Balances and power lie inside
+/// <see cref="ElectricalSourceEnvelope"/>.</summary>
 public static class ElectricalSupply
 {
     public const float PhaseSeconds = 1f / 120f;
-    public const float MaximumCapacity = 14400f;
     /// <summary>Loads up to this many keep their working rows on the stack; more use the heap. An allocation choice, not a limit:
     /// a source feeds any number of loads (Story 9R.5b).</summary>
     private const int StackLoads = 64;
@@ -23,12 +24,13 @@ public static class ElectricalSupply
         ReadOnlySpan<float> balances, ReadOnlySpan<float> capacities, Span<float> nextBalances)
     {
         if (!Enum.IsDefined(enabled) || !float.IsFinite(sourceBalance) || sourceBalance < 0 ||
-            sourceBalance > MaximumCapacity || !float.IsFinite(maximumPower) || maximumPower is < 10f or > 480f ||
+            sourceBalance > ElectricalSourceEnvelope.MaximumCapacity || !float.IsFinite(maximumPower) ||
+            maximumPower is < ElectricalSourceEnvelope.MinimumPower or > ElectricalSourceEnvelope.MaximumPower ||
             balances.Length != capacities.Length || nextBalances.Length != balances.Length ||
             balances.Overlaps(nextBalances) || capacities.Overlaps(nextBalances))
             throw new ArgumentException("Invalid finite electrical allocation.");
         for (var i = 0; i < balances.Length; i++)
-            if (!float.IsFinite(capacities[i]) || capacities[i] is < 0f or > MaximumCapacity ||
+            if (!float.IsFinite(capacities[i]) || capacities[i] is < 0f or > ElectricalSourceEnvelope.MaximumCapacity ||
                 !float.IsFinite(balances[i]) || balances[i] < 0f || balances[i] > capacities[i])
                 throw new ArgumentException("Invalid electrical storage balance.");
 

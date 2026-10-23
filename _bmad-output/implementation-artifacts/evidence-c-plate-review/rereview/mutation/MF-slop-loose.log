@@ -1,0 +1,8 @@
+    0 Warning(s)
+    0 Error(s)
+-    public const float ContactSlop = 1e-4f;
++    public const float ContactSlop = .2f;
+  Failed CuriousContraptions.Tests.PlacementPoseTests.ALiftIntoAHigherBoxIsRefused [7 ms]
+Expected: IntoPart
+Actual:   None
+Failed!  - Failed:     1, Passed:   176, Skipped:     0, Total:   177, Duration: 5 s - CuriousContraptions.tests.dll (net10.0)

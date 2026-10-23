@@ -8,26 +8,26 @@
 | Requirement | [CAT-023](../requirements.md#current-cat-023) |
 | Mapped identities | EL-193 Domino |
 | Roadmap | Stories 5.1 (CAT-023a dynamic box), 5.2 (CAT-023b cascade and orientation sensor); offset centre of mass re-deferred as roadmap item CAT-023c |
-| Status | delivered except the offset centre of mass (§5) |
-| Levels | domino_effect admitted (`WorkshopPuzzleId.DominoEffect`); see [CAT-023-I consumers](../invest/current-consumers.md#cat-023-i) |
+| Status | delivered except the offset centre of mass (§5): package `elements/Domino`, a generic instance whose orientation sensor is selected by its declared threshold (Story 9A.32); browser qualification pending (post-catalogue E2E) |
+| Levels | domino_effect admitted (Playable in `content/puzzles.json`); see [CAT-023-I consumers](../invest/current-consumers.md#cat-023-i) |
 
 ## 2. Declaration
 
 | Item | Value and source |
 | --- | --- |
-| Body and shape | One dynamic homogeneous box, half extents (0.125, 0.55, 0.325) m, body origin at the box centre `engine/gpu/WorkshopDomino.cs@a6c914e:L5-L18`; compiled `engine/gpu/WorkshopPhysicsCompiler.cs@a6c914e:L43-L52`. |
-| Mass and material | 0.4 kg; bounce 0.05; friction 0.6; bounce threshold 0.1 m/s; rolling resistance 0; only the default material is admitted `engine/gpu/WorkshopDomino.cs@a6c914e:L7-L17`. Inertia derived by the shared solver from extents and mass (`engine/gpu/RigidMassProperties.cs`). |
+| Body and shape | One dynamic homogeneous box, half extents (0.125, 0.55, 0.325) m (the scene-baked box 0.25 × 1.1 × 0.65 of `elements/Domino/domino.tscn`), body origin at the box centre; compiled by the shared generic compiler from the package (`engine/gpu/WorkshopPhysicsCompiler.cs`). |
+| Mass and material | 0.4 kg (`RigidBodyMassProperties`); bounce 0.05; friction 0.6; bounce threshold 0.1 m/s; rolling resistance 0 (the scene body's `MaterialProperties`), all declared in `elements/Domino/DominoElementDeclaration.cs`. No authored value can carry another material: the placed tile is a zero-parameter generic instance, and a save or command record carrying a typed field or a parameter for it is refused. Inertia derived by the shared solver from extents and mass (`engine/gpu/RigidMassProperties.cs`). |
 | Constraints and joints | none. |
 | Sockets and ports | ActivationOut only (Activation, Output) at local (0, 0.55, 0); an activation input is rejected at the port check `engine/gpu/WorkshopConnections.cs@a6c914e:L27-L31`, `engine/gpu/WorkshopConnections.cs@a6c914e:L47-L55`. |
-| Sensors and activation | Orientation-threshold sensor: fires once per world when the tile has turned 45° from its admitted pose (half-angle cosine form), evaluated at substep endpoints, rearmed only by admission; compiled only for a wired tile `engine/gpu/OrientationSensorDeclaration.cs@a6c914e:L7-L34`, `engine/gpu/WorkshopDomino.cs@a6c914e:L25-L26`, `engine/gpu/WorkshopPhysicsCompiler.cs@a6c914e:L53-L55`. |
+| Sensors and activation | Declared orientation threshold (`SignalOrientationDescriptor(ThresholdDegrees: 45)` in f32, `IOrientationSensorElement`; validated: finite, 4–179°, a pulse ActivationOut and a Dynamic body, one node-selecting capability per element). While the tile's ActivationOut is wired, the shared compiler builds its orientation sensor (`WorkshopPhysicsCompiler.OrientationSensorFor`, narrowing to the binary16 half-angle cosine lane bit-equal to the former record's, 0x3b64) and its OrientationSource node (`WorkshopActivationCompiler.Compile`): it fires once per world when the tile has turned 45° in total from its admitted pose (|⟨q, q₀⟩| ≤ cos 22.5°), evaluated at substep endpoints, rearmed only by admission (`engine/gpu/OrientationSensorDeclaration.cs`). An unwired tile compiles neither. There is no Domino record or arm. |
 | Work and energy stores | none. |
-| Parameters | none (`Parameters = {}`). |
+| Parameters | none: the placed tile is a generic instance of its package with `Parameters: []`, and the editor shows no panel. The package's `toppled` trigger (0.707) and `SetReset` latch mode are inert metadata; nothing reads them and the threshold is not derived from them. |
 | Cosmetic curves and UI bindings | none; pips follow the committed body pose. |
 | Art | `parts/DominoPart.cs@a6c914e:L10-L19`: box 0.25 × 1.1 × 0.65 in the part colour, two navy `#384757` pips r 0.045 at (0.14, ±0.25, 0); pick radius 0.6. Scene `parts/scenes/domino.tscn`. Palette Domino `#e8d4a6` `DESIGN.md@a6c914e:L174-L174`; design rule: show the committed toppling pose, the historical scripted local-Z tilt is not a physical authority `DESIGN.md@a6c914e:L275-L275`. Icon `ui/WorkshopIcons.cs@a6c914e:L53-L53`. |
 | Catalogue and inventory | `parts/catalog/domino.tres@a6c914e:L6-L14`: id `domino`, title Domino, category Motion. domino_effect inventory 4 dominoes. |
-| Puzzle data | `DominoEffect` authored as typed data `engine/gpu/DominoEffect.cs`. |
+| Puzzle data | `domino_effect` authored as content data in `content/puzzles.json` (locked Basketball, end tile and lamp; four-tile inventory; goal ActivatedAfter(end tile → lamp)). Its authored solution is four tiles at x = −4, −3, −2, −1 on the bench (y = 0.1) and `solution_connections` end → lamp, which solves natively at every precision (`LaunchLessonSolveTests.TheAuthoredSolutionSolvesAtEveryPrecision`). The rows were corrected in Story 9A.32 from the legacy x = −2.4…0, y = 1, which the falling Basketball never reached and whose last tile overlapped the end tile (`_bmad-output/implementation-artifacts/evidence-9a-32/candidate/domino-effect-solution/`). |
 
-Current tests: `CuriousContraptions.tests/WorkshopDominoTests.cs`, `OrientationSensorTests.cs`, `DominoEffectTests.cs`, `RigidMassPropertiesTests.cs`, `WorkbenchCapacityTests.cs`; Chrome `tools/e2e/cat-023a.test.ts`, `cat-023b.test.ts`, `cat-014.test.ts`.
+Current tests: `CuriousContraptions.tests/DominoGuardTests.cs` (9A.32 suite-first guards on the production simulation: the wired domino_effect cascade topples tile by tile by contact, fires once crossing 45° and solves once at every precision; a gap breaks the chain; an unwired end compiles no sensor or node; an upright tile never fires; a 10° tile rocks back silently and a 30° tile topples and fires; activation input refused at edit and save; highest and lowest placement; Reset rearms in one simulation; Save/Load replays tick for tick), `DeclaredOrientationTests.cs` (selection by declaration with a rotated tile and a switch control, the helper's own cosine per declared threshold, base-encoder saves refused typed), `WorkshopDominoTests.cs`, `OrientationSensorTests.cs`, `DominoEffectTests.cs`, `RigidMassPropertiesTests.cs`, `WorkbenchCapacityTests.cs`, `PalettePlacementTests.cs` (drawer placement as generic, no panel); Chrome `tools/e2e/cat-023a.test.ts`, `cat-023b.test.ts`, `cat-014.test.ts` (pending re-run in the post-catalogue E2E phase).
 
 ## 3. Engine capabilities
 
@@ -37,11 +37,12 @@ Families from the [element map row](../general-engine-element-map.md): ContactIm
 | --- | --- |
 | Dynamic box rigid body, box–box and box–plane manifolds, resting stability | Story 5.1 |
 | Orientation-threshold sensor and ActivationOut | Story 5.2 |
+| Declared orientation capability (`IOrientationSensorElement`, bundle `SignalPayload.Orientation`), compiled by one shared helper | Story 9A.32; `CuriousContraptions.Abstractions.Signal/SignalContracts.cs`, `CuriousContraptions.Bundle/BundleValidator.cs` |
 
 | Missing | Story that builds it |
 | --- | --- |
 | Offset centre of mass (body origin ≠ mass centre) in the shared rigid-body record | roadmap item CAT-023c (no epics.md story yet) |
-| f32 declarations: `DominoMaterial` extents, mass, bounce and friction, the orientation threshold cosine and the inertia lanes are still binary16 (`Half`) | Remaining f32 migration ([f32 migration status](../../gpu-f32-physics.md#f32-migration-status)) |
+| f32 lanes: the package declares the extents, mass, material and threshold in f32, but the compiled body, collider, material, half-angle cosine and inertia lanes are still binary16 (`Half`) | Remaining f32 migration ([f32 migration status](../../gpu-f32-physics.md#f32-migration-status)) |
 
 Dependencies: a striker (Bowling or Basketball) and a supporting surface.
 
@@ -82,4 +83,4 @@ Acceptance: [CAT-023](../requirements.md#current-cat-023) and its delivery notes
 
 - Offset centre of mass value (vector in the tile frame): not recorded in the legacy or the requirements at `a6c914e`: unspecified — owner decision.
 - Whether the authored domino trigger-threshold knots (fact 2) have any meaning under the 45° orientation sensor, or are retired: unspecified — owner decision.
-- Whether a domino spun about one axis without tipping should fire the orientation sensor (the legacy tilt sensor ignored axial spin, fact 6; the current sensor counts total rotation): unspecified — owner decision.
+- Whether a domino spun about one axis without tipping should fire the orientation sensor (the legacy tilt sensor ignored axial spin, fact 6; the current sensor counts total rotation): unspecified — owner decision. The coordinator's game-intent reading (23 Oct 2026) is "has fallen", so axial spin should not fire. Measured on the shipped engine (9A.32, `_bmad-output/implementation-artifacts/evidence-9a-32/baseline/capture/axial-spin.txt`, identical after the conversion): a tile spun about its long axis with no tilt fires once its yaw passes 45° (floating at 4 rad/s: fired at 45.8°; standing on the bench at 20 rad/s: fired at tick 5); standing at 4 rad/s, bench friction stops it at 13.5° and it stays armed. Meeting that reading therefore needs a sensor-law change (measure the tilt of the declared axis rather than the total rotation). The coordinator decided (23 Oct 2026) that the 9A.32 conversion preserves the total-rotation behaviour exactly, so this item stays open for a future decision.

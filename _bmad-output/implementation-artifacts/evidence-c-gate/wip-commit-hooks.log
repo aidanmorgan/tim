@@ -1,0 +1,124 @@
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.5pgZBo/solution.binlog
+
+Time Elapsed 00:00:20.59
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.5pgZBo/playtest.binlog
+
+Time Elapsed 00:00:12.88
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.5pgZBo/web.binlog
+
+Time Elapsed 00:00:07.58
+Anvil snapshot 0.ts: CuriousContraptions.Abstractions.Mechanical/MechanicalContracts.cs
+Anvil snapshot 1.ts: CuriousContraptions.Bundle/BundleValidator.cs
+Anvil snapshot 2.ts: CuriousContraptions.Simulation/PrismaticConstraintSolver.cs
+Anvil snapshot 3.ts: CuriousContraptions.Simulation/Program.cs
+Anvil snapshot 4.ts: CuriousContraptions.Simulation/WarmupScene.cs
+Anvil snapshot 5.ts: CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs
+Anvil snapshot 6.ts: CuriousContraptions.tests/BothGateTests.cs
+Anvil snapshot 7.ts: CuriousContraptions.tests/CounterTests.cs
+Anvil snapshot 8.ts: CuriousContraptions.tests/DeclaredPresentationTests.cs
+Anvil snapshot 9.ts: CuriousContraptions.tests/DeclaredPrismaticDriveTests.cs
+Anvil snapshot 10.ts: CuriousContraptions.tests/ElectricalNandTests.cs
+Anvil snapshot 11.ts: CuriousContraptions.tests/ElectricalNorTests.cs
+Anvil snapshot 12.ts: CuriousContraptions.tests/ElectricalOrTests.cs
+Anvil snapshot 13.ts: CuriousContraptions.tests/HoldTimerTests.cs
+Anvil snapshot 14.ts: CuriousContraptions.tests/LatchSupplyFixtureTests.cs
+Anvil snapshot 15.ts: CuriousContraptions.tests/PoweredGateTests.cs
+Anvil snapshot 16.ts: CuriousContraptions.tests/PressurePlateTests.cs
+Anvil snapshot 17.ts: CuriousContraptions.tests/SwitchElectricalTests.cs
+Anvil snapshot 18.ts: CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs
+Anvil snapshot 19.ts: CuriousContraptions.tests/WorkshopPhysicsLawTests.cs
+Anvil snapshot 20.ts: elements/PoweredGate/PoweredGateElementDeclaration.cs
+Anvil snapshot 21.ts: elements/Springboard/SpringboardElementDeclaration.cs
+Anvil snapshot 22.ts: engine/gpu/PhysicsDeclarations.cs
+Anvil snapshot 23.ts: engine/gpu/PhysicsGpuAbi.Constraints.cs
+Anvil snapshot 24.ts: engine/gpu/PhysicsGpuAbi.Header.cs
+Anvil snapshot 25.ts: engine/gpu/PhysicsPresentationRead.cs
+Anvil snapshot 26.ts: engine/gpu/PrismaticConstraint.cs
+Anvil snapshot 27.ts: engine/gpu/SupplyRoute.cs
+Anvil snapshot 28.ts: engine/gpu/WorkshopPhysicsCompiler.cs
+Anvil snapshot 29.ts: engine/gpu/WorkshopWireFlatBuffers.cs
+Anvil snapshot 30.ts: engine/gpu/WorkshopWireGenerated.cs
+Anvil snapshot 31.ts: tools/BundleElements.Tests/BundleValidatorTests.cs
+Anvil snapshot 32.ts: tools/BundleElements.Tests/Fixtures.cs
+Anvil snapshot 33.ts: tools/e2e/cat-037.test.ts
+Anvil snapshot 34.ts: tools/e2e/cat-052-lamp.test.ts
+Anvil snapshot 35.ts: tools/e2e/run-reset-snapshot.ts
+Anvil snapshot 36.ts: tools/e2e/workshop-wire.ts
+{
+  "version": "1.0.0",
+  "timestamp": "2026-10-23T07:01:35.978467+00:00",
+  "files": [
+    "0.ts",
+    "1.ts",
+    "2.ts",
+    "3.ts",
+    "4.ts",
+    "5.ts",
+    "6.ts",
+    "7.ts",
+    "8.ts",
+    "9.ts",
+    "10.ts",
+    "11.ts",
+    "12.ts",
+    "13.ts",
+    "14.ts",
+    "15.ts",
+    "16.ts",
+    "17.ts",
+    "18.ts",
+    "19.ts",
+    "20.ts",
+    "21.ts",
+    "22.ts",
+    "23.ts",
+    "24.ts",
+    "25.ts",
+    "26.ts",
+    "27.ts",
+    "28.ts",
+    "29.ts",
+    "30.ts",
+    "31.ts",
+    "32.ts",
+    "33.ts",
+    "34.ts",
+    "35.ts",
+    "36.ts"
+  ],
+  "hasBlockingWarnings": false,
+  "executionTimeMs": 35,
+  "checksRun": [
+    "secret-detection",
+    "antipattern-scan"
+  ],
+  "notifications": [],
+  "warnings": [],
+  "summary": {
+    "total": 0,
+    "errors": 0,
+    "warnings": 0,
+    "info": 0,
+    "suppressed": 0
+  }
+}
+
+Test run for /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.ME0D8k/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:   124, Skipped:     0, Total:   124, Duration: 4 s - CuriousContraptions.tests.dll (net10.0)

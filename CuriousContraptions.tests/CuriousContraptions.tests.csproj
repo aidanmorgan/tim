@@ -63,10 +63,18 @@
     <!-- Explicit current test and native-boundary inputs; obsolete uncompiled tests were removed by Story 7.3. -->
     <ItemGroup>
         <Compile Include="ElementIsolationTests.cs" />
+        <Compile Include="LampDetectorGuardTests.cs" />
+        <Compile Include="PlateGuardTests.cs" />
+        <Compile Include="ClockGuardTests.cs" />
+        <Compile Include="DeclaredOscillatorTests.cs" />
+        <Compile Include="DeclaredContactLoadTests.cs" />
+        <Compile Include="PlacementPoseTests.cs" />        <Compile Include="DeclaredIndicatorPassageTests.cs" />        <Compile Include="SourceStoreInstanceTests.cs" />
+        <Compile Include="DeclaredPrismaticDriveTests.cs" />
         <Compile Include="CanonicalBodyTests.cs" />
         <Compile Include="RigidMassPropertiesTests.cs" />
         <Compile Include="WorkshopSimulationTests.cs" />
         <Compile Include="EventRingBufferTests.cs" />
+        <Compile Include="EventRingProducerTests.cs" />
         <Compile Include="WorkshopSaveTests.cs" />
         <Compile Include="ContactActivationTests.cs" />
         <Compile Include="WorkshopActivationAnimationTests.cs" />
@@ -77,6 +85,7 @@
         <Compile Include="ElectricalNandTests.cs" />
         <Compile Include="ElectricalNorTests.cs" />
         <Compile Include="ElectricalOrTests.cs" />
+        <Compile Include="ElectricalXorTests.cs" />
         <Compile Include="SwitchElectricalTests.cs" />
         <Compile Include="LatchSupplyFixtureTests.cs" />
         <Compile Include="WorkshopBumperTests.cs" />
@@ -85,7 +94,7 @@
         <Compile Include="PrismaticConstraintTests.cs" />
         <Compile Include="WorkshopSpringboardTests.cs" />
         <Compile Include="WorkshopDominoTests.cs" />
-        <Compile Include="WorkshopBowlingTests.cs" />
+        <Compile Include="DominoGuardTests.cs" />        <Compile Include="DeclaredOrientationTests.cs" />        <Compile Include="WorkshopBowlingTests.cs" />
         <Compile Include="PayloadInstanceTests.cs" />
         <Compile Include="PlacedParts.cs" />
         <Compile Include="LaunchLessonSolveTests.cs" />
@@ -165,6 +174,7 @@
         <Compile Include="../CuriousContraptions.Simulation/WorkshopConstraintSolver.cs" Link="Simulation/WorkshopConstraintSolver.cs" />
         <Compile Include="../CuriousContraptions.Simulation/WorkshopDynamicBvh.cs" Link="Simulation/WorkshopDynamicBvh.cs" />
         <Compile Include="../CuriousContraptions.Simulation/PrismaticConstraintSolver.cs" Link="Simulation/PrismaticConstraintSolver.cs" />
+        <Compile Include="../CuriousContraptions.Simulation/WarmupScene.cs" Link="Simulation/WarmupScene.cs" />
     </ItemGroup>
 
     <!-- Godot project location: the parent directory (hosts are nested inside

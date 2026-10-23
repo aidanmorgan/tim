@@ -1,0 +1,26 @@
+$ anvil check --no-tui <slice files 746d6582..37bdc661>
+      47
+Last run written to .anvil/last-check.txt
+  ✓ No warnings found
+  ✗ Secret scan could not prove these files clean
+⚠ The scan could not cover everything it was asked to:
+  - 20 line(s) too long to scan, so this result cannot prove them clean: raise `max_line_bytes` to cover them, or suppress with a documented reason
+$ throwaway worktree at 746d6582 with slice staged; anvil hook pre-commit --no-tui
+<stdin>:6035: new blank line at EOF.
++
+staged tree: 1f8d9cd6c8fc5afcf163a5170317cbf2d64bed21 (expected 1f8d9cd6c8fc5afcf163a5170317cbf2d64bed21)
+anvil hook rc=0
+$ anvil check --no-tui <authored slice files: non-.log, non-raw-diff>
+_bmad-output/implementation-artifacts/evidence-9-8b-review/candidate-identity.txt
+_bmad-output/implementation-artifacts/evidence-9-8b-review/post-merge/appbundle-absent.txt
+_bmad-output/implementation-artifacts/evidence-9-8b-review/post-merge/pin-and-static.txt
+_bmad-output/implementation-artifacts/evidence-9-8b-review/probes/ReviewerXorDynamicProbe.cs.txt
+_bmad-output/implementation-artifacts/evidence-9-8b/post-merge/diff-check-evidence-files.txt
+_bmad-output/implementation-artifacts/evidence-9-8b/post-merge/identity.txt
+_bmad-output/implementation-artifacts/evidence-9-8b/post-merge/palette-ordinals.txt
+_bmad-output/implementation-artifacts/evidence-9-8b/post-merge/pin-derivation.txt
+_bmad-output/implementation-artifacts/review-9-8b-electrical-xor.md
+_bmad-output/implementation-artifacts/spec-9-8b-electrical-xor.md
+Last run written to .anvil/last-check.txt
+  ✓ No warnings found
+$ files with lines > 16 KB among slice files

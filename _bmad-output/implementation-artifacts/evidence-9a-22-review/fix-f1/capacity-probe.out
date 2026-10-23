@@ -1,0 +1,8 @@
+slots=1 capacity=1 byteLength=128
+slots=1048560 capacity=1048576 byteLength=67108928
+slots=1048576 capacity=1048576 byteLength=67108928
+slots=1048577 capacity=ArgumentOutOfRangeException byteLength=-
+slots=33554432 capacity=ArgumentOutOfRangeException byteLength=-
+slots=67108864 capacity=ArgumentOutOfRangeException byteLength=-
+MaximumCapacity=1048576 int.MaxValue=2147483647
+8738*120=1048560 (<= 2^20: True); 8739*120=1048680 (> 2^20: True)

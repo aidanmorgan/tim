@@ -1,0 +1,20 @@
+mutant R1-toggle-pushes-undo file ui/WorkshopConfiguration.cs
+diff --git a/ui/WorkshopConfiguration.cs b/ui/WorkshopConfiguration.cs
+index e266bb15..e36914c1 100644
+--- a/ui/WorkshopConfiguration.cs
++++ b/ui/WorkshopConfiguration.cs
+@@ -141,6 +141,7 @@ public partial class Workshop
+     private async Task ApplyRunControlAsync(GpuBodyId owner, ElectricalEnable enabled)
+     {
+         if (_gpuPending || _runControlSending) return;
++        PushUndo();
+         _runControlSending = true;
+         var epoch = World.WorkshopRead.Epoch.Value;
+         var tick = World.WorkshopRead.Tick.Value;
+    0 Error(s)
+    0 Warning(s)
+Build succeeded.
+  Failed CuriousContraptions.Tests.PalettePlacementTests.TheRunControlToggleSendsTypedControlsWithoutEditingAndAppearsOnlyForADeclaredRunControl [21 ms]
+Failed!  - Failed:     1, Passed:  2465, Skipped:     0, Total:  2466, Duration: 46 s - CuriousContraptions.tests.dll (net10.0)
+Passed!  - Failed:     0, Passed:   163, Skipped:     0, Total:   163, Duration: 330 ms - BundleElements.Tests.dll (net10.0)
+restored: yes

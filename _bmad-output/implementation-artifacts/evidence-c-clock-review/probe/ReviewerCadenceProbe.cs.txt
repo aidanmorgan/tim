@@ -1,0 +1,48 @@
+using CuriousContraptions.Gpu;
+
+namespace CuriousContraptions.Tests;
+
+// Reviewer probe (C-Clock review, throwaway candidate worktree only): does the full production engine run a declared clock at Hz60 and
+// Hz240, and is the committed count floor(tick / interval) at every tick there too (no drift over the run's tick limit)?
+public sealed class ReviewerCadenceProbe
+{
+    private static readonly GpuBodyId Source = new(1), Owner = new(2), Counter = new(3);
+
+    [Theory]
+    [InlineData(SimulationCadence.Hz60, .1f, 6u)]
+    [InlineData(SimulationCadence.Hz60, 1f, 60u)]
+    [InlineData(SimulationCadence.Hz60, 12f, 720u)]
+    [InlineData(SimulationCadence.Hz240, .1f, 24u)]
+    [InlineData(SimulationCadence.Hz240, 1f, 240u)]
+    [InlineData(SimulationCadence.Hz240, 12f, 2880u)]
+    [InlineData(SimulationCadence.Hz120, 1f, 120u)]
+    public async Task FullEngineCountIsFloorOfTickOverIntervalAtCadence(SimulationCadence cadence, float seconds, uint interval)
+    {
+        var settings = WorkshopCadenceSettings.Default() with { Simulation = cadence };
+        var bench = new WorkshopConstruction(new(2), settings, new([PlacedParts.Battery(Source, -3, 3, 0),
+                PlacedParts.Clock(Owner, 0, 3, 0, 0, 0, 0, 1, seconds), WorkshopInput.Counter(Counter, 3, 3, 0, 0, 0, 0, 1, 9)]),
+            Connections: new(new WorkshopConnection(Source, WorkshopSocket.Supply, Owner, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical),
+                new WorkshopConnection(Owner, WorkshopSocket.ActivationOut, Counter, WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation)));
+        await using var device = new WorkshopGpuDevice(new CuriousContraptions.Simulation.BrowserGpuTransport(), new(101, 206));
+        await using var simulation = new WorkshopSimulation(device, new WorkshopPhysicsEngineTests.StepClock(), settings, new(1),
+            new WorkshopPhysicsEngineTests.NoInstallation(), GpuDeviceOwnership.Borrowed);
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Initialize()).Outcome);
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Construct(bench)).Outcome);
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Run()).Outcome);
+        var limit = Math.Min(settings.RunTickLimit, 7200UL) - 1;
+        for (ulong tick = 1; tick <= limit; tick++)
+        {
+            Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Advance()).Outcome);
+            var read = simulation.Committed;
+            Assert.Equal(tick, read.Tick.Value);
+            ActivationMemory Row(GpuBodyId owner)
+            {
+                for (var i = 0; i < read.Memory.Count; i++) if (read.Memory[i].Node == new ActivationNodeId(owner.Value)) return read.Memory[i];
+                throw new InvalidOperationException("row");
+            }
+            if (Row(Owner).Count != (uint)(tick / interval)) Assert.Fail($"{cadence} {seconds}s tick {tick}: count {Row(Owner).Count}, expected {tick / interval}");
+            if (tick == interval)
+                Assert.Equal((1U, tick * settings.PhysicalStepsPerCommit), (Row(Counter).Count, (ulong)Row(Counter).Last.Ordinal));
+        }
+    }
+}

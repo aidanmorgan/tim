@@ -1,0 +1,46 @@
+Test run for /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/wt-cand/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:02.56]     CuriousContraptions.Tests.DeclaredPrismaticDriveTests.ASuppliedBoxWithTheGatesBladeAndLimitsButNoDeclaredDriveNeverActuates [FAIL]
+  Failed CuriousContraptions.Tests.DeclaredPrismaticDriveTests.ASuppliedBoxWithTheGatesBladeAndLimitsButNoDeclaredDriveNeverActuates [26 ms]
+  Error Message:
+   Assert.Equal() Failure: Values are not within tolerance 0.00100000005
+Expected: 1.54999995
+Actual:   1.03064108
+  Stack Trace:
+     at CuriousContraptions.Tests.DeclaredPrismaticDriveTests.ASuppliedBoxWithTheGatesBladeAndLimitsButNoDeclaredDriveNeverActuates() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/wt-cand/CuriousContraptions.tests/DeclaredPrismaticDriveTests.cs:line 169
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:03.04]     CuriousContraptions.Tests.DeclaredPrismaticDriveTests.ThePoweredGateOpensToItsTargetWithinItsDeclaredSpeedEffortAndPowerOnEverySubstep [FAIL]
+  Failed CuriousContraptions.Tests.DeclaredPrismaticDriveTests.ThePoweredGateOpensToItsTargetWithinItsDeclaredSpeedEffortAndPowerOnEverySubstep [35 ms]
+  Error Message:
+   Assert.InRange() Failure: Value not in range
+Range:  (60 - 120)
+Actual: 46.8528061
+  Stack Trace:
+     at CuriousContraptions.Tests.DeclaredPrismaticDriveTests.ThePoweredGateOpensToItsTargetWithinItsDeclaredSpeedEffortAndPowerOnEverySubstep() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/wt-cand/CuriousContraptions.tests/DeclaredPrismaticDriveTests.cs:line 105
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:03.54]     CuriousContraptions.Tests.LatchSupplyFixtureTests.NoSwitchBCompletesOpeningHoldsAndPassesTheBall [FAIL]
+[xUnit.net 00:00:03.81]     CuriousContraptions.Tests.LatchSupplyFixtureTests.ResetWhenOpenClearsDownstreamAndSpringCloses [FAIL]
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.NoSwitchBCompletesOpeningHoldsAndPassesTheBall [76 ms]
+  Error Message:
+   the opening completes
+  Stack Trace:
+     at CuriousContraptions.Tests.LatchSupplyFixtureTests.NoSwitchBCompletesOpeningHoldsAndPassesTheBall() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/wt-cand/CuriousContraptions.tests/LatchSupplyFixtureTests.cs:line 225
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.ResetWhenOpenClearsDownstreamAndSpringCloses [84 ms]
+  Error Message:
+   guard: Switch B must strike with the blade fully open, opening 1.1101433
+  Stack Trace:
+     at CuriousContraptions.Tests.LatchSupplyFixtureTests.ResetWhenOpenClearsDownstreamAndSpringCloses() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/wt-cand/CuriousContraptions.tests/LatchSupplyFixtureTests.cs:line 172
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:04.10]     CuriousContraptions.Tests.LatchSupplyFixtureTests.SetClosesRouteOneTickAfterStrikeWithoutTopologyChange [FAIL]
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.SetClosesRouteOneTickAfterStrikeWithoutTopologyChange [38 ms]
+  Error Message:
+   Assert.True() Failure
+Expected: True
+Actual:   False
+  Stack Trace:
+     at CuriousContraptions.Tests.LatchSupplyFixtureTests.SetClosesRouteOneTickAfterStrikeWithoutTopologyChange() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/wt-cand/CuriousContraptions.tests/LatchSupplyFixtureTests.cs:line 159
+--- End of stack trace from previous location ---
+
+Failed!  - Failed:     5, Passed:   117, Skipped:     0, Total:   122, Duration: 2 s - CuriousContraptions.tests.dll (net10.0)

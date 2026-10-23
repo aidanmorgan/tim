@@ -30,16 +30,7 @@ public static class WorkshopWireFlatBuffers
         InstanceRecord.AddCell(builder, Vec3i.CreateVec3i(builder, template.Cell.X, template.Cell.Y, template.Cell.Z));
         InstanceRecord.AddLocal(builder, Vec3f.CreateVec3f(builder, template.Local.X, template.Local.Y, template.Local.Z));
         InstanceRecord.AddRotation(builder, Quat4f.CreateQuat4f(builder, template.Rotation.X, template.Rotation.Y, template.Rotation.Z, template.Rotation.W));
-        InstanceRecord.AddMass(builder, values[AuthoredScalar.Mass]);
-        InstanceRecord.AddBounce(builder, values[AuthoredScalar.Bounce]);
         InstanceRecord.AddLength(builder, values[AuthoredScalar.Length]);
-        InstanceRecord.AddThreshold(builder, values[AuthoredScalar.Threshold]);
-        InstanceRecord.AddCapacity(builder, values[AuthoredScalar.Capacity]);
-        InstanceRecord.AddMaximumPower(builder, values[AuthoredScalar.MaximumPower]);
-        InstanceRecord.AddInitialFraction(builder, values[AuthoredScalar.InitialFraction]);
-        InstanceRecord.AddEnabled(builder, (byte)template.Enabled);
-        InstanceRecord.AddHalfExtents(builder, Vec3f.CreateVec3f(builder, template.HalfExtents.X, template.HalfExtents.Y, template.HalfExtents.Z));
-        InstanceRecord.AddFriction(builder, values[AuthoredScalar.Friction]);
         InstanceRecord.AddTargetCount(builder, template.TargetCount);
         InstanceRecord.AddParameters(builder, parameters);
         builder.Finish(InstanceRecord.EndInstanceRecord(builder).Value);
@@ -189,9 +180,40 @@ public static class WorkshopWireFlatBuffers
             electrical.Value.Validate();
         }
 
-        return new WorkshopCommand(sequence, kind, new(fb.Epoch), new(fb.Revision),
-            fb.ConstructionRecord is { } record ? DecodeConstructionRecord(record) : null,
+        var construction = fb.ConstructionRecord is { } record ? DecodeConstructionRecord(record) : (WorkshopConstruction?)null;
+        if (HoldsFieldBeyondTheInstanceTable(fb.ByteBuffer, CommandConstructionSlot))
+            throw new WireFaultException(WireFaultReason.OutOfRange, "An instance record holds a field the current record does not define.");
+        return new WorkshopCommand(sequence, kind, new(fb.Epoch), new(fb.Revision), construction,
             target, revisionKind, session, cadence, projection, settings, electrical);
+    }
+
+    /// <summary>The current <c>InstanceRecord</c> table's field count (schemas/workshop_wire.fbs).</summary>
+    internal const int InstanceRecordFields = 9;
+    /// <summary>The vtable offsets of <c>SavedConstruction.construction</c> (field 1), <c>WorkshopCommand.construction_record</c>
+    /// (field 11) and <c>ConstructionRecord.instances</c> (field 3), as the generated accessors read them.</summary>
+    internal const int SavedConstructionSlot = 6, CommandConstructionSlot = 26, ConstructionInstancesSlot = 10;
+
+    /// <summary>Whether any instance record of the verified root's construction holds a present field in a slot the current
+    /// <c>InstanceRecord</c> does not define (an older layout's or a forged record's). Such a field is refused at both decode
+    /// boundaries, never silently ignored. Reads only vtable entries inside each verified vtable.</summary>
+    internal static bool HoldsFieldBeyondTheInstanceTable(ByteBuffer bb, int constructionSlot)
+    {
+        var root = new Table(bb.GetInt(bb.Position) + bb.Position, bb);
+        var field = root.__offset(constructionSlot);
+        if (field == 0) return false;
+        var construction = new Table(root.__indirect(field + root.bb_pos), bb);
+        var instances = construction.__offset(ConstructionInstancesSlot);
+        if (instances == 0) return false;
+        var vector = construction.__vector(instances);
+        for (var i = 0; i < construction.__vector_len(instances); i++)
+        {
+            var table = construction.__indirect(vector + i * 4);
+            var vtable = table - bb.GetInt(table);
+            var size = bb.GetUshort(vtable);
+            for (var slot = InstanceRecordFields; 4 + 2 * slot + 2 <= size; slot++)
+                if (bb.GetUshort(vtable + 4 + 2 * slot) != 0) return true;
+        }
+        return false;
     }
 
     /// <summary>The 24-byte receipt identity of a physical read (its session, then its publication): the Simulation worker hands
@@ -244,7 +266,7 @@ public static class WorkshopWireFlatBuffers
             for (var i = read.Presentation.Actuators.Length - 1; i >= 0; i--)
             {
                 var a = read.Presentation.Actuators[i];
-                ActuatorDriveRecord.CreateActuatorDriveRecord(builder, a.Joint.Value, a.Owner.Value, a.SupplyClosed,
+                ActuatorDriveRecord.CreateActuatorDriveRecord(builder, a.Joint.Value, a.Owner.Value, a.SupplyClosed, a.MovingContact,
                     a.Coordinate, a.Speed, a.Lower, a.Upper);
             }
             actuatorOffset = builder.EndVector();
@@ -509,7 +531,7 @@ public static class WorkshopWireFlatBuffers
         for (var i = 0; i < actuatorValues.Length; i++)
         {
             var a = fb.ActuatorDrives(i)!.Value;
-            actuatorValues[i] = new(new(a.Joint), new(a.Owner), a.SupplyClosed, a.Coordinate, a.Speed, a.Lower, a.Upper);
+            actuatorValues[i] = new(new(a.Joint), new(a.Owner), a.SupplyClosed, a.MovingContact, a.Coordinate, a.Speed, a.Lower, a.Upper);
         }
         var loadValues = new ContactLoadSensorRead[fb.ContactLoadsLength];
         for (var i = 0; i < loadValues.Length; i++)
@@ -617,33 +639,14 @@ public static class WorkshopWireFlatBuffers
 
             switch (instance)
             {
-                case WorkshopBattery battery:
-                    InstanceRecord.AddCapacity(builder, battery.Settings.Capacity.Value);
-                    InstanceRecord.AddMaximumPower(builder, battery.Settings.MaximumPower.Value);
-                    InstanceRecord.AddInitialFraction(builder, battery.Settings.InitialFraction);
-                    InstanceRecord.AddEnabled(builder, (byte)battery.Settings.Enabled);
-                    break;
-                case WorkshopDomino domino:
-                    InstanceRecord.AddHalfExtents(builder, Vec3f.CreateVec3f(builder, (float)domino.Material.HalfExtents.X, (float)domino.Material.HalfExtents.Y, (float)domino.Material.HalfExtents.Z));
-                    InstanceRecord.AddMass(builder, (float)domino.Material.Mass.Value);
-                    InstanceRecord.AddBounce(builder, (float)domino.Material.Bounce.Value);
-                    InstanceRecord.AddFriction(builder, (float)domino.Material.Friction.Value);
-                    break;
                 case WorkshopPipe pipe:
                     InstanceRecord.AddLength(builder, pipe.Length.Metres);
                     break;
-                case WorkshopLamp:
                 case WorkshopLatch:
                 case IWorkshopDeclaredColliders:
                     break;
-                case WorkshopPressurePlate plate:
-                    InstanceRecord.AddThreshold(builder, plate.MinimumMass);
-                    break;
                 case WorkshopCounter counter:
                     InstanceRecord.AddTargetCount(builder, checked((uint)counter.TargetCount));
-                    break;
-                case WorkshopClock clock:
-                    InstanceRecord.AddThreshold(builder, clock.IntervalSeconds);
                     break;
                 default:
                     throw new ArgumentException("Unsupported instance declaration.");
@@ -744,41 +747,35 @@ public static class WorkshopWireFlatBuffers
 
         IWorkshopInstance result = partId.Value switch
         {
-            "battery" => new WorkshopBattery(id, cell, local, rotation,
-                new ElectricalSourceSettings(new Joules(inst.Capacity), new Watts(inst.MaximumPower), inst.InitialFraction, (ElectricalEnable)inst.Enabled), locked),
-            "domino" => MapDomino(inst, id, cell, local, rotation, locked),
-            "lamp" => new WorkshopLamp(id, cell, local, rotation, locked),
             "latch" => new WorkshopLatch(id, cell, local, rotation, locked),
-            // A record without its length decodes the schema's 0, which validation rejects: no default replaces saved data.
-            "pipe" => new WorkshopPipe(id, cell, local, rotation, new(inst.Length), locked),
-            "ball_detector" => new WorkshopBallDetector(id, cell, local, rotation, locked),
+            // A record without its length is a missing field: no default replaces saved data; a present length is validated as written.
+            "pipe" => new WorkshopPipe(id, cell, local, rotation, new(RequiredLength(inst)), locked),
             // Declared settings are decoded as written; construction validation rejects a missing (zero) or out-of-range value.
-            "pressure_plate" => new WorkshopPressurePlate(id, cell, local, rotation, inst.Threshold, locked),
             "counter" => new WorkshopCounter(id, cell, local, rotation, TargetCount(inst), locked),
-            "clock" => new WorkshopClock(id, cell, local, rotation, inst.Threshold, locked),
             // Every other element is a generic instance of its declared colliders (Story 9A.15: no per-id list); an id with neither
             // a record nor colliders is no element this decoder knows, refused naming it.
             _ => DeclaredPhysics.Contains(partId) && DeclaredPhysics.Of(partId).Colliders.Count > 0
-                ? new WorkshopGenericInstance(partId, id, cell, local, rotation, locked) { Parameters = DecodeParameters(inst, partId) }
+                ? Generic(inst, partId, id, cell, local, rotation, locked)
                 : throw new WireFaultException(WireFaultReason.UnknownElement, $"Instance {inst.Id} names unknown physical element '{partId}'.")
         };
-        if (result is WorkshopGenericInstance && CarriesTypedField(inst))
-            throw new WireFaultException(WireFaultReason.OutOfRange, "Generic instance cannot carry a typed record field.");
         if (result is not WorkshopGenericInstance && inst.ParametersLength != 0)
             throw new WireFaultException(WireFaultReason.OutOfRange, "Typed instance cannot carry generic parameters.");
         return result;
     }
 
-    /// <summary>Whether a record holds any typed record field: a nonzero bit pattern in any scalar, the enable state or the target
-    /// count, or a nonzero half extent. A generic instance carries only its declared parameters, so this refuses it (the save
-    /// pre-validation applies the same rule).</summary>
+    /// <summary>A generic instance of its declared parameters. A record carrying a typed field (an older typed record of an element
+    /// that is now generic) is refused as that, before its parameters are read, as the save pre-validation orders it.</summary>
+    private static WorkshopGenericInstance Generic(InstanceRecord inst, PartId part, GpuBodyId id, CellOrigin cell, LocalPosition local,
+        CanonicalRotation rotation, bool locked) => CarriesTypedField(inst)
+        ? throw new WireFaultException(WireFaultReason.OutOfRange, "Generic instance cannot carry a typed record field.")
+        : new(part, id, cell, local, rotation, locked) { Parameters = DecodeParameters(inst, part) };
+
+    /// <summary>Whether a record holds any typed record field: a nonzero bit pattern in the length, or a nonzero target count. A
+    /// generic instance carries only its declared parameters, so this refuses it (the save pre-validation applies the same
+    /// rule).</summary>
     internal static bool CarriesTypedField(InstanceRecord r)
     {
-        static bool Set(float value) => BitConverter.SingleToUInt32Bits(value) != 0;
-        var extents = r.HalfExtents;
-        return Set(r.Mass) || Set(r.Bounce) || Set(r.Length) || Set(r.Threshold) || Set(r.Capacity) || Set(r.MaximumPower) ||
-            Set(r.InitialFraction) || Set(r.Friction) || r.Enabled != 0 || r.TargetCount != 0 ||
-            (extents is { } h && (Set(h.X) || Set(h.Y) || Set(h.Z)));
+        return BitConverter.SingleToUInt32Bits(r.Length) != 0 || r.TargetCount != 0;
     }
 
     internal static InstanceParameterCollection DecodeParameters(InstanceRecord record, PartId part)
@@ -799,6 +796,12 @@ public static class WorkshopWireFlatBuffers
         { throw new WireFaultException(WireFaultReason.OutOfRange, "Invalid declared parameters.", error); }
     }
 
+    /// <summary>A record's length field: absent (the schema's 0, as when an older layout's length moved to another slot) is a missing
+    /// field, never defaulted; a present length is the record's own, which construction validation admits or refuses.</summary>
+    private static float RequiredLength(InstanceRecord inst) => BitConverter.SingleToUInt32Bits(inst.Length) == 0
+        ? throw new WireFaultException(WireFaultReason.MissingField, $"Instance {inst.Id} has no length.")
+        : inst.Length;
+
     /// <summary>The Counter's whole target count: absent is a missing field and one beyond Int32 is out of range, never coerced;
     /// its admitted range is the Counter's own rule.</summary>
     private static int TargetCount(InstanceRecord inst) => inst.TargetCount switch
@@ -807,12 +810,4 @@ public static class WorkshopWireFlatBuffers
         > int.MaxValue => throw new WireFaultException(WireFaultReason.OutOfRange, $"Counter {inst.Id} target count {inst.TargetCount} is not an Int32."),
         var count => (int)count,
     };
-
-    private static WorkshopDomino MapDomino(InstanceRecord inst, GpuBodyId id, CellOrigin cell, LocalPosition local, CanonicalRotation rotation, bool locked)
-    {
-        var extents = Required(inst.HalfExtents, "half extents");
-        return new WorkshopDomino(id, cell, local, rotation,
-            new DominoMaterial(new MetreVector((Half)extents.X, (Half)extents.Y, (Half)extents.Z),
-                new((Half)inst.Mass), new((Half)inst.Bounce), new((Half)inst.Friction)), locked);
-    }
 }

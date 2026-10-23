@@ -445,9 +445,9 @@ public sealed class WorkshopPhysicsEngineTests
     public async Task TheTwoLaneSetupSeparatesTheBallKindsAndBothStruckBallsComeToRest()
     {
         GpuBodyId tileA = new(1), tileB = new(2), ballA = new(3), ballB = new(4);
-        var tileY = BenchY + (float)DominoMaterial.Default.HalfExtents.Y + .01f;
+        var tileY = BenchY + LawTile.HalfExtents.Y + .01f;
         var reads = await Run(Free(
-            WorkshopInput.Domino(tileA, 0, tileY, -1.5, 0, 0, 0, 1), WorkshopInput.Domino(tileB, 0, tileY, 1.5, 0, 0, 0, 1),
+            PlacedParts.Domino(tileA, 0, tileY, -1.5, 0, 0, 0, 1), PlacedParts.Domino(tileB, 0, tileY, 1.5, 0, 0, 0, 1),
             WorkshopInput.Generic(LawBalls.Part(LawBall.Basketball), ballA, .3, 1.05, -1.5, 0, 0, 0, 1),
             WorkshopInput.Generic(LawBalls.Part(LawBall.Bowling), ballB, .3, 1.05, 1.5, 0, 0, 0, 1)), 7 * TicksPerSecond);
         var peakA = reads.Max(read => Tilt(Find(read.Bodies, tileA)));
@@ -651,7 +651,7 @@ public sealed class WorkshopPhysicsEngineTests
     [InlineData(SimulationCadence.Hz240)]
     public void BatterySupplyRunsOneHundredTwentyPhasesPerSecondAtEveryCadence(SimulationCadence cadence)
     {
-        var battery = WorkshopInput.Battery(new(1), 2, 1, 0, 0, 0, 0, 1, new(new(3600f), new(10f), 1f, ElectricalEnable.Enabled));
+        var battery = PlacedParts.Battery(new(1), 2, 1, 0, powerLimit: 10f);
         var bumper = WorkshopInput.Generic(PartId.PinballBumper, new(2), 0, 1, 0, 0, 0, 0, 1);
         var construction = new WorkshopConstruction(new(2), Settings, new(battery, bumper), Connections: new(
             new WorkshopConnection(battery.Id, WorkshopSocket.Supply, bumper.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical)));
@@ -693,7 +693,7 @@ public sealed class WorkshopPhysicsEngineTests
     [Fact]
     public async Task UprightDominoAloneStandsStill()
     {
-        var reads = await Run(Free(WorkshopInput.Domino(new(1), 0, .1, 0, 0, 0, 0, 1)), 3 * TicksPerSecond);
+        var reads = await Run(Free(PlacedParts.Domino(new(1), 0, .1, 0, 0, 0, 0, 1)), 3 * TicksPerSecond);
         var end = reads[^1].Bodies[0];
         var upY = 1 - 2 * (end.Rotation.X * end.Rotation.X + end.Rotation.Z * end.Rotation.Z);
         Assert.InRange(upY, .9999f, 1.0001f);
@@ -714,7 +714,7 @@ public sealed class WorkshopPhysicsEngineTests
         var radius = LawBalls.Radius(ballKind);
         var declaredMass = LawBalls.Mass(ballKind);
         var construction = Free(
-            WorkshopInput.Domino(new(1), 0, .09, 0, 0, 0, 0, 1),
+            PlacedParts.Domino(new(1), 0, .09, 0, 0, 0, 0, 1),
             WorkshopInput.Generic(kind, new(2), -(.125 + radius + .05), -.46 + radius, 0, 0, 0, 0, 1));
         var bytes = AdmitMoving(construction, 2, .7f);
         var ball = BodyRecord(bytes, 2);
@@ -742,13 +742,13 @@ public sealed class WorkshopPhysicsEngineTests
     private const float GateHeight = 3f;
     private static WorkshopGenericInstance Gate(ulong id, double z) =>
         WorkshopInput.Generic(PartId.PoweredGate, new(id), 0, GateHeight, z, 0, 0, 0, 1);
-    private static WorkshopBattery Battery(ulong id, double z, ElectricalEnable enabled) =>
-        WorkshopInput.Battery(new(id), 3, GateHeight, z, 0, 0, 0, 1, ElectricalSourceSettings.Default with { Enabled = enabled });
+    private static WorkshopGenericInstance Battery(ulong id, double z, ElectricalEnable enabled) =>
+        PlacedParts.Battery(new(id), 3, GateHeight, z, enabled: enabled);
     private static WorkshopConnection Wire(GpuBodyId battery, GpuBodyId gate) =>
         new(battery, WorkshopSocket.Supply, gate, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical);
     /// <summary>The blade's travel along its prismatic above the gate frame (closed ≈ 0, fully open ≈ 1.55 m).</summary>
     private static float Travel(WorkshopRead read, WorkshopGenericInstance gate) =>
-        Height(Find(read.Bodies, WorkshopPhysicsCompiler.GateBlade(gate.Id))) - GateHeight;
+        Height(Find(read.Bodies, WorkshopPhysicsCompiler.SliderBody(gate.Id, 0))) - GateHeight;
     private const float ClosedTravel = .2f, OpenTravel = 1.3f;
 
     /// <summary>Runs the construction through the production simulation in phases: each phase first applies its in-run supply

@@ -1,0 +1,8 @@
+patch applies
+review-6-5f-partart-partkind-legacy-purge.md identical
+review-9-1-pressure-plate.md identical
+review-c-plate.md identical
+>   9a-c-clock-conversion: review # native candidate on 14658883 (worktree story-c-clock); browser pending
+>   9a-42-generic-instance-system-clock: review
+>   9r-10-system-clock-pause-reset-chrome-proof: backlog # native guard green on record path and candidate; Chrome ACs pending (post-catalogue)
+terminal evidence identical

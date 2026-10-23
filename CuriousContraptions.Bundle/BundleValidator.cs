@@ -89,15 +89,28 @@ public static class BundleValidator
             }
             for (var i = 0; i < entry.Colliders.Count; i++) Collider($"Colliders[{i}]", entry.Colliders[i]);
             Geometry(entry);
-            Presentation(entry.Presentation, entry.Metadata.Parameters, entry.Ports, entry.Electrical);
-            for (var i = 0; i < entry.Events.Count; i++) Defined($"Events[{i}].EventKind", entry.Events[i].EventKind);
-            if (entry.Mechanical is { } mechanical) Mechanical(mechanical, entry.Metadata.Parameters);
-            if (entry.Electrical is { } electrical) Electrical(electrical, entry.Ports);
-            if (entry.Signal is { } signal) Signal(signal, entry.Metadata.Parameters, entry.Ports);
+            Presentation(entry.Presentation, entry.Metadata.Parameters, entry.Ports, entry.Electrical, entry.Signal);
+            // Story 9A.22: each declared event kind is a defined record kind (None is no record), declared once.
+            var kinds = new HashSet<SimulationEventKind>();
+            for (var i = 0; i < entry.Events.Count; i++)
+            {
+                if (entry.Events[i].Kind == SimulationEventKind.None) Undefined($"Events[{i}].Kind");
+                else Defined($"Events[{i}].Kind", entry.Events[i].Kind);
+                if (!kinds.Add(entry.Events[i].Kind)) OutOfRange($"Events[{i}].Kind");
+            }
+            if (entry.Mechanical is { } mechanical) Mechanical(mechanical, entry.Metadata.Parameters, entry.Ports);
+            if (entry.Electrical is { } electrical) Electrical(electrical, entry.Ports, entry.Metadata.Parameters);
+            // A run-time control is declared only on a Source store's enable state: the one value ConfigureElectrical changes.
+            var runControlled = entry.Electrical?.Supply?.Store?.Enable;
+            for (var i = 0; i < entry.Metadata.Parameters.Count; i++)
+                if (entry.Metadata.Parameters[i].RunEdit == ParameterRunEdit.RunControl && entry.Metadata.Parameters[i].Key != runControlled)
+                    OutOfRange($"Metadata.Parameters[{i}].RunEdit");
+            if (entry.Signal is { } signal) Signal(signal, entry.Metadata.Parameters, entry.Ports, entry.Mechanical, entry.Electrical, entry.Colliders);
             if (entry.Fluid is { } fluid) Fluid(fluid);
         }
 
-        private void Presentation(ElementPresentation value, IReadOnlyList<ParameterDescriptor> parameters, IReadOnlyList<PortDescriptor> ports, ElectricalPayload? electrical)
+        private void Presentation(ElementPresentation value, IReadOnlyList<ParameterDescriptor> parameters, IReadOnlyList<PortDescriptor> ports, ElectricalPayload? electrical,
+            SignalPayload? signal)
         {
             if (!Finite("Presentation.PickRadius", value.PickRadius) || value.PickRadius <= 0)
                 OutOfRange("Presentation.PickRadius");
@@ -167,6 +180,10 @@ public static class BundleValidator
                          !ports.Any(port => port.Socket == socket && port.Domain == SimulationDomain.Electrical))))
                     OutOfRange("Presentation.Socket");
                 if (binding.Socket is { } boundSocket) Defined("Presentation.Socket", boundSocket);
+                // A committed oscillator binding reads the row only a declared oscillator compiles.
+                if (binding.Driver is PresentationDriver.CommittedOscillatorPhase or PresentationDriver.CommittedOscillatorPulse &&
+                    signal?.Oscillator is null)
+                    OutOfRange("Presentation.Oscillator");
                 if (!supported || (binding.Curve != PresentationCurve.ExponentialFollow && binding.Response != 0) ||
                     (binding.Driver == PresentationDriver.CommittedTimerPhase && binding.Phase == PresentationTimerPhase.None))
                     OutOfRange("Presentation.DriverCurve");
@@ -283,6 +300,9 @@ public static class BundleValidator
             Defined(path + ".Unit", parameter.Unit);
             Defined(path + ".Kind", parameter.Kind);
             Defined(path + ".EditorPolicy", parameter.EditorPolicy);
+            Defined(path + ".RunEdit", parameter.RunEdit);
+            // A Choice is picked from its options; there is no typed value to clamp.
+            if (parameter.Kind == ParameterKind.Choice && parameter.EditorPolicy != ParameterEditorPolicy.Reject) OutOfRange(path + ".EditorPolicy");
             var finite = Finite(path + ".Minimum", parameter.Minimum) & Finite(path + ".Maximum", parameter.Maximum) &
                 Finite(path + ".Default", parameter.Default);
             if (!finite) return;
@@ -325,7 +345,7 @@ public static class BundleValidator
             Finite(path + ".Material.BounceThreshold", collider.Material.BounceThreshold);
         }
 
-        private void Mechanical(MechanicalPayload mechanical, IReadOnlyList<ParameterDescriptor> parameters)
+        private void Mechanical(MechanicalPayload mechanical, IReadOnlyList<ParameterDescriptor> parameters, IReadOnlyList<PortDescriptor> ports)
         {
             Defined("KinematicMode", mechanical.KinematicMode);
             var mass = mechanical.MassProperties;
@@ -342,6 +362,13 @@ public static class BundleValidator
                 Finite($"AnchorPoints[{i}].Axis", anchor.Axis);
             }
             for (var i = 0; i < mechanical.Sliders.Count; i++) Slider($"Sliders[{i}]", mechanical.Sliders[i], parameters);
+            // A supplied drive is enabled by the element's one PowerIn route, so it needs that input, and one route drives one slider.
+            var driven = mechanical.Sliders.Select((slider, index) => (slider, index)).Where(pair => pair.slider.Drive is not null).ToArray();
+            if (driven.Length > 1) OutOfRange($"Sliders[{driven[1].index}].Drive");
+            if (driven.Length > 0 && !ports.Any(port => port.Socket == PortSocket.PowerIn && port.Domain == SimulationDomain.Electrical &&
+                    port.Direction == PortDirection.Input))
+                errors.Add(new(BundleErrorCode.UnresolvedReference,
+                    $"{source}.Sliders[{driven[0].index}].Drive: a supplied drive requires an electrical PowerIn input"));
             if (mechanical.Capture is { } capture)
             {
                 Volume("Capture",capture.Minimum,capture.Maximum);
@@ -424,6 +451,32 @@ public static class BundleValidator
             for (var i = 0; i < body.Colliders.Count; i++) Collider($"{path}.MovingBody.Colliders[{i}]", body.Colliders[i]);
             if (body.Colliders.Count == 0)
                 errors.Add(new(BundleErrorCode.BodyWithoutCollider, $"{source}.{path}.MovingBody.Colliders: a body declares no collider"));
+            if (slider.Drive is { } drive)
+            {
+                // The target lies within the travel; every bound is a finite positive f32 (a zero bound is a drive that cannot move).
+                DriveValue(path + ".Drive.Target", drive.Target, parameters, slider.LowerLimit, slider.UpperLimit, positive: false);
+                // 64 m/s: the game-grade envelope's linear speed bound.
+                DriveValue(path + ".Drive.MaxSpeed", drive.MaxSpeed, parameters, 0f, 64f, positive: true);
+                DriveValue(path + ".Drive.StoppingAcceleration", drive.StoppingAcceleration, parameters, 0f, float.MaxValue, positive: true);
+                DriveValue(path + ".Drive.MaxEffort", drive.MaxEffort, parameters, 0f, float.MaxValue, positive: true);
+                DriveValue(path + ".Drive.MaxPower", drive.MaxPower, parameters, 0f, float.MaxValue, positive: true);
+            }
+        }
+
+        /// <summary>One drive value inside [minimum, maximum] (excluding a zero bound when <paramref name="positive"/>): a constant
+        /// directly, a parameter by its whole declared range.</summary>
+        private void DriveValue(string path, MechanicalValue value, IReadOnlyList<ParameterDescriptor> parameters, float minimum, float maximum, bool positive)
+        {
+            if (value.Source == MechanicalValueSource.Constant && value.Parameter is null && float.IsFinite(value.Constant))
+            {
+                if (value.Constant < minimum || value.Constant > maximum || (positive && value.Constant <= 0f)) OutOfRange(path);
+                return;
+            }
+            Value(path, value, parameters);
+            if (value.Source == MechanicalValueSource.Parameter &&
+                parameters.SingleOrDefault(parameter => parameter.Key == value.Parameter && parameter.Kind == ParameterKind.Real) is { Key: not null } parameter &&
+                (parameter.Minimum < minimum || parameter.Maximum > maximum || (positive && parameter.Minimum <= 0f)))
+                OutOfRange(path);
         }
 
         private void Value(string path, MechanicalValue value, IReadOnlyList<ParameterDescriptor> parameters)
@@ -445,10 +498,12 @@ public static class BundleValidator
                 errors.Add(new(BundleErrorCode.UnresolvedReference, $"{source}.{path}: '{key}' names no declared Real parameter"));
         }
 
-        private void Electrical(ElectricalPayload electrical, IReadOnlyList<PortDescriptor> ports)
+        private void Electrical(ElectricalPayload electrical, IReadOnlyList<PortDescriptor> ports, IReadOnlyList<ParameterDescriptor> parameters)
         {
             if (electrical.Supply is { } supply)
             {
+                if ((supply.Kind == SupplyCapabilityKind.Source) != supply.Store.HasValue) OutOfRange("Supply.Store");
+                if (supply.Store is { } store) SourceStore(store, parameters);
                 Defined("Supply.Kind", supply.Kind);
                 Defined("Supply.Output", supply.Output);
                 if (supply.Input is { } input) Defined("Supply.Input", input);
@@ -484,8 +539,127 @@ public static class BundleValidator
             }
         }
 
-        private void Signal(SignalPayload signal, IReadOnlyList<ParameterDescriptor> parameters, IReadOnlyList<PortDescriptor> ports)
+        /// <summary>A Source's finite store names four distinct declared parameters of their own kind and unit, each range inside the
+        /// electrical source envelope. The enable state lists exactly Disabled then Enabled, so its index 1 always means Enabled.</summary>
+        private void SourceStore(SupplySourceStoreDescriptor store, IReadOnlyList<ParameterDescriptor> parameters)
         {
+            string[] keys = [store.Capacity, store.PowerLimit, store.InitialCharge, store.Enable];
+            if (keys.Distinct(StringComparer.Ordinal).Count() != keys.Length) OutOfRange("Supply.Store");
+            StoreValue("Supply.Store.Capacity", store.Capacity, parameters, ParameterUnit.Joule,
+                ElectricalSourceEnvelope.MinimumCapacity, ElectricalSourceEnvelope.MaximumCapacity);
+            StoreValue("Supply.Store.PowerLimit", store.PowerLimit, parameters, ParameterUnit.Watt,
+                ElectricalSourceEnvelope.MinimumPower, ElectricalSourceEnvelope.MaximumPower);
+            StoreValue("Supply.Store.InitialCharge", store.InitialCharge, parameters, ParameterUnit.None, 0f, 1f);
+            if (StoreParameter("Supply.Store.Enable", store.Enable, parameters) is { } enable &&
+                (enable.Kind != ParameterKind.Choice || enable.Unit != ParameterUnit.None ||
+                 !enable.Options.SequenceEqual(["Disabled", "Enabled"], StringComparer.Ordinal)))
+                OutOfRange("Supply.Store.Enable");
+        }
+
+        private void StoreValue(string path, string key, IReadOnlyList<ParameterDescriptor> parameters, ParameterUnit unit,
+            float minimum, float maximum)
+        {
+            if (StoreParameter(path, key, parameters) is { } parameter &&
+                (parameter.Kind != ParameterKind.Real || parameter.Unit != unit || !(parameter.Minimum >= minimum) || !(parameter.Maximum <= maximum)))
+                OutOfRange(path);
+        }
+
+        /// <summary>The one declared parameter a store key names; an absent key is unresolved and a duplicated one out of range.</summary>
+        private ParameterDescriptor? StoreParameter(string path, string key, IReadOnlyList<ParameterDescriptor> parameters)
+        {
+            var matches = parameters.Where(parameter => parameter.Key == key).ToArray();
+            if (matches.Length == 0)
+            {
+                errors.Add(new(BundleErrorCode.UnresolvedReference, $"{source}.{path}: '{key}' names no declared parameter"));
+                return null;
+            }
+            if (matches.Length > 1) { OutOfRange(path); return null; }
+            return matches[0];
+        }
+
+        private void Signal(SignalPayload signal, IReadOnlyList<ParameterDescriptor> parameters, IReadOnlyList<PortDescriptor> ports,
+            MechanicalPayload? mechanical, ElectricalPayload? electrical, IReadOnlyList<ColliderDescriptor> colliders)
+        {
+            // One node per element: at most one capability selects it.
+            if ((signal.Contact is null ? 0 : 1) + (signal.Timer is null ? 0 : 1) + (signal.Indicator is null ? 0 : 1) + (signal.Passage is null ? 0 : 1) +
+                    (signal.Orientation is null ? 0 : 1) + (signal.ContactLoad is null ? 0 : 1) + (signal.Oscillator is null ? 0 : 1) > 1)
+                OutOfRange("Capability");
+            if (signal.Oscillator is { } oscillator)
+            {
+                // The interval is a declared Real second parameter with a finite positive admitted minimum (never a zero-tick interval).
+                if (!parameters.Any(parameter => parameter.Key == oscillator.IntervalParameter && parameter.Kind == ParameterKind.Real &&
+                        parameter.Unit == ParameterUnit.Second && float.IsFinite(parameter.Minimum) && parameter.Minimum > 0f))
+                    OutOfRange("Oscillator.IntervalParameter");
+                // A source: a Pulse ActivationOut and no ActivationIn.
+                if (!ports.Any(port => port.Socket == PortSocket.ActivationOut && port.Domain == SimulationDomain.Signal && port.Direction == PortDirection.Output && port.Signal == PortSignalKind.Pulse) ||
+                        ports.Any(port => port.Socket == PortSocket.ActivationIn))
+                    OutOfRange("Oscillator.Ports");
+                // Supplied through its PowerIn route into a Consumer node.
+                if (!ports.Any(port => port.Socket == PortSocket.PowerIn && port.Domain == SimulationDomain.Electrical && port.Direction == PortDirection.Input) ||
+                        electrical?.Nodes.Any(node => node.Role == ElectricalRole.Consumer) != true)
+                    OutOfRange("Oscillator.Supply");
+                // A Static frame without sliders and with a collider: each pulse names the frame's first collider (PartIdentities + 1).
+                if ((mechanical is { } frame && (frame.KinematicMode != KinematicMode.Static || frame.Sliders.Count != 0)) || colliders.Count == 0)
+                    OutOfRange("Oscillator.Body");
+            }
+            if (signal.ContactLoad is { } load)
+            {
+                // The minimum mass is a declared Real kilogram parameter with a positive admitted minimum.
+                if (!parameters.Any(parameter => parameter.Key == load.MinimumMassParameter && parameter.Kind == ParameterKind.Real &&
+                        parameter.Unit == ParameterUnit.Kilogram && parameter.Minimum > 0f))
+                    OutOfRange("ContactLoad.MinimumMassParameter");
+                // The face is one of the element's own baked Box colliders, unrotated in the frame.
+                if (load.FaceCollider < 0 || load.FaceCollider >= colliders.Count || colliders[load.FaceCollider].ShapeKind != ColliderShapeKind.Box ||
+                        colliders[load.FaceCollider].Rotation != Quaternion.Identity)
+                    OutOfRange("ContactLoad.FaceCollider");
+                // The compiled row's own admission (ContactLoadSensorDeclaration): a unit normal, an alignment in (0, 1], a gap in
+                // [0, 0.01] m; the z margin shares the gap's range, and the hold is positive and at most 1 s.
+                var normal = load.LocalNormal;
+                if (Finite("ContactLoad.LocalNormal.x", normal.X) & Finite("ContactLoad.LocalNormal.y", normal.Y) & Finite("ContactLoad.LocalNormal.z", normal.Z) &&
+                        !(MathF.Abs(normal.LengthSquared() - 1f) <= 1e-6f))
+                    OutOfRange("ContactLoad.LocalNormal");
+                if (Finite("ContactLoad.MinimumAlignment", load.MinimumAlignment) && !(load.MinimumAlignment > 0f && load.MinimumAlignment <= 1f))
+                    OutOfRange("ContactLoad.MinimumAlignment");
+                if (Finite("ContactLoad.ContactDistance", load.ContactDistance) && !(load.ContactDistance >= 0f && load.ContactDistance <= .01f))
+                    OutOfRange("ContactLoad.ContactDistance");
+                if (Finite("ContactLoad.DepthMargin", load.DepthMargin) && !(load.DepthMargin >= 0f && load.DepthMargin <= .01f))
+                    OutOfRange("ContactLoad.DepthMargin");
+                if (Finite("ContactLoad.ReleaseHoldSeconds", load.ReleaseHoldSeconds) && !(load.ReleaseHoldSeconds > 0f && load.ReleaseHoldSeconds <= 1f))
+                    OutOfRange("ContactLoad.ReleaseHoldSeconds");
+                if (mechanical is not { KinematicMode: KinematicMode.Static, Sliders.Count: 0 })
+                    OutOfRange("ContactLoad.Body");
+                if (!ports.Any(port => port.Socket == PortSocket.ActivationOut && port.Domain == SimulationDomain.Signal && port.Direction == PortDirection.Output && port.Signal == PortSignalKind.Level))
+                    OutOfRange("ContactLoad.Ports");
+            }
+            if (signal.Orientation is { } orientation)
+            {
+                // The compiled half-angle cosine admits 4° to 179° (OrientationThreshold.Degrees).
+                if (Finite("Orientation.ThresholdDegrees", orientation.ThresholdDegrees) &&
+                        !(orientation.ThresholdDegrees >= 4f && orientation.ThresholdDegrees <= 179f))
+                    OutOfRange("Orientation.ThresholdDegrees");
+                if (!ports.Any(port => port.Socket == PortSocket.ActivationOut && port.Domain == SimulationDomain.Signal && port.Direction == PortDirection.Output && port.Signal == PortSignalKind.Pulse))
+                    OutOfRange("Orientation.Ports");
+                if (mechanical?.KinematicMode != KinematicMode.Dynamic)
+                    OutOfRange("Orientation.Body");
+            }
+            if (signal.Indicator is { } indicator)
+            {
+                if (!Enum.IsDefined(indicator.Input)) Undefined("Indicator.Input");
+                else if (!ports.Any(port => port.Socket == indicator.Input && port.Domain == SimulationDomain.Signal &&
+                        port.Direction == PortDirection.Input && port.Signal == PortSignalKind.Level))
+                    OutOfRange("Indicator.Input");
+            }
+            if (signal.Passage is { } passage)
+            {
+                if (Finite("Passage.ApertureRadius", passage.ApertureRadius) && !(passage.ApertureRadius >= .01f && passage.ApertureRadius <= 10f))
+                    OutOfRange("Passage.ApertureRadius");
+                if (Finite("Passage.RearmClearance", passage.RearmClearance) && !(passage.RearmClearance >= .001f && passage.RearmClearance <= 10f))
+                    OutOfRange("Passage.RearmClearance");
+                if (!ports.Any(port => port.Socket == PortSocket.ActivationOut && port.Domain == SimulationDomain.Signal && port.Direction == PortDirection.Output && port.Signal == PortSignalKind.Pulse))
+                    OutOfRange("Passage.Ports");
+                if (mechanical?.KinematicMode != KinematicMode.Static)
+                    OutOfRange("Passage.Frame");
+            }
             for (var i = 0; i < signal.Triggers.Count; i++)
             {
                 var trigger = signal.Triggers[i];

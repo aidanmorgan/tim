@@ -1,0 +1,33 @@
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-plate/tools/WorkerAotGuard.Tests/bin/Debug/net10.0/WorkerAotGuard.Tests.dll (.NETCoreApp,Version=v10.0)
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-plate/tools/Coverage.Tests/bin/Debug/net10.0/Coverage.Tests.dll (.NETCoreApp,Version=v10.0)
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-plate/tools/E2eRunner.Tests/bin/Debug/net10.0/E2eRunner.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+A total of 1 test files matched the specified pattern.
+A total of 1 test files matched the specified pattern.
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-plate/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-plate/tools/BundleElements.Tests/bin/Debug/net10.0/BundleElements.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+A total of 1 test files matched the specified pattern.
+Blame: Attaching crash dump utility to process dotnet (71671).
+Blame: Attaching crash dump utility to process dotnet (71675).Blame: Attaching crash dump utility to process dotnet (71674).
+
+Blame: Attaching crash dump utility to process dotnet (71676).
+Blame: Attaching crash dump utility to process dotnet (71677).
+
+Passed!  - Failed:     0, Passed:    17, Skipped:     0, Total:    17, Duration: 44 ms - WorkerAotGuard.Tests.dll (net10.0)
+
+Passed!  - Failed:     0, Passed:   166, Skipped:     0, Total:   166, Duration: 371 ms - BundleElements.Tests.dll (net10.0)
+
+Passed!  - Failed:     0, Passed:    77, Skipped:     0, Total:    77, Duration: 760 ms - Coverage.Tests.dll (net10.0)
+
+Passed!  - Failed:     0, Passed:   189, Skipped:     0, Total:   189, Duration: 39 s - E2eRunner.Tests.dll (net10.0)
+
+Passed!  - Failed:     0, Passed:  2527, Skipped:     0, Total:  2527, Duration: 54 s - CuriousContraptions.tests.dll (net10.0)
+
+Attachments:
+  /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-plate/tools/E2eRunner.Tests/TestResults/13f96933-37f4-4671-9253-588f066dd67b/Preview_72194_1792761415_crashdump.dmp
+  /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-plate/tools/E2eRunner.Tests/TestResults/13f96933-37f4-4671-9253-588f066dd67b/Preview_71898_1792761398_crashdump.dmp
+  /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-plate/tools/E2eRunner.Tests/TestResults/13f96933-37f4-4671-9253-588f066dd67b/Preview_72311_1792761420_crashdump.dmp
+  /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-plate/tools/E2eRunner.Tests/TestResults/13f96933-37f4-4671-9253-588f066dd67b/Preview_72386_1792761425_crashdump.dmp
+dotnet test CuriousContraptions.slnx -c Debug --no-build --no-restore   125.51s user 30.64s system 265% cpu 58.800 total
+exit=0

@@ -1,0 +1,6 @@
+== M5-exclusivity-omits-orientation: tracked diff sha256 22fe9b654a5b6359420e6e0b9706830fc21bd34d61cf80b73a8b86683fad32e4
+    0 Error(s)
+    0 Warning(s)
+Passed!  - Failed:     0, Passed:   165, Skipped:     0, Total:   165, Duration: 10 s - CuriousContraptions.tests.dll (net10.0)
+  Failed CuriousContraptions.BundleElements.Tests.BundleValidatorTests.TheOrientationThresholdIsTypedRangedOnADynamicPulseSourceAndExclusive [177 ms]
+Failed!  - Failed:     1, Passed:    90, Skipped:     0, Total:    91, Duration: 267 ms - BundleElements.Tests.dll (net10.0)

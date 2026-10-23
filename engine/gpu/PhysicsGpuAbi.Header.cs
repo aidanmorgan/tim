@@ -8,7 +8,8 @@ public static partial class PhysicsGpuAbi
 {
     /// <summary>One current layout identity; every other value is unsupported.</summary>
     public const int HeaderLayoutTagOffset = 0;
-    public const uint CurrentLayoutTag = 0x43544632;
+    /// <summary>"CTF3" (C-Gate): the prismatic record carries its supplied drive and its committed moving-contact lane.</summary>
+    public const uint CurrentLayoutTag = 0x43544633;
     public const int HeaderStatusOffset = 4;
     public const int HeaderFailureOffset = 8;
     /// <summary>Header word holding the admitted body count.</summary>

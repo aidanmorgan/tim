@@ -1,0 +1,19 @@
+#:project /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/r22b/wt/CuriousContraptions.Abstractions/CuriousContraptions.Abstractions.csproj
+using CuriousContraptions.Abstractions;
+
+// Story 9A.22 re-review probe (forward fix): every admissible capacity has a computable byte length, and one slot more is refused.
+foreach (var slots in new ulong[] { 1, 8738UL * 120, 1UL << 20, (1UL << 20) + 1, 1UL << 25, 1UL << 26 })
+{
+    string capacity, bytes;
+    try
+    {
+        var c = EventRingBuffer.Capacity(slots);
+        capacity = c.ToString();
+        try { bytes = EventRingBuffer.ByteLength(c).ToString(); }
+        catch (Exception e) { bytes = e.GetType().Name; }
+    }
+    catch (Exception e) { capacity = e.GetType().Name; bytes = "-"; }
+    Console.WriteLine($"slots={slots} capacity={capacity} byteLength={bytes}");
+}
+Console.WriteLine($"MaximumCapacity={EventRingBuffer.MaximumCapacity} int.MaxValue={int.MaxValue}");
+Console.WriteLine($"8738*120={8738UL * 120} (<= 2^20: {8738UL * 120 <= (1UL << 20)}); 8739*120={8739UL * 120} (> 2^20: {8739UL * 120 > (1UL << 20)})");

@@ -1,0 +1,6 @@
+Uncommitted delta on HEAD 2b1270c2 at the start of the merged re-review (23 Oct 2026):
+d3ab725778dde8830fa888afa476a2e3f406edb55c21f863dfd039ad81ac25ba
+= sha256 of ( git diff --binary ; for every untracked non-ignored file in path order: `shasum -a 256 <file>` ).
+This file itself was in that list as an empty file (e3b0c442…), because the shell opened it before listing.
+The same value was reproduced after all checks, with the reviewer's own evidence-c-gate-review files excluded and this entry
+fixed at the empty hash, so the delta did not change during the review.

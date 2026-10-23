@@ -1,0 +1,4 @@
+base: p1=      40 p2=      31 p3=       3
+candidate: p1=       0 p2=       0 p3=       0
+ls-files deleted: []
+== candidate residual 'battery' (case-insensitive) in engine/ui production, for inspection

@@ -1,0 +1,21 @@
+== N2-untyped-refusal 2026-10-23T16:58:53Z
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/r22b/pristine/engine/gpu/EventRecordProducer.cs	2026-10-24 00:56:51.788562192 +0800
++++ engine/gpu/EventRecordProducer.cs	2026-10-24 00:58:51.889998064 +0800
+@@ -105,7 +105,7 @@
+         foreach (var admitted in Enum.GetValues<SimulationCadence>())
+             fastest = Math.Max(fastest, ActivationTimerDeclaration.Duration(HorizonSeconds, admitted));
+         if (recordsPerTick > EventRingBuffer.MaximumCapacity / fastest)
+-            throw new GpuAdmissionException("The construction's event producers exceed the event ring's limit.");
++            throw new ArgumentOutOfRangeException(nameof(recordsPerTick), "review mutant N2: untyped refusal");
+         return EventRingBuffer.Capacity(recordsPerTick * ActivationTimerDeclaration.Duration(HorizonSeconds, cadence));
+     }
+ 
+    0 Warning(s)
+    0 Error(s)
+build rc=0
+  Failed CuriousContraptions.Tests.EventRingProducerTests.AConstructionBeyondTheLimitIsRefusedTypedAndTheSessionStaysBuilding(producers: 8739, admitted: False) [2 s]
+  Failed CuriousContraptions.Tests.EventRingProducerTests.TheLimitAdmitsEightThousandSevenHundredThirtyEightRecordsPerTickAndRefusesOneMoreTyped(cadence: Hz120, capacity: 524288) [< 1 ms]
+  Failed CuriousContraptions.Tests.EventRingProducerTests.TheLimitAdmitsEightThousandSevenHundredThirtyEightRecordsPerTickAndRefusesOneMoreTyped(cadence: Hz240, capacity: 1048576) [< 1 ms]
+  Failed CuriousContraptions.Tests.EventRingProducerTests.TheLimitAdmitsEightThousandSevenHundredThirtyEightRecordsPerTickAndRefusesOneMoreTyped(cadence: Hz60, capacity: 262144) [< 1 ms]
+Failed!  - Failed:     4, Passed:   109, Skipped:     0, Total:   113, Duration: 21 s - CuriousContraptions.tests.dll (net10.0)
+dotnet test rc=1

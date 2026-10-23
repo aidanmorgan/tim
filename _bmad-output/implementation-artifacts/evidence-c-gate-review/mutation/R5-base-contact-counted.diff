@@ -1,0 +1,4 @@
+892c892
+<                     if (c.LambdaN > 0f && ((c.A == joint.B && c.B != joint.A) || (c.B == joint.B && c.A != joint.A)))
+---
+>                     if (c.LambdaN > 0f && ((c.A == joint.B && true) || (c.B == joint.B && true)))

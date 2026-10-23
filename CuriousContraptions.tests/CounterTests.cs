@@ -177,9 +177,9 @@ public sealed class CounterTests(NativeSceneFixture godot)
     public void Connections_AcceptsValidActivationAndElectricalLinks()
     {
         var counter = WorkshopInput.Counter(new(1), 0, 0, 0, 0, 0, 0, 1, 3);
-        var detector = WorkshopInput.BallDetector(new(2), -2, 0, 0, 0, 0, 0, 1);
-        var lamp = WorkshopInput.Lamp(new(3), 2, 0, 0, 0, 0, 0, 1);
-        var battery = WorkshopInput.Battery(new(4), 0, -2, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default);
+        var detector = PlacedParts.Detector(new(2), -2, 0, 0, 0, 0, 0, 1);
+        var lamp = PlacedParts.Lamp(new(3), 2, 0, 0, 0, 0, 0, 1);
+        var battery = PlacedParts.Battery(new(4), 0, -2, 0);
         var gate = WorkshopInput.Generic(PartId.PoweredGate, new(5), 0, 2, 0, 0, 0, 0, 1);
 
         var instances = new WorkshopInstances(counter, detector, lamp, battery, gate);
@@ -201,7 +201,7 @@ public sealed class CounterTests(NativeSceneFixture godot)
     public void PhysicsCompiler_CompilesCollidersAndCounterPower()
     {
         var counter = WorkshopInput.Counter(new(1), 0, 0, 0, 0, 0, 0, 1, 3);
-        var battery = WorkshopInput.Battery(new(2), -2, 0, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default);
+        var battery = PlacedParts.Battery(new(2), -2, 0, 0);
         var gate = WorkshopInput.Generic(PartId.PoweredGate, new(3), 2, 0, 0, 0, 0, 0, 1);
 
         // Without battery connected: gate blade drag is 0
@@ -213,7 +213,7 @@ public sealed class CounterTests(NativeSceneFixture godot)
             Connections: new([connNoBattery]));
 
         var sceneUnpowered = WorkshopPhysicsCompiler.Compile(constructionUnpowered, new(1, 1));
-        var bladeUnpowered = sceneUnpowered.Bodies.ToArray().First(b => b.Id == WorkshopPhysicsCompiler.GateBlade(gate.Id));
+        var bladeUnpowered = sceneUnpowered.Bodies.ToArray().First(b => b.Id == WorkshopPhysicsCompiler.SliderBody(gate.Id, 0));
         Assert.Equal((Half)0f, bladeUnpowered.LinearDrag.Value);
 
         // Counter static body has 2 box colliders
@@ -232,7 +232,7 @@ public sealed class CounterTests(NativeSceneFixture godot)
             Connections: new([connBattery, connNoBattery]));
 
         var scenePowered = WorkshopPhysicsCompiler.Compile(constructionPowered, new(1, 1));
-        var bladePowered = scenePowered.Bodies.ToArray().First(b => b.Id == WorkshopPhysicsCompiler.GateBlade(gate.Id));
+        var bladePowered = scenePowered.Bodies.ToArray().First(b => b.Id == WorkshopPhysicsCompiler.SliderBody(gate.Id, 0));
         Assert.Equal((Half)0f, bladePowered.LinearDrag.Value);
         Assert.Contains(scenePowered.SupplyGraph.Nodes.ToArray(),node=>node.Owner==counter.Id && node.Kind==SupplyNodeKind.Contact);
         Assert.Equal(battery.Id,scenePowered.Electrical.Sources[0].Owner);
@@ -241,9 +241,9 @@ public sealed class CounterTests(NativeSceneFixture godot)
     [Fact]
     public void ActivationNetwork_CountingProgression_SingleEmission_AndSaturation()
     {
-        var detector = WorkshopInput.BallDetector(new(1), -2, 0, 0, 0, 0, 0, 1);
+        var detector = PlacedParts.Detector(new(1), -2, 0, 0, 0, 0, 0, 1);
         var counter = WorkshopInput.Counter(new(2), 0, 0, 0, 0, 0, 0, 1, 3);
-        var lamp = WorkshopInput.Lamp(new(3), 2, 0, 0, 0, 0, 0, 1);
+        var lamp = PlacedParts.Lamp(new(3), 2, 0, 0, 0, 0, 0, 1);
 
         var conn1 = new WorkshopConnection(detector.Id, WorkshopSocket.ActivationOut, counter.Id, WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation);
         var conn2 = new WorkshopConnection(counter.Id, WorkshopSocket.ActivationOut, lamp.Id, WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation);
@@ -299,7 +299,7 @@ public sealed class CounterTests(NativeSceneFixture godot)
 
         // Lamp must be latched now!
         Assert.Equal(ActivationPhase.Latched, activations[lampSlot].Phase);
-        Assert.Equal(ActivationOccurrenceKind.CounterReached, activations[lampSlot].Occurrence.Kind);
+        Assert.Equal(ActivationOccurrenceKind.ThresholdReached, activations[lampSlot].Occurrence.Kind);
 
         // Saturation: 20 extra passages
         for (uint i = 4; i < 24; i++)
@@ -326,7 +326,7 @@ public sealed class CounterTests(NativeSceneFixture godot)
     [Fact]
     public void CounterCount_LivesInTheCommittedCheckpoint_SupersededCandidateLeavesItUnchanged_AndResetClearsIt()
     {
-        var detector = WorkshopInput.BallDetector(new(1), -2, 0, 0, 0, 0, 0, 1);
+        var detector = PlacedParts.Detector(new(1), -2, 0, 0, 0, 0, 0, 1);
         var counter = WorkshopInput.Counter(new(2), 0, 0, 0, 0, 0, 0, 1, 3);
         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new([detector, counter]),
             Connections: new([new WorkshopConnection(detector.Id, WorkshopSocket.ActivationOut, counter.Id, WorkshopSocket.ActivationIn,

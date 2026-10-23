@@ -1,0 +1,8 @@
+    0 Warning(s)
+    0 Error(s)
+-            if (surface < bottom || surface > top || !Over(box, up, at) || !Array.Exists(shapes, shape => Overlaps(shape, box, 0f))) continue;
++            if (surface < bottom || !Over(box, up, at) || !Array.Exists(shapes, shape => Overlaps(shape, box, 0f))) continue;
+  Failed CuriousContraptions.Tests.PlacementPoseTests.ALiftIntoAHigherBoxIsRefused [20 ms]
+  Failed CuriousContraptions.Tests.PlacementPoseTests.EveryOtherPlacementKeepsTheBasePose [21 ms]
+   ball inside a tall wall: base ((0, 0.5, 0), (0, 0, 0, 1)), composed ((0, 2.3400002, 0), (0, 0, 0, 1))
+Failed!  - Failed:     2, Passed:   175, Skipped:     0, Total:   177, Duration: 6 s - CuriousContraptions.tests.dll (net10.0)

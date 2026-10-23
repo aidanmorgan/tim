@@ -14,14 +14,13 @@ public sealed class ElectricalOrTests
     private const ulong Supply=7, Gate=8, Consumer=9;
     private static readonly bool[] OrTruth=[false,true,true,true]; // rows 00, 01, 10, 11 (CAT-026 O1)
     private static WorkshopConnection Link(ulong source,ulong target,WorkshopSocket input=WorkshopSocket.PowerIn)=>BothGateTests.Link(source,target,input);
-    private static WorkshopBattery Battery(ulong id,float x,bool enabled)=>WorkshopInput.Battery(new(id),x,3,0,0,0,0,1,
-        ElectricalSourceSettings.Default with {Enabled=enabled?ElectricalEnable.Enabled:ElectricalEnable.Disabled});
+    private static WorkshopGenericInstance Battery(ulong id,float x,bool enabled)=>PlacedParts.Battery(new(id), x, 3, 0, enabled: enabled?ElectricalEnable.Enabled:ElectricalEnable.Disabled);
     private static ElectricalLogicRead Logic(WorkshopRead read,ulong owner=Gate)=>BothGateTests.Logic(read,owner);
     private static bool Powered(WorkshopRead read)=>read.Presentation.Actuators.ToArray().Single(row=>row.Owner.Value==Consumer).SupplyClosed;
     private static float BladeY(WorkshopRead read)
     {
         var body=Enumerable.Range(0,read.Bodies.Count).Select(i=>read.Bodies[i].Body)
-            .Single(row=>row.Id==WorkshopPhysicsCompiler.GateBlade(new(Consumer)));
+            .Single(row=>row.Id==WorkshopPhysicsCompiler.SliderBody(new(Consumer), 0));
         return (body.Cell.Y+body.Local.Y)/16f;
     }
     /// <summary>The consumer blade has not left its rest height: the output never powered it, not even for one tick.</summary>
@@ -211,7 +210,7 @@ public sealed class ElectricalOrTests
         NoFixedCapacityTests.AssertSameState(built,reset,"contact loop Reset");
     }
 
-    public enum FeedbackLoop { OrToOr, WithNand, WithNor, ThroughOpenSwitch, EnteringPowerIn }
+    public enum FeedbackLoop { OrToOr, WithNand, WithNor, WithXor, ThroughOpenSwitch, EnteringPowerIn }
     /// <summary>Each loop as an acyclic construction plus the one wire that closes it, and the ids a refusal must name (null when
     /// the loop is monotone and admitted).</summary>
     internal static (WorkshopConstruction Open, WorkshopConnection Closing, string? Ids) LoopCase(FeedbackLoop loop)
@@ -219,6 +218,7 @@ public sealed class ElectricalOrTests
         IWorkshopInstance Either(ulong id,float x)=>WorkshopInput.Generic(Kind,new(id),x,3,0,0,0,0,1);
         IWorkshopInstance Nand(ulong id,float x)=>WorkshopInput.Generic(ElectricalNandTests.Kind,new(id),x,3,-3,0,0,0,1);
         IWorkshopInstance Nor(ulong id,float x)=>WorkshopInput.Generic(ElectricalNorTests.Kind,new(id),x,3,-3,0,0,0,1);
+        IWorkshopInstance Xor(ulong id,float x)=>WorkshopInput.Generic(ElectricalXorTests.Kind,new(id),x,3,-3,0,0,0,1);
         var supply=Battery(1,-8,true);
         var (parts,links,closing,ids)=loop switch
         {
@@ -227,6 +227,9 @@ public sealed class ElectricalOrTests
             FeedbackLoop.WithNand => (new[]{supply,Either(4,0),Nand(6,4)},new[]{Link(1,4),Link(1,6),Link(4,6,WorkshopSocket.FirstIn)},
                 Link(6,4,WorkshopSocket.SecondIn),"4, 6"),
             FeedbackLoop.WithNor => (new[]{supply,Either(4,0),Nor(6,4)},new[]{Link(1,4),Link(1,6),Link(4,6,WorkshopSocket.FirstIn)},
+                Link(6,4,WorkshopSocket.SecondIn),"4, 6"),
+            // CAT-026 O10 / CAT-027 X9: Xor → Or → Xor.
+            FeedbackLoop.WithXor => (new[]{supply,Either(4,0),Xor(6,4)},new[]{Link(1,4),Link(1,6),Link(4,6,WorkshopSocket.FirstIn)},
                 Link(6,4,WorkshopSocket.SecondIn),"4, 6"),
             FeedbackLoop.ThroughOpenSwitch => (new[]{supply,Either(4,0),WorkshopInput.Generic(PartId.ImpactSwitch,new(6),4,1,0,0,0,0,1),Nor(7,8)},
                 new[]{Link(1,4),Link(1,7),Link(4,6),Link(6,7,WorkshopSocket.FirstIn)},Link(7,4,WorkshopSocket.FirstIn),"4, 6, 7"),
@@ -240,6 +243,7 @@ public sealed class ElectricalOrTests
     [Theory]
     [InlineData(FeedbackLoop.WithNand)]
     [InlineData(FeedbackLoop.WithNor)]
+    [InlineData(FeedbackLoop.WithXor)]
     [InlineData(FeedbackLoop.ThroughOpenSwitch)]
     [InlineData(FeedbackLoop.EnteringPowerIn)]
     public async Task LoopsMixingANonmonotoneGateAreRefusedAtomicallyBeforeAnySolve(FeedbackLoop loop)
@@ -286,7 +290,7 @@ public sealed class ElectricalOrTests
             var scene=WorkshopPhysicsCompiler.Compile(open,new(1,2));
             var edges=SupplyTopology.Create(open,DeclaredPhysics.Of).Edges;
             var looped=edges.Append(new SupplyEdge(closing.Source,closing.Target,closing.Input)).ToArray();
-            CompiledSupplyGraph Build()=>new(scene.SupplyGraph.Nodes,looped,scene.Electrical.Sources,scene.Prismatics,scene.Bodies);
+            CompiledSupplyGraph Build()=>new(scene.SupplyGraph.Nodes,looped,scene.Electrical.Sources,scene.Prismatics,scene.PrismaticDrives,scene.Bodies);
             if(admitted) _=Build();
             else Assert.Equal("A nonmonotone electrical gate lies on a directed cycle.",Assert.Throws<ArgumentException>(Build).Message);
         }
@@ -299,7 +303,7 @@ public sealed class ElectricalOrTests
             .Select(row=>CompiledSupplyGraph.Evaluate(LogicGateOperation.Or,row.Item1,row.Item2)).ToArray());
         Assert.True(CompiledSupplyGraph.IsMonotone(LogicGateOperation.Or));
         Assert.True(SupplyCycles.Monotone(LogicGateOperation.Or));
-        foreach(var undefined in new[]{(LogicGateOperation)4,(LogicGateOperation)255})
+        foreach(var undefined in new[]{(LogicGateOperation)5,(LogicGateOperation)255})
         {
             Assert.Throws<ArgumentOutOfRangeException>(()=>CompiledSupplyGraph.Evaluate(undefined,true,false));
             Assert.Throws<ArgumentOutOfRangeException>(()=>CompiledSupplyGraph.IsMonotone(undefined));

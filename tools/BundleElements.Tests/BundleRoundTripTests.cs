@@ -115,6 +115,23 @@ public sealed class BundleRoundTripTests
         Assert.Throws<JsonException>(() => BundleSchema.Read(json.Replace(original, replacement, StringComparison.Ordinal)));
     }
 
+    // Story 9A.22: an event kind is written by its capability name with no payload layout; the deleted element-named kinds
+    // (CounterReached, LatchSet), the deferred PrismaticLimit, a number and a retired PayloadLayout field are refused, with no alias.
+    [Theory]
+    [InlineData("\"Kind\": \"Impact\"", "\"Kind\": \"CounterReached\"")]
+    [InlineData("\"Kind\": \"Impact\"", "\"Kind\": \"LatchSet\"")]
+    [InlineData("\"Kind\": \"Impact\"", "\"Kind\": \"PrismaticLimit\"")]
+    [InlineData("\"Kind\": \"Impact\"", "\"Kind\": 1")]
+    [InlineData("\"Kind\": \"Impact\"", "\"EventKind\": \"Impact\"")]
+    [InlineData("\"Kind\": \"Impact\"", "\"Kind\": \"Impact\", \"PayloadLayout\": \"Impulse:f32\"")]
+    public void AnEventKindIsItsCapabilityNameAndRetiredNamesAreRefused(string original, string replacement)
+    {
+        var json = BundleSchema.Write([new Fixture { Events = [new(SimulationEventKind.Impact)] }]);
+        Assert.Contains(original, json, StringComparison.Ordinal);
+        Assert.Equal([new EventDescriptor(SimulationEventKind.Impact)], Assert.Single(BundleSchema.Read(json).Elements).Events);
+        Assert.Throws<JsonException>(() => BundleSchema.Read(json.Replace(original, replacement, StringComparison.Ordinal)));
+    }
+
     private static void AssertEntry(IPuzzleElementDeclaration declaration, BundleEntry entry)
     {
         AssertSame(declaration.Metadata, entry.Metadata, "Metadata");
@@ -135,12 +152,29 @@ public sealed class BundleRoundTripTests
         }
         Assert.Equal(declaration is IElectricalElement, entry.Electrical is not null);
         if (declaration is IElectricalElement electrical) AssertSame(electrical.ElectricalNodes, entry.Electrical!.Nodes, "ElectricalNodes");
+        Assert.Equal(declaration is Abstractions.Electrical.ISupplyElement, entry.Electrical?.Supply is not null);
+        // The supply capability, a Source's finite store included (Story 9A.39).
+        if (declaration is Abstractions.Electrical.ISupplyElement supply) AssertSame(supply.Supply, entry.Electrical!.Supply!.Value, "Supply");
         Assert.Equal(declaration is ISignalElement, entry.Signal is not null);
         if (declaration is ISignalElement signal)
         {
             AssertSame(signal.Triggers, entry.Signal!.Triggers, "Triggers");
             Assert.Equal(signal.LatchMode, entry.Signal.LatchMode);
             AssertSame(signal.Counter, entry.Signal.Counter, "Counter");
+            // The node-selecting indicator and passage capabilities (C-Lamp+Detector).
+            Assert.Equal(signal is IIndicatorElement, entry.Signal.Indicator is not null);
+            if (signal is IIndicatorElement indicator) Assert.Equal(indicator.Indicator, entry.Signal.Indicator!.Value);
+            Assert.Equal(signal is IPassageSensorElement, entry.Signal.Passage is not null);
+            if (signal is IPassageSensorElement passage) AssertSame(passage.Passage, entry.Signal.Passage!.Value, "Passage");
+            // The orientation threshold (9A.32).
+            Assert.Equal(signal is IOrientationSensorElement, entry.Signal.Orientation is not null);
+            if (signal is IOrientationSensorElement orientation) AssertSame(orientation.Orientation, entry.Signal.Orientation!.Value, "Orientation");
+            // The contact-load sensor (C-Plate).
+            Assert.Equal(signal is IContactLoadSensorElement, entry.Signal.ContactLoad is not null);
+            if (signal is IContactLoadSensorElement load) AssertSame(load.ContactLoad, entry.Signal.ContactLoad!.Value, "ContactLoad");
+            // The periodic pulse source (C-Clock).
+            Assert.Equal(signal is IOscillatorElement, entry.Signal.Oscillator is not null);
+            if (signal is IOscillatorElement oscillator) Assert.Equal(oscillator.Oscillator, entry.Signal.Oscillator!.Value);
         }
         Assert.Equal(declaration is IFluidElement, entry.Fluid is not null);
         if (declaration is IFluidElement fluid)

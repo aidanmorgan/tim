@@ -1,0 +1,11 @@
+using CuriousContraptions.Gpu;
+
+namespace CuriousContraptions.Tests;
+
+/// <summary>9A.39 evidence adapter (not a deliverable). Base f27cb71d: the record path (WorkshopBattery).</summary>
+internal static class ProbeBattery
+{
+    internal static IWorkshopInstance Make(GpuBodyId id, double x, double y, double z, float capacity = 3600f, float power = 120f,
+        float fraction = 1f, ElectricalEnable enabled = ElectricalEnable.Enabled) =>
+        WorkshopInput.Battery(id, x, y, z, 0, 0, 0, 1, new(new(capacity), new(power), fraction, enabled));
+}

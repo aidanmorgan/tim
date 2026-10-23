@@ -62,7 +62,7 @@ public partial class Workshop
     }
     private void ResetUiAnimations()
     {
-        _batteryQueued.Clear();
+        _runControlQueued.Clear();
         ClearGoalFeedback();
         HideHint();
     }

@@ -150,7 +150,7 @@ public sealed class WorkshopWallTests
         var puzzle = PuzzleCatalogue.Create(new("first_principles"), new(1), WorkshopCadenceSettings.Default(), new(4), new((Half)1));
         EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => puzzle.WithInstance(wall).Validate());
         var construction = Saved(WallFixture.Default).Construction.WithInstance(
-            WorkshopInput.Lamp(new(3), 3, 2, 0, 0, 0, 0, 1)) with
+            PlacedParts.Lamp(new(3), 3, 2, 0, 0, 0, 0, 1)) with
         {
             Connections = new(new WorkshopConnection(wall.Id, WorkshopSocket.ActivationOut,
                 new(3), WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation))
@@ -167,7 +167,7 @@ public sealed class WorkshopWallTests
             WorkshopInput.Generic(PartId.Ramp, new(3), -3, 3, 0, 0, 0, 0, 1),
             WorkshopInput.Generic(PartId.Ramp, new(4), -1, 2, 0, 0, 0, 0, 1),
             WorkshopInput.Generic(PartId.ImpactSwitch, new(5), 0, 1, 2, 0, 0, 0, 1),
-            WorkshopInput.Lamp(new(6), 3, 1, 2, 0, 0, 0, 1),
+            PlacedParts.Lamp(new(6), 3, 1, 2, 0, 0, 0, 1),
             WorkshopInput.Generic(PartId.Wall, new(7), -4, 4, -2, 0, 0, 0, 1, WallFixture.Maximum));
         var scene = WorkshopPhysicsCompiler.Compile(new(new(1), WorkshopCadenceSettings.Default(), instances), new(1, 2));
         Assert.Equal(8, scene.Bodies.Length);

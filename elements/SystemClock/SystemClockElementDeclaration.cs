@@ -6,7 +6,7 @@ using CuriousContraptions.Abstractions.Signal;
 
 namespace CuriousContraptions.Elements.SystemClock;
 
-public sealed class SystemClockElementDeclaration : ISignalElement, IElectricalElement, ISceneGeometryElement
+public sealed class SystemClockElementDeclaration : IOscillatorElement, IElectricalElement, ISceneGeometryElement
 {
     public ElementPresentation Presentation => new(1.1f, PresentationAxes.None,
         [
@@ -27,7 +27,9 @@ public sealed class SystemClockElementDeclaration : ISignalElement, IElectricalE
         ScenePath: "res://elements/SystemClock/clock.tscn",
         Parameters:
         [
-            new("interval_seconds", ParameterUnit.Second, ParameterKind.Real, Minimum: 0.1f, Maximum: 12f, Default: 1f, Options: [])
+            // The editor clamps an entry into range (the former interval spin box's behaviour); it is a Build-only value.
+            new("interval_seconds", ParameterUnit.Second, ParameterKind.Real, Minimum: 0.1f, Maximum: 12f, Default: 1f, Options: [],
+                EditorPolicy: ParameterEditorPolicy.Clamp)
         ]);
 
     public ElementFootprint Footprint => new(Bodies: 1, MovingBodies: 0, PrismaticConstraints: 0);
@@ -46,21 +48,18 @@ public sealed class SystemClockElementDeclaration : ISignalElement, IElectricalE
         new(".", new(1f, 0.3f, 0f, 0.1f))
     ];
 
-    public IReadOnlyList<EventDescriptor> Events =>
-    [
-        new(SimulationEventKind.TriggerActivated, "PulseCount:i32;Interval:f32")
-    ];
+    public IReadOnlyList<EventDescriptor> Events => [new(SimulationEventKind.TriggerActivated)];
 
     public SimulationDomain SupportedDomains => SimulationDomain.Signal | SimulationDomain.Electrical;
 
-    public IReadOnlyList<SignalTriggerDescriptor> Triggers =>
-    [
-        new("clock_tick", SignalTriggerMode.Pulse, Threshold: 1f, PulseDurationSeconds: 0.1f)
-    ];
+    public IReadOnlyList<SignalTriggerDescriptor> Triggers => [];
 
     public SignalLatchMode LatchMode => SignalLatchMode.None;
 
     public SignalCounterDescriptor? Counter => null;
+
+    /// <summary>The pendulum pulses its ActivationOut once per declared interval while its PowerIn is supplied (CAT-017).</summary>
+    public SignalOscillatorDescriptor Oscillator => new("interval_seconds");
 
     public IReadOnlyList<ElectricalNodeDescriptor> ElectricalNodes =>
     [

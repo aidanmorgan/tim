@@ -1,0 +1,35 @@
+scope: engine ui elements CuriousContraptions.csproj CuriousContraptions.2dog CuriousContraptions.Abstractions.Electrical CuriousContraptions.Abstractions.Fluid CuriousContraptions.Abstractions.Mechanical CuriousContraptions.Abstractions.Signal CuriousContraptions.Abstractions CuriousContraptions.Animation.Worker CuriousContraptions.Animation CuriousContraptions.Bundle CuriousContraptions.FlatBuffers CuriousContraptions.Simulation CuriousContraptions.web (engine/PartId.cs excluded)
+--- 1: rg -w WorkshopBattery|AddBatteryConfiguration|ElectricalSourceSettings|IWorkshopElectricalSource|CanonicalSource|ApplySource|RefreshBatteryObservation|BatteryIntent|BatteryToggleText
+files with hits: 0
+--- 2: rg '_battery|WorkshopInput\.Battery\b|PartId\.Battery'
+files with hits: 0
+--- 3: rg '"battery"' engine/gpu engine/MachineWorld*.cs
+files with hits: 0
+--- 4: git ls-files ui/WorkshopBattery.cs engine/gpu/WorkshopBattery.cs (and .uid)
+(end of list)
+--- positive control: the same patterns over base HEAD (git grep, same scope)
+1: 15 files
+2: 6 files
+3: 3 files
+4: 2 files
+--- informational: tests, tools/e2e and tools/E2eRunner
+tools/e2e/cat-051-own-supply.test.ts:38:// Build-mode battery rows (ui/WorkshopBattery.cs, bottom-anchored 45 px apart): [Battery settings, Connect Supply].
+CuriousContraptions.tests/ElementIsolationTests.cs:384:        var source = "class Probe { void Test(object x) { var id = \"wall\"; if (x is WorkshopBattery) {} x.OfType<WorkshopClock>(); } }";
+CuriousContraptions.tests/ElementIsolationTests.cs:387:        Assert.Contains(hits, hit => hit.Rule == Rule.PackageIdentifier && hit.Token == "WorkshopBattery");
+CuriousContraptions.tests/ElementIsolationTests.cs:390:        foreach (var name in new[] { "AddBatteryConfiguration", "ApplyClockInterval", "CaptureBall", "AdvanceBattery", "BatterySimulation", "ResolveWallMaterial", "TickClock" }) Assert.NotNull(PackageIdentifier(name));
+CuriousContraptions.tests/ElementIsolationTests.cs:396:        Assert.Empty(ScanCSharp("engine/control.cs", "// \"wall\" WorkshopBattery\nclass Control { string s = \"not-an-element\"; }"));
+CuriousContraptions.tests/ElementIsolationTests.cs:402:        var source = "// 'wall'\nconst a = '\\x77all'; const b = `\\u0077all`; const c = `${PartId.Battery} ${AddBatteryConfiguration()}`;";
+CuriousContraptions.tests/ElementIsolationTests.cs:406:        Assert.Contains(hits, hit => hit.Token == "AddBatteryConfiguration");
+CuriousContraptions.tests/PlacedParts.cs:8:/// `WorkshopBattery` at f27cb71d: evidence-c-bumper-spring/probe/PlacedParts-record-path.cs.txt and
+tools/E2eRunner/SuiteCatalogue.cs:143:            PartId.Clock, Set(PartId.Basketball, PartId.Battery, PartId.Clock, PartId.Counter, PartId.PoweredGate), [],
+tools/E2eRunner/SuiteCatalogue.cs:151:            PartId.Latch, Set(PartId.Basketball, PartId.Battery, PartId.Delay, PartId.SignalLamp, PartId.Latch, PartId.PoweredGate,
+tools/E2eRunner/SuiteCatalogue.cs:174:            PartId.Counter, Set(PartId.BallDetector, PartId.Basketball, PartId.Battery, PartId.Counter,
+tools/E2eRunner/SuiteCatalogue.cs:188:            null, Set(PartId.Basketball, PartId.Battery, PartId.PoweredGate), [], Set(Electrical),
+tools/E2eRunner/SuiteCatalogue.cs:194:            null, Set(PartId.Battery, PartId.BowlingBall, PartId.PoweredGate, PartId.PressurePlate, PartId.Counter, PartId.Clock,
+tools/E2eRunner/SuiteCatalogue.cs:201:            null, Set(PartId.Basketball, PartId.Battery, PartId.BowlingBall, PartId.Counter, PartId.Delay, PartId.Domino, PartId.Latch,
+tools/E2eRunner/SuiteCatalogue.cs:238:                PartId.PinballBumper, PartId.Ramp, PartId.Domino, PartId.BowlingBall, PartId.Battery, PartId.Springboard, PartId.Pipe,
+tools/E2eRunner/SuiteCatalogue.cs:244:        Parallel(SuiteId.Cat005, PartId.Battery, Set(PartId.Battery, PartId.BowlingBall, PartId.PinballBumper), [], Set(Electrical),
+tools/E2eRunner/SuiteCatalogue.cs:260:        Parallel(SuiteId.Cat051, PartId.PoweredGate, Set(PartId.Basketball, PartId.Battery, PartId.PoweredGate), [], Set(Electrical),
+tools/E2eRunner/SuiteCatalogue.cs:262:        Parallel(SuiteId.Cat052, PartId.PressurePlate, Set(PartId.Basketball, PartId.Battery, PartId.BowlingBall, PartId.Domino,
+tools/E2eRunner/DriverVocabulary.cs:13:        ["receiver"] = PartId.Receiver, ["domino"] = PartId.Domino, ["battery"] = PartId.Battery, ["pipe"] = PartId.Pipe,
+tools/E2eRunner/ImpactRules.cs:17:        ["Ball"] = PartId.Basketball, ["BallDetector"] = PartId.BallDetector, ["Battery"] = PartId.Battery,

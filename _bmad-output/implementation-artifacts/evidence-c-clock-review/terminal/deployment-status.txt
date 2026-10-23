@@ -1,0 +1,7 @@
+== serving check 2026-10-23T15:45:41Z
+/ HTTP/2 200  last-modified: Fri, 23 Oct 2026 15:44:00 GMT 
+/index.html HTTP/2 200  last-modified: Fri, 23 Oct 2026 15:44:00 GMT 
+/404.html HTTP/2 200  last-modified: Fri, 23 Oct 2026 15:44:01 GMT 
+/godot.wasm HTTP/2 200  last-modified: Fri, 23 Oct 2026 15:44:00 GMT 
+/godot.pck HTTP/2 200  last-modified: Fri, 23 Oct 2026 15:44:01 GMT 
+/_framework/dotnet.js HTTP/2 200  last-modified: Fri, 23 Oct 2026 15:44:00 GMT 

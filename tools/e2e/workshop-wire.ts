@@ -776,6 +776,10 @@ supplyClosed():boolean {
   return !!this.bb!.readInt8(this.bb_pos + 16);
 }
 
+movingContact():boolean {
+  return !!this.bb!.readInt8(this.bb_pos + 17);
+}
+
 coordinate():number {
   return this.bb!.readFloat32(this.bb_pos + 20);
 }
@@ -796,14 +800,15 @@ static sizeOf():number {
   return 40;
 }
 
-static createActuatorDriveRecord(builder:flatbuffers.Builder, joint: bigint, owner: bigint, supply_closed: boolean, coordinate: number, speed: number, lower: number, upper: number):flatbuffers.Offset {
+static createActuatorDriveRecord(builder:flatbuffers.Builder, joint: bigint, owner: bigint, supply_closed: boolean, moving_contact: boolean, coordinate: number, speed: number, lower: number, upper: number):flatbuffers.Offset {
   builder.prep(8, 40);
   builder.pad(4);
   builder.writeFloat32(upper);
   builder.writeFloat32(lower);
   builder.writeFloat32(speed);
   builder.writeFloat32(coordinate);
-  builder.pad(3);
+  builder.pad(2);
+  builder.writeInt8(Number(Boolean(moving_contact)));
   builder.writeInt8(Number(Boolean(supply_closed)));
   builder.writeInt64(BigInt(owner ?? 0));
   builder.writeInt64(BigInt(joint ?? 0));
@@ -1249,73 +1254,28 @@ rotation(obj?:Quat4f):Quat4f|null {
   return offset ? (obj || new Quat4f()).__init(this.bb_pos + offset, this.bb!) : null;
 }
 
-mass():number {
+length():number {
   const offset = this.bb!.__offset(this.bb_pos, 16);
   return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
 }
 
-bounce():number {
-  const offset = this.bb!.__offset(this.bb_pos, 18);
-  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
-}
-
-length():number {
-  const offset = this.bb!.__offset(this.bb_pos, 20);
-  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
-}
-
-threshold():number {
-  const offset = this.bb!.__offset(this.bb_pos, 22);
-  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
-}
-
-capacity():number {
-  const offset = this.bb!.__offset(this.bb_pos, 24);
-  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
-}
-
-maximumPower():number {
-  const offset = this.bb!.__offset(this.bb_pos, 26);
-  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
-}
-
-initialFraction():number {
-  const offset = this.bb!.__offset(this.bb_pos, 28);
-  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
-}
-
-enabled():number {
-  const offset = this.bb!.__offset(this.bb_pos, 30);
-  return offset ? this.bb!.readUint8(this.bb_pos + offset) : 0;
-}
-
-halfExtents(obj?:Vec3f):Vec3f|null {
-  const offset = this.bb!.__offset(this.bb_pos, 32);
-  return offset ? (obj || new Vec3f()).__init(this.bb_pos + offset, this.bb!) : null;
-}
-
-friction():number {
-  const offset = this.bb!.__offset(this.bb_pos, 34);
-  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
-}
-
 targetCount():number {
-  const offset = this.bb!.__offset(this.bb_pos, 36);
+  const offset = this.bb!.__offset(this.bb_pos, 18);
   return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
 }
 
 parameters(index: number, obj?:ParameterRecord):ParameterRecord|null {
-  const offset = this.bb!.__offset(this.bb_pos, 38);
+  const offset = this.bb!.__offset(this.bb_pos, 20);
   return offset ? (obj || new ParameterRecord()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
 }
 
 parametersLength():number {
-  const offset = this.bb!.__offset(this.bb_pos, 38);
+  const offset = this.bb!.__offset(this.bb_pos, 20);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
 static startInstanceRecord(builder:flatbuffers.Builder) {
-  builder.startObject(18);
+  builder.startObject(9);
 }
 
 static addId(builder:flatbuffers.Builder, id:bigint) {
@@ -1342,52 +1302,16 @@ static addRotation(builder:flatbuffers.Builder, rotationOffset:flatbuffers.Offse
   builder.addFieldStruct(5, rotationOffset, 0);
 }
 
-static addMass(builder:flatbuffers.Builder, mass:number) {
-  builder.addFieldFloat32(6, mass, 0.0);
-}
-
-static addBounce(builder:flatbuffers.Builder, bounce:number) {
-  builder.addFieldFloat32(7, bounce, 0.0);
-}
-
 static addLength(builder:flatbuffers.Builder, length:number) {
-  builder.addFieldFloat32(8, length, 0.0);
-}
-
-static addThreshold(builder:flatbuffers.Builder, threshold:number) {
-  builder.addFieldFloat32(9, threshold, 0.0);
-}
-
-static addCapacity(builder:flatbuffers.Builder, capacity:number) {
-  builder.addFieldFloat32(10, capacity, 0.0);
-}
-
-static addMaximumPower(builder:flatbuffers.Builder, maximumPower:number) {
-  builder.addFieldFloat32(11, maximumPower, 0.0);
-}
-
-static addInitialFraction(builder:flatbuffers.Builder, initialFraction:number) {
-  builder.addFieldFloat32(12, initialFraction, 0.0);
-}
-
-static addEnabled(builder:flatbuffers.Builder, enabled:number) {
-  builder.addFieldInt8(13, enabled, 0);
-}
-
-static addHalfExtents(builder:flatbuffers.Builder, halfExtentsOffset:flatbuffers.Offset) {
-  builder.addFieldStruct(14, halfExtentsOffset, 0);
-}
-
-static addFriction(builder:flatbuffers.Builder, friction:number) {
-  builder.addFieldFloat32(15, friction, 0.0);
+  builder.addFieldFloat32(6, length, 0.0);
 }
 
 static addTargetCount(builder:flatbuffers.Builder, targetCount:number) {
-  builder.addFieldInt32(16, targetCount, 0);
+  builder.addFieldInt32(7, targetCount, 0);
 }
 
 static addParameters(builder:flatbuffers.Builder, parametersOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(17, parametersOffset, 0);
+  builder.addFieldOffset(8, parametersOffset, 0);
 }
 
 static createParametersVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
@@ -2385,19 +2309,11 @@ export function dumpAuthored(saved: SavedConstruction): object {
             cell: c ? { x: c.x(), y: c.y(), z: c.z() } : null,
             local: l ? { x: l.x(), y: l.y(), z: l.z() } : null,
             rotation: r ? { x: r.x(), y: r.y(), z: r.z(), w: r.w() } : null,
-            mass: inst.mass(),
-            bounce: inst.bounce(),
             length: inst.length(),
             parameters: Array.from({length: inst.parametersLength()}, (_, index) => {
                 const parameter = inst.parameters(index)!;
                 return {key: parameter.key(), value: parameter.value()};
             }),
-            threshold: inst.threshold(),
-            capacity: inst.capacity(),
-            maximumPower: inst.maximumPower(),
-            initialFraction: inst.initialFraction(),
-            enabled: inst.enabled(),
-            friction: inst.friction(),
             targetCount: inst.targetCount(),
         });
     }

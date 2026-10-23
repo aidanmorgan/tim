@@ -1,0 +1,4 @@
+61ded7ad7000a296345c30833fba1dcc742fb3c3
+483cf6cbe0c23fecb191d63a904aeebaf2c056b01336d238a9a168d030d62ccd  CuriousContraptions.tests/PlateGuardTests.cs
+ea8801259961262270ce2ca10654666d20680230d9c867f9f2ef512d02493700  /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/probe/ProbePlateCapture.cs
+8e998317aa59469760bf7a4197c2068684bb76a6278b641ab54c2a9368ae6f1d  /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-plate/_bmad-output/implementation-artifacts/evidence-c-plate/baseline/test-only.diff

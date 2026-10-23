@@ -89,7 +89,7 @@ public sealed class PayloadInstanceTests
     [Fact]
     public void TelemetryFollowsTheLowestIdentityPayloadOrNone()
     {
-        var domino = WorkshopInput.Domino(new(2), 3, .1, 0, 0, 0, 0, 1);
+        var domino = PlacedParts.Domino(new(2), 3, .1, 0, 0, 0, 0, 1);
         Assert.Equal(new GpuBodyId(3), MachineWorld.TelemetryBody(new(Place(PartId.BowlingBall, 7, -2, 3, 0), domino, Place(PartId.Basketball, 3, 2, 3, 0))));
         Assert.Equal(new GpuBodyId(7), MachineWorld.TelemetryBody(new(domino, Place(PartId.BowlingBall, 7, -2, 3, 0))));
         Assert.Equal(default, MachineWorld.TelemetryBody(new(domino)));
@@ -102,7 +102,7 @@ public sealed class PayloadInstanceTests
     public void AReceiverBesideOnlyADominoCompilesNoSensorOrGuide()
     {
         var receiver = WorkshopInput.Generic(PartId.Receiver, new(5), 0, 1, 0, 0, 0, 0, 1);
-        var domino = WorkshopInput.Domino(new(2), 3, .1, 0, 0, 0, 0, 1);
+        var domino = PlacedParts.Domino(new(2), 3, .1, 0, 0, 0, 0, 1);
         var alone = WorkshopPhysicsCompiler.Compile(Free(domino, receiver), new(1, 2));
         Assert.Empty(alone.Sensors.ToArray());
         Assert.Empty(alone.Guides.ToArray());
@@ -117,7 +117,7 @@ public sealed class PayloadInstanceTests
     {
         var first = WorkshopInput.Generic(PartId.Receiver, new(5), 0, 1, 0, 0, 0, 0, 1);
         var second = WorkshopInput.Generic(PartId.Receiver, new(6), 4, 1, 0, 0, 0, 0, 1);
-        var domino = WorkshopInput.Domino(new(2), 3, .1, 0, 0, 0, 0, 1);
+        var domino = PlacedParts.Domino(new(2), 3, .1, 0, 0, 0, 0, 1);
         new WorkshopInstances(first, second, domino).Validate();
         foreach (var kind in new[] { PartId.Basketball, PartId.BowlingBall })
             Assert.Equal(WorkbenchTable.Guides, Assert.Throws<WorkbenchFullException>(() =>
@@ -288,12 +288,11 @@ public sealed class PayloadInstanceTests
     internal static byte[] PreConversionBall(string part, float radius, float mass, float bounce) =>
         PreConversionSave(part, new Dictionary<int, float> { [6] = radius, [7] = mass, [8] = bounce, [9] = (float)(Half).04f });
 
-    internal static byte[] PreConversionDomino()
-    {
-        var domino = DominoMaterial.Default;
-        return PreConversionSave("domino", new Dictionary<int, float> { [7] = (float)domino.Mass.Value, [8] = (float)domino.Bounce.Value,
-            [24] = (float)domino.Friction.Value }, new((float)domino.HalfExtents.X, (float)domino.HalfExtents.Y, (float)domino.HalfExtents.Z));
-    }
+    /// <summary>The pre-conversion Domino record: the former record's binary16 material (0.4 kg, bounce 0.05, friction 0.6, half
+    /// extents 0.125 × 0.55 × 0.325 m) widened to the f32 slots it was written in.</summary>
+    internal static byte[] PreConversionDomino() =>
+        PreConversionSave("domino", new Dictionary<int, float> { [7] = (float)(Half).4, [8] = (float)(Half).05, [24] = (float)(Half).6 },
+            new((float)(Half).125, (float)(Half).55, (float)(Half).325));
 
     internal static byte[] PreConversionPipe() => PreConversionSave("pipe", new Dictionary<int, float> { [11] = 3.6f });
 
@@ -302,18 +301,20 @@ public sealed class PayloadInstanceTests
 
     // The pre-conversion layout is unsupported: deleting radius, drag and buoyancy renumbered every later slot, so each of these saves
     // (each admitted by the record path at 59ecb70b, receipt evidence-c-balls/baseline/baseline-payload-suite.txt) is refused with the
-    // typed save refusal, never misread. Old ball: radius/mass/bounce land in mass/bounce/length and drag in threshold. Old Domino: its
-    // half extents slot lies beyond the current 18-field table (C-Bumper+Spring removed six more fields; at C-Balls it read as the
-    // parameters vector and the verifier refused it), so it has no half extents. Old pipe: its length now reads the empty slot.
-    // Old resized Ramp: its parameters are beyond the new table, so its declared parameters are missing.
+    // typed save refusal, never misread. Re-derived on the 9-field table of C-Clock (threshold removed; slot 7 is target_count and
+    // slot 8 parameters). Old ball: its bounce (slot 8) now sits in the parameters slot, so the verifier refuses the buffer (at 9A.32 its
+    // drag in slot 9 did; at 2065d3c5 radius and mass landed in typed fields: OutOfRange). Old Domino: likewise its bounce (slot 8) is
+    // read as the parameters vector and the verifier refuses it (at 9A.32 its mass and bounce landed in threshold and target_count,
+    // typed fields: OutOfRange; at 2065d3c5 MissingField). Old pipe: its length lies beyond the table, so it reads the schema's 0. Old
+    // resized Ramp: its parameters are beyond the table, so its declared parameters are missing.
     [Fact]
     public void PreConversionRecordsAreRefusedWithTheTypedSaveRefusal()
     {
         foreach (var (name, bytes, reason) in new[]
         {
-            ("ball", PreConversionBall("ball", (float)(Half).34f, 1, (float)(Half).55f), WorkshopSaveRejection.OutOfRange),
-            ("bowling", PreConversionBall("bowling", (float)(Half).28f, 4, (float)(Half).14f), WorkshopSaveRejection.OutOfRange),
-            ("domino", PreConversionDomino(), WorkshopSaveRejection.MissingField),
+            ("ball", PreConversionBall("ball", (float)(Half).34f, 1, (float)(Half).55f), WorkshopSaveRejection.VerifierRejected),
+            ("bowling", PreConversionBall("bowling", (float)(Half).28f, 4, (float)(Half).14f), WorkshopSaveRejection.VerifierRejected),
+            ("domino", PreConversionDomino(), WorkshopSaveRejection.VerifierRejected),
             ("pipe", PreConversionPipe(), WorkshopSaveRejection.OutOfRange),
             ("ramp", PreConversionResizedRamp(), WorkshopSaveRejection.OutOfRange)
         })
@@ -345,16 +346,7 @@ public sealed class PayloadInstanceTests
         switch (field)
         {
             case null: break;
-            case TypedField.Mass: InstanceRecord.AddMass(builder, value); break;
-            case TypedField.Bounce: InstanceRecord.AddBounce(builder, value); break;
             case TypedField.Length: InstanceRecord.AddLength(builder, value); break;
-            case TypedField.Threshold: InstanceRecord.AddThreshold(builder, value); break;
-            case TypedField.Capacity: InstanceRecord.AddCapacity(builder, value); break;
-            case TypedField.MaximumPower: InstanceRecord.AddMaximumPower(builder, value); break;
-            case TypedField.InitialFraction: InstanceRecord.AddInitialFraction(builder, value); break;
-            case TypedField.Enabled: InstanceRecord.AddEnabled(builder, 1); break;
-            case TypedField.HalfExtents: InstanceRecord.AddHalfExtents(builder, Vec3f.CreateVec3f(builder, 0, value, 0)); break;
-            case TypedField.Friction: InstanceRecord.AddFriction(builder, value); break;
             case TypedField.TargetCount: InstanceRecord.AddTargetCount(builder, 3); break;
             default: throw new ArgumentOutOfRangeException(nameof(field));
         }
@@ -370,26 +362,31 @@ public sealed class PayloadInstanceTests
         return SaveFixture.Finish(builder, ConstructionRecord.EndConstructionRecord(builder), 2);
     }
 
-    // Every typed record field, on a generic payload and on another generic element, is refused atomically by the save pre-validation
-    // and by the command decoder alike, a NaN included. (A signed zero cannot be stored: the builder elides any value equal to the
-    // field default.) Control: the bare record loads.
+    // Every typed record field, on a generic payload and on another generic element (the clock with its declared interval included), is
+    // refused atomically by the save pre-validation and by the command decoder alike, a NaN included. (A signed zero cannot be stored:
+    // the builder elides any value equal to the field default.) Control: the bare record loads.
     [Theory]
     [MemberData(nameof(EveryTypedFieldOnGenericRecords))]
     public void AGenericRecordCarryingAnyTypedFieldIsRefused(string part, TypedField field, float value)
     {
-        var bytes = GenericSave(part, field, part == "ramp" ? [("length", 3f), ("width", 1.3f)] : null, value);
+        (string, float)[]? parameters = part switch { "ramp" => [("length", 3f), ("width", 1.3f)], "clock" => [("interval_seconds", 1f)], _ => null };
+        var bytes = GenericSave(part, field, parameters, value);
         SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes));
         var record = WorkshopSaveCodec.Open(bytes).Construction!.Value.Instances(0)!.Value;
         Assert.Equal(WireFaultReason.OutOfRange, Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.MapInstance(record)).Reason);
+        // Control: the same record without the typed field loads.
+        Assert.Equal(new PartId(part), Assert.Single(WorkshopSaveCodec.Decode(SaveFixture.Elements, GenericSave(part, null, parameters)).Construction.Instances).PartId);
     }
 
     public static TheoryData<string, TypedField, float> EveryTypedFieldOnGenericRecords()
     {
         var data = new TheoryData<string, TypedField, float>();
-        foreach (var part in new[] { "ball", "bowling", "ramp" })
+        foreach (var part in new[] { "ball", "bowling", "ramp", "domino", "clock" })
             foreach (var field in Enum.GetValues<TypedField>())
                 data.Add(part, field, 4f);
-        data.Add("bowling", TypedField.Friction, float.NaN);
+        data.Add("bowling", TypedField.Length, float.NaN);
+        data.Add("domino", TypedField.Length, float.NaN);
+        data.Add("clock", TypedField.Length, float.NaN);
         return data;
     }
 
@@ -406,8 +403,8 @@ public sealed class PayloadInstanceTests
     }
 }
 
-/// <summary>Every typed field of the current InstanceRecord: a generic record carries none of them.</summary>
+/// <summary>Every typed field of the current InstanceRecord (C-Clock deleted the threshold): a generic record carries none of them.</summary>
 public enum TypedField
 {
-    Mass, Bounce, Length, Threshold, Capacity, MaximumPower, InitialFraction, Enabled, HalfExtents, Friction, TargetCount
+    Length, TargetCount
 }

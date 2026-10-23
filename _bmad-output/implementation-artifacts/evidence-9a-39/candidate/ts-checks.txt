@@ -1,0 +1,43 @@
+tsc: /Users/aidan/.npm/_npx/02a0359277d72892/node_modules/typescript/bin/tsc
+typeRoots: /Users/aidan/.npm/_npx/48d230a2e2958c89/node_modules/@types
+tsx: /Users/aidan/.npm/_npx/fd45a72a545557e9/node_modules/tsx (4.23.15)
+tsc rc=0
+▶ Run/Reset snapshot: the explicit schema listing
+  ✔ every listed struct and table has exactly the fields, types and order of schemas/workshop_wire.fbs (0.691416ms)
+  ✔ every type reachable from WorkshopResponse and SavedConstruction is listed (0.14425ms)
+  ✔ computed struct offsets and sizes equal the generated accessors (0.634041ms)
+  ✔ table fields use the generated vtable slots (0.224ms)
+✔ Run/Reset snapshot: the explicit schema listing (2.120333ms)
+▶ Run/Reset snapshot: bit-exact comparison
+  ✔ identical snapshots pass (1.710959ms)
+  ✔ a flipped f32 bit fails and names the field path with both bit patterns (0.509875ms)
+  ✔ -0 against +0 in a body field fails (0.37175ms)
+  ✔ two different NaN payloads differ (0.30375ms)
+  ✔ a differing connection fails (0.339417ms)
+  ✔ a differing part parameter fails (0.274375ms)
+  ✔ a differing authored goal fails (0.3765ms)
+  ✔ a difference in only the last compared path fails (0.152708ms)
+  ✔ differing path sets fail, in either direction (0.256541ms)
+  ✔ only the named top-level identity paths are excluded (0.2675ms)
+  ✔ a nested field that shares an excluded name is still compared (0.229333ms)
+  ✔ a Load comparison ignores only the restarted construction revision (0.315666ms)
+  ✔ committed counter and clock memory is compared (0.294875ms)
+  ✔ the tick is compared (0.143458ms)
+✔ Run/Reset snapshot: bit-exact comparison (5.770292ms)
+▶ Run/Reset snapshot: no vacuous pass
+  ✔ empty bodies are rejected (0.183333ms)
+  ✔ a body count other than the bench is rejected (0.070792ms)
+  ✔ a non-Applied acknowledgement is rejected (0.062709ms)
+  ✔ an advanced read must have tick > 0 (0.121625ms)
+  ✔ an advanced read must differ from S0 in a physical path (0.141791ms)
+  ✔ an advanced read with a moved body passes (0.106792ms)
+✔ Run/Reset snapshot: no vacuous pass (0.762458ms)
+ℹ tests 24
+ℹ suites 3
+ℹ pass 24
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 356.368833
+snapshot unit rc=0

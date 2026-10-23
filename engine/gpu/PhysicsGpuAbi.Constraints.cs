@@ -6,7 +6,17 @@ namespace CuriousContraptions.Gpu;
 public static partial class PhysicsGpuAbi
 {
     public const int PrismaticBytes = 160;
+    /// <summary>u32 <see cref="PrismaticDriveKind"/>: immutable after admission.</summary>
+    public const int PrismaticDriveKindOffset = 92;
     public const int PrismaticImpulseOffset = 96;
+    /// <summary>Five immutable f32 drive values (target, maximum speed, stopping acceleration, maximum effort, maximum power); all
+    /// zero for <see cref="PrismaticDriveKind.None"/>.</summary>
+    public const int PrismaticDriveOffset = 128;
+    public const int PrismaticDriveBytes = 20;
+    /// <summary>u32 0 or 1, written by every committed tick: whether the joint's moving body took a positive normal contact impulse
+    /// from a body other than the joint's base in any substep of that tick (coordinator decision 2, C-Gate). Zero at admission.</summary>
+    public const int PrismaticMovingContactOffset = 148;
+    private const int PrismaticPaddingOffset = 152;
     /// <summary>The rows of one prismatic joint (two transverse, three angular, the axial spring, two stops): structural.</summary>
     public const int PrismaticRowCount = 8;
 
@@ -22,7 +32,30 @@ public static partial class PhysicsGpuAbi
             WriteEnergy(record, 72, value.Lower); WriteEnergy(record, 76, value.Upper);
             WriteEnergy(record, 80, value.Stiffness); WriteEnergy(record, 84, value.Damping);
             U32(record, 88, (uint)value.Collision);
+            foreach (var drive in scene.PrismaticDrives)
+            {
+                if (drive.Joint != value.Id) continue;
+                U32(record, PrismaticDriveKindOffset, (uint)PrismaticDriveKind.Supplied);
+                WriteEnergy(record, PrismaticDriveOffset, drive.Target); WriteEnergy(record, PrismaticDriveOffset + 4, drive.MaxSpeed);
+                WriteEnergy(record, PrismaticDriveOffset + 8, drive.StoppingAcceleration);
+                WriteEnergy(record, PrismaticDriveOffset + 12, drive.MaxEffort); WriteEnergy(record, PrismaticDriveOffset + 16, drive.MaxPower);
+            }
         }
+    }
+
+    /// <summary>The supplied drive of the world's prismatic <paramref name="index"/>, or null when it declares none.</summary>
+    public static PrismaticDriveDeclaration? ReadPrismaticDrive(ReadOnlySpan<byte> data, int index)
+    {
+        var joint = ReadPrismatic(data, index);
+        var record = data.Slice(Layout(data).PrismaticOffset(index), PrismaticBytes);
+        return (PrismaticDriveKind)R32(record, PrismaticDriveKindOffset) == PrismaticDriveKind.None ? null : DriveOf(joint, record);
+    }
+
+    /// <summary>The committed moving-contact lane of the world's prismatic <paramref name="index"/>.</summary>
+    public static bool ReadPrismaticMovingContact(ReadOnlySpan<byte> data, int index)
+    {
+        _ = ReadPrismatic(data, index);
+        return R32(data.Slice(Layout(data).PrismaticOffset(index), PrismaticBytes), PrismaticMovingContactOffset) == 1;
     }
 
     private static void WriteConstraintFrame(Span<byte> data, int offset, ConstraintFrame frame)
@@ -44,16 +77,24 @@ public static partial class PhysicsGpuAbi
         if (index < 0 || index >= layout.Prismatics) throw new ArgumentException("Invalid prismatic table.");
         var record = data.Slice(layout.PrismaticOffset(index), PrismaticBytes);
         var a = R32(record, 8); var b = R32(record, 12);
+        var drive = (PrismaticDriveKind)R32(record, PrismaticDriveKindOffset);
         if (a >= R32(data, HeaderBodyCountOffset) || b >= R32(data, HeaderBodyCountOffset) || R32(record, 88) > (uint)ConnectedCollision.Enabled ||
-            !AllZero(record[92..96]) || !AllZero(record[128..]))
+            !Enum.IsDefined(drive) || (drive == PrismaticDriveKind.None && !AllZero(record.Slice(PrismaticDriveOffset, PrismaticDriveBytes))) ||
+            R32(record, PrismaticMovingContactOffset) > 1 || !AllZero(record[PrismaticPaddingOffset..]))
             throw new ArgumentException("Invalid prismatic record.");
         var result = new PrismaticConstraintDeclaration(new(R64(record, 0)),
             new(R64(data, layout.BodyOffset((int)a))), new(R64(data, layout.BodyOffset((int)b))),
             ReadConstraintFrame(record, 16), ReadConstraintFrame(record, 44),
             RF(record, 72), RF(record, 76), RF(record, 80), RF(record, 84), (ConnectedCollision)R32(record, 88));
         result.Validate();
+        // A supplied record carries a valid drive for this joint (its values within the joint's limits and the envelope).
+        if (drive == PrismaticDriveKind.Supplied) DriveOf(result, record).Validate(result);
         return result;
     }
+
+    private static PrismaticDriveDeclaration DriveOf(PrismaticConstraintDeclaration joint, ReadOnlySpan<byte> record) =>
+        new(joint.Id, RF(record, PrismaticDriveOffset), RF(record, PrismaticDriveOffset + 4), RF(record, PrismaticDriveOffset + 8),
+            RF(record, PrismaticDriveOffset + 12), RF(record, PrismaticDriveOffset + 16));
 
     private static void ValidatePrismaticCandidate(ReadOnlySpan<byte> candidate, ReadOnlySpan<byte> source)
     {
@@ -61,9 +102,10 @@ public static partial class PhysicsGpuAbi
         var layout = Layout(source);
         for (var i = 0; i < layout.Prismatics; i++)
         {
-            _ = ReadPrismatic(candidate, i);
+            _ = ReadPrismaticDrive(candidate, i);
             var offset = layout.PrismaticOffset(i);
-            if (!candidate.Slice(offset, PrismaticImpulseOffset).SequenceEqual(source.Slice(offset, PrismaticImpulseOffset)))
+            if (!candidate.Slice(offset, PrismaticImpulseOffset).SequenceEqual(source.Slice(offset, PrismaticImpulseOffset)) ||
+                !candidate.Slice(offset + PrismaticDriveOffset, PrismaticDriveBytes).SequenceEqual(source.Slice(offset + PrismaticDriveOffset, PrismaticDriveBytes)))
                 throw new ArgumentException("Prismatic declaration changed.");
             // Two transverse, three angular, axial spring, then lower/upper unilateral stops.
             for (var row = 0; row < PrismaticRowCount; row++)

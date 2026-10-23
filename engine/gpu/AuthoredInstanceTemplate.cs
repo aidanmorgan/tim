@@ -9,7 +9,7 @@ namespace CuriousContraptions.Gpu;
 // The current construction record's typed scalar fields, not element identities.
 internal enum AuthoredScalar
 {
-    Mass, Bounce, Length, Threshold, Capacity, MaximumPower, InitialFraction, Friction
+    Length
 }
 internal enum AssistanceValue
 {
@@ -22,8 +22,7 @@ internal readonly record struct AuthoredAssistanceBinding(AssistanceValue Value,
 /// <summary>Explicit current-schema fields. No omitted scalar is replaced by a FlatBuffers default.</summary>
 internal sealed record AuthoredInstanceTemplate(PartId Part, CellOrigin Cell, LocalPosition Local,
     CanonicalRotation Rotation, bool Locked, ImmutableDictionary<AuthoredScalar, float> Scalars,
-    ElectricalEnable Enabled, uint TargetCount, System.Numerics.Vector3 HalfExtents,
-    InstanceParameterCollection Parameters, AssistanceProfile Assistance, ImmutableArray<AuthoredAssistanceBinding> AssistanceBindings)
+    uint TargetCount, InstanceParameterCollection Parameters, AssistanceProfile Assistance, ImmutableArray<AuthoredAssistanceBinding> AssistanceBindings)
 {
     internal AuthoredInstanceTemplate At(PuzzlePrecision precision)
     {
@@ -46,8 +45,6 @@ internal sealed record AuthoredInstanceTemplate(PartId Part, CellOrigin Cell, Lo
             Scalars.Any(pair => !Enum.IsDefined(pair.Key) || !float.IsFinite(pair.Value)))
             throw new ArgumentException("Missing, undefined or nonfinite authored scalar.");
         Rotation.Validate();
-        if (!Enum.IsDefined(Enabled))
-            throw new ArgumentException("Undefined authored electrical state.");
         Parameters.Validate(Part);
         var targets = new HashSet<(AuthoredScalar?, ParameterId)>();
         foreach (var binding in AssistanceBindings)
@@ -91,8 +88,7 @@ internal static class AuthoredInstanceReader
     {
         var fields = PuzzleContentReader.Fields(json, where);
         Require(fields, where, "part", "cell", "local", "rotation", "locked", "scalars",
-            "enabled", "target_count", "half_extents",
-            "parameters", "assistance", "assistance_bindings");
+            "target_count", "parameters", "assistance", "assistance_bindings");
         var part = new PartId(PuzzleContentReader.Text(fields, "part", where));
         if (!DeclaredPhysics.Contains(part)) throw PuzzleContentReader.Invalid(where, "part", "unknown declared part");
         var cell = Array(fields["cell"], 3, where + ".cell");
@@ -119,8 +115,7 @@ internal static class AuthoredInstanceReader
             new(local.X, local.Y, local.Z),
             new(Number(rotation[0], where), Number(rotation[1], where), Number(rotation[2], where), Number(rotation[3], where)),
             Boolean(fields["locked"], where + ".locked"), scalars.ToImmutable(),
-            Enabled(fields["enabled"], where + ".enabled"), Unsigned(fields["target_count"], where + ".target_count"),
-            Vector(fields["half_extents"], where),
+            Unsigned(fields["target_count"], where + ".target_count"),
             parameters, Profile(fields["assistance"], where), assistanceBindings.ToImmutable());
         try
         {
@@ -165,12 +160,6 @@ internal static class AuthoredInstanceReader
     internal static T Closed<T>(string value, string where) where T : struct, Enum =>
         Enum.TryParse<T>(value, out var result) && Enum.IsDefined(result) && result.ToString() == value
             ? result : throw PuzzleContentReader.Invalid(where, value, "undefined enum value");
-    private static ElectricalEnable Enabled(JsonElement value, string where) => Unsigned(value, where) switch
-    {
-        0 => ElectricalEnable.Disabled,
-        1 => ElectricalEnable.Enabled,
-        _ => throw PuzzleContentReader.Invalid(where, "", "undefined electrical state")
-    };
     internal static int Integer(JsonElement value, string where) =>
         value.ValueKind == JsonValueKind.Number && value.TryGetInt32(out var result) ? result :
             throw PuzzleContentReader.Invalid(where, "", "expected integer");

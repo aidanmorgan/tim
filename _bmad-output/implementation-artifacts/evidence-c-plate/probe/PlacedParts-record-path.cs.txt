@@ -1,0 +1,7 @@
+// CuriousContraptions.tests/PlacedParts.cs on the record path (base 61ded7ad + the suite-first test-only diff,
+// evidence-c-plate/baseline/test-only.diff): the only adapter body that differs from the candidate.
+
+    /// <summary>A Pressure Plate of a minimum mass (f32 kg) at an f32-input pose.</summary>
+    public static IWorkshopInstance Plate(GpuBodyId id, double x, double y, double z, float minimumMass,
+        double qx = 0, double qy = 0, double qz = 0, double qw = 1, bool locked = false) =>
+        WorkshopInput.PressurePlate(id, x, y, z, qx, qy, qz, qw, minimumMass, locked);

@@ -1,0 +1,21 @@
+== carry patch sha256
+fc8a97222ccdbc4f37f1466e50d5edbd86376da22ec844db3cb242649758ffde  /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/carry/cplate-terminal-receipt.patch
+patch applies to HEAD copies: yes
+review-6-5f-partart-partkind-legacy-purge.md byte-identical to HEAD+patch
+review-9-1-pressure-plate.md byte-identical to HEAD+patch
+review-c-plate.md byte-identical to HEAD+patch
+-- sprint-status.yaml: HEAD+carry patch vs worktree (remaining lines are C-Clock)
+343c343
+<   9a-c-clock-conversion: backlog
+---
+>   9a-c-clock-conversion: review # native candidate on 14658883 (worktree story-c-clock); browser pending
+345c345
+<   9a-42-generic-instance-system-clock: backlog
+---
+>   9a-42-generic-instance-system-clock: review
+347c347
+<   9r-10-system-clock-pause-reset-chrome-proof: backlog
+---
+>   9r-10-system-clock-pause-reset-chrome-proof: backlog # native guard green on record path and candidate; Chrome ACs pending (post-catalogue)
+-- evidence dir
+evidence-c-plate-review/terminal byte-identical to carry (9 files)

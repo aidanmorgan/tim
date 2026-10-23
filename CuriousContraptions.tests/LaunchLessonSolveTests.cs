@@ -62,7 +62,14 @@ public sealed class LaunchLessonSolveTests
         using var source = System.Text.Json.JsonDocument.Parse(File.ReadAllText(Path.Combine(twodog.Engine.ResolveProjectDir(), "content/puzzles.json")));
         var level = source.RootElement.EnumerateArray().Single(value => value.GetProperty("id").GetString() == lesson);
         var construction = PuzzleCatalogue.Create(new PuzzleId(lesson), new(2), WorkshopCadenceSettings.Default(), new(1), new(precision));
-        var next = 3UL;
+        // Each authored placement slot names the fixture built from it, in placement order; solution parts follow the fixtures.
+        var slots = level.GetProperty("placements").EnumerateArray().Select((row, index) =>
+        {
+            var fixture = construction.Instances[index];
+            Assert.Equal(row.GetProperty("instance").GetProperty("part").GetString(), fixture.PartId.Value);
+            return KeyValuePair.Create(row.GetProperty("slot").GetString()!, fixture.Id);
+        }).ToDictionary();
+        var next = construction.Instances.Max(instance => instance.Id.Value) + 1;
         foreach (var row in level.GetProperty("solution").EnumerateArray())
         {
             var p = row.GetProperty("position").EnumerateArray().Select(value => value.GetDouble()).ToArray();
@@ -77,21 +84,35 @@ public sealed class LaunchLessonSolveTests
                 "spring" => PlacedParts.Springboard(id, p[0], p[1], p[2], q.X, q.Y, q.Z, q.W),
                 "wall" => WorkshopInput.Generic(PartId.Wall, id, p[0], p[1], p[2], q.X, q.Y, q.Z, q.W, new(
                     WallKeys.Select(key => KeyValuePair.Create(new ParameterId(key), (float)properties.GetProperty(key).GetDouble())))),
+                "domino" => PlacedParts.Domino(id, p[0], p[1], p[2], q.X, q.Y, q.Z, q.W),
                 var kind => throw new ArgumentException($"No authored-solution placement for '{kind}'.")
             };
+            slots.Add(row.GetProperty("id").GetString()!, id);
             construction = construction.WithInstance(part);
         }
-        return construction;
+        // The authored solution wiring: activation links between named slots.
+        var links = new List<WorkshopConnection>();
+        foreach (var row in level.GetProperty("solution_connections").EnumerateArray())
+        {
+            Assert.Equal(("activation", "activation_out", "activation_in"), (row.GetProperty("type").GetString(),
+                row.GetProperty("from_port").GetString(), row.GetProperty("to_port").GetString()));
+            links.Add(new(slots[row.GetProperty("from").GetString()!], WorkshopSocket.ActivationOut, slots[row.GetProperty("to").GetString()!],
+                WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation));
+        }
+        return links.Count == 0 ? construction : construction with { Connections = new([.. links]) };
     }
 
     // The authored solution of every placement-launch lesson solves at every precision (the bumper rows were corrected from x/z 3.2 to
     // 3.3 on 22 Oct 2026: at 3.2 the 0.2 m offset under the falling ball misses the Receiver on main 55ee05b9 and here alike,
-    // evidence-c-bumper-spring/lesson-pose/).
+    // evidence-c-bumper-spring/lesson-pose/). domino_effect's rows were corrected on 23 Oct 2026 (9A.32): the legacy tiles at
+    // x = -2.4…0, y = 1 lay 2 m from the falling Basketball and the last overlapped the end tile, so the chain never started; the four
+    // tiles now stand at x = -4…-1 on the bench and the end tile is wired to the lamp (evidence-9a-32/candidate/domino-effect-solution/).
     [Theory]
     [InlineData("spring_forward")]
     [InlineData("bumper_sidekick")]
     [InlineData("bumper_depth")]
     [InlineData("wall_and_bumper")]
+    [InlineData("domino_effect")]
     public async Task TheAuthoredSolutionSolvesAtEveryPrecision(string lesson)
     {
         foreach (var precision in new[] { (Half)0, (Half).45, (Half)1 })

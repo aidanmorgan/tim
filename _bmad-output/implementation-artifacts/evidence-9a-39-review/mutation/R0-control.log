@@ -1,0 +1,7 @@
+mutant R0-control file README.md
+    0 Error(s)
+    0 Warning(s)
+Build succeeded.
+Passed!  - Failed:     0, Passed:  2466, Skipped:     0, Total:  2466, Duration: 44 s - CuriousContraptions.tests.dll (net10.0)
+Passed!  - Failed:     0, Passed:   163, Skipped:     0, Total:   163, Duration: 332 ms - BundleElements.Tests.dll (net10.0)
+restored: yes

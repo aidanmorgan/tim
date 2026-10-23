@@ -1,0 +1,642 @@
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-gate/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:03.09]     CuriousContraptions.Tests.DeclaredPrismaticDriveTests.ASyntheticDriveReachesItsOwnTargetOnItsOwnProfileWithItsEffortAndPowerBinding [FAIL]
+  Failed CuriousContraptions.Tests.DeclaredPrismaticDriveTests.ASyntheticDriveReachesItsOwnTargetOnItsOwnProfileWithItsEffortAndPowerBinding [32 ms]
+  Error Message:
+   Assert.All() Failure: 315 out of 1919 items in the collection did not pass.
+[63]:  Item:  Tuple (15.9945574, 0.79030329, 0.0560126305)
+       Error: power 12.640552 W within 12 W
+[64]:  Item:  Tuple (15.9945526, 0.80200839, 0.0577077866)
+       Error: power 12.827765 W within 12 W
+[65]:  Item:  Tuple (15.994524, 0.813690782, 0.0594272614)
+       Error: power 13.014597 W within 12 W
+[66]:  Item:  Tuple (15.9944992, 0.825350285, 0.0611710548)
+       Error: power 13.201064 W within 12 W
+[67]:  Item:  Tuple (15.9944496, 0.83698678, 0.062939167)
+       Error: power 13.387143 W within 12 W
+[68]:  Item:  Tuple (15.9944324, 0.84860009, 0.0647311211)
+       Error: power 13.572877 W within 12 W
+[69]:  Item:  Tuple (15.9943905, 0.860190153, 0.0665473938)
+       Error: power 13.758217 W within 12 W
+[70]:  Item:  Tuple (15.9943523, 0.871756792, 0.0683875084)
+       Error: power 13.943185 W within 12 W
+[71]:  Item:  Tuple (15.9943161, 0.883299887, 0.0702519417)
+       Error: power 14.127778 W within 12 W
+[72]:  Item:  Tuple (15.9942837, 0.894819319, 0.0721402168)
+       Error: power 14.311994 W within 12 W
+[73]:  Item:  Tuple (15.9942818, 0.906314969, 0.0740523338)
+       Error: power 14.495857 W within 12 W
+[74]:  Item:  Tuple (15.9942532, 0.917786777, 0.0759882927)
+       Error: power 14.679314 W within 12 W
+[75]:  Item:  Tuple (15.9942284, 0.929234564, 0.0779480934)
+       Error: power 14.86239 W within 12 W
+[76]:  Item:  Tuple (15.9941759, 0.940658212, 0.079931736)
+       Error: power 15.045053 W within 12 W
+[77]:  Item:  Tuple (15.994154, 0.95205754, 0.0819387436)
+       Error: power 15.227355 W within 12 W
+[78]:  Item:  Tuple (15.994133, 0.963432491, 0.083969593)
+       Error: power 15.409267 W within 12 W
+[79]:  Item:  Tuple (15.9940853, 0.974782944, 0.0860238075)
+       Error: power 15.590761 W within 12 W
+[80]:  Item:  Tuple (15.9940672, 0.98610872, 0.0881018639)
+       Error: power 15.771889 W within 12 W
+[81]:  Item:  Tuple (15.9939928, 0.997409761, 0.0902032852)
+       Error: power 15.952564 W within 12 W
+[82]:  Item:  Tuple (15.9939766, 1.00868583, 0.0923280716)
+       Error: power 16.132898 W within 12 W
+[83]:  Item:  Tuple (15.9939308, 1.01993692, 0.094476223)
+       Error: power 16.312801 W within 12 W
+[84]:  Item:  Tuple (15.9938869, 1.03116286, 0.0966477394)
+       Error: power 16.492302 W within 12 W
+[85]:  Item:  Tuple (15.9938993, 1.04236352, 0.0988426208)
+       Error: power 16.671457 W within 12 W
+[86]:  Item:  Tuple (15.9938555, 1.05353892, 0.101060867)
+       Error: power 16.85015 W within 12 W
+[87]:  Item:  Tuple (15.9938107, 1.0646888, 0.103302002)
+       Error: power 17.02843 W within 12 W
+[88]:  Item:  Tuple (15.9937649, 1.07581306, 0.105566502)
+       Error: power 17.2063 W within 12 W
+[89]:  Item:  Tuple (15.9937763, 1.08691156, 0.107853889)
+       Error: power 17.38382 W within 12 W
+[90]:  Item:  Tuple (15.9937286, 1.09798431, 0.110164165)
+       Error: power 17.560863 W within 12 W
+[91]:  Item:  Tuple (15.99368, 1.10903108, 0.112497807)
+       Error: power 17.737488 W within 12 W
+[92]:  Item:  Tuple (15.9936886, 1.12005174, 0.114854336)
+       Error: power 17.91376 W within 12 W
+[93]:  Item:  Tuple (15.9936371, 1.1310463, 0.117233753)
+       Error: power 18.089544 W within 12 W
+[94]:  Item:  Tuple (15.9936409, 1.1420145, 0.119635582)
+       Error: power 18.26497 W within 12 W
+[95]:  Item:  Tuple (15.9936409, 1.15295637, 0.122060299)
+       Error: power 18.43997 W within 12 W
+[96]:  Item:  Tuple (15.9935837, 1.16387177, 0.124507904)
+       Error: power 18.614481 W within 12 W
+[97]:  Item:  Tuple (15.9935808, 1.17476046, 0.126977921)
+       Error: power 18.788626 W within 12 W
+[98]:  Item:  Tuple (15.9935741, 1.18562245, 0.129470348)
+       Error: power 18.962341 W within 12 W
+[99]:  Item:  Tuple (15.9935074, 1.19645762, 0.131985664)
+       Error: power 19.135553 W within 12 W
+[100]: Item:  Tuple (15.993495, 1.20726573, 0.134523392)
+       Error: power 19.3084 W within 12 W
+[101]: Item:  Tuple (15.9934788, 1.21804678, 0.13708353)
+       Error: power 19.480804 W within 12 W
+[102]: Item:  Tuple (15.9934025, 1.22880065, 0.13966608)
+       Error: power 19.652704 W within 12 W
+[103]: Item:  Tuple (15.9933796, 1.23952711, 0.142270565)
+       Error: power 19.824228 W within 12 W
+[104]: Item:  Tuple (15.993351, 1.25022614, 0.144897461)
+       Error: power 19.995306 W within 12 W
+[105]: Item:  Tuple (15.9933186, 1.26089764, 0.147546291)
+       Error: power 20.165937 W within 12 W
+[106]: Item:  Tuple (15.9932804, 1.27154148, 0.150217533)
+       Error: power 20.336119 W within 12 W
+[107]: Item:  Tuple (15.9932957, 1.28215754, 0.152910709)
+       Error: power 20.505924 W within 12 W
+[108]: Item:  Tuple (15.9932489, 1.29274583, 0.15562582)
+       Error: power 20.675205 W within 12 W
+[109]: Item:  Tuple (15.9931965, 1.3033061, 0.158362865)
+       Error: power 20.84403 W within 12 W
+[110]: Item:  Tuple (15.9932528, 1.31383824, 0.161121845)
+       Error: power 21.012547 W within 12 W
+[111]: Item:  Tuple (15.9931889, 1.32434237, 0.16390276)
+       Error: power 21.180458 W within 12 W
+[112]: Item:  Tuple (15.9931774, 1.33481812, 0.166705608)
+       Error: power 21.347982 W within 12 W
+[113]: Item:  Tuple (15.9931583, 1.34526551, 0.169529915)
+       Error: power 21.515045 W within 12 W
+[114]: Item:  Tuple (15.9931335, 1.3556844, 0.172375679)
+       Error: power 21.681643 W within 12 W
+[115]: Item:  Tuple (15.9931011, 1.36607468, 0.175243378)
+       Error: power 21.84777 W within 12 W
+[116]: Item:  Tuple (15.993063, 1.37643623, 0.178132534)
+       Error: power 22.013432 W within 12 W
+[117]: Item:  Tuple (15.9930172, 1.38676894, 0.181043148)
+       Error: power 22.17862 W within 12 W
+[118]: Item:  Tuple (15.9929638, 1.39707267, 0.18397522)
+       Error: power 22.343332 W within 12 W
+[119]: Item:  Tuple (15.9930172, 1.40734732, 0.186928749)
+       Error: power 22.50773 W within 12 W
+[120]: Item:  Tuple (15.9929485, 1.417593, 0.189903259)
+       Error: power 22.671492 W within 12 W
+[121]: Item:  Tuple (15.9929295, 1.42780936, 0.192899227)
+       Error: power 22.834854 W within 12 W
+[122]: Item:  Tuple (15.9929008, 1.43799639, 0.195916176)
+       Error: power 22.997734 W within 12 W
+[123]: Item:  Tuple (15.9928646, 1.44815397, 0.198954105)
+       Error: power 23.16013 W within 12 W
+[124]: Item:  Tuple (15.9928179, 1.45828199, 0.202013016)
+       Error: power 23.322039 W within 12 W
+[125]: Item:  Tuple (15.992878, 1.46838033, 0.205092907)
+       Error: power 23.483627 W within 12 W
+[126]: Item:  Tuple (15.9928131, 1.47844911, 0.208193779)
+       Error: power 23.64456 W within 12 W
+[127]: Item:  Tuple (15.9927969, 1.48848796, 0.211315632)
+       Error: power 23.805086 W within 12 W
+[128]: Item:  Tuple (15.9927711, 1.49849689, 0.214458466)
+       Error: power 23.965118 W within 12 W
+[129]: Item:  Tuple (15.9927359, 1.50847578, 0.217621803)
+       Error: power 24.124655 W within 12 W
+[130]: Item:  Tuple (15.9926891, 1.51842451, 0.220805645)
+       Error: power 24.283691 W within 12 W
+[131]: Item:  Tuple (15.9927473, 1.52834296, 0.224010468)
+       Error: power 24.442402 W within 12 W
+[132]: Item:  Tuple (15.9926805, 1.53823125, 0.227235794)
+       Error: power 24.600441 W within 12 W
+[133]: Item:  Tuple (15.9926605, 1.54808903, 0.230481625)
+       Error: power 24.758062 W within 12 W
+[134]: Item:  Tuple (15.9926281, 1.55791628, 0.233747482)
+       Error: power 24.915176 W within 12 W
+[135]: Item:  Tuple (15.9925842, 1.5677129, 0.237033844)
+       Error: power 25.071781 W within 12 W
+[136]: Item:  Tuple (15.9925861, 1.57747877, 0.24034071)
+       Error: power 25.227964 W within 12 W
+[137]: Item:  Tuple (15.9925766, 1.58721387, 0.243667603)
+       Error: power 25.38364 W within 12 W
+[138]: Item:  Tuple (12.0174713, 1.59691811, 0.246997356)
+       Error: power 19.190918 W within 12 W
+[139]: Item:  Tuple (11.3576441, 1.59831429, 0.25032711)
+       Error: power 18.153086 W within 12 W
+[140]: Item:  Tuple (11.3675756, 1.59831429, 0.253656864)
+       Error: power 18.168959 W within 12 W
+[141]: Item:  Tuple (11.3776798, 1.59831417, 0.256986618)
+       Error: power 18.185106 W within 12 W
+[142]: Item:  Tuple (11.3875542, 1.59831429, 0.260316372)
+       Error: power 18.20089 W within 12 W
+[143]: Item:  Tuple (11.3976583, 1.59831417, 0.263646126)
+       Error: power 18.21704 W within 12 W
+[144]: Item:  Tuple (11.4075899, 1.59831429, 0.26697588)
+       Error: power 18.232914 W within 12 W
+[145]: Item:  Tuple (11.4175224, 1.59831429, 0.270305634)
+       Error: power 18.248789 W within 12 W
+[146]: Item:  Tuple (11.4276257, 1.59831417, 0.273635387)
+       Error: power 18.264936 W within 12 W
+[147]: Item:  Tuple (11.437501, 1.59831429, 0.276965141)
+       Error: power 18.280722 W within 12 W
+[148]: Item:  Tuple (11.4476042, 1.59831417, 0.280294895)
+       Error: power 18.296867 W within 12 W
+[149]: Item:  Tuple (11.4574795, 1.59831429, 0.283624649)
+       Error: power 18.312653 W within 12 W
+[150]: Item:  Tuple (11.4675827, 1.59831417, 0.286954403)
+       Error: power 18.3288 W within 12 W
+[151]: Item:  Tuple (11.4775152, 1.59831429, 0.290284157)
+       Error: power 18.344677 W within 12 W
+[152]: Item:  Tuple (11.4874468, 1.59831429, 0.293613911)
+       Error: power 18.36055 W within 12 W
+[153]: Item:  Tuple (11.497551, 1.59831417, 0.296943665)
+       Error: power 18.3767 W within 12 W
+[154]: Item:  Tuple (11.5074253, 1.59831429, 0.300273418)
+       Error: power 18.392483 W within 12 W
+[155]: Item:  Tuple (11.5175295, 1.59831417, 0.303603172)
+       Error: power 18.40863 W within 12 W
+[156]: Item:  Tuple (11.5274038, 1.59831429, 0.306932926)
+       Error: power 18.424414 W within 12 W
+[157]: Item:  Tuple (11.537508, 1.59831417, 0.31026268)
+       Error: power 18.440563 W within 12 W
+[158]: Item:  Tuple (11.5474396, 1.59831429, 0.313592434)
+       Error: power 18.456438 W within 12 W
+[159]: Item:  Tuple (11.5573721, 1.59831429, 0.316922188)
+       Error: power 18.472313 W within 12 W
+[160]: Item:  Tuple (11.5674753, 1.59831417, 0.320251942)
+       Error: power 18.48846 W within 12 W
+[161]: Item:  Tuple (11.5773506, 1.59831429, 0.323581696)
+       Error: power 18.504246 W within 12 W
+[162]: Item:  Tuple (11.5874538, 1.59831417, 0.326911449)
+       Error: power 18.520391 W within 12 W
+[163]: Item:  Tuple (11.5973291, 1.59831429, 0.330241203)
+       Error: power 18.536177 W within 12 W
+[164]: Item:  Tuple (11.6074324, 1.59831417, 0.333570957)
+       Error: power 18.552324 W within 12 W
+[165]: Item:  Tuple (11.6173649, 1.59831429, 0.336900711)
+       Error: power 18.568201 W within 12 W
+[166]: Item:  Tuple (11.6272964, 1.59831429, 0.340230465)
+       Error: power 18.584074 W within 12 W
+[167]: Item:  Tuple (11.6374006, 1.59831417, 0.343560219)
+       Error: power 18.600222 W within 12 W
+[168]: Item:  Tuple (11.647275, 1.59831429, 0.346889973)
+       Error: power 18.616007 W within 12 W
+[169]: Item:  Tuple (11.6573792, 1.59831417, 0.350219727)
+       Error: power 18.632154 W within 12 W
+[170]: Item:  Tuple (11.6672535, 1.59831429, 0.35354948)
+       Error: power 18.647938 W within 12 W
+[171]: Item:  Tuple (11.6773577, 1.59831417, 0.356879234)
+       Error: power 18.664085 W within 12 W
+[172]: Item:  Tuple (11.6872892, 1.59831429, 0.360208988)
+       Error: power 18.679962 W within 12 W
+[173]: Item:  Tuple (11.6972218, 1.59831429, 0.363538742)
+       Error: power 18.695837 W within 12 W
+[174]: Item:  Tuple (11.707325, 1.59831417, 0.366868496)
+       Error: power 18.711983 W within 12 W
+[175]: Item:  Tuple (11.7172003, 1.59831429, 0.37019825)
+       Error: power 18.727768 W within 12 W
+[176]: Item:  Tuple (11.7273035, 1.59831417, 0.373528004)
+       Error: power 18.743916 W within 12 W
+[177]: Item:  Tuple (11.737236, 1.59831429, 0.376857758)
+       Error: power 18.759792 W within 12 W
+[178]: Item:  Tuple (11.7472248, 1.59831429, 0.380187511)
+       Error: power 18.775757 W within 12 W
+[179]: Item:  Tuple (11.7572145, 1.59831429, 0.383517265)
+       Error: power 18.791723 W within 12 W
+[180]: Item:  Tuple (11.7671461, 1.59831429, 0.386847019)
+       Error: power 18.807598 W within 12 W
+[181]: Item:  Tuple (11.7772503, 1.59831417, 0.390176773)
+       Error: power 18.823746 W within 12 W
+[182]: Item:  Tuple (11.7871246, 1.59831429, 0.393506527)
+       Error: power 18.839529 W within 12 W
+[183]: Item:  Tuple (11.7972288, 1.59831417, 0.396836281)
+       Error: power 18.855679 W within 12 W
+[184]: Item:  Tuple (11.8071604, 1.59831429, 0.400166035)
+       Error: power 18.871553 W within 12 W
+[185]: Item:  Tuple (11.8170929, 1.59831429, 0.403495789)
+       Error: power 18.887428 W within 12 W
+[186]: Item:  Tuple (11.8271961, 1.59831417, 0.406825542)
+       Error: power 18.903576 W within 12 W
+[187]: Item:  Tuple (11.8370714, 1.59831429, 0.410155296)
+       Error: power 18.919361 W within 12 W
+[188]: Item:  Tuple (11.8471746, 1.59831417, 0.41348505)
+       Error: power 18.935507 W within 12 W
+[189]: Item:  Tuple (11.8570499, 1.59831429, 0.416814804)
+       Error: power 18.951292 W within 12 W
+[190]: Item:  Tuple (11.8671532, 1.59831417, 0.420144558)
+       Error: power 18.96744 W within 12 W
+[191]: Item:  Tuple (11.8770857, 1.59831429, 0.423474312)
+       Error: power 18.983316 W within 12 W
+[192]: Item:  Tuple (11.8870173, 1.59831429, 0.426804066)
+       Error: power 18.99919 W within 12 W
+[193]: Item:  Tuple (11.8971214, 1.59831417, 0.43013382)
+       Error: power 19.015337 W within 12 W
+[194]: Item:  Tuple (11.9069958, 1.59831429, 0.433463573)
+       Error: power 19.031122 W within 12 W
+[195]: Item:  Tuple (11.9171, 1.59831417, 0.436793327)
+       Error: power 19.04727 W within 12 W
+[196]: Item:  Tuple (11.9269743, 1.59831429, 0.440123081)
+       Error: power 19.063053 W within 12 W
+[197]: Item:  Tuple (11.9370785, 1.59831417, 0.443452835)
+       Error: power 19.0792 W within 12 W
+[198]: Item:  Tuple (11.94701, 1.59831429, 0.446782589)
+       Error: power 19.095078 W within 12 W
+[199]: Item:  Tuple (11.9569426, 1.59831429, 0.450112343)
+       Error: power 19.110952 W within 12 W
+[200]: Item:  Tuple (11.9670458, 1.59831417, 0.453442097)
+       Error: power 19.127098 W within 12 W
+[201]: Item:  Tuple (11.9769211, 1.59831429, 0.456771851)
+       Error: power 19.142883 W within 12 W
+[202]: Item:  Tuple (11.9870243, 1.59831417, 0.460101604)
+       Error: power 19.15903 W within 12 W
+[203]: Item:  Tuple (11.9968996, 1.59831429, 0.463431358)
+       Error: power 19.174816 W within 12 W
+[204]: Item:  Tuple (12.0070028, 1.59831417, 0.466761112)
+       Error: power 19.190962 W within 12 W
+[205]: Item:  Tuple (12.0169353, 1.59831429, 0.470090866)
+       Error: power 19.206839 W within 12 W
+[206]: Item:  Tuple (12.0268669, 1.59831429, 0.47342062)
+       Error: power 19.222713 W within 12 W
+[207]: Item:  Tuple (12.0369711, 1.59831417, 0.476750374)
+       Error: power 19.238861 W within 12 W
+[208]: Item:  Tuple (12.0468454, 1.59831429, 0.480080128)
+       Error: power 19.254644 W within 12 W
+[209]: Item:  Tuple (12.0569496, 1.59831417, 0.483409882)
+       Error: power 19.270794 W within 12 W
+[210]: Item:  Tuple (12.066824, 1.59831429, 0.486739635)
+       Error: power 19.286577 W within 12 W
+[211]: Item:  Tuple (12.0769281, 1.59831417, 0.490069389)
+       Error: power 19.302725 W within 12 W
+[212]: Item:  Tuple (12.0868597, 1.59831429, 0.493399143)
+       Error: power 19.3186 W within 12 W
+[213]: Item:  Tuple (12.0967922, 1.59831429, 0.496728897)
+       Error: power 19.334476 W within 12 W
+[214]: Item:  Tuple (12.1068954, 1.59831417, 0.500058651)
+       Error: power 19.350622 W within 12 W
+[215]: Item:  Tuple (12.1167707, 1.59831429, 0.503388405)
+       Error: power 19.366407 W within 12 W
+[216]: Item:  Tuple (12.126874, 1.59831417, 0.506718159)
+       Error: power 19.382555 W within 12 W
+[217]: Item:  Tuple (12.1368065, 1.59831429, 0.510047913)
+       Error: power 19.398432 W within 12 W
+[218]: Item:  Tuple (12.1467953, 1.59831429, 0.513377666)
+       Error: power 19.414396 W within 12 W
+[219]: Item:  Tuple (12.156785, 1.59831429, 0.51670742)
+       Error: power 19.430363 W within 12 W
+[220]: Item:  Tuple (12.1667166, 1.59831429, 0.520037174)
+       Error: power 19.446238 W within 12 W
+[221]: Item:  Tuple (12.1768208, 1.59831417, 0.523366928)
+       Error: power 19.462385 W within 12 W
+[222]: Item:  Tuple (12.1866951, 1.59831429, 0.526696682)
+       Error: power 19.478168 W within 12 W
+[223]: Item:  Tuple (12.1967993, 1.59831417, 0.530026436)
+       Error: power 19.494318 W within 12 W
+[224]: Item:  Tuple (12.2067308, 1.59831429, 0.53335619)
+       Error: power 19.510193 W within 12 W
+[225]: Item:  Tuple (12.2166634, 1.59831429, 0.536685944)
+       Error: power 19.526068 W within 12 W
+[226]: Item:  Tuple (12.2267666, 1.59831417, 0.540015697)
+       Error: power 19.542213 W within 12 W
+[227]: Item:  Tuple (12.2366419, 1.59831429, 0.543345451)
+       Error: power 19.557999 W within 12 W
+[228]: Item:  Tuple (12.2467451, 1.59831417, 0.546675205)
+       Error: power 19.574146 W within 12 W
+[229]: Item:  Tuple (12.2566204, 1.59831429, 0.550004959)
+       Error: power 19.589931 W within 12 W
+[230]: Item:  Tuple (12.2667236, 1.59831417, 0.553334713)
+       Error: power 19.60608 W within 12 W
+[231]: Item:  Tuple (12.2766562, 1.59831429, 0.556664467)
+       Error: power 19.621954 W within 12 W
+[232]: Item:  Tuple (12.2865877, 1.59831429, 0.559994221)
+       Error: power 19.637829 W within 12 W
+[233]: Item:  Tuple (12.2966919, 1.59831417, 0.563323975)
+       Error: power 19.653976 W within 12 W
+[234]: Item:  Tuple (12.3065662, 1.59831429, 0.566653728)
+       Error: power 19.66976 W within 12 W
+[235]: Item:  Tuple (12.3166704, 1.59831417, 0.569983482)
+       Error: power 19.68591 W within 12 W
+[236]: Item:  Tuple (12.3265448, 1.59831429, 0.573313236)
+       Error: power 19.701693 W within 12 W
+[237]: Item:  Tuple (12.3366489, 1.59831417, 0.57664299)
+       Error: power 19.71784 W within 12 W
+[238]: Item:  Tuple (12.3465805, 1.59831429, 0.579972744)
+       Error: power 19.733715 W within 12 W
+[239]: Item:  Tuple (12.356513, 1.59831429, 0.583302498)
+       Error: power 19.749592 W within 12 W
+[240]: Item:  Tuple (12.3666162, 1.59831417, 0.586632252)
+       Error: power 19.765738 W within 12 W
+[241]: Item:  Tuple (12.3764915, 1.59831429, 0.589962006)
+       Error: power 19.781523 W within 12 W
+[242]: Item:  Tuple (12.3865948, 1.59831417, 0.593291759)
+       Error: power 19.79767 W within 12 W
+[243]: Item:  Tuple (12.3964701, 1.59831429, 0.596621513)
+       Error: power 19.813456 W within 12 W
+[244]: Item:  Tuple (12.4065733, 1.59831417, 0.599951267)
+       Error: power 19.829601 W within 12 W
+[245]: Item:  Tuple (12.4165058, 1.59831429, 0.603281021)
+       Error: power 19.845478 W within 12 W
+[246]: Item:  Tuple (12.4264374, 1.59831429, 0.606610775)
+       Error: power 19.861353 W within 12 W
+[247]: Item:  Tuple (12.4365416, 1.59831417, 0.609940529)
+       Error: power 19.8775 W within 12 W
+[248]: Item:  Tuple (12.4464159, 1.59831429, 0.613270283)
+       Error: power 19.893284 W within 12 W
+[249]: Item:  Tuple (12.4565201, 1.59831417, 0.616600037)
+       Error: power 19.909433 W within 12 W
+[250]: Item:  Tuple (12.4663944, 1.59831429, 0.61992979)
+       Error: power 19.925217 W within 12 W
+[251]: Item:  Tuple (12.4764986, 1.59831417, 0.623259544)
+       Error: power 19.941364 W within 12 W
+[252]: Item:  Tuple (12.4864302, 1.59831429, 0.626589298)
+       Error: power 19.95724 W within 12 W
+[253]: Item:  Tuple (12.4963627, 1.59831429, 0.629919052)
+       Error: power 19.973116 W within 12 W
+[254]: Item:  Tuple (12.5064659, 1.59831417, 0.633248806)
+       Error: power 19.989262 W within 12 W
+[255]: Item:  Tuple (12.5163412, 1.59831429, 0.63657856)
+       Error: power 20.005047 W within 12 W
+[256]: Item:  Tuple (12.5264444, 1.59831417, 0.639908314)
+       Error: power 20.021194 W within 12 W
+[257]: Item:  Tuple (12.536377, 1.59831429, 0.643238068)
+       Error: power 20.037071 W within 12 W
+[258]: Item:  Tuple (12.5463657, 1.59831429, 0.646567822)
+       Error: power 20.053036 W within 12 W
+[259]: Item:  Tuple (12.5563555, 1.59831429, 0.649897575)
+       Error: power 20.069002 W within 12 W
+[260]: Item:  Tuple (12.566287, 1.59831429, 0.653227329)
+       Error: power 20.084877 W within 12 W
+[261]: Item:  Tuple (12.5763912, 1.59831417, 0.656557083)
+       Error: power 20.101025 W within 12 W
+[262]: Item:  Tuple (12.5862656, 1.59831429, 0.659886837)
+       Error: power 20.116808 W within 12 W
+[263]: Item:  Tuple (12.5963697, 1.59831417, 0.663216591)
+       Error: power 20.132956 W within 12 W
+[264]: Item:  Tuple (12.6063013, 1.59831429, 0.666546345)
+       Error: power 20.148832 W within 12 W
+[265]: Item:  Tuple (12.6162338, 1.59831429, 0.669876099)
+       Error: power 20.164707 W within 12 W
+[266]: Item:  Tuple (12.6263371, 1.59831417, 0.673205853)
+       Error: power 20.180853 W within 12 W
+[267]: Item:  Tuple (12.6362123, 1.59831429, 0.676535606)
+       Error: power 20.196638 W within 12 W
+[268]: Item:  Tuple (12.6463156, 1.59831417, 0.67986536)
+       Error: power 20.212786 W within 12 W
+[269]: Item:  Tuple (12.6561909, 1.59831429, 0.683195114)
+       Error: power 20.22857 W within 12 W
+[270]: Item:  Tuple (12.6662941, 1.59831417, 0.686524868)
+       Error: power 20.244717 W within 12 W
+[271]: Item:  Tuple (12.6762266, 1.59831429, 0.689854622)
+       Error: power 20.260593 W within 12 W
+[272]: Item:  Tuple (12.6861582, 1.59831429, 0.693184376)
+       Error: power 20.276468 W within 12 W
+[273]: Item:  Tuple (12.6962624, 1.59831417, 0.69651413)
+       Error: power 20.292616 W within 12 W
+[274]: Item:  Tuple (12.7061367, 1.59831429, 0.699843884)
+       Error: power 20.3084 W within 12 W
+[275]: Item:  Tuple (12.7162409, 1.59831417, 0.703173637)
+       Error: power 20.324549 W within 12 W
+[276]: Item:  Tuple (12.7261152, 1.59831429, 0.706503391)
+       Error: power 20.340332 W within 12 W
+[277]: Item:  Tuple (12.7362194, 1.59831417, 0.709833145)
+       Error: power 20.35648 W within 12 W
+[278]: Item:  Tuple (12.746151, 1.59831429, 0.713162899)
+       Error: power 20.372355 W within 12 W
+[279]: Item:  Tuple (12.7560835, 1.59831429, 0.716492653)
+       Error: power 20.388231 W within 12 W
+[280]: Item:  Tuple (12.7661867, 1.59831417, 0.719822407)
+       Error: power 20.404377 W within 12 W
+[281]: Item:  Tuple (12.776062, 1.59831429, 0.723152161)
+       Error: power 20.420162 W within 12 W
+[282]: Item:  Tuple (12.7861652, 1.59831417, 0.726481915)
+       Error: power 20.43631 W within 12 W
+[283]: Item:  Tuple (12.7960405, 1.59831429, 0.729811668)
+       Error: power 20.452095 W within 12 W
+[284]: Item:  Tuple (12.8061438, 1.59831417, 0.733141422)
+       Error: power 20.46824 W within 12 W
+[285]: Item:  Tuple (12.8160763, 1.59831429, 0.736471176)
+       Error: power 20.484118 W within 12 W
+[286]: Item:  Tuple (12.8260078, 1.59831429, 0.73980093)
+       Error: power 20.499992 W within 12 W
+[287]: Item:  Tuple (12.836112, 1.59831417, 0.743130684)
+       Error: power 20.51614 W within 12 W
+[288]: Item:  Tuple (12.8459864, 1.59831429, 0.746460438)
+       Error: power 20.531923 W within 12 W
+[289]: Item:  Tuple (12.8560905, 1.59831417, 0.749790192)
+       Error: power 20.54807 W within 12 W
+[290]: Item:  Tuple (12.8659649, 1.59831429, 0.753119946)
+       Error: power 20.563856 W within 12 W
+[291]: Item:  Tuple (12.8760691, 1.59831417, 0.756449699)
+       Error: power 20.580004 W within 12 W
+[292]: Item:  Tuple (12.8860006, 1.59831429, 0.759779453)
+       Error: power 20.595879 W within 12 W
+[293]: Item:  Tuple (12.8959332, 1.59831429, 0.763109207)
+       Error: power 20.611753 W within 12 W
+[294]: Item:  Tuple (12.9060364, 1.59831417, 0.766438961)
+       Error: power 20.627901 W within 12 W
+[295]: Item:  Tuple (12.9159117, 1.59831429, 0.769768715)
+       Error: power 20.643686 W within 12 W
+[296]: Item:  Tuple (12.9260149, 1.59831417, 0.773098469)
+       Error: power 20.659832 W within 12 W
+[297]: Item:  Tuple (12.9359474, 1.59831429, 0.776428223)
+       Error: power 20.675709 W within 12 W
+[298]: Item:  Tuple (12.9459362, 1.59831429, 0.779757977)
+       Error: power 20.691675 W within 12 W
+[299]: Item:  Tuple (12.9559259, 1.59831429, 0.78308773)
+       Error: power 20.707642 W within 12 W
+[300]: Item:  Tuple (12.9658575, 1.59831429, 0.786417484)
+       Error: power 20.723515 W within 12 W
+[301]: Item:  Tuple (12.9759617, 1.59831417, 0.789747238)
+       Error: power 20.739664 W within 12 W
+[302]: Item:  Tuple (12.985836, 1.59831429, 0.793076992)
+       Error: power 20.755447 W within 12 W
+[303]: Item:  Tuple (12.9959402, 1.59831417, 0.796406746)
+       Error: power 20.771595 W within 12 W
+[304]: Item:  Tuple (13.0058718, 1.59831429, 0.7997365)
+       Error: power 20.78747 W within 12 W
+[305]: Item:  Tuple (13.0158043, 1.59831429, 0.803066254)
+       Error: power 20.803347 W within 12 W
+[306]: Item:  Tuple (13.0259075, 1.59831417, 0.806396008)
+       Error: power 20.819492 W within 12 W
+[307]: Item:  Tuple (13.0357828, 1.59831429, 0.809725761)
+       Error: power 20.835278 W within 12 W
+[308]: Item:  Tuple (13.045886, 1.59831417, 0.813055515)
+       Error: power 20.851425 W within 12 W
+[309]: Item:  Tuple (13.0557613, 1.59831429, 0.816385269)
+       Error: power 20.86721 W within 12 W
+[310]: Item:  Tuple (13.0658646, 1.59831417, 0.819715023)
+       Error: power 20.883356 W within 12 W
+[311]: Item:  Tuple (13.0757971, 1.59831429, 0.823044777)
+       Error: power 20.899233 W within 12 W
+[312]: Item:  Tuple (13.0857286, 1.59831429, 0.826374531)
+       Error: power 20.915108 W within 12 W
+[313]: Item:  Tuple (13.0958328, 1.59831417, 0.829704285)
+       Error: power 20.931255 W within 12 W
+[314]: Item:  Tuple (13.1057072, 1.59831429, 0.833034039)
+       Error: power 20.947039 W within 12 W
+[315]: Item:  Tuple (13.1158113, 1.59831417, 0.836363792)
+       Error: power 20.963186 W within 12 W
+[316]: Item:  Tuple (13.1256857, 1.59831429, 0.839693546)
+       Error: power 20.978971 W within 12 W
+[317]: Item:  Tuple (13.1357899, 1.59831417, 0.8430233)
+       Error: power 20.99512 W within 12 W
+[318]: Item:  Tuple (13.1457214, 1.59831429, 0.846353054)
+       Error: power 21.010994 W within 12 W
+[319]: Item:  Tuple (13.155654, 1.59831429, 0.849682808)
+       Error: power 21.026869 W within 12 W
+[320]: Item:  Tuple (13.1657572, 1.59831417, 0.853012562)
+       Error: power 21.043016 W within 12 W
+[321]: Item:  Tuple (13.1756325, 1.59831429, 0.856342316)
+       Error: power 21.058802 W within 12 W
+[322]: Item:  Tuple (13.1857357, 1.59831417, 0.85967207)
+       Error: power 21.074947 W within 12 W
+[323]: Item:  Tuple (13.195611, 1.59831429, 0.863001823)
+       Error: power 21.090734 W within 12 W
+[324]: Item:  Tuple (13.2057142, 1.59831417, 0.866331577)
+       Error: power 21.10688 W within 12 W
+[325]: Item:  Tuple (13.2156467, 1.59831429, 0.869661331)
+       Error: power 21.122757 W within 12 W
+[326]: Item:  Tuple (13.2255783, 1.59831429, 0.872991085)
+       Error: power 21.13863 W within 12 W
+[327]: Item:  Tuple (13.2356825, 1.59831417, 0.876320839)
+       Error: power 21.15478 W within 12 W
+[328]: Item:  Tuple (13.2455568, 1.59831429, 0.879650593)
+       Error: power 21.170563 W within 12 W
+[329]: Item:  Tuple (13.255661, 1.59831417, 0.882980347)
+       Error: power 21.18671 W within 12 W
+[330]: Item:  Tuple (13.2655354, 1.59831429, 0.886310101)
+       Error: power 21.202496 W within 12 W
+[331]: Item:  Tuple (13.2756395, 1.59831417, 0.889639854)
+       Error: power 21.218643 W within 12 W
+[332]: Item:  Tuple (13.2855711, 1.59831429, 0.892969608)
+       Error: power 21.234518 W within 12 W
+[333]: Item:  Tuple (13.2955036, 1.59831429, 0.896299362)
+       Error: power 21.250393 W within 12 W
+[334]: Item:  Tuple (13.3056068, 1.59831417, 0.899629116)
+       Error: power 21.26654 W within 12 W
+[335]: Item:  Tuple (13.3154821, 1.59831429, 0.90295887)
+       Error: power 21.282326 W within 12 W
+[336]: Item:  Tuple (13.3255854, 1.59831417, 0.906288624)
+       Error: power 21.298471 W within 12 W
+[337]: Item:  Tuple (13.3355179, 1.59831429, 0.909618378)
+       Error: power 21.314348 W within 12 W
+[338]: Item:  Tuple (13.3455067, 1.59831429, 0.912948132)
+       Error: power 21.330315 W within 12 W
+[339]: Item:  Tuple (13.3554964, 1.59831429, 0.916277885)
+       Error: power 21.346281 W within 12 W
+[340]: Item:  Tuple (13.365428, 1.59831429, 0.919607639)
+       Error: power 21.362154 W within 12 W
+[341]: Item:  Tuple (13.3755322, 1.59831417, 0.922937393)
+       Error: power 21.378302 W within 12 W
+[342]: Item:  Tuple (13.3854065, 1.59831429, 0.926267147)
+       Error: power 21.394087 W within 12 W
+[343]: Item:  Tuple (13.3955107, 1.59831417, 0.929596901)
+       Error: power 21.410234 W within 12 W
+[344]: Item:  Tuple (13.4054422, 1.59831429, 0.932926655)
+       Error: power 21.42611 W within 12 W
+[345]: Item:  Tuple (13.4153748, 1.59831429, 0.936256409)
+       Error: power 21.441984 W within 12 W
+[346]: Item:  Tuple (13.425478, 1.59831417, 0.939586163)
+       Error: power 21.458132 W within 12 W
+[347]: Item:  Tuple (13.4353533, 1.59831429, 0.942915916)
+       Error: power 21.473917 W within 12 W
+[348]: Item:  Tuple (13.4454565, 1.59831417, 0.94624567)
+       Error: power 21.490063 W within 12 W
+[349]: Item:  Tuple (13.4553318, 1.59831429, 0.949575424)
+       Error: power 21.50585 W within 12 W
+[350]: Item:  Tuple (13.465435, 1.59831417, 0.952905178)
+       Error: power 21.521996 W within 12 W
+[351]: Item:  Tuple (13.4753675, 1.59831429, 0.956234932)
+       Error: power 21.537872 W within 12 W
+[352]: Item:  Tuple (13.4852991, 1.59831429, 0.959564686)
+       Error: power 21.553745 W within 12 W
+[353]: Item:  Tuple (13.4954033, 1.59831417, 0.96289444)
+       Error: power 21.569895 W within 12 W
+[354]: Item:  Tuple (13.5052776, 1.59831429, 0.966224194)
+       Error: power 21.585678 W within 12 W
+[355]: Item:  Tuple (13.5153818, 1.59831417, 0.969553947)
+       Error: power 21.601826 W within 12 W
+[356]: Item:  Tuple (13.5252562, 1.59831429, 0.972883701)
+       Error: power 21.61761 W within 12 W
+[357]: Item:  Tuple (13.5353603, 1.59831417, 0.976213455)
+       Error: power 21.633759 W within 12 W
+[358]: Item:  Tuple (13.5452919, 1.59831429, 0.979543209)
+       Error: power 21.649633 W within 12 W
+[359]: Item:  Tuple (13.5552244, 1.59831429, 0.982872963)
+       Error: power 21.665508 W within 12 W
+[360]: Item:  Tuple (13.5653276, 1.59831417, 0.986202717)
+       Error: power 21.681656 W within 12 W
+[361]: Item:  Tuple (13.5752029, 1.59831429, 0.989532471)
+       Error: power 21.697441 W within 12 W
+[362]: Item:  Tuple (13.5853062, 1.59831417, 0.992862225)
+       Error: power 21.713587 W within 12 W
+[363]: Item:  Tuple (13.5951815, 1.59831429, 0.996191978)
+       Error: power 21.729372 W within 12 W
+[364]: Item:  Tuple (13.6052847, 1.59831417, 0.999521732)
+       Error: power 21.74552 W within 12 W
+[365]: Item:  Tuple (13.6152172, 1.59831429, 1.00285149)
+       Error: power 21.761396 W within 12 W
+[366]: Item:  Tuple (13.6251488, 1.59831429, 1.00618124)
+       Error: power 21.77727 W within 12 W
+[367]: Item:  Tuple (13.635253, 1.59831417, 1.00951099)
+       Error: power 21.793419 W within 12 W
+[368]: Item:  Tuple (13.6451273, 1.59831429, 1.01284075)
+       Error: power 21.809202 W within 12 W
+[369]: Item:  Tuple (13.6552315, 1.59831417, 1.0161705)
+       Error: power 21.82535 W within 12 W
+[370]: Item:  Tuple (13.6651058, 1.59831429, 1.01950026)
+       Error: power 21.841133 W within 12 W
+[371]: Item:  Tuple (13.67521, 1.59831417, 1.02283001)
+       Error: power 21.857283 W within 12 W
+[372]: Item:  Tuple (13.6851416, 1.59831429, 1.02615976)
+       Error: power 21.873158 W within 12 W
+[373]: Item:  Tuple (13.6950741, 1.59831429, 1.02948952)
+       Error: power 21.889032 W within 12 W
+[374]: Item:  Tuple (13.7051773, 1.59831417, 1.03281927)
+       Error: power 21.90518 W within 12 W
+[375]: Item:  Tuple (13.7150526, 1.59831429, 1.03614902)
+       Error: power 21.920965 W within 12 W
+[376]: Item:  Tuple (13.7251558, 1.59831417, 1.03947878)
+       Error: power 21.93711 W within 12 W
+[377]: Item:  Tuple (13.7350883, 1.59831429, 1.04280853)
+       Error: power 21.952988 W within 12 W
+  Stack Trace:
+     at CuriousContraptions.Tests.DeclaredPrismaticDriveTests.ASyntheticDriveReachesItsOwnTargetOnItsOwnProfileWithItsEffortAndPowerBinding() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-gate/CuriousContraptions.tests/DeclaredPrismaticDriveTests.cs:line 132
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     1, Passed:    37, Skipped:     0, Total:    38, Duration: 1 s - CuriousContraptions.tests.dll (net10.0)

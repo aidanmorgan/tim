@@ -1,0 +1,47 @@
+Preparing worktree (detached HEAD 2065d3c5)
+Updating files:  98% (10019/10183)Updating files:  99% (10082/10183)Updating files: 100% (10183/10183)Updating files: 100% (10183/10183), done.
+HEAD is now at 2065d3c5 Merge C-Lamp+Detector generic conversion
+    0 Warning(s)
+    0 Error(s)
+base     1039 candidate     1032
+--- only on base
+  Passed CuriousContraptions.Tests.PayloadInstanceTests.AGenericRecordCarryingAnyTypedFieldIsRefused(part: "ball", field: Bounce, value: 4)
+  Passed CuriousContraptions.Tests.PayloadInstanceTests.AGenericRecordCarryingAnyTypedFieldIsRefused(part: "ball", field: Friction, value: 4)
+  Passed CuriousContraptions.Tests.PayloadInstanceTests.AGenericRecordCarryingAnyTypedFieldIsRefused(part: "ball", field: HalfExtents, value: 4)
+  Passed CuriousContraptions.Tests.PayloadInstanceTests.AGenericRecordCarryingAnyTypedFieldIsRefused(part: "ball", field: Mass, value: 4)
+  Passed CuriousContraptions.Tests.PayloadInstanceTests.AGenericRecordCarryingAnyTypedFieldIsRefused(part: "bowling", field: Bounce, value: 4)
+  Passed CuriousContraptions.Tests.PayloadInstanceTests.AGenericRecordCarryingAnyTypedFieldIsRefused(part: "bowling", field: Friction, value: 4)
+  Passed CuriousContraptions.Tests.PayloadInstanceTests.AGenericRecordCarryingAnyTypedFieldIsRefused(part: "bowling", field: Friction, value: NaN)
+  Passed CuriousContraptions.Tests.PayloadInstanceTests.AGenericRecordCarryingAnyTypedFieldIsRefused(part: "bowling", field: HalfExtents, value: 4)
+  Passed CuriousContraptions.Tests.PayloadInstanceTests.AGenericRecordCarryingAnyTypedFieldIsRefused(part: "bowling", field: Mass, value: 4)
+  Passed CuriousContraptions.Tests.PayloadInstanceTests.AGenericRecordCarryingAnyTypedFieldIsRefused(part: "ramp", field: Bounce, value: 4)
+  Passed CuriousContraptions.Tests.PayloadInstanceTests.AGenericRecordCarryingAnyTypedFieldIsRefused(part: "ramp", field: Friction, value: 4)
+  Passed CuriousContraptions.Tests.PayloadInstanceTests.AGenericRecordCarryingAnyTypedFieldIsRefused(part: "ramp", field: HalfExtents, value: 4)
+  Passed CuriousContraptions.Tests.PayloadInstanceTests.AGenericRecordCarryingAnyTypedFieldIsRefused(part: "ramp", field: Mass, value: 4)
+  Passed CuriousContraptions.Tests.PreConversionLaunchSaveTests.APreConversionRecordIsRefusedWithATypedReasonAtBothBoundaries(name: "battery default", save: VerifierRejected, command: VerifierRejected)
+  Passed CuriousContraptions.Tests.PreConversionLaunchSaveTests.APreConversionRecordIsRefusedWithATypedReasonAtBothBoundaries(name: "domino", save: MissingField, command: MissingField)
+  Passed CuriousContraptions.Tests.PreConversionLaunchSaveTests.APreSourceStoreRecordIsRefusedWithATypedReasonAtBothBoundaries(name: "battery_custom_120_30_half", baseEncoderSha256: "3ca68bb944310a98001d5a013c7f822d1368cddbdbb8a4c92a"···, save: VerifierRejected, command: VerifierRejected)
+  Passed CuriousContraptions.Tests.PreConversionLaunchSaveTests.APreSourceStoreRecordIsRefusedWithATypedReasonAtBothBoundaries(name: "battery_default", baseEncoderSha256: "29ca2c042cfed22cb7b54cff4f8ad0c73801e700b362bd2296"···, save: VerifierRejected, command: VerifierRejected)
+  Passed CuriousContraptions.Tests.PreConversionLaunchSaveTests.APreSourceStoreRecordIsRefusedWithATypedReasonAtBothBoundaries(name: "domino", baseEncoderSha256: "9715a1b50c2df29b8c1d8b3d6e51d185594ba10e3960967ddd"···, save: MissingField, command: MissingField)
+  Passed CuriousContraptions.Tests.WorkshopDominoTests.OnlyTheDefaultMaterialIsAdmittedAndTheDominoDeclaresActivationOutOnly
+  Passed CuriousContraptions.Tests.WorkshopDominoTests.SaveRoundTripsTheDominoAndRejectsForgedMaterialOrPadding
+  Passed CuriousContraptions.Tests.WorkshopSaveRejectionTests.EveryViolationIsItsTypedRefusal(violation: "changed ball material", reason: OutOfRange)
+  Passed CuriousContraptions.Tests.WorkshopSaveRejectionTests.EveryViolationIsItsTypedRefusal(violation: "no domino half extents", reason: MissingField)
+  Passed CuriousContraptions.Tests.WorkshopWireFlatBuffersTests.Construction_EveryInstanceKind_RoundTripsEveryEncodedField(instance: WorkshopDomino { Id = GpuBodyId { Value = 1 }, Cell = CellOrigin { X = 2, Y = 1, Z = 0 }, Local = LocalPosition { X = -0.4, Y = 0.44, Z = 0 }, Rotation = CanonicalRotation { X = 0, Y = 0, Z = 0, W = 1 }, Material = DominoMaterial { HalfExtents = MetreVector { X = 0.125, Y = 0.55, Z = 0.325 }, Mass = Kilograms { Value = 0.4 }, Bounce = Restitution { Value = 0.05 }, Friction = FrictionCoefficient { Value = 0.6 } }, Locked = False, PartId = domino, Cosmetic = CosmeticCurveDeclaration { Source = None, Curve = Linear, Duration = 0, ImpulseCurve = LinearDecay, Overlap = Maximum, IsDeclared = False, ImpulsePeak = AnimationPeakPhase { Value = 0 } } })
+--- only on candidate
+  Passed CuriousContraptions.Tests.PalettePlacementTests.ZeroParameterSignalPartsArePlacedGenericWithoutAPanelAndEditAsOneUndoPerGesture(id: "domino")
+  Passed CuriousContraptions.Tests.PayloadInstanceTests.AGenericRecordCarryingAnyTypedFieldIsRefused(part: "bowling", field: Threshold, value: NaN)
+  Passed CuriousContraptions.Tests.PayloadInstanceTests.AGenericRecordCarryingAnyTypedFieldIsRefused(part: "domino", field: Length, value: 4)
+  Passed CuriousContraptions.Tests.PayloadInstanceTests.AGenericRecordCarryingAnyTypedFieldIsRefused(part: "domino", field: Length, value: NaN)
+  Passed CuriousContraptions.Tests.PayloadInstanceTests.AGenericRecordCarryingAnyTypedFieldIsRefused(part: "domino", field: TargetCount, value: 4)
+  Passed CuriousContraptions.Tests.PayloadInstanceTests.AGenericRecordCarryingAnyTypedFieldIsRefused(part: "domino", field: Threshold, value: 4)
+  Passed CuriousContraptions.Tests.PreConversionLaunchSaveTests.APreConversionRecordIsRefusedWithATypedReasonAtBothBoundaries(name: "battery default", save: OutOfRange, command: OutOfRange)
+  Passed CuriousContraptions.Tests.PreConversionLaunchSaveTests.APreConversionRecordIsRefusedWithATypedReasonAtBothBoundaries(name: "domino", save: OutOfRange, command: OutOfRange)
+  Passed CuriousContraptions.Tests.PreConversionLaunchSaveTests.APreSourceStoreRecordIsRefusedWithATypedReasonAtBothBoundaries(name: "battery_custom_120_30_half", baseEncoderSha256: "3ca68bb944310a98001d5a013c7f822d1368cddbdbb8a4c92a"···, save: OutOfRange, command: OutOfRange)
+  Passed CuriousContraptions.Tests.PreConversionLaunchSaveTests.APreSourceStoreRecordIsRefusedWithATypedReasonAtBothBoundaries(name: "battery_default", baseEncoderSha256: "29ca2c042cfed22cb7b54cff4f8ad0c73801e700b362bd2296"···, save: OutOfRange, command: OutOfRange)
+  Passed CuriousContraptions.Tests.PreConversionLaunchSaveTests.APreSourceStoreRecordIsRefusedWithATypedReasonAtBothBoundaries(name: "domino", baseEncoderSha256: "9715a1b50c2df29b8c1d8b3d6e51d185594ba10e3960967ddd"···, save: OutOfRange, command: OutOfRange)
+  Passed CuriousContraptions.Tests.WorkshopDominoTests.SaveRoundTripsTheGenericDominoAndRefusesAnyTypedFieldOrParameter
+  Passed CuriousContraptions.Tests.WorkshopDominoTests.TheDominoHasNoAuthorableParameterAndDeclaresActivationOutOnly
+  Passed CuriousContraptions.Tests.WorkshopSaveRejectionTests.EveryViolationIsItsTypedRefusal(violation: "ball carrying a typed threshold", reason: OutOfRange)
+  Passed CuriousContraptions.Tests.WorkshopSaveRejectionTests.EveryViolationIsItsTypedRefusal(violation: "domino carrying a typed length", reason: OutOfRange)
+  Passed CuriousContraptions.Tests.WorkshopWireFlatBuffersTests.Construction_EveryInstanceKind_RoundTripsEveryEncodedField(instance: WorkshopGenericInstance { PartId = domino, Id = GpuBodyId { Value = 1 }, Cell = CellOrigin { X = 2, Y = 1, Z = 0 }, Local = LocalPosition { X = -0.4, Y = 0.44, Z = 0 }, Rotation = CanonicalRotation { X = 0, Y = 0, Z = 0, W = 1 }, Locked = False, Parameters = CuriousContraptions.Gpu.InstanceParameterCollection, DeclaredColliders = CuriousContraptions.Gpu.ExtractedCollider[], Cosmetic = CosmeticCurveDeclaration { Source = None, Curve = Linear, Duration = 0, ImpulseCurve = LinearDecay, Overlap = Maximum, IsDeclared = False, ImpulsePeak = AnimationPeakPhase { Value = 0 } } })

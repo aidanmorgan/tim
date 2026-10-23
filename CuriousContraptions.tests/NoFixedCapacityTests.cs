@@ -59,8 +59,7 @@ public sealed class NoFixedCapacityTests
                 for (var i = 0; i < 9; i++)
                 {
                     var gate = WorkshopInput.Generic(PartId.PoweredGate, Next(), X(2 * i), 0, 0, 0, 0, 0, 1);
-                    var battery = WorkshopInput.Battery(Next(), X(2 * i) + 1.6, 0, 0, 0, 0, 0, 1,
-                        ElectricalSourceSettings.Default with { Enabled = ElectricalEnable.Enabled });
+                    var battery = PlacedParts.Battery(Next(), X(2 * i) + 1.6, 0, 0, enabled: ElectricalEnable.Enabled);
                     parts.AddRange([gate, battery]); links.Add(Supply(battery.Id, gate.Id));
                 }
                 return (Bench(parts, [.. links]), scene => { Assert.Equal(9, scene.Electrical.Sources.Length); Assert.Equal(9, scene.SupplyGraph.Nodes.ToArray().Count(node=>node.Kind==SupplyNodeKind.Consumer && node.Consumer!=default)); });
@@ -71,23 +70,23 @@ public sealed class NoFixedCapacityTests
                 // A Domino declares its orientation sensor only while wired: each of seventeen drives its own lamp.
                 for (var i = 0; i < 17; i++)
                 {
-                    var tile = WorkshopInput.Domino(Next(), X(i), -0.46 + .56, 0, 0, 0, 0, 1);
-                    var lamp = WorkshopInput.Lamp(Next(), X(i), 1, 3, 0, 0, 0, 1);
+                    var tile = PlacedParts.Domino(Next(), X(i), -0.46 + .56, 0, 0, 0, 0, 1);
+                    var lamp = PlacedParts.Lamp(Next(), X(i), 1, 3, 0, 0, 0, 1);
                     parts.AddRange([tile, lamp]); links.Add(Signal(tile.Id, lamp.Id));
                 }
                 return (Bench(parts, [.. links]), scene => Assert.Equal(17, scene.OrientationSensors.Length));
             case "contact-load-32":
                 for (var i = 0; i < 33; i++)
-                    parts.Add(WorkshopInput.PressurePlate(Next(), X(i), 1, 0, 0, 0, 0, 1, WorkshopPressurePlate.PlacedMinimumMass));
+                    parts.Add(PlacedParts.Plate(Next(), X(i), 1, 0, .5f));
                 return (Bench(parts), scene => Assert.Equal(33, scene.ContactLoadSensors.Length));
             case "activation-timers-32":
-                for (var i = 0; i < 33; i++) parts.Add(WorkshopInput.Clock(Next(), X(i), 1, 0, 0, 0, 0, 1, WorkshopClock.PlacedIntervalSeconds));
+                for (var i = 0; i < 33; i++) parts.Add(PlacedParts.Clock(Next(), X(i), 1, 0, 0, 0, 0, 1, 1f));
                 return (Bench(parts), _ => Assert.Equal(33, WorkshopActivationCompiler.Compile(Bench(parts)).Nodes.Length));
             case "connections-8":
                 for (var i = 0; i < 9; i++)
                 {
                     var hit = WorkshopInput.Generic(PartId.ImpactSwitch, Next(), X(2 * i), 1, 0, 0, 0, 0, 1);
-                    var lamp = WorkshopInput.Lamp(Next(), X(2 * i) + 1.6, 1, 0, 0, 0, 0, 1);
+                    var lamp = PlacedParts.Lamp(Next(), X(2 * i) + 1.6, 1, 0, 0, 0, 0, 1);
                     parts.AddRange([hit, lamp]); links.Add(Signal(hit.Id, lamp.Id));
                 }
                 return (Bench(parts, [.. links]), _ => Assert.Equal(9, links.Count));
@@ -139,11 +138,11 @@ public sealed class NoFixedCapacityTests
     private const double SwitchY = 1, DropY = 3;
 
     /// <summary>Forty switches in an eight-by-five grid, a lamp wired to the last one, and a ball dropped on <paramref name="struck"/>.</summary>
-    private static (WorkshopConstruction Bench, WorkshopLamp Lamp, WorkshopGenericInstance[] Switches) SwitchBench(int struck)
+    private static (WorkshopConstruction Bench, IWorkshopInstance Lamp, WorkshopGenericInstance[] Switches) SwitchBench(int struck)
     {
         var switches = Enumerable.Range(0, Switches).Select(i => WorkshopInput.Generic(PartId.ImpactSwitch, new((ulong)i + 1), -6 + i % 8 * 1.6, SwitchY,
             -5 + i / 8 * 2.5, 0, 0, 0, 1)).ToArray();
-        var lamp = WorkshopInput.Lamp(new(Switches + 1), 8, SwitchY, 0, 0, 0, 0, 1);
+        var lamp = PlacedParts.Lamp(new(Switches + 1), 8, SwitchY, 0, 0, 0, 0, 1);
         var target = switches[struck];
         var ball = WorkshopInput.Generic(PartId.Basketball,new(Switches + 2), (target.Cell.X + (double)target.Local.X) / 16, DropY,
             (target.Cell.Z + (double)target.Local.Z) / 16, 0, 0, 0, 1);
@@ -208,27 +207,26 @@ public sealed class NoFixedCapacityTests
         for (var i = 0; i < 9; i++)
         {
             var hit = WorkshopInput.Generic(PartId.ImpactSwitch, Next(), X(2 * i), 1, -16, 0, 0, 0, 1);
-            var lamp = WorkshopInput.Lamp(Next(), X(2 * i) + 1.6, 1, -16, 0, 0, 0, 1);
+            var lamp = PlacedParts.Lamp(Next(), X(2 * i) + 1.6, 1, -16, 0, 0, 0, 1);
             parts.AddRange([hit, lamp]); links.Add(Signal(hit.Id, lamp.Id));
         }
         for (var i = 0; i < 9; i++) parts.Add(WorkshopInput.Generic(PartId.PinballBumper, Next(), X(i), 1, -12, 0, 0, 0, 1));
         for (var i = 0; i < 9; i++)
         {
             var gate = WorkshopInput.Generic(PartId.PoweredGate, Next(), X(2 * i), 0, -8, 0, 0, 0, 1);
-            var battery = WorkshopInput.Battery(Next(), X(2 * i) + 1.6, 0, -8, 0, 0, 0, 1,
-                ElectricalSourceSettings.Default with { Enabled = ElectricalEnable.Enabled });
+            var battery = PlacedParts.Battery(Next(), X(2 * i) + 1.6, 0, -8, enabled: ElectricalEnable.Enabled);
             parts.AddRange([gate, battery]); links.Add(Supply(battery.Id, gate.Id));
         }
         for (var i = 0; i < 17; i++) parts.Add(WorkshopInput.Generic(PartId.Springboard, Next(), X(i), 1, -4, 0, 0, 0, 1));
         for (var i = 0; i < 17; i++)
         {
-            var tile = WorkshopInput.Domino(Next(), X(i), -0.46 + .56, 0, 0, 0, 0, 1);
-            var lamp = WorkshopInput.Lamp(Next(), X(i), 1, 2, 0, 0, 0, 1);
+            var tile = PlacedParts.Domino(Next(), X(i), -0.46 + .56, 0, 0, 0, 0, 1);
+            var lamp = PlacedParts.Lamp(Next(), X(i), 1, 2, 0, 0, 0, 1);
             parts.AddRange([tile, lamp]); links.Add(Signal(tile.Id, lamp.Id));
         }
         for (var i = 0; i < 33; i++)
-            parts.Add(WorkshopInput.PressurePlate(Next(), X(i), 1, 4, 0, 0, 0, 1, WorkshopPressurePlate.PlacedMinimumMass));
-        for (var i = 0; i < 33; i++) parts.Add(WorkshopInput.Clock(Next(), X(i), 1, 8, 0, 0, 0, 1, WorkshopClock.PlacedIntervalSeconds));
+            parts.Add(PlacedParts.Plate(Next(), X(i), 1, 4, .5f));
+        for (var i = 0; i < 33; i++) parts.Add(PlacedParts.Clock(Next(), X(i), 1, 8, 0, 0, 0, 1, 1f));
         return Bench(parts, [.. links]);
     }
 

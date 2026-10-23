@@ -1,0 +1,11 @@
+== identity: archived probe compiled into reviewer throwaway worktrees (base 14658883 + record-path adapter; candidate copy)
+interval-parity.txt: base==candidate; ==implementer-candidate; base==implementer-baseline
+lesson-world.txt: base==candidate; ==implementer-candidate; base==implementer-baseline
+placed-solutions.txt: base==candidate; ==implementer-candidate; base==implementer-baseline
+trace-clocks-latch.txt: base==candidate; ==implementer-candidate; base==implementer-baseline
+trace-counter-gate.txt: base==candidate; ==implementer-candidate; base==implementer-baseline
+trace-deadline-loss.txt: base==candidate; ==implementer-candidate; base==implementer-baseline
+trace-palette-max.txt: base==candidate; ==implementer-candidate; base==implementer-baseline
+trace-pulses-0.1s.txt: base==candidate; ==implementer-candidate; base==implementer-baseline
+trace-pulses-12s.txt: base==candidate; ==implementer-candidate; base==implementer-baseline
+trace-pulses-1s.txt: base==candidate; ==implementer-candidate; base==implementer-baseline

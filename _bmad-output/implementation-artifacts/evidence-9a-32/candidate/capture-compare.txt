@@ -1,0 +1,12 @@
+IDENTICAL axial-spin.txt
+IDENTICAL lesson-world.txt
+DIFFERS old-save-outcomes.txt
+IDENTICAL placed-solutions.txt
+IDENTICAL trace-broken-gap.txt
+IDENTICAL trace-close-gap-chain.txt
+IDENTICAL trace-rock-10.txt
+IDENTICAL trace-two-lane.txt
+IDENTICAL trace-unwired-end.txt
+IDENTICAL trace-wired-lesson.txt
+probe sha256 ed3a0b4728305a6a761bb43d80ce8359971a0dc431aded6bccb602ca5b72aaf0
+candidate UNTYPED: 0

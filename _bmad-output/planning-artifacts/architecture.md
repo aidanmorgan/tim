@@ -304,7 +304,7 @@ Curious Contraptions decouples gameplay elements into pure declarative capabilit
 | **Element Bundle** | `tools/BundleElements/` (build), `engine/PartRegistry.cs` (start-up loader) | AD-06, AD-08, AD-11, AD-13 |
 | **Machine Graph Authoring** | `engine/`, `ui/` | AD-01, AD-06, AD-08, AD-09, AD-11 |
 | **Commands and Queries** | `engine/gpu/WorkshopCommandRouter.cs`, `engine/gpu/WorkshopRead.cs`, `CuriousContraptions.Simulation/Program.cs` | AD-01, AD-13 |
-| **Event Ring** | `CuriousContraptions.Abstractions/EventRingBuffer.cs`, `EventDescriptor.cs` | AD-01, AD-13 |
+| **Event Ring** | `CuriousContraptions.Abstractions/EventRingBuffer.cs`, `EventDescriptor.cs` (layout, closed kinds); `engine/gpu/EventRecordProducer.cs` and `CuriousContraptions.Simulation/WorkshopGpuDevice.cs` (producer, commit point); `CuriousContraptions.Simulation/wwwroot/worker.js` `writeEventRing` (copy) | AD-01, AD-13 |
 | **Wire and Save Codec** | `engine/gpu/WorkshopWireFlatBuffers.cs`, `engine/gpu/WorkshopSaveCodec.cs`, `CuriousContraptions.FlatBuffers/` | AD-05, AD-08, AD-09 |
 | **Physics Graph Compilation** | `engine/gpu/WorkshopPhysicsCompiler.cs` | AD-01, AD-06, AD-08, AD-11, AD-12 |
 | **Collider & Socket Extraction** | `engine/gpu/GltfPhysicsBodyExtractor.cs` (moves to build time in Story 9A.16) | AD-06, AD-11 |

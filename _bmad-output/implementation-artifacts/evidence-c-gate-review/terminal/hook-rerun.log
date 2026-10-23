@@ -1,0 +1,54 @@
+hook re-run: worktree HEAD 2b1270c2823db95141aa085fb851ebe9e193dd00, index tree f7b8f60c1f31074fe248e879b485956ad982a244 (= slice commit e22baac3's staged state)
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.MXG8R7/solution.binlog
+
+Time Elapsed 00:00:10.04
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.MXG8R7/playtest.binlog
+
+Time Elapsed 00:00:09.25
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.MXG8R7/web.binlog
+
+Time Elapsed 00:00:07.58
+Anvil snapshot 0.ts: CuriousContraptions.tests/DeclaredPrismaticDriveTests.cs
+{
+  "version": "1.0.0",
+  "timestamp": "2026-10-23T07:34:00.567899+00:00",
+  "files": [
+    "0.ts"
+  ],
+  "hasBlockingWarnings": false,
+  "executionTimeMs": 10,
+  "checksRun": [
+    "secret-detection",
+    "antipattern-scan"
+  ],
+  "notifications": [],
+  "warnings": [],
+  "summary": {
+    "total": 0,
+    "errors": 0,
+    "warnings": 0,
+    "info": 0,
+    "suppressed": 0
+  }
+}
+
+Test run for /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.eP77xQ/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:   124, Skipped:     0, Total:   124, Duration: 5 s - CuriousContraptions.tests.dll (net10.0)
+hook rc=0

@@ -1,0 +1,16 @@
+M3 parameter ignored: ContactLoadSensorFor MinimumMass = .5f (not owner.Parameters[minimum_mass])
+  Failed CuriousContraptions.Tests.DeclaredContactLoadTests.EachPlateCompilesItsOwnMinimumMassInInstanceOrder [48 ms]
+  Failed CuriousContraptions.Tests.DeclaredContactLoadTests.TheDeclaredSensorCompilesTheRecordPathsRowForEveryPlate [7 ms]
+  Failed CuriousContraptions.Tests.PlateGuardTests.TheMinimumMassDecidesTheLevelTheLampAndTheGate(minimumMass: 16, load: ThreeBowlingBallsAndABasketball, loaded: False) [< 1 ms]
+  Failed CuriousContraptions.Tests.PlateGuardTests.TheMinimumMassDecidesTheLevelTheLampAndTheGate(minimumMass: 2, load: Basketball, loaded: False) [< 1 ms]
+  Failed CuriousContraptions.Tests.PlateGuardTests.TheMinimumMassDecidesTheLevelTheLampAndTheGate(minimumMass: 16, load: FourBowlingBalls, loaded: True) [< 1 ms]
+  Failed CuriousContraptions.Tests.PlateGuardTests.TheMinimumMassDecidesTheLevelTheLampAndTheGate(minimumMass: 1, load: Basketball, loaded: True) [< 1 ms]
+  Failed CuriousContraptions.Tests.PlateGuardTests.TheMinimumMassDecidesTheLevelTheLampAndTheGate(minimumMass: 0.100000001, load: StandingDomino, loaded: True) [< 1 ms]
+  Failed CuriousContraptions.Tests.PlateGuardTests.TheMinimumMassDecidesTheLevelTheLampAndTheGate(minimumMass: 2, load: BowlingBall, loaded: True) [< 1 ms]
+  Failed CuriousContraptions.Tests.PlateGuardTests.RunResetReplayAndSaveLoadAreExact [113 ms]
+  Failed CuriousContraptions.Tests.PressurePlateTests.PhysicsCompiler_EmitsEachPlatesOwnRowAndASwitchedRouteThroughIt [5 ms]
+  Failed CuriousContraptions.Tests.PressurePlateTests.TheInstanceMinimumMassDecidesItsOwnGate(minimum: 2, balls: 2, opens: True) [1 ms]
+  Failed CuriousContraptions.Tests.PressurePlateTests.TheInstanceMinimumMassDecidesItsOwnGate(minimum: 2, balls: 1, opens: False) [< 1 ms]
+  Failed CuriousContraptions.Tests.PressurePlateTests.ABoxBridgingTwoPlatesLoadsBoth [147 ms]
+  Failed CuriousContraptions.Tests.PressurePlateTests.AMinimumOneF32AboveTheBodyMassStaysUnderweight [53 ms]
+Failed!  - Failed:    14, Passed:    74, Skipped:     0, Total:    88, Duration: 2 s - CuriousContraptions.tests.dll (net10.0)

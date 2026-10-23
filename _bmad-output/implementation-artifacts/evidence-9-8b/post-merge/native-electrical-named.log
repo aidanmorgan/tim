@@ -1,0 +1,311 @@
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.5+1b188a7b0a (64-bit .NET 10.0.13)
+[xUnit.net 00:00:00.13]   Discovering: CuriousContraptions.tests
+[xUnit.net 00:00:00.78]   Discovered:  CuriousContraptions.tests
+[xUnit.net 00:00:00.90]   Starting:    CuriousContraptions.tests
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/gpu/BrowserWorkshopClient.cs:line 92
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__61_0>d.MoveNext() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/ui/Workshop.cs:line 78
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/gpu/BrowserWorkshopClient.cs:line 92
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__61_0>d.MoveNext() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/ui/Workshop.cs:line 78
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/gpu/BrowserWorkshopClient.cs:line 92
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__61_0>d.MoveNext() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/ui/Workshop.cs:line 78
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/gpu/BrowserWorkshopClient.cs:line 92
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__61_0>d.MoveNext() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/ui/Workshop.cs:line 78
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/gpu/BrowserWorkshopClient.cs:line 92
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__61_0>d.MoveNext() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/ui/Workshop.cs:line 78
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/gpu/BrowserWorkshopClient.cs:line 92
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__61_0>d.MoveNext() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/ui/Workshop.cs:line 78
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/gpu/BrowserWorkshopClient.cs:line 92
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__61_0>d.MoveNext() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/ui/Workshop.cs:line 78
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/gpu/BrowserWorkshopClient.cs:line 92
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__61_0>d.MoveNext() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/ui/Workshop.cs:line 78
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/gpu/BrowserWorkshopClient.cs:line 92
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__61_0>d.MoveNext() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/ui/Workshop.cs:line 78
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/gpu/BrowserWorkshopClient.cs:line 92
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__61_0>d.MoveNext() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/ui/Workshop.cs:line 78
+  Passed CuriousContraptions.Tests.PalettePlacementTests.NeitherGateChooserRefusesALoopClosingWireOnTheStatusLine(loop: NorToNor) [98 ms]
+  Passed CuriousContraptions.Tests.PalettePlacementTests.NeitherGateChooserRefusesALoopClosingWireOnTheStatusLine(loop: ThroughOr) [21 ms]
+  Passed CuriousContraptions.Tests.PalettePlacementTests.NeitherGateChooserRefusesALoopClosingWireOnTheStatusLine(loop: ThroughBothGate) [18 ms]
+  Passed CuriousContraptions.Tests.PalettePlacementTests.NeitherGateChooserRefusesALoopClosingWireOnTheStatusLine(loop: MixedWithNand) [20 ms]
+  Passed CuriousContraptions.Tests.PalettePlacementTests.NeitherGateChooserRefusesALoopClosingWireOnTheStatusLine(loop: EnteringPowerIn) [20 ms]
+  Passed CuriousContraptions.Tests.PalettePlacementTests.NeitherGateChooserRefusesALoopClosingWireOnTheStatusLine(loop: ThroughOpenSwitch) [20 ms]
+  Passed CuriousContraptions.Tests.PalettePlacementTests.EitherGateChooserAdmitsAnOrLoopAndRefusesAMixedOne(loop: WithXor) [23 ms]
+  Passed CuriousContraptions.Tests.PalettePlacementTests.EitherGateChooserAdmitsAnOrLoopAndRefusesAMixedOne(loop: WithNor) [20 ms]
+  Passed CuriousContraptions.Tests.PalettePlacementTests.EitherGateChooserAdmitsAnOrLoopAndRefusesAMixedOne(loop: ThroughOpenSwitch) [18 ms]
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/gpu/BrowserWorkshopClient.cs:line 92
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__61_0>d.MoveNext() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/ui/Workshop.cs:line 78
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/gpu/BrowserWorkshopClient.cs:line 92
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__61_0>d.MoveNext() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/ui/Workshop.cs:line 78
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/gpu/BrowserWorkshopClient.cs:line 92
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__61_0>d.MoveNext() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/ui/Workshop.cs:line 78
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/gpu/BrowserWorkshopClient.cs:line 92
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__61_0>d.MoveNext() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/ui/Workshop.cs:line 78
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/gpu/BrowserWorkshopClient.cs:line 92
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__61_0>d.MoveNext() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/ui/Workshop.cs:line 78
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/gpu/BrowserWorkshopClient.cs:line 92
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__61_0>d.MoveNext() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/ui/Workshop.cs:line 78
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/gpu/BrowserWorkshopClient.cs:line 92
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__61_0>d.MoveNext() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/ui/Workshop.cs:line 78
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/gpu/BrowserWorkshopClient.cs:line 92
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__61_0>d.MoveNext() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/ui/Workshop.cs:line 78
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/gpu/BrowserWorkshopClient.cs:line 92
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__61_0>d.MoveNext() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/ui/Workshop.cs:line 78
+  Passed CuriousContraptions.Tests.PalettePlacementTests.EitherGateChooserAdmitsAnOrLoopAndRefusesAMixedOne(loop: OrToOr) [27 ms]
+  Passed CuriousContraptions.Tests.PalettePlacementTests.EitherGateChooserAdmitsAnOrLoopAndRefusesAMixedOne(loop: WithNand) [20 ms]
+  Passed CuriousContraptions.Tests.PalettePlacementTests.EitherGateChooserAdmitsAnOrLoopAndRefusesAMixedOne(loop: EnteringPowerIn) [19 ms]
+  Passed CuriousContraptions.Tests.PalettePlacementTests.NotBothGateChooserRefusesALoopClosingWireOnTheStatusLine(loop: ThroughOr) [19 ms]
+  Passed CuriousContraptions.Tests.PalettePlacementTests.NotBothGateChooserRefusesALoopClosingWireOnTheStatusLine(loop: ThroughOpenSwitch) [20 ms]
+  Passed CuriousContraptions.Tests.PalettePlacementTests.NotBothGateChooserRefusesALoopClosingWireOnTheStatusLine(loop: NandToNand) [19 ms]
+  Passed CuriousContraptions.Tests.PalettePlacementTests.ExactlyOneGateChooserRefusesALoopThroughTheGateAndAdmitsAnOrLoopBeside(loop: XorToXor) [23 ms]
+  Passed CuriousContraptions.Tests.PalettePlacementTests.ExactlyOneGateChooserRefusesALoopThroughTheGateAndAdmitsAnOrLoopBeside(loop: OrLoopFeedingXor) [34 ms]
+  Passed CuriousContraptions.Tests.PalettePlacementTests.ExactlyOneGateChooserRefusesALoopThroughTheGateAndAdmitsAnOrLoopBeside(loop: WithNand) [34 ms]
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/gpu/BrowserWorkshopClient.cs:line 92
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__61_0>d.MoveNext() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/ui/Workshop.cs:line 78
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/gpu/BrowserWorkshopClient.cs:line 92
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__61_0>d.MoveNext() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/ui/Workshop.cs:line 78
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/gpu/BrowserWorkshopClient.cs:line 92
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__61_0>d.MoveNext() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/ui/Workshop.cs:line 78
+CCGPU_STARTUP_EXCEPTION System.PlatformNotSupportedException: This Workshop requires a browser environment.
+   at CuriousContraptions.Gpu.BrowserWorkshopClient.Create() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/gpu/BrowserWorkshopClient.cs:line 92
+   at CuriousContraptions.MachineWorld.<>c.<<InitializeWorkshop>b__61_0>d.MoveNext() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/MachineWorld.Gpu.cs:line 58
+--- End of stack trace from previous location ---
+   at CuriousContraptions.MachineWorld.InitializeWorkshop(Func`1 createClient) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/MachineWorld.Gpu.cs:line 66
+   at CuriousContraptions.Workshop.ReadyAsync() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/ui/Workshop.cs:line 78
+  Passed CuriousContraptions.Tests.PalettePlacementTests.ExactlyOneGateChooserRefusesALoopThroughTheGateAndAdmitsAnOrLoopBeside(loop: WithOr) [31 ms]
+  Passed CuriousContraptions.Tests.PalettePlacementTests.ExactlyOneGateChooserRefusesALoopThroughTheGateAndAdmitsAnOrLoopBeside(loop: ThroughOpenSwitch) [32 ms]
+  Passed CuriousContraptions.Tests.PalettePlacementTests.ExactlyOneGateChooserRefusesALoopThroughTheGateAndAdmitsAnOrLoopBeside(loop: EnteringPowerIn) [32 ms]
+  Passed CuriousContraptions.Tests.PalettePlacementTests.BothGateChooserRequiresAnExplicitSocketAndCancelDoesNotEdit [58 ms]
+  Passed CuriousContraptions.Tests.ElectricalNandPresentationTests.PictogramTruthDotsAndThreeLampsFollowCommittedRowsThroughReset [82 ms]
+  Passed CuriousContraptions.Tests.ElectricalXorPresentationTests.PictogramTwoTruthDotsAndThreeLampsFollowCommittedRowsThroughReset [28 ms]
+  Passed CuriousContraptions.Tests.ElectricalOrPresentationTests.PictogramThreeTruthDotsAndThreeLampsFollowCommittedRowsThroughReset [23 ms]
+  Passed CuriousContraptions.Tests.ElectricalNorPresentationTests.PictogramSingleTruthDotAndThreeLampsFollowCommittedRowsThroughReset [25 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanFindsElementNamesInsideIdentifiersButNotTheReviewedGenericWords(identifier: "PrismaticRowKind.Spring", element: False) [9 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanFindsElementNamesInsideIdentifiersButNotTheReviewedGenericWords(identifier: "orRow", element: False) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanFindsElementNamesInsideIdentifiersButNotTheReviewedGenericWords(identifier: "bumperBoost", element: True) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanFindsElementNamesInsideIdentifiersButNotTheReviewedGenericWords(identifier: "SpeedClamp", element: False) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanFindsElementNamesInsideIdentifiersButNotTheReviewedGenericWords(identifier: "Spring", element: True) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanFindsElementNamesInsideIdentifiersButNotTheReviewedGenericWords(identifier: "electricalXorRow", element: True) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanFindsElementNamesInsideIdentifiersButNotTheReviewedGenericWords(identifier: "threshold", element: False) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanFindsElementNamesInsideIdentifiersButNotTheReviewedGenericWords(identifier: "Conjugate", element: False) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanFindsElementNamesInsideIdentifiersButNotTheReviewedGenericWords(identifier: "contactNormal", element: False) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanFindsElementNamesInsideIdentifiersButNotTheReviewedGenericWords(identifier: "ElectricalSupply", element: False) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanFindsElementNamesInsideIdentifiersButNotTheReviewedGenericWords(identifier: "holdWindow", element: True) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanFindsElementNamesInsideIdentifiersButNotTheReviewedGenericWords(identifier: "nandRow", element: True) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanFindsElementNamesInsideIdentifiersButNotTheReviewedGenericWords(identifier: "electricalNandRow", element: True) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanFindsElementNamesInsideIdentifiersButNotTheReviewedGenericWords(identifier: "isGateOpen", element: True) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanFindsElementNamesInsideIdentifiersButNotTheReviewedGenericWords(identifier: "xorRow", element: True) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanFindsElementNamesInsideIdentifiersButNotTheReviewedGenericWords(identifier: "_plateLoaded", element: True) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanFindsElementNamesInsideIdentifiersButNotTheReviewedGenericWords(identifier: "softRowError", element: False) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanFindsElementNamesInsideIdentifiersButNotTheReviewedGenericWords(identifier: "electricalOrRow", element: True) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanFindsElementNamesInsideIdentifiersButNotTheReviewedGenericWords(identifier: "norRow", element: True) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanCoversEveryCatalogueFamily(identifier: "pipeBore") [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanCoversEveryCatalogueFamily(identifier: "funnelMouth") [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanCoversEveryCatalogueFamily(identifier: "springStiffness") [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanCoversEveryCatalogueFamily(identifier: "balloonLift") [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanCoversEveryCatalogueFamily(identifier: "detectorAperture") [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanCoversEveryCatalogueFamily(identifier: "clockPhase") [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanCoversEveryCatalogueFamily(identifier: "tennisSpin") [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheGeneralScanCoversEveryCatalogueFamily(identifier: "delayTicks") [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheShippedSolverNamesNoElementBeyondThePinnedOwnedViolations [19 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheKnownViolationListIsFrozenAndCanOnlyShrink [1 ms]
+  Passed CuriousContraptions.Tests.ElectricalOrTests.LoopsMixingANonmonotoneGateAreRefusedAtomicallyBeforeAnySolve(loop: ThroughOpenSwitch) [9 ms]
+  Passed CuriousContraptions.Tests.ElectricalOrTests.LoopsMixingANonmonotoneGateAreRefusedAtomicallyBeforeAnySolve(loop: WithNand) [1 ms]
+  Passed CuriousContraptions.Tests.ElectricalOrTests.LoopsMixingANonmonotoneGateAreRefusedAtomicallyBeforeAnySolve(loop: WithNor) [1 ms]
+  Passed CuriousContraptions.Tests.ElectricalOrTests.LoopsMixingANonmonotoneGateAreRefusedAtomicallyBeforeAnySolve(loop: EnteringPowerIn) [1 ms]
+  Passed CuriousContraptions.Tests.ElectricalOrTests.LoopsMixingANonmonotoneGateAreRefusedAtomicallyBeforeAnySolve(loop: WithXor) [1 ms]
+  Passed CuriousContraptions.Tests.ElectricalOrTests.OrLoopIsAdmittedAndSettlesAtItsLeastFixedPointEveryTick(swapIds: True) [48 ms]
+  Passed CuriousContraptions.Tests.ElectricalOrTests.OrLoopIsAdmittedAndSettlesAtItsLeastFixedPointEveryTick(swapIds: False) [43 ms]
+  Passed CuriousContraptions.Tests.ElectricalOrTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: FirstOnly, supply: False, expected: False) [36 ms]
+  Passed CuriousContraptions.Tests.ElectricalOrTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: Neither, supply: False, expected: False) [30 ms]
+  Passed CuriousContraptions.Tests.ElectricalOrTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: Both, supply: True, expected: True) [36 ms]
+  Passed CuriousContraptions.Tests.ElectricalOrTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: Both, supply: False, expected: False) [35 ms]
+  Passed CuriousContraptions.Tests.ElectricalOrTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: SecondOnly, supply: True, expected: True) [34 ms]
+  Passed CuriousContraptions.Tests.ElectricalOrTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: FirstOnly, supply: True, expected: True) [33 ms]
+  Passed CuriousContraptions.Tests.ElectricalOrTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: SecondOnly, supply: False, expected: False) [32 ms]
+  Passed CuriousContraptions.Tests.ElectricalOrTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: Neither, supply: True, expected: False) [29 ms]
+  Passed CuriousContraptions.Tests.ElectricalOrTests.ContactLoopKeepsAnEitherGateOnThroughItsOtherInput(either: True) [20 ms]
+  Passed CuriousContraptions.Tests.ElectricalOrTests.ContactLoopKeepsAnEitherGateOnThroughItsOtherInput(either: False) [17 ms]
+  Passed CuriousContraptions.Tests.ElectricalOrTests.PlacementAndWiringOrderGiveIdenticalCommittedResults(closed: FirstOnly, expected: True) [132 ms]
+  Passed CuriousContraptions.Tests.ElectricalOrTests.PlacementAndWiringOrderGiveIdenticalCommittedResults(closed: Both, expected: True) [142 ms]
+  Passed CuriousContraptions.Tests.ElectricalOrTests.PlacementAndWiringOrderGiveIdenticalCommittedResults(closed: Neither, expected: False) [120 ms]
+  Passed CuriousContraptions.Tests.ElectricalOrTests.PlacementAndWiringOrderGiveIdenticalCommittedResults(closed: SecondOnly, expected: True) [135 ms]
+  Passed CuriousContraptions.Tests.ElectricalOrTests.CompiledGraphAdmitsAnOrCycleAndRejectsAMixedOne [1 ms]
+  Passed CuriousContraptions.Tests.ElectricalOrTests.ClosingOneSwitchOpensTheOutputAndSaveLoadAndResetAreExact [82 ms]
+  Passed CuriousContraptions.Tests.ElectricalOrTests.PureOrLoopIsAdmittedBySaveAndConstruct [2 ms]
+  Passed CuriousContraptions.Tests.ElectricalOrTests.TrueRowWithoutSupplyWireNeverCreatesPower [34 ms]
+  Passed CuriousContraptions.Tests.ElectricalOrTests.LawMonotonicityAndUndefinedValuesAreClosed [3 ms]
+  Passed CuriousContraptions.Tests.ElectricalOrTests.CommittedReadsFollowEveryRowAndAdmissionIsNeutral [6 ms]
+  Passed CuriousContraptions.Tests.ElectricalNandTests.LongLoopRefusalNamesTheFirstPartsAndCountsTheRest(bothGates: 3, named: "4, 10, 11, 12.") [< 1 ms]
+  Passed CuriousContraptions.Tests.ElectricalNandTests.LongLoopRefusalNamesTheFirstPartsAndCountsTheRest(bothGates: 4, named: "4, 10, 11, 12 and 1 more.") [< 1 ms]
+  Passed CuriousContraptions.Tests.ElectricalNandTests.LongLoopRefusalNamesTheFirstPartsAndCountsTheRest(bothGates: 40, named: "4, 10, 11, 12 and 37 more.") [< 1 ms]
+  Passed CuriousContraptions.Tests.ElectricalNandTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: Both, supply: True, expected: False) [36 ms]
+  Passed CuriousContraptions.Tests.ElectricalNandTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: SecondOnly, supply: False, expected: False) [32 ms]
+  Passed CuriousContraptions.Tests.ElectricalNandTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: SecondOnly, supply: True, expected: True) [33 ms]
+  Passed CuriousContraptions.Tests.ElectricalNandTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: FirstOnly, supply: False, expected: False) [32 ms]
+  Passed CuriousContraptions.Tests.ElectricalNandTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: Neither, supply: True, expected: True) [29 ms]
+  Passed CuriousContraptions.Tests.ElectricalNandTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: Neither, supply: False, expected: False) [29 ms]
+  Passed CuriousContraptions.Tests.ElectricalNandTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: Both, supply: False, expected: False) [34 ms]
+  Passed CuriousContraptions.Tests.ElectricalNandTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: FirstOnly, supply: True, expected: True) [32 ms]
+  Passed CuriousContraptions.Tests.ElectricalNandTests.ClosingBothSwitchesRetractsTheOutputAndSaveLoadAndResetAreExact [85 ms]
+  Passed CuriousContraptions.Tests.ElectricalNandTests.ZeroDelayFeedbackThroughTheGateIsRefusedAtomicallyBeforeAnySolve(loop: ThroughOpenSwitch) [2 ms]
+  Passed CuriousContraptions.Tests.ElectricalNandTests.ZeroDelayFeedbackThroughTheGateIsRefusedAtomicallyBeforeAnySolve(loop: NandToNand) [1 ms]
+  Passed CuriousContraptions.Tests.ElectricalNandTests.ZeroDelayFeedbackThroughTheGateIsRefusedAtomicallyBeforeAnySolve(loop: ThroughBothGate) [1 ms]
+  Passed CuriousContraptions.Tests.ElectricalNandTests.ZeroDelayFeedbackThroughTheGateIsRefusedAtomicallyBeforeAnySolve(loop: EnteringPowerIn) [1 ms]
+  Passed CuriousContraptions.Tests.ElectricalNandTests.ZeroDelayFeedbackThroughTheGateIsRefusedAtomicallyBeforeAnySolve(loop: ThroughOr) [1 ms]
+  Passed CuriousContraptions.Tests.ElectricalNandTests.MonotoneLoopIsAdmittedStaysUnpoweredAndSettlesBeforeTheGateItFeeds [10 ms]
+  Passed CuriousContraptions.Tests.ElectricalNandTests.ReconvergentConditionRetractsOutputOnTheSameTick(gateFirst: False) [17 ms]
+  Passed CuriousContraptions.Tests.ElectricalNandTests.ReconvergentConditionRetractsOutputOnTheSameTick(gateFirst: True) [17 ms]
+  Passed CuriousContraptions.Tests.ElectricalNandTests.PlacementAndWiringOrderGiveIdenticalCommittedResults [137 ms]
+  Passed CuriousContraptions.Tests.ElectricalNandTests.LawMonotonicityAndUndefinedValuesAreClosed [< 1 ms]
+  Passed CuriousContraptions.Tests.ElectricalNandTests.TrueRowWithoutSupplyWireNeverCreatesPower [22 ms]
+  Passed CuriousContraptions.Tests.ElectricalNandTests.CompiledGraphRejectsNonmonotoneCycleAsAnInvariant [< 1 ms]
+  Passed CuriousContraptions.Tests.ElectricalNandTests.CommittedReadsFollowEveryRowAndAdmissionIsNeutral [4 ms]
+  Passed CuriousContraptions.Tests.ElectricalNorTests.MonotoneLoopIsAdmittedStaysUnpoweredAndSettlesBeforeTheGateItFeeds [9 ms]
+  Passed CuriousContraptions.Tests.ElectricalNorTests.PlacementAndWiringOrderGiveIdenticalCommittedResults(closed: Both, expected: False) [138 ms]
+  Passed CuriousContraptions.Tests.ElectricalNorTests.PlacementAndWiringOrderGiveIdenticalCommittedResults(closed: SecondOnly, expected: False) [129 ms]
+  Passed CuriousContraptions.Tests.ElectricalNorTests.PlacementAndWiringOrderGiveIdenticalCommittedResults(closed: FirstOnly, expected: False) [128 ms]
+  Passed CuriousContraptions.Tests.ElectricalNorTests.PlacementAndWiringOrderGiveIdenticalCommittedResults(closed: Neither, expected: True) [117 ms]
+  Passed CuriousContraptions.Tests.ElectricalNorTests.ZeroDelayFeedbackThroughTheGateIsRefusedAtomicallyBeforeAnySolve(loop: ThroughOr) [2 ms]
+  Passed CuriousContraptions.Tests.ElectricalNorTests.ZeroDelayFeedbackThroughTheGateIsRefusedAtomicallyBeforeAnySolve(loop: ThroughBothGate) [1 ms]
+  Passed CuriousContraptions.Tests.ElectricalNorTests.ZeroDelayFeedbackThroughTheGateIsRefusedAtomicallyBeforeAnySolve(loop: MixedWithNand) [1 ms]
+  Passed CuriousContraptions.Tests.ElectricalNorTests.ZeroDelayFeedbackThroughTheGateIsRefusedAtomicallyBeforeAnySolve(loop: NorToNor) [1 ms]
+  Passed CuriousContraptions.Tests.ElectricalNorTests.ZeroDelayFeedbackThroughTheGateIsRefusedAtomicallyBeforeAnySolve(loop: EnteringPowerIn) [1 ms]
+  Passed CuriousContraptions.Tests.ElectricalNorTests.ZeroDelayFeedbackThroughTheGateIsRefusedAtomicallyBeforeAnySolve(loop: ThroughOpenSwitch) [1 ms]
+  Passed CuriousContraptions.Tests.ElectricalNorTests.LawMonotonicityAndUndefinedValuesAreClosed [< 1 ms]
+  Passed CuriousContraptions.Tests.ElectricalNorTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: Neither, supply: True, expected: True) [30 ms]
+  Passed CuriousContraptions.Tests.ElectricalNorTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: FirstOnly, supply: False, expected: False) [33 ms]
+  Passed CuriousContraptions.Tests.ElectricalNorTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: FirstOnly, supply: True, expected: False) [32 ms]
+  Passed CuriousContraptions.Tests.ElectricalNorTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: Both, supply: False, expected: False) [35 ms]
+  Passed CuriousContraptions.Tests.ElectricalNorTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: SecondOnly, supply: False, expected: False) [32 ms]
+  Passed CuriousContraptions.Tests.ElectricalNorTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: SecondOnly, supply: True, expected: False) [32 ms]
+  Passed CuriousContraptions.Tests.ElectricalNorTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: Neither, supply: False, expected: False) [30 ms]
+  Passed CuriousContraptions.Tests.ElectricalNorTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: Both, supply: True, expected: False) [35 ms]
+  Passed CuriousContraptions.Tests.ElectricalNorTests.ReconvergentConditionKeepsTheOutputOffFromTheFirstTick(gateFirst: False) [27 ms]
+  Passed CuriousContraptions.Tests.ElectricalNorTests.ReconvergentConditionKeepsTheOutputOffFromTheFirstTick(gateFirst: True) [26 ms]
+  Passed CuriousContraptions.Tests.ElectricalNorTests.TrueRowWithoutSupplyWireNeverCreatesPower [19 ms]
+  Passed CuriousContraptions.Tests.ElectricalNorTests.ClosingOneSwitchRetractsTheOutputAndSaveLoadAndResetAreExact [67 ms]
+  Passed CuriousContraptions.Tests.ElectricalNorTests.CommittedReadsFollowEveryRowAndAdmissionIsNeutral [4 ms]
+  Passed CuriousContraptions.Tests.ElectricalNorTests.CompiledGraphRejectsNonmonotoneCycleAsAnInvariant [< 1 ms]
+  Passed CuriousContraptions.Tests.ElectricalXorTests.PlacementAndWiringOrderGiveIdenticalCommittedResults(closed: SecondOnly, expected: True) [113 ms]
+  Passed CuriousContraptions.Tests.ElectricalXorTests.PlacementAndWiringOrderGiveIdenticalCommittedResults(closed: FirstOnly, expected: True) [112 ms]
+  Passed CuriousContraptions.Tests.ElectricalXorTests.PlacementAndWiringOrderGiveIdenticalCommittedResults(closed: Both, expected: False) [114 ms]
+  Passed CuriousContraptions.Tests.ElectricalXorTests.PlacementAndWiringOrderGiveIdenticalCommittedResults(closed: Neither, expected: False) [100 ms]
+  Passed CuriousContraptions.Tests.ElectricalXorTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: FirstOnly, supply: True, expected: True) [27 ms]
+  Passed CuriousContraptions.Tests.ElectricalXorTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: Neither, supply: True, expected: False) [24 ms]
+  Passed CuriousContraptions.Tests.ElectricalXorTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: SecondOnly, supply: True, expected: True) [25 ms]
+  Passed CuriousContraptions.Tests.ElectricalXorTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: Neither, supply: False, expected: False) [25 ms]
+  Passed CuriousContraptions.Tests.ElectricalXorTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: Both, supply: False, expected: False) [27 ms]
+  Passed CuriousContraptions.Tests.ElectricalXorTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: Both, supply: True, expected: False) [27 ms]
+  Passed CuriousContraptions.Tests.ElectricalXorTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: FirstOnly, supply: False, expected: False) [26 ms]
+  Passed CuriousContraptions.Tests.ElectricalXorTests.SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer(closed: SecondOnly, supply: False, expected: False) [26 ms]
+  Passed CuriousContraptions.Tests.ElectricalXorTests.ZeroDelayFeedbackThroughTheGateIsRefusedAtomicallyBeforeAnySolve(loop: EnteringPowerIn) [2 ms]
+  Passed CuriousContraptions.Tests.ElectricalXorTests.ZeroDelayFeedbackThroughTheGateIsRefusedAtomicallyBeforeAnySolve(loop: WithOr) [1 ms]
+  Passed CuriousContraptions.Tests.ElectricalXorTests.ZeroDelayFeedbackThroughTheGateIsRefusedAtomicallyBeforeAnySolve(loop: ThroughOpenSwitch) [1 ms]
+  Passed CuriousContraptions.Tests.ElectricalXorTests.ZeroDelayFeedbackThroughTheGateIsRefusedAtomicallyBeforeAnySolve(loop: WithNand) [1 ms]
+  Passed CuriousContraptions.Tests.ElectricalXorTests.ZeroDelayFeedbackThroughTheGateIsRefusedAtomicallyBeforeAnySolve(loop: XorToXor) [< 1 ms]
+  Passed CuriousContraptions.Tests.ElectricalXorTests.CompiledGraphRejectsAXorCycleAsAnInvariant [< 1 ms]
+  Passed CuriousContraptions.Tests.ElectricalXorTests.ReconvergenceThroughAnEitherGateKeepsTheOutputOffFromTheFirstTick(gateFirst: True, reverseLinks: True) [22 ms]
+  Passed CuriousContraptions.Tests.ElectricalXorTests.ReconvergenceThroughAnEitherGateKeepsTheOutputOffFromTheFirstTick(gateFirst: False, reverseLinks: True) [20 ms]
+[xUnit.net 00:00:05.91]   Finished:    CuriousContraptions.tests (ID = 'a403b6a7292c52ede004c2a76893e91e25021fd8c17176b8ebba967ab94cf1ac')
+  Passed CuriousContraptions.Tests.ElectricalXorTests.ReconvergenceThroughAnEitherGateKeepsTheOutputOffFromTheFirstTick(gateFirst: False, reverseLinks: False) [20 ms]
+  Passed CuriousContraptions.Tests.ElectricalXorTests.ReconvergenceThroughAnEitherGateKeepsTheOutputOffFromTheFirstTick(gateFirst: True, reverseLinks: False) [21 ms]
+  Passed CuriousContraptions.Tests.ElectricalXorTests.CommittedReadsFollowEveryRowAndAdmissionIsNeutral [4 ms]
+  Passed CuriousContraptions.Tests.ElectricalXorTests.RemovingTheSupplyOrConditionLinksUnpowersATrueRow(removeSupply: False) [25 ms]
+  Passed CuriousContraptions.Tests.ElectricalXorTests.RemovingTheSupplyOrConditionLinksUnpowersATrueRow(removeSupply: True) [24 ms]
+  Passed CuriousContraptions.Tests.ElectricalXorTests.OrLoopFeedingTheGateIsAdmittedAndPowersIt [20 ms]
+  Passed CuriousContraptions.Tests.ElectricalXorTests.LawMonotonicityAndUndefinedValuesAreClosed [< 1 ms]
+  Passed CuriousContraptions.Tests.ElectricalXorTests.ClosingOneSwitchOpensTheOutputAndSaveLoadAndResetAreExact [62 ms]
+
+Test Run Successful.
+Total tests: 161
+     Passed: 161
+ Total time: 6.1105 Seconds

@@ -13,8 +13,7 @@ public sealed class ElectricalSupplyTests
     [InlineData(ElectricalEnable.Enabled)]
     public void F32AuthoringWiringAndSaveRoundTripWithAtomicAmbiguousSourceRejection(ElectricalEnable enabled)
     {
-        var settings = new ElectricalSourceSettings(new(3600.0002f), new(120.00001f), .1234567f, enabled);
-        var battery = new WorkshopBattery(new(1), default, default, CanonicalRotation.Identity, settings);
+        var battery = PlacedParts.Battery(new(1), 0, 0, 0, 3600.0002f, 120.00001f, .1234567f, enabled);
         var bumper = WorkshopInput.Generic(PartId.PinballBumper, new(2), 3, 4, 0, 0, 0, 0, 1);
         var link = new WorkshopConnection(battery.Id, WorkshopSocket.Supply, bumper.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical);
         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(),
@@ -22,20 +21,29 @@ public sealed class ElectricalSupplyTests
         construction.Validate();
         var saved = new WorkshopSavedConstruction(construction, new(3));
         var original = WorkshopSaveCodec.Encode(saved);
-        // An undefined enable value in the stored battery record is refused (built through the schema, not a byte offset).
-        var builder = new Google.FlatBuffers.FlatBufferBuilder(512);
-        var record = WorkshopWireFlatBuffers.EncodeConstructionRecord(builder, construction with
-            { Instances = new(battery with { Settings = settings with { Enabled = (ElectricalEnable)2 } }, bumper) }, validate: false);
-        var savedBytes = SaveFixture.Finish(builder, record, 3);
-        SaveFixture.Refused(WorkshopSaveRejection.UndefinedEnum, () => WorkshopSaveCodec.Decode(SaveFixture.Elements,savedBytes));
+        // An enable index that names no declared option, or a fraction of one, is refused (built through the schema, not a byte
+        // offset): the declared Choice admits exactly 0 (Disabled) and 1 (Enabled).
+        foreach (var undefined in new[] { 2f, .5f, -1f })
+        {
+            var builder = new Google.FlatBuffers.FlatBufferBuilder(512);
+            var values = battery.Parameters.ToDictionary(); values[new("enabled")] = undefined;
+            var record = WorkshopWireFlatBuffers.EncodeConstructionRecord(builder, construction with
+                { Instances = new(battery with { Parameters = new(values) }, bumper) }, validate: false);
+            var savedBytes = SaveFixture.Finish(builder, record, 3);
+            SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(SaveFixture.Elements, savedBytes));
+        }
         var restored = WorkshopSaveCodec.Decode(SaveFixture.Elements,original);
-        Assert.Equal(settings, Assert.IsType<WorkshopBattery>(restored.Construction.Instances[0]).Settings);
+        Assert.Equal(battery, Assert.IsType<WorkshopGenericInstance>(restored.Construction.Instances[0]));
         Assert.Equal(original, WorkshopSaveCodec.Encode(restored));
         var scene = WorkshopPhysicsCompiler.Compile(restored.Construction, new(1, 2));
         Assert.Single(scene.Electrical.Bindings.ToArray());
         Assert.Equal(0, WorkshopActivationCompiler.Compile(restored.Construction).Clear().Count);
-        Assert.Equal(settings.Capacity, scene.Electrical.Sources[0].Capacity);
-        Assert.Equal(settings.MaximumPower, scene.Electrical.Sources[0].MaximumPower);
+        // The compiled store is the declared parameters' f32 values, bit for bit; the initial energy is capacity × charge in f32.
+        Assert.Equal(BitConverter.SingleToInt32Bits(3600.0002f), BitConverter.SingleToInt32Bits(scene.Electrical.Sources[0].Capacity.Value));
+        Assert.Equal(BitConverter.SingleToInt32Bits(120.00001f), BitConverter.SingleToInt32Bits(scene.Electrical.Sources[0].MaximumPower.Value));
+        Assert.Equal(BitConverter.SingleToInt32Bits(.1234567f), BitConverter.SingleToInt32Bits(scene.Electrical.Sources[0].InitialFraction));
+        Assert.Equal(BitConverter.SingleToInt32Bits(3600.0002f * .1234567f), BitConverter.SingleToInt32Bits(scene.Electrical.Sources[0].InitialEnergy.Value));
+        Assert.Equal(enabled, scene.Electrical.Sources[0].Enabled);
         var second = battery with { Id = new(3) };
         var ambiguous = construction.WithInstance(second) with { Connections = new(link, link with { Source = second.Id }) };
         EditRefusal.Is(WorkshopEditRejection.PowerInputSupplied, () => ambiguous.Validate());
@@ -53,7 +61,7 @@ public sealed class ElectricalSupplyTests
     public void RawGpuFieldsRejectBeforeNarrowing(int field, uint invalid)
     {
         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(),
-            new(new WorkshopBattery(new(1), default, default, CanonicalRotation.Identity, ElectricalSourceSettings.Default)));
+            new(PlacedParts.Battery(new(1), 0, 0, 0)));
         var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
         var bytes = PhysicsGpuAbi.Admission(scene, new(1),
             new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1)));
@@ -209,7 +217,7 @@ public sealed class ElectricalSupplyTests
         source.Validate();
         Assert.Equal(3600f, source.InitialEnergy.Value);
         Assert.Throws<ArgumentException>(() => new Joules(201f).Validate());
-        new Joules(14400f).Validate(ElectricalSupply.MaximumCapacity);
+        new Joules(14400f).Validate(CuriousContraptions.Abstractions.Electrical.ElectricalSourceEnvelope.MaximumCapacity);
         Assert.Throws<ArgumentException>(() => (source with { InitialFraction = float.NaN }).Validate());
         Assert.Throws<ArgumentException>(() => (source with { Capacity = new(59f) }).Validate());
     }

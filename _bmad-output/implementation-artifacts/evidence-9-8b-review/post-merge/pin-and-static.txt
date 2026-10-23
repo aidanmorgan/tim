@@ -1,0 +1,25 @@
+$ bundle / PaletteOrder dups / dirs / undelivered / xor ordinal
+28
+      28
+2
+4290-        "Id": "electrical_xor",
+$ pins
+CuriousContraptions.tests/PartRegistryTests.cs:39:        Assert.Equal(28, registry.Definitions.Count);
+CuriousContraptions.tests/PartRegistryTests.cs:131:        Assert.Equal(28, registry.Definitions.Count);
+CuriousContraptions.tests/PartRegistryTests.cs:262:        Assert.Equal(30, ids.Length);
+tools/Coverage.Tests/CurrentCatalogueTests.cs:197:        Assert.Equal(28, plan.Admitted.Count);
+CuriousContraptions.tests/BundleElementIdTests.cs:81:        Assert.Equal(28, SaveFixture.Elements.Count);
+$ production identity hits
+engine/gpu/SupplyRoute.cs:172:        LogicGateOperation.Xor => first != second,
+engine/gpu/SupplyRoute.cs:182:        LogicGateOperation.Xor => false,
+$ forbidden scope vs a2eddf81
+(empty)
+$ Known list
+(none)
+$ pulley planned key
+61:            [new("pulley")]=[EngineCapability.ConstructionCompiler,EngineCapability.ConstructionPersistence,EngineCapability.ContactImpulse,EngineCapability.EnvironmentState,EngineCapability.FiniteLedger,EngineCapability.GeometryQuery,EngineCapability.JointConstraint,EngineCapability.PresentationHistory,EngineCapability.ReliablePublication,EngineCapability.RenderApplication,EngineCapability.ResourceLifetime,EngineCapability.RigidBodyDynamics,EngineCapability.SlidingFriction,EngineCapability.StateTransaction,EngineCapability.TensionTransmission,EngineCapability.TypedContracts],
+ls: elements/Pulley: No such file or directory
+$ anvil candidate + delta
+  - 4 line(s) too long to scan, so this result cannot prove them clean: raise `max_line_bytes` to cover them, or suppress with a documented reason
+$ git diff --check (worktree)
+clean

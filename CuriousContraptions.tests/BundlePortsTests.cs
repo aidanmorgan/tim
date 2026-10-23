@@ -84,6 +84,7 @@ public sealed class BundlePortsTests
         ["electrical_nand"] = ([Electrical(WorkshopSocket.FirstIn, In, -.94f, .35f, 0f), Electrical(WorkshopSocket.SecondIn, In, -.94f, -.35f, 0f), Electrical(WorkshopSocket.PowerIn, In, 0f, -.75f, .55f), Electrical(WorkshopSocket.Supply, Out, .94f, 0f, 0f)], new(1, 0, 0)),
         ["electrical_nor"] = ([Electrical(WorkshopSocket.FirstIn, In, -.94f, .35f, 0f), Electrical(WorkshopSocket.SecondIn, In, -.94f, -.35f, 0f), Electrical(WorkshopSocket.PowerIn, In, 0f, -.75f, .55f), Electrical(WorkshopSocket.Supply, Out, .94f, 0f, 0f)], new(1, 0, 0)),
         ["electrical_or"] = ([Electrical(WorkshopSocket.FirstIn, In, -.94f, .35f, 0f), Electrical(WorkshopSocket.SecondIn, In, -.94f, -.35f, 0f), Electrical(WorkshopSocket.PowerIn, In, 0f, -.75f, .55f), Electrical(WorkshopSocket.Supply, Out, .94f, 0f, 0f)], new(1, 0, 0)),
+        ["electrical_xor"] = ([Electrical(WorkshopSocket.FirstIn, In, -.94f, .35f, 0f), Electrical(WorkshopSocket.SecondIn, In, -.94f, -.35f, 0f), Electrical(WorkshopSocket.PowerIn, In, 0f, -.75f, .55f), Electrical(WorkshopSocket.Supply, Out, .94f, 0f, 0f)], new(1, 0, 0)),
         ["ball"] = ([], new(1, 1, 0)),
         ["ball_detector"] = ([Activation(WorkshopSocket.ActivationOut, Out, Pulse, 0f, 1.12f, 0f)], new(1, 0, 0)),
         ["basket"] = ([], new(1, 0, 0)),
@@ -272,7 +273,7 @@ public sealed class BundlePortsTests
             () => Validate(new(new(1), WorkshopSocket.ActivationOut, new(7), WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation)));
         // The declared level kinds still decide: the latch's level output lights only a Signal lamp.
         Validate(new(new(5), WorkshopSocket.ActivationOut, new(6), WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation));
-        EditRefusal.Is(WorkshopEditRejection.LevelDrivesLampOnly,
+        EditRefusal.Is(WorkshopEditRejection.LevelDrivesLevelInputOnly,
             () => Validate(new(new(5), WorkshopSocket.ActivationOut, new(2), WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation)));
     }
 

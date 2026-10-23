@@ -179,3 +179,21 @@ The delta has 32 files, all under `_bmad-output/implementation-artifacts/`. Ther
 2. "Build and deploy game" for that exact SHA succeeds: the build job's native and tool totals match the counts above, and AppBundle is produced only in CI.
 3. A `github-pages` artifact and a successful deployment exist for that SHA.
 4. Browser qualification stays pending (post-catalogue E2E: `cat-005-n19`, `cat-051-interrupt`). This approval is not browser or release qualification.
+
+## Terminal publication verification — 22 October 2026
+
+**Verdict: terminal scoped Pass** (native and publication). Browser qualification remains pending until post-catalogue E2E. This is not release qualification.
+
+Raw outputs: [evidence-9-4c-review/terminal/](evidence-9-4c-review/terminal/).
+
+| Check | Evidence | Result |
+|---|---|---|
+| Identities | `trees.txt` | `git ls-remote origin main` = `a598a09e2b91d58135b3343a2beeea6b88578013`, a `--no-ff` merge with parents `a2eddf81` and `421dd5325c3ca35156b7531acc1bfd48d42bd86e`. The slice commit `421dd532` has parent `80ffc685`. Both have tree `690739d1e603e7543e346a1411a5d2253f0796a8`, which equals the approved final staged tree |
+| Tree equivalence | `diff-tree-approved-vs-slice.txt`, `diff-tree-slice-vs-merge.txt` | The approved candidate tree `c26e5c39` and the published tree differ only in `review-9-4c-latch-fixture-deferred-integrations.md` (the authorized SnapshotApproval append). The slice tree and the merge tree are identical (0 entries) |
+| Fixture in tree | `latch-tests-listed.txt` | At `421dd532`, `LatchSupplyFixtureTests.cs` sha256 is `f9b1ec7f…ee206f` and the csproj includes it. `--list-tests` on the matching build lists all 10 cases |
+| Hooks | `hook-rerun.log` | With the index tree exactly `690739d1`, `.githooks/pre-commit` re-ran: staged-snapshot gate 124/124, exit 0. The coordinator reports the hook passed on the slice commit; no hook runs on a clean merge |
+| Exact-SHA CI | `run.json`, `jobs.json`, `jobs-summary.txt`, `build-job.log`, `build-job-totals.txt` | Run 39723690498 "Build and deploy game", push on main, headSha `a598a09e`, conclusion success. Build job 119642688609 succeeded at every step: static gate, Test C# game, Test C# tools, Publish, Check static deployment and upload-pages-artifact. Totals from the log: CuriousContraptions.tests 2362/2362; tools Coverage 77, BundleElements 148, WorkerAotGuard 17, E2eRunner 174; 0 failed. The CI log prints only per-assembly totals, so the 10 fixture cases are counted inside the 2362 and named in `latch-tests-listed.txt` |
+| Pages artifact | `artifacts.json`, `deploy-job.log`, `deploy-job-excerpt.txt` | Artifact 12402396952 `github-pages`, 79459987 bytes, digest `sha256:518372be1400569fefc746d27c806809fd4e015a9183cdf35bee8abc4d79864c`, workflow run 39723690498, head_sha `a598a09e`, not expired. The deploy job 119646642563 fetched `artifact_id` 12402396952 and reported "Reported success!" |
+| Deployment | `deployments.txt`, `deployment-statuses.txt` | Deployment 7244087300, environment `github-pages`, sha `a598a09e`. Status history: waiting, queued, in_progress, then success (2026-10-22T04:55:17Z, https://aidanmorgan.github.io/tim/) |
+
+`sprint-status.yaml` is set to `done # scoped native/publication Pass a598a09e; browser pending` in this worktree (uncommitted, as the coordinator instructed).

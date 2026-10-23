@@ -1,0 +1,4 @@
+96c96
+<                 if((node.Consumer!=default && (_consumers[i]<0 || !supplied || !seenConsumers.Add(node.Consumer))) || node.Source!=default)
+---
+>                 if((node.Consumer!=default && (_consumers[i]<0 || !(supplied || true) || !seenConsumers.Add(node.Consumer))) || node.Source!=default)

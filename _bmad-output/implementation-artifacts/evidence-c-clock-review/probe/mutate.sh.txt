@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+# Reviewer mutation runner (C-Clock). Usage: mutate.sh NAME FILE PERL_SUBST
+# Applies one perl substitution to FILE in the throwaway candidate worktree, builds, runs the affected classes, restores FILE.
+set -u
+WT=/private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/review-clock/wt-mut
+NAME=$1; FILE=$2; SUBST=$3
+BACKUP=/private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/review-clock/backup.$$
+cd "$WT"
+cp "$FILE" "$BACKUP"
+perl -0pi -e "$SUBST" "$FILE"
+echo "== $NAME ($FILE)"
+if cmp -s "$FILE" "$BACKUP"; then echo "MUTATION NOT APPLIED"; rm -f "$BACKUP"; exit 1; fi
+diff "$BACKUP" "$FILE" | grep '^[<>]' | cut -c1-220
+dotnet build CuriousContraptions.slnx -c Debug --nologo 2>&1 | grep -E "Warning\(s\)|Error\(s\)|error CS" | sort -u | head -5
+dotnet test CuriousContraptions.tests/CuriousContraptions.tests.csproj -c Debug --no-build --no-restore \
+  --filter "FullyQualifiedName~ClockGuardTests|FullyQualifiedName~DeclaredOscillatorTests|FullyQualifiedName~ClockTests|FullyQualifiedName~DeclaredOrientationTests|FullyQualifiedName~WorkshopSaveRejectionTests|FullyQualifiedName~PayloadInstanceTests|FullyQualifiedName~WorkshopWireFlatBuffersTests|FullyQualifiedName~DeclaredPresentationTests|FullyQualifiedName~PalettePlacementTests" 2>&1 \
+  | grep -E "\[FAIL\]|Passed!|Failed!" | sed 's/^\[xUnit[^]]*\] *//' | sort -u | head -12
+dotnet test tools/BundleElements.Tests -c Debug --no-build --no-restore 2>&1 | grep -E "\[FAIL\]|Passed!|Failed!" | sed 's/^\[xUnit[^]]*\] *//' | sort -u | head -6
+cp "$BACKUP" "$FILE"; rm -f "$BACKUP"
+echo "restored"

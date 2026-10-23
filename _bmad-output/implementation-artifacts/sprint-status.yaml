@@ -99,7 +99,7 @@ development_status:
   # weak Pass (retro-verification 18 Oct 2026); repaired by 9r-1; re-verified by addendum in 9a-pkg-2
   6-7-hollow-sdf-torus-cap-clear-pipe: in-progress # addendum Incomplete; owned by 9r-23
   # weak Pass (retro-verification 18 Oct 2026); repaired and re-verified by addendum in 9a-c-lamp-detector (9r-9)
-  6-8-generic-aperture-sensor-directional-rearm: done
+  6-8-generic-aperture-sensor-directional-rearm: done # native re-verified at 2065d3 (C-Lamp addendum); cat-002 Chrome pending; 9R.9 "one more" wording owned by 9a-22
   # reopened 18 Oct 2026 (retro-verification); closes via 9r-6-typed-mouth-snapping and an addendum in 9a-pkg-2
   6-9-pipe-bend-45-hollow-torus-segment: in-progress
   # reopened 18 Oct 2026 (retro-verification); repaired by 9r-2; closes via an addendum in 9a-1 (AbiOffsets)
@@ -127,7 +127,7 @@ development_status:
   epic-7-retrospective: optional
 
   epic-8: in-progress
-  # reopened 18 Oct 2026 (retro-verification); closes via an addendum in 9a-39 (amended acceptance; Motor clause moved to 11-1)
+  # reopened 18 Oct 2026 (retro-verification); native addendum appended by 9a-39 (23 Oct 2026, Pass native at 54ffd9f0); stays in-progress until cat-005 passes in Chrome (post-catalogue E2E); Motor clause moved to 11-1
   8-1-battery-dc-power-source-network-graph: in-progress
   # weak Pass (retro-verification 18 Oct 2026); repaired by 9r-3; re-verified by addendum in 9a-c-gate
   8-2-powered-gate-passageway-barrier: done
@@ -135,12 +135,14 @@ development_status:
 
   epic-9: in-progress
   # reopened 18 Oct 2026 (retro-verification); repaired by 9r-4 and 9r-5; closes via an addendum in 9a-c-plate
+  # 9a-c-plate addendum appended 23 Oct 2026: native Pass at 146588; Chrome clause pending post-catalogue E2E, so not yet done
   9-1-pressure-plate-surface-contact-load-sensor: in-progress
   # reopened 18 Oct 2026 (retro-verification); repaired by 9r-1; closes via addenda in 9a-2 and 9a-c-memory
   9-2-pulse-counter-event-accumulator: in-progress
   # reopened 18 Oct 2026 (retro-verification); closes via addenda in 9a-0 and the final 9a-45
   9-2b-modular-element-isolation-and-wasm-solver-consolidation: in-progress
   # reopened 18 Oct 2026 (retro-verification); closes via an addendum in 9a-c-clock (9r-10)
+  # 9a-c-clock addendum appended 23 Oct 2026: native Pass at ae3cac; Chrome clause (cat-017) pending post-catalogue E2E, so not yet done
   9-3-system-clock-periodic-pulse-generator: in-progress
   9-4-state-latch-bistable-memory: done
   # Coordinator 18 Oct 2026: pre-existing cumulative Chrome failures found during 9.4 (see spec-9-4 item 3).
@@ -270,7 +272,7 @@ development_status:
   # 25 (element)
   9-7a-electrical-nand-gate: done # scoped native/publication Passb35be7; browser pending
   # split into 9-7a and 9-7b (21 Oct 2026; one new element per story)
-  9-7-electrical-logic-gates-nand-nor: backlog
+  9-7-electrical-logic-gates-nand-nor: done # split stories 9.7a Passb35be7 and 9.7b Pass55ee05 (scoped native/publication); browser pending
   # 26 (deletion)
   9a-c-balls-conversion: done # scoped native/publication Pass3fce7a; browser pending
   # merged into 9a-c-balls (21 Oct 2026)
@@ -290,65 +292,65 @@ development_status:
   # merged into 9a-c-bumper-spring (21 Oct 2026) as its suite-first guard
   9r-8-spring-forward-lesson-chrome-proof: backlog
   # 29 (element)
-  9-8a-electrical-or-gate: review # native scope; merge main, SnapshotApproval/publication pending; browser post-catalogue
+  9-8a-electrical-or-gate: done # scoped native/publication Passa2eddf; browser pending
   # split into 9-8a and 9-8b (21 Oct 2026; one new element per story)
-  9-8-electrical-logic-gates-or-xor: backlog
+  9-8-electrical-logic-gates-or-xor: done # split stories 9.8a Passa2eddf and 9.8b Pass8bfddc (scoped native/publication); browser pending
   # 30 (deletion-lane slot): latch-dependent deferred integrations CAT-005 N19 and CAT-051 supply
   # interruption mid-stroke (coordinator 18 Oct 2026, review-9-4 D1). Placed before 9a-c-gate because the
   # 9a-19, 9a-39 and 9a-43 ACs require its suites.
-  9-4c-latch-fixture-deferred-integrations: review
+  9-4c-latch-fixture-deferred-integrations: done # scoped native/publication Pass a598a09e; browser pending
   # 31 (element)
-  9-8b-electrical-xor-gate: backlog
+  9-8b-electrical-xor-gate: done # scoped native/publication Pass8bfddc; browser pending
   epic-9-retrospective: optional
   # 32 (deletion): before 11-3
-  9a-c-gate-declared-drive-warmup: backlog
+  9a-c-gate-declared-drive-warmup: done # scoped native/publication Passf27cb7; browser pending
   # merged into 9a-c-gate (21 Oct 2026)
-  9a-19-declared-prismatic-drive: backlog
+  9a-19-declared-prismatic-drive: done # scoped native/publication Passf27cb7; browser pending
   # merged into 9a-c-gate (21 Oct 2026)
-  9a-21-declaration-free-worker-warmup: backlog
+  9a-21-declaration-free-worker-warmup: done # scoped native/publication Passf27cb7; browser pending
   # 33 (element)
   epic-10: backlog
   10-1-solid-cylinder-collider-and-inertia: review
   # 34 (deletion)
-  9a-39-generic-instance-battery: backlog
+  9a-39-generic-instance-battery: done # scoped native/publication Pass54ffd9; browser pending
   # 35 (element)
   10-2-pulley-wheel-tensile-rope-dynamics: backlog
   # 36 (deletion)
-  9a-c-lamp-detector-conversion: backlog
+  9a-c-lamp-detector-conversion: done # scoped native/publication Pass2065d3; browser pending
   # merged into 9a-c-lamp-detector (21 Oct 2026)
-  9a-36-generic-instance-signal-lamp: backlog
+  9a-36-generic-instance-signal-lamp: done # scoped native/publication Pass2065d3; browser pending
   # merged into 9a-c-lamp-detector (21 Oct 2026)
-  9a-37-generic-instance-ball-detector: backlog
+  9a-37-generic-instance-ball-detector: done # scoped native/publication Pass2065d3; browser pending
   # merged into 9a-c-lamp-detector (21 Oct 2026) as a suite-first guard
-  9r-9-ball-detector-forward-pass-assertion: backlog
+  9r-9-ball-detector-forward-pass-assertion: backlog # native guard green on record path and candidate; Chrome ACs pending (post-catalogue)
   # merged into 9a-c-lamp-detector (21 Oct 2026) as a suite-first guard
-  9r-16-cat-035-signal-lamp-suite: backlog
+  9r-16-cat-035-signal-lamp-suite: backlog # native guard green on record path and candidate; cat-035 authored post-catalogue
   # 37 (element)
   10-3-balanced-impact-lever-pivot-fulcrum: backlog
   # 38 (deletion)
-  9a-32-generic-instance-domino: backlog
+  9a-32-generic-instance-domino: done # scoped native/publication Pass61ded7; browser pending
   # 39 (element)
   10-4-counterweight-multibody-pendulum-lifting: backlog
   # 40 (deletion): includes F.6 item F-1
-  9a-c-plate-contact-load-conversion: backlog
+  9a-c-plate-contact-load-conversion: done # scoped native/publication Pass146588; browser pending
   # merged into 9a-c-plate (21 Oct 2026)
-  9a-20-declared-contact-load-sensor: backlog
+  9a-20-declared-contact-load-sensor: done # scoped native/publication Pass146588; browser pending
   # merged into 9a-c-plate (21 Oct 2026)
-  9a-40-generic-instance-pressure-plate: backlog
+  9a-40-generic-instance-pressure-plate: done # scoped native/publication Pass146588; browser pending
   # 41 (element)
   10-5-trampoline-compliant-membrane-dynamics: backlog
   epic-10-retrospective: optional
   # 42 (deletion)
-  9a-c-clock-conversion: backlog
+  9a-c-clock-conversion: done # scoped native/publication Passae3cac; browser pending
   # merged into 9a-c-clock (21 Oct 2026)
-  9a-42-generic-instance-system-clock: backlog
+  9a-42-generic-instance-system-clock: done # scoped native/publication Passae3cac; browser pending
   # merged into 9a-c-clock (21 Oct 2026) as its suite-first guard
-  9r-10-system-clock-pause-reset-chrome-proof: backlog
+  9r-10-system-clock-pause-reset-chrome-proof: done # native scoped Pass (C-Clock ae3cac); Chrome qualification post-catalogue
   # 43 (element)
   epic-11: backlog
   11-1-electric-motor-tangential-conveyor-belt: backlog
   # 44 (deletion): before 9a-c-memory, whose ACs need ThresholdReached and MemoryChanged
-  9a-22-event-ring-producer: backlog
+  9a-22-event-ring-producer: review # native candidate on ae3cacf9 (worktree story-9a-22); browser pending
   # 45 (element)
   11-2-mechanical-clutch-reverse-transmission: backlog
   # 46 (deletion): last record conversion

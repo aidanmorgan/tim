@@ -1,0 +1,18 @@
+== control (unmutated)
+    0 Error(s)
+Passed!  - Failed:     0, Passed:    45, Skipped:     0, Total:    45, Duration: 2 s - CuriousContraptions.tests.dll (net10.0)
+== R4 last-substep-only
+889a890
+>                 joint.MovingContact = false;
+    0 Error(s)
+  Failed CuriousContraptions.Tests.DeclaredPrismaticDriveTests.TheMovingContactLaneRecordsAContactInAnySubstepOfTheTick [9 ms]
+Failed!  - Failed:     1, Passed:    44, Skipped:     0, Total:    45, Duration: 2 s - CuriousContraptions.tests.dll (net10.0)
+== R4' never set (lane always 0)
+894c894
+<                         joint.MovingContact = true;
+---
+>                         joint.MovingContact = false;
+    0 Error(s)
+  Failed CuriousContraptions.Tests.DeclaredPrismaticDriveTests.TheMovingContactLaneRecordsAContactInAnySubstepOfTheTick [54 ms]
+Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 66 ms - CuriousContraptions.tests.dll (net10.0)
+RESTORED

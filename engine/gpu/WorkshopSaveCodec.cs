@@ -41,12 +41,16 @@ public static class WorkshopSaveCodec
     }
 
     /// <summary>Untrusted stored bytes. Structural pre-validation runs first, against the loaded bundle's
-    /// <paramref name="elements"/>, and is the only refusal (<see cref="WorkshopSaveRejectedException"/>); domain construction then
-    /// runs on an admitted record, and any exception it raises is a defect that escapes as itself.</summary>
+    /// <paramref name="elements"/>, then the refusal of any instance record field beyond the current table; these are the only
+    /// refusals (<see cref="WorkshopSaveRejectedException"/>). Domain construction then runs on an admitted record, and any exception
+    /// it raises is a defect that escapes as itself.</summary>
     public static WorkshopSavedConstruction Decode(IReadOnlySet<PartId> elements, ReadOnlySpan<byte> bytes)
     {
         var saved = Open(bytes);
         WorkshopSavePrevalidation.Check(saved, elements);
+        if (WorkshopWireFlatBuffers.HoldsFieldBeyondTheInstanceTable(saved.ByteBuffer, WorkshopWireFlatBuffers.SavedConstructionSlot))
+            throw new WorkshopSaveRejectedException(WorkshopSaveRejection.OutOfRange,
+                "This save cannot be loaded: an instance record holds a field the current record does not define.");
         return Construct(saved);
     }
 

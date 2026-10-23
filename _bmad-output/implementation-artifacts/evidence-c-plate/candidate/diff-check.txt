@@ -1,0 +1,3 @@
+diff-check rc=0
+cached rc=0
+diffcheck=0

@@ -1,0 +1,114 @@
+# Base (2065d3c5, base-encoder bytes) vs candidate decode outcomes; lines that differ:
+1,7c1,8
+< domino_locked_rotated save LOADED
+< domino_locked_rotated command LOADED
+< domino_locked_rotated replay480 4557782615247867719446DA12C1EADE1E6426D2EFD87EC54E2FFD1D9438893A
+< forged_domino_bare save REFUSED save MissingField
+< forged_domino_bare record REFUSED wire MissingField
+< forged_domino_parameter save REFUSED save MissingField
+< forged_domino_parameter record REFUSED wire MissingField
+---
+> domino_locked_rotated save REFUSED save OutOfRange
+> domino_locked_rotated command REFUSED wire OutOfRange
+> forged_domino_bare save LOADED
+> forged_domino_bare record LOADED
+> forged_domino_bare replay480 7538152AAE8CA9114E56ADB2661BC38919C67D0B688D750CDB9EF7493C53C0B8
+> forged_domino_parameter save LOADED
+> forged_domino_parameter record LOADED
+> forged_domino_parameter replay480 7538152AAE8CA9114E56ADB2661BC38919C67D0B688D750CDB9EF7493C53C0B8
+14,19c15,18
+< kind_basket save LOADED
+< kind_basket command LOADED
+< kind_basket replay480 680C7275F0BEEA4733F901FFCE91C39FB682C0CDC57E5622BED6D974F3CCED70
+< kind_battery save LOADED
+< kind_battery command LOADED
+< kind_battery replay480 680C7275F0BEEA4733F901FFCE91C39FB682C0CDC57E5622BED6D974F3CCED70
+---
+> kind_basket save REFUSED save OutOfRange
+> kind_basket command REFUSED wire OutOfRange
+> kind_battery save REFUSED save OutOfRange
+> kind_battery command REFUSED wire OutOfRange
+26,40c25,34
+< kind_bumper save LOADED
+< kind_bumper command LOADED
+< kind_bumper replay480 680C7275F0BEEA4733F901FFCE91C39FB682C0CDC57E5622BED6D974F3CCED70
+< kind_clock save LOADED
+< kind_clock command LOADED
+< kind_clock replay480 5B7CF94D2B974BF5CD994689C9A9DB95084C2AB2F5951F07B00896EFEF5669E0
+< kind_counter save LOADED
+< kind_counter command LOADED
+< kind_counter replay480 F1094C465BF5E1A61051264ED9EFBFB357AA304D11377A38312FF947FFED0586
+< kind_delay save LOADED
+< kind_delay command LOADED
+< kind_delay replay480 854262FB13305138230688F9F4BC8602B476BEFEBE1D838AB6CDC34EF04DA54B
+< kind_domino save LOADED
+< kind_domino command LOADED
+< kind_domino replay480 A03AF2D952A5E1F905C8A9542DF217AE66C0B12172EED7824D71F6E5A01717F8
+---
+> kind_bumper save REFUSED save OutOfRange
+> kind_bumper command REFUSED wire OutOfRange
+> kind_clock save REFUSED save VerifierRejected
+> kind_clock command REFUSED wire VerifierRejected
+> kind_counter save REFUSED save MissingField
+> kind_counter command REFUSED wire MissingField
+> kind_delay save REFUSED save OutOfRange
+> kind_delay command REFUSED wire OutOfRange
+> kind_domino save REFUSED save OutOfRange
+> kind_domino command REFUSED wire OutOfRange
+56,58c50,51
+< kind_hold_timer save LOADED
+< kind_hold_timer command LOADED
+< kind_hold_timer replay480 854262FB13305138230688F9F4BC8602B476BEFEBE1D838AB6CDC34EF04DA54B
+---
+> kind_hold_timer save REFUSED save OutOfRange
+> kind_hold_timer command REFUSED wire OutOfRange
+65,67c58,59
+< kind_pipe save LOADED
+< kind_pipe command LOADED
+< kind_pipe replay480 680C7275F0BEEA4733F901FFCE91C39FB682C0CDC57E5622BED6D974F3CCED70
+---
+> kind_pipe save REFUSED save OutOfRange
+> kind_pipe command REFUSED wire MissingField
+77,99c69,84
+< kind_pressure_plate save LOADED
+< kind_pressure_plate command LOADED
+< kind_pressure_plate replay480 D3A2A075B9C0E888328E7A7253BB3617AE6482A36235CF9E45EE723A02A65074
+< kind_ramp save LOADED
+< kind_ramp command LOADED
+< kind_ramp replay480 680C7275F0BEEA4733F901FFCE91C39FB682C0CDC57E5622BED6D974F3CCED70
+< kind_spring save LOADED
+< kind_spring command LOADED
+< kind_spring replay480 CF55901B628CFEE1FB6C223F934D3B5A4215716B4B4AEF53EF453367DAA3CDEE
+< kind_switch save LOADED
+< kind_switch command LOADED
+< kind_switch replay480 778361B9EFAB882E39AE54AEB55EAE314A7545B7CF51C8D9C57E014F806C37CA
+< kind_wall save LOADED
+< kind_wall command LOADED
+< kind_wall replay480 680C7275F0BEEA4733F901FFCE91C39FB682C0CDC57E5622BED6D974F3CCED70
+< preconversion_domino save REFUSED save MissingField
+< preconversion_domino record REFUSED wire MissingField
+< two_lane save LOADED
+< two_lane command LOADED
+< two_lane replay480 2EB063B72BFB791FA7C08D5AEBFC01A0F867B8A06F6FE4EC9532A1E85D123349
+< wired_chain save LOADED
+< wired_chain command LOADED
+< wired_chain replay480 85EA098FD38BA24734F09A1C6BCEFDEF6AD32289ACC2CB5A898CA244242F670B
+---
+> kind_pressure_plate save REFUSED save VerifierRejected
+> kind_pressure_plate command REFUSED wire VerifierRejected
+> kind_ramp save REFUSED save OutOfRange
+> kind_ramp command REFUSED wire OutOfRange
+> kind_spring save REFUSED save OutOfRange
+> kind_spring command REFUSED wire OutOfRange
+> kind_switch save REFUSED save OutOfRange
+> kind_switch command REFUSED wire OutOfRange
+> kind_wall save REFUSED save OutOfRange
+> kind_wall command REFUSED wire OutOfRange
+> preconversion_domino save REFUSED save OutOfRange
+> preconversion_domino record REFUSED wire OutOfRange
+> two_lane save REFUSED save OutOfRange
+> two_lane command REFUSED wire OutOfRange
+> wired_chain save REFUSED save OutOfRange
+> wired_chain command REFUSED wire OutOfRange
+# identical lines:       42 of base       99
+# UNTYPED on candidate: 0

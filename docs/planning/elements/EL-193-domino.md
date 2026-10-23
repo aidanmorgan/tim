@@ -19,10 +19,10 @@ Story 7.0 named-identity spec (Batch J). Baseline commit `a6c914e`; every citati
 ## 2. Declaration
 
 ### Bodies and shapes
-- One dynamic box, half extents 0.125 × 0.55 × 0.325 m (full 0.25 × 1.1 × 0.65 m), body origin at the box centre (`engine/gpu/WorkshopDomino.cs@a6c914e:L7-L9`). Compiled as one dynamic body and one Box collider (`engine/gpu/WorkshopPhysicsCompiler.cs@a6c914e:L43-L52`).
+- One dynamic box, half extents 0.125 × 0.55 × 0.325 m (full 0.25 × 1.1 × 0.65 m), body origin at the box centre: the scene-baked box of `elements/Domino/domino.tscn`. Compiled from the package as one dynamic body and one Box collider by the shared generic compiler (`engine/gpu/WorkshopPhysicsCompiler.cs`); there is no Domino record (Story 9A.32).
 
 ### Mass and material
-- Mass 0.4 kg; restitution 0.05; friction 0.6; bounce threshold 0.1 m/s (`engine/gpu/WorkshopDomino.cs@a6c914e:L9-L10`); rolling resistance 0, as boxes declare (`engine/gpu/WorkshopPhysicsCompiler.cs@a6c914e:L50-L50`). Only this default material is admitted (`engine/gpu/WorkshopDomino.cs@a6c914e:L11-L17`).
+- Mass 0.4 kg; restitution 0.05; friction 0.6; bounce threshold 0.1 m/s; rolling resistance 0, as boxes declare, all declared by the package (`elements/Domino/DominoElementDeclaration.cs`). The placed tile has no parameters, so no authored value can carry another material.
 - Inertia: homogeneous box law m(b² + c²)/3 on half extents (`engine/gpu/RigidMassProperties.cs@a6c914e:L41-L47`).
 - Offset centre of mass: required by the CAT-023 row but not delivered. Local offset (0, −0.05, 0) m — **proposed**: lowering the centre by under 10% of the 0.55 m half-height keeps a standing tile stable to small nudges while a real strike still topples it.
 
@@ -37,16 +37,16 @@ None. Standing, toppling and resting are contact behaviour only.
 There is no input: wiring into a domino is rejected at the port check (same lines).
 
 ### Sensors and activation
-An orientation-threshold sensor fires once when the tile has turned 45° from its admitted pose (|⟨q, q₀⟩| ≤ cos 22.5°), evaluated at substep endpoints, sticky until Reset; it compiles only while the tile is wired (`engine/gpu/WorkshopDomino.cs@a6c914e:L25-L26`; `engine/gpu/WorkshopPhysicsCompiler.cs@a6c914e:L53-L55`; `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L1370-L1386`).
+An orientation-threshold sensor fires once when the tile has turned 45° from its admitted pose (|⟨q, q₀⟩| ≤ cos 22.5°), evaluated at substep endpoints, sticky until Reset; it compiles only while the tile is wired. The threshold is the package's declared `SignalOrientationDescriptor(45)` (f32), compiled by `WorkshopPhysicsCompiler.OrientationSensorFor` and evaluated by the shipped worker engine (`CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs`) (Story 9A.32).
 
 ### Work and energy stores
 None. A falling tile converts its own potential energy; neighbours fall only through real contact.
 
 ### Parameters
-None (`parts/catalog/domino.tres@a6c914e:L14-L14`).
+None: the package declares `Parameters: []`, so the placed tile is a zero-parameter generic instance and the editor shows no panel.
 
 ### Cosmetic curves and UI bindings
-- No cosmetic curve (`engine/gpu/WorkshopDomino.cs@a6c914e:L28-L28`); tile and pips follow the committed pose.
+- No cosmetic curve (the package declares no presentation binding); tile and pips follow the committed pose.
 - Pick radius 0.6 m (`parts/DominoPart.cs@a6c914e:L14-L14`).
 
 ### Art

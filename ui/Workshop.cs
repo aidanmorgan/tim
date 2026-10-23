@@ -522,11 +522,13 @@ public partial class Workshop : Node3D
             if (Remaining(_tool.Value).Exhausted || WorkPoint(screen, _buildView ? (float)_depth.Value : (float)_placementHeight.Value) is not { } at || !PlacementInside(at)) return;
             if (_nextId.Value == ulong.MaxValue) { _status.Text = "Part identity is exhausted."; return; }
             var chosen = _tool.Value;
-            // The same pose the preview shows: a typed mouth snap when one exists, otherwise the 0.1 grid.
-            var (position, rotation, _) = PlacementPose(chosen, at);            var placedId = _nextId;
-            // The proposal is the typed rejection path: a part that cannot be captured or composed leaves no undo entry.
-            var placement = WorkshopBenchPlacement.Propose(World, chosen, placedId, position, rotation,
-                _preview?.Dimensions, PushUndo);
+            // The same composed pose the preview shows (grid, typed mouth snap, or rest), refused here exactly when the preview hides.
+            var composed = PlacementPose(chosen, at);
+            var placedId = _nextId;
+            // The proposal is the typed rejection path: a refused pose, or a part that cannot be captured or composed, leaves no undo entry.
+            var placement = composed.Refusal != PlacementRefusal.None
+                ? WorkshopBenchPlacement.Refuse(World, composed.Refusal)
+                : WorkshopBenchPlacement.Propose(World, chosen, placedId, composed.Position, composed.Rotation, _preview?.Dimensions, PushUndo);
             if (placement.Rejection != BenchPlacementRejection.None) { _status.Text = placement.Message; return; }
             var accepted = false;
             try { accepted = await SubmitConstruction(placement.Construction); }
@@ -761,7 +763,7 @@ public partial class Workshop : Node3D
     }
     public override void _PhysicsProcess(double delta)
     {
-        RefreshBatteryObservation();
+        RefreshRunControlObservation();
         _time.Text = $"{World.Ticks / (double)World.Construction.Settings.SimulationRate.Numerator:00.00} s";
         var transport = World.TransportState;
         var transportChanged = transport != _displayedTransportState;

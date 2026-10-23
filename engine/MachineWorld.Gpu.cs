@@ -104,24 +104,14 @@ public partial class MachineWorld
         var q = rotation.Normalized();
         return id.Value switch
         {
-            "battery" => WorkshopInput.Battery(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
-                Construction.Instances.FirstOrDefault(instance => instance.Id == bodyId) is WorkshopBattery battery ? battery.Settings :
-                    ElectricalSourceSettings.Default),
-            "lamp" => WorkshopInput.Lamp(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W),
-            "domino" => WorkshopInput.Domino(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W),
-            "ball_detector" => WorkshopInput.BallDetector(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W),
             // The part's presented length; else the committed pipe keeps its own; a newly placed pipe starts at the declared default.
             "pipe" => WorkshopInput.Pipe(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
                 dimensions is { } pipeSize ? new(pipeSize.X) : (Construction.Instances.FirstOrDefault(instance => instance.Id == bodyId) is WorkshopPipe pipe ? pipe.Length :
                     PipeLength.Default)),
             // A part already in the construction keeps its declared setting; a newly placed one starts from its declared
             // placement value (Story 9.4b: no factory or decoder default substitutes for either).
-            "pressure_plate" => WorkshopInput.PressurePlate(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
-                Construction.Instances.FirstOrDefault(instance => instance.Id == bodyId) is WorkshopPressurePlate plate ? plate.MinimumMass : WorkshopPressurePlate.PlacedMinimumMass),
             "counter" => WorkshopInput.Counter(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
                 Construction.Instances.FirstOrDefault(instance => instance.Id == bodyId) is WorkshopCounter counter ? counter.TargetCount : WorkshopCounter.PlacedTargetCount),
-            "clock" => WorkshopInput.Clock(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
-                Construction.Instances.FirstOrDefault(instance => instance.Id == bodyId) is WorkshopClock clock ? clock.IntervalSeconds : WorkshopClock.PlacedIntervalSeconds),
             "latch" => WorkshopInput.Latch(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W),
             _ => WorkshopInput.Generic(id, bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
                 CaptureParameters(id, bodyId, dimensions))
@@ -328,10 +318,6 @@ public partial class MachineWorld
             if (part.Definition.PartId != instance.PartId) throw new ArgumentException("Authored identity changed part kind.");
             var parameters = DeclaredPhysics.Parameters(instance);
             part.ApplyPresentationParameters(parameters);
-            if (instance is WorkshopBattery battery)
-            {
-                part.ApplySource(battery.Settings);
-            }
             // Every declared slider body presents through the part's one secondary visual, at its declared starting compression.
             var sliders = DeclaredPhysics.Of(instance.PartId).Mechanical?.Sliders ?? [];
             if (sliders.Count > 1) throw new ArgumentException("A part presents at most one slider body.");

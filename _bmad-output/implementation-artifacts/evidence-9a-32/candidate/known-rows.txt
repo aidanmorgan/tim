@@ -1,0 +1,32 @@
+base 207 candidate 181
+removed 26 Counter({'Domino': 26})
+added 0
+Domino-owned rows left 0
+FinalIsolation PartId.Domino rows kept 2
+Generic section unchanged True
+  - {"Count": 1, "File": "engine/MachineWorld.Gpu.cs", "Owner": "Domino", "Rule": "ElementLiteral", "Symbol": "MachineWorld.CaptureInstance", "Token": "domino"}
+  - {"Count": 1, "File": "engine/MachineWorld.Gpu.cs", "Owner": "Domino", "Rule": "PackageIdentifier", "Symbol": "MachineWorld.CaptureInstance", "Token": "Domino"}
+  - {"Count": 1, "File": "engine/gpu/ActivationNetwork.cs", "Owner": "Domino", "Rule": "PackageIdentifier", "Symbol": "WorkshopActivationCompiler.Compile", "Token": "WorkshopDomino"}
+  - {"Count": 1, "File": "engine/gpu/WorkshopConstruction.cs", "Owner": "Domino", "Rule": "PackageIdentifier", "Symbol": "WorkshopInput.Domino", "Token": "Domino"}
+  - {"Count": 1, "File": "engine/gpu/WorkshopConstruction.cs", "Owner": "Domino", "Rule": "PackageIdentifier", "Symbol": "WorkshopInput.Domino", "Token": "DominoMaterial"}
+  - {"Count": 1, "File": "engine/gpu/WorkshopDomino.cs", "Owner": "Domino", "Rule": "NamedPart", "Symbol": "WorkshopDomino.PartId", "Token": "Domino"}
+  - {"Count": 1, "File": "engine/gpu/WorkshopDomino.cs", "Owner": "Domino", "Rule": "PackageIdentifier", "Symbol": "DominoMaterial", "Token": "DominoMaterial"}
+  - {"Count": 1, "File": "engine/gpu/WorkshopDomino.cs", "Owner": "Domino", "Rule": "PackageIdentifier", "Symbol": "DominoMaterial.Default", "Token": "DominoMaterial"}
+  - {"Count": 1, "File": "engine/gpu/WorkshopDomino.cs", "Owner": "Domino", "Rule": "PackageIdentifier", "Symbol": "WorkshopDomino", "Token": "DominoMaterial"}
+  - {"Count": 1, "File": "engine/gpu/WorkshopDomino.cs", "Owner": "Domino", "Rule": "PackageIdentifier", "Symbol": "WorkshopDomino", "Token": "WorkshopDomino"}
+  - {"Count": 1, "File": "engine/gpu/WorkshopDomino.cs", "Owner": "Domino", "Rule": "PackageIdentifier", "Symbol": "WorkshopDomino.PartId", "Token": "Domino"}
+  - {"Count": 1, "File": "engine/gpu/WorkshopInstances.cs", "Owner": "Domino", "Rule": "PackageIdentifier", "Symbol": "WorkshopInstances.Validate", "Token": "WorkshopDomino"}
+  - {"Count": 1, "File": "engine/gpu/WorkshopSavePrevalidation.cs", "Owner": "Domino", "Rule": "ElementLiteral", "Symbol": "WorkshopSavePrevalidation.CheckParameters", "Token": "domino"}
+  - {"Count": 1, "File": "engine/gpu/WorkshopSavePrevalidation.cs", "Owner": "Domino", "Rule": "PackageIdentifier", "Symbol": "WorkshopSavePrevalidation.CheckParameters", "Token": "DominoMaterial"}
+  - {"Count": 1, "File": "engine/gpu/WorkshopWireFlatBuffers.cs", "Owner": "Domino", "Rule": "ElementLiteral", "Symbol": "WorkshopWireFlatBuffers.MapInstance", "Token": "domino"}
+  - {"Count": 1, "File": "engine/gpu/WorkshopWireFlatBuffers.cs", "Owner": "Domino", "Rule": "PackageIdentifier", "Symbol": "WorkshopWireFlatBuffers.EncodeConstructionRecord", "Token": "WorkshopDomino"}
+  - {"Count": 1, "File": "engine/gpu/WorkshopWireFlatBuffers.cs", "Owner": "Domino", "Rule": "PackageIdentifier", "Symbol": "WorkshopWireFlatBuffers.MapDomino", "Token": "DominoMaterial"}
+  - {"Count": 1, "File": "engine/gpu/WorkshopWireFlatBuffers.cs", "Owner": "Domino", "Rule": "PackageIdentifier", "Symbol": "WorkshopWireFlatBuffers.MapDomino", "Token": "MapDomino"}
+  - {"Count": 1, "File": "engine/gpu/WorkshopWireFlatBuffers.cs", "Owner": "Domino", "Rule": "PackageIdentifier", "Symbol": "WorkshopWireFlatBuffers.MapInstance", "Token": "MapDomino"}
+  - {"Count": 2, "File": "engine/gpu/WorkshopConstruction.cs", "Owner": "Domino", "Rule": "PackageIdentifier", "Symbol": "WorkshopInput.Domino", "Token": "WorkshopDomino"}
+  - {"Count": 2, "File": "engine/gpu/WorkshopPhysicsCompiler.cs", "Owner": "Domino", "Rule": "PackageIdentifier", "Symbol": "WorkshopPhysicsCompiler.Compile", "Token": "WorkshopDomino"}
+  - {"Count": 2, "File": "engine/gpu/WorkshopWireFlatBuffers.cs", "Owner": "Domino", "Rule": "PackageIdentifier", "Symbol": "WorkshopWireFlatBuffers.MapDomino", "Token": "WorkshopDomino"}
+  - {"Count": 5, "File": "engine/gpu/ActivationNetwork.cs", "Owner": "Domino", "Rule": "PackageIdentifier", "Symbol": "WorkshopActivationCompiler.Compile", "Token": "domino"}
+  - {"Count": 5, "File": "engine/gpu/WorkshopPhysicsCompiler.cs", "Owner": "Domino", "Rule": "PackageIdentifier", "Symbol": "WorkshopPhysicsCompiler.Compile", "Token": "domino"}
+  - {"Count": 7, "File": "engine/gpu/WorkshopSavePrevalidation.cs", "Owner": "Domino", "Rule": "PackageIdentifier", "Symbol": "WorkshopSavePrevalidation.CheckParameters", "Token": "domino"}
+  - {"Count": 7, "File": "engine/gpu/WorkshopWireFlatBuffers.cs", "Owner": "Domino", "Rule": "PackageIdentifier", "Symbol": "WorkshopWireFlatBuffers.EncodeConstructionRecord", "Token": "domino"}

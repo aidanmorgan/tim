@@ -1,0 +1,32 @@
+$ rg -n -w "mass|bounce|friction|halfExtents|half_extents|scalars" tools/e2e --glob "*.ts"
+tools/e2e/cat-014.test.ts:7:// 2. Rest/bounce: both balls dropped from the placement plane; the Bowling ball barely rebounds and rests at its 0.28 m radius;
+tools/e2e/cat-014.test.ts:13:// The two-lane Chrome outcome uses the two declared materials as they ship, so mass and radius differ together (4 kg at the Basketball
+tools/e2e/cat-014.test.ts:14:// radius only rocks the tile in this drop geometry). The mass-only proof is the native mass-isolation control
+tools/e2e/cat-051.test.ts:137:    // After Reset the snapshot is exact, and the blade's committed body read (cell, local, rotation, centre of mass, velocities) is
+tools/e2e/cat-015b.test.ts:139:            assert.ok(spin>1,'Actual paid WASM contact retains friction-generated angular motion');
+tools/e2e/engine-core-2a2.test.ts:3:// dissipative bounce restitution dynamics (Box2D v3 TGS Soft constraint solver),
+tools/e2e/engine-core-2a2.test.ts:20:    test('1. Stable resting contact: Basketball settles on workbench without bounce jitter or position projection', { timeout: 120000 }, async () => {
+tools/e2e/engine-core-2a2.test.ts:27:        // Run simulation for 4200 ms to allow ball to bounce, dissipate, and settle
+tools/e2e/engine-core-2a2.test.ts:38:        // Equilibrium center of mass elevation is y_rest = -0.46 + 0.34 = -0.12 m.
+tools/e2e/engine-core-2a2.test.ts:68:    test('2. Dissipative bounce restitution dynamics: Successive bounce peaks decay strictly (h2 < h1)', { timeout: 120000 }, async () => {
+tools/e2e/engine-core-2a2.test.ts:98:        // Find bounce peaks: identify local maxima in py after approaching the floor (py < 0.05)
+tools/e2e/engine-core-2a2.test.ts:129:            `Must record at least 2 distinct bounce peaks (recorded ${bouncePeaks.length}: ${bouncePeaks.map(p => p.toFixed(3)).join(', ')})`
+tools/e2e/engine-core-2a2.test.ts:133:        assert.ok(h1 > 0.5, `First bounce peak h1 must rebound significantly (got h1=${h1.toFixed(3)} m)`);
+tools/e2e/engine-core-2a2.test.ts:134:        assert.ok(h2 > -0.1, `Second bounce peak h2 must rebound above floor (got h2=${h2.toFixed(3)} m)`);
+tools/e2e/engine-core-2a2.test.ts:141:    test('3. Reset exact restoration after multi-bounce dissipation', { timeout: 120000 }, async () => {
+tools/e2e/cat-052-lamp.test.ts:66:const BOUNCE_LIFT_PX = REST_LIFT_PX + 112; // about 2 m higher; evidence-9r-5/probe-bounce-native.txt: a 7-tick rebound gap
+tools/e2e/cat-052-lamp.test.ts:70:type PlateLoad = 'basketball' | 'bounce' | 'domino' | 'rolloff';
+tools/e2e/cat-052-lamp.test.ts:207:        else if (load === 'bounce') await liftNewPart('basketball', BOUNCE_LIFT_PX);
+tools/e2e/cat-052-lamp.test.ts:307:        const s0 = await buildLampBench('bounce');
+tools/e2e/cat-052-lamp.test.ts:312:        for (const t of landed) assert.ok(t.lamp && t.plate, `tick ${t.tick}: lit through the bounce`);
+tools/e2e/cat-015a.test.ts:112:            assert.ok(returns.length > 0 && Math.max(...returns.map(value => value.vy)) < 2, 'Empty contact retains a small ordinary bounce');
+tools/e2e/cat-015a.test.ts:129:test('CAT-015a heavy payload receives partial affordable boost, then ordinary unpaid bounce', {timeout:120000}, () => scenario('bowling', 3600));
+tools/e2e/cat-015a-sidekick.test.ts:79:                assert.ok(samples.some(body=>body.vy>0),'Ordinary bounce remains');
+
+$ rg -n "\.(mass|bounce|friction|halfExtents)|[\"'](mass|bounce|friction|half_extents)[\"']" tools/e2e --glob "*.ts"
+tools/e2e/cat-052-lamp.test.ts:70:type PlateLoad = 'basketball' | 'bounce' | 'domino' | 'rolloff';
+tools/e2e/cat-052-lamp.test.ts:207:        else if (load === 'bounce') await liftNewPart('basketball', BOUNCE_LIFT_PX);
+tools/e2e/cat-052-lamp.test.ts:307:        const s0 = await buildLampBench('bounce');
+rc=0 (1 = no code reads)
+(The second search's only hits are the cat-052-lamp `'bounce'` PlateLoad label, lines 70, 207 and 307.)
+Classification: every hit of the first search is prose (test titles, comments, assertion messages, the cat-052-lamp 'bounce' load label); no suite reads a removed record field or content key.

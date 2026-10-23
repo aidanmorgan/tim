@@ -1,0 +1,2 @@
+ball: pointer y 9 (inside 0..9) -> composed y 9.42 (outside the 0..9 volume) -> ACCEPTED (2 instances)
+domino: pointer y 9 (inside 0..9) -> composed y 9.63 (outside the 0..9 volume) -> ACCEPTED (2 instances)

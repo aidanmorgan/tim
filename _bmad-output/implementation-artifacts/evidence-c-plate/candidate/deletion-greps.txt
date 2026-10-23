@@ -1,0 +1,17 @@
+## Deletion greps: base 61ded7ad (git grep HEAD) vs candidate working tree. Production = all tracked paths except CuriousContraptions.tests, _bmad-output and docs.
+rg -w WorkshopPressurePlate: production base 13 -> candidate 0; tests base 52 -> candidate 1
+rg -w _plateLoaded: production base 0 -> candidate 0; tests base 1 -> candidate 1
+rg -w PlacedMinimumMass: production base 2 -> candidate 0; tests base 10 -> candidate 0
+rg 'WorkshopInput\.PressurePlate' (production + tests): base 0 -> candidate 0
+rg '"pressure_plate"' engine/gpu engine/MachineWorld.Gpu.cs: base 3 -> candidate 0
+plate '-.9f' literal in WorkshopPhysicsCompiler.cs: base 2 -> candidate 0
+plate face '+ 2' literal (PartIdentities(plate.Id) + 2): base 1 -> candidate 0 (the two remaining '+ 2)' hits are the bench plane collider and the slider collider, unchanged)
+static helper 'ReleaseHoldTicks(' (production + tests): base 0 -> candidate 0
+engine/gpu/WorkshopPressurePlate.cs: base present -> candidate absent; .uid: base present -> candidate absent
+Identifiers containing 'plate' (any case) on added production lines (excluding tests, docs, _bmad-output, tools/e2e, tools/BundleElements.Tests):
+   1 plate
+   1 PressurePlateElementDeclaration
+rg 'WorkshopInput\.PressurePlate' (production + tests): base 22 -> candidate 0
+static helper 'ReleaseHoldTicks(' (production + tests): base 4 -> candidate 0
+Residual test hits: CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:663 '_plateLoaded' (a forbidden-token row of that test, present at base); CuriousContraptions.tests/PlacedParts.cs:52 'WorkshopPressurePlate' (the adapter's record-path provenance comment).
+Known list: 181 -> 166 rows; Owner:Plate 15 -> 0; added lines 0, removed 15; PartId.PressurePlate FinalIsolation rows kept: 2

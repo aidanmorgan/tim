@@ -38,7 +38,13 @@ public sealed record MechanicalPayload(KinematicMode KinematicMode, RigidBodyMas
 
 public sealed record ElectricalPayload(IReadOnlyList<ElectricalNodeDescriptor> Nodes, SupplyCapabilityDescriptor? Supply);
 
-public sealed record SignalPayload(IReadOnlyList<SignalTriggerDescriptor> Triggers, SignalLatchMode LatchMode, SignalCounterDescriptor? Counter, SignalTimerDescriptor? Timer, SignalContactDescriptor? Contact = null);
+/// <summary>The signal payload. At most one node-selecting capability (<see cref="Timer"/>, <see cref="Contact"/>,
+/// <see cref="Indicator"/>, <see cref="Passage"/>, <see cref="Orientation"/>, <see cref="ContactLoad"/> or <see cref="Oscillator"/>) is
+/// present, each exactly when the element declares that contract.</summary>
+public sealed record SignalPayload(IReadOnlyList<SignalTriggerDescriptor> Triggers, SignalLatchMode LatchMode, SignalCounterDescriptor? Counter,
+    SignalTimerDescriptor? Timer, SignalContactDescriptor? Contact = null, SignalIndicatorDescriptor? Indicator = null,
+    SignalPassageDescriptor? Passage = null, SignalOrientationDescriptor? Orientation = null, SignalContactLoadDescriptor? ContactLoad = null,
+    SignalOscillatorDescriptor? Oscillator = null);
 
 public sealed record FluidPayload(FluidProperties Properties, IReadOnlyList<FluidPortDescriptor> Ports);
 
@@ -59,7 +65,13 @@ public static class BundleSchema
                     mechanical is IResidenceCaptureElement capture ? capture.Capture : null,
                     mechanical is IContactWorkElement work ? work.ContactWork : null) : null,
             declaration is IElectricalElement electrical ? new ElectricalPayload(electrical.ElectricalNodes, electrical is ISupplyElement supply ? supply.Supply : null) : null,
-            declaration is ISignalElement signal ? new SignalPayload(signal.Triggers, signal.LatchMode, signal.Counter, signal is ITimerElement timer ? timer.Timer : null, signal is IContactTriggerElement contact ? contact.Contact : null) : null,
+            declaration is ISignalElement signal ? new SignalPayload(signal.Triggers, signal.LatchMode, signal.Counter,
+                signal is ITimerElement timer ? timer.Timer : null, signal is IContactTriggerElement contact ? contact.Contact : null,
+                signal is IIndicatorElement indicator ? indicator.Indicator : null,
+                signal is IPassageSensorElement passage ? passage.Passage : null,
+                signal is IOrientationSensorElement orientation ? orientation.Orientation : null,
+                signal is IContactLoadSensorElement load ? load.ContactLoad : null,
+                signal is IOscillatorElement oscillator ? oscillator.Oscillator : null) : null,
             declaration is IFluidElement fluid ? new FluidPayload(fluid.FluidProperties, fluid.FluidPorts) : null,
             declaration is IParameterizedGeometryElement geometry ? geometry.ColliderBindings : [], [],
             declaration is IParameterizedGeometryElement mouths ? mouths.TubeMouthBindings : [], declaration.Presentation);
@@ -110,7 +122,7 @@ public static class BundleSchema
     Converters =
     [
         typeof(Vector3Converter), typeof(QuaternionConverter),
-        typeof(ExactEnumConverter<ElementCategory>), typeof(ExactEnumConverter<ParameterUnit>), typeof(ExactEnumConverter<ParameterKind>), typeof(ExactEnumConverter<ParameterEditorPolicy>),
+        typeof(ExactEnumConverter<ElementCategory>), typeof(ExactEnumConverter<ParameterUnit>), typeof(ExactEnumConverter<ParameterKind>), typeof(ExactEnumConverter<ParameterEditorPolicy>), typeof(ExactEnumConverter<ParameterRunEdit>),
         typeof(ExactEnumConverter<SimulationDomain>), typeof(ExactEnumConverter<PortDirection>), typeof(ExactEnumConverter<PortSignalKind>),
         typeof(ExactEnumConverter<PortSocket>),        typeof(ExactEnumConverter<ColliderShapeKind>), typeof(ExactEnumConverter<SimulationEventKind>), typeof(ExactEnumConverter<KinematicMode>),
         typeof(ExactEnumConverter<SupplyCapabilityKind>), typeof(ExactEnumConverter<LogicGateOperation>), typeof(ExactEnumConverter<ElectricalRole>), typeof(ExactEnumConverter<SignalTriggerMode>), typeof(ExactEnumConverter<SignalLatchMode>), typeof(ExactEnumConverter<TimerCompletionPolicy>),

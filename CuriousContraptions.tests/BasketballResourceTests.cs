@@ -32,7 +32,7 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
     {
         var registry = new PartRegistry();
         registry.Load();
-        Assert.Equal(new[] { PartId.Basketball, PartId.Receiver, PartId.Ramp, PartId.ImpactSwitch, PartId.SignalLamp, PartId.Wall, PartId.Delay, PartId.PinballBumper, PartId.Domino, PartId.BowlingBall, PartId.Battery, PartId.Springboard, PartId.Pipe, PartId.BallDetector, PartId.PipeBend45, PartId.PipeBend90, PartId.Funnel, PartId.PoweredGate, PartId.PressurePlate, PartId.Counter, PartId.Clock, PartId.Latch, new PartId("hold_timer"), new PartId("both_gate"), new PartId("electrical_nand"), new PartId("electrical_nor"), new PartId("electrical_or") }.OrderBy(id => id),
+        Assert.Equal(new[] { PartId.Basketball, PartId.Receiver, PartId.Ramp, PartId.ImpactSwitch, PartId.SignalLamp, PartId.Wall, PartId.Delay, PartId.PinballBumper, PartId.Domino, PartId.BowlingBall, PartId.Battery, PartId.Springboard, PartId.Pipe, PartId.BallDetector, PartId.PipeBend45, PartId.PipeBend90, PartId.Funnel, PartId.PoweredGate, PartId.PressurePlate, PartId.Counter, PartId.Clock, PartId.Latch, new PartId("hold_timer"), new PartId("both_gate"), new PartId("electrical_nand"), new PartId("electrical_nor"), new PartId("electrical_or"), new PartId("electrical_xor") }.OrderBy(id => id),
             registry.Definitions.Keys.OrderBy(id => id));
         // The canonical binary16 bits each package's material compiles to (the generic dynamic-body compile).
         var scene = WorkshopPhysicsCompiler.Compile(new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(

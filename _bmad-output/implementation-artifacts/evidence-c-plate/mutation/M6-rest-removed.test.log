@@ -1,0 +1,8 @@
+M6 rest removed: Compose returns the grid pose when no snap applies
+  Failed CuriousContraptions.Tests.PlacementPoseTests.ADynamicPartDroppedIntoAPlateRestsOnItsFace(part: "domino", halfHeight: 0.550000012) [20 ms]
+  Failed CuriousContraptions.Tests.PlacementPoseTests.ADynamicPartDroppedIntoAPlateRestsOnItsFace(part: "bowling", halfHeight: 0.280000001) [19 ms]
+  Failed CuriousContraptions.Tests.PlacementPoseTests.ADynamicPartDroppedIntoAPlateRestsOnItsFace(part: "ball", halfHeight: 0.340000004) [18 ms]
+  Failed CuriousContraptions.Tests.PlacementPoseTests.DominoesPlacedOnAPlateFromThePaletteOpenTheGateOnlyWhenTheySum(dominoes: 2, opens: True) [20 ms]
+  Failed CuriousContraptions.Tests.PlacementPoseTests.DominoesPlacedOnAPlateFromThePaletteOpenTheGateOnlyWhenTheySum(dominoes: 1, opens: False) [18 ms]
+  Failed CuriousContraptions.Tests.PlacementPoseTests.RestNeedsTheCentreOverTheFootprintAndATrueOverlap [19 ms]
+Failed!  - Failed:     6, Passed:    84, Skipped:     0, Total:    90, Duration: 2 s - CuriousContraptions.tests.dll (net10.0)

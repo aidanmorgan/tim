@@ -1,0 +1,6 @@
+== M7-range-widened: tracked diff sha256 e09f1efdef0cc1df942b881988505c3393f6fb9b0dc1b76a5b86117c009fb861
+    0 Error(s)
+    0 Warning(s)
+Passed!  - Failed:     0, Passed:   165, Skipped:     0, Total:   165, Duration: 11 s - CuriousContraptions.tests.dll (net10.0)
+  Failed CuriousContraptions.BundleElements.Tests.BundleValidatorTests.TheOrientationThresholdIsTypedRangedOnADynamicPulseSourceAndExclusive [180 ms]
+Failed!  - Failed:     1, Passed:    90, Skipped:     0, Total:    91, Duration: 270 ms - BundleElements.Tests.dll (net10.0)

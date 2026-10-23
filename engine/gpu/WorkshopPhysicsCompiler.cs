@@ -25,6 +25,7 @@ public static class WorkshopPhysicsCompiler
         var triggers = new List<ContactTriggerDeclaration>();
         var contactWorks = new List<ContactWorkDeclaration>();
         var prismatics = new List<PrismaticConstraintDeclaration>();
+        var drives = new List<PrismaticDriveDeclaration>();
         var topology = SupplyTopology.Create(construction, DeclaredPhysics.Of);
         var supplyNodes = topology.Nodes.ToArray();
         var electricalSources = new List<ElectricalSourceDeclaration>();
@@ -80,21 +81,24 @@ public static class WorkshopPhysicsCompiler
                     instance.Rotation, default, default, new((Half)body.Mass),
                     new((Half)body.Gravity.X, (Half)body.Gravity.Y, (Half)body.Gravity.Z), new((Half)body.LinearDrag)));
                 AddGeometry(moving, identity + 3, identity + 4, body.Colliders);
-                prismatics.Add(new(new(identity + 5), instance.Id, moving,
+                var joint = new PrismaticConstraintId(identity + 5);
+                prismatics.Add(new(joint, instance.Id, moving,
                     new(slider.BaseFrame.Position, slider.BaseFrame.Rotation), new(slider.MovingFrame.Position, slider.MovingFrame.Rotation),
                     slider.LowerLimit, slider.UpperLimit, slider.Stiffness.Evaluate(parameters), slider.Damping.Evaluate(parameters),
                     slider.BodiesCollide ? ConnectedCollision.Enabled : ConnectedCollision.Disabled));
-            }
-            if (instance.PartId == PartId.PoweredGate)
-            {
-                var slot=Array.FindIndex(supplyNodes,node=>node.Owner==instance.Id);
-                if(slot<0) throw new ArgumentException("Powered actuator requires its declared electrical input.");
-                supplyNodes[slot]=supplyNodes[slot] with {Consumer=new(first+5)};
+                if (slider.Drive is not { } drive) continue;
+                drives.Add(new(joint, drive.Target.Evaluate(parameters), drive.MaxSpeed.Evaluate(parameters),
+                    drive.StoppingAcceleration.Evaluate(parameters), drive.MaxEffort.Evaluate(parameters), drive.MaxPower.Evaluate(parameters)));
+                // The declared drive is enabled by the owner's PowerIn route: its consumer node drives this slider.
+                var slot = Array.FindIndex(supplyNodes, node => node.Owner == instance.Id && node.Kind == SupplyNodeKind.Consumer);
+                if (slot < 0) throw new ArgumentException("A supplied drive requires its owner's declared electrical input.");
+                supplyNodes[slot] = supplyNodes[slot] with { Consumer = joint };
             }
         }
-        foreach (var domino in construction.Instances.OfType<WorkshopDomino>())
-            if (construction.Connections.HasSource(domino.Id))
-                orientationSensors.Add(new(OrientationSensor(domino.Id), domino.Id, domino.Rotation, WorkshopDomino.ActivationThreshold));
+        // A declared orientation threshold compiles its sensor only while its owner is wired, in instance order.
+        foreach (var owner in construction.Instances.OfType<WorkshopGenericInstance>())
+            if (DeclaredPhysics.Of(owner.PartId).Signal?.Orientation is { } orientation && construction.Connections.HasSource(owner.Id))
+                orientationSensors.Add(OrientationSensorFor(owner, orientation));
         foreach (var frame in construction.Instances.OfType<WorkshopGenericInstance>())
         {
             if (DeclaredPhysics.Of(frame.PartId).Mechanical?.Capture is not { } capture) continue;
@@ -127,9 +131,9 @@ public static class WorkshopPhysicsCompiler
                 targetIndex++;
             }
         }
-        foreach (var battery in construction.Instances.OfType<WorkshopBattery>())
-            electricalSources.Add(new(ElectricalSource(battery.Id), battery.Id, battery.Settings.Capacity,
-                battery.Settings.MaximumPower, battery.Settings.InitialFraction, battery.Settings.Enabled));
+        foreach (var owner in construction.Instances.OfType<WorkshopGenericInstance>())
+            if (DeclaredPhysics.SourceStore(owner.PartId) is { } store)
+                electricalSources.Add(ElectricalSourceFor(owner.Id, store, owner.Parameters));
         foreach (var trigger in construction.Instances.OfType<WorkshopGenericInstance>())
             if (DeclaredPhysics.Of(trigger.PartId).Signal?.Contact is { } contact &&
                 (!construction.Puzzle.Id.IsAuthored || FirstPayload(construction) is not null))
@@ -139,11 +143,10 @@ public static class WorkshopPhysicsCompiler
             if (DeclaredPhysics.Of(owner.PartId).Mechanical?.ContactWork is { } work &&
                 (!construction.Puzzle.Id.IsAuthored || FirstPayload(construction) is not null))
                 contactWorks.Add(ContactWorkFor(owner.Id, Targets(construction), work, owner.Parameters));
-        foreach (var plate in construction.Instances.OfType<WorkshopPressurePlate>())
-            contactLoads.Add(new(ContactLoadSensor(plate.Id), plate.Id, new(PartIdentities(plate.Id) + 2),
-                -.9f - WorkshopPressurePlate.ContactDistance, .9f + WorkshopPressurePlate.ContactDistance,
-                -.9f - WorkshopPressurePlate.FootprintDepthMargin, .9f + WorkshopPressurePlate.FootprintDepthMargin,
-                Vector3.UnitY, WorkshopPressurePlate.MinimumAlignment, WorkshopPressurePlate.ContactDistance, plate.MinimumMass));
+        // A declared contact-load sensor compiles its row for every owner, wired or not, in instance order.
+        foreach (var owner in construction.Instances.OfType<WorkshopGenericInstance>())
+            if (DeclaredPhysics.Of(owner.PartId).Signal?.ContactLoad is { } load)
+                contactLoads.Add(ContactLoadSensorFor(owner, load));
         var contactWorkOwners = contactWorks.Select(cw => cw.Owner).ToHashSet();
         foreach(var link in construction.Connections.Where(link=>link.Domain==WorkshopConnectionDomain.Electrical && contactWorkOwners.Contains(link.Target)))
         {
@@ -173,7 +176,7 @@ public static class WorkshopPhysicsCompiler
         return new(document, next, bodies.ToArray(), colliders.ToArray(), materials.ToArray(), sensors.ToArray(), guides.ToArray(), triggers.ToArray(), contactWorks.ToArray(), orientationSensors.ToArray(), electricalSources.OrderBy(source => source.Id.Value).ToArray(),
             construction.Connections.Where(link => link.Domain == WorkshopConnectionDomain.Electrical && contactWorkOwners.Contains(link.Target))
                 .Select(link => new ElectricalStorageBinding(ElectricalSource(link.Source), ContactWork(link.Target))).ToArray(), prismatics.ToArray(),
-            supplyNodes, topology.Edges, contactLoads.ToArray());
+            supplyNodes, topology.Edges, contactLoads.ToArray(), drives.ToArray());
     }
     public static bool IsSecondaryBodyIdentity(GpuBodyId owner, GpuBodyId body)
     {
@@ -185,6 +188,19 @@ public static class WorkshopPhysicsCompiler
         slider is >= 0 and < 16 ? new(checked(PartIdentities(owner) + (ulong)slider * 16 + 2))
             : throw new ArgumentOutOfRangeException(nameof(slider), "An element declares at most 16 sliders.");
 
+    /// <summary>The finite electrical store a declared Source compiles for one owner, from its own store parameters as f32: the
+    /// initial energy is capacity × initial charge. The enable state is the Choice index, 0 Disabled and 1 Enabled.</summary>
+    internal static ElectricalSourceDeclaration ElectricalSourceFor(GpuBodyId owner, SupplySourceStoreDescriptor store,
+        InstanceParameterCollection parameters) =>
+        new(ElectricalSource(owner), owner, new(parameters[new ParameterId(store.Capacity)]),
+            new(parameters[new ParameterId(store.PowerLimit)]), parameters[new ParameterId(store.InitialCharge)],
+            parameters[new ParameterId(store.Enable)] switch
+            {
+                0f => ElectricalEnable.Disabled,
+                1f => ElectricalEnable.Enabled,
+                _ => throw new ArgumentException("Undefined declared electrical enable state.")
+            });
+
     /// <summary>The finite store a declared contact-work capability compiles for one owner: its target speed is the strength
     /// parameter, its preload the reference mass's kinetic energy at that speed, (½·m)·s·s in f32.</summary>
     internal static ContactWorkDeclaration ContactWorkFor(GpuBodyId owner, BodyTargetSet targets,
@@ -195,8 +211,6 @@ public static class WorkshopPhysicsCompiler
             new(work.Threshold), work.CooldownPhysicalSteps);
     }
 
-    public static GpuBodyId GateBlade(GpuBodyId owner) => new(checked(PartIdentities(owner) + 2));
-
     public static ElectricalSourceId ElectricalSource(GpuBodyId owner) => new(checked(PartIdentities(owner) + 6));
 
     public static GpuSensorId CaptureSensor(GpuBodyId owner) => new(checked(PartIdentities(owner) + 6));
@@ -205,9 +219,33 @@ public static class WorkshopPhysicsCompiler
 
     public static GpuOrientationSensorId OrientationSensor(GpuBodyId owner) => new(checked(PartIdentities(owner) + 6));
 
+    /// <summary>The orientation sensor a declared threshold compiles to on its owner's body, measured from the owner's admitted
+    /// rotation. The f32 degrees narrow to the sensor's binary16 half-angle cosine lane here (Story 9A.44 widens the lane).</summary>
+    public static OrientationSensorDeclaration OrientationSensorFor(IWorkshopInstance owner,
+        CuriousContraptions.Abstractions.Signal.SignalOrientationDescriptor orientation)
+    {
+        ArgumentNullException.ThrowIfNull(owner);
+        return new(OrientationSensor(owner.Id), owner.Id, owner.Rotation, OrientationThreshold.Degrees(orientation.ThresholdDegrees));
+    }
+
     public static GpuPassageSensorId PassageSensor(GpuBodyId owner) => new(checked(PartIdentities(owner) + 6));
 
     public static GpuContactLoadSensorId ContactLoadSensor(GpuBodyId owner) => new(checked(PartIdentities(owner) + 6));
+
+    /// <summary>The contact-load row a declared sensor compiles to on its owner's frame: the face is the owner's baked collider
+    /// <c>FaceCollider</c> (a frame without sliders numbers its colliders from <c>PartIdentities + 1</c>); the x–z footprint is that box's
+    /// f32 half-extents about its offset, widened by the contact distance in x and the depth margin in z; the minimum is the owner's
+    /// declared parameter.</summary>
+    public static ContactLoadSensorDeclaration ContactLoadSensorFor(WorkshopGenericInstance owner,
+        CuriousContraptions.Abstractions.Signal.SignalContactLoadDescriptor load)
+    {
+        var face = BundleGeometry.Colliders(DeclaredPhysics.Of(owner.PartId), owner.Parameters.ToBundleValues())[load.FaceCollider];
+        var (centre, half) = (face.Offset, face.HalfExtents);
+        return new(ContactLoadSensor(owner.Id), owner.Id, new(checked(PartIdentities(owner.Id) + 1 + (ulong)load.FaceCollider)),
+            centre.X - half.X - load.ContactDistance, centre.X + half.X + load.ContactDistance,
+            centre.Z - half.Z - load.DepthMargin, centre.Z + half.Z + load.DepthMargin,
+            load.LocalNormal, load.MinimumAlignment, load.ContactDistance, owner.Parameters[new ParameterId(load.MinimumMassParameter)]);
+    }
 
     public static GpuContactWorkId ContactWork(GpuBodyId owner) => new(checked(PartIdentities(owner) + 8));
 

@@ -29,7 +29,7 @@ Ship the package-owned "Either gate" (CAT-026, EL-134).
 - **F4 Inputs and consumer.** The conditions are Battery → ImpactSwitch PowerIn→Supply contacts. The consumer is Powered Gate (CAT-051). Both follow NAND D5.
 - **F5 Close the Or substitutes natively.**
   - Items closed: 9.7a D6 and review I2 (CAT-024 D6 reconvergence; D7 Nand→Or→Nand), and 9.7b E5 and review I3 (CAT-025 R6 Nor→Or→Nor).
-  - Still pending: the Xor forms (O9/O10 into Xor, X9) under 9.8b.
+  - The Xor forms (O9/O10 into Xor, X9) were closed natively in Story 9.8b (H8).
   - Still queued post-catalogue: the "Or chaining" browser cases in cat-024 and cat-025.
 - **F6 Art (A1-style deviation, as NOR B1).**
   - Copy NAND's scene, which already has dots 01 and 10 at x −.07 and .07. Delete `TruthDot00` and add `TruthDot11` at x .21 (y −.4, z .42; O11).

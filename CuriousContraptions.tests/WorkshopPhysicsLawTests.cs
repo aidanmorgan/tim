@@ -31,13 +31,23 @@ internal static class LawBalls
     public static float BounceThreshold(LawBall ball) => (float)(Half)Sphere(ball).Material.BounceThreshold;
 }
 
+/// <summary>The Domino tile as the compiler compiles it: its package's baked box, mass and material narrowed to the binary16 body,
+/// collider and material lanes (WorkshopPhysicsCompiler), so a law test feeds the engine exactly the compiled tile.</summary>
+internal static class LawTile
+{
+    private static CuriousContraptions.Abstractions.ColliderDescriptor Box => Assert.Single(DeclaredPhysics.Of(PartId.Domino).Colliders);
+    public static Vector3 HalfExtents => new((float)(Half)Box.HalfExtents.X, (float)(Half)Box.HalfExtents.Y, (float)(Half)Box.HalfExtents.Z);
+    public static float Mass => (float)(Half)DeclaredPhysics.Of(PartId.Domino).Mechanical!.MassProperties.Mass;
+    public static LawMaterial Material => new((float)(Half)Box.Material.Restitution, (float)(Half)Box.Material.BounceThreshold,
+        (float)(Half)Box.Material.Friction, (float)(Half)Box.Material.RollingResistance);
+}
+
 /// <summary>Declared contact material of one law-test body (the same lanes ContactMaterialDeclaration admits).</summary>
 internal readonly record struct LawMaterial(float Restitution, float Threshold, float Friction, float Rolling)
 {
     /// <summary>The compiler's workbench plane material (WorkshopPhysicsCompiler).</summary>
     public static LawMaterial Bench => new(1f, .1f, .3f, 0f);
-    public static LawMaterial Domino => new((float)DominoMaterial.Default.Bounce.Value, (float)DominoMaterial.BounceThreshold.Value,
-        (float)DominoMaterial.Default.Friction.Value, 0f);
+    public static LawMaterial Domino => LawTile.Material;
     public static LawMaterial Ball(LawBall ball) =>
         new(LawBalls.Restitution(ball), LawBalls.BounceThreshold(ball), LawBalls.Friction(ball), LawBalls.Rolling(ball));
 }
@@ -135,11 +145,7 @@ internal sealed class LawScene
 
     /// <summary>The compiler's stock Domino tile: its declared extents, mass and material.</summary>
     public GpuBodyId Domino(Vector3 position, Quaternion? rotation = null, Vector3 angular = default, float? gravity = null)
-    {
-        var tile = DominoMaterial.Default;
-        return Box(position, new((float)tile.HalfExtents.X, (float)tile.HalfExtents.Y, (float)tile.HalfExtents.Z), (float)tile.Mass.Value,
-            LawMaterial.Domino, rotation, angular: angular, gravity: gravity);
-    }
+        => Box(position, LawTile.HalfExtents, LawTile.Mass, LawMaterial.Domino, rotation, angular: angular, gravity: gravity);
 
     public GpuBodyId StaticBox(Vector3 position, Vector3 half, Quaternion? rotation = null, LawMaterial? material = null,
         Vector3 colliderOffset = default) =>
@@ -170,10 +176,16 @@ internal sealed class LawScene
         return id;
     }
 
+    /// <summary>Declares a supplied drive on <paramref name="joint"/> (C-Gate).</summary>
+    public void Drive(PrismaticConstraintId joint, float target, float maxSpeed, float stoppingAcceleration, float maxEffort, float maxPower) =>
+        _drives.Add(new(joint, target, maxSpeed, stoppingAcceleration, maxEffort, maxPower));
+    private readonly List<PrismaticDriveDeclaration> _drives = [];
+
     public LawWorld Admit(SimulationCadence cadence = SimulationCadence.Hz120)
     {
         var scene = new PhysicsSceneDeclaration(new(1, 2), _next, [.. _bodies], [.. _colliders], [.. _materials], [], [],
-            contactWorks: [.. _contactWorks], orientationSensors: [.. _orientationSensors], prismatics: [.. _prismatics]);
+            contactWorks: [.. _contactWorks], orientationSensors: [.. _orientationSensors], prismatics: [.. _prismatics],
+            prismaticDrives: [.. _drives]);
         return new(scene, PhysicsGpuAbi.Admission(scene, new(1), new(cadence, PhysicalStepProfile.Canonical480Hz, new(1))), cadence);
     }
 }
@@ -265,13 +277,14 @@ internal sealed class LawWorld(PhysicsSceneDeclaration scene, byte[] admitted, S
 
     /// <summary>Steps the engine from the admitted world. Every committed cell remainder of every dynamic body is checked to be
     /// canonical, [-0.5, 0.5), on every tick (the host rejects a remainder that rounds to 0.5).</summary>
-    public LawState Step(int ticks, Action<int, LawState>? observe = null)
+    public LawState Step(int ticks, Action<int, LawState>? observe = null, bool supplied = false, WorkshopPhysicsEngine? engine = null)
     {
-        var engine = new WorkshopPhysicsEngine();
+        engine ??= new WorkshopPhysicsEngine();
         engine.Reset();
         var source = (byte[])admitted.Clone();
         var candidate = new byte[source.Length];
-        var inputs = new PhysicsTickInputs([], new bool[scene.Prismatics.Length]);
+        // Every prismatic's route is closed when supplied (C-Gate), as the compiled supply graph would close it.
+        var inputs = new PhysicsTickInputs([], Enumerable.Repeat(supplied, scene.Prismatics.Length).ToArray());
         for (var tick = 1; tick <= ticks; tick++)
         {
             engine.Advance(source, candidate, inputs);
@@ -299,8 +312,8 @@ public sealed class WorkshopPhysicsLawTests
     private static Vector3 At(float x, float y, float z = 0f) => new(x, y, z);
     private static Quaternion AboutZ(double degrees) => Quaternion.CreateFromAxisAngle(Vector3.UnitZ, (float)(degrees * Math.PI / 180));
     private static Quaternion AboutX(double degrees) => Quaternion.CreateFromAxisAngle(Vector3.UnitX, (float)(degrees * Math.PI / 180));
-    private static float DominoHalfY => (float)DominoMaterial.Default.HalfExtents.Y;
-    private static float DominoHalfX => (float)DominoMaterial.Default.HalfExtents.X;
+    private static float DominoHalfY => LawTile.HalfExtents.Y;
+    private static float DominoHalfX => LawTile.HalfExtents.X;
 
     // ---- rigid body ----
 
@@ -535,24 +548,19 @@ public sealed class WorkshopPhysicsLawTests
     // its pinned SHA-256 (KnownViolationsSha256) and may never raise the pinned entry or match totals, so an addition is
     // visible in the diff and fails; a stale entry, a changed count, or element-specific code outside these entries fails.
     // When 9A.19 is done this list must be empty (asserted below against sprint-status.yaml).
-    private static readonly KnownViolation[] KnownViolations =
-    [
-        new("CuriousContraptions.Simulation/PrismaticConstraintSolver.cs", @"\b2\.8f\b|\b14f\b", 4,
-            ViolationOwner.Story9A19, ScanVisibility.PinnedOnly, "gate drive speed and acceleration literals (numbers only)"),
-        // Murdoch-2 R2-F5: found once the scanned names came from the catalogue (the gate drive's return force, named for
-        // the spring family); the drive itself is 9A.19's, like its literals above.
-        new("CuriousContraptions.Simulation/PrismaticConstraintSolver.cs", @"\bfSpring\b", 2,
-            ViolationOwner.Story9A19, ScanVisibility.General, "gate drive return force named for the spring family"),
-    ];
+    // Empty since C-Gate (9A.19): the gate drive's literals and its spring-family force went with ActuatorSliderDrive, replaced
+    // by the declared drive law. It stays empty permanently (coordinator decision, 18 Oct 2026).
+    private static readonly KnownViolation[] KnownViolations = [];
 
     // Frozen: these change only when an owning story deletes entries (both totals may only fall). Raised once, by the
     // coordinator's R2-F5 instruction, for the catalogue-derived scan's one new finding (fSpring, 9A.19). Lowered by Story 9R.3,
     // which deleted the direct drag encoding and band, the global battery flag and the travel-limit gate recognition. Lowered by
     // Story 9R.4, which deleted the size-recognised plate, its load window, 0.5 kg threshold and global flag, the plate drag
     // encoding and band, and the plate-named drive parameter (its gatePowered|plateLoaded entry fell to zero and was deleted).
-    private const int MaximumKnownViolations = 2;
-    private const int MaximumPinnedMatches = 6;
-    private const string KnownViolationsSha256 = "3314aae3aa7d104237eb5a09d8ddabedda736f3bf440f971ad2cb2a2388a5dac";
+    // Lowered to zero by C-Gate, which deleted the last two entries with ActuatorSliderDrive.
+    private const int MaximumKnownViolations = 0;
+    private const int MaximumPinnedMatches = 0;
+    private const string KnownViolationsSha256 = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855";
 
     // Reviewed identifiers that contain an element name but name no element: "clamp" contains "lamp", "conjugate" contains
     // "gate". The shared electrical-domain tables contain "electrical" (the domain word of the electrical_* gate ids) but name no gate.
@@ -683,6 +691,8 @@ public sealed class WorkshopPhysicsLawTests
     [InlineData("norRow", true)]             // Neither gate (electrical_nor); "contactNormal" above stays generic
     [InlineData("electricalOrRow", true)]    // Either gate: found through its "electrical" id word
     [InlineData("orRow", false)]             // "or" is under the three-letter id-word floor (like "color", "order")
+    [InlineData("electricalXorRow", true)]   // Exactly one gate (electrical_xor)
+    [InlineData("xorRow", true)]             // "xor" clears the floor, so it is an element word of its own
     public void TheGeneralScanFindsElementNamesInsideIdentifiersButNotTheReviewedGenericWords(string identifier, bool element) =>
         Assert.Equal(element, GeneralHits($"var x = {identifier};").Count > 0);
 

@@ -1,0 +1,7 @@
++ git diff --check HEAD
++ echo 'diff-check rc=0'
+diff-check rc=0
++ git diff --check --no-index /dev/null CuriousContraptions.tests/SourceStoreInstanceTests.cs
++ grep -v '^+'
++ echo 'untracked-file whitespace check done'
+untracked-file whitespace check done

@@ -126,3 +126,40 @@ Executed sequentially with zero concurrency to prevent WebGPU/SharedArrayBuffer 
 ## 6. Terminal Verdict
 
 **Pass** — Story 9.1 (Pressure Plate Surface Contact Load Sensor, CAT-052) satisfies all requirements, structural scene colliders, contact physics invariants, electrical routing rules, static analysis gates, unit tests, and real browser E2E regression suites.
+
+---
+
+## Addendum 23 Oct 2026, retro-verification (C-Plate: 9A.20 + 9A.40, closing Story 9.1)
+
+This is the closing record under the epics rule "Reopened-record closure": the closure table names C-Plate as Story 9.1's closing story, and C-Plate's acceptance says "the review appends the addendum that re-verifies Story 9.1". The original text above is unchanged (additions only).
+
+**Reviewer.** I am the independent reviewer of C-Plate (`review-c-plate.md`). I am neither Story 9.1's implementer, nor its original reviewer (Murdoch), nor C-Plate's implementer.
+
+**Identity**
+- Slice commit `9b2f93fbf03ce559fba22afb60c1443d31756de7`, tree `98270a0ab691aa92fcbd6b8d36f7894f03d7cb7d`; published merge `146588838b97d9634406c47f9e383b3dd24f8fa6`, the same tree, on `origin/main`.
+- Bundle `elements/elements.bundle.json` sha256 `23f6a93759e8c7e8fcafea11e2ba88a2a2aef67835f2874c9b60858f078aa526`, the output of the fresh build in the log below.
+
+**Evidence** (paths relative to `_bmad-output/implementation-artifacts/`)
+- `evidence-c-plate-review/terminal/addendum-native-rerun.log`: fresh `--no-incremental` build (0 warnings, 0 errors) at `9b2f93fb`, then the plate, contact-load, placement, palette, gate, lamp, isolation, parity, decode-boundary and save-rejection classes, 393/393, rc 0, run 2026-10-23T14:11:07Z to 14:11:20Z.
+- `evidence-c-plate-review/terminal/run.json`, `build-job.log`: CI run 39964860374 on `146588838b97`, game 2533/2533, tools 77/166/17/174.
+- `review-c-plate.md` and `evidence-c-plate-review/`: the independent review of the conversion (identity re-run, mutations, rulings).
+
+**False or unsupported claims in the original report** (retro-verification 2026-10-18, "Story 9.1: Pressure Plate (CAT-052)", counts "P 3 / W 1 / U 4 / C 2. **Pass invalid.**")
+- The nine cited `engine/src/parts/*`, `engine/src/physics/*` and `ui/src/workbench/workshop-driver.ts` files do not exist, and the cited test does not exist.
+- "normal alignment $\ge 0.7$" and "$y \in [0.02, 0.12]$": the sensor is the face collider with alignment 1 − 10⁻⁶, contact distance 10⁻⁴ m and x–z footprint ±(0.9 + 10⁻⁴) × ±(0.9 + 10⁻⁶) m (CAT-052 §2; pinned in `DeclaredContactLoadTests`).
+- "clamped [0.1, 16.0]": out-of-range values are refused, never clamped (decision h, 9A.40 Reject policy).
+- The headline AC (lamp) and `minimum_mass` were not implemented at that time (classes C), and the runtime cases were proven only on an unused tracker (U).
+
+| 9.1 AC / retro row | Retro class | Fresh result at `9b2f93fb` | Verdict |
+|---|---|---|---|
+| Plate wired to a Signal lamp; a resting body lights it | C | The plate's level `ActivationOut` (CAT-052 Q2, Story 9R.5) drives a Signal lamp; the declared contact-load node is compiled by the shared helper. `PlateGuardTests.TheMinimumMassDecidesTheLevelTheLampAndTheGate`, `PressurePlateTests.ABasketballRestingOnThePlateLightsItsLampOnItsFirstLoadedTick`, `APlateActivationOutLightsOnlyASignalLamp` | Pass (native) |
+| Roll-off deactivates "immediately" | U | Superseded by the Q3 override: release is held 0.1 s (12 ticks at 120 Hz; 6/24 at 60/240 Hz). `ALoadRolledOffATiltedPlateReleasesItsLevelTwelveTicksAfterItsLastQualifyingTick`, `PlateGuardTests.ABouncingLoadIsHeldElevenTicksAndReleasedOnTheTwelfth` (8 m: lit at 11, dark at 12 and 13) | Pass (native) |
+| A bounce gives no sustained activation | U | Under Q3, gaps ≤ 11 ticks stay lit and a 12-tick gap shows dark; `ABounceGapOfElevenStaysLitAndTwelveShowsOneDarkTick`, `ABasketballBouncingOnThePlateKeepsItsLampSteadilyLit` | Pass (native) |
+| `minimum_mass` governs activation (was the global `_plateLoaded` at 0.5) | C | Per-instance compiled rows (9R.4) now selected by the declared `SignalContactLoadDescriptor` (C-Plate); `_plateLoaded` and `WorkshopPressurePlate` return 0 production hits; plates never cross-talk (`TwoPlatesSwitchOnlyTheirOwnGates`, `PlateGuardTests.TwoPlatesLightAndOpenOnlyTheirOwn`); the generic editor sets it with Reject | Pass (native) |
+| Below / exactly at threshold, two-body sum, side/underside, rotated | U (runtime) | Through the production compile and worker engine: 1.0 kg at 1.0 Loaded, 4 × 4 kg at 16 Loaded, 13 kg at 16 Underweight, `AMinimumOneF32AboveTheBodyMassStaysUnderweight`, `OneDominoIsUnderweightAndTwoDominoesSum`, `OnlyDirectContactCountsForAStack`, `ABoxBridgingTwoPlatesLoadsBoth`, `ASizeImpostorNeverSwitchesAGate`, the tilted-plate roll-off | Pass (native) |
+| Thresholds 0.1/16 accepted, out of range rejected; Save/Load `minimum_mass` | P | Still holds as the generic instance's declared parameter: `TheMinimumMassIsAdmittedInclusivelyFromATenthToSixteenKilograms`, `DeclaredContactLoadTests` (bit-exact round trip at both boundaries; missing/0.09/16.01/NaN refused), record-path saves refused typed | Pass (native) |
+| Run/Reset Empty, slate | U | `PlateGuardTests.RunResetReplayAndSaveLoadAreExact`: Reset equals the built state, Empty, hold cleared, lamp dark, gate shut, tick-identical replay and reload | Pass (native) |
+| UI construction; resting mass closes the contact (`cat-052.test.ts`) | P / W | The recipe reads `minimum_mass` (strict tsc rc 0); the drawer placement now rests on the face (F.6 F-1). The Chrome run is pending the post-catalogue E2E phase (21 Oct policy). | Pending (browser) |
+| "`tools/e2e/cat-052.test.ts` passes 100% in Chrome serially" | — | Pending the post-catalogue E2E phase | Pending (browser) |
+
+**New verdict.** Every native acceptance clause of Story 9.1, as amended by owner decision (h) and the Q2/Q3 decisions, is a fresh **Pass** on the published tree. The Chrome clause is **pending** the post-catalogue E2E phase and is not waived. Story 9.1 therefore stays `in-progress` in `sprint-status.yaml` (the epics rule marks it `done` only on a fresh terminal Pass of every clause); its remaining owner is the post-catalogue E2E phase, with the C-Plate pending browser cases in `spec-c-plate.md`.

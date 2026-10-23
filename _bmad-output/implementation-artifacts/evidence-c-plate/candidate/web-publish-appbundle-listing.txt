@@ -1,0 +1,21 @@
+_framework
+404.html
+animation
+clock-ring.js
+clock-ring.js.br
+clock-ring.js.gz
+CuriousContraptions.web.runtimeconfig.json
+favicon-16x16.png
+favicon-32x32.png
+favicon-96x96.png
+favicon.ico
+favicon.svg
+godot.audio.position.worklet.js
+godot.audio.worklet.js
+godot.audio.worklet.js.br
+godot.audio.worklet.js.gz
+godot.js
+godot.js.br
+godot.js.gz
+godot.pck
+      39

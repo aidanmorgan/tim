@@ -29,11 +29,17 @@ internal sealed class SimJoint
     public Quaternion Qb;
     public float Lower;
     public float Upper;
+    /// <summary>The joint's declared axial stiffness (N/m), which its supplied drive holds against.</summary>
+    public float Stiffness;
     public SoftConstraintCoefficients Soft;
     public uint Collision;
-    /// <summary>Refreshed each tick from the compiled supply route feeding the frame owner's PowerIn: closed while its battery is
-    /// enabled and, for a switched route, its State Latch or Counter contact is closed.</summary>
+    /// <summary>Refreshed each tick from the compiled supply route feeding the frame owner's PowerIn: closed while its source is
+    /// enabled and every switched contact and gate law on the route passes.</summary>
     public bool SupplyClosed;
+    public PrismaticDriveKind DriveKind;
+    public PrismaticDriveDeclaration Drive;
+    /// <summary>Whether the moving body took a positive normal contact impulse from a body other than the base this tick.</summary>
+    public bool MovingContact;
     public float[] Impulses = new float[8];
     public ConstraintRowData[] Rows = new ConstraintRowData[8];
 }
@@ -235,36 +241,43 @@ internal static class PrismaticConstraintSolver
         }
     }
 
-    /// <summary>Drives exactly the prismatics whose compiled supply route is closed this tick (SimJoint.SupplyClosed) toward their
-    /// upper limit. Only Powered Gates compile routes, so no joint is recognised by its geometry.</summary>
-    public static void ActuatorSliderDrive(List<SimJoint> joints, float dt)
+    /// <summary>Applies the declared drive of every prismatic that has one and whose compiled supply route is closed this tick, one
+    /// substep of <paramref name="dt"/>. The coordinate, axis and speed are the joint's own axial row, prepared from the current
+    /// frames; the force acts along that row on both bodies. No joint is recognised by its geometry or its owner.</summary>
+    public static void ApplySuppliedDrives(List<SimJoint> joints, float dt)
     {
+        Span<PrismaticRow> rows = stackalloc PrismaticRow[PrismaticRows.Count];
         foreach (var joint in joints)
         {
-            if (!joint.SupplyClosed) continue;
-            var b = joint.B;
-            var frame = joint.A;
-            if (b == null || frame == null) continue;
-
-            var frameUp = Vector3.Transform(Vector3.UnitY, frame.Rotation);
-            var rel = b.Position - frame.Position;
-            var pos = Vector3.Dot(rel, frameUp);
-            var currentSpeed = Vector3.Dot(b.LinearVelocity, frameUp);
-            var d = joint.Upper - pos;
-            var targetSpeed = MathF.Sign(d) * MathF.Min(2.8f, MathF.Sqrt(2f * 14f * MathF.Abs(d)));
-            var desiredDeltaV = targetSpeed - currentSpeed;
-            var maxDeltaV = 14f * dt;
-            var deltaV = Math.Clamp(desiredDeltaV, -maxDeltaV, maxDeltaV);
-
-            var fAcc = b.Mass * (deltaV / dt);
-            var fSpring = 14f * pos;
-            var fGravity = -b.Mass * Vector3.Dot(new Vector3(b.Gx, b.Gy, b.Gz), frameUp);
-            var force = Math.Clamp(fAcc + fSpring + fGravity, -60f, 60f);
-            var finalDeltaV = (force / b.Mass) * dt;
-
-            b.Vx += frameUp.X * finalDeltaV;
-            b.Vy += frameUp.Y * finalDeltaV;
-            b.Vz += frameUp.Z * finalDeltaV;
+            if (joint.DriveKind != PrismaticDriveKind.Supplied || !joint.SupplyClosed) continue;
+            var moving = joint.B;
+            PrismaticRows.Prepare(new ConstraintBodyFrame(joint.A.Position, joint.A.Rotation, joint.A.CentreOfMass),
+                new ConstraintBodyFrame(moving.Position, moving.Rotation, moving.CentreOfMass),
+                new ConstraintFrame(joint.Pa, joint.Qa), new ConstraintFrame(joint.Pb, joint.Qb), joint.Lower, joint.Upper, rows);
+            var axial = rows[(int)PrismaticRowKind.Spring];
+            var speed = ConstraintVelocity(joint.A, axial.LinearA, axial.AngularA) + ConstraintVelocity(moving, axial.LinearB, axial.AngularB);
+            var gravity = Vector3.Dot(new Vector3(moving.Gx, moving.Gy, moving.Gz), axial.LinearB);
+            var force = SuppliedDriveForce(joint.Drive, axial.Error, speed, moving.Mass, joint.Stiffness, gravity, dt);
+            ApplyConstraintImpulse(joint, new ConstraintRowData { La = axial.LinearA, Lb = axial.LinearB, Aa = axial.AngularA, Ab = axial.AngularB },
+                force * dt);
         }
+    }
+
+    /// <summary>The supplied drive law on one substep: the stopping-profile speed toward the target, reached by at most
+    /// StoppingAcceleration·dt per substep, holding against the joint's spring (stiffness·coordinate) and the moving body's gravity
+    /// along the axis; the force is clamped to ±MaxEffort, then to |F·v| ≤ MaxPower at the current axial speed.</summary>
+    internal static float SuppliedDriveForce(in PrismaticDriveDeclaration drive, float coordinate, float speed, float mass,
+        float stiffness, float gravityAlongAxis, float dt)
+    {
+        var d = drive.Target - coordinate;
+        var targetSpeed = MathF.Sign(d) * MathF.Min(drive.MaxSpeed, MathF.Sqrt(2f * drive.StoppingAcceleration * MathF.Abs(d)));
+        var maxDeltaV = drive.StoppingAcceleration * dt;
+        var deltaV = Math.Clamp(targetSpeed - speed, -maxDeltaV, maxDeltaV);
+        var acceleration = mass * (deltaV / dt);
+        var holding = stiffness * coordinate;
+        var weight = -mass * gravityAlongAxis;
+        var force = Math.Clamp(acceleration + holding + weight, -drive.MaxEffort, drive.MaxEffort);
+        var power = MathF.Abs(force * speed);
+        return power > drive.MaxPower ? MathF.CopySign(drive.MaxPower / MathF.Abs(speed), force) : force;
     }
 }

@@ -1,0 +1,7 @@
+mutant: M7-ui-toggle-any-store — the editor offers the run toggle for any Source store, ignoring the declared RunEdit
+--- build
+    0 Error(s)
+    0 Warning(s)
+--- test
+Passed!  - Failed:     0, Passed:   204, Skipped:     0, Total:   204, Duration: 3 s - CuriousContraptions.tests.dll (net10.0)
+M7 survives: the shipped bundle's only Source store declares its enable RunControl, so a UI call site that ignores RunEdit is equivalent under this catalogue; the shared predicate DeclaredPhysics.HasRunControlledSource is killed directly (M3) and at the engine call site (M3b).

@@ -1,0 +1,18 @@
+3 review-file hunks byte-identical to carried patch
+sprint-status diff vs carried (excluding index line):
+28,36d27
+< @@ -326,7 +326,7 @@ development_status:
+<    # 37 (element)
+<    10-3-balanced-impact-lever-pivot-fulcrum: backlog
+<    # 38 (deletion)
+< -  9a-32-generic-instance-domino: backlog
+< +  9a-32-generic-instance-domino: review # native candidate on 2065d3c5 (worktree story-9a-32); browser pending
+<    # 39 (element)
+<    10-4-counterweight-multibody-pendulum-lifting: backlog
+<    # 40 (deletion): includes F.6 item F-1
+terminal evidence dir identical
+$ git diff --check HEAD
+rc=0
+CuriousContraptions.tests/DominoGuardTests.cs whitespace findings: none
+CuriousContraptions.tests/DeclaredOrientationTests.cs whitespace findings: none
+origin/main 2065d3c5951232b3e04332101f3d31b45d5e10f1

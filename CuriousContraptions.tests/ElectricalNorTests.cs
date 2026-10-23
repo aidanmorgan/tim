@@ -13,14 +13,13 @@ public sealed class ElectricalNorTests
     private const ulong Supply=7, Gate=8, Consumer=9;
     private static readonly bool[] NorTruth=[true,false,false,false]; // rows 00, 01, 10, 11 (CAT-025 R1)
     private static WorkshopConnection Link(ulong source,ulong target,WorkshopSocket input=WorkshopSocket.PowerIn)=>BothGateTests.Link(source,target,input);
-    private static WorkshopBattery Battery(ulong id,float x,bool enabled)=>WorkshopInput.Battery(new(id),x,3,0,0,0,0,1,
-        ElectricalSourceSettings.Default with {Enabled=enabled?ElectricalEnable.Enabled:ElectricalEnable.Disabled});
+    private static WorkshopGenericInstance Battery(ulong id,float x,bool enabled)=>PlacedParts.Battery(new(id), x, 3, 0, enabled: enabled?ElectricalEnable.Enabled:ElectricalEnable.Disabled);
     private static ElectricalLogicRead Logic(WorkshopRead read,ulong owner=Gate)=>BothGateTests.Logic(read,owner);
     private static bool Powered(WorkshopRead read)=>read.Presentation.Actuators.ToArray().Single(row=>row.Owner.Value==Consumer).SupplyClosed;
     private static float BladeY(WorkshopRead read)
     {
         var body=Enumerable.Range(0,read.Bodies.Count).Select(i=>read.Bodies[i].Body)
-            .Single(row=>row.Id==WorkshopPhysicsCompiler.GateBlade(new(Consumer)));
+            .Single(row=>row.Id==WorkshopPhysicsCompiler.SliderBody(new(Consumer), 0));
         return (body.Cell.Y+body.Local.Y)/16f;
     }
     /// <summary>The consumer blade has not left its rest height: the output never powered it, not even for one tick.</summary>
@@ -272,9 +271,9 @@ public sealed class ElectricalNorTests
         var (open,closing,_)=LoopCase(FeedbackLoop.ThroughBothGate);
         var scene=WorkshopPhysicsCompiler.Compile(open,new(1,2));
         var edges=SupplyTopology.Create(open,DeclaredPhysics.Of).Edges;
-        _=new CompiledSupplyGraph(scene.SupplyGraph.Nodes,edges,scene.Electrical.Sources,scene.Prismatics,scene.Bodies);
+        _=new CompiledSupplyGraph(scene.SupplyGraph.Nodes,edges,scene.Electrical.Sources,scene.Prismatics,scene.PrismaticDrives,scene.Bodies);
         var looped=edges.Append(new SupplyEdge(closing.Source,closing.Target,closing.Input)).ToArray();
-        var invariant=Assert.Throws<ArgumentException>(()=>new CompiledSupplyGraph(scene.SupplyGraph.Nodes,looped,scene.Electrical.Sources,scene.Prismatics,scene.Bodies));
+        var invariant=Assert.Throws<ArgumentException>(()=>new CompiledSupplyGraph(scene.SupplyGraph.Nodes,looped,scene.Electrical.Sources,scene.Prismatics,scene.PrismaticDrives,scene.Bodies));
         Assert.Equal("A nonmonotone electrical gate lies on a directed cycle.",invariant.Message);
     }
 
@@ -285,7 +284,7 @@ public sealed class ElectricalNorTests
             .Select(row=>CompiledSupplyGraph.Evaluate(LogicGateOperation.Nor,row.Item1,row.Item2)).ToArray());
         Assert.False(CompiledSupplyGraph.IsMonotone(LogicGateOperation.Nor));
         Assert.False(SupplyCycles.Monotone(LogicGateOperation.Nor));
-        foreach(var undefined in new[]{(LogicGateOperation)4,(LogicGateOperation)255})
+        foreach(var undefined in new[]{(LogicGateOperation)5,(LogicGateOperation)255})
         {
             Assert.Throws<ArgumentOutOfRangeException>(()=>CompiledSupplyGraph.Evaluate(undefined,false,false));
             Assert.Throws<ArgumentOutOfRangeException>(()=>CompiledSupplyGraph.IsMonotone(undefined));

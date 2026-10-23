@@ -34,3 +34,23 @@ public readonly record struct PrismaticConstraintDeclaration(PrismaticConstraint
         _ = SoftConstraintCoefficients.FromSpring(Stiffness, Damping, 1f / WorkshopCadenceSettings.PhysicalFrequency);
     }
 }
+
+/// <summary>How a prismatic's drive is enabled: it has none, or it drives while its owner's compiled PowerIn route is closed.</summary>
+public enum PrismaticDriveKind : uint { None, Supplied }
+
+/// <summary>The supplied drive of one prismatic joint, moving its BodyB along the joint axis toward <see cref="Target"/> (m) at the
+/// stopping-profile speed sign(d)·min(<see cref="MaxSpeed"/>, √(2·<see cref="StoppingAcceleration"/>·|d|)), with its force bounded
+/// by <see cref="MaxEffort"/> (N) and its power by <see cref="MaxPower"/> (W). A separate table, so the joint rows stay the
+/// declared slider's rows.</summary>
+public readonly record struct PrismaticDriveDeclaration(PrismaticConstraintId Joint, float Target, float MaxSpeed,
+    float StoppingAcceleration, float MaxEffort, float MaxPower)
+{
+    public void Validate(PrismaticConstraintDeclaration joint)
+    {
+        if (Joint.Value == 0 || Joint != joint.Id || !float.IsFinite(Target) || Target < joint.Lower || Target > joint.Upper ||
+            !Positive(MaxSpeed) || MaxSpeed > LinearVelocity.MaximumSpeed || !Positive(StoppingAcceleration) ||
+            !Positive(MaxEffort) || !Positive(MaxPower))
+            throw new ArgumentException("Invalid prismatic drive declaration.");
+        static bool Positive(float value) => float.IsFinite(value) && value > 0f;
+    }
+}

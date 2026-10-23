@@ -18,7 +18,7 @@ public sealed class HoldTimerTests
     internal static ActivationTimerState State(WorkshopRead read) =>
         Enumerable.Range(0, read.Timers.Count).Select(i => read.Timers[i]).Single(row => row.Node.Value == 3);
     private static PhysicsBodyRead Blade(WorkshopRead read) =>
-        Enumerable.Range(0,read.Bodies.Count).Select(i=>read.Bodies[i]).Single(row=>row.Body.Id==WorkshopPhysicsCompiler.GateBlade(new(5)));
+        Enumerable.Range(0,read.Bodies.Count).Select(i=>read.Bodies[i]).Single(row=>row.Body.Id==WorkshopPhysicsCompiler.SliderBody(new(5), 0));
     private static float Travel(WorkshopRead read) => (Blade(read).Body.Cell.Y+Blade(read).Body.Local.Y)/16f-3f;
     private static bool Powered(WorkshopRead read) => read.Presentation.Actuators.ToArray().Single(row => row.Owner.Value == 5).SupplyClosed;
 
@@ -29,7 +29,7 @@ public sealed class HoldTimerTests
             WorkshopInput.Generic(PartId.Basketball,new(1),0,3,0,0,0,0,1),
             WorkshopInput.Generic(PartId.ImpactSwitch, new(2),0,1,0,0,0,0,1),
             Part(seconds),
-            WorkshopInput.Battery(new(4),6,3,0,0,0,0,1,ElectricalSourceSettings.Default),
+            PlacedParts.Battery(new(4), 6, 3, 0),
             WorkshopInput.Generic(PartId.PoweredGate,new(5),9,3,0,0,0,0,1),
             WorkshopInput.Generic(PartId.Delay,new(6),-3,2,0,0,0,0,1,
                 new([new(new ParameterId("delay_seconds"),.1f)]))
@@ -239,7 +239,7 @@ public sealed class HoldTimerTests
         {
             WorkshopInput.Generic(PartId.Basketball,new(7),12,5.96f,0,0,0,0,1),
             WorkshopInput.Generic(PartId.ImpactSwitch, new(8),12,1,0,0,0,0,1),
-            WorkshopInput.Lamp(new(9),15,2,0,0,0,0,1)
+            PlacedParts.Lamp(new(9),15,2,0,0,0,0,1)
         }).ToArray();
         var baseline=original with {Instances=new(parts),Connections=original.Connections.With(Signal(6,9)).With(Signal(8,9))};
         static ActivationLatch Node(WorkshopRead read,ulong id)=>

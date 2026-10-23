@@ -11,8 +11,8 @@ public sealed class OrientationSensorTests
     private static readonly WorkshopConnection Wire = new(new(2), WorkshopSocket.ActivationOut, new(3), WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation);
     private static WorkshopConstruction Construction(bool wired = true) => new(new(1), WorkshopCadenceSettings.Default(),
         new(WorkshopInput.Generic(PartId.Basketball,new(1), -.4, 3, 0, 0, 0, 0, 1),
-            WorkshopInput.Domino(new(2), 0, Upright, 0, 0, 0, 0, 1),
-            WorkshopInput.Lamp(new(3), 3, 1, 0, 0, 0, 0, 1)),
+            PlacedParts.Domino(new(2), 0, Upright, 0, 0, 0, 0, 1),
+            PlacedParts.Lamp(new(3), 3, 1, 0, 0, 0, 0, 1)),
         Connections: wired ? new(Wire) : WorkshopConnections.Empty);
     private static GpuColliderId ColliderOf(PhysicsSceneDeclaration scene, GpuBodyId body) => scene.Colliders.ToArray().Single(c => c.Body == body).Id;
     private static Span<byte> Record(byte[] bytes, int slot) => bytes.AsSpan(PhysicsGpuAbi.Layout(bytes).OrientationSensorOffset(slot), PhysicsGpuAbi.OrientationSensorBytes);
@@ -67,7 +67,7 @@ public sealed class OrientationSensorTests
         Assert.Equal(WorkshopPhysicsCompiler.OrientationSensor(new(2)), sensor.Id);
         Assert.Equal(new GpuBodyId(2), sensor.Body);
         Assert.Equal(CanonicalRotation.Identity, sensor.Initial);
-        Assert.Equal(WorkshopDomino.ActivationThreshold, sensor.Threshold);
+        Assert.Equal(OrientationThreshold.Degrees(45), sensor.Threshold);
         Assert.Equal((Half)Math.Cos(Math.PI / 8), sensor.Threshold.CosineHalfAngle);
         Assert.Empty(scene.Triggers.ToArray());
         var clear = WorkshopActivationCompiler.Compile(Construction()).Clear();
@@ -226,8 +226,8 @@ public sealed class OrientationSensorTests
     [Fact]
     public void ARotatedDominoCompilesItsAdmittedRotationAsTheSensorInitialPose()
     {
-        var turned = WorkshopInput.Domino(new(2), 0, Upright, 0, 0, Math.Sqrt(.5), 0, Math.Sqrt(.5));
-        var construction = Construction() with { Instances = new(WorkshopInput.Generic(PartId.Basketball,new(1), -.4, 3, 0, 0, 0, 0, 1), turned, WorkshopInput.Lamp(new(3), 3, 1, 0, 0, 0, 0, 1)) };
+        var turned = PlacedParts.Domino(new(2), 0, Upright, 0, 0, Math.Sqrt(.5), 0, Math.Sqrt(.5));
+        var construction = Construction() with { Instances = new(WorkshopInput.Generic(PartId.Basketball,new(1), -.4, 3, 0, 0, 0, 0, 1), turned, PlacedParts.Lamp(new(3), 3, 1, 0, 0, 0, 0, 1)) };
         var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
         var sensor = Assert.Single(scene.OrientationSensors.ToArray());
         Assert.Equal(turned.Rotation, sensor.Initial);
@@ -242,8 +242,8 @@ public sealed class OrientationSensorTests
     public void OrientationCauseCarriesThroughADelayToTheLamp()
     {
         var delayed = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(),
-            new(WorkshopInput.Generic(PartId.Basketball,new(1), -.4, 3, 0, 0, 0, 0, 1), WorkshopInput.Domino(new(2), 0, Upright, 0, 0, 0, 0, 1),
-                WorkshopInput.Lamp(new(3), 3, 1, 0, 0, 0, 0, 1), WorkshopInput.Generic(PartId.Delay, new(4), 0, 1, 0, 0, 0, 0, 1)),
+            new(WorkshopInput.Generic(PartId.Basketball,new(1), -.4, 3, 0, 0, 0, 0, 1), PlacedParts.Domino(new(2), 0, Upright, 0, 0, 0, 0, 1),
+                PlacedParts.Lamp(new(3), 3, 1, 0, 0, 0, 0, 1), WorkshopInput.Generic(PartId.Delay, new(4), 0, 1, 0, 0, 0, 0, 1)),
             Connections: new(new WorkshopConnection(new(2), WorkshopSocket.ActivationOut, new(4), WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation),
                 new WorkshopConnection(new(4), WorkshopSocket.ActivationOut, new(3), WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation)));
         var scene = WorkshopPhysicsCompiler.Compile(delayed, new(1, 2));
@@ -272,8 +272,8 @@ public sealed class OrientationSensorTests
         var intoDomino = new WorkshopConnection(new(3), WorkshopSocket.ActivationOut, new(2), WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation);
         EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () => (Construction(false) with { Connections = new(intoDomino) }).Validate());
         var items = new List<IWorkshopInstance>();
-        for (var i = 1; i <= 8; i++) items.Add(WorkshopInput.Domino(new((ulong)i), -6 + i, Upright, 0, 0, 0, 0, 1));
-        items.Add(WorkshopInput.Lamp(new(9), 4, 1, 0, 0, 0, 0, 1));
+        for (var i = 1; i <= 8; i++) items.Add(PlacedParts.Domino(new((ulong)i), -6 + i, Upright, 0, 0, 0, 0, 1));
+        items.Add(PlacedParts.Lamp(new(9), 4, 1, 0, 0, 0, 0, 1));
         var instances = new WorkshopInstances([.. items]);
         instances.Validate();
         WorkshopConnection Link(int source) => new(new((ulong)source), WorkshopSocket.ActivationOut, new(9), WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation);

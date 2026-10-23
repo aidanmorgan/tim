@@ -1,0 +1,19 @@
+== M1-sensor-ignores-wiring: tracked diff sha256 ae414a70b7eb008b1d4b19fa1b94d5d3d903e2ac1791539aa409e756fe269364
+    0 Error(s)
+    0 Warning(s)
+  Failed CuriousContraptions.Tests.DominoEffectTests.FourPlacedDominoesAndTheEndToLampWireRoundTripThroughSaveAndCompileOneSensor [10 ms]
+  Failed CuriousContraptions.Tests.DominoEffectTests.FixturesInventoryGoalAndPickerIdentityAreTheAuthoredLevel [8 ms]
+  Failed CuriousContraptions.Tests.DeclaredOrientationTests.EachWiredTileCompilesItsOwnSensorAndAnUnwiredTileNone [5 ms]
+  Failed CuriousContraptions.Tests.OrientationSensorTests.SensorAndSourceNodeCompileOnlyForAWiredDomino [< 1 ms]
+  Failed CuriousContraptions.Tests.OrientationSensorTests.WiringIntoADominoRejectsAndAnyNumberOfWiredSourcesCompiles [1 ms]
+  Failed CuriousContraptions.Tests.OrientationSensorTests.NetworkLatchesTheDominoThenTheLampOnceAndRejectsRegressionOrForeignReads [4 ms]
+  Failed CuriousContraptions.Tests.DominoGuardTests.TheWiredLessonCascadeTopplesByContactFiresOnceAtFortyFiveDegreesAndSolvesOnce(precision: 0) [6 ms]
+  Failed CuriousContraptions.Tests.DominoGuardTests.TheWiredLessonCascadeTopplesByContactFiresOnceAtFortyFiveDegreesAndSolvesOnce(precision: 1) [4 ms]
+  Failed CuriousContraptions.Tests.DominoGuardTests.TheWiredLessonCascadeTopplesByContactFiresOnceAtFortyFiveDegreesAndSolvesOnce(precision: 0.449999988) [4 ms]
+  Failed CuriousContraptions.Tests.DominoGuardTests.AGapBreaksTheChainSoTheEndStandsAndTheLampStaysDark [4 ms]
+  Failed CuriousContraptions.Tests.DominoGuardTests.TheHighestAndLowestPlacementsAreAdmittedAndOneBeyondIsRefused [4 ms]
+  Failed CuriousContraptions.Tests.DominoGuardTests.SaveAndLoadReplayTheWiredCascadeIdentically [5 ms]
+  Failed CuriousContraptions.Tests.DominoGuardTests.AnUnwiredEndCompilesNoSensorOrNodeAndFiresNothingWhenItFalls [< 1 ms]
+  Failed CuriousContraptions.Tests.DominoGuardTests.ResetRestoresUprightTilesAndRearmsTheSensorSoTheSecondRunReplaysTheFirst [5 ms]
+Failed!  - Failed:    14, Passed:   151, Skipped:     0, Total:   165, Duration: 5 s - CuriousContraptions.tests.dll (net10.0)
+Passed!  - Failed:     0, Passed:    91, Skipped:     0, Total:    91, Duration: 268 ms - BundleElements.Tests.dll (net10.0)

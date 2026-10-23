@@ -279,3 +279,37 @@ $ SPRING_PREVIEW_URL=http://127.0.0.1:8060/ npx tsx --test tools/e2e/engine-core
 Story 6.8 satisfies every acceptance criterion, implements the Ball Detector aperture passage sensor with directional rearm, maintains strict visual/collider separation, introduces zero legacy shims or per-part classes, ensures clean static analysis, and achieves a 100% pass rate across 851 automated unit tests and 36 real Chrome Playwright E2E tests.
 
 Terminal Scoped Verdict: **PASS**.
+
+---
+
+## Addendum 23 Oct 2026, retro-verification (C-Lamp+Detector, 9R.9)
+
+This is the closing addendum under the epics rule "Reopened-record closure": 6.8 (weak) closes with C-Lamp+Detector (9R.9). The original text above is unchanged.
+
+**Reviewer.** I am the independent terminal reviewer of C-Lamp+Detector (`review-c-lamp-detector.md`). I am neither Story 6.8's implementer nor the author of the review above (Murdoch, 2026-10-15).
+
+**Identity**
+- Re-run tree: commit `86ad82ffe6a946413cea51ade6b9be2993b47328`, tree `b39f0cb3772b2065bfc84ae42a24aaed5a58f5a3`.
+- Published merge: `2065d3c5951232b3e04332101f3d31b45d5e10f1`, the same tree, on `origin/main`.
+- Bundle: `elements/elements.bundle.json` sha256 `27bd3e4474d1153325dc865f1fe2f917e4aee18c4bda3e5911f3b5240293f9a2`.
+
+**Evidence** (paths relative to `_bmad-output/implementation-artifacts/`)
+- `evidence-c-lamp-detector-review/terminal/addenda-native-rerun.log`, the "Story 6.8 (9R.9) acceptance" section. Run 2026-10-23T10:15:19Z to 10:15:37Z, with a summary and rc re-run at 10:16:01Z to 10:16:13Z: **69/69 passed, rc 0**.
+- `review-c-lamp-detector.md` for the full suite (2911/2911) and CI run 39936029766 on `2065d3c5` (Test C# game 2464).
+
+| Original claim, or retro-verification finding (18 Oct) | Corrected result, fresh evidence | Verdict |
+|---|---|---|
+| AC "the lamp illuminates once". Retro **W**: "The predicate (`cat-002.test.ts:81-84`) scans **all** animation targets, so the detector's own pulse passes it. "Once" is not counted." | **Native:** `LampDetectorGuardTests.OneBallFiresForwardNotInReverseAndFiresAgainAfterClearingUpstream`, on the production simulation. The wired lamp is dark before the first committed passage and latched from it, holding exactly that occurrence (emitter = detector node, first ordinal). **Browser:** the any-target predicate is deleted. `cat-002` now counts the lamp target's own activations (`readAnimationSamplesForTarget`, `LAMP_TARGET = '4'`). It is type-checked only; Chrome is pending. | Native Pass; Chrome pending |
+| Original line 49: "Reverse traversal ($-X$), glancing outside pass ($R > 0.65$ m), stationary body do NOT fire". Retro **W**: "reverse and glancing checks never prove a crossing happened (`:93`, `:132`)." | `AGlancingCrossingOutsideTheApertureFiresNothing` and `AReverseCrossingThroughTheBoreFiresNothing` record the ball's committed position on both sides of the plane. Both fire nothing, and the lamp stays dark. Reviewer mutants show both controls discriminate: aperture ×2 fails the glancing control; inverted sensor rotation fails the reverse control (`evidence-c-lamp-detector-review/mutation/R7-aperture-doubled.txt`, `R8-sensor-rotation-inverted.txt`). | Native Pass; Chrome position proof pending |
+| AC "a second forward crossing after complete clearance triggers again". Retro **W**: "the second forward crossing uses Reset plus a new Run (`:171`), not an in-run clearance." | **Native, in one run:** the ball passes forward, rises back through the plane past the rearm line (0.02 m beyond its radius), and passes forward again. A wired counter's committed count goes 0→1→2 with distinct ordinals, and the counter(2) lamp lights exactly at the second pass. The production tracker, replayed over the committed bodies, counts 2 at the same ticks. The first-input lamp keeps the first occurrence, by its design (9R.16). A second lamp activation in the same run needs re-pulse (9A.23) or a ring read (9A.22): see F1 in `review-c-lamp-detector.md`. | Native Pass under the coordinator's 9R.9 reading; in-run Chrome case pending (F1) |
+| Original line 110: "Reset restores upstream state and second Run replays forward trigger bit-for-bit". Retro **W**: "Reset bit-for-bit is claimed but not asserted." | Now asserted. The guard checks exact state equality after Reset plus a tick-for-tick replay after Save/Load. `ResetRestoresThePassageCursorPulseLatchAndCountInOneSimulation` resets one simulation and compares bodies, memory bits and every activation latch on every tick of the second run, both passes included. | Native Pass |
+| Original lines 27/52: "851/851 tests passed", "12 comprehensive new tests" | Not re-derived (historical). Current: 2911/2911 locally and 2464 game tests in CI on `2065d3c5`. | Superseded |
+| Retro **U**: "disabled participant, and the 0.35 s fade" | Not proven by this addendum: the fade is a browser/presentation clause. Owner: post-catalogue E2E (`cat-002`). | Open (browser) |
+| §D: copied cat-062 output (`14729.544167ms`, line 168) | Not re-verified here. cat-062 is a browser suite and stays pending post-catalogue E2E. | Open (browser) |
+| AC "`tools/e2e/cat-002.test.ts` passes 100% in Chrome serially" | Not run: the 21 Oct policy queues Chrome for post-catalogue E2E. | Pending |
+
+**Verdict of this addendum:**
+- Native terminal Pass at `2065d3c5` for 6.8's simulation clauses.
+- The Chrome clauses (`cat-002` serially, the lamp-target count, in-run clearance, position proof, fade) are pending post-catalogue E2E.
+- The in-run "triggers again" lamp wording needs the coordinator's F1 amendment.
+- `sprint-status.yaml` already shows 6.8 `done` (a weak Pass that was never reopened). Under this closure rule it should not count as done until `cat-002` passes in Chrome. I report this to the coordinator and have left the row unchanged.

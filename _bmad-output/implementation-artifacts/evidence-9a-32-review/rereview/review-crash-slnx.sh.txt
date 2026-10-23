@@ -1,0 +1,25 @@
+#!/bin/bash
+# Reviewer: the reported crash came from a full slnx run (5 test hosts in parallel). Repeat that configuration on the candidate copy
+# and on base, interleaved, with --blame-crash, to see whether parallel load reproduces it.
+set -u
+S=/private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad
+O=$S/review-crash-slnx
+N=${N:-3}
+mkdir -p "$O"
+C=$S/review-wt-cand2
+B=$S/review-wt-base2
+for d in "$C" "$B"; do
+  (cd "$d" && dotnet build CuriousContraptions.slnx -c Debug 2>&1 | grep -E "Warning\(s\)|Error\(s\)" | tr '\n' ' '; echo " <- slnx build $(basename "$d")")
+done
+run() { # side dir i
+  local res="$O/$1-$3"; mkdir -p "$res"
+  local t0; t0=$(date -u +%FT%TZ)
+  (cd "$2" && dotnet test CuriousContraptions.slnx -c Debug --no-build --no-restore --blame-crash --blame-crash-dump-type mini \
+     --results-directory "$res" > "$res/test.log" 2>&1)
+  local rc=$?
+  echo "$1 slnx run $3 start $t0 rc=$rc :: $(grep -E 'Passed!|Failed!' "$res/test.log" | sed -E 's/.*Passed: +([0-9]+).* - ([A-Za-z.]+)\.dll.*/\2=\1/' | tr '\n' ' ') crash-lines=$(grep -c -i 'exit code 139\|crashed' "$res/test.log")"
+}
+for i in $(seq 1 "$N"); do
+  run candidate "$C" "$i"
+  run base "$B" "$i"
+done

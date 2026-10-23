@@ -177,6 +177,8 @@ struct ActuatorDriveRecord {
     joint: uint64;
     owner: uint64;
     supply_closed: bool;
+    // C-Gate: the moving body took a positive normal contact impulse from a body other than its base during the tick.
+    moving_contact: bool;
     coordinate: float;
     speed: float;
     lower: float;
@@ -253,25 +255,8 @@ table InstanceRecord {
     local: Vec3f;
     rotation: Quat4f;
 
-    // Domino (with half_extents and friction below)
-    mass: float;
-    bounce: float;
-
     // Pipe
     length: float;
-
-    // Switch
-    threshold: float;
-
-    // Battery
-    capacity: float;
-    maximum_power: float;
-    initial_fraction: float;
-    enabled: uint8;
-
-    // Domino
-    half_extents: Vec3f;
-    friction: float;
 
     // Counter: the whole target count; absent (0) is a missing field, never a default
     target_count: uint32;

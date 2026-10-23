@@ -1,0 +1,9 @@
+mutant: M6-gauge-default-capacity — the charge gauge's full scale is the package default 3600 J, not the instance's capacity
+--- build
+    0 Error(s)
+    0 Warning(s)
+--- test
+  Failed CuriousContraptions.Tests.DeclaredPresentationTests.BatterySupplyAndEachChargeBoundaryUseActualCommittedRead(fraction: 0.25, available: True, lit: 1, capacity: 1234.5, power: 33) [10 ms]
+  Failed CuriousContraptions.Tests.DeclaredPresentationTests.BatterySupplyAndEachChargeBoundaryUseActualCommittedRead(fraction: 0.5, available: True, lit: 2, capacity: 14400, power: 480) [10 ms]
+  Failed CuriousContraptions.Tests.DeclaredPresentationTests.BatterySupplyAndEachChargeBoundaryUseActualCommittedRead(fraction: 0.75, available: True, lit: 3, capacity: 60, power: 10) [9 ms]
+Failed!  - Failed:     3, Passed:   201, Skipped:     0, Total:   204, Duration: 3 s - CuriousContraptions.tests.dll (net10.0)

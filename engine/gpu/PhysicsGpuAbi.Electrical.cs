@@ -44,8 +44,7 @@ public static partial class PhysicsGpuAbi
             if (owner >= R32(data, HeaderBodyCountOffset) || !AllZero(record[28..32]) || !AllZero(record[44..]) ||
                 R32(record, 12) > (uint)ElectricalEnable.Enabled || R32(record, 36) > (uint)ElectricalEnable.Enabled)
                 throw new ArgumentException("Invalid electrical source record.");
-            new ElectricalSourceSettings(new(RF(record, 16)), new(RF(record, 20)),
-                1f, (ElectricalEnable)R32(record, 12)).Validate();
+            ElectricalSourceDeclaration.ValidateStore(new(RF(record, 16)), new(RF(record, 20)), 1f, (ElectricalEnable)R32(record, 12));
             if (!float.IsFinite(RF(record,24)) || RF(record,24) < 0 || RF(record,24) > RF(record,16) ||
                 RF(record,32) > RF(record,24))
                 throw new ArgumentException("Electrical source exceeds its initial finite charge.");

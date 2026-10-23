@@ -1,0 +1,17 @@
+guard sha256: 613c29563e42d0a99fbadebe7256907df7b4501dd648a7e9959edfff3481634e
+1
+probe sha256: 25ef73291a9bb22cede3473dcf5c097a53e4bd5cf646fdfa80cf1abc36ee3ab0  /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/probe/ProbeDominoCapture.cs
+    0 Warning(s)
+    0 Error(s)
+
+Passed!  - Failed:     0, Passed:    10, Skipped:     0, Total:    10, Duration: 10 s - CuriousContraptions.tests.dll (net10.0)
+IDENTICAL axial-spin.txt
+IDENTICAL lesson-world.txt
+IDENTICAL old-save-outcomes.txt
+IDENTICAL placed-solutions.txt
+IDENTICAL trace-broken-gap.txt
+IDENTICAL trace-close-gap-chain.txt
+IDENTICAL trace-rock-10.txt
+IDENTICAL trace-two-lane.txt
+IDENTICAL trace-unwired-end.txt
+IDENTICAL trace-wired-lesson.txt

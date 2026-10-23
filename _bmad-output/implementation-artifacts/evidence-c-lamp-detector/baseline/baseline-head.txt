@@ -1,0 +1,33 @@
+ 26 files changed, 81 insertions(+), 80 deletions(-)
+54ffd9f072ffb34acaeeab02f152dabc43c8d71f
+ M CuriousContraptions.tests/ActivationTimerTests.cs
+ M CuriousContraptions.tests/BallDetectorTests.cs
+ M CuriousContraptions.tests/CompiledMemoryLayoutTests.cs
+ M CuriousContraptions.tests/ContactActivationTests.cs
+ M CuriousContraptions.tests/CounterTests.cs
+ M CuriousContraptions.tests/CuriousContraptions.tests.csproj
+ M CuriousContraptions.tests/DeclaredPresentationTests.cs
+ M CuriousContraptions.tests/DelayedSignalTests.cs
+ M CuriousContraptions.tests/DominoEffectTests.cs
+ M CuriousContraptions.tests/HoldTimerTests.cs
+ M CuriousContraptions.tests/LatchSupplyFixtureTests.cs
+ M CuriousContraptions.tests/NoFixedCapacityTests.cs
+ M CuriousContraptions.tests/OrientationSensorTests.cs
+ M CuriousContraptions.tests/PackageRuntimeParityTests.cs
+ M CuriousContraptions.tests/PalettePlacementTests.cs
+ M CuriousContraptions.tests/PlacedParts.cs
+ M CuriousContraptions.tests/PressurePlateTests.cs
+ M CuriousContraptions.tests/StateLatchTests.cs
+ M CuriousContraptions.tests/SwitchElectricalTests.cs
+ M CuriousContraptions.tests/WorkbenchCapacityTests.cs
+ M CuriousContraptions.tests/WorkshopDelayTests.cs
+ M CuriousContraptions.tests/WorkshopGpuDeviceTests.cs
+ M CuriousContraptions.tests/WorkshopSaveRejectionTests.cs
+ M CuriousContraptions.tests/WorkshopSaveTests.cs
+ M CuriousContraptions.tests/WorkshopWallTests.cs
+ M CuriousContraptions.tests/WorkshopWireFlatBuffersTests.cs
+?? CuriousContraptions.tests/LampDetectorGuardTests.cs
+?? _bmad-output/implementation-artifacts/evidence-c-lamp-detector/
+?? _bmad-output/implementation-artifacts/spec-c-lamp-detector.md
+4356e923a2c483de3b51b237483d0a8a5982ba0baccb10e8932fa8c0f0103767  -
+1859953691cd2b966905dda4bda83a516a6d690516dd3c731ffb41411f11cb3f  CuriousContraptions.tests/LampDetectorGuardTests.cs

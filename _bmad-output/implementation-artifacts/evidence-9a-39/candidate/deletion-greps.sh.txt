@@ -1,0 +1,26 @@
+#!/bin/bash
+# Story 9A.39 deletion greps (run with bash from the worktree root). Production scope: engine, ui, elements and the non-test
+# CuriousContraptions.* projects; engine/PartId.cs is excluded (a FinalIsolation row); tests and tools are reported separately.
+SCOPE=(engine ui elements CuriousContraptions.csproj)
+for d in CuriousContraptions.*/; do case "$d" in CuriousContraptions.tests/) ;; *) SCOPE+=("${d%/}");; esac; done
+EX=(-g '!engine/PartId.cs' -g '!**/bin/**' -g '!**/obj/**')
+echo "scope: ${SCOPE[*]} (engine/PartId.cs excluded)"
+count() { rg -l "$@" "${SCOPE[@]}" "${EX[@]}" | wc -l | tr -d ' '; }
+echo "--- 1: rg -w WorkshopBattery|AddBatteryConfiguration|ElectricalSourceSettings|IWorkshopElectricalSource|CanonicalSource|ApplySource|RefreshBatteryObservation|BatteryIntent|BatteryToggleText"
+P1='WorkshopBattery|AddBatteryConfiguration|ElectricalSourceSettings|IWorkshopElectricalSource|CanonicalSource|ApplySource|RefreshBatteryObservation|BatteryIntent|BatteryToggleText'
+rg -n -w "$P1" "${SCOPE[@]}" "${EX[@]}"; echo "files with hits: $(count -w "$P1")"
+echo "--- 2: rg '_battery|WorkshopInput\.Battery\b|PartId\.Battery'"
+P2='_battery|WorkshopInput\.Battery\b|PartId\.Battery'
+rg -n "$P2" "${SCOPE[@]}" "${EX[@]}"; echo "files with hits: $(count "$P2")"
+echo "--- 3: rg '\"battery\"' engine/gpu engine/MachineWorld*.cs"
+rg -n '"battery"' engine/gpu engine/MachineWorld*.cs; echo "files with hits: $(rg -l '"battery"' engine/gpu engine/MachineWorld*.cs | wc -l | tr -d ' ')"
+echo "--- 4: git ls-files ui/WorkshopBattery.cs engine/gpu/WorkshopBattery.cs (and .uid)"
+git ls-files ui/WorkshopBattery.cs engine/gpu/WorkshopBattery.cs ui/WorkshopBattery.cs.uid engine/gpu/WorkshopBattery.cs.uid; echo "(end of list)"
+echo "--- positive control: the same patterns over base HEAD (git grep, same scope)"
+echo "1: $(git grep -l -w -E "$P1" HEAD -- "${SCOPE[@]}" ':!engine/PartId.cs' | wc -l | tr -d ' ') files"
+echo "2: $(git grep -l -E "$P2" HEAD -- "${SCOPE[@]}" ':!engine/PartId.cs' | wc -l | tr -d ' ') files"
+echo "3: $(git grep -l '"battery"' HEAD -- engine/gpu 'engine/MachineWorld*.cs' | wc -l | tr -d ' ') files"
+echo "4: $(git ls-tree -r --name-only HEAD ui/WorkshopBattery.cs engine/gpu/WorkshopBattery.cs | wc -l | tr -d ' ') files"
+echo "--- informational: tests, tools/e2e and tools/E2eRunner"
+rg -n -w "$P1" CuriousContraptions.tests tools -g '!**/bin/**' -g '!**/obj/**' -g '!**/node_modules/**' -g '!*.json'
+rg -n "$P2" tools/E2eRunner -g '!**/bin/**' -g '!**/obj/**' | head -20

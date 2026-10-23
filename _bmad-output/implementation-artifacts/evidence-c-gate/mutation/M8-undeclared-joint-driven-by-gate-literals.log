@@ -1,0 +1,14 @@
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-gate/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:01.46]     CuriousContraptions.Tests.DeclaredPrismaticDriveTests.ASuppliedBoxWithTheGatesBladeAndLimitsButNoDeclaredDriveNeverActuates [FAIL]
+  Failed CuriousContraptions.Tests.DeclaredPrismaticDriveTests.ASuppliedBoxWithTheGatesBladeAndLimitsButNoDeclaredDriveNeverActuates [39 ms]
+  Error Message:
+   tick 2: a closed route without a declared drive moves nothing (0.0021276474)
+  Stack Trace:
+     at CuriousContraptions.Tests.DeclaredPrismaticDriveTests.<>c__DisplayClass10_0.<ASuppliedBoxWithTheGatesBladeAndLimitsButNoDeclaredDriveNeverActuates>b__1(Int32 tick, LawState state) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-gate/CuriousContraptions.tests/DeclaredPrismaticDriveTests.cs:line 165
+   at CuriousContraptions.Tests.LawWorld.Step(Int32 ticks, Action`2 observe, Boolean supplied, WorkshopPhysicsEngine engine) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-gate/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 278
+   at CuriousContraptions.Tests.DeclaredPrismaticDriveTests.ASuppliedBoxWithTheGatesBladeAndLimitsButNoDeclaredDriveNeverActuates() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-gate/CuriousContraptions.tests/DeclaredPrismaticDriveTests.cs:line 165
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     1, Passed:    14, Skipped:     0, Total:    15, Duration: 626 ms - CuriousContraptions.tests.dll (net10.0)

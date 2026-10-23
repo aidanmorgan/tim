@@ -120,8 +120,8 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
     [Fact]
     public void Connections_AcceptsElectricalAndRejectsActivation()
     {
-        var plate = WorkshopInput.PressurePlate(new(1), 0, 0, 0, 0, 0, 0, 1, WorkshopPressurePlate.PlacedMinimumMass);
-        var battery = WorkshopInput.Battery(new(2), 2, 0, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default);
+        var plate = PlacedParts.Plate(new(1), 0, 0, 0, .5f);
+        var battery = PlacedParts.Battery(new(2), 2, 0, 0);
         var switchPart = WorkshopInput.Generic(PartId.ImpactSwitch, new(3), -2, 0, 0, 0, 0, 0, 1);
 
         var instances = new WorkshopInstances(plate, battery, switchPart);
@@ -137,27 +137,22 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
         EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () => invalidConnections.Validate(instances));
     }
 
+    // Decision (h): the declared minimum_mass admits [0.1, 16] kg inclusively; the next f32 beyond either end, a non-finite or a
+    // negative value is refused by the generic instance's own parameter validation (no clamp, no default).
     [Fact]
-    public void WorkshopPressurePlate_Validation()
+    public void TheMinimumMassIsAdmittedInclusivelyFromATenthToSixteenKilograms()
     {
-        // Admitted range [0.1, 16.0]
-        new WorkshopPressurePlate(new(1), default, default, CanonicalRotation.Identity, 0.1f).Validate();
-        new WorkshopPressurePlate(new(1), default, default, CanonicalRotation.Identity, 0.5f).Validate();
-        new WorkshopPressurePlate(new(1), default, default, CanonicalRotation.Identity, 16.0f).Validate();
-
-        Assert.Throws<ArgumentException>(() => new WorkshopPressurePlate(new(1), default, default, CanonicalRotation.Identity, 0.05f).Validate());
-        Assert.Throws<ArgumentException>(() => new WorkshopPressurePlate(new(1), default, default, CanonicalRotation.Identity, 16.1f).Validate());
-        Assert.Throws<ArgumentException>(() => new WorkshopPressurePlate(new(1), default, default, CanonicalRotation.Identity, -1.0f).Validate());
-        Assert.Throws<ArgumentException>(() => new WorkshopPressurePlate(new(1), default, default, CanonicalRotation.Identity, float.NaN).Validate());
-        Assert.Throws<ArgumentException>(() => new WorkshopPressurePlate(new(1), default, default, CanonicalRotation.Identity, float.PositiveInfinity).Validate());
+        foreach (var admitted in new[] { .1f, .5f, 16f }) PlacedParts.Plate(new(1), 0, 1, 0, admitted);
+        foreach (var refused in new[] { MathF.BitDecrement(.1f), .05f, MathF.BitIncrement(16f), 16.1f, -1f, float.NaN, float.PositiveInfinity })
+            Assert.Throws<ArgumentException>(() => PlacedParts.Plate(new(1), 0, 1, 0, refused));
     }
 
     // ---- Story 9R.4: the compiled contact-load row and ContactLoadSensorTracker (D1, D4) ----
     private static readonly Vector3 Up = Vector3.UnitY;
+    /// <summary>CAT-052 §2: the contact distance d (the x margin and largest resting gap), the z margin and the alignment.</summary>
+    private const float ContactDistance = .0001f, DepthMargin = 1e-6f, Alignment = 1f - 1e-6f;
     private static ContactLoadSensorDeclaration Row(float minimum = .5f) => new(new(1), new(10), new(11),
-        -.9f - WorkshopPressurePlate.ContactDistance, .9f + WorkshopPressurePlate.ContactDistance,
-        -.9f - WorkshopPressurePlate.FootprintDepthMargin, .9f + WorkshopPressurePlate.FootprintDepthMargin,
-        Up, WorkshopPressurePlate.MinimumAlignment, WorkshopPressurePlate.ContactDistance, minimum);
+        -.9f - ContactDistance, .9f + ContactDistance, -.9f - DepthMargin, .9f + DepthMargin, Up, Alignment, ContactDistance, minimum);
     /// <summary>A resting contact on the row's face (frame 10, collider 11) at local (x, 0.08, z), gap −0.00027 m as the engine reports.</summary>
     private static ContactPointRecord On(ulong body, float mass, float x = 0, float z = 0, float gap = -.00027f, ulong collider = 11,
         Vector3? normal = null) => new(new(10), new(collider), new(body), mass, new(x, .08f, z), normal ?? Up, gap);
@@ -219,11 +214,11 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
     {
         var row = Row();
         Assert.Equal(1f, Measure(row, On(22, 1)));
-        Assert.Equal(1f, Measure(row, On(22, 1, gap: WorkshopPressurePlate.ContactDistance))); // gap = d still rests
+        Assert.Equal(1f, Measure(row, On(22, 1, gap: ContactDistance))); // gap = d still rests
         // Lifted: a ball held 0.002 m above the face is a speculative contact, not a load (coordinator item 3).
         Assert.Equal(0f, Measure(row, On(22, 1, gap: .002f)));
-        Assert.Equal(0f, Measure(row, On(22, 1, gap: MathF.BitIncrement(WorkshopPressurePlate.ContactDistance))));
-        Assert.Equal(0f, Measure(row, On(22, 1, x: .9f + 2 * WorkshopPressurePlate.ContactDistance)));  // outside x
+        Assert.Equal(0f, Measure(row, On(22, 1, gap: MathF.BitIncrement(ContactDistance))));
+        Assert.Equal(0f, Measure(row, On(22, 1, x: .9f + 2 * ContactDistance)));  // outside x
         Assert.Equal(0f, Measure(row, On(22, 1, z: .9f + 2e-6f)));                                         // outside z
         Assert.Equal(0f, Measure(row, On(22, 1, normal: Vector3.UnitX)));                                   // side
         Assert.Equal(0f, Measure(row, On(22, 1, normal: -Up)));                                             // underside
@@ -265,36 +260,36 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
     [Fact]
     public void PhysicsCompiler_EmitsEachPlatesOwnRowAndASwitchedRouteThroughIt()
     {
-        var battery = WorkshopInput.Battery(new(1), -2, 0, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default);
-        var plate = WorkshopInput.PressurePlate(new(2), 0, 0, 0, 0, 0, 0, 1, WorkshopPressurePlate.PlacedMinimumMass);
+        var battery = PlacedParts.Battery(new(1), -2, 0, 0);
+        var plate = PlacedParts.Plate(new(2), 0, 0, 0, .5f);
         var gate = WorkshopInput.Generic(PartId.PoweredGate, new(3), 2, 0, 0, 0, 0, 0, 1);
-        var heavy = WorkshopInput.PressurePlate(new(4), 0, 0, 4, 0, 0, 0, 1, 2f);
+        var heavy = PlacedParts.Plate(new(4), 0, 0, 4, 2f);
         var scene = WorkshopPhysicsCompiler.Compile(new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(),
             new([battery, plate, gate, heavy]), Connections: new([Supply(battery.Id, plate.Id), Supply(plate.Id, gate.Id)])), new(1, 1));
 
         Assert.Equal(2, scene.Colliders.ToArray().Count(c => c.Body == plate.Id));
         var rows = scene.ContactLoadSensors.ToArray();
         Assert.Equal(2, rows.Length);
-        foreach (var (instance, row) in new[] { (plate, rows.Single(r => r.Frame == plate.Id)), (heavy, rows.Single(r => r.Frame == heavy.Id)) })
+        foreach (var (instance, minimum, row) in new[] { (plate, .5f, rows.Single(r => r.Frame == plate.Id)), (heavy, 2f, rows.Single(r => r.Frame == heavy.Id)) })
         {
             Assert.Equal(WorkshopPhysicsCompiler.ContactLoadSensor(instance.Id), row.Id);
             var face = scene.Colliders.ToArray().Single(c => c.Id == row.Face);
             Assert.Equal((instance.Id, (Half).03f, new MetreVector((Half).9f, (Half).05f, (Half).9f)), (face.Body, face.Pose.Translation.Y, face.HalfExtents));
             Assert.Equal((-.9001f, .9001f, -.900001f, .900001f), (row.MinimumX, row.MaximumX, row.MinimumZ, row.MaximumZ));
             Assert.Equal((Up, 1f - 1e-6f, .0001f), (row.LocalNormal, row.MinimumAlignment, row.MaximumGap));
-            Assert.Equal(instance.MinimumMass, row.MinimumMass);
+            Assert.Equal(minimum, row.MinimumMass);
         }
         Assert.Contains(scene.SupplyGraph.Nodes.ToArray(),node=>node.Owner==plate.Id && node.Kind==SupplyNodeKind.Contact);
         Assert.Equal(battery.Id,scene.Electrical.Sources[0].Owner);
         Assert.Equal(gate.Id,scene.Prismatics[0].BodyA);
         // The deleted drag encoding: the blade declares no drag whatever feeds it.
-        Assert.Equal((Half)0, scene.Bodies.ToArray().Single(b => b.Id == WorkshopPhysicsCompiler.GateBlade(gate.Id)).LinearDrag.Value);
+        Assert.Equal((Half)0, scene.Bodies.ToArray().Single(b => b.Id == WorkshopPhysicsCompiler.SliderBody(gate.Id, 0)).LinearDrag.Value);
     }
 
     [Fact]
     public void PhysicsAbi_AdmitsEachRowAsF32WithAnEmptyCommittedState()
     {
-        var plate = WorkshopInput.PressurePlate(new(2), 0, 0, 0, 0, 0, 0, 1, .3f);
+        var plate = PlacedParts.Plate(new(2), 0, 0, 0, .3f);
         var scene = WorkshopPhysicsCompiler.Compile(new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new([plate])), new(1, 1));
         var world = PhysicsGpuAbi.Admission(scene, new(1), new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1)));
         Assert.Equal(1, PhysicsGpuAbi.ReadContactLoadCount(world));
@@ -314,39 +309,25 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
     private static WorkshopConnection Supply(GpuBodyId source, GpuBodyId target) =>
         new(source, WorkshopSocket.Supply, target, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical);
 
-    [Fact]
-    public void WorkshopWire_SerializesAndDeserializesPressurePlate()
+    // The Construct command round-trips a plate as its generic instance: id, pose, lock and minimum_mass bit for bit.
+    [Theory]
+    [InlineData(3.5f, false)]
+    [InlineData(4.25f, true)]
+    public void TheCommandWireRoundTripsAPlateAsItsGenericInstance(float minimumMass, bool locked)
     {
-        var plate = new WorkshopPressurePlate(new(10), default, new LocalPosition(0.1f, 0.2f, -0.3f), CanonicalRotation.Identity, 3.5f, false);
+        var plate = PlacedParts.Plate(new(10), .1, .2, -.3, minimumMass, locked: locked);
         var construction = new WorkshopConstruction(new ConstructionRevision(1), WorkshopCadenceSettings.Default(), new([plate]));
         var cmd = new WorkshopCommand(new(1), WorkshopCommandKind.Construct, new(0), new(1), construction, Session: new(1, 2), Cadence: new(1), Projection: new(1));
-        var bytes = WorkshopWireFlatBuffers.EncodeCommand(cmd);
-        var decodedCmd = WorkshopWireFlatBuffers.DecodeCommand(bytes);
-        Assert.NotNull(decodedCmd.Construction);
-        var decodedPlate = Assert.IsType<WorkshopPressurePlate>(Assert.Single(decodedCmd.Construction!.Value.Instances));
-        Assert.Equal(plate.Id, decodedPlate.Id);
-        Assert.Equal(plate.MinimumMass, decodedPlate.MinimumMass);
-        Assert.Equal(plate.PartId, decodedPlate.PartId);
-    }
-
-    [Fact]
-    public void WorkshopWireFlatBuffers_SerializesAndDeserializesPressurePlate()
-    {
-        var plate = new WorkshopPressurePlate(new(10), default, new LocalPosition(0.1f, 0.2f, -0.3f), CanonicalRotation.Identity, 4.25f, false);
-        var construction = new WorkshopConstruction(new ConstructionRevision(1), WorkshopCadenceSettings.Default(), new([plate]));
-        var cmd = new WorkshopCommand(new(1), WorkshopCommandKind.Construct, new(0), new(1), construction, Session: new(1, 2), Cadence: new(1), Projection: new(1));
-        var bytes = WorkshopWireFlatBuffers.EncodeCommand(cmd);
-        var decodedCmd = WorkshopWireFlatBuffers.DecodeCommand(bytes);
-        Assert.NotNull(decodedCmd.Construction);
-        var decodedPlate = Assert.IsType<WorkshopPressurePlate>(Assert.Single(decodedCmd.Construction!.Value.Instances));
-        Assert.Equal(plate.Id, decodedPlate.Id);
-        Assert.Equal(plate.MinimumMass, decodedPlate.MinimumMass);
+        var decoded = Assert.IsType<WorkshopGenericInstance>(Assert.Single(WorkshopWireFlatBuffers.DecodeCommand(WorkshopWireFlatBuffers.EncodeCommand(cmd)).Construction!.Value.Instances));
+        Assert.Equal(plate, decoded);
+        Assert.Equal((PartId.PressurePlate, locked, BitConverter.SingleToUInt32Bits(minimumMass)),
+            (decoded.PartId, decoded.Locked, BitConverter.SingleToUInt32Bits(decoded.Parameters[new ParameterId("minimum_mass")])));
     }
 
     [Fact]
     public void WorkbenchCapacity_ValidatesPressurePlateFootprint()
     {
-        var plate = WorkshopInput.PressurePlate(new(1), 0, 0, 0, 0, 0, 0, 1, WorkshopPressurePlate.PlacedMinimumMass);
+        var plate = PlacedParts.Plate(new(1), 0, 0, 0, .5f);
         IWorkshopInstance[] instances = [plate];
         WorkbenchCapacity.Validate(instances);
 
@@ -376,16 +357,16 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
 
     private static WorkshopGenericInstance Gate(ulong id, double z) =>
         WorkshopInput.Generic(PartId.PoweredGate, new(id), 0, GateHeight, z, 0, 0, 0, 1);
-    private static WorkshopBattery Battery(ulong id, double z) =>
-        WorkshopInput.Battery(new(id), 3, GateHeight, z, 0, 0, 0, 1, ElectricalSourceSettings.Default with { Enabled = ElectricalEnable.Enabled });
-    private static WorkshopPressurePlate Plate(ulong id, double x, double z, float minimum) =>
-        WorkshopInput.PressurePlate(new(id), x, PlateY, z, 0, 0, 0, 1, minimum);
+    private static WorkshopGenericInstance Battery(ulong id, double z) =>
+        PlacedParts.Battery(new(id), 3, GateHeight, z, enabled: ElectricalEnable.Enabled);
+    private static IWorkshopInstance Plate(ulong id, double x, double z, float minimum) =>
+        PlacedParts.Plate(new(id), x, PlateY, z, minimum);
     private static WorkshopGenericInstance BallOn(ulong id, double x, double z) => WorkshopInput.Generic(PartId.Basketball,new(id), x, Face + .35, z, 0, 0, 0, 1);
-    private static WorkshopDomino StandingOn(ulong id, double x, double z) => WorkshopInput.Domino(new(id), x, Face + .551, z, 0, 0, 0, 1);
+    private static IWorkshopInstance StandingOn(ulong id, double x, double z) => PlacedParts.Domino(new(id), x, Face + .551, z, 0, 0, 0, 1);
     /// <summary>A Domino lying on its broad face (1.1 m along x, 0.65 m along z, 0.25 m tall) with its underside at <paramref name="under"/>.</summary>
-    private static WorkshopDomino FlatOn(ulong id, double x, double under, double z) =>
-        WorkshopInput.Domino(new(id), x, under + .126, z, 0, 0, Math.Sqrt(.5), Math.Sqrt(.5));
-    private static WorkshopConnection[] Circuit(WorkshopBattery battery, WorkshopPressurePlate plate, WorkshopGenericInstance gate) =>
+    private static IWorkshopInstance FlatOn(ulong id, double x, double under, double z) =>
+        PlacedParts.Domino(new(id), x, under + .126, z, 0, 0, Math.Sqrt(.5), Math.Sqrt(.5));
+    private static WorkshopConnection[] Circuit(WorkshopGenericInstance battery, IWorkshopInstance plate, WorkshopGenericInstance gate) =>
         [Supply(battery.Id, plate.Id), Supply(plate.Id, gate.Id)];
     private static WorkshopConstruction Bench(IWorkshopInstance[] instances, params WorkshopConnection[] connections) =>
         new(new(2), WorkshopCadenceSettings.Default(), new(instances), Connections: new(connections));
@@ -394,20 +375,20 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
 
     private static float Travel(WorkshopRead read, WorkshopGenericInstance gate)
     {
-        Assert.True(read.Bodies.TryGet(WorkshopPhysicsCompiler.GateBlade(gate.Id), out var blade));
+        Assert.True(read.Bodies.TryGet(WorkshopPhysicsCompiler.SliderBody(gate.Id, 0), out var blade));
         return (blade.Body.Cell.Y + blade.Body.Local.Y) / 16f - (float)GateHeight;
     }
     /// <summary>The plate's committed contact (its ContactLoadSource level): closed exactly while the committed phase is Loaded.</summary>
-    private static bool ContactClosed(WorkshopRead read, WorkshopPressurePlate plate)
+    private static bool ContactClosed(WorkshopRead read, IWorkshopInstance plate)
     {
         for (var i = 0; i < read.Activations.Count; i++)
             if (read.Activations[i].Owner == plate.Id) return read.Activations[i].Phase == ActivationPhase.Latched;
         throw new InvalidOperationException($"Plate {plate.Id.Value} commits no contact-load level.");
     }
-    private static void AssertGateClosedThroughout(List<WorkshopRead> reads, WorkshopPressurePlate plate, WorkshopGenericInstance gate, string label) =>
+    private static void AssertGateClosedThroughout(List<WorkshopRead> reads, IWorkshopInstance plate, WorkshopGenericInstance gate, string label) =>
         Assert.All(reads, read => Assert.True(!ContactClosed(read, plate) && Travel(read, gate) < ClosedTravel,
             $"{label}: contact {ContactClosed(read, plate)}, travel {Travel(read, gate)} at tick {read.Tick.Value}"));
-    private static void AssertGateOpened(List<WorkshopRead> reads, WorkshopPressurePlate plate, WorkshopGenericInstance gate, string label) =>
+    private static void AssertGateOpened(List<WorkshopRead> reads, IWorkshopInstance plate, WorkshopGenericInstance gate, string label) =>
         Assert.True(ContactClosed(reads[^1], plate) && Travel(reads[^1], gate) > OpenTravel,
             $"{label}: contact {ContactClosed(reads[^1], plate)}, travel {Travel(reads[^1], gate)}");
 
@@ -428,8 +409,8 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
             // AC7 (Murdoch-10 B1): the non-default 2.0 kg is saved and loaded through the real save codec, reloads bit for bit,
             // and the reloaded construction is what runs.
             var reloaded = WorkshopSaveCodec.Decode(SaveFixture.Elements,WorkshopSaveCodec.Encode(new WorkshopSavedConstruction(bench, new(7)))).Construction;
-            var reloadedPlate = Assert.Single(reloaded.Instances.OfType<WorkshopPressurePlate>());
-            Assert.Equal(BitConverter.SingleToUInt32Bits(2f), BitConverter.SingleToUInt32Bits(reloadedPlate.MinimumMass));
+            var reloadedRow = Assert.Single(WorkshopPhysicsCompiler.Compile(reloaded, new(1, 2)).ContactLoadSensors.ToArray());
+            Assert.Equal((plate.Id, BitConverter.SingleToUInt32Bits(2f)), (reloadedRow.Frame, BitConverter.SingleToUInt32Bits(reloadedRow.MinimumMass)));
             bench = reloaded;
         }
         var reads = await RunBench(bench);
@@ -501,7 +482,8 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
     public async Task ASizeImpostorNeverSwitchesAGate()
     {
         var gate = Gate(1, 0); var battery = Battery(2, 0); var plate = Plate(3, -4, 0, 2f);
-        // Story 9R.7: the pipe is a typed instance, so another generic declared-collider part carries the plate-sized boxes.
+        // Story 9R.7: the pipe is a typed instance, so a generic static part (a 45° bend: 0.52 × 0.05 × 0.58 m slats, not the
+        // plate's 1.8 m face) carries the ball. The exact-footprint control is PlateGuardTests' Wall sized to the face.
         var impostor = WorkshopInput.Generic(PartId.PipeBend45, new(4), -4, PlateY, 3, 0, 0, 0, 1);
         var reads = await RunBench(Bench([gate, battery, plate, impostor, BallOn(5, -4, 3)], Circuit(battery, plate, gate)));
         Assert.True(reads[^1].Bodies.TryGet(new(5), out var ball) && (ball.Body.Cell.Y + ball.Body.Local.Y) / 16f > Face - .01,
@@ -518,7 +500,7 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
         var gate = Gate(1, 0); var battery = Battery(2, 0);
         var half = Math.PI / 12; // 30° about z
         const double plateHeight = 2;
-        var plate = WorkshopInput.PressurePlate(new(3), -4, plateHeight, 0, 0, 0, Math.Sin(half), Math.Cos(half), .5f);
+        var plate = PlacedParts.Plate(new(3), -4, plateHeight, 0, .5f, 0, 0, Math.Sin(half), Math.Cos(half));
         var rotation = new System.Numerics.Quaternion(0, 0, (float)Math.Sin(half), (float)Math.Cos(half));
         var drop = System.Numerics.Vector3.Transform(new System.Numerics.Vector3(-.2f, .08f + .345f, 0), rotation);
         var ball = WorkshopInput.Generic(PartId.Basketball,new(4), -4 + drop.X, plateHeight + drop.Y, drop.Z, 0, 0, 0, 1);
@@ -620,9 +602,9 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
         ulong id = 0;
         for (var i = 0; i < 13; i++) instances.Add(Plate(++id, -16 + 3 * (i % 7), -6 + 3 * (i / 7), .5f));
         for (var i = 0; i < 5; i++) instances.Add(WorkshopInput.Counter(new(++id), -16 + 3 * i, 3, 6, 0, 0, 0, 1, 3));
-        for (var i = 0; i < 5; i++) instances.Add(WorkshopInput.Clock(new(++id), -16 + 3 * i, 3, 9, 0, 0, 0, 1, 1f));
+        for (var i = 0; i < 5; i++) instances.Add(PlacedParts.Clock(new(++id), -16 + 3 * i, 3, 9, 0, 0, 0, 1, 1f));
         for (var i = 0; i < 5; i++) instances.Add(WorkshopInput.Latch(new(++id), -16 + 3 * i, 3, 12, 0, 0, 0, 1));
-        var last = (WorkshopPressurePlate)instances[12];
+        var last = instances[12];
         var gate = Gate(++id, -6); var battery = Battery(++id, -6);
         var ball = WorkshopInput.Generic(PartId.Basketball,new(++id), (last.Cell.X + (double)last.Local.X) / 16, Face + .35,
             (last.Cell.Z + (double)last.Local.Z) / 16, 0, 0, 0, 1);
@@ -658,7 +640,7 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
         Assert.Equal(28, nodes.Length);
         Assert.Equal(13, nodes.Count(node => node.Kind == ActivationNodeKind.ContactLoadSource));
         Assert.Equal(13, WorkshopPhysicsCompiler.Compile(bench, new(1, 2)).ContactLoadSensors.Length);
-        var plates = bench.Instances.OfType<WorkshopPressurePlate>().ToArray();
+        var plates = bench.Instances.Where(instance => instance.PartId == PartId.PressurePlate).ToArray();
         var gate = bench.Instances.OfType<WorkshopGenericInstance>().Single(instance => instance.PartId == PartId.PoweredGate);
 
         var (built, reads, reset) = await RunAndReset(bench, Ticks);
@@ -722,7 +704,7 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
     // ---- Story 9R.5: the plate's level ActivationOut and its committed 0.1 s (12-tick) release hold ----
     private const int HoldTicks = 12; // ticks(0.1 s, 120 Hz); stated by the spec, not read back from the declaration under test
     private const string LevelRefusal = "A level output can only light a Signal lamp.";
-    private static WorkshopLamp LampAt(ulong id, double z = 0) => WorkshopInput.Lamp(new(id), 6, GateHeight, z, 0, 0, 0, 1);
+    private static IWorkshopInstance LampAt(ulong id, double z = 0) => PlacedParts.Lamp(new(id), 6, GateHeight, z, 0, 0, 0, 1);
     private static WorkshopConnection Signal(GpuBodyId source, GpuBodyId target, WorkshopSocket input = WorkshopSocket.ActivationIn) =>
         new(source, WorkshopSocket.ActivationOut, target, input, WorkshopConnectionDomain.Activation);
     private static bool Latched(PhysicsActivationRead values, GpuBodyId owner)
@@ -730,13 +712,13 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
         for (var i = 0; i < values.Count; i++) if (values[i].Owner == owner) return values[i].Phase == ActivationPhase.Latched;
         throw new InvalidOperationException($"No activation node for {owner.Value}.");
     }
-    private static ActivationMemory Hold(PhysicsMemoryRead memory, WorkshopPressurePlate plate)
+    private static ActivationMemory Hold(PhysicsMemoryRead memory, IWorkshopInstance plate)
     {
         for (var i = 0; i < memory.Count; i++) if (memory[i].Node == new ActivationNodeId(plate.Id.Value)) return memory[i];
         throw new InvalidOperationException($"Plate {plate.Id.Value} commits no release hold.");
     }
     /// <summary>A qualifying (Loaded) tick commits the level high with its release due exactly 12 ticks later.</summary>
-    private static bool Qualifying(WorkshopRead read, WorkshopPressurePlate plate) =>
+    private static bool Qualifying(WorkshopRead read, IWorkshopInstance plate) =>
         ContactClosed(read, plate) && Hold(read.Memory, plate).DueTick == read.Tick.Value + HoldTicks;
 
     [Fact]
@@ -751,10 +733,10 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
         new WorkshopConnections(Signal(plate.Id, lamp.Id)).Validate(instances);
         foreach (var (target, input) in new[] { (counter.Id, WorkshopSocket.ActivationIn), (delay.Id, WorkshopSocket.ActivationIn),
                      (latch.Id, WorkshopSocket.SetIn), (latch.Id, WorkshopSocket.ResetIn) })
-            Assert.Equal(LevelRefusal, EditRefusal.Is(WorkshopEditRejection.LevelDrivesLampOnly,
+            Assert.Equal(LevelRefusal, EditRefusal.Is(WorkshopEditRejection.LevelDrivesLevelInputOnly,
                 () => new WorkshopConnections(Signal(plate.Id, target, input)).Validate(instances)).Message);
         // A lamp that follows the plate's level takes no other signal; a pulse source alone still drives a (sticky) lamp.
-        Assert.Equal("A lamp that follows a level output takes no other signal.", EditRefusal.Is(WorkshopEditRejection.LampFollowsOneLevel,
+        Assert.Equal("A lamp that follows a level output takes no other signal.", EditRefusal.Is(WorkshopEditRejection.LevelInputFollowsOneLevel,
             () => new WorkshopConnections(Signal(plate.Id, lamp.Id), Signal(hit.Id, lamp.Id)).Validate(instances)).Message);
         new WorkshopConnections(Signal(hit.Id, lamp.Id)).Validate(instances);
     }
@@ -789,8 +771,10 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
         var source = nodes.Single(node => node.Owner == plate.Id);
         Assert.Equal((ActivationNodeKind.ContactLoadSource, 12u), (source.Kind, source.ReleaseHoldTicks));
         Assert.All(nodes.Where(node => node.Owner != plate.Id), node => Assert.Equal(0u, node.ReleaseHoldTicks));
-        Assert.Equal((6u, 12u, 24u), (WorkshopPressurePlate.ReleaseHoldTicks(SimulationCadence.Hz60),
-            WorkshopPressurePlate.ReleaseHoldTicks(SimulationCadence.Hz120), WorkshopPressurePlate.ReleaseHoldTicks(SimulationCadence.Hz240)));
+        // The compiled hold is 0.1 s at each admitted cadence: 6, 12 and 24 ticks.
+        uint HoldAt(SimulationCadence cadence) => Assert.Single(WorkshopActivationCompiler.Compile(Bench([plate]) with
+            { Settings = WorkshopCadenceSettings.Default() with { Simulation = cadence } }).Nodes.ToArray()).ReleaseHoldTicks;
+        Assert.Equal((6u, 12u, 24u), (HoldAt(SimulationCadence.Hz60), HoldAt(SimulationCadence.Hz120), HoldAt(SimulationCadence.Hz240)));
     }
 
     [Fact]

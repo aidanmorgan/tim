@@ -1,0 +1,14 @@
+base:
+bumper strength=NaN save:save NonFinite command:wire OutOfRange
+bumper strength=∞ save:save NonFinite command:wire OutOfRange
+bumper strength=1E+09 save:save OutOfRange command:wire OutOfRange
+switch trigger_threshold=NaN save:save NonFinite command:wire OutOfRange
+switch trigger_threshold=∞ save:save NonFinite command:wire OutOfRange
+switch trigger_threshold=1E+09 save:save OutOfRange command:wire OutOfRange
+candidate:
+bumper strength=NaN save:save NonFinite command:wire OutOfRange
+bumper strength=∞ save:save NonFinite command:wire OutOfRange
+bumper strength=1E+09 save:save OutOfRange command:wire OutOfRange
+switch trigger_threshold=NaN save:save NonFinite command:wire OutOfRange
+switch trigger_threshold=∞ save:save NonFinite command:wire OutOfRange
+switch trigger_threshold=1E+09 save:save OutOfRange command:wire OutOfRange

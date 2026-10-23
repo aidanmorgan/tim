@@ -1,0 +1,24 @@
+== R5b-hold-expiry-publishes 2026-10-23T16:40:52Z
+diff --git a/engine/gpu/EventRecordProducer.cs b/engine/gpu/EventRecordProducer.cs
+index 4475d4e6..3ef2bf0f 100644
+--- a/engine/gpu/EventRecordProducer.cs
++++ b/engine/gpu/EventRecordProducer.cs
+@@ -85,7 +85,7 @@ public sealed class EventRecordProducer
+         ActivationNodeKind.Timer => completion switch
+         {
+             TimerCompletionPolicy.Latch => SimulationEventKind.TriggerActivated,
+-            TimerCompletionPolicy.Rearm => SimulationEventKind.None,
++            TimerCompletionPolicy.Rearm => SimulationEventKind.TriggerActivated,
+             _ => throw new ArgumentOutOfRangeException(nameof(completion), completion, "Undefined timer completion.")
+         },
+         ActivationNodeKind.Counter => SimulationEventKind.ThresholdReached,
+    0 Warning(s)
+    0 Error(s)
+build rc=0
+  Failed CuriousContraptions.Tests.EventRingProducerTests.EveryPackageDeclaresExactlyTheKindsItsCompiledRowsProduce [95 ms]
+Failed!  - Failed:     1, Passed:    98, Skipped:     0, Total:    99, Duration: 1 s - CuriousContraptions.tests.dll (net10.0)
+dotnet test rc=1
+ℹ pass 4
+ℹ fail 0
+node rc=0
+dirty after revert: 0

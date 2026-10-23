@@ -186,6 +186,39 @@ public sealed class WorkshopSaveTests
                         }, options);
                         continue;
                     }
+                    if (expected!["PartId"]!["Value"]!.GetValue<string>() == "domino")
+                    {
+                        // The historical Domino record's material is now its package's declaration: it must equal the compiled rows of
+                        // that body before the record-only fields leave the expected side (9A.32).
+                        var body = new GpuBodyId(expected["Id"]!["Value"]!.GetValue<ulong>());
+                        var material = expected["Material"]!;
+                        Half Declared(string field) => (Half)material[field]!["Value"]!.GetValue<float>();
+                        Half Extent(string axis) => (Half)material["HalfExtents"]![axis]!.GetValue<float>();
+                        var compiled = Assert.Single(scene.Bodies.ToArray(), row => row.Id == body);
+                        var box = Assert.Single(scene.Colliders.ToArray(), row => row.Body == body);
+                        var surface = Assert.Single(scene.Materials.ToArray(), row => row.Id == box.Material);
+                        Assert.Equal((Extent("X"), Extent("Y"), Extent("Z"), Declared("Mass"), Declared("Bounce"), Declared("Friction")),
+                            (box.HalfExtents.X, box.HalfExtents.Y, box.HalfExtents.Z, compiled.Mass.Value, surface.Restitution.Value, surface.Friction.Value));
+                        Assert.Equal(ColliderShapeKind.Box, box.Shape);
+                        Assert.True(System.Text.Json.Nodes.JsonNode.DeepEquals(expected["Cosmetic"], System.Text.Json.JsonSerializer.SerializeToNode(
+                            construction.Instances.Single(instance => instance.Id == body).Cosmetic, options)));
+                        var tile = expected.AsObject();
+                        tile.Remove("Material"); tile.Remove("Cosmetic");
+                        tile["Parameters"] = new System.Text.Json.Nodes.JsonArray();
+                        continue;
+                    }
+                    if (expected!["PartId"]!["Value"]!.GetValue<string>() == "lamp")
+                    {
+                        // The historical lamp record carried no setting: it is now its package's generic instance with no parameters,
+                        // and its (undeclared) cosmetic curve is still the part's own.
+                        var body = new GpuBodyId(expected["Id"]!["Value"]!.GetValue<ulong>());
+                        Assert.True(System.Text.Json.Nodes.JsonNode.DeepEquals(expected["Cosmetic"], System.Text.Json.JsonSerializer.SerializeToNode(
+                            construction.Instances.Single(instance => instance.Id == body).Cosmetic, options)));
+                        var lamp = expected.AsObject();
+                        lamp.Remove("Cosmetic");
+                        lamp["Parameters"] = new System.Text.Json.Nodes.JsonArray();
+                        continue;
+                    }
                     if (expected!["PartId"]!["Value"]!.GetValue<string>() != "basket") continue;
                     var owner = new GpuBodyId(expected["Id"]!["Value"]!.GetValue<ulong>());
                     var capture = expected["Capture"]!;
@@ -600,7 +633,7 @@ public sealed class WorkshopSaveTests
     private static WorkshopSavedConstruction ActivationSaved()
     {
         var trigger = WorkshopInput.Generic(PartId.ImpactSwitch, new(2), 0, 1, 0, 0, 0, 0, 1);
-        var lamp = new WorkshopLamp(new(3), new(48, 16, 0), default, CanonicalRotation.Identity);
+        var lamp = PlacedParts.Lamp(new(3), 3, 1, 0, 0, 0, 0, 1);
         var link = new WorkshopConnection(trigger.Id, WorkshopSocket.ActivationOut, lamp.Id,
             WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation);
         return new(new(new(4), WorkshopCadenceSettings.Default(), new(trigger, lamp), Connections: new(link)), new(4));

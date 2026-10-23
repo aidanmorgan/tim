@@ -1,0 +1,19 @@
+#:project /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/r22/wt-mut/CuriousContraptions.Abstractions/CuriousContraptions.Abstractions.csproj
+using CuriousContraptions.Abstractions;
+
+// Story 9A.22 review probe: the ring capacity boundary. Capacity(slots) refuses only slots > MaximumCapacity (2^26);
+// ByteLength(capacity) is checked int arithmetic. Each line prints the admitted capacity and whether its byte length is computable.
+foreach (var slots in new ulong[] { 1UL << 24, (1UL << 24) + 1, 1UL << 25, (1UL << 25) + 1, 1UL << 26, (1UL << 26) + 1 })
+{
+    string capacity, bytes;
+    try
+    {
+        var c = EventRingBuffer.Capacity(slots);
+        capacity = c.ToString();
+        try { bytes = EventRingBuffer.ByteLength(c).ToString(); }
+        catch (Exception e) { bytes = e.GetType().Name; }
+    }
+    catch (Exception e) { capacity = e.GetType().Name; bytes = "-"; }
+    Console.WriteLine($"slots={slots} capacity={capacity} byteLength={bytes}");
+}
+Console.WriteLine($"MaximumCapacity={EventRingBuffer.MaximumCapacity}");

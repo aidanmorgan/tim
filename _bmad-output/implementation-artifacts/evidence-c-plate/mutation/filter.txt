@@ -1,0 +1,1 @@
+FullyQualifiedName~PlateGuardTests|FullyQualifiedName~DeclaredContactLoadTests|FullyQualifiedName~PressurePlateTests|FullyQualifiedName~PlacementPoseTests

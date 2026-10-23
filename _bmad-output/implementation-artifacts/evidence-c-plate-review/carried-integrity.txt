@@ -1,0 +1,31 @@
+# Carried Domino terminal receipt byte-integrity (reviewer, C-Plate)
+patch sha256: dd0d3a8f0d1d381f6b1e20315ca76da49d5436812dbcfbdeff71f1341fe79dcb
+patch applies cleanly at 61ded7ad
+_bmad-output/implementation-artifacts/review-6-5f-partart-partkind-legacy-purge.md  base+patch=02a6e3a538385542e063ef0ec730954e6964f0b4cad93eb39b4afeecb4c647b4  worktree=02a6e3a538385542e063ef0ec730954e6964f0b4cad93eb39b4afeecb4c647b4  IDENTICAL
+_bmad-output/implementation-artifacts/review-9a-32-domino.md  base+patch=b6c2d7fabe6cf153f1736025cf9ecf1058c5bfda6fb60cc6443b56eba16e20d2  worktree=b6c2d7fabe6cf153f1736025cf9ecf1058c5bfda6fb60cc6443b56eba16e20d2  IDENTICAL
+_bmad-output/implementation-artifacts/sprint-status.yaml  base+patch=6bcf32bb580c09d26fadeb5104e203351b4ecbb2ef3f60394d9891d618de1672  worktree=9e63a6876898b3de59d55cd300483f0e876f970da76055e87982f39b46eae8cc  DIFFERS
+base _bmad-output restored, dirty files: 0
+evidence dir:
+evidence-9a-32-review/terminal/ IDENTICAL to carry/domino-terminal-evidence (9 files)
+9bf11de968e293847ba1133e73fa0c694aced7e6d89d268e14e00e0ad12f265b  addendum-6-5f-native-rerun.log
+a2dd6512e0e67d5091583120485b7c6150c9173b6a8a108c761e3eb893ab632e  artifact-deployment.txt
+21e43767aae05cf8a3efb5a3e0dd2e6228fbac8b5dfe86a66d344152043ae9ef  build-job.log
+4d3536fdc9ae2cd99b878a25a3a94e6ae4f62f3d3d2f2a36cbc25a9be4f3646b  commit-hook-implementer.log
+710fca4db50f0fafad51215d3fad8d8e95e81f5a8cc22c095d1d55e703ca882e  deploy-job.log
+cb35a216b42944367e55be4ce6d6c521cacb3a42b49e9539a7d83366767bd5d5  deployment-status.txt
+28e3fc91dc1224eaac80b9cb0650b91c92b6d509bbdc4621747feeae92f0dc84  hook-rerun.log
+66174affca25ef681e52fc781e1a9aec179339c29250f4a1a1e1c8adcde95fcb  identities.txt
+a3aa1a2869e4c6caa087fd705e1f4cf6ce623b1a207b5c3ccac1037bfb630e57  run.json
+sprint-status.yaml: worktree vs (61ded7ad + carried patch) — the remainder is C-Plate's own status lines only:
+333c333
+<   9a-c-plate-contact-load-conversion: backlog
+---
+>   9a-c-plate-contact-load-conversion: review # native candidate on 61ded7ad (worktree story-c-plate); browser pending
+335c335
+<   9a-20-declared-contact-load-sensor: backlog
+---
+>   9a-20-declared-contact-load-sensor: review
+337c337
+<   9a-40-generic-instance-pressure-plate: backlog
+---
+>   9a-40-generic-instance-pressure-plate: review

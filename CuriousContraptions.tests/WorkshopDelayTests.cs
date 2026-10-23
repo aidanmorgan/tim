@@ -29,7 +29,7 @@ public sealed class WorkshopDelayTests
     public void DurationPoseAndConnectionsRoundTripAndCompileOnlySourceBaseBox()
     {
         var trigger = WorkshopInput.Generic(PartId.ImpactSwitch, new(1), -2, 2, 0, 0, 0, 0, 1);
-        var lamp = WorkshopInput.Lamp(new(2), 3, 2, 0, 0, 0, 0, 1);
+        var lamp = PlacedParts.Lamp(new(2), 3, 2, 0, 0, 0, 0, 1);
         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(),
             new(trigger, lamp, Delay((float)8.9375)), Connections: new(
                 new(new(1), WorkshopSocket.ActivationOut, new(3), WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation),
@@ -74,7 +74,7 @@ public sealed class WorkshopDelayTests
             WorkshopInput.Generic(PartId.Ramp, new(4),-2,2,0,0,0,0,1),
             WorkshopInput.Generic(PartId.ImpactSwitch, new(5),0,1,0,0,0,0,1),
             WorkshopInput.Generic(PartId.ImpactSwitch, new(6),2,1,0,0,0,0,1),
-            WorkshopInput.Lamp(new(7),5,2,0,0,0,0,1), Delay((float)1) with {Id=new(8)});
+            PlacedParts.Lamp(new(7),5,2,0,0,0,0,1), Delay((float)1) with {Id=new(8)});
         var construction = new WorkshopConstruction(new(1),WorkshopCadenceSettings.Default(),instances);
         var scene = WorkshopPhysicsCompiler.Compile(construction,new(1,2));
         Assert.Equal(9,scene.Bodies.Length);
@@ -114,7 +114,7 @@ public sealed class WorkshopDelayTests
         IWorkshopInstance[] parts = [
             WorkshopInput.Generic(PartId.Basketball,new(1), 0, 3, 0, 0, 0, 0, 1),
             WorkshopInput.Generic(PartId.ImpactSwitch, new(2), 0, 1, 0, 0, 0, 0, 1),
-            first, WorkshopInput.Lamp(new(4), 4, 1, 0, 0, 0, 0, 1), second];
+            first, PlacedParts.Lamp(new(4), 4, 1, 0, 0, 0, 0, 1), second];
         if (reverse) Array.Reverse(parts);
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(parts),
             Connections: new(Signal(2, 3), Signal(3, 5), Signal(5, 4)));
@@ -139,7 +139,7 @@ public sealed class WorkshopDelayTests
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(),
             new(WorkshopInput.Generic(PartId.Basketball,new(1), 0, 3, 0, 0, 0, 0, 1),
                 WorkshopInput.Generic(PartId.ImpactSwitch, new(2), 0, 1, 0, 0, 0, 0, 1),
-                Delay(seconds), WorkshopInput.Lamp(new(4), 4, 1, 0, 0, 0, 0, 1)),
+                Delay(seconds), PlacedParts.Lamp(new(4), 4, 1, 0, 0, 0, 0, 1)),
             Connections: new(Signal(2, 3), Signal(3, 4)));
         var saved = new WorkshopSavedConstruction(construction, new(5));
         var loaded = WorkshopSaveCodec.Decode(SaveFixture.Elements, WorkshopSaveCodec.Encode(saved));

@@ -1,0 +1,10 @@
+lamp_wired: save sha256=9DF795E47E807A3BA6A5EB1D522B82436472F15C79CA1EBBA4BE6F58BAF4B461 REFUSED save OutOfRange: This save cannot be loaded: Part 3 is a generic instance and cannot carry a typed record field.
+lamp_wired: command sha256=CEB465F57DE372497D70CFB839BA15DE1C4D4996039B21A08C1F792023B7E99A REFUSED wire OutOfRange: Generic instance cannot carry a typed record field.
+locked_rotated: save sha256=23951AD3FF47F6017403AABA8A36C0D1E39A95AF1C995DD4BB958F57E6A2CCFA REFUSED save OutOfRange: This save cannot be loaded: Part 1 is a generic instance and cannot carry a typed record field.
+locked_rotated: command sha256=BF9251FE5F0D7E2CCDC06F33540DD660063877A93F7EE231494574FCEBA6C84B REFUSED wire OutOfRange: Generic instance cannot carry a typed record field.
+plain: save sha256=52AE128A998BB918485FDBAFFB0CB198313C18EAA52E8F3BC47CBC571BEF5FB5 REFUSED save OutOfRange: This save cannot be loaded: Part 1 is a generic instance and cannot carry a typed record field.
+plain: command sha256=44EDC0D8310F185279831A82E699E89356D1BA4C37AF6ACB6172766B990EA0B0 REFUSED wire OutOfRange: Generic instance cannot carry a typed record field.
+two_kg: save sha256=D9A178B6445CFACE75F6BA01388EEF8D10AC08B091AB7940BBB07545E3973906 REFUSED save OutOfRange: This save cannot be loaded: Part 1 is a generic instance and cannot carry a typed record field.
+two_kg: command sha256=F3C999CC832EA8FC71D05F8C8D65D5763F0247005BF0E33C354037ACBF6499C6 REFUSED wire OutOfRange: Generic instance cannot carry a typed record field.
+two_plate: save sha256=5249E00FF51F13646D9E58B4A1C1830D2EF96F051DFB62F7B4E81A9BA55E7E75 REFUSED save OutOfRange: This save cannot be loaded: Part 3 is a generic instance and cannot carry a typed record field.
+two_plate: command sha256=FAE5726E914FBD9C8C394611251FBBC05B272D91D6C60DC6B7960AC4E30324E0 REFUSED wire OutOfRange: Generic instance cannot carry a typed record field.

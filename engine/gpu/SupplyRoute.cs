@@ -60,7 +60,7 @@ public sealed class CompiledSupplyGraph
     public ReadOnlySpan<SupplyNodeDeclaration> Nodes => _nodes;
     public CompiledSupplyGraph(ReadOnlySpan<SupplyNodeDeclaration> nodes, ReadOnlySpan<SupplyEdge> edges,
         ReadOnlySpan<ElectricalSourceDeclaration> sources, ReadOnlySpan<PrismaticConstraintDeclaration> consumers,
-        ReadOnlySpan<RigidBodyDeclaration> bodies)
+        ReadOnlySpan<PrismaticDriveDeclaration> drives, ReadOnlySpan<RigidBodyDeclaration> bodies)
     {
         _nodes = nodes.ToArray();
         _sources = new int[nodes.Length]; _consumers = new int[nodes.Length];
@@ -90,8 +90,11 @@ public sealed class CompiledSupplyGraph
             else
             {
                 for(var c=0;c<consumers.Length;c++) if(consumers[c].Id==node.Consumer && consumers[c].BodyA==node.Owner) _consumers[i]=c;
-                if((node.Consumer!=default && (_consumers[i]<0 || !seenConsumers.Add(node.Consumer))) || node.Source!=default)
-                    throw new ArgumentException("Electrical consumer requires one admitted actuator.");
+                var supplied=false;
+                foreach(var drive in drives) if(drive.Joint==node.Consumer) supplied=true;
+                // A route drives exactly a prismatic that declares a supplied drive; a passive joint is never a consumer.
+                if((node.Consumer!=default && (_consumers[i]<0 || !supplied || !seenConsumers.Add(node.Consumer))) || node.Source!=default)
+                    throw new ArgumentException("Electrical consumer requires one admitted driven actuator.");
             }
         }
         var seenEdges=new System.Collections.Generic.HashSet<SupplyEdge>();
@@ -169,6 +172,7 @@ public sealed class CompiledSupplyGraph
         LogicGateOperation.Nand => !(first && second),
         LogicGateOperation.Nor => !(first || second),
         LogicGateOperation.Or => first || second,
+        LogicGateOperation.Xor => first != second,
         _ => throw new ArgumentOutOfRangeException(nameof(operation))
     };
     /// <summary>Whether more powered inputs can never unpower the output. Only monotone rules may share a directed cycle.</summary>
@@ -178,6 +182,7 @@ public sealed class CompiledSupplyGraph
         LogicGateOperation.Nand => false,
         LogicGateOperation.Nor => false,
         LogicGateOperation.Or => true,
+        LogicGateOperation.Xor => false,
         _ => throw new ArgumentOutOfRangeException(nameof(operation))
     };
 

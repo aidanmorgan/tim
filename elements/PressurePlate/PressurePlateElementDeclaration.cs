@@ -7,7 +7,7 @@ using CuriousContraptions.Abstractions.Signal;
 
 namespace CuriousContraptions.Elements.PressurePlate;
 
-public sealed class PressurePlateElementDeclaration : IMechanicalElement, ISupplyElement, ISignalElement, ISceneGeometryElement
+public sealed class PressurePlateElementDeclaration : IMechanicalElement, ISupplyElement, IContactLoadSensorElement, ISceneGeometryElement
 {
     public ElementPresentation Presentation => new(1.5f, PresentationAxes.None,
         [
@@ -57,11 +57,7 @@ public sealed class PressurePlateElementDeclaration : IMechanicalElement, ISuppl
         new(".", new(0.1f, 0.3f, 0f, 0.1f))
     ];
 
-    public IReadOnlyList<EventDescriptor> Events =>
-    [
-        new(SimulationEventKind.ContactLoad, "Load:f32;Threshold:f32;Active:bool"),
-        new(SimulationEventKind.LatchSet, "State:bool")
-    ];
+    public IReadOnlyList<EventDescriptor> Events => [new(SimulationEventKind.ContactLoad)];
 
     public SimulationDomain SupportedDomains => SimulationDomain.Mechanical | SimulationDomain.Electrical | SimulationDomain.Signal;
 
@@ -83,12 +79,13 @@ public sealed class PressurePlateElementDeclaration : IMechanicalElement, ISuppl
         new("switch", ElectricalRole.Switch, RatedVoltage: 12f, Resistance: 0.05f, Capacitance: 0f, MaxPower: 100f)
     ];
 
-    public IReadOnlyList<SignalTriggerDescriptor> Triggers =>
-    [
-        new("pressure", SignalTriggerMode.Level, Threshold: 0.5f, PulseDurationSeconds: 0f)
-    ];
+    public IReadOnlyList<SignalTriggerDescriptor> Triggers => [];
 
     public SignalLatchMode LatchMode => SignalLatchMode.None;
 
     public SignalCounterDescriptor? Counter => null;
+
+    /// <summary>CAT-052 §2: the top face (baked collider 1) senses resting mass along its +Y normal (alignment 1 − 10⁻⁶, contact distance
+    /// 10⁻⁴ m, z margin 10⁻⁶ m) against <c>minimum_mass</c>; the level is held 0.1 s after the last qualifying contact (Q3).</summary>
+    public SignalContactLoadDescriptor ContactLoad => new("minimum_mass", 1, Vector3.UnitY, 1f - 1e-6f, 1e-4f, 1e-6f, .1f);
 }

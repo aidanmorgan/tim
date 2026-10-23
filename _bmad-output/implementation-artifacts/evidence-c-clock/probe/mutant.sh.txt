@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+# Build the worktree and run the C-Clock mutation filter; log to $1. Usage: mutant.sh LOG [native|bundle|both]
+set -u
+cd /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-clock
+LOG=$1; WHICH=${2:-native}
+{
+  echo "== $(date -u +%FT%TZ) diff under test:"; git diff --stat -- engine elements CuriousContraptions.Bundle | tail -3
+  git diff -U0 -- engine/gpu/ActivationNetwork.cs engine/gpu/ActivationTimers.cs engine/gpu/WorkshopWireFlatBuffers.cs CuriousContraptions.Bundle/BundleValidator.cs elements/SystemClock/SystemClockElementDeclaration.cs | grep '^[-+][^-+]' | head -20
+  dotnet build CuriousContraptions.slnx -c Debug 2>&1 | grep -E "Warning\(s\)|Error\(s\)"
+  if [ "$WHICH" != bundle ]; then
+    dotnet test CuriousContraptions.tests/CuriousContraptions.tests.csproj -c Debug --no-build --no-restore \
+      --filter "FullyQualifiedName~ClockGuardTests|FullyQualifiedName~DeclaredOscillatorTests|FullyQualifiedName~ClockTests|FullyQualifiedName~DeclaredOrientationTests|FullyQualifiedName~TheClockIntervalEditor" 2>&1 \
+      | grep -E "\[FAIL\]|Passed!|Failed!" | sed 's/^\[xUnit[^]]*\] *//' | sort -u | head -40
+  fi
+  if [ "$WHICH" != native ]; then
+    dotnet test tools/BundleElements.Tests -c Debug --no-build --no-restore 2>&1 | grep -E "\[FAIL\]|Passed!|Failed!" | sed 's/^\[xUnit[^]]*\] *//' | sort -u | head -20
+  fi
+} > "$LOG" 2>&1
+cat "$LOG"

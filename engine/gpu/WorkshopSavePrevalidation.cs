@@ -106,58 +106,20 @@ internal static class WorkshopSavePrevalidation
             throw Refuse(WorkshopSaveRejection.OutOfRange, $"Part {id} {field} {value:R} is outside [{minimum:R}, {maximum:R}].");
     }
 
-    /// <summary>A binary16 lane: the f32 the record holds, narrowed as the decoder narrows it, inside the declared Half range.</summary>
-    private static Half Narrow(ulong id, string field, float value)
-    {
-        Finite(id, field, value);
-        var narrowed = (Half)value;
-        if (!Half.IsFinite(narrowed)) throw Refuse(WorkshopSaveRejection.OutOfRange, $"Part {id} {field} {value:R} exceeds binary16.");
-        return narrowed;
-    }
-
-    private static void Declared(ulong id, string field, float value, Half declared)
-    {
-        if (!HalfBits.Equal(Narrow(id, field, value), declared))
-            throw Refuse(WorkshopSaveRejection.OutOfRange, $"Part {id} {field} differs from its element's declared material.");
-    }
-
-    private static Vec3f Required(ulong id, Vec3f? value, string field) =>
-        value ?? throw Refuse(WorkshopSaveRejection.MissingField, $"Part {id} has no {field}.");
-
-    /// <summary>Each kind's declared parameters: the ranges and declared materials of its domain record.</summary>
+    /// <summary>Each kind's declared parameters: the ranges of its domain record.</summary>
     private static void CheckParameters(PartId part, InstanceRecord r)
     {
         var id = r.Id;
         var genericParameters = false;
         switch (part.Value)
         {
-            case "battery":
-                Within(id, "capacity", r.Capacity, 60f, ElectricalSupply.MaximumCapacity);
-                Within(id, "maximum power", r.MaximumPower, 10f, 480f);
-                Within(id, "initial fraction", r.InitialFraction, 0f, 1f);
-                if (!Enum.IsDefined((ElectricalEnable)r.Enabled))
-                    throw Refuse(WorkshopSaveRejection.UndefinedEnum, $"Part {id} has an undefined enable state.");
-                break;
-            case "domino":
-                var extents = Required(id, r.HalfExtents, "half extents");
-                var domino = DominoMaterial.Default;
-                Declared(id, "half extents", extents.X, domino.HalfExtents.X); Declared(id, "half extents", extents.Y, domino.HalfExtents.Y);
-                Declared(id, "half extents", extents.Z, domino.HalfExtents.Z); Declared(id, "mass", r.Mass, domino.Mass.Value);
-                Declared(id, "bounce", r.Bounce, domino.Bounce.Value); Declared(id, "friction", r.Friction, domino.Friction.Value);
-                break;
             case "pipe":
                 Within(id, "length", r.Length, PipeLength.Minimum, PipeLength.Maximum);
-                break;
-            case "pressure_plate":
-                Within(id, "minimum mass", r.Threshold, .1f, 16f);
                 break;
             case "counter":
                 if (r.TargetCount == 0) throw Refuse(WorkshopSaveRejection.MissingField, $"Counter {id} has no target count.");
                 if (r.TargetCount > WorkshopCounter.MaximumTargetCount)
                     throw Refuse(WorkshopSaveRejection.OutOfRange, $"Counter {id} target count {r.TargetCount} is outside [{WorkshopCounter.MinimumTargetCount}, {WorkshopCounter.MaximumTargetCount}].");
-                break;
-            case "clock":
-                Within(id, "interval", r.Threshold, WorkshopClock.MinIntervalSeconds, WorkshopClock.MaxIntervalSeconds);
                 break;
             default:
                 genericParameters = true;

@@ -1,0 +1,13 @@
+// C-Lamp+Detector suite-first adapter on the record path (base 54ffd9f0 plus the test-only diff; baseline/baseline-head.txt).
+// The guard file CuriousContraptions.tests/LampDetectorGuardTests.cs and the migrated suites called only these two members;
+// at the cutover only their bodies changed (see the candidate PlacedParts.cs).
+
+    /// <summary>A Signal lamp at an f32-input pose.</summary>
+    public static IWorkshopInstance Lamp(GpuBodyId id, double x, double y, double z,
+        double qx, double qy, double qz, double qw) =>
+        WorkshopInput.Lamp(id, x, y, z, qx, qy, qz, qw);
+
+    /// <summary>A Ball detector at an f32-input pose.</summary>
+    public static IWorkshopInstance Detector(GpuBodyId id, double x, double y, double z,
+        double qx, double qy, double qz, double qw, bool locked = false) =>
+        WorkshopInput.BallDetector(id, x, y, z, qx, qy, qz, qw, locked);

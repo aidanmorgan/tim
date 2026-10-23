@@ -1,0 +1,8 @@
+deploy	Set up job	2026-10-22T04:54:15.7017187Z Complete job name: deploy
+deploy	Run actions/deploy-pages@v4	2026-10-22T04:54:15.7522476Z   artifact_name: github-pages
+deploy	Run actions/deploy-pages@v4	2026-10-22T04:54:16.0574476Z Fetching artifact metadata for "github-pages" in this workflow run
+deploy	Run actions/deploy-pages@v4	2026-10-22T04:54:16.2262405Z Found 1 artifact(s)
+deploy	Run actions/deploy-pages@v4	2026-10-22T04:54:16.2272311Z 	"artifact_id": 12402396952,
+deploy	Run actions/deploy-pages@v4	2026-10-22T04:55:14.4362375Z Reported success!
+deploy	Complete job	﻿2026-10-22T04:55:14.4581138Z Evaluate and set environment url
+deploy	Complete job	2026-10-22T04:55:14.4584950Z Evaluated environment url: https://aidanmorgan.github.io/tim/

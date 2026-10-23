@@ -1,0 +1,4 @@
+tracked diff (HEAD, excl _bmad-output and TODO.md): 781d8eddc18b84b4168525ed94931400720f55acf56370a2c35542eb84b28cd6
+364021b3046df59fbbd4d9fc0d90bf5146e993faf302f113f6c59d65a15d726a  CuriousContraptions.tests/ClockGuardTests.cs
+7aa5e0f7f734ae92b051dee73cdaf81e062228b0871ddfaaf47689e0e15f5364  CuriousContraptions.tests/DeclaredOscillatorTests.cs
+known rows: -30 +0; Owner rows now 136; PartId.Clock FinalIsolation rows 2

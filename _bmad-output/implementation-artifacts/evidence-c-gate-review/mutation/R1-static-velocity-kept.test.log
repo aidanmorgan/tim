@@ -1,0 +1,25 @@
+Test run for /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/wt-cand/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:03.84]     CuriousContraptions.Tests.SliderInstanceTests.AMissedBallGetsNothingFromAChargedBoard [FAIL]
+  Failed CuriousContraptions.Tests.SliderInstanceTests.AMissedBallGetsNothingFromAChargedBoard [36 ms]
+  Error Message:
+   Assert.InRange() Failure: Value not in range
+Range:  (0 - 9.99999975E-05)
+Actual: 0.000158682466
+  Stack Trace:
+     at CuriousContraptions.Tests.SliderInstanceTests.AMissedBallGetsNothingFromAChargedBoard() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/wt-cand/CuriousContraptions.tests/SliderInstanceTests.cs:line 55
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:04.49]     CuriousContraptions.Tests.DeclaredPrismaticDriveTests.AWarmedEngineStepsAWorldExactlyLikeAFreshOne [FAIL]
+  Failed CuriousContraptions.Tests.DeclaredPrismaticDriveTests.AWarmedEngineStepsAWorldExactlyLikeAFreshOne [45 ms]
+  Error Message:
+   Assert.Equal() Failure: Collections differ
+                      ↓ (pos 484)
+Expected: [···, 0, 0, 19, 0, 0, ···]
+Actual:   [···, 0, 0, 20, 0, 0, ···]
+                      ↑ (pos 484)
+  Stack Trace:
+     at CuriousContraptions.Tests.DeclaredPrismaticDriveTests.AWarmedEngineStepsAWorldExactlyLikeAFreshOne() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/wt-cand/CuriousContraptions.tests/DeclaredPrismaticDriveTests.cs:line 393
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     2, Passed:   120, Skipped:     0, Total:   122, Duration: 2 s - CuriousContraptions.tests.dll (net10.0)

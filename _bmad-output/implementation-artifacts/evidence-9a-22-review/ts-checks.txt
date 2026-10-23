@@ -1,0 +1,14 @@
+Version 6.0.3
+tsc rc=0
+  ✔ an advanced read with a moved body passes (0.119ms)
+✔ Run/Reset snapshot: no vacuous pass (0.823917ms)
+ℹ tests 24
+ℹ suites 3
+ℹ pass 24
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 98.095625
+tsx rc=   [reviewer note: blank because zsh has no PIPESTATUS; the run above shows pass 24 fail 0, and the rerun below records rc 0]
+tsx rerun rc=0

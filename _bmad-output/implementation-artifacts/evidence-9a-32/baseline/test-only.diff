@@ -1,0 +1,468 @@
+diff --git a/CuriousContraptions.tests/CuriousContraptions.tests.csproj b/CuriousContraptions.tests/CuriousContraptions.tests.csproj
+index c3c48459..3ebc0053 100644
+--- a/CuriousContraptions.tests/CuriousContraptions.tests.csproj
++++ b/CuriousContraptions.tests/CuriousContraptions.tests.csproj
+@@ -89,6 +89,8 @@
+         <Compile Include="PrismaticConstraintTests.cs" />
+         <Compile Include="WorkshopSpringboardTests.cs" />
+         <Compile Include="WorkshopDominoTests.cs" />
++        <Compile Include="DominoGuardTests.cs" />
++        <Compile Include="/private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/probe/ProbeDominoCapture.cs" Link="Probe/ProbeDominoCapture.cs" />
+         <Compile Include="WorkshopBowlingTests.cs" />
+         <Compile Include="PayloadInstanceTests.cs" />
+         <Compile Include="PlacedParts.cs" />
+diff --git a/CuriousContraptions.tests/DominoEffectTests.cs b/CuriousContraptions.tests/DominoEffectTests.cs
+index ad0ed851..8ed78272 100644
+--- a/CuriousContraptions.tests/DominoEffectTests.cs
++++ b/CuriousContraptions.tests/DominoEffectTests.cs
+@@ -14,7 +14,7 @@ public sealed class DominoEffectTests
+     private static WorkshopConstruction Solved(WorkshopConstruction lesson)
+     {
+         var result = lesson;
+-        for (var i = 0; i < 4; i++) result = result.WithInstance(WorkshopInput.Domino(new((ulong)(4 + i)), -4 + i, Upright + .01, 0, 0, 0, 0, 1));
++        for (var i = 0; i < 4; i++) result = result.WithInstance(PlacedParts.Domino(new((ulong)(4 + i)), -4 + i, Upright + .01, 0, 0, 0, 0, 1));
+         return result with { Connections = new(EndToLamp) };
+     }
+ 
+@@ -27,7 +27,7 @@ public sealed class DominoEffectTests
+         Assert.Equal(4u, lesson.Puzzle.InventoryCount);
+         Assert.Equal(new WorkshopGoal(WorkshopGoalKind.ActivatedAfter, default, default, default, new(2), new(3), new((Half)0)), lesson.Puzzle.Goal);
+         Assert.All(lesson.Instances, instance => Assert.True(instance.Locked));
+-        var ball = Payloads.First(lesson); var end = lesson.Instances.Find<WorkshopDomino>()!.Value; var lamp = lesson.Instances.Single(instance => instance.PartId == PartId.SignalLamp);
++        var ball = Payloads.First(lesson); var end = lesson.Instances.Single(instance => instance.PartId == PartId.Domino); var lamp = lesson.Instances.Single(instance => instance.PartId == PartId.SignalLamp);
+         Assert.Equal(WorkshopInput.Position(-4.4), (ball.Cell.X, ball.Local.X)); Assert.Equal(WorkshopInput.Position(3), (ball.Cell.Y, ball.Local.Y));
+         Assert.Equal(WorkshopInput.Position(.1), (end.Cell.X, end.Local.X)); Assert.Equal(WorkshopInput.Position(.09), (end.Cell.Y, end.Local.Y));
+         Assert.Equal(CanonicalRotation.Identity, end.Rotation);
+@@ -60,12 +60,12 @@ public sealed class DominoEffectTests
+     public void ForeignInventoryExhaustedTilesChangedFixturesAndWiringIntoADominoReject()
+     {
+         var lesson = Lesson(); var solved = Solved(lesson);
+-        EditRefusal.Is(WorkshopEditRejection.InventoryExceeded, () => solved.WithInstance(WorkshopInput.Domino(new(9), 1, Upright, 0, 0, 0, 0, 1)).Validate());
++        EditRefusal.Is(WorkshopEditRejection.InventoryExceeded, () => solved.WithInstance(PlacedParts.Domino(new(9), 1, Upright, 0, 0, 0, 0, 1)).Validate());
+         EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => lesson.WithInstance(WorkshopInput.Generic(PartId.Receiver, new(9), 0, 1, 0, 0, 0, 0, 1)).Validate());
+         EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => lesson.WithInstance(WorkshopInput.Generic(PartId.ImpactSwitch, new(9), 0, 1, 0, 0, 0, 0, 1)).Validate());
+         EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => lesson.WithInstance(PlacedParts.Lamp(new(9), 0, 1, 0, 0, 0, 0, 1)).Validate());
+         EditRefusal.Is(WorkshopEditRejection.FixedPart, () => lesson.WithInstance(Payloads.First(lesson) with { Locked = false }).Validate());
+-        EditRefusal.Is(WorkshopEditRejection.FixedPart, () => lesson.WithInstance(WorkshopInput.Domino(new(2), .5, .09, 0, 0, 0, 0, 1) with { Locked = true }).Validate());
++        EditRefusal.Is(WorkshopEditRejection.FixedPart, () => lesson.WithInstance(PlacedParts.Domino(new(2), .5, .09, 0, 0, 0, 0, 1, locked: true)).Validate());
+         EditRefusal.Is(WorkshopEditRejection.FixedPart, () => lesson.WithoutInstance(new(2)).Validate());
+         EditRefusal.Is(WorkshopEditRejection.PuzzleSettings, () => (lesson with { Puzzle = lesson.Puzzle with { InventoryCount = 3 } }).Validate());
+         EditRefusal.Is(WorkshopEditRejection.PuzzleSettings, () => (lesson with { Puzzle = lesson.Puzzle with { Goal = lesson.Puzzle.Goal with { MinimumDuration = new((Half).5) } } }).Validate());
+diff --git a/CuriousContraptions.tests/NoFixedCapacityTests.cs b/CuriousContraptions.tests/NoFixedCapacityTests.cs
+index e9e7fefe..dba89632 100644
+--- a/CuriousContraptions.tests/NoFixedCapacityTests.cs
++++ b/CuriousContraptions.tests/NoFixedCapacityTests.cs
+@@ -70,7 +70,7 @@ public sealed class NoFixedCapacityTests
+                 // A Domino declares its orientation sensor only while wired: each of seventeen drives its own lamp.
+                 for (var i = 0; i < 17; i++)
+                 {
+-                    var tile = WorkshopInput.Domino(Next(), X(i), -0.46 + .56, 0, 0, 0, 0, 1);
++                    var tile = PlacedParts.Domino(Next(), X(i), -0.46 + .56, 0, 0, 0, 0, 1);
+                     var lamp = PlacedParts.Lamp(Next(), X(i), 1, 3, 0, 0, 0, 1);
+                     parts.AddRange([tile, lamp]); links.Add(Signal(tile.Id, lamp.Id));
+                 }
+@@ -220,7 +220,7 @@ public sealed class NoFixedCapacityTests
+         for (var i = 0; i < 17; i++) parts.Add(WorkshopInput.Generic(PartId.Springboard, Next(), X(i), 1, -4, 0, 0, 0, 1));
+         for (var i = 0; i < 17; i++)
+         {
+-            var tile = WorkshopInput.Domino(Next(), X(i), -0.46 + .56, 0, 0, 0, 0, 1);
++            var tile = PlacedParts.Domino(Next(), X(i), -0.46 + .56, 0, 0, 0, 0, 1);
+             var lamp = PlacedParts.Lamp(Next(), X(i), 1, 2, 0, 0, 0, 1);
+             parts.AddRange([tile, lamp]); links.Add(Signal(tile.Id, lamp.Id));
+         }
+diff --git a/CuriousContraptions.tests/OrientationSensorTests.cs b/CuriousContraptions.tests/OrientationSensorTests.cs
+index d8696a09..e39f76c2 100644
+--- a/CuriousContraptions.tests/OrientationSensorTests.cs
++++ b/CuriousContraptions.tests/OrientationSensorTests.cs
+@@ -11,7 +11,7 @@ public sealed class OrientationSensorTests
+     private static readonly WorkshopConnection Wire = new(new(2), WorkshopSocket.ActivationOut, new(3), WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation);
+     private static WorkshopConstruction Construction(bool wired = true) => new(new(1), WorkshopCadenceSettings.Default(),
+         new(WorkshopInput.Generic(PartId.Basketball,new(1), -.4, 3, 0, 0, 0, 0, 1),
+-            WorkshopInput.Domino(new(2), 0, Upright, 0, 0, 0, 0, 1),
++            PlacedParts.Domino(new(2), 0, Upright, 0, 0, 0, 0, 1),
+             PlacedParts.Lamp(new(3), 3, 1, 0, 0, 0, 0, 1)),
+         Connections: wired ? new(Wire) : WorkshopConnections.Empty);
+     private static GpuColliderId ColliderOf(PhysicsSceneDeclaration scene, GpuBodyId body) => scene.Colliders.ToArray().Single(c => c.Body == body).Id;
+@@ -67,7 +67,7 @@ public sealed class OrientationSensorTests
+         Assert.Equal(WorkshopPhysicsCompiler.OrientationSensor(new(2)), sensor.Id);
+         Assert.Equal(new GpuBodyId(2), sensor.Body);
+         Assert.Equal(CanonicalRotation.Identity, sensor.Initial);
+-        Assert.Equal(WorkshopDomino.ActivationThreshold, sensor.Threshold);
++        Assert.Equal(OrientationThreshold.Degrees(45), sensor.Threshold);
+         Assert.Equal((Half)Math.Cos(Math.PI / 8), sensor.Threshold.CosineHalfAngle);
+         Assert.Empty(scene.Triggers.ToArray());
+         var clear = WorkshopActivationCompiler.Compile(Construction()).Clear();
+@@ -226,7 +226,7 @@ public sealed class OrientationSensorTests
+     [Fact]
+     public void ARotatedDominoCompilesItsAdmittedRotationAsTheSensorInitialPose()
+     {
+-        var turned = WorkshopInput.Domino(new(2), 0, Upright, 0, 0, Math.Sqrt(.5), 0, Math.Sqrt(.5));
++        var turned = PlacedParts.Domino(new(2), 0, Upright, 0, 0, Math.Sqrt(.5), 0, Math.Sqrt(.5));
+         var construction = Construction() with { Instances = new(WorkshopInput.Generic(PartId.Basketball,new(1), -.4, 3, 0, 0, 0, 0, 1), turned, PlacedParts.Lamp(new(3), 3, 1, 0, 0, 0, 0, 1)) };
+         var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
+         var sensor = Assert.Single(scene.OrientationSensors.ToArray());
+@@ -242,7 +242,7 @@ public sealed class OrientationSensorTests
+     public void OrientationCauseCarriesThroughADelayToTheLamp()
+     {
+         var delayed = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(),
+-            new(WorkshopInput.Generic(PartId.Basketball,new(1), -.4, 3, 0, 0, 0, 0, 1), WorkshopInput.Domino(new(2), 0, Upright, 0, 0, 0, 0, 1),
++            new(WorkshopInput.Generic(PartId.Basketball,new(1), -.4, 3, 0, 0, 0, 0, 1), PlacedParts.Domino(new(2), 0, Upright, 0, 0, 0, 0, 1),
+                 PlacedParts.Lamp(new(3), 3, 1, 0, 0, 0, 0, 1), WorkshopInput.Generic(PartId.Delay, new(4), 0, 1, 0, 0, 0, 0, 1)),
+             Connections: new(new WorkshopConnection(new(2), WorkshopSocket.ActivationOut, new(4), WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation),
+                 new WorkshopConnection(new(4), WorkshopSocket.ActivationOut, new(3), WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation)));
+@@ -272,7 +272,7 @@ public sealed class OrientationSensorTests
+         var intoDomino = new WorkshopConnection(new(3), WorkshopSocket.ActivationOut, new(2), WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation);
+         EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () => (Construction(false) with { Connections = new(intoDomino) }).Validate());
+         var items = new List<IWorkshopInstance>();
+-        for (var i = 1; i <= 8; i++) items.Add(WorkshopInput.Domino(new((ulong)i), -6 + i, Upright, 0, 0, 0, 0, 1));
++        for (var i = 1; i <= 8; i++) items.Add(PlacedParts.Domino(new((ulong)i), -6 + i, Upright, 0, 0, 0, 0, 1));
+         items.Add(PlacedParts.Lamp(new(9), 4, 1, 0, 0, 0, 0, 1));
+         var instances = new WorkshopInstances([.. items]);
+         instances.Validate();
+diff --git a/CuriousContraptions.tests/PackageRuntimeParityTests.cs b/CuriousContraptions.tests/PackageRuntimeParityTests.cs
+index 435028cb..a79ec99b 100644
+--- a/CuriousContraptions.tests/PackageRuntimeParityTests.cs
++++ b/CuriousContraptions.tests/PackageRuntimeParityTests.cs
+@@ -43,7 +43,11 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
+         Assert.Equal(packages["switch"].Metadata.Parameters.Single(p => p.Key == impact.Contact.ThresholdParameter).Default, trigger.Threshold.Value);
+         var domino = (Abstractions.Signal.ISignalElement)packages["domino"];
+         // The compiler declares this threshold on a wired tile's orientation sensor.
+-        var compiledDegrees = 2 * Math.Acos((double)WorkshopDomino.ActivationThreshold.CosineHalfAngle) * 180 / Math.PI;
++        var wiredTile = WorkshopPhysicsCompiler.Compile(new WorkshopConstruction(new ConstructionRevision(1), WorkshopCadenceSettings.Default(),
++            new WorkshopInstances(PlacedParts.Domino(new(1), 0, 3, 0, 0, 0, 0, 1), PlacedParts.Lamp(new(2), 3, 1, 0, 0, 0, 0, 1)),
++            Connections: new(new WorkshopConnection(new(1), WorkshopSocket.ActivationOut, new(2), WorkshopSocket.ActivationIn,
++                WorkshopConnectionDomain.Activation))), new(1, 2));
++        var compiledDegrees = 2 * Math.Acos((double)Assert.Single(wiredTile.OrientationSensors.ToArray()).Threshold.CosineHalfAngle) * 180 / Math.PI;
+         var declaredDegrees = Math.Acos(Assert.Single(domino.Triggers).Threshold) * 180 / Math.PI;
+         Assert.True(Math.Abs(compiledDegrees - declaredDegrees) < .1,
+             $"domino: topple threshold {declaredDegrees}° declared, {compiledDegrees}° compiled.");
+@@ -411,7 +415,7 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
+         "wall" => WorkshopInput.Generic(PartId.Wall, Owner, 0, 3, 0, 0, 0, 0, 1),
+         "battery" => PlacedParts.Battery(Owner, 0, 3, 0),
+         "bumper" => WorkshopInput.Generic(PartId.PinballBumper, Owner, 0, 3, 0, 0, 0, 0, 1),
+-        "domino" => WorkshopInput.Domino(Owner, 0, 3, 0, 0, 0, 0, 1),
++        "domino" => PlacedParts.Domino(Owner, 0, 3, 0, 0, 0, 0, 1),
+         "pipe" => WorkshopInput.Pipe(Owner, 0, 3, 0, 0, 0, 0, 1),
+         "lamp" or "ball_detector" or "funnel" or "pipe_bend_45" or "pipe_bend_90" or "powered_gate" or "hold_timer" or "both_gate" or "electrical_nand" or "electrical_nor" or "electrical_or" or "electrical_xor" =>
+             WorkshopInput.Generic(id, Owner, 0, 3, 0, 0, 0, 0, 1),
+diff --git a/CuriousContraptions.tests/PayloadInstanceTests.cs b/CuriousContraptions.tests/PayloadInstanceTests.cs
+index 4b94f008..99a30ad5 100644
+--- a/CuriousContraptions.tests/PayloadInstanceTests.cs
++++ b/CuriousContraptions.tests/PayloadInstanceTests.cs
+@@ -89,7 +89,7 @@ public sealed class PayloadInstanceTests
+     [Fact]
+     public void TelemetryFollowsTheLowestIdentityPayloadOrNone()
+     {
+-        var domino = WorkshopInput.Domino(new(2), 3, .1, 0, 0, 0, 0, 1);
++        var domino = PlacedParts.Domino(new(2), 3, .1, 0, 0, 0, 0, 1);
+         Assert.Equal(new GpuBodyId(3), MachineWorld.TelemetryBody(new(Place(PartId.BowlingBall, 7, -2, 3, 0), domino, Place(PartId.Basketball, 3, 2, 3, 0))));
+         Assert.Equal(new GpuBodyId(7), MachineWorld.TelemetryBody(new(domino, Place(PartId.BowlingBall, 7, -2, 3, 0))));
+         Assert.Equal(default, MachineWorld.TelemetryBody(new(domino)));
+@@ -102,7 +102,7 @@ public sealed class PayloadInstanceTests
+     public void AReceiverBesideOnlyADominoCompilesNoSensorOrGuide()
+     {
+         var receiver = WorkshopInput.Generic(PartId.Receiver, new(5), 0, 1, 0, 0, 0, 0, 1);
+-        var domino = WorkshopInput.Domino(new(2), 3, .1, 0, 0, 0, 0, 1);
++        var domino = PlacedParts.Domino(new(2), 3, .1, 0, 0, 0, 0, 1);
+         var alone = WorkshopPhysicsCompiler.Compile(Free(domino, receiver), new(1, 2));
+         Assert.Empty(alone.Sensors.ToArray());
+         Assert.Empty(alone.Guides.ToArray());
+@@ -117,7 +117,7 @@ public sealed class PayloadInstanceTests
+     {
+         var first = WorkshopInput.Generic(PartId.Receiver, new(5), 0, 1, 0, 0, 0, 0, 1);
+         var second = WorkshopInput.Generic(PartId.Receiver, new(6), 4, 1, 0, 0, 0, 0, 1);
+-        var domino = WorkshopInput.Domino(new(2), 3, .1, 0, 0, 0, 0, 1);
++        var domino = PlacedParts.Domino(new(2), 3, .1, 0, 0, 0, 0, 1);
+         new WorkshopInstances(first, second, domino).Validate();
+         foreach (var kind in new[] { PartId.Basketball, PartId.BowlingBall })
+             Assert.Equal(WorkbenchTable.Guides, Assert.Throws<WorkbenchFullException>(() =>
+@@ -288,12 +288,11 @@ public sealed class PayloadInstanceTests
+     internal static byte[] PreConversionBall(string part, float radius, float mass, float bounce) =>
+         PreConversionSave(part, new Dictionary<int, float> { [6] = radius, [7] = mass, [8] = bounce, [9] = (float)(Half).04f });
+ 
+-    internal static byte[] PreConversionDomino()
+-    {
+-        var domino = DominoMaterial.Default;
+-        return PreConversionSave("domino", new Dictionary<int, float> { [7] = (float)domino.Mass.Value, [8] = (float)domino.Bounce.Value,
+-            [24] = (float)domino.Friction.Value }, new((float)domino.HalfExtents.X, (float)domino.HalfExtents.Y, (float)domino.HalfExtents.Z));
+-    }
++    /// <summary>The pre-conversion Domino record: the former record's binary16 material (0.4 kg, bounce 0.05, friction 0.6, half
++    /// extents 0.125 × 0.55 × 0.325 m) widened to the f32 slots it was written in.</summary>
++    internal static byte[] PreConversionDomino() =>
++        PreConversionSave("domino", new Dictionary<int, float> { [7] = (float)(Half).4, [8] = (float)(Half).05, [24] = (float)(Half).6 },
++            new((float)(Half).125, (float)(Half).55, (float)(Half).325));
+ 
+     internal static byte[] PreConversionPipe() => PreConversionSave("pipe", new Dictionary<int, float> { [11] = 3.6f });
+ 
+diff --git a/CuriousContraptions.tests/PlacedParts.cs b/CuriousContraptions.tests/PlacedParts.cs
+index 11978863..fa0874f9 100644
+--- a/CuriousContraptions.tests/PlacedParts.cs
++++ b/CuriousContraptions.tests/PlacedParts.cs
+@@ -40,4 +40,9 @@ internal static class PlacedParts
+     public static IWorkshopInstance Detector(GpuBodyId id, double x, double y, double z,
+         double qx, double qy, double qz, double qw, bool locked = false) =>
+         WorkshopInput.Generic(PartId.BallDetector, id, x, y, z, qx, qy, qz, qw) with { Locked = locked };
++
++    /// <summary>A Domino tile at an f32-input pose.</summary>
++    public static IWorkshopInstance Domino(GpuBodyId id, double x, double y, double z,
++        double qx, double qy, double qz, double qw, bool locked = false) =>
++        WorkshopInput.Domino(id, x, y, z, qx, qy, qz, qw) with { Locked = locked };
+ }
+diff --git a/CuriousContraptions.tests/PressurePlateTests.cs b/CuriousContraptions.tests/PressurePlateTests.cs
+index f5f0246e..544d5b5a 100644
+--- a/CuriousContraptions.tests/PressurePlateTests.cs
++++ b/CuriousContraptions.tests/PressurePlateTests.cs
+@@ -381,10 +381,10 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
+     private static WorkshopPressurePlate Plate(ulong id, double x, double z, float minimum) =>
+         WorkshopInput.PressurePlate(new(id), x, PlateY, z, 0, 0, 0, 1, minimum);
+     private static WorkshopGenericInstance BallOn(ulong id, double x, double z) => WorkshopInput.Generic(PartId.Basketball,new(id), x, Face + .35, z, 0, 0, 0, 1);
+-    private static WorkshopDomino StandingOn(ulong id, double x, double z) => WorkshopInput.Domino(new(id), x, Face + .551, z, 0, 0, 0, 1);
++    private static IWorkshopInstance StandingOn(ulong id, double x, double z) => PlacedParts.Domino(new(id), x, Face + .551, z, 0, 0, 0, 1);
+     /// <summary>A Domino lying on its broad face (1.1 m along x, 0.65 m along z, 0.25 m tall) with its underside at <paramref name="under"/>.</summary>
+-    private static WorkshopDomino FlatOn(ulong id, double x, double under, double z) =>
+-        WorkshopInput.Domino(new(id), x, under + .126, z, 0, 0, Math.Sqrt(.5), Math.Sqrt(.5));
++    private static IWorkshopInstance FlatOn(ulong id, double x, double under, double z) =>
++        PlacedParts.Domino(new(id), x, under + .126, z, 0, 0, Math.Sqrt(.5), Math.Sqrt(.5));
+     private static WorkshopConnection[] Circuit(WorkshopGenericInstance battery, WorkshopPressurePlate plate, WorkshopGenericInstance gate) =>
+         [Supply(battery.Id, plate.Id), Supply(plate.Id, gate.Id)];
+     private static WorkshopConstruction Bench(IWorkshopInstance[] instances, params WorkshopConnection[] connections) =>
+diff --git a/CuriousContraptions.tests/RigidMassPropertiesTests.cs b/CuriousContraptions.tests/RigidMassPropertiesTests.cs
+index d1e1a4cd..1a5f775d 100644
+--- a/CuriousContraptions.tests/RigidMassPropertiesTests.cs
++++ b/CuriousContraptions.tests/RigidMassPropertiesTests.cs
+@@ -144,10 +144,11 @@ public sealed class PhysicsBodyReadSetTests
+     [Fact]
+     public void DominoTileMomentsFollowTheDeclaredHalfExtentsAndMass()
+     {
+-        var material = DominoMaterial.Default;
++        var tile = LawTile.HalfExtents;
+         var body = new RigidBodyDeclaration(new(1), RigidMotionKind.Dynamic, default, default, CanonicalRotation.Identity,
+-            default, default, material.Mass, default, default);
+-        var collider = new ColliderDeclaration(new(2), new(1), new(3), ColliderShapeKind.Box, RigidLocalPose.Identity, new((Half)0), material.HalfExtents);
++            default, default, new((Half)LawTile.Mass), default, default);
++        var collider = new ColliderDeclaration(new(2), new(1), new(3), ColliderShapeKind.Box, RigidLocalPose.Identity, new((Half)0),
++            new((Half)tile.X, (Half)tile.Y, (Half)tile.Z));
+         var properties = RigidMassProperties.Compile(body, collider);
+         const double mass = .4, hx = .125, hy = .55, hz = .325;
+         Near(properties.X, mass * (hy * hy + hz * hz) / 3);
+diff --git a/CuriousContraptions.tests/WorkbenchCapacityTests.cs b/CuriousContraptions.tests/WorkbenchCapacityTests.cs
+index 0b64400c..bfc10a37 100644
+--- a/CuriousContraptions.tests/WorkbenchCapacityTests.cs
++++ b/CuriousContraptions.tests/WorkbenchCapacityTests.cs
+@@ -108,7 +108,7 @@ public sealed class WorkbenchCapacityTests
+     private static IWorkshopInstance Place(PartId kind, GpuBodyId id, double x, double z) => kind.Value switch
+     {
+         "ball" or "bowling" => WorkshopInput.Generic(kind, id, x, 4, z, 0, 0, 0, 1),
+-        "domino" => WorkshopInput.Domino(id, x, DominoUpright + .01, z, 0, 0, 0, 1),
++        "domino" => PlacedParts.Domino(id, x, DominoUpright + .01, z, 0, 0, 0, 1),
+         "basket" => WorkshopInput.Generic(PartId.Receiver, id, x, 1, z, 0, 0, 0, 1),
+         "ramp" => WorkshopInput.Generic(PartId.Ramp, id, x, 2, z, 0, 0, 0, 1),
+         "wall" => WorkshopInput.Generic(PartId.Wall, id, x, 2, z, 0, 0, 0, 1, WallFixture.Default),
+diff --git a/CuriousContraptions.tests/WorkshopBowlingTests.cs b/CuriousContraptions.tests/WorkshopBowlingTests.cs
+index c327e59f..d34cdf51 100644
+--- a/CuriousContraptions.tests/WorkshopBowlingTests.cs
++++ b/CuriousContraptions.tests/WorkshopBowlingTests.cs
+@@ -12,7 +12,7 @@ public sealed class WorkshopBowlingTests
+     private static WorkshopGenericInstance Bowling(ulong id, double x, double y = 3, double z = 0) =>
+         WorkshopInput.Generic(PartId.BowlingBall, new(id), x, y, z, 0, 0, 0, 1);
+     private static WorkshopConstruction TwoLanes() => new(new(1), WorkshopCadenceSettings.Default(),
+-        new(WorkshopInput.Domino(new(1), 0, Upright, -1.5, 0, 0, 0, 1), WorkshopInput.Domino(new(2), 0, Upright, 1.5, 0, 0, 0, 1),
++        new(PlacedParts.Domino(new(1), 0, Upright, -1.5, 0, 0, 0, 1), PlacedParts.Domino(new(2), 0, Upright, 1.5, 0, 0, 0, 1),
+         WorkshopInput.Generic(PartId.Basketball,new(3), .3, 1.05, -1.5, 0, 0, 0, 1), Bowling(4, .3, 1.05, 1.5)));
+ 
+     // C-Balls: each kind is a zero-parameter generic instance of its own package; its material is the package's and no authored value
+diff --git a/CuriousContraptions.tests/WorkshopDominoTests.cs b/CuriousContraptions.tests/WorkshopDominoTests.cs
+index 0d77fc6b..9e13aa02 100644
+--- a/CuriousContraptions.tests/WorkshopDominoTests.cs
++++ b/CuriousContraptions.tests/WorkshopDominoTests.cs
+@@ -9,7 +9,7 @@ public sealed class WorkshopDominoTests
+     private const double Upright = -0.46 + .55;
+     private static WorkshopConstruction Construction() => new(new(1), WorkshopCadenceSettings.Default(),
+         new(WorkshopInput.Generic(PartId.Basketball,new(1), .4, 3, 0, 0, 0, 0, 1),
+-            WorkshopInput.Domino(new(2), 0, Upright, 0, 0, 0, 0, 1)));
++            PlacedParts.Domino(new(2), 0, Upright, 0, 0, 0, 0, 1)));
+ 
+     [Fact]
+     public void DominoCompilesAsOneDynamicBoxWithDeclaredMassMaterialAndGravity()
+@@ -106,8 +106,8 @@ public sealed class WorkshopDominoTests
+             domino with { Material = DominoMaterial.Default with { HalfExtents = new((Half).125, (Half).55, (Half).3) } }
+         })
+             Assert.Throws<ArgumentException>(() => invalid.Validate());
+-        Assert.Throws<ArgumentOutOfRangeException>(() => WorkshopInput.Domino(new(2), 0, 65, 0, 0, 0, 0, 1));
+-        Assert.Throws<ArgumentException>(() => WorkshopInput.Domino(new(2), 0, 0, 0, 0, 0, 0, 0));
++        Assert.Throws<ArgumentOutOfRangeException>(() => PlacedParts.Domino(new(2), 0, 65, 0, 0, 0, 0, 1));
++        Assert.Throws<ArgumentException>(() => PlacedParts.Domino(new(2), 0, 0, 0, 0, 0, 0, 0));
+         Assert.Equal([new WorkshopPort(WorkshopSocket.ActivationOut, WorkshopConnectionDomain.Activation, WorkshopPortDirection.Output, WorkshopSignalKind.Pulse,
+             new(0f, .55f, 0f))], DeclaredPorts.Current.Of(PartId.Domino).ToArray());
+         Assert.True(DeclaredPorts.Current.Has(PartId.Domino, WorkshopSocket.ActivationOut, WorkshopConnectionDomain.Activation, WorkshopPortDirection.Output));
+@@ -115,7 +115,7 @@ public sealed class WorkshopDominoTests
+         Assert.Equal(new System.Numerics.Vector3(0f, .55f, 0f), DeclaredPorts.Current.LocalPosition(PartId.Domino, WorkshopSocket.ActivationOut));
+         // Story 9R.5b: the compiled scene is the footprint authority; the workbench plane adds one static body and collider.
+         var world = WorkshopPhysicsCompiler.Compile(new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(),
+-            new WorkshopInstances(WorkshopInput.Domino(new(1), 0, Upright, 0, 0, 0, 0, 1))), new(1, 2)).World;
++            new WorkshopInstances(PlacedParts.Domino(new(1), 0, Upright, 0, 0, 0, 0, 1))), new(1, 2)).World;
+         Assert.Equal((1 + 1, 1, 1 + 1, 0, 0, 0), (world.Bodies, world.Dynamic, world.Colliders, world.Triggers, world.ContactWorks, world.ElectricalSources));
+         Assert.Equal(PartAllowance.Unlimited, WorkbenchCapacityTests.FreePalette[PartId.Domino]);
+     }
+@@ -124,7 +124,7 @@ public sealed class WorkshopDominoTests
+     public void SeventeenDynamicBodiesBuildAndCompileWithoutAMovingBodyLimit()
+     {
+         var items = new List<IWorkshopInstance>();
+-        for (var i = 0; i < 16; i++) items.Add(WorkshopInput.Domino(new((ulong)(i + 1)), -6 + i * .8, Upright, 0, 0, 0, 0, 1));
++        for (var i = 0; i < 16; i++) items.Add(PlacedParts.Domino(new((ulong)(i + 1)), -6 + i * .8, Upright, 0, 0, 0, 0, 1));
+         var sixteen = new WorkshopInstances([.. items]);
+         sixteen.Validate();
+         // Story 9R.5b: the retired 16-row moving-body table no longer refuses the seventeenth moving body.
+diff --git a/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs b/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs
+index 019cb15e..aeb870ed 100644
+--- a/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs
++++ b/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs
+@@ -445,9 +445,9 @@ public sealed class WorkshopPhysicsEngineTests
+     public async Task TheTwoLaneSetupSeparatesTheBallKindsAndBothStruckBallsComeToRest()
+     {
+         GpuBodyId tileA = new(1), tileB = new(2), ballA = new(3), ballB = new(4);
+-        var tileY = BenchY + (float)DominoMaterial.Default.HalfExtents.Y + .01f;
++        var tileY = BenchY + LawTile.HalfExtents.Y + .01f;
+         var reads = await Run(Free(
+-            WorkshopInput.Domino(tileA, 0, tileY, -1.5, 0, 0, 0, 1), WorkshopInput.Domino(tileB, 0, tileY, 1.5, 0, 0, 0, 1),
++            PlacedParts.Domino(tileA, 0, tileY, -1.5, 0, 0, 0, 1), PlacedParts.Domino(tileB, 0, tileY, 1.5, 0, 0, 0, 1),
+             WorkshopInput.Generic(LawBalls.Part(LawBall.Basketball), ballA, .3, 1.05, -1.5, 0, 0, 0, 1),
+             WorkshopInput.Generic(LawBalls.Part(LawBall.Bowling), ballB, .3, 1.05, 1.5, 0, 0, 0, 1)), 7 * TicksPerSecond);
+         var peakA = reads.Max(read => Tilt(Find(read.Bodies, tileA)));
+@@ -693,7 +693,7 @@ public sealed class WorkshopPhysicsEngineTests
+     [Fact]
+     public async Task UprightDominoAloneStandsStill()
+     {
+-        var reads = await Run(Free(WorkshopInput.Domino(new(1), 0, .1, 0, 0, 0, 0, 1)), 3 * TicksPerSecond);
++        var reads = await Run(Free(PlacedParts.Domino(new(1), 0, .1, 0, 0, 0, 0, 1)), 3 * TicksPerSecond);
+         var end = reads[^1].Bodies[0];
+         var upY = 1 - 2 * (end.Rotation.X * end.Rotation.X + end.Rotation.Z * end.Rotation.Z);
+         Assert.InRange(upY, .9999f, 1.0001f);
+@@ -714,7 +714,7 @@ public sealed class WorkshopPhysicsEngineTests
+         var radius = LawBalls.Radius(ballKind);
+         var declaredMass = LawBalls.Mass(ballKind);
+         var construction = Free(
+-            WorkshopInput.Domino(new(1), 0, .09, 0, 0, 0, 0, 1),
++            PlacedParts.Domino(new(1), 0, .09, 0, 0, 0, 0, 1),
+             WorkshopInput.Generic(kind, new(2), -(.125 + radius + .05), -.46 + radius, 0, 0, 0, 0, 1));
+         var bytes = AdmitMoving(construction, 2, .7f);
+         var ball = BodyRecord(bytes, 2);
+diff --git a/CuriousContraptions.tests/WorkshopPhysicsLawPrismaticTests.cs b/CuriousContraptions.tests/WorkshopPhysicsLawPrismaticTests.cs
+index f08ae308..c3a92fa3 100644
+--- a/CuriousContraptions.tests/WorkshopPhysicsLawPrismaticTests.cs
++++ b/CuriousContraptions.tests/WorkshopPhysicsLawPrismaticTests.cs
+@@ -16,8 +16,7 @@ public sealed class WorkshopPhysicsLawPrismaticTests
+     private const float Lower = -.25f, Stiffness = 400, Damping = .2f;
+     private const float PlateMass = .25f;
+     private static readonly Vector3 PlateHalf = new(.65f, .075f, .6f);
+-    private static readonly Vector3 TileHalf = new((float)DominoMaterial.Default.HalfExtents.X, (float)DominoMaterial.Default.HalfExtents.Y,
+-        (float)DominoMaterial.Default.HalfExtents.Z);
++    private static readonly Vector3 TileHalf = LawTile.HalfExtents;
+     private static readonly LawMaterial PlateMaterial = new(0, .05f, .1f, 0);
+     private static ConstraintFrame Frame(float x = 0, float y = 0, float z = 0, Quaternion? rotation = null) =>
+         new(new(x, y, z), rotation ?? Quaternion.Identity);
+diff --git a/CuriousContraptions.tests/WorkshopPhysicsLawSensorWorkTests.cs b/CuriousContraptions.tests/WorkshopPhysicsLawSensorWorkTests.cs
+index a0ff375d..9d8ce63d 100644
+--- a/CuriousContraptions.tests/WorkshopPhysicsLawSensorWorkTests.cs
++++ b/CuriousContraptions.tests/WorkshopPhysicsLawSensorWorkTests.cs
+@@ -13,8 +13,8 @@ namespace CuriousContraptions.Tests;
+ public sealed class WorkshopPhysicsLawSensorWorkTests
+ {
+     private static readonly float BenchY = LawScene.BenchY;
+-    private static float DominoHalfX => (float)DominoMaterial.Default.HalfExtents.X;
+-    private static float DominoHalfY => (float)DominoMaterial.Default.HalfExtents.Y;
++    private static float DominoHalfX => LawTile.HalfExtents.X;
++    private static float DominoHalfY => LawTile.HalfExtents.Y;
+     private static Quaternion AboutZ(double degrees) => Quaternion.CreateFromAxisAngle(Vector3.UnitZ, (float)(degrees * Math.PI / 180));
+     private static OrientationSensorRead Sensor(LawState state) => PhysicsGpuAbi.ReadOrientationSensor(state.World, 0);
+ 
+@@ -32,8 +32,7 @@ public sealed class WorkshopPhysicsLawSensorWorkTests
+         LawWorld Admit(Vector3 angular, out GpuBodyId tile)
+         {
+             var scene = new LawScene();
+-            tile = scene.Box(new(0, 5, 0), new(DominoHalfX, DominoHalfY, (float)DominoMaterial.Default.HalfExtents.Z),
+-                (float)DominoMaterial.Default.Mass.Value, LawMaterial.Domino, q, angular: angular, gravity: 0);
++            tile = scene.Box(new(0, 5, 0), LawTile.HalfExtents, LawTile.Mass, LawMaterial.Domino, q, angular: angular, gravity: 0);
+             scene.OrientationSensor(tile, q, 10);
+             return scene.Admit();
+         }
+diff --git a/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs b/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs
+index 9cafbe53..68eadc52 100644
+--- a/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs
++++ b/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs
+@@ -31,13 +31,23 @@ internal static class LawBalls
+     public static float BounceThreshold(LawBall ball) => (float)(Half)Sphere(ball).Material.BounceThreshold;
+ }
+ 
++/// <summary>The Domino tile as the compiler compiles it: its package's baked box, mass and material narrowed to the binary16 body,
++/// collider and material lanes (WorkshopPhysicsCompiler), so a law test feeds the engine exactly the compiled tile.</summary>
++internal static class LawTile
++{
++    private static CuriousContraptions.Abstractions.ColliderDescriptor Box => Assert.Single(DeclaredPhysics.Of(PartId.Domino).Colliders);
++    public static Vector3 HalfExtents => new((float)(Half)Box.HalfExtents.X, (float)(Half)Box.HalfExtents.Y, (float)(Half)Box.HalfExtents.Z);
++    public static float Mass => (float)(Half)DeclaredPhysics.Of(PartId.Domino).Mechanical!.MassProperties.Mass;
++    public static LawMaterial Material => new((float)(Half)Box.Material.Restitution, (float)(Half)Box.Material.BounceThreshold,
++        (float)(Half)Box.Material.Friction, (float)(Half)Box.Material.RollingResistance);
++}
++
+ /// <summary>Declared contact material of one law-test body (the same lanes ContactMaterialDeclaration admits).</summary>
+ internal readonly record struct LawMaterial(float Restitution, float Threshold, float Friction, float Rolling)
+ {
+     /// <summary>The compiler's workbench plane material (WorkshopPhysicsCompiler).</summary>
+     public static LawMaterial Bench => new(1f, .1f, .3f, 0f);
+-    public static LawMaterial Domino => new((float)DominoMaterial.Default.Bounce.Value, (float)DominoMaterial.BounceThreshold.Value,
+-        (float)DominoMaterial.Default.Friction.Value, 0f);
++    public static LawMaterial Domino => LawTile.Material;
+     public static LawMaterial Ball(LawBall ball) =>
+         new(LawBalls.Restitution(ball), LawBalls.BounceThreshold(ball), LawBalls.Friction(ball), LawBalls.Rolling(ball));
+ }
+@@ -120,11 +130,7 @@ internal sealed class LawScene
+ 
+     /// <summary>The compiler's stock Domino tile: its declared extents, mass and material.</summary>
+     public GpuBodyId Domino(Vector3 position, Quaternion? rotation = null, Vector3 angular = default, float? gravity = null)
+-    {
+-        var tile = DominoMaterial.Default;
+-        return Box(position, new((float)tile.HalfExtents.X, (float)tile.HalfExtents.Y, (float)tile.HalfExtents.Z), (float)tile.Mass.Value,
+-            LawMaterial.Domino, rotation, angular: angular, gravity: gravity);
+-    }
++        => Box(position, LawTile.HalfExtents, LawTile.Mass, LawMaterial.Domino, rotation, angular: angular, gravity: gravity);
+ 
+     public GpuBodyId StaticBox(Vector3 position, Vector3 half, Quaternion? rotation = null, LawMaterial? material = null,
+         Vector3 colliderOffset = default) =>
+@@ -291,8 +297,8 @@ public sealed class WorkshopPhysicsLawTests
+     private static Vector3 At(float x, float y, float z = 0f) => new(x, y, z);
+     private static Quaternion AboutZ(double degrees) => Quaternion.CreateFromAxisAngle(Vector3.UnitZ, (float)(degrees * Math.PI / 180));
+     private static Quaternion AboutX(double degrees) => Quaternion.CreateFromAxisAngle(Vector3.UnitX, (float)(degrees * Math.PI / 180));
+-    private static float DominoHalfY => (float)DominoMaterial.Default.HalfExtents.Y;
+-    private static float DominoHalfX => (float)DominoMaterial.Default.HalfExtents.X;
++    private static float DominoHalfY => LawTile.HalfExtents.Y;
++    private static float DominoHalfX => LawTile.HalfExtents.X;
+ 
+     // ---- rigid body ----
+ 
+diff --git a/CuriousContraptions.tests/WorkshopSaveRejectionTests.cs b/CuriousContraptions.tests/WorkshopSaveRejectionTests.cs
+index abac59ee..ab2a3467 100644
+--- a/CuriousContraptions.tests/WorkshopSaveRejectionTests.cs
++++ b/CuriousContraptions.tests/WorkshopSaveRejectionTests.cs
+@@ -155,7 +155,7 @@ public sealed class WorkshopSaveRejectionTests
+         WorkshopInput.Generic(PartId.Springboard, new(8), 5, 0, 0, 0, 0, 0, 1),
+         PlacedParts.Battery(new(9), 6, 0, 0),
+         WorkshopInput.Generic(PartId.PinballBumper, new(10), 7, 0, 0, 0, 0, 0, 1),
+-        WorkshopInput.Domino(new(11), 8, 0, 0, 0, 0, 0, 1),
++        PlacedParts.Domino(new(11), 8, 0, 0, 0, 0, 0, 1),
+         PlacedParts.Lamp(new(12), 9, 0, 0, 0, 0, 0, 1),
+         PlacedParts.Detector(new(13), 10, 0, 0, 0, 0, 0, 1),
+         WorkshopInput.PressurePlate(new(14), 11, 0, 0, 0, 0, 0, 1, WorkshopPressurePlate.PlacedMinimumMass),
+diff --git a/CuriousContraptions.tests/WorkshopWireFlatBuffersTests.cs b/CuriousContraptions.tests/WorkshopWireFlatBuffersTests.cs
+index b50b40b0..1b64761e 100644
+--- a/CuriousContraptions.tests/WorkshopWireFlatBuffersTests.cs
++++ b/CuriousContraptions.tests/WorkshopWireFlatBuffersTests.cs
+@@ -127,7 +127,7 @@ public sealed class WorkshopWireFlatBuffersTests
+         PlacedParts.Springboard(new(1), 0, .2, 0, 0, 0, 0, 1, compression: .2f),
+         PlacedParts.Battery(new(1), 0, 1, 0, 60f, 30f, .5f, ElectricalEnable.Disabled),
+         PlacedParts.Bumper(new(1), 0, 1, 0, strength: 6f),
+-        WorkshopInput.Domino(new(1), .1, .09, 0, 0, 0, 0, 1),
++        PlacedParts.Domino(new(1), .1, .09, 0, 0, 0, 0, 1),
+         PlacedParts.Lamp(new(1), 3, 1, 0, 0, 0, 0, 1),
+         WorkshopInput.Latch(new(1), 0, 1, 0, 0, 0, 0, 1, locked: true),
+         WorkshopInput.Pipe(new(1), 0, 1, 0, 0, 0, 0, 1),

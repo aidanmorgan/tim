@@ -7,7 +7,7 @@ using CuriousContraptions.Abstractions.Signal;
 
 namespace CuriousContraptions.Elements.BallDetector;
 
-public sealed class BallDetectorElementDeclaration : IMechanicalElement, ISignalElement, ISceneGeometryElement
+public sealed class BallDetectorElementDeclaration : IMechanicalElement, IPassageSensorElement, ISceneGeometryElement
 {
     public ElementPresentation Presentation => new(1.15f, PresentationAxes.None,
         [
@@ -42,10 +42,7 @@ public sealed class BallDetectorElementDeclaration : IMechanicalElement, ISignal
         new(".", new(1f, 0.3f, 0f, 0.1f))
     ];
 
-    public IReadOnlyList<EventDescriptor> Events =>
-    [
-        new(SimulationEventKind.Passage, "BodyId:u64;Ordinal:u32")
-    ];
+    public IReadOnlyList<EventDescriptor> Events => [new(SimulationEventKind.Passage)];
 
     public SimulationDomain SupportedDomains => SimulationDomain.Mechanical | SimulationDomain.Signal;
 
@@ -68,4 +65,8 @@ public sealed class BallDetectorElementDeclaration : IMechanicalElement, ISignal
     public SignalLatchMode LatchMode => SignalLatchMode.None;
 
     public SignalCounterDescriptor? Counter => null;
+
+    /// <summary>The aperture is the collar's 0.65 m bore; a ball rearms once it clears the upstream side by 0.02 m beyond its own
+    /// radius.</summary>
+    public SignalPassageDescriptor Passage => new(ApertureRadius: .65f, RearmClearance: .02f);
 }

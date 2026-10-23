@@ -71,10 +71,7 @@ public sealed class CounterElementDeclaration : ISignalElement, ISupplyElement, 
         new(".", new(1f, 0.3f, 0f, 0.1f))
     ];
 
-    public IReadOnlyList<EventDescriptor> Events =>
-    [
-        new(SimulationEventKind.CounterReached, "Count:i32;Target:i32")
-    ];
+    public IReadOnlyList<EventDescriptor> Events => [new(SimulationEventKind.ThresholdReached)];
 
     public SimulationDomain SupportedDomains => SimulationDomain.Signal | SimulationDomain.Electrical;
 

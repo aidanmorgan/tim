@@ -133,7 +133,7 @@ public sealed class PoweredGateTests(NativeSceneFixture godot)
     public void Connections_AcceptsElectricalAndRejectsActivation()
     {
         var gate = WorkshopInput.Generic(PartId.PoweredGate, new(1), 0, 0, 0, 0, 0, 0, 1);
-        var battery = WorkshopInput.Battery(new(2), 2, 0, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default);
+        var battery = PlacedParts.Battery(new(2), 2, 0, 0);
         var switchPart = WorkshopInput.Generic(PartId.ImpactSwitch, new(3), -2, 0, 0, 0, 0, 0, 1);
 
         var instances = new WorkshopInstances(gate, battery, switchPart);
@@ -167,7 +167,7 @@ public sealed class PoweredGateTests(NativeSceneFixture godot)
         var gateFrame = scene.Bodies.ToArray().Single(b => b.Id == gate.Id);
         Assert.Equal(RigidMotionKind.Static, gateFrame.Motion);
 
-        var bladeId = WorkshopPhysicsCompiler.GateBlade(gate.Id);
+        var bladeId = WorkshopPhysicsCompiler.SliderBody(gate.Id, 0);
         var gateBlade = scene.Bodies.ToArray().Single(b => b.Id == bladeId);
         Assert.Equal(RigidMotionKind.Dynamic, gateBlade.Motion);
         Assert.Equal((Half)1f, gateBlade.Mass.Value);
@@ -197,8 +197,8 @@ public sealed class PoweredGateTests(NativeSceneFixture godot)
         new(source, WorkshopSocket.Supply, target, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical);
     private static WorkshopGenericInstance Gate(ulong id, double z = 0) =>
         WorkshopInput.Generic(PartId.PoweredGate, new(id), 0, 0, z, 0, 0, 0, 1);
-    private static WorkshopBattery Battery(ulong id, ElectricalEnable enabled, double z = 0) =>
-        WorkshopInput.Battery(new(id), 2, 0, z, 0, 0, 0, 1, ElectricalSourceSettings.Default with { Enabled = enabled });
+    private static WorkshopGenericInstance Battery(ulong id, ElectricalEnable enabled, double z = 0) =>
+        PlacedParts.Battery(new(id), 2, 0, z, enabled: enabled);
 
     // Story 9R.3: a battery wired straight to the gate compiles one Direct route row whatever its authored enable; the blade
     // carries no mode-encoding drag and the gate (an actuator, not a contact work store) has no electrical binding.
@@ -217,7 +217,7 @@ public sealed class PoweredGateTests(NativeSceneFixture godot)
         Assert.True(PhysicsTickInputs.Compose(scene.SupplyGraph,scene.Prismatics.Length,new([ElectricalEnable.Enabled]),NoContact).SupplyClosed[0]);
         Assert.False(PhysicsTickInputs.Compose(scene.SupplyGraph,scene.Prismatics.Length,new([ElectricalEnable.Disabled]),NoContact).SupplyClosed[0]);
         Assert.Empty(scene.Electrical.Bindings.ToArray());
-        Assert.Equal((Half)0,scene.Bodies.ToArray().Single(body=>body.Id==WorkshopPhysicsCompiler.GateBlade(gate.Id)).LinearDrag.Value);
+        Assert.Equal((Half)0,scene.Bodies.ToArray().Single(body=>body.Id==WorkshopPhysicsCompiler.SliderBody(gate.Id, 0)).LinearDrag.Value);
     }
 
     [Fact]
@@ -239,7 +239,7 @@ public sealed class PoweredGateTests(NativeSceneFixture godot)
     public void DeclaredPlateContactRequiresBothSupplyAndCommittedClosure(ElectricalEnable authored)
     {
         var gate=Gate(1);var battery=Battery(2,authored);
-        var plate=WorkshopInput.PressurePlate(new(3),-2,0,0,0,0,0,1,WorkshopPressurePlate.PlacedMinimumMass);
+        var plate=PlacedParts.Plate(new(3),-2,0,0,.5f);
         var construction=new WorkshopConstruction(new(1),WorkshopCadenceSettings.Default(),new(gate,battery,plate),
             Connections:new(Supply(battery.Id,plate.Id),Supply(plate.Id,gate.Id)));
         var scene=WorkshopPhysicsCompiler.Compile(construction,new(1,1));
@@ -260,7 +260,7 @@ public sealed class PoweredGateTests(NativeSceneFixture godot)
         var gate=Gate(1);var battery=Battery(2,ElectricalEnable.Enabled);
         var scene=WorkshopPhysicsCompiler.Compile(new(new(1),WorkshopCadenceSettings.Default(),new(gate,battery)),new(1,1));
         CompiledSupplyGraph Admit(SupplyNodeDeclaration[] nodes,params SupplyEdge[] edges)=>new(nodes,edges,
-            scene.Electrical.Sources,scene.Prismatics,scene.Bodies);
+            scene.Electrical.Sources,scene.Prismatics,scene.PrismaticDrives,scene.Bodies);
         var source=new SupplyNodeDeclaration(battery.Id,SupplyNodeKind.Source,scene.Electrical.Sources[0].Id);
         var consumer=new SupplyNodeDeclaration(gate.Id,SupplyNodeKind.Consumer,Consumer:scene.Prismatics[0].Id);
         Assert.Equal(2,Admit([source,consumer],new SupplyEdge(battery.Id,gate.Id,WorkshopSocket.PowerIn)).Nodes.Length);
@@ -268,7 +268,7 @@ public sealed class PoweredGateTests(NativeSceneFixture godot)
         Assert.Throws<ArgumentException>(()=>Admit([source with {Source=default}]));
         Assert.Throws<ArgumentException>(()=>Admit([source,source]));
         Assert.Throws<ArgumentException>(()=>Admit([consumer with {Consumer=new(999)}]));
-        Assert.Throws<ArgumentException>(()=>Admit([new(WorkshopPhysicsCompiler.GateBlade(gate.Id),SupplyNodeKind.Contact)]));
+        Assert.Throws<ArgumentException>(()=>Admit([new(WorkshopPhysicsCompiler.SliderBody(gate.Id, 0),SupplyNodeKind.Contact)]));
         Assert.Throws<ArgumentException>(()=>Admit([source,consumer],new SupplyEdge(gate.Id,battery.Id,WorkshopSocket.PowerIn)));
         Assert.Throws<ArgumentException>(()=>Admit([source,consumer],new SupplyEdge(battery.Id,gate.Id,WorkshopSocket.PowerIn),new(battery.Id,gate.Id,WorkshopSocket.PowerIn)));
         Assert.Throws<ArgumentException>(()=>Admit([source,consumer],new SupplyEdge(battery.Id,new(999),WorkshopSocket.PowerIn)));

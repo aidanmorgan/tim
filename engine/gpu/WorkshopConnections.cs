@@ -13,7 +13,7 @@ public enum WorkshopConnectionDomain : uint { Activation = 1, Electrical = 2 }
 public enum WorkshopSocket : uint { ActivationOut = 1, SetIn = 2, ResetIn = 3, ActivationIn = 4, FirstIn = 5, SecondIn = 6, Supply = 7, PowerIn = 8 }
 public enum WorkshopPortDirection : uint { Input = 1, Output = 2 }
 /// <summary>What an activation port carries (Story 9R.5): an output declares what it emits, an input the strongest signal it admits.
-/// A Pulse is one occurrence; a Level is a committed high/low value (the latch's memory, the plate's held load). An input that
+/// A Pulse is one occurrence; a Level is a committed high/low value (the latch's memory, a declared sensor's held contact load). An input that
 /// admits a Level also admits a Pulse.</summary>
 public enum WorkshopSignalKind : uint { Pulse = 1, Level = 2 }
 /// <summary>One declared socket, admitted from the element bundle (<see cref="ElementPortCatalogue"/>). Signal is declared on every
@@ -76,16 +76,16 @@ public sealed class WorkshopConnections : IReadOnlyList<WorkshopConnection>, IEq
                     throw new WorkshopEditRejectedException(WorkshopEditRejection.InvalidConnection, "Unsupported activation output.");
                 if (link.Input is not (WorkshopSocket.ActivationIn or WorkshopSocket.SetIn or WorkshopSocket.ResetIn))
                     throw new WorkshopEditRejectedException(WorkshopEditRejection.InvalidConnection, "Unsupported activation input.");
-                // A level output (latch, plate) drives only an input that admits a level (the Signal lamp), and such an input then
-                // follows that one level alone. The rule reads the declared port kinds, never the part identity.
+                // A level output (the latch, a declared contact-load sensor) drives only an input that admits a level (a declared indicator input), and such an
+                // input then follows that one level alone. The rule reads the declared port kinds, never the part identity.
                 if (ports.Signal(source.Value, link.Output, WorkshopPortDirection.Output) == WorkshopSignalKind.Level &&
                     ports.Signal(target.Value, link.Input, WorkshopPortDirection.Input) != WorkshopSignalKind.Level)
-                    throw new WorkshopEditRejectedException(WorkshopEditRejection.LevelDrivesLampOnly, "A level output can only light a Signal lamp.");
+                    throw new WorkshopEditRejectedException(WorkshopEditRejection.LevelDrivesLevelInputOnly, "A level output can only light a Signal lamp.");
                 var feeds = _items.Where(other => other.Domain == WorkshopConnectionDomain.Activation && other.Target == link.Target && other.Input == link.Input).ToArray();
                 if (feeds.Length > 1 && feeds.Any(other => partOf(other.Source) is { } feeder &&
                         ports.Has(feeder, other.Output, WorkshopConnectionDomain.Activation, WorkshopPortDirection.Output) &&
                         ports.Signal(feeder, other.Output, WorkshopPortDirection.Output) == WorkshopSignalKind.Level))
-                    throw new WorkshopEditRejectedException(WorkshopEditRejection.LampFollowsOneLevel, "A lamp that follows a level output takes no other signal.");
+                    throw new WorkshopEditRejectedException(WorkshopEditRejection.LevelInputFollowsOneLevel, "A lamp that follows a level output takes no other signal.");
             }
             else
             {

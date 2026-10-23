@@ -15,7 +15,7 @@ import { after, before, describe, test } from 'node:test';
 import type { ConsoleMessage } from 'playwright';
 import { isWorkshopConsoleFailure } from '../workshop-console.mjs';
 import { WorkshopDriver, type RunResetSnapshot, type WorkshopBodyPose } from './workshop-driver.ts';
-import { decodeSavedConstruction, authoredState } from './workshop-wire.ts';
+import { decodeSavedConstruction, authoredState, parameter } from './workshop-wire.ts';
 import { assertLoadRestores, snapshotEntries } from './run-reset-snapshot.ts';
 
 const requireMcp = createRequire('/opt/homebrew/lib/node_modules/@playwright/mcp/package.json');
@@ -35,7 +35,9 @@ const GATE_1: Point = { x: 720, y: 485 };
 const BATTERY_1: Point = { x: 920, y: 510 };
 const GATE_2: Point = screen(0, 4);                                  // (573, 584): 4 m nearer the viewer than gate 1
 const BATTERY_2: Point = { x: GATE_2.x + 200, y: GATE_2.y + 25 };   // the same offset as battery 1 from gate 1
-// Build-mode battery rows (ui/WorkshopBattery.cs, bottom-anchored 45 px apart): [Battery settings, Connect Supply].
+// Build-mode battery rows (bottom-anchored 45 px apart): [Configure (the generic editor since Story 9A.39; formerly "Battery
+// settings"), Connect Supply]. Story 9A.39 also drops the Running "Charge" label below the toggle: these coordinates are reworked
+// with the post-catalogue E2E phase.
 const ROW_SETTINGS = 744;
 const ROW_CONNECT = 789;
 const CHOICE_POWER_IN: Point = { x: 130, y: 736 }; // the single text choice "Supply → PowerIn"
@@ -128,7 +130,7 @@ function savedBatteryEnables(bytes: Buffer): number[] {
     const enables: number[] = [];
     for (let i = 0; i < construction.instancesLength(); i++) {
         const instance = construction.instances(i)!;
-        if (instance.partId() === 'battery') enables.push(instance.enabled());
+        if (instance.partId() === 'battery') enables.push(parameter(instance, 'enabled'));
     }
     return enables;
 }

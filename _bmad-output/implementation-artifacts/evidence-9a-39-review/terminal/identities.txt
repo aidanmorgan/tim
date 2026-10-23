@@ -1,0 +1,24 @@
+== slice
+commit 5c33e2e6535343a56c026d6b4be4297d743264d2
+tree 9519fbfe9b30c71da8db8a52c60041198c1cfc5e
+parents f27cb71d89697c1ae46ca3a6653d3be8d638e89c
+author Aidan Morgan <aidan@runlevelfive.com.au> Fri Oct 23 16:39:33 2026 +0800
+subject Convert the battery to a declared generic source store
+== merge
+commit 54ffd9f072ffb34acaeeab02f152dabc43c8d71f
+tree 9519fbfe9b30c71da8db8a52c60041198c1cfc5e
+parents f27cb71d89697c1ae46ca3a6653d3be8d638e89c 5c33e2e6535343a56c026d6b4be4297d743264d2
+subject Merge 9A.39 battery generic store
+== remote
+origin/main 54ffd9f072ffb34acaeeab02f152dabc43c8d71f
+54ffd9f072ffb34acaeeab02f152dabc43c8d71f	refs/heads/main
+== approved tree vs slice tree
+approved 524c33a3a0d51a42d909665309fba68927473ade; final staged 9519fbfe9b30c71da8db8a52c60041198c1cfc5e
+ .../review-9a-39-battery.md                        | 28 +++++++++++++++++++++-
+ 1 file changed, 27 insertions(+), 1 deletion(-)
+slice tree == merge tree: yes
+== diff hash, approved-tree basis, record excluded
+59bd8bab5d46b766312870cf1d3db36a5204604596026a8d0399e1af08fbe9c7  -
+59bd8bab5d46b766312870cf1d3db36a5204604596026a8d0399e1af08fbe9c7  -
+== full approved diff hash recomputed from approved tree
+18f4b32d1e3a8317d9f2610f5672e8794c6ea0c3cac949f835806c3c75fa3509  -

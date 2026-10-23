@@ -13,14 +13,13 @@ public sealed class ElectricalNandTests
     private const ulong Supply=7, Gate=8, Consumer=9;
     private static readonly bool[] NandTruth=[true,true,true,false]; // rows 00, 01, 10, 11 (CAT-024 D1)
     private static WorkshopConnection Link(ulong source,ulong target,WorkshopSocket input=WorkshopSocket.PowerIn)=>BothGateTests.Link(source,target,input);
-    private static WorkshopBattery Battery(ulong id,float x,bool enabled)=>WorkshopInput.Battery(new(id),x,3,0,0,0,0,1,
-        ElectricalSourceSettings.Default with {Enabled=enabled?ElectricalEnable.Enabled:ElectricalEnable.Disabled});
+    private static WorkshopGenericInstance Battery(ulong id,float x,bool enabled)=>PlacedParts.Battery(new(id), x, 3, 0, enabled: enabled?ElectricalEnable.Enabled:ElectricalEnable.Disabled);
     private static ElectricalLogicRead Logic(WorkshopRead read,ulong owner=Gate)=>BothGateTests.Logic(read,owner);
     private static bool Powered(WorkshopRead read)=>read.Presentation.Actuators.ToArray().Single(row=>row.Owner.Value==Consumer).SupplyClosed;
     private static float BladeY(WorkshopRead read)
     {
         var body=Enumerable.Range(0,read.Bodies.Count).Select(i=>read.Bodies[i].Body)
-            .Single(row=>row.Id==WorkshopPhysicsCompiler.GateBlade(new(Consumer)));
+            .Single(row=>row.Id==WorkshopPhysicsCompiler.SliderBody(new(Consumer), 0));
         return (body.Cell.Y+body.Local.Y)/16f;
     }
 
@@ -269,9 +268,9 @@ public sealed class ElectricalNandTests
         var (open,closing,_)=LoopCase(FeedbackLoop.ThroughBothGate);
         var scene=WorkshopPhysicsCompiler.Compile(open,new(1,2));
         var edges=SupplyTopology.Create(open,DeclaredPhysics.Of).Edges;
-        _=new CompiledSupplyGraph(scene.SupplyGraph.Nodes,edges,scene.Electrical.Sources,scene.Prismatics,scene.Bodies);
+        _=new CompiledSupplyGraph(scene.SupplyGraph.Nodes,edges,scene.Electrical.Sources,scene.Prismatics,scene.PrismaticDrives,scene.Bodies);
         var looped=edges.Append(new SupplyEdge(closing.Source,closing.Target,closing.Input)).ToArray();
-        var invariant=Assert.Throws<ArgumentException>(()=>new CompiledSupplyGraph(scene.SupplyGraph.Nodes,looped,scene.Electrical.Sources,scene.Prismatics,scene.Bodies));
+        var invariant=Assert.Throws<ArgumentException>(()=>new CompiledSupplyGraph(scene.SupplyGraph.Nodes,looped,scene.Electrical.Sources,scene.Prismatics,scene.PrismaticDrives,scene.Bodies));
         Assert.Equal("A nonmonotone electrical gate lies on a directed cycle.",invariant.Message);
     }
 
@@ -282,8 +281,8 @@ public sealed class ElectricalNandTests
             .Select(row=>CompiledSupplyGraph.Evaluate(LogicGateOperation.Nand,row.Item1,row.Item2)).ToArray());
         Assert.True(CompiledSupplyGraph.IsMonotone(LogicGateOperation.And));
         Assert.False(CompiledSupplyGraph.IsMonotone(LogicGateOperation.Nand));
-        Assert.Throws<ArgumentOutOfRangeException>(()=>CompiledSupplyGraph.Evaluate((LogicGateOperation)4,true,true));
-        Assert.Throws<ArgumentOutOfRangeException>(()=>CompiledSupplyGraph.IsMonotone((LogicGateOperation)4));
+        Assert.Throws<ArgumentOutOfRangeException>(()=>CompiledSupplyGraph.Evaluate((LogicGateOperation)5,true,true));
+        Assert.Throws<ArgumentOutOfRangeException>(()=>CompiledSupplyGraph.IsMonotone((LogicGateOperation)5));
         Assert.Equal(LogicGateOperation.Nand,DeclaredPhysics.Of(Kind).Electrical!.Supply!.Value.Operation);
         var construction=SwitchMachine(ElectricalInputState.Neither,true);
         EditRefusal.Is(WorkshopEditRejection.InvalidConnection,()=>(construction with {Connections=construction.Connections.With(Link(1,Gate,(WorkshopSocket)255))}).Validate());

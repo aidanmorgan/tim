@@ -53,14 +53,21 @@ public sealed class PassageSensorTracker
 
     private readonly PassageSensorDeclaration[] _sensors;
     private readonly PassageBodyState[] _states;
+    private readonly PassageSensorRead[] _fired;
 
     public IReadOnlyList<PassageSensorDeclaration> Sensors => _sensors;
     public IReadOnlyList<PassageBodyState> States => _states;
+    /// <summary>Every pass the step that produced this tracker made, in state order (Story 9A.22: the event producer's Passage
+    /// rows). Unlike the network's per-sensor read span, no pass is dropped. Empty for a created tracker.</summary>
+    public IReadOnlyList<PassageSensorRead> Fired => _fired;
 
-    public PassageSensorTracker(PassageSensorDeclaration[] sensors, PassageBodyState[] states)
+    public PassageSensorTracker(PassageSensorDeclaration[] sensors, PassageBodyState[] states) : this(sensors, states, []) { }
+
+    private PassageSensorTracker(PassageSensorDeclaration[] sensors, PassageBodyState[] states, PassageSensorRead[] fired)
     {
         _sensors = sensors ?? throw new ArgumentNullException(nameof(sensors));
         _states = states ?? throw new ArgumentNullException(nameof(states));
+        _fired = fired;
     }
 
     public static PassageSensorTracker Create(
@@ -134,6 +141,7 @@ public sealed class PassageSensorTracker
     {
         outputCount = 0;
         var nextStates = new PassageBodyState[_states.Length];
+        var fired = new List<PassageSensorRead>();
         uint substeps = motion != null ? motion.Substeps : 1;
 
         for (var i = 0; i < _states.Length; i++)
@@ -227,18 +235,17 @@ public sealed class PassageSensorTracker
                         var dt = 1.0f / WorkshopCadenceSettings.PhysicalFrequency;
                         var speedVal = MathF.Abs(denom / dt);
 
-                        if (outputCount < outputs.Length)
-                        {
-                            outputs[outputCount++] = new PassageSensorRead(
-                                sensor.Id,
-                                sensor.Frame,
-                                body.Body.Id,
-                                current.Collider,
-                                PassageSensorPhase.Fired,
-                                ordinal,
-                                (Half)0,
-                                new LinearSpeed((Half)Math.Clamp(speedVal, 0f, 4096f)));
-                        }
+                        var read = new PassageSensorRead(
+                            sensor.Id,
+                            sensor.Frame,
+                            body.Body.Id,
+                            current.Collider,
+                            PassageSensorPhase.Fired,
+                            ordinal,
+                            (Half)0,
+                            new LinearSpeed((Half)Math.Clamp(speedVal, 0f, 4096f)));
+                        fired.Add(read);
+                        if (outputCount < outputs.Length) outputs[outputCount++] = read;
                     }
                     else
                     {
@@ -263,7 +270,7 @@ public sealed class PassageSensorTracker
                 passedCount);
         }
 
-        return new PassageSensorTracker(_sensors, nextStates);
+        return new PassageSensorTracker(_sensors, nextStates, fired.ToArray());
     }
 
     private static Vector3 RenderPosition(CellOrigin cell, LocalPosition local) =>

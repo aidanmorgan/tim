@@ -1,0 +1,55 @@
+using System.Globalization;
+using System.Text;
+using CuriousContraptions.Gpu;
+
+namespace CuriousContraptions.Tests;
+
+// C-Gate REVIEW probe (throwaway worktree only): per-tick body bits of every lesson bench and every launch route, each on a fresh
+// device (so each Run follows the worker warm-up), written to REVIEW_LESSON_DIR for a base/candidate diff.
+public sealed class ReviewLessonCapture
+{
+    private static string Bits(float value) => BitConverter.SingleToUInt32Bits(value).ToString("x8", CultureInfo.InvariantCulture);
+
+    private static string Row(WorkshopRead read)
+    {
+        var text = new StringBuilder();
+        text.Append(CultureInfo.InvariantCulture, $"t={read.Tick.Value}");
+        for (var i = 0; i < read.Bodies.Count; i++)
+        {
+            var b = read.Bodies[i].Body;
+            text.Append(CultureInfo.InvariantCulture,
+                $" b[{b.Id.Value}] c={b.Cell.X},{b.Cell.Y},{b.Cell.Z} l={Bits((float)b.Local.X)},{Bits((float)b.Local.Y)},{Bits((float)b.Local.Z)} v={Bits((float)b.Velocity.X)},{Bits((float)b.Velocity.Y)},{Bits((float)b.Velocity.Z)}");
+        }
+        return text.ToString();
+    }
+
+    private static async Task Capture(string dir, string name, WorkshopConstruction construction, int ticks)
+    {
+        string text;
+        try
+        {
+            var reads = await WorkshopPhysicsEngineTests.Run(construction, ticks);
+            var solved = LaunchLessonSolveTests.Solved(construction, reads);
+            text = $"solved={solved}\n" + string.Join('\n', reads.Select(Row));
+        }
+        catch (Exception error) when (error is ArgumentException or InvalidOperationException or Xunit.Sdk.XunitException) { text = "ERROR " + error.GetType().Name + ": " + error.Message; }
+        await File.WriteAllTextAsync(Path.Combine(dir, name + ".txt"), text, TestContext.Current.CancellationToken);
+    }
+
+    [Fact]
+    public async Task Lessons()
+    {
+        if (Environment.GetEnvironmentVariable("REVIEW_LESSON_DIR") is not { } dir) return;
+        using var source = System.Text.Json.JsonDocument.Parse(await File.ReadAllTextAsync(Path.Combine(twodog.Engine.ResolveProjectDir(), "content/puzzles.json"), TestContext.Current.CancellationToken));
+        foreach (var level in source.RootElement.EnumerateArray())
+        {
+            var id = level.GetProperty("id").GetString()!;
+            WorkshopConstruction construction;
+            try { construction = PuzzleCatalogue.Create(new PuzzleId(id), new(2), WorkshopCadenceSettings.Default(), new(1), new((Half)1)); }
+            catch (Exception error) when (error is ArgumentException or InvalidOperationException or Xunit.Sdk.XunitException) { await File.WriteAllTextAsync(Path.Combine(dir, "lesson-" + id + ".txt"), "CREATE " + error.GetType().Name, TestContext.Current.CancellationToken); continue; }
+            await Capture(dir, "lesson-" + id, construction, 600);
+        }
+        foreach (var route in Enum.GetValues<LaunchLessonSolveTests.Route>())
+            await Capture(dir, "route-" + route, LaunchLessonSolveTests.Bench(route), 1200);
+    }
+}

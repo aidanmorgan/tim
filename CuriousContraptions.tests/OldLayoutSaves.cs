@@ -4,32 +4,46 @@ using Google.FlatBuffers;
 
 namespace CuriousContraptions.Tests;
 
-/// <summary>Stored saves of the pre-C-Bumper+Spring InstanceRecord (24 fields, 3fce7a03): slots 10–12 stiffness/damping/
+/// <summary>Stored saves of two earlier InstanceRecord layouts, encoded by raw slot index in the old encoder's field order, so the bytes
+/// do not depend on the current generated accessors.
+/// <list type="bullet">
+/// <item><see cref="Layout.PreLaunch"/> (24 fields, 3fce7a03, before C-Bumper+Spring): slots 10–12 stiffness/damping/
 /// initial_compression, 13–16 battery, 17–19 strength/reference_mass/preload, 20 half_extents, 21 friction, 22 target_count and
-/// 23 parameters. Encoded by raw slot index, in the old encoder's field order, so the bytes do not depend on the current generated
-/// accessors (on the record path they equalled the old production encoder byte for byte:
-/// evidence-c-bumper-spring/baseline/old-layout-equality.txt).</summary>
+/// 23 parameters. On the record path these equalled the old production encoder byte for byte
+/// (evidence-c-bumper-spring/baseline/old-layout-equality.txt).</item>
+/// <item><see cref="Layout.PreSourceStore"/> (18 fields, f27cb71d, before Story 9A.39): slots 10–13 battery capacity/maximum_power/
+/// initial_fraction/enabled, 14 half_extents, 15 friction, 16 target_count and 17 parameters. Their bytes equal that commit's
+/// production encoder output (sha256 in evidence-9a-39/baseline/capture/old-saves.sha256).</item>
+/// </list></summary>
 internal static class OldLayoutSaves
 {
-    private const int OldFieldCount = 24;
+    /// <summary>One old table layout and the construction values its pinned saves were written with.</summary>
+    internal sealed record Layout(int FieldCount, int ParametersSlot, int CellY, ulong NextBodyId)
+    {
+        public static Layout PreLaunch { get; } = new(24, 23, 32, 2);
+        public static Layout PreSourceStore { get; } = new(18, 17, 16, 3);
+        /// <summary>The 14-field table of 2065d3c5 (before Story 9A.32): 6 mass, 7 bounce, 8 length, 9 threshold, 10 half_extents,
+        /// 11 friction, 12 target_count, 13 parameters.</summary>
+        public static Layout PreDomino { get; } = new(14, 13, 16, 2);
+    }
 
     /// <summary>One f32/u8/u32 scalar or Vec3f struct at an old slot.</summary>
     internal readonly record struct Slot(int Index, float Value = 0f, byte? Byte = null, uint? Unsigned = null, System.Numerics.Vector3? Vector = null);
 
-    internal static byte[] Save(string part, IReadOnlyList<Slot> slots, IReadOnlyList<(string Key, float Value)>? parameters = null)
+    internal static byte[] Save(Layout layout, string part, IReadOnlyList<Slot> slots, IReadOnlyList<(string Key, float Value)>? parameters = null)
     {
         var builder = new FlatBufferBuilder(512);
-        return SaveFixture.Finish(builder, Record(builder, part, slots, parameters), 2);
+        return SaveFixture.Finish(builder, Record(builder, layout, part, slots, parameters), layout.NextBodyId);
     }
 
     /// <summary>The same old-layout construction carried by a Construct command (the worker's command decode boundary).</summary>
-    internal static byte[] Command(string part, IReadOnlyList<Slot> slots, IReadOnlyList<(string Key, float Value)>? parameters = null)
+    internal static byte[] Command(Layout layout, string part, IReadOnlyList<Slot> slots, IReadOnlyList<(string Key, float Value)>? parameters = null)
     {
         var builder = new FlatBufferBuilder(512);
         var bytes = new byte[RuntimeSessionId.ByteLength];
         new RuntimeSessionId(1, 2).WriteTo(bytes);
         var session = Wire.WorkshopResponse.CreateSessionVectorBlock(builder, bytes);
-        var record = Record(builder, part, slots, parameters);
+        var record = Record(builder, layout, part, slots, parameters);
         Wire.WorkshopCommand.StartWorkshopCommand(builder);
         Wire.WorkshopCommand.AddSequence(builder, 1);
         Wire.WorkshopCommand.AddKind(builder, CommandKind.Construct);
@@ -44,7 +58,7 @@ internal static class OldLayoutSaves
         return builder.SizedByteArray();
     }
 
-    private static Offset<ConstructionRecord> Record(FlatBufferBuilder builder, string part, IReadOnlyList<Slot> slots,
+    private static Offset<ConstructionRecord> Record(FlatBufferBuilder builder, Layout layout, string part, IReadOnlyList<Slot> slots,
         IReadOnlyList<(string Key, float Value)>? parameters)
     {
         var name = builder.CreateString(part);
@@ -52,12 +66,12 @@ internal static class OldLayoutSaves
         if (parameters is not null)
             parameterVector = InstanceRecord.CreateParametersVector(builder, parameters.Select(p =>
                 ParameterRecord.CreateParameterRecord(builder, builder.CreateString(p.Key), p.Value)).ToArray());
-        builder.StartTable(OldFieldCount);
-        if (parameterVector is { } vector) builder.AddOffset(23, vector.Value, 0);
+        builder.StartTable(layout.FieldCount);
+        if (parameterVector is { } vector) builder.AddOffset(layout.ParametersSlot, vector.Value, 0);
         builder.AddUlong(0, 1, 0);
         builder.AddOffset(1, name.Value, 0);
         builder.AddBool(2, false, false);
-        builder.AddStruct(3, Vec3i.CreateVec3i(builder, 0, 32, 0).Value, 0);
+        builder.AddStruct(3, Vec3i.CreateVec3i(builder, 0, layout.CellY, 0).Value, 0);
         builder.AddStruct(4, Vec3f.CreateVec3f(builder, 0, 0, 0).Value, 0);
         builder.AddStruct(5, Quat4f.CreateQuat4f(builder, 0, 0, 0, 1).Value, 0);
         foreach (var slot in slots)
@@ -82,11 +96,44 @@ internal static class OldLayoutSaves
     /// <summary>One old record: its element and the old slots and parameters it stored.</summary>
     internal sealed record OldRecord(string Name, string Part, Slot[] Slots, (string Key, float Value)[]? Parameters = null)
     {
-        public byte[] Save() => OldLayoutSaves.Save(Part, Slots, Parameters);
-        public byte[] Command() => OldLayoutSaves.Command(Part, Slots, Parameters);
+        public Layout Layout { get; init; } = Layout.PreLaunch;
+        public byte[] Save() => OldLayoutSaves.Save(Layout, Part, Slots, Parameters);
+        public byte[] Command() => OldLayoutSaves.Command(Layout, Part, Slots, Parameters);
     }
 
-    /// <summary>Each pre-conversion record kind this slice's schema change moves, with the old values it stored.</summary>
+    private static (string Key, float Value)[] Declared(PartId part) =>
+        InstanceParameterCollection.Defaults(part).Select(pair => (pair.Key.Value, pair.Value)).ToArray();
+
+    /// <summary>Each pre-9A.39 record kind whose meaning the source-store change moves (the battery's four fields left the table, so
+    /// half_extents, friction, target_count and parameters moved down four slots), with the values f27cb71d's production encoder
+    /// stored for evidence-9a-39/baseline/capture/old-saves.</summary>
+    internal static IEnumerable<OldRecord> PreSourceStoreRecords()
+    {
+        var layout = Layout.PreSourceStore;
+        yield return new("battery_default", "battery", [new(10, 3600f), new(11, 120f), new(12, 1f), new(13, Byte: 1)]) { Layout = layout };
+        yield return new("battery_disabled", "battery", [new(10, 3600f), new(11, 120f), new(12, 1f)]) { Layout = layout };
+        yield return new("battery_custom_120_30_half", "battery", [new(10, 120f), new(11, 30f), new(12, .5f), new(13, Byte: 1)]) { Layout = layout };
+        yield return new("battery_custom_disabled_zero", "battery", [new(10, 600f), new(11, 10f)]) { Layout = layout };
+        yield return new("domino", "domino", [new(14, Vector: new((float)(Half).125, (float)(Half).55, (float)(Half).325)),
+            new(6, (float)(Half).4), new(7, (float)(Half).05), new(15, (float)(Half).6)]) { Layout = layout };
+        yield return new("counter", "counter", [new(16, Unsigned: 3)]) { Layout = layout };
+        foreach (var (name, part) in new[] { ("impact_switch", PartId.ImpactSwitch), ("ramp", PartId.Ramp), ("bumper", PartId.PinballBumper),
+                     ("receiver", PartId.Receiver), ("springboard", PartId.Springboard), ("wall", PartId.Wall), ("hold_timer", new PartId("hold_timer")) })
+            yield return new(name, part.Value, [], Declared(part)) { Layout = layout };
+    }
+
+    /// <summary>2065d3c5 records whose parameters vector (slot 13) lies beyond the current 9-field table: a zero-parameter domino and
+    /// lamp each carrying an undeclared parameter, and a bare Basketball with the empty parameters vector the base encoder wrote for
+    /// every generic instance.</summary>
+    internal static IEnumerable<OldRecord> PreDominoRecords()
+    {
+        var layout = Layout.PreDomino;
+        yield return new("domino with a parameter", "domino", [], [("mass", .5f)]) { Layout = layout };
+        yield return new("lamp with a parameter", "lamp", [], [("radius", .5f)]) { Layout = layout };
+        yield return new("bare ball, empty parameters vector", "ball", [], []) { Layout = layout };
+    }
+
+    /// <summary>Each pre-conversion record kind C-Bumper+Spring's schema change moved, with the old values it stored.</summary>
     internal static IEnumerable<OldRecord> Records()
     {
         yield return new("bumper strength 8", "bumper", [new(17, 8f), new(18, 1f), new(19, 32f)]);

@@ -13,7 +13,7 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
     public async Task GateCueUsesActualCommittedDriveAndAppliesNativeMaterial(bool connected)
     {
         var gate = WorkshopInput.Generic(PartId.PoweredGate, new(1), 0, 3, 0, 0, 0, 0, 1);
-        var battery = WorkshopInput.Battery(new(2), 3, 3, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default);
+        var battery = PlacedParts.Battery(new(2), 3, 3, 0);
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(gate, battery))
         {
             Connections = connected
@@ -65,6 +65,37 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
         finally { part.Free(); controlPart.Free(); }
     }
 
+    /// <summary>C-Gate (CAT-051 fact 14, Q3): a blade held at rest on a ball shows the ochre Blocked cue from its committed read, over
+    /// the wire; the same gate before the ball holds it shows the slate unpowered cue.</summary>
+    [Fact]
+    public async Task TheGateCueIsOchreWhileABallHoldsTheBladeAtRest()
+    {
+        var construction = LatchSupplyFixtureTests.Machine(9, payload: true);
+        var reads = await WorkshopPhysicsEngineTests.Run(construction, 360);
+        var gate = construction.Instances.Single(instance => instance.PartId == PartId.PoweredGate).Id;
+        Color Cue(WorkshopRead read)
+        {
+            var endpoint = Response(read, 1);
+            var decoded = WorkshopWireFlatBuffers.DecodeResponse(WorkshopWireFlatBuffers.EncodeResponse(endpoint with { Construction = construction }));
+            var evaluator = new WorkshopDeclaredPresentation(construction, decoded with { Construction = null });
+            var registry = new PartRegistry(); registry.Load();
+            var part = registry.Create(PartId.PoweredGate);
+            try
+            {
+                godot.Tree.Root.AddChild(part);
+                foreach (var sample in evaluator.Advance(read.Capture!.Value.Time.Value / 1_000_000_000d))
+                    if (sample.Owner == gate) part.ApplyDeclaredProperty(sample.Binding, sample.Value);
+                return Assert.IsType<StandardMaterial3D>(part.GetNode<MeshInstance3D>("Visual/Visual_Indicator").MaterialOverride).AlbedoColor;
+            }
+            finally { part.Free(); }
+        }
+        var held = reads[^1].Presentation.Actuators.ToArray().Single(row => row.Owner == gate);
+        Assert.True(held.Blocked && held.MovingContact && !held.SupplyClosed, $"guard: the ball holds the unpowered blade at rest, {held}");
+        Assert.Equal(new Color("#e8b764"), Cue(reads[^1]));
+        Assert.False(reads[0].Presentation.Actuators.ToArray().Single(row => row.Owner == gate).Blocked);
+        Assert.Equal(new Color("#556573"), Cue(reads[0]));
+    }
+
     [Fact]
     public void SinglePrecisionEndpointSurvivesProductionBatchAndControlCodec()
     {
@@ -92,9 +123,8 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
     [InlineData(false)]
     public async Task ClockTicksDrivePendulumPulseAndCounterLamps(bool powered)
     {
-        var battery = WorkshopInput.Battery(new(1), -3, 3, 0, 0, 0, 0, 1,
-            ElectricalSourceSettings.Default with { Enabled = powered ? ElectricalEnable.Enabled : ElectricalEnable.Disabled });
-        var clock = WorkshopInput.Clock(new(2), 0, 3, 0, 0, 0, 0, 1, 1f);
+        var battery = PlacedParts.Battery(new(1), -3, 3, 0, enabled: powered ? ElectricalEnable.Enabled : ElectricalEnable.Disabled);
+        var clock = PlacedParts.Clock(new(2), 0, 3, 0, 0, 0, 0, 1, 1f);
         var counter = WorkshopInput.Counter(new(3), 3, 3, 0, 0, 0, 0, 1, 3);
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(battery, clock, counter),
             Connections: new(
@@ -145,7 +175,7 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
     public async Task PlateNativeColourFollowsActualContactLoad(bool occupied, float minimum, ContactLoadPhase expected)
     {
         var y = (double)WorkshopConstruction.WorkbenchSurface.Value + .22;
-        var plate = WorkshopInput.PressurePlate(new(1), 0, y, 0, 0, 0, 0, 1, minimum);
+        var plate = PlacedParts.Plate(new(1), 0, y, 0, minimum);
         var ball = WorkshopInput.Generic(PartId.Basketball,new(2), 0, y + .08 + .35, 0, 0, 0, 0, 1);
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(),
             occupied ? new(plate, ball) : new(plate));
@@ -180,8 +210,8 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
     [Fact]
     public async Task CommittedClockAndCounterUseExactDeclaredTimesAtNonzeroOrigin()
     {
-        var battery = WorkshopInput.Battery(new(1), -3, 3, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default);
-        var clock = WorkshopInput.Clock(new(2), 0, 3, 0, 0, 0, 0, 1, 1f);
+        var battery = PlacedParts.Battery(new(1), -3, 3, 0);
+        var clock = PlacedParts.Clock(new(2), 0, 3, 0, 0, 0, 0, 1, 1f);
         var counter = WorkshopInput.Counter(new(3), 3, 3, 0, 0, 0, 0, 1, 3);
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(battery, clock, counter),
             Connections: new(new WorkshopConnection(battery.Id, WorkshopSocket.Supply, clock.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical),
@@ -213,7 +243,7 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
     public async Task PlateCubicRateEightAndResetUseCommittedSimulation()
     {
         var y = (double)WorkshopConstruction.WorkbenchSurface.Value + .22;
-        var plate = WorkshopInput.PressurePlate(new(1), 0, y, 0, 0, 0, 0, 1, .5f);
+        var plate = PlacedParts.Plate(new(1), 0, y, 0, .5f);
         var ball = WorkshopInput.Generic(PartId.Basketball,new(2), 0, y + .43, 0, 0, 0, 0, 1);
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(plate, ball));
         var (_, reads, reset) = await PressurePlateTests.RunAndReset(construction, 120);
@@ -238,8 +268,8 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
     [Fact]
     public async Task CommittedClockRetainsHiddenAndSkippedFirstFrameAndResetCancelsIt()
     {
-        var battery = WorkshopInput.Battery(new(1), -3, 3, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default);
-        var clock = WorkshopInput.Clock(new(2), 0, 3, 0, 0, 0, 0, 1, .125f);
+        var battery = PlacedParts.Battery(new(1), -3, 3, 0);
+        var clock = PlacedParts.Clock(new(2), 0, 3, 0, 0, 0, 0, 1, .125f);
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(battery, clock),
             Connections: new(new WorkshopConnection(battery.Id, WorkshopSocket.Supply, clock.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical)));
         var reads = await WorkshopPhysicsEngineTests.Run(construction, 30);
@@ -273,11 +303,11 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
     [Fact]
     public async Task CommittedLatchAndLampPreserveBothDirectionsAndDelayPhases()
     {
-        var setClock = WorkshopInput.Clock(new(1), -3, 0, 0, 0, 0, 0, 1, 1f);
-        var resetClock = WorkshopInput.Clock(new(2), -3, 3, 0, 0, 0, 0, 1, 1.5f);
+        var setClock = PlacedParts.Clock(new(1), -3, 0, 0, 0, 0, 0, 1, 1f);
+        var resetClock = PlacedParts.Clock(new(2), -3, 3, 0, 0, 0, 0, 1, 1.5f);
         var latch = WorkshopInput.Latch(new(3), 0, 0, 0, 0, 0, 0, 1);
-        var battery = WorkshopInput.Battery(new(4), -6, 0, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default);
-        var lamp = WorkshopInput.Lamp(new(5), 3, 0, 0, 0, 0, 0, 1);
+        var battery = PlacedParts.Battery(new(4), -6, 0, 0);
+        var lamp = PlacedParts.Lamp(new(5), 3, 0, 0, 0, 0, 0, 1);
         var delay = WorkshopInput.Generic(PartId.Delay, new(6), 3, 3, 0, 0, 0, 0, 1, new InstanceParameterCollection([new(new ParameterId("delay_seconds"), (float).5f)]));
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(),
             new(setClock, resetClock, latch, battery, lamp, delay),
@@ -342,10 +372,14 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
     [InlineData(.5f, true, 2)]
     [InlineData(.75f, true, 3)]
     [InlineData(1f, true, 4)]
-    public async Task BatterySupplyAndEachChargeBoundaryUseActualCommittedRead(float fraction, bool available, int lit)
+    // Story 9A.39: the gauge's full scale is the instance's own declared capacity, not the package default.
+    [InlineData(.75f, true, 3, 60f, 10f)]
+    [InlineData(.5f, true, 2, 14400f, 480f)]
+    [InlineData(.25f, true, 1, 1234.5f, 33f)]
+    public async Task BatterySupplyAndEachChargeBoundaryUseActualCommittedRead(float fraction, bool available, int lit,
+        float capacity = 3600f, float power = 120f)
     {
-        var battery = WorkshopInput.Battery(new(1), 0, 3, 0, 0, 0, 0, 1,
-            ElectricalSourceSettings.Default with { InitialFraction = fraction });
+        var battery = PlacedParts.Battery(new(1), 0, 3, 0, capacity, power, fraction);
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(battery));
         var phases = await WorkshopPhysicsEngineTests.RunPhases(construction, ([], 1),
             ([new(battery.Id, ElectricalEnable.Disabled)], 1));
@@ -373,8 +407,8 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
     [Fact]
     public async Task SameWorldPrepareCommitRetainsConsumedHiddenAndInProgressChannels()
     {
-        var battery = WorkshopInput.Battery(new(1), -3, 3, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default);
-        var clock = WorkshopInput.Clock(new(2), 0, 3, 0, 0, 0, 0, 1, .125f);
+        var battery = PlacedParts.Battery(new(1), -3, 3, 0);
+        var clock = PlacedParts.Clock(new(2), 0, 3, 0, 0, 0, 0, 1, .125f);
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(battery, clock),
             Connections: new(new WorkshopConnection(battery.Id, WorkshopSocket.Supply, clock.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical)));
         var reads = await WorkshopPhysicsEngineTests.Run(construction, 15);

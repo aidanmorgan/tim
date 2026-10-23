@@ -6,7 +6,7 @@ using CuriousContraptions.Abstractions.Signal;
 
 namespace CuriousContraptions.Elements.SignalLamp;
 
-public sealed class SignalLampElementDeclaration : IElectricalElement, ISignalElement, ISceneGeometryElement
+public sealed class SignalLampElementDeclaration : IElectricalElement, IIndicatorElement, ISceneGeometryElement
 {
     public ElementPresentation Presentation => new(.65f, PresentationAxes.None,
         [
@@ -44,10 +44,8 @@ public sealed class SignalLampElementDeclaration : IElectricalElement, ISignalEl
         new(".", new(1f, 0.3f, 0f, 0.1f))
     ];
 
-    public IReadOnlyList<EventDescriptor> Events =>
-    [
-        new(SimulationEventKind.TriggerActivated, "Lit:bool")
-    ];
+    /// <summary>An indicator's lit state is a committed level, never a ring record.</summary>
+    public IReadOnlyList<EventDescriptor> Events => [];
 
     public SimulationDomain SupportedDomains => SimulationDomain.Electrical | SimulationDomain.Signal;
 
@@ -64,4 +62,8 @@ public sealed class SignalLampElementDeclaration : IElectricalElement, ISignalEl
     public SignalLatchMode LatchMode => SignalLatchMode.None;
 
     public SignalCounterDescriptor? Counter => null;
+
+    /// <summary>The lamp indicates on its ActivationIn: fed by a level output it follows that level, otherwise it holds its first
+    /// input until Reset.</summary>
+    public SignalIndicatorDescriptor Indicator => new(PortSocket.ActivationIn);
 }

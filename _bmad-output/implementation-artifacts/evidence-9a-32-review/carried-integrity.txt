@@ -1,0 +1,12 @@
+/private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/clamp-actual.patch /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/carry/clamp-terminal-receipt.patch differ: char 17089, line 123
+2a27105210ebf2d31335075d2a9cfd92f8586b7e890a6a3ace0f28f2acdcc679  /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/carry/clamp-terminal-receipt.patch
+a0d49ec6940b0d722a96451446e8806f21c493149f5ae967a05c44907f2453e1  /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/clamp-actual.patch
+EVIDENCE dir identical
+fff9b3e9c7a6afb07d4a868bd61dbb8bacc68052382950dfed58a1502860491d  ./addenda-native-rerun.log
+88ac846cecb8a25c0a280975bb864109acec1bc41d05e214b640db988b46576e  ./artifact-deployment.txt
+f8a1370a9131821160374d3252ee54f042535ba2cf1f4a26185fa32bba84ec20  ./build-job.log
+f855a490fd955d5f11ba2b720732db741d8aea20762a4fd51eb846682d4ac8a7  ./deploy-job.log
+97a09a832bd4521849a423efc4eaa227b390156263550e002eaa7bf417328d91  ./deployment-status.txt
+dc55d5f09ae7e5ae0b8d8302ca4386a6f347d3cc273bec1054d384691002586e  ./hook-rerun.log
+04d7a5419aee7127a8e190abc1f5e4e5c3dbb7d12842afc579769ac9447893a5  ./identities.txt
+ebcedbeeebad19578898cada367f6ede08e7f9599595ddf9ec631161ee30bb05  ./run.json

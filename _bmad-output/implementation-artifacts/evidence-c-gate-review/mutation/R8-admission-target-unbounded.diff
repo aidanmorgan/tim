@@ -1,0 +1,4 @@
+50c50
+<         if (Joint.Value == 0 || Joint != joint.Id || !float.IsFinite(Target) || Target < joint.Lower || Target > joint.Upper ||
+---
+>         if (Joint.Value == 0 || Joint != joint.Id || !float.IsFinite(Target) || 

@@ -1,0 +1,19 @@
+Known 136 -> 127
+  - {"Count": 1, "File": "CuriousContraptions.Abstractions/EventDescriptor.cs", "Owner": "Events", "Rule": "PackageIdentifier", "Symbol": "SimulationEventKind", "Token": "CounterReached"}
+  - {"Count": 1, "File": "CuriousContraptions.Abstractions/EventDescriptor.cs", "Owner": "Events", "Rule": "PackageIdentifier", "Symbol": "SimulationEventKind", "Token": "LatchSet"}
+  - {"Count": 1, "File": "engine/gpu/ActivationNetwork.cs", "Owner": "Events", "Rule": "PackageIdentifier", "Symbol": "ActivationNetwork.Consume", "Token": "LatchSet"}
+  - {"Count": 1, "File": "engine/gpu/ActivationNetwork.cs", "Owner": "Events", "Rule": "PackageIdentifier", "Symbol": "ActivationNetwork.ValidateRead", "Token": "CounterReached"}
+  - {"Count": 1, "File": "engine/gpu/ActivationTimers.cs", "Owner": "Events", "Rule": "PackageIdentifier", "Symbol": "ActivationOccurrence.Validate", "Token": "CounterReached"}
+  - {"Count": 1, "File": "engine/gpu/ActivationTimers.cs", "Owner": "Events", "Rule": "PackageIdentifier", "Symbol": "ActivationOccurrenceKind", "Token": "CounterReached"}
+  - {"Count": 1, "File": "engine/gpu/WorkshopMessages.cs", "Owner": "Events", "Rule": "PackageIdentifier", "Symbol": "WorkshopMessages.ValidatePhysicalRead", "Token": "CounterReached"}
+  - {"Count": 2, "File": "engine/gpu/ActivationNetwork.cs", "Owner": "Events", "Rule": "PackageIdentifier", "Symbol": "ActivationNetwork.Consume", "Token": "CounterReached"}
+  - {"Count": 2, "File": "engine/gpu/ActivationNetwork.cs", "Owner": "Events", "Rule": "PackageIdentifier", "Symbol": "ActivationNetwork.ValidateOccurrence", "Token": "CounterReached"}
+Generic 529 -> 533
+  - {"Count": 5, "File": "engine/gpu/ActivationNetwork.cs", "Meaning": "DeclaredCapability", "Symbol": "ActivationNetwork.Consume", "Token": "latchSetBy"}
+  - {"Count": 6, "File": "engine/gpu/ActivationNetwork.cs", "Meaning": "DeclaredCapability", "Symbol": "ActivationNetwork.Consume", "Token": "SimulationLatchPhase"}
+  + {"Count": 1, "File": "engine/gpu/EventRecordProducer.cs", "Meaning": "DeclaredCapability", "Symbol": "EventRecordProducer.KindOf", "Token": "Counter"}
+  + {"Count": 1, "File": "engine/gpu/EventRecordProducer.cs", "Meaning": "DeclaredCapability", "Symbol": "EventRecordProducer.KindOf", "Token": "Latch"}
+  + {"Count": 1, "File": "engine/gpu/EventRecordProducer.cs", "Meaning": "DeclaredCapability", "Symbol": "EventRecordProducer.KindOf", "Token": "StateLatch"}
+  + {"Count": 2, "File": "engine/gpu/EventRecordProducer.cs", "Meaning": "CaptureProtocol", "Symbol": "EventRecordProducer.Stage", "Token": "CaptureLatchPhase"}
+  + {"Count": 5, "File": "engine/gpu/ActivationNetwork.cs", "Meaning": "DeclaredCapability", "Symbol": "ActivationNetwork.Consume", "Token": "SimulationLatchPhase"}
+  + {"Count": 6, "File": "engine/gpu/ActivationNetwork.cs", "Meaning": "DeclaredCapability", "Symbol": "ActivationNetwork.Consume", "Token": "latchSetBy"}

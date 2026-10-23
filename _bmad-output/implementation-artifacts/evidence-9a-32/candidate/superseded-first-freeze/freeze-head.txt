@@ -1,0 +1,59 @@
+HEAD 2065d3c5951232b3e04332101f3d31b45d5e10f1
+tracked diff (git diff --binary HEAD, excluding _bmad-output) sha256 83e8501c84e6fd0606424100171eac63d79fdec5f2f106296a12bf2853b31e7c
+CuriousContraptions.tests/DominoGuardTests.cs 613c29563e42d0a99fbadebe7256907df7b4501dd648a7e9959edfff3481634e
+CuriousContraptions.tests/DeclaredOrientationTests.cs f26f4ed229637929273fdd1e698bb4de4f0b1dca6ddc09b670975e2e422517cc
+ M CuriousContraptions.Abstractions.Signal/SignalContracts.cs
+ M CuriousContraptions.Bundle/BundleSchema.cs
+ M CuriousContraptions.Bundle/BundleValidator.cs
+ M CuriousContraptions.tests/CuriousContraptions.tests.csproj
+ M CuriousContraptions.tests/DeclaredIndicatorPassageTests.cs
+ M CuriousContraptions.tests/DominoEffectTests.cs
+ M CuriousContraptions.tests/Fixtures/element-isolation-known.json
+ M CuriousContraptions.tests/NoFixedCapacityTests.cs
+ M CuriousContraptions.tests/OrientationSensorTests.cs
+ M CuriousContraptions.tests/PackageRuntimeParityTests.cs
+ M CuriousContraptions.tests/PalettePlacementTests.cs
+ M CuriousContraptions.tests/PayloadInstanceTests.cs
+ M CuriousContraptions.tests/PlacedParts.cs
+ M CuriousContraptions.tests/PreConversionLaunchSaveTests.cs
+ M CuriousContraptions.tests/PressurePlateTests.cs
+ M CuriousContraptions.tests/RigidMassPropertiesTests.cs
+ M CuriousContraptions.tests/WorkbenchCapacityTests.cs
+ M CuriousContraptions.tests/WorkshopBowlingTests.cs
+ M CuriousContraptions.tests/WorkshopDominoTests.cs
+ M CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs
+ M CuriousContraptions.tests/WorkshopPhysicsLawPrismaticTests.cs
+ M CuriousContraptions.tests/WorkshopPhysicsLawSensorWorkTests.cs
+ M CuriousContraptions.tests/WorkshopPhysicsLawTests.cs
+ M CuriousContraptions.tests/WorkshopPipeLengthTests.cs
+ M CuriousContraptions.tests/WorkshopSaveRejectionTests.cs
+ M CuriousContraptions.tests/WorkshopSaveTests.cs
+ M CuriousContraptions.tests/WorkshopWireFlatBuffersTests.cs
+ M _bmad-output/implementation-artifacts/sprint-status.yaml
+ M content/puzzles.json
+ M docs/architecture/element-package-isolation.md
+ M docs/gpu-f32-physics.md
+ M docs/planning/elements/CAT-023-domino.md
+ M docs/planning/elements/EL-193-domino.md
+ M elements/Domino/DominoElementDeclaration.cs
+ M engine/MachineWorld.Gpu.cs
+ M engine/gpu/ActivationNetwork.cs
+ M engine/gpu/AuthoredInstanceTemplate.cs
+ M engine/gpu/DeclaredPhysics.cs
+ M engine/gpu/WorkshopConstruction.cs
+D  engine/gpu/WorkshopDomino.cs
+D  engine/gpu/WorkshopDomino.cs.uid
+ M engine/gpu/WorkshopInstances.cs
+ M engine/gpu/WorkshopPhysicsCompiler.cs
+ M engine/gpu/WorkshopSavePrevalidation.cs
+ M engine/gpu/WorkshopWireFlatBuffers.cs
+ M engine/gpu/WorkshopWireGenerated.cs
+ M schemas/workshop_wire.fbs
+ M tools/BundleElements.Tests/BundleRoundTripTests.cs
+ M tools/BundleElements.Tests/BundleValidatorTests.cs
+ M tools/e2e/run-reset-snapshot.ts
+ M tools/e2e/unit/run-reset-snapshot.test.ts
+ M tools/e2e/workshop-wire.ts
+?? CuriousContraptions.tests/DeclaredOrientationTests.cs
+?? CuriousContraptions.tests/DominoGuardTests.cs
+?? _bmad-output/implementation-artifacts/spec-9a-32-domino.md

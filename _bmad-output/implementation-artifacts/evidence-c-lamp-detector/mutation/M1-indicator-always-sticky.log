@@ -1,0 +1,718 @@
+ CuriousContraptions.Bundle/BundleSchema.cs         | 11 ++++--
+ CuriousContraptions.Bundle/BundleValidator.cs      | 26 ++++++++++++--
+ .../BallDetector/BallDetectorElementDeclaration.cs |  6 +++-
+ .../SignalLamp/SignalLampElementDeclaration.cs     |  6 +++-
+ engine/MachineWorld.Gpu.cs                         |  2 --
+ engine/gpu/ActivationNetwork.cs                    | 41 +++++++++++++++-------
+ engine/gpu/ElementPortCatalogue.cs                 |  7 +++-
+ engine/gpu/WorkshopConnections.cs                  |  8 ++---
+ engine/gpu/WorkshopConstruction.cs                 | 17 ---------
+ engine/gpu/WorkshopEditRejectedException.cs        |  8 ++---
+ engine/gpu/WorkshopInstances.cs                    |  2 +-
+ engine/gpu/WorkshopWireFlatBuffers.cs              |  3 --
+ 12 files changed, 87 insertions(+), 50 deletions(-)
+diff --git a/CuriousContraptions.Bundle/BundleSchema.cs b/CuriousContraptions.Bundle/BundleSchema.cs
+index 3ddf97f4..acf47834 100644
+--- a/CuriousContraptions.Bundle/BundleSchema.cs
++++ b/CuriousContraptions.Bundle/BundleSchema.cs
+@@ -38,7 +38,11 @@ public sealed record MechanicalPayload(KinematicMode KinematicMode, RigidBodyMas
+ 
+ public sealed record ElectricalPayload(IReadOnlyList<ElectricalNodeDescriptor> Nodes, SupplyCapabilityDescriptor? Supply);
+ 
+-public sealed record SignalPayload(IReadOnlyList<SignalTriggerDescriptor> Triggers, SignalLatchMode LatchMode, SignalCounterDescriptor? Counter, SignalTimerDescriptor? Timer, SignalContactDescriptor? Contact = null);
++/// <summary>The signal payload. At most one node-selecting capability (<see cref="Timer"/>, <see cref="Contact"/>,
++/// <see cref="Indicator"/> or <see cref="Passage"/>) is present, each exactly when the element declares that contract.</summary>
++public sealed record SignalPayload(IReadOnlyList<SignalTriggerDescriptor> Triggers, SignalLatchMode LatchMode, SignalCounterDescriptor? Counter,
++    SignalTimerDescriptor? Timer, SignalContactDescriptor? Contact = null, SignalIndicatorDescriptor? Indicator = null,
++    SignalPassageDescriptor? Passage = null);
+ 
+ public sealed record FluidPayload(FluidProperties Properties, IReadOnlyList<FluidPortDescriptor> Ports);
+ 
+@@ -59,7 +63,10 @@ public static class BundleSchema
+                     mechanical is IResidenceCaptureElement capture ? capture.Capture : null,
+                     mechanical is IContactWorkElement work ? work.ContactWork : null) : null,
+             declaration is IElectricalElement electrical ? new ElectricalPayload(electrical.ElectricalNodes, electrical is ISupplyElement supply ? supply.Supply : null) : null,
+-            declaration is ISignalElement signal ? new SignalPayload(signal.Triggers, signal.LatchMode, signal.Counter, signal is ITimerElement timer ? timer.Timer : null, signal is IContactTriggerElement contact ? contact.Contact : null) : null,
++            declaration is ISignalElement signal ? new SignalPayload(signal.Triggers, signal.LatchMode, signal.Counter,
++                signal is ITimerElement timer ? timer.Timer : null, signal is IContactTriggerElement contact ? contact.Contact : null,
++                signal is IIndicatorElement indicator ? indicator.Indicator : null,
++                signal is IPassageSensorElement passage ? passage.Passage : null) : null,
+             declaration is IFluidElement fluid ? new FluidPayload(fluid.FluidProperties, fluid.FluidPorts) : null,
+             declaration is IParameterizedGeometryElement geometry ? geometry.ColliderBindings : [], [],
+             declaration is IParameterizedGeometryElement mouths ? mouths.TubeMouthBindings : [], declaration.Presentation);
+diff --git a/CuriousContraptions.Bundle/BundleValidator.cs b/CuriousContraptions.Bundle/BundleValidator.cs
+index 64a2c172..3fc97874 100644
+--- a/CuriousContraptions.Bundle/BundleValidator.cs
++++ b/CuriousContraptions.Bundle/BundleValidator.cs
+@@ -98,7 +98,7 @@ public static class BundleValidator
+             for (var i = 0; i < entry.Metadata.Parameters.Count; i++)
+                 if (entry.Metadata.Parameters[i].RunEdit == ParameterRunEdit.RunControl && entry.Metadata.Parameters[i].Key != runControlled)
+                     OutOfRange($"Metadata.Parameters[{i}].RunEdit");
+-            if (entry.Signal is { } signal) Signal(signal, entry.Metadata.Parameters, entry.Ports);
++            if (entry.Signal is { } signal) Signal(signal, entry.Metadata.Parameters, entry.Ports, entry.Mechanical);
+             if (entry.Fluid is { } fluid) Fluid(fluid);
+         }
+ 
+@@ -565,8 +565,30 @@ public static class BundleValidator
+             return matches[0];
+         }
+ 
+-        private void Signal(SignalPayload signal, IReadOnlyList<ParameterDescriptor> parameters, IReadOnlyList<PortDescriptor> ports)
++        private void Signal(SignalPayload signal, IReadOnlyList<ParameterDescriptor> parameters, IReadOnlyList<PortDescriptor> ports,
++            MechanicalPayload? mechanical)
+         {
++            // One node per element: at most one capability selects it.
++            if ((signal.Contact is null ? 0 : 1) + (signal.Timer is null ? 0 : 1) + (signal.Indicator is null ? 0 : 1) + (signal.Passage is null ? 0 : 1) > 1)
++                OutOfRange("Capability");
++            if (signal.Indicator is { } indicator)
++            {
++                if (!Enum.IsDefined(indicator.Input)) Undefined("Indicator.Input");
++                else if (!ports.Any(port => port.Socket == indicator.Input && port.Domain == SimulationDomain.Signal &&
++                        port.Direction == PortDirection.Input && port.Signal == PortSignalKind.Level))
++                    OutOfRange("Indicator.Input");
++            }
++            if (signal.Passage is { } passage)
++            {
++                if (Finite("Passage.ApertureRadius", passage.ApertureRadius) && !(passage.ApertureRadius >= .01f && passage.ApertureRadius <= 10f))
++                    OutOfRange("Passage.ApertureRadius");
++                if (Finite("Passage.RearmClearance", passage.RearmClearance) && !(passage.RearmClearance >= .001f && passage.RearmClearance <= 10f))
++                    OutOfRange("Passage.RearmClearance");
++                if (!ports.Any(port => port.Socket == PortSocket.ActivationOut && port.Domain == SimulationDomain.Signal && port.Direction == PortDirection.Output && port.Signal == PortSignalKind.Pulse))
++                    OutOfRange("Passage.Ports");
++                if (mechanical?.KinematicMode != KinematicMode.Static)
++                    OutOfRange("Passage.Frame");
++            }
+             for (var i = 0; i < signal.Triggers.Count; i++)
+             {
+                 var trigger = signal.Triggers[i];
+diff --git a/elements/BallDetector/BallDetectorElementDeclaration.cs b/elements/BallDetector/BallDetectorElementDeclaration.cs
+index 75f59d9b..f06cb82c 100644
+--- a/elements/BallDetector/BallDetectorElementDeclaration.cs
++++ b/elements/BallDetector/BallDetectorElementDeclaration.cs
+@@ -7,7 +7,7 @@ using CuriousContraptions.Abstractions.Signal;
+ 
+ namespace CuriousContraptions.Elements.BallDetector;
+ 
+-public sealed class BallDetectorElementDeclaration : IMechanicalElement, ISignalElement, ISceneGeometryElement
++public sealed class BallDetectorElementDeclaration : IMechanicalElement, IPassageSensorElement, ISceneGeometryElement
+ {
+     public ElementPresentation Presentation => new(1.15f, PresentationAxes.None,
+         [
+@@ -68,4 +68,8 @@ public sealed class BallDetectorElementDeclaration : IMechanicalElement, ISignal
+     public SignalLatchMode LatchMode => SignalLatchMode.None;
+ 
+     public SignalCounterDescriptor? Counter => null;
++
++    /// <summary>The aperture is the collar's 0.65 m bore; a ball rearms once it clears the upstream side by 0.02 m beyond its own
++    /// radius.</summary>
++    public SignalPassageDescriptor Passage => new(ApertureRadius: .65f, RearmClearance: .02f);
+ }
+diff --git a/elements/SignalLamp/SignalLampElementDeclaration.cs b/elements/SignalLamp/SignalLampElementDeclaration.cs
+index 212a737b..8d75264e 100644
+--- a/elements/SignalLamp/SignalLampElementDeclaration.cs
++++ b/elements/SignalLamp/SignalLampElementDeclaration.cs
+@@ -6,7 +6,7 @@ using CuriousContraptions.Abstractions.Signal;
+ 
+ namespace CuriousContraptions.Elements.SignalLamp;
+ 
+-public sealed class SignalLampElementDeclaration : IElectricalElement, ISignalElement, ISceneGeometryElement
++public sealed class SignalLampElementDeclaration : IElectricalElement, IIndicatorElement, ISceneGeometryElement
+ {
+     public ElementPresentation Presentation => new(.65f, PresentationAxes.None,
+         [
+@@ -64,4 +64,8 @@ public sealed class SignalLampElementDeclaration : IElectricalElement, ISignalEl
+     public SignalLatchMode LatchMode => SignalLatchMode.None;
+ 
+     public SignalCounterDescriptor? Counter => null;
++
++    /// <summary>The lamp indicates on its ActivationIn: fed by a level output it follows that level, otherwise it holds its first
++    /// input until Reset.</summary>
++    public SignalIndicatorDescriptor Indicator => new(PortSocket.ActivationIn);
+ }
+diff --git a/engine/MachineWorld.Gpu.cs b/engine/MachineWorld.Gpu.cs
+index 26497276..03019645 100644
+--- a/engine/MachineWorld.Gpu.cs
++++ b/engine/MachineWorld.Gpu.cs
+@@ -104,9 +104,7 @@ public partial class MachineWorld
+         var q = rotation.Normalized();
+         return id.Value switch
+         {
+-            "lamp" => WorkshopInput.Lamp(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W),
+             "domino" => WorkshopInput.Domino(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W),
+-            "ball_detector" => WorkshopInput.BallDetector(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W),
+             // The part's presented length; else the committed pipe keeps its own; a newly placed pipe starts at the declared default.
+             "pipe" => WorkshopInput.Pipe(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
+                 dimensions is { } pipeSize ? new(pipeSize.X) : (Construction.Instances.FirstOrDefault(instance => instance.Id == bodyId) is WorkshopPipe pipe ? pipe.Length :
+diff --git a/engine/gpu/ActivationNetwork.cs b/engine/gpu/ActivationNetwork.cs
+index 24f1400f..79c83a0c 100644
+--- a/engine/gpu/ActivationNetwork.cs
++++ b/engine/gpu/ActivationNetwork.cs
+@@ -7,8 +7,9 @@ using CuriousContraptions.Abstractions.Signal;
+ namespace CuriousContraptions.Gpu;
+ 
+ public readonly record struct ActivationNodeId(ulong Value);
+-/// <summary>StickyFirstInput is the Signal lamp's first-input-wins hold (never reset within a run); StateLatch is the bistable
+-/// Set/Reset memory (CAT-037); LevelIndicator is a Signal lamp driven by a level ActivationOut (latch or plate), mirroring it.
++/// <summary>StickyFirstInput is a declared indicator's first-input-wins hold (never reset within a run); StateLatch is the bistable
++/// Set/Reset memory (CAT-037); LevelIndicator is a declared indicator whose input is wired from a level ActivationOut (latch or
++/// plate), mirroring it. PassageSource is a declared passage aperture's crossing pulse.
+ /// ContactLoadSource is a contact-load row's committed level (Story 9R.4 D3): Latched from its first Loaded tick until its
+ /// committed release hold (Story 9R.5, ReleaseHoldTicks after the last Loaded tick) expires.
+ /// The kinds are distinct and share no name.</summary>
+@@ -832,12 +833,8 @@ public static class WorkshopActivationCompiler
+         {
+             if (instance is WorkshopGenericInstance && DeclaredPhysics.Of(instance.PartId).Signal?.Contact is not null)
+                 nodes.Add(new(new(instance.Id.Value), instance.Id, ActivationNodeKind.ContactSource, WorkshopPhysicsCompiler.ContactTrigger(instance.Id)));
+-            // A lamp fed by a declared level output follows that level; otherwise it holds its first pulse.
+-            else if (instance is WorkshopLamp lamp)
+-                nodes.Add(new(new(lamp.Id.Value), lamp.Id, construction.Connections.Any(link => link.Domain == WorkshopConnectionDomain.Activation &&
+-                    link.Target == lamp.Id && construction.Instances.Any(source => source.Id == link.Source &&
+-                        DeclaredPorts.Current.Signal(source.PartId, link.Output, WorkshopPortDirection.Output) == WorkshopSignalKind.Level))
+-                    ? ActivationNodeKind.LevelIndicator : ActivationNodeKind.StickyFirstInput, default));
++            else if (instance is WorkshopGenericInstance && DeclaredPhysics.Of(instance.PartId).Signal?.Indicator is { } indicator)
++                nodes.Add(new(new(instance.Id.Value), instance.Id, IndicatorKind(instance.Id, indicator, construction), default));
+             else if (instance is WorkshopGenericInstance generic && DeclaredPhysics.Of(instance.PartId).Signal?.Timer is { } timer)
+                 nodes.Add(new(new(instance.Id.Value), instance.Id, ActivationNodeKind.Timer, default,
+                     ActivationTimerDeclaration.Duration(generic.Parameters[new ParameterId(timer.DurationParameter)], construction.Settings.Simulation),
+@@ -845,11 +842,11 @@ public static class WorkshopActivationCompiler
+             // A Domino owns a node only while wired: its orientation sensor compiles under the same condition.
+             else if (instance is WorkshopDomino domino && construction.Connections.HasSource(domino.Id))
+                 nodes.Add(new(new(domino.Id.Value), domino.Id, ActivationNodeKind.OrientationSource, default, 0, WorkshopPhysicsCompiler.OrientationSensor(domino.Id)));
+-            else if (instance is WorkshopBallDetector detector)
++            else if (instance is WorkshopGenericInstance && DeclaredPhysics.Of(instance.PartId).Signal?.Passage is { } aperture)
+             {
+-                var sensorId = WorkshopPhysicsCompiler.PassageSensor(detector.Id);
+-                nodes.Add(new(new(detector.Id.Value), detector.Id, ActivationNodeKind.PassageSource, default, 0, default, sensorId));
+-                passageSensors.Add(new(sensorId, detector.Id, detector.Cell, detector.Local, detector.Rotation, new((Half)0.65), new((Half)0.02)));
++                var sensor = PassageSensorFor(instance, aperture);
++                nodes.Add(new(new(instance.Id.Value), instance.Id, ActivationNodeKind.PassageSource, default, 0, default, sensor.Id));
++                passageSensors.Add(sensor);
+             }
+             else if (instance is WorkshopCounter counter)
+                 nodes.Add(new(new(counter.Id.Value), counter.Id, ActivationNodeKind.Counter, default, 0, default, default, (uint)counter.TargetCount));
+@@ -880,4 +877,24 @@ public static class WorkshopActivationCompiler
+             construction.Instances.Where(instance => DeclaredPhysics.Of(instance.PartId).Electrical?.Supply?.Kind ==
+                 CuriousContraptions.Abstractions.Electrical.SupplyCapabilityKind.SwitchedContact).Select(instance=>instance.Id).ToArray());
+     }
++
++    /// <summary>The node a declared indicator compiles to: an Activation link into its declared input from a level output makes it
++    /// follow that level (LevelIndicator); any other wiring, or none, holds its first input (StickyFirstInput).</summary>
++    public static ActivationNodeKind IndicatorKind(GpuBodyId owner, SignalIndicatorDescriptor indicator, WorkshopConstruction construction)
++    {
++        var input = ElementPortCatalogue.Socket(indicator.Input);
++        return construction.Connections.Any(link => link.Domain == WorkshopConnectionDomain.Activation &&
++            link.Target == owner && link.Input == input && construction.Instances.Any(source => source.Id == link.Source &&
++                DeclaredPorts.Current.Signal(source.PartId, link.Output, WorkshopPortDirection.Output) == WorkshopSignalKind.Level))
++            ? ActivationNodeKind.StickyFirstInput : ActivationNodeKind.StickyFirstInput;
++    }
++
++    /// <summary>The passage sensor a declared aperture compiles to on its owner's frame. The f32 radius and clearance narrow to the
++    /// sensor's binary16 lanes here (Story 9A.44 widens the lanes).</summary>
++    public static PassageSensorDeclaration PassageSensorFor(IWorkshopInstance owner, SignalPassageDescriptor aperture)
++    {
++        ArgumentNullException.ThrowIfNull(owner);
++        return new(WorkshopPhysicsCompiler.PassageSensor(owner.Id), owner.Id, owner.Cell, owner.Local, owner.Rotation,
++            new((Half)aperture.ApertureRadius), new((Half)aperture.RearmClearance));
++    }
+ }
+diff --git a/engine/gpu/ElementPortCatalogue.cs b/engine/gpu/ElementPortCatalogue.cs
+index f9071d33..58b46295 100644
+--- a/engine/gpu/ElementPortCatalogue.cs
++++ b/engine/gpu/ElementPortCatalogue.cs
+@@ -102,7 +102,7 @@ public sealed class ElementPortCatalogue : IEquatable<ElementPortCatalogue>
+             PortDirection.Output => WorkshopPortDirection.Output,
+             _ => throw Refused(ElementPortRejection.UnsupportedDirection, element, index, $"declares the direction {port.Direction}, which the engine does not connect")
+         };
+-        var socket = (WorkshopSocket)(uint)port.Socket;
++        var socket = Socket(port.Socket);
+         if (Own(socket) != (domain, direction))
+             throw Refused(ElementPortRejection.SocketDisagrees, element, index, $"declares {port.Socket} as {port.Domain} {port.Direction}");
+         WorkshopSignalKind? signal = (domain, port.Signal) switch
+@@ -128,6 +128,11 @@ public sealed class ElementPortCatalogue : IEquatable<ElementPortCatalogue>
+         _ => throw new ArgumentOutOfRangeException(nameof(socket), socket, "Undefined socket.")
+     };
+ 
++    /// <summary>The engine socket a declared port socket names: the two closed sets share their values. An undefined one is refused.</summary>
++    public static WorkshopSocket Socket(PortSocket socket) => Enum.IsDefined(socket)
++        ? (WorkshopSocket)(uint)socket
++        : throw new ArgumentOutOfRangeException(nameof(socket), socket, "Undefined socket.");
++
+     private static ElementPortRejectedException Refused(ElementPortRejection reason, PartId element, int index, string detail) =>
+         new(reason, $"'{element}'.Ports[{index}] {detail}.");
+ 
+diff --git a/engine/gpu/WorkshopConnections.cs b/engine/gpu/WorkshopConnections.cs
+index 9cf0a3fc..ef4adcc3 100644
+--- a/engine/gpu/WorkshopConnections.cs
++++ b/engine/gpu/WorkshopConnections.cs
+@@ -76,16 +76,16 @@ public sealed class WorkshopConnections : IReadOnlyList<WorkshopConnection>, IEq
+                     throw new WorkshopEditRejectedException(WorkshopEditRejection.InvalidConnection, "Unsupported activation output.");
+                 if (link.Input is not (WorkshopSocket.ActivationIn or WorkshopSocket.SetIn or WorkshopSocket.ResetIn))
+                     throw new WorkshopEditRejectedException(WorkshopEditRejection.InvalidConnection, "Unsupported activation input.");
+-                // A level output (latch, plate) drives only an input that admits a level (the Signal lamp), and such an input then
+-                // follows that one level alone. The rule reads the declared port kinds, never the part identity.
++                // A level output (latch, plate) drives only an input that admits a level (a declared indicator input), and such an
++                // input then follows that one level alone. The rule reads the declared port kinds, never the part identity.
+                 if (ports.Signal(source.Value, link.Output, WorkshopPortDirection.Output) == WorkshopSignalKind.Level &&
+                     ports.Signal(target.Value, link.Input, WorkshopPortDirection.Input) != WorkshopSignalKind.Level)
+-                    throw new WorkshopEditRejectedException(WorkshopEditRejection.LevelDrivesLampOnly, "A level output can only light a Signal lamp.");
++                    throw new WorkshopEditRejectedException(WorkshopEditRejection.LevelDrivesLevelInputOnly, "A level output can only light a Signal lamp.");
+                 var feeds = _items.Where(other => other.Domain == WorkshopConnectionDomain.Activation && other.Target == link.Target && other.Input == link.Input).ToArray();
+                 if (feeds.Length > 1 && feeds.Any(other => partOf(other.Source) is { } feeder &&
+                         ports.Has(feeder, other.Output, WorkshopConnectionDomain.Activation, WorkshopPortDirection.Output) &&
+                         ports.Signal(feeder, other.Output, WorkshopPortDirection.Output) == WorkshopSignalKind.Level))
+-                    throw new WorkshopEditRejectedException(WorkshopEditRejection.LampFollowsOneLevel, "A lamp that follows a level output takes no other signal.");
++                    throw new WorkshopEditRejectedException(WorkshopEditRejection.LevelInputFollowsOneLevel, "A lamp that follows a level output takes no other signal.");
+             }
+             else
+             {
+diff --git a/engine/gpu/WorkshopConstruction.cs b/engine/gpu/WorkshopConstruction.cs
+index 308bb15d..c8e81ee3 100644
+--- a/engine/gpu/WorkshopConstruction.cs
++++ b/engine/gpu/WorkshopConstruction.cs
+@@ -76,23 +76,6 @@ public static class WorkshopInput
+             CanonicalRotation.Normalize(Rotation(qx), Rotation(qy), Rotation(qz), Rotation(qw)), DominoMaterial.Default);
+         result.Validate(); return result;
+     }
+-    public static WorkshopLamp Lamp(GpuBodyId id, double x, double y, double z,
+-        double qx, double qy, double qz, double qw)
+-    {
+-        var px = Position(x); var py = Position(y); var pz = Position(z);
+-        var result = new WorkshopLamp(id, new(px.Cell, py.Cell, pz.Cell), new(px.Local, py.Local, pz.Local),
+-            CanonicalRotation.Normalize(Rotation(qx), Rotation(qy), Rotation(qz), Rotation(qw)));
+-        result.Validate(); return result;
+-    }
+-    public static WorkshopBallDetector BallDetector(GpuBodyId id, double x, double y, double z,
+-        double qx, double qy, double qz, double qw, bool locked = false)
+-    {
+-        var px = Position(x); var py = Position(y); var pz = Position(z);
+-        var result = new WorkshopBallDetector(id, new(px.Cell, py.Cell, pz.Cell), new(px.Local, py.Local, pz.Local),
+-            CanonicalRotation.Normalize(Rotation(qx), Rotation(qy), Rotation(qz), Rotation(qw)),
+-            locked);
+-        result.Validate(); return result;
+-    }
+     public static WorkshopPressurePlate PressurePlate(GpuBodyId id, double x, double y, double z,
+         double qx, double qy, double qz, double qw, float minimumMass, bool locked = false)
+     {
+diff --git a/engine/gpu/WorkshopEditRejectedException.cs b/engine/gpu/WorkshopEditRejectedException.cs
+index 1e42e016..c37903e1 100644
+--- a/engine/gpu/WorkshopEditRejectedException.cs
++++ b/engine/gpu/WorkshopEditRejectedException.cs
+@@ -19,10 +19,10 @@ public enum WorkshopEditRejection : uint
+     SaveSettingsMismatch,
+     /// <summary>A connection is duplicated or does not join matching declared ports.</summary>
+     InvalidConnection,
+-    /// <summary>A level output (State Latch, Pressure Plate) may light only a Signal lamp.</summary>
+-    LevelDrivesLampOnly,
+-    /// <summary>A lamp that follows a level output takes no other signal.</summary>
+-    LampFollowsOneLevel,
++    /// <summary>A level output (State Latch, Pressure Plate) may drive only an input that admits a level.</summary>
++    LevelDrivesLevelInputOnly,
++    /// <summary>An input that follows a level output takes no other signal.</summary>
++    LevelInputFollowsOneLevel,
+     /// <summary>The power input already has a supplier.</summary>
+     PowerInputSupplied,
+     /// <summary>The puzzle's inventory is used up.</summary>
+diff --git a/engine/gpu/WorkshopInstances.cs b/engine/gpu/WorkshopInstances.cs
+index cad8da9b..9e97e3da 100644
+--- a/engine/gpu/WorkshopInstances.cs
++++ b/engine/gpu/WorkshopInstances.cs
+@@ -74,7 +74,7 @@ public sealed class WorkshopInstances : IReadOnlyList<IWorkshopInstance>, IEquat
+         var ids = new HashSet<GpuBodyId>();
+         foreach (var item in _items)
+         {
+-            if (item is not (WorkshopLamp or WorkshopDomino or WorkshopPressurePlate or WorkshopCounter or WorkshopClock or WorkshopLatch or IWorkshopDeclaredColliders))
++            if (item is not (WorkshopDomino or WorkshopPressurePlate or WorkshopCounter or WorkshopClock or WorkshopLatch or IWorkshopDeclaredColliders))
+                 throw new ArgumentException("Unsupported authored instance declaration.");
+             item.Validate();
+             if (!ids.Add(item.Id)) throw new ArgumentException("Authored body identities must be unique.");
+diff --git a/engine/gpu/WorkshopWireFlatBuffers.cs b/engine/gpu/WorkshopWireFlatBuffers.cs
+index e9ca2075..778485d1 100644
+--- a/engine/gpu/WorkshopWireFlatBuffers.cs
++++ b/engine/gpu/WorkshopWireFlatBuffers.cs
+@@ -622,7 +622,6 @@ public static class WorkshopWireFlatBuffers
+                 case WorkshopPipe pipe:
+                     InstanceRecord.AddLength(builder, pipe.Length.Metres);
+                     break;
+-                case WorkshopLamp:
+                 case WorkshopLatch:
+                 case IWorkshopDeclaredColliders:
+                     break;
+@@ -735,11 +734,9 @@ public static class WorkshopWireFlatBuffers
+         IWorkshopInstance result = partId.Value switch
+         {
+             "domino" => MapDomino(inst, id, cell, local, rotation, locked),
+-            "lamp" => new WorkshopLamp(id, cell, local, rotation, locked),
+             "latch" => new WorkshopLatch(id, cell, local, rotation, locked),
+             // A record without its length decodes the schema's 0, which validation rejects: no default replaces saved data.
+             "pipe" => new WorkshopPipe(id, cell, local, rotation, new(inst.Length), locked),
+-            "ball_detector" => new WorkshopBallDetector(id, cell, local, rotation, locked),
+             // Declared settings are decoded as written; construction validation rejects a missing (zero) or out-of-range value.
+             "pressure_plate" => new WorkshopPressurePlate(id, cell, local, rotation, inst.Threshold, locked),
+             "counter" => new WorkshopCounter(id, cell, local, rotation, TargetCount(inst), locked),
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  Coverage -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/tools/Coverage/bin/Debug/net10.0/Coverage.dll
+  WorkerAotGuard -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/tools/WorkerAotGuard/bin/Debug/net10.0/WorkerAotGuard.dll
+  CuriousContraptions.FlatBuffers -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/CuriousContraptions.FlatBuffers/bin/Debug/net10.0/CuriousContraptions.FlatBuffers.dll
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/CuriousContraptions.Abstractions/bin/Debug/net10.0/CuriousContraptions.Abstractions.dll
+  CuriousContraptions.Animation -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/CuriousContraptions.Animation/bin/Debug/net10.0/CuriousContraptions.Animation.dll
+  CuriousContraptions.Abstractions.Fluid -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/CuriousContraptions.Abstractions.Fluid/bin/Debug/net10.0/CuriousContraptions.Abstractions.Fluid.dll
+  CuriousContraptions.Abstractions.Electrical -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/CuriousContraptions.Abstractions.Electrical/bin/Debug/net10.0/CuriousContraptions.Abstractions.Electrical.dll
+  CuriousContraptions.Abstractions.Mechanical -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/CuriousContraptions.Abstractions.Mechanical/bin/Debug/net10.0/CuriousContraptions.Abstractions.Mechanical.dll
+  LifecycleContract -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/tools/LifecycleContract/bin/Debug/net10.0/LifecycleContract.dll
+  Ownership -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/tools/Ownership/bin/Debug/net10.0/Ownership.dll
+  E2eRunner -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/tools/E2eRunner/bin/Debug/net10.0/E2eRunner.dll
+  WireContract -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/tools/WireContract/bin/Debug/net10.0/WireContract.dll
+  WorkerAotGuard.Tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/tools/WorkerAotGuard.Tests/bin/Debug/net10.0/WorkerAotGuard.Tests.dll
+  TraceAllocations -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/tools/TraceAllocations/bin/Debug/net10.0/TraceAllocations.dll
+  CuriousContraptions.Abstractions.Signal -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/CuriousContraptions.Abstractions.Signal/bin/Debug/net10.0/CuriousContraptions.Abstractions.Signal.dll
+  Battery -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/elements/Battery/bin/Debug/net10.0/Battery.dll
+  Springboard -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/elements/Springboard/bin/Debug/net10.0/Springboard.dll
+  ElectricalXor -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/elements/ElectricalXor/bin/Debug/net10.0/ElectricalXor.dll
+  ElectricalOr -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/elements/ElectricalOr/bin/Debug/net10.0/ElectricalOr.dll
+  ElectricalNand -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/elements/ElectricalNand/bin/Debug/net10.0/ElectricalNand.dll
+  Ball -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/elements/Ball/bin/Debug/net10.0/Ball.dll
+  HoldTimer -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/elements/HoldTimer/bin/Debug/net10.0/HoldTimer.dll
+  ElectricalNor -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/elements/ElectricalNor/bin/Debug/net10.0/ElectricalNor.dll
+  SystemClock -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/elements/SystemClock/bin/Debug/net10.0/SystemClock.dll
+  DelayBox -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/elements/DelayBox/bin/Debug/net10.0/DelayBox.dll
+  Counter -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/elements/Counter/bin/Debug/net10.0/Counter.dll
+  PipeBend90 -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/elements/PipeBend90/bin/Debug/net10.0/PipeBend90.dll
+  Pipe -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/elements/Pipe/bin/Debug/net10.0/Pipe.dll
+  Receiver -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/elements/Receiver/bin/Debug/net10.0/Receiver.dll
+  BallDetector -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/elements/BallDetector/bin/Debug/net10.0/BallDetector.dll
+  Coverage.Tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/tools/Coverage.Tests/bin/Debug/net10.0/Coverage.Tests.dll
+  PipeBend45 -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/elements/PipeBend45/bin/Debug/net10.0/PipeBend45.dll
+  PressurePlate -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/elements/PressurePlate/bin/Debug/net10.0/PressurePlate.dll
+  ImpactSwitch -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/elements/ImpactSwitch/bin/Debug/net10.0/ImpactSwitch.dll
+  BowlingBall -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/elements/BowlingBall/bin/Debug/net10.0/BowlingBall.dll
+  Domino -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/elements/Domino/bin/Debug/net10.0/Domino.dll
+  Wall -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/elements/Wall/bin/Debug/net10.0/Wall.dll
+  Ramp -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/elements/Ramp/bin/Debug/net10.0/Ramp.dll
+  StateLatch -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/elements/StateLatch/bin/Debug/net10.0/StateLatch.dll
+  Funnel -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/elements/Funnel/bin/Debug/net10.0/Funnel.dll
+  BothGate -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/elements/BothGate/bin/Debug/net10.0/BothGate.dll
+  PoweredGate -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/elements/PoweredGate/bin/Debug/net10.0/PoweredGate.dll
+  SignalLamp -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/elements/SignalLamp/bin/Debug/net10.0/SignalLamp.dll
+  Bumper -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/elements/Bumper/bin/Debug/net10.0/Bumper.dll
+  CuriousContraptions.Bundle -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/CuriousContraptions.Bundle/bin/Debug/net10.0/CuriousContraptions.Bundle.dll
+  E2eRunner.Tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/tools/E2eRunner.Tests/bin/Debug/net10.0/E2eRunner.Tests.dll
+  Preview -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/tools/Preview/bin/Debug/net10.0/Preview.dll
+  BundleElements -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/tools/BundleElements/bin/Debug/net10.0/BundleElements.dll
+  Element bundle: /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/tools/BundleElements/bin/Debug/net10.0/elements.bundle.json (28 elements)
+  Element bundle: /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/elements/elements.bundle.json (28 elements)
+  CuriousContraptions -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/.godot/mono/temp/bin/Debug/CuriousContraptions.dll
+  CuriousContraptions.Animation.Worker -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/CuriousContraptions.Animation.Worker/bin/Debug/net10.0/browser-wasm/CuriousContraptions.Animation.Worker.dll
+  CuriousContraptions.2dog -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/CuriousContraptions.2dog/bin/Debug/net10.0/CuriousContraptions.2dog.dll
+  Godot Engine (2dog) v4.7.2.stable.mono.2dog.161236340 (2026-09-24 19:51:42 UTC) - https://2dog.dev
+  
+  CuriousContraptions.Simulation -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/CuriousContraptions.Simulation/bin/Debug/net10.0/browser-wasm/CuriousContraptions.Simulation.dll
+  BundleElements.Tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/tools/BundleElements.Tests/bin/Debug/net10.0/BundleElements.Tests.dll
+  CuriousContraptions.tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll
+  [   0% ] [90m[1mfirst_scan_filesystem[22m | Started Project initialization (5 steps)[39m[0m
+  [   0% ] [90m[1mfirst_scan_filesystem[22m | Scanning file structure...[39m[0m
+  [  16% ] [90m[1mfirst_scan_filesystem[22m | Loading global class names...[39m[0m
+  [  33% ] [90m[1mfirst_scan_filesystem[22m | Verifying GDExtensions...[39m[0m
+  [  50% ] [90m[1mfirst_scan_filesystem[22m | Creating autoload scripts...[39m[0m
+  [  66% ] [90m[1mfirst_scan_filesystem[22m | Initializing plugins...[39m[0m
+  [  83% ] [90m[1mfirst_scan_filesystem[22m | Starting file scan...[39m[0m
+  [92m[ DONE ][39m [1mfirst_scan_filesystem[22m
+  [0m
+  [   0% ] [90m[1m_update_scan_actions[22m | Started Scanning actions... (22 steps)[39m[0m
+  [   0% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [   4% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [   8% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  13% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  17% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  21% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  26% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  30% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  34% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  39% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  43% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  47% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  52% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  56% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  60% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  65% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  69% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  73% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  78% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  82% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  86% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  91% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [92m[ DONE ][39m [1m_update_scan_actions[22m
+  [0m
+  [   0% ] [90m[1mloading_editor_layout[22m | Started Loading editor (5 steps)[39m[0m
+  [   0% ] [90m[1mloading_editor_layout[22m | Loading editor layout...[39m[0m
+  [  16% ] [90m[1mloading_editor_layout[22m | Loading docks...[39m[0m
+  [92m[ DONE ][39m [1mloading_editor_layout[22m
+  [0m
+  TwoDog: Imported Godot project /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector
+  Godot Engine (2dog) v4.7.2.stable.mono.2dog.161236340 (2026-09-24 19:51:42 UTC) - https://2dog.dev
+  
+  [   0% ] [90m[1mfirst_scan_filesystem[22m | Started Project initialization (5 steps)[39m[0m
+  [   0% ] [90m[1mfirst_scan_filesystem[22m | Scanning file structure...[39m[0m
+  [  16% ] [90m[1mfirst_scan_filesystem[22m | Loading global class names...[39m[0m
+  [  33% ] [90m[1mfirst_scan_filesystem[22m | Verifying GDExtensions...[39m[0m
+  [  50% ] [90m[1mfirst_scan_filesystem[22m | Creating autoload scripts...[39m[0m
+  [  66% ] [90m[1mfirst_scan_filesystem[22m | Initializing plugins...[39m[0m
+  [  83% ] [90m[1mfirst_scan_filesystem[22m | Starting file scan...[39m[0m
+  [92m[ DONE ][39m [1mfirst_scan_filesystem[22m
+  [0m
+  [   0% ] [90m[1m_update_scan_actions[22m | Started Scanning actions... (22 steps)[39m[0m
+  [   0% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [   4% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [   8% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  13% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  17% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  21% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  26% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  30% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  34% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  39% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  43% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  47% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  52% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  56% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  60% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  65% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  69% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  73% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  78% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  82% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  86% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  91% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [92m[ DONE ][39m [1m_update_scan_actions[22m
+  [0m
+  [   0% ] [90m[1mloading_editor_layout[22m | Started Loading editor (5 steps)[39m[0m
+  [   0% ] [90m[1mloading_editor_layout[22m | Loading editor layout...[39m[0m
+  [  16% ] [90m[1mloading_editor_layout[22m | Loading docks...[39m[0m
+  [92m[ DONE ][39m [1mloading_editor_layout[22m
+  [0m
+  TwoDog: Imported Godot project /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:10.84
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:01.58]     CuriousContraptions.Tests.LampDetectorGuardTests.ALampOnALatchFollowsItsLevelOnAndOffWhileAFirstInputLampHolds [FAIL]
+  Failed CuriousContraptions.Tests.LampDetectorGuardTests.ALampOnALatchFollowsItsLevelOnAndOffWhileAFirstInputLampHolds [6 ms]
+  Error Message:
+   System.ArgumentException : Unsupported activation edge.
+  Stack Trace:
+     at CuriousContraptions.Gpu.ActivationNetwork..ctor(ReadOnlySpan`1 nodes, ReadOnlySpan`1 edges, UInt32 substeps, ReadOnlySpan`1 passageSensors, ReadOnlySpan`1 contacts) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/engine/gpu/ActivationNetwork.cs:line 186
+   at CuriousContraptions.Gpu.WorkshopActivationCompiler.Compile(WorkshopConstruction construction) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/engine/gpu/ActivationNetwork.cs:line 875
+   at CuriousContraptions.Tests.LampDetectorGuardTests.ALampOnALatchFollowsItsLevelOnAndOffWhileAFirstInputLampHolds() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/CuriousContraptions.tests/LampDetectorGuardTests.cs:line 219
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:01.63]     CuriousContraptions.Tests.LampDetectorGuardTests.ALampOnAPlateFollowsItsLevelOnAndOff [FAIL]
+  Failed CuriousContraptions.Tests.LampDetectorGuardTests.ALampOnAPlateFollowsItsLevelOnAndOff [7 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 227
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 235
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.Run(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 235
+   at CuriousContraptions.Tests.LampDetectorGuardTests.ALampOnAPlateFollowsItsLevelOnAndOff() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/CuriousContraptions.tests/LampDetectorGuardTests.cs:line 242
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:01.84]     CuriousContraptions.Tests.DeclaredIndicatorPassageTests.TheLampAndDetectorCompileTheNodesTheirDeclarationsSelect [FAIL]
+[xUnit.net 00:00:01.84]     CuriousContraptions.Tests.DeclaredIndicatorPassageTests.AnIndicatorFollowsALevelOnlyOnItsDeclaredInput [FAIL]
+  Failed CuriousContraptions.Tests.DeclaredIndicatorPassageTests.TheLampAndDetectorCompileTheNodesTheirDeclarationsSelect [1 ms]
+  Error Message:
+   System.ArgumentException : Unsupported activation edge.
+  Stack Trace:
+     at CuriousContraptions.Gpu.ActivationNetwork..ctor(ReadOnlySpan`1 nodes, ReadOnlySpan`1 edges, UInt32 substeps, ReadOnlySpan`1 passageSensors, ReadOnlySpan`1 contacts) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/engine/gpu/ActivationNetwork.cs:line 186
+   at CuriousContraptions.Gpu.WorkshopActivationCompiler.Compile(WorkshopConstruction construction) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/engine/gpu/ActivationNetwork.cs:line 875
+   at CuriousContraptions.Tests.DeclaredIndicatorPassageTests.TheLampAndDetectorCompileTheNodesTheirDeclarationsSelect() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/CuriousContraptions.tests/DeclaredIndicatorPassageTests.cs:line 40
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.DeclaredIndicatorPassageTests.AnIndicatorFollowsALevelOnlyOnItsDeclaredInput [1 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: LevelIndicator
+Actual:   StickyFirstInput
+  Stack Trace:
+     at CuriousContraptions.Tests.DeclaredIndicatorPassageTests.AnIndicatorFollowsALevelOnlyOnItsDeclaredInput() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/CuriousContraptions.tests/DeclaredIndicatorPassageTests.cs:line 60
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:02.27]     CuriousContraptions.Tests.PressurePlateTests.TheReleaseHoldIsCommittedCheckpointState [FAIL]
+[xUnit.net 00:00:02.27]     CuriousContraptions.Tests.PressurePlateTests.ABounceGapOfElevenStaysLitAndTwelveShowsOneDarkTick(gap: 12, dark: 1) [FAIL]
+[xUnit.net 00:00:02.27]     CuriousContraptions.Tests.PressurePlateTests.ABounceGapOfElevenStaysLitAndTwelveShowsOneDarkTick(gap: 11, dark: 0) [FAIL]
+  Failed CuriousContraptions.Tests.PressurePlateTests.TheReleaseHoldIsCommittedCheckpointState [< 1 ms]
+  Error Message:
+   System.ArgumentException : Unsupported activation edge.
+  Stack Trace:
+     at CuriousContraptions.Gpu.ActivationNetwork..ctor(ReadOnlySpan`1 nodes, ReadOnlySpan`1 edges, UInt32 substeps, ReadOnlySpan`1 passageSensors, ReadOnlySpan`1 contacts) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/engine/gpu/ActivationNetwork.cs:line 186
+   at CuriousContraptions.Gpu.WorkshopActivationCompiler.Compile(WorkshopConstruction construction) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/engine/gpu/ActivationNetwork.cs:line 875
+   at CuriousContraptions.Tests.PressurePlateTests.TheReleaseHoldIsCommittedCheckpointState() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/CuriousContraptions.tests/PressurePlateTests.cs:line 882
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.PressurePlateTests.ABounceGapOfElevenStaysLitAndTwelveShowsOneDarkTick(gap: 12, dark: 1) [2 ms]
+  Error Message:
+   System.ArgumentException : Unsupported activation edge.
+  Stack Trace:
+     at CuriousContraptions.Gpu.ActivationNetwork..ctor(ReadOnlySpan`1 nodes, ReadOnlySpan`1 edges, UInt32 substeps, ReadOnlySpan`1 passageSensors, ReadOnlySpan`1 contacts) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/engine/gpu/ActivationNetwork.cs:line 186
+   at CuriousContraptions.Gpu.WorkshopActivationCompiler.Compile(WorkshopConstruction construction) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/engine/gpu/ActivationNetwork.cs:line 875
+   at CuriousContraptions.Tests.PressurePlateTests.HoldTrace(Boolean[] loaded) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/CuriousContraptions.tests/PressurePlateTests.cs:line 818
+   at CuriousContraptions.Tests.PressurePlateTests.ABounceGapOfElevenStaysLitAndTwelveShowsOneDarkTick(Int32 gap, Int32 dark) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/CuriousContraptions.tests/PressurePlateTests.cs:line 870
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.PressurePlateTests.ABounceGapOfElevenStaysLitAndTwelveShowsOneDarkTick(gap: 11, dark: 0) [< 1 ms]
+  Error Message:
+   System.ArgumentException : Unsupported activation edge.
+  Stack Trace:
+     at CuriousContraptions.Gpu.ActivationNetwork..ctor(ReadOnlySpan`1 nodes, ReadOnlySpan`1 edges, UInt32 substeps, ReadOnlySpan`1 passageSensors, ReadOnlySpan`1 contacts) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/engine/gpu/ActivationNetwork.cs:line 186
+   at CuriousContraptions.Gpu.WorkshopActivationCompiler.Compile(WorkshopConstruction construction) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/engine/gpu/ActivationNetwork.cs:line 875
+   at CuriousContraptions.Tests.PressurePlateTests.HoldTrace(Boolean[] loaded) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/CuriousContraptions.tests/PressurePlateTests.cs:line 818
+   at CuriousContraptions.Tests.PressurePlateTests.ABounceGapOfElevenStaysLitAndTwelveShowsOneDarkTick(Int32 gap, Int32 dark) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/CuriousContraptions.tests/PressurePlateTests.cs:line 870
+   at InvokeStub_PressurePlateTests.ABounceGapOfElevenStaysLitAndTwelveShowsOneDarkTick(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+[xUnit.net 00:00:02.75]     CuriousContraptions.Tests.PressurePlateTests.TheLevelIsHeldThroughElevenTicksAndDarkFromTwelve(n: 11, lit: True) [FAIL]
+[xUnit.net 00:00:02.75]     CuriousContraptions.Tests.PressurePlateTests.TheLevelIsHeldThroughElevenTicksAndDarkFromTwelve(n: 13, lit: False) [FAIL]
+[xUnit.net 00:00:02.75]     CuriousContraptions.Tests.PressurePlateTests.TheLevelIsHeldThroughElevenTicksAndDarkFromTwelve(n: 12, lit: False) [FAIL]
+[xUnit.net 00:00:02.75]     CuriousContraptions.Tests.PressurePlateTests.TheLevelIsHeldThroughElevenTicksAndDarkFromTwelve(n: 1, lit: True) [FAIL]
+[xUnit.net 00:00:02.75]     CuriousContraptions.Tests.PressurePlateTests.TheLevelIsHighOnTheFirstQualifyingTick [FAIL]
+  Failed CuriousContraptions.Tests.PressurePlateTests.TheLevelIsHeldThroughElevenTicksAndDarkFromTwelve(n: 11, lit: True) [< 1 ms]
+  Error Message:
+   System.ArgumentException : Unsupported activation edge.
+  Stack Trace:
+     at CuriousContraptions.Gpu.ActivationNetwork..ctor(ReadOnlySpan`1 nodes, ReadOnlySpan`1 edges, UInt32 substeps, ReadOnlySpan`1 passageSensors, ReadOnlySpan`1 contacts) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/engine/gpu/ActivationNetwork.cs:line 186
+   at CuriousContraptions.Gpu.WorkshopActivationCompiler.Compile(WorkshopConstruction construction) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/engine/gpu/ActivationNetwork.cs:line 875
+   at CuriousContraptions.Tests.PressurePlateTests.HoldTrace(Boolean[] loaded) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/CuriousContraptions.tests/PressurePlateTests.cs:line 818
+   at CuriousContraptions.Tests.PressurePlateTests.TheLevelIsHeldThroughElevenTicksAndDarkFromTwelve(Int32 n, Boolean lit) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/CuriousContraptions.tests/PressurePlateTests.cs:line 852
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.PressurePlateTests.TheLevelIsHeldThroughElevenTicksAndDarkFromTwelve(n: 13, lit: False) [< 1 ms]
+  Error Message:
+   System.ArgumentException : Unsupported activation edge.
+  Stack Trace:
+     at CuriousContraptions.Gpu.ActivationNetwork..ctor(ReadOnlySpan`1 nodes, ReadOnlySpan`1 edges, UInt32 substeps, ReadOnlySpan`1 passageSensors, ReadOnlySpan`1 contacts) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/engine/gpu/ActivationNetwork.cs:line 186
+   at CuriousContraptions.Gpu.WorkshopActivationCompiler.Compile(WorkshopConstruction construction) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/engine/gpu/ActivationNetwork.cs:line 875
+   at CuriousContraptions.Tests.PressurePlateTests.HoldTrace(Boolean[] loaded) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/CuriousContraptions.tests/PressurePlateTests.cs:line 818
+   at CuriousContraptions.Tests.PressurePlateTests.TheLevelIsHeldThroughElevenTicksAndDarkFromTwelve(Int32 n, Boolean lit) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/CuriousContraptions.tests/PressurePlateTests.cs:line 852
+   at InvokeStub_PressurePlateTests.TheLevelIsHeldThroughElevenTicksAndDarkFromTwelve(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.PressurePlateTests.TheLevelIsHeldThroughElevenTicksAndDarkFromTwelve(n: 12, lit: False) [< 1 ms]
+  Error Message:
+   System.ArgumentException : Unsupported activation edge.
+  Stack Trace:
+     at CuriousContraptions.Gpu.ActivationNetwork..ctor(ReadOnlySpan`1 nodes, ReadOnlySpan`1 edges, UInt32 substeps, ReadOnlySpan`1 passageSensors, ReadOnlySpan`1 contacts) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/engine/gpu/ActivationNetwork.cs:line 186
+   at CuriousContraptions.Gpu.WorkshopActivationCompiler.Compile(WorkshopConstruction construction) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/engine/gpu/ActivationNetwork.cs:line 875
+   at CuriousContraptions.Tests.PressurePlateTests.HoldTrace(Boolean[] loaded) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/CuriousContraptions.tests/PressurePlateTests.cs:line 818
+   at CuriousContraptions.Tests.PressurePlateTests.TheLevelIsHeldThroughElevenTicksAndDarkFromTwelve(Int32 n, Boolean lit) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/CuriousContraptions.tests/PressurePlateTests.cs:line 852
+   at InvokeStub_PressurePlateTests.TheLevelIsHeldThroughElevenTicksAndDarkFromTwelve(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.PressurePlateTests.TheLevelIsHeldThroughElevenTicksAndDarkFromTwelve(n: 1, lit: True) [< 1 ms]
+  Error Message:
+   System.ArgumentException : Unsupported activation edge.
+  Stack Trace:
+     at CuriousContraptions.Gpu.ActivationNetwork..ctor(ReadOnlySpan`1 nodes, ReadOnlySpan`1 edges, UInt32 substeps, ReadOnlySpan`1 passageSensors, ReadOnlySpan`1 contacts) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/engine/gpu/ActivationNetwork.cs:line 186
+   at CuriousContraptions.Gpu.WorkshopActivationCompiler.Compile(WorkshopConstruction construction) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/engine/gpu/ActivationNetwork.cs:line 875
+   at CuriousContraptions.Tests.PressurePlateTests.HoldTrace(Boolean[] loaded) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/CuriousContraptions.tests/PressurePlateTests.cs:line 818
+   at CuriousContraptions.Tests.PressurePlateTests.TheLevelIsHeldThroughElevenTicksAndDarkFromTwelve(Int32 n, Boolean lit) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/CuriousContraptions.tests/PressurePlateTests.cs:line 852
+   at InvokeStub_PressurePlateTests.TheLevelIsHeldThroughElevenTicksAndDarkFromTwelve(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.PressurePlateTests.TheLevelIsHighOnTheFirstQualifyingTick [< 1 ms]
+  Error Message:
+   System.ArgumentException : Unsupported activation edge.
+  Stack Trace:
+     at CuriousContraptions.Gpu.ActivationNetwork..ctor(ReadOnlySpan`1 nodes, ReadOnlySpan`1 edges, UInt32 substeps, ReadOnlySpan`1 passageSensors, ReadOnlySpan`1 contacts) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/engine/gpu/ActivationNetwork.cs:line 186
+   at CuriousContraptions.Gpu.WorkshopActivationCompiler.Compile(WorkshopConstruction construction) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/engine/gpu/ActivationNetwork.cs:line 875
+   at CuriousContraptions.Tests.PressurePlateTests.HoldTrace(Boolean[] loaded) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/CuriousContraptions.tests/PressurePlateTests.cs:line 818
+   at CuriousContraptions.Tests.PressurePlateTests.TheLevelIsHighOnTheFirstQualifyingTick() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/CuriousContraptions.tests/PressurePlateTests.cs:line 841
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:03.35]     CuriousContraptions.Tests.PressurePlateTests.ALoadRolledOffATiltedPlateReleasesItsLevelTwelveTicksAfterItsLastQualifyingTick [FAIL]
+  Failed CuriousContraptions.Tests.PressurePlateTests.ALoadRolledOffATiltedPlateReleasesItsLevelTwelveTicksAfterItsLastQualifyingTick [4 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 763
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 777
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 777
+   at CuriousContraptions.Tests.PressurePlateTests.RunBench(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/CuriousContraptions.tests/PressurePlateTests.cs:line 393
+   at CuriousContraptions.Tests.PressurePlateTests.ALoadRolledOffATiltedPlateReleasesItsLevelTwelveTicksAfterItsLastQualifyingTick() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/CuriousContraptions.tests/PressurePlateTests.cs:line 526
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:03.36]     CuriousContraptions.Tests.PressurePlateTests.TheLampAndTheSuppliedContactShareOneHeldLevelOnEveryTick [FAIL]
+[xUnit.net 00:00:03.37]     CuriousContraptions.Tests.PressurePlateTests.ABasketballRestingOnThePlateLightsItsLampOnItsFirstLoadedTick [FAIL]
+[xUnit.net 00:00:03.52]     CuriousContraptions.Tests.PressurePlateTests.ThePlateCompilesItsLampAsALevelIndicatorWithATwelveTickReleaseHold [FAIL]
+[xUnit.net 00:00:03.60]     CuriousContraptions.Tests.PressurePlateTests.ABasketballBouncingOnThePlateKeepsItsLampSteadilyLit [FAIL]
+  Failed CuriousContraptions.Tests.PressurePlateTests.TheLampAndTheSuppliedContactShareOneHeldLevelOnEveryTick [< 1 ms]
+  Error Message:
+   System.ArgumentException : Unsupported activation edge.
+  Stack Trace:
+     at CuriousContraptions.Gpu.ActivationNetwork..ctor(ReadOnlySpan`1 nodes, ReadOnlySpan`1 edges, UInt32 substeps, ReadOnlySpan`1 passageSensors, ReadOnlySpan`1 contacts) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/engine/gpu/ActivationNetwork.cs:line 186
+   at CuriousContraptions.Gpu.WorkshopActivationCompiler.Compile(WorkshopConstruction construction) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/engine/gpu/ActivationNetwork.cs:line 875
+   at CuriousContraptions.Tests.PressurePlateTests.HoldTrace(Boolean[] loaded) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/CuriousContraptions.tests/PressurePlateTests.cs:line 818
+   at CuriousContraptions.Tests.PressurePlateTests.TheLampAndTheSuppliedContactShareOneHeldLevelOnEveryTick() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/CuriousContraptions.tests/PressurePlateTests.cs:line 859
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.PressurePlateTests.ABasketballRestingOnThePlateLightsItsLampOnItsFirstLoadedTick [3 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 763
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 777
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 777
+   at CuriousContraptions.Tests.PressurePlateTests.RunBench(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/CuriousContraptions.tests/PressurePlateTests.cs:line 393
+   at CuriousContraptions.Tests.PressurePlateTests.ABasketballRestingOnThePlateLightsItsLampOnItsFirstLoadedTick() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/CuriousContraptions.tests/PressurePlateTests.cs:line 909
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.PressurePlateTests.ThePlateCompilesItsLampAsALevelIndicatorWithATwelveTickReleaseHold [< 1 ms]
+  Error Message:
+   System.ArgumentException : Unsupported activation edge.
+  Stack Trace:
+     at CuriousContraptions.Gpu.ActivationNetwork..ctor(ReadOnlySpan`1 nodes, ReadOnlySpan`1 edges, UInt32 substeps, ReadOnlySpan`1 passageSensors, ReadOnlySpan`1 contacts) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/engine/gpu/ActivationNetwork.cs:line 186
+   at CuriousContraptions.Gpu.WorkshopActivationCompiler.Compile(WorkshopConstruction construction) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/engine/gpu/ActivationNetwork.cs:line 875
+   at CuriousContraptions.Tests.PressurePlateTests.ThePlateCompilesItsLampAsALevelIndicatorWithATwelveTickReleaseHold() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/CuriousContraptions.tests/PressurePlateTests.cs:line 785
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.PressurePlateTests.ABasketballBouncingOnThePlateKeepsItsLampSteadilyLit [3 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 763
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 777
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 777
+   at CuriousContraptions.Tests.PressurePlateTests.RunBench(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/CuriousContraptions.tests/PressurePlateTests.cs:line 393
+   at CuriousContraptions.Tests.PressurePlateTests.ABasketballBouncingOnThePlateKeepsItsLampSteadilyLit() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/CuriousContraptions.tests/PressurePlateTests.cs:line 924
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:03.62]     CuriousContraptions.Tests.PressurePlateTests.AnUnderweightDominoLeavesThePlateLampDark [FAIL]
+[xUnit.net 00:00:03.63]     CuriousContraptions.Tests.StateLatchTests.Network_LevelIndicatorMirrorsLatchOnAndOff [FAIL]
+  Failed CuriousContraptions.Tests.PressurePlateTests.AnUnderweightDominoLeavesThePlateLampDark [3 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Faulted
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 763
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 777
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 777
+   at CuriousContraptions.Tests.PressurePlateTests.RunBench(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/CuriousContraptions.tests/PressurePlateTests.cs:line 393
+   at CuriousContraptions.Tests.PressurePlateTests.AnUnderweightDominoLeavesThePlateLampDark() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/CuriousContraptions.tests/PressurePlateTests.cs:line 936
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.StateLatchTests.Network_LevelIndicatorMirrorsLatchOnAndOff [< 1 ms]
+  Error Message:
+   System.ArgumentException : Unsupported activation edge.
+  Stack Trace:
+     at CuriousContraptions.Gpu.ActivationNetwork..ctor(ReadOnlySpan`1 nodes, ReadOnlySpan`1 edges, UInt32 substeps, ReadOnlySpan`1 passageSensors, ReadOnlySpan`1 contacts) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/engine/gpu/ActivationNetwork.cs:line 186
+   at CuriousContraptions.Gpu.WorkshopActivationCompiler.Compile(WorkshopConstruction construction) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/engine/gpu/ActivationNetwork.cs:line 875
+   at CuriousContraptions.Tests.StateLatchTests.Network_LevelIndicatorMirrorsLatchOnAndOff() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/CuriousContraptions.tests/StateLatchTests.cs:line 183
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:    19, Passed:   198, Skipped:     0, Total:   217, Duration: 2 s - CuriousContraptions.tests.dll (net10.0)
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/tools/BundleElements.Tests/bin/Debug/net10.0/BundleElements.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:   164, Skipped:     0, Total:   164, Duration: 271 ms - BundleElements.Tests.dll (net10.0)

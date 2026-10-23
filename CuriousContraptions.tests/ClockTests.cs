@@ -32,7 +32,8 @@ public sealed class ClockTests(NativeSceneFixture godot)
             Assert.Same(def, part.Definition);
             Assert.Equal(PartId.Clock, part.PartId);
             Assert.Equal(1.1f, part.PickRadius);
-            Assert.Equal(1.0f, part.CanonicalIntervalSeconds);
+            // A newly placed clock starts from its package's declared interval (C-Clock: no part-side copy of the setting).
+            Assert.Equal(1.0f, InstanceParameterCollection.Defaults(PartId.Clock)[new("interval_seconds")]);
 
             var visual = part.FindChild("Visual", recursive: false) as Node3D;
             Assert.NotNull(visual);
@@ -144,38 +145,30 @@ public sealed class ClockTests(NativeSceneFixture godot)
     }
 
     [Fact]
-    public void WorkshopClock_ValidationAndTicks()
+    public void TheDeclaredIntervalIsValidatedAndCompiledToTicks()
     {
-        // Admitted range [0.1, 12.0]
-        new WorkshopClock(new(1), default, default, CanonicalRotation.Identity, 0.1f).Validate();
-        new WorkshopClock(new(1), default, default, CanonicalRotation.Identity, 1.0f).Validate();
-        new WorkshopClock(new(1), default, default, CanonicalRotation.Identity, 12.0f).Validate();
+        // Admitted range [0.1, 12.0] s, as the generic instance's declared parameter (C-Clock).
+        foreach (var seconds in new[] { .1f, 1f, 12f }) PlacedParts.Clock(new(1), 0, 0, 0, 0, 0, 0, 1, seconds).Validate();
+        foreach (var seconds in new[] { .05f, 12.1f, float.NaN, float.PositiveInfinity })
+            Assert.Throws<ArgumentException>(() => PlacedParts.Clock(new(1), 0, 0, 0, 0, 0, 0, 1, seconds));
+        // A generic instance without its declared interval is refused, never defaulted (Story 9.4b D4).
+        Assert.Throws<ArgumentException>(() => WorkshopInput.Generic(PartId.Clock, new(1), 0, 0, 0, 0, 0, 0, 1, new([])));
 
-        // Story 9.4b (D4): the interval is always declared; only a newly placed clock starts from its placement value.
-        Assert.Equal(1.0f, WorkshopClock.PlacedIntervalSeconds);
-        Assert.False(typeof(WorkshopClock).GetConstructors().Single().GetParameters()
-            .Single(parameter => parameter.Name == nameof(WorkshopClock.IntervalSeconds)).HasDefaultValue);
-
-        Assert.Throws<ArgumentException>(() => new WorkshopClock(new(1), default, default, CanonicalRotation.Identity, 0.05f).Validate());
-        Assert.Throws<ArgumentException>(() => new WorkshopClock(new(1), default, default, CanonicalRotation.Identity, 12.1f).Validate());
-        Assert.Throws<ArgumentException>(() => new WorkshopClock(new(1), default, default, CanonicalRotation.Identity, float.NaN).Validate());
-        Assert.Throws<ArgumentException>(() => new WorkshopClock(new(1), default, default, CanonicalRotation.Identity, float.PositiveInfinity).Validate());
-
-        // Ticks math
-        var clock1s = new WorkshopClock(new(1), default, default, CanonicalRotation.Identity, 1.0f);
-        Assert.Equal(60u, clock1s.Ticks(SimulationCadence.Hz60));
-        Assert.Equal(120u, clock1s.Ticks(SimulationCadence.Hz120));
-        Assert.Equal(240u, clock1s.Ticks(SimulationCadence.Hz240));
-
-        var clockHalfS = new WorkshopClock(new(1), default, default, CanonicalRotation.Identity, 0.5f);
-        Assert.Equal(60u, clockHalfS.Ticks(SimulationCadence.Hz120));
+        // The compiled interval: ceil(seconds × rate) whole ticks of the construction's cadence.
+        uint Ticks(float seconds, SimulationCadence cadence) => WorkshopActivationCompiler.Compile(new WorkshopConstruction(new(1),
+            WorkshopCadenceSettings.Default() with { Simulation = cadence }, new([PlacedParts.Clock(new(1), 0, 0, 0, 0, 0, 0, 1, seconds)])))
+            .Nodes.ToArray().Single().IntervalTicks;
+        Assert.Equal(60u, Ticks(1f, SimulationCadence.Hz60));
+        Assert.Equal(120u, Ticks(1f, SimulationCadence.Hz120));
+        Assert.Equal(240u, Ticks(1f, SimulationCadence.Hz240));
+        Assert.Equal(60u, Ticks(.5f, SimulationCadence.Hz120));
     }
 
     [Fact]
     public void Connections_AcceptsValidActivationAndElectricalLinks()
     {
-        var clock = WorkshopInput.Clock(new(1), 0, 0, 0, 0, 0, 0, 1, 1.0f);
-        var battery = WorkshopInput.Battery(new(2), -2, 0, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default);
+        var clock = PlacedParts.Clock(new(1), 0, 0, 0, 0, 0, 0, 1, 1.0f);
+        var battery = PlacedParts.Battery(new(2), -2, 0, 0);
         var counter = WorkshopInput.Counter(new(3), 2, 0, 0, 0, 0, 0, 1, 5);
 
         var instances = new WorkshopInstances(clock, battery, counter);
@@ -194,8 +187,8 @@ public sealed class ClockTests(NativeSceneFixture godot)
     [Fact]
     public void ActivationNetwork_ClockPoweredPeriodicPulses_5PulsesIn5Seconds()
     {
-        var battery = WorkshopInput.Battery(new(1), -2, 0, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default);
-        var clock = WorkshopInput.Clock(new(2), 0, 0, 0, 0, 0, 0, 1, 1.0f);
+        var battery = PlacedParts.Battery(new(1), -2, 0, 0);
+        var clock = PlacedParts.Clock(new(2), 0, 0, 0, 0, 0, 0, 1, 1.0f);
         var counter = WorkshopInput.Counter(new(3), 2, 0, 0, 0, 0, 0, 1, 5);
 
         var conn1 = new WorkshopConnection(battery.Id, WorkshopSocket.Supply, clock.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical);
@@ -245,7 +238,7 @@ public sealed class ClockTests(NativeSceneFixture godot)
     [Fact]
     public void ActivationNetwork_UnpoweredClock_EmitsZeroPulses()
     {
-        var clock = WorkshopInput.Clock(new(1), 0, 0, 0, 0, 0, 0, 1, 1.0f);
+        var clock = PlacedParts.Clock(new(1), 0, 0, 0, 0, 0, 0, 1, 1.0f);
         var counter = WorkshopInput.Counter(new(2), 2, 0, 0, 0, 0, 0, 1, 5);
 
         var conn = new WorkshopConnection(clock.Id, WorkshopSocket.ActivationOut, counter.Id, WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation);
@@ -279,8 +272,8 @@ public sealed class ClockTests(NativeSceneFixture godot)
     [Fact]
     public void ActivationNetwork_PowerLossAtDeadlineAndRestoration()
     {
-        var battery = WorkshopInput.Battery(new(1), -2, 0, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default);
-        var clock = WorkshopInput.Clock(new(2), 0, 0, 0, 0, 0, 0, 1, 1.0f);
+        var battery = PlacedParts.Battery(new(1), -2, 0, 0);
+        var clock = PlacedParts.Clock(new(2), 0, 0, 0, 0, 0, 0, 1, 1.0f);
 
         var conn = new WorkshopConnection(battery.Id, WorkshopSocket.Supply, clock.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical);
 
@@ -342,8 +335,8 @@ public sealed class ClockTests(NativeSceneFixture godot)
     [Fact]
     public void ClockPhase_LivesInTheCommittedCheckpoint_SupersededCandidateLeavesItUnchanged_AndResetStopsIt()
     {
-        var battery = WorkshopInput.Battery(new(1), -2, 0, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default);
-        var clock = WorkshopInput.Clock(new(2), 0, 0, 0, 0, 0, 0, 1, 1.0f);
+        var battery = PlacedParts.Battery(new(1), -2, 0, 0);
+        var clock = PlacedParts.Clock(new(2), 0, 0, 0, 0, 0, 0, 1, 1.0f);
         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new([battery, clock]),
             Connections: new([new WorkshopConnection(battery.Id, WorkshopSocket.Supply, clock.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical)]));
         var network = WorkshopActivationCompiler.Compile(construction);
@@ -401,8 +394,8 @@ public sealed class ClockTests(NativeSceneFixture godot)
     [Fact]
     public void WireSerialization_BinaryAndFlatBuffersRoundtrip()
     {
-        var clock = WorkshopInput.Clock(new(10), 1, 2, 3, 0, 0, 0, 1, 2.5f);
-        var battery = WorkshopInput.Battery(new(20), -2, 0, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default);
+        var clock = PlacedParts.Clock(new(10), 1, 2, 3, 0, 0, 0, 1, 2.5f);
+        var battery = PlacedParts.Battery(new(20), -2, 0, 0);
         var conn = new WorkshopConnection(battery.Id, WorkshopSocket.Supply, clock.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical);
 
         var construction = new WorkshopConstruction(
@@ -418,9 +411,10 @@ public sealed class ClockTests(NativeSceneFixture godot)
         var fbBytes = WorkshopWireFlatBuffers.EncodeCommand(cmd);
         var decodedFb = WorkshopWireFlatBuffers.DecodeCommand(fbBytes);
         Assert.NotNull(decodedFb.Construction);
-        var decodedFbClock = decodedFb.Construction!.Value.Instances.OfType<WorkshopClock>().Single();
+        var decodedFbClock = decodedFb.Construction!.Value.Instances.OfType<WorkshopGenericInstance>().Single(instance => instance.PartId == PartId.Clock);
         Assert.Equal(10UL, decodedFbClock.Id.Value);
-        Assert.Equal(2.5f, decodedFbClock.IntervalSeconds);
+        Assert.Equal(2.5f, decodedFbClock.Parameters[new("interval_seconds")]);
+        Assert.Equal(clock, decodedFbClock);
         Assert.Single(decodedFb.Construction!.Value.Connections);
     }
 }

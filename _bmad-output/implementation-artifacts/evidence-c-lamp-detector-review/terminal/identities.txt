@@ -1,0 +1,18 @@
+# identities 2026-10-23T10:12:40Z
+origin/main: 2065d3c5951232b3e04332101f3d31b45d5e10f1
+2065d3c5951232b3e04332101f3d31b45d5e10f1	refs/heads/main
+slice:
+tree b39f0cb3772b2065bfc84ae42a24aaed5a58f5a3
+parent 54ffd9f072ffb34acaeeab02f152dabc43c8d71f
+merge:
+tree b39f0cb3772b2065bfc84ae42a24aaed5a58f5a3
+parent 54ffd9f072ffb34acaeeab02f152dabc43c8d71f
+parent 86ad82ffe6a946413cea51ade6b9be2993b47328
+slice tree == merge tree: yes
+## diff approved e575cb01 vs published tree
+ .../review-c-lamp-detector.md                      | 32 ++++++++++++++++++++++
+ 1 file changed, 32 insertions(+)
+## approved diff sha recomputed: 8c67b099423714412fbfb3777dfe13df79e9b0813dd1e000b8e6d5dd5c08d1ff  -
+## excluding review record, approved vs published diff sha:
+9b6e829f1e9019890c461a0f9034c8e7d029109027a3f37e0269dca0e6f2df99  -
+9b6e829f1e9019890c461a0f9034c8e7d029109027a3f37e0269dca0e6f2df99  -

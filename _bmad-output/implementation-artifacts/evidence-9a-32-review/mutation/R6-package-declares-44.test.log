@@ -1,0 +1,58 @@
+Test run for /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/review-wt-cand/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.83] CuriousContraptions.tests: Skipping test case with duplicate ID '83431e4d946eb8428c02614a7868a32829e109771de8093f2bfbe4d8c9423f2c' ('CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.FlatBuffersRecordAcceptsExactlyTheAdmittedSetting(part: PressurePlate, value: 2.14748365E+09)' and 'CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.FlatBuffersRecordAcceptsExactlyTheAdmittedSetting(part: PressurePlate, value: 2.14748365E+09)')
+[xUnit.net 00:00:00.83] CuriousContraptions.tests: Skipping test case with duplicate ID '3a4240629fbb344f67906a7a456c2d31da4c2d0cdf5086a702d6ef6814934a8e' ('CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.FlatBuffersRecordAcceptsExactlyTheAdmittedSetting(part: PressurePlate, value: NaN)' and 'CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.FlatBuffersRecordAcceptsExactlyTheAdmittedSetting(part: PressurePlate, value: NaN)')
+[xUnit.net 00:00:00.83] CuriousContraptions.tests: Skipping test case with duplicate ID '8e53b881ff9b39dfd494f2c7b6f9212ce78355e99c059d6710dfe212aaa75634' ('CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.FlatBuffersRecordAcceptsExactlyTheAdmittedSetting(part: Clock, value: 2.14748365E+09)' and 'CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.FlatBuffersRecordAcceptsExactlyTheAdmittedSetting(part: Clock, value: 2.14748365E+09)')
+[xUnit.net 00:00:00.83] CuriousContraptions.tests: Skipping test case with duplicate ID '8efb227fcf5de529714cdd2714129bbc02dc9ed729aa6c9cf5527ec73a4b2ce2' ('CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.FlatBuffersRecordAcceptsExactlyTheAdmittedSetting(part: Clock, value: NaN)' and 'CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.FlatBuffersRecordAcceptsExactlyTheAdmittedSetting(part: Clock, value: NaN)')
+[xUnit.net 00:00:00.83] CuriousContraptions.tests: Skipping test case with duplicate ID '4ad6be1c35a95eb4da93175873b1c5d91262822b04dcc9464c793e3049d9c2e6' ('CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.SaveCodecAcceptsExactlyTheAdmittedSetting(part: PressurePlate, value: 2.14748365E+09)' and 'CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.SaveCodecAcceptsExactlyTheAdmittedSetting(part: PressurePlate, value: 2.14748365E+09)')
+[xUnit.net 00:00:00.83] CuriousContraptions.tests: Skipping test case with duplicate ID '6fb6f90a496c692af2a61560627fece506d7afde840dd10727be511b7fd86540' ('CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.SaveCodecAcceptsExactlyTheAdmittedSetting(part: PressurePlate, value: NaN)' and 'CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.SaveCodecAcceptsExactlyTheAdmittedSetting(part: PressurePlate, value: NaN)')
+[xUnit.net 00:00:00.83] CuriousContraptions.tests: Skipping test case with duplicate ID 'aabc4a50355d6448d3df483b6b2078c9097d88e7c59ef0699db2902d4fe939b7' ('CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.SaveCodecAcceptsExactlyTheAdmittedSetting(part: Clock, value: 2.14748365E+09)' and 'CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.SaveCodecAcceptsExactlyTheAdmittedSetting(part: Clock, value: 2.14748365E+09)')
+[xUnit.net 00:00:00.83] CuriousContraptions.tests: Skipping test case with duplicate ID '4f72cbdf6544b5f3ffa4ca68b2436b6f829491b43025845af3a8bb2d333909fd' ('CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.SaveCodecAcceptsExactlyTheAdmittedSetting(part: Clock, value: NaN)' and 'CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.SaveCodecAcceptsExactlyTheAdmittedSetting(part: Clock, value: NaN)')
+[xUnit.net 00:00:12.30]     CuriousContraptions.Tests.DeclaredOrientationTests.TheDeclaredThresholdSelectsTheSensorAndNodeOfAWiredTile [FAIL]
+  Failed CuriousContraptions.Tests.DeclaredOrientationTests.TheDeclaredThresholdSelectsTheSensorAndNodeOfAWiredTile [2 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: SignalOrientationDescriptor { ThresholdDegrees = 45 }
+Actual:   SignalOrientationDescriptor { ThresholdDegrees = 44 }
+  Stack Trace:
+     at CuriousContraptions.Tests.DeclaredOrientationTests.TheDeclaredThresholdSelectsTheSensorAndNodeOfAWiredTile() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/review-wt-cand/CuriousContraptions.tests/DeclaredOrientationTests.cs:line 24
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:12.31]     CuriousContraptions.Tests.OrientationSensorTests.SensorAndSourceNodeCompileOnlyForAWiredDomino [FAIL]
+[xUnit.net 00:00:12.32]     CuriousContraptions.Tests.OrientationSensorTests.AdmissionWritesTheSensorAndCandidateValidationEnforcesStickyOnce [FAIL]
+  Failed CuriousContraptions.Tests.OrientationSensorTests.SensorAndSourceNodeCompileOnlyForAWiredDomino [1 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: OrientationThreshold { CosineHalfAngle = 0.924 }
+Actual:   OrientationThreshold { CosineHalfAngle = 0.9272 }
+  Stack Trace:
+     at CuriousContraptions.Tests.OrientationSensorTests.SensorAndSourceNodeCompileOnlyForAWiredDomino() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/review-wt-cand/CuriousContraptions.tests/OrientationSensorTests.cs:line 70
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.OrientationSensorTests.AdmissionWritesTheSensorAndCandidateValidationEnforcesStickyOnce [2 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: 15204
+Actual:   15211
+  Stack Trace:
+     at CuriousContraptions.Tests.OrientationSensorTests.AdmissionWritesTheSensorAndCandidateValidationEnforcesStickyOnce() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/review-wt-cand/CuriousContraptions.tests/OrientationSensorTests.cs:line 133
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:13.07]     CuriousContraptions.Tests.PackageRuntimeParityTests.EverySignalDeclarationTheRuntimeReadsEqualsTheRuntime [FAIL]
+  Failed CuriousContraptions.Tests.PackageRuntimeParityTests.EverySignalDeclarationTheRuntimeReadsEqualsTheRuntime [2 ms]
+  Error Message:
+   domino: topple threshold 45.008650272102116° declared, 43.9809572168717° compiled.
+  Stack Trace:
+     at CuriousContraptions.Tests.PackageRuntimeParityTests.EverySignalDeclarationTheRuntimeReadsEqualsTheRuntime() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/review-wt-cand/CuriousContraptions.tests/PackageRuntimeParityTests.cs:line 52
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     4, Passed:  2478, Skipped:     0, Total:  2482, Duration: 53 s - CuriousContraptions.tests.dll (net10.0)

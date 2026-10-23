@@ -1,0 +1,178 @@
+flatc: /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/flatc/flatc (flatc version 25.2.10), sha256 f004709c0334edb3cdc0430395b9de1dc071f3618fc4ba43674c3c61201037ac
+== unchanged schema (base) reproduces committed files:
+C#: differs only by the pre-existing header blank line (line 10), as at C-Balls/C-Bumper+Spring:
+10d9
+< 
+TS generated part identical: yes
+== edited schema: candidate vs fresh flatc output
+C#:
+10d9
+< 
+TS generated part identical: yes
+== applied hunks
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/regen-base-2/WorkshopWireGenerated.cs	2026-10-23 18:19:01.029569334 +0800
++++ /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/regen-cand-1/WorkshopWireGenerated.cs	2026-10-23 18:22:07.606139290 +0800
+@@ -533,31 +533,23 @@
+   public CuriousContraptions.Wire.Vec3i? Cell { get { int o = __p.__offset(10); return o != 0 ? (CuriousContraptions.Wire.Vec3i?)(new CuriousContraptions.Wire.Vec3i()).__assign(o + __p.bb_pos, __p.bb) : null; } }
+   public CuriousContraptions.Wire.Vec3f? Local { get { int o = __p.__offset(12); return o != 0 ? (CuriousContraptions.Wire.Vec3f?)(new CuriousContraptions.Wire.Vec3f()).__assign(o + __p.bb_pos, __p.bb) : null; } }
+   public CuriousContraptions.Wire.Quat4f? Rotation { get { int o = __p.__offset(14); return o != 0 ? (CuriousContraptions.Wire.Quat4f?)(new CuriousContraptions.Wire.Quat4f()).__assign(o + __p.bb_pos, __p.bb) : null; } }
+-  public float Mass { get { int o = __p.__offset(16); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
+-  public float Bounce { get { int o = __p.__offset(18); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
+-  public float Length { get { int o = __p.__offset(20); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
+-  public float Threshold { get { int o = __p.__offset(22); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
+-  public CuriousContraptions.Wire.Vec3f? HalfExtents { get { int o = __p.__offset(24); return o != 0 ? (CuriousContraptions.Wire.Vec3f?)(new CuriousContraptions.Wire.Vec3f()).__assign(o + __p.bb_pos, __p.bb) : null; } }
+-  public float Friction { get { int o = __p.__offset(26); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
+-  public uint TargetCount { get { int o = __p.__offset(28); return o != 0 ? __p.bb.GetUint(o + __p.bb_pos) : (uint)0; } }
+-  public CuriousContraptions.Wire.ParameterRecord? Parameters(int j) { int o = __p.__offset(30); return o != 0 ? (CuriousContraptions.Wire.ParameterRecord?)(new CuriousContraptions.Wire.ParameterRecord()).__assign(__p.__indirect(__p.__vector(o) + j * 4), __p.bb) : null; }
+-  public int ParametersLength { get { int o = __p.__offset(30); return o != 0 ? __p.__vector_len(o) : 0; } }
++  public float Length { get { int o = __p.__offset(16); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
++  public float Threshold { get { int o = __p.__offset(18); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
++  public uint TargetCount { get { int o = __p.__offset(20); return o != 0 ? __p.bb.GetUint(o + __p.bb_pos) : (uint)0; } }
++  public CuriousContraptions.Wire.ParameterRecord? Parameters(int j) { int o = __p.__offset(22); return o != 0 ? (CuriousContraptions.Wire.ParameterRecord?)(new CuriousContraptions.Wire.ParameterRecord()).__assign(__p.__indirect(__p.__vector(o) + j * 4), __p.bb) : null; }
++  public int ParametersLength { get { int o = __p.__offset(22); return o != 0 ? __p.__vector_len(o) : 0; } }
+ 
+-  public static void StartInstanceRecord(FlatBufferBuilder builder) { builder.StartTable(14); }
++  public static void StartInstanceRecord(FlatBufferBuilder builder) { builder.StartTable(10); }
+   public static void AddId(FlatBufferBuilder builder, ulong id) { builder.AddUlong(0, id, 0); }
+   public static void AddPartId(FlatBufferBuilder builder, StringOffset partIdOffset) { builder.AddOffset(1, partIdOffset.Value, 0); }
+   public static void AddLocked(FlatBufferBuilder builder, bool locked) { builder.AddBool(2, locked, false); }
+   public static void AddCell(FlatBufferBuilder builder, Offset<CuriousContraptions.Wire.Vec3i> cellOffset) { builder.AddStruct(3, cellOffset.Value, 0); }
+   public static void AddLocal(FlatBufferBuilder builder, Offset<CuriousContraptions.Wire.Vec3f> localOffset) { builder.AddStruct(4, localOffset.Value, 0); }
+   public static void AddRotation(FlatBufferBuilder builder, Offset<CuriousContraptions.Wire.Quat4f> rotationOffset) { builder.AddStruct(5, rotationOffset.Value, 0); }
+-  public static void AddMass(FlatBufferBuilder builder, float mass) { builder.AddFloat(6, mass, 0.0f); }
+-  public static void AddBounce(FlatBufferBuilder builder, float bounce) { builder.AddFloat(7, bounce, 0.0f); }
+-  public static void AddLength(FlatBufferBuilder builder, float length) { builder.AddFloat(8, length, 0.0f); }
+-  public static void AddThreshold(FlatBufferBuilder builder, float threshold) { builder.AddFloat(9, threshold, 0.0f); }
+-  public static void AddHalfExtents(FlatBufferBuilder builder, Offset<CuriousContraptions.Wire.Vec3f> halfExtentsOffset) { builder.AddStruct(10, halfExtentsOffset.Value, 0); }
+-  public static void AddFriction(FlatBufferBuilder builder, float friction) { builder.AddFloat(11, friction, 0.0f); }
+-  public static void AddTargetCount(FlatBufferBuilder builder, uint targetCount) { builder.AddUint(12, targetCount, 0); }
+-  public static void AddParameters(FlatBufferBuilder builder, VectorOffset parametersOffset) { builder.AddOffset(13, parametersOffset.Value, 0); }
++  public static void AddLength(FlatBufferBuilder builder, float length) { builder.AddFloat(6, length, 0.0f); }
++  public static void AddThreshold(FlatBufferBuilder builder, float threshold) { builder.AddFloat(7, threshold, 0.0f); }
++  public static void AddTargetCount(FlatBufferBuilder builder, uint targetCount) { builder.AddUint(8, targetCount, 0); }
++  public static void AddParameters(FlatBufferBuilder builder, VectorOffset parametersOffset) { builder.AddOffset(9, parametersOffset.Value, 0); }
+   public static VectorOffset CreateParametersVector(FlatBufferBuilder builder, Offset<CuriousContraptions.Wire.ParameterRecord>[] data) { builder.StartVector(4, data.Length, 4); for (int i = data.Length - 1; i >= 0; i--) builder.AddOffset(data[i].Value); return builder.EndVector(); }
+   public static VectorOffset CreateParametersVectorBlock(FlatBufferBuilder builder, Offset<CuriousContraptions.Wire.ParameterRecord>[] data) { builder.StartVector(4, data.Length, 4); builder.Add(data); return builder.EndVector(); }
+   public static VectorOffset CreateParametersVectorBlock(FlatBufferBuilder builder, ArraySegment<Offset<CuriousContraptions.Wire.ParameterRecord>> data) { builder.StartVector(4, data.Count, 4); builder.Add(data); return builder.EndVector(); }
+@@ -581,14 +573,10 @@
+       && verifier.VerifyField(tablePos, 10 /*Cell*/, 12 /*CuriousContraptions.Wire.Vec3i*/, 4, false)
+       && verifier.VerifyField(tablePos, 12 /*Local*/, 12 /*CuriousContraptions.Wire.Vec3f*/, 4, false)
+       && verifier.VerifyField(tablePos, 14 /*Rotation*/, 16 /*CuriousContraptions.Wire.Quat4f*/, 4, false)
+-      && verifier.VerifyField(tablePos, 16 /*Mass*/, 4 /*float*/, 4, false)
+-      && verifier.VerifyField(tablePos, 18 /*Bounce*/, 4 /*float*/, 4, false)
+-      && verifier.VerifyField(tablePos, 20 /*Length*/, 4 /*float*/, 4, false)
+-      && verifier.VerifyField(tablePos, 22 /*Threshold*/, 4 /*float*/, 4, false)
+-      && verifier.VerifyField(tablePos, 24 /*HalfExtents*/, 12 /*CuriousContraptions.Wire.Vec3f*/, 4, false)
+-      && verifier.VerifyField(tablePos, 26 /*Friction*/, 4 /*float*/, 4, false)
+-      && verifier.VerifyField(tablePos, 28 /*TargetCount*/, 4 /*uint*/, 4, false)
+-      && verifier.VerifyVectorOfTables(tablePos, 30 /*Parameters*/, CuriousContraptions.Wire.ParameterRecordVerify.Verify, false)
++      && verifier.VerifyField(tablePos, 16 /*Length*/, 4 /*float*/, 4, false)
++      && verifier.VerifyField(tablePos, 18 /*Threshold*/, 4 /*float*/, 4, false)
++      && verifier.VerifyField(tablePos, 20 /*TargetCount*/, 4 /*uint*/, 4, false)
++      && verifier.VerifyVectorOfTables(tablePos, 22 /*Parameters*/, CuriousContraptions.Wire.ParameterRecordVerify.Verify, false)
+       && verifier.VerifyTableEnd(tablePos);
+   }
+ }
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/regen-base-2/generated.ts	2026-10-23 18:19:01.187925498 +0800
++++ /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/regen-cand-1/generated.ts	2026-10-23 18:22:07.781803828 +0800
+@@ -1254,53 +1254,33 @@
+   return offset ? (obj || new Quat4f()).__init(this.bb_pos + offset, this.bb!) : null;
+ }
+ 
+-mass():number {
+-  const offset = this.bb!.__offset(this.bb_pos, 16);
+-  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+-}
+-
+-bounce():number {
+-  const offset = this.bb!.__offset(this.bb_pos, 18);
+-  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+-}
+-
+ length():number {
+-  const offset = this.bb!.__offset(this.bb_pos, 20);
++  const offset = this.bb!.__offset(this.bb_pos, 16);
+   return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+ }
+ 
+ threshold():number {
+-  const offset = this.bb!.__offset(this.bb_pos, 22);
+-  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+-}
+-
+-halfExtents(obj?:Vec3f):Vec3f|null {
+-  const offset = this.bb!.__offset(this.bb_pos, 24);
+-  return offset ? (obj || new Vec3f()).__init(this.bb_pos + offset, this.bb!) : null;
+-}
+-
+-friction():number {
+-  const offset = this.bb!.__offset(this.bb_pos, 26);
++  const offset = this.bb!.__offset(this.bb_pos, 18);
+   return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+ }
+ 
+ targetCount():number {
+-  const offset = this.bb!.__offset(this.bb_pos, 28);
++  const offset = this.bb!.__offset(this.bb_pos, 20);
+   return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
+ }
+ 
+ parameters(index: number, obj?:ParameterRecord):ParameterRecord|null {
+-  const offset = this.bb!.__offset(this.bb_pos, 30);
++  const offset = this.bb!.__offset(this.bb_pos, 22);
+   return offset ? (obj || new ParameterRecord()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
+ }
+ 
+ parametersLength():number {
+-  const offset = this.bb!.__offset(this.bb_pos, 30);
++  const offset = this.bb!.__offset(this.bb_pos, 22);
+   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+ }
+ 
+ static startInstanceRecord(builder:flatbuffers.Builder) {
+-  builder.startObject(14);
++  builder.startObject(10);
+ }
+ 
+ static addId(builder:flatbuffers.Builder, id:bigint) {
+@@ -1327,36 +1307,20 @@
+   builder.addFieldStruct(5, rotationOffset, 0);
+ }
+ 
+-static addMass(builder:flatbuffers.Builder, mass:number) {
+-  builder.addFieldFloat32(6, mass, 0.0);
+-}
+-
+-static addBounce(builder:flatbuffers.Builder, bounce:number) {
+-  builder.addFieldFloat32(7, bounce, 0.0);
+-}
+-
+ static addLength(builder:flatbuffers.Builder, length:number) {
+-  builder.addFieldFloat32(8, length, 0.0);
++  builder.addFieldFloat32(6, length, 0.0);
+ }
+ 
+ static addThreshold(builder:flatbuffers.Builder, threshold:number) {
+-  builder.addFieldFloat32(9, threshold, 0.0);
+-}
+-
+-static addHalfExtents(builder:flatbuffers.Builder, halfExtentsOffset:flatbuffers.Offset) {
+-  builder.addFieldStruct(10, halfExtentsOffset, 0);
+-}
+-
+-static addFriction(builder:flatbuffers.Builder, friction:number) {
+-  builder.addFieldFloat32(11, friction, 0.0);
++  builder.addFieldFloat32(7, threshold, 0.0);
+ }
+ 
+ static addTargetCount(builder:flatbuffers.Builder, targetCount:number) {
+-  builder.addFieldInt32(12, targetCount, 0);
++  builder.addFieldInt32(8, targetCount, 0);
+ }
+ 
+ static addParameters(builder:flatbuffers.Builder, parametersOffset:flatbuffers.Offset) {
+-  builder.addFieldOffset(13, parametersOffset, 0);
++  builder.addFieldOffset(9, parametersOffset, 0);
+ }
+ 
+ static createParametersVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {

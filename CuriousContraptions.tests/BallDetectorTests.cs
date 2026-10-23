@@ -112,8 +112,8 @@ public sealed class BallDetectorTests(NativeSceneFixture godot)
     [Fact]
     public void WorkshopPhysicsCompiler_CompilesBallDetectorAndActivationNetwork()
     {
-        var detector = WorkshopInput.BallDetector(new GpuBodyId(10), 0, 3, 0, 0, 0, 0, 1);
-        var lamp = WorkshopInput.Lamp(new GpuBodyId(20), 5, 3, 0, 0, 0, 0, 1);
+        var detector = PlacedParts.Detector(new GpuBodyId(10), 0, 3, 0, 0, 0, 0, 1);
+        var lamp = PlacedParts.Lamp(new GpuBodyId(20), 5, 3, 0, 0, 0, 0, 1);
         var ball = WorkshopInput.Generic(PartId.Basketball,new GpuBodyId(2), 0, 10, 0, 0, 0, 0, 1);
         var connection = new WorkshopConnection(
             new GpuBodyId(10), WorkshopSocket.ActivationOut,
@@ -163,20 +163,11 @@ public sealed class BallDetectorTests(NativeSceneFixture godot)
     public void PassageSensorTracker_PositiveForwardPass_RotatedAndVariousSpeeds(float speed, float angleDegrees)
     {
         var rad = angleDegrees * MathF.PI / 180f;
-        var rotation = CanonicalRotation.Normalize(0, 0, MathF.Sin(rad / 2f), MathF.Cos(rad / 2f));
+        var detector = PlacedParts.Detector(new GpuBodyId(10), 0, 3, 0, 0, 0, MathF.Sin(rad / 2f), MathF.Cos(rad / 2f));
+        var rotation = detector.Rotation;
         var q = new NumQuaternion((float)rotation.X, (float)rotation.Y, (float)rotation.Z, (float)rotation.W);
 
-        var detector = new WorkshopBallDetector(
-            new GpuBodyId(10),
-            new CellOrigin(0, 48, 0),
-            default,
-            rotation);
-
-        var lamp = new WorkshopLamp(
-            new GpuBodyId(20),
-            new CellOrigin(80, 48, 0),
-            default,
-            CanonicalRotation.Identity);
+        var lamp = PlacedParts.Lamp(new GpuBodyId(20), 5, 3, 0, 0, 0, 0, 1);
 
         var connection = new WorkshopConnection(
             detector.Id, WorkshopSocket.ActivationOut,
@@ -274,7 +265,7 @@ public sealed class BallDetectorTests(NativeSceneFixture godot)
     [Fact]
     public void PassageSensorTracker_NegativeControls_ReverseOutsideStationary()
     {
-        var detector = WorkshopInput.BallDetector(new GpuBodyId(10), 0, 3, 0, 0, 0, 0, 1);
+        var detector = PlacedParts.Detector(new GpuBodyId(10), 0, 3, 0, 0, 0, 0, 1);
         var ballId = new GpuBodyId(2);
         var ball = WorkshopInput.Generic(PartId.Basketball,ballId, 2, 3, 0, 0, 0, 0, 1);
         var construction = new WorkshopConstruction(
@@ -351,7 +342,7 @@ public sealed class BallDetectorTests(NativeSceneFixture godot)
     [Fact]
     public void PassageSensorTracker_JitterAcrossPlane_DoesNotRetriggerWithoutClearance()
     {
-        var detector = WorkshopInput.BallDetector(new GpuBodyId(10), 0, 3, 0, 0, 0, 0, 1);
+        var detector = PlacedParts.Detector(new GpuBodyId(10), 0, 3, 0, 0, 0, 0, 1);
         var ballId = new GpuBodyId(2);
         var ball = WorkshopInput.Generic(PartId.Basketball,ballId, -1, 3, 0, 0, 0, 0, 1);
         var construction = new WorkshopConstruction(
@@ -386,6 +377,7 @@ public sealed class BallDetectorTests(NativeSceneFixture godot)
         Assert.Equal(0, count1);
         tracker = tracker.Advance(new SimulationTick(2), bodiesPos, null, passageOutputs, out var count2);
         Assert.Equal(1, count2);
+        Assert.Single(tracker.Fired); // Story 9A.22: the event producer's Passage rows are exactly these passes
 
         // 2. Twenty jitter oscillations across X = 0 (between -0.02 and +0.02)
         var pJitterNeg = WorkshopInput.Position(-0.02f);
@@ -404,9 +396,9 @@ public sealed class BallDetectorTests(NativeSceneFixture godot)
         for (var i = 0; i < 20; i++)
         {
             tracker = tracker.Advance(new SimulationTick(tick++), bodiesJitterNeg, null, passageOutputs, out var cA);
-            jitterFires += cA;
+            jitterFires += cA + tracker.Fired.Count;
             tracker = tracker.Advance(new SimulationTick(tick++), bodiesJitterPos, null, passageOutputs, out var cB);
-            jitterFires += cB;
+            jitterFires += cB + tracker.Fired.Count;
         }
         Assert.Equal(0, jitterFires);
 
@@ -423,13 +415,14 @@ public sealed class BallDetectorTests(NativeSceneFixture godot)
         // 4. Move forward across X = 0 again -> triggers second crossing!
         tracker = tracker.Advance(new SimulationTick(tick++), bodiesPos, null, passageOutputs, out var countSecond);
         Assert.Equal(1, countSecond);
+        Assert.Single(tracker.Fired);
         Assert.Equal(2UL, tracker.States[0].PassedCount);
     }
 
     [Fact]
     public void PassageSensorTracker_MultipleBodies_TwoSeparatedBalls()
     {
-        var detector = WorkshopInput.BallDetector(new GpuBodyId(10), 0, 3, 0, 0, 0, 0, 1);
+        var detector = PlacedParts.Detector(new GpuBodyId(10), 0, 3, 0, 0, 0, 0, 1);
         var ballA = WorkshopInput.Generic(PartId.Basketball,new GpuBodyId(2), -1, 3, 0, 0, 0, 0, 1);
         var ballB = WorkshopInput.Generic(PartId.BowlingBall, new GpuBodyId(3), -3, 3, 0, 0, 0, 0, 1);
 
@@ -485,31 +478,31 @@ public sealed class BallDetectorTests(NativeSceneFixture godot)
     {
         // Story 9R.5b: the compiled scene is the footprint authority; the workbench plane adds one static body and collider.
         var world = WorkshopPhysicsCompiler.Compile(new WorkshopConstruction(new ConstructionRevision(1), WorkshopCadenceSettings.Default(),
-            new WorkshopInstances(WorkshopInput.BallDetector(new GpuBodyId(1), 0, 3, 0, 0, 0, 0, 1))), new(1, 2)).World;
+            new WorkshopInstances(PlacedParts.Detector(new GpuBodyId(1), 0, 3, 0, 0, 0, 0, 1))), new(1, 2)).World;
         Assert.Equal((1 + 1, 0, 17 + 1, 0, 0), (world.Bodies, world.Dynamic, world.Colliders, world.Triggers, world.ContactWorks));
 
         // 3 detectors = 51 colliders + 1 plane collider = 52 <= 64 (fits)
         var threeDetectors = new WorkshopInstances(
-            WorkshopInput.BallDetector(new GpuBodyId(1), 0, 3, 0, 0, 0, 0, 1),
-            WorkshopInput.BallDetector(new GpuBodyId(2), 5, 3, 0, 0, 0, 0, 1),
-            WorkshopInput.BallDetector(new GpuBodyId(3), 10, 3, 0, 0, 0, 0, 1));
+            PlacedParts.Detector(new GpuBodyId(1), 0, 3, 0, 0, 0, 0, 1),
+            PlacedParts.Detector(new GpuBodyId(2), 5, 3, 0, 0, 0, 0, 1),
+            PlacedParts.Detector(new GpuBodyId(3), 10, 3, 0, 0, 0, 0, 1));
         WorkbenchCapacity.Validate(threeDetectors);
 
         // 4 detectors = 68 colliders: validates cleanly with unbounded colliders
         var fourDetectors = new WorkshopInstances(
-            WorkshopInput.BallDetector(new GpuBodyId(1), 0, 3, 0, 0, 0, 0, 1),
-            WorkshopInput.BallDetector(new GpuBodyId(2), 5, 3, 0, 0, 0, 0, 1),
-            WorkshopInput.BallDetector(new GpuBodyId(3), 10, 3, 0, 0, 0, 0, 1),
-            WorkshopInput.BallDetector(new GpuBodyId(4), 15, 3, 0, 0, 0, 0, 1));
+            PlacedParts.Detector(new GpuBodyId(1), 0, 3, 0, 0, 0, 0, 1),
+            PlacedParts.Detector(new GpuBodyId(2), 5, 3, 0, 0, 0, 0, 1),
+            PlacedParts.Detector(new GpuBodyId(3), 10, 3, 0, 0, 0, 0, 1),
+            PlacedParts.Detector(new GpuBodyId(4), 15, 3, 0, 0, 0, 0, 1));
         WorkbenchCapacity.Validate(fourDetectors);
     }
 
     [Fact]
     public void SaveCodec_RoundTripsBallDetectorAndPreservesDeclaredColliders()
     {
-        var detector = WorkshopInput.BallDetector(new GpuBodyId(10), 0, 3, 0, 0, 0, 0, 1);
+        var detector = PlacedParts.Detector(new GpuBodyId(10), 0, 3, 0, 0, 0, 0, 1);
         var ball = WorkshopInput.Generic(PartId.Basketball,new GpuBodyId(2), 0, 4, 0, 0, 0, 0, 1);
-        var lamp = WorkshopInput.Lamp(new GpuBodyId(20), 5, 3, 0, 0, 0, 0, 1);
+        var lamp = PlacedParts.Lamp(new GpuBodyId(20), 5, 3, 0, 0, 0, 0, 1);
         var connection = new WorkshopConnection(
             new GpuBodyId(10), WorkshopSocket.ActivationOut,
             new GpuBodyId(20), WorkshopSocket.ActivationIn,
@@ -528,7 +521,7 @@ public sealed class BallDetectorTests(NativeSceneFixture godot)
         Assert.Equal(save, decoded);
         Assert.Equal(bytes, WorkshopSaveCodec.Encode(decoded));
 
-        var decodedDetector = Assert.IsType<WorkshopBallDetector>(decoded.Construction.Instances[1]);
+        var decodedDetector = Assert.IsAssignableFrom<IWorkshopDeclaredColliders>(decoded.Construction.Instances[1]);
         Assert.Equal(PartId.BallDetector, decodedDetector.PartId);
         Assert.Equal(17, decodedDetector.DeclaredColliders.Count);
 

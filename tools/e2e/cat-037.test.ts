@@ -28,7 +28,7 @@ const { PNG } = requireMcp('./node_modules/playwright-core/lib/utilsBundle.js');
 
 const ConnectionDomain = { Activation: 1, Electrical: 2 } as const;
 const Socket = { ActivationOut: 1, SetIn: 2, ResetIn: 3, ActivationIn: 4, Supply: 7, PowerIn: 8 } as const;
-const BLADE_BODY_ID = '4294967810'; // GateBlade(1): (1 << 32) + 256 + 1 * 256 + 2
+const BLADE_BODY_ID = '4294967810'; // SliderBody(1, 0): (1 << 32) + 256 + 1 * 256 + 2
 const LATCH_TARGET = '4';           // ActivationTarget(latch node 2) = 2 + 2
 const CLOSED_MAX_PY = 3.2; // blade rest height is 3.0 m
 const OPEN_MIN_PY = 4.2;   // fully open blade reaches 4.55 m

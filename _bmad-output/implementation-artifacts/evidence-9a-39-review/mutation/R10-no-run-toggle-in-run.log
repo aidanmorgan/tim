@@ -1,0 +1,21 @@
+mutant R10-no-run-toggle-in-run file ui/WorkshopConfiguration.cs
+diff --git a/ui/WorkshopConfiguration.cs b/ui/WorkshopConfiguration.cs
+index e266bb15..cd261e0e 100644
+--- a/ui/WorkshopConfiguration.cs
++++ b/ui/WorkshopConfiguration.cs
+@@ -22,7 +22,7 @@ public partial class Workshop
+         // While the machine runs, a part offers only what its package declares run-editable.
+         if (World.WorkshopPhase is WorkshopSimulationPhase.Running or WorkshopSimulationPhase.Paused &&
+             DeclaredPhysics.HasRunControlledSource(instance.PartId))
+-        { AddRunControl(instance); return; }
++        { if (instance.Id.Value == ulong.MaxValue) AddRunControl(instance); }
+         var configure = SignalButton("Configure", () =>
+         {
+             if (!CanEdit || instance.Locked) return;
+    0 Error(s)
+    0 Warning(s)
+Build succeeded.
+  Failed CuriousContraptions.Tests.PalettePlacementTests.TheRunControlToggleSendsTypedControlsWithoutEditingAndAppearsOnlyForADeclaredRunControl [19 ms]
+Failed!  - Failed:     1, Passed:  2465, Skipped:     0, Total:  2466, Duration: 44 s - CuriousContraptions.tests.dll (net10.0)
+Passed!  - Failed:     0, Passed:   163, Skipped:     0, Total:   163, Duration: 332 ms - BundleElements.Tests.dll (net10.0)
+restored: yes

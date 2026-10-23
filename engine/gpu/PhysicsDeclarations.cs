@@ -178,6 +178,9 @@ public sealed class PhysicsSceneDeclaration
     public ReadOnlySpan<ContactLoadSensorDeclaration> ContactLoadSensors => _contactLoadSensors;
     private readonly PrismaticConstraintDeclaration[] _prismatics;
     public ReadOnlySpan<PrismaticConstraintDeclaration> Prismatics => _prismatics;
+    private readonly PrismaticDriveDeclaration[] _prismaticDrives;
+    /// <summary>The supplied drives, at most one per prismatic, sorted by joint identity (C-Gate).</summary>
+    public ReadOnlySpan<PrismaticDriveDeclaration> PrismaticDrives => _prismaticDrives;
     public CompiledSupplyGraph SupplyGraph { get; }
     private readonly RigidBodyDeclaration[] _bodies;
     private readonly ColliderDeclaration[] _colliders;
@@ -211,7 +214,8 @@ public sealed class PhysicsSceneDeclaration
         ReadOnlySpan<PrismaticConstraintDeclaration> prismatics = default,
         ReadOnlySpan<SupplyNodeDeclaration> supplyNodes = default,
         ReadOnlySpan<SupplyEdge> supplyEdges = default,
-        ReadOnlySpan<ContactLoadSensorDeclaration> contactLoadSensors = default)
+        ReadOnlySpan<ContactLoadSensorDeclaration> contactLoadSensors = default,
+        ReadOnlySpan<PrismaticDriveDeclaration> prismaticDrives = default)
     {
         if ((document.Low == 0 && document.High == 0) || nextIdentity == 0)
             throw new ArgumentException("Invalid physics document.");
@@ -319,9 +323,19 @@ public sealed class PhysicsSceneDeclaration
         }
         _prismatics = prismatics.ToArray();
         Array.Sort(_prismatics, (a, b) => a.Id.Value.CompareTo(b.Id.Value));
+        var driven = new HashSet<PrismaticConstraintId>();
+        foreach (var drive in prismaticDrives)
+        {
+            var joint = Array.Find(_prismatics, candidate => candidate.Id == drive.Joint);
+            if (drive.Joint.Value == 0 || joint.Id != drive.Joint || !driven.Add(drive.Joint) || bodyMap[joint.BodyB].Motion != RigidMotionKind.Dynamic)
+                throw new ArgumentException("A prismatic drive requires one admitted joint whose moving body is dynamic.");
+            drive.Validate(joint);
+        }
+        _prismaticDrives = prismaticDrives.ToArray();
+        Array.Sort(_prismaticDrives, (a, b) => a.Joint.Value.CompareTo(b.Joint.Value));
         foreach (var source in electricalSources) Identity(source.Id.Value, nextIdentity, ids);
         Electrical = new(electricalSources, electricalBindings, bodies, contactWorks);
-        SupplyGraph = new(supplyNodes, supplyEdges, Electrical.Sources, _prismatics, bodies);
+        SupplyGraph = new(supplyNodes, supplyEdges, Electrical.Sources, _prismatics, _prismaticDrives, bodies);
         Document = document; NextIdentity = nextIdentity;
         _bodies = bodies.ToArray(); _colliders = colliders.ToArray();
         _materials = materials.ToArray(); _sensors = sensors.ToArray(); _guides = guides.ToArray(); _triggers = triggers.ToArray();

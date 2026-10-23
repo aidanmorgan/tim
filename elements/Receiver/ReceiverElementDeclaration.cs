@@ -58,7 +58,7 @@ public sealed class ReceiverElementDeclaration : IResidenceCaptureElement, IScen
         new(".", new(0.12f, 0.3f, 0f, 0.1f))
     ];
 
-    public IReadOnlyList<EventDescriptor> Events => [];
+    public IReadOnlyList<EventDescriptor> Events => [new(SimulationEventKind.Captured)];
 
     public SimulationDomain SupportedDomains => SimulationDomain.Mechanical;
 

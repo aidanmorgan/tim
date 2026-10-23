@@ -1,0 +1,6 @@
+bundle entries:       28
+package dirs:       28
+undelivered: 2
+duplicate PaletteOrder:        0
+"Id": "electrical_xor"	"PaletteOrder": 30
+pulley package dir: ls: elements/Pulley: No such file or directory
