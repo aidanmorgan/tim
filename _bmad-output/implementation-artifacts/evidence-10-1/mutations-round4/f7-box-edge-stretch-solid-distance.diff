@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/frozen4/WorkshopCollisionKernels.cs	2026-10-23 21:52:48.080981334 +0800
++++ CuriousContraptions.Simulation/WorkshopCollisionKernels.cs	2026-10-23 23:34:32.012127470 +0800
+@@ -1579,7 +1579,7 @@
+         void RadialPoint(Vector3 q, int detail)
+         {
+             if (MathF.Abs(Vector3.Dot(q - cyl.Position, cyl.U1)) > cyl.Hy + 1e-4f) return;
+-            var gap = SideDistance(Solid.Of(cyl), q, out var onSide);
++            var gap = CylinderDistance(Solid.Of(cyl), q, out var onSide, out _);
+             if (gap > margin) return;
+             var radial = RadialUnit(q - cyl.Position, cyl.U1, -n);
+             outList.Add(CylinderContact(cyl, box, -radial, (q + onSide) * 0.5f, gap, Feature(CylinderFeature.Side, detail), ContactSupport.Axis,

@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/frozen/WorkshopCollisionKernels.cs	2026-10-22 13:26:10.012188993 +0800
++++ CuriousContraptions.Simulation/WorkshopCollisionKernels.cs	2026-10-22 13:27:01.830384750 +0800
+@@ -880,7 +880,7 @@
+         var t = Vector3.Dot(a, n);
+         if (MathF.Abs(t) >= EdgeFaceAlignment)
+         {
+-            var s = t > 0f ? -1f : 1f;
++            var s = t > 0f ? 1f : -1f;
+             var cc = cyl.Position + s * cyl.Hy * a;
+             var capIndex = s > 0f ? 0 : 1;
+             for (var k = 0; k < 8; k += 2)

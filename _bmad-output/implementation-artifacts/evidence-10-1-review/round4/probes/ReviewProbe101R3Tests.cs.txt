@@ -1,0 +1,568 @@
+using System.Numerics;
+using CuriousContraptions.Gpu;
+using CuriousContraptions.Simulation;
+using Xunit;
+#pragma warning disable CA1822, CA1861, CA5394, CA1305, CA1307, CA1310, IDE0060
+
+namespace CuriousContraptions.Tests;
+
+/// <summary>Reviewer round-3 probes (throwaway): fresh-seed energy sets, the 2° parallel band, and the shrunk-core bias.
+/// Oracles as in round 2: dual-certified separation; certified translation bound for overlap.</summary>
+public sealed class ReviewProbe101R3Tests(ITestOutputHelper output)
+{
+    private static readonly LawMaterial Dead = new(0f, .1f, .5f, 0f);
+    private static float H(float v) => (float)(Half)v;
+    private static readonly float Bench = LawScene.BenchY;
+    private static readonly float G = -(float)(Half)LawScene.Gravity;
+    private static readonly Quaternion Lying = Quaternion.CreateFromAxisAngle(Vector3.UnitX, MathF.PI / 2);
+
+    private readonly record struct Shape(bool Cylinder, D3 P, D3 U0, D3 U1, D3 U2, double R, double Hx, double Hy, double Hz)
+    {
+        public static Shape Of(SimCollider c) => new(c.Shape == ShapeKind.Cylinder, new(c.Position), new(c.U0), new(c.U1), new(c.U2),
+            c.Radius, c.Hx, c.Hy, c.Hz);
+        public double Support(D3 u)
+        {
+            if (Cylinder) { var t = Math.Abs(u.Dot(U1)); return P.Dot(u) + Hy * t + R * Math.Sqrt(Math.Max(0, 1 - t * t)); }
+            return P.Dot(u) + Hx * Math.Abs(u.Dot(U0)) + Hy * Math.Abs(u.Dot(U1)) + Hz * Math.Abs(u.Dot(U2));
+        }
+        public D3 Project(D3 x)
+        {
+            var d = x - P;
+            if (Cylinder)
+            {
+                var y = d.Dot(U1); var q = d - y * U1; var rho = q.Length;
+                if (rho > R) q = R / rho * q;
+                return P + Math.Clamp(y, -Hy, Hy) * U1 + q;
+            }
+            return P + Math.Clamp(d.Dot(U0), -Hx, Hx) * U0 + Math.Clamp(d.Dot(U1), -Hy, Hy) * U1 + Math.Clamp(d.Dot(U2), -Hz, Hz) * U2;
+        }
+    }
+
+    private static double Sep(Shape a, Shape b, D3 u) => -b.Support(-u) - a.Support(u);
+
+    private static (double Upper, double Lower) Distance(Shape a, Shape b)
+    {
+        D3 pa = a.Project(b.P), pb = b.Project(pa);
+        double upper = (pa - pb).Length, lower = double.NegativeInfinity;
+        for (var round = 0; round < 20; round++)
+        {
+            for (var i = 0; i < 5000; i++) { pa = a.Project(pb); pb = b.Project(pa); }
+            upper = (pa - pb).Length;
+            if (upper < 1e-9) return (upper, double.NegativeInfinity);
+            lower = Math.Max(lower, Sep(a, b, (1 / upper) * (pb - pa)));
+            if (upper - lower <= 1e-5) return (upper, lower);
+        }
+        var u = (1 / upper) * (pb - pa); var step = .01; var rng = new Random(3);
+        while (step > 1e-10)
+        {
+            var improved = false;
+            for (var k = 0; k < 30; k++)
+            {
+                var v = (u + step * new D3(rng.NextDouble() * 2 - 1, rng.NextDouble() * 2 - 1, rng.NextDouble() * 2 - 1)).Unit;
+                var sv = Sep(a, b, v);
+                if (sv > lower) { lower = sv; u = v; improved = true; }
+            }
+            if (!improved) step *= .5;
+        }
+        return (upper, lower);
+    }
+
+    private static Quaternion RandomRotation(Random rng) => Quaternion.Normalize(new((float)(rng.NextDouble() * 2 - 1),
+        (float)(rng.NextDouble() * 2 - 1), (float)(rng.NextDouble() * 2 - 1), (float)(rng.NextDouble() * 2 - 1)));
+
+    private static SimCollider Make(ShapeKind shape, Vector3 p, Quaternion q, float radius, Vector3 half, int index)
+    {
+        var body = new SimBody
+        {
+            Px = p.X, Py = p.Y, Pz = p.Z, Qx = q.X, Qy = q.Y, Qz = q.Z, Qw = q.W, Motion = 1, Mass = 1, InvMass = 1,
+            Principal = Quaternion.Identity, InvI = Vector3.One, Q0 = Quaternion.Identity
+        };
+        var c = new SimCollider { Index = index, Body = body, Shape = shape, Radius = radius, Hx = half.X, Hy = half.Y, Hz = half.Z, Rq = Quaternion.Identity };
+        WorkshopCollisionKernels.RefreshCollider(c);
+        return c;
+    }
+
+    private static double Energy(LawBody b, bool cylinder, float m, Vector3 half, float r)
+    {
+        var w = Vector3.Transform(b.Angular, Quaternion.Inverse(b.Rotation));
+        double ix, iy, iz;
+        if (cylinder) { ix = iz = m * (r * r / 4 + half.Y * half.Y / 3); iy = m * r * r / 2; }
+        else { ix = m * (half.Y * half.Y + half.Z * half.Z) / 3; iy = m * (half.X * half.X + half.Z * half.Z) / 3; iz = m * (half.X * half.X + half.Y * half.Y) / 3; }
+        return .5 * m * b.Velocity.LengthSquared() + .5 * (ix * w.X * w.X + iy * w.Y * w.Y + iz * w.Z * w.Z) + m * G * b.Position.Y;
+    }
+
+    private const double Bound = 1.96e-3; // m·g·ContactSlop for 1 kg (the candidate's own bound)
+
+    // ---- 1. Fresh-seed drop sets (C8 design) ----
+
+    private LawMaterial _dyn = Dead;
+    private string MatName => _dyn.Rolling > 0 ? "Rolling" : "Dead";
+
+    [Theory]
+    [InlineData(1001, false)] [InlineData(2002, false)] [InlineData(77, false)] [InlineData(31337, false)] [InlineData(4242, false)]
+    [InlineData(1001, true)] [InlineData(2002, true)] [InlineData(77, true)] [InlineData(31337, true)] [InlineData(4242, true)]
+    public void D1M_Drops(int seed, bool rolling)
+    {
+        _dyn = rolling ? new LawMaterial(0f, .1f, .5f, .05f) : Dead;
+        D1_Drops(seed);
+    }
+
+    [Theory]
+    [InlineData(false)] [InlineData(true)]
+    public void D2M_Tumble(bool rolling)
+    {
+        _dyn = rolling ? new LawMaterial(0f, .1f, .5f, .05f) : Dead;
+        D2_TumbleFreshSeeds();
+        Tumble(true, false, 31402, 60, "HELD-BACK box over cylinder rim");
+        Tumble(true, true, 31403, 60, "HELD-BACK cylinder over cylinder rim");
+    }
+
+    private void D1_Drops(int seed)
+    {
+        foreach (var (name, dynCyl, statCyl) in new[] { ("BASELINE box→box", false, false), ("box→log", false, true), ("cyl→box", true, false), ("cyl→log", true, true) })
+        {
+            var rng = new Random(seed);
+            double worst = 0; var over = new List<int>();
+            for (var i = 0; i < 60; i++)
+            {
+                var q = RandomRotation(rng);
+                var offset = (float)(rng.NextDouble() * .5 - .25);
+                var height = (float)(rng.NextDouble() * .5 + .1);
+                var spin = new Vector3((float)(rng.NextDouble() * 6 - 3), (float)(rng.NextDouble() * 6 - 3), (float)(rng.NextDouble() * 6 - 3));
+                var scene = new LawScene();
+                if (statCyl) scene.StaticCylinder(new(0, Bench + .3f, 0), .3f, .5f, Lying, Dead);
+                else scene.StaticBox(new(0, Bench + .3f, 0), new(.3f, .3f, .5f), null, Dead);
+                var body = dynCyl ? scene.Cylinder(new(offset, Bench + .6f + .3f + height, 0), .2f, .15f, 1f, _dyn, q, angular: spin)
+                    : scene.Box(new(offset, Bench + .6f + .3f + height, 0), new(.25f, .1f, .15f), 1f, _dyn, q, angular: spin);
+                var world = scene.Admit();
+                double? prev = null; var bad = false;
+                var half = dynCyl ? new Vector3(0, H(.15f), 0) : new Vector3(H(.25f), H(.1f), H(.15f));
+                world.Step(3 * world.TicksPerSecond, (_, s) =>
+                {
+                    var e = Energy(s[body], dynCyl, 1f, half, H(.2f));
+                    if (prev is { } p) { worst = Math.Max(worst, e - p); if (e - p > Bound) bad = true; }
+                    prev = e;
+                });
+                if (bad) over.Add(i);
+            }
+            output.WriteLine($"[{MatName}] seed {seed} {name}: 60 drops, worst per-tick rise {worst * 1000:F2} mJ, drops over 1.96 mJ: {over.Count} [{string.Join(",", over)}]");
+        }
+    }
+
+    // ---- 1b. Fresh-seed tumble over a rim (C6 design): B starts on top of static A at a certified 0.3 mm overlap ----
+
+    private void Tumble(bool cylA, bool cylB, int seed, int poses, string label)
+    {
+        var centre = new Vector3(0, 1, 0);
+        var rng = new Random(seed);
+        double worst = 0; var over = new List<int>();
+        for (var i = 0; i < poses; i++)
+        {
+            var qa = RandomRotation(rng); var qb = RandomRotation(rng);
+            var dir = Vector3.Normalize(new((float)(rng.NextDouble() * 2 - 1), (float)(rng.NextDouble() * 2 - 1), (float)(rng.NextDouble() * 2 - 1)));
+            if (cylA && rng.NextDouble() < .7)
+            {
+                // Aim most poses at A's rim: the rim direction after the rotation below.
+                var a0 = Vector3.Transform(Vector3.UnitY, qa); var u0 = Vector3.Transform(Vector3.UnitX, qa);
+                dir = Vector3.Normalize(.2f * a0 + .3f * u0 + .05f * dir);
+            }
+            var axis = Vector3.Cross(dir, Vector3.UnitY);
+            var angle = MathF.Acos(Math.Clamp(Vector3.Dot(dir, Vector3.UnitY), -1f, 1f));
+            var rot = axis.Length() < 1e-6f ? Quaternion.Identity : Quaternion.CreateFromAxisAngle(Vector3.Normalize(axis), angle);
+            qa = Quaternion.Normalize(rot * qa); qb = Quaternion.Normalize(rot * qb);
+            SimCollider A(Quaternion q) => cylA ? Make(ShapeKind.Cylinder, centre, q, H(.3f), new(0, H(.2f), 0), 0) : Make(ShapeKind.Box, centre, q, 0, new(H(.3f), H(.2f), H(.3f)), 0);
+            SimCollider B(Vector3 p, Quaternion q) => cylB ? Make(ShapeKind.Cylinder, p, q, H(.2f), new(0, H(.15f), 0), 1) : Make(ShapeKind.Box, p, q, 0, new(H(.25f), H(.1f), H(.15f)), 1);
+            var sa = Shape.Of(A(qa));
+            float lo = 0f, hi = 3f;
+            for (var it = 0; it < 26; it++)
+            {
+                var mid = .5f * (lo + hi);
+                if (Distance(sa, Shape.Of(B(centre + Vector3.UnitY * mid, qb))).Lower > 0) hi = mid; else lo = mid;
+            }
+            var scene = new LawScene(bench: false);
+            if (cylA) scene.StaticCylinder(centre, .3f, .2f, qa, Dead); else scene.StaticBox(centre, new(.3f, .2f, .3f), qa, Dead);
+            var body = cylB ? scene.Cylinder(centre + Vector3.UnitY * (hi - .0005f), .2f, .15f, 1f, _dyn, qb)
+                : scene.Box(centre + Vector3.UnitY * (hi - .0005f), new(.25f, .1f, .15f), 1f, _dyn, qb);
+            var world = scene.Admit();
+            var half = cylB ? new Vector3(0, H(.15f), 0) : new Vector3(H(.25f), H(.1f), H(.15f));
+            double? prev = null; var bad = false;
+            world.Step(2 * world.TicksPerSecond, (_, s) =>
+            {
+                var e = Energy(s[body], cylB, 1f, half, H(.2f));
+                if (prev is { } p) { worst = Math.Max(worst, e - p); if (e - p > Bound) bad = true; }
+                prev = e;
+            });
+            if (bad) over.Add(i);
+        }
+        output.WriteLine($"[{MatName}] {label} seed {seed}: {poses} tumble poses, worst per-tick rise {worst * 1000:F2} mJ, poses over 1.96 mJ: {over.Count} [{string.Join(",", over)}]");
+    }
+
+    [Fact]
+    public void D2_TumbleFreshSeeds()
+    {
+        Tumble(false, false, 1401, 30, "CONTROL box over box");
+        Tumble(true, false, 1402, 60, "box over cylinder rim");
+        Tumble(true, true, 1403, 60, "cylinder over cylinder rim");
+        Tumble(false, true, 1404, 30, "cylinder over box edge");
+    }
+
+    // ---- 2. The 2° parallel band: a log resting in a groove of two static logs, its axis skewed by θ about Y ----
+
+    [Fact]
+    public void D3_SkewBand()
+    {
+        foreach (var deg in new[] { 0.0, 1.0, 1.9, 2.0, 2.1, 3.0, 5.0, 8.0, 11.0, 11.5, 12.0, 20.0 })
+        {
+            var r = H(.2f);
+            var below = Bench + 1;
+            var rest = below + MathF.Sqrt(4 * r * r - .25f * .25f);
+            var scene = new LawScene();
+            scene.StaticCylinder(new(-.25f, below, 0), .2f, .8f, Lying, Dead);
+            scene.StaticCylinder(new(.25f, below, 0), .2f, .8f, Lying, Dead);
+            var skew = Quaternion.CreateFromAxisAngle(Vector3.UnitY, (float)(deg * Math.PI / 180));
+            var log = scene.Cylinder(new(0, rest + .002f, .05f), .2f, .4f, 1f, Dead, Quaternion.Normalize(skew * Lying));
+            var world = scene.Admit();
+            double worst = 0, lateSpin = 0, lateSpeed = 0; double? prev = null;
+            float yMin = float.MaxValue, yMax = float.MinValue;
+            var tps = world.TicksPerSecond;
+            var final = world.Step(4 * tps, (tick, s) =>
+            {
+                var b = s[log];
+                var e = Energy(b, true, 1f, new(0, H(.4f), 0), r);
+                if (prev is { } p) worst = Math.Max(worst, e - p);
+                prev = e;
+                if (tick > 2 * tps) { lateSpin = Math.Max(lateSpin, b.Spin); lateSpeed = Math.Max(lateSpeed, b.Speed); yMin = MathF.Min(yMin, b.Position.Y); yMax = MathF.Max(yMax, b.Position.Y); }
+            })[log];
+            // Analytic rest height for a skewed top log on two parallel logs: the contact is the common normal of skew lines; with the
+            // centre on the symmetry plane, the axis-to-axis distance stays 2r, so the height is √(4r² − (0.25 cosθ)²)... approximate
+            // check only: report the height error against the parallel value and the late motion.
+            var a = Vector3.Transform(Vector3.UnitY, final.Rotation);
+            var skewNow = Math.Acos(Math.Clamp(Math.Abs(a.Z), 0, 1)) * 180 / Math.PI;
+            var contacts = new List<ContactPoint>();
+            var top = Make(ShapeKind.Cylinder, final.Position, final.Rotation, r, new(0, H(.4f), 0), 2);
+            var left = Make(ShapeKind.Cylinder, new(-.25f, below, 0), Lying, r, new(0, H(.8f), 0), 0);
+            WorkshopCollisionKernels.GenerateManifold(left, top, .005f, contacts);
+            var exact = Distance(Shape.Of(left), Shape.Of(top));
+            output.WriteLine($"skew {deg,5}°: final skew {skewNow:F2}°, worst rise {worst * 1000:F3} mJ, late speed {lateSpeed:F5} spin {lateSpin:F5}, late y band {(yMax - yMin) * 1000:F3} mm, y−parallel rest {(final.Position.Y - rest) * 1000:F2} mm, left contacts {contacts.Count} gaps [{string.Join(", ", contacts.Select(c => (c.Gap * 1000).ToString("F3")))}] certified [{exact.Lower * 1000:F3},{exact.Upper * 1000:F3}] mm");
+        }
+    }
+
+    [Fact]
+    public void D4_SkewSweepThroughThreshold()
+    {
+        // The top log turns slowly about Y through the 2° band (initial yaw rate), crossing one-point/two-point switching; Dead
+        // material, no rolling resistance. Energy must not rise; report per-tick worst and the yaw at the end.
+        foreach (var yawRate in new[] { .02f, .05f, -.05f })
+        {
+            var r = H(.2f);
+            var below = Bench + 1;
+            var rest = below + MathF.Sqrt(4 * r * r - .25f * .25f);
+            var scene = new LawScene();
+            scene.StaticCylinder(new(-.25f, below, 0), .2f, .8f, Lying, new LawMaterial(0f, .1f, 0f, 0f));
+            scene.StaticCylinder(new(.25f, below, 0), .2f, .8f, Lying, new LawMaterial(0f, .1f, 0f, 0f));
+            var skew = Quaternion.CreateFromAxisAngle(Vector3.UnitY, (float)(1.0 * Math.PI / 180));
+            var log = scene.Cylinder(new(0, rest, 0), .2f, .4f, 1f, new LawMaterial(0f, .1f, 0f, 0f), Quaternion.Normalize(skew * Lying), angular: new(0, yawRate, 0));
+            var world = scene.Admit();
+            double worst = 0; double? prev = null; double maxVy = 0;
+            var final = world.Step(6 * world.TicksPerSecond, (_, s) =>
+            {
+                var b = s[log];
+                var e = Energy(b, true, 1f, new(0, H(.4f), 0), r);
+                if (prev is { } p) worst = Math.Max(worst, e - p);
+                prev = e;
+                maxVy = Math.Max(maxVy, Math.Abs(b.Velocity.Y));
+            })[log];
+            var a = Vector3.Transform(Vector3.UnitY, final.Rotation);
+            output.WriteLine($"yaw rate {yawRate}: final skew {Math.Acos(Math.Clamp(Math.Abs(a.Z), 0, 1)) * 180 / Math.PI:F2}°, worst per-tick rise {worst * 1000:F4} mJ, max |vy| {maxVy:F5} m/s, final y−rest {(final.Position.Y - rest) * 1000:F3} mm");
+        }
+    }
+
+    /// <summary>Corrected skew probes: the skewed top log is placed 0.3 mm below its CERTIFIED touch height on the two bottom logs
+    /// (round-3 D3/D4 started up to tens of mm deep because the skewed log rests higher than the parallel one).</summary>
+    private float SkewTouch(float deg, float below, float r)
+    {
+        var skew = Quaternion.Normalize(Quaternion.CreateFromAxisAngle(Vector3.UnitY, (float)(deg * Math.PI / 180)) * Lying);
+        var left = Shape.Of(Make(ShapeKind.Cylinder, new(-.25f, below, 0), Lying, r, new(0, H(.8f), 0), 0));
+        var right = Shape.Of(Make(ShapeKind.Cylinder, new(.25f, below, 0), Lying, r, new(0, H(.8f), 0), 1));
+        float lo = below, hi = below + 1f;
+        for (var it = 0; it < 30; it++)
+        {
+            var mid = .5f * (lo + hi);
+            var top = Shape.Of(Make(ShapeKind.Cylinder, new(0, mid, 0), skew, r, new(0, H(.4f), 0), 2));
+            if (Distance(left, top).Lower > 0 && Distance(right, top).Lower > 0) hi = mid; else lo = mid;
+        }
+        return hi;
+    }
+
+    [Fact]
+    public void D3b_SkewBandCertified()
+    {
+        foreach (var deg in new[] { 0.5, 1.0, 1.9, 2.0, 2.1, 3.0, 5.0, 8.0, 11.0, 11.5, 12.0 })
+        {
+            var r = H(.2f); var below = Bench + 1;
+            var touch = SkewTouch((float)deg, below, r);
+            var scene = new LawScene();
+            scene.StaticCylinder(new(-.25f, below, 0), .2f, .8f, Lying, Dead);
+            scene.StaticCylinder(new(.25f, below, 0), .2f, .8f, Lying, Dead);
+            var skew = Quaternion.Normalize(Quaternion.CreateFromAxisAngle(Vector3.UnitY, (float)(deg * Math.PI / 180)) * Lying);
+            var log = scene.Cylinder(new(0, touch - .0003f, 0), .2f, .4f, 1f, Dead, skew);
+            var world = scene.Admit();
+            double worst = 0, maxVy = 0; double? prev = null; var tps = world.TicksPerSecond; double lateSpin = 0;
+            var final = world.Step(4 * tps, (tick, s) =>
+            {
+                var b = s[log];
+                var e = Energy(b, true, 1f, new(0, H(.4f), 0), r);
+                if (prev is { } p) worst = Math.Max(worst, e - p);
+                prev = e; maxVy = Math.Max(maxVy, b.Velocity.Y);
+                if (tick > 3 * tps) lateSpin = Math.Max(lateSpin, b.Spin);
+            })[log];
+            var a = Vector3.Transform(Vector3.UnitY, final.Rotation);
+            output.WriteLine($"certified skew {deg,5}°: touch height {(touch - below) * 1000:F2} mm above, worst per-tick rise {worst * 1000:F3} mJ, max upward v {maxVy:F4} m/s, final skew {Math.Acos(Math.Clamp(Math.Abs(a.Z), 0, 1)) * 180 / Math.PI:F2}°, late spin {lateSpin:E1}");
+        }
+    }
+
+    [Fact]
+    public void D4b_SkewSweepCertified()
+    {
+        // Frictionless top log placed at its certified 2.5° touch (−0.3 mm) with a yaw rate, so it crosses the 2° band while settling.
+        foreach (var (start, yawRate) in new[] { (2.5f, -.05f), (2.5f, .05f), (1.5f, .05f), (4f, -.2f) })
+        {
+            var r = H(.2f); var below = Bench + 1;
+            var touch = SkewTouch(start, below, r);
+            var slick = new LawMaterial(0f, .1f, 0f, 0f);
+            var scene = new LawScene();
+            scene.StaticCylinder(new(-.25f, below, 0), .2f, .8f, Lying, slick);
+            scene.StaticCylinder(new(.25f, below, 0), .2f, .8f, Lying, slick);
+            var skew = Quaternion.Normalize(Quaternion.CreateFromAxisAngle(Vector3.UnitY, (float)(start * Math.PI / 180)) * Lying);
+            var log = scene.Cylinder(new(0, touch - .0003f, 0), .2f, .4f, 1f, slick, skew, angular: new(0, yawRate, 0));
+            var world = scene.Admit();
+            double worst = 0, maxVy = 0; double? prev = null; double e0 = 0, eEnd = 0; var crossings = 0; double? lastSkew = null;
+            var final = world.Step(6 * world.TicksPerSecond, (tick, s) =>
+            {
+                var b = s[log];
+                var e = Energy(b, true, 1f, new(0, H(.4f), 0), r);
+                if (tick == 1) e0 = e;
+                eEnd = e;
+                if (prev is { } p) worst = Math.Max(worst, e - p);
+                prev = e; maxVy = Math.Max(maxVy, b.Velocity.Y);
+                var ax = Vector3.Transform(Vector3.UnitY, b.Rotation);
+                var sk = Math.Acos(Math.Clamp(Math.Abs(ax.Z), 0, 1)) * 180 / Math.PI;
+                if (lastSkew is { } ls && (ls - 2) * (sk - 2) < 0) crossings++;
+                lastSkew = sk;
+            })[log];
+            output.WriteLine($"sweep from {start}° yaw {yawRate}: 2°-band crossings {crossings}, worst per-tick rise {worst * 1000:F3} mJ, net energy {(eEnd - e0) * 1000:F2} mJ, max upward v {maxVy:F4} m/s, final skew {lastSkew:F2}°");
+        }
+    }
+
+    [Fact]
+    public void D8_ThreeBoxStackControl()
+    {
+        var s = new LawScene(); var h = H(.1f);
+        s.Box(new(0, Bench + h + .002f, 0), new(.2f, .1f, .2f), .5f, Dead);
+        s.Box(new(0, Bench + 3 * h + .004f, 0), new(.2f, .1f, .2f), .5f, Dead);
+        var b = s.Box(new(0, Bench + 5 * h + .006f, 0), new(.2f, .1f, .2f), .5f, Dead);
+        var world = s.Admit();
+        float yMin = float.MaxValue, yMax = float.MinValue; double lateSpin = 0; var tps = world.TicksPerSecond;
+        var final = world.Step(5 * tps, (tick, st) => { if (tick <= 3 * tps) return; var x = st[b]; yMin = MathF.Min(yMin, x.Position.Y); yMax = MathF.Max(yMax, x.Position.Y); lateSpin = Math.Max(lateSpin, x.Spin); })[b];
+        output.WriteLine($"CONTROL three boxes (top): rest height − analytic {(final.Position.Y - Bench - 5 * h) * 1000:F3} mm, late band {(yMax - yMin) * 1000:F4} mm, late spin {lateSpin:E1}");
+    }
+
+    [Theory]
+    [InlineData(2002, false, 15)]
+    [InlineData(77, false, 25)]
+    [InlineData(1001, true, 6)]
+    [InlineData(1001, true, 25)]
+    public void D9_TraceDrop(int seed, bool onLog, int index)
+    {
+        var rng = new Random(seed);
+        for (var i = 0; i <= index; i++)
+        {
+            var q = RandomRotation(rng);
+            var offset = (float)(rng.NextDouble() * .5 - .25);
+            var height = (float)(rng.NextDouble() * .5 + .1);
+            var spin = new Vector3((float)(rng.NextDouble() * 6 - 3), (float)(rng.NextDouble() * 6 - 3), (float)(rng.NextDouble() * 6 - 3));
+            if (i < index) continue;
+            var scene = new LawScene();
+            var staticRot = onLog ? Lying : Quaternion.Identity;
+            if (onLog) scene.StaticCylinder(new(0, Bench + .3f, 0), .3f, .5f, Lying, Dead);
+            else scene.StaticBox(new(0, Bench + .3f, 0), new(.3f, .3f, .5f), null, Dead);
+            var body = scene.Cylinder(new(offset, Bench + .6f + .3f + height, 0), .2f, .15f, 1f, Dead, q, angular: spin);
+            var world = scene.Admit();
+            double? prev = null;
+            var sta = onLog ? Make(ShapeKind.Cylinder, new(0, Bench + .3f, 0), Lying, H(.3f), new(0, H(.5f), 0), 0)
+                : Make(ShapeKind.Box, new(0, Bench + .3f, 0), Quaternion.Identity, 0, new(H(.3f), H(.3f), H(.5f)), 0);
+            var bench = Make(ShapeKind.Plane, new(0, Bench, 0), Quaternion.Identity, 0, Vector3.Zero, 2);
+            world.Step(3 * world.TicksPerSecond, (tick, s) =>
+            {
+                var b = s[body];
+                var e = Energy(b, true, 1f, new(0, H(.15f), 0), H(.2f));
+                if (prev is { } p && e - p > 1e-3)
+                {
+                    var dyn = Make(ShapeKind.Cylinder, b.Position, b.Rotation, H(.2f), new(0, H(.15f), 0), 1);
+                    var cs = new List<ContactPoint>(); WorkshopCollisionKernels.GenerateManifold(sta, dyn, .05f, cs);
+                    var cp = new List<ContactPoint>(); WorkshopCollisionKernels.GenerateManifold(dyn, bench, .05f, cp);
+                    var ex = Distance(Shape.Of(sta), Shape.Of(dyn));
+                    var nn = cs.Count > 0 ? new Vector3(cs[0].Nx, cs[0].Ny, cs[0].Nz) : Vector3.Zero;
+                    output.WriteLine($"seed {seed} {(onLog ? "log" : "box")} drop {index} tick {tick}: rise {(e - p) * 1000:F2} mJ, v {b.Speed:F3} ω {b.Spin:F2}; partner dist [{ex.Lower * 1000:F2},{ex.Upper * 1000:F2}] mm gaps [{string.Join(", ", cs.Select(c => (c.Gap * 1000).ToString("F2")))}] kinds [{string.Join(",", cs.Select(c => c.Feature >> 12))}] |n·a_dyn| {Math.Abs(Vector3.Dot(nn, dyn.U1)):F3}; bench pts {cp.Count} gaps [{string.Join(", ", cp.Select(c => (c.Gap * 1000).ToString("F2")))}] kinds [{string.Join(",", cp.Select(c => c.Feature >> 12))}]");
+                }
+                prev = e;
+            });
+        }
+    }
+
+    /// <summary>Play scenario: a lying cylinder (or, as the precedent, a sphere of the same radius) rolls across a static box top
+    /// and off its edge onto the bench. Worst per-tick energy rise while rolling over the edge.</summary>
+    [Fact]
+    public void D10_RollOffABoxEdge()
+    {
+        foreach (var sphere in new[] { true, false })
+            foreach (var v0 in new[] { .3f, .6f, 1f, 2f })
+                foreach (var skewDeg in sphere ? new[] { 0f } : new[] { 0f, 5f, 20f })
+                {
+                    var r = H(.2f);
+                    var top = Bench + 2 * H(.3f);
+                    var scene = new LawScene();
+                    scene.StaticBox(new(0, Bench + H(.3f), 0), new(.5f, .3f, .6f), null, Dead);
+                    var rot = Quaternion.Normalize(Quaternion.CreateFromAxisAngle(Vector3.UnitY, skewDeg * MathF.PI / 180) * Lying);
+                    var body = sphere
+                        ? scene.Sphere(new(.1f, top + r, 0), .2f, 1f, Dead, new(v0, 0, 0), new(0, 0, -v0 / r), 0f, LawScene.Gravity)
+                        : scene.Cylinder(new(.1f, top + r, 0), .2f, .15f, 1f, Dead, rot, velocity: new(v0, 0, 0), angular: new(0, 0, -v0 / r));
+                    var world = scene.Admit();
+                    double worst = 0; double? prev = null; var ticksOver = 0;
+                    world.Step(2 * world.TicksPerSecond, (_, s) =>
+                    {
+                        var b = s[body];
+                        var e = sphere ? .5 * b.Velocity.LengthSquared() + .5 * (.4 * r * r) * b.Angular.LengthSquared() + G * b.Position.Y
+                            : Energy(b, true, 1f, new(0, H(.15f), 0), r);
+                        if (prev is { } p) { worst = Math.Max(worst, e - p); if (e - p > Bound) ticksOver++; }
+                        prev = e;
+                    });
+                    output.WriteLine($"{(sphere ? "SPHERE (precedent)" : $"cylinder skew {skewDeg}°")} rolling off a box edge at {v0} m/s: worst per-tick rise {worst * 1000:F2} mJ, ticks over 1.96 mJ: {ticksOver}");
+                }
+    }
+
+    // ---- 3. Shrunk-core bias ----
+
+    [Fact]
+    public void D5_GapContinuityThroughTouch()
+    {
+        // Random rim-aimed poses: walk B along dir from +1 mm (certified) to −1.6 mm in 0.05 mm steps; report the kernel gap against the
+        // translation coordinate s (true gap at s ≥ 0 is certified; for s < 0 the true depth is ≤ |s| and, for a face-type contact, = |s|).
+        foreach (var cylB in new[] { false, true })
+        {
+            var rng = new Random(cylB ? 503 : 502);
+            var centre = new Vector3(0, 0, 0);
+            double worstJump = 0, worstLateAtTouch = 0, worstOverlapPositive = 0; string jumpCase = "";
+            for (var i = 0; i < 60; i++)
+            {
+                var qa = RandomRotation(rng); var qb = RandomRotation(rng);
+                var a = Make(ShapeKind.Cylinder, centre, qa, .3f, new(0, .2f, 0), 0);
+                var th = rng.NextDouble() * 2 * Math.PI;
+                var rim = (rng.NextDouble() < .5 ? a.Hy : -a.Hy) * a.U1 + a.Radius * ((float)Math.Cos(th) * a.U0 + (float)Math.Sin(th) * a.U2);
+                var dir = Vector3.Normalize(rim);
+                SimCollider B(float t) => cylB ? Make(ShapeKind.Cylinder, dir * t, qb, .2f, new(0, .35f, 0), 1) : Make(ShapeKind.Box, dir * t, qb, 0, new(.25f, .1f, .15f), 1);
+                var sa = Shape.Of(a);
+                float lo = 0f, hi = 3f;
+                for (var it = 0; it < 30; it++) { var mid = .5f * (lo + hi); if (Distance(sa, Shape.Of(B(mid))).Lower > 0) hi = mid; else lo = mid; }
+                var touch = hi; // certified apart; true touch within ~3e-9 of it
+                double? prevGap = null;
+                for (var k = 20; k >= -32; k--)
+                {
+                    var s = k * .00005f;
+                    var cs = new List<ContactPoint>();
+                    WorkshopCollisionKernels.GenerateManifold(a, B(touch + s), .005f, cs);
+                    if (cs.Count == 0) { prevGap = null; continue; }
+                    var g = cs.Min(c => c.Gap);
+                    if (prevGap is { } pg && Math.Abs(g - pg) > worstJump) { worstJump = Math.Abs(g - pg); jumpCase = $"pose {i} at s {s * 1000:F2} mm: {pg * 1000:F3} → {g * 1000:F3} mm"; }
+                    prevGap = g;
+                    if (k == 0) worstLateAtTouch = Math.Max(worstLateAtTouch, g);
+                    if (k < 0) worstOverlapPositive = Math.Max(worstOverlapPositive, g);
+                }
+            }
+            output.WriteLine($"cylinder–{(cylB ? "cylinder" : "box")} rim-aimed walk (60 poses, 0.05 mm steps): worst step-to-step gap jump {worstJump * 1000:F3} mm ({jumpCase}); worst gap reported at touch {worstLateAtTouch * 1000:F3} mm; worst POSITIVE gap while overlapping {worstOverlapPositive * 1000:F3} mm");
+        }
+    }
+
+    [Fact]
+    public void D6_AnalyticShallowOverlaps()
+    {
+        // Axis-aligned overlaps of known depth d: cap on box face, side on box face, parallel sides, cap on cap, crossed sides.
+        var plane = 0f;
+        foreach (var d in new[] { .0002f, .0005f, .0009f, .0011f, .002f })
+        {
+            var cyl = Make(ShapeKind.Cylinder, Vector3.Zero, Quaternion.Identity, .3f, new(0, .2f, 0), 0);
+            var lyingCyl = Make(ShapeKind.Cylinder, Vector3.Zero, Lying, .3f, new(0, .5f, 0), 0);
+            float Min(SimCollider x, SimCollider y) { var cs = new List<ContactPoint>(); WorkshopCollisionKernels.GenerateManifold(x, y, .005f, cs); return cs.Count == 0 ? float.NaN : cs.Min(c => c.Gap); }
+            var capBox = Min(cyl, Make(ShapeKind.Box, new(0, .2f + .1f - d, 0), Quaternion.Identity, 0, new(.1f, .1f, .1f), 1));
+            var sideBox = Min(lyingCyl, Make(ShapeKind.Box, new(0, .3f + .1f - d, 0), Quaternion.Identity, 0, new(.1f, .1f, .1f), 1));
+            var parallel = Min(lyingCyl, Make(ShapeKind.Cylinder, new(.5f - d, 0, 0), Lying, .2f, new(0, .3f, 0), 1));
+            var capCap = Min(cyl, Make(ShapeKind.Cylinder, new(0, .2f + .1f - d, 0), Quaternion.Identity, .2f, new(0, .1f, 0), 1));
+            var crossed = Min(lyingCyl, Make(ShapeKind.Cylinder, new(0, .5f - d, 0), Quaternion.CreateFromAxisAngle(Vector3.UnitZ, MathF.PI / 2), .2f, new(0, .3f, 0), 1));
+            var rimBox = Min(cyl, Make(ShapeKind.Box, new(.3f + .1f - d, .2f + .1f - d, 0), Quaternion.Identity, 0, new(.1f, .1f, .1f), 1)); // box corner region over the rim: depth min(d,d)=d along x or y
+            output.WriteLine($"depth {d * 1000:F1} mm → kernel gaps: cap/face {capBox * 1000:F3}, side/face {sideBox * 1000:F3}, parallel sides {parallel * 1000:F3}, cap/cap {capCap * 1000:F3}, crossed sides {crossed * 1000:F3}, box corner over rim {rimBox * 1000:F3} (expected −{d * 1000:F1})");
+            _ = plane;
+        }
+    }
+
+    [Fact]
+    public void D7_RestingStacksHeights()
+    {
+        void Rest(string name, LawScene scene, GpuBodyId body, float expectedY)
+        {
+            var world = scene.Admit();
+            float yMin = float.MaxValue, yMax = float.MinValue; double lateSpin = 0;
+            var tps = world.TicksPerSecond;
+            var final = world.Step(5 * tps, (tick, s) =>
+            {
+                if (tick <= 3 * tps) return;
+                var b = s[body]; yMin = MathF.Min(yMin, b.Position.Y); yMax = MathF.Max(yMax, b.Position.Y); lateSpin = Math.Max(lateSpin, b.Spin);
+            })[body];
+            output.WriteLine($"{name}: rest height − analytic {(final.Position.Y - expectedY) * 1000:F3} mm (negative = penetration), late band {(yMax - yMin) * 1000:F4} mm, late spin {lateSpin:E1}");
+        }
+        {
+            var s = new LawScene(); var h = H(.085f);
+            s.StaticBox(new(0, Bench + H(.2f), 0), new(.3f, .2f, .3f));
+            var b = s.Cylinder(new(0, Bench + 2 * H(.2f) + h + .003f, 0), .25f, .085f, 1f, Dead);
+            Rest("cylinder cap on box", s, b, Bench + 2 * H(.2f) + h);
+        }
+        {
+            var s = new LawScene(); var h = H(.085f);
+            s.StaticCylinder(new(0, Bench + h, 0), .4f, .085f, null, Dead);
+            var b = s.Box(new(.05f, Bench + 2 * h + H(.1f) + .003f, 0), new(.15f, .1f, .15f), .5f, Dead);
+            Rest("box on static cap", s, b, Bench + 2 * h + H(.1f));
+        }
+        {
+            var s = new LawScene(); var h = H(.1f);
+            s.StaticCylinder(new(0, Bench + h, 0), .2f, .1f, null, Dead);
+            var b = s.Cylinder(new(0, Bench + 3 * h + .003f, 0), .2f, .1f, .5f, Dead);
+            Rest("cap on cap (equal radii)", s, b, Bench + 3 * h);
+        }
+        {
+            var s = new LawScene(); var r = H(.2f);
+            s.StaticBox(new(0, Bench + H(.2f), 0), new(.5f, .2f, .5f));
+            var b = s.Cylinder(new(0, Bench + 2 * H(.2f) + r + .003f, 0), .2f, .3f, 1f, Dead, Lying);
+            Rest("lying cylinder on box", s, b, Bench + 2 * H(.2f) + r);
+        }
+        {
+            var s = new LawScene(); var r = H(.2f); var below = Bench + 1;
+            s.StaticCylinder(new(-.25f, below, 0), .2f, .5f, Lying); s.StaticCylinder(new(.25f, below, 0), .2f, .5f, Lying);
+            var rest = below + MathF.Sqrt(4 * r * r - .25f * .25f);
+            var b = s.Cylinder(new(0, rest + .003f, .1f), .2f, .5f, 1f, Dead, Lying);
+            Rest("log in groove", s, b, rest);
+        }
+        {
+            var s = new LawScene(); var top = Bench + 2 * H(.2f); var r = H(.25f);
+            s.StaticBox(new(-.35f, Bench + H(.2f), 0), new(.2f, .2f, .5f)); s.StaticBox(new(.35f, Bench + H(.2f), 0), new(.2f, .2f, .5f));
+            var rest = top + MathF.Sqrt(r * r - .15f * .15f);
+            var b = s.Cylinder(new(0, rest + .003f, 0), .25f, .4f, 1f, Dead, Lying);
+            Rest("drum cradled on two box edges", s, b, rest);
+        }
+        {
+            var s = new LawScene(); var h = H(.1f);
+            s.Cylinder(new(0, Bench + h + .002f, 0), .2f, .1f, .5f, Dead);
+            s.Cylinder(new(0, Bench + 3 * h + .004f, 0), .2f, .1f, .5f, Dead);
+            var b = s.Cylinder(new(0, Bench + 5 * h + .006f, 0), .2f, .1f, .5f, Dead);
+            Rest("three cylinders end to end (top)", s, b, Bench + 5 * h);
+        }
+    }
+}

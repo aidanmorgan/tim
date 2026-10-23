@@ -1,0 +1,12 @@
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:03.13]     CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.AFastRollStaysOnItsCurvedSideAtConstantSpeed(speed: 12) [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.AFastRollStaysOnItsCurvedSideAtConstantSpeed(speed: 12) [6 ms]
+  Error Message:
+   axis height -0.000999733805656433..-0.00020979344844818115
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.AFastRollStaysOnItsCurvedSideAtConstantSpeed(Single speed) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 256
+   at InvokeStub_WorkshopPhysicsLawCylinderTests.AFastRollStaysOnItsCurvedSideAtConstantSpeed(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+
+Failed!  - Failed:     1, Passed:    71, Skipped:     0, Total:    72, Duration: 14 s - CuriousContraptions.tests.dll (net10.0)

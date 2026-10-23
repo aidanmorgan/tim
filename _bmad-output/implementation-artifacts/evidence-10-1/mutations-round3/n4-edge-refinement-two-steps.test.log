@@ -1,0 +1,414 @@
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:38.39]     CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ABoxTumblingOverACapRimGainsNoMoreEnergyThanOverABox [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ABoxTumblingOverACapRimGainsNoMoreEnergyThanOverABox [34 s]
+  Error Message:
+   pose 2: worst tick gain 4.111 mJ, bound 2.117 mJ (control 0.154)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ABoxTumblingOverACapRimGainsNoMoreEnergyThanOverABox() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 1242
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:42.36]     CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.CylinderBoxGapsMatchTheExactSeparation [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.CylinderBoxGapsMatchTheExactSeparation [2 s]
+  Error Message:
+   pose 0 at 1.001 mm: no contact
+pose 0 at 3.001 mm: no contact
+pose 1 at 1.001 mm: gaps 2.036, 2.036 mm
+pose 1 at 3.000 mm: gaps 3.999, 3.999 mm
+pose 3 at 1.000 mm: no contact
+pose 3 at 3.001 mm: no contact
+pose 4 at 1.000 mm: no contact
+pose 4 at 3.001 mm: no contact
+pose 5 at 1.001 mm: gaps 3.970 mm
+pose 5 at 3.001 mm: no contact
+pose 6 at 1.000 mm: gaps 3.215 mm
+pose 6 at 3.001 mm: no contact
+pose 7 at 1.001 mm: gaps 1.507 mm
+pose 10 at 1.001 mm: gaps 3.929 mm
+pose 10 at 3.000 mm: no contact
+pose 11 at 1.000 mm: gaps 4.584 mm
+pose 11 at 3.000 mm: no contact
+pose 14 at 1.001 mm: no contact
+pose 14 at 3.001 mm: no contact
+pose 15 at 1.001 mm: no contact
+pose 15 at 3.000 mm: no contact
+pose 19 at 1.001 mm: gaps 4.781 mm
+pose 19 at 3.001 mm: no contact
+pose 21 at 1.001 mm: gaps 3.429, 1.601 mm
+pose 21 at 3.000 mm: gaps 3.617 mm
+pose 22 at 1.001 mm: gaps 2.409 mm
+pose 22 at 3.001 mm: gaps 4.290 mm
+pose 23 at 1.001 mm: no contact
+pose 23 at 3.000 mm: no contact
+pose 24 at 1.001 mm: no contact
+pose 24 at 3.000 mm: no contact
+pose 26 at 1.000 mm: no contact
+pose 26 at 3.001 mm: no contact
+pose 27 at 1.001 mm: no contact
+pose 27 at 3.000 mm: no contact
+pose 29 at 1.001 mm: gaps 4.681 mm
+pose 29 at 3.001 mm: no contact
+pose 31 at 1.000 mm: gaps 2.964, 2.964 mm
+pose 31 at 3.000 mm: gaps 4.798, 4.798 mm
+pose 32 at 1.001 mm: no contact
+pose 32 at 3.001 mm: no contact
+pose 34 at 1.001 mm: no contact
+pose 34 at 3.001 mm: no contact
+pose 36 at 1.001 mm: no contact
+pose 36 at 3.000 mm: no contact
+pose 37 at 1.001 mm: no contact
+pose 37 at 3.001 mm: no contact
+pose 39 at 1.000 mm: no contact
+pose 39 at 3.000 mm: no contact
+pose 40 at 1.001 mm: no contact
+pose 40 at 3.000 mm: no contact
+pose 41 at 1.001 mm: no contact
+pose 41 at 3.001 mm: no contact
+pose 42 at 1.000 mm: gaps 2.360 mm
+pose 42 at 3.001 mm: gaps 4.310 mm
+pose 44 at 1.000 mm: no contact
+pose 44 at 3.000 mm: no contact
+pose 46 at 1.001 mm: no contact
+pose 46 at 3.001 mm: no contact
+pose 47 at 1.000 mm: no contact
+pose 47 at 3.001 mm: no contact
+pose 48 at 1.000 mm: no contact
+pose 48 at 3.001 mm: no contact
+pose 50 at 1.001 mm: gaps 3.439 mm
+pose 50 at 3.001 mm: no contact
+pose 52 at 1.001 mm: no contact
+pose 52 at 3.001 mm: no contact
+pose 53 at 1.001 mm: no contact
+pose 53 at 3.001 mm: no contact
+pose 54 at 1.001 mm: no contact
+pose 54 at 3.001 mm: no contact
+pose 56 at 1.001 mm: gaps 2.080 mm
+pose 56 at 3.001 mm: gaps 3.915 mm
+pose 58 at 1.001 mm: no contact
+pose 58 at 3.001 mm: no contact
+pose 59 at 1.000 mm: no contact
+pose 59 at 3.001 mm: no contact
+pose 62 at 1.000 mm: gaps 2.530 mm
+pose 62 at 3.000 mm: no contact
+pose 64 at 1.001 mm: no contact
+pose 64 at 3.000 mm: no contact
+pose 66 at 1.001 mm: no contact
+pose 66 at 3.001 mm: no contact
+pose 72 at 1.000 mm: gaps 3.976 mm
+pose 72 at 3.000 mm: no contact
+pose 73 at 1.001 mm: no contact
+pose 73 at 3.000 mm: no contact
+pose 74 at 1.000 mm: no contact
+pose 74 at 3.001 mm: no contact
+pose 76 at 1.001 mm: no contact
+pose 76 at 3.000 mm: no contact
+pose 77 at 1.000 mm: no contact
+pose 77 at 3.001 mm: no contact
+pose 78 at 1.001 mm: gaps 3.401 mm
+pose 78 at 3.000 mm: no contact
+pose 80 at 1.000 mm: no contact
+pose 80 at 3.000 mm: no contact
+pose 82 at 1.000 mm: no contact
+pose 82 at 3.000 mm: no contact
+pose 83 at 1.000 mm: no contact
+pose 83 at 3.001 mm: no contact
+pose 84 at 1.001 mm: gaps 4.200 mm
+pose 84 at 3.001 mm: no contact
+pose 85 at 1.001 mm: gaps 2.303 mm
+pose 85 at 3.000 mm: gaps 4.348 mm
+pose 86 at 1.000 mm: no contact
+pose 86 at 3.001 mm: no contact
+pose 88 at 1.000 mm: gaps 2.621 mm
+pose 88 at 3.000 mm: gaps 4.662 mm
+pose 91 at 1.000 mm: gaps 1.876 mm
+pose 93 at 1.001 mm: no contact
+pose 93 at 3.000 mm: no contact
+pose 98 at 1.000 mm: no contact
+pose 98 at 3.000 mm: no contact
+pose 102 at 1.001 mm: no contact
+pose 102 at 3.000 mm: no contact
+pose 103 at 1.001 mm: gaps 4.295 mm
+pose 103 at 3.001 mm: no contact
+pose 104 at 1.001 mm: no contact
+pose 104 at 3.001 mm: no contact
+pose 105 at 1.000 mm: no contact
+pose 105 at 3.001 mm: no contact
+pose 108 at 1.001 mm: no contact
+pose 108 at 3.000 mm: no contact
+pose 110 at 1.000 mm: gaps 1.535 mm
+pose 110 at 3.000 mm: gaps 3.557 mm
+pose 111 at 1.000 mm: gaps 3.702, 3.730 mm
+pose 111 at 3.001 mm: no contact
+pose 112 at 1.001 mm: no contact
+pose 112 at 3.001 mm: no contact
+pose 113 at 3.000 mm: gaps 3.622 mm
+pose 114 at 1.001 mm: no contact
+pose 114 at 3.000 mm: no contact
+pose 116 at 1.001 mm: no contact
+pose 116 at 3.001 mm: no contact
+pose 117 at 1.001 mm: no contact
+pose 117 at 3.000 mm: no contact
+pose 118 at 1.000 mm: no contact
+pose 118 at 3.001 mm: no contact
+pose 120 at 1.000 mm: gaps 4.238 mm
+pose 120 at 3.001 mm: no contact
+pose 122 at 1.000 mm: no contact
+pose 122 at 3.001 mm: no contact
+pose 123 at 1.000 mm: gaps 2.330 mm
+pose 123 at 3.001 mm: gaps 3.929 mm
+pose 124 at 1.001 mm: no contact
+pose 124 at 3.001 mm: no contact
+pose 125 at 1.001 mm: gaps 2.958 mm
+pose 125 at 3.001 mm: gaps 4.564 mm
+pose 127 at 1.001 mm: no contact
+pose 127 at 3.000 mm: no contact
+pose 128 at 1.001 mm: no contact
+pose 128 at 3.001 mm: no contact
+pose 129 at 1.000 mm: gaps 3.783 mm
+pose 129 at 3.001 mm: no contact
+pose 131 at 1.001 mm: gaps 3.459 mm
+pose 131 at 3.000 mm: no contact
+pose 132 at 1.001 mm: no contact
+pose 132 at 3.001 mm: no contact
+pose 134 at 1.000 mm: gaps 1.880 mm
+pose 134 at 3.000 mm: gaps 3.865 mm
+pose 140 at 1.000 mm: gaps 3.123 mm
+pose 140 at 3.000 mm: no contact
+pose 141 at 1.000 mm: no contact
+pose 141 at 3.001 mm: no contact
+pose 142 at 1.001 mm: gaps 3.048 mm
+pose 142 at 3.001 mm: no contact
+pose 146 at 1.001 mm: no contact
+pose 146 at 3.000 mm: no contact
+pose 147 at 1.000 mm: gaps 1.573 mm
+pose 148 at 1.000 mm: no contact
+pose 148 at 3.000 mm: no contact
+pose 150 at 1.000 mm: gaps 1.544 mm
+pose 151 at 1.000 mm: gaps 4.162 mm
+pose 151 at 3.001 mm: no contact
+pose 152 at 1.000 mm: no contact
+pose 152 at 3.001 mm: no contact
+pose 153 at 1.000 mm: no contact
+pose 153 at 3.001 mm: no contact
+pose 154 at 1.001 mm: no contact
+pose 154 at 3.001 mm: no contact
+pose 156 at 1.000 mm: gaps 3.033 mm
+pose 156 at 3.001 mm: no contact
+pose 159 at 1.001 mm: no contact
+pose 159 at 3.001 mm: no contact
+pose 162 at 1.000 mm: no contact
+pose 162 at 3.001 mm: no contact
+pose 163 at 1.001 mm: gaps 1.651 mm
+pose 164 at 1.001 mm: no contact
+pose 164 at 3.001 mm: no contact
+pose 168 at 1.001 mm: gaps 1.605 mm
+pose 168 at 3.001 mm: gaps 3.587 mm
+pose 169 at 1.001 mm: no contact
+pose 169 at 3.000 mm: no contact
+pose 170 at 1.000 mm: no contact
+pose 170 at 3.001 mm: no contact
+pose 171 at 1.001 mm: gaps 3.065 mm
+pose 171 at 3.000 mm: gaps 4.434 mm
+pose 175 at 1.000 mm: gaps 2.846 mm
+pose 175 at 3.001 mm: gaps 4.616 mm
+pose 176 at 1.000 mm: no contact
+pose 176 at 3.001 mm: no contact
+pose 177 at 1.000 mm: no contact
+pose 177 at 3.000 mm: no contact
+pose 179 at 1.000 mm: gaps 1.933 mm
+pose 179 at 3.001 mm: gaps 3.681 mm
+pose 180 at 1.001 mm: no contact
+pose 180 at 3.000 mm: no contact
+pose 181 at 1.000 mm: no contact
+pose 181 at 3.000 mm: no contact
+pose 182 at 1.000 mm: no contact
+pose 182 at 3.001 mm: no contact
+pose 186 at 1.001 mm: no contact
+pose 186 at 3.000 mm: no contact
+pose 190 at 1.001 mm: no contact
+pose 190 at 3.001 mm: no contact
+pose 192 at 1.000 mm: no contact
+pose 192 at 3.000 mm: no contact
+pose 193 at 1.001 mm: gaps 4.046 mm
+pose 193 at 3.000 mm: no contact
+pose 196 at 1.001 mm: gaps 2.209 mm
+pose 196 at 3.001 mm: gaps 4.040 mm
+pose 198 at 1.001 mm: no contact
+pose 198 at 3.000 mm: no contact
+pose 199 at 1.001 mm: no contact
+pose 199 at 3.000 mm: no contact
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.GapsMatchTheOracle(Boolean cylinderPartner, Int32 seed) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 884
+   at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.CylinderBoxGapsMatchTheExactSeparation() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 888
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:01:44.96]     CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.OverlapDepthNeverExceedsTheCertifiedBound(cylinderPartner: False, seed: 402) [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.OverlapDepthNeverExceedsTheCertifiedBound(cylinderPartner: False, seed: 402) [47 s]
+  Error Message:
+   pose 0 at 0.3 mm: no contact
+pose 0 at 2 mm: no contact
+pose 0 at 5 mm: no contact
+pose 6 at 0.3 mm: no contact
+pose 6 at 2 mm: no contact
+pose 8 at 0.3 mm: no contact
+pose 8 at 2 mm: no contact
+pose 8 at 5 mm: no contact
+pose 11 at 0.3 mm: no contact
+pose 14 at 0.3 mm: no contact
+pose 14 at 2 mm: no contact
+pose 14 at 5 mm: no contact
+pose 18 at 0.3 mm: no contact
+pose 18 at 2 mm: no contact
+pose 18 at 5 mm: no contact
+pose 20 at 0.3 mm: no contact
+pose 20 at 2 mm: no contact
+pose 21 at 0.3 mm: no contact
+pose 21 at 2 mm: no contact
+pose 22 at 0.3 mm: no contact
+pose 22 at 2 mm: no contact
+pose 22 at 5 mm: no contact
+pose 26 at 0.3 mm: no contact
+pose 26 at 2 mm: no contact
+pose 26 at 5 mm: no contact
+pose 27 at 0.3 mm: no contact
+pose 32 at 0.3 mm: no contact
+pose 32 at 2 mm: no contact
+pose 32 at 5 mm: no contact
+pose 35 at 0.3 mm: no contact
+pose 35 at 2 mm: no contact
+pose 36 at 0.3 mm: no contact
+pose 36 at 2 mm: no contact
+pose 36 at 5 mm: no contact
+pose 38 at 0.3 mm: no contact
+pose 38 at 2 mm: no contact
+pose 38 at 5 mm: no contact
+pose 41 at 0.3 mm: no contact
+pose 41 at 2 mm: no contact
+pose 41 at 5 mm: no contact
+pose 46 at 0.3 mm: no contact
+pose 46 at 2 mm: no contact
+pose 46 at 5 mm: no contact
+pose 50 at 0.3 mm: no contact
+pose 50 at 2 mm: no contact
+pose 53 at 0.3 mm: no contact
+pose 53 at 2 mm: no contact
+pose 53 at 5 mm: no contact
+pose 55 at 0.3 mm: no contact
+pose 55 at 2 mm: no contact
+pose 55 at 5 mm: no contact
+pose 56 at 0.3 mm: no contact
+pose 56 at 2 mm: no contact
+pose 56 at 5 mm: no contact
+pose 57 at 0.3 mm: no contact
+pose 57 at 2 mm: no contact
+pose 57 at 5 mm: no contact
+pose 58 at 0.3 mm: no contact
+pose 58 at 2 mm: no contact
+pose 58 at 5 mm: no contact
+pose 59 at 0.3 mm: no contact
+pose 60 at 0.3 mm: no contact
+pose 62 at 0.3 mm: no contact
+pose 64 at 0.3 mm: no contact
+pose 64 at 2 mm: no contact
+pose 64 at 5 mm: no contact
+pose 65 at 0.3 mm: no contact
+pose 65 at 2 mm: no contact
+pose 65 at 5 mm: no contact
+pose 67 at 0.3 mm: no contact
+pose 67 at 2 mm: no contact
+pose 67 at 5 mm: no contact
+pose 69 at 0.3 mm: no contact
+pose 69 at 2 mm: no contact
+pose 69 at 5 mm: no contact
+pose 77 at 0.3 mm: no contact
+pose 77 at 2 mm: no contact
+pose 78 at 0.3 mm: no contact
+pose 78 at 2 mm: no contact
+pose 81 at 0.3 mm: no contact
+pose 81 at 2 mm: no contact
+pose 81 at 5 mm: no contact
+pose 84 at 0.3 mm: no contact
+pose 86 at 0.3 mm: no contact
+pose 87 at 0.3 mm: no contact
+pose 87 at 2 mm: no contact
+pose 87 at 5 mm: no contact
+pose 88 at 0.3 mm: no contact
+pose 88 at 2 mm: no contact
+pose 88 at 5 mm: no contact
+pose 89 at 0.3 mm: no contact
+pose 89 at 2 mm: no contact
+pose 89 at 5 mm: no contact
+pose 90 at 0.3 mm: no contact
+pose 90 at 2 mm: no contact
+pose 90 at 5 mm: no contact
+pose 94 at 0.3 mm: no contact
+pose 94 at 2 mm: no contact
+pose 94 at 5 mm: no contact
+pose 97 at 0.3 mm: no contact
+pose 97 at 2 mm: no contact
+pose 97 at 5 mm: no contact
+pose 100 at 0.3 mm: no contact
+pose 100 at 2 mm: no contact
+pose 100 at 5 mm: no contact
+pose 112 at 0.3 mm: no contact
+pose 112 at 2 mm: no contact
+pose 112 at 5 mm: no contact
+pose 117 at 0.3 mm: no contact
+pose 117 at 2 mm: no contact
+pose 118 at 0.3 mm: no contact
+pose 124 at 0.3 mm: no contact
+pose 124 at 2 mm: no contact
+pose 124 at 5 mm: no contact
+pose 125 at 0.3 mm: no contact
+pose 125 at 2 mm: no contact
+pose 129 at 0.3 mm: no contact
+pose 129 at 2 mm: no contact
+pose 131 at 0.3 mm: no contact
+pose 131 at 2 mm: no contact
+pose 131 at 5 mm: no contact
+pose 140 at 0.3 mm: no contact
+pose 140 at 2 mm: no contact
+pose 141 at 0.3 mm: no contact
+pose 141 at 2 mm: no contact
+pose 153 at 0.3 mm: no contact
+pose 161 at 0.3 mm: no contact
+pose 161 at 2 mm: no contact
+pose 161 at 5 mm: no contact
+pose 163 at 0.3 mm: no contact
+pose 163 at 2 mm: no contact
+pose 163 at 5 mm: no contact
+pose 165 at 0.3 mm: no contact
+pose 165 at 2 mm: no contact
+pose 165 at 5 mm: no contact
+pose 167 at 0.3 mm: no contact
+pose 167 at 2 mm: no contact
+pose 167 at 5 mm: no contact
+pose 171 at 0.3 mm: no contact
+pose 171 at 2 mm: no contact
+pose 171 at 5 mm: no contact
+pose 173 at 0.3 mm: no contact
+pose 173 at 2 mm: no contact
+pose 173 at 5 mm: no contact
+pose 175 at 0.3 mm: no contact
+pose 180 at 0.3 mm: no contact
+pose 180 at 2 mm: no contact
+pose 180 at 5 mm: no contact
+pose 187 at 0.3 mm: no contact
+pose 188 at 0.3 mm: no contact
+pose 188 at 2 mm: no contact
+pose 188 at 5 mm: no contact
+pose 193 at 0.3 mm: no contact
+pose 194 at 0.3 mm: no contact
+pose 194 at 2 mm: no contact
+pose 196 at 0.3 mm: no contact
+pose 196 at 2 mm: no contact
+pose 196 at 5 mm: no contact
+pose 197 at 0.3 mm: no contact
+pose 197 at 2 mm: no contact
+pose 197 at 5 mm: no contact
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.OverlapDepthNeverExceedsTheCertifiedBound(Boolean cylinderPartner, Int32 seed) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 1335
+   at InvokeStub_WorkshopPhysicsLawCylinderTests.OverlapDepthNeverExceedsTheCertifiedBound(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+
+Failed!  - Failed:     3, Passed:    69, Skipped:     0, Total:    72, Duration: 1 m 58 s - CuriousContraptions.tests.dll (net10.0)

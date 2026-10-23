@@ -1,0 +1,14 @@
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:11.05]     CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.CrossedSkewedSidesGiveEachGeneratorEndItsOwnRadialGapAndNormal [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.CrossedSkewedSidesGiveEachGeneratorEndItsOwnRadialGapAndNormal [1 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: 4
+Actual:   3
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.CrossedSkewedSidesGiveEachGeneratorEndItsOwnRadialGapAndNormal() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 1409
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     1, Passed:    71, Skipped:     0, Total:    72, Duration: 14 s - CuriousContraptions.tests.dll (net10.0)

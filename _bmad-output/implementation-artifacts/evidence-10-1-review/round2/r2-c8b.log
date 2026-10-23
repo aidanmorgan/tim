@@ -1,0 +1,30 @@
+Test run for /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/probe2-10-1/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+/private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/probe2-10-1/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.5+1b188a7b0a (64-bit .NET 10.0.13)
+[xUnit.net 00:00:00.33]   Discovering: CuriousContraptions.tests
+[xUnit.net 00:00:01.00]   Discovered:  CuriousContraptions.tests
+[xUnit.net 00:00:01.10]   Starting:    CuriousContraptions.tests
+[xUnit.net 00:00:07.30]   Finished:    CuriousContraptions.tests (ID = 'f6ad845e9c7e36a4e54a0493ec2591fb8e5fdac368a7b0f0d22fa5299d3c8bb4')
+  Passed CuriousContraptions.Tests.ReviewProbe101R2Tests.C8_DropsOntoStaticPartners [5 s]
+  Standard Output Messages:
+ BASELINE box onto static box: 40 drops, worst per-tick energy rise 0.00 mJ (drop 28), ticks rising > 1 mJ: 0
+ box onto static lying cylinder: 40 drops, worst per-tick energy rise 0.60 mJ (drop 24), ticks rising > 1 mJ: 0
+ cylinder onto static box: 40 drops, worst per-tick energy rise 0.05 mJ (drop 15), ticks rising > 1 mJ: 0
+    drop 17 rise 1.54 mJ: v 1.478 ω 6.66, dist [-0.23,0.00] mm, gaps [-0.13, -0.13] kinds [5,5] |n·a_static| 0.000 |n·a_dyn| 0.000
+    drop 17 rise 2.21 mJ: v 1.533 ω 6.72, dist [-0.18,0.00] mm, gaps [-0.15, -0.15] kinds [5,5] |n·a_static| 0.000 |n·a_dyn| 0.000
+    drop 17 rise 3.20 mJ: v 1.591 ω 6.77, dist [-0.18,0.00] mm, gaps [-0.17, -0.17] kinds [5,5] |n·a_static| 0.000 |n·a_dyn| 0.000
+    drop 17 rise 4.32 mJ: v 1.653 ω 6.80, dist [-0.28,0.00] mm, gaps [-0.19, -0.19] kinds [5,5] |n·a_static| 0.000 |n·a_dyn| 0.000
+    drop 17 rise 5.03 mJ: v 1.718 ω 6.81, dist [-0.19,0.00] mm, gaps [-0.19, -0.19] kinds [5,5] |n·a_static| 0.000 |n·a_dyn| 0.000
+    drop 17 rise 5.20 mJ: v 1.786 ω 6.82, dist [-0.20,0.00] mm, gaps [-0.19, -0.19] kinds [5,5] |n·a_static| 0.000 |n·a_dyn| 0.000
+    drop 17 rise 4.55 mJ: v 1.855 ω 6.82, dist [-0.26,0.00] mm, gaps [-0.18, -0.18] kinds [5,5] |n·a_static| 0.000 |n·a_dyn| 0.000
+    drop 17 rise 3.30 mJ: v 1.924 ω 6.82, dist [-0.12,0.00] mm, gaps [-0.11, -0.11] kinds [5,5] |n·a_static| 0.000 |n·a_dyn| 0.000
+    drop 17 rise 1.01 mJ: v 1.995 ω 6.82, dist [-0.02,0.02] mm, gaps [-0.01, -0.01] kinds [5,5] |n·a_static| 0.000 |n·a_dyn| 0.000
+ cylinder onto static lying cylinder: 40 drops, worst per-tick energy rise 5.20 mJ (drop 17), ticks rising > 1 mJ: 18
+
+
+
+Test Run Successful.
+Total tests: 1
+     Passed: 1
+ Total time: 7.5033 Seconds

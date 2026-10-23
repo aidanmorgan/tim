@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/frozen/RigidMassProperties.cs	2026-10-22 13:26:10.012900454 +0800
++++ engine/gpu/RigidMassProperties.cs	2026-10-22 13:26:40.659759237 +0800
+@@ -45,7 +45,7 @@
+             var squared = Product(radius, radius);
+             y = Product(Product(mass, squared), Normalize((Half).5, 0));
+             x = z = Product(mass, Sum(Product(squared, Normalize((Half).25, 0)),
+-                Product(Product(half, half), Normalize((Half)(1.0 / 3), 0))));
++                Product(Product(half, half), Normalize((Half)(1.0 / 4), 0))));
+         }
+         else
+         {

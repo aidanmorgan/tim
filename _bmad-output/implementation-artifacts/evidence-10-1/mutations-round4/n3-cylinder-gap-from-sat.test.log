@@ -1,0 +1,304 @@
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:05.14]     CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.MotionlessPartnersApartStayApartInTheEngine(cylinderPartner: True) [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.MotionlessPartnersApartStayApartInTheEngine(cylinderPartner: True) [971 ms]
+  Error Message:
+   pose 0 (3.00 mm apart): speed 0.00010314500779334356, moved 0.39925158 mm
+pose 6 (3.00 mm apart): speed 0.0010828087759298377, moved 0.95889395 mm
+pose 10 (3.00 mm apart): speed 0.002206753036920894, moved 1.9090781 mm
+pose 12 (3.00 mm apart): speed 4.8725150578715385E-09, moved 0.98493344 mm
+pose 14 (3.00 mm apart): speed 9.03823685551113E-05, moved 0.9645989 mm
+pose 16 (3.00 mm apart): speed 0.003015045421064992, moved 2.4884357 mm
+pose 18 (3.00 mm apart): speed 0.00021752800798169683, moved 0.748899 mm
+pose 20 (3.00 mm apart): speed 5.101342293433093E-06, moved 0.26306367 mm
+pose 21 (3.00 mm apart): speed 0.00020980605198231186, moved 0.94074035 mm
+pose 23 (3.00 mm apart): speed 2.124343220308536E-05, moved 0.15025912 mm
+pose 29 (3.00 mm apart): speed 6.355222143723892E-05, moved 0.2161041 mm
+pose 30 (3.00 mm apart): speed 0.0023306969771053447, moved 1.8130527 mm
+pose 33 (3.00 mm apart): speed 0.002970678828884947, moved 2.4223192 mm
+pose 36 (3.00 mm apart): speed 0.00031046151826624914, moved 0.59141845 mm
+pose 37 (3.00 mm apart): speed 0.00011692060404481818, moved 1.005693 mm
+pose 41 (3.00 mm apart): speed 0.002363549605018242, moved 1.8070712 mm
+pose 48 (3.00 mm apart): speed 4.718346099948102E-05, moved 0.9270685 mm
+pose 50 (3.00 mm apart): speed 0.000165346237939187, moved 0.8294428 mm
+pose 54 (3.00 mm apart): speed 2.7820602256168946E-06, moved 1.006274 mm
+pose 69 (3.00 mm apart): speed 0.001795129249290102, moved 1.7153828 mm
+pose 71 (3.00 mm apart): speed 0.0024136871163299945, moved 2.371965 mm
+pose 74 (3.00 mm apart): speed 0.0016081384134696592, moved 1.6589122 mm
+pose 87 (3.00 mm apart): speed 0.0005115976419252709, moved 0.95923454 mm
+pose 88 (3.00 mm apart): speed 0.00022254301052704038, moved 1.1023629 mm
+pose 91 (3.00 mm apart): speed 5.634357074138584E-08, moved 0.49434638 mm
+pose 92 (3.00 mm apart): speed 8.81301248293088E-09, moved 0.99753636 mm
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.MotionlessPartnersApartStayApartInTheEngine(Boolean cylinderPartner) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 949
+   at InvokeStub_WorkshopPhysicsLawCylinderTests.MotionlessPartnersApartStayApartInTheEngine(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+[xUnit.net 00:00:13.14]     CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ThinDiscsCrossingRimToRimGapsMatchTheExactSeparation [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ThinDiscsCrossingRimToRimGapsMatchTheExactSeparation [372 ms]
+  Error Message:
+   pose 1 at 2.000 mm: gaps -9.480 mm
+pose 4 at 2.001 mm: gaps -13.784 mm
+pose 5 at 2.000 mm: gaps -16.737 mm
+pose 7 at 2.001 mm: gaps -6.753 mm
+pose 9 at 2.000 mm: gaps -6.050 mm
+pose 11 at 2.001 mm: gaps 1.416 mm
+pose 14 at 2.000 mm: gaps -12.231 mm
+pose 17 at 2.000 mm: gaps -7.151 mm
+pose 18 at 2.001 mm: gaps -11.678 mm
+pose 24 at 2.000 mm: gaps -13.832 mm
+pose 25 at 2.001 mm: gaps -54.983 mm
+pose 26 at 2.001 mm: gaps -9.540 mm
+pose 27 at 2.001 mm: gaps -14.163 mm
+pose 32 at 2.000 mm: gaps -3.207 mm
+pose 33 at 2.001 mm: gaps -1.357 mm
+pose 36 at 2.000 mm: gaps 0.888 mm
+pose 40 at 2.001 mm: gaps -23.056 mm
+pose 42 at 2.000 mm: gaps -8.862 mm
+pose 43 at 2.001 mm: gaps -19.036 mm
+pose 44 at 2.001 mm: gaps -1.822 mm
+pose 45 at 2.000 mm: gaps -17.291 mm
+pose 47 at 2.001 mm: gaps -8.585 mm
+pose 48 at 2.001 mm: gaps -1.753 mm
+pose 50 at 2.000 mm: gaps -21.912 mm
+pose 53 at 2.001 mm: gaps 0.028 mm
+pose 54 at 2.000 mm: gaps -35.903 mm
+pose 57 at 2.000 mm: gaps -1.142 mm
+pose 58 at 2.001 mm: gaps 1.393 mm
+pose 60 at 2.000 mm: gaps -33.232 mm
+pose 69 at 2.001 mm: gaps -5.465 mm
+pose 70 at 2.001 mm: gaps -6.454 mm
+pose 73 at 2.000 mm: gaps -0.918 mm
+pose 74 at 2.000 mm: gaps -15.273 mm
+pose 77 at 2.000 mm: gaps -41.694 mm
+pose 79 at 2.001 mm: gaps -1.720 mm
+pose 80 at 2.000 mm: gaps -16.945 mm
+pose 82 at 2.000 mm: gaps 0.853 mm
+pose 86 at 2.000 mm: gaps -11.106 mm
+pose 87 at 2.000 mm: gaps 1.496 mm
+pose 90 at 2.000 mm: gaps -5.251 mm
+pose 91 at 2.001 mm: gaps -9.641 mm
+pose 92 at 2.000 mm: gaps -51.513 mm
+pose 95 at 2.000 mm: gaps -10.848 mm
+pose 96 at 2.000 mm: gaps -32.744 mm
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ThinDiscsCrossingRimToRimGapsMatchTheExactSeparation() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 911
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:16.31]     CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.CylinderCylinderGapsMatchTheExactSeparation [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.CylinderCylinderGapsMatchTheExactSeparation [3 s]
+  Error Message:
+   pose 0 at 1.000 mm: gaps -2.835 mm
+pose 0 at 3.000 mm: gaps -0.838 mm
+pose 1 at 1.000 mm: gaps -2.695, 2.256 mm
+pose 1 at 3.001 mm: gaps -0.715, 4.252 mm
+pose 2 at 1.001 mm: gaps -0.131 mm
+pose 2 at 3.001 mm: gaps 1.875 mm
+pose 5 at 1.000 mm: gaps -1.996 mm
+pose 5 at 3.000 mm: gaps -0.088 mm
+pose 6 at 1.000 mm: gaps -41.919 mm
+pose 6 at 3.001 mm: gaps -40.075 mm
+pose 8 at 1.000 mm: gaps -0.325 mm
+pose 8 at 3.001 mm: gaps 1.619 mm
+pose 10 at 1.001 mm: gaps -1.402, 1.915 mm
+pose 10 at 3.000 mm: gaps 0.578, 3.913 mm
+pose 11 at 1.001 mm: gaps -7.040 mm
+pose 11 at 3.001 mm: gaps -4.947 mm
+pose 15 at 1.001 mm: gaps -17.216 mm
+pose 15 at 3.000 mm: gaps -15.423 mm
+pose 16 at 1.001 mm: gaps -7.244 mm
+pose 16 at 3.000 mm: gaps -5.278 mm
+pose 19 at 1.001 mm: gaps -3.651 mm
+pose 19 at 3.000 mm: gaps -1.651 mm
+pose 20 at 1.001 mm: gaps -0.802 mm
+pose 20 at 3.001 mm: gaps 1.202 mm
+pose 22 at 1.000 mm: gaps -4.826 mm
+pose 22 at 3.001 mm: gaps -2.803 mm
+pose 24 at 1.001 mm: gaps -0.962 mm
+pose 24 at 3.000 mm: gaps 1.046 mm
+pose 25 at 1.001 mm: gaps -2.153 mm
+pose 25 at 3.001 mm: gaps -0.165 mm
+pose 26 at 1.000 mm: gaps -6.751 mm
+pose 26 at 3.000 mm: gaps -4.740 mm
+pose 27 at 1.000 mm: gaps -8.146 mm
+pose 27 at 3.000 mm: gaps -6.175 mm
+pose 32 at 1.001 mm: gaps -12.400 mm
+pose 32 at 3.001 mm: gaps -10.346 mm
+pose 35 at 1.001 mm: gaps -4.988 mm
+pose 35 at 3.001 mm: gaps -2.966 mm
+pose 37 at 1.001 mm: gaps -8.234 mm
+pose 37 at 3.001 mm: gaps -6.242 mm
+pose 44 at 1.001 mm: gaps -1.277 mm
+pose 44 at 3.000 mm: gaps 0.727 mm
+pose 46 at 1.001 mm: gaps -41.114 mm
+pose 46 at 3.001 mm: gaps -39.680 mm
+pose 51 at 1.000 mm: gaps -7.890 mm
+pose 51 at 3.001 mm: gaps -6.121 mm
+pose 52 at 1.001 mm: gaps -13.147 mm
+pose 52 at 3.001 mm: gaps -11.131 mm
+pose 53 at 1.001 mm: gaps -1.370, 1.589 mm
+pose 53 at 3.001 mm: gaps 0.603, 3.591 mm
+pose 56 at 1.001 mm: gaps -13.814 mm
+pose 56 at 3.001 mm: gaps -11.783 mm
+pose 58 at 1.001 mm: gaps -3.633 mm
+pose 58 at 3.000 mm: gaps -1.591 mm
+pose 60 at 1.001 mm: gaps -17.489 mm
+pose 60 at 3.000 mm: gaps -15.745 mm
+pose 62 at 1.000 mm: gaps 2.738 mm
+pose 62 at 3.001 mm: gaps 4.742 mm
+pose 64 at 1.001 mm: gaps -11.826 mm
+pose 64 at 3.001 mm: gaps -9.810 mm
+pose 65 at 1.001 mm: gaps -23.885 mm
+pose 65 at 3.000 mm: gaps -21.918 mm
+pose 66 at 1.001 mm: gaps -0.646 mm
+pose 66 at 3.001 mm: gaps 1.331 mm
+pose 67 at 1.000 mm: gaps -6.714, 1.615 mm
+pose 67 at 3.001 mm: gaps -4.745, 3.613 mm
+pose 68 at 1.000 mm: gaps -8.919 mm
+pose 68 at 3.000 mm: gaps -6.932 mm
+pose 70 at 1.000 mm: gaps -3.032 mm
+pose 70 at 3.000 mm: gaps -1.037 mm
+pose 71 at 1.001 mm: gaps -5.095, 1.732 mm
+pose 71 at 3.000 mm: gaps -3.129, 3.729 mm
+pose 72 at 1.001 mm: gaps -4.462 mm
+pose 72 at 3.001 mm: gaps -2.478 mm
+pose 73 at 1.000 mm: gaps -25.873 mm
+pose 73 at 3.000 mm: gaps -23.806 mm
+pose 74 at 1.000 mm: gaps 0.490, 1.213 mm
+pose 74 at 3.001 mm: gaps 2.488, 3.214 mm
+pose 75 at 1.001 mm: gaps -4.519 mm
+pose 75 at 3.001 mm: gaps -2.543 mm
+pose 76 at 1.000 mm: gaps -4.823 mm
+pose 76 at 3.001 mm: gaps -2.847 mm
+pose 80 at 1.000 mm: gaps -7.094 mm
+pose 80 at 3.000 mm: gaps -4.955 mm
+pose 82 at 1.001 mm: gaps -0.872 mm
+pose 82 at 3.001 mm: gaps 1.140 mm
+pose 84 at 1.000 mm: gaps -2.181 mm
+pose 84 at 3.001 mm: gaps -0.208 mm
+pose 86 at 1.000 mm: gaps -0.876, 2.567 mm
+pose 86 at 3.000 mm: gaps 1.121, 4.555 mm
+pose 87 at 1.000 mm: gaps -1.607 mm
+pose 87 at 3.000 mm: gaps 0.397 mm
+pose 89 at 1.001 mm: gaps -9.979 mm
+pose 89 at 3.001 mm: gaps -7.859 mm
+pose 93 at 1.000 mm: gaps 0.251 mm
+pose 93 at 3.001 mm: gaps 2.252 mm
+pose 95 at 1.001 mm: gaps -3.324, 2.639 mm
+pose 95 at 3.001 mm: gaps -1.342, 4.630 mm
+pose 96 at 1.001 mm: gaps -9.665 mm
+pose 96 at 3.000 mm: gaps -7.681 mm
+pose 98 at 1.001 mm: gaps -10.085 mm
+pose 98 at 3.001 mm: gaps -8.083 mm
+pose 101 at 1.001 mm: gaps -6.460 mm
+pose 101 at 3.000 mm: gaps -4.486 mm
+pose 104 at 1.001 mm: gaps -8.325 mm
+pose 104 at 3.000 mm: gaps -6.967 mm
+pose 105 at 1.001 mm: gaps -8.964 mm
+pose 105 at 3.001 mm: gaps -7.140 mm
+pose 106 at 1.001 mm: gaps -2.660 mm
+pose 106 at 3.001 mm: gaps -0.606 mm
+pose 107 at 1.001 mm: gaps -6.184 mm
+pose 107 at 3.000 mm: gaps -4.205 mm
+pose 109 at 1.000 mm: gaps 0.080 mm
+pose 109 at 3.001 mm: gaps 2.087 mm
+pose 110 at 1.001 mm: gaps -0.134 mm
+pose 110 at 3.001 mm: gaps 1.871 mm
+pose 113 at 1.001 mm: gaps -0.106 mm
+pose 113 at 3.000 mm: gaps 1.896 mm
+pose 114 at 1.000 mm: gaps -16.719 mm
+pose 114 at 3.000 mm: gaps -14.664 mm
+pose 123 at 1.000 mm: gaps 0.486 mm
+pose 123 at 3.000 mm: gaps 2.489 mm
+pose 124 at 1.001 mm: gaps -54.447 mm
+pose 124 at 3.000 mm: gaps -52.714 mm
+pose 125 at 1.001 mm: gaps -2.452 mm
+pose 125 at 3.001 mm: gaps -0.479 mm
+pose 127 at 1.000 mm: gaps -5.845 mm
+pose 127 at 3.000 mm: gaps -3.866 mm
+pose 129 at 1.001 mm: gaps -3.432 mm
+pose 129 at 3.001 mm: gaps -1.422 mm
+pose 132 at 1.000 mm: gaps -35.876 mm
+pose 132 at 3.001 mm: gaps -34.203 mm
+pose 133 at 1.001 mm: gaps -29.731 mm
+pose 133 at 3.001 mm: gaps -28.533 mm
+pose 134 at 1.001 mm: gaps -7.589 mm
+pose 134 at 3.000 mm: gaps -5.572 mm
+pose 140 at 1.000 mm: gaps -0.183 mm
+pose 140 at 3.001 mm: gaps 1.821 mm
+pose 141 at 1.001 mm: gaps 0.373 mm
+pose 141 at 3.001 mm: gaps 2.374 mm
+pose 142 at 1.000 mm: gaps -8.508 mm
+pose 142 at 3.001 mm: gaps -6.618 mm
+pose 143 at 1.001 mm: gaps -2.413 mm
+pose 143 at 3.001 mm: gaps -0.440 mm
+pose 144 at 1.000 mm: gaps -13.628 mm
+pose 144 at 3.001 mm: gaps -11.509 mm
+pose 145 at 1.001 mm: gaps -4.858 mm
+pose 145 at 3.001 mm: gaps -2.874 mm
+pose 147 at 1.001 mm: gaps -41.534 mm
+pose 147 at 3.001 mm: gaps -39.805 mm
+pose 152 at 1.001 mm: gaps 0.429 mm
+pose 152 at 3.001 mm: gaps 2.429 mm
+pose 153 at 1.001 mm: gaps -1.674 mm
+pose 153 at 3.001 mm: gaps 0.336 mm
+pose 154 at 1.001 mm: gaps 0.396 mm
+pose 154 at 3.001 mm: gaps 2.306 mm
+pose 155 at 1.001 mm: gaps -12.551 mm
+pose 155 at 3.001 mm: gaps -10.711 mm
+pose 156 at 1.001 mm: gaps -3.150, 1.029 mm
+pose 156 at 3.001 mm: gaps -1.195, 3.029 mm
+pose 157 at 1.000 mm: gaps -1.694 mm
+pose 157 at 3.001 mm: gaps 0.312 mm
+pose 159 at 1.001 mm: gaps -0.000 mm
+pose 159 at 3.000 mm: gaps 2.001 mm
+pose 161 at 1.000 mm: gaps -4.974 mm
+pose 161 at 3.001 mm: gaps -2.926 mm
+pose 164 at 1.001 mm: gaps -15.246 mm
+pose 164 at 3.001 mm: gaps -13.152 mm
+pose 167 at 1.001 mm: gaps -36.281 mm
+pose 167 at 3.001 mm: gaps -34.184 mm
+pose 169 at 1.001 mm: gaps -2.672 mm
+pose 169 at 3.000 mm: gaps -0.699 mm
+pose 170 at 1.001 mm: gaps -13.517 mm
+pose 170 at 3.001 mm: gaps -11.351 mm
+pose 172 at 1.001 mm: gaps -8.070 mm
+pose 172 at 3.001 mm: gaps -6.091 mm
+pose 174 at 1.000 mm: gaps -4.013 mm
+pose 174 at 3.001 mm: gaps -2.009 mm
+pose 175 at 1.001 mm: gaps -5.529 mm
+pose 175 at 3.001 mm: gaps -3.570 mm
+pose 177 at 1.001 mm: gaps -0.053, 1.886 mm
+pose 177 at 3.001 mm: gaps 1.943, 3.880 mm
+pose 178 at 1.001 mm: gaps 0.053, 1.230 mm
+pose 178 at 3.000 mm: gaps 2.041, 3.231 mm
+pose 180 at 1.001 mm: gaps -2.300 mm
+pose 180 at 3.001 mm: gaps -0.335 mm
+pose 182 at 1.001 mm: gaps -3.843 mm
+pose 182 at 3.001 mm: gaps -1.820 mm
+pose 185 at 1.001 mm: gaps -13.213 mm
+pose 185 at 3.001 mm: gaps -11.360 mm
+pose 186 at 1.001 mm: gaps -7.981 mm
+pose 186 at 3.001 mm: gaps -6.001 mm
+pose 187 at 1.000 mm: gaps -8.256 mm
+pose 187 at 3.001 mm: gaps -6.266 mm
+pose 188 at 1.000 mm: gaps -7.580 mm
+pose 188 at 3.000 mm: gaps -5.568 mm
+pose 189 at 1.001 mm: gaps -2.303 mm
+pose 189 at 3.001 mm: gaps -0.327 mm
+pose 193 at 1.001 mm: gaps -30.686 mm
+pose 193 at 3.001 mm: gaps -28.692 mm
+pose 195 at 1.001 mm: gaps 0.148, 1.783 mm
+pose 195 at 3.001 mm: gaps 2.146, 3.777 mm
+pose 197 at 1.001 mm: gaps 0.011 mm
+pose 197 at 3.000 mm: gaps 2.015 mm
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.GapsMatchTheOracle(Boolean cylinderPartner, Int32 seed) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 884
+   at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.CylinderCylinderGapsMatchTheExactSeparation() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 891
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.RuntimeMethodInfo.Invoke(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+
+Failed!  - Failed:     3, Passed:    69, Skipped:     0, Total:    72, Duration: 14 s - CuriousContraptions.tests.dll (net10.0)

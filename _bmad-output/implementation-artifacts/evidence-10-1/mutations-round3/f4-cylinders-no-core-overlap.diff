@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/frozen3/WorkshopCollisionKernels.cs	2026-10-23 18:47:47.117342476 +0800
++++ CuriousContraptions.Simulation/WorkshopCollisionKernels.cs	2026-10-23 18:52:46.621809987 +0800
+@@ -1565,7 +1565,7 @@
+             var shrinkA = CoreMargin(colA);
+             var shrinkB = CoreMargin(colB);
+             var core = CylinderCylinderClosest(Solid.Of(colA, shrinkA), Solid.Of(colB, shrinkB));
+-            if (core.Gap > 0f)
++            if (core.Gap > 1e9f)
+             {
+                 closest = core;
+                 closest.Gap = core.Gap - shrinkA - shrinkB;

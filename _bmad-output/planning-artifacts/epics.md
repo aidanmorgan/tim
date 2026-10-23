@@ -199,6 +199,10 @@ The coordinator adopted the re-examination and decided the items below. This ord
 | 58 | 9R.21 Lit palette fidelity | 59 | 13.1 Torch and Laser |
 | 60 | 9R.22 Element art polish | 61 | 13.1b Red Laser |
 
+*Element-lane insertion (coordinator decision, 24 Oct 2026): **Engine: restitution energy correctness** runs after 10.1 (position 33) and before 10.2a / 10.2 Pulley (position 35).*
+- **Why:** restitution on multi-point manifolds gains energy engine-wide. The box control gains 205 mJ in a tick at e = 0.3 ([10.1 spec, round 4](../implementation-artifacts/spec-10-1-solid-cylinder.md); `evidence-10-1/round5/`). The reviewer confirmed the gain on base a598a09e, with bit-identical cylinder-free scenes ([re-review 3](../implementation-artifacts/review-10-1-solid-cylinder.md)).
+- **Entry check:** the Lively gate, re-added as a routine `[Fact]` from `evidence-10-1/lively-gate-source.txt`. It is currently red.
+
 From position 62, only the element lane remains, in its existing order:
 - 13.1c, 13.1d, then 13.2–13.8;
 - 14.0, 14.2, 14.1, 14.3, 14.4;

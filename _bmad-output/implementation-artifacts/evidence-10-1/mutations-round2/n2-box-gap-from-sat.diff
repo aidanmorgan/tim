@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/frozen2/WorkshopCollisionKernels.cs	2026-10-23 15:24:43.376194854 +0800
++++ CuriousContraptions.Simulation/WorkshopCollisionKernels.cs	2026-10-23 15:32:59.544318799 +0800
+@@ -996,7 +996,7 @@
+         // The SAT axes above only prove separation; the gap and normal come from the exact closest features.
+         var closest = CylinderBoxClosest(cyl, box);
+         if (closest.Gap > margin) return;
+-        var exact = closest.Gap > 0f || closest.Gap > best;
++        var exact = closest.Gap > 1e9f;
+         var n = exact ? closest.Normal : bestAxis;
+         var separation = exact ? closest.Gap : best;
+         var t = MathF.Abs(Vector3.Dot(n, a));

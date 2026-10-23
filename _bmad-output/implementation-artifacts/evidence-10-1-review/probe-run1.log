@@ -1,0 +1,159 @@
+Test run for /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/probe-10-1/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+/private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/probe-10-1/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.5+1b188a7b0a (64-bit .NET 10.0.13)
+[xUnit.net 00:00:00.32]   Discovering: CuriousContraptions.tests
+[xUnit.net 00:00:00.97]   Discovered:  CuriousContraptions.tests
+[xUnit.net 00:00:01.07]   Starting:    CuriousContraptions.tests
+  Passed CuriousContraptions.Tests.ReviewProbe101Tests.P4_RampRollAllCadences [99 ms]
+  Standard Output Messages:
+ Hz60 10°: a 1.1355 vs (2/3)g sinθ 1.1359 (-0.04%)
+ Hz60 25°: a 2.7637 vs (2/3)g sinθ 2.7646 (-0.03%)
+ Hz240 10°: a 1.1355 vs (2/3)g sinθ 1.1359 (-0.04%)
+ Hz240 25°: a 2.7637 vs (2/3)g sinθ 2.7646 (-0.03%)
+
+
+  Passed CuriousContraptions.Tests.ReviewProbe101Tests.P1_TipDiagonalVsSampleAzimuth [672 ms]
+  Standard Output Messages:
+ rod az     0 tip     8° -> final tilt    0.00°, max rim penetration    1.67 mm, max energy rise/tick    0.000 mJ
+ rod az     0 tip   9.5° -> final tilt    0.00°, max rim penetration    1.84 mm, max energy rise/tick    0.000 mJ
+ rod az     0 tip  10.5° -> final tilt    0.03°, max rim penetration    1.86 mm, max energy rise/tick    0.000 mJ
+ rod az     0 tip    11° -> final tilt    0.06°, max rim penetration    1.94 mm, max energy rise/tick    0.000 mJ
+ rod az     0 tip    12° -> final tilt    0.41°, max rim penetration    2.01 mm, max energy rise/tick    0.000 mJ
+ rod az     0 tip    13° -> final tilt    0.22°, max rim penetration    2.11 mm, max energy rise/tick    0.000 mJ
+ rod az     0 tip    15° -> final tilt   89.99°, max rim penetration    0.33 mm, max energy rise/tick    0.127 mJ
+ rod az  22.5 tip     8° -> final tilt    0.00°, max rim penetration    3.28 mm, max energy rise/tick    0.025 mJ
+ rod az  22.5 tip   9.5° -> final tilt    0.00°, max rim penetration    4.16 mm, max energy rise/tick    0.000 mJ
+ rod az  22.5 tip  10.5° -> final tilt    0.76°, max rim penetration    4.77 mm, max energy rise/tick    0.028 mJ
+ rod az  22.5 tip    11° -> final tilt    0.71°, max rim penetration    5.10 mm, max energy rise/tick    0.028 mJ
+ rod az  22.5 tip    12° -> final tilt    0.25°, max rim penetration    4.56 mm, max energy rise/tick    0.000 mJ
+ rod az  22.5 tip    13° -> final tilt    0.70°, max rim penetration    4.19 mm, max energy rise/tick    0.000 mJ
+ rod az  22.5 tip    15° -> final tilt   89.99°, max rim penetration    0.34 mm, max energy rise/tick    0.129 mJ
+ rod az    45 tip     8° -> final tilt    0.31°, max rim penetration    4.28 mm, max energy rise/tick    0.027 mJ
+ rod az    45 tip   9.5° -> final tilt    0.88°, max rim penetration    5.06 mm, max energy rise/tick    0.025 mJ
+ rod az    45 tip  10.5° -> final tilt   10.79°, max rim penetration    6.09 mm, max energy rise/tick    7.436 mJ
+ rod az    45 tip    11° -> final tilt   11.44°, max rim penetration    6.10 mm, max energy rise/tick    7.704 mJ
+ rod az    45 tip    12° -> final tilt    1.59°, max rim penetration    5.91 mm, max energy rise/tick    0.027 mJ
+ rod az    45 tip    13° -> final tilt    0.59°, max rim penetration    5.86 mm, max energy rise/tick    0.028 mJ
+ rod az    45 tip    15° -> final tilt   89.99°, max rim penetration    0.34 mm, max energy rise/tick    0.128 mJ
+
+
+  Passed CuriousContraptions.Tests.ReviewProbe101Tests.P2b_TippedOverDiagonallyFromCap [169 ms]
+  Standard Output Messages:
+ tall drum az    0 ω 2 -> final tilt    0.00°, max pen    0.34 mm, max energy rise/tick    0.000 mJ, max speed 0.164
+ tall drum az    0 ω 4 -> final tilt    0.00°, max pen    0.78 mm, max energy rise/tick    0.000 mJ, max speed 0.358
+ tall drum az    0 ω 6 -> final tilt    0.00°, max pen    1.83 mm, max energy rise/tick    0.000 mJ, max speed 0.528
+ tall drum az   45 ω 2 -> final tilt    0.00°, max pen    1.48 mm, max energy rise/tick    0.000 mJ, max speed 0.179
+ tall drum az   45 ω 4 -> final tilt    0.00°, max pen    5.63 mm, max energy rise/tick    0.000 mJ, max speed 0.385
+ tall drum az   45 ω 6 -> final tilt    0.00°, max pen    8.79 mm, max energy rise/tick   10.475 mJ, max speed 0.569
+
+
+  Passed CuriousContraptions.Tests.ReviewProbe101Tests.P7_TunnellingExtras [9 ms]
+  Standard Output Messages:
+ disc end-on (axis X): max centre x -0.0718 (wall near face -0.005; pass-through if > 0)
+ disc edge-on (axis Y): max centre x -0.4047 (wall near face -0.005; pass-through if > 0)
+ disc edge-on spinning 100 rad/s about own axis: max centre x -0.4047 (wall near face -0.005; pass-through if > 0)
+ drum tumbling 100 rad/s: max centre x -0.3631 (wall near face -0.005; pass-through if > 0)
+ thin rod r 1/16 end-on: max centre x -0.5714 (wall near face -0.005; pass-through if > 0)
+ box h .05 into static rod r 1/16: max centre x -0.2296 (contact at x ≈ -0.1125)
+ ball r .1 into static rod r 1/16: max centre x -0.2956 (contact at x ≈ -0.1625)
+
+
+  Passed CuriousContraptions.Tests.ReviewProbe101Tests.P6_CylinderBoxGapSweep [1 m 15 s]
+  Standard Output Messages:
+ cyl-box target 20.0 mm, 400 poses: false-positive 0, missed 0, negative-ghost 0, gap−exact in [0.000, 0.000] mm
+ cyl-box target 3.0 mm, 400 poses: false-positive 0, missed 0, negative-ghost 23, gap−exact in [-11.524, 0.580] mm
+   worst: qa {X:-0.4124566 Y:-0.07416602 Z:-0.637538 W:-0.6464706} qb {X:-0.25188726 Y:-0.6595436 Z:-0.00015607358 W:0.7082055} dir <-0.8317468, 0.097334646, -0.5465557> exact 0.00300 gap -0.00852 n=1
+ cyl-box target -4.0 mm, 400 poses: false-positive 0, missed 0, negative-ghost 0, gap−exact in [-11.107, 4.279] mm
+   worst: qa {X:0.27005908 Y:0.3877897 Z:0.7844366 W:-0.40167966} qb {X:0.60722566 Y:0.034315046 Z:0.62302667 W:0.49187133} dir <0.037303895, 0.1426948, 0.9890635> exact -0.00400 gap -0.01511 n=1
+
+
+  Passed CuriousContraptions.Tests.ReviewProbe101Tests.P3_LongRestOnSideAndCap [867 ms]
+  Standard Output Messages:
+ side Hz60: drift 0.0000 mm, rot drift 0.00E+000, max ω after settle 1.36E-016, height err -0.269 mm
+ side Hz120: drift 0.0000 mm, rot drift 0.00E+000, max ω after settle 1.36E-016, height err -0.269 mm
+ side Hz240: drift 0.0000 mm, rot drift 0.00E+000, max ω after settle 1.36E-016, height err -0.269 mm
+ cap  Hz60: drift 0.0000 mm, rot drift 0.00E+000, max ω after settle 7.63E-012, height err -0.269 mm
+ cap  Hz120: drift 0.0000 mm, rot drift 0.00E+000, max ω after settle 7.63E-012, height err -0.269 mm
+ cap  Hz240: drift 0.0000 mm, rot drift 0.00E+000, max ω after settle 7.63E-012, height err -0.269 mm
+
+
+  Passed CuriousContraptions.Tests.ReviewProbe101Tests.P6_CylinderCylinderGapSweep [1 m 9 s]
+  Standard Output Messages:
+ cyl-cyl target 20.0 mm, 400 poses: false-positive 5, missed 0, negative-ghost 0, gap−exact in [-19.522, 0.000] mm
+   worst: qa {X:-0.073586226 Y:0.18456014 Z:0.9792562 W:-0.039748773} qb {X:0.41294116 Y:0.2861033 Z:0.6245631 W:-0.597951} dir <0.61542803, 0.78818965, 0.0023248207> exact 0.02000 gap 0.00048 n=1
+ cyl-cyl target 3.0 mm, 400 poses: false-positive 0, missed 0, negative-ghost 68, gap−exact in [-30.922, 0.746] mm
+   worst: qa {X:0.07285586 Y:-0.7179674 Z:-0.0781057 W:0.68783313} qb {X:0.44721642 Y:0.6484235 Z:-0.29856166 W:0.5388927} dir <-0.61748976, -0.66445476, 0.42095876> exact 0.00300 gap -0.02792 n=1
+ cyl-cyl target -4.0 mm, 400 poses: false-positive 0, missed 0, negative-ghost 0, gap−exact in [-20.213, 1.959] mm
+   worst: qa {X:-0.43595612 Y:-0.34921876 Z:-0.8140455 W:-0.15911797} qb {X:0.37611473 Y:0.31165037 Z:0.65114063 W:-0.58088535} dir <-0.41159865, -0.85499746, 0.3155407> exact -0.00400 gap -0.02421 n=1
+
+
+  Passed CuriousContraptions.Tests.ReviewProbe101Tests.P8_DropEnergyVersusBoxBaseline [1 s]
+  Standard Output Messages:
+ 30 random-orientation dead drops: worst per-tick energy rise cylinder 4.348 mJ, box baseline 0.018 mJ
+
+
+  Passed CuriousContraptions.Tests.ReviewProbe101Tests.P9_BallOnDrumRollingArm [5 ms]
+  Standard Output Messages:
+ drum r 1.5: ball speed after 0.25 s 0.7294
+ box: ball speed after 0.25 s 0.9054
+
+
+[xUnit.net 00:02:30.44]   Finished:    CuriousContraptions.tests (ID = 'c2334ac06914b9685b207240a16d2f1d28e27073172085c2d68af6987a787dab')
+  Passed CuriousContraptions.Tests.ReviewProbe101Tests.P2_PulleyWheelAndFulcrumDiagonalTiltRelease [901 ms]
+  Standard Output Messages:
+ pulley az    0 tip    5° -> final tilt    0.00°, max true rim penetration    0.27 mm, max energy rise/tick    0.000 mJ
+ pulley az    0 tip   11° -> final tilt    0.00°, max true rim penetration    0.36 mm, max energy rise/tick    0.000 mJ
+ pulley az    0 tip   12° -> final tilt    0.00°, max true rim penetration    0.41 mm, max energy rise/tick    0.000 mJ
+ pulley az    0 tip   20° -> final tilt    0.00°, max true rim penetration    0.27 mm, max energy rise/tick    0.000 mJ
+ pulley az   45 tip    5° -> final tilt    0.00°, max true rim penetration    9.93 mm, max energy rise/tick    0.000 mJ
+ pulley az   45 tip   11° -> final tilt    0.00°, max true rim penetration   21.99 mm, max energy rise/tick    0.000 mJ
+ pulley az   45 tip   12° -> final tilt    0.00°, max true rim penetration   17.48 mm, max energy rise/tick    0.000 mJ
+ pulley az   45 tip   20° -> final tilt    0.00°, max true rim penetration    9.48 mm, max energy rise/tick    0.000 mJ
+ fulcrum az    0 tip    5° -> final tilt    0.00°, max true rim penetration    1.63 mm, max energy rise/tick    0.000 mJ
+ fulcrum az    0 tip   11° -> final tilt    0.00°, max true rim penetration    3.13 mm, max energy rise/tick    0.000 mJ
+ fulcrum az    0 tip   12° -> final tilt    0.00°, max true rim penetration    3.13 mm, max energy rise/tick    0.000 mJ
+ fulcrum az    0 tip   20° -> final tilt    0.00°, max true rim penetration    1.04 mm, max energy rise/tick    0.000 mJ
+ fulcrum az   45 tip    5° -> final tilt    0.00°, max true rim penetration    5.77 mm, max energy rise/tick    0.000 mJ
+ fulcrum az   45 tip   11° -> final tilt    0.00°, max true rim penetration   12.46 mm, max energy rise/tick    0.000 mJ
+ fulcrum az   45 tip   12° -> final tilt    0.00°, max true rim penetration   12.30 mm, max energy rise/tick    0.000 mJ
+ fulcrum az   45 tip   20° -> final tilt    0.24°, max true rim penetration   13.04 mm, max energy rise/tick   14.640 mJ
+ drum az    0 tip    5° -> final tilt    0.00°, max true rim penetration    0.27 mm, max energy rise/tick    0.000 mJ
+ drum az    0 tip   11° -> final tilt    0.00°, max true rim penetration    0.29 mm, max energy rise/tick    0.000 mJ
+ drum az    0 tip   12° -> final tilt    0.00°, max true rim penetration    0.27 mm, max energy rise/tick    0.000 mJ
+ drum az    0 tip   20° -> final tilt    0.00°, max true rim penetration    0.27 mm, max energy rise/tick    0.000 mJ
+ drum az   45 tip    5° -> final tilt    0.00°, max true rim penetration    6.42 mm, max energy rise/tick    0.000 mJ
+ drum az   45 tip   11° -> final tilt    0.00°, max true rim penetration   13.99 mm, max energy rise/tick    0.000 mJ
+ drum az   45 tip   12° -> final tilt    0.00°, max true rim penetration   12.37 mm, max energy rise/tick    0.000 mJ
+ drum az   45 tip   20° -> final tilt    0.00°, max true rim penetration    7.93 mm, max energy rise/tick    0.000 mJ
+
+
+  Passed CuriousContraptions.Tests.ReviewProbe101Tests.P6_CylinderPlaneCapRegimeGap [< 1 ms]
+  Standard Output Messages:
+ r 0.4 h 0.085 tilt     2° az    0: 1 pts, min gap    1.000 mm (true 1.000 mm)
+ r 0.4 h 0.085 tilt     2° az   45: 0 pts, min gap      NaN mm (true 1.000 mm)
+ r 0.4 h 0.085 tilt     6° az    0: 1 pts, min gap    1.000 mm (true 1.000 mm)
+ r 0.4 h 0.085 tilt     6° az   45: 0 pts, min gap      NaN mm (true 1.000 mm)
+ r 0.4 h 0.085 tilt    11° az    0: 1 pts, min gap    1.000 mm (true 1.000 mm)
+ r 0.4 h 0.085 tilt    11° az   45: 0 pts, min gap      NaN mm (true 1.000 mm)
+ r 0.4 h 0.085 tilt  11.4° az    0: 1 pts, min gap    1.000 mm (true 1.000 mm)
+ r 0.4 h 0.085 tilt  11.4° az   45: 0 pts, min gap      NaN mm (true 1.000 mm)
+ r 0.4 h 0.085 tilt  11.6° az    0: 1 pts, min gap    1.000 mm (true 1.000 mm)
+ r 0.4 h 0.085 tilt  11.6° az   45: 1 pts, min gap    1.000 mm (true 1.000 mm)
+ r 0.22 h 0.51 tilt     2° az    0: 1 pts, min gap    1.000 mm (true 1.000 mm)
+ r 0.22 h 0.51 tilt     2° az   45: 2 pts, min gap    3.249 mm (true 1.000 mm)
+ r 0.22 h 0.51 tilt     6° az    0: 1 pts, min gap    1.000 mm (true 1.000 mm)
+ r 0.22 h 0.51 tilt     6° az   45: 0 pts, min gap      NaN mm (true 1.000 mm)
+ r 0.22 h 0.51 tilt    11° az    0: 1 pts, min gap    1.000 mm (true 1.000 mm)
+ r 0.22 h 0.51 tilt    11° az   45: 0 pts, min gap      NaN mm (true 1.000 mm)
+ r 0.22 h 0.51 tilt  11.4° az    0: 1 pts, min gap    1.000 mm (true 1.000 mm)
+ r 0.22 h 0.51 tilt  11.4° az   45: 0 pts, min gap      NaN mm (true 1.000 mm)
+ r 0.22 h 0.51 tilt  11.6° az    0: 1 pts, min gap    1.000 mm (true 1.000 mm)
+ r 0.22 h 0.51 tilt  11.6° az   45: 1 pts, min gap    1.000 mm (true 1.000 mm)
+
+
+
+Test Run Successful.
+Total tests: 11
+     Passed: 11
+ Total time: 2.5106 Minutes

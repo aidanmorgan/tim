@@ -1,0 +1,41 @@
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/tools/E2eRunner.Tests/bin/Debug/net10.0/E2eRunner.Tests.dll (.NETCoreApp,Version=v10.0)
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/tools/Coverage.Tests/bin/Debug/net10.0/Coverage.Tests.dll (.NETCoreApp,Version=v10.0)
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/tools/WorkerAotGuard.Tests/bin/Debug/net10.0/WorkerAotGuard.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+A total of 1 test files matched the specified pattern.
+A total of 1 test files matched the specified pattern.
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/tools/BundleElements.Tests/bin/Debug/net10.0/BundleElements.Tests.dll (.NETCoreApp,Version=v10.0)
+Blame: Attaching crash dump utility to process dotnet (84907).
+A total of 1 test files matched the specified pattern.
+Blame: Attaching crash dump utility to process dotnet (84908).
+A total of 1 test files matched the specified pattern.
+Blame: Attaching crash dump utility to process dotnet (84911).
+Blame: Attaching crash dump utility to process dotnet (84912).
+Blame: Attaching crash dump utility to process dotnet (84913).
+
+Passed!  - Failed:     0, Passed:    17, Skipped:     0, Total:    17, Duration: 54 ms - WorkerAotGuard.Tests.dll (net10.0)
+
+Passed!  - Failed:     0, Passed:   189, Skipped:     0, Total:   189, Duration: 396 ms - BundleElements.Tests.dll (net10.0)
+
+Passed!  - Failed:     0, Passed:    77, Skipped:     0, Total:    77, Duration: 828 ms - Coverage.Tests.dll (net10.0)
+[xUnit.net 00:02:03.02]     CuriousContraptions.E2eRunner.Tests.IdentityTests.ManifestIsDeterministicAndListsDotFilesAsNotServed [FAIL]
+  Failed CuriousContraptions.E2eRunner.Tests.IdentityTests.ManifestIsDeterministicAndListsDotFilesAsNotServed [< 1 ms]
+  Error Message:
+   System.IO.IOException : No space left on device
+  Stack Trace:
+     at Interop.ThrowExceptionForIoErrno(ErrorInfo errorInfo, String path, Boolean isDirError)
+   at System.IO.Directory.CreateTempSubdirectoryCore(String prefix)
+   at System.IO.Directory.CreateTempSubdirectory(String prefix)
+   at CuriousContraptions.E2eRunner.Tests.IdentityTests..ctor() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/tools/E2eRunner.Tests/IdentityTests.cs:line 12
+   at InvokeStub_IdentityTests..ctor(Object, Object, IntPtr*)
+   at System.Reflection.RuntimeConstructorInfo.Invoke(BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+
+Failed!  - Failed:     1, Passed:   188, Skipped:     0, Total:   189, Duration: 2 m 2 s - E2eRunner.Tests.dll (net10.0)
+
+Passed!  - Failed:     0, Passed:  2776, Skipped:     0, Total:  2776, Duration: 6 m 26 s - CuriousContraptions.tests.dll (net10.0)
+
+Attachments:
+  /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/tools/E2eRunner.Tests/TestResults/24bc1a25-8aa5-4ce9-9862-93936b2d32b5/Preview_85338_1792776496_crashdump.dmp
+  /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/tools/E2eRunner.Tests/TestResults/24bc1a25-8aa5-4ce9-9862-93936b2d32b5/Preview_85423_1792776506_crashdump.dmp
+  /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/tools/E2eRunner.Tests/TestResults/24bc1a25-8aa5-4ce9-9862-93936b2d32b5/Preview_84994_1792776459_crashdump.dmp

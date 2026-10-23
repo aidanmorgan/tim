@@ -1,0 +1,35 @@
+Test run for /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/probe2-10-1/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+/private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/probe2-10-1/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.5+1b188a7b0a (64-bit .NET 10.0.13)
+[xUnit.net 00:00:00.62]   Discovering: CuriousContraptions.tests
+[xUnit.net 00:00:01.42]   Discovered:  CuriousContraptions.tests
+[xUnit.net 00:00:01.53]   Starting:    CuriousContraptions.tests
+[xUnit.net 00:01:26.90]   Finished:    CuriousContraptions.tests (ID = 'f6ad845e9c7e36a4e54a0493ec2591fb8e5fdac368a7b0f0d22fa5299d3c8bb4')
+  Passed CuriousContraptions.Tests.ReviewProbe101R2Tests.C2_OverlapDepth [1 m 25 s]
+  Standard Output Messages:
+ CONTROL box-box depth ≈0.3 mm (5% of smaller extent = 10.0 mm), seed 201: 40 poses; kernel deeper than true-upper-bound 2 (worst +0.347 mm); underestimate ≤ 0.000 mm; mean |err| 0.012 mm
+ cyl-box depth ≈0.3 mm (5% of smaller extent = 10.0 mm), seed 202: 80 poses; kernel deeper than true-upper-bound 8 (worst +21.531 mm); underestimate ≤ 12.670 mm; mean |err| 0.547 mm
+ cyl-cyl depth ≈0.3 mm (5% of smaller extent = 20.0 mm), seed 203: 80 poses; kernel deeper than true-upper-bound 0 (worst +0.089 mm); underestimate ≤ 0.090 mm; mean |err| 0.016 mm
+ CONTROL box-box depth ≈2.0 mm (5% of smaller extent = 10.0 mm), seed 201: 40 poses; kernel deeper than true-upper-bound 2 (worst +0.347 mm); underestimate ≤ 0.000 mm; mean |err| 0.012 mm
+    detail pose 9: placed t 0.48091 (touch 0.48091); D_up 44.744 mm; kernel gaps [-32.07] mm; kinds [5]; |n·a| 0.000
+    detail pose 26: placed t 0.53367 (touch 0.53367); D_up 8.166 mm; kernel gaps [-9.87] mm; kinds [4]; |n·a| 1.000
+    detail pose 32: placed t 0.53023 (touch 0.53023); D_up 21.350 mm; kernel gaps [-14.59, -21.66, -42.88] mm; kinds [4,3,4]; |n·a| 1.000
+    detail pose 37: placed t 0.62404 (touch 0.62404); D_up 6.972 mm; kernel gaps [-5.21] mm; kinds [9]; |n·a| 1.000
+    detail pose 46: placed t 0.64783 (touch 0.64990); D_up 2.000 mm; kernel gaps [-5.88] mm; kinds [4]; |n·a| 1.000
+    detail pose 67: placed t 0.52266 (touch 0.52266); D_up 9.632 mm; kernel gaps [-12.09] mm; kinds [4]; |n·a| 1.000
+ cyl-box depth ≈2.0 mm (5% of smaller extent = 10.0 mm), seed 202: 80 poses; kernel deeper than true-upper-bound 16 (worst +21.531 mm); underestimate ≤ 12.670 mm; mean |err| 0.723 mm
+ cyl-cyl depth ≈2.0 mm (5% of smaller extent = 20.0 mm), seed 203: 80 poses; kernel deeper than true-upper-bound 0 (worst +0.089 mm); underestimate ≤ 0.585 mm; mean |err| 0.069 mm
+ CONTROL box-box depth ≈5.0 mm (5% of smaller extent = 10.0 mm), seed 201: 40 poses; kernel deeper than true-upper-bound 2 (worst +0.347 mm); underestimate ≤ 0.000 mm; mean |err| 0.013 mm
+ cyl-box depth ≈5.0 mm (5% of smaller extent = 10.0 mm), seed 202: 80 poses; kernel deeper than true-upper-bound 14 (worst +21.531 mm); underestimate ≤ 12.670 mm; mean |err| 0.939 mm
+ cyl-cyl depth ≈5.0 mm (5% of smaller extent = 20.0 mm), seed 203: 80 poses; kernel deeper than true-upper-bound 0 (worst +0.088 mm); underestimate ≤ 1.453 mm; mean |err| 0.163 mm
+ CONTROL box-box depth ≈10.0 mm (5% of smaller extent = 10.0 mm), seed 201: 40 poses; kernel deeper than true-upper-bound 2 (worst +0.347 mm); underestimate ≤ 0.000 mm; mean |err| 0.014 mm
+ cyl-box depth ≈10.0 mm (5% of smaller extent = 10.0 mm), seed 202: 80 poses; kernel deeper than true-upper-bound 16 (worst +21.531 mm); underestimate ≤ 12.670 mm; mean |err| 1.500 mm
+ cyl-cyl depth ≈10.0 mm (5% of smaller extent = 20.0 mm), seed 203: 80 poses; kernel deeper than true-upper-bound 1 (worst +0.145 mm); underestimate ≤ 2.856 mm; mean |err| 0.320 mm
+
+
+
+Test Run Successful.
+Total tests: 1
+     Passed: 1
+ Total time: 1.4520 Minutes

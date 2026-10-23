@@ -27,7 +27,7 @@ public readonly record struct RigidMassProperties(MetreVector LocalCentreOfMass,
     {
         body.Validate(); collider.Validate();
         if (body.Motion != RigidMotionKind.Dynamic || collider.Body != body.Id ||
-            collider.Shape is not (ColliderShapeKind.Sphere or ColliderShapeKind.Box))
+            collider.Shape is not (ColliderShapeKind.Sphere or ColliderShapeKind.Box or ColliderShapeKind.Cylinder))
             throw new ArgumentException("Mass properties require one dynamic homogeneous primitive.");
         var mass = Normalize(body.Mass.Value, 0);
         PrincipalInertia x, y, z;
@@ -35,6 +35,17 @@ public readonly record struct RigidMassProperties(MetreVector LocalCentreOfMass,
         {
             var radius = Normalize(collider.Radius.Value, 0);
             x = y = z = Product(Product(mass, Product(radius, radius)), Normalize((Half).4, 0));
+        }
+        else if (collider.Shape == ColliderShapeKind.Cylinder)
+        {
+            // Solid cylinder about its own frame (axis local +Y, half-width h = w/2): axial m r²/2, transverse
+            // m (3 r² + w²)/12 = m (r²/4 + h²/3).
+            var radius = Normalize(collider.Radius.Value, 0);
+            var half = Normalize(collider.HalfExtents.Y, 0);
+            var squared = Product(radius, radius);
+            y = Product(Product(mass, squared), Normalize((Half).5, 0));
+            x = z = Product(mass, Sum(Product(squared, Normalize((Half).25, 0)),
+                Product(Product(half, half), Normalize((Half)(1.0 / 3), 0))));
         }
         else
         {

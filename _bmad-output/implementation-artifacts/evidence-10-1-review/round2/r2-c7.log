@@ -1,0 +1,36 @@
+Test run for /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/probe2-10-1/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+/private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/probe2-10-1/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.5+1b188a7b0a (64-bit .NET 10.0.13)
+[xUnit.net 00:00:00.35]   Discovering: CuriousContraptions.tests
+[xUnit.net 00:00:01.03]   Discovered:  CuriousContraptions.tests
+[xUnit.net 00:00:01.13]   Starting:    CuriousContraptions.tests
+[xUnit.net 00:00:05.72]   Finished:    CuriousContraptions.tests (ID = 'f6ad845e9c7e36a4e54a0493ec2591fb8e5fdac368a7b0f0d22fa5299d3c8bb4')
+  Passed CuriousContraptions.Tests.ReviewProbe101R2Tests.C7_TraceEnergy [4 s]
+  Standard Output Messages:
+      tick 14: rise 1.35 mJ, v <-0.050924756, -0.03788383, 0.11152316> ω 0.44, certified dist [0.00,0.00] mm, kernel gaps [-2.23] kinds [5] |n·a| 0.000
+      tick 17: rise 2.20 mJ, v <-0.028658243, -0.039217938, 0.130057> ω 0.55, certified dist [0.00,0.00] mm, kernel gaps [-9.38, 5.07] kinds [4,2] |n·a| 1.000
+      tick 18: rise 1.43 mJ, v <-0.021671634, -0.049934126, 0.13763078> ω 0.58, certified dist [0.00,0.00] mm, kernel gaps [-2.64] kinds [5] |n·a| 0.000
+      tick 19: rise 1.04 mJ, v <-0.027432045, -0.055515867, 0.15386964> ω 0.59, certified dist [0.00,0.00] mm, kernel gaps [-2.72] kinds [5] |n·a| 0.000
+      tick 20: rise 2.64 mJ, v <-0.043827493, -0.059895635, 0.16190542> ω 0.71, certified dist [0.00,0.00] mm, kernel gaps [-2.85] kinds [5] |n·a| 0.000
+      tick 21: rise 2.96 mJ, v <-0.06232727, -0.06943475, 0.17173918> ω 0.81, certified dist [0.00,0.00] mm, kernel gaps [-3.06] kinds [5] |n·a| 0.000
+      tick 22: rise 3.24 mJ, v <-0.08095648, -0.08192754, 0.1830099> ω 0.89, certified dist [0.00,0.00] mm, kernel gaps [-3.34] kinds [5] |n·a| 0.000
+      tick 26: rise 2.21 mJ, v <-0.0828769, -0.026380079, 0.21024422> ω 0.98, certified dist [0.00,0.00] mm, kernel gaps [-4.24, -3.69] kinds [5,5] |n·a| 0.000
+      tick 27: rise 2.13 mJ, v <-0.087646835, -0.0382098, 0.22379306> ω 0.87, certified dist [0.00,0.00] mm, kernel gaps [-3.84, -3.35] kinds [5,5] |n·a| 0.000
+      tick 28: rise 1.01 mJ, v <-0.091390185, -0.07194451, 0.23203115> ω 0.81, certified dist [0.00,0.00] mm, kernel gaps [-3.55, -3.12] kinds [5,5] |n·a| 0.000
+      tick 30: rise 2.27 mJ, v <-0.06753427, -0.02130411, 0.2283861> ω 0.96, certified dist [0.00,0.00] mm, kernel gaps [-3.25, -2.87] kinds [5,5] |n·a| 0.000
+      tick 31: rise 2.99 mJ, v <-0.06498489, -0.030653358, 0.23364462> ω 0.95, certified dist [0.00,0.00] mm, kernel gaps [-14.10, 42.20, 3.18] kinds [4,4,2] |n·a| 1.000
+      tick 32: rise 2.79 mJ, v <-0.06265395, -0.040025618, 0.23911384> ω 0.95, certified dist [0.00,0.00] mm, kernel gaps [-2.85, -2.85] kinds [5,5] |n·a| 0.138
+      tick 33: rise 1.46 mJ, v <-0.060529552, -0.048696373, 0.24708818> ω 0.94, certified dist [0.00,0.00] mm, kernel gaps [-2.49, -2.33] kinds [5,5] |n·a| 0.132
+ cyl-box pose   2: peak upward speed (0.25 s) 0.0000 m/s, worst energy rise/tick 3.237 mJ, final drop 7544.6 mm
+      tick 23: rise 22.76 mJ, v <0.4928161, -0.06363591, -0.3315053> ω 4.73, certified dist [2.92,2.92] mm, kernel gaps [2.92, 27.47, 23.49, 14.80] kinds [4,4,3,2] |n·a| 0.999
+ cyl-box pose   4: peak upward speed (0.25 s) 0.0035 m/s, worst energy rise/tick 22.757 mJ, final drop 11251.5 mm
+      tick 19: rise 20.40 mJ, v <-0.013777145, -0.34310484, -0.19582894> ω 2.68, certified dist [0.00,0.00] mm, kernel gaps [13.27, -0.20, 43.28] kinds [3,4,2] |n·a| 1.000
+ cyl-box pose 135: peak upward speed (0.25 s) 0.0000 m/s, worst energy rise/tick 20.399 mJ, final drop 11466.2 mm
+
+
+
+Test Run Successful.
+Total tests: 1
+     Passed: 1
+ Total time: 5.9308 Seconds

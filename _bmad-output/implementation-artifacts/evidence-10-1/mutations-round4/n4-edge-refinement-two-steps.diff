@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/frozen4/WorkshopCollisionKernels.cs	2026-10-23 21:52:48.080981334 +0800
++++ CuriousContraptions.Simulation/WorkshopCollisionKernels.cs	2026-10-23 23:53:18.051231845 +0800
+@@ -1128,7 +1128,7 @@
+     // fixed number of golden-section steps finds its minimum; along a rim it is sampled at fixed angles and the best bracket is
+     // refined the same way. Every count is fixed: no simplex, no convergence test, no data-dependent iteration (not GJK/EPA/MPR).
+ 
+-    private const int SegmentSteps = 24;
++    private const int SegmentSteps = 2;
+     private const int RimSamples = 16;
+     private const int RimSteps = 16;
+     private const float GoldenSection = 0.618034f;

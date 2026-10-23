@@ -1,0 +1,25 @@
+Test run for /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/probe2-10-1/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+/private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/probe2-10-1/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.5+1b188a7b0a (64-bit .NET 10.0.13)
+[xUnit.net 00:00:00.38]   Discovering: CuriousContraptions.tests
+[xUnit.net 00:00:01.09]   Discovered:  CuriousContraptions.tests
+[xUnit.net 00:00:01.19]   Starting:    CuriousContraptions.tests
+[xUnit.net 00:00:49.10]   Finished:    CuriousContraptions.tests (ID = 'f6ad845e9c7e36a4e54a0493ec2591fb8e5fdac368a7b0f0d22fa5299d3c8bb4')
+  Passed CuriousContraptions.Tests.ReviewProbe101R2Tests.C4_CertifiedOverlap [47 s]
+  Standard Output Messages:
+ CONTROL box-box seed 401: 54 certified-touch poses (26 uncertified). Kernel depth above the certified bound by > 0.5 mm: δ 0.3 mm 0 (worst +0.00), δ 2 mm 0 (worst +0.00), δ 5 mm 0 (worst +0.00) mm. Engine at δ 0.3 mm (true depth ≤ δ + 0.2 mm): worst displacement 0.10 mm (pose 46), worst speed 0.0001 m/s
+ cyl-box seed 402: 105 certified-touch poses (95 uncertified). Kernel depth above the certified bound by > 0.5 mm: δ 0.3 mm 0 (worst +0.22), δ 2 mm 2 (worst +3.24), δ 5 mm 2 (worst +0.95) mm. Engine at δ 0.3 mm (true depth ≤ δ + 0.2 mm): worst displacement 0.57 mm (pose 2), worst speed 0.0005 m/s
+    worst kernel pose 48: depth ≤ 0.50 mm, kernel gaps [-0.72] kinds [4]
+ cyl-cyl seed 403: 78 certified-touch poses (122 uncertified). Kernel depth above the certified bound by > 0.5 mm: δ 0.3 mm 0 (worst +0.00), δ 2 mm 0 (worst +0.00), δ 5 mm 0 (worst +0.00) mm. Engine at δ 0.3 mm (true depth ≤ δ + 0.2 mm): worst displacement 0.26 mm (pose 123), worst speed 0.0001 m/s
+ CONTROL box-box seed 401: 54 certified-touch poses (26 uncertified). Kernel depth above the certified bound by > 0.5 mm: δ 0.3 mm 0 (worst +0.00), δ 2 mm 0 (worst +0.00), δ 5 mm 0 (worst +0.00) mm. Engine at δ 2.0 mm (true depth ≤ δ + 0.2 mm): worst displacement 1.78 mm (pose 31), worst speed 0.0016 m/s
+ cyl-box seed 402: 105 certified-touch poses (95 uncertified). Kernel depth above the certified bound by > 0.5 mm: δ 0.3 mm 0 (worst +0.22), δ 2 mm 2 (worst +3.24), δ 5 mm 2 (worst +0.95) mm. Engine at δ 2.0 mm (true depth ≤ δ + 0.2 mm): worst displacement 2.74 mm (pose 2), worst speed 0.0024 m/s
+    worst kernel pose 48: depth ≤ 0.50 mm, kernel gaps [-0.72] kinds [4]
+ cyl-cyl seed 403: 78 certified-touch poses (122 uncertified). Kernel depth above the certified bound by > 0.5 mm: δ 0.3 mm 0 (worst +0.00), δ 2 mm 0 (worst +0.00), δ 5 mm 0 (worst +0.00) mm. Engine at δ 2.0 mm (true depth ≤ δ + 0.2 mm): worst displacement 1.95 mm (pose 123), worst speed 0.0013 m/s
+
+
+
+Test Run Successful.
+Total tests: 1
+     Passed: 1
+ Total time: 49.3389 Seconds

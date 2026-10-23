@@ -1,0 +1,23 @@
+Test run for /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/probe-10-1/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+/private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/probe-10-1/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.5+1b188a7b0a (64-bit .NET 10.0.13)
+[xUnit.net 00:00:00.32]   Discovering: CuriousContraptions.tests
+[xUnit.net 00:00:00.97]   Discovered:  CuriousContraptions.tests
+[xUnit.net 00:00:01.08]   Starting:    CuriousContraptions.tests
+  Passed CuriousContraptions.Tests.ReviewProbe101dTests.PhantomPushAtThreeMillimetres(cylinderPartner: True) [9 s]
+  Standard Output Messages:
+ cyl-cyl: 32/200 motionless weightless partners ≥ 2 mm apart were pushed; worst qa {X:-0.5399288 Y:-0.1399051 Z:-0.65405345 W:-0.5109966} qb {X:-0.79458016 Y:0.22756411 Z:0.20818265 W:0.52298844} dir <-0.04321734, 0.50459707, 0.8622726> sep 3.00 mm -> speed 0.012 m/s, moved 18.6 mm, spin 0.00
+
+
+[xUnit.net 00:00:25.96]   Finished:    CuriousContraptions.tests (ID = 'c2334ac06914b9685b207240a16d2f1d28e27073172085c2d68af6987a787dab')
+  Passed CuriousContraptions.Tests.ReviewProbe101dTests.PhantomPushAtThreeMillimetres(cylinderPartner: False) [14 s]
+  Standard Output Messages:
+ cyl-box: 11/200 motionless weightless partners ≥ 2 mm apart were pushed; worst qa {X:0.58287436 Y:0.615594 Z:0.46950197 W:0.24671721} qb {X:0.3480411 Y:-0.24082667 Z:-0.53771687 W:-0.7291986} dir <-0.48634213, 0.6645415, -0.56732345> sep 3.00 mm -> speed 0.001 m/s, moved 5.7 mm, spin 0.00
+
+
+
+Test Run Successful.
+Total tests: 2
+     Passed: 2
+ Total time: 26.1548 Seconds

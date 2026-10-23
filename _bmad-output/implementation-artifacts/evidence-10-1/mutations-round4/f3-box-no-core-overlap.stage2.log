@@ -1,0 +1,49 @@
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:35.28]     CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ABoxTumblingOverACapRimGainsNoMoreEnergyThanOverABox [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ABoxTumblingOverACapRimGainsNoMoreEnergyThanOverABox [34 s]
+  Error Message:
+   pose 2: worst tick gain 3.585 mJ, bound 2.117 mJ (control 0.154)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ABoxTumblingOverACapRimGainsNoMoreEnergyThanOverABox() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 1242
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:03:47.96]     CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.FreshSeedDropsGainNoMoreEnergyThanTheBoxControlAndTheSlop [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.FreshSeedDropsGainNoMoreEnergyThanTheBoxControlAndTheSlop [1 m 34 s]
+  Error Message:
+   CylinderOntoPlane (Dead): 0/200 over 2.023 mJ (worst 1.733 mJ)
+CylinderOntoBox (Dead): 4/200 over 2.023 mJ (worst 22.710 mJ)
+BoxOntoCylinder (Dead): 0/200 over 2.023 mJ (worst 0.996 mJ)
+CylinderOntoLyingCylinder (Dead): 0/200 over 2.023 mJ (worst 1.174 mJ)
+CylinderOntoStandingCylinder (Dead): 0/200 over 2.023 mJ (worst 1.554 mJ)
+SkewedRollOffEdge (Dead): 0/200 over 2.023 mJ (worst 0.009 mJ)
+CylinderOntoPlane (Rolling): 0/200 over 2.049 mJ (worst 1.579 mJ)
+CylinderOntoBox (Rolling): 1/200 over 2.049 mJ (worst 2.066 mJ)
+BoxOntoCylinder (Rolling): 0/200 over 2.049 mJ (worst 0.088 mJ)
+CylinderOntoLyingCylinder (Rolling): 0/200 over 2.049 mJ (worst 0.940 mJ)
+CylinderOntoStandingCylinder (Rolling): 0/200 over 2.049 mJ (worst 1.373 mJ)
+SkewedRollOffEdge (Rolling): 0/200 over 2.049 mJ (worst 0.001 mJ)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.AssertGate(Int32 cases, GateMaterials[] sets) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 1604
+   at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.FreshSeedDropsGainNoMoreEnergyThanTheBoxControlAndTheSlop() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 1608
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Standard Output Messages:
+ CylinderOntoPlane (Dead): 0/200 over 2.023 mJ (worst 1.733 mJ)
+ CylinderOntoBox (Dead): 4/200 over 2.023 mJ (worst 22.710 mJ)
+ BoxOntoCylinder (Dead): 0/200 over 2.023 mJ (worst 0.996 mJ)
+ CylinderOntoLyingCylinder (Dead): 0/200 over 2.023 mJ (worst 1.174 mJ)
+ CylinderOntoStandingCylinder (Dead): 0/200 over 2.023 mJ (worst 1.554 mJ)
+ SkewedRollOffEdge (Dead): 0/200 over 2.023 mJ (worst 0.009 mJ)
+ CylinderOntoPlane (Rolling): 0/200 over 2.049 mJ (worst 1.579 mJ)
+ CylinderOntoBox (Rolling): 1/200 over 2.049 mJ (worst 2.066 mJ)
+ BoxOntoCylinder (Rolling): 0/200 over 2.049 mJ (worst 0.088 mJ)
+ CylinderOntoLyingCylinder (Rolling): 0/200 over 2.049 mJ (worst 0.940 mJ)
+ CylinderOntoStandingCylinder (Rolling): 0/200 over 2.049 mJ (worst 1.373 mJ)
+ SkewedRollOffEdge (Rolling): 0/200 over 2.049 mJ (worst 0.001 mJ)
+
+
+  Skipped CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.FreshSeedDropsWithRestitutionGainNoMoreEnergyThanTheBoxControlAndTheSlop [1 ms]
+  Skipped CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.FreshSeedDropsGainNoMoreEnergyThanTheBoxControlAndTheSlopFullGate [1 ms]
+
+Failed!  - Failed:     2, Passed:     6, Skipped:     0, Total:     8, Duration: 5 m 2 s - CuriousContraptions.tests.dll (net10.0)

@@ -1,0 +1,31 @@
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+/Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.5+1b188a7b0a (64-bit .NET 10.0.13)
+[xUnit.net 00:00:00.14]   Discovering: CuriousContraptions.tests
+[xUnit.net 00:00:00.88]   Discovered:  CuriousContraptions.tests
+[xUnit.net 00:00:01.00]   Starting:    CuriousContraptions.tests
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ARimAimedWalkThroughTouchKeepsTheGapContinuousAndNeverPositiveWhileOverlapping(cylinderPartner: True, seed: 7001) [9 s]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ARimAimedWalkThroughTouchKeepsTheGapContinuousAndNeverPositiveWhileOverlapping(cylinderPartner: False, seed: 7002) [1 m 25 s]
+[xUnit.net 00:03:09.42]   Finished:    CuriousContraptions.tests (ID = 'b11b4479ea0a91ea82a3cc1f61b5b4b5943adf7100569eb5204f26b964119862')
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.FreshSeedDropsGainNoMoreEnergyThanTheBoxControlAndTheSlop [1 m 32 s]
+  Standard Output Messages:
+ CylinderOntoPlane (Dead): 0/200 over 2.023 mJ (worst 1.733 mJ)
+ CylinderOntoBox (Dead): 0/200 over 2.023 mJ (worst 1.334 mJ)
+ BoxOntoCylinder (Dead): 0/200 over 2.023 mJ (worst 1.007 mJ)
+ CylinderOntoLyingCylinder (Dead): 0/200 over 2.023 mJ (worst 1.174 mJ)
+ CylinderOntoStandingCylinder (Dead): 0/200 over 2.023 mJ (worst 1.554 mJ)
+ SkewedRollOffEdge (Dead): 0/200 over 2.023 mJ (worst 0.009 mJ)
+ CylinderOntoPlane (Rolling): 0/200 over 2.049 mJ (worst 1.579 mJ)
+ CylinderOntoBox (Rolling): 0/200 over 2.049 mJ (worst 1.101 mJ)
+ BoxOntoCylinder (Rolling): 0/200 over 2.049 mJ (worst 0.086 mJ)
+ CylinderOntoLyingCylinder (Rolling): 0/200 over 2.049 mJ (worst 0.940 mJ)
+ CylinderOntoStandingCylinder (Rolling): 0/200 over 2.049 mJ (worst 1.373 mJ)
+ SkewedRollOffEdge (Rolling): 0/200 over 2.049 mJ (worst 0.001 mJ)
+
+
+
+Test Run Successful.
+Total tests: 3
+     Passed: 3
+ Total time: 3.1602 Minutes

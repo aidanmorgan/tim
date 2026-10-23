@@ -1,0 +1,12 @@
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:37.80]     CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ABoxTumblingOverACapRimGainsNoMoreEnergyThanOverABox [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ABoxTumblingOverACapRimGainsNoMoreEnergyThanOverABox [34 s]
+  Error Message:
+   pose 2: worst tick gain 4.076 mJ, bound 2.117 mJ (control 0.154)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ABoxTumblingOverACapRimGainsNoMoreEnergyThanOverABox() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 1205
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     1, Passed:    70, Skipped:     0, Total:    71, Duration: 1 m 55 s - CuriousContraptions.tests.dll (net10.0)

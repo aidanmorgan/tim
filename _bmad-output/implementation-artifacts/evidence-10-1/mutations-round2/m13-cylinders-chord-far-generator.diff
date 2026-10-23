@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/frozen2/WorkshopCollisionKernels.cs	2026-10-23 15:24:43.376194854 +0800
++++ CuriousContraptions.Simulation/WorkshopCollisionKernels.cs	2026-10-23 15:30:33.925619638 +0800
+@@ -1616,7 +1616,7 @@
+             var s = Vector3.Dot(towardCap, axis) > 0f ? -1f : 1f;
+             var capN = s * axis;
+             var cc = capCyl.Position + s * capCyl.Hy * axis;
+-            var (start, length) = Generator(sideCyl, towardCap);
++            var (start, length) = Generator(sideCyl, -towardCap);
+             var rel = start - cc;
+             var (t0, t1) = ClipCircle(Vector3.Dot(rel, capCyl.U0), Vector3.Dot(rel, capCyl.U2), Vector3.Dot(length, capCyl.U0),
+                 Vector3.Dot(length, capCyl.U2), capCyl.Radius * (1f + InsideTolerance));

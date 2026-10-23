@@ -168,17 +168,41 @@ internal static class WorkshopConstraintSolver
 
     /// <summary>The substep displacement of a contact's support on one body. A sphere's support is not a material point: it stays
     /// under the sphere's centre however the sphere turns, so it moves with the centre (whose arm from the centre of mass is the
-    /// collider's substep-start position); any other shape's support is the material contact anchor.</summary>
-    private static Vector3 SupportDisplacement(SimBody b, SimCollider collider, Vector3 anchor) =>
-        collider.Shape == ShapeKind.Sphere
-            ? AnchorDisplacement(b, new Vector3(collider.Px, collider.Py, collider.Pz) - b.Cm0)
-            : AnchorDisplacement(b, anchor);
+    /// collider's substep-start position). A curved-side cylinder contact (axis support, Story 10.1) is the generator facing the
+    /// partner at the anchor's axial coordinate: its support moves with that material axis point plus r times the turn of the radial
+    /// direction facing the partner about the moved axis. Rolling about the axis leaves that direction unchanged (the sphere
+    /// precedent); tumbling turns it, so the support stays on the facing generator. Any other support is the material anchor.</summary>
+    private static Vector3 SupportDisplacement(SimBody b, SimCollider collider, ContactSupport support, Vector3 anchor, Vector3 facing)
+    {
+        if (collider.Shape == ShapeKind.Sphere)
+            return AnchorDisplacement(b, new Vector3(collider.Px, collider.Py, collider.Pz) - b.Cm0);
+        if (support == ContactSupport.Axis && b.Motion == 1)
+        {
+            var centre = new Vector3(collider.Px, collider.Py, collider.Pz);
+            var axis = collider.U1;
+            var along = Math.Clamp(Vector3.Dot(b.Cm0 + anchor - centre, axis), -collider.Hy, collider.Hy);
+            var turn = Quaternion.Multiply(new Quaternion(b.Qx, b.Qy, b.Qz, b.Qw), Quaternion.Conjugate(b.Q0));
+            var moved = Vector3.Transform(axis, turn);
+            return AnchorDisplacement(b, centre + along * axis - b.Cm0) +
+                collider.Radius * (RadialUnit(facing, moved) - RadialUnit(facing, axis));
+        }
+        return AnchorDisplacement(b, anchor);
+    }
+
+    /// <summary>The unit component of <paramref name="v"/> perpendicular to the unit axis (zero when v lies along it).</summary>
+    private static Vector3 RadialUnit(Vector3 v, Vector3 axis)
+    {
+        var p = v - Vector3.Dot(v, axis) * axis;
+        var length = p.Length();
+        return length > 1e-6f ? p / length : Vector3.Zero;
+    }
 
     public static float CurrentSeparation(ContactPoint c)
     {
-        var dA = SupportDisplacement(c.A, c.ColA, new Vector3(c.RAx, c.RAy, c.RAz));
-        var dB = SupportDisplacement(c.B, c.ColB, new Vector3(c.RBx, c.RBy, c.RBz));
         var n = new Vector3(c.Nx, c.Ny, c.Nz);
+        // A's support faces B (−n), B's faces A (+n).
+        var dA = SupportDisplacement(c.A, c.ColA, c.SupportA, new Vector3(c.RAx, c.RAy, c.RAz), -n);
+        var dB = SupportDisplacement(c.B, c.ColB, c.SupportB, new Vector3(c.RBx, c.RBy, c.RBz), n);
         return c.Gap + Vector3.Dot(dA - dB, n);
     }
 
@@ -212,13 +236,25 @@ internal static class WorkshopConstraintSolver
     public static void PrepareRolling(ContactManifold m)
     {
         var c = m.Points[0];
-        var radiusA = c.ColA.Shape == ShapeKind.Sphere ? c.ColA.Radius : 0f;
-        var radiusB = c.ColB.Shape == ShapeKind.Sphere ? c.ColB.Radius : 0f;
+        var radiusA = RollingArm(m, c.ColA, true);
+        var radiusB = RollingArm(m, c.ColB, false);
         m.Rolling = MathF.Max(c.ColA.RollingResistance, c.ColB.RollingResistance) * MathF.Max(radiusA, radiusB);
         m.RollingMass1 = m.Rolling > 0f ? AngularMass(c, c.T1) : 0f;
         m.RollingMass2 = m.Rolling > 0f ? AngularMass(c, c.T2) : 0f;
         m.LambdaR1 = 0f;
         m.LambdaR2 = 0f;
+    }
+
+    /// <summary>The rolling arm one side brings to its manifold: a sphere's radius at every contact, a cylinder's radius when the
+    /// manifold rolls on its curved side (any axis-support point, as the narrowphase classified it), otherwise none (flat faces,
+    /// rims and caps do not roll).</summary>
+    private static float RollingArm(ContactManifold m, SimCollider collider, bool sideA)
+    {
+        if (collider.Shape == ShapeKind.Sphere) return collider.Radius;
+        if (collider.Shape != ShapeKind.Cylinder) return 0f;
+        foreach (var p in m.Points)
+            if ((sideA ? p.SupportA : p.SupportB) == ContactSupport.Axis) return collider.Radius;
+        return 0f;
     }
 
     private static float AngularMass(ContactPoint c, Vector3 t)

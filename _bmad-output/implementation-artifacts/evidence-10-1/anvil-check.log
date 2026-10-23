@@ -1,0 +1,35 @@
+anvil 0.14.2-beta (local backend), 22 Oct 2026, story-10-1 worktree.
+
+Pre-write validation: what the MCP calls actually covered (disclosed accurately)
+- anvil_apply_patch returned "allow" for PhysicsDeclarations.cs and RigidMassProperties.cs and for the 3-line PhysicsGpuAbi.cs deletion
+  with diffs whose added lines were the real code (the RigidMassProperties diff was a near-final draft).
+- The DeclaredPhysics.cs, PassageSensorDeclaration.cs, SceneGeometryExtractor.cs, WorkshopConstraintSolver.cs, WorkshopPhysicsEngine.cs,
+  WorkshopPhysicsLawTests.cs, SceneGeometryExtractorTests.cs and gpu-f32-physics.md "allow" decisions were for summary or pseudo-code
+  diffs: they were NOT content validation of the code written.
+- WorkshopCollisionKernels.cs (cylinder section) was a preview + SHA-256 partial scan
+  (36a3247df52e507ab4d653fa16016f58003cf8f8abc32532bef1290e0c591e02), not a full-content scan.
+- Several edits had no pre-write call at all: the kernels' enum/ContactPoint/ColliderExtent edits, the engine warm-up edit, the new test
+  file, BundleRoundTripTests.cs, the csproj include, the CAT docs, the spec, TODO.md and sprint-status.yaml.
+
+Post-write full-content scans of the final files (these are the real checks)
+1. MCP anvil_check (anti-pattern rules only) over the 13 changed/new C# files:
+   {"warnings":[],"summary":{"total":0,"errors":0,"warnings":0,"info":0,"suppressed":0},"hasBlockingWarnings":false}
+2. CLI `anvil check` (anti-patterns AND hardcoded secrets, whole files) over every file in `git diff --name-only` plus the two
+   untracked files (CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs, the spec), run after the frozen-candidate verification:
+     bash -c 'anvil check $(git diff --name-only) CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs \
+       _bmad-output/implementation-artifacts/spec-10-1-solid-cylinder.md'
+   exit 0; output:
+     Last run written to .anvil/last-check.txt
+       ✓ No warnings found
+   (.anvil/ is git-ignored.)
+
+Fix round 1 (review F1–F3, 23 Oct 2026)
+- Pre-write validation: NONE. No anvil_validate_write / anvil_apply_patch call was made before any round-2 write (kernels, solver,
+  tests, gpu-f32-physics.md, spec, TODO.md, mutate2.sh, verify2.sh). Disclosed; the post-write scan below is the only check.
+- Post-write CLI full-content scan (anti-patterns and hardcoded secrets), before the round-2 frozen-candidate run, over every file in
+  `git diff --name-only` plus the untracked test file and spec:
+     bash -c 'anvil check $(git diff --name-only) CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs \
+       _bmad-output/implementation-artifacts/spec-10-1-solid-cylinder.md'
+  exit 0; output:
+     Last run written to .anvil/last-check.txt
+       ✓ No warnings found

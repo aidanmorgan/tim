@@ -104,10 +104,25 @@ internal sealed class LawScene
         _colliderOf[id] = collider;
         _colliders.Add(new(collider, id, materialId, shape,
             new(new((Half)colliderOffset.X, (Half)colliderOffset.Y, (Half)colliderOffset.Z), CanonicalRotation.Identity),
-            new((Half)(shape == ColliderShapeKind.Sphere ? radius : 0f)),
-            shape == ColliderShapeKind.Box ? new((Half)half.X, (Half)half.Y, (Half)half.Z) : default));
+            new((Half)(shape is ColliderShapeKind.Sphere or ColliderShapeKind.Cylinder ? radius : 0f)),
+            shape switch
+            {
+                ColliderShapeKind.Box => new((Half)half.X, (Half)half.Y, (Half)half.Z),
+                ColliderShapeKind.Cylinder => new((Half)0, (Half)half.Y, (Half)0),
+                _ => default
+            }));
         return id;
     }
+
+    /// <summary>A dynamic solid cylinder (Story 10.1): radius, half-width along its local +Y axis and mass, no drag.</summary>
+    public GpuBodyId Cylinder(Vector3 position, float radius, float halfWidth, float mass, LawMaterial material, Quaternion? rotation = null,
+        Vector3 velocity = default, Vector3 angular = default, float? gravity = null) =>
+        Body(RigidMotionKind.Dynamic, ColliderShapeKind.Cylinder, position, rotation ?? Quaternion.Identity, radius, new(0f, halfWidth, 0f),
+            mass, material, velocity, angular, 0f, gravity ?? Gravity, default);
+
+    public GpuBodyId StaticCylinder(Vector3 position, float radius, float halfWidth, Quaternion? rotation = null, LawMaterial? material = null) =>
+        Body(RigidMotionKind.Static, ColliderShapeKind.Cylinder, position, rotation ?? Quaternion.Identity, radius, new(0f, halfWidth, 0f),
+            0f, material ?? LawMaterial.Bench, default, default, 0f, 0f, default);
 
     public GpuColliderId ColliderOf(GpuBodyId body) => _colliderOf[body];
 

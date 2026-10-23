@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/frozen3/WorkshopCollisionKernels.cs	2026-10-23 18:47:47.117342476 +0800
++++ CuriousContraptions.Simulation/WorkshopCollisionKernels.cs	2026-10-23 18:47:52.125644608 +0800
+@@ -1058,7 +1058,7 @@
+     private static void NoDeeperThan(List<ContactPoint> points, int first, float separation)
+     {
+         for (var i = first; i < points.Count; i++)
+-            if (points[i].Gap < separation) points[i].Gap = separation;
++            if (points[i].Gap < separation - 1e9f) points[i].Gap = separation;
+     }
+ 
+     // ---- exact closest features (Story 10.1 review F2) ----

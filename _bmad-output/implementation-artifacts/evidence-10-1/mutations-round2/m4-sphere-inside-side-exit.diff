@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/frozen2/WorkshopCollisionKernels.cs	2026-10-23 15:24:43.376194854 +0800
++++ CuriousContraptions.Simulation/WorkshopCollisionKernels.cs	2026-10-23 15:26:16.671930288 +0800
+@@ -942,7 +942,7 @@
+             if (feature != CylinderFeature.Side) detail = y >= 0f ? 0 : 1;
+             n = dist > 1e-6f ? diff / dist : feature == CylinderFeature.Side ? radial : (y >= 0f ? a : -a);
+         }
+-        else if (r - rho < h - MathF.Abs(y))
++        else if (r - rho < 0f)
+         {
+             n = radial;
+             x = cyl.Position + y * a + r * radial;

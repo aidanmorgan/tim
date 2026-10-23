@@ -1,0 +1,15 @@
+Test run for /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/probe2-10-1/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+/private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/probe2-10-1/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.5+1b188a7b0a (64-bit .NET 10.0.13)
+[xUnit.net 00:00:00.37]   Discovering: CuriousContraptions.tests
+[xUnit.net 00:00:01.08]   Discovered:  CuriousContraptions.tests
+[xUnit.net 00:00:01.20]   Starting:    CuriousContraptions.tests
+  Passed CuriousContraptions.Tests.ReviewProbe101R2Tests.C3_EnginePush [2 m 54 s]
+  Standard Output Messages:
+ CONTROL box-box at 3.0 mm: 0/93 partners moved (worst 0.000 mm in 0.5 s)
+ cyl-box at 3.0 mm: 0/182 partners moved (worst 0.000 mm in 0.5 s)
+ cyl-cyl at 3.0 mm: 0/190 partners moved (worst 0.000 mm in 0.5 s)
+ POSITIVE CONTROL cyl-box overlapping at -2.0 mm: 30/30 partners moved (worst 12.439 mm in 0.5 s)
+
+

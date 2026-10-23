@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/frozen/WorkshopCollisionKernels.cs	2026-10-22 13:26:10.012188993 +0800
++++ CuriousContraptions.Simulation/WorkshopCollisionKernels.cs	2026-10-22 13:27:57.051590792 +0800
+@@ -985,8 +985,6 @@
+         Span<Vector3> vertices = stackalloc Vector3[8];
+         for (var v = 0; v < 8; v++)
+             vertices[v] = BoxVertex(box, (v & 1) != 0 ? 1f : -1f, (v & 2) != 0 ? 1f : -1f, (v & 4) != 0 ? 1f : -1f);
+-        foreach (var vertex in vertices)
+-            if (!Direction(Radial(vertex - ca, a))) return;
+ 
+         for (var capIndex = 0; capIndex < 2; capIndex++)
+         {

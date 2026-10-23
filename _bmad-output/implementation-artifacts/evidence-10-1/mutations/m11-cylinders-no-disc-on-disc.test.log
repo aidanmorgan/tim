@@ -1,0 +1,26 @@
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:01.55]     CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ThreeCylindersStackEndToEnd [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ThreeCylindersStackEndToEnd [106 ms]
+  Error Message:
+   Assert.InRange() Failure: Value not in range
+Range:  (0.0379169919 - 0.0419169925)
+Actual: 0.030004466
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.Holds(LawWorld world, GpuBodyId body, Single restY, Single tolerance, Single seconds) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 318
+   at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ThreeCylindersStackEndToEnd() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 368
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:05.05]     CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.CylinderPairsGiveTwoPointsWhenParallelOneWhenCrossedAndFourCapOnCap [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.CylinderPairsGiveTwoPointsWhenParallelOneWhenCrossedAndFourCapOnCap [1 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: 4
+Actual:   1
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.Gaps(List`1 contacts, Int32 count, Single gap) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 460
+   at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.CylinderPairsGiveTwoPointsWhenParallelOneWhenCrossedAndFourCapOnCap() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 532
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     2, Passed:    46, Skipped:     0, Total:    48, Duration: 3 s - CuriousContraptions.tests.dll (net10.0)

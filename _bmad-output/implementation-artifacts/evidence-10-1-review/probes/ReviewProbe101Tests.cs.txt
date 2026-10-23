@@ -1,0 +1,403 @@
+using System.Numerics;
+using CuriousContraptions.Gpu;
+using CuriousContraptions.Simulation;
+using Xunit;
+#pragma warning disable CA1822, CA1861, CA5394, CA1305, CA1307, CA1310
+
+namespace CuriousContraptions.Tests;
+
+/// <summary>Reviewer probes for Story 10.1 (throwaway; never part of the candidate).</summary>
+public sealed class ReviewProbe101Tests(ITestOutputHelper output)
+{
+    private static readonly float BenchY = LawScene.BenchY;
+    private static readonly float G = -(float)(Half)LawScene.Gravity;
+    private static float H(float v) => (float)(Half)v;
+    private static Vector3 At(float x, float y, float z = 0f) => new(x, y, z);
+    private static readonly LawMaterial Dead = new(0f, .1f, .5f, 0f);
+    private static Quaternion About(Vector3 axis, double degrees) =>
+        Quaternion.CreateFromAxisAngle(Vector3.Normalize(axis), (float)(degrees * Math.PI / 180));
+
+    /// <summary>Lowest true point of a cylinder (axis = local +Y of rotation q) below its centre.</summary>
+    private static float Lowest(Quaternion q, float r, float h)
+    {
+        var a = Vector3.Transform(Vector3.UnitY, q);
+        var t = MathF.Abs(a.Y);
+        return h * t + r * MathF.Sqrt(MathF.Max(0, 1 - t * t));
+    }
+
+    private static double Energy(LawBody b, float m, float r, float h)
+    {
+        // World inertia R diag R^T; ω world frame.
+        double ix = m * (r * r / 4 + h * h / 3), iy = m * r * r / 2;
+        var local = Vector3.Transform(b.Angular, Quaternion.Inverse(b.Rotation));
+        var rot = .5 * (ix * local.X * local.X + iy * local.Y * local.Y + ix * local.Z * local.Z);
+        var lin = .5 * m * (b.Velocity.X * (double)b.Velocity.X + b.Velocity.Y * (double)b.Velocity.Y + b.Velocity.Z * (double)b.Velocity.Z);
+        return lin + rot + m * G * (b.Position.Y - BenchY);
+    }
+
+    /// <summary>A cylinder tipped by `degrees` about a horizontal axis at azimuth `azimuth` (0 = tilt about Z, i.e. toward a U0 sample;
+    /// 45 = diagonal between samples), released with its lowest true rim point 0.5 mm above the bench.</summary>
+    private (float FinalTilt, double MaxPenetration, double MaxEnergyRise, double MaxSpeed) Tip(float r, float h, double degrees,
+        double azimuth, int seconds = 4, Vector3 angular = default, SimulationCadence cadence = SimulationCadence.Hz120, float mass = 1f)
+    {
+        var horizontal = new Vector3((float)Math.Cos(azimuth * Math.PI / 180), 0, (float)Math.Sin(azimuth * Math.PI / 180));
+        var tiltAxis = Vector3.Cross(Vector3.UnitY, horizontal); // tilting about this moves the axis toward `horizontal`
+        var q = About(tiltAxis, degrees);
+        float rr = H(r), hh = H(h);
+        var scene = new LawScene();
+        var body = scene.Cylinder(At(0, BenchY + Lowest(q, rr, hh) + .0005f), r, h, mass, Dead, q, angular: angular);
+        var world = scene.Admit(cadence);
+        double maxPen = 0, maxRise = 0, maxSpeed = 0;
+        double? previous = null;
+        var final = world.Step(seconds * world.TicksPerSecond, (_, s) =>
+        {
+            var b = s[body];
+            var low = b.Position.Y - Lowest(b.Rotation, rr, hh) - BenchY;
+            maxPen = Math.Max(maxPen, -low);
+            var e = Energy(b, H(mass), rr, hh);
+            if (previous is { } p) maxRise = Math.Max(maxRise, e - p);
+            previous = e;
+            maxSpeed = Math.Max(maxSpeed, b.Speed);
+        })[body];
+        return (final.Tilt, maxPen, maxRise, maxSpeed);
+    }
+
+    [Fact]
+    public void P1_TipDiagonalVsSampleAzimuth()
+    {
+        // Rod r 0.1, h 0.4: true critical angle atan(r/h) = 14.04°. Inscribed square (diagonal): atan(0.0707/0.4) = 10.0°.
+        foreach (var az in new[] { 0.0, 22.5, 45.0 })
+            foreach (var deg in new[] { 8.0, 9.5, 10.5, 11.0, 12.0, 13.0, 15.0 })
+            {
+                var (tilt, pen, rise, _) = Tip(.1f, .4f, deg, az);
+                output.WriteLine($"rod az {az,5} tip {deg,5}° -> final tilt {tilt,7:F2}°, max rim penetration {pen * 1000,7:F2} mm, max energy rise/tick {rise * 1000,8:F3} mJ");
+            }
+    }
+
+    [Fact]
+    public void P2_PulleyWheelAndFulcrumDiagonalTiltRelease()
+    {
+        foreach (var (r, h, name) in new[] { (.4f, .085f, "pulley"), (.22f, .51f, "fulcrum"), (.25f, .25f, "drum") })
+            foreach (var az in new[] { 0.0, 45.0 })
+                foreach (var deg in new[] { 5.0, 11.0, 12.0, 20.0 })
+                {
+                    var (tilt, pen, rise, _) = Tip(r, h, deg, az);
+                    output.WriteLine($"{name} az {az,4} tip {deg,4}° -> final tilt {tilt,7:F2}°, max true rim penetration {pen * 1000,7:F2} mm, max energy rise/tick {rise * 1000,8:F3} mJ");
+                }
+    }
+
+    [Fact]
+    public void P2b_TippedOverDiagonallyFromCap()
+    {
+        // A standing drum knocked over with angular velocity about a diagonal horizontal axis: the 11.5° cap/rim switch is crossed
+        // upward. Record per-tick energy rises and the true rim penetration; compare to azimuth 0.
+        foreach (var az in new[] { 0.0, 45.0 })
+            foreach (var w in new[] { 2f, 4f, 6f })
+            {
+                var horizontal = new Vector3((float)Math.Cos(az * Math.PI / 180), 0, (float)Math.Sin(az * Math.PI / 180));
+                var tiltAxis = Vector3.Normalize(Vector3.Cross(Vector3.UnitY, horizontal));
+                var (tilt, pen, rise, speed) = Tip(.15f, .3f, 0, az, 3, angular: tiltAxis * w);
+                output.WriteLine($"tall drum az {az,4} ω {w} -> final tilt {tilt,7:F2}°, max pen {pen * 1000,7:F2} mm, max energy rise/tick {rise * 1000,8:F3} mJ, max speed {speed:F3}");
+            }
+    }
+
+    [Fact]
+    public void P3_LongRestOnSideAndCap()
+    {
+        foreach (var lying in new[] { true, false })
+            foreach (var cadence in new[] { SimulationCadence.Hz60, SimulationCadence.Hz120, SimulationCadence.Hz240 })
+            {
+                float r = H(.25f), h = H(.2f);
+                var q = lying ? About(Vector3.UnitX, 90) : Quaternion.Identity;
+                var scene = new LawScene();
+                var body = scene.Cylinder(At(0, BenchY + (lying ? r : h) + .01f), .25f, .2f, 1f, new LawMaterial(0f, .1f, .5f, 0f), q);
+                var world = scene.Admit(cadence);
+                LawBody? at = null;
+                double maxSpinLate = 0;
+                var final = world.Step(2000, (tick, s) =>
+                {
+                    if (tick == 400) at = s[body];
+                    if (tick > 400) maxSpinLate = Math.Max(maxSpinLate, s[body].Spin);
+                })[body];
+                output.WriteLine($"{(lying ? "side" : "cap ")} {cadence}: drift {(final.Position - at!.Value.Position).Length() * 1000:F4} mm, rot drift {(final.Rotation - at.Value.Rotation).Length():E2}, max ω after settle {maxSpinLate:E2}, height err {(final.Position.Y - BenchY - (lying ? r : h)) * 1000:F3} mm");
+            }
+    }
+
+    [Fact]
+    public void P4_RampRollAllCadences()
+    {
+        foreach (var cadence in new[] { SimulationCadence.Hz60, SimulationCadence.Hz240 })
+            foreach (var degrees in new[] { 10.0, 25.0 })
+            {
+                var theta = degrees * Math.PI / 180;
+                var normal = new Vector3((float)-Math.Sin(theta), (float)Math.Cos(theta), 0);
+                var uphill = new Vector3((float)Math.Cos(theta), (float)Math.Sin(theta), 0);
+                var rampCentre = At(0, BenchY + 2);
+                var scene = new LawScene();
+                scene.StaticBox(rampCentre, At(4, .25f, 1), About(Vector3.UnitZ, degrees), new LawMaterial(0f, .1f, .6f, 0f));
+                var drum = scene.Cylinder(rampCentre + .25f * normal + 3f * uphill + H(.25f) * normal, .25f, .2f, 1f,
+                    new LawMaterial(0f, .1f, .6f, 0f), About(Vector3.UnitX, 90));
+                var world = scene.Admit(cadence);
+                var tps = world.TicksPerSecond;
+                double v1 = 0, v2 = 0;
+                world.Step(5 * tps / 4, (tick, s) =>
+                {
+                    if (tick == tps / 4) v1 = Vector3.Dot(s[drum].Velocity, -uphill);
+                    if (tick == 5 * tps / 4) v2 = Vector3.Dot(s[drum].Velocity, -uphill);
+                });
+                var expected = 2.0 / 3 * G * Math.Sin(theta);
+                output.WriteLine($"{cadence} {degrees}°: a {v2 - v1:F4} vs (2/3)g sinθ {expected:F4} ({(v2 - v1 - expected) / expected * 100:F2}%)");
+            }
+    }
+
+    // ---- exact separation oracle: max over unit u of the support-function separation ----
+
+    private static double CylSupport(SimCollider c, Vector3d u)
+    {
+        var a = new Vector3d(c.U1);
+        var t = Math.Abs(u.Dot(a));
+        return new Vector3d(c.Position).Dot(u) + c.Hy * t + c.Radius * Math.Sqrt(Math.Max(0, 1 - t * t));
+    }
+
+    private static double BoxSupport(SimCollider b, Vector3d u) =>
+        new Vector3d(b.Position).Dot(u) + b.Hx * Math.Abs(u.Dot(new(b.U0))) + b.Hy * Math.Abs(u.Dot(new(b.U1))) +
+        b.Hz * Math.Abs(u.Dot(new(b.U2)));
+
+    private static double Separation(Func<Vector3d, double> supA, Func<Vector3d, double> supB, Vector3d u) =>
+        // gap along u (B beyond A in direction u): min over B of b·u − max over A of a·u = −supB(−u) − supA(u)
+        -supB(-u) - supA(u);
+
+    private static double ExactSeparation(Func<Vector3d, double> supA, Func<Vector3d, double> supB)
+    {
+        const int n = 6000;
+        var golden = Math.PI * (3 - Math.Sqrt(5));
+        var candidates = new List<(double S, Vector3d U)>();
+        for (var i = 0; i < n; i++)
+        {
+            var y = 1 - 2 * (i + .5) / n;
+            var rad = Math.Sqrt(1 - y * y);
+            var u = new Vector3d(Math.Cos(golden * i) * rad, y, Math.Sin(golden * i) * rad);
+            candidates.Add((Separation(supA, supB, u), u));
+        }
+        var best = double.NegativeInfinity;
+        foreach (var (s0, u0) in candidates.OrderByDescending(c => c.S).Take(8))
+        {
+            var u = u0; var s = s0; var step = .05;
+            var rng = new Random(7);
+            while (step > 1e-7)
+            {
+                var improved = false;
+                for (var k = 0; k < 24; k++)
+                {
+                    var v = (u + step * new Vector3d(rng.NextDouble() * 2 - 1, rng.NextDouble() * 2 - 1, rng.NextDouble() * 2 - 1)).Normalized();
+                    var sv = Separation(supA, supB, v);
+                    if (sv > s) { s = sv; u = v; improved = true; }
+                }
+                if (!improved) step *= .5;
+            }
+            best = Math.Max(best, s);
+        }
+        return best;
+    }
+
+    private static Quaternion RandomRotation(Random rng)
+    {
+        var q = new Quaternion((float)(rng.NextDouble() * 2 - 1), (float)(rng.NextDouble() * 2 - 1), (float)(rng.NextDouble() * 2 - 1),
+            (float)(rng.NextDouble() * 2 - 1));
+        return Quaternion.Normalize(q);
+    }
+
+    private static SimCollider Make(ShapeKind shape, Vector3 p, Quaternion q, float radius, Vector3 half, int index)
+    {
+        var body = new SimBody
+        {
+            Px = p.X, Py = p.Y, Pz = p.Z, Qx = q.X, Qy = q.Y, Qz = q.Z, Qw = q.W, Motion = 1, Mass = 1, InvMass = 1,
+            Principal = Quaternion.Identity, InvI = Vector3.One, Q0 = Quaternion.Identity
+        };
+        var c = new SimCollider { Index = index, Body = body, Shape = shape, Radius = radius, Hx = half.X, Hy = half.Y, Hz = half.Z, Rq = Quaternion.Identity };
+        WorkshopCollisionKernels.RefreshCollider(c);
+        return c;
+    }
+
+    private void Sweep(string label, bool cylinderPartner, int poses, double target, Func<Quaternion, Quaternion, bool>? filter = null)
+    {
+        var rng = new Random(label.GetHashCode() ^ (int)(target * 1e6));
+        const float margin = .005f;
+        int falsePositive = 0, missed = 0, negativeGhost = 0, count = 0;
+        double worstUnder = 0, worstOver = 0;
+        string worstCase = "";
+        while (count < poses)
+        {
+            var qa = RandomRotation(rng); var qb = RandomRotation(rng);
+            if (filter != null && !filter(qa, qb)) continue;
+            count++;
+            var cylA = Make(ShapeKind.Cylinder, Vector3.Zero, qa, .3f, new(0, .2f, 0), 0);
+            var dir = new Vector3((float)(rng.NextDouble() * 2 - 1), (float)(rng.NextDouble() * 2 - 1), (float)(rng.NextDouble() * 2 - 1));
+            dir = Vector3.Normalize(dir);
+            SimCollider PartnerAt(float t) => cylinderPartner
+                ? Make(ShapeKind.Cylinder, dir * t, qb, .2f, new(0, .35f, 0), 1)
+                : Make(ShapeKind.Box, dir * t, qb, 0, new(.25f, .1f, .15f), 1);
+            double Exact(SimCollider b) => cylinderPartner
+                ? ExactSeparation(u => CylSupport(cylA, u), u => CylSupport(b, u))
+                : ExactSeparation(u => CylSupport(cylA, u), u => BoxSupport(b, u));
+            float lo = 0f, hi = 2f;
+            for (var it = 0; it < 26; it++)
+            {
+                var mid = .5f * (lo + hi);
+                if (Exact(PartnerAt(mid)) > target) hi = mid; else lo = mid;
+            }
+            var partner = PartnerAt(.5f * (lo + hi));
+            var exact = Exact(partner);
+            var contacts = new List<ContactPoint>();
+            WorkshopCollisionKernels.GenerateManifold(cylA, partner, margin, contacts);
+            if (contacts.Count == 0)
+            {
+                if (exact <= margin - 1e-4) missed++;
+                continue;
+            }
+            var minGap = contacts.Min(c => c.Gap);
+            if (exact > margin + 1e-4) falsePositive++;
+            if (exact > 1e-4 && minGap < 0) negativeGhost++;
+            var err = minGap - exact;
+            if (err < worstUnder) { worstUnder = err; worstCase = $"qa {qa} qb {qb} dir {dir} exact {exact:F5} gap {minGap:F5} n={contacts.Count}"; }
+            worstOver = Math.Max(worstOver, err);
+        }
+        output.WriteLine($"{label} target {target * 1000:F1} mm, {poses} poses: false-positive {falsePositive}, missed {missed}, negative-ghost {negativeGhost}, gap−exact in [{worstUnder * 1000:F3}, {worstOver * 1000:F3}] mm");
+        if (worstCase.Length > 0) output.WriteLine("  worst: " + worstCase);
+    }
+
+    [Fact]
+    public void P6_CylinderBoxGapSweep()
+    {
+        foreach (var target in new[] { .02, .003, -.004 }) Sweep("cyl-box", false, 400, target);
+    }
+
+    [Fact]
+    public void P6_CylinderCylinderGapSweep()
+    {
+        foreach (var target in new[] { .02, .003, -.004 }) Sweep("cyl-cyl", true, 400, target);
+    }
+
+    [Fact]
+    public void P6_CylinderPlaneCapRegimeGap()
+    {
+        // Cap regime |a·n| ≥ 0.98: the four fixed samples vs the true lowest rim point, by azimuth and tilt.
+        var plane = Make(ShapeKind.Plane, Vector3.Zero, Quaternion.Identity, 0, Vector3.Zero, 1);
+        foreach (var (r, h) in new[] { (.4f, .085f), (.22f, .51f) })
+            foreach (var deg in new[] { 2.0, 6.0, 11.0, 11.4, 11.6 })
+                foreach (var az in new[] { 0.0, 45.0 })
+                {
+                    var horizontal = new Vector3((float)Math.Cos(az * Math.PI / 180), 0, (float)Math.Sin(az * Math.PI / 180));
+                    var q = About(Vector3.Cross(Vector3.UnitY, horizontal), deg);
+                    var cyl = Make(ShapeKind.Cylinder, At(0, Lowest(q, r, h) + .001f), q, r, new(0, h, 0), 0);
+                    var contacts = new List<ContactPoint>();
+                    WorkshopCollisionKernels.GenerateManifold(cyl, plane, .005f, contacts);
+                    var minGap = contacts.Count > 0 ? contacts.Min(c => c.Gap) : float.NaN;
+                    output.WriteLine($"r {r} h {h} tilt {deg,5}° az {az,4}: {contacts.Count} pts, min gap {minGap * 1000,8:F3} mm (true 1.000 mm)");
+                }
+    }
+
+    [Fact]
+    public void P7_TunnellingExtras()
+    {
+        void Wall(string name, float r, float h, Quaternion q, Vector3 angular)
+        {
+            var scene = new LawScene(bench: false);
+            scene.StaticBox(At(0, 1), At(.005f, 1.5f, 1.5f));
+            var body = scene.Cylinder(At(-3, 1), r, h, 1f, new LawMaterial(.5f, .1f, .5f, 0f), q, velocity: At(64, 0, 0), angular: angular, gravity: 0f);
+            var world = scene.Admit();
+            var maxX = float.MinValue;
+            world.Step(world.TicksPerSecond, (_, s) => maxX = MathF.Max(maxX, s[body].Position.X));
+            output.WriteLine($"{name}: max centre x {maxX:F4} (wall near face -0.005; pass-through if > 0)");
+        }
+        Wall("disc end-on (axis X)", .4f, 1f / 64, About(Vector3.UnitZ, -90), default);
+        Wall("disc edge-on (axis Y)", .4f, 1f / 64, Quaternion.Identity, default);
+        Wall("disc edge-on spinning 100 rad/s about own axis", .4f, 1f / 64, Quaternion.Identity, At(0, 100, 0));
+        Wall("drum tumbling 100 rad/s", .2f, .3f, Quaternion.Identity, At(0, 0, 100));
+        Wall("thin rod r 1/16 end-on", 1f / 16, .5f, About(Vector3.UnitZ, -90), default);
+
+        // A box and a ball at 64 m/s into a static thin rod (r 1/16) lying across their path.
+        foreach (var ball in new[] { false, true })
+        {
+            var scene = new LawScene(bench: false);
+            scene.StaticCylinder(At(0, 1), 1f / 16, .5f, About(Vector3.UnitX, 90));
+            var body = ball
+                ? scene.Sphere(At(-3, 1), .1f, 1f, new LawMaterial(.5f, .1f, .5f, 0f), At(64, 0, 0), default, 0f, 0f)
+                : scene.Box(At(-3, 1), At(.05f, .05f, .05f), 1f, new LawMaterial(.5f, .1f, .5f, 0f), velocity: At(64, 0, 0), gravity: 0f);
+            var world = scene.Admit();
+            var maxX = float.MinValue;
+            world.Step(world.TicksPerSecond, (_, s) => maxX = MathF.Max(maxX, s[body].Position.X));
+            output.WriteLine($"{(ball ? "ball r .1" : "box h .05")} into static rod r 1/16: max centre x {maxX:F4} (contact at x ≈ {-(1f / 16) - (ball ? .1f : .05f):F4})");
+        }
+    }
+
+    [Fact]
+    public void P8_DropEnergyVersusBoxBaseline()
+    {
+        // Dead material drops at random orientations: per-tick energy rise (should be ~0) vs. a box of similar size.
+        var rng = new Random(11);
+        double worstCyl = 0, worstBox = 0;
+        for (var i = 0; i < 30; i++)
+        {
+            var q = RandomRotation(rng);
+            {
+                var scene = new LawScene();
+                float r = H(.2f), h = H(.15f);
+                var body = scene.Cylinder(At(0, BenchY + .6f), .2f, .15f, 1f, Dead, q);
+                var world = scene.Admit();
+                double? prev = null;
+                world.Step(3 * world.TicksPerSecond, (_, s) =>
+                {
+                    var e = Energy(s[body], 1f, r, h);
+                    if (prev is { } p) worstCyl = Math.Max(worstCyl, e - p);
+                    prev = e;
+                });
+            }
+            {
+                var scene = new LawScene();
+                var body = scene.Box(At(0, BenchY + .6f), At(.2f, .15f, .2f), 1f, Dead, q);
+                var world = scene.Admit();
+                double? prev = null;
+                float hx = H(.2f), hy = H(.15f), hz = H(.2f);
+                world.Step(3 * world.TicksPerSecond, (_, s) =>
+                {
+                    var b = s[body];
+                    var local = Vector3.Transform(b.Angular, Quaternion.Inverse(b.Rotation));
+                    double ix = (hy * hy + hz * hz) / 3, iy = (hx * hx + hz * hz) / 3, iz = (hx * hx + hy * hy) / 3;
+                    var e = .5 * (b.Velocity.LengthSquared()) + .5 * (ix * local.X * local.X + iy * local.Y * local.Y + iz * local.Z * local.Z) +
+                        G * (b.Position.Y - BenchY);
+                    if (prev is { } p) worstBox = Math.Max(worstBox, e - p);
+                    prev = e;
+                });
+            }
+        }
+        output.WriteLine($"30 random-orientation dead drops: worst per-tick energy rise cylinder {worstCyl * 1000:F3} mJ, box baseline {worstBox * 1000:F3} mJ");
+    }
+
+    [Fact]
+    public void P9_BallOnDrumRollingArm()
+    {
+        // A basketball rolling over a static lying drum's top vs over a static box top: the rolling row's arm (max of radii).
+        foreach (var drum in new[] { true, false })
+        {
+            var scene = new LawScene(bench: false);
+            if (drum) scene.StaticCylinder(At(0, 1), 1.5f, 2f, About(Vector3.UnitX, 90), new LawMaterial(0f, .1f, .5f, .05f));
+            else scene.StaticBox(At(0, 1 - 1.5f + 1.5f), At(4, 1.5f, 2), null, new LawMaterial(0f, .1f, .5f, .05f));
+            var ball = scene.Ball(LawBall.Basketball, At(0, 1 + 1.5f + LawBalls.Radius(LawBall.Basketball) + .001f), At(1, 0, 0),
+                At(0, 0, -1 / LawBalls.Radius(LawBall.Basketball)));
+            var world = scene.Admit();
+            var final = world.Step(world.TicksPerSecond / 4)[ball];
+            output.WriteLine($"{(drum ? "drum r 1.5" : "box")}: ball speed after 0.25 s {final.Speed:F4}");
+        }
+    }
+}
+
+internal readonly record struct Vector3d(double X, double Y, double Z)
+{
+    public Vector3d(Vector3 v) : this(v.X, v.Y, v.Z) { }
+    public double Dot(Vector3d o) => X * o.X + Y * o.Y + Z * o.Z;
+    public static Vector3d operator +(Vector3d a, Vector3d b) => new(a.X + b.X, a.Y + b.Y, a.Z + b.Z);
+    public static Vector3d operator -(Vector3d a) => new(-a.X, -a.Y, -a.Z);
+    public static Vector3d operator *(double s, Vector3d a) => new(s * a.X, s * a.Y, s * a.Z);
+    public Vector3d Normalized() { var l = Math.Sqrt(Dot(this)); return new(X / l, Y / l, Z / l); }
+}

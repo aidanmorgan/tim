@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/frozen2/WorkshopCollisionKernels.cs	2026-10-23 15:24:43.376194854 +0800
++++ CuriousContraptions.Simulation/WorkshopCollisionKernels.cs	2026-10-23 15:35:42.674967492 +0800
+@@ -1573,7 +1573,7 @@
+             var limitB = colB.Radius * (1f + InsideTolerance);
+             var candidates = new List<ContactPoint>(20);
+             // Eight fixed samples of each rim, and each rim's point deepest toward the other cap.
+-            for (var k = 0; k < 9; k++)
++            for (var k = 0; k < 8; k++)
+             {
+                 var rim = ccA + colA.Radius * (k < 8 ? RimDirection(colA, k) : RadialUnit(-capNB, aa, colA.U0));
+                 var gap = Vector3.Dot(ccB - rim, capNB) / denom;

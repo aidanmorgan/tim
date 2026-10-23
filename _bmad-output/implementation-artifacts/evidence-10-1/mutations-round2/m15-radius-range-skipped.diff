@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/frozen2/PhysicsDeclarations.cs	2026-10-23 15:24:43.377478226 +0800
++++ engine/gpu/PhysicsDeclarations.cs	2026-10-23 15:31:25.871522145 +0800
+@@ -117,7 +117,7 @@
+                 break;
+             case ColliderShapeKind.Cylinder:
+                 // Radius r in the sphere range, half-width h = w/2 along local +Y in the box range; X and Z are canonical zero.
+-                PhysicsDeclarationBounds.Range(Radius.Value, (Half)(1.0 / 16), (Half)16);
++                if (!Half.IsNaN(Radius.Value) && Radius.Value > (Half)0) PhysicsDeclarationBounds.Range(Radius.Value, (Half)(1.0 / 16), (Half)16);
+                 if (!PhysicsDeclarationBounds.Zero(HalfExtents.X) || !PhysicsDeclarationBounds.Zero(HalfExtents.Z))
+                     throw new ArgumentException("Cylinder X and Z extents must be zero.");
+                 PhysicsDeclarationBounds.Range(HalfExtents.Y, (Half)(1.0 / 1024), (Half)16);
