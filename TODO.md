@@ -30,10 +30,11 @@ Pending browser cases: `cat-051`, `cat-051-own-supply`, `cat-051-interrupt`, `ca
 
 **In flight (deletion lane):** C-Memory (position 46: 9A.41 + 9A.43, the last record conversion) has a native candidate in worktree `story-c-memory`: WIP 9b756844 with main cf35a064 merged in (merge 4db597a3). Reviewer verdict Incomplete on docs only (F1); F1–F3 addressed, coordinator confirmed the Clear-admission rule, the typed old-save refusals and the PulseCount rename (24 Oct 2026). The counter's node and target come from a declared `SignalPulseCountDescriptor` and the latch's from a declared `SignalMemoryDescriptor`; `WorkshopCounter`, `WorkshopLatch`, their arms, the `target_count` wire field and the whole `WorkshopInstances.Validate` whitelist are deleted, and the Known list goes from 127 to 94 rows (only Pipe/FinalIsolation remain, owned by 9A.45). Traces, ring records, lessons and placed solutions are bit-identical to the record path; record-path counter saves are refused typed at both boundaries. Next: independent review. Browser cases pending ([spec and current state](_bmad-output/implementation-artifacts/spec-c-memory.md#current-state)).
 
-**In flight (deletion lane):** 9A.23 + 9A.25b Event ring consumers and one-shot bindings (position 48) has an uncommitted native candidate on base f5ffdb4e in worktree `story-9a-23-25b`.
+**In flight (deletion lane):** 9A.23 + 9A.25b Event ring consumers and one-shot bindings (position 48) is committed locally, not pushed, in worktree `story-9a-23-25b`, with origin/main 8411ba3b merged (merge 41069f66).
 - Both consumers read the ring through one shared reader (`event-ring-cursor.js`). The Animation worker drives every one-shot binding from its ring kind. The main thread's cursor wakes the goal.
 - The occurrence rows are device-private, and the reliable reads and the main-thread relay are deleted.
-- Next: independent review. Browser cases are pending ([spec and current state](_bmad-output/implementation-artifacts/spec-9a-23-25b-ring-consumers.md#current-state)).
+- The review's F1–F4 are addressed: a seqlock with per-word Atomics on the 9A.22 writer and on both readers, the older-ring test, and the two-line restore. The Impact pin was re-captured on 0cba945b.
+- Next: independent re-review. Browser cases are pending ([spec and current state](_bmad-output/implementation-artifacts/spec-9a-23-25b-ring-consumers.md#current-state)).
 
 **Merged, receipts carried with C-Gate:** 9.8b Exactly one gate (CAT-027, position 31) is merged to main 8bfddc91 ([spec and evidence](_bmad-output/implementation-artifacts/spec-9-8b-electrical-xor.md#current-state)).
 

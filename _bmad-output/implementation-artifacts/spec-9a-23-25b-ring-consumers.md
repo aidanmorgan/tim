@@ -217,7 +217,7 @@ Decided by game intent:
 
 # Current state
 
-Uncommitted native candidate on base f5ffdb4e (worktree `story-9a-23-25b`), ready for independent review. Browser qualification is pending.
+Native candidate committed locally and not pushed (worktree `story-9a-23-25b`): WIP f69a8573, merge of main 0cba945b 7d0c6d45, the re-pin and older-ring test 44dc161c, then merge of origin/main 8411ba3b **41069f66**. The review's F1–F4 are addressed (see "Review fixes" below), and the candidate is ready for independent re-review. Browser qualification is pending.
 
 **Consumers.**
 - The Simulation worker posts each ring on `self` and on `animationPort`, and posts the current ring when the port attaches.
@@ -266,6 +266,43 @@ Uncommitted native candidate on base f5ffdb4e (worktree `story-9a-23-25b`), read
   - `git diff --check` and `git diff HEAD --check` are clean.
   - No process of this slice is left running.
 
+**Review fixes (`review-9a-23-25b-ring-consumers.md`, verdict Fail; 24 Oct 2026).** Evidence: `evidence-9a-23-25b/stress-40/`, `mutations/`, `post-merge/` and `final-merged/`.
+- **F1 (blocking): torn records on arm64. Both sides now use a seqlock with per-word Atomics.**
+  - The 9A.22 writer (`writeEventRing`, Simulation `worker.js`) stores the slot's sequence word as 0, stores each payload word with `Atomics.store`, then publishes the sequence with `Atomics.store`.
+  - The shared reader (`EventRingCursor.read`) loads the sequence, loads each payload word with `Atomics.load`, then loads the sequence again. It delivers the slot only if both loads equal the target.
+  - The C# reference is consistent. `EventRingBuffer.Append` writes each payload word with `Volatile.Write` between the sequence stores, and `EventRingConsumer` reads each word with `EventRingBuffer.ReadWord` between its two sequence reads.
+  - New routine test: "amplified concurrent stress at capacity 4". Each of 8 rounds (`EVENT_RING_STRESS_ROUNDS`) runs a fresh writer thread and 3 reader threads over 250 000 records. The test takes about 4 s, runs in every `tools/*.test.mjs` run, and nothing excludes it.
+  - **Before the fix** (`stress-40/before-fix-40.txt`): **4 of 40 runs failed**, with 1, 4, 3 and 4 torn records. A 48-round variant failed 1 of 10 runs (`before-fix-48rounds.txt`). The reviewer measured 5 of 40 and 7 of 63 runs.
+  - **"Fails nearly every run" was not achievable on this machine.** The race window is environmental. More rounds, more readers, and parallel variants (0 of 10) did not raise the rate, so the default stays the 4-of-40 variant.
+  - **After the fix: 0 of 40 runs failed** on the amplified test, and 0 of 40 runs of the whole cursor file (`after-fix-40.txt`, `file-after-fix-40.txt`). On the merged tree 41069f66, 0 of 40 again (`final-merged/stress-40.txt`, mean 4.0 s, max 5.0 s per run).
+  - The `total=0 readers=0` in each summary line is the script's label only. The test reads `EVENT_RING_STRESS_ROUNDS`, not those variables.
+  - **Mutation against the fixed code.** Dropping the second sequence load while keeping per-word Atomics is killed in 3 of 3 runs, with 2001, 1924 and 1983 torn records (`mutations/js-post-fix-second-fence-removed-{1,2,3}.log`).
+- **F2: a ring older than the installed epoch.**
+  - Cursor test: the older ring delivers nothing, does not move the cursor, and yields a 16-byte delivery. The same ring still reads whole for its own epoch.
+  - Animation worker test: `workshop-animation-clock.test.mjs` "a ring older than the installed epoch is ignored". The harness's `EventRecords` refuses a foreign epoch exactly as `AcceptEvents` does ("Foreign event ring epoch."). Each turn still services, and the worker posts no failure.
+  - The reviewer's mutant (`this.epoch !== admitted` → `this.epoch > admitted`) is killed by both tests (`mutations/js-older-ring-read.log`, `js-older-ring-read-worker.log`).
+- **F3.** The isolation-watch line and `await new Promise(...)` in `workshop-client.js` are two lines again.
+- **F4.** Since the F4 instruction, every write was preceded by `anvil_validate_write` and made with Write or Edit:
+  - the conflict resolution;
+  - the re-pin;
+  - the worker test;
+  - the mutants and their reverts;
+  - the mutation summary;
+  - TODO and this spec.
+
+  Shell redirection was used only to capture command output into evidence logs.
+- **Merges (normal hooks, no push).**
+  - WIP f69a8573, then **7d0c6d45**, which merges main 0cba945b (restitution). The one conflict was `LaunchLessonSolveTests.cs`. It takes main's part-name slot aliases and main's superset of authored kinds, which includes `delay`. `AuthoredSolution` stays `internal`.
+  - Then **41069f66**, which merges origin/main 8411ba3b. That brings in the owner's no-skipped-tests rule and the browser exception (AGENTS.md only, no conflict).
+- **Impact pin re-captured (after the merge with main 0cba945b).**
+  - `TheImpactRecordBytesOfTheBumperRunAreUnchanged` failed after the merge, because restitution changed the bumper run's hits.
+  - The pin was re-captured on 0cba945b itself, without D9, using a scratch detached worktree that was removed afterwards: SHA-256 291756D7…DB8F, 3 records.
+  - The merged candidate's bytes are identical to it, so D9 still leaves the Impact bytes unchanged (`post-merge/impact-records-0cba945b.txt`; the failing run is `post-merge/test-before-repin.log`).
+- **No skipped tests (new hard rule).**
+  - Every result below has Skipped 0, and node reports skipped 0 and todo 0.
+  - The slice adds no `Skip`, `Explicit`, `.skip`/`.todo` or excluding filter.
+  - The CI tools step's existing E2eRunner toolchain filter (16 browser-toolchain tests) is unchanged and outside this slice. Those tests ran in the full slnx (190).
+
 **Process disclosure.** The rules were not fully followed.
 - **Anvil was not called before every edit.** A per-file prior call (`anvil_validate_write` or `anvil_apply_patch`) was made for:
   - the cursor module, the Abstractions, the validator, the four packages and `WorkshopDeclaredPresentation`;
@@ -306,4 +343,12 @@ Folder: `_bmad-output/implementation-artifacts/evidence-9a-23-25b/`.
 | Snapshot schema unit (tsx) | `candidate/e2e-unit.log` | 24/24 |
 | `git diff --check`, `git diff HEAD --check`; untracked files | `final/diff-check.txt` | clean |
 | Known rows; deletion greps | `final/known-rows.txt`, `final/deletion-greps.txt` | 94 → 94; 0 production hits |
-| Mutations | `mutations/summary.txt` | all killed: 6 JS, 13 C#, plus the bundle-refused detector kind |
+| Mutations | `mutations/summary.txt` | all killed: 6 JS, 13 C#, plus the bundle-refused detector kind; after review, post-fix second-fence (3/3) and the F2 older-ring mutant (cursor and worker tests) |
+| Merged tree 41069f66: one Debug slnx build | `final-merged/build.log` | 0 warnings, 0 errors |
+| Merged tree 41069f66: full slnx `--no-build --no-restore`, no blame | `final-merged/test.log` | WorkerAotGuard 17, Coverage 77, BundleElements 191, E2eRunner 190, CuriousContraptions.tests 2949; 0 failed, 0 skipped, rc 0 |
+| Merged tree: node harnesses (`--test-timeout=120000` under `timeout 900`) | `final-merged/node-harness.log` | 112/112, 0 cancelled, 0 skipped, 0 todo, rc 0 |
+| Merged tree: amplified stress ×40 | `final-merged/stress-40.txt` | 0 of 40 failed (before the fix: 4 of 40, `stress-40/before-fix-40.txt`) |
+| Merged tree: CI "Test C# tools" (the workflow step run verbatim under bash) | `final-merged/ci-tools.log` | 77/191/17/174, rc 0 (`ci-tools-zsh-unfiltered.log`: the same under zsh, whose loop does not split the filter, 190) |
+| Merged tree: Release Simulation, Animation.Worker | `final-merged/worker-release.log` | rc 0/0, 0 warnings |
+| Merged tree: `git diff --check` (origin/main..HEAD, excluding raw evidence logs; worktree; index) | `final-merged/diff-check.txt` | clean. Raw tool logs under `evidence-*` keep their tools' trailing spaces unchanged |
+| Strict tsc, snapshot schema unit | `candidate/tsc.log`, `candidate/e2e-unit.log` | not re-run: no `.ts` or tsconfig input changed since (`git diff --stat 7d0c6d45 HEAD -- '*.ts' '*.json'` is empty, and the merges touched none) |
