@@ -1,0 +1,35 @@
+## identities
+tree f7b8f60c1f31074fe248e879b485956ad982a244
+parent 2b1270c2823db95141aa085fb851ebe9e193dd00
+author Aidan Morgan <aidan@runlevelfive.com.au> 1792739755 +0800
+committer Aidan Morgan <aidan@runlevelfive.com.au> 1792739755 +0800
+
+tree f7b8f60c1f31074fe248e879b485956ad982a244
+parent 8bfddc91193689a272038aa1337355b10929b668
+parent e22baac39e4b04c23b69289250f3b0a6a911be3c
+author Aidan Morgan <aidan@runlevelfive.com.au> 1792739805 +0800
+
+origin/main: f27cb71d89697c1ae46ca3a6653d3be8d638e89c
+f27cb71d89697c1ae46ca3a6653d3be8d638e89c	refs/heads/main
+local staged tree: f7b8f60c1f31074fe248e879b485956ad982a244
+worktree HEAD: e22baac39e4b04c23b69289250f3b0a6a911be3c
+
+## e22baac3 tree vs approved f7b8f60c
+f7b8f60c1f31074fe248e879b485956ad982a244
+
+## approved pre-receipt tree 278fd25c vs final f7b8f60c (paths)
+ _bmad-output/implementation-artifacts/review-c-gate.md | 6 ++++++
+ 1 file changed, 6 insertions(+)
++- Parent chain: `2b1270c2` ← (`b951eef5` ← `a598a09e`) + `8bfddc91`.
++- Staged tree before this block: `278fd25ca6e78a3b64537f14f532198e4d65a2fe`. It has 52 paths changed against `2b1270c2`, with 10783 insertions and 7 deletions.
++- SHA-256 of `git diff --cached --binary 2b1270c2`: `e7d4da675c77e7000ae17b06d51df8ee18c05be299f943f9b73515e37cbd0df9`, before this block.
++- SHA-256 of the same diff excluding this file (`-- . ':(exclude)_bmad-output/implementation-artifacts/review-c-gate.md'`): `90eea0aa3207a6c6cb512a4bcbe13350171358a5e32140455e2a6250ddeba654`. It stays valid after this block is appended.
++- `git diff --cached --check` flags trailing whitespace only in raw captured logs: the three carried CI job logs, 9.8a's anvil transcript, and the build and publish logs from the implementer and the reviewer. These are unmodified tool output and are not edited. No source, test, doc or record file is flagged.
++- The final staged tree, after this block is appended and re-staged, is reported to the coordinator with this approval and checked again by publication-dependent check 1.
+
+## excl-review diff sha of e22baac3 vs 2b1270c2
+90eea0aa3207a6c6cb512a4bcbe13350171358a5e32140455e2a6250ddeba654  -
+## merge f27cb71d vs its parents
+ 253 files changed, 54856 insertions(+), 253 deletions(-)
+f27cb71d tree: f7b8f60c1f31074fe248e879b485956ad982a244
+2b1270c2-line diff vs f27cb71d (expect empty: merge of main into slice already contained main):

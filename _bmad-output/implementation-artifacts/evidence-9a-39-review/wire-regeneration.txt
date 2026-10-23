@@ -1,0 +1,16 @@
+== C#: candidate vs fresh regeneration minus line 10
+IDENTICAL
+== base C# reproduction line 10 check
+cat: illegal option -- A
+usage: cat [-belnstuv] [file ...]
+base minus line 10 IDENTICAL
+/private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/rv-wiregen/base.cs /dev/fd/11 differ: char 249, line 10
+== TS generated part
+candidate marker line 2299
+TS generated part IDENTICAL
+== TS hand-written tail: base vs candidate
+67,70d66
+<             capacity: inst.capacity(),
+<             maximumPower: inst.maximumPower(),
+<             initialFraction: inst.initialFraction(),
+<             enabled: inst.enabled(),

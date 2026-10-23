@@ -198,3 +198,62 @@ The delta identity was `d3ab7257…` at the start and again after all checks (`e
 - SHA-256 of the same diff excluding this file (`-- . ':(exclude)_bmad-output/implementation-artifacts/review-c-gate.md'`): `90eea0aa3207a6c6cb512a4bcbe13350171358a5e32140455e2a6250ddeba654`. It stays valid after this block is appended.
 - `git diff --cached --check` flags trailing whitespace only in raw captured logs: the three carried CI job logs, 9.8a's anvil transcript, and the build and publish logs from the implementer and the reviewer. These are unmodified tool output and are not edited. No source, test, doc or record file is flagged.
 - The final staged tree, after this block is appended and re-staged, is reported to the coordinator with this approval and checked again by publication-dependent check 1.
+
+## Terminal publication verification — 23 October 2026
+
+Raw outputs are in `evidence-c-gate-review/terminal/`.
+
+**Identities**
+- Slice commit: `e22baac39e4b04c23b69289250f3b0a6a911be3c`
+  - Tree: `f7b8f60c1f31074fe248e879b485956ad982a244`
+  - Parent: `2b1270c2`
+- Published merge (`--no-ff`): `f27cb71d89697c1ae46ca3a6653d3be8d638e89c`
+  - Parents: `8bfddc91` and `e22baac3`
+  - Tree: `f7b8f60c…`, the same tree, because the slice already contained main.
+- Remote: `origin/main` and `git ls-remote` both return `f27cb71d…`.
+
+| # | Publication-dependent check | Result | Raw |
+|---|---|---|---|
+| 1 | The commit tree equals the approved snapshot | **Pass.** `e22baac3^{tree}` and `f27cb71d^{tree}` both equal `f7b8f60c`, the final staged tree reported with the approval. <br>Against the identified pre-block tree `278fd25c`, the only difference is the 6-line identity block in this file. <br>The exclusion SHA-256 of `2b1270c2..e22baac3`, with this file excluded, is `90eea0aa…`, as approved | `identities.txt` |
+| 2 | Hooks | **Pass.** The coordinator reports they passed on the slice commit. <br>I re-ran the repository pre-commit hook on the exact published tree: a throwaway worktree at `2b1270c2` with index `f7b8f60c`, so the staged delta equals the slice commit. <br>Three from-scratch gate builds had 0 warnings and 0 errors. The staged-test check, the Anvil hook (0 findings) and `CSharpStaticGateTests` + `WorkshopUiFailureTests` (124/124) all passed, rc 0. The worktree was removed | `hook-rerun.log` |
+| 3 | Remote main equals the published merge | **Pass** | `identities.txt` |
+| 4 | Pages workflow on the exact SHA | **Pass.** Run 39916732832, "Build and deploy game", push, headSha `f27cb71d`, success. Every build step succeeded: static gate, Test C# game, Test C# tools, publish, static-deployment check, upload. The deploy job succeeded. <br>Totals: Test C# game **2419**; Test C# tools **77 / 161 / 17 / 174**. <br>CI's tools step excludes the 15 toolchain tests by design, so CI shows 174 E2eRunner tests where the local slnx shows 189. The local 2419/161/77/189/17 was proven on the same tree before approval | `run.json`, `build-job.log` |
+| 5 | Pages artifact ownership and deployment | **Pass.** Artifact `github-pages` id 12486205486 (sha256 `f04d35e5…`, 79,646,780 bytes) belongs to run 39916732832 at headSha `f27cb71d` on main. <br>The deploy job created deployment 7272749500 for `f27cb71d` with that `artifact_id`, and its status went waiting → queued → in_progress → success, with environment `https://aidanmorgan.github.io/tim/`. It is the newest `github-pages` deployment (the previous ones were 8bfddc91 and a598a09e). <br>The site returns 200 for `/`, `/index.html`, `/_framework/dotnet.js` and `/404.html` | `artifact-deployment.txt`, `deployment-status.txt`, `deploy-job.log` |
+| 6 | Status rows | Set to done in this worktree (below) | — |
+| 7 | Browser cases | They stay pending post-catalogue E2E, including the cat-051 test 3 direction (F1, accepted) and the 9A.21 Chrome timing (F2) | — |
+
+**Terminal verdict: scoped native and publication Pass at `f27cb71d`.**
+- Browser qualification is pending post-catalogue E2E.
+- This is not a release, global-audit or runtime qualification.
+- `9a-c-gate-declared-drive-warmup`, `9a-19-declared-prismatic-drive` and `9a-21-declaration-free-worker-warmup` are set to `done # scoped native/publication Passf27cb7; browser pending` in this worktree's `sprint-status.yaml`. That edit is uncommitted, as instructed.
+
+### Addendum 23 Oct 2026, retro-verification of Story 8.2 (weak Pass; closing story C-Gate)
+
+**Who and what was run.** I re-ran the check independently. I am neither 8.2's implementer nor its original reviewer (Murdoch, 17 Oct). I re-ran its acceptance against the published tree.
+- AC: a closed Powered Gate blocks a ball; on activation it opens fully and the ball rolls past.
+- Command: one Debug build of `f27cb71d` (tree `f7b8f60c`), 0 warnings, then `PoweredGateTests`, `LatchSupplyFixtureTests`, `DeclaredPrismaticDriveTests`, `BothGateTests` and `DeclaredPresentationTests`: **76/76 passed**.
+- Run window: 2026-10-23T07:34:53Z to 07:35:07Z.
+- Bundle `elements/elements.bundle.json` sha256 `9cb73616…` (`terminal/8-2-reverification.log`).
+- The full suite on the same tree passed in CI run 39916732832 (2419 game tests).
+
+**False or unsupported claims in `review-8-2-powered-gate.md`, with corrected results:**
+1. **"Blade linear drag is set to 0.0625 when wired to an enabled battery, retracting the shutter."** This was a hidden drag-band encoding with a global `batteryPowered` flag; 9R.3 recorded it as the functional contradiction.
+   - Corrected: the gate's drive is a declared `PrismaticDriveDescriptor` (1.55 m, 2.8 m/s, 14 m/s², 60 N, 120 W), executed by the one generic law and enabled only by the gate's own compiled PowerIn route.
+   - Proven by `ThePoweredGateOpensToItsTargetWithinItsDeclaredSpeedEffortAndPowerOnEverySubstep`, the no-drive control, and `PoweredGateTests.TwoDirectCircuitsFollowTheirOwnSources`.
+2. **§4.1 test 3, "ball rolls through" (and `px < -0.6`, "downstream").**
+   - The physics shows downstream is local +x. Gravity along the bore axis is +2.54 m/s² toward +x.
+   - The ball in that recipe starts 0.3 m inside the closed blade. With the battery enabled from the start it is ejected upstream out of the entry mouth to x ≈ −2.75.
+   - The Chrome Pass therefore did not prove passage. That is review finding F1, accepted by the coordinator.
+   - Corrected native result: a ball resting against the closed, tilted blade passes downstream (beyond +0.49 along the axis, never thrown back) when the gate is enabled during Run. This holds both for authored Disabled then Enable, and for Enable, Disable, Enable (`ABallRestingAgainstTheClosedTiltedBladePassesDownstreamWhenEnabledDuringRun`).
+   - Activation-driven opening and passage are proven by `LatchSupplyFixtureTests.NoSwitchBCompletesOpeningHoldsAndPassesTheBall`.
+3. **"Bit-for-bit Reset lifecycle invariance" and "Save/Load roundtrips bit-identically" across Chrome sessions.** Only the browser run supported these.
+   - Native Run/Reset and save/load replay are now covered by the full suite, including the gate fixtures and `WorkshopSaveRejectionTests`.
+   - Browser proof is pending.
+4. **The 8.2 CAT-051 Q6 open clause (supply interruption mid-stroke).** Its owner, Story 9.4c, closed it natively (`MidStrokeResetStopsDriveAndReturnsClosed`).
+   - CAT-051 Q1 (fail-closed spring), Q3 (Blocked) and Q4 (single Blocked state) are decided and proven here.
+5. **"All 906 unit tests"** is superseded. The current totals are 2419 / 161 / 77 / 189 / 17.
+
+**New verdict for 8.2: Pass (native, re-verified 23 Oct 2026). Browser pending.**
+- The AC-named `tools/e2e/cat-051.test.ts` must be re-pinned to local +x (F1) and re-run in the post-catalogue E2E phase.
+- Until then, 8.2's Chrome clause is unproven, not passed.
+- Lesson and route trajectories changed by the static-velocity fix (F3); their base browser proofs are stale.

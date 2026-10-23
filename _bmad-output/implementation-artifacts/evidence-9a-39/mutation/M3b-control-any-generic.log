@@ -1,0 +1,7 @@
+mutant: M3b-control-any-generic — ConfigureElectrical admits any unlocked generic owner
+--- build
+    0 Error(s)
+    0 Warning(s)
+--- test
+  Failed CuriousContraptions.Tests.SourceStoreInstanceTests.TheControlIsRefusedOutsideARunAndForAnyOwnerWithoutARunControlledStore [6 ms]
+Failed!  - Failed:     1, Passed:   203, Skipped:     0, Total:   204, Duration: 3 s - CuriousContraptions.tests.dll (net10.0)

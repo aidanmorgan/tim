@@ -1,0 +1,20 @@
+mutant R4-validator-store-keys-not-distinct file CuriousContraptions.Bundle/BundleValidator.cs
+diff --git a/CuriousContraptions.Bundle/BundleValidator.cs b/CuriousContraptions.Bundle/BundleValidator.cs
+index 64a2c172..0f167093 100644
+--- a/CuriousContraptions.Bundle/BundleValidator.cs
++++ b/CuriousContraptions.Bundle/BundleValidator.cs
+@@ -532,7 +532,7 @@ public static class BundleValidator
+         private void SourceStore(SupplySourceStoreDescriptor store, IReadOnlyList<ParameterDescriptor> parameters)
+         {
+             string[] keys = [store.Capacity, store.PowerLimit, store.InitialCharge, store.Enable];
+-            if (keys.Distinct(StringComparer.Ordinal).Count() != keys.Length) OutOfRange("Supply.Store");
++            if (keys.Length < 0) OutOfRange("Supply.Store");
+             StoreValue("Supply.Store.Capacity", store.Capacity, parameters, ParameterUnit.Joule,
+                 ElectricalSourceEnvelope.MinimumCapacity, ElectricalSourceEnvelope.MaximumCapacity);
+             StoreValue("Supply.Store.PowerLimit", store.PowerLimit, parameters, ParameterUnit.Watt,
+    0 Error(s)
+    0 Warning(s)
+Build succeeded.
+Passed!  - Failed:     0, Passed:  2466, Skipped:     0, Total:  2466, Duration: 43 s - CuriousContraptions.tests.dll (net10.0)
+Passed!  - Failed:     0, Passed:   163, Skipped:     0, Total:   163, Duration: 331 ms - BundleElements.Tests.dll (net10.0)
+restored: yes

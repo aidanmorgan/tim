@@ -1,0 +1,6 @@
+engine/gpu/WorkshopPhysicsCompiler.cs: OK
+engine/gpu/DeclaredPhysics.cs: OK
+engine/gpu/WorkshopSimulation.cs: OK
+engine/gpu/WorkshopDeclaredPresentation.cs: OK
+elements/Battery/BatteryElementDeclaration.cs: OK
+ui/WorkshopConfiguration.cs: OK

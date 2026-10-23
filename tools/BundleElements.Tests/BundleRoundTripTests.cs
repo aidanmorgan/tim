@@ -119,6 +119,9 @@ public sealed class BundleRoundTripTests
         }
         Assert.Equal(declaration is IElectricalElement, entry.Electrical is not null);
         if (declaration is IElectricalElement electrical) AssertSame(electrical.ElectricalNodes, entry.Electrical!.Nodes, "ElectricalNodes");
+        Assert.Equal(declaration is Abstractions.Electrical.ISupplyElement, entry.Electrical?.Supply is not null);
+        // The supply capability, a Source's finite store included (Story 9A.39).
+        if (declaration is Abstractions.Electrical.ISupplyElement supply) AssertSame(supply.Supply, entry.Electrical!.Supply!.Value, "Supply");
         Assert.Equal(declaration is ISignalElement, entry.Signal is not null);
         if (declaration is ISignalElement signal)
         {

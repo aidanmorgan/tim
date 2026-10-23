@@ -131,13 +131,6 @@ internal static class WorkshopSavePrevalidation
         var genericParameters = false;
         switch (part.Value)
         {
-            case "battery":
-                Within(id, "capacity", r.Capacity, 60f, ElectricalSupply.MaximumCapacity);
-                Within(id, "maximum power", r.MaximumPower, 10f, 480f);
-                Within(id, "initial fraction", r.InitialFraction, 0f, 1f);
-                if (!Enum.IsDefined((ElectricalEnable)r.Enabled))
-                    throw Refuse(WorkshopSaveRejection.UndefinedEnum, $"Part {id} has an undefined enable state.");
-                break;
             case "domino":
                 var extents = Required(id, r.HalfExtents, "half extents");
                 var domino = DominoMaterial.Default;

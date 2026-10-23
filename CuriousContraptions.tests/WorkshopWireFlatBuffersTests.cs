@@ -125,7 +125,7 @@ public sealed class WorkshopWireFlatBuffersTests
         WorkshopInput.Generic(PartId.ImpactSwitch, new(1), 0, 1, 0, 0, 0, 0, 1, new([new(new ParameterId("trigger_threshold"), 1.25f)])),
         WorkshopInput.Generic(PartId.Delay, new(1), 0, 1, 0, 0, 0, 0, 1, new InstanceParameterCollection([new(new ParameterId("delay_seconds"), (float)2.5)])),
         PlacedParts.Springboard(new(1), 0, .2, 0, 0, 0, 0, 1, compression: .2f),
-        WorkshopInput.Battery(new(1), 0, 1, 0, 0, 0, 0, 1, new(new(60f), new(30f), .5f, ElectricalEnable.Disabled)),
+        PlacedParts.Battery(new(1), 0, 1, 0, 60f, 30f, .5f, ElectricalEnable.Disabled),
         PlacedParts.Bumper(new(1), 0, 1, 0, strength: 6f),
         WorkshopInput.Domino(new(1), .1, .09, 0, 0, 0, 0, 1),
         WorkshopInput.Lamp(new(1), 3, 1, 0, 0, 0, 0, 1),

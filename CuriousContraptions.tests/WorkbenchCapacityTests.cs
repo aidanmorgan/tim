@@ -116,7 +116,7 @@ public sealed class WorkbenchCapacityTests
         "lamp" => WorkshopInput.Lamp(id, x, 1, z, 0, 0, 0, 1),
         "delay" or "hold_timer" or "both_gate" or "electrical_nand" or "electrical_nor" or "electrical_or" or "electrical_xor" => WorkshopInput.Generic(kind, id, x, 1, z, 0, 0, 0, 1),
         "bumper" => WorkshopInput.Generic(PartId.PinballBumper, id, x, 1, z, 0, 0, 0, 1),
-        "battery" => WorkshopInput.Battery(id, x, 1, z, 0, 0, 0, 1, ElectricalSourceSettings.Default),
+        "battery" => PlacedParts.Battery(id, x, 1, z),
         "spring" => WorkshopInput.Generic(PartId.Springboard, id, x, 1, z, 0, 0, 0, 1),
         "pipe" => WorkshopInput.Pipe(id, x, 3, z, 0, 0, 0, 1),
         "ball_detector" => WorkshopInput.BallDetector(id, x, 3, z, 0, 0, 0, 1),

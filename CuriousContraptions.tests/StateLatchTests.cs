@@ -16,7 +16,7 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
     [Fact]
     public void IdenticalSocketsWithoutDeclaredSupplyCapabilityNeverSupply()
     {
-        var battery = WorkshopInput.Battery(new(1), -4, 0, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default);
+        var battery = PlacedParts.Battery(new(1), -4, 0, 0);
         var latch = WorkshopInput.Latch(new(2), 0, 0, 0, 0, 0, 0, 1);
         var gate = WorkshopInput.Generic(PartId.PoweredGate, new(3), 4, 0, 0, 0, 0, 0, 1);
         var routed = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(battery, latch, gate),
@@ -171,7 +171,7 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
         var setClock = WorkshopInput.Clock(new(1), -3, 0, 0, 0, 0, 0, 1, 1f);
         var resetClock = WorkshopInput.Clock(new(2), -3, 3, 0, 0, 0, 0, 1, 1.5f);
         var latch = WorkshopInput.Latch(new(3), 0, 0, 0, 0, 0, 0, 1);
-        var battery = WorkshopInput.Battery(new(4), -6, 0, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default);
+        var battery = PlacedParts.Battery(new(4), -6, 0, 0);
         var lamp = WorkshopInput.Lamp(new(5), 3, 0, 0, 0, 0, 0, 1);
         var sticky = WorkshopInput.Lamp(new(6), 3, 3, 0, 0, 0, 0, 1);
         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(),
@@ -208,8 +208,8 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
         var source = WorkshopInput.Clock(new(1), -3, 0, 0, 0, 0, 0, 1, 1f);
         var latch = WorkshopInput.Latch(new(2), 0, 0, 0, 0, 0, 0, 1);
         var lamp = WorkshopInput.Lamp(new(3), 3, 0, 0, 0, 0, 0, 1);
-        var battery = WorkshopInput.Battery(new(4), -3, 2, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default);
-        var second = WorkshopInput.Battery(new(5), 3, 2, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default);
+        var battery = PlacedParts.Battery(new(4), -3, 2, 0);
+        var second = PlacedParts.Battery(new(5), 3, 2, 0);
         var instances = new WorkshopInstances(source, latch, lamp, battery, second);
         var set = Signal(source.Id, latch.Id, WorkshopSocket.SetIn);
         var reset = Signal(source.Id, latch.Id, WorkshopSocket.ResetIn);
@@ -231,7 +231,7 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
         var setClock = WorkshopInput.Clock(new(1), -3, 0, 0, 0, 0, 0, 1, 1f);
         var resetClock = WorkshopInput.Clock(new(2), -3, 3, 0, 0, 0, 0, 1, 1.5f);
         var latch = WorkshopInput.Latch(new(3), 0, 0, 0, 0, 0, 0, 1);
-        var battery = WorkshopInput.Battery(new(4), -6, 0, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default);
+        var battery = PlacedParts.Battery(new(4), -6, 0, 0);
         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(),
             new(setClock, resetClock, latch, battery),
             Connections: new(Power(battery.Id, setClock.Id), Power(battery.Id, resetClock.Id),
@@ -269,7 +269,7 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
     {
         var clock = WorkshopInput.Clock(new(1), -3, 0, 0, 0, 0, 0, 1, 1f);
         var latch = WorkshopInput.Latch(new(2), 0, 0, 0, 0, 0, 0, 1);
-        var battery = WorkshopInput.Battery(new(3), -6, 0, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default);
+        var battery = PlacedParts.Battery(new(3), -6, 0, 0);
         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(clock, latch, battery),
             Connections: new(Power(battery.Id, clock.Id), Signal(clock.Id, latch.Id, WorkshopSocket.SetIn), Signal(clock.Id, latch.Id, WorkshopSocket.ResetIn)));
         construction.Validate();
@@ -380,7 +380,7 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
     [Fact]
     public void Compiler_SwitchedSupplyRoutesCompileOnceAndTickInputsCloseOnlyWithContactAndEnabledBattery()
     {
-        var battery = WorkshopInput.Battery(new(1), -4, 0, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default);
+        var battery = PlacedParts.Battery(new(1), -4, 0, 0);
         var latch = WorkshopInput.Latch(new(2), 0, 0, 0, 0, 0, 0, 1);
         var gate = WorkshopInput.Generic(PartId.PoweredGate, new(3), 4, 0, 0, 0, 0, 0, 1);
         var routed = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(battery, latch, gate),
@@ -423,8 +423,8 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
     {
         // An unswitched gate compiles first, so neither switched route sits at prismatic index 0.
         var plain = WorkshopInput.Generic(PartId.PoweredGate, new(1), -8, 0, 0, 0, 0, 0, 1);
-        var batteryA = WorkshopInput.Battery(new(2), -6, 3, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default);
-        var batteryB = WorkshopInput.Battery(new(3), -6, -3, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default with { Enabled = ElectricalEnable.Disabled });
+        var batteryA = PlacedParts.Battery(new(2), -6, 3, 0);
+        var batteryB = PlacedParts.Battery(new(3), -6, -3, 0, enabled: ElectricalEnable.Disabled);
         var latchA = WorkshopInput.Latch(new(4), 0, 3, 0, 0, 0, 0, 1);
         var latchB = WorkshopInput.Latch(new(5), 0, -3, 0, 0, 0, 0, 1);
         var gateA = WorkshopInput.Generic(PartId.PoweredGate, new(6), 6, 3, 0, 0, 0, 0, 1);
@@ -463,7 +463,7 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
         var clock = WorkshopInput.Clock(new(1), -3, 0, 0, 0, 0, 0, 1, 1f);
         var latch = WorkshopInput.Latch(new(2), 0, 0, 0, 0, 0, 0, 1);
         var counter = WorkshopInput.Counter(new(3), 0, 3, 0, 0, 0, 0, 1, 2);
-        var battery = WorkshopInput.Battery(new(4), -6, 0, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default);
+        var battery = PlacedParts.Battery(new(4), -6, 0, 0);
         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(clock, latch, counter, battery),
             Connections: new(Power(battery.Id, clock.Id), Signal(clock.Id, latch.Id, WorkshopSocket.SetIn),
                 Signal(clock.Id, counter.Id, WorkshopSocket.ActivationIn)));
@@ -502,7 +502,7 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
         var setSwitch = WorkshopInput.Generic(PartId.ImpactSwitch, new(1), -3, 0, 0, 0, 0, 0, 1);
         var resetSwitch = WorkshopInput.Generic(PartId.ImpactSwitch, new(2), -3, 2, 0, 0, 0, 0, 1);
         var latch = WorkshopInput.Latch(new(3), 0, 0, 0, 0, 0, 0, 1);
-        var battery = WorkshopInput.Battery(new(4), -5, 0, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default);
+        var battery = PlacedParts.Battery(new(4), -5, 0, 0);
         var gate = WorkshopInput.Generic(PartId.PoweredGate, new(5), 4, 0, 0, 0, 0, 0, 1);
         var construction = new WorkshopConstruction(new(9), WorkshopCadenceSettings.Default(), new(setSwitch, resetSwitch, latch, battery, gate),
             Connections: new(Signal(setSwitch.Id, latch.Id, WorkshopSocket.SetIn), Signal(resetSwitch.Id, latch.Id, WorkshopSocket.ResetIn),

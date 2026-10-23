@@ -1,0 +1,51 @@
++ echo 'tsc: /Users/aidan/.npm/_npx/02a0359277d72892/node_modules/typescript/bin/tsc'
+tsc: /Users/aidan/.npm/_npx/02a0359277d72892/node_modules/typescript/bin/tsc
++ echo 'typeRoots: /Users/aidan/.npm/_npx/48d230a2e2958c89/node_modules/@types'
+typeRoots: /Users/aidan/.npm/_npx/48d230a2e2958c89/node_modules/@types
+++ node -p 'require('\''/Users/aidan/.npm/_npx/fd45a72a545557e9/node_modules/tsx/package.json'\'').version'
++ echo 'tsx: /Users/aidan/.npm/_npx/fd45a72a545557e9/node_modules/tsx (4.23.15)'
+tsx: /Users/aidan/.npm/_npx/fd45a72a545557e9/node_modules/tsx (4.23.15)
++ node /Users/aidan/.npm/_npx/02a0359277d72892/node_modules/typescript/bin/tsc --noEmit --project tools/e2e/tsconfig.json --typeRoots /Users/aidan/.npm/_npx/48d230a2e2958c89/node_modules/@types
++ echo 'tsc rc=0'
+tsc rc=0
++ node /Users/aidan/.npm/_npx/fd45a72a545557e9/node_modules/tsx/dist/cli.mjs --test tools/e2e/unit/run-reset-snapshot.test.ts
+▶ Run/Reset snapshot: the explicit schema listing
+  ✔ every listed struct and table has exactly the fields, types and order of schemas/workshop_wire.fbs (0.697083ms)
+  ✔ every type reachable from WorkshopResponse and SavedConstruction is listed (0.153458ms)
+  ✔ computed struct offsets and sizes equal the generated accessors (0.626833ms)
+  ✔ table fields use the generated vtable slots (0.231792ms)
+✔ Run/Reset snapshot: the explicit schema listing (2.155166ms)
+▶ Run/Reset snapshot: bit-exact comparison
+  ✔ identical snapshots pass (1.766041ms)
+  ✔ a flipped f32 bit fails and names the field path with both bit patterns (0.548625ms)
+  ✔ -0 against +0 in a body field fails (0.424041ms)
+  ✔ two different NaN payloads differ (0.330875ms)
+  ✔ a differing connection fails (0.380167ms)
+  ✔ a differing part parameter fails (0.320875ms)
+  ✔ a differing authored goal fails (0.218542ms)
+  ✔ a difference in only the last compared path fails (0.171917ms)
+  ✔ differing path sets fail, in either direction (0.288667ms)
+  ✔ only the named top-level identity paths are excluded (0.587334ms)
+  ✔ a nested field that shares an excluded name is still compared (0.334625ms)
+  ✔ a Load comparison ignores only the restarted construction revision (0.365667ms)
+  ✔ committed counter and clock memory is compared (0.321042ms)
+  ✔ the tick is compared (0.161125ms)
+✔ Run/Reset snapshot: bit-exact comparison (6.474459ms)
+▶ Run/Reset snapshot: no vacuous pass
+  ✔ empty bodies are rejected (0.196417ms)
+  ✔ a body count other than the bench is rejected (0.074375ms)
+  ✔ a non-Applied acknowledgement is rejected (0.069958ms)
+  ✔ an advanced read must have tick > 0 (0.135041ms)
+  ✔ an advanced read must differ from S0 in a physical path (0.1815ms)
+  ✔ an advanced read with a moved body passes (0.127542ms)
+✔ Run/Reset snapshot: no vacuous pass (0.857833ms)
+ℹ tests 24
+ℹ suites 3
+ℹ pass 24
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 101.489709
++ echo 'snapshot unit rc=0'
+snapshot unit rc=0

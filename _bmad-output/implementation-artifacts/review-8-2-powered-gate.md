@@ -115,3 +115,37 @@ Executed sequentially with zero concurrency to prevent WebGPU/SharedArrayBuffer 
 ## 6. Terminal Verdict
 
 **Pass** — Story 8.2 (Powered Gate Passageway Barrier, CAT-051) fully satisfies all requirements, physics constraints, electrical network invariants, static analysis gates, unit tests, and real browser E2E regression suites.
+
+---
+
+## Addendum 23 Oct 2026, retro-verification (weak Pass; closing story C-Gate)
+
+This addendum is additions only; the text above is unchanged. The full record is in [review-c-gate.md](review-c-gate.md) under "Addendum 23 Oct 2026, retro-verification of Story 8.2". The raw evidence is in `_bmad-output/implementation-artifacts/evidence-c-gate-review/terminal/`: `8-2-reverification.log`, `build-job.log`, `run.json`, `identities.txt`.
+
+**Who and what was run.** The C-Gate independent reviewer ran this. They are neither 8.2's implementer nor its original reviewer. They re-ran 8.2's acceptance against the published tree.
+- The acceptance: a closed Powered Gate blocks a ball; on activation it opens fully and the ball rolls past.
+- Published tree: main `f27cb71d89697c1ae46ca3a6653d3be8d638e89c`, tree `f7b8f60c1f31074fe248e879b485956ad982a244`.
+- Command: one Debug build, 0 warnings, then `PoweredGateTests`, `LatchSupplyFixtureTests`, `DeclaredPrismaticDriveTests`, `BothGateTests` and `DeclaredPresentationTests`: **76/76 passed**.
+- Run window: 2026-10-23T07:34:53Z to 07:35:07Z.
+- Bundle `elements/elements.bundle.json` sha256 `9cb736164347d7140a8f5344c16b5d906eb8328e88848b714013cb4f2de2ef1a`.
+- The full suite on the same SHA passed in CI run 39916732832 (Test C# game 2419; tools 77/161/17/174).
+
+**False or unsupported claims above, with corrected results:**
+1. **"Blade linear drag is set to 0.0625 when wired to an enabled battery, retracting the shutter"** (§2). This was a hidden drag-band encoding with a global battery flag. Story 9R.3 recorded it as the functional contradiction.
+   - Corrected: the drive is the package-declared `PrismaticDriveDescriptor` (1.55 m, 2.8 m/s, 14 m/s², 60 N, 120 W). The one generic engine law executes it, enabled only by the gate's own compiled PowerIn route.
+   - Proven by `DeclaredPrismaticDriveTests.ThePoweredGateOpensToItsTargetWithinItsDeclaredSpeedEffortAndPowerOnEverySubstep`, the no-drive control `ASuppliedBoxWithTheGatesBladeAndLimitsButNoDeclaredDriveNeverActuates`, and `PoweredGateTests.TwoDirectCircuitsFollowTheirOwnSources`.
+2. **§4.1 test 3, "ball rolls through"** (the suite asserts `px < -0.6` as "downstream"). Downstream is the gate's local +x: gravity along the bore axis is +2.54 m/s² toward +x.
+   - In this recipe the ball starts 0.3 m inside the closed blade. With the battery enabled from the start it is ejected upstream out of the entry mouth, to x ≈ −2.75.
+   - So the Chrome Pass did not prove passage. This is C-Gate review finding F1, accepted by the coordinator.
+   - Corrected native result: a ball resting against the closed, tilted blade passes downstream (beyond +0.49 along the axis, never thrown back) when the gate is enabled during Run. This is `ABallRestingAgainstTheClosedTiltedBladePassesDownstreamWhenEnabledDuringRun`, in both cases.
+   - Activation-driven opening and passage: `LatchSupplyFixtureTests.NoSwitchBCompletesOpeningHoldsAndPassesTheBall`.
+3. **"Bit-for-bit Reset" and "Save/Load roundtrips bit-identically"** (§2, §4). These were supported only by that browser run.
+   - Native Run/Reset and save/load replay are now covered by the full suite, including the gate fixtures and `WorkshopSaveRejectionTests`.
+   - Browser proof is pending.
+4. **Open clause CAT-051 Q6 (supply interruption mid-stroke).** It was closed natively by its owner, Story 9.4c (`LatchSupplyFixtureTests.MidStrokeResetStopsDriveAndReturnsClosed`).
+   - CAT-051 Q1 (fail-closed spring), Q3 (Blocked) and Q4 (single Blocked state) are decided and proven by C-Gate.
+5. **"All 906 unit tests pass"** (§1) is superseded by the current totals: 2419 / 161 / 77 / 189 / 17.
+
+**New verdict: Pass (native, re-verified 23 Oct 2026). Browser pending.**
+- The AC-named `tools/e2e/cat-051.test.ts` must be re-pinned to local +x (F1) and re-run in the post-catalogue E2E phase.
+- Until then, 8.2's Chrome clause is unproven, not passed.

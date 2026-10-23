@@ -100,9 +100,6 @@ public sealed partial class MachinePart : Node3D, IResizablePart
         if (presentation.Sizing is not null) PickRadius = nextRadius;
     }
 
-    public ElectricalSourceSettings CanonicalSource { get; private set; } = ElectricalSourceSettings.Default;
-    public void ApplySource(ElectricalSourceSettings source) { source.Validate(); CanonicalSource = source; }
-
     public float CanonicalIntervalSeconds { get; private set; } = WorkshopClock.PlacedIntervalSeconds;
     public void ApplyIntervalSeconds(float seconds)
     {

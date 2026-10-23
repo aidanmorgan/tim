@@ -29,7 +29,7 @@ public sealed class HoldTimerTests
             WorkshopInput.Generic(PartId.Basketball,new(1),0,3,0,0,0,0,1),
             WorkshopInput.Generic(PartId.ImpactSwitch, new(2),0,1,0,0,0,0,1),
             Part(seconds),
-            WorkshopInput.Battery(new(4),6,3,0,0,0,0,1,ElectricalSourceSettings.Default),
+            PlacedParts.Battery(new(4), 6, 3, 0),
             WorkshopInput.Generic(PartId.PoweredGate,new(5),9,3,0,0,0,0,1),
             WorkshopInput.Generic(PartId.Delay,new(6),-3,2,0,0,0,0,1,
                 new([new(new ParameterId("delay_seconds"),.1f)]))

@@ -1,0 +1,22 @@
+mutant: M1-store-ignored — ElectricalSourceFor compiles 3600 J / 120 W / full whatever the store parameters
+--- build
+    0 Error(s)
+    0 Warning(s)
+--- test
+  Failed CuriousContraptions.Tests.DeclaredPresentationTests.BatterySupplyAndEachChargeBoundaryUseActualCommittedRead(fraction: 0.75, available: True, lit: 3, capacity: 3600, power: 120) [11 ms]
+  Failed CuriousContraptions.Tests.DeclaredPresentationTests.BatterySupplyAndEachChargeBoundaryUseActualCommittedRead(fraction: 0.25, available: True, lit: 1, capacity: 1234.5, power: 33) [10 ms]
+  Failed CuriousContraptions.Tests.DeclaredPresentationTests.BatterySupplyAndEachChargeBoundaryUseActualCommittedRead(fraction: 0.5, available: True, lit: 2, capacity: 14400, power: 480) [10 ms]
+  Failed CuriousContraptions.Tests.DeclaredPresentationTests.BatterySupplyAndEachChargeBoundaryUseActualCommittedRead(fraction: 0.5, available: True, lit: 2, capacity: 3600, power: 120) [9 ms]
+  Failed CuriousContraptions.Tests.DeclaredPresentationTests.BatterySupplyAndEachChargeBoundaryUseActualCommittedRead(fraction: 0.25, available: True, lit: 1, capacity: 3600, power: 120) [9 ms]
+  Failed CuriousContraptions.Tests.DeclaredPresentationTests.BatterySupplyAndEachChargeBoundaryUseActualCommittedRead(fraction: 0.75, available: True, lit: 3, capacity: 60, power: 10) [11 ms]
+  Failed CuriousContraptions.Tests.DeclaredPresentationTests.BatterySupplyAndEachChargeBoundaryUseActualCommittedRead(fraction: 0, available: False, lit: 0, capacity: 3600, power: 120) [10 ms]
+  Failed CuriousContraptions.Tests.PalettePlacementTests.GenericBatteryEditorClampsItsStoreAndPicksTheEnableStateFromItsOptions [28 ms]
+  Failed CuriousContraptions.Tests.ElectricalSupplyTests.F32AuthoringWiringAndSaveRoundTripWithAtomicAmbiguousSourceRejection(enabled: Enabled) [4 ms]
+  Failed CuriousContraptions.Tests.ElectricalSupplyTests.F32AuthoringWiringAndSaveRoundTripWithAtomicAmbiguousSourceRejection(enabled: Disabled) [< 1 ms]
+  Failed CuriousContraptions.Tests.SourceStoreInstanceTests.TheStorePaysWithinItsPowerLimitAndNeverMoreThanItsInitialCharge(capacity: 600, power: 10, charge: 0, strength: 8) [4 ms]
+  Failed CuriousContraptions.Tests.SourceStoreInstanceTests.TheStorePaysWithinItsPowerLimitAndNeverMoreThanItsInitialCharge(capacity: 120, power: 30, charge: 0.5, strength: 8) [3 ms]
+  Failed CuriousContraptions.Tests.SourceStoreInstanceTests.TheStorePaysWithinItsPowerLimitAndNeverMoreThanItsInitialCharge(capacity: 14400, power: 480, charge: 1, strength: 20) [3 ms]
+  Failed CuriousContraptions.Tests.SourceStoreInstanceTests.TheStorePaysWithinItsPowerLimitAndNeverMoreThanItsInitialCharge(capacity: 3600, power: 10, charge: 1, strength: 8) [3 ms]
+  Failed CuriousContraptions.Tests.SourceStoreInstanceTests.TheStorePaysWithinItsPowerLimitAndNeverMoreThanItsInitialCharge(capacity: 60, power: 480, charge: 1, strength: 20) [3 ms]
+  Failed CuriousContraptions.Tests.SourceStoreInstanceTests.ASyntheticStoreCompilesItsOwnKeysAndValues [1 ms]
+Failed!  - Failed:    16, Passed:   188, Skipped:     0, Total:   204, Duration: 3 s - CuriousContraptions.tests.dll (net10.0)

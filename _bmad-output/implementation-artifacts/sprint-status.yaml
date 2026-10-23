@@ -301,16 +301,16 @@ development_status:
   9-8b-electrical-xor-gate: done # scoped native/publication Pass8bfddc; browser pending
   epic-9-retrospective: optional
   # 32 (deletion): before 11-3
-  9a-c-gate-declared-drive-warmup: review
+  9a-c-gate-declared-drive-warmup: done # scoped native/publication Passf27cb7; browser pending
   # merged into 9a-c-gate (21 Oct 2026)
-  9a-19-declared-prismatic-drive: review
+  9a-19-declared-prismatic-drive: done # scoped native/publication Passf27cb7; browser pending
   # merged into 9a-c-gate (21 Oct 2026)
-  9a-21-declaration-free-worker-warmup: review
+  9a-21-declaration-free-worker-warmup: done # scoped native/publication Passf27cb7; browser pending
   # 33 (element)
   epic-10: backlog
   10-1-solid-cylinder-collider-and-inertia: backlog
   # 34 (deletion)
-  9a-39-generic-instance-battery: backlog
+  9a-39-generic-instance-battery: review # native candidate on f27cb71d (worktree story-9a-39); browser pending
   # 35 (element)
   10-2-pulley-wheel-tensile-rope-dynamics: backlog
   # 36 (deletion)

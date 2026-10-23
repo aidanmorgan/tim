@@ -121,7 +121,7 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
     public void Connections_AcceptsElectricalAndRejectsActivation()
     {
         var plate = WorkshopInput.PressurePlate(new(1), 0, 0, 0, 0, 0, 0, 1, WorkshopPressurePlate.PlacedMinimumMass);
-        var battery = WorkshopInput.Battery(new(2), 2, 0, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default);
+        var battery = PlacedParts.Battery(new(2), 2, 0, 0);
         var switchPart = WorkshopInput.Generic(PartId.ImpactSwitch, new(3), -2, 0, 0, 0, 0, 0, 1);
 
         var instances = new WorkshopInstances(plate, battery, switchPart);
@@ -265,7 +265,7 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
     [Fact]
     public void PhysicsCompiler_EmitsEachPlatesOwnRowAndASwitchedRouteThroughIt()
     {
-        var battery = WorkshopInput.Battery(new(1), -2, 0, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default);
+        var battery = PlacedParts.Battery(new(1), -2, 0, 0);
         var plate = WorkshopInput.PressurePlate(new(2), 0, 0, 0, 0, 0, 0, 1, WorkshopPressurePlate.PlacedMinimumMass);
         var gate = WorkshopInput.Generic(PartId.PoweredGate, new(3), 2, 0, 0, 0, 0, 0, 1);
         var heavy = WorkshopInput.PressurePlate(new(4), 0, 0, 4, 0, 0, 0, 1, 2f);
@@ -376,8 +376,8 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
 
     private static WorkshopGenericInstance Gate(ulong id, double z) =>
         WorkshopInput.Generic(PartId.PoweredGate, new(id), 0, GateHeight, z, 0, 0, 0, 1);
-    private static WorkshopBattery Battery(ulong id, double z) =>
-        WorkshopInput.Battery(new(id), 3, GateHeight, z, 0, 0, 0, 1, ElectricalSourceSettings.Default with { Enabled = ElectricalEnable.Enabled });
+    private static WorkshopGenericInstance Battery(ulong id, double z) =>
+        PlacedParts.Battery(new(id), 3, GateHeight, z, enabled: ElectricalEnable.Enabled);
     private static WorkshopPressurePlate Plate(ulong id, double x, double z, float minimum) =>
         WorkshopInput.PressurePlate(new(id), x, PlateY, z, 0, 0, 0, 1, minimum);
     private static WorkshopGenericInstance BallOn(ulong id, double x, double z) => WorkshopInput.Generic(PartId.Basketball,new(id), x, Face + .35, z, 0, 0, 0, 1);
@@ -385,7 +385,7 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
     /// <summary>A Domino lying on its broad face (1.1 m along x, 0.65 m along z, 0.25 m tall) with its underside at <paramref name="under"/>.</summary>
     private static WorkshopDomino FlatOn(ulong id, double x, double under, double z) =>
         WorkshopInput.Domino(new(id), x, under + .126, z, 0, 0, Math.Sqrt(.5), Math.Sqrt(.5));
-    private static WorkshopConnection[] Circuit(WorkshopBattery battery, WorkshopPressurePlate plate, WorkshopGenericInstance gate) =>
+    private static WorkshopConnection[] Circuit(WorkshopGenericInstance battery, WorkshopPressurePlate plate, WorkshopGenericInstance gate) =>
         [Supply(battery.Id, plate.Id), Supply(plate.Id, gate.Id)];
     private static WorkshopConstruction Bench(IWorkshopInstance[] instances, params WorkshopConnection[] connections) =>
         new(new(2), WorkshopCadenceSettings.Default(), new(instances), Connections: new(connections));

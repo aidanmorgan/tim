@@ -1,0 +1,21 @@
+mutant R9-control-admits-locked file engine/gpu/WorkshopSimulation.cs
+diff --git a/engine/gpu/WorkshopSimulation.cs b/engine/gpu/WorkshopSimulation.cs
+index 0cd45cc9..a9393948 100644
+--- a/engine/gpu/WorkshopSimulation.cs
++++ b/engine/gpu/WorkshopSimulation.cs
+@@ -71,7 +71,7 @@ public sealed class WorkshopSimulation : IAsyncDisposable
+             return new(WorkshopCommandOutcome.Rejected, WorkshopRejection.WrongPhase);
+         // Only an unlocked owner whose package declares its Source store's enable state run-editable takes a run-time control.
+         foreach (var instance in Construction.Instances)
+-            if (instance is WorkshopGenericInstance owner && owner.Id == control.Owner && !owner.Locked &&
++            if (instance is WorkshopGenericInstance owner && owner.Id == control.Owner &&
+                 DeclaredPhysics.HasRunControlledSource(owner.PartId))
+             {
+                 _electricalControls[control.Owner] = control.Enabled;
+    0 Error(s)
+    0 Warning(s)
+Build succeeded.
+  Failed CuriousContraptions.Tests.SourceStoreInstanceTests.TheControlIsRefusedOutsideARunAndForAnyOwnerWithoutARunControlledStore [4 ms]
+Failed!  - Failed:     1, Passed:  2465, Skipped:     0, Total:  2466, Duration: 44 s - CuriousContraptions.tests.dll (net10.0)
+Passed!  - Failed:     0, Passed:   163, Skipped:     0, Total:   163, Duration: 331 ms - BundleElements.Tests.dll (net10.0)
+restored: yes

@@ -211,12 +211,8 @@
             "Bounce": 0,
             "Length": 0,
             "Threshold": 0,
-            "Capacity": 0,
-            "MaximumPower": 0,
-            "InitialFraction": 0,
             "Friction": 0
           },
-          "enabled": 0,
           "target_count": 0,
           "half_extents": [
             0,
@@ -294,12 +290,8 @@
             "Bounce": 0,
             "Length": 0,
             "Threshold": 0,
-            "Capacity": 0,
-            "MaximumPower": 0,
-            "InitialFraction": 0,
             "Friction": 0
           },
-          "enabled": 0,
           "target_count": 0,
           "half_extents": [
             0,
@@ -1149,12 +1141,8 @@
             "Bounce": 0,
             "Length": 0,
             "Threshold": 0,
-            "Capacity": 0,
-            "MaximumPower": 0,
-            "InitialFraction": 0,
             "Friction": 0
           },
-          "enabled": 0,
           "target_count": 0,
           "half_extents": [
             0,
@@ -1232,12 +1220,8 @@
             "Bounce": 0,
             "Length": 0,
             "Threshold": 0,
-            "Capacity": 0,
-            "MaximumPower": 0,
-            "InitialFraction": 0,
             "Friction": 0
           },
-          "enabled": 0,
           "target_count": 0,
           "half_extents": [
             0,
@@ -2055,12 +2039,8 @@
             "Bounce": 0,
             "Length": 0,
             "Threshold": 0,
-            "Capacity": 0,
-            "MaximumPower": 0,
-            "InitialFraction": 0,
             "Friction": 0
           },
-          "enabled": 0,
           "target_count": 0,
           "half_extents": [
             0,
@@ -2138,12 +2118,8 @@
             "Bounce": 0.05,
             "Length": 0,
             "Threshold": 0,
-            "Capacity": 0,
-            "MaximumPower": 0,
-            "InitialFraction": 0,
             "Friction": 0.6
           },
-          "enabled": 0,
           "target_count": 0,
           "half_extents": [
             0.125,
@@ -2221,12 +2197,8 @@
             "Bounce": 0,
             "Length": 0,
             "Threshold": 0,
-            "Capacity": 0,
-            "MaximumPower": 0,
-            "InitialFraction": 0,
             "Friction": 0
           },
-          "enabled": 0,
           "target_count": 0,
           "half_extents": [
             0,
@@ -3529,12 +3501,8 @@
             "Bounce": 0,
             "Length": 0,
             "Threshold": 0,
-            "Capacity": 0,
-            "MaximumPower": 0,
-            "InitialFraction": 0,
             "Friction": 0
           },
-          "enabled": 0,
           "target_count": 0,
           "half_extents": [
             0,
@@ -3612,12 +3580,8 @@
             "Bounce": 0,
             "Length": 0,
             "Threshold": 0,
-            "Capacity": 0,
-            "MaximumPower": 0,
-            "InitialFraction": 0,
             "Friction": 0
           },
-          "enabled": 0,
           "target_count": 0,
           "half_extents": [
             0,
@@ -4034,12 +3998,8 @@
             "Bounce": 0,
             "Length": 0,
             "Threshold": 0,
-            "Capacity": 0,
-            "MaximumPower": 0,
-            "InitialFraction": 0,
             "Friction": 0
           },
-          "enabled": 0,
           "target_count": 0,
           "half_extents": [
             0,
@@ -4117,12 +4077,8 @@
             "Bounce": 0,
             "Length": 0,
             "Threshold": 0,
-            "Capacity": 0,
-            "MaximumPower": 0,
-            "InitialFraction": 0,
             "Friction": 0
           },
-          "enabled": 0,
           "target_count": 0,
           "half_extents": [
             0,
@@ -4932,12 +4888,8 @@
             "Bounce": 0,
             "Length": 0,
             "Threshold": 0,
-            "Capacity": 0,
-            "MaximumPower": 0,
-            "InitialFraction": 0,
             "Friction": 0
           },
-          "enabled": 0,
           "target_count": 0,
           "half_extents": [
             0,
@@ -5015,12 +4967,8 @@
             "Bounce": 0,
             "Length": 0,
             "Threshold": 0,
-            "Capacity": 0,
-            "MaximumPower": 0,
-            "InitialFraction": 0,
             "Friction": 0
           },
-          "enabled": 0,
           "target_count": 0,
           "half_extents": [
             0,
@@ -8612,12 +8560,8 @@
             "Bounce": 0,
             "Length": 0,
             "Threshold": 0,
-            "Capacity": 0,
-            "MaximumPower": 0,
-            "InitialFraction": 0,
             "Friction": 0
           },
-          "enabled": 0,
           "target_count": 0,
           "half_extents": [
             0,
@@ -8695,12 +8639,8 @@
             "Bounce": 0,
             "Length": 0,
             "Threshold": 0,
-            "Capacity": 0,
-            "MaximumPower": 0,
-            "InitialFraction": 0,
             "Friction": 0
           },
-          "enabled": 0,
           "target_count": 0,
           "half_extents": [
             0,
@@ -8786,12 +8726,8 @@
             "Bounce": 0,
             "Length": 0,
             "Threshold": 0,
-            "Capacity": 0,
-            "MaximumPower": 0,
-            "InitialFraction": 0,
             "Friction": 0
           },
-          "enabled": 0,
           "target_count": 0,
           "half_extents": [
             0,
@@ -9607,12 +9543,8 @@
             "Bounce": 0,
             "Length": 0,
             "Threshold": 0,
-            "Capacity": 0,
-            "MaximumPower": 0,
-            "InitialFraction": 0,
             "Friction": 0
           },
-          "enabled": 0,
           "target_count": 0,
           "half_extents": [
             0,
@@ -9690,12 +9622,8 @@
             "Bounce": 0,
             "Length": 0,
             "Threshold": 0,
-            "Capacity": 0,
-            "MaximumPower": 0,
-            "InitialFraction": 0,
             "Friction": 0
           },
-          "enabled": 0,
           "target_count": 0,
           "half_extents": [
             0,
@@ -10112,12 +10040,8 @@
             "Bounce": 0,
             "Length": 0,
             "Threshold": 0,
-            "Capacity": 0,
-            "MaximumPower": 0,
-            "InitialFraction": 0,
             "Friction": 0
           },
-          "enabled": 0,
           "target_count": 0,
           "half_extents": [
             0,
@@ -10195,12 +10119,8 @@
             "Bounce": 0,
             "Length": 0,
             "Threshold": 0,
-            "Capacity": 0,
-            "MaximumPower": 0,
-            "InitialFraction": 0,
             "Friction": 0
           },
-          "enabled": 0,
           "target_count": 0,
           "half_extents": [
             0,
@@ -10617,12 +10537,8 @@
             "Bounce": 0,
             "Length": 0,
             "Threshold": 0,
-            "Capacity": 0,
-            "MaximumPower": 0,
-            "InitialFraction": 0,
             "Friction": 0
           },
-          "enabled": 0,
           "target_count": 0,
           "half_extents": [
             0,
@@ -10700,12 +10616,8 @@
             "Bounce": 0,
             "Length": 0,
             "Threshold": 0,
-            "Capacity": 0,
-            "MaximumPower": 0,
-            "InitialFraction": 0,
             "Friction": 0
           },
-          "enabled": 0,
           "target_count": 0,
           "half_extents": [
             0,
@@ -11124,12 +11036,8 @@
             "Bounce": 0,
             "Length": 0,
             "Threshold": 0,
-            "Capacity": 0,
-            "MaximumPower": 0,
-            "InitialFraction": 0,
             "Friction": 0
           },
-          "enabled": 0,
           "target_count": 0,
           "half_extents": [
             0,
@@ -11207,12 +11115,8 @@
             "Bounce": 0,
             "Length": 0,
             "Threshold": 0,
-            "Capacity": 0,
-            "MaximumPower": 0,
-            "InitialFraction": 0,
             "Friction": 0
           },
-          "enabled": 0,
           "target_count": 0,
           "half_extents": [
             0,
@@ -11290,12 +11194,8 @@
             "Bounce": 0,
             "Length": 0,
             "Threshold": 0,
-            "Capacity": 0,
-            "MaximumPower": 0,
-            "InitialFraction": 0,
             "Friction": 0
           },
-          "enabled": 0,
           "target_count": 0,
           "half_extents": [
             0,
@@ -36244,12 +36144,8 @@
             "Bounce": 0,
             "Length": 0,
             "Threshold": 0,
-            "Capacity": 0,
-            "MaximumPower": 0,
-            "InitialFraction": 0,
             "Friction": 0
           },
-          "enabled": 0,
           "target_count": 0,
           "half_extents": [
             0,
@@ -36434,12 +36330,8 @@
             "Bounce": 0,
             "Length": 0,
             "Threshold": 0,
-            "Capacity": 0,
-            "MaximumPower": 0,
-            "InitialFraction": 0,
             "Friction": 0
           },
-          "enabled": 0,
           "target_count": 0,
           "half_extents": [
             0,
@@ -36517,12 +36409,8 @@
             "Bounce": 0,
             "Length": 0,
             "Threshold": 0,
-            "Capacity": 0,
-            "MaximumPower": 0,
-            "InitialFraction": 0,
             "Friction": 0
           },
-          "enabled": 0,
           "target_count": 0,
           "half_extents": [
             0,

@@ -104,9 +104,6 @@ public partial class MachineWorld
         var q = rotation.Normalized();
         return id.Value switch
         {
-            "battery" => WorkshopInput.Battery(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
-                Construction.Instances.FirstOrDefault(instance => instance.Id == bodyId) is WorkshopBattery battery ? battery.Settings :
-                    ElectricalSourceSettings.Default),
             "lamp" => WorkshopInput.Lamp(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W),
             "domino" => WorkshopInput.Domino(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W),
             "ball_detector" => WorkshopInput.BallDetector(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W),
@@ -328,10 +325,6 @@ public partial class MachineWorld
             if (part.Definition.PartId != instance.PartId) throw new ArgumentException("Authored identity changed part kind.");
             var parameters = DeclaredPhysics.Parameters(instance);
             part.ApplyPresentationParameters(parameters);
-            if (instance is WorkshopBattery battery)
-            {
-                part.ApplySource(battery.Settings);
-            }
             // Every declared slider body presents through the part's one secondary visual, at its declared starting compression.
             var sliders = DeclaredPhysics.Of(instance.PartId).Mechanical?.Sliders ?? [];
             if (sliders.Count > 1) throw new ArgumentException("A part presents at most one slider body.");

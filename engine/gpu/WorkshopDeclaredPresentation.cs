@@ -59,7 +59,8 @@ public sealed class WorkshopDeclaredPresentation
                 foreach (var candidate in nodes) if (candidate.Owner == instance.Id) node = candidate;
                 var track = new Track { Owner = instance.Id, Index = i, Declaration = declaration,
                     Target = new(TargetBase + (ulong)tracks.Count), Node = node, Value = declaration.From, Rest = declaration.From,
-                    Capacity = instance is IWorkshopElectricalSource source ? source.Settings.Capacity.Value : 0 };
+                    Capacity = instance is WorkshopGenericInstance owner && DeclaredPhysics.SourceStore(owner.PartId) is { } store
+                        ? owner.Parameters[new ParameterId(store.Capacity)] : 0 };
                 tracks.Add(track);
             }
         }

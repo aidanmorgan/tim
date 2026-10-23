@@ -179,7 +179,7 @@ public sealed class CounterTests(NativeSceneFixture godot)
         var counter = WorkshopInput.Counter(new(1), 0, 0, 0, 0, 0, 0, 1, 3);
         var detector = WorkshopInput.BallDetector(new(2), -2, 0, 0, 0, 0, 0, 1);
         var lamp = WorkshopInput.Lamp(new(3), 2, 0, 0, 0, 0, 0, 1);
-        var battery = WorkshopInput.Battery(new(4), 0, -2, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default);
+        var battery = PlacedParts.Battery(new(4), 0, -2, 0);
         var gate = WorkshopInput.Generic(PartId.PoweredGate, new(5), 0, 2, 0, 0, 0, 0, 1);
 
         var instances = new WorkshopInstances(counter, detector, lamp, battery, gate);
@@ -201,7 +201,7 @@ public sealed class CounterTests(NativeSceneFixture godot)
     public void PhysicsCompiler_CompilesCollidersAndCounterPower()
     {
         var counter = WorkshopInput.Counter(new(1), 0, 0, 0, 0, 0, 0, 1, 3);
-        var battery = WorkshopInput.Battery(new(2), -2, 0, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default);
+        var battery = PlacedParts.Battery(new(2), -2, 0, 0);
         var gate = WorkshopInput.Generic(PartId.PoweredGate, new(3), 2, 0, 0, 0, 0, 0, 1);
 
         // Without battery connected: gate blade drag is 0

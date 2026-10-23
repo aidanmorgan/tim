@@ -69,8 +69,10 @@ public sealed class WorkshopSimulation : IAsyncDisposable
         if (_pending != 0) return new(WorkshopCommandOutcome.Rejected, WorkshopRejection.Busy);
         if (Phase is not (WorkshopSimulationPhase.Running or WorkshopSimulationPhase.Paused))
             return new(WorkshopCommandOutcome.Rejected, WorkshopRejection.WrongPhase);
+        // Only an unlocked owner whose package declares its Source store's enable state run-editable takes a run-time control.
         foreach (var instance in Construction.Instances)
-            if (instance is WorkshopBattery battery && battery.Id == control.Owner && !battery.Locked)
+            if (instance is WorkshopGenericInstance owner && owner.Id == control.Owner && !owner.Locked &&
+                DeclaredPhysics.HasRunControlledSource(owner.PartId))
             {
                 _electricalControls[control.Owner] = control.Enabled;
                 return new(WorkshopCommandOutcome.Applied, WorkshopRejection.None);

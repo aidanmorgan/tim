@@ -441,7 +441,7 @@ public sealed class WorkshopSimulationTests
     {
         await using var harness = Create(); var (simulation, device) = (harness.Simulation, harness.Device);
         await simulation.Initialize();
-        var battery = WorkshopInput.Battery(new(7), 0, 3, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default with { Enabled = ElectricalEnable.Disabled });
+        var battery = PlacedParts.Battery(new(7), 0, 3, 0, enabled: ElectricalEnable.Disabled);
         var admission = simulation.Construct(new(new(2), Settings, new(battery))).AsTask();
         device.CompleteAdmission(0);
         Assert.Equal(WorkshopCommandOutcome.Applied, (await admission).Outcome);

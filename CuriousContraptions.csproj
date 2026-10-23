@@ -49,7 +49,6 @@
         <Compile Include="ui/WorkshopGpu.cs" />
         <Compile Include="ui/WorkshopConnections.cs" />
         <Compile Include="ui/WorkshopConfiguration.cs" />
-        <Compile Include="ui/WorkshopBattery.cs" />
         <Compile Include="ui/WorkshopPuzzle.cs" />
         <Compile Include="ui/WorkshopGuidance.cs" />
         <Compile Include="ui/WorkshopAnimation.cs" />

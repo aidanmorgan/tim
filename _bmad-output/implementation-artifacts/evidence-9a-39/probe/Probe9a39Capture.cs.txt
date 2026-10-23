@@ -1,0 +1,282 @@
+using System.Globalization;
+using System.Security.Cryptography;
+using System.Text;
+using CuriousContraptions.Gpu;
+
+namespace CuriousContraptions.Tests;
+
+/// <summary>9A.39 evidence harness (not a deliverable). Identical source on base f27cb71d and on the candidate; only
+/// <see cref="ProbeBattery"/> differs. Writes, to the directory named by P9A39_DIR: per-tick source/store/actuator/body bits and the
+/// compiled electrical rows for each battery fixture; old saves from the production encoders with their decode outcomes; and the
+/// lesson admitted-world and placed-solution hashes.</summary>
+public sealed class Probe9a39Capture
+{
+    private static string? Dir => Environment.GetEnvironmentVariable("P9A39_DIR");
+    private static string Bits(float value) => BitConverter.SingleToUInt32Bits(value).ToString("x8", CultureInfo.InvariantCulture);
+    private static string Hash(string text) => Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(text)));
+    private static readonly System.Text.Json.JsonSerializerOptions Options = new() { IncludeFields = true };
+
+    private static string Row(WorkshopRead read)
+    {
+        var text = new StringBuilder();
+        text.Append(CultureInfo.InvariantCulture, $"t={read.Tick.Value}");
+        for (var i = 0; i < read.Electrical.Count; i++)
+        {
+            var e = read.Electrical[i];
+            text.Append(CultureInfo.InvariantCulture,
+                $" e[{e.Id.Value}/{e.Owner.Value}] q={Bits(e.Remaining.Value)} d={Bits(e.Debit.Value)} en={e.Enabled} ({e.Remaining.Value:R},{e.Debit.Value:R})");
+        }
+        for (var i = 0; i < read.ContactWorks.Count; i++)
+        {
+            var w = read.ContactWorks[i];
+            text.Append(CultureInfo.InvariantCulture,
+                $" w[{w.Id.Value}] n={w.OccurrenceCount} r={Bits(w.RemainingEnergy.Value)} s={Bits(w.SuppliedEnergy.Value)}");
+        }
+        foreach (var a in read.Presentation.Actuators)
+            text.Append(CultureInfo.InvariantCulture, $" a[{a.Joint.Value}] s={a.SupplyClosed} x={Bits(a.Coordinate)} v={Bits(a.Speed)}");
+        for (var i = 0; i < read.Bodies.Count; i++)
+        {
+            var b = read.Bodies[i].Body;
+            text.Append(CultureInfo.InvariantCulture,
+                $" b[{b.Id.Value}] c={b.Cell.X},{b.Cell.Y},{b.Cell.Z} l={Bits((float)b.Local.X)},{Bits((float)b.Local.Y)},{Bits((float)b.Local.Z)} v={Bits((float)b.Velocity.X)},{Bits((float)b.Velocity.Y)},{Bits((float)b.Velocity.Z)}");
+        }
+        return text.ToString();
+    }
+
+    public enum PhaseAction { Advance, PauseConfigureResume }
+    private sealed record Phase(PhaseAction Action, WorkshopElectricalControl[] Controls, int Ticks);
+
+    private static async Task<List<string>> Trace(WorkshopConstruction construction, params Phase[] phases)
+    {
+        await using var device = new WorkshopGpuDevice(new CuriousContraptions.Simulation.BrowserGpuTransport(), new(101, 206));
+        await using var simulation = new WorkshopSimulation(device, new WorkshopPhysicsEngineTests.StepClock(), WorkshopCadenceSettings.Default(),
+            new(1), new WorkshopPhysicsEngineTests.NoInstallation(), GpuDeviceOwnership.Borrowed);
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Initialize()).Outcome);
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Construct(construction)).Outcome);
+        var lines = new List<string> { "built " + Row(simulation.Committed) };
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Run()).Outcome);
+        foreach (var phase in phases)
+        {
+            if (phase.Action == PhaseAction.PauseConfigureResume) lines.Add("pause " + (await simulation.Pause()).Outcome);
+            foreach (var control in phase.Controls)
+                lines.Add($"control {control.Owner.Value} {control.Enabled} -> {simulation.ConfigureElectrical(control).Outcome}");
+            if (phase.Action == PhaseAction.PauseConfigureResume) lines.Add("resume " + (await simulation.Resume()).Outcome);
+            for (var tick = 0; tick < phase.Ticks; tick++)
+            {
+                Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Advance()).Outcome);
+                lines.Add(Row(simulation.Committed));
+            }
+        }
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Reset()).Outcome);
+        lines.Add("reset " + Row(simulation.Committed));
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Run()).Outcome);
+        for (var tick = 0; tick < 30; tick++)
+        {
+            Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Advance()).Outcome);
+            lines.Add("replay " + Row(simulation.Committed));
+        }
+        return lines;
+    }
+
+    private static WorkshopConnection Power(GpuBodyId source, GpuBodyId target) =>
+        new(source, WorkshopSocket.Supply, target, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical);
+
+    private static WorkshopConstruction Gate(int sign, ElectricalEnable authored, float capacity = 3600f, float power = 120f, float fraction = 1f)
+    {
+        var half = sign * 7.5 * Math.PI / 180;
+        var gate = WorkshopInput.Generic(PartId.PoweredGate, new(1), 0, 3, 0, 0, 0, Math.Sin(half), Math.Cos(half));
+        var ball = WorkshopInput.Generic(PartId.Basketball, new(2), -0.08, 3, 0, 0, 0, 0, 1);
+        var battery = ProbeBattery.Make(new(3), 3, 3, 0, capacity, power, fraction, authored);
+        return new(new(2), WorkshopCadenceSettings.Default(), new([gate, ball, battery]), Connections: new(Power(battery.Id, gate.Id)));
+    }
+
+    private static WorkshopConstruction Recharge(bool wired, float capacity, float power, float fraction, ElectricalEnable enabled, float strength = 8f)
+    {
+        var ball = WorkshopInput.Generic(PartId.BowlingBall, new(1), 0, 6, 0, 0, 0, 0, 1);
+        var bumper = PlacedParts.Bumper(new(2), 0, 3, 0, strength);
+        var battery = ProbeBattery.Make(new(3), 3, 1, 0, capacity, power, fraction, enabled);
+        return new(new(2), WorkshopCadenceSettings.Default(), new([ball, bumper, battery]),
+            Connections: wired ? new(Power(battery.Id, bumper.Id)) : WorkshopConnections.Empty);
+    }
+
+    private static WorkshopConstruction TwoSources()
+    {
+        var gate = WorkshopInput.Generic(PartId.PoweredGate, new(1), 0, 3, 0, 0, 0, 0, 1);
+        var first = ProbeBattery.Make(new(3), 3, 3, 0);
+        var second = ProbeBattery.Make(new(4), -3, 3, 0, 600f, 30f, .25f, ElectricalEnable.Disabled);
+        var ball = WorkshopInput.Generic(PartId.BowlingBall, new(5), 6, 6, 0, 0, 0, 0, 1);
+        var bumper = PlacedParts.Bumper(new(6), 6, 3, 0);
+        return new(new(2), WorkshopCadenceSettings.Default(), new([gate, first, second, ball, bumper]),
+            Connections: new(Power(first.Id, gate.Id), Power(second.Id, bumper.Id)));
+    }
+
+    public static TheoryData<string> Cases() => new(["latch-null", "latch-16", "latch-6", "latch-null-payload", "latch-9-payload",
+        "latch-5-payload", "latch-null-disabled", "gate-m1-ede", "gate-p1-de", "gate-start", "gate-paused-reverse", "gate-paused-apply",
+        "gate-zero-charge", "gate-custom-disabled", "recharge-wired", "recharge-unwired", "recharge-zero-charge", "recharge-depletion-60",
+        "recharge-custom-120-30-half", "recharge-running-toggle", "two-sources"]);
+
+    [Theory]
+    [MemberData(nameof(Cases))]
+    public async Task Capture(string name)
+    {
+        if (Dir is not { } dir) return;
+        var gate = new GpuBodyId(3);
+        WorkshopElectricalControl Off(GpuBodyId id) => new(id, ElectricalEnable.Disabled);
+        WorkshopElectricalControl On(GpuBodyId id) => new(id, ElectricalEnable.Enabled);
+        Phase A(int ticks, params WorkshopElectricalControl[] controls) => new(PhaseAction.Advance, controls, ticks);
+        Phase P(int ticks, params WorkshopElectricalControl[] controls) => new(PhaseAction.PauseConfigureResume, controls, ticks);
+        var (construction, phases) = name switch
+        {
+            "latch-null" => (LatchSupplyFixtureTests.Machine(null), new[] { A(240) }),
+            "latch-16" => (LatchSupplyFixtureTests.Machine(16), [A(480)]),
+            "latch-6" => (LatchSupplyFixtureTests.Machine(6), [A(480)]),
+            "latch-null-payload" => (LatchSupplyFixtureTests.Machine(null, payload: true), [A(360)]),
+            "latch-9-payload" => (LatchSupplyFixtureTests.Machine(9, payload: true), [A(2400)]),
+            "latch-5-payload" => (LatchSupplyFixtureTests.Machine(5, payload: true), [A(360)]),
+            "latch-null-disabled" => (LatchSupplyFixtureTests.Machine(null, battery: ElectricalEnable.Disabled), [A(240)]),
+            "gate-m1-ede" => (Gate(-1, ElectricalEnable.Enabled), [A(180, Off(gate)), A(300, On(gate))]),
+            "gate-p1-de" => (Gate(1, ElectricalEnable.Disabled), [A(180), A(300, On(gate))]),
+            "gate-start" => (Gate(-1, ElectricalEnable.Enabled), [A(480)]),
+            "gate-paused-reverse" => (Gate(-1, ElectricalEnable.Enabled), [A(60), P(120, Off(gate), On(gate))]),
+            "gate-paused-apply" => (Gate(-1, ElectricalEnable.Enabled), [A(60), P(120, Off(gate)), P(120, On(gate))]),
+            "gate-zero-charge" => (Gate(-1, ElectricalEnable.Enabled, fraction: 0f), [A(240)]),
+            "gate-custom-disabled" => (Gate(-1, ElectricalEnable.Disabled, 120f, 30f, .5f), [A(120), A(240, On(gate))]),
+            "recharge-wired" => (Recharge(true, 3600f, 10f, 1f, ElectricalEnable.Enabled), [A(480)]),
+            "recharge-unwired" => (Recharge(false, 3600f, 10f, 1f, ElectricalEnable.Enabled), [A(480)]),
+            "recharge-zero-charge" => (Recharge(true, 3600f, 10f, 0f, ElectricalEnable.Enabled), [A(480)]),
+            "recharge-depletion-60" => (Recharge(true, 60f, 480f, 1f, ElectricalEnable.Enabled, 20f), [A(960)]),
+            "recharge-custom-120-30-half" => (Recharge(true, 120f, 30f, .5f, ElectricalEnable.Enabled), [A(480)]),
+            "recharge-running-toggle" => (Recharge(true, 3600f, 10f, 1f, ElectricalEnable.Enabled), [A(200), A(120, Off(gate)), A(160, On(gate))]),
+            "two-sources" => (TwoSources(), [A(120), A(240, On(new(4)))]),
+            _ => throw new ArgumentOutOfRangeException(nameof(name))
+        };
+        var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
+        var rows = new List<string>();
+        foreach (var source in scene.Electrical.Sources)
+            rows.Add($"source {source.Id.Value} {source.Owner.Value} {Bits(source.Capacity.Value)} {Bits(source.MaximumPower.Value)} {Bits(source.InitialFraction)} {source.Enabled} initial={Bits(source.InitialEnergy.Value)}");
+        foreach (var binding in scene.Electrical.Bindings) rows.Add($"binding {binding.Source.Value} {binding.Storage.Value}");
+        foreach (var node in scene.SupplyGraph.Nodes) rows.Add($"node {node}");
+        var admission = PhysicsGpuAbi.Admission(scene, new(1), new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1)));
+        rows.Add("admission " + Convert.ToHexString(SHA256.HashData(admission)));
+        rows.AddRange(await Trace(construction, phases));
+        await File.WriteAllLinesAsync(Path.Combine(dir, "trace-" + name + ".txt"), rows, TestContext.Current.CancellationToken);
+    }
+
+    internal static string Describe(IWorkshopInstance instance) => instance switch
+    {
+        WorkshopGenericInstance g => $"Generic {g.PartId.Value} id={g.Id.Value} cell={g.Cell} local={g.Local} rot={g.Rotation} locked={g.Locked} params=[" +
+            string.Join(",", g.Parameters.ToBundleValues().OrderBy(p => p.Key, StringComparer.Ordinal).Select(p => $"{p.Key}={p.Value:R}")) + "]",
+        _ => instance.ToString()!
+    };
+
+    private static string Outcome(Func<IEnumerable<IWorkshopInstance>> decode)
+    {
+        try { return "LOADED " + string.Join(" | ", decode().Select(Describe)); }
+        catch (WorkshopSaveRejectedException error) { return $"REFUSED save {error.Reason}: {error.Message}"; }
+        catch (WireFaultException error) { return $"REFUSED wire {error.Reason}: {error.Message}"; }
+        catch (ArgumentException error) { return $"REFUSED untyped {error.GetType().Name}: {error.Message}"; }
+        catch (InvalidOperationException error) { return $"REFUSED untyped {error.GetType().Name}: {error.Message}"; }
+    }
+
+    private static WorkshopGenericInstance Defaulted(PartId part) =>
+        WorkshopInput.Generic(part, new(1), 0, 1, 0, 0, 0, 0, 1, InstanceParameterCollection.Defaults(part));
+
+    /// <summary>P9A39_OLD_SAVES unset: no-op. P9A39_OLD_SAVES_WRITE=1 (base): encode each construction with the production save and
+    /// command encoders and write the bytes. Always: decode every written file at both boundaries and report the outcome.</summary>
+    [Fact]
+    public void OldSaves()
+    {
+        if (Environment.GetEnvironmentVariable("P9A39_OLD_SAVES") is not { } dir) return;
+        if (Environment.GetEnvironmentVariable("P9A39_OLD_SAVES_WRITE") == "1")
+        {
+            Directory.CreateDirectory(dir);
+            var kinds = new List<(string Name, IWorkshopInstance[] Instances)>
+            {
+                ("battery_default", [ProbeBattery.Make(new(1), 0, 1, 0)]),
+                ("battery_disabled", [ProbeBattery.Make(new(1), 0, 1, 0, enabled: ElectricalEnable.Disabled)]),
+                ("battery_custom_120_30_half", [ProbeBattery.Make(new(1), 0, 1, 0, 120f, 30f, .5f)]),
+                ("battery_custom_disabled_zero", [ProbeBattery.Make(new(1), 0, 1, 0, 600f, 10f, 0f, ElectricalEnable.Disabled)]),
+                ("battery_locked_in_lesson_shape", [ProbeBattery.Make(new(1), 2.5, 1, -1.25, 14400f, 480f, .75f)]),
+                ("domino", [WorkshopInput.Domino(new(1), 0, 1, 0, 0, 0, 0, 1)]),
+                ("counter", [WorkshopInput.Counter(new(1), 0, 1, 0, 0, 0, 0, 1, 3)]),
+                ("impact_switch", [Defaulted(PartId.ImpactSwitch)]),
+                ("ramp", [Defaulted(PartId.Ramp)]),
+                ("bumper", [Defaulted(PartId.PinballBumper)]),
+                ("receiver", [Defaulted(PartId.Receiver)]),
+                ("springboard", [Defaulted(PartId.Springboard)]),
+                ("wall", [Defaulted(PartId.Wall)]),
+                ("hold_timer", [Defaulted(new PartId("hold_timer"))]),
+                ("lamp", [WorkshopInput.Lamp(new(1), 0, 1, 0, 0, 0, 0, 1)]),
+                ("latch", [WorkshopInput.Latch(new(1), 0, 1, 0, 0, 0, 0, 1)]),
+                ("ball_detector", [WorkshopInput.BallDetector(new(1), 0, 1, 0, 0, 0, 0, 1)]),
+                ("pipe_5_5", [WorkshopInput.Pipe(new(1), 0, 1, 0, 0, 0, 0, 1, new PipeLength(5.5f))]),
+                ("pressure_plate_2", [WorkshopInput.PressurePlate(new(1), 0, 1, 0, 0, 0, 0, 1, 2f)]),
+                ("clock_2_5", [WorkshopInput.Clock(new(1), 0, 1, 0, 0, 0, 0, 1, 2.5f)]),
+                ("basketball", [Defaulted(PartId.Basketball)]),
+                ("powered_gate", [Defaulted(PartId.PoweredGate)]),
+                ("battery_wired_gate", [ProbeBattery.Make(new(1), 3, 3, 0), WorkshopInput.Generic(PartId.PoweredGate, new(2), 0, 3, 0, 0, 0, 0, 1)]),
+            };
+            foreach (var (name, instances) in kinds)
+            {
+                var connections = name == "battery_wired_gate" ? new WorkshopConnections(Power(new(1), new(2))) : WorkshopConnections.Empty;
+                var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(instances), Connections: connections);
+                File.WriteAllBytes(Path.Combine(dir, name + ".save.bin"), WorkshopSaveCodec.Encode(new WorkshopSavedConstruction(construction, new(3))));
+                File.WriteAllBytes(Path.Combine(dir, name + ".command.bin"), WorkshopWireFlatBuffers.EncodeCommand(new WorkshopCommand(new(1),
+                    WorkshopCommandKind.Construct, new(1), new(1), construction, Session: new(1, 2), Cadence: new(1), Projection: new(1))));
+            }
+        }
+        var report = new List<string>();
+        foreach (var save in Directory.GetFiles(dir, "*.save.bin").Order(StringComparer.Ordinal))
+        {
+            var name = Path.GetFileName(save)[..^".save.bin".Length];
+            var command = Path.Combine(dir, name + ".command.bin");
+            report.Add($"{name}: save {Outcome(() => WorkshopSaveCodec.Decode(SaveFixture.Elements, File.ReadAllBytes(save)).Construction.Instances)}");
+            report.Add($"{name}: command {Outcome(() => WorkshopWireFlatBuffers.DecodeCommand(File.ReadAllBytes(command)).Construction!.Value.Instances)}");
+        }
+        File.WriteAllLines(Path.Combine(Environment.GetEnvironmentVariable("P9A39_DIR") ?? dir, "old-save-outcomes.txt"), report);
+    }
+
+    [Fact]
+    public async Task LessonWorldHashes()
+    {
+        if (Dir is not { } dir) return;
+        var lines = new List<string>();
+        foreach (var lesson in new[] { "first_principles", "spring_forward", "ready_to_rebound", "bumper_sidekick", "bumper_depth",
+                     "wall_and_bumper", "domino_effect", "delayed_signal", "clear_pipe", "gentle_bend", "quarter_bend", "joined_pipe" })
+            foreach (var precision in new[] { (Half)0, (Half).45, (Half)1 })
+            {
+                var construction = PuzzleCatalogue.Create(new(lesson), new(2), WorkshopCadenceSettings.Default(), new(11), new(precision));
+                var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
+                var bytes = PhysicsGpuAbi.Admission(scene, new(1), new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1)));
+                var (_, reads, _) = await NoFixedCapacityTests.RunAndReset(construction, 480);
+                var final = System.Text.Json.JsonSerializer.Serialize(Enumerable.Range(0, reads[^1].Bodies.Count)
+                    .Select(i => reads[^1].Bodies[i]).ToArray(), Options);
+                var captures = reads.Count(read => Enumerable.Range(0, read.Captures.Count).Any(i => read.Captures[i].Phase == CaptureLatchPhase.Latched));
+                lines.Add($"{lesson} {(float)precision} instances={construction.Instances.Count} admission={Convert.ToHexString(SHA256.HashData(bytes))} final={Hash(final)} latchedReads={captures}");
+            }
+        await File.WriteAllLinesAsync(Path.Combine(dir, "lesson-world.txt"), lines, TestContext.Current.CancellationToken);
+    }
+
+    [Fact]
+    public async Task PlacedSolutionHashes()
+    {
+        if (Dir is not { } dir) return;
+        var lines = new List<string>();
+        foreach (var route in Enum.GetValues<LaunchLessonSolveTests.Route>())
+            foreach (var precision in new[] { (Half)0, (Half).45, (Half)1 })
+            {
+                var construction = PuzzleCatalogue.WithPrecision(LaunchLessonSolveTests.Bench(route), new(precision));
+                var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
+                var bytes = PhysicsGpuAbi.Admission(scene, new(1), new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1)));
+                var (_, reads, reset) = await NoFixedCapacityTests.RunAndReset(construction, 1200);
+                var trace = System.Text.Json.JsonSerializer.Serialize(reads.Select(read => Enumerable.Range(0, read.Bodies.Count)
+                    .Select(i => read.Bodies[i]).ToArray()).ToArray(), Options);
+                var works = System.Text.Json.JsonSerializer.Serialize(reads.Select(read => Enumerable.Range(0, read.ContactWorks.Count)
+                    .Select(i => read.ContactWorks[i]).ToArray()).ToArray(), Options);
+                var resetState = System.Text.Json.JsonSerializer.Serialize(Enumerable.Range(0, reset.Bodies.Count).Select(i => reset.Bodies[i]).ToArray(), Options);
+                lines.Add($"{route} {(float)precision} instances={construction.Instances.Count} admission={Convert.ToHexString(SHA256.HashData(bytes))} " +
+                    $"trace1200={Hash(trace)} works={Hash(works)} reset={Hash(resetState)} solved={LaunchLessonSolveTests.Solved(construction, reads)}");
+            }
+        await File.WriteAllLinesAsync(Path.Combine(dir, "placed-solutions.txt"), lines, TestContext.Current.CancellationToken);
+    }
+}

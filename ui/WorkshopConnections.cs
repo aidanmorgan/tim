@@ -48,7 +48,7 @@ public partial class Workshop
     }
     private void ClearConnectionChoices()
     {
-        _batteryCharge = null; _batteryToggle = null;
+        _runControlToggle = null;
         if (_connectionChoices is null) return;
         foreach (var child in _connectionChoices.GetChildren()) { _connectionChoices.RemoveChild(child); child.QueueFree(); }
     }

@@ -1,0 +1,20 @@
+mutant R10-no-run-toggle-in-run file ui/WorkshopConfiguration.cs
+diff --git a/ui/WorkshopConfiguration.cs b/ui/WorkshopConfiguration.cs
+index e266bb15..c83aabb7 100644
+--- a/ui/WorkshopConfiguration.cs
++++ b/ui/WorkshopConfiguration.cs
+@@ -22,7 +22,7 @@ public partial class Workshop
+         // While the machine runs, a part offers only what its package declares run-editable.
+         if (World.WorkshopPhase is WorkshopSimulationPhase.Running or WorkshopSimulationPhase.Paused &&
+             DeclaredPhysics.HasRunControlledSource(instance.PartId))
+-        { AddRunControl(instance); return; }
++        { }
+         var configure = SignalButton("Configure", () =>
+         {
+             if (!CanEdit || instance.Locked) return;
+    0 Warning(s)
+    1 Error(s)
+/private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/rv-cand/ui/WorkshopConfiguration.cs(119,18): error IDE0051: Private member 'Workshop.AddRunControl' is unused (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/style-rules/ide0051) [/private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/rv-cand/CuriousContraptions.csproj]
+Build FAILED.
+BUILD FAILED rc=1: tests not run (stale binaries would be invalid)
+restored: yes

@@ -59,8 +59,7 @@ public sealed class NoFixedCapacityTests
                 for (var i = 0; i < 9; i++)
                 {
                     var gate = WorkshopInput.Generic(PartId.PoweredGate, Next(), X(2 * i), 0, 0, 0, 0, 0, 1);
-                    var battery = WorkshopInput.Battery(Next(), X(2 * i) + 1.6, 0, 0, 0, 0, 0, 1,
-                        ElectricalSourceSettings.Default with { Enabled = ElectricalEnable.Enabled });
+                    var battery = PlacedParts.Battery(Next(), X(2 * i) + 1.6, 0, 0, enabled: ElectricalEnable.Enabled);
                     parts.AddRange([gate, battery]); links.Add(Supply(battery.Id, gate.Id));
                 }
                 return (Bench(parts, [.. links]), scene => { Assert.Equal(9, scene.Electrical.Sources.Length); Assert.Equal(9, scene.SupplyGraph.Nodes.ToArray().Count(node=>node.Kind==SupplyNodeKind.Consumer && node.Consumer!=default)); });
@@ -215,8 +214,7 @@ public sealed class NoFixedCapacityTests
         for (var i = 0; i < 9; i++)
         {
             var gate = WorkshopInput.Generic(PartId.PoweredGate, Next(), X(2 * i), 0, -8, 0, 0, 0, 1);
-            var battery = WorkshopInput.Battery(Next(), X(2 * i) + 1.6, 0, -8, 0, 0, 0, 1,
-                ElectricalSourceSettings.Default with { Enabled = ElectricalEnable.Enabled });
+            var battery = PlacedParts.Battery(Next(), X(2 * i) + 1.6, 0, -8, enabled: ElectricalEnable.Enabled);
             parts.AddRange([gate, battery]); links.Add(Supply(battery.Id, gate.Id));
         }
         for (var i = 0; i < 17; i++) parts.Add(WorkshopInput.Generic(PartId.Springboard, Next(), X(i), 1, -4, 0, 0, 0, 1));

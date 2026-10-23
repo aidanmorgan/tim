@@ -175,7 +175,7 @@ public sealed class ClockTests(NativeSceneFixture godot)
     public void Connections_AcceptsValidActivationAndElectricalLinks()
     {
         var clock = WorkshopInput.Clock(new(1), 0, 0, 0, 0, 0, 0, 1, 1.0f);
-        var battery = WorkshopInput.Battery(new(2), -2, 0, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default);
+        var battery = PlacedParts.Battery(new(2), -2, 0, 0);
         var counter = WorkshopInput.Counter(new(3), 2, 0, 0, 0, 0, 0, 1, 5);
 
         var instances = new WorkshopInstances(clock, battery, counter);
@@ -194,7 +194,7 @@ public sealed class ClockTests(NativeSceneFixture godot)
     [Fact]
     public void ActivationNetwork_ClockPoweredPeriodicPulses_5PulsesIn5Seconds()
     {
-        var battery = WorkshopInput.Battery(new(1), -2, 0, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default);
+        var battery = PlacedParts.Battery(new(1), -2, 0, 0);
         var clock = WorkshopInput.Clock(new(2), 0, 0, 0, 0, 0, 0, 1, 1.0f);
         var counter = WorkshopInput.Counter(new(3), 2, 0, 0, 0, 0, 0, 1, 5);
 
@@ -279,7 +279,7 @@ public sealed class ClockTests(NativeSceneFixture godot)
     [Fact]
     public void ActivationNetwork_PowerLossAtDeadlineAndRestoration()
     {
-        var battery = WorkshopInput.Battery(new(1), -2, 0, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default);
+        var battery = PlacedParts.Battery(new(1), -2, 0, 0);
         var clock = WorkshopInput.Clock(new(2), 0, 0, 0, 0, 0, 0, 1, 1.0f);
 
         var conn = new WorkshopConnection(battery.Id, WorkshopSocket.Supply, clock.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical);
@@ -342,7 +342,7 @@ public sealed class ClockTests(NativeSceneFixture godot)
     [Fact]
     public void ClockPhase_LivesInTheCommittedCheckpoint_SupersededCandidateLeavesItUnchanged_AndResetStopsIt()
     {
-        var battery = WorkshopInput.Battery(new(1), -2, 0, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default);
+        var battery = PlacedParts.Battery(new(1), -2, 0, 0);
         var clock = WorkshopInput.Clock(new(2), 0, 0, 0, 0, 0, 0, 1, 1.0f);
         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new([battery, clock]),
             Connections: new([new WorkshopConnection(battery.Id, WorkshopSocket.Supply, clock.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical)]));
@@ -402,7 +402,7 @@ public sealed class ClockTests(NativeSceneFixture godot)
     public void WireSerialization_BinaryAndFlatBuffersRoundtrip()
     {
         var clock = WorkshopInput.Clock(new(10), 1, 2, 3, 0, 0, 0, 1, 2.5f);
-        var battery = WorkshopInput.Battery(new(20), -2, 0, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default);
+        var battery = PlacedParts.Battery(new(20), -2, 0, 0);
         var conn = new WorkshopConnection(battery.Id, WorkshopSocket.Supply, clock.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical);
 
         var construction = new WorkshopConstruction(
