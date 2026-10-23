@@ -295,7 +295,7 @@ public sealed class WorkshopGpuDeviceTests
     {
         var transport = new HeldTransport(false); transport.Held.SetResult();
         var device = new WorkshopGpuDevice(transport, Document);
-        var battery = WorkshopInput.Battery(new(1), -2, 0, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default);
+        var battery = PlacedParts.Battery(new(1), -2, 0, 0);
         var clock = WorkshopInput.Clock(new(2), 0, 0, 0, 0, 0, 0, 1, 1.0f);
         var counter = WorkshopInput.Counter(new(3), 2, 0, 0, 0, 0, 0, 1, 5);
         var construction = new WorkshopConstruction(new(1), Settings, new(battery, clock, counter), Connections: new(

@@ -34,7 +34,7 @@ public sealed class LatchSupplyFixtureTests
         var half = TiltDegrees * Math.PI / 360;
         var parts = new List<IWorkshopInstance>
         {
-            WorkshopInput.Battery(new(Battery), -8, 3, 4, 0, 0, 0, 1, ElectricalSourceSettings.Default with { Enabled = battery }),
+            PlacedParts.Battery(new(Battery), -8, 3, 4, enabled: battery),
             WorkshopInput.Latch(new(Latch), -4, 3, 4, 0, 0, 0, 1),
             WorkshopInput.Generic(PartId.PoweredGate, new(Gate), GateX, GateY, 0, 0, 0, Math.Sin(half), Math.Cos(half)),
             WorkshopInput.Generic(PartId.ImpactSwitch, new(SwitchA), 0, 1, 0, 0, 0, 0, 1),

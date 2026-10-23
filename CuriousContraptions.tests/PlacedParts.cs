@@ -2,11 +2,25 @@ using CuriousContraptions.Gpu;
 
 namespace CuriousContraptions.Tests;
 
-/// <summary>The one construction adapter of the C-Bumper+Spring suites and probes: a Bumper of a strength and a Springboard of a
-/// stiffness, damping and preload, at an f32-input pose, as generic instances of their packages. (On the record path, 3fce7a03, the
-/// same two signatures built `WorkshopBumper`/`WorkshopSpringboard`: evidence-c-bumper-spring/probe/PlacedParts-record-path.cs.txt.)</summary>
+/// <summary>The one construction adapter of the converted suites and probes: a Bumper of a strength, a Springboard of a stiffness,
+/// damping and preload, and a Battery of a finite store, at an f32-input pose, as generic instances of their packages. (On the record
+/// path the Bumper and Springboard signatures built `WorkshopBumper`/`WorkshopSpringboard` at 3fce7a03, and the Battery built
+/// `WorkshopBattery` at f27cb71d: evidence-c-bumper-spring/probe/PlacedParts-record-path.cs.txt and
+/// evidence-9a-39/probe/Probe9a39Adapter-base.cs.txt.)</summary>
 internal static class PlacedParts
 {
+    /// <summary>A Battery with its declared store: capacity (J), power limit (W), initial charge (fraction of capacity) and the
+    /// enable state as its Choice index. The defaults are the package's (3600 J, 120 W, full, Enabled).</summary>
+    public static WorkshopGenericInstance Battery(GpuBodyId id, double x, double y, double z, float capacity = 3600f,
+        float powerLimit = 120f, float initialCharge = 1f, ElectricalEnable enabled = ElectricalEnable.Enabled) =>
+        WorkshopInput.Generic(PartId.Battery, id, x, y, z, 0, 0, 0, 1, new([new(new("capacity"), capacity),
+            new(new("power_limit"), powerLimit), new(new("initial_charge"), initialCharge), new(new("enabled"), enabled switch
+            {
+                ElectricalEnable.Disabled => 0f,
+                ElectricalEnable.Enabled => 1f,
+                _ => throw new ArgumentOutOfRangeException(nameof(enabled))
+            })]));
+
     public static IWorkshopInstance Bumper(GpuBodyId id, double x, double y, double z, float strength = 8f,
         double qx = 0, double qy = 0, double qz = 0, double qw = 1) =>
         WorkshopInput.Generic(PartId.PinballBumper, id, x, y, z, qx, qy, qz, qw, new([new(new("strength"), strength)]));

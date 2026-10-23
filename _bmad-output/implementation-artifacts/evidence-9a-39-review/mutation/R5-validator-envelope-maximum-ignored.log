@@ -1,0 +1,21 @@
+mutant R5-validator-envelope-maximum-ignored file CuriousContraptions.Bundle/BundleValidator.cs
+diff --git a/CuriousContraptions.Bundle/BundleValidator.cs b/CuriousContraptions.Bundle/BundleValidator.cs
+index 64a2c172..9d1797c7 100644
+--- a/CuriousContraptions.Bundle/BundleValidator.cs
++++ b/CuriousContraptions.Bundle/BundleValidator.cs
+@@ -548,7 +548,7 @@ public static class BundleValidator
+             float minimum, float maximum)
+         {
+             if (StoreParameter(path, key, parameters) is { } parameter &&
+-                (parameter.Kind != ParameterKind.Real || parameter.Unit != unit || !(parameter.Minimum >= minimum) || !(parameter.Maximum <= maximum)))
++                (parameter.Kind != ParameterKind.Real || parameter.Unit != unit || !(parameter.Minimum >= minimum) || maximum < 0f))
+                 OutOfRange(path);
+         }
+ 
+    0 Error(s)
+    0 Warning(s)
+Build succeeded.
+Passed!  - Failed:     0, Passed:  2466, Skipped:     0, Total:  2466, Duration: 44 s - CuriousContraptions.tests.dll (net10.0)
+  Failed CuriousContraptions.BundleElements.Tests.BundleValidatorTests.ASourceStoreNamesFourDistinctTypedParametersInsideTheEnvelope [1 ms]
+Failed!  - Failed:     1, Passed:   162, Skipped:     0, Total:   163, Duration: 335 ms - BundleElements.Tests.dll (net10.0)
+restored: yes

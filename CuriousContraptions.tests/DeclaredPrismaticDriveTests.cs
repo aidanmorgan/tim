@@ -66,7 +66,7 @@ public sealed class DeclaredPrismaticDriveTests
     public void TheGatePackageDeclaresItsDriveAndItsPowerInRouteBindsThatSlider()
     {
         var gate = WorkshopInput.Generic(PartId.PoweredGate, new(1), 0, 3, 0, 0, 0, 0, 1);
-        var battery = WorkshopInput.Battery(new(2), 3, 3, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default);
+        var battery = PlacedParts.Battery(new(2), 3, 3, 0);
         var scene = WorkshopPhysicsCompiler.Compile(new(new(2), WorkshopCadenceSettings.Default(), new(gate, battery))
             { Connections = new(Power(battery.Id, gate.Id)) }, new(1, 2));
         var declared = TestBundle.Entry(PartId.PoweredGate).Mechanical!.Sliders.Single().Drive!.Value;
@@ -90,7 +90,7 @@ public sealed class DeclaredPrismaticDriveTests
     public async Task ThePoweredGateOpensToItsTargetWithinItsDeclaredSpeedEffortAndPowerOnEverySubstep()
     {
         var gate = WorkshopInput.Generic(PartId.PoweredGate, new(1), 0, 3, 0, 0, 0, 0, 1);
-        var battery = WorkshopInput.Battery(new(2), 3, 3, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default);
+        var battery = PlacedParts.Battery(new(2), 3, 3, 0);
         var reads = await WorkshopPhysicsEngineTests.Run(new(new(2), WorkshopCadenceSettings.Default(), new(gate, battery))
             { Connections = new(Power(battery.Id, gate.Id)) }, 240);
         var blade = WorkshopPhysicsCompiler.SliderBody(gate.Id, 0);
@@ -304,8 +304,7 @@ public sealed class DeclaredPrismaticDriveTests
         var half = tilt * Math.PI / 360;
         var gate = WorkshopInput.Generic(PartId.PoweredGate, new(1), 0, 3, 0, 0, 0, Math.Sin(half), Math.Cos(half));
         var ball = WorkshopInput.Generic(PartId.Basketball, new(2), -.08, 3, 0, 0, 0, 0, 1);
-        var battery = WorkshopInput.Battery(new(3), 3, 3, 0, 0, 0, 0, 1,
-            ElectricalSourceSettings.Default with { Enabled = authoredEnabled ? ElectricalEnable.Enabled : ElectricalEnable.Disabled });
+        var battery = PlacedParts.Battery(new(3), 3, 3, 0, enabled: authoredEnabled ? ElectricalEnable.Enabled : ElectricalEnable.Disabled);
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(gate, ball, battery))
             { Connections = new(Power(battery.Id, gate.Id)) };
         await using var device = new WorkshopGpuDevice(new BrowserGpuTransport(), new(101, 206));

@@ -1,0 +1,22 @@
+mutant R8-choice-ids-off-by-one file ui/WorkshopConfiguration.cs
+diff --git a/ui/WorkshopConfiguration.cs b/ui/WorkshopConfiguration.cs
+index e266bb15..8617c7b1 100644
+--- a/ui/WorkshopConfiguration.cs
++++ b/ui/WorkshopConfiguration.cs
+@@ -37,7 +37,7 @@ public partial class Workshop
+                 {
+                     // A Choice is picked from its declared options, by index.
+                     var options = new OptionButton { Name = descriptor.Key, CustomMinimumSize = new(140, 36) };
+-                    for (var i = 0; i < descriptor.Options.Count; i++) options.AddItem(descriptor.Options[i], i);
++                    for (var i = 0; i < descriptor.Options.Count; i++) options.AddItem(descriptor.Options[i], i + 1);
+                     options.Select((int)instance.Parameters[key]);
+                     choices.Add(key, options);
+                     row.AddChild(Text(descriptor.Key, 14));
+    0 Error(s)
+    0 Warning(s)
+Build succeeded.
+  Failed CuriousContraptions.Tests.PalettePlacementTests.AChoiceParameterIsPickedFromItsDeclaredOptions [24 ms]
+  Failed CuriousContraptions.Tests.PalettePlacementTests.GenericBatteryEditorClampsItsStoreAndPicksTheEnableStateFromItsOptions [24 ms]
+Failed!  - Failed:     2, Passed:  2464, Skipped:     0, Total:  2466, Duration: 44 s - CuriousContraptions.tests.dll (net10.0)
+Passed!  - Failed:     0, Passed:   163, Skipped:     0, Total:   163, Duration: 330 ms - BundleElements.Tests.dll (net10.0)
+restored: yes

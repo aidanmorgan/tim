@@ -5,7 +5,7 @@ import { createRequire } from 'node:module';
 const requireMcp=createRequire('/opt/homebrew/lib/node_modules/@playwright/mcp/package.json');
 const {PNG}=requireMcp('./node_modules/playwright-core/lib/utilsBundle.js');
 import { WorkshopDriver } from './workshop-driver.ts';
-import { decodeWorkshopResponse, encodeWorkshopResponse, decodeSavedConstruction, authoredState, WorkEffect, encodeWorkshopCommand, CommandKind } from './workshop-wire.ts';
+import { decodeWorkshopResponse, encodeWorkshopResponse, decodeSavedConstruction, authoredState, WorkEffect, encodeWorkshopCommand, CommandKind, parameter } from './workshop-wire.ts';
 const ElectricalEnable={Disabled:0,Enabled:1} as const;
 type ElectricalEnable=typeof ElectricalEnable[keyof typeof ElectricalEnable];
 const WorkshopCommand={ConfigureCadence:6} as const;
@@ -178,10 +178,10 @@ for (const depleted of [false,true]) test(depleted ? 'Battery finite60J source e
         const initial = await saved(driver);
         const initialFb = decodeSavedConstruction(initial);
         const battery = initialFb.construction()!.instances(2)!;
-        assert.equal(battery.capacity(),depleted?60:3600);
-        assert.equal(battery.maximumPower(),120);
-        assert.equal(battery.initialFraction(),1);
-        assert.equal(battery.enabled(),1);
+        assert.equal(parameter(battery,'capacity'),depleted?60:3600);
+        assert.equal(parameter(battery,'power_limit'),120);
+        assert.equal(parameter(battery,'initial_charge'),1);
+        assert.equal(parameter(battery,'enabled'),1);
         assertLinks(initial,2,[1]);
         await driver.reload(); await driver.load(); await driver.save();
         assert.deepEqual(authored(await saved(driver)),authored(initial));
@@ -325,8 +325,8 @@ test('Battery disconnected authored settings and rendered charge thresholds rest
             const initialFb=decodeSavedConstruction(initial);
             assert.equal(initialFb.construction()!.connectionsLength(),0,'Disconnected control has no Supply edge');
             const battery=initialFb.construction()!.instances(2)!;
-            assert.equal(battery.capacity(),120);assert.equal(battery.maximumPower(),30);
-            assert.equal(battery.initialFraction(),fraction);assert.equal(battery.enabled(),0);
+            assert.equal(parameter(battery,'capacity'),120);assert.equal(parameter(battery,'power_limit'),30);
+            assert.equal(parameter(battery,'initial_charge'),fraction);assert.equal(parameter(battery,'enabled'),0);
             await driver.reload();await driver.load();await driver.save();assert.deepEqual(authored(await saved(driver)),authored(initial));
             await driver.run();await driver.page.waitForTimeout(1200);await driver.pauseSimulation();
             const read=decodeWorkshopResponse(reads.at(-1)!);
@@ -342,7 +342,7 @@ test('Battery disconnected authored settings and rendered charge thresholds rest
             const restored=await indicatorPicture(driver,'fraction-reset-'+fraction);assert.deepEqual(restored.marks,picture.marks);assert.equal(restored.terminal,false);
         }
         // Enabled yet disconnected: source is available, but no credit/debit occurs and preload is finite.
-        await configure(driver,120,30,.5,true);await driver.save();const initial=await saved(driver);assert.equal(decodeSavedConstruction(initial).construction()!.instances(2)!.enabled(),1);
+        await configure(driver,120,30,.5,true);await driver.save();const initial=await saved(driver);assert.equal(parameter(decodeSavedConstruction(initial).construction()!.instances(2)!,'enabled'),1);
         await driver.run();await driver.page.waitForTimeout(3000);await driver.pauseSimulation();
         const read=decodeWorkshopResponse(reads.at(-1)!);assert.equal(read.electrical(0)!.remaining(),60);assert.equal(read.electrical(0)!.debit(),0);
         assert.equal(read.contactWorks(0)!.suppliedEnergy(),0);assert.equal(read.contactWorks(0)!.remainingEnergy(),0);

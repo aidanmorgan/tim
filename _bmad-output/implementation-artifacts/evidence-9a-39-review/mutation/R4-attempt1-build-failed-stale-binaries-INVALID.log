@@ -1,0 +1,46 @@
+mutant R4-validator-store-keys-not-distinct file CuriousContraptions.Bundle/BundleValidator.cs
+diff --git a/CuriousContraptions.Bundle/BundleValidator.cs b/CuriousContraptions.Bundle/BundleValidator.cs
+index 64a2c172..c25622bd 100644
+--- a/CuriousContraptions.Bundle/BundleValidator.cs
++++ b/CuriousContraptions.Bundle/BundleValidator.cs
+@@ -532,7 +532,6 @@ public static class BundleValidator
+         private void SourceStore(SupplySourceStoreDescriptor store, IReadOnlyList<ParameterDescriptor> parameters)
+         {
+             string[] keys = [store.Capacity, store.PowerLimit, store.InitialCharge, store.Enable];
+-            if (keys.Distinct(StringComparer.Ordinal).Count() != keys.Length) OutOfRange("Supply.Store");
+             StoreValue("Supply.Store.Capacity", store.Capacity, parameters, ParameterUnit.Joule,
+                 ElectricalSourceEnvelope.MinimumCapacity, ElectricalSourceEnvelope.MaximumCapacity);
+             StoreValue("Supply.Store.PowerLimit", store.PowerLimit, parameters, ParameterUnit.Watt,
+    0 Warning(s)
+    1 Error(s)
+/private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/rv-cand/CuriousContraptions.Bundle/BundleValidator.cs(534,22): error IDE0059: Unnecessary assignment of a value to 'keys' (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/style-rules/ide0059) [/private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/rv-cand/CuriousContraptions.Bundle/CuriousContraptions.Bundle.csproj]
+Build FAILED.
+  Failed CuriousContraptions.Tests.ElectricalSupplyTests.RawGpuFieldsRejectBeforeNarrowing(field: 12, invalid: 256) [< 1 ms]
+  Failed CuriousContraptions.Tests.ElectricalSupplyTests.RawGpuFieldsRejectBeforeNarrowing(field: 36, invalid: 256) [< 1 ms]
+  Failed CuriousContraptions.Tests.ElectricalSupplyTests.RawGpuFieldsRejectBeforeNarrowing(field: 8, invalid: 4294967295) [< 1 ms]
+  Failed CuriousContraptions.Tests.ElectricalSupplyTests.RawGpuFieldsRejectBeforeNarrowing(field: 12, invalid: 257) [< 1 ms]
+  Failed CuriousContraptions.Tests.ElectricalSupplyTests.RawGpuFieldsRejectBeforeNarrowing(field: 36, invalid: 257) [< 1 ms]
+  Failed CuriousContraptions.Tests.ElectricalSupplyTests.F32AuthoringWiringAndSaveRoundTripWithAtomicAmbiguousSourceRejection(enabled: Disabled) [4 ms]
+  Failed CuriousContraptions.Tests.ElectricalSupplyTests.F32AuthoringWiringAndSaveRoundTripWithAtomicAmbiguousSourceRejection(enabled: Enabled) [< 1 ms]
+  Failed CuriousContraptions.Tests.DeclaredPresentationTests.BatterySupplyAndEachChargeBoundaryUseActualCommittedRead(fraction: 0.5, available: True, lit: 2, capacity: 3600, power: 120) [8 ms]
+  Failed CuriousContraptions.Tests.DeclaredPresentationTests.BatterySupplyAndEachChargeBoundaryUseActualCommittedRead(fraction: 0.25, available: True, lit: 1, capacity: 1234.5, power: 33) [7 ms]
+  Failed CuriousContraptions.Tests.DeclaredPresentationTests.BatterySupplyAndEachChargeBoundaryUseActualCommittedRead(fraction: 0.25, available: True, lit: 1, capacity: 3600, power: 120) [8 ms]
+  Failed CuriousContraptions.Tests.DeclaredPresentationTests.BatterySupplyAndEachChargeBoundaryUseActualCommittedRead(fraction: 0.5, available: True, lit: 2, capacity: 14400, power: 480) [7 ms]
+  Failed CuriousContraptions.Tests.DeclaredPresentationTests.BatterySupplyAndEachChargeBoundaryUseActualCommittedRead(fraction: 0.75, available: True, lit: 3, capacity: 60, power: 10) [3 ms]
+  Failed CuriousContraptions.Tests.DeclaredPresentationTests.BatterySupplyAndEachChargeBoundaryUseActualCommittedRead(fraction: 0.75, available: True, lit: 3, capacity: 3600, power: 120) [7 ms]
+  Failed CuriousContraptions.Tests.DeclaredPresentationTests.BatterySupplyAndEachChargeBoundaryUseActualCommittedRead(fraction: 1, available: True, lit: 4, capacity: 3600, power: 120) [7 ms]
+  Failed CuriousContraptions.Tests.PalettePlacementTests.GenericBatteryEditorClampsItsStoreAndPicksTheEnableStateFromItsOptions [25 ms]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.BatterySupplyRunsOneHundredTwentyPhasesPerSecondAtEveryCadence(cadence: Hz120) [1 ms]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.BatterySupplyRunsOneHundredTwentyPhasesPerSecondAtEveryCadence(cadence: Hz240) [1 ms]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.BatterySupplyRunsOneHundredTwentyPhasesPerSecondAtEveryCadence(cadence: Hz60) [< 1 ms]
+  Failed CuriousContraptions.Tests.SourceStoreInstanceTests.TheStorePaysWithinItsPowerLimitAndNeverMoreThanItsInitialCharge(capacity: 14400, power: 480, charge: 1, strength: 20) [6 ms]
+  Failed CuriousContraptions.Tests.SourceStoreInstanceTests.TheStorePaysWithinItsPowerLimitAndNeverMoreThanItsInitialCharge(capacity: 3600, power: 10, charge: 1, strength: 8) [3 ms]
+  Failed CuriousContraptions.Tests.SourceStoreInstanceTests.TheStorePaysWithinItsPowerLimitAndNeverMoreThanItsInitialCharge(capacity: 600, power: 10, charge: 0, strength: 8) [3 ms]
+  Failed CuriousContraptions.Tests.SourceStoreInstanceTests.TheStorePaysWithinItsPowerLimitAndNeverMoreThanItsInitialCharge(capacity: 60, power: 480, charge: 1, strength: 20) [3 ms]
+  Failed CuriousContraptions.Tests.SourceStoreInstanceTests.TheStorePaysWithinItsPowerLimitAndNeverMoreThanItsInitialCharge(capacity: 120, power: 30, charge: 0.5, strength: 8) [3 ms]
+  Failed CuriousContraptions.Tests.SourceStoreInstanceTests.AnEnabledStoreSuppliesTheGateFromTheFirstCommittedTickAndADisabledOneNeverDoes(enabled: Enabled) [30 ms]
+  Failed CuriousContraptions.Tests.SourceStoreInstanceTests.AnEnabledStoreSuppliesTheGateFromTheFirstCommittedTickAndADisabledOneNeverDoes(enabled: Disabled) [28 ms]
+  Failed CuriousContraptions.Tests.SourceStoreInstanceTests.ASyntheticStoreCompilesItsOwnKeysAndValues [1 ms]
+Failed!  - Failed:    26, Passed:  2440, Skipped:     0, Total:  2466, Duration: 44 s - CuriousContraptions.tests.dll (net10.0)
+Passed!  - Failed:     0, Passed:   163, Skipped:     0, Total:   163, Duration: 330 ms - BundleElements.Tests.dll (net10.0)
+restored: yes

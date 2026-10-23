@@ -308,7 +308,8 @@ public partial class Workshop
         var target = _preview ?? _selected;
         _cancelButton.Visible = !_inRun && (_tool is not null || _linkSource is not null);
         _connectionChoices.Visible = (CanEdit && (_selected is not null || _linkSource is not null)) ||
-            (_selected?.Definition?.PartId == PartId.Battery && World.WorkshopPhase is WorkshopSimulationPhase.Running or WorkshopSimulationPhase.Paused);
+            (_selected?.Definition?.PartId is { } selectedPart && DeclaredPhysics.HasRunControlledSource(selectedPart) &&
+                World.WorkshopPhase is WorkshopSimulationPhase.Running or WorkshopSimulationPhase.Paused);
         _removeButton.Visible = _preview == null && _selected is { Locked: false };
         _partTools.Visible = !_inRun && target is { Locked: false } && !_rotationGizmo.Dragging && !_optionsPanel.Visible;
         _rotationGizmo.Follow(_selected, !_inRun && _tool is null, _camera);

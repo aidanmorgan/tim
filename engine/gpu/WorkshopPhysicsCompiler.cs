@@ -130,9 +130,9 @@ public static class WorkshopPhysicsCompiler
                 targetIndex++;
             }
         }
-        foreach (var battery in construction.Instances.OfType<WorkshopBattery>())
-            electricalSources.Add(new(ElectricalSource(battery.Id), battery.Id, battery.Settings.Capacity,
-                battery.Settings.MaximumPower, battery.Settings.InitialFraction, battery.Settings.Enabled));
+        foreach (var owner in construction.Instances.OfType<WorkshopGenericInstance>())
+            if (DeclaredPhysics.SourceStore(owner.PartId) is { } store)
+                electricalSources.Add(ElectricalSourceFor(owner.Id, store, owner.Parameters));
         foreach (var trigger in construction.Instances.OfType<WorkshopGenericInstance>())
             if (DeclaredPhysics.Of(trigger.PartId).Signal?.Contact is { } contact &&
                 (!construction.Puzzle.Id.IsAuthored || FirstPayload(construction) is not null))
@@ -187,6 +187,19 @@ public static class WorkshopPhysicsCompiler
     public static GpuBodyId SliderBody(GpuBodyId owner, int slider) =>
         slider is >= 0 and < 16 ? new(checked(PartIdentities(owner) + (ulong)slider * 16 + 2))
             : throw new ArgumentOutOfRangeException(nameof(slider), "An element declares at most 16 sliders.");
+
+    /// <summary>The finite electrical store a declared Source compiles for one owner, from its own store parameters as f32: the
+    /// initial energy is capacity × initial charge. The enable state is the Choice index, 0 Disabled and 1 Enabled.</summary>
+    internal static ElectricalSourceDeclaration ElectricalSourceFor(GpuBodyId owner, SupplySourceStoreDescriptor store,
+        InstanceParameterCollection parameters) =>
+        new(ElectricalSource(owner), owner, new(parameters[new ParameterId(store.Capacity)]),
+            new(parameters[new ParameterId(store.PowerLimit)]), parameters[new ParameterId(store.InitialCharge)],
+            parameters[new ParameterId(store.Enable)] switch
+            {
+                0f => ElectricalEnable.Disabled,
+                1f => ElectricalEnable.Enabled,
+                _ => throw new ArgumentException("Undefined declared electrical enable state.")
+            });
 
     /// <summary>The finite store a declared contact-work capability compiles for one owner: its target speed is the strength
     /// parameter, its preload the reference mass's kinetic energy at that speed, (½·m)·s·s in f32.</summary>

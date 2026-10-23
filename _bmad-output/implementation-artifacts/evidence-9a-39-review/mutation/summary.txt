@@ -1,0 +1,26 @@
+Reviewer mutants, 9A.39 (throwaway worktree rv-cand = f27cb71d + candidate diff + untracked probe tests; one slnx Debug build per
+mutant; full CuriousContraptions.tests (2466 incl. 25 no-op probe cases) and BundleElements.Tests (163); file restored from the index
+after each run, "restored: yes" in every log). Harness: scratchpad mutant.sh. Logs: R*.log; build output R*.build.txt (from R5 on).
+
+R0  control, no mutation                                             2466/2466, 163/163
+R1  ApplyRunControlAsync calls PushUndo (toggle records an Undo)       KILLED  PalettePlacementTests.TheRunControlToggle...
+R2  ResetUiAnimations keeps _runControlQueued (Reset keeps intent)     KILLED  PalettePlacementTests.TheRunControlToggle...
+R3  ElectricalSourceFor: initial charge + 1 ulp                        KILLED  30+ (1 + ulp leaves [0,1]; boundary kill)
+R3b ElectricalSourceFor: capacity - 1 ulp (interior, off-by-ulp)       KILLED  26 (DeclaredPresentation gauge rows, editor, supply)
+R4  validator: store-key Distinct check disabled                       SURVIVES - equivalent: every pair of store roles differs in
+                                                                       (kind, unit) [Real/Joule, Real/Watt, Real/None, Choice/None], so
+                                                                       a shared key is always refused by the per-role check. Non-blocking.
+                                                                       (attempt 1 failed to build, IDE0059; its test lines ran stale
+                                                                       binaries and are INVALID: R4-attempt1-...-INVALID.log)
+R5  validator: envelope Maximum <= max ignored                         KILLED  BundleValidatorTests.ASourceStoreNamesFour...
+R6  validator: RunControl allowed on any parameter                     KILLED  BundleValidatorTests.ARunControlIsDeclaredOnly...
+R7  validator: Clamp on a Choice allowed                               KILLED  BundleValidatorTests.ARunControlIsDeclaredOnly...
+R8  generic editor: OptionButton ids i+1                               KILLED  PalettePlacementTests (Receiver Choice; Battery editor)
+R9  ConfigureElectrical admits a locked owner                          KILLED  SourceStoreInstanceTests.TheControlIsRefused...
+R10 Running/Paused: no run toggle (build editor shown instead)         KILLED  PalettePlacementTests.TheRunControlToggle...
+                                                                       (attempt 1 failed to build, IDE0051; tests not run)
+R11 validator: enable options not required to be [Disabled, Enabled]   KILLED  BundleValidatorTests.ASourceStoreNamesFour...
+
+Implementer M7 (UI call site ignores RunEdit): agreed equivalent under the shipped bundle (the Battery is the only Source store and
+declares RunControl); the shared predicate is killed by M3/M3b. Becomes live when a second Source package exists: that slice must add a
+UI test with a BuildOnly-enable Source. Non-blocking.

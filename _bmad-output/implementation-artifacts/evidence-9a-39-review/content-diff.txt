@@ -1,0 +1,8 @@
+0	112	content/puzzles.json
+removed line shapes:
+  28             "Capacity": 0,
+  28             "InitialFraction": 0,
+  28             "MaximumPower": 0,
+  28           "enabled": 0,
+added lines (non-header):
+residual keys in candidate: 0

@@ -1,0 +1,86 @@
+== reviewer base vs reviewer candidate (traces, lesson worlds, placed solutions)
+IDENTICAL lesson-world.txt       36 lines
+IDENTICAL placed-solutions.txt       36 lines
+IDENTICAL trace-gate-custom-disabled.txt      397 lines
+IDENTICAL trace-gate-m1-ede.txt      518 lines
+IDENTICAL trace-gate-p1-de.txt      517 lines
+IDENTICAL trace-gate-paused-apply.txt      342 lines
+IDENTICAL trace-gate-paused-reverse.txt      220 lines
+IDENTICAL trace-gate-start.txt      516 lines
+IDENTICAL trace-gate-zero-charge.txt      276 lines
+IDENTICAL trace-latch-16.txt      519 lines
+IDENTICAL trace-latch-5-payload.txt      399 lines
+IDENTICAL trace-latch-6.txt      519 lines
+IDENTICAL trace-latch-9-payload.txt     2439 lines
+IDENTICAL trace-latch-null-disabled.txt      279 lines
+IDENTICAL trace-latch-null-payload.txt      399 lines
+IDENTICAL trace-latch-null.txt      279 lines
+IDENTICAL trace-recharge-custom-120-30-half.txt      517 lines
+IDENTICAL trace-recharge-depletion-60.txt      997 lines
+IDENTICAL trace-recharge-running-toggle.txt      519 lines
+IDENTICAL trace-recharge-unwired.txt      516 lines
+IDENTICAL trace-recharge-wired.txt      517 lines
+IDENTICAL trace-recharge-zero-charge.txt      517 lines
+IDENTICAL trace-two-sources.txt      401 lines
+trace files:       21; lesson lines:       36; placed lines:       36
+== reviewer base vs implementer baseline
+SAME lesson-world.txt
+SAME placed-solutions.txt
+SAME trace-gate-custom-disabled.txt
+SAME trace-gate-m1-ede.txt
+SAME trace-gate-p1-de.txt
+SAME trace-gate-paused-apply.txt
+SAME trace-gate-paused-reverse.txt
+SAME trace-gate-start.txt
+SAME trace-gate-zero-charge.txt
+SAME trace-latch-16.txt
+SAME trace-latch-5-payload.txt
+SAME trace-latch-6.txt
+SAME trace-latch-9-payload.txt
+SAME trace-latch-null-disabled.txt
+SAME trace-latch-null-payload.txt
+SAME trace-latch-null.txt
+SAME trace-recharge-custom-120-30-half.txt
+SAME trace-recharge-depletion-60.txt
+SAME trace-recharge-running-toggle.txt
+SAME trace-recharge-unwired.txt
+SAME trace-recharge-wired.txt
+SAME trace-recharge-zero-charge.txt
+SAME trace-two-sources.txt
+== reviewer base-encoder old saves vs implementer pins
+OLD SAVES BYTE-IDENTICAL to implementer pins (      46 files)
+== base decode of base bytes (positive control): refused lines
+46
+== candidate decode vs implementer candidate outcomes
+OUTCOMES IDENTICAL
+== unshifted kinds: base vs candidate LOADED lines
+SAME lamp save
+SAME lamp command
+SAME latch save
+SAME latch command
+SAME ball_detector save
+SAME ball_detector command
+SAME pipe_5_5 save
+SAME pipe_5_5 command
+SAME pressure_plate_2 save
+SAME pressure_plate_2 command
+SAME clock_2_5 save
+SAME clock_2_5 command
+SAME basketball save
+SAME basketball command
+SAME powered_gate save
+SAME powered_gate command
+== NaN split base
+pinball_bumper strength=NaN save:save UnknownElement command:wire UnknownElement
+pinball_bumper strength=∞ save:save UnknownElement command:wire UnknownElement
+pinball_bumper strength=1E+09 save:save UnknownElement command:wire UnknownElement
+impact_switch trigger_threshold=NaN save:save UnknownElement command:wire UnknownElement
+impact_switch trigger_threshold=∞ save:save UnknownElement command:wire UnknownElement
+impact_switch trigger_threshold=1E+09 save:save UnknownElement command:wire UnknownElement
+== NaN split candidate
+pinball_bumper strength=NaN save:save UnknownElement command:wire UnknownElement
+pinball_bumper strength=∞ save:save UnknownElement command:wire UnknownElement
+pinball_bumper strength=1E+09 save:save UnknownElement command:wire UnknownElement
+impact_switch trigger_threshold=NaN save:save UnknownElement command:wire UnknownElement
+impact_switch trigger_threshold=∞ save:save UnknownElement command:wire UnknownElement
+impact_switch trigger_threshold=1E+09 save:save UnknownElement command:wire UnknownElement

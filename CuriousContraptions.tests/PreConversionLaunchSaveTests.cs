@@ -22,13 +22,14 @@ public sealed class PreConversionLaunchSaveTests
         ["resized ramp"] = "4332CC7D996E14C5287E0431D1A4172AE1D07888C5760D879973DD32292C1F25",
     };
 
-    // Old Bumper at strength 8: its strength float sits in the parameters slot, so the verifier refuses the buffer. At strength 0 that
-    // float is elided: it decodes as a parameterless generic Bumper and its missing declared strength is refused. Old Springboard: its
-    // stiffness and damping land in capacity and maximum power, typed fields a generic record cannot carry, and its parameters are
-    // missing. Old Battery: its enable byte sits in the target-count slot, so the verifier refuses it. Old Domino and Counter: their half
-    // extents and target count lie beyond the current table. Old Switch and resized Ramp: their parameters lie beyond the table.
+    // Re-derived on the 14-field table of Story 9A.39 (the C-Bumper+Spring-era reasons are in that slice's receipts). Old Bumper at
+    // strength 8: its strength, reference mass and preload lie beyond the table, so it decodes as a parameterless generic Bumper whose
+    // missing declared strength is refused (at C-Bumper+Spring the strength sat in the parameters slot and the verifier refused it). At
+    // strength 0 likewise. Old Springboard: its stiffness and damping land in half_extents and friction, typed fields a generic record
+    // cannot carry. Old Battery: its capacity float sits in the parameters slot, so the verifier refuses the buffer. Old Domino and Counter: their half extents and target count lie beyond the table. Old Switch and resized Ramp: their
+    // parameters lie beyond the table.
     [Theory]
-    [InlineData("bumper strength 8", WorkshopSaveRejection.VerifierRejected, WireFaultReason.VerifierRejected)]
+    [InlineData("bumper strength 8", WorkshopSaveRejection.OutOfRange, WireFaultReason.OutOfRange)]
     [InlineData("bumper strength 0", WorkshopSaveRejection.OutOfRange, WireFaultReason.OutOfRange)]
     [InlineData("spring default", WorkshopSaveRejection.OutOfRange, WireFaultReason.OutOfRange)]
     [InlineData("spring charged", WorkshopSaveRejection.OutOfRange, WireFaultReason.OutOfRange)]
@@ -45,6 +46,69 @@ public sealed class PreConversionLaunchSaveTests
         Assert.Equal(RecordPathSha256[name], Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(bytes)));
         SaveFixture.Refused(save, () => WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes));
         Assert.Equal(command, Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeCommand(record.Command())).Reason);
+    }
+
+    // Story 9A.39: f27cb71d's records whose meaning moved when the battery's four typed fields left the table. The bytes are that
+    // commit's own production encoder output (sha256 pinned from evidence-9a-39/baseline/capture/old-saves.sha256). There is no
+    // migration: each is refused with a typed reason at both boundaries, never misread. Old Battery: its capacity, maximum power and
+    // initial fraction land in half_extents, friction and target_count; where its enable byte (slot 13) is written it reads as the
+    // parameters offset and the verifier refuses the buffer, otherwise the typed fields are refused. Old Domino and Counter: half
+    // extents and target count now read beyond their old slots, so they are missing. Every parameterised generic: its parameters lie
+    // beyond the table, so its declared parameters are missing.
+    [Theory]
+    [InlineData("battery_default", "29ca2c042cfed22cb7b54cff4f8ad0c73801e700b362bd22965d7dcd939a2aaf", WorkshopSaveRejection.VerifierRejected, WireFaultReason.VerifierRejected)]
+    [InlineData("battery_disabled", "f6814d3103970f0e92ff42cc769a109a6d4ca7a8964bf8bd74ad4751f9f85166", WorkshopSaveRejection.OutOfRange, WireFaultReason.OutOfRange)]
+    [InlineData("battery_custom_120_30_half", "3ca68bb944310a98001d5a013c7f822d1368cddbdbb8a4c92a3a524d72f8b04c", WorkshopSaveRejection.VerifierRejected, WireFaultReason.VerifierRejected)]
+    [InlineData("battery_custom_disabled_zero", "bb81a4225332a58134f30b6ef2faaabfffee70c2982b1f87f210926ec323f16d", WorkshopSaveRejection.OutOfRange, WireFaultReason.OutOfRange)]
+    [InlineData("domino", "9715a1b50c2df29b8c1d8b3d6e51d185594ba10e3960967ddd1f507590f96828", WorkshopSaveRejection.MissingField, WireFaultReason.MissingField)]
+    [InlineData("counter", "28e34c0cbb55ff4f74e5b6e9ec7f587ba8373edebc4809b676bc8fde5493a70c", WorkshopSaveRejection.MissingField, WireFaultReason.MissingField)]
+    [InlineData("impact_switch", "5616915e22c3a5850531aa8081837e123687710cfe36cc69c9192b21129194df", WorkshopSaveRejection.OutOfRange, WireFaultReason.OutOfRange)]
+    [InlineData("ramp", "d0f3d6bbe76738031f2b778d921f95d8955e87ac6d1b56457219fe05601d1c0a", WorkshopSaveRejection.OutOfRange, WireFaultReason.OutOfRange)]
+    [InlineData("bumper", "2609c9eef542ee5ccf282f2529b43804c69f8eef86e96cd8344a1452deb98f90", WorkshopSaveRejection.OutOfRange, WireFaultReason.OutOfRange)]
+    [InlineData("receiver", "e115ed19fa96f287ce4639c7cb4029d000448516a4589f940698eb963a3e19f3", WorkshopSaveRejection.OutOfRange, WireFaultReason.OutOfRange)]
+    [InlineData("springboard", "b341f48004f7a5f24fca755d42912ecaf8f60cbbc820ffc520db2b597ab3b580", WorkshopSaveRejection.OutOfRange, WireFaultReason.OutOfRange)]
+    [InlineData("wall", "8de75e884c98b1090aa39463ce201f7497b9d0317636bf0655beb74d39c82081", WorkshopSaveRejection.OutOfRange, WireFaultReason.OutOfRange)]
+    [InlineData("hold_timer", "ed8ea65636f6b6ab71797325c27460a3eb927e4b0986e1ec354b72fcd1f60b78", WorkshopSaveRejection.OutOfRange, WireFaultReason.OutOfRange)]
+    public void APreSourceStoreRecordIsRefusedWithATypedReasonAtBothBoundaries(string name, string baseEncoderSha256,
+        WorkshopSaveRejection save, WireFaultReason command)
+    {
+        var record = OldLayoutSaves.PreSourceStoreRecords().Single(value => value.Name == name);
+        var bytes = record.Save();
+        Assert.Equal(baseEncoderSha256, Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(bytes)).ToLowerInvariant());
+        SaveFixture.Refused(save, () => WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes));
+        Assert.Equal(command, Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeCommand(record.Command())).Reason);
+    }
+
+    // Control: the current layout of a Battery (its four declared store parameters) loads at both boundaries, with its values, and a
+    // current Battery record carrying any typed record field, an undeclared, missing or duplicate parameter, or an enable index that
+    // names no option, is refused atomically at both.
+    [Fact]
+    public void ACurrentBatteryRecordIsItsDeclaredStoreParametersOnly()
+    {
+        (string Key, float Value)[] valid = [("capacity", 120f), ("enabled", 0f), ("initial_charge", .5f), ("power_limit", 30f)];
+        void Refused(byte[] bytes, string what, WorkshopSaveRejection reason = WorkshopSaveRejection.OutOfRange)
+        {
+            var save = Assert.Throws<WorkshopSaveRejectedException>(() => WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes));
+            Assert.True(save.Reason == reason, $"battery {what}: {save.Reason}");
+            var record = WorkshopSaveCodec.Open(bytes).Construction!.Value.Instances(0)!.Value;
+            Assert.Equal(WireFaultReason.OutOfRange, Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.MapInstance(record)).Reason);
+        }
+        foreach (var field in Enum.GetValues<TypedField>())
+            Refused(PayloadInstanceTests.GenericSave("battery", field, valid, 4f), field.ToString());
+        Refused(PayloadInstanceTests.GenericSave("battery", null, [.. valid, ("maximum_power", 30f)]), "undeclared parameter");
+        Refused(PayloadInstanceTests.GenericSave("battery", null, valid[1..]), "missing parameter");
+        Refused(PayloadInstanceTests.GenericSave("battery", null, [.. valid, valid[0]]), "duplicate parameter");
+        foreach (var (key, value) in new[] { ("enabled", 2f), ("enabled", .5f), ("enabled", -1f), ("capacity", 59f), ("capacity", 14401f),
+                     ("power_limit", 9f), ("power_limit", 481f), ("initial_charge", -.01f), ("initial_charge", 1.01f) })
+            Refused(PayloadInstanceTests.GenericSave("battery", null, valid.Select(pair => pair.Key == key ? (key, value) : pair).ToArray()),
+                $"{key} = {value}");
+        // A non-finite value is the save boundary's NonFinite refusal (the command decode's OutOfRange).
+        Refused(PayloadInstanceTests.GenericSave("battery", null, valid.Select(pair => pair.Key == "capacity" ? (pair.Key, float.NaN) : pair).ToArray()),
+            "capacity = NaN", WorkshopSaveRejection.NonFinite);
+        var bytes = PayloadInstanceTests.GenericSave("battery", null, valid);
+        var loaded = Assert.IsType<WorkshopGenericInstance>(Assert.Single(WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes).Construction.Instances));
+        Assert.Equal(PlacedParts.Battery(new(1), 0, 2, 0, 120f, 30f, .5f, ElectricalEnable.Disabled), loaded);
+        Assert.Equal(loaded, WorkshopWireFlatBuffers.MapInstance(WorkshopSaveCodec.Open(bytes).Construction!.Value.Instances(0)!.Value));
     }
 
     // A current-layout Bumper or Springboard record is its declared parameters only: any typed record field (all 11, each with valid

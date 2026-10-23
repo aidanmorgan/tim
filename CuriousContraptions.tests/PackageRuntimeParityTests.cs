@@ -327,9 +327,13 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
             ],
             "battery" =>
             [
-                ("enabled", ParameterUnit.None, ParameterKind.Choice, Lane.Whole, Array.IndexOf(enables, ElectricalSourceSettings.Default.Enabled),
-                    Admits(value => _ = float.IsInteger(value) && value >= 0 && value < enables.Length ? enables[(int)value] :
-                        throw new ArgumentException("No such option.")), Enum.GetNames<ElectricalEnable>())
+                // The owner defaults of 10 Oct 2026 (3600 J, 120 W, full, Enabled); the enable options are the runtime enum's names,
+                // in its order, so the declared index is the compiled state.
+                ("capacity", ParameterUnit.Joule, ParameterKind.Real, Lane.Single, 3600f, Generic(PartId.Battery, "capacity"), []),
+                ("power_limit", ParameterUnit.Watt, ParameterKind.Real, Lane.Single, 120f, Generic(PartId.Battery, "power_limit"), []),
+                ("initial_charge", ParameterUnit.None, ParameterKind.Real, Lane.Single, 1f, Generic(PartId.Battery, "initial_charge"), []),
+                ("enabled", ParameterUnit.None, ParameterKind.Choice, Lane.Whole, Array.IndexOf(enables, ElectricalEnable.Enabled),
+                    Generic(PartId.Battery, "enabled"), Enum.GetNames<ElectricalEnable>())
             ],
             "pressure_plate" =>
             [
@@ -394,7 +398,7 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
         "spring" => WorkshopInput.Generic(PartId.Springboard, Owner, 0, 3, 0, 0, 0, 0, 1),
         "ramp" => WorkshopInput.Generic(PartId.Ramp, Owner, 0, 3, 0, 0, 0, 0, 1),
         "wall" => WorkshopInput.Generic(PartId.Wall, Owner, 0, 3, 0, 0, 0, 0, 1),
-        "battery" => WorkshopInput.Battery(Owner, 0, 3, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default),
+        "battery" => PlacedParts.Battery(Owner, 0, 3, 0),
         "bumper" => WorkshopInput.Generic(PartId.PinballBumper, Owner, 0, 3, 0, 0, 0, 0, 1),
         "lamp" => WorkshopInput.Lamp(Owner, 0, 3, 0, 0, 0, 0, 1),
         "domino" => WorkshopInput.Domino(Owner, 0, 3, 0, 0, 0, 0, 1),

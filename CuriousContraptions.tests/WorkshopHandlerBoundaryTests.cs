@@ -52,7 +52,7 @@ public sealed class WorkshopHandlerBoundaryTests
     public void EveryAsyncVoidUiHandlerIsACatchingBoundaryOverItsTaskMethod()
     {
         var handlers = Handlers("ui").ToArray();
-        Assert.True(handlers.Length >= 17,$"Expected the Workshop's async void handlers; found {handlers.Length}.");
+        Assert.True(handlers.Length >= 16,$"Expected the Workshop's async void handlers; found {handlers.Length}.");
         Assert.All(handlers, handler => Assert.True(IsBoundary(handler.Name, handler.Body),
             $"{handler.File}: async void {handler.Name} must only await {handler.Name.TrimStart('_')}Async inside a catch that calls HandlerFailed."));
         // Control: the shape check rejects a handler that awaits work without the boundary.

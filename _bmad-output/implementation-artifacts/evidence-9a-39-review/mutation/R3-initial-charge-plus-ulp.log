@@ -1,0 +1,59 @@
+mutant R3-initial-charge-plus-ulp file engine/gpu/WorkshopPhysicsCompiler.cs
+diff --git a/engine/gpu/WorkshopPhysicsCompiler.cs b/engine/gpu/WorkshopPhysicsCompiler.cs
+index f24c80de..99e4311e 100644
+--- a/engine/gpu/WorkshopPhysicsCompiler.cs
++++ b/engine/gpu/WorkshopPhysicsCompiler.cs
+@@ -193,7 +193,7 @@ public static class WorkshopPhysicsCompiler
+     internal static ElectricalSourceDeclaration ElectricalSourceFor(GpuBodyId owner, SupplySourceStoreDescriptor store,
+         InstanceParameterCollection parameters) =>
+         new(ElectricalSource(owner), owner, new(parameters[new ParameterId(store.Capacity)]),
+-            new(parameters[new ParameterId(store.PowerLimit)]), parameters[new ParameterId(store.InitialCharge)],
++            new(parameters[new ParameterId(store.PowerLimit)]), MathF.BitIncrement(parameters[new ParameterId(store.InitialCharge)]),
+             parameters[new ParameterId(store.Enable)] switch
+             {
+                 0f => ElectricalEnable.Disabled,
+    0 Error(s)
+    0 Warning(s)
+Build succeeded.
+  Failed CuriousContraptions.Tests.WorkshopSimulationTests.ACommittedResetClearsInRunSupplyControlsAndACancelledOneKeepsThem [1 ms]
+  Failed CuriousContraptions.Tests.HoldTimerTests.QueuedDiscardedAndFailedDueCandidatesRetainCommittedTimerAndDelivery [7 ms]
+  Failed CuriousContraptions.Tests.HoldTimerTests.ActualCoordinatorRejectsForgedEarlyRearmBusyRestartAndForeignIdentity [16 ms]
+  Failed CuriousContraptions.Tests.HoldTimerTests.SupplyLossNeverPausesAndRestorationAfterExpiryNeverReplays [5 ms]
+  Failed CuriousContraptions.Tests.HoldTimerTests.ActualDeviceKeepsEarlierPhysicalBypassAheadOfSameBoundaryDelay [5 ms]
+  Failed CuriousContraptions.Tests.HoldTimerTests.PhysicalTriggerHoldsExactWindowWithoutGeneratingSupply(seconds: 12, ticks: 1440) [4 ms]
+  Failed CuriousContraptions.Tests.HoldTimerTests.PhysicalTriggerHoldsExactWindowWithoutGeneratingSupply(seconds: 0.100000001, ticks: 12) [4 ms]
+  Failed CuriousContraptions.Tests.HoldTimerTests.PhysicalTriggerHoldsExactWindowWithoutGeneratingSupply(seconds: 2, ticks: 240) [3 ms]
+  Failed CuriousContraptions.Tests.HoldTimerTests.PhysicalTriggerHoldsExactWindowWithoutGeneratingSupply(seconds: 0.123456702, ticks: 15) [3 ms]
+  Failed CuriousContraptions.Tests.HoldTimerTests.DueDelayClosesContactBeforeSameTickConsumerIntegrationAndSaveResetIsExact [5 ms]
+  Failed CuriousContraptions.Tests.HoldTimerTests.DistinctPhysicalAndDelayedTriggersProduceTwoWindowsWithoutChangingSourceAdmission [4 ms]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.AnUnpoweredGateStaysClosed [4 ms]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.BatterySupplyRunsOneHundredTwentyPhasesPerSecondAtEveryCadence(cadence: Hz120) [1 ms]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.BatterySupplyRunsOneHundredTwentyPhasesPerSecondAtEveryCadence(cadence: Hz240) [< 1 ms]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.BatterySupplyRunsOneHundredTwentyPhasesPerSecondAtEveryCadence(cadence: Hz60) [< 1 ms]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.AnAuthoredDisabledBatteryOpensItsGateWhenEnabledInRun [4 ms]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.AnEnabledBatteryClosesItsGateWhenDisabledInRun [3 ms]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.TwoCircuitsAreIndependent [4 ms]
+  Failed CuriousContraptions.Tests.SwitchElectricalTests.TwoContactChainsAndCyclesAreSourceSeededAndOrderIndependent(cycle: True, noSource: False, reverse: False) [5 ms]
+  Failed CuriousContraptions.Tests.SwitchElectricalTests.TwoContactChainsAndCyclesAreSourceSeededAndOrderIndependent(cycle: True, noSource: True, reverse: False) [3 ms]
+  Failed CuriousContraptions.Tests.SwitchElectricalTests.TwoContactChainsAndCyclesAreSourceSeededAndOrderIndependent(cycle: True, noSource: False, reverse: True) [4 ms]
+  Failed CuriousContraptions.Tests.SwitchElectricalTests.TwoContactChainsAndCyclesAreSourceSeededAndOrderIndependent(cycle: False, noSource: False, reverse: False) [3 ms]
+  Failed CuriousContraptions.Tests.SwitchElectricalTests.UnqualifiedOrUnsuppliedContactCannotMoveConsumer(control: MissingConsumerWire) [4 ms]
+  Failed CuriousContraptions.Tests.SwitchElectricalTests.UnqualifiedOrUnsuppliedContactCannotMoveConsumer(control: MissingSourceWire) [3 ms]
+  Failed CuriousContraptions.Tests.SwitchElectricalTests.UnqualifiedOrUnsuppliedContactCannotMoveConsumer(control: Miss) [3 ms]
+  Failed CuriousContraptions.Tests.SwitchElectricalTests.UnqualifiedOrUnsuppliedContactCannotMoveConsumer(control: DisabledSource) [3 ms]
+  Failed CuriousContraptions.Tests.SwitchElectricalTests.UnqualifiedOrUnsuppliedContactCannotMoveConsumer(control: BelowThreshold) [3 ms]
+  Failed CuriousContraptions.Tests.SwitchElectricalTests.SupplyLossAndRestorationDoNotEraseOrReplayImpactMemory [3 ms]
+  Failed CuriousContraptions.Tests.SwitchElectricalTests.PhysicalImpactDrivesBothDomainsAndExactSaveReset [4 ms]
+  Failed CuriousContraptions.Tests.SwitchElectricalTests.SeededCycleLosesAndRestoresPowerWithoutChangingEitherLatch [4 ms]
+  Failed CuriousContraptions.Tests.SwitchElectricalTests.CyclicClockProvenanceTerminatesAndMultipleSourcesRemainRejectedForAccounting [1 ms]
+  Failed CuriousContraptions.Tests.ContactWorkInstanceTests.ADirectlyWiredBatteryRechargesTheStoreAndAnUnwiredOneDoesNot(wired: False) [< 1 ms]
+  Failed CuriousContraptions.Tests.ContactWorkInstanceTests.ADirectlyWiredBatteryRechargesTheStoreAndAnUnwiredOneDoesNot(wired: True) [< 1 ms]
+  Failed CuriousContraptions.Tests.WorkbenchCapacityTests.EveryFreePaletteKindCompilesAndStepsPastTheRetiredPartTable(kindId: "battery") [< 1 ms]
+  Failed CuriousContraptions.Tests.SourceStoreInstanceTests.TheStorePaysWithinItsPowerLimitAndNeverMoreThanItsInitialCharge(capacity: 14400, power: 480, charge: 1, strength: 20) [4 ms]
+  Failed CuriousContraptions.Tests.SourceStoreInstanceTests.TheStorePaysWithinItsPowerLimitAndNeverMoreThanItsInitialCharge(capacity: 3600, power: 10, charge: 1, strength: 8) [3 ms]
+  Failed CuriousContraptions.Tests.SourceStoreInstanceTests.TheStorePaysWithinItsPowerLimitAndNeverMoreThanItsInitialCharge(capacity: 600, power: 10, charge: 0, strength: 8) [6 ms]
+  Failed CuriousContraptions.Tests.SourceStoreInstanceTests.TheStorePaysWithinItsPowerLimitAndNeverMoreThanItsInitialCharge(capacity: 60, power: 480, charge: 1, strength: 20) [3 ms]
+  Failed CuriousContraptions.Tests.SourceStoreInstanceTests.TheStorePaysWithinItsPowerLimitAndNeverMoreThanItsInitialCharge(capacity: 120, power: 30, charge: 0.5, strength: 8) [3 ms]
+  Failed CuriousContraptions.Tests.SourceStoreInstanceTests.ARunningControlIsAppliedOnTheNextTickAndLeavesTheAuthoredConstructionAlone [4 ms]
+Passed!  - Failed:     0, Passed:   163, Skipped:     0, Total:   163, Duration: 325 ms - BundleElements.Tests.dll (net10.0)
+restored: yes

@@ -1,0 +1,7 @@
+flatc 25.2.10 (release binary sha256 f004709c0334edb3cdc0430395b9de1dc071f3618fc4ba43674c3c61201037ac), schemas/README.md procedure (scratchpad wiregen.sh).
+Base reproduction from the UNCHANGED schema at f27cb71d: C# identical after dropping the README printf's extra blank line 10; TS generated part identical to committed lines 1-2334.
+Installed: C# = fresh output minus line 10; TS = fresh generated part + committed hand-written part from the helpers marker (line 2335 at base).
+ engine/gpu/WorkshopWireGenerated.cs | 42 ++++++++++------------------
+ schemas/workshop_wire.fbs           |  6 ----
+ tools/e2e/workshop-wire.ts          | 56 +++++++------------------------------
+ 3 files changed, 25 insertions(+), 79 deletions(-)

@@ -761,7 +761,7 @@ public partial class Workshop : Node3D
     }
     public override void _PhysicsProcess(double delta)
     {
-        RefreshBatteryObservation();
+        RefreshRunControlObservation();
         _time.Text = $"{World.Ticks / (double)World.Construction.Settings.SimulationRate.Numerator:00.00} s";
         var transport = World.TransportState;
         var transportChanged = transport != _displayedTransportState;

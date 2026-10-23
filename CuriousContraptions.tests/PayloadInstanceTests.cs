@@ -349,10 +349,6 @@ public sealed class PayloadInstanceTests
             case TypedField.Bounce: InstanceRecord.AddBounce(builder, value); break;
             case TypedField.Length: InstanceRecord.AddLength(builder, value); break;
             case TypedField.Threshold: InstanceRecord.AddThreshold(builder, value); break;
-            case TypedField.Capacity: InstanceRecord.AddCapacity(builder, value); break;
-            case TypedField.MaximumPower: InstanceRecord.AddMaximumPower(builder, value); break;
-            case TypedField.InitialFraction: InstanceRecord.AddInitialFraction(builder, value); break;
-            case TypedField.Enabled: InstanceRecord.AddEnabled(builder, 1); break;
             case TypedField.HalfExtents: InstanceRecord.AddHalfExtents(builder, Vec3f.CreateVec3f(builder, 0, value, 0)); break;
             case TypedField.Friction: InstanceRecord.AddFriction(builder, value); break;
             case TypedField.TargetCount: InstanceRecord.AddTargetCount(builder, 3); break;
@@ -409,5 +405,5 @@ public sealed class PayloadInstanceTests
 /// <summary>Every typed field of the current InstanceRecord: a generic record carries none of them.</summary>
 public enum TypedField
 {
-    Mass, Bounce, Length, Threshold, Capacity, MaximumPower, InitialFraction, Enabled, HalfExtents, Friction, TargetCount
+    Mass, Bounce, Length, Threshold, HalfExtents, Friction, TargetCount
 }

@@ -19,11 +19,6 @@ public interface IWorkshopInstance
     void Validate();
 }
 
-public interface IWorkshopElectricalSource : IWorkshopInstance
-{
-    ElectricalSourceSettings Settings { get; }
-}
-
 public interface IWorkshopDeclaredColliders : IWorkshopInstance
 {
     IReadOnlyList<ExtractedCollider> DeclaredColliders { get; }
@@ -79,7 +74,7 @@ public sealed class WorkshopInstances : IReadOnlyList<IWorkshopInstance>, IEquat
         var ids = new HashSet<GpuBodyId>();
         foreach (var item in _items)
         {
-            if (item is not (WorkshopLamp or WorkshopDomino or WorkshopBattery or WorkshopPressurePlate or WorkshopCounter or WorkshopClock or WorkshopLatch or IWorkshopDeclaredColliders))
+            if (item is not (WorkshopLamp or WorkshopDomino or WorkshopPressurePlate or WorkshopCounter or WorkshopClock or WorkshopLatch or IWorkshopDeclaredColliders))
                 throw new ArgumentException("Unsupported authored instance declaration.");
             item.Validate();
             if (!ids.Add(item.Id)) throw new ArgumentException("Authored body identities must be unique.");

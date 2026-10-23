@@ -1,0 +1,11 @@
+#!/bin/bash
+# Strict TS (the pinned toolchain TypeCheck resolves: typescript 6.0.3, @types/node 26.0.1 from ~/.npm/_npx) and the Run/Reset
+# snapshot schema unit (tsx). Run from the worktree root.
+find_pkg() { for d in $(ls -d "$HOME"/.npm/_npx/*/node_modules/"$1" 2>/dev/null | sort); do
+  v=$(node -p "require('$d/package.json').version" 2>/dev/null); [ "$v" = "$2" ] && { echo "$d"; return; }; done; }
+TSC=$(find_pkg typescript 6.0.3)/bin/tsc
+TYPES=$(dirname "$(find_pkg @types/node 26.0.1)")
+TSX=$(ls -d "$HOME"/.npm/_npx/*/node_modules/tsx 2>/dev/null | sort | tail -1)
+echo "tsc: $TSC"; echo "typeRoots: $TYPES"; echo "tsx: $TSX ($(node -p "require('$TSX/package.json').version"))"
+node "$TSC" --noEmit --project tools/e2e/tsconfig.json --typeRoots "$TYPES"; echo "tsc rc=$?"
+node "$TSX/dist/cli.mjs" --test tools/e2e/unit/run-reset-snapshot.test.ts; echo "snapshot unit rc=$?"

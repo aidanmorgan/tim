@@ -265,12 +265,6 @@ table InstanceRecord {
     // Switch
     threshold: float;
 
-    // Battery
-    capacity: float;
-    maximum_power: float;
-    initial_fraction: float;
-    enabled: uint8;
-
     // Domino
     half_extents: Vec3f;
     friction: float;

@@ -1,0 +1,21 @@
+mutant R6-validator-runcontrol-anywhere file CuriousContraptions.Bundle/BundleValidator.cs
+diff --git a/CuriousContraptions.Bundle/BundleValidator.cs b/CuriousContraptions.Bundle/BundleValidator.cs
+index 64a2c172..0c507deb 100644
+--- a/CuriousContraptions.Bundle/BundleValidator.cs
++++ b/CuriousContraptions.Bundle/BundleValidator.cs
+@@ -96,7 +96,7 @@ public static class BundleValidator
+             // A run-time control is declared only on a Source store's enable state: the one value ConfigureElectrical changes.
+             var runControlled = entry.Electrical?.Supply?.Store?.Enable;
+             for (var i = 0; i < entry.Metadata.Parameters.Count; i++)
+-                if (entry.Metadata.Parameters[i].RunEdit == ParameterRunEdit.RunControl && entry.Metadata.Parameters[i].Key != runControlled)
++                if (entry.Metadata.Parameters[i].RunEdit == ParameterRunEdit.RunControl && runControlled == "\u0000")
+                     OutOfRange($"Metadata.Parameters[{i}].RunEdit");
+             if (entry.Signal is { } signal) Signal(signal, entry.Metadata.Parameters, entry.Ports);
+             if (entry.Fluid is { } fluid) Fluid(fluid);
+    0 Error(s)
+    0 Warning(s)
+Build succeeded.
+Passed!  - Failed:     0, Passed:  2466, Skipped:     0, Total:  2466, Duration: 44 s - CuriousContraptions.tests.dll (net10.0)
+  Failed CuriousContraptions.BundleElements.Tests.BundleValidatorTests.ARunControlIsDeclaredOnlyOnASourceStoreEnableAndAChoiceIsNeverClamped [1 ms]
+Failed!  - Failed:     1, Passed:   162, Skipped:     0, Total:   163, Duration: 330 ms - BundleElements.Tests.dll (net10.0)
+restored: yes

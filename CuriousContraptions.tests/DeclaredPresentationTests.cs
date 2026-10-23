@@ -13,7 +13,7 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
     public async Task GateCueUsesActualCommittedDriveAndAppliesNativeMaterial(bool connected)
     {
         var gate = WorkshopInput.Generic(PartId.PoweredGate, new(1), 0, 3, 0, 0, 0, 0, 1);
-        var battery = WorkshopInput.Battery(new(2), 3, 3, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default);
+        var battery = PlacedParts.Battery(new(2), 3, 3, 0);
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(gate, battery))
         {
             Connections = connected
@@ -123,8 +123,7 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
     [InlineData(false)]
     public async Task ClockTicksDrivePendulumPulseAndCounterLamps(bool powered)
     {
-        var battery = WorkshopInput.Battery(new(1), -3, 3, 0, 0, 0, 0, 1,
-            ElectricalSourceSettings.Default with { Enabled = powered ? ElectricalEnable.Enabled : ElectricalEnable.Disabled });
+        var battery = PlacedParts.Battery(new(1), -3, 3, 0, enabled: powered ? ElectricalEnable.Enabled : ElectricalEnable.Disabled);
         var clock = WorkshopInput.Clock(new(2), 0, 3, 0, 0, 0, 0, 1, 1f);
         var counter = WorkshopInput.Counter(new(3), 3, 3, 0, 0, 0, 0, 1, 3);
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(battery, clock, counter),
@@ -211,7 +210,7 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
     [Fact]
     public async Task CommittedClockAndCounterUseExactDeclaredTimesAtNonzeroOrigin()
     {
-        var battery = WorkshopInput.Battery(new(1), -3, 3, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default);
+        var battery = PlacedParts.Battery(new(1), -3, 3, 0);
         var clock = WorkshopInput.Clock(new(2), 0, 3, 0, 0, 0, 0, 1, 1f);
         var counter = WorkshopInput.Counter(new(3), 3, 3, 0, 0, 0, 0, 1, 3);
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(battery, clock, counter),
@@ -269,7 +268,7 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
     [Fact]
     public async Task CommittedClockRetainsHiddenAndSkippedFirstFrameAndResetCancelsIt()
     {
-        var battery = WorkshopInput.Battery(new(1), -3, 3, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default);
+        var battery = PlacedParts.Battery(new(1), -3, 3, 0);
         var clock = WorkshopInput.Clock(new(2), 0, 3, 0, 0, 0, 0, 1, .125f);
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(battery, clock),
             Connections: new(new WorkshopConnection(battery.Id, WorkshopSocket.Supply, clock.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical)));
@@ -307,7 +306,7 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
         var setClock = WorkshopInput.Clock(new(1), -3, 0, 0, 0, 0, 0, 1, 1f);
         var resetClock = WorkshopInput.Clock(new(2), -3, 3, 0, 0, 0, 0, 1, 1.5f);
         var latch = WorkshopInput.Latch(new(3), 0, 0, 0, 0, 0, 0, 1);
-        var battery = WorkshopInput.Battery(new(4), -6, 0, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default);
+        var battery = PlacedParts.Battery(new(4), -6, 0, 0);
         var lamp = WorkshopInput.Lamp(new(5), 3, 0, 0, 0, 0, 0, 1);
         var delay = WorkshopInput.Generic(PartId.Delay, new(6), 3, 3, 0, 0, 0, 0, 1, new InstanceParameterCollection([new(new ParameterId("delay_seconds"), (float).5f)]));
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(),
@@ -373,10 +372,14 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
     [InlineData(.5f, true, 2)]
     [InlineData(.75f, true, 3)]
     [InlineData(1f, true, 4)]
-    public async Task BatterySupplyAndEachChargeBoundaryUseActualCommittedRead(float fraction, bool available, int lit)
+    // Story 9A.39: the gauge's full scale is the instance's own declared capacity, not the package default.
+    [InlineData(.75f, true, 3, 60f, 10f)]
+    [InlineData(.5f, true, 2, 14400f, 480f)]
+    [InlineData(.25f, true, 1, 1234.5f, 33f)]
+    public async Task BatterySupplyAndEachChargeBoundaryUseActualCommittedRead(float fraction, bool available, int lit,
+        float capacity = 3600f, float power = 120f)
     {
-        var battery = WorkshopInput.Battery(new(1), 0, 3, 0, 0, 0, 0, 1,
-            ElectricalSourceSettings.Default with { InitialFraction = fraction });
+        var battery = PlacedParts.Battery(new(1), 0, 3, 0, capacity, power, fraction);
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(battery));
         var phases = await WorkshopPhysicsEngineTests.RunPhases(construction, ([], 1),
             ([new(battery.Id, ElectricalEnable.Disabled)], 1));
@@ -404,7 +407,7 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
     [Fact]
     public async Task SameWorldPrepareCommitRetainsConsumedHiddenAndInProgressChannels()
     {
-        var battery = WorkshopInput.Battery(new(1), -3, 3, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default);
+        var battery = PlacedParts.Battery(new(1), -3, 3, 0);
         var clock = WorkshopInput.Clock(new(2), 0, 3, 0, 0, 0, 0, 1, .125f);
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(battery, clock),
             Connections: new(new WorkshopConnection(battery.Id, WorkshopSocket.Supply, clock.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical)));

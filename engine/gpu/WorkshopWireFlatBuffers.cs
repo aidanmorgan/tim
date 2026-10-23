@@ -34,10 +34,6 @@ public static class WorkshopWireFlatBuffers
         InstanceRecord.AddBounce(builder, values[AuthoredScalar.Bounce]);
         InstanceRecord.AddLength(builder, values[AuthoredScalar.Length]);
         InstanceRecord.AddThreshold(builder, values[AuthoredScalar.Threshold]);
-        InstanceRecord.AddCapacity(builder, values[AuthoredScalar.Capacity]);
-        InstanceRecord.AddMaximumPower(builder, values[AuthoredScalar.MaximumPower]);
-        InstanceRecord.AddInitialFraction(builder, values[AuthoredScalar.InitialFraction]);
-        InstanceRecord.AddEnabled(builder, (byte)template.Enabled);
         InstanceRecord.AddHalfExtents(builder, Vec3f.CreateVec3f(builder, template.HalfExtents.X, template.HalfExtents.Y, template.HalfExtents.Z));
         InstanceRecord.AddFriction(builder, values[AuthoredScalar.Friction]);
         InstanceRecord.AddTargetCount(builder, template.TargetCount);
@@ -617,12 +613,6 @@ public static class WorkshopWireFlatBuffers
 
             switch (instance)
             {
-                case WorkshopBattery battery:
-                    InstanceRecord.AddCapacity(builder, battery.Settings.Capacity.Value);
-                    InstanceRecord.AddMaximumPower(builder, battery.Settings.MaximumPower.Value);
-                    InstanceRecord.AddInitialFraction(builder, battery.Settings.InitialFraction);
-                    InstanceRecord.AddEnabled(builder, (byte)battery.Settings.Enabled);
-                    break;
                 case WorkshopDomino domino:
                     InstanceRecord.AddHalfExtents(builder, Vec3f.CreateVec3f(builder, (float)domino.Material.HalfExtents.X, (float)domino.Material.HalfExtents.Y, (float)domino.Material.HalfExtents.Z));
                     InstanceRecord.AddMass(builder, (float)domino.Material.Mass.Value);
@@ -744,8 +734,6 @@ public static class WorkshopWireFlatBuffers
 
         IWorkshopInstance result = partId.Value switch
         {
-            "battery" => new WorkshopBattery(id, cell, local, rotation,
-                new ElectricalSourceSettings(new Joules(inst.Capacity), new Watts(inst.MaximumPower), inst.InitialFraction, (ElectricalEnable)inst.Enabled), locked),
             "domino" => MapDomino(inst, id, cell, local, rotation, locked),
             "lamp" => new WorkshopLamp(id, cell, local, rotation, locked),
             "latch" => new WorkshopLatch(id, cell, local, rotation, locked),
@@ -769,15 +757,14 @@ public static class WorkshopWireFlatBuffers
         return result;
     }
 
-    /// <summary>Whether a record holds any typed record field: a nonzero bit pattern in any scalar, the enable state or the target
-    /// count, or a nonzero half extent. A generic instance carries only its declared parameters, so this refuses it (the save
-    /// pre-validation applies the same rule).</summary>
+    /// <summary>Whether a record holds any typed record field: a nonzero bit pattern in any scalar or the target count, or a
+    /// nonzero half extent. A generic instance carries only its declared parameters, so this refuses it (the save pre-validation
+    /// applies the same rule).</summary>
     internal static bool CarriesTypedField(InstanceRecord r)
     {
         static bool Set(float value) => BitConverter.SingleToUInt32Bits(value) != 0;
         var extents = r.HalfExtents;
-        return Set(r.Mass) || Set(r.Bounce) || Set(r.Length) || Set(r.Threshold) || Set(r.Capacity) || Set(r.MaximumPower) ||
-            Set(r.InitialFraction) || Set(r.Friction) || r.Enabled != 0 || r.TargetCount != 0 ||
+        return Set(r.Mass) || Set(r.Bounce) || Set(r.Length) || Set(r.Threshold) || Set(r.Friction) || r.TargetCount != 0 ||
             (extents is { } h && (Set(h.X) || Set(h.Y) || Set(h.Z)));
     }
 

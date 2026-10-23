@@ -153,12 +153,14 @@ public sealed class BundleValidatorTests
         var supply = timer with
         {
             Domains = [SimulationDomain.Electrical], Signal = null,
+            Metadata = timer.Metadata with { Parameters = StoreParameters },
             Ports = [new(PortSocket.Supply, SimulationDomain.Electrical, PortDirection.Output, null, Vector3.Zero, Vector3.UnitX)],
             Electrical = new([new("source", Abstractions.Electrical.ElectricalRole.Source, 12f, .1f, 0f, 100f)],
-                new(Abstractions.Electrical.SupplyCapabilityKind.Source, null, PortSocket.Supply))
+                new(Abstractions.Electrical.SupplyCapabilityKind.Source, null, PortSocket.Supply, Store: Store))
         };
         var logic=supply with
         {
+            Metadata=timer.Metadata,
             Ports=[
                 new(PortSocket.FirstIn,SimulationDomain.Electrical,PortDirection.Input,null,Vector3.Zero,Vector3.UnitX),
                 new(PortSocket.SecondIn,SimulationDomain.Electrical,PortDirection.Input,null,Vector3.Zero,Vector3.UnitX),
@@ -188,6 +190,87 @@ public sealed class BundleValidatorTests
     private static string[] Errors(params (string Package, IPuzzleElementDeclaration Declaration)[] packages) =>
         PackageValidator.Validate(packages.Select(package => new BundlePackage(package.Package, package.Declaration)).ToArray())
             .Select(error => error.ToString()).ToArray();
+
+    // Story 9A.39: a Source declares its finite store by four of its own parameters, inside the electrical source envelope.
+    private static readonly ParameterDescriptor[] StoreParameters =
+    [
+        new("capacity", ParameterUnit.Joule, ParameterKind.Real, 60f, 14400f, 3600f, [], ParameterEditorPolicy.Clamp),
+        new("power_limit", ParameterUnit.Watt, ParameterKind.Real, 10f, 480f, 120f, [], ParameterEditorPolicy.Clamp),
+        new("initial_charge", ParameterUnit.None, ParameterKind.Real, 0f, 1f, 1f, [], ParameterEditorPolicy.Clamp),
+        new("enabled", ParameterUnit.None, ParameterKind.Choice, 0f, 1f, 1f, ["Disabled", "Enabled"], RunEdit: ParameterRunEdit.RunControl)
+    ];
+    private static readonly Abstractions.Electrical.SupplySourceStoreDescriptor Store = new("capacity", "power_limit", "initial_charge", "enabled");
+
+    private static Bundle.BundleEntry Source(IReadOnlyList<ParameterDescriptor> parameters, Abstractions.Electrical.SupplySourceStoreDescriptor? store)
+    {
+        var entry = Bundle.BundleSchema.Entry(new Fixture { Parameters = parameters });
+        return entry with
+        {
+            Domains = [SimulationDomain.Mechanical, SimulationDomain.Electrical],
+            Ports = [new(PortSocket.Supply, SimulationDomain.Electrical, PortDirection.Output, null, Vector3.Zero, Vector3.UnitX)],
+            Electrical = new([new("source", Abstractions.Electrical.ElectricalRole.Source, 12f, .1f, 0f, 100f)],
+                new(Abstractions.Electrical.SupplyCapabilityKind.Source, null, PortSocket.Supply, Store: store))
+        };
+    }
+
+    private static IReadOnlyList<Bundle.BundleError> CheckSource(IReadOnlyList<ParameterDescriptor> parameters,
+        Abstractions.Electrical.SupplySourceStoreDescriptor? store) => Bundle.BundleValidator.Validate([new("Fixture", Source(parameters, store))]);
+
+    private static ParameterDescriptor[] Replace(string key, Func<ParameterDescriptor, ParameterDescriptor> change) =>
+        StoreParameters.Select(parameter => parameter.Key == key ? change(parameter) : parameter).ToArray();
+
+    [Fact]
+    public void ASourceStoreNamesFourDistinctTypedParametersInsideTheEnvelope()
+    {
+        Assert.Empty(CheckSource(StoreParameters, Store));
+        // The envelope's own bounds are admitted.
+        Assert.Empty(CheckSource(Replace("power_limit", p => p with { Minimum = 10f, Maximum = 480f, Default = 10f }), Store));
+        foreach (var (name, parameters, store) in new (string, ParameterDescriptor[], Abstractions.Electrical.SupplySourceStoreDescriptor?)[]
+        {
+            ("missing store", StoreParameters, null),
+            ("absent capacity key", StoreParameters.Where(p => p.Key != "capacity").ToArray(), Store),
+            ("unknown key", StoreParameters, Store with { PowerLimit = "power" }),
+            ("duplicated key", [.. StoreParameters, StoreParameters[0]], Store),
+            ("two roles share one key", StoreParameters, Store with { InitialCharge = "capacity" }),
+            ("capacity in watts", Replace("capacity", p => p with { Unit = ParameterUnit.Watt }), Store),
+            ("capacity below 60 J", Replace("capacity", p => p with { Minimum = 59f }), Store),
+            ("capacity above 14400 J", Replace("capacity", p => p with { Maximum = 14401f }), Store),
+            ("power in joules", Replace("power_limit", p => p with { Unit = ParameterUnit.Joule }), Store),
+            ("power below 10 W", Replace("power_limit", p => p with { Minimum = 9.99f }), Store),
+            ("power above 480 W", Replace("power_limit", p => p with { Maximum = 480.5f }), Store),
+            ("charge above 1", Replace("initial_charge", p => p with { Maximum = 1.5f }), Store),
+            ("charge with a unit", Replace("initial_charge", p => p with { Unit = ParameterUnit.Metre }), Store),
+            ("whole-number capacity", Replace("capacity", p => p with { Kind = ParameterKind.WholeNumber }), Store),
+            ("enable is Real", Replace("enabled", p => p with { Kind = ParameterKind.Real, Options = [] }), Store),
+            ("enable is Boolean", Replace("enabled", p => p with { Kind = ParameterKind.Boolean, Options = [] }), Store),
+            ("enable options inverted", Replace("enabled", p => p with { Options = ["Enabled", "Disabled"] }), Store),
+            ("enable option misnamed", Replace("enabled", p => p with { Options = ["Off", "On"] }), Store),
+            ("enable with three options", Replace("enabled", p => p with { Maximum = 2f, Options = ["Disabled", "Enabled", "Boost"] }), Store),
+        })
+            Assert.True(CheckSource(parameters, store).Count > 0, name);
+        // A store on anything but a Source is refused.
+        var gate = Source(StoreParameters, Store);
+        Assert.NotEmpty(Bundle.BundleValidator.Validate([new("Fixture", gate with { Electrical = gate.Electrical! with
+            { Supply = new(Abstractions.Electrical.SupplyCapabilityKind.SwitchedContact, PortSocket.PowerIn, PortSocket.Supply, Store: Store) } })]));
+    }
+
+    [Fact]
+    public void ARunControlIsDeclaredOnlyOnASourceStoreEnableAndAChoiceIsNeverClamped()
+    {
+        Assert.Empty(CheckSource(StoreParameters, Store));
+        // The enable state may also be build-only: the package then offers no run-time control.
+        Assert.Empty(CheckSource(Replace("enabled", p => p with { RunEdit = ParameterRunEdit.BuildOnly }), Store));
+        Assert.Contains(CheckSource(Replace("capacity", p => p with { RunEdit = ParameterRunEdit.RunControl }), Store),
+            error => error.Detail.Contains("Metadata.Parameters[0].RunEdit", StringComparison.Ordinal));
+        Assert.NotEmpty(CheckSource(Replace("enabled", p => p with { RunEdit = (ParameterRunEdit)7 }), Store));
+        Assert.Contains(CheckSource(Replace("enabled", p => p with { EditorPolicy = ParameterEditorPolicy.Clamp }), Store),
+            error => error.Detail.Contains("Metadata.Parameters[3].EditorPolicy", StringComparison.Ordinal));
+        // Off a Source: no parameter may be run-editable.
+        Assert.NotEmpty(Errors(("Fixture", new Fixture { Parameters =
+            [new("participation", ParameterUnit.None, ParameterKind.Choice, 0f, 1f, 1f, ["Disabled", "Enabled"], RunEdit: ParameterRunEdit.RunControl)] })));
+        Assert.NotEmpty(Errors(("Fixture", new Fixture { Parameters =
+            [new("participation", ParameterUnit.None, ParameterKind.Choice, 0f, 1f, 1f, ["Disabled", "Enabled"], ParameterEditorPolicy.Clamp)] })));
+    }
 
     [Fact]
     public void AValidPackageIsAdmitted() => Assert.Empty(Errors(("Fixture", new Fixture())));

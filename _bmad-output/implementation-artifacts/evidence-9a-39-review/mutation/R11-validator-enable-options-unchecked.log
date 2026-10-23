@@ -1,0 +1,21 @@
+mutant R11-validator-enable-options-unchecked file CuriousContraptions.Bundle/BundleValidator.cs
+diff --git a/CuriousContraptions.Bundle/BundleValidator.cs b/CuriousContraptions.Bundle/BundleValidator.cs
+index 64a2c172..c8c426d4 100644
+--- a/CuriousContraptions.Bundle/BundleValidator.cs
++++ b/CuriousContraptions.Bundle/BundleValidator.cs
+@@ -540,7 +540,7 @@ public static class BundleValidator
+             StoreValue("Supply.Store.InitialCharge", store.InitialCharge, parameters, ParameterUnit.None, 0f, 1f);
+             if (StoreParameter("Supply.Store.Enable", store.Enable, parameters) is { } enable &&
+                 (enable.Kind != ParameterKind.Choice || enable.Unit != ParameterUnit.None ||
+-                 !enable.Options.SequenceEqual(["Disabled", "Enabled"], StringComparer.Ordinal)))
++                 enable.Options.Count == 0))
+                 OutOfRange("Supply.Store.Enable");
+         }
+ 
+    0 Error(s)
+    0 Warning(s)
+Build succeeded.
+Passed!  - Failed:     0, Passed:  2466, Skipped:     0, Total:  2466, Duration: 45 s - CuriousContraptions.tests.dll (net10.0)
+  Failed CuriousContraptions.BundleElements.Tests.BundleValidatorTests.ASourceStoreNamesFourDistinctTypedParametersInsideTheEnvelope [1 ms]
+Failed!  - Failed:     1, Passed:   162, Skipped:     0, Total:   163, Duration: 333 ms - BundleElements.Tests.dll (net10.0)
+restored: yes

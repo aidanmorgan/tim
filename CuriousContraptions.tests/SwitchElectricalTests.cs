@@ -11,7 +11,7 @@ public sealed class SwitchElectricalTests
         return new(new(2),WorkshopCadenceSettings.Default(),new(
             WorkshopInput.Generic(PartId.Basketball,new(1),x,3,0,0,0,0,1),
             WorkshopInput.Generic(PartId.ImpactSwitch,new(2),0,1,0,0,0,0,1,new([new(new ParameterId("trigger_threshold"),threshold)])),
-            WorkshopInput.Battery(new(3),-4,3,0,0,0,0,1,ElectricalSourceSettings.Default),
+            PlacedParts.Battery(new(3), -4, 3, 0),
             WorkshopInput.Generic(PartId.PoweredGate,new(4),9,3,0,0,0,0,1),
             WorkshopInput.Lamp(new(5),4,2,0,0,0,0,1)),
             Connections:new(Power(3,2),Power(2,4),Signal(2,5)));
@@ -55,8 +55,8 @@ public sealed class SwitchElectricalTests
         var construction=Machine(control==Control.Miss?2f:0f,control==Control.BelowThreshold?64f:.8f);
         if(control==Control.MissingSourceWire) construction=construction with {Connections=construction.Connections.Without(Power(3,2))};
         if(control==Control.MissingConsumerWire) construction=construction with {Connections=construction.Connections.Without(Power(2,4))};
-        if(control==Control.DisabledSource) construction=construction with {Instances=new(construction.Instances.Select(instance=>instance is WorkshopBattery battery
-            ? (IWorkshopInstance)(battery with {Settings=battery.Settings with {Enabled=ElectricalEnable.Disabled}}):instance).ToArray())};
+        if(control==Control.DisabledSource) construction=construction with {Instances=new(construction.Instances.Select(instance=>instance.PartId==PartId.Battery
+            ? (IWorkshopInstance)PlacedParts.Battery(instance.Id,-4,3,0,enabled:ElectricalEnable.Disabled):instance).ToArray())};
         var (built,reads,reset)=await NoFixedCapacityTests.RunAndReset(construction,180);
         Assert.All(reads,read=>Assert.False(Powered(read)));
         Assert.True(MathF.Abs(BladeY(reads[^1])-BladeY(built))<.01f);
@@ -138,7 +138,7 @@ public sealed class SwitchElectricalTests
         Assert.Equal(default,network.Nodes.ToArray().Single(node=>node.Owner==clock.Id).PowerSource);
         var sourced=construction with {Connections=construction.Connections.With(Power(3,2))};
         Assert.Equal(new GpuBodyId(3),WorkshopActivationCompiler.Compile(sourced).Nodes.ToArray().Single(node=>node.Owner==clock.Id).PowerSource);
-        var battery=WorkshopInput.Battery(new(8),-6,4,0,0,0,0,1,ElectricalSourceSettings.Default);
+        var battery=PlacedParts.Battery(new(8), -6, 4, 0);
         var ambiguous=sourced with {Instances=new(sourced.Instances.Concat(new IWorkshopInstance[]{battery}).ToArray()),Connections=sourced.Connections.With(Power(8,6))};
         EditRefusal.Is(WorkshopEditRejection.PowerInputSupplied,()=>WorkshopActivationCompiler.Compile(ambiguous));
         var bumper=WorkshopInput.Generic(PartId.PinballBumper,new(9),12,1,0,0,0,0,1);

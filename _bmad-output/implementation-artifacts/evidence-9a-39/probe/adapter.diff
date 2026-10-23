@@ -1,0 +1,8 @@
+5c5
+< /// <summary>9A.39 evidence adapter (not a deliverable). Base f27cb71d: the record path (WorkshopBattery).</summary>
+---
+> /// <summary>9A.39 evidence adapter (not a deliverable). Candidate: the generic instance of the Battery package.</summary>
+10c10
+<         WorkshopInput.Battery(id, x, y, z, 0, 0, 0, 1, new(new(capacity), new(power), fraction, enabled));
+---
+>         PlacedParts.Battery(id, x, y, z, capacity, power, fraction, enabled);

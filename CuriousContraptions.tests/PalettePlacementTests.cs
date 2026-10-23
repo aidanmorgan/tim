@@ -852,6 +852,178 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
         finally { Release(scene); }
     }
 
+    private static IEnumerable<T> Descendants<T>(Node parent) where T : Node =>
+        parent.GetChildren().SelectMany(child => new[] { child }.Concat(Descendants<Node>(child))).OfType<T>();
+    private static void Refresh(Workshop scene) => typeof(Workshop).GetMethod("RefreshConnectionChoices", Private)!.Invoke(scene, null);
+
+    // Story 9A.39: the Battery placed through the drawer is a generic instance at its package defaults (3600 J, 120 W, full, Enabled;
+    // owner decision 10 Oct 2026) and the generic editor replaces its panel. Capacity, power limit and initial charge are Clamp fields,
+    // as the former SpinBoxes were; NaN refuses atomically; the enable state is an option list of its declared names; Cancel changes
+    // nothing and one Apply records one Undo. The compiled store is the edited values.
+    [Fact]
+    public void GenericBatteryEditorClampsItsStoreAndPicksTheEnableStateFromItsOptions()
+    {
+        var (scene, client) = BenchScene(PartId.Battery, PlacementAnswer.Applied);
+        try
+        {
+            Assert.Empty(ClickBench(scene));
+            var choices = Field<VBoxContainer>(scene, "_connectionChoices");
+            void Press(string label) => Assert.Single(Descendants<Button>(choices), button => button.Text == label).EmitSignal(Button.SignalName.Pressed);
+            WorkshopGenericInstance Current() => Assert.IsType<WorkshopGenericInstance>(Assert.Single(scene.World.Construction.Instances));
+            Dictionary<string, LineEdit> Fields() => Descendants<LineEdit>(choices).ToDictionary(field => field.Name.ToString());
+            OptionButton Enable() => Assert.Single(Descendants<OptionButton>(choices));
+            float Value(string key) => Current().Parameters[new(key)];
+            Assert.Equal((PartId.Battery, 3600f, 120f, 1f, 1f), (Current().PartId, Value("capacity"), Value("power_limit"), Value("initial_charge"), Value("enabled")));
+            var initial = scene.World.Construction;
+            var undo = Field<List<WorkshopConstruction>>(scene, "_undo").Count;
+            Press("Configure");
+            Assert.Equal(["capacity", "initial_charge", "power_limit"], Fields().Keys.Order(StringComparer.Ordinal));
+            Assert.Contains(Descendants<Label>(choices), label => label.Text == "capacity (60–14400 J)");
+            Assert.Contains(Descendants<Label>(choices), label => label.Text == "power_limit (10–480 W)");
+            Assert.Equal(("enabled", 2, "Disabled", "Enabled", 1), (Enable().Name.ToString(), Enable().ItemCount, Enable().GetItemText(0), Enable().GetItemText(1), Enable().Selected));
+            Fields()["capacity"].Text = "100"; Enable().Select(0);
+            Press("Cancel");
+            Assert.Equal(initial, scene.World.Construction);
+            foreach (var (capacity, power, charge, enabled, expected) in new[]
+            {
+                ("50", "500", "0.5", 0, (60f, 480f, .5f, 0f)), ("20000", "5", "-1", 1, (14400f, 10f, 0f, 1f)),
+                ("1234.5678", "77.25", "0.625", 0, (1234.5678f, 77.25f, .625f, 0f))
+            })
+            {
+                Press("Configure");
+                Fields()["capacity"].Text = capacity; Fields()["power_limit"].Text = power; Fields()["initial_charge"].Text = charge;
+                Enable().Select(enabled);
+                Press("Apply parameters");
+                Assert.Equal(expected, (Value("capacity"), Value("power_limit"), Value("initial_charge"), Value("enabled")));
+                Assert.Equal(++undo, Field<List<WorkshopConstruction>>(scene, "_undo").Count);
+                var source = Assert.Single(WorkshopPhysicsCompiler.Compile(scene.World.Construction, new(1, 2)).Electrical.Sources.ToArray());
+                Assert.Equal((expected.Item1, expected.Item2, expected.Item3, expected.Item4 == 1f ? ElectricalEnable.Enabled : ElectricalEnable.Disabled),
+                    (source.Capacity.Value, source.MaximumPower.Value, source.InitialFraction, source.Enabled));
+            }
+            var accepted = scene.World.Construction;
+            var commands = client.Commands.Count;
+            Press("Configure");
+            Fields()["capacity"].Text = "NaN";
+            Press("Apply parameters");
+            Assert.Equal(accepted, scene.World.Construction);
+            Assert.Equal(commands, client.Commands.Count);
+            Assert.Equal(undo, Field<List<WorkshopConstruction>>(scene, "_undo").Count);
+            Press("Cancel");
+            // The build edit is refused while Running or Paused and on a locked source: no command, no Undo, no change.
+            var values = new InstanceParameterCollection([new(new("capacity"), 900f), new(new("power_limit"), 90f),
+                new(new("initial_charge"), .9f), new(new("enabled"), 1f)]);
+            foreach (var phase in new[] { WorkshopSimulationPhase.Running, WorkshopSimulationPhase.Paused })
+            {
+                typeof(MachineWorld).GetProperty(nameof(MachineWorld.WorkshopPhase))!.SetValue(scene.World, phase);
+                Assert.Empty(InvokeHandler(scene, "ApplyDeclaredParameters", Current().Id, values));
+                Assert.Equal(accepted, scene.World.Construction);
+            }
+            typeof(MachineWorld).GetProperty(nameof(MachineWorld.WorkshopPhase))!.SetValue(scene.World, WorkshopSimulationPhase.Building);
+            var locked = accepted with { Instances = new(Current() with { Locked = true }) };
+            typeof(MachineWorld).GetProperty(nameof(MachineWorld.Construction))!.SetValue(scene.World, locked);
+            Assert.Empty(InvokeHandler(scene, "ApplyDeclaredParameters", Current().Id, values));
+            Assert.Equal(locked, scene.World.Construction);
+            Assert.Equal(commands, client.Commands.Count);
+            Assert.Equal(undo, Field<List<WorkshopConstruction>>(scene, "_undo").Count);
+            Assert.Empty(godot.Errors.Drain());
+        }
+        finally { Release(scene); }
+    }
+
+    // Story 9A.39: while Running or Paused the panel offers exactly what the package declares run-editable: one supply toggle for the
+    // store's enable state (not the build editor). A click is a typed ConfigureElectrical command for the next physics step; it shows as
+    // queued, a second click reverses it, and it never edits the construction or records an Undo. A locked source's toggle is disabled.
+    [Fact]
+    public void TheRunControlToggleSendsTypedControlsWithoutEditingAndAppearsOnlyForADeclaredRunControl()
+    {
+        var (scene, client) = BenchScene(PartId.Battery, PlacementAnswer.Applied);
+        try
+        {
+            Assert.Empty(ClickBench(scene));
+            var choices = Field<VBoxContainer>(scene, "_connectionChoices");
+            Button Single(string label) => Assert.Single(Descendants<Button>(choices), button => button.Text == label);
+            var owner = Assert.Single(scene.World.Construction.Instances).Id;
+            var authored = scene.World.Construction;
+            var undo = Field<List<WorkshopConstruction>>(scene, "_undo").Count;
+            Assert.Contains(Descendants<Button>(choices), button => button.Text == "Configure");
+            foreach (var phase in new[] { WorkshopSimulationPhase.Running, WorkshopSimulationPhase.Paused })
+            {
+                client.Phase = phase;
+                typeof(MachineWorld).GetProperty(nameof(MachineWorld.WorkshopPhase))!.SetValue(scene.World, phase);
+                Refresh(scene);
+                Assert.DoesNotContain(Descendants<Button>(choices), button => button.Text == "Configure");
+                Single(phase == WorkshopSimulationPhase.Running ? "Disable supply" : "Disable supply (queued)").EmitSignal(Button.SignalName.Pressed);
+                Assert.False(Single("Enable supply (queued)").Disabled);
+                Single("Enable supply (queued)").EmitSignal(Button.SignalName.Pressed);
+                Single("Disable supply (queued)");
+                Assert.Equal("Supply change accepted for the next physics step.", Field<Label>(scene, "_status").Text);
+                Assert.Equal(authored, scene.World.Construction);
+                Assert.Equal(undo, Field<List<WorkshopConstruction>>(scene, "_undo").Count);
+            }
+            Assert.Equal([new(owner, ElectricalEnable.Disabled), new(owner, ElectricalEnable.Enabled), new(owner, ElectricalEnable.Disabled),
+                new(owner, ElectricalEnable.Enabled)], client.Controls);
+            Assert.All(client.Commands, command => Assert.True(command.Kind != WorkshopCommandKind.ConfigureElectrical || command.Construction is null));
+            // Reset retires the queued intent: the toggle again shows the committed (here authored) state.
+            typeof(Workshop).GetMethod("ResetUiAnimations", Private)!.Invoke(scene, null);
+            Refresh(scene);
+            Single("Disable supply");
+            // A locked source keeps its toggle, disabled.
+            typeof(MachineWorld).GetProperty(nameof(MachineWorld.Construction))!.SetValue(scene.World,
+                authored with { Instances = new(Assert.IsType<WorkshopGenericInstance>(Assert.Single(authored.Instances)) with { Locked = true }) });
+            Refresh(scene);
+            Assert.True(Single("Disable supply").Disabled);
+            Assert.Empty(godot.Errors.Drain());
+        }
+        finally { Release(scene); }
+        // Control: a part whose package declares no run-time control (the Bumper) offers no supply toggle while Running, only its
+        // disabled build editor.
+        var (bumper, _) = BenchScene(PartId.PinballBumper, PlacementAnswer.Applied);
+        try
+        {
+            Assert.Empty(ClickBench(bumper));
+            typeof(MachineWorld).GetProperty(nameof(MachineWorld.WorkshopPhase))!.SetValue(bumper.World, WorkshopSimulationPhase.Running);
+            Refresh(bumper);
+            var buttons = Descendants<Button>(Field<VBoxContainer>(bumper, "_connectionChoices")).ToArray();
+            Assert.True(Assert.Single(buttons, button => button.Text == "Configure").Disabled);
+            Assert.DoesNotContain(buttons, button => button.Text.Contains("supply", StringComparison.Ordinal));
+            Assert.Empty(godot.Errors.Drain());
+        }
+        finally { Release(bumper); }
+    }
+
+    // Story 9A.39 D3: every Choice parameter renders as an option list of its declared names, the Receiver's capture participation too;
+    // picking an option applies its index as one Undo, and Cancel changes nothing.
+    [Fact]
+    public void AChoiceParameterIsPickedFromItsDeclaredOptions()
+    {
+        var (scene, _) = BenchScene(PartId.Receiver, PlacementAnswer.Applied);
+        try
+        {
+            Assert.Empty(ClickBench(scene));
+            var choices = Field<VBoxContainer>(scene, "_connectionChoices");
+            void Press(string label) => Assert.Single(Descendants<Button>(choices), button => button.Text == label).EmitSignal(Button.SignalName.Pressed);
+            WorkshopGenericInstance Current() => Assert.IsType<WorkshopGenericInstance>(Assert.Single(scene.World.Construction.Instances));
+            var key = new ParameterId("capture_participation");
+            Assert.Equal(1f, Current().Parameters[key]);
+            var undo = Field<List<WorkshopConstruction>>(scene, "_undo").Count;
+            Press("Configure");
+            var option = Assert.Single(Descendants<OptionButton>(choices));
+            Assert.Equal((key.Value, Enum.GetNames<SensorParticipation>().Length), (option.Name.ToString(), option.ItemCount));
+            Assert.Equal(Enum.GetNames<SensorParticipation>(), Enumerable.Range(0, option.ItemCount).Select(option.GetItemText));
+            Assert.DoesNotContain(Descendants<LineEdit>(choices), field => field.Name.ToString() == key.Value);
+            option.Select(0);
+            Press("Cancel");
+            Assert.Equal(1f, Current().Parameters[key]);
+            Press("Configure");
+            Assert.Single(Descendants<OptionButton>(choices)).Select(0);
+            Press("Apply parameters");
+            Assert.Equal(0f, Current().Parameters[key]);
+            Assert.Equal(undo + 1, Field<List<WorkshopConstruction>>(scene, "_undo").Count);
+            Assert.Empty(godot.Errors.Drain());
+        }
+        finally { Release(scene); }
+    }
+
     // C-Bumper+Spring (9A.34): the Springboard placed through the drawer is a generic instance at its declared 400 N/m, 0.2 N·s/m and
     // zero preload, edited through the generic editor. Its parameters keep the Reject policy (CAT-062 fact 7): every value just outside
     // its range, and NaN, is refused atomically (no command, no Undo, no change); the endpoints are accepted, one Undo each.
@@ -1098,6 +1270,10 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
     private sealed class PlacementClient(PlacementAnswer answer) : IWorkshopClient
     {
         public List<(WorkshopCommandKind Kind, WorkshopConstruction? Construction)> Commands { get; } = [];
+        /// <summary>Each run-time electrical control the scene sent, in order.</summary>
+        public List<WorkshopElectricalControl> Controls { get; } = [];
+        /// <summary>The phase every answer reports (a Building workshop unless a test runs one).</summary>
+        public WorkshopSimulationPhase Phase { get; set; } = WorkshopSimulationPhase.Building;
         public WorkshopCadenceSettings Settings => WorkshopCadenceSettings.Default();
         public SimulationEpoch Epoch => new(1);
         public AuthorityRevision Revision => default;
@@ -1115,6 +1291,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
             WorkshopCommandIdentity? target = null, WorkshopCadenceSettings? settings = null, WorkshopElectricalControl? electrical = null)
         {
             Commands.Add((kind, construction));
+            if (electrical is { } control) Controls.Add(control);
             if (answer == PlacementAnswer.Pending) return new TaskCompletionSource<WorkshopDelivery>().Task;
             var result = answer == PlacementAnswer.Applied
                 ? new WorkshopCommandResult(WorkshopCommandOutcome.Applied, WorkshopRejection.None)
@@ -1123,7 +1300,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
                 WorkshopPhysicsCompiler.Compile(authored,new(1,1)),Epoch,
                 new(authored.Settings.Simulation,authored.Settings.Physical,new(1)))) : default;
             var response = new WorkshopResponse(new((ulong)Commands.Count), WorkshopResponseKind.Acknowledgement, result,
-                WorkshopSimulationPhase.Building, new WorkshopRead(Epoch, new(0), bodies, Revision,
+                Phase, new WorkshopRead(Epoch, new(0), bodies, Revision,
                     new(WorkshopClockDomain.SimulationMonotonic, new(1), new(120_000_000), new(100_000))),
                 Session: new(1, 1), Cadence: new(1), MasterGeneration: new(1), Projection: new(1));
             return Task.FromResult(new WorkshopDelivery(response, true));

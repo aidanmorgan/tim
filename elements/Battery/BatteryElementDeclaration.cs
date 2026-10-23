@@ -35,9 +35,18 @@ public sealed class BatteryElementDeclaration : ISupplyElement, ISceneGeometryEl
         PaletteOrder: 11,
         IconPath: "res://elements/Battery/icon.svg",
         ScenePath: "res://elements/Battery/battery.tscn",
+        // The finite store (EL-196; owner defaults of 10 Oct 2026: 3600 J, 120 W, full and enabled). The enable state is the one
+        // value a player may change while the machine runs.
         Parameters:
         [
-            new("enabled", ParameterUnit.None, ParameterKind.Choice, Minimum: 0f, Maximum: 1f, Default: 1f, Options: ["Disabled", "Enabled"])
+            new("capacity", ParameterUnit.Joule, ParameterKind.Real, Minimum: 60f, Maximum: 14400f, Default: 3600f, Options: [],
+                EditorPolicy: ParameterEditorPolicy.Clamp),
+            new("power_limit", ParameterUnit.Watt, ParameterKind.Real, Minimum: 10f, Maximum: 480f, Default: 120f, Options: [],
+                EditorPolicy: ParameterEditorPolicy.Clamp),
+            new("initial_charge", ParameterUnit.None, ParameterKind.Real, Minimum: 0f, Maximum: 1f, Default: 1f, Options: [],
+                EditorPolicy: ParameterEditorPolicy.Clamp),
+            new("enabled", ParameterUnit.None, ParameterKind.Choice, Minimum: 0f, Maximum: 1f, Default: 1f, Options: ["Disabled", "Enabled"],
+                RunEdit: ParameterRunEdit.RunControl)
         ]);
 
     public ElementFootprint Footprint => new(Bodies: 1, MovingBodies: 0, PrismaticConstraints: 0);
@@ -61,7 +70,8 @@ public sealed class BatteryElementDeclaration : ISupplyElement, ISceneGeometryEl
 
     public SimulationDomain SupportedDomains => SimulationDomain.Electrical;
 
-    public SupplyCapabilityDescriptor Supply => new(SupplyCapabilityKind.Source, null, PortSocket.Supply);
+    public SupplyCapabilityDescriptor Supply => new(SupplyCapabilityKind.Source, null, PortSocket.Supply,
+        Store: new("capacity", "power_limit", "initial_charge", "enabled"));
 
     public IReadOnlyList<ElectricalNodeDescriptor> ElectricalNodes =>
     [

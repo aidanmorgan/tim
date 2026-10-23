@@ -85,7 +85,7 @@ public sealed class WorkshopActivationAnimationTests
     public void DeclaredCadenceBoundaryRestartsOrdinalsAndRejectsReplay()
     {
         var client = Client();
-        var battery = WorkshopInput.Battery(new(1), 0, 1, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default);
+        var battery = PlacedParts.Battery(new(1), 0, 1, 0);
         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(battery));
         Set(client, "_readConstruction", construction); Invoke(client, "InstallDeclaredTargets", construction);
         var control = Control with { Target = new(WorkshopDeclaredPresentation.TargetBase), Property = AnimationProperty.ColourRed };
@@ -104,7 +104,7 @@ public sealed class WorkshopActivationAnimationTests
     public void SameConstructionProjectionReplacementRequeuesHiddenOwnerVisibility()
     {
         var client = Client();
-        var battery = WorkshopInput.Battery(new(1), 0, 1, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default);
+        var battery = PlacedParts.Battery(new(1), 0, 1, 0);
         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(battery));
         Set(client, "_readConstruction", construction); Invoke(client, "InstallDeclaredTargets", construction);
         var target = new AnimationTargetId(WorkshopDeclaredPresentation.TargetBase);

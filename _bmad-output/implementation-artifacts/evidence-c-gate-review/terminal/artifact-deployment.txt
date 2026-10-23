@@ -1,0 +1,6 @@
+## artifact
+{"created_at":"2026-10-23T07:31:06Z","digest":"sha256:f04d35e5df266d936b69031b70af387085b81f62d1c2a063fea8caad97188993","expired":false,"id":12486205486,"name":"github-pages","size_in_bytes":79646780,"workflow_run":{"head_branch":"main","head_repository_id":1390098517,"head_sha":"f27cb71d89697c1ae46ca3a6653d3be8d638e89c","id":39916732832,"repository_id":1390098517}}
+## run artifacts
+{"digest":"sha256:f04d35e5df266d936b69031b70af387085b81f62d1c2a063fea8caad97188993","id":12486205486,"name":"github-pages","workflow_run":{"head_branch":"main","head_repository_id":1390098517,"head_sha":"f27cb71d89697c1ae46ca3a6653d3be8d638e89c","id":39916732832,"repository_id":1390098517}}
+## deployments for sha
+{"created_at":"2026-10-23T07:31:10Z","environment":"github-pages","id":7272749500,"payload":{},"ref":"main","sha":"f27cb71d89697c1ae46ca3a6653d3be8d638e89c"}

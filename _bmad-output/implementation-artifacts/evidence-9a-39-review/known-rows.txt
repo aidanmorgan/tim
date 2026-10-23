@@ -1,0 +1,8 @@
+keys: Generic,Known
+Generic base=529 cand=529
+Known base=301 cand=234
+removed=      67 added=       0
+removed owners:
+  67 Battery
+removed rows naming non-battery tokens/files:
+Generic identical: yes

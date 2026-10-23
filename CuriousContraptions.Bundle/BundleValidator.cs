@@ -92,7 +92,12 @@ public static class BundleValidator
             Presentation(entry.Presentation, entry.Metadata.Parameters, entry.Ports, entry.Electrical);
             for (var i = 0; i < entry.Events.Count; i++) Defined($"Events[{i}].EventKind", entry.Events[i].EventKind);
             if (entry.Mechanical is { } mechanical) Mechanical(mechanical, entry.Metadata.Parameters, entry.Ports);
-            if (entry.Electrical is { } electrical) Electrical(electrical, entry.Ports);
+            if (entry.Electrical is { } electrical) Electrical(electrical, entry.Ports, entry.Metadata.Parameters);
+            // A run-time control is declared only on a Source store's enable state: the one value ConfigureElectrical changes.
+            var runControlled = entry.Electrical?.Supply?.Store?.Enable;
+            for (var i = 0; i < entry.Metadata.Parameters.Count; i++)
+                if (entry.Metadata.Parameters[i].RunEdit == ParameterRunEdit.RunControl && entry.Metadata.Parameters[i].Key != runControlled)
+                    OutOfRange($"Metadata.Parameters[{i}].RunEdit");
             if (entry.Signal is { } signal) Signal(signal, entry.Metadata.Parameters, entry.Ports);
             if (entry.Fluid is { } fluid) Fluid(fluid);
         }
@@ -283,6 +288,9 @@ public static class BundleValidator
             Defined(path + ".Unit", parameter.Unit);
             Defined(path + ".Kind", parameter.Kind);
             Defined(path + ".EditorPolicy", parameter.EditorPolicy);
+            Defined(path + ".RunEdit", parameter.RunEdit);
+            // A Choice is picked from its options; there is no typed value to clamp.
+            if (parameter.Kind == ParameterKind.Choice && parameter.EditorPolicy != ParameterEditorPolicy.Reject) OutOfRange(path + ".EditorPolicy");
             var finite = Finite(path + ".Minimum", parameter.Minimum) & Finite(path + ".Maximum", parameter.Maximum) &
                 Finite(path + ".Default", parameter.Default);
             if (!finite) return;
@@ -478,10 +486,12 @@ public static class BundleValidator
                 errors.Add(new(BundleErrorCode.UnresolvedReference, $"{source}.{path}: '{key}' names no declared Real parameter"));
         }
 
-        private void Electrical(ElectricalPayload electrical, IReadOnlyList<PortDescriptor> ports)
+        private void Electrical(ElectricalPayload electrical, IReadOnlyList<PortDescriptor> ports, IReadOnlyList<ParameterDescriptor> parameters)
         {
             if (electrical.Supply is { } supply)
             {
+                if ((supply.Kind == SupplyCapabilityKind.Source) != supply.Store.HasValue) OutOfRange("Supply.Store");
+                if (supply.Store is { } store) SourceStore(store, parameters);
                 Defined("Supply.Kind", supply.Kind);
                 Defined("Supply.Output", supply.Output);
                 if (supply.Input is { } input) Defined("Supply.Input", input);
@@ -515,6 +525,44 @@ public static class BundleValidator
                 Finite(path + ".Capacitance", node.Capacitance);
                 Finite(path + ".MaxPower", node.MaxPower);
             }
+        }
+
+        /// <summary>A Source's finite store names four distinct declared parameters of their own kind and unit, each range inside the
+        /// electrical source envelope. The enable state lists exactly Disabled then Enabled, so its index 1 always means Enabled.</summary>
+        private void SourceStore(SupplySourceStoreDescriptor store, IReadOnlyList<ParameterDescriptor> parameters)
+        {
+            string[] keys = [store.Capacity, store.PowerLimit, store.InitialCharge, store.Enable];
+            if (keys.Distinct(StringComparer.Ordinal).Count() != keys.Length) OutOfRange("Supply.Store");
+            StoreValue("Supply.Store.Capacity", store.Capacity, parameters, ParameterUnit.Joule,
+                ElectricalSourceEnvelope.MinimumCapacity, ElectricalSourceEnvelope.MaximumCapacity);
+            StoreValue("Supply.Store.PowerLimit", store.PowerLimit, parameters, ParameterUnit.Watt,
+                ElectricalSourceEnvelope.MinimumPower, ElectricalSourceEnvelope.MaximumPower);
+            StoreValue("Supply.Store.InitialCharge", store.InitialCharge, parameters, ParameterUnit.None, 0f, 1f);
+            if (StoreParameter("Supply.Store.Enable", store.Enable, parameters) is { } enable &&
+                (enable.Kind != ParameterKind.Choice || enable.Unit != ParameterUnit.None ||
+                 !enable.Options.SequenceEqual(["Disabled", "Enabled"], StringComparer.Ordinal)))
+                OutOfRange("Supply.Store.Enable");
+        }
+
+        private void StoreValue(string path, string key, IReadOnlyList<ParameterDescriptor> parameters, ParameterUnit unit,
+            float minimum, float maximum)
+        {
+            if (StoreParameter(path, key, parameters) is { } parameter &&
+                (parameter.Kind != ParameterKind.Real || parameter.Unit != unit || !(parameter.Minimum >= minimum) || !(parameter.Maximum <= maximum)))
+                OutOfRange(path);
+        }
+
+        /// <summary>The one declared parameter a store key names; an absent key is unresolved and a duplicated one out of range.</summary>
+        private ParameterDescriptor? StoreParameter(string path, string key, IReadOnlyList<ParameterDescriptor> parameters)
+        {
+            var matches = parameters.Where(parameter => parameter.Key == key).ToArray();
+            if (matches.Length == 0)
+            {
+                errors.Add(new(BundleErrorCode.UnresolvedReference, $"{source}.{path}: '{key}' names no declared parameter"));
+                return null;
+            }
+            if (matches.Length > 1) { OutOfRange(path); return null; }
+            return matches[0];
         }
 
         private void Signal(SignalPayload signal, IReadOnlyList<ParameterDescriptor> parameters, IReadOnlyList<PortDescriptor> ports)
