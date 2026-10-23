@@ -1,0 +1,19 @@
+-- A: rg -w WorkshopCounter|WorkshopLatch|DefaultTargetCount|PlacedTargetCount|(Minimum|Maximum)TargetCount|SignalLatchMode|LatchMode|IWorkshopDeclaredColliders
+count=0
+-- B: rg WorkshopInput.(Counter|Latch)|InstanceRecord.(Add)?TargetCount|Unsupported authored instance declaration
+count=0
+-- C: rg '"counter"|"latch"' engine/gpu engine/MachineWorld.Gpu.cs ui
+count=0
+-- D: rg '"target_count"' engine ui content
+count=0
+-- E: 9A.43 rg Workshop(Ball|Receiver|Ramp|Switch|Lamp|Wall|Delay|Bumper|Domino|Battery|Springboard|PressurePlate|Counter|Clock|Latch|BallDetector)\b
+count=0
+-- F: wire target_count field (schema, generated C#/TS, snapshot schema)
+count=0
+-- G: element-named occurrence kind CounterReached (coordinator decision 3)
+count=0
+-- H: record files
+ls: engine/gpu/WorkshopCounter.cs: No such file or directory
+ls: engine/gpu/WorkshopCounter.cs.uid: No such file or directory
+ls: engine/gpu/WorkshopLatch.cs: No such file or directory
+ls: engine/gpu/WorkshopLatch.cs.uid: No such file or directory

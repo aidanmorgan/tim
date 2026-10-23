@@ -1,0 +1,98 @@
+-- A: rg -w WorkshopCounter|WorkshopLatch|DefaultTargetCount|PlacedTargetCount|(Minimum|Maximum)TargetCount|SignalLatchMode|LatchMode|IWorkshopDeclaredColliders
+CuriousContraptions.Bundle/BundleValidator.cs:670:            Defined("LatchMode", signal.LatchMode);
+CuriousContraptions.Bundle/BundleValidator.cs:678:                if (signal.Triggers.Count != 0 || signal.Timer is not null || signal.Counter is not null || signal.LatchMode != SignalLatchMode.None)
+CuriousContraptions.Bundle/BundleSchema.cs:44:public sealed record SignalPayload(IReadOnlyList<SignalTriggerDescriptor> Triggers, SignalLatchMode LatchMode, SignalCounterDescriptor? Counter,
+CuriousContraptions.Bundle/BundleSchema.cs:68:            declaration is ISignalElement signal ? new SignalPayload(signal.Triggers, signal.LatchMode, signal.Counter,
+CuriousContraptions.Bundle/BundleSchema.cs:128:        typeof(ExactEnumConverter<SupplyCapabilityKind>), typeof(ExactEnumConverter<LogicGateOperation>), typeof(ExactEnumConverter<ElectricalRole>), typeof(ExactEnumConvert
+engine/MachineWorld.Gpu.cs:114:                Construction.Instances.FirstOrDefault(instance => instance.Id == bodyId) is WorkshopCounter counter ? counter.TargetCount : WorkshopCounter.PlacedTargetCount),
+CuriousContraptions.Abstractions.Signal/SignalContracts.cs:19:public enum SignalLatchMode : byte
+CuriousContraptions.Abstractions.Signal/SignalContracts.cs:33:    SignalLatchMode LatchMode { get; }
+engine/gpu/WorkshopConstruction.cs:71:    public static WorkshopCounter Counter(GpuBodyId id, double x, double y, double z,
+engine/gpu/WorkshopConstruction.cs:75:        var result = new WorkshopCounter(id, new(px.Cell, py.Cell, pz.Cell), new(px.Local, py.Local, pz.Local),
+engine/gpu/WorkshopConstruction.cs:79:    public static WorkshopLatch Latch(GpuBodyId id, double x, double y, double z,
+engine/gpu/WorkshopConstruction.cs:83:        var result = new WorkshopLatch(id, new(px.Cell, py.Cell, pz.Cell), new(px.Local, py.Local, pz.Local),
+engine/gpu/WorkshopSavePrevalidation.cs:121:                if (r.TargetCount > WorkshopCounter.MaximumTargetCount)
+engine/gpu/WorkshopSavePrevalidation.cs:122:                    throw Refuse(WorkshopSaveRejection.OutOfRange, $"Counter {id} target count {r.TargetCount} is outside [{WorkshopCounter.MinimumTargetCount}, {WorkshopCounte
+elements/SystemClock/SystemClockElementDeclaration.cs:57:    public SignalLatchMode LatchMode => SignalLatchMode.None;
+engine/gpu/ActivationNetwork.cs:864:            else if (instance is WorkshopCounter counter)
+engine/gpu/ActivationNetwork.cs:866:            else if (instance is WorkshopLatch latch)
+engine/gpu/WorkshopInstances.cs:22:public interface IWorkshopDeclaredColliders : IWorkshopInstance
+engine/gpu/WorkshopInstances.cs:30:    CanonicalRotation Rotation, bool Locked = false) : IWorkshopDeclaredColliders
+engine/gpu/WorkshopInstances.cs:77:            if (item is not (WorkshopCounter or WorkshopLatch or IWorkshopDeclaredColliders))
+engine/gpu/WorkshopPipe.cs:41:    CanonicalRotation Rotation, PipeLength Length, bool Locked = false) : IWorkshopDeclaredColliders
+elements/DelayBox/DelayBoxElementDeclaration.cs:67:    public SignalLatchMode LatchMode => SignalLatchMode.None;
+engine/gpu/WorkshopLatch.cs:5:public readonly record struct WorkshopLatch(
+engine/gpu/WorkshopCounter.cs:5:public readonly record struct WorkshopCounter(
+engine/gpu/WorkshopCounter.cs:14:    public const int PlacedTargetCount = 3;
+engine/gpu/WorkshopCounter.cs:15:    public const int MinimumTargetCount = 1;
+engine/gpu/WorkshopCounter.cs:16:    public const int MaximumTargetCount = 9;
+engine/gpu/WorkshopCounter.cs:24:        if (TargetCount < MinimumTargetCount || TargetCount > MaximumTargetCount)
+engine/gpu/WorkshopCounter.cs:25:            throw new ArgumentException($"Counter {Id.Value} target count '{TargetCount}' is outside admitted range [{MinimumTargetCount}, {MaximumTargetCount}].");
+engine/gpu/WorkshopWireFlatBuffers.cs:645:                case WorkshopLatch:
+engine/gpu/WorkshopWireFlatBuffers.cs:646:                case IWorkshopDeclaredColliders:
+engine/gpu/WorkshopWireFlatBuffers.cs:648:                case WorkshopCounter counter:
+engine/gpu/WorkshopWireFlatBuffers.cs:750:            "latch" => new WorkshopLatch(id, cell, local, rotation, locked),
+engine/gpu/WorkshopWireFlatBuffers.cs:754:            "counter" => new WorkshopCounter(id, cell, local, rotation, TargetCount(inst), locked),
+elements/Counter/CounterElementDeclaration.cs:83:    public SignalLatchMode LatchMode => SignalLatchMode.None;
+elements/StateLatch/StateLatchElementDeclaration.cs:60:    public SignalLatchMode LatchMode => SignalLatchMode.SetReset;
+elements/SignalLamp/SignalLampElementDeclaration.cs:62:    public SignalLatchMode LatchMode => SignalLatchMode.None;
+elements/BallDetector/BallDetectorElementDeclaration.cs:65:    public SignalLatchMode LatchMode => SignalLatchMode.None;
+elements/Domino/DominoElementDeclaration.cs:59:    public SignalLatchMode LatchMode => SignalLatchMode.SetReset;
+elements/PressurePlate/PressurePlateElementDeclaration.cs:84:    public SignalLatchMode LatchMode => SignalLatchMode.None;
+elements/HoldTimer/HoldTimerElementDeclaration.cs:34:    public SignalLatchMode LatchMode => SignalLatchMode.None;
+elements/ImpactSwitch/ImpactSwitchElementDeclaration.cs:74:    public SignalLatchMode LatchMode => SignalLatchMode.None;
+count=42
+-- B: rg WorkshopInput.(Counter|Latch)|InstanceRecord.(Add)?TargetCount|Unsupported authored instance declaration
+engine/MachineWorld.Gpu.cs:113:            "counter" => WorkshopInput.Counter(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
+engine/MachineWorld.Gpu.cs:115:            "latch" => WorkshopInput.Latch(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W),
+engine/gpu/WorkshopInstances.cs:78:                throw new ArgumentException("Unsupported authored instance declaration.");
+engine/gpu/WorkshopWireFlatBuffers.cs:34:        InstanceRecord.AddTargetCount(builder, template.TargetCount);
+engine/gpu/WorkshopWireFlatBuffers.cs:649:                    InstanceRecord.AddTargetCount(builder, checked((uint)counter.TargetCount));
+count=5
+-- C: rg '"counter"|"latch"' engine/gpu engine/MachineWorld.Gpu.cs ui
+engine/MachineWorld.Gpu.cs:113:            "counter" => WorkshopInput.Counter(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
+engine/MachineWorld.Gpu.cs:115:            "latch" => WorkshopInput.Latch(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W),
+engine/gpu/WorkshopSavePrevalidation.cs:119:            case "counter":
+engine/gpu/WorkshopWireFlatBuffers.cs:750:            "latch" => new WorkshopLatch(id, cell, local, rotation, locked),
+engine/gpu/WorkshopWireFlatBuffers.cs:754:            "counter" => new WorkshopCounter(id, cell, local, rotation, TargetCount(inst), locked),
+count=5
+-- D: rg '"target_count"' engine ui content
+engine/gpu/AuthoredInstanceTemplate.cs:91:            "target_count", "parameters", "assistance", "assistance_bindings");
+engine/gpu/AuthoredInstanceTemplate.cs:118:            Unsigned(fields["target_count"], where + ".target_count"),
+count=30
+-- E: 9A.43 rg Workshop(Ball|Receiver|Ramp|Switch|Lamp|Wall|Delay|Bumper|Domino|Battery|Springboard|PressurePlate|Counter|Clock|Latch|BallDetector)\b
+engine/MachineWorld.Gpu.cs:114:                Construction.Instances.FirstOrDefault(instance => instance.Id == bodyId) is WorkshopCounter counter ? counter.TargetCount : WorkshopCounter.PlacedTargetCount),
+engine/gpu/WorkshopSavePrevalidation.cs:121:                if (r.TargetCount > WorkshopCounter.MaximumTargetCount)
+engine/gpu/WorkshopSavePrevalidation.cs:122:                    throw Refuse(WorkshopSaveRejection.OutOfRange, $"Counter {id} target count {r.TargetCount} is outside [{WorkshopCounter.MinimumTargetCount}, {WorkshopCounte
+engine/gpu/ActivationNetwork.cs:864:            else if (instance is WorkshopCounter counter)
+engine/gpu/ActivationNetwork.cs:866:            else if (instance is WorkshopLatch latch)
+engine/gpu/WorkshopCounter.cs:5:public readonly record struct WorkshopCounter(
+engine/gpu/WorkshopConstruction.cs:71:    public static WorkshopCounter Counter(GpuBodyId id, double x, double y, double z,
+engine/gpu/WorkshopConstruction.cs:75:        var result = new WorkshopCounter(id, new(px.Cell, py.Cell, pz.Cell), new(px.Local, py.Local, pz.Local),
+engine/gpu/WorkshopConstruction.cs:79:    public static WorkshopLatch Latch(GpuBodyId id, double x, double y, double z,
+engine/gpu/WorkshopConstruction.cs:83:        var result = new WorkshopLatch(id, new(px.Cell, py.Cell, pz.Cell), new(px.Local, py.Local, pz.Local),
+engine/gpu/WorkshopInstances.cs:77:            if (item is not (WorkshopCounter or WorkshopLatch or IWorkshopDeclaredColliders))
+engine/gpu/WorkshopLatch.cs:5:public readonly record struct WorkshopLatch(
+engine/gpu/WorkshopWireFlatBuffers.cs:645:                case WorkshopLatch:
+engine/gpu/WorkshopWireFlatBuffers.cs:648:                case WorkshopCounter counter:
+engine/gpu/WorkshopWireFlatBuffers.cs:750:            "latch" => new WorkshopLatch(id, cell, local, rotation, locked),
+engine/gpu/WorkshopWireFlatBuffers.cs:754:            "counter" => new WorkshopCounter(id, cell, local, rotation, TargetCount(inst), locked),
+count=16
+-- F: wire target_count field (schema, generated C#/TS, snapshot schema)
+tools/e2e/run-reset-snapshot.ts:57:            ['local', 'Vec3f'], ['rotation', 'Quat4f'], ['length', 'float'], ['target_count', 'uint32'],
+tools/e2e/workshop-wire.ts:1262:targetCount():number {
+tools/e2e/workshop-wire.ts:1309:static addTargetCount(builder:flatbuffers.Builder, targetCount:number) {
+tools/e2e/workshop-wire.ts:1310:  builder.addFieldInt32(7, targetCount, 0);
+tools/e2e/workshop-wire.ts:2317:            targetCount: inst.targetCount(),
+schemas/workshop_wire.fbs:262:    target_count: uint32;
+engine/gpu/WorkshopWireGenerated.cs:536:  public uint TargetCount { get { int o = __p.__offset(18); return o != 0 ? __p.bb.GetUint(o + __p.bb_pos) : (uint)0; } }
+engine/gpu/WorkshopWireGenerated.cs:548:  public static void AddTargetCount(FlatBufferBuilder builder, uint targetCount) { builder.AddUint(7, targetCount, 0); }
+engine/gpu/WorkshopWireGenerated.cs:574:      && verifier.VerifyField(tablePos, 18 /*TargetCount*/, 4 /*uint*/, 4, false)
+count=9
+-- G: element-named occurrence kind CounterReached (coordinator decision 3)
+count=0
+-- H: record files
+engine/gpu/WorkshopCounter.cs
+engine/gpu/WorkshopCounter.cs.uid
+engine/gpu/WorkshopLatch.cs
+engine/gpu/WorkshopLatch.cs.uid

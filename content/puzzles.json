@@ -209,7 +209,6 @@
           "scalars": {
             "Length": 0
           },
-          "target_count": 0,
           "parameters": {},
           "assistance": [
             [
@@ -279,7 +278,6 @@
           "scalars": {
             "Length": 0
           },
-          "target_count": 0,
           "parameters": {
             "capture_margin": 0.02,
             "capture_speed_limit": 1.5,
@@ -1121,7 +1119,6 @@
           "scalars": {
             "Length": 0
           },
-          "target_count": 0,
           "parameters": {},
           "assistance": [
             [
@@ -1191,7 +1188,6 @@
           "scalars": {
             "Length": 0
           },
-          "target_count": 0,
           "parameters": {
             "capture_margin": 0.02,
             "capture_speed_limit": 1.5,
@@ -2009,7 +2005,6 @@
           "scalars": {
             "Length": 0
           },
-          "target_count": 0,
           "parameters": {},
           "assistance": [
             [
@@ -2079,7 +2074,6 @@
           "scalars": {
             "Length": 0
           },
-          "target_count": 0,
           "parameters": {},
           "assistance": [
             [
@@ -2149,7 +2143,6 @@
           "scalars": {
             "Length": 0
           },
-          "target_count": 0,
           "parameters": {},
           "assistance": [
             [
@@ -3444,7 +3437,6 @@
           "scalars": {
             "Length": 0
           },
-          "target_count": 0,
           "parameters": {},
           "assistance": [
             [
@@ -3514,7 +3506,6 @@
           "scalars": {
             "Length": 0
           },
-          "target_count": 0,
           "parameters": {
             "capture_margin": 0.02,
             "capture_speed_limit": 1.5,
@@ -3923,7 +3914,6 @@
           "scalars": {
             "Length": 0
           },
-          "target_count": 0,
           "parameters": {},
           "assistance": [
             [
@@ -3993,7 +3983,6 @@
           "scalars": {
             "Length": 0
           },
-          "target_count": 0,
           "parameters": {
             "capture_margin": 0.02,
             "capture_speed_limit": 1.5,
@@ -4795,7 +4784,6 @@
           "scalars": {
             "Length": 0
           },
-          "target_count": 0,
           "parameters": {},
           "assistance": [
             [
@@ -4865,7 +4853,6 @@
           "scalars": {
             "Length": 0
           },
-          "target_count": 0,
           "parameters": {
             "capture_margin": 0.02,
             "capture_speed_limit": 1.5,
@@ -8449,7 +8436,6 @@
           "scalars": {
             "Length": 0
           },
-          "target_count": 0,
           "parameters": {},
           "assistance": [
             [
@@ -8519,7 +8505,6 @@
           "scalars": {
             "Length": 0
           },
-          "target_count": 0,
           "parameters": {
             "trigger_threshold": 0.7998047
           },
@@ -8597,7 +8582,6 @@
           "scalars": {
             "Length": 0
           },
-          "target_count": 0,
           "parameters": {},
           "assistance": [
             [
@@ -9405,7 +9389,6 @@
           "scalars": {
             "Length": 0
           },
-          "target_count": 0,
           "parameters": {},
           "assistance": [
             [
@@ -9475,7 +9458,6 @@
           "scalars": {
             "Length": 0
           },
-          "target_count": 0,
           "parameters": {
             "capture_margin": 0.02,
             "capture_speed_limit": 1.5,
@@ -9884,7 +9866,6 @@
           "scalars": {
             "Length": 0
           },
-          "target_count": 0,
           "parameters": {},
           "assistance": [
             [
@@ -9954,7 +9935,6 @@
           "scalars": {
             "Length": 0
           },
-          "target_count": 0,
           "parameters": {
             "capture_margin": 0.02,
             "capture_speed_limit": 1.5,
@@ -10363,7 +10343,6 @@
           "scalars": {
             "Length": 0
           },
-          "target_count": 0,
           "parameters": {},
           "assistance": [
             [
@@ -10433,7 +10412,6 @@
           "scalars": {
             "Length": 0
           },
-          "target_count": 0,
           "parameters": {
             "capture_margin": 0.02,
             "capture_speed_limit": 1.5,
@@ -10844,7 +10822,6 @@
           "scalars": {
             "Length": 0
           },
-          "target_count": 0,
           "parameters": {},
           "assistance": [
             [
@@ -10914,7 +10891,6 @@
           "scalars": {
             "Length": 0
           },
-          "target_count": 0,
           "parameters": {},
           "assistance": [
             [
@@ -10984,7 +10960,6 @@
           "scalars": {
             "Length": 0
           },
-          "target_count": 0,
           "parameters": {
             "capture_margin": 0.02,
             "capture_speed_limit": 1.5,
@@ -35925,7 +35900,6 @@
           "scalars": {
             "Length": 0
           },
-          "target_count": 0,
           "parameters": {
             "capture_margin": 0.02,
             "capture_speed_limit": 1.5,
@@ -36102,7 +36076,6 @@
           "scalars": {
             "Length": 0
           },
-          "target_count": 0,
           "parameters": {},
           "assistance": [
             [
@@ -36172,7 +36145,6 @@
           "scalars": {
             "Length": 0
           },
-          "target_count": 0,
           "parameters": {
             "stiffness": 400,
             "damping": 0.2,

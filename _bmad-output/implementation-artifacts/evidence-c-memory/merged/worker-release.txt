@@ -1,0 +1,8 @@
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+simulation rc=0
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+animation worker rc=0

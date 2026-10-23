@@ -1,0 +1,44 @@
+using CuriousContraptions.Gpu;
+using Xunit;
+
+namespace CuriousContraptions.Tests;
+
+// Scratch (deleted before freeze): finds a three-ball detector bench.
+public sealed class ScratchMemoryProbe(ITestOutputHelper output)
+{
+    [Theory]
+    [InlineData(2.0, 1.0, .6, 20, 2.0)]
+    [InlineData(2.0, 1.0, .6, 30, 2.0)]
+    [InlineData(2.5, 1.2, .8, 25, 2.0)]
+    [InlineData(2.0, .8, .5, 30, 1.5)]
+    public async Task ThreeBalls(double plane, double rampX, double rampY, double degrees, double spacing)
+    {
+        var floor = (double)WorkshopConstruction.WorkbenchSurface.Value;
+        var h = Math.Sqrt(.5);
+        var tilt = Math.PI / 180 * -degrees / 2;
+        var detector = PlacedParts.Detector(new(1), 0, floor + plane, 0, 0, 0, -h, h);
+        var counter = WorkshopInput.Counter(new(2), -4, 1, 0, 0, 0, 0, 1, 9);
+        var ramp = WorkshopInput.Generic(PartId.Ramp, new(6), rampX, floor + rampY, 0, 0, 0, Math.Sin(tilt), Math.Cos(tilt));
+        IWorkshopInstance[] parts = [detector, counter, ramp,
+            WorkshopInput.Generic(PartId.Basketball, new(3), 0, floor + plane + .5, 0, 0, 0, 0, 1),
+            WorkshopInput.Generic(PartId.Basketball, new(4), 0, floor + plane + .5 + spacing, 0, 0, 0, 0, 1),
+            WorkshopInput.Generic(PartId.Basketball, new(5), 0, floor + plane + .5 + 2 * spacing, 0, 0, 0, 0, 1)];
+        var bench = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(parts),
+            Connections: new([new WorkshopConnection(detector.Id, WorkshopSocket.ActivationOut, counter.Id, WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation)]));
+        var reads = await WorkshopPhysicsEngineTests.Run(bench, 600);
+        var network = WorkshopActivationCompiler.Compile(bench);
+        var count = 0u;
+        foreach (var read in reads)
+        {
+            var row = network.Memory(read.Memory, counter.Id);
+            if (row.Count != count) output.WriteLine($"tick {read.Tick.Value}: count {row.Count}");
+            count = row.Count;
+        }
+        output.WriteLine($"final {count}");
+        foreach (var id in new ulong[] { 3, 4, 5 })
+        {
+            Assert.True(reads[^1].Bodies.TryGet(new(id), out var row));
+            output.WriteLine($"ball {id}: {(row.Body.Cell.X + (double)row.Body.Local.X) / 16:F3},{(row.Body.Cell.Y + (double)row.Body.Local.Y) / 16:F3},{(row.Body.Cell.Z + (double)row.Body.Local.Z) / 16:F3}");
+        }
+    }
+}

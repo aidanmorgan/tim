@@ -521,7 +521,7 @@ public sealed class BallDetectorTests(NativeSceneFixture godot)
         Assert.Equal(save, decoded);
         Assert.Equal(bytes, WorkshopSaveCodec.Encode(decoded));
 
-        var decodedDetector = Assert.IsAssignableFrom<IWorkshopDeclaredColliders>(decoded.Construction.Instances[1]);
+        var decodedDetector = Assert.IsType<WorkshopGenericInstance>(decoded.Construction.Instances[1]);
         Assert.Equal(PartId.BallDetector, decodedDetector.PartId);
         Assert.Equal(17, decodedDetector.DeclaredColliders.Count);
 

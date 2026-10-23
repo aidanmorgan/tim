@@ -1,0 +1,7 @@
+== 2026-10-23T18:32:17Z R5-validator-memory-any-pulse-inputs (CuriousContraptions.Bundle/BundleValidator.cs) mutation diff vs candidate:
+-                else if (memory.Set != PortSocket.SetIn || memory.Reset != PortSocket.ResetIn || !PulseInput(memory.Set) || !PulseInput(memory.Reset))
++                else if (!PulseInput(memory.Set) || !PulseInput(memory.Reset))
+    0 Error(s)
+    0 Warning(s)
+CuriousContraptions.BundleElements.Tests.BundleValidatorTests.TheMemoryReadsSetAndResetPulsesDrivesALevelAndSwitchesItsContactExclusively [FAIL]
+Failed!  - Failed:     1, Passed:   175, Skipped:     0, Total:   176, Duration: 340 ms - BundleElements.Tests.dll (net10.0)

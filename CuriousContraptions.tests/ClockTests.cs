@@ -169,7 +169,7 @@ public sealed class ClockTests(NativeSceneFixture godot)
     {
         var clock = PlacedParts.Clock(new(1), 0, 0, 0, 0, 0, 0, 1, 1.0f);
         var battery = PlacedParts.Battery(new(2), -2, 0, 0);
-        var counter = WorkshopInput.Counter(new(3), 2, 0, 0, 0, 0, 0, 1, 5);
+        var counter = PlacedParts.Counter(new(3), 2, 0, 0, 0, 0, 0, 1, 5);
 
         var instances = new WorkshopInstances(clock, battery, counter);
 
@@ -189,7 +189,7 @@ public sealed class ClockTests(NativeSceneFixture godot)
     {
         var battery = PlacedParts.Battery(new(1), -2, 0, 0);
         var clock = PlacedParts.Clock(new(2), 0, 0, 0, 0, 0, 0, 1, 1.0f);
-        var counter = WorkshopInput.Counter(new(3), 2, 0, 0, 0, 0, 0, 1, 5);
+        var counter = PlacedParts.Counter(new(3), 2, 0, 0, 0, 0, 0, 1, 5);
 
         var conn1 = new WorkshopConnection(battery.Id, WorkshopSocket.Supply, clock.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical);
         var conn2 = new WorkshopConnection(clock.Id, WorkshopSocket.ActivationOut, counter.Id, WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation);
@@ -239,7 +239,7 @@ public sealed class ClockTests(NativeSceneFixture godot)
     public void ActivationNetwork_UnpoweredClock_EmitsZeroPulses()
     {
         var clock = PlacedParts.Clock(new(1), 0, 0, 0, 0, 0, 0, 1, 1.0f);
-        var counter = WorkshopInput.Counter(new(2), 2, 0, 0, 0, 0, 0, 1, 5);
+        var counter = PlacedParts.Counter(new(2), 2, 0, 0, 0, 0, 0, 1, 5);
 
         var conn = new WorkshopConnection(clock.Id, WorkshopSocket.ActivationOut, counter.Id, WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation);
 

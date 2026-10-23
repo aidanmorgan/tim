@@ -16,18 +16,15 @@ public interface IWorkshopInstance
     bool Locked { get; }
     /// <summary>Declared cosmetic curve data; never persisted. None for parts without animated artwork.</summary>
     CosmeticCurveDeclaration Cosmetic { get; }
-    void Validate();
-}
-
-public interface IWorkshopDeclaredColliders : IWorkshopInstance
-{
+    /// <summary>The colliders the element's declaration gives this instance's parameters.</summary>
     IReadOnlyList<ExtractedCollider> DeclaredColliders { get; }
+    void Validate();
 }
 
 public readonly record struct WorkshopGenericInstance(
     PartId PartId,
     GpuBodyId Id, CellOrigin Cell, LocalPosition Local,
-    CanonicalRotation Rotation, bool Locked = false) : IWorkshopDeclaredColliders
+    CanonicalRotation Rotation, bool Locked = false) : IWorkshopInstance
 {
     public InstanceParameterCollection Parameters { get; init; } = InstanceParameterCollection.Empty;
     public IReadOnlyList<ExtractedCollider> DeclaredColliders => DeclaredPhysics.Colliders(PartId, Parameters.ToBundleValues());
@@ -74,8 +71,6 @@ public sealed class WorkshopInstances : IReadOnlyList<IWorkshopInstance>, IEquat
         var ids = new HashSet<GpuBodyId>();
         foreach (var item in _items)
         {
-            if (item is not (WorkshopCounter or WorkshopLatch or IWorkshopDeclaredColliders))
-                throw new ArgumentException("Unsupported authored instance declaration.");
             item.Validate();
             if (!ids.Add(item.Id)) throw new ArgumentException("Authored body identities must be unique.");
         }

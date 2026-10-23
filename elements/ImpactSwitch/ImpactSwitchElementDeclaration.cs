@@ -70,8 +70,4 @@ public sealed class ImpactSwitchElementDeclaration : IMechanicalElement, IContac
 
     public SignalContactDescriptor Contact => new("trigger_threshold");
     public IReadOnlyList<SignalTriggerDescriptor> Triggers => [];
-
-    public SignalLatchMode LatchMode => SignalLatchMode.None;
-
-    public SignalCounterDescriptor? Counter => null;
 }

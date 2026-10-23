@@ -1,0 +1,3 @@
+Base fc7f7cac: flatc 25.2.10 (scratchpad/flatc/flatc), recipe probe/regen.sh.txt, schemas/workshop_wire.fbs -> scratchpad/cmem-regen-base
+C#: diff fresh engine/gpu/WorkshopWireGenerated.cs -> only "10d9 < (blank)" (the pre-existing header blank line, as recorded at C-Clock); otherwise equal.
+TS: diff (head -2253 tools/e2e/workshop-wire.ts) fresh generated.ts -> no difference (rc 0); lines 2254+ are the hand-written helpers.

@@ -13,10 +13,10 @@ public sealed class WorkshopSaveRejectionTests
 {
     // ---------- a hand-built save record whose every field the test controls ----------
 
-    /// <summary>InstanceRecord field ids, in schema order (the vtable slot of each field; C-Clock deleted the threshold).</summary>
+    /// <summary>InstanceRecord field ids, in schema order (the vtable slot of each field; C-Clock deleted the threshold, C-Memory the target count).</summary>
     public enum Field
     {
-        Id, PartId, Locked, Cell, Local, Rotation, Length, TargetCount, Parameters,
+        Id, PartId, Locked, Cell, Local, Rotation, Length, Parameters,
     }
 
     internal sealed class Instance(string part, ulong id)
@@ -118,7 +118,7 @@ public sealed class WorkshopSaveRejectionTests
         {
             object value = field switch
             {
-                Field.Length => (object)record.Length, Field.TargetCount => record.TargetCount,
+                Field.Length => (object)record.Length,
                 _ => throw new InvalidOperationException($"No fixture reader for {field}."),
             };
             result.Values[field] = value;
@@ -132,7 +132,6 @@ public sealed class WorkshopSaveRejectionTests
     internal static Field[] Parameters(string part) => part switch
     {
         "pipe" => [Field.Length],
-        "counter" => [Field.TargetCount],
         _ => [],
     };
 
@@ -153,9 +152,9 @@ public sealed class WorkshopSaveRejectionTests
         PlacedParts.Lamp(new(12), 9, 0, 0, 0, 0, 0, 1),
         PlacedParts.Detector(new(13), 10, 0, 0, 0, 0, 0, 1),
         PlacedParts.Plate(new(14), 11, 0, 0, .5f),
-        WorkshopInput.Counter(new(15), 12, 0, 0, 0, 0, 0, 1, WorkshopCounter.PlacedTargetCount),
+        PlacedParts.Counter(new(15), 12, 0, 0, 0, 0, 0, 1, 3),
         PlacedParts.Clock(new(16), 13, 0, 0, 0, 0, 0, 1, 1f),
-        WorkshopInput.Latch(new(17), 14, 0, 0, 0, 0, 0, 1),
+        PlacedParts.Latch(new(17), 14, 0, 0, 0, 0, 0, 1),
         WorkshopInput.Pipe(new(18), 15, 0, 0, 0, 0, 0, 1),
         WorkshopInput.PipeBend45(new(19), 16, 0, 0, 0, 0, 0, 1),
         WorkshopInput.PipeBend90(new(20), 17, 0, 0, 0, 0, 0, 1),
@@ -227,7 +226,7 @@ public sealed class WorkshopSaveRejectionTests
         Assert.Throws<WorkshopSaveRejectedException>(() => WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes)).Reason;
 
     private static Instance Ramp() => FromProduction(WorkshopInput.Generic(PartId.Ramp, new(1), 0, 1, 0, 0, 0, 0, 1));
-    private static Instance Counter() => FromProduction(WorkshopInput.Counter(new(1), 0, 1, 0, 0, 0, 0, 1, 3));
+    private static Instance Counter() => FromProduction(PlacedParts.Counter(new(1), 0, 1, 0, 0, 0, 0, 1, 3));
 
     // ---------- every rejection reason ----------
 
@@ -300,7 +299,7 @@ public sealed class WorkshopSaveRejectionTests
         ("no rotation", WorkshopSaveRejection.MissingField),
         ("no receiver parameter vector", WorkshopSaveRejection.OutOfRange),
         ("domino carrying a typed length", WorkshopSaveRejection.OutOfRange),
-        ("no counter target", WorkshopSaveRejection.MissingField),
+        ("no counter target", WorkshopSaveRejection.OutOfRange),
         ("undefined simulation cadence", WorkshopSaveRejection.UndefinedEnum),
         ("undefined receiver participation", WorkshopSaveRejection.OutOfRange),
         ("undefined battery enable", WorkshopSaveRejection.OutOfRange),
@@ -312,12 +311,14 @@ public sealed class WorkshopSaveRejectionTests
         ("long ramp", WorkshopSaveRejection.OutOfRange),
         ("ramp far beyond declared maximum", WorkshopSaveRejection.OutOfRange),
         ("counter target ten", WorkshopSaveRejection.OutOfRange),
+        ("counter target two and a half", WorkshopSaveRejection.OutOfRange),
+        ("NaN counter target", WorkshopSaveRejection.NonFinite),
         ("zero revision", WorkshopSaveRejection.OutOfRange),
         ("zero instance identity", WorkshopSaveRejection.OutOfRange),
         ("cell outside the world", WorkshopSaveRejection.OutOfRange),
         ("local remainder of one half", WorkshopSaveRejection.OutOfRange),
         ("scaled rotation", WorkshopSaveRejection.OutOfRange),
-        ("ball carrying a typed target count", WorkshopSaveRejection.OutOfRange),
+        ("counter carrying a typed length", WorkshopSaveRejection.OutOfRange),
         ("unknown element", WorkshopSaveRejection.UnknownElement),
         ("no element", WorkshopSaveRejection.MissingField),
         ("duplicate instance", WorkshopSaveRejection.DuplicateInstance),
@@ -342,7 +343,7 @@ public sealed class WorkshopSaveRejectionTests
             "no rotation" => One(ramp.Without(Field.Rotation)),
             "no receiver parameter vector" => One(receiver.Without(Field.Parameters)),
             "domino carrying a typed length" => One(FromProduction(PlacedParts.Domino(new(1), 0, 1, 0, 0, 0, 0, 1)).With(Field.Length, .4f)),
-            "no counter target" => One(Counter().Without(Field.TargetCount)),
+            "no counter target" => One(Counter().With(Field.Parameters, Array.Empty<KeyValuePair<string, float>>())),
             "undefined simulation cadence" => One(ramp) with { Simulation = 99 },
             "undefined receiver participation" => One(receiver.WithParameter(new("capture_participation"), 99f)),
             "undefined battery enable" => One(battery.WithParameter(new("enabled"), 7f)),
@@ -353,13 +354,15 @@ public sealed class WorkshopSaveRejectionTests
             "NaN rotation" => One(ramp.With(Field.Rotation, (0f, float.NaN, 0f, 1f))),
             "long ramp" => One(ramp.WithParameter(new("length"), 10f)),
             "ramp far beyond declared maximum" => One(ramp.WithParameter(new("length"), 1e6f)),
-            "counter target ten" => One(Counter().With(Field.TargetCount, 10u)),
+            "counter target ten" => One(Counter().WithParameter(new("target_count"), 10f)),
+            "counter target two and a half" => One(Counter().WithParameter(new("target_count"), 2.5f)),
+            "NaN counter target" => One(Counter().WithParameter(new("target_count"), float.NaN)),
             "zero revision" => One(ramp) with { Revision = 0 },
             "zero instance identity" => One(ramp.With(Field.Id, 0UL)),
             "cell outside the world" => One(ramp.With(Field.Cell, (2000, 0, 0))),
             "local remainder of one half" => One(ramp.With(Field.Local, (.5f, 0f, 0f))),
             "scaled rotation" => One(ramp.With(Field.Rotation, (0f, 0f, 0f, .5f))),
-            "ball carrying a typed target count" => One(FromProduction(WorkshopInput.Generic(PartId.Basketball,new(1), 0, 3, 0, 0, 0, 0, 1)).With(Field.TargetCount, 2u)),
+            "counter carrying a typed length" => One(Counter().With(Field.Length, 3f)),
             "unknown element" => One(ramp.Clone().Also(i => i.Part = "tennis")),
             "no element" => One(ramp.Clone().Also(i => i.Part = "")),
             "duplicate instance" => new([ramp, ramp], []),
@@ -527,10 +530,11 @@ public sealed class WorkshopSaveRejectionTests
             var bytes = Bytes(One(baseline.With(Field.Id, id)) with { NextBodyId = id == ulong.MaxValue ? id : 100 });
             if (PreValidationRejects(bytes) != DomainRejects(bytes)) mismatches.Add($"{part} id = {id}");
         }
-        if (baseline.Values.ContainsKey(Field.TargetCount))
-            foreach (var count in new[] { 0u, 1u, 9u, 10u, int.MaxValue + 1u, uint.MaxValue })
+        if (baseline.Values.TryGetValue(Field.Parameters, out var counted) &&
+            ((KeyValuePair<string, float>[])counted).Any(pair => pair.Key == "target_count"))
+            foreach (var count in new[] { 0f, 1f, 9f, 10f, 2.5f, -1f, 2147483648f })
             {
-                var bytes = Bytes(One(baseline.With(Field.TargetCount, count)));
+                var bytes = Bytes(One(baseline.WithParameter(new("target_count"), count)));
                 if (PreValidationRejects(bytes) != DomainRejects(bytes)) mismatches.Add($"{part} target = {count}");
             }
         if (baseline.Values.TryGetValue(Field.Parameters, out var parameters) &&

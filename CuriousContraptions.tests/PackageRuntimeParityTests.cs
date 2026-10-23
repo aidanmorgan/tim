@@ -58,8 +58,10 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
         Assert.Equal(OrientationThreshold.Degrees(orientation.ThresholdDegrees), compiledThreshold);
         Assert.Equal(BitConverter.HalfToUInt16Bits(OrientationThreshold.Degrees(45).CosineHalfAngle), BitConverter.HalfToUInt16Bits(compiledThreshold.CosineHalfAngle));
         Assert.Equal((ushort)0x3b64, BitConverter.HalfToUInt16Bits(compiledThreshold.CosineHalfAngle));
-        var counter = (Abstractions.Signal.ISignalElement)packages["counter"];
-        Assert.Equal(WorkshopCounter.PlacedTargetCount, Assert.NotNull(counter.Counter).Threshold);
+        // C-Memory: the counter's target is its declared parameter, and the latch's memory reads the two inputs the shared law reads.
+        Assert.Equal("target_count", ((Abstractions.Signal.IPulseCountElement)packages["counter"]).PulseCount.TargetParameter);
+        Assert.Equal(new Abstractions.Signal.SignalMemoryDescriptor(Abstractions.PortSocket.SetIn, Abstractions.PortSocket.ResetIn),
+            ((Abstractions.Signal.IMemoryElement)packages["latch"]).Memory);
         // Story 9A.22: every package's declared event kinds equal its compiled rows' kinds (EventRingProducerTests).
         // C-Lamp+Detector: the lamp's declared indicator input selects its node, and the detector's declared f32 aperture is the
         // compiled passage sensor's radius and rearm clearance, narrowed to the binary16 lanes bit-equal to the former record's
@@ -361,8 +363,8 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
             ],
             "counter" =>
             [
-                ("target_count", ParameterUnit.None, ParameterKind.WholeNumber, Lane.Whole, WorkshopCounter.PlacedTargetCount,
-                    Admits(value => WorkshopInput.Counter(Owner, 0, 3, 0, 0, 0, 0, 1, (int)value)), [])
+                ("target_count", ParameterUnit.None, ParameterKind.WholeNumber, Lane.Whole, 3f,
+                    Generic(PartId.Counter, "target_count"), [])
             ],
             "clock" =>
             [
@@ -424,9 +426,9 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
         "lamp" or "ball_detector" or "funnel" or "pipe_bend_45" or "pipe_bend_90" or "powered_gate" or "hold_timer" or "both_gate" or "electrical_nand" or "electrical_nor" or "electrical_or" or "electrical_xor" =>
             WorkshopInput.Generic(id, Owner, 0, 3, 0, 0, 0, 0, 1),
         "pressure_plate" => PlacedParts.Plate(Owner, 0, 3, 0, .5f),
-        "counter" => WorkshopInput.Counter(Owner, 0, 3, 0, 0, 0, 0, 1, WorkshopCounter.PlacedTargetCount),
+        "counter" => PlacedParts.Counter(Owner, 0, 3, 0, 0, 0, 0, 1, 3),
         "clock" => PlacedParts.Clock(Owner, 0, 3, 0, 0, 0, 0, 1, 1f),
-        "latch" => WorkshopInput.Latch(Owner, 0, 3, 0, 0, 0, 0, 1),
+        "latch" => PlacedParts.Latch(Owner, 0, 3, 0, 0, 0, 0, 1),
         "switch" => WorkshopInput.Generic(PartId.ImpactSwitch, Owner, 0, 3, 0, 0, 0, 0, 1),
         "delay" => WorkshopInput.Generic(PartId.Delay, Owner, 0, 3, 0, 0, 0, 0, 1),
         _ => throw new ArgumentException($"No placement for packaged part '{id}'.")

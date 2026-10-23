@@ -1,0 +1,13 @@
+IDENTICAL lesson-world.txt
+IDENTICAL placed-solutions.txt
+IDENTICAL trace-admission.txt
+IDENTICAL trace-clocks-latch.txt
+IDENTICAL trace-counter-1.txt
+IDENTICAL trace-counter-3.txt
+IDENTICAL trace-counter-9.txt
+IDENTICAL trace-counter-gate.txt
+IDENTICAL trace-fixture-9-4c-16.txt
+IDENTICAL trace-fixture-9-4c-9-payload.txt
+IDENTICAL trace-fixture-9-4c-null.txt
+old-save sha256 pins base vs candidate: identical
+base: 86/86 LOADED; candidate: 6 LOADED (latch, latch_locked_rotated, pipe at both boundaries, same pose/lock/length), 80 typed refusals, 0 untyped

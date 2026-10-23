@@ -1,0 +1,9 @@
+== 2026-10-23T18:30:50Z R2-bistable-drops-contact-load (engine/gpu/WorkshopSimulation.cs) mutation diff vs candidate:
+-                if (node.Kind is ActivationNodeKind.StateLatch or ActivationNodeKind.LevelIndicator or ActivationNodeKind.ContactLoadSource) nodes.Add(node.Id);
++                if (node.Kind is ActivationNodeKind.StateLatch or ActivationNodeKind.LevelIndicator) nodes.Add(node.Id);
+    0 Error(s)
+    0 Warning(s)
+CuriousContraptions.Tests.LampDetectorGuardTests.ALampOnAPlateFollowsItsLevelOnAndOff [FAIL]
+CuriousContraptions.Tests.MemoryGuardTests.ALatchedToClearFlipIsAdmittedOnlyForABistableNode(owner: Plate, kind: ContactLoadSource, admitted: True) [FAIL]
+CuriousContraptions.Tests.PlateGuardTests.ABouncingLoadIsHeldElevenTicksAndReleasedOnTheTwelfth(drop: 8, released: True) [FAIL]
+Failed!  - Failed:     3, Passed:   360, Skipped:     0, Total:   363, Duration: 5 s - CuriousContraptions.tests.dll (net10.0)

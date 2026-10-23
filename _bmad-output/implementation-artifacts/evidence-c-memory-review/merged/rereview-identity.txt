@@ -1,0 +1,7 @@
+main cf35a064 record path (throwaway): guards+probe 43/43; 9 traces, lessons, placed solutions, old-save outcomes byte-identical to fc7f7cac baseline; base-encoder old saves regenerated == 86 pins
+merged 4db597a3 (throwaway): 62/62 (probe, MemoryGuard, LatchSupplyFixture, DeclaredMemory); 9 traces + lessons + placed solutions byte-identical to main record path; old-save outcomes identical to the fc7f7cac candidate (6 LOADED / 80 typed / 0 untyped)
+bundle main 250699013a0fc48a20f181432c6432953a6f23173aad01397013a96913dfa02c; merged b3aee420ddd8a96dfc63b7a7a7635eca311574fe657928504c2e36ab6c0a2424 (fresh throwaway build == worktree); semantic diff: 10 LatchMode removals, Counter->PulseCount/Memory fields, counter PulseCount+description+triggers [], latch Memory+triggers [] only
+wire regen (flatc 25.2.10) on merged schema: C# equal except pre-existing header blank line; TS head equal
+Known/Generic: main 127/533 == fc7f7cac; merged 94/519 == 9b756844; merge did not touch the fixture; ElementIsolation green in full suite
+merge tree 6f31e2e2 == git merge-tree --write-tree 9b756844 cf35a064 (clean automerge, no manual resolution)
+WIP 9b756844 vs reviewed candidate: only F3 (Counter Description, CAT-020 note) + epics F1 + spec/review records; tests 89abbef3/39845d70 unchanged

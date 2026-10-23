@@ -62,10 +62,6 @@ public sealed class BallDetectorElementDeclaration : IMechanicalElement, IPassag
         new("passage", SignalTriggerMode.Pulse, Threshold: 1f, PulseDurationSeconds: 0.1f)
     ];
 
-    public SignalLatchMode LatchMode => SignalLatchMode.None;
-
-    public SignalCounterDescriptor? Counter => null;
-
     /// <summary>The aperture is the collar's 0.65 m bore; a ball rearms once it clears the upstream side by 0.02 m beyond its own
     /// radius.</summary>
     public SignalPassageDescriptor Passage => new(ApertureRadius: .65f, RearmClearance: .02f);

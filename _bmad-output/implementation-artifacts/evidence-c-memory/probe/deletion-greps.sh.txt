@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# C-Memory deletion greps over production paths (tests, docs, planning/evidence excluded). Run from the worktree root.
+set -u
+P=(--glob '!_bmad-output/**' --glob '!CuriousContraptions.tests/**' --glob '!tools/BundleElements.Tests/**' --glob '!tools/E2eRunner.Tests/**' --glob '!docs/**' --glob '!*.md')
+run() { local label=$1; shift; echo "-- $label"; rg -n "$@" "${P[@]}" | cut -c1-220; echo "count=$(rg -n "$@" "${P[@]}" | wc -l | tr -d ' ')"; }
+run "A: rg -w WorkshopCounter|WorkshopLatch|DefaultTargetCount|PlacedTargetCount|(Minimum|Maximum)TargetCount|SignalLatchMode|LatchMode|IWorkshopDeclaredColliders" \
+  -w 'WorkshopCounter|WorkshopLatch|DefaultTargetCount|PlacedTargetCount|(Minimum|Maximum)TargetCount|SignalLatchMode|LatchMode|IWorkshopDeclaredColliders'
+run "B: rg WorkshopInput.(Counter|Latch)|InstanceRecord.(Add)?TargetCount|Unsupported authored instance declaration" \
+  'WorkshopInput\.(Counter|Latch)\b|InstanceRecord\.(Add)?TargetCount\b|Unsupported authored instance declaration'
+echo "-- C: rg '\"counter\"|\"latch\"' engine/gpu engine/MachineWorld.Gpu.cs ui"
+rg -n '"counter"|"latch"' engine/gpu engine/MachineWorld.Gpu.cs ui
+echo "count=$(rg -n '"counter"|"latch"' engine/gpu engine/MachineWorld.Gpu.cs ui | wc -l | tr -d ' ')"
+echo "-- D: rg '\"target_count\"' engine ui content"
+rg -n '"target_count"' engine ui | cut -c1-200
+echo "count=$(rg -n '"target_count"' engine ui content | wc -l | tr -d ' ')"
+run "E: 9A.43 rg Workshop(Ball|Receiver|Ramp|Switch|Lamp|Wall|Delay|Bumper|Domino|Battery|Springboard|PressurePlate|Counter|Clock|Latch|BallDetector)\\b" \
+  'Workshop(Ball|Receiver|Ramp|Switch|Lamp|Wall|Delay|Bumper|Domino|Battery|Springboard|PressurePlate|Counter|Clock|Latch|BallDetector)\b'
+echo "-- F: wire target_count field (schema, generated C#/TS, snapshot schema)"
+rg -n -i 'target_?count' schemas/workshop_wire.fbs engine/gpu/WorkshopWireGenerated.cs tools/e2e/workshop-wire.ts tools/e2e/run-reset-snapshot.ts
+echo "count=$(rg -n -i 'target_?count' schemas/workshop_wire.fbs engine/gpu/WorkshopWireGenerated.cs tools/e2e/workshop-wire.ts tools/e2e/run-reset-snapshot.ts | wc -l | tr -d ' ')"
+echo "-- G: element-named occurrence kind CounterReached (coordinator decision 3)"
+rg -n -w 'CounterReached' "${P[@]}"
+echo "count=$(rg -n -w 'CounterReached' "${P[@]}" | wc -l | tr -d ' ')"
+echo "-- H: record files"
+ls engine/gpu/WorkshopCounter.cs engine/gpu/WorkshopCounter.cs.uid engine/gpu/WorkshopLatch.cs engine/gpu/WorkshopLatch.cs.uid 2>&1

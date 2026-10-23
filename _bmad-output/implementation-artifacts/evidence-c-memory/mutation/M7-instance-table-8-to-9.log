@@ -1,0 +1,8 @@
+== 2026-10-23T18:02:00Z mutation under test (engine/gpu/WorkshopWireFlatBuffers.cs):
+-    internal const int InstanceRecordFields = 8;
++    internal const int InstanceRecordFields = 9;
+    0 Warning(s)
+    0 Error(s)
+CuriousContraptions.Tests.DeclaredMemoryTests.ARecordPathParameterlessGenericSaveIsRefusedForItsFieldBeyondTheTable [FAIL]
+CuriousContraptions.Tests.DeclaredOrientationTests.AFieldAtExactlyTheFirstSlotBeyondTheTableIsRefusedAtBothBoundaries [FAIL]
+Failed!  - Failed:     2, Passed:   134, Skipped:     0, Total:   136, Duration: 10 s - CuriousContraptions.tests.dll (net10.0)

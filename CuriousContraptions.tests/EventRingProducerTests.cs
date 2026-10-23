@@ -375,7 +375,7 @@ public sealed class EventRingProducerTests
     {
         GpuBodyId battery = new(1), oscillator = new(2), tally = new(3);
         return Bench([PlacedParts.Battery(battery, -3, 3, 0, enabled: enabled), PlacedParts.Clock(oscillator, 0, 3, 0, 0, 0, 0, 1, seconds),
-                WorkshopInput.Counter(tally, 3, 3, 0, 0, 0, 0, 1, (int)target)],
+                PlacedParts.Counter(tally, 3, 3, 0, 0, 0, 0, 1, (int)target)],
             supplied ? [Supply(battery, oscillator), Signal(oscillator, tally)] : [Signal(oscillator, tally)], cadence);
     }
 
@@ -428,7 +428,7 @@ public sealed class EventRingProducerTests
     {
         var set = PlacedParts.Clock(new(1), -3, 3, 0, 0, 0, 0, 1, 1f);
         var reset = PlacedParts.Clock(new(2), -3, 3, 3, 0, 0, 0, 1, 1.5f);
-        var latch = WorkshopInput.Latch(new(3), 0, 3, 0, 0, 0, 0, 1);
+        var latch = PlacedParts.Latch(new(3), 0, 3, 0, 0, 0, 0, 1);
         var battery = PlacedParts.Battery(new(4), -6, 3, 0);
         return Bench([set, reset, latch, battery], [Supply(battery.Id, set.Id), Supply(battery.Id, reset.Id),
             Signal(set.Id, latch.Id, WorkshopSocket.SetIn), Signal(reset.Id, latch.Id, WorkshopSocket.ResetIn)]);
@@ -454,7 +454,7 @@ public sealed class EventRingProducerTests
     public async Task ARepeatedSetWhileOnPublishesNoMemoryChange()
     {
         var set = PlacedParts.Clock(new(1), -3, 3, 0, 0, 0, 0, 1, 1f);
-        var latch = WorkshopInput.Latch(new(3), 0, 3, 0, 0, 0, 0, 1);
+        var latch = PlacedParts.Latch(new(3), 0, 3, 0, 0, 0, 0, 1);
         var battery = PlacedParts.Battery(new(4), -6, 3, 0);
         await using var ring = await Ring.Running(Bench([set, latch, battery], [Supply(battery.Id, set.Id), Signal(set.Id, latch.Id, WorkshopSocket.SetIn)]));
         await ring.Advance(600);

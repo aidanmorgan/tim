@@ -1,0 +1,12 @@
+merge commit (HEAD) 4db597a35e627872695671943a54358d83f7df63 tree 6f31e2e26b4909d6c93ec3cb58407c97ebd3356c; parents 9b7568448e15b69c530d76a2632daa61cb32b614 cf35a0645c719e2551fc7ffa2473416d404da8a0
+new base main cf35a0645c719e2551fc7ffa2473416d404da8a0
+slice vs main (git diff cf35a064 HEAD, code: _bmad-output and TODO.md excluded) sha256 1aa63faa26c202c14e56d5edf55cc30a0a4c06f280718c17edff30dcb2c68a29,  67 files changed, 1186 insertions(+), 564 deletions(-)
+uncommitted delta (git diff HEAD, staged included; untracked listed) sha256 67ae2773a8776eb2ab4785116c4fc9764670b4e3dd3644bf764b8acdca4c681f:  4 files changed, 38 insertions(+), 8 deletions(-)
+  modified TODO.md
+  modified _bmad-output/implementation-artifacts/review-10-1-solid-cylinder.md
+  modified _bmad-output/implementation-artifacts/sprint-status.yaml
+  modified docs/architecture/element-package-isolation.md
+  untracked _bmad-output/implementation-artifacts/evidence-10-1-review/terminal
+  untracked _bmad-output/implementation-artifacts/evidence-c-memory/merged
+CuriousContraptions.tests/MemoryGuardTests.cs sha256 89abbef34c4f4082d35e1dd950b524e72d58eb0b71f05822fead68740d67e611
+CuriousContraptions.tests/DeclaredMemoryTests.cs sha256 39845d700dbfa5f1d313ab128432936f82d10425bb41a9d015197ccbf73c1a9e

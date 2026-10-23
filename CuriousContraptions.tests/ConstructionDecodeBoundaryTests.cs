@@ -4,9 +4,9 @@
 // Every declared setting is decoded through both shipped construction decoders:
 //   FB  WorkshopWireFlatBuffers.DecodeConstructionRecord (the Construct command record);
 //   SAV WorkshopSaveCodec.Decode (the browser save boundary: structural pre-validation, then the same record decoder).
-// The Counter's target is the whole uint32 field target_count (Story 9A.2); the plate's minimum mass and the clock's interval are their
-// generic instances' declared f32 minimum_mass and interval_seconds parameters (C-Plate, C-Clock). Expected (independently derived from
-// the plate's declared [0.1, 16] kg (decision h), WorkshopCounter [1, 9] and the clock's declared [0.1, 12] s (CAT-017), and
+// The plate's minimum mass, the clock's interval and the counter's target are their generic instances' declared f32 minimum_mass,
+// interval_seconds and WholeNumber target_count parameters (C-Plate, C-Clock, C-Memory). Expected (independently derived from the
+// plate's declared [0.1, 16] kg (decision h), the counter's declared whole [1, 9] and the clock's declared [0.1, 12] s (CAT-017), and
 // "a missing declared setting rejects; nothing is defaulted or coerced"): accept exactly the
 // admitted values and decode them bit-for-bit; reject everything else. The command record rejects with the domain's argument
 // guard or the wire's typed fault; the save rejects with its typed refusal and nothing else. Positive controls use the identical
@@ -19,7 +19,7 @@ namespace CuriousContraptions.Tests;
 
 public sealed class ConstructionDecodeBoundaryTests
 {
-    public enum Part { PressurePlate, Clock }
+    public enum Part { PressurePlate, Clock, Counter }
 
     // 2^31 and 2^31 - 1 are the same f32 (2147483648f); 2147483520f is the largest f32 below 2^31.
     private const float TwoTo31 = 2147483648f;
@@ -29,6 +29,7 @@ public sealed class ConstructionDecodeBoundaryTests
     {
         Part.PressurePlate => float.IsFinite(value) && value >= .1f && value <= 16f,
         Part.Clock => float.IsFinite(value) && value >= .1f && value <= 12f,
+        Part.Counter => float.IsFinite(value) && value == MathF.Truncate(value) && value >= 1f && value <= 9f,
         _ => throw new ArgumentOutOfRangeException(nameof(part)),
     };
 
@@ -47,8 +48,9 @@ public sealed class ConstructionDecodeBoundaryTests
         foreach (var part in Enum.GetValues<Part>())
         {
             foreach (var value in common) data.Add(part, value);
-            var (min, max) = part switch { Part.PressurePlate => (.1f, 16f), _ => (.1f, 12f) };
-            data.Add(part, min); data.Add(part, max);
+            var (min, max) = part switch { Part.PressurePlate => (.1f, 16f), Part.Counter => (1f, 9f), _ => (.1f, 12f) };
+            // The counter's bounds 1 and 9 are already common rows (no duplicate theory IDs).
+            if (part != Part.Counter) { data.Add(part, min); data.Add(part, max); }
             data.Add(part, MathF.BitDecrement(min)); data.Add(part, MathF.BitIncrement(max));
         }
         return data;
@@ -57,7 +59,7 @@ public sealed class ConstructionDecodeBoundaryTests
     // ---------- the hand-built record ----------
 
     private static Google.FlatBuffers.Offset<CuriousContraptions.Wire.ConstructionRecord> BuildRecord(
-        Google.FlatBuffers.FlatBufferBuilder builder, PartId part, float? length, uint? targetCount, (string Key, float Value)? parameter = null)
+        Google.FlatBuffers.FlatBufferBuilder builder, PartId part, float? length, (string Key, float Value)? parameter = null)
     {
         var id = builder.CreateString(part.Value);
         Google.FlatBuffers.VectorOffset? parameters = parameter is { } declared
@@ -72,7 +74,6 @@ public sealed class ConstructionDecodeBoundaryTests
         CuriousContraptions.Wire.InstanceRecord.AddLocal(builder, CuriousContraptions.Wire.Vec3f.CreateVec3f(builder, 0, 0, 0));
         CuriousContraptions.Wire.InstanceRecord.AddRotation(builder, CuriousContraptions.Wire.Quat4f.CreateQuat4f(builder, 0, 0, 0, 1));
         if (length is { } value) CuriousContraptions.Wire.InstanceRecord.AddLength(builder, value);
-        if (targetCount is { } count) CuriousContraptions.Wire.InstanceRecord.AddTargetCount(builder, count);
         var instance = CuriousContraptions.Wire.InstanceRecord.EndInstanceRecord(builder);
         var instances = CuriousContraptions.Wire.ConstructionRecord.CreateInstancesVector(builder, [instance]);
         var settings = WorkshopCadenceSettings.Default();
@@ -85,18 +86,18 @@ public sealed class ConstructionDecodeBoundaryTests
         return CuriousContraptions.Wire.ConstructionRecord.EndConstructionRecord(builder);
     }
 
-    private static WorkshopConstruction DecodeRecord(PartId part, float? length, uint? targetCount = null, (string, float)? parameter = null)
+    private static WorkshopConstruction DecodeRecord(PartId part, float? length, (string, float)? parameter = null)
     {
         var builder = new Google.FlatBuffers.FlatBufferBuilder(512);
-        builder.Finish(BuildRecord(builder, part, length, targetCount, parameter).Value);
+        builder.Finish(BuildRecord(builder, part, length, parameter).Value);
         return WorkshopWireFlatBuffers.DecodeConstructionRecord(CuriousContraptions.Wire.ConstructionRecord.GetRootAsConstructionRecord(
             new Google.FlatBuffers.ByteBuffer(builder.SizedByteArray())));
     }
 
-    private static WorkshopConstruction DecodeSave(PartId part, float? length, uint? targetCount = null, (string, float)? parameter = null)
+    private static WorkshopConstruction DecodeSave(PartId part, float? length, (string, float)? parameter = null)
     {
         var builder = new Google.FlatBuffers.FlatBufferBuilder(1024);
-        return WorkshopSaveCodec.Decode(SaveFixture.Elements,SaveFixture.Finish(builder, BuildRecord(builder, part, length, targetCount, parameter), 2)).Construction;
+        return WorkshopSaveCodec.Decode(SaveFixture.Elements,SaveFixture.Finish(builder, BuildRecord(builder, part, length, parameter), 2)).Construction;
     }
 
     // C-Plate and C-Clock: each setting is its generic instance's declared parameter (absent when the value is).
@@ -104,6 +105,7 @@ public sealed class ConstructionDecodeBoundaryTests
     {
         Part.PressurePlate => (PartId.PressurePlate, "minimum_mass"),
         Part.Clock => (PartId.Clock, "interval_seconds"),
+        Part.Counter => (PartId.Counter, "target_count"),
         _ => throw new ArgumentOutOfRangeException(nameof(part)),
     };
 
@@ -149,40 +151,24 @@ public sealed class ConstructionDecodeBoundaryTests
                 Assert.Throws<WorkshopSaveRejectedException>(() => DecodeSave(part,value)).Reason);
     }
 
-    [Theory]
-    [InlineData(0u)]
-    [InlineData(1u)]
-    [InlineData(9u)]
-    [InlineData(10u)]
-    [InlineData((uint)int.MaxValue)]
-    [InlineData((uint)int.MaxValue + 1)]
-    [InlineData(uint.MaxValue)]
-    public void CounterTargetIsAWholeFieldAcceptedExactlyInItsRange(uint count)
-    {
-        if (count is >= 1 and <= 9)
-        {
-            Assert.Equal((int)count, Assert.IsType<WorkshopCounter>(Assert.Single(DecodeRecord(PartId.Counter, null, count).Instances)).TargetCount);
-            Assert.Equal((int)count, Assert.IsType<WorkshopCounter>(Assert.Single(DecodeSave(PartId.Counter, null, count).Instances)).TargetCount);
-            return;
-        }
-        AssertRecordRejected(() => DecodeRecord(PartId.Counter, null, count), $"FB counter {count}");
-        Assert.Equal(count == 0 ? WorkshopSaveRejection.MissingField : WorkshopSaveRejection.OutOfRange,
-            Assert.Throws<WorkshopSaveRejectedException>(() => DecodeSave(PartId.Counter, null, count)).Reason);
-    }
-
-    /// <summary>The counter's target is the whole field, never another typed f32 field: a length alone is a missing target (the former
-    /// threshold field, which this test once used, is deleted by C-Clock).</summary>
+    /// <summary>C-Memory: the counter's target is its declared parameter, never a typed record field (the target_count field and the
+    /// former threshold are deleted): a counter record carrying a length is a generic instance with a typed field, refused OutOfRange at
+    /// both boundaries even beside an admitted target (the same record without the length decodes: the control).</summary>
     [Fact]
-    public void ACounterLengthIsNotItsTarget()
+    public void ACounterCarryingALengthIsRefusedBesideAnAdmittedTarget()
     {
-        Assert.Equal(WireFaultReason.MissingField,
-            Assert.Throws<WireFaultException>(() => DecodeRecord(PartId.Counter, 3f)).Reason);
-        Assert.Equal(WorkshopSaveRejection.MissingField, Assert.Throws<WorkshopSaveRejectedException>(() => DecodeSave(PartId.Counter, 3f)).Reason);
+        Assert.Equal(WireFaultReason.OutOfRange,
+            Assert.Throws<WireFaultException>(() => DecodeRecord(PartId.Counter, 3f, ("target_count", 3f))).Reason);
+        Assert.Equal(WorkshopSaveRejection.OutOfRange,
+            Assert.Throws<WorkshopSaveRejectedException>(() => DecodeSave(PartId.Counter, 3f, ("target_count", 3f))).Reason);
+        Assert.Equal(3f, DecodedSetting(DecodeRecord(PartId.Counter, null, ("target_count", 3f)), Part.Counter));
+        Assert.Equal(3f, DecodedSetting(DecodeSave(PartId.Counter, null, ("target_count", 3f)), Part.Counter));
     }
 
     [Theory]
     [InlineData(Part.PressurePlate)]
     [InlineData(Part.Clock)]
+    [InlineData(Part.Counter)]
     public void MissingSettingRejectsInEveryFlatBuffersPath(Part part)
     {
         AssertRecordRejected(() => DecodeRecord(part,null), $"FB {part} missing");
@@ -194,6 +180,7 @@ public sealed class ConstructionDecodeBoundaryTests
     [Theory]
     [InlineData(Part.PressurePlate, .5f)]
     [InlineData(Part.Clock, 1f)]
+    [InlineData(Part.Counter, 3f)]
     public void HandBuiltRecordIsAValidFixture(Part part, float canonical)
     {
         Assert.Equal(canonical, DecodedSetting(DecodeRecord(part,canonical), part));

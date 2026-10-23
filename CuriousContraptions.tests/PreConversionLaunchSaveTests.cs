@@ -31,15 +31,18 @@ public sealed class PreConversionLaunchSaveTests
     // declared parameters are refused. Old Domino: it is a generic tile since 9A.32, and its mass and bounce (slots 6 and 7) land in
     // length and threshold (target_count since C-Clock's 9-field table), typed fields a generic record cannot carry. Old Counter: its
     // target count lies beyond the table. Old Switch and resized Ramp: their parameters lie beyond the table. (C-Clock re-ran these
-    // rows on the 9-field table: every reason is unchanged.)
+    // rows on the 9-field table: every reason is unchanged.) C-Memory's 8-field table (no target_count; slot 7 is the parameters
+    // offset): the old Domino's bounce float in slot 7 now reads as that offset and the verifier refuses the buffer; the old Counter is
+    // a generic counter (its target still beyond the table) whose missing declared target is refused OutOfRange. Every other reason is
+    // unchanged.
     [Theory]
     [InlineData("bumper strength 8", WorkshopSaveRejection.OutOfRange, WireFaultReason.OutOfRange)]
     [InlineData("bumper strength 0", WorkshopSaveRejection.OutOfRange, WireFaultReason.OutOfRange)]
     [InlineData("spring default", WorkshopSaveRejection.OutOfRange, WireFaultReason.OutOfRange)]
     [InlineData("spring charged", WorkshopSaveRejection.OutOfRange, WireFaultReason.OutOfRange)]
     [InlineData("battery default", WorkshopSaveRejection.OutOfRange, WireFaultReason.OutOfRange)]
-    [InlineData("domino", WorkshopSaveRejection.OutOfRange, WireFaultReason.OutOfRange)]
-    [InlineData("counter", WorkshopSaveRejection.MissingField, WireFaultReason.MissingField)]
+    [InlineData("domino", WorkshopSaveRejection.VerifierRejected, WireFaultReason.VerifierRejected)]
+    [InlineData("counter", WorkshopSaveRejection.OutOfRange, WireFaultReason.OutOfRange)]
     [InlineData("switch threshold", WorkshopSaveRejection.OutOfRange, WireFaultReason.OutOfRange)]
     [InlineData("resized ramp", WorkshopSaveRejection.OutOfRange, WireFaultReason.OutOfRange)]
     public void APreConversionRecordIsRefusedWithATypedReasonAtBothBoundaries(string name, WorkshopSaveRejection save,
@@ -62,13 +65,15 @@ public sealed class PreConversionLaunchSaveTests
     // land in length and threshold (target_count since C-Clock), typed fields a generic record cannot carry. Old Counter: its target
     // count reads beyond its old slot, so it is missing. Every parameterised generic: its parameters lie beyond the table, so its
     // declared parameters are missing. (C-Clock re-ran these rows on the 9-field table: every reason is unchanged.)
+    // C-Memory's 8-field table: the old Domino's bounce in slot 7 is now the parameters offset (VerifierRejected), and the old Counter
+    // is a generic counter missing its declared target (OutOfRange); every other reason is unchanged.
     [Theory]
     [InlineData("battery_default", "29ca2c042cfed22cb7b54cff4f8ad0c73801e700b362bd22965d7dcd939a2aaf", WorkshopSaveRejection.OutOfRange, WireFaultReason.OutOfRange)]
     [InlineData("battery_disabled", "f6814d3103970f0e92ff42cc769a109a6d4ca7a8964bf8bd74ad4751f9f85166", WorkshopSaveRejection.OutOfRange, WireFaultReason.OutOfRange)]
     [InlineData("battery_custom_120_30_half", "3ca68bb944310a98001d5a013c7f822d1368cddbdbb8a4c92a3a524d72f8b04c", WorkshopSaveRejection.OutOfRange, WireFaultReason.OutOfRange)]
     [InlineData("battery_custom_disabled_zero", "bb81a4225332a58134f30b6ef2faaabfffee70c2982b1f87f210926ec323f16d", WorkshopSaveRejection.OutOfRange, WireFaultReason.OutOfRange)]
-    [InlineData("domino", "9715a1b50c2df29b8c1d8b3d6e51d185594ba10e3960967ddd1f507590f96828", WorkshopSaveRejection.OutOfRange, WireFaultReason.OutOfRange)]
-    [InlineData("counter", "28e34c0cbb55ff4f74e5b6e9ec7f587ba8373edebc4809b676bc8fde5493a70c", WorkshopSaveRejection.MissingField, WireFaultReason.MissingField)]
+    [InlineData("domino", "9715a1b50c2df29b8c1d8b3d6e51d185594ba10e3960967ddd1f507590f96828", WorkshopSaveRejection.VerifierRejected, WireFaultReason.VerifierRejected)]
+    [InlineData("counter", "28e34c0cbb55ff4f74e5b6e9ec7f587ba8373edebc4809b676bc8fde5493a70c", WorkshopSaveRejection.OutOfRange, WireFaultReason.OutOfRange)]
     [InlineData("impact_switch", "5616915e22c3a5850531aa8081837e123687710cfe36cc69c9192b21129194df", WorkshopSaveRejection.OutOfRange, WireFaultReason.OutOfRange)]
     [InlineData("ramp", "d0f3d6bbe76738031f2b778d921f95d8955e87ac6d1b56457219fe05601d1c0a", WorkshopSaveRejection.OutOfRange, WireFaultReason.OutOfRange)]
     [InlineData("bumper", "2609c9eef542ee5ccf282f2529b43804c69f8eef86e96cd8344a1452deb98f90", WorkshopSaveRejection.OutOfRange, WireFaultReason.OutOfRange)]

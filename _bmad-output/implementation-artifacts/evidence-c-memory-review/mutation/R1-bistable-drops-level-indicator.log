@@ -1,0 +1,16 @@
+== 2026-10-23T18:30:26Z R1-bistable-drops-level-indicator (engine/gpu/WorkshopSimulation.cs) mutation diff vs candidate:
+-                if (node.Kind is ActivationNodeKind.StateLatch or ActivationNodeKind.LevelIndicator or ActivationNodeKind.ContactLoadSource) nodes.Add(node.Id);
++                if (node.Kind is ActivationNodeKind.StateLatch or ActivationNodeKind.ContactLoadSource) nodes.Add(node.Id);
+    0 Error(s)
+    0 Warning(s)
+CuriousContraptions.Tests.LampDetectorGuardTests.ALampOnALatchFollowsItsLevelOnAndOffWhileAFirstInputLampHolds [FAIL]
+CuriousContraptions.Tests.LampDetectorGuardTests.ALampOnAPlateFollowsItsLevelOnAndOff [FAIL]
+CuriousContraptions.Tests.LatchSupplyFixtureTests.BallPartlyThroughStopsClosingBladeUncrushed [FAIL]
+CuriousContraptions.Tests.LatchSupplyFixtureTests.BallUpstreamAtCutStaysUpstream [FAIL]
+CuriousContraptions.Tests.LatchSupplyFixtureTests.MidStrokeResetStopsDriveAndReturnsClosed [FAIL]
+CuriousContraptions.Tests.LatchSupplyFixtureTests.ResetWhenOpenClearsDownstreamAndSpringCloses [FAIL]
+CuriousContraptions.Tests.LatchSupplyFixtureTests.SaveLoadPreservesFiveSocketsAndReplaysIdentically [FAIL]
+CuriousContraptions.Tests.MemoryGuardTests.ALatchedToClearFlipIsAdmittedOnlyForABistableNode(owner: LevelLamp, kind: LevelIndicator, admitted: True) [FAIL]
+CuriousContraptions.Tests.MemoryGuardTests.SetTurnsOnResetTurnsOffAndASameTickPairResolvesToReset [FAIL]
+CuriousContraptions.Tests.PlateGuardTests.ABouncingLoadIsHeldElevenTicksAndReleasedOnTheTwelfth(drop: 8, released: True) [FAIL]
+Failed!  - Failed:    10, Passed:   353, Skipped:     0, Total:   363, Duration: 5 s - CuriousContraptions.tests.dll (net10.0)

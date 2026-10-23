@@ -116,11 +116,6 @@ internal static class WorkshopSavePrevalidation
             case "pipe":
                 Within(id, "length", r.Length, PipeLength.Minimum, PipeLength.Maximum);
                 break;
-            case "counter":
-                if (r.TargetCount == 0) throw Refuse(WorkshopSaveRejection.MissingField, $"Counter {id} has no target count.");
-                if (r.TargetCount > WorkshopCounter.MaximumTargetCount)
-                    throw Refuse(WorkshopSaveRejection.OutOfRange, $"Counter {id} target count {r.TargetCount} is outside [{WorkshopCounter.MinimumTargetCount}, {WorkshopCounter.MaximumTargetCount}].");
-                break;
             default:
                 genericParameters = true;
                 if (WorkshopWireFlatBuffers.CarriesTypedField(r))

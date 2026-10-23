@@ -1,0 +1,19 @@
+construct target-2.5 | Rejected/InvalidConstruction
+construct target-0 | Rejected/InvalidConstruction
+construct target-10 | Rejected/InvalidConstruction
+construct target-3-control | Applied/None
+construct target-missing | Rejected/InvalidConstruction
+construct target-nan | Rejected/InvalidConstruction
+counter-0 | record: WireFault/OutOfRange: Invalid declared parameters. | save: SaveRejected/OutOfRange: This save cannot be loaded: Invalid declared parameters.
+counter-no-vector | record: WireFault/OutOfRange: Invalid declared parameters. | save: SaveRejected/OutOfRange: This save cannot be loaded: Invalid declared parameters.
+counter-dup | record: WireFault/OutOfRange: Invalid declared parameters. | save: SaveRejected/OutOfRange: This save cannot be loaded: Invalid declared parameters.
+counter-ok-3 | record: DECODED counter{target_count=3} | save: DECODED counter{target_count=3}
+counter-10 | record: WireFault/OutOfRange: Invalid declared parameters. | save: SaveRejected/OutOfRange: This save cannot be loaded: Invalid declared parameters.
+counter-wrongkey | record: WireFault/OutOfRange: Invalid declared parameters. | save: SaveRejected/OutOfRange: This save cannot be loaded: Invalid declared parameters.
+counter-empty-vector | record: WireFault/OutOfRange: Invalid declared parameters. | save: SaveRejected/OutOfRange: This save cannot be loaded: Invalid declared parameters.
+latch-ok | record: DECODED latch{} | save: DECODED latch{}
+counter-2.5 | record: WireFault/OutOfRange: Invalid declared parameters. | save: SaveRejected/OutOfRange: This save cannot be loaded: Invalid declared parameters.
+latch-with-target | record: WireFault/OutOfRange: Invalid declared parameters. | save: SaveRejected/OutOfRange: This save cannot be loaded: Invalid declared parameters.
+counter-nan | record: WireFault/OutOfRange: Invalid declared parameters. | save: SaveRejected/NonFinite: This save cannot be loaded: Part 1 has a non-finite target_count.
+counter-extra | record: WireFault/OutOfRange: Invalid declared parameters. | save: SaveRejected/OutOfRange: This save cannot be loaded: Invalid declared parameters.
+foreign counter | construct Faulted/InvalidRead | nodes ArgumentException: Declared contact must own an admitted activation state. | save round trip SaveRejected/OutOfRange: This save cannot be loaded: Invalid declared parameters.
