@@ -36,10 +36,7 @@ public sealed class DominoElementDeclaration : IMechanicalElement, IOrientationS
         new(".", new(0.05f, 0.6f, 0f, 0.1f))
     ];
 
-    public IReadOnlyList<EventDescriptor> Events =>
-    [
-        new(SimulationEventKind.TriggerActivated, "Angle:f32;Toppled:bool")
-    ];
+    public IReadOnlyList<EventDescriptor> Events => [new(SimulationEventKind.TriggerActivated)];
 
     public SimulationDomain SupportedDomains => SimulationDomain.Mechanical | SimulationDomain.Signal;
 

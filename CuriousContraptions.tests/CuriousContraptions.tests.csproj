@@ -74,6 +74,7 @@
         <Compile Include="RigidMassPropertiesTests.cs" />
         <Compile Include="WorkshopSimulationTests.cs" />
         <Compile Include="EventRingBufferTests.cs" />
+        <Compile Include="EventRingProducerTests.cs" />
         <Compile Include="WorkshopSaveTests.cs" />
         <Compile Include="ContactActivationTests.cs" />
         <Compile Include="WorkshopActivationAnimationTests.cs" />

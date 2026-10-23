@@ -78,9 +78,28 @@ public readonly struct PhysicsActivationRead
     public ActivationLatch this[int index] => index >= 0 && index < Count ? _values![index] : throw new ArgumentOutOfRangeException(nameof(index));
 }
 
-/// <summary>The committed discrete checkpoint: activations, timers and the Counter/oscillator memory rows (Story 9R.1 D3).</summary>
+/// <summary>Emitted: a node emitted an occurrence at this boundary. LevelChanged: a level node's committed level rose or released.</summary>
+public enum ActivationTransitionKind : uint { Emitted = 1, LevelChanged = 2 }
+
+/// <summary>One discrete transition a Physical-stage candidate made (Story 9A.22): never committed state. Count is the emitting
+/// node's memory-row count after the emission (0 without a row); Level is the new level of a LevelChanged node; Occurrence is the
+/// emitted occurrence, or the occurrence a rising level holds (default when a level releases).</summary>
+public readonly record struct ActivationTransition(ActivationTransitionKind Kind, ActivationNodeId Node,
+    ActivationOccurrence Occurrence, uint Count, ActivationPhase Level);
+
+/// <summary>The transitions of one candidate, in the order the network made them.</summary>
+public readonly struct ActivationTransitionRead
+{
+    private readonly ActivationTransition[]? _values;
+    public int Count => _values?.Length ?? 0;
+    public ActivationTransitionRead(ReadOnlySpan<ActivationTransition> values) => _values = values.ToArray();
+    public ActivationTransition this[int index] => index >= 0 && index < Count ? _values![index] : throw new ArgumentOutOfRangeException(nameof(index));
+}
+
+/// <summary>The committed discrete checkpoint: activations, timers and the Counter/oscillator memory rows (Story 9R.1 D3), with the
+/// transitions the Physical stage made to reach it (empty at admission and in the scheduled stage; never committed).</summary>
 public readonly record struct ActivationCheckpoint(PhysicsActivationRead Activations, PhysicsTimerRead Timers,
-    PhysicsMemoryRead Memory = default);
+    PhysicsMemoryRead Memory = default, ActivationTransitionRead Transitions = default);
 
 /// <summary>Uncommitted scheduled state and due occurrences awaiting their post-physics destinations.</summary>
 public sealed class ActivationSchedule
@@ -111,6 +130,8 @@ public sealed class ActivationNetwork
     private readonly StateLatchRequest[] _latchRequests;
     private readonly ActivationOccurrence[] _latchSetBy;
     private ActivationOccurrence[] _pending;
+    // Story 9A.22: the Physical stage's transitions, cleared at each Consume and copied into its checkpoint.
+    private readonly List<ActivationTransition> _transitions = new();
     public ReadOnlySpan<ActivationNodeDeclaration> Nodes => _nodes;
     public ReadOnlySpan<ActivationEdge> Edges => _edges;
     public ReadOnlySpan<PassageSensorDeclaration> PassageSensors => _passageSensors;
@@ -259,15 +280,15 @@ public sealed class ActivationNetwork
     public ActivationCheckpoint Consume(PhysicsActivationRead committed, PhysicsTimerRead committedTimers,
         ReadOnlySpan<ContactTriggerRead> events, SimulationTick boundary, ReadOnlySpan<OrientationSensorRead> orientations,
         ReadOnlySpan<PassageSensorRead> passages = default, PhysicsElectricalRead electrical = default,
-        Span<byte> eventBuffer = default, PhysicsMemoryRead memory = default, ReadOnlySpan<ContactLoadSensorRead> contactLoads = default) =>
-        Consume(committed, committedTimers, events, boundary, orientations, passages, electrical, eventBuffer, memory, contactLoads, EvaluationStage.Physical, [], out _);
+        PhysicsMemoryRead memory = default, ReadOnlySpan<ContactLoadSensorRead> contactLoads = default) =>
+        Consume(committed, committedTimers, events, boundary, orientations, passages, electrical, memory, contactLoads, EvaluationStage.Physical, [], out _);
 
     private enum EvaluationStage { Scheduled, Physical }
 
     /// <summary>Stages already-due timer transitions and deliveries before the electrical/physical solve. The input checkpoint is immutable.</summary>
     public ActivationSchedule AdvanceScheduled(ActivationCheckpoint committed, SimulationTick boundary)
     {
-        var state = Consume(committed.Activations, committed.Timers, [], boundary, [], [], default, default, committed.Memory, [],
+        var state = Consume(committed.Activations, committed.Timers, [], boundary, [], [], default, committed.Memory, [],
             EvaluationStage.Scheduled, [], out var deferred);
         return new(state, deferred);
     }
@@ -276,11 +297,11 @@ public sealed class ActivationNetwork
         SimulationTick boundary, ReadOnlySpan<OrientationSensorRead> orientations, ReadOnlySpan<PassageSensorRead> passages,
         PhysicsElectricalRead electrical, ReadOnlySpan<ContactLoadSensorRead> contactLoads) =>
         Consume(scheduled.State.Activations, scheduled.State.Timers, events, boundary, orientations, passages, electrical,
-            default, scheduled.State.Memory, contactLoads, EvaluationStage.Physical, scheduled.Deferred, out _);
+            scheduled.State.Memory, contactLoads, EvaluationStage.Physical, scheduled.Deferred, out _);
 
     private ActivationCheckpoint Consume(PhysicsActivationRead committed, PhysicsTimerRead committedTimers,
         ReadOnlySpan<ContactTriggerRead> events, SimulationTick boundary, ReadOnlySpan<OrientationSensorRead> orientations,
-        ReadOnlySpan<PassageSensorRead> passages, PhysicsElectricalRead electrical, Span<byte> eventBuffer,
+        ReadOnlySpan<PassageSensorRead> passages, PhysicsElectricalRead electrical,
         PhysicsMemoryRead memory, ReadOnlySpan<ContactLoadSensorRead> contactLoads, EvaluationStage stage,
         ReadOnlySpan<ActivationOccurrence> scheduledOccurrences, out ActivationOccurrence[] deferredOccurrences)
     {
@@ -296,6 +317,7 @@ public sealed class ActivationNetwork
         for (var i = 0; i < committed.Count; i++) values[i] = committed[i];
         for (var i = 0; i < committedTimers.Count; i++) timers[i] = committedTimers[i];
         Array.Clear(_pending);
+        _transitions.Clear();
         // Requests routed to each State Latch within this tick; they resolve once at the boundary below.
         Span<StateLatchRequest> latchRequests = _latchRequests; latchRequests.Clear();
         Span<ActivationOccurrence> latchSetBy = _latchSetBy; latchSetBy.Clear();
@@ -432,20 +454,6 @@ public sealed class ActivationNetwork
                 var occurrence = new ActivationOccurrence(ActivationOccurrenceKind.OscillatorTick, node.Id, time, cause);
                 occurrence.Validate();
                 Push(ref count, occurrence);
-
-                if (eventBuffer.Length >= CuriousContraptions.Abstractions.EventRingBuffer.HeaderBytes)
-                {
-                    var record = new CuriousContraptions.Abstractions.SimulationEventRecord(
-                        0,
-                        (ulong)boundary.Value * 8_333_333UL,
-                        CuriousContraptions.Abstractions.SimulationDomain.Signal,
-                        CuriousContraptions.Abstractions.SimulationEventKind.TriggerActivated,
-                        node.Owner.Value,
-                        0,
-                        P0: (float)rows[slot].Count,
-                        P1: (float)node.IntervalTicks / (float)_substeps);
-                    CuriousContraptions.Abstractions.EventRingBuffer.Publish(eventBuffer, record);
-                }
             }
         }
         // Every source emits once. At most one physical event and one timer event per node;
@@ -462,7 +470,7 @@ public sealed class ActivationNetwork
                     occurrence.Time.CompareTo(values[source].Occurrence.Time) > 0)
                 {
                 }
-                else if (occurrence.Kind == ActivationOccurrenceKind.CounterReached && values[source].Phase == ActivationPhase.Latched)
+                else if (occurrence.Kind == ActivationOccurrenceKind.ThresholdReached && values[source].Phase == ActivationPhase.Latched)
                 {
                 }
                 else if (_nodes[source].Kind == ActivationNodeKind.Oscillator && occurrence.Kind == ActivationOccurrenceKind.OscillatorTick)
@@ -475,6 +483,10 @@ public sealed class ActivationNetwork
             }
             if (stage == EvaluationStage.Physical && values[source].Phase == ActivationPhase.Clear)
                 values[source] = ActivationLatch.From(_nodes[source], occurrence);
+            // Only the Physical stage emits: a scheduled occurrence is deferred, replayed here and emitted exactly once.
+            if (stage == EvaluationStage.Physical)
+                _transitions.Add(new(ActivationTransitionKind.Emitted, occurrence.Emitter, occurrence,
+                    _memorySlots[source] >= 0 ? rows[_memorySlots[source]].Count : 0, ActivationPhase.Latched));
             deferred?.Add(occurrence);
             foreach (var edge in _edges)
             {
@@ -503,7 +515,7 @@ public sealed class ActivationNetwork
                         // The counter emits once per world: its emission is its Latched activation.
                         if (rows[slot].Count == _nodes[target].TargetCount && values[target].Phase == ActivationPhase.Clear)
                         {
-                            var reached = new ActivationOccurrence(ActivationOccurrenceKind.CounterReached, _nodes[target].Id, occurrence.Time, occurrence.Cause);
+                            var reached = new ActivationOccurrence(ActivationOccurrenceKind.ThresholdReached, _nodes[target].Id, occurrence.Time, occurrence.Cause);
                             values[target] = ActivationLatch.From(_nodes[target], reached);
                             Push(ref count, reached);
                         }
@@ -530,11 +542,8 @@ public sealed class ActivationNetwork
                 (latchRequests[i] & StateLatchRequest.Set) != 0 ? SimulationLatchPhase.On : current;
             if (next == current) continue;
             values[i] = next == SimulationLatchPhase.On ? ActivationLatch.From(_nodes[i], latchSetBy[i]) : ActivationLatch.Clear(_nodes[i]);
-            if (eventBuffer.Length >= CuriousContraptions.Abstractions.EventRingBuffer.HeaderBytes)
-                CuriousContraptions.Abstractions.EventRingBuffer.Publish(eventBuffer, new CuriousContraptions.Abstractions.SimulationEventRecord(
-                    0, (ulong)boundary.Value * 8_333_333UL, CuriousContraptions.Abstractions.SimulationDomain.Signal,
-                    CuriousContraptions.Abstractions.SimulationEventKind.LatchSet, _nodes[i].Owner.Value, 0,
-                    P0: next == SimulationLatchPhase.On ? 1f : 0f, P1: 0f));
+            _transitions.Add(new(ActivationTransitionKind.LevelChanged, _nodes[i].Id, values[i].Phase == ActivationPhase.Latched ? latchSetBy[i] : default,
+                0, values[i].Phase));
         }
         // A level ActivationOut (latch memory, a held contact load): each level indicator mirrors its source's settled value on the same boundary.
         foreach (var edge in _edges)
@@ -545,7 +554,8 @@ public sealed class ActivationNetwork
                 ? ActivationLatch.From(_nodes[target], values[source].Occurrence) : ActivationLatch.Clear(_nodes[target]);
         }
         deferredOccurrences = deferred?.ToArray() ?? [];
-        return new(new(values[.._nodes.Length]), new(timers[.._timers.Length]), new(rows[.._memoryNodes.Length]));
+        return new(new(values[.._nodes.Length]), new(timers[.._timers.Length]), new(rows[.._memoryNodes.Length]),
+            new(System.Runtime.InteropServices.CollectionsMarshal.AsSpan(_transitions)));
     }
 
     /// <summary>The level sources: a State Latch's memory and a contact-load row's held level. Each drives level indicators only.</summary>
@@ -586,6 +596,7 @@ public sealed class ActivationNetwork
                 {
                     values[slot] = ActivationLatch.Clear(_nodes[slot]);
                     rows[memory] = ActivationMemory.Clear(_nodes[slot]);
+                    _transitions.Add(new(ActivationTransitionKind.LevelChanged, _nodes[slot].Id, default, 0, ActivationPhase.Clear));
                 }
                 continue;
             }
@@ -595,6 +606,7 @@ public sealed class ActivationNetwork
                 new(new(item.Sensor.Value), item.Frame, item.Face, end, new(0f)));
             occurrence.Validate();
             values[slot] = ActivationLatch.From(_nodes[slot], occurrence);
+            _transitions.Add(new(ActivationTransitionKind.LevelChanged, _nodes[slot].Id, occurrence, 0, ActivationPhase.Latched));
         }
     }
 
@@ -657,7 +669,7 @@ public sealed class ActivationNetwork
                 (occurrence.Kind != ActivationOccurrenceKind.ContactLoad || occurrence.Emitter != node.Id || occurrence.Cause.Source.Value != node.ContactLoad.Value))
                 throw new ArgumentException("Contact-load level does not own its row.");
             if (node.Kind == ActivationNodeKind.Counter &&
-                (occurrence.Kind != ActivationOccurrenceKind.CounterReached || occurrence.Emitter != node.Id))
+                (occurrence.Kind != ActivationOccurrenceKind.ThresholdReached || occurrence.Emitter != node.Id))
                 throw new ArgumentException("Counter activation does not own its emission.");
             if (node.Kind == ActivationNodeKind.Oscillator &&
                 (occurrence.Kind != ActivationOccurrenceKind.OscillatorTick || occurrence.Emitter != node.Id))
@@ -720,7 +732,7 @@ public sealed class ActivationNetwork
             ActivationOccurrenceKind.Contact => ActivationNodeKind.ContactSource,
             ActivationOccurrenceKind.Orientation => ActivationNodeKind.OrientationSource,
             ActivationOccurrenceKind.Passage => ActivationNodeKind.PassageSource,
-            ActivationOccurrenceKind.CounterReached => ActivationNodeKind.Counter,
+            ActivationOccurrenceKind.ThresholdReached => ActivationNodeKind.Counter,
             ActivationOccurrenceKind.OscillatorTick => ActivationNodeKind.Oscillator,
             ActivationOccurrenceKind.ContactLoad => ActivationNodeKind.ContactLoadSource,
             _ => ActivationNodeKind.Timer
@@ -763,7 +775,7 @@ public sealed class ActivationNetwork
         }
         else if (passage is { } through)
         {
-            if ((occurrence.Kind != ActivationOccurrenceKind.Passage && occurrence.Kind != ActivationOccurrenceKind.CounterReached) ||
+            if ((occurrence.Kind != ActivationOccurrenceKind.Passage && occurrence.Kind != ActivationOccurrenceKind.ThresholdReached) ||
                 (occurrence.Kind == ActivationOccurrenceKind.Passage && through.Frame != _nodes[emitter].Owner))
                 throw new ArgumentException("Activation cause differs from the declared passage sensor.");
             colliderOwner = occurrence.Cause.Body;

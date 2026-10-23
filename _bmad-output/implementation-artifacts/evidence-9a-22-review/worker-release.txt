@@ -1,0 +1,2 @@
+CuriousContraptions.Simulation build -c Release --no-incremental rc=0     0 Warning(s)
+CuriousContraptions.Animation.Worker build -c Release --no-incremental rc=0     0 Warning(s)

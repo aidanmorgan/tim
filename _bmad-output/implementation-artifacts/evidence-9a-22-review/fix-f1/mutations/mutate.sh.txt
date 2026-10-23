@@ -1,0 +1,25 @@
+#!/bin/bash
+# Re-review mutation runner (Story 9A.22 forward fix). The mutation is already applied in the throwaway worktree; this builds the
+# test closure, runs the event-ring suites, records the result and restores the mutated files from the pristine copies.
+set -u
+name="$1"
+S=/private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/r22b
+wt=$S/wt
+log=$S/mut-$name.log
+cd "$wt"
+{
+  echo "== $name $(date -u +%FT%TZ)"
+  for f in engine/gpu/EventRecordProducer.cs CuriousContraptions.Abstractions/EventRingBuffer.cs CuriousContraptions.Simulation/WorkshopGpuDevice.cs; do
+    diff -u "$S/pristine/$f" "$f"
+  done
+  dotnet build CuriousContraptions.tests -c Debug -v q -nologo 2>&1 | grep -E " error |Warn|Error" | tail -5
+  echo "build rc=${PIPESTATUS[0]}"
+  dotnet test CuriousContraptions.tests -c Debug --no-build --no-restore --nologo \
+    --filter "FullyQualifiedName~EventRingProducerTests|FullyQualifiedName~EventRingBufferTests|FullyQualifiedName~WorkerAbiTests|FullyQualifiedName~WorkbenchCapacityTests" 2>&1 \
+    | grep -E "^\s+Failed |Passed!|Failed!" | head -30
+  echo "dotnet test rc=${PIPESTATUS[0]}"
+} > "$log" 2>&1
+for f in engine/gpu/EventRecordProducer.cs CuriousContraptions.Abstractions/EventRingBuffer.cs CuriousContraptions.Simulation/WorkshopGpuDevice.cs; do
+  cp "$S/pristine/$f" "$f"
+done
+grep -E "rc=|Failed!|Passed!|^\s+Failed " "$log"

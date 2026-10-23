@@ -1,0 +1,15 @@
+CounterReached 3
+LatchSet 4
+PrismaticLimit 3
+PayloadLayout 3
+DefaultCapacity 0
+eventBuffer 2
+8_333_333 3
+TimestampNs 0
+SourceBodyId 0
+TargetBodyId 0
+\.Impulse 0
+ContactX 0
+readEventRing 1
+createEventConsumer 1
+WorkshopEventRing 1

@@ -1,0 +1,24 @@
+== R5-indicator-row-memorychanged 2026-10-23T16:40:28Z
+diff --git a/engine/gpu/EventRecordProducer.cs b/engine/gpu/EventRecordProducer.cs
+index 4475d4e6..e95fd769 100644
+--- a/engine/gpu/EventRecordProducer.cs
++++ b/engine/gpu/EventRecordProducer.cs
+@@ -91,7 +91,8 @@ public sealed class EventRecordProducer
+         ActivationNodeKind.Counter => SimulationEventKind.ThresholdReached,
+         ActivationNodeKind.StateLatch => SimulationEventKind.MemoryChanged,
+         ActivationNodeKind.ContactLoadSource => SimulationEventKind.ContactLoad,
+-        ActivationNodeKind.PassageSource or ActivationNodeKind.StickyFirstInput or ActivationNodeKind.LevelIndicator => SimulationEventKind.None,
++        ActivationNodeKind.LevelIndicator => SimulationEventKind.MemoryChanged,
++        ActivationNodeKind.PassageSource or ActivationNodeKind.StickyFirstInput => SimulationEventKind.None,
+         _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "Undefined activation node kind.")
+     };
+ 
+    0 Warning(s)
+    0 Error(s)
+build rc=0
+Passed!  - Failed:     0, Passed:    99, Skipped:     0, Total:    99, Duration: 1 s - CuriousContraptions.tests.dll (net10.0)
+dotnet test rc=0
+ℹ pass 4
+ℹ fail 0
+node rc=0
+dirty after revert: 0

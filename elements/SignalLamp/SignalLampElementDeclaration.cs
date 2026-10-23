@@ -44,10 +44,8 @@ public sealed class SignalLampElementDeclaration : IElectricalElement, IIndicato
         new(".", new(1f, 0.3f, 0f, 0.1f))
     ];
 
-    public IReadOnlyList<EventDescriptor> Events =>
-    [
-        new(SimulationEventKind.TriggerActivated, "Lit:bool")
-    ];
+    /// <summary>An indicator's lit state is a committed level, never a ring record.</summary>
+    public IReadOnlyList<EventDescriptor> Events => [];
 
     public SimulationDomain SupportedDomains => SimulationDomain.Electrical | SimulationDomain.Signal;
 

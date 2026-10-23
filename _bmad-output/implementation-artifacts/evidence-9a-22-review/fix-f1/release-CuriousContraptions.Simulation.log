@@ -1,0 +1,48 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-22/CuriousContraptions.Abstractions/bin/Release/net10.0/CuriousContraptions.Abstractions.dll
+  CuriousContraptions.Abstractions.Signal -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-22/CuriousContraptions.Abstractions.Signal/bin/Release/net10.0/CuriousContraptions.Abstractions.Signal.dll
+  CuriousContraptions.Abstractions.Fluid -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-22/CuriousContraptions.Abstractions.Fluid/bin/Release/net10.0/CuriousContraptions.Abstractions.Fluid.dll
+  CuriousContraptions.Abstractions.Mechanical -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-22/CuriousContraptions.Abstractions.Mechanical/bin/Release/net10.0/CuriousContraptions.Abstractions.Mechanical.dll
+  CuriousContraptions.Abstractions.Electrical -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-22/CuriousContraptions.Abstractions.Electrical/bin/Release/net10.0/CuriousContraptions.Abstractions.Electrical.dll
+  ElectricalNor -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-22/elements/ElectricalNor/bin/Release/net10.0/ElectricalNor.dll
+  Battery -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-22/elements/Battery/bin/Release/net10.0/Battery.dll
+  ElectricalNand -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-22/elements/ElectricalNand/bin/Release/net10.0/ElectricalNand.dll
+  ElectricalOr -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-22/elements/ElectricalOr/bin/Release/net10.0/ElectricalOr.dll
+  BothGate -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-22/elements/BothGate/bin/Release/net10.0/BothGate.dll
+  Receiver -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-22/elements/Receiver/bin/Release/net10.0/Receiver.dll
+  ElectricalXor -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-22/elements/ElectricalXor/bin/Release/net10.0/ElectricalXor.dll
+  PoweredGate -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-22/elements/PoweredGate/bin/Release/net10.0/PoweredGate.dll
+  Wall -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-22/elements/Wall/bin/Release/net10.0/Wall.dll
+  Funnel -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-22/elements/Funnel/bin/Release/net10.0/Funnel.dll
+  PipeBend90 -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-22/elements/PipeBend90/bin/Release/net10.0/PipeBend90.dll
+  Bumper -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-22/elements/Bumper/bin/Release/net10.0/Bumper.dll
+  Ball -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-22/elements/Ball/bin/Release/net10.0/Ball.dll
+  Ramp -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-22/elements/Ramp/bin/Release/net10.0/Ramp.dll
+  BowlingBall -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-22/elements/BowlingBall/bin/Release/net10.0/BowlingBall.dll
+  Pipe -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-22/elements/Pipe/bin/Release/net10.0/Pipe.dll
+  Springboard -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-22/elements/Springboard/bin/Release/net10.0/Springboard.dll
+  StateLatch -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-22/elements/StateLatch/bin/Release/net10.0/StateLatch.dll
+  SystemClock -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-22/elements/SystemClock/bin/Release/net10.0/SystemClock.dll
+  Domino -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-22/elements/Domino/bin/Release/net10.0/Domino.dll
+  Counter -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-22/elements/Counter/bin/Release/net10.0/Counter.dll
+  BallDetector -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-22/elements/BallDetector/bin/Release/net10.0/BallDetector.dll
+  HoldTimer -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-22/elements/HoldTimer/bin/Release/net10.0/HoldTimer.dll
+  PressurePlate -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-22/elements/PressurePlate/bin/Release/net10.0/PressurePlate.dll
+  PipeBend45 -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-22/elements/PipeBend45/bin/Release/net10.0/PipeBend45.dll
+  DelayBox -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-22/elements/DelayBox/bin/Release/net10.0/DelayBox.dll
+  ImpactSwitch -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-22/elements/ImpactSwitch/bin/Release/net10.0/ImpactSwitch.dll
+  SignalLamp -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-22/elements/SignalLamp/bin/Release/net10.0/SignalLamp.dll
+  CuriousContraptions.Bundle -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-22/CuriousContraptions.Bundle/bin/Release/net10.0/CuriousContraptions.Bundle.dll
+  BundleElements -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-22/tools/BundleElements/bin/Release/net10.0/BundleElements.dll
+  Element bundle: /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-22/tools/BundleElements/bin/Release/net10.0/elements.bundle.json (28 elements)
+  Element bundle: /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-22/elements/elements.bundle.json (28 elements)
+  CuriousContraptions.FlatBuffers -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-22/CuriousContraptions.FlatBuffers/bin/Release/net10.0/CuriousContraptions.FlatBuffers.dll
+  CuriousContraptions.Animation -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-22/CuriousContraptions.Animation/bin/Release/net10.0/CuriousContraptions.Animation.dll
+  CuriousContraptions.Simulation -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-22/CuriousContraptions.Simulation/bin/Release/net10.0/browser-wasm/CuriousContraptions.Simulation.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:04.84

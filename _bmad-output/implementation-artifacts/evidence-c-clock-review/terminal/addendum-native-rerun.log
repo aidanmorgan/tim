@@ -1,0 +1,15 @@
+# C-Clock closing-addendum run (9.3, 6.5f clock arms), start 2026-10-23T15:46:42Z
+worktree index tree db29810726e157fdddd5f42ab4e22cb74a0f5a69; slice d28d19605c08a174930db6e1cdccc11bfab4e687 tree db29810726e157fdddd5f42ab4e22cb74a0f5a69; merge ae3cacf98f6fe8f7d3fb94a9d52b557ca970ae8a tree db29810726e157fdddd5f42ab4e22cb74a0f5a69; origin/main ae3cacf98f6fe8f7d3fb94a9d52b557ca970ae8a
+working tree vs index (unstaged): 0 paths; untracked: 0
+    0 Warning(s)
+    0 Error(s)
+bundle elements/elements.bundle.json sha256 5bf3d63ab7fbf5de082868cd31870a37a23a47c71bb72cb8cb172fdd543363b7; committed blob equal: yes
+filter: FullyQualifiedName~CuriousContraptions.Tests.ClockGuardTests.|FullyQualifiedName~CuriousContraptions.Tests.DeclaredOscillatorTests.|FullyQualifiedName~CuriousContraptions.Tests.ClockTests.|FullyQualifiedName~CuriousContraptions.Tests.DeclaredPresentationTests.|FullyQualifiedName~CuriousContraptions.Tests.ElementIsolationTests.|FullyQualifiedName~CuriousContraptions.Tests.PackageRuntimeParityTests.|FullyQualifiedName~CuriousContraptions.Tests.PalettePlacementTests.|FullyQualifiedName~CuriousContraptions.Tests.CounterTests.
+tests start 2026-10-23T15:46:53Z
+Passed!  - Failed:     0, Passed:   222, Skipped:     0, Total:   222, Duration: 3 s - CuriousContraptions.tests.dll (net10.0)
+test rc=0 end 2026-10-23T15:47:00Z
+== switch-table census (clock arms), base 146588838b97d9634406c47f9e383b3dd24f8fa6 vs slice d28d19605c08a174930db6e1cdccc11bfab4e687, 2026-10-23T15:47:00Z
+146588838b97d9634406c47f9e383b3dd24f8fa6 CaptureInstance "clock"=1 Wire "clock"=1 Wire WorkshopClock=2 SavePrevalidation "clock"=1 Whitelist WorkshopClock=1 ActivationNetwork WorkshopClock=1 WorkshopInput.Clock=1 Panel(AddClockConfiguration|ApplyClockInterval)=7 MachinePart(Canonical|Apply)IntervalSeconds=3 WorkshopClock.cs=present
+d28d19605c08a174930db6e1cdccc11bfab4e687 CaptureInstance "clock"=0 Wire "clock"=0 Wire WorkshopClock=0 SavePrevalidation "clock"=0 Whitelist WorkshopClock=0 ActivationNetwork WorkshopClock=0 WorkshopInput.Clock=0 Panel(AddClockConfiguration|ApplyClockInterval)=0 MachinePart(Canonical|Apply)IntervalSeconds=0 WorkshopClock.cs=absent
+production rg -w 'WorkshopClock|DefaultIntervalSeconds|AddClockConfiguration' at the published tree (excluding tests, docs, _bmad-output, *.md): 0
+end 2026-10-23T15:47:01Z

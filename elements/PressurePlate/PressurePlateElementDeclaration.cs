@@ -57,11 +57,7 @@ public sealed class PressurePlateElementDeclaration : IMechanicalElement, ISuppl
         new(".", new(0.1f, 0.3f, 0f, 0.1f))
     ];
 
-    public IReadOnlyList<EventDescriptor> Events =>
-    [
-        new(SimulationEventKind.ContactLoad, "Load:f32;Threshold:f32;Active:bool"),
-        new(SimulationEventKind.LatchSet, "State:bool")
-    ];
+    public IReadOnlyList<EventDescriptor> Events => [new(SimulationEventKind.ContactLoad)];
 
     public SimulationDomain SupportedDomains => SimulationDomain.Mechanical | SimulationDomain.Electrical | SimulationDomain.Signal;
 

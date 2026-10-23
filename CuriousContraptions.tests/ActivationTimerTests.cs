@@ -27,6 +27,26 @@ public sealed class ActivationTimerTests
         for(var i=0;i<read.Count;i++) if(read[i].Node.Value==id)return read[i];
         throw new InvalidOperationException();
     }
+    // Story 9A.22: a due timer completes in the scheduled stage, whose checkpoint carries no transitions; the Physical stage replays the
+    // deferred occurrence and emits it exactly once (the event producer reads only the Physical stage's transitions).
+    [Fact]
+    public void TheScheduledStageEmitsNothingAndThePhysicalStageEmitsTheDueTimerOnce()
+    {
+        var (network,_,first,_) = Fixture();
+        var counting = network.Consume(network.Clear(),network.ClearTimers(),new[]{first},new(3),[]);
+        var started = Assert.Single(Enumerable.Range(0,counting.Transitions.Count).Select(i=>counting.Transitions[i]));
+        Assert.Equal((ActivationTransitionKind.Emitted,new ActivationNodeId(2),ActivationOccurrenceKind.Contact),(started.Kind,started.Node,started.Occurrence.Kind));
+        var before = network.Consume(counting.Activations,counting.Timers,[],new(122),[]);
+        Assert.Equal(0,before.Transitions.Count);
+        var scheduled = network.AdvanceScheduled(before,new(123));
+        Assert.Equal(ActivationTimerPhase.Finished,scheduled.State.Timers[0].Phase);
+        Assert.Equal(0,scheduled.State.Transitions.Count);
+        var due = network.ConsumeScheduled(scheduled,[],new(123),[],[],default,[]);
+        var emitted = Assert.Single(Enumerable.Range(0,due.Transitions.Count).Select(i=>due.Transitions[i]));
+        Assert.Equal((ActivationTransitionKind.Emitted,new ActivationNodeId(4),ActivationOccurrenceKind.TimerElapsed,0u),
+            (emitted.Kind,emitted.Node,emitted.Occurrence.Kind,emitted.Count));
+    }
+
     [Fact]
     public void FractionalStartCeilingAndExactDeadlineEmitDistinctTimerOccurrence()
     {

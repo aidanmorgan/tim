@@ -1,0 +1,21 @@
+== N3-limit-raised-2p21 2026-10-23T16:59:31Z
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/r22b/pristine/CuriousContraptions.Abstractions/EventRingBuffer.cs	2026-10-24 00:56:51.795294032 +0800
++++ CuriousContraptions.Abstractions/EventRingBuffer.cs	2026-10-24 00:59:29.718297834 +0800
+@@ -105,7 +105,7 @@
+     /// <summary>The largest ring (coordinator decision, 24 Oct 2026): 2^20 slots, 64 MiB of records, a byte length every reader and
+     /// writer represents. A construction whose producers would need more is refused at admission (typed, the session stays Building);
+     /// overflow within a run is counted in Lapped, so the ring never has to hold a worst case.</summary>
+-    public const uint MaximumCapacity = 1u << 20;
++    public const uint MaximumCapacity = 1u << 21;
+ 
+     public static int ByteLength(uint capacity) => checked(HeaderBytes + (int)capacity * SlotBytes);
+ 
+    0 Warning(s)
+    0 Error(s)
+build rc=0
+  Failed CuriousContraptions.Tests.EventRingProducerTests.AConstructionBeyondTheLimitIsRefusedTypedAndTheSessionStaysBuilding(producers: 8739, admitted: False) [5 s]
+  Failed CuriousContraptions.Tests.EventRingProducerTests.TheLimitAdmitsEightThousandSevenHundredThirtyEightRecordsPerTickAndRefusesOneMoreTyped(cadence: Hz120, capacity: 524288) [< 1 ms]
+  Failed CuriousContraptions.Tests.EventRingProducerTests.TheLimitAdmitsEightThousandSevenHundredThirtyEightRecordsPerTickAndRefusesOneMoreTyped(cadence: Hz240, capacity: 1048576) [< 1 ms]
+  Failed CuriousContraptions.Tests.EventRingProducerTests.TheLimitAdmitsEightThousandSevenHundredThirtyEightRecordsPerTickAndRefusesOneMoreTyped(cadence: Hz60, capacity: 262144) [< 1 ms]
+Failed!  - Failed:     4, Passed:   109, Skipped:     0, Total:   113, Duration: 24 s - CuriousContraptions.tests.dll (net10.0)
+dotnet test rc=1

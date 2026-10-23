@@ -1,0 +1,32 @@
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-22/tools/E2eRunner.Tests/bin/Debug/net10.0/E2eRunner.Tests.dll (.NETCoreApp,Version=v10.0)
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-22/tools/Coverage.Tests/bin/Debug/net10.0/Coverage.Tests.dll (.NETCoreApp,Version=v10.0)
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-22/tools/WorkerAotGuard.Tests/bin/Debug/net10.0/WorkerAotGuard.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+A total of 1 test files matched the specified pattern.
+A total of 1 test files matched the specified pattern.
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-22/tools/BundleElements.Tests/bin/Debug/net10.0/BundleElements.Tests.dll (.NETCoreApp,Version=v10.0)
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-22/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+Blame: Attaching crash dump utility to process dotnet (53310).
+Blame: Attaching crash dump utility to process dotnet (53311).
+Blame: Attaching crash dump utility to process dotnet (53312).
+A total of 1 test files matched the specified pattern.
+A total of 1 test files matched the specified pattern.
+Blame: Attaching crash dump utility to process dotnet (53326).
+Blame: Attaching crash dump utility to process dotnet (53327).
+
+Passed!  - Failed:     0, Passed:    17, Skipped:     0, Total:    17, Duration: 54 ms - WorkerAotGuard.Tests.dll (net10.0)
+
+Passed!  - Failed:     0, Passed:   174, Skipped:     0, Total:   174, Duration: 414 ms - BundleElements.Tests.dll (net10.0)
+
+Passed!  - Failed:     0, Passed:    77, Skipped:     0, Total:    77, Duration: 764 ms - Coverage.Tests.dll (net10.0)
+
+Passed!  - Failed:     0, Passed:   189, Skipped:     0, Total:   189, Duration: 40 s - E2eRunner.Tests.dll (net10.0)
+
+Passed!  - Failed:     0, Passed:  2686, Skipped:     0, Total:  2686, Duration: 56 s - CuriousContraptions.tests.dll (net10.0)
+
+Attachments:
+  /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-22/tools/E2eRunner.Tests/TestResults/fe704734-060b-4452-ad5f-5ca8243f7712/Preview_53620_1792772832_crashdump.dmp
+  /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-22/tools/E2eRunner.Tests/TestResults/fe704734-060b-4452-ad5f-5ca8243f7712/Preview_53613_1792772827_crashdump.dmp
+  /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-22/tools/E2eRunner.Tests/TestResults/fe704734-060b-4452-ad5f-5ca8243f7712/Preview_53634_1792772838_crashdump.dmp
+  /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-22/tools/E2eRunner.Tests/TestResults/fe704734-060b-4452-ad5f-5ca8243f7712/Preview_53606_1792772822_crashdump.dmp
+rc=0

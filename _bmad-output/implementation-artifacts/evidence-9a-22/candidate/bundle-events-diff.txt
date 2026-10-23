@@ -1,0 +1,40 @@
+1,4c1,4
+< ball: [{'EventKind': 'Impact', 'PayloadLayout': 'Impulse:f32;Contact:vec3;Normal:vec3'}]
+< ball_detector: [{'EventKind': 'Passage', 'PayloadLayout': 'BodyId:u64;Ordinal:u32'}]
+< basket: []
+< battery: [{'EventKind': 'ElectricalPowered', 'PayloadLayout': 'Voltage:f32;Current:f32'}]
+---
+> ball: []
+> ball_detector: [{'Kind': 'Passage'}]
+> basket: [{'Kind': 'Captured'}]
+> battery: [{'Kind': 'ElectricalPowered'}]
+6,11c6,11
+< bowling: [{'EventKind': 'Impact', 'PayloadLayout': 'Impulse:f32;Contact:vec3;Normal:vec3'}]
+< bumper: [{'EventKind': 'TriggerActivated', 'PayloadLayout': 'Impulse:f32;Contact:vec3;Normal:vec3'}, {'EventKind': 'ContactLoad', 'PayloadLayout': 'Load:f32;BodyId:u64'}]
+< clock: [{'EventKind': 'TriggerActivated', 'PayloadLayout': 'PulseCount:i32;Interval:f32'}]
+< counter: [{'EventKind': 'CounterReached', 'PayloadLayout': 'Count:i32;Target:i32'}]
+< delay: [{'EventKind': 'TriggerActivated', 'PayloadLayout': 'Duration:f32'}]
+< domino: [{'EventKind': 'TriggerActivated', 'PayloadLayout': 'Angle:f32;Toppled:bool'}]
+---
+> bowling: []
+> bumper: [{'Kind': 'Impact'}]
+> clock: [{'Kind': 'TriggerActivated'}]
+> counter: [{'Kind': 'ThresholdReached'}]
+> delay: [{'Kind': 'TriggerActivated'}]
+> domino: [{'Kind': 'TriggerActivated'}]
+18,19c18,19
+< lamp: [{'EventKind': 'TriggerActivated', 'PayloadLayout': 'Lit:bool'}]
+< latch: [{'EventKind': 'LatchSet', 'PayloadLayout': 'State:f32'}]
+---
+> lamp: []
+> latch: [{'Kind': 'MemoryChanged'}]
+23,24c23,24
+< powered_gate: [{'EventKind': 'PrismaticLimit', 'PayloadLayout': 'Position:f32;Lower:bool;Upper:bool'}]
+< pressure_plate: [{'EventKind': 'ContactLoad', 'PayloadLayout': 'Load:f32;Threshold:f32;Active:bool'}, {'EventKind': 'LatchSet', 'PayloadLayout': 'State:bool'}]
+---
+> powered_gate: []
+> pressure_plate: [{'Kind': 'ContactLoad'}]
+27c27
+< switch: [{'EventKind': 'TriggerActivated', 'PayloadLayout': 'Speed:f32;Threshold:f32'}]
+---
+> switch: [{'Kind': 'TriggerActivated'}]

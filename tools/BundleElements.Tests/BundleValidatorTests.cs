@@ -393,6 +393,19 @@ public sealed class BundleValidatorTests
         Assert.Empty(Errors(("FixtureSignal", new SignalFixture { Footprint = new(0, 0, 0), Colliders = [] })));
     }
 
+    // Story 9A.22: a declared event kind is a defined record kind, declared once; None is no record.
+    [Fact]
+    public void AnEventKindThatIsNoneUndefinedOrRepeatedIsRefused()
+    {
+        Assert.Empty(Errors(("FixtureEvents", new Fixture { Events = [new(SimulationEventKind.Impact), new(SimulationEventKind.Captured)] })));
+        Assert.Equal(["BUNDLE003 FixtureEvents.Events[0].Kind: undefined enum value"],
+            Errors(("FixtureEvents", new Fixture { Events = [new(SimulationEventKind.None)] })));
+        Assert.Equal(["BUNDLE003 FixtureEvents.Events[0].Kind: undefined enum value"],
+            Errors(("FixtureEvents", new Fixture { Events = [new((SimulationEventKind)9)] })));
+        Assert.Equal(["BUNDLE006 FixtureEvents.Events[1].Kind: outside its declared range"],
+            Errors(("FixtureEvents", new Fixture { Events = [new(SimulationEventKind.Impact), new(SimulationEventKind.Impact)] })));
+    }
+
     [Fact]
     public void ADefaultOutsideItsBoundsIsRefused() =>
         Assert.Equal(["BUNDLE006 FixtureRange.Metadata.Parameters[0].Default: outside its declared range"],

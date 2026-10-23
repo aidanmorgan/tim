@@ -299,7 +299,7 @@ public sealed class CounterTests(NativeSceneFixture godot)
 
         // Lamp must be latched now!
         Assert.Equal(ActivationPhase.Latched, activations[lampSlot].Phase);
-        Assert.Equal(ActivationOccurrenceKind.CounterReached, activations[lampSlot].Occurrence.Kind);
+        Assert.Equal(ActivationOccurrenceKind.ThresholdReached, activations[lampSlot].Occurrence.Kind);
 
         // Saturation: 20 extra passages
         for (uint i = 4; i < 24; i++)

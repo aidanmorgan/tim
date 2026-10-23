@@ -26,8 +26,7 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
 
     /// <summary>F15-11: the Impact switch's declared trigger threshold is the compiled contact trigger's threshold, the Domino's
     /// declared topple threshold (the cosine of the topple angle) is the compiled orientation sensor's angle, and the Counter's declared
-    /// count is the runtime's placed target count, and the clock and latch declare the event kinds the activation network publishes
-    /// for them. The other signal declarations (level thresholds, pulse durations, latch modes, the other event kinds and port normals)
+    /// count is the runtime's placed target count. The other signal declarations (level thresholds, pulse durations, latch modes, the other event kinds and port normals)
     /// have no runtime reader yet (evidence-9a-14/f15-11-runtime-readers.txt): the story that makes the runtime read one adds its
     /// comparison here, and port normals are held to unit length by the bundle validator.</summary>
     [Fact]
@@ -61,10 +60,7 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
         Assert.Equal((ushort)0x3b64, BitConverter.HalfToUInt16Bits(compiledThreshold.CosineHalfAngle));
         var counter = (Abstractions.Signal.ISignalElement)packages["counter"];
         Assert.Equal(WorkshopCounter.PlacedTargetCount, Assert.NotNull(counter.Counter).Threshold);
-        // The activation network publishes these event kinds for these elements (ActivationNetwork: the oscillator tick and the
-        // State Latch's memory change), so each package must declare the kind the runtime publishes for it.
-        Assert.Contains(packages["clock"].Events, descriptor => descriptor.EventKind == Abstractions.SimulationEventKind.TriggerActivated);
-        Assert.Contains(packages["latch"].Events, descriptor => descriptor.EventKind == Abstractions.SimulationEventKind.LatchSet);
+        // Story 9A.22: every package's declared event kinds equal its compiled rows' kinds (EventRingProducerTests).
         // C-Lamp+Detector: the lamp's declared indicator input selects its node, and the detector's declared f32 aperture is the
         // compiled passage sensor's radius and rearm clearance, narrowed to the binary16 lanes bit-equal to the former record's
         // (Half)0.65 and (Half)0.02.
@@ -413,7 +409,7 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
     }
 
     /// <summary>One newly placed instance of the part, as MachineWorld.CaptureInstance builds it.</summary>
-    private static IWorkshopInstance Placed(PartId id) => id.Value switch
+    internal static IWorkshopInstance Placed(PartId id) => id.Value switch
     {
         "ball" => WorkshopInput.Generic(PartId.Basketball,Owner, 0, 3, 0, 0, 0, 0, 1),
         "bowling" => WorkshopInput.Generic(PartId.BowlingBall, Owner, 0, 3, 0, 0, 0, 0, 1),

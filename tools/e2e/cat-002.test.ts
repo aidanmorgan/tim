@@ -85,8 +85,13 @@ describe('CAT-002: Ball Detector Aperture Passage Sensor', () => {
     }
 
     // Exactly one more lamp activation than `before`: the lamp target's sample history survives Reset (anim-1b, cat-023b).
+    // C-Lamp review F5 (Story 9A.22): reaching before + 1 is not "exactly once". After it, hold for the lamp glow (SmoothStep 0.16 s)
+    // plus 500 ms and re-read, so a later second flash fails.
+    const glowMs = 160, settleMs = 500;
     async function lightsOnceMore(before: number): Promise<boolean> {
-        return waitFor(async () => (await lampActivations()) === before + 1, 5000);
+        if (!(await waitFor(async () => (await lampActivations()) === before + 1, 5000))) return false;
+        await driver.page.waitForTimeout(glowMs + settleMs);
+        return (await lampActivations()) === before + 1;
     }
 
     async function resetMatches(s0: RunResetSnapshot, holdMs = 0): Promise<void> {

@@ -1,0 +1,24 @@
+== R7-sequence-not-restarted 2026-10-23T16:41:33Z
+diff --git a/engine/gpu/EventRecordProducer.cs b/engine/gpu/EventRecordProducer.cs
+index 4475d4e6..48bbcec7 100644
+--- a/engine/gpu/EventRecordProducer.cs
++++ b/engine/gpu/EventRecordProducer.cs
+@@ -190,7 +190,7 @@ public sealed class EventRingOutbox
+     public void Restart(SimulationEpoch epoch, uint capacity)
+     {
+         _pending.Clear();
+-        Epoch = epoch; Capacity = capacity; WriteSequence = 0; Lapped = 0;
++        Epoch = epoch; Capacity = capacity; Lapped = 0;
+     }
+ 
+     public void Commit(ReadOnlySpan<SimulationEventRecord> candidate)
+    0 Warning(s)
+    0 Error(s)
+build rc=0
+  Failed CuriousContraptions.Tests.EventRingProducerTests.TwoRunsAndRunResetRunPublishIdenticalRecordsUnderAnAdvancingEpoch [50 ms]
+Failed!  - Failed:     1, Passed:    98, Skipped:     0, Total:    99, Duration: 1 s - CuriousContraptions.tests.dll (net10.0)
+dotnet test rc=1
+ℹ pass 4
+ℹ fail 0
+node rc=0
+dirty after revert: 0
