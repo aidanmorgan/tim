@@ -1,0 +1,64 @@
+Test run for /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/probe-10-1/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+/private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/probe-10-1/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.5+1b188a7b0a (64-bit .NET 10.0.13)
+[xUnit.net 00:00:00.30]   Discovering: CuriousContraptions.tests
+[xUnit.net 00:00:00.96]   Discovered:  CuriousContraptions.tests
+[xUnit.net 00:00:01.06]   Starting:    CuriousContraptions.tests
+  Passed CuriousContraptions.Tests.ReviewProbe101bTests.T1_DiagonalRodLimitCycle [103 ms]
+  Standard Output Messages:
+ t 0.5s tilt 11.783° spin 0.0434 y 0.41010
+ t 1.0s tilt 10.605° spin 0.0141 y 0.40581
+ t 1.5s tilt 11.646° spin 0.0694 y 0.40855
+ t 2.0s tilt 10.667° spin 0.0160 y 0.40581
+ t 2.5s tilt 11.715° spin 0.0505 y 0.40957
+ t 3.0s tilt 10.705° spin 0.0053 y 0.40581
+ t 3.5s tilt 11.788° spin 0.0124 y 0.41116
+ t 4.0s tilt 10.793° spin 0.0195 y 0.40580
+ t 4.5s tilt 11.320° spin 0.0848 y 0.40628
+ t 5.0s tilt 11.368° spin 0.0788 y 0.40572
+ t 5.5s tilt 10.899° spin 0.0020 y 0.40579
+ t 6.0s tilt 11.402° spin 0.0794 y 0.40984
+ t 6.5s tilt 11.648° spin 0.0386 y 0.40931
+ t 7.0s tilt 11.206° spin 0.0455 y 0.40575
+ t 7.5s tilt 11.059° spin 0.0064 y 0.40577
+ t 8.0s tilt 11.140° spin 0.0242 y 0.40577
+ t 8.5s tilt 11.293° spin 0.0426 y 0.40578
+ t 9.0s tilt 11.323° spin 0.0410 y 0.40578
+ t 9.5s tilt 11.279° spin 0.0218 y 0.40577
+ t 10.0s tilt 11.286° spin 0.0118 y 0.40574
+ last second: tilt 11.202..11.598°, max spin 0.0610 rad/s (true physics: rights itself to 0°, since 10.5° < atan(r/h) = 14.04°)
+
+
+  Passed CuriousContraptions.Tests.ReviewProbe101bTests.S3_CylinderCylinder [55 s]
+  Standard Output Messages:
+ cyl-cyl target 20.0 mm, 300 poses (seed 3): false-positive 4, missed 0, separated-but-negative-gap 3, error < −5 mm 4, gap−exact in [-25.502, 0.000] mm
+   worst: exact 20.00 mm (u -0.103,-0.966,-0.237; u·aA 0.995; u·aB -0.000) kernel gap -5.50 mm, n (-0.078,0.921,0.381) angle(n,u) 13.5°, points 1, features [6:2]
+ cyl-cyl target 3.0 mm, 300 poses (seed 3): false-positive 0, missed 0, separated-but-negative-gap 37, error < −5 mm 24, gap−exact in [-25.972, 0.950] mm
+   worst: exact 3.00 mm (u -0.105,-0.966,-0.235; u·aA 0.995; u·aB -0.000) kernel gap -22.97 mm, n (-0.075,0.922,0.379) angle(n,u) 13.4°, points 1, features [6:0]
+ cyl-cyl target -4.0 mm, 300 poses (seed 3): false-positive 0, missed 0, separated-but-negative-gap 0, error < −5 mm 22, gap−exact in [-26.159, 3.722] mm
+   worst: exact -4.00 mm (u -0.106,-0.966,-0.235; u·aA 0.995; u·aB 0.000) kernel gap -30.16 mm, n (-0.074,0.923,0.378) angle(n,u) 13.4°, points 1, features [6:0]
+
+
+  Passed CuriousContraptions.Tests.ReviewProbe101bTests.S1_ControlBoxBox [50 s]
+  Standard Output Messages:
+ CONTROL box-box target 3.0 mm, 300 poses (seed 1): false-positive 0, missed 0, separated-but-negative-gap 0, error < −5 mm 0, gap−exact in [-0.717, 0.614] mm
+   worst: exact 3.00 mm (u -0.273,0.575,-0.772; u·aA NaN; u·aB NaN) kernel gap 2.28 mm, n (0.519,0.048,0.853) angle(n,u) 39.4°, points 1, features [576:2303]
+ CONTROL box-box target -4.0 mm, 300 poses (seed 1): false-positive 0, missed 0, separated-but-negative-gap 0, error < −5 mm 0, gap−exact in [-0.078, 0.716] mm
+   worst: exact -4.00 mm (u -0.032,-0.573,-0.819; u·aA NaN; u·aB NaN) kernel gap -4.08 mm, n (0.032,0.573,0.819) angle(n,u) 0.0°, points 2, features [609:1545,609:1538]
+
+
+[xUnit.net 00:02:29.45]   Finished:    CuriousContraptions.tests (ID = 'c2334ac06914b9685b207240a16d2f1d28e27073172085c2d68af6987a787dab')
+  Passed CuriousContraptions.Tests.ReviewProbe101bTests.S2_CylinderBox [42 s]
+  Standard Output Messages:
+ cyl-box target 3.0 mm, 300 poses (seed 2): false-positive 0, missed 0, separated-but-negative-gap 13, error < −5 mm 7, gap−exact in [-11.725, 1.613] mm
+   worst: exact 3.00 mm (u -0.281,0.824,0.492; u·aA -0.403; u·aB NaN) kernel gap -8.73 mm, n (0.387,-0.887,-0.253) angle(n,u) 15.4°, points 1, features [6:1]
+ cyl-box target -4.0 mm, 300 poses (seed 2): false-positive 0, missed 0, separated-but-negative-gap 0, error < −5 mm 7, gap−exact in [-11.525, 1.281] mm
+   worst: exact -4.00 mm (u -0.283,0.825,0.488; u·aA -0.403; u·aB NaN) kernel gap -15.52 mm, n (0.388,-0.887,-0.249) angle(n,u) 15.5°, points 1, features [6:1]
+
+
+
+Test Run Successful.
+Total tests: 4
+     Passed: 4
+ Total time: 2.4940 Minutes

@@ -1,0 +1,13 @@
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:04.31]     CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.SphereGapsFollowTheSideTheCapAndTheRim [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.SphereGapsFollowTheSideTheCapAndTheRim [1 ms]
+  Error Message:
+   gap -0.3 vs analytic -0.15
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.Gaps(List`1 contacts, Int32 count, Single gap) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 438
+   at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.SphereGapsFollowTheSideTheCapAndTheRim() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 465
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     1, Passed:    45, Skipped:     0, Total:    46, Duration: 3 s - CuriousContraptions.tests.dll (net10.0)

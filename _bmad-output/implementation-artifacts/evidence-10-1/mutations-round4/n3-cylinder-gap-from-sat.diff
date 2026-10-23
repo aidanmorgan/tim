@@ -1,0 +1,10 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/frozen4/WorkshopCollisionKernels.cs	2026-10-23 21:52:48.080981334 +0800
++++ CuriousContraptions.Simulation/WorkshopCollisionKernels.cs	2026-10-23 23:52:53.285094980 +0800
+@@ -1630,6 +1630,7 @@
+         // Apart, the closest features are the exact gap; overlapping, the deepest closest feature or the SAT, whichever is shallower.
+         // (No shrunk core here: two cores' rims give a late, non-monotone gap at touch — review N9.)
+         var exact = closest.Gap > 0f || closest.Gap > best;
++        if (closest.Gap > 0f) exact = false;
+         var n = exact ? closest.Normal : bestAxis;
+         var separation = exact ? closest.Gap : best;
+         var tA = MathF.Abs(Vector3.Dot(n, aa));

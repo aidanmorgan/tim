@@ -1,0 +1,8 @@
+  Error Message:
+   rest Hz60: drift 0.0000 mm, pen 0.2687 mm, late max spin 8.15E-014, speed 2.02E-013, tilt 0.0000
+rest Hz240: drift 0.0000 mm, pen 0.2687 mm, late max spin 8.15E-014, speed 2.02E-013, tilt 0.0000
+cyl-box overlap: worst |kernel deepest gap + translated depth| at 0.3 mm 0.092 mm, at 4 mm 1.221 mm
+cyl-cyl overlap: worst |kernel deepest gap + translated depth| at 0.3 mm 0.169 mm, at 4 mm 1.029 mm
+drops: cylinder worst tick rise 0.0172 mJ; bound box + 1.962 mJ
+tilted landings worst tick rise 1.2188 mJ
+  Stack Trace:

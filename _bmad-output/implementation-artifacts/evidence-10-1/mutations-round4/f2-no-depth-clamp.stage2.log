@@ -1,0 +1,85 @@
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:02:13.90]     CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ARimAimedWalkThroughTouchKeepsTheGapContinuousAndNeverPositiveWhileOverlapping(cylinderPartner: False, seed: 7002) [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ARimAimedWalkThroughTouchKeepsTheGapContinuousAndNeverPositiveWhileOverlapping(cylinderPartner: False, seed: 7002) [1 m 25 s]
+  Error Message:
+   pose 2 at -1.55 mm: gap jumps -0.991 → -1.728 mm
+pose 11 at -1.45 mm: gap jumps -0.955 → -1.976 mm
+pose 11 at -1.50 mm: gap jumps -1.976 → -1.037 mm
+pose 15 at -1.50 mm: gap jumps -0.994 → -1.978 mm
+pose 15 at -1.60 mm: gap jumps -2.044 → -1.099 mm
+pose 16 at -1.45 mm: gap jumps -0.953 → -1.993 mm
+pose 16 at -1.60 mm: gap jumps -2.130 → -1.105 mm
+pose 45 at -1.60 mm: gap jumps -0.965 → -1.480 mm
+pose 46 at -1.60 mm: gap jumps -0.980 → -1.821 mm
+pose 51 at -1.55 mm: gap jumps -0.988 → -1.668 mm
+pose 51 at -1.60 mm: gap jumps -1.668 → -1.057 mm
+pose 52 at -1.60 mm: gap jumps -0.991 → -1.572 mm
+pose 55 at -1.55 mm: gap jumps -1.047 → -2.266 mm
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ARimAimedWalkThroughTouchKeepsTheGapContinuousAndNeverPositiveWhileOverlapping(Boolean cylinderPartner, Int32 seed) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 1362
+   at InvokeStub_WorkshopPhysicsLawCylinderTests.ARimAimedWalkThroughTouchKeepsTheGapContinuousAndNeverPositiveWhileOverlapping(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+[xUnit.net 00:03:45.01]     CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.FreshSeedDropsGainNoMoreEnergyThanTheBoxControlAndTheSlop [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.FreshSeedDropsGainNoMoreEnergyThanTheBoxControlAndTheSlop [1 m 31 s]
+  Error Message:
+   CylinderOntoPlane (Dead): 0/200 over 2.023 mJ (worst 1.733 mJ)
+CylinderOntoBox (Dead): 5/200 over 2.023 mJ (worst 17.109 mJ)
+BoxOntoCylinder (Dead): 0/200 over 2.023 mJ (worst 1.007 mJ)
+CylinderOntoLyingCylinder (Dead): 0/200 over 2.023 mJ (worst 1.174 mJ)
+CylinderOntoStandingCylinder (Dead): 0/200 over 2.023 mJ (worst 1.578 mJ)
+SkewedRollOffEdge (Dead): 0/200 over 2.023 mJ (worst 0.009 mJ)
+CylinderOntoPlane (Rolling): 0/200 over 2.049 mJ (worst 1.579 mJ)
+CylinderOntoBox (Rolling): 1/200 over 2.049 mJ (worst 9.783 mJ)
+BoxOntoCylinder (Rolling): 0/200 over 2.049 mJ (worst 0.086 mJ)
+CylinderOntoLyingCylinder (Rolling): 0/200 over 2.049 mJ (worst 0.940 mJ)
+CylinderOntoStandingCylinder (Rolling): 0/200 over 2.049 mJ (worst 1.376 mJ)
+SkewedRollOffEdge (Rolling): 0/200 over 2.049 mJ (worst 0.001 mJ)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.AssertGate(Int32 cases, GateMaterials[] sets) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 1604
+   at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.FreshSeedDropsGainNoMoreEnergyThanTheBoxControlAndTheSlop() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 1608
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Standard Output Messages:
+ CylinderOntoPlane (Dead): 0/200 over 2.023 mJ (worst 1.733 mJ)
+ CylinderOntoBox (Dead): 5/200 over 2.023 mJ (worst 17.109 mJ)
+ BoxOntoCylinder (Dead): 0/200 over 2.023 mJ (worst 1.007 mJ)
+ CylinderOntoLyingCylinder (Dead): 0/200 over 2.023 mJ (worst 1.174 mJ)
+ CylinderOntoStandingCylinder (Dead): 0/200 over 2.023 mJ (worst 1.578 mJ)
+ SkewedRollOffEdge (Dead): 0/200 over 2.023 mJ (worst 0.009 mJ)
+ CylinderOntoPlane (Rolling): 0/200 over 2.049 mJ (worst 1.579 mJ)
+ CylinderOntoBox (Rolling): 1/200 over 2.049 mJ (worst 9.783 mJ)
+ BoxOntoCylinder (Rolling): 0/200 over 2.049 mJ (worst 0.086 mJ)
+ CylinderOntoLyingCylinder (Rolling): 0/200 over 2.049 mJ (worst 0.940 mJ)
+ CylinderOntoStandingCylinder (Rolling): 0/200 over 2.049 mJ (worst 1.376 mJ)
+ SkewedRollOffEdge (Rolling): 0/200 over 2.049 mJ (worst 0.001 mJ)
+
+
+  Skipped CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.FreshSeedDropsWithRestitutionGainNoMoreEnergyThanTheBoxControlAndTheSlop [1 ms]
+  Skipped CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.FreshSeedDropsGainNoMoreEnergyThanTheBoxControlAndTheSlopFullGate [1 ms]
+[xUnit.net 00:04:43.21]     CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.OverlapDepthNeverExceedsTheCertifiedBound(cylinderPartner: False, seed: 402) [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.OverlapDepthNeverExceedsTheCertifiedBound(cylinderPartner: False, seed: 402) [47 s]
+  Error Message:
+   pose 0 at 5 mm: kernel 0.81 mm deeper than the certified bound
+pose 2 at 2 mm: kernel 2.59 mm deeper than the certified bound
+pose 21 at 5 mm: kernel 3.43 mm deeper than the certified bound
+pose 48 at 2 mm: kernel 2.26 mm deeper than the certified bound
+pose 83 at 5 mm: kernel 0.88 mm deeper than the certified bound
+pose 98 at 2 mm: kernel 0.85 mm deeper than the certified bound
+pose 98 at 5 mm: kernel 2.50 mm deeper than the certified bound
+pose 102 at 5 mm: kernel 0.62 mm deeper than the certified bound
+pose 131 at 5 mm: kernel 0.89 mm deeper than the certified bound
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.OverlapDepthNeverExceedsTheCertifiedBound(Boolean cylinderPartner, Int32 seed) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 1629
+   at InvokeStub_WorkshopPhysicsLawCylinderTests.OverlapDepthNeverExceedsTheCertifiedBound(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+[xUnit.net 00:04:48.55]     CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.DropsOntoALyingCylinderGainNoMoreEnergyThanBoxesOntoABox [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.DropsOntoALyingCylinderGainNoMoreEnergyThanBoxesOntoABox [5 s]
+  Error Message:
+   cylinder onto box: worst tick gain 2.159 mJ, bound 1.963 mJ
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.DropsOntoALyingCylinderGainNoMoreEnergyThanBoxesOntoABox() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 1282
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     4, Passed:     4, Skipped:     0, Total:     8, Duration: 4 m 53 s - CuriousContraptions.tests.dll (net10.0)

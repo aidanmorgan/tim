@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/frozen2/WorkshopCollisionKernels.cs	2026-10-23 15:24:43.376194854 +0800
++++ CuriousContraptions.Simulation/WorkshopCollisionKernels.cs	2026-10-23 15:26:41.772370917 +0800
+@@ -933,7 +933,7 @@
+         if (MathF.Abs(y) > h || rho > r)
+         {
+             var yc = Math.Clamp(y, -h, h);
+-            x = cyl.Position + yc * a + MathF.Min(rho, r) * radial;
++            x = cyl.Position + yc * a + Math.Clamp(Vector3.Dot(q, cyl.U0), -r, r) * cyl.U0 + Math.Clamp(Vector3.Dot(q, cyl.U2), -r, r) * cyl.U2;
+             var diff = sphere.Position - x;
+             var dist = diff.Length();
+             gap = dist - sphere.Radius;

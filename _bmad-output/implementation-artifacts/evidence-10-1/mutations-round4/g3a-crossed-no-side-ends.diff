@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/frozen4/WorkshopCollisionKernels.cs	2026-10-23 21:52:48.080981334 +0800
++++ CuriousContraptions.Simulation/WorkshopCollisionKernels.cs	2026-10-23 23:02:00.889656418 +0800
+@@ -1713,7 +1713,7 @@
+         // point again): its radial signed gap, with the radial normal turned to point from B toward A.
+         void SideEnd(Vector3 x, SimCollider other, bool onA, int detail)
+         {
+-            if (MathF.Abs(Vector3.Dot(x - other.Position, other.U1)) > other.Hy) return;
++            if (MathF.Abs(Vector3.Dot(x - other.Position, other.U1)) > other.Hy || detail >= 0) return;
+             var gap = SideDistance(Solid.Of(other), x, out var onSide);
+             if (gap > margin || gap <= separation + 1e-4f) return;
+             var radial = RadialUnit(x - other.Position, other.U1, onA ? n : -n);

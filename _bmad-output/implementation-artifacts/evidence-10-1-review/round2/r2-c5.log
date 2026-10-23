@@ -1,0 +1,63 @@
+Test run for /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/probe2-10-1/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+/private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/probe2-10-1/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.5+1b188a7b0a (64-bit .NET 10.0.13)
+[xUnit.net 00:00:00.31]   Discovering: CuriousContraptions.tests
+[xUnit.net 00:00:00.97]   Discovered:  CuriousContraptions.tests
+[xUnit.net 00:00:01.08]   Starting:    CuriousContraptions.tests
+  Passed CuriousContraptions.Tests.ReviewProbe101R2Tests.C5_TraceCylBoxPose(target: 135) [1 s]
+  Standard Output Messages:
+ pose 135: |dir·a| 0.656
+  tick  1: speed 0.0000, certified distance [-0.333, 0.000] mm, kernel gaps [-0.33] kinds [4] |n·a| 1.000
+  tick  2: speed 0.0000, certified distance [-0.317, 0.000] mm, kernel gaps [-0.31] kinds [4] |n·a| 1.000
+  tick  3: speed 0.0000, certified distance [-0.301, 0.000] mm, kernel gaps [-0.30] kinds [4] |n·a| 1.000
+  tick  4: speed 0.0286, certified distance [0.770, 0.770] mm, kernel gaps [0.77] kinds [4] |n·a| 0.998
+  tick  5: speed 0.0286, certified distance [1.081, 1.081] mm, kernel gaps [1.08] kinds [4] |n·a| 0.999
+  tick  6: speed 0.0286, certified distance [1.387, 1.392] mm, kernel gaps [1.39] kinds [4] |n·a| 0.998
+  tick  7: speed 0.0286, certified distance [1.699, 1.702] mm, kernel gaps [1.70] kinds [4] |n·a| 0.998
+  tick  8: speed 0.0286, certified distance [2.014, 2.014] mm, kernel gaps [2.02] kinds [4] |n·a| 0.998
+  tick  9: speed 0.0286, certified distance [2.324, 2.325] mm, kernel gaps [2.33] kinds [4] |n·a| 0.999
+  tick 10: speed 0.0286, certified distance [2.635, 2.636] mm, kernel gaps [2.64] kinds [4] |n·a| 0.998
+  tick 11: speed 0.0286, certified distance [2.947, 2.947] mm, kernel gaps [2.95] kinds [4] |n·a| 0.999
+  tick 12: speed 0.0286, certified distance [3.255, 3.259] mm, kernel gaps [3.26] kinds [4] |n·a| 0.998
+  tick 18: speed 0.0286, certified distance [5.128, 5.129] mm, kernel gaps [] kinds [] |n·a| 0.000
+  tick 24: speed 0.0286, certified distance [7.003, 7.003] mm, kernel gaps [] kinds [] |n·a| 0.000
+  tick 30: speed 0.0286, certified distance [8.881, 8.881] mm, kernel gaps [] kinds [] |n·a| 0.000
+  tick 36: speed 0.0286, certified distance [10.761, 10.761] mm, kernel gaps [] kinds [] |n·a| 0.000
+  tick 42: speed 0.0286, certified distance [12.644, 12.645] mm, kernel gaps [] kinds [] |n·a| 0.000
+  tick 48: speed 0.0286, certified distance [14.532, 14.532] mm, kernel gaps [] kinds [] |n·a| 0.000
+  tick 54: speed 0.0286, certified distance [16.422, 16.422] mm, kernel gaps [] kinds [] |n·a| 0.000
+  tick 60: speed 0.0286, certified distance [18.315, 18.315] mm, kernel gaps [] kinds [] |n·a| 0.000
+
+
+[xUnit.net 00:00:05.60]   Finished:    CuriousContraptions.tests (ID = 'f6ad845e9c7e36a4e54a0493ec2591fb8e5fdac368a7b0f0d22fa5299d3c8bb4')
+  Passed CuriousContraptions.Tests.ReviewProbe101R2Tests.C5_TraceCylBoxPose(target: 2) [2 s]
+  Standard Output Messages:
+ pose 2: |dir·a| 0.621
+  tick  1: speed 0.0003, certified distance [-0.679, 0.000] mm, kernel gaps [-0.34] kinds [5] |n·a| 0.000
+  tick  2: speed 0.0005, certified distance [-0.661, 0.000] mm, kernel gaps [-0.33] kinds [5] |n·a| 0.000
+  tick  3: speed 0.0006, certified distance [-0.598, 0.000] mm, kernel gaps [-0.31] kinds [5] |n·a| 0.000
+  tick  4: speed 0.0006, certified distance [-268.523, 0.000] mm, kernel gaps [-1.06] kinds [4] |n·a| 1.000
+  tick  5: speed 0.0006, certified distance [-0.413, 0.000] mm, kernel gaps [-0.28] kinds [5] |n·a| 0.000
+  tick  6: speed 0.0006, certified distance [-0.464, 0.000] mm, kernel gaps [-0.27] kinds [5] |n·a| 0.000
+  tick  7: speed 0.0005, certified distance [-0.375, 0.000] mm, kernel gaps [-0.91] kinds [4] |n·a| 1.000
+  tick  8: speed 0.0005, certified distance [-0.728, 0.000] mm, kernel gaps [-0.87] kinds [4] |n·a| 1.000
+  tick  9: speed 0.0005, certified distance [-0.532, 0.000] mm, kernel gaps [-0.24] kinds [5] |n·a| 0.000
+  tick 10: speed 0.0005, certified distance [-0.554, 0.000] mm, kernel gaps [-0.83] kinds [4] |n·a| 1.000
+  tick 11: speed 0.0005, certified distance [-0.507, 0.000] mm, kernel gaps [-0.23] kinds [5] |n·a| 0.000
+  tick 12: speed 0.0005, certified distance [-0.532, 0.000] mm, kernel gaps [-0.79] kinds [4] |n·a| 1.000
+  tick 18: speed 0.0005, certified distance [-0.443, 0.000] mm, kernel gaps [-0.19] kinds [5] |n·a| 0.000
+  tick 24: speed 0.0005, certified distance [-0.401, 0.000] mm, kernel gaps [-0.15] kinds [5] |n·a| 0.000
+  tick 30: speed 0.0005, certified distance [-0.378, 0.000] mm, kernel gaps [-0.46] kinds [4] |n·a| 1.000
+  tick 36: speed 0.0005, certified distance [-167.341, 0.000] mm, kernel gaps [-0.10] kinds [5] |n·a| 0.000
+  tick 42: speed 0.0005, certified distance [-0.412, 0.000] mm, kernel gaps [-0.08] kinds [5] |n·a| 0.000
+  tick 48: speed 0.0005, certified distance [-0.387, 0.000] mm, kernel gaps [-0.07] kinds [5] |n·a| 0.000
+  tick 54: speed 0.0005, certified distance [-0.913, 0.000] mm, kernel gaps [-0.05] kinds [5] |n·a| 0.000
+  tick 60: speed 0.0005, certified distance [-0.396, 0.000] mm, kernel gaps [-0.03] kinds [5] |n·a| 0.000
+
+
+
+Test Run Successful.
+Total tests: 2
+     Passed: 2
+ Total time: 5.7996 Seconds

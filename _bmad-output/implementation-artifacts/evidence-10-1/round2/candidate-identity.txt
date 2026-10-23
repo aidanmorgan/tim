@@ -1,0 +1,51 @@
+a598a09e2b91d58135b3343a2beeea6b88578013
+ M CuriousContraptions.Simulation/WorkshopCollisionKernels.cs
+ M CuriousContraptions.Simulation/WorkshopConstraintSolver.cs
+ M CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs
+ M CuriousContraptions.tests/CuriousContraptions.tests.csproj
+ M CuriousContraptions.tests/WorkshopPhysicsLawTests.cs
+ M TODO.md
+ M _bmad-output/implementation-artifacts/sprint-status.yaml
+ M docs/gpu-f32-physics.md
+ M docs/planning/elements/CAT-034-impact_lever.md
+ M docs/planning/elements/CAT-053-pulley.md
+ M engine/gpu/DeclaredPhysics.cs
+ M engine/gpu/PassageSensorDeclaration.cs
+ M engine/gpu/PhysicsDeclarations.cs
+ M engine/gpu/PhysicsGpuAbi.cs
+ M engine/gpu/RigidMassProperties.cs
+ M tools/BundleElements.Tests/BundleRoundTripTests.cs
+ M tools/BundleElements.Tests/SceneGeometryExtractorTests.cs
+ M tools/BundleElements/SceneGeometryExtractor.cs
+?? CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs
+?? _bmad-output/implementation-artifacts/evidence-10-1-review/
+?? _bmad-output/implementation-artifacts/evidence-10-1/
+?? _bmad-output/implementation-artifacts/review-10-1-solid-cylinder.md
+?? _bmad-output/implementation-artifacts/spec-10-1-solid-cylinder.md
+ .../WorkshopCollisionKernels.cs                    | 971 ++++++++++++++++++++-
+ .../WorkshopConstraintSolver.cs                    |  54 +-
+ .../WorkshopPhysicsEngine.cs                       |  70 +-
+ .../CuriousContraptions.tests.csproj               |   1 +
+ .../WorkshopPhysicsLawTests.cs                     |  19 +-
+ TODO.md                                            |   6 +
+ .../implementation-artifacts/sprint-status.yaml    |   2 +-
+ docs/gpu-f32-physics.md                            |  25 +-
+ docs/planning/elements/CAT-034-impact_lever.md     |   4 +-
+ docs/planning/elements/CAT-053-pulley.md           |   4 +-
+ engine/gpu/DeclaredPhysics.cs                      |  13 +-
+ engine/gpu/PassageSensorDeclaration.cs             |  11 +-
+ engine/gpu/PhysicsDeclarations.cs                  |  20 +-
+ engine/gpu/PhysicsGpuAbi.cs                        |   3 -
+ engine/gpu/RigidMassProperties.cs                  |  13 +-
+ tools/BundleElements.Tests/BundleRoundTripTests.cs |  16 +
+ .../SceneGeometryExtractorTests.cs                 |  67 +-
+ tools/BundleElements/SceneGeometryExtractor.cs     |  35 +-
+ 18 files changed, 1275 insertions(+), 59 deletions(-)
+fd0bb0aa4b6ab560a6a2b16c402b7953a6f67ae011b4719133838d33a7f5c97e  -
+f1c3763482d8d1d679e8424ec4c05b83a5a1e836f793cde520f4193e71a9fa6c  CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs
+f780b645840b5520ac460f33bc045a02c3527e72a0ae1b1f941b7568681b8de2  _bmad-output/implementation-artifacts/spec-10-1-solid-cylinder.md
+
+## Post-run identity: after verify2.sh only non-build docs/evidence changed (docs/gpu-f32-physics.md wording 'pending coordinator ratification', the spec, anvil-check.log, throwaway-diagnostics.log); the test file is unchanged (throwaway diagnostics added, run and deleted; SHA reconfirmed)
+79e8c8b9ec5ab6bd80b77573b83919b9018e0b69e549055f119ff26ee166927f  -
+f1c3763482d8d1d679e8424ec4c05b83a5a1e836f793cde520f4193e71a9fa6c  CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs
+debe6bd99868ee71e0b8eda122969d8780e2d8ea3402a0140476121b701e5fde  _bmad-output/implementation-artifacts/spec-10-1-solid-cylinder.md

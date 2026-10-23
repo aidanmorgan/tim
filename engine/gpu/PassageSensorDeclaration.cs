@@ -93,9 +93,14 @@ public sealed class PassageSensorTracker
                         if (c.Body == body.Body.Id)
                         {
                             colliderId = c.Id;
-                            radius = c.Shape == ColliderShapeKind.Sphere
-                                ? (float)c.Radius.Value
-                                : (float)Math.Max((float)c.HalfExtents.X, Math.Max((float)c.HalfExtents.Y, (float)c.HalfExtents.Z));
+                            radius = c.Shape switch
+                            {
+                                ColliderShapeKind.Sphere => (float)c.Radius.Value,
+                                ColliderShapeKind.Box => Math.Max((float)c.HalfExtents.X, Math.Max((float)c.HalfExtents.Y, (float)c.HalfExtents.Z)),
+                                ColliderShapeKind.Cylinder => Math.Max((float)c.Radius.Value, (float)c.HalfExtents.Y),
+                                ColliderShapeKind.Plane => 0f,
+                                _ => throw new ArgumentOutOfRangeException(nameof(colliders), c.Shape, "Undefined collider shape.")
+                            };
                             break;
                         }
                     }

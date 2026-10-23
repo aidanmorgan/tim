@@ -1,0 +1,37 @@
+Lively energy gate: source removed from CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs on 24 Oct 2026
+(coordinator decision: explicit tests are not allowed; the restitution slice re-adds this as an ordinary routine [Fact] and uses it
+as its entry check). Restore verbatim into the fresh-seed gate section; seeds are GateSeed + 100 * (int)materials, so Lively = 2
+keeps its original seeds (91200 control, 91201-91206 classes).
+
+Last result (200 per class, evidence-10-1/round5/full-gate.log): bound 285.317 mJ (box control + m·g·ContactSlop); over the bound:
+CylinderOntoPlane 1 (worst 344.658 mJ), CylinderOntoBox 1 (347.448), BoxOntoCylinder 2 (331.347), CylinderOntoLyingCylinder 4
+(514.917), CylinderOntoStandingCylinder 3 (443.959), SkewedRollOffEdge 1 (415.090).
+
+---- 1. The material set (enum member, its summary sentence, the mover switch arm and the partner material) ----
+
+    /// <summary>The gate's material sets. Rolling: the dropped body's rolling resistance 0.05 (restitution 0), so the curved-side
+    /// rolling row with per-point normals is active. Lively: also restitution 0.3 against the bench material (product 0.3).</summary>
+    public enum GateMaterials { Dead, Rolling, Lively }
+
+    private static double GateCase(GateClass kind, Random rng, GateMaterials materials, bool boxControl = false)
+    {
+        var mover = materials switch
+        {
+            GateMaterials.Dead => Dead, GateMaterials.Rolling => new LawMaterial(0f, .1f, .5f, .05f), GateMaterials.Lively => Lively,
+            _ => throw new ArgumentOutOfRangeException(nameof(materials), materials, "Unknown gate materials."),
+        };
+        var partner = materials == GateMaterials.Lively ? LawMaterial.Bench : Dead;
+        ...  (every static partner in GateCase is built with `partner`)
+
+---- 2. The material ----
+
+    private static readonly LawMaterial Lively = new(.3f, .1f, .5f, .05f);
+
+---- 3. The test (re-add as an ordinary [Fact]; the Explicit attribute and the Trait below are not to be restored) ----
+
+    /// <summary>The lively set (restitution 0.3). It is explicit and red by design: the engine's restitution gains energy on every
+    /// multi-point manifold (a box dropped alone on the bench at e = 0.3 gains 83 mJ in one tick; a sphere 0.001 mJ), so its own box
+    /// control is no bound. Recorded for the coordinator as a pre-existing, engine-wide defect outside Story 10.1.</summary>
+    [Fact(Explicit = true)]
+    [Trait("Category", "CylinderEnergyGate")]
+    public void FreshSeedDropsWithRestitutionGainNoMoreEnergyThanTheBoxControlAndTheSlop() => AssertGate(200, GateMaterials.Lively);

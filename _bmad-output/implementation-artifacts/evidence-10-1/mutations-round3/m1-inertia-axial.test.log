@@ -1,0 +1,71 @@
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:42.31]     CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.CompiledMomentsAreTheSolidCylinderMomentsOfTheDeclaredGeometry(radius: 0.0625, width: 8, mass: 0.5) [FAIL]
+[xUnit.net 00:00:42.31]     CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.CompiledMomentsAreTheSolidCylinderMomentsOfTheDeclaredGeometry(radius: 0.40000000000000002, width: 0.17000000000000001, mass: 1.5) [FAIL]
+[xUnit.net 00:00:42.31]     CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.CompiledMomentsAreTheSolidCylinderMomentsOfTheDeclaredGeometry(radius: 0.22, width: 1.02, mass: 3) [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.CompiledMomentsAreTheSolidCylinderMomentsOfTheDeclaredGeometry(radius: 0.0625, width: 8, mass: 0.5) [1 ms]
+  Error Message:
+   moment 0.0007810592651367188 vs analytic 0.0009765625
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.<CompiledMomentsAreTheSolidCylinderMomentsOfTheDeclaredGeometry>g__Near|8_0(PrincipalInertia value, Double expected, Double bound) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 52
+   at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.CompiledMomentsAreTheSolidCylinderMomentsOfTheDeclaredGeometry(Double radius, Double width, Double mass) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 42
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.CompiledMomentsAreTheSolidCylinderMomentsOfTheDeclaredGeometry(radius: 0.40000000000000002, width: 0.17000000000000001, mass: 1.5) [< 1 ms]
+  Error Message:
+   moment 0.095947265625 vs analytic 0.11994141340255737
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.<CompiledMomentsAreTheSolidCylinderMomentsOfTheDeclaredGeometry>g__Near|8_0(PrincipalInertia value, Double expected, Double bound) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 52
+   at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.CompiledMomentsAreTheSolidCylinderMomentsOfTheDeclaredGeometry(Double radius, Double width, Double mass) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 42
+   at InvokeStub_WorkshopPhysicsLawCylinderTests.CompiledMomentsAreTheSolidCylinderMomentsOfTheDeclaredGeometry(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.CompiledMomentsAreTheSolidCylinderMomentsOfTheDeclaredGeometry(radius: 0.22, width: 1.02, mass: 3) [< 1 ms]
+  Error Message:
+   moment 0.05810546875 vs analytic 0.07258066534996033
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.<CompiledMomentsAreTheSolidCylinderMomentsOfTheDeclaredGeometry>g__Near|8_0(PrincipalInertia value, Double expected, Double bound) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 52
+   at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.CompiledMomentsAreTheSolidCylinderMomentsOfTheDeclaredGeometry(Double radius, Double width, Double mass) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 42
+   at InvokeStub_WorkshopPhysicsLawCylinderTests.CompiledMomentsAreTheSolidCylinderMomentsOfTheDeclaredGeometry(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+[xUnit.net 00:00:47.39]     CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ACylinderRollsDownARampAtTwoThirdsGSinThetaWithoutSlipping(degrees: 25) [FAIL]
+[xUnit.net 00:00:47.42]     CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ACylinderRollsDownARampAtTwoThirdsGSinThetaWithoutSlipping(degrees: 10) [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ACylinderRollsDownARampAtTwoThirdsGSinThetaWithoutSlipping(degrees: 25) [37 ms]
+  Error Message:
+   a 2.961410939693451 vs (2/3) g sinθ 2.764627795553742
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ACylinderRollsDownARampAtTwoThirdsGSinThetaWithoutSlipping(Double degrees) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 187
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ACylinderRollsDownARampAtTwoThirdsGSinThetaWithoutSlipping(degrees: 10) [36 ms]
+  Error Message:
+   a 1.2167967557907104 vs (2/3) g sinθ 1.1359484955711692
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ACylinderRollsDownARampAtTwoThirdsGSinThetaWithoutSlipping(Double degrees) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 187
+   at InvokeStub_WorkshopPhysicsLawCylinderTests.ACylinderRollsDownARampAtTwoThirdsGSinThetaWithoutSlipping(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+[xUnit.net 00:01:49.20]     CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.DropsOntoALyingCylinderGainNoMoreEnergyThanBoxesOntoABox [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.DropsOntoALyingCylinderGainNoMoreEnergyThanBoxesOntoABox [2 s]
+  Error Message:
+   cylinder onto lying cylinder: worst tick gain 5.369 mJ, bound 1.963 mJ
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.DropsOntoALyingCylinderGainNoMoreEnergyThanBoxesOntoABox() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 1282
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:01:55.75]     CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ACylinderTumblingOverACapRimGainsNoMoreThanTheSlopEnergy [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ACylinderTumblingOverACapRimGainsNoMoreThanTheSlopEnergy [6 s]
+  Error Message:
+   pose 2: worst tick gain 9.090 mJ
+pose 3: worst tick gain 3.997 mJ
+pose 8: worst tick gain 3.062 mJ
+pose 10: worst tick gain 6.093 mJ
+pose 11: worst tick gain 3.026 mJ
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ACylinderTumblingOverACapRimGainsNoMoreThanTheSlopEnergy() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 1230
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     7, Passed:    65, Skipped:     0, Total:    72, Duration: 1 m 58 s - CuriousContraptions.tests.dll (net10.0)

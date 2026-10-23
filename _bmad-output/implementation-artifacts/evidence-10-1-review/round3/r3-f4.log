@@ -1,0 +1,63 @@
+Test run for /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/probe4-10-1/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+/private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/probe4-10-1/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.5+1b188a7b0a (64-bit .NET 10.0.13)
+[xUnit.net 00:00:00.31]   Discovering: CuriousContraptions.tests
+[xUnit.net 00:00:01.01]   Discovered:  CuriousContraptions.tests
+[xUnit.net 00:00:01.12]   Starting:    CuriousContraptions.tests
+  Passed CuriousContraptions.Tests.ReviewProbe101R3Tests.D1_Drops(seed: 2002) [8 s]
+  Standard Output Messages:
+ seed 2002 BASELINE box→box: 60 drops, worst per-tick rise 0.11 mJ, drops over 1.96 mJ: 0 []
+ seed 2002 box→log: 60 drops, worst per-tick rise 0.34 mJ, drops over 1.96 mJ: 0 []
+ seed 2002 cyl→box: 60 drops, worst per-tick rise 4.65 mJ, drops over 1.96 mJ: 1 [15]
+ seed 2002 cyl→log: 60 drops, worst per-tick rise 1.56 mJ, drops over 1.96 mJ: 0 []
+
+
+  Passed CuriousContraptions.Tests.ReviewProbe101R3Tests.D1_Drops(seed: 1001) [8 s]
+  Standard Output Messages:
+ seed 1001 BASELINE box→box: 60 drops, worst per-tick rise 0.18 mJ, drops over 1.96 mJ: 0 []
+ seed 1001 box→log: 60 drops, worst per-tick rise 0.60 mJ, drops over 1.96 mJ: 0 []
+ seed 1001 cyl→box: 60 drops, worst per-tick rise 1.51 mJ, drops over 1.96 mJ: 0 []
+ seed 1001 cyl→log: 60 drops, worst per-tick rise 2.85 mJ, drops over 1.96 mJ: 2 [6,25]
+
+
+  Passed CuriousContraptions.Tests.ReviewProbe101R3Tests.D1_Drops(seed: 77) [9 s]
+  Standard Output Messages:
+ seed 77 BASELINE box→box: 60 drops, worst per-tick rise 0.09 mJ, drops over 1.96 mJ: 0 []
+ seed 77 box→log: 60 drops, worst per-tick rise 0.30 mJ, drops over 1.96 mJ: 0 []
+ seed 77 cyl→box: 60 drops, worst per-tick rise 2.29 mJ, drops over 1.96 mJ: 1 [25]
+ seed 77 cyl→log: 60 drops, worst per-tick rise 1.23 mJ, drops over 1.96 mJ: 0 []
+
+
+  Passed CuriousContraptions.Tests.ReviewProbe101R3Tests.D5_GapContinuityThroughTouch [53 s]
+  Standard Output Messages:
+ cylinder–box rim-aimed walk (60 poses, 0.05 mm steps): worst step-to-step gap jump 0.461 mm (pose 58 at s -1.50 mm: -0.986 → -1.447 mm); worst gap reported at touch 0.063 mm; worst POSITIVE gap while overlapping 0.375 mm
+ cylinder–cylinder rim-aimed walk (60 poses, 0.05 mm steps): worst step-to-step gap jump 0.053 mm (pose 55 at s -0.05 mm: 0.025 → -0.029 mm); worst gap reported at touch 0.068 mm; worst POSITIVE gap while overlapping 0.021 mm
+
+
+[xUnit.net 00:01:22.19]   Finished:    CuriousContraptions.tests (ID = 'e743f7589595ce50894b54bd818c34ed3fd9be4a1f7ace1a9cfee004df29d30a')
+  Passed CuriousContraptions.Tests.ReviewProbe101R3Tests.D10_RollOffABoxEdge [406 ms]
+  Standard Output Messages:
+ SPHERE (precedent) rolling off a box edge at 0.3 m/s: worst per-tick rise 0.00 mJ, ticks over 1.96 mJ: 0
+ SPHERE (precedent) rolling off a box edge at 0.6 m/s: worst per-tick rise 0.00 mJ, ticks over 1.96 mJ: 0
+ SPHERE (precedent) rolling off a box edge at 1 m/s: worst per-tick rise 0.00 mJ, ticks over 1.96 mJ: 0
+ SPHERE (precedent) rolling off a box edge at 2 m/s: worst per-tick rise 0.00 mJ, ticks over 1.96 mJ: 0
+ cylinder skew 0° rolling off a box edge at 0.3 m/s: worst per-tick rise 0.03 mJ, ticks over 1.96 mJ: 0
+ cylinder skew 5° rolling off a box edge at 0.3 m/s: worst per-tick rise 0.93 mJ, ticks over 1.96 mJ: 0
+ cylinder skew 20° rolling off a box edge at 0.3 m/s: worst per-tick rise 0.00 mJ, ticks over 1.96 mJ: 0
+ cylinder skew 0° rolling off a box edge at 0.6 m/s: worst per-tick rise 0.00 mJ, ticks over 1.96 mJ: 0
+ cylinder skew 5° rolling off a box edge at 0.6 m/s: worst per-tick rise 1.57 mJ, ticks over 1.96 mJ: 0
+ cylinder skew 20° rolling off a box edge at 0.6 m/s: worst per-tick rise 0.00 mJ, ticks over 1.96 mJ: 0
+ cylinder skew 0° rolling off a box edge at 1 m/s: worst per-tick rise 0.00 mJ, ticks over 1.96 mJ: 0
+ cylinder skew 5° rolling off a box edge at 1 m/s: worst per-tick rise 1.10 mJ, ticks over 1.96 mJ: 0
+ cylinder skew 20° rolling off a box edge at 1 m/s: worst per-tick rise 0.00 mJ, ticks over 1.96 mJ: 0
+ cylinder skew 0° rolling off a box edge at 2 m/s: worst per-tick rise 0.00 mJ, ticks over 1.96 mJ: 0
+ cylinder skew 5° rolling off a box edge at 2 m/s: worst per-tick rise 0.00 mJ, ticks over 1.96 mJ: 0
+ cylinder skew 20° rolling off a box edge at 2 m/s: worst per-tick rise 0.00 mJ, ticks over 1.96 mJ: 0
+
+
+
+Test Run Successful.
+Total tests: 5
+     Passed: 5
+ Total time: 1.3733 Minutes

@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/frozen4/WorkshopCollisionKernels.cs	2026-10-23 21:52:48.080981334 +0800
++++ CuriousContraptions.Simulation/WorkshopCollisionKernels.cs	2026-10-23 23:02:52.192050588 +0800
+@@ -1717,7 +1717,7 @@
+             var gap = SideDistance(Solid.Of(other), x, out var onSide);
+             if (gap > margin || gap <= separation + 1e-4f) return;
+             var radial = RadialUnit(x - other.Position, other.U1, onA ? n : -n);
+-            outList.Add(CylinderContact(colA, colB, onA ? radial : -radial, (x + onSide) * 0.5f, gap, Feature(CylinderFeature.Side, detail),
++            outList.Add(CylinderContact(colA, colB, onA ? radial : -radial, (x + onSide) * 0.5f, separation + 0f * gap, Feature(CylinderFeature.Side, detail),
+                 supportA, supportB));
+         }
+ 

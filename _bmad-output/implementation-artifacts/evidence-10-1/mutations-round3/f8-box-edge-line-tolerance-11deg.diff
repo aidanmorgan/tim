@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/frozen3/WorkshopCollisionKernels.cs	2026-10-23 18:47:47.117342476 +0800
++++ CuriousContraptions.Simulation/WorkshopCollisionKernels.cs	2026-10-23 19:03:02.788481001 +0800
+@@ -1490,7 +1490,7 @@
+ 
+         var edge = SupportEdge(box, n);
+         var edgeLength = edge.D.Length();
+-        if (edgeLength > 1e-9f && MathF.Abs(Vector3.Dot(edge.D, cyl.U1)) >= LineAlignment * edgeLength)
++        if (edgeLength > 1e-9f && MathF.Abs(Vector3.Dot(edge.D, cyl.U1)) >= EdgeFaceAlignment * edgeLength)
+         {
+             // A box edge along the generator: their common stretch, at most two points.
+             var a = cyl.U1;

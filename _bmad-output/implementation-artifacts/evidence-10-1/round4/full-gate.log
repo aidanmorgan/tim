@@ -1,0 +1,19 @@
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:03:44.91]     CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.FreshSeedDropsGainNoMoreEnergyThanTheBoxControlAndTheSlopFullGate [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.FreshSeedDropsGainNoMoreEnergyThanTheBoxControlAndTheSlopFullGate [3 m 43 s]
+  Error Message:
+   CylinderOntoPlane: 0/1000 over 2.193 mJ (worst 1.812 mJ)
+CylinderOntoBox: 9/1000 over 2.193 mJ (worst 3.681 mJ)
+BoxOntoCylinder: 1/1000 over 2.193 mJ (worst 3.259 mJ)
+CylinderOntoLyingCylinder: 1/1000 over 2.193 mJ (worst 2.534 mJ)
+CylinderOntoStandingCylinder: 1/1000 over 2.193 mJ (worst 7.215 mJ)
+SkewedRollOffEdge: 68/1000 over 2.193 mJ (worst 4.493 mJ)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.AssertGate(Int32 cases) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 1456
+   at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.FreshSeedDropsGainNoMoreEnergyThanTheBoxControlAndTheSlopFullGate() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 1465
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 3 m 43 s - CuriousContraptions.tests.dll (net10.0)
+dotnet test CuriousContraptions.tests -c Debug --no-build --no-restore   --   223.13s user 1.93s system 99% cpu 3:45.55 total

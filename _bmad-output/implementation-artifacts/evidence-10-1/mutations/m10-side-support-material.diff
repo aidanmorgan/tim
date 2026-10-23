@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/frozen/WorkshopConstraintSolver.cs	2026-10-22 13:26:10.012432119 +0800
++++ CuriousContraptions.Simulation/WorkshopConstraintSolver.cs	2026-10-22 13:29:01.901572454 +0800
+@@ -175,7 +175,7 @@
+     {
+         if (collider.Shape == ShapeKind.Sphere)
+             return AnchorDisplacement(b, new Vector3(collider.Px, collider.Py, collider.Pz) - b.Cm0);
+-        if (support == ContactSupport.Axis)
++        if (support == ContactSupport.Axis && collider.Shape == ShapeKind.Plane)
+         {
+             var centre = new Vector3(collider.Px, collider.Py, collider.Pz);
+             var along = Math.Clamp(Vector3.Dot(b.Cm0 + anchor - centre, collider.U1), -collider.Hy, collider.Hy);

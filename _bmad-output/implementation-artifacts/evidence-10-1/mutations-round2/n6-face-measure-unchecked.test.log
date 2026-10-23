@@ -1,0 +1,220 @@
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:05.96]     CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.MotionlessPartnersApartStayApartInTheEngine(cylinderPartner: False) [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.MotionlessPartnersApartStayApartInTheEngine(cylinderPartner: False) [965 ms]
+  Error Message:
+   pose 27 (3.00 mm apart): speed 0.003301825234479763, moved 15.476019 mm
+pose 35 (3.00 mm apart): speed 0.005725133408035204, moved 11.42533 mm
+pose 37 (3.00 mm apart): speed 0.00010755182625853643, moved 1.2135843 mm
+pose 38 (3.00 mm apart): speed 0.0006316287386594222, moved 3.8055828 mm
+pose 39 (3.00 mm apart): speed 0.00551034293855378, moved 10.778388 mm
+pose 40 (3.00 mm apart): speed 0.00013228655788366937, moved 2.234371 mm
+pose 45 (3.00 mm apart): speed 0.003810135787368366, moved 18.635155 mm
+pose 50 (3.00 mm apart): speed 0.0015001283708467768, moved 7.3799877 mm
+pose 58 (3.00 mm apart): speed 0.00125559552730057, moved 4.9488297 mm
+pose 63 (3.00 mm apart): speed 0.0009586189770220911, moved 2.2454941 mm
+pose 64 (3.00 mm apart): speed 0.00048219231614716053, moved 1.8904489 mm
+pose 65 (3.00 mm apart): speed 8.876821867105513E-05, moved 0.943406 mm
+pose 66 (3.00 mm apart): speed 0.0011551460016892203, moved 5.657793 mm
+pose 68 (3.00 mm apart): speed 2.6938285108224253E-05, moved 0.2713964 mm
+pose 71 (3.00 mm apart): speed 0.00015150697768783343, moved 1.3333713 mm
+pose 72 (3.00 mm apart): speed 0.00028816828241686046, moved 2.1759114 mm
+pose 74 (3.00 mm apart): speed 0.001917529037078756, moved 13.63701 mm
+pose 80 (3.00 mm apart): speed 0.010843362521049215, moved 15.871495 mm
+pose 85 (3.00 mm apart): speed 0.0017942856781306747, moved 4.737316 mm
+pose 99 (3.00 mm apart): speed 3.10548822724082E-05, moved 0.39971426 mm
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.MotionlessPartnersApartStayApartInTheEngine(Boolean cylinderPartner) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 949
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+[xUnit.net 00:00:09.33]     CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.CylinderBoxGapsMatchTheExactSeparation [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.CylinderBoxGapsMatchTheExactSeparation [2 s]
+  Error Message:
+   pose 3 at 1.000 mm: gaps -20.425 mm
+pose 3 at 3.001 mm: gaps -18.674 mm
+pose 3 at 20.000 mm: contact beyond the margin
+pose 5 at 1.001 mm: gaps -88.216 mm
+pose 5 at 3.001 mm: gaps -86.588 mm
+pose 5 at 20.001 mm: contact beyond the margin
+pose 6 at 20.001 mm: contact beyond the margin
+pose 7 at 1.001 mm: gaps -30.657 mm
+pose 7 at 3.001 mm: gaps -28.871 mm
+pose 7 at 20.001 mm: contact beyond the margin
+pose 11 at 1.000 mm: gaps -61.054 mm
+pose 11 at 3.000 mm: gaps -58.630 mm
+pose 11 at 20.000 mm: contact beyond the margin
+pose 13 at 1.001 mm: gaps -15.489 mm
+pose 13 at 3.000 mm: gaps -13.576 mm
+pose 13 at 20.000 mm: contact beyond the margin
+pose 14 at 1.001 mm: gaps -2.701 mm
+pose 14 at 3.001 mm: gaps -0.767 mm
+pose 15 at 1.001 mm: gaps -28.676 mm
+pose 15 at 3.000 mm: gaps -27.044 mm
+pose 15 at 20.000 mm: contact beyond the margin
+pose 19 at 1.001 mm: gaps -18.678 mm
+pose 19 at 3.001 mm: gaps -17.092 mm
+pose 19 at 20.001 mm: contact beyond the margin
+pose 20 at 1.001 mm: gaps -4.242 mm
+pose 20 at 3.001 mm: gaps -2.367 mm
+pose 22 at 1.001 mm: gaps -1.051 mm
+pose 22 at 3.001 mm: gaps 0.840 mm
+pose 23 at 1.001 mm: gaps 0.145 mm
+pose 23 at 3.000 mm: gaps 2.118 mm
+pose 29 at 1.001 mm: gaps -3.573 mm
+pose 29 at 3.001 mm: gaps -1.634 mm
+pose 31 at 1.000 mm: gaps -0.190 mm
+pose 31 at 3.000 mm: gaps 1.741 mm
+pose 32 at 1.001 mm: gaps -7.717 mm
+pose 32 at 3.001 mm: gaps -5.805 mm
+pose 37 at 1.001 mm: gaps -55.699 mm
+pose 37 at 3.001 mm: gaps -54.107 mm
+pose 37 at 20.001 mm: contact beyond the margin
+pose 39 at 1.000 mm: gaps -35.830 mm
+pose 39 at 3.000 mm: gaps -34.310 mm
+pose 39 at 20.001 mm: contact beyond the margin
+pose 40 at 1.001 mm: gaps -0.832 mm
+pose 40 at 3.000 mm: gaps 1.114 mm
+pose 41 at 1.001 mm: gaps -59.280 mm
+pose 41 at 3.001 mm: gaps -57.438 mm
+pose 41 at 20.001 mm: contact beyond the margin
+pose 47 at 1.000 mm: gaps -37.796 mm
+pose 47 at 3.001 mm: gaps -36.256 mm
+pose 47 at 20.000 mm: contact beyond the margin
+pose 52 at 1.001 mm: gaps -16.107 mm
+pose 52 at 3.001 mm: gaps -14.315 mm
+pose 52 at 20.001 mm: contact beyond the margin
+pose 54 at 1.001 mm: gaps -22.606 mm
+pose 54 at 3.001 mm: gaps -20.625 mm
+pose 54 at 20.001 mm: contact beyond the margin
+pose 58 at 1.001 mm: gaps -41.316 mm
+pose 58 at 3.001 mm: gaps -39.664 mm
+pose 58 at 20.001 mm: contact beyond the margin
+pose 62 at 20.001 mm: contact beyond the margin
+pose 64 at 1.001 mm: gaps -3.934 mm
+pose 64 at 3.000 mm: gaps -2.071 mm
+pose 65 at 1.000 mm: gaps -29.928 mm
+pose 65 at 3.001 mm: gaps -28.032 mm
+pose 65 at 20.000 mm: contact beyond the margin
+pose 66 at 1.001 mm: gaps -7.941 mm
+pose 66 at 3.001 mm: gaps -6.137 mm
+pose 69 at 1.001 mm: gaps -69.465 mm
+pose 69 at 3.000 mm: gaps -67.986 mm
+pose 69 at 20.001 mm: contact beyond the margin
+pose 71 at 1.000 mm: gaps -74.972 mm
+pose 71 at 3.000 mm: gaps -72.685 mm
+pose 71 at 20.000 mm: contact beyond the margin
+pose 72 at 1.000 mm: gaps -1.202 mm
+pose 72 at 3.000 mm: gaps 0.710 mm
+pose 73 at 1.001 mm: gaps 0.422 mm
+pose 73 at 3.000 mm: gaps 2.370 mm
+pose 74 at 1.000 mm: gaps -67.775 mm
+pose 74 at 3.001 mm: gaps -66.140 mm
+pose 74 at 20.000 mm: contact beyond the margin
+pose 78 at 1.001 mm: gaps -3.072 mm
+pose 78 at 3.000 mm: gaps -1.215 mm
+pose 83 at 1.000 mm: gaps -11.310 mm
+pose 83 at 3.001 mm: gaps -9.534 mm
+pose 84 at 20.000 mm: contact beyond the margin
+pose 91 at 1.000 mm: gaps -50.744 mm
+pose 91 at 3.000 mm: gaps -49.127 mm
+pose 91 at 20.000 mm: contact beyond the margin
+pose 101 at 1.001 mm: gaps -6.623 mm
+pose 101 at 3.001 mm: gaps -4.852 mm
+pose 105 at 1.000 mm: gaps -1.243 mm
+pose 105 at 3.001 mm: gaps 0.677 mm
+pose 106 at 1.000 mm: gaps -39.070 mm
+pose 106 at 3.001 mm: gaps -37.243 mm
+pose 106 at 20.000 mm: contact beyond the margin
+pose 109 at 1.000 mm: gaps 0.001 mm
+pose 109 at 3.000 mm: gaps 1.927 mm
+pose 113 at 1.001 mm: gaps -39.646 mm
+pose 113 at 3.000 mm: gaps -37.601 mm
+pose 113 at 20.000 mm: contact beyond the margin
+pose 116 at 1.001 mm: gaps -62.339 mm
+pose 116 at 3.001 mm: gaps -60.834 mm
+pose 116 at 20.001 mm: contact beyond the margin
+pose 120 at 1.000 mm: gaps -24.952 mm
+pose 120 at 3.001 mm: gaps -23.249 mm
+pose 120 at 20.001 mm: contact beyond the margin
+pose 123 at 1.000 mm: gaps -7.532 mm
+pose 123 at 3.001 mm: gaps -5.682 mm
+pose 125 at 1.001 mm: gaps -2.120 mm
+pose 125 at 3.001 mm: gaps -0.232 mm
+pose 127 at 1.001 mm: gaps -17.651 mm
+pose 127 at 3.000 mm: gaps -15.895 mm
+pose 127 at 20.000 mm: contact beyond the margin
+pose 129 at 1.000 mm: gaps 0.189 mm
+pose 129 at 3.001 mm: gaps 1.776 mm
+pose 131 at 1.001 mm: gaps -57.266 mm
+pose 131 at 3.000 mm: gaps -55.613 mm
+pose 131 at 20.001 mm: contact beyond the margin
+pose 141 at 1.000 mm: gaps -26.142 mm
+pose 141 at 3.001 mm: gaps -24.551 mm
+pose 141 at 20.001 mm: contact beyond the margin
+pose 147 at 20.001 mm: contact beyond the margin
+pose 150 at 1.000 mm: gaps -14.289 mm
+pose 150 at 3.001 mm: gaps -12.515 mm
+pose 150 at 20.001 mm: contact beyond the margin
+pose 151 at 1.000 mm: gaps -6.187 mm
+pose 151 at 3.001 mm: gaps -4.264 mm
+pose 153 at 1.000 mm: gaps -36.127 mm
+pose 153 at 3.001 mm: gaps -34.506 mm
+pose 153 at 20.001 mm: contact beyond the margin
+pose 159 at 1.001 mm: gaps -0.456 mm
+pose 159 at 3.001 mm: gaps 1.201 mm
+pose 162 at 1.000 mm: gaps 0.411 mm
+pose 162 at 3.001 mm: gaps 2.285 mm
+pose 163 at 1.001 mm: gaps -45.079 mm
+pose 163 at 3.001 mm: gaps -43.321 mm
+pose 163 at 20.001 mm: contact beyond the margin
+pose 169 at 1.001 mm: gaps -5.172 mm
+pose 169 at 3.000 mm: gaps -3.301 mm
+pose 170 at 1.000 mm: gaps -58.755 mm
+pose 170 at 3.001 mm: gaps -56.683 mm
+pose 170 at 20.001 mm: contact beyond the margin
+pose 171 at 1.001 mm: gaps -27.307 mm
+pose 171 at 3.000 mm: gaps -25.625 mm
+pose 171 at 20.001 mm: contact beyond the margin
+pose 175 at 1.000 mm: gaps -4.489 mm
+pose 175 at 3.001 mm: gaps -2.522 mm
+pose 177 at 1.000 mm: gaps -20.159 mm
+pose 177 at 3.000 mm: gaps -18.665 mm
+pose 177 at 20.001 mm: contact beyond the margin
+pose 179 at 1.000 mm: gaps -62.852 mm
+pose 179 at 3.001 mm: gaps -61.223 mm
+pose 179 at 20.001 mm: contact beyond the margin
+pose 182 at 1.000 mm: gaps -53.196 mm
+pose 182 at 3.001 mm: gaps -51.658 mm
+pose 182 at 20.001 mm: contact beyond the margin
+pose 186 at 1.001 mm: gaps -7.031 mm
+pose 186 at 3.000 mm: gaps -5.106 mm
+pose 193 at 1.001 mm: gaps -53.410 mm
+pose 193 at 3.000 mm: gaps -51.850 mm
+pose 193 at 20.001 mm: contact beyond the margin
+pose 197 at 1.001 mm: gaps -14.894 mm
+pose 197 at 3.001 mm: gaps -13.136 mm
+pose 197 at 20.000 mm: contact beyond the margin
+pose 198 at 1.001 mm: gaps -27.925 mm
+pose 198 at 3.000 mm: gaps -26.430 mm
+pose 198 at 20.000 mm: contact beyond the margin
+pose 199 at 1.001 mm: gaps -17.394 mm
+pose 199 at 3.000 mm: gaps -15.631 mm
+pose 199 at 20.001 mm: contact beyond the margin
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.GapsMatchTheOracle(Boolean cylinderPartner, Int32 seed) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 884
+   at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.CylinderBoxGapsMatchTheExactSeparation() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 888
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:14.23]     CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ABoxEdgePastTheRimIsSeparatedByItsTrueRimDistance [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ABoxEdgePastTheRimIsSeparatedByItsTrueRimDistance [< 1 ms]
+  Error Message:
+   gap 0.0021213293 vs analytic 0.002236068
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.Gaps(List`1 contacts, Int32 count, Single gap) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 504
+   at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ABoxEdgePastTheRimIsSeparatedByItsTrueRimDistance() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 560
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     3, Passed:    64, Skipped:     0, Total:    67, Duration: 15 s - CuriousContraptions.tests.dll (net10.0)

@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/frozen/WorkshopPhysicsEngine.cs	2026-10-22 13:26:10.012666828 +0800
++++ CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs	2026-10-22 13:32:45.393882568 +0800
+@@ -481,7 +481,7 @@
+         for (var c = 0; c < layout.Colliders; c++)
+         {
+             var shape = (ShapeKind)BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(layout.ColliderOffset(c) + 16, 4));
+-            if (Enum.IsDefined(shape)) continue;
++            if (Enum.IsDefined(shape) || !Enum.IsDefined(shape)) continue;
+             BinaryPrimitives.WriteUInt32LittleEndian(span.Slice(PhysicsGpuAbi.HeaderStatusOffset, 4), (uint)PhysicsCandidateStatus.Invalid);
+             BinaryPrimitives.WriteUInt32LittleEndian(span.Slice(PhysicsGpuAbi.HeaderFailureOffset, 4), (uint)PhysicsFailure.InvalidDeclaration);
+             return;

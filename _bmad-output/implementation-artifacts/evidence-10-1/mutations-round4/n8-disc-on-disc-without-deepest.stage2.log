@@ -1,0 +1,41 @@
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:03:46.60]     CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.FreshSeedDropsGainNoMoreEnergyThanTheBoxControlAndTheSlop [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.FreshSeedDropsGainNoMoreEnergyThanTheBoxControlAndTheSlop [1 m 33 s]
+  Error Message:
+   CylinderOntoPlane (Dead): 0/200 over 2.023 mJ (worst 1.733 mJ)
+CylinderOntoBox (Dead): 0/200 over 2.023 mJ (worst 1.334 mJ)
+BoxOntoCylinder (Dead): 0/200 over 2.023 mJ (worst 1.007 mJ)
+CylinderOntoLyingCylinder (Dead): 0/200 over 2.023 mJ (worst 1.174 mJ)
+CylinderOntoStandingCylinder (Dead): 7/200 over 2.023 mJ (worst 4.477 mJ)
+SkewedRollOffEdge (Dead): 0/200 over 2.023 mJ (worst 0.009 mJ)
+CylinderOntoPlane (Rolling): 0/200 over 2.049 mJ (worst 1.579 mJ)
+CylinderOntoBox (Rolling): 0/200 over 2.049 mJ (worst 1.101 mJ)
+BoxOntoCylinder (Rolling): 0/200 over 2.049 mJ (worst 0.086 mJ)
+CylinderOntoLyingCylinder (Rolling): 0/200 over 2.049 mJ (worst 0.940 mJ)
+CylinderOntoStandingCylinder (Rolling): 3/200 over 2.049 mJ (worst 2.419 mJ)
+SkewedRollOffEdge (Rolling): 0/200 over 2.049 mJ (worst 0.001 mJ)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.AssertGate(Int32 cases, GateMaterials[] sets) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 1604
+   at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.FreshSeedDropsGainNoMoreEnergyThanTheBoxControlAndTheSlop() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 1608
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Standard Output Messages:
+ CylinderOntoPlane (Dead): 0/200 over 2.023 mJ (worst 1.733 mJ)
+ CylinderOntoBox (Dead): 0/200 over 2.023 mJ (worst 1.334 mJ)
+ BoxOntoCylinder (Dead): 0/200 over 2.023 mJ (worst 1.007 mJ)
+ CylinderOntoLyingCylinder (Dead): 0/200 over 2.023 mJ (worst 1.174 mJ)
+ CylinderOntoStandingCylinder (Dead): 7/200 over 2.023 mJ (worst 4.477 mJ)
+ SkewedRollOffEdge (Dead): 0/200 over 2.023 mJ (worst 0.009 mJ)
+ CylinderOntoPlane (Rolling): 0/200 over 2.049 mJ (worst 1.579 mJ)
+ CylinderOntoBox (Rolling): 0/200 over 2.049 mJ (worst 1.101 mJ)
+ BoxOntoCylinder (Rolling): 0/200 over 2.049 mJ (worst 0.086 mJ)
+ CylinderOntoLyingCylinder (Rolling): 0/200 over 2.049 mJ (worst 0.940 mJ)
+ CylinderOntoStandingCylinder (Rolling): 3/200 over 2.049 mJ (worst 2.419 mJ)
+ SkewedRollOffEdge (Rolling): 0/200 over 2.049 mJ (worst 0.001 mJ)
+
+
+  Skipped CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.FreshSeedDropsWithRestitutionGainNoMoreEnergyThanTheBoxControlAndTheSlop [1 ms]
+  Skipped CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.FreshSeedDropsGainNoMoreEnergyThanTheBoxControlAndTheSlopFullGate [1 ms]
+
+Failed!  - Failed:     1, Passed:     7, Skipped:     0, Total:     8, Duration: 4 m 59 s - CuriousContraptions.tests.dll (net10.0)

@@ -20,7 +20,7 @@ This is the Story 7.0 CAT-053-D declaration readiness spec for the fixed pulley.
 - One static body. Legacy colliders: a navy mount box centred at (0, 0.55, −0.1) m, full size 0.5 × 0.15 × 0.4 m (half-extents 0.25, 0.075, 0.2), plus a collision sphere of radius 0.4 m at the origin standing in for the wheel — `parts/PulleyPart.cs@a6c914e:L21-L24`; `AddBox` halves the size (`reference/cpu/MachinePart.cs@a6c914e:L352-L355`); parts are static unless they set `Dynamic` (`reference/cpu/MachinePart.cs@a6c914e:L161`).
 - Wheel (groove) radius 0.4 m and rope-plane depth 0.12 m — `engine/MachineData.cs@a6c914e:L95-L98`; `parts/PulleyPart.cs@a6c914e:L9`.
 - Pick radius 0.65 m — `parts/PulleyPart.cs@a6c914e:L21`.
-- Current types: static `RigidBodyDeclaration` (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L86`), `ColliderDeclaration` Box and Sphere (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L89-L120`). The current shape set has no cylinder or disc for a true wheel (Open question 1).
+- Current types: static `RigidBodyDeclaration` (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L86`), `ColliderDeclaration` Box and Sphere (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L89-L120`). Story 10.1 added `ColliderShapeKind.Cylinder`, the true wheel collider (Open question 1, answered).
 
 ### Mass and material
 
@@ -157,7 +157,7 @@ Requirement row: [CAT-053](../requirements.md#current-cat-053); story 10.2.
 
 ## 6. Open questions
 
-1. Wheel collider: legacy used a 0.4 m sphere; the current shape set has no cylinder/disc. Keep a sphere, add a shape, or make the wheel non-colliding? The cylinder/disc capability is scheduled in Story 10.1 (ENGINE-CYLINDER), scheduled before the first shaft wheel by the owner on 9 Oct 2026.
+1. ~~Wheel collider~~ **Answered.** Owner decision (e), 18 Oct 2026: the wheel is a true cylinder. Story 10.1 (ENGINE-CYLINDER) delivered the engine capability: the closed shape set gains `Cylinder` (radius, width and mass declared; axis local +Y; exact inertia, axial $m r^2/2$ and transverse $m(3r^2+w^2)/12$), extracted from a `col_cylinder` `CylinderShape3D` or untapered `CylinderMesh` proxy, with closed-form contacts against plane, sphere, box and cylinder. Story 10.2 declares the wheel as that collider (the legacy r 0.4, width 0.17 art) in the Pulley package; the legacy sphere stand-in is not carried forward.
 2. Confirm the groove radius 0.4 m and rope-plane depth 0.12 m as the declared constants, and whether pulley size is ever configurable. Unspecified — owner decision.
 3. Winding side: is the groove side chosen automatically (legacy artwork favoured the upper side) or authored per connection? It now changes physical length, not just artwork. Unspecified — owner decision.
 4. EL-207 moving pulley: a CAT-053 variant or a separate future element? The requirement defers finite-inertia/frictional variants. Unspecified — owner decision.

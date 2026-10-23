@@ -1,0 +1,220 @@
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:07.06]     CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.CylinderBoxGapsMatchTheExactSeparation [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.CylinderBoxGapsMatchTheExactSeparation [2 s]
+  Error Message:
+   pose 0 at 1.001 mm: no contact
+pose 0 at 3.001 mm: no contact
+pose 3 at 1.000 mm: no contact
+pose 3 at 3.001 mm: no contact
+pose 4 at 1.000 mm: no contact
+pose 4 at 3.001 mm: no contact
+pose 5 at 1.001 mm: gaps 3.970 mm
+pose 5 at 3.001 mm: no contact
+pose 6 at 3.001 mm: no contact
+pose 10 at 1.001 mm: gaps 3.929 mm
+pose 10 at 3.000 mm: no contact
+pose 11 at 1.000 mm: gaps 4.584 mm
+pose 11 at 3.000 mm: no contact
+pose 14 at 1.001 mm: no contact
+pose 14 at 3.001 mm: no contact
+pose 15 at 1.001 mm: no contact
+pose 15 at 3.000 mm: no contact
+pose 19 at 1.001 mm: gaps 4.781 mm
+pose 19 at 3.001 mm: no contact
+pose 21 at 1.001 mm: gaps 3.429, 1.598 mm
+pose 21 at 3.000 mm: gaps 3.610 mm
+pose 22 at 1.001 mm: gaps 2.409 mm
+pose 22 at 3.001 mm: gaps 4.290 mm
+pose 23 at 1.001 mm: no contact
+pose 23 at 3.000 mm: no contact
+pose 24 at 1.001 mm: no contact
+pose 24 at 3.000 mm: no contact
+pose 26 at 1.000 mm: no contact
+pose 26 at 3.001 mm: no contact
+pose 27 at 1.001 mm: no contact
+pose 27 at 3.000 mm: no contact
+pose 29 at 1.001 mm: gaps 4.681 mm
+pose 29 at 3.001 mm: no contact
+pose 31 at 1.000 mm: gaps 2.886, 1.529 mm
+pose 32 at 1.001 mm: no contact
+pose 32 at 3.001 mm: no contact
+pose 34 at 1.001 mm: no contact
+pose 34 at 3.001 mm: no contact
+pose 36 at 1.001 mm: no contact
+pose 36 at 3.000 mm: no contact
+pose 37 at 1.001 mm: no contact
+pose 37 at 3.001 mm: no contact
+pose 39 at 1.000 mm: no contact
+pose 39 at 3.000 mm: no contact
+pose 40 at 1.001 mm: no contact
+pose 40 at 3.000 mm: no contact
+pose 41 at 1.001 mm: no contact
+pose 41 at 3.001 mm: no contact
+pose 44 at 1.000 mm: no contact
+pose 44 at 3.000 mm: no contact
+pose 46 at 1.001 mm: no contact
+pose 46 at 3.001 mm: no contact
+pose 47 at 1.000 mm: no contact
+pose 47 at 3.001 mm: no contact
+pose 48 at 1.000 mm: no contact
+pose 48 at 3.001 mm: no contact
+pose 50 at 3.001 mm: no contact
+pose 52 at 1.001 mm: no contact
+pose 52 at 3.001 mm: no contact
+pose 53 at 1.001 mm: no contact
+pose 53 at 3.001 mm: no contact
+pose 54 at 1.001 mm: no contact
+pose 54 at 3.001 mm: no contact
+pose 58 at 1.001 mm: no contact
+pose 58 at 3.001 mm: no contact
+pose 59 at 1.000 mm: no contact
+pose 59 at 3.001 mm: no contact
+pose 62 at 1.000 mm: gaps 2.530 mm
+pose 62 at 3.000 mm: no contact
+pose 64 at 1.001 mm: no contact
+pose 64 at 3.000 mm: no contact
+pose 66 at 1.001 mm: no contact
+pose 66 at 3.001 mm: no contact
+pose 72 at 1.000 mm: gaps 3.976 mm
+pose 72 at 3.000 mm: no contact
+pose 73 at 1.001 mm: no contact
+pose 73 at 3.000 mm: no contact
+pose 74 at 1.000 mm: no contact
+pose 74 at 3.001 mm: no contact
+pose 76 at 1.001 mm: no contact
+pose 76 at 3.000 mm: no contact
+pose 77 at 1.000 mm: no contact
+pose 77 at 3.001 mm: no contact
+pose 78 at 1.001 mm: gaps 3.401 mm
+pose 78 at 3.000 mm: no contact
+pose 80 at 1.000 mm: no contact
+pose 80 at 3.000 mm: no contact
+pose 82 at 1.000 mm: no contact
+pose 82 at 3.000 mm: no contact
+pose 83 at 1.000 mm: no contact
+pose 83 at 3.001 mm: no contact
+pose 84 at 3.001 mm: no contact
+pose 85 at 1.001 mm: gaps 2.302 mm
+pose 85 at 3.000 mm: gaps 4.345 mm
+pose 86 at 1.000 mm: no contact
+pose 86 at 3.001 mm: no contact
+pose 88 at 1.000 mm: gaps 2.621 mm
+pose 88 at 3.000 mm: gaps 4.662 mm
+pose 93 at 1.001 mm: no contact
+pose 93 at 3.000 mm: no contact
+pose 98 at 1.000 mm: no contact
+pose 98 at 3.000 mm: no contact
+pose 102 at 1.001 mm: no contact
+pose 102 at 3.000 mm: no contact
+pose 103 at 1.001 mm: gaps 4.295 mm
+pose 103 at 3.001 mm: no contact
+pose 104 at 1.001 mm: no contact
+pose 104 at 3.001 mm: no contact
+pose 105 at 1.000 mm: no contact
+pose 105 at 3.001 mm: no contact
+pose 108 at 1.001 mm: no contact
+pose 108 at 3.000 mm: no contact
+pose 110 at 1.000 mm: gaps 1.535 mm
+pose 110 at 3.000 mm: gaps 3.557 mm
+pose 111 at 1.000 mm: gaps 3.668, 3.730 mm
+pose 111 at 3.001 mm: no contact
+pose 112 at 1.001 mm: no contact
+pose 112 at 3.001 mm: no contact
+pose 113 at 3.000 mm: gaps 3.622 mm
+pose 114 at 1.001 mm: no contact
+pose 114 at 3.000 mm: no contact
+pose 116 at 1.001 mm: no contact
+pose 116 at 3.001 mm: no contact
+pose 117 at 1.001 mm: no contact
+pose 117 at 3.000 mm: no contact
+pose 118 at 1.000 mm: no contact
+pose 118 at 3.001 mm: no contact
+pose 120 at 1.000 mm: gaps 4.238 mm
+pose 120 at 3.001 mm: no contact
+pose 122 at 1.000 mm: no contact
+pose 122 at 3.001 mm: no contact
+pose 123 at 1.000 mm: gaps 2.330 mm
+pose 123 at 3.001 mm: gaps 3.929 mm
+pose 124 at 1.001 mm: no contact
+pose 124 at 3.001 mm: no contact
+pose 125 at 1.001 mm: gaps 2.958 mm
+pose 125 at 3.001 mm: gaps 4.564 mm
+pose 127 at 1.001 mm: no contact
+pose 127 at 3.000 mm: no contact
+pose 128 at 1.001 mm: no contact
+pose 128 at 3.001 mm: no contact
+pose 129 at 1.000 mm: gaps 3.783 mm
+pose 129 at 3.001 mm: no contact
+pose 131 at 1.001 mm: gaps 3.459 mm
+pose 131 at 3.000 mm: no contact
+pose 132 at 1.001 mm: no contact
+pose 132 at 3.001 mm: no contact
+pose 134 at 1.000 mm: gaps 1.880 mm
+pose 134 at 3.000 mm: gaps 3.865 mm
+pose 140 at 1.000 mm: gaps 3.123 mm
+pose 140 at 3.000 mm: no contact
+pose 141 at 1.000 mm: no contact
+pose 141 at 3.001 mm: no contact
+pose 142 at 1.001 mm: gaps 3.048 mm
+pose 142 at 3.001 mm: no contact
+pose 146 at 1.001 mm: no contact
+pose 146 at 3.000 mm: no contact
+pose 148 at 1.000 mm: no contact
+pose 148 at 3.000 mm: no contact
+pose 150 at 1.000 mm: gaps 1.544 mm
+pose 151 at 3.001 mm: no contact
+pose 152 at 1.000 mm: no contact
+pose 152 at 3.001 mm: no contact
+pose 153 at 1.000 mm: no contact
+pose 153 at 3.001 mm: no contact
+pose 154 at 1.001 mm: no contact
+pose 154 at 3.001 mm: no contact
+pose 156 at 1.000 mm: gaps 3.033 mm
+pose 156 at 3.001 mm: no contact
+pose 159 at 1.001 mm: no contact
+pose 159 at 3.001 mm: no contact
+pose 162 at 1.000 mm: no contact
+pose 162 at 3.001 mm: no contact
+pose 164 at 1.001 mm: no contact
+pose 164 at 3.001 mm: no contact
+pose 168 at 1.001 mm: gaps 1.605 mm
+pose 168 at 3.001 mm: gaps 3.587 mm
+pose 169 at 1.001 mm: no contact
+pose 169 at 3.000 mm: no contact
+pose 170 at 1.000 mm: no contact
+pose 170 at 3.001 mm: no contact
+pose 171 at 3.000 mm: gaps 4.434 mm
+pose 175 at 1.000 mm: gaps 2.846 mm
+pose 175 at 3.001 mm: gaps 4.616 mm
+pose 176 at 1.000 mm: no contact
+pose 176 at 3.001 mm: no contact
+pose 177 at 1.000 mm: no contact
+pose 177 at 3.000 mm: no contact
+pose 179 at 1.000 mm: gaps 1.933 mm
+pose 179 at 3.001 mm: gaps 3.681 mm
+pose 180 at 1.001 mm: no contact
+pose 180 at 3.000 mm: no contact
+pose 181 at 1.000 mm: no contact
+pose 181 at 3.000 mm: no contact
+pose 182 at 1.000 mm: no contact
+pose 182 at 3.001 mm: no contact
+pose 186 at 1.001 mm: no contact
+pose 186 at 3.000 mm: no contact
+pose 190 at 1.001 mm: no contact
+pose 190 at 3.001 mm: no contact
+pose 192 at 1.000 mm: no contact
+pose 192 at 3.000 mm: no contact
+pose 193 at 1.001 mm: gaps 4.046 mm
+pose 193 at 3.000 mm: no contact
+pose 198 at 1.001 mm: no contact
+pose 198 at 3.000 mm: no contact
+pose 199 at 1.001 mm: no contact
+pose 199 at 3.000 mm: no contact
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.GapsMatchTheOracle(Boolean cylinderPartner, Int32 seed) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 884
+   at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.CylinderBoxGapsMatchTheExactSeparation() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 888
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     1, Passed:    66, Skipped:     0, Total:    67, Duration: 13 s - CuriousContraptions.tests.dll (net10.0)

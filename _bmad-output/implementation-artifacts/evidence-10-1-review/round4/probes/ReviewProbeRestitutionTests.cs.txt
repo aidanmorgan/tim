@@ -1,0 +1,59 @@
+using System.Numerics;
+using Xunit;
+#pragma warning disable CA1822, CA1861, CA5394, CA1305, CA1307, CA1310, IDE0060
+
+namespace CuriousContraptions.Tests;
+
+/// <summary>Reviewer probe (throwaway): restitution energy gain WITHOUT any cylinder, on whichever tree this compiles in.
+/// Lone box / sphere dropped on the bench (bench restitution 1 × body e → product e), and a box dropped onto a static box.</summary>
+public sealed class ReviewProbeRestitutionTests(ITestOutputHelper output)
+{
+    private static readonly float Bench = LawScene.BenchY;
+    private static readonly float G = -(float)(Half)LawScene.Gravity;
+    private static float H(float v) => (float)(Half)v;
+
+    private static Quaternion RandomRotation(Random rng) => Quaternion.Normalize(new((float)(rng.NextDouble() * 2 - 1),
+        (float)(rng.NextDouble() * 2 - 1), (float)(rng.NextDouble() * 2 - 1), (float)(rng.NextDouble() * 2 - 1)));
+
+    [Fact]
+    public void R1_RestitutionWithoutCylinders()
+    {
+        foreach (var e in new[] { 0f, .3f, 1f })
+            foreach (var kind in new[] { "lone box on bench", "box onto static box", "lone sphere on bench" })
+            {
+                var rng = new Random(9001);
+                double worst = 0; var over = 0;
+                for (var i = 0; i < 60; i++)
+                {
+                    var q = RandomRotation(rng);
+                    var height = (float)(rng.NextDouble() * .5 + .2);
+                    var spin = new Vector3((float)(rng.NextDouble() * 6 - 3), (float)(rng.NextDouble() * 6 - 3), (float)(rng.NextDouble() * 6 - 3));
+                    var mat = new LawMaterial(e, .1f, .5f, 0f);
+                    var scene = new LawScene();
+                    float baseY = Bench;
+                    if (kind == "box onto static box") { scene.StaticBox(new(0, Bench + .3f, 0), new(.3f, .3f, .5f), null, new LawMaterial(1f, .1f, .5f, 0f)); baseY = Bench + .6f; }
+                    var sphere = kind.Contains("sphere");
+                    var body = sphere ? scene.Sphere(new(0, baseY + .3f + height, 0), .2f, 1f, mat, default, spin, 0f, LawScene.Gravity)
+                        : scene.Box(new(0, baseY + .3f + height, 0), new(.25f, .1f, .15f), 1f, mat, q, angular: spin);
+                    var world = scene.Admit();
+                    double? prev = null; var bad = false;
+                    float hx = H(.25f), hy = H(.1f), hz = H(.15f), r = H(.2f);
+                    world.Step(3 * world.TicksPerSecond, (_, s) =>
+                    {
+                        var b = s[body];
+                        double en;
+                        if (sphere) en = .5 * b.Velocity.LengthSquared() + .5 * (.4 * r * r) * b.Angular.LengthSquared() + G * b.Position.Y;
+                        else
+                        {
+                            var w = Vector3.Transform(b.Angular, Quaternion.Inverse(b.Rotation));
+                            en = .5 * b.Velocity.LengthSquared() + .5 * ((hy * hy + hz * hz) / 3 * w.X * w.X + (hx * hx + hz * hz) / 3 * w.Y * w.Y + (hx * hx + hy * hy) / 3 * w.Z * w.Z) + G * b.Position.Y;
+                        }
+                        if (prev is { } p) { worst = Math.Max(worst, en - p); if (en - p > 1.96e-3) bad = true; }
+                        prev = en;
+                    });
+                    if (bad) over++;
+                }
+                output.WriteLine($"e {e}: {kind}: 60 drops, worst per-tick energy rise {worst * 1000:F2} mJ, drops over 1.96 mJ: {over}");
+            }
+    }
+}

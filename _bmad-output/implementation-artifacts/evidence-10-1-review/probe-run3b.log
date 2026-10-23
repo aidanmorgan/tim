@@ -1,0 +1,20 @@
+Test run for /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/probe-10-1/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+/private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/probe-10-1/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.5+1b188a7b0a (64-bit .NET 10.0.13)
+[xUnit.net 00:00:00.30]   Discovering: CuriousContraptions.tests
+[xUnit.net 00:00:01.01]   Discovered:  CuriousContraptions.tests
+[xUnit.net 00:00:01.14]   Starting:    CuriousContraptions.tests
+[xUnit.net 00:00:01.76]   Finished:    CuriousContraptions.tests (ID = 'c2334ac06914b9685b207240a16d2f1d28e27073172085c2d68af6987a787dab')
+  Passed CuriousContraptions.Tests.ReviewProbe101cTests.L1_LogLeaningOnAStandingDrumsRim [260 ms]
+  Standard Output Messages:
+ log on drum rim yaw 0: final pos <2.0965056, 0.06973934, 5.013028>, tilt 89.99°; last second true separation from partner 3746.82..5039.90 mm; max speed 1.4361 m/s, max spin 20.5521 rad/s
+ log on drum rim yaw 20: final pos <3.682333, 0.06973952, 4.0007386>, tilt 89.99°; last second true separation from partner 3749.91..5043.64 mm; max speed 1.4368 m/s, max spin 20.5624 rad/s
+ log on drum rim yaw 45: final pos <5.052134, 0.06973949, 2.0173533>, tilt 89.99°; last second true separation from partner 3749.60..5045.80 mm; max speed 1.4395 m/s, max spin 20.6017 rad/s
+
+
+
+Test Run Successful.
+Total tests: 1
+     Passed: 1
+ Total time: 1.9577 Seconds

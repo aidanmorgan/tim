@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/frozen3/WorkshopConstraintSolver.cs	2026-10-23 18:44:01.288550627 +0800
++++ CuriousContraptions.Simulation/WorkshopConstraintSolver.cs	2026-10-23 19:58:39.318263852 +0800
+@@ -184,7 +184,7 @@
+             var turn = Quaternion.Multiply(new Quaternion(b.Qx, b.Qy, b.Qz, b.Qw), Quaternion.Conjugate(b.Q0));
+             var moved = Vector3.Transform(axis, turn);
+             return AnchorDisplacement(b, centre + along * axis - b.Cm0) +
+-                collider.Radius * (RadialUnit(facing, moved) - RadialUnit(facing, axis));
++                0f * collider.Radius * (RadialUnit(facing, moved) - RadialUnit(facing, axis));
+         }
+         return AnchorDisplacement(b, anchor);
+     }

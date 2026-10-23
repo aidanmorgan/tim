@@ -1,0 +1,10 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/frozen3/WorkshopCollisionKernels.cs	2026-10-23 19:05:34.237520748 +0800
++++ CuriousContraptions.Simulation/WorkshopCollisionKernels.cs	2026-10-23 19:42:37.723617594 +0800
+@@ -1023,6 +1023,7 @@
+             }
+             else exact = closest.Gap > best;
+         }
++        if (closest.Gap > 0f) exact = false;
+         var n = exact ? closest.Normal : bestAxis;
+         var separation = exact ? closest.Gap : best;
+         var t = MathF.Abs(Vector3.Dot(n, a));

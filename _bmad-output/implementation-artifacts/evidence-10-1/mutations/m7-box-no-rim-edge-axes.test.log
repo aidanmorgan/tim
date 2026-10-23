@@ -1,0 +1,13 @@
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:04.32]     CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ABoxEdgePastTheRimIsSeparatedByItsTrueRimDistance [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ABoxEdgePastTheRimIsSeparatedByItsTrueRimDistance [1 ms]
+  Error Message:
+   gap 0.0021213293 vs analytic 0.002236068
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.Gaps(List`1 contacts, Int32 count, Single gap) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 438
+   at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ABoxEdgePastTheRimIsSeparatedByItsTrueRimDistance() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 494
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     1, Passed:    45, Skipped:     0, Total:    46, Duration: 2 s - CuriousContraptions.tests.dll (net10.0)

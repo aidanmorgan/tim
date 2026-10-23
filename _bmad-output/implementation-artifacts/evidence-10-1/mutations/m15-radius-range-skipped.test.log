@@ -1,0 +1,40 @@
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:01.94]     CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ANonPositiveOrNonFiniteRadiusWidthOrMassIsRejectedAtomically(_: "NaN radius", radius: NaN, halfWidth: 0.100000001, mass: 1) [FAIL]
+[xUnit.net 00:00:01.94]     CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ANonPositiveOrNonFiniteRadiusWidthOrMassIsRejectedAtomically(_: "zero radius", radius: 0, halfWidth: 0.100000001, mass: 1) [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ANonPositiveOrNonFiniteRadiusWidthOrMassIsRejectedAtomically(_: "NaN radius", radius: NaN, halfWidth: 0.100000001, mass: 1) [3 ms]
+  Error Message:
+   Assert.Throws() Failure: No exception was thrown
+Expected: typeof(System.ArgumentException)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ANonPositiveOrNonFiniteRadiusWidthOrMassIsRejectedAtomically(String _, Single radius, Single halfWidth, Single mass) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 89
+   at InvokeStub_WorkshopPhysicsLawCylinderTests.ANonPositiveOrNonFiniteRadiusWidthOrMassIsRejectedAtomically(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ANonPositiveOrNonFiniteRadiusWidthOrMassIsRejectedAtomically(_: "zero radius", radius: 0, halfWidth: 0.100000001, mass: 1) [2 ms]
+  Error Message:
+   Assert.Throws() Failure: No exception was thrown
+Expected: typeof(System.ArgumentException)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ANonPositiveOrNonFiniteRadiusWidthOrMassIsRejectedAtomically(String _, Single radius, Single halfWidth, Single mass) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 89
+   at InvokeStub_WorkshopPhysicsLawCylinderTests.ANonPositiveOrNonFiniteRadiusWidthOrMassIsRejectedAtomically(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+[xUnit.net 00:00:01.96]     CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ANonPositiveOrNonFiniteRadiusWidthOrMassIsRejectedAtomically(_: "negative infinite radius", radius: -∞, halfWidth: 0.100000001, mass: 1) [FAIL]
+[xUnit.net 00:00:01.98]     CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ANonPositiveOrNonFiniteRadiusWidthOrMassIsRejectedAtomically(_: "negative radius", radius: -0.200000003, halfWidth: 0.100000001, mass: 1) [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ANonPositiveOrNonFiniteRadiusWidthOrMassIsRejectedAtomically(_: "negative infinite radius", radius: -∞, halfWidth: 0.100000001, mass: 1) [2 ms]
+  Error Message:
+   Assert.Throws() Failure: No exception was thrown
+Expected: typeof(System.ArgumentException)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ANonPositiveOrNonFiniteRadiusWidthOrMassIsRejectedAtomically(String _, Single radius, Single halfWidth, Single mass) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 89
+   at InvokeStub_WorkshopPhysicsLawCylinderTests.ANonPositiveOrNonFiniteRadiusWidthOrMassIsRejectedAtomically(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ANonPositiveOrNonFiniteRadiusWidthOrMassIsRejectedAtomically(_: "negative radius", radius: -0.200000003, halfWidth: 0.100000001, mass: 1) [2 ms]
+  Error Message:
+   Assert.Throws() Failure: No exception was thrown
+Expected: typeof(System.ArgumentException)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ANonPositiveOrNonFiniteRadiusWidthOrMassIsRejectedAtomically(String _, Single radius, Single halfWidth, Single mass) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 89
+   at InvokeStub_WorkshopPhysicsLawCylinderTests.ANonPositiveOrNonFiniteRadiusWidthOrMassIsRejectedAtomically(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+
+Failed!  - Failed:     4, Passed:    46, Skipped:     0, Total:    50, Duration: 3 s - CuriousContraptions.tests.dll (net10.0)

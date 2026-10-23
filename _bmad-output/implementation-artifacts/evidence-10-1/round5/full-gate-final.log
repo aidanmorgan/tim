@@ -1,0 +1,29 @@
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+/Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.5+1b188a7b0a (64-bit .NET 10.0.13)
+[xUnit.net 00:00:00.13]   Discovering: CuriousContraptions.tests
+[xUnit.net 00:00:00.77]   Discovered:  CuriousContraptions.tests
+[xUnit.net 00:00:00.88]   Starting:    CuriousContraptions.tests
+[xUnit.net 00:07:43.43]   Finished:    CuriousContraptions.tests (ID = 'b11b4479ea0a91ea82a3cc1f61b5b4b5943adf7100569eb5204f26b964119862')
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.FreshSeedDropsGainNoMoreEnergyThanTheBoxControlAndTheSlopFullGate [7 m 42 s]
+  Standard Output Messages:
+ CylinderOntoPlane (Dead): 0/1000 over 2.193 mJ (worst 1.813 mJ)
+ CylinderOntoBox (Dead): 0/1000 over 2.193 mJ (worst 1.720 mJ)
+ BoxOntoCylinder (Dead): 0/1000 over 2.193 mJ (worst 1.382 mJ)
+ CylinderOntoLyingCylinder (Dead): 0/1000 over 2.193 mJ (worst 1.449 mJ)
+ CylinderOntoStandingCylinder (Dead): 0/1000 over 2.193 mJ (worst 1.554 mJ)
+ SkewedRollOffEdge (Dead): 0/1000 over 2.193 mJ (worst 0.193 mJ)
+ CylinderOntoPlane (Rolling): 0/1000 over 2.201 mJ (worst 1.694 mJ)
+ CylinderOntoBox (Rolling): 0/1000 over 2.201 mJ (worst 1.987 mJ)
+ BoxOntoCylinder (Rolling): 0/1000 over 2.201 mJ (worst 0.794 mJ)
+ CylinderOntoLyingCylinder (Rolling): 0/1000 over 2.201 mJ (worst 1.321 mJ)
+ CylinderOntoStandingCylinder (Rolling): 0/1000 over 2.201 mJ (worst 1.543 mJ)
+ SkewedRollOffEdge (Rolling): 0/1000 over 2.201 mJ (worst 0.001 mJ)
+
+
+
+Test Run Successful.
+Total tests: 1
+     Passed: 1
+ Total time: 7.7273 Minutes

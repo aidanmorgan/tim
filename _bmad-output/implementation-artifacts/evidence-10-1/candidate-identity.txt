@@ -1,0 +1,47 @@
+a598a09e2b91d58135b3343a2beeea6b88578013
+ M CuriousContraptions.Simulation/WorkshopCollisionKernels.cs
+ M CuriousContraptions.Simulation/WorkshopConstraintSolver.cs
+ M CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs
+ M CuriousContraptions.tests/CuriousContraptions.tests.csproj
+ M CuriousContraptions.tests/WorkshopPhysicsLawTests.cs
+ M _bmad-output/implementation-artifacts/sprint-status.yaml
+ M docs/gpu-f32-physics.md
+ M docs/planning/elements/CAT-034-impact_lever.md
+ M docs/planning/elements/CAT-053-pulley.md
+ M engine/gpu/DeclaredPhysics.cs
+ M engine/gpu/PassageSensorDeclaration.cs
+ M engine/gpu/PhysicsDeclarations.cs
+ M engine/gpu/PhysicsGpuAbi.cs
+ M engine/gpu/RigidMassProperties.cs
+ M tools/BundleElements.Tests/BundleRoundTripTests.cs
+ M tools/BundleElements.Tests/SceneGeometryExtractorTests.cs
+ M tools/BundleElements/SceneGeometryExtractor.cs
+?? CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs
+?? _bmad-output/implementation-artifacts/evidence-10-1/
+?? _bmad-output/implementation-artifacts/spec-10-1-solid-cylinder.md
+ .../WorkshopCollisionKernels.cs                    | 702 ++++++++++++++++++++-
+ .../WorkshopConstraintSolver.cs                    |  40 +-
+ .../WorkshopPhysicsEngine.cs                       |  70 +-
+ .../CuriousContraptions.tests.csproj               |   1 +
+ .../WorkshopPhysicsLawTests.cs                     |  19 +-
+ .../implementation-artifacts/sprint-status.yaml    |   2 +-
+ docs/gpu-f32-physics.md                            |  19 +-
+ docs/planning/elements/CAT-034-impact_lever.md     |   4 +-
+ docs/planning/elements/CAT-053-pulley.md           |   4 +-
+ engine/gpu/DeclaredPhysics.cs                      |  13 +-
+ engine/gpu/PassageSensorDeclaration.cs             |  11 +-
+ engine/gpu/PhysicsDeclarations.cs                  |  20 +-
+ engine/gpu/PhysicsGpuAbi.cs                        |   3 -
+ engine/gpu/RigidMassProperties.cs                  |  13 +-
+ tools/BundleElements.Tests/BundleRoundTripTests.cs |  16 +
+ .../SceneGeometryExtractorTests.cs                 |  67 +-
+ tools/BundleElements/SceneGeometryExtractor.cs     |  35 +-
+ 17 files changed, 980 insertions(+), 59 deletions(-)
+d14d15f2108fcec45475926f7d301d5e550b68c75e63f9e83751b684856fd265  -
+8e027598df5344869405492f4852d9eb6c57f93e96c54f124da66b64602c03bb  CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs
+
+## Post-run identity (after verify.sh): only non-build docs/evidence changed since the run
+changed after run: TODO.md, spec-10-1-solid-cylinder.md, evidence-10-1/anvil-check.log, evidence-10-1/diff-check-untracked.log (no test reads TODO.md or the spec: rg over CuriousContraptions.tests and tools)
+80941ef977de9f12e8a6f568cd8604cbb0de02271d9af37ae453da9405a4ba9b  -
+8e027598df5344869405492f4852d9eb6c57f93e96c54f124da66b64602c03bb  CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs
+58b9822bfed92abee46e6ac213884033fee64249dad51d7e24b89d320565ac2e  _bmad-output/implementation-artifacts/spec-10-1-solid-cylinder.md

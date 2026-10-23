@@ -1,0 +1,5 @@
+build-debug exit 0
+test-slnx exit 0
+ci-tool-step exit 0
+worker-release exit 0
+diff-check done

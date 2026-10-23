@@ -46,14 +46,23 @@ public static class DeclaredPhysics
         {
             CuriousContraptions.Abstractions.ColliderShapeKind.Box => ColliderShapeKind.Box,
             CuriousContraptions.Abstractions.ColliderShapeKind.Sphere => ColliderShapeKind.Sphere,
+            CuriousContraptions.Abstractions.ColliderShapeKind.Cylinder => ColliderShapeKind.Cylinder,
             _ => throw new ArgumentException("Unsupported baked collider shape.")
         };
         var p = descriptor.Offset;
         var q = descriptor.Rotation;
         var h = descriptor.HalfExtents;
+        // A baked cylinder is (r, h, r) about its local +Y axis; unequal radial lanes are no cylinder (as a sphere is uniform).
+        if (shape == ColliderShapeKind.Cylinder && !(h.X == h.Z))
+            throw new ArgumentException("A baked cylinder's radial half-extents must be equal.");
         return new(shape, new(new((Half)p.X, (Half)p.Y, (Half)p.Z), new(q.X, q.Y, q.Z, q.W)),
-            shape == ColliderShapeKind.Sphere ? (Half)h.X : (Half)0,
-            shape == ColliderShapeKind.Box ? new((Half)h.X, (Half)h.Y, (Half)h.Z) : default);
+            shape is ColliderShapeKind.Sphere or ColliderShapeKind.Cylinder ? (Half)h.X : (Half)0,
+            shape switch
+            {
+                ColliderShapeKind.Box => new((Half)h.X, (Half)h.Y, (Half)h.Z),
+                ColliderShapeKind.Cylinder => new((Half)0, (Half)h.Y, (Half)0),
+                _ => default
+            });
     }
 
     public static bool Contains(PartId part) => _entries?.ContainsKey(part) == true;

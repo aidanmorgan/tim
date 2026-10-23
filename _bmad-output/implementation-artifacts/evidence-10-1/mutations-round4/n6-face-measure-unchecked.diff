@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/frozen4/WorkshopCollisionKernels.cs	2026-10-23 21:52:48.080981334 +0800
++++ CuriousContraptions.Simulation/WorkshopCollisionKernels.cs	2026-10-23 23:54:10.425475670 +0800
+@@ -1320,7 +1320,7 @@
+                 var fc = box.Position + extents[i] * faceN;
+                 var support = CylinderSupportNear(cyl, -faceN, fc);
+                 var rel = support - fc;
+-                if (MathF.Abs(Vector3.Dot(rel, axes[j])) > extents[j] || MathF.Abs(Vector3.Dot(rel, axes[k])) > extents[k]) continue;
++                if (MathF.Abs(Vector3.Dot(rel, axes[j])) > 1e9f * extents[j] || MathF.Abs(Vector3.Dot(rel, axes[k])) > 1e9f * extents[k]) continue;
+                 var gap = Vector3.Dot(rel, faceN);
+                 closest.Keep(gap, faceN, support, support - gap * faceN);
+             }

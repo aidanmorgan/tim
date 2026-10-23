@@ -1,0 +1,3 @@
+tracked exit 0
+untracked CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs exit 1
+untracked _bmad-output/implementation-artifacts/spec-10-1-solid-cylinder.md exit 1

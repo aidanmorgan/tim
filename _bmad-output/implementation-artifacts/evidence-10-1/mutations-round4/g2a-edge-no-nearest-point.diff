@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/frozen4/WorkshopCollisionKernels.cs	2026-10-23 21:52:48.080981334 +0800
++++ CuriousContraptions.Simulation/WorkshopCollisionKernels.cs	2026-10-24 00:18:47.821667760 +0800
+@@ -1568,7 +1568,7 @@
+             var (_, nearest) = ClosestPoints(cyl.Position - cyl.Hy * a, 2f * cyl.Hy * a, edge.P, edge.D);
+             RadialPoint(e0, 2);
+             if ((e1 - e0).Length() > 1e-6f) RadialPoint(e1, 3);
+-            if ((nearest - e0).Length() > 1e-3f && (nearest - e1).Length() > 1e-3f) RadialPoint(nearest, 5);
++            if ((nearest - e0).Length() > 1e9f && (nearest - e1).Length() > 1e-3f) RadialPoint(nearest, 5);
+             return;
+         }
+ 

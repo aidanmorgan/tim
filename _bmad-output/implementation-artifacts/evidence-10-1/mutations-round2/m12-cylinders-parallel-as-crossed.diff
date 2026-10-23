@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/frozen2/WorkshopCollisionKernels.cs	2026-10-23 15:24:43.376194854 +0800
++++ CuriousContraptions.Simulation/WorkshopCollisionKernels.cs	2026-10-23 15:30:09.023862788 +0800
+@@ -1516,7 +1516,7 @@
+         else if (tA >= EdgeFaceAlignment && tB >= EdgeFaceAlignment) DiscOnDisc();
+         else if (tA >= EdgeFaceAlignment) Chord(colA, colB, n, 0);
+         else if (tB >= EdgeFaceAlignment) Chord(colB, colA, -n, 4);
+-        else if (MathF.Abs(Vector3.Dot(aa, ab)) >= EdgeFaceAlignment)
++        else if (MathF.Abs(Vector3.Dot(aa, ab)) >= 2f)
+         {
+             // Parallel sides: the two generators' common stretch along A's axis.
+             var (ga, _) = Generator(colA, -n);

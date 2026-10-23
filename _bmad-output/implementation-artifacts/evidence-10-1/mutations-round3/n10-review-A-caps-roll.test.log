@@ -1,0 +1,26 @@
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:49.60]     CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ACylinderOnItsCapIsUntouchedByRollingResistanceWhileOnItsSideItIsResisted(rocked: True) [FAIL]
+[xUnit.net 00:00:49.64]     CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ACylinderOnItsCapIsUntouchedByRollingResistanceWhileOnItsSideItIsResisted(rocked: False) [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ACylinderOnItsCapIsUntouchedByRollingResistanceWhileOnItsSideItIsResisted(rocked: True) [43 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Tuple (<-0.0003768811, -0.31020522, -1.3136253E-08>, {X:-3.963609E-06 Y:1.3904986E-06 Z:6.755411E-05 W:1}, <-2.910383E-11, -3.1177165E-18, 2.1827873E-11>, <-3.2095772E-17, -1.0676238E-10, 2.8608538E-19>)
+Actual:   Tuple (<-0.0003232557, -0.31020522, 1.1749228E-06>, {X:1.6760501E-06 Y:-5.6503745E-07 Z:7.613182E-05 W:1}, <1.4551915E-11, -2.6020852E-18, 1.8189894E-11>, <4.3639137E-17, -1.0947202E-10, -1.7347317E-18>)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ACylinderOnItsCapIsUntouchedByRollingResistanceWhileOnItsSideItIsResisted(Boolean rocked) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 972
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ACylinderOnItsCapIsUntouchedByRollingResistanceWhileOnItsSideItIsResisted(rocked: False) [43 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Tuple (<0.13081487, -0.31020603, -1.8702779E-06>, {X:-2.2640697E-06 Y:-1.7612578E-05 Z:-0.00011597379 W:1}, <2.910383E-11, -6.505213E-19, -7.275958E-12>, <-4.485995E-14, -7.861814E-11, -8.9771506E-14>)
+Actual:   Tuple (<0.1305685, -0.31020516, -2.84295E-05>, {X:2.9964964E-05 Y:6.413372E-05 Z:-0.00029800725 W:1}, <-1.4023144E-05, 7.1160855E-12, -1.4379111E-06>, <-3.9339643E-11, 4.446444E-07, 2.410161E-10>)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ACylinderOnItsCapIsUntouchedByRollingResistanceWhileOnItsSideItIsResisted(Boolean rocked) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 972
+   at InvokeStub_WorkshopPhysicsLawCylinderTests.ACylinderOnItsCapIsUntouchedByRollingResistanceWhileOnItsSideItIsResisted(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+
+Failed!  - Failed:     2, Passed:    70, Skipped:     0, Total:    72, Duration: 2 m 10 s - CuriousContraptions.tests.dll (net10.0)

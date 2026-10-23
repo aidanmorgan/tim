@@ -1,0 +1,20 @@
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:02.35]     CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ATiltedCapLandsOnItsTrueLowestRimPointWithoutSinkingOrGainingEnergy(radius: 0.219999999, halfWidth: 0.50999999) [FAIL]
+[xUnit.net 00:00:02.65]     CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ATiltedCapLandsOnItsTrueLowestRimPointWithoutSinkingOrGainingEnergy(radius: 0.25, halfWidth: 0.25) [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ATiltedCapLandsOnItsTrueLowestRimPointWithoutSinkingOrGainingEnergy(radius: 0.219999999, halfWidth: 0.50999999) [169 ms]
+  Error Message:
+   az 45 tilt 5: a tick gained 3.4081075024445795 mJ
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ATiltedCapLandsOnItsTrueLowestRimPointWithoutSinkingOrGainingEnergy(Single radius, Single halfWidth) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 663
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ATiltedCapLandsOnItsTrueLowestRimPointWithoutSinkingOrGainingEnergy(radius: 0.25, halfWidth: 0.25) [42 ms]
+  Error Message:
+   az 0 tilt 5: a tick gained 3.9265462094859593 mJ
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ATiltedCapLandsOnItsTrueLowestRimPointWithoutSinkingOrGainingEnergy(Single radius, Single halfWidth) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 663
+   at InvokeStub_WorkshopPhysicsLawCylinderTests.ATiltedCapLandsOnItsTrueLowestRimPointWithoutSinkingOrGainingEnergy(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+
+Failed!  - Failed:     2, Passed:    65, Skipped:     0, Total:    67, Duration: 13 s - CuriousContraptions.tests.dll (net10.0)

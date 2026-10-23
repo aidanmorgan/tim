@@ -1,0 +1,31 @@
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:05.08]     CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.CompiledMomentsAreTheSolidCylinderMomentsOfTheDeclaredGeometry(radius: 0.0625, width: 8, mass: 0.5) [FAIL]
+[xUnit.net 00:00:05.08]     CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.CompiledMomentsAreTheSolidCylinderMomentsOfTheDeclaredGeometry(radius: 0.40000000000000002, width: 0.17000000000000001, mass: 1.5) [FAIL]
+[xUnit.net 00:00:05.08]     CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.CompiledMomentsAreTheSolidCylinderMomentsOfTheDeclaredGeometry(radius: 0.22, width: 1.02, mass: 3) [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.CompiledMomentsAreTheSolidCylinderMomentsOfTheDeclaredGeometry(radius: 0.0625, width: 8, mass: 0.5) [1 ms]
+  Error Message:
+   moment 2 vs analytic 2.6671549479166665
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.<CompiledMomentsAreTheSolidCylinderMomentsOfTheDeclaredGeometry>g__Near|8_0(PrincipalInertia value, Double expected, Double bound) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 52
+   at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.CompiledMomentsAreTheSolidCylinderMomentsOfTheDeclaredGeometry(Double radius, Double width, Double mass) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 43
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.CompiledMomentsAreTheSolidCylinderMomentsOfTheDeclaredGeometry(radius: 0.40000000000000002, width: 0.17000000000000001, mass: 1.5) [< 1 ms]
+  Error Message:
+   moment 0.06268310546875 vs analytic 0.06358507461845875
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.<CompiledMomentsAreTheSolidCylinderMomentsOfTheDeclaredGeometry>g__Near|8_0(PrincipalInertia value, Double expected, Double bound) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 52
+   at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.CompiledMomentsAreTheSolidCylinderMomentsOfTheDeclaredGeometry(Double radius, Double width, Double mass) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 43
+   at InvokeStub_WorkshopPhysicsLawCylinderTests.CompiledMomentsAreTheSolidCylinderMomentsOfTheDeclaredGeometry(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.CompiledMomentsAreTheSolidCylinderMomentsOfTheDeclaredGeometry(radius: 0.22, width: 1.02, mass: 3) [< 1 ms]
+  Error Message:
+   moment 0.2310791015625 vs analytic 0.2961513251066208
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.<CompiledMomentsAreTheSolidCylinderMomentsOfTheDeclaredGeometry>g__Near|8_0(PrincipalInertia value, Double expected, Double bound) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 52
+   at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.CompiledMomentsAreTheSolidCylinderMomentsOfTheDeclaredGeometry(Double radius, Double width, Double mass) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 43
+   at InvokeStub_WorkshopPhysicsLawCylinderTests.CompiledMomentsAreTheSolidCylinderMomentsOfTheDeclaredGeometry(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+
+Failed!  - Failed:     3, Passed:    64, Skipped:     0, Total:    67, Duration: 14 s - CuriousContraptions.tests.dll (net10.0)

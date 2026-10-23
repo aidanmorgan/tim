@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/frozen4/WorkshopCollisionKernels.cs	2026-10-23 21:52:48.080981334 +0800
++++ CuriousContraptions.Simulation/WorkshopCollisionKernels.cs	2026-10-23 23:51:51.484957273 +0800
+@@ -894,7 +894,7 @@
+             var capIndex = s > 0f ? 0 : 1;
+             // Ranked from the true deepest rim point (the radial direction of −n), then 90°, 180° and 270° from it, so a tilted cap
+             // rests on its real lowest point and the manifold continues into the rim regime; upright, the square starts at U0.
+-            var deepest = RadialUnit(-n, a, cyl.U0);
++            var deepest = cyl.U0;
+             var across = Vector3.Cross(a, deepest);
+             for (var k = 0; k < 4; k++)
+             {

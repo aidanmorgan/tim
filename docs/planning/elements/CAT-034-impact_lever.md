@@ -23,7 +23,7 @@ This is the Story 7.0 CAT-034-D declaration readiness spec for the impact lever.
   - two end-stop boxes with half extents 0.13 × 0.15 × 0.3 m at (±1.5, −1.004, 0).
 
   Sources: `parts/ImpactLeverPart.cs@a6c914e:L60`, `parts/ImpactLeverPart.cs@a6c914e:L64-L70`, and the full-size convention of `AddBox` in `reference/cpu/MachinePart.cs@a6c914e:L352-L356`. Multiple boxes on one static body already have a precedent in the Switch (`engine/gpu/WorkshopPhysicsCompiler.cs@a6c914e:L112-L115`).
-- **Pivot post and pin.** These are art only in the legacy, with no collider (`parts/ImpactLeverPart.cs@a6c914e:L61-L63`). A solid fulcrum is an open question.
+- **Pivot post and pin.** These are art only in the legacy, with no collider (`parts/ImpactLeverPart.cs@a6c914e:L61-L63`). The fulcrum is a solid cylinder (Open question 2, answered; Story 10.1 cylinder collider).
 
 ### Mass and material
 
@@ -200,7 +200,7 @@ The requirement row [CAT-034](../requirements.md#current-cat-034), its retained 
 ## 6. Open questions
 
 1. **Rope sockets.** The requirement requires end rope sockets, but the legacy declared none. Their local positions, count and port identities are unspecified — owner decision.
-2. **Solid fulcrum.** The requirement asks for one, but the legacy pivot post (radius 0.22, height 1.02) and pin are art only, and the current engine has no cylinder collider; a cylinder collider is scheduled in Story 10.1 (ENGINE-CYLINDER), scheduled before the first shaft wheel by the owner on 9 Oct 2026. The fulcrum collider shape and size are unspecified — owner decision.
+2. **Solid fulcrum — answered.** Owner decision (e), 18 Oct 2026: the fulcrum is a true cylinder. Story 10.1 (ENGINE-CYLINDER) delivered the engine's solid `Cylinder` collider (declared radius, width and mass; exact inertia; closed-form contacts against plane, sphere, box and cylinder; extracted from a `col_cylinder` proxy). The legacy pivot post (radius 0.22, height 1.02) and pin were art only; Story 10.3 declares the fulcrum's cylinder proxy and size in the Impact Lever package.
 3. **Authoritative stop.** The legacy declares both a hinge travel range (±π/6) and solid stop boxes that meet at the same angle. Which one is authoritative, or whether both are retained, is unspecified — owner decision.
 4. **Stop restitution.** The legacy stops are perfectly inelastic (fact 31). Story 10.3's "strikes its end stop and launches the payload" needs no stop restitution, but a non-zero value is unspecified — owner decision.
 5. **Hinge friction and damping.** The legacy hinge is frictionless, while the requirement lists friction as a closure criterion. The hinge friction or damping law and its value are unspecified — owner decision.

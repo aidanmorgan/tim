@@ -138,9 +138,46 @@ internal sealed class WorkshopPhysicsEngine
             Restitution = 0.8f, BounceThreshold = 0.2f, Friction = 0.4f, RollingResistance = 0.05f
         };
 
+        // Story 10.1: a lying dynamic cylinder (axis along X) and a standing static one, so every cylinder pair kernel is warmed.
+        var lying = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, MathF.PI / 2f);
+        var dummyCylinderA = new SimCollider
+        {
+            Body = dummyBodyA,
+            Shape = ShapeKind.Cylinder,
+            Radius = 0.5f, Hy = 0.25f,
+            Px = 0f, Py = 0.45f, Pz = 0f,
+            U0 = Vector3.Transform(Vector3.UnitX, lying), U1 = Vector3.Transform(Vector3.UnitY, lying), U2 = Vector3.UnitZ,
+            Restitution = 0.8f, BounceThreshold = 0.2f, Friction = 0.4f, RollingResistance = 0.05f
+        };
+        var dummyCylinderB = new SimCollider
+        {
+            Body = dummyBodyB,
+            Shape = ShapeKind.Cylinder,
+            Radius = 0.5f, Hy = 0.5f,
+            Px = 0f, Py = -0.5f, Pz = 0f,
+            U0 = Vector3.UnitX, U1 = Vector3.UnitY, U2 = Vector3.UnitZ,
+            Restitution = 0.8f, BounceThreshold = 0.2f, Friction = 0.4f, RollingResistance = 0.05f
+        };
+
         var warmupContacts = new List<ContactPoint>(16);
         for (var i = 0; i < 20; i++)
         {
+            warmupContacts.Clear();
+            WorkshopCollisionKernels.GenerateManifold(dummyCylinderA, dummyPlane, 0.05f, warmupContacts);
+            warmupContacts.Clear();
+            WorkshopCollisionKernels.GenerateManifold(dummyCylinderA, dummySphereB, 0.05f, warmupContacts);
+            warmupContacts.Clear();
+            WorkshopCollisionKernels.GenerateManifold(dummyCylinderA, dummyBoxB, 0.05f, warmupContacts);
+            warmupContacts.Clear();
+            WorkshopCollisionKernels.GenerateManifold(dummyCylinderA, dummyCylinderB, 0.05f, warmupContacts);
+            if (warmupContacts.Count > 0)
+            {
+                var cylinderManifold = new ContactManifold();
+                cylinderManifold.Points.AddRange(warmupContacts);
+                WorkshopConstraintSolver.PrepareContact(warmupContacts[0], _contactCache);
+                WorkshopConstraintSolver.PrepareRolling(cylinderManifold);
+                WorkshopConstraintSolver.CurrentSeparation(warmupContacts[0]);
+            }
             warmupContacts.Clear();
             WorkshopCollisionKernels.GenerateManifold(dummySphere, dummyPlane, 0.05f, warmupContacts);
             warmupContacts.Clear();
@@ -438,6 +475,18 @@ internal sealed class WorkshopPhysicsEngine
         // Story 9R.5b: every table offset is this world's own (its header's populations); no table has a fixed capacity.
         var layout = PhysicsGpuAbi.Layout(span);
 
+        // Story 10.1: the collider shape is a closed set. A world carrying an undefined shape is an invalid declaration, refused
+        // before anything is stepped (the candidate is the source with only its status and failure set); the tick path below is
+        // total over the admitted shapes.
+        for (var c = 0; c < layout.Colliders; c++)
+        {
+            var shape = (ShapeKind)BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(layout.ColliderOffset(c) + 16, 4));
+            if (Enum.IsDefined(shape)) continue;
+            BinaryPrimitives.WriteUInt32LittleEndian(span.Slice(PhysicsGpuAbi.HeaderStatusOffset, 4), (uint)PhysicsCandidateStatus.Invalid);
+            BinaryPrimitives.WriteUInt32LittleEndian(span.Slice(PhysicsGpuAbi.HeaderFailureOffset, 4), (uint)PhysicsFailure.InvalidDeclaration);
+            return;
+        }
+
         BinaryPrimitives.WriteUInt32LittleEndian(span.Slice(PhysicsGpuAbi.HeaderStatusOffset, 4), 0);
         BinaryPrimitives.WriteUInt32LittleEndian(span.Slice(PhysicsGpuAbi.HeaderFailureOffset, 4), 0);
 
@@ -626,8 +675,15 @@ internal sealed class WorkshopPhysicsEngine
             if (body.Motion == 1)
             {
                 body.Collider = collider;
-                body.SupportExtent = shapeKind == ShapeKind.Sphere ? radius :
-                    hx * MathF.Abs(collider.U0.Y) + hy * MathF.Abs(collider.U1.Y) + hz * MathF.Abs(collider.U2.Y);
+                body.SupportExtent = shapeKind switch
+                {
+                    ShapeKind.Sphere => radius,
+                    ShapeKind.Box => hx * MathF.Abs(collider.U0.Y) + hy * MathF.Abs(collider.U1.Y) + hz * MathF.Abs(collider.U2.Y),
+                    ShapeKind.Cylinder => WorkshopCollisionKernels.CylinderProjection(collider, Vector3.UnitY),
+                    // A plane is never dynamic (admission) and ingest admits no other shape.
+                    ShapeKind.Plane => 0f,
+                    _ => 0f
+                };
             }
         }
 
@@ -702,7 +758,15 @@ internal sealed class WorkshopPhysicsEngine
                 min = new Vector3(c.Px - ex - fatX, c.Py - ey - fatY, c.Pz - ez - fatZ);
                 max = new Vector3(c.Px + ex + fatX, c.Py + ey + fatY, c.Pz + ez + fatZ);
             }
-            else continue;
+            else
+            {
+                // The cylinder (the only other admitted shape): its exact rotated extents h |a_i| + r √(1 − a_i²).
+                var ex = WorkshopCollisionKernels.CylinderProjection(c, Vector3.UnitX);
+                var ey = WorkshopCollisionKernels.CylinderProjection(c, Vector3.UnitY);
+                var ez = WorkshopCollisionKernels.CylinderProjection(c, Vector3.UnitZ);
+                min = new Vector3(c.Px - ex - fatX, c.Py - ey - fatY, c.Pz - ez - fatZ);
+                max = new Vector3(c.Px + ex + fatX, c.Py + ey + fatY, c.Pz + ez + fatZ);
+            }
 
             // Exactly the complement of the overlap callback's static-static rejection below.
             _bvh.InsertLeaf(c.Index, min, max, b.Motion != 0);
