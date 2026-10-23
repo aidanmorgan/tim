@@ -1,0 +1,138 @@
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:02.62]     CuriousContraptions.Tests.ElectricalXorTests.OrLoopFeedingTheGateIsAdmittedAndPowersIt [FAIL]
+  Failed CuriousContraptions.Tests.ElectricalXorTests.OrLoopFeedingTheGateIsAdmittedAndPowersIt [1 ms]
+  Error Message:
+   CuriousContraptions.Gpu.WorkshopEditRejectedException : Break the wire loop through parts 4, 6. This gate's output cannot feed its own inputs.
+  Stack Trace:
+     at CuriousContraptions.Gpu.WorkshopConnections.Validate(Func`2 partOf) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/gpu/WorkshopConnections.cs:line 111
+   at CuriousContraptions.Gpu.WorkshopConnections.Validate(WorkshopInstances instances) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/gpu/WorkshopConnections.cs:line 49
+   at CuriousContraptions.Gpu.WorkshopConstruction.Validate() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/gpu/WorkshopConstruction.cs:line 63
+   at CuriousContraptions.Tests.ElectricalXorTests.OrLoopFeedingTheGateIsAdmittedAndPowersIt() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/CuriousContraptions.tests/ElectricalXorTests.cs:line 210
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:02.71]     CuriousContraptions.Tests.ElectricalOrTests.OrLoopIsAdmittedAndSettlesAtItsLeastFixedPointEveryTick(swapIds: True) [FAIL]
+[xUnit.net 00:00:02.71]     CuriousContraptions.Tests.ElectricalOrTests.OrLoopIsAdmittedAndSettlesAtItsLeastFixedPointEveryTick(swapIds: False) [FAIL]
+  Failed CuriousContraptions.Tests.ElectricalOrTests.OrLoopIsAdmittedAndSettlesAtItsLeastFixedPointEveryTick(swapIds: True) [< 1 ms]
+  Error Message:
+   CuriousContraptions.Gpu.WorkshopEditRejectedException : Break the wire loop through parts 4, 6. This gate's output cannot feed its own inputs.
+  Stack Trace:
+     at CuriousContraptions.Gpu.WorkshopConnections.Validate(Func`2 partOf) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/gpu/WorkshopConnections.cs:line 111
+   at CuriousContraptions.Gpu.WorkshopConnections.Validate(WorkshopInstances instances) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/gpu/WorkshopConnections.cs:line 49
+   at CuriousContraptions.Gpu.WorkshopConstruction.Validate() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/gpu/WorkshopConstruction.cs:line 63
+   at CuriousContraptions.Tests.ElectricalOrTests.OrLoopIsAdmittedAndSettlesAtItsLeastFixedPointEveryTick(Boolean swapIds) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/CuriousContraptions.tests/ElectricalOrTests.cs:line 162
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.ElectricalOrTests.OrLoopIsAdmittedAndSettlesAtItsLeastFixedPointEveryTick(swapIds: False) [< 1 ms]
+  Error Message:
+   CuriousContraptions.Gpu.WorkshopEditRejectedException : Break the wire loop through parts 4, 6. This gate's output cannot feed its own inputs.
+  Stack Trace:
+     at CuriousContraptions.Gpu.WorkshopConnections.Validate(Func`2 partOf) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/gpu/WorkshopConnections.cs:line 111
+   at CuriousContraptions.Gpu.WorkshopConnections.Validate(WorkshopInstances instances) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/gpu/WorkshopConnections.cs:line 49
+   at CuriousContraptions.Gpu.WorkshopConstruction.Validate() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/gpu/WorkshopConstruction.cs:line 63
+   at CuriousContraptions.Tests.ElectricalOrTests.OrLoopIsAdmittedAndSettlesAtItsLeastFixedPointEveryTick(Boolean swapIds) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/CuriousContraptions.tests/ElectricalOrTests.cs:line 162
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:02.93]     CuriousContraptions.Tests.ElectricalOrTests.ContactLoopKeepsAnEitherGateOnThroughItsOtherInput(either: True) [FAIL]
+[xUnit.net 00:00:02.93]     CuriousContraptions.Tests.ElectricalOrTests.ContactLoopKeepsAnEitherGateOnThroughItsOtherInput(either: False) [FAIL]
+  Failed CuriousContraptions.Tests.ElectricalOrTests.ContactLoopKeepsAnEitherGateOnThroughItsOtherInput(either: True) [< 1 ms]
+  Error Message:
+   CuriousContraptions.Gpu.WorkshopEditRejectedException : Break the wire loop through parts 6, 8. This gate's output cannot feed its own inputs.
+  Stack Trace:
+     at CuriousContraptions.Gpu.WorkshopConnections.Validate(Func`2 partOf) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/gpu/WorkshopConnections.cs:line 111
+   at CuriousContraptions.Gpu.WorkshopConnections.Validate(WorkshopInstances instances) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/gpu/WorkshopConnections.cs:line 49
+   at CuriousContraptions.Gpu.WorkshopConstruction.Validate() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/gpu/WorkshopConstruction.cs:line 63
+   at CuriousContraptions.Tests.ElectricalOrTests.ContactLoopKeepsAnEitherGateOnThroughItsOtherInput(Boolean either) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/CuriousContraptions.tests/ElectricalOrTests.cs:line 202
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.ElectricalOrTests.ContactLoopKeepsAnEitherGateOnThroughItsOtherInput(either: False) [< 1 ms]
+  Error Message:
+   CuriousContraptions.Gpu.WorkshopEditRejectedException : Break the wire loop through parts 6, 8. This gate's output cannot feed its own inputs.
+  Stack Trace:
+     at CuriousContraptions.Gpu.WorkshopConnections.Validate(Func`2 partOf) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/gpu/WorkshopConnections.cs:line 111
+   at CuriousContraptions.Gpu.WorkshopConnections.Validate(WorkshopInstances instances) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/gpu/WorkshopConnections.cs:line 49
+   at CuriousContraptions.Gpu.WorkshopConstruction.Validate() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/gpu/WorkshopConstruction.cs:line 63
+   at CuriousContraptions.Tests.ElectricalOrTests.ContactLoopKeepsAnEitherGateOnThroughItsOtherInput(Boolean either) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/CuriousContraptions.tests/ElectricalOrTests.cs:line 202
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:03.42]     CuriousContraptions.Tests.ElectricalOrTests.PureOrLoopIsAdmittedBySaveAndConstruct [FAIL]
+  Failed CuriousContraptions.Tests.ElectricalOrTests.PureOrLoopIsAdmittedBySaveAndConstruct [< 1 ms]
+  Error Message:
+   CuriousContraptions.Gpu.WorkshopEditRejectedException : Break the wire loop through parts 4, 6. This gate's output cannot feed its own inputs.
+  Stack Trace:
+     at CuriousContraptions.Gpu.WorkshopConnections.Validate(Func`2 partOf) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/gpu/WorkshopConnections.cs:line 111
+   at CuriousContraptions.Gpu.WorkshopConnections.Validate(WorkshopInstances instances) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/gpu/WorkshopConnections.cs:line 49
+   at CuriousContraptions.Gpu.WorkshopConstruction.Validate() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/gpu/WorkshopConstruction.cs:line 63
+   at CuriousContraptions.Tests.ElectricalOrTests.PureOrLoopIsAdmittedBySaveAndConstruct() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/CuriousContraptions.tests/ElectricalOrTests.cs:line 278
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:03.98]     CuriousContraptions.Tests.PalettePlacementTests.EitherGateChooserAdmitsAnOrLoopAndRefusesAMixedOne(loop: OrToOr) [FAIL]
+  Failed CuriousContraptions.Tests.PalettePlacementTests.EitherGateChooserAdmitsAnOrLoopAndRefusesAMixedOne(loop: OrToOr) [26 ms]
+  Error Message:
+   Assert.Contains() Failure: Item not found in collection
+Collection: [WorkshopConnection { Source = GpuBodyId { Value = 1 }, Output = Supply, Target = GpuBodyId { Value = 4 }, Input = PowerIn, Domain = Electrical }, WorkshopConnection { Source = GpuBodyId { Value = 1 }, Output = Supply, Target = GpuBodyId { Value = 6 }, Input = PowerIn, Domain = Electrical }, WorkshopConnection { Source = GpuBodyId { Value = 4 }, Output = Supply, Target = GpuBodyId { Value = 6 }, Input = FirstIn, Domain = Electrical }]
+Not found:  WorkshopConnection { Source = GpuBodyId { Value = 6 }, Output = Supply, Target = GpuBodyId { Value = 4 }, Input = FirstIn, Domain = Electrical }
+  Stack Trace:
+     at CuriousContraptions.Tests.PalettePlacementTests.EitherGateChooserAdmitsAnOrLoopAndRefusesAMixedOne(FeedbackLoop loop) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/CuriousContraptions.tests/PalettePlacementTests.cs:line 257
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:04.14]     CuriousContraptions.Tests.PalettePlacementTests.ExactlyOneGateChooserRefusesALoopThroughTheGateAndAdmitsAnOrLoopBeside(loop: OrLoopFeedingXor) [FAIL]
+  Failed CuriousContraptions.Tests.PalettePlacementTests.ExactlyOneGateChooserRefusesALoopThroughTheGateAndAdmitsAnOrLoopBeside(loop: OrLoopFeedingXor) [25 ms]
+  Error Message:
+   Assert.Contains() Failure: Item not found in collection
+Collection: [WorkshopConnection { Source = GpuBodyId { Value = 4 }, Output = Supply, Target = GpuBodyId { Value = 6 }, Input = FirstIn, Domain = Electrical }, WorkshopConnection { Source = GpuBodyId { Value = 1 }, Output = Supply, Target = GpuBodyId { Value = 4 }, Input = SecondIn, Domain = Electrical }, WorkshopConnection { Source = GpuBodyId { Value = 2 }, Output = Supply, Target = GpuBodyId { Value = 4 }, Input = PowerIn, Domain = Electrical }, WorkshopConnection { Source = GpuBodyId { Value = 2 }, Output = Supply, Target = GpuBodyId { Value = 6 }, Input = PowerIn, Domain = Electrical }, WorkshopConnection { Source = GpuBodyId { Value = 6 }, Output = Supply, Target = GpuBodyId { Value = 8 }, Input = FirstIn, Domain = Electrical }, ···]
+Not found:  WorkshopConnection { Source = GpuBodyId { Value = 6 }, Output = Supply, Target = GpuBodyId { Value = 4 }, Input = FirstIn, Domain = Electrical }
+  Stack Trace:
+     at CuriousContraptions.Tests.PalettePlacementTests.ExactlyOneGateChooserRefusesALoopThroughTheGateAndAdmitsAnOrLoopBeside(FeedbackLoop loop) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/CuriousContraptions.tests/PalettePlacementTests.cs:line 306
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:04.69]     CuriousContraptions.Tests.ElectricalNandTests.MonotoneLoopIsAdmittedStaysUnpoweredAndSettlesBeforeTheGateItFeeds [FAIL]
+[xUnit.net 00:00:04.86]     CuriousContraptions.Tests.ElectricalNorTests.MonotoneLoopIsAdmittedStaysUnpoweredAndSettlesBeforeTheGateItFeeds [FAIL]
+  Failed CuriousContraptions.Tests.ElectricalNandTests.MonotoneLoopIsAdmittedStaysUnpoweredAndSettlesBeforeTheGateItFeeds [< 1 ms]
+  Error Message:
+   CuriousContraptions.Gpu.WorkshopEditRejectedException : Break the wire loop through parts 4, 6. This gate's output cannot feed its own inputs.
+  Stack Trace:
+     at CuriousContraptions.Gpu.WorkshopConnections.Validate(Func`2 partOf) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/gpu/WorkshopConnections.cs:line 111
+   at CuriousContraptions.Gpu.WorkshopConnections.Validate(WorkshopInstances instances) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/gpu/WorkshopConnections.cs:line 49
+   at CuriousContraptions.Gpu.WorkshopConstruction.Validate() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/gpu/WorkshopConstruction.cs:line 63
+   at CuriousContraptions.Tests.ElectricalNandTests.MonotoneLoopIsAdmittedStaysUnpoweredAndSettlesBeforeTheGateItFeeds() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/CuriousContraptions.tests/ElectricalNandTests.cs:line 174
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.ElectricalNorTests.MonotoneLoopIsAdmittedStaysUnpoweredAndSettlesBeforeTheGateItFeeds [< 1 ms]
+  Error Message:
+   CuriousContraptions.Gpu.WorkshopEditRejectedException : Break the wire loop through parts 4, 6. This gate's output cannot feed its own inputs.
+  Stack Trace:
+     at CuriousContraptions.Gpu.WorkshopConnections.Validate(Func`2 partOf) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/gpu/WorkshopConnections.cs:line 111
+   at CuriousContraptions.Gpu.WorkshopConnections.Validate(WorkshopInstances instances) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/gpu/WorkshopConnections.cs:line 49
+   at CuriousContraptions.Gpu.WorkshopConstruction.Validate() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/engine/gpu/WorkshopConstruction.cs:line 63
+   at CuriousContraptions.Tests.ElectricalNorTests.MonotoneLoopIsAdmittedStaysUnpoweredAndSettlesBeforeTheGateItFeeds() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/CuriousContraptions.tests/ElectricalNorTests.cs:line 196
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:05.62]     CuriousContraptions.Tests.BothGateTests.ChainedReconvergenceAndMutualCyclesRetractWithoutOrderDelay(cycle: True, reverse: True) [FAIL]
+[xUnit.net 00:00:05.62]     CuriousContraptions.Tests.BothGateTests.ChainedReconvergenceAndMutualCyclesRetractWithoutOrderDelay(cycle: True, reverse: False) [FAIL]
+  Failed CuriousContraptions.Tests.BothGateTests.ChainedReconvergenceAndMutualCyclesRetractWithoutOrderDelay(cycle: True, reverse: True) [2 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Rejected
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 763
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 777
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 777
+   at CuriousContraptions.Tests.BothGateTests.ChainedReconvergenceAndMutualCyclesRetractWithoutOrderDelay(Boolean cycle, Boolean reverse) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/CuriousContraptions.tests/BothGateTests.cs:line 90
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.BothGateTests.ChainedReconvergenceAndMutualCyclesRetractWithoutOrderDelay(cycle: True, reverse: False) [< 1 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Rejected
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 763
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 777
+   at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.RunPhases(WorkshopConstruction construction, ValueTuple`2[] phases) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 777
+   at CuriousContraptions.Tests.BothGateTests.ChainedReconvergenceAndMutualCyclesRetractWithoutOrderDelay(Boolean cycle, Boolean reverse) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/CuriousContraptions.tests/BothGateTests.cs:line 90
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:05.77]     CuriousContraptions.Tests.BothGateTests.OpeningPoweredContactRetractsMutualLoopWhileSourcesRemainEnabled [FAIL]
+  Failed CuriousContraptions.Tests.BothGateTests.OpeningPoweredContactRetractsMutualLoopWhileSourcesRemainEnabled [2 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Rejected
+  Stack Trace:
+     at CuriousContraptions.Tests.NoFixedCapacityTests.RunAndReset(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/CuriousContraptions.tests/NoFixedCapacityTests.cs:line 264
+   at CuriousContraptions.Tests.NoFixedCapacityTests.RunAndReset(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/CuriousContraptions.tests/NoFixedCapacityTests.cs:line 274
+   at CuriousContraptions.Tests.NoFixedCapacityTests.RunAndReset(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/CuriousContraptions.tests/NoFixedCapacityTests.cs:line 274
+   at CuriousContraptions.Tests.BothGateTests.OpeningPoweredContactRetractsMutualLoopWhileSourcesRemainEnabled() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-8b/CuriousContraptions.tests/BothGateTests.cs:line 118
+--- End of stack trace from previous location ---
+
+Failed!  - Failed:    13, Passed:   138, Skipped:     0, Total:   151, Duration: 4 s - CuriousContraptions.tests.dll (net10.0)

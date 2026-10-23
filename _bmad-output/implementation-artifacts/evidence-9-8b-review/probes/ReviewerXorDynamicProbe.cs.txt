@@ -1,0 +1,47 @@
+using CuriousContraptions.Gpu;
+using CuriousContraptions.Abstractions.Electrical;
+
+namespace CuriousContraptions.Tests;
+
+/// <summary>Reviewer-only probe (not a deliverable): CAT-027 X6 with fixed wiring. Battery 1 feeds the Xor FirstIn directly and,
+/// through an Impact Switch that a dropped ball closes mid-run, the Either gate that feeds the Xor SecondIn. The same source then
+/// reaches both inputs at the tick the contact closes; the Xor must be off in that very solve and stay off.</summary>
+public sealed class ReviewerXorDynamicProbe
+{
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task SameSourceReachingBothInputsMidRunRetractsInTheSameSolve(bool gateFirst)
+    {
+        ulong either = gateFirst ? 8UL : 6UL, xor = gateFirst ? 6UL : 8UL;
+        const ulong consumer = 9;
+        var parts = new List<IWorkshopInstance>
+        {
+            WorkshopInput.Battery(new(1), -16, 3, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default),
+            WorkshopInput.Battery(new(2), -5, 3, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default),
+            WorkshopInput.Generic(PartId.ImpactSwitch, new(3), -13, 1, 0, 0, 0, 0, 1),
+            WorkshopInput.Generic(PartId.Basketball, new(5), -13, 3, 0, 0, 0, 0, 1),
+            WorkshopInput.Generic(ElectricalOrTests.Kind, new(either), -1, 3, -3, 0, 0, 0, 1),
+            WorkshopInput.Generic(ElectricalXorTests.Kind, new(xor), 3, 3, 0, 0, 0, 0, 1),
+            WorkshopInput.Generic(PartId.PoweredGate, new(consumer), 9, 3, 0, 0, 0, 0, 1),
+        };
+        if (gateFirst) parts.Reverse();
+        var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(parts.ToArray()), Connections: new(
+            BothGateTests.Link(1, xor, WorkshopSocket.FirstIn), BothGateTests.Link(1, 3), BothGateTests.Link(3, either, WorkshopSocket.FirstIn),
+            BothGateTests.Link(2, either), BothGateTests.Link(either, xor, WorkshopSocket.SecondIn), BothGateTests.Link(2, xor),
+            BothGateTests.Link(xor, consumer)));
+        var (_, reads, _) = await NoFixedCapacityTests.RunAndReset(construction, 240);
+        bool Powered(WorkshopRead read) => read.Presentation.Actuators.ToArray().Single(row => row.Owner.Value == consumer).SupplyClosed;
+        var closedAt = reads.FindIndex(read => BothGateTests.Logic(read, either).Active);
+        Assert.InRange(closedAt, 1, reads.Count - 30); // the 10 row really held first, then the contact closed mid-run
+        for (var i = 0; i < reads.Count; i++)
+        {
+            var x = BothGateTests.Logic(reads[i], xor);
+            var orOn = BothGateTests.Logic(reads[i], either).Active;
+            Assert.Equal(orOn ? ElectricalInputState.Both : ElectricalInputState.FirstOnly, x.Inputs);
+            Assert.True(x.Active == !orOn, $"tick {i}: xor active {x.Active} with Either {orOn}");
+            Assert.Equal(!orOn, Powered(reads[i]));
+        }
+        Assert.All(reads.Skip(closedAt), read => Assert.True(BothGateTests.Logic(read, either).Active)); // stays off afterwards
+    }
+}

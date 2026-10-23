@@ -1,0 +1,17 @@
+_bmad-output/implementation-artifacts/evidence-9-8b/build-debug-final.log
+_bmad-output/implementation-artifacts/evidence-9-8b/mutations/M1-xor-as-or.build.log
+_bmad-output/implementation-artifacts/evidence-9-8b/mutations/M1-xor-as-or.diff
+_bmad-output/implementation-artifacts/evidence-9-8b/mutations/M2-xor-as-xnor.build.log
+_bmad-output/implementation-artifacts/evidence-9-8b/mutations/M2-xor-as-xnor.diff
+_bmad-output/implementation-artifacts/evidence-9-8b/mutations/M3-xor-as-and.build.log
+_bmad-output/implementation-artifacts/evidence-9-8b/mutations/M3-xor-as-and.diff
+_bmad-output/implementation-artifacts/evidence-9-8b/mutations/M4-xor-declared-monotone.build.log
+_bmad-output/implementation-artifacts/evidence-9-8b/mutations/M4-xor-declared-monotone.diff
+_bmad-output/implementation-artifacts/evidence-9-8b/mutations/M5-xor-active-without-supply.build.log
+_bmad-output/implementation-artifacts/evidence-9-8b/mutations/M5-xor-active-without-supply.diff
+_bmad-output/implementation-artifacts/evidence-9-8b/mutations/M6-refuse-every-cycle.build.log
+_bmad-output/implementation-artifacts/evidence-9-8b/mutations/M6-refuse-every-cycle.diff
+_bmad-output/implementation-artifacts/evidence-9-8b/mutations/M7-cyclic-seeded-powered.build.log
+_bmad-output/implementation-artifacts/evidence-9-8b/mutations/M7-cyclic-seeded-powered.diff
+_bmad-output/implementation-artifacts/evidence-9-8b/mutations/M8-old-slot-sweep.build.log
+_bmad-output/implementation-artifacts/evidence-9-8b/mutations/M8-old-slot-sweep.diff

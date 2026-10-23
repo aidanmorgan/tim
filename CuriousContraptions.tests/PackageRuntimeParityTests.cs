@@ -198,7 +198,7 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
         var options = new System.Text.Json.JsonSerializerOptions { IncludeFields = true };
         var rows = new List<System.Text.Json.Nodes.JsonNode>();
         // The immutable 9A.16 baseline predates Hold and the supplied gates; their new geometry is checked separately.
-        foreach (var package in Packages().Where(package => package.Declaration.Metadata.Id is not ("hold_timer" or "both_gate" or "electrical_nand" or "electrical_nor" or "electrical_or")).OrderBy(package => package.Package, StringComparer.Ordinal))
+        foreach (var package in Packages().Where(package => package.Declaration.Metadata.Id is not ("hold_timer" or "both_gate" or "electrical_nand" or "electrical_nor" or "electrical_or" or "electrical_xor")).OrderBy(package => package.Package, StringComparer.Ordinal))
         {
             Capture(package.Declaration.Metadata.Id, Placed(new PartId(package.Declaration.Metadata.Id)));
         }
@@ -400,7 +400,7 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
         "domino" => WorkshopInput.Domino(Owner, 0, 3, 0, 0, 0, 0, 1),
         "ball_detector" => WorkshopInput.BallDetector(Owner, 0, 3, 0, 0, 0, 0, 1),
         "pipe" => WorkshopInput.Pipe(Owner, 0, 3, 0, 0, 0, 0, 1),
-        "funnel" or "pipe_bend_45" or "pipe_bend_90" or "powered_gate" or "hold_timer" or "both_gate" or "electrical_nand" or "electrical_nor" or "electrical_or" =>
+        "funnel" or "pipe_bend_45" or "pipe_bend_90" or "powered_gate" or "hold_timer" or "both_gate" or "electrical_nand" or "electrical_nor" or "electrical_or" or "electrical_xor" =>
             WorkshopInput.Generic(id, Owner, 0, 3, 0, 0, 0, 0, 1),
         "pressure_plate" => WorkshopInput.PressurePlate(Owner, 0, 3, 0, 0, 0, 0, 1, WorkshopPressurePlate.PlacedMinimumMass),
         "counter" => WorkshopInput.Counter(Owner, 0, 3, 0, 0, 0, 0, 1, WorkshopCounter.PlacedTargetCount),

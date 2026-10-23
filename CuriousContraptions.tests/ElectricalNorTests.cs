@@ -285,7 +285,7 @@ public sealed class ElectricalNorTests
             .Select(row=>CompiledSupplyGraph.Evaluate(LogicGateOperation.Nor,row.Item1,row.Item2)).ToArray());
         Assert.False(CompiledSupplyGraph.IsMonotone(LogicGateOperation.Nor));
         Assert.False(SupplyCycles.Monotone(LogicGateOperation.Nor));
-        foreach(var undefined in new[]{(LogicGateOperation)4,(LogicGateOperation)255})
+        foreach(var undefined in new[]{(LogicGateOperation)5,(LogicGateOperation)255})
         {
             Assert.Throws<ArgumentOutOfRangeException>(()=>CompiledSupplyGraph.Evaluate(undefined,false,false));
             Assert.Throws<ArgumentOutOfRangeException>(()=>CompiledSupplyGraph.IsMonotone(undefined));

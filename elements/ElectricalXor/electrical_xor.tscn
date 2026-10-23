@@ -1,0 +1,240 @@
+[gd_scene load_steps=23 format=3]
+
+[ext_resource type="Script" path="res://engine/MachinePart.cs" id="1"]
+
+[sub_resource type="StandardMaterial3D" id="Mat_Body"]
+albedo_color = Color(0.4,0.72,0.79,1)
+
+[sub_resource type="StandardMaterial3D" id="Mat_Dark"]
+albedo_color = Color(0.161,0.224,0.329,1)
+
+[sub_resource type="StandardMaterial3D" id="Mat_Face"]
+albedo_color = Color(1,0.973,0.914,1)
+
+[sub_resource type="StandardMaterial3D" id="Mat_Lamp"]
+albedo_color = Color(0.333,0.396,0.451,1)
+
+[sub_resource type="StandardMaterial3D" id="Mat_Port"]
+albedo_color = Color(0.91,0.718,0.392,1)
+
+[sub_resource type="BoxMesh" id="Mesh_Body"]
+material = SubResource("Mat_Body")
+size = Vector3(1.7,1.3,0.65)
+
+[sub_resource type="BoxMesh" id="Mesh_Foot"]
+material = SubResource("Mat_Dark")
+size = Vector3(1.85,0.16,0.85)
+
+[sub_resource type="BoxMesh" id="Mesh_Face"]
+material = SubResource("Mat_Face")
+size = Vector3(1.45,1.05,0.04)
+
+[sub_resource type="BoxMesh" id="Mesh_Mark"]
+material = SubResource("Mat_Dark")
+size = Vector3(0.025,0.08,0.025)
+
+[sub_resource type="BoxMesh" id="Mesh_StrokeCurve1"]
+material = SubResource("Mat_Dark")
+size = Vector3(0.1728,0.035,0.025)
+
+[sub_resource type="BoxMesh" id="Mesh_StrokeCurve2"]
+material = SubResource("Mat_Dark")
+size = Vector3(0.1555,0.035,0.025)
+
+[sub_resource type="BoxMesh" id="Mesh_StrokeCurve3"]
+material = SubResource("Mat_Dark")
+size = Vector3(0.1474,0.035,0.025)
+
+[sub_resource type="BoxMesh" id="Mesh_StrokeCurve4"]
+material = SubResource("Mat_Dark")
+size = Vector3(0.1505,0.035,0.025)
+
+[sub_resource type="BoxMesh" id="Mesh_StrokeBackEnd"]
+material = SubResource("Mat_Dark")
+size = Vector3(0.1593,0.035,0.025)
+
+[sub_resource type="BoxMesh" id="Mesh_StrokeBackMid"]
+material = SubResource("Mat_Dark")
+size = Vector3(0.1452,0.035,0.025)
+
+[sub_resource type="BoxMesh" id="Mesh_StrokeOut"]
+material = SubResource("Mat_Dark")
+size = Vector3(0.089,0.035,0.025)
+
+[sub_resource type="SphereMesh" id="Mesh_Lamp"]
+material = SubResource("Mat_Lamp")
+radius = 0.09
+height = 0.18
+
+[sub_resource type="SphereMesh" id="Mesh_Port"]
+material = SubResource("Mat_Port")
+radius = 0.075
+height = 0.15
+
+[sub_resource type="SphereMesh" id="Mesh_TruthDot"]
+material = SubResource("Mat_Port")
+radius = 0.035
+height = 0.07
+
+[sub_resource type="BoxShape3D" id="Shape_Body"]
+size = Vector3(1.7,1.3,0.65)
+
+[sub_resource type="BoxShape3D" id="Shape_Foot"]
+size = Vector3(1.85,0.16,0.85)
+
+[node name="electrical_xor" type="Node3D"]
+script = ExtResource("1")
+
+[node name="Visual" type="Node3D" parent="."]
+
+[node name="Body" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1,0,0,0,1,0,0,0,1,0,0,0)
+mesh = SubResource("Mesh_Body")
+
+[node name="Foot" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1,0,0,0,1,0,0,0,1,0,-0.75,0)
+mesh = SubResource("Mesh_Foot")
+
+[node name="Face" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1,0,0,0,1,0,0,0,1,0,0,0.35)
+mesh = SubResource("Mesh_Face")
+
+[node name="Pictogram" type="Node3D" parent="Visual"]
+
+[node name="Extra1" type="MeshInstance3D" parent="Visual/Pictogram"]
+transform = Transform3D(0.490261,-0.871576,0,0.871576,0.490261,0,0,0,1,-0.24036,0.1625,0.4)
+mesh = SubResource("Mesh_StrokeBackEnd")
+
+[node name="Extra2" type="MeshInstance3D" parent="Visual/Pictogram"]
+transform = Transform3D(0.184289,-0.982872,0,0.982872,0.184289,0,0,0,1,-0.19974,0.05417,0.4)
+mesh = SubResource("Mesh_StrokeBackMid")
+
+[node name="Extra3" type="MeshInstance3D" parent="Visual/Pictogram"]
+transform = Transform3D(-0.184289,-0.982872,0,0.982872,-0.184289,0,0,0,1,-0.19974,-0.05417,0.4)
+mesh = SubResource("Mesh_StrokeBackMid")
+
+[node name="Extra4" type="MeshInstance3D" parent="Visual/Pictogram"]
+transform = Transform3D(-0.490261,-0.871576,0,0.871576,-0.490261,0,0,0,1,-0.24036,-0.1625,0.4)
+mesh = SubResource("Mesh_StrokeBackEnd")
+
+[node name="Upper1" type="MeshInstance3D" parent="Visual/Pictogram"]
+transform = Transform3D(0.995158,-0.098287,0,0.098287,0.995158,0,0,0,1,-0.09395,0.2099,0.4)
+mesh = SubResource("Mesh_StrokeCurve1")
+
+[node name="Upper2" type="MeshInstance3D" parent="Visual/Pictogram"]
+transform = Transform3D(0.941424,-0.337226,0,0.337226,0.941424,0,0,0,1,0.03132,0.18281,0.4)
+mesh = SubResource("Mesh_StrokeCurve2")
+
+[node name="Upper3" type="MeshInstance3D" parent="Visual/Pictogram"]
+transform = Transform3D(0.798189,-0.602407,0,0.602407,0.798189,0,0,0,1,0.13288,0.12865,0.4)
+mesh = SubResource("Mesh_StrokeCurve3")
+
+[node name="Upper4" type="MeshInstance3D" parent="Visual/Pictogram"]
+transform = Transform3D(0.571494,-0.820606,0,0.820606,0.571494,0,0,0,1,0.21074,0.0474,0.4)
+mesh = SubResource("Mesh_StrokeCurve4")
+
+[node name="Lower1" type="MeshInstance3D" parent="Visual/Pictogram"]
+transform = Transform3D(0.571494,0.820606,0,-0.820606,0.571494,0,0,0,1,0.21074,-0.0474,0.4)
+mesh = SubResource("Mesh_StrokeCurve4")
+
+[node name="Lower2" type="MeshInstance3D" parent="Visual/Pictogram"]
+transform = Transform3D(0.798189,0.602407,0,-0.602407,0.798189,0,0,0,1,0.13288,-0.12865,0.4)
+mesh = SubResource("Mesh_StrokeCurve3")
+
+[node name="Lower3" type="MeshInstance3D" parent="Visual/Pictogram"]
+transform = Transform3D(0.941424,0.337226,0,-0.337226,0.941424,0,0,0,1,0.03132,-0.18281,0.4)
+mesh = SubResource("Mesh_StrokeCurve2")
+
+[node name="Lower4" type="MeshInstance3D" parent="Visual/Pictogram"]
+transform = Transform3D(0.995158,0.098287,0,-0.098287,0.995158,0,0,0,1,-0.09395,-0.2099,0.4)
+mesh = SubResource("Mesh_StrokeCurve1")
+
+[node name="Back1" type="MeshInstance3D" parent="Visual/Pictogram"]
+transform = Transform3D(0.490261,0.871576,0,-0.871576,0.490261,0,0,0,1,-0.13203,-0.1625,0.4)
+mesh = SubResource("Mesh_StrokeBackEnd")
+
+[node name="Back2" type="MeshInstance3D" parent="Visual/Pictogram"]
+transform = Transform3D(0.184289,0.982872,0,-0.982872,0.184289,0,0,0,1,-0.09141,-0.05417,0.4)
+mesh = SubResource("Mesh_StrokeBackMid")
+
+[node name="Back3" type="MeshInstance3D" parent="Visual/Pictogram"]
+transform = Transform3D(-0.184289,0.982872,0,-0.982872,-0.184289,0,0,0,1,-0.09141,0.05417,0.4)
+mesh = SubResource("Mesh_StrokeBackMid")
+
+[node name="Back4" type="MeshInstance3D" parent="Visual/Pictogram"]
+transform = Transform3D(-0.490261,0.871576,0,-0.871576,-0.490261,0,0,0,1,-0.13203,0.1625,0.4)
+mesh = SubResource("Mesh_StrokeBackEnd")
+
+[node name="OutputStub" type="MeshInstance3D" parent="Visual/Pictogram"]
+transform = Transform3D(1,0,0,0,1,0,0,0,1,0.27083,0,0.4)
+mesh = SubResource("Mesh_StrokeOut")
+
+[node name="TruthDot01" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1,0,0,0,1,0,0,0,1,-0.07,-0.4,0.42)
+mesh = SubResource("Mesh_TruthDot")
+
+[node name="TruthDot10" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1,0,0,0,1,0,0,0,1,0.07,-0.4,0.42)
+mesh = SubResource("Mesh_TruthDot")
+
+[node name="FirstLamp" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1,0,0,0,1,0,0,0,1,-0.48,0.3,0.42)
+mesh = SubResource("Mesh_Lamp")
+
+[node name="SecondLamp" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1,0,0,0,1,0,0,0,1,-0.48,-0.3,0.42)
+mesh = SubResource("Mesh_Lamp")
+
+[node name="OutputLamp" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1,0,0,0,1,0,0,0,1,0.48,0,0.42)
+mesh = SubResource("Mesh_Lamp")
+
+[node name="FirstMark" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1,0,0,0,1,0,0,0,1,-0.48,0.47,0.4)
+mesh = SubResource("Mesh_Mark")
+
+[node name="SecondMarkLeft" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1,0,0,0,1,0,0,0,1,-0.58,-0.47,0.4)
+mesh = SubResource("Mesh_Mark")
+
+[node name="SecondMarkRight" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1,0,0,0,1,0,0,0,1,-0.42,-0.47,0.4)
+mesh = SubResource("Mesh_Mark")
+
+[node name="PortFirst" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1,0,0,0,1,0,0,0,1,-0.94,0.35,0)
+mesh = SubResource("Mesh_Port")
+
+[node name="PortSecond" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1,0,0,0,1,0,0,0,1,-0.94,-0.35,0)
+mesh = SubResource("Mesh_Port")
+
+[node name="PortPower" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1,0,0,0,1,0,0,0,1,0,-0.75,0.55)
+mesh = SubResource("Mesh_Port")
+
+[node name="PortOutput" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1,0,0,0,1,0,0,0,1,0.94,0,0)
+mesh = SubResource("Mesh_Port")
+
+[node name="Loc_Port_FirstIn" type="Node3D" parent="."]
+transform = Transform3D(1,0,0,0,1,0,0,0,1,-0.94,0.35,0)
+
+[node name="Loc_Port_SecondIn" type="Node3D" parent="."]
+transform = Transform3D(1,0,0,0,1,0,0,0,1,-0.94,-0.35,0)
+
+[node name="Loc_Port_PowerIn" type="Node3D" parent="."]
+transform = Transform3D(1,0,0,0,1,0,0,0,1,0,-0.75,0.55)
+
+[node name="Loc_Port_Supply" type="Node3D" parent="."]
+transform = Transform3D(1,0,0,0,1,0,0,0,1,0.94,0,0)
+
+[node name="col_Body" type="CollisionShape3D" parent="."]
+transform = Transform3D(1,0,0,0,1,0,0,0,1,0,0,0)
+visible = false
+shape = SubResource("Shape_Body")
+
+[node name="col_Foot" type="CollisionShape3D" parent="."]
+transform = Transform3D(1,0,0,0,1,0,0,0,1,0,-0.75,0)
+visible = false
+shape = SubResource("Shape_Foot")

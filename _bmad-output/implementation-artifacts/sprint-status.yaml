@@ -298,7 +298,7 @@ development_status:
   # 9a-19, 9a-39 and 9a-43 ACs require its suites.
   9-4c-latch-fixture-deferred-integrations: review
   # 31 (element)
-  9-8b-electrical-xor-gate: backlog
+  9-8b-electrical-xor-gate: review # native scope; merge main, SnapshotApproval/publication pending; browser post-catalogue
   epic-9-retrospective: optional
   # 32 (deletion): before 11-3
   9a-c-gate-declared-drive-warmup: review

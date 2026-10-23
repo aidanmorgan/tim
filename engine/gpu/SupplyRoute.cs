@@ -172,6 +172,7 @@ public sealed class CompiledSupplyGraph
         LogicGateOperation.Nand => !(first && second),
         LogicGateOperation.Nor => !(first || second),
         LogicGateOperation.Or => first || second,
+        LogicGateOperation.Xor => first != second,
         _ => throw new ArgumentOutOfRangeException(nameof(operation))
     };
     /// <summary>Whether more powered inputs can never unpower the output. Only monotone rules may share a directed cycle.</summary>
@@ -181,6 +182,7 @@ public sealed class CompiledSupplyGraph
         LogicGateOperation.Nand => false,
         LogicGateOperation.Nor => false,
         LogicGateOperation.Or => true,
+        LogicGateOperation.Xor => false,
         _ => throw new ArgumentOutOfRangeException(nameof(operation))
     };
 

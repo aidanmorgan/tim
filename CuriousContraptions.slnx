@@ -24,6 +24,7 @@
     <Project Path="elements/ElectricalNand/ElectricalNand.csproj" />
     <Project Path="elements/ElectricalNor/ElectricalNor.csproj" />
     <Project Path="elements/ElectricalOr/ElectricalOr.csproj" />
+    <Project Path="elements/ElectricalXor/ElectricalXor.csproj" />
     <Project Path="elements/Domino/Domino.csproj" />
     <Project Path="elements/Funnel/Funnel.csproj" />
     <Project Path="elements/ImpactSwitch/ImpactSwitch.csproj" />

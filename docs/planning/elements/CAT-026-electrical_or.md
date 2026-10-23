@@ -75,7 +75,7 @@ Authority: [CAT-026](../requirements.md#current-cat-026), [todo-362](../requirem
 - **Negative / controls.** Row 00 with supply; every row without supply (O5); source-free Or loop forgets its condition (O7).
 - **Boundaries.** Or loop restarts from unpowered every tick (O6); reordered placement and wiring; reconvergence into a downstream Xor (O9).
 - **Run/Reset; Save/Load.** As CAT-013.
-- **Integrations.** Or feeding Xor/Nand; actual committed lamps.
+- **Integrations.** Or feeding Xor/Nand; actual committed lamps. The Xor forms (O9 reconvergence into a Xor and the O10 Xor → Or → Xor refusal) are proved natively with the real Exactly one gate since Story 9.8b; the browser case stays queued post-catalogue.
 
 ## 6. Open questions
 

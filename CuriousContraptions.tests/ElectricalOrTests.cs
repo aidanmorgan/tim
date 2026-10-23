@@ -211,7 +211,7 @@ public sealed class ElectricalOrTests
         NoFixedCapacityTests.AssertSameState(built,reset,"contact loop Reset");
     }
 
-    public enum FeedbackLoop { OrToOr, WithNand, WithNor, ThroughOpenSwitch, EnteringPowerIn }
+    public enum FeedbackLoop { OrToOr, WithNand, WithNor, WithXor, ThroughOpenSwitch, EnteringPowerIn }
     /// <summary>Each loop as an acyclic construction plus the one wire that closes it, and the ids a refusal must name (null when
     /// the loop is monotone and admitted).</summary>
     internal static (WorkshopConstruction Open, WorkshopConnection Closing, string? Ids) LoopCase(FeedbackLoop loop)
@@ -219,6 +219,7 @@ public sealed class ElectricalOrTests
         IWorkshopInstance Either(ulong id,float x)=>WorkshopInput.Generic(Kind,new(id),x,3,0,0,0,0,1);
         IWorkshopInstance Nand(ulong id,float x)=>WorkshopInput.Generic(ElectricalNandTests.Kind,new(id),x,3,-3,0,0,0,1);
         IWorkshopInstance Nor(ulong id,float x)=>WorkshopInput.Generic(ElectricalNorTests.Kind,new(id),x,3,-3,0,0,0,1);
+        IWorkshopInstance Xor(ulong id,float x)=>WorkshopInput.Generic(ElectricalXorTests.Kind,new(id),x,3,-3,0,0,0,1);
         var supply=Battery(1,-8,true);
         var (parts,links,closing,ids)=loop switch
         {
@@ -227,6 +228,9 @@ public sealed class ElectricalOrTests
             FeedbackLoop.WithNand => (new[]{supply,Either(4,0),Nand(6,4)},new[]{Link(1,4),Link(1,6),Link(4,6,WorkshopSocket.FirstIn)},
                 Link(6,4,WorkshopSocket.SecondIn),"4, 6"),
             FeedbackLoop.WithNor => (new[]{supply,Either(4,0),Nor(6,4)},new[]{Link(1,4),Link(1,6),Link(4,6,WorkshopSocket.FirstIn)},
+                Link(6,4,WorkshopSocket.SecondIn),"4, 6"),
+            // CAT-026 O10 / CAT-027 X9: Xor → Or → Xor.
+            FeedbackLoop.WithXor => (new[]{supply,Either(4,0),Xor(6,4)},new[]{Link(1,4),Link(1,6),Link(4,6,WorkshopSocket.FirstIn)},
                 Link(6,4,WorkshopSocket.SecondIn),"4, 6"),
             FeedbackLoop.ThroughOpenSwitch => (new[]{supply,Either(4,0),WorkshopInput.Generic(PartId.ImpactSwitch,new(6),4,1,0,0,0,0,1),Nor(7,8)},
                 new[]{Link(1,4),Link(1,7),Link(4,6),Link(6,7,WorkshopSocket.FirstIn)},Link(7,4,WorkshopSocket.FirstIn),"4, 6, 7"),
@@ -240,6 +244,7 @@ public sealed class ElectricalOrTests
     [Theory]
     [InlineData(FeedbackLoop.WithNand)]
     [InlineData(FeedbackLoop.WithNor)]
+    [InlineData(FeedbackLoop.WithXor)]
     [InlineData(FeedbackLoop.ThroughOpenSwitch)]
     [InlineData(FeedbackLoop.EnteringPowerIn)]
     public async Task LoopsMixingANonmonotoneGateAreRefusedAtomicallyBeforeAnySolve(FeedbackLoop loop)
@@ -299,7 +304,7 @@ public sealed class ElectricalOrTests
             .Select(row=>CompiledSupplyGraph.Evaluate(LogicGateOperation.Or,row.Item1,row.Item2)).ToArray());
         Assert.True(CompiledSupplyGraph.IsMonotone(LogicGateOperation.Or));
         Assert.True(SupplyCycles.Monotone(LogicGateOperation.Or));
-        foreach(var undefined in new[]{(LogicGateOperation)4,(LogicGateOperation)255})
+        foreach(var undefined in new[]{(LogicGateOperation)5,(LogicGateOperation)255})
         {
             Assert.Throws<ArgumentOutOfRangeException>(()=>CompiledSupplyGraph.Evaluate(undefined,true,false));
             Assert.Throws<ArgumentOutOfRangeException>(()=>CompiledSupplyGraph.IsMonotone(undefined));

@@ -282,8 +282,8 @@ public sealed class ElectricalNandTests
             .Select(row=>CompiledSupplyGraph.Evaluate(LogicGateOperation.Nand,row.Item1,row.Item2)).ToArray());
         Assert.True(CompiledSupplyGraph.IsMonotone(LogicGateOperation.And));
         Assert.False(CompiledSupplyGraph.IsMonotone(LogicGateOperation.Nand));
-        Assert.Throws<ArgumentOutOfRangeException>(()=>CompiledSupplyGraph.Evaluate((LogicGateOperation)4,true,true));
-        Assert.Throws<ArgumentOutOfRangeException>(()=>CompiledSupplyGraph.IsMonotone((LogicGateOperation)4));
+        Assert.Throws<ArgumentOutOfRangeException>(()=>CompiledSupplyGraph.Evaluate((LogicGateOperation)5,true,true));
+        Assert.Throws<ArgumentOutOfRangeException>(()=>CompiledSupplyGraph.IsMonotone((LogicGateOperation)5));
         Assert.Equal(LogicGateOperation.Nand,DeclaredPhysics.Of(Kind).Electrical!.Supply!.Value.Operation);
         var construction=SwitchMachine(ElectricalInputState.Neither,true);
         EditRefusal.Is(WorkshopEditRejection.InvalidConnection,()=>(construction with {Connections=construction.Connections.With(Link(1,Gate,(WorkshopSocket)255))}).Validate());
