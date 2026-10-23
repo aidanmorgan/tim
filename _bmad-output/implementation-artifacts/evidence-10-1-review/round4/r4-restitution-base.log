@@ -1,0 +1,26 @@
+Test run for /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/base-10-1/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+/private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/base-10-1/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.5+1b188a7b0a (64-bit .NET 10.0.13)
+[xUnit.net 00:00:00.64]   Discovering: CuriousContraptions.tests
+[xUnit.net 00:00:01.31]   Discovered:  CuriousContraptions.tests
+[xUnit.net 00:00:01.43]   Starting:    CuriousContraptions.tests
+[xUnit.net 00:00:09.31]   Finished:    CuriousContraptions.tests (ID = 'c3e0cd9e1a3be422548b36d6b09c97b30038c61d6e9bfb34494139280e14e496')
+  Passed CuriousContraptions.Tests.ReviewProbeRestitutionTests.R1_RestitutionWithoutCylinders [7 s]
+  Standard Output Messages:
+ e 0: lone box on bench: 60 drops, worst per-tick energy rise 0.00 mJ, drops over 1.96 mJ: 0
+ e 0: box onto static box: 60 drops, worst per-tick energy rise 0.00 mJ, drops over 1.96 mJ: 0
+ e 0: lone sphere on bench: 60 drops, worst per-tick energy rise 0.00 mJ, drops over 1.96 mJ: 0
+ e 0.3: lone box on bench: 60 drops, worst per-tick energy rise 155.33 mJ, drops over 1.96 mJ: 10
+ e 0.3: box onto static box: 60 drops, worst per-tick energy rise 210.91 mJ, drops over 1.96 mJ: 12
+ e 0.3: lone sphere on bench: 60 drops, worst per-tick energy rise 555.54 mJ, drops over 1.96 mJ: 5
+ e 1: lone box on bench: 60 drops, worst per-tick energy rise 3868.28 mJ, drops over 1.96 mJ: 60
+ e 1: box onto static box: 60 drops, worst per-tick energy rise 8249.85 mJ, drops over 1.96 mJ: 60
+ e 1: lone sphere on bench: 60 drops, worst per-tick energy rise 7082.88 mJ, drops over 1.96 mJ: 21
+
+
+
+Test Run Successful.
+Total tests: 1
+     Passed: 1
+ Total time: 9.5245 Seconds

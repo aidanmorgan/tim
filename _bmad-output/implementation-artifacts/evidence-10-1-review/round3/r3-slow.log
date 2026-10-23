@@ -1,0 +1,121 @@
+Test run for /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/probe3-10-1/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+/private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/probe3-10-1/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.5+1b188a7b0a (64-bit .NET 10.0.13)
+[xUnit.net 00:00:00.65]   Discovering: CuriousContraptions.tests
+[xUnit.net 00:00:01.33]   Discovered:  CuriousContraptions.tests
+[xUnit.net 00:00:01.44]   Starting:    CuriousContraptions.tests
+  Passed CuriousContraptions.Tests.ReviewProbe101R3Tests.D5_GapContinuityThroughTouch [51 s]
+  Standard Output Messages:
+ cylinder–box rim-aimed walk (60 poses, 0.05 mm steps): worst step-to-step gap jump 0.461 mm (pose 58 at s -1.50 mm: -0.986 → -1.447 mm); worst gap reported at touch 0.063 mm; worst POSITIVE gap while overlapping 0.375 mm
+ cylinder–cylinder rim-aimed walk (60 poses, 0.05 mm steps): worst step-to-step gap jump 0.767 mm (pose 34 at s -0.05 mm: 0.001 → 0.768 mm); worst gap reported at touch 0.068 mm; worst POSITIVE gap while overlapping 0.768 mm
+
+
+  Passed CuriousContraptions.Tests.ReviewProbe101R3Tests.D2_TumbleFreshSeeds [1 m 21 s]
+  Standard Output Messages:
+ CONTROL box over box seed 1401: 30 tumble poses, worst per-tick rise 0.23 mJ, poses over 1.96 mJ: 0 []
+ box over cylinder rim seed 1402: 60 tumble poses, worst per-tick rise 0.92 mJ, poses over 1.96 mJ: 0 []
+ cylinder over cylinder rim seed 1403: 60 tumble poses, worst per-tick rise 1.19 mJ, poses over 1.96 mJ: 0 []
+ cylinder over box edge seed 1404: 30 tumble poses, worst per-tick rise 0.22 mJ, poses over 1.96 mJ: 0 []
+
+
+  Passed CuriousContraptions.Tests.ReviewProbe101R2Tests.C6_GravityLoaded(cylA: True, seed: 402, wanted: [2, 135, 0, 1, 3, ···]) [25 s]
+  Standard Output Messages:
+ cyl-box pose   0: peak upward speed (0.25 s) 0.0000 m/s, worst energy rise/tick 0.000 mJ, final drop 11017.9 mm
+ cyl-box pose   1: peak upward speed (0.25 s) 0.0000 m/s, worst energy rise/tick 0.000 mJ, final drop 11345.5 mm
+ cyl-box pose   2: peak upward speed (0.25 s) 0.0000 m/s, worst energy rise/tick 0.000 mJ, final drop 9767.8 mm
+ cyl-box pose   3: peak upward speed (0.25 s) 0.0000 m/s, worst energy rise/tick 0.041 mJ, final drop 11154.4 mm
+ cyl-box pose   4: peak upward speed (0.25 s) 0.0000 m/s, worst energy rise/tick 0.000 mJ, final drop 11285.8 mm
+ cyl-box pose   5: peak upward speed (0.25 s) 0.1350 m/s, worst energy rise/tick 0.000 mJ, final drop 8573.0 mm
+ cyl-box pose   6: peak upward speed (0.25 s) 0.0000 m/s, worst energy rise/tick 0.030 mJ, final drop 92.1 mm
+ cyl-box pose   7: peak upward speed (0.25 s) 0.1155 m/s, worst energy rise/tick 0.000 mJ, final drop 7056.1 mm
+ cyl-box pose   8: peak upward speed (0.25 s) 0.0000 m/s, worst energy rise/tick 0.000 mJ, final drop 10120.0 mm
+ cyl-box pose   9: peak upward speed (0.25 s) 0.0068 m/s, worst energy rise/tick 0.000 mJ, final drop 9851.4 mm
+ cyl-box pose  10: peak upward speed (0.25 s) 0.0000 m/s, worst energy rise/tick 0.181 mJ, final drop 8421.2 mm
+ cyl-box pose  11: peak upward speed (0.25 s) 0.0000 m/s, worst energy rise/tick 0.181 mJ, final drop 7581.3 mm
+ cyl-box pose  12: peak upward speed (0.25 s) 0.0000 m/s, worst energy rise/tick 0.000 mJ, final drop 8785.9 mm
+ cyl-box pose  13: peak upward speed (0.25 s) 0.0000 m/s, worst energy rise/tick 0.060 mJ, final drop 8964.2 mm
+ cyl-box pose  14: peak upward speed (0.25 s) 0.0000 m/s, worst energy rise/tick 0.000 mJ, final drop 6293.3 mm
+ cyl-box pose  15: peak upward speed (0.25 s) 0.1602 m/s, worst energy rise/tick 0.276 mJ, final drop 7464.6 mm
+ cyl-box pose  16: peak upward speed (0.25 s) 0.1018 m/s, worst energy rise/tick 0.000 mJ, final drop 9754.6 mm
+ cyl-box pose  17: peak upward speed (0.25 s) 0.0000 m/s, worst energy rise/tick 0.153 mJ, final drop 10434.6 mm
+ cyl-box pose  18: peak upward speed (0.25 s) 0.0000 m/s, worst energy rise/tick 0.000 mJ, final drop 10831.1 mm
+ cyl-box pose  19: peak upward speed (0.25 s) 0.0000 m/s, worst energy rise/tick 0.000 mJ, final drop 65.3 mm
+ cyl-box pose 135: peak upward speed (0.25 s) 0.0000 m/s, worst energy rise/tick 0.000 mJ, final drop 12590.4 mm
+
+
+  Passed CuriousContraptions.Tests.ReviewProbe101R2Tests.C6_GravityLoaded(cylA: False, seed: 401, wanted: [0, 1, 2, 3, 4, ···]) [30 s]
+  Standard Output Messages:
+ CONTROL box-box pose   0: peak upward speed (0.25 s) 0.0000 m/s, worst energy rise/tick 0.037 mJ, final drop 7952.1 mm
+ CONTROL box-box pose   1: peak upward speed (0.25 s) 0.0000 m/s, worst energy rise/tick 0.000 mJ, final drop 155.1 mm
+ CONTROL box-box pose   2: peak upward speed (0.25 s) 0.0000 m/s, worst energy rise/tick 0.000 mJ, final drop 12779.6 mm
+ CONTROL box-box pose   3: peak upward speed (0.25 s) 0.0000 m/s, worst energy rise/tick 0.000 mJ, final drop 10008.5 mm
+ CONTROL box-box pose   4: peak upward speed (0.25 s) 0.0000 m/s, worst energy rise/tick 0.000 mJ, final drop 8423.2 mm
+ CONTROL box-box pose   5: peak upward speed (0.25 s) 0.0182 m/s, worst energy rise/tick 0.000 mJ, final drop 179.2 mm
+ CONTROL box-box pose   6: peak upward speed (0.25 s) 0.0000 m/s, worst energy rise/tick 0.052 mJ, final drop 152.4 mm
+ CONTROL box-box pose   7: peak upward speed (0.25 s) 0.0000 m/s, worst energy rise/tick 0.000 mJ, final drop 8355.7 mm
+ CONTROL box-box pose   8: peak upward speed (0.25 s) 0.0000 m/s, worst energy rise/tick 0.000 mJ, final drop 5125.9 mm
+ CONTROL box-box pose   9: peak upward speed (0.25 s) 0.0000 m/s, worst energy rise/tick 0.080 mJ, final drop 9121.8 mm
+ CONTROL box-box pose  10: peak upward speed (0.25 s) 0.0000 m/s, worst energy rise/tick 0.000 mJ, final drop 8845.2 mm
+ CONTROL box-box pose  11: peak upward speed (0.25 s) 0.0000 m/s, worst energy rise/tick 0.154 mJ, final drop 11047.9 mm
+ CONTROL box-box pose  12: peak upward speed (0.25 s) 0.0000 m/s, worst energy rise/tick 0.154 mJ, final drop 9654.4 mm
+ CONTROL box-box pose  13: peak upward speed (0.25 s) 0.0437 m/s, worst energy rise/tick 0.129 mJ, final drop 260.8 mm
+ CONTROL box-box pose  14: peak upward speed (0.25 s) 0.0032 m/s, worst energy rise/tick 0.000 mJ, final drop 4577.7 mm
+ CONTROL box-box pose  15: peak upward speed (0.25 s) 0.0000 m/s, worst energy rise/tick 0.000 mJ, final drop 9859.5 mm
+ CONTROL box-box pose  16: peak upward speed (0.25 s) 0.0000 m/s, worst energy rise/tick 0.000 mJ, final drop 115.4 mm
+ CONTROL box-box pose  17: peak upward speed (0.25 s) 0.0000 m/s, worst energy rise/tick 0.000 mJ, final drop 11178.1 mm
+ CONTROL box-box pose  18: peak upward speed (0.25 s) 0.0000 m/s, worst energy rise/tick 0.000 mJ, final drop 9615.0 mm
+ CONTROL box-box pose  19: peak upward speed (0.25 s) 0.0000 m/s, worst energy rise/tick 0.000 mJ, final drop 8168.5 mm
+
+
+  Passed CuriousContraptions.Tests.ReviewProbe101R2Tests.C3_EnginePush [2 m 57 s]
+  Standard Output Messages:
+ CONTROL box-box at 3.0 mm: 0/100 partners moved (worst 0.000 mm in 0.5 s)
+ cyl-box at 3.0 mm: 0/183 partners moved (worst 0.000 mm in 0.5 s)
+ cyl-cyl at 3.0 mm: 0/190 partners moved (worst 0.000 mm in 0.5 s)
+ POSITIVE CONTROL cyl-box overlapping at -2.0 mm: 30/30 partners moved (worst 12.426 mm in 0.5 s)
+
+
+  Passed CuriousContraptions.Tests.ReviewProbe101R2Tests.C4_CertifiedOverlap [7 m 53 s]
+  Standard Output Messages:
+ CONTROL box-box seed 401: 80 certified-touch poses (0 uncertified). Kernel depth above the certified bound by > 0.5 mm: δ 0.3 mm 0 (worst +0.00), δ 2 mm 0 (worst +0.00), δ 5 mm 0 (worst +0.00) mm. Engine at δ 0.3 mm (true depth ≤ δ + 0.2 mm): worst displacement 0.29 mm (pose 31), worst speed 0.0002 m/s; moved > 1 mm: 0; speed > 5 mm/s: 0
+ cyl-box seed 402: 200 certified-touch poses (0 uncertified). Kernel depth above the certified bound by > 0.5 mm: δ 0.3 mm 0 (worst +0.07), δ 2 mm 0 (worst +0.00), δ 5 mm 0 (worst +0.00) mm. Engine at δ 0.3 mm (true depth ≤ δ + 0.2 mm): worst displacement 0.37 mm (pose 50), worst speed 0.0003 m/s; moved > 1 mm: 0; speed > 5 mm/s: 0
+    worst kernel pose 50: depth ≤ 0.50 mm, kernel gaps [-0.57] kinds [3]
+ cyl-cyl seed 403: 200 certified-touch poses (0 uncertified). Kernel depth above the certified bound by > 0.5 mm: δ 0.3 mm 0 (worst +0.00), δ 2 mm 0 (worst +0.00), δ 5 mm 0 (worst +0.00) mm. Engine at δ 0.3 mm (true depth ≤ δ + 0.2 mm): worst displacement 0.30 mm (pose 182), worst speed 0.0001 m/s; moved > 1 mm: 0; speed > 5 mm/s: 0
+
+
+[xUnit.net 00:14:56.29]   Finished:    CuriousContraptions.tests (ID = '51536363b47b9fc5f1c4f186fc75f4b3a9fbb617450e48ccb52a683cf0dd4c39')
+  Passed CuriousContraptions.Tests.ReviewProbe101R2Tests.C1_SeparatedGaps [54 s]
+  Standard Output Messages:
+ CONTROL box-box target 1.0 mm, seed 101: 77 certified (3 uncertified), |err|>0.5 mm 0, negative gap 0, contact beyond margin 0, missed within margin 0, gap−exact in [-0.0001, 0.0190] mm; uncertified classified: pass 2, fail 0, negative 0, missed 0, indeterminate 1
+   extreme pose 63: exact 1.0000 mm, kernel 1.0190 mm, 1 pts, feature kinds [523]
+ cyl-box target 1.0 mm, seed 102: 187 certified (13 uncertified), |err|>0.5 mm 0, negative gap 0, contact beyond margin 0, missed within margin 0, gap−exact in [-0.0000, 0.1281] mm; uncertified classified: pass 8, fail 0, negative 0, missed 0, indeterminate 5
+   extreme pose 195: exact 1.0000 mm, kernel 1.0000 mm, 1 pts, feature kinds [5]
+ cyl-cyl target 1.0 mm, seed 103: 189 certified (11 uncertified), |err|>0.5 mm 0, negative gap 0, contact beyond margin 0, missed within margin 0, gap−exact in [-0.0005, 0.0116] mm; uncertified classified: pass 10, fail 0, negative 0, missed 0, indeterminate 1
+   extreme pose 177: exact 0.9999 mm, kernel 1.0115 mm, 1 pts, feature kinds [5]
+ coin-coin target 1.0 mm, seed 104: 76 certified (24 uncertified), |err|>0.5 mm 0, negative gap 0, contact beyond margin 0, missed within margin 0, gap−exact in [-0.0007, 0.1125] mm; uncertified classified: pass 24, fail 0, negative 0, missed 0, indeterminate 0
+   extreme pose 59: exact 1.0001 mm, kernel 1.1126 mm, 2 pts, feature kinds [5,5]
+ cyl-coin target 1.0 mm, seed 105: 78 certified (22 uncertified), |err|>0.5 mm 0, negative gap 0, contact beyond margin 0, missed within margin 0, gap−exact in [-0.0275, 0.0062] mm; uncertified classified: pass 22, fail 0, negative 0, missed 0, indeterminate 0
+   extreme pose 39: exact 1.0160 mm, kernel 0.9884 mm, 1 pts, feature kinds [6]
+ CONTROL box-box target 3.0 mm, seed 101: 80 certified (0 uncertified), |err|>0.5 mm 0, negative gap 0, contact beyond margin 0, missed within margin 0, gap−exact in [-0.0000, 0.0596] mm; uncertified classified: pass 0, fail 0, negative 0, missed 0, indeterminate 0
+   extreme pose 63: exact 2.9973 mm, kernel 3.0568 mm, 1 pts, feature kinds [523]
+ cyl-box target 3.0 mm, seed 102: 191 certified (9 uncertified), |err|>0.5 mm 0, negative gap 0, contact beyond margin 0, missed within margin 0, gap−exact in [-0.0000, 0.3896] mm; uncertified classified: pass 9, fail 0, negative 0, missed 0, indeterminate 0
+   extreme pose 172: exact 3.0000 mm, kernel 3.3896 mm, 1 pts, feature kinds [5]
+ cyl-cyl target 3.0 mm, seed 103: 189 certified (11 uncertified), |err|>0.5 mm 0, negative gap 0, contact beyond margin 0, missed within margin 0, gap−exact in [-0.0096, 0.0457] mm; uncertified classified: pass 10, fail 0, negative 0, missed 0, indeterminate 1
+   extreme pose 177: exact 2.9999 mm, kernel 3.0457 mm, 1 pts, feature kinds [5]
+ coin-coin target 3.0 mm, seed 104: 76 certified (24 uncertified), |err|>0.5 mm 0, negative gap 0, contact beyond margin 0, missed within margin 0, gap−exact in [-0.0003, 0.0648] mm; uncertified classified: pass 24, fail 0, negative 0, missed 0, indeterminate 0
+   extreme pose 52: exact 3.0003 mm, kernel 3.0000 mm, 1 pts, feature kinds [6]
+ cyl-coin target 3.0 mm, seed 105: 78 certified (22 uncertified), |err|>0.5 mm 0, negative gap 0, contact beyond margin 0, missed within margin 0, gap−exact in [-0.0003, 0.0316] mm; uncertified classified: pass 22, fail 0, negative 0, missed 0, indeterminate 0
+   extreme pose 39: exact 2.9999 mm, kernel 2.9996 mm, 1 pts, feature kinds [6]
+ CONTROL box-box target 20.0 mm, seed 101: 80 certified (0 uncertified), |err|>0.5 mm 0, negative gap 0, contact beyond margin 0, missed within margin 0, gap−exact in [0.0000, 0.0000] mm; uncertified classified: pass 0, fail 0, negative 0, missed 0, indeterminate 0
+ cyl-box target 20.0 mm, seed 102: 194 certified (6 uncertified), |err|>0.5 mm 0, negative gap 0, contact beyond margin 0, missed within margin 0, gap−exact in [0.0000, 0.0000] mm; uncertified classified: pass 6, fail 0, negative 0, missed 0, indeterminate 0
+ cyl-cyl target 20.0 mm, seed 103: 190 certified (10 uncertified), |err|>0.5 mm 0, negative gap 0, contact beyond margin 0, missed within margin 0, gap−exact in [0.0000, 0.0000] mm; uncertified classified: pass 10, fail 0, negative 0, missed 0, indeterminate 0
+ coin-coin target 20.0 mm, seed 104: 77 certified (23 uncertified), |err|>0.5 mm 0, negative gap 0, contact beyond margin 0, missed within margin 0, gap−exact in [0.0000, 0.0000] mm; uncertified classified: pass 23, fail 0, negative 0, missed 0, indeterminate 0
+ cyl-coin target 20.0 mm, seed 105: 80 certified (20 uncertified), |err|>0.5 mm 0, negative gap 0, contact beyond margin 0, missed within margin 0, gap−exact in [0.0000, 0.0000] mm; uncertified classified: pass 20, fail 0, negative 0, missed 0, indeterminate 0
+
+
+
+Test Run Successful.
+Total tests: 7
+     Passed: 7
+ Total time: 14.9415 Minutes

@@ -1,0 +1,32 @@
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:50.73]     CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ACylinderOnItsCapIsUntouchedByRollingResistanceWhileOnItsSideItIsResisted(rocked: True) [FAIL]
+[xUnit.net 00:00:50.80]     CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ACylinderOnItsCapIsUntouchedByRollingResistanceWhileOnItsSideItIsResisted(rocked: False) [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ACylinderOnItsCapIsUntouchedByRollingResistanceWhileOnItsSideItIsResisted(rocked: True) [71 ms]
+  Error Message:
+   on its side the same Crr slows the roll
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ACylinderOnItsCapIsUntouchedByRollingResistanceWhileOnItsSideItIsResisted(Boolean rocked) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 984
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ACylinderOnItsCapIsUntouchedByRollingResistanceWhileOnItsSideItIsResisted(rocked: False) [65 ms]
+  Error Message:
+   on its side the same Crr slows the roll
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ACylinderOnItsCapIsUntouchedByRollingResistanceWhileOnItsSideItIsResisted(Boolean rocked) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 984
+   at InvokeStub_WorkshopPhysicsLawCylinderTests.ACylinderOnItsCapIsUntouchedByRollingResistanceWhileOnItsSideItIsResisted(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+[xUnit.net 00:01:49.49]     CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.RollingResistanceOnTheCurvedSideBringsABenchRollToRestAndWithoutItTheRollContinues [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.RollingResistanceOnTheCurvedSideBringsABenchRollToRestAndWithoutItTheRollContinues [27 ms]
+  Error Message:
+   at rest by 1.5x the stop time (v 0.9998509883880615, ω 3.3337879180908208)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.RollingResistanceOnTheCurvedSideBringsABenchRollToRestAndWithoutItTheRollContinues() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 231
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     3, Passed:    69, Skipped:     0, Total:    72, Duration: 2 m 6 s - CuriousContraptions.tests.dll (net10.0)

@@ -4,7 +4,8 @@ using System.Collections.Generic;
 namespace CuriousContraptions.Gpu;
 
 public enum RigidMotionKind : uint { Static, Dynamic }
-public enum ColliderShapeKind : uint { Sphere, Box, Plane }
+/// <summary>The closed collider set. A cylinder's axis is its local +Y; it is declared by radius and half-width (Story 10.1).</summary>
+public enum ColliderShapeKind : uint { Sphere, Box, Plane, Cylinder }
 public enum SensorParticipation : uint { Disabled, Enabled }
 public readonly record struct PhysicsDocumentId(ulong Low, ulong High);
 public readonly record struct GpuColliderId(ulong Value);
@@ -12,8 +13,9 @@ public readonly record struct GpuMaterialId(ulong Value);
 public readonly record struct GpuSensorId(ulong Value);
 public readonly record struct GpuForceId(ulong Value);
 public readonly record struct FrictionCoefficient(Half Value);
-/// <summary>Dimensionless rolling-resistance coefficient Crr: at every sphere contact the solver opposes the relative rolling with an
-/// angular impulse of at most Crr · normal impulse · sphere radius, equal and opposite on both bodies.</summary>
+/// <summary>Dimensionless rolling-resistance coefficient Crr: at every sphere contact and every curved-side cylinder contact the solver
+/// opposes the relative rolling with an angular impulse of at most Crr · normal impulse · radius, equal and opposite on both
+/// bodies.</summary>
 public readonly record struct RollingResistance(Half Value);
 public readonly record struct LinearSpeed(Half Value);
 public readonly record struct DurationSeconds(Half Value);
@@ -112,6 +114,13 @@ public readonly record struct ColliderDeclaration(
                 if (!PhysicsDeclarationBounds.Zero(Radius.Value) ||
                     !PhysicsDeclarationBounds.Zero(HalfExtents.X, HalfExtents.Y, HalfExtents.Z))
                     throw new ArgumentException("Plane shape lanes must be zero.");
+                break;
+            case ColliderShapeKind.Cylinder:
+                // Radius r in the sphere range, half-width h = w/2 along local +Y in the box range; X and Z are canonical zero.
+                PhysicsDeclarationBounds.Range(Radius.Value, (Half)(1.0 / 16), (Half)16);
+                if (!PhysicsDeclarationBounds.Zero(HalfExtents.X) || !PhysicsDeclarationBounds.Zero(HalfExtents.Z))
+                    throw new ArgumentException("Cylinder X and Z extents must be zero.");
+                PhysicsDeclarationBounds.Range(HalfExtents.Y, (Half)(1.0 / 1024), (Half)16);
                 break;
             default:
                 throw new ArgumentException("Unsupported shape.");
@@ -233,8 +242,9 @@ public sealed class PhysicsSceneDeclaration
                 throw new ArgumentException("Collider refers to an absent body or material.");
             if (body.Motion == RigidMotionKind.Dynamic)
             {
-                if (collider.Shape is not (ColliderShapeKind.Sphere or ColliderShapeKind.Box) || !dynamicColliders.Add(body.Id))
-                    throw new ArgumentException("Dynamic bodies require one homogeneous sphere or box.");
+                if (collider.Shape is not (ColliderShapeKind.Sphere or ColliderShapeKind.Box or ColliderShapeKind.Cylinder) ||
+                    !dynamicColliders.Add(body.Id))
+                    throw new ArgumentException("Dynamic bodies require one homogeneous sphere, box or cylinder.");
                 RigidMassProperties.Compile(body, collider).Validate();
             }
         }

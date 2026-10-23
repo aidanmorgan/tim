@@ -1,0 +1,17 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/frozen4/WorkshopCollisionKernels.cs	2026-10-23 21:52:48.080981334 +0800
++++ CuriousContraptions.Simulation/WorkshopCollisionKernels.cs	2026-10-23 23:34:05.190451752 +0800
+@@ -1671,12 +1671,12 @@
+                 // Each end's gap is its own distance to B's curved side, so the up to 2° of skew the line tolerance allows reads B's
+                 // surface curving away rather than a pairing along the pair normal (review F4).
+                 var s0 = pa + lo * aa + u;
+-                var g0 = SideDistance(Solid.Of(colB), s0, out var b0);
++                var g0 = CylinderDistance(Solid.Of(colB), s0, out var b0, out _);
+                 Add(outList, (s0 + b0) * 0.5f, g0, Feature(CylinderFeature.Side, 0));
+                 if (hi - lo > 1e-6f)
+                 {
+                     var s1 = pa + hi * aa + u;
+-                    var g1 = SideDistance(Solid.Of(colB), s1, out var b1);
++                    var g1 = CylinderDistance(Solid.Of(colB), s1, out var b1, out _);
+                     Add(outList, (s1 + b1) * 0.5f, g1, Feature(CylinderFeature.Side, 1));
+                 }
+             }

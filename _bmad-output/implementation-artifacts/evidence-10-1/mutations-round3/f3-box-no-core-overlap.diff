@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/frozen3/WorkshopCollisionKernels.cs	2026-10-23 18:47:47.117342476 +0800
++++ CuriousContraptions.Simulation/WorkshopCollisionKernels.cs	2026-10-23 18:50:38.742964748 +0800
+@@ -1013,7 +1013,7 @@
+         {
+             var shrink = CoreMargin(cyl);
+             var core = CylinderBoxClosest(Solid.Of(cyl, shrink), box);
+-            if (core.Gap > 0f)
++            if (core.Gap > 1e9f)
+             {
+                 closest = core;
+                 closest.Gap = core.Gap - shrink;

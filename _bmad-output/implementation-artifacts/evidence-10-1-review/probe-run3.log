@@ -1,0 +1,42 @@
+Test run for /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/probe-10-1/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+/private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/probe-10-1/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.5+1b188a7b0a (64-bit .NET 10.0.13)
+[xUnit.net 00:00:00.41]   Discovering: CuriousContraptions.tests
+[xUnit.net 00:00:01.07]   Discovered:  CuriousContraptions.tests
+[xUnit.net 00:00:01.18]   Starting:    CuriousContraptions.tests
+[xUnit.net 00:00:01.53]     CuriousContraptions.Tests.ReviewProbe101cTests.L1_LogLeaningOnAStandingDrumsRim [FAIL]
+[xUnit.net 00:00:01.53]       System.ArgumentException : Physical declaration exceeds its admitted domain.
+[xUnit.net 00:00:01.53]       Stack Trace:
+[xUnit.net 00:00:01.53]         /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/probe-10-1/engine/gpu/PhysicsDeclarations.cs(363,0): at CuriousContraptions.Gpu.PhysicsDeclarationBounds.Range(Half value, Half minimum, Half maximum)
+[xUnit.net 00:00:01.53]         /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/probe-10-1/engine/gpu/PhysicsDeclarations.cs(120,0): at CuriousContraptions.Gpu.ColliderDeclaration.Validate()
+[xUnit.net 00:00:01.53]         /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/probe-10-1/engine/gpu/PhysicsDeclarations.cs(236,0): at CuriousContraptions.Gpu.PhysicsSceneDeclaration..ctor(PhysicsDocumentId document, UInt64 nextIdentity, ReadOnlySpan`1 bodies, ReadOnlySpan`1 colliders, ReadOnlySpan`1 materials, ReadOnlySpan`1 sensors, ReadOnlySpan`1 guides, ReadOnlySpan`1 triggers, ReadOnlySpan`1 contactWorks, ReadOnlySpan`1 orientationSensors, ReadOnlySpan`1 electricalSources, ReadOnlySpan`1 electricalBindings, ReadOnlySpan`1 prismatics, ReadOnlySpan`1 supplyNodes, ReadOnlySpan`1 supplyEdges, ReadOnlySpan`1 contactLoadSensors)
+[xUnit.net 00:00:01.53]         /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/probe-10-1/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs(175,0): at CuriousContraptions.Tests.LawScene.Admit(SimulationCadence cadence)
+[xUnit.net 00:00:01.53]         /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/probe-10-1/CuriousContraptions.tests/ReviewProbe101cTests.cs(100,0): at CuriousContraptions.Tests.ReviewProbe101cTests.L1_LogLeaningOnAStandingDrumsRim()
+[xUnit.net 00:00:01.53]            at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+[xUnit.net 00:00:01.53]            at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.ReviewProbe101cTests.L1_LogLeaningOnAStandingDrumsRim [16 ms]
+  Error Message:
+   System.ArgumentException : Physical declaration exceeds its admitted domain.
+  Stack Trace:
+     at CuriousContraptions.Gpu.PhysicsDeclarationBounds.Range(Half value, Half minimum, Half maximum) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/probe-10-1/engine/gpu/PhysicsDeclarations.cs:line 363
+   at CuriousContraptions.Gpu.ColliderDeclaration.Validate() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/probe-10-1/engine/gpu/PhysicsDeclarations.cs:line 120
+   at CuriousContraptions.Gpu.PhysicsSceneDeclaration..ctor(PhysicsDocumentId document, UInt64 nextIdentity, ReadOnlySpan`1 bodies, ReadOnlySpan`1 colliders, ReadOnlySpan`1 materials, ReadOnlySpan`1 sensors, ReadOnlySpan`1 guides, ReadOnlySpan`1 triggers, ReadOnlySpan`1 contactWorks, ReadOnlySpan`1 orientationSensors, ReadOnlySpan`1 electricalSources, ReadOnlySpan`1 electricalBindings, ReadOnlySpan`1 prismatics, ReadOnlySpan`1 supplyNodes, ReadOnlySpan`1 supplyEdges, ReadOnlySpan`1 contactLoadSensors) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/probe-10-1/engine/gpu/PhysicsDeclarations.cs:line 236
+   at CuriousContraptions.Tests.LawScene.Admit(SimulationCadence cadence) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/probe-10-1/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 175
+   at CuriousContraptions.Tests.ReviewProbe101cTests.L1_LogLeaningOnAStandingDrumsRim() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/probe-10-1/CuriousContraptions.tests/ReviewProbe101cTests.cs:line 100
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:18.31]   Finished:    CuriousContraptions.tests (ID = 'c2334ac06914b9685b207240a16d2f1d28e27073172085c2d68af6987a787dab')
+  Passed CuriousContraptions.Tests.ReviewProbe101cTests.L2_RodEndRimOnABoxEdgeAndADrumTiltedAgainstADrum [16 s]
+  Standard Output Messages:
+ tilted drum rim on box edge: final pos <0.025988245, 0.09970692, 0.09982033>, tilt 0.00°; last second true separation from partner 24.01..24.01 mm; max speed 0.0000 m/s, max spin 0.0000 rad/s
+ drum leaning 15° on standing drum: final pos <-0.083814666, 0.29977995, 0.041820575>, tilt 0.00°; last second true separation from partner 135.55..135.55 mm; max speed 0.0000 m/s, max spin 0.0000 rad/s
+ drum leaning 30° on standing drum: final pos <-0.19853084, 0.29978007, 0.05094678>, tilt 0.00°; last second true separation from partner 250.62..250.62 mm; max speed 0.0000 m/s, max spin 0.0000 rad/s
+
+
+
+Test Run Failed.
+Total tests: 2
+     Passed: 1
+     Failed: 1
+ Total time: 18.4912 Seconds

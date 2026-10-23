@@ -1,0 +1,4 @@
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/tools/E2eRunner.Tests/bin/Debug/net10.0/E2eRunner.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:   189, Skipped:     0, Total:   189, Duration: 23 s - E2eRunner.Tests.dll (net10.0)

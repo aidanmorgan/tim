@@ -1,0 +1,42 @@
+Test run for /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/probe2-10-1/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+/private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/probe2-10-1/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.5+1b188a7b0a (64-bit .NET 10.0.13)
+[xUnit.net 00:00:00.60]   Discovering: CuriousContraptions.tests
+[xUnit.net 00:00:01.32]   Discovered:  CuriousContraptions.tests
+[xUnit.net 00:00:01.43]   Starting:    CuriousContraptions.tests
+[xUnit.net 00:00:57.07]   Finished:    CuriousContraptions.tests (ID = 'f6ad845e9c7e36a4e54a0493ec2591fb8e5fdac368a7b0f0d22fa5299d3c8bb4')
+  Passed CuriousContraptions.Tests.ReviewProbe101R2Tests.C1_SeparatedGaps [55 s]
+  Standard Output Messages:
+ CONTROL box-box target 1.0 mm, seed 101: 77 certified (3 uncertified), |err|>0.5 mm 0, negative gap 0, contact beyond margin 0, missed within margin 0, gap−exact in [-0.0001, 0.0190] mm; uncertified classified: pass 2, fail 0, negative 0, missed 0, indeterminate 1
+   extreme pose 63: exact 1.0000 mm, kernel 1.0190 mm, 1 pts, feature kinds [523]
+ cyl-box target 1.0 mm, seed 102: 187 certified (13 uncertified), |err|>0.5 mm 0, negative gap 0, contact beyond margin 0, missed within margin 0, gap−exact in [-0.0000, 0.1281] mm; uncertified classified: pass 8, fail 0, negative 0, missed 0, indeterminate 5
+   extreme pose 173: exact 0.9999 mm, kernel 0.9999 mm, 1 pts, feature kinds [3]
+ cyl-cyl target 1.0 mm, seed 103: 189 certified (11 uncertified), |err|>0.5 mm 0, negative gap 0, contact beyond margin 0, missed within margin 0, gap−exact in [-0.0005, 0.0116] mm; uncertified classified: pass 10, fail 0, negative 0, missed 0, indeterminate 1
+   extreme pose 177: exact 0.9999 mm, kernel 1.0115 mm, 1 pts, feature kinds [5]
+ coin-coin target 1.0 mm, seed 104: 76 certified (24 uncertified), |err|>0.5 mm 0, negative gap 0, contact beyond margin 0, missed within margin 0, gap−exact in [-0.0007, 0.1125] mm; uncertified classified: pass 24, fail 0, negative 0, missed 0, indeterminate 0
+   extreme pose 59: exact 1.0001 mm, kernel 1.1126 mm, 2 pts, feature kinds [5,5]
+ cyl-coin target 1.0 mm, seed 105: 78 certified (22 uncertified), |err|>0.5 mm 0, negative gap 0, contact beyond margin 0, missed within margin 0, gap−exact in [-0.0275, 0.0062] mm; uncertified classified: pass 22, fail 0, negative 0, missed 0, indeterminate 0
+   extreme pose 39: exact 1.0160 mm, kernel 0.9884 mm, 1 pts, feature kinds [6]
+ CONTROL box-box target 3.0 mm, seed 101: 80 certified (0 uncertified), |err|>0.5 mm 0, negative gap 0, contact beyond margin 0, missed within margin 0, gap−exact in [-0.0000, 0.0596] mm; uncertified classified: pass 0, fail 0, negative 0, missed 0, indeterminate 0
+   extreme pose 63: exact 2.9973 mm, kernel 3.0568 mm, 1 pts, feature kinds [523]
+ cyl-box target 3.0 mm, seed 102: 191 certified (9 uncertified), |err|>0.5 mm 0, negative gap 0, contact beyond margin 0, missed within margin 0, gap−exact in [-0.0000, 0.3896] mm; uncertified classified: pass 9, fail 0, negative 0, missed 0, indeterminate 0
+   extreme pose 173: exact 3.0000 mm, kernel 2.9999 mm, 1 pts, feature kinds [3]
+ cyl-cyl target 3.0 mm, seed 103: 189 certified (11 uncertified), |err|>0.5 mm 0, negative gap 0, contact beyond margin 0, missed within margin 0, gap−exact in [-0.0096, 0.0457] mm; uncertified classified: pass 10, fail 0, negative 0, missed 0, indeterminate 1
+   extreme pose 177: exact 2.9999 mm, kernel 3.0457 mm, 1 pts, feature kinds [5]
+ coin-coin target 3.0 mm, seed 104: 76 certified (24 uncertified), |err|>0.5 mm 0, negative gap 0, contact beyond margin 0, missed within margin 0, gap−exact in [-0.0003, 0.0648] mm; uncertified classified: pass 24, fail 0, negative 0, missed 0, indeterminate 0
+   extreme pose 52: exact 3.0003 mm, kernel 3.0000 mm, 1 pts, feature kinds [6]
+ cyl-coin target 3.0 mm, seed 105: 78 certified (22 uncertified), |err|>0.5 mm 0, negative gap 0, contact beyond margin 0, missed within margin 0, gap−exact in [-0.0003, 0.0316] mm; uncertified classified: pass 22, fail 0, negative 0, missed 0, indeterminate 0
+   extreme pose 39: exact 2.9999 mm, kernel 2.9996 mm, 1 pts, feature kinds [6]
+ CONTROL box-box target 20.0 mm, seed 101: 80 certified (0 uncertified), |err|>0.5 mm 0, negative gap 0, contact beyond margin 0, missed within margin 0, gap−exact in [0.0000, 0.0000] mm; uncertified classified: pass 0, fail 0, negative 0, missed 0, indeterminate 0
+ cyl-box target 20.0 mm, seed 102: 194 certified (6 uncertified), |err|>0.5 mm 0, negative gap 0, contact beyond margin 0, missed within margin 0, gap−exact in [0.0000, 0.0000] mm; uncertified classified: pass 6, fail 0, negative 0, missed 0, indeterminate 0
+ cyl-cyl target 20.0 mm, seed 103: 190 certified (10 uncertified), |err|>0.5 mm 0, negative gap 0, contact beyond margin 0, missed within margin 0, gap−exact in [0.0000, 0.0000] mm; uncertified classified: pass 10, fail 0, negative 0, missed 0, indeterminate 0
+ coin-coin target 20.0 mm, seed 104: 77 certified (23 uncertified), |err|>0.5 mm 0, negative gap 0, contact beyond margin 0, missed within margin 0, gap−exact in [0.0000, 0.0000] mm; uncertified classified: pass 23, fail 0, negative 0, missed 0, indeterminate 0
+ cyl-coin target 20.0 mm, seed 105: 80 certified (20 uncertified), |err|>0.5 mm 0, negative gap 0, contact beyond margin 0, missed within margin 0, gap−exact in [0.0000, 0.0000] mm; uncertified classified: pass 20, fail 0, negative 0, missed 0, indeterminate 0
+
+
+
+Test Run Successful.
+Total tests: 1
+     Passed: 1
+ Total time: 57.3084 Seconds

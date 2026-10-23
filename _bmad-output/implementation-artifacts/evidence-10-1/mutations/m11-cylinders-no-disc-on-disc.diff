@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/frozen/WorkshopCollisionKernels.cs	2026-10-22 13:26:10.012188993 +0800
++++ CuriousContraptions.Simulation/WorkshopCollisionKernels.cs	2026-10-22 13:30:03.406830498 +0800
+@@ -1246,7 +1246,7 @@
+             var detail = (Vector3.Dot(ra - pa, aa) >= 0f ? 0 : 1) | (Vector3.Dot(rb - pb, ab) >= 0f ? 0 : 2);
+             Add(outList, p, best, Feature(CylinderFeature.Rim, detail));
+         }
+-        else if (tA >= EdgeFaceAlignment && tB >= EdgeFaceAlignment) DiscOnDisc();
++        else if (tA >= EdgeFaceAlignment && tB >= EdgeFaceAlignment) { if (best > 1e9f) DiscOnDisc(); }
+         else if (tA >= EdgeFaceAlignment) Chord(colA, colB, n, 0);
+         else if (tB >= EdgeFaceAlignment) Chord(colB, colA, -n, 4);
+         else if (MathF.Abs(Vector3.Dot(aa, ab)) >= EdgeFaceAlignment)

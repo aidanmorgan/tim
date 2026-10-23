@@ -1,0 +1,38 @@
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:01.94]     CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ARodRightsItselfBelowAtanROverHAndTopplesAboveItAtEveryAzimuth(azimuth: 45) [FAIL]
+[xUnit.net 00:00:02.15]     CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ATiltedCapLandsOnItsTrueLowestRimPointWithoutSinkingOrGainingEnergy(radius: 0.219999999, halfWidth: 0.50999999) [FAIL]
+[xUnit.net 00:00:02.31]     CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ATiltedCapLandsOnItsTrueLowestRimPointWithoutSinkingOrGainingEnergy(radius: 0.400000006, halfWidth: 0.0850000009) [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ARodRightsItselfBelowAtanROverHAndTopplesAboveItAtEveryAzimuth(azimuth: 45) [23 ms]
+  Error Message:
+   10.5° rights itself
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ARodRightsItselfBelowAtanROverHAndTopplesAboveItAtEveryAzimuth(Double azimuth) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 641
+   at InvokeStub_WorkshopPhysicsLawCylinderTests.ARodRightsItselfBelowAtanROverHAndTopplesAboveItAtEveryAzimuth(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ATiltedCapLandsOnItsTrueLowestRimPointWithoutSinkingOrGainingEnergy(radius: 0.219999999, halfWidth: 0.50999999) [207 ms]
+  Error Message:
+   az 45 tilt 20: resting penetration 0.5109906196594238 mm
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ATiltedCapLandsOnItsTrueLowestRimPointWithoutSinkingOrGainingEnergy(Single radius, Single halfWidth) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 662
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ATiltedCapLandsOnItsTrueLowestRimPointWithoutSinkingOrGainingEnergy(radius: 0.400000006, halfWidth: 0.0850000009) [160 ms]
+  Error Message:
+   az 45 tilt 5: transient penetration 9.928345680236816 mm
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ATiltedCapLandsOnItsTrueLowestRimPointWithoutSinkingOrGainingEnergy(Single radius, Single halfWidth) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 661
+   at InvokeStub_WorkshopPhysicsLawCylinderTests.ATiltedCapLandsOnItsTrueLowestRimPointWithoutSinkingOrGainingEnergy(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+[xUnit.net 00:00:12.22]     CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ANearUprightCapWithinTheMarginAlwaysHasItsDeepestContact [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ANearUprightCapWithinTheMarginAlwaysHasItsDeepestContact [< 1 ms]
+  Error Message:
+   r 0.4 az 30 tilt 2: nearest gap 0.0028701825
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ANearUprightCapWithinTheMarginAlwaysHasItsDeepestContact() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 679
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     4, Passed:    63, Skipped:     0, Total:    67, Duration: 13 s - CuriousContraptions.tests.dll (net10.0)

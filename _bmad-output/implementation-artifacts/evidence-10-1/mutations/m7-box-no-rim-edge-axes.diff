@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/frozen/WorkshopCollisionKernels.cs	2026-10-22 13:26:10.012188993 +0800
++++ CuriousContraptions.Simulation/WorkshopCollisionKernels.cs	2026-10-22 13:28:14.204057283 +0800
+@@ -1001,7 +1001,7 @@
+                     var start = vertices[v];
+                     var length = vertices[v | bit] - start;
+                     var rim = cc + cyl.Radius * RadialUnit(ClosestOnSegment(start, length, cc) - cc, a, cyl.U0);
+-                    if (!Direction(ClosestOnSegment(start, length, rim) - rim)) return;
++                    _ = rim;
+                 }
+         }
+ 

@@ -1,0 +1,53 @@
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:01.72]     CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ThreeCylindersStackEndToEnd [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ThreeCylindersStackEndToEnd [194 ms]
+  Error Message:
+   Assert.InRange() Failure: Value not in range
+Range:  (0.0379169919 - 0.0419169925)
+Actual: -0.161270127
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.Holds(LawWorld world, GpuBodyId body, Single restY, Single tolerance, Single seconds) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 294
+   at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ThreeCylindersStackEndToEnd() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 344
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:01.98]     CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.DroppedEndDownACylinderSettlesOnItsCapWithoutJitterOrDrift [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.DroppedEndDownACylinderSettlesOnItsCapWithoutJitterOrDrift [126 ms]
+  Error Message:
+   penetration 0.17024392
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.DroppedEndDownACylinderSettlesOnItsCapWithoutJitterOrDrift() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 240
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:04.69]     CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ATallCylinderTippedPastItsRimTopplesOntoItsSideAndOtherwiseRightsItself(degrees: 8, topples: False) [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ATallCylinderTippedPastItsRimTopplesOntoItsSideAndOtherwiseRightsItself(degrees: 8, topples: False) [16 ms]
+  Error Message:
+   tilt 90.000145
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ATallCylinderTippedPastItsRimTopplesOntoItsSideAndOtherwiseRightsItself(Double degrees, Boolean topples) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 283
+   at InvokeStub_WorkshopPhysicsLawCylinderTests.ATallCylinderTippedPastItsRimTopplesOntoItsSideAndOtherwiseRightsItself(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+[xUnit.net 00:00:04.78]     CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.CylinderPlaneManifoldsHaveFourCapPointsTwoSidePointsOrOneRimPoint [FAIL]
+[xUnit.net 00:00:04.95]     CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ABoxRestsOnACylinderCap [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.CylinderPlaneManifoldsHaveFourCapPointsTwoSidePointsOrOneRimPoint [< 1 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: 4
+Actual:   0
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.Gaps(List`1 contacts, Int32 count, Single gap) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 436
+   at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.CylinderPlaneManifoldsHaveFourCapPointsTwoSidePointsOrOneRimPoint() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 445
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ABoxRestsOnACylinderCap [112 ms]
+  Error Message:
+   Assert.InRange() Failure: Value not in range
+Range:  (-0.191441402 - -0.188441411)
+Actual: -0.360254079
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.Holds(LawWorld world, GpuBodyId body, Single restY, Single tolerance, Single seconds) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 294
+   at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ABoxRestsOnACylinderCap() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 306
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     5, Passed:    41, Skipped:     0, Total:    46, Duration: 3 s - CuriousContraptions.tests.dll (net10.0)

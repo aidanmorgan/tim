@@ -1,0 +1,26 @@
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:05.37]     CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ALogLiesAcrossAStandingCylindersCap [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ALogLiesAcrossAStandingCylindersCap [30 ms]
+  Error Message:
+   rest v 0.04373159865841207 ω 0.44027956594967577
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.Holds(LawWorld world, GpuBodyId body, Single restY, Single tolerance, Single seconds) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 327
+   at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ALogLiesAcrossAStandingCylindersCap() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 395
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:12.45]     CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.CylinderPairsGiveTwoPointsWhenParallelOneWhenCrossedAndFourCapOnCap [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.CylinderPairsGiveTwoPointsWhenParallelOneWhenCrossedAndFourCapOnCap [< 1 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: 2
+Actual:   1
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.Gaps(List`1 contacts, Int32 count, Single gap) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 502
+   at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.CylinderPairsGiveTwoPointsWhenParallelOneWhenCrossedAndFourCapOnCap() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 577
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     2, Passed:    70, Skipped:     0, Total:    72, Duration: 15 s - CuriousContraptions.tests.dll (net10.0)

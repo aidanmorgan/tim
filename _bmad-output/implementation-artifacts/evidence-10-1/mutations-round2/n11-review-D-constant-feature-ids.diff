@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/frozen2/WorkshopCollisionKernels.cs	2026-10-23 15:24:43.376194854 +0800
++++ CuriousContraptions.Simulation/WorkshopCollisionKernels.cs	2026-10-23 15:36:08.560247186 +0800
+@@ -754,7 +754,7 @@
+         Support = 9
+     }
+ 
+-    private static int Feature(CylinderFeature kind, int detail) => ((int)kind << 12) | detail;
++    private static int Feature(CylinderFeature kind, int detail) => 0 * (((int)kind << 12) | detail);
+ 
+     // Eight rim samples at 45° steps in the cylinder frame (U0 at 0°, U2 at 90°).
+     private static ReadOnlySpan<float> RimCos => [1f, RimDiagonal, 0f, -RimDiagonal, -1f, -RimDiagonal, 0f, RimDiagonal];

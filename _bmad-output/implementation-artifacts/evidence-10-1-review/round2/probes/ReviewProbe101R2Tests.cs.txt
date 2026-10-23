@@ -1,0 +1,642 @@
+using System.Numerics;
+using CuriousContraptions.Gpu;
+using CuriousContraptions.Simulation;
+using Xunit;
+#pragma warning disable CA1822, CA1861, CA5394, CA1305, CA1307, CA1310, IDE0060
+
+namespace CuriousContraptions.Tests;
+
+/// <summary>
+/// Reviewer round-2 probes for Story 10.1 (throwaway). The separation oracle is CERTIFIED by duality: an upper bound from
+/// alternating closed-form projections in double (|a − b| for a ∈ A, b ∈ B), and a lower bound from the exact support-function
+/// separation along the primal direction u = (b − a)/|b − a| (any u gives min_B b·u − max_A a·u ≤ distance). A pose counts only
+/// when the two bounds agree within 1e-5 m. Overlap depth uses the support-function maximum (pattern search, seeded densely and with
+/// the kernel normal), which is an UPPER bound on the true minimum-translation depth.
+/// </summary>
+public sealed class ReviewProbe101R2Tests(ITestOutputHelper output)
+{
+    private readonly record struct Shape(bool Cylinder, D3 P, D3 U0, D3 U1, D3 U2, double R, double Hx, double Hy, double Hz)
+    {
+        public static Shape Of(SimCollider c) => new(c.Shape == ShapeKind.Cylinder, new(c.Position), new(c.U0), new(c.U1), new(c.U2),
+            c.Radius, c.Hx, c.Hy, c.Hz);
+
+        public double Support(D3 u)
+        {
+            if (Cylinder)
+            {
+                var t = Math.Abs(u.Dot(U1));
+                return P.Dot(u) + Hy * t + R * Math.Sqrt(Math.Max(0, 1 - t * t));
+            }
+            return P.Dot(u) + Hx * Math.Abs(u.Dot(U0)) + Hy * Math.Abs(u.Dot(U1)) + Hz * Math.Abs(u.Dot(U2));
+        }
+
+        public D3 Project(D3 x)
+        {
+            var d = x - P;
+            if (Cylinder)
+            {
+                var y = d.Dot(U1);
+                var q = d - y * U1;
+                var rho = q.Length;
+                if (rho > R) q = R / rho * q;
+                return P + Math.Clamp(y, -Hy, Hy) * U1 + q;
+            }
+            return P + Math.Clamp(d.Dot(U0), -Hx, Hx) * U0 + Math.Clamp(d.Dot(U1), -Hy, Hy) * U1 + Math.Clamp(d.Dot(U2), -Hz, Hz) * U2;
+        }
+    }
+
+    private static double Sep(Shape a, Shape b, D3 u) => -b.Support(-u) - a.Support(u);
+
+    /// <summary>Certified distance (upper, lower) of two DISJOINT solids.</summary>
+    private static (double Upper, double Lower) Distance(Shape a, Shape b)
+    {
+        var x = b.P;
+        D3 pa = a.Project(x), pb = b.Project(pa);
+        double upper = (pa - pb).Length, lower = double.NegativeInfinity;
+        for (var round = 0; round < 40; round++)
+        {
+            for (var i = 0; i < 5000; i++) { pa = a.Project(pb); pb = b.Project(pa); }
+            upper = (pa - pb).Length;
+            if (upper < 1e-9) break;
+            if (upper > 1e-12) lower = Math.Max(lower, Sep(a, b, (1 / upper) * (pb - pa)));
+            if (upper - lower <= 1e-5) break;
+        }
+        if (upper >= 1e-9 && upper - lower > 1e-5)
+        {
+            // Any direction gives a valid lower bound: climb Sep locally from the primal direction.
+            var u = (1 / upper) * (pb - pa);
+            var step = .01; var rng = new Random(3);
+            while (step > 1e-10)
+            {
+                var improved = false;
+                for (var k = 0; k < 30; k++)
+                {
+                    var v = (u + step * new D3(rng.NextDouble() * 2 - 1, rng.NextDouble() * 2 - 1, rng.NextDouble() * 2 - 1)).Unit;
+                    var sv = Sep(a, b, v);
+                    if (sv > lower) { lower = sv; u = v; improved = true; }
+                }
+                if (!improved) step *= .5;
+            }
+        }
+        return (upper, lower);
+    }
+
+    /// <summary>Cheap uncertified distance for placement only (2000 alternating projections).</summary>
+    private static double Rough(Shape a, Shape b)
+    {
+        D3 pa = a.Project(b.P), pb = b.Project(pa);
+        for (var i = 0; i < 2000; i++) { pa = a.Project(pb); pb = b.Project(pa); }
+        return (pa - pb).Length;
+    }
+
+    /// <summary>Upper bound on overlap depth: −max_u Sep (pattern search from dense directions and the given seeds).</summary>
+    private static double DepthUpper(Shape a, Shape b, params D3[] seeds)
+    {
+        const int n = 4000;
+        var golden = Math.PI * (3 - Math.Sqrt(5));
+        var list = new List<(double S, D3 U)>();
+        for (var i = 0; i < n; i++)
+        {
+            var y = 1 - 2 * (i + .5) / n; var rad = Math.Sqrt(1 - y * y);
+            var u = new D3(Math.Cos(golden * i) * rad, y, Math.Sin(golden * i) * rad);
+            list.Add((Sep(a, b, u), u));
+        }
+        foreach (var s in seeds) { list.Add((Sep(a, b, s.Unit), s.Unit)); list.Add((Sep(a, b, -s.Unit), -s.Unit)); }
+        var best = double.NegativeInfinity;
+        foreach (var (s0, u0) in list.OrderByDescending(c => c.S).Take(10))
+        {
+            var u = u0; var s = s0; var step = .05; var rng = new Random(7);
+            while (step > 1e-9)
+            {
+                var improved = false;
+                for (var k = 0; k < 30; k++)
+                {
+                    var v = (u + step * new D3(rng.NextDouble() * 2 - 1, rng.NextDouble() * 2 - 1, rng.NextDouble() * 2 - 1)).Unit;
+                    var sv = Sep(a, b, v);
+                    if (sv > s) { s = sv; u = v; improved = true; }
+                }
+                if (!improved) step *= .5;
+            }
+            best = Math.Max(best, s);
+        }
+        return -best;
+    }
+
+    private static Quaternion RandomRotation(Random rng) => Quaternion.Normalize(new((float)(rng.NextDouble() * 2 - 1),
+        (float)(rng.NextDouble() * 2 - 1), (float)(rng.NextDouble() * 2 - 1), (float)(rng.NextDouble() * 2 - 1)));
+
+    private static SimCollider Make(ShapeKind shape, Vector3 p, Quaternion q, float radius, Vector3 half, int index)
+    {
+        var body = new SimBody
+        {
+            Px = p.X, Py = p.Y, Pz = p.Z, Qx = q.X, Qy = q.Y, Qz = q.Z, Qw = q.W, Motion = 1, Mass = 1, InvMass = 1,
+            Principal = Quaternion.Identity, InvI = Vector3.One, Q0 = Quaternion.Identity
+        };
+        var c = new SimCollider { Index = index, Body = body, Shape = shape, Radius = radius, Hx = half.X, Hy = half.Y, Hz = half.Z, Rq = Quaternion.Identity };
+        WorkshopCollisionKernels.RefreshCollider(c);
+        return c;
+    }
+
+    private static SimCollider CylA(Vector3 p, Quaternion q) => Make(ShapeKind.Cylinder, p, q, .3f, new(0, .2f, 0), 0);
+    private static SimCollider BoxA(Vector3 p, Quaternion q) => Make(ShapeKind.Box, p, q, 0, new(.3f, .2f, .3f), 0);
+    private static SimCollider BoxB(Vector3 p, Quaternion q) => Make(ShapeKind.Box, p, q, 0, new(.25f, .1f, .15f), 1);
+    private static SimCollider CylB(Vector3 p, Quaternion q) => Make(ShapeKind.Cylinder, p, q, .2f, new(0, .35f, 0), 1);
+    private static SimCollider Coin(Vector3 p, Quaternion q) => Make(ShapeKind.Cylinder, p, q, .4f, new(0, 1f / 64, 0), 1);
+    private static SimCollider CoinA(Vector3 p, Quaternion q) => Make(ShapeKind.Cylinder, p, q, .35f, new(0, 1f / 64, 0), 0);
+
+    /// <summary>Random pose with B's centre along a random direction; `aimRim` aims the direction at a random rim point of A.</summary>
+    private static (Quaternion Qa, Quaternion Qb, Vector3 Dir) Pose(Random rng, bool aimRim, Func<Vector3, Quaternion, SimCollider> makeA)
+    {
+        var qa = RandomRotation(rng); var qb = RandomRotation(rng);
+        Vector3 dir;
+        if (aimRim && makeA(Vector3.Zero, qa) is { Shape: ShapeKind.Cylinder } a)
+        {
+            var th = rng.NextDouble() * 2 * Math.PI;
+            var rim = (rng.NextDouble() < .5 ? a.Hy : -a.Hy) * a.U1 + a.Radius * ((float)Math.Cos(th) * a.U0 + (float)Math.Sin(th) * a.U2);
+            dir = Vector3.Normalize(rim);
+        }
+        else dir = Vector3.Normalize(new((float)(rng.NextDouble() * 2 - 1), (float)(rng.NextDouble() * 2 - 1), (float)(rng.NextDouble() * 2 - 1)));
+        return (qa, qb, dir);
+    }
+
+    private void Separated(string label, Func<Vector3, Quaternion, SimCollider> makeA, Func<Vector3, Quaternion, SimCollider> makeB,
+        int poses, double target, int seed)
+    {
+        var rng = new Random(seed);
+        const float margin = .005f;
+        int uncertified = 0, contactsBeyond = 0, missed = 0, negative = 0, over = 0, counted = 0;
+        var uncClass = new Dictionary<string, int> { ["pass"] = 0, ["fail"] = 0, ["negative"] = 0, ["missed"] = 0, ["indeterminate"] = 0 };
+        double worstLow = 0, worstHigh = 0; string worst = "";
+        for (var i = 0; i < poses; i++)
+        {
+            var (qa, qb, dir) = Pose(rng, i % 2 == 0, makeA);
+            var a = makeA(Vector3.Zero, qa);
+            var sa = Shape.Of(a);
+            float lo = 0f, hi = 3f;
+            for (var it = 0; it < 30; it++)
+            {
+                var mid = .5f * (lo + hi);
+                var sb = Shape.Of(makeB(dir * mid, qb));
+                // Overlap if a projection pair coincides (cheap test via certified routine).
+                if (Rough(sa, sb) > target) hi = mid; else lo = mid;
+            }
+            var b = makeB(dir * (.5f * (lo + hi)), qb);
+            var (upper, lower) = Distance(sa, Shape.Of(b));
+            if (upper - lower > 1e-5 || upper < 1e-6)
+            {
+                // Classify instead of skipping: the true separation lies in [lower, upper].
+                uncertified++;
+                var cs = new List<ContactPoint>();
+                WorkshopCollisionKernels.GenerateManifold(a, b, margin, cs);
+                if (cs.Count == 0) { if (upper <= margin - 2e-4) uncClass["missed"]++; else uncClass["pass"]++; continue; }
+                var g = cs.Min(c => c.Gap);
+                if (lower > 0 && g < 0) uncClass["negative"]++;
+                else if (g < lower - 5e-4 || g > upper + 5e-4) uncClass["fail"]++;
+                else if (g >= upper - 5e-4 && g <= lower + 5e-4) uncClass["pass"]++;
+                else uncClass["indeterminate"]++;
+                continue;
+            }
+            counted++;
+            var exact = .5 * (upper + lower);
+            var contacts = new List<ContactPoint>();
+            WorkshopCollisionKernels.GenerateManifold(a, b, margin, contacts);
+            if (contacts.Count == 0) { if (exact <= margin - 2e-4) missed++; continue; }
+            if (exact > margin + 1e-3) contactsBeyond++;
+            var minGap = contacts.Min(c => c.Gap);
+            if (minGap < 0) negative++;
+            var err = minGap - exact;
+            if (Math.Abs(err) > 5e-4) over++;
+            if (err < worstLow || err > worstHigh)
+            {
+                worstLow = Math.Min(worstLow, err); worstHigh = Math.Max(worstHigh, err);
+                worst = $"pose {i}: exact {exact * 1000:F4} mm, kernel {minGap * 1000:F4} mm, {contacts.Count} pts, feature kinds [{string.Join(",", contacts.Select(c => c.Feature >> 12))}]";
+            }
+        }
+        output.WriteLine($"{label} target {target * 1000:F1} mm, seed {seed}: {counted} certified ({uncertified} uncertified), |err|>0.5 mm {over}, negative gap {negative}, contact beyond margin {contactsBeyond}, missed within margin {missed}, gap−exact in [{worstLow * 1000:F4}, {worstHigh * 1000:F4}] mm; uncertified classified: {string.Join(", ", uncClass.Select(kv => kv.Key + " " + kv.Value))}");
+        if (worst.Length > 0) output.WriteLine("  extreme " + worst);
+    }
+
+    [Fact]
+    public void C1_SeparatedGaps()
+    {
+        foreach (var t in new[] { .001, .003, .02 })
+        {
+            Separated("CONTROL box-box", BoxA, BoxB, 80, t, 101);
+            Separated("cyl-box", CylA, BoxB, 200, t, 102);
+            Separated("cyl-cyl", CylA, CylB, 200, t, 103);
+            Separated("coin-coin", CoinA, Coin, 100, t, 104);
+            Separated("cyl-coin", CylA, Coin, 100, t, 105);
+        }
+    }
+
+    private void Overlap(string label, Func<Vector3, Quaternion, SimCollider> makeA, Func<Vector3, Quaternion, SimCollider> makeB, int poses,
+        double depth, int seed, double smallerExtent)
+    {
+        var rng = new Random(seed);
+        int deeperThanTrue = 0, counted = 0;
+        double worstUnder = 0, worstOver = 0, sumAbs = 0;
+        for (var i = 0; i < poses; i++)
+        {
+            var (qa, qb, dir) = Pose(rng, i % 2 == 0, makeA);
+            var a = makeA(Vector3.Zero, qa);
+            var sa = Shape.Of(a);
+            // Touch point (certified distance 0) then push in along dir by the target depth along the separating direction.
+            float lo = 0f, hi = 3f;
+            for (var it = 0; it < 30; it++)
+            {
+                var mid = .5f * (lo + hi);
+                if (Rough(sa, Shape.Of(makeB(dir * mid, qb))) > 1e-7) hi = mid; else lo = mid;
+            }
+            var touch = .5f * (lo + hi);
+            lo = 0f; hi = touch;
+            for (var it = 0; it < 24; it++)
+            {
+                var mid = .5f * (lo + hi);
+                if (DepthUpper(sa, Shape.Of(makeB(dir * mid, qb))) > depth) lo = mid; else hi = mid;
+            }
+            var b = makeB(dir * (.5f * (lo + hi)), qb);
+            var contacts = new List<ContactPoint>();
+            WorkshopCollisionKernels.GenerateManifold(a, b, .005f, contacts);
+            if (contacts.Count == 0) { worstUnder = Math.Max(worstUnder, depth); continue; }
+            counted++;
+            var kernelDepth = -contacts.Min(c => c.Gap);
+            var n = new D3(new Vector3(contacts[0].Nx, contacts[0].Ny, contacts[0].Nz));
+            var dUpper = DepthUpper(sa, Shape.Of(b), n);
+            var err = kernelDepth - dUpper; // > 0: kernel deeper than any true depth (overestimate, certain); < 0: bounded underestimate
+            if (err > 1e-4) deeperThanTrue++;
+            if (Math.Abs(err) > 1e-3 && depth == .002)
+            {
+                var a1 = a.Shape == ShapeKind.Cylinder ? Math.Abs(n.Dot(new D3(a.U1))) : double.NaN;
+                output.WriteLine($"   detail pose {i}: placed t {.5f * (lo + hi):F5} (touch {touch:F5}); D_up {dUpper * 1000:F3} mm; kernel gaps [{string.Join(", ", contacts.Select(c => (c.Gap * 1000).ToString("F2")))}] mm; kinds [{string.Join(",", contacts.Select(c => c.Feature >> 12))}]; |n·a| {a1:F3}");
+            }
+            worstOver = Math.Max(worstOver, err);
+            worstUnder = Math.Max(worstUnder, -err);
+            sumAbs += Math.Abs(err);
+        }
+        output.WriteLine($"{label} depth ≈{depth * 1000:F1} mm (5% of smaller extent = {smallerExtent * 50:F1} mm), seed {seed}: {counted} poses; kernel deeper than true-upper-bound {deeperThanTrue} (worst +{worstOver * 1000:F3} mm); underestimate ≤ {worstUnder * 1000:F3} mm; mean |err| {sumAbs / Math.Max(1, counted) * 1000:F3} mm");
+    }
+
+    [Fact]
+    public void C2_OverlapDepth()
+    {
+        foreach (var d in new[] { .0003, .002, .005, .01 })
+        {
+            Overlap("CONTROL box-box", BoxA, BoxB, 40, d, 201, .2);
+            Overlap("cyl-box", CylA, BoxB, 80, d, 202, .2);
+            Overlap("cyl-cyl", CylA, CylB, 80, d, 203, .4);
+        }
+    }
+
+    /// <summary>Certified overlap bound: B is placed δ back from a CERTIFIED touch t* (certified separated at t* + 2e-4), so the true
+    /// minimum-translation depth is ≤ δ + 2e-4 (translating B by that much along `dir` separates it). A kernel depth above that bound
+    /// is a certain overestimate. The engine then steps a weightless, motionless dynamic B against static A for 0.5 s.</summary>
+    private void CertifiedOverlap(string label, bool cylA, bool cylB, int poses, int seed, float engineDelta = .0003f)
+    {
+        var rng = new Random(seed);
+        var centre = new Vector3(0, 1, 0);
+        var deltas = new[] { .0003f, .002f, .005f };
+        var over = new int[3]; var worst = new double[3]; var counted = 0; var uncertified = 0;
+        double engineWorstMove = 0, engineWorstSpeed = 0; string engineWorst = "", kernelWorst = "";
+        int engineOver1 = 0, engineFast = 0;
+        for (var i = 0; i < poses; i++)
+        {
+            var qa = RandomRotation(rng); var qb = RandomRotation(rng);
+            var dir = Vector3.Normalize(new((float)(rng.NextDouble() * 2 - 1), (float)(rng.NextDouble() * 2 - 1), (float)(rng.NextDouble() * 2 - 1)));
+            SimCollider A(Vector3 p, Quaternion q) => cylA ? Make(ShapeKind.Cylinder, p, q, H(.3f), new(0, H(.2f), 0), 0)
+                : Make(ShapeKind.Box, p, q, 0, new(H(.3f), H(.2f), H(.3f)), 0);
+            SimCollider B(Vector3 p, Quaternion q) => cylB ? Make(ShapeKind.Cylinder, p, q, H(.2f), new(0, H(.35f), 0), 1)
+                : Make(ShapeKind.Box, p, q, 0, new(H(.25f), H(.1f), H(.15f)), 1);
+            var a = A(centre, qa);
+            var sa = Shape.Of(a);
+            float lo = 0f, hi = 3f;
+            for (var it = 0; it < 30; it++)
+            {
+                var mid = .5f * (lo + hi);
+                if (Distance(sa, Shape.Of(B(centre + dir * mid, qb))).Lower > 0) hi = mid; else lo = mid;
+            }
+            // hi is CERTIFIED separated (dual lower bound > 0), so B placed at hi − δ is at most δ deep (+2e-4 slack kept below).
+            var touch = hi - 2e-4f;
+            if (Distance(sa, Shape.Of(B(centre + dir * (touch + 2e-4f), qb))).Lower <= 0) { uncertified++; continue; }
+            counted++;
+            for (var k = 0; k < 3; k++)
+            {
+                var b = B(centre + dir * (touch - deltas[k]), qb);
+                var contacts = new List<ContactPoint>();
+                WorkshopCollisionKernels.GenerateManifold(a, b, .005f, contacts);
+                if (contacts.Count == 0) continue;
+                var excess = -contacts.Min(c => c.Gap) - (deltas[k] + 2e-4);
+                if (excess > 5e-4) { over[k]++; output.WriteLine($"   excess pose {i} δ {deltas[k] * 1000:F1} mm: +{excess * 1000:F2} mm"); }
+                if (excess > worst[k])
+                {
+                    worst[k] = excess;
+                    if (k == 0) kernelWorst = $"pose {i}: depth ≤ {(deltas[k] + 2e-4) * 1000:F2} mm, kernel gaps [{string.Join(", ", contacts.Select(c => (c.Gap * 1000).ToString("F2")))}] kinds [{string.Join(",", contacts.Select(c => c.Feature >> 12))}]";
+                }
+            }
+            // Engine at δ = 0.3 mm.
+            var scene = new LawScene(bench: false);
+            if (cylA) scene.StaticCylinder(centre, .3f, .2f, qa, Dead); else scene.StaticBox(centre, new(.3f, .2f, .3f), qa, Dead);
+            var body = cylB ? scene.Cylinder(centre + dir * (touch - engineDelta), .2f, .35f, 1f, Dead, qb, gravity: 0f)
+                : scene.Box(centre + dir * (touch - engineDelta), new(.25f, .1f, .15f), 1f, Dead, qb, gravity: 0f);
+            var world = scene.Admit();
+            var initial = world.Initial(body);
+            double maxSpeed = 0;
+            var final = world.Step(60, (_, s) => maxSpeed = Math.Max(maxSpeed, s[body].Speed))[body];
+            var moved = (final.Position - initial.Position).Length();
+            if (moved > .001) engineOver1++;
+            if (maxSpeed > .005) engineFast++;
+            if (moved > engineWorstMove) { engineWorstMove = moved; engineWorst = $"pose {i}"; }
+            engineWorstSpeed = Math.Max(engineWorstSpeed, maxSpeed);
+        }
+        output.WriteLine($"{label} seed {seed}: {counted} certified-touch poses ({uncertified} uncertified). Kernel depth above the certified bound by > 0.5 mm: " +
+            $"δ 0.3 mm {over[0]} (worst +{worst[0] * 1000:F2}), δ 2 mm {over[1]} (worst +{worst[1] * 1000:F2}), δ 5 mm {over[2]} (worst +{worst[2] * 1000:F2}) mm. " +
+            $"Engine at δ {engineDelta * 1000:F1} mm (true depth ≤ δ + 0.2 mm): worst displacement {engineWorstMove * 1000:F2} mm ({engineWorst}), worst speed {engineWorstSpeed:F4} m/s; moved > 1 mm: {engineOver1}; speed > 5 mm/s: {engineFast}");
+        if (kernelWorst.Length > 0) output.WriteLine("   worst kernel " + kernelWorst);
+    }
+
+    [Theory]
+    [InlineData(135)]
+    [InlineData(2)]
+    public void C5_TraceCylBoxPose(int target)
+    {
+        var rng = new Random(402);
+        var centre = new Vector3(0, 1, 0);
+        for (var i = 0; i <= target; i++)
+        {
+            var qa = RandomRotation(rng); var qb = RandomRotation(rng);
+            var dir = Vector3.Normalize(new((float)(rng.NextDouble() * 2 - 1), (float)(rng.NextDouble() * 2 - 1), (float)(rng.NextDouble() * 2 - 1)));
+            if (i < target) continue;
+            SimCollider A(Vector3 p, Quaternion q) => Make(ShapeKind.Cylinder, p, q, H(.3f), new(0, H(.2f), 0), 0);
+            SimCollider B(Vector3 p, Quaternion q) => Make(ShapeKind.Box, p, q, 0, new(H(.25f), H(.1f), H(.15f)), 1);
+            var a = A(centre, qa); var sa = Shape.Of(a);
+            float lo = 0f, hi = 3f;
+            for (var it = 0; it < 30; it++)
+            {
+                var mid = .5f * (lo + hi);
+                if (Distance(sa, Shape.Of(B(centre + dir * mid, qb))).Lower > 0) hi = mid; else lo = mid;
+            }
+            var place = hi - 2e-4f - .0003f;
+            var scene = new LawScene(bench: false);
+            scene.StaticCylinder(centre, .3f, .2f, qa, Dead);
+            var body = scene.Box(centre + dir * place, new(.25f, .1f, .15f), 1f, Dead, qb, gravity: 0f);
+            var world = scene.Admit();
+            output.WriteLine($"pose {target}: |dir·a| {Math.Abs(Vector3.Dot(dir, a.U1)):F3}");
+            world.Step(60, (tick, s) =>
+            {
+                if (tick > 12 && tick % 6 != 0) return;
+                var st = s[body];
+                var b = B(st.Position, st.Rotation);
+                var contacts = new List<ContactPoint>();
+                WorkshopCollisionKernels.GenerateManifold(a, b, .005f, contacts);
+                var (up, low) = Distance(sa, Shape.Of(b));
+                var n = contacts.Count > 0 ? new Vector3(contacts[0].Nx, contacts[0].Ny, contacts[0].Nz) : Vector3.Zero;
+                output.WriteLine($" tick {tick,2}: speed {st.Speed:F4}, certified distance [{low * 1000:F3}, {up * 1000:F3}] mm, kernel gaps [{string.Join(", ", contacts.Select(c => (c.Gap * 1000).ToString("F2")))}] kinds [{string.Join(",", contacts.Select(c => c.Feature >> 12))}] |n·a| {Math.Abs(Vector3.Dot(n, a.U1)):F3}");
+            });
+        }
+    }
+
+    [Fact]
+    public void C4b_CylBoxIndices() => CertifiedOverlap("cyl-box", true, false, 200, 402);
+
+    /// <summary>Gravity-loaded rerun: the configuration is rotated about A's centre so the A→B direction is +Y (B on top), B placed
+    /// 0.3 mm back from the certified touch with normal gravity, stepped 2 s. Hop = peak upward speed in the first 0.25 s; energy
+    /// rise = worst per-tick increase of B's kinetic + potential energy.</summary>
+    [Theory]
+    [InlineData(true, 402, new[] { 2, 135, 0, 1, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19 })]
+    [InlineData(false, 401, new[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19 })]
+    public void C6_GravityLoaded(bool cylA, int seed, int[] wanted) => GravityLoaded(cylA, seed, wanted);
+
+    /// <summary>Play-like drops with the bench: a dynamic body (Dead material) dropped from random orientations onto a static
+    /// partner. Worst per-tick rise of the dynamic body's kinetic + potential energy, and the number of ticks rising by > 1 mJ,
+    /// against the box-on-box baseline.</summary>
+    [Fact]
+    public void C8_DropsOntoStaticPartners()
+    {
+        var bench = LawScene.BenchY;
+        var g = -(float)(Half)LawScene.Gravity;
+        double Energy(LawBody b, bool cylinder, float m)
+        {
+            var w = Vector3.Transform(b.Angular, Quaternion.Inverse(b.Rotation));
+            double ix, iy, iz;
+            if (cylinder) { float r = H(.2f), h = H(.15f); ix = iz = m * (r * r / 4 + h * h / 3); iy = m * r * r / 2; }
+            else { float x = H(.25f), y = H(.1f), z = H(.15f); ix = m * (y * y + z * z) / 3; iy = m * (x * x + z * z) / 3; iz = m * (x * x + y * y) / 3; }
+            return .5 * m * b.Velocity.LengthSquared() + .5 * (ix * w.X * w.X + iy * w.Y * w.Y + iz * w.Z * w.Z) + m * g * b.Position.Y;
+        }
+        foreach (var (name, dynCyl, statCyl) in new[] { ("BASELINE box onto static box", false, false), ("box onto static lying cylinder", false, true),
+                     ("cylinder onto static box", true, false), ("cylinder onto static lying cylinder", true, true) })
+        {
+            var rng = new Random(77);
+            double worst = 0; int bigTicks = 0, worstDrop = -1;
+            var overBound = new HashSet<int>();
+            for (var i = 0; i < 40; i++)
+            {
+                var q = RandomRotation(rng);
+                var offset = (float)(rng.NextDouble() * .4 - .2);
+                var scene = new LawScene();
+                var top = bench + .6f;
+                if (statCyl) scene.StaticCylinder(new(0, bench + .3f, 0), .3f, .5f, Quaternion.CreateFromAxisAngle(Vector3.UnitX, MathF.PI / 2), Dead);
+                else scene.StaticBox(new(0, bench + .3f, 0), new(.3f, .3f, .5f), null, Dead);
+                var body = dynCyl ? scene.Cylinder(new(offset, top + .35f, 0), .2f, .15f, 1f, Dead, q)
+                    : scene.Box(new(offset, top + .35f, 0), new(.25f, .1f, .15f), 1f, Dead, q);
+                var world = scene.Admit();
+                double? prev = null;
+                world.Step(3 * world.TicksPerSecond, (_, s) =>
+                {
+                    var e = Energy(s[body], dynCyl, 1f);
+                    if (prev is { } p)
+                    {
+                        if (dynCyl && statCyl && i == 17 && e - p > 1e-3)
+                        {
+                            var b = s[body];
+                            var dyn = Make(ShapeKind.Cylinder, b.Position, b.Rotation, H(.2f), new(0, H(.15f), 0), 1);
+                            var sta = Make(ShapeKind.Cylinder, new(0, bench + .3f, 0), Quaternion.CreateFromAxisAngle(Vector3.UnitX, MathF.PI / 2), H(.3f), new(0, H(.5f), 0), 0);
+                            var cs = new List<ContactPoint>();
+                            WorkshopCollisionKernels.GenerateManifold(sta, dyn, .05f, cs);
+                            var exact = Distance(Shape.Of(sta), Shape.Of(dyn));
+                            var nn = cs.Count > 0 ? new Vector3(cs[0].Nx, cs[0].Ny, cs[0].Nz) : Vector3.Zero;
+                            output.WriteLine($"   drop 17 rise {(e - p) * 1000:F2} mJ: v {b.Velocity.Length():F3} ω {b.Spin:F2}, dist [{exact.Lower * 1000:F2},{exact.Upper * 1000:F2}] mm, gaps [{string.Join(", ", cs.Select(c => (c.Gap * 1000).ToString("F2")))}] kinds [{string.Join(",", cs.Select(c => c.Feature >> 12))}] |n·a_static| {Math.Abs(Vector3.Dot(nn, sta.U1)):F3} |n·a_dyn| {Math.Abs(Vector3.Dot(nn, dyn.U1)):F3}");
+                        }
+                        if (e - p > worst) { worst = e - p; worstDrop = i; }
+                        if (e - p > 1e-3) bigTicks++;
+                        if (e - p > 1.96e-3) overBound.Add(i);
+                    }
+                    prev = e;
+                });
+            }
+            output.WriteLine($"{name}: 40 drops, worst per-tick energy rise {worst * 1000:F2} mJ (drop {worstDrop}), ticks rising > 1 mJ: {bigTicks}; drops with any tick > 1.96 mJ (m·g·ContactSlop): {overBound.Count} [{string.Join(",", overBound)}]");
+        }
+    }
+
+    /// <summary>Curved-on-curved baseline on the existing engine: a dynamic sphere (r .2, 1 kg) dropped onto a static sphere (r .3),
+    /// and the same dynamic sphere onto the static lying cylinder, at the C8 offsets.</summary>
+    [Fact]
+    public void C9_SphereOnSphereBaseline()
+    {
+        var bench = LawScene.BenchY;
+        var g = -(float)(Half)LawScene.Gravity;
+        foreach (var onCylinder in new[] { false, true })
+        {
+            var rng = new Random(77);
+            double worst = 0; int bigTicks = 0;
+            for (var i = 0; i < 40; i++)
+            {
+                _ = RandomRotation(rng);
+                var offset = (float)(rng.NextDouble() * .4 - .2);
+                var scene = new LawScene();
+                if (onCylinder) scene.StaticCylinder(new(0, bench + .3f, 0), .3f, .5f, Quaternion.CreateFromAxisAngle(Vector3.UnitX, MathF.PI / 2), Dead);
+                else scene.StaticSphere(new(0, bench + .3f, 0), .3f, Quaternion.Identity, Dead);
+                var body = scene.Sphere(new(offset, bench + .6f + .35f, 0), .2f, 1f, Dead, default, default, 0f, LawScene.Gravity);
+                var world = scene.Admit();
+                double? prev = null;
+                float r = H(.2f);
+                world.Step(3 * world.TicksPerSecond, (_, s) =>
+                {
+                    var b = s[body];
+                    var e = .5 * b.Velocity.LengthSquared() + .5 * (.4 * r * r) * b.Angular.LengthSquared() + g * b.Position.Y;
+                    if (prev is { } p) { worst = Math.Max(worst, e - p); if (e - p > 1e-3) bigTicks++; }
+                    prev = e;
+                });
+            }
+            output.WriteLine($"sphere onto static {(onCylinder ? "lying cylinder" : "sphere (BASELINE)")}: 40 drops, worst per-tick energy rise {worst * 1000:F2} mJ, ticks rising > 1 mJ: {bigTicks}");
+        }
+    }
+
+    [Fact]
+    public void C7_TraceEnergy() => GravityLoaded(true, 402, [4, 135, 2], trace: true);
+
+    private void GravityLoaded(bool cylA, int seed, int[] wanted, bool trace = false)
+    {
+        var centre = new Vector3(0, 1, 0);
+        var max = wanted.Max();
+        var rng = new Random(seed);
+        for (var i = 0; i <= max; i++)
+        {
+            var qa = RandomRotation(rng); var qb = RandomRotation(rng);
+            var dir = Vector3.Normalize(new((float)(rng.NextDouble() * 2 - 1), (float)(rng.NextDouble() * 2 - 1), (float)(rng.NextDouble() * 2 - 1)));
+            if (!wanted.Contains(i)) continue;
+            SimCollider A(Vector3 p, Quaternion q) => cylA ? Make(ShapeKind.Cylinder, p, q, H(.3f), new(0, H(.2f), 0), 0)
+                : Make(ShapeKind.Box, p, q, 0, new(H(.3f), H(.2f), H(.3f)), 0);
+            SimCollider B(Vector3 p, Quaternion q) => Make(ShapeKind.Box, p, q, 0, new(H(.25f), H(.1f), H(.15f)), 1);
+            // Rotate so dir → +Y.
+            var axis = Vector3.Cross(dir, Vector3.UnitY);
+            var angle = MathF.Acos(Math.Clamp(Vector3.Dot(dir, Vector3.UnitY), -1f, 1f));
+            var rot = axis.Length() < 1e-6f ? Quaternion.Identity : Quaternion.CreateFromAxisAngle(Vector3.Normalize(axis), angle);
+            qa = Quaternion.Normalize(rot * qa); qb = Quaternion.Normalize(rot * qb); dir = Vector3.UnitY;
+            var sa = Shape.Of(A(centre, qa));
+            float lo = 0f, hi = 3f;
+            for (var it = 0; it < 30; it++)
+            {
+                var mid = .5f * (lo + hi);
+                if (Distance(sa, Shape.Of(B(centre + dir * mid, qb))).Lower > 0) hi = mid; else lo = mid;
+            }
+            var place = hi - 2e-4f - .0003f;
+            var scene = new LawScene(bench: false);
+            if (cylA) scene.StaticCylinder(centre, .3f, .2f, qa, Dead); else scene.StaticBox(centre, new(.3f, .2f, .3f), qa, Dead);
+            var body = scene.Box(centre + dir * place, new(.25f, .1f, .15f), 1f, Dead, qb);
+            var world = scene.Admit();
+            var initial = world.Initial(body);
+            double hop = 0, rise = 0; double? prev = null;
+            float hx = H(.25f), hy = H(.1f), hz = H(.15f);
+            var g = -(float)(Half)LawScene.Gravity;
+            var tps = world.TicksPerSecond;
+            var final = world.Step(2 * tps, (tick, s) =>
+            {
+                var b = s[body];
+                if (tick <= tps / 4) hop = Math.Max(hop, b.Velocity.Y);
+                var w = Vector3.Transform(b.Angular, Quaternion.Inverse(b.Rotation));
+                var e = .5 * b.Velocity.LengthSquared() + .5 * ((hy * hy + hz * hz) / 3 * w.X * w.X + (hx * hx + hz * hz) / 3 * w.Y * w.Y +
+                    (hx * hx + hy * hy) / 3 * w.Z * w.Z) + g * b.Position.Y;
+                if (prev is { } p)
+                {
+                    rise = Math.Max(rise, e - p);
+                    if (trace && e - p > 1e-3)
+                    {
+                        var bb = B(b.Position, b.Rotation);
+                        var cs = new List<ContactPoint>();
+                        WorkshopCollisionKernels.GenerateManifold(A(centre, qa), bb, .05f, cs);
+                        var up = Rough(sa, Shape.Of(bb)); var low = up;
+                        var nn = cs.Count > 0 ? new Vector3(cs[0].Nx, cs[0].Ny, cs[0].Nz) : Vector3.Zero;
+                        var aa = cylA ? Vector3.Transform(Vector3.UnitY, qa) : Vector3.Zero;
+                        output.WriteLine($"     tick {tick}: rise {(e - p) * 1000:F2} mJ, v {b.Velocity} ω {b.Spin:F2}, certified dist [{low * 1000:F2},{up * 1000:F2}] mm, kernel gaps [{string.Join(", ", cs.Select(c => (c.Gap * 1000).ToString("F2")))}] kinds [{string.Join(",", cs.Select(c => c.Feature >> 12))}] |n·a| {Math.Abs(Vector3.Dot(nn, aa)):F3}");
+                    }
+                }
+                prev = e;
+            })[body];
+            output.WriteLine($"{(cylA ? "cyl-box" : "CONTROL box-box")} pose {i,3}: peak upward speed (0.25 s) {hop:F4} m/s, worst energy rise/tick {rise * 1000:F3} mJ, final drop {(initial.Position.Y - final.Position.Y) * 1000:F1} mm");
+        }
+    }
+
+    [Fact]
+    public void C4_CertifiedOverlap()
+    {
+        CertifiedOverlap("CONTROL box-box", false, false, 80, 401);
+        CertifiedOverlap("cyl-box", true, false, 200, 402);
+        CertifiedOverlap("cyl-cyl", true, true, 200, 403);
+    }
+
+    // ---- engine: motionless weightless partner at a certified 2–3 mm, with box-box control and an overlap positive control ----
+
+    private static readonly LawMaterial Dead = new(0f, .1f, .5f, 0f);
+    private static float H(float v) => (float)(Half)v;
+
+    private void Push(string label, bool cylA, bool cylB, double target, int poses, int seed)
+    {
+        var rng = new Random(seed);
+        var centre = new Vector3(0, 1, 0);
+        int pushed = 0, counted = 0; double worst = 0;
+        for (var i = 0; i < poses; i++)
+        {
+            var qa = RandomRotation(rng); var qb = RandomRotation(rng);
+            var dir = Vector3.Normalize(new((float)(rng.NextDouble() * 2 - 1), (float)(rng.NextDouble() * 2 - 1), (float)(rng.NextDouble() * 2 - 1)));
+            SimCollider A(Vector3 p, Quaternion q) => cylA ? Make(ShapeKind.Cylinder, p, q, H(.3f), new(0, H(.2f), 0), 0)
+                : Make(ShapeKind.Box, p, q, 0, new(H(.3f), H(.2f), H(.3f)), 0);
+            SimCollider B(Vector3 p, Quaternion q) => cylB ? Make(ShapeKind.Cylinder, p, q, H(.2f), new(0, H(.35f), 0), 1)
+                : Make(ShapeKind.Box, p, q, 0, new(H(.25f), H(.1f), H(.15f)), 1);
+            var sa = Shape.Of(A(centre, qa));
+            float lo = 0f, hi = 3f;
+            for (var it = 0; it < 26; it++)
+            {
+                var mid = .5f * (lo + hi);
+                var dist = Distance(sa, Shape.Of(B(centre + dir * mid, qb))).Upper;
+                var value = target >= 0 ? dist : (dist > 1e-7 ? dist : -DepthUpper(sa, Shape.Of(B(centre + dir * mid, qb))));
+                if (value > target) hi = mid; else lo = mid;
+            }
+            var t = .5f * (lo + hi);
+            var scene = new LawScene(bench: false);
+            if (cylA) scene.StaticCylinder(centre, .3f, .2f, qa, Dead); else scene.StaticBox(centre, new(.3f, .2f, .3f), qa, Dead);
+            var body = cylB ? scene.Cylinder(centre + dir * t, .2f, .35f, 1f, Dead, qb, gravity: 0f)
+                : scene.Box(centre + dir * t, new(.25f, .1f, .15f), 1f, Dead, qb, gravity: 0f);
+            var world = scene.Admit();
+            var initial = world.Initial(body);
+            var sb = Shape.Of(B(initial.Position, initial.Rotation));
+            var (up, low) = Distance(sa, sb);
+            if (target >= 0 && (up - low > 1e-5 || up < .002)) continue;
+            counted++;
+            var final = world.Step(60)[body];
+            var moved = (final.Position - initial.Position).Length();
+            if (final.Speed > 1e-4 || moved > 1e-5) pushed++;
+            worst = Math.Max(worst, moved);
+        }
+        output.WriteLine($"{label} at {target * 1000:F1} mm: {pushed}/{counted} partners moved (worst {worst * 1000:F3} mm in 0.5 s)");
+    }
+
+    [Fact]
+    public void C3_EnginePush()
+    {
+        Push("CONTROL box-box", false, false, .003, 100, 301);
+        Push("cyl-box", true, false, .003, 200, 302);
+        Push("cyl-cyl", true, true, .003, 200, 303);
+        Push("POSITIVE CONTROL cyl-box overlapping", true, false, -.002, 30, 304);
+    }
+}
+
+internal readonly record struct D3(double X, double Y, double Z)
+{
+    public D3(Vector3 v) : this(v.X, v.Y, v.Z) { }
+    public double Dot(D3 o) => X * o.X + Y * o.Y + Z * o.Z;
+    public double Length => Math.Sqrt(Dot(this));
+    public D3 Unit => (1 / Length) * this;
+    public static D3 operator +(D3 a, D3 b) => new(a.X + b.X, a.Y + b.Y, a.Z + b.Z);
+    public static D3 operator -(D3 a, D3 b) => new(a.X - b.X, a.Y - b.Y, a.Z - b.Z);
+    public static D3 operator -(D3 a) => new(-a.X, -a.Y, -a.Z);
+    public static D3 operator *(double s, D3 a) => new(s * a.X, s * a.Y, s * a.Z);
+}

@@ -1,0 +1,56 @@
+Test run for /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/probe4-10-1/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+/private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/probe4-10-1/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.5+1b188a7b0a (64-bit .NET 10.0.13)
+[xUnit.net 00:00:00.30]   Discovering: CuriousContraptions.tests
+[xUnit.net 00:00:00.98]   Discovered:  CuriousContraptions.tests
+[xUnit.net 00:00:01.08]   Starting:    CuriousContraptions.tests
+[xUnit.net 00:00:01.75]   Finished:    CuriousContraptions.tests (ID = 'e743f7589595ce50894b54bd818c34ed3fd9be4a1f7ace1a9cfee004df29d30a')
+  Passed CuriousContraptions.Tests.ReviewProbe101R3Tests.D9_TraceDrop(seed: 77, onLog: False, index: 25) [142 ms]
+  Standard Output Messages:
+ seed 77 box drop 25 tick 338: rise 1.13 mJ, v 0.804 ω 3.88; partner dist [-∞,0.00] mm gaps [0.14, -0.19] kinds [5,5] |n·a_dyn| 0.000; bench pts 0 gaps [] kinds []
+ seed 77 box drop 25 tick 339: rise 1.38 mJ, v 0.844 ω 4.03; partner dist [-∞,0.00] mm gaps [0.17, -0.19] kinds [5,5] |n·a_dyn| 0.000; bench pts 0 gaps [] kinds []
+ seed 77 box drop 25 tick 340: rise 1.78 mJ, v 0.888 ω 4.16; partner dist [-∞,0.00] mm gaps [0.21, -0.19] kinds [5,5] |n·a_dyn| 0.000; bench pts 0 gaps [] kinds []
+ seed 77 box drop 25 tick 341: rise 2.29 mJ, v 0.938 ω 4.28; partner dist [-∞,0.00] mm gaps [-2.13] kinds [5] |n·a_dyn| 0.000; bench pts 0 gaps [] kinds []
+ seed 77 box drop 25 tick 343: rise 1.23 mJ, v 1.003 ω 4.78; partner dist [-∞,0.00] mm gaps [-1.59] kinds [5] |n·a_dyn| 0.000; bench pts 0 gaps [] kinds []
+
+
+  Passed CuriousContraptions.Tests.ReviewProbe101R3Tests.D9_TraceDrop(seed: 1001, onLog: True, index: 25) [47 ms]
+  Standard Output Messages:
+ seed 1001 log drop 25 tick 42: rise 3.59 mJ, v 0.870 ω 4.36; partner dist [-∞,0.00] mm gaps [-3.66] kinds [5] |n·a_dyn| 0.035; bench pts 0 gaps [] kinds []
+ seed 1001 log drop 25 tick 43: rise 2.78 mJ, v 0.864 ω 4.32; partner dist [-∞,0.00] mm gaps [-3.21] kinds [5] |n·a_dyn| 0.051; bench pts 0 gaps [] kinds []
+ seed 1001 log drop 25 tick 44: rise 2.42 mJ, v 0.861 ω 4.29; partner dist [-∞,0.00] mm gaps [-2.81] kinds [5] |n·a_dyn| 0.067; bench pts 0 gaps [] kinds []
+ seed 1001 log drop 25 tick 45: rise 2.10 mJ, v 0.860 ω 4.26; partner dist [-∞,0.00] mm gaps [-2.47] kinds [5] |n·a_dyn| 0.082; bench pts 0 gaps [] kinds []
+ seed 1001 log drop 25 tick 46: rise 1.81 mJ, v 0.862 ω 4.25; partner dist [-∞,0.00] mm gaps [-2.17] kinds [5] |n·a_dyn| 0.096; bench pts 0 gaps [] kinds []
+ seed 1001 log drop 25 tick 47: rise 1.50 mJ, v 0.866 ω 4.24; partner dist [-∞,0.00] mm gaps [-1.81] kinds [5] |n·a_dyn| 0.109; bench pts 0 gaps [] kinds []
+ seed 1001 log drop 25 tick 48: rise 1.24 mJ, v 0.872 ω 4.25; partner dist [-∞,0.00] mm gaps [-1.60] kinds [5] |n·a_dyn| 0.122; bench pts 0 gaps [] kinds []
+ seed 1001 log drop 25 tick 49: rise 1.05 mJ, v 0.880 ω 4.26; partner dist [-∞,0.00] mm gaps [-1.41] kinds [5] |n·a_dyn| 0.133; bench pts 0 gaps [] kinds []
+
+
+  Passed CuriousContraptions.Tests.ReviewProbe101R3Tests.D9_TraceDrop(seed: 1001, onLog: True, index: 6) [41 ms]
+  Standard Output Messages:
+ seed 1001 log drop 6 tick 44: rise 2.06 mJ, v 0.548 ω 2.41; partner dist [-∞,0.00] mm gaps [-2.44] kinds [5] |n·a_dyn| 0.042; bench pts 0 gaps [] kinds []
+ seed 1001 log drop 6 tick 45: rise 1.80 mJ, v 0.519 ω 2.30; partner dist [-∞,0.00] mm gaps [-2.15] kinds [5] |n·a_dyn| 0.057; bench pts 0 gaps [] kinds []
+ seed 1001 log drop 6 tick 46: rise 1.54 mJ, v 0.492 ω 2.19; partner dist [-∞,0.00] mm gaps [-1.85] kinds [5] |n·a_dyn| 0.071; bench pts 0 gaps [] kinds []
+ seed 1001 log drop 6 tick 47: rise 1.32 mJ, v 0.467 ω 2.10; partner dist [-∞,0.00] mm gaps [-1.64] kinds [5] |n·a_dyn| 0.084; bench pts 0 gaps [] kinds []
+ seed 1001 log drop 6 tick 48: rise 1.14 mJ, v 0.444 ω 2.01; partner dist [-∞,0.00] mm gaps [-1.46] kinds [5] |n·a_dyn| 0.097; bench pts 0 gaps [] kinds []
+
+
+  Passed CuriousContraptions.Tests.ReviewProbe101R3Tests.D9_TraceDrop(seed: 2002, onLog: False, index: 15) [87 ms]
+  Standard Output Messages:
+ seed 2002 box drop 15 tick 263: rise 1.08 mJ, v 0.732 ω 3.68; partner dist [-∞,0.00] mm gaps [-0.19, 0.07] kinds [5,5] |n·a_dyn| 0.000; bench pts 0 gaps [] kinds []
+ seed 2002 box drop 15 tick 264: rise 1.25 mJ, v 0.765 ω 3.83; partner dist [-∞,0.00] mm gaps [-0.19, 0.09] kinds [5,5] |n·a_dyn| 0.000; bench pts 0 gaps [] kinds []
+ seed 2002 box drop 15 tick 265: rise 1.40 mJ, v 0.800 ω 3.99; partner dist [-∞,0.00] mm gaps [-0.19, 0.11] kinds [5,5] |n·a_dyn| 0.000; bench pts 0 gaps [] kinds []
+ seed 2002 box drop 15 tick 266: rise 1.61 mJ, v 0.838 ω 4.15; partner dist [-∞,0.00] mm gaps [-0.19, 0.13] kinds [5,5] |n·a_dyn| 0.000; bench pts 0 gaps [] kinds []
+ seed 2002 box drop 15 tick 267: rise 1.88 mJ, v 0.881 ω 4.28; partner dist [-∞,0.00] mm gaps [-0.19, 0.15] kinds [5,5] |n·a_dyn| 0.000; bench pts 0 gaps [] kinds []
+ seed 2002 box drop 15 tick 268: rise 2.37 mJ, v 0.928 ω 4.39; partner dist [-∞,0.00] mm gaps [-0.19, 0.18] kinds [5,5] |n·a_dyn| 0.000; bench pts 0 gaps [] kinds []
+ seed 2002 box drop 15 tick 269: rise 3.17 mJ, v 0.982 ω 4.46; partner dist [-∞,0.00] mm gaps [-0.19, 0.21] kinds [5,5] |n·a_dyn| 0.000; bench pts 0 gaps [] kinds []
+ seed 2002 box drop 15 tick 270: rise 4.08 mJ, v 1.040 ω 4.52; partner dist [-∞,0.00] mm gaps [-0.19, 0.23] kinds [5,5] |n·a_dyn| 0.000; bench pts 0 gaps [] kinds []
+ seed 2002 box drop 15 tick 271: rise 4.65 mJ, v 1.102 ω 4.55; partner dist [-∞,0.00] mm gaps [-1.41] kinds [5] |n·a_dyn| 0.000; bench pts 0 gaps [] kinds []
+
+
+
+Test Run Successful.
+Total tests: 4
+     Passed: 4
+ Total time: 1.9517 Seconds

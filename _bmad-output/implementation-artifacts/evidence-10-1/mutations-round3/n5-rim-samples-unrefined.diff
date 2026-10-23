@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/frozen3/WorkshopCollisionKernels.cs	2026-10-23 19:05:34.237520748 +0800
++++ CuriousContraptions.Simulation/WorkshopCollisionKernels.cs	2026-10-23 19:49:28.147876680 +0800
+@@ -1070,7 +1070,7 @@
+ 
+     private const int SegmentSteps = 24;
+     private const int RimSamples = 16;
+-    private const int RimSteps = 16;
++    private const int RimSteps = 0;
+     private const float GoldenSection = 0.618034f;
+ 
+     /// <summary>The exact closest features of a pair: its signed gap, the unit normal from B toward A, and the closest point on each

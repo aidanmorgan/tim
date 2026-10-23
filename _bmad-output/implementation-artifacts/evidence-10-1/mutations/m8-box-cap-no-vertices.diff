@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/frozen/WorkshopCollisionKernels.cs	2026-10-22 13:26:10.012188993 +0800
++++ CuriousContraptions.Simulation/WorkshopCollisionKernels.cs	2026-10-22 13:28:27.985559892 +0800
+@@ -1075,7 +1075,7 @@
+             var rel = corners[m] - cc;
+             var x = Vector3.Dot(rel, cyl.U0);
+             var y = Vector3.Dot(rel, cyl.U2);
+-            if (x * x + y * y <= limit * limit) Add(corners[m], Vector3.Dot(rel, capN), Feature(CylinderFeature.PartnerVertex, (faceId << 2) | m));
++            if (x * x + y * y <= -limit * limit) Add(corners[m], Vector3.Dot(rel, capN), Feature(CylinderFeature.PartnerVertex, (faceId << 2) | m));
+ 
+             var next = corners[(m + 1) % 4] - cc;
+             var (t0, t1) = ClipCircle(x, y, Vector3.Dot(next, cyl.U0) - x, Vector3.Dot(next, cyl.U2) - y, cyl.Radius);

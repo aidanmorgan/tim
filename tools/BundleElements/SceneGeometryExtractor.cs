@@ -59,7 +59,6 @@ public static partial class SceneGeometryExtractor
                 if (Below(node.Path, ownership[i].Root) || node.Path == ownership[i].Root) owner = i;
             if (node.Type == "Node3D" && proxies.Any(child => Below(child.Path, node.Path))) continue;
             if (node.Type is not ("CollisionShape3D" or "MeshInstance3D") ||
-                node.Name.StartsWith("col_cylinder", StringComparison.OrdinalIgnoreCase) ||
                 node.Name.StartsWith("col_capsule", StringComparison.OrdinalIgnoreCase) ||
                 node.Name.StartsWith("col_hull", StringComparison.OrdinalIgnoreCase))
                 throw new ArgumentException("Unsupported collider proxy: " + node.Path);
@@ -71,15 +70,24 @@ public static partial class SceneGeometryExtractor
             {
                 "BoxShape3D" or "BoxMesh" => ColliderShapeKind.Box,
                 "SphereShape3D" or "SphereMesh" => ColliderShapeKind.Sphere,
+                "CylinderShape3D" or "CylinderMesh" => ColliderShapeKind.Cylinder,
                 _ => throw new ArgumentException("Unsupported collider shape: " + shape.Attributes["type"])
             };
             if (scale.X <= 0 || scale.Y <= 0 || scale.Z <= 0) throw new ArgumentException("Collider scale must be positive.");
-            var half = kind == ColliderShapeKind.Box ? Vector(shape.Values["size"]) * .5f
-                : new Vector3(Number(shape.Values["radius"]));
+            var half = kind switch
+            {
+                ColliderShapeKind.Box => Vector(Required(shape, "size", node)) * .5f,
+                ColliderShapeKind.Sphere => new Vector3(Number(Required(shape, "radius", node))),
+                ColliderShapeKind.Cylinder => CylinderHalfExtents(shape, node),
+                _ => throw new ArgumentException("Unsupported collider shape: " + node.Path)
+            };
             half *= scale;
             if (half.X <= 0 || half.Y <= 0 || half.Z <= 0) throw new ArgumentException("Collider has nonpositive extent.");
             if (kind == ColliderShapeKind.Sphere && (half.X != half.Y || half.X != half.Z))
                 throw new ArgumentException("A sphere cannot have nonuniform scale.");
+            // A cylinder's axis is its local +Y: its height scales by scale.Y and its radius needs equal radial scale (X = Z).
+            if (kind == ColliderShapeKind.Cylinder && half.X != half.Z)
+                throw new ArgumentException("A cylinder cannot have nonuniform radial scale: " + node.Path);
             bodies[owner].Add(new(kind, half, position, rotation, ownership[owner].Material));
         }
         if (bodies.Any(body => body.Count == 0)) throw new ArgumentException("A scene body has no collider.");
@@ -128,6 +136,27 @@ public static partial class SceneGeometryExtractor
     }
 
     private static bool Below(string path, string parent) => path.StartsWith(parent + "/", StringComparison.Ordinal);
+
+    /// <summary>A shape value the proxy must state explicitly (Godot omits default-valued keys, so a missing key is never assumed).</summary>
+    private static string Required(Section shape, string key, Node node) =>
+        shape.Values.TryGetValue(key, out var value) ? value
+            : throw new ArgumentException($"Collider shape has no explicit '{key}': {node.Path}");
+
+    /// <summary>(r, h, r) of a Godot cylinder (axis local +Y, h = height / 2). A mesh proxy is a cylinder only when its top and
+    /// bottom radii are equal; a tapered mesh is rejected.</summary>
+    private static Vector3 CylinderHalfExtents(Section shape, Node node)
+    {
+        float radius;
+        if (shape.Attributes["type"] == "CylinderMesh")
+        {
+            radius = Number(Required(shape, "top_radius", node));
+            if (radius != Number(Required(shape, "bottom_radius", node)))
+                throw new ArgumentException("A tapered cylinder mesh is not a cylinder collider: " + node.Path);
+        }
+        else radius = Number(Required(shape, "radius", node));
+        var half = Number(Required(shape, "height", node)) * .5f;
+        return new(radius, half, radius);
+    }
 
     private static (Vector3 Position, Quaternion Rotation, Vector3 Scale) Local(Dictionary<string, string> values)
     {

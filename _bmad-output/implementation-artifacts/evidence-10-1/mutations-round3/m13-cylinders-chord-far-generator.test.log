@@ -1,0 +1,49 @@
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:43.81]     CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ALogLiesAcrossAStandingCylindersCap [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ALogLiesAcrossAStandingCylindersCap [92 ms]
+  Error Message:
+   drift <5.3868007E-06, 0.8387644, 0.14770046>
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ALogLiesAcrossAStandingCylindersCap() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 398
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:01:52.96]     CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.DropsOntoALyingCylinderGainNoMoreEnergyThanBoxesOntoABox [FAIL]
+[xUnit.net 00:01:53.10]     CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.CylinderPairsGiveTwoPointsWhenParallelOneWhenCrossedAndFourCapOnCap [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.DropsOntoALyingCylinderGainNoMoreEnergyThanBoxesOntoABox [2 s]
+  Error Message:
+   cylinder onto lying cylinder: worst tick gain 5.910 mJ, bound 1.963 mJ
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.DropsOntoALyingCylinderGainNoMoreEnergyThanBoxesOntoABox() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 1282
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.CylinderPairsGiveTwoPointsWhenParallelOneWhenCrossedAndFourCapOnCap [1 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: 2
+Actual:   1
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.Gaps(List`1 contacts, Int32 count, Single gap) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 502
+   at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.CylinderPairsGiveTwoPointsWhenParallelOneWhenCrossedAndFourCapOnCap() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 577
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:01:59.61]     CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ACylinderTumblingOverACapRimGainsNoMoreThanTheSlopEnergy [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ACylinderTumblingOverACapRimGainsNoMoreThanTheSlopEnergy [6 s]
+  Error Message:
+   pose 5: worst tick gain 2.808 mJ
+pose 6: worst tick gain 4.455 mJ
+pose 9: worst tick gain 4.433 mJ
+pose 14: worst tick gain 12.965 mJ
+pose 15: worst tick gain 4.680 mJ
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ACylinderTumblingOverACapRimGainsNoMoreThanTheSlopEnergy() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 1230
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     4, Passed:    68, Skipped:     0, Total:    72, Duration: 2 m 2 s - CuriousContraptions.tests.dll (net10.0)

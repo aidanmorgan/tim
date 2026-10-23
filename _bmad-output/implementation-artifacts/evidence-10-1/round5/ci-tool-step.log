@@ -1,0 +1,16 @@
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/tools/Coverage.Tests/bin/Debug/net10.0/Coverage.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:    77, Skipped:     0, Total:    77, Duration: 636 ms - Coverage.Tests.dll (net10.0)
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/tools/BundleElements.Tests/bin/Debug/net10.0/BundleElements.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:   163, Skipped:     0, Total:   163, Duration: 317 ms - BundleElements.Tests.dll (net10.0)
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/tools/WorkerAotGuard.Tests/bin/Debug/net10.0/WorkerAotGuard.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:    17, Skipped:     0, Total:    17, Duration: 39 ms - WorkerAotGuard.Tests.dll (net10.0)
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/tools/E2eRunner.Tests/bin/Debug/net10.0/E2eRunner.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:   174, Skipped:     0, Total:   174, Duration: 15 s - E2eRunner.Tests.dll (net10.0)

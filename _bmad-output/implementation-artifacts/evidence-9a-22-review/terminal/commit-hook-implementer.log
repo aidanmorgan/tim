@@ -1,0 +1,217 @@
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.hQ9E4j/solution.binlog
+
+Time Elapsed 00:00:09.17
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.hQ9E4j/playtest.binlog
+
+Time Elapsed 00:00:09.45
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.hQ9E4j/web.binlog
+
+Time Elapsed 00:00:07.49
+Anvil snapshot 0.ts: CuriousContraptions.Abstractions/EventDescriptor.cs
+Anvil snapshot 1.ts: CuriousContraptions.Abstractions/EventRingBuffer.cs
+Anvil snapshot 2.ts: CuriousContraptions.Bundle/BundleValidator.cs
+Anvil snapshot 3.ts: CuriousContraptions.Simulation/Program.cs
+Anvil snapshot 4.ts: CuriousContraptions.Simulation/WorkshopGpuDevice.cs
+Anvil snapshot 5.ts: CuriousContraptions.Simulation/wwwroot/worker.js
+Anvil snapshot 6.ts: CuriousContraptions.tests/ActivationTimerTests.cs
+Anvil snapshot 7.ts: CuriousContraptions.tests/BallDetectorTests.cs
+Anvil snapshot 8.ts: CuriousContraptions.tests/CounterTests.cs
+Anvil snapshot 9.ts: CuriousContraptions.tests/EventRingBufferTests.cs
+Anvil snapshot 10.ts: CuriousContraptions.tests/EventRingProducerTests.cs
+Anvil snapshot 11.ts: CuriousContraptions.tests/PackageRuntimeParityTests.cs
+Anvil snapshot 12.ts: CuriousContraptions.tests/StateLatchTests.cs
+Anvil snapshot 13.ts: CuriousContraptions.tests/WorkerAbiTests.cs
+Anvil snapshot 14.ts: CuriousContraptions.web/wwwroot/workshop-client.js
+Anvil snapshot 15.ts: elements/Ball/BallElementDeclaration.cs
+Anvil snapshot 16.ts: elements/BallDetector/BallDetectorElementDeclaration.cs
+Anvil snapshot 17.ts: elements/Battery/BatteryElementDeclaration.cs
+Anvil snapshot 18.ts: elements/BowlingBall/BowlingBallElementDeclaration.cs
+Anvil snapshot 19.ts: elements/Bumper/BumperElementDeclaration.cs
+Anvil snapshot 20.ts: elements/Counter/CounterElementDeclaration.cs
+Anvil snapshot 21.ts: elements/DelayBox/DelayBoxElementDeclaration.cs
+Anvil snapshot 22.ts: elements/Domino/DominoElementDeclaration.cs
+Anvil snapshot 23.ts: elements/ImpactSwitch/ImpactSwitchElementDeclaration.cs
+Anvil snapshot 24.ts: elements/PoweredGate/PoweredGateElementDeclaration.cs
+Anvil snapshot 25.ts: elements/PressurePlate/PressurePlateElementDeclaration.cs
+Anvil snapshot 26.ts: elements/Receiver/ReceiverElementDeclaration.cs
+Anvil snapshot 27.ts: elements/SignalLamp/SignalLampElementDeclaration.cs
+Anvil snapshot 28.ts: elements/StateLatch/StateLatchElementDeclaration.cs
+Anvil snapshot 29.ts: elements/SystemClock/SystemClockElementDeclaration.cs
+Anvil snapshot 30.ts: engine/gpu/ActivationNetwork.cs
+Anvil snapshot 31.ts: engine/gpu/ActivationTimers.cs
+Anvil snapshot 32.ts: engine/gpu/EventRecordProducer.cs
+Anvil snapshot 33.ts: engine/gpu/PassageSensorDeclaration.cs
+Anvil snapshot 34.ts: engine/gpu/WorkshopMessages.cs
+Anvil snapshot 35.ts: tools/BundleElements.Tests/BundleRoundTripTests.cs
+Anvil snapshot 36.ts: tools/BundleElements.Tests/BundleValidatorTests.cs
+Anvil snapshot 37.ts: tools/e2e/cat-002.test.ts
+Anvil snapshot 38.ts: tools/workshop-event-ring.test.mjs
+{
+  "version": "1.0.0",
+  "timestamp": "2026-10-23T17:03:45.179373+00:00",
+  "files": [
+    "0.ts",
+    "1.ts",
+    "2.ts",
+    "3.ts",
+    "4.ts",
+    "5.ts",
+    "6.ts",
+    "7.ts",
+    "8.ts",
+    "9.ts",
+    "10.ts",
+    "11.ts",
+    "12.ts",
+    "13.ts",
+    "14.ts",
+    "15.ts",
+    "16.ts",
+    "17.ts",
+    "18.ts",
+    "19.ts",
+    "20.ts",
+    "21.ts",
+    "22.ts",
+    "23.ts",
+    "24.ts",
+    "25.ts",
+    "26.ts",
+    "27.ts",
+    "28.ts",
+    "29.ts",
+    "30.ts",
+    "31.ts",
+    "32.ts",
+    "33.ts",
+    "34.ts",
+    "35.ts",
+    "36.ts",
+    "37.ts",
+    "38.ts"
+  ],
+  "hasBlockingWarnings": false,
+  "executionTimeMs": 28,
+  "checksRun": [
+    "secret-detection",
+    "antipattern-scan"
+  ],
+  "notifications": [],
+  "warnings": [],
+  "summary": {
+    "total": 0,
+    "errors": 0,
+    "warnings": 0,
+    "info": 0,
+    "suppressed": 0
+  }
+}
+
+Test run for /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.9SzgPd/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:   124, Skipped:     0, Total:   124, Duration: 4 s - CuriousContraptions.tests.dll (net10.0)
+[story-9a-22 544594a] Publish typed simulation events on a scene-sized ring at tick commit
+ 133 files changed, 10080 insertions(+), 366 deletions(-)
+ create mode 100644 CuriousContraptions.tests/EventRingProducerTests.cs
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-22-review/anvil-check.json
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-22-review/build.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-22-review/bundle-identity.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-22-review/carry-actual.patch
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-22-review/carry-diff.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-22-review/ci-tools.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-22-review/deleted-symbols.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-22-review/diff-check.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-22-review/fix-f1/anvil-check.json
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-22-review/fix-f1/build.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-22-review/fix-f1/capacity-probe.cs.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-22-review/fix-f1/capacity-probe.out
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-22-review/fix-f1/ci-tools.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-22-review/fix-f1/diff-check.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-22-review/fix-f1/full-test.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-22-review/fix-f1/mutations/mut-N1-limit-at-admitted-cadence.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-22-review/fix-f1/mutations/mut-N2-untyped-refusal.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-22-review/fix-f1/mutations/mut-N3-limit-raised-2p21.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-22-review/fix-f1/mutations/mut-R5-indicator-row-memorychanged.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-22-review/fix-f1/mutations/mutate.sh.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-22-review/fix-f1/node-tests.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-22-review/fix-f1/release-CuriousContraptions.Animation.Worker.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-22-review/fix-f1/release-CuriousContraptions.Simulation.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-22-review/fix-f1/worker-release.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-22-review/full-test.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-22-review/known-diff.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-22-review/mutations/mut-R1-stamp-plus-one.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-22-review/mutations/mut-R2-discard-publishes.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-22-review/mutations/mut-R3-overflow-throws.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-22-review/mutations/mut-R4-epoch-not-bumped.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-22-review/mutations/mut-R5-indicator-row-memorychanged.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-22-review/mutations/mut-R5b-hold-expiry-publishes.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-22-review/mutations/mut-R6-worker-header-before-slots.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-22-review/mutations/mut-R7-sequence-not-restarted.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-22-review/mutations/mut-R8-captured-every-tick.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-22-review/mutations/mut-build.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-22-review/mutations/mutate.sh.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-22-review/node-tests.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-22-review/probes/capacity-probe.cs.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-22-review/probes/capacity-probe.out
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-22-review/probes/sab-allocation-node.out
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-22-review/release-CuriousContraptions.Animation.Worker.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-22-review/release-CuriousContraptions.Simulation.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-22-review/ts-checks.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-22-review/web-publish.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-22-review/worker-release.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-22/baseline/build.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-22/baseline/test.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-22/candidate/anvil-check-cli.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-22/candidate/build.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-22/candidate/bundle-events-diff.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-22/candidate/bundle-identity.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-22/candidate/changed-files.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-22/candidate/ci-tools.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-22/candidate/diff-check.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-22/candidate/full-test.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-22/candidate/identity.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-22/candidate/mutations.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-22/candidate/node-tests.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-22/candidate/release-CuriousContraptions.Animation.Worker.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-22/candidate/release-CuriousContraptions.Simulation.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-22/candidate/ts-checks.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-22/candidate/worker-release.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-22/fix-f1/build.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-22/fix-f1/diff-check.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-22/fix-f1/full-test.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-22/fix-f1/node-tests.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-22/fix-f1/release-CuriousContraptions.Animation.Worker.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-22/fix-f1/release-CuriousContraptions.Simulation.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-22/fix-f1/worker-release.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock-review/terminal/addendum-native-rerun.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock-review/terminal/addendum-run.sh.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock-review/terminal/artifact-deployment.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock-review/terminal/build-job.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock-review/terminal/commit-hook-implementer.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock-review/terminal/deploy-job.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock-review/terminal/deployment-status.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock-review/terminal/hook-rerun.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock-review/terminal/identities.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock-review/terminal/run.json
+ create mode 100644 _bmad-output/implementation-artifacts/review-9a-22-event-ring.md
+ create mode 100644 _bmad-output/implementation-artifacts/spec-9a-22-event-ring.md
+ create mode 100644 engine/gpu/EventRecordProducer.cs
+ create mode 100644 engine/gpu/EventRecordProducer.cs.uid
+ create mode 100644 tools/workshop-event-ring.test.mjs
+commit rc=0

@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/frozen3/RigidMassProperties.cs	2026-10-23 18:44:01.289593146 +0800
++++ engine/gpu/RigidMassProperties.cs	2026-10-23 19:07:59.147736240 +0800
+@@ -43,7 +43,7 @@
+             var radius = Normalize(collider.Radius.Value, 0);
+             var half = Normalize(collider.HalfExtents.Y, 0);
+             var squared = Product(radius, radius);
+-            y = Product(Product(mass, squared), Normalize((Half).5, 0));
++            y = Product(Product(mass, squared), Normalize((Half).4, 0));
+             x = z = Product(mass, Sum(Product(squared, Normalize((Half).25, 0)),
+                 Product(Product(half, half), Normalize((Half)(1.0 / 3), 0))));
+         }

@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/frozen/WorkshopConstraintSolver.cs	2026-10-22 13:26:10.012432119 +0800
++++ CuriousContraptions.Simulation/WorkshopConstraintSolver.cs	2026-10-22 13:28:46.951853333 +0800
+@@ -239,7 +239,7 @@
+         if (collider.Shape == ShapeKind.Sphere) return collider.Radius;
+         if (collider.Shape != ShapeKind.Cylinder) return 0f;
+         foreach (var p in m.Points)
+-            if ((sideA ? p.SupportA : p.SupportB) == ContactSupport.Axis) return collider.Radius;
++            if ((sideA ? p.SupportA : p.SupportB) == ContactSupport.Axis) return 0f;
+         return 0f;
+     }
+ 

@@ -1,0 +1,48 @@
+a598a09e2b91d58135b3343a2beeea6b88578013
+ M CuriousContraptions.Simulation/WorkshopCollisionKernels.cs
+ M CuriousContraptions.Simulation/WorkshopConstraintSolver.cs
+ M CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs
+ M CuriousContraptions.tests/CuriousContraptions.tests.csproj
+ M CuriousContraptions.tests/WorkshopPhysicsLawTests.cs
+ M TODO.md
+ M _bmad-output/implementation-artifacts/sprint-status.yaml
+ M docs/gpu-f32-physics.md
+ M docs/planning/elements/CAT-034-impact_lever.md
+ M docs/planning/elements/CAT-053-pulley.md
+ M engine/gpu/DeclaredPhysics.cs
+ M engine/gpu/PassageSensorDeclaration.cs
+ M engine/gpu/PhysicsDeclarations.cs
+ M engine/gpu/PhysicsGpuAbi.cs
+ M engine/gpu/RigidMassProperties.cs
+ M tools/BundleElements.Tests/BundleRoundTripTests.cs
+ M tools/BundleElements.Tests/SceneGeometryExtractorTests.cs
+ M tools/BundleElements/SceneGeometryExtractor.cs
+?? CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs
+?? _bmad-output/implementation-artifacts/evidence-10-1-review/
+?? _bmad-output/implementation-artifacts/evidence-10-1/
+?? _bmad-output/implementation-artifacts/review-10-1-solid-cylinder.md
+?? _bmad-output/implementation-artifacts/spec-10-1-solid-cylinder.md
+ .../WorkshopCollisionKernels.cs                    | 1136 +++++++++++++++++++-
+ .../WorkshopConstraintSolver.cs                    |   54 +-
+ .../WorkshopPhysicsEngine.cs                       |   70 +-
+ .../CuriousContraptions.tests.csproj               |    1 +
+ .../WorkshopPhysicsLawTests.cs                     |   19 +-
+ TODO.md                                            |   19 +
+ .../implementation-artifacts/sprint-status.yaml    |    2 +-
+ docs/gpu-f32-physics.md                            |   36 +-
+ docs/planning/elements/CAT-034-impact_lever.md     |    4 +-
+ docs/planning/elements/CAT-053-pulley.md           |    4 +-
+ engine/gpu/DeclaredPhysics.cs                      |   13 +-
+ engine/gpu/PassageSensorDeclaration.cs             |   11 +-
+ engine/gpu/PhysicsDeclarations.cs                  |   20 +-
+ engine/gpu/PhysicsGpuAbi.cs                        |    3 -
+ engine/gpu/RigidMassProperties.cs                  |   13 +-
+ tools/BundleElements.Tests/BundleRoundTripTests.cs |   16 +
+ .../SceneGeometryExtractorTests.cs                 |   67 +-
+ tools/BundleElements/SceneGeometryExtractor.cs     |   35 +-
+ 18 files changed, 1464 insertions(+), 59 deletions(-)
+223fa82ce34111d335d3114117760454548d90b2686a7fbf692b95da1cc260f1  -
+27418594d6572995cd50b49cb65f3b677a3de9c9e0ab5b75d90d35228cc5b0be  CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs
+6233c16cea87871bffe8b7296c0748d49c85c14e5bb40be2a5a76538818f2e66  _bmad-output/implementation-artifacts/spec-10-1-solid-cylinder.md
+666bab9898d2ed3c3004a870ded46c1e39a79671d46237667082af15af309b47  CuriousContraptions.Simulation/WorkshopCollisionKernels.cs
+5fd3e60880c494f792ed72c128342cdad28a669b83f9fa1fc0ffbaf07fa4725c  CuriousContraptions.Simulation/WorkshopConstraintSolver.cs

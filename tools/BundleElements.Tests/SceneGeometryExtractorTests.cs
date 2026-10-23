@@ -57,11 +57,76 @@ public sealed class SceneGeometryExtractorTests
     [InlineData("size = Vector3(2, 4, 6)", "size = Vector3(NaN, 4, 6)")]
     [InlineData("position = Vector3(0, 2, 0)", "scale = Vector3(-1, 1, 1)")]
     [InlineData("position = Vector3(3, 0, 0)", "scale = Vector3(1, 0, 1)")]
-    [InlineData("BoxShape3D", "CylinderShape3D")]
+    [InlineData("size = Vector3(2, 4, 6)", "")]
     [InlineData("type=\"Node3D\" parent=\".\"", "type=\"Node3D\" parent=\"missing\"")]
     [InlineData("name=\"Root\" type=\"Node3D\"", "name=\"Root\" type=\"Node\"")]
     public void MalformedGeometryIsRejected(string before, string after) =>
         Assert.ThrowsAny<ArgumentException>(() => Bake(BoxScene.Replace(before, after)));
+
+    // Story 10.1: a Godot cylinder proxy (axis local +Y) bakes as the true Cylinder (r, height / 2, r).
+    private const string CylinderScene = """
+        [gd_scene format=3]
+        [sub_resource type="CylinderShape3D" id="Wheel"]
+        radius = 0.4
+        height = 0.17
+        [node name="Root" type="Node3D"]
+        [node name="col_cylinder" type="CollisionShape3D" parent="."]
+        position = Vector3(0, 0.5, 0)
+        shape = SubResource("Wheel")
+        """;
+
+    [Fact]
+    public void CylinderShapesAndUntaperedMeshesBakeAsTrueCylinders()
+    {
+        var collider = Assert.Single(Bake(CylinderScene).Colliders);
+        Assert.Equal(ColliderShapeKind.Cylinder, collider.ShapeKind);
+        Assert.Equal(new Vector3(.4f, .085f, .4f), collider.HalfExtents);
+        Assert.Equal(new Vector3(0, .5f, 0), collider.Offset);
+
+        var mesh = CylinderScene.Replace("CylinderShape3D", "CylinderMesh").Replace("radius = 0.4", "top_radius = 0.4\nbottom_radius = 0.4")
+            .Replace("CollisionShape3D", "MeshInstance3D").Replace("shape =", "mesh =");
+        Assert.Equal(new Vector3(.4f, .085f, .4f), Assert.Single(Bake(mesh).Colliders).HalfExtents);
+
+        // The height scales by scale.Y, the radius by the equal radial scale.
+        var scaled = Assert.Single(Bake(CylinderScene.Replace("position = Vector3(0, 0.5, 0)", "scale = Vector3(2, 3, 2)")).Colliders);
+        Assert.Equal(new Vector3(.8f, .085f * 3, .8f), scaled.HalfExtents);
+    }
+
+    [Theory]
+    [InlineData("radius = 0.4", "")]
+    [InlineData("height = 0.17", "")]
+    [InlineData("radius = 0.4", "radius = 0")]
+    [InlineData("height = 0.17", "height = -1")]
+    [InlineData("radius = 0.4", "radius = NaN")]
+    [InlineData("position = Vector3(0, 0.5, 0)", "scale = Vector3(2, 1, 1)")]
+    [InlineData("name=\"col_cylinder\"", "name=\"col_capsule\"")]
+    [InlineData("name=\"col_cylinder\"", "name=\"col_hull\"")]
+    [InlineData("CylinderShape3D", "CapsuleShape3D")]
+    public void MalformedCylindersAreRejected(string before, string after)
+    {
+        Assert.Contains(before, CylinderScene, StringComparison.Ordinal);
+        Assert.Throws<ArgumentException>(() => Bake(CylinderScene.Replace(before, after)));
+    }
+
+    [Theory]
+    [InlineData("top_radius = 0.4\nbottom_radius = 0.3")]
+    [InlineData("top_radius = 0.4")]
+    [InlineData("bottom_radius = 0.4")]
+    public void ATaperedOrUnstatedCylinderMeshIsRejected(string radii)
+    {
+        var mesh = CylinderScene.Replace("CylinderShape3D", "CylinderMesh").Replace("radius = 0.4", radii)
+            .Replace("CollisionShape3D", "MeshInstance3D").Replace("shape =", "mesh =");
+        Assert.Throws<ArgumentException>(() => Bake(mesh));
+    }
+
+    [Fact]
+    public void ACylinderMeshThatIsNoProxyStaysArt()
+    {
+        var scene = BoxScene.Replace("[node name=\"Root\" type=\"Node3D\"]",
+            "[sub_resource type=\"CylinderMesh\" id=\"Collar\"]\ntop_radius = 0.5\nbottom_radius = 0.2\n[node name=\"Root\" type=\"Node3D\"]") +
+            "\n[node name=\"Collar\" type=\"MeshInstance3D\" parent=\".\"]\nmesh = SubResource(\"Collar\")";
+        Assert.Equal(ColliderShapeKind.Box, Assert.Single(Bake(scene).Colliders).ShapeKind);
+    }
 
     [Fact]
     public void DataOnlyGeometryIsUnchangedAndMixedSourcesFailAtomically()

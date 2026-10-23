@@ -1,0 +1,4 @@
+a598a09e2b91d58135b3343a2beeea6b88578013
+9959c2ab5516fb34c80d79c5a84fe9f9d0b01b5107fe2618514d3f194a2b7bbc  -
+f1c3763482d8d1d679e8424ec4c05b83a5a1e836f793cde520f4193e71a9fa6c  CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs
+During the review only docs/gpu-f32-physics.md and spec-10-1-solid-cylinder.md changed (find -newer); no .cs, test or tool file changed, so the build, tests and probes apply.

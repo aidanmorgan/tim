@@ -1,0 +1,4 @@
+a598a09e2b91d58135b3343a2beeea6b88578013
+80941ef977de9f12e8a6f568cd8604cbb0de02271d9af37ae453da9405a4ba9b  -
+8e027598df5344869405492f4852d9eb6c57f93e96c54f124da66b64602c03bb  CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs
+58b9822bfed92abee46e6ac213884033fee64249dad51d7e24b89d320565ac2e  _bmad-output/implementation-artifacts/spec-10-1-solid-cylinder.md

@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/frozen2/WorkshopCollisionKernels.cs	2026-10-23 15:24:43.376194854 +0800
++++ CuriousContraptions.Simulation/WorkshopCollisionKernels.cs	2026-10-23 15:27:07.990636543 +0800
+@@ -990,7 +990,7 @@
+         for (var v = 0; v < 8; v++)
+             vertices[v] = BoxVertex(box, (v & 1) != 0 ? 1f : -1f, (v & 2) != 0 ? 1f : -1f, (v & 4) != 0 ? 1f : -1f);
+         foreach (var vertex in vertices)
+-            if (!Direction(Radial(vertex - ca, a))) return;
++            _ = vertex;
+ 
+         if (float.IsNegativeInfinity(best)) return;
+         // The SAT axes above only prove separation; the gap and normal come from the exact closest features.

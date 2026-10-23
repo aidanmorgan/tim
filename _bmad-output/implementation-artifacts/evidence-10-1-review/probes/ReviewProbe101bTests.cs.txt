@@ -1,0 +1,167 @@
+using System.Numerics;
+using CuriousContraptions.Gpu;
+using CuriousContraptions.Simulation;
+using Xunit;
+#pragma warning disable CA1822, CA1861, CA5394, CA1305, CA1307, CA1310
+
+namespace CuriousContraptions.Tests;
+
+/// <summary>Reviewer probes, round 2: reproducible SAT sweeps with a box–box control, worst-case classification, and the
+/// diagonal-tilt limit cycle.</summary>
+public sealed class ReviewProbe101bTests(ITestOutputHelper output)
+{
+    private static readonly float BenchY = LawScene.BenchY;
+    private static float H(float v) => (float)(Half)v;
+    private static Vector3 At(float x, float y, float z = 0f) => new(x, y, z);
+    private static readonly LawMaterial Dead = new(0f, .1f, .5f, 0f);
+
+    private static double CylSupport(SimCollider c, Vector3d u)
+    {
+        var t = Math.Abs(u.Dot(new(c.U1)));
+        return new Vector3d(c.Position).Dot(u) + c.Hy * t + c.Radius * Math.Sqrt(Math.Max(0, 1 - t * t));
+    }
+
+    private static double BoxSupport(SimCollider b, Vector3d u) =>
+        new Vector3d(b.Position).Dot(u) + b.Hx * Math.Abs(u.Dot(new(b.U0))) + b.Hy * Math.Abs(u.Dot(new(b.U1))) +
+        b.Hz * Math.Abs(u.Dot(new(b.U2)));
+
+    private static double Support(SimCollider c, Vector3d u) => c.Shape == ShapeKind.Cylinder ? CylSupport(c, u) : BoxSupport(c, u);
+
+    private static (double S, Vector3d U) Exact(SimCollider a, SimCollider b)
+    {
+        double Sep(Vector3d u) => -Support(b, -u) - Support(a, u);
+        const int n = 6000;
+        var golden = Math.PI * (3 - Math.Sqrt(5));
+        var list = new List<(double S, Vector3d U)>();
+        for (var i = 0; i < n; i++)
+        {
+            var y = 1 - 2 * (i + .5) / n;
+            var rad = Math.Sqrt(1 - y * y);
+            var u = new Vector3d(Math.Cos(golden * i) * rad, y, Math.Sin(golden * i) * rad);
+            list.Add((Sep(u), u));
+        }
+        (double S, Vector3d U) best = (double.NegativeInfinity, default);
+        foreach (var (s0, u0) in list.OrderByDescending(c => c.S).Take(8))
+        {
+            var u = u0; var s = s0; var step = .05;
+            var rng = new Random(7);
+            while (step > 1e-8)
+            {
+                var improved = false;
+                for (var k = 0; k < 24; k++)
+                {
+                    var v = (u + step * new Vector3d(rng.NextDouble() * 2 - 1, rng.NextDouble() * 2 - 1, rng.NextDouble() * 2 - 1)).Normalized();
+                    var sv = Sep(v);
+                    if (sv > s) { s = sv; u = v; improved = true; }
+                }
+                if (!improved) step *= .5;
+            }
+            if (s > best.S) best = (s, u);
+        }
+        return best;
+    }
+
+    private static Quaternion RandomRotation(Random rng) => Quaternion.Normalize(new((float)(rng.NextDouble() * 2 - 1),
+        (float)(rng.NextDouble() * 2 - 1), (float)(rng.NextDouble() * 2 - 1), (float)(rng.NextDouble() * 2 - 1)));
+
+    private static SimCollider Make(ShapeKind shape, Vector3 p, Quaternion q, float radius, Vector3 half, int index)
+    {
+        var body = new SimBody
+        {
+            Px = p.X, Py = p.Y, Pz = p.Z, Qx = q.X, Qy = q.Y, Qz = q.Z, Qw = q.W, Motion = 1, Mass = 1, InvMass = 1,
+            Principal = Quaternion.Identity, InvI = Vector3.One, Q0 = Quaternion.Identity
+        };
+        var c = new SimCollider { Index = index, Body = body, Shape = shape, Radius = radius, Hx = half.X, Hy = half.Y, Hz = half.Z, Rq = Quaternion.Identity };
+        WorkshopCollisionKernels.RefreshCollider(c);
+        return c;
+    }
+
+    private void Sweep(string label, Func<Vector3, Quaternion, SimCollider> makeA, Func<Vector3, Quaternion, SimCollider> makeB, int poses,
+        double target, int seed)
+    {
+        var rng = new Random(seed);
+        const float margin = .005f;
+        int falsePositive = 0, missed = 0, negativeGhost = 0, under5 = 0;
+        double worstUnder = 0, worstOver = 0;
+        string worst = "";
+        for (var count = 0; count < poses; count++)
+        {
+            var qa = RandomRotation(rng); var qb = RandomRotation(rng);
+            var dir = Vector3.Normalize(new((float)(rng.NextDouble() * 2 - 1), (float)(rng.NextDouble() * 2 - 1), (float)(rng.NextDouble() * 2 - 1)));
+            var a = makeA(Vector3.Zero, qa);
+            float lo = 0f, hi = 2f;
+            for (var it = 0; it < 26; it++)
+            {
+                var mid = .5f * (lo + hi);
+                if (Exact(a, makeB(dir * mid, qb)).S > target) hi = mid; else lo = mid;
+            }
+            var b = makeB(dir * (.5f * (lo + hi)), qb);
+            var (exact, u) = Exact(a, b);
+            var contacts = new List<ContactPoint>();
+            WorkshopCollisionKernels.GenerateManifold(a, b, margin, contacts);
+            if (contacts.Count == 0) { if (exact <= margin - 1e-4) missed++; continue; }
+            var minGap = contacts.Min(c => c.Gap);
+            if (exact > margin + 1e-4) falsePositive++;
+            if (exact > 1e-4 && minGap < 0) negativeGhost++;
+            var err = minGap - exact;
+            if (err < -.005) under5++;
+            if (err < worstUnder)
+            {
+                worstUnder = err;
+                var n = new Vector3(contacts[0].Nx, contacts[0].Ny, contacts[0].Nz);
+                worst = $"exact {exact * 1000:F2} mm (u {u.X:F3},{u.Y:F3},{u.Z:F3}; u·aA {(a.Shape == ShapeKind.Cylinder ? u.Dot(new(a.U1)) : double.NaN):F3}; u·aB {(b.Shape == ShapeKind.Cylinder ? u.Dot(new(b.U1)) : double.NaN):F3}) " +
+                    $"kernel gap {minGap * 1000:F2} mm, n ({n.X:F3},{n.Y:F3},{n.Z:F3}) angle(n,u) {Math.Acos(Math.Clamp(Math.Abs(new Vector3d(n).Dot(u)), -1, 1)) * 180 / Math.PI:F1}°, points {contacts.Count}, features [{string.Join(",", contacts.Select(c => (c.Feature >> 12) + ":" + (c.Feature & 0xfff)))}]";
+            }
+            worstOver = Math.Max(worstOver, err);
+        }
+        output.WriteLine($"{label} target {target * 1000:F1} mm, {poses} poses (seed {seed}): false-positive {falsePositive}, missed {missed}, separated-but-negative-gap {negativeGhost}, error < −5 mm {under5}, gap−exact in [{worstUnder * 1000:F3}, {worstOver * 1000:F3}] mm");
+        if (worst.Length > 0) output.WriteLine("  worst: " + worst);
+    }
+
+    private static SimCollider Box(Vector3 p, Quaternion q) => Make(ShapeKind.Box, p, q, 0, new(.25f, .1f, .15f), 1);
+    private static SimCollider BoxA(Vector3 p, Quaternion q) => Make(ShapeKind.Box, p, q, 0, new(.3f, .2f, .3f), 0);
+    private static SimCollider Cyl(Vector3 p, Quaternion q) => Make(ShapeKind.Cylinder, p, q, .3f, new(0, .2f, 0), 0);
+    private static SimCollider CylB(Vector3 p, Quaternion q) => Make(ShapeKind.Cylinder, p, q, .2f, new(0, .35f, 0), 1);
+
+    [Fact]
+    public void S1_ControlBoxBox()
+    {
+        foreach (var target in new[] { .003, -.004 }) Sweep("CONTROL box-box", BoxA, Box, 300, target, 1);
+    }
+
+    [Fact]
+    public void S2_CylinderBox()
+    {
+        foreach (var target in new[] { .003, -.004 }) Sweep("cyl-box", Cyl, Box, 300, target, 2);
+    }
+
+    [Fact]
+    public void S3_CylinderCylinder()
+    {
+        foreach (var target in new[] { .02, .003, -.004 }) Sweep("cyl-cyl", Cyl, CylB, 300, target, 3);
+    }
+
+    [Fact]
+    public void T1_DiagonalRodLimitCycle()
+    {
+        // Rod r .1 h .4 tipped 10.5° toward the 45° diagonal: report tilt each 0.5 s and the late tilt oscillation.
+        var horizontal = Vector3.Normalize(new(1, 0, 1));
+        var q = Quaternion.CreateFromAxisAngle(Vector3.Normalize(Vector3.Cross(Vector3.UnitY, horizontal)), (float)(10.5 * Math.PI / 180));
+        float r = H(.1f), h = H(.4f);
+        var a = Vector3.Transform(Vector3.UnitY, q);
+        var low = h * MathF.Abs(a.Y) + r * MathF.Sqrt(1 - a.Y * a.Y);
+        var scene = new LawScene();
+        var rod = scene.Cylinder(At(0, BenchY + low + .0005f), .1f, .4f, 1f, Dead, q);
+        var world = scene.Admit();
+        float minLate = 999, maxLate = -999; double maxSpinLate = 0;
+        var lines = new List<string>();
+        world.Step(10 * world.TicksPerSecond, (tick, s) =>
+        {
+            var b = s[rod];
+            if (tick % (world.TicksPerSecond / 2) == 0) lines.Add($"t {tick / (double)world.TicksPerSecond:F1}s tilt {b.Tilt:F3}° spin {b.Spin:F4} y {b.Position.Y - BenchY:F5}");
+            if (tick > 9 * world.TicksPerSecond) { minLate = MathF.Min(minLate, b.Tilt); maxLate = MathF.Max(maxLate, b.Tilt); maxSpinLate = Math.Max(maxSpinLate, b.Spin); }
+        });
+        foreach (var l in lines) output.WriteLine(l);
+        output.WriteLine($"last second: tilt {minLate:F3}..{maxLate:F3}°, max spin {maxSpinLate:F4} rad/s (true physics: rights itself to 0°, since 10.5° < atan(r/h) = 14.04°)");
+    }
+}

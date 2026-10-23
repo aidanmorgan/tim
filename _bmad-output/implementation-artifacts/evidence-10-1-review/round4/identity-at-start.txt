@@ -1,0 +1,26 @@
+a598a09e2b91d58135b3343a2beeea6b88578013
+ M CuriousContraptions.Simulation/WorkshopCollisionKernels.cs
+ M CuriousContraptions.Simulation/WorkshopConstraintSolver.cs
+ M CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs
+ M CuriousContraptions.tests/CuriousContraptions.tests.csproj
+ M CuriousContraptions.tests/WorkshopPhysicsLawTests.cs
+ M TODO.md
+ M _bmad-output/implementation-artifacts/sprint-status.yaml
+ M docs/gpu-f32-physics.md
+ M docs/planning/elements/CAT-034-impact_lever.md
+ M docs/planning/elements/CAT-053-pulley.md
+ M engine/gpu/DeclaredPhysics.cs
+ M engine/gpu/PassageSensorDeclaration.cs
+ M engine/gpu/PhysicsDeclarations.cs
+ M engine/gpu/PhysicsGpuAbi.cs
+ M engine/gpu/RigidMassProperties.cs
+ M tools/BundleElements.Tests/BundleRoundTripTests.cs
+ M tools/BundleElements.Tests/SceneGeometryExtractorTests.cs
+ M tools/BundleElements/SceneGeometryExtractor.cs
+?? CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs
+?? _bmad-output/implementation-artifacts/evidence-10-1-review/
+?? _bmad-output/implementation-artifacts/evidence-10-1/
+?? _bmad-output/implementation-artifacts/review-10-1-solid-cylinder.md
+?? _bmad-output/implementation-artifacts/spec-10-1-solid-cylinder.md
+223fa82ce34111d335d3114117760454548d90b2686a7fbf692b95da1cc260f1  -
+27418594d6572995cd50b49cb65f3b677a3de9c9e0ab5b75d90d35228cc5b0be  CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs

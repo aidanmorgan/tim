@@ -310,7 +310,7 @@ development_status:
   9a-21-declaration-free-worker-warmup: done # scoped native/publication Passf27cb7; browser pending
   # 33 (element)
   epic-10: backlog
-  10-1-solid-cylinder-collider-and-inertia: backlog
+  10-1-solid-cylinder-collider-and-inertia: review
   # 34 (deletion)
   9a-39-generic-instance-battery: done # scoped native/publication Pass54ffd9; browser pending
   # 35 (element)
@@ -350,7 +350,7 @@ development_status:
   epic-11: backlog
   11-1-electric-motor-tangential-conveyor-belt: backlog
   # 44 (deletion): before 9a-c-memory, whose ACs need ThresholdReached and MemoryChanged
-  9a-22-event-ring-producer: review # native candidate on ae3cacf9 (worktree story-9a-22); browser pending
+  9a-22-event-ring-producer: done # scoped native/publication Passfc7f7c; browser pending
   # 45 (element)
   11-2-mechanical-clutch-reverse-transmission: backlog
   # 46 (deletion): last record conversion

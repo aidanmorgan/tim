@@ -1,0 +1,72 @@
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+/Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.5+1b188a7b0a (64-bit .NET 10.0.13)
+[xUnit.net 00:00:00.16]   Discovering: CuriousContraptions.tests
+[xUnit.net 00:00:01.04]   Discovered:  CuriousContraptions.tests
+[xUnit.net 00:00:01.17]   Starting:    CuriousContraptions.tests
+[xUnit.net 00:00:45.26]     CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.FreshSeedDropsWithRestitutionGainNoMoreEnergyThanTheBoxControlAndTheSlop [FAIL]
+[xUnit.net 00:00:45.26]       CylinderOntoPlane (Lively): 1/200 over 285.317 mJ (worst 344.658 mJ)
+[xUnit.net 00:00:45.26]       CylinderOntoBox (Lively): 1/200 over 285.317 mJ (worst 347.448 mJ)
+[xUnit.net 00:00:45.26]       BoxOntoCylinder (Lively): 2/200 over 285.317 mJ (worst 331.347 mJ)
+[xUnit.net 00:00:45.26]       CylinderOntoLyingCylinder (Lively): 4/200 over 285.317 mJ (worst 514.917 mJ)
+[xUnit.net 00:00:45.26]       CylinderOntoStandingCylinder (Lively): 3/200 over 285.317 mJ (worst 443.959 mJ)
+[xUnit.net 00:00:45.26]       SkewedRollOffEdge (Lively): 1/200 over 285.317 mJ (worst 415.090 mJ)
+[xUnit.net 00:00:45.26]       Stack Trace:
+[xUnit.net 00:00:45.26]         /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs(1528,0): at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.AssertGate(Int32 cases, GateMaterials[] sets)
+[xUnit.net 00:00:45.26]         /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs(1545,0): at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.FreshSeedDropsWithRestitutionGainNoMoreEnergyThanTheBoxControlAndTheSlop()
+[xUnit.net 00:00:45.26]            at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+[xUnit.net 00:00:45.26]            at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:45.26]       Output:
+[xUnit.net 00:00:45.26]         CylinderOntoPlane (Lively): 1/200 over 285.317 mJ (worst 344.658 mJ)
+[xUnit.net 00:00:45.26]         CylinderOntoBox (Lively): 1/200 over 285.317 mJ (worst 347.448 mJ)
+[xUnit.net 00:00:45.26]         BoxOntoCylinder (Lively): 2/200 over 285.317 mJ (worst 331.347 mJ)
+[xUnit.net 00:00:45.26]         CylinderOntoLyingCylinder (Lively): 4/200 over 285.317 mJ (worst 514.917 mJ)
+[xUnit.net 00:00:45.26]         CylinderOntoStandingCylinder (Lively): 3/200 over 285.317 mJ (worst 443.959 mJ)
+[xUnit.net 00:00:45.26]         SkewedRollOffEdge (Lively): 1/200 over 285.317 mJ (worst 415.090 mJ)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.FreshSeedDropsWithRestitutionGainNoMoreEnergyThanTheBoxControlAndTheSlop [43 s]
+  Error Message:
+   CylinderOntoPlane (Lively): 1/200 over 285.317 mJ (worst 344.658 mJ)
+CylinderOntoBox (Lively): 1/200 over 285.317 mJ (worst 347.448 mJ)
+BoxOntoCylinder (Lively): 2/200 over 285.317 mJ (worst 331.347 mJ)
+CylinderOntoLyingCylinder (Lively): 4/200 over 285.317 mJ (worst 514.917 mJ)
+CylinderOntoStandingCylinder (Lively): 3/200 over 285.317 mJ (worst 443.959 mJ)
+SkewedRollOffEdge (Lively): 1/200 over 285.317 mJ (worst 415.090 mJ)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.AssertGate(Int32 cases, GateMaterials[] sets) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 1528
+   at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.FreshSeedDropsWithRestitutionGainNoMoreEnergyThanTheBoxControlAndTheSlop() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 1545
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Standard Output Messages:
+ CylinderOntoPlane (Lively): 1/200 over 285.317 mJ (worst 344.658 mJ)
+ CylinderOntoBox (Lively): 1/200 over 285.317 mJ (worst 347.448 mJ)
+ BoxOntoCylinder (Lively): 2/200 over 285.317 mJ (worst 331.347 mJ)
+ CylinderOntoLyingCylinder (Lively): 4/200 over 285.317 mJ (worst 514.917 mJ)
+ CylinderOntoStandingCylinder (Lively): 3/200 over 285.317 mJ (worst 443.959 mJ)
+ SkewedRollOffEdge (Lively): 1/200 over 285.317 mJ (worst 415.090 mJ)
+
+
+[xUnit.net 00:08:44.21]   Finished:    CuriousContraptions.tests (ID = 'b11b4479ea0a91ea82a3cc1f61b5b4b5943adf7100569eb5204f26b964119862')
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.FreshSeedDropsGainNoMoreEnergyThanTheBoxControlAndTheSlopFullGate [7 m 58 s]
+  Standard Output Messages:
+ CylinderOntoPlane (Dead): 0/1000 over 2.193 mJ (worst 1.813 mJ)
+ CylinderOntoBox (Dead): 0/1000 over 2.193 mJ (worst 1.720 mJ)
+ BoxOntoCylinder (Dead): 0/1000 over 2.193 mJ (worst 1.382 mJ)
+ CylinderOntoLyingCylinder (Dead): 0/1000 over 2.193 mJ (worst 1.449 mJ)
+ CylinderOntoStandingCylinder (Dead): 0/1000 over 2.193 mJ (worst 1.554 mJ)
+ SkewedRollOffEdge (Dead): 0/1000 over 2.193 mJ (worst 0.193 mJ)
+ CylinderOntoPlane (Rolling): 0/1000 over 2.201 mJ (worst 1.694 mJ)
+ CylinderOntoBox (Rolling): 0/1000 over 2.201 mJ (worst 1.987 mJ)
+ BoxOntoCylinder (Rolling): 0/1000 over 2.201 mJ (worst 0.794 mJ)
+ CylinderOntoLyingCylinder (Rolling): 0/1000 over 2.201 mJ (worst 1.321 mJ)
+ CylinderOntoStandingCylinder (Rolling): 0/1000 over 2.201 mJ (worst 1.543 mJ)
+ SkewedRollOffEdge (Rolling): 0/1000 over 2.201 mJ (worst 0.001 mJ)
+
+
+
+Test Run Failed.
+Total tests: 2
+     Passed: 1
+     Failed: 1
+ Total time: 8.7403 Minutes
+dotnet test CuriousContraptions.tests -c Debug --no-build --no-restore     --  511.11s user 3.15s system 97% cpu 8:44.86 total

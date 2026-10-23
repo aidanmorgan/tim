@@ -34,6 +34,13 @@ Pending browser cases: `cat-051`, `cat-051-own-supply`, `cat-051-interrupt`, `ca
 
 **Merged, receipts pending (9.4c):** 9.4c latch-fixture integrations (position 30, guards C-Gate) is merged to main a598a09e: native `LatchSupplyFixtureTests` (10 cases); pre-merge review Pass-pending-merge ([review](_bmad-output/implementation-artifacts/review-9-4c-latch-fixture-deferred-integrations.md)). The supply lag is one tick: coordinator decision under owner delegation, 22 Oct 2026 (spec D3), which supersedes the "+2" wording in the frozen Set row, AC1 and CAT-037 T14. Pending browser cases `cat-005-n19` and `cat-051-interrupt` (post-catalogue E2E). **Handoff (coordinator decision, 22 Oct 2026):** `ActuatorDriveRead.Blocked` reads false for a blade resting on a ball (−1.083e-5 m/s residual vs the 1e-5 threshold, so the indicator shows unpowered). Owner: the C-Gate implementation owner; native proof required; the threshold is CAT-051 open question 3. [Spec](_bmad-output/implementation-artifacts/spec-9-4c-latch-fixture-deferred-integrations.md#evidence).
 
+**In flight:** 10.1 Solid Cylinder Collider & Inertia (position 33, engine-only, no package; worktree `story-10-1`, WIP ba9757e4 with main fc7f7cac merged in).
+- Re-review 3 is Pass-pending-merge ([review](_bmad-output/implementation-artifacts/review-10-1-solid-cylinder.md)).
+- Round 4 added the single side-emission rule. The 1000-per-class acceptance gate is 0 over in all 12 Dead/Rolling classes, the reviewer's held-back seeds pass, and the routine suite keeps the 200-per-class subset.
+- Next: re-check the merged tree, then merge-candidate review.
+- Browser `engine-cylinder` is pending. The UI dynamic cylinder moves to 10.2 and thin tubes to 14.4.
+- [Spec, round 4](_bmad-output/implementation-artifacts/spec-10-1-solid-cylinder.md#round-4-the-single-emission-fix-2324-oct-2026-evidence-evidence-10-1round5-mutations-round4).
+
 **Merged, receipts pending:** 9.8a Either gate (CAT-026, position 29: package `elements/ElectricalOr` and the monotone Or law; Or-only loops admitted at their least fixed point, mixed loops refused) is merged to main a2eddf81 ([review](_bmad-output/implementation-artifacts/review-9-8a-electrical-or.md), [spec and evidence](_bmad-output/implementation-artifacts/spec-9-8a-electrical-or.md#current-state)); its terminal receipt stays with its owner. C-Bumper+Spring (position 28: Pinball Bumper and Springboard as generic instances, [spec](_bmad-output/implementation-artifacts/spec-c-bumper-spring.md#evidence)) is merged to main 711568c4; its terminal receipt is carried with 9.4c ([review](_bmad-output/implementation-artifacts/review-c-bumper-spring.md)).
 
 **Owner / next check:** C-Gate implementation owner, retained for reviewer findings. Full `dotnet test CuriousContraptions.slnx --no-build --no-restore` on one matching 0-warning Debug build of the merged candidate (totals in the spec evidence); CI tools step and Release worker clean. Next: independent review and SnapshotApproval of the merged snapshot, then normal publication. No known product blocker; browser qualification deferred.
@@ -43,3 +50,7 @@ Pending browser cases: `cat-051`, `cat-051-own-supply`, `cat-051-interrupt`, `ca
 **Cleanup/design:** Explicit record/factory/compiler/capture/whitelist/caller deletion, package-owned declarations and typed shared engines. No fallback, compatibility bridge or new platform.
 
 **Next:** publish C-Gate (position 32) after its SnapshotApproval, then the next ready roadmap item (coordinator). Preserve unrelated main dirt and historical evidence.
+- **Element lane after 10.1, before 10.2a: Engine: restitution energy correctness** (coordinator decision, 24 Oct 2026).
+  - Restitution on multi-point manifolds gains energy engine-wide. The box control alone gains 205 mJ in a tick at e = 0.3 and 8.7 J at e = 1, against 0.001 mJ for a sphere.
+  - **Entry check:** the Lively gate (restitution 0.3 + Crr 0.05, 200 per class) is re-added as an ordinary routine `[Fact]` from `evidence-10-1/lively-gate-source.txt`. It is currently red: plane 1, cylinder→box 1, box→cylinder 2, lying 4, standing 3, roll-off 1.
+  - [10.1 spec, restitution](_bmad-output/implementation-artifacts/spec-10-1-solid-cylinder.md#round-4-the-single-emission-fix-2324-oct-2026-evidence-evidence-10-1round5-mutations-round4).

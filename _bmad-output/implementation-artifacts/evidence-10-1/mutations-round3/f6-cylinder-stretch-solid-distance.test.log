@@ -1,0 +1,15 @@
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:03.36]     CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ALogRestsInTheGrooveOfTwoParallelLogs [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ALogRestsInTheGrooveOfTwoParallelLogs [109 ms]
+  Error Message:
+   Assert.InRange() Failure: Value not in range
+Range:  (0.850663841 - 0.853663862)
+Actual: 0.845208108
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.Holds(LawWorld world, GpuBodyId body, Single restY, Single tolerance, Single seconds) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 325
+   at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ALogRestsInTheGrooveOfTwoParallelLogs() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 378
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     1, Passed:    71, Skipped:     0, Total:    72, Duration: 2 m 4 s - CuriousContraptions.tests.dll (net10.0)

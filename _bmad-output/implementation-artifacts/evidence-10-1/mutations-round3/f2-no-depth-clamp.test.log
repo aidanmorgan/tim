@@ -1,0 +1,30 @@
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:01:18.96]     CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.TempAllTumblePoses [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.TempAllTumblePoses [27 s]
+  Error Message:
+   0:0.00, 1:0.00, 2:0.00, 3:0.04, 4:0.00, 5:0.00, 6:0.03, 7:0.00, 8:0.00, 9:0.00, 10:0.18, 11:0.18, 12:0.00, 13:0.06, 14:0.00, 15:0.29, 16:0.00, 17:0.15, 18:0.00, 19:0.00, 135:0.00
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.TempAllTumblePoses() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 1199
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:02:19.91]     CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.OverlapDepthNeverExceedsTheCertifiedBound(cylinderPartner: False, seed: 402) [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.OverlapDepthNeverExceedsTheCertifiedBound(cylinderPartner: False, seed: 402) [47 s]
+  Error Message:
+   pose 0 at 5 mm: kernel 0.81 mm deeper than the certified bound
+pose 2 at 2 mm: kernel 2.59 mm deeper than the certified bound
+pose 21 at 5 mm: kernel 3.43 mm deeper than the certified bound
+pose 48 at 2 mm: kernel 2.26 mm deeper than the certified bound
+pose 83 at 5 mm: kernel 0.88 mm deeper than the certified bound
+pose 98 at 2 mm: kernel 0.85 mm deeper than the certified bound
+pose 98 at 5 mm: kernel 2.50 mm deeper than the certified bound
+pose 102 at 5 mm: kernel 0.62 mm deeper than the certified bound
+pose 131 at 5 mm: kernel 0.89 mm deeper than the certified bound
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.OverlapDepthNeverExceedsTheCertifiedBound(Boolean cylinderPartner, Int32 seed) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-1/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 1304
+   at InvokeStub_WorkshopPhysicsLawCylinderTests.OverlapDepthNeverExceedsTheCertifiedBound(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+
+Failed!  - Failed:     2, Passed:    70, Skipped:     0, Total:    72, Duration: 2 m 31 s - CuriousContraptions.tests.dll (net10.0)

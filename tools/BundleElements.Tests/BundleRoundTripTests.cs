@@ -49,6 +49,22 @@ public sealed class BundleRoundTripTests
     }
 
     [Fact]
+    public void ACylinderColliderRoundTripsByItsEnumName()
+    {
+        // Story 10.1: the bundle's closed shape set carries Cylinder (r, h, r) by name, bit for bit.
+        var fixture = new Fixture
+        {
+            Colliders = [new(ColliderShapeKind.Cylinder, new(.4f, .085f, .4f), new(0f, .5f, 0f), Quaternion.Identity, new(.1f, .3f, .02f, .1f))]
+        };
+        var json = BundleSchema.Write([fixture]);
+        Assert.Contains("\"ShapeKind\": \"Cylinder\"", json, StringComparison.Ordinal);
+        var entry = Assert.Single(BundleSchema.Read(json).Elements);
+        AssertEntry(fixture, entry);
+        Assert.Equal(ColliderShapeKind.Cylinder, Assert.Single(entry.Colliders).ShapeKind);
+        Assert.Throws<JsonException>(() => BundleSchema.Read(json.Replace("\"Cylinder\"", "\"cylinder\"", StringComparison.Ordinal)));
+    }
+
+    [Fact]
     public void ASliderRoundTripsBitForBit()
     {
         var fixture = new Fixture { Parameters = Fixture.SpringParameters, Sliders = [Fixture.Slider() with { BodiesCollide = true }] };

@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/frozen3/WorkshopConstraintSolver.cs	2026-10-23 18:44:01.288550627 +0800
++++ CuriousContraptions.Simulation/WorkshopConstraintSolver.cs	2026-10-23 20:00:52.984854471 +0800
+@@ -254,7 +254,7 @@
+         if (collider.Shape != ShapeKind.Cylinder) return 0f;
+         foreach (var p in m.Points)
+             if ((sideA ? p.SupportA : p.SupportB) == ContactSupport.Axis) return collider.Radius;
+-        return 0f;
++        return collider.Radius;
+     }
+ 
+     private static float AngularMass(ContactPoint c, Vector3 t)

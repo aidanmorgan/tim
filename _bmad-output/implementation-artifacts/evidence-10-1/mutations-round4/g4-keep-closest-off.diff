@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/frozen4/WorkshopCollisionKernels.cs	2026-10-23 21:52:48.080981334 +0800
++++ CuriousContraptions.Simulation/WorkshopCollisionKernels.cs	2026-10-23 23:03:17.990566078 +0800
+@@ -1069,7 +1069,7 @@
+         ContactSupport supportB)
+     {
+         for (var i = first; i < points.Count; i++)
+-            if (points[i].Gap <= separation + 1e-4f) return;
++            if (points[i].Gap <= separation + 1e9f) return;
+         var a = points[first].ColA;
+         var b = points[first].ColB;
+         points.Add(CylinderContact(a, b, closest.Normal, (closest.OnA + closest.OnB) * 0.5f, separation, Feature(CylinderFeature.Support, 1),
