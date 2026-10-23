@@ -1,7 +1,7 @@
 ---
 title: "Review — C-Memory (9A.41 + 9A.43), independent adversarial review"
 candidate: "uncommitted worktree story-c-memory on base fc7f7cac; tracked diff incl. staged deletions (git diff HEAD -- . ':(exclude)_bmad-output' ':(exclude)TODO.md') sha256 0dad2767164dd6f97114b6baaf8bd67b6c28910da22054c82e7ad7bf9459eeb1 at the start and at the end of review; MemoryGuardTests.cs 89abbef3…, DeclaredMemoryTests.cs 39845d70…"
-verdict: "Incomplete (F1, documentation only). Every native implementation criterion passes independently. After F1 is fixed and origin/main (cf35a064) is merged, the expected result is Pass-pending-merge, then a scoped native Pass on re-review. Browser qualification is pending until the post-catalogue E2E."
+verdict: "Round 1: Incomplete (F1, documentation only). Re-review of WIP 9b756844 and merge 4db597a3 (origin/main cf35a064): scoped native Pass, with SnapshotApproval on base cf35a064. Browser qualification is pending until the post-catalogue E2E."
 date: 2026-10-24
 ---
 
@@ -125,3 +125,31 @@ After merging, re-verify:
 - the identity probe, re-run with base = main on the record path against the merged candidate.
 
 The 6.5f and 9.2 closing addenda are deferred to terminal verification.
+
+# Re-review — WIP 9b756844 + merge 4db597a3 (24 October 2026)
+
+Raw evidence is in `evidence-c-memory-review/merged/`. The probes ran in throwaway worktrees `scratchpad/rr-main` (cf35a064 plus the record-path adapter, guard and probe) and `rr-cand` (4db597a3 plus the probe). Both were removed, and there are no crash dumps. Correction to round 1: main did **not** change the bundle (main's bundle is `250699…`, the same as fc7f7cac's).
+
+| Check | Result |
+|---|---|
+| F1–F3 | All closed. **F1:** the epics 9A.43 AC states the flip rule (StateLatch, LevelIndicator and ContactLoadSource admitted; others `Faulted`/`InvalidRead`; no generic Clear command), and spec decision 2 is struck through and marked superseded. **F2:** the hashes now use `git diff HEAD`. **F3:** the package Description and the CAT-020 note are updated. |
+| WIP vs reviewed candidate | The only code or doc change is the Counter `Description` and the CAT-020 note; epics and spec are F1. `MemoryGuardTests` `89abbef3` and `DeclaredMemoryTests` `39845d70` are unchanged. |
+| Merge | `4db597a3^{tree}` = `6f31e2e2` = `git merge-tree --write-tree 9b756844 cf35a064`. This is a clean automerge with no manual resolution. `git diff cf35a064 4db597a3` has the same stat as `git diff fc7f7cac 9b756844` (261 files, +27475/−571). |
+| Build + full slnx (no blame) | Debug 0 warnings, rc 0. Tests 17/191/77/190/2856, 0 skipped, rc 0 (`build.log`, `full-test.log`). |
+| Known/Generic | main 127/533 (= fc7f7cac); merged 94/519 (= 9b756844). The merge did not touch the fixture, and the isolation scan is green in the suite. |
+| Bundle | Merged `b3aee420…` (a fresh throwaway build equals the worktree). The semantic diff against main shows only: <br>• 10 `LatchMode` removals; <br>• `Counter`→`PulseCount`/`Memory` fields; <br>• the counter's `PulseCount`, Description and `Triggers: []`; <br>• the latch's `Memory` and `Triggers: []`. |
+| Wire regeneration | flatc 25.2.10 on the merged schema: C# equal apart from the pre-existing header blank line; TS head equal. |
+| Identity, base = main | The main record path passes 43/43. Its 9 traces (ring bytes included), lessons, placed solutions and old-save outcomes are byte-identical to the fc7f7cac baseline, and its regenerated base-encoder old saves equal the 86 pins. The merged candidate passes 62/62, and its traces, lessons and placed solutions are byte-identical to main's. Old saves: 6 loaded, 80 typed refusals, 0 untyped (identical to round 1). |
+| Uncommitted carry (byte-integrity only) | `10-1-terminal-receipt.patch` reverse-applies cleanly, and the `review-10-1` diff is byte-identical to the patch. `evidence-10-1-review/terminal/` matches `carry/10-1-terminal-evidence` (`diff -r` empty). The isolation rows A16/D1 are closed at fc7f7cac, TODO and the spec addendum are present, and `git diff HEAD --check` is clean. |
+
+**Verdict: scoped native Pass** at merge `4db597a3` on base origin/main `cf35a064`. I re-fetched; `ls-remote` gives the same SHA. Browser qualification (`cat-020`, `cat-037`, `cat-005-n19`, `cat-051-interrupt`, the `engine-core-2b1` counter save) stays pending until the post-catalogue E2E. This is not a release, global-audit or runtime qualification. The 6.5f and 9.2 closing addenda come at terminal verification, after publication.
+
+## SnapshotApproval
+
+I approve the staged snapshot identified below for commit, merge to main, and push. After publication, the reviewer verifies the exact-SHA CI, the deploy, and the 6.5f and 9.2 addenda. No commit was made by the reviewer.
+
+Staged snapshot identity before this subsection was added:
+- **Tree:** `76daca840a79b1aab8cca6fbcc11667db8812f32`.
+- **`git diff --cached --binary 4db597a3`:** sha256 `452f5a9d398a5bb142b41b4f3c4c2cd6f10924ef69e16cf421169f094a6feebb`. That is 56 files, +22161/−9, with no code paths: TODO, the isolation doc, sprint-status, the spec, this review, the 10.1 receipt and evidence directories.
+
+Only this subsection was added afterwards, and it was re-staged. The final staged tree is reported to the coordinator.

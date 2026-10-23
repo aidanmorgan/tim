@@ -1,0 +1,12 @@
+Fri 23 Oct 2026 18:25:11 UTC
+origin/main cf35a0645c719e2551fc7ffa2473416d404da8a0
+ls-remote cf35a0645c719e2551fc7ffa2473416d404da8a0	refs/heads/main
+slice 507c1a356ed28c624a92cc600c696f85402e3064 tree 0e51bbca78b579e7fa7a36a8b68b8e3f8011ffd7 parents e7152d61069cf43e4d7506552ba763e0be51f2b3
+merge cf35a0645c719e2551fc7ffa2473416d404da8a0 tree 0e51bbca78b579e7fa7a36a8b68b8e3f8011ffd7 parents fc7f7cacccdde0177cb37ab776a502038d71c08d 507c1a356ed28c624a92cc600c696f85402e3064
+merge-vs-slice diff lines:        0
+approved final staged tree 0e51bbca78b579e7fa7a36a8b68b8e3f8011ffd7
+diff --binary e7152d61 507c1a35 sha256 1a8f78c94a2054654d1b3b2dfa07731fa18ceaf822c76f458bb75bd3d8c8ac9e (pre-append approval hash 2e52c6f9…; final differs only by the appended identity subsection)
+files       29
+pre-append tree 89640b54 vs final 0e51bbca differ in: _bmad-output/implementation-artifacts/review-10-1-solid-cylinder.md
+ 1 file changed, 7 insertions(+)
+bundle (generated, untracked) elements/elements.bundle.json sha256 250699013a0fc48a20f181432c6432953a6f23173aad01397013a96913dfa02c, built in this worktree from the published tree's content

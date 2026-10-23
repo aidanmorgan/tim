@@ -1,0 +1,2 @@
+git diff --check rc=0
+git diff HEAD --check rc=0

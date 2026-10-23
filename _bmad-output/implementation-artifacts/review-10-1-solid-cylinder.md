@@ -459,3 +459,35 @@ The staged snapshot's identity follows.
 - **`git diff --cached --binary e7152d61`:** sha256 `2e52c6f9a5722ccb43a7a711df5ec8781bb7d6e882afe54d9ea374b944c8fd44`. The delta is 29 files, +4174/−1.
 - Only this subsection was added afterwards, and it was re-staged. The final staged tree is reported to the coordinator.
 - No commit was made by the reviewer.
+
+## Terminal publication verification — 24 October 2026
+
+Raw outputs are in `evidence-10-1-review/terminal/`. The system and GitHub timestamps read 23 Oct 2026 18:23–18:27Z, local 24 Oct.
+
+**Identities**
+- **Slice commit:** `507c1a356ed28c624a92cc600c696f85402e3064`, tree `0e51bbca78b579e7fa7a36a8b68b8e3f8011ffd7`, parent `e7152d61`.
+- **Published merge** (`--no-ff`): `cf35a0645c719e2551fc7ffa2473416d404da8a0`, parents `fc7f7cac` and `507c1a35`, same tree. `git diff 507c1a35 cf35a064` is empty.
+- **Remote:** after a fetch, `origin/main` and `git ls-remote origin refs/heads/main` both return `cf35a064…`.
+- **Bundle:** `elements/elements.bundle.json` (generated, untracked) sha256 `25069901…dfa02c`, built from this tree's content in the story worktree.
+
+| # | Publication-dependent check | Result | Raw |
+|---|---|---|---|
+| 1 | The commit tree equals the approved snapshot | **Pass.** `507c1a35^{tree}` is `0e51bbca`, the final staged tree reported with the SnapshotApproval. Against the pre-append approval tree `89640b54`, the only difference is this record (+7 lines, the identity subsection). `git diff --binary e7152d61 507c1a35` sha256 is `1a8f78c9…c8ac9e` (29 files) | `identities.txt` |
+| 2 | Hooks | **Pass.**<br>• **Implementer's commit log:** 3 gate builds, 0 warnings and 0 errors; 124/124; commit `507c1a35` created.<br>• **My re-run** on the exact published tree: a throwaway worktree with HEAD `e7152d61` and index `0e51bbca` (29 staged paths, 0 unstaged, 0 untracked), through `.git/hooks/pre-commit` → `.githooks/pre-commit`, 18:25:36Z–18:26:31Z. Result: 3 gate builds, 0 warnings and 0 errors; 124/124; hook rc 0. The worktree was removed | `commit-hook-implementer.log`, `hook-rerun.log` |
+| 3 | The merge tree equals the branch tree, and remote main is the published merge | **Pass** | `identities.txt` |
+| 4 | Pages workflow on the exact SHA | **Pass.**<br>• Run 39999273139, "Build and deploy game", push, main, headSha `cf35a064`, completed/success. Checkout fetched `cf35a064…`.<br>• Every build step succeeded: static gate (3 builds, 0 warnings, 0 errors), Test C# game, Test C# tools, publish, static-deployment check and upload. The deploy job succeeded.<br>• **Totals:** game **2776**; tools **77 / 189 / 17 / 174**; Failed 0 and Skipped 0 everywhere. No `--blame-crash` | `run.json`, `build-job.log` |
+| 5 | Pages artifact ownership and deployment | **Pass.**<br>• Artifact `github-pages` id 12521979747 (digest `sha256:e60e74f0…6316ad`, 80,258,353 bytes, not expired) belongs to run 39999273139 at headSha `cf35a064` on main.<br>• The deploy job logged "Created deployment for cf35a064…" and "Reported success!".<br>• Deployment 7285699895 (sha `cf35a064`, ref main) is the newest `github-pages` deployment; the previous one is `fc7f7cac`. Its status went waiting → queued → in_progress → success (18:24:14Z), environment `https://aidanmorgan.github.io/tim/` | `artifact-deployment.txt`, `deploy-job.log` |
+| 6 | Serving | **Pass.** `/`, `/index.html`, `/404.html`, `/godot.wasm`, `/godot.pck` and `/_framework/dotnet.js` each return 200 with `last-modified` 18:23:38 GMT, this deployment's own time (checked 18:27:16Z) | `deployment-status.txt` |
+| 7 | Closing addenda | **None required.** 10.1 is not a closing story in the epics reopened-record closure table, and it is an engine-only slice that converts no element, so it is not a 6.5f closer | epics §Delivery order, closure table |
+| 8 | Status | `10-1-solid-cylinder-collider-and-inertia` → `done # scoped native/publication Passcf35a0; browser pending (engine-cylinder); restitution gate owned by engine-restitution slice` | `sprint-status.yaml` |
+| 9 | Browser cases | Pending post-catalogue E2E: `engine-cylinder` (Story 10.1 AC; the UI dynamic cylinder moves with 10.2) | — |
+
+**Restitution wording correction (append-only).**
+- Where the coordinator decision, TODO.md or epics cite "a sphere gains 0.001 mJ", that figure holds only for a sphere without spin.
+- With spin, the reviewer's probe on base a598a09e measured much more: a lone sphere gains up to 556 mJ in one tick at e = 0.3 and 7083 mJ at e = 1. A lone box gains 155 / 3868 mJ and a box on a box 211 / 8250 mJ (Re-review 3, `round4/r4-restitution-base.log`).
+- The engine-restitution slice owns the Lively gate (`evidence-10-1/lively-gate-source.txt`) and should use this table as its baseline.
+
+**Terminal verdict: scoped native and publication Pass at `cf35a0645c71`.**
+- Browser qualification (`engine-cylinder`) is pending post-catalogue E2E.
+- Restitution energy is excluded by coordinator decision and owned by the engine-restitution slice.
+- This is not a release, global-audit or runtime qualification.
