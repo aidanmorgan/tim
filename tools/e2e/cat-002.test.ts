@@ -18,6 +18,11 @@ import { assertLoadRestores } from './run-reset-snapshot.ts';
 const detPos = { x: 720, y: 485 };
 const lampPos = { x: 900, y: 420 };
 const outsidePos = { x: 655, y: 465 };
+// Free-bench identities in placement order (the Workshop allocator starts at 1 and advances per placement, ui/Workshop.cs
+// `_nextId`): detector 1, lamp 2, basketball 3. An activation part's animation target is its node + 2
+// (the anim-1b and cat-023b convention), so this is the lamp's own target: the detector's indicator pulse cannot satisfy it
+// (Story 9R.9; browser qualification pending until the post-catalogue E2E phase).
+const LAMP_TARGET = '4';
 // The committed (dynamic) bodies of every bench: the basketball; the detector and lamp are static.
 const BENCH = { bodies: 1 } as const;
 
@@ -66,11 +71,22 @@ describe('CAT-002: Ball Detector Aperture Passage Sensor', () => {
         return driver.captureSnapshot(BENCH);
     }
 
-    async function lights(): Promise<boolean> {
-        return waitFor(async () => {
-            const all = await driver.readAllAnimationSamples();
-            return all.length >= 2 && all.some((s: AnimationSampleRecord) => s.valBits === 15360 || s.value >= 0.5);
-        }, 5000);
+    // The lamp target's own dark-to-lit transitions, counted per animated property (each property records the same activation).
+    async function lampActivations(): Promise<number> {
+        const edges = new Map<number, { lit: boolean; count: number }>();
+        for (const s of await driver.readAnimationSamplesForTarget(LAMP_TARGET)) {
+            const on = s.valBits === 15360 || s.value >= 0.5;
+            const state = edges.get(s.property) ?? { lit: false, count: 0 };
+            if (on && !state.lit) state.count++;
+            state.lit = on;
+            edges.set(s.property, state);
+        }
+        return Math.max(0, ...[...edges.values()].map(state => state.count));
+    }
+
+    // Exactly one more lamp activation than `before`: the lamp target's sample history survives Reset (anim-1b, cat-023b).
+    async function lightsOnceMore(before: number): Promise<boolean> {
+        return waitFor(async () => (await lampActivations()) === before + 1, 5000);
     }
 
     async function resetMatches(s0: RunResetSnapshot, holdMs = 0): Promise<void> {
@@ -88,8 +104,8 @@ describe('CAT-002: Ball Detector Aperture Passage Sensor', () => {
 
         // Run simulation: ball drops under gravity straight down through the detector
         await driver.run();
-        // Detector indicator (SmoothStep 0.35s) and Lamp glow (SmoothStep 0.16s)
-        assert.ok(await lights(), 'Both ball detector indicator and connected lamp must illuminate upon forward passage');
+        // Lamp glow (SmoothStep 0.16s) on the lamp's own target: exactly one activation
+        assert.ok(await lightsOnceMore(0), 'The connected lamp must illuminate exactly once upon forward passage');
         const allSamples = await driver.readAllAnimationSamples();
         assert.ok(allSamples.length >= 2, 'Detector indicator and lamp must publish samples');
 
@@ -132,13 +148,14 @@ describe('CAT-002: Ball Detector Aperture Passage Sensor', () => {
 
         // First run: triggers lamp
         await driver.run();
-        assert.ok(await lights(), 'First run must illuminate lamp');
+        assert.ok(await lightsOnceMore(0), 'First run must illuminate lamp');
         // Reset (draining the retired world's cosmetic pulses): restores the upstream starting arrangement exactly
         await resetMatches(s0, 500);
 
         // Second run: ball clears upstream by definition and triggers sensor again
+        const before = await lampActivations();
         await driver.run();
-        assert.ok(await lights(), 'Second run after Reset must illuminate lamp again');
+        assert.ok(await lightsOnceMore(before), 'Second run after Reset must illuminate lamp again');
         await resetMatches(s0);
         assert.equal(errors.length, 0, `Zero errors expected, got: ${errors.join('; ')}`);
     });
@@ -154,8 +171,9 @@ describe('CAT-002: Ball Detector Aperture Passage Sensor', () => {
         assertLoadRestores(s0, loaded);
 
         // Run the restored construction
+        const before = await lampActivations();
         await driver.run();
-        assert.ok(await lights(), 'Loaded construction must detect passage and illuminate connected lamp');
+        assert.ok(await lightsOnceMore(before), 'Loaded construction must detect passage and illuminate connected lamp');
         await resetMatches(loaded);
         assert.equal(errors.length, 0, `Zero errors expected, got: ${errors.join('; ')}`);
     });

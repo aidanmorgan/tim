@@ -1,0 +1,20 @@
+#!/bin/bash
+# Reviewer mutation runner: build the throwaway candidate copy and run the affected suites; log to the review evidence.
+# usage: mutant.sh <name>
+P=/private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/clrev-probe
+E=/Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/_bmad-output/implementation-artifacts/evidence-c-lamp-detector-review/mutation
+mkdir -p "$E"
+log="$E/$1.txt"
+cd "$P" || exit 2
+{
+  echo "mutant $1 at $(date -u +%FT%TZ)"
+  git diff -- engine CuriousContraptions.Bundle elements
+  dotnet build CuriousContraptions.slnx -c Debug --nologo 2>&1 | grep -E "error|Warning\(s\)|Error\(s\)" | head -5
+  rc=${PIPESTATUS[0]}
+  echo "build rc=$rc"
+  if [ "$rc" != 0 ]; then echo "BUILD FAILED: no tests run"; exit 0; fi
+  F='FullyQualifiedName~LampDetectorGuardTests|FullyQualifiedName~DeclaredIndicatorPassageTests|FullyQualifiedName~BallDetectorTests|FullyQualifiedName~PackageRuntimeParityTests|FullyQualifiedName~CounterTests|FullyQualifiedName~StateLatchTests|FullyQualifiedName~PressurePlateTests|FullyQualifiedName~DominoEffectTests|FullyQualifiedName~DelayedSignalTests|FullyQualifiedName~NoFixedCapacityTests|FullyQualifiedName~PalettePlacementTests'
+  dotnet test CuriousContraptions.tests -c Debug --no-build --no-restore --filter "$F" 2>&1 | grep -E "^\s+Failed |Passed!|Failed!" | head -40
+  dotnet test tools/BundleElements.Tests -c Debug --no-build --no-restore 2>&1 | grep -E "^\s+Failed |Passed!|Failed!" | head -20
+} > "$log" 2>&1
+grep -E "build rc|Passed!|Failed!" "$log"

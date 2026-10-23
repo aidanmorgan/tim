@@ -13,7 +13,7 @@ public sealed class SwitchElectricalTests
             WorkshopInput.Generic(PartId.ImpactSwitch,new(2),0,1,0,0,0,0,1,new([new(new ParameterId("trigger_threshold"),threshold)])),
             PlacedParts.Battery(new(3), -4, 3, 0),
             WorkshopInput.Generic(PartId.PoweredGate,new(4),9,3,0,0,0,0,1),
-            WorkshopInput.Lamp(new(5),4,2,0,0,0,0,1)),
+            PlacedParts.Lamp(new(5),4,2,0,0,0,0,1)),
             Connections:new(Power(3,2),Power(2,4),Signal(2,5)));
     }
     private static ActivationLatch Activation(WorkshopRead read,ulong owner)=>

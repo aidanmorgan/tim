@@ -1,0 +1,24 @@
+mutant R2-indicator-ignores-target at 2026-10-23T09:49:43Z
+diff --git a/engine/gpu/ActivationNetwork.cs b/engine/gpu/ActivationNetwork.cs
+index 2cebae7c..ef33bc0b 100644
+--- a/engine/gpu/ActivationNetwork.cs
++++ b/engine/gpu/ActivationNetwork.cs
+@@ -884,7 +884,7 @@ public static class WorkshopActivationCompiler
+     {
+         var input = ElementPortCatalogue.Socket(indicator.Input);
+         return construction.Connections.Any(link => link.Domain == WorkshopConnectionDomain.Activation &&
+-            link.Target == owner && link.Input == input && construction.Instances.Any(source => source.Id == link.Source &&
++            (link.Target == owner || link.Source != owner) && link.Input == input && construction.Instances.Any(source => source.Id == link.Source &&
+                 DeclaredPorts.Current.Signal(source.PartId, link.Output, WorkshopPortDirection.Output) == WorkshopSignalKind.Level))
+             ? ActivationNodeKind.LevelIndicator : ActivationNodeKind.StickyFirstInput;
+     }
+    0 Warning(s)
+    0 Error(s)
+build rc=0
+  Failed CuriousContraptions.Tests.DeclaredIndicatorPassageTests.TheLampAndDetectorCompileTheNodesTheirDeclarationsSelect [9 ms]
+  Failed CuriousContraptions.Tests.DeclaredIndicatorPassageTests.AnIndicatorFollowsALevelOnlyOnItsDeclaredInput [2 ms]
+  Failed CuriousContraptions.Tests.LampDetectorGuardTests.ALampOnALatchFollowsItsLevelOnAndOffWhileAFirstInputLampHolds [5 ms]
+  Failed CuriousContraptions.Tests.PressurePlateTests.ThePlateCompilesItsLampAsALevelIndicatorWithATwelveTickReleaseHold [< 1 ms]
+  Failed CuriousContraptions.Tests.StateLatchTests.Network_LevelIndicatorMirrorsLatchOnAndOff [< 1 ms]
+Failed!  - Failed:     5, Passed:   203, Skipped:     0, Total:   208, Duration: 5 s - CuriousContraptions.tests.dll (net10.0)
+Passed!  - Failed:     0, Passed:   164, Skipped:     0, Total:   164, Duration: 264 ms - BundleElements.Tests.dll (net10.0)

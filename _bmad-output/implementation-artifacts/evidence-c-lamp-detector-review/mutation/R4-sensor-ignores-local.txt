@@ -1,0 +1,19 @@
+mutant R4-sensor-ignores-local at 2026-10-23T09:50:33Z
+diff --git a/engine/gpu/ActivationNetwork.cs b/engine/gpu/ActivationNetwork.cs
+index 2cebae7c..0424da95 100644
+--- a/engine/gpu/ActivationNetwork.cs
++++ b/engine/gpu/ActivationNetwork.cs
+@@ -894,7 +894,7 @@ public static class WorkshopActivationCompiler
+     public static PassageSensorDeclaration PassageSensorFor(IWorkshopInstance owner, SignalPassageDescriptor aperture)
+     {
+         ArgumentNullException.ThrowIfNull(owner);
+-        return new(WorkshopPhysicsCompiler.PassageSensor(owner.Id), owner.Id, owner.Cell, owner.Local, owner.Rotation,
++        return new(WorkshopPhysicsCompiler.PassageSensor(owner.Id), owner.Id, owner.Cell, default, owner.Rotation,
+             new((Half)aperture.ApertureRadius), new((Half)aperture.RearmClearance));
+     }
+ }
+    0 Warning(s)
+    0 Error(s)
+build rc=0
+Passed!  - Failed:     0, Passed:   208, Skipped:     0, Total:   208, Duration: 5 s - CuriousContraptions.tests.dll (net10.0)
+Passed!  - Failed:     0, Passed:   164, Skipped:     0, Total:   164, Duration: 354 ms - BundleElements.Tests.dll (net10.0)

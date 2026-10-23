@@ -128,6 +128,11 @@ public sealed class BundleRoundTripTests
             AssertSame(signal.Triggers, entry.Signal!.Triggers, "Triggers");
             Assert.Equal(signal.LatchMode, entry.Signal.LatchMode);
             AssertSame(signal.Counter, entry.Signal.Counter, "Counter");
+            // The node-selecting indicator and passage capabilities (C-Lamp+Detector).
+            Assert.Equal(signal is IIndicatorElement, entry.Signal.Indicator is not null);
+            if (signal is IIndicatorElement indicator) Assert.Equal(indicator.Indicator, entry.Signal.Indicator!.Value);
+            Assert.Equal(signal is IPassageSensorElement, entry.Signal.Passage is not null);
+            if (signal is IPassageSensorElement passage) AssertSame(passage.Passage, entry.Signal.Passage!.Value, "Passage");
         }
         Assert.Equal(declaration is IFluidElement, entry.Fluid is not null);
         if (declaration is IFluidElement fluid)

@@ -1,0 +1,11 @@
+#!/bin/bash
+# One mutant: build the solution (a failed build stops here and runs no tests, so no stale binaries are reported), then the
+# mutation filter (filter.txt) and the bundle tests. Usage: bash run-mutant.sh.txt <log name>. Run from the worktree root.
+E=_bmad-output/implementation-artifacts/evidence-c-lamp-detector/mutation
+LOG=$E/$1.log
+git diff --stat -- engine CuriousContraptions.Bundle elements > "$LOG"
+git diff -- engine CuriousContraptions.Bundle elements >> "$LOG"
+if ! dotnet build CuriousContraptions.slnx -c Debug >> "$LOG" 2>&1; then echo "BUILD FAILED (no tests run)" | tee -a "$LOG"; grep -E " error " "$LOG" | sort -u | head -5; exit 1; fi
+{ dotnet test CuriousContraptions.tests/CuriousContraptions.tests.csproj -c Debug --no-build --no-restore --filter "$(cat $E/filter.txt)"
+  dotnet test tools/BundleElements.Tests -c Debug --no-build --no-restore; } >> "$LOG" 2>&1
+grep -E "Passed!|Failed!|^  Failed " "$LOG"

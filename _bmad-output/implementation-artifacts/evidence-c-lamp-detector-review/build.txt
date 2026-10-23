@@ -1,0 +1,31 @@
+  Pipe -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/elements/Pipe/bin/Debug/net10.0/Pipe.dll
+  PressurePlate -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/elements/PressurePlate/bin/Debug/net10.0/PressurePlate.dll
+  Ramp -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/elements/Ramp/bin/Debug/net10.0/Ramp.dll
+  Wall -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/elements/Wall/bin/Debug/net10.0/Wall.dll
+  Springboard -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/elements/Springboard/bin/Debug/net10.0/Springboard.dll
+  Ball -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/elements/Ball/bin/Debug/net10.0/Ball.dll
+  ImpactSwitch -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/elements/ImpactSwitch/bin/Debug/net10.0/ImpactSwitch.dll
+  PipeBend90 -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/elements/PipeBend90/bin/Debug/net10.0/PipeBend90.dll
+  PoweredGate -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/elements/PoweredGate/bin/Debug/net10.0/PoweredGate.dll
+  CuriousContraptions.Bundle -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/CuriousContraptions.Bundle/bin/Debug/net10.0/CuriousContraptions.Bundle.dll
+  Domino -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/elements/Domino/bin/Debug/net10.0/Domino.dll
+  Funnel -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/elements/Funnel/bin/Debug/net10.0/Funnel.dll
+  Receiver -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/elements/Receiver/bin/Debug/net10.0/Receiver.dll
+  BowlingBall -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/elements/BowlingBall/bin/Debug/net10.0/BowlingBall.dll
+  BallDetector -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/elements/BallDetector/bin/Debug/net10.0/BallDetector.dll
+  CuriousContraptions -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/.godot/mono/temp/bin/Debug/CuriousContraptions.dll
+  BundleElements -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/tools/BundleElements/bin/Debug/net10.0/BundleElements.dll
+  CuriousContraptions.2dog -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/CuriousContraptions.2dog/bin/Debug/net10.0/CuriousContraptions.2dog.dll
+  Element bundle: /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/tools/BundleElements/bin/Debug/net10.0/elements.bundle.json (28 elements)
+  Element bundle: /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/elements/elements.bundle.json (28 elements)
+  CuriousContraptions.Simulation -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/CuriousContraptions.Simulation/bin/Debug/net10.0/browser-wasm/CuriousContraptions.Simulation.dll
+  CuriousContraptions.Animation.Worker -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/CuriousContraptions.Animation.Worker/bin/Debug/net10.0/browser-wasm/CuriousContraptions.Animation.Worker.dll
+  BundleElements.Tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/tools/BundleElements.Tests/bin/Debug/net10.0/BundleElements.Tests.dll
+  CuriousContraptions.tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:01.93
+rc=0

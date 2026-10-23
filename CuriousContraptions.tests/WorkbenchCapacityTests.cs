@@ -17,7 +17,7 @@ public sealed class WorkbenchCapacityTests
         if (kind == PartId.Ramp) return WorkshopInput.Generic(PartId.Ramp, Id(), X(i), 2, -2, 0, 0, 0, 1);
         if (kind == PartId.Wall) return WorkshopInput.Generic(PartId.Wall, Id(), X(i), 2, 4, 0, 0, 0, 1, WallFixture.Default);
         if (kind == PartId.ImpactSwitch) return WorkshopInput.Generic(PartId.ImpactSwitch, Id(), X(i), 1, -4, 0, 0, 0, 1);
-        if (kind == PartId.SignalLamp) return WorkshopInput.Lamp(Id(), X(i), 1, 6, 0, 0, 0, 1);
+        if (kind == PartId.SignalLamp) return PlacedParts.Lamp(Id(), X(i), 1, 6, 0, 0, 0, 1);
         if (kind == PartId.Delay) return WorkshopInput.Generic(PartId.Delay, Id(), X(i), 1, -6, 0, 0, 0, 1);
         if (kind == PartId.Pipe) return WorkshopInput.Pipe(Id(), X(i), 3, 0, 0, 0, 0, 1);
         if (kind == PartId.PipeBend45) return WorkshopInput.PipeBend45(Id(), X(i), 3, 0, 0, 0, 0, 1);
@@ -113,13 +113,13 @@ public sealed class WorkbenchCapacityTests
         "ramp" => WorkshopInput.Generic(PartId.Ramp, id, x, 2, z, 0, 0, 0, 1),
         "wall" => WorkshopInput.Generic(PartId.Wall, id, x, 2, z, 0, 0, 0, 1, WallFixture.Default),
         "switch" => WorkshopInput.Generic(PartId.ImpactSwitch, id, x, 1, z, 0, 0, 0, 1),
-        "lamp" => WorkshopInput.Lamp(id, x, 1, z, 0, 0, 0, 1),
+        "lamp" => PlacedParts.Lamp(id, x, 1, z, 0, 0, 0, 1),
         "delay" or "hold_timer" or "both_gate" or "electrical_nand" or "electrical_nor" or "electrical_or" or "electrical_xor" => WorkshopInput.Generic(kind, id, x, 1, z, 0, 0, 0, 1),
         "bumper" => WorkshopInput.Generic(PartId.PinballBumper, id, x, 1, z, 0, 0, 0, 1),
         "battery" => PlacedParts.Battery(id, x, 1, z),
         "spring" => WorkshopInput.Generic(PartId.Springboard, id, x, 1, z, 0, 0, 0, 1),
         "pipe" => WorkshopInput.Pipe(id, x, 3, z, 0, 0, 0, 1),
-        "ball_detector" => WorkshopInput.BallDetector(id, x, 3, z, 0, 0, 0, 1),
+        "ball_detector" => PlacedParts.Detector(id, x, 3, z, 0, 0, 0, 1),
         "pipe_bend_45" => WorkshopInput.PipeBend45(id, x, 3, z, 0, 0, 0, 1),
         "pipe_bend_90" => WorkshopInput.PipeBend90(id, x, 3, z, 0, 0, 0, 1),
         "funnel" => WorkshopInput.Funnel(id, x, 3, z, 0, 0, 0, 1),

@@ -489,6 +489,67 @@ public sealed class BundleValidatorTests
         Assert.Equal(["BUNDLE005 FixturePair: declares 2 elements; a package declares exactly one"],
             PackageDiscovery.FromAssembly("FixturePair", typeof(Fixture).Assembly).Errors.Select(error => error.ToString()));
 
+    // C-Lamp+Detector (D3): the indicator names a declared Signal input admitting a level; the passage aperture is finite and in range
+    // (radius 0.01–10 m, clearance 0.001–10 m) on a static frame with a pulse ActivationOut; and at most one node-selecting capability
+    // (contact, timer, indicator, passage) is declared. Every refusal is a BundleError naming its field, never a throw. Controls: the
+    // shipped lamp and detector, and each range end.
+    [Fact]
+    public void IndicatorAndPassageCapabilitiesAreTypedRangedAndExclusive()
+    {
+        var generated = BundleGenerator.Generate(TestRepository.Root);
+        var bundle = Bundle.BundleSchema.Read(generated.Json!).Elements;
+        var lamp = bundle.Single(entry => entry.Metadata.Id == "lamp");
+        var detector = bundle.Single(entry => entry.Metadata.Id == "ball_detector");
+        static IReadOnlyList<Bundle.BundleError> Check(Bundle.BundleEntry candidate) => Bundle.BundleValidator.Validate([new("Candidate", candidate)]);
+        static void Refused(Bundle.BundleEntry candidate, string field, Bundle.BundleErrorCode code = Bundle.BundleErrorCode.OutOfRange)
+        {
+            var error = Assert.Single(Check(candidate));
+            Assert.Equal((code, true), (error.Code, error.Detail.StartsWith("Candidate." + field + ":", StringComparison.Ordinal)));
+        }
+        Assert.Empty(Check(lamp));
+        Assert.Empty(Check(detector));
+        Assert.Equal(new SignalIndicatorDescriptor(PortSocket.ActivationIn), lamp.Signal!.Indicator);
+        Assert.Equal(new SignalPassageDescriptor(.65f, .02f), detector.Signal!.Passage);
+
+        // The indicator's input: declared, Signal, an input, and admitting a level.
+        Refused(lamp with { Signal = lamp.Signal with { Indicator = new(PortSocket.SetIn) } }, "Indicator.Input");
+        Refused(lamp with { Signal = lamp.Signal with { Indicator = new((PortSocket)255) } }, "Indicator.Input", Bundle.BundleErrorCode.UndefinedEnum);
+        Refused(lamp with { Ports = [lamp.Ports[0] with { Signal = PortSignalKind.Pulse }] }, "Indicator.Input");
+        var levelInputs = lamp with { Ports = [.. lamp.Ports, new(PortSocket.SetIn, SimulationDomain.Signal, PortDirection.Input, PortSignalKind.Level, Vector3.Zero, Vector3.UnitY)] };
+        Assert.Empty(Check(levelInputs with { Signal = lamp.Signal with { Indicator = new(PortSocket.SetIn) } }));
+
+        // The aperture: finite, each end of each range admitted, one step beyond refused.
+        Bundle.BundleEntry Aperture(float radius, float clearance) => detector with { Signal = detector.Signal with { Passage = new(radius, clearance) } };
+        foreach (var (radius, clearance) in new[] { (.01f, .001f), (10f, 10f) }) Assert.Empty(Check(Aperture(radius, clearance)));
+        Refused(Aperture(float.NaN, .02f), "Passage.ApertureRadius", Bundle.BundleErrorCode.NonFinite);
+        Refused(Aperture(.65f, float.PositiveInfinity), "Passage.RearmClearance", Bundle.BundleErrorCode.NonFinite);
+        Refused(Aperture(.0099f, .02f), "Passage.ApertureRadius");
+        Refused(Aperture(10.01f, .02f), "Passage.ApertureRadius");
+        Refused(Aperture(.65f, .00099f), "Passage.RearmClearance");
+        Refused(Aperture(.65f, 10.01f), "Passage.RearmClearance");
+        // The aperture needs its pulse ActivationOut and a static frame.
+        Refused(detector with { Ports = [] }, "Passage.Ports");
+        Refused(detector with { Ports = [detector.Ports[0] with { Signal = PortSignalKind.Level }] }, "Passage.Ports");
+        Refused(detector with { Mechanical = detector.Mechanical! with { KinematicMode = Abstractions.Mechanical.KinematicMode.Dynamic } }, "Passage.Frame");
+
+        // One node-selecting capability: a valid indicator beside the aperture is refused, and only for that.
+        var both = detector with
+        {
+            Ports = [.. detector.Ports, new(PortSocket.ActivationIn, SimulationDomain.Signal, PortDirection.Input, PortSignalKind.Level, Vector3.Zero, -Vector3.UnitY)],
+            Signal = detector.Signal with { Indicator = new(PortSocket.ActivationIn) }
+        };
+        Refused(both, "Capability");
+        Assert.Empty(Check(both with { Signal = both.Signal! with { Passage = null } }));
+        var contact = lamp with
+        {
+            Signal = lamp.Signal with { Triggers = [], Contact = new("speed") },
+            Metadata = lamp.Metadata with { Parameters = [new("speed", ParameterUnit.MetrePerSecond, ParameterKind.Real, 0f, 64f, .8f, [], ParameterEditorPolicy.Clamp)] },
+            Ports = [.. lamp.Ports, new(PortSocket.ActivationOut, SimulationDomain.Signal, PortDirection.Output, PortSignalKind.Pulse, Vector3.Zero, Vector3.UnitY)]
+        };
+        Refused(contact, "Capability");
+        Assert.Empty(Check(contact with { Signal = contact.Signal! with { Indicator = null } }));
+    }
+
     [Fact]
     public void AnAssemblyWithNoDeclarationIsRefused() =>
         Assert.Equal(["BUNDLE005 FixtureNone: declares 0 elements; a package declares exactly one"],

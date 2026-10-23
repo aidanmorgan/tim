@@ -143,7 +143,7 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
     public void Output_LevelDrivesOnlySignalLampsAndRejectsInvalidShapes()
     {
         var latch = WorkshopInput.Latch(new(1), 0, 0, 0, 0, 0, 0, 1);
-        var lamp = WorkshopInput.Lamp(new(2), 3, 0, 0, 0, 0, 0, 1);
+        var lamp = PlacedParts.Lamp(new(2), 3, 0, 0, 0, 0, 0, 1);
         var counter = WorkshopInput.Counter(new(3), -3, 0, 0, 0, 0, 0, 1, 3);
         var hit = WorkshopInput.Generic(PartId.ImpactSwitch, new(4), 0, 3, 0, 0, 0, 0, 1);
         var other = WorkshopInput.Latch(new(5), 0, -3, 0, 0, 0, 0, 1);
@@ -152,16 +152,16 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
         new WorkshopConnections(output).Validate(instances);
         // Story 9R.5: the latch shares the plate's level-output rule and its exact message.
         foreach (var (target, input) in new[] { (counter.Id, WorkshopSocket.ActivationIn), (other.Id, WorkshopSocket.SetIn), (other.Id, WorkshopSocket.ResetIn) })
-            Assert.Equal("A level output can only light a Signal lamp.", EditRefusal.Is(WorkshopEditRejection.LevelDrivesLampOnly,
+            Assert.Equal("A level output can only light a Signal lamp.", EditRefusal.Is(WorkshopEditRejection.LevelDrivesLevelInputOnly,
                 () => new WorkshopConnections(Signal(latch.Id, target, input)).Validate(instances)).Message);
-        EditRefusal.Is(WorkshopEditRejection.LampFollowsOneLevel, () => new WorkshopConnections(output, Signal(hit.Id, lamp.Id, WorkshopSocket.ActivationIn)).Validate(instances));
-        EditRefusal.Is(WorkshopEditRejection.LampFollowsOneLevel, () => new WorkshopConnections(output, Signal(other.Id, lamp.Id, WorkshopSocket.ActivationIn)).Validate(instances));
+        EditRefusal.Is(WorkshopEditRejection.LevelInputFollowsOneLevel, () => new WorkshopConnections(output, Signal(hit.Id, lamp.Id, WorkshopSocket.ActivationIn)).Validate(instances));
+        EditRefusal.Is(WorkshopEditRejection.LevelInputFollowsOneLevel, () => new WorkshopConnections(output, Signal(other.Id, lamp.Id, WorkshopSocket.ActivationIn)).Validate(instances));
 
         // The save codec rejects an invalid stored shape atomically: a latch output aimed at a Counter.
         var valid = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), instances, Connections: new(output));
         var bytes = WorkshopSaveCodec.Encode(new(valid, new(6)));
         var invalid = valid with { Connections = new(Signal(latch.Id, counter.Id, WorkshopSocket.ActivationIn)) };
-        EditRefusal.Is(WorkshopEditRejection.LevelDrivesLampOnly, () => WorkshopSaveCodec.Encode(new(invalid, new(6))));
+        EditRefusal.Is(WorkshopEditRejection.LevelDrivesLevelInputOnly, () => WorkshopSaveCodec.Encode(new(invalid, new(6))));
         Assert.Equal(output, Assert.Single(WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes).Construction.Connections.ToArray()));
     }
 
@@ -172,8 +172,8 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
         var resetClock = WorkshopInput.Clock(new(2), -3, 3, 0, 0, 0, 0, 1, 1.5f);
         var latch = WorkshopInput.Latch(new(3), 0, 0, 0, 0, 0, 0, 1);
         var battery = PlacedParts.Battery(new(4), -6, 0, 0);
-        var lamp = WorkshopInput.Lamp(new(5), 3, 0, 0, 0, 0, 0, 1);
-        var sticky = WorkshopInput.Lamp(new(6), 3, 3, 0, 0, 0, 0, 1);
+        var lamp = PlacedParts.Lamp(new(5), 3, 0, 0, 0, 0, 0, 1);
+        var sticky = PlacedParts.Lamp(new(6), 3, 3, 0, 0, 0, 0, 1);
         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(),
             new(setClock, resetClock, latch, battery, lamp, sticky),
             Connections: new(Power(battery.Id, setClock.Id), Power(battery.Id, resetClock.Id),
@@ -207,7 +207,7 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
     {
         var source = WorkshopInput.Clock(new(1), -3, 0, 0, 0, 0, 0, 1, 1f);
         var latch = WorkshopInput.Latch(new(2), 0, 0, 0, 0, 0, 0, 1);
-        var lamp = WorkshopInput.Lamp(new(3), 3, 0, 0, 0, 0, 0, 1);
+        var lamp = PlacedParts.Lamp(new(3), 3, 0, 0, 0, 0, 0, 1);
         var battery = PlacedParts.Battery(new(4), -3, 2, 0);
         var second = PlacedParts.Battery(new(5), 3, 2, 0);
         var instances = new WorkshopInstances(source, latch, lamp, battery, second);

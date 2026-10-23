@@ -53,3 +53,22 @@ public interface IContactTriggerElement : ISignalElement
 {
     SignalContactDescriptor Contact { get; }
 }
+
+/// <summary>An indicator on one declared Signal input that admits a level. Wired from a level output it follows that level; any other
+/// wiring (or none) holds its first committed input until Reset.</summary>
+public readonly record struct SignalIndicatorDescriptor(PortSocket Input);
+
+public interface IIndicatorElement : ISignalElement
+{
+    SignalIndicatorDescriptor Indicator { get; }
+}
+
+/// <summary>A passage aperture on the owner's static frame, in f32 metres: a body centre crossing the local YZ plane along +X within
+/// <see cref="ApertureRadius"/> of the axis fires one pulse, and the body rearms only once it is <see cref="RearmClearance"/> beyond
+/// its own radius upstream.</summary>
+public readonly record struct SignalPassageDescriptor(float ApertureRadius, float RearmClearance);
+
+public interface IPassageSensorElement : ISignalElement
+{
+    SignalPassageDescriptor Passage { get; }
+}

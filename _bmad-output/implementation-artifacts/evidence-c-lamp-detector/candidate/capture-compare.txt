@@ -1,0 +1,13 @@
+IDENTICAL lesson-world.txt
+DIFFERS old-save-outcomes.txt
+IDENTICAL placed-solutions.txt
+IDENTICAL trace-delay-lamp.txt
+IDENTICAL trace-domino-lamp.txt
+IDENTICAL trace-glancing.txt
+IDENTICAL trace-latch-lamp.txt
+IDENTICAL trace-plate-lamp.txt
+IDENTICAL trace-r9-counter2.txt
+IDENTICAL trace-r9-counter3.txt
+IDENTICAL trace-reverse.txt
+IDENTICAL trace-rotated-20.txt
+IDENTICAL trace-switch-lamp.txt

@@ -156,8 +156,8 @@ public sealed class WorkshopSaveRejectionTests
         PlacedParts.Battery(new(9), 6, 0, 0),
         WorkshopInput.Generic(PartId.PinballBumper, new(10), 7, 0, 0, 0, 0, 0, 1),
         WorkshopInput.Domino(new(11), 8, 0, 0, 0, 0, 0, 1),
-        WorkshopInput.Lamp(new(12), 9, 0, 0, 0, 0, 0, 1),
-        WorkshopInput.BallDetector(new(13), 10, 0, 0, 0, 0, 0, 1),
+        PlacedParts.Lamp(new(12), 9, 0, 0, 0, 0, 0, 1),
+        PlacedParts.Detector(new(13), 10, 0, 0, 0, 0, 0, 1),
         WorkshopInput.PressurePlate(new(14), 11, 0, 0, 0, 0, 0, 1, WorkshopPressurePlate.PlacedMinimumMass),
         WorkshopInput.Counter(new(15), 12, 0, 0, 0, 0, 0, 1, WorkshopCounter.PlacedTargetCount),
         WorkshopInput.Clock(new(16), 13, 0, 0, 0, 0, 0, 1, 1f),
@@ -336,7 +336,7 @@ public sealed class WorkshopSaveRejectionTests
         var ramp = Ramp();
         var receiver = FromProduction(WorkshopInput.Generic(PartId.Receiver, new(1), 0, 1, 0, 0, 0, 0, 1));
         var battery = FromProduction(PlacedParts.Battery(new(2), 0, 1, 0));
-        var lamp = FromProduction(WorkshopInput.Lamp(new(3), 2, 1, 0, 0, 0, 0, 1));
+        var lamp = FromProduction(PlacedParts.Lamp(new(3), 2, 1, 0, 0, 0, 0, 1));
         var electrical = (uint)WorkshopConnectionDomain.Electrical;
         return name switch
         {

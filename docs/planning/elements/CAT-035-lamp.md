@@ -19,14 +19,14 @@
 | Material | restitution 1, bounce threshold 0.1 m/s, friction 0.3 `engine/gpu/WorkshopPhysicsCompiler.cs@a6c914e:L107-L110`. |
 | Constraints and joints | none. |
 | Sockets and ports | ActivationIn (Activation, Input) at local origin `engine/gpu/WorkshopConnections.cs@a6c914e:L36-L39`, `engine/gpu/WorkshopConnections.cs@a6c914e:L47-L55`. No electrical PowerIn (the requirement forbids fabricating one). |
-| Sensors and activation | Latches active on the first committed activation until Reset (shared activation network `engine/gpu/ActivationNetwork.cs`). |
+| Sensors and activation | Declared indicator on ActivationIn (`SignalIndicatorDescriptor`, `elements/SignalLamp/SignalLampElementDeclaration.cs`). Wired from a level output (State Latch, Pressure Plate) it follows that level on every committed tick (`LevelIndicator`) and refuses a second signal (`WorkshopEditRejection.LevelInputFollowsOneLevel`); otherwise it latches on the first committed activation until Reset (`StickyFirstInput`). One shared compiler law selects the node (`WorkshopActivationCompiler.IndicatorKind`, `engine/gpu/ActivationNetwork.cs`); there is no lamp record or arm (C-Lamp+Detector). |
 | Work and energy stores | none. |
-| Parameters | none `engine/gpu/WorkshopActivationParts.cs@a6c914e:L24-L34`. |
+| Parameters | none: the placed lamp is a generic instance of its package with `Parameters: []`, and the editor shows no panel. |
 | Cosmetic curves and UI bindings | Activation source, smoothstep, 0.16 s `engine/gpu/WorkshopCosmetic.cs@a6c914e:L54-L54`; bulb albedo `#556573` → `#fff0a5`, emission black → `#e9b24c` `parts/LampPart.cs@a6c914e:L14-L24`. Design rule (slate to cream-gold with emission) `DESIGN.md@a6c914e:L277-L277`. |
 | Art | `parts/LampPart.cs@a6c914e:L9-L25`: navy `#334856` base 0.85 × 0.2 × 0.85 at y −0.35, grey `#c7c7bb` stem r 0.18 h 0.3 at y −0.17, bulb sphere r 0.43 at y 0.22; pick radius 0.65. Scene `parts/scenes/goal_light.tscn` (catalogue scene name differs from the id). Palette Lamp `#fadb82` `DESIGN.md@a6c914e:L175-L175`. Icon `ui/WorkshopIcons.cs@a6c914e:L54-L54`. |
 | Catalogue and inventory | `parts/catalog/lamp.tres@a6c914e:L6-L14`: id `lamp`, title Signal lamp, category Goals. Goal kind Activated / ActivatedAfter targets the lamp. |
 
-Current tests: `CuriousContraptions.tests/ContactActivationTests.cs` (disconnected and absent contact cannot light it), `DelayedSignalTests.cs`, `ActivationTimerTests.cs`, `WorkshopActivationAnimationTests.cs`, `DominoEffectTests.cs`; Chrome `tools/e2e/anim-1a.test.ts` (glow via worker), `anim-1b.test.ts`, `cat-023b.test.ts` (domino chain lights the lamp once).
+Current tests: `CuriousContraptions.tests/LampDetectorGuardTests.cs` (9R.16 on the production simulation: a switch lights it on the first input and it stays lit, a latch or a plate level is followed on and off, an unwired lamp stays dark, a level-fed lamp refuses a second signal), `DeclaredIndicatorPassageTests.cs` (node selection by declaration, the declared-input filter, record-path saves loading as generic instances), `ContactActivationTests.cs` (disconnected and absent contact cannot light it), `DelayedSignalTests.cs`, `ActivationTimerTests.cs`, `WorkshopActivationAnimationTests.cs`, `DominoEffectTests.cs`, `StateLatchTests.cs`, `PressurePlateTests.cs`; Chrome `tools/e2e/anim-1a.test.ts` (glow via worker), `anim-1b.test.ts`, `cat-023b.test.ts` (domino chain lights the lamp once). `cat-035.test.ts` is authored in the post-catalogue E2E phase (browser qualification pending).
 
 ## 3. Engine capabilities
 
@@ -35,6 +35,7 @@ Families from the [element map row](../general-engine-element-map.md): ContactIm
 | Exists now | Reference |
 | --- | --- |
 | Activation latch and goal | `engine/gpu/ActivationNetwork.cs`, `engine/gpu/WorkshopGoalEvaluator.cs` |
+| Declared indicator capability (`IIndicatorElement`, bundle `SignalPayload.Indicator`, validated: a declared Signal input admitting a level, one node-selecting capability per element) | `CuriousContraptions.Abstractions.Signal/SignalContracts.cs`, `CuriousContraptions.Bundle/BundleValidator.cs` |
 | Declared colour/emission bindings on the animation worker | Story 4.1; `engine/gpu/WorkshopCosmetic.cs` |
 
 | Missing | Story that builds it |

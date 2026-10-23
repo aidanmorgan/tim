@@ -40,7 +40,7 @@ public sealed class LatchSupplyFixtureTests
             WorkshopInput.Generic(PartId.ImpactSwitch, new(SwitchA), 0, 1, 0, 0, 0, 0, 1),
             WorkshopInput.Generic(PartId.Basketball, new(BallA), 0, 3, 0, 0, 0, 0, 1),
             WorkshopInput.Generic(PartId.ImpactSwitch, new(SwitchB), 0, 1, -6, 0, 0, 0, 1),
-            WorkshopInput.Lamp(new(Lamp), -4, 6, 4, 0, 0, 0, 1),
+            PlacedParts.Lamp(new(Lamp), -4, 6, 4, 0, 0, 0, 1),
         };
         if (ballBHeight is { } height) parts.Add(WorkshopInput.Generic(PartId.Basketball, new(BallB), 0, height, -6, 0, 0, 0, 1));
         if (payload)
