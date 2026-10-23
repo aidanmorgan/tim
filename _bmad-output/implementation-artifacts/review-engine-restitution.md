@@ -2,7 +2,82 @@
 
 This is an independent adversarial review. The reviewer did not write the candidate and edited no source, test, tool, content or document file in it. The probes ran in throwaway worktrees, which were removed afterwards.
 
-## Round 2 re-review (24 Oct 2026): current verdict Pass-pending-merge
+## Merged-candidate re-verification (24 Oct 2026): Pass, SnapshotApproval below
+
+**Candidate.** HEAD `2c668ecd` (merge of main `f5ffdb4e` into WIP `e0d7b23d`) plus the uncommitted merge-round changes. Start and end identities are equal (`evidence-engine-restitution-review/merged/identity-start.txt`, `identity-end.txt`). `origin/main` is `f5ffdb4e`.
+
+**Merge integrity.**
+- **The WIP commit is the round-2 candidate.** `e0d7b23d` reproduces it byte for byte: `git diff cf35a064 e0d7b23d` over the round-2 tracked files hashes to `a97587a0…`, and with the restitution test file appended to `1694734e…`. Both equal the round-2 identity.
+- **The merge contains only main's changes plus resolutions.**
+  - The merge base is `cf35a064`.
+  - Every file only main changed equals main.
+  - Every file only the slice changed equals the WIP.
+  - The overlapping files (tests csproj, `EventRingProducerTests`, `PressurePlateTests`) equal `git merge-tree` output.
+  - The only differences from the automatic merge are the `sprint-status.yaml` conflict, resolved by keeping both sides' rows, and a `TODO.md` status line.
+- **The C-Memory receipt is byte-identical to what was carried.**
+  - `cmem-terminal-receipt.patch` applied to HEAD gives exactly the working files: the three review records and `sprint-status.yaml`.
+  - `diff -r` of `carry/cmem-terminal-evidence` against `evidence-c-memory-review/terminal/` is identical (10 files).
+
+**Conditions.**
+- **R2-1:** met. The `deferred-work.md` entry has the reproducer, the numbers, the owner and the plank/crate/seesaw check, and the §Restitution limitation sentence is in the doc.
+- **R2-2:** met. The energy row states the per-480 Hz-substep bound and the tall-stack residual.
+- **R2-3:** met. `TheEnergyBoundKeepsABounceWithinTheRelaxedEnergyAndScalesOneBeyondIt` kills MB2, re-run by the reviewer on the merged engine (`merged/MB2-mutation.log`).
+- **Also present:** the SIGSEGV deferral.
+
+**Gates** (`evidence-engine-restitution-review/merged/`):
+
+| Check | Result |
+|---|---|
+| Debug slnx build, `--no-incremental` | 0 W / 0 E |
+| Full slnx `--no-build --no-restore`, run alone | tests 2928, E2eRunner 190, BundleElements 191, Coverage 77, WorkerAotGuard 17; 0 failed, 0 skipped |
+| CI tools step, body unchanged | 77 / 191 / 17 / 174, exit 0 |
+| Release `--no-incremental` builds, Simulation and Animation.Worker | 0 W / 0 E |
+| `git diff --check` | clean |
+| Lessons, restitution class and Lively | 89/89, including 12 authored lessons × 3 precisions |
+
+**F1 probes on the merged engine** (`merged/f1-probes-merged.log`). The results are identical to round 2:
+
+| Probe | Result |
+|---|---|
+| Reproducers | 0.051 / 0.000 mJ |
+| Sweep at e = 0.9 / 0.95 / 1 | 0.241 / 0.314 / 0.255 mJ |
+| Held-back classes | worst 1.575 of 1.962 mJ |
+| Isolation, Reset replay and fresh engine | bit-identical |
+| Tall stacks at catalogue and mixed e | within bound |
+
+The tall e = 1 stacks show the documented residual (21.0 and 27.3 mJ rise; genuine gain 2.1 and 7.3 mJ). These are the probe's 2 strict-rise assertions, outside the qualified scope as the energy row states.
+
+**Verdict: Pass**, scoped to native and publication.
+- Browser qualification is pending (post-catalogue E2E).
+- Remote and deployed identities are to be verified after publication.
+
+### SnapshotApproval (independent reviewer, 24 Oct 2026)
+
+**Approved snapshot.**
+- Base commit: HEAD `2c668ecd`.
+- `origin/main` is `f5ffdb4e`, the merged parent.
+- Everything was staged with `git add -A` (40 paths), before this section was appended.
+- `git write-tree` = `e4bf4c7c45a8d65ab24cefd3b1c0b9a5f7df8c5e`.
+- sha256 of `git diff --cached --binary 2c668ecd` = `7a98e4da867effe05fb708ce295c666aa27d05385df827e4abfef366d979269a`.
+
+**Scope of the approval.** This approval adds only this section to this file, and the file is then re-staged. Any other change to relevant inputs invalidates the approval.
+
+**Criteria verified before publication:**
+- merge integrity;
+- the C-Memory receipt bytes;
+- conditions R2-1 to R2-3;
+- build, full slnx, CI tools step, Release workers and diff-check;
+- lessons at 3 precisions;
+- F1 probes.
+
+**Checks that depend on publication:**
+- the pushed commit's tree matches this staged tree plus the commit's own approval text;
+- the push and the Pages build/deploy jobs succeed for that commit;
+- the deployed artifact identity.
+
+The implementer may commit, push and deploy this snapshot. The reviewer then verifies the remote and deployed identities before the terminal scoped Pass. Browser qualification stays pending.
+
+## Round 2 re-review (24 Oct 2026): Pass-pending-merge (superseded by the merged verification above)
 
 **Candidate.** Worktree `story-engine-restitution` on base cf35a064, uncommitted.
 - `git diff` sha256 `a97587a0…10f0f7`.

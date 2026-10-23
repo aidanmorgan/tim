@@ -358,11 +358,11 @@ development_status:
   # 45 (element)
   11-2-mechanical-clutch-reverse-transmission: backlog
   # 46 (deletion): last record conversion
-  9a-c-memory-counter-latch-conversion: review # native candidate on fc7f7cac (worktree story-c-memory); browser pending
+  9a-c-memory-counter-latch-conversion: done # scoped native/publication Passf5ffdb; browser pending
   # merged into 9a-c-memory (21 Oct 2026)
-  9a-41-generic-instance-pulse-counter: review # in 9a-c-memory; browser pending
+  9a-41-generic-instance-pulse-counter: done # scoped native/publication Passf5ffdb; browser pending
   # merged into 9a-c-memory (21 Oct 2026)
-  9a-43-generic-instance-state-latch: review # in 9a-c-memory; browser pending
+  9a-43-generic-instance-state-latch: done # scoped native/publication Passf5ffdb; browser pending
   # 47 (element)
   11-3-linear-pusher-telescopic-actuator: backlog
   # 48 (deletion): one slice with 9a-25b; before Epic 14 and any new one-shot cue

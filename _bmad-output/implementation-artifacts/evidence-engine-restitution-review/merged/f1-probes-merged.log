@@ -1,0 +1,170 @@
+Test run for /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/rev3/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+/private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/rev3/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.5+1b188a7b0a (64-bit .NET 10.0.13)
+[xUnit.net 00:00:00.66]   Discovering: CuriousContraptions.tests
+[xUnit.net 00:00:01.45]   Discovered:  CuriousContraptions.tests
+[xUnit.net 00:00:01.55]   Starting:    CuriousContraptions.tests
+  Passed CuriousContraptions.Tests.ReviewRestitutionProbeTests.HeldBackRandomEnergy(e: 0) [5 s]
+  Standard Output Messages:
+ e=0 spinSphere: worst rise 0.0008 mJ (case 1, tick 238), bound 1.962 mJ
+ e=0 box: worst rise 0.0003 mJ (case 23, tick 119), bound 1.962 mJ
+ e=0 cylinder: worst rise 1.5745 mJ (case 6, tick 69), bound 1.962 mJ
+ e=0 boxOnDynBox: worst rise 0.2726 mJ (case 10, tick 133), bound 5.887 mJ
+ e=0 sphereOnSphere: worst rise 0.0009 mJ (case 7, tick 305), bound 7.850 mJ
+ e=0 sphereOnBoxEdge: worst rise 0.0012 mJ (case 18, tick 356), bound 1.962 mJ
+ e=0 cylOnCyl: worst rise 0.8493 mJ (case 2, tick 51), bound 1.962 mJ
+ e=0 rollingSphere: worst rise -0.8353 mJ (case 0, tick 2), bound 1.962 mJ
+
+
+  Passed CuriousContraptions.Tests.ReviewRestitutionProbeTests.HeldBackRandomEnergy(e: 1) [2 s]
+  Standard Output Messages:
+ e=1 spinSphere: worst rise -0.8342 mJ (case 22, tick 3), bound 1.962 mJ
+ e=1 box: worst rise 0.0000 mJ (case 16, tick 223), bound 1.962 mJ
+ e=1 cylinder: worst rise 0.6041 mJ (case 0, tick 192), bound 1.962 mJ
+ e=1 boxOnDynBox: worst rise 0.1918 mJ (case 12, tick 309), bound 5.887 mJ
+ e=1 sphereOnSphere: worst rise -0.8295 mJ (case 24, tick 286), bound 7.850 mJ
+ e=1 sphereOnBoxEdge: worst rise -0.8304 mJ (case 9, tick 177), bound 1.962 mJ
+ e=1 cylOnCyl: worst rise 0.9119 mJ (case 21, tick 269), bound 1.962 mJ
+ e=1 rollingSphere: worst rise -0.8339 mJ (case 3, tick 15), bound 1.962 mJ
+
+
+  Passed CuriousContraptions.Tests.ReviewRestitutionProbeTests.HeldBackRandomEnergy(e: 0.550000012) [4 s]
+  Standard Output Messages:
+ e=0.55 spinSphere: worst rise 0.0012 mJ (case 16, tick 307), bound 1.962 mJ
+ e=0.55 box: worst rise 0.0000 mJ (case 16, tick 130), bound 1.962 mJ
+ e=0.55 cylinder: worst rise 1.4175 mJ (case 9, tick 131), bound 1.962 mJ
+ e=0.55 boxOnDynBox: worst rise 0.1719 mJ (case 18, tick 304), bound 5.887 mJ
+ e=0.55 sphereOnSphere: worst rise 0.0011 mJ (case 28, tick 313), bound 7.850 mJ
+ e=0.55 sphereOnBoxEdge: worst rise 0.0020 mJ (case 6, tick 187), bound 1.962 mJ
+ e=0.55 cylOnCyl: worst rise 0.3468 mJ (case 0, tick 137), bound 1.962 mJ
+ e=0.55 rollingSphere: worst rise -0.8338 mJ (case 18, tick 31), bound 1.962 mJ
+
+
+  Passed CuriousContraptions.Tests.ReviewRestitutionProbeTests.HeldBackRandomEnergy(e: 0.300000012) [4 s]
+  Standard Output Messages:
+ e=0.3 spinSphere: worst rise 0.0009 mJ (case 12, tick 131), bound 1.962 mJ
+ e=0.3 box: worst rise 0.0003 mJ (case 15, tick 110), bound 1.962 mJ
+ e=0.3 cylinder: worst rise 1.5193 mJ (case 8, tick 156), bound 1.962 mJ
+ e=0.3 boxOnDynBox: worst rise 0.0569 mJ (case 24, tick 282), bound 5.887 mJ
+ e=0.3 sphereOnSphere: worst rise 0.0018 mJ (case 27, tick 314), bound 7.850 mJ
+ e=0.3 sphereOnBoxEdge: worst rise 0.0010 mJ (case 26, tick 233), bound 1.962 mJ
+ e=0.3 cylOnCyl: worst rise 0.4365 mJ (case 7, tick 114), bound 1.962 mJ
+ e=0.3 rollingSphere: worst rise -0.8339 mJ (case 3, tick 9), bound 1.962 mJ
+
+
+  Passed CuriousContraptions.Tests.ReviewRestitutionProbeTests.DynamicStackReproducer(e: 1, qx: 0.539420426, qy: 0.281046271, qz: -0.595204294, qw: 0.525138497, h: 0.526213109, x: 0.0608917587, sx: 1.52346444, sy: -0.741984904, sz: -3.30802011) [39 ms]
+  Standard Output Messages:
+ reproducer e=1: worst rise 0.000 mJ (t283); worst genuine gain 0.000 mJ (t285); bound 5.887 mJ
+
+
+  Passed CuriousContraptions.Tests.ReviewRestitutionProbeTests.DynamicStackReproducer(e: 0.949999988, qx: 0.150442645, qy: -0.127815425, qz: 0.732963324, qw: 0.650995374, h: 0.749756277, x: 0.0609850585, sx: -3.45553946, sy: 0.949169278, sz: 0.311104804) [59 ms]
+  Standard Output Messages:
+ reproducer e=0.95: worst rise 0.051 mJ (t242); worst genuine gain 0.044 mJ (t274); bound 5.887 mJ
+
+
+  Passed CuriousContraptions.Tests.ReviewRestitutionProbeTests.BoxOnDynBoxSweep(e: 0.850000024) [11 s]
+  Standard Output Messages:
+ e=0.85: rise 0.242 mJ (case 141 t288); genuine 0.205 mJ (case 141 t256); bound 5.887
+
+
+  Passed CuriousContraptions.Tests.ReviewRestitutionProbeTests.BoxOnDynBoxSweep(e: 0.300000012) [11 s]
+  Standard Output Messages:
+ e=0.3: rise 0.328 mJ (case 123 t103); genuine 0.280 mJ (case 55 t335); bound 5.887
+
+
+  Passed CuriousContraptions.Tests.ReviewRestitutionProbeTests.BoxOnDynBoxSweep(e: 0.550000012) [11 s]
+  Standard Output Messages:
+ e=0.55: rise 0.246 mJ (case 64 t229); genuine 0.228 mJ (case 161 t178); bound 5.887
+
+
+  Passed CuriousContraptions.Tests.ReviewRestitutionProbeTests.BoxOnDynBoxSweep(e: 0.949999988) [9 s]
+  Standard Output Messages:
+   t75 E=6969.4 mJ lower v=<-0.07313974, 0.08965473, -0.12192124> w=<-2.3789337, 0.15665677, 1.6862698> y=0.11443 | top v=<-0.6464231, -0.30243754, -0.22744007> w=<-0.56433815, -0.2586394, 3.4397185> y=0.4117
+   t76 E=6935.6 mJ lower v=<-0.06749278, -0.08338671, -0.07873127> w=<-1.8847109, 0.26788127, 2.0388362> y=0.11418 | top v=<-0.657717, -0.20166719, -0.31382> w=<-1.640681, -0.28702095, 2.7377715> y=0.4099
+   t77 E=6826.1 mJ lower v=<0.024734266, 0.22390057, -0.016387716> w=<1.5143845, 0.1401762, -0.99716496> y=0.11468 | top v=<-0.657717, -0.28343803, -0.31382> w=<-1.640681, -0.28702095, 2.7377715> y=0.4078
+   t78 E=6823.5 mJ lower v=<0.024734266, 0.14212973, -0.016387716> w=<1.5143845, 0.1401762, -0.99716496> y=0.11612 | top v=<-0.657717, -0.36520892, -0.31382> w=<-1.640681, -0.28702095, 2.7377715> y=0.4050
+   t79 E=6821.0 mJ lower v=<0.024734266, 0.060358897, -0.016387716> w=<1.5143845, 0.1401762, -0.99716496> y=0.11688 | top v=<-0.657717, -0.44697982, -0.31382> w=<-1.640681, -0.28702095, 2.7377715> y=0.4016
+   t80 E=6818.5 mJ lower v=<0.024734266, -0.02141194, -0.016387716> w=<1.5143845, 0.1401762, -0.99716496> y=0.11696 | top v=<-0.657717, -0.5287507, -0.31382> w=<-1.640681, -0.28702095, 2.7377715> y=0.3974
+   t81 E=6816.2 mJ lower v=<-0.07899204, -0.13223778, -0.07628753> w=<-2.4551363, -0.09973261, 2.6914933> y=0.11635 | top v=<-0.56356496, -0.15359044, -0.23173743> w=<0.68624663, -0.6601699, 0.18922544> y=0.3926
+   t82 E=6754.9 mJ lower v=<-0.112751424, -0.17121643, -0.08891327> w=<-2.9639194, -0.36350125, 1.8762> y=0.11501 | top v=<-0.5278953, -0.05857195, -0.3023687> w=<-0.45140386, -0.20516759, 0.4551104> y=0.3913
+   t83 E=6752.4 mJ lower v=<-0.11275143, -0.25298727, -0.08891326> w=<-2.9639194, -0.36350125, 1.8761998> y=0.11316 | top v=<-0.5278953, -0.14034279, -0.3023687> w=<-0.45140386, -0.20516759, 0.4551104> y=0.3903
+   t84 E=6518.3 mJ lower v=<-0.034030728, 0.10567325, 0.04269802> w=<1.8272278, -0.33140326, -1.7630237> y=0.11376 | top v=<-0.4475391, -0.039763045, -0.2785524> w=<-2.2398505, 0.6750177, 1.1200808> y=0.3891
+ e=0.95: rise 0.314 mJ (case 24 t155); genuine 0.182 mJ (case 77 t358); bound 5.887
+
+
+  Passed CuriousContraptions.Tests.ReviewRestitutionProbeTests.BoxOnDynBoxSweep(e: 0.899999976) [10 s]
+  Standard Output Messages:
+ e=0.9: rise 0.241 mJ (case 4 t121); genuine 0.158 mJ (case 158 t206); bound 5.887
+
+
+  Passed CuriousContraptions.Tests.ReviewRestitutionProbeTests.BoxOnDynBoxSweep(e: 1) [8 s]
+  Standard Output Messages:
+ e=1: rise 0.255 mJ (case 99 t350); genuine 0.255 mJ (case 99 t350); bound 5.887
+
+
+  Passed CuriousContraptions.Tests.ReviewRound2ProbeTests.TallStacksAndMixedE(levels: 4, eMode: "mixed") [12 s]
+  Standard Output Messages:
+ stack 4 e=mixed: rise 4.096 mJ (case 16); genuine 4.096 mJ (case 16); bound 13.737 mJ; base
+
+
+[xUnit.net 00:01:50.87]     CuriousContraptions.Tests.ReviewRound2ProbeTests.TallStacksAndMixedE(levels: 4, eMode: "1") [FAIL]
+[xUnit.net 00:01:50.87]       rise 27.279 mJ
+[xUnit.net 00:01:50.87]       Stack Trace:
+[xUnit.net 00:01:50.87]         /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/rev3/CuriousContraptions.tests/ReviewRound2ProbeTests.cs(93,0): at CuriousContraptions.Tests.ReviewRound2ProbeTests.TallStacksAndMixedE(Int32 levels, String eMode)
+[xUnit.net 00:01:50.87]            at InvokeStub_ReviewRound2ProbeTests.TallStacksAndMixedE(Object, Span`1)
+[xUnit.net 00:01:50.87]            at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+[xUnit.net 00:01:50.87]       Output:
+[xUnit.net 00:01:50.87]         stack 4 e=1: rise 27.279 mJ (case 43); genuine 7.269 mJ (case 55); bound 13.737 mJ; base
+  Failed CuriousContraptions.Tests.ReviewRound2ProbeTests.TallStacksAndMixedE(levels: 4, eMode: "1") [14 s]
+  Error Message:
+   rise 27.279 mJ
+  Stack Trace:
+     at CuriousContraptions.Tests.ReviewRound2ProbeTests.TallStacksAndMixedE(Int32 levels, String eMode) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/rev3/CuriousContraptions.tests/ReviewRound2ProbeTests.cs:line 93
+   at InvokeStub_ReviewRound2ProbeTests.TallStacksAndMixedE(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Standard Output Messages:
+ stack 4 e=1: rise 27.279 mJ (case 43); genuine 7.269 mJ (case 55); bound 13.737 mJ; base
+
+
+[xUnit.net 00:02:02.03]     CuriousContraptions.Tests.ReviewRound2ProbeTests.TallStacksAndMixedE(levels: 3, eMode: "1") [FAIL]
+[xUnit.net 00:02:02.03]       rise 20.971 mJ
+[xUnit.net 00:02:02.03]       Stack Trace:
+[xUnit.net 00:02:02.03]         /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/rev3/CuriousContraptions.tests/ReviewRound2ProbeTests.cs(93,0): at CuriousContraptions.Tests.ReviewRound2ProbeTests.TallStacksAndMixedE(Int32 levels, String eMode)
+[xUnit.net 00:02:02.03]            at InvokeStub_ReviewRound2ProbeTests.TallStacksAndMixedE(Object, Span`1)
+[xUnit.net 00:02:02.03]            at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+[xUnit.net 00:02:02.03]       Output:
+[xUnit.net 00:02:02.03]         stack 3 e=1: rise 20.971 mJ (case 20); genuine 2.127 mJ (case 49); bound 10.794 mJ; base
+  Failed CuriousContraptions.Tests.ReviewRound2ProbeTests.TallStacksAndMixedE(levels: 3, eMode: "1") [11 s]
+  Error Message:
+   rise 20.971 mJ
+  Stack Trace:
+     at CuriousContraptions.Tests.ReviewRound2ProbeTests.TallStacksAndMixedE(Int32 levels, String eMode) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/rev3/CuriousContraptions.tests/ReviewRound2ProbeTests.cs:line 93
+   at InvokeStub_ReviewRound2ProbeTests.TallStacksAndMixedE(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Standard Output Messages:
+ stack 3 e=1: rise 20.971 mJ (case 20); genuine 2.127 mJ (case 49); bound 10.794 mJ; base
+
+
+  Passed CuriousContraptions.Tests.ReviewRound2ProbeTests.TallStacksAndMixedE(levels: 4, eMode: ".55") [12 s]
+  Standard Output Messages:
+ stack 4 e=.55: rise 3.082 mJ (case 16); genuine 2.808 mJ (case 5); bound 12.953 mJ; base
+
+
+  Passed CuriousContraptions.Tests.ReviewRound2ProbeTests.TallStacksAndMixedE(levels: 3, eMode: "mixed") [9 s]
+  Standard Output Messages:
+ stack 3 e=mixed: rise 2.114 mJ (case 44); genuine 1.439 mJ (case 16); bound 10.009 mJ; base
+
+
+[xUnit.net 00:02:24.69]   Finished:    CuriousContraptions.tests (ID = '5a51bd0a112cb2461568882ec8f14743c196ae1dc92a10bae38303b16f328642')
+  Passed CuriousContraptions.Tests.ReviewRound2ProbeTests.ScalingGroupDoesNotTouchAnUnrelatedBodyAndIsDeterministic [126 ms]
+  Standard Output Messages:
+ isolation bit-identical True; reset replay identical True; fresh engine identical True; base
+
+
+
+Test Run Failed.
+Total tests: 18
+     Passed: 16
+     Failed: 2
+ Total time: 2.4149 Minutes

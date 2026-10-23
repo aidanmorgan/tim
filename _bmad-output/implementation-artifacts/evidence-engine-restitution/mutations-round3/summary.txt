@@ -1,0 +1,2 @@
+MB2-bound-presolve-only: Failed!  - Failed:     1, Passed:    73, Skipped:     0, Total:    74, Duration: 1 m 56 s - CuriousContraptions.tests.dll (net10.0) killed-by=1
+done

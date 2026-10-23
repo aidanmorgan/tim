@@ -1,0 +1,28 @@
+HEAD 199e8ad658c9edfaeeb0149a04d0ba089f6f72a3 tree 07cbd58a2093ee83a246db72241d078fcb8b92da status-lines 1
+bundle elements/elements.bundle.json sha256 b3aee420ddd8a96dfc63b7a7a7635eca311574fe657928504c2e36ab6c0a2424 mtime 2026-10-24T02:41:14 (fresh --no-incremental build, rerun-build.log)
+guards start 2026-10-23T19:45:16Z
+Passed!  - Failed:     0, Passed:   358, Skipped:     0, Total:   358, Duration: 13 s - CuriousContraptions.tests.dll (net10.0)
+guards end 2026-10-23T19:45:31Z
+--- switch-table census, base fc7f7cac -> published f5ffdb4e (production: engine ui CuriousContraptions.Simulation)
+"counter": 4 -> 1
+"latch": 3 -> 1
+WorkshopCounter: 10 -> 0
+WorkshopLatch: 7 -> 0
+WorkshopInput\.(Counter|Latch): 0 -> 0
+TargetCount\(inst\)|AddTargetCount: 4 -> 0
+IWorkshopDeclaredColliders: 5 -> 0
+Unsupported authored instance declaration: 1 -> 0
+SignalLatchMode|LatchMode: 7 -> 0
+"pipe": 4 -> 4
+PartId\.Pipe: 0 -> 0
+census end 2026-10-23T19:45:32Z
+WorkshopInput\.(Counter|Latch)\(: 2 -> 0
+== PartId\.Pipe[^a-zA-Z0-9]: 5 -> 5
+remaining "counter"/"latch" production hits at f5ffdb4e:
+f5ffdb4e:engine/PartId.cs:46:    public static readonly PartId Counter = new("counter");
+f5ffdb4e:engine/PartId.cs:48:    public static readonly PartId Latch = new("latch");
+remaining "pipe" hits:
+f5ffdb4e:engine/MachineWorld.Gpu.cs:108:            "pipe" => WorkshopInput.Pipe(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, 
+f5ffdb4e:engine/PartId.cs:39:    public static readonly PartId Pipe = new("pipe");
+f5ffdb4e:engine/gpu/WorkshopSavePrevalidation.cs:116:            case "pipe":
+f5ffdb4e:engine/gpu/WorkshopWireFlatBuffers.cs:738:            "pipe" => new WorkshopPipe(id, cell, local, rotation, new(RequiredLength(inst

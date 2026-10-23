@@ -410,6 +410,27 @@ public sealed class WorkshopPhysicsLawRestitutionTests
         Assert.InRange(Vn(a), .99f, 1.01f);
     }
 
+    /// <summary>The restitution pass's energy bound is max(kinetic energy before the contact solve, after the relax sweeps) per group
+    /// (review R2-3; mutant MB2, pre-solve only, survived without this). A 1 kg box whose solve added kinetic energy this substep
+    /// (pre-solve 0 J, relaxed 0.5 J at v_y = −1 m/s): a bounce that stays within the relaxed energy (e = 0.25 on a 2 m/s approach,
+    /// v_y → +0.5 m/s, 0.125 J) is kept whole; one beyond it (e = 1, v_y → +2 m/s, 2 J) is scaled back along the line from −1 m/s to
+    /// +2 m/s to the relaxed 0.5 J, which is v_y = +1 m/s.</summary>
+    [Fact]
+    public void TheEnergyBoundKeepsABounceWithinTheRelaxedEnergyAndScalesOneBeyondIt()
+    {
+        var (kept, p, _) = Pair(At(0, -.1f), At(0, -.1f), At(0, -1f), default, -2f, -2f);
+        p.Restitution = .25f;
+        kept.PreSolveKinetic = 0f;
+        WorkshopConstraintSolver.RestitutionPass([new ContactManifold { Points = [p] }], [], 1);
+        Assert.InRange(kept.Vy, .5f - 1e-5f, .5f + 1e-5f);
+
+        var (scaled, q, _) = Pair(At(0, -.1f), At(0, -.1f), At(0, -1f), default, -2f, -2f);
+        q.Restitution = 1f;
+        scaled.PreSolveKinetic = 0f;
+        WorkshopConstraintSolver.RestitutionPass([new ContactManifold { Points = [q] }], [], 1);
+        Assert.InRange(scaled.Vy, 1f - 1e-4f, 1f + 1e-4f);
+    }
+
     /// <summary>A Basketball set down 2 mm above the bench comes to rest within the resting envelope (0.5 mm) and never rises above
     /// where it was set down: the 2 mm fall (≈ 0.2 m/s) bounces once at most and the bounces decay below the threshold.</summary>
     [Fact]
