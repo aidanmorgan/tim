@@ -1,0 +1,66 @@
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:01.72]     CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheShippedSolverNamesNoElementBeyondThePinnedOwnedViolations [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheShippedSolverNamesNoElementBeyondThePinnedOwnedViolations [23 ms]
+  Error Message:
+   CuriousContraptions.Simulation/PrismaticConstraintSolver.cs:278: unowned element-specific code 'weight'
+CuriousContraptions.Simulation/PrismaticConstraintSolver.cs:279: unowned element-specific code 'weight'
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawTests.TheShippedSolverNamesNoElementBeyondThePinnedOwnedViolations() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 661
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:02.36]     CuriousContraptions.Tests.ElementIsolationTests.ProductionKnowledgeIsExactlyTheOwnedShrinkingList [FAIL]
+  Failed CuriousContraptions.Tests.ElementIsolationTests.ProductionKnowledgeIsExactlyTheOwnedShrinkingList [485 ms]
+  Error Message:
+   CuriousContraptions.Simulation/PrismaticConstraintSolver.cs:278: unowned PackageIdentifier weight in PrismaticConstraintSolver.SuppliedDriveForce
+CuriousContraptions.Simulation/PrismaticConstraintSolver.cs:279: unowned PackageIdentifier weight in PrismaticConstraintSolver.SuppliedDriveForce
+  Stack Trace:
+     at CuriousContraptions.Tests.ElementIsolationTests.ProductionKnowledgeIsExactlyTheOwnedShrinkingList() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/CuriousContraptions.tests/ElementIsolationTests.cs:line 340
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:02.73]     CuriousContraptions.Tests.PlacementPoseTests.ADroppedWeightRestsOnThePlateFaceUprightOnItsBaseAndOnItsSide [FAIL]
+  Failed CuriousContraptions.Tests.PlacementPoseTests.ADroppedWeightRestsOnThePlateFaceUprightOnItsBaseAndOnItsSide [6 ms]
+  Error Message:
+   System.ArgumentException : Placement rest has no rule for a Cylinder collider.
+  Stack Trace:
+     at CuriousContraptions.PlacementPose.Pose(IReadOnlyList`1 colliders, Vector3 position, Quaternion turn) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/engine/PlacementPose.cs:line 120
+   at CuriousContraptions.PlacementPose.Rest(IReadOnlyList`1 placed, TubeMouthMover candidate, Vector3 at, Quaternion rotation) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/engine/PlacementPose.cs:line 76
+   at CuriousContraptions.PlacementPose.Compose(IReadOnlyDictionary`2 definitions, IReadOnlyList`1 placed, TubeMouthMover candidate, Vector3 at, Quaternion rotation) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/engine/PlacementPose.cs:line 65
+   at CuriousContraptions.Tests.PlacementPoseTests.Composed(IReadOnlyDictionary`2 definitions, IReadOnlyList`1 placed, TubeMouthMover mover, Vector3 at, Quaternion rotation) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/CuriousContraptions.tests/PlacementPoseTests.cs:line 35
+   at CuriousContraptions.Tests.PlacementPoseTests.ADroppedWeightRestsOnThePlateFaceUprightOnItsBaseAndOnItsSide() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/CuriousContraptions.tests/PlacementPoseTests.cs:line 77
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:03.05]     CuriousContraptions.Tests.PalettePlacementTests.TheWeightMassEditorClampsFiniteEntriesAndEverySeamBehindItRefusesAnInvalidMass [FAIL]
+  Failed CuriousContraptions.Tests.PalettePlacementTests.TheWeightMassEditorClampsFiniteEntriesAndEverySeamBehindItRefusesAnInvalidMass [37 ms]
+  Error Message:
+   System.AggregateException : One or more errors occurred. (Assert.Single() Failure: The collection was empty) (Godot reported 1 error(s) during this test:
+Error: Workshop handler 'Click' failed: System.ArgumentException: Placement rest has no rule for a Cylinder collider.
+   at CuriousContraptions.PlacementPose.Pose(IReadOnlyList`1 colliders, Vector3 position, Quaternion turn) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/engine/PlacementPose.cs:line 120
+   at CuriousContraptions.PlacementPose.Rest(IReadOnlyList`1 placed, TubeMouthMover candidate, Vector3 at, Quaternion rotation) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/engine/PlacementPose.cs:line 76
+   at CuriousContraptions.PlacementPose.Compose(IReadOnlyDictionary`2 definitions, IReadOnlyList`1 placed, TubeMouthMover candidate, Vector3 at, Quaternion rotation) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/engine/PlacementPose.cs:line 65
+   at CuriousContraptions.Workshop.PlacementPose(PartId part, Vector3 at) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/ui/WorkshopGuidance.cs:line 255
+   at CuriousContraptions.Workshop.ClickAsync(Vector2 screen) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/ui/Workshop.cs:line 526
+   at CuriousContraptions.Workshop.Click(Vector2 screen) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/ui/Workshop.cs:line 506
+   at void CuriousContraptions.Workshop.HandlerFailed(string, System.Exception) (/Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/ui/WorkshopGpu.cs:49))
+---- Assert.Single() Failure: The collection was empty
+---- twodog.GodotErrorException : Godot reported 1 error(s) during this test:
+Error: Workshop handler 'Click' failed: System.ArgumentException: Placement rest has no rule for a Cylinder collider.
+   at CuriousContraptions.PlacementPose.Pose(IReadOnlyList`1 colliders, Vector3 position, Quaternion turn) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/engine/PlacementPose.cs:line 120
+   at CuriousContraptions.PlacementPose.Rest(IReadOnlyList`1 placed, TubeMouthMover candidate, Vector3 at, Quaternion rotation) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/engine/PlacementPose.cs:line 76
+   at CuriousContraptions.PlacementPose.Compose(IReadOnlyDictionary`2 definitions, IReadOnlyList`1 placed, TubeMouthMover candidate, Vector3 at, Quaternion rotation) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/engine/PlacementPose.cs:line 65
+   at CuriousContraptions.Workshop.PlacementPose(PartId part, Vector3 at) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/ui/WorkshopGuidance.cs:line 255
+   at CuriousContraptions.Workshop.ClickAsync(Vector2 screen) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/ui/Workshop.cs:line 526
+   at CuriousContraptions.Workshop.Click(Vector2 screen) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/ui/Workshop.cs:line 506
+   at void CuriousContraptions.Workshop.HandlerFailed(string, System.Exception) (/Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/ui/WorkshopGpu.cs:49)
+  Stack Trace:
+  
+----- Inner Stack Trace #1 (Xunit.Sdk.SingleException) -----
+   at CuriousContraptions.Tests.PalettePlacementTests.<>c__DisplayClass40_0.<TheWeightMassEditorClampsFiniteEntriesAndEverySeamBehindItRefusesAnInvalidMass>g__Current|2() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/CuriousContraptions.tests/PalettePlacementTests.cs:line 1280
+   at CuriousContraptions.Tests.PalettePlacementTests.TheWeightMassEditorClampsFiniteEntriesAndEverySeamBehindItRefusesAnInvalidMass() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/CuriousContraptions.tests/PalettePlacementTests.cs:line 1282
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+----- Inner Stack Trace #2 (twodog.GodotErrorException) -----
+   at twodog.Testing.Xunit.FailOnGodotErrorsAttribute.ThrowIfAny(GodotErrorLog log, String when) in /Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotErrorChecks.cs:line 33
+   at twodog.Testing.Xunit.FailOnGodotErrorsAttribute.After(MethodInfo methodUnderTest, IXunitTest test) in /Users/aidan/.nuget/packages/2dog.xunit/4.7.2.91/build/GodotErrorChecks.cs:line 27
+
+Failed!  - Failed:     4, Passed:    60, Skipped:     0, Total:    64, Duration: 1 s - CuriousContraptions.tests.dll (net10.0)

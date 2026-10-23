@@ -23,7 +23,7 @@ internal static class ImpactRules
         ["PipeBend45"] = PartId.PipeBend45, ["PipeBend90"] = PartId.PipeBend90,
         ["PoweredGate"] = PartId.PoweredGate, ["PressurePlate"] = PartId.PressurePlate, ["Ramp"] = PartId.Ramp,
         ["Receiver"] = PartId.Receiver, ["SignalLamp"] = PartId.SignalLamp, ["Springboard"] = PartId.Springboard,
-        ["StateLatch"] = PartId.Latch, ["SystemClock"] = PartId.Clock, ["Wall"] = PartId.Wall,
+        ["StateLatch"] = PartId.Latch, ["SystemClock"] = PartId.Clock, ["Wall"] = PartId.Wall, ["Weight"] = new("weight"),
     };
 
     /// <summary>Every engine/ (outside engine/gpu), ui/ and scenes/ source to its Workshop area. A file's Godot .uid sidecar follows

@@ -31,10 +31,11 @@ public sealed record BundleEntry(
     IReadOnlyList<TubeMouthParameterBinding> TubeMouthBindings,
     ElementPresentation Presentation);
 
-/// <summary>The mechanical payload. <see cref="Sliders"/> is empty unless the element is an <see cref="ISliderElement"/>.</summary>
+/// <summary>The mechanical payload. <see cref="Sliders"/> is empty unless the element is an <see cref="ISliderElement"/>;
+/// <see cref="MassParameter"/> is present exactly when it is an <see cref="IParameterizedMassElement"/>.</summary>
 public sealed record MechanicalPayload(KinematicMode KinematicMode, RigidBodyMassProperties MassProperties,
     IReadOnlyList<AnchorPointDescriptor> AnchorPoints, IReadOnlyList<PrismaticSliderDescriptor> Sliders,
-    ResidenceCaptureDescriptor? Capture = null, ContactWorkDescriptor? ContactWork = null);
+    ResidenceCaptureDescriptor? Capture = null, ContactWorkDescriptor? ContactWork = null, MechanicalValue? MassParameter = null);
 
 public sealed record ElectricalPayload(IReadOnlyList<ElectricalNodeDescriptor> Nodes, SupplyCapabilityDescriptor? Supply);
 
@@ -63,7 +64,8 @@ public static class BundleSchema
                 ? new MechanicalPayload(mechanical.KinematicMode, mechanical.MassProperties, mechanical.AnchorPoints,
                     mechanical is ISliderElement slider ? slider.Sliders : [],
                     mechanical is IResidenceCaptureElement capture ? capture.Capture : null,
-                    mechanical is IContactWorkElement work ? work.ContactWork : null) : null,
+                    mechanical is IContactWorkElement work ? work.ContactWork : null,
+                    mechanical is IParameterizedMassElement bound ? bound.Mass : null) : null,
             declaration is IElectricalElement electrical ? new ElectricalPayload(electrical.ElectricalNodes, electrical is ISupplyElement supply ? supply.Supply : null) : null,
             declaration is ISignalElement signal ? new SignalPayload(signal.Triggers,
                 signal is ITimerElement timer ? timer.Timer : null, signal is IContactTriggerElement contact ? contact.Contact : null,

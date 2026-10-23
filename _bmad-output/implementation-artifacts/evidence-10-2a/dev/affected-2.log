@@ -1,0 +1,30 @@
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:18.97]     CuriousContraptions.Tests.PlacementPoseTests.ADroppedWeightRestsOnThePlateFaceUprightOnItsBaseAndOnItsSide [FAIL]
+  Failed CuriousContraptions.Tests.PlacementPoseTests.ADroppedWeightRestsOnThePlateFaceUprightOnItsBaseAndOnItsSide [5 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: None
+Actual:   OutsideBench
+  Stack Trace:
+     at CuriousContraptions.Tests.PlacementPoseTests.Composed(IReadOnlyDictionary`2 definitions, IReadOnlyList`1 placed, TubeMouthMover mover, Vector3 at, Quaternion rotation) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/CuriousContraptions.tests/PlacementPoseTests.cs:line 36
+   at CuriousContraptions.Tests.PlacementPoseTests.ADroppedWeightRestsOnThePlateFaceUprightOnItsBaseAndOnItsSide() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/CuriousContraptions.tests/PlacementPoseTests.cs:line 75
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:19.48]     CuriousContraptions.Tests.PalettePlacementTests.TheWeightMassEditorClampsFiniteEntriesAndEverySeamBehindItRefusesAnInvalidMass [FAIL]
+  Failed CuriousContraptions.Tests.PalettePlacementTests.TheWeightMassEditorClampsFiniteEntriesAndEverySeamBehindItRefusesAnInvalidMass [21 ms]
+  Error Message:
+   Assert.Single() Failure: The collection did not contain any matching items
+Expected:   (predicate expression)
+Collection: [<Button#371497897152>, <Button#371598560376>]
+  Stack Trace:
+     at CuriousContraptions.Tests.PalettePlacementTests.<TheWeightMassEditorClampsFiniteEntriesAndEverySeamBehindItRefusesAnInvalidMass>g__Press|40_1(String label, <>c__DisplayClass40_1&) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/CuriousContraptions.tests/PalettePlacementTests.cs:line 1279
+   at CuriousContraptions.Tests.PalettePlacementTests.TheWeightMassEditorClampsFiniteEntriesAndEverySeamBehindItRefusesAnInvalidMass() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/CuriousContraptions.tests/PalettePlacementTests.cs:line 1290
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     2, Passed:   425, Skipped:     0, Total:   427, Duration: 25 s - CuriousContraptions.tests.dll (net10.0)

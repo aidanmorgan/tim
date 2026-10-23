@@ -40,6 +40,7 @@
     <Project Path="elements/StateLatch/StateLatch.csproj" />
     <Project Path="elements/SystemClock/SystemClock.csproj" />
     <Project Path="elements/Wall/Wall.csproj" />
+    <Project Path="elements/Weight/Weight.csproj" />
   </Folder>
   <Folder Name="/tools/">
     <Project Path="tools/BundleElements/BundleElements.csproj" />

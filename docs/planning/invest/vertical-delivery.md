@@ -167,7 +167,7 @@ The preceding Story6.1c numeric offsets are historical delivery evidence. The [S
 - **Epic 6:** the Ball detector follows the two pipe stories.
 - **Epic 8, supplied electrical power:** 8.1 Battery (CAT-005); 8.2 Powered gate (CAT-051), the first electrical consumer.
 - **Epic 9, activation, timing and electrical logic:** 9.1 Pressure plate; 9.2 Counter; 9.3 Clock; 9.4 Latch; 9.5 Hold timer; 9.6 Both, after the Latch whose supply fixture it uses (CAT-013 §5); 9.7 NAND and NOR; 9.8 OR and XOR.
-- **Epic 10:** 10.1 solid cylinder collider and inertia (ENGINE-CYLINDER, new and roadmap-only, before the first possible cylinder consumer); 10.2 Pulley and Rope anchor; 10.3 Impact lever, after ropes for its rope sockets; 10.4 Weight; 10.5 Trampoline, after ropes and the Weight for its tether controls.
+- **Epic 10:** 10.1 solid cylinder collider and inertia (ENGINE-CYLINDER, new and roadmap-only, before the first possible cylinder consumer); 10.2 split one element per story: 10.2a the Weight body (CAT-067), then the rope (Tie/Load) and the Pulley (10.2b/10.2c, provisional); 10.3 Impact lever, after ropes for its rope sockets; 10.4 Weight pendulum qualification only; 10.5 Trampoline, after ropes and the Weight for its tether controls.
 - **Epic 11:** 11.1 Motor and Conveyor; 11.2 Clutch and Reverse transmission; 11.3 Linear pusher; 11.4 Wound spring and Cannon.
 - **Epic 12:** 12.1 Tennis ball and Balloon; 12.2 Fan; 12.3 Windmill; 12.4 Bellows, after Windmill and Conveyor.
 - **Epic 13:** 13.1 Torch and Laser; 13.2 broadband and pure-channel receivers; 13.3 Beam shutter; 13.4 RGB filters; 13.5 Mirror, Splitter and Combiner; 13.6 secondary receivers; 13.7 Solar panel; 13.8 optical gates.

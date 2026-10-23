@@ -3696,6 +3696,8 @@ So that wheeled and pivoted parts move with their real shape and mass.
 
 *Depends on: Story 10.1 (cylinder wheel collider; owner decision 18 Oct 2026, CAT-053 open question 1). Moved from Story 10.3, ahead of the Lever whose end rope sockets need the ropes. The Counterweight body (CAT-067) ships with Story 10.2 per CAT-067 §3 and is the rope load in this acceptance (Open scheduling item f, decided 18 Oct 2026); the Lever's rope-load integration is proven in Story 10.3.*
 
+*Split (24 Oct 2026; one new element per story): **10.2a** the Weight body (CAT-067; package `elements/Weight`, its `mass` parameter, no port), the rope load used here; **10.2b** the rope domain and the Weight's `Tie` socket and `Load` role (provisional); **10.2c** the Pulley (provisional). The acceptance below closes with the last of them.*
+
 As a player,  
 I want to route ropes around Pulleys to transmit tensile forces,  
 So that dropping one weight can lift an object in a different part of the workbench.
@@ -3729,6 +3731,8 @@ So that see-saw mechanisms can fling objects or lift connected ropes.
 *Status: Backlog*
 
 *Depends on: Story 10.2 (rope anchor and tension-only rope). Number unchanged; the Pulley moved up to Story 10.2 and the Trampoline now follows this story.*
+
+*The Weight body, its mass parameter and its rest, roll, stack, Reset and Save/Load proof ship with Story 10.2a; this story is pendulum qualification only.*
 
 As a player,  
 I want Counterweights to swing as pendulums and balance moving loads,  

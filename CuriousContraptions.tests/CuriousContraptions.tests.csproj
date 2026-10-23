@@ -88,6 +88,7 @@
         <Compile Include="ElectricalNorTests.cs" />
         <Compile Include="ElectricalOrTests.cs" />
         <Compile Include="ElectricalXorTests.cs" />
+        <Compile Include="WeightTests.cs" />
         <Compile Include="SwitchElectricalTests.cs" />
         <Compile Include="LatchSupplyFixtureTests.cs" />
         <Compile Include="WorkshopBumperTests.cs" />

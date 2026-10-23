@@ -240,6 +240,16 @@ public static class BundleValidator
                         OutOfRange(path + ".EvaluatedBoundary");
                 }
             }
+            // A cylinder is (r, h, r): its radial lanes are bound together or not at all, so every evaluation keeps X = Z.
+            for (var i = 0; i < entry.Colliders.Count; i++)
+            {
+                if (entry.Colliders[i].ShapeKind != ColliderShapeKind.Cylinder) continue;
+                var x = entry.ColliderBindings.Where(binding => binding.Collider == i && binding.Component == GeometryComponent.HalfExtentX)
+                    .Select(binding => (binding.Parameter, binding.Multiplier, binding.Offset)).ToArray();
+                var z = entry.ColliderBindings.Where(binding => binding.Collider == i && binding.Component == GeometryComponent.HalfExtentZ)
+                    .Select(binding => (binding.Parameter, binding.Multiplier, binding.Offset)).ToArray();
+                if (!x.SequenceEqual(z)) OutOfRange($"ColliderBindings[{i}].CylinderRadius");
+            }
             var ends = new HashSet<TubeEnd>();
             foreach (var mouth in entry.TubeMouths)
             {
@@ -409,6 +419,25 @@ public static class BundleValidator
                 if (mechanical.KinematicMode != KinematicMode.Static || mechanical.Sliders.Count != 0)
                     OutOfRange("ContactWork.Owner");
             }
+            if (mechanical.MassParameter is { } bound) MassParameter(bound, mechanical, parameters);
+        }
+
+        /// <summary>A body mass bound to a parameter: the dynamic body's mass is one declared Real kilogram parameter whose whole range
+        /// lies inside the compiled mass domain [1/1024, 1024] kg, and the fixed declared mass is that parameter's default (one truth
+        /// at defaults).</summary>
+        private void MassParameter(MechanicalValue bound, MechanicalPayload mechanical, IReadOnlyList<ParameterDescriptor> parameters)
+        {
+            const string path = "MassParameter";
+            Value(path, bound, parameters);
+            if (bound.Source != MechanicalValueSource.Parameter) { OutOfRange(path + ".Source"); return; }
+            if (mechanical.KinematicMode != KinematicMode.Dynamic) OutOfRange(path + ".Owner");
+            var named = parameters.Where(parameter => parameter.Key == bound.Parameter).ToArray();
+            if (named.Length != 1) { OutOfRange(path + ".Parameter"); return; }
+            var mass = named[0];
+            if (mass.Kind != ParameterKind.Real || mass.Unit != ParameterUnit.Kilogram) OutOfRange(path + ".Parameter");
+            if (!(mass.Minimum >= 1f / 1024f && mass.Maximum <= 1024f)) OutOfRange(path + ".Range");
+            if (BitConverter.SingleToUInt32Bits(mechanical.MassProperties.Mass) != BitConverter.SingleToUInt32Bits(mass.Default))
+                OutOfRange(path + ".Default");
         }
 
         private void Volume(string path,Vector3 minimum,Vector3 maximum)

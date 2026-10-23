@@ -1,0 +1,157 @@
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:01.82]     CuriousContraptions.Tests.WeightTests.OnItsSideItRollsDownARampWithoutSlippingAndComesToRestOnTheBenchWithoutAxialCreep [FAIL]
+[xUnit.net 00:00:01.92]     CuriousContraptions.Tests.WeightTests.ProbeSideCreep(crr: 0.0299999993, speed: 1.5) [FAIL]
+[xUnit.net 00:00:02.01]     CuriousContraptions.Tests.WeightTests.ProbeSideCreep(crr: 0, speed: 0) [FAIL]
+[xUnit.net 00:00:02.10]     CuriousContraptions.Tests.WeightTests.ProbeSideCreep(crr: 0.0299999993, speed: 0) [FAIL]
+[xUnit.net 00:00:02.18]     CuriousContraptions.Tests.WeightTests.ProbeSideCreep(crr: 0, speed: 1.5) [FAIL]
+[xUnit.net 00:00:02.30]     CuriousContraptions.Tests.WeightTests.ProbeLawRampRoll [FAIL]
+[xUnit.net 00:00:02.41]     CuriousContraptions.Tests.WeightTests.ProbeWorkshopSideRest [FAIL]
+  Failed CuriousContraptions.Tests.WeightTests.OnItsSideItRollsDownARampWithoutSlippingAndComesToRestOnTheBenchWithoutAxialCreep [301 ms]
+  Error Message:
+   PROBE t 60 x 0.780 y 0.7229 z 0.034mm axial 0.000mm v <0.725961, -0.1945207, -6.1777955E-06> axis <5.185604E-06, -2.6524067E-06, 1.0000001>
+PROBE t 120 x 1.325 y 0.5769 z 0.027mm axial -0.003mm v <1.4519007, -0.38903543, -1.1613893E-05> axis <5.9604645E-06, -2.7865171E-06, 1.0000002>
+PROBE t 180 x 2.140 y 0.3513 z 0.056mm axial 0.027mm v <1.6198226, -0.000118271724, -4.957337E-05> axis <-2.836436E-05, -0.00013792515, 1>
+PROBE t 240 x 2.925 y 0.3513 z 0.127mm axial 0.011mm v <1.5216875, -0.00012154099, 0.00018653995> axis <-0.00019486248, -0.0001470074, 1>
+PROBE t 300 x 3.661 y 0.3513 z 0.311mm axial -0.009mm v <1.423554, -0.00011694497, 0.00039416808> axis <-0.00035369396, -0.00014701486, 1>
+PROBE t 360 x 4.348 y 0.3513 z 0.586mm axial -0.028mm v <1.3254242, -0.00011736311, 0.000553597> axis <-0.00050090253, -0.00014704466, 0.9999999>
+PROBE t 420 x 4.986 y 0.3513 z 0.931mm axial -0.047mm v <1.2272983, -0.00012102278, 0.0006732743> axis <-0.00063825026, -0.00014706887, 0.9999998>
+PROBE t 480 x 5.575 y 0.3513 z 1.327mm axial -0.066mm v <1.129173, -0.00012339171, 0.00074752676> axis <-0.00076532364, -0.0001472719, 0.9999999>
+PROBE t 540 x 6.115 y 0.3513 z 1.753mm axial -0.085mm v <1.0310502, -0.00012166638, 0.0007938314> axis <-0.00088199973, -0.00014734268, 0.9999997>
+PROBE t 600 x 6.606 y 0.3513 z 2.193mm axial -0.104mm v <0.93292207, -0.00011416107, 0.0008189555> axis <-0.0009900723, -0.00014704466, 0.99999964>
+PROBE t 660 x 7.048 y 0.3513 z 2.634mm axial -0.122mm v <0.83478963, -0.000109905515, 0.0008031607> axis <-0.0010858327, -0.0001469627, 0.99999946>
+PROBE t 720 x 7.441 y 0.3513 z 3.059mm axial -0.141mm v <0.73665607, -0.000113963295, 0.0007598696> axis <-0.0011730194, -0.00014659017, 0.99999934>
+PROBE t 780 x 7.784 y 0.3513 z 3.458mm axial -0.159mm v <0.6385306, -0.00011444626, 0.0006920791> axis <-0.0012484789, -0.00014714524, 0.9999993>
+PROBE t 840 x 8.079 y 0.3513 z 3.815mm axial -0.178mm v <0.54040754, -0.00011085695, 0.00061328453> axis <-0.0013116002, -0.00014612079, 0.99999917>
+PROBE t 900 x 8.325 y 0.3513 z 4.129mm axial -0.194mm v <0.44228137, -0.000114135204, 0.0004991244> axis <-0.0013684034, -0.00014692545, 0.9999991>
+PROBE t 960 x 8.521 y 0.3513 z 4.382mm axial -0.214mm v <0.34414962, -0.000117023315, 0.00037701963> axis <-0.0014157593, -0.00014781952, 0.99999905>
+PROBE t 1020 x 8.668 y 0.3513 z 4.573mm axial -0.235mm v <0.24601464, -0.000119490425, 0.00024194364> axis <-0.0014569014, -0.00014781952, 0.99999905>
+PROBE t 1080 x 8.767 y 0.3513 z 4.696mm axial -0.256mm v <0.14788216, -0.000120241406, 0.000108835055> axis <-0.0014828928, -0.00014734268, 0.999999>
+PROBE t 1140 x 8.816 y 0.3513 z 4.752mm axial -0.275mm v <0.049750686, -0.00011725211, -3.4516677E-05> axis <-0.0015030652, -0.00014710426, 0.99999905>
+PROBE t 1200 x 8.822 y 0.3513 z 4.740mm axial -0.296mm v <1.3842055E-08, -0.000108249704, -1.1577038E-05> axis <-0.0015066322, -0.00014710426, 0.9999989>
+PROBE t 1260 x 8.822 y 0.3513 z 4.715mm axial -0.321mm v <1.3842055E-08, -0.000108249704, -1.1577038E-05> axis <-0.0015066322, -0.00014710426, 0.9999989>
+PROBE t 1320 x 8.822 y 0.3513 z 4.689mm axial -0.346mm v <1.3842055E-08, -0.000108249704, -1.1577038E-05> axis <-0.0015066322, -0.00014710426, 0.9999989>
+PROBE t 1380 x 8.822 y 0.3513 z 4.664mm axial -0.371mm v <1.3842055E-08, -0.000108249704, -1.1577038E-05> axis <-0.0015066322, -0.00014710426, 0.9999989>
+PROBE t 1440 x 8.822 y 0.3513 z 4.639mm axial -0.397mm v <1.3842055E-08, -0.000108249704, -1.1577038E-05> axis <-0.0015066322, -0.00014710426, 0.9999989>
+PROBE t 1500 x 8.822 y 0.3513 z 4.614mm axial -0.422mm v <1.3842055E-08, -0.000108249704, -1.1577038E-05> axis <-0.0015066322, -0.00014710426, 0.9999989>
+PROBE t 1560 x 8.822 y 0.3513 z 4.589mm axial -0.447mm v <1.3842055E-08, -0.000108249704, -1.1577038E-05> axis <-0.0015066322, -0.00014710426, 0.9999989>
+PROBE t 1620 x 8.822 y 0.3513 z 4.564mm axial -0.472mm v <1.3842055E-08, -0.000108249704, -1.1577038E-05> axis <-0.0015066322, -0.00014710426, 0.9999989>
+PROBE t 1680 x 8.822 y 0.3513 z 4.539mm axial -0.497mm v <1.3842055E-08, -0.000108249704, -1.1577038E-05> axis <-0.0015066322, -0.00014710426, 0.9999989>
+axial -0.000496650753793737 stop 1165 finalZ 0.004539281 finalX 8.822421 axis <-0.0015066322, -0.00014710426, 0.9999989> zAtStop 0.0047532916 z@1s 2.6673079E-05 z@2s 0.00012719631 z@0 3.4213066E-05
+  Stack Trace:
+     at CuriousContraptions.Tests.WeightTests.OnItsSideItRollsDownARampWithoutSlippingAndComesToRestOnTheBenchWithoutAxialCreep() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/CuriousContraptions.tests/WeightTests.cs:line 374
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.WeightTests.ProbeSideCreep(crr: 0.0299999993, speed: 1.5) [90 ms]
+  Error Message:
+   t 120 pos <1.401593, -0.10866746, 1.5362441E-06> v <1.3035623, 9.663381E-13, 2.4806486E-06> w <4.751637E-06, -1.0270799E-06, -3.7093298> axis <-1.0728836E-06, 5.9604645E-07, 0.99999994>
+t 240 pos <2.606825, -0.10866746, 5.3168483E-06> v <1.1073124, -2.842171E-14, 1.2932923E-06> w <3.180873E-09, -1.2786745E-06, -3.1508942> axis <0, 9.23872E-07, 1.0000002>
+t 360 pos <3.6158047, -0.10866746, 6.6997914E-06> v <0.9110459, 1.7905677E-12, 3.015253E-06> w <4.429555E-06, -1.1477338E-06, -2.5924113> axis <-1.3113022E-06, 1.0728836E-06, 1>
+t 480 pos <4.4285016, -0.10866746, 1.2092504E-05> v <0.7147589, 2.842171E-14, 8.277266E-07> w <2.0361468E-09, -5.0162896E-07, -2.03387> axis <-3.1106174E-07, 6.0908496E-07, 1>
+t 600 pos <5.0449114, -0.10866746, 1.911092E-05> v <0.5184738, 5.684342E-14, 2.602195E-06> w <6.4036714E-09, -1.3536087E-06, -1.4753344> axis <5.364418E-07, 1.7024577E-06, 1>
+t 720 pos <5.465046, -0.10866746, 2.1423051E-05> v <0.3222076, 1.4210855E-14, -4.8739753E-07> w <-1.2003042E-09, 1.3009087E-07, -0.9168524> axis <-4.172325E-07, -2.9802322E-07, 0.99999994>
+t 840 pos <5.688913, -0.10866746, 2.5437594E-05> v <0.12593739, 2.046363E-12, 4.4492463E-06> w <2.4561355E-06, -4.363348E-07, -0.35835904> axis <-6.943941E-06, 2.3841858E-06, 1>
+t 960 pos <5.7291865, -0.10866746, 3.337487E-05> v <-7.2496336E-12, 0, 1.066515E-06> w <-4.742873E-13, -6.4817977E-12, -1.0877936E-15> axis <-4.9471855E-06, 2.2649765E-06, 1>
+t 1080 pos <5.7291865, -0.10866746, 3.8229264E-05> v <-7.249541E-12, 0, 1.0665158E-06> w <-3.6060044E-13, -6.48192E-12, -1.1247784E-15> axis <-4.9471855E-06, 2.2649765E-06, 1>
+t 1200 pos <5.7291865, -0.10866746, 4.3083648E-05> v <-7.2503926E-12, 0, 1.0666225E-06> w <-1.3322676E-13, -6.4824283E-12, -1.1133401E-15> axis <-4.9471855E-06, 2.2649765E-06, 1>
+t 1320 pos <5.7291865, -0.10866746, 4.793805E-05> v <-7.2503882E-12, -2.842171E-14, 1.0666358E-06> w <-2.469136E-13, -6.4826282E-12, -1.0872447E-15> axis <-4.9471855E-06, 2.2649765E-06, 1>
+t 1440 pos <5.7291865, -0.10866746, 5.2792457E-05> v <-7.2501167E-12, -2.842171E-14, 1.0665917E-06> w <-2.469136E-13, -6.482319E-12, -1.1368402E-15> axis <-4.9471855E-06, 2.2649765E-06, 1>
+t 1560 pos <5.7291865, -0.10866746, 5.7646866E-05> v <-7.2502586E-12, -2.842171E-14, 1.0665833E-06> w <-1.9539925E-14, -6.482017E-12, -1.0999367E-15> axis <-4.9471855E-06, 2.2649765E-06, 1>
+t 1680 pos <5.7291865, -0.10866746, 6.2501334E-05> v <-7.24961E-12, -8.526513E-14, 1.0664977E-06> w <-3.6060044E-13, -6.4815783E-12, -1.1225626E-15> axis <-4.9471855E-06, 2.2649765E-06, 1>
+
+  Stack Trace:
+     at CuriousContraptions.Tests.WeightTests.ProbeSideCreep(Single crr, Single speed) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/CuriousContraptions.tests/WeightTests.cs:line 395
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WeightTests.ProbeSideCreep(crr: 0, speed: 0) [82 ms]
+  Error Message:
+   t 120 pos <0, -0.108667456, 1.9436243E-11> v <0, -3.469447E-18, 1.3080671E-11> w <3.215657E-14, 0, 0> axis <0, 0, 1.0000001>
+t 240 pos <0, -0.108667456, 2.8417392E-11> v <0, -3.469447E-18, 1.3080671E-11> w <3.215657E-14, 0, 0> axis <0, 0, 1.0000001>
+t 360 pos <0, -0.108667456, 3.739854E-11> v <0, -3.469447E-18, 1.3080671E-11> w <3.215657E-14, 0, 0> axis <0, 0, 1.0000001>
+t 480 pos <0, -0.108667456, 4.637969E-11> v <0, -3.469447E-18, 1.3080671E-11> w <3.215657E-14, 0, 0> axis <0, 0, 1.0000001>
+t 600 pos <0, -0.108667456, 5.5360837E-11> v <0, -3.469447E-18, 1.3080671E-11> w <3.215657E-14, 0, 0> axis <0, 0, 1.0000001>
+t 720 pos <0, -0.108667456, 6.434085E-11> v <0, -3.469447E-18, 1.3080671E-11> w <3.215657E-14, 0, 0> axis <0, 0, 1.0000001>
+t 840 pos <0, -0.108667456, 7.3320336E-11> v <0, -3.469447E-18, 1.3080671E-11> w <3.215657E-14, 0, 0> axis <0, 0, 1.0000001>
+t 960 pos <0, -0.108667456, 8.229982E-11> v <0, -3.469447E-18, 1.3080673E-11> w <3.215657E-14, 0, 0> axis <0, 0, 1.0000001>
+t 1080 pos <0, -0.108667456, 9.1279304E-11> v <0, -3.469447E-18, 1.3080671E-11> w <3.215657E-14, 0, 0> axis <0, 0, 1.0000001>
+t 1200 pos <0, -0.108667456, 1.0025879E-10> v <0, -3.469447E-18, 1.3080673E-11> w <3.215657E-14, 0, 0> axis <0, 0, 1.0000001>
+t 1320 pos <0, -0.108667456, 1.0923827E-10> v <0, -3.469447E-18, 1.3080673E-11> w <3.215657E-14, 0, 0> axis <0, 0, 1.0000001>
+t 1440 pos <0, -0.108667456, 1.1821776E-10> v <0, -3.469447E-18, 1.3080671E-11> w <3.215657E-14, 0, 0> axis <0, 0, 1.0000001>
+t 1560 pos <0, -0.108667456, 1.2719724E-10> v <0, -3.469447E-18, 1.3080671E-11> w <3.215657E-14, 0, 0> axis <0, 0, 1.0000001>
+t 1680 pos <0, -0.108667456, 1.3617672E-10> v <0, -3.469447E-18, 1.3080671E-11> w <3.215657E-14, 0, 0> axis <0, 0, 1.0000001>
+
+  Stack Trace:
+     at CuriousContraptions.Tests.WeightTests.ProbeSideCreep(Single crr, Single speed) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/CuriousContraptions.tests/WeightTests.cs:line 395
+   at InvokeStub_WeightTests.ProbeSideCreep(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.WeightTests.ProbeSideCreep(crr: 0.0299999993, speed: 0) [85 ms]
+  Error Message:
+   t 120 pos <0, -0.108667456, 8.121502E-12> v <0, -3.324816E-18, -9.626629E-19> w <-2.1175824E-21, 0, 0> axis <0, 0, 1.0000001>
+t 240 pos <0, -0.108667456, 8.121502E-12> v <0, -3.324816E-18, -9.626629E-19> w <-2.1175824E-21, 0, 0> axis <0, 0, 1.0000001>
+t 360 pos <0, -0.108667456, 8.121502E-12> v <0, -3.324816E-18, -9.626629E-19> w <-2.1175824E-21, 0, 0> axis <0, 0, 1.0000001>
+t 480 pos <0, -0.108667456, 8.121502E-12> v <0, -3.324816E-18, -9.626629E-19> w <-2.1175824E-21, 0, 0> axis <0, 0, 1.0000001>
+t 600 pos <0, -0.108667456, 8.121502E-12> v <0, -3.324816E-18, -9.626629E-19> w <-2.1175824E-21, 0, 0> axis <0, 0, 1.0000001>
+t 720 pos <0, -0.108667456, 8.121502E-12> v <0, -3.324816E-18, -9.626629E-19> w <-2.1175824E-21, 0, 0> axis <0, 0, 1.0000001>
+t 840 pos <0, -0.108667456, 8.121502E-12> v <0, -3.324816E-18, -9.626629E-19> w <-2.1175824E-21, 0, 0> axis <0, 0, 1.0000001>
+t 960 pos <0, -0.108667456, 8.121502E-12> v <0, -3.324816E-18, -9.626629E-19> w <-2.1175824E-21, 0, 0> axis <0, 0, 1.0000001>
+t 1080 pos <0, -0.108667456, 8.121502E-12> v <0, -3.324816E-18, -9.626629E-19> w <-2.1175824E-21, 0, 0> axis <0, 0, 1.0000001>
+t 1200 pos <0, -0.108667456, 8.121502E-12> v <0, -3.324816E-18, -9.626629E-19> w <-2.1175824E-21, 0, 0> axis <0, 0, 1.0000001>
+t 1320 pos <0, -0.108667456, 8.121502E-12> v <0, -3.324816E-18, -9.626629E-19> w <-2.1175824E-21, 0, 0> axis <0, 0, 1.0000001>
+t 1440 pos <0, -0.108667456, 8.121502E-12> v <0, -3.324816E-18, -9.626629E-19> w <-2.1175824E-21, 0, 0> axis <0, 0, 1.0000001>
+t 1560 pos <0, -0.108667456, 8.121502E-12> v <0, -3.324816E-18, -9.626629E-19> w <-2.1175824E-21, 0, 0> axis <0, 0, 1.0000001>
+t 1680 pos <0, -0.108667456, 8.121502E-12> v <0, -3.324816E-18, -9.626629E-19> w <-2.1175824E-21, 0, 0> axis <0, 0, 1.0000001>
+
+  Stack Trace:
+     at CuriousContraptions.Tests.WeightTests.ProbeSideCreep(Single crr, Single speed) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/CuriousContraptions.tests/WeightTests.cs:line 395
+   at InvokeStub_WeightTests.ProbeSideCreep(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.WeightTests.ProbeSideCreep(crr: 0, speed: 1.5) [80 ms]
+  Error Message:
+   t 120 pos <1.4998188, -0.108667456, 2.8420523E-11> v <1.4998083, -3.2526065E-18, 9.040139E-12> w <2.2219206E-14, 1.4588733E-07, -4.267754> axis <0, 0, 0.9999999>
+t 240 pos <2.9996624, -0.108667456, 3.3314143E-11> v <1.4998083, -3.3068166E-18, -8.9565676E-13> w <-2.2016894E-15, 1.6921477E-07, -4.267754> axis <0, 0, 0.99999994>
+t 360 pos <4.499525, -0.108667456, 3.7557613E-11> v <1.4998083, -3.3271454E-18, -1.7500899E-13> w <-4.3023853E-16, 1.9252728E-07, -4.267754> axis <0, 0, 1>
+t 480 pos <5.9993877, -0.108667456, 4.2362128E-11> v <1.4998083, -3.1441863E-18, -5.577186E-12> w <-1.370952E-14, -1.8600443E-07, -4.267754> axis <0, 0, 1>
+t 600 pos <7.4992504, -0.108667456, 4.734882E-11> v <1.4998083, -3.6862874E-18, 9.897153E-12> w <2.4326027E-14, -1.6267987E-07, -4.267754> axis <0, 0, 1.0000001>
+t 720 pos <8.9989605, -0.108667456, 5.1801972E-11> v <1.4998083, -2.8189256E-18, 9.89792E-12> w <2.4329497E-14, -1.3935612E-07, -4.267754> axis <0, 0, 1.0000001>
+t 840 pos <10.498594, -0.108667456, 5.7076968E-11> v <1.4998083, -3.3610267E-18, -1.554523E-12> w <-3.8209453E-15, -1.1604358E-07, -4.267754> axis <0, 0, 1.0000001>
+t 960 pos <11.998228, -0.108667456, 6.141578E-11> v <1.4998083, -3.3305335E-18, 1.7078987E-13> w <4.198573E-16, -9.274295E-08, -4.267754> axis <0, 0, 1.0000001>
+t 1080 pos <13.497862, -0.108667456, 6.6654106E-11> v <1.4998083, -3.3610267E-18, 4.5565314E-12> w <1.1201543E-14, -6.945941E-08, -4.267754> axis <0, 0, 1.0000002>
+t 1200 pos <14.997496, -0.108667456, 7.209456E-11> v <1.4998083, -3.3610267E-18, 4.4733297E-12> w <1.09972795E-14, -4.6184255E-08, -4.267754> axis <0, 0, 1.0000001>
+t 1320 pos <16.49713, -0.108667456, 7.6994605E-11> v <1.4998083, -3.469447E-18, 1.03718475E-11> w <2.54987E-14, -2.2914044E-08, -4.267754> axis <0, 0, 1.0000001>
+t 1440 pos <17.996763, -0.108667456, 8.2258984E-11> v <1.4998083, -2.6020852E-18, 1.4600493E-11> w <3.5886225E-14, 3.733192E-10, -4.267754> axis <0, 0, 0.9999999>
+t 1560 pos <19.496397, -0.108667456, 8.707954E-11> v <1.4998083, -3.3250278E-18, 2.363821E-14> w <5.8096296E-17, 2.3660796E-08, -4.267754> axis <0, 0, 1>
+t 1680 pos <20.99603, -0.108667456, 9.245281E-11> v <1.4998083, -3.3254514E-18, -5.7995004E-14> w <-1.4257936E-16, 4.694845E-08, -4.267754> axis <0, 0, 1>
+
+  Stack Trace:
+     at CuriousContraptions.Tests.WeightTests.ProbeSideCreep(Single crr, Single speed) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/CuriousContraptions.tests/WeightTests.cs:line 395
+   at InvokeStub_WeightTests.ProbeSideCreep(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.WeightTests.ProbeLawRampRoll [118 ms]
+  Error Message:
+   t 240 pos <2.924965, -0.10863899, -0.0014855735> v <1.5218109, -0.000115856536, -0.0006880595> w <-0.0020747876, 0.0003178416, -4.3301883> axis <0.0003823936, -0.0001468584, 0.99999994>
+t 480 pos <5.5756435, -0.10863897, -0.0018152186> v <1.1292857, -0.00011230345, 0.00010453467> w <0.00020148409, 0.00023626527, -3.2132895> axis <-0.00018823147, -0.00014673918, 1>
+t 720 pos <7.441282, -0.10863891, -0.0011602541> v <0.7367636, -0.00010956423, 0.00033702306> w <0.00085707905, 0.00015387968, -2.0964> axis <-0.00059607625, -0.00014647841, 0.9999999>
+t 960 pos <8.521872, -0.1086392, -0.0004634225> v <0.34424123, -0.000121274716, 0.00017920579> w <0.00038539025, 7.2326824E-05, -0.97951055> axis <-0.00083619356, -0.00014781952, 0.9999997>
+t 1200 pos <8.823397, -0.10863905, -0.00028060254> v <6.7110477E-09, -0.00011182184, -1.0490534E-05> w <2.910383E-11, 7.0983175E-09, 2.9504292E-08> axis <-0.00092716236, -0.00014704466, 0.99999976>
+t 1440 pos <8.823397, -0.10863905, -0.00038090599> v <6.7110477E-09, -0.00011182183, -1.04904175E-05> w <-2.910383E-11, 7.097919E-09, 2.9504292E-08> axis <-0.00092716236, -0.00014704466, 0.99999976>
+t 1680 pos <8.823397, -0.10863905, -0.00048120943> v <6.711275E-09, -0.000111821835, -1.0490534E-05> w <2.910383E-11, 7.0977677E-09, 2.9504378E-08> axis <-0.00092716236, -0.00014704466, 0.99999976>
+
+  Stack Trace:
+     at CuriousContraptions.Tests.WeightTests.ProbeLawRampRoll() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/CuriousContraptions.tests/WeightTests.cs:line 430
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WeightTests.ProbeWorkshopSideRest [114 ms]
+  Error Message:
+   t 0 c <0, -0.10529681, 3.4213066E-05> v <0, 0, 0> w <0, 0, 0> axis <0, 0, 1.0000001>
+t 240 c <0, -0.108667456, 3.4213066E-05> v <0, -3.324816E-18, -9.626794E-19> w <-2.1175824E-21, 0, 0> axis <0, 0, 1.0000001>
+t 480 c <0, -0.108667456, 3.4213066E-05> v <0, -3.324816E-18, -9.626794E-19> w <-2.1175824E-21, 0, 0> axis <0, 0, 1.0000001>
+t 720 c <0, -0.108667456, 3.4213066E-05> v <0, -3.324816E-18, -9.626794E-19> w <-2.1175824E-21, 0, 0> axis <0, 0, 1.0000001>
+t 960 c <0, -0.108667456, 3.4213066E-05> v <0, -3.324816E-18, -9.626794E-19> w <-2.1175824E-21, 0, 0> axis <0, 0, 1.0000001>
+t 1200 c <0, -0.108667456, 3.4213066E-05> v <0, -3.324816E-18, -9.626794E-19> w <-2.1175824E-21, 0, 0> axis <0, 0, 1.0000001>
+t 1440 c <0, -0.108667456, 3.4213066E-05> v <0, -3.324816E-18, -9.626794E-19> w <-2.1175824E-21, 0, 0> axis <0, 0, 1.0000001>
+t 1680 c <0, -0.108667456, 3.4213066E-05> v <0, -3.324816E-18, -9.626794E-19> w <-2.1175824E-21, 0, 0> axis <0, 0, 1.0000001>
+
+  Stack Trace:
+     at CuriousContraptions.Tests.WeightTests.ProbeWorkshopSideRest() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/CuriousContraptions.tests/WeightTests.cs:line 409
+--- End of stack trace from previous location ---
+
+Failed!  - Failed:     7, Passed:     0, Skipped:     0, Total:     7, Duration: 907 ms - CuriousContraptions.tests.dll (net10.0)

@@ -90,6 +90,7 @@ public sealed class BundlePortsTests
         ["basket"] = ([], new(1, 0, 0)),
         ["battery"] = ([Electrical(WorkshopSocket.Supply, Out, 0f, .62f, 0f)], new(1, 0, 0)),
         ["bowling"] = ([], new(1, 1, 0)),
+        ["weight"] = ([], new(1, 1, 0)),
         ["bumper"] = ([Electrical(WorkshopSocket.PowerIn, In, 0f, 0f, .65f)], new(1, 0, 0)),
         ["clock"] = ([Electrical(WorkshopSocket.PowerIn, In, -.78f, 0f, 0f), Activation(WorkshopSocket.ActivationOut, Out, Pulse, .78f, 0f, 0f)],
             new(1, 0, 0)),

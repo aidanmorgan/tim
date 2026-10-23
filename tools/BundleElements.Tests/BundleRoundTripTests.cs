@@ -149,6 +149,9 @@ public sealed class BundleRoundTripTests
             AssertSame(mechanical is ISliderElement slider ? slider.Sliders : [], entry.Mechanical.Sliders, "Sliders");
             Assert.Equal(mechanical is IContactWorkElement, entry.Mechanical.ContactWork is not null);
             if (mechanical is IContactWorkElement work) AssertSame(work.ContactWork, entry.Mechanical.ContactWork!.Value, "ContactWork");
+            // The body mass bound to a parameter (Story 10.2a).
+            Assert.Equal(mechanical is IParameterizedMassElement, entry.Mechanical.MassParameter is not null);
+            if (mechanical is IParameterizedMassElement bound) Assert.Equal(bound.Mass, entry.Mechanical.MassParameter!.Value);
         }
         Assert.Equal(declaration is IElectricalElement, entry.Electrical is not null);
         if (declaration is IElectricalElement electrical) AssertSame(electrical.ElectricalNodes, entry.Electrical!.Nodes, "ElectricalNodes");

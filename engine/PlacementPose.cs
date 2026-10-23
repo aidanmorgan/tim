@@ -20,8 +20,10 @@ public readonly record struct ComposedPlacement(Vector3 Position, Quaternion Rot
 /// and the native tests: the 0.1 m grid, then a typed tube-mouth snap when one exists (Story 9R.6), otherwise rest. Rest lifts a
 /// Dynamic part that truly overlaps a Static part's collider whose top is horizontal, lies within the part's vertical extent and lies
 /// under the part's x–z centre, so its lowest point rests on the highest such top; x, z and the rotation are unchanged. A lifted pose
-/// is admitted only inside the bench volume and clear of every Static part (beyond a 10⁻⁴ m contact slop); otherwise it is refused
-/// (coordinator decision B1, 23 Oct 2026). Every other pose is the snap or the grid. Geometry is the declared f32 colliders of the
+/// is admitted only when the lifted body's world-space extent lies in the bench volume (x ∈ [−7, 7], y from the bench surface to 9,
+/// z ∈ [−4, 4] m; coordinator decision on 10.2a F3, 24 Oct 2026: the body, not its origin) and it is clear of every Static part
+/// (beyond a 10⁻⁴ m contact slop); otherwise it is refused (coordinator decision B1, 23 Oct 2026). Every other pose is the snap or
+/// the grid. Geometry is the declared f32 colliders of the
 /// bundle (no part identity); it creates no command.</summary>
 public static class PlacementPose
 {
@@ -32,18 +34,43 @@ public static class PlacementPose
     /// <summary>A lifted part touching the top it rests on is not inside it: only a deeper overlap refuses the pose (m).</summary>
     public const float ContactSlop = 1e-4f;
 
-    /// <summary>The bench volume a placement point (and a lifted pose) must lie in: x ∈ [−7, 7], y ∈ [0, 9], z ∈ [−4, 4] m.</summary>
+    /// <summary>The volume a placement point must lie in: x ∈ [−7, 7], y ∈ [0, 9], z ∈ [−4, 4] m.</summary>
     public static bool Inside(Vector3 point) =>
         float.IsFinite(point.X) && float.IsFinite(point.Y) && float.IsFinite(point.Z) &&
         point.Z >= -4 && point.Z <= 4 && point.X >= -7 && point.X <= 7 && point.Y >= 0 && point.Y <= 9;
 
-    private enum Shape : byte { Sphere, Box }
+    /// <summary>Whether every posed collider's world-space extent lies in the bench volume: x ∈ [−7, 7] and z ∈ [−4, 4] m, and from the
+    /// bench surface (less the contact slop a resting body may touch it by) up to 9 m.</summary>
+    private static bool Within(Posed[] shapes)
+    {
+        var bench = (float)WorkshopConstruction.WorkbenchSurface.Value - ContactSlop;
+        foreach (var shape in shapes)
+        {
+            float x = shape.Extent(Vector3.Right), y = shape.Height, z = shape.Extent(Vector3.Back);
+            var c = shape.Centre;
+            if (!float.IsFinite(c.X + c.Y + c.Z + x + y + z) || c.X - x < -7 || c.X + x > 7 || c.Z - z < -4 || c.Z + z > 4 ||
+                c.Y - y < bench || c.Y + y > 9)
+                return false;
+        }
+        return true;
+    }
+
+    private enum Shape : byte { Sphere, Box, Cylinder }
+    /// <summary>One posed collider. A cylinder's axis is its local Y; its half-extents are (r, h, r).</summary>
     private readonly record struct Posed(Shape Kind, Vector3 Centre, Vector3 X, Vector3 Y, Vector3 Z, Vector3 Half, float Radius)
     {
         public Vector3 Axis(int i) => i switch { 0 => X, 1 => Y, _ => Z };
         public float HalfAlong(int i) => i switch { 0 => Half.X, 1 => Half.Y, _ => Half.Z };
         /// <summary>Half the shape's world vertical extent.</summary>
-        public float Height => Kind == Shape.Sphere ? Radius : MathF.Abs(X.Y) * Half.X + MathF.Abs(Y.Y) * Half.Y + MathF.Abs(Z.Y) * Half.Z;
+        public float Height => Extent(Vector3.Up);
+        /// <summary>Half the shape's extent along a unit direction: a box's projected half-extents, a cylinder's h·|a·n| + r·√(1 − (a·n)²).</summary>
+        public float Extent(Vector3 direction) => Kind switch
+        {
+            Shape.Sphere => Radius,
+            Shape.Box => MathF.Abs(X.Dot(direction)) * Half.X + MathF.Abs(Y.Dot(direction)) * Half.Y + MathF.Abs(Z.Dot(direction)) * Half.Z,
+            Shape.Cylinder => MathF.Abs(Y.Dot(direction)) * Half.Y + Half.X * MathF.Sqrt(MathF.Max(0f, 1f - Y.Dot(direction) * Y.Dot(direction))),
+            _ => throw new InvalidOperationException($"Undefined placement shape {Kind}.")
+        };
     }
 
     public static ComposedPlacement Compose(IReadOnlyDictionary<PartId, PartDefinition> definitions,
@@ -91,8 +118,8 @@ public static class PlacementPose
         if (rest is not { } y) return (at, PlacementRefusal.None);
         // The lifted pose must stay in the bench volume and clear every Static part (B1).
         var lifted = at with { Y = at.Y + (y - bottom) };
-        if (!Inside(lifted)) return (lifted, PlacementRefusal.OutsideBench);
         var raised = Pose(BundleGeometry.Colliders(entry), lifted, rotation);
+        if (!Within(raised)) return (lifted, PlacementRefusal.OutsideBench);
         foreach (var other in statics)
             if (Array.Exists(raised, shape => Overlaps(shape, other, ContactSlop))) return (lifted, PlacementRefusal.IntoPart);
         return (lifted, PlacementRefusal.None);
@@ -108,6 +135,7 @@ public static class PlacementPose
             {
                 ColliderShapeKind.Sphere => Shape.Sphere,
                 ColliderShapeKind.Box => Shape.Box,
+                ColliderShapeKind.Cylinder => Shape.Cylinder,
                 _ => throw new ArgumentException($"Placement rest has no rule for a {c.ShapeKind} collider.")
             };
             var local = (turn * new Quaternion(c.Rotation.X, c.Rotation.Y, c.Rotation.Z, c.Rotation.W)).Normalized();
@@ -133,7 +161,9 @@ public static class PlacementPose
         return true;
     }
 
-    /// <summary>A true overlap: the shapes interpenetrate by more than <paramref name="slop"/>; touching is not overlapping.</summary>
+    /// <summary>A true overlap: the shapes interpenetrate by more than <paramref name="slop"/>; touching is not overlapping. A cylinder
+    /// is separated on the box's and its own frame axes and their cross products by its exact projection; against a sphere it is
+    /// bounded by its (r, h, r) box.</summary>
     private static bool Overlaps(Posed shape, Posed box, float slop)
     {
         if (box.Kind == Shape.Sphere)
@@ -164,13 +194,7 @@ public static class PlacementPose
         for (var k = 0; k < count; k++)
         {
             var axis = axes[k];
-            float a = 0, b = 0;
-            for (var i = 0; i < 3; i++)
-            {
-                a += MathF.Abs(shape.Axis(i).Dot(axis)) * shape.HalfAlong(i);
-                b += MathF.Abs(box.Axis(i).Dot(axis)) * box.HalfAlong(i);
-            }
-            if (MathF.Abs(offset.Dot(axis)) >= a + b - slop) return false;
+            if (MathF.Abs(offset.Dot(axis)) >= shape.Extent(axis) + box.Extent(axis) - slop) return false;
         }
         return true;
     }

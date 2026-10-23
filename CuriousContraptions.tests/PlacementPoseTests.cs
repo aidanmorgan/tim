@@ -61,6 +61,31 @@ public sealed class PlacementPoseTests
         Assert.True(MathF.Abs(position.Y - (FaceTop + halfHeight)) < 1e-5f, $"{part} rests at {position.Y}, face top {FaceTop}");
     }
 
+    // Story 10.2a: the Weight is the first dynamic cylinder in the palette. Its origin is its base centre, so dropped upright into a
+    // plate (raised to 1 m, inside the bench volume) it rests with its base on the face (the origin rises to the face top, 1.08 m);
+    // lying on its side (axis along z) its lowest point is the curved side, r below the axis, so the origin rises to the face top + r.
+    // x, z and the rotation are the grid's.
+    [Fact]
+    public void ADroppedWeightRestsOnThePlateFaceUprightOnItsBaseAndOnItsSide()
+    {
+        var definitions = Definitions();
+        IWorkshopInstance[] placed = [PlacedParts.Plate(new(1), -4, 1, 0, .5f)];
+        const float face = 1f + .03f + .05f;
+        var weight = new TubeMouthMover(WeightTests.Weight, new(2), false);
+        var at = new Vector3(-3.6f, 1f, .2f);
+        var grid = at.Snapped(Vector3.One * .1f);
+        var (upright, turn) = Composed(definitions, placed, weight, at, Quaternion.Identity);
+        Assert.Equal((grid.X, grid.Z, Quaternion.Identity), (upright.X, upright.Z, turn));
+        Assert.True(MathF.Abs(upright.Y - face) < 1e-5f, $"upright Weight rests at {upright.Y}, face top {face}");
+        var side = new Quaternion(Vector3.Right, MathF.PI / 2);
+        var radius = TestBundle.Entry(WeightTests.Weight).Colliders[0].HalfExtents.X;
+        var (lying, _) = Composed(definitions, placed, weight, at, side);
+        Assert.True(MathF.Abs(lying.Y - (face + radius)) < 1e-5f, $"lying Weight rests at {lying.Y}, face top + r {face + radius}");
+        // Control: held clear above the face it is not moved.
+        var above = new Vector3(-3.6f, face + .5f, .2f);
+        Assert.Equal(above.Snapped(Vector3.One * .1f), Composed(definitions, placed, weight, above, Quaternion.Identity).Position);
+    }
+
     // F-1 through the real path: two Dominoes composed onto a 0.5 kg plate stand on its face and sum to 0.8 kg, so the plate loads and
     // its gate opens; one Domino is the Underweight control (0.4 kg).
     [Theory]
@@ -143,20 +168,48 @@ public sealed class PlacementPoseTests
                 $"{name}: base {Base(definitions, placed, mover, at, rotation)}, composed {Composed(definitions, placed, mover, at, rotation)}");
     }
 
-    // Coordinator decision B1: the lifted pose is validated. A Basketball or Domino dropped into a plate at 8.9 m would rest above the
-    // 9 m bench volume (OutsideBench); the same drop into a plate at 8 m is admitted (control).
+    // Coordinator decision B1: the lifted pose is validated. A Basketball, Domino or Bowling ball dropped into a plate at 8.9 m would
+    // rest above the 9 m bench volume (OutsideBench); the same drop into a plate at 7.5 m keeps the whole body inside it and is admitted
+    // (control). Since 10.2a F3 the volume bounds the body's extent, so the control height keeps the Domino's top (7.5 + 0.08 + 1.1 m)
+    // under 9 m; the 8 m control used before admitted a Domino whose top was at 9.18 m.
     [Theory]
     [MemberData(nameof(DynamicParts))]
     public void ARestedPoseAboveTheBenchIsRefused(PartId part, float halfHeight)
     {
         var definitions = Definitions();
-        foreach (var (height, refusal) in new[] { (8.9f, PlacementRefusal.OutsideBench), (8f, PlacementRefusal.None) })
+        foreach (var (height, refusal) in new[] { (8.9f, PlacementRefusal.OutsideBench), (7.5f, PlacementRefusal.None) })
         {
             IWorkshopInstance[] placed = [PlacedParts.Plate(new(1), 0, height, 0, .5f)];
             var composed = PlacementPose.Compose(definitions, placed, new(part, new(2), false), new(0, height, 0), Quaternion.Identity);
             Assert.Equal(refusal, composed.Refusal);
             Assert.True(MathF.Abs(composed.Position.Y - (height + .08f + halfHeight)) < 1e-4f, $"{part} at {height}: {composed.Position.Y}");
         }
+    }
+
+    // 10.2a F3 (coordinator decision, 24 Oct 2026): the bench volume bounds the rested body's world-space extent, not its origin. On the
+    // plate standing on the bench, a Weight's origin is its base (the face, below y = 0, which the point volume refuses) while its
+    // whole body is above the bench: admitted, as are a Basketball and a Domino (a box) on the same plate. On a plate whose face is at
+    // 8.9 m the Weight's origin (8.9 m) lies in the point volume but its top (8.9 m + 2h) is above 9 m: refused, as are the ball and the box.
+    [Fact]
+    public void TheBenchVolumeBoundsTheRestedBodyNotItsOrigin()
+    {
+        var definitions = Definitions();
+        var h = TestBundle.Entry(WeightTests.Weight).Colliders[0].HalfExtents.Y;
+        foreach (var (plate, refusal) in new[] { (PlateY, PlacementRefusal.None), (8.9f - .08f, PlacementRefusal.OutsideBench) })
+        {
+            var face = plate + .08f;
+            IWorkshopInstance[] placed = [PlacedParts.Plate(new(1), 0, plate, 0, .5f)];
+            foreach (var (part, origin, top) in new[] { (WeightTests.Weight, face, face + 2 * h), (PartId.Basketball, face + .34f, face + .68f),
+                         (PartId.Domino, face + .55f, face + 1.1f) })
+            {
+                var composed = PlacementPose.Compose(definitions, placed, new(part, new(2), false), new(0, plate, 0), Quaternion.Identity);
+                Assert.True(refusal == composed.Refusal, $"{part} on the plate at {plate} m (top {top} m): {composed.Refusal}");
+                Assert.True(MathF.Abs(composed.Position.Y - origin) < 1e-4f, $"{part} on the plate at {plate} m: origin {composed.Position.Y}");
+            }
+        }
+        // The point rule this replaces refused the low Weight and admitted the high one.
+        Assert.False(PlacementPose.Inside(new(0, PlateY + .08f, 0)));
+        Assert.True(PlacementPose.Inside(new(0, 8.9f, 0)));
     }
 
     // B1: a part lifted onto a lower top into a higher box is refused (IntoPart). A Basketball at 0.7 m in a plate at 1 m overlaps only
