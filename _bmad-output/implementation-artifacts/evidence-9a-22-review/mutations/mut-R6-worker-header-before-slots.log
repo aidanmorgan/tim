@@ -1,0 +1,22 @@
+== R6-worker-header-before-slots 2026-10-23T16:41:14Z
+diff --git a/CuriousContraptions.Simulation/wwwroot/worker.js b/CuriousContraptions.Simulation/wwwroot/worker.js
+index bcd01403..ee133a53 100644
+--- a/CuriousContraptions.Simulation/wwwroot/worker.js
++++ b/CuriousContraptions.Simulation/wwwroot/worker.js
+@@ -87,6 +87,7 @@ function writeEventRing(batch) {
+         self.postMessage({ eventRing: buffer });
+     }
+     const target = new Uint8Array(eventRing);
++    Atomics.store(eventWords, EVENT_WRITE_SEQUENCE_OFFSET / 8, view.getBigUint64(EVENT_WRITE_SEQUENCE_OFFSET, true));
+     for (let offset = EVENT_HEADER_BYTES; offset < batch.length; offset += EVENT_SLOT_BYTES) {
+         const sequence = view.getBigUint64(offset, true);
+         const slot = EVENT_HEADER_BYTES + Number((sequence - 1n) & BigInt(capacity - 1)) * EVENT_SLOT_BYTES;
+    0 Warning(s)
+    0 Error(s)
+build rc=0
+Passed!  - Failed:     0, Passed:    99, Skipped:     0, Total:    99, Duration: 1 s - CuriousContraptions.tests.dll (net10.0)
+dotnet test rc=0
+ℹ pass 4
+ℹ fail 0
+node rc=0
+dirty after revert: 0

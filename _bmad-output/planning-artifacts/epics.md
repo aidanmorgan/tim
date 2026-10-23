@@ -2010,7 +2010,7 @@ So that I can trust it to count.
 **Acceptance Criteria:**
 - **Given** a Ball Detector wired to a Signal lamp through real UI, **When** a ball passes forward, **Then** the lamp target (and only it) shows exactly one activation, counted with `readAnimationSamplesForTarget`.
 - **And** a reverse and a glancing crossing are each proven to have physically crossed the aperture (body positions on both sides) and produce zero lamp activations (negative controls).
-- **And** a second forward crossing in the same run, after full clearance, produces exactly one more.
+- **And** a second forward crossing in the same run, after full clearance, lights the wired counter(target 2) lamp target exactly once, or publishes exactly one more `Passage` record (Count 2); the first-input lamp stays at one. *(Amended by Story 9A.22, coordinator decision 23 Oct 2026, C-Lamp review F1: a first-input lamp cannot show a second activation in one run.)*
 - **And** Run/Reset matches the snapshot.
 - **And** `cat-002` passes 100% in Chrome serially.
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
@@ -3137,13 +3137,13 @@ I want every discrete thing that happens in a run (an impact, a crossing, a thre
 So that sound, animation and the interface can all react to the same event.
 
 **Acceptance Criteria:**
-- **Given** a run, **When** a tick commits, **Then** the worker publishes exactly one ring record per discrete transition, with the payload layout declared by the element's `EventDescriptor`. The kinds are: Impact, Passage, ContactLoad, PrismaticLimit, ElectricalPowered, ThresholdReached, MemoryChanged and TriggerActivated.
+- **Given** a run, **When** a tick commits, **Then** the worker publishes exactly one ring record per discrete transition, with the kind's engine-owned layout. The kinds are: Impact, Passage, Captured, ContactLoad, ElectricalPowered, ThresholdReached, MemoryChanged and TriggerActivated. *(Captured added for the 9A.23 Receiver one-shot; PrismaticLimit is deferred because no row produces it: the first story with a gate-limit cue adds the kind and its producer. Coordinator decision, 23 Oct 2026.)*
 - **And** a discarded or failed tick publishes nothing.
 - **And** Reset and each new run restart the ring sequence.
 - **And** overrun follows the spec-9-2b §5 policy.
 - **And** `worker.js` copies the committed ring bytes into the SharedArrayBuffer the same way `writePoseRing` copies poses, with no domain logic in JS.
 - **And** unit tests cover every kind, including a negative case where a non-qualifying contact publishes nothing.
-- **And** in actual Chrome, `cat-015a` and `cat-020` gain a ring read through the current `globalThis.WorkshopEventRing` reader (no suite reads it today) and see exactly one Impact per Bumper hit and one ThresholdReached per Counter target.
+- **And** in actual Chrome, `cat-015a` and `cat-020` gain a ring read and see exactly one Impact per Bumper hit and one ThresholdReached per Counter target. The read goes through the Story 9A.23 consumer or the Story 9A.24 port, post-catalogue (no `globalThis` reader exists or is added; browser qualification pending).
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
 
 ### Story 9A.23: Event Ring Consumers
@@ -3156,7 +3156,7 @@ So that sound, animation and the interface can all react to the same event.
 - *the occurrence clauses of `WorkshopRead.RequiresReliableRead` (`engine/gpu/WorkshopRead.cs:9-18`) and the occurrence arrays in `PhysicsContactWorkRead`;*
 - *the sequence-diff pumps in `engine/gpu/BrowserWorkshopClient.ContactWork.cs:27-60` and `BrowserWorkshopClient.Capture.cs`, and the one-shot pumps in `PumpCosmetics` (`BrowserWorkshopClient.Cosmetic.cs:23`);*
 - *the main-thread `Transition` relay of one-shots to the Animation worker;*
-- *the divergent JS reader `createEventConsumer`/`readEventRing` (`workshop-client.js:734-788`), replaced by the new main-thread consumer. The `globalThis.WorkshopEventRing` hook survives until Story 9A.24 and reads through that new consumer, so the Story 9A.22 ring assertions keep running.*
+- *the divergent JS reader `createEventConsumer`/`readEventRing` (`workshop-client.js:734-788`), replaced by the new main-thread consumer. (Already absent from the tree at Story 9A.22; the main thread only attaches `client.eventRing`.)*
 
 As a player,  
 I want impacts, captures and switch clicks to animate from the event itself,  
@@ -3167,7 +3167,7 @@ So that effects line up with the physics and none is lost or doubled.
 - **And** the main-thread UI holds a separate cursor for goal and sensor readouts.
 - **And** level states (lamp level, latch memory, Delay phase, electrical level) stay committed-state queries.
 - **And** one consumer implementation per worker reproduces `EventRingConsumer`'s skip-uncommitted semantics, and its overrun is explicit.
-- **And** the Story 9A.22 ring assertions in `cat-015a` and `cat-020` still pass through the re-pointed hook.
+- **And** the Story 9A.22 ring assertions in `cat-015a` and `cat-020` pass through the main-thread consumer.
 - **And** `anim-1a`, `anim-1b`, `anim-1c`, `cat-015a`, `cat-015a-sidekick`, `cat-015b`, `cat-062b` and `cat-037` pass, with cosmetic timing checked.
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
 

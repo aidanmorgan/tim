@@ -49,6 +49,20 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
     private CompiledSupply? _committedSupply, _candidateSupply;
     private PassageSensorTracker _committedPassageTracker = PassageSensorTracker.Empty;
     private PassageSensorTracker _candidatePassageTracker = PassageSensorTracker.Empty;
+    // Story 9A.22: the event producer of the admitted world, the row states its records derive from, and the committed outbox.
+    // A candidate's records are staged here and sequenced only by Commit; Discard and any failure drop them.
+    private EventRecordProducer? _committedEvents, _candidateEvents;
+    private EventSourceRows _committedSources, _candidateSources;
+    private CuriousContraptions.Abstractions.SimulationEventRecord[] _candidateRecords = [];
+    private SimulationEpoch _candidateEpoch;
+    private bool _candidateAdmitted;
+    private readonly EventRingOutbox _outbox = new();
+    /// <summary>The committed records awaiting publication, with the ring's epoch, capacity and sequence.</summary>
+    internal EventRingOutbox Events => _outbox;
+    /// <summary>The committed world's compiled event rows.</summary>
+    internal EventRecordProducer? EventRows => _committedEvents;
+    /// <summary>The publication of every committed record not yet published (the worker copies it into the event ring).</summary>
+    internal byte[] DrainEvents() => _outbox.Drain();
 #if PLAYTEST
     private byte[] _diagnosticCandidate = [];
     internal byte[] DiagnosticCommitted { get; private set; } = [];
@@ -85,7 +99,7 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
             throw new ArgumentException("Construction and physical profile differ.");
         var scene = WorkshopPhysicsCompiler.Compile(construction, document);
         return Stage(PhysicsGpuAbi.Admission(scene, epoch, profile), WorkshopGpuOperation.Admit, profile, new(0), sequence, WorkshopActivationCompiler.Compile(construction),
-            new(scene.SupplyGraph, scene.Prismatics.Length, scene.Electrical.Sources.Length), PhysicsTickInputs.Admission, scene.Colliders.ToArray());
+            new(scene.SupplyGraph, scene.Prismatics.Length, scene.Electrical.Sources.Length), PhysicsTickInputs.Admission, scene);
     }
     public ValueTask<WorkshopGpuCandidate> Advance(WorkshopRead committed, CommandSequence sequence, WorkshopTickControls controls)
     {
@@ -104,7 +118,7 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
     }
 
     private async ValueTask<WorkshopGpuCandidate> Stage(byte[] input, WorkshopGpuOperation operation, WorkshopGpuProfile profile, SimulationTick expectedTick, CommandSequence sequence, ActivationNetwork network,
-        CompiledSupply supply, PhysicsTickInputs inputs, ColliderDeclaration[]? colliders = null, WorkshopTickControls? controls = null)
+        CompiledSupply supply, PhysicsTickInputs inputs, PhysicsSceneDeclaration? scene = null, WorkshopTickControls? controls = null)
     {
         profile.Validate();
         await _gate.WaitAsync();
@@ -170,7 +184,8 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
             int passageCount = 0;
             if (operation == WorkshopGpuOperation.Admit)
             {
-                _candidatePassageTracker = PassageSensorTracker.Create(network.PassageSensors, colliders, bodies);
+                _candidatePassageTracker = PassageSensorTracker.Create(network.PassageSensors,
+                    (scene ?? throw new ArgumentException("Admission requires its compiled scene.")).Colliders.ToArray(), bodies);
             }
             else
             {
@@ -186,6 +201,22 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
                     triggers[..triggerCount], expectedTick, orientations[..orientationCount], passages[..passageCount], electrical, loads[..loadCount]);
             _candidateActivations = logical.Activations; _candidateTimers = logical.Timers; _candidateMemory = logical.Memory;            _candidateNetwork = network; _candidateSupply = supply;
             var contactWorks=PhysicsGpuAbi.ReadContactWorks(bytes);
+            // Story 9A.22: admission compiles the world's event rows and publishes nothing; an Advance stages its tick's records from
+            // the committed and candidate row states and the network's transitions. Nothing is sequenced before Commit.
+            var sources = new EventSourceRows(_candidateCaptures, contactWorks, electrical, _candidatePassageTracker);
+            if (operation == WorkshopGpuOperation.Admit)
+            {
+                _candidateEvents = EventRecordProducer.Compile(scene!, network, _candidatePassageTracker, profile);
+                _candidateRecords = [];
+                _candidateEpoch = new(BinaryPrimitives.ReadUInt64LittleEndian(bytes.AsSpan(PhysicsGpuAbi.HeaderEpochOffset)));
+                _candidateAdmitted = true;
+            }
+            else
+            {
+                _candidateEvents = _committedEvents ?? throw new InvalidOperationException("No committed event rows.");
+                _candidateRecords = _candidateEvents.Stage(expectedTick, _committedSources, sources, logical.Transitions, loads[..loadCount]);                _candidateAdmitted = false;
+            }
+            _candidateSources = sources;
             var read = new WorkshopRead(new(BinaryPrimitives.ReadUInt64LittleEndian(bytes.AsSpan(PhysicsGpuAbi.HeaderEpochOffset))),
                 expectedTick, bodies,
                 Captures: _candidateCaptures, Activations: _candidateActivations, Timers: _candidateTimers,
@@ -206,6 +237,7 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
             _active = default;
             _candidateWorld = []; _candidateCaptures = default;
             _candidateActivations = default; _candidateTimers = default; _candidateMemory = default; _candidateNetwork = null; _candidateSupply = null; _candidatePassageTracker = _committedPassageTracker;
+            DropCandidateEvents();
             transport.Discard();
             ReleaseGate();
             throw;
@@ -219,16 +251,24 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
         _committedProfile = _candidateProfile;
         _committedWorld = _candidateWorld; _committedCaptures = _candidateCaptures;
         _committedActivations = _candidateActivations; _committedTimers = _candidateTimers; _committedMemory = _candidateMemory; _committedNetwork = _candidateNetwork; _committedSupply = _candidateSupply; _committedPassageTracker = _candidatePassageTracker;
+        // The commit point of the event ring: an admission restarts it under its epoch, a tick sequences its staged records.
+        _committedEvents = _candidateEvents; _committedSources = _candidateSources;
+        if (_candidateAdmitted) _outbox.Restart(_candidateEpoch, _committedEvents!.Capacity); else _outbox.Commit(_candidateRecords);
+        DropCandidateEvents();
 #if PLAYTEST
         DiagnosticCommitted = _diagnosticCandidate;
 #endif
+    }
+    private void DropCandidateEvents()
+    {
+        _candidateEvents = null; _candidateSources = default; _candidateRecords = []; _candidateEpoch = default; _candidateAdmitted = false;
     }
     public void Discard(CommandSequence sequence)
     {
         if (_active != sequence || sequence.Value == 0) return;
         _active = default;
         _candidateWorld = []; _candidateCaptures = default;
-        _candidateActivations = default; _candidateTimers = default; _candidateMemory = default; _candidateNetwork = null; _candidateSupply = null; _candidatePassageTracker = _committedPassageTracker;
+        _candidateActivations = default; _candidateTimers = default; _candidateMemory = default; _candidateNetwork = null; _candidateSupply = null; _candidatePassageTracker = _committedPassageTracker;        DropCandidateEvents();
 #if PLAYTEST
         _diagnosticCandidate = [];
 #endif
@@ -259,6 +299,7 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
         _committedTimers = default; _candidateTimers = default;
         _committedMemory = default; _candidateMemory = default;
         _committedNetwork = null; _candidateNetwork = null; _committedSupply = null; _candidateSupply = null; _committedPassageTracker = PassageSensorTracker.Empty; _candidatePassageTracker = PassageSensorTracker.Empty;
+        _committedEvents = null; _committedSources = default; DropCandidateEvents(); _outbox.Restart(default, 1);
         transport.Dispose();
         return ValueTask.CompletedTask;
     }

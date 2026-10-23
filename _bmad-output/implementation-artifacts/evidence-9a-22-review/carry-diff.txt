@@ -1,0 +1,17 @@
+106c106
+< index 5a3210ad..633b8a54 100644
+---
+> index 5a3210ad..23f1e82d 100644
+117c117
+< @@ -340,11 +341,11 @@ development_status:
+---
+> @@ -340,16 +341,16 @@ development_status:
+131a132,137
+>    # 44 (deletion): before 9a-c-memory, whose ACs need ThresholdReached and MemoryChanged
+> -  9a-22-event-ring-producer: backlog
+> +  9a-22-event-ring-producer: review # native candidate on ae3cacf9 (worktree story-9a-22); browser pending
+>    # 45 (element)
+>    11-2-mechanical-clutch-reverse-transmission: backlog
+>    # 46 (deletion): last record conversion
+diff rc=1
+evidence dir diff -r rc=0

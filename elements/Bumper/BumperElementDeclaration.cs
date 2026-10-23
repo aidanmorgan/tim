@@ -50,11 +50,7 @@ public sealed class BumperElementDeclaration : IContactWorkElement, IElectricalE
         new(".", new(1f, 0.3f, 0f, 0.1f))
     ];
 
-    public IReadOnlyList<EventDescriptor> Events =>
-    [
-        new(SimulationEventKind.TriggerActivated, "Impulse:f32;Contact:vec3;Normal:vec3"),
-        new(SimulationEventKind.ContactLoad, "Load:f32;BodyId:u64")
-    ];
+    public IReadOnlyList<EventDescriptor> Events => [new(SimulationEventKind.Impact)];
 
     public SimulationDomain SupportedDomains => SimulationDomain.Mechanical | SimulationDomain.Electrical;
 

@@ -48,10 +48,7 @@ public sealed class SystemClockElementDeclaration : IOscillatorElement, IElectri
         new(".", new(1f, 0.3f, 0f, 0.1f))
     ];
 
-    public IReadOnlyList<EventDescriptor> Events =>
-    [
-        new(SimulationEventKind.TriggerActivated, "PulseCount:i32;Interval:f32")
-    ];
+    public IReadOnlyList<EventDescriptor> Events => [new(SimulationEventKind.TriggerActivated)];
 
     public SimulationDomain SupportedDomains => SimulationDomain.Signal | SimulationDomain.Electrical;
 

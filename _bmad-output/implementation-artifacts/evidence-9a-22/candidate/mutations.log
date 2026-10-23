@@ -1,0 +1,88 @@
+=== M1 publish moved to Stage (filter: FullyQualifiedName~EventRing)
+  Failed CuriousContraptions.Tests.EventRingProducerTests.PauseADiscardedCandidateAndAFailedStepPublishNothingAndConsumeNoSequence [9 ms]
+  Failed CuriousContraptions.Tests.EventRingProducerTests.AfterADiscardTheCommittedPulseIsSequenceOne [7 ms]
+Failed!  - Failed:     2, Passed:    57, Skipped:     0, Total:    59, Duration: 1 s - CuriousContraptions.tests.dll (net10.0)
+=== M2 a discarded tick writes its records (filter: FullyQualifiedName~EventRing)
+  Failed CuriousContraptions.Tests.EventRingProducerTests.PauseADiscardedCandidateAndAFailedStepPublishNothingAndConsumeNoSequence [9 ms]
+  Failed CuriousContraptions.Tests.EventRingProducerTests.AfterADiscardTheCommittedPulseIsSequenceOne [7 ms]
+Failed!  - Failed:     2, Passed:    57, Skipped:     0, Total:    59, Duration: 1 s - CuriousContraptions.tests.dll (net10.0)
+=== M3 the D4 ordering key is dropped (filter: FullyQualifiedName~EventRing)
+  Failed CuriousContraptions.Tests.EventRingProducerTests.ATallyOfThreePublishesThresholdReachedOnTheThirdInputOnly(ticks: 380, reached: True) [19 ms]
+  Failed CuriousContraptions.Tests.EventRingProducerTests.AMemoryPublishesOneRecordPerChangeAndNoneForARedundantSet [27 ms]
+Failed!  - Failed:     2, Passed:    57, Skipped:     0, Total:    59, Duration: 1 s - CuriousContraptions.tests.dll (net10.0)
+=== M4 Lapped is not counted (filter: FullyQualifiedName~EventRing)
+  Failed CuriousContraptions.Tests.EventRingProducerTests.ABatchLargerThanTheRingAdvancesTheSequenceCountsLappedAndTheConsumerReportsTheLap [2 ms]
+  Failed CuriousContraptions.Tests.EventRingProducerTests.TheShippedWorkerWritesTheSameRingAsTheReferenceForARealRunAndAnOverflow [105 ms]
+Failed!  - Failed:     2, Passed:    57, Skipped:     0, Total:    59, Duration: 1 s - CuriousContraptions.tests.dll (net10.0)
+=== M5 the run epoch is not stamped (always 1) (filter: FullyQualifiedName~EventRing)
+  Failed CuriousContraptions.Tests.EventRingProducerTests.ABatchLargerThanTheRingAdvancesTheSequenceCountsLappedAndTheConsumerReportsTheLap [2 ms]
+  Failed CuriousContraptions.Tests.EventRingProducerTests.TwoRunsAndRunResetRunPublishIdenticalRecordsUnderAnAdvancingEpoch [50 ms]
+  Failed CuriousContraptions.Tests.EventRingProducerTests.TheShippedWorkerWritesTheSameRingAsTheReferenceForARealRunAndAnOverflow [103 ms]
+Failed!  - Failed:     3, Passed:    56, Skipped:     0, Total:    59, Duration: 1 s - CuriousContraptions.tests.dll (net10.0)
+=== M6 the scheduled stage also records emissions (filter: FullyQualifiedName~EventRing|FullyQualifiedName~StateLatch|FullyQualifiedName~HoldTimer|FullyQualifiedName~Delay)
+Passed!  - Failed:     0, Passed:   144, Skipped:     0, Total:   144, Duration: 2 s - CuriousContraptions.tests.dll (net10.0)
+=== M6 (re-run with the scheduled-stage network fact) (filter: FullyQualifiedName~EventRing|FullyQualifiedName~ActivationTimerTests)
+  Failed CuriousContraptions.Tests.ActivationTimerTests.TheScheduledStageEmitsNothingAndThePhysicalStageEmitsTheDueTimerOnce [3 ms]
+Failed!  - Failed:     1, Passed:    65, Skipped:     0, Total:    66, Duration: 1 s - CuriousContraptions.tests.dll (net10.0)
+=== M7 Passage published only on the first pass (filter: FullyQualifiedName~EventRing)
+  Failed CuriousContraptions.Tests.EventRingProducerTests.TwoInRunPassesAfterClearancePublishPassageCountOneThenTwoWhileTheFirstInputLampStaysAtOne [42 ms]
+Failed!  - Failed:     1, Passed:    58, Skipped:     0, Total:    59, Duration: 1 s - CuriousContraptions.tests.dll (net10.0)
+=== M8 the network's Passage occurrence also publishes (filter: FullyQualifiedName~EventRing)
+  Failed CuriousContraptions.Tests.EventRingProducerTests.TwoInRunPassesAfterClearancePublishPassageCountOneThenTwoWhileTheFirstInputLampStaysAtOne [41 ms]
+Failed!  - Failed:     1, Passed:    58, Skipped:     0, Total:    59, Duration: 1 s - CuriousContraptions.tests.dll (net10.0)
+=== M9 wrong tick stamp (tick - 1) (filter: FullyQualifiedName~EventRing)
+BUILD FAILED
+/Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-22/engine/gpu/EventRecordProducer.cs(106,53): error CS1525: Invalid expression term 'for' [/Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-22/CuriousContraptions.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-22/engine/gpu/EventRecordProducer.cs(106,53): error CS1026: ) expected [/Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-22/CuriousContraptions.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-22/engine/gpu/EventRecordProducer.cs(106,53): error CS1002: ; expected [/Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-22/CuriousContraptions.csproj]
+=== M9 wrong tick stamp (tick - 1) (filter: FullyQualifiedName~EventRing)
+  Failed CuriousContraptions.Tests.EventRingProducerTests.ASuppliedOscillatorPublishesOneTriggerPerPulseAtEveryCadence(cadence: Hz60, rate: 60, substeps: 8) [116 ms]
+  Failed CuriousContraptions.Tests.EventRingProducerTests.ASuppliedOscillatorPublishesOneTriggerPerPulseAtEveryCadence(cadence: Hz240, rate: 240, substeps: 2) [21 ms]
+  Failed CuriousContraptions.Tests.EventRingProducerTests.ASuppliedOscillatorPublishesOneTriggerPerPulseAtEveryCadence(cadence: Hz120, rate: 120, substeps: 4) [12 ms]
+  Failed CuriousContraptions.Tests.EventRingProducerTests.APlatePublishesItsLevelEdgesAndNeverItsRowJitter(drop: 8, released: True) [49 ms]
+  Failed CuriousContraptions.Tests.EventRingProducerTests.APlatePublishesItsLevelEdgesAndNeverItsRowJitter(drop: 2, released: False) [44 ms]
+  Failed CuriousContraptions.Tests.EventRingProducerTests.AWiredDominoTopplingPublishesOneTriggerAndARockingTileNothing(degrees: 30, topples: True) [68 ms]
+  Failed CuriousContraptions.Tests.EventRingProducerTests.EachBumperHitPublishesExactlyOneImpactAtItsOwnTimeAndNoTrigger [21 ms]
+  Failed CuriousContraptions.Tests.EventRingProducerTests.ATallyOfThreePublishesThresholdReachedOnTheThirdInputOnly(ticks: 380, reached: True) [16 ms]
+  Failed CuriousContraptions.Tests.EventRingProducerTests.AMemoryPublishesOneRecordPerChangeAndNoneForARedundantSet [25 ms]
+  Failed CuriousContraptions.Tests.EventRingProducerTests.AnImpactSwitchPublishesOneTriggerAndASubThresholdContactNothing(threshold: 0.800000012, fires: True) [28 ms]
+  Failed CuriousContraptions.Tests.EventRingProducerTests.AReceiverCapturePublishesOneCapturedAndAMissNothing(shift: 0, captures: True) [22 ms]
+  Failed CuriousContraptions.Tests.EventRingProducerTests.TwoInRunPassesAfterClearancePublishPassageCountOneThenTwoWhileTheFirstInputLampStaysAtOne [38 ms]
+  Failed CuriousContraptions.Tests.EventRingProducerTests.AfterADiscardTheCommittedPulseIsSequenceOne [7 ms]
+  Failed CuriousContraptions.Tests.EventRingProducerTests.ADelayFeedingABeforeNetworksTimerPublishesExactlyOneTriggerAndTheHoldExpiryNothing [67 ms]
+  Failed CuriousContraptions.Tests.EventRingProducerTests.ASupplySourceSwitchedOffAndOnPublishesOneRecordPerEdge [6 ms]
+Failed!  - Failed:    15, Passed:    44, Skipped:     0, Total:    59, Duration: 1 s - CuriousContraptions.tests.dll (net10.0)
+=== M10 an overflowing publication faults (filter: FullyQualifiedName~EventRing)
+  Failed CuriousContraptions.Tests.EventRingProducerTests.ABatchLargerThanTheRingAdvancesTheSequenceCountsLappedAndTheConsumerReportsTheLap [< 1 ms]
+  Failed CuriousContraptions.Tests.EventRingProducerTests.TheShippedWorkerWritesTheSameRingAsTheReferenceForARealRunAndAnOverflow [33 ms]
+Failed!  - Failed:     2, Passed:    57, Skipped:     0, Total:    59, Duration: 1 s - CuriousContraptions.tests.dll (net10.0)
+=== M11 a second producer (the raw contact-load row) also publishes ContactLoad (filter: FullyQualifiedName~EventRing)
+  Failed CuriousContraptions.Tests.EventRingProducerTests.APlatePublishesItsLevelEdgesAndNeverItsRowJitter(drop: 8, released: True) [55 ms]
+  Failed CuriousContraptions.Tests.EventRingProducerTests.APlatePublishesItsLevelEdgesAndNeverItsRowJitter(drop: 2, released: False) [44 ms]
+Failed!  - Failed:     2, Passed:    57, Skipped:     0, Total:    59, Duration: 1 s - CuriousContraptions.tests.dll (net10.0)
+=== M12 worker.js keeps the ring across a new epoch (JS only; no rebuild)
+  Failed CuriousContraptions.Tests.EventRingProducerTests.APlatePublishesItsLevelEdgesAndNeverItsRowJitter(drop: 8, released: True) [54 ms]
+  Failed CuriousContraptions.Tests.EventRingProducerTests.APlatePublishesItsLevelEdgesAndNeverItsRowJitter(drop: 2, released: False) [47 ms]
+  Failed CuriousContraptions.Tests.EventRingProducerTests.TheShippedWorkerWritesTheSameRingAsTheReferenceForARealRunAndAnOverflow [99 ms]
+Failed!  - Failed:     3, Passed:    56, Skipped:     0, Total:    59, Duration: 1 s - CuriousContraptions.tests.dll (net10.0)
+✖ a new epoch or capacity replaces the ring; an empty publication (no admitted world) changes nothing (0.422375ms)
+ℹ pass 3
+ℹ fail 1
+✖ failing tests:
+✖ a new epoch or capacity replaces the ring; an empty publication (no admitted world) changes nothing (0.422375ms)
+=== M12 (C# re-run on a clean build; the earlier C# line above ran on the M11 build)
+  Failed CuriousContraptions.Tests.EventRingProducerTests.TheShippedWorkerWritesTheSameRingAsTheReferenceForARealRunAndAnOverflow [134 ms]
+Failed!  - Failed:     1, Passed:    58, Skipped:     0, Total:    59, Duration: 1 s - CuriousContraptions.tests.dll (net10.0)
+=== M13 the producer limit admits one more record per tick (filter: FullyQualifiedName~EventRing)
+  Failed CuriousContraptions.Tests.EventRingProducerTests.TheLimitAdmitsEightThousandSevenHundredThirtyEightRecordsPerTickAndRefusesOneMoreTyped(cadence: Hz240, capacity: 1048576) [4 ms]
+  Failed CuriousContraptions.Tests.EventRingProducerTests.TheLimitAdmitsEightThousandSevenHundredThirtyEightRecordsPerTickAndRefusesOneMoreTyped(cadence: Hz60, capacity: 262144) [< 1 ms]
+  Failed CuriousContraptions.Tests.EventRingProducerTests.TheLimitAdmitsEightThousandSevenHundredThirtyEightRecordsPerTickAndRefusesOneMoreTyped(cadence: Hz120, capacity: 524288) [< 1 ms]
+  Failed CuriousContraptions.Tests.EventRingProducerTests.AConstructionBeyondTheLimitIsRefusedTypedAndTheSessionStaysBuilding(producers: 8739, admitted: False) [4 s]
+Failed!  - Failed:     4, Passed:    65, Skipped:     0, Total:    69, Duration: 10 s - CuriousContraptions.tests.dll (net10.0)
+=== R5 (reviewer) a level indicator row maps to MemoryChanged (filter: FullyQualifiedName~EventRingProducerTests.EveryPackage)
+  Failed CuriousContraptions.Tests.EventRingProducerTests.EveryPackageDeclaresExactlyTheKindsItsCompiledRowsProduce [188 ms]
+Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 200 ms - CuriousContraptions.tests.dll (net10.0)
+=== M14 Impact producers counted per (owner, dynamic body) pair (quadratic) (filter: FullyQualifiedName~EventRing)
+  Failed CuriousContraptions.Tests.EventRingProducerTests.NBallsAndNBumpersSizeTheRingLinearlyInProducers(n: 40, capacity: 4096) [26 ms]
+  Failed CuriousContraptions.Tests.EventRingProducerTests.NBallsAndNBumpersSizeTheRingLinearlyInProducers(n: 10, capacity: 1024) [5 ms]
+Failed!  - Failed:     2, Passed:    67, Skipped:     0, Total:    69, Duration: 8 s - CuriousContraptions.tests.dll (net10.0)

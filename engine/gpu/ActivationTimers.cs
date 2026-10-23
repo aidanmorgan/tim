@@ -4,7 +4,7 @@ using CuriousContraptions.Abstractions.Signal;
 
 namespace CuriousContraptions.Gpu;
 
-public enum ActivationOccurrenceKind : uint { Contact = 1, TimerElapsed = 2, Orientation = 3, Passage = 4, CounterReached = 5, OscillatorTick = 6, ContactLoad = 7 }
+public enum ActivationOccurrenceKind : uint { Contact = 1, TimerElapsed = 2, Orientation = 3, Passage = 4, ThresholdReached = 5, OscillatorTick = 6, ContactLoad = 7 }
 public enum ActivationTimerPhase : uint { Ready, Counting, Finished }
 
 /// <summary>Canonical physical boundary time, also used for integer-boundary controller outputs.</summary>
@@ -62,7 +62,7 @@ public readonly record struct ActivationOccurrence(ActivationOccurrenceKind Kind
     {
         Time.Validate(); Cause.Validate();
         if (!Enum.IsDefined(Kind) || Emitter.Value == 0 || Time.CompareTo(Cause.Time) < 0 ||
-            (Kind is ActivationOccurrenceKind.Contact or ActivationOccurrenceKind.Orientation or ActivationOccurrenceKind.Passage or ActivationOccurrenceKind.CounterReached or ActivationOccurrenceKind.OscillatorTick or ActivationOccurrenceKind.ContactLoad && Time != Cause.Time) ||
+            (Kind is ActivationOccurrenceKind.Contact or ActivationOccurrenceKind.Orientation or ActivationOccurrenceKind.Passage or ActivationOccurrenceKind.ThresholdReached or ActivationOccurrenceKind.OscillatorTick or ActivationOccurrenceKind.ContactLoad && Time != Cause.Time) ||
             (Kind == ActivationOccurrenceKind.TimerElapsed && Time.Phase != 0f))
             throw new ArgumentException("Invalid activation occurrence.");
     }

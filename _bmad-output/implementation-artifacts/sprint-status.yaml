@@ -142,6 +142,7 @@ development_status:
   # reopened 18 Oct 2026 (retro-verification); closes via addenda in 9a-0 and the final 9a-45
   9-2b-modular-element-isolation-and-wasm-solver-consolidation: in-progress
   # reopened 18 Oct 2026 (retro-verification); closes via an addendum in 9a-c-clock (9r-10)
+  # 9a-c-clock addendum appended 23 Oct 2026: native Pass at ae3cac; Chrome clause (cat-017) pending post-catalogue E2E, so not yet done
   9-3-system-clock-periodic-pulse-generator: in-progress
   9-4-state-latch-bistable-memory: done
   # Coordinator 18 Oct 2026: pre-existing cumulative Chrome failures found during 9.4 (see spec-9-4 item 3).
@@ -340,16 +341,16 @@ development_status:
   10-5-trampoline-compliant-membrane-dynamics: backlog
   epic-10-retrospective: optional
   # 42 (deletion)
-  9a-c-clock-conversion: review # native candidate on 14658883 (worktree story-c-clock); browser pending
+  9a-c-clock-conversion: done # scoped native/publication Passae3cac; browser pending
   # merged into 9a-c-clock (21 Oct 2026)
-  9a-42-generic-instance-system-clock: review
+  9a-42-generic-instance-system-clock: done # scoped native/publication Passae3cac; browser pending
   # merged into 9a-c-clock (21 Oct 2026) as its suite-first guard
-  9r-10-system-clock-pause-reset-chrome-proof: backlog # native guard green on record path and candidate; Chrome ACs pending (post-catalogue)
+  9r-10-system-clock-pause-reset-chrome-proof: done # native scoped Pass (C-Clock ae3cac); Chrome qualification post-catalogue
   # 43 (element)
   epic-11: backlog
   11-1-electric-motor-tangential-conveyor-belt: backlog
   # 44 (deletion): before 9a-c-memory, whose ACs need ThresholdReached and MemoryChanged
-  9a-22-event-ring-producer: backlog
+  9a-22-event-ring-producer: review # native candidate on ae3cacf9 (worktree story-9a-22); browser pending
   # 45 (element)
   11-2-mechanical-clutch-reverse-transmission: backlog
   # 46 (deletion): last record conversion

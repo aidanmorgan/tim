@@ -1,0 +1,24 @@
+#!/bin/bash
+# Review mutation runner (Story 9A.22 independent review). The mutation is already applied in the throwaway worktree by the reviewer;
+# this builds the affected closure once, runs the event-ring suites and the node writer test, records the result and reverts the
+# worktree to its throwaway candidate snapshot commit.
+set -u
+name="$1"
+wt=/private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/r22/wt-mut
+log=/private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/r22/mut-$name.log
+cd "$wt"
+{
+  echo "== $name $(date -u +%FT%TZ)"
+  git diff
+  dotnet build CuriousContraptions.tests -c Debug -v q -nologo 2>&1 | grep -E "error|Warn|Error" | tail -5
+  echo "build rc=${PIPESTATUS[0]}"
+  dotnet test CuriousContraptions.tests -c Debug --no-build --no-restore --nologo \
+    --filter "FullyQualifiedName~EventRingProducerTests|FullyQualifiedName~EventRingBufferTests|FullyQualifiedName~ActivationTimerTests|FullyQualifiedName~StateLatchTests|FullyQualifiedName~BallDetectorTests|FullyQualifiedName~WorkerAbiTests" 2>&1 \
+    | grep -E "^\s+Failed |Passed!|Failed!|Total tests" | head -30
+  echo "dotnet test rc=${PIPESTATUS[0]}"
+  node --experimental-vm-modules --test tools/workshop-event-ring.test.mjs 2>&1 | grep -E "^ℹ (pass|fail)|✖" | head -10
+  echo "node rc=${PIPESTATUS[0]}"
+} > "$log" 2>&1
+git checkout -q -- .
+git status --short | wc -l | xargs echo "dirty after revert:" >> "$log"
+grep -E "rc=|Failed!|Passed!|ℹ (pass|fail)|dirty" "$log"

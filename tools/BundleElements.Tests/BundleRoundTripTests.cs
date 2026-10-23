@@ -99,6 +99,23 @@ public sealed class BundleRoundTripTests
         Assert.Throws<JsonException>(() => BundleSchema.Read(json.Replace(original, replacement, StringComparison.Ordinal)));
     }
 
+    // Story 9A.22: an event kind is written by its capability name with no payload layout; the deleted element-named kinds
+    // (CounterReached, LatchSet), the deferred PrismaticLimit, a number and a retired PayloadLayout field are refused, with no alias.
+    [Theory]
+    [InlineData("\"Kind\": \"Impact\"", "\"Kind\": \"CounterReached\"")]
+    [InlineData("\"Kind\": \"Impact\"", "\"Kind\": \"LatchSet\"")]
+    [InlineData("\"Kind\": \"Impact\"", "\"Kind\": \"PrismaticLimit\"")]
+    [InlineData("\"Kind\": \"Impact\"", "\"Kind\": 1")]
+    [InlineData("\"Kind\": \"Impact\"", "\"EventKind\": \"Impact\"")]
+    [InlineData("\"Kind\": \"Impact\"", "\"Kind\": \"Impact\", \"PayloadLayout\": \"Impulse:f32\"")]
+    public void AnEventKindIsItsCapabilityNameAndRetiredNamesAreRefused(string original, string replacement)
+    {
+        var json = BundleSchema.Write([new Fixture { Events = [new(SimulationEventKind.Impact)] }]);
+        Assert.Contains(original, json, StringComparison.Ordinal);
+        Assert.Equal([new EventDescriptor(SimulationEventKind.Impact)], Assert.Single(BundleSchema.Read(json).Elements).Events);
+        Assert.Throws<JsonException>(() => BundleSchema.Read(json.Replace(original, replacement, StringComparison.Ordinal)));
+    }
+
     private static void AssertEntry(IPuzzleElementDeclaration declaration, BundleEntry entry)
     {
         AssertSame(declaration.Metadata, entry.Metadata, "Metadata");

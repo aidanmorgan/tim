@@ -377,6 +377,7 @@ public sealed class BallDetectorTests(NativeSceneFixture godot)
         Assert.Equal(0, count1);
         tracker = tracker.Advance(new SimulationTick(2), bodiesPos, null, passageOutputs, out var count2);
         Assert.Equal(1, count2);
+        Assert.Single(tracker.Fired); // Story 9A.22: the event producer's Passage rows are exactly these passes
 
         // 2. Twenty jitter oscillations across X = 0 (between -0.02 and +0.02)
         var pJitterNeg = WorkshopInput.Position(-0.02f);
@@ -395,9 +396,9 @@ public sealed class BallDetectorTests(NativeSceneFixture godot)
         for (var i = 0; i < 20; i++)
         {
             tracker = tracker.Advance(new SimulationTick(tick++), bodiesJitterNeg, null, passageOutputs, out var cA);
-            jitterFires += cA;
+            jitterFires += cA + tracker.Fired.Count;
             tracker = tracker.Advance(new SimulationTick(tick++), bodiesJitterPos, null, passageOutputs, out var cB);
-            jitterFires += cB;
+            jitterFires += cB + tracker.Fired.Count;
         }
         Assert.Equal(0, jitterFires);
 
@@ -414,6 +415,7 @@ public sealed class BallDetectorTests(NativeSceneFixture godot)
         // 4. Move forward across X = 0 again -> triggers second crossing!
         tracker = tracker.Advance(new SimulationTick(tick++), bodiesPos, null, passageOutputs, out var countSecond);
         Assert.Equal(1, countSecond);
+        Assert.Single(tracker.Fired);
         Assert.Equal(2UL, tracker.States[0].PassedCount);
     }
 

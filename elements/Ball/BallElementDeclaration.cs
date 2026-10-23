@@ -33,10 +33,8 @@ public sealed class BallElementDeclaration : IMechanicalElement, ISceneGeometryE
         new(".", new(0.55f, 0.3f, 0.035f, 0.1f))
     ];
 
-    public IReadOnlyList<EventDescriptor> Events =>
-    [
-        new(SimulationEventKind.Impact, "Impulse:f32;Contact:vec3;Normal:vec3")
-    ];
+    /// <summary>A ball owns no event row: the impacts it takes are its strikers' records (Story 9A.22).</summary>
+    public IReadOnlyList<EventDescriptor> Events => [];
 
     public SimulationDomain SupportedDomains => SimulationDomain.Mechanical;
 

@@ -45,10 +45,8 @@ public sealed class PoweredGateElementDeclaration : ISliderElement, IElectricalE
         new("Visual/Blade", new(0.1f, 0.3f, 0f, 0.1f))
     ];
 
-    public IReadOnlyList<EventDescriptor> Events =>
-    [
-        new(SimulationEventKind.PrismaticLimit, "Position:f32;Lower:bool;Upper:bool")
-    ];
+    /// <summary>No row produces a slider-limit record yet; the first story with a limit cue adds the kind and its producer.</summary>
+    public IReadOnlyList<EventDescriptor> Events => [];
 
     public SimulationDomain SupportedDomains => SimulationDomain.Mechanical | SimulationDomain.Electrical;
 

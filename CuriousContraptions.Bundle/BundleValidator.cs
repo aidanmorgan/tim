@@ -90,7 +90,14 @@ public static class BundleValidator
             for (var i = 0; i < entry.Colliders.Count; i++) Collider($"Colliders[{i}]", entry.Colliders[i]);
             Geometry(entry);
             Presentation(entry.Presentation, entry.Metadata.Parameters, entry.Ports, entry.Electrical, entry.Signal);
-            for (var i = 0; i < entry.Events.Count; i++) Defined($"Events[{i}].EventKind", entry.Events[i].EventKind);
+            // Story 9A.22: each declared event kind is a defined record kind (None is no record), declared once.
+            var kinds = new HashSet<SimulationEventKind>();
+            for (var i = 0; i < entry.Events.Count; i++)
+            {
+                if (entry.Events[i].Kind == SimulationEventKind.None) Undefined($"Events[{i}].Kind");
+                else Defined($"Events[{i}].Kind", entry.Events[i].Kind);
+                if (!kinds.Add(entry.Events[i].Kind)) OutOfRange($"Events[{i}].Kind");
+            }
             if (entry.Mechanical is { } mechanical) Mechanical(mechanical, entry.Metadata.Parameters, entry.Ports);
             if (entry.Electrical is { } electrical) Electrical(electrical, entry.Ports, entry.Metadata.Parameters);
             // A run-time control is declared only on a Source store's enable state: the one value ConfigureElectrical changes.

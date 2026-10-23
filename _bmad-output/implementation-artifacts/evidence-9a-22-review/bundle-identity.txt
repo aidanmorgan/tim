@@ -1,0 +1,7 @@
+base bundle (ae3cacf9, wt-base, dotnet build tools/BundleElements):
+5bf3d63ab7fbf5de082868cd31870a37a23a47c71bb72cb8cb172fdd543363b7  elements/elements.bundle.json
+candidate bundle (wt-mut = ae3cacf9 + candidate diff + 4 untracked files, full slnx Debug build rc=0, 0 warnings):
+250699013a0fc48a20f181432c6432953a6f23173aad01397013a96913dfa02c  elements/elements.bundle.json
+review worktree bundle:
+250699013a0fc48a20f181432c6432953a6f23173aad01397013a96913dfa02c  elements/elements.bundle.json
+JSON compare with every Events key removed: equal outside Events: True; equal overall: False

@@ -250,6 +250,10 @@ export async function create(states, bootstrapBytes, clockAbi, captureMode, admi
                         // The worker grew the ring for a world with more moving bodies (Story 9R.5b).
                         if (!readyReceived) throw new Error('A pose ring arrived before the session was ready.');
                         attachPoseRing(client, message.poseRing);
+                    } else if (message.eventRing instanceof SharedArrayBuffer) {
+                        // Story 9A.22: the session's event ring for the admitted epoch, attached only; its readers are Story 9A.23's.
+                        if (!readyReceived) throw new Error('An event ring arrived before the session was ready.');
+                        client.eventRing = message.eventRing;
                     } else if (message.scheduleControl instanceof Uint8Array) {
                         deliver(client, message.scheduleControl, received, scheduleControl);
                     } else if (message.acknowledgement instanceof Uint8Array) {

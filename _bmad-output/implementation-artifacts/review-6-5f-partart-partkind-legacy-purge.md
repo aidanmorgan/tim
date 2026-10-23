@@ -325,3 +325,27 @@ This is a closing record under the epics rule "Reopened-record closure". Story 6
 | "All part-kind switches eradicated" (Pressure Plate arms) | C: `PartId` switch tables remain | `CaptureInstance` (`MachineWorld.Gpu.cs`): `"pressure_plate"` arm 1 → 0, `WorkshopPressurePlate` 1 → 0. `WorkshopWireFlatBuffers` decode/encode (`"pressure_plate"` 1 → 0, `WorkshopPressurePlate` 2 → 0), the save pre-validation `"pressure_plate"` case (1 → 0), the authored whitelist (`WorkshopInstances`, 1 → 0), the compiler's `OfType<WorkshopPressurePlate>` loop (4 → 0), the `ActivationNetwork` arm (2 → 0) and `WorkshopInput.PressurePlate` (`WorkshopConstruction.cs`, 2 → 0) are all deleted. `engine/gpu/WorkshopPressurePlate.cs` is deleted. Production `rg -w "WorkshopPressurePlate\|_plateLoaded"` returns 0. The contact-load row, level node and release hold are now selected by the declared `SignalContactLoadDescriptor`. | **Closed, Pass** (the Pressure Plate arms) |
 
 **Stays open in this record.** The remaining arms belong to C-Clock and C-Memory. Cumulative Chrome is pending the post-catalogue E2E phase under the 21 Oct policy. Per the closure table, 6.5f stays open until C-Memory's addendum records its terminal Pass.
+
+## Addendum 23 Oct 2026, retro-verification (C-Clock, System Clock)
+
+This is a closing record under the epics rule "Reopened-record closure". Story 6.5f's switch tables are owned by 9A.16, 9A.17, 9A.25 and 9A.27–9A.43, and the closure table lists "every conversion". This addendum covers only the System Clock arms that C-Clock (9A.42 + 9R.10) removes. The original text and the addenda above are unchanged.
+
+**Reviewer.** I am the independent reviewer of C-Clock (`review-c-clock.md`). I am neither its implementer, nor Story 6.5f's implementer, nor the author of the original review or of any addendum above.
+
+**Identity**
+- Slice commit `d28d19605c08a174930db6e1cdccc11bfab4e687`, tree `db29810726e157fdddd5f42ab4e22cb74a0f5a69`.
+- Published merge `ae3cacf98f6fe8f7d3fb94a9d52b557ca970ae8a`, the same tree, on `origin/main`.
+- Bundle `elements/elements.bundle.json` sha256 `5bf3d63ab7fbf5de082868cd31870a37a23a47c71bb72cb8cb172fdd543363b7`, the output of the fresh build in the log below.
+
+**Evidence** (paths relative to `_bmad-output/implementation-artifacts/`)
+- `evidence-c-clock-review/terminal/addendum-native-rerun.log`:
+  - the fresh `--no-incremental` build (0 warnings);
+  - the clock, oscillator, presentation, editor, counter, isolation and parity guard classes, 222/222, rc 0, run 2026-10-23T15:46:53Z to 15:47:00Z;
+  - the switch-table census against base `14658883`, at 15:47:00Z.
+- `evidence-c-clock-review/terminal/run.json` and `build-job.log`: CI run 39978994324 on `ae3cacf9`, game 2628/2628.
+
+| Original clause (6.5f) | Retro-verification finding (18 Oct) | Fresh result | Verdict |
+|---|---|---|---|
+| "All part-kind switches eradicated" (System Clock arms) | C: `PartId` switch tables remain | Each of these arms is deleted:<br>• the `CaptureInstance` (`MachineWorld.Gpu.cs`) `"clock"` arm, 1 → 0;<br>• `WorkshopWireFlatBuffers` decode/encode (`"clock"` 1 → 0, `WorkshopClock` 2 → 0);<br>• the save pre-validation `case "clock"`, 1 → 0;<br>• the authored whitelist (`WorkshopInstances`), 1 → 0;<br>• the `ActivationNetwork` arm (`WorkshopClock`), 1 → 0;<br>• `WorkshopInput.Clock`, 1 → 0;<br>• the Clock panel (`AddClockConfiguration`/`ApplyClockInterval`, 7 → 0 lines);<br>• `MachinePart.CanonicalIntervalSeconds`/`ApplyIntervalSeconds`, 3 → 0.<br>`engine/gpu/WorkshopClock.cs` is deleted, and so is the last reader of the wire `threshold` field. Production `rg -w "WorkshopClock\|DefaultIntervalSeconds\|AddClockConfiguration"` returns 0. The oscillator node is now selected by the declared `SignalOscillatorDescriptor`. | **Closed, Pass** (the System Clock arms) |
+
+**Stays open in this record.** The remaining arms belong to C-Memory (Counter and State Latch). Cumulative Chrome is pending the post-catalogue E2E phase under the 21 Oct policy. Per the closure table, 6.5f stays open until C-Memory's addendum records its terminal Pass.

@@ -188,3 +188,28 @@ There was one matching Debug build. Every test ran with `--no-build --no-restore
    - `9r-10` → done with a native scoped Pass; Chrome stays post-catalogue, as with 9r-15;
    - `9-3` stays in-progress, with the native-only addendum appended to `review-9-3-system-clock.md` (the C-Clock AC);
    - browser qualification stays pending.
+
+## Terminal publication verification — 23 October 2026
+
+Raw outputs are in `evidence-c-clock-review/terminal/`.
+
+**Identities**
+- Slice commit: `d28d19605c08a174930db6e1cdccc11bfab4e687`, tree `db29810726e157fdddd5f42ab4e22cb74a0f5a69`, parent `14658883`.
+- Published merge (`--no-ff`): `ae3cacf98f6fe8f7d3fb94a9d52b557ca970ae8a`, parents `14658883` and `d28d1960`, tree `db298107…`. Main had not moved; `git diff d28d1960 ae3cacf9` is empty.
+- Remote: after a fetch, `origin/main` and `git ls-remote origin refs/heads/main` both return `ae3cacf9…`.
+
+| # | Publication-dependent check | Result | Raw |
+|---|---|---|---|
+| 1 | The commit tree equals the approved snapshot | **Pass.** `d28d1960^{tree}` = `db298107`, the final staged tree reported with the approval. `git diff --binary 14658883 d28d1960` has sha256 `6c9dcd72c7addf5b729affceedf010f9320223b274ab62bcfc9fcd2bfb6b1b6e`, equal to the approved final staged diff | `identities.txt` |
+| 2 | Hooks | **Pass.**<br>• Implementer's commit log: 3 gate builds, 0 warnings and 0 errors; Anvil `hasBlockingWarnings: false`, errors 0; 124/124; rc 0.<br>• **My re-run** on the exact published tree, in a throwaway worktree with HEAD `14658883` and index `db298107` (247 staged paths, 0 unstaged, 0 untracked), through the common hooks dir (`.git/hooks/pre-commit` → `.githooks/pre-commit`), 15:45:12Z–15:45:56Z: 3 gate builds, 0 warnings and 0 errors; Anvil not blocking, 0 errors; 124/124; hook rc 0. The worktree was removed | `commit-hook-implementer.log`, `hook-rerun.log` |
+| 3 | The merge tree equals the branch tree, and remote main is the published merge | **Pass** | `identities.txt` |
+| 4 | Pages workflow on the exact SHA | **Pass.**<br>• Run 39978994324, "Build and deploy game", push, main, headSha `ae3cacf9`, completed/success; checkout fetched `ae3cacf9`.<br>• Every build step succeeded: static gate (3 builds, 0 warnings, 0 errors), Test C# game, Test C# tools, publish, static-deployment check and upload. The deploy job succeeded.<br>• Totals: **game 2628**; **tools 77 / 167 / 17 / 174**; Failed 0 and Skipped 0 everywhere (CI's tools step excludes the 15 toolchain tests by design) | `run.json`, `build-job.log` |
+| 5 | Pages artifact ownership and deployment | **Pass.**<br>• Artifact `github-pages` id 12512488715 (digest `sha256:226b4659…`, 79,889,870 bytes, not expired) belongs to run 39978994324 at headSha `ae3cacf9` on main.<br>• The deploy job used `artifact_id` 12512488715, logged "Created deployment for ae3cacf98f6f…" and "Reported success!".<br>• Deployment 7282423433 (sha `ae3cacf9`, ref main) is the newest `github-pages` deployment (previous: `146588838b97`, `61ded7ad`). Its status went waiting → queued → in_progress → success (15:44:05Z), environment `https://aidanmorgan.github.io/tim/` | `artifact-deployment.txt`, `deploy-job.log` |
+| 6 | Serving | **Pass.** `/`, `/index.html`, `/404.html`, `/godot.wasm`, `/godot.pck` and `/_framework/dotnet.js` each return 200 with `last-modified` 23 Oct 2026 15:44:00–01 GMT, this deployment's own time (checked 15:45:41Z) | `deployment-status.txt` |
+| 7 | Closing addenda (additions only; each record's `git diff` adds lines and removes none) | **Story 9.3** (`review-9-3-system-clock.md`, closure row 9.3 → C-Clock (9R.10)): every native clause is a fresh Pass. The four nonexistent files cited by the original review are re-confirmed absent and superseded. The Chrome clause (`cat-017`) is pending post-catalogue E2E, so 9.3 stays `in-progress`.<br>**Story 6.5f** (`review-6-5f-partart-partkind-legacy-purge.md`): the System Clock arms are Closed, Pass; 6.5f stays open until C-Memory.<br>Fresh run at tree `db298107`, bundle `5bf3d63a…`: 222/222, rc 0, with the switch-table census against `14658883`.<br>9R.10 is the closing story, not a reopened original in the closure table, so it needs no addendum of its own | `addendum-native-rerun.log`, `addendum-run.sh.txt` |
+| 8 | Status rows | `9a-c-clock-conversion` and `9a-42` set to `done # scoped native/publication Passae3cac; browser pending`. `9r-10` set to `done` with a native scoped Pass and Chrome qualification post-catalogue (the 9r-15 precedent). `9-3` stays `in-progress`, with a comment recording the native addendum. `6-5f` stays `in-progress` | `sprint-status.yaml` |
+| 9 | Browser cases | Still pending post-catalogue E2E, as listed in `spec-c-clock.md` "Pending browser cases": `cat-017` tests 4, 6 and 7 and the pendulum/flash pixel reads; the generic editor through the UI; the `engine-core-2b1` old-save variant; and the re-run list | — |
+
+**Terminal verdict: scoped native and publication Pass at `ae3cacf98f6f`.**
+- Browser qualification is pending post-catalogue E2E.
+- This is not a release, global-audit or runtime qualification.

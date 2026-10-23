@@ -1,0 +1,336 @@
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.NnnuW0/solution.binlog
+
+Time Elapsed 00:00:09.03
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.NnnuW0/playtest.binlog
+
+Time Elapsed 00:00:11.82
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.NnnuW0/web.binlog
+
+Time Elapsed 00:00:07.34
+Anvil snapshot 0.ts: CuriousContraptions.Abstractions.Signal/SignalContracts.cs
+Anvil snapshot 1.ts: CuriousContraptions.Bundle/BundleSchema.cs
+Anvil snapshot 2.ts: CuriousContraptions.Bundle/BundleValidator.cs
+Anvil snapshot 3.ts: CuriousContraptions.tests/BothGateTests.cs
+Anvil snapshot 4.ts: CuriousContraptions.tests/CSharpStaticGateTests.cs
+Anvil snapshot 5.ts: CuriousContraptions.tests/ClockGuardTests.cs
+Anvil snapshot 6.ts: CuriousContraptions.tests/ClockTests.cs
+Anvil snapshot 7.ts: CuriousContraptions.tests/ConstructionDecodeBoundaryTests.cs
+Anvil snapshot 8.ts: CuriousContraptions.tests/DeclaredContactLoadTests.cs
+Anvil snapshot 9.ts: CuriousContraptions.tests/DeclaredIndicatorPassageTests.cs
+Anvil snapshot 10.ts: CuriousContraptions.tests/DeclaredOrientationTests.cs
+Anvil snapshot 11.ts: CuriousContraptions.tests/DeclaredOscillatorTests.cs
+Anvil snapshot 12.ts: CuriousContraptions.tests/DeclaredPresentationTests.cs
+Anvil snapshot 13.ts: CuriousContraptions.tests/LampDetectorGuardTests.cs
+Anvil snapshot 14.ts: CuriousContraptions.tests/NoFixedCapacityTests.cs
+Anvil snapshot 15.ts: CuriousContraptions.tests/OldLayoutSaves.cs
+Anvil snapshot 16.ts: CuriousContraptions.tests/PackageRuntimeParityTests.cs
+Anvil snapshot 17.ts: CuriousContraptions.tests/PalettePlacementTests.cs
+Anvil snapshot 18.ts: CuriousContraptions.tests/PayloadInstanceTests.cs
+Anvil snapshot 19.ts: CuriousContraptions.tests/PlacedParts.cs
+Anvil snapshot 20.ts: CuriousContraptions.tests/PreConversionLaunchSaveTests.cs
+Anvil snapshot 21.ts: CuriousContraptions.tests/PressurePlateTests.cs
+Anvil snapshot 22.ts: CuriousContraptions.tests/StateLatchTests.cs
+Anvil snapshot 23.ts: CuriousContraptions.tests/SwitchElectricalTests.cs
+Anvil snapshot 24.ts: CuriousContraptions.tests/WorkbenchCapacityTests.cs
+Anvil snapshot 25.ts: CuriousContraptions.tests/WorkshopGpuDeviceTests.cs
+Anvil snapshot 26.ts: CuriousContraptions.tests/WorkshopHandlerBoundaryTests.cs
+Anvil snapshot 27.ts: CuriousContraptions.tests/WorkshopSaveRejectionTests.cs
+Anvil snapshot 28.ts: CuriousContraptions.tests/WorkshopWireFlatBuffersTests.cs
+Anvil snapshot 29.ts: elements/SystemClock/SystemClockElementDeclaration.cs
+Anvil snapshot 30.ts: engine/MachinePart.cs
+Anvil snapshot 31.ts: engine/MachineWorld.Gpu.cs
+Anvil snapshot 32.ts: engine/gpu/ActivationMemory.cs
+Anvil snapshot 33.ts: engine/gpu/ActivationNetwork.cs
+Anvil snapshot 34.ts: engine/gpu/AuthoredInstanceTemplate.cs
+Anvil snapshot 35.ts: engine/gpu/WorkshopConstruction.cs
+Anvil snapshot 36.ts: engine/gpu/WorkshopInstances.cs
+Anvil snapshot 37.ts: engine/gpu/WorkshopSavePrevalidation.cs
+Anvil snapshot 38.ts: engine/gpu/WorkshopWireFlatBuffers.cs
+Anvil snapshot 39.ts: engine/gpu/WorkshopWireGenerated.cs
+Anvil snapshot 40.ts: tools/BundleElements.Tests/BundleRoundTripTests.cs
+Anvil snapshot 41.ts: tools/BundleElements.Tests/BundleValidatorTests.cs
+Anvil snapshot 42.ts: tools/e2e/cat-017.test.ts
+Anvil snapshot 43.ts: tools/e2e/run-reset-snapshot.ts
+Anvil snapshot 44.ts: tools/e2e/workshop-wire.ts
+Anvil snapshot 45.ts: ui/WorkshopConfiguration.cs
+{
+  "version": "1.0.0",
+  "timestamp": "2026-10-23T15:30:50.483921+00:00",
+  "files": [
+    "0.ts",
+    "1.ts",
+    "2.ts",
+    "3.ts",
+    "4.ts",
+    "5.ts",
+    "6.ts",
+    "7.ts",
+    "8.ts",
+    "9.ts",
+    "10.ts",
+    "11.ts",
+    "12.ts",
+    "13.ts",
+    "14.ts",
+    "15.ts",
+    "16.ts",
+    "17.ts",
+    "18.ts",
+    "19.ts",
+    "20.ts",
+    "21.ts",
+    "22.ts",
+    "23.ts",
+    "24.ts",
+    "25.ts",
+    "26.ts",
+    "27.ts",
+    "28.ts",
+    "29.ts",
+    "30.ts",
+    "31.ts",
+    "32.ts",
+    "33.ts",
+    "34.ts",
+    "35.ts",
+    "36.ts",
+    "37.ts",
+    "38.ts",
+    "39.ts",
+    "40.ts",
+    "41.ts",
+    "42.ts",
+    "43.ts",
+    "44.ts",
+    "45.ts"
+  ],
+  "hasBlockingWarnings": false,
+  "executionTimeMs": 37,
+  "checksRun": [
+    "secret-detection",
+    "antipattern-scan"
+  ],
+  "notifications": [],
+  "warnings": [],
+  "summary": {
+    "total": 0,
+    "errors": 0,
+    "warnings": 0,
+    "info": 0,
+    "suppressed": 0
+  }
+}
+
+Test run for /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.AyM0HX/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:   124, Skipped:     0, Total:   124, Duration: 4 s - CuriousContraptions.tests.dll (net10.0)
+[story-c-clock d28d196] Declare the system clock's oscillator and convert it to a generic instance
+ 247 files changed, 25781 insertions(+), 469 deletions(-)
+ create mode 100644 CuriousContraptions.tests/ClockGuardTests.cs
+ create mode 100644 CuriousContraptions.tests/DeclaredOscillatorTests.cs
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock-review/base-old-saves-loaded.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock-review/build.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock-review/candidate-old-saves-outcomes.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock-review/carry-integrity.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock-review/ci-tools.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock-review/deletion-greps.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock-review/diff-check.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock-review/full-test.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock-review/handler-floor.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock-review/identity-compare.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock-review/identity.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock-review/known-rows.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock-review/mutations.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock-review/old-saves-regenerated-at-base.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock-review/pipe-latch-meaning.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock-review/probe/ReviewerCadenceProbe.cs.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock-review/probe/ReviewerOldSaveProbe-base.cs.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock-review/probe/ReviewerOldSaveProbe-candidate.cs.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock-review/probe/ReviewerTwoSourceProbe.cs.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock-review/probe/mutate.sh.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock-review/probe/mutations-all.sh.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock-review/probes-candidate.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock-review/rereview/build.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock-review/rereview/carry-integrity.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock-review/rereview/full-test.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock-review/rereview/mutations.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock-review/suite-first-base-rerun.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock-review/ts-checks.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock-review/wire-regen.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock-review/worker-release.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/baseline/ClockGuardTests-base.cs.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/baseline/build.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/baseline/capture-run.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/baseline/capture/interval-parity.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/baseline/capture/lesson-world.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/baseline/capture/old-save-outcomes.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/baseline/capture/placed-solutions.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/baseline/capture/trace-clocks-latch.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/baseline/capture/trace-counter-gate.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/baseline/capture/trace-deadline-loss.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/baseline/capture/trace-palette-max.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/baseline/capture/trace-pulses-0.1s.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/baseline/capture/trace-pulses-12s.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/baseline/capture/trace-pulses-1s.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/baseline/deletion-greps-base.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/baseline/full-test.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/baseline/guards-filter.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/baseline/guards.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/baseline/identity.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/baseline/old-saves.sha256
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/baseline/old-saves/bench_clocks_latch.command.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/baseline/old-saves/bench_clocks_latch.save.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/baseline/old-saves/bench_counter_gate.command.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/baseline/old-saves/bench_counter_gate.save.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/baseline/old-saves/clock_0_1.command.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/baseline/old-saves/clock_0_1.save.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/baseline/old-saves/clock_1.command.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/baseline/old-saves/clock_1.save.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/baseline/old-saves/clock_12.command.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/baseline/old-saves/clock_12.save.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/baseline/old-saves/clock_locked_rotated.command.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/baseline/old-saves/clock_locked_rotated.save.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/baseline/old-saves/counter_3.command.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/baseline/old-saves/counter_3.save.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/baseline/old-saves/counter_4.command.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/baseline/old-saves/counter_4.save.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/baseline/old-saves/counter_8.command.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/baseline/old-saves/counter_8.save.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/baseline/old-saves/generic_ball.command.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/baseline/old-saves/generic_ball.save.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/baseline/old-saves/generic_ball_detector.command.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/baseline/old-saves/generic_ball_detector.save.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/baseline/old-saves/generic_basket.command.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/baseline/old-saves/generic_basket.save.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/baseline/old-saves/generic_battery.command.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/baseline/old-saves/generic_battery.save.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/baseline/old-saves/generic_both_gate.command.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/baseline/old-saves/generic_both_gate.save.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/baseline/old-saves/generic_bowling.command.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/baseline/old-saves/generic_bowling.save.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/baseline/old-saves/generic_bumper.command.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/baseline/old-saves/generic_bumper.save.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/baseline/old-saves/generic_delay.command.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/baseline/old-saves/generic_delay.save.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/baseline/old-saves/generic_domino.command.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/baseline/old-saves/generic_domino.save.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/baseline/old-saves/generic_electrical_nand.command.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/baseline/old-saves/generic_electrical_nand.save.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/baseline/old-saves/generic_electrical_nor.command.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/baseline/old-saves/generic_electrical_nor.save.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/baseline/old-saves/generic_electrical_or.command.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/baseline/old-saves/generic_electrical_or.save.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/baseline/old-saves/generic_electrical_xor.command.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/baseline/old-saves/generic_electrical_xor.save.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/baseline/old-saves/generic_funnel.command.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/baseline/old-saves/generic_funnel.save.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/baseline/old-saves/generic_hold_timer.command.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/baseline/old-saves/generic_hold_timer.save.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/baseline/old-saves/generic_lamp.command.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/baseline/old-saves/generic_lamp.save.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/baseline/old-saves/generic_pipe_bend_45.command.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/baseline/old-saves/generic_pipe_bend_45.save.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/baseline/old-saves/generic_pipe_bend_90.command.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/baseline/old-saves/generic_pipe_bend_90.save.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/baseline/old-saves/generic_powered_gate.command.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/baseline/old-saves/generic_powered_gate.save.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/baseline/old-saves/generic_ramp.command.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/baseline/old-saves/generic_ramp.save.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/baseline/old-saves/generic_spring.command.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/baseline/old-saves/generic_spring.save.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/baseline/old-saves/generic_switch.command.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/baseline/old-saves/generic_switch.save.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/baseline/old-saves/generic_wall.command.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/baseline/old-saves/generic_wall.save.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/baseline/old-saves/latch.command.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/baseline/old-saves/latch.save.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/baseline/old-saves/pipe.command.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/baseline/old-saves/pipe.save.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/baseline/old-saves/plate.command.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/baseline/old-saves/plate.save.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/baseline/test-only.diff
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/candidate/bundle-identity.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/candidate/capture-compare.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/candidate/capture-run.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/candidate/capture/interval-parity.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/candidate/capture/lesson-world.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/candidate/capture/old-save-outcomes.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/candidate/capture/placed-solutions.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/candidate/capture/trace-clocks-latch.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/candidate/capture/trace-counter-gate.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/candidate/capture/trace-deadline-loss.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/candidate/capture/trace-palette-max.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/candidate/capture/trace-pulses-0.1s.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/candidate/capture/trace-pulses-12s.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/candidate/capture/trace-pulses-1s.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/candidate/ci-tools.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/candidate/clock-guard.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/candidate/deletion-greps.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/candidate/diff-check.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/candidate/freeze-build-full.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/candidate/freeze-build.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/candidate/freeze-head.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/candidate/freeze-test-full.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/candidate/freeze-test.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/candidate/guards.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/candidate/identity.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/candidate/known-rows.diff
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/candidate/tracked.diff
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/candidate/ts-checks.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/candidate/web-publish-full.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/candidate/web-publish.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/candidate/wire-regeneration.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/candidate/worker-release.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/forward-fix-b1/build-full.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/forward-fix-b1/build.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/forward-fix-b1/full-test.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/forward-fix-b1/full-test.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/forward-fix-b1/identity.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/forward-fix-b1/restoration.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/forward-fix-b1/tracked.diff
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/mutation/M1-interval-ignored.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/mutation/M2-power-gate-removed.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/mutation/M3-ceiling-to-floor.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/mutation/M4-exclusivity-omits-oscillator.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/mutation/M5-binding-coupling-removed.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/mutation/M6-clamp-to-reject.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/mutation/M7-instance-table-9-to-10.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/mutation/R6-length-typed-by-value.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/mutation/R8-oscillator-source-refusal-removed.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/mutation/restoration.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/probe/PlacedParts-record-path.cs.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/probe/ProbeClockCapture.cs.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/probe/ci-tools.sh.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/probe/deletion-greps.sh.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/probe/mutant.sh.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-clock/probe/regen.sh.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-plate-review/terminal/addendum-native-rerun.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-plate-review/terminal/artifact-deployment.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-plate-review/terminal/build-job.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-plate-review/terminal/commit-hook-implementer.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-plate-review/terminal/deploy-job.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-plate-review/terminal/deployment-status.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-plate-review/terminal/hook-rerun.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-plate-review/terminal/identities.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-plate-review/terminal/run.json
+ create mode 100644 _bmad-output/implementation-artifacts/review-c-clock.md
+ create mode 100644 _bmad-output/implementation-artifacts/spec-c-clock.md
+ delete mode 100644 engine/gpu/WorkshopClock.cs
+ delete mode 100644 engine/gpu/WorkshopClock.cs.uid
+rc=0

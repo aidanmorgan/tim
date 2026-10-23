@@ -53,10 +53,7 @@ public sealed class DelayBoxElementDeclaration : ITimerElement, ISceneGeometryEl
         new(".", new(1f, 0.3f, 0f, 0.1f))
     ];
 
-    public IReadOnlyList<EventDescriptor> Events =>
-    [
-        new(SimulationEventKind.TriggerActivated, "Duration:f32")
-    ];
+    public IReadOnlyList<EventDescriptor> Events => [new(SimulationEventKind.TriggerActivated)];
 
     public SimulationDomain SupportedDomains => SimulationDomain.Signal;
 

@@ -47,11 +47,8 @@ public sealed class StateLatchElementDeclaration : ISignalElement, ISupplyElemen
         new(".", new(1f, 0.3f, 0f, 0.1f))
     ];
 
-    public IReadOnlyList<EventDescriptor> Events =>
-    [
-        // Emitted once per memory transition only: P0 = 1 (Off→On) or 0 (On→Off).
-        new(SimulationEventKind.LatchSet, "State:f32")
-    ];
+    /// <summary>One record per memory transition only (Level 1 Off→On, 0 On→Off); a redundant request publishes nothing.</summary>
+    public IReadOnlyList<EventDescriptor> Events => [new(SimulationEventKind.MemoryChanged)];
 
     public SimulationDomain SupportedDomains => SimulationDomain.Signal | SimulationDomain.Electrical;
 

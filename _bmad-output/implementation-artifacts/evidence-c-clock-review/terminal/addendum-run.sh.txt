@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+# C-Clock closing-addendum run (9.3, 6.5f clock arms) in a throwaway worktree holding the exact published tree.
+set -u
+WT=/private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/review-clock/wt-hook
+BASE=146588838b97d9634406c47f9e383b3dd24f8fa6
+SLICE=d28d19605c08a174930db6e1cdccc11bfab4e687
+MERGE=ae3cacf98f6fe8f7d3fb94a9d52b557ca970ae8a
+cd "$WT"
+echo "# C-Clock closing-addendum run (9.3, 6.5f clock arms), start $(date -u +%FT%TZ)"
+echo "worktree index tree $(git write-tree); slice $SLICE tree $(git rev-parse $SLICE^{tree}); merge $MERGE tree $(git rev-parse $MERGE^{tree}); origin/main $(git rev-parse origin/main)"
+echo "working tree vs index (unstaged): $(git diff --name-only | wc -l | tr -d ' ') paths; untracked: $(git ls-files --others --exclude-standard | wc -l | tr -d ' ')"
+dotnet build CuriousContraptions.slnx -c Debug --nologo --no-incremental 2>&1 | grep -E "Warning\(s\)|Error\(s\)"
+echo "bundle elements/elements.bundle.json sha256 $(shasum -a 256 elements/elements.bundle.json | cut -d' ' -f1); committed blob equal: $(git diff --quiet $SLICE -- elements/elements.bundle.json && echo yes || echo NO)"
+filter="FullyQualifiedName~CuriousContraptions.Tests.ClockGuardTests.|FullyQualifiedName~CuriousContraptions.Tests.DeclaredOscillatorTests.|FullyQualifiedName~CuriousContraptions.Tests.ClockTests.|FullyQualifiedName~CuriousContraptions.Tests.DeclaredPresentationTests.|FullyQualifiedName~CuriousContraptions.Tests.ElementIsolationTests.|FullyQualifiedName~CuriousContraptions.Tests.PackageRuntimeParityTests.|FullyQualifiedName~CuriousContraptions.Tests.PalettePlacementTests.|FullyQualifiedName~CuriousContraptions.Tests.CounterTests."
+echo "filter: $filter"
+echo "tests start $(date -u +%FT%TZ)"
+dotnet test CuriousContraptions.tests -c Debug --no-build --no-restore --filter "$filter" 2>&1 | grep -E "\[FAIL\]|Passed!|Failed!"
+echo "test rc=${PIPESTATUS[0]} end $(date -u +%FT%TZ)"
+echo "== switch-table census (clock arms), base $BASE vs slice $SLICE, $(date -u +%FT%TZ)"
+census() {
+  local rev=$1
+  printf '%s ' "$rev"
+  printf 'CaptureInstance "clock"=%s ' "$(git show $rev:engine/MachineWorld.Gpu.cs | grep -c '"clock" =>')"
+  printf 'Wire "clock"=%s Wire WorkshopClock=%s ' "$(git show $rev:engine/gpu/WorkshopWireFlatBuffers.cs | grep -c '"clock"')" "$(git show $rev:engine/gpu/WorkshopWireFlatBuffers.cs | grep -c 'WorkshopClock\b')"
+  printf 'SavePrevalidation "clock"=%s ' "$(git show $rev:engine/gpu/WorkshopSavePrevalidation.cs | grep -c 'case "clock"')"
+  printf 'Whitelist WorkshopClock=%s ' "$(git show $rev:engine/gpu/WorkshopInstances.cs | grep -c 'WorkshopClock')"
+  printf 'ActivationNetwork WorkshopClock=%s ' "$(git show $rev:engine/gpu/ActivationNetwork.cs | grep -c 'WorkshopClock')"
+  printf 'WorkshopInput.Clock=%s ' "$(git show $rev:engine/gpu/WorkshopConstruction.cs | grep -c 'WorkshopClock Clock(')"
+  printf 'Panel(AddClockConfiguration|ApplyClockInterval)=%s ' "$(git show $rev:ui/WorkshopConfiguration.cs | grep -cE 'AddClockConfiguration|ApplyClockInterval')"
+  printf 'MachinePart(Canonical|Apply)IntervalSeconds=%s ' "$(git show $rev:engine/MachinePart.cs | grep -cE 'CanonicalIntervalSeconds|ApplyIntervalSeconds')"
+  printf 'WorkshopClock.cs=%s\n' "$(git cat-file -e $rev:engine/gpu/WorkshopClock.cs 2>/dev/null && echo present || echo absent)"
+}
+census $BASE
+census $SLICE
+echo "production rg -w 'WorkshopClock|DefaultIntervalSeconds|AddClockConfiguration' at the published tree (excluding tests, docs, _bmad-output, *.md): $(rg -n -w 'WorkshopClock|DefaultIntervalSeconds|AddClockConfiguration' --glob '!_bmad-output/**' --glob '!CuriousContraptions.tests/**' --glob '!docs/**' --glob '!*.md' --glob '!**/bin/**' --glob '!**/obj/**' . | wc -l | tr -d ' ')"
+echo "end $(date -u +%FT%TZ)"

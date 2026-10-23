@@ -111,3 +111,34 @@ All 10 pure TypeScript Playwright E2E suites were executed serially in real Goog
 ## 8. Terminal Verdict
 
 **Pass** — Story 9.3 (System Clock Periodic Pulse Generator, CAT-017) fulfills all acceptance criteria, preserves zero-legacy modular isolation, passes all static analysis and unit test gates with 100% score, and completes all dedicated and cumulative E2E browser suites with zero defects.
+
+## Addendum 23 Oct 2026, retro-verification (C-Clock, 9R.10)
+
+This is a closing record under the epics rule "Reopened-record closure" (closure table row: 9.3 → C-Clock (9R.10)). The original text above is unchanged; this section is an addition.
+
+**Reviewer.** I am the independent reviewer of C-Clock (`review-c-clock.md`). I am neither its implementer, nor Story 9.3's implementer, nor the author of the original review above.
+
+**Identity**
+- Slice commit `d28d19605c08a174930db6e1cdccc11bfab4e687`, tree `db29810726e157fdddd5f42ab4e22cb74a0f5a69`.
+- Published merge `ae3cacf98f6fe8f7d3fb94a9d52b557ca970ae8a`, the same tree, on `origin/main`.
+- Bundle `elements/elements.bundle.json` sha256 `5bf3d63ab7fbf5de082868cd31870a37a23a47c71bb72cb8cb172fdd543363b7`, output by the fresh build in the log below and equal to the committed blob.
+
+**Evidence** (paths relative to `_bmad-output/implementation-artifacts/`)
+- `evidence-c-clock-review/terminal/addendum-native-rerun.log`:
+  - a throwaway worktree holding exactly tree `db298107` (0 unstaged, 0 untracked);
+  - a fresh `--no-incremental` Debug build, 0 warnings;
+  - the clock, oscillator, presentation, editor, counter, isolation and parity classes, 222/222, rc 0, run 2026-10-23T15:46:53Z to 15:47:00Z.
+- `evidence-c-clock-review/terminal/run.json` and `build-job.log`: CI run 39978994324 on `ae3cacf9`, game 2628/2628.
+- `review-c-clock.md` and `evidence-c-clock-review/`: suite-first `ClockGuardTests` 56/56 on the record path at `14658883`, and the identity, old-save, cadence and mutation receipts.
+
+| Original claim (9.3 review) / retro-verification finding (18 Oct) | Corrected result with fresh evidence | Verdict |
+|---|---|---|
+| **W.** 5 pulses in 5.0 s (native only, old `ClockTests.cs:189`; Chrome ran 2.2 s/4.2 s to target 3) | **Native:** `ClockGuardTests.AOneSecondClockPulsesFiveTimesInFiveSecondsAtEachWholeSecondAndTheCounterCountsEach` runs the production engine and pulses exactly at ticks 120, 240, 360, 480 and 600 from committed memory rows, with no startup pulse; the counter counts each. `TheCountIsTheFloorOfTheTickOverTheIntervalAtEveryCadence` gives count = ⌊tick/interval⌋ over 7200 ticks for 0.1/1/12 s at 60/120/240 Hz. **Chrome:** `cat-017` test 6 asserts one committed pulse per 120 ticks over 5.3 s; it compiles under strict tsc but has not run in Chrome | Native **Pass**; Chrome pending |
+| **U.** Pause halts emission (`cat-017.test.ts:267` checked a ball, not the clock) | **Native:** `APauseAddsNoPulseAndNoPhaseAndResumeContinuesTheSpacing`: 240 Advances refused while Paused, the committed read unchanged (clock row included), and the resumed run tick-identical to an unpaused one. **Chrome:** the ball-only check is deleted; `cat-017` test 4 now asserts that a 2.0 s pause commits no tick and leaves the clock and counter rows unchanged (not yet run) | Native **Pass**; Chrome pending |
+| **U.** Reset restores phase 0 (`:278` checked the blade only) | **Native:** `ResetStopsTheClockAndTheNextRunPulsesFirstAtOneSecondIdentically`: the reset read equals the built read (Stopped, due 0, count 0), and the next Run's first pulse is at tick 120, every tick identical to the first run. **Chrome:** the blade-only check is deleted; `cat-017` test 4 asserts snapshot equality, then the first pulse at tick 120 (not yet run) | Native **Pass**; Chrome pending |
+| **W.** Construction with target 3, which the UI could not change | The clock's interval is now edited through the generic declared-parameter editor. `PalettePlacementTests.TheClockIntervalEditorShowsTheInstanceValueClampsIntoRangeAndAppliesAsOneUndo` drives the real Configure/Apply/Cancel controls: clamp at 13 and 0.05; NaN, Infinity and text refused; one Undo per Apply; Running, Paused and locked refused. The Counter target remains the Counter's own setting | **Pass** (native seam); UI Chrome pending |
+| **P.** No-supply and deadline power loss; interval range; Save/Load; Clock→Counter | Re-proven on the declared clock: `AnUnsuppliedClockStaysStoppedAndEmitsNothing`, `SupplyLostAtTheDeadlineSuppressesThePulseAndRestoreStartsAFreshInterval`, `AnIntervalOutsideItsAdmittedRangeIsRefusedAtConstruction`, `DeclaredOscillatorTests.AnIntervalOutsideItsRangeIsRefusedAtBothBoundaries`, `SaveAndLoadReplayIdentically` (0.1/1/12 s), and the counter in every 5-pulse bench | **Pass** |
+| **U.** Lamp flashes and pendulum (and X6: animation proofs ran through main-thread pumps) | Both are driven from the committed oscillator row through the declared bindings (`CommittedOscillatorPhase`/`CommittedOscillatorPulse`), evaluated by `WorkshopDeclaredPresentation`: `ThePendulumFollowsTheCommittedPhase`, `TheFaceFlashesOncePerCommittedPulse`, `ResetReturnsThePendulumToRestAndTheFaceToIdle`, and `DeclaredPresentationTests.CommittedClockRetainsHiddenAndSkippedFirstFrameAndResetCancelsIt`. The Chrome pixel/binding reads at known pulse ticks need a driver presentation read and are pending | Native **Pass**; Chrome pending |
+| **D.** The review cites four nonexistent files (`CuriousContraptions.tests/SystemClockTests.cs`, `elements/SystemClock/ClockState.cs`, `ClockRenderer.cs`, `ClockInspector.cs`), and a port, range and pulse width that do not match the code | Re-checked at `d28d1960`: none of the four files exists, so those claims remain false and are superseded by this addendum. The current facts are in `elements/SystemClock/SystemClockElementDeclaration.cs`:<br>• PowerIn Electrical input;<br>• Pulse ActivationOut;<br>• `interval_seconds` 0.1–12 s, default 1.0, Clamp, Build-only;<br>• `SignalOscillatorDescriptor("interval_seconds")`.<br>There is no pulse-width parameter: a pulse is one occurrence per interval | Corrected |
+
+**New verdict.** Every native clause of Story 9.3 is a fresh Pass. The AC "`tools/e2e/cat-017.test.ts` passes 100% in Chrome serially" is pending the post-catalogue E2E phase under the 21 Oct 2026 policy, so this record does **not** yet record a fresh terminal Pass for that clause. Story 9.3 stays `in-progress` until a Chrome run of `cat-017` (tests 1–7) records it.

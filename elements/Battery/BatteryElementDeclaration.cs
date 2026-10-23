@@ -63,10 +63,7 @@ public sealed class BatteryElementDeclaration : ISupplyElement, ISceneGeometryEl
         new(".", new(1f, 0.3f, 0f, 0.1f))
     ];
 
-    public IReadOnlyList<EventDescriptor> Events =>
-    [
-        new(SimulationEventKind.ElectricalPowered, "Voltage:f32;Current:f32")
-    ];
+    public IReadOnlyList<EventDescriptor> Events => [new(SimulationEventKind.ElectricalPowered)];
 
     public SimulationDomain SupportedDomains => SimulationDomain.Electrical;
 
