@@ -53,6 +53,17 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
         // State Latch's memory change), so each package must declare the kind the runtime publishes for it.
         Assert.Contains(packages["clock"].Events, descriptor => descriptor.EventKind == Abstractions.SimulationEventKind.TriggerActivated);
         Assert.Contains(packages["latch"].Events, descriptor => descriptor.EventKind == Abstractions.SimulationEventKind.LatchSet);
+        // C-Lamp+Detector: the lamp's declared indicator input selects its node, and the detector's declared f32 aperture is the
+        // compiled passage sensor's radius and rearm clearance, narrowed to the binary16 lanes bit-equal to the former record's
+        // (Half)0.65 and (Half)0.02.
+        Assert.Equal(Abstractions.PortSocket.ActivationIn, ((Abstractions.Signal.IIndicatorElement)packages["lamp"]).Indicator.Input);
+        var aperture = ((Abstractions.Signal.IPassageSensorElement)packages["ball_detector"]).Passage;
+        Assert.Equal((.65f, .02f), (aperture.ApertureRadius, aperture.RearmClearance));
+        var sensor = Assert.Single(WorkshopActivationCompiler.Compile(new WorkshopConstruction(new ConstructionRevision(1),
+            WorkshopCadenceSettings.Default(), new WorkshopInstances(Placed(PartId.BallDetector)))).PassageSensors.ToArray());
+        Assert.Equal(((ushort)0x3933, (ushort)0x251f), (BitConverter.HalfToUInt16Bits(sensor.Radius.Value), BitConverter.HalfToUInt16Bits(sensor.RearmClearance.Value)));
+        Assert.Equal((BitConverter.HalfToUInt16Bits((Half)0.65), BitConverter.HalfToUInt16Bits((Half)0.02)),
+            (BitConverter.HalfToUInt16Bits(sensor.Radius.Value), BitConverter.HalfToUInt16Bits(sensor.RearmClearance.Value)));
     }
 
     [Fact]
@@ -400,11 +411,9 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
         "wall" => WorkshopInput.Generic(PartId.Wall, Owner, 0, 3, 0, 0, 0, 0, 1),
         "battery" => PlacedParts.Battery(Owner, 0, 3, 0),
         "bumper" => WorkshopInput.Generic(PartId.PinballBumper, Owner, 0, 3, 0, 0, 0, 0, 1),
-        "lamp" => WorkshopInput.Lamp(Owner, 0, 3, 0, 0, 0, 0, 1),
         "domino" => WorkshopInput.Domino(Owner, 0, 3, 0, 0, 0, 0, 1),
-        "ball_detector" => WorkshopInput.BallDetector(Owner, 0, 3, 0, 0, 0, 0, 1),
         "pipe" => WorkshopInput.Pipe(Owner, 0, 3, 0, 0, 0, 0, 1),
-        "funnel" or "pipe_bend_45" or "pipe_bend_90" or "powered_gate" or "hold_timer" or "both_gate" or "electrical_nand" or "electrical_nor" or "electrical_or" or "electrical_xor" =>
+        "lamp" or "ball_detector" or "funnel" or "pipe_bend_45" or "pipe_bend_90" or "powered_gate" or "hold_timer" or "both_gate" or "electrical_nand" or "electrical_nor" or "electrical_or" or "electrical_xor" =>
             WorkshopInput.Generic(id, Owner, 0, 3, 0, 0, 0, 0, 1),
         "pressure_plate" => WorkshopInput.PressurePlate(Owner, 0, 3, 0, 0, 0, 0, 1, WorkshopPressurePlate.PlacedMinimumMass),
         "counter" => WorkshopInput.Counter(Owner, 0, 3, 0, 0, 0, 0, 1, WorkshopCounter.PlacedTargetCount),

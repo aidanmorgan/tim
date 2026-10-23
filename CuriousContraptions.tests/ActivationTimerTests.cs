@@ -10,7 +10,7 @@ public sealed class ActivationTimerTests
         var instances = new WorkshopInstances(
             WorkshopInput.Generic(PartId.Basketball,new(1),0,4,0,0,0,0,1),
             WorkshopInput.Generic(PartId.ImpactSwitch, new(2),0,2,0,0,0,0,1),
-            WorkshopInput.Lamp(new(3),3,1,0,0,0,0,1),
+            PlacedParts.Lamp(new(3),3,1,0,0,0,0,1),
             WorkshopInput.Generic(PartId.Delay, new(4), 2, 2, 0, 0, 0, 0, 1),
             WorkshopInput.Generic(PartId.ImpactSwitch, new(5),0,1,0,0,0,0,1));
         var links = new WorkshopConnections(Link(2,4),Link(5,4),Link(4,3));

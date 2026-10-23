@@ -239,7 +239,7 @@ public sealed class HoldTimerTests
         {
             WorkshopInput.Generic(PartId.Basketball,new(7),12,5.96f,0,0,0,0,1),
             WorkshopInput.Generic(PartId.ImpactSwitch, new(8),12,1,0,0,0,0,1),
-            WorkshopInput.Lamp(new(9),15,2,0,0,0,0,1)
+            PlacedParts.Lamp(new(9),15,2,0,0,0,0,1)
         }).ToArray();
         var baseline=original with {Instances=new(parts),Connections=original.Connections.With(Signal(6,9)).With(Signal(8,9))};
         static ActivationLatch Node(WorkshopRead read,ulong id)=>

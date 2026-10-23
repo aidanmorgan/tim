@@ -1,0 +1,107 @@
+using System.Globalization;
+using System.Security.Cryptography;
+using System.Text;
+using CuriousContraptions.Gpu;
+
+namespace CuriousContraptions.Tests;
+
+/// <summary>Independent reviewer probe (C-Lamp+Detector). Same source on base 54ffd9f0 (record adapter) and on the candidate.
+/// Writes to RLD_DIR: a 3D-rotated two-ball detector bench with a sticky lamp, a counter(2) lamp and a latch-fed level lamp
+/// (per-tick committed rows, compiled nodes and sensors), plus save and command encodings of it and of a bare lamp/detector.</summary>
+public sealed class ReviewerLampDetectorProbe
+{
+    private static string? Dir => Environment.GetEnvironmentVariable("RLD_DIR");
+    private static string Bits(float value) => BitConverter.SingleToUInt32Bits(value).ToString("x8", CultureInfo.InvariantCulture);
+    private static string Sha(byte[] bytes) => Convert.ToHexString(SHA256.HashData(bytes));
+
+    private static string Row(WorkshopRead read)
+    {
+        var text = new StringBuilder();
+        text.Append(CultureInfo.InvariantCulture, $"t={read.Tick.Value}");
+        for (var i = 0; i < read.Activations.Count; i++)
+        {
+            var a = read.Activations[i];
+            text.Append(CultureInfo.InvariantCulture, $" a[{a.Node.Value}/{a.Owner.Value} {a.Phase} {a.Kind} em={a.Emitter.Value} ord={a.EventOrdinal} ph={Bits(a.EventPhase)}]");
+        }
+        for (var i = 0; i < read.Memory.Count; i++)
+        {
+            var m = read.Memory[i];
+            text.Append(CultureInfo.InvariantCulture, $" m[{m.Node.Value} {m.Kind} n={m.Count} last={m.Last.Ordinal} {m.Phase}]");
+        }
+        for (var i = 0; i < read.Bodies.Count; i++)
+        {
+            var b = read.Bodies[i].Body;
+            text.Append(CultureInfo.InvariantCulture,
+                $" b[{b.Id.Value}] c={b.Cell.X},{b.Cell.Y},{b.Cell.Z} l={Bits((float)b.Local.X)},{Bits((float)b.Local.Y)},{Bits((float)b.Local.Z)} v={Bits((float)b.Velocity.X)},{Bits((float)b.Velocity.Y)},{Bits((float)b.Velocity.Z)}");
+        }
+        return text.ToString();
+    }
+
+    private static WorkshopConnection Signal(GpuBodyId source, GpuBodyId target, WorkshopSocket input = WorkshopSocket.ActivationIn) =>
+        new(source, WorkshopSocket.ActivationOut, target, input, WorkshopConnectionDomain.Activation);
+
+    private static WorkshopConstruction Bench()
+    {
+        var floor = (double)WorkshopConstruction.WorkbenchSurface.Value;
+        // local +X down (roll -90 deg about Z), then a 37 deg yaw about the vertical: a genuinely 3D frame.
+        var roll = System.Numerics.Quaternion.CreateFromAxisAngle(System.Numerics.Vector3.UnitZ, -MathF.PI / 2);
+        var yaw = System.Numerics.Quaternion.CreateFromAxisAngle(System.Numerics.Vector3.UnitY, 37 * MathF.PI / 180);
+        var q = System.Numerics.Quaternion.Normalize(yaw * roll);
+        var detector = PlacedParts.Detector(new(1), .3, floor + .9, -.2, q.X, q.Y, q.Z, q.W);
+        var lamp = PlacedParts.Lamp(new(2), 4, 1, 0, 0, 0, 0, 1);
+        var ballA = WorkshopInput.Generic(PartId.Basketball, new(3), .45, floor + 3.5, -.05, 0, 0, 0, 1);
+        var ballB = WorkshopInput.Generic(PartId.BowlingBall, new(4), .2, floor + 7, -.3, 0, 0, 0, 1);
+        var counter = WorkshopInput.Counter(new(5), -4, 1, 0, 0, 0, 0, 1, 2);
+        var counted = PlacedParts.Lamp(new(6), 4, 1, 3, 0, 0, 0, 1);
+        var latch = WorkshopInput.Latch(new(7), -4, 1, 4, 0, 0, 0, 1);
+        var level = PlacedParts.Lamp(new(8), 4, 1, 6, 0, 0, 0, 1);
+        return new(new(2), WorkshopCadenceSettings.Default(), new([detector, lamp, ballA, ballB, counter, counted, latch, level]),
+            Connections: new([Signal(detector.Id, lamp.Id), Signal(detector.Id, counter.Id), Signal(counter.Id, counted.Id),
+                Signal(detector.Id, latch.Id, WorkshopSocket.SetIn), Signal(latch.Id, level.Id)]));
+    }
+
+    [Fact]
+    public async Task Capture()
+    {
+        if (Dir is not { } dir) return;
+        var bench = Bench();
+        var network = WorkshopActivationCompiler.Compile(bench);
+        var lines = new List<string>();
+        foreach (var node in network.Nodes) lines.Add($"node {node}");
+        foreach (var sensor in network.PassageSensors)
+            lines.Add($"passage {sensor.Id.Value} frame={sensor.Frame.Value} cell={sensor.Cell} local={sensor.Local} rot={sensor.Rotation} " +
+                $"r={BitConverter.HalfToUInt16Bits(sensor.Radius.Value):x4} c={BitConverter.HalfToUInt16Bits(sensor.RearmClearance.Value):x4}");
+        var (built, reads, reset) = await NoFixedCapacityTests.RunAndReset(bench, 720);
+        lines.Add("built " + Row(built));
+        lines.AddRange(reads.Select(Row));
+        lines.Add("reset " + Row(reset));
+        await File.WriteAllLinesAsync(Path.Combine(dir, "reviewer-trace.txt"), lines, TestContext.Current.CancellationToken);
+        var floor = (double)WorkshopConstruction.WorkbenchSurface.Value;
+        var bare = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new([PlacedParts.Lamp(new(1), 1, 1, 1, 0, 0, 0, 1),
+            PlacedParts.Detector(new(2), -2, floor + 2, 0, 0, 0, 0, 1, locked: true)]));
+        var encodings = new List<string>();
+        foreach (var (name, construction) in new[] { ("bench", bench), ("bare", bare) })
+        {
+            var saveBytes = WorkshopSaveCodec.Encode(new WorkshopSavedConstruction(construction, new(9)));
+            await File.WriteAllBytesAsync(Path.Combine(dir, $"{name}.save.bin"), saveBytes, TestContext.Current.CancellationToken);
+            encodings.Add($"{name} save {Sha(saveBytes)}");
+            if (Environment.GetEnvironmentVariable("RLD_OTHER") is { } other)
+            {
+                var foreign = await File.ReadAllBytesAsync(Path.Combine(other, $"{name}.save.bin"), TestContext.Current.CancellationToken);
+                var mine = WorkshopSaveCodec.Decode(SaveFixture.Elements, saveBytes);
+                var theirs = WorkshopSaveCodec.Decode(SaveFixture.Elements, foreign);
+                encodings.Add($"{name} decode(other side's bytes) == decode(own bytes): {mine == theirs}; == authored: {mine.Construction == construction && theirs.Construction == construction}; " +
+                    $"types {string.Join(",", theirs.Construction.Instances.Select(instance => instance.GetType().Name))}");
+                var records = WorkshopSaveCodec.Open(foreign).Construction!.Value;
+                for (var i = 0; i < records.InstancesLength; i++)
+                    encodings.Add($"{name} other-record {i} part={records.Instances(i)!.Value.PartId} params={records.Instances(i)!.Value.ParametersLength} typed={WorkshopWireFlatBuffers.CarriesTypedField(records.Instances(i)!.Value)}");
+            }
+            encodings.Add($"{name} command {Sha(WorkshopWireFlatBuffers.EncodeCommand(new WorkshopCommand(new(1), WorkshopCommandKind.Construct, new(1), new(1),
+                construction, Session: new(1, 2), Cadence: new(1), Projection: new(1))))}");
+        }
+        var lit = reads.Select(read => string.Join(",", Enumerable.Range(0, read.Activations.Count)
+            .Where(i => read.Activations[i].Phase == ActivationPhase.Latched).Select(i => read.Activations[i].Owner.Value))).Distinct();
+        encodings.Add("lit-sets " + string.Join(" | ", lit));
+        await File.WriteAllLinesAsync(Path.Combine(dir, "reviewer-encodings.txt"), encodings, TestContext.Current.CancellationToken);
+    }
+}

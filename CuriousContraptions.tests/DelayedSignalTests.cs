@@ -52,7 +52,7 @@ public sealed class DelayedSignalTests
         Assert.Equal(new CellOrigin(-48,64,0), Payloads.First(construction).Cell);
         var trigger = construction.Instances.OfType<WorkshopGenericInstance>().Single(instance => instance.PartId == PartId.ImpactSwitch);
         Assert.Equal(new CellOrigin(-48,16,0), trigger.Cell);
-        Assert.Equal(new CellOrigin(48,16,0), construction.Instances.Find<WorkshopLamp>()!.Value.Cell);
+        Assert.Equal(new CellOrigin(48,16,0), construction.Instances.Single(instance => instance.PartId == PartId.SignalLamp).Cell);
         Assert.Equal((float)(Half)threshold, trigger.Parameters[new ParameterId("trigger_threshold")]);
         var scene = WorkshopPhysicsCompiler.Compile(construction, new(1,2));
         Assert.Equal(1,scene.Triggers.Length);

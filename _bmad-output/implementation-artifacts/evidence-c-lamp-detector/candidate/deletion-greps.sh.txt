@@ -1,0 +1,13 @@
+#!/bin/bash
+# C-Lamp+Detector deletion greps (spec "Deletions"), run from the worktree root. Each prints its hit count; 0 is the pass.
+# Production = everything outside _bmad-output/ and docs/ (planning citations are historical @sha evidence); tests are included.
+cd "$(dirname "$0")/../../../.." 2>/dev/null || true
+count() { local n; n=$("$@" 2>/dev/null | wc -l | tr -d ' '); echo "$n"; }
+X='--glob=!_bmad-output/** --glob=!docs/**'
+echo "1 rg -w WorkshopLamp|WorkshopBallDetector|LevelDrivesLampOnly|LampFollowsOneLevel (code and tests): $(count rg -n -w 'WorkshopLamp|WorkshopBallDetector|LevelDrivesLampOnly|LampFollowsOneLevel' $X .)"
+echo "2 rg WorkshopInput.(Lamp|BallDetector) (code and tests): $(count rg -n 'WorkshopInput\.(Lamp|BallDetector)\b' $X .)"
+echo "3 rg \"lamp\"|\"ball_detector\" in engine/gpu and engine/MachineWorld*.cs: $(count rg -n '"lamp"|"ball_detector"' engine/gpu engine/MachineWorld.cs engine/MachineWorld.Gpu.cs)"
+echo "4 rg (Half)0.65|(Half)0.02 in engine/gpu/ActivationNetwork.cs: $(count rg -n '\(Half\)0\.(65|02)' engine/gpu/ActivationNetwork.cs)"
+echo "5 git ls-files engine/gpu/WorkshopActivationParts.cs*: $(count git ls-files 'engine/gpu/WorkshopActivationParts.cs*')"
+echo "6 cat-002 any-target predicate (readAllAnimationSamples inside lights / all.some): $(count rg -n 'all\.some|all\.length >= 2' tools/e2e/cat-002.test.ts)"
+echo "7 isolation Known rows owned by Lamp or Detector: $(count rg -n '"Owner":"(Lamp|Detector)"' CuriousContraptions.tests/Fixtures/element-isolation-known.json)"

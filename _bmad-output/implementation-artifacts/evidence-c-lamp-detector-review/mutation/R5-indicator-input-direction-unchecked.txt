@@ -1,0 +1,19 @@
+mutant R5-indicator-input-direction-unchecked at 2026-10-23T09:51:57Z
+diff --git a/CuriousContraptions.Bundle/BundleValidator.cs b/CuriousContraptions.Bundle/BundleValidator.cs
+index 3fc97874..559077b0 100644
+--- a/CuriousContraptions.Bundle/BundleValidator.cs
++++ b/CuriousContraptions.Bundle/BundleValidator.cs
+@@ -575,7 +575,7 @@ public static class BundleValidator
+             {
+                 if (!Enum.IsDefined(indicator.Input)) Undefined("Indicator.Input");
+                 else if (!ports.Any(port => port.Socket == indicator.Input && port.Domain == SimulationDomain.Signal &&
+-                        port.Direction == PortDirection.Input && port.Signal == PortSignalKind.Level))
++                        port.Signal == PortSignalKind.Level))
+                     OutOfRange("Indicator.Input");
+             }
+             if (signal.Passage is { } passage)
+    0 Warning(s)
+    0 Error(s)
+build rc=0
+Passed!  - Failed:     0, Passed:   208, Skipped:     0, Total:   208, Duration: 5 s - CuriousContraptions.tests.dll (net10.0)
+Passed!  - Failed:     0, Passed:   164, Skipped:     0, Total:   164, Duration: 268 ms - BundleElements.Tests.dll (net10.0)

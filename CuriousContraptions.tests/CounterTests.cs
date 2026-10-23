@@ -177,8 +177,8 @@ public sealed class CounterTests(NativeSceneFixture godot)
     public void Connections_AcceptsValidActivationAndElectricalLinks()
     {
         var counter = WorkshopInput.Counter(new(1), 0, 0, 0, 0, 0, 0, 1, 3);
-        var detector = WorkshopInput.BallDetector(new(2), -2, 0, 0, 0, 0, 0, 1);
-        var lamp = WorkshopInput.Lamp(new(3), 2, 0, 0, 0, 0, 0, 1);
+        var detector = PlacedParts.Detector(new(2), -2, 0, 0, 0, 0, 0, 1);
+        var lamp = PlacedParts.Lamp(new(3), 2, 0, 0, 0, 0, 0, 1);
         var battery = PlacedParts.Battery(new(4), 0, -2, 0);
         var gate = WorkshopInput.Generic(PartId.PoweredGate, new(5), 0, 2, 0, 0, 0, 0, 1);
 
@@ -241,9 +241,9 @@ public sealed class CounterTests(NativeSceneFixture godot)
     [Fact]
     public void ActivationNetwork_CountingProgression_SingleEmission_AndSaturation()
     {
-        var detector = WorkshopInput.BallDetector(new(1), -2, 0, 0, 0, 0, 0, 1);
+        var detector = PlacedParts.Detector(new(1), -2, 0, 0, 0, 0, 0, 1);
         var counter = WorkshopInput.Counter(new(2), 0, 0, 0, 0, 0, 0, 1, 3);
-        var lamp = WorkshopInput.Lamp(new(3), 2, 0, 0, 0, 0, 0, 1);
+        var lamp = PlacedParts.Lamp(new(3), 2, 0, 0, 0, 0, 0, 1);
 
         var conn1 = new WorkshopConnection(detector.Id, WorkshopSocket.ActivationOut, counter.Id, WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation);
         var conn2 = new WorkshopConnection(counter.Id, WorkshopSocket.ActivationOut, lamp.Id, WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation);
@@ -326,7 +326,7 @@ public sealed class CounterTests(NativeSceneFixture godot)
     [Fact]
     public void CounterCount_LivesInTheCommittedCheckpoint_SupersededCandidateLeavesItUnchanged_AndResetClearsIt()
     {
-        var detector = WorkshopInput.BallDetector(new(1), -2, 0, 0, 0, 0, 0, 1);
+        var detector = PlacedParts.Detector(new(1), -2, 0, 0, 0, 0, 0, 1);
         var counter = WorkshopInput.Counter(new(2), 0, 0, 0, 0, 0, 0, 1, 3);
         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new([detector, counter]),
             Connections: new([new WorkshopConnection(detector.Id, WorkshopSocket.ActivationOut, counter.Id, WorkshopSocket.ActivationIn,

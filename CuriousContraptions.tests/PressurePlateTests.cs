@@ -722,7 +722,7 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
     // ---- Story 9R.5: the plate's level ActivationOut and its committed 0.1 s (12-tick) release hold ----
     private const int HoldTicks = 12; // ticks(0.1 s, 120 Hz); stated by the spec, not read back from the declaration under test
     private const string LevelRefusal = "A level output can only light a Signal lamp.";
-    private static WorkshopLamp LampAt(ulong id, double z = 0) => WorkshopInput.Lamp(new(id), 6, GateHeight, z, 0, 0, 0, 1);
+    private static IWorkshopInstance LampAt(ulong id, double z = 0) => PlacedParts.Lamp(new(id), 6, GateHeight, z, 0, 0, 0, 1);
     private static WorkshopConnection Signal(GpuBodyId source, GpuBodyId target, WorkshopSocket input = WorkshopSocket.ActivationIn) =>
         new(source, WorkshopSocket.ActivationOut, target, input, WorkshopConnectionDomain.Activation);
     private static bool Latched(PhysicsActivationRead values, GpuBodyId owner)
@@ -751,10 +751,10 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
         new WorkshopConnections(Signal(plate.Id, lamp.Id)).Validate(instances);
         foreach (var (target, input) in new[] { (counter.Id, WorkshopSocket.ActivationIn), (delay.Id, WorkshopSocket.ActivationIn),
                      (latch.Id, WorkshopSocket.SetIn), (latch.Id, WorkshopSocket.ResetIn) })
-            Assert.Equal(LevelRefusal, EditRefusal.Is(WorkshopEditRejection.LevelDrivesLampOnly,
+            Assert.Equal(LevelRefusal, EditRefusal.Is(WorkshopEditRejection.LevelDrivesLevelInputOnly,
                 () => new WorkshopConnections(Signal(plate.Id, target, input)).Validate(instances)).Message);
         // A lamp that follows the plate's level takes no other signal; a pulse source alone still drives a (sticky) lamp.
-        Assert.Equal("A lamp that follows a level output takes no other signal.", EditRefusal.Is(WorkshopEditRejection.LampFollowsOneLevel,
+        Assert.Equal("A lamp that follows a level output takes no other signal.", EditRefusal.Is(WorkshopEditRejection.LevelInputFollowsOneLevel,
             () => new WorkshopConnections(Signal(plate.Id, lamp.Id), Signal(hit.Id, lamp.Id)).Validate(instances)).Message);
         new WorkshopConnections(Signal(hit.Id, lamp.Id)).Validate(instances);
     }

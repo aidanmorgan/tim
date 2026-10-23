@@ -79,7 +79,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
             var construction=new WorkshopConstruction(new(2),WorkshopCadenceSettings.Default(),new(
                 WorkshopInput.Generic(PartId.ImpactSwitch,new(1),0,1,0,0,0,0,1),
                 WorkshopInput.Generic(PartId.PoweredGate,new(2),5,3,0,0,0,0,1),
-                WorkshopInput.Lamp(new(3),-3,2,0,0,0,0,1)));
+                PlacedParts.Lamp(new(3),-3,2,0,0,0,0,1)));
             await scene.World.ReplaceConstruction(construction);
             var source=scene.World.Parts.Single(part=>part.AuthoredId.Value==1);
             var gate=scene.World.Parts.Single(part=>part.AuthoredId.Value==2);
@@ -784,6 +784,104 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
             Assert.Empty(InvokeHandler(scene, "ApplyDeclaredParameters", Current().Id, values));
             Assert.Equal(locked, scene.World.Construction);
             Assert.Equal(commands, client.Commands.Count);
+            Assert.Empty(godot.Errors.Drain());
+        }
+        finally { Release(scene); }
+    }
+
+    // C-Lamp+Detector (9A.36/9A.37): the Signal lamp and the Ball detector placed through the drawer are their packages' generic
+    // instances with no parameters, so selecting one offers no Configure panel (control: the Impact switch editor above offers one)
+    // and the declared-parameter path refuses any value. A rotate and a move gesture each record one Undo, keep the generic
+    // instance and are undone by one Undo. Running, Paused and a locked part refuse an edit and send nothing.
+    [Theory]
+    [InlineData("lamp")]
+    [InlineData("ball_detector")]
+    public void ZeroParameterSignalPartsArePlacedGenericWithoutAPanelAndEditAsOneUndoPerGesture(string id)
+    {
+        var kind = new PartId(id);
+        var (scene, client) = BenchScene(kind, PlacementAnswer.Applied);
+        try
+        {
+            int Undos() => Field<List<WorkshopConstruction>>(scene, "_undo").Count;
+            WorkshopGenericInstance Current() => Assert.IsType<WorkshopGenericInstance>(Assert.Single(scene.World.Construction.Instances));
+            var undos = Undos();
+            Assert.Empty(ClickBench(scene));
+            Assert.Equal(undos + 1, Undos());
+            Assert.Equal((kind, 0), (Current().PartId, Current().Parameters.Count));
+            var choices = Field<VBoxContainer>(scene, "_connectionChoices");
+            static IEnumerable<T> Nodes<T>(Node parent) where T : Node =>
+                parent.GetChildren().SelectMany(child => new[] { child }.Concat(Nodes<Node>(child))).OfType<T>();
+            Assert.Empty(InvokeHandler(scene, "Select", Assert.Single(scene.World.Parts)));
+            Assert.DoesNotContain(Nodes<Button>(choices), button => button.Text == "Configure");
+            var placed = scene.World.Construction;
+            var commands = client.Commands.Count;
+            Assert.Empty(InvokeHandler(scene, "ApplyDeclaredParameters", Current().Id,
+                new InstanceParameterCollection([new(new ParameterId("radius"), .5f)])));
+            Assert.Equal((placed, commands, undos + 1), (scene.World.Construction, client.Commands.Count, Undos()));
+
+            var camera = Field<Camera3D>(scene, "_camera");
+            var gizmo = Field<RotationGizmo>(scene, "_rotationGizmo");
+            foreach (var (move, axis) in new[] { (false, 2), (true, 0) })
+            {
+                var part = Assert.Single(scene.World.Parts);
+                Assert.Empty(InvokeHandler(scene, "Select", part));
+                gizmo.SetMoveMode(move);
+                gizmo.Follow(part, true, camera);
+                var before = scene.World.Construction;
+                undos = Undos();
+                var handle = camera.UnprojectPosition(gizmo.HandlePosition(axis));
+                Assert.Empty(InvokeHandler(scene, "Click", handle));
+                Assert.True(gizmo.Dragging, move ? "move" : "rotate");
+                var along = camera.UnprojectPosition(part.GlobalPosition + Vector3.Right) - camera.UnprojectPosition(part.GlobalPosition);
+                Assert.True(gizmo.Drag(camera, handle + (move ? along * .5f : new Vector2(90, 90)), move));
+                Assert.Empty(InvokeHandler(scene, "EndGizmo", false));
+                Assert.Equal(undos + 1, Undos());
+                Assert.NotEqual(before.Instances, scene.World.Construction.Instances);
+                Assert.Equal((kind, 0, before.Instances[0].Id), (Current().PartId, Current().Parameters.Count, Current().Id));
+                Assert.Empty(InvokeHandler(scene, "Undo"));
+                Assert.Equal((before.Instances, undos), (scene.World.Construction.Instances, Undos()));
+            }
+
+            var accepted = scene.World.Construction;
+            commands = client.Commands.Count;
+            foreach (var phase in new[] { WorkshopSimulationPhase.Running, WorkshopSimulationPhase.Paused })
+            {
+                typeof(MachineWorld).GetProperty(nameof(MachineWorld.WorkshopPhase))!.SetValue(scene.World, phase);
+                Assert.Empty(InvokeHandler(scene, "ApplyDeclaredParameters", Current().Id, InstanceParameterCollection.Empty));
+                Assert.Equal(accepted, scene.World.Construction);
+            }
+            typeof(MachineWorld).GetProperty(nameof(MachineWorld.WorkshopPhase))!.SetValue(scene.World, WorkshopSimulationPhase.Building);
+            var locked = accepted with { Instances = new(Current() with { Locked = true }) };
+            typeof(MachineWorld).GetProperty(nameof(MachineWorld.Construction))!.SetValue(scene.World, locked);
+            Assert.Empty(InvokeHandler(scene, "ApplyDeclaredParameters", Current().Id, InstanceParameterCollection.Empty));
+            Assert.Equal((locked, commands), (scene.World.Construction, client.Commands.Count));
+            Assert.Empty(godot.Errors.Drain());
+        }
+        finally { Release(scene); }
+    }
+
+    // The detector placed beside a free pipe mouth snaps onto it (CAT-002 / CAT-048 typed mouths): its start mouth joins the pipe's
+    // end mouth 1.89 m from the pipe's centre, so the 0.28 m collar centres 0.05 m short of the clicked point, as one placement with
+    // one Undo.
+    [Fact]
+    public async Task ADetectorPlacedBesideAPipeMouthSnapsOntoItAsOneUndo()
+    {
+        var (scene, _) = BenchScene(PartId.BallDetector, PlacementAnswer.Applied);
+        try
+        {
+            var height = Mathf.Snapped((float)Field<Metres>(scene, "_placementHeight").Value, .1f);
+            var pipe = WorkshopInput.Pipe(new(1), -2.22, height, 0, 0, 0, 0, 1);
+            await scene.World.ReplaceConstruction(new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(pipe)));
+            SetField<PartId?>(scene, "_tool", PartId.BallDetector);
+            SetField(scene, "_nextId", new GpuBodyId(2));
+            var undos = Field<List<WorkshopConstruction>>(scene, "_undo").Count;
+            Assert.Empty(ClickBench(scene));
+            Assert.Equal(undos + 1, Field<List<WorkshopConstruction>>(scene, "_undo").Count);
+            var detector = Assert.IsType<WorkshopGenericInstance>(Assert.Single(scene.World.Construction.Instances, instance => instance.PartId == PartId.BallDetector));
+            var x = (detector.Cell.X + (double)detector.Local.X) / 16;
+            var y = (detector.Cell.Y + (double)detector.Local.Y) / 16;
+            Assert.True(Math.Abs(x + .05) < .001 && Math.Abs(y - height) < .001, $"snapped to ({x}, {y})");
+            Assert.Empty(detector.Parameters);
             Assert.Empty(godot.Errors.Drain());
         }
         finally { Release(scene); }

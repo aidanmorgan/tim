@@ -127,7 +127,7 @@ development_status:
   epic-7-retrospective: optional
 
   epic-8: in-progress
-  # reopened 18 Oct 2026 (retro-verification); closes via an addendum in 9a-39 (amended acceptance; Motor clause moved to 11-1)
+  # reopened 18 Oct 2026 (retro-verification); native addendum appended by 9a-39 (23 Oct 2026, Pass native at 54ffd9f0); stays in-progress until cat-005 passes in Chrome (post-catalogue E2E); Motor clause moved to 11-1
   8-1-battery-dc-power-source-network-graph: in-progress
   # weak Pass (retro-verification 18 Oct 2026); repaired by 9r-3; re-verified by addendum in 9a-c-gate
   8-2-powered-gate-passageway-barrier: done
@@ -310,19 +310,19 @@ development_status:
   epic-10: backlog
   10-1-solid-cylinder-collider-and-inertia: backlog
   # 34 (deletion)
-  9a-39-generic-instance-battery: review # native candidate on f27cb71d (worktree story-9a-39); browser pending
+  9a-39-generic-instance-battery: done # scoped native/publication Pass54ffd9; browser pending
   # 35 (element)
   10-2-pulley-wheel-tensile-rope-dynamics: backlog
   # 36 (deletion)
-  9a-c-lamp-detector-conversion: backlog
+  9a-c-lamp-detector-conversion: review # native candidate on 54ffd9f0 (worktree story-c-lamp-detector); browser pending
   # merged into 9a-c-lamp-detector (21 Oct 2026)
-  9a-36-generic-instance-signal-lamp: backlog
+  9a-36-generic-instance-signal-lamp: review # with 9a-c-lamp-detector-conversion
   # merged into 9a-c-lamp-detector (21 Oct 2026)
-  9a-37-generic-instance-ball-detector: backlog
+  9a-37-generic-instance-ball-detector: review # with 9a-c-lamp-detector-conversion
   # merged into 9a-c-lamp-detector (21 Oct 2026) as a suite-first guard
-  9r-9-ball-detector-forward-pass-assertion: backlog
+  9r-9-ball-detector-forward-pass-assertion: backlog # native guard green on record path and candidate; Chrome ACs pending (post-catalogue)
   # merged into 9a-c-lamp-detector (21 Oct 2026) as a suite-first guard
-  9r-16-cat-035-signal-lamp-suite: backlog
+  9r-16-cat-035-signal-lamp-suite: backlog # native guard green on record path and candidate; cat-035 authored post-catalogue
   # 37 (element)
   10-3-balanced-impact-lever-pivot-fulcrum: backlog
   # 38 (deletion)

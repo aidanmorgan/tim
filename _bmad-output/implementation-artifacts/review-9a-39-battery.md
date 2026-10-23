@@ -1,7 +1,7 @@
 ---
 title: "Review — 9A.39 generic instance Battery (CAT-005), independent adversarial review"
 candidate: "uncommitted worktree story-9a-39 on base f27cb71d; source identity (tracked diff excluding _bmad-output + untracked source sha256s) 4a635088bbff216ba78c1ac57c90795a8f530669e173109daeac6b002b8bcb0e, identical at review start and end"
-verdict: "Pass (native, required-now scope); SnapshotApproval granted for staged tree 524c33a3 on base f27cb71d (23 Oct 2026). Publication-dependent checks pending. Browser qualification pending post-catalogue E2E."
+verdict: "Terminal scoped native and publication Pass at 54ffd9f0 (23 Oct 2026); SnapshotApproval was granted for staged tree 524c33a3 on base f27cb71d. Browser qualification pending post-catalogue E2E."
 date: 2026-10-23
 ---
 
@@ -109,3 +109,28 @@ These follow publication and travel as carried receipts (the C-Gate pattern). Te
 - The spec's Current state and its SnapshotApproval → publication checkbox.
 - The Story 8.1 re-verification addendum (native only, browser pending).
 - The terminal publication-verification section of this record.
+
+## Terminal publication verification — 23 October 2026
+
+Raw outputs are in `evidence-9a-39-review/terminal/`.
+
+**Identities**
+- Slice commit: `5c33e2e6535343a56c026d6b4be4297d743264d2`, tree `9519fbfe9b30c71da8db8a52c60041198c1cfc5e`, parent `f27cb71d`.
+- Published merge (`--no-ff`): `54ffd9f072ffb34acaeeab02f152dabc43c8d71f`, parents `f27cb71d` and `5c33e2e6`, tree `9519fbfe…` (the same tree: main had not moved).
+- Remote: `origin/main` and `git ls-remote origin refs/heads/main` both return `54ffd9f0…`.
+
+| # | Publication-dependent check | Result | Raw |
+|---|---|---|---|
+| 1 | The commit tree equals the approved snapshot | **Pass.** `5c33e2e6^{tree}` = `9519fbfe`, the final staged tree reported with the approval. Against the approved tree `524c33a3` the only difference is this record (+27/−1, the SnapshotApproval append). Recomputed from `524c33a3`, the approved diff SHA-256 is `18f4b32d…`, as approved; with this record excluded, the approved and published diffs both hash to `59bd8bab…` | `identities.txt` |
+| 2 | Hooks | **Pass.** The coordinator reports they passed on the slice commit; no hook ran on the clean merge. I re-ran the repository pre-commit hook on the exact published tree: a throwaway worktree at `f27cb71d` with index `9519fbfe` (305 staged paths, the slice commit's staged delta). Three gate builds had 0 warnings and 0 errors; 67 Anvil snapshots, none blocking; `CSharpStaticGateTests` + `WorkshopUiFailureTests` 124/124; hook rc 0. Worktree removed | `hook-rerun.log` |
+| 3 | The merge tree equals the branch tree; remote main is the published merge | **Pass** | `identities.txt` |
+| 4 | Pages workflow on the exact SHA | **Pass.** Run 39926360416, "Build and deploy game", push, main, headSha `54ffd9f0`, success. Every build step succeeded: static gate, Test C# game, Test C# tools, publish, static-deployment check, upload; the deploy job succeeded. Totals: Test C# game **2441**; Test C# tools **77 / 163 / 17 / 174**. CI's tools step excludes the 15 toolchain tests by design (174 vs the local 189); the local 2441/163/77/189/17 was proven on the same source before approval | `run.json`, `build-job.log` |
+| 5 | Pages artifact ownership and deployment | **Pass.** Artifact `github-pages` id 12490491574 (digest `sha256:675172e4…`, 79,719,767 bytes, not expired) belongs to run 39926360416 at headSha `54ffd9f0` on main. The deploy job used `artifact_id` 12490491574 and created deployment 7274217610 for `54ffd9f0`. Its status went waiting → queued → in_progress → success with environment `https://aidanmorgan.github.io/tim/`. It is the newest `github-pages` deployment (the previous ones were f27cb71d and 8bfddc91). The site returns 200 for `/`, `/index.html`, `/_framework/dotnet.js` and `/404.html` | `artifact-deployment.txt`, `deployment-status.txt`, `deploy-job.log` |
+| 6 | Status rows | `9a-39-generic-instance-battery` set to `done` in this worktree; `8-1` stays in-progress (below) | — |
+| 7 | Browser cases | Still pending post-catalogue E2E: `cat-005`, `cat-005-n19`, `cat-051`, `cat-051-interrupt`, `cat-015b`, `cat-037`, `cat-051-own-supply` and the receiver capture suite, plus the listed visible UI changes | — |
+
+**Terminal verdict: scoped native and publication Pass at `54ffd9f0`.**
+- Browser qualification is pending post-catalogue E2E.
+- This is not a release, global-audit or runtime qualification.
+- `sprint-status.yaml` (this worktree, uncommitted as instructed): `9a-39-generic-instance-battery: done # scoped native/publication Pass54ffd9; browser pending`.
+- Story 8.1's closing addendum is appended to `review-8-1-battery.md` (native Pass, browser pending). Per the 9A.39 spec and the 9r-8/9r-11 precedent, `8-1` stays `in-progress` until `cat-005` passes in Chrome; its comment line now records the native addendum.

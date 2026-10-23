@@ -1,0 +1,23 @@
+mutant R7-aperture-doubled at 2026-10-23T09:53:03Z
+diff --git a/engine/gpu/ActivationNetwork.cs b/engine/gpu/ActivationNetwork.cs
+index 2cebae7c..7d500c38 100644
+--- a/engine/gpu/ActivationNetwork.cs
++++ b/engine/gpu/ActivationNetwork.cs
+@@ -895,6 +895,6 @@ public static class WorkshopActivationCompiler
+     {
+         ArgumentNullException.ThrowIfNull(owner);
+         return new(WorkshopPhysicsCompiler.PassageSensor(owner.Id), owner.Id, owner.Cell, owner.Local, owner.Rotation,
+-            new((Half)aperture.ApertureRadius), new((Half)aperture.RearmClearance));
++            new((Half)(aperture.ApertureRadius * 2f)), new((Half)aperture.RearmClearance));
+     }
+ }
+    0 Warning(s)
+    0 Error(s)
+build rc=0
+  Failed CuriousContraptions.Tests.BallDetectorTests.WorkshopPhysicsCompiler_CompilesBallDetectorAndActivationNetwork [5 ms]
+  Failed CuriousContraptions.Tests.PackageRuntimeParityTests.EverySignalDeclarationTheRuntimeReadsEqualsTheRuntime [5 ms]
+  Failed CuriousContraptions.Tests.DeclaredIndicatorPassageTests.ASyntheticApertureCompilesItsOwnRadiusAndClearance [1 ms]
+  Failed CuriousContraptions.Tests.DeclaredIndicatorPassageTests.ACrossingJustInsideTheBoreCountsAndJustOutsideDoesNot(offset: 0.660000026, expected: 0) [< 1 ms]
+  Failed CuriousContraptions.Tests.LampDetectorGuardTests.AGlancingCrossingOutsideTheApertureFiresNothing [27 ms]
+Failed!  - Failed:     5, Passed:   203, Skipped:     0, Total:   208, Duration: 5 s - CuriousContraptions.tests.dll (net10.0)
+Passed!  - Failed:     0, Passed:   164, Skipped:     0, Total:   164, Duration: 265 ms - BundleElements.Tests.dll (net10.0)

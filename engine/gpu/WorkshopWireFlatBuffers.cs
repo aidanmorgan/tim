@@ -622,7 +622,6 @@ public static class WorkshopWireFlatBuffers
                 case WorkshopPipe pipe:
                     InstanceRecord.AddLength(builder, pipe.Length.Metres);
                     break;
-                case WorkshopLamp:
                 case WorkshopLatch:
                 case IWorkshopDeclaredColliders:
                     break;
@@ -735,11 +734,9 @@ public static class WorkshopWireFlatBuffers
         IWorkshopInstance result = partId.Value switch
         {
             "domino" => MapDomino(inst, id, cell, local, rotation, locked),
-            "lamp" => new WorkshopLamp(id, cell, local, rotation, locked),
             "latch" => new WorkshopLatch(id, cell, local, rotation, locked),
             // A record without its length decodes the schema's 0, which validation rejects: no default replaces saved data.
             "pipe" => new WorkshopPipe(id, cell, local, rotation, new(inst.Length), locked),
-            "ball_detector" => new WorkshopBallDetector(id, cell, local, rotation, locked),
             // Declared settings are decoded as written; construction validation rejects a missing (zero) or out-of-range value.
             "pressure_plate" => new WorkshopPressurePlate(id, cell, local, rotation, inst.Threshold, locked),
             "counter" => new WorkshopCounter(id, cell, local, rotation, TargetCount(inst), locked),

@@ -98,7 +98,7 @@ public static class BundleValidator
             for (var i = 0; i < entry.Metadata.Parameters.Count; i++)
                 if (entry.Metadata.Parameters[i].RunEdit == ParameterRunEdit.RunControl && entry.Metadata.Parameters[i].Key != runControlled)
                     OutOfRange($"Metadata.Parameters[{i}].RunEdit");
-            if (entry.Signal is { } signal) Signal(signal, entry.Metadata.Parameters, entry.Ports);
+            if (entry.Signal is { } signal) Signal(signal, entry.Metadata.Parameters, entry.Ports, entry.Mechanical);
             if (entry.Fluid is { } fluid) Fluid(fluid);
         }
 
@@ -565,8 +565,30 @@ public static class BundleValidator
             return matches[0];
         }
 
-        private void Signal(SignalPayload signal, IReadOnlyList<ParameterDescriptor> parameters, IReadOnlyList<PortDescriptor> ports)
+        private void Signal(SignalPayload signal, IReadOnlyList<ParameterDescriptor> parameters, IReadOnlyList<PortDescriptor> ports,
+            MechanicalPayload? mechanical)
         {
+            // One node per element: at most one capability selects it.
+            if ((signal.Contact is null ? 0 : 1) + (signal.Timer is null ? 0 : 1) + (signal.Indicator is null ? 0 : 1) + (signal.Passage is null ? 0 : 1) > 1)
+                OutOfRange("Capability");
+            if (signal.Indicator is { } indicator)
+            {
+                if (!Enum.IsDefined(indicator.Input)) Undefined("Indicator.Input");
+                else if (!ports.Any(port => port.Socket == indicator.Input && port.Domain == SimulationDomain.Signal &&
+                        port.Direction == PortDirection.Input && port.Signal == PortSignalKind.Level))
+                    OutOfRange("Indicator.Input");
+            }
+            if (signal.Passage is { } passage)
+            {
+                if (Finite("Passage.ApertureRadius", passage.ApertureRadius) && !(passage.ApertureRadius >= .01f && passage.ApertureRadius <= 10f))
+                    OutOfRange("Passage.ApertureRadius");
+                if (Finite("Passage.RearmClearance", passage.RearmClearance) && !(passage.RearmClearance >= .001f && passage.RearmClearance <= 10f))
+                    OutOfRange("Passage.RearmClearance");
+                if (!ports.Any(port => port.Socket == PortSocket.ActivationOut && port.Domain == SimulationDomain.Signal && port.Direction == PortDirection.Output && port.Signal == PortSignalKind.Pulse))
+                    OutOfRange("Passage.Ports");
+                if (mechanical?.KinematicMode != KinematicMode.Static)
+                    OutOfRange("Passage.Frame");
+            }
             for (var i = 0; i < signal.Triggers.Count; i++)
             {
                 var trigger = signal.Triggers[i];

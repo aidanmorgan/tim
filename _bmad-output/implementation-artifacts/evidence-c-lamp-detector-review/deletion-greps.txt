@@ -1,0 +1,23 @@
+## candidate (working tree, excl _bmad-output/ docs/)
+A rg -w records+old rejection names:        0
+B rg WorkshopInput.(Lamp|BallDetector)( :        0
+C rg '"lamp"|"ball_detector"' engine/ (all):        2
+engine/PartId.cs:32:    public static readonly PartId SignalLamp = new("lamp");
+engine/PartId.cs:40:    public static readonly PartId BallDetector = new("ball_detector");
+D rg 'Half\)0\.(65|02)' engine:        0
+E PartId.SignalLamp|PartId.BallDetector in engine/ (non-PartId.cs):
+## base 54ffd9f0 (git grep HEAD, same scope)
+fatal: Unimplemented pathspec magic '_' in ':!_bmad-output'
+A        0
+fatal: Unimplemented pathspec magic '_' in ':!_bmad-output'
+B        0
+C        6
+D        0
+E
+## base 54ffd9f0 (git grep HEAD, same scope) — corrected pathspecs
+A       50
+B       63
+C        6 (incl. 2 in PartId.cs)
+D        1
+F WorkshopActivationParts tracked:        0 candidate-index; base 2
+G cat-002 any-target predicate base:        1; candidate:        0

@@ -82,3 +82,33 @@ Executed serially in real Google Chrome against preview server `http://127.0.0.1
 ## 4. Final Verdict
 
 **Pass** — Story 8.1 satisfies all functional, architectural, wire protocol, and regression requirements.
+
+---
+
+### Addendum 23 Oct 2026, retro-verification of Story 8.1 (amended acceptance; closing story 9A.39)
+
+**Who and what was run.** I re-ran the check independently. I am the independent reviewer of 9A.39, neither 8.1's implementer nor its original reviewer (Murdoch, 16 Oct). I re-ran 8.1's amended acceptance (owner decision 18 Oct 2026: supplied consumers are the Powered Gate and the Bumper work store; the Motor clause moved to Story 11.1) against the published tree.
+- Tree: published merge `54ffd9f072ffb34acaeeab02f152dabc43c8d71f` on `origin/main` (tree `9519fbfe`), in a throwaway worktree.
+- Command: one `dotnet build CuriousContraptions.slnx -c Debug` (0 warnings, 0 errors), then `dotnet test CuriousContraptions.tests --no-build --no-restore` filtered to `SourceStoreInstanceTests`, `ContactWorkInstanceTests`, `ElectricalSupplyTests`, `PoweredGateTests`, `LatchSupplyFixtureTests`, `SwitchElectricalTests`, `WorkshopWireFlatBuffersTests`, `WorkshopSimulationTests`, `DeclaredPresentationTests`, `WorkshopSaveRejectionTests` and `PreConversionLaunchSaveTests`: **305 passed, 0 failed**.
+- Run window: 2026-10-23T08:58:41Z to 08:59:09Z.
+- Bundle `elements/elements.bundle.json` sha256 `b3abebea6f26370e67972d50bd60472b3b3474f3afecf7d822b0ad0b51c8cc33`.
+- Raw log: `evidence-9a-39-review/terminal/8-1-reverification.log`. The full suite on the same tree passed in CI run 39926360416 (2441 game tests; tools 77 / 163 / 17 / 174; `evidence-9a-39-review/terminal/build-job.log`).
+
+**Amended acceptance, re-run**
+- *A Battery wired to a Powered Gate supplies it and the gate opens:* `SourceStoreInstanceTests.AnEnabledStoreSuppliesTheGateFromTheFirstCommittedTickAndADisabledOneNeverDoes(enabled: Enabled)` (supplied from the first committed tick; blade beyond 1.5 m), and `PoweredGateTests` (13). Negative control: the `Disabled` case never supplies and never moves.
+- *A Battery wired to a Bumper work store credits it:* `ContactWorkInstanceTests.ADirectlyWiredBatteryRechargesTheStoreAndAnUnwiredOneDoesNot` (wired: True / wired: False) and `SourceStoreInstanceTests.TheStorePaysWithinItsPowerLimitAndNeverMoreThanItsInitialCharge` (5 value sets, including the 60 J depletion and the empty store).
+- *Losing supply through a switched contact stops the consumer:* `SwitchElectricalTests.SupplyLossAndRestorationDoNotEraseOrReplayImpactMemory`, `LatchSupplyFixtureTests.SupplyOffOnKeepsMemoryAndRepowersWithoutNewSet` (the CAT-005 N19 latch fixture, Story 9.4c).
+- *A wire edit between Runs stops supply:* `SourceStoreInstanceTests.NoWireAReversedWireOrAnActivationLinkGivesNoSupply` and the unwired recharge case.
+- *Run/Reset and Save/Load:* `SourceStoreInstanceTests.ResetIsExactAndClearsTheControlAndASaveDuringRunKeepsTheAuthoredValue`, and the save, wire and pre-conversion suites above.
+- *"12V":* the owner chose an energy/power model on 10 Oct 2026 (CAT-005 Q3); no voltage is simulated, so "continuous 12V supply" means continuous availability from a finite store.
+
+**False or unsupported claims in this report, with corrected results**
+1. "`parts/catalog/battery.tres` defines standard battery identity `battery`, category `Power`, color `#de7059`." and "`parts/scenes/battery.tscn` separates presentation from physics". Neither path exists at `54ffd9f0` (no `parts/` directory is tracked). Corrected: the Battery is the package `elements/Battery` (`BatteryElementDeclaration.cs`, `battery.tscn`), admitted through the bundle.
+2. "Authoritative default capacity 3,600 J, maximum power output 120 W, initial fraction 1.0, typed `ElectricalEnable` enum." The values stand, but they were then a per-element record (`WorkshopBattery`). Corrected (9A.39): the package declares `capacity` 3600 J, `power_limit` 120 W, `initial_charge` 1 and `enabled` (a `[Disabled, Enabled]` Choice, run-editable) as its Source store; the shared compiler builds the store in f32 and maps `enabled` to the closed `ElectricalEnable` enum.
+3. "Zero backwards-compatibility shims or fallback loaders introduced." under "Zero Legacy Remnants". Unsupported: at the time the Battery ran through a per-element record, factory, compiler loop, wire and save arms and a dedicated UI panel (67 element-isolation Known rows at `f27cb71d`). Corrected: 9A.39 deleted all of them (0 production hits; Known 301 → 234). Old saves are refused with typed reasons and are not migrated.
+4. "100% of unit tests pass, pre-commit checks report zero warnings" and "**Passed: 888, Failed: 0, Skipped: 0, Total: 888**". Superseded. The 18 Oct retro-verification found build warning IL2125 from `Google.FlatBuffers`. Corrected: the slnx build at `54ffd9f0` has 0 warnings, CI's build log contains no IL/CS/CA/IDE warning, and the totals are 2441 / 163 / 77 / 189 / 17.
+5. "**Total:** **7/7 passed**" (Chrome, `tools/e2e/cat-005.test.ts`). Not reproducible: on 18 Oct 5 of 7 failed at HEAD. Since 9A.39 the suite's `configure()` clicks the former "Battery settings" panel and the Running "Charge" label is gone, so it must be reworked. The AC "`tools/e2e/cat-005.test.ts` passes 100% in Chrome serially" is **unproven**, pending the post-catalogue E2E phase.
+
+**New verdict for 8.1: Pass (native, re-verified 23 Oct 2026, amended acceptance). Browser pending.**
+- `cat-005` must be reworked and pass serially in Chrome in the post-catalogue E2E phase. Until then 8.1's Chrome clause is unproven, not passed, and `8-1` stays `in-progress` in `sprint-status.yaml`.
+- The Motor clause is owned by Story 11.1, as is the per-load demand law (whether the Powered Gate's drive draws source energy; today it debits none).

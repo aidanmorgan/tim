@@ -1,0 +1,7 @@
+CuriousContraptions.tests/Fixtures/element-isolation-known.json (counted with: awk '/"Known"/{s="K"} /"Generic"/{s="G"} /"File"/{c[s]++}')
+base 54ffd9f0: Known 234 (Owner Lamp 17, Owner Detector 10), Generic 529
+candidate:     Known 207 (Owner Lamp 0, Owner Detector 0),  Generic 529
+git diff --numstat: 0 added, 27 deleted. No row added or reassigned; the 4 FinalIsolation PartId rows (PartId.SignalLamp, PartId.BallDetector)
+stay, as do the Owner.Lamp and Owner.Detector enum members of the ratchet.
+ElementIsolationTests.ProductionKnowledgeIsExactlyTheOwnedShrinkingList: on the candidate before the fixture edit it reported exactly
+these 27 rows stale (actual 0) and no new row; after the edit it passes (candidate/freeze-test.txt).

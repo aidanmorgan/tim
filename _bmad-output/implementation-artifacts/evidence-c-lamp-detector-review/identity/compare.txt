@@ -1,0 +1,15 @@
+IDENTICAL lesson-world.txt =implementer-baseline       36 lines
+DIFFERS old-save-outcomes.txt =implementer-baseline       50 lines
+IDENTICAL placed-solutions.txt =implementer-baseline       36 lines
+DIFFERS reviewer-encodings.txt (reviewer-only)        5 lines
+IDENTICAL reviewer-trace.txt (reviewer-only)      729 lines
+IDENTICAL trace-delay-lamp.txt =implementer-baseline      518 lines
+IDENTICAL trace-domino-lamp.txt =implementer-baseline      516 lines
+IDENTICAL trace-glancing.txt =implementer-baseline      521 lines
+IDENTICAL trace-latch-lamp.txt =implementer-baseline      522 lines
+IDENTICAL trace-plate-lamp.txt =implementer-baseline      516 lines
+IDENTICAL trace-r9-counter2.txt =implementer-baseline      521 lines
+IDENTICAL trace-r9-counter3.txt =implementer-baseline      521 lines
+IDENTICAL trace-reverse.txt =implementer-baseline      521 lines
+IDENTICAL trace-rotated-20.txt =implementer-baseline      517 lines
+IDENTICAL trace-switch-lamp.txt =implementer-baseline      517 lines

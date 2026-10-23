@@ -1,0 +1,8 @@
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:   217, Skipped:     0, Total:   217, Duration: 2 s - CuriousContraptions.tests.dll (net10.0)
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-lamp-detector/tools/BundleElements.Tests/bin/Debug/net10.0/BundleElements.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:   164, Skipped:     0, Total:   164, Duration: 274 ms - BundleElements.Tests.dll (net10.0)

@@ -1,0 +1,16 @@
+1 rg -w WorkshopLamp|WorkshopBallDetector|LevelDrivesLampOnly|LampFollowsOneLevel (code and tests): 0
+2 rg WorkshopInput.(Lamp|BallDetector) (code and tests): 0
+3 rg "lamp"|"ball_detector" in engine/gpu and engine/MachineWorld*.cs: 0
+4 rg (Half)0.65|(Half)0.02 in engine/gpu/ActivationNetwork.cs: 0
+5 git ls-files engine/gpu/WorkshopActivationParts.cs*: 0
+6 cat-002 any-target predicate (readAllAnimationSamples inside lights / all.some): 0
+7 isolation Known rows owned by Lamp or Detector: 0
+--- positive control on base 54ffd9f0 (git grep of HEAD blobs; same patterns)
+1       50
+2        0
+3        4
+4        1
+5 2
+6        1
+7       27
+2' (git grep -E has no ; pattern with '(' instead)       63; candidate same pattern:        0

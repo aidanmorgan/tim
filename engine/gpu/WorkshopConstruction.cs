@@ -76,23 +76,6 @@ public static class WorkshopInput
             CanonicalRotation.Normalize(Rotation(qx), Rotation(qy), Rotation(qz), Rotation(qw)), DominoMaterial.Default);
         result.Validate(); return result;
     }
-    public static WorkshopLamp Lamp(GpuBodyId id, double x, double y, double z,
-        double qx, double qy, double qz, double qw)
-    {
-        var px = Position(x); var py = Position(y); var pz = Position(z);
-        var result = new WorkshopLamp(id, new(px.Cell, py.Cell, pz.Cell), new(px.Local, py.Local, pz.Local),
-            CanonicalRotation.Normalize(Rotation(qx), Rotation(qy), Rotation(qz), Rotation(qw)));
-        result.Validate(); return result;
-    }
-    public static WorkshopBallDetector BallDetector(GpuBodyId id, double x, double y, double z,
-        double qx, double qy, double qz, double qw, bool locked = false)
-    {
-        var px = Position(x); var py = Position(y); var pz = Position(z);
-        var result = new WorkshopBallDetector(id, new(px.Cell, py.Cell, pz.Cell), new(px.Local, py.Local, pz.Local),
-            CanonicalRotation.Normalize(Rotation(qx), Rotation(qy), Rotation(qz), Rotation(qw)),
-            locked);
-        result.Validate(); return result;
-    }
     public static WorkshopPressurePlate PressurePlate(GpuBodyId id, double x, double y, double z,
         double qx, double qy, double qz, double qw, float minimumMass, bool locked = false)
     {

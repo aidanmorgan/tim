@@ -7,8 +7,9 @@ using CuriousContraptions.Abstractions.Signal;
 namespace CuriousContraptions.Gpu;
 
 public readonly record struct ActivationNodeId(ulong Value);
-/// <summary>StickyFirstInput is the Signal lamp's first-input-wins hold (never reset within a run); StateLatch is the bistable
-/// Set/Reset memory (CAT-037); LevelIndicator is a Signal lamp driven by a level ActivationOut (latch or plate), mirroring it.
+/// <summary>StickyFirstInput is a declared indicator's first-input-wins hold (never reset within a run); StateLatch is the bistable
+/// Set/Reset memory (CAT-037); LevelIndicator is a declared indicator whose input is wired from a level ActivationOut (latch or
+/// plate), mirroring it. PassageSource is a declared passage aperture's crossing pulse.
 /// ContactLoadSource is a contact-load row's committed level (Story 9R.4 D3): Latched from its first Loaded tick until its
 /// committed release hold (Story 9R.5, ReleaseHoldTicks after the last Loaded tick) expires.
 /// The kinds are distinct and share no name.</summary>
@@ -832,12 +833,8 @@ public static class WorkshopActivationCompiler
         {
             if (instance is WorkshopGenericInstance && DeclaredPhysics.Of(instance.PartId).Signal?.Contact is not null)
                 nodes.Add(new(new(instance.Id.Value), instance.Id, ActivationNodeKind.ContactSource, WorkshopPhysicsCompiler.ContactTrigger(instance.Id)));
-            // A lamp fed by a declared level output follows that level; otherwise it holds its first pulse.
-            else if (instance is WorkshopLamp lamp)
-                nodes.Add(new(new(lamp.Id.Value), lamp.Id, construction.Connections.Any(link => link.Domain == WorkshopConnectionDomain.Activation &&
-                    link.Target == lamp.Id && construction.Instances.Any(source => source.Id == link.Source &&
-                        DeclaredPorts.Current.Signal(source.PartId, link.Output, WorkshopPortDirection.Output) == WorkshopSignalKind.Level))
-                    ? ActivationNodeKind.LevelIndicator : ActivationNodeKind.StickyFirstInput, default));
+            else if (instance is WorkshopGenericInstance && DeclaredPhysics.Of(instance.PartId).Signal?.Indicator is { } indicator)
+                nodes.Add(new(new(instance.Id.Value), instance.Id, IndicatorKind(instance.Id, indicator, construction), default));
             else if (instance is WorkshopGenericInstance generic && DeclaredPhysics.Of(instance.PartId).Signal?.Timer is { } timer)
                 nodes.Add(new(new(instance.Id.Value), instance.Id, ActivationNodeKind.Timer, default,
                     ActivationTimerDeclaration.Duration(generic.Parameters[new ParameterId(timer.DurationParameter)], construction.Settings.Simulation),
@@ -845,11 +842,11 @@ public static class WorkshopActivationCompiler
             // A Domino owns a node only while wired: its orientation sensor compiles under the same condition.
             else if (instance is WorkshopDomino domino && construction.Connections.HasSource(domino.Id))
                 nodes.Add(new(new(domino.Id.Value), domino.Id, ActivationNodeKind.OrientationSource, default, 0, WorkshopPhysicsCompiler.OrientationSensor(domino.Id)));
-            else if (instance is WorkshopBallDetector detector)
+            else if (instance is WorkshopGenericInstance && DeclaredPhysics.Of(instance.PartId).Signal?.Passage is { } aperture)
             {
-                var sensorId = WorkshopPhysicsCompiler.PassageSensor(detector.Id);
-                nodes.Add(new(new(detector.Id.Value), detector.Id, ActivationNodeKind.PassageSource, default, 0, default, sensorId));
-                passageSensors.Add(new(sensorId, detector.Id, detector.Cell, detector.Local, detector.Rotation, new((Half)0.65), new((Half)0.02)));
+                var sensor = PassageSensorFor(instance, aperture);
+                nodes.Add(new(new(instance.Id.Value), instance.Id, ActivationNodeKind.PassageSource, default, 0, default, sensor.Id));
+                passageSensors.Add(sensor);
             }
             else if (instance is WorkshopCounter counter)
                 nodes.Add(new(new(counter.Id.Value), counter.Id, ActivationNodeKind.Counter, default, 0, default, default, (uint)counter.TargetCount));
@@ -879,5 +876,25 @@ public static class WorkshopActivationCompiler
             construction.Settings.Physical, new(1)).Substeps, passageSensors.ToArray(),
             construction.Instances.Where(instance => DeclaredPhysics.Of(instance.PartId).Electrical?.Supply?.Kind ==
                 CuriousContraptions.Abstractions.Electrical.SupplyCapabilityKind.SwitchedContact).Select(instance=>instance.Id).ToArray());
+    }
+
+    /// <summary>The node a declared indicator compiles to: an Activation link into its declared input from a level output makes it
+    /// follow that level (LevelIndicator); any other wiring, or none, holds its first input (StickyFirstInput).</summary>
+    public static ActivationNodeKind IndicatorKind(GpuBodyId owner, SignalIndicatorDescriptor indicator, WorkshopConstruction construction)
+    {
+        var input = ElementPortCatalogue.Socket(indicator.Input);
+        return construction.Connections.Any(link => link.Domain == WorkshopConnectionDomain.Activation &&
+            link.Target == owner && link.Input == input && construction.Instances.Any(source => source.Id == link.Source &&
+                DeclaredPorts.Current.Signal(source.PartId, link.Output, WorkshopPortDirection.Output) == WorkshopSignalKind.Level))
+            ? ActivationNodeKind.LevelIndicator : ActivationNodeKind.StickyFirstInput;
+    }
+
+    /// <summary>The passage sensor a declared aperture compiles to on its owner's frame. The f32 radius and clearance narrow to the
+    /// sensor's binary16 lanes here (Story 9A.44 widens the lanes).</summary>
+    public static PassageSensorDeclaration PassageSensorFor(IWorkshopInstance owner, SignalPassageDescriptor aperture)
+    {
+        ArgumentNullException.ThrowIfNull(owner);
+        return new(WorkshopPhysicsCompiler.PassageSensor(owner.Id), owner.Id, owner.Cell, owner.Local, owner.Rotation,
+            new((Half)aperture.ApertureRadius), new((Half)aperture.RearmClearance));
     }
 }

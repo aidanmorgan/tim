@@ -19,10 +19,10 @@ public enum WorkshopEditRejection : uint
     SaveSettingsMismatch,
     /// <summary>A connection is duplicated or does not join matching declared ports.</summary>
     InvalidConnection,
-    /// <summary>A level output (State Latch, Pressure Plate) may light only a Signal lamp.</summary>
-    LevelDrivesLampOnly,
-    /// <summary>A lamp that follows a level output takes no other signal.</summary>
-    LampFollowsOneLevel,
+    /// <summary>A level output (State Latch, Pressure Plate) may drive only an input that admits a level.</summary>
+    LevelDrivesLevelInputOnly,
+    /// <summary>An input that follows a level output takes no other signal.</summary>
+    LevelInputFollowsOneLevel,
     /// <summary>The power input already has a supplier.</summary>
     PowerInputSupplied,
     /// <summary>The puzzle's inventory is used up.</summary>

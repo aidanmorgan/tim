@@ -1,0 +1,17 @@
+bench save D4E8603C44751C8F4647985567E9A331FDAC4961771E29EA79152AE1B26E94F2
+bench decode(other side's bytes) == decode(own bytes): True; == authored: True; types WorkshopGenericInstance,WorkshopGenericInstance,WorkshopGenericInstance,WorkshopGenericInstance,WorkshopCounter,WorkshopGenericInstance,WorkshopLatch,WorkshopGenericInstance
+bench other-record 0 part=ball_detector params=0 typed=False
+bench other-record 1 part=lamp params=0 typed=False
+bench other-record 2 part=ball params=0 typed=False
+bench other-record 3 part=bowling params=0 typed=False
+bench other-record 4 part=counter params=0 typed=True
+bench other-record 5 part=lamp params=0 typed=False
+bench other-record 6 part=latch params=0 typed=False
+bench other-record 7 part=lamp params=0 typed=False
+bench command BCC08D60DA64CA56096A8999052B4DF3F1287FA4DAE43B34AB3D7C80EFA4C498
+bare save 3C90871672481CA84AE18255EE1F501D1D1E789E3FDD481299C98E4510A771CA
+bare decode(other side's bytes) == decode(own bytes): True; == authored: True; types WorkshopGenericInstance,WorkshopGenericInstance
+bare other-record 0 part=lamp params=0 typed=False
+bare other-record 1 part=ball_detector params=0 typed=False
+bare command 8B7110D8CF0082218731351EDA93BDA35E33CEC5FA2C4BDB2792661DCC9BE2DE
+lit-sets  | 1,2,7,8 | 1,2,5,6,7,8

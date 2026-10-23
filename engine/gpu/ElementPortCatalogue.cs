@@ -102,7 +102,7 @@ public sealed class ElementPortCatalogue : IEquatable<ElementPortCatalogue>
             PortDirection.Output => WorkshopPortDirection.Output,
             _ => throw Refused(ElementPortRejection.UnsupportedDirection, element, index, $"declares the direction {port.Direction}, which the engine does not connect")
         };
-        var socket = (WorkshopSocket)(uint)port.Socket;
+        var socket = Socket(port.Socket);
         if (Own(socket) != (domain, direction))
             throw Refused(ElementPortRejection.SocketDisagrees, element, index, $"declares {port.Socket} as {port.Domain} {port.Direction}");
         WorkshopSignalKind? signal = (domain, port.Signal) switch
@@ -127,6 +127,11 @@ public sealed class ElementPortCatalogue : IEquatable<ElementPortCatalogue>
         WorkshopSocket.PowerIn or WorkshopSocket.FirstIn or WorkshopSocket.SecondIn => (WorkshopConnectionDomain.Electrical, WorkshopPortDirection.Input),
         _ => throw new ArgumentOutOfRangeException(nameof(socket), socket, "Undefined socket.")
     };
+
+    /// <summary>The engine socket a declared port socket names: the two closed sets share their values. An undefined one is refused.</summary>
+    public static WorkshopSocket Socket(PortSocket socket) => Enum.IsDefined(socket)
+        ? (WorkshopSocket)(uint)socket
+        : throw new ArgumentOutOfRangeException(nameof(socket), socket, "Undefined socket.");
 
     private static ElementPortRejectedException Refused(ElementPortRejection reason, PartId element, int index, string detail) =>
         new(reason, $"'{element}'.Ports[{index}] {detail}.");

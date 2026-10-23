@@ -1,0 +1,56 @@
+54ffd9f072ffb34acaeeab02f152dabc43c8d71f
+ M CuriousContraptions.Abstractions.Signal/SignalContracts.cs
+ M CuriousContraptions.Bundle/BundleSchema.cs
+ M CuriousContraptions.Bundle/BundleValidator.cs
+ M CuriousContraptions.tests/ActivationTimerTests.cs
+ M CuriousContraptions.tests/BallDetectorTests.cs
+ M CuriousContraptions.tests/BundlePortsTests.cs
+ M CuriousContraptions.tests/CompiledMemoryLayoutTests.cs
+ M CuriousContraptions.tests/ContactActivationTests.cs
+ M CuriousContraptions.tests/CounterTests.cs
+ M CuriousContraptions.tests/CuriousContraptions.tests.csproj
+ M CuriousContraptions.tests/DeclaredPresentationTests.cs
+ M CuriousContraptions.tests/DelayedSignalTests.cs
+ M CuriousContraptions.tests/DominoEffectTests.cs
+ M CuriousContraptions.tests/Fixtures/element-isolation-known.json
+ M CuriousContraptions.tests/HoldTimerTests.cs
+ M CuriousContraptions.tests/LatchSupplyFixtureTests.cs
+ M CuriousContraptions.tests/NoFixedCapacityTests.cs
+ M CuriousContraptions.tests/OrientationSensorTests.cs
+ M CuriousContraptions.tests/PackageRuntimeParityTests.cs
+ M CuriousContraptions.tests/PalettePlacementTests.cs
+ M CuriousContraptions.tests/PlacedParts.cs
+ M CuriousContraptions.tests/PressurePlateTests.cs
+ M CuriousContraptions.tests/StateLatchTests.cs
+ M CuriousContraptions.tests/SwitchElectricalTests.cs
+ M CuriousContraptions.tests/WorkbenchCapacityTests.cs
+ M CuriousContraptions.tests/WorkshopDelayTests.cs
+ M CuriousContraptions.tests/WorkshopGpuDeviceTests.cs
+ M CuriousContraptions.tests/WorkshopSaveRejectionTests.cs
+ M CuriousContraptions.tests/WorkshopSaveTests.cs
+ M CuriousContraptions.tests/WorkshopWallTests.cs
+ M CuriousContraptions.tests/WorkshopWireFlatBuffersTests.cs
+ M docs/architecture/element-package-isolation.md
+ M docs/planning/elements/CAT-002-ball_detector.md
+ M docs/planning/elements/CAT-035-lamp.md
+ M elements/BallDetector/BallDetectorElementDeclaration.cs
+ M elements/SignalLamp/SignalLampElementDeclaration.cs
+ M engine/MachineWorld.Gpu.cs
+ M engine/gpu/ActivationNetwork.cs
+ M engine/gpu/ElementPortCatalogue.cs
+D  engine/gpu/WorkshopActivationParts.cs
+D  engine/gpu/WorkshopActivationParts.cs.uid
+ M engine/gpu/WorkshopConnections.cs
+ M engine/gpu/WorkshopConstruction.cs
+ M engine/gpu/WorkshopEditRejectedException.cs
+ M engine/gpu/WorkshopInstances.cs
+ M engine/gpu/WorkshopWireFlatBuffers.cs
+ M tools/BundleElements.Tests/BundleRoundTripTests.cs
+ M tools/BundleElements.Tests/BundleValidatorTests.cs
+ M tools/e2e/cat-002.test.ts
+?? CuriousContraptions.tests/DeclaredIndicatorPassageTests.cs
+?? CuriousContraptions.tests/LampDetectorGuardTests.cs
+tracked diff sha256 (excluding _bmad-output): 4071c0c3138f6c9d0f1f75e82b21aaa020c4dd60d6c681674c18c3c450187a33  -
+1859953691cd2b966905dda4bda83a516a6d690516dd3c731ffb41411f11cb3f  CuriousContraptions.tests/LampDetectorGuardTests.cs
+c0f532df457b8f15ab917525d445e69d22ba509b18ce46e1ffed7aec76694f51  CuriousContraptions.tests/DeclaredIndicatorPassageTests.cs
+ls: CuriousContraptions.web/AppBundle: No such file or directory

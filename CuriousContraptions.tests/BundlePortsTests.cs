@@ -273,7 +273,7 @@ public sealed class BundlePortsTests
             () => Validate(new(new(1), WorkshopSocket.ActivationOut, new(7), WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation)));
         // The declared level kinds still decide: the latch's level output lights only a Signal lamp.
         Validate(new(new(5), WorkshopSocket.ActivationOut, new(6), WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation));
-        EditRefusal.Is(WorkshopEditRejection.LevelDrivesLampOnly,
+        EditRefusal.Is(WorkshopEditRejection.LevelDrivesLevelInputOnly,
             () => Validate(new(new(5), WorkshopSocket.ActivationOut, new(2), WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation)));
     }
 

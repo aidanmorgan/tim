@@ -1,0 +1,16 @@
+tsc: /Users/aidan/.npm/_npx/02a0359277d72892/node_modules/typescript
+typeRoots: /Users/aidan/.npm/_npx/48d230a2e2958c89/node_modules/@types
+tsc rc=0
+  ✔ an advanced read must have tick > 0 (0.125625ms)
+  ✔ an advanced read must differ from S0 in a physical path (0.13725ms)
+  ✔ an advanced read with a moved body passes (0.115ms)
+✔ Run/Reset snapshot: no vacuous pass (0.814125ms)
+ℹ tests 24
+ℹ suites 3
+ℹ pass 24
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 136.705334
+unit rc=0
