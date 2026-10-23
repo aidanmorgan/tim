@@ -145,10 +145,7 @@ public partial class Workshop
         parent.AddChild(row);
     }
 
-    private static bool PlacementInside(Vector3 point) =>
-        float.IsFinite(point.X) && float.IsFinite(point.Y) && float.IsFinite(point.Z) &&
-        point.Z >= -4 && point.Z <= 4 &&
-        point.X >= -7 && point.X <= 7 && point.Y >= 0 && point.Y <= 9;
+    private static bool PlacementInside(Vector3 point) => global::CuriousContraptions.PlacementPose.Inside(point);
 
     private Vector3 ClampPlacement(Vector3 point, float fixedAxis)
     {
@@ -247,18 +244,18 @@ public partial class Workshop
     private Quaternion PreviewRotation() =>
         new(_previewOrientation.X, _previewOrientation.Y, _previewOrientation.Z, _previewOrientation.W);
 
-    /// <summary>The placement pose of a new part at a bench point, shared by the preview and the click (Story 9R.6): a typed tube-mouth
-    /// snap when one exists (idle construction only), otherwise the 0.1 grid.</summary>
-    private (Vector3 Position, Quaternion Rotation, TubeMouthSnapResult? Snap) PlacementPose(PartId part, Vector3 at)
+    /// <summary>The placement pose of a new part at a bench point, shared by the preview and the click (Story 9R.6, F.6 F-1): in idle
+    /// construction the one engine composition (grid, then a typed tube-mouth snap, otherwise rest on a part beneath); otherwise the
+    /// 0.1 grid.</summary>
+    private ComposedPlacement PlacementPose(PartId part, Vector3 at)
     {
-        var grid = at.Snapped(Vector3.One * .1f);
         var rotation = PreviewRotation();
         // A new pipe is placed at its preview's length, which starts at the declared default (CaptureInstance does the same).
         var length = part == PartId.Pipe ? _preview is { } preview ? new PipeLength(preview.Dimensions.X) : PipeLength.Default : (PipeLength?)null;
-        var snap = CanEdit
-            ? TubeMouthSnap.Find(World.Registry.Definitions, World.Construction.Instances, new(part, _nextId, false, length), grid, rotation)
-            : null;
-        return snap is { } joined ? (joined.Position, joined.Rotation, joined) : (grid, rotation, null);
+        return CanEdit
+            ? global::CuriousContraptions.PlacementPose.Compose(World.Registry.Definitions, World.Construction.Instances,
+                new(part, _nextId, false, length), at, rotation)
+            : new(at.Snapped(Vector3.One * global::CuriousContraptions.PlacementPose.Grid), rotation, null, PlacementRefusal.None);
     }
 
     /// <summary>The snap a moved part would take on release (D4): never for a locked part, and only in idle construction.</summary>
@@ -328,16 +325,19 @@ public partial class Workshop
             return;
         }
         if (_lifting || GetViewport().GuiGetHoveredControl() != null) { ShowSnap(null); return; }
-        var point = WorkPoint(GetViewport().GetMousePosition(), _buildView ? (float)_depth.Value : (float)_placementHeight.Value);
-        var valid = !_inRun && GetViewport().GuiGetHoveredControl() == null &&
-                    point is { } at && PlacementInside(at);
+        ShowPreviewAt(WorkPoint(GetViewport().GetMousePosition(), _buildView ? (float)_depth.Value : (float)_placementHeight.Value));
+    }
+
+    /// <summary>The placement preview at a bench point: the composed pose the click would place, hidden when the point is outside the
+    /// bench or the composed pose is refused (the click refuses the same pose). Presentation only: it issues no command.</summary>
+    private void ShowPreviewAt(Vector3? point)
+    {
+        if (_preview == null) return;
+        ComposedPlacement? composed = !_inRun && point is { } at && PlacementInside(at) && _tool is { } tool ? PlacementPose(tool, at) : null;
+        var valid = composed is { Refusal: PlacementRefusal.None };
         _preview.Visible = valid;
-        TubeMouthSnapResult? snap = null;
-        if (valid && point is { } position && _tool is { } tool)
-        {
-            // The preview is presentation only: it takes the proposed pose and issues no command.
-            (_preview.Position, _preview.Quaternion, snap) = PlacementPose(tool, position);        }
-        ShowSnap(snap);
+        if (valid && composed is { } pose) (_preview.Position, _preview.Quaternion) = (pose.Position, pose.Rotation);
+        ShowSnap(valid ? composed!.Value.Snap : null);
     }
 
     private void OrbitQuarter(int direction)

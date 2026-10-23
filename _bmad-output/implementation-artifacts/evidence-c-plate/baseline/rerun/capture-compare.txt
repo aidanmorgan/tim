@@ -1,0 +1,11 @@
+IDENTICAL lesson-world.txt
+IDENTICAL placed-solutions.txt
+IDENTICAL trace-battery-plate-gate-bowling-2kg.txt
+IDENTICAL trace-bounce-lamp-8m.txt
+IDENTICAL trace-bounce-lamp.txt
+IDENTICAL trace-four-bowling-16kg.txt
+IDENTICAL trace-palette-max.txt
+IDENTICAL trace-threshold-basketball.txt
+IDENTICAL trace-threshold-domino.txt
+IDENTICAL trace-two-dominoes.txt
+IDENTICAL trace-two-plates.txt

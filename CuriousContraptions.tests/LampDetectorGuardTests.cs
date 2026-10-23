@@ -234,7 +234,7 @@ public sealed class LampDetectorGuardTests
         // A Basketball rests on a plate tilted 30° and then rolls off (the PressurePlateTests removal bench).
         var half = Math.PI / 12;
         const double plateHeight = 2;
-        var plate = WorkshopInput.PressurePlate(new(3), -4, plateHeight, 0, 0, 0, Math.Sin(half), Math.Cos(half), .5f);
+        var plate = PlacedParts.Plate(new(3), -4, plateHeight, 0, .5f, 0, 0, Math.Sin(half), Math.Cos(half));
         var rotation = new System.Numerics.Quaternion(0, 0, (float)Math.Sin(half), (float)Math.Cos(half));
         var drop = System.Numerics.Vector3.Transform(new System.Numerics.Vector3(-.2f, .08f + .345f, 0), rotation);
         var ball = WorkshopInput.Generic(PartId.Basketball, new(4), -4 + drop.X, plateHeight + drop.Y, drop.Z, 0, 0, 0, 1);

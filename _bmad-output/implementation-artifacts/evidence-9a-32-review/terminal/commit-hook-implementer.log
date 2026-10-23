@@ -1,0 +1,432 @@
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.T32NOj/solution.binlog
+
+Time Elapsed 00:00:09.05
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.T32NOj/playtest.binlog
+
+Time Elapsed 00:00:15.76
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.T32NOj/web.binlog
+
+Time Elapsed 00:00:07.18
+Anvil snapshot 0.ts: CuriousContraptions.Abstractions.Signal/SignalContracts.cs
+Anvil snapshot 1.ts: CuriousContraptions.Bundle/BundleSchema.cs
+Anvil snapshot 2.ts: CuriousContraptions.Bundle/BundleValidator.cs
+Anvil snapshot 3.ts: CuriousContraptions.tests/ConstructionDecodeBoundaryTests.cs
+Anvil snapshot 4.ts: CuriousContraptions.tests/DeclaredIndicatorPassageTests.cs
+Anvil snapshot 5.ts: CuriousContraptions.tests/DeclaredOrientationTests.cs
+Anvil snapshot 6.ts: CuriousContraptions.tests/DominoEffectTests.cs
+Anvil snapshot 7.ts: CuriousContraptions.tests/DominoGuardTests.cs
+Anvil snapshot 8.ts: CuriousContraptions.tests/LaunchLessonSolveTests.cs
+Anvil snapshot 9.ts: CuriousContraptions.tests/NoFixedCapacityTests.cs
+Anvil snapshot 10.ts: CuriousContraptions.tests/OldLayoutSaves.cs
+Anvil snapshot 11.ts: CuriousContraptions.tests/OrientationSensorTests.cs
+Anvil snapshot 12.ts: CuriousContraptions.tests/PackageRuntimeParityTests.cs
+Anvil snapshot 13.ts: CuriousContraptions.tests/PalettePlacementTests.cs
+Anvil snapshot 14.ts: CuriousContraptions.tests/PayloadInstanceTests.cs
+Anvil snapshot 15.ts: CuriousContraptions.tests/PlacedParts.cs
+Anvil snapshot 16.ts: CuriousContraptions.tests/PreConversionLaunchSaveTests.cs
+Anvil snapshot 17.ts: CuriousContraptions.tests/PressurePlateTests.cs
+Anvil snapshot 18.ts: CuriousContraptions.tests/RigidMassPropertiesTests.cs
+Anvil snapshot 19.ts: CuriousContraptions.tests/WorkbenchCapacityTests.cs
+Anvil snapshot 20.ts: CuriousContraptions.tests/WorkshopBowlingTests.cs
+Anvil snapshot 21.ts: CuriousContraptions.tests/WorkshopDominoTests.cs
+Anvil snapshot 22.ts: CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs
+Anvil snapshot 23.ts: CuriousContraptions.tests/WorkshopPhysicsLawPrismaticTests.cs
+Anvil snapshot 24.ts: CuriousContraptions.tests/WorkshopPhysicsLawSensorWorkTests.cs
+Anvil snapshot 25.ts: CuriousContraptions.tests/WorkshopPhysicsLawTests.cs
+Anvil snapshot 26.ts: CuriousContraptions.tests/WorkshopPipeLengthTests.cs
+Anvil snapshot 27.ts: CuriousContraptions.tests/WorkshopSaveRejectionTests.cs
+Anvil snapshot 28.ts: CuriousContraptions.tests/WorkshopSaveTests.cs
+Anvil snapshot 29.ts: CuriousContraptions.tests/WorkshopWireFlatBuffersTests.cs
+Anvil snapshot 30.ts: elements/Domino/DominoElementDeclaration.cs
+Anvil snapshot 31.ts: engine/MachineWorld.Gpu.cs
+Anvil snapshot 32.ts: engine/gpu/ActivationNetwork.cs
+Anvil snapshot 33.ts: engine/gpu/AuthoredInstanceTemplate.cs
+Anvil snapshot 34.ts: engine/gpu/DeclaredPhysics.cs
+Anvil snapshot 35.ts: engine/gpu/WorkshopConstruction.cs
+Anvil snapshot 36.ts: engine/gpu/WorkshopInstances.cs
+Anvil snapshot 37.ts: engine/gpu/WorkshopPhysicsCompiler.cs
+Anvil snapshot 38.ts: engine/gpu/WorkshopSaveCodec.cs
+Anvil snapshot 39.ts: engine/gpu/WorkshopSavePrevalidation.cs
+Anvil snapshot 40.ts: engine/gpu/WorkshopWireFlatBuffers.cs
+Anvil snapshot 41.ts: engine/gpu/WorkshopWireGenerated.cs
+Anvil snapshot 42.ts: tools/BundleElements.Tests/BundleRoundTripTests.cs
+Anvil snapshot 43.ts: tools/BundleElements.Tests/BundleValidatorTests.cs
+Anvil snapshot 44.ts: tools/e2e/run-reset-snapshot.ts
+Anvil snapshot 45.ts: tools/e2e/unit/run-reset-snapshot.test.ts
+Anvil snapshot 46.ts: tools/e2e/workshop-wire.ts
+{
+  "version": "1.0.0",
+  "timestamp": "2026-10-23T12:21:15.660759+00:00",
+  "files": [
+    "0.ts",
+    "1.ts",
+    "2.ts",
+    "3.ts",
+    "4.ts",
+    "5.ts",
+    "6.ts",
+    "7.ts",
+    "8.ts",
+    "9.ts",
+    "10.ts",
+    "11.ts",
+    "12.ts",
+    "13.ts",
+    "14.ts",
+    "15.ts",
+    "16.ts",
+    "17.ts",
+    "18.ts",
+    "19.ts",
+    "20.ts",
+    "21.ts",
+    "22.ts",
+    "23.ts",
+    "24.ts",
+    "25.ts",
+    "26.ts",
+    "27.ts",
+    "28.ts",
+    "29.ts",
+    "30.ts",
+    "31.ts",
+    "32.ts",
+    "33.ts",
+    "34.ts",
+    "35.ts",
+    "36.ts",
+    "37.ts",
+    "38.ts",
+    "39.ts",
+    "40.ts",
+    "41.ts",
+    "42.ts",
+    "43.ts",
+    "44.ts",
+    "45.ts",
+    "46.ts"
+  ],
+  "hasBlockingWarnings": false,
+  "executionTimeMs": 38,
+  "checksRun": [
+    "secret-detection",
+    "antipattern-scan"
+  ],
+  "notifications": [],
+  "warnings": [],
+  "summary": {
+    "total": 0,
+    "errors": 0,
+    "warnings": 0,
+    "info": 0,
+    "suppressed": 0
+  }
+}
+
+Test run for /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.WFEaeY/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:   124, Skipped:     0, Total:   124, Duration: 4 s - CuriousContraptions.tests.dll (net10.0)
+[story-9a-32 495f008] Convert the domino to a declared orientation-sensing generic instance
+ 343 files changed, 41561 insertions(+), 670 deletions(-)
+ create mode 100644 CuriousContraptions.tests/DeclaredOrientationTests.cs
+ create mode 100644 CuriousContraptions.tests/DominoGuardTests.cs
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32-review/build-incremental-noop.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32-review/build.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32-review/carried-actual-hunks.patch
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32-review/carried-integrity.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32-review/ci-tools.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32-review/deletion-greps.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32-review/diff-check.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32-review/full-test.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32-review/guards.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32-review/identity-probe-rerun.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32-review/known-rows.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32-review/mutation/M0.BundleElements.Tests.csproj.test.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32-review/mutation/M0.CuriousContraptions.tests.csproj.test.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32-review/mutation/R1-instance-fields-11.test.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32-review/mutation/R2-slot-loop-strict.test.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32-review/mutation/R3-command-slot-24.test.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32-review/mutation/R4-save-rule-before-prevalidation.test.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32-review/mutation/R5-validator-lower-bound-exclusive.test.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32-review/mutation/R6-package-declares-44.test.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32-review/mutation/R7-content-no-solution-connection.test.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32-review/mutation/R8-content-legacy-rows.test.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32-review/mutation/summary.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32-review/probe-rerun-capture.sha256
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32-review/rereview/R1.test.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32-review/rereview/blame-dumps.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32-review/rereview/build.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32-review/rereview/crash-slnx-summary.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32-review/rereview/crash-standalone-summary.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32-review/rereview/full-test.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32-review/rereview/head.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32-review/rereview/review-crash-slnx.sh.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32-review/rereview/review-crash.sh.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32-review/rereview/runs/review-crash-base-1.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32-review/rereview/runs/review-crash-base-2.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32-review/rereview/runs/review-crash-base-3.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32-review/rereview/runs/review-crash-base-4.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32-review/rereview/runs/review-crash-base-5.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32-review/rereview/runs/review-crash-candidate-1.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32-review/rereview/runs/review-crash-candidate-2.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32-review/rereview/runs/review-crash-candidate-3.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32-review/rereview/runs/review-crash-candidate-4.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32-review/rereview/runs/review-crash-candidate-5.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32-review/rereview/runs/review-crash-slnx-base-1.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32-review/rereview/runs/review-crash-slnx-base-2.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32-review/rereview/runs/review-crash-slnx-base-3.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32-review/rereview/runs/review-crash-slnx-candidate-1.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32-review/rereview/runs/review-crash-slnx-candidate-2.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32-review/rereview/runs/review-crash-slnx-candidate-3.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32-review/rereview/skipped-tests.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32-review/rereview2/build.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32-review/rereview2/full-test.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32-review/rereview2/head.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32-review/rereview2/integrity-and-main.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32-review/rereview2/staged-identity.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32-review/review-head.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32-review/scripts/ci-tools-step.sh.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32-review/scripts/review-greps.sh.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32-review/scripts/review-mutations.sh.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32-review/scripts/review-probe.sh.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32-review/scripts/review-regen.sh.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32-review/ts-checks.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32-review/web-publish.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32-review/wire-regeneration.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32-review/worker-release.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/baseline-head.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/baseline-status.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/build-probe.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/build.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/capture-run.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/capture/axial-spin.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/capture/legacy-solution-cause.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/capture/lesson-world.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/capture/old-save-outcomes.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/capture/old-saves.sha256
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/capture/old-saves/domino_locked_rotated.command.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/capture/old-saves/domino_locked_rotated.save.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/capture/old-saves/forged_domino_bare.save.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/capture/old-saves/forged_domino_parameter.save.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/capture/old-saves/kind_ball.command.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/capture/old-saves/kind_ball.save.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/capture/old-saves/kind_ball_detector.command.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/capture/old-saves/kind_ball_detector.save.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/capture/old-saves/kind_basket.command.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/capture/old-saves/kind_basket.save.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/capture/old-saves/kind_battery.command.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/capture/old-saves/kind_battery.save.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/capture/old-saves/kind_both_gate.command.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/capture/old-saves/kind_both_gate.save.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/capture/old-saves/kind_bowling.command.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/capture/old-saves/kind_bowling.save.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/capture/old-saves/kind_bumper.command.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/capture/old-saves/kind_bumper.save.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/capture/old-saves/kind_clock.command.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/capture/old-saves/kind_clock.save.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/capture/old-saves/kind_counter.command.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/capture/old-saves/kind_counter.save.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/capture/old-saves/kind_delay.command.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/capture/old-saves/kind_delay.save.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/capture/old-saves/kind_domino.command.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/capture/old-saves/kind_domino.save.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/capture/old-saves/kind_electrical_nand.command.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/capture/old-saves/kind_electrical_nand.save.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/capture/old-saves/kind_electrical_nor.command.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/capture/old-saves/kind_electrical_nor.save.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/capture/old-saves/kind_electrical_or.command.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/capture/old-saves/kind_electrical_or.save.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/capture/old-saves/kind_electrical_xor.command.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/capture/old-saves/kind_electrical_xor.save.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/capture/old-saves/kind_funnel.command.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/capture/old-saves/kind_funnel.save.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/capture/old-saves/kind_hold_timer.command.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/capture/old-saves/kind_hold_timer.save.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/capture/old-saves/kind_lamp.command.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/capture/old-saves/kind_lamp.save.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/capture/old-saves/kind_latch.command.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/capture/old-saves/kind_latch.save.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/capture/old-saves/kind_pipe.command.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/capture/old-saves/kind_pipe.save.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/capture/old-saves/kind_pipe_bend_45.command.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/capture/old-saves/kind_pipe_bend_45.save.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/capture/old-saves/kind_pipe_bend_90.command.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/capture/old-saves/kind_pipe_bend_90.save.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/capture/old-saves/kind_powered_gate.command.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/capture/old-saves/kind_powered_gate.save.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/capture/old-saves/kind_pressure_plate.command.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/capture/old-saves/kind_pressure_plate.save.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/capture/old-saves/kind_ramp.command.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/capture/old-saves/kind_ramp.save.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/capture/old-saves/kind_spring.command.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/capture/old-saves/kind_spring.save.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/capture/old-saves/kind_switch.command.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/capture/old-saves/kind_switch.save.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/capture/old-saves/kind_wall.command.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/capture/old-saves/kind_wall.save.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/capture/old-saves/preconversion_domino.save.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/capture/old-saves/two_lane.command.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/capture/old-saves/two_lane.save.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/capture/old-saves/wired_chain.command.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/capture/old-saves/wired_chain.save.bin
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/capture/placed-solutions.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/capture/trace-broken-gap.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/capture/trace-close-gap-chain.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/capture/trace-rock-10.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/capture/trace-two-lane.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/capture/trace-unwired-end.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/capture/trace-wired-lesson.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/final-probe-rerun.sh.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/final-probe-rerun.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/full-test.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/guards-filter.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/guards-first-attempt-revision-bug.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/guards.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/superseded/final-probe-rerun-1.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/superseded/final-probe-rerun-2.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/superseded/placed-solutions-before-authored-variant.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/superseded/placed-solutions-before-corrected-variant.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/baseline/test-only.diff
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/capture-compare.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/capture-run-first-attempt.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/capture-run.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/capture/axial-spin.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/capture/legacy-solution-cause.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/capture/lesson-world.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/capture/old-save-outcomes.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/capture/placed-solutions.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/capture/trace-broken-gap.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/capture/trace-close-gap-chain.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/capture/trace-rock-10.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/capture/trace-two-lane.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/capture/trace-unwired-end.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/capture/trace-wired-lesson.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/ci-tools.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/deletion-greps.sh.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/deletion-greps.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/diff-check.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/domino-effect-solution/base-placed.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/domino-effect-solution/candidate-placed.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/domino-effect-solution/legacy-solution-cause.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/e2e-field-reads.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/freeze-build.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/freeze-head.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/freeze-test.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/guards-delta.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/guards.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/known-rows.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/old-save-compare.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/review-fix-build.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/review-fix-diff-check.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/review-fix-head.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/review-fix-test-run1-crashed-139.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/review-fix-test.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/superseded-captures/capture-before-authored-variant/axial-spin.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/superseded-captures/capture-before-authored-variant/lesson-world.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/superseded-captures/capture-before-authored-variant/old-save-outcomes.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/superseded-captures/capture-before-authored-variant/placed-solutions.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/superseded-captures/capture-before-authored-variant/trace-broken-gap.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/superseded-captures/capture-before-authored-variant/trace-close-gap-chain.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/superseded-captures/capture-before-authored-variant/trace-rock-10.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/superseded-captures/capture-before-authored-variant/trace-two-lane.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/superseded-captures/capture-before-authored-variant/trace-unwired-end.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/superseded-captures/capture-before-authored-variant/trace-wired-lesson.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/superseded-captures/capture-before-coordinator-decisions/axial-spin.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/superseded-captures/capture-before-coordinator-decisions/lesson-world.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/superseded-captures/capture-before-coordinator-decisions/old-save-outcomes.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/superseded-captures/capture-before-coordinator-decisions/placed-solutions.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/superseded-captures/capture-before-coordinator-decisions/trace-broken-gap.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/superseded-captures/capture-before-coordinator-decisions/trace-close-gap-chain.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/superseded-captures/capture-before-coordinator-decisions/trace-rock-10.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/superseded-captures/capture-before-coordinator-decisions/trace-two-lane.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/superseded-captures/capture-before-coordinator-decisions/trace-unwired-end.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/superseded-captures/capture-before-coordinator-decisions/trace-wired-lesson.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/superseded-captures/capture-before-pipe-decoder/axial-spin.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/superseded-captures/capture-before-pipe-decoder/lesson-world.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/superseded-captures/capture-before-pipe-decoder/old-save-outcomes.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/superseded-captures/capture-before-pipe-decoder/placed-solutions.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/superseded-captures/capture-before-pipe-decoder/trace-broken-gap.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/superseded-captures/capture-before-pipe-decoder/trace-close-gap-chain.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/superseded-captures/capture-before-pipe-decoder/trace-rock-10.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/superseded-captures/capture-before-pipe-decoder/trace-two-lane.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/superseded-captures/capture-before-pipe-decoder/trace-unwired-end.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/superseded-captures/capture-before-pipe-decoder/trace-wired-lesson.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/superseded-captures/capture-run-before-authored-variant.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/superseded-captures/capture-run-before-coordinator-decisions.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/superseded-captures/capture-run.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/superseded-captures/old-save-compare-before-trailing-field-rule.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/superseded-first-freeze/diff-check.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/superseded-first-freeze/freeze-build.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/superseded-first-freeze/freeze-head.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/superseded-first-freeze/freeze-test.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/superseded-first-freeze/guards.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/superseded-review-fix-1/review-fix-build.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/superseded-review-fix-1/review-fix-diff-check.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/superseded-review-fix-1/review-fix-head.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/superseded-review-fix-1/review-fix-test.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/superseded-review-fix-2/review-fix-build.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/superseded-review-fix-2/review-fix-diff-check.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/superseded-review-fix-2/review-fix-head.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/superseded-review-fix-2/review-fix-test.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/superseded-second-freeze/ci-tools.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/superseded-second-freeze/diff-check.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/superseded-second-freeze/freeze-build.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/superseded-second-freeze/freeze-head.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/superseded-second-freeze/freeze-test.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/superseded-second-freeze/guards.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/superseded-second-freeze/worker-release.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/ts-checks.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/web-publish.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/wire-regeneration.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/candidate/worker-release.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/mutation/M0-control.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/mutation/M1-sensor-ignores-wiring.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/mutation/M10-trailing-field-rule-disabled.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/mutation/M11-first-run-survived-test-read-the-constant.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/mutation/M11-table-size-eleven.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/mutation/M2-initial-identity.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/mutation/M3-threshold-constant.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/mutation/M4-node-ignores-wiring.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/mutation/M5-exclusivity-omits-orientation.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/mutation/M6-body-rule-weakened.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/mutation/M7-range-widened.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/mutation/M8-typed-field-omits-threshold.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/mutation/M9-control.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/mutation/M9-first-form-build-failed-IDE0051.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/mutation/M9-pipe-length-not-required.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/mutation/pre-mutation-M10.sha256
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/mutation/pre-mutation-M9.sha256
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/mutation/pre-mutation.sha256
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/mutation/restored-check.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/mutation/run-mutant.sh.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/probe/PlacedParts-record-path.cs.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-32/probe/ProbeDominoCapture.cs.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-lamp-detector-review/terminal/addenda-native-rerun.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-lamp-detector-review/terminal/artifact-deployment.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-lamp-detector-review/terminal/build-job.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-lamp-detector-review/terminal/deploy-job.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-lamp-detector-review/terminal/deployment-status.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-lamp-detector-review/terminal/hook-rerun.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-lamp-detector-review/terminal/identities.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-lamp-detector-review/terminal/run.json
+ create mode 100644 _bmad-output/implementation-artifacts/review-9a-32-domino.md
+ create mode 100644 _bmad-output/implementation-artifacts/spec-9a-32-domino.md
+ delete mode 100644 engine/gpu/WorkshopDomino.cs
+ delete mode 100644 engine/gpu/WorkshopDomino.cs.uid
+rc=0

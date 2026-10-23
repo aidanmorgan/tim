@@ -14,7 +14,7 @@ import { after, before, describe, test } from 'node:test';
 import type { ConsoleMessage } from 'playwright';
 import { isWorkshopConsoleFailure } from '../workshop-console.mjs';
 import { WorkshopDriver, type RunResetSnapshot, type WorkshopBodyPose } from './workshop-driver.ts';
-import { decodeSavedConstruction, authoredState } from './workshop-wire.ts';
+import { decodeSavedConstruction, authoredState, parameter } from './workshop-wire.ts';
 import { assertLoadRestores } from './run-reset-snapshot.ts';
 
 const ConnectionDomain = { Electrical: 2 } as const;
@@ -74,7 +74,7 @@ function savedCircuits(bytes: Buffer): { links: string[]; minimums: number[] } {
     const minimums: number[] = [];
     for (let i = 0; i < construction.instancesLength(); i++) {
         const instance = construction.instances(i)!;
-        if (instance.partId() === 'pressure_plate') minimums.push(instance.threshold());
+        if (instance.partId() === 'pressure_plate') minimums.push(parameter(instance, 'minimum_mass'));
     }
     return { links: links.sort(), minimums };
 }
@@ -105,7 +105,7 @@ describe('CAT-052: two Pressure Plates switch only their own gates (Story 9R.4)'
         await driver.page.waitForTimeout(200);
     }
 
-    // G1, G2, P1, P2, B1, B2 (instances 1-6), wired B1 → P1 → G1 and B2 → P2 → G2, then a bowling ball lifted onto `loaded`.
+    // G1, G2, P1, P2, B1, B2 (instances 1-6), wired B1 → P1 → G1 and B2 → P2 → G2, then a bowling ball placed onto `loaded` (it rests on the face, F-1).
     async function buildTwoPlates(loaded: Point): Promise<RunResetSnapshot> {
         errors.length = 0;
         await driver.reload();
@@ -118,10 +118,9 @@ describe('CAT-052: two Pressure Plates switch only their own gates (Story 9R.4)'
         await wire(BATTERY_1, PLATE_1);
         await wire(PLATE_2, GATE_2);
         await wire(BATTERY_2, PLATE_2);
+        // F.6 F-1 (C-Plate): the bowling ball placed from the drawer onto the flat plate rests on its face; no gizmo lift.
         await driver.selectTool('bowling');
         await driver.placeOnCanvas(loaded.x, loaded.y);
-        await driver.setPartMode('move');
-        await driver.liftSelectedPart(12, loaded.x, loaded.y);
         await driver.page.keyboard.press('Escape');
         await driver.page.waitForTimeout(200);
         return driver.captureSnapshot(BENCH);

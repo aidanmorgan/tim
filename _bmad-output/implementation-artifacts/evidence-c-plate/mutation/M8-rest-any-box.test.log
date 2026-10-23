@@ -1,0 +1,4 @@
+M8 rest on any box: Vertical() always reports axis 1 (tilted tops admitted); after adding the 5-degree ramp control
+  Failed CuriousContraptions.Tests.PlacementPoseTests.EveryOtherPlacementKeepsTheBasePose [8 ms]
+   ball in a ramp tilted 5°: base ((0, 0.2, 0), (0, 0, 0, 1)), composed ((0, 0.5603911, 0), (0, 0, 0, 1))
+Failed!  - Failed:     1, Passed:    89, Skipped:     0, Total:    90, Duration: 2 s - CuriousContraptions.tests.dll (net10.0)

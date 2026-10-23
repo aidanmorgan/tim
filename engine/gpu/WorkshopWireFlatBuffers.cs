@@ -646,9 +646,6 @@ public static class WorkshopWireFlatBuffers
                 case WorkshopLatch:
                 case IWorkshopDeclaredColliders:
                     break;
-                case WorkshopPressurePlate plate:
-                    InstanceRecord.AddThreshold(builder, plate.MinimumMass);
-                    break;
                 case WorkshopCounter counter:
                     InstanceRecord.AddTargetCount(builder, checked((uint)counter.TargetCount));
                     break;
@@ -758,21 +755,25 @@ public static class WorkshopWireFlatBuffers
             // A record without its length is a missing field: no default replaces saved data; a present length is validated as written.
             "pipe" => new WorkshopPipe(id, cell, local, rotation, new(RequiredLength(inst)), locked),
             // Declared settings are decoded as written; construction validation rejects a missing (zero) or out-of-range value.
-            "pressure_plate" => new WorkshopPressurePlate(id, cell, local, rotation, inst.Threshold, locked),
             "counter" => new WorkshopCounter(id, cell, local, rotation, TargetCount(inst), locked),
             "clock" => new WorkshopClock(id, cell, local, rotation, inst.Threshold, locked),
             // Every other element is a generic instance of its declared colliders (Story 9A.15: no per-id list); an id with neither
             // a record nor colliders is no element this decoder knows, refused naming it.
             _ => DeclaredPhysics.Contains(partId) && DeclaredPhysics.Of(partId).Colliders.Count > 0
-                ? new WorkshopGenericInstance(partId, id, cell, local, rotation, locked) { Parameters = DecodeParameters(inst, partId) }
+                ? Generic(inst, partId, id, cell, local, rotation, locked)
                 : throw new WireFaultException(WireFaultReason.UnknownElement, $"Instance {inst.Id} names unknown physical element '{partId}'.")
         };
-        if (result is WorkshopGenericInstance && CarriesTypedField(inst))
-            throw new WireFaultException(WireFaultReason.OutOfRange, "Generic instance cannot carry a typed record field.");
         if (result is not WorkshopGenericInstance && inst.ParametersLength != 0)
             throw new WireFaultException(WireFaultReason.OutOfRange, "Typed instance cannot carry generic parameters.");
         return result;
     }
+
+    /// <summary>A generic instance of its declared parameters. A record carrying a typed field (an older typed record of an element
+    /// that is now generic) is refused as that, before its parameters are read, as the save pre-validation orders it.</summary>
+    private static WorkshopGenericInstance Generic(InstanceRecord inst, PartId part, GpuBodyId id, CellOrigin cell, LocalPosition local,
+        CanonicalRotation rotation, bool locked) => CarriesTypedField(inst)
+        ? throw new WireFaultException(WireFaultReason.OutOfRange, "Generic instance cannot carry a typed record field.")
+        : new(part, id, cell, local, rotation, locked) { Parameters = DecodeParameters(inst, part) };
 
     /// <summary>Whether a record holds any typed record field: a nonzero bit pattern in the length or threshold, or a nonzero target
     /// count. A generic instance carries only its declared parameters, so this refuses it (the save pre-validation applies the same

@@ -6,9 +6,10 @@ namespace CuriousContraptions;
 
 /// <summary>Why a bench placement produced no proposed construction. UnsupportedPart covers every declared refusal to capture
 /// the part or to compose it into the current construction (a WorkshopEditRejectedException or a full workbench), not only an
-/// unknown part id (for example a lesson that refuses the part's identity). Any other exception is a defect, not a
-/// rejection.</summary>
-public enum BenchPlacementRejection { None, UnsupportedPart }
+/// unknown part id (for example a lesson that refuses the part's identity). UnplaceablePose is a composed pose the shared placement
+/// composition refuses (<see cref="PlacementRefusal"/>: a rested part outside the bench volume or inside a Static part). Any other
+/// exception is a defect, not a rejection.</summary>
+public enum BenchPlacementRejection { None, UnsupportedPart, UnplaceablePose }
 
 /// <summary>One bench placement attempt. A rejection carries the unchanged construction and its player-visible message.</summary>
 public readonly record struct BenchPlacementProposal(BenchPlacementRejection Rejection, WorkshopConstruction Construction, string Message);
@@ -33,5 +34,17 @@ public static class WorkshopBenchPlacement
         }
         pushUndo();
         return new(BenchPlacementRejection.None, proposed, string.Empty);
+    }
+
+    /// <summary>The refusal of a composed pose (F.6 F-1, B1): the construction is unchanged and no undo entry is recorded.</summary>
+    public static BenchPlacementProposal Refuse(MachineWorld world, PlacementRefusal refusal)
+    {
+        ArgumentNullException.ThrowIfNull(world);
+        return new(BenchPlacementRejection.UnplaceablePose, world.Construction, refusal switch
+        {
+            PlacementRefusal.OutsideBench => "Placement rejected: resting there would lift the part above the bench.",
+            PlacementRefusal.IntoPart => "Placement rejected: resting there would push the part into another part.",
+            _ => throw new ArgumentOutOfRangeException(nameof(refusal), refusal, "Only a refused pose has a refusal message.")
+        });
     }
 }

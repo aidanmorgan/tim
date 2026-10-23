@@ -1,0 +1,20 @@
+rg -n "threshold\(\)|pressure_plate" tools/e2e --glob "*.ts" (outside workshop-wire.ts):
+tools/e2e/cat-017.test.ts:85:    assert.equal(clockInst.threshold(), 1.0);
+tools/e2e/cat-052.test.ts:79:    assert.equal(plateInst.partId(), 'pressure_plate');
+tools/e2e/cat-052.test.ts:122:        await driver.selectTool('pressure_plate');
+tools/e2e/cat-052-lamp.test.ts:194:        await driver.selectTool('pressure_plate');
+tools/e2e/cat-052-lamp.test.ts:324:        for (const [tool, at] of [['pressure_plate', PLATE], ['counter', COUNTER], ['delay', DELAY], ['latch', LATCH], ['lamp', LAMP]] as const) {
+tools/e2e/cat-052-lamp.test.ts:355:            [`${ConnectionDomain.Activation}:${ids.get('pressure_plate')}.${Socket.ActivationOut}→${ids.get('lamp')}.${Socket.ActivationIn}`]);
+tools/e2e/palette-placement.test.ts:37:    { title: 'Pressure plate', tool: 'pressure_plate', partId: 'pressure_plate' },
+tools/e2e/cat-052-two-plates.test.ts:77:        if (instance.partId() === 'pressure_plate') minimums.push(parameter(instance, 'minimum_mass'));
+tools/e2e/cat-052-two-plates.test.ts:112:        for (const [tool, at] of [['powered_gate', GATE_1], ['powered_gate', GATE_2], ['pressure_plate', PLATE_1],
+tools/e2e/cat-052-two-plates.test.ts:113:            ['pressure_plate', PLATE_2], ['battery', BATTERY_1], ['battery', BATTERY_2]] as const) {
+tools/e2e/cat-052-two-plates.test.ts:192:        const extras = [...Array(7).fill('pressure_plate'), ...Array(5).fill('counter'), ...Array(5).fill('clock'), ...Array(5).fill('latch')] as
+tools/e2e/cat-052-two-plates.test.ts:193:            ('pressure_plate' | 'counter' | 'clock' | 'latch')[];
+tools/e2e/cat-052-two-plates.test.ts:204:        assert.equal(kinds.filter(k => k === 'pressure_plate').length, 9, '9 plates');
+tools/e2e/workshop-driver.ts:224:        pressure_plate: { x: 100, y: 790 },
+tools/e2e/workshop-driver.ts:622:    async selectTool(kind: 'basketball' | 'bowling' | 'wall' | 'ramp' | 'bumper' | 'switch' | 'delay' | 'lamp' | 'receiver' | 'domino' | 'battery' | 'pipe' | 'ball_detector' | 'pipe_bend_45' | 'pipe_bend_90' | 'funnel' | 'powered_gate' | 'pressure_plate' | 'counter' | 'clock' | 'latch'): Promise<void> {
+tools/e2e/workshop-driver.ts:626:        if ((kind === 'bowling' || kind === 'battery' || kind === 'ball_detector' || kind === 'powered_gate' || kind === 'pressure_plate' || kind === 'counter' || kind === 'clock' || kind === 'latch') && this.currentLevel !== 'free_workshop') throw new Error(`Level ${this.currentLevel} does not offer this free-workshop part`);
+tools/e2e/workshop-driver.ts:638:            pressure_plate: 688,
+
+Verdict: the only threshold() read is cat-017's clock; every pressure_plate hit is a tool name, a part id or the cat-052-two-plates minimum_mass parameter read. workshop-wire.ts dumpAuthored dumps every instance's threshold and parameters generically.

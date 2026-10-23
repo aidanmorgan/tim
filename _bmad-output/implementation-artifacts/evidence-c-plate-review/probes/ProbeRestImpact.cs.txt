@@ -1,0 +1,92 @@
+using CuriousContraptions.Gpu;
+using Godot;
+
+namespace CuriousContraptions.Tests;
+
+/// <summary>Reviewer probe (not a deliverable): every declared Static part at identity (and at 90° about z and x) with its default
+/// parameters at (0, 1, 0), and every declared Dynamic part dropped on a 0.1 m grid around it; lists each pose PlacementPose.Compose
+/// changes relative to the base (snap, else grid). Written to RV_REST.</summary>
+[Collection<NativeSceneCollectionDefinition>]
+public sealed class ProbeRestImpact
+{
+    [Fact]
+    public void Impact()
+    {
+        if (System.Environment.GetEnvironmentVariable("RV_REST") is not { } path) return;
+        var registry = new PartRegistry();
+        registry.Load();
+        var definitions = registry.Definitions;
+        var parts = SaveFixture.Elements.Where(DeclaredPhysics.Contains).OrderBy(p => p.Value, StringComparer.Ordinal).ToArray();
+        var statics = parts.Where(p => DeclaredPhysics.Of(p).Mechanical?.KinematicMode == CuriousContraptions.Abstractions.Mechanical.KinematicMode.Static &&
+            DeclaredPhysics.Of(p).Colliders.Count > 0 && p != PartId.Pipe).ToArray();
+        var dynamics = parts.Where(p => DeclaredPhysics.Of(p).Mechanical?.KinematicMode == CuriousContraptions.Abstractions.Mechanical.KinematicMode.Dynamic).ToArray();
+        var turns = new (string Name, Quaternion Q)[] { ("id", Quaternion.Identity), ("z90", new(Vector3.Back, Mathf.Pi / 2)), ("x90", new(Vector3.Right, Mathf.Pi / 2)) };
+        var lines = new List<string>();
+        foreach (var s in statics)
+            foreach (var (turnName, q) in turns)
+            {
+                IWorkshopInstance placed;
+                try { placed = WorkshopInput.Generic(s, new(1), 0, 1, 0, q.X, q.Y, q.Z, q.W, InstanceParameterCollection.Defaults(s)); }
+                catch (ArgumentException) { continue; }
+                foreach (var d in dynamics)
+                {
+                    var changed = 0; var samples = new List<string>();
+                    for (var x = -15; x <= 15; x++)
+                        for (var y = -5; y <= 15; y++)
+                        {
+                            var at = new Vector3(x * .1f, 1 + y * .1f, 0);
+                            var mover = new TubeMouthMover(d, new(2), false);
+                            var grid = at.Snapped(Vector3.One * .1f);
+                            var snap = TubeMouthSnap.Find(definitions, [placed], mover, grid, Quaternion.Identity);
+                            var baseline = snap is { } j ? j.Position : grid;
+                            var (composed, _, _) = PlacementPose.Compose(definitions, [placed], mover, at, Quaternion.Identity);
+                            if (composed != baseline)
+                            {
+                                changed++;
+                                if (samples.Count < 4) samples.Add($"({at.X:0.0},{at.Y:0.0})->{composed.Y:0.000}");
+                            }
+                        }
+                    if (changed > 0) lines.Add($"{s.Value} {turnName} <- {d.Value}: {changed} changed, e.g. {string.Join(" ", samples)}");
+                }
+            }
+        // Pipe (typed) at identity and rotated.
+        foreach (var (turnName, q) in turns)
+        {
+            var pipe = WorkshopInput.Pipe(new(1), 0, 1, 0, q.X, q.Y, q.Z, q.W);
+            foreach (var d in dynamics)
+            {
+                var changed = 0; var samples = new List<string>();
+                for (var x = -15; x <= 15; x++)
+                    for (var y = -5; y <= 15; y++)
+                    {
+                        var at = new Vector3(x * .1f, 1 + y * .1f, 0);
+                        var mover = new TubeMouthMover(d, new(2), false);
+                        var grid = at.Snapped(Vector3.One * .1f);
+                        var baseline = TubeMouthSnap.Find(definitions, [pipe], mover, grid, Quaternion.Identity) is { } j ? j.Position : grid;
+                        var (composed, _, _) = PlacementPose.Compose(definitions, [pipe], mover, at, Quaternion.Identity);
+                        if (composed != baseline) { changed++; if (samples.Count < 4) samples.Add($"({at.X:0.0},{at.Y:0.0})->{composed.Y:0.000}"); }
+                    }
+                if (changed > 0) lines.Add($"pipe {turnName} <- {d.Value}: {changed} changed, e.g. {string.Join(" ", samples)}");
+            }
+        }
+        // Column detail: a Basketball at x = 0 over each identity part, every y.
+        foreach (var s in statics.Append(PartId.Pipe))
+        {
+            IWorkshopInstance placed = s == PartId.Pipe ? WorkshopInput.Pipe(new(1), 0, 1, 0, 0, 0, 0, 1)
+                : WorkshopInput.Generic(s, new(1), 0, 1, 0, 0, 0, 0, 1, InstanceParameterCollection.Defaults(s));
+            var colliders = string.Join(" ", CuriousContraptions.Bundle.BundleGeometry.Colliders(DeclaredPhysics.Of(s), DeclaredPhysics.Parameters(placed))
+                .Select(c => $"[{c.ShapeKind} off {c.Offset.X:0.00},{c.Offset.Y:0.00},{c.Offset.Z:0.00} half {c.HalfExtents.X:0.00},{c.HalfExtents.Y:0.00},{c.HalfExtents.Z:0.00} rotW {c.Rotation.W:0.00}]"));
+            lines.Add($"COLUMN {s.Value} colliders {colliders}");
+            for (var y = -5; y <= 20; y++)
+            {
+                var at = new Vector3(0, 1 + y * .1f, 0);
+                var mover = new TubeMouthMover(PartId.Basketball, new(2), false);
+                var grid = at.Snapped(Vector3.One * .1f);
+                var baseline = TubeMouthSnap.Find(definitions, [placed], mover, grid, Quaternion.Identity) is { } j ? j.Position : grid;
+                var (composed, _, _) = PlacementPose.Compose(definitions, [placed], mover, at, Quaternion.Identity);
+                if (composed != baseline) lines.Add($"  ball at y {at.Y:0.0} -> {composed.Y:0.000}");
+            }
+        }
+        File.WriteAllLines(path, lines);
+    }
+}

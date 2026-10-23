@@ -8,9 +8,9 @@ namespace CuriousContraptions.Gpu;
 
 public readonly record struct ActivationNodeId(ulong Value);
 /// <summary>StickyFirstInput is a declared indicator's first-input-wins hold (never reset within a run); StateLatch is the bistable
-/// Set/Reset memory (CAT-037); LevelIndicator is a declared indicator whose input is wired from a level ActivationOut (latch or
-/// plate), mirroring it. PassageSource is a declared passage aperture's crossing pulse.
-/// ContactLoadSource is a contact-load row's committed level (Story 9R.4 D3): Latched from its first Loaded tick until its
+/// Set/Reset memory (CAT-037); LevelIndicator is a declared indicator whose input is wired from a level ActivationOut (the latch or
+/// a declared contact-load sensor), mirroring it. PassageSource is a declared passage aperture's crossing pulse.
+/// ContactLoadSource is a declared contact-load row's committed level (Story 9R.4 D3): Latched from its first Loaded tick until its
 /// committed release hold (Story 9R.5, ReleaseHoldTicks after the last Loaded tick) expires.
 /// The kinds are distinct and share no name.</summary>
 public enum ActivationNodeKind : uint { ContactSource = 1, StickyFirstInput = 2, Timer = 3, OrientationSource = 4, PassageSource = 5, Counter = 6, Oscillator = 7, StateLatch = 8, LevelIndicator = 9, ContactLoadSource = 10 }
@@ -536,7 +536,7 @@ public sealed class ActivationNetwork
                     CuriousContraptions.Abstractions.SimulationEventKind.LatchSet, _nodes[i].Owner.Value, 0,
                     P0: next == SimulationLatchPhase.On ? 1f : 0f, P1: 0f));
         }
-        // A level ActivationOut (latch memory, held plate load): each level indicator mirrors its source's settled value on the same boundary.
+        // A level ActivationOut (latch memory, a held contact load): each level indicator mirrors its source's settled value on the same boundary.
         foreach (var edge in _edges)
         {
             var source = Slot(edge.Source);
@@ -776,7 +776,7 @@ public sealed class ActivationNetwork
         }
         else if (load is { } row)
         {
-            // A contact-load level is the plate's own state, so its cause names the static frame and its sensing face.
+            // A contact-load level is its owner's own state, so its cause names the static frame and its sensing face.
             if (occurrence.Kind != ActivationOccurrenceKind.ContactLoad || row.Frame != _nodes[emitter].Owner ||
                 occurrence.Cause.Body != row.Frame || occurrence.Cause.Collider != row.Face)
                 throw new ArgumentException("Activation cause differs from the declared contact-load row.");
@@ -853,12 +853,12 @@ public static class WorkshopActivationCompiler
                 nodes.Add(new(new(counter.Id.Value), counter.Id, ActivationNodeKind.Counter, default, 0, default, default, (uint)counter.TargetCount));
             else if (instance is WorkshopLatch latch)
                 nodes.Add(new(new(latch.Id.Value), latch.Id, ActivationNodeKind.StateLatch, default));
-            // Every plate commits its own contact-load level (D3), wired or not, so its footprint is one activation node; its
-            // release hold (Story 9R.5) is declared in ticks of this construction's cadence.
-            else if (instance is WorkshopPressurePlate plate)
-                nodes.Add(new(new(plate.Id.Value), plate.Id, ActivationNodeKind.ContactLoadSource, default,
-                    ContactLoad: WorkshopPhysicsCompiler.ContactLoadSensor(plate.Id),
-                    ReleaseHoldTicks: WorkshopPressurePlate.ReleaseHoldTicks(construction.Settings.Simulation)));
+            // A declared contact-load sensor commits its own level, wired or not, so its row is one activation node; its declared
+            // release hold (Story 9R.5) is compiled to ticks of this construction's cadence.
+            else if (instance is WorkshopGenericInstance && DeclaredPhysics.Of(instance.PartId).Signal?.ContactLoad is { } load)
+                nodes.Add(new(new(instance.Id.Value), instance.Id, ActivationNodeKind.ContactLoadSource, default,
+                    ContactLoad: WorkshopPhysicsCompiler.ContactLoadSensor(instance.Id),
+                    ReleaseHoldTicks: ActivationTimerDeclaration.Duration(load.ReleaseHoldSeconds, construction.Settings.Simulation)));
             else if (instance is WorkshopClock clock)
             {
                 var sources=SupplyTopology.Create(construction, DeclaredPhysics.Of).UpstreamSources(clock.Id);

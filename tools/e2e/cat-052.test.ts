@@ -21,7 +21,7 @@ import { after, before, describe, test } from 'node:test';
 import type { ConsoleMessage } from 'playwright';
 import { isWorkshopConsoleFailure } from '../workshop-console.mjs';
 import { WorkshopDriver, type RunResetSnapshot, type WorkshopBodyPose } from './workshop-driver.ts';
-import { decodeSavedConstruction, authoredState } from './workshop-wire.ts';
+import { decodeSavedConstruction, authoredState, parameter } from './workshop-wire.ts';
 import { assertLoadRestores } from './run-reset-snapshot.ts';
 
 const ConnectionDomain = { Electrical: 2 } as const;
@@ -77,18 +77,15 @@ function assertPressurePlateWiring(bytes: Buffer, batterySlot: number, plateSlot
 
     const plateInst = construction.instances(plateSlot)!;
     assert.equal(plateInst.partId(), 'pressure_plate');
-    assert.equal(plateInst.threshold(), 0.5);
+    assert.equal(parameter(plateInst, 'minimum_mass'), 0.5);
 }
 
-// What rests on the plate: nothing, a light domino, two dominoes, a 4 kg bowling ball lifted just above it, or that ball lifted
-// above the plate tilted 30° so that it rolls off.
+// What rests on the plate: nothing, a light domino, two dominoes, a 4 kg bowling ball (each placed from the drawer onto the face,
+// F.6 F-1), or that ball lifted above the plate tilted 30° so that it rolls off.
 type PlateLoad = 'none' | 'domino' | 'dominoes' | 'bowling' | 'rolloff';
 // Two standing dominoes on the plate face (plate centre world (3, -1.05)), 0.8 m apart along x.
 const DOMINO_LEFT = screen(2.6, -1.05);
 const DOMINO_RIGHT = screen(3.4, -1.05);
-// Move-gizmo lift (about 56 px/m): 0.68 m raises a standing domino's centre from the 3 m plane to 3.68 m, its foot 0.05 m above
-// the plate face.
-const DOMINO_LIFT_PX = 38;
 
 describe('CAT-052: Pressure Plate Surface Contact Load Sensor E2E', () => {
     let driver: WorkshopDriver;
@@ -141,17 +138,23 @@ describe('CAT-052: Pressure Plate Surface Contact Load Sensor E2E', () => {
             await driver.tiltSelectedByFineRotate(6);
         }
         if (load === 'domino' || load === 'dominoes') {
-            // A domino placed at the 3 m placement plane straddles the plate's top; the move gizmo lifts it so its foot rests
-            // just above the face (y 3.08) and it stands on the plate.
+            // F.6 F-1 (C-Plate): a domino placed from the drawer at the 3 m placement plane, which would straddle the plate's top,
+            // rests on the face instead (foot at y 3.08, centre 3.63); no gizmo lift.
             for (const at of load === 'domino' ? [{ x: 920, y: 510 }] : [DOMINO_LEFT, DOMINO_RIGHT]) {
                 await driver.selectTool('domino');
                 await driver.placeOnCanvas(at.x, at.y);
-                await driver.setPartMode('move');
-                await driver.liftSelectedPart(DOMINO_LIFT_PX, at.x, at.y);
                 await driver.page.keyboard.press('Escape');
                 await driver.page.waitForTimeout(200);
             }
-        } else if (load === 'bowling' || load === 'rolloff') {
+        } else if (load === 'bowling') {
+            // F.6 F-1: the bowling ball placed from the drawer rests on the face (centre y 3.36).
+            await driver.selectTool('bowling');
+            await driver.placeOnCanvas(920, 510);
+            await driver.page.keyboard.press('Escape');
+            await driver.page.waitForTimeout(200);
+        } else if (load === 'rolloff') {
+            // The plate is tilted 30°, so its face is not horizontal and placement does not rest the ball on it (F-1); the move
+            // gizmo lifts the ball just above the tilted plate.
             await driver.selectTool('bowling');
             await driver.placeOnCanvas(920, 510);
             await driver.setPartMode('move');
@@ -282,7 +285,7 @@ describe('CAT-052: Pressure Plate Surface Contact Load Sensor E2E', () => {
     test('6. Sum: two dominoes (0.8 kg) on the plate close its contact, the gate opens and the ball passes', { timeout: 150000 }, async () => {
         const s0 = await buildPlateBench('dominoes');
         const plate = decodeSavedConstruction(await saved(driver)).construction()!.instances(2)!;
-        assert.equal(plate.threshold(), 0.5, 'the plate keeps its 0.5 kg minimum');
+        assert.equal(parameter(plate, 'minimum_mass'), 0.5, 'the plate keeps its 0.5 kg minimum');
         assertOpened(await runAndSample(s0, 3500), 'two dominoes');
         await assertDominoesStand(['5', '6']);
         await resetMatches(s0);

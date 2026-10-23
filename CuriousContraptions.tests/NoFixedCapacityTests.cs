@@ -77,7 +77,7 @@ public sealed class NoFixedCapacityTests
                 return (Bench(parts, [.. links]), scene => Assert.Equal(17, scene.OrientationSensors.Length));
             case "contact-load-32":
                 for (var i = 0; i < 33; i++)
-                    parts.Add(WorkshopInput.PressurePlate(Next(), X(i), 1, 0, 0, 0, 0, 1, WorkshopPressurePlate.PlacedMinimumMass));
+                    parts.Add(PlacedParts.Plate(Next(), X(i), 1, 0, .5f));
                 return (Bench(parts), scene => Assert.Equal(33, scene.ContactLoadSensors.Length));
             case "activation-timers-32":
                 for (var i = 0; i < 33; i++) parts.Add(WorkshopInput.Clock(Next(), X(i), 1, 0, 0, 0, 0, 1, WorkshopClock.PlacedIntervalSeconds));
@@ -225,7 +225,7 @@ public sealed class NoFixedCapacityTests
             parts.AddRange([tile, lamp]); links.Add(Signal(tile.Id, lamp.Id));
         }
         for (var i = 0; i < 33; i++)
-            parts.Add(WorkshopInput.PressurePlate(Next(), X(i), 1, 4, 0, 0, 0, 1, WorkshopPressurePlate.PlacedMinimumMass));
+            parts.Add(PlacedParts.Plate(Next(), X(i), 1, 4, .5f));
         for (var i = 0; i < 33; i++) parts.Add(WorkshopInput.Clock(Next(), X(i), 1, 8, 0, 0, 0, 1, WorkshopClock.PlacedIntervalSeconds));
         return Bench(parts, [.. links]);
     }

@@ -1,0 +1,48 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-plate/CuriousContraptions.Abstractions/bin/Release/net10.0/CuriousContraptions.Abstractions.dll
+  CuriousContraptions.Abstractions.Fluid -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-plate/CuriousContraptions.Abstractions.Fluid/bin/Release/net10.0/CuriousContraptions.Abstractions.Fluid.dll
+  CuriousContraptions.Abstractions.Signal -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-plate/CuriousContraptions.Abstractions.Signal/bin/Release/net10.0/CuriousContraptions.Abstractions.Signal.dll
+  CuriousContraptions.Abstractions.Electrical -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-plate/CuriousContraptions.Abstractions.Electrical/bin/Release/net10.0/CuriousContraptions.Abstractions.Electrical.dll
+  CuriousContraptions.Abstractions.Mechanical -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-plate/CuriousContraptions.Abstractions.Mechanical/bin/Release/net10.0/CuriousContraptions.Abstractions.Mechanical.dll
+  BothGate -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-plate/elements/BothGate/bin/Release/net10.0/BothGate.dll
+  ElectricalNand -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-plate/elements/ElectricalNand/bin/Release/net10.0/ElectricalNand.dll
+  Battery -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-plate/elements/Battery/bin/Release/net10.0/Battery.dll
+  ElectricalNor -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-plate/elements/ElectricalNor/bin/Release/net10.0/ElectricalNor.dll
+  ElectricalXor -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-plate/elements/ElectricalXor/bin/Release/net10.0/ElectricalXor.dll
+  PipeBend45 -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-plate/elements/PipeBend45/bin/Release/net10.0/PipeBend45.dll
+  SystemClock -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-plate/elements/SystemClock/bin/Release/net10.0/SystemClock.dll
+  ElectricalOr -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-plate/elements/ElectricalOr/bin/Release/net10.0/ElectricalOr.dll
+  DelayBox -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-plate/elements/DelayBox/bin/Release/net10.0/DelayBox.dll
+  Domino -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-plate/elements/Domino/bin/Release/net10.0/Domino.dll
+  PipeBend90 -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-plate/elements/PipeBend90/bin/Release/net10.0/PipeBend90.dll
+  BallDetector -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-plate/elements/BallDetector/bin/Release/net10.0/BallDetector.dll
+  Counter -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-plate/elements/Counter/bin/Release/net10.0/Counter.dll
+  StateLatch -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-plate/elements/StateLatch/bin/Release/net10.0/StateLatch.dll
+  Ball -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-plate/elements/Ball/bin/Release/net10.0/Ball.dll
+  Springboard -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-plate/elements/Springboard/bin/Release/net10.0/Springboard.dll
+  Pipe -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-plate/elements/Pipe/bin/Release/net10.0/Pipe.dll
+  Ramp -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-plate/elements/Ramp/bin/Release/net10.0/Ramp.dll
+  Bumper -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-plate/elements/Bumper/bin/Release/net10.0/Bumper.dll
+  PressurePlate -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-plate/elements/PressurePlate/bin/Release/net10.0/PressurePlate.dll
+  HoldTimer -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-plate/elements/HoldTimer/bin/Release/net10.0/HoldTimer.dll
+  Wall -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-plate/elements/Wall/bin/Release/net10.0/Wall.dll
+  PoweredGate -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-plate/elements/PoweredGate/bin/Release/net10.0/PoweredGate.dll
+  SignalLamp -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-plate/elements/SignalLamp/bin/Release/net10.0/SignalLamp.dll
+  ImpactSwitch -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-plate/elements/ImpactSwitch/bin/Release/net10.0/ImpactSwitch.dll
+  Receiver -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-plate/elements/Receiver/bin/Release/net10.0/Receiver.dll
+  BowlingBall -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-plate/elements/BowlingBall/bin/Release/net10.0/BowlingBall.dll
+  Funnel -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-plate/elements/Funnel/bin/Release/net10.0/Funnel.dll
+  CuriousContraptions.Bundle -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-plate/CuriousContraptions.Bundle/bin/Release/net10.0/CuriousContraptions.Bundle.dll
+  BundleElements -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-plate/tools/BundleElements/bin/Release/net10.0/BundleElements.dll
+  Element bundle: /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-plate/tools/BundleElements/bin/Release/net10.0/elements.bundle.json (28 elements)
+  Element bundle: /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-plate/elements/elements.bundle.json (28 elements)
+  CuriousContraptions.FlatBuffers -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-plate/CuriousContraptions.FlatBuffers/bin/Release/net10.0/CuriousContraptions.FlatBuffers.dll
+  CuriousContraptions.Animation -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-plate/CuriousContraptions.Animation/bin/Release/net10.0/CuriousContraptions.Animation.dll
+  CuriousContraptions.Animation.Worker -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-plate/CuriousContraptions.Animation.Worker/bin/Release/net10.0/browser-wasm/CuriousContraptions.Animation.Worker.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:03.89

@@ -1,0 +1,3 @@
+M4 exclusivity: validator capability count omits ContactLoad
+  Failed CuriousContraptions.BundleElements.Tests.BundleValidatorTests.TheContactLoadSensorIsTypedRangedOnAStaticLevelSourceAndExclusive [18 ms]
+Failed!  - Failed:     1, Passed:   165, Skipped:     0, Total:   166, Duration: 283 ms - BundleElements.Tests.dll (net10.0)

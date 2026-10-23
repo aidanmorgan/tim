@@ -1,0 +1,28 @@
+C-Plate mutation receipts (implementation owner, 23 Oct 2026). Each mutant was applied with Edit, built (0 errors unless noted),
+run against the filter named in its log (filter.txt: PlateGuard/DeclaredContactLoad/PressurePlate/PlacementPose; filter-rest.txt:
+PlacementPose/PalettePlacement/TubeMouthSnap; M4 the whole BundleElements.Tests; M5 adds the wire, payload, orientation and decode
+boundary classes), then restored with Edit. Every mutant is killed.
+
+M1  footprint: x margin uses the depth margin, not the contact distance          killed (2)  M1-footprint-x-margin.test.log
+M2  hold 0: contact-load node ReleaseHoldTicks: 0                                 killed (48) M2-hold-zero.test.log
+M2b hold one tick short: Duration(0.1 s) - 1                                      killed (15) M2b-hold-one-short.test.log
+M3  parameter ignored: row MinimumMass = .5f                                      killed (14) M3-parameter-ignored.test.log
+M4  exclusivity: validator capability count omits ContactLoad                     killed (1)  M4-exclusivity.test.log
+M5  typed-field order: MapInstance decodes parameters before the typed refusal    killed (7)  M5-typed-field-order.test.log
+M6  rest removed: Compose returns the grid when no snap applies                   killed (6)  M6-rest-removed.test.log
+M7  rest without the footprint guard (Over removed)                               killed (1)  M7-rest-no-footprint.test.log
+M8  rest on any box (Vertical always axis 1)                                      killed (1)  M8-rest-any-box.test.log
+
+Re-review fixes (B1, 23 Oct 2026; filter PlacementPose/PalettePlacement):
+M9  bench-volume check disabled (lifted pose never OutsideBench)                 killed (4)  M9-no-bench-check.test.log
+M10 into-part refusal removed (overlapping lifted pose admitted)                  killed (1)  M10-into-part-removed.test.log
+    (M10's first form, slop 1 m, made the sphere radius negative and refused every lift: an invalid mutant, kept as
+    M10-first-form-invalid-negative-radius.test.log.)
+
+Disclosures:
+- M8's first form (`return 1;`) failed to build (IDE0060, unused parameter) and the test step ran the previous (M7) binary; that
+  run is invalid (M8-first-form-build-failed-IDE0060-stale-binary.log).
+- M8's second form SURVIVED the original controls (M8-survived-before-5deg-control.test.log): the 20° ramp's highest corner lies
+  above the ball, so the tilted-top rule was not exercised. A ramp tilted 5° (corner 0.22 m, within the ball's extent, centre over
+  the ramp) was added to PlacementPoseTests.EveryOtherPlacementKeepsTheBasePose; it kills M8 (composed y 0.5604 vs base 0.2).
+- The log tails of M1 carry the whole working diff of WorkshopPhysicsCompiler.cs against HEAD (the mutated line is the x margin).

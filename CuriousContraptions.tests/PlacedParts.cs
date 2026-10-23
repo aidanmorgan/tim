@@ -47,4 +47,12 @@ internal static class PlacedParts
     public static IWorkshopInstance Domino(GpuBodyId id, double x, double y, double z,
         double qx, double qy, double qz, double qw, bool locked = false) =>
         WorkshopInput.Generic(PartId.Domino, id, x, y, z, qx, qy, qz, qw) with { Locked = locked };
+
+    /// <summary>A Pressure Plate of a minimum mass (f32 kg) at an f32-input pose: the plate package's generic instance with its
+    /// declared <c>minimum_mass</c>. (On the record path at 61ded7ad it built `WorkshopPressurePlate`:
+    /// evidence-c-plate/probe/PlacedParts-record-path.cs.txt.)</summary>
+    public static IWorkshopInstance Plate(GpuBodyId id, double x, double y, double z, float minimumMass,
+        double qx = 0, double qy = 0, double qz = 0, double qw = 1, bool locked = false) =>
+        WorkshopInput.Generic(PartId.PressurePlate, id, x, y, z, qx, qy, qz, qw,
+            new([new(new("minimum_mass"), minimumMass)])) with { Locked = locked };
 }

@@ -591,6 +591,76 @@ public sealed class BundleValidatorTests
         Assert.Empty(Check(both with { Signal = both.Signal! with { Orientation = null } }));
     }
 
+    // C-Plate (D2): the contact-load sensor names a Real kilogram parameter with a positive minimum, one of the element's own baked
+    // unrotated Box colliders as its face, a unit normal, an alignment in (0, 1], a gap and z margin in [0, 0.01] m and a hold in
+    // (0, 1] s, on a Static frame without sliders with a level ActivationOut; it is the sixth node-selecting capability. Every refusal
+    // is one BundleError naming its field, never a throw. Controls: the shipped plate and each range end.
+    [Fact]
+    public void TheContactLoadSensorIsTypedRangedOnAStaticLevelSourceAndExclusive()
+    {
+        var generated = BundleGenerator.Generate(TestRepository.Root);
+        var bundle = Bundle.BundleSchema.Read(generated.Json!).Elements;
+        var plate = bundle.Single(entry => entry.Metadata.Id == "pressure_plate");
+        static IReadOnlyList<Bundle.BundleError> Check(Bundle.BundleEntry candidate) => Bundle.BundleValidator.Validate([new("Candidate", candidate)]);
+        static void Refused(Bundle.BundleEntry candidate, string field, Bundle.BundleErrorCode code = Bundle.BundleErrorCode.OutOfRange)
+        {
+            var error = Assert.Single(Check(candidate));
+            Assert.Equal((code, true), (error.Code, error.Detail.StartsWith("Candidate." + field + ":", StringComparison.Ordinal)));
+        }
+        Assert.Empty(Check(plate));
+        var declared = plate.Signal!.ContactLoad!.Value;
+        Assert.Equal(new SignalContactLoadDescriptor("minimum_mass", 1, Vector3.UnitY, 1f - 1e-6f, 1e-4f, 1e-6f, .1f), declared);
+        Bundle.BundleEntry With(SignalContactLoadDescriptor load) => plate with { Signal = plate.Signal with { ContactLoad = load } };
+
+        // Range ends admitted.
+        foreach (var load in new[] { declared with { MinimumAlignment = 1f }, declared with { ContactDistance = 0f }, declared with { ContactDistance = .01f },
+                     declared with { DepthMargin = 0f }, declared with { DepthMargin = .01f }, declared with { ReleaseHoldSeconds = 1f },
+                     declared with { LocalNormal = -Vector3.UnitX } })
+            Assert.Empty(Check(With(load)));
+        // The parameter: absent, not kilograms, not Real, or without a positive minimum.
+        Refused(With(declared with { MinimumMassParameter = "mass" }), "ContactLoad.MinimumMassParameter");
+        var parameter = plate.Metadata.Parameters[0];
+        Bundle.BundleEntry Parameter(ParameterDescriptor changed) => plate with { Metadata = plate.Metadata with { Parameters = [changed] } };
+        Refused(Parameter(parameter with { Unit = ParameterUnit.Metre }), "ContactLoad.MinimumMassParameter");
+        Refused(Parameter(parameter with { Minimum = 0f }), "ContactLoad.MinimumMassParameter");
+        Refused(Parameter(parameter with { Kind = ParameterKind.WholeNumber, Minimum = 1f, Maximum = 16f, Default = 1f }), "ContactLoad.MinimumMassParameter");
+        // The face: out of range either side, or not a Box.
+        Refused(With(declared with { FaceCollider = -1 }), "ContactLoad.FaceCollider");
+        Refused(With(declared with { FaceCollider = plate.Colliders.Count }), "ContactLoad.FaceCollider");
+        Refused(plate with { Colliders = [plate.Colliders[0], plate.Colliders[1] with { ShapeKind = ColliderShapeKind.Sphere }] }, "ContactLoad.FaceCollider");
+        Refused(plate with { Colliders = [plate.Colliders[0], plate.Colliders[1] with { Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, .1f) }] }, "ContactLoad.FaceCollider");
+        // The normal, alignment, gap, margin and hold, each one f32 beyond its range, and non-finite.
+        Refused(With(declared with { LocalNormal = new(0, 1.001f, 0) }), "ContactLoad.LocalNormal");
+        Refused(With(declared with { LocalNormal = new(float.NaN, 1, 0) }), "ContactLoad.LocalNormal.x", Bundle.BundleErrorCode.NonFinite);
+        Refused(With(declared with { MinimumAlignment = 0f }), "ContactLoad.MinimumAlignment");
+        Refused(With(declared with { MinimumAlignment = MathF.BitIncrement(1f) }), "ContactLoad.MinimumAlignment");
+        Refused(With(declared with { ContactDistance = MathF.BitDecrement(0f) }), "ContactLoad.ContactDistance");
+        Refused(With(declared with { ContactDistance = MathF.BitIncrement(.01f) }), "ContactLoad.ContactDistance");
+        Refused(With(declared with { ContactDistance = float.PositiveInfinity }), "ContactLoad.ContactDistance", Bundle.BundleErrorCode.NonFinite);
+        Refused(With(declared with { DepthMargin = MathF.BitIncrement(.01f) }), "ContactLoad.DepthMargin");
+        Refused(With(declared with { ReleaseHoldSeconds = 0f }), "ContactLoad.ReleaseHoldSeconds");
+        Refused(With(declared with { ReleaseHoldSeconds = MathF.BitIncrement(1f) }), "ContactLoad.ReleaseHoldSeconds");
+        Refused(With(declared with { ReleaseHoldSeconds = float.NaN }), "ContactLoad.ReleaseHoldSeconds", Bundle.BundleErrorCode.NonFinite);
+        // A Static frame (no Dynamic body, no slider) and a level ActivationOut.
+        Refused(plate with { Mechanical = plate.Mechanical! with { KinematicMode = Abstractions.Mechanical.KinematicMode.Dynamic } }, "ContactLoad.Body");
+        Refused(plate with { Mechanical = null }, "ContactLoad.Body");
+        // A Static frame that carries a slider (the face would no longer be PartIdentities + 1 + FaceCollider): the gate's own slider.
+        var slider = bundle.Single(entry => entry.Metadata.Id == "powered_gate").Mechanical!.Sliders[0];
+        Refused(plate with { Mechanical = plate.Mechanical! with { Sliders = [slider] } }, "ContactLoad.Body");
+        var activation = plate.Ports.Single(port => port.Socket == PortSocket.ActivationOut);
+        Refused(plate with { Ports = [.. plate.Ports.Where(port => port != activation), activation with { Signal = PortSignalKind.Pulse }] }, "ContactLoad.Ports");
+        Refused(plate with { Ports = [.. plate.Ports.Where(port => port != activation)] }, "ContactLoad.Ports");
+
+        // One node-selecting capability: a valid indicator beside the sensor is refused, and only for that.
+        var both = plate with
+        {
+            Ports = [.. plate.Ports, new(PortSocket.ActivationIn, SimulationDomain.Signal, PortDirection.Input, PortSignalKind.Level, Vector3.Zero, -Vector3.UnitY)],
+            Signal = plate.Signal with { Indicator = new(PortSocket.ActivationIn) }
+        };
+        Refused(both, "Capability");
+        Assert.Empty(Check(both with { Signal = both.Signal! with { ContactLoad = null } }));
+    }
+
     [Fact]
     public void AnAssemblyWithNoDeclarationIsRefused() =>
         Assert.Equal(["BUNDLE005 FixtureNone: declares 0 elements; a package declares exactly one"],

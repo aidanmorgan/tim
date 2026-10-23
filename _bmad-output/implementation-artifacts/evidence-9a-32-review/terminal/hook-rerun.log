@@ -1,0 +1,148 @@
+hook re-run 2026-10-23T12:35:27Z: HEAD 2065d3c5951232b3e04332101f3d31b45d5e10f1, index tree f233eca99383f3e6205748901b84392bd4239943 (published f233eca99383f3e6205748901b84392bd4239943); staged paths 343; unstaged/untracked: []
+hook: /Users/aidan/dev/personal/tim/.git/hooks/pre-commit -> exec sh "$(git rev-parse --show-toplevel)/.githooks/pre-commit"
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.HXWIQZ/solution.binlog
+
+Time Elapsed 00:00:09.47
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.HXWIQZ/playtest.binlog
+
+Time Elapsed 00:00:11.98
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.HXWIQZ/web.binlog
+
+Time Elapsed 00:00:07.74
+Anvil snapshot 0.ts: CuriousContraptions.Abstractions.Signal/SignalContracts.cs
+Anvil snapshot 1.ts: CuriousContraptions.Bundle/BundleSchema.cs
+Anvil snapshot 2.ts: CuriousContraptions.Bundle/BundleValidator.cs
+Anvil snapshot 3.ts: CuriousContraptions.tests/ConstructionDecodeBoundaryTests.cs
+Anvil snapshot 4.ts: CuriousContraptions.tests/DeclaredIndicatorPassageTests.cs
+Anvil snapshot 5.ts: CuriousContraptions.tests/DeclaredOrientationTests.cs
+Anvil snapshot 6.ts: CuriousContraptions.tests/DominoEffectTests.cs
+Anvil snapshot 7.ts: CuriousContraptions.tests/DominoGuardTests.cs
+Anvil snapshot 8.ts: CuriousContraptions.tests/LaunchLessonSolveTests.cs
+Anvil snapshot 9.ts: CuriousContraptions.tests/NoFixedCapacityTests.cs
+Anvil snapshot 10.ts: CuriousContraptions.tests/OldLayoutSaves.cs
+Anvil snapshot 11.ts: CuriousContraptions.tests/OrientationSensorTests.cs
+Anvil snapshot 12.ts: CuriousContraptions.tests/PackageRuntimeParityTests.cs
+Anvil snapshot 13.ts: CuriousContraptions.tests/PalettePlacementTests.cs
+Anvil snapshot 14.ts: CuriousContraptions.tests/PayloadInstanceTests.cs
+Anvil snapshot 15.ts: CuriousContraptions.tests/PlacedParts.cs
+Anvil snapshot 16.ts: CuriousContraptions.tests/PreConversionLaunchSaveTests.cs
+Anvil snapshot 17.ts: CuriousContraptions.tests/PressurePlateTests.cs
+Anvil snapshot 18.ts: CuriousContraptions.tests/RigidMassPropertiesTests.cs
+Anvil snapshot 19.ts: CuriousContraptions.tests/WorkbenchCapacityTests.cs
+Anvil snapshot 20.ts: CuriousContraptions.tests/WorkshopBowlingTests.cs
+Anvil snapshot 21.ts: CuriousContraptions.tests/WorkshopDominoTests.cs
+Anvil snapshot 22.ts: CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs
+Anvil snapshot 23.ts: CuriousContraptions.tests/WorkshopPhysicsLawPrismaticTests.cs
+Anvil snapshot 24.ts: CuriousContraptions.tests/WorkshopPhysicsLawSensorWorkTests.cs
+Anvil snapshot 25.ts: CuriousContraptions.tests/WorkshopPhysicsLawTests.cs
+Anvil snapshot 26.ts: CuriousContraptions.tests/WorkshopPipeLengthTests.cs
+Anvil snapshot 27.ts: CuriousContraptions.tests/WorkshopSaveRejectionTests.cs
+Anvil snapshot 28.ts: CuriousContraptions.tests/WorkshopSaveTests.cs
+Anvil snapshot 29.ts: CuriousContraptions.tests/WorkshopWireFlatBuffersTests.cs
+Anvil snapshot 30.ts: elements/Domino/DominoElementDeclaration.cs
+Anvil snapshot 31.ts: engine/MachineWorld.Gpu.cs
+Anvil snapshot 32.ts: engine/gpu/ActivationNetwork.cs
+Anvil snapshot 33.ts: engine/gpu/AuthoredInstanceTemplate.cs
+Anvil snapshot 34.ts: engine/gpu/DeclaredPhysics.cs
+Anvil snapshot 35.ts: engine/gpu/WorkshopConstruction.cs
+Anvil snapshot 36.ts: engine/gpu/WorkshopInstances.cs
+Anvil snapshot 37.ts: engine/gpu/WorkshopPhysicsCompiler.cs
+Anvil snapshot 38.ts: engine/gpu/WorkshopSaveCodec.cs
+Anvil snapshot 39.ts: engine/gpu/WorkshopSavePrevalidation.cs
+Anvil snapshot 40.ts: engine/gpu/WorkshopWireFlatBuffers.cs
+Anvil snapshot 41.ts: engine/gpu/WorkshopWireGenerated.cs
+Anvil snapshot 42.ts: tools/BundleElements.Tests/BundleRoundTripTests.cs
+Anvil snapshot 43.ts: tools/BundleElements.Tests/BundleValidatorTests.cs
+Anvil snapshot 44.ts: tools/e2e/run-reset-snapshot.ts
+Anvil snapshot 45.ts: tools/e2e/unit/run-reset-snapshot.test.ts
+Anvil snapshot 46.ts: tools/e2e/workshop-wire.ts
+{
+  "version": "1.0.0",
+  "timestamp": "2026-10-23T12:36:03.453782+00:00",
+  "files": [
+    "0.ts",
+    "1.ts",
+    "2.ts",
+    "3.ts",
+    "4.ts",
+    "5.ts",
+    "6.ts",
+    "7.ts",
+    "8.ts",
+    "9.ts",
+    "10.ts",
+    "11.ts",
+    "12.ts",
+    "13.ts",
+    "14.ts",
+    "15.ts",
+    "16.ts",
+    "17.ts",
+    "18.ts",
+    "19.ts",
+    "20.ts",
+    "21.ts",
+    "22.ts",
+    "23.ts",
+    "24.ts",
+    "25.ts",
+    "26.ts",
+    "27.ts",
+    "28.ts",
+    "29.ts",
+    "30.ts",
+    "31.ts",
+    "32.ts",
+    "33.ts",
+    "34.ts",
+    "35.ts",
+    "36.ts",
+    "37.ts",
+    "38.ts",
+    "39.ts",
+    "40.ts",
+    "41.ts",
+    "42.ts",
+    "43.ts",
+    "44.ts",
+    "45.ts",
+    "46.ts"
+  ],
+  "hasBlockingWarnings": false,
+  "executionTimeMs": 39,
+  "checksRun": [
+    "secret-detection",
+    "antipattern-scan"
+  ],
+  "notifications": [],
+  "warnings": [],
+  "summary": {
+    "total": 0,
+    "errors": 0,
+    "warnings": 0,
+    "info": 0,
+    "suppressed": 0
+  }
+}
+
+Test run for /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.QADVVh/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:   124, Skipped:     0, Total:   124, Duration: 4 s - CuriousContraptions.tests.dll (net10.0)
+hook rc=0
+throwaway removed: yes

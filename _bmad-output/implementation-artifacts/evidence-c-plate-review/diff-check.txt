@@ -1,0 +1,9 @@
+$ git diff --check HEAD
+rc=0
+$ git diff --no-index --check /dev/null <each untracked file>
+CuriousContraptions.tests/DeclaredContactLoadTests.cs rc=1 (1 = differs, no whitespace error lines above)
+CuriousContraptions.tests/PlacementPoseTests.cs rc=1 (1 = differs, no whitespace error lines above)
+CuriousContraptions.tests/PlateGuardTests.cs rc=1 (1 = differs, no whitespace error lines above)
+engine/PlacementPose.cs rc=1 (1 = differs, no whitespace error lines above)
+engine/PlacementPose.cs.uid rc=1 (1 = differs, no whitespace error lines above)
+_bmad-output/implementation-artifacts/spec-c-plate.md rc=1 (1 = differs, no whitespace error lines above)

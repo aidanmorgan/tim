@@ -61,10 +61,11 @@ const UPSTREAM_BALL = '2';
 const PLATE_NODE = '3';
 const LAMP_NODE = '5';
 const LAMP_TARGET = '7'; // the lamp's Memory cosmetic: ActivationTarget(lamp node 5) = 5 + 2
-// Move-gizmo lifts (about 56 px/m) above the plate face from the 3 m placement plane.
-const REST_LIFT_PX = 20;
-const BOUNCE_LIFT_PX = REST_LIFT_PX + 112; // about 2 m higher; evidence-9r-5/probe-bounce-native.txt: a 7-tick rebound gap
-const DOMINO_LIFT_PX = 38;
+// F.6 F-1 (C-Plate): a part placed from the drawer onto the flat plate rests on its face, so the resting Basketball and the Domino
+// need no lift. Move-gizmo lifts (about 56 px/m): the bounce ball is lifted about 2 m above its rested pose
+// (evidence-9r-5/probe-bounce-native.txt: a 7-tick rebound gap); on the plate tilted 30° placement does not rest the bowling ball, so
+// it is lifted from the 3 m placement plane.
+const BOUNCE_LIFT_PX = 112;
 const BOWLING_LIFT_PX = 12;
 
 type PlateLoad = 'basketball' | 'bounce' | 'domino' | 'rolloff';
@@ -168,11 +169,14 @@ describe('CAT-052: a Pressure Plate ActivationOut lights a Signal lamp, held 0.1
         await driver.page.waitForTimeout(150);
     }
 
-    async function liftNewPart(tool: 'basketball' | 'bowling' | 'domino', lift: number) {
+    /** Places a part from the drawer on the plate and, when `lift` is non-zero, lifts it with the move gizmo. */
+    async function placeNewPart(tool: 'basketball' | 'bowling' | 'domino', lift: number) {
         await driver.selectTool(tool);
         await driver.placeOnCanvas(PLATE.x, PLATE.y);
-        await driver.setPartMode('move');
-        await driver.liftSelectedPart(lift, PLATE.x, PLATE.y);
+        if (lift !== 0) {
+            await driver.setPartMode('move');
+            await driver.liftSelectedPart(lift, PLATE.x, PLATE.y);
+        }
         await driver.page.keyboard.press('Escape');
         await driver.page.waitForTimeout(200);
     }
@@ -203,10 +207,10 @@ describe('CAT-052: a Pressure Plate ActivationOut lights a Signal lamp, held 0.1
             await driver.selectPartAt(PLATE.x, PLATE.y);
             await driver.tiltSelectedByFineRotate(6);
         }
-        if (load === 'basketball') await liftNewPart('basketball', REST_LIFT_PX);
-        else if (load === 'bounce') await liftNewPart('basketball', BOUNCE_LIFT_PX);
-        else if (load === 'domino') await liftNewPart('domino', DOMINO_LIFT_PX);
-        else await liftNewPart('bowling', BOWLING_LIFT_PX);
+        if (load === 'basketball') await placeNewPart('basketball', 0);
+        else if (load === 'bounce') await placeNewPart('basketball', BOUNCE_LIFT_PX);
+        else if (load === 'domino') await placeNewPart('domino', 0);
+        else await placeNewPart('bowling', BOWLING_LIFT_PX);
         const s0 = await driver.captureSnapshot(BENCH);
         assert.deepEqual(savedLinks(await saved(driver)), BENCH_LINKS, 'the drawer stored the three wires');
         assert.deepEqual([phase(s0, PLATE_NODE), phase(s0, LAMP_NODE), holdDue(s0)], [ActivationPhase.Clear, ActivationPhase.Clear, 0n],

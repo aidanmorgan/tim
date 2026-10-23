@@ -1,0 +1,23 @@
+# identities 2026-10-23T12:35:03Z
+origin/main: 61ded7ad7000a296345c30833fba1dcc742fb3c3
+61ded7ad7000a296345c30833fba1dcc742fb3c3	refs/heads/main
+slice 495f0081:
+tree f233eca99383f3e6205748901b84392bd4239943
+parent 2065d3c5951232b3e04332101f3d31b45d5e10f1
+merge 61ded7ad:
+tree f233eca99383f3e6205748901b84392bd4239943
+parent 2065d3c5951232b3e04332101f3d31b45d5e10f1
+parent 495f0081d665e1a9d0798997aa9c0a02c1a9deba
+approved final staged tree f233eca99383f3e6205748901b84392bd4239943
+slice tree == approved: yes
+merge tree == slice tree: yes
+published diff (2065d3c5..495f0081) sha256: f233e08f961962670ed8b6bbd101327572ada1ebe7003c7260562ac98144a374 (approved final staged diff f233e08f961962670ed8b6bbd101327572ada1ebe7003c7260562ac98144a374)
+slice commit message:
+Aidan Morgan <aidan@runlevelfive.com.au>
+Convert the domino to a declared orientation-sensing generic instance
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+
+merge message:
+Merge 9A.32 domino generic conversion
+

@@ -1,0 +1,6 @@
+M9 bench-volume check disabled (B1)
+  Failed CuriousContraptions.Tests.PalettePlacementTests.ThePreviewAndTheClickShareTheComposedPoseAndItsRefusal(height: 8.89999962, admitted: False) [20 ms]
+  Failed CuriousContraptions.Tests.PlacementPoseTests.ARestedPoseAboveTheBenchIsRefused(part: domino, halfHeight: 0.550000012) [10 ms]
+  Failed CuriousContraptions.Tests.PlacementPoseTests.ARestedPoseAboveTheBenchIsRefused(part: ball, halfHeight: 0.340000004) [8 ms]
+  Failed CuriousContraptions.Tests.PlacementPoseTests.ARestedPoseAboveTheBenchIsRefused(part: bowling, halfHeight: 0.280000001) [6 ms]
+Failed!  - Failed:     4, Passed:    64, Skipped:     0, Total:    68, Duration: 2 s - CuriousContraptions.tests.dll (net10.0)

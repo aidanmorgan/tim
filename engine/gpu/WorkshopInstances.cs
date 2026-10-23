@@ -74,7 +74,7 @@ public sealed class WorkshopInstances : IReadOnlyList<IWorkshopInstance>, IEquat
         var ids = new HashSet<GpuBodyId>();
         foreach (var item in _items)
         {
-            if (item is not (WorkshopPressurePlate or WorkshopCounter or WorkshopClock or WorkshopLatch or IWorkshopDeclaredColliders))
+            if (item is not (WorkshopCounter or WorkshopClock or WorkshopLatch or IWorkshopDeclaredColliders))
                 throw new ArgumentException("Unsupported authored instance declaration.");
             item.Validate();
             if (!ids.Add(item.Id)) throw new ArgumentException("Authored body identities must be unique.");

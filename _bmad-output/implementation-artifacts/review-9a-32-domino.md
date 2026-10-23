@@ -225,3 +225,29 @@ I approve the exact staged snapshot for commit, merge and push. Its identity:
 4. The Pages artifact and deployment are for that SHA, and the deployment status is success.
 5. The deployed origin serves the new bundle (`index.html`, `godot.wasm`, `godot.pck`, `_framework/dotnet.js`) for that run.
 6. After publication, `sprint-status` marks `9a-32-generic-instance-domino` done, with the terminal scoped Pass recorded and browser pending.
+
+## Terminal publication verification — 23 October 2026
+
+Raw outputs are in `evidence-9a-32-review/terminal/`.
+
+**Identities**
+- Slice commit: `495f0081d665e1a9d0798997aa9c0a02c1a9deba`, tree `f233eca99383f3e6205748901b84392bd4239943`, parent `2065d3c5`.
+- Published merge (`--no-ff`): `61ded7ad7000a296345c30833fba1dcc742fb3c3`, parents `2065d3c5` and `495f0081`, tree `f233eca9…`. It has the same tree because main had not moved.
+- Remote: after a fetch, `origin/main` and `git ls-remote origin refs/heads/main` both return `61ded7ad…`.
+
+| # | Publication-dependent check | Result | Raw |
+|---|---|---|---|
+| 1 | The commit tree equals the approved snapshot | **Pass.** `495f0081^{tree}` = `f233eca9`, the final staged tree reported with the approval. `git diff --binary 2065d3c5 495f0081` has sha256 `f233e08f961962670ed8b6bbd101327572ada1ebe7003c7260562ac98144a374`, equal to the approved final staged diff. | `identities.txt` |
+| 2 | Hooks | **Pass.** The implementer's commit log (`commit-hook-implementer.log`): 3 gate builds with 0 warnings and 0 errors; Anvil `hasBlockingWarnings: false`, errors 0; `CSharpStaticGateTests` + `WorkshopUiFailureTests` 124/124; rc 0. **My re-run** on the exact published tree, in a throwaway worktree with HEAD `2065d3c5` and index `f233eca9` (343 staged paths, nothing unstaged or untracked), invoked through the common hooks dir: 3 gate builds with 0 warnings; Anvil not blocking, 0 errors; 124/124; hook rc 0. The worktree was removed. | `commit-hook-implementer.log`, `hook-rerun.log` |
+| 3 | The merge tree equals the branch tree, and remote main is the published merge | **Pass** | `identities.txt` |
+| 4 | Pages workflow on the exact SHA | **Pass.** Run 39952734117, "Build and deploy game", push, main, headSha `61ded7ad`, completed/success. Checkout fetched `61ded7ad`. Every build step succeeded: static gate (3 builds, 0 warnings), Test C# game, Test C# tools, publish, static-deployment check, upload. The deploy job succeeded. Totals: **game 2487**; **tools 77 / 165 / 17 / 174**; Skipped 0 everywhere. CI's tools step excludes 15 toolchain tests by design (174 against 189 locally). | `run.json`, `build-job.log` |
+| 5 | Pages artifact ownership and deployment | **Pass.** Artifact `github-pages` id 12502016294 (digest `sha256:8442e9b3…`, 79,773,902 bytes, not expired) belongs to run 39952734117 at headSha `61ded7ad` on main. The deploy job used `artifact_id` 12502016294 and "Created deployment for 61ded7ad…". Deployment 7278289665 (sha `61ded7ad`, ref main) is the newest `github-pages` deployment; the previous ones were `2065d3c5` and `54ffd9f0`. Its status went waiting → queued → in_progress → success, with environment `https://aidanmorgan.github.io/tim/`. | `artifact-deployment.txt`, `deploy-job.log`, `deployment-status.txt` |
+| 6 | Serving | **Pass.** `/`, `/index.html`, `/404.html`, `/godot.wasm`, `/godot.pck` and `/_framework/dotnet.js` each return 200, with `last-modified` 23 Oct 2026 12:34:07–08 GMT. That is the deployment's own time; the deploy job reported success at 12:34:09Z. | `deployment-status.txt` |
+| 7 | Closing addenda | Appended, additions only, to `review-6-5f-partart-partkind-legacy-purge.md`. The epics map 6.5f's switch tables to 9A.27–9A.43, so the addendum covers the Domino arms only: Closed, Pass. 6.5f stays open until C-Memory. A fresh run on `495f0081`/`f233eca9`, bundle `a5f5e8ed…`, passed 87/87 with rc 0 and includes the census. No other original in the closure table names 9A.32. The domino's own original, Story 5.2, is not a reopened record. | `addendum-6-5f-native-rerun.log` |
+| 8 | Status row | `9a-32-generic-instance-domino` set to `done` in this worktree, with browser pending | — |
+| 9 | Browser cases | Still pending post-catalogue E2E: `cat-023a`, `cat-023b`, the `engine-core-2b1` variant (a base-era save holding a generic part is refused, and the bench is kept), and re-runs of `cat-014`, `cat-052`, `cat-052-lamp`, `clock-master`, `palette-placement` and `engine-core-2b1` | — |
+
+**Terminal verdict: scoped native and publication Pass at `61ded7ad`.**
+- Browser qualification is pending post-catalogue E2E. This is not a release, global-audit or runtime qualification.
+- The non-blocking findings F1, F3, F4 and F6 stand as recorded.
+- The unreproducible exit-139 test-host crash (observed once, in the implementer's runs only) still needs an owner from engine/test infrastructure.

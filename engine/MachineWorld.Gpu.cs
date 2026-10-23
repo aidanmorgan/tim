@@ -110,8 +110,6 @@ public partial class MachineWorld
                     PipeLength.Default)),
             // A part already in the construction keeps its declared setting; a newly placed one starts from its declared
             // placement value (Story 9.4b: no factory or decoder default substitutes for either).
-            "pressure_plate" => WorkshopInput.PressurePlate(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
-                Construction.Instances.FirstOrDefault(instance => instance.Id == bodyId) is WorkshopPressurePlate plate ? plate.MinimumMass : WorkshopPressurePlate.PlacedMinimumMass),
             "counter" => WorkshopInput.Counter(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
                 Construction.Instances.FirstOrDefault(instance => instance.Id == bodyId) is WorkshopCounter counter ? counter.TargetCount : WorkshopCounter.PlacedTargetCount),
             "clock" => WorkshopInput.Clock(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,

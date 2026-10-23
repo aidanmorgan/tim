@@ -153,7 +153,7 @@ public sealed class WorkshopSaveRejectionTests
         PlacedParts.Domino(new(11), 8, 0, 0, 0, 0, 0, 1),
         PlacedParts.Lamp(new(12), 9, 0, 0, 0, 0, 0, 1),
         PlacedParts.Detector(new(13), 10, 0, 0, 0, 0, 0, 1),
-        WorkshopInput.PressurePlate(new(14), 11, 0, 0, 0, 0, 0, 1, WorkshopPressurePlate.PlacedMinimumMass),
+        PlacedParts.Plate(new(14), 11, 0, 0, .5f),
         WorkshopInput.Counter(new(15), 12, 0, 0, 0, 0, 0, 1, WorkshopCounter.PlacedTargetCount),
         WorkshopInput.Clock(new(16), 13, 0, 0, 0, 0, 0, 1, 1f),
         WorkshopInput.Latch(new(17), 14, 0, 0, 0, 0, 0, 1),

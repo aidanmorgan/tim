@@ -1,0 +1,126 @@
+19c19
+< basket field=Length defaults=False | cmd WIRE OutOfRange: Invalid declared parameters. | SAVE OutOfRange: This save cannot be loaded: Part 1 is a generic instance and cannot carry a typed record field.
+---
+> basket field=Length defaults=False | cmd WIRE OutOfRange: Generic instance cannot carry a typed record field. | SAVE OutOfRange: This save cannot be loaded: Part 1 is a generic instance and cannot carry a typed record field.
+21c21
+< basket field=Threshold defaults=False | cmd WIRE OutOfRange: Invalid declared parameters. | SAVE OutOfRange: This save cannot be loaded: Part 1 is a generic instance and cannot carry a typed record field.
+---
+> basket field=Threshold defaults=False | cmd WIRE OutOfRange: Generic instance cannot carry a typed record field. | SAVE OutOfRange: This save cannot be loaded: Part 1 is a generic instance and cannot carry a typed record field.
+23c23
+< basket field=TargetCount defaults=False | cmd WIRE OutOfRange: Invalid declared parameters. | SAVE OutOfRange: This save cannot be loaded: Part 1 is a generic instance and cannot carry a typed record field.
+---
+> basket field=TargetCount defaults=False | cmd WIRE OutOfRange: Generic instance cannot carry a typed record field. | SAVE OutOfRange: This save cannot be loaded: Part 1 is a generic instance and cannot carry a typed record field.
+27c27
+< battery field=Length defaults=False | cmd WIRE OutOfRange: Invalid declared parameters. | SAVE OutOfRange: This save cannot be loaded: Part 1 is a generic instance and cannot carry a typed record field.
+---
+> battery field=Length defaults=False | cmd WIRE OutOfRange: Generic instance cannot carry a typed record field. | SAVE OutOfRange: This save cannot be loaded: Part 1 is a generic instance and cannot carry a typed record field.
+29c29
+< battery field=Threshold defaults=False | cmd WIRE OutOfRange: Invalid declared parameters. | SAVE OutOfRange: This save cannot be loaded: Part 1 is a generic instance and cannot carry a typed record field.
+---
+> battery field=Threshold defaults=False | cmd WIRE OutOfRange: Generic instance cannot carry a typed record field. | SAVE OutOfRange: This save cannot be loaded: Part 1 is a generic instance and cannot carry a typed record field.
+31c31
+< battery field=TargetCount defaults=False | cmd WIRE OutOfRange: Invalid declared parameters. | SAVE OutOfRange: This save cannot be loaded: Part 1 is a generic instance and cannot carry a typed record field.
+---
+> battery field=TargetCount defaults=False | cmd WIRE OutOfRange: Generic instance cannot carry a typed record field. | SAVE OutOfRange: This save cannot be loaded: Part 1 is a generic instance and cannot carry a typed record field.
+51c51
+< bumper field=Length defaults=False | cmd WIRE OutOfRange: Invalid declared parameters. | SAVE OutOfRange: This save cannot be loaded: Part 1 is a generic instance and cannot carry a typed record field.
+---
+> bumper field=Length defaults=False | cmd WIRE OutOfRange: Generic instance cannot carry a typed record field. | SAVE OutOfRange: This save cannot be loaded: Part 1 is a generic instance and cannot carry a typed record field.
+53c53
+< bumper field=Threshold defaults=False | cmd WIRE OutOfRange: Invalid declared parameters. | SAVE OutOfRange: This save cannot be loaded: Part 1 is a generic instance and cannot carry a typed record field.
+---
+> bumper field=Threshold defaults=False | cmd WIRE OutOfRange: Generic instance cannot carry a typed record field. | SAVE OutOfRange: This save cannot be loaded: Part 1 is a generic instance and cannot carry a typed record field.
+55c55
+< bumper field=TargetCount defaults=False | cmd WIRE OutOfRange: Invalid declared parameters. | SAVE OutOfRange: This save cannot be loaded: Part 1 is a generic instance and cannot carry a typed record field.
+---
+> bumper field=TargetCount defaults=False | cmd WIRE OutOfRange: Generic instance cannot carry a typed record field. | SAVE OutOfRange: This save cannot be loaded: Part 1 is a generic instance and cannot carry a typed record field.
+75c75
+< delay field=Length defaults=False | cmd WIRE OutOfRange: Invalid declared parameters. | SAVE OutOfRange: This save cannot be loaded: Part 1 is a generic instance and cannot carry a typed record field.
+---
+> delay field=Length defaults=False | cmd WIRE OutOfRange: Generic instance cannot carry a typed record field. | SAVE OutOfRange: This save cannot be loaded: Part 1 is a generic instance and cannot carry a typed record field.
+77c77
+< delay field=Threshold defaults=False | cmd WIRE OutOfRange: Invalid declared parameters. | SAVE OutOfRange: This save cannot be loaded: Part 1 is a generic instance and cannot carry a typed record field.
+---
+> delay field=Threshold defaults=False | cmd WIRE OutOfRange: Generic instance cannot carry a typed record field. | SAVE OutOfRange: This save cannot be loaded: Part 1 is a generic instance and cannot carry a typed record field.
+79c79
+< delay field=TargetCount defaults=False | cmd WIRE OutOfRange: Invalid declared parameters. | SAVE OutOfRange: This save cannot be loaded: Part 1 is a generic instance and cannot carry a typed record field.
+---
+> delay field=TargetCount defaults=False | cmd WIRE OutOfRange: Generic instance cannot carry a typed record field. | SAVE OutOfRange: This save cannot be loaded: Part 1 is a generic instance and cannot carry a typed record field.
+131c131
+< hold_timer field=Length defaults=False | cmd WIRE OutOfRange: Invalid declared parameters. | SAVE OutOfRange: This save cannot be loaded: Part 1 is a generic instance and cannot carry a typed record field.
+---
+> hold_timer field=Length defaults=False | cmd WIRE OutOfRange: Generic instance cannot carry a typed record field. | SAVE OutOfRange: This save cannot be loaded: Part 1 is a generic instance and cannot carry a typed record field.
+133c133
+< hold_timer field=Threshold defaults=False | cmd WIRE OutOfRange: Invalid declared parameters. | SAVE OutOfRange: This save cannot be loaded: Part 1 is a generic instance and cannot carry a typed record field.
+---
+> hold_timer field=Threshold defaults=False | cmd WIRE OutOfRange: Generic instance cannot carry a typed record field. | SAVE OutOfRange: This save cannot be loaded: Part 1 is a generic instance and cannot carry a typed record field.
+135c135
+< hold_timer field=TargetCount defaults=False | cmd WIRE OutOfRange: Invalid declared parameters. | SAVE OutOfRange: This save cannot be loaded: Part 1 is a generic instance and cannot carry a typed record field.
+---
+> hold_timer field=TargetCount defaults=False | cmd WIRE OutOfRange: Generic instance cannot carry a typed record field. | SAVE OutOfRange: This save cannot be loaded: Part 1 is a generic instance and cannot carry a typed record field.
+185,192c185,192
+< pressure_plate field=none defaults=False | cmd LOADED WorkshopPressurePlate | SAVE OutOfRange: This save cannot be loaded: Part 1 minimum mass 0 is outside [0.1, 16].
+< pressure_plate field=none defaults=True | cmd WIRE OutOfRange: Typed instance cannot carry generic parameters. | SAVE OutOfRange: This save cannot be loaded: Part 1 minimum mass 0 is outside [0.1, 16].
+< pressure_plate field=Length defaults=False | cmd LOADED WorkshopPressurePlate | SAVE OutOfRange: This save cannot be loaded: Part 1 minimum mass 0 is outside [0.1, 16].
+< pressure_plate field=Length defaults=True | cmd WIRE OutOfRange: Typed instance cannot carry generic parameters. | SAVE OutOfRange: This save cannot be loaded: Part 1 minimum mass 0 is outside [0.1, 16].
+< pressure_plate field=Threshold defaults=False | cmd LOADED WorkshopPressurePlate | LOADED
+< pressure_plate field=Threshold defaults=True | cmd WIRE OutOfRange: Typed instance cannot carry generic parameters. | SAVE OutOfRange: This save cannot be loaded: Typed instance cannot carry generic parameters.
+< pressure_plate field=TargetCount defaults=False | cmd LOADED WorkshopPressurePlate | SAVE OutOfRange: This save cannot be loaded: Part 1 minimum mass 0 is outside [0.1, 16].
+< pressure_plate field=TargetCount defaults=True | cmd WIRE OutOfRange: Typed instance cannot carry generic parameters. | SAVE OutOfRange: This save cannot be loaded: Part 1 minimum mass 0 is outside [0.1, 16].
+---
+> pressure_plate field=none defaults=False | cmd WIRE OutOfRange: Invalid declared parameters. | SAVE OutOfRange: This save cannot be loaded: Invalid declared parameters.
+> pressure_plate field=none defaults=True | cmd LOADED WorkshopGenericInstance | LOADED
+> pressure_plate field=Length defaults=False | cmd WIRE OutOfRange: Generic instance cannot carry a typed record field. | SAVE OutOfRange: This save cannot be loaded: Part 1 is a generic instance and cannot carry a typed record field.
+> pressure_plate field=Length defaults=True | cmd WIRE OutOfRange: Generic instance cannot carry a typed record field. | SAVE OutOfRange: This save cannot be loaded: Part 1 is a generic instance and cannot carry a typed record field.
+> pressure_plate field=Threshold defaults=False | cmd WIRE OutOfRange: Generic instance cannot carry a typed record field. | SAVE OutOfRange: This save cannot be loaded: Part 1 is a generic instance and cannot carry a typed record field.
+> pressure_plate field=Threshold defaults=True | cmd WIRE OutOfRange: Generic instance cannot carry a typed record field. | SAVE OutOfRange: This save cannot be loaded: Part 1 is a generic instance and cannot carry a typed record field.
+> pressure_plate field=TargetCount defaults=False | cmd WIRE OutOfRange: Generic instance cannot carry a typed record field. | SAVE OutOfRange: This save cannot be loaded: Part 1 is a generic instance and cannot carry a typed record field.
+> pressure_plate field=TargetCount defaults=True | cmd WIRE OutOfRange: Generic instance cannot carry a typed record field. | SAVE OutOfRange: This save cannot be loaded: Part 1 is a generic instance and cannot carry a typed record field.
+195c195
+< ramp field=Length defaults=False | cmd WIRE OutOfRange: Invalid declared parameters. | SAVE OutOfRange: This save cannot be loaded: Part 1 is a generic instance and cannot carry a typed record field.
+---
+> ramp field=Length defaults=False | cmd WIRE OutOfRange: Generic instance cannot carry a typed record field. | SAVE OutOfRange: This save cannot be loaded: Part 1 is a generic instance and cannot carry a typed record field.
+197c197
+< ramp field=Threshold defaults=False | cmd WIRE OutOfRange: Invalid declared parameters. | SAVE OutOfRange: This save cannot be loaded: Part 1 is a generic instance and cannot carry a typed record field.
+---
+> ramp field=Threshold defaults=False | cmd WIRE OutOfRange: Generic instance cannot carry a typed record field. | SAVE OutOfRange: This save cannot be loaded: Part 1 is a generic instance and cannot carry a typed record field.
+199c199
+< ramp field=TargetCount defaults=False | cmd WIRE OutOfRange: Invalid declared parameters. | SAVE OutOfRange: This save cannot be loaded: Part 1 is a generic instance and cannot carry a typed record field.
+---
+> ramp field=TargetCount defaults=False | cmd WIRE OutOfRange: Generic instance cannot carry a typed record field. | SAVE OutOfRange: This save cannot be loaded: Part 1 is a generic instance and cannot carry a typed record field.
+203c203
+< spring field=Length defaults=False | cmd WIRE OutOfRange: Invalid declared parameters. | SAVE OutOfRange: This save cannot be loaded: Part 1 is a generic instance and cannot carry a typed record field.
+---
+> spring field=Length defaults=False | cmd WIRE OutOfRange: Generic instance cannot carry a typed record field. | SAVE OutOfRange: This save cannot be loaded: Part 1 is a generic instance and cannot carry a typed record field.
+205c205
+< spring field=Threshold defaults=False | cmd WIRE OutOfRange: Invalid declared parameters. | SAVE OutOfRange: This save cannot be loaded: Part 1 is a generic instance and cannot carry a typed record field.
+---
+> spring field=Threshold defaults=False | cmd WIRE OutOfRange: Generic instance cannot carry a typed record field. | SAVE OutOfRange: This save cannot be loaded: Part 1 is a generic instance and cannot carry a typed record field.
+207c207
+< spring field=TargetCount defaults=False | cmd WIRE OutOfRange: Invalid declared parameters. | SAVE OutOfRange: This save cannot be loaded: Part 1 is a generic instance and cannot carry a typed record field.
+---
+> spring field=TargetCount defaults=False | cmd WIRE OutOfRange: Generic instance cannot carry a typed record field. | SAVE OutOfRange: This save cannot be loaded: Part 1 is a generic instance and cannot carry a typed record field.
+211c211
+< switch field=Length defaults=False | cmd WIRE OutOfRange: Invalid declared parameters. | SAVE OutOfRange: This save cannot be loaded: Part 1 is a generic instance and cannot carry a typed record field.
+---
+> switch field=Length defaults=False | cmd WIRE OutOfRange: Generic instance cannot carry a typed record field. | SAVE OutOfRange: This save cannot be loaded: Part 1 is a generic instance and cannot carry a typed record field.
+213c213
+< switch field=Threshold defaults=False | cmd WIRE OutOfRange: Invalid declared parameters. | SAVE OutOfRange: This save cannot be loaded: Part 1 is a generic instance and cannot carry a typed record field.
+---
+> switch field=Threshold defaults=False | cmd WIRE OutOfRange: Generic instance cannot carry a typed record field. | SAVE OutOfRange: This save cannot be loaded: Part 1 is a generic instance and cannot carry a typed record field.
+215c215
+< switch field=TargetCount defaults=False | cmd WIRE OutOfRange: Invalid declared parameters. | SAVE OutOfRange: This save cannot be loaded: Part 1 is a generic instance and cannot carry a typed record field.
+---
+> switch field=TargetCount defaults=False | cmd WIRE OutOfRange: Generic instance cannot carry a typed record field. | SAVE OutOfRange: This save cannot be loaded: Part 1 is a generic instance and cannot carry a typed record field.
+219c219
+< wall field=Length defaults=False | cmd WIRE OutOfRange: Invalid declared parameters. | SAVE OutOfRange: This save cannot be loaded: Part 1 is a generic instance and cannot carry a typed record field.
+---
+> wall field=Length defaults=False | cmd WIRE OutOfRange: Generic instance cannot carry a typed record field. | SAVE OutOfRange: This save cannot be loaded: Part 1 is a generic instance and cannot carry a typed record field.
+221c221
+< wall field=Threshold defaults=False | cmd WIRE OutOfRange: Invalid declared parameters. | SAVE OutOfRange: This save cannot be loaded: Part 1 is a generic instance and cannot carry a typed record field.
+---
+> wall field=Threshold defaults=False | cmd WIRE OutOfRange: Generic instance cannot carry a typed record field. | SAVE OutOfRange: This save cannot be loaded: Part 1 is a generic instance and cannot carry a typed record field.
+223c223
+< wall field=TargetCount defaults=False | cmd WIRE OutOfRange: Invalid declared parameters. | SAVE OutOfRange: This save cannot be loaded: Part 1 is a generic instance and cannot carry a typed record field.
+---
+> wall field=TargetCount defaults=False | cmd WIRE OutOfRange: Generic instance cannot carry a typed record field. | SAVE OutOfRange: This save cannot be loaded: Part 1 is a generic instance and cannot carry a typed record field.

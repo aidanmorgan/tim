@@ -1,0 +1,12 @@
+    0 Warning(s)
+    0 Error(s)
+-                    ReleaseHoldTicks: ActivationTimerDeclaration.Duration(load.ReleaseHoldSeconds, construction.Settings.Simulation)));
++                    ReleaseHoldTicks: ActivationTimerDeclaration.Duration(load.ReleaseHoldSeconds, construction.Settings.Simulation) + 1));
+  Failed CuriousContraptions.Tests.DeclaredContactLoadTests.TheHoldIsATenthOfASecondAtEachCadence(cadence: Hz240, ticks: 24) [8 ms]
+  Failed CuriousContraptions.Tests.DeclaredContactLoadTests.TheHoldIsATenthOfASecondAtEachCadence(cadence: Hz60, ticks: 6) [< 1 ms]
+  Failed CuriousContraptions.Tests.DeclaredContactLoadTests.TheHoldIsATenthOfASecondAtEachCadence(cadence: Hz120, ticks: 12) [< 1 ms]
+  Failed CuriousContraptions.Tests.DeclaredContactLoadTests.TheDeclaredSensorCompilesTheRecordPathsRowForEveryPlate [12 ms]
+  Failed CuriousContraptions.Tests.PressurePlateTests.TheLevelIsHeldThroughElevenTicksAndDarkFromTwelve(n: 12, lit: False) [< 1 ms]
+  Failed CuriousContraptions.Tests.PressurePlateTests.ALoadRolledOffATiltedPlateReleasesItsLevelTwelveTicksAfterItsLastQualifyingTick [81 ms]
+  Failed CuriousContraptions.Tests.PressurePlateTests.ABasketballRestingOnThePlateLightsItsLampOnItsFirstLoadedTick [12 ms]
+  Failed CuriousContraptions.Tests.PressurePlateTests.TheLampAndTheSuppliedContactShareOneHeldLevelOnEveryTick [3 ms]
