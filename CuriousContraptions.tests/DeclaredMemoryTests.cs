@@ -62,7 +62,6 @@ public sealed class DeclaredMemoryTests
         public LocalPosition Local => default;
         public CanonicalRotation Rotation => CanonicalRotation.Identity;
         public bool Locked => false;
-        public CosmeticCurveDeclaration Cosmetic => CosmeticCurveDeclaration.For(PartId);
         public IReadOnlyList<ExtractedCollider> DeclaredColliders => DeclaredPhysics.Colliders(PartId);
         public void Validate() => Validations++;
     }

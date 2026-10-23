@@ -5,15 +5,13 @@ namespace CuriousContraptions.Gpu;
 /// <summary>Exact committed read content; inline storage and decoded motion wrappers have no reference authority.</summary>
 public readonly partial record struct WorkshopRead
 {
-    // Per-commit balances cannot be coalesced: consumers reconcile each credit and debit.
-    public bool RequiresReliableRead(WorkshopRead previous)
+    /// <summary>The commit moved energy: a store was credited or a source debited. Story 9A.23 D9: it gates only the existing
+    /// <c>CCGPU_RETAINED</c> observation line (until Story 9A.24's typed port replaces it); no read is reliable or retained, since every
+    /// one-shot occurrence (Impact, ElectricalPowered) reaches its consumers through the event ring.</summary>
+    public bool CarriesBalanceTransfer()
     {
-        for (var i = 0; i < ContactWorks.Count; i++)
-            if (ContactWorks[i].SuppliedEnergy.Value > 0 || i >= previous.ContactWorks.Count ||
-                ContactWorks[i].OccurrenceCount > previous.ContactWorks[i].OccurrenceCount) return true;
-        for (var i = 0; i < Electrical.Count; i++)
-            if (Electrical[i].Debit.Value > 0 || i >= previous.Electrical.Count ||
-                Electrical[i].Enabled != previous.Electrical[i].Enabled) return true;
+        for (var i = 0; i < ContactWorks.Count; i++) if (ContactWorks[i].SuppliedEnergy.Value > 0) return true;
+        for (var i = 0; i < Electrical.Count; i++) if (Electrical[i].Debit.Value > 0) return true;
         return false;
     }
 

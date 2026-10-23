@@ -2394,6 +2394,11 @@ These stories implement the [Delivery order](#delivery-order-coordinator-21-oct-
 - *the whole of Story 9A.23's list, including the main-thread `Transition` relay and the one-shot pumps in `PumpCosmetics`;*
 - *the relay driver of every declared one-shot binding (Bumper impact pulse, Receiver capture, switch and latch one-shots), which becomes a ring-kind driver.*
 
+*Scope notes (24 Oct 2026, [spec](../implementation-artifacts/spec-9a-23-25b-ring-consumers.md)):*
+- *"Latch one-shots" is vacuous. The State Latch's memory is a level (invariant 4), and its 0.125 s transition is already the 9A.25a committed binding, so it has no ring-kind driver.*
+- *The Ball detector's cue is a ring-kind binding of kind `Passage`, on every crossing (CAT-002 §2).*
+- *The main-thread cursor's production consumer is the goal-cue wake (coordinator decision). The 9A.24 port reuses the same reader.*
+
 **Acceptance Criteria:**
 - **Given** the event ring, **When** a run starts, **Then** every Story 9A.23 AC holds.
 - **And** every declared one-shot binding is driven only by its ring kind. The golden sampled properties at fixed curve times equal the 9A.25a values, and the Chrome motion screenshots match.

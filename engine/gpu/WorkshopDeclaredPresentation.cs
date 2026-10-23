@@ -8,12 +8,15 @@ namespace CuriousContraptions.Gpu;
 public readonly record struct DeclaredPresentationSample(
     AnimationTargetId Target, GpuBodyId Owner, int Binding, AnimationValue Value);
 
-/// <summary>Animation-owned committed-query evaluation. Main-thread code only applies the resulting property samples.</summary>
+/// <summary>Animation-owned evaluation of every declared binding: committed-state queries from each committed read, and one-shot
+/// cues from the event ring (Story 9A.23/9A.25b). Main-thread code only applies the resulting property samples.</summary>
 public sealed class WorkshopDeclaredPresentation
 {
     public const ulong TargetBase = 5UL << 32;
     private sealed class Track
     {
+        /// <summary>A Replace event clip's cue times not yet reached by the presentation clock, oldest first.</summary>
+        public List<double> Cues = new();
         public required GpuBodyId Owner;
         public required int Index;
         public required PresentationBinding Declaration;
@@ -29,6 +32,10 @@ public sealed class WorkshopDeclaredPresentation
         public bool Visible = true;
         public Track Copy() => (Track)MemberwiseClone();
     }
+    private ulong _lastSequence;
+    /// <summary>Event records the cursor skipped (lapped or reused while copied) in this installation: cumulative and typed. A lapped
+    /// cue is lost and never replayed; committed levels self-correct from the next read.</summary>
+    public ulong Lapped { get; private set; }
     private readonly Track[] _tracks;
     private readonly AnimationBatch _batch;
     private WorkshopResponse _latest;
@@ -54,7 +61,6 @@ public sealed class WorkshopDeclaredPresentation
             for (var i = 0; i < bindings.Count; i++)
             {
                 var declaration = bindings[i];
-                if (IsOneShot(declaration.Driver)) continue;
                 var node = default(ActivationNodeDeclaration);
                 foreach (var candidate in nodes) if (candidate.Owner == instance.Id) node = candidate;
                 var track = new Track { Owner = instance.Id, Index = i, Declaration = declaration,
@@ -76,6 +82,13 @@ public sealed class WorkshopDeclaredPresentation
                 track.Handle = _batch.RegisterFollow(binding, new(Value(d.Property, d.From), Value(d.Property, d.To),
                     Value(d.Property, 0), new(d.Response), AnimationClock.Presentation));
             }
+            else if (d.Driver == PresentationDriver.Event && d.Curve == PresentationCurve.SineSquaredPulse)
+                // Each record adds one pulse at its own physical time; overlapping pulses combine (the bundle admits SaturatingSum).
+                track.Handle = _batch.RegisterImpulses(new(track.Target, AnimationProperty.ColourBlend),
+                    new(new(d.Duration), AnimationImpulseCurve.SineSquaredPulse, AnimationImpulseOverlap.SaturatingSum,
+                        AnimationImpulseVisibility.AdvanceWhileHidden, AnimationClock.Presentation, WorkshopAnimationWire.ImpulseCapacity,
+                        AnimationImpulseTiming.EventTime, AnimationImpulseDefinition.CanonicalPeak(AnimationImpulseCurve.SineSquaredPulse)),
+                    new(new AnimationColourBlend(0)), new(new AnimationColourBlend(1)));
             else if (d.Curve == PresentationCurve.LinearDecay)
                 track.Handle = _batch.RegisterImpulses(new(track.Target, AnimationProperty.ColourBlend),
                     new(new(d.Duration), AnimationImpulseCurve.LinearDecay, AnimationImpulseOverlap.Maximum,
@@ -107,14 +120,45 @@ public sealed class WorkshopDeclaredPresentation
         foreach (var instance in construction.Instances)
         {
             var declarations = DeclaredPhysics.Of(instance.PartId).Presentation.Bindings;
-            for (var i = 0; i < declarations.Count; i++)
-                if (!IsOneShot(declarations[i].Driver)) result.Add((new(TargetBase + (ulong)result.Count), instance.Id, i));
+            for (var i = 0; i < declarations.Count; i++) result.Add((new(TargetBase + (ulong)result.Count), instance.Id, i));
         }
         return result;
     }
 
-    public static bool IsOneShot(PresentationDriver driver) =>
-        driver is PresentationDriver.ActivationPulse or PresentationDriver.ContactImpulse or PresentationDriver.CapturePulse;
+    /// <summary>The presentation-clock time (master seconds) of a record's physical instant: its ordinal and phase (1/4096 of a
+    /// physical step) on the 480 Hz physical clock, placed through the installed projection's anchor (the tick it maps to master time).
+    /// It is the existing <see cref="AnimationImpulseTiming.EventTime"/> clock, so a cue starts at the event, never the tick boundary.</summary>
+    public static double EventSeconds(SimulationEventRecord record, WorkshopWorldProjection world, double tickSeconds) =>
+        world.AnchorMaster.Value / 1_000_000_000d +
+        ((record.Ordinal + (double)record.Phase / 4096d) / WorkshopCadenceSettings.PhysicalFrequency - world.AnchorTick.Value * tickSeconds);
+
+    /// <summary>Story 9A.23/9A.25b: one delivery of the Animation worker's event ring cursor, for the installed world. Each record starts
+    /// exactly one cue on every event binding of its owner (record Source) that names its kind; any other record (a foreign owner, an
+    /// undeclared kind, a level) cues nothing. Sequences only increase within an installation, so a record is never applied twice.</summary>
+    public void AcceptEvents(EventRingDelivery delivery, WorkshopWorldProjection world)
+    {
+        if (delivery.Epoch != _latest.Read.Epoch.Value || world.WorldGeneration != _latest.Read.Epoch)
+            throw new ArgumentException("Foreign event ring epoch.");
+        Lapped = checked(Lapped + delivery.Skipped);
+        foreach (var record in delivery.Records)
+        {
+            if (record.Sequence <= _lastSequence) throw new ArgumentException("An event record was delivered twice.");
+            _lastSequence = record.Sequence;
+            var at = EventSeconds(record, world, _tickSeconds);
+            foreach (var track in _tracks)
+            {
+                var d = track.Declaration;
+                if (d.Driver != PresentationDriver.Event || d.Event != record.Kind || track.Owner.Value != record.Source ||
+                    (d.EventMagnitude == PresentationEventMagnitude.Positive && !(record.Magnitude > 0f))) continue;
+                if (d.Curve == PresentationCurve.SineSquaredPulse)
+                {
+                    // A pulse beyond the target's capacity is a lost cosmetic cue, never a fault.
+                    _ = _batch.EnqueueImpulse(track.Handle!.Value, new(record.Sequence), new(1), at);
+                }
+                else track.Cues.Add(at);
+            }
+        }
+    }
 
     public void Accept(WorkshopResponse response)
     {
@@ -160,6 +204,8 @@ public sealed class WorkshopDeclaredPresentation
         for (var i = 0; i < _tracks.Length; i++)
         {
             staged[i] = _tracks[i].Copy();
+            // A one-shot cue has no committed query: only its ring records drive it.
+            if (staged[i].Declaration.Driver == PresentationDriver.Event) continue;
             staged[i].Input = Query(staged[i], read);
             if (!float.IsFinite(staged[i].Input)) throw new ArgumentException("Nonfinite presentation query.");
             if (staged[i].Declaration.Curve == PresentationCurve.LinearDecay)
@@ -300,6 +346,16 @@ public sealed class WorkshopDeclaredPresentation
         if (!double.IsFinite(presentationSeconds) || presentationSeconds < _time)
             throw new ArgumentException("Presentation clock reversed.");
         _time = presentationSeconds;
+        // A Replace cue the clock has reached restarts its clip at the cue's own time (already past when observed late, so the clip is
+        // at the exact phase, or at To once expired); of several reached cues only the newest matters, since each restarts from From.
+        foreach (var track in _tracks)
+        {
+            var reached = -1;
+            while (reached + 1 < track.Cues.Count && track.Cues[reached + 1] <= _time) reached++;
+            if (reached < 0) continue;
+            _batch.StartAtOccurrence(track.Handle!.Value, track.Cues[reached]);
+            track.Cues.RemoveRange(0, reached + 1);
+        }
         _batch.Advance(++_frame, _time, _latest.Read.Tick.Value * _tickSeconds);
         _samples.Clear();
         foreach (var track in _tracks)
@@ -308,6 +364,14 @@ public sealed class WorkshopDeclaredPresentation
             if (!track.Visible || (d.Driver == PresentationDriver.CommittedTimerPhase && track.Input == 0)) continue;
             var amount = track.Handle is { } handle
                 ? BitConverter.UInt32BitsToSingle(_batch.Read(handle).Value.CanonicalBits) : track.Input;
+            if (d.Driver == PresentationDriver.Event)
+            {
+                // The one-shot blend arithmetic of the 9A.25a goldens (AnimationValue.Blend), bit for bit.
+                var value = AnimationValue.Blend(Value(d.Property, d.From), Value(d.Property, d.To), new(amount));
+                track.Value = BitConverter.UInt32BitsToSingle(value.CanonicalBits);
+                _samples.Add(new(track.Target, track.Owner, track.Index, value));
+                continue;
+            }
             if (d.Curve == PresentationCurve.ExponentialFollow) track.Value = amount;
             else
             {

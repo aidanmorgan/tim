@@ -330,11 +330,9 @@ public sealed class WorkshopWireFlatBuffersTests
         var capture = CaptureLatch.Clear(new(9));
         var captures = new PhysicsCaptureRead(new[] { capture });
 
+        // The read carries the owners' stores only (Story 9A.23 D9: the occurrence rows are device-private).
         var work = new ContactWorkRead(new(40), new(1), 1, new(16f), new(4f));
-        var occ = new ContactWorkOccurrence(
-            new(0), new(1), new(1), 1, 8, (Half)0.5f,
-            new ContactSpeed(4f), new Joules(8f), ContactWorkEffect.Paid);
-        var contactWorks = new PhysicsContactWorkRead(new[] { work }, new[] { occ });
+        var contactWorks = new PhysicsContactWorkRead(new[] { work });
 
         var elec = new ElectricalSourceRead(new(50), new(1), new Joules(100f), new Joules(5f), ElectricalEnable.Enabled);
         var electrical = new PhysicsElectricalRead(new[] { elec });
@@ -389,9 +387,8 @@ public sealed class WorkshopWireFlatBuffersTests
         Assert.Equal(capture.Sensor, decodedRead.Captures[0].Sensor);
 
         Assert.Equal(1, decodedRead.ContactWorks.Count);
-        Assert.Equal(work.RemainingEnergy, decodedRead.ContactWorks[0].RemainingEnergy);
-        Assert.Equal(1, decodedRead.ContactWorks.OccurrenceCount);
-        Assert.Equal(occ.Debit, decodedRead.ContactWorks.Occurrence(0).Debit);
+        Assert.Equal(work, decodedRead.ContactWorks[0]);
+        Assert.True(contactWorks.HasSameBits(decodedRead.ContactWorks));
 
         Assert.Equal(1, decodedRead.Electrical.Count);
         Assert.Equal(elec.Remaining, decodedRead.Electrical[0].Remaining);

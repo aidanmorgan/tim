@@ -1,0 +1,32 @@
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/WorkerAotGuard.Tests/bin/Debug/net10.0/WorkerAotGuard.Tests.dll (.NETCoreApp,Version=v10.0)
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/Coverage.Tests/bin/Debug/net10.0/Coverage.Tests.dll (.NETCoreApp,Version=v10.0)
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/E2eRunner.Tests/bin/Debug/net10.0/E2eRunner.Tests.dll (.NETCoreApp,Version=v10.0)
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+A total of 1 test files matched the specified pattern.
+A total of 1 test files matched the specified pattern.
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/BundleElements.Tests/bin/Debug/net10.0/BundleElements.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:    17, Skipped:     0, Total:    17, Duration: 45 ms - WorkerAotGuard.Tests.dll (net10.0)
+
+Passed!  - Failed:     0, Passed:   191, Skipped:     0, Total:   191, Duration: 424 ms - BundleElements.Tests.dll (net10.0)
+
+Passed!  - Failed:     0, Passed:    77, Skipped:     0, Total:    77, Duration: 746 ms - Coverage.Tests.dll (net10.0)
+
+Passed!  - Failed:     0, Passed:   190, Skipped:     0, Total:   190, Duration: 23 s - E2eRunner.Tests.dll (net10.0)
+[xUnit.net 00:05:32.70]     CuriousContraptions.Tests.ElementIsolationTests.ProductionKnowledgeIsExactlyTheOwnedShrinkingList [FAIL]
+  Failed CuriousContraptions.Tests.ElementIsolationTests.ProductionKnowledgeIsExactlyTheOwnedShrinkingList [449 ms]
+  Error Message:
+   engine/presentation/AnimationBatch.cs:320: unowned PackageIdentifier Clock in AnimationBatch.StartAtOccurrence
+engine/presentation/AnimationBatch.cs:320: unowned PackageIdentifier Clock in AnimationBatch.StartAtOccurrence
+  Stack Trace:
+     at CuriousContraptions.Tests.ElementIsolationTests.ProductionKnowledgeIsExactlyTheOwnedShrinkingList() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/CuriousContraptions.tests/ElementIsolationTests.cs:line 340
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     1, Passed:  2865, Skipped:     0, Total:  2866, Duration: 6 m 20 s - CuriousContraptions.tests.dll (net10.0)
+test exit 1

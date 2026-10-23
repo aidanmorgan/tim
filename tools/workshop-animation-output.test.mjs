@@ -4,6 +4,7 @@ import vm from 'node:vm';
 import { readFile } from 'node:fs/promises';
 import { MessagePort, MessageChannel } from 'node:worker_threads';
 import * as clockRing from '../CuriousContraptions.web/wwwroot/clock-ring.js';
+import * as eventRingCursor from '../CuriousContraptions.web/wwwroot/event-ring-cursor.js';
 
 const source = await readFile('CuriousContraptions.Animation.Worker/wwwroot/worker.js', 'utf8');
 let imports, closed = false, controls = 0;
@@ -38,11 +39,16 @@ const clock = new vm.SyntheticModule(['admitNativeClock', 'nativeNow', 'nativeCl
     this.setExport('nativeNow', () => 1);
     this.setExport('nativeClockEvidence', () => [2, 1, 1, 1, .005, 1, 1]);
 }, { context });
+const cursor = new vm.SyntheticModule(['EventRingCursor', 'eventDelivery'], function () {
+    this.setExport('EventRingCursor', eventRingCursor.EventRingCursor);
+    this.setExport('eventDelivery', eventRingCursor.eventDelivery);
+}, { context });
 const module = new vm.SourceTextModule(source, { context });
 await module.link(name => {
     if (name === './_framework/dotnet.js') return dotnet;
     if (name === '../native-clock.js') return clock;
     if (name === '../clock-ring.js') return ring;
+    if (name === '../event-ring-cursor.js') return cursor;
     throw Error('Unexpected import');
 });
 await module.evaluate();

@@ -14,8 +14,6 @@ public interface IWorkshopInstance
     LocalPosition Local { get; }
     CanonicalRotation Rotation { get; }
     bool Locked { get; }
-    /// <summary>Declared cosmetic curve data; never persisted. None for parts without animated artwork.</summary>
-    CosmeticCurveDeclaration Cosmetic { get; }
     /// <summary>The colliders the element's declaration gives this instance's parameters.</summary>
     IReadOnlyList<ExtractedCollider> DeclaredColliders { get; }
     void Validate();
@@ -28,7 +26,6 @@ public readonly record struct WorkshopGenericInstance(
 {
     public InstanceParameterCollection Parameters { get; init; } = InstanceParameterCollection.Empty;
     public IReadOnlyList<ExtractedCollider> DeclaredColliders => DeclaredPhysics.Colliders(PartId, Parameters.ToBundleValues());
-    public CosmeticCurveDeclaration Cosmetic => CosmeticCurveDeclaration.For(PartId);
     public void Validate()
     {
         if (PartId == default) throw new ArgumentException("Generic instance requires a valid PartId.");

@@ -3,12 +3,11 @@ import {test} from 'node:test';
 import {mkdirSync} from 'node:fs';
 import {resolve,sep,join} from 'node:path';
 import {WorkshopDriver} from './workshop-driver.ts';
-import {decodeWorkshopResponse, decodeSavedConstruction, authoredState, parameter, type BodyRead, type WorkshopResponse, type SavedConstruction} from './workshop-wire.ts';
+import {decodeWorkshopResponse, decodeSavedConstruction, authoredState, parameter, contactHits, type BodyRead, type WorkshopResponse, type SavedConstruction} from './workshop-wire.ts';
 
 // Closed numeric sets; external level names are converted only at the driver boundary.
 enum Lesson { Depth=5, Wall=6 }
 enum Route { Paid, Miss }
-enum WorkEffect { Passive, Paid }
 enum CapturePhase { Clear, Latched }
 function bodyState(b: BodyRead) {
     return {
@@ -125,7 +124,8 @@ test('CAT015b lesson '+lesson+' route '+route+' real UI and exact lifecycle',asy
         await d.run();const samples=[];const start=Date.now();
         while(Date.now()-start<5200){const b=(await d.readLatestPose())?.bodies[0];if(b)samples.push(b);await d.page.waitForTimeout(40);}
         await d.pauseSimulation();const after=reads.at(-1)!;const solved=await d.readCaptured();
-        const paid=events.filter(res=>{for(let i=0;i<res.occurrencesLength();i++){const occ=res.occurrences(i)!;if(occ.effect()===WorkEffect.Paid&&occ.debit()>0)return true;}return false;});
+        // Story 9A.23 D9: the paid reads from the owner's stores (the occurrence rows are device-private).
+        const paid=contactHits(events,32).filter(hit=>hit.debit>0).map(hit=>hit.response);
         const owner=initial.construction()!.instances(2)!.id();
         const rings=await d.readAnimationSamplesForTarget(String((2n<<32n)+owner));
         assert.equal(solved,route===Route.Paid?1:0);

@@ -57,7 +57,7 @@ public sealed class LaunchLessonSolveTests
     /// production placement. The orientation is the Basis column-major array the content stores (as JoinedPipeTests reads it).</summary>
     private static readonly string[] WallKeys = ["width", "height", "thickness"];
 
-    private static WorkshopConstruction AuthoredSolution(string lesson, Half precision)
+    internal static WorkshopConstruction AuthoredSolution(string lesson, Half precision)
     {
         using var source = System.Text.Json.JsonDocument.Parse(File.ReadAllText(Path.Combine(twodog.Engine.ResolveProjectDir(), "content/puzzles.json")));
         var level = source.RootElement.EnumerateArray().Single(value => value.GetProperty("id").GetString() == lesson);
@@ -69,6 +69,11 @@ public sealed class LaunchLessonSolveTests
             Assert.Equal(row.GetProperty("instance").GetProperty("part").GetString(), fixture.PartId.Value);
             return KeyValuePair.Create(row.GetProperty("slot").GetString()!, fixture.Id);
         }).ToDictionary();
+        // delayed_signal's wiring names a fixture by its part ("switch", "lamp"); each such name is unique among its placements.
+        foreach (var named in level.GetProperty("placements").EnumerateArray().Select((row, index) =>
+                (Part: row.GetProperty("instance").GetProperty("part").GetString()!, construction.Instances[index].Id))
+            .GroupBy(row => row.Part).Where(group => group.Count() == 1))
+            slots.TryAdd(named.Key, named.Single().Id);
         var next = construction.Instances.Max(instance => instance.Id.Value) + 1;
         foreach (var row in level.GetProperty("solution").EnumerateArray())
         {
@@ -85,6 +90,7 @@ public sealed class LaunchLessonSolveTests
                 "wall" => WorkshopInput.Generic(PartId.Wall, id, p[0], p[1], p[2], q.X, q.Y, q.Z, q.W, new(
                     WallKeys.Select(key => KeyValuePair.Create(new ParameterId(key), (float)properties.GetProperty(key).GetDouble())))),
                 "domino" => PlacedParts.Domino(id, p[0], p[1], p[2], q.X, q.Y, q.Z, q.W),
+                "delay" => WorkshopInput.Generic(PartId.Delay, id, p[0], p[1], p[2], q.X, q.Y, q.Z, q.W),
                 var kind => throw new ArgumentException($"No authored-solution placement for '{kind}'.")
             };
             slots.Add(row.GetProperty("id").GetString()!, id);

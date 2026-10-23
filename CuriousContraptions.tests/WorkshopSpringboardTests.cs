@@ -370,7 +370,6 @@ public sealed class WorkshopSpringboardTests(NativeSceneFixture godot)
         public void RecordPresentation(WorkshopPresentationSample sample, bool selected, PresentationScene scene) { }
         public void ControlUi(WorkshopUiTarget target, AnimationControlKind kind, bool visible) => throw new NotSupportedException();
         public bool TryUiFrame(ulong frame, WorkshopPresentationSample physical, WorkshopUiTarget target, out CuriousContraptions.Presentation.AnimationOpacity opacity) { opacity=default; return false; }
-        public bool TryCosmeticFrame(ulong frame, WorkshopPresentationSample physical, GpuBodyId owner, out WorkshopCosmeticSample sample) { sample=default; return false; }
         public void SetDeclaredVisible(GpuBodyId owner, bool visible) { }
         public bool TryDeclaredFrame(ulong frame, WorkshopPresentationSample physical, GpuBodyId owner, out System.Collections.Generic.IReadOnlyList<DeclaredPresentationSample> samples) { samples = System.Array.Empty<DeclaredPresentationSample>(); return false; }
         public Task<WorkshopDelivery> Execute(WorkshopCommandKind kind, WorkshopConstruction? construction=null, WorkshopCommandIdentity? target=null, WorkshopCadenceSettings? settings=null, WorkshopElectricalControl? electrical=null) => throw new NotSupportedException();

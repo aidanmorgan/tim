@@ -36,7 +36,6 @@
         <Compile Include="engine/MachineWorld.Gpu.cs" />
         <Compile Include="engine/MachinePart.cs" />
         <Compile Include="engine/WorkshopVisualBinding.cs" />
-        <Compile Include="engine/CosmeticBindingSet.cs" />
         <Compile Include="engine/WorkshopUiBinding.cs" />
         <Compile Include="engine/PartDefinition.cs" />
         <Compile Include="engine/PartRegistry.cs" />

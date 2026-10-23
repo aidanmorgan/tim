@@ -15,8 +15,6 @@ internal interface IWorkshopClient : IAsyncDisposable
     void ControlUi(WorkshopUiTarget target, AnimationControlKind kind, bool visible);
     /// <summary>One sampled opacity for a declared UI target, at most once per admitted display frame.</summary>
     bool TryUiFrame(ulong frame, WorkshopPresentationSample physical, WorkshopUiTarget target, out AnimationOpacity opacity);
-    /// <summary>One sampled cosmetic blend for the part whose instance declares a cosmetic curve.</summary>
-    bool TryCosmeticFrame(ulong frame, WorkshopPresentationSample physical, GpuBodyId owner, out WorkshopCosmeticSample sample);
     void SetDeclaredVisible(GpuBodyId owner, bool visible);
     bool TryDeclaredFrame(ulong frame, WorkshopPresentationSample physical, GpuBodyId owner, out IReadOnlyList<DeclaredPresentationSample> samples);
     SimulationEpoch Epoch { get; }

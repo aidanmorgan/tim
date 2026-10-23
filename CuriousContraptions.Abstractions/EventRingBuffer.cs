@@ -145,7 +145,9 @@ public static class EventRingBuffer
             var sequence = BinaryPrimitives.ReadUInt64LittleEndian(batch[offset..]);
             var slot = HeaderBytes + (int)((sequence - 1) & (header.Capacity - 1)) * SlotBytes;
             Volatile.Write(ref Word(ring, slot), 0);
-            batch.Slice(offset + 8, SlotBytes - 8).CopyTo(ring.AsSpan(slot + 8));
+            // The seqlock of the shipped writer (review F1): each payload word is a whole-word store between the sequence stores.
+            for (var word = 8; word < SlotBytes; word += 8)
+                Volatile.Write(ref Word(ring, slot + word), BinaryPrimitives.ReadUInt64LittleEndian(batch[(offset + word)..]));
             Volatile.Write(ref Word(ring, slot), sequence);
         }
         Volatile.Write(ref Word(ring, EventRingHeader.LappedOffset), header.Lapped);
@@ -158,7 +160,8 @@ public static class EventRingBuffer
         Volatile.Read(ref Unsafe.As<byte, ulong>(ref MemoryMarshal.GetReference(ring[offset..])));
 }
 
-/// <summary>One consumer's cursor over the event ring (the reference reader; Story 9A.23 builds the workers' own). A new epoch in the
+/// <summary>One consumer's cursor over the event ring (the C# reference reader; the workers' own is the shared <c>EventRingCursor</c> of
+/// <c>event-ring-cursor.js</c>, which reproduces these semantics across threads and is proven equal to it). A new epoch in the
 /// header restarts the cursor at sequence 0. A slot overwritten before it was read, or a publication past the ring's capacity, is
 /// counted in <see cref="Lapped"/> and skipped; it is never read as a record.</summary>
 public sealed class EventRingConsumer
@@ -181,7 +184,9 @@ public sealed class EventRingConsumer
             var slot = EventRingBuffer.HeaderBytes + (int)(Cursor & (header.Capacity - 1)) * EventRingBuffer.SlotBytes;
             var before = EventRingBuffer.ReadWord(ring, slot);
             Span<byte> copy = stackalloc byte[EventRingBuffer.SlotBytes];
-            ring.Slice(slot, EventRingBuffer.SlotBytes).CopyTo(copy);
+            // Each payload word is a whole-word load between the sequence loads, as the shared JS reader does (review F1).
+            for (var word = 8; word < EventRingBuffer.SlotBytes; word += 8)
+                BinaryPrimitives.WriteUInt64LittleEndian(copy[word..], EventRingBuffer.ReadWord(ring, slot + word));
             var after = EventRingBuffer.ReadWord(ring, slot);
             Cursor = target;
             if (before != target || after != target) { Lapped++; continue; }
@@ -192,5 +197,40 @@ public sealed class EventRingConsumer
             return true;
         }
         return false;
+    }
+}
+
+/// <summary>One read of the shared event ring reader (Story 9A.23, <c>event-ring-cursor.js</c> <c>eventDelivery</c>): the ring's Epoch
+/// u64 at 0, Skipped u64 at 8 (the records this read passed without delivering: lapped by the writer, or reused while copied), then the
+/// delivered whole records in strictly ascending sequence. Both consumers (the Animation worker and the main thread) decode it here.</summary>
+public sealed record EventRingDelivery(ulong Epoch, ulong Skipped, SimulationEventRecord[] Records)
+{
+    public const int HeaderBytes = 16;
+
+    public static EventRingDelivery Read(ReadOnlySpan<byte> bytes)
+    {
+        if (bytes.Length < HeaderBytes || (bytes.Length - HeaderBytes) % EventRingBuffer.SlotBytes != 0)
+            throw new ArgumentException("An event delivery is its header and whole records.");
+        var epoch = BinaryPrimitives.ReadUInt64LittleEndian(bytes);
+        var skipped = BinaryPrimitives.ReadUInt64LittleEndian(bytes[8..]);
+        var records = new SimulationEventRecord[(bytes.Length - HeaderBytes) / EventRingBuffer.SlotBytes];
+        for (var i = 0; i < records.Length; i++)
+        {
+            records[i] = SimulationEventRecord.Read(bytes.Slice(HeaderBytes + i * EventRingBuffer.SlotBytes, EventRingBuffer.SlotBytes));
+            if (records[i].Sequence == 0 || (i > 0 && records[i].Sequence <= records[i - 1].Sequence))
+                throw new ArgumentException("Delivered event records are not in strictly ascending sequence.");
+        }
+        if (epoch == 0 && (records.Length != 0 || skipped != 0)) throw new ArgumentException("An event delivery without a ring carries nothing.");
+        return new(epoch, skipped, records);
+    }
+
+    /// <summary>The C# twin of <c>eventDelivery</c>, for the reference reader in tests.</summary>
+    public static byte[] Write(ulong epoch, ulong skipped, ReadOnlySpan<SimulationEventRecord> records)
+    {
+        var bytes = new byte[HeaderBytes + records.Length * EventRingBuffer.SlotBytes];
+        BinaryPrimitives.WriteUInt64LittleEndian(bytes, epoch);
+        BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(8), skipped);
+        for (var i = 0; i < records.Length; i++) records[i].Write(bytes.AsSpan(HeaderBytes + i * EventRingBuffer.SlotBytes, EventRingBuffer.SlotBytes));
+        return bytes;
     }
 }

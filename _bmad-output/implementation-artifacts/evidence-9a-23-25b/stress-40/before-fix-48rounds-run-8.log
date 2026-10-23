@@ -1,0 +1,29 @@
+✖ amplified concurrent stress at capacity 4: four readers trailing a writer that reuses every slot, no torn record (18627.716833ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 18689.079042
+
+✖ failing tests:
+
+test at tools/workshop-event-ring-cursor.test.mjs:161:1
+✖ amplified concurrent stress at capacity 4: four readers trailing a writer that reuses every slot, no torn record (18627.716833ms)
+  AssertionError [ERR_ASSERTION]: 9 torn record(s) delivered at capacity 4
+  
+  9 !== 0
+  
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/workshop-event-ring-cursor.test.mjs:174:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 9,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

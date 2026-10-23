@@ -1,0 +1,56 @@
+✖ concurrent stress: over a million records through the shipped writer, no reader ever receives a torn record (458.815125ms)
+✔ a reader that keeps pace receives every record exactly once and skips none (1.117708ms)
+✔ a parked reader lapped by a capacity and more reports exactly the skipped records, then reads the newest intact (0.138792ms)
+✔ a slot reused while it is copied is skipped, never delivered (0.057ms)
+✖ epochs: a newer ring is held unread until it is installed, an older one is ignored, and a new ring restarts at sequence 1 (0.133917ms)
+✔ a delivery carries the epoch and skipped count before the records (0.049667ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 4
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 518.13275
+
+✖ failing tests:
+
+test at tools/workshop-event-ring-cursor.test.mjs:141:1
+✖ concurrent stress: over a million records through the shipped writer, no reader ever receives a torn record (458.815125ms)
+  AssertionError [ERR_ASSERTION]: capacity 4: a torn record was delivered
+  
+  5 !== 0
+  
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/workshop-event-ring-cursor.test.mjs:145:20)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 5,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tools/workshop-event-ring-cursor.test.mjs:237:1
+✖ epochs: a newer ring is held unread until it is installed, an older one is ignored, and a new ring restarts at sequence 1 (0.133917ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  2n !== 0n
+  
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/workshop-event-ring-cursor.test.mjs:246:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 2n,
+    expected: 0n,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

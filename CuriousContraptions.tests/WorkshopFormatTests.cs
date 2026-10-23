@@ -106,7 +106,7 @@ public sealed class WorkshopFormatTests
             Fields("struct CadenceSettingsRecord"));
         Assert.Equal(["next_body_id", "construction"], Fields("table SavedConstruction"));
         Assert.Equal(["sequence", "kind", "outcome", "reason", "phase", "epoch", "tick", "revision", "publication", "master_generation",
-            "cadence", "projection", "session", "capture", "bodies", "captures", "activations", "timers", "contact_works", "occurrences",
+            "cadence", "projection", "session", "capture", "bodies", "captures", "activations", "timers", "contact_works",
             "electrical", "activation_memory", "motion", "memory", "actuator_drives", "contact_loads", "electrical_logic", "construction"], Fields("table WorkshopResponse"));
         Assert.Equal(["used_before", "used_after", "duration_ticks", "frequency", "allocated_before", "allocated_after", "collections_before",
             "collections_after"], Fields("struct MemoryObservationRecord"));

@@ -362,9 +362,9 @@ development_status:
   # 47 (element)
   11-3-linear-pusher-telescopic-actuator: backlog
   # 48 (deletion): one slice with 9a-25b; before Epic 14 and any new one-shot cue
-  9a-23-event-ring-consumers: backlog
+  9a-23-event-ring-consumers: review
   # delivered in one slice with 9a-23 (one-shot part of 9a-25)
-  9a-25b-one-shot-bindings-on-event-ring: backlog
+  9a-25b-one-shot-bindings-on-event-ring: review
   # 49 (element)
   11-4-wound-spring-motor-toy-cannon-launcher: backlog
   epic-11-retrospective: optional

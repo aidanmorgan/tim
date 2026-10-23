@@ -42,6 +42,8 @@ public sealed class EventRingProducerTests
         public List<SimulationEventRecord> Records { get; } = [];
         public List<byte[]> Publications { get; } = [];
         public List<WorkshopRead> Reads { get; } = [];
+        /// <summary>The device-private contact-work ledger beside each committed read (Story 9A.23 D9).</summary>
+        public List<ContactWorkLedger> Ledgers { get; } = [];
         private readonly Installation _installation;
         public bool FailNextStep { set => _installation.Fail = value; }
 
@@ -78,8 +80,8 @@ public sealed class EventRingProducerTests
         {
             Assert.Equal(WorkshopCommandOutcome.Applied, (await Simulation.Run()).Outcome);
             Publish();
-            Reads.Clear();
-            Reads.Add(Simulation.Committed);
+            Reads.Clear(); Ledgers.Clear();
+            Reads.Add(Simulation.Committed); Ledgers.Add(Device.CommittedContactWork);
         }
 
         /// <summary>The worker's drain: one publication, appended to the reference ring; its records are kept in publication order.</summary>
@@ -99,7 +101,7 @@ public sealed class EventRingProducerTests
             {
                 Assert.Equal(WorkshopCommandOutcome.Applied, (await Simulation.Advance()).Outcome);
                 Publish();
-                Reads.Add(Simulation.Committed);
+                Reads.Add(Simulation.Committed); Ledgers.Add(Device.CommittedContactWork);
             }
         }
 
@@ -109,7 +111,7 @@ public sealed class EventRingProducerTests
             for (var tick = 0; tick < ticks; tick++)
             {
                 Assert.Equal(WorkshopCommandOutcome.Applied, (await Simulation.Advance()).Outcome);
-                Reads.Add(Simulation.Committed);
+                Reads.Add(Simulation.Committed); Ledgers.Add(Device.CommittedContactWork);
             }
             return Publish();
         }
@@ -177,10 +179,11 @@ public sealed class EventRingProducerTests
         Assert.NotEmpty(impacts);
         Assert.Equal(ring.Records.Count, impacts.Count); // no TriggerActivated, ContactLoad or any other kind
         AssertOrderedRun(ring.Records);
-        // Per tick, exactly the ledger's occurrence-count increment; each record is that new occurrence row.
+        // Per tick, exactly the device ledger's occurrence-count increment; each record is that new (device-private) occurrence row.
         for (var i = 1; i < ring.Reads.Count; i++)
         {
-            var (before, after) = (ring.Reads[i - 1].ContactWorks, ring.Reads[i].ContactWorks);
+            var (before, after) = (ring.Ledgers[i - 1], ring.Ledgers[i]);
+            Assert.True(after.Stores.HasSameBits(ring.Reads[i].ContactWorks)); // the read carries exactly the ledger's stores
             var tick = ring.Reads[i].Tick.Value;
             var expected = Enumerable.Range(0, after.OccurrenceCount).Select(after.Occurrence)
                 .Where(hit => hit.Sequence > before[0].OccurrenceCount).ToArray();
@@ -852,5 +855,15 @@ public sealed class EventRingProducerTests
         Assert.Equal(["CuriousContraptions.Abstractions/EventRingBuffer.cs", "CuriousContraptions.Simulation/wwwroot/worker.js"], Hits("writeEventRing"));
         Assert.Equal(["CuriousContraptions.Simulation/Program.cs", "CuriousContraptions.Simulation/WorkshopGpuDevice.cs"], Hits("DrainEvents"));
         foreach (var retired in new[] { "readEventRing", "createEventConsumer", "WorkshopEventRing", "eventBuffer" }) Assert.Empty(Hits(retired));
+        // Story 9A.23 + 9A.25b: the occurrence-carrying reliable reads, the main-thread one-shot relay and the one-shot relay drivers.
+        foreach (var retired in new[] { "occurrenceReads", "reserveOccurrenceRead", "releaseOccurrenceRead", "retainOccurrence", "RequiresReliableRead",
+            "ContactWorkOccurrenceRecord", "PumpCosmetics", "PumpCapture", "PumpActivations", "PumpContactFeedback", "ObserveContactFeedback",
+            "TryCosmeticFrame", "CosmeticCurveDeclaration", "AnimationFeedbackSource", "CosmeticBindingSet", "WorkshopCosmeticSample", "IsOneShot",
+            "AnimationControlKind.Impulse", "AnimationControlKind.Transition", "ActivationPulse", "ContactImpulse", "CapturePulse" })
+            Assert.Empty(Hits(retired));
+        // One shared event ring reader, imported by both consumers (the C# reference reader names it as its twin).
+        Assert.Equal(["CuriousContraptions.Abstractions/EventRingBuffer.cs", "CuriousContraptions.Animation.Worker/wwwroot/worker.js",
+            "CuriousContraptions.web/wwwroot/event-ring-cursor.js",
+            "CuriousContraptions.web/wwwroot/workshop-client.js"], Hits("EventRingCursor"));
     }
 }

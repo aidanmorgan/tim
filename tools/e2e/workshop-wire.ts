@@ -61,13 +61,6 @@ export enum ElectricalEnable {
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
-export enum WorkEffect {
-  Passive = 0,
-  Paid = 1
-}
-
-/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
-
 export class Vec3f {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
@@ -398,74 +391,6 @@ static createContactWorkStoreRecord(builder:flatbuffers.Builder, id: bigint, own
   builder.writeInt32(occurrence_count);
   builder.writeInt64(BigInt(owner ?? 0));
   builder.writeInt64(BigInt(id ?? 0));
-  return builder.offset();
-}
-
-}
-
-/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
-
-export class ContactWorkOccurrenceRecord {
-  bb: flatbuffers.ByteBuffer|null = null;
-  bb_pos = 0;
-  __init(i:number, bb:flatbuffers.ByteBuffer):ContactWorkOccurrenceRecord {
-  this.bb_pos = i;
-  this.bb = bb;
-  return this;
-}
-
-work():number {
-  return this.bb!.readUint32(this.bb_pos);
-}
-
-collider():number {
-  return this.bb!.readUint32(this.bb_pos + 4);
-}
-
-target():bigint {
-  return this.bb!.readUint64(this.bb_pos + 8);
-}
-
-sequence():number {
-  return this.bb!.readUint32(this.bb_pos + 16);
-}
-
-eventOrdinal():number {
-  return this.bb!.readUint32(this.bb_pos + 20);
-}
-
-eventPhase():number {
-  return this.bb!.readFloat32(this.bb_pos + 24);
-}
-
-approachSpeed():number {
-  return this.bb!.readFloat32(this.bb_pos + 28);
-}
-
-debit():number {
-  return this.bb!.readFloat32(this.bb_pos + 32);
-}
-
-effect():number {
-  return this.bb!.readUint8(this.bb_pos + 36);
-}
-
-static sizeOf():number {
-  return 40;
-}
-
-static createContactWorkOccurrenceRecord(builder:flatbuffers.Builder, work: number, collider: number, target: bigint, sequence: number, event_ordinal: number, event_phase: number, approach_speed: number, debit: number, effect: number):flatbuffers.Offset {
-  builder.prep(8, 40);
-  builder.pad(3);
-  builder.writeInt8(effect);
-  builder.writeFloat32(debit);
-  builder.writeFloat32(approach_speed);
-  builder.writeFloat32(event_phase);
-  builder.writeInt32(event_ordinal);
-  builder.writeInt32(sequence);
-  builder.writeInt64(BigInt(target ?? 0));
-  builder.writeInt32(collider);
-  builder.writeInt32(work);
   return builder.offset();
 }
 
@@ -1797,93 +1722,83 @@ contactWorksLength():number {
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
-occurrences(index: number, obj?:ContactWorkOccurrenceRecord):ContactWorkOccurrenceRecord|null {
-  const offset = this.bb!.__offset(this.bb_pos, 42);
-  return offset ? (obj || new ContactWorkOccurrenceRecord()).__init(this.bb!.__vector(this.bb_pos + offset) + index * 40, this.bb!) : null;
-}
-
-occurrencesLength():number {
-  const offset = this.bb!.__offset(this.bb_pos, 42);
-  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
-}
-
 electrical(index: number, obj?:ElectricalSourceRecord):ElectricalSourceRecord|null {
-  const offset = this.bb!.__offset(this.bb_pos, 44);
+  const offset = this.bb!.__offset(this.bb_pos, 42);
   return offset ? (obj || new ElectricalSourceRecord()).__init(this.bb!.__vector(this.bb_pos + offset) + index * 32, this.bb!) : null;
 }
 
 electricalLength():number {
-  const offset = this.bb!.__offset(this.bb_pos, 44);
+  const offset = this.bb!.__offset(this.bb_pos, 42);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
 activationMemory(index: number, obj?:ActivationMemoryRecord):ActivationMemoryRecord|null {
-  const offset = this.bb!.__offset(this.bb_pos, 46);
+  const offset = this.bb!.__offset(this.bb_pos, 44);
   return offset ? (obj || new ActivationMemoryRecord()).__init(this.bb!.__vector(this.bb_pos + offset) + index * 40, this.bb!) : null;
 }
 
 activationMemoryLength():number {
-  const offset = this.bb!.__offset(this.bb_pos, 46);
+  const offset = this.bb!.__offset(this.bb_pos, 44);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
 motion(index: number):number|null {
-  const offset = this.bb!.__offset(this.bb_pos, 48);
+  const offset = this.bb!.__offset(this.bb_pos, 46);
   return offset ? this.bb!.readUint8(this.bb!.__vector(this.bb_pos + offset) + index) : 0;
 }
 
 motionLength():number {
-  const offset = this.bb!.__offset(this.bb_pos, 48);
+  const offset = this.bb!.__offset(this.bb_pos, 46);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
 motionArray():Uint8Array|null {
-  const offset = this.bb!.__offset(this.bb_pos, 48);
+  const offset = this.bb!.__offset(this.bb_pos, 46);
   return offset ? new Uint8Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
 }
 
 memory(obj?:MemoryObservationRecord):MemoryObservationRecord|null {
-  const offset = this.bb!.__offset(this.bb_pos, 50);
+  const offset = this.bb!.__offset(this.bb_pos, 48);
   return offset ? (obj || new MemoryObservationRecord()).__init(this.bb_pos + offset, this.bb!) : null;
 }
 
 actuatorDrives(index: number, obj?:ActuatorDriveRecord):ActuatorDriveRecord|null {
-  const offset = this.bb!.__offset(this.bb_pos, 52);
+  const offset = this.bb!.__offset(this.bb_pos, 50);
   return offset ? (obj || new ActuatorDriveRecord()).__init(this.bb!.__vector(this.bb_pos + offset) + index * 40, this.bb!) : null;
 }
 
 actuatorDrivesLength():number {
-  const offset = this.bb!.__offset(this.bb_pos, 52);
+  const offset = this.bb!.__offset(this.bb_pos, 50);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
 contactLoads(index: number, obj?:ContactLoadRecord):ContactLoadRecord|null {
-  const offset = this.bb!.__offset(this.bb_pos, 54);
+  const offset = this.bb!.__offset(this.bb_pos, 52);
   return offset ? (obj || new ContactLoadRecord()).__init(this.bb!.__vector(this.bb_pos + offset) + index * 32, this.bb!) : null;
 }
 
 contactLoadsLength():number {
-  const offset = this.bb!.__offset(this.bb_pos, 54);
+  const offset = this.bb!.__offset(this.bb_pos, 52);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
 electricalLogic(index: number, obj?:ElectricalLogicRecord):ElectricalLogicRecord|null {
-  const offset = this.bb!.__offset(this.bb_pos, 56);
+  const offset = this.bb!.__offset(this.bb_pos, 54);
   return offset ? (obj || new ElectricalLogicRecord()).__init(this.bb!.__vector(this.bb_pos + offset) + index * 16, this.bb!) : null;
 }
 
 electricalLogicLength():number {
-  const offset = this.bb!.__offset(this.bb_pos, 56);
+  const offset = this.bb!.__offset(this.bb_pos, 54);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
 construction(obj?:ConstructionRecord):ConstructionRecord|null {
-  const offset = this.bb!.__offset(this.bb_pos, 58);
+  const offset = this.bb!.__offset(this.bb_pos, 56);
   return offset ? (obj || new ConstructionRecord()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
 }
 
 static startWorkshopResponse(builder:flatbuffers.Builder) {
-  builder.startObject(28);
+  builder.startObject(27);
 }
 
 static addSequence(builder:flatbuffers.Builder, sequence:bigint) {
@@ -1994,16 +1909,8 @@ static startContactWorksVector(builder:flatbuffers.Builder, numElems:number) {
   builder.startVector(32, numElems, 8);
 }
 
-static addOccurrences(builder:flatbuffers.Builder, occurrencesOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(19, occurrencesOffset, 0);
-}
-
-static startOccurrencesVector(builder:flatbuffers.Builder, numElems:number) {
-  builder.startVector(40, numElems, 8);
-}
-
 static addElectrical(builder:flatbuffers.Builder, electricalOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(20, electricalOffset, 0);
+  builder.addFieldOffset(19, electricalOffset, 0);
 }
 
 static startElectricalVector(builder:flatbuffers.Builder, numElems:number) {
@@ -2011,7 +1918,7 @@ static startElectricalVector(builder:flatbuffers.Builder, numElems:number) {
 }
 
 static addActivationMemory(builder:flatbuffers.Builder, activationMemoryOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(21, activationMemoryOffset, 0);
+  builder.addFieldOffset(20, activationMemoryOffset, 0);
 }
 
 static startActivationMemoryVector(builder:flatbuffers.Builder, numElems:number) {
@@ -2019,7 +1926,7 @@ static startActivationMemoryVector(builder:flatbuffers.Builder, numElems:number)
 }
 
 static addMotion(builder:flatbuffers.Builder, motionOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(22, motionOffset, 0);
+  builder.addFieldOffset(21, motionOffset, 0);
 }
 
 static createMotionVector(builder:flatbuffers.Builder, data:number[]|Uint8Array):flatbuffers.Offset {
@@ -2035,11 +1942,11 @@ static startMotionVector(builder:flatbuffers.Builder, numElems:number) {
 }
 
 static addMemory(builder:flatbuffers.Builder, memoryOffset:flatbuffers.Offset) {
-  builder.addFieldStruct(23, memoryOffset, 0);
+  builder.addFieldStruct(22, memoryOffset, 0);
 }
 
 static addActuatorDrives(builder:flatbuffers.Builder, actuatorDrivesOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(24, actuatorDrivesOffset, 0);
+  builder.addFieldOffset(23, actuatorDrivesOffset, 0);
 }
 
 static startActuatorDrivesVector(builder:flatbuffers.Builder, numElems:number) {
@@ -2047,7 +1954,7 @@ static startActuatorDrivesVector(builder:flatbuffers.Builder, numElems:number) {
 }
 
 static addContactLoads(builder:flatbuffers.Builder, contactLoadsOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(25, contactLoadsOffset, 0);
+  builder.addFieldOffset(24, contactLoadsOffset, 0);
 }
 
 static startContactLoadsVector(builder:flatbuffers.Builder, numElems:number) {
@@ -2055,7 +1962,7 @@ static startContactLoadsVector(builder:flatbuffers.Builder, numElems:number) {
 }
 
 static addElectricalLogic(builder:flatbuffers.Builder, electricalLogicOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(26, electricalLogicOffset, 0);
+  builder.addFieldOffset(25, electricalLogicOffset, 0);
 }
 
 static startElectricalLogicVector(builder:flatbuffers.Builder, numElems:number) {
@@ -2063,7 +1970,7 @@ static startElectricalLogicVector(builder:flatbuffers.Builder, numElems:number) 
 }
 
 static addConstruction(builder:flatbuffers.Builder, constructionOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(27, constructionOffset, 0);
+  builder.addFieldOffset(26, constructionOffset, 0);
 }
 
 static endWorkshopResponse(builder:flatbuffers.Builder):flatbuffers.Offset {
@@ -2265,6 +2172,26 @@ export function decodeWorkshopResponse(data: Buffer | Uint8Array): WorkshopRespo
     return WorkshopResponse.getRootAsWorkshopResponse(openFrame(data, RESPONSE_IDENTIFIER));
 }
 
+/** Story 9A.23 D9: a read carries each contact-work owner's stores only; the per-target occurrence rows are device-private and each hit
+ * reaches consumers as its event ring Impact record. From the stores alone, every read of a run (in order) whose owner `slot` counted
+ * more hits than the previous read of the same epoch is one hit batch, and what it paid is the reservoir it lost beyond any recharge
+ * credited with it (0 for a passive hit). The first read of an epoch is compared with the admitted store (no hit, `preload` joules).
+ * Hits within one read (several targets in one tick) form one batch. */
+export function contactHits(responses: readonly WorkshopResponse[], preload: number, slot = 0): { response: WorkshopResponse; count: number; debit: number }[] {
+    const hits: { response: WorkshopResponse; count: number; debit: number }[] = [];
+    let previous: WorkshopResponse | undefined;
+    for (const response of responses) {
+        const after = response.contactWorks(slot);
+        const before = previous && previous.epoch() === response.epoch() ? previous.contactWorks(slot) : null;
+        const [count, remaining] = before ? [before.occurrenceCount(), before.remainingEnergy()] : [0, preload];
+        if (after && after.occurrenceCount() > count)
+            hits.push({ response, count: after.occurrenceCount(),
+                debit: Math.max(0, remaining + after.suppliedEnergy() - after.remainingEnergy()) });
+        previous = response;
+    }
+    return hits;
+}
+
 export function decodeWorkshopCommand(data: Buffer | Uint8Array): WorkshopCommand {
     return WorkshopCommand.getRootAsWorkshopCommand(openFrame(data, COMMAND_IDENTIFIER));
 }
@@ -2361,7 +2288,6 @@ export interface MockResponseParams {
     session?: Uint8Array | number[];
     electrical?: { id?: bigint; owner?: bigint; remaining?: number; debit?: number; enabled?: number; available?: boolean }[];
     contactWorks?: { id?: bigint; owner?: bigint; occurrenceCount?: number; remainingEnergy?: number; suppliedEnergy?: number }[];
-    occurrences?: { work?: number; collider?: number; target?: bigint; sequence?: number; eventOrdinal?: number; eventPhase?: number; approachSpeed?: number; debit?: number; effect?: number }[];
     bodies?: {
         id?: bigint;
         cell?: { x?: number; y?: number; z?: number };
@@ -2418,26 +2344,6 @@ export function encodeWorkshopResponse(params: MockResponseParams): Buffer {
             );
         }
         contactWorksOffset = builder.endVector();
-    }
-    let occurrencesOffset: flatbuffers.Offset | null = null;
-    if (params.occurrences && params.occurrences.length > 0) {
-        WorkshopResponse.startOccurrencesVector(builder, params.occurrences.length);
-        for (let i = params.occurrences.length - 1; i >= 0; i--) {
-            const occ = params.occurrences[i]!;
-            ContactWorkOccurrenceRecord.createContactWorkOccurrenceRecord(
-                builder,
-                occ.work ?? 0,
-                occ.collider ?? 0,
-                occ.target ?? 1n,
-                occ.sequence ?? 0,
-                occ.eventOrdinal ?? 0,
-                occ.eventPhase ?? 0,
-                occ.approachSpeed ?? 0,
-                occ.debit ?? 0,
-                occ.effect ?? 0
-            );
-        }
-        occurrencesOffset = builder.endVector();
     }
     let bodiesOffset: flatbuffers.Offset | null = null;
     if (params.bodies && params.bodies.length > 0) {
@@ -2501,7 +2407,6 @@ export function encodeWorkshopResponse(params: MockResponseParams): Buffer {
     if (capturesOffset !== null) WorkshopResponse.addCaptures(builder, capturesOffset);
     if (electricalOffset !== null) WorkshopResponse.addElectrical(builder, electricalOffset);
     if (contactWorksOffset !== null) WorkshopResponse.addContactWorks(builder, contactWorksOffset);
-    if (occurrencesOffset !== null) WorkshopResponse.addOccurrences(builder, occurrencesOffset);
     if (memoryOffset !== null) WorkshopResponse.addActivationMemory(builder, memoryOffset);
     const end = WorkshopResponse.endWorkshopResponse(builder);
     builder.finishSizePrefixed(end, RESPONSE_IDENTIFIER);

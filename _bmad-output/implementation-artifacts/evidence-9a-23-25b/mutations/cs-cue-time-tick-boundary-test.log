@@ -1,0 +1,82 @@
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:02.92]     CuriousContraptions.Tests.EventRingConsumerTests.AHiddenPartResumesAtItsCuesExactPhaseOrEndValue(name: "switch") [FAIL]
+[xUnit.net 00:00:02.93]     CuriousContraptions.Tests.EventRingConsumerTests.AHiddenPartResumesAtItsCuesExactPhaseOrEndValue(name: "bumper") [FAIL]
+[xUnit.net 00:00:03.00]     CuriousContraptions.Tests.EventRingConsumerTests.EachPaidBumperImpactCuesExactlyOnePulseAtItsOwnPhysicalTime(payload: "ball", height: 4.5, strength: 8, ticks: 360) [FAIL]
+[xUnit.net 00:00:03.02]     CuriousContraptions.Tests.EventRingConsumerTests.EachPaidBumperImpactCuesExactlyOnePulseAtItsOwnPhysicalTime(payload: "bowling", height: 6, strength: 8, ticks: 480) [FAIL]
+  Failed CuriousContraptions.Tests.EventRingConsumerTests.AHiddenPartResumesAtItsCuesExactPhaseOrEndValue(name: "switch") [9 ms]
+  Error Message:
+   Assert.Equal() Failure: Collections differ
+           ↓ (pos 0)
+Expected: [0.0517187491, 0.920230567, 0.484944463, 0.367285937]
+Actual:   [-0.0199999996, 0.749019623, 0.960784316, 0.690196097]
+           ↑ (pos 0)
+  Stack Trace:
+     at CuriousContraptions.Tests.EventRingConsumerTests.AHiddenPartResumesAtItsCuesExactPhaseOrEndValue(String name) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/CuriousContraptions.tests/EventRingConsumerTests.cs:line 327
+   at CuriousContraptions.Tests.EventRingConsumerTests.AHiddenPartResumesAtItsCuesExactPhaseOrEndValue(String name) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/CuriousContraptions.tests/EventRingConsumerTests.cs:line 327
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.EventRingConsumerTests.AHiddenPartResumesAtItsCuesExactPhaseOrEndValue(name: "bumper") [6 ms]
+  Error Message:
+   Assert.Equal() Failure: Collections differ
+           ↓ (pos 0)
+Expected: [0.939999998, 1.12, 0.984313726, 0.868627429, 0.541176498]
+Actual:   [1, 1, 1, 0.941176474, 0.760784328]
+           ↑ (pos 0)
+  Stack Trace:
+     at CuriousContraptions.Tests.EventRingConsumerTests.AHiddenPartResumesAtItsCuesExactPhaseOrEndValue(String name) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/CuriousContraptions.tests/EventRingConsumerTests.cs:line 327
+   at CuriousContraptions.Tests.EventRingConsumerTests.AHiddenPartResumesAtItsCuesExactPhaseOrEndValue(String name) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/CuriousContraptions.tests/EventRingConsumerTests.cs:line 327
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.EventRingConsumerTests.EachPaidBumperImpactCuesExactlyOnePulseAtItsOwnPhysicalTime(payload: "ball", height: 4.5, strength: 8, ticks: 360) [14 ms]
+  Error Message:
+   Assert.Equal() Failure: Values are not within tolerance 9.99999975E-06
+Expected: 0.939999998
+Actual:   0.942453682
+  Stack Trace:
+     at CuriousContraptions.Tests.EventRingConsumerTests.EachPaidBumperImpactCuesExactlyOnePulseAtItsOwnPhysicalTime(String payload, Double height, Single strength, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/CuriousContraptions.tests/EventRingConsumerTests.cs:line 173
+   at CuriousContraptions.Tests.EventRingConsumerTests.EachPaidBumperImpactCuesExactlyOnePulseAtItsOwnPhysicalTime(String payload, Double height, Single strength, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/CuriousContraptions.tests/EventRingConsumerTests.cs:line 176
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.EventRingConsumerTests.EachPaidBumperImpactCuesExactlyOnePulseAtItsOwnPhysicalTime(payload: "bowling", height: 6, strength: 8, ticks: 480) [22 ms]
+  Error Message:
+   Assert.Equal() Failure: Values are not within tolerance 9.99999975E-06
+Expected: 0.939999998
+Actual:   0.947344661
+  Stack Trace:
+     at CuriousContraptions.Tests.EventRingConsumerTests.EachPaidBumperImpactCuesExactlyOnePulseAtItsOwnPhysicalTime(String payload, Double height, Single strength, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/CuriousContraptions.tests/EventRingConsumerTests.cs:line 173
+   at CuriousContraptions.Tests.EventRingConsumerTests.EachPaidBumperImpactCuesExactlyOnePulseAtItsOwnPhysicalTime(String payload, Double height, Single strength, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/CuriousContraptions.tests/EventRingConsumerTests.cs:line 176
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:03.19]     CuriousContraptions.Tests.EventRingConsumerTests.TheCueStartsAtTheRecordsOwnOrdinalAndPhase [FAIL]
+[xUnit.net 00:00:03.28]     CuriousContraptions.Tests.EventRingConsumerTests.EachRecordRestartsItsOwnersClipAtItsPhysicalTime(name: "detector") [FAIL]
+  Failed CuriousContraptions.Tests.EventRingConsumerTests.TheCueStartsAtTheRecordsOwnOrdinalAndPhase [5 ms]
+  Error Message:
+   Assert.Equal() Failure: Values are not within 9 decimal places
+Expected: 0.140104166 (rounded from 0.140104166)
+Actual:   0.133333333 (rounded from 0.13333333266666667)
+  Stack Trace:
+     at CuriousContraptions.Tests.EventRingConsumerTests.TheCueStartsAtTheRecordsOwnOrdinalAndPhase() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/CuriousContraptions.tests/EventRingConsumerTests.cs:line 262
+   at CuriousContraptions.Tests.EventRingConsumerTests.TheCueStartsAtTheRecordsOwnOrdinalAndPhase() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/CuriousContraptions.tests/EventRingConsumerTests.cs:line 266
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.EventRingConsumerTests.EachRecordRestartsItsOwnersClipAtItsPhysicalTime(name: "detector") [31 ms]
+  Error Message:
+   Assert.Equal() Failure: Collections differ
+           ↓ (pos 0)
+Expected: [0.399096221, 0.437484682, 0.437584251]
+Actual:   [0.391374052, 0.432622582, 0.439157277]
+           ↑ (pos 0)
+  Stack Trace:
+     at CuriousContraptions.Tests.EventRingConsumerTests.EachRecordRestartsItsOwnersClipAtItsPhysicalTime(String name) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/CuriousContraptions.tests/EventRingConsumerTests.cs:line 213
+   at CuriousContraptions.Tests.EventRingConsumerTests.EachRecordRestartsItsOwnersClipAtItsPhysicalTime(String name) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/CuriousContraptions.tests/EventRingConsumerTests.cs:line 215
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:03.33]     CuriousContraptions.Tests.EventRingConsumerTests.ALappedRingCountsItsSkipLosesOnlyThoseCuesAndKeepsTheRestExact [FAIL]
+  Failed CuriousContraptions.Tests.EventRingConsumerTests.ALappedRingCountsItsSkipLosesOnlyThoseCuesAndKeepsTheRestExact [6 ms]
+  Error Message:
+   Assert.Equal() Failure: Collections differ
+                       ↓ (pos 1)
+Expected: [1.01999998, 0.870588243, 0.978431344, 0.870588243]
+Actual:   [1.01999998, 0.88068682, 0.98011446, 0.88068682]
+                       ↑ (pos 1)
+  Stack Trace:
+     at CuriousContraptions.Tests.EventRingConsumerTests.ALappedRingCountsItsSkipLosesOnlyThoseCuesAndKeepsTheRestExact() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/CuriousContraptions.tests/EventRingConsumerTests.cs:line 382
+   at CuriousContraptions.Tests.EventRingConsumerTests.ALappedRingCountsItsSkipLosesOnlyThoseCuesAndKeepsTheRestExact() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/CuriousContraptions.tests/EventRingConsumerTests.cs:line 384
+--- End of stack trace from previous location ---
+
+Failed!  - Failed:     7, Passed:    23, Skipped:     0, Total:    30, Duration: 1 s - CuriousContraptions.tests.dll (net10.0)

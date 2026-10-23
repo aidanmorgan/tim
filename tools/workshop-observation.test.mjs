@@ -173,7 +173,7 @@ for (const captureMode of [1, 2]) {
         return { bytes, identity: receipt };
     }
     const receipt = read => read.identity.slice();
-    const publish = (read, pending, retain) => imports.publish(read.bytes, read.identity, new Uint8Array(16), pending, retain);
+    const publish = (read, pending) => imports.publish(read.bytes, read.identity, new Uint8Array(16), pending);
     const posted = () => messages.filter(item => item.read).at(-1);
     const first = publication(1n), final = publication(2n);
     for (let index = 0; index < 8; index++) {
@@ -239,39 +239,24 @@ for (const captureMode of [1, 2]) {
     }
     assert.equal(receipts.length, receiptsBefore);
     assert.equal(host.SetReliableStall, undefined, 'no stall setter exists to forward to');
-    const held = publication(100n), eventOne = publication(102n), eventTwo = publication(104n), latest = publication(105n);
+    // Story 9A.23 D9: no read is reliable or retained (every one-shot occurrence is an event ring record), so the occurrence-read
+    // reservation is gone and the reads behind the one in flight coalesce to the latest; an installation still waits behind it.
+    assert.equal(imports.reserveOccurrenceRead, undefined, 'the occurrence-read reservation is deleted');
+    assert.equal(imports.releaseOccurrenceRead, undefined, 'the occurrence-read release is deleted');
+    const held = publication(100n), latest = publication(105n);
     publish(held, false);
-    publish(publication(101n), false);
-    assert.equal(imports.reserveOccurrenceRead(), true);
-    publish(eventOne, false, true);
-    publish(publication(103n), false);
-    assert.equal(imports.reserveOccurrenceRead(), true);
-    publish(eventTwo, false, true);
+    for (const skipped of [101n, 102n, 103n, 104n]) publish(publication(skipped), false);
     publish(latest, false);
     const controlsBefore = messages.filter(item => item.scheduleControl).length;
     imports.scheduleControl(new Uint8Array([7]), 1);
     assert.equal(messages.filter(item => item.scheduleControl).length, controlsBefore);
-    for (const expected of [eventOne, eventTwo, latest]) {
-        assert.equal(posted().readIdentity.length, 24, 'the worker posts the C# receipt identity with its read');
-        await self.onmessage({ data: { readAcknowledged: posted().readIdentity } });
-        assert.deepEqual(posted().read, expected.bytes);
-        assert.equal(messages.filter(item => item.scheduleControl).length, controlsBefore,
-            'installation cannot overtake a committed occurrence or final endpoint');
-    }
+    assert.equal(posted().readIdentity.length, 24, 'the worker posts the C# receipt identity with its read');
+    await self.onmessage({ data: { readAcknowledged: posted().readIdentity } });
+    assert.deepEqual(posted().read, latest.bytes, 'the reads behind the one in flight coalesce to the latest');
+    assert.equal(messages.filter(item => item.scheduleControl).length, controlsBefore,
+        'installation cannot overtake the final endpoint');
     await self.onmessage({ data: { readAcknowledged: receipt(latest) } });
     assert.equal(messages.filter(item => item.scheduleControl).length, controlsBefore + 1);
-    const capacityHeld = publication(200n);
-    publish(capacityHeld, false);
-    for (let index = 0; index < 64; index++) {
-        assert.equal(imports.reserveOccurrenceRead(), true);
-        publish(publication(BigInt(201 + index)), false, true);
-    }
-    assert.equal(imports.reserveOccurrenceRead(), false, 'backpressure precedes the next GPU commit');
-    await self.onmessage({ data: { readAcknowledged: receipt(capacityHeld) } });
-    assert.equal(imports.reserveOccurrenceRead(), true, 'exact ACK returns one reserved capacity slot');
-    imports.releaseOccurrenceRead();
-    for (let index = 0; index < 64; index++)
-        await self.onmessage({ data: { readAcknowledged: receipt(publication(BigInt(201 + index))) } });
     imports.dispose();
     const receiptsAtDisposal = receipts.length;
     await self.onmessage({ data: { readAcknowledged: receipt(publication(300n)) } });
@@ -295,7 +280,7 @@ for (const captureMode of [1, 2]) {
     };
     const { self, messages, imports } = await loadWorker(host);
     const identity = new Uint8Array(24); identity.fill(7, 0, 16); identity[16] = 1;
-    imports.publish(new Uint8Array(8), identity, new Uint8Array(16), false, false);
+    imports.publish(new Uint8Array(8), identity, new Uint8Array(16), false);
     assert.equal(messages.filter(item => item.read).length, 1);
     await self.onmessage({ data: { readAcknowledged: identity.slice() } });
     assert.equal(messages.filter(item => item.failure).length, 0, 'an accepted receipt is no failure');

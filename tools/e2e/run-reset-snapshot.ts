@@ -25,9 +25,6 @@ export const SNAPSHOT_SCHEMA = {
             ['debit', 'float'], ['enabled', 'uint8'], ['available', 'bool']] },
         ContactWorkStoreRecord: { kind: 'struct', fields: [['id', 'uint64'], ['owner', 'uint64'], ['occurrence_count', 'uint32'],
             ['remaining_energy', 'float'], ['supplied_energy', 'float']] },
-        ContactWorkOccurrenceRecord: { kind: 'struct', fields: [['work', 'uint32'], ['collider', 'uint32'], ['target', 'uint64'],
-            ['sequence', 'uint32'], ['event_ordinal', 'uint32'], ['event_phase', 'float'], ['approach_speed', 'float'],
-            ['debit', 'float'], ['effect', 'uint8']] },
         ActivationRecord: { kind: 'struct', fields: [['node', 'uint64'], ['owner', 'uint64'], ['source', 'uint64'], ['body', 'uint64'],
             ['collider', 'uint64'], ['phase', 'uint32'], ['event_ordinal', 'uint32'], ['event_phase', 'float'],
             ['approach_speed', 'float'], ['kind', 'uint32'], ['emitter', 'uint64'], ['cause_ordinal', 'uint32'],
@@ -67,7 +64,7 @@ export const SNAPSHOT_SCHEMA = {
             ['revision', 'uint64'], ['publication', 'uint64'], ['master_generation', 'uint64'], ['cadence', 'uint64'],
             ['projection', 'uint64'], ['session', '[uint8]'], ['capture', 'ClockStamp'], ['bodies', '[BodyRead]'],
             ['captures', '[CaptureLatchRead]'], ['activations', '[ActivationRecord]'], ['timers', '[TimerRecord]'],
-            ['contact_works', '[ContactWorkStoreRecord]'], ['occurrences', '[ContactWorkOccurrenceRecord]'],
+            ['contact_works', '[ContactWorkStoreRecord]'],
             ['electrical', '[ElectricalSourceRecord]'], ['activation_memory', '[ActivationMemoryRecord]'], ['motion', '[uint8]'],
             ['memory', 'MemoryObservationRecord'], ['actuator_drives', '[ActuatorDriveRecord]'], ['contact_loads', '[ContactLoadRecord]'], ['electrical_logic', '[ElectricalLogicRecord]'],
             ['construction', 'ConstructionRecord']] },
@@ -75,7 +72,7 @@ export const SNAPSHOT_SCHEMA = {
 } as const;
 
 /** Identity paths that must advance (spec D2 as amended by the 20 Oct design review), matched by full top-level path only:
- *  a nested field with the same name (`read.occurrences[*].sequence`, `saved.construction.revision`) is compared. */
+ *  a nested field with the same name (`saved.construction.revision`) is compared. */
 const EXCLUDED_PATHS: ReadonlySet<string> = new Set([
     'read.sequence', 'read.revision', 'read.publication', 'read.epoch', 'read.capture', 'read.session', 'read.master_generation',
     'read.cadence', 'read.projection',

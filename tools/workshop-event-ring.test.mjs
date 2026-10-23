@@ -23,7 +23,9 @@ const context = vm.createContext({ self: { postMessage(message) { if (message?.e
 const host = { ScheduleRoles: () => [1, 2] };
 const runtime = { setModuleImports() {}, getAssemblyExports: async () => ({ CuriousContraptions: { Simulation: { Program: host } } }),
     getConfig: () => ({ mainAssemblyName: 'EventRingWriterControl' }) };
-const worker = new vm.SourceTextModule(workerSource + '\nexport { writeEventRing, disposeOwned };', { context });
+// The harness also seats an Animation master port, as the worker's bootstrap does (Story 9A.23: the ring is posted to both readers).
+const worker = new vm.SourceTextModule(workerSource + '\nexport { writeEventRing, disposeOwned };' +
+    '\nexport function seatAnimationPort(port) { animationPort = port; }', { context });
 await worker.link(async name => {
     const names = name.includes('dotnet') ? ['dotnet'] : name === '../clock-ring.js'
         ? ['attachClockRing', 'deriveExchange', 'qualifyDerivation', 'writeDerivation', 'beat'] : ['admitNativeClock', 'nativeNow', 'nativeClockEvidence'];
@@ -33,7 +35,19 @@ await worker.link(async name => {
     }, { context });
 });
 await worker.evaluate();
-const { writeEventRing, disposeOwned } = worker.namespace;
+const { writeEventRing, disposeOwned, seatAnimationPort } = worker.namespace;
+
+test('each new ring is posted to the browser and to the Animation worker on its master port, the same buffer', () => {
+    posted.length = 0; disposeOwned();
+    const port = []; seatAnimationPort({ postMessage(message) { port.push(message); } });
+    writeEventRing(publication(3n, 4, [1n]));
+    writeEventRing(publication(3n, 4, [2n])); // the same ring: nothing new is posted
+    writeEventRing(publication(4n, 4, [1n]));
+    assert.equal(posted.length, 2);
+    assert.deepEqual(port.map(message => Object.keys(message)), [['eventRing'], ['eventRing']]);
+    assert.equal(port[0].eventRing, posted[0]); assert.equal(port[1].eventRing, posted[1]);
+    seatAnimationPort(undefined); disposeOwned();
+});
 
 // A publication: header (capacity 0, slot bytes 4, epoch 8, write sequence 16, lapped 24), then one record per sequence whose kind word
 // (offset 16) carries a marker.

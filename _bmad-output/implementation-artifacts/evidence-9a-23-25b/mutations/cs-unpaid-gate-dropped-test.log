@@ -1,0 +1,34 @@
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:02.49]     CuriousContraptions.Tests.EventRingConsumerTests.EachPaidBumperImpactCuesExactlyOnePulseAtItsOwnPhysicalTime(payload: "ball", height: 4.5, strength: 0, ticks: 360) [FAIL]
+[xUnit.net 00:00:02.51]     CuriousContraptions.Tests.EventRingConsumerTests.EachPaidBumperImpactCuesExactlyOnePulseAtItsOwnPhysicalTime(payload: "ball", height: 4.5, strength: 8, ticks: 360) [FAIL]
+[xUnit.net 00:00:02.53]     CuriousContraptions.Tests.EventRingConsumerTests.EachPaidBumperImpactCuesExactlyOnePulseAtItsOwnPhysicalTime(payload: "bowling", height: 6, strength: 8, ticks: 480) [FAIL]
+  Failed CuriousContraptions.Tests.EventRingConsumerTests.EachPaidBumperImpactCuesExactlyOnePulseAtItsOwnPhysicalTime(payload: "ball", height: 4.5, strength: 0, ticks: 360) [23 ms]
+  Error Message:
+   Assert.Equal() Failure: Values are not within tolerance 9.99999975E-06
+Expected: 1
+Actual:   0.939999998
+  Stack Trace:
+     at CuriousContraptions.Tests.EventRingConsumerTests.EachPaidBumperImpactCuesExactlyOnePulseAtItsOwnPhysicalTime(String payload, Double height, Single strength, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/CuriousContraptions.tests/EventRingConsumerTests.cs:line 173
+   at CuriousContraptions.Tests.EventRingConsumerTests.EachPaidBumperImpactCuesExactlyOnePulseAtItsOwnPhysicalTime(String payload, Double height, Single strength, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/CuriousContraptions.tests/EventRingConsumerTests.cs:line 176
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.EventRingConsumerTests.EachPaidBumperImpactCuesExactlyOnePulseAtItsOwnPhysicalTime(payload: "ball", height: 4.5, strength: 8, ticks: 360) [15 ms]
+  Error Message:
+   Assert.Equal() Failure: Values are not within tolerance 9.99999975E-06
+Expected: 1
+Actual:   0.939999998
+  Stack Trace:
+     at CuriousContraptions.Tests.EventRingConsumerTests.EachPaidBumperImpactCuesExactlyOnePulseAtItsOwnPhysicalTime(String payload, Double height, Single strength, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/CuriousContraptions.tests/EventRingConsumerTests.cs:line 173
+   at CuriousContraptions.Tests.EventRingConsumerTests.EachPaidBumperImpactCuesExactlyOnePulseAtItsOwnPhysicalTime(String payload, Double height, Single strength, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/CuriousContraptions.tests/EventRingConsumerTests.cs:line 176
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.EventRingConsumerTests.EachPaidBumperImpactCuesExactlyOnePulseAtItsOwnPhysicalTime(payload: "bowling", height: 6, strength: 8, ticks: 480) [22 ms]
+  Error Message:
+   Assert.Equal() Failure: Values are not within tolerance 9.99999975E-06
+Expected: 1
+Actual:   0.939999998
+  Stack Trace:
+     at CuriousContraptions.Tests.EventRingConsumerTests.EachPaidBumperImpactCuesExactlyOnePulseAtItsOwnPhysicalTime(String payload, Double height, Single strength, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/CuriousContraptions.tests/EventRingConsumerTests.cs:line 173
+   at CuriousContraptions.Tests.EventRingConsumerTests.EachPaidBumperImpactCuesExactlyOnePulseAtItsOwnPhysicalTime(String payload, Double height, Single strength, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/CuriousContraptions.tests/EventRingConsumerTests.cs:line 176
+--- End of stack trace from previous location ---
+
+Failed!  - Failed:     3, Passed:    27, Skipped:     0, Total:    30, Duration: 1 s - CuriousContraptions.tests.dll (net10.0)

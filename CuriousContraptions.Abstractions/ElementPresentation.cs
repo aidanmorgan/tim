@@ -15,7 +15,8 @@ public enum PresentationProperty : byte
 
 public enum PresentationDriver : byte
 {
-    ActivationPulse, ContactImpulse, CapturePulse,
+    /// <summary>A one-shot cue started by each event ring record of <see cref="PresentationBinding.Event"/> from the owning instance.</summary>
+    Event,
     CommittedActivation, CommittedCount, CommittedOscillatorPhase, CommittedOscillatorPulse,
     CommittedTimerProgress, CommittedTimerPhase, CommittedSupply, CommittedCharge, CommittedActuatorDrive,
     CommittedContactLoadPhase, CommittedActuatorState, CommittedTimerRemaining, CommittedTimerActive, CommittedElectricalSocket
@@ -25,13 +26,19 @@ public enum PresentationCurve : byte { Linear, SmoothStep, SineSquaredPulse, Exp
 public enum PresentationOverlap : byte { Replace, SaturatingSum, Maximum }
 public enum PresentationTimerPhase : byte { None, Ready, Counting, Finished }
 public enum PresentationBody : byte { Primary, Secondary }
+/// <summary>Which records of its kind cue an event binding: any record, or only one whose Magnitude is positive (an Impact that paid
+/// energy, so an unpaid or empty-store hit leaves the cue at rest).</summary>
+public enum PresentationEventMagnitude : byte { Any, Positive }
 
-/// <summary>A package-owned property writer. Threshold selects count/charge levels; phase selects a timer phase.
-/// Values and time are f32. One-shot drivers retain their existing relay until the ring-driver cutover.</summary>
+/// <summary>A package-owned property writer. Threshold selects count/charge levels; phase selects a timer phase. An
+/// <see cref="PresentationDriver.Event"/> binding names the ring record kind that cues it and which of its records do (Story 9A.25b);
+/// every committed driver names <see cref="SimulationEventKind.None"/> and <see cref="PresentationEventMagnitude.Any"/>. Values and time
+/// are f32.</summary>
 public readonly record struct PresentationBinding(
     string Node, PresentationProperty Property, PresentationDriver Driver,
     float From, float To, PresentationCurve Curve, float Duration,
-    PresentationOverlap Overlap, float Threshold, PresentationTimerPhase Phase, float Response = 0f, float? Intermediate = null, PortSocket? Socket = null);
+    PresentationOverlap Overlap, float Threshold, PresentationTimerPhase Phase, float Response = 0f, float? Intermediate = null, PortSocket? Socket = null,
+    SimulationEventKind Event = SimulationEventKind.None, PresentationEventMagnitude EventMagnitude = PresentationEventMagnitude.Any);
 
 public readonly record struct PresentationBodyBinding(string Node, PresentationBody Body, Vector3 RestOffset);
 public readonly record struct PresentationSpanBinding(

@@ -1,0 +1,16 @@
+✔ concurrent stress: over a million records through the shipped writer, no reader ever receives a torn record (1461.248542ms)
+✔ amplified concurrent stress at capacity 4: rounds of fresh writer and reader threads, no torn record (3687.847042ms)
+✔ a reader that keeps pace receives every record exactly once and skips none (1.026333ms)
+✔ a parked reader lapped by a capacity and more reports exactly the skipped records, then reads the newest intact (0.143833ms)
+✔ a slot reused while it is copied is skipped, never delivered (0.05925ms)
+✔ epochs: a newer ring is held unread until it is installed, an older one is ignored, and a new ring restarts at sequence 1 (0.220625ms)
+✔ a ring older than the installed epoch is ignored: nothing is delivered and the cursor does not move (0.190209ms)
+✔ a delivery carries the epoch and skipped count before the records (0.065208ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 5209.41475

@@ -9,7 +9,7 @@ namespace CuriousContraptions.Tests;
 /// misreading committed bodies or poses, and no declared-but-dead layout survives (Story 9.4b deleted twenty).</summary>
 public sealed class WorkerAbiTests(ITestOutputHelper output)
 {
-    public enum Script { SimulationWorker, WorkshopClient }
+    public enum Script { SimulationWorker, WorkshopClient, EventRingCursor }
 
     // Story 9R.5b: the ring's body capacity is its own length, so no script declares a capacity or a ring width; the browser
     // alone declares the bootstrap ring's starting allocation.
@@ -37,6 +37,14 @@ public sealed class WorkerAbiTests(ITestOutputHelper output)
         // Story 9A.2: the worker reads no read layout; it copies the C#-composed pose slot, so it declares only the ring's own.
         Script.SimulationWorker => new Dictionary<string, int>(PoseRing.Concat(EventRing)),
         Script.WorkshopClient => new Dictionary<string, int>(PoseRing) { ["POSE_INITIAL_BODIES"] = WorkshopPoseRing.InitialBodyCapacity },
+        // Story 9A.23: the shared reader reads the header words it validates and loads, and hands C# the delivery header.
+        Script.EventRingCursor => new Dictionary<string, int>
+        {
+            ["EVENT_HEADER_BYTES"] = Abstractions.EventRingBuffer.HeaderBytes, ["EVENT_SLOT_BYTES"] = Abstractions.EventRingBuffer.SlotBytes,
+            ["EVENT_CAPACITY_OFFSET"] = Abstractions.EventRingHeader.CapacityOffset, ["EVENT_SLOT_BYTES_OFFSET"] = Abstractions.EventRingHeader.SlotBytesOffset,
+            ["EVENT_EPOCH_OFFSET"] = Abstractions.EventRingHeader.EpochOffset, ["EVENT_WRITE_SEQUENCE_OFFSET"] = Abstractions.EventRingHeader.WriteSequenceOffset,
+            ["EVENT_DELIVERY_BYTES"] = Abstractions.EventRingDelivery.HeaderBytes,
+        },
         _ => throw new ArgumentOutOfRangeException(nameof(script), script, "Unknown browser script."),
     };
 
@@ -44,12 +52,14 @@ public sealed class WorkerAbiTests(ITestOutputHelper output)
     {
         Script.SimulationWorker => "CuriousContraptions.Simulation/wwwroot/worker.js",
         Script.WorkshopClient => "CuriousContraptions.web/wwwroot/workshop-client.js",
+        Script.EventRingCursor => "CuriousContraptions.web/wwwroot/event-ring-cursor.js",
         _ => throw new ArgumentOutOfRangeException(nameof(script), script, "Unknown browser script."),
     });
 
     [Theory]
     [InlineData(Script.SimulationWorker)]
     [InlineData(Script.WorkshopClient)]
+    [InlineData(Script.EventRingCursor)]
     public void EveryScriptLayoutConstantEqualsItsCSharpOwnerAndIsUsed(Script script)
     {
         var path = Path(script);

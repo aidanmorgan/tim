@@ -2,9 +2,14 @@
 // timer and managed-delegate boundaries. No browser/GPU qualification is claimed.
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import test from 'node:test';
+import nodeTest from 'node:test';
+// Every case is bounded: a harness that can never settle (a creation that fails before its workers exist, a leaked port or timer)
+// fails here within the bound instead of hanging the run.
+const TestBoundMilliseconds = 10_000;
+const test = (name, body) => nodeTest(name, { timeout: TestBoundMilliseconds }, body);
 import vm from 'node:vm';
 import * as clockRing from '../CuriousContraptions.web/wwwroot/clock-ring.js';
+import { EventRingCursor, eventDelivery } from '../CuriousContraptions.web/wwwroot/event-ring-cursor.js';
 
 const path = new URL('../CuriousContraptions.web/wwwroot/workshop-client.js', import.meta.url);
 const source = readFileSync(path, 'utf8');
@@ -23,7 +28,7 @@ async function clientHarness(loadRuntimes = true, failAnimationConstructor = fal
         Uint8Array, Float64Array, DataView, URL, Map, Error, Array, Promise, Math,
         SharedArrayBuffer, BigInt64Array, Float32Array, Atomics,
         createClockRing: clockRing.createClockRing, attachClockRing: clockRing.attachClockRing, requestReply: clockRing.requestReply, ClockRole: clockRing.ClockRole,
-        heartbeat: clockRing.heartbeat,
+        heartbeat: clockRing.heartbeat, EventRingCursor, eventDelivery,
         document: { baseURI: 'http://127.0.0.1:8060/', hidden: false },
         nativeProfile: 2, nativeNow: () => milliseconds,
         nativeClockEvidence: () => Array.from(profile), admitNativeClock: async () => {},
@@ -69,7 +74,9 @@ async function clientHarness(loadRuntimes = true, failAnimationConstructor = fal
     const creation = api.create(Object.values(state), session, [2, 64, 72, 96, 160, 1, 2], 1, false,
         () => { clockReplies++; }, () => {}, () => {}, () => { outputCalls++; outputCallback?.(); }, service);
     creation.catch(() => {});
-    await workerCreated;
+    // A creation that rejects before constructing its workers (e.g. a missing module binding) fails the harness with its own error;
+    // waiting only for the first Worker left the test pending forever with an idle event loop.
+    await Promise.race([workerCreated, creation.then(() => { throw new Error('Creation settled before its workers existed.'); })]);
     await Promise.resolve();
     assert.equal(intervals.size, 0, 'creation must not schedule managed service');
     if (failAnimationConstructor) return { creation, workers };
