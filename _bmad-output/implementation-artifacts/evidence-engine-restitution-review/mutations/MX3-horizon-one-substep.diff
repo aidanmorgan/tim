@@ -1,0 +1,8 @@
+1837c1837
+<         if (!(t <= 2f * h)) return;
+---
+>         if (!(t <= h)) return;
+1862c1862
+<             if (!(t >= 0f && t <= 2f * h)) return;
+---
+>             if (!(t >= 0f && t <= h)) return;

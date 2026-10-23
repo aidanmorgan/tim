@@ -195,6 +195,12 @@ public sealed class EventRingProducerTests
         var first = impacts[0];
         Assert.Equal((1u, ball.Value), (first.Count, first.Other));
         Assert.Single(impacts, record => record.Tick == first.Tick);
+        // Tick contract under same-substep restitution (engine restitution slice): each Impact's ordinal is one of its own tick's
+        // four substeps, and the first hit is stamped on the tick in which the ball is struck back (its velocity turns upward).
+        Assert.All(impacts, record => Assert.InRange(record.Ordinal, 4 * (uint)record.Tick - 3, 4 * (uint)record.Tick));
+        var struck = ring.Reads.First(read => Enumerable.Range(0, read.Bodies.Count).Select(i => read.Bodies[i].Body)
+            .Single(body => body.Id == ball).Velocity.Y > 0).Tick.Value;
+        Assert.Equal(struck, first.Tick);
     }
 
     // ---------- Passage: every pass after clearance, counted per aperture; the first-input lamp stays at one ----------

@@ -1,0 +1,3 @@
+cf35a0645c719e2551fc7ffa2473416d404da8a0
+?? _bmad-output/implementation-artifacts/evidence-engine-restitution/
+?? _bmad-output/implementation-artifacts/spec-engine-restitution.md

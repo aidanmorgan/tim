@@ -1,0 +1,35 @@
+Test run for /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/rev-probe/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:46.80]     CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.FreshSeedDropsWithRestitutionGainNoMoreEnergyThanTheBoxControlAndTheSlop [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.FreshSeedDropsWithRestitutionGainNoMoreEnergyThanTheBoxControlAndTheSlop [45 s]
+  Error Message:
+   CylinderOntoPlane (Lively): 0/200 over 9515.986 mJ (worst 1.471 mJ)
+CylinderOntoBox (Lively): 0/200 over 9515.986 mJ (worst 523.433 mJ)
+BoxOntoCylinder (Lively): 0/200 over 9515.986 mJ (worst 2639.737 mJ)
+CylinderOntoLyingCylinder (Lively): 0/200 over 9515.986 mJ (worst 24.606 mJ)
+CylinderOntoStandingCylinder (Lively): 1/200 over 9515.986 mJ (worst 35668.022 mJ)
+SkewedRollOffEdge (Lively): 0/200 over 9515.986 mJ (worst 0.000 mJ)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.AssertGate(Int32 cases, GateMaterials[] sets) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/rev-probe/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 1624
+   at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.FreshSeedDropsWithRestitutionGainNoMoreEnergyThanTheBoxControlAndTheSlop() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/rev-probe/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 1633
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Standard Output Messages:
+ CylinderOntoPlane (Lively): 0/200 over 9515.986 mJ (worst 1.471 mJ)
+ CylinderOntoBox (Lively): 0/200 over 9515.986 mJ (worst 523.433 mJ)
+ BoxOntoCylinder (Lively): 0/200 over 9515.986 mJ (worst 2639.737 mJ)
+ CylinderOntoLyingCylinder (Lively): 0/200 over 9515.986 mJ (worst 24.606 mJ)
+ CylinderOntoStandingCylinder (Lively): 1/200 over 9515.986 mJ (worst 35668.022 mJ)
+ SkewedRollOffEdge (Lively): 0/200 over 9515.986 mJ (worst 0.000 mJ)
+
+
+[xUnit.net 00:02:22.42]     CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.RandomPoseDropsNeverGainMoreThanTheSlopInATick(body: BoxOnBox, e: 1) [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.RandomPoseDropsNeverGainMoreThanTheSlopInATick(body: BoxOnBox, e: 1) [500 ms]
+  Error Message:
+   case 1: a tick gained 72906.960 mJ (slop 1.962 mJ)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.RandomPoseDropsNeverGainMoreThanTheSlopInATick(Body body, Single e) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/rev-probe/CuriousContraptions.tests/WorkshopPhysicsLawRestitutionTests.cs:line 162
+   at InvokeStub_WorkshopPhysicsLawRestitutionTests.RandomPoseDropsNeverGainMoreThanTheSlopInATick(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+
+Failed!  - Failed:     2, Passed:   238, Skipped:     0, Total:   240, Duration: 2 m 45 s - CuriousContraptions.tests.dll (net10.0)

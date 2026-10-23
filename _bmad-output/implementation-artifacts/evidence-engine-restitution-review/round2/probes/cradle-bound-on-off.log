@@ -1,0 +1,35 @@
+Test run for /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/rev2/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+/private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/rev2/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.5+1b188a7b0a (64-bit .NET 10.0.13)
+[xUnit.net 00:00:00.63]   Discovering: CuriousContraptions.tests
+[xUnit.net 00:00:01.44]   Discovered:  CuriousContraptions.tests
+[xUnit.net 00:00:01.55]   Starting:    CuriousContraptions.tests
+[xUnit.net 00:00:02.03]   Finished:    CuriousContraptions.tests (ID = '7b0ec23bc625bb6fcb503aef7d1a5429ccb8e37023fb0b6ae4cdeed92e0ed690')
+  Passed CuriousContraptions.Tests.ReviewRound2CradleDiagnosis.CradleWithAndWithoutBound(e: 0.550000012, disable: True) [58 ms]
+  Standard Output Messages:
+ cradle e=0.55 boundDisabled=True: vx [0.4000, 0.4000, 0.4000, 0.4000, 0.4000] KE 0.40000 J (of 2)
+
+
+  Passed CuriousContraptions.Tests.ReviewRound2CradleDiagnosis.CradleWithAndWithoutBound(e: 1, disable: False) [9 ms]
+  Standard Output Messages:
+ cradle e=1 boundDisabled=False: vx [-0.1377, -0.1377, 0.3923, 0.7611, 1.1221] KE 1.01512 J (of 2)
+   scale 0.7023 a 0.26995 lin -6.5267E-06 relaxed 0.57336 bound 0.70652 after 0.84331 budget 0.13316 touched 2
+
+
+  Passed CuriousContraptions.Tests.ReviewRound2CradleDiagnosis.CradleWithAndWithoutBound(e: 1, disable: True) [8 ms]
+  Standard Output Messages:
+ cradle e=1 boundDisabled=True: vx [-0.1377, -0.1377, 0.2376, 0.7611, 1.2768] KE 1.15191 J (of 2)
+
+
+  Passed CuriousContraptions.Tests.ReviewRound2CradleDiagnosis.CradleWithAndWithoutBound(e: 0.550000012, disable: False) [15 ms]
+  Standard Output Messages:
+ cradle e=0.55 boundDisabled=False: vx [0.4000, 0.4000, 0.4000, 0.4000, 0.4000] KE 0.40000 J (of 2)
+   scale 0.0000 a 0.0018878 lin 0 relaxed 0.14667 bound 0.14667 after 0.14856 budget -0.014193 touched 2
+
+
+
+Test Run Successful.
+Total tests: 4
+     Passed: 4
+ Total time: 2.2403 Seconds

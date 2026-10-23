@@ -155,7 +155,7 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
         -.9f - ContactDistance, .9f + ContactDistance, -.9f - DepthMargin, .9f + DepthMargin, Up, Alignment, ContactDistance, minimum);
     /// <summary>A resting contact on the row's face (frame 10, collider 11) at local (x, 0.08, z), gap −0.00027 m as the engine reports.</summary>
     private static ContactPointRecord On(ulong body, float mass, float x = 0, float z = 0, float gap = -.00027f, ulong collider = 11,
-        Vector3? normal = null) => new(new(10), new(collider), new(body), mass, new(x, .08f, z), normal ?? Up, gap);
+        Vector3? normal = null, bool pressed = false) => new(new(10), new(collider), new(body), mass, new(x, .08f, z), normal ?? Up, gap, pressed);
     private static float Measure(ContactLoadSensorDeclaration row, params ContactPointRecord[] contacts) =>
         ContactLoadSensorTracker.Measure(row, Vector3.Zero, Quaternion.Identity, contacts, new GpuBodyId[contacts.Length]);
 
@@ -218,6 +218,11 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
         // Lifted: a ball held 0.002 m above the face is a speculative contact, not a load (coordinator item 3).
         Assert.Equal(0f, Measure(row, On(22, 1, gap: .002f)));
         Assert.Equal(0f, Measure(row, On(22, 1, gap: MathF.BitIncrement(ContactDistance))));
+        // Pressed: the same lifted contact that carried normal impulse this substep (a bounce stopped from the speculative gap)
+        // presses the face; the alignment, footprint and face rules still apply to it.
+        Assert.Equal(1f, Measure(row, On(22, 1, gap: .002f, pressed: true)));
+        Assert.Equal(0f, Measure(row, On(22, 1, gap: .002f, normal: Vector3.UnitX, pressed: true)));
+        Assert.Equal(0f, Measure(row, On(22, 1, gap: .002f, x: .9f + 2 * ContactDistance, pressed: true)));
         Assert.Equal(0f, Measure(row, On(22, 1, x: .9f + 2 * ContactDistance)));  // outside x
         Assert.Equal(0f, Measure(row, On(22, 1, z: .9f + 2e-6f)));                                         // outside z
         Assert.Equal(0f, Measure(row, On(22, 1, normal: Vector3.UnitX)));                                   // side
@@ -225,7 +230,7 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
         Assert.Equal(0f, Measure(row, On(22, 1, normal: Vector3.Normalize(new(.01f, 1, 0)))));            // below 1 − 10⁻⁶
         Assert.Equal(0f, Measure(row, On(22, 1, collider: 12)));                                            // the base, not the face
         Assert.Equal(0f, Measure(row, On(22, 0)));                                                          // a static other
-        Assert.Equal(0f, Measure(row, new ContactPointRecord(new(30), new(11), new(22), 1, new(0, .08f, 0), Up, 0))); // another frame
+        Assert.Equal(0f, Measure(row, new ContactPointRecord(new(30), new(11), new(22), 1, new(0, .08f, 0), Up, 0, false))); // another frame
     }
 
     [Fact]
@@ -234,7 +239,7 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
         var position = new Vector3(5, 2, -3);
         var rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, MathF.PI / 6); // CAT-052 P12: a 30° plate
         var point = position + Vector3.Transform(new Vector3(.4f, .08f, 0), rotation);
-        var contact = new ContactPointRecord(new(10), new(11), new(22), 4, point, Vector3.Transform(Up, rotation), -.0002f);
+        var contact = new ContactPointRecord(new(10), new(11), new(22), 4, point, Vector3.Transform(Up, rotation), -.0002f, false);
         Assert.Equal(4f, ContactLoadSensorTracker.Measure(Row(), position, rotation, [contact], new GpuBodyId[1]));
         Assert.Equal(0f, ContactLoadSensorTracker.Measure(Row(), position, Quaternion.Identity, [contact], new GpuBodyId[1]));
     }
@@ -908,6 +913,11 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
         var reads = await RunBench(Bench([plate, ball, lamp], Signal(plate.Id, lamp.Id)), 240);
         var first = reads.FindIndex(read => Qualifying(read, plate));
         Assert.True(first > 0, "the ball lands on the plate");
+        // The landing presses the plate on its own impact tick, the tick the ball is struck back up (restitution slice: the
+        // bounce is resolved in the substep that stops it, from the speculative gap, and still presses the face).
+        var struck = reads.FindIndex(read => Enumerable.Range(0, read.Bodies.Count).Select(i => read.Bodies[i].Body)
+            .Single(body => body.Id == ball.Id).Velocity.Y > 0);
+        Assert.Equal(struck, first);
         var landed = reads.Skip(first).ToList();
         Assert.Contains(landed, read => !Qualifying(read, plate)); // control: the ball left the face between contacts
         Assert.All(landed, read => Assert.True(Latched(read.Activations, lamp.Id), $"lit through the bounce at tick {read.Tick.Value}"));

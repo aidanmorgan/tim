@@ -1,0 +1,30 @@
+Test run for /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/rev2/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:02:47.41]     CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.TheReviewerStackReproducersGainNoMoreThanTheSlop(e: 1, qx: 0.539420426, qy: 0.281046271, qz: -0.595204294, qw: 0.525138497, h: 0.526213109, x: 0.0608917587, sx: 1.52346444, sy: -0.741984904, sz: -3.30802011) [FAIL]
+[xUnit.net 00:02:47.46]     CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.TheReviewerStackReproducersGainNoMoreThanTheSlop(e: 0.949999988, qx: 0.150442645, qy: -0.127815425, qz: 0.732963324, qw: 0.650995374, h: 0.749756277, x: 0.0609850585, sx: -3.45553946, sy: 0.949169278, sz: 0.311104804) [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.TheReviewerStackReproducersGainNoMoreThanTheSlop(e: 1, qx: 0.539420426, qy: 0.281046271, qz: -0.595204294, qw: 0.525138497, h: 0.526213109, x: 0.0608917587, sx: 1.52346444, sy: -0.741984904, sz: -3.30802011) [34 ms]
+  Error Message:
+   a tick gained 321.097 mJ (bound 5.887 mJ)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.TheReviewerStackReproducersGainNoMoreThanTheSlop(Single e, Single qx, Single qy, Single qz, Single qw, Single h, Single x, Single sx, Single sy, Single sz) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/rev2/CuriousContraptions.tests/WorkshopPhysicsLawRestitutionTests.cs:line 322
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithManyArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.TheReviewerStackReproducersGainNoMoreThanTheSlop(e: 0.949999988, qx: 0.150442645, qy: -0.127815425, qz: 0.732963324, qw: 0.650995374, h: 0.749756277, x: 0.0609850585, sx: -3.45553946, sy: 0.949169278, sz: 0.311104804) [57 ms]
+  Error Message:
+   a tick gained 33.708 mJ (bound 5.887 mJ)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.TheReviewerStackReproducersGainNoMoreThanTheSlop(Single e, Single qx, Single qy, Single qz, Single qw, Single h, Single x, Single sx, Single sy, Single sz) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/rev2/CuriousContraptions.tests/WorkshopPhysicsLawRestitutionTests.cs:line 322
+   at InvokeStub_WorkshopPhysicsLawRestitutionTests.TheReviewerStackReproducersGainNoMoreThanTheSlop(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithManyArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+[xUnit.net 00:03:06.49]     CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.BoxesDroppedOnARestingDynamicBoxNeverGainMoreThanTheSlopInATick(e: 1) [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.BoxesDroppedOnARestingDynamicBoxNeverGainMoreThanTheSlopInATick(e: 1) [8 s]
+  Error Message:
+   case 21: a tick gained 482.954 mJ (bound 5.887 mJ)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.BoxesDroppedOnARestingDynamicBoxNeverGainMoreThanTheSlopInATick(Single e) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/rev2/CuriousContraptions.tests/WorkshopPhysicsLawRestitutionTests.cs:line 347
+   at InvokeStub_WorkshopPhysicsLawRestitutionTests.BoxesDroppedOnARestingDynamicBoxNeverGainMoreThanTheSlopInATick(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+
+Failed!  - Failed:     3, Passed:   247, Skipped:     0, Total:   250, Duration: 3 m 37 s - CuriousContraptions.tests.dll (net10.0)

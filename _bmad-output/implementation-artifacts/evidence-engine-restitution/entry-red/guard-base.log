@@ -1,0 +1,25 @@
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-restitution/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+/Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-restitution/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.5+1b188a7b0a (64-bit .NET 10.0.13)
+[xUnit.net 00:00:00.38]   Discovering: CuriousContraptions.tests
+[xUnit.net 00:00:01.14]   Discovered:  CuriousContraptions.tests
+[xUnit.net 00:00:01.26]   Starting:    CuriousContraptions.tests
+  Passed CuriousContraptions.Tests.LaunchLessonSolveTests.TheAuthoredSolutionSolvesAtEveryPrecision(lesson: "first_principles") [522 ms]
+  Passed CuriousContraptions.Tests.LaunchLessonSolveTests.TheAuthoredSolutionSolvesAtEveryPrecision(lesson: "delayed_signal") [216 ms]
+  Passed CuriousContraptions.Tests.LaunchLessonSolveTests.TheAuthoredSolutionSolvesAtEveryPrecision(lesson: "domino_effect") [2 s]
+  Passed CuriousContraptions.Tests.LaunchLessonSolveTests.TheAuthoredSolutionSolvesAtEveryPrecision(lesson: "bumper_sidekick") [185 ms]
+  Passed CuriousContraptions.Tests.LaunchLessonSolveTests.TheAuthoredSolutionSolvesAtEveryPrecision(lesson: "bumper_depth") [184 ms]
+  Passed CuriousContraptions.Tests.LaunchLessonSolveTests.TheAuthoredSolutionSolvesAtEveryPrecision(lesson: "wall_and_bumper") [192 ms]
+  Passed CuriousContraptions.Tests.LaunchLessonSolveTests.TheAuthoredSolutionSolvesAtEveryPrecision(lesson: "spring_forward") [385 ms]
+  Passed CuriousContraptions.Tests.LaunchLessonSolveTests.TheAuthoredSolutionSolvesAtEveryPrecision(lesson: "ready_to_rebound") [435 ms]
+  Passed CuriousContraptions.Tests.LaunchLessonSolveTests.TheAuthoredSolutionSolvesAtEveryPrecision(lesson: "clear_pipe") [278 ms]
+  Passed CuriousContraptions.Tests.LaunchLessonSolveTests.TheAuthoredSolutionSolvesAtEveryPrecision(lesson: "gentle_bend") [357 ms]
+  Passed CuriousContraptions.Tests.LaunchLessonSolveTests.TheAuthoredSolutionSolvesAtEveryPrecision(lesson: "quarter_bend") [769 ms]
+[xUnit.net 00:00:08.87]   Finished:    CuriousContraptions.tests (ID = 'f62651f1b1d54fc043fcab386725aff4e185d93710b68a50a4d691bd5a2b4a43')
+  Passed CuriousContraptions.Tests.LaunchLessonSolveTests.TheAuthoredSolutionSolvesAtEveryPrecision(lesson: "joined_pipe") [1 s]
+
+Test Run Successful.
+Total tests: 12
+     Passed: 12
+ Total time: 9.1196 Seconds

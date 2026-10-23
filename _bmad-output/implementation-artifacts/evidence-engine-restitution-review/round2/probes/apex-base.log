@@ -1,0 +1,33 @@
+Test run for /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/rev2base/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+/private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/rev2base/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.5+1b188a7b0a (64-bit .NET 10.0.13)
+[xUnit.net 00:00:00.33]   Discovering: CuriousContraptions.tests
+[xUnit.net 00:00:01.08]   Discovered:  CuriousContraptions.tests
+[xUnit.net 00:00:01.18]   Starting:    CuriousContraptions.tests
+[xUnit.net 00:00:01.73]   Finished:    CuriousContraptions.tests (ID = '0d7ddb6b1f23025fe7fe92fc8b253e6f16bcfadc2961b95e04f472a7b54ef198')
+  Passed CuriousContraptions.Tests.ReviewRound2Apex.ApexOnRestingDynamicBox(e: 0.550000012, boxMass: 0.5) [80 ms]
+  Standard Output Messages:
+ apex e=0.55 box 0.5 kg: static 0.0881, dynamic 0.0111 (e² of pair 0.0914)
+
+
+  Passed CuriousContraptions.Tests.ReviewRound2Apex.ApexOnRestingDynamicBox(e: 1, boxMass: 0.300000012) [19 ms]
+  Standard Output Messages:
+ apex e=1 box 0.3 kg: static 0.9834, dynamic 0.1923 (e² of pair 1.0000)
+
+
+  Passed CuriousContraptions.Tests.ReviewRound2Apex.ApexOnRestingDynamicBox(e: 1, boxMass: 2) [19 ms]
+  Standard Output Messages:
+ apex e=1 box 2 kg: static 0.9834, dynamic 0.5713 (e² of pair 1.0000)
+
+
+  Passed CuriousContraptions.Tests.ReviewRound2Apex.ApexOnRestingDynamicBox(e: 0.550000012, boxMass: 2) [37 ms]
+  Standard Output Messages:
+ apex e=0.55 box 2 kg: static 0.0881, dynamic 0.0500 (e² of pair 0.0914)
+
+
+
+Test Run Successful.
+Total tests: 4
+     Passed: 4
+ Total time: 1.9244 Seconds

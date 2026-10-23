@@ -117,3 +117,8 @@
 - source_spec: `_bmad-output/implementation-artifacts/spec-6-4-passive-springboard.md`
   summary: Make the inherited E2E MCP/Playwright dependency resolution portable across installation locations before qualifying another test environment.
   evidence: BMAD B7; workshop-driver.ts already bootstraps /opt/homebrew/lib/node_modules/@playwright/mcp/package.json, and the new Springboard PNG assertion resolves through that same installation. A differently installed environment cannot launch the existing driver; current Chrome proof uses the declared installation. Resolve the harness dependency and its PNG consumer together without claiming current cross-environment qualification.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-engine-restitution.md`
+  summary: Follow-up engine story "Engine: resting stack settling" (sprint key engine-resting-stack-settling; coordinator decision 3, 24 Oct 2026). Some three-box stacks keep a slow vertical soft-contact oscillation (0.01–0.04 mm per tick) for more than 10 s instead of coming to rest.
+  evidence: Pre-existing on base cf35a064 and present on the restitution candidate, depending on the initial gaps and offsets; e = 0 stacks settle on both. After 1 s every point moves below 8.4 × 10⁻³ m/s, under every bounce threshold (0.1 m/s), so restitution cannot act late: the cycle belongs to the soft contact and relax rows. The restitution slice bounds it (StacksStopBouncingAndStayWithinTheRestingEnvelope: late per-tick motion ≤ 0.05 mm, point speed < 0.1 m/s). Raw runs: `evidence-engine-restitution/stacks/`.
+  destination: its own engine slice; not a prerequisite of the restitution slice.

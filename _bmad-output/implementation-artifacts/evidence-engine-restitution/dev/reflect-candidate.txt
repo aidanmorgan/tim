@@ -1,0 +1,10 @@
+ rim v=1: error 120.00° |v| ratio 1.0000
+ sphere v=1: error 120.00° |v| ratio 1.0000
+ rim v=2: error 0.02° |v| ratio 1.0000
+ sphere v=2: error 0.00° |v| ratio 1.0000
+ rim v=3: error 0.02° |v| ratio 1.0000
+ sphere v=3: error 0.02° |v| ratio 1.0000
+ rim v=6: error 0.02° |v| ratio 1.0000
+ sphere v=6: error 0.02° |v| ratio 1.0000
+ rim v=12: error 0.02° |v| ratio 1.0000
+ sphere v=12: error 0.02° |v| ratio 1.0000

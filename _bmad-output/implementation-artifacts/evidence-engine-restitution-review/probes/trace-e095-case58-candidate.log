@@ -1,0 +1,53 @@
+Test run for /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/rev-probe/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+/private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/rev-probe/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.5+1b188a7b0a (64-bit .NET 10.0.13)
+[xUnit.net 00:00:00.41]   Discovering: CuriousContraptions.tests
+[xUnit.net 00:00:01.28]   Discovered:  CuriousContraptions.tests
+[xUnit.net 00:00:01.41]   Starting:    CuriousContraptions.tests
+  Passed CuriousContraptions.Tests.ReviewRestitutionProbeTests.BoxOnDynBoxSweep(e: 0.949999988) [10 s]
+  Standard Output Messages:
+   t75 E=6969.4 mJ lower v=<-0.07313974, 0.08965473, -0.12192124> w=<-2.3789337, 0.15665677, 1.6862698> y=0.11443 | top v=<-0.6464231, -0.30243754, -0.22744007> w=<-0.56433815, -0.2586394, 3.4397185> y=0.4117
+   t76 E=6935.6 mJ lower v=<-0.06749278, -0.08338671, -0.07873127> w=<-1.8847109, 0.26788127, 2.0388362> y=0.11418 | top v=<-0.657717, -0.20166719, -0.31382> w=<-1.640681, -0.28702095, 2.7377715> y=0.4099
+   t77 E=6826.1 mJ lower v=<0.024734266, 0.22390057, -0.016387716> w=<1.5143845, 0.1401762, -0.99716496> y=0.11468 | top v=<-0.657717, -0.28343803, -0.31382> w=<-1.640681, -0.28702095, 2.7377715> y=0.4078
+   t78 E=6823.5 mJ lower v=<0.024734266, 0.14212973, -0.016387716> w=<1.5143845, 0.1401762, -0.99716496> y=0.11612 | top v=<-0.657717, -0.36520892, -0.31382> w=<-1.640681, -0.28702095, 2.7377715> y=0.4050
+   t79 E=6821.0 mJ lower v=<0.024734266, 0.060358897, -0.016387716> w=<1.5143845, 0.1401762, -0.99716496> y=0.11688 | top v=<-0.657717, -0.44697982, -0.31382> w=<-1.640681, -0.28702095, 2.7377715> y=0.4016
+   t80 E=6818.5 mJ lower v=<0.024734266, -0.02141194, -0.016387716> w=<1.5143845, 0.1401762, -0.99716496> y=0.11696 | top v=<-0.657717, -0.5287507, -0.31382> w=<-1.640681, -0.28702095, 2.7377715> y=0.3974
+   t81 E=6850.1 mJ lower v=<-0.08181455, -0.1321611, -0.07803101> w=<-2.5574174, -0.10441725, 2.7875648> y=0.11635 | top v=<-0.5618772, -0.14216599, -0.23066469> w=<0.7490798, -0.6695681, 0.11885452> y=0.3926
+   t82 E=6787.0 mJ lower v=<-0.1164694, -0.17113566, -0.09028755> w=<-3.0700393, -0.37234718, 1.9632124> y=0.11501 | top v=<-0.5260567, -0.044388026, -0.30264187> w=<-0.4051237, -0.21166389, 0.38269976> y=0.3914
+   t83 E=6784.4 mJ lower v=<-0.1164694, -0.2529065, -0.09028755> w=<-3.0700393, -0.37234715, 1.9632123> y=0.11316 | top v=<-0.5260567, -0.12615886, -0.30264187> w=<-0.4051237, -0.21166389, 0.38269976> y=0.3906
+   t84 E=6571.4 mJ lower v=<-0.015540041, 0.13595131, 0.062239878> w=<1.9937823, -0.35948858, -1.8685683> y=0.11397 | top v=<-0.4415911, -0.012769408, -0.2733816> w=<-2.350122, 0.71357185, 1.0559015> y=0.3895
+ e=0.95: rise 128.435 mJ (case 63 t48); genuine 26.507 mJ (case 58 t81); bound 5.887
+
+
+  Passed CuriousContraptions.Tests.ReviewRestitutionProbeTests.BoxOnDynBoxSweep(e: 0.850000024) [11 s]
+  Standard Output Messages:
+ e=0.85: rise 0.242 mJ (case 141 t288); genuine 0.205 mJ (case 141 t256); bound 5.887
+
+
+  Passed CuriousContraptions.Tests.ReviewRestitutionProbeTests.BoxOnDynBoxSweep(e: 0.300000012) [12 s]
+  Standard Output Messages:
+ e=0.3: rise 0.328 mJ (case 123 t103); genuine 0.280 mJ (case 55 t335); bound 5.887
+
+
+  Passed CuriousContraptions.Tests.ReviewRestitutionProbeTests.BoxOnDynBoxSweep(e: 0.899999976) [11 s]
+  Standard Output Messages:
+ e=0.9: rise 0.241 mJ (case 4 t121); genuine 0.158 mJ (case 158 t206); bound 5.887
+
+
+  Passed CuriousContraptions.Tests.ReviewRestitutionProbeTests.BoxOnDynBoxSweep(e: 0.550000012) [12 s]
+  Standard Output Messages:
+ e=0.55: rise 0.246 mJ (case 64 t229); genuine 0.228 mJ (case 161 t178); bound 5.887
+
+
+[xUnit.net 00:01:10.47]   Finished:    CuriousContraptions.tests (ID = '8a22d014e8610c54aa56b9c9133d39c4c50f0f044b67b9731be24fa583dce911')
+  Passed CuriousContraptions.Tests.ReviewRestitutionProbeTests.BoxOnDynBoxSweep(e: 1) [9 s]
+  Standard Output Messages:
+ e=1: rise 455.791 mJ (case 122 t47); genuine 0.147 mJ (case 12 t246); bound 5.887
+
+
+
+Test Run Successful.
+Total tests: 6
+     Passed: 6
+ Total time: 1.1782 Minutes

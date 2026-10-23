@@ -1,0 +1,114 @@
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-restitution/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+/Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-restitution/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.5+1b188a7b0a (64-bit .NET 10.0.13)
+[xUnit.net 00:00:00.32]   Discovering: CuriousContraptions.tests
+[xUnit.net 00:00:01.07]   Discovered:  CuriousContraptions.tests
+[xUnit.net 00:00:01.18]   Starting:    CuriousContraptions.tests
+[xUnit.net 00:00:02.01]     CuriousContraptions.Tests.LaunchLessonSolveTests.TheAuthoredSolutionSolvesAtEveryPrecision(lesson: "delayed_signal") [FAIL]
+[xUnit.net 00:00:02.01]       System.Collections.Generic.KeyNotFoundException : The given key 'switch' was not present in the dictionary.
+[xUnit.net 00:00:02.01]       Stack Trace:
+[xUnit.net 00:00:02.01]            at System.Collections.Generic.Dictionary`2.get_Item(TKey key)
+[xUnit.net 00:00:02.01]         /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-restitution/CuriousContraptions.tests/LaunchLessonSolveTests.cs(106,0): at CuriousContraptions.Tests.LaunchLessonSolveTests.AuthoredSolution(String lesson, Half precision)
+[xUnit.net 00:00:02.01]         /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-restitution/CuriousContraptions.tests/LaunchLessonSolveTests.cs(139,0): at CuriousContraptions.Tests.LaunchLessonSolveTests.TheAuthoredSolutionSolvesAtEveryPrecision(String lesson)
+[xUnit.net 00:00:02.01]         --- End of stack trace from previous location ---
+  Passed CuriousContraptions.Tests.LaunchLessonSolveTests.EveryPlayableLessonHasAnAuthoredSolutionUnderTheGuard [50 ms]
+  Passed CuriousContraptions.Tests.LaunchLessonSolveTests.TheAuthoredSolutionSolvesAtEveryPrecision(lesson: "first_principles") [361 ms]
+  Failed CuriousContraptions.Tests.LaunchLessonSolveTests.TheAuthoredSolutionSolvesAtEveryPrecision(lesson: "delayed_signal") [7 ms]
+  Error Message:
+   System.Collections.Generic.KeyNotFoundException : The given key 'switch' was not present in the dictionary.
+  Stack Trace:
+     at System.Collections.Generic.Dictionary`2.get_Item(TKey key)
+   at CuriousContraptions.Tests.LaunchLessonSolveTests.AuthoredSolution(String lesson, Half precision) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-restitution/CuriousContraptions.tests/LaunchLessonSolveTests.cs:line 106
+   at CuriousContraptions.Tests.LaunchLessonSolveTests.TheAuthoredSolutionSolvesAtEveryPrecision(String lesson) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-restitution/CuriousContraptions.tests/LaunchLessonSolveTests.cs:line 139
+--- End of stack trace from previous location ---
+  Passed CuriousContraptions.Tests.LaunchLessonSolveTests.TheAuthoredSolutionSolvesAtEveryPrecision(lesson: "domino_effect") [2 s]
+  Passed CuriousContraptions.Tests.LaunchLessonSolveTests.TheAuthoredSolutionSolvesAtEveryPrecision(lesson: "bumper_sidekick") [188 ms]
+[xUnit.net 00:00:05.69]     CuriousContraptions.Tests.LaunchLessonSolveTests.TheAuthoredSolutionSolvesAtEveryPrecision(lesson: "clear_pipe") [FAIL]
+[xUnit.net 00:00:05.69]       System.ArgumentException : A pipe is a typed WorkshopPipe, never a generic instance.
+[xUnit.net 00:00:05.69]       Stack Trace:
+[xUnit.net 00:00:05.69]         /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-restitution/engine/gpu/WorkshopInstances.cs(39,0): at CuriousContraptions.Gpu.WorkshopGenericInstance.Validate()
+[xUnit.net 00:00:05.69]         /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-restitution/engine/gpu/WorkshopConstruction.cs(94,0): at CuriousContraptions.Gpu.WorkshopInput.Generic(PartId partId, GpuBodyId id, Double x, Double y, Double z, Double qx, Double qy, Double qz, Double qw, InstanceParameterCollection parameters)
+[xUnit.net 00:00:05.69]         /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-restitution/CuriousContraptions.tests/LaunchLessonSolveTests.cs(93,0): at CuriousContraptions.Tests.LaunchLessonSolveTests.AuthoredSolution(String lesson, Half precision)
+[xUnit.net 00:00:05.69]         /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-restitution/CuriousContraptions.tests/LaunchLessonSolveTests.cs(139,0): at CuriousContraptions.Tests.LaunchLessonSolveTests.TheAuthoredSolutionSolvesAtEveryPrecision(String lesson)
+[xUnit.net 00:00:05.69]         --- End of stack trace from previous location ---
+  Passed CuriousContraptions.Tests.LaunchLessonSolveTests.TheAuthoredSolutionSolvesAtEveryPrecision(lesson: "bumper_depth") [185 ms]
+  Passed CuriousContraptions.Tests.LaunchLessonSolveTests.TheAuthoredSolutionSolvesAtEveryPrecision(lesson: "wall_and_bumper") [194 ms]
+  Passed CuriousContraptions.Tests.LaunchLessonSolveTests.TheAuthoredSolutionSolvesAtEveryPrecision(lesson: "spring_forward") [389 ms]
+  Passed CuriousContraptions.Tests.LaunchLessonSolveTests.TheAuthoredSolutionSolvesAtEveryPrecision(lesson: "ready_to_rebound") [442 ms]
+  Failed CuriousContraptions.Tests.LaunchLessonSolveTests.TheAuthoredSolutionSolvesAtEveryPrecision(lesson: "clear_pipe") [2 ms]
+  Error Message:
+   System.ArgumentException : A pipe is a typed WorkshopPipe, never a generic instance.
+  Stack Trace:
+     at CuriousContraptions.Gpu.WorkshopGenericInstance.Validate() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-restitution/engine/gpu/WorkshopInstances.cs:line 39
+   at CuriousContraptions.Gpu.WorkshopInput.Generic(PartId partId, GpuBodyId id, Double x, Double y, Double z, Double qx, Double qy, Double qz, Double qw, InstanceParameterCollection parameters) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-restitution/engine/gpu/WorkshopConstruction.cs:line 94
+   at CuriousContraptions.Tests.LaunchLessonSolveTests.AuthoredSolution(String lesson, Half precision) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-restitution/CuriousContraptions.tests/LaunchLessonSolveTests.cs:line 93
+   at CuriousContraptions.Tests.LaunchLessonSolveTests.TheAuthoredSolutionSolvesAtEveryPrecision(String lesson) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-restitution/CuriousContraptions.tests/LaunchLessonSolveTests.cs:line 139
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:06.82]     CuriousContraptions.Tests.LaunchLessonSolveTests.TheAuthoredSolutionSolvesAtEveryPrecision(lesson: "joined_pipe") [FAIL]
+[xUnit.net 00:00:06.82]       System.ArgumentException : A pipe is a typed WorkshopPipe, never a generic instance.
+[xUnit.net 00:00:06.82]       Stack Trace:
+[xUnit.net 00:00:06.82]         /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-restitution/engine/gpu/WorkshopInstances.cs(39,0): at CuriousContraptions.Gpu.WorkshopGenericInstance.Validate()
+[xUnit.net 00:00:06.82]         /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-restitution/engine/gpu/WorkshopConstruction.cs(94,0): at CuriousContraptions.Gpu.WorkshopInput.Generic(PartId partId, GpuBodyId id, Double x, Double y, Double z, Double qx, Double qy, Double qz, Double qw, InstanceParameterCollection parameters)
+[xUnit.net 00:00:06.82]         /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-restitution/CuriousContraptions.tests/LaunchLessonSolveTests.cs(93,0): at CuriousContraptions.Tests.LaunchLessonSolveTests.AuthoredSolution(String lesson, Half precision)
+[xUnit.net 00:00:06.82]         /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-restitution/CuriousContraptions.tests/LaunchLessonSolveTests.cs(139,0): at CuriousContraptions.Tests.LaunchLessonSolveTests.TheAuthoredSolutionSolvesAtEveryPrecision(String lesson)
+[xUnit.net 00:00:06.82]         --- End of stack trace from previous location ---
+  Passed CuriousContraptions.Tests.LaunchLessonSolveTests.TheAuthoredSolutionSolvesAtEveryPrecision(lesson: "gentle_bend") [375 ms]
+  Passed CuriousContraptions.Tests.LaunchLessonSolveTests.TheAuthoredSolutionSolvesAtEveryPrecision(lesson: "quarter_bend") [752 ms]
+  Failed CuriousContraptions.Tests.LaunchLessonSolveTests.TheAuthoredSolutionSolvesAtEveryPrecision(lesson: "joined_pipe") [2 ms]
+  Error Message:
+   System.ArgumentException : A pipe is a typed WorkshopPipe, never a generic instance.
+  Stack Trace:
+     at CuriousContraptions.Gpu.WorkshopGenericInstance.Validate() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-restitution/engine/gpu/WorkshopInstances.cs:line 39
+   at CuriousContraptions.Gpu.WorkshopInput.Generic(PartId partId, GpuBodyId id, Double x, Double y, Double z, Double qx, Double qy, Double qz, Double qw, InstanceParameterCollection parameters) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-restitution/engine/gpu/WorkshopConstruction.cs:line 94
+   at CuriousContraptions.Tests.LaunchLessonSolveTests.AuthoredSolution(String lesson, Half precision) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-restitution/CuriousContraptions.tests/LaunchLessonSolveTests.cs:line 93
+   at CuriousContraptions.Tests.LaunchLessonSolveTests.TheAuthoredSolutionSolvesAtEveryPrecision(String lesson) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-restitution/CuriousContraptions.tests/LaunchLessonSolveTests.cs:line 139
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:50.77]     CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.FreshSeedDropsWithRestitutionGainNoMoreEnergyThanTheBoxControlAndTheSlop [FAIL]
+[xUnit.net 00:00:50.77]       CylinderOntoPlane (Lively): 1/200 over 285.317 mJ (worst 344.658 mJ)
+[xUnit.net 00:00:50.77]       CylinderOntoBox (Lively): 1/200 over 285.317 mJ (worst 347.448 mJ)
+[xUnit.net 00:00:50.77]       BoxOntoCylinder (Lively): 2/200 over 285.317 mJ (worst 331.347 mJ)
+[xUnit.net 00:00:50.77]       CylinderOntoLyingCylinder (Lively): 4/200 over 285.317 mJ (worst 514.917 mJ)
+[xUnit.net 00:00:50.77]       CylinderOntoStandingCylinder (Lively): 3/200 over 285.317 mJ (worst 443.959 mJ)
+[xUnit.net 00:00:50.77]       SkewedRollOffEdge (Lively): 1/200 over 285.317 mJ (worst 415.090 mJ)
+[xUnit.net 00:00:50.77]       Stack Trace:
+[xUnit.net 00:00:50.77]         /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-restitution/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs(1624,0): at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.AssertGate(Int32 cases, GateMaterials[] sets)
+[xUnit.net 00:00:50.77]         /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-restitution/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs(1633,0): at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.FreshSeedDropsWithRestitutionGainNoMoreEnergyThanTheBoxControlAndTheSlop()
+[xUnit.net 00:00:50.77]            at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+[xUnit.net 00:00:50.77]            at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:50.77]       Output:
+[xUnit.net 00:00:50.77]         CylinderOntoPlane (Lively): 1/200 over 285.317 mJ (worst 344.658 mJ)
+[xUnit.net 00:00:50.77]         CylinderOntoBox (Lively): 1/200 over 285.317 mJ (worst 347.448 mJ)
+[xUnit.net 00:00:50.77]         BoxOntoCylinder (Lively): 2/200 over 285.317 mJ (worst 331.347 mJ)
+[xUnit.net 00:00:50.77]         CylinderOntoLyingCylinder (Lively): 4/200 over 285.317 mJ (worst 514.917 mJ)
+[xUnit.net 00:00:50.77]         CylinderOntoStandingCylinder (Lively): 3/200 over 285.317 mJ (worst 443.959 mJ)
+[xUnit.net 00:00:50.77]         SkewedRollOffEdge (Lively): 1/200 over 285.317 mJ (worst 415.090 mJ)
+[xUnit.net 00:00:50.77]   Finished:    CuriousContraptions.tests (ID = 'f62651f1b1d54fc043fcab386725aff4e185d93710b68a50a4d691bd5a2b4a43')
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.FreshSeedDropsWithRestitutionGainNoMoreEnergyThanTheBoxControlAndTheSlop [43 s]
+  Error Message:
+   CylinderOntoPlane (Lively): 1/200 over 285.317 mJ (worst 344.658 mJ)
+CylinderOntoBox (Lively): 1/200 over 285.317 mJ (worst 347.448 mJ)
+BoxOntoCylinder (Lively): 2/200 over 285.317 mJ (worst 331.347 mJ)
+CylinderOntoLyingCylinder (Lively): 4/200 over 285.317 mJ (worst 514.917 mJ)
+CylinderOntoStandingCylinder (Lively): 3/200 over 285.317 mJ (worst 443.959 mJ)
+SkewedRollOffEdge (Lively): 1/200 over 285.317 mJ (worst 415.090 mJ)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.AssertGate(Int32 cases, GateMaterials[] sets) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-restitution/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 1624
+   at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.FreshSeedDropsWithRestitutionGainNoMoreEnergyThanTheBoxControlAndTheSlop() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-restitution/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 1633
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Standard Output Messages:
+ CylinderOntoPlane (Lively): 1/200 over 285.317 mJ (worst 344.658 mJ)
+ CylinderOntoBox (Lively): 1/200 over 285.317 mJ (worst 347.448 mJ)
+ BoxOntoCylinder (Lively): 2/200 over 285.317 mJ (worst 331.347 mJ)
+ CylinderOntoLyingCylinder (Lively): 4/200 over 285.317 mJ (worst 514.917 mJ)
+ CylinderOntoStandingCylinder (Lively): 3/200 over 285.317 mJ (worst 443.959 mJ)
+ SkewedRollOffEdge (Lively): 1/200 over 285.317 mJ (worst 415.090 mJ)
+
+
+
+Test Run Failed.
+Total tests: 14
+     Passed: 10
+     Failed: 4
+ Total time: 50.9671 Seconds

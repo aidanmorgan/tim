@@ -1,0 +1,16 @@
+ .../WorkshopCollisionKernels.cs                    | 75 +++++++++++++++++++-
+ .../WorkshopConstraintSolver.cs                    | 82 +++++++++++++++++++---
+ .../WorkshopPhysicsEngine.cs                       | 41 +++++++----
+ .../CuriousContraptions.tests.csproj               |  1 +
+ .../DeclaredPrismaticDriveTests.cs                 |  8 ++-
+ .../EventRingProducerTests.cs                      |  6 ++
+ .../LaunchLessonSolveTests.cs                      | 31 ++++++--
+ CuriousContraptions.tests/PressurePlateTests.cs    | 16 ++++-
+ .../WorkshopPhysicsLawCylinderTests.cs             | 24 ++++---
+ .../WorkshopPhysicsLawTests.cs                     |  7 +-
+ .../implementation-artifacts/deferred-work.md      |  5 ++
+ .../implementation-artifacts/sprint-status.yaml    |  4 ++
+ docs/gpu-f32-physics.md                            |  7 +-
+ docs/planning/elements/CAT-052-pressure_plate.md   |  2 +-
+ engine/gpu/ContactLoadSensorDeclaration.cs         | 12 ++--
+ 15 files changed, 267 insertions(+), 54 deletions(-)

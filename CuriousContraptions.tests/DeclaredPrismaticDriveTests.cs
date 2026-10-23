@@ -380,11 +380,16 @@ public sealed class DeclaredPrismaticDriveTests
         var engine = new WorkshopPhysicsEngine();
         var heights = new List<float>();
         var start = LawState.Read(scene, world, WarmupScene.Rider).Position.Y;
+        // The trigger record is per tick: keep the fastest strike any step recorded (the strike's tick depends on the bounce).
+        var trigger = PhysicsGpuAbi.Layout(world).TriggerOffset(0);
+        var fastest = 0f;
         for (var step = 0; step < WarmupScene.Steps; step++)
         {
             engine.Advance(world, next, WarmupScene.Inputs(step));
             _ = PhysicsGpuAbi.ValidateCandidate(next, world, new((ulong)step + 1));
             (world, next) = (next, world);
+            if (BinaryPrimitives.ReadUInt32LittleEndian(world.AsSpan(trigger + PhysicsGpuAbi.TriggerCountOffset)) > 0)
+                fastest = MathF.Max(fastest, BinaryPrimitives.ReadSingleLittleEndian(world.AsSpan(trigger + PhysicsGpuAbi.TriggerApproachOffset)));
             heights.Add(LawState.Read(scene, world, WarmupScene.Rider).Position.Y - start);
             // The rider's only contact is its own base, which is never "something in the way".
             Assert.False(PhysicsGpuAbi.ReadPrismaticMovingContact(world, 0));
@@ -392,8 +397,7 @@ public sealed class DeclaredPrismaticDriveTests
         Assert.True(heights[WarmupScene.SuppliedSteps - 1] > .05f, $"the supplied drive lifts the rider ({heights[WarmupScene.SuppliedSteps - 1]})");
         Assert.True(heights[^1] < heights[WarmupScene.SuppliedSteps - 1], "unsupplied, it falls back");
         // It strikes the base above the trigger threshold, so the contact-event path ran too.
-        var trigger = PhysicsGpuAbi.Layout(world).TriggerOffset(0);
-        Assert.True(BinaryPrimitives.ReadUInt32LittleEndian(world.AsSpan(trigger + PhysicsGpuAbi.TriggerCountOffset)) > 0, "the trigger fired");
+        Assert.True(fastest >= .5f, $"the trigger fired on a strike above its threshold ({fastest})");
         // And the contact-work payment path (Story 9.4b): the strike was paid from the store.
         var store = world.AsSpan(PhysicsGpuAbi.Layout(world).ContactWorkOffset(0), PhysicsGpuAbi.ContactWorkBytes);
         Assert.True(BinaryPrimitives.ReadSingleLittleEndian(store[PhysicsGpuAbi.ContactWorkAvailableOffset..]) <

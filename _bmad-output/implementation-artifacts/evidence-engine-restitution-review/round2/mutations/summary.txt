@@ -1,0 +1,15 @@
+MX2-block-accepts-pull: Failed!  - Failed:     2, Passed:   248, Skipped:     0, Total:   250, Duration: 3 m 38 s - CuriousContraptions.tests.dll (net10.0)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.FreshSeedDropsWithRestitutionGainNoMoreEnergyThanTheBoxControlAndTheSlop 
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.APullingOrRankDeficientBlockFallsBackWithoutNaNAndEachPointBouncesToItsTarget 
+MX4-no-rolling-resolve: Failed!  - Failed:     1, Passed:   249, Skipped:     0, Total:   250, Duration: 3 m 37 s - CuriousContraptions.tests.dll (net10.0)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.ABouncingSpinningBallLosesTheRollingResistanceOfTheWholeImpact 
+MB1-no-group-union: build failed
+MB2-bound-presolve-only: Passed!  - Failed:     0, Passed:   250, Skipped:     0, Total:   250, Duration: 3 m 37 s - CuriousContraptions.tests.dll (net10.0)
+MB3-scale-linear-only: Failed!  - Failed:     3, Passed:   247, Skipped:     0, Total:   250, Duration: 3 m 37 s - CuriousContraptions.tests.dll (net10.0)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.BoxesDroppedOnARestingDynamicBoxNeverGainMoreThanTheSlopInATick(e: 1) 
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.TheReviewerStackReproducersGainNoMoreThanTheSlop(e: 0.949999988, qx: 0.150442645, qy: -0.127815425, qz: 0.732963324, qw: 0.650995374, h: 0.749756277, x: 0.0609850585, sx: -3.45553946, sy: 0.949169278, sz: 0.311104804) 
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.TheReviewerStackReproducersGainNoMoreThanTheSlop(e: 1, qx: 0.539420426, qy: 0.281046271, qz: -0.595204294, qw: 0.525138497, h: 0.526213109, x: 0.0608917587, sx: 1.52346444, sy: -0.741984904, sz: -3.30802011) 
+restored
+
+[exited with code 0]
+MB1-no-group-union (compiling variant rb.RestitutionRoot = rb): killed 3 (ball strike spin 10, partner-ball rolling impulse, heavy-strikes-light 64 m/s)

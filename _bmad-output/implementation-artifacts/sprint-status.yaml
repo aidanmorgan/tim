@@ -311,6 +311,10 @@ development_status:
   # 33 (element)
   epic-10: backlog
   10-1-solid-cylinder-collider-and-inertia: review
+  # engine slice after 10.1, before 10.2a (coordinator decision, 24 Oct 2026); spec-engine-restitution.md
+  engine-restitution-energy-correctness: review # native candidate uncommitted in worktree story-engine-restitution; browser pending
+  # deferred follow-up (coordinator decision 3, 24 Oct 2026): pre-existing soft-contact limit cycle in some 3-box stacks
+  engine-resting-stack-settling: backlog
   # 34 (deletion)
   9a-39-generic-instance-battery: done # scoped native/publication Pass54ffd9; browser pending
   # 35 (element)

@@ -949,11 +949,14 @@ public sealed class WorkshopPhysicsLawTests
     {
         (LawBody A, LawBody B, LawBody A0, LawBody B0) Strike(float spin)
         {
+            // Only the rolling coefficient differs between the runs (drag is kept), so the difference is the rolling row alone.
             LawBody[] Run(bool resistanceFree)
             {
                 var scene = new LawScene();
-                var a = scene.Ball(LawBall.Basketball, At(-1, 1), velocity: At(2, 0, 0), angular: At(0, 0, spin), resistanceFree: resistanceFree, gravity: 0);
-                var b = scene.Ball(LawBall.Basketball, At(0, 1), resistanceFree: resistanceFree, gravity: 0);
+                var material = LawMaterial.Ball(LawBall.Basketball) with { Rolling = resistanceFree ? 0f : LawBalls.Rolling(LawBall.Basketball) };
+                float r = LawBalls.Radius(LawBall.Basketball), m = LawBalls.Mass(LawBall.Basketball), drag = LawBalls.Drag(LawBall.Basketball);
+                var a = scene.Sphere(At(-1, 1), r, m, material, At(2, 0, 0), At(0, 0, spin), drag, 0f);
+                var b = scene.Sphere(At(0, 1), r, m, material, default, default, drag, 0f);
                 var world = scene.Admit();
                 var final = world.Step(world.TicksPerSecond);
                 return [final[a], final[b]];
