@@ -661,6 +661,67 @@ public sealed class BundleValidatorTests
         Assert.Empty(Check(both with { Signal = both.Signal! with { ContactLoad = null } }));
     }
 
+    // C-Clock (D1): the oscillator names a Real second parameter with a finite positive minimum; it is a source (a Pulse ActivationOut,
+    // no ActivationIn) supplied through its PowerIn into a Consumer node, on a Static frame (no Dynamic body, no slider) with a collider;
+    // it is the seventh node-selecting capability, and a committed oscillator presentation binding requires it. Every refusal is one
+    // BundleError naming its field, never a throw. Controls: the shipped clock, the parameter's range ends and an explicit Static frame.
+    [Fact]
+    public void TheOscillatorIsATypedSuppliedStaticPulseSourceExclusiveAndCoupledToItsBindings()
+    {
+        var generated = BundleGenerator.Generate(TestRepository.Root);
+        var bundle = Bundle.BundleSchema.Read(generated.Json!).Elements;
+        var clock = bundle.Single(entry => entry.Metadata.Id == "clock");
+        static IReadOnlyList<Bundle.BundleError> Check(Bundle.BundleEntry candidate) => Bundle.BundleValidator.Validate([new("Candidate", candidate)]);
+        static void Refused(Bundle.BundleEntry candidate, string field, Bundle.BundleErrorCode code = Bundle.BundleErrorCode.OutOfRange)
+        {
+            var error = Assert.Single(Check(candidate));
+            Assert.Equal((code, true), (error.Code, error.Detail.StartsWith("Candidate." + field + ":", StringComparison.Ordinal)));
+        }
+        Assert.Empty(Check(clock));
+        Assert.Equal(new SignalOscillatorDescriptor("interval_seconds"), clock.Signal!.Oscillator);
+        Assert.Null(clock.Mechanical);
+        var parameter = Assert.Single(clock.Metadata.Parameters);
+        Assert.Equal(("interval_seconds", ParameterUnit.Second, ParameterKind.Real, .1f, 12f, 1f, ParameterEditorPolicy.Clamp, ParameterRunEdit.BuildOnly),
+            (parameter.Key, parameter.Unit, parameter.Kind, parameter.Minimum, parameter.Maximum, parameter.Default, parameter.EditorPolicy, parameter.RunEdit));
+        Bundle.BundleEntry Parameter(ParameterDescriptor changed) => clock with { Metadata = clock.Metadata with { Parameters = [changed] } };
+        Bundle.BundleEntry With(Bundle.SignalPayload signal) => clock with { Signal = signal };
+
+        // The interval parameter: absent, not seconds, not Real, or without a positive minimum; the smallest positive minimum is admitted.
+        Refused(With(clock.Signal with { Oscillator = new("interval") }), "Oscillator.IntervalParameter");
+        Refused(Parameter(parameter with { Unit = ParameterUnit.Metre }), "Oscillator.IntervalParameter");
+        Refused(Parameter(parameter with { Kind = ParameterKind.WholeNumber, Minimum = 1f, Maximum = 12f, Default = 1f }), "Oscillator.IntervalParameter");
+        Refused(Parameter(parameter with { Minimum = 0f }), "Oscillator.IntervalParameter");
+        Assert.Empty(Check(Parameter(parameter with { Minimum = float.Epsilon })));
+        // A source: a Pulse ActivationOut and no ActivationIn.
+        var activation = clock.Ports.Single(port => port.Socket == PortSocket.ActivationOut);
+        Refused(clock with { Ports = [.. clock.Ports.Where(port => port != activation), activation with { Signal = PortSignalKind.Level }] }, "Oscillator.Ports");
+        Refused(clock with { Ports = [.. clock.Ports.Where(port => port != activation)] }, "Oscillator.Ports");
+        Refused(clock with { Ports = [.. clock.Ports, new(PortSocket.ActivationIn, SimulationDomain.Signal, PortDirection.Input, PortSignalKind.Pulse, Vector3.Zero, -Vector3.UnitY)] },
+            "Oscillator.Ports");
+        // Supplied: its PowerIn route into a Consumer node.
+        Refused(clock with { Ports = [.. clock.Ports.Where(port => port.Socket != PortSocket.PowerIn)] }, "Oscillator.Supply");
+        var consumer = Assert.Single(clock.Electrical!.Nodes);
+        Refused(clock with { Electrical = clock.Electrical with { Nodes = [consumer with { Role = Abstractions.Electrical.ElectricalRole.Switch }] } }, "Oscillator.Supply");
+        // A Static frame: another package's Static frame is admitted; a Dynamic body or a frame with a slider is refused.
+        var wall = bundle.Single(entry => entry.Metadata.Id == "wall").Mechanical!;
+        Assert.Empty(Check(clock with { Mechanical = wall }));
+        Refused(clock with { Mechanical = bundle.Single(entry => entry.Metadata.Id == "ball").Mechanical }, "Oscillator.Body");
+        Refused(clock with { Mechanical = bundle.Single(entry => entry.Metadata.Id == "powered_gate").Mechanical }, "Oscillator.Body");
+        Assert.Contains(Check(clock with { Colliders = [] }), error => error.Detail.StartsWith("Candidate.Oscillator.Body:", StringComparison.Ordinal));
+
+        // One node-selecting capability: a valid passage aperture on the same Static frame is refused, and only for that (the control
+        // drops the oscillator with its committed oscillator bindings).
+        var both = clock with { Mechanical = wall, Signal = clock.Signal with { Passage = new(.5f, .1f) } };
+        Refused(both, "Capability");
+        Assert.Empty(Check(both with { Signal = both.Signal! with { Oscillator = null }, Presentation = clock.Presentation with { Bindings = [] } }));
+
+        // The committed oscillator bindings read the row only the capability compiles: without it each of the clock's four bindings (the
+        // pendulum phase and the flash's three colour channels) is refused.
+        var unbound = Check(With(clock.Signal with { Oscillator = null }));
+        Assert.Equal(clock.Presentation.Bindings.Count, unbound.Count);
+        Assert.All(unbound, error => Assert.StartsWith("Candidate.Presentation.Oscillator:", error.Detail, StringComparison.Ordinal));
+    }
+
     [Fact]
     public void AnAssemblyWithNoDeclarationIsRefused() =>
         Assert.Equal(["BUNDLE005 FixtureNone: declares 0 elements; a package declares exactly one"],

@@ -1,0 +1,26 @@
+base 14658883 (throwaway worktree, tools/BundleElements Debug build): 23f6a93759e8c7e8fcafea11e2ba88a2a2aef67835f2874c9b60858f078aa526   310765 bytes
+candidate: 5bf3d63ab7fbf5de082868cd31870a37a23a47c71bb72cb8cb172fdd543363b7   310932 bytes
+== element-level diff (python json compare, per element id):
+same element ids: True 28
+CHANGED ball_detector
+CHANGED clock
+CHANGED counter
+CHANGED delay
+CHANGED domino
+CHANGED hold_timer
+CHANGED lamp
+CHANGED latch
+CHANGED pressure_plate
+CHANGED switch
+  + ball_detector.Signal.Oscillator null
+  ~ clock.Metadata.Parameters [{"Key": "interval_seconds", "Unit": "Second", "Kind": "Real", "Minimum": 0.1, "Maximum": 12, "Default": 1, "Options": [], "EditorPolicy": "Reject", "RunEdit": "BuildOnly"}] -> [{"Key": "interval_seconds", "Unit": "Second", "Kind": "Real", "Minimum": 0.1, "Maximum": 12, "Default": 1, "Options": [], "EditorPolicy": "Clamp", "RunEdit": "BuildOnly"}]
+  + clock.Signal.Oscillator {"IntervalParameter": "interval_seconds"}
+  ~ clock.Signal.Triggers [{"TriggerId": "clock_tick", "Mode": "Pulse", "Threshold": 1, "PulseDurationSeconds": 0.1}] -> []
+  + counter.Signal.Oscillator null
+  + delay.Signal.Oscillator null
+  + domino.Signal.Oscillator null
+  + hold_timer.Signal.Oscillator null
+  + lamp.Signal.Oscillator null
+  + latch.Signal.Oscillator null
+  + pressure_plate.Signal.Oscillator null
+  + switch.Signal.Oscillator null

@@ -70,6 +70,95 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
         }
         finally { Release(scene); }
     }
+    // C-Clock (9A.42, D3/D6): a clock placed from the palette takes the declared 1.0 s and is configured through the generic editor,
+    // which shows the instance's own value (the record panel showed a part-side copy that nothing set) and applies the Clamp policy:
+    // 13 applies as 12 and 0.05 as 0.1, each one Undo and one command; NaN, Infinity and text are refused with no change, no command
+    // and no undo; Cancel changes nothing; an unchanged Apply adds no Undo. Undo restores 1.0. Running, Paused and a locked clock are
+    // refused. A moved clock keeps its interval (CaptureInstance reads the committed instance); a new one starts from 1.0 s.
+    [Fact]
+    public void TheClockIntervalEditorShowsTheInstanceValueClampsIntoRangeAndAppliesAsOneUndo()
+    {
+        var parameter = new ParameterId("interval_seconds");
+        var (scene, client) = BenchScene(PartId.Clock, PlacementAnswer.Applied);
+        try
+        {
+            Assert.Empty(ClickBench(scene));
+            var placed = Assert.IsType<WorkshopGenericInstance>(Assert.Single(scene.World.Construction.Instances));
+            Assert.Equal(BitConverter.SingleToUInt32Bits(1f), BitConverter.SingleToUInt32Bits(placed.Parameters[parameter]));
+            var choices = Field<VBoxContainer>(scene, "_connectionChoices");
+            static IEnumerable<T> Nodes<T>(Node parent) where T : Node =>
+                parent.GetChildren().SelectMany(child => new[] { child }.Concat(Nodes<Node>(child))).OfType<T>();
+            void Press(string label) => Assert.Single(Nodes<Button>(choices), button => button.Text == label).EmitSignal(Button.SignalName.Pressed);
+            LineEdit Configure()
+            {
+                Press("Configure");
+                var field = Assert.Single(Nodes<LineEdit>(choices));
+                Assert.Equal(parameter.Value, field.Name.ToString());
+                Assert.Contains(Nodes<Label>(choices), label => label.Text == "interval_seconds (0.1–12 s)");
+                return field;
+            }
+            var input = Configure();
+            Assert.Equal("1", input.Text);
+            var before = scene.World.Construction;
+            var commands = client.Commands.Count;
+            var undos = Field<List<WorkshopConstruction>>(scene, "_undo").Count;
+            foreach (var invalid in new[] { "NaN", "Infinity", "-Infinity", "two", "" })
+            {
+                input.Text = invalid;
+                Press("Apply parameters");
+                Assert.Equal(before, scene.World.Construction);
+                Assert.Equal(commands, client.Commands.Count);
+                Assert.Equal(undos, Field<List<WorkshopConstruction>>(scene, "_undo").Count);
+            }
+            Press("Cancel");
+            Assert.Equal(before, scene.World.Construction);
+            foreach (var (text, value) in new[] { ("13", 12f), ("0.05", .1f), ("2.5", 2.5f) })
+            {
+                input = Configure();
+                input.Text = text;
+                Press("Apply parameters");
+                var current = Assert.IsType<WorkshopGenericInstance>(Assert.Single(scene.World.Construction.Instances));
+                Assert.Equal(BitConverter.SingleToUInt32Bits(value), BitConverter.SingleToUInt32Bits(current.Parameters[parameter]));
+                Assert.Equal(++undos, Field<List<WorkshopConstruction>>(scene, "_undo").Count);
+                Assert.Equal(++commands, client.Commands.Count);
+            }
+            // The editor shows the instance's value, and an unchanged Apply adds no Undo and sends no command.
+            input = Configure();
+            Assert.Equal("2.5", input.Text);
+            Press("Apply parameters");
+            Assert.Equal((undos, commands), (Field<List<WorkshopConstruction>>(scene, "_undo").Count, client.Commands.Count));
+
+            // A move re-captures the committed instance and keeps its interval; a newly placed clock starts from the declared 1.0 s.
+            var applied = Assert.IsType<WorkshopGenericInstance>(Assert.Single(scene.World.Construction.Instances));
+            var moved = Assert.IsType<WorkshopGenericInstance>(scene.World.CaptureInstance(PartId.Clock, applied.Id, new Vector3(1, 3, 0), Quaternion.Identity));
+            Assert.Equal(applied.Parameters, moved.Parameters);
+            var fresh = Assert.IsType<WorkshopGenericInstance>(scene.World.CaptureInstance(PartId.Clock, new GpuBodyId(99), new Vector3(1, 3, 0), Quaternion.Identity));
+            Assert.Equal(BitConverter.SingleToUInt32Bits(1f), BitConverter.SingleToUInt32Bits(fresh.Parameters[parameter]));
+
+            foreach (var _ in new[] { 1, 2, 3 }) Assert.Empty(InvokeHandler(scene, "Undo"));
+            var restored = Assert.IsType<WorkshopGenericInstance>(Assert.Single(scene.World.Construction.Instances));
+            Assert.Equal(BitConverter.SingleToUInt32Bits(1f), BitConverter.SingleToUInt32Bits(restored.Parameters[parameter]));
+
+            var accepted = scene.World.Construction;
+            commands = client.Commands.Count;
+            var proposed = new InstanceParameterCollection([new(parameter, 4f)]);
+            foreach (var phase in new[] { WorkshopSimulationPhase.Running, WorkshopSimulationPhase.Paused })
+            {
+                typeof(MachineWorld).GetProperty(nameof(MachineWorld.WorkshopPhase))!.SetValue(scene.World, phase);
+                Assert.Empty(InvokeHandler(scene, "ApplyDeclaredParameters", restored.Id, proposed));
+                Assert.Equal(accepted, scene.World.Construction);
+                Assert.Equal(commands, client.Commands.Count);
+            }
+            typeof(MachineWorld).GetProperty(nameof(MachineWorld.WorkshopPhase))!.SetValue(scene.World, WorkshopSimulationPhase.Building);
+            var locked = accepted with { Instances = new(restored with { Locked = true }) };
+            typeof(MachineWorld).GetProperty(nameof(MachineWorld.Construction))!.SetValue(scene.World, locked);
+            Assert.Empty(InvokeHandler(scene, "ApplyDeclaredParameters", restored.Id, proposed));
+            Assert.Equal(locked, scene.World.Construction);
+            Assert.Equal(commands, client.Commands.Count);
+            Assert.Empty(godot.Errors.Drain());
+        }
+        finally { Release(scene); }
+    }
     // C-Plate (9A.40, D4): a plate placed from the palette takes the declared 0.5 kg. The generic editor names minimum_mass in kg with
     // its declared range and applies the Reject policy: 0.09, 16.01, NaN, Infinity and text are refused with no change, no command and
     // no undo (never clamped); 0.1 and 16 are accepted bit for bit; each application is one Undo, and Undo restores 0.5. Running,

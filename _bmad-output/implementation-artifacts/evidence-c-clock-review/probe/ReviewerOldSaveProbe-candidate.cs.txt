@@ -1,0 +1,38 @@
+using System.Security.Cryptography;
+using CuriousContraptions.Gpu;
+
+namespace CuriousContraptions.Tests;
+
+// Reviewer probe (C-Clock review, throwaway candidate worktree): the outcome of every pinned base-era save at both boundaries.
+public sealed class ReviewerOldSaveProbe
+{
+    private static string Outcome(Func<object> decode)
+    {
+        try { return "LOADED " + decode(); }
+        catch (WorkshopSaveRejectedException error) { return $"REFUSED save {error.Reason}: {error.Message}"; }
+        catch (WireFaultException error) { return $"REFUSED wire {error.Reason}: {error.Message}"; }
+        catch (ArgumentException error) { return $"UNTYPED {error.GetType().Name}: {error.Message}"; }
+        catch (InvalidOperationException error) { return $"UNTYPED {error.GetType().Name}: {error.Message}"; }
+        catch (IndexOutOfRangeException error) { return $"UNTYPED {error.GetType().Name}: {error.Message}"; }
+    }
+
+    [Fact]
+    public void ReportEveryPinnedOldSaveOutcome()
+    {
+        var dir = Environment.GetEnvironmentVariable("REVIEW_OLD_SAVES")!;
+        var output = Environment.GetEnvironmentVariable("REVIEW_OUT")!;
+        var report = new List<string>();
+        foreach (var path in Directory.GetFiles(dir, "*.bin").OrderBy(p => p, StringComparer.Ordinal))
+        {
+            var bytes = File.ReadAllBytes(path);
+            var name = Path.GetFileName(path);
+            var sha = Convert.ToHexStringLower(SHA256.HashData(bytes));
+            var outcome = name.EndsWith(".save.bin", StringComparison.Ordinal)
+                ? Outcome(() => string.Join(" | ", WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes).Construction.Instances.Select(i => i.ToString())))
+                : Outcome(() => string.Join(" | ", WorkshopWireFlatBuffers.DecodeCommand(bytes).Construction!.Value.Instances.Select(i => i.ToString())));
+            report.Add($"{name} {sha} {outcome}");
+        }
+        File.WriteAllLines(output, report);
+        Assert.Equal(70, report.Count);
+    }
+}

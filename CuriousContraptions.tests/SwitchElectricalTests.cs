@@ -131,7 +131,7 @@ public sealed class SwitchElectricalTests
     {
         var construction=Machine();
         var second=WorkshopInput.Generic(PartId.ImpactSwitch,new(6),-8,1,0,0,0,0,1);
-        var clock=WorkshopInput.Clock(new(7),6,1,0,0,0,0,1,1f);
+        var clock=PlacedParts.Clock(new(7),6,1,0,0,0,0,1,1f);
         construction=construction with {Instances=new(construction.Instances.Concat(new IWorkshopInstance[]{second,clock}).ToArray()),
             Connections=new(Power(2,6),Power(6,2),Power(6,7))};
         var network=WorkshopActivationCompiler.Compile(construction);

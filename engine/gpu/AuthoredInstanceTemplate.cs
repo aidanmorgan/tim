@@ -9,7 +9,7 @@ namespace CuriousContraptions.Gpu;
 // The current construction record's typed scalar fields, not element identities.
 internal enum AuthoredScalar
 {
-    Length, Threshold
+    Length
 }
 internal enum AssistanceValue
 {

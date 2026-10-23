@@ -1,0 +1,5 @@
+== handler population (regex from WorkshopHandlerBoundaryTests.AsyncVoid over ui/*.cs)
+regex: async void (?<name>\w+)\(
+candidate: 15
+base: 16
+candidate (-o count): 15

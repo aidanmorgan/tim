@@ -1,0 +1,2464 @@
+diff --git a/.editorconfig b/.editorconfig
+index 918a50df..be7328b7 100644
+--- a/.editorconfig
++++ b/.editorconfig
+@@ -67,7 +67,7 @@ dotnet_code_quality.CA1031.excluded_symbol_names = M:CuriousContraptions.Simulat
+ [ui/Workshop.cs]
+ dotnet_code_quality.CA1031.excluded_symbol_names = M:CuriousContraptions.Workshop._Ready|M:CuriousContraptions.Workshop.ReadyAsync|M:CuriousContraptions.Workshop.Click(Godot.Vector2)|M:CuriousContraptions.Workshop.ClickAsync(Godot.Vector2)|M:CuriousContraptions.Workshop.DeleteSelected|M:CuriousContraptions.Workshop.Undo|M:CuriousContraptions.Workshop.ToggleRun|M:CuriousContraptions.Workshop.ToggleRunAsync|M:CuriousContraptions.Workshop.ResetRun|M:CuriousContraptions.Workshop.ResetRunAsync|M:CuriousContraptions.Workshop.Save|M:CuriousContraptions.Workshop.SaveAsync|M:CuriousContraptions.Workshop.LoadSave|M:CuriousContraptions.Workshop.LoadSaveAsync
+ [ui/WorkshopConfiguration.cs]
+-dotnet_code_quality.CA1031.excluded_symbol_names = M:CuriousContraptions.Workshop.ApplyDeclaredParameters(CuriousContraptions.Gpu.GpuBodyId,CuriousContraptions.Gpu.InstanceParameterCollection)|M:CuriousContraptions.Workshop.ApplyDeclaredParametersAsync(CuriousContraptions.Gpu.GpuBodyId,CuriousContraptions.Gpu.InstanceParameterCollection)|M:CuriousContraptions.Workshop.ApplyRunControl(CuriousContraptions.Gpu.GpuBodyId,CuriousContraptions.Gpu.ElectricalEnable)|M:CuriousContraptions.Workshop.ApplyRunControlAsync(CuriousContraptions.Gpu.GpuBodyId,CuriousContraptions.Gpu.ElectricalEnable)|M:CuriousContraptions.Workshop.ApplyClockInterval(CuriousContraptions.Gpu.GpuBodyId,System.Single)|M:CuriousContraptions.Workshop.ApplyClockIntervalAsync(CuriousContraptions.Gpu.GpuBodyId,System.Single)
++dotnet_code_quality.CA1031.excluded_symbol_names = M:CuriousContraptions.Workshop.ApplyDeclaredParameters(CuriousContraptions.Gpu.GpuBodyId,CuriousContraptions.Gpu.InstanceParameterCollection)|M:CuriousContraptions.Workshop.ApplyDeclaredParametersAsync(CuriousContraptions.Gpu.GpuBodyId,CuriousContraptions.Gpu.InstanceParameterCollection)|M:CuriousContraptions.Workshop.ApplyRunControl(CuriousContraptions.Gpu.GpuBodyId,CuriousContraptions.Gpu.ElectricalEnable)|M:CuriousContraptions.Workshop.ApplyRunControlAsync(CuriousContraptions.Gpu.GpuBodyId,CuriousContraptions.Gpu.ElectricalEnable)
+ [ui/WorkshopConnections.cs]
+ dotnet_code_quality.CA1031.excluded_symbol_names = M:CuriousContraptions.Workshop.ChangeConnection(CuriousContraptions.Gpu.WorkshopConnection,System.Boolean)|M:CuriousContraptions.Workshop.ChangeConnectionAsync(CuriousContraptions.Gpu.WorkshopConnection,System.Boolean)
+ [ui/WorkshopGpu.cs]
+diff --git a/CuriousContraptions.Abstractions.Signal/SignalContracts.cs b/CuriousContraptions.Abstractions.Signal/SignalContracts.cs
+index 4ed7f221..9ceec6f2 100644
+--- a/CuriousContraptions.Abstractions.Signal/SignalContracts.cs
++++ b/CuriousContraptions.Abstractions.Signal/SignalContracts.cs
+@@ -96,3 +96,14 @@ public interface IContactLoadSensorElement : ISignalElement
+ {
+     SignalContactLoadDescriptor ContactLoad { get; }
+ }
++
++/// <summary>A supplied periodic pulse source. While the owner's PowerIn route is supplied by exactly one source, its Pulse ActivationOut
++/// pulses once every <see cref="IntervalParameter"/> (a Real second parameter, compiled to whole ticks of the run's cadence rounded up),
++/// the first pulse one full interval after supply begins. Losing supply stops it with no pulse, and restored supply starts a fresh
++/// interval.</summary>
++public readonly record struct SignalOscillatorDescriptor(string IntervalParameter);
++
++public interface IOscillatorElement : ISignalElement
++{
++    SignalOscillatorDescriptor Oscillator { get; }
++}
+diff --git a/CuriousContraptions.Bundle/BundleSchema.cs b/CuriousContraptions.Bundle/BundleSchema.cs
+index 9ac4ed12..0dc0e381 100644
+--- a/CuriousContraptions.Bundle/BundleSchema.cs
++++ b/CuriousContraptions.Bundle/BundleSchema.cs
+@@ -39,11 +39,12 @@ public sealed record MechanicalPayload(KinematicMode KinematicMode, RigidBodyMas
+ public sealed record ElectricalPayload(IReadOnlyList<ElectricalNodeDescriptor> Nodes, SupplyCapabilityDescriptor? Supply);
+ 
+ /// <summary>The signal payload. At most one node-selecting capability (<see cref="Timer"/>, <see cref="Contact"/>,
+-/// <see cref="Indicator"/>, <see cref="Passage"/>, <see cref="Orientation"/> or <see cref="ContactLoad"/>) is present, each exactly when
+-/// the element declares that contract.</summary>
++/// <see cref="Indicator"/>, <see cref="Passage"/>, <see cref="Orientation"/>, <see cref="ContactLoad"/> or <see cref="Oscillator"/>) is
++/// present, each exactly when the element declares that contract.</summary>
+ public sealed record SignalPayload(IReadOnlyList<SignalTriggerDescriptor> Triggers, SignalLatchMode LatchMode, SignalCounterDescriptor? Counter,
+     SignalTimerDescriptor? Timer, SignalContactDescriptor? Contact = null, SignalIndicatorDescriptor? Indicator = null,
+-    SignalPassageDescriptor? Passage = null, SignalOrientationDescriptor? Orientation = null, SignalContactLoadDescriptor? ContactLoad = null);
++    SignalPassageDescriptor? Passage = null, SignalOrientationDescriptor? Orientation = null, SignalContactLoadDescriptor? ContactLoad = null,
++    SignalOscillatorDescriptor? Oscillator = null);
+ 
+ public sealed record FluidPayload(FluidProperties Properties, IReadOnlyList<FluidPortDescriptor> Ports);
+ 
+@@ -69,7 +70,8 @@ public static class BundleSchema
+                 signal is IIndicatorElement indicator ? indicator.Indicator : null,
+                 signal is IPassageSensorElement passage ? passage.Passage : null,
+                 signal is IOrientationSensorElement orientation ? orientation.Orientation : null,
+-                signal is IContactLoadSensorElement load ? load.ContactLoad : null) : null,
++                signal is IContactLoadSensorElement load ? load.ContactLoad : null,
++                signal is IOscillatorElement oscillator ? oscillator.Oscillator : null) : null,
+             declaration is IFluidElement fluid ? new FluidPayload(fluid.FluidProperties, fluid.FluidPorts) : null,
+             declaration is IParameterizedGeometryElement geometry ? geometry.ColliderBindings : [], [],
+             declaration is IParameterizedGeometryElement mouths ? mouths.TubeMouthBindings : [], declaration.Presentation);
+diff --git a/CuriousContraptions.Bundle/BundleValidator.cs b/CuriousContraptions.Bundle/BundleValidator.cs
+index 57b57b54..d1c9eeaf 100644
+--- a/CuriousContraptions.Bundle/BundleValidator.cs
++++ b/CuriousContraptions.Bundle/BundleValidator.cs
+@@ -89,7 +89,7 @@ public static class BundleValidator
+             }
+             for (var i = 0; i < entry.Colliders.Count; i++) Collider($"Colliders[{i}]", entry.Colliders[i]);
+             Geometry(entry);
+-            Presentation(entry.Presentation, entry.Metadata.Parameters, entry.Ports, entry.Electrical);
++            Presentation(entry.Presentation, entry.Metadata.Parameters, entry.Ports, entry.Electrical, entry.Signal);
+             for (var i = 0; i < entry.Events.Count; i++) Defined($"Events[{i}].EventKind", entry.Events[i].EventKind);
+             if (entry.Mechanical is { } mechanical) Mechanical(mechanical, entry.Metadata.Parameters, entry.Ports);
+             if (entry.Electrical is { } electrical) Electrical(electrical, entry.Ports, entry.Metadata.Parameters);
+@@ -98,11 +98,12 @@ public static class BundleValidator
+             for (var i = 0; i < entry.Metadata.Parameters.Count; i++)
+                 if (entry.Metadata.Parameters[i].RunEdit == ParameterRunEdit.RunControl && entry.Metadata.Parameters[i].Key != runControlled)
+                     OutOfRange($"Metadata.Parameters[{i}].RunEdit");
+-            if (entry.Signal is { } signal) Signal(signal, entry.Metadata.Parameters, entry.Ports, entry.Mechanical, entry.Colliders);
++            if (entry.Signal is { } signal) Signal(signal, entry.Metadata.Parameters, entry.Ports, entry.Mechanical, entry.Electrical, entry.Colliders);
+             if (entry.Fluid is { } fluid) Fluid(fluid);
+         }
+ 
+-        private void Presentation(ElementPresentation value, IReadOnlyList<ParameterDescriptor> parameters, IReadOnlyList<PortDescriptor> ports, ElectricalPayload? electrical)
++        private void Presentation(ElementPresentation value, IReadOnlyList<ParameterDescriptor> parameters, IReadOnlyList<PortDescriptor> ports, ElectricalPayload? electrical,
++            SignalPayload? signal)
+         {
+             if (!Finite("Presentation.PickRadius", value.PickRadius) || value.PickRadius <= 0)
+                 OutOfRange("Presentation.PickRadius");
+@@ -172,6 +173,10 @@ public static class BundleValidator
+                          !ports.Any(port => port.Socket == socket && port.Domain == SimulationDomain.Electrical))))
+                     OutOfRange("Presentation.Socket");
+                 if (binding.Socket is { } boundSocket) Defined("Presentation.Socket", boundSocket);
++                // A committed oscillator binding reads the row only a declared oscillator compiles.
++                if (binding.Driver is PresentationDriver.CommittedOscillatorPhase or PresentationDriver.CommittedOscillatorPulse &&
++                    signal?.Oscillator is null)
++                    OutOfRange("Presentation.Oscillator");
+                 if (!supported || (binding.Curve != PresentationCurve.ExponentialFollow && binding.Response != 0) ||
+                     (binding.Driver == PresentationDriver.CommittedTimerPhase && binding.Phase == PresentationTimerPhase.None))
+                     OutOfRange("Presentation.DriverCurve");
+@@ -566,12 +571,30 @@ public static class BundleValidator
+         }
+ 
+         private void Signal(SignalPayload signal, IReadOnlyList<ParameterDescriptor> parameters, IReadOnlyList<PortDescriptor> ports,
+-            MechanicalPayload? mechanical, IReadOnlyList<ColliderDescriptor> colliders)
++            MechanicalPayload? mechanical, ElectricalPayload? electrical, IReadOnlyList<ColliderDescriptor> colliders)
+         {
+             // One node per element: at most one capability selects it.
+             if ((signal.Contact is null ? 0 : 1) + (signal.Timer is null ? 0 : 1) + (signal.Indicator is null ? 0 : 1) + (signal.Passage is null ? 0 : 1) +
+-                    (signal.Orientation is null ? 0 : 1) + (signal.ContactLoad is null ? 0 : 1) > 1)
++                    (signal.Orientation is null ? 0 : 1) + (signal.ContactLoad is null ? 0 : 1) + (signal.Oscillator is null ? 0 : 1) > 1)
+                 OutOfRange("Capability");
++            if (signal.Oscillator is { } oscillator)
++            {
++                // The interval is a declared Real second parameter with a finite positive admitted minimum (never a zero-tick interval).
++                if (!parameters.Any(parameter => parameter.Key == oscillator.IntervalParameter && parameter.Kind == ParameterKind.Real &&
++                        parameter.Unit == ParameterUnit.Second && float.IsFinite(parameter.Minimum) && parameter.Minimum > 0f))
++                    OutOfRange("Oscillator.IntervalParameter");
++                // A source: a Pulse ActivationOut and no ActivationIn.
++                if (!ports.Any(port => port.Socket == PortSocket.ActivationOut && port.Domain == SimulationDomain.Signal && port.Direction == PortDirection.Output && port.Signal == PortSignalKind.Pulse) ||
++                        ports.Any(port => port.Socket == PortSocket.ActivationIn))
++                    OutOfRange("Oscillator.Ports");
++                // Supplied through its PowerIn route into a Consumer node.
++                if (!ports.Any(port => port.Socket == PortSocket.PowerIn && port.Domain == SimulationDomain.Electrical && port.Direction == PortDirection.Input) ||
++                        electrical?.Nodes.Any(node => node.Role == ElectricalRole.Consumer) != true)
++                    OutOfRange("Oscillator.Supply");
++                // A Static frame without sliders and with a collider: each pulse names the frame's first collider (PartIdentities + 1).
++                if ((mechanical is { } frame && (frame.KinematicMode != KinematicMode.Static || frame.Sliders.Count != 0)) || colliders.Count == 0)
++                    OutOfRange("Oscillator.Body");
++            }
+             if (signal.ContactLoad is { } load)
+             {
+                 // The minimum mass is a declared Real kilogram parameter with a positive admitted minimum.
+diff --git a/CuriousContraptions.tests/BothGateTests.cs b/CuriousContraptions.tests/BothGateTests.cs
+index ab6ee32a..1982df26 100644
+--- a/CuriousContraptions.tests/BothGateTests.cs
++++ b/CuriousContraptions.tests/BothGateTests.cs
+@@ -136,8 +136,8 @@ public sealed class BothGateTests
+         var construction=Machine();
+         construction=construction with {Instances=new(construction.Instances.Concat(new IWorkshopInstance[]{
+             WorkshopInput.Latch(new(6),-9,3,3,0,0,0,1),
+-            WorkshopInput.Clock(new(7),-6,3,3,0,0,0,1,1f),
+-            WorkshopInput.Clock(new(8),-3,3,3,0,0,0,1,1.5f)}).ToArray()),
++            PlacedParts.Clock(new(7),-6,3,3,0,0,0,1,1f),
++            PlacedParts.Clock(new(8),-3,3,3,0,0,0,1,1.5f)}).ToArray()),
+             Connections=construction.Connections.Without(Link(3,4)).With(Link(3,6)).With(Link(6,4))
+                 .With(Link(1,7)).With(Link(1,8))
+                 .With(new(new(7),WorkshopSocket.ActivationOut,new(6),WorkshopSocket.SetIn,WorkshopConnectionDomain.Activation))
+@@ -158,7 +158,7 @@ public sealed class BothGateTests
+     public void EnergyProvenanceIgnoresBothConditionSourcesAndUndefinedRulesReject()
+     {
+         var construction=Machine();
+-        var clock=WorkshopInput.Clock(new(7),12,3,0,0,0,0,1,1f);
++        var clock=PlacedParts.Clock(new(7),12,3,0,0,0,0,1,1f);
+         construction=construction with {Instances=new(construction.Instances.Append(clock).ToArray()),Connections=construction.Connections.With(Link(4,7))};
+         var topology=SupplyTopology.Create(construction,DeclaredPhysics.Of);
+         Assert.Equal(new[]{new GpuBodyId(3)},topology.UpstreamSources(clock.Id));
+diff --git a/CuriousContraptions.tests/CSharpStaticGateTests.cs b/CuriousContraptions.tests/CSharpStaticGateTests.cs
+index 25db67a7..9147ddcc 100644
+--- a/CuriousContraptions.tests/CSharpStaticGateTests.cs
++++ b/CuriousContraptions.tests/CSharpStaticGateTests.cs
+@@ -62,8 +62,6 @@ public sealed class CSharpStaticGateTests
+         ["ui/WorkshopConfiguration.cs:Workshop.ApplyDeclaredParametersAsync"] = 1,
+         ["ui/WorkshopConfiguration.cs:Workshop.ApplyRunControl"] = 1,
+         ["ui/WorkshopConfiguration.cs:Workshop.ApplyRunControlAsync"] = 1,
+-        ["ui/WorkshopConfiguration.cs:Workshop.ApplyClockInterval"] = 1,
+-        ["ui/WorkshopConfiguration.cs:Workshop.ApplyClockIntervalAsync"] = 1,
+         ["ui/WorkshopConnections.cs:Workshop.ChangeConnection"] = 1,
+         ["ui/WorkshopConnections.cs:Workshop.ChangeConnectionAsync"] = 1,
+         ["ui/WorkshopGpu.cs:Workshop.Playback"] = 1,
+@@ -165,7 +163,7 @@ public sealed class CSharpStaticGateTests
+         "[ui/Workshop.cs]",
+         "dotnet_code_quality.CA1031.excluded_symbol_names = M:CuriousContraptions.Workshop._Ready|M:CuriousContraptions.Workshop.ReadyAsync|M:CuriousContraptions.Workshop.Click(Godot.Vector2)|M:CuriousContraptions.Workshop.ClickAsync(Godot.Vector2)|M:CuriousContraptions.Workshop.DeleteSelected|M:CuriousContraptions.Workshop.Undo|M:CuriousContraptions.Workshop.ToggleRun|M:CuriousContraptions.Workshop.ToggleRunAsync|M:CuriousContraptions.Workshop.ResetRun|M:CuriousContraptions.Workshop.ResetRunAsync|M:CuriousContraptions.Workshop.Save|M:CuriousContraptions.Workshop.SaveAsync|M:CuriousContraptions.Workshop.LoadSave|M:CuriousContraptions.Workshop.LoadSaveAsync",
+         "[ui/WorkshopConfiguration.cs]",
+-        "dotnet_code_quality.CA1031.excluded_symbol_names = M:CuriousContraptions.Workshop.ApplyDeclaredParameters(CuriousContraptions.Gpu.GpuBodyId,CuriousContraptions.Gpu.InstanceParameterCollection)|M:CuriousContraptions.Workshop.ApplyDeclaredParametersAsync(CuriousContraptions.Gpu.GpuBodyId,CuriousContraptions.Gpu.InstanceParameterCollection)|M:CuriousContraptions.Workshop.ApplyRunControl(CuriousContraptions.Gpu.GpuBodyId,CuriousContraptions.Gpu.ElectricalEnable)|M:CuriousContraptions.Workshop.ApplyRunControlAsync(CuriousContraptions.Gpu.GpuBodyId,CuriousContraptions.Gpu.ElectricalEnable)|M:CuriousContraptions.Workshop.ApplyClockInterval(CuriousContraptions.Gpu.GpuBodyId,System.Single)|M:CuriousContraptions.Workshop.ApplyClockIntervalAsync(CuriousContraptions.Gpu.GpuBodyId,System.Single)",
++        "dotnet_code_quality.CA1031.excluded_symbol_names = M:CuriousContraptions.Workshop.ApplyDeclaredParameters(CuriousContraptions.Gpu.GpuBodyId,CuriousContraptions.Gpu.InstanceParameterCollection)|M:CuriousContraptions.Workshop.ApplyDeclaredParametersAsync(CuriousContraptions.Gpu.GpuBodyId,CuriousContraptions.Gpu.InstanceParameterCollection)|M:CuriousContraptions.Workshop.ApplyRunControl(CuriousContraptions.Gpu.GpuBodyId,CuriousContraptions.Gpu.ElectricalEnable)|M:CuriousContraptions.Workshop.ApplyRunControlAsync(CuriousContraptions.Gpu.GpuBodyId,CuriousContraptions.Gpu.ElectricalEnable)",
+         "[ui/WorkshopConnections.cs]",
+         "dotnet_code_quality.CA1031.excluded_symbol_names = M:CuriousContraptions.Workshop.ChangeConnection(CuriousContraptions.Gpu.WorkshopConnection,System.Boolean)|M:CuriousContraptions.Workshop.ChangeConnectionAsync(CuriousContraptions.Gpu.WorkshopConnection,System.Boolean)",
+         "[ui/WorkshopGpu.cs]",
+@@ -807,7 +805,6 @@ public sealed class CSharpStaticGateTests
+         ("ui/Workshop.cs", "Workshop.ToggleRun"), ("ui/Workshop.cs", "Workshop.ResetRun"),
+         ("ui/Workshop.cs", "Workshop.Save"), ("ui/Workshop.cs", "Workshop.LoadSave"),
+         ("ui/WorkshopConfiguration.cs", "Workshop.ApplyDeclaredParameters"), ("ui/WorkshopConfiguration.cs", "Workshop.ApplyRunControl"),
+-        ("ui/WorkshopConfiguration.cs", "Workshop.ApplyClockInterval"),
+         ("ui/WorkshopConnections.cs", "Workshop.ChangeConnection"),
+         ("ui/WorkshopGpu.cs", "Workshop.Playback"), ("ui/WorkshopGpu.cs", "Workshop.CommitSelected"),
+         ("ui/WorkshopGpu.cs", "Workshop.SubmitConstruction"),
+diff --git a/CuriousContraptions.tests/ClockTests.cs b/CuriousContraptions.tests/ClockTests.cs
+index f81e7a45..20264d58 100644
+--- a/CuriousContraptions.tests/ClockTests.cs
++++ b/CuriousContraptions.tests/ClockTests.cs
+@@ -32,7 +32,8 @@ public sealed class ClockTests(NativeSceneFixture godot)
+             Assert.Same(def, part.Definition);
+             Assert.Equal(PartId.Clock, part.PartId);
+             Assert.Equal(1.1f, part.PickRadius);
+-            Assert.Equal(1.0f, part.CanonicalIntervalSeconds);
++            // A newly placed clock starts from its package's declared interval (C-Clock: no part-side copy of the setting).
++            Assert.Equal(1.0f, InstanceParameterCollection.Defaults(PartId.Clock)[new("interval_seconds")]);
+ 
+             var visual = part.FindChild("Visual", recursive: false) as Node3D;
+             Assert.NotNull(visual);
+@@ -144,37 +145,29 @@ public sealed class ClockTests(NativeSceneFixture godot)
+     }
+ 
+     [Fact]
+-    public void WorkshopClock_ValidationAndTicks()
++    public void TheDeclaredIntervalIsValidatedAndCompiledToTicks()
+     {
+-        // Admitted range [0.1, 12.0]
+-        new WorkshopClock(new(1), default, default, CanonicalRotation.Identity, 0.1f).Validate();
+-        new WorkshopClock(new(1), default, default, CanonicalRotation.Identity, 1.0f).Validate();
+-        new WorkshopClock(new(1), default, default, CanonicalRotation.Identity, 12.0f).Validate();
+-
+-        // Story 9.4b (D4): the interval is always declared; only a newly placed clock starts from its placement value.
+-        Assert.Equal(1.0f, WorkshopClock.PlacedIntervalSeconds);
+-        Assert.False(typeof(WorkshopClock).GetConstructors().Single().GetParameters()
+-            .Single(parameter => parameter.Name == nameof(WorkshopClock.IntervalSeconds)).HasDefaultValue);
+-
+-        Assert.Throws<ArgumentException>(() => new WorkshopClock(new(1), default, default, CanonicalRotation.Identity, 0.05f).Validate());
+-        Assert.Throws<ArgumentException>(() => new WorkshopClock(new(1), default, default, CanonicalRotation.Identity, 12.1f).Validate());
+-        Assert.Throws<ArgumentException>(() => new WorkshopClock(new(1), default, default, CanonicalRotation.Identity, float.NaN).Validate());
+-        Assert.Throws<ArgumentException>(() => new WorkshopClock(new(1), default, default, CanonicalRotation.Identity, float.PositiveInfinity).Validate());
+-
+-        // Ticks math
+-        var clock1s = new WorkshopClock(new(1), default, default, CanonicalRotation.Identity, 1.0f);
+-        Assert.Equal(60u, clock1s.Ticks(SimulationCadence.Hz60));
+-        Assert.Equal(120u, clock1s.Ticks(SimulationCadence.Hz120));
+-        Assert.Equal(240u, clock1s.Ticks(SimulationCadence.Hz240));
+-
+-        var clockHalfS = new WorkshopClock(new(1), default, default, CanonicalRotation.Identity, 0.5f);
+-        Assert.Equal(60u, clockHalfS.Ticks(SimulationCadence.Hz120));
++        // Admitted range [0.1, 12.0] s, as the generic instance's declared parameter (C-Clock).
++        foreach (var seconds in new[] { .1f, 1f, 12f }) PlacedParts.Clock(new(1), 0, 0, 0, 0, 0, 0, 1, seconds).Validate();
++        foreach (var seconds in new[] { .05f, 12.1f, float.NaN, float.PositiveInfinity })
++            Assert.Throws<ArgumentException>(() => PlacedParts.Clock(new(1), 0, 0, 0, 0, 0, 0, 1, seconds));
++        // A generic instance without its declared interval is refused, never defaulted (Story 9.4b D4).
++        Assert.Throws<ArgumentException>(() => WorkshopInput.Generic(PartId.Clock, new(1), 0, 0, 0, 0, 0, 0, 1, new([])));
++
++        // The compiled interval: ceil(seconds × rate) whole ticks of the construction's cadence.
++        uint Ticks(float seconds, SimulationCadence cadence) => WorkshopActivationCompiler.Compile(new WorkshopConstruction(new(1),
++            WorkshopCadenceSettings.Default() with { Simulation = cadence }, new([PlacedParts.Clock(new(1), 0, 0, 0, 0, 0, 0, 1, seconds)])))
++            .Nodes.ToArray().Single().IntervalTicks;
++        Assert.Equal(60u, Ticks(1f, SimulationCadence.Hz60));
++        Assert.Equal(120u, Ticks(1f, SimulationCadence.Hz120));
++        Assert.Equal(240u, Ticks(1f, SimulationCadence.Hz240));
++        Assert.Equal(60u, Ticks(.5f, SimulationCadence.Hz120));
+     }
+ 
+     [Fact]
+     public void Connections_AcceptsValidActivationAndElectricalLinks()
+     {
+-        var clock = WorkshopInput.Clock(new(1), 0, 0, 0, 0, 0, 0, 1, 1.0f);
++        var clock = PlacedParts.Clock(new(1), 0, 0, 0, 0, 0, 0, 1, 1.0f);
+         var battery = PlacedParts.Battery(new(2), -2, 0, 0);
+         var counter = WorkshopInput.Counter(new(3), 2, 0, 0, 0, 0, 0, 1, 5);
+ 
+@@ -195,7 +188,7 @@ public sealed class ClockTests(NativeSceneFixture godot)
+     public void ActivationNetwork_ClockPoweredPeriodicPulses_5PulsesIn5Seconds()
+     {
+         var battery = PlacedParts.Battery(new(1), -2, 0, 0);
+-        var clock = WorkshopInput.Clock(new(2), 0, 0, 0, 0, 0, 0, 1, 1.0f);
++        var clock = PlacedParts.Clock(new(2), 0, 0, 0, 0, 0, 0, 1, 1.0f);
+         var counter = WorkshopInput.Counter(new(3), 2, 0, 0, 0, 0, 0, 1, 5);
+ 
+         var conn1 = new WorkshopConnection(battery.Id, WorkshopSocket.Supply, clock.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical);
+@@ -245,7 +238,7 @@ public sealed class ClockTests(NativeSceneFixture godot)
+     [Fact]
+     public void ActivationNetwork_UnpoweredClock_EmitsZeroPulses()
+     {
+-        var clock = WorkshopInput.Clock(new(1), 0, 0, 0, 0, 0, 0, 1, 1.0f);
++        var clock = PlacedParts.Clock(new(1), 0, 0, 0, 0, 0, 0, 1, 1.0f);
+         var counter = WorkshopInput.Counter(new(2), 2, 0, 0, 0, 0, 0, 1, 5);
+ 
+         var conn = new WorkshopConnection(clock.Id, WorkshopSocket.ActivationOut, counter.Id, WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation);
+@@ -280,7 +273,7 @@ public sealed class ClockTests(NativeSceneFixture godot)
+     public void ActivationNetwork_PowerLossAtDeadlineAndRestoration()
+     {
+         var battery = PlacedParts.Battery(new(1), -2, 0, 0);
+-        var clock = WorkshopInput.Clock(new(2), 0, 0, 0, 0, 0, 0, 1, 1.0f);
++        var clock = PlacedParts.Clock(new(2), 0, 0, 0, 0, 0, 0, 1, 1.0f);
+ 
+         var conn = new WorkshopConnection(battery.Id, WorkshopSocket.Supply, clock.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical);
+ 
+@@ -343,7 +336,7 @@ public sealed class ClockTests(NativeSceneFixture godot)
+     public void ClockPhase_LivesInTheCommittedCheckpoint_SupersededCandidateLeavesItUnchanged_AndResetStopsIt()
+     {
+         var battery = PlacedParts.Battery(new(1), -2, 0, 0);
+-        var clock = WorkshopInput.Clock(new(2), 0, 0, 0, 0, 0, 0, 1, 1.0f);
++        var clock = PlacedParts.Clock(new(2), 0, 0, 0, 0, 0, 0, 1, 1.0f);
+         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new([battery, clock]),
+             Connections: new([new WorkshopConnection(battery.Id, WorkshopSocket.Supply, clock.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical)]));
+         var network = WorkshopActivationCompiler.Compile(construction);
+@@ -401,7 +394,7 @@ public sealed class ClockTests(NativeSceneFixture godot)
+     [Fact]
+     public void WireSerialization_BinaryAndFlatBuffersRoundtrip()
+     {
+-        var clock = WorkshopInput.Clock(new(10), 1, 2, 3, 0, 0, 0, 1, 2.5f);
++        var clock = PlacedParts.Clock(new(10), 1, 2, 3, 0, 0, 0, 1, 2.5f);
+         var battery = PlacedParts.Battery(new(20), -2, 0, 0);
+         var conn = new WorkshopConnection(battery.Id, WorkshopSocket.Supply, clock.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical);
+ 
+@@ -418,9 +411,10 @@ public sealed class ClockTests(NativeSceneFixture godot)
+         var fbBytes = WorkshopWireFlatBuffers.EncodeCommand(cmd);
+         var decodedFb = WorkshopWireFlatBuffers.DecodeCommand(fbBytes);
+         Assert.NotNull(decodedFb.Construction);
+-        var decodedFbClock = decodedFb.Construction!.Value.Instances.OfType<WorkshopClock>().Single();
++        var decodedFbClock = decodedFb.Construction!.Value.Instances.OfType<WorkshopGenericInstance>().Single(instance => instance.PartId == PartId.Clock);
+         Assert.Equal(10UL, decodedFbClock.Id.Value);
+-        Assert.Equal(2.5f, decodedFbClock.IntervalSeconds);
++        Assert.Equal(2.5f, decodedFbClock.Parameters[new("interval_seconds")]);
++        Assert.Equal(clock, decodedFbClock);
+         Assert.Single(decodedFb.Construction!.Value.Connections);
+     }
+ }
+diff --git a/CuriousContraptions.tests/ConstructionDecodeBoundaryTests.cs b/CuriousContraptions.tests/ConstructionDecodeBoundaryTests.cs
+index 1c58f874..34bb7bf7 100644
+--- a/CuriousContraptions.tests/ConstructionDecodeBoundaryTests.cs
++++ b/CuriousContraptions.tests/ConstructionDecodeBoundaryTests.cs
+@@ -4,10 +4,10 @@
+ // Every declared setting is decoded through both shipped construction decoders:
+ //   FB  WorkshopWireFlatBuffers.DecodeConstructionRecord (the Construct command record);
+ //   SAV WorkshopSaveCodec.Decode (the browser save boundary: structural pre-validation, then the same record decoder).
+-// The Counter's target is the whole uint32 field target_count (Story 9A.2); the clock's interval is the f32 threshold and the plate's
+-// minimum mass is its generic instance's declared f32 minimum_mass parameter (C-Plate). Expected (independently derived from the
+-// plate's declared [0.1, 16] kg (decision h), WorkshopCounter [1, 9] and
+-// WorkshopClock [0.1, 12] s, and "a missing declared setting rejects; nothing is defaulted or coerced"): accept exactly the
++// The Counter's target is the whole uint32 field target_count (Story 9A.2); the plate's minimum mass and the clock's interval are their
++// generic instances' declared f32 minimum_mass and interval_seconds parameters (C-Plate, C-Clock). Expected (independently derived from
++// the plate's declared [0.1, 16] kg (decision h), WorkshopCounter [1, 9] and the clock's declared [0.1, 12] s (CAT-017), and
++// "a missing declared setting rejects; nothing is defaulted or coerced"): accept exactly the
+ // admitted values and decode them bit-for-bit; reject everything else. The command record rejects with the domain's argument
+ // guard or the wire's typed fault; the save rejects with its typed refusal and nothing else. Positive controls use the identical
+ // hand-built record, so a rejection cannot come from a malformed fixture.
+@@ -57,12 +57,12 @@ public sealed class ConstructionDecodeBoundaryTests
+     // ---------- the hand-built record ----------
+ 
+     private static Google.FlatBuffers.Offset<CuriousContraptions.Wire.ConstructionRecord> BuildRecord(
+-        Google.FlatBuffers.FlatBufferBuilder builder, PartId part, float? threshold, uint? targetCount, float? minimumMass = null)
++        Google.FlatBuffers.FlatBufferBuilder builder, PartId part, float? length, uint? targetCount, (string Key, float Value)? parameter = null)
+     {
+         var id = builder.CreateString(part.Value);
+-        Google.FlatBuffers.VectorOffset? parameters = minimumMass is { } mass
++        Google.FlatBuffers.VectorOffset? parameters = parameter is { } declared
+             ? CuriousContraptions.Wire.InstanceRecord.CreateParametersVector(builder,
+-                [CuriousContraptions.Wire.ParameterRecord.CreateParameterRecord(builder, builder.CreateString("minimum_mass"), mass)])
++                [CuriousContraptions.Wire.ParameterRecord.CreateParameterRecord(builder, builder.CreateString(declared.Key), declared.Value)])
+             : null;
+         CuriousContraptions.Wire.InstanceRecord.StartInstanceRecord(builder);
+         if (parameters is { } vector) CuriousContraptions.Wire.InstanceRecord.AddParameters(builder, vector);
+@@ -71,7 +71,7 @@ public sealed class ConstructionDecodeBoundaryTests
+         CuriousContraptions.Wire.InstanceRecord.AddCell(builder, CuriousContraptions.Wire.Vec3i.CreateVec3i(builder, 0, 16, 0));
+         CuriousContraptions.Wire.InstanceRecord.AddLocal(builder, CuriousContraptions.Wire.Vec3f.CreateVec3f(builder, 0, 0, 0));
+         CuriousContraptions.Wire.InstanceRecord.AddRotation(builder, CuriousContraptions.Wire.Quat4f.CreateQuat4f(builder, 0, 0, 0, 1));
+-        if (threshold is { } value) CuriousContraptions.Wire.InstanceRecord.AddThreshold(builder, value);
++        if (length is { } value) CuriousContraptions.Wire.InstanceRecord.AddLength(builder, value);
+         if (targetCount is { } count) CuriousContraptions.Wire.InstanceRecord.AddTargetCount(builder, count);
+         var instance = CuriousContraptions.Wire.InstanceRecord.EndInstanceRecord(builder);
+         var instances = CuriousContraptions.Wire.ConstructionRecord.CreateInstancesVector(builder, [instance]);
+@@ -85,44 +85,39 @@ public sealed class ConstructionDecodeBoundaryTests
+         return CuriousContraptions.Wire.ConstructionRecord.EndConstructionRecord(builder);
+     }
+ 
+-    private static WorkshopConstruction DecodeRecord(PartId part, float? threshold, uint? targetCount = null, float? minimumMass = null)
++    private static WorkshopConstruction DecodeRecord(PartId part, float? length, uint? targetCount = null, (string, float)? parameter = null)
+     {
+         var builder = new Google.FlatBuffers.FlatBufferBuilder(512);
+-        builder.Finish(BuildRecord(builder, part, threshold, targetCount, minimumMass).Value);
++        builder.Finish(BuildRecord(builder, part, length, targetCount, parameter).Value);
+         return WorkshopWireFlatBuffers.DecodeConstructionRecord(CuriousContraptions.Wire.ConstructionRecord.GetRootAsConstructionRecord(
+             new Google.FlatBuffers.ByteBuffer(builder.SizedByteArray())));
+     }
+ 
+-    private static WorkshopConstruction DecodeSave(PartId part, float? threshold, uint? targetCount = null, float? minimumMass = null)
++    private static WorkshopConstruction DecodeSave(PartId part, float? length, uint? targetCount = null, (string, float)? parameter = null)
+     {
+         var builder = new Google.FlatBuffers.FlatBufferBuilder(1024);
+-        return WorkshopSaveCodec.Decode(SaveFixture.Elements,SaveFixture.Finish(builder, BuildRecord(builder, part, threshold, targetCount, minimumMass), 2)).Construction;
++        return WorkshopSaveCodec.Decode(SaveFixture.Elements,SaveFixture.Finish(builder, BuildRecord(builder, part, length, targetCount, parameter), 2)).Construction;
+     }
+ 
+-    // C-Plate: the plate's setting is its generic instance's declared minimum_mass parameter; the clock's is the record threshold.
+-    private static WorkshopConstruction DecodeRecord(Part part, float? value) => part switch
++    // C-Plate and C-Clock: each setting is its generic instance's declared parameter (absent when the value is).
++    private static (PartId Part, string Key) Declared(Part part) => part switch
+     {
+-        Part.PressurePlate => DecodeRecord(PartId.PressurePlate, null, minimumMass: value),
+-        Part.Clock => DecodeRecord(PartId.Clock, value),
++        Part.PressurePlate => (PartId.PressurePlate, "minimum_mass"),
++        Part.Clock => (PartId.Clock, "interval_seconds"),
+         _ => throw new ArgumentOutOfRangeException(nameof(part)),
+     };
+ 
+-    private static WorkshopConstruction DecodeSave(Part part, float? value) => part switch
+-    {
+-        Part.PressurePlate => DecodeSave(PartId.PressurePlate, null, minimumMass: value),
+-        Part.Clock => DecodeSave(PartId.Clock, value),
+-        _ => throw new ArgumentOutOfRangeException(nameof(part)),
+-    };
++    private static WorkshopConstruction DecodeRecord(Part part, float? value) =>
++        DecodeRecord(Declared(part).Part, null, parameter: value is { } setting ? (Declared(part).Key, setting) : null);
++
++    private static WorkshopConstruction DecodeSave(Part part, float? value) =>
++        DecodeSave(Declared(part).Part, null, parameter: value is { } setting ? (Declared(part).Key, setting) : null);
+ 
+     private static float DecodedSetting(WorkshopConstruction construction, Part part)
+     {
+         var instance = Assert.Single(construction.Instances);
+-        return part switch
+-        {
+-            Part.PressurePlate => Assert.IsType<WorkshopGenericInstance>(instance).Parameters[new ParameterId("minimum_mass")],
+-            Part.Clock => Assert.IsType<WorkshopClock>(instance).IntervalSeconds,
+-            _ => throw new ArgumentOutOfRangeException(nameof(part)),
+-        };
++        Assert.Equal(Declared(part).Part, instance.PartId);
++        return Assert.IsType<WorkshopGenericInstance>(instance).Parameters[new ParameterId(Declared(part).Key)];
+     }
+ 
+     /// <summary>The Construct command's record: the domain guard (ArgumentException) or the wire's typed fault, nothing else.</summary>
+@@ -175,9 +170,10 @@ public sealed class ConstructionDecodeBoundaryTests
+             Assert.Throws<WorkshopSaveRejectedException>(() => DecodeSave(PartId.Counter, null, count)).Reason);
+     }
+ 
+-    /// <summary>The counter's target is the whole field, never the former f32 threshold: a threshold alone is a missing target.</summary>
++    /// <summary>The counter's target is the whole field, never another typed f32 field: a length alone is a missing target (the former
++    /// threshold field, which this test once used, is deleted by C-Clock).</summary>
+     [Fact]
+-    public void ACounterThresholdIsNotItsTarget()
++    public void ACounterLengthIsNotItsTarget()
+     {
+         Assert.Equal(WireFaultReason.MissingField,
+             Assert.Throws<WireFaultException>(() => DecodeRecord(PartId.Counter, 3f)).Reason);
+@@ -212,7 +208,7 @@ public sealed class ConstructionDecodeBoundaryTests
+         var saved = new WorkshopSavedConstruction(
+             new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(),
+                 new WorkshopInstances(PlacedParts.Plate(new(1), 0, 1, 0, .5f),
+-                    WorkshopInput.Clock(new(2), 1, 1, 0, 0, 0, 0, 1, intervalSeconds: 2f))),
++                    PlacedParts.Clock(new(2), 1, 1, 0, 0, 0, 0, 1, intervalSeconds: 2f))),
+             new(3));
+         var save = WorkshopSaveCodec.Encode(saved);
+         Assert.Equal(2, WorkshopSaveCodec.Decode(SaveFixture.Elements,save).Construction.Instances.Count);
+diff --git a/CuriousContraptions.tests/CuriousContraptions.tests.csproj b/CuriousContraptions.tests/CuriousContraptions.tests.csproj
+index 3ae576b8..72e085fc 100644
+--- a/CuriousContraptions.tests/CuriousContraptions.tests.csproj
++++ b/CuriousContraptions.tests/CuriousContraptions.tests.csproj
+@@ -65,6 +65,8 @@
+         <Compile Include="ElementIsolationTests.cs" />
+         <Compile Include="LampDetectorGuardTests.cs" />
+         <Compile Include="PlateGuardTests.cs" />
++        <Compile Include="ClockGuardTests.cs" />
++        <Compile Include="DeclaredOscillatorTests.cs" />
+         <Compile Include="DeclaredContactLoadTests.cs" />
+         <Compile Include="PlacementPoseTests.cs" />        <Compile Include="DeclaredIndicatorPassageTests.cs" />        <Compile Include="SourceStoreInstanceTests.cs" />
+         <Compile Include="DeclaredPrismaticDriveTests.cs" />
+diff --git a/CuriousContraptions.tests/DeclaredContactLoadTests.cs b/CuriousContraptions.tests/DeclaredContactLoadTests.cs
+index 29279fcb..58e7b9ad 100644
+--- a/CuriousContraptions.tests/DeclaredContactLoadTests.cs
++++ b/CuriousContraptions.tests/DeclaredContactLoadTests.cs
+@@ -116,7 +116,11 @@ public sealed class DeclaredContactLoadTests
+     // Saves written by the record path's production encoders at 61ded7ad (evidence-c-plate/baseline/old-saves, sha256 in
+     // old-saves.sha256): a plate record carries its minimum mass in the threshold field, a typed field the generic instance cannot
+     // carry. Each is refused at the save boundary with the visible message and at the command boundary with the wire fault, never
+-    // migrated (decision h).
++    // migrated (decision h). C-Clock deleted the threshold (9-field table): the plate's old slot 7 is now target_count, still a typed
++    // field, so a lone plate keeps its message; but every generic record of that layout wrote its parameters vector in slot 9, now
++    // beyond the table, so in the wired benches the battery (the first parametered record, before the plate) is refused first for its
++    // missing declared parameters. Both are typed OutOfRange refusals at both boundaries (evidence-c-clock/candidate old-save
++    // outcomes); no record loads.
+     private const string PlainSave = "zAAAABQAAABDQ1dTAAAAAAgAFAAIAAQACAAAABwAAAALAAAAAAAAAAAAAAAMACgAIAAIAAAABAAMAAAAJAAAAAIAAAABAAAAAgAAAAIAAAA8AAAAAQAAAAIAAAAAAAAAAQAAABgAAAAUAEAANAAwAAAAJAAYAAgAAAAEABQAAAAAAAA/AAAAAAAAAAAAAAAAAACAPwAAAADheiQ+AAAAAAAAAAD8////AAAAABAAAAABAAAAAAAAAAAAAAAOAAAAcHJlc3N1cmVfcGxhdGUAAA==";
+     private const string PlainCommand = "HAEAACQAAABDQ1dDHABEADgANAAoACAAHAAYABAACAAAAAAAAAAEABwAAABMAAAAAQAAAAAAAAABAAAAAAAAAMwAAAACAAAAAQAAAAAAAAABAAAAAAAAAAAAAAABAAAAAQAAAAAAAAAAAAAADAAoACAACAAAAAQADAAAACQAAAACAAAAAQAAAAIAAAACAAAAPAAAAAEAAAACAAAAAAAAAAEAAAAYAAAAFAA8ADQAMAAAACQAGAAIAAAABAAUAAAAAAAAPwAAAAAAAAAAAAAAAAAAgD8AAAAA4XokPgAAAAAAAAAA/P///wAAAAAMAAAAAQAAAAAAAAAOAAAAcHJlc3N1cmVfcGxhdGUAABAAAAABAAAAAAAAAAIAAAAAAAAA";
+     private const string TwoKgSave = "zAAAABQAAABDQ1dTAAAAAAgAFAAIAAQACAAAABwAAAALAAAAAAAAAAAAAAAMACgAIAAIAAAABAAMAAAAJAAAAAIAAAABAAAAAgAAAAIAAAA8AAAAAQAAAAIAAAAAAAAAAQAAABgAAAAUAEAANAAwAAAAJAAYAAgAAAAEABQAAAAAAABAAAAAAAAAAAAAAAAAAACAPwAAAADheiQ+AAAAAAAAAAD8////AAAAABAAAAABAAAAAAAAAAAAAAAOAAAAcHJlc3N1cmVfcGxhdGUAAA==";
+@@ -127,11 +131,11 @@ public sealed class DeclaredContactLoadTests
+     private const string TwoPlateCommand = "LAYAACQAAABDQ1dDHABGADgANAAoACAAHAAYABAACAAAAAAAAAAEABwAAABQAAAAAQAAAAAAAAABAAAAAAAAANwFAAACAAAAAQAAAAAAAAABAAAAAAAAAAAAAAABAAAAAQAAAAAAAAAAAAAAAAAOADAAJAAMAAAACAAEAA4AAAAsAAAA8AAAAAIAAAABAAAAAgAAAAIAAAA8AAAAAQAAAAIAAAAAAAAAAAAAAAYAAAACAAAAAAAAAAMAAAAAAAAAAgAAAAcAAAAIAAAAAAAAAAMAAAAAAAAAAQAAAAAAAAACAAAABwAAAAgAAAAAAAAAAwAAAAAAAAAEAAAAAAAAAAEAAAABAAAABAAAAAAAAAAGAAAAAAAAAAcAAAAAAAAAAgAAAAcAAAAIAAAAAAAAAAcAAAAAAAAABQAAAAAAAAACAAAABwAAAAgAAAAAAAAABwAAAAAAAAAIAAAAAAAAAAEAAAABAAAABAAAAAAAAAAAAAAACgAAAFAEAABcAwAA7AIAAIQCAAAoAgAAVAEAAPwAAACsAAAAWAAAAAQAAADg/P//AAAAAAAAAAAAAAAAAACAPwAAAACuRyG9AAAAAMD///8DAAAAMAAAABgAAAAKAAAAAAAAAAAAAAAEAAAAAAAAAAQAAABiYWxsAAAAADD9//8AAAAAAAAAAAAAAAAAAIA/AAAAAK5HIb0AAAAAwP///wMAAADQ////GAAAAAkAAAAAAAAAAAAAAAQAAAAAAAAABAAAAGJhbGwAAAAAkPz//wAAAAAAAAAAAAAAAAAAgD8AAAAAAAAAAAAAAABgAAAAMAAAADAAAAAUAAAACAAAAAAAAAAEAAAAAAAAAAQAAABsYW1wAAAAADT+//8AAABAAAAAAAAAAAAAAAAAAACAPwAAAADheiQ+AAAAAMD////8////MAAAABAAAAAHAAAAAAAAAAAAAAAOAAAAcHJlc3N1cmVfcGxhdGUAACD+//8AAAAAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAAMAAAADAAAAAwAAAAmAAAAAYAAAAAAAAAAAAAAAQAAAAEAAAAZAAAAEgAAAAkAAAABAAAALT9//8IAAAAAADwQgsAAABwb3dlcl9saW1pdADQ/f//CAAAAAAAgD8OAAAAaW5pdGlhbF9jaGFyZ2UAAPD9//8IAAAAAACAPwcAAABlbmFibGVkAAj+//8IAAAAAABhRQgAAABjYXBhY2l0eQAAAAAHAAAAYmF0dGVyeQDw/v//AAAAAAAAAAAAAAAAAACAPwAAAAAAAAAAAAAAAAAAAAAwAAAAMAAAABgAAAAFAAAAAAAAAAAAAAAEAAAAAAAAAAwAAABwb3dlcmVkX2dhdGUAAAAASP///wAAAAAAAAAAAAAAAAAAgD8AAAAAAAAAAAAAAABgAAAAMAAAAND///8YAAAABAAAAAAAAAAAAAAABAAAAAAAAAAEAAAAbGFtcAAAAAAUAEAANAAwAAAAJAAYAAgAAAAEABQAAAAAAAA/AAAAAAAAAAAAAAAAAACAPwAAAADheiQ+AAAAAMD////8////0P///xAAAAADAAAAAAAAAAAAAAAOAAAAcHJlc3N1cmVfcGxhdGUAABgAQAAwACwAAAAgABQABAAAAAAAAAA8ABgAAAAAAAAAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAAMAAAADAAAADQ////oAAAAAIAAAAAAAAAAAAAAAQAAAAEAAAAbAAAAEgAAAAkAAAABAAAAKz///8IAAAAAADwQgsAAABwb3dlcl9saW1pdADI////CAAAAAAAgD8OAAAAaW5pdGlhbF9jaGFyZ2UAAOj///8IAAAAAACAPwcAAABlbmFibGVkAAgADAAEAAgACAAAAAgAAAAAAGFFCAAAAGNhcGFjaXR5AAAAAAcAAABiYXR0ZXJ5ABgAPAAwACwAAAAgABQABAAAAAAAAAA4ABgAAAAAAAAAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAAAAAAADAAAADQ////FAAAAAEAAAAAAAAABAAAAAAAAAAMAAAAcG93ZXJlZF9nYXRlAAAAABAAAAABAAAAAAAAAAIAAAAAAAAA";
+ 
+     [Theory]
+-    [InlineData("two_plate", "5249e00ff51f13646d9e58b4a1c1830d2ef96f051dfb62f7b4e81a9ba55e7e75", "fae5726e914fbd9c8c394611251fbbc05b272d91d6c60dc6b7960ac4e30324e0", 3)]
++    [InlineData("two_plate", "5249e00ff51f13646d9e58b4a1c1830d2ef96f051dfb62f7b4e81a9ba55e7e75", "fae5726e914fbd9c8c394611251fbbc05b272d91d6c60dc6b7960ac4e30324e0", null)]
+     [InlineData("plain","52ae128a998bb918485fdbaffb0cb198313c18eaa52e8f3bc47cbc571bef5fb5", "44edc0d8310f185279831a82e699e89356d1ba4c37af6acb6172766b990ea0b0", 1)]
+     [InlineData("two_kg", "d9a178b6445cface75f6ba01388eef8d10ac08b091ab7940bbb07545e3973906", "f3c999cc832ea8fc71d05f8c8d65d5763f0247005bf0e33c354037acbf6499c6", 1)]
+-    [InlineData("lamp_wired", "9df795e47e807a3ba6a5eb1d522b82436472f15c79ca1ebba4be6f58baf4b461", "ceb465f57de372497d70cfb839ba15de1c4d4996039b21a08c1f792023b7e99a", 3)]
+-    public void ARecordPathPlateSaveIsRefusedTypedAtBothBoundaries(string name, string saveSha256, string commandSha256, int plate)
++    [InlineData("lamp_wired", "9df795e47e807a3ba6a5eb1d522b82436472f15c79ca1ebba4be6f58baf4b461", "ceb465f57de372497d70cfb839ba15de1c4d4996039b21a08c1f792023b7e99a", null)]
++    public void ARecordPathPlateSaveIsRefusedTypedAtBothBoundaries(string name, string saveSha256, string commandSha256, int? plate)
+     {
+         var (save, command) = name switch
+         {
+@@ -144,8 +148,12 @@ public sealed class DeclaredContactLoadTests
+         var (saveBytes, commandBytes) = (Convert.FromBase64String(save), Convert.FromBase64String(command));
+         Assert.Equal((saveSha256, commandSha256), (Convert.ToHexStringLower(SHA256.HashData(saveBytes)), Convert.ToHexStringLower(SHA256.HashData(commandBytes))));
+         var refusal = SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(SaveFixture.Elements, saveBytes));
+-        Assert.Equal($"This save cannot be loaded: Part {plate} is a generic instance and cannot carry a typed record field.", refusal.Message);
+         var fault = Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeCommand(commandBytes));
+-        Assert.Equal((WireFaultReason.OutOfRange, "Generic instance cannot carry a typed record field."), (fault.Reason, fault.Message));
++        // A lone plate is refused for its typed field; a wired bench first for the battery's parameters beyond the table.
++        var (refusedSave, refusedCommand) = plate is { } part
++            ? ($"This save cannot be loaded: Part {part} is a generic instance and cannot carry a typed record field.", "Generic instance cannot carry a typed record field.")
++            : ("This save cannot be loaded: Invalid declared parameters.", "Invalid declared parameters.");
++        Assert.Equal(refusedSave, refusal.Message);
++        Assert.Equal((WireFaultReason.OutOfRange, refusedCommand), (fault.Reason, fault.Message));
+     }
+ }
+diff --git a/CuriousContraptions.tests/DeclaredIndicatorPassageTests.cs b/CuriousContraptions.tests/DeclaredIndicatorPassageTests.cs
+index c82f9cc2..d25a06bf 100644
+--- a/CuriousContraptions.tests/DeclaredIndicatorPassageTests.cs
++++ b/CuriousContraptions.tests/DeclaredIndicatorPassageTests.cs
+@@ -149,8 +149,8 @@ public sealed class DeclaredIndicatorPassageTests
+     };
+ 
+     // 9A.32 removed four InstanceRecord fields and renumbered the later slots, so the wired save's counter target count (slot 12 at
+-    // 54ffd9f0) now lies beyond the 10-field table and reads as absent: the save is refused with the typed reason at both decode
+-    // boundaries, never misread.
++    // 54ffd9f0) now lies beyond the table (10 fields at 9A.32, 9 since C-Clock) and reads as absent: the save is refused with the typed
++    // reason at both decode boundaries, never misread.
+     [Fact]
+     public void TheWiredRecordPathSaveIsRefusedAfterTheSlotRenumbering()
+     {
+diff --git a/CuriousContraptions.tests/DeclaredOrientationTests.cs b/CuriousContraptions.tests/DeclaredOrientationTests.cs
+index 5ab2140d..1e7b4fc4 100644
+--- a/CuriousContraptions.tests/DeclaredOrientationTests.cs
++++ b/CuriousContraptions.tests/DeclaredOrientationTests.cs
+@@ -57,9 +57,11 @@ public sealed class DeclaredOrientationTests
+ 
+     // Each beside one Basketball, written by 2065d3c5's production save and command encoders (evidence-9a-32/baseline/capture/old-saves,
+     // sha256 in old-saves.sha256). Removing mass, bounce, half_extents and friction renumbered the later slots: the old Domino's mass
+-    // and bounce land in length and threshold, typed fields its generic record cannot carry; the old plate and clock threshold
+-    // (slot 9) now sits in the parameters slot, so the verifier refuses the buffer; the old pipe length (slot 8) now sits in
+-    // target_count and its length reads absent, which the save boundary refuses as out of range and the decoder as a missing field.
++    // and bounce land in length and target_count, typed fields its generic record cannot carry. C-Clock (9-field table) re-derived the
++    // rest: the old plate and clock threshold (slot 9) now lies beyond the table, so each record lacks its declared parameter and is
++    // refused out of range at both boundaries (at 9A.32 slot 9 was the parameters slot and the verifier refused the buffer); the old
++    // pipe length (slot 8) now sits in the parameters slot, so the verifier refuses the buffer at both boundaries (at 9A.32 it sat in
++    // target_count and the pipe's length read absent: OutOfRange and MissingField).
+     private const string DominoSave = "VAEAABQAAABDQ1dTAAAAAAgAFAAIAAQACAAAABwAAAAJAAAAAAAAAAAAAAAMACwAIAAIAAAABAAMAAAAKAAAAAIAAAABAAAAAgAAAAIAAAA8AAAAAQAAAAIAAAAAAAAAAAAAAAIAAACQAAAAJAAAACAAPAAwACwAAAAgABQABAAAAAAAAAAAAAAAAAAAADgAIAAAAAAAAAAAAAAAAAAAAAAAgD8AAAAAAAAAAAAAAAAwAAAAIAAAAAAAAAAUAAAAAgAAAAAAAAAEAAAAAAAAAAQAAABiYWxsAAAAABwAVABIAEQAAAA4ACwAHAAMAAgAAAAAABAABAAcAAAAAKAZPwDATD0AwMw+AAAAPgDADD8AYKY+AAAAAAAAAAAAAAAAAACAPwAAAADhesy+AAAAAAAAAAACAAAAAAAAABAAAAABAAAAAAAAAAAAAAAGAAAAZG9taW5vAAA=";
+     private const string DominoCommand = "pAEAACQAAABDQ1dDHABEADgANAAoACAAHAAYABAACAAAAAAAAAAEABwAAABMAAAAAQAAAAAAAAABAAAAAAAAAFQBAAACAAAAAQAAAAAAAAABAAAAAAAAAAAAAAABAAAAAQAAAAAAAAAAAAAADAAsACAACAAAAAQADAAAACgAAAACAAAAAQAAAAIAAAACAAAAPAAAAAEAAAACAAAAAAAAAAAAAAACAAAAkAAAACQAAAAgADwAMAAsAAAAIAAUAAQAAAAAAAAAAAAAAAAAAAA4ACAAAAAAAAAAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAAMAAAACAAAAAAAAAAFAAAAAIAAAAAAAAABAAAAAAAAAAEAAAAYmFsbAAAAAAcAFAASABEAAAAOAAsABwADAAIAAAAAAAQAAQAHAAAAACgGT8AwEw9AMDMPgAAAD4AwAw/AGCmPgAAAAAAAAAAAAAAAAAAgD8AAAAA4XrMvgAAAAAAAAAAAgAAAAAAAAAMAAAAAQAAAAAAAAAGAAAAZG9taW5vAAAQAAAAAQAAAAAAAAACAAAAAAAAAA==";
+     private const string PlateSave = "RAEAABQAAABDQ1dTAAAAAAgAFAAIAAQACAAAABwAAAAJAAAAAAAAAAAAAAAMACwAIAAIAAAABAAMAAAAKAAAAAIAAAABAAAAAgAAAAIAAAA8AAAAAQAAAAIAAAAAAAAAAAAAAAIAAACMAAAAJAAAACAAPAAwACwAAAAgABQABAAAAAAAAAAAAAAAAAAAADgAIAAAAAAAAAAAAAAAAAAAAAAAgD8AAAAAAAAAAAAAAAAwAAAAIAAAAAAAAAAUAAAAAgAAAAAAAAAEAAAAAAAAAAQAAABiYWxsAAAAABgAQAA0ADAAAAAkABgACAAAAAAAAAAEABgAAAAAAKA/AAAAAAAAAAAAAAAAAACAPwAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAABAAAAABAAAAAAAAAAAAAAAOAAAAcHJlc3N1cmVfcGxhdGUAAA==";
+@@ -71,8 +73,8 @@ public sealed class DeclaredOrientationTests
+ 
+     [Theory]
+     [InlineData("domino", "c837090c5184533686b7e165fa753b9f9ded17c2c2a95562380582ad2f692fd6", "19536ebaedd02a18fef548613e09f4ab6e315e567f4d663573c6039756d0d17f", WorkshopSaveRejection.OutOfRange, WireFaultReason.OutOfRange)]
+-    [InlineData("plate", "0b0a704d05e5420e29869d5fd95d372f4a18a9f595c56efae40018bf6cfa718b", "a5393bcc3517b35a16bd7b4de41877e969c8bb361b6dcf526f4f367d1beb8ce3", WorkshopSaveRejection.VerifierRejected, WireFaultReason.VerifierRejected)]
+-    [InlineData("clock", "dc2c6e3ba6401c924a1a4c4e88ddaaa9b38b7f112de0f6f713665c7440811f83", "e71d957bd68b5c8706d1f52dcc93f0ad7909bc380ac51a831ad1e99aec56d231", WorkshopSaveRejection.VerifierRejected, WireFaultReason.VerifierRejected)]
++    [InlineData("plate", "0b0a704d05e5420e29869d5fd95d372f4a18a9f595c56efae40018bf6cfa718b", "a5393bcc3517b35a16bd7b4de41877e969c8bb361b6dcf526f4f367d1beb8ce3", WorkshopSaveRejection.OutOfRange, WireFaultReason.OutOfRange)]
++    [InlineData("clock", "dc2c6e3ba6401c924a1a4c4e88ddaaa9b38b7f112de0f6f713665c7440811f83", "e71d957bd68b5c8706d1f52dcc93f0ad7909bc380ac51a831ad1e99aec56d231", WorkshopSaveRejection.OutOfRange, WireFaultReason.OutOfRange)]
+     public void ABaseEncoderSaveWhoseSlotsMovedIsRefusedTypedAtBothBoundaries(string name, string saveSha256, string commandSha256,
+         WorkshopSaveRejection save, WireFaultReason command)
+     {
+@@ -96,18 +98,16 @@ public sealed class DeclaredOrientationTests
+         var commandBytes = Convert.FromBase64String(PipeCommand);
+         Assert.Equal(("e011925730a9729676d9530eb932f84a64eba8e2caff5bac9e619cb903bc57f6", "9635d17d38ed20c430b222cd09ef089a96532a1eda606be75a7281030927a7d5"),
+             (Convert.ToHexStringLower(System.Security.Cryptography.SHA256.HashData(saveBytes)), Convert.ToHexStringLower(System.Security.Cryptography.SHA256.HashData(commandBytes))));
+-        // The old length (2.75 m, slot 8) now reads as target_count; the pipe's own length slot is empty.
+-        var pipe = WorkshopSaveCodec.Open(saveBytes).Construction!.Value.Instances(0)!.Value;
+-        Assert.Equal(("pipe", 0f, BitConverter.SingleToUInt32Bits(2.75f)), (pipe.PartId, pipe.Length, pipe.TargetCount));
+-        SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(SaveFixture.Elements, saveBytes));
+-        Assert.Equal(WireFaultReason.MissingField, Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeCommand(commandBytes)).Reason);
++        // The old length (2.75 m, slot 8) now sits in the parameters slot: a float read as a vector offset, which the verifier refuses.
++        SaveFixture.Refused(WorkshopSaveRejection.VerifierRejected, () => WorkshopSaveCodec.Decode(SaveFixture.Elements, saveBytes));
++        Assert.Equal(WireFaultReason.VerifierRejected, Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeCommand(commandBytes)).Reason);
+     }
+ 
+     // ---------- a field beyond the current InstanceRecord table is refused, never ignored (coordinator decision 2, 23 Oct 2026) ----------
+ 
+     public static TheoryData<string> PreDominoRecordNames() => new(OldLayoutSaves.PreDominoRecords().Select(record => record.Name));
+ 
+-    // The 2065d3c5 layout's parameters vector sits in slot 13, beyond the current 10-field table, so its decoder would never see it:
++    // The 2065d3c5 layout's parameters vector sits in slot 13, beyond the current 9-field table, so its decoder would never see it:
+     // a zero-parameter package's record carrying an undeclared parameter there (and any record with that field, the base encoder's
+     // empty vector included) is refused with the typed reason at both decode boundaries, after every per-field rule.
+     [Theory]
+@@ -119,15 +119,15 @@ public sealed class DeclaredOrientationTests
+         Assert.Equal(WireFaultReason.OutOfRange, Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeCommand(record.Command())).Reason);
+     }
+ 
+-    // The boundary slot: a record that is current in every field but holds one extra field at exactly slot 10 (the first slot beyond
+-    // the 10-field table) is refused at both boundaries; the same record without it loads (control).
++    // The boundary slot: a record that is current in every field but holds one extra field at exactly slot 9 (the first slot beyond
++    // the 9-field table) is refused at both boundaries; the same record without it loads (control).
+     [Fact]
+     public void AFieldAtExactlyTheFirstSlotBeyondTheTableIsRefusedAtBothBoundaries()
+     {
+-        // schemas/workshop_wire.fbs: InstanceRecord holds fields 0-9, so slot 10 is the first undefined slot (stated here, not read
+-        // from the rule's own constant).
+-        var layout = new OldLayoutSaves.Layout(11, 9, 16, 2);
+-        OldLayoutSaves.Slot[] extra = [new(10, 1f)];
++        // schemas/workshop_wire.fbs: InstanceRecord holds fields 0-8 (C-Clock deleted the threshold), so slot 9 is the first undefined
++        // slot (stated here, not read from the rule's own constant).
++        var layout = new OldLayoutSaves.Layout(10, 8, 16, 2);
++        OldLayoutSaves.Slot[] extra = [new(9, 1f)];
+         SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(SaveFixture.Elements, OldLayoutSaves.Save(layout, "domino", extra)));
+         Assert.Equal(WireFaultReason.OutOfRange, Assert.Throws<WireFaultException>(() =>
+             WorkshopWireFlatBuffers.DecodeCommand(OldLayoutSaves.Command(layout, "domino", extra))).Reason);
+diff --git a/CuriousContraptions.tests/DeclaredPresentationTests.cs b/CuriousContraptions.tests/DeclaredPresentationTests.cs
+index 233b9a1a..b8ab1623 100644
+--- a/CuriousContraptions.tests/DeclaredPresentationTests.cs
++++ b/CuriousContraptions.tests/DeclaredPresentationTests.cs
+@@ -124,7 +124,7 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
+     public async Task ClockTicksDrivePendulumPulseAndCounterLamps(bool powered)
+     {
+         var battery = PlacedParts.Battery(new(1), -3, 3, 0, enabled: powered ? ElectricalEnable.Enabled : ElectricalEnable.Disabled);
+-        var clock = WorkshopInput.Clock(new(2), 0, 3, 0, 0, 0, 0, 1, 1f);
++        var clock = PlacedParts.Clock(new(2), 0, 3, 0, 0, 0, 0, 1, 1f);
+         var counter = WorkshopInput.Counter(new(3), 3, 3, 0, 0, 0, 0, 1, 3);
+         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(battery, clock, counter),
+             Connections: new(
+@@ -211,7 +211,7 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
+     public async Task CommittedClockAndCounterUseExactDeclaredTimesAtNonzeroOrigin()
+     {
+         var battery = PlacedParts.Battery(new(1), -3, 3, 0);
+-        var clock = WorkshopInput.Clock(new(2), 0, 3, 0, 0, 0, 0, 1, 1f);
++        var clock = PlacedParts.Clock(new(2), 0, 3, 0, 0, 0, 0, 1, 1f);
+         var counter = WorkshopInput.Counter(new(3), 3, 3, 0, 0, 0, 0, 1, 3);
+         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(battery, clock, counter),
+             Connections: new(new WorkshopConnection(battery.Id, WorkshopSocket.Supply, clock.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical),
+@@ -269,7 +269,7 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
+     public async Task CommittedClockRetainsHiddenAndSkippedFirstFrameAndResetCancelsIt()
+     {
+         var battery = PlacedParts.Battery(new(1), -3, 3, 0);
+-        var clock = WorkshopInput.Clock(new(2), 0, 3, 0, 0, 0, 0, 1, .125f);
++        var clock = PlacedParts.Clock(new(2), 0, 3, 0, 0, 0, 0, 1, .125f);
+         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(battery, clock),
+             Connections: new(new WorkshopConnection(battery.Id, WorkshopSocket.Supply, clock.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical)));
+         var reads = await WorkshopPhysicsEngineTests.Run(construction, 30);
+@@ -303,8 +303,8 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
+     [Fact]
+     public async Task CommittedLatchAndLampPreserveBothDirectionsAndDelayPhases()
+     {
+-        var setClock = WorkshopInput.Clock(new(1), -3, 0, 0, 0, 0, 0, 1, 1f);
+-        var resetClock = WorkshopInput.Clock(new(2), -3, 3, 0, 0, 0, 0, 1, 1.5f);
++        var setClock = PlacedParts.Clock(new(1), -3, 0, 0, 0, 0, 0, 1, 1f);
++        var resetClock = PlacedParts.Clock(new(2), -3, 3, 0, 0, 0, 0, 1, 1.5f);
+         var latch = WorkshopInput.Latch(new(3), 0, 0, 0, 0, 0, 0, 1);
+         var battery = PlacedParts.Battery(new(4), -6, 0, 0);
+         var lamp = PlacedParts.Lamp(new(5), 3, 0, 0, 0, 0, 0, 1);
+@@ -408,7 +408,7 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
+     public async Task SameWorldPrepareCommitRetainsConsumedHiddenAndInProgressChannels()
+     {
+         var battery = PlacedParts.Battery(new(1), -3, 3, 0);
+-        var clock = WorkshopInput.Clock(new(2), 0, 3, 0, 0, 0, 0, 1, .125f);
++        var clock = PlacedParts.Clock(new(2), 0, 3, 0, 0, 0, 0, 1, .125f);
+         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(battery, clock),
+             Connections: new(new WorkshopConnection(battery.Id, WorkshopSocket.Supply, clock.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical)));
+         var reads = await WorkshopPhysicsEngineTests.Run(construction, 15);
+diff --git a/CuriousContraptions.tests/Fixtures/element-isolation-known.json b/CuriousContraptions.tests/Fixtures/element-isolation-known.json
+index 45b441e0..973e60d5 100644
+--- a/CuriousContraptions.tests/Fixtures/element-isolation-known.json
++++ b/CuriousContraptions.tests/Fixtures/element-isolation-known.json
+@@ -2,21 +2,15 @@
+   "Known": [
+     {"File":"CuriousContraptions.Abstractions/EventDescriptor.cs","Symbol":"SimulationEventKind","Rule":"PackageIdentifier","Token":"CounterReached","Count":1,"Owner":"Events"},
+     {"File":"CuriousContraptions.Abstractions/EventDescriptor.cs","Symbol":"SimulationEventKind","Rule":"PackageIdentifier","Token":"LatchSet","Count":1,"Owner":"Events"},
+-    {"File":"engine/MachinePart.cs","Symbol":"MachinePart.ApplyIntervalSeconds","Rule":"PackageIdentifier","Token":"WorkshopClock","Count":2,"Owner":"Clock"},
+-    {"File":"engine/MachinePart.cs","Symbol":"MachinePart.CanonicalIntervalSeconds","Rule":"PackageIdentifier","Token":"WorkshopClock","Count":1,"Owner":"Clock"},
+-    {"File":"engine/MachineWorld.Gpu.cs","Symbol":"MachineWorld.CaptureInstance","Rule":"ElementLiteral","Token":"clock","Count":1,"Owner":"Clock"},
+     {"File":"engine/MachineWorld.Gpu.cs","Symbol":"MachineWorld.CaptureInstance","Rule":"ElementLiteral","Token":"counter","Count":1,"Owner":"Counter"},
+     {"File":"engine/MachineWorld.Gpu.cs","Symbol":"MachineWorld.CaptureInstance","Rule":"ElementLiteral","Token":"latch","Count":1,"Owner":"Latch"},
+     {"File":"engine/MachineWorld.Gpu.cs","Symbol":"MachineWorld.CaptureInstance","Rule":"ElementLiteral","Token":"pipe","Count":1,"Owner":"FinalIsolation"},
+-    {"File":"engine/MachineWorld.Gpu.cs","Symbol":"MachineWorld.CaptureInstance","Rule":"PackageIdentifier","Token":"Clock","Count":1,"Owner":"Clock"},
+     {"File":"engine/MachineWorld.Gpu.cs","Symbol":"MachineWorld.CaptureInstance","Rule":"PackageIdentifier","Token":"Counter","Count":1,"Owner":"Counter"},
+     {"File":"engine/MachineWorld.Gpu.cs","Symbol":"MachineWorld.CaptureInstance","Rule":"PackageIdentifier","Token":"Latch","Count":1,"Owner":"Latch"},
+     {"File":"engine/MachineWorld.Gpu.cs","Symbol":"MachineWorld.CaptureInstance","Rule":"PackageIdentifier","Token":"Pipe","Count":1,"Owner":"FinalIsolation"},
+     {"File":"engine/MachineWorld.Gpu.cs","Symbol":"MachineWorld.CaptureInstance","Rule":"PackageIdentifier","Token":"PipeLength","Count":1,"Owner":"FinalIsolation"},
+-    {"File":"engine/MachineWorld.Gpu.cs","Symbol":"MachineWorld.CaptureInstance","Rule":"PackageIdentifier","Token":"WorkshopClock","Count":2,"Owner":"Clock"},
+     {"File":"engine/MachineWorld.Gpu.cs","Symbol":"MachineWorld.CaptureInstance","Rule":"PackageIdentifier","Token":"WorkshopCounter","Count":2,"Owner":"Counter"},
+     {"File":"engine/MachineWorld.Gpu.cs","Symbol":"MachineWorld.CaptureInstance","Rule":"PackageIdentifier","Token":"WorkshopPipe","Count":1,"Owner":"FinalIsolation"},
+-    {"File":"engine/MachineWorld.Gpu.cs","Symbol":"MachineWorld.CaptureInstance","Rule":"PackageIdentifier","Token":"clock","Count":2,"Owner":"Clock"},
+     {"File":"engine/MachineWorld.Gpu.cs","Symbol":"MachineWorld.CaptureInstance","Rule":"PackageIdentifier","Token":"counter","Count":2,"Owner":"Counter"},
+     {"File":"engine/MachineWorld.Gpu.cs","Symbol":"MachineWorld.CaptureInstance","Rule":"PackageIdentifier","Token":"pipe","Count":2,"Owner":"FinalIsolation"},
+     {"File":"engine/MachineWorld.Gpu.cs","Symbol":"MachineWorld.CaptureInstance","Rule":"PackageIdentifier","Token":"pipeSize","Count":2,"Owner":"FinalIsolation"},
+@@ -82,21 +76,14 @@
+     {"File":"engine/gpu/ActivationNetwork.cs","Symbol":"ActivationNetwork.ValidateRead","Rule":"PackageIdentifier","Token":"CounterReached","Count":1,"Owner":"Events"},
+     {"File":"engine/gpu/ActivationNetwork.cs","Symbol":"WorkshopActivationCompiler.Compile","Rule":"PackageIdentifier","Token":"Counter","Count":1,"Owner":"Counter"},
+     {"File":"engine/gpu/ActivationNetwork.cs","Symbol":"WorkshopActivationCompiler.Compile","Rule":"PackageIdentifier","Token":"StateLatch","Count":1,"Owner":"Latch"},
+-    {"File":"engine/gpu/ActivationNetwork.cs","Symbol":"WorkshopActivationCompiler.Compile","Rule":"PackageIdentifier","Token":"WorkshopClock","Count":1,"Owner":"Clock"},
+     {"File":"engine/gpu/ActivationNetwork.cs","Symbol":"WorkshopActivationCompiler.Compile","Rule":"PackageIdentifier","Token":"WorkshopCounter","Count":1,"Owner":"Counter"},
+     {"File":"engine/gpu/ActivationNetwork.cs","Symbol":"WorkshopActivationCompiler.Compile","Rule":"PackageIdentifier","Token":"WorkshopLatch","Count":1,"Owner":"Latch"},
+-    {"File":"engine/gpu/ActivationNetwork.cs","Symbol":"WorkshopActivationCompiler.Compile","Rule":"PackageIdentifier","Token":"clock","Count":6,"Owner":"Clock"},
+     {"File":"engine/gpu/ActivationNetwork.cs","Symbol":"WorkshopActivationCompiler.Compile","Rule":"PackageIdentifier","Token":"counter","Count":4,"Owner":"Counter"},
+     {"File":"engine/gpu/ActivationNetwork.cs","Symbol":"WorkshopActivationCompiler.Compile","Rule":"PackageIdentifier","Token":"latch","Count":3,"Owner":"Latch"},
+     {"File":"engine/gpu/ActivationTimers.cs","Symbol":"ActivationOccurrence.Validate","Rule":"PackageIdentifier","Token":"CounterReached","Count":1,"Owner":"Events"},
+     {"File":"engine/gpu/ActivationTimers.cs","Symbol":"ActivationOccurrenceKind","Rule":"PackageIdentifier","Token":"CounterReached","Count":1,"Owner":"Events"},
+     {"File":"engine/gpu/DeclaredPhysics.cs","Symbol":"DeclaredPhysics.Parameters","Rule":"PackageIdentifier","Token":"WorkshopPipe","Count":1,"Owner":"FinalIsolation"},
+     {"File":"engine/gpu/DeclaredPhysics.cs","Symbol":"DeclaredPhysics.Parameters","Rule":"PackageIdentifier","Token":"pipe","Count":2,"Owner":"FinalIsolation"},
+-    {"File":"engine/gpu/WorkshopClock.cs","Symbol":"WorkshopClock.PartId","Rule":"NamedPart","Token":"Clock","Count":1,"Owner":"Clock"},
+-    {"File":"engine/gpu/WorkshopClock.cs","Symbol":"WorkshopClock.PartId","Rule":"PackageIdentifier","Token":"Clock","Count":1,"Owner":"Clock"},
+-    {"File":"engine/gpu/WorkshopClock.cs","Symbol":"WorkshopClock","Rule":"PackageIdentifier","Token":"WorkshopClock","Count":1,"Owner":"Clock"},
+-    {"File":"engine/gpu/WorkshopConstruction.cs","Symbol":"WorkshopInput.Clock","Rule":"PackageIdentifier","Token":"Clock","Count":1,"Owner":"Clock"},
+-    {"File":"engine/gpu/WorkshopConstruction.cs","Symbol":"WorkshopInput.Clock","Rule":"PackageIdentifier","Token":"WorkshopClock","Count":2,"Owner":"Clock"},
+     {"File":"engine/gpu/WorkshopConstruction.cs","Symbol":"WorkshopInput.Counter","Rule":"PackageIdentifier","Token":"Counter","Count":1,"Owner":"Counter"},
+     {"File":"engine/gpu/WorkshopConstruction.cs","Symbol":"WorkshopInput.Counter","Rule":"PackageIdentifier","Token":"WorkshopCounter","Count":2,"Owner":"Counter"},
+     {"File":"engine/gpu/WorkshopConstruction.cs","Symbol":"WorkshopInput.Funnel","Rule":"NamedPart","Token":"Funnel","Count":1,"Owner":"FinalIsolation"},
+@@ -115,7 +102,6 @@
+     {"File":"engine/gpu/WorkshopCounter.cs","Symbol":"WorkshopCounter","Rule":"PackageIdentifier","Token":"WorkshopCounter","Count":1,"Owner":"Counter"},
+     {"File":"engine/gpu/WorkshopInstances.cs","Symbol":"WorkshopGenericInstance.Validate","Rule":"NamedPart","Token":"Pipe","Count":1,"Owner":"FinalIsolation"},
+     {"File":"engine/gpu/WorkshopInstances.cs","Symbol":"WorkshopGenericInstance.Validate","Rule":"PackageIdentifier","Token":"Pipe","Count":1,"Owner":"FinalIsolation"},
+-    {"File":"engine/gpu/WorkshopInstances.cs","Symbol":"WorkshopInstances.Validate","Rule":"PackageIdentifier","Token":"WorkshopClock","Count":1,"Owner":"Clock"},
+     {"File":"engine/gpu/WorkshopInstances.cs","Symbol":"WorkshopInstances.Validate","Rule":"PackageIdentifier","Token":"WorkshopCounter","Count":1,"Owner":"Counter"},
+     {"File":"engine/gpu/WorkshopInstances.cs","Symbol":"WorkshopInstances.Validate","Rule":"PackageIdentifier","Token":"WorkshopLatch","Count":1,"Owner":"Latch"},
+     {"File":"engine/gpu/WorkshopLatch.cs","Symbol":"WorkshopLatch.PartId","Rule":"NamedPart","Token":"Latch","Count":1,"Owner":"Latch"},
+@@ -129,37 +115,21 @@
+     {"File":"engine/gpu/WorkshopPipe.cs","Symbol":"WorkshopPipe.PartId","Rule":"PackageIdentifier","Token":"Pipe","Count":1,"Owner":"FinalIsolation"},
+     {"File":"engine/gpu/WorkshopPipe.cs","Symbol":"WorkshopPipe","Rule":"PackageIdentifier","Token":"PipeLength","Count":1,"Owner":"FinalIsolation"},
+     {"File":"engine/gpu/WorkshopPipe.cs","Symbol":"WorkshopPipe","Rule":"PackageIdentifier","Token":"WorkshopPipe","Count":1,"Owner":"FinalIsolation"},
+-    {"File":"engine/gpu/WorkshopSavePrevalidation.cs","Symbol":"WorkshopSavePrevalidation.CheckParameters","Rule":"ElementLiteral","Token":"clock","Count":1,"Owner":"Clock"},
+     {"File":"engine/gpu/WorkshopSavePrevalidation.cs","Symbol":"WorkshopSavePrevalidation.CheckParameters","Rule":"ElementLiteral","Token":"counter","Count":1,"Owner":"Counter"},
+     {"File":"engine/gpu/WorkshopSavePrevalidation.cs","Symbol":"WorkshopSavePrevalidation.CheckParameters","Rule":"ElementLiteral","Token":"pipe","Count":1,"Owner":"FinalIsolation"},
+     {"File":"engine/gpu/WorkshopSavePrevalidation.cs","Symbol":"WorkshopSavePrevalidation.CheckParameters","Rule":"PackageIdentifier","Token":"PipeLength","Count":2,"Owner":"FinalIsolation"},
+-    {"File":"engine/gpu/WorkshopSavePrevalidation.cs","Symbol":"WorkshopSavePrevalidation.CheckParameters","Rule":"PackageIdentifier","Token":"WorkshopClock","Count":2,"Owner":"Clock"},
+     {"File":"engine/gpu/WorkshopSavePrevalidation.cs","Symbol":"WorkshopSavePrevalidation.CheckParameters","Rule":"PackageIdentifier","Token":"WorkshopCounter","Count":3,"Owner":"Counter"},
+-    {"File":"engine/gpu/WorkshopWireFlatBuffers.cs","Symbol":"WorkshopWireFlatBuffers.EncodeConstructionRecord","Rule":"PackageIdentifier","Token":"WorkshopClock","Count":1,"Owner":"Clock"},
+     {"File":"engine/gpu/WorkshopWireFlatBuffers.cs","Symbol":"WorkshopWireFlatBuffers.EncodeConstructionRecord","Rule":"PackageIdentifier","Token":"WorkshopCounter","Count":1,"Owner":"Counter"},
+     {"File":"engine/gpu/WorkshopWireFlatBuffers.cs","Symbol":"WorkshopWireFlatBuffers.EncodeConstructionRecord","Rule":"PackageIdentifier","Token":"WorkshopLatch","Count":1,"Owner":"Latch"},
+     {"File":"engine/gpu/WorkshopWireFlatBuffers.cs","Symbol":"WorkshopWireFlatBuffers.EncodeConstructionRecord","Rule":"PackageIdentifier","Token":"WorkshopPipe","Count":1,"Owner":"FinalIsolation"},
+-    {"File":"engine/gpu/WorkshopWireFlatBuffers.cs","Symbol":"WorkshopWireFlatBuffers.EncodeConstructionRecord","Rule":"PackageIdentifier","Token":"clock","Count":2,"Owner":"Clock"},
+     {"File":"engine/gpu/WorkshopWireFlatBuffers.cs","Symbol":"WorkshopWireFlatBuffers.EncodeConstructionRecord","Rule":"PackageIdentifier","Token":"counter","Count":2,"Owner":"Counter"},
+     {"File":"engine/gpu/WorkshopWireFlatBuffers.cs","Symbol":"WorkshopWireFlatBuffers.EncodeConstructionRecord","Rule":"PackageIdentifier","Token":"pipe","Count":2,"Owner":"FinalIsolation"},
+-    {"File":"engine/gpu/WorkshopWireFlatBuffers.cs","Symbol":"WorkshopWireFlatBuffers.MapInstance","Rule":"ElementLiteral","Token":"clock","Count":1,"Owner":"Clock"},
+     {"File":"engine/gpu/WorkshopWireFlatBuffers.cs","Symbol":"WorkshopWireFlatBuffers.MapInstance","Rule":"ElementLiteral","Token":"counter","Count":1,"Owner":"Counter"},
+     {"File":"engine/gpu/WorkshopWireFlatBuffers.cs","Symbol":"WorkshopWireFlatBuffers.MapInstance","Rule":"ElementLiteral","Token":"latch","Count":1,"Owner":"Latch"},
+     {"File":"engine/gpu/WorkshopWireFlatBuffers.cs","Symbol":"WorkshopWireFlatBuffers.MapInstance","Rule":"ElementLiteral","Token":"pipe","Count":1,"Owner":"FinalIsolation"},
+-    {"File":"engine/gpu/WorkshopWireFlatBuffers.cs","Symbol":"WorkshopWireFlatBuffers.MapInstance","Rule":"PackageIdentifier","Token":"WorkshopClock","Count":1,"Owner":"Clock"},
+     {"File":"engine/gpu/WorkshopWireFlatBuffers.cs","Symbol":"WorkshopWireFlatBuffers.MapInstance","Rule":"PackageIdentifier","Token":"WorkshopCounter","Count":1,"Owner":"Counter"},
+     {"File":"engine/gpu/WorkshopWireFlatBuffers.cs","Symbol":"WorkshopWireFlatBuffers.MapInstance","Rule":"PackageIdentifier","Token":"WorkshopLatch","Count":1,"Owner":"Latch"},
+     {"File":"engine/gpu/WorkshopWireFlatBuffers.cs","Symbol":"WorkshopWireFlatBuffers.MapInstance","Rule":"PackageIdentifier","Token":"WorkshopPipe","Count":1,"Owner":"FinalIsolation"},
+-    {"File":"ui/WorkshopConfiguration.cs","Symbol":"Workshop.AddClockConfiguration","Rule":"PackageIdentifier","Token":"AddClockConfiguration","Count":1,"Owner":"Clock"},
+-    {"File":"ui/WorkshopConfiguration.cs","Symbol":"Workshop.AddClockConfiguration","Rule":"PackageIdentifier","Token":"ApplyClockInterval","Count":1,"Owner":"Clock"},
+-    {"File":"ui/WorkshopConfiguration.cs","Symbol":"Workshop.AddClockConfiguration","Rule":"PackageIdentifier","Token":"WorkshopClock","Count":2,"Owner":"Clock"},
+-    {"File":"ui/WorkshopConfiguration.cs","Symbol":"Workshop.AddConfigurationChoices","Rule":"NamedPart","Token":"Clock","Count":1,"Owner":"Clock"},
+-    {"File":"ui/WorkshopConfiguration.cs","Symbol":"Workshop.AddConfigurationChoices","Rule":"PackageIdentifier","Token":"AddClockConfiguration","Count":1,"Owner":"Clock"},
+-    {"File":"ui/WorkshopConfiguration.cs","Symbol":"Workshop.AddConfigurationChoices","Rule":"PackageIdentifier","Token":"Clock","Count":1,"Owner":"Clock"},
+-    {"File":"ui/WorkshopConfiguration.cs","Symbol":"Workshop.ApplyClockIntervalAsync","Rule":"PackageIdentifier","Token":"ApplyClockIntervalAsync","Count":1,"Owner":"Clock"},
+-    {"File":"ui/WorkshopConfiguration.cs","Symbol":"Workshop.ApplyClockIntervalAsync","Rule":"PackageIdentifier","Token":"WorkshopClock","Count":3,"Owner":"Clock"},
+-    {"File":"ui/WorkshopConfiguration.cs","Symbol":"Workshop.ApplyClockInterval","Rule":"PackageIdentifier","Token":"ApplyClockInterval","Count":2,"Owner":"Clock"},
+-    {"File":"ui/WorkshopConfiguration.cs","Symbol":"Workshop.ApplyClockInterval","Rule":"PackageIdentifier","Token":"ApplyClockIntervalAsync","Count":1,"Owner":"Clock"},
+     {"File":"ui/WorkshopGuidance.cs","Symbol":"Workshop.MoveSnap","Rule":"NamedPart","Token":"Pipe","Count":1,"Owner":"FinalIsolation"},
+     {"File":"ui/WorkshopGuidance.cs","Symbol":"Workshop.MoveSnap","Rule":"PackageIdentifier","Token":"Pipe","Count":1,"Owner":"FinalIsolation"},
+     {"File":"ui/WorkshopGuidance.cs","Symbol":"Workshop.MoveSnap","Rule":"PackageIdentifier","Token":"PipeLength","Count":1,"Owner":"FinalIsolation"},
+diff --git a/CuriousContraptions.tests/LampDetectorGuardTests.cs b/CuriousContraptions.tests/LampDetectorGuardTests.cs
+index 9ec4b25e..73668f34 100644
+--- a/CuriousContraptions.tests/LampDetectorGuardTests.cs
++++ b/CuriousContraptions.tests/LampDetectorGuardTests.cs
+@@ -207,8 +207,8 @@ public sealed class LampDetectorGuardTests
+     [Fact]
+     public async Task ALampOnALatchFollowsItsLevelOnAndOffWhileAFirstInputLampHolds()
+     {
+-        var setClock = WorkshopInput.Clock(new(1), -3, 0, 0, 0, 0, 0, 1, 1f);
+-        var resetClock = WorkshopInput.Clock(new(2), -3, 3, 0, 0, 0, 0, 1, 1.5f);
++        var setClock = PlacedParts.Clock(new(1), -3, 0, 0, 0, 0, 0, 1, 1f);
++        var resetClock = PlacedParts.Clock(new(2), -3, 3, 0, 0, 0, 0, 1, 1.5f);
+         var latch = WorkshopInput.Latch(new(3), 0, 0, 0, 0, 0, 0, 1);
+         var battery = PlacedParts.Battery(new(4), -6, 0, 0);
+         var lamp = PlacedParts.Lamp(new(5), 3, 0, 0, 0, 0, 0, 1);
+diff --git a/CuriousContraptions.tests/NoFixedCapacityTests.cs b/CuriousContraptions.tests/NoFixedCapacityTests.cs
+index 0dcb0c93..0427b79a 100644
+--- a/CuriousContraptions.tests/NoFixedCapacityTests.cs
++++ b/CuriousContraptions.tests/NoFixedCapacityTests.cs
+@@ -80,7 +80,7 @@ public sealed class NoFixedCapacityTests
+                     parts.Add(PlacedParts.Plate(Next(), X(i), 1, 0, .5f));
+                 return (Bench(parts), scene => Assert.Equal(33, scene.ContactLoadSensors.Length));
+             case "activation-timers-32":
+-                for (var i = 0; i < 33; i++) parts.Add(WorkshopInput.Clock(Next(), X(i), 1, 0, 0, 0, 0, 1, WorkshopClock.PlacedIntervalSeconds));
++                for (var i = 0; i < 33; i++) parts.Add(PlacedParts.Clock(Next(), X(i), 1, 0, 0, 0, 0, 1, 1f));
+                 return (Bench(parts), _ => Assert.Equal(33, WorkshopActivationCompiler.Compile(Bench(parts)).Nodes.Length));
+             case "connections-8":
+                 for (var i = 0; i < 9; i++)
+@@ -226,7 +226,7 @@ public sealed class NoFixedCapacityTests
+         }
+         for (var i = 0; i < 33; i++)
+             parts.Add(PlacedParts.Plate(Next(), X(i), 1, 4, .5f));
+-        for (var i = 0; i < 33; i++) parts.Add(WorkshopInput.Clock(Next(), X(i), 1, 8, 0, 0, 0, 1, WorkshopClock.PlacedIntervalSeconds));
++        for (var i = 0; i < 33; i++) parts.Add(PlacedParts.Clock(Next(), X(i), 1, 8, 0, 0, 0, 1, 1f));
+         return Bench(parts, [.. links]);
+     }
+ 
+diff --git a/CuriousContraptions.tests/OldLayoutSaves.cs b/CuriousContraptions.tests/OldLayoutSaves.cs
+index d785e8a7..ee1d5f16 100644
+--- a/CuriousContraptions.tests/OldLayoutSaves.cs
++++ b/CuriousContraptions.tests/OldLayoutSaves.cs
+@@ -122,7 +122,7 @@ internal static class OldLayoutSaves
+             yield return new(name, part.Value, [], Declared(part)) { Layout = layout };
+     }
+ 
+-    /// <summary>2065d3c5 records whose parameters vector (slot 13) lies beyond the current 10-field table: a zero-parameter domino and
++    /// <summary>2065d3c5 records whose parameters vector (slot 13) lies beyond the current 9-field table: a zero-parameter domino and
+     /// lamp each carrying an undeclared parameter, and a bare Basketball with the empty parameters vector the base encoder wrote for
+     /// every generic instance.</summary>
+     internal static IEnumerable<OldRecord> PreDominoRecords()
+diff --git a/CuriousContraptions.tests/PackageRuntimeParityTests.cs b/CuriousContraptions.tests/PackageRuntimeParityTests.cs
+index ba93e5c6..4125cb0f 100644
+--- a/CuriousContraptions.tests/PackageRuntimeParityTests.cs
++++ b/CuriousContraptions.tests/PackageRuntimeParityTests.cs
+@@ -370,8 +370,8 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
+             ],
+             "clock" =>
+             [
+-                ("interval_seconds", ParameterUnit.Second, ParameterKind.Real, Lane.Single, WorkshopClock.PlacedIntervalSeconds,
+-                    Admits(value => WorkshopInput.Clock(Owner, 0, 3, 0, 0, 0, 0, 1, value)), [])
++                ("interval_seconds", ParameterUnit.Second, ParameterKind.Real, Lane.Single, 1f,
++                    Admits(value => PlacedParts.Clock(Owner, 0, 3, 0, 0, 0, 0, 1, value)), [])
+             ],
+             "basket" =>
+             [
+@@ -429,7 +429,7 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
+             WorkshopInput.Generic(id, Owner, 0, 3, 0, 0, 0, 0, 1),
+         "pressure_plate" => PlacedParts.Plate(Owner, 0, 3, 0, .5f),
+         "counter" => WorkshopInput.Counter(Owner, 0, 3, 0, 0, 0, 0, 1, WorkshopCounter.PlacedTargetCount),
+-        "clock" => WorkshopInput.Clock(Owner, 0, 3, 0, 0, 0, 0, 1, WorkshopClock.PlacedIntervalSeconds),
++        "clock" => PlacedParts.Clock(Owner, 0, 3, 0, 0, 0, 0, 1, 1f),
+         "latch" => WorkshopInput.Latch(Owner, 0, 3, 0, 0, 0, 0, 1),
+         "switch" => WorkshopInput.Generic(PartId.ImpactSwitch, Owner, 0, 3, 0, 0, 0, 0, 1),
+         "delay" => WorkshopInput.Generic(PartId.Delay, Owner, 0, 3, 0, 0, 0, 0, 1),
+diff --git a/CuriousContraptions.tests/PalettePlacementTests.cs b/CuriousContraptions.tests/PalettePlacementTests.cs
+index e1a6164e..5f3394fd 100644
+--- a/CuriousContraptions.tests/PalettePlacementTests.cs
++++ b/CuriousContraptions.tests/PalettePlacementTests.cs
+@@ -70,6 +70,95 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
+         }
+         finally { Release(scene); }
+     }
++    // C-Clock (9A.42, D3/D6): a clock placed from the palette takes the declared 1.0 s and is configured through the generic editor,
++    // which shows the instance's own value (the record panel showed a part-side copy that nothing set) and applies the Clamp policy:
++    // 13 applies as 12 and 0.05 as 0.1, each one Undo and one command; NaN, Infinity and text are refused with no change, no command
++    // and no undo; Cancel changes nothing; an unchanged Apply adds no Undo. Undo restores 1.0. Running, Paused and a locked clock are
++    // refused. A moved clock keeps its interval (CaptureInstance reads the committed instance); a new one starts from 1.0 s.
++    [Fact]
++    public void TheClockIntervalEditorShowsTheInstanceValueClampsIntoRangeAndAppliesAsOneUndo()
++    {
++        var parameter = new ParameterId("interval_seconds");
++        var (scene, client) = BenchScene(PartId.Clock, PlacementAnswer.Applied);
++        try
++        {
++            Assert.Empty(ClickBench(scene));
++            var placed = Assert.IsType<WorkshopGenericInstance>(Assert.Single(scene.World.Construction.Instances));
++            Assert.Equal(BitConverter.SingleToUInt32Bits(1f), BitConverter.SingleToUInt32Bits(placed.Parameters[parameter]));
++            var choices = Field<VBoxContainer>(scene, "_connectionChoices");
++            static IEnumerable<T> Nodes<T>(Node parent) where T : Node =>
++                parent.GetChildren().SelectMany(child => new[] { child }.Concat(Nodes<Node>(child))).OfType<T>();
++            void Press(string label) => Assert.Single(Nodes<Button>(choices), button => button.Text == label).EmitSignal(Button.SignalName.Pressed);
++            LineEdit Configure()
++            {
++                Press("Configure");
++                var field = Assert.Single(Nodes<LineEdit>(choices));
++                Assert.Equal(parameter.Value, field.Name.ToString());
++                Assert.Contains(Nodes<Label>(choices), label => label.Text == "interval_seconds (0.1–12 s)");
++                return field;
++            }
++            var input = Configure();
++            Assert.Equal("1", input.Text);
++            var before = scene.World.Construction;
++            var commands = client.Commands.Count;
++            var undos = Field<List<WorkshopConstruction>>(scene, "_undo").Count;
++            foreach (var invalid in new[] { "NaN", "Infinity", "-Infinity", "two", "" })
++            {
++                input.Text = invalid;
++                Press("Apply parameters");
++                Assert.Equal(before, scene.World.Construction);
++                Assert.Equal(commands, client.Commands.Count);
++                Assert.Equal(undos, Field<List<WorkshopConstruction>>(scene, "_undo").Count);
++            }
++            Press("Cancel");
++            Assert.Equal(before, scene.World.Construction);
++            foreach (var (text, value) in new[] { ("13", 12f), ("0.05", .1f), ("2.5", 2.5f) })
++            {
++                input = Configure();
++                input.Text = text;
++                Press("Apply parameters");
++                var current = Assert.IsType<WorkshopGenericInstance>(Assert.Single(scene.World.Construction.Instances));
++                Assert.Equal(BitConverter.SingleToUInt32Bits(value), BitConverter.SingleToUInt32Bits(current.Parameters[parameter]));
++                Assert.Equal(++undos, Field<List<WorkshopConstruction>>(scene, "_undo").Count);
++                Assert.Equal(++commands, client.Commands.Count);
++            }
++            // The editor shows the instance's value, and an unchanged Apply adds no Undo and sends no command.
++            input = Configure();
++            Assert.Equal("2.5", input.Text);
++            Press("Apply parameters");
++            Assert.Equal((undos, commands), (Field<List<WorkshopConstruction>>(scene, "_undo").Count, client.Commands.Count));
++
++            // A move re-captures the committed instance and keeps its interval; a newly placed clock starts from the declared 1.0 s.
++            var applied = Assert.IsType<WorkshopGenericInstance>(Assert.Single(scene.World.Construction.Instances));
++            var moved = Assert.IsType<WorkshopGenericInstance>(scene.World.CaptureInstance(PartId.Clock, applied.Id, new Vector3(1, 3, 0), Quaternion.Identity));
++            Assert.Equal(applied.Parameters, moved.Parameters);
++            var fresh = Assert.IsType<WorkshopGenericInstance>(scene.World.CaptureInstance(PartId.Clock, new GpuBodyId(99), new Vector3(1, 3, 0), Quaternion.Identity));
++            Assert.Equal(BitConverter.SingleToUInt32Bits(1f), BitConverter.SingleToUInt32Bits(fresh.Parameters[parameter]));
++
++            foreach (var _ in new[] { 1, 2, 3 }) Assert.Empty(InvokeHandler(scene, "Undo"));
++            var restored = Assert.IsType<WorkshopGenericInstance>(Assert.Single(scene.World.Construction.Instances));
++            Assert.Equal(BitConverter.SingleToUInt32Bits(1f), BitConverter.SingleToUInt32Bits(restored.Parameters[parameter]));
++
++            var accepted = scene.World.Construction;
++            commands = client.Commands.Count;
++            var proposed = new InstanceParameterCollection([new(parameter, 4f)]);
++            foreach (var phase in new[] { WorkshopSimulationPhase.Running, WorkshopSimulationPhase.Paused })
++            {
++                typeof(MachineWorld).GetProperty(nameof(MachineWorld.WorkshopPhase))!.SetValue(scene.World, phase);
++                Assert.Empty(InvokeHandler(scene, "ApplyDeclaredParameters", restored.Id, proposed));
++                Assert.Equal(accepted, scene.World.Construction);
++                Assert.Equal(commands, client.Commands.Count);
++            }
++            typeof(MachineWorld).GetProperty(nameof(MachineWorld.WorkshopPhase))!.SetValue(scene.World, WorkshopSimulationPhase.Building);
++            var locked = accepted with { Instances = new(restored with { Locked = true }) };
++            typeof(MachineWorld).GetProperty(nameof(MachineWorld.Construction))!.SetValue(scene.World, locked);
++            Assert.Empty(InvokeHandler(scene, "ApplyDeclaredParameters", restored.Id, proposed));
++            Assert.Equal(locked, scene.World.Construction);
++            Assert.Equal(commands, client.Commands.Count);
++            Assert.Empty(godot.Errors.Drain());
++        }
++        finally { Release(scene); }
++    }
+     // C-Plate (9A.40, D4): a plate placed from the palette takes the declared 0.5 kg. The generic editor names minimum_mass in kg with
+     // its declared range and applies the Reject policy: 0.09, 16.01, NaN, Infinity and text are refused with no change, no command and
+     // no undo (never clamped); 0.1 and 16 are accepted bit for bit; each application is one Undo, and Undo restores 0.5. Running,
+diff --git a/CuriousContraptions.tests/PayloadInstanceTests.cs b/CuriousContraptions.tests/PayloadInstanceTests.cs
+index 1f5fa574..ef7e67c3 100644
+--- a/CuriousContraptions.tests/PayloadInstanceTests.cs
++++ b/CuriousContraptions.tests/PayloadInstanceTests.cs
+@@ -301,12 +301,12 @@ public sealed class PayloadInstanceTests
+ 
+     // The pre-conversion layout is unsupported: deleting radius, drag and buoyancy renumbered every later slot, so each of these saves
+     // (each admitted by the record path at 59ecb70b, receipt evidence-c-balls/baseline/baseline-payload-suite.txt) is refused with the
+-    // typed save refusal, never misread. Re-derived on the 10-field table of Story 9A.32 (mass, bounce, half extents and friction
+-    // removed). Old ball: its drag (slot 9) now sits in the parameters slot, so the verifier refuses the buffer (at 2065d3c5 radius and
+-    // mass landed in typed fields: OutOfRange). Old Domino: it is now a generic tile, and its mass and bounce (slots 7 and 8) land in
+-    // threshold and target_count, typed fields a generic record cannot carry (at 2065d3c5 its half extents lay beyond the 14-field
+-    // table: MissingField). Old pipe: its length lies beyond the table, so it reads the schema's 0. Old resized Ramp: its parameters are
+-    // beyond the table, so its declared parameters are missing.
++    // typed save refusal, never misread. Re-derived on the 9-field table of C-Clock (threshold removed; slot 7 is target_count and
++    // slot 8 parameters). Old ball: its bounce (slot 8) now sits in the parameters slot, so the verifier refuses the buffer (at 9A.32 its
++    // drag in slot 9 did; at 2065d3c5 radius and mass landed in typed fields: OutOfRange). Old Domino: likewise its bounce (slot 8) is
++    // read as the parameters vector and the verifier refuses it (at 9A.32 its mass and bounce landed in threshold and target_count,
++    // typed fields: OutOfRange; at 2065d3c5 MissingField). Old pipe: its length lies beyond the table, so it reads the schema's 0. Old
++    // resized Ramp: its parameters are beyond the table, so its declared parameters are missing.
+     [Fact]
+     public void PreConversionRecordsAreRefusedWithTheTypedSaveRefusal()
+     {
+@@ -314,7 +314,7 @@ public sealed class PayloadInstanceTests
+         {
+             ("ball", PreConversionBall("ball", (float)(Half).34f, 1, (float)(Half).55f), WorkshopSaveRejection.VerifierRejected),
+             ("bowling", PreConversionBall("bowling", (float)(Half).28f, 4, (float)(Half).14f), WorkshopSaveRejection.VerifierRejected),
+-            ("domino", PreConversionDomino(), WorkshopSaveRejection.OutOfRange),
++            ("domino", PreConversionDomino(), WorkshopSaveRejection.VerifierRejected),
+             ("pipe", PreConversionPipe(), WorkshopSaveRejection.OutOfRange),
+             ("ramp", PreConversionResizedRamp(), WorkshopSaveRejection.OutOfRange)
+         })
+@@ -347,7 +347,6 @@ public sealed class PayloadInstanceTests
+         {
+             case null: break;
+             case TypedField.Length: InstanceRecord.AddLength(builder, value); break;
+-            case TypedField.Threshold: InstanceRecord.AddThreshold(builder, value); break;
+             case TypedField.TargetCount: InstanceRecord.AddTargetCount(builder, 3); break;
+             default: throw new ArgumentOutOfRangeException(nameof(field));
+         }
+@@ -363,27 +362,31 @@ public sealed class PayloadInstanceTests
+         return SaveFixture.Finish(builder, ConstructionRecord.EndConstructionRecord(builder), 2);
+     }
+ 
+-    // Every typed record field, on a generic payload and on another generic element, is refused atomically by the save pre-validation
+-    // and by the command decoder alike, a NaN included. (A signed zero cannot be stored: the builder elides any value equal to the
+-    // field default.) Control: the bare record loads.
++    // Every typed record field, on a generic payload and on another generic element (the clock with its declared interval included), is
++    // refused atomically by the save pre-validation and by the command decoder alike, a NaN included. (A signed zero cannot be stored:
++    // the builder elides any value equal to the field default.) Control: the bare record loads.
+     [Theory]
+     [MemberData(nameof(EveryTypedFieldOnGenericRecords))]
+     public void AGenericRecordCarryingAnyTypedFieldIsRefused(string part, TypedField field, float value)
+     {
+-        var bytes = GenericSave(part, field, part == "ramp" ? [("length", 3f), ("width", 1.3f)] : null, value);
++        (string, float)[]? parameters = part switch { "ramp" => [("length", 3f), ("width", 1.3f)], "clock" => [("interval_seconds", 1f)], _ => null };
++        var bytes = GenericSave(part, field, parameters, value);
+         SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes));
+         var record = WorkshopSaveCodec.Open(bytes).Construction!.Value.Instances(0)!.Value;
+         Assert.Equal(WireFaultReason.OutOfRange, Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.MapInstance(record)).Reason);
++        // Control: the same record without the typed field loads.
++        Assert.Equal(new PartId(part), Assert.Single(WorkshopSaveCodec.Decode(SaveFixture.Elements, GenericSave(part, null, parameters)).Construction.Instances).PartId);
+     }
+ 
+     public static TheoryData<string, TypedField, float> EveryTypedFieldOnGenericRecords()
+     {
+         var data = new TheoryData<string, TypedField, float>();
+-        foreach (var part in new[] { "ball", "bowling", "ramp", "domino" })
++        foreach (var part in new[] { "ball", "bowling", "ramp", "domino", "clock" })
+             foreach (var field in Enum.GetValues<TypedField>())
+                 data.Add(part, field, 4f);
+-        data.Add("bowling", TypedField.Threshold, float.NaN);
++        data.Add("bowling", TypedField.Length, float.NaN);
+         data.Add("domino", TypedField.Length, float.NaN);
++        data.Add("clock", TypedField.Length, float.NaN);
+         return data;
+     }
+ 
+@@ -400,8 +403,8 @@ public sealed class PayloadInstanceTests
+     }
+ }
+ 
+-/// <summary>Every typed field of the current InstanceRecord: a generic record carries none of them.</summary>
++/// <summary>Every typed field of the current InstanceRecord (C-Clock deleted the threshold): a generic record carries none of them.</summary>
+ public enum TypedField
+ {
+-    Length, Threshold, TargetCount
++    Length, TargetCount
+ }
+diff --git a/CuriousContraptions.tests/PlacedParts.cs b/CuriousContraptions.tests/PlacedParts.cs
+index f05999b9..562384a8 100644
+--- a/CuriousContraptions.tests/PlacedParts.cs
++++ b/CuriousContraptions.tests/PlacedParts.cs
+@@ -55,4 +55,12 @@ internal static class PlacedParts
+         double qx = 0, double qy = 0, double qz = 0, double qw = 1, bool locked = false) =>
+         WorkshopInput.Generic(PartId.PressurePlate, id, x, y, z, qx, qy, qz, qw,
+             new([new(new("minimum_mass"), minimumMass)])) with { Locked = locked };
++
++    /// <summary>A System Clock of an interval (f32 seconds) at an f32-input pose: the clock package's generic instance with its declared
++    /// <c>interval_seconds</c>. (On the record path at 14658883 it built `WorkshopClock`:
++    /// evidence-c-clock/probe/PlacedParts-record-path.cs.txt.)</summary>
++    public static IWorkshopInstance Clock(GpuBodyId id, double x, double y, double z, double qx, double qy, double qz, double qw,
++        float intervalSeconds, bool locked = false) =>
++        WorkshopInput.Generic(PartId.Clock, id, x, y, z, qx, qy, qz, qw,
++            new([new(new("interval_seconds"), intervalSeconds)])) with { Locked = locked };
+ }
+diff --git a/CuriousContraptions.tests/PreConversionLaunchSaveTests.cs b/CuriousContraptions.tests/PreConversionLaunchSaveTests.cs
+index fdd18411..a11470b7 100644
+--- a/CuriousContraptions.tests/PreConversionLaunchSaveTests.cs
++++ b/CuriousContraptions.tests/PreConversionLaunchSaveTests.cs
+@@ -29,8 +29,9 @@ public sealed class PreConversionLaunchSaveTests
+     // cannot carry. Old Battery: its capacity float sat in the 14-field table's parameters slot (the verifier refused the buffer); on the
+     // 10-field table of Story 9A.32 its four fields lie beyond the table, so it decodes as a parameterless generic Battery whose missing
+     // declared parameters are refused. Old Domino: it is a generic tile since 9A.32, and its mass and bounce (slots 6 and 7) land in
+-    // length and threshold, typed fields a generic record cannot carry. Old Counter: its target count lies beyond the table. Old Switch
+-    // and resized Ramp: their parameters lie beyond the table.
++    // length and threshold (target_count since C-Clock's 9-field table), typed fields a generic record cannot carry. Old Counter: its
++    // target count lies beyond the table. Old Switch and resized Ramp: their parameters lie beyond the table. (C-Clock re-ran these
++    // rows on the 9-field table: every reason is unchanged.)
+     [Theory]
+     [InlineData("bumper strength 8", WorkshopSaveRejection.OutOfRange, WireFaultReason.OutOfRange)]
+     [InlineData("bumper strength 0", WorkshopSaveRejection.OutOfRange, WireFaultReason.OutOfRange)]
+@@ -58,8 +59,9 @@ public sealed class PreConversionLaunchSaveTests
+     // parameters offset and the verifier refuses the buffer, otherwise the typed fields are refused. Re-derived on the 10-field table of
+     // Story 9A.32: the Battery's four fields (slots 10–13) lie beyond the table, so every old Battery decodes as a parameterless generic
+     // Battery whose missing declared parameters are refused. Old Domino: a generic tile since 9A.32, its mass and bounce (slots 6 and 7)
+-    // land in length and threshold, typed fields a generic record cannot carry. Old Counter: its target count reads beyond its old
+-    // slot, so it is missing. Every parameterised generic: its parameters lie beyond the table, so its declared parameters are missing.
++    // land in length and threshold (target_count since C-Clock), typed fields a generic record cannot carry. Old Counter: its target
++    // count reads beyond its old slot, so it is missing. Every parameterised generic: its parameters lie beyond the table, so its
++    // declared parameters are missing. (C-Clock re-ran these rows on the 9-field table: every reason is unchanged.)
+     [Theory]
+     [InlineData("battery_default", "29ca2c042cfed22cb7b54cff4f8ad0c73801e700b362bd22965d7dcd939a2aaf", WorkshopSaveRejection.OutOfRange, WireFaultReason.OutOfRange)]
+     [InlineData("battery_disabled", "f6814d3103970f0e92ff42cc769a109a6d4ca7a8964bf8bd74ad4751f9f85166", WorkshopSaveRejection.OutOfRange, WireFaultReason.OutOfRange)]
+diff --git a/CuriousContraptions.tests/PressurePlateTests.cs b/CuriousContraptions.tests/PressurePlateTests.cs
+index 2c539ec0..8003db15 100644
+--- a/CuriousContraptions.tests/PressurePlateTests.cs
++++ b/CuriousContraptions.tests/PressurePlateTests.cs
+@@ -602,7 +602,7 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
+         ulong id = 0;
+         for (var i = 0; i < 13; i++) instances.Add(Plate(++id, -16 + 3 * (i % 7), -6 + 3 * (i / 7), .5f));
+         for (var i = 0; i < 5; i++) instances.Add(WorkshopInput.Counter(new(++id), -16 + 3 * i, 3, 6, 0, 0, 0, 1, 3));
+-        for (var i = 0; i < 5; i++) instances.Add(WorkshopInput.Clock(new(++id), -16 + 3 * i, 3, 9, 0, 0, 0, 1, 1f));
++        for (var i = 0; i < 5; i++) instances.Add(PlacedParts.Clock(new(++id), -16 + 3 * i, 3, 9, 0, 0, 0, 1, 1f));
+         for (var i = 0; i < 5; i++) instances.Add(WorkshopInput.Latch(new(++id), -16 + 3 * i, 3, 12, 0, 0, 0, 1));
+         var last = instances[12];
+         var gate = Gate(++id, -6); var battery = Battery(++id, -6);
+diff --git a/CuriousContraptions.tests/StateLatchTests.cs b/CuriousContraptions.tests/StateLatchTests.cs
+index 647a065d..49d10bc2 100644
+--- a/CuriousContraptions.tests/StateLatchTests.cs
++++ b/CuriousContraptions.tests/StateLatchTests.cs
+@@ -168,8 +168,8 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
+     [Fact]
+     public void Network_LevelIndicatorMirrorsLatchOnAndOff()
+     {
+-        var setClock = WorkshopInput.Clock(new(1), -3, 0, 0, 0, 0, 0, 1, 1f);
+-        var resetClock = WorkshopInput.Clock(new(2), -3, 3, 0, 0, 0, 0, 1, 1.5f);
++        var setClock = PlacedParts.Clock(new(1), -3, 0, 0, 0, 0, 0, 1, 1f);
++        var resetClock = PlacedParts.Clock(new(2), -3, 3, 0, 0, 0, 0, 1, 1.5f);
+         var latch = WorkshopInput.Latch(new(3), 0, 0, 0, 0, 0, 0, 1);
+         var battery = PlacedParts.Battery(new(4), -6, 0, 0);
+         var lamp = PlacedParts.Lamp(new(5), 3, 0, 0, 0, 0, 0, 1);
+@@ -205,7 +205,7 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
+     [Fact]
+     public void Connections_AdmitOneSourceOnBothInputsAndRejectForeignSockets()
+     {
+-        var source = WorkshopInput.Clock(new(1), -3, 0, 0, 0, 0, 0, 1, 1f);
++        var source = PlacedParts.Clock(new(1), -3, 0, 0, 0, 0, 0, 1, 1f);
+         var latch = WorkshopInput.Latch(new(2), 0, 0, 0, 0, 0, 0, 1);
+         var lamp = PlacedParts.Lamp(new(3), 3, 0, 0, 0, 0, 0, 1);
+         var battery = PlacedParts.Battery(new(4), -3, 2, 0);
+@@ -228,8 +228,8 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
+     public void Network_SetHoldsResetClearsAndSimultaneousRequestsResolveOff()
+     {
+         // Set clock fires every 1.0 s (ticks 120, 240, 360...), Reset clock every 1.5 s (ticks 180, 360...) at 120 Hz.
+-        var setClock = WorkshopInput.Clock(new(1), -3, 0, 0, 0, 0, 0, 1, 1f);
+-        var resetClock = WorkshopInput.Clock(new(2), -3, 3, 0, 0, 0, 0, 1, 1.5f);
++        var setClock = PlacedParts.Clock(new(1), -3, 0, 0, 0, 0, 0, 1, 1f);
++        var resetClock = PlacedParts.Clock(new(2), -3, 3, 0, 0, 0, 0, 1, 1.5f);
+         var latch = WorkshopInput.Latch(new(3), 0, 0, 0, 0, 0, 0, 1);
+         var battery = PlacedParts.Battery(new(4), -6, 0, 0);
+         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(),
+@@ -267,7 +267,7 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
+     [Fact]
+     public void Network_OneSourceWiredToBothInputsNeverTurnsOn()
+     {
+-        var clock = WorkshopInput.Clock(new(1), -3, 0, 0, 0, 0, 0, 1, 1f);
++        var clock = PlacedParts.Clock(new(1), -3, 0, 0, 0, 0, 0, 1, 1f);
+         var latch = WorkshopInput.Latch(new(2), 0, 0, 0, 0, 0, 0, 1);
+         var battery = PlacedParts.Battery(new(3), -6, 0, 0);
+         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(clock, latch, battery),
+@@ -460,7 +460,7 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
+     [Fact]
+     public void Network_ContactClosedFollowsCommittedLatchMemoryAndCounterReach()
+     {
+-        var clock = WorkshopInput.Clock(new(1), -3, 0, 0, 0, 0, 0, 1, 1f);
++        var clock = PlacedParts.Clock(new(1), -3, 0, 0, 0, 0, 0, 1, 1f);
+         var latch = WorkshopInput.Latch(new(2), 0, 0, 0, 0, 0, 0, 1);
+         var counter = WorkshopInput.Counter(new(3), 0, 3, 0, 0, 0, 0, 1, 2);
+         var battery = PlacedParts.Battery(new(4), -6, 0, 0);
+diff --git a/CuriousContraptions.tests/SwitchElectricalTests.cs b/CuriousContraptions.tests/SwitchElectricalTests.cs
+index 8d2d5058..10ee9a6d 100644
+--- a/CuriousContraptions.tests/SwitchElectricalTests.cs
++++ b/CuriousContraptions.tests/SwitchElectricalTests.cs
+@@ -131,7 +131,7 @@ public sealed class SwitchElectricalTests
+     {
+         var construction=Machine();
+         var second=WorkshopInput.Generic(PartId.ImpactSwitch,new(6),-8,1,0,0,0,0,1);
+-        var clock=WorkshopInput.Clock(new(7),6,1,0,0,0,0,1,1f);
++        var clock=PlacedParts.Clock(new(7),6,1,0,0,0,0,1,1f);
+         construction=construction with {Instances=new(construction.Instances.Concat(new IWorkshopInstance[]{second,clock}).ToArray()),
+             Connections=new(Power(2,6),Power(6,2),Power(6,7))};
+         var network=WorkshopActivationCompiler.Compile(construction);
+diff --git a/CuriousContraptions.tests/WorkbenchCapacityTests.cs b/CuriousContraptions.tests/WorkbenchCapacityTests.cs
+index 487010d8..0a52b62b 100644
+--- a/CuriousContraptions.tests/WorkbenchCapacityTests.cs
++++ b/CuriousContraptions.tests/WorkbenchCapacityTests.cs
+@@ -126,7 +126,7 @@ public sealed class WorkbenchCapacityTests
+         "powered_gate" => WorkshopInput.Generic(PartId.PoweredGate, id, x, 0, z, 0, 0, 0, 1),
+         "pressure_plate" => PlacedParts.Plate(id, x, 1, z, .5f),
+         "counter" => WorkshopInput.Counter(id, x, 1, z, 0, 0, 0, 1, WorkshopCounter.PlacedTargetCount),
+-        "clock" => WorkshopInput.Clock(id, x, 1, z, 0, 0, 0, 1, WorkshopClock.PlacedIntervalSeconds),
++        "clock" => PlacedParts.Clock(id, x, 1, z, 0, 0, 0, 1, 1f),
+         "latch" => WorkshopInput.Latch(id, x, 1, z, 0, 0, 0, 1),
+         _ => throw new ArgumentException($"Unsupported palette part '{kind}'.", nameof(kind)),
+     };
+diff --git a/CuriousContraptions.tests/WorkshopGpuDeviceTests.cs b/CuriousContraptions.tests/WorkshopGpuDeviceTests.cs
+index d882e9d3..49046df2 100644
+--- a/CuriousContraptions.tests/WorkshopGpuDeviceTests.cs
++++ b/CuriousContraptions.tests/WorkshopGpuDeviceTests.cs
+@@ -296,7 +296,7 @@ public sealed class WorkshopGpuDeviceTests
+         var transport = new HeldTransport(false); transport.Held.SetResult();
+         var device = new WorkshopGpuDevice(transport, Document);
+         var battery = PlacedParts.Battery(new(1), -2, 0, 0);
+-        var clock = WorkshopInput.Clock(new(2), 0, 0, 0, 0, 0, 0, 1, 1.0f);
++        var clock = PlacedParts.Clock(new(2), 0, 0, 0, 0, 0, 0, 1, 1.0f);
+         var counter = WorkshopInput.Counter(new(3), 2, 0, 0, 0, 0, 0, 1, 5);
+         var construction = new WorkshopConstruction(new(1), Settings, new(battery, clock, counter), Connections: new(
+             new WorkshopConnection(battery.Id, WorkshopSocket.Supply, clock.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical),
+diff --git a/CuriousContraptions.tests/WorkshopHandlerBoundaryTests.cs b/CuriousContraptions.tests/WorkshopHandlerBoundaryTests.cs
+index 1791dbaf..3bbd0329 100644
+--- a/CuriousContraptions.tests/WorkshopHandlerBoundaryTests.cs
++++ b/CuriousContraptions.tests/WorkshopHandlerBoundaryTests.cs
+@@ -52,7 +52,8 @@ public sealed class WorkshopHandlerBoundaryTests
+     public void EveryAsyncVoidUiHandlerIsACatchingBoundaryOverItsTaskMethod()
+     {
+         var handlers = Handlers("ui").ToArray();
+-        Assert.True(handlers.Length >= 16,$"Expected the Workshop's async void handlers; found {handlers.Length}.");
++        // The current handler population (C-Clock deleted the clock panel's ApplyClockInterval handler: 16 → 15).
++        Assert.True(handlers.Length >= 15,$"Expected the Workshop's async void handlers; found {handlers.Length}.");
+         Assert.All(handlers, handler => Assert.True(IsBoundary(handler.Name, handler.Body),
+             $"{handler.File}: async void {handler.Name} must only await {handler.Name.TrimStart('_')}Async inside a catch that calls HandlerFailed."));
+         // Control: the shape check rejects a handler that awaits work without the boundary.
+diff --git a/CuriousContraptions.tests/WorkshopSaveRejectionTests.cs b/CuriousContraptions.tests/WorkshopSaveRejectionTests.cs
+index 4defaf15..0f81f6b5 100644
+--- a/CuriousContraptions.tests/WorkshopSaveRejectionTests.cs
++++ b/CuriousContraptions.tests/WorkshopSaveRejectionTests.cs
+@@ -13,10 +13,10 @@ public sealed class WorkshopSaveRejectionTests
+ {
+     // ---------- a hand-built save record whose every field the test controls ----------
+ 
+-    /// <summary>InstanceRecord field ids, in schema order (the vtable slot of each field).</summary>
++    /// <summary>InstanceRecord field ids, in schema order (the vtable slot of each field; C-Clock deleted the threshold).</summary>
+     public enum Field
+     {
+-        Id, PartId, Locked, Cell, Local, Rotation, Length, Threshold, TargetCount, Parameters,
++        Id, PartId, Locked, Cell, Local, Rotation, Length, TargetCount, Parameters,
+     }
+ 
+     internal sealed class Instance(string part, ulong id)
+@@ -118,7 +118,7 @@ public sealed class WorkshopSaveRejectionTests
+         {
+             object value = field switch
+             {
+-                Field.Length => (object)record.Length, Field.Threshold => record.Threshold, Field.TargetCount => record.TargetCount,
++                Field.Length => (object)record.Length, Field.TargetCount => record.TargetCount,
+                 _ => throw new InvalidOperationException($"No fixture reader for {field}."),
+             };
+             result.Values[field] = value;
+@@ -131,7 +131,6 @@ public sealed class WorkshopSaveRejectionTests
+     /// <summary>The kind-specific fields each part's record carries.</summary>
+     internal static Field[] Parameters(string part) => part switch
+     {
+-        "switch" or "pressure_plate" or "clock" => [Field.Threshold],
+         "pipe" => [Field.Length],
+         "counter" => [Field.TargetCount],
+         _ => [],
+@@ -155,7 +154,7 @@ public sealed class WorkshopSaveRejectionTests
+         PlacedParts.Detector(new(13), 10, 0, 0, 0, 0, 0, 1),
+         PlacedParts.Plate(new(14), 11, 0, 0, .5f),
+         WorkshopInput.Counter(new(15), 12, 0, 0, 0, 0, 0, 1, WorkshopCounter.PlacedTargetCount),
+-        WorkshopInput.Clock(new(16), 13, 0, 0, 0, 0, 0, 1, 1f),
++        PlacedParts.Clock(new(16), 13, 0, 0, 0, 0, 0, 1, 1f),
+         WorkshopInput.Latch(new(17), 14, 0, 0, 0, 0, 0, 1),
+         WorkshopInput.Pipe(new(18), 15, 0, 0, 0, 0, 0, 1),
+         WorkshopInput.PipeBend45(new(19), 16, 0, 0, 0, 0, 0, 1),
+@@ -212,9 +211,10 @@ public sealed class WorkshopSaveRejectionTests
+             Assert.Contains(Rejection(bytes), new[] { WorkshopSaveRejection.OutOfRange, WorkshopSaveRejection.NonFinite });
+             Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeConstructionRecord(WorkshopSaveCodec.Open(bytes).Construction!.Value));
+         }
++        // A typed scalar beside the declared parameter (the deleted threshold's successor case: the length).
+         foreach (var scalar in new[] { .8f, float.NaN })
+         {
+-            var bytes = Bytes(One(record.With(Field.Threshold, scalar)));
++            var bytes = Bytes(One(record.With(Field.Length, scalar)));
+             Assert.Equal(WorkshopSaveRejection.OutOfRange, Rejection(bytes));
+             Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeConstructionRecord(WorkshopSaveCodec.Open(bytes).Construction!.Value));
+         }
+@@ -317,7 +317,7 @@ public sealed class WorkshopSaveRejectionTests
+         ("cell outside the world", WorkshopSaveRejection.OutOfRange),
+         ("local remainder of one half", WorkshopSaveRejection.OutOfRange),
+         ("scaled rotation", WorkshopSaveRejection.OutOfRange),
+-        ("ball carrying a typed threshold", WorkshopSaveRejection.OutOfRange),
++        ("ball carrying a typed target count", WorkshopSaveRejection.OutOfRange),
+         ("unknown element", WorkshopSaveRejection.UnknownElement),
+         ("no element", WorkshopSaveRejection.MissingField),
+         ("duplicate instance", WorkshopSaveRejection.DuplicateInstance),
+@@ -359,7 +359,7 @@ public sealed class WorkshopSaveRejectionTests
+             "cell outside the world" => One(ramp.With(Field.Cell, (2000, 0, 0))),
+             "local remainder of one half" => One(ramp.With(Field.Local, (.5f, 0f, 0f))),
+             "scaled rotation" => One(ramp.With(Field.Rotation, (0f, 0f, 0f, .5f))),
+-            "ball carrying a typed threshold" => One(FromProduction(WorkshopInput.Generic(PartId.Basketball,new(1), 0, 3, 0, 0, 0, 0, 1)).With(Field.Threshold, 2f)),
++            "ball carrying a typed target count" => One(FromProduction(WorkshopInput.Generic(PartId.Basketball,new(1), 0, 3, 0, 0, 0, 0, 1)).With(Field.TargetCount, 2u)),
+             "unknown element" => One(ramp.Clone().Also(i => i.Part = "tennis")),
+             "no element" => One(ramp.Clone().Also(i => i.Part = "")),
+             "duplicate instance" => new([ramp, ramp], []),
+diff --git a/CuriousContraptions.tests/WorkshopWireFlatBuffersTests.cs b/CuriousContraptions.tests/WorkshopWireFlatBuffersTests.cs
+index 00d694dd..d0d6c5a3 100644
+--- a/CuriousContraptions.tests/WorkshopWireFlatBuffersTests.cs
++++ b/CuriousContraptions.tests/WorkshopWireFlatBuffersTests.cs
+@@ -138,7 +138,7 @@ public sealed class WorkshopWireFlatBuffersTests
+         PlacedParts.Detector(new(1), 0, 1, 0, 0, 0, 0, 1),
+         PlacedParts.Plate(new(1), 0, 1, 0, 2.25f),
+         WorkshopInput.Counter(new(1), 0, 1, 0, 0, 0, 0, 1, targetCount: 7),
+-        WorkshopInput.Clock(new(1), 0, 1, 0, 0, 0, 0, 1, intervalSeconds: 3.5f),
++        PlacedParts.Clock(new(1), 0, 1, 0, 0, 0, 0, 1, intervalSeconds: 3.5f),
+     };
+ 
+     // Story 9.4b: every encoded instance field survives the decoder. Re-encoding the decoded construction reproduces the
+@@ -181,38 +181,51 @@ public sealed class WorkshopWireFlatBuffersTests
+     }
+ 
+     // The Counter's target is its own whole field (ConstructionDecodeBoundaryTests.CounterTargetIsAWholeFieldAcceptedExactlyInItsRange).
+-    // The plate is a generic instance (C-Plate): its record's former threshold is a typed field it cannot carry.
+-    public enum DeclaredSetting { PreConversionPlateThreshold, ClockIntervalSeconds }
++    // The plate and the clock are generic instances (C-Plate, C-Clock): the record path's threshold, which both wrote in slot 7, is
++    // deleted, and slot 7 is now the typed target_count, so either pre-conversion value reads as a typed field they cannot carry.
++    public enum DeclaredSetting { PreConversionPlateThreshold, PreConversionClockInterval, ClockIntervalSeconds }
+ 
+     private static PartId Owner(DeclaredSetting setting) => setting switch
+     {
+         DeclaredSetting.PreConversionPlateThreshold => PartId.PressurePlate,
+-        DeclaredSetting.ClockIntervalSeconds => PartId.Clock,
++        DeclaredSetting.PreConversionClockInterval or DeclaredSetting.ClockIntervalSeconds => PartId.Clock,
+         _ => throw new ArgumentOutOfRangeException(nameof(setting), setting, "Unknown declared setting."),
+     };
+ 
+     // Story 9.4b: a missing, zero, non-integral or out-of-range declared setting is rejected, never replaced by a default
+     // (AGENTS.md: no fallback), and the rejection names the instance and the field. Admitted values decode (positive controls).
+-    // C-Plate (D5): a plate record carrying a threshold, admitted or not, is refused as a typed field on a generic instance (a wire
+-    // fault); a zero threshold is an absent field, so that record has no minimum_mass and is refused as such. No value migrates.
++    // C-Plate (D5) and C-Clock (D5): a record-path plate or clock value in slot 7, admitted or not, is refused as a typed field on a
++    // generic instance (a wire fault); a zero value is an absent field, so that record has no declared parameter and is refused as such.
++    // No value migrates. A clock with its declared interval_seconds decodes (control); a zero interval is refused.
+     [Theory]
+     [InlineData(DeclaredSetting.PreConversionPlateThreshold, .5f, "Generic instance cannot carry a typed record field.")]
+     [InlineData(DeclaredSetting.PreConversionPlateThreshold, 2f, "Generic instance cannot carry a typed record field.")]
+-    [InlineData(DeclaredSetting.ClockIntervalSeconds, 1f, null)]
+     [InlineData(DeclaredSetting.PreConversionPlateThreshold, 0f, "Invalid declared parameters.")]
+     [InlineData(DeclaredSetting.PreConversionPlateThreshold, float.NaN, "Generic instance cannot carry a typed record field.")]
+-    [InlineData(DeclaredSetting.ClockIntervalSeconds, 0f, "Clock 1 interval seconds '0'")]
+-    public void Construction_DeclaredSetting_DecodesOnlyAdmittedValuesAndNamesTheRejectedField(DeclaredSetting setting, float threshold, string? rejection)
++    [InlineData(DeclaredSetting.PreConversionClockInterval, .1f, "Generic instance cannot carry a typed record field.")]
++    [InlineData(DeclaredSetting.PreConversionClockInterval, 1f, "Generic instance cannot carry a typed record field.")]
++    [InlineData(DeclaredSetting.PreConversionClockInterval, 12f, "Generic instance cannot carry a typed record field.")]
++    [InlineData(DeclaredSetting.PreConversionClockInterval, 0f, "Invalid declared parameters.")]
++    [InlineData(DeclaredSetting.PreConversionClockInterval, float.NaN, "Generic instance cannot carry a typed record field.")]
++    [InlineData(DeclaredSetting.ClockIntervalSeconds, 1f, null)]
++    [InlineData(DeclaredSetting.ClockIntervalSeconds, 0f, "Invalid declared parameters.")]
++    public void Construction_DeclaredSetting_DecodesOnlyAdmittedValuesAndNamesTheRejectedField(DeclaredSetting setting, float value, string? rejection)
+     {
+         var builder = new Google.FlatBuffers.FlatBufferBuilder(512);
+         var part = builder.CreateString(Owner(setting).Value); // the record's part identity is a string at the wire boundary
++        Google.FlatBuffers.VectorOffset? parameters = setting == DeclaredSetting.ClockIntervalSeconds
++            ? CuriousContraptions.Wire.InstanceRecord.CreateParametersVector(builder,
++                [CuriousContraptions.Wire.ParameterRecord.CreateParameterRecord(builder, builder.CreateString("interval_seconds"), value)])
++            : null;
+         CuriousContraptions.Wire.InstanceRecord.StartInstanceRecord(builder);
++        if (parameters is { } vector) CuriousContraptions.Wire.InstanceRecord.AddParameters(builder, vector);
+         CuriousContraptions.Wire.InstanceRecord.AddId(builder, 1);
+         CuriousContraptions.Wire.InstanceRecord.AddPartId(builder, part);
+         CuriousContraptions.Wire.InstanceRecord.AddCell(builder, CuriousContraptions.Wire.Vec3i.CreateVec3i(builder, 0, 16, 0));
+         CuriousContraptions.Wire.InstanceRecord.AddLocal(builder, CuriousContraptions.Wire.Vec3f.CreateVec3f(builder, 0, 0, 0));
+         CuriousContraptions.Wire.InstanceRecord.AddRotation(builder, CuriousContraptions.Wire.Quat4f.CreateQuat4f(builder, 0, 0, 0, 1));
+-        CuriousContraptions.Wire.InstanceRecord.AddThreshold(builder, threshold);
++        // The record path wrote its f32 value in slot 7, which the current table reads as target_count.
++        if (setting != DeclaredSetting.ClockIntervalSeconds) CuriousContraptions.Wire.InstanceRecord.AddTargetCount(builder, BitConverter.SingleToUInt32Bits(value));
+         var instance = CuriousContraptions.Wire.InstanceRecord.EndInstanceRecord(builder);
+         var instances = CuriousContraptions.Wire.ConstructionRecord.CreateInstancesVector(builder, [instance]);
+         var settings = WorkshopCadenceSettings.Default();
+@@ -229,13 +242,8 @@ public sealed class WorkshopWireFlatBuffersTests
+             Assert.Equal(Owner(setting), Assert.Single(DecodeConstruction(bytes).Instances).PartId);
+             return;
+         }
+-        if (setting == DeclaredSetting.PreConversionPlateThreshold)
+-        {
+-            var fault = Assert.Throws<WireFaultException>(() => DecodeConstruction(bytes));
+-            Assert.Equal((WireFaultReason.OutOfRange, rejection), (fault.Reason, fault.Message));
+-            return;
+-        }
+-        Assert.Contains(rejection, Assert.Throws<ArgumentException>(() => DecodeConstruction(bytes)).Message);
++        var fault = Assert.Throws<WireFaultException>(() => DecodeConstruction(bytes));
++        Assert.Equal((WireFaultReason.OutOfRange, rejection), (fault.Reason, fault.Message));
+     }
+ 
+     // Story 9.4b (review-9-4 F8): a Captured goal is declared (Body = captured ball, Target = goal Receiver, EventSource =
+diff --git a/content/puzzles.json b/content/puzzles.json
+index 84fad4c3..1cd7714e 100644
+--- a/content/puzzles.json
++++ b/content/puzzles.json
+@@ -207,8 +207,7 @@
+           ],
+           "locked": true,
+           "scalars": {
+-            "Length": 0,
+-            "Threshold": 0
++            "Length": 0
+           },
+           "target_count": 0,
+           "parameters": {},
+@@ -278,8 +277,7 @@
+           ],
+           "locked": true,
+           "scalars": {
+-            "Length": 0,
+-            "Threshold": 0
++            "Length": 0
+           },
+           "target_count": 0,
+           "parameters": {
+@@ -1121,8 +1119,7 @@
+           ],
+           "locked": true,
+           "scalars": {
+-            "Length": 0,
+-            "Threshold": 0
++            "Length": 0
+           },
+           "target_count": 0,
+           "parameters": {},
+@@ -1192,8 +1189,7 @@
+           ],
+           "locked": true,
+           "scalars": {
+-            "Length": 0,
+-            "Threshold": 0
++            "Length": 0
+           },
+           "target_count": 0,
+           "parameters": {
+@@ -2011,8 +2007,7 @@
+           ],
+           "locked": true,
+           "scalars": {
+-            "Length": 0,
+-            "Threshold": 0
++            "Length": 0
+           },
+           "target_count": 0,
+           "parameters": {},
+@@ -2082,8 +2077,7 @@
+           ],
+           "locked": true,
+           "scalars": {
+-            "Length": 0,
+-            "Threshold": 0
++            "Length": 0
+           },
+           "target_count": 0,
+           "parameters": {},
+@@ -2153,8 +2147,7 @@
+           ],
+           "locked": true,
+           "scalars": {
+-            "Length": 0,
+-            "Threshold": 0
++            "Length": 0
+           },
+           "target_count": 0,
+           "parameters": {},
+@@ -3449,8 +3442,7 @@
+           ],
+           "locked": true,
+           "scalars": {
+-            "Length": 0,
+-            "Threshold": 0
++            "Length": 0
+           },
+           "target_count": 0,
+           "parameters": {},
+@@ -3520,8 +3512,7 @@
+           ],
+           "locked": true,
+           "scalars": {
+-            "Length": 0,
+-            "Threshold": 0
++            "Length": 0
+           },
+           "target_count": 0,
+           "parameters": {
+@@ -3930,8 +3921,7 @@
+           ],
+           "locked": true,
+           "scalars": {
+-            "Length": 0,
+-            "Threshold": 0
++            "Length": 0
+           },
+           "target_count": 0,
+           "parameters": {},
+@@ -4001,8 +3991,7 @@
+           ],
+           "locked": true,
+           "scalars": {
+-            "Length": 0,
+-            "Threshold": 0
++            "Length": 0
+           },
+           "target_count": 0,
+           "parameters": {
+@@ -4804,8 +4793,7 @@
+           ],
+           "locked": true,
+           "scalars": {
+-            "Length": 0,
+-            "Threshold": 0
++            "Length": 0
+           },
+           "target_count": 0,
+           "parameters": {},
+@@ -4875,8 +4863,7 @@
+           ],
+           "locked": true,
+           "scalars": {
+-            "Length": 0,
+-            "Threshold": 0
++            "Length": 0
+           },
+           "target_count": 0,
+           "parameters": {
+@@ -8460,8 +8447,7 @@
+           ],
+           "locked": true,
+           "scalars": {
+-            "Length": 0,
+-            "Threshold": 0
++            "Length": 0
+           },
+           "target_count": 0,
+           "parameters": {},
+@@ -8531,8 +8517,7 @@
+           ],
+           "locked": true,
+           "scalars": {
+-            "Length": 0,
+-            "Threshold": 0
++            "Length": 0
+           },
+           "target_count": 0,
+           "parameters": {
+@@ -8610,8 +8595,7 @@
+           ],
+           "locked": true,
+           "scalars": {
+-            "Length": 0,
+-            "Threshold": 0
++            "Length": 0
+           },
+           "target_count": 0,
+           "parameters": {},
+@@ -9419,8 +9403,7 @@
+           ],
+           "locked": true,
+           "scalars": {
+-            "Length": 0,
+-            "Threshold": 0
++            "Length": 0
+           },
+           "target_count": 0,
+           "parameters": {},
+@@ -9490,8 +9473,7 @@
+           ],
+           "locked": true,
+           "scalars": {
+-            "Length": 0,
+-            "Threshold": 0
++            "Length": 0
+           },
+           "target_count": 0,
+           "parameters": {
+@@ -9900,8 +9882,7 @@
+           ],
+           "locked": true,
+           "scalars": {
+-            "Length": 0,
+-            "Threshold": 0
++            "Length": 0
+           },
+           "target_count": 0,
+           "parameters": {},
+@@ -9971,8 +9952,7 @@
+           ],
+           "locked": true,
+           "scalars": {
+-            "Length": 0,
+-            "Threshold": 0
++            "Length": 0
+           },
+           "target_count": 0,
+           "parameters": {
+@@ -10381,8 +10361,7 @@
+           ],
+           "locked": true,
+           "scalars": {
+-            "Length": 0,
+-            "Threshold": 0
++            "Length": 0
+           },
+           "target_count": 0,
+           "parameters": {},
+@@ -10452,8 +10431,7 @@
+           ],
+           "locked": true,
+           "scalars": {
+-            "Length": 0,
+-            "Threshold": 0
++            "Length": 0
+           },
+           "target_count": 0,
+           "parameters": {
+@@ -10864,8 +10842,7 @@
+           ],
+           "locked": true,
+           "scalars": {
+-            "Length": 0,
+-            "Threshold": 0
++            "Length": 0
+           },
+           "target_count": 0,
+           "parameters": {},
+@@ -10935,8 +10912,7 @@
+           ],
+           "locked": true,
+           "scalars": {
+-            "Length": 0,
+-            "Threshold": 0
++            "Length": 0
+           },
+           "target_count": 0,
+           "parameters": {},
+@@ -11006,8 +10982,7 @@
+           ],
+           "locked": true,
+           "scalars": {
+-            "Length": 0,
+-            "Threshold": 0
++            "Length": 0
+           },
+           "target_count": 0,
+           "parameters": {
+@@ -35948,8 +35923,7 @@
+           ],
+           "locked": false,
+           "scalars": {
+-            "Length": 0,
+-            "Threshold": 0
++            "Length": 0
+           },
+           "target_count": 0,
+           "parameters": {
+@@ -36126,8 +36100,7 @@
+           ],
+           "locked": true,
+           "scalars": {
+-            "Length": 0,
+-            "Threshold": 0
++            "Length": 0
+           },
+           "target_count": 0,
+           "parameters": {},
+@@ -36197,8 +36170,7 @@
+           ],
+           "locked": true,
+           "scalars": {
+-            "Length": 0,
+-            "Threshold": 0
++            "Length": 0
+           },
+           "target_count": 0,
+           "parameters": {
+diff --git a/docs/architecture/element-package-isolation.md b/docs/architecture/element-package-isolation.md
+index d09b32cd..dfab7ca7 100644
+--- a/docs/architecture/element-package-isolation.md
++++ b/docs/architecture/element-package-isolation.md
+@@ -141,7 +141,7 @@ The tree does not yet meet the target invariants. Each row is an open finding fr
+ | A3 (ports) | Story 9A.17 (in review) deletes the per-element port and per-socket position switch tables (`WorkshopPorts`) and the `MachinePart` scene-locator lookup with its alias chain: every element's ports come only from its bundle `PortDescriptor` list (`ElementPortCatalogue`, installed by the Workshop and by the Simulation worker from the bundle it embeds), and every scene socket locator is named by its typed socket and checked against its declared anchor at bundle build. The row closes at 9A.17's terminal Pass | 1, 2 | 9A.17 |
+ | A3 (footprints) | No runtime table restates a footprint (Story 9R.5b deleted the per-element footprint switch), but the runtime does not read the footprints the packages declare either: each instance's bodies and constraints still come from its record's compile arm. `PackageRuntimeParityTests` checks every declared footprint against the compiled instance until the compile reads the declaration | 1, 2 | 9A.16 (bundle bodies and colliders), then each record's family conversion |
+ | A3 (icons) | Story 9A.14 (in review, with 9A.18 merged) deletes every element arm of `ui/WorkshopIcons.cs`; each package ships its `icon.svg` (`ElementMetadata.IconPath`) and the palette renders it. The row closes at 9A.14's terminal Pass | 1, 2 | 9A.14 |
+-| A3 (decode arms, `CaptureInstance`), A5, A6, A11 | Per-element records, factories, type-pattern dispatch in the compilers and per-element UI panels. Story 9A.39 (in review) deletes the Battery's record, factory, compiler loop, wire and save arms, `CaptureInstance` arm and panel: its finite store is a declared `SupplySourceStoreDescriptor` compiled by the shared compiler, and its Running/Paused control is the declared `ParameterRunEdit.RunControl` in the generic editor; its part closes at 9A.39's terminal Pass. C-Lamp+Detector (9A.36 and 9A.37, in review) deletes the Signal lamp's and Ball detector's records (`engine/gpu/WorkshopActivationParts.cs`), factories, `ActivationNetwork.Compile` arms, wire decode/encode arms, whitelist entry and `CaptureInstance` arms: the lamp's node is selected by its declared `SignalIndicatorDescriptor` and the detector's by its declared `SignalPassageDescriptor`, each compiled by one shared helper; its part closes at C-Lamp+Detector's terminal Pass. Story 9A.32 (in review) deletes the Domino's record and material (`engine/gpu/WorkshopDomino.cs`), factory, compiler loop, `ActivationNetwork.Compile` arm, wire and save arms, whitelist entry and `CaptureInstance` arm, and the record's four wire fields: the tile's body and material are its package's, and its orientation sensor and node are selected by its declared `SignalOrientationDescriptor`, compiled by one shared helper; its part closes at 9A.32's terminal Pass. C-Plate (9A.20 and 9A.40, in review) deletes the Pressure Plate's record (`engine/gpu/WorkshopPressurePlate.cs`), factory, compiler loop, `ActivationNetwork.Compile` arm, wire and save arms, whitelist entry and `CaptureInstance` arm: its contact-load row, `ContactLoadSource` level node and release hold are selected by its declared `SignalContactLoadDescriptor`, compiled by one shared helper, and its `minimum_mass` is a declared parameter set in the generic editor; its part closes at C-Plate's terminal Pass | 1, 5 | 9A.27 (Wall), then 9.5a, C-Switch, C-Ramp+Receiver, C-Balls, C-Bumper+Spring, C-Gate, 9A.39 (Battery), C-Lamp+Detector, 9A.32 (Domino), C-Plate, C-Clock, C-Memory |
++| A3 (decode arms, `CaptureInstance`), A5, A6, A11 | Per-element records, factories, type-pattern dispatch in the compilers and per-element UI panels. Story 9A.39 (in review) deletes the Battery's record, factory, compiler loop, wire and save arms, `CaptureInstance` arm and panel: its finite store is a declared `SupplySourceStoreDescriptor` compiled by the shared compiler, and its Running/Paused control is the declared `ParameterRunEdit.RunControl` in the generic editor; its part closes at 9A.39's terminal Pass. C-Lamp+Detector (9A.36 and 9A.37, in review) deletes the Signal lamp's and Ball detector's records (`engine/gpu/WorkshopActivationParts.cs`), factories, `ActivationNetwork.Compile` arms, wire decode/encode arms, whitelist entry and `CaptureInstance` arms: the lamp's node is selected by its declared `SignalIndicatorDescriptor` and the detector's by its declared `SignalPassageDescriptor`, each compiled by one shared helper; its part closes at C-Lamp+Detector's terminal Pass. Story 9A.32 (in review) deletes the Domino's record and material (`engine/gpu/WorkshopDomino.cs`), factory, compiler loop, `ActivationNetwork.Compile` arm, wire and save arms, whitelist entry and `CaptureInstance` arm, and the record's four wire fields: the tile's body and material are its package's, and its orientation sensor and node are selected by its declared `SignalOrientationDescriptor`, compiled by one shared helper; its part closes at 9A.32's terminal Pass. C-Plate (9A.20 and 9A.40, in review) deletes the Pressure Plate's record (`engine/gpu/WorkshopPressurePlate.cs`), factory, compiler loop, `ActivationNetwork.Compile` arm, wire and save arms, whitelist entry and `CaptureInstance` arm: its contact-load row, `ContactLoadSource` level node and release hold are selected by its declared `SignalContactLoadDescriptor`, compiled by one shared helper, and its `minimum_mass` is a declared parameter set in the generic editor; its part closes at C-Plate's terminal Pass. C-Clock (9A.42, in review) deletes the System Clock's record (`engine/gpu/WorkshopClock.cs`), factory, `ActivationNetwork.Compile` arm, wire and save arms, whitelist entry, `CaptureInstance` arm and Clock panel, and the record's `threshold` wire field: its oscillator node, interval, supply source and pulse collider are selected by its declared `SignalOscillatorDescriptor`, compiled in the shared activation compiler, and its `interval_seconds` is a declared parameter set in the generic editor; its part closes at C-Clock's terminal Pass | 1, 5 | 9A.27 (Wall), then 9.5a, C-Switch, C-Ramp+Receiver, C-Balls, C-Bumper+Spring, C-Gate, 9A.39 (Battery), C-Lamp+Detector, 9A.32 (Domino), C-Plate, C-Clock, C-Memory |
+ | A4, A10 | `MachinePart.BuildDeclarative` per-element presentation arms and `CosmeticCurves.*` per-element curves in the engine | 1 | 9A.25a (committed-state bindings), 9A.25b (one-shot bindings, with 9A.23) |
+ | A7 | C-Gate (9A.19, in review) deletes `ActuatorSliderDrive` and the compiler's `PartId.PoweredGate` consumer arm: the gate's drive is a declared `PrismaticDriveDescriptor` that the one generic law executes, and the solver's element-scan known-violations list is empty. The gate part closes at C-Gate's terminal Pass. C-Plate (9A.20, in review) deletes the compiler's `OfType<WorkshopPressurePlate>` row emission and its plate face literals (`-.9f`, `+ 2`): the row comes from the package's declared contact-load sensor through the one shared helper. The plate part closes at C-Plate's terminal Pass | 5 | C-Gate (9A.19); C-Plate (9A.20) for the plate |
+ | A9 | C-Gate (9A.21, in review) deletes the element warm-up scene and the dummy joint: the worker warms on one synthetic, declaration-free scene (`WarmupScene`), and `Program.WarmupSimulation` runs the command lifecycle on an empty bench. The row closes at C-Gate's terminal Pass | 1 | C-Gate (9A.21) |
+diff --git a/docs/planning/elements/CAT-017-clock.md b/docs/planning/elements/CAT-017-clock.md
+index 18856518..2e199bbb 100644
+--- a/docs/planning/elements/CAT-017-clock.md
++++ b/docs/planning/elements/CAT-017-clock.md
+@@ -20,9 +20,9 @@ Story 7.0 Batch B declaration spec (CAT-017-D). Legacy citations are pinned to `
+ | Mass and material | Static. Legacy static default material restitution 1, bounce threshold 0.1 m/s, friction 0.3 (`reference/cpu/MachinePart.cs@a6c914e:L236-L236`). |
+ | Constraints and joints | none (the pendulum is cosmetic, not a joint). |
+ | Typed sockets and ports | `PowerIn` Electrical Input at (−0.78, 0, 0); `ActivationOut` Activation Output at (0.78, 0, 0) (`parts/ClockPart.cs@a6c914e:L41-L45`). Current `WorkshopSocket` already has both values (`engine/gpu/WorkshopConnections.cs@a6c914e:L9-L9`). |
+-| Sensors and activation | A powered periodic source: runs only while `PowerIn` is available; emits one activation (Trigger) on each pulse tick through `ActivationOut` (`parts/ClockPart.cs@a6c914e:L24-L25`, `parts/ClockPart.cs@a6c914e:L40-L40`, `parts/ClockPart.cs@a6c914e:L52-L55`). No activation input. |
++| Sensors and activation | A powered periodic source: runs only while `PowerIn` is available; emits one activation (Trigger) on each pulse tick through `ActivationOut` (`parts/ClockPart.cs@a6c914e:L24-L25`, `parts/ClockPart.cs@a6c914e:L40-L40`, `parts/ClockPart.cs@a6c914e:L52-L55`). No activation input. **Current (C-Clock):** the package declares `SignalOscillatorDescriptor("interval_seconds")` (`IOscillatorElement`); the clock is a generic instance whose oscillator node, interval, single upstream supply source and pulse collider are compiled from that declaration (`elements/SystemClock/SystemClockElementDeclaration.cs`, `WorkshopActivationCompiler.Compile`). The bundle validator refuses a second node-selecting capability, a non-Real-second or non-positive-minimum interval, a missing Pulse `ActivationOut` or any `ActivationIn`, a missing `PowerIn` Consumer route, a non-Static frame, and a committed oscillator presentation binding without the capability. |
+ | Work and energy stores | none; consumes binary supply availability only. |
+-| Parameters | `interval_seconds`: float seconds, range 0.1–12 inclusive, default 1.0 (`parts/ClockPart.cs@a6c914e:L46-L51`, `parts/catalog/clock.tres@a6c914e:L14-L14`). Discrete interval = ceil(seconds / tick) ticks (`parts/ClockPart.cs@a6c914e:L21-L21`, `engine/SceneOscillatorDeclaration.cs@a6c914e:L10-L18`). Carry forward as f32 seconds with a typed parameter id; the current `DelayDuration` stores binary16 (`engine/gpu/WorkshopDelay.cs@a6c914e:L6-L33`), which is listed as remaining f32 migration (`docs/gpu-f32-physics.md@a6c914e:L96-L96`) and must not be copied. |
++| Parameters | `interval_seconds`: float seconds, range 0.1–12 inclusive, default 1.0 (`parts/ClockPart.cs@a6c914e:L46-L51`, `parts/catalog/clock.tres@a6c914e:L14-L14`). Discrete interval = ceil(seconds / tick) ticks (`parts/ClockPart.cs@a6c914e:L21-L21`, `engine/SceneOscillatorDeclaration.cs@a6c914e:L10-L18`). Carry forward as f32 seconds with a typed parameter id; the current `DelayDuration` stores binary16 (`engine/gpu/WorkshopDelay.cs@a6c914e:L6-L33`), which is listed as remaining f32 migration (`docs/gpu-f32-physics.md@a6c914e:L96-L96`) and must not be copied. **Current (C-Clock):** a declared Real Second parameter (0.1–12, default 1.0), editor policy Clamp (as the former spin box), Build-only; f32 from authoring to compile, where `ActivationTimerDeclaration.Duration` gives ceil(seconds × rate) whole ticks (0.1 s → 6/12/24, 1 s → 60/120/240, 12 s → 720/1440/2880 ticks at 60/120/240 Hz). Saves carry it as the generic instance's parameter; the record path's `threshold` field is deleted, and record-path saves are refused with a typed reason. |
+ | Cosmetic curves and UI bindings | (1) Pendulum: rotation about Z follows target = 0.42 · sin(2π · progress) rad, presentation-clock exponential follow with rate 30, range ±0.42, initial 0; progress = committed oscillator progress fraction (`parts/ClockPart.cs@a6c914e:L26-L32`; formula `CuriousContraptions.tests/ClockPendulumTests.cs@a6c914e:L20-L25`). (2) Pulse lamp: slate `#556573` → gold `#f7cb52` per pulse, 0.25 s linear decay, overlapping pulses combine by maximum, essential (deferred until visible), event-timed, retains its first frame, capacity 64 queued pulses per lamp (`parts/ClockPart.cs@a6c914e:L35-L39`). Current cosmetic sources lack an oscillator-progress and oscillator-pulse source (`engine/gpu/WorkshopCosmetic.cs@a6c914e:L7-L7`). |
+ | Art | Housing 1.4 × 1.7 × 0.6 in `#e8b764` (catalogue colour 0.91, 0.72, 0.39); navy `#293954` foot; cream `#fff8e9` face 1.14 × 1.44 × 0.04 at z 0.32; slate `#556573` pendulum recess 0.84 × 1.1 × 0.02 at (0, −0.06, 0.35); pendulum pivot at (0, 0.4, 0.39) carrying a cream rod 0.045 × 0.7 × 0.035 (centre 0.35 below the pivot) and a gold bob r 0.15 at 0.7 below; navy pivot cap r 0.055 at (0, 0.4, 0.44); pulse lamp r 0.065 at (0, 0.63, 0.39); gold port spheres r 0.075 (`parts/ClockPart.cs@a6c914e:L56-L70`). Selection ring 1.1 (`parts/ClockPart.cs@a6c914e:L58-L58`). Toolbox icon (current, survives): `ui/WorkshopIcons.cs@a6c914e:L58-L58`. Design: "Repeating clock" row of [DESIGN.md · Motion and state feedback](../../../DESIGN.md#motion-and-state-feedback). |
+ | Catalogue / inventory | Id `clock`, Title "Repeating clock", Category Control, colour (0.91, 0.72, 0.39), Parameters `{"interval_seconds": 1.0}`; Description: "Connect electricity to start the pendulum. Sends one trigger each second, starting after a full interval. Losing power resets its timing; reconnecting begins a fresh interval." (`parts/catalog/clock.tres@a6c914e:L8-L14`). No level places or grants it. |
+@@ -35,7 +35,8 @@ Families ([map row](../general-engine-element-map.md)): AnimationEvaluation, Ani
+ - Discrete activation network with integer-boundary timer occurrences, fan-out to lamps and timers, and Reset to a clear state: `engine/gpu/ActivationNetwork.cs@a6c914e:L70-L231`, `engine/gpu/ActivationTimers.cs@a6c914e:L66-L113`.
+ - Activation sockets and connection storage: `engine/gpu/WorkshopConnections.cs@a6c914e:L8-L13`.
+ - Cadence-to-ticks conversion with ceiling (Delay): `engine/gpu/WorkshopDelay.cs@a6c914e:L16-L33`.
+-- Note: `ActivationTime`, `ActivationLatch` and the cosmetic curve record store times and durations as binary16 (`Half`); activation/timer phases and cosmetic durations are listed as remaining f32 migration (`docs/gpu-f32-physics.md@a6c914e:L96-L98`). Extending them for the clock inherits that debt (open question 3).
++- Note (superseded): at a6c914e `ActivationTime`, `ActivationLatch` and the cosmetic curve record stored times and durations as binary16 (`Half`). Current: `ActivationTime` is (uint ordinal, f32 phase) and timer durations are f32 seconds compiled to whole ticks (Story 9.5a), so the clock path holds no binary16 lane (`IntervalTicks` uint, `DueTick` ulong).
++- Current (Story 9.3, C-Clock): the Oscillator node kind and its committed memory row (Stopped/Running, due tick, pulse count; `engine/gpu/ActivationMemory.cs`), selected by the declared `SignalOscillatorDescriptor`; the declared pendulum (`CommittedOscillatorPhase`) and flash (`CommittedOscillatorPulse`) bindings read that committed row (Story 9A.25a, 9R.10).
+ 
+ **Missing**
+ - A repeating source rule. The current network lets each source emit at most once per world: a second emission from a latched source throws "Duplicate source emission" (`engine/gpu/ActivationNetwork.cs@a6c914e:L199-L208`). A clock emits on every pulse, so it needs a new rule — Story 9.3.
+@@ -59,7 +60,7 @@ Families ([map row](../general-engine-element-map.md)): AnimationEvaluation, Ani
+ | C8 | Geometry and art as in section 2. | `parts/ClockPart.cs@a6c914e:L56-L70` | carry forward |
+ | C9 | Oscillator declaration requires a declared electrical input port and a finite positive interval; ticks = ceil(seconds / tick). | `engine/SceneOscillatorDeclaration.cs@a6c914e:L8-L18` | carry forward |
+ | C10 | Oscillator states `Stopped`/`Running`; state = (phase, due tick, pulse count, last pulse tick); initial Stopped, due −1, count 0, last −1. | `engine/SimulationOscillators.cs@a6c914e:L16-L22` and `engine/SimulationOscillators.cs@a6c914e:L54-L60` | carry forward |
+-| C11 | Every tick samples every power input once: unpowered → Stopped, due −1 (no pulse even at the deadline); newly powered → Running, due = tick + interval (no pulse); running at due → pulse, count + 1, last = tick, due += interval. Simultaneous pulses are emitted in identity order. | `engine/SimulationOscillators.cs@a6c914e:L83-L109` | carry forward |
++| C11 | Every tick samples every power input once: unpowered → Stopped, due −1 (no pulse even at the deadline); newly powered → Running, due = tick + interval (no pulse); running at due → pulse, count + 1, last = tick, due += interval. Simultaneous pulses are emitted in identity order. **Current (since 9R.1):** the committed oscillator row keeps no last-pulse time (`ActivationMemory.Validate` requires `Last` default); a pulse's time is its occurrence's physical boundary (tick × substeps), held in the clock's latched `ActivationOut` (first pulse) and in each downstream Counter's `Last`. | `engine/SimulationOscillators.cs@a6c914e:L83-L109` | carry forward |
+ | C12 | Progress = 0 when stopped, else 1 − (due − tick) / interval. | `engine/SimulationOscillators.cs@a6c914e:L65-L74` | carry forward |
+ | C13 | Power at ticks 0–1, lost at the deadline tick 2: no pulse; restored at 4 → due 6; pulses at 6 and 8 (interval 2). | `CuriousContraptions.tests/SimulationOscillatorsTests.cs@a6c914e:L5-L21` | carry forward (acceptance fact) |
+ | C14 | Simultaneous pulses use identity order; snapshots replay exactly. | `CuriousContraptions.tests/SimulationOscillatorsTests.cs@a6c914e:L23-L34` | carry forward |
+@@ -113,6 +114,6 @@ Authority: [CAT-017](../requirements.md#current-cat-017), [todo-273](../requirem
+ 
+ ## 6. Open questions
+ 
+-1. **Power.** The legacy clock and the requirement need electrical supply to run; after the 9 Oct 2026 reorder the supply network (Story 8.1) precedes Story 9.3 (Epic 9). The Story 9.3 AC does not mention power. Whether 9.3 requires the Story 8.1 supply, or ships an unpowered/always-running mode the requirement does not define: unspecified — owner decision.
++1. **Power — decided.** The clock runs only while its `PowerIn` route has exactly one upstream source (more than one is refused, `PowerInputSupplied`); unsupplied it stays Stopped and emits nothing. There is no unpowered or always-running mode (implemented by Story 9.3 and kept by C-Clock's declared capability).
+ 2. **Pulse-queue bound values.** The requirement already demands atomic saturation handling (C26–C28 carry it forward); only the bounds are open. The legacy used 64 queued pulses per pulse lamp (`parts/ClockPart.cs@a6c914e:L35-L37`) and 4096 pending pulse occurrences per world (`reference/cpu/MachineWorld.cs@a6c914e:L23-L23`). The per-lamp and per-world bound values in the worker design: unspecified — owner decision.
+ 3. **binary16 activation and cosmetic lanes.** The activation network, timers and cosmetic curves the clock extends still hold binary16 values (`docs/gpu-f32-physics.md@a6c914e:L96-L98`, remaining f32 migration). Whether Story 9.3 migrates those lanes to f32 before extending them, or extends them as they are and leaves migration to the scheduled f32 work: unspecified — owner decision.
+diff --git a/elements/SystemClock/SystemClockElementDeclaration.cs b/elements/SystemClock/SystemClockElementDeclaration.cs
+index 4de9097d..a6ecb36b 100644
+--- a/elements/SystemClock/SystemClockElementDeclaration.cs
++++ b/elements/SystemClock/SystemClockElementDeclaration.cs
+@@ -6,7 +6,7 @@ using CuriousContraptions.Abstractions.Signal;
+ 
+ namespace CuriousContraptions.Elements.SystemClock;
+ 
+-public sealed class SystemClockElementDeclaration : ISignalElement, IElectricalElement, ISceneGeometryElement
++public sealed class SystemClockElementDeclaration : IOscillatorElement, IElectricalElement, ISceneGeometryElement
+ {
+     public ElementPresentation Presentation => new(1.1f, PresentationAxes.None,
+         [
+@@ -27,7 +27,9 @@ public sealed class SystemClockElementDeclaration : ISignalElement, IElectricalE
+         ScenePath: "res://elements/SystemClock/clock.tscn",
+         Parameters:
+         [
+-            new("interval_seconds", ParameterUnit.Second, ParameterKind.Real, Minimum: 0.1f, Maximum: 12f, Default: 1f, Options: [])
++            // The editor clamps an entry into range (the former interval spin box's behaviour); it is a Build-only value.
++            new("interval_seconds", ParameterUnit.Second, ParameterKind.Real, Minimum: 0.1f, Maximum: 12f, Default: 1f, Options: [],
++                EditorPolicy: ParameterEditorPolicy.Clamp)
+         ]);
+ 
+     public ElementFootprint Footprint => new(Bodies: 1, MovingBodies: 0, PrismaticConstraints: 0);
+@@ -53,15 +55,15 @@ public sealed class SystemClockElementDeclaration : ISignalElement, IElectricalE
+ 
+     public SimulationDomain SupportedDomains => SimulationDomain.Signal | SimulationDomain.Electrical;
+ 
+-    public IReadOnlyList<SignalTriggerDescriptor> Triggers =>
+-    [
+-        new("clock_tick", SignalTriggerMode.Pulse, Threshold: 1f, PulseDurationSeconds: 0.1f)
+-    ];
++    public IReadOnlyList<SignalTriggerDescriptor> Triggers => [];
+ 
+     public SignalLatchMode LatchMode => SignalLatchMode.None;
+ 
+     public SignalCounterDescriptor? Counter => null;
+ 
++    /// <summary>The pendulum pulses its ActivationOut once per declared interval while its PowerIn is supplied (CAT-017).</summary>
++    public SignalOscillatorDescriptor Oscillator => new("interval_seconds");
++
+     public IReadOnlyList<ElectricalNodeDescriptor> ElectricalNodes =>
+     [
+         new("oscillator_consumer", ElectricalRole.Consumer, RatedVoltage: 12f, Resistance: 10f, Capacitance: 0f, MaxPower: 50f)
+diff --git a/engine/MachinePart.cs b/engine/MachinePart.cs
+index 9348a0b2..fbdb8cd2 100644
+--- a/engine/MachinePart.cs
++++ b/engine/MachinePart.cs
+@@ -100,14 +100,6 @@ public sealed partial class MachinePart : Node3D, IResizablePart
+         if (presentation.Sizing is not null) PickRadius = nextRadius;
+     }
+ 
+-    public float CanonicalIntervalSeconds { get; private set; } = WorkshopClock.PlacedIntervalSeconds;
+-    public void ApplyIntervalSeconds(float seconds)
+-    {
+-        if (float.IsNaN(seconds) || float.IsInfinity(seconds) || seconds < WorkshopClock.MinIntervalSeconds || seconds > WorkshopClock.MaxIntervalSeconds)
+-            throw new ArgumentException($"Clock interval seconds '{seconds}' is outside admitted range.");
+-        CanonicalIntervalSeconds = seconds;
+-    }
+-
+     public void Configure(PartDefinition definition)
+     {
+         if (_built || Definition is not null) throw new InvalidOperationException("Part is already configured.");
+diff --git a/engine/MachineWorld.Gpu.cs b/engine/MachineWorld.Gpu.cs
+index ead09eb8..34ccfd60 100644
+--- a/engine/MachineWorld.Gpu.cs
++++ b/engine/MachineWorld.Gpu.cs
+@@ -112,8 +112,6 @@ public partial class MachineWorld
+             // placement value (Story 9.4b: no factory or decoder default substitutes for either).
+             "counter" => WorkshopInput.Counter(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
+                 Construction.Instances.FirstOrDefault(instance => instance.Id == bodyId) is WorkshopCounter counter ? counter.TargetCount : WorkshopCounter.PlacedTargetCount),
+-            "clock" => WorkshopInput.Clock(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
+-                Construction.Instances.FirstOrDefault(instance => instance.Id == bodyId) is WorkshopClock clock ? clock.IntervalSeconds : WorkshopClock.PlacedIntervalSeconds),
+             "latch" => WorkshopInput.Latch(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W),
+             _ => WorkshopInput.Generic(id, bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
+                 CaptureParameters(id, bodyId, dimensions))
+diff --git a/engine/gpu/ActivationMemory.cs b/engine/gpu/ActivationMemory.cs
+index 4d6d84de..c6537f75 100644
+--- a/engine/gpu/ActivationMemory.cs
++++ b/engine/gpu/ActivationMemory.cs
+@@ -4,13 +4,13 @@ using System.Runtime.CompilerServices;
+ 
+ namespace CuriousContraptions.Gpu;
+ 
+-/// <summary>Committed phase of one System Clock (Oscillator) node: Stopped while unpowered (no due tick), Running with a due tick.</summary>
++/// <summary>Committed phase of one declared oscillator node: Stopped while unsupplied (no due tick), Running with a due tick.</summary>
+ public enum OscillatorPhase : uint { Stopped = 0, Running = 1 }
+ 
+-/// <summary>Committed discrete memory of one Counter or System Clock node (Story 9R.1 D3). It lives in the committed checkpoint:
++/// <summary>Committed discrete memory of one Counter or oscillator node (Story 9R.1 D3). It lives in the committed checkpoint:
+ /// <see cref="ActivationNetwork.Consume"/> reads the committed row and returns the candidate's, so a superseded candidate never
+ /// changes it, and admission (Reset) publishes it cleared. A Counter keeps its count and the time of the last counted input
+-/// (its emission is its Latched activation); a Clock keeps its pulse count, its phase and its next due tick; a contact-load level
++/// (its emission is its Latched activation); an oscillator keeps its pulse count, its phase and its next due tick; a contact-load level
+ /// (Pressure Plate) keeps the due tick of its release hold (Story 9R.5).</summary>
+ public readonly record struct ActivationMemory(ActivationNodeId Node, ActivationNodeKind Kind, uint Count, ActivationTime Last,
+     OscillatorPhase Phase, ulong DueTick)
+@@ -26,16 +26,16 @@ public readonly record struct ActivationMemory(ActivationNodeId Node, Activation
+         if (Node.Value == 0 || !Holds(Kind) || !Enum.IsDefined(Phase)) throw new ArgumentException("Invalid activation memory.");
+         Last.Validate();
+         if (Kind == ActivationNodeKind.Counter && (Phase != OscillatorPhase.Stopped || DueTick != 0))
+-            throw new ArgumentException("A counter's memory has no clock phase.");
++            throw new ArgumentException("A counter's memory has no oscillator phase.");
+         // Story 9R.5: a contact-load level's memory is only its release hold, the boundary its held level is due to clear (0: released).
+         if (Kind == ActivationNodeKind.ContactLoadSource && (Count != 0 || Last != default || Phase != OscillatorPhase.Stopped))
+             throw new ArgumentException("A contact-load level's memory holds only its release tick.");
+         if (Kind == ActivationNodeKind.Oscillator && (Last != default || (Phase == OscillatorPhase.Running) != (DueTick != 0)))
+-            throw new ArgumentException("A clock's memory is Running exactly while it has a due tick.");
++            throw new ArgumentException("An oscillator's memory is Running exactly while it has a due tick.");
+     }
+ }
+ 
+-/// <summary>One copied population of committed Counter and Clock memory rows, ordered by node id, sized exactly from the
++/// <summary>One copied population of committed Counter and oscillator memory rows, ordered by node id, sized exactly from the
+ /// compiled network.</summary>
+ public readonly struct PhysicsMemoryRead
+ {
+diff --git a/engine/gpu/ActivationNetwork.cs b/engine/gpu/ActivationNetwork.cs
+index e9fdd8c5..40ade3d5 100644
+--- a/engine/gpu/ActivationNetwork.cs
++++ b/engine/gpu/ActivationNetwork.cs
+@@ -78,7 +78,7 @@ public readonly struct PhysicsActivationRead
+     public ActivationLatch this[int index] => index >= 0 && index < Count ? _values![index] : throw new ArgumentOutOfRangeException(nameof(index));
+ }
+ 
+-/// <summary>The committed discrete checkpoint: activations, timers and the Counter/Clock memory rows (Story 9R.1 D3).</summary>
++/// <summary>The committed discrete checkpoint: activations, timers and the Counter/oscillator memory rows (Story 9R.1 D3).</summary>
+ public readonly record struct ActivationCheckpoint(PhysicsActivationRead Activations, PhysicsTimerRead Timers,
+     PhysicsMemoryRead Memory = default);
+ 
+@@ -100,7 +100,7 @@ public sealed class ActivationNetwork
+     private readonly ActivationTimerDeclaration[] _timers;
+     private readonly PassageSensorDeclaration[] _passageSensors;
+     private readonly uint _substeps;
+-    // Declaration data only: the memory-row index of each node (-1 for a node without Counter/Clock memory).
++    // Declaration data only: the memory-row index of each node (-1 for a node without Counter/oscillator memory).
+     private readonly int[] _memorySlots;
+     private readonly ActivationNodeDeclaration[] _memoryNodes;
+     // Story 9R.5b: Consume's working tables, sized from this compiled network once (per Run, never per tick) instead of stack
+@@ -202,7 +202,7 @@ public sealed class ActivationNetwork
+         for (var i = 0; i < _timers.Length; i++) values[i] = ActivationTimerState.Ready(_timers[i].Node);
+         return new(values);
+     }
+-    /// <summary>The admitted memory rows: every Counter at count 0 with no counted input, every Clock Stopped with no due tick.</summary>
++    /// <summary>The admitted memory rows: every Counter at count 0 with no counted input, every oscillator Stopped with no due tick.</summary>
+     public PhysicsMemoryRead ClearMemory()
+     {
+         var values = new ActivationMemory[_memoryNodes.Length];
+@@ -216,13 +216,13 @@ public sealed class ActivationNetwork
+         if (count == _pending.Length) Array.Resize(ref _pending, _pending.Length * 2);
+         _pending[count++] = occurrence;
+     }
+-    /// <summary>The committed Counter or Clock memory row of one owner (a query over the checkpoint; the network holds none).</summary>
++    /// <summary>The committed Counter or oscillator memory row of one owner (a query over the checkpoint; the network holds none).</summary>
+     public ActivationMemory Memory(PhysicsMemoryRead values, GpuBodyId owner)
+     {
+         ValidateMemory(values);
+         for (var i = 0; i < _memoryNodes.Length; i++)
+             if (_memoryNodes[i].Owner == owner) return values[i];
+-        throw new ArgumentException("Counter or clock not found for owner.");
++        throw new ArgumentException("Counter or oscillator not found for owner.");
+     }
+     public int GetCounterTarget(GpuBodyId owner)
+     {
+@@ -254,8 +254,8 @@ public sealed class ActivationNetwork
+         throw new ArgumentException("Switched contact not found for owner.");
+     }
+     /// <summary>Evaluates one candidate tick from the committed checkpoint. The committed memory rows are read, never written: the
+-    /// candidate's rows are returned in the checkpoint, so only a committed candidate changes the published Counter and Clock state.
+-    /// A network with Counter or Clock nodes requires their committed rows (an empty population is rejected).</summary>
++    /// candidate's rows are returned in the checkpoint, so only a committed candidate changes the published Counter and oscillator state.
++    /// A network with Counter or oscillator nodes requires their committed rows (an empty population is rejected).</summary>
+     public ActivationCheckpoint Consume(PhysicsActivationRead committed, PhysicsTimerRead committedTimers,
+         ReadOnlySpan<ContactTriggerRead> events, SimulationTick boundary, ReadOnlySpan<OrientationSensorRead> orientations,
+         ReadOnlySpan<PassageSensorRead> passages = default, PhysicsElectricalRead electrical = default,
+@@ -598,7 +598,7 @@ public sealed class ActivationNetwork
+         }
+     }
+ 
+-    /// <summary>The memory rows belong to exactly this network's Counter and Clock nodes, in node order.</summary>
++    /// <summary>The memory rows belong to exactly this network's Counter and oscillator nodes, in node order.</summary>
+     public void ValidateMemory(PhysicsMemoryRead memory)
+     {
+         if (memory.Count != _memoryNodes.Length) throw new ArgumentException("Activation memory population changed.");
+@@ -859,16 +859,18 @@ public static class WorkshopActivationCompiler
+                 nodes.Add(new(new(instance.Id.Value), instance.Id, ActivationNodeKind.ContactLoadSource, default,
+                     ContactLoad: WorkshopPhysicsCompiler.ContactLoadSensor(instance.Id),
+                     ReleaseHoldTicks: ActivationTimerDeclaration.Duration(load.ReleaseHoldSeconds, construction.Settings.Simulation)));
+-            else if (instance is WorkshopClock clock)
++            // A declared oscillator pulses while its PowerIn route has one upstream source: its interval compiles to whole ticks of this
++            // construction's cadence, and each pulse names the frame's first collider.
++            else if (instance is WorkshopGenericInstance periodic && DeclaredPhysics.Of(instance.PartId).Signal?.Oscillator is { } oscillator)
+             {
+-                var sources=SupplyTopology.Create(construction, DeclaredPhysics.Of).UpstreamSources(clock.Id);
+-                if(sources.Length>1) throw new WorkshopEditRejectedException(WorkshopEditRejection.PowerInputSupplied,
++                var sources = SupplyTopology.Create(construction, DeclaredPhysics.Of).UpstreamSources(periodic.Id);
++                if (sources.Length > 1) throw new WorkshopEditRejectedException(WorkshopEditRejection.PowerInputSupplied,
+                     "This source-accounted input requires one upstream source.");
+-                var powerSource=sources.Length==1?sources[0]:default;
+-                var first = WorkshopPhysicsCompiler.PartIdentities(clock.Id);
+-                var colliderId = new GpuColliderId(first + 1);
+-                var intervalTicks = (uint)clock.Ticks(construction.Settings.Simulation);
+-                nodes.Add(new(new(clock.Id.Value), clock.Id, ActivationNodeKind.Oscillator, default, 0, default, default, 0, intervalTicks, powerSource, colliderId));
++                var powerSource = sources.Length == 1 ? sources[0] : default;
++                var intervalTicks = ActivationTimerDeclaration.Duration(periodic.Parameters[new ParameterId(oscillator.IntervalParameter)],
++                    construction.Settings.Simulation);
++                nodes.Add(new(new(periodic.Id.Value), periodic.Id, ActivationNodeKind.Oscillator, default, 0, default, default, 0, intervalTicks,
++                    powerSource, new GpuColliderId(WorkshopPhysicsCompiler.PartIdentities(periodic.Id) + 1)));
+             }
+         }
+         foreach (var link in construction.Connections)
+diff --git a/engine/gpu/AuthoredInstanceTemplate.cs b/engine/gpu/AuthoredInstanceTemplate.cs
+index 295692a8..9a34e63f 100644
+--- a/engine/gpu/AuthoredInstanceTemplate.cs
++++ b/engine/gpu/AuthoredInstanceTemplate.cs
+@@ -9,7 +9,7 @@ namespace CuriousContraptions.Gpu;
+ // The current construction record's typed scalar fields, not element identities.
+ internal enum AuthoredScalar
+ {
+-    Length, Threshold
++    Length
+ }
+ internal enum AssistanceValue
+ {
+diff --git a/engine/gpu/WorkshopClock.cs b/engine/gpu/WorkshopClock.cs
+deleted file mode 100644
+index f298ee1c..00000000
+--- a/engine/gpu/WorkshopClock.cs
++++ /dev/null
+@@ -1,44 +0,0 @@
+-using System;
+-
+-namespace CuriousContraptions.Gpu;
+-
+-public readonly record struct WorkshopClock(
+-    GpuBodyId Id,
+-    CellOrigin Cell,
+-    LocalPosition Local,
+-    CanonicalRotation Rotation,
+-    float IntervalSeconds,
+-    bool Locked = false) : IWorkshopInstance
+-{
+-    /// <summary>The interval a newly placed clock starts with in the Workshop UI; no decoder or factory defaults to it.</summary>
+-    public const float PlacedIntervalSeconds = 1.0f;
+-    public const float MinIntervalSeconds = 0.1f;
+-    public const float MaxIntervalSeconds = 12.0f;
+-
+-    public PartId PartId => PartId.Clock;
+-    public CosmeticCurveDeclaration Cosmetic => CosmeticCurveDeclaration.For(PartId);
+-
+-    public void Validate()
+-    {
+-        new CanonicalBody(Id, 0, 0, Cell, Local, default).Validate();
+-        Rotation.Validate();
+-        if (float.IsNaN(IntervalSeconds) || float.IsInfinity(IntervalSeconds) ||
+-            IntervalSeconds < MinIntervalSeconds || IntervalSeconds > MaxIntervalSeconds)
+-        {
+-            throw new ArgumentException($"Clock {Id.Value} interval seconds '{IntervalSeconds:R}' is outside admitted range [{MinIntervalSeconds}, {MaxIntervalSeconds}].");
+-        }
+-    }
+-
+-    public uint Ticks(SimulationCadence cadence)
+-    {
+-        Validate();
+-        var rate = cadence switch
+-        {
+-            SimulationCadence.Hz60 => 60u,
+-            SimulationCadence.Hz120 => 120u,
+-            SimulationCadence.Hz240 => 240u,
+-            _ => throw new ArgumentException("Unsupported timer cadence.")
+-        };
+-        return (uint)Math.Ceiling(IntervalSeconds * rate);
+-    }
+-}
+diff --git a/engine/gpu/WorkshopClock.cs.uid b/engine/gpu/WorkshopClock.cs.uid
+deleted file mode 100644
+index 84a23ccd..00000000
+--- a/engine/gpu/WorkshopClock.cs.uid
++++ /dev/null
+@@ -1 +0,0 @@
+-uid://bq6aixo6mn0q3
+diff --git a/engine/gpu/WorkshopConstruction.cs b/engine/gpu/WorkshopConstruction.cs
+index c43bed79..7f0622d3 100644
+--- a/engine/gpu/WorkshopConstruction.cs
++++ b/engine/gpu/WorkshopConstruction.cs
+@@ -76,14 +76,6 @@ public static class WorkshopInput
+             CanonicalRotation.Normalize(Rotation(qx), Rotation(qy), Rotation(qz), Rotation(qw)), targetCount, locked);
+         result.Validate(); return result;
+     }
+-    public static WorkshopClock Clock(GpuBodyId id, double x, double y, double z,
+-        double qx, double qy, double qz, double qw, float intervalSeconds, bool locked = false)
+-    {
+-        var px = Position(x); var py = Position(y); var pz = Position(z);
+-        var result = new WorkshopClock(id, new(px.Cell, py.Cell, pz.Cell), new(px.Local, py.Local, pz.Local),
+-            CanonicalRotation.Normalize(Rotation(qx), Rotation(qy), Rotation(qz), Rotation(qw)), intervalSeconds, locked);
+-        result.Validate(); return result;
+-    }
+     public static WorkshopLatch Latch(GpuBodyId id, double x, double y, double z,
+         double qx, double qy, double qz, double qw, bool locked = false)
+     {
+diff --git a/engine/gpu/WorkshopInstances.cs b/engine/gpu/WorkshopInstances.cs
+index 5cea1d55..ae6ee745 100644
+--- a/engine/gpu/WorkshopInstances.cs
++++ b/engine/gpu/WorkshopInstances.cs
+@@ -74,7 +74,7 @@ public sealed class WorkshopInstances : IReadOnlyList<IWorkshopInstance>, IEquat
+         var ids = new HashSet<GpuBodyId>();
+         foreach (var item in _items)
+         {
+-            if (item is not (WorkshopCounter or WorkshopClock or WorkshopLatch or IWorkshopDeclaredColliders))
++            if (item is not (WorkshopCounter or WorkshopLatch or IWorkshopDeclaredColliders))
+                 throw new ArgumentException("Unsupported authored instance declaration.");
+             item.Validate();
+             if (!ids.Add(item.Id)) throw new ArgumentException("Authored body identities must be unique.");
+diff --git a/engine/gpu/WorkshopSavePrevalidation.cs b/engine/gpu/WorkshopSavePrevalidation.cs
+index a79c127b..16910196 100644
+--- a/engine/gpu/WorkshopSavePrevalidation.cs
++++ b/engine/gpu/WorkshopSavePrevalidation.cs
+@@ -121,9 +121,6 @@ internal static class WorkshopSavePrevalidation
+                 if (r.TargetCount > WorkshopCounter.MaximumTargetCount)
+                     throw Refuse(WorkshopSaveRejection.OutOfRange, $"Counter {id} target count {r.TargetCount} is outside [{WorkshopCounter.MinimumTargetCount}, {WorkshopCounter.MaximumTargetCount}].");
+                 break;
+-            case "clock":
+-                Within(id, "interval", r.Threshold, WorkshopClock.MinIntervalSeconds, WorkshopClock.MaxIntervalSeconds);
+-                break;
+             default:
+                 genericParameters = true;
+                 if (WorkshopWireFlatBuffers.CarriesTypedField(r))
+diff --git a/engine/gpu/WorkshopWireFlatBuffers.cs b/engine/gpu/WorkshopWireFlatBuffers.cs
+index c2c7beeb..16862b92 100644
+--- a/engine/gpu/WorkshopWireFlatBuffers.cs
++++ b/engine/gpu/WorkshopWireFlatBuffers.cs
+@@ -31,7 +31,6 @@ public static class WorkshopWireFlatBuffers
+         InstanceRecord.AddLocal(builder, Vec3f.CreateVec3f(builder, template.Local.X, template.Local.Y, template.Local.Z));
+         InstanceRecord.AddRotation(builder, Quat4f.CreateQuat4f(builder, template.Rotation.X, template.Rotation.Y, template.Rotation.Z, template.Rotation.W));
+         InstanceRecord.AddLength(builder, values[AuthoredScalar.Length]);
+-        InstanceRecord.AddThreshold(builder, values[AuthoredScalar.Threshold]);
+         InstanceRecord.AddTargetCount(builder, template.TargetCount);
+         InstanceRecord.AddParameters(builder, parameters);
+         builder.Finish(InstanceRecord.EndInstanceRecord(builder).Value);
+@@ -189,7 +188,7 @@ public static class WorkshopWireFlatBuffers
+     }
+ 
+     /// <summary>The current <c>InstanceRecord</c> table's field count (schemas/workshop_wire.fbs).</summary>
+-    internal const int InstanceRecordFields = 10;
++    internal const int InstanceRecordFields = 9;
+     /// <summary>The vtable offsets of <c>SavedConstruction.construction</c> (field 1), <c>WorkshopCommand.construction_record</c>
+     /// (field 11) and <c>ConstructionRecord.instances</c> (field 3), as the generated accessors read them.</summary>
+     internal const int SavedConstructionSlot = 6, CommandConstructionSlot = 26, ConstructionInstancesSlot = 10;
+@@ -649,9 +648,6 @@ public static class WorkshopWireFlatBuffers
+                 case WorkshopCounter counter:
+                     InstanceRecord.AddTargetCount(builder, checked((uint)counter.TargetCount));
+                     break;
+-                case WorkshopClock clock:
+-                    InstanceRecord.AddThreshold(builder, clock.IntervalSeconds);
+-                    break;
+                 default:
+                     throw new ArgumentException("Unsupported instance declaration.");
+             }
+@@ -756,7 +752,6 @@ public static class WorkshopWireFlatBuffers
+             "pipe" => new WorkshopPipe(id, cell, local, rotation, new(RequiredLength(inst)), locked),
+             // Declared settings are decoded as written; construction validation rejects a missing (zero) or out-of-range value.
+             "counter" => new WorkshopCounter(id, cell, local, rotation, TargetCount(inst), locked),
+-            "clock" => new WorkshopClock(id, cell, local, rotation, inst.Threshold, locked),
+             // Every other element is a generic instance of its declared colliders (Story 9A.15: no per-id list); an id with neither
+             // a record nor colliders is no element this decoder knows, refused naming it.
+             _ => DeclaredPhysics.Contains(partId) && DeclaredPhysics.Of(partId).Colliders.Count > 0
+@@ -775,13 +770,12 @@ public static class WorkshopWireFlatBuffers
+         ? throw new WireFaultException(WireFaultReason.OutOfRange, "Generic instance cannot carry a typed record field.")
+         : new(part, id, cell, local, rotation, locked) { Parameters = DecodeParameters(inst, part) };
+ 
+-    /// <summary>Whether a record holds any typed record field: a nonzero bit pattern in the length or threshold, or a nonzero target
+-    /// count. A generic instance carries only its declared parameters, so this refuses it (the save pre-validation applies the same
++    /// <summary>Whether a record holds any typed record field: a nonzero bit pattern in the length, or a nonzero target count. A
++    /// generic instance carries only its declared parameters, so this refuses it (the save pre-validation applies the same
+     /// rule).</summary>
+     internal static bool CarriesTypedField(InstanceRecord r)
+     {
+-        static bool Set(float value) => BitConverter.SingleToUInt32Bits(value) != 0;
+-        return Set(r.Length) || Set(r.Threshold) || r.TargetCount != 0;
++        return BitConverter.SingleToUInt32Bits(r.Length) != 0 || r.TargetCount != 0;
+     }
+ 
+     internal static InstanceParameterCollection DecodeParameters(InstanceRecord record, PartId part)
+diff --git a/engine/gpu/WorkshopWireGenerated.cs b/engine/gpu/WorkshopWireGenerated.cs
+index 7f6dc61f..b6ca2e15 100644
+--- a/engine/gpu/WorkshopWireGenerated.cs
++++ b/engine/gpu/WorkshopWireGenerated.cs
+@@ -533,12 +533,11 @@ public struct InstanceRecord : IFlatbufferObject
+   public CuriousContraptions.Wire.Vec3f? Local { get { int o = __p.__offset(12); return o != 0 ? (CuriousContraptions.Wire.Vec3f?)(new CuriousContraptions.Wire.Vec3f()).__assign(o + __p.bb_pos, __p.bb) : null; } }
+   public CuriousContraptions.Wire.Quat4f? Rotation { get { int o = __p.__offset(14); return o != 0 ? (CuriousContraptions.Wire.Quat4f?)(new CuriousContraptions.Wire.Quat4f()).__assign(o + __p.bb_pos, __p.bb) : null; } }
+   public float Length { get { int o = __p.__offset(16); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
+-  public float Threshold { get { int o = __p.__offset(18); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
+-  public uint TargetCount { get { int o = __p.__offset(20); return o != 0 ? __p.bb.GetUint(o + __p.bb_pos) : (uint)0; } }
+-  public CuriousContraptions.Wire.ParameterRecord? Parameters(int j) { int o = __p.__offset(22); return o != 0 ? (CuriousContraptions.Wire.ParameterRecord?)(new CuriousContraptions.Wire.ParameterRecord()).__assign(__p.__indirect(__p.__vector(o) + j * 4), __p.bb) : null; }
+-  public int ParametersLength { get { int o = __p.__offset(22); return o != 0 ? __p.__vector_len(o) : 0; } }
++  public uint TargetCount { get { int o = __p.__offset(18); return o != 0 ? __p.bb.GetUint(o + __p.bb_pos) : (uint)0; } }
++  public CuriousContraptions.Wire.ParameterRecord? Parameters(int j) { int o = __p.__offset(20); return o != 0 ? (CuriousContraptions.Wire.ParameterRecord?)(new CuriousContraptions.Wire.ParameterRecord()).__assign(__p.__indirect(__p.__vector(o) + j * 4), __p.bb) : null; }
++  public int ParametersLength { get { int o = __p.__offset(20); return o != 0 ? __p.__vector_len(o) : 0; } }
+ 
+-  public static void StartInstanceRecord(FlatBufferBuilder builder) { builder.StartTable(10); }
++  public static void StartInstanceRecord(FlatBufferBuilder builder) { builder.StartTable(9); }
+   public static void AddId(FlatBufferBuilder builder, ulong id) { builder.AddUlong(0, id, 0); }
+   public static void AddPartId(FlatBufferBuilder builder, StringOffset partIdOffset) { builder.AddOffset(1, partIdOffset.Value, 0); }
+   public static void AddLocked(FlatBufferBuilder builder, bool locked) { builder.AddBool(2, locked, false); }
+@@ -546,9 +545,8 @@ public struct InstanceRecord : IFlatbufferObject
+   public static void AddLocal(FlatBufferBuilder builder, Offset<CuriousContraptions.Wire.Vec3f> localOffset) { builder.AddStruct(4, localOffset.Value, 0); }
+   public static void AddRotation(FlatBufferBuilder builder, Offset<CuriousContraptions.Wire.Quat4f> rotationOffset) { builder.AddStruct(5, rotationOffset.Value, 0); }
+   public static void AddLength(FlatBufferBuilder builder, float length) { builder.AddFloat(6, length, 0.0f); }
+-  public static void AddThreshold(FlatBufferBuilder builder, float threshold) { builder.AddFloat(7, threshold, 0.0f); }
+-  public static void AddTargetCount(FlatBufferBuilder builder, uint targetCount) { builder.AddUint(8, targetCount, 0); }
+-  public static void AddParameters(FlatBufferBuilder builder, VectorOffset parametersOffset) { builder.AddOffset(9, parametersOffset.Value, 0); }
++  public static void AddTargetCount(FlatBufferBuilder builder, uint targetCount) { builder.AddUint(7, targetCount, 0); }
++  public static void AddParameters(FlatBufferBuilder builder, VectorOffset parametersOffset) { builder.AddOffset(8, parametersOffset.Value, 0); }
+   public static VectorOffset CreateParametersVector(FlatBufferBuilder builder, Offset<CuriousContraptions.Wire.ParameterRecord>[] data) { builder.StartVector(4, data.Length, 4); for (int i = data.Length - 1; i >= 0; i--) builder.AddOffset(data[i].Value); return builder.EndVector(); }
+   public static VectorOffset CreateParametersVectorBlock(FlatBufferBuilder builder, Offset<CuriousContraptions.Wire.ParameterRecord>[] data) { builder.StartVector(4, data.Length, 4); builder.Add(data); return builder.EndVector(); }
+   public static VectorOffset CreateParametersVectorBlock(FlatBufferBuilder builder, ArraySegment<Offset<CuriousContraptions.Wire.ParameterRecord>> data) { builder.StartVector(4, data.Count, 4); builder.Add(data); return builder.EndVector(); }
+@@ -573,9 +571,8 @@ static public class InstanceRecordVerify
+       && verifier.VerifyField(tablePos, 12 /*Local*/, 12 /*CuriousContraptions.Wire.Vec3f*/, 4, false)
+       && verifier.VerifyField(tablePos, 14 /*Rotation*/, 16 /*CuriousContraptions.Wire.Quat4f*/, 4, false)
+       && verifier.VerifyField(tablePos, 16 /*Length*/, 4 /*float*/, 4, false)
+-      && verifier.VerifyField(tablePos, 18 /*Threshold*/, 4 /*float*/, 4, false)
+-      && verifier.VerifyField(tablePos, 20 /*TargetCount*/, 4 /*uint*/, 4, false)
+-      && verifier.VerifyVectorOfTables(tablePos, 22 /*Parameters*/, CuriousContraptions.Wire.ParameterRecordVerify.Verify, false)
++      && verifier.VerifyField(tablePos, 18 /*TargetCount*/, 4 /*uint*/, 4, false)
++      && verifier.VerifyVectorOfTables(tablePos, 20 /*Parameters*/, CuriousContraptions.Wire.ParameterRecordVerify.Verify, false)
+       && verifier.VerifyTableEnd(tablePos);
+   }
+ }
+diff --git a/schemas/workshop_wire.fbs b/schemas/workshop_wire.fbs
+index b3c78030..43a4ac11 100644
+--- a/schemas/workshop_wire.fbs
++++ b/schemas/workshop_wire.fbs
+@@ -258,9 +258,6 @@ table InstanceRecord {
+     // Pipe
+     length: float;
+ 
+-    // Switch
+-    threshold: float;
+-
+     // Counter: the whole target count; absent (0) is a missing field, never a default
+     target_count: uint32;
+ 
+diff --git a/tools/BundleElements.Tests/BundleRoundTripTests.cs b/tools/BundleElements.Tests/BundleRoundTripTests.cs
+index 5174122c..f7f8aad8 100644
+--- a/tools/BundleElements.Tests/BundleRoundTripTests.cs
++++ b/tools/BundleElements.Tests/BundleRoundTripTests.cs
+@@ -139,6 +139,9 @@ public sealed class BundleRoundTripTests
+             // The contact-load sensor (C-Plate).
+             Assert.Equal(signal is IContactLoadSensorElement, entry.Signal.ContactLoad is not null);
+             if (signal is IContactLoadSensorElement load) AssertSame(load.ContactLoad, entry.Signal.ContactLoad!.Value, "ContactLoad");
++            // The periodic pulse source (C-Clock).
++            Assert.Equal(signal is IOscillatorElement, entry.Signal.Oscillator is not null);
++            if (signal is IOscillatorElement oscillator) Assert.Equal(oscillator.Oscillator, entry.Signal.Oscillator!.Value);
+         }
+         Assert.Equal(declaration is IFluidElement, entry.Fluid is not null);
+         if (declaration is IFluidElement fluid)
+diff --git a/tools/BundleElements.Tests/BundleValidatorTests.cs b/tools/BundleElements.Tests/BundleValidatorTests.cs
+index fcee7627..cc69d1f0 100644
+--- a/tools/BundleElements.Tests/BundleValidatorTests.cs
++++ b/tools/BundleElements.Tests/BundleValidatorTests.cs
+@@ -661,6 +661,67 @@ public sealed class BundleValidatorTests
+         Assert.Empty(Check(both with { Signal = both.Signal! with { ContactLoad = null } }));
+     }
+ 
++    // C-Clock (D1): the oscillator names a Real second parameter with a finite positive minimum; it is a source (a Pulse ActivationOut,
++    // no ActivationIn) supplied through its PowerIn into a Consumer node, on a Static frame (no Dynamic body, no slider) with a collider;
++    // it is the seventh node-selecting capability, and a committed oscillator presentation binding requires it. Every refusal is one
++    // BundleError naming its field, never a throw. Controls: the shipped clock, the parameter's range ends and an explicit Static frame.
++    [Fact]
++    public void TheOscillatorIsATypedSuppliedStaticPulseSourceExclusiveAndCoupledToItsBindings()
++    {
++        var generated = BundleGenerator.Generate(TestRepository.Root);
++        var bundle = Bundle.BundleSchema.Read(generated.Json!).Elements;
++        var clock = bundle.Single(entry => entry.Metadata.Id == "clock");
++        static IReadOnlyList<Bundle.BundleError> Check(Bundle.BundleEntry candidate) => Bundle.BundleValidator.Validate([new("Candidate", candidate)]);
++        static void Refused(Bundle.BundleEntry candidate, string field, Bundle.BundleErrorCode code = Bundle.BundleErrorCode.OutOfRange)
++        {
++            var error = Assert.Single(Check(candidate));
++            Assert.Equal((code, true), (error.Code, error.Detail.StartsWith("Candidate." + field + ":", StringComparison.Ordinal)));
++        }
++        Assert.Empty(Check(clock));
++        Assert.Equal(new SignalOscillatorDescriptor("interval_seconds"), clock.Signal!.Oscillator);
++        Assert.Null(clock.Mechanical);
++        var parameter = Assert.Single(clock.Metadata.Parameters);
++        Assert.Equal(("interval_seconds", ParameterUnit.Second, ParameterKind.Real, .1f, 12f, 1f, ParameterEditorPolicy.Clamp, ParameterRunEdit.BuildOnly),
++            (parameter.Key, parameter.Unit, parameter.Kind, parameter.Minimum, parameter.Maximum, parameter.Default, parameter.EditorPolicy, parameter.RunEdit));
++        Bundle.BundleEntry Parameter(ParameterDescriptor changed) => clock with { Metadata = clock.Metadata with { Parameters = [changed] } };
++        Bundle.BundleEntry With(Bundle.SignalPayload signal) => clock with { Signal = signal };
++
++        // The interval parameter: absent, not seconds, not Real, or without a positive minimum; the smallest positive minimum is admitted.
++        Refused(With(clock.Signal with { Oscillator = new("interval") }), "Oscillator.IntervalParameter");
++        Refused(Parameter(parameter with { Unit = ParameterUnit.Metre }), "Oscillator.IntervalParameter");
++        Refused(Parameter(parameter with { Kind = ParameterKind.WholeNumber, Minimum = 1f, Maximum = 12f, Default = 1f }), "Oscillator.IntervalParameter");
++        Refused(Parameter(parameter with { Minimum = 0f }), "Oscillator.IntervalParameter");
++        Assert.Empty(Check(Parameter(parameter with { Minimum = float.Epsilon })));
++        // A source: a Pulse ActivationOut and no ActivationIn.
++        var activation = clock.Ports.Single(port => port.Socket == PortSocket.ActivationOut);
++        Refused(clock with { Ports = [.. clock.Ports.Where(port => port != activation), activation with { Signal = PortSignalKind.Level }] }, "Oscillator.Ports");
++        Refused(clock with { Ports = [.. clock.Ports.Where(port => port != activation)] }, "Oscillator.Ports");
++        Refused(clock with { Ports = [.. clock.Ports, new(PortSocket.ActivationIn, SimulationDomain.Signal, PortDirection.Input, PortSignalKind.Pulse, Vector3.Zero, -Vector3.UnitY)] },
++            "Oscillator.Ports");
++        // Supplied: its PowerIn route into a Consumer node.
++        Refused(clock with { Ports = [.. clock.Ports.Where(port => port.Socket != PortSocket.PowerIn)] }, "Oscillator.Supply");
++        var consumer = Assert.Single(clock.Electrical!.Nodes);
++        Refused(clock with { Electrical = clock.Electrical with { Nodes = [consumer with { Role = Abstractions.Electrical.ElectricalRole.Switch }] } }, "Oscillator.Supply");
++        // A Static frame: another package's Static frame is admitted; a Dynamic body or a frame with a slider is refused.
++        var wall = bundle.Single(entry => entry.Metadata.Id == "wall").Mechanical!;
++        Assert.Empty(Check(clock with { Mechanical = wall }));
++        Refused(clock with { Mechanical = bundle.Single(entry => entry.Metadata.Id == "ball").Mechanical }, "Oscillator.Body");
++        Refused(clock with { Mechanical = bundle.Single(entry => entry.Metadata.Id == "powered_gate").Mechanical }, "Oscillator.Body");
++        Assert.Contains(Check(clock with { Colliders = [] }), error => error.Detail.StartsWith("Candidate.Oscillator.Body:", StringComparison.Ordinal));
++
++        // One node-selecting capability: a valid passage aperture on the same Static frame is refused, and only for that (the control
++        // drops the oscillator with its committed oscillator bindings).
++        var both = clock with { Mechanical = wall, Signal = clock.Signal with { Passage = new(.5f, .1f) } };
++        Refused(both, "Capability");
++        Assert.Empty(Check(both with { Signal = both.Signal! with { Oscillator = null }, Presentation = clock.Presentation with { Bindings = [] } }));
++
++        // The committed oscillator bindings read the row only the capability compiles: without it each of the clock's four bindings (the
++        // pendulum phase and the flash's three colour channels) is refused.
++        var unbound = Check(With(clock.Signal with { Oscillator = null }));
++        Assert.Equal(clock.Presentation.Bindings.Count, unbound.Count);
++        Assert.All(unbound, error => Assert.StartsWith("Candidate.Presentation.Oscillator:", error.Detail, StringComparison.Ordinal));
++    }
++
+     [Fact]
+     public void AnAssemblyWithNoDeclarationIsRefused() =>
+         Assert.Equal(["BUNDLE005 FixtureNone: declares 0 elements; a package declares exactly one"],
+diff --git a/tools/e2e/cat-017.test.ts b/tools/e2e/cat-017.test.ts
+index 13ac36db..4eb6351b 100644
+--- a/tools/e2e/cat-017.test.ts
++++ b/tools/e2e/cat-017.test.ts
+@@ -8,10 +8,15 @@
+ //    gate remains closed, upstream ball stopped.
+ // 3. Positive trigger: running for 4.2 s emits 3rd pulse at 3.0 s, reaching target count 3,
+ //    retracts gate blade, and ball traverses downstream.
+-// 4. Pause and Reset restoration: pausing mid-interval freezes simulation, reset restores the exact initial state with the
+-//    clock stopped (phase 0, no due tick).
++// 4. Pause and Reset restoration (Story 9R.10): a 2.0 s wall-clock pause mid-interval adds no tick, pulse or phase advance to the
++//    committed clock row; Reset restores the exact initial state with the clock stopped (phase 0, no due tick), and the next run's
++//    first pulse is committed at tick 120 (1.0 s).
+ // 5. State persistence & replay: Save / reload / Load preserves clock, counter, gate, battery, and wiring;
+ //    simulation replay triggers traversal.
++// 6. Pulse spacing (Story 9R.10): after more than 5.0 s the committed clock has pulsed once per 120 ticks, and its next pulse is due
++//    one interval after the last (pulses at 120, 240, 360, 480, 600, ...).
++// 7. Unsupplied control (Story 9R.10): a clock with no supply stays stopped and commits no pulse.
++// The clock is a generic instance (C-Clock): its interval is its declared interval_seconds parameter.
+ // Story 9R.1: every test reloads and builds its own bench, and every Reset is followed by the exact snapshot assertion
+ // (driver.expectResetMatches) against the snapshot taken before the first Run; each Run cycle first proves it advanced.
+ import assert from 'node:assert/strict';
+@@ -19,7 +24,7 @@ import { after, before, describe, test } from 'node:test';
+ import type { ConsoleMessage, Worker } from 'playwright';
+ import { isWorkshopConsoleFailure } from '../workshop-console.mjs';
+ import { WorkshopDriver, type RunResetSnapshot, type WorkshopBodyPose } from './workshop-driver.ts';
+-import { decodeSavedConstruction } from './workshop-wire.ts';
++import { decodeSavedConstruction, type InstanceRecord } from './workshop-wire.ts';
+ import { MemoryKind, activationMemoryRows, assertLoadRestores, type ActivationMemoryRow } from './run-reset-snapshot.ts';
+ 
+ const ConnectionDomain = { Activation: 1, Electrical: 2 } as const;
+@@ -82,7 +87,18 @@ function assertClockWiring(bytes: Buffer, gateSlot: number, ballSlot: number, co
+     assert(hasEdge(battId, clockId, ConnectionDomain.Electrical, Socket.Supply, Socket.PowerIn), 'Missing Battery -> Clock electrical link');
+     const clockInst = construction.instances(clockSlot)!;
+     assert.equal(clockInst.partId(), 'clock');
+-    assert.equal(clockInst.threshold(), 1.0);
++    assert.equal(declaredParameter(clockInst, 'interval_seconds'), 1.0);
++}
++
++// The value of one declared parameter of a saved generic instance (exactly one record of that key).
++function declaredParameter(instance: InstanceRecord, key: string): number {
++    const values: number[] = [];
++    for (let i = 0; i < instance.parametersLength(); i++) {
++        const parameter = instance.parameters(i)!;
++        if (parameter.key() === key) values.push(parameter.value());
++    }
++    assert.equal(values.length, 1, `Expected one declared ${key} parameter, got ${values.length}`);
++    return values[0];
+ }
+ 
+ // The single committed row of one memory kind (the bench has one clock and one counter).
+@@ -263,7 +279,7 @@ describe('CAT-017: System Clock Periodic Pulse Generator E2E', () => {
+         assert.equal(errors.length, 0, `Zero errors expected, got: ${errors.join('; ')}`);
+     });
+ 
+-    test('4. Pause and Reset restoration: pausing freezes simulation, reset cleanly restores initial state', { timeout: 150000 }, async () => {
++    test('4. Pause and Reset restoration: a 2.0 s pause adds nothing; after Reset the first pulse is at 1.0 s', { timeout: 150000 }, async () => {
+         const s0 = await buildClockBench();
+ 
+         await driver.run(1500); // 1 pulse fired
+@@ -271,18 +287,21 @@ describe('CAT-017: System Clock Periodic Pulse Generator E2E', () => {
+         // Boundary: the clock is mid-interval at the pause: running, one pulse committed, the next due at 2.0 s (tick 240).
+         const clock = row(paused, MemoryKind.Oscillator);
+         assert.deepEqual([clock.phase, clock.count, clock.due_tick], ['1', '1', '240'], 'Paused mid-interval: running, 1 pulse, due at tick 240');
+-        const pausedSlot = await driver.readLatestPose();
+-        assert.ok(pausedSlot, 'Pose slot readable while paused');
+-        const ballPaused = pausedSlot.bodies.find(b => b.id === '2');
+-        assert.ok(ballPaused, 'Ball pose readable while paused');
+-        assert.ok(ballPaused.px < 0.2, 'Ball still held upstream at pause');
+-
+-        await driver.page.waitForTimeout(500);
+-        const afterPauseSlot = await driver.readLatestPose();
+-        const ballAfterPause = afterPauseSlot?.bodies.find(b => b.id === '2');
+-        assert.ok(ballAfterPause, 'Ball pose readable after the pause window');
+-        assert.ok(Math.abs(ballAfterPause.px - ballPaused.px) < 0.01, 'No motion while paused');
++        // 2.0 s of wall-clock pause: the next committed read (one Step) is exactly one tick later, its clock row unchanged.
++        await driver.page.waitForTimeout(2000);
++        const stepped = await driver.stepSimulation();
++        assert.equal(stepped.tick, paused.tick + 1n, 'A 2.0 s pause commits no tick');
++        assert.deepEqual(row(stepped, MemoryKind.Oscillator), clock, 'A 2.0 s pause adds no pulse and no phase advance');
++        assert.deepEqual(row(stepped, MemoryKind.Counter), row(paused, MemoryKind.Counter), 'No pulse reaches the counter while paused');
+ 
++        await resetMatches(s0);
++        // After Reset (phase 0), a new run's first pulse is committed at tick 120 (1.0 s): the counter's last input is that tick's
++        // physical boundary (4 physical steps per tick).
++        await driver.run(1500);
++        const rerun = await driver.expectRunAdvanced(s0);
++        const restarted = row(rerun, MemoryKind.Oscillator);
++        assert.deepEqual([restarted.phase, restarted.count, restarted.due_tick], ['1', '1', '240'], 'After Reset: one pulse, the next due at tick 240');
++        assert.equal(row(rerun, MemoryKind.Counter).last_ordinal, '480', 'After Reset the first pulse is committed at tick 120');
+         await resetMatches(s0);
+         assert.equal(errors.length, 0, `Zero errors expected, got: ${errors.join('; ')}`);
+     });
+@@ -301,4 +320,41 @@ describe('CAT-017: System Clock Periodic Pulse Generator E2E', () => {
+         await resetMatches(loaded);
+         assert.equal(errors.length, 0, `Zero errors expected, got: ${errors.join('; ')}`);
+     });
++
++    test('6. Pulse spacing: one committed pulse per 120 ticks over more than 5.0 s', { timeout: 150000 }, async () => {
++        const s0 = await buildClockBench();
++        await driver.run(5300);
++        const paused = await driver.expectRunAdvanced(s0);
++        const clock = row(paused, MemoryKind.Oscillator);
++        const pulses = paused.tick / 120n;
++        assert.ok(pulses >= 5n, `Expected at least 5 pulses after 5.3 s, committed tick ${paused.tick}`);
++        assert.deepEqual([clock.phase, clock.count, clock.due_tick], ['1', String(pulses), String((pulses + 1n) * 120n)],
++            `At tick ${paused.tick}: one pulse per 120 ticks (120, 240, 360, 480, 600, ...) and the next one interval later`);
++        await resetMatches(s0);
++        assert.equal(errors.length, 0, `Zero errors expected, got: ${errors.join('; ')}`);
++    });
++
++    test('7. Unsupplied control: a clock with no supply stays stopped and commits no pulse', { timeout: 150000 }, async () => {
++        errors.length = 0;
++        await driver.reload();
++        await driver.selectTool('clock');
++        await driver.placeOnCanvas(450, 485);
++        // A basketball keeps one dynamic body in the committed reads and the pose ring, as in every other bench.
++        await driver.selectTool('basketball');
++        await driver.placeOnCanvas(920, 510);
++        await driver.page.keyboard.press('Escape');
++        await driver.page.waitForTimeout(200);
++        const s0 = await driver.captureSnapshot({ bodies: 1 });
++        assert.equal(declaredParameter(decodeSavedConstruction(await saved(driver)).construction()!.instances(0)!, 'interval_seconds'), 1.0);
++        await driver.run(1500);
++        await driver.pauseSimulation();
++        const stepped = await driver.stepSimulation();
++        assert.ok(stepped.tick > 120n, `The run passed one interval (committed tick ${stepped.tick})`);
++        const clock = row(stepped, MemoryKind.Oscillator);
++        assert.deepEqual([clock.phase, clock.count, clock.due_tick], ['0', '0', '0'], 'Unsupplied: stopped, no pulse, no due tick');
++        await driver.reset();
++        const reset = row(await driver.expectResetMatches(s0), MemoryKind.Oscillator);
++        assert.deepEqual([reset.phase, reset.due_tick, reset.count], ['0', '0', '0'], 'Reset: clock phase 0, no due tick, no pulses');
++        assert.equal(errors.length, 0, `Zero errors expected, got: ${errors.join('; ')}`);
++    });
+ });
+diff --git a/tools/e2e/run-reset-snapshot.ts b/tools/e2e/run-reset-snapshot.ts
+index 996f71ea..31a7aecf 100644
+--- a/tools/e2e/run-reset-snapshot.ts
++++ b/tools/e2e/run-reset-snapshot.ts
+@@ -54,7 +54,7 @@ export const SNAPSHOT_SCHEMA = {
+             ['from_socket', 'uint32'], ['to_socket', 'uint32']] },
+         ParameterRecord: { kind: 'table', fields: [['key', 'string'], ['value', 'float']] },
+         InstanceRecord: { kind: 'table', fields: [['id', 'uint64'], ['part_id', 'string'], ['locked', 'bool'], ['cell', 'Vec3i'],
+-            ['local', 'Vec3f'], ['rotation', 'Quat4f'], ['length', 'float'], ['threshold', 'float'], ['target_count', 'uint32'],
++            ['local', 'Vec3f'], ['rotation', 'Quat4f'], ['length', 'float'], ['target_count', 'uint32'],
+             ['parameters', '[ParameterRecord]']] },
+         PuzzleRecord: { kind: 'table', fields: [['id', 'string'], ['placement', 'uint32'], ['precision', 'float'],
+             ['inventory_part', 'string'], ['inventory_count', 'uint32'], ['goal_kind', 'uint32'], ['goal_body', 'uint64'],
+diff --git a/tools/e2e/workshop-wire.ts b/tools/e2e/workshop-wire.ts
+index a5cbbe46..43b836d1 100644
+--- a/tools/e2e/workshop-wire.ts
++++ b/tools/e2e/workshop-wire.ts
+@@ -1259,28 +1259,23 @@ length():number {
+   return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+ }
+ 
+-threshold():number {
+-  const offset = this.bb!.__offset(this.bb_pos, 18);
+-  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+-}
+-
+ targetCount():number {
+-  const offset = this.bb!.__offset(this.bb_pos, 20);
++  const offset = this.bb!.__offset(this.bb_pos, 18);
+   return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
+ }
+ 
+ parameters(index: number, obj?:ParameterRecord):ParameterRecord|null {
+-  const offset = this.bb!.__offset(this.bb_pos, 22);
++  const offset = this.bb!.__offset(this.bb_pos, 20);
+   return offset ? (obj || new ParameterRecord()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
+ }
+ 
+ parametersLength():number {
+-  const offset = this.bb!.__offset(this.bb_pos, 22);
++  const offset = this.bb!.__offset(this.bb_pos, 20);
+   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+ }
+ 
+ static startInstanceRecord(builder:flatbuffers.Builder) {
+-  builder.startObject(10);
++  builder.startObject(9);
+ }
+ 
+ static addId(builder:flatbuffers.Builder, id:bigint) {
+@@ -1311,16 +1306,12 @@ static addLength(builder:flatbuffers.Builder, length:number) {
+   builder.addFieldFloat32(6, length, 0.0);
+ }
+ 
+-static addThreshold(builder:flatbuffers.Builder, threshold:number) {
+-  builder.addFieldFloat32(7, threshold, 0.0);
+-}
+-
+ static addTargetCount(builder:flatbuffers.Builder, targetCount:number) {
+-  builder.addFieldInt32(8, targetCount, 0);
++  builder.addFieldInt32(7, targetCount, 0);
+ }
+ 
+ static addParameters(builder:flatbuffers.Builder, parametersOffset:flatbuffers.Offset) {
+-  builder.addFieldOffset(9, parametersOffset, 0);
++  builder.addFieldOffset(8, parametersOffset, 0);
+ }
+ 
+ static createParametersVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
+@@ -2323,7 +2314,6 @@ export function dumpAuthored(saved: SavedConstruction): object {
+                 const parameter = inst.parameters(index)!;
+                 return {key: parameter.key(), value: parameter.value()};
+             }),
+-            threshold: inst.threshold(),
+             targetCount: inst.targetCount(),
+         });
+     }
+diff --git a/ui/WorkshopConfiguration.cs b/ui/WorkshopConfiguration.cs
+index e266bb15..8993a504 100644
+--- a/ui/WorkshopConfiguration.cs
++++ b/ui/WorkshopConfiguration.cs
+@@ -12,9 +12,7 @@ public partial class Workshop
+     private void AddConfigurationChoices(MachinePart part)
+     {
+         if (World.Construction.Instances.FirstOrDefault(instance => instance.Id == part.AuthoredId) is WorkshopGenericInstance generic)
+-        { AddDeclaredConfiguration(part, generic); return; }
+-        if (part.Definition?.PartId == PartId.Clock) { AddClockConfiguration(part); return; }
+-
++            AddDeclaredConfiguration(part, generic);
+     }
+     private void AddDeclaredConfiguration(MachinePart part, WorkshopGenericInstance instance)
+     {
+@@ -208,42 +206,4 @@ public partial class Workshop
+         }
+         catch (Exception error) { var failure = WorkshopUiFailure.Report(error); if (!_workshopUiRemoved) _status.Text = failure; }
+     }
+-
+-    private void AddClockConfiguration(MachinePart part)
+-    {
+-        var owner = part.AuthoredId;
+-        var configure = SignalButton("Interval: " + part.CanonicalIntervalSeconds.ToString("0.###", CultureInfo.CurrentCulture) + " s", () =>
+-        {
+-            if (!CanEdit) return;
+-            ClearConnectionChoices();
+-            var interval = new SpinBox { MinValue = (double)WorkshopClock.MinIntervalSeconds, MaxValue = (double)WorkshopClock.MaxIntervalSeconds, Step = 0,
+-                Value = part.CanonicalIntervalSeconds, Suffix = "s", Name = "ClockInterval", CustomMinimumSize = new(140, 36) };
+-            _connectionChoices.AddChild(interval);
+-            _connectionChoices.AddChild(SignalButton("Apply interval", () => { interval.Apply(); ApplyClockInterval(owner, (float)interval.Value); }));
+-            _connectionChoices.AddChild(SignalButton("Cancel", RefreshConnectionChoices));
+-        });
+-        configure.Disabled = !CanEdit || part.Locked; _connectionChoices.AddChild(configure);
+-    }
+-    private async void ApplyClockInterval(GpuBodyId owner, float seconds)
+-    {
+-        try { await ApplyClockIntervalAsync(owner, seconds); }
+-        catch (Exception error) { HandlerFailed(nameof(ApplyClockInterval), error); }
+-    }
+-    private async Task ApplyClockIntervalAsync(GpuBodyId owner, float seconds)
+-    {
+-        if (!CanEdit) return;
+-        try
+-        {
+-            if (World.Construction.Instances.Single(instance => instance.Id == owner) is not WorkshopClock current || current.Locked)
+-                throw new WorkshopEditRejectedException(WorkshopEditRejection.NotConfigurable, "This part has no editable clock interval.");
+-            if (float.IsNaN(seconds) || float.IsInfinity(seconds) || seconds < WorkshopClock.MinIntervalSeconds || seconds > WorkshopClock.MaxIntervalSeconds)
+-                throw new WorkshopEditRejectedException(WorkshopEditRejection.OutOfRange, "Clock interval is outside its authored range.");
+-            if (seconds == current.IntervalSeconds) { RefreshConnectionChoices(); return; }
+-            var proposed = World.Construction.WithInstance(current with { IntervalSeconds = seconds });
+-            PushUndo();
+-            if (!await SubmitConstruction(proposed)) { if (_undo.Count > 0) _undo.RemoveAt(_undo.Count - 1); return; }
+-            if (!_workshopUiRemoved) { _status.Text = "Clock interval updated."; RefreshConnectionChoices(); }
+-        }
+-        catch (Exception error) { var failure = WorkshopUiFailure.Report(error); if (!_workshopUiRemoved) _status.Text = failure; }
+-    }
+ }

@@ -370,8 +370,8 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
             ],
             "clock" =>
             [
-                ("interval_seconds", ParameterUnit.Second, ParameterKind.Real, Lane.Single, WorkshopClock.PlacedIntervalSeconds,
-                    Admits(value => WorkshopInput.Clock(Owner, 0, 3, 0, 0, 0, 0, 1, value)), [])
+                ("interval_seconds", ParameterUnit.Second, ParameterKind.Real, Lane.Single, 1f,
+                    Admits(value => PlacedParts.Clock(Owner, 0, 3, 0, 0, 0, 0, 1, value)), [])
             ],
             "basket" =>
             [
@@ -429,7 +429,7 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
             WorkshopInput.Generic(id, Owner, 0, 3, 0, 0, 0, 0, 1),
         "pressure_plate" => PlacedParts.Plate(Owner, 0, 3, 0, .5f),
         "counter" => WorkshopInput.Counter(Owner, 0, 3, 0, 0, 0, 0, 1, WorkshopCounter.PlacedTargetCount),
-        "clock" => WorkshopInput.Clock(Owner, 0, 3, 0, 0, 0, 0, 1, WorkshopClock.PlacedIntervalSeconds),
+        "clock" => PlacedParts.Clock(Owner, 0, 3, 0, 0, 0, 0, 1, 1f),
         "latch" => WorkshopInput.Latch(Owner, 0, 3, 0, 0, 0, 0, 1),
         "switch" => WorkshopInput.Generic(PartId.ImpactSwitch, Owner, 0, 3, 0, 0, 0, 0, 1),
         "delay" => WorkshopInput.Generic(PartId.Delay, Owner, 0, 3, 0, 0, 0, 0, 1),

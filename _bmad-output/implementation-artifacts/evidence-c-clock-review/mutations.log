@@ -1,0 +1,113 @@
+== control (unmutated candidate + probe)
+    0 Warning(s)
+    0 Error(s)
+Passed!  - Failed:     0, Passed:   359, Skipped:     0, Total:   359, Duration: 9 s - CuriousContraptions.tests.dll (net10.0)
+Passed!  - Failed:     0, Passed:   167, Skipped:     0, Total:   167, Duration: 304 ms - BundleElements.Tests.dll (net10.0)
+== R1-validator-allows-ActivationIn (CuriousContraptions.Bundle/BundleValidator.cs)
+<                 if (!ports.Any(port => port.Socket == PortSocket.ActivationOut && port.Domain == SimulationDomain.Signal && port.Direction == PortDirection.Output && port.Signal == PortSignalKind.Pulse) ||
+<                         ports.Any(port => port.Socket == PortSocket.ActivationIn))
+>                 if (!ports.Any(port => port.Socket == PortSocket.ActivationOut && port.Domain == SimulationDomain.Signal && port.Direction == PortDirection.Output && port.Signal == PortSignalKind.Pulse) )
+    0 Error(s)
+    0 Warning(s)
+Passed!  - Failed:     0, Passed:   359, Skipped:     0, Total:   359, Duration: 8 s - CuriousContraptions.tests.dll (net10.0)
+CuriousContraptions.BundleElements.Tests.BundleValidatorTests.TheOscillatorIsATypedSuppliedStaticPulseSourceExclusiveAndCoupledToItsBindings [FAIL]
+Failed!  - Failed:     1, Passed:   166, Skipped:     0, Total:   167, Duration: 313 ms - BundleElements.Tests.dll (net10.0)
+restored
+== R2-pulse-collider-second-not-first (engine/gpu/ActivationNetwork.cs)
+<                     powerSource, new GpuColliderId(WorkshopPhysicsCompiler.PartIdentities(periodic.Id) + 1)));
+>                     powerSource, new GpuColliderId(WorkshopPhysicsCompiler.PartIdentities(periodic.Id) + 2)));
+    0 Error(s)
+    0 Warning(s)
+CuriousContraptions.Tests.ClockGuardTests.AOneSecondClockPulsesFiveTimesInFiveSecondsAtEachWholeSecondAndTheCounterCountsEach [FAIL]
+CuriousContraptions.Tests.DeclaredOscillatorTests.TheDeclaredOscillatorCompilesItsExactNode(supplied: False) [FAIL]
+CuriousContraptions.Tests.DeclaredOscillatorTests.TheDeclaredOscillatorCompilesItsExactNode(supplied: True) [FAIL]
+Failed!  - Failed:     3, Passed:   356, Skipped:     0, Total:   359, Duration: 7 s - CuriousContraptions.tests.dll (net10.0)
+Passed!  - Failed:     0, Passed:   167, Skipped:     0, Total:   167, Duration: 306 ms - BundleElements.Tests.dll (net10.0)
+restored
+== R3-typed-field-ignores-target-count (engine/gpu/WorkshopWireFlatBuffers.cs)
+<         return BitConverter.SingleToUInt32Bits(r.Length) != 0 || r.TargetCount != 0;
+>         return BitConverter.SingleToUInt32Bits(r.Length) != 0;
+    0 Error(s)
+    0 Warning(s)
+CuriousContraptions.Tests.DeclaredOscillatorTests.ARecordPathSaveIsRefusedTypedAtBothBoundaries(name: "clock_0_1", saveSha256: "f4a493b3f39b89b7d352351fe35196fb2d8c4e46f702faeb91"···, commandSha256: "18b9590666b4e313ac344a33cbc8254b204e5ca59342877f67"···, saveReason: OutOfRange, saveMessage: "This save cannot be loaded: Part 1 is a generic in"···, commandReason: OutOfRange, commandMessage: "Generic instance cannot carry a typed record field"···) [FAIL]
+CuriousContraptions.Tests.DeclaredOscillatorTests.ARecordPathSaveIsRefusedTypedAtBothBoundaries(name: "clock_12", saveSha256: "12856819067e26c572257f4a7275eca6f9cd1d14f3e208d3c0"···, commandSha256: "af10719172fcd7c6093c85c2b6e37f252b18fec2d78d177c04"···, saveReason: OutOfRange, saveMessage: "This save cannot be loaded: Part 1 is a generic in"···, commandReason: OutOfRange, commandMessage: "Generic instance cannot carry a typed record field"···) [FAIL]
+CuriousContraptions.Tests.DeclaredOscillatorTests.ARecordPathSaveIsRefusedTypedAtBothBoundaries(name: "clock_locked_rotated", saveSha256: "7bb2f9594727e48b3ba1311426f9f28e40dc073fc5135ea5f9"···, commandSha256: "e8342cef097e3697db486e9b2d7d6b3c37f64c395f792888a9"···, saveReason: OutOfRange, saveMessage: "This save cannot be loaded: Part 1 is a generic in"···, commandReason: OutOfRange, commandMessage: "Generic instance cannot carry a typed record field"···) [FAIL]
+CuriousContraptions.Tests.PayloadInstanceTests.AGenericRecordCarryingAnyTypedFieldIsRefused(part: "ball", field: TargetCount, value: 4) [FAIL]
+CuriousContraptions.Tests.PayloadInstanceTests.AGenericRecordCarryingAnyTypedFieldIsRefused(part: "bowling", field: TargetCount, value: 4) [FAIL]
+CuriousContraptions.Tests.PayloadInstanceTests.AGenericRecordCarryingAnyTypedFieldIsRefused(part: "clock", field: TargetCount, value: 4) [FAIL]
+CuriousContraptions.Tests.PayloadInstanceTests.AGenericRecordCarryingAnyTypedFieldIsRefused(part: "domino", field: TargetCount, value: 4) [FAIL]
+CuriousContraptions.Tests.PayloadInstanceTests.AGenericRecordCarryingAnyTypedFieldIsRefused(part: "ramp", field: TargetCount, value: 4) [FAIL]
+CuriousContraptions.Tests.WorkshopSaveRejectionTests.EveryViolationIsItsTypedRefusal(violation: "ball carrying a typed target count", reason: OutOfRange) [FAIL]
+CuriousContraptions.Tests.WorkshopWireFlatBuffersTests.Construction_DeclaredSetting_DecodesOnlyAdmittedValuesAndNamesTheRejectedField(setting: PreConversionClockInterval, value: 0.100000001, rejection: "Generic instance cannot carry a typed record field"···) [FAIL]
+CuriousContraptions.Tests.WorkshopWireFlatBuffersTests.Construction_DeclaredSetting_DecodesOnlyAdmittedValuesAndNamesTheRejectedField(setting: PreConversionClockInterval, value: 1, rejection: "Generic instance cannot carry a typed record field"···) [FAIL]
+CuriousContraptions.Tests.WorkshopWireFlatBuffersTests.Construction_DeclaredSetting_DecodesOnlyAdmittedValuesAndNamesTheRejectedField(setting: PreConversionClockInterval, value: 12, rejection: "Generic instance cannot carry a typed record field"···) [FAIL]
+Passed!  - Failed:     0, Passed:   167, Skipped:     0, Total:   167, Duration: 307 ms - BundleElements.Tests.dll (net10.0)
+restored
+== R4-validator-admits-zero-minimum (CuriousContraptions.Bundle/BundleValidator.cs)
+<                         parameter.Unit == ParameterUnit.Second && float.IsFinite(parameter.Minimum) && parameter.Minimum > 0f))
+>                         parameter.Unit == ParameterUnit.Second && float.IsFinite(parameter.Minimum) && parameter.Minimum >= 0f))
+    0 Error(s)
+    0 Warning(s)
+Passed!  - Failed:     0, Passed:   359, Skipped:     0, Total:   359, Duration: 8 s - CuriousContraptions.tests.dll (net10.0)
+CuriousContraptions.BundleElements.Tests.BundleValidatorTests.TheOscillatorIsATypedSuppliedStaticPulseSourceExclusiveAndCoupledToItsBindings [FAIL]
+Failed!  - Failed:     1, Passed:   166, Skipped:     0, Total:   167, Duration: 324 ms - BundleElements.Tests.dll (net10.0)
+restored
+== R5-interval-compiled-at-fixed-120Hz (engine/gpu/ActivationNetwork.cs)
+<                     construction.Settings.Simulation);
+>                     SimulationCadence.Hz120);
+    0 Error(s)
+    0 Warning(s)
+CuriousContraptions.Tests.ClockGuardTests.TheCompiledIntervalIsTheCeilingOfTheF32ProductAtTheBoundaries(seconds: 0.100000001, ulps: 0, cadence: Hz240, interval: 24) [FAIL]
+CuriousContraptions.Tests.ClockGuardTests.TheCompiledIntervalIsTheCeilingOfTheF32ProductAtTheBoundaries(seconds: 0.100000001, ulps: 0, cadence: Hz60, interval: 6) [FAIL]
+CuriousContraptions.Tests.ClockGuardTests.TheCompiledIntervalIsTheCeilingOfTheF32ProductAtTheBoundaries(seconds: 0.100000001, ulps: 1, cadence: Hz240, interval: 25) [FAIL]
+CuriousContraptions.Tests.ClockGuardTests.TheCompiledIntervalIsTheCeilingOfTheF32ProductAtTheBoundaries(seconds: 0.100000001, ulps: 1, cadence: Hz60, interval: 7) [FAIL]
+CuriousContraptions.Tests.ClockGuardTests.TheCompiledIntervalIsTheCeilingOfTheF32ProductAtTheBoundaries(seconds: 1, ulps: -1, cadence: Hz240, interval: 240) [FAIL]
+CuriousContraptions.Tests.ClockGuardTests.TheCompiledIntervalIsTheCeilingOfTheF32ProductAtTheBoundaries(seconds: 1, ulps: -1, cadence: Hz60, interval: 60) [FAIL]
+CuriousContraptions.Tests.ClockGuardTests.TheCompiledIntervalIsTheCeilingOfTheF32ProductAtTheBoundaries(seconds: 1, ulps: 0, cadence: Hz240, interval: 240) [FAIL]
+CuriousContraptions.Tests.ClockGuardTests.TheCompiledIntervalIsTheCeilingOfTheF32ProductAtTheBoundaries(seconds: 1, ulps: 0, cadence: Hz60, interval: 60) [FAIL]
+CuriousContraptions.Tests.ClockGuardTests.TheCompiledIntervalIsTheCeilingOfTheF32ProductAtTheBoundaries(seconds: 1, ulps: 1, cadence: Hz240, interval: 241) [FAIL]
+CuriousContraptions.Tests.ClockGuardTests.TheCompiledIntervalIsTheCeilingOfTheF32ProductAtTheBoundaries(seconds: 1, ulps: 1, cadence: Hz60, interval: 61) [FAIL]
+CuriousContraptions.Tests.ClockGuardTests.TheCompiledIntervalIsTheCeilingOfTheF32ProductAtTheBoundaries(seconds: 12, ulps: -1, cadence: Hz240, interval: 2880) [FAIL]
+CuriousContraptions.Tests.ClockGuardTests.TheCompiledIntervalIsTheCeilingOfTheF32ProductAtTheBoundaries(seconds: 12, ulps: -1, cadence: Hz60, interval: 720) [FAIL]
+Passed!  - Failed:     0, Passed:   167, Skipped:     0, Total:   167, Duration: 304 ms - BundleElements.Tests.dll (net10.0)
+restored
+== R6-length-typed-by-value-not-bits (engine/gpu/WorkshopWireFlatBuffers.cs)
+<         return BitConverter.SingleToUInt32Bits(r.Length) != 0 || r.TargetCount != 0;
+>         return r.Length != 0f || r.TargetCount != 0;
+    0 Error(s)
+    0 Warning(s)
+Passed!  - Failed:     0, Passed:   359, Skipped:     0, Total:   359, Duration: 8 s - CuriousContraptions.tests.dll (net10.0)
+Passed!  - Failed:     0, Passed:   167, Skipped:     0, Total:   167, Duration: 299 ms - BundleElements.Tests.dll (net10.0)
+restored
+== R7-validator-admits-dynamic-body (CuriousContraptions.Bundle/BundleValidator.cs)
+<                 if ((mechanical is { } frame && (frame.KinematicMode != KinematicMode.Static || frame.Sliders.Count != 0)) || colliders.Count == 0)
+>                 if ((mechanical is { } frame && (frame.Sliders.Count < 0 || frame.Sliders.Count != 0)) || colliders.Count == 0)
+    0 Error(s)
+    0 Warning(s)
+Passed!  - Failed:     0, Passed:   359, Skipped:     0, Total:   359, Duration: 8 s - CuriousContraptions.tests.dll (net10.0)
+CuriousContraptions.BundleElements.Tests.BundleValidatorTests.TheOscillatorIsATypedSuppliedStaticPulseSourceExclusiveAndCoupledToItsBindings [FAIL]
+Failed!  - Failed:     1, Passed:   166, Skipped:     0, Total:   167, Duration: 317 ms - BundleElements.Tests.dll (net10.0)
+restored
+== R8-two-sources-admitted (engine/gpu/ActivationNetwork.cs)
+<                 if (sources.Length > 1) throw new WorkshopEditRejectedException(WorkshopEditRejection.PowerInputSupplied,
+<                     "This source-accounted input requires one upstream source.");
+<                 var powerSource = sources.Length == 1 ? sources[0] : default;
+>                 var powerSource = sources.Length >= 1 ? sources[0] : default;
+    0 Error(s)
+    0 Warning(s)
+Passed!  - Failed:     0, Passed:   359, Skipped:     0, Total:   359, Duration: 7 s - CuriousContraptions.tests.dll (net10.0)
+Passed!  - Failed:     0, Passed:   167, Skipped:     0, Total:   167, Duration: 310 ms - BundleElements.Tests.dll (net10.0)
+restored
+== final restoration check
+f7e81cfcb3af3e52d56f17abe27fec5b1dc61072cf89449c79d9c17f70fe4bd5  -
+== R8 re-run with reviewer two-source probe (oscillator arm's >1 source refusal removed)
+    0 Error(s)
+[xUnit.net 00:00:01.39]     CuriousContraptions.Tests.ReviewerTwoSourceProbe.TwoUpstreamSourcesThroughALatchAreRefusedByTheOscillatorArm [FAIL]
+Failed!  - Failed:     1, Passed:     3, Skipped:     0, Total:     4, Duration: 69 ms - CuriousContraptions.tests.dll (net10.0)
+restored
+== R6 at base 14658883 (control for pre-existing gap): CarriesTypedField Set by value, not bits
+<         static bool Set(float value) => BitConverter.SingleToUInt32Bits(value) != 0;
+>         static bool Set(float value) => value != 0f;
+    0 Error(s)
+Passed!  - Failed:     0, Passed:   304, Skipped:     0, Total:   304, Duration: 5 s - CuriousContraptions.tests.dll (net10.0)
+restored

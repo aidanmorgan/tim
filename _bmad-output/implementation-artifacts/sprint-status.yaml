@@ -135,6 +135,7 @@ development_status:
 
   epic-9: in-progress
   # reopened 18 Oct 2026 (retro-verification); repaired by 9r-4 and 9r-5; closes via an addendum in 9a-c-plate
+  # 9a-c-plate addendum appended 23 Oct 2026: native Pass at 146588; Chrome clause pending post-catalogue E2E, so not yet done
   9-1-pressure-plate-surface-contact-load-sensor: in-progress
   # reopened 18 Oct 2026 (retro-verification); repaired by 9r-1; closes via addenda in 9a-2 and 9a-c-memory
   9-2-pulse-counter-event-accumulator: in-progress
@@ -330,20 +331,20 @@ development_status:
   # 39 (element)
   10-4-counterweight-multibody-pendulum-lifting: backlog
   # 40 (deletion): includes F.6 item F-1
-  9a-c-plate-contact-load-conversion: review # native candidate on 61ded7ad (worktree story-c-plate); browser pending
+  9a-c-plate-contact-load-conversion: done # scoped native/publication Pass146588; browser pending
   # merged into 9a-c-plate (21 Oct 2026)
-  9a-20-declared-contact-load-sensor: review
+  9a-20-declared-contact-load-sensor: done # scoped native/publication Pass146588; browser pending
   # merged into 9a-c-plate (21 Oct 2026)
-  9a-40-generic-instance-pressure-plate: review
+  9a-40-generic-instance-pressure-plate: done # scoped native/publication Pass146588; browser pending
   # 41 (element)
   10-5-trampoline-compliant-membrane-dynamics: backlog
   epic-10-retrospective: optional
   # 42 (deletion)
-  9a-c-clock-conversion: backlog
+  9a-c-clock-conversion: review # native candidate on 14658883 (worktree story-c-clock); browser pending
   # merged into 9a-c-clock (21 Oct 2026)
-  9a-42-generic-instance-system-clock: backlog
+  9a-42-generic-instance-system-clock: review
   # merged into 9a-c-clock (21 Oct 2026) as its suite-first guard
-  9r-10-system-clock-pause-reset-chrome-proof: backlog
+  9r-10-system-clock-pause-reset-chrome-proof: backlog # native guard green on record path and candidate; Chrome ACs pending (post-catalogue)
   # 43 (element)
   epic-11: backlog
   11-1-electric-motor-tangential-conveyor-belt: backlog

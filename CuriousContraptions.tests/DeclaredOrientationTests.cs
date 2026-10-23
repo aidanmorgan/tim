@@ -57,9 +57,11 @@ public sealed class DeclaredOrientationTests
 
     // Each beside one Basketball, written by 2065d3c5's production save and command encoders (evidence-9a-32/baseline/capture/old-saves,
     // sha256 in old-saves.sha256). Removing mass, bounce, half_extents and friction renumbered the later slots: the old Domino's mass
-    // and bounce land in length and threshold, typed fields its generic record cannot carry; the old plate and clock threshold
-    // (slot 9) now sits in the parameters slot, so the verifier refuses the buffer; the old pipe length (slot 8) now sits in
-    // target_count and its length reads absent, which the save boundary refuses as out of range and the decoder as a missing field.
+    // and bounce land in length and target_count, typed fields its generic record cannot carry. C-Clock (9-field table) re-derived the
+    // rest: the old plate and clock threshold (slot 9) now lies beyond the table, so each record lacks its declared parameter and is
+    // refused out of range at both boundaries (at 9A.32 slot 9 was the parameters slot and the verifier refused the buffer); the old
+    // pipe length (slot 8) now sits in the parameters slot, so the verifier refuses the buffer at both boundaries (at 9A.32 it sat in
+    // target_count and the pipe's length read absent: OutOfRange and MissingField).
     private const string DominoSave = "VAEAABQAAABDQ1dTAAAAAAgAFAAIAAQACAAAABwAAAAJAAAAAAAAAAAAAAAMACwAIAAIAAAABAAMAAAAKAAAAAIAAAABAAAAAgAAAAIAAAA8AAAAAQAAAAIAAAAAAAAAAAAAAAIAAACQAAAAJAAAACAAPAAwACwAAAAgABQABAAAAAAAAAAAAAAAAAAAADgAIAAAAAAAAAAAAAAAAAAAAAAAgD8AAAAAAAAAAAAAAAAwAAAAIAAAAAAAAAAUAAAAAgAAAAAAAAAEAAAAAAAAAAQAAABiYWxsAAAAABwAVABIAEQAAAA4ACwAHAAMAAgAAAAAABAABAAcAAAAAKAZPwDATD0AwMw+AAAAPgDADD8AYKY+AAAAAAAAAAAAAAAAAACAPwAAAADhesy+AAAAAAAAAAACAAAAAAAAABAAAAABAAAAAAAAAAAAAAAGAAAAZG9taW5vAAA=";
     private const string DominoCommand = "pAEAACQAAABDQ1dDHABEADgANAAoACAAHAAYABAACAAAAAAAAAAEABwAAABMAAAAAQAAAAAAAAABAAAAAAAAAFQBAAACAAAAAQAAAAAAAAABAAAAAAAAAAAAAAABAAAAAQAAAAAAAAAAAAAADAAsACAACAAAAAQADAAAACgAAAACAAAAAQAAAAIAAAACAAAAPAAAAAEAAAACAAAAAAAAAAAAAAACAAAAkAAAACQAAAAgADwAMAAsAAAAIAAUAAQAAAAAAAAAAAAAAAAAAAA4ACAAAAAAAAAAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAAMAAAACAAAAAAAAAAFAAAAAIAAAAAAAAABAAAAAAAAAAEAAAAYmFsbAAAAAAcAFAASABEAAAAOAAsABwADAAIAAAAAAAQAAQAHAAAAACgGT8AwEw9AMDMPgAAAD4AwAw/AGCmPgAAAAAAAAAAAAAAAAAAgD8AAAAA4XrMvgAAAAAAAAAAAgAAAAAAAAAMAAAAAQAAAAAAAAAGAAAAZG9taW5vAAAQAAAAAQAAAAAAAAACAAAAAAAAAA==";
     private const string PlateSave = "RAEAABQAAABDQ1dTAAAAAAgAFAAIAAQACAAAABwAAAAJAAAAAAAAAAAAAAAMACwAIAAIAAAABAAMAAAAKAAAAAIAAAABAAAAAgAAAAIAAAA8AAAAAQAAAAIAAAAAAAAAAAAAAAIAAACMAAAAJAAAACAAPAAwACwAAAAgABQABAAAAAAAAAAAAAAAAAAAADgAIAAAAAAAAAAAAAAAAAAAAAAAgD8AAAAAAAAAAAAAAAAwAAAAIAAAAAAAAAAUAAAAAgAAAAAAAAAEAAAAAAAAAAQAAABiYWxsAAAAABgAQAA0ADAAAAAkABgACAAAAAAAAAAEABgAAAAAAKA/AAAAAAAAAAAAAAAAAACAPwAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAABAAAAABAAAAAAAAAAAAAAAOAAAAcHJlc3N1cmVfcGxhdGUAAA==";
@@ -71,8 +73,8 @@ public sealed class DeclaredOrientationTests
 
     [Theory]
     [InlineData("domino", "c837090c5184533686b7e165fa753b9f9ded17c2c2a95562380582ad2f692fd6", "19536ebaedd02a18fef548613e09f4ab6e315e567f4d663573c6039756d0d17f", WorkshopSaveRejection.OutOfRange, WireFaultReason.OutOfRange)]
-    [InlineData("plate", "0b0a704d05e5420e29869d5fd95d372f4a18a9f595c56efae40018bf6cfa718b", "a5393bcc3517b35a16bd7b4de41877e969c8bb361b6dcf526f4f367d1beb8ce3", WorkshopSaveRejection.VerifierRejected, WireFaultReason.VerifierRejected)]
-    [InlineData("clock", "dc2c6e3ba6401c924a1a4c4e88ddaaa9b38b7f112de0f6f713665c7440811f83", "e71d957bd68b5c8706d1f52dcc93f0ad7909bc380ac51a831ad1e99aec56d231", WorkshopSaveRejection.VerifierRejected, WireFaultReason.VerifierRejected)]
+    [InlineData("plate", "0b0a704d05e5420e29869d5fd95d372f4a18a9f595c56efae40018bf6cfa718b", "a5393bcc3517b35a16bd7b4de41877e969c8bb361b6dcf526f4f367d1beb8ce3", WorkshopSaveRejection.OutOfRange, WireFaultReason.OutOfRange)]
+    [InlineData("clock", "dc2c6e3ba6401c924a1a4c4e88ddaaa9b38b7f112de0f6f713665c7440811f83", "e71d957bd68b5c8706d1f52dcc93f0ad7909bc380ac51a831ad1e99aec56d231", WorkshopSaveRejection.OutOfRange, WireFaultReason.OutOfRange)]
     public void ABaseEncoderSaveWhoseSlotsMovedIsRefusedTypedAtBothBoundaries(string name, string saveSha256, string commandSha256,
         WorkshopSaveRejection save, WireFaultReason command)
     {
@@ -96,18 +98,16 @@ public sealed class DeclaredOrientationTests
         var commandBytes = Convert.FromBase64String(PipeCommand);
         Assert.Equal(("e011925730a9729676d9530eb932f84a64eba8e2caff5bac9e619cb903bc57f6", "9635d17d38ed20c430b222cd09ef089a96532a1eda606be75a7281030927a7d5"),
             (Convert.ToHexStringLower(System.Security.Cryptography.SHA256.HashData(saveBytes)), Convert.ToHexStringLower(System.Security.Cryptography.SHA256.HashData(commandBytes))));
-        // The old length (2.75 m, slot 8) now reads as target_count; the pipe's own length slot is empty.
-        var pipe = WorkshopSaveCodec.Open(saveBytes).Construction!.Value.Instances(0)!.Value;
-        Assert.Equal(("pipe", 0f, BitConverter.SingleToUInt32Bits(2.75f)), (pipe.PartId, pipe.Length, pipe.TargetCount));
-        SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(SaveFixture.Elements, saveBytes));
-        Assert.Equal(WireFaultReason.MissingField, Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeCommand(commandBytes)).Reason);
+        // The old length (2.75 m, slot 8) now sits in the parameters slot: a float read as a vector offset, which the verifier refuses.
+        SaveFixture.Refused(WorkshopSaveRejection.VerifierRejected, () => WorkshopSaveCodec.Decode(SaveFixture.Elements, saveBytes));
+        Assert.Equal(WireFaultReason.VerifierRejected, Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeCommand(commandBytes)).Reason);
     }
 
     // ---------- a field beyond the current InstanceRecord table is refused, never ignored (coordinator decision 2, 23 Oct 2026) ----------
 
     public static TheoryData<string> PreDominoRecordNames() => new(OldLayoutSaves.PreDominoRecords().Select(record => record.Name));
 
-    // The 2065d3c5 layout's parameters vector sits in slot 13, beyond the current 10-field table, so its decoder would never see it:
+    // The 2065d3c5 layout's parameters vector sits in slot 13, beyond the current 9-field table, so its decoder would never see it:
     // a zero-parameter package's record carrying an undeclared parameter there (and any record with that field, the base encoder's
     // empty vector included) is refused with the typed reason at both decode boundaries, after every per-field rule.
     [Theory]
@@ -119,15 +119,15 @@ public sealed class DeclaredOrientationTests
         Assert.Equal(WireFaultReason.OutOfRange, Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeCommand(record.Command())).Reason);
     }
 
-    // The boundary slot: a record that is current in every field but holds one extra field at exactly slot 10 (the first slot beyond
-    // the 10-field table) is refused at both boundaries; the same record without it loads (control).
+    // The boundary slot: a record that is current in every field but holds one extra field at exactly slot 9 (the first slot beyond
+    // the 9-field table) is refused at both boundaries; the same record without it loads (control).
     [Fact]
     public void AFieldAtExactlyTheFirstSlotBeyondTheTableIsRefusedAtBothBoundaries()
     {
-        // schemas/workshop_wire.fbs: InstanceRecord holds fields 0-9, so slot 10 is the first undefined slot (stated here, not read
-        // from the rule's own constant).
-        var layout = new OldLayoutSaves.Layout(11, 9, 16, 2);
-        OldLayoutSaves.Slot[] extra = [new(10, 1f)];
+        // schemas/workshop_wire.fbs: InstanceRecord holds fields 0-8 (C-Clock deleted the threshold), so slot 9 is the first undefined
+        // slot (stated here, not read from the rule's own constant).
+        var layout = new OldLayoutSaves.Layout(10, 8, 16, 2);
+        OldLayoutSaves.Slot[] extra = [new(9, 1f)];
         SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(SaveFixture.Elements, OldLayoutSaves.Save(layout, "domino", extra)));
         Assert.Equal(WireFaultReason.OutOfRange, Assert.Throws<WireFaultException>(() =>
             WorkshopWireFlatBuffers.DecodeCommand(OldLayoutSaves.Command(layout, "domino", extra))).Reason);

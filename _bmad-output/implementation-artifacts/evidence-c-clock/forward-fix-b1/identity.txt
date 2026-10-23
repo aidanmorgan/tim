@@ -1,0 +1,5 @@
+tracked diff (HEAD, excl _bmad-output and TODO.md): 7e19246c26eb1c03b38fe01734eaaeb391abfebfd4bcb88acca83b1271ad9550
+364021b3046df59fbbd4d9fc0d90bf5146e993faf302f113f6c59d65a15d726a  CuriousContraptions.tests/ClockGuardTests.cs
+4f22025e7eab4a52e6705579635a90b8e3e95d299894c485405d9570f6e3ccf4  CuriousContraptions.tests/DeclaredOscillatorTests.cs
+anvil_check (4 changed files): 0 findings
+mutants: R8 killed (mutation/R8-oscillator-source-refusal-removed.log), R6 killed (mutation/R6-length-typed-by-value.log); restored (restoration.txt)

@@ -29,8 +29,9 @@ public sealed class PreConversionLaunchSaveTests
     // cannot carry. Old Battery: its capacity float sat in the 14-field table's parameters slot (the verifier refused the buffer); on the
     // 10-field table of Story 9A.32 its four fields lie beyond the table, so it decodes as a parameterless generic Battery whose missing
     // declared parameters are refused. Old Domino: it is a generic tile since 9A.32, and its mass and bounce (slots 6 and 7) land in
-    // length and threshold, typed fields a generic record cannot carry. Old Counter: its target count lies beyond the table. Old Switch
-    // and resized Ramp: their parameters lie beyond the table.
+    // length and threshold (target_count since C-Clock's 9-field table), typed fields a generic record cannot carry. Old Counter: its
+    // target count lies beyond the table. Old Switch and resized Ramp: their parameters lie beyond the table. (C-Clock re-ran these
+    // rows on the 9-field table: every reason is unchanged.)
     [Theory]
     [InlineData("bumper strength 8", WorkshopSaveRejection.OutOfRange, WireFaultReason.OutOfRange)]
     [InlineData("bumper strength 0", WorkshopSaveRejection.OutOfRange, WireFaultReason.OutOfRange)]
@@ -58,8 +59,9 @@ public sealed class PreConversionLaunchSaveTests
     // parameters offset and the verifier refuses the buffer, otherwise the typed fields are refused. Re-derived on the 10-field table of
     // Story 9A.32: the Battery's four fields (slots 10–13) lie beyond the table, so every old Battery decodes as a parameterless generic
     // Battery whose missing declared parameters are refused. Old Domino: a generic tile since 9A.32, its mass and bounce (slots 6 and 7)
-    // land in length and threshold, typed fields a generic record cannot carry. Old Counter: its target count reads beyond its old
-    // slot, so it is missing. Every parameterised generic: its parameters lie beyond the table, so its declared parameters are missing.
+    // land in length and threshold (target_count since C-Clock), typed fields a generic record cannot carry. Old Counter: its target
+    // count reads beyond its old slot, so it is missing. Every parameterised generic: its parameters lie beyond the table, so its
+    // declared parameters are missing. (C-Clock re-ran these rows on the 9-field table: every reason is unchanged.)
     [Theory]
     [InlineData("battery_default", "29ca2c042cfed22cb7b54cff4f8ad0c73801e700b362bd22965d7dcd939a2aaf", WorkshopSaveRejection.OutOfRange, WireFaultReason.OutOfRange)]
     [InlineData("battery_disabled", "f6814d3103970f0e92ff42cc769a109a6d4ca7a8964bf8bd74ad4751f9f85166", WorkshopSaveRejection.OutOfRange, WireFaultReason.OutOfRange)]

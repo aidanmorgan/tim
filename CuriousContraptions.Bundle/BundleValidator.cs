@@ -89,7 +89,7 @@ public static class BundleValidator
             }
             for (var i = 0; i < entry.Colliders.Count; i++) Collider($"Colliders[{i}]", entry.Colliders[i]);
             Geometry(entry);
-            Presentation(entry.Presentation, entry.Metadata.Parameters, entry.Ports, entry.Electrical);
+            Presentation(entry.Presentation, entry.Metadata.Parameters, entry.Ports, entry.Electrical, entry.Signal);
             for (var i = 0; i < entry.Events.Count; i++) Defined($"Events[{i}].EventKind", entry.Events[i].EventKind);
             if (entry.Mechanical is { } mechanical) Mechanical(mechanical, entry.Metadata.Parameters, entry.Ports);
             if (entry.Electrical is { } electrical) Electrical(electrical, entry.Ports, entry.Metadata.Parameters);
@@ -98,11 +98,12 @@ public static class BundleValidator
             for (var i = 0; i < entry.Metadata.Parameters.Count; i++)
                 if (entry.Metadata.Parameters[i].RunEdit == ParameterRunEdit.RunControl && entry.Metadata.Parameters[i].Key != runControlled)
                     OutOfRange($"Metadata.Parameters[{i}].RunEdit");
-            if (entry.Signal is { } signal) Signal(signal, entry.Metadata.Parameters, entry.Ports, entry.Mechanical, entry.Colliders);
+            if (entry.Signal is { } signal) Signal(signal, entry.Metadata.Parameters, entry.Ports, entry.Mechanical, entry.Electrical, entry.Colliders);
             if (entry.Fluid is { } fluid) Fluid(fluid);
         }
 
-        private void Presentation(ElementPresentation value, IReadOnlyList<ParameterDescriptor> parameters, IReadOnlyList<PortDescriptor> ports, ElectricalPayload? electrical)
+        private void Presentation(ElementPresentation value, IReadOnlyList<ParameterDescriptor> parameters, IReadOnlyList<PortDescriptor> ports, ElectricalPayload? electrical,
+            SignalPayload? signal)
         {
             if (!Finite("Presentation.PickRadius", value.PickRadius) || value.PickRadius <= 0)
                 OutOfRange("Presentation.PickRadius");
@@ -172,6 +173,10 @@ public static class BundleValidator
                          !ports.Any(port => port.Socket == socket && port.Domain == SimulationDomain.Electrical))))
                     OutOfRange("Presentation.Socket");
                 if (binding.Socket is { } boundSocket) Defined("Presentation.Socket", boundSocket);
+                // A committed oscillator binding reads the row only a declared oscillator compiles.
+                if (binding.Driver is PresentationDriver.CommittedOscillatorPhase or PresentationDriver.CommittedOscillatorPulse &&
+                    signal?.Oscillator is null)
+                    OutOfRange("Presentation.Oscillator");
                 if (!supported || (binding.Curve != PresentationCurve.ExponentialFollow && binding.Response != 0) ||
                     (binding.Driver == PresentationDriver.CommittedTimerPhase && binding.Phase == PresentationTimerPhase.None))
                     OutOfRange("Presentation.DriverCurve");
@@ -566,12 +571,30 @@ public static class BundleValidator
         }
 
         private void Signal(SignalPayload signal, IReadOnlyList<ParameterDescriptor> parameters, IReadOnlyList<PortDescriptor> ports,
-            MechanicalPayload? mechanical, IReadOnlyList<ColliderDescriptor> colliders)
+            MechanicalPayload? mechanical, ElectricalPayload? electrical, IReadOnlyList<ColliderDescriptor> colliders)
         {
             // One node per element: at most one capability selects it.
             if ((signal.Contact is null ? 0 : 1) + (signal.Timer is null ? 0 : 1) + (signal.Indicator is null ? 0 : 1) + (signal.Passage is null ? 0 : 1) +
-                    (signal.Orientation is null ? 0 : 1) + (signal.ContactLoad is null ? 0 : 1) > 1)
+                    (signal.Orientation is null ? 0 : 1) + (signal.ContactLoad is null ? 0 : 1) + (signal.Oscillator is null ? 0 : 1) > 1)
                 OutOfRange("Capability");
+            if (signal.Oscillator is { } oscillator)
+            {
+                // The interval is a declared Real second parameter with a finite positive admitted minimum (never a zero-tick interval).
+                if (!parameters.Any(parameter => parameter.Key == oscillator.IntervalParameter && parameter.Kind == ParameterKind.Real &&
+                        parameter.Unit == ParameterUnit.Second && float.IsFinite(parameter.Minimum) && parameter.Minimum > 0f))
+                    OutOfRange("Oscillator.IntervalParameter");
+                // A source: a Pulse ActivationOut and no ActivationIn.
+                if (!ports.Any(port => port.Socket == PortSocket.ActivationOut && port.Domain == SimulationDomain.Signal && port.Direction == PortDirection.Output && port.Signal == PortSignalKind.Pulse) ||
+                        ports.Any(port => port.Socket == PortSocket.ActivationIn))
+                    OutOfRange("Oscillator.Ports");
+                // Supplied through its PowerIn route into a Consumer node.
+                if (!ports.Any(port => port.Socket == PortSocket.PowerIn && port.Domain == SimulationDomain.Electrical && port.Direction == PortDirection.Input) ||
+                        electrical?.Nodes.Any(node => node.Role == ElectricalRole.Consumer) != true)
+                    OutOfRange("Oscillator.Supply");
+                // A Static frame without sliders and with a collider: each pulse names the frame's first collider (PartIdentities + 1).
+                if ((mechanical is { } frame && (frame.KinematicMode != KinematicMode.Static || frame.Sliders.Count != 0)) || colliders.Count == 0)
+                    OutOfRange("Oscillator.Body");
+            }
             if (signal.ContactLoad is { } load)
             {
                 // The minimum mass is a declared Real kilogram parameter with a positive admitted minimum.

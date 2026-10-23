@@ -1,0 +1,29 @@
+using System.Security.Cryptography;
+using CuriousContraptions.Gpu;
+
+namespace CuriousContraptions.Tests;
+
+// Reviewer probe (C-Clock review, throwaway worktree at 14658883): every pinned old-save binary must LOAD on the base, and the decoded
+// instances are reported so the candidate's outcome can be compared for meaning.
+public sealed class ReviewerOldSaveProbe
+{
+    [Fact]
+    public void EveryPinnedOldSaveLoadsAtBase()
+    {
+        var dir = Environment.GetEnvironmentVariable("REVIEW_OLD_SAVES")!;
+        var output = Environment.GetEnvironmentVariable("REVIEW_OUT")!;
+        var report = new List<string>();
+        foreach (var path in Directory.GetFiles(dir, "*.bin").OrderBy(p => p, StringComparer.Ordinal))
+        {
+            var bytes = File.ReadAllBytes(path);
+            var name = Path.GetFileName(path);
+            var sha = Convert.ToHexStringLower(SHA256.HashData(bytes));
+            var instances = name.EndsWith(".save.bin", StringComparison.Ordinal)
+                ? WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes).Construction.Instances
+                : WorkshopWireFlatBuffers.DecodeCommand(bytes).Construction!.Value.Instances;
+            report.Add($"{name} {sha} LOADED {string.Join(" | ", instances.Select(i => i.ToString()))}");
+        }
+        File.WriteAllLines(output, report);
+        Assert.Equal(70, report.Count);
+    }
+}

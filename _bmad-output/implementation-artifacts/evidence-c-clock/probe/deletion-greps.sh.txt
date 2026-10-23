@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+# C-Clock deletion greps over production paths (tests, docs, planning/evidence excluded). Run from the worktree root.
+set -u
+P=(--glob '!_bmad-output/**' --glob '!CuriousContraptions.tests/**' --glob '!tools/BundleElements.Tests/**' --glob '!tools/E2eRunner.Tests/**' --glob '!docs/**' --glob '!*.md')
+count() { rg -n "$@" | tee /dev/stderr | wc -l | tr -d ' '; }
+echo "-- A: rg -w WorkshopClock|DefaultIntervalSeconds|AddClockConfiguration|ApplyClockInterval(Async)?|(Placed|Min|Max|Canonical)IntervalSeconds|ApplyIntervalSeconds"
+echo "count=$(count -w 'WorkshopClock|DefaultIntervalSeconds|AddClockConfiguration|ApplyClockInterval(Async)?|(Placed|Min|Max|Canonical)IntervalSeconds|ApplyIntervalSeconds' "${P[@]}" 2>&1 >/dev/null | wc -l)"
+rg -n -w 'WorkshopClock|DefaultIntervalSeconds|AddClockConfiguration|ApplyClockInterval(Async)?|(Placed|Min|Max|Canonical)IntervalSeconds|ApplyIntervalSeconds' "${P[@]}"
+echo "-- B: rg WorkshopInput.Clock|\"ClockInterval\"|InstanceRecord.(Add)?Threshold|AuthoredScalar.Threshold|(r|inst).Threshold"
+rg -n 'WorkshopInput\.Clock\b|"ClockInterval"|InstanceRecord\.(Add)?Threshold\b|AuthoredScalar\.Threshold|\b(r|inst)\.Threshold\b' "${P[@]}"
+echo "count=$(rg -n 'WorkshopInput\.Clock\b|"ClockInterval"|InstanceRecord\.(Add)?Threshold\b|AuthoredScalar\.Threshold|\b(r|inst)\.Threshold\b' "${P[@]}" | wc -l | tr -d ' ')"
+echo "-- C: rg '\"clock\"' engine/gpu engine/MachineWorld.Gpu.cs ui"
+rg -n '"clock"' engine/gpu engine/MachineWorld.Gpu.cs ui
+echo "count=$(rg -n '"clock"' engine/gpu engine/MachineWorld.Gpu.cs ui | wc -l | tr -d ' ')"
+echo "-- D: rg -c '\"Threshold\"' content"
+echo "count=$(rg -n '"Threshold"' content | wc -l | tr -d ' ')"
+echo "-- E: rg -w threshold schemas/workshop_wire.fbs engine/gpu/WorkshopWireGenerated.cs tools/e2e/workshop-wire.ts tools/e2e/run-reset-snapshot.ts"
+rg -n -w -i 'threshold' schemas/workshop_wire.fbs engine/gpu/WorkshopWireGenerated.cs tools/e2e/workshop-wire.ts tools/e2e/run-reset-snapshot.ts
+echo "count=$(rg -n -w -i 'threshold' schemas/workshop_wire.fbs engine/gpu/WorkshopWireGenerated.cs tools/e2e/workshop-wire.ts tools/e2e/run-reset-snapshot.ts | wc -l | tr -d ' ')"
+echo "-- F: engine/gpu/WorkshopClock.cs exists?"
+ls engine/gpu/WorkshopClock.cs engine/gpu/WorkshopClock.cs.uid 2>&1

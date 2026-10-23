@@ -168,8 +168,8 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
     [Fact]
     public void Network_LevelIndicatorMirrorsLatchOnAndOff()
     {
-        var setClock = WorkshopInput.Clock(new(1), -3, 0, 0, 0, 0, 0, 1, 1f);
-        var resetClock = WorkshopInput.Clock(new(2), -3, 3, 0, 0, 0, 0, 1, 1.5f);
+        var setClock = PlacedParts.Clock(new(1), -3, 0, 0, 0, 0, 0, 1, 1f);
+        var resetClock = PlacedParts.Clock(new(2), -3, 3, 0, 0, 0, 0, 1, 1.5f);
         var latch = WorkshopInput.Latch(new(3), 0, 0, 0, 0, 0, 0, 1);
         var battery = PlacedParts.Battery(new(4), -6, 0, 0);
         var lamp = PlacedParts.Lamp(new(5), 3, 0, 0, 0, 0, 0, 1);
@@ -205,7 +205,7 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
     [Fact]
     public void Connections_AdmitOneSourceOnBothInputsAndRejectForeignSockets()
     {
-        var source = WorkshopInput.Clock(new(1), -3, 0, 0, 0, 0, 0, 1, 1f);
+        var source = PlacedParts.Clock(new(1), -3, 0, 0, 0, 0, 0, 1, 1f);
         var latch = WorkshopInput.Latch(new(2), 0, 0, 0, 0, 0, 0, 1);
         var lamp = PlacedParts.Lamp(new(3), 3, 0, 0, 0, 0, 0, 1);
         var battery = PlacedParts.Battery(new(4), -3, 2, 0);
@@ -228,8 +228,8 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
     public void Network_SetHoldsResetClearsAndSimultaneousRequestsResolveOff()
     {
         // Set clock fires every 1.0 s (ticks 120, 240, 360...), Reset clock every 1.5 s (ticks 180, 360...) at 120 Hz.
-        var setClock = WorkshopInput.Clock(new(1), -3, 0, 0, 0, 0, 0, 1, 1f);
-        var resetClock = WorkshopInput.Clock(new(2), -3, 3, 0, 0, 0, 0, 1, 1.5f);
+        var setClock = PlacedParts.Clock(new(1), -3, 0, 0, 0, 0, 0, 1, 1f);
+        var resetClock = PlacedParts.Clock(new(2), -3, 3, 0, 0, 0, 0, 1, 1.5f);
         var latch = WorkshopInput.Latch(new(3), 0, 0, 0, 0, 0, 0, 1);
         var battery = PlacedParts.Battery(new(4), -6, 0, 0);
         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(),
@@ -267,7 +267,7 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
     [Fact]
     public void Network_OneSourceWiredToBothInputsNeverTurnsOn()
     {
-        var clock = WorkshopInput.Clock(new(1), -3, 0, 0, 0, 0, 0, 1, 1f);
+        var clock = PlacedParts.Clock(new(1), -3, 0, 0, 0, 0, 0, 1, 1f);
         var latch = WorkshopInput.Latch(new(2), 0, 0, 0, 0, 0, 0, 1);
         var battery = PlacedParts.Battery(new(3), -6, 0, 0);
         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(clock, latch, battery),
@@ -460,7 +460,7 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
     [Fact]
     public void Network_ContactClosedFollowsCommittedLatchMemoryAndCounterReach()
     {
-        var clock = WorkshopInput.Clock(new(1), -3, 0, 0, 0, 0, 0, 1, 1f);
+        var clock = PlacedParts.Clock(new(1), -3, 0, 0, 0, 0, 0, 1, 1f);
         var latch = WorkshopInput.Latch(new(2), 0, 0, 0, 0, 0, 0, 1);
         var counter = WorkshopInput.Counter(new(3), 0, 3, 0, 0, 0, 0, 1, 2);
         var battery = PlacedParts.Battery(new(4), -6, 0, 0);

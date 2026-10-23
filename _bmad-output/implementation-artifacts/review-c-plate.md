@@ -139,3 +139,28 @@ One matching Debug build; every test ran with `--no-build --no-restore`.
 3. The exact-SHA Pages CI run succeeds: C# tests, the "Test C# tools" step, the production Release publish and the static-deployment checks.
 4. The deployed artifact and the Pages deployment reference that SHA.
 5. After publication, `sprint-status` marks `9a-c-plate-contact-load-conversion`, `9a-20` and `9a-40` done with the terminal scoped Pass; `9-1` stays in-progress with its native-only addendum; F.6 keeps its other items; browser qualification stays pending.
+
+## Terminal publication verification — 23 October 2026
+
+Raw outputs are in `evidence-c-plate-review/terminal/`.
+
+**Identities**
+- Slice commit: `9b2f93fbf03ce559fba22afb60c1443d31756de7`, tree `98270a0ab691aa92fcbd6b8d36f7894f03d7cb7d`, parent `61ded7ad`.
+- Published merge (`--no-ff`): `146588838b97d9634406c47f9e383b3dd24f8fa6`, parents `61ded7ad` and `9b2f93fb`, tree `98270a0a…` (main had not moved; `git diff 9b2f93fb 146588838b97` is empty).
+- Remote: after a fetch, `origin/main` and `git ls-remote origin refs/heads/main` both return `146588838b97…`.
+
+| # | Publication-dependent check | Result | Raw |
+|---|---|---|---|
+| 1 | The commit tree equals the approved snapshot | **Pass.** `9b2f93fb^{tree}` = `98270a0a`, the final staged tree reported with the approval. `git diff --binary 61ded7ad 9b2f93fb` sha256 `8336587d6965249f6f74952d45f4e5ac3bbebfa0d2d9504a0b8293b3dc0125a4`, equal to the approved final staged diff. | `identities.txt` |
+| 2 | Hooks | **Pass.** Implementer's commit log: 3 gate builds with 0 warnings and 0 errors; Anvil `hasBlockingWarnings: false`, errors 0; 124/124; rc 0. **My re-run** on the exact published tree, in a throwaway worktree with HEAD `61ded7ad` and index `98270a0a` (218 staged paths, nothing unstaged or untracked), through the common hooks dir (`.git/hooks/pre-commit` → `.githooks/pre-commit`), 14:09:51Z–14:10:34Z: 3 gate builds with 0 warnings and 0 errors; Anvil not blocking, 0 errors; 124/124; hook rc 0. The worktree was removed. | `commit-hook-implementer.log`, `hook-rerun.log` |
+| 3 | The merge tree equals the branch tree, and remote main is the published merge | **Pass** | `identities.txt` |
+| 4 | Pages workflow on the exact SHA | **Pass.** Run 39964860374, "Build and deploy game", push, main, headSha `146588838b97`, completed/success; checkout fetched `146588838b97`. Every build step succeeded (static gate 3 builds with 0 warnings, Test C# game, Test C# tools, publish, static-deployment check, upload) and the deploy job succeeded. Totals: **game 2533**; **tools 77 / 166 / 17 / 174**; Skipped 0 everywhere (CI's tools step excludes the 15 toolchain tests by design). | `run.json`, `build-job.log` |
+| 5 | Pages artifact ownership and deployment | **Pass.** Artifact `github-pages` id 12506837511 (digest `sha256:5e4646da…`, 79,864,746 bytes, not expired) belongs to run 39964860374 at headSha `146588838b97` on main. The deploy job used `artifact_id` 12506837511 and "Created deployment for 146588838b97…", "Reported success!". Deployment 7280272017 (sha `146588838b97`, ref main) is the newest `github-pages` deployment (previous: `61ded7ad`, `2065d3c5`); its status went waiting → queued → in_progress → success (14:08:26Z), environment `https://aidanmorgan.github.io/tim/`. | `artifact-deployment.txt`, `deploy-job.log`, `deployment-status.txt` |
+| 6 | Serving | **Pass.** `/`, `/index.html`, `/404.html`, `/godot.wasm`, `/godot.pck` and `/_framework/dotnet.js` each return 200 with `last-modified` 23 Oct 2026 14:07:31–32 GMT, this deployment's own time (checked 14:10:14Z). | `deployment-status.txt` |
+| 7 | Closing addenda (additions only; `git diff` shows 0 removed lines in each) | **Story 9.1** (`review-9-1-pressure-plate.md`): every native clause, as amended by decision (h) and Q2/Q3, is a fresh Pass; the Chrome clause is pending post-catalogue E2E, so 9.1 stays `in-progress`. **Story 6.5f** (`review-6-5f-partart-partkind-legacy-purge.md`): the Pressure Plate arms are Closed, Pass; 6.5f stays open until C-Memory. Fresh run at `9b2f93fb`/`98270a0a`, bundle `23f6a937…`: 393/393, rc 0, with the switch-table census against `61ded7ad`. Stories 9R.4 and 9R.5 are already `done` and are not reopened records in the closure table, so they need no addendum. | `addendum-native-rerun.log` |
+| 8 | Status rows | `9a-c-plate-contact-load-conversion`, `9a-20` and `9a-40` set to `done # scoped native/publication Pass146588; browser pending`; `9-1` stays `in-progress` with a comment recording the native addendum; `6-5f` stays `in-progress`; `f-6-contact-load-follow-ups` stays `backlog` (F-1 delivered here; its other items stay). | `sprint-status.yaml` |
+| 9 | Browser cases | Still pending post-catalogue E2E, as listed in `spec-c-plate.md` "Pending browser cases" (cat-052 drawer placement/threshold/bounce, the 9A.40 editor, the F-1 rest and refusal cases, and the re-run list) | — |
+
+**Terminal verdict: scoped native and publication Pass at `146588838b97`.**
+- Browser qualification is pending post-catalogue E2E. This is not a release, global-audit or runtime qualification.
+- The non-blocking findings F3 and F7 stand as recorded.

@@ -1,0 +1,8 @@
+Restoration check after M1-M7:
+869:                var powerSource = sources.Length == 1 ? sources[0] : default;
+870:                var intervalTicks = ActivationTimerDeclaration.Duration(periodic.Parameters[new ParameterId(oscillator.IntervalParameter)],
+ActivationTimers.cs: no diff vs base
+178:                    signal?.Oscillator is null)
+578:                    (signal.Orientation is null ? 0 : 1) + (signal.ContactLoad is null ? 0 : 1) + (signal.Oscillator is null ? 0 : 1) > 1)
+32:                EditorPolicy: ParameterEditorPolicy.Clamp)
+191:    internal const int InstanceRecordFields = 9;

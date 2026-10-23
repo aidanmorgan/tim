@@ -78,7 +78,7 @@ public readonly struct PhysicsActivationRead
     public ActivationLatch this[int index] => index >= 0 && index < Count ? _values![index] : throw new ArgumentOutOfRangeException(nameof(index));
 }
 
-/// <summary>The committed discrete checkpoint: activations, timers and the Counter/Clock memory rows (Story 9R.1 D3).</summary>
+/// <summary>The committed discrete checkpoint: activations, timers and the Counter/oscillator memory rows (Story 9R.1 D3).</summary>
 public readonly record struct ActivationCheckpoint(PhysicsActivationRead Activations, PhysicsTimerRead Timers,
     PhysicsMemoryRead Memory = default);
 
@@ -100,7 +100,7 @@ public sealed class ActivationNetwork
     private readonly ActivationTimerDeclaration[] _timers;
     private readonly PassageSensorDeclaration[] _passageSensors;
     private readonly uint _substeps;
-    // Declaration data only: the memory-row index of each node (-1 for a node without Counter/Clock memory).
+    // Declaration data only: the memory-row index of each node (-1 for a node without Counter/oscillator memory).
     private readonly int[] _memorySlots;
     private readonly ActivationNodeDeclaration[] _memoryNodes;
     // Story 9R.5b: Consume's working tables, sized from this compiled network once (per Run, never per tick) instead of stack
@@ -202,7 +202,7 @@ public sealed class ActivationNetwork
         for (var i = 0; i < _timers.Length; i++) values[i] = ActivationTimerState.Ready(_timers[i].Node);
         return new(values);
     }
-    /// <summary>The admitted memory rows: every Counter at count 0 with no counted input, every Clock Stopped with no due tick.</summary>
+    /// <summary>The admitted memory rows: every Counter at count 0 with no counted input, every oscillator Stopped with no due tick.</summary>
     public PhysicsMemoryRead ClearMemory()
     {
         var values = new ActivationMemory[_memoryNodes.Length];
@@ -216,13 +216,13 @@ public sealed class ActivationNetwork
         if (count == _pending.Length) Array.Resize(ref _pending, _pending.Length * 2);
         _pending[count++] = occurrence;
     }
-    /// <summary>The committed Counter or Clock memory row of one owner (a query over the checkpoint; the network holds none).</summary>
+    /// <summary>The committed Counter or oscillator memory row of one owner (a query over the checkpoint; the network holds none).</summary>
     public ActivationMemory Memory(PhysicsMemoryRead values, GpuBodyId owner)
     {
         ValidateMemory(values);
         for (var i = 0; i < _memoryNodes.Length; i++)
             if (_memoryNodes[i].Owner == owner) return values[i];
-        throw new ArgumentException("Counter or clock not found for owner.");
+        throw new ArgumentException("Counter or oscillator not found for owner.");
     }
     public int GetCounterTarget(GpuBodyId owner)
     {
@@ -254,8 +254,8 @@ public sealed class ActivationNetwork
         throw new ArgumentException("Switched contact not found for owner.");
     }
     /// <summary>Evaluates one candidate tick from the committed checkpoint. The committed memory rows are read, never written: the
-    /// candidate's rows are returned in the checkpoint, so only a committed candidate changes the published Counter and Clock state.
-    /// A network with Counter or Clock nodes requires their committed rows (an empty population is rejected).</summary>
+    /// candidate's rows are returned in the checkpoint, so only a committed candidate changes the published Counter and oscillator state.
+    /// A network with Counter or oscillator nodes requires their committed rows (an empty population is rejected).</summary>
     public ActivationCheckpoint Consume(PhysicsActivationRead committed, PhysicsTimerRead committedTimers,
         ReadOnlySpan<ContactTriggerRead> events, SimulationTick boundary, ReadOnlySpan<OrientationSensorRead> orientations,
         ReadOnlySpan<PassageSensorRead> passages = default, PhysicsElectricalRead electrical = default,
@@ -598,7 +598,7 @@ public sealed class ActivationNetwork
         }
     }
 
-    /// <summary>The memory rows belong to exactly this network's Counter and Clock nodes, in node order.</summary>
+    /// <summary>The memory rows belong to exactly this network's Counter and oscillator nodes, in node order.</summary>
     public void ValidateMemory(PhysicsMemoryRead memory)
     {
         if (memory.Count != _memoryNodes.Length) throw new ArgumentException("Activation memory population changed.");
@@ -859,16 +859,18 @@ public static class WorkshopActivationCompiler
                 nodes.Add(new(new(instance.Id.Value), instance.Id, ActivationNodeKind.ContactLoadSource, default,
                     ContactLoad: WorkshopPhysicsCompiler.ContactLoadSensor(instance.Id),
                     ReleaseHoldTicks: ActivationTimerDeclaration.Duration(load.ReleaseHoldSeconds, construction.Settings.Simulation)));
-            else if (instance is WorkshopClock clock)
+            // A declared oscillator pulses while its PowerIn route has one upstream source: its interval compiles to whole ticks of this
+            // construction's cadence, and each pulse names the frame's first collider.
+            else if (instance is WorkshopGenericInstance periodic && DeclaredPhysics.Of(instance.PartId).Signal?.Oscillator is { } oscillator)
             {
-                var sources=SupplyTopology.Create(construction, DeclaredPhysics.Of).UpstreamSources(clock.Id);
-                if(sources.Length>1) throw new WorkshopEditRejectedException(WorkshopEditRejection.PowerInputSupplied,
+                var sources = SupplyTopology.Create(construction, DeclaredPhysics.Of).UpstreamSources(periodic.Id);
+                if (sources.Length > 1) throw new WorkshopEditRejectedException(WorkshopEditRejection.PowerInputSupplied,
                     "This source-accounted input requires one upstream source.");
-                var powerSource=sources.Length==1?sources[0]:default;
-                var first = WorkshopPhysicsCompiler.PartIdentities(clock.Id);
-                var colliderId = new GpuColliderId(first + 1);
-                var intervalTicks = (uint)clock.Ticks(construction.Settings.Simulation);
-                nodes.Add(new(new(clock.Id.Value), clock.Id, ActivationNodeKind.Oscillator, default, 0, default, default, 0, intervalTicks, powerSource, colliderId));
+                var powerSource = sources.Length == 1 ? sources[0] : default;
+                var intervalTicks = ActivationTimerDeclaration.Duration(periodic.Parameters[new ParameterId(oscillator.IntervalParameter)],
+                    construction.Settings.Simulation);
+                nodes.Add(new(new(periodic.Id.Value), periodic.Id, ActivationNodeKind.Oscillator, default, 0, default, default, 0, intervalTicks,
+                    powerSource, new GpuColliderId(WorkshopPhysicsCompiler.PartIdentities(periodic.Id) + 1)));
             }
         }
         foreach (var link in construction.Connections)

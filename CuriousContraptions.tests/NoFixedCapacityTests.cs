@@ -80,7 +80,7 @@ public sealed class NoFixedCapacityTests
                     parts.Add(PlacedParts.Plate(Next(), X(i), 1, 0, .5f));
                 return (Bench(parts), scene => Assert.Equal(33, scene.ContactLoadSensors.Length));
             case "activation-timers-32":
-                for (var i = 0; i < 33; i++) parts.Add(WorkshopInput.Clock(Next(), X(i), 1, 0, 0, 0, 0, 1, WorkshopClock.PlacedIntervalSeconds));
+                for (var i = 0; i < 33; i++) parts.Add(PlacedParts.Clock(Next(), X(i), 1, 0, 0, 0, 0, 1, 1f));
                 return (Bench(parts), _ => Assert.Equal(33, WorkshopActivationCompiler.Compile(Bench(parts)).Nodes.Length));
             case "connections-8":
                 for (var i = 0; i < 9; i++)
@@ -226,7 +226,7 @@ public sealed class NoFixedCapacityTests
         }
         for (var i = 0; i < 33; i++)
             parts.Add(PlacedParts.Plate(Next(), X(i), 1, 4, .5f));
-        for (var i = 0; i < 33; i++) parts.Add(WorkshopInput.Clock(Next(), X(i), 1, 8, 0, 0, 0, 1, WorkshopClock.PlacedIntervalSeconds));
+        for (var i = 0; i < 33; i++) parts.Add(PlacedParts.Clock(Next(), X(i), 1, 8, 0, 0, 0, 1, 1f));
         return Bench(parts, [.. links]);
     }
 

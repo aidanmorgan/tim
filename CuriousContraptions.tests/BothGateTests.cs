@@ -136,8 +136,8 @@ public sealed class BothGateTests
         var construction=Machine();
         construction=construction with {Instances=new(construction.Instances.Concat(new IWorkshopInstance[]{
             WorkshopInput.Latch(new(6),-9,3,3,0,0,0,1),
-            WorkshopInput.Clock(new(7),-6,3,3,0,0,0,1,1f),
-            WorkshopInput.Clock(new(8),-3,3,3,0,0,0,1,1.5f)}).ToArray()),
+            PlacedParts.Clock(new(7),-6,3,3,0,0,0,1,1f),
+            PlacedParts.Clock(new(8),-3,3,3,0,0,0,1,1.5f)}).ToArray()),
             Connections=construction.Connections.Without(Link(3,4)).With(Link(3,6)).With(Link(6,4))
                 .With(Link(1,7)).With(Link(1,8))
                 .With(new(new(7),WorkshopSocket.ActivationOut,new(6),WorkshopSocket.SetIn,WorkshopConnectionDomain.Activation))
@@ -158,7 +158,7 @@ public sealed class BothGateTests
     public void EnergyProvenanceIgnoresBothConditionSourcesAndUndefinedRulesReject()
     {
         var construction=Machine();
-        var clock=WorkshopInput.Clock(new(7),12,3,0,0,0,0,1,1f);
+        var clock=PlacedParts.Clock(new(7),12,3,0,0,0,0,1,1f);
         construction=construction with {Instances=new(construction.Instances.Append(clock).ToArray()),Connections=construction.Connections.With(Link(4,7))};
         var topology=SupplyTopology.Create(construction,DeclaredPhysics.Of);
         Assert.Equal(new[]{new GpuBodyId(3)},topology.UpstreamSources(clock.Id));

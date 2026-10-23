@@ -31,7 +31,6 @@ public static class WorkshopWireFlatBuffers
         InstanceRecord.AddLocal(builder, Vec3f.CreateVec3f(builder, template.Local.X, template.Local.Y, template.Local.Z));
         InstanceRecord.AddRotation(builder, Quat4f.CreateQuat4f(builder, template.Rotation.X, template.Rotation.Y, template.Rotation.Z, template.Rotation.W));
         InstanceRecord.AddLength(builder, values[AuthoredScalar.Length]);
-        InstanceRecord.AddThreshold(builder, values[AuthoredScalar.Threshold]);
         InstanceRecord.AddTargetCount(builder, template.TargetCount);
         InstanceRecord.AddParameters(builder, parameters);
         builder.Finish(InstanceRecord.EndInstanceRecord(builder).Value);
@@ -189,7 +188,7 @@ public static class WorkshopWireFlatBuffers
     }
 
     /// <summary>The current <c>InstanceRecord</c> table's field count (schemas/workshop_wire.fbs).</summary>
-    internal const int InstanceRecordFields = 10;
+    internal const int InstanceRecordFields = 9;
     /// <summary>The vtable offsets of <c>SavedConstruction.construction</c> (field 1), <c>WorkshopCommand.construction_record</c>
     /// (field 11) and <c>ConstructionRecord.instances</c> (field 3), as the generated accessors read them.</summary>
     internal const int SavedConstructionSlot = 6, CommandConstructionSlot = 26, ConstructionInstancesSlot = 10;
@@ -649,9 +648,6 @@ public static class WorkshopWireFlatBuffers
                 case WorkshopCounter counter:
                     InstanceRecord.AddTargetCount(builder, checked((uint)counter.TargetCount));
                     break;
-                case WorkshopClock clock:
-                    InstanceRecord.AddThreshold(builder, clock.IntervalSeconds);
-                    break;
                 default:
                     throw new ArgumentException("Unsupported instance declaration.");
             }
@@ -756,7 +752,6 @@ public static class WorkshopWireFlatBuffers
             "pipe" => new WorkshopPipe(id, cell, local, rotation, new(RequiredLength(inst)), locked),
             // Declared settings are decoded as written; construction validation rejects a missing (zero) or out-of-range value.
             "counter" => new WorkshopCounter(id, cell, local, rotation, TargetCount(inst), locked),
-            "clock" => new WorkshopClock(id, cell, local, rotation, inst.Threshold, locked),
             // Every other element is a generic instance of its declared colliders (Story 9A.15: no per-id list); an id with neither
             // a record nor colliders is no element this decoder knows, refused naming it.
             _ => DeclaredPhysics.Contains(partId) && DeclaredPhysics.Of(partId).Colliders.Count > 0
@@ -775,13 +770,12 @@ public static class WorkshopWireFlatBuffers
         ? throw new WireFaultException(WireFaultReason.OutOfRange, "Generic instance cannot carry a typed record field.")
         : new(part, id, cell, local, rotation, locked) { Parameters = DecodeParameters(inst, part) };
 
-    /// <summary>Whether a record holds any typed record field: a nonzero bit pattern in the length or threshold, or a nonzero target
-    /// count. A generic instance carries only its declared parameters, so this refuses it (the save pre-validation applies the same
+    /// <summary>Whether a record holds any typed record field: a nonzero bit pattern in the length, or a nonzero target count. A
+    /// generic instance carries only its declared parameters, so this refuses it (the save pre-validation applies the same
     /// rule).</summary>
     internal static bool CarriesTypedField(InstanceRecord r)
     {
-        static bool Set(float value) => BitConverter.SingleToUInt32Bits(value) != 0;
-        return Set(r.Length) || Set(r.Threshold) || r.TargetCount != 0;
+        return BitConverter.SingleToUInt32Bits(r.Length) != 0 || r.TargetCount != 0;
     }
 
     internal static InstanceParameterCollection DecodeParameters(InstanceRecord record, PartId part)

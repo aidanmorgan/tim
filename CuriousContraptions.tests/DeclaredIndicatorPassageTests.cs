@@ -149,8 +149,8 @@ public sealed class DeclaredIndicatorPassageTests
     };
 
     // 9A.32 removed four InstanceRecord fields and renumbered the later slots, so the wired save's counter target count (slot 12 at
-    // 54ffd9f0) now lies beyond the 10-field table and reads as absent: the save is refused with the typed reason at both decode
-    // boundaries, never misread.
+    // 54ffd9f0) now lies beyond the table (10 fields at 9A.32, 9 since C-Clock) and reads as absent: the save is refused with the typed
+    // reason at both decode boundaries, never misread.
     [Fact]
     public void TheWiredRecordPathSaveIsRefusedAfterTheSlotRenumbering()
     {

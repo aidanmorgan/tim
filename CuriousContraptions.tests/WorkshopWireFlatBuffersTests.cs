@@ -138,7 +138,7 @@ public sealed class WorkshopWireFlatBuffersTests
         PlacedParts.Detector(new(1), 0, 1, 0, 0, 0, 0, 1),
         PlacedParts.Plate(new(1), 0, 1, 0, 2.25f),
         WorkshopInput.Counter(new(1), 0, 1, 0, 0, 0, 0, 1, targetCount: 7),
-        WorkshopInput.Clock(new(1), 0, 1, 0, 0, 0, 0, 1, intervalSeconds: 3.5f),
+        PlacedParts.Clock(new(1), 0, 1, 0, 0, 0, 0, 1, intervalSeconds: 3.5f),
     };
 
     // Story 9.4b: every encoded instance field survives the decoder. Re-encoding the decoded construction reproduces the
@@ -181,38 +181,51 @@ public sealed class WorkshopWireFlatBuffersTests
     }
 
     // The Counter's target is its own whole field (ConstructionDecodeBoundaryTests.CounterTargetIsAWholeFieldAcceptedExactlyInItsRange).
-    // The plate is a generic instance (C-Plate): its record's former threshold is a typed field it cannot carry.
-    public enum DeclaredSetting { PreConversionPlateThreshold, ClockIntervalSeconds }
+    // The plate and the clock are generic instances (C-Plate, C-Clock): the record path's threshold, which both wrote in slot 7, is
+    // deleted, and slot 7 is now the typed target_count, so either pre-conversion value reads as a typed field they cannot carry.
+    public enum DeclaredSetting { PreConversionPlateThreshold, PreConversionClockInterval, ClockIntervalSeconds }
 
     private static PartId Owner(DeclaredSetting setting) => setting switch
     {
         DeclaredSetting.PreConversionPlateThreshold => PartId.PressurePlate,
-        DeclaredSetting.ClockIntervalSeconds => PartId.Clock,
+        DeclaredSetting.PreConversionClockInterval or DeclaredSetting.ClockIntervalSeconds => PartId.Clock,
         _ => throw new ArgumentOutOfRangeException(nameof(setting), setting, "Unknown declared setting."),
     };
 
     // Story 9.4b: a missing, zero, non-integral or out-of-range declared setting is rejected, never replaced by a default
     // (AGENTS.md: no fallback), and the rejection names the instance and the field. Admitted values decode (positive controls).
-    // C-Plate (D5): a plate record carrying a threshold, admitted or not, is refused as a typed field on a generic instance (a wire
-    // fault); a zero threshold is an absent field, so that record has no minimum_mass and is refused as such. No value migrates.
+    // C-Plate (D5) and C-Clock (D5): a record-path plate or clock value in slot 7, admitted or not, is refused as a typed field on a
+    // generic instance (a wire fault); a zero value is an absent field, so that record has no declared parameter and is refused as such.
+    // No value migrates. A clock with its declared interval_seconds decodes (control); a zero interval is refused.
     [Theory]
     [InlineData(DeclaredSetting.PreConversionPlateThreshold, .5f, "Generic instance cannot carry a typed record field.")]
     [InlineData(DeclaredSetting.PreConversionPlateThreshold, 2f, "Generic instance cannot carry a typed record field.")]
-    [InlineData(DeclaredSetting.ClockIntervalSeconds, 1f, null)]
     [InlineData(DeclaredSetting.PreConversionPlateThreshold, 0f, "Invalid declared parameters.")]
     [InlineData(DeclaredSetting.PreConversionPlateThreshold, float.NaN, "Generic instance cannot carry a typed record field.")]
-    [InlineData(DeclaredSetting.ClockIntervalSeconds, 0f, "Clock 1 interval seconds '0'")]
-    public void Construction_DeclaredSetting_DecodesOnlyAdmittedValuesAndNamesTheRejectedField(DeclaredSetting setting, float threshold, string? rejection)
+    [InlineData(DeclaredSetting.PreConversionClockInterval, .1f, "Generic instance cannot carry a typed record field.")]
+    [InlineData(DeclaredSetting.PreConversionClockInterval, 1f, "Generic instance cannot carry a typed record field.")]
+    [InlineData(DeclaredSetting.PreConversionClockInterval, 12f, "Generic instance cannot carry a typed record field.")]
+    [InlineData(DeclaredSetting.PreConversionClockInterval, 0f, "Invalid declared parameters.")]
+    [InlineData(DeclaredSetting.PreConversionClockInterval, float.NaN, "Generic instance cannot carry a typed record field.")]
+    [InlineData(DeclaredSetting.ClockIntervalSeconds, 1f, null)]
+    [InlineData(DeclaredSetting.ClockIntervalSeconds, 0f, "Invalid declared parameters.")]
+    public void Construction_DeclaredSetting_DecodesOnlyAdmittedValuesAndNamesTheRejectedField(DeclaredSetting setting, float value, string? rejection)
     {
         var builder = new Google.FlatBuffers.FlatBufferBuilder(512);
         var part = builder.CreateString(Owner(setting).Value); // the record's part identity is a string at the wire boundary
+        Google.FlatBuffers.VectorOffset? parameters = setting == DeclaredSetting.ClockIntervalSeconds
+            ? CuriousContraptions.Wire.InstanceRecord.CreateParametersVector(builder,
+                [CuriousContraptions.Wire.ParameterRecord.CreateParameterRecord(builder, builder.CreateString("interval_seconds"), value)])
+            : null;
         CuriousContraptions.Wire.InstanceRecord.StartInstanceRecord(builder);
+        if (parameters is { } vector) CuriousContraptions.Wire.InstanceRecord.AddParameters(builder, vector);
         CuriousContraptions.Wire.InstanceRecord.AddId(builder, 1);
         CuriousContraptions.Wire.InstanceRecord.AddPartId(builder, part);
         CuriousContraptions.Wire.InstanceRecord.AddCell(builder, CuriousContraptions.Wire.Vec3i.CreateVec3i(builder, 0, 16, 0));
         CuriousContraptions.Wire.InstanceRecord.AddLocal(builder, CuriousContraptions.Wire.Vec3f.CreateVec3f(builder, 0, 0, 0));
         CuriousContraptions.Wire.InstanceRecord.AddRotation(builder, CuriousContraptions.Wire.Quat4f.CreateQuat4f(builder, 0, 0, 0, 1));
-        CuriousContraptions.Wire.InstanceRecord.AddThreshold(builder, threshold);
+        // The record path wrote its f32 value in slot 7, which the current table reads as target_count.
+        if (setting != DeclaredSetting.ClockIntervalSeconds) CuriousContraptions.Wire.InstanceRecord.AddTargetCount(builder, BitConverter.SingleToUInt32Bits(value));
         var instance = CuriousContraptions.Wire.InstanceRecord.EndInstanceRecord(builder);
         var instances = CuriousContraptions.Wire.ConstructionRecord.CreateInstancesVector(builder, [instance]);
         var settings = WorkshopCadenceSettings.Default();
@@ -229,13 +242,8 @@ public sealed class WorkshopWireFlatBuffersTests
             Assert.Equal(Owner(setting), Assert.Single(DecodeConstruction(bytes).Instances).PartId);
             return;
         }
-        if (setting == DeclaredSetting.PreConversionPlateThreshold)
-        {
-            var fault = Assert.Throws<WireFaultException>(() => DecodeConstruction(bytes));
-            Assert.Equal((WireFaultReason.OutOfRange, rejection), (fault.Reason, fault.Message));
-            return;
-        }
-        Assert.Contains(rejection, Assert.Throws<ArgumentException>(() => DecodeConstruction(bytes)).Message);
+        var fault = Assert.Throws<WireFaultException>(() => DecodeConstruction(bytes));
+        Assert.Equal((WireFaultReason.OutOfRange, rejection), (fault.Reason, fault.Message));
     }
 
     // Story 9.4b (review-9-4 F8): a Captured goal is declared (Body = captured ball, Target = goal Receiver, EventSource =

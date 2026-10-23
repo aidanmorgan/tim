@@ -602,7 +602,7 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
         ulong id = 0;
         for (var i = 0; i < 13; i++) instances.Add(Plate(++id, -16 + 3 * (i % 7), -6 + 3 * (i / 7), .5f));
         for (var i = 0; i < 5; i++) instances.Add(WorkshopInput.Counter(new(++id), -16 + 3 * i, 3, 6, 0, 0, 0, 1, 3));
-        for (var i = 0; i < 5; i++) instances.Add(WorkshopInput.Clock(new(++id), -16 + 3 * i, 3, 9, 0, 0, 0, 1, 1f));
+        for (var i = 0; i < 5; i++) instances.Add(PlacedParts.Clock(new(++id), -16 + 3 * i, 3, 9, 0, 0, 0, 1, 1f));
         for (var i = 0; i < 5; i++) instances.Add(WorkshopInput.Latch(new(++id), -16 + 3 * i, 3, 12, 0, 0, 0, 1));
         var last = instances[12];
         var gate = Gate(++id, -6); var battery = Battery(++id, -6);

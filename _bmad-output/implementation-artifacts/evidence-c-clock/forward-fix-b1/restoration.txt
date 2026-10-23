@@ -1,0 +1,3 @@
+867:                if (sources.Length > 1) throw new WorkshopEditRejectedException(WorkshopEditRejection.PowerInputSupplied,
+778:        return BitConverter.SingleToUInt32Bits(r.Length) != 0 || r.TargetCount != 0;
+ClockGuardTests byte-identical to base

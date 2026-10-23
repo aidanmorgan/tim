@@ -121,9 +121,6 @@ internal static class WorkshopSavePrevalidation
                 if (r.TargetCount > WorkshopCounter.MaximumTargetCount)
                     throw Refuse(WorkshopSaveRejection.OutOfRange, $"Counter {id} target count {r.TargetCount} is outside [{WorkshopCounter.MinimumTargetCount}, {WorkshopCounter.MaximumTargetCount}].");
                 break;
-            case "clock":
-                Within(id, "interval", r.Threshold, WorkshopClock.MinIntervalSeconds, WorkshopClock.MaxIntervalSeconds);
-                break;
             default:
                 genericParameters = true;
                 if (WorkshopWireFlatBuffers.CarriesTypedField(r))

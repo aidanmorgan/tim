@@ -54,7 +54,7 @@ export const SNAPSHOT_SCHEMA = {
             ['from_socket', 'uint32'], ['to_socket', 'uint32']] },
         ParameterRecord: { kind: 'table', fields: [['key', 'string'], ['value', 'float']] },
         InstanceRecord: { kind: 'table', fields: [['id', 'uint64'], ['part_id', 'string'], ['locked', 'bool'], ['cell', 'Vec3i'],
-            ['local', 'Vec3f'], ['rotation', 'Quat4f'], ['length', 'float'], ['threshold', 'float'], ['target_count', 'uint32'],
+            ['local', 'Vec3f'], ['rotation', 'Quat4f'], ['length', 'float'], ['target_count', 'uint32'],
             ['parameters', '[ParameterRecord]']] },
         PuzzleRecord: { kind: 'table', fields: [['id', 'string'], ['placement', 'uint32'], ['precision', 'float'],
             ['inventory_part', 'string'], ['inventory_count', 'uint32'], ['goal_kind', 'uint32'], ['goal_body', 'uint64'],

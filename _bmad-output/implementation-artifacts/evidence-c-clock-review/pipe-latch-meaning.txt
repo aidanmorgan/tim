@@ -1,0 +1,8 @@
+pipe save: base==candidate decoded instance
+pipe command: base==candidate decoded instance
+latch save: base==candidate decoded instance
+latch command: base==candidate decoded instance
+pipe save: base==candidate (reviewer run)
+pipe command: base==candidate (reviewer run)
+latch save: base==candidate (reviewer run)
+latch command: base==candidate (reviewer run)
