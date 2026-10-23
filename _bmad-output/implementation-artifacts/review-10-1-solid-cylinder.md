@@ -380,3 +380,82 @@ None of these blocks.
 3. Re-run the D1 held-back seeds and C1 on the merged kernel.
 4. Then SnapshotApproval.
 5. The restitution slice is recorded as next, before 10.2a.
+
+---
+
+# Post-merge review and SnapshotApproval (24 October 2026)
+
+The same independent reviewer. Evidence is in `evidence-10-1-review/round5/`. The probes ran in the throwaway worktree `probe6-10-1` at e7152d61, since removed.
+
+## Parent chain and candidate integrity
+
+- **Parents:** e7152d61 has parents ba9757e4 (the WIP) and fc7f7cac (main). The merge base is a598a09e. origin/main was still fc7f7cac at approval.
+- **The WIP equals the reviewed candidate.**
+  - Applying the round-4 reviewed diff (sha256 `223fa82c…c260f1`, re-derived) to a598a09e gives byte-identical files in ba9757e4 for all 18 tracked paths.
+  - In the untracked test file, every round-3 test method is present, and so are all round-4 additions (the Side/NearlyUpright/CrossedSkewed/SkewedBoxRidge/BoxVertex/ManifoldPoints tests, the walk, and the routine 200-per-class gate).
+  - The only removals are the two `[Fact(Explicit = true)]` gates, per the coordinator decision.
+    - The 1000-per-class gate is recorded acceptance evidence (`evidence-10-1/round5/full-gate-final.log`; re-verified independently by this reviewer's held-back seeds).
+    - The Lively gate is preserved verbatim in `evidence-10-1/lively-gate-source.txt`, with re-add instructions, as the restitution slice's entry check.
+  - No other coverage was removed.
+- **Merge integrity.** All 10 files changed on both sides equal a clean three-way `git merge-file` of ours/base/theirs:
+  - sprint-status
+  - `WorkshopPhysicsEngine.cs`
+  - the test csproj
+  - `WorkshopPhysicsLawTests.cs`
+  - `gpu-f32-physics.md`
+  - `DeclaredPhysics.cs`
+  - `PassageSensorDeclaration.cs`
+  - `PhysicsDeclarations.cs`
+  - `BundleRoundTripTests.cs`
+  - TODO.md
+
+  The exception is TODO.md, which plus `epics.md` carries the merge commit's own edits. Those edits are the coordinator's 10.1 status and the restitution-slice insertion after 10.1 and before 10.2a.
+  - Every candidate-only file is unchanged by the merge.
+  - No main-only file other than `epics.md` changed.
+- **Main side.** fc7f7cac's engine changes touch neither `WorkshopCollisionKernels.cs` nor `WorkshopConstraintSolver.cs`. The moving-contact lane reads `LambdaN` from any contact, so it is shape-agnostic.
+
+## Checks on e7152d61 (one Debug build; no `--blame-crash`, per the coordinator's process change)
+
+| Check | Result | Log |
+|---|---|---|
+| Debug build | 0 W / 0 E | round5/build-debug.log |
+| Full slnx `--no-build --no-restore` | CuriousContraptions.tests 2776, E2eRunner 189, Coverage 77, BundleElements 189, WorkerAotGuard 17; 0 failed | round5/test-slnx.log |
+| CI tools step under bash (body equal to `pages.yml`) | 77 / 189 / 17 / 174, exit 0 | round5/ci-tool-step.log |
+| Release worker build | 0 W / 0 E | round5/worker-release.log |
+| `git diff --check fc7f7cac HEAD` outside `_bmad-output`, and the worktree | clean. Inside `_bmad-output`, only raw build logs and mutation diffs carry tool whitespace | (command output) |
+| Merged-engine probes (21 tests, `round5/probe-merged.log`) | D1 held-back seeds 31337 and 4242 plus seeds 77/1001/2002, Dead and Rolling: 0 over 1.96 mJ (worst 1.41 mJ). Tumble, including held-back 31402/31403: 0 over (worst 1.86 mJ). D5: gap at touch ≤ 0.068 mm, positive gap while overlapping ≤ 0.035 mm. C1 15/15 rows clean. C3 0/183 and 0/190 moved (control 0/100, positive 30/30). D7 rest unchanged. D10 roll-off ≤ 0.03 mJ. P1/P2/P4/P8 unchanged | Identical to round 4 |
+
+## Carried 9A.22 terminal receipt (coordinator-carried, uncommitted)
+
+- `review-9a-22-event-ring.md` hashes to blob `cd469e00`, the patch's post-image.
+- The changed lines of the working diff for that file and for `sprint-status.yaml` are identical to `carry/9a22-terminal-receipt.patch`, and the patch reverse-applies cleanly.
+- `evidence-9a-22-review/terminal/` is identical (`diff -r`, 8 files) to `carry/9a22-terminal-evidence`.
+
+## Low notes (non-blocking)
+
+- `evidence-10-1/verify5.sh` still runs the full slnx with `--blame-crash`, which the coordinator has since forbidden. It is a record of the run that was made, and must not be reused as a script.
+- The TODO/epics restitution text says a sphere gains 0.001 mJ. With spin, the reviewer's base-tree probe measured 556 mJ at e = 0.3. The restitution slice should take the reviewer's table (Re-review 3) as its baseline.
+
+## Verdict: SnapshotApproval (pre-publication)
+
+All pre-publication criteria are met for the staged snapshot, which is:
+- merge commit e7152d61;
+- `evidence-10-1/round6/` and `verify5.sh`;
+- this record and `evidence-10-1-review/round5/`;
+- the carried 9A.22 receipt.
+
+Browser qualification stays pending (post-catalogue E2E). The restitution energy slice is recorded next, before 10.2a.
+
+**Publication-dependent checks (reviewer, after push and before the terminal Pass):**
+- origin/main is the pushed commit, and its tree equals the approved staged tree;
+- the CI run on that commit is green;
+- the deployed bundle identity, where the pipeline publishes one.
+
+The staged snapshot's identity follows.
+
+### Snapshot identity (before this subsection was appended)
+
+- **Staged tree:** `89640b54e3d41a9a254780d144eff926fd32958b`.
+- **`git diff --cached --binary e7152d61`:** sha256 `2e52c6f9a5722ccb43a7a711df5ec8781bb7d6e882afe54d9ea374b944c8fd44`. The delta is 29 files, +4174/−1.
+- Only this subsection was added afterwards, and it was re-staged. The final staged tree is reported to the coordinator.
+- No commit was made by the reviewer.

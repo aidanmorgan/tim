@@ -223,3 +223,30 @@ The spec's D1, D4 and D7 text still states the original choices, and only "Curre
    - the isolation doc's A16 and D1 rows close at the terminal Pass;
    - TODO is updated.
 8. Browser cases stay pending post-catalogue E2E.
+
+## Terminal publication verification — 24 October 2026
+
+Raw outputs are in `evidence-9a-22-review/terminal/`. The GitHub and system timestamps read 23 Oct 2026 17:14–17:17Z.
+
+**Identities**
+- **Slice commit:** `544594a8da334401547d3269fe45e3a84f9aa6bf`, tree `29601660813aaff14e0690aa4e05cae13ab1041f`, parent `ae3cacf9`.
+- **Published merge** (`--no-ff`): `fc7f7cacccdde0177cb37ab776a502038d71c08d`, parents `ae3cacf9` and `544594a8`, same tree. `git diff 544594a8 fc7f7cac` is empty.
+- **Remote:** after a fetch, `origin/main` and `git ls-remote origin refs/heads/main` both return `fc7f7cac…`.
+- **Bundle:** `elements/elements.bundle.json` sha256 `25069901…`, generated from this tree and unchanged since the approval.
+
+| # | Publication-dependent check | Result | Raw |
+|---|---|---|---|
+| 1 | The commit tree equals the approved snapshot | **Pass.** `544594a8^{tree}` = `29601660`, the final staged tree reported with the approval. `git diff --binary ae3cacf9 544594a8` has sha256 `fe177a51…`, equal to the final approved staged diff | `identities.txt` |
+| 2 | Hooks | **Pass.**<br>• **Implementer's commit log:** 3 gate builds, 0 warnings and 0 errors; Anvil `hasBlockingWarnings: false`; 124/124; `commit rc=0`.<br>• **My re-run** on the exact published tree, in a throwaway worktree with HEAD `ae3cacf9` and index `29601660` (133 staged paths, 0 unstaged, 0 untracked), through `.git/hooks/pre-commit` → `.githooks/pre-commit`, 17:15:44Z–17:16:29Z: 3 gate builds, 0 warnings and 0 errors; Anvil not blocking, errors 0; 124/124; hook rc 0. The worktree was removed | `commit-hook-implementer.log`, `hook-rerun.log` |
+| 3 | The merge tree equals the branch tree, and remote main is the published merge | **Pass** | `identities.txt` |
+| 4 | Pages workflow on the exact SHA | **Pass.**<br>• Run 39992032903, "Build and deploy game", push, main, headSha `fc7f7cac`, completed/success. Checkout fetched `fc7f7cac`.<br>• Every build step succeeded: static gate (3 builds, 0 warnings, 0 errors), Test C# game, Test C# tools, publish, static-deployment check and upload. The deploy job succeeded.<br>• **Totals:** game **2695**; tools **77 / 174 / 17 / 174**; Failed 0 and Skipped 0 everywhere | `run.json`, `build-job.log` |
+| 5 | Pages artifact ownership and deployment | **Pass.**<br>• Artifact `github-pages` id 12518097906 (digest `sha256:888ca63f…`, 80,164,473 bytes, not expired) belongs to run 39992032903 at headSha `fc7f7cac` on main.<br>• The deploy job logged "Created deployment for fc7f7cac…" and "Reported success!".<br>• Deployment 7284305323 (sha `fc7f7cac`, ref main) is the newest `github-pages` deployment; the previous one is `ae3cacf9`. Its status went waiting → queued → in_progress → success (17:14:21Z), environment `https://aidanmorgan.github.io/tim/` | `artifact-deployment.txt`, `deploy-job.log` |
+| 6 | Serving | **Pass.** `/`, `/index.html`, `/404.html`, `/godot.wasm`, `/godot.pck` and `/_framework/dotnet.js` each return 200 with `last-modified` 17:14:18 GMT, this deployment's own time (checked 17:17:00Z) | `deployment-status.txt` |
+| 7 | Closing addenda | **None required.** 9A.22 is not a closing story in the epics reopened-record closure table. It converts no element, so it is not a 6.5f closer. 6.8 closes via C-Lamp+Detector (9R.9); 9A.22 only amended 9R.9's "one more" clause, recorded in epics and CAT-002 | epics §Delivery order, closure table |
+| 8 | Status | `9a-22-event-ring-producer` → `done # scoped native/publication Passfc7f7c; browser pending`. The isolation-doc A16 and D1 rows ("closes at 9A.22's terminal Pass") and TODO are left to the coordinator, as authority docs outside the reviewer's write scope | `sprint-status.yaml` |
+| 9 | Browser cases | Pending post-catalogue E2E: `cat-015a` and `cat-020` ring reads (through the 9A.23 consumer or the 9A.24 port), `cat-002` (second pass and the F5 re-read), and re-runs of `cat-017`, `cat-037` and `cat-052*` | — |
+
+**Terminal verdict: scoped native and publication Pass at `fc7f7cacccdd`.**
+- Browser qualification is pending post-catalogue E2E.
+- This is not a release, global-audit or runtime qualification.
+- F2 (the 9A.23 Impact source and reader fences) is handed off in the spec.

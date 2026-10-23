@@ -1,0 +1,253 @@
+Test run for /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/probe6-10-1/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+/private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/probe6-10-1/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.5+1b188a7b0a (64-bit .NET 10.0.13)
+[xUnit.net 00:00:00.36]   Discovering: CuriousContraptions.tests
+[xUnit.net 00:00:01.13]   Discovered:  CuriousContraptions.tests
+[xUnit.net 00:00:01.25]   Starting:    CuriousContraptions.tests
+  Passed CuriousContraptions.Tests.ReviewProbe101Tests.P4_RampRollAllCadences [211 ms]
+  Standard Output Messages:
+ Hz60 10°: a 1.1355 vs (2/3)g sinθ 1.1359 (-0.04%)
+ Hz60 25°: a 2.7636 vs (2/3)g sinθ 2.7646 (-0.04%)
+ Hz240 10°: a 1.1355 vs (2/3)g sinθ 1.1359 (-0.04%)
+ Hz240 25°: a 2.7636 vs (2/3)g sinθ 2.7646 (-0.04%)
+
+
+  Passed CuriousContraptions.Tests.ReviewProbe101Tests.P1_TipDiagonalVsSampleAzimuth [709 ms]
+  Standard Output Messages:
+ rod az     0 tip     8° -> final tilt    0.00°, max rim penetration    0.28 mm, max energy rise/tick    0.000 mJ
+ rod az     0 tip   9.5° -> final tilt    0.00°, max rim penetration    0.30 mm, max energy rise/tick    0.000 mJ
+ rod az     0 tip  10.5° -> final tilt    0.00°, max rim penetration    0.28 mm, max energy rise/tick    0.000 mJ
+ rod az     0 tip    11° -> final tilt    0.00°, max rim penetration    0.28 mm, max energy rise/tick    0.000 mJ
+ rod az     0 tip    12° -> final tilt    0.00°, max rim penetration    0.28 mm, max energy rise/tick    0.000 mJ
+ rod az     0 tip    13° -> final tilt    0.00°, max rim penetration    0.30 mm, max energy rise/tick    0.000 mJ
+ rod az     0 tip    15° -> final tilt   89.99°, max rim penetration    0.33 mm, max energy rise/tick    0.000 mJ
+ rod az  22.5 tip     8° -> final tilt    0.00°, max rim penetration    0.30 mm, max energy rise/tick    0.000 mJ
+ rod az  22.5 tip   9.5° -> final tilt    0.00°, max rim penetration    0.30 mm, max energy rise/tick    0.000 mJ
+ rod az  22.5 tip  10.5° -> final tilt    0.00°, max rim penetration    0.30 mm, max energy rise/tick    0.000 mJ
+ rod az  22.5 tip    11° -> final tilt    0.00°, max rim penetration    0.28 mm, max energy rise/tick    0.000 mJ
+ rod az  22.5 tip    12° -> final tilt    0.00°, max rim penetration    0.31 mm, max energy rise/tick    0.000 mJ
+ rod az  22.5 tip    13° -> final tilt    0.00°, max rim penetration    0.27 mm, max energy rise/tick    0.000 mJ
+ rod az  22.5 tip    15° -> final tilt   89.99°, max rim penetration    0.34 mm, max energy rise/tick    0.000 mJ
+ rod az    45 tip     8° -> final tilt    0.00°, max rim penetration    0.31 mm, max energy rise/tick    0.000 mJ
+ rod az    45 tip   9.5° -> final tilt    0.00°, max rim penetration    0.30 mm, max energy rise/tick    0.000 mJ
+ rod az    45 tip  10.5° -> final tilt    0.00°, max rim penetration    0.30 mm, max energy rise/tick    0.000 mJ
+ rod az    45 tip    11° -> final tilt    0.00°, max rim penetration    0.30 mm, max energy rise/tick    0.000 mJ
+ rod az    45 tip    12° -> final tilt    0.00°, max rim penetration    0.28 mm, max energy rise/tick    0.000 mJ
+ rod az    45 tip    13° -> final tilt    0.00°, max rim penetration    0.28 mm, max energy rise/tick    0.000 mJ
+ rod az    45 tip    15° -> final tilt   90.00°, max rim penetration    0.27 mm, max energy rise/tick    0.000 mJ
+
+
+  Passed CuriousContraptions.Tests.ReviewProbe101Tests.P8_DropEnergyVersusBoxBaseline [1 s]
+  Standard Output Messages:
+ 30 random-orientation dead drops: worst per-tick energy rise cylinder 0.017 mJ, box baseline 0.018 mJ
+
+
+  Passed CuriousContraptions.Tests.ReviewProbe101Tests.P2_PulleyWheelAndFulcrumDiagonalTiltRelease [919 ms]
+  Standard Output Messages:
+ pulley az    0 tip    5° -> final tilt    0.00°, max true rim penetration    0.27 mm, max energy rise/tick    0.000 mJ
+ pulley az    0 tip   11° -> final tilt    0.00°, max true rim penetration    0.27 mm, max energy rise/tick    0.000 mJ
+ pulley az    0 tip   12° -> final tilt    0.00°, max true rim penetration    0.27 mm, max energy rise/tick    0.000 mJ
+ pulley az    0 tip   20° -> final tilt    0.00°, max true rim penetration    0.35 mm, max energy rise/tick    0.000 mJ
+ pulley az   45 tip    5° -> final tilt    0.00°, max true rim penetration    0.27 mm, max energy rise/tick    0.000 mJ
+ pulley az   45 tip   11° -> final tilt    0.00°, max true rim penetration    0.27 mm, max energy rise/tick    0.000 mJ
+ pulley az   45 tip   12° -> final tilt    0.00°, max true rim penetration    0.34 mm, max energy rise/tick    0.000 mJ
+ pulley az   45 tip   20° -> final tilt    0.00°, max true rim penetration    0.41 mm, max energy rise/tick    0.000 mJ
+ fulcrum az    0 tip    5° -> final tilt    0.00°, max true rim penetration    0.28 mm, max energy rise/tick    0.000 mJ
+ fulcrum az    0 tip   11° -> final tilt    0.00°, max true rim penetration    0.30 mm, max energy rise/tick    0.000 mJ
+ fulcrum az    0 tip   12° -> final tilt    0.00°, max true rim penetration    0.34 mm, max energy rise/tick    0.000 mJ
+ fulcrum az    0 tip   20° -> final tilt    0.00°, max true rim penetration    0.34 mm, max energy rise/tick    0.000 mJ
+ fulcrum az   45 tip    5° -> final tilt    0.00°, max true rim penetration    0.34 mm, max energy rise/tick    0.000 mJ
+ fulcrum az   45 tip   11° -> final tilt    0.00°, max true rim penetration    0.30 mm, max energy rise/tick    0.000 mJ
+ fulcrum az   45 tip   12° -> final tilt    0.00°, max true rim penetration    0.33 mm, max energy rise/tick    0.000 mJ
+ fulcrum az   45 tip   20° -> final tilt    0.00°, max true rim penetration    0.34 mm, max energy rise/tick    0.000 mJ
+ drum az    0 tip    5° -> final tilt    0.00°, max true rim penetration    0.33 mm, max energy rise/tick    0.000 mJ
+ drum az    0 tip   11° -> final tilt    0.00°, max true rim penetration    0.29 mm, max energy rise/tick    0.000 mJ
+ drum az    0 tip   12° -> final tilt    0.00°, max true rim penetration    0.35 mm, max energy rise/tick    0.000 mJ
+ drum az    0 tip   20° -> final tilt    0.00°, max true rim penetration    0.27 mm, max energy rise/tick    0.000 mJ
+ drum az   45 tip    5° -> final tilt    0.00°, max true rim penetration    0.36 mm, max energy rise/tick    0.000 mJ
+ drum az   45 tip   11° -> final tilt    0.00°, max true rim penetration    0.27 mm, max energy rise/tick    0.000 mJ
+ drum az   45 tip   12° -> final tilt    0.00°, max true rim penetration    0.27 mm, max energy rise/tick    0.000 mJ
+ drum az   45 tip   20° -> final tilt    0.00°, max true rim penetration    0.34 mm, max energy rise/tick    0.000 mJ
+
+
+  Passed CuriousContraptions.Tests.ReviewProbe101R3Tests.D1M_Drops(seed: 31337, rolling: True) [9 s]
+  Standard Output Messages:
+ [Rolling] seed 31337 BASELINE box→box: 60 drops, worst per-tick rise 0.02 mJ, drops over 1.96 mJ: 0 []
+ [Rolling] seed 31337 box→log: 60 drops, worst per-tick rise 0.02 mJ, drops over 1.96 mJ: 0 []
+ [Rolling] seed 31337 cyl→box: 60 drops, worst per-tick rise 1.01 mJ, drops over 1.96 mJ: 0 []
+ [Rolling] seed 31337 cyl→log: 60 drops, worst per-tick rise 1.23 mJ, drops over 1.96 mJ: 0 []
+
+
+  Passed CuriousContraptions.Tests.ReviewProbe101R3Tests.D1M_Drops(seed: 2002, rolling: False) [8 s]
+  Standard Output Messages:
+ [Dead] seed 2002 BASELINE box→box: 60 drops, worst per-tick rise 0.11 mJ, drops over 1.96 mJ: 0 []
+ [Dead] seed 2002 box→log: 60 drops, worst per-tick rise 0.34 mJ, drops over 1.96 mJ: 0 []
+ [Dead] seed 2002 cyl→box: 60 drops, worst per-tick rise 0.59 mJ, drops over 1.96 mJ: 0 []
+ [Dead] seed 2002 cyl→log: 60 drops, worst per-tick rise 1.18 mJ, drops over 1.96 mJ: 0 []
+
+
+  Passed CuriousContraptions.Tests.ReviewProbe101R3Tests.D1M_Drops(seed: 1001, rolling: True) [9 s]
+  Standard Output Messages:
+ [Rolling] seed 1001 BASELINE box→box: 60 drops, worst per-tick rise 0.18 mJ, drops over 1.96 mJ: 0 []
+ [Rolling] seed 1001 box→log: 60 drops, worst per-tick rise 0.04 mJ, drops over 1.96 mJ: 0 []
+ [Rolling] seed 1001 cyl→box: 60 drops, worst per-tick rise 0.68 mJ, drops over 1.96 mJ: 0 []
+ [Rolling] seed 1001 cyl→log: 60 drops, worst per-tick rise 0.19 mJ, drops over 1.96 mJ: 0 []
+
+
+  Passed CuriousContraptions.Tests.ReviewProbe101R3Tests.D1M_Drops(seed: 2002, rolling: True) [9 s]
+  Standard Output Messages:
+ [Rolling] seed 2002 BASELINE box→box: 60 drops, worst per-tick rise 0.11 mJ, drops over 1.96 mJ: 0 []
+ [Rolling] seed 2002 box→log: 60 drops, worst per-tick rise 0.07 mJ, drops over 1.96 mJ: 0 []
+ [Rolling] seed 2002 cyl→box: 60 drops, worst per-tick rise 0.59 mJ, drops over 1.96 mJ: 0 []
+ [Rolling] seed 2002 cyl→log: 60 drops, worst per-tick rise 0.05 mJ, drops over 1.96 mJ: 0 []
+
+
+  Passed CuriousContraptions.Tests.ReviewProbe101R3Tests.D1M_Drops(seed: 31337, rolling: False) [9 s]
+  Standard Output Messages:
+ [Dead] seed 31337 BASELINE box→box: 60 drops, worst per-tick rise 0.02 mJ, drops over 1.96 mJ: 0 []
+ [Dead] seed 31337 box→log: 60 drops, worst per-tick rise 0.51 mJ, drops over 1.96 mJ: 0 []
+ [Dead] seed 31337 cyl→box: 60 drops, worst per-tick rise 1.01 mJ, drops over 1.96 mJ: 0 []
+ [Dead] seed 31337 cyl→log: 60 drops, worst per-tick rise 1.41 mJ, drops over 1.96 mJ: 0 []
+
+
+  Passed CuriousContraptions.Tests.ReviewProbe101R3Tests.D1M_Drops(seed: 4242, rolling: False) [9 s]
+  Standard Output Messages:
+ [Dead] seed 4242 BASELINE box→box: 60 drops, worst per-tick rise 0.70 mJ, drops over 1.96 mJ: 0 []
+ [Dead] seed 4242 box→log: 60 drops, worst per-tick rise 0.63 mJ, drops over 1.96 mJ: 0 []
+ [Dead] seed 4242 cyl→box: 60 drops, worst per-tick rise 1.00 mJ, drops over 1.96 mJ: 0 []
+ [Dead] seed 4242 cyl→log: 60 drops, worst per-tick rise 0.61 mJ, drops over 1.96 mJ: 0 []
+
+
+  Passed CuriousContraptions.Tests.ReviewProbe101R3Tests.D1M_Drops(seed: 77, rolling: False) [8 s]
+  Standard Output Messages:
+ [Dead] seed 77 BASELINE box→box: 60 drops, worst per-tick rise 0.09 mJ, drops over 1.96 mJ: 0 []
+ [Dead] seed 77 box→log: 60 drops, worst per-tick rise 0.27 mJ, drops over 1.96 mJ: 0 []
+ [Dead] seed 77 cyl→box: 60 drops, worst per-tick rise 0.86 mJ, drops over 1.96 mJ: 0 []
+ [Dead] seed 77 cyl→log: 60 drops, worst per-tick rise 1.04 mJ, drops over 1.96 mJ: 0 []
+
+
+  Passed CuriousContraptions.Tests.ReviewProbe101R3Tests.D1M_Drops(seed: 1001, rolling: False) [8 s]
+  Standard Output Messages:
+ [Dead] seed 1001 BASELINE box→box: 60 drops, worst per-tick rise 0.18 mJ, drops over 1.96 mJ: 0 []
+ [Dead] seed 1001 box→log: 60 drops, worst per-tick rise 0.60 mJ, drops over 1.96 mJ: 0 []
+ [Dead] seed 1001 cyl→box: 60 drops, worst per-tick rise 0.68 mJ, drops over 1.96 mJ: 0 []
+ [Dead] seed 1001 cyl→log: 60 drops, worst per-tick rise 0.64 mJ, drops over 1.96 mJ: 0 []
+
+
+  Passed CuriousContraptions.Tests.ReviewProbe101R3Tests.D1M_Drops(seed: 4242, rolling: True) [10 s]
+  Standard Output Messages:
+ [Rolling] seed 4242 BASELINE box→box: 60 drops, worst per-tick rise 0.70 mJ, drops over 1.96 mJ: 0 []
+ [Rolling] seed 4242 box→log: 60 drops, worst per-tick rise 0.04 mJ, drops over 1.96 mJ: 0 []
+ [Rolling] seed 4242 cyl→box: 60 drops, worst per-tick rise 1.00 mJ, drops over 1.96 mJ: 0 []
+ [Rolling] seed 4242 cyl→log: 60 drops, worst per-tick rise 0.40 mJ, drops over 1.96 mJ: 0 []
+
+
+  Passed CuriousContraptions.Tests.ReviewProbe101R3Tests.D1M_Drops(seed: 77, rolling: True) [9 s]
+  Standard Output Messages:
+ [Rolling] seed 77 BASELINE box→box: 60 drops, worst per-tick rise 0.09 mJ, drops over 1.96 mJ: 0 []
+ [Rolling] seed 77 box→log: 60 drops, worst per-tick rise 0.01 mJ, drops over 1.96 mJ: 0 []
+ [Rolling] seed 77 cyl→box: 60 drops, worst per-tick rise 0.86 mJ, drops over 1.96 mJ: 0 []
+ [Rolling] seed 77 cyl→log: 60 drops, worst per-tick rise 0.58 mJ, drops over 1.96 mJ: 0 []
+
+
+  Passed CuriousContraptions.Tests.ReviewProbe101R3Tests.D7_RestingStacksHeights [1 s]
+  Standard Output Messages:
+ cylinder cap on box: rest height − analytic -0.269 mm (negative = penetration), late band 0.0000 mm, late spin 6.3E-014
+ box on static cap: rest height − analytic -0.269 mm (negative = penetration), late band 0.0000 mm, late spin 3.3E-011
+ cap on cap (equal radii): rest height − analytic -0.269 mm (negative = penetration), late band 0.0000 mm, late spin 8.6E-014
+ lying cylinder on box: rest height − analytic -0.269 mm (negative = penetration), late band 0.0000 mm, late spin 4.2E-014
+ log in groove: rest height − analytic -0.310 mm (negative = penetration), late band 0.0001 mm, late spin 7.8E-004
+ drum cradled on two box edges: rest height − analytic -0.339 mm (negative = penetration), late band 0.0001 mm, late spin 9.5E-004
+ three cylinders end to end (top): rest height − analytic -1.287 mm (negative = penetration), late band 0.0836 mm, late spin 7.1E-003
+
+
+  Passed CuriousContraptions.Tests.ReviewProbe101R3Tests.D2M_Tumble(rolling: False) [2 m 1 s]
+  Standard Output Messages:
+ [Dead] CONTROL box over box seed 1401: 30 tumble poses, worst per-tick rise 0.23 mJ, poses over 1.96 mJ: 0 []
+ [Dead] box over cylinder rim seed 1402: 60 tumble poses, worst per-tick rise 0.93 mJ, poses over 1.96 mJ: 0 []
+ [Dead] cylinder over cylinder rim seed 1403: 60 tumble poses, worst per-tick rise 1.23 mJ, poses over 1.96 mJ: 0 []
+ [Dead] cylinder over box edge seed 1404: 30 tumble poses, worst per-tick rise 0.22 mJ, poses over 1.96 mJ: 0 []
+ [Dead] HELD-BACK box over cylinder rim seed 31402: 60 tumble poses, worst per-tick rise 1.86 mJ, poses over 1.96 mJ: 0 []
+ [Dead] HELD-BACK cylinder over cylinder rim seed 31403: 60 tumble poses, worst per-tick rise 0.98 mJ, poses over 1.96 mJ: 0 []
+
+
+  Passed CuriousContraptions.Tests.ReviewProbe101R3Tests.D2M_Tumble(rolling: True) [2 m 4 s]
+  Standard Output Messages:
+ [Rolling] CONTROL box over box seed 1401: 30 tumble poses, worst per-tick rise 0.23 mJ, poses over 1.96 mJ: 0 []
+ [Rolling] box over cylinder rim seed 1402: 60 tumble poses, worst per-tick rise 0.95 mJ, poses over 1.96 mJ: 0 []
+ [Rolling] cylinder over cylinder rim seed 1403: 60 tumble poses, worst per-tick rise 1.20 mJ, poses over 1.96 mJ: 0 []
+ [Rolling] cylinder over box edge seed 1404: 30 tumble poses, worst per-tick rise 0.22 mJ, poses over 1.96 mJ: 0 []
+ [Rolling] HELD-BACK box over cylinder rim seed 31402: 60 tumble poses, worst per-tick rise 1.12 mJ, poses over 1.96 mJ: 0 []
+ [Rolling] HELD-BACK cylinder over cylinder rim seed 31403: 60 tumble poses, worst per-tick rise 1.20 mJ, poses over 1.96 mJ: 0 []
+
+
+  Passed CuriousContraptions.Tests.ReviewProbe101R3Tests.D5_GapContinuityThroughTouch [52 s]
+  Standard Output Messages:
+ cylinder–box rim-aimed walk (60 poses, 0.05 mm steps): worst step-to-step gap jump 0.461 mm (pose 58 at s -1.50 mm: -0.986 → -1.447 mm); worst gap reported at touch 0.063 mm; worst POSITIVE gap while overlapping 0.035 mm
+ cylinder–cylinder rim-aimed walk (60 poses, 0.05 mm steps): worst step-to-step gap jump 0.053 mm (pose 55 at s -0.05 mm: 0.025 → -0.029 mm); worst gap reported at touch 0.068 mm; worst POSITIVE gap while overlapping 0.021 mm
+
+
+  Passed CuriousContraptions.Tests.ReviewProbe101R3Tests.D10_RollOffABoxEdge [400 ms]
+  Standard Output Messages:
+ SPHERE (precedent) rolling off a box edge at 0.3 m/s: worst per-tick rise 0.00 mJ, ticks over 1.96 mJ: 0
+ SPHERE (precedent) rolling off a box edge at 0.6 m/s: worst per-tick rise 0.00 mJ, ticks over 1.96 mJ: 0
+ SPHERE (precedent) rolling off a box edge at 1 m/s: worst per-tick rise 0.00 mJ, ticks over 1.96 mJ: 0
+ SPHERE (precedent) rolling off a box edge at 2 m/s: worst per-tick rise 0.00 mJ, ticks over 1.96 mJ: 0
+ cylinder skew 0° rolling off a box edge at 0.3 m/s: worst per-tick rise 0.03 mJ, ticks over 1.96 mJ: 0
+ cylinder skew 5° rolling off a box edge at 0.3 m/s: worst per-tick rise 0.00 mJ, ticks over 1.96 mJ: 0
+ cylinder skew 20° rolling off a box edge at 0.3 m/s: worst per-tick rise 0.00 mJ, ticks over 1.96 mJ: 0
+ cylinder skew 0° rolling off a box edge at 0.6 m/s: worst per-tick rise 0.00 mJ, ticks over 1.96 mJ: 0
+ cylinder skew 5° rolling off a box edge at 0.6 m/s: worst per-tick rise 0.00 mJ, ticks over 1.96 mJ: 0
+ cylinder skew 20° rolling off a box edge at 0.6 m/s: worst per-tick rise 0.00 mJ, ticks over 1.96 mJ: 0
+ cylinder skew 0° rolling off a box edge at 1 m/s: worst per-tick rise 0.00 mJ, ticks over 1.96 mJ: 0
+ cylinder skew 5° rolling off a box edge at 1 m/s: worst per-tick rise 0.00 mJ, ticks over 1.96 mJ: 0
+ cylinder skew 20° rolling off a box edge at 1 m/s: worst per-tick rise 0.00 mJ, ticks over 1.96 mJ: 0
+ cylinder skew 0° rolling off a box edge at 2 m/s: worst per-tick rise 0.00 mJ, ticks over 1.96 mJ: 0
+ cylinder skew 5° rolling off a box edge at 2 m/s: worst per-tick rise 0.00 mJ, ticks over 1.96 mJ: 0
+ cylinder skew 20° rolling off a box edge at 2 m/s: worst per-tick rise 0.00 mJ, ticks over 1.96 mJ: 0
+
+
+  Passed CuriousContraptions.Tests.ReviewProbe101R2Tests.C3_EnginePush [2 m 55 s]
+  Standard Output Messages:
+ CONTROL box-box at 3.0 mm: 0/100 partners moved (worst 0.000 mm in 0.5 s)
+ cyl-box at 3.0 mm: 0/183 partners moved (worst 0.000 mm in 0.5 s)
+ cyl-cyl at 3.0 mm: 0/190 partners moved (worst 0.000 mm in 0.5 s)
+ POSITIVE CONTROL cyl-box overlapping at -2.0 mm: 30/30 partners moved (worst 12.426 mm in 0.5 s)
+
+
+[xUnit.net 00:10:29.61]   Finished:    CuriousContraptions.tests (ID = '17c85de6f6d888fe84ab2e4349cbb4f22294c3e3c04fe467e16c8943e3d7965f')
+  Passed CuriousContraptions.Tests.ReviewProbe101R2Tests.C1_SeparatedGaps [55 s]
+  Standard Output Messages:
+ CONTROL box-box target 1.0 mm, seed 101: 77 certified (3 uncertified), |err|>0.5 mm 0, negative gap 0, contact beyond margin 0, missed within margin 0, gap−exact in [-0.0001, 0.0190] mm; uncertified classified: pass 2, fail 0, negative 0, missed 0, indeterminate 1
+   extreme pose 63: exact 1.0000 mm, kernel 1.0190 mm, 1 pts, feature kinds [523]
+ cyl-box target 1.0 mm, seed 102: 187 certified (13 uncertified), |err|>0.5 mm 0, negative gap 0, contact beyond margin 0, missed within margin 0, gap−exact in [-0.0000, 0.0224] mm; uncertified classified: pass 8, fail 0, negative 0, missed 0, indeterminate 5
+   extreme pose 195: exact 1.0000 mm, kernel 1.0000 mm, 1 pts, feature kinds [5]
+ cyl-cyl target 1.0 mm, seed 103: 189 certified (11 uncertified), |err|>0.5 mm 0, negative gap 0, contact beyond margin 0, missed within margin 0, gap−exact in [-0.0005, 0.0116] mm; uncertified classified: pass 10, fail 0, negative 0, missed 0, indeterminate 1
+   extreme pose 177: exact 0.9999 mm, kernel 1.0115 mm, 1 pts, feature kinds [5]
+ coin-coin target 1.0 mm, seed 104: 76 certified (24 uncertified), |err|>0.5 mm 0, negative gap 0, contact beyond margin 0, missed within margin 0, gap−exact in [-0.0007, 0.0140] mm; uncertified classified: pass 24, fail 0, negative 0, missed 0, indeterminate 0
+   extreme pose 34: exact 0.9924 mm, kernel 1.0064 mm, 2 pts, feature kinds [5,5]
+ cyl-coin target 1.0 mm, seed 105: 78 certified (22 uncertified), |err|>0.5 mm 0, negative gap 0, contact beyond margin 0, missed within margin 0, gap−exact in [-0.0275, 0.0062] mm; uncertified classified: pass 22, fail 0, negative 0, missed 0, indeterminate 0
+   extreme pose 39: exact 1.0160 mm, kernel 0.9884 mm, 1 pts, feature kinds [6]
+ CONTROL box-box target 3.0 mm, seed 101: 80 certified (0 uncertified), |err|>0.5 mm 0, negative gap 0, contact beyond margin 0, missed within margin 0, gap−exact in [-0.0000, 0.0596] mm; uncertified classified: pass 0, fail 0, negative 0, missed 0, indeterminate 0
+   extreme pose 63: exact 2.9973 mm, kernel 3.0568 mm, 1 pts, feature kinds [523]
+ cyl-box target 3.0 mm, seed 102: 191 certified (9 uncertified), |err|>0.5 mm 0, negative gap 0, contact beyond margin 0, missed within margin 0, gap−exact in [-0.0000, 0.0583] mm; uncertified classified: pass 9, fail 0, negative 0, missed 0, indeterminate 0
+   extreme pose 149: exact 3.0000 mm, kernel 2.9999 mm, 1 pts, feature kinds [5]
+ cyl-cyl target 3.0 mm, seed 103: 189 certified (11 uncertified), |err|>0.5 mm 0, negative gap 0, contact beyond margin 0, missed within margin 0, gap−exact in [-0.0096, 0.0457] mm; uncertified classified: pass 10, fail 0, negative 0, missed 0, indeterminate 1
+   extreme pose 177: exact 2.9999 mm, kernel 3.0457 mm, 1 pts, feature kinds [5]
+ coin-coin target 3.0 mm, seed 104: 76 certified (24 uncertified), |err|>0.5 mm 0, negative gap 0, contact beyond margin 0, missed within margin 0, gap−exact in [-0.0003, 0.0648] mm; uncertified classified: pass 24, fail 0, negative 0, missed 0, indeterminate 0
+   extreme pose 52: exact 3.0003 mm, kernel 3.0000 mm, 1 pts, feature kinds [6]
+ cyl-coin target 3.0 mm, seed 105: 78 certified (22 uncertified), |err|>0.5 mm 0, negative gap 0, contact beyond margin 0, missed within margin 0, gap−exact in [-0.0003, 0.0316] mm; uncertified classified: pass 22, fail 0, negative 0, missed 0, indeterminate 0
+   extreme pose 39: exact 2.9999 mm, kernel 2.9996 mm, 1 pts, feature kinds [6]
+ CONTROL box-box target 20.0 mm, seed 101: 80 certified (0 uncertified), |err|>0.5 mm 0, negative gap 0, contact beyond margin 0, missed within margin 0, gap−exact in [0.0000, 0.0000] mm; uncertified classified: pass 0, fail 0, negative 0, missed 0, indeterminate 0
+ cyl-box target 20.0 mm, seed 102: 194 certified (6 uncertified), |err|>0.5 mm 0, negative gap 0, contact beyond margin 0, missed within margin 0, gap−exact in [0.0000, 0.0000] mm; uncertified classified: pass 6, fail 0, negative 0, missed 0, indeterminate 0
+ cyl-cyl target 20.0 mm, seed 103: 190 certified (10 uncertified), |err|>0.5 mm 0, negative gap 0, contact beyond margin 0, missed within margin 0, gap−exact in [0.0000, 0.0000] mm; uncertified classified: pass 10, fail 0, negative 0, missed 0, indeterminate 0
+ coin-coin target 20.0 mm, seed 104: 77 certified (23 uncertified), |err|>0.5 mm 0, negative gap 0, contact beyond margin 0, missed within margin 0, gap−exact in [0.0000, 0.0000] mm; uncertified classified: pass 23, fail 0, negative 0, missed 0, indeterminate 0
+ cyl-coin target 20.0 mm, seed 105: 80 certified (20 uncertified), |err|>0.5 mm 0, negative gap 0, contact beyond margin 0, missed within margin 0, gap−exact in [0.0000, 0.0000] mm; uncertified classified: pass 20, fail 0, negative 0, missed 0, indeterminate 0
+
+
+
+Test Run Successful.
+Total tests: 21
+     Passed: 21
+ Total time: 10.4970 Minutes

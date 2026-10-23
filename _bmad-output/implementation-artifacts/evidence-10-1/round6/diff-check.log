@@ -1,0 +1,157 @@
+worktree exit 0
+_bmad-output/implementation-artifacts/evidence-10-1-review/build-debug.log:53: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-10-1-review/build-debug.log:168: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-10-1-review/round2/build-debug.log:53: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-10-1-review/round2/build-debug.log:101: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-10-1-review/round2/probe-r2-enginepush.log:14: new blank line at EOF.
+_bmad-output/implementation-artifacts/evidence-10-1-review/round3/build-debug.log:53: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-10-1-review/round3/build-debug.log:101: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-10-1-review/round4/build-debug.log:53: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-10-1-review/round4/build-debug.log:101: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-10-1/baseline/build-debug.log:105: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-10-1/build-debug.log:53: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-10-1/mutations-round2/m1-inertia-axial.build.log:44: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-10-1/mutations-round2/m15-radius-range-skipped.build.log:44: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-10-1/mutations-round2/m2-inertia-transverse.build.log:44: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-10-1/mutations-round2/m3-plane-cap-side.build.log:44: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-10-1/mutations-round2/m6-box-no-radial-vertex-axes.diff:9: trailing whitespace.
++ 
+_bmad-output/implementation-artifacts/evidence-10-1/mutations-round2/m8-box-cap-no-vertices.diff:9: trailing whitespace.
++ 
+_bmad-output/implementation-artifacts/evidence-10-1/mutations-round2/m9-no-cylinder-rolling-arm.diff:11: trailing whitespace.
++ 
+_bmad-output/implementation-artifacts/evidence-10-1/mutations-round2/m9-no-cylinder-rolling-arm.diff:11: new blank line at EOF.
+_bmad-output/implementation-artifacts/evidence-10-1/mutations-round2/n1-plane-cap-fixed-square.build.log:44: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-10-1/mutations-round2/n10-review-A-caps-roll.diff:10: trailing whitespace.
++ 
+_bmad-output/implementation-artifacts/evidence-10-1/mutations-round2/n11-review-D-constant-feature-ids.diff:6: trailing whitespace.
++ 
+_bmad-output/implementation-artifacts/evidence-10-1/mutations-round2/n11-review-D-constant-feature-ids.diff:9: trailing whitespace.
++ 
+_bmad-output/implementation-artifacts/evidence-10-1/mutations-round2/n4-edge-refinement-two-steps.diff:6: trailing whitespace.
++ 
+_bmad-output/implementation-artifacts/evidence-10-1/mutations-round2/n5-rim-samples-unrefined.diff:4: trailing whitespace.
++ 
+_bmad-output/implementation-artifacts/evidence-10-1/mutations-round2/n5-rim-samples-unrefined.diff:10: trailing whitespace.
++ 
+_bmad-output/implementation-artifacts/evidence-10-1/mutations-round2/n7-cap-on-box-without-deepest.diff:4: trailing whitespace.
++ 
+_bmad-output/implementation-artifacts/evidence-10-1/mutations-round3/f2-no-depth-clamp.diff:10: trailing whitespace.
++ 
+_bmad-output/implementation-artifacts/evidence-10-1/mutations-round3/f8-box-edge-line-tolerance-11deg.diff:4: trailing whitespace.
++ 
+_bmad-output/implementation-artifacts/evidence-10-1/mutations-round3/m1-inertia-axial.build.log:44: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-10-1/mutations-round3/m15-radius-range-skipped.build.log:44: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-10-1/mutations-round3/m2-inertia-transverse.build.log:44: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-10-1/mutations-round3/m3-plane-cap-side.build.log:44: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-10-1/mutations-round3/m6-box-no-radial-vertex-axes.diff:9: trailing whitespace.
++ 
+_bmad-output/implementation-artifacts/evidence-10-1/mutations-round3/m8-box-cap-no-vertices.diff:9: trailing whitespace.
++ 
+_bmad-output/implementation-artifacts/evidence-10-1/mutations-round3/m9-no-cylinder-rolling-arm.diff:11: trailing whitespace.
++ 
+_bmad-output/implementation-artifacts/evidence-10-1/mutations-round3/m9-no-cylinder-rolling-arm.diff:11: new blank line at EOF.
+_bmad-output/implementation-artifacts/evidence-10-1/mutations-round3/n1-plane-cap-fixed-square.build.log:44: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-10-1/mutations-round3/n10-review-A-caps-roll.diff:10: trailing whitespace.
++ 
+_bmad-output/implementation-artifacts/evidence-10-1/mutations-round3/n11-review-D-constant-feature-ids.diff:6: trailing whitespace.
++ 
+_bmad-output/implementation-artifacts/evidence-10-1/mutations-round3/n11-review-D-constant-feature-ids.diff:9: trailing whitespace.
++ 
+_bmad-output/implementation-artifacts/evidence-10-1/mutations-round3/n4-edge-refinement-two-steps.diff:6: trailing whitespace.
++ 
+_bmad-output/implementation-artifacts/evidence-10-1/mutations-round3/n5-rim-samples-unrefined.diff:4: trailing whitespace.
++ 
+_bmad-output/implementation-artifacts/evidence-10-1/mutations-round3/n5-rim-samples-unrefined.diff:10: trailing whitespace.
++ 
+_bmad-output/implementation-artifacts/evidence-10-1/mutations-round3/n7-cap-on-box-without-deepest.diff:4: trailing whitespace.
++ 
+_bmad-output/implementation-artifacts/evidence-10-1/mutations-round4/f2-no-depth-clamp.diff:10: trailing whitespace.
++ 
+_bmad-output/implementation-artifacts/evidence-10-1/mutations-round4/f5-cylinder-line-tolerance-11deg.build.log:44: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-10-1/mutations-round4/g2a-edge-no-nearest-point.diff:11: trailing whitespace.
++ 
+_bmad-output/implementation-artifacts/evidence-10-1/mutations-round4/g2a-edge-no-nearest-point.diff:11: new blank line at EOF.
+_bmad-output/implementation-artifacts/evidence-10-1/mutations-round4/g3b-crossed-shared-normal.diff:11: trailing whitespace.
++ 
+_bmad-output/implementation-artifacts/evidence-10-1/mutations-round4/g3b-crossed-shared-normal.diff:11: new blank line at EOF.
+_bmad-output/implementation-artifacts/evidence-10-1/mutations-round4/g3c-crossed-shared-gap.diff:11: trailing whitespace.
++ 
+_bmad-output/implementation-artifacts/evidence-10-1/mutations-round4/g3c-crossed-shared-gap.diff:11: new blank line at EOF.
+_bmad-output/implementation-artifacts/evidence-10-1/mutations-round4/m1-inertia-axial.build.log:44: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-10-1/mutations-round4/m15-radius-range-skipped.build.log:44: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-10-1/mutations-round4/m2-inertia-transverse.build.log:44: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-10-1/mutations-round4/m3-plane-cap-side.build.log:44: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-10-1/mutations-round4/m6-box-no-radial-vertex-axes.diff:9: trailing whitespace.
++ 
+_bmad-output/implementation-artifacts/evidence-10-1/mutations-round4/m8-box-cap-no-vertices.diff:9: trailing whitespace.
++ 
+_bmad-output/implementation-artifacts/evidence-10-1/mutations-round4/m9-no-cylinder-rolling-arm.diff:11: trailing whitespace.
++ 
+_bmad-output/implementation-artifacts/evidence-10-1/mutations-round4/m9-no-cylinder-rolling-arm.diff:11: new blank line at EOF.
+_bmad-output/implementation-artifacts/evidence-10-1/mutations-round4/n1-plane-cap-fixed-square.build.log:44: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-10-1/mutations-round4/n10-review-A-caps-roll.diff:10: trailing whitespace.
++ 
+_bmad-output/implementation-artifacts/evidence-10-1/mutations-round4/n11-review-D-constant-feature-ids.diff:6: trailing whitespace.
++ 
+_bmad-output/implementation-artifacts/evidence-10-1/mutations-round4/n11-review-D-constant-feature-ids.diff:9: trailing whitespace.
++ 
+_bmad-output/implementation-artifacts/evidence-10-1/mutations-round4/n4-edge-refinement-two-steps.diff:6: trailing whitespace.
++ 
+_bmad-output/implementation-artifacts/evidence-10-1/mutations-round4/n5-rim-samples-unrefined.diff:4: trailing whitespace.
++ 
+_bmad-output/implementation-artifacts/evidence-10-1/mutations-round4/n5-rim-samples-unrefined.diff:10: trailing whitespace.
++ 
+_bmad-output/implementation-artifacts/evidence-10-1/mutations-round4/n7-cap-on-box-without-deepest.diff:4: trailing whitespace.
++ 
+_bmad-output/implementation-artifacts/evidence-10-1/mutations/m1-inertia-axial.build.log:44: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-10-1/mutations/m2-inertia-transverse.build.log:44: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-10-1/mutations/m3-plane-cap-side.build.log:44: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-10-1/mutations/m6-box-no-radial-vertex-axes.diff:9: trailing whitespace.
++ 
+_bmad-output/implementation-artifacts/evidence-10-1/mutations/m7-box-no-rim-edge-axes.diff:11: trailing whitespace.
++ 
+_bmad-output/implementation-artifacts/evidence-10-1/mutations/m7-box-no-rim-edge-axes.diff:11: new blank line at EOF.
+_bmad-output/implementation-artifacts/evidence-10-1/mutations/m8-box-cap-no-vertices.diff:9: trailing whitespace.
++ 
+_bmad-output/implementation-artifacts/evidence-10-1/mutations/m9-no-cylinder-rolling-arm.diff:11: trailing whitespace.
++ 
+_bmad-output/implementation-artifacts/evidence-10-1/mutations/m9-no-cylinder-rolling-arm.diff:11: new blank line at EOF.
+_bmad-output/implementation-artifacts/evidence-10-1/round2/build-debug.log:53: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-10-1/round3/build-debug.log:52: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-10-1/round3/build-debug.log:100: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-10-1/round5/build-debug.log:53: trailing whitespace.
++  
+merge-vs-main exit 2
