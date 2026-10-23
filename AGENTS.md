@@ -48,6 +48,14 @@ For required publication, independent SnapshotApproval first verifies every pre-
   - The following are forbidden: `Skip`, `[Fact(Explicit = true)]`, conditional/ignored tests, `.skip`/`.todo`, and test-runner filters or categories that exclude tests from a required run.
   - Selecting tests for a scoped local check is allowed, but the full required run must still include them.
   - **Browser exception (owner, 24 October 2026):** browser/E2E tests (Chrome/Playwright suites and the tests of their toolchain) may be explicitly disabled or removed until the post-catalogue browser phase, which re-enables them. Disabling must be explicit and listed in one place, with the re-enable gate and owner. Silent filters are not allowed. Native C# and non-browser tests have no exception.
+- **Hard rule — tests assert behaviour, not hashes (owner, 24 October 2026).**
+  - Committed tests must not assert hashes, digests or byte-identity of simulation, trace, event, render or save output, including "unchanged bytes" and golden-hash pins.
+  - Assert the observable behaviour explicitly: counts, kinds, ticks, owners, states and positions or speeds within a derived tolerance.
+  - Refactor byte-identity remains welcome as one-off review evidence. It is not a committed test.
+  - Allowed:
+    - integrity checks of vendored or third-party files;
+    - fixed test inputs kept as committed fixture files. Do not pin them by hash.
+  - A reviewer treats a new output-hash assertion as a Fail.
   - A test that cannot run in an environment is a defect to fix (provision the dependency, or move the behaviour into a test that can run). It must not be skipped.
   - Delete a test only when its behaviour is removed or provably covered elsewhere, and record which.
   - A reviewer treats any skipped or excluded test as a Fail.
