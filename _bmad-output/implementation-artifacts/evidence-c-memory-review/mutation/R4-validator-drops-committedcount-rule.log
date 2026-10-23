@@ -1,0 +1,7 @@
+== 2026-10-23T18:31:47Z R4-validator-drops-committedcount-rule (CuriousContraptions.Bundle/BundleValidator.cs) mutation diff vs candidate:
+-                if (binding.Driver == PresentationDriver.CommittedCount && signal?.PulseCount is null)
+-                    OutOfRange("Presentation.PulseCount");
+    0 Error(s)
+    0 Warning(s)
+CuriousContraptions.BundleElements.Tests.BundleValidatorTests.ThePulseCountIsAWholeTargetOnPulsePortsWithASwitchedContactExclusiveAndCoupledToItsBindings [FAIL]
+Failed!  - Failed:     1, Passed:   175, Skipped:     0, Total:   176, Duration: 336 ms - BundleElements.Tests.dll (net10.0)

@@ -1,0 +1,14 @@
+== 2026-10-23T18:00:12Z mutation under test (engine/gpu/ActivationNetwork.cs):
+-            var next = (latchRequests[i] & StateLatchRequest.Reset) != 0 ? SimulationLatchPhase.Off :
+-                (latchRequests[i] & StateLatchRequest.Set) != 0 ? SimulationLatchPhase.On : current;
++            var next = (latchRequests[i] & StateLatchRequest.Set) != 0 ? SimulationLatchPhase.On :
++                (latchRequests[i] & StateLatchRequest.Reset) != 0 ? SimulationLatchPhase.Off : current;
+    0 Warning(s)
+    0 Error(s)
+CuriousContraptions.Tests.EventRingProducerTests.AMemoryPublishesOneRecordPerChangeAndNoneForARedundantSet [FAIL]
+CuriousContraptions.Tests.MemoryGuardTests.OneSourceOnBothInputsAlwaysResolvesToReset [FAIL]
+CuriousContraptions.Tests.MemoryGuardTests.SetTurnsOnResetTurnsOffAndASameTickPairResolvesToReset [FAIL]
+CuriousContraptions.Tests.StateLatchTests.Network_OneSourceWiredToBothInputsNeverTurnsOn [FAIL]
+CuriousContraptions.Tests.StateLatchTests.Network_SameTickConflictResolvesOffWhicheverSourceIsOrderedFirst [FAIL]
+CuriousContraptions.Tests.StateLatchTests.Network_SetHoldsResetClearsAndSimultaneousRequestsResolveOff [FAIL]
+Failed!  - Failed:     6, Passed:   130, Skipped:     0, Total:   136, Duration: 10 s - CuriousContraptions.tests.dll (net10.0)

@@ -84,10 +84,12 @@ function assertCounterWiring(bytes: Buffer, gateSlot: number, ballSlot: number, 
     assert(hasEdge(battId, counterId, ConnectionDomain.Electrical, Socket.Supply, Socket.PowerIn), 'Missing Battery -> Counter electrical link');
     assert(hasEdge(detId, counterId, ConnectionDomain.Activation, Socket.ActivationOut, Socket.ActivationIn), 'Missing Detector -> Counter activation link');
     // Counter assertions expose only the Counter configuration; threshold belongs to other generic record uses.
-    const counterInst: Pick<InstanceRecord, 'partId' | 'targetCount'> = construction.instances(counterSlot)!;
+    const counterInst: Pick<InstanceRecord, 'partId' | 'parametersLength' | 'parameters'> = construction.instances(counterSlot)!;
     assert.equal(counterInst.partId(), 'counter');
-    // Story 9A.2: the Counter target is its whole target_count field (the f32 threshold was the deleted coercion).
-    assert.equal(counterInst.targetCount(), 3);
+    // C-Memory: the Counter target is its declared target_count parameter (the record's target_count field and the f32 threshold
+    // coercion are both deleted).
+    const counterTarget = Array.from({length: counterInst.parametersLength()}, (_, i) => counterInst.parameters(i)!).find(p => p.key() === 'target_count');
+    assert.equal(counterTarget?.value(), 3);
 }
 
 function counterRow(snapshot: RunResetSnapshot): ActivationMemoryRow {

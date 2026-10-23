@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+# Build the C-Memory worktree with the current (mutated) source and run the guarding filter; log to $1.
+# Usage: mutant.sh LOG MUTATED_FILE [native|bundle|both]   (the mutation is shown as the uncommitted diff of MUTATED_FILE against the
+# frozen candidate copy in evidence-c-memory/mutation/frozen/)
+set -u
+cd /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-memory
+LOG=$1; FILE=$2; WHICH=${3:-native}
+{
+  echo "== $(date -u +%FT%TZ) mutation under test ($FILE):"
+  diff -U0 "_bmad-output/implementation-artifacts/evidence-c-memory/mutation/frozen/$(basename "$FILE").txt" "$FILE" | grep '^[-+][^-+]'
+  dotnet build CuriousContraptions.slnx -c Debug 2>&1 | grep -E "Warning\(s\)|Error\(s\)| error "
+  if [ "$WHICH" != bundle ]; then
+    dotnet test CuriousContraptions.tests/CuriousContraptions.tests.csproj -c Debug --no-build --no-restore \
+      --filter "FullyQualifiedName~MemoryGuardTests|FullyQualifiedName~DeclaredMemoryTests|FullyQualifiedName~CounterTests|FullyQualifiedName~StateLatchTests|FullyQualifiedName~LatchSupplyFixtureTests|FullyQualifiedName~DeclaredOrientationTests|FullyQualifiedName~TheCounterTargetEditor|FullyQualifiedName~EventRingProducerTests" 2>&1 \
+      | grep -E "\[FAIL\]|Passed!|Failed!" | sed 's/^\[xUnit[^]]*\] *//' | sort -u | head -40
+  fi
+  if [ "$WHICH" != native ]; then
+    dotnet test tools/BundleElements.Tests -c Debug --no-build --no-restore 2>&1 | grep -E "\[FAIL\]|Passed!|Failed!" | sed 's/^\[xUnit[^]]*\] *//' | sort -u | head -20
+  fi
+} > "$LOG" 2>&1
+cat "$LOG"

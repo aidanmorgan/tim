@@ -1,0 +1,9 @@
+== 2026-10-23T18:01:33Z mutation under test (elements/Counter/CounterElementDeclaration.cs):
+-            new("target_count", ParameterUnit.None, ParameterKind.WholeNumber, Minimum: 1f, Maximum: 9f, Default: 3f, Options: [])
++            new("target_count", ParameterUnit.None, ParameterKind.WholeNumber, Minimum: 1f, Maximum: 9f, Default: 3f, Options: [], EditorPolicy: ParameterEditorPolicy.Clamp)
+    0 Warning(s)
+    0 Error(s)
+CuriousContraptions.Tests.PalettePlacementTests.TheCounterTargetEditorAdmitsOneToNineRefusesTheRestAndAppliesAsOneUndo [FAIL]
+Failed!  - Failed:     1, Passed:   135, Skipped:     0, Total:   136, Duration: 10 s - CuriousContraptions.tests.dll (net10.0)
+CuriousContraptions.BundleElements.Tests.BundleValidatorTests.ThePulseCountIsAWholeTargetOnPulsePortsWithASwitchedContactExclusiveAndCoupledToItsBindings [FAIL]
+Failed!  - Failed:     1, Passed:   175, Skipped:     0, Total:   176, Duration: 341 ms - BundleElements.Tests.dll (net10.0)

@@ -31,7 +31,6 @@ public static class WorkshopWireFlatBuffers
         InstanceRecord.AddLocal(builder, Vec3f.CreateVec3f(builder, template.Local.X, template.Local.Y, template.Local.Z));
         InstanceRecord.AddRotation(builder, Quat4f.CreateQuat4f(builder, template.Rotation.X, template.Rotation.Y, template.Rotation.Z, template.Rotation.W));
         InstanceRecord.AddLength(builder, values[AuthoredScalar.Length]);
-        InstanceRecord.AddTargetCount(builder, template.TargetCount);
         InstanceRecord.AddParameters(builder, parameters);
         builder.Finish(InstanceRecord.EndInstanceRecord(builder).Value);
         return MapInstance(InstanceRecord.GetRootAsInstanceRecord(new ByteBuffer(builder.SizedByteArray())));
@@ -188,7 +187,7 @@ public static class WorkshopWireFlatBuffers
     }
 
     /// <summary>The current <c>InstanceRecord</c> table's field count (schemas/workshop_wire.fbs).</summary>
-    internal const int InstanceRecordFields = 9;
+    internal const int InstanceRecordFields = 8;
     /// <summary>The vtable offsets of <c>SavedConstruction.construction</c> (field 1), <c>WorkshopCommand.construction_record</c>
     /// (field 11) and <c>ConstructionRecord.instances</c> (field 3), as the generated accessors read them.</summary>
     internal const int SavedConstructionSlot = 6, CommandConstructionSlot = 26, ConstructionInstancesSlot = 10;
@@ -637,20 +636,8 @@ public static class WorkshopWireFlatBuffers
             InstanceRecord.AddLocal(builder, Vec3f.CreateVec3f(builder, instance.Local.X, instance.Local.Y, instance.Local.Z));
             InstanceRecord.AddRotation(builder, Quat4f.CreateQuat4f(builder, instance.Rotation.X, instance.Rotation.Y, instance.Rotation.Z, instance.Rotation.W));
 
-            switch (instance)
-            {
-                case WorkshopPipe pipe:
-                    InstanceRecord.AddLength(builder, pipe.Length.Metres);
-                    break;
-                case WorkshopLatch:
-                case IWorkshopDeclaredColliders:
-                    break;
-                case WorkshopCounter counter:
-                    InstanceRecord.AddTargetCount(builder, checked((uint)counter.TargetCount));
-                    break;
-                default:
-                    throw new ArgumentException("Unsupported instance declaration.");
-            }
+            // The straight pipe's length is the one typed record field left (Story 9A.45 makes the pipe generic).
+            if (instance is WorkshopPipe pipe) InstanceRecord.AddLength(builder, pipe.Length.Metres);
 
             instanceOffsets[i] = InstanceRecord.EndInstanceRecord(builder);
         }
@@ -747,11 +734,8 @@ public static class WorkshopWireFlatBuffers
 
         IWorkshopInstance result = partId.Value switch
         {
-            "latch" => new WorkshopLatch(id, cell, local, rotation, locked),
             // A record without its length is a missing field: no default replaces saved data; a present length is validated as written.
             "pipe" => new WorkshopPipe(id, cell, local, rotation, new(RequiredLength(inst)), locked),
-            // Declared settings are decoded as written; construction validation rejects a missing (zero) or out-of-range value.
-            "counter" => new WorkshopCounter(id, cell, local, rotation, TargetCount(inst), locked),
             // Every other element is a generic instance of its declared colliders (Story 9A.15: no per-id list); an id with neither
             // a record nor colliders is no element this decoder knows, refused naming it.
             _ => DeclaredPhysics.Contains(partId) && DeclaredPhysics.Of(partId).Colliders.Count > 0
@@ -770,12 +754,11 @@ public static class WorkshopWireFlatBuffers
         ? throw new WireFaultException(WireFaultReason.OutOfRange, "Generic instance cannot carry a typed record field.")
         : new(part, id, cell, local, rotation, locked) { Parameters = DecodeParameters(inst, part) };
 
-    /// <summary>Whether a record holds any typed record field: a nonzero bit pattern in the length, or a nonzero target count. A
-    /// generic instance carries only its declared parameters, so this refuses it (the save pre-validation applies the same
-    /// rule).</summary>
+    /// <summary>Whether a record holds a typed record field: a nonzero bit pattern in the length. A generic instance carries only its
+    /// declared parameters, so this refuses it (the save pre-validation applies the same rule).</summary>
     internal static bool CarriesTypedField(InstanceRecord r)
     {
-        return BitConverter.SingleToUInt32Bits(r.Length) != 0 || r.TargetCount != 0;
+        return BitConverter.SingleToUInt32Bits(r.Length) != 0;
     }
 
     internal static InstanceParameterCollection DecodeParameters(InstanceRecord record, PartId part)
@@ -801,13 +784,4 @@ public static class WorkshopWireFlatBuffers
     private static float RequiredLength(InstanceRecord inst) => BitConverter.SingleToUInt32Bits(inst.Length) == 0
         ? throw new WireFaultException(WireFaultReason.MissingField, $"Instance {inst.Id} has no length.")
         : inst.Length;
-
-    /// <summary>The Counter's whole target count: absent is a missing field and one beyond Int32 is out of range, never coerced;
-    /// its admitted range is the Counter's own rule.</summary>
-    private static int TargetCount(InstanceRecord inst) => inst.TargetCount switch
-    {
-        0 => throw new WireFaultException(WireFaultReason.MissingField, $"Counter {inst.Id} has no target count."),
-        > int.MaxValue => throw new WireFaultException(WireFaultReason.OutOfRange, $"Counter {inst.Id} target count {inst.TargetCount} is not an Int32."),
-        var count => (int)count,
-    };
 }

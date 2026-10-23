@@ -1,0 +1,5 @@
+candidate tracked diff incl. staged deletions: git diff HEAD -- . ':(exclude)_bmad-output' ':(exclude)TODO.md' | sha256 = 0dad2767164dd6f97114b6baaf8bd67b6c28910da22054c82e7ad7bf9459eeb1
+implementer recorded 44b85353... = git diff (unstaged only): omits the 4 staged deletions (WorkshopCounter.cs/.uid, WorkshopLatch.cs/.uid); otherwise identical
+MemoryGuardTests.cs 89abbef34c4f4082d35e1dd950b524e72d58eb0b71f05822fead68740d67e611 (== baseline/MemoryGuardTests-base.cs.txt)
+DeclaredMemoryTests.cs 39845d700dbfa5f1d313ab128432936f82d10425bb41a9d015197ccbf73c1a9e
+origin/main at review: cf35a0645c719e2551fc7ffa2473416d404da8a0 (base fc7f7cac; 4 commits: 10.1 solid cylinder)

@@ -63,8 +63,4 @@ public sealed class DelayBoxElementDeclaration : ITimerElement, ISceneGeometryEl
     ];
 
     public SignalTimerDescriptor Timer => new("delay_seconds", TimerCompletionPolicy.Latch, TimerBoundary.BeforePhysics, TimerElapsedSignal.Activation);
-
-    public SignalLatchMode LatchMode => SignalLatchMode.None;
-
-    public SignalCounterDescriptor? Counter => null;
 }

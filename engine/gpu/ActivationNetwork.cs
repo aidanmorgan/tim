@@ -861,10 +861,10 @@ public static class WorkshopActivationCompiler
                 nodes.Add(new(new(instance.Id.Value), instance.Id, ActivationNodeKind.PassageSource, default, 0, default, sensor.Id));
                 passageSensors.Add(sensor);
             }
-            else if (instance is WorkshopCounter counter)
-                nodes.Add(new(new(counter.Id.Value), counter.Id, ActivationNodeKind.Counter, default, 0, default, default, (uint)counter.TargetCount));
-            else if (instance is WorkshopLatch latch)
-                nodes.Add(new(new(latch.Id.Value), latch.Id, ActivationNodeKind.StateLatch, default));
+            // A declared pulse count or memory holds committed discrete state in one node.
+            else if (instance is WorkshopGenericInstance held && DeclaredPhysics.Of(instance.PartId).Signal is { } declared &&
+                     MemoryNode(held, declared) is { } memory)
+                nodes.Add(memory);
             // A declared contact-load sensor commits its own level, wired or not, so its row is one activation node; its declared
             // release hold (Story 9R.5) is compiled to ticks of this construction's cadence.
             else if (instance is WorkshopGenericInstance && DeclaredPhysics.Of(instance.PartId).Signal?.ContactLoad is { } load)
@@ -891,6 +891,17 @@ public static class WorkshopActivationCompiler
             construction.Settings.Physical, new(1)).Substeps, passageSensors.ToArray(),
             construction.Instances.Where(instance => DeclaredPhysics.Of(instance.PartId).Electrical?.Supply?.Kind ==
                 CuriousContraptions.Abstractions.Electrical.SupplyCapabilityKind.SwitchedContact).Select(instance=>instance.Id).ToArray());
+    }
+
+    /// <summary>The node a declared pulse count or memory compiles to (null for any other declaration): a pulse count counts toward
+    /// its WholeNumber target parameter (the network admits 1–9), and a memory is one bistable Set/Reset node.</summary>
+    public static ActivationNodeDeclaration? MemoryNode(WorkshopGenericInstance owner, CuriousContraptions.Bundle.SignalPayload signal)
+    {
+        ArgumentNullException.ThrowIfNull(signal);
+        if (signal.PulseCount is { } count)
+            return new(new(owner.Id.Value), owner.Id, ActivationNodeKind.Counter, default, 0, default, default,
+                (uint)owner.Parameters[new ParameterId(count.TargetParameter)]);
+        return signal.Memory is null ? null : new(new(owner.Id.Value), owner.Id, ActivationNodeKind.StateLatch, default);
     }
 
     /// <summary>The node a declared indicator compiles to: an Activation link into its declared input from a level output makes it

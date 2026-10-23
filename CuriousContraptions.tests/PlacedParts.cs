@@ -63,4 +63,18 @@ internal static class PlacedParts
         float intervalSeconds, bool locked = false) =>
         WorkshopInput.Generic(PartId.Clock, id, x, y, z, qx, qy, qz, qw,
             new([new(new("interval_seconds"), intervalSeconds)])) with { Locked = locked };
+
+    /// <summary>A Counter of a whole target count at an f32-input pose: the counter package's generic instance with its declared
+    /// <c>target_count</c>. (On the record path at fc7f7cac it built `WorkshopCounter`:
+    /// evidence-c-memory/probe/PlacedParts-record-path.cs.txt.)</summary>
+    public static IWorkshopInstance Counter(GpuBodyId id, double x, double y, double z, double qx, double qy, double qz, double qw,
+        int targetCount, bool locked = false) =>
+        WorkshopInput.Generic(PartId.Counter, id, x, y, z, qx, qy, qz, qw,
+            new([new(new("target_count"), targetCount)])) with { Locked = locked };
+
+    /// <summary>A Set/Reset State Latch at an f32-input pose: the latch package's generic instance (no parameters). (On the record
+    /// path at fc7f7cac it built `WorkshopLatch`: evidence-c-memory/probe/PlacedParts-record-path.cs.txt.)</summary>
+    public static IWorkshopInstance Latch(GpuBodyId id, double x, double y, double z, double qx, double qy, double qz, double qw,
+        bool locked = false) =>
+        WorkshopInput.Generic(PartId.Latch, id, x, y, z, qx, qy, qz, qw) with { Locked = locked };
 }

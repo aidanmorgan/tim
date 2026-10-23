@@ -82,9 +82,9 @@ public sealed class LampDetectorGuardTests
         var lamp = PlacedParts.Lamp(new(2), 4, 1, 0, 0, 0, 0, 1);
         var ball = WorkshopInput.Generic(PartId.Basketball, new(3), ballX, DropY, 0, 0, 0, 0, 1);
         if (!counted) return (Bench([detector, lamp, ball], Signal(detector.Id, lamp.Id)), detector.Id, lamp.Id, ball.Id);
-        var counter = WorkshopInput.Counter(new(4), -4, 1, 0, 0, 0, 0, 1, 2);
+        var counter = PlacedParts.Counter(new(4), -4, 1, 0, 0, 0, 0, 1, 2);
         var second = PlacedParts.Lamp(new(5), 4, 1, 3, 0, 0, 0, 1);
-        var tally = WorkshopInput.Counter(Tally, -4, 1, 3, 0, 0, 0, 1, 9);
+        var tally = PlacedParts.Counter(Tally, -4, 1, 3, 0, 0, 0, 1, 9);
         return (Bench([detector, lamp, ball, counter, second, tally], Signal(detector.Id, lamp.Id), Signal(detector.Id, counter.Id),
             Signal(counter.Id, second.Id), Signal(detector.Id, tally.Id)), detector.Id, lamp.Id, ball.Id);
     }
@@ -209,7 +209,7 @@ public sealed class LampDetectorGuardTests
     {
         var setClock = PlacedParts.Clock(new(1), -3, 0, 0, 0, 0, 0, 1, 1f);
         var resetClock = PlacedParts.Clock(new(2), -3, 3, 0, 0, 0, 0, 1, 1.5f);
-        var latch = WorkshopInput.Latch(new(3), 0, 0, 0, 0, 0, 0, 1);
+        var latch = PlacedParts.Latch(new(3), 0, 0, 0, 0, 0, 0, 1);
         var battery = PlacedParts.Battery(new(4), -6, 0, 0);
         var lamp = PlacedParts.Lamp(new(5), 3, 0, 0, 0, 0, 0, 1);
         var sticky = PlacedParts.Lamp(new(6), 3, 3, 0, 0, 0, 0, 1);
@@ -249,11 +249,11 @@ public sealed class LampDetectorGuardTests
     [Fact]
     public void ALampThatFollowsALevelRefusesASecondSignalAndALevelLightsNoOtherInput()
     {
-        var latch = WorkshopInput.Latch(new(1), 0, 0, 0, 0, 0, 0, 1);
+        var latch = PlacedParts.Latch(new(1), 0, 0, 0, 0, 0, 0, 1);
         var lamp = PlacedParts.Lamp(new(2), 3, 0, 0, 0, 0, 0, 1);
-        var counter = WorkshopInput.Counter(new(3), -3, 0, 0, 0, 0, 0, 1, 3);
+        var counter = PlacedParts.Counter(new(3), -3, 0, 0, 0, 0, 0, 1, 3);
         var hit = WorkshopInput.Generic(PartId.ImpactSwitch, new(4), 0, 3, 0, 0, 0, 0, 1);
-        var other = WorkshopInput.Latch(new(5), 0, -3, 0, 0, 0, 0, 1);
+        var other = PlacedParts.Latch(new(5), 0, -3, 0, 0, 0, 0, 1);
         var detector = PlacedParts.Detector(new(6), 6, 3, 0, 0, 0, 0, 1);
         var instances = new WorkshopInstances(latch, lamp, counter, hit, other, detector);
         var level = Signal(latch.Id, lamp.Id);

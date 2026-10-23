@@ -33,7 +33,7 @@ public sealed class DeclaredIndicatorPassageTests
         var fed = PlacedParts.Lamp(new(2), 3, 4, 0, 0, 0, 0, 1);
         var level = PlacedParts.Lamp(new(3), 3, 7, 0, 0, 0, 0, 1);
         var detector = PlacedParts.Detector(new(4), -3, 1, 0, 0, 0, -H, H);
-        var latch = WorkshopInput.Latch(new(5), -6, 1, 0, 0, 0, 0, 1);
+        var latch = PlacedParts.Latch(new(5), -6, 1, 0, 0, 0, 0, 1);
         var wall = WorkshopInput.Generic(PartId.Wall, new(6), 9, 1, 0, 0, 0, 0, 1);
         foreach (var part in new[] { lamp, fed, level, detector })
             Assert.Empty(Assert.IsType<WorkshopGenericInstance>(part).Parameters);
@@ -55,7 +55,7 @@ public sealed class DeclaredIndicatorPassageTests
     public void AnIndicatorFollowsALevelOnlyOnItsDeclaredInput()
     {
         var lamp = PlacedParts.Lamp(new(1), 3, 1, 0, 0, 0, 0, 1);
-        var latch = WorkshopInput.Latch(new(2), -3, 1, 0, 0, 0, 0, 1);
+        var latch = PlacedParts.Latch(new(2), -3, 1, 0, 0, 0, 0, 1);
         var hit = WorkshopInput.Generic(PartId.ImpactSwitch, new(3), 0, 4, 0, 0, 0, 0, 1);
         var level = Bench([lamp, latch, hit], Signal(latch.Id, lamp.Id));
         Assert.Equal(ActivationNodeKind.LevelIndicator, WorkshopActivationCompiler.IndicatorKind(lamp.Id, new(PortSocket.ActivationIn), level));
@@ -136,7 +136,7 @@ public sealed class DeclaredIndicatorPassageTests
     {
         var floor = (double)WorkshopConstruction.WorkbenchSurface.Value;
         var detector = PlacedParts.Detector(new(1), 0, floor + .62, 0, 0, 0, -H, H);
-        var counter = WorkshopInput.Counter(new(4), -4, 1, 0, 0, 0, 0, 1, 2);
+        var counter = PlacedParts.Counter(new(4), -4, 1, 0, 0, 0, 0, 1, 2);
         return Bench([detector, PlacedParts.Lamp(new(2), 4, 1, 0, 0, 0, 0, 1),
                 WorkshopInput.Generic(PartId.Basketball, new(3), 0, floor + .34 + 3, 0, 0, 0, 0, 1), counter, PlacedParts.Lamp(new(5), 4, 1, 3, 0, 0, 0, 1)],
             Signal(detector.Id, new(2)), Signal(detector.Id, counter.Id), Signal(counter.Id, new(5)));
@@ -149,17 +149,19 @@ public sealed class DeclaredIndicatorPassageTests
     };
 
     // 9A.32 removed four InstanceRecord fields and renumbered the later slots, so the wired save's counter target count (slot 12 at
-    // 54ffd9f0) now lies beyond the table (10 fields at 9A.32, 9 since C-Clock) and reads as absent: the save is refused with the typed
-    // reason at both decode boundaries, never misread.
+    // 54ffd9f0) now lies beyond the table (10 fields at 9A.32, 8 since C-Memory). C-Memory made the counter a generic instance, so its
+    // record decodes as a counter without its declared target_count: the save is refused with the typed reason at both decode
+    // boundaries, never misread (it was a missing typed target count before C-Memory).
     [Fact]
     public void TheWiredRecordPathSaveIsRefusedAfterTheSlotRenumbering()
     {
         var bytes = Convert.FromBase64String(WiredSave);
         Assert.Equal("d3f44efad3fd9ad2855109333bc5b7caa2806ac7c7215b38001f79f95e81c2fe", Convert.ToHexStringLower(SHA256.HashData(bytes)));
-        SaveFixture.Refused(WorkshopSaveRejection.MissingField, () => WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes));
+        Assert.Equal("This save cannot be loaded: Invalid declared parameters.",
+            SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes)).Message);
         var counter = WorkshopSaveCodec.Open(bytes).Construction!.Value.Instances(3)!.Value;
         Assert.Equal("counter", counter.PartId);
-        Assert.Equal(WireFaultReason.MissingField, Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.MapInstance(counter)).Reason);
+        Assert.Equal(WireFaultReason.OutOfRange, Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.MapInstance(counter)).Reason);
     }
 
     [Theory]
@@ -271,9 +273,9 @@ public sealed class DeclaredIndicatorPassageTests
     public void TheLevelWiringRefusalsKeepTheirOrdinalsAndText()
     {
         Assert.Equal((7u, 8u), ((uint)WorkshopEditRejection.LevelDrivesLevelInputOnly, (uint)WorkshopEditRejection.LevelInputFollowsOneLevel));
-        var latch = WorkshopInput.Latch(new(1), 0, 0, 0, 0, 0, 0, 1);
+        var latch = PlacedParts.Latch(new(1), 0, 0, 0, 0, 0, 0, 1);
         var lamp = PlacedParts.Lamp(new(2), 3, 0, 0, 0, 0, 0, 1);
-        var counter = WorkshopInput.Counter(new(3), -3, 0, 0, 0, 0, 0, 1, 3);
+        var counter = PlacedParts.Counter(new(3), -3, 0, 0, 0, 0, 0, 1, 3);
         var instances = new WorkshopInstances(latch, lamp, counter);
         Assert.Equal("A level output can only light a Signal lamp.", EditRefusal.Is(WorkshopEditRejection.LevelDrivesLevelInputOnly,
             () => new WorkshopConnections(Signal(latch.Id, counter.Id)).Validate(instances)).Message);

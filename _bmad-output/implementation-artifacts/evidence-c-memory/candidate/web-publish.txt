@@ -1,0 +1,7 @@
+publish rc=0
+present index.html
+present 404.html
+present godot.wasm
+present godot.pck
+present _framework/dotnet.js
+AppBundle moved out

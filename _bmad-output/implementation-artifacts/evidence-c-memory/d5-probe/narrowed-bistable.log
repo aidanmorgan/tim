@@ -1,0 +1,20 @@
+== mutation: BistableNodes narrowed to StateLatch only (scratch, reverted)
+diff --git a/engine/gpu/WorkshopSimulation.cs b/engine/gpu/WorkshopSimulation.cs
+index 0cd45cc9..45e4eb0f 100644
+--- a/engine/gpu/WorkshopSimulation.cs
++++ b/engine/gpu/WorkshopSimulation.cs
+@@ -104 +104 @@ public sealed class WorkshopSimulation : IAsyncDisposable
+-                if (node.Kind is ActivationNodeKind.StateLatch or ActivationNodeKind.LevelIndicator or ActivationNodeKind.ContactLoadSource) nodes.Add(node.Id);
++                if (node.Kind is ActivationNodeKind.StateLatch) nodes.Add(node.Id);
+    0 Warning(s)
+    0 Error(s)
+CuriousContraptions.Tests.LampDetectorGuardTests.ALampOnALatchFollowsItsLevelOnAndOffWhileAFirstInputLampHolds [FAIL]
+CuriousContraptions.Tests.LampDetectorGuardTests.ALampOnAPlateFollowsItsLevelOnAndOff [FAIL]
+CuriousContraptions.Tests.LatchSupplyFixtureTests.BallPartlyThroughStopsClosingBladeUncrushed [FAIL]
+CuriousContraptions.Tests.LatchSupplyFixtureTests.BallUpstreamAtCutStaysUpstream [FAIL]
+CuriousContraptions.Tests.LatchSupplyFixtureTests.MidStrokeResetStopsDriveAndReturnsClosed [FAIL]
+CuriousContraptions.Tests.LatchSupplyFixtureTests.ResetWhenOpenClearsDownstreamAndSpringCloses [FAIL]
+CuriousContraptions.Tests.LatchSupplyFixtureTests.SaveLoadPreservesFiveSocketsAndReplaysIdentically [FAIL]
+CuriousContraptions.Tests.PressurePlateTests.ALoadRolledOffATiltedPlateReleasesItsLevelTwelveTicksAfterItsLastQualifyingTick [FAIL]
+Failed!  - Failed:     8, Passed:   111, Skipped:     0, Total:   119, Duration: 2 s - CuriousContraptions.tests.dll (net10.0)
+reverted:        0 engine diff lines

@@ -2561,13 +2561,13 @@ So that every new element from Story 9.5 on is declaration-only and every conver
 
 *Deletes:*
 - *the union of the Stories 9A.41 and 9A.43 lists: `WorkshopCounter`, `DefaultTargetCount`, `WorkshopLatch`, their `WorkshopInput` factories, the latch-only Latched→Clear admission, the `OfType<WorkshopCounter>` and `OfType<WorkshopLatch>` loops (`WorkshopPhysicsCompiler.cs:244`, `:272`), the `ActivationNetwork.Compile` arms, and the whole `WorkshopInstances.Validate` type whitelist;*
-- *the `"counter"` and `"latch"` arms of `CaptureInstance`, which leaves no id arm;*
+- *the `"counter"` and `"latch"` arms of `CaptureInstance`, which leaves no id arm except the straight pipe's `"pipe"` (owned by 9A.45; coordinator decision, 23 Oct 2026);*
 - *this family's 9A.45a entries.*
 
 **Acceptance Criteria:**
 - **Given** the Counter and Latch packages, **When** they are compiled, **Then** every Story 9A.41 and 9A.43 AC holds, including the Story 9A.43 record-name `rg` returning 0 production hits.
-- **And** `CaptureInstance` has no id arm, and the 9A.45a list has no record-type entry left.
-- **And** the review appends the addenda that close Stories 9.2 and 6.5f.
+- **And** `CaptureInstance` has no id arm except `"pipe"` (9A.45), and the 9A.45a list has no record-type entry left except the Pipe's FinalIsolation rows.
+- **And** the review appends the addenda for Stories 9.2 and 6.5f: the Counter and Latch arms of 6.5f close, while 6.5f stays open for the Pipe residue (9A.45) and 9.2 stays open until `cat-020` runs in Chrome (coordinator decision, 23 Oct 2026).
 
 `cat-005-n19` and `cat-051-interrupt` exist from Story 9.4c (position 30), so the C-Gate, 9A.39 and C-Memory ACs that name them can be met.
 
@@ -3588,7 +3588,7 @@ So that the last element record leaves the engine.
 **Acceptance Criteria:**
 - **Given** a latch with Set, Reset, supply and ActivationOut wired through real UI, **When** Set and Reset pulses arrive, **Then** memory, the switched supply and the output follow Story 9.4's acceptance.
 - **And** same-tick Set and Reset resolve to Reset (control).
-- **And** the generic `Clear` command is admitted for any instance that declares the memory capability and rejected for every other instance (negative control).
+- **And** a committed Latched→Clear flip is admitted only for StateLatch, LevelIndicator and ContactLoadSource nodes (the node kinds a declared memory, a level-wired indicator and a declared contact load compile to), and refused for every other node with `Faulted`/`InvalidRead` (negative control). There is no generic Clear command (coordinator decision, 24 Oct 2026, superseding the 23 Oct wording).
 - **And** Run/Reset and Save/Load are exact.
 - **And** `rg "Workshop(Ball|Receiver|Ramp|Switch|Lamp|Wall|Delay|Bumper|Domino|Battery|Springboard|PressurePlate|Counter|Clock|Latch|BallDetector)\b"` returns 0 production hits.
 - **And** `cat-037`, `cat-005-n19` and `cat-051-interrupt` pass.

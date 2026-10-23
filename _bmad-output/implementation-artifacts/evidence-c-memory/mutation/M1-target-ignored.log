@@ -1,0 +1,23 @@
+== 2026-10-23T17:59:06Z mutation under test (engine/gpu/ActivationNetwork.cs):
+-                (uint)owner.Parameters[new ParameterId(count.TargetParameter)]);
++                3u + 0u * (uint)owner.Parameters[new ParameterId(count.TargetParameter)]);
+    0 Warning(s)
+    0 Error(s)
+CuriousContraptions.Tests.DeclaredMemoryTests.ADeclaredPulseCountCompilesItsCounterNodeAtItsTarget(target: 1) [FAIL]
+CuriousContraptions.Tests.DeclaredMemoryTests.ADeclaredPulseCountCompilesItsCounterNodeAtItsTarget(target: 9) [FAIL]
+CuriousContraptions.Tests.MemoryGuardTests.AFlipNamingAnUnknownNodeIsRefused [FAIL]
+CuriousContraptions.Tests.MemoryGuardTests.ALatchedToClearFlipIsAdmittedOnlyForABistableNode(owner: Delay, kind: Timer, admitted: False) [FAIL]
+CuriousContraptions.Tests.MemoryGuardTests.ALatchedToClearFlipIsAdmittedOnlyForABistableNode(owner: LevelLamp, kind: LevelIndicator, admitted: True) [FAIL]
+CuriousContraptions.Tests.MemoryGuardTests.ALatchedToClearFlipIsAdmittedOnlyForABistableNode(owner: Memory, kind: StateLatch, admitted: True) [FAIL]
+CuriousContraptions.Tests.MemoryGuardTests.ALatchedToClearFlipIsAdmittedOnlyForABistableNode(owner: Oscillator, kind: Oscillator, admitted: False) [FAIL]
+CuriousContraptions.Tests.MemoryGuardTests.ALatchedToClearFlipIsAdmittedOnlyForABistableNode(owner: Passage, kind: PassageSource, admitted: False) [FAIL]
+CuriousContraptions.Tests.MemoryGuardTests.ALatchedToClearFlipIsAdmittedOnlyForABistableNode(owner: Plate, kind: ContactLoadSource, admitted: True) [FAIL]
+CuriousContraptions.Tests.MemoryGuardTests.ALatchedToClearFlipIsAdmittedOnlyForABistableNode(owner: StickyLamp, kind: StickyFirstInput, admitted: False) [FAIL]
+CuriousContraptions.Tests.MemoryGuardTests.ALatchedToClearFlipIsAdmittedOnlyForABistableNode(owner: Switch, kind: ContactSource, admitted: False) [FAIL]
+CuriousContraptions.Tests.MemoryGuardTests.ALatchedToClearFlipIsAdmittedOnlyForABistableNode(owner: Tally, kind: Counter, admitted: False) [FAIL]
+CuriousContraptions.Tests.MemoryGuardTests.APulsedTargetEmitsOnItsOwnPulseAndNeverAfterSaturation(target: 1) [FAIL]
+CuriousContraptions.Tests.MemoryGuardTests.APulsedTargetEmitsOnItsOwnPulseAndNeverAfterSaturation(target: 9) [FAIL]
+CuriousContraptions.Tests.MemoryGuardTests.ThreeBallsThroughTheDetectorEmitOnceOnTheTargetCrossingOnly(target: 1, emittingCrossing: 1) [FAIL]
+CuriousContraptions.Tests.MemoryGuardTests.ThreeBallsThroughTheDetectorEmitOnceOnTheTargetCrossingOnly(target: 9, emittingCrossing: 0) [FAIL]
+CuriousContraptions.Tests.StateLatchTests.Network_ContactClosedFollowsCommittedLatchMemoryAndCounterReach [FAIL]
+Failed!  - Failed:    17, Passed:   119, Skipped:     0, Total:   136, Duration: 10 s - CuriousContraptions.tests.dll (net10.0)

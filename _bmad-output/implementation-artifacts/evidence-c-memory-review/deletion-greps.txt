@@ -1,0 +1,14 @@
+A:
+./CuriousContraptions.tests/PlacedParts.cs:2
+B:
+./CuriousContraptions.tests/DeclaredMemoryTests.cs:1
+C:
+D:
+E (9A.43):
+./CuriousContraptions.tests/PlacedParts.cs:2
+G CounterReached:
+./tools/BundleElements.Tests/BundleRoundTripTests.cs:2
+target_count wire:
+files:
+(eval):9: no matches found: engine/gpu/WorkshopCounter.cs*
+trailing ws untracked:

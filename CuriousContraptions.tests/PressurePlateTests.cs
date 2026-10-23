@@ -601,9 +601,9 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
         var instances = new List<IWorkshopInstance>();
         ulong id = 0;
         for (var i = 0; i < 13; i++) instances.Add(Plate(++id, -16 + 3 * (i % 7), -6 + 3 * (i / 7), .5f));
-        for (var i = 0; i < 5; i++) instances.Add(WorkshopInput.Counter(new(++id), -16 + 3 * i, 3, 6, 0, 0, 0, 1, 3));
+        for (var i = 0; i < 5; i++) instances.Add(PlacedParts.Counter(new(++id), -16 + 3 * i, 3, 6, 0, 0, 0, 1, 3));
         for (var i = 0; i < 5; i++) instances.Add(PlacedParts.Clock(new(++id), -16 + 3 * i, 3, 9, 0, 0, 0, 1, 1f));
-        for (var i = 0; i < 5; i++) instances.Add(WorkshopInput.Latch(new(++id), -16 + 3 * i, 3, 12, 0, 0, 0, 1));
+        for (var i = 0; i < 5; i++) instances.Add(PlacedParts.Latch(new(++id), -16 + 3 * i, 3, 12, 0, 0, 0, 1));
         var last = instances[12];
         var gate = Gate(++id, -6); var battery = Battery(++id, -6);
         var ball = WorkshopInput.Generic(PartId.Basketball,new(++id), (last.Cell.X + (double)last.Local.X) / 16, Face + .35,
@@ -725,9 +725,9 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
     public void APlateActivationOutLightsOnlyASignalLamp()
     {
         var plate = Plate(1, -4, 0, .5f); var lamp = LampAt(2);
-        var counter = WorkshopInput.Counter(new(3), 0, GateHeight, -3, 0, 0, 0, 1, 3);
+        var counter = PlacedParts.Counter(new(3), 0, GateHeight, -3, 0, 0, 0, 1, 3);
         var delay = WorkshopInput.Generic(PartId.Delay, new(4), 0, GateHeight, 3, 0, 0, 0, 1);
-        var latch = WorkshopInput.Latch(new(5), 3, GateHeight, -3, 0, 0, 0, 1);
+        var latch = PlacedParts.Latch(new(5), 3, GateHeight, -3, 0, 0, 0, 1);
         var hit = WorkshopInput.Generic(PartId.ImpactSwitch, new(6), 3, GateHeight, 3, 0, 0, 0, 1);
         var instances = new WorkshopInstances(plate, lamp, counter, delay, latch, hit);
         new WorkshopConnections(Signal(plate.Id, lamp.Id)).Validate(instances);

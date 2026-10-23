@@ -22,7 +22,7 @@ public sealed class ClockGuardTests
         SimulationCadence cadence = SimulationCadence.Hz120)
     {
         IWorkshopInstance[] parts = [PlacedParts.Battery(Source, -3, 3, 0, enabled: enabled), PlacedParts.Clock(Owner, 0, 3, 0, 0, 0, 0, 1, seconds),
-            WorkshopInput.Counter(Counter, 3, 3, 0, 0, 0, 0, 1, 9)];
+            PlacedParts.Counter(Counter, 3, 3, 0, 0, 0, 0, 1, 9)];
         return new(new(2), WorkshopCadenceSettings.Default() with { Simulation = cadence }, new(parts),
             Connections: wired ? new(Supply(Source, Owner), Signal(Owner, Counter)) : new(Signal(Owner, Counter)));
     }

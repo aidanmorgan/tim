@@ -347,7 +347,6 @@ public sealed class PayloadInstanceTests
         {
             case null: break;
             case TypedField.Length: InstanceRecord.AddLength(builder, value); break;
-            case TypedField.TargetCount: InstanceRecord.AddTargetCount(builder, 3); break;
             default: throw new ArgumentOutOfRangeException(nameof(field));
         }
         var instance = InstanceRecord.EndInstanceRecord(builder);
@@ -362,14 +361,16 @@ public sealed class PayloadInstanceTests
         return SaveFixture.Finish(builder, ConstructionRecord.EndConstructionRecord(builder), 2);
     }
 
-    // Every typed record field, on a generic payload and on another generic element (the clock with its declared interval included), is
-    // refused atomically by the save pre-validation and by the command decoder alike, a NaN included. (A signed zero cannot be stored:
-    // the builder elides any value equal to the field default.) Control: the bare record loads.
+    // Every typed record field, on a generic payload and on another generic element (the clock with its declared interval and the
+    // counter with its declared target included, and the latch), is refused atomically by the save pre-validation and by the command
+    // decoder alike, a NaN included. (A signed zero cannot be stored: the builder elides any value equal to the field default.) Control:
+    // the bare record loads.
     [Theory]
     [MemberData(nameof(EveryTypedFieldOnGenericRecords))]
     public void AGenericRecordCarryingAnyTypedFieldIsRefused(string part, TypedField field, float value)
     {
-        (string, float)[]? parameters = part switch { "ramp" => [("length", 3f), ("width", 1.3f)], "clock" => [("interval_seconds", 1f)], _ => null };
+        (string, float)[]? parameters = part switch { "ramp" => [("length", 3f), ("width", 1.3f)], "clock" => [("interval_seconds", 1f)],
+            "counter" => [("target_count", 3f)], _ => null };
         var bytes = GenericSave(part, field, parameters, value);
         SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes));
         var record = WorkshopSaveCodec.Open(bytes).Construction!.Value.Instances(0)!.Value;
@@ -381,12 +382,14 @@ public sealed class PayloadInstanceTests
     public static TheoryData<string, TypedField, float> EveryTypedFieldOnGenericRecords()
     {
         var data = new TheoryData<string, TypedField, float>();
-        foreach (var part in new[] { "ball", "bowling", "ramp", "domino", "clock" })
+        foreach (var part in new[] { "ball", "bowling", "ramp", "domino", "clock", "counter", "latch" })
             foreach (var field in Enum.GetValues<TypedField>())
                 data.Add(part, field, 4f);
         data.Add("bowling", TypedField.Length, float.NaN);
         data.Add("domino", TypedField.Length, float.NaN);
         data.Add("clock", TypedField.Length, float.NaN);
+        data.Add("counter", TypedField.Length, float.NaN);
+        data.Add("latch", TypedField.Length, float.NaN);
         return data;
     }
 
@@ -403,8 +406,9 @@ public sealed class PayloadInstanceTests
     }
 }
 
-/// <summary>Every typed field of the current InstanceRecord (C-Clock deleted the threshold): a generic record carries none of them.</summary>
+/// <summary>Every typed field of the current InstanceRecord (C-Clock deleted the threshold and C-Memory the target count): a generic
+/// record carries none of them.</summary>
 public enum TypedField
 {
-    Length, TargetCount
+    Length
 }

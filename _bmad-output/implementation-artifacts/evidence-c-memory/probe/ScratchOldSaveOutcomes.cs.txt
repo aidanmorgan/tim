@@ -1,0 +1,29 @@
+using System.Reflection;
+using CuriousContraptions.Gpu;
+
+namespace CuriousContraptions.Tests;
+
+// Scratch (deleted before freeze): prints the candidate outcome of every pinned old save constant at both boundaries.
+public sealed class ScratchOldSaveOutcomes(ITestOutputHelper output)
+{
+    [Fact]
+    public void Print()
+    {
+        foreach (var type in new[] { typeof(DeclaredContactLoadTests), typeof(DeclaredOscillatorTests), typeof(DeclaredOrientationTests),
+                     typeof(PreConversionLaunchSaveTests), typeof(DeclaredIndicatorPassageTests) })
+            foreach (var field in type.GetFields(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static)
+                         .Where(f => f.IsLiteral && f.FieldType == typeof(string)))
+            {
+                byte[] bytes;
+                try { bytes = Convert.FromBase64String((string)field.GetRawConstantValue()!); } catch (FormatException) { continue; }
+                string Outcome(Func<object> decode)
+                {
+                    try { decode(); return "LOADED"; }
+                    catch (WorkshopSaveRejectedException e) { return $"save {e.Reason}: {e.Message}"; }
+                    catch (WireFaultException e) { return $"wire {e.Reason}: {e.Message}"; }
+                }
+                output.WriteLine($"{type.Name}.{field.Name}: save[{Outcome(() => WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes))}] " +
+                    $"command[{Outcome(() => WorkshopWireFlatBuffers.DecodeCommand(bytes))}]");
+            }
+    }
+}

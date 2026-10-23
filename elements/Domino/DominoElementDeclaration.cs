@@ -56,10 +56,6 @@ public sealed class DominoElementDeclaration : IMechanicalElement, IOrientationS
         new("toppled", SignalTriggerMode.Edge, Threshold: 0.707f, PulseDurationSeconds: 0.1f)
     ];
 
-    public SignalLatchMode LatchMode => SignalLatchMode.SetReset;
-
-    public SignalCounterDescriptor? Counter => null;
-
     /// <summary>The tile's ActivationOut fires once it has turned 45° from its placed pose (CAT-023).</summary>
     public SignalOrientationDescriptor Orientation => new(45f);
 }

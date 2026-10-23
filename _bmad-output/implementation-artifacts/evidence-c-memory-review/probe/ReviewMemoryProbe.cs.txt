@@ -1,0 +1,142 @@
+#pragma warning disable CA1031, CA1849, CA2000
+using CuriousContraptions.Gpu;
+using CuriousContraptions.Wire;
+using Google.FlatBuffers;
+
+namespace CuriousContraptions.Tests;
+
+/// <summary>Reviewer probe (throwaway worktree only): forged data at the save, command-record and Construct boundaries.</summary>
+public sealed class ReviewMemoryProbe
+{
+    private static Offset<ConstructionRecord> Record(FlatBufferBuilder builder, string part, (string Key, float Value)[]? parameters, float? length = null)
+    {
+        var id = builder.CreateString(part);
+        VectorOffset? vector = parameters is null ? null : InstanceRecord.CreateParametersVector(builder,
+            parameters.Select(p => ParameterRecord.CreateParameterRecord(builder, builder.CreateString(p.Key), p.Value)).ToArray());
+        InstanceRecord.StartInstanceRecord(builder);
+        if (vector is { } v) InstanceRecord.AddParameters(builder, v);
+        InstanceRecord.AddId(builder, 1);
+        InstanceRecord.AddPartId(builder, id);
+        InstanceRecord.AddCell(builder, Vec3i.CreateVec3i(builder, 0, 16, 0));
+        InstanceRecord.AddLocal(builder, Vec3f.CreateVec3f(builder, 0, 0, 0));
+        InstanceRecord.AddRotation(builder, Quat4f.CreateQuat4f(builder, 0, 0, 0, 1));
+        if (length is { } l) InstanceRecord.AddLength(builder, l);
+        var instance = InstanceRecord.EndInstanceRecord(builder);
+        var instances = ConstructionRecord.CreateInstancesVector(builder, [instance]);
+        var s = WorkshopCadenceSettings.Default();
+        ConstructionRecord.StartConstructionRecord(builder);
+        ConstructionRecord.AddRevision(builder, 1);
+        ConstructionRecord.AddSettings(builder, CadenceSettingsRecord.CreateCadenceSettingsRecord(builder, (uint)s.Simulation, (uint)s.Physical,
+            (uint)s.Animation, (uint)s.Presentation, s.PresentationRate.Numerator, s.PresentationRate.Denominator));
+        ConstructionRecord.AddInstances(builder, instances);
+        return ConstructionRecord.EndConstructionRecord(builder);
+    }
+
+    private static string Outcome(Func<object> decode)
+    {
+        try
+        {
+            var result = decode();
+            return result is WorkshopConstruction c ? "DECODED " + string.Join(";", c.Instances.Select(i => i is WorkshopGenericInstance g
+                ? $"{g.PartId.Value}{{{string.Join(",", g.Parameters.Select(p => p.Key.Value + "=" + p.Value))}}}" : i.GetType().Name)) : "DECODED " + result;
+        }
+        catch (WorkshopSaveRejectedException e) { return $"SaveRejected/{e.Reason}: {e.Message}"; }
+        catch (WireFaultException e) { return $"WireFault/{e.Reason}: {e.Message}"; }
+        catch (ArgumentException e) { return $"ArgumentException: {e.Message}"; }
+        catch (Exception e) { return $"UNTYPED {e.GetType().Name}: {e.Message}"; }
+    }
+
+    public static TheoryData<string, string, string> Cases() => new()
+    {
+        { "counter-no-vector", "counter", "" },
+        { "counter-empty-vector", "counter", "[]" },
+        { "counter-0", "counter", "target_count=0" },
+        { "counter-10", "counter", "target_count=10" },
+        { "counter-2.5", "counter", "target_count=2.5" },
+        { "counter-nan", "counter", "target_count=NaN" },
+        { "counter-dup", "counter", "target_count=3,target_count=3" },
+        { "counter-extra", "counter", "target_count=3,bogus=1" },
+        { "counter-wrongkey", "counter", "target=3" },
+        { "counter-ok-3", "counter", "target_count=3" },
+        { "latch-with-target", "latch", "target_count=3" },
+        { "latch-ok", "latch", "" },
+    };
+
+    private static (string, float)[]? Parse(string spec) => spec switch
+    {
+        "" => null,
+        "[]" => [],
+        _ => spec.Split(',').Select(p => p.Split('=')).Select(p => (p[0], p[1] == "NaN" ? float.NaN : float.Parse(p[1], System.Globalization.CultureInfo.InvariantCulture))).ToArray(),
+    };
+
+    [Theory]
+    [MemberData(nameof(Cases))]
+    public void Boundaries(string name, string part, string spec)
+    {
+        var parameters = Parse(spec);
+        var record = Outcome(() =>
+        {
+            var b = new FlatBufferBuilder(512); b.Finish(Record(b, part, parameters).Value);
+            return WorkshopWireFlatBuffers.DecodeConstructionRecord(ConstructionRecord.GetRootAsConstructionRecord(new ByteBuffer(b.SizedByteArray())));
+        });
+        var save = Outcome(() =>
+        {
+            var b = new FlatBufferBuilder(1024);
+            return WorkshopSaveCodec.Decode(SaveFixture.Elements, SaveFixture.Finish(b, Record(b, part, parameters), 2)).Construction;
+        });
+        File.AppendAllLines(Environment.GetEnvironmentVariable("RV_OUT")!, [$"{name} | record: {record} | save: {save}"]);
+    }
+
+    [Theory]
+    [InlineData("target-0", 0f)]
+    [InlineData("target-10", 10f)]
+    [InlineData("target-2.5", 2.5f)]
+    [InlineData("target-nan", float.NaN)]
+    [InlineData("target-missing", -999f)]
+    [InlineData("target-3-control", 3f)]
+    public async Task ConstructRefusesForgedCounter(string name, float target)
+    {
+        var counter = WorkshopInput.Generic(PartId.Counter, new(1), 0, 3, 0, 0, 0, 0, 1) with
+        {
+            Parameters = target == -999f ? InstanceParameterCollection.Empty : new([new(new("target_count"), target)])
+        };
+        var bench = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(counter));
+        var device = new WorkshopGpuDevice(new CuriousContraptions.Simulation.BrowserGpuTransport(), new(101, 206));
+        await using var simulation = new WorkshopSimulation(device, new WorkshopPhysicsEngineTests.StepClock(), bench.Settings, new(1),
+            new WorkshopPhysicsEngineTests.NoInstallation(), GpuDeviceOwnership.Owned);
+        await simulation.Initialize();
+        string outcome;
+        try { var r = await simulation.Construct(bench); outcome = $"{r.Outcome}/{r.Reason}"; }
+        catch (Exception e) { outcome = $"UNTYPED {e.GetType().Name}: {e.Message}"; }
+        File.AppendAllLines(Environment.GetEnvironmentVariable("RV_OUT")!, [$"construct {name} | {outcome}"]);
+    }
+
+    private sealed record Foreign(GpuBodyId Id, PartId PartId) : IWorkshopInstance
+    {
+        public CellOrigin Cell => new(0, 48, 0);
+        public LocalPosition Local => default;
+        public CanonicalRotation Rotation => CanonicalRotation.Identity;
+        public bool Locked => false;
+        public CosmeticCurveDeclaration Cosmetic => CosmeticCurveDeclaration.For(PartId);
+        public IReadOnlyList<ExtractedCollider> DeclaredColliders => DeclaredPhysics.Colliders(PartId);
+        public void Validate() { }
+    }
+
+    // A foreign in-process implementation (base admitted any IWorkshopDeclaredColliders the same way): characterise Construct and encode.
+    [Fact]
+    public async Task ForeignInstanceType()
+    {
+        var foreign = new Foreign(new(1), PartId.Counter);
+        var bench = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(foreign));
+        var device = new WorkshopGpuDevice(new CuriousContraptions.Simulation.BrowserGpuTransport(), new(101, 206));
+        await using var simulation = new WorkshopSimulation(device, new WorkshopPhysicsEngineTests.StepClock(), bench.Settings, new(1),
+            new WorkshopPhysicsEngineTests.NoInstallation(), GpuDeviceOwnership.Owned);
+        await simulation.Initialize();
+        string outcome;
+        try { var r = await simulation.Construct(bench); outcome = $"{r.Outcome}/{r.Reason}"; }
+        catch (Exception e) { outcome = $"UNTYPED {e.GetType().Name}: {e.Message}"; }
+        var nodes = Outcome(() => string.Join(",", WorkshopActivationCompiler.Compile(bench).Nodes.ToArray().Select(n => n.Kind)));
+        var save = Outcome(() => WorkshopSaveCodec.Decode(SaveFixture.Elements, WorkshopSaveCodec.Encode(new WorkshopSavedConstruction(bench, new(9)))).Construction);
+        File.AppendAllLines(Environment.GetEnvironmentVariable("RV_OUT")!, [$"foreign counter | construct {outcome} | nodes {nodes} | save round trip {save}"]);
+    }
+}

@@ -184,6 +184,9 @@ public static class BundleValidator
                 if (binding.Driver is PresentationDriver.CommittedOscillatorPhase or PresentationDriver.CommittedOscillatorPulse &&
                     signal?.Oscillator is null)
                     OutOfRange("Presentation.Oscillator");
+                // A committed count binding reads the memory row only a declared pulse count compiles.
+                if (binding.Driver == PresentationDriver.CommittedCount && signal?.PulseCount is null)
+                    OutOfRange("Presentation.PulseCount");
                 if (!supported || (binding.Curve != PresentationCurve.ExponentialFollow && binding.Response != 0) ||
                     (binding.Driver == PresentationDriver.CommittedTimerPhase && binding.Phase == PresentationTimerPhase.None))
                     OutOfRange("Presentation.DriverCurve");
@@ -582,8 +585,42 @@ public static class BundleValidator
         {
             // One node per element: at most one capability selects it.
             if ((signal.Contact is null ? 0 : 1) + (signal.Timer is null ? 0 : 1) + (signal.Indicator is null ? 0 : 1) + (signal.Passage is null ? 0 : 1) +
-                    (signal.Orientation is null ? 0 : 1) + (signal.ContactLoad is null ? 0 : 1) + (signal.Oscillator is null ? 0 : 1) > 1)
+                    (signal.Orientation is null ? 0 : 1) + (signal.ContactLoad is null ? 0 : 1) + (signal.Oscillator is null ? 0 : 1) +
+                    (signal.PulseCount is null ? 0 : 1) + (signal.Memory is null ? 0 : 1) > 1)
                 OutOfRange("Capability");
+            if (signal.PulseCount is { } count)
+            {
+                // The target is a declared WholeNumber parameter without a unit whose admitted range lies inside the network's [1, 9].
+                if (!parameters.Any(parameter => parameter.Key == count.TargetParameter && parameter.Kind == ParameterKind.WholeNumber &&
+                        parameter.Unit == ParameterUnit.None && parameter.Minimum >= 1f && parameter.Maximum <= 9f))
+                    OutOfRange("PulseCount.TargetParameter");
+                // It counts Pulse inputs on its ActivationIn and emits a Pulse on its ActivationOut.
+                if (!ports.Any(port => port.Socket == PortSocket.ActivationIn && port.Domain == SimulationDomain.Signal && port.Direction == PortDirection.Input && port.Signal == PortSignalKind.Pulse) ||
+                        !ports.Any(port => port.Socket == PortSocket.ActivationOut && port.Domain == SimulationDomain.Signal && port.Direction == PortDirection.Output && port.Signal == PortSignalKind.Pulse))
+                    OutOfRange("PulseCount.Ports");
+                // The reached target closes a switched contact.
+                if (electrical?.Supply?.Kind != SupplyCapabilityKind.SwitchedContact)
+                    OutOfRange("PulseCount.Supply");
+                if ((mechanical is { } frame && (frame.KinematicMode == KinematicMode.Dynamic || frame.Sliders.Count != 0)) || colliders.Count == 0)
+                    OutOfRange("PulseCount.Body");
+            }
+            if (signal.Memory is { } memory)
+            {
+                // Set and Reset are the two distinct Pulse inputs the shared memory law reads (SetIn turns it On, ResetIn Off).
+                bool PulseInput(PortSocket socket) => ports.Any(port => port.Socket == socket && port.Domain == SimulationDomain.Signal &&
+                    port.Direction == PortDirection.Input && port.Signal == PortSignalKind.Pulse);
+                if (!Enum.IsDefined(memory.Set) || !Enum.IsDefined(memory.Reset)) Undefined("Memory.Inputs");
+                else if (memory.Set != PortSocket.SetIn || memory.Reset != PortSocket.ResetIn || !PulseInput(memory.Set) || !PulseInput(memory.Reset))
+                    OutOfRange("Memory.Inputs");
+                // Memory drives a Level ActivationOut.
+                if (!ports.Any(port => port.Socket == PortSocket.ActivationOut && port.Domain == SimulationDomain.Signal && port.Direction == PortDirection.Output && port.Signal == PortSignalKind.Level))
+                    OutOfRange("Memory.Ports");
+                // Memory On closes a switched contact.
+                if (electrical?.Supply?.Kind != SupplyCapabilityKind.SwitchedContact)
+                    OutOfRange("Memory.Supply");
+                if ((mechanical is { } frame && (frame.KinematicMode == KinematicMode.Dynamic || frame.Sliders.Count != 0)) || colliders.Count == 0)
+                    OutOfRange("Memory.Body");
+            }
             if (signal.Oscillator is { } oscillator)
             {
                 // The interval is a declared Real second parameter with a finite positive admitted minimum (never a zero-tick interval).
@@ -667,7 +704,6 @@ public static class BundleValidator
                 Finite($"Triggers[{i}].Threshold", trigger.Threshold);
                 Finite($"Triggers[{i}].PulseDurationSeconds", trigger.PulseDurationSeconds);
             }
-            Defined("LatchMode", signal.LatchMode);
             if (signal.Contact is { } contact)
             {
                 Real("Contact.ThresholdParameter", contact.ThresholdParameter, parameters);
@@ -675,7 +711,7 @@ public static class BundleValidator
                     OutOfRange("Contact.ThresholdParameter");
                 if (!ports.Any(port => port.Socket == PortSocket.ActivationOut && port.Domain == SimulationDomain.Signal && port.Direction == PortDirection.Output && port.Signal == PortSignalKind.Pulse))
                     OutOfRange("Contact.Ports");
-                if (signal.Triggers.Count != 0 || signal.Timer is not null || signal.Counter is not null || signal.LatchMode != SignalLatchMode.None)
+                if (signal.Triggers.Count != 0 || signal.Timer is not null || signal.PulseCount is not null || signal.Memory is not null)
                     OutOfRange("Contact.Ownership");
             }
             if (signal.Timer is { } timer)

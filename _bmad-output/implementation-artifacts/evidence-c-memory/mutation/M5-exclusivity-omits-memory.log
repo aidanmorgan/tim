@@ -1,0 +1,7 @@
+== 2026-10-23T18:01:12Z mutation under test (CuriousContraptions.Bundle/BundleValidator.cs):
+-                    (signal.PulseCount is null ? 0 : 1) + (signal.Memory is null ? 0 : 1) > 1)
++                    (signal.PulseCount is null ? 0 : 1) > 1)
+    0 Warning(s)
+    0 Error(s)
+CuriousContraptions.BundleElements.Tests.BundleValidatorTests.TheMemoryReadsSetAndResetPulsesDrivesALevelAndSwitchesItsContactExclusively [FAIL]
+Failed!  - Failed:     1, Passed:   175, Skipped:     0, Total:   176, Duration: 345 ms - BundleElements.Tests.dll (net10.0)

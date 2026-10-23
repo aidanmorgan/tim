@@ -6,7 +6,7 @@ using CuriousContraptions.Abstractions.Signal;
 
 namespace CuriousContraptions.Elements.Counter;
 
-public sealed class CounterElementDeclaration : ISignalElement, ISupplyElement, ISceneGeometryElement
+public sealed class CounterElementDeclaration : IPulseCountElement, ISupplyElement, ISceneGeometryElement
 {
     public ElementPresentation Presentation => new(1.2f, PresentationAxes.None,
         [
@@ -43,7 +43,7 @@ public sealed class CounterElementDeclaration : ISignalElement, ISupplyElement, 
         Id: "counter",
         Category: ElementCategory.Control,
         DisplayName: "Counter",
-        Description: "Counts trigger events, lighting one dot per event. At three it emits once and keeps its electrical contact closed until Reset. Connect a supply to power downstream devices.",
+        Description: "Counts trigger events, lighting one dot per event. When the count reaches its target (1 to 9, default 3) it emits once and keeps its electrical contact closed until Reset. Connect a supply to power downstream devices.",
         Color: new(0.91f, 0.72f, 0.39f, 1f),
         PaletteOrder: 22,
         IconPath: "res://elements/Counter/icon.svg",
@@ -75,14 +75,10 @@ public sealed class CounterElementDeclaration : ISignalElement, ISupplyElement, 
 
     public SimulationDomain SupportedDomains => SimulationDomain.Signal | SimulationDomain.Electrical;
 
-    public IReadOnlyList<SignalTriggerDescriptor> Triggers =>
-    [
-        new("pulse", SignalTriggerMode.Pulse, Threshold: 1f, PulseDurationSeconds: 0.1f)
-    ];
+    public IReadOnlyList<SignalTriggerDescriptor> Triggers => [];
 
-    public SignalLatchMode LatchMode => SignalLatchMode.None;
-
-    public SignalCounterDescriptor? Counter => new(Threshold: 3, ResetOnThreshold: false);
+    /// <summary>Each crossing counts once; the input that reaches target_count emits once and closes the contact until Reset (CAT-020).</summary>
+    public SignalPulseCountDescriptor PulseCount => new("target_count");
 
     public SupplyCapabilityDescriptor Supply => new(SupplyCapabilityKind.SwitchedContact, PortSocket.PowerIn, PortSocket.Supply);
 

@@ -6,7 +6,7 @@ using CuriousContraptions.Abstractions.Signal;
 
 namespace CuriousContraptions.Elements.StateLatch;
 
-public sealed class StateLatchElementDeclaration : ISignalElement, ISupplyElement, ISceneGeometryElement
+public sealed class StateLatchElementDeclaration : IMemoryElement, ISupplyElement, ISceneGeometryElement
 {
     public ElementPresentation Presentation => new(1.2f, PresentationAxes.None,
         [
@@ -52,14 +52,10 @@ public sealed class StateLatchElementDeclaration : ISignalElement, ISupplyElemen
 
     public SimulationDomain SupportedDomains => SimulationDomain.Signal | SimulationDomain.Electrical;
 
-    public IReadOnlyList<SignalTriggerDescriptor> Triggers =>
-    [
-        new("set_pulse", SignalTriggerMode.Pulse, Threshold: 1f, PulseDurationSeconds: 0.1f)
-    ];
+    public IReadOnlyList<SignalTriggerDescriptor> Triggers => [];
 
-    public SignalLatchMode LatchMode => SignalLatchMode.SetReset;
-
-    public SignalCounterDescriptor? Counter => null;
+    /// <summary>SetIn turns the memory On and ResetIn turns it Off; a same-tick pair resolves to Reset (CAT-037).</summary>
+    public SignalMemoryDescriptor Memory => new(PortSocket.SetIn, PortSocket.ResetIn);
 
     public SupplyCapabilityDescriptor Supply => new(SupplyCapabilityKind.SwitchedContact, PortSocket.PowerIn, PortSocket.Supply);
 

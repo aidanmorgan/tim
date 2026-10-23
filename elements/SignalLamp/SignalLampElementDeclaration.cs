@@ -59,10 +59,6 @@ public sealed class SignalLampElementDeclaration : IElectricalElement, IIndicato
         new("lamp_trigger", SignalTriggerMode.Level, Threshold: 0.5f, PulseDurationSeconds: 0f)
     ];
 
-    public SignalLatchMode LatchMode => SignalLatchMode.None;
-
-    public SignalCounterDescriptor? Counter => null;
-
     /// <summary>The lamp indicates on its ActivationIn: fed by a level output it follows that level, otherwise it holds its first
     /// input until Reset.</summary>
     public SignalIndicatorDescriptor Indicator => new(PortSocket.ActivationIn);

@@ -98,12 +98,13 @@ public sealed class BundleValidatorTests
             Parameters = [new("speed", ParameterUnit.MetrePerSecond, ParameterKind.Real, 0f, 64f, .8f, [], ParameterEditorPolicy.Clamp)],
             Ports = [new(PortSocket.ActivationOut, SimulationDomain.Signal, PortDirection.Output, PortSignalKind.Pulse, Vector3.Zero, Vector3.UnitX)]
         }) with { Domains = [SimulationDomain.Signal], Mechanical = null,
-            Signal = new([], SignalLatchMode.None, null, null, new("speed")) };
+            Signal = new([], null, new("speed")) };
         static IReadOnlyList<Bundle.BundleError> Check(Bundle.BundleEntry candidate) => Bundle.BundleValidator.Validate([new("Fixture", candidate)]);
         Assert.Empty(Check(entry));
         Assert.NotEmpty(Check(entry with { Signal = entry.Signal! with { Contact = new("unknown") } }));
         Assert.NotEmpty(Check(entry with { Ports = [] }));
-        Assert.NotEmpty(Check(entry with { Signal = entry.Signal! with { LatchMode = SignalLatchMode.SetReset } }));
+        // A contact owns its node alone: a declared memory beside it is refused.
+        Assert.NotEmpty(Check(entry with { Signal = entry.Signal! with { Memory = new(PortSocket.SetIn, PortSocket.ResetIn) } }));
         foreach (var parameter in new[]
         {
             entry.Metadata.Parameters[0] with { Unit = ParameterUnit.Second },
@@ -125,7 +126,7 @@ public sealed class BundleValidatorTests
         }) with
         {
             Domains = [SimulationDomain.Signal], Mechanical = null,
-            Signal = new([], Abstractions.Signal.SignalLatchMode.None, null, new("seconds", TimerCompletionPolicy.Latch, TimerBoundary.BeforePhysics, TimerElapsedSignal.Activation))
+            Signal = new([], new("seconds", TimerCompletionPolicy.Latch, TimerBoundary.BeforePhysics, TimerElapsedSignal.Activation))
         };
         static IReadOnlyList<Bundle.BundleError> Check(Bundle.BundleEntry entry) =>
             Bundle.BundleValidator.Validate([new("Fixture", entry)]);
@@ -733,6 +734,103 @@ public sealed class BundleValidatorTests
         var unbound = Check(With(clock.Signal with { Oscillator = null }));
         Assert.Equal(clock.Presentation.Bindings.Count, unbound.Count);
         Assert.All(unbound, error => Assert.StartsWith("Candidate.Presentation.Oscillator:", error.Detail, StringComparison.Ordinal));
+    }
+
+    private static (IReadOnlyList<Bundle.BundleEntry> Bundle, Func<Bundle.BundleEntry, IReadOnlyList<Bundle.BundleError>> Check,
+        Action<Bundle.BundleEntry, string> Refused) Capabilities()
+    {
+        var generated = BundleGenerator.Generate(TestRepository.Root);
+        var bundle = Bundle.BundleSchema.Read(generated.Json!).Elements;
+        static IReadOnlyList<Bundle.BundleError> Check(Bundle.BundleEntry candidate) => Bundle.BundleValidator.Validate([new("Candidate", candidate)]);
+        static void Refused(Bundle.BundleEntry candidate, string field)
+        {
+            var error = Assert.Single(Check(candidate));
+            Assert.Equal((Bundle.BundleErrorCode.OutOfRange, true), (error.Code, error.Detail.StartsWith("Candidate." + field + ":", StringComparison.Ordinal)));
+        }
+        return (bundle, Check, Refused);
+    }
+
+    // C-Memory (D1): the pulse count names a unitless WholeNumber parameter whose admitted range lies inside the network's [1, 9]; it
+    // counts a Pulse ActivationIn and emits a Pulse ActivationOut; its reached target closes a SwitchedContact supply; its frame is not
+    // Dynamic, has no slider and has a collider; it is a node-selecting capability, and a committed count binding requires it. Each
+    // refusal is exactly one BundleError naming its field. Controls: the shipped counter and its parameter's range ends.
+    [Fact]
+    public void ThePulseCountIsAWholeTargetOnPulsePortsWithASwitchedContactExclusiveAndCoupledToItsBindings()
+    {
+        var (bundle, Check, Refused) = Capabilities();
+        var counter = bundle.Single(entry => entry.Metadata.Id == "counter");
+        Assert.Empty(Check(counter));
+        Assert.Equal(new SignalPulseCountDescriptor("target_count"), counter.Signal!.PulseCount);
+        var parameter = Assert.Single(counter.Metadata.Parameters);
+        Assert.Equal(("target_count", ParameterUnit.None, ParameterKind.WholeNumber, 1f, 9f, 3f, ParameterEditorPolicy.Reject, ParameterRunEdit.BuildOnly),
+            (parameter.Key, parameter.Unit, parameter.Kind, parameter.Minimum, parameter.Maximum, parameter.Default, parameter.EditorPolicy, parameter.RunEdit));
+        Bundle.BundleEntry Parameter(ParameterDescriptor changed) => counter with { Metadata = counter.Metadata with { Parameters = [changed] } };
+
+        // The target: absent, Real, with a unit, or a range reaching outside [1, 9]; the bounds themselves (and narrower) are admitted.
+        Refused(counter with { Signal = counter.Signal with { PulseCount = new("target") } }, "PulseCount.TargetParameter");
+        Refused(Parameter(parameter with { Kind = ParameterKind.Real }), "PulseCount.TargetParameter");
+        Refused(Parameter(parameter with { Unit = ParameterUnit.Second }), "PulseCount.TargetParameter");
+        Refused(Parameter(parameter with { Minimum = 0f }), "PulseCount.TargetParameter");
+        Refused(Parameter(parameter with { Maximum = 10f }), "PulseCount.TargetParameter");
+        Assert.Empty(Check(Parameter(parameter with { Minimum = 2f, Maximum = 8f })));
+        // A Pulse ActivationIn and a Pulse ActivationOut.
+        var input = counter.Ports.Single(port => port.Socket == PortSocket.ActivationIn);
+        var output = counter.Ports.Single(port => port.Socket == PortSocket.ActivationOut);
+        Refused(counter with { Ports = [.. counter.Ports.Where(port => port != input)] }, "PulseCount.Ports");
+        Refused(counter with { Ports = [.. counter.Ports.Where(port => port != input), input with { Signal = PortSignalKind.Level }] }, "PulseCount.Ports");
+        Refused(counter with { Ports = [.. counter.Ports.Where(port => port != output), output with { Signal = PortSignalKind.Level }] }, "PulseCount.Ports");
+        // A SwitchedContact supply.
+        Refused(counter with { Electrical = counter.Electrical! with { Supply = null } }, "PulseCount.Supply");
+        // Not Dynamic, no slider: another package's Static frame is admitted.
+        Assert.Empty(Check(counter with { Mechanical = bundle.Single(entry => entry.Metadata.Id == "wall").Mechanical }));
+        Refused(counter with { Mechanical = bundle.Single(entry => entry.Metadata.Id == "ball").Mechanical }, "PulseCount.Body");
+        Refused(counter with { Mechanical = bundle.Single(entry => entry.Metadata.Id == "powered_gate").Mechanical }, "PulseCount.Body");
+        Assert.Contains(Check(counter with { Colliders = [] }), error => error.Detail.StartsWith("Candidate.PulseCount.Body:", StringComparison.Ordinal));
+        // One node-selecting capability: a valid passage aperture on a Static frame beside it is refused, and only for that.
+        var wall = bundle.Single(entry => entry.Metadata.Id == "wall").Mechanical;
+        Refused(counter with { Mechanical = wall, Signal = counter.Signal with { Passage = new(.5f, .1f) } }, "Capability");
+        // The committed count bindings read the row only the capability compiles: without it each of the 27 dot-lamp bindings is refused.
+        var unbound = Check(counter with { Signal = counter.Signal with { PulseCount = null } });
+        Assert.Equal(27, unbound.Count);
+        Assert.All(unbound, error => Assert.StartsWith("Candidate.Presentation.PulseCount:", error.Detail, StringComparison.Ordinal));
+    }
+
+    // C-Memory (D1): the memory reads the two Pulse inputs the shared Set/Reset law reads (SetIn, ResetIn), drives a Level ActivationOut,
+    // closes a SwitchedContact supply and sits on a frame that is not Dynamic, has no slider and has a collider; it is a node-selecting
+    // capability. Each refusal is one BundleError naming its field; an undefined socket is an undefined enum. Control: the shipped latch.
+    [Fact]
+    public void TheMemoryReadsSetAndResetPulsesDrivesALevelAndSwitchesItsContactExclusively()
+    {
+        var (bundle, Check, Refused) = Capabilities();
+        var latch = bundle.Single(entry => entry.Metadata.Id == "latch");
+        Assert.Empty(Check(latch));
+        Assert.Equal(new SignalMemoryDescriptor(PortSocket.SetIn, PortSocket.ResetIn), latch.Signal!.Memory);
+        Bundle.BundleEntry With(SignalMemoryDescriptor memory) => latch with { Signal = latch.Signal with { Memory = memory } };
+        // The inputs: swapped, the same input twice, a socket the law does not read, or an undefined socket.
+        Refused(With(new(PortSocket.ResetIn, PortSocket.SetIn)), "Memory.Inputs");
+        Refused(With(new(PortSocket.SetIn, PortSocket.SetIn)), "Memory.Inputs");
+        Refused(With(new(PortSocket.ActivationIn, PortSocket.ResetIn)), "Memory.Inputs");
+        var undefined = Assert.Single(Check(With(new((PortSocket)250, PortSocket.ResetIn))));
+        Assert.Equal((Bundle.BundleErrorCode.UndefinedEnum, true), (undefined.Code, undefined.Detail.StartsWith("Candidate.Memory.Inputs:", StringComparison.Ordinal)));
+        // Each input must be a declared Pulse input.
+        var reset = latch.Ports.Single(port => port.Socket == PortSocket.ResetIn);
+        Refused(latch with { Ports = [.. latch.Ports.Where(port => port != reset)] }, "Memory.Inputs");
+        Refused(latch with { Ports = [.. latch.Ports.Where(port => port != reset), reset with { Signal = PortSignalKind.Level }] }, "Memory.Inputs");
+        // A Level ActivationOut.
+        var output = latch.Ports.Single(port => port.Socket == PortSocket.ActivationOut);
+        Refused(latch with { Ports = [.. latch.Ports.Where(port => port != output), output with { Signal = PortSignalKind.Pulse }] }, "Memory.Ports");
+        // A SwitchedContact supply.
+        Refused(latch with { Electrical = latch.Electrical! with { Supply = null } }, "Memory.Supply");
+        // Not Dynamic, no slider.
+        Refused(latch with { Mechanical = bundle.Single(entry => entry.Metadata.Id == "ball").Mechanical }, "Memory.Body");
+        Refused(latch with { Mechanical = bundle.Single(entry => entry.Metadata.Id == "powered_gate").Mechanical }, "Memory.Body");
+        Assert.Empty(Check(latch with { Mechanical = bundle.Single(entry => entry.Metadata.Id == "wall").Mechanical }));
+        // One node-selecting capability: a valid indicator on a declared Level input beside it is refused, and only for that.
+        Refused(latch with
+        {
+            Ports = [.. latch.Ports, new(PortSocket.ActivationIn, SimulationDomain.Signal, PortDirection.Input, PortSignalKind.Level, Vector3.Zero, Vector3.UnitY)],
+            Signal = latch.Signal with { Indicator = new(PortSocket.ActivationIn) }
+        }, "Capability");
     }
 
     [Fact]

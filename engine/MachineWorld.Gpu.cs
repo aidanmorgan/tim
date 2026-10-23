@@ -108,11 +108,7 @@ public partial class MachineWorld
             "pipe" => WorkshopInput.Pipe(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
                 dimensions is { } pipeSize ? new(pipeSize.X) : (Construction.Instances.FirstOrDefault(instance => instance.Id == bodyId) is WorkshopPipe pipe ? pipe.Length :
                     PipeLength.Default)),
-            // A part already in the construction keeps its declared setting; a newly placed one starts from its declared
-            // placement value (Story 9.4b: no factory or decoder default substitutes for either).
-            "counter" => WorkshopInput.Counter(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
-                Construction.Instances.FirstOrDefault(instance => instance.Id == bodyId) is WorkshopCounter counter ? counter.TargetCount : WorkshopCounter.PlacedTargetCount),
-            "latch" => WorkshopInput.Latch(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W),
+            // A part already in the construction keeps its declared parameters; a newly placed one starts from their declared defaults.
             _ => WorkshopInput.Generic(id, bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
                 CaptureParameters(id, bodyId, dimensions))
         };
