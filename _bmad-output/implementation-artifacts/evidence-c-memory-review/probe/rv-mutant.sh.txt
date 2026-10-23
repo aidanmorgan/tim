@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+# Reviewer mutation runner (throwaway worktree rev-wt). Usage: rv-mutant.sh NAME FILE [native|bundle|both]
+set -u
+S=/private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad
+OUT=/Users/aidan/dev/personal/tim/.claude/worktrees/story-c-memory/_bmad-output/implementation-artifacts/evidence-c-memory-review/mutation
+mkdir -p "$OUT"
+cd "$S/rev-wt"
+NAME=$1; FILE=$2; WHICH=${3:-native}
+{
+  echo "== $(date -u +%FT%TZ) $NAME ($FILE) mutation diff vs candidate:"
+  diff -U0 "/Users/aidan/dev/personal/tim/.claude/worktrees/story-c-memory/$FILE" "$FILE" | grep '^[-+][^-+]'
+  dotnet build CuriousContraptions.slnx -c Debug 2>&1 | grep -E "Warning\(s\)|Error\(s\)| error " | sort -u | head -5
+  if [ "$WHICH" != bundle ]; then
+    dotnet test CuriousContraptions.tests -c Debug --no-build --no-restore \
+      --filter "FullyQualifiedName~MemoryGuardTests|FullyQualifiedName~DeclaredMemoryTests|FullyQualifiedName~CounterTests|FullyQualifiedName~StateLatchTests|FullyQualifiedName~LatchSupplyFixtureTests|FullyQualifiedName~PalettePlacementTests|FullyQualifiedName~ConstructionDecodeBoundaryTests|FullyQualifiedName~PlateGuardTests|FullyQualifiedName~LampDetectorGuardTests|FullyQualifiedName~ClockGuardTests" 2>&1 \
+      | grep -E "\[FAIL\]|Passed!|Failed!" | sed 's/^\[xUnit[^]]*\] *//' | sort -u | head -40
+  fi
+  if [ "$WHICH" != native ]; then
+    dotnet test tools/BundleElements.Tests -c Debug --no-build --no-restore 2>&1 | grep -E "\[FAIL\]|Passed!|Failed!" | sed 's/^\[xUnit[^]]*\] *//' | sort -u | head -20
+  fi
+} > "$OUT/$NAME.log" 2>&1
+cat "$OUT/$NAME.log"

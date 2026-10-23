@@ -17,7 +17,7 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
     public void IdenticalSocketsWithoutDeclaredSupplyCapabilityNeverSupply()
     {
         var battery = PlacedParts.Battery(new(1), -4, 0, 0);
-        var latch = WorkshopInput.Latch(new(2), 0, 0, 0, 0, 0, 0, 1);
+        var latch = PlacedParts.Latch(new(2), 0, 0, 0, 0, 0, 0, 1);
         var gate = WorkshopInput.Generic(PartId.PoweredGate, new(3), 4, 0, 0, 0, 0, 0, 1);
         var routed = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(battery, latch, gate),
             Connections: new(Power(battery.Id, latch.Id), Power(latch.Id, gate.Id)));
@@ -68,7 +68,7 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
             var lamp = (MeshInstance3D)visual.FindChild("IndicatorLamp", recursive: false)!;
 
             Assert.False(part.HasCosmeticBindings);
-            Assert.False(WorkshopInput.Latch(new(1), 0, 0, 0, 0, 0, 0, 1).Cosmetic.IsDeclared);
+            Assert.False(PlacedParts.Latch(new(1), 0, 0, 0, 0, 0, 0, 1).Cosmetic.IsDeclared);
             Assert.All(part.Definition.Presentation.Bindings, binding =>
             {
                 Assert.Equal(CuriousContraptions.Abstractions.PresentationDriver.CommittedActivation, binding.Driver);
@@ -142,11 +142,11 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
     [Fact]
     public void Output_LevelDrivesOnlySignalLampsAndRejectsInvalidShapes()
     {
-        var latch = WorkshopInput.Latch(new(1), 0, 0, 0, 0, 0, 0, 1);
+        var latch = PlacedParts.Latch(new(1), 0, 0, 0, 0, 0, 0, 1);
         var lamp = PlacedParts.Lamp(new(2), 3, 0, 0, 0, 0, 0, 1);
-        var counter = WorkshopInput.Counter(new(3), -3, 0, 0, 0, 0, 0, 1, 3);
+        var counter = PlacedParts.Counter(new(3), -3, 0, 0, 0, 0, 0, 1, 3);
         var hit = WorkshopInput.Generic(PartId.ImpactSwitch, new(4), 0, 3, 0, 0, 0, 0, 1);
-        var other = WorkshopInput.Latch(new(5), 0, -3, 0, 0, 0, 0, 1);
+        var other = PlacedParts.Latch(new(5), 0, -3, 0, 0, 0, 0, 1);
         var instances = new WorkshopInstances(latch, lamp, counter, hit, other);
         var output = Signal(latch.Id, lamp.Id, WorkshopSocket.ActivationIn);
         new WorkshopConnections(output).Validate(instances);
@@ -170,7 +170,7 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
     {
         var setClock = PlacedParts.Clock(new(1), -3, 0, 0, 0, 0, 0, 1, 1f);
         var resetClock = PlacedParts.Clock(new(2), -3, 3, 0, 0, 0, 0, 1, 1.5f);
-        var latch = WorkshopInput.Latch(new(3), 0, 0, 0, 0, 0, 0, 1);
+        var latch = PlacedParts.Latch(new(3), 0, 0, 0, 0, 0, 0, 1);
         var battery = PlacedParts.Battery(new(4), -6, 0, 0);
         var lamp = PlacedParts.Lamp(new(5), 3, 0, 0, 0, 0, 0, 1);
         var sticky = PlacedParts.Lamp(new(6), 3, 3, 0, 0, 0, 0, 1);
@@ -206,7 +206,7 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
     public void Connections_AdmitOneSourceOnBothInputsAndRejectForeignSockets()
     {
         var source = PlacedParts.Clock(new(1), -3, 0, 0, 0, 0, 0, 1, 1f);
-        var latch = WorkshopInput.Latch(new(2), 0, 0, 0, 0, 0, 0, 1);
+        var latch = PlacedParts.Latch(new(2), 0, 0, 0, 0, 0, 0, 1);
         var lamp = PlacedParts.Lamp(new(3), 3, 0, 0, 0, 0, 0, 1);
         var battery = PlacedParts.Battery(new(4), -3, 2, 0);
         var second = PlacedParts.Battery(new(5), 3, 2, 0);
@@ -230,7 +230,7 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
         // Set clock fires every 1.0 s (ticks 120, 240, 360...), Reset clock every 1.5 s (ticks 180, 360...) at 120 Hz.
         var setClock = PlacedParts.Clock(new(1), -3, 0, 0, 0, 0, 0, 1, 1f);
         var resetClock = PlacedParts.Clock(new(2), -3, 3, 0, 0, 0, 0, 1, 1.5f);
-        var latch = WorkshopInput.Latch(new(3), 0, 0, 0, 0, 0, 0, 1);
+        var latch = PlacedParts.Latch(new(3), 0, 0, 0, 0, 0, 0, 1);
         var battery = PlacedParts.Battery(new(4), -6, 0, 0);
         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(),
             new(setClock, resetClock, latch, battery),
@@ -268,7 +268,7 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
     public void Network_OneSourceWiredToBothInputsNeverTurnsOn()
     {
         var clock = PlacedParts.Clock(new(1), -3, 0, 0, 0, 0, 0, 1, 1f);
-        var latch = WorkshopInput.Latch(new(2), 0, 0, 0, 0, 0, 0, 1);
+        var latch = PlacedParts.Latch(new(2), 0, 0, 0, 0, 0, 0, 1);
         var battery = PlacedParts.Battery(new(3), -6, 0, 0);
         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(clock, latch, battery),
             Connections: new(Power(battery.Id, clock.Id), Signal(clock.Id, latch.Id, WorkshopSocket.SetIn), Signal(clock.Id, latch.Id, WorkshopSocket.ResetIn)));
@@ -376,7 +376,7 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
     public void Compiler_SwitchedSupplyRoutesCompileOnceAndTickInputsCloseOnlyWithContactAndEnabledBattery()
     {
         var battery = PlacedParts.Battery(new(1), -4, 0, 0);
-        var latch = WorkshopInput.Latch(new(2), 0, 0, 0, 0, 0, 0, 1);
+        var latch = PlacedParts.Latch(new(2), 0, 0, 0, 0, 0, 0, 1);
         var gate = WorkshopInput.Generic(PartId.PoweredGate, new(3), 4, 0, 0, 0, 0, 0, 1);
         var routed = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(battery, latch, gate),
             Connections: new(Power(battery.Id, latch.Id), new(latch.Id, WorkshopSocket.Supply, gate.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical)));
@@ -405,7 +405,7 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
         Assert.True(PhysicsTickInputs.Compose(directScene.SupplyGraph,prismatics,on,_=>false).SupplyClosed[0]);
 
         // A Counter's supply contact compiles the same route kind: closed only while its committed value is reached.
-        var counter = WorkshopInput.Counter(new(4), 0, 3, 0, 0, 0, 0, 1, 3);
+        var counter = PlacedParts.Counter(new(4), 0, 3, 0, 0, 0, 0, 1, 3);
         var counted = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(battery, counter, gate),
             Connections: new(Power(battery.Id, counter.Id), new(counter.Id, WorkshopSocket.Supply, gate.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical)));
         counted.Validate();
@@ -420,8 +420,8 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
         var plain = WorkshopInput.Generic(PartId.PoweredGate, new(1), -8, 0, 0, 0, 0, 0, 1);
         var batteryA = PlacedParts.Battery(new(2), -6, 3, 0);
         var batteryB = PlacedParts.Battery(new(3), -6, -3, 0, enabled: ElectricalEnable.Disabled);
-        var latchA = WorkshopInput.Latch(new(4), 0, 3, 0, 0, 0, 0, 1);
-        var latchB = WorkshopInput.Latch(new(5), 0, -3, 0, 0, 0, 0, 1);
+        var latchA = PlacedParts.Latch(new(4), 0, 3, 0, 0, 0, 0, 1);
+        var latchB = PlacedParts.Latch(new(5), 0, -3, 0, 0, 0, 0, 1);
         var gateA = WorkshopInput.Generic(PartId.PoweredGate, new(6), 6, 3, 0, 0, 0, 0, 1);
         var gateB = WorkshopInput.Generic(PartId.PoweredGate, new(7), 6, -3, 0, 0, 0, 0, 1);
         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(),
@@ -456,8 +456,8 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
     public void Network_ContactClosedFollowsCommittedLatchMemoryAndCounterReach()
     {
         var clock = PlacedParts.Clock(new(1), -3, 0, 0, 0, 0, 0, 1, 1f);
-        var latch = WorkshopInput.Latch(new(2), 0, 0, 0, 0, 0, 0, 1);
-        var counter = WorkshopInput.Counter(new(3), 0, 3, 0, 0, 0, 0, 1, 2);
+        var latch = PlacedParts.Latch(new(2), 0, 0, 0, 0, 0, 0, 1);
+        var counter = PlacedParts.Counter(new(3), 0, 3, 0, 0, 0, 0, 1, 2);
         var battery = PlacedParts.Battery(new(4), -6, 0, 0);
         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(clock, latch, counter, battery),
             Connections: new(Power(battery.Id, clock.Id), Signal(clock.Id, latch.Id, WorkshopSocket.SetIn),
@@ -481,7 +481,7 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
     [Fact]
     public void Compiler_DeclaresStaticLatchBodyWithCanonicalColliders()
     {
-        var latch = WorkshopInput.Latch(new(7), 1, 0, 0, 0, 0, 0, 1);
+        var latch = PlacedParts.Latch(new(7), 1, 0, 0, 0, 0, 0, 1);
         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(latch));
         var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
         var body = Assert.Single(scene.Bodies.ToArray(), b => b.Id == latch.Id);
@@ -496,7 +496,7 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
     {
         var setSwitch = WorkshopInput.Generic(PartId.ImpactSwitch, new(1), -3, 0, 0, 0, 0, 0, 1);
         var resetSwitch = WorkshopInput.Generic(PartId.ImpactSwitch, new(2), -3, 2, 0, 0, 0, 0, 1);
-        var latch = WorkshopInput.Latch(new(3), 0, 0, 0, 0, 0, 0, 1);
+        var latch = PlacedParts.Latch(new(3), 0, 0, 0, 0, 0, 0, 1);
         var battery = PlacedParts.Battery(new(4), -5, 0, 0);
         var gate = WorkshopInput.Generic(PartId.PoweredGate, new(5), 4, 0, 0, 0, 0, 0, 1);
         var construction = new WorkshopConstruction(new(9), WorkshopCadenceSettings.Default(), new(setSwitch, resetSwitch, latch, battery, gate),
@@ -525,8 +525,8 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
     private static void AssertSame(WorkshopConstruction expected, WorkshopConstruction actual)
     {
         Assert.Equal(expected.Connections.ToArray(), actual.Connections.ToArray());
-        var latch = Assert.Single(actual.Instances.OfType<WorkshopLatch>());
-        Assert.Equal(expected.Instances.OfType<WorkshopLatch>().Single(), latch);
+        var latch = Assert.Single(actual.Instances, instance => instance.PartId == PartId.Latch);
+        Assert.Equal(expected.Instances.Single(instance => instance.PartId == PartId.Latch), latch);
     }
 
     private static SimulationLatchPhase[] Run(ActivationNetwork network, GpuBodyId battery, int ticks,

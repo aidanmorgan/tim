@@ -135,7 +135,7 @@ public sealed class BothGateTests
     {
         var construction=Machine();
         construction=construction with {Instances=new(construction.Instances.Concat(new IWorkshopInstance[]{
-            WorkshopInput.Latch(new(6),-9,3,3,0,0,0,1),
+            PlacedParts.Latch(new(6),-9,3,3,0,0,0,1),
             PlacedParts.Clock(new(7),-6,3,3,0,0,0,1,1f),
             PlacedParts.Clock(new(8),-3,3,3,0,0,0,1,1.5f)}).ToArray()),
             Connections=construction.Connections.Without(Link(3,4)).With(Link(3,6)).With(Link(6,4))

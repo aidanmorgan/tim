@@ -21,17 +21,19 @@ public sealed partial class TypeCheckTests
     private static partial Regex RelativeImport();
 
     /// <summary>The Story 9A.2 case re-introduced: CAT-020 read the Counter target through the retired Counter `threshold()` accessor and only
-    /// Chrome caught it. The generic record still supports threshold for other parts; the Counter-specific typed view excludes it.
-    /// A copy of today's cat-020 with that line restored (its relative imports made absolute so the copy lives outside
-    /// the tree) must fail the same type check with TS2339 naming the accessor.</summary>
-    [Fact]
-    public void ASuiteReadingADeletedAccessorFailsTheTypeCheck()
+    /// Chrome caught it. C-Clock deleted `threshold` and C-Memory deleted `targetCount` (the target is now the declared parameter).
+    /// A copy of today's cat-020 reading either deleted accessor (its relative imports made absolute so the copy lives outside the
+    /// tree) must fail the same type check with TS2339 naming the accessor.</summary>
+    [Theory]
+    [InlineData("threshold")]
+    [InlineData("targetCount")]
+    public void ASuiteReadingADeletedAccessorFailsTheTypeCheck(string accessor)
     {
         var suite = TestRepository.Read("tools/e2e/cat-020.test.ts");
-        const string current = "assert.equal(counterInst.targetCount(), 3);";
+        const string current = "assert.equal(counterTarget?.value(), 3);";
         Assert.Contains(current, suite, StringComparison.Ordinal);
         var directory = Path.Combine(TestRepository.Root, "tools", "e2e");
-        var mutant = RelativeImport().Replace(suite.Replace(current, "assert.equal(counterInst.threshold(), 3);", StringComparison.Ordinal),
+        var mutant = RelativeImport().Replace(suite.Replace(current, $"assert.equal(counterInst.{accessor}(), 3);", StringComparison.Ordinal),
             match => $"from '{Path.GetFullPath(Path.Combine(directory, match.Groups[1].Value))}'");
         var scratch = Directory.CreateTempSubdirectory("e2e-typecheck-").FullName;
         try
@@ -41,7 +43,7 @@ public sealed partial class TypeCheckTests
                 $$"""{ "extends": "{{Path.Combine(directory, "tsconfig.json")}}", "include": ["cat-020-threshold.test.ts"] }""");
             var result = TypeCheck.Run(Toolchain.ResolveTypeScript(Home), scratch, "tsconfig.json");
             Assert.NotEqual(0, result.ExitCode);
-            Assert.Matches(@"cat-020-threshold\.test\.ts\(\d+,\d+\): error TS2339: Property 'threshold' does not exist", result.Output);
+            Assert.Matches($@"cat-020-threshold\.test\.ts\(\d+,\d+\): error TS2339: Property '{accessor}' does not exist", result.Output);
         }
         finally { Directory.Delete(scratch, true); }
     }

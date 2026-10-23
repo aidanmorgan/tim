@@ -41,7 +41,7 @@ public sealed class DeclaredOscillatorTests
         static WorkshopConnection Wire(GpuBodyId source, GpuBodyId target) =>
             new(source, WorkshopSocket.Supply, target, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical);
         var bench = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(),
-            new(PlacedParts.Battery(first, -6, 3, 0), PlacedParts.Battery(second, -6, 6, 0), WorkshopInput.Latch(latch, -3, 3, 0, 0, 0, 0, 1),
+            new(PlacedParts.Battery(first, -6, 3, 0), PlacedParts.Battery(second, -6, 6, 0), PlacedParts.Latch(latch, -3, 3, 0, 0, 0, 0, 1),
                 PlacedParts.Clock(clock, 0, 3, 0, 0, 0, 0, 1, 1f)),
             Connections: twoBatteries ? new(Wire(first, latch), Wire(second, latch), Wire(latch, clock)) : new(Wire(first, latch), Wire(latch, clock)));
         bench.Validate();
@@ -154,6 +154,9 @@ public sealed class DeclaredOscillatorTests
     // (slot 8) is now read as the parameters offset and the verifier refuses the buffer; a lone counter's target 3 is likewise refused
     // by the verifier, while targets 4 and 8 pass it as an offset but leave the counter no target count of its own. Every generic record of that layout wrote its parameters in slot 9, beyond
     // the 9-field table (a bare Basketball's empty vector included). Each refusal is typed at both boundaries; none is migrated.
+    // C-Memory's 8-field table (no target_count): a clock's threshold slot 7 is now the parameters offset, so the verifier refuses every
+    // clock save; a lone counter's target (old slot 8) is beyond the table and the generic counter it decodes as has no declared target
+    // (OutOfRange, before the beyond-the-table check); the cat-017 bench and the bare Basketball keep their refusals.
     private const string Clock01Save = "xAAAABQAAABDQ1dTAAAAAAgAFAAIAAQACAAAABwAAAALAAAAAAAAAAAAAAAMACgAIAAIAAAABAAMAAAAJAAAAAIAAAABAAAAAgAAAAIAAAA8AAAAAQAAAAIAAAAAAAAAAQAAABgAAAAUAEAANAAwAAAAJAAYAAgAAAAEABQAAADNzMw9AAAAAAAAAAAAAAAAAACAPwAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAABAAAAABAAAAAAAAAAAAAAAFAAAAY2xvY2sAAAA=";
     private const string Clock01Command = "FAEAACQAAABDQ1dDHABEADgANAAoACAAHAAYABAACAAAAAAAAAAEABwAAABMAAAAAQAAAAAAAAABAAAAAAAAAMQAAAACAAAAAQAAAAAAAAABAAAAAAAAAAAAAAABAAAAAQAAAAAAAAAAAAAADAAoACAACAAAAAQADAAAACQAAAACAAAAAQAAAAIAAAACAAAAPAAAAAEAAAACAAAAAAAAAAEAAAAYAAAAFAA8ADQAMAAAACQAGAAIAAAABAAUAAAAzczMPQAAAAAAAAAAAAAAAAAAgD8AAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAMAAAAAQAAAAAAAAAFAAAAY2xvY2sAAAAQAAAAAQAAAAAAAAACAAAAAAAAAA==";
     private const string Clock12Save = "xAAAABQAAABDQ1dTAAAAAAgAFAAIAAQACAAAABwAAAALAAAAAAAAAAAAAAAMACgAIAAIAAAABAAMAAAAJAAAAAIAAAABAAAAAgAAAAIAAAA8AAAAAQAAAAIAAAAAAAAAAQAAABgAAAAUAEAANAAwAAAAJAAYAAgAAAAEABQAAAAAAEBBAAAAAAAAAAAAAAAAAACAPwAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAABAAAAABAAAAAAAAAAAAAAAFAAAAY2xvY2sAAAA=";
@@ -171,28 +174,26 @@ public sealed class DeclaredOscillatorTests
     private const string BallSave ="zAAAABQAAABDQ1dTAAAAAAgAFAAIAAQACAAAABwAAAALAAAAAAAAAAAAAAAMACgAIAAIAAAABAAMAAAAJAAAAAIAAAABAAAAAgAAAAIAAAA8AAAAAQAAAAIAAAAAAAAAAQAAABwAAAAYAEAAMAAsAAAAIAAUAAQAAAAAAAAAPAAYAAAAAAAAAAAAAAAAAAAAAACAPwAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAABgAAAABAAAAAAAAAAAAAAAEAAAAAAAAAAQAAABiYWxsAAAAAA==";
     private const string BallCommand = "HAEAACQAAABDQ1dDHABEADgANAAoACAAHAAYABAACAAAAAAAAAAEABwAAABMAAAAAQAAAAAAAAABAAAAAAAAAMwAAAACAAAAAQAAAAAAAAABAAAAAAAAAAAAAAABAAAAAQAAAAAAAAAAAAAADAAoACAACAAAAAQADAAAACQAAAACAAAAAQAAAAIAAAACAAAAPAAAAAEAAAACAAAAAAAAAAEAAAAcAAAAGAA8ADAALAAAACAAFAAEAAAAAAAAADgAGAAAAAAAAAAAAAAAAAAAAAAAgD8AAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAUAAAAAQAAAAAAAAAEAAAAAAAAAAQAAABiYWxsAAAAABAAAAABAAAAAAAAAAIAAAAAAAAA";
 
-    private const string TypedSave = "This save cannot be loaded: Part 1 is a generic instance and cannot carry a typed record field.";
-    private const string TypedCommand = "Generic instance cannot carry a typed record field.";
+    private const string VerifierSave = "This save cannot be loaded: The FlatBuffers verifier refused a CCWS buffer.";
+    private const string VerifierCommand = "The FlatBuffers verifier refused a CCWC buffer.";
+    private const string TargetSave = "This save cannot be loaded: Invalid declared parameters.";
+    private const string TargetCommand = "Invalid declared parameters.";
 
     [Theory]
     [InlineData("clock_0_1", "f4a493b3f39b89b7d352351fe35196fb2d8c4e46f702faeb91e47f60965e25ab", "18b9590666b4e313ac344a33cbc8254b204e5ca59342877f67065a19e872ca23",
-        WorkshopSaveRejection.OutOfRange, TypedSave, WireFaultReason.OutOfRange, TypedCommand)]
+        WorkshopSaveRejection.VerifierRejected, VerifierSave, WireFaultReason.VerifierRejected, VerifierCommand)]
     [InlineData("clock_12", "12856819067e26c572257f4a7275eca6f9cd1d14f3e208d3c03c81f6c67d3aea", "af10719172fcd7c6093c85c2b6e37f252b18fec2d78d177c04d64a9e3a2412be",
-        WorkshopSaveRejection.OutOfRange, TypedSave, WireFaultReason.OutOfRange, TypedCommand)]
+        WorkshopSaveRejection.VerifierRejected, VerifierSave, WireFaultReason.VerifierRejected, VerifierCommand)]
     [InlineData("clock_locked_rotated", "7bb2f9594727e48b3ba1311426f9f28e40dc073fc5135ea5f9ee42d6aabeb18f", "e8342cef097e3697db486e9b2d7d6b3c37f64c395f792888a98ddfc7e4e64b73",
-        WorkshopSaveRejection.OutOfRange, TypedSave, WireFaultReason.OutOfRange, TypedCommand)]
+        WorkshopSaveRejection.VerifierRejected, VerifierSave, WireFaultReason.VerifierRejected, VerifierCommand)]
     [InlineData("bench_counter_gate", "630b8bb7cc81c7c4440f8a1d5fa957b244d8af0fe5ceb29393777e345f64b5d7", "3fb5d595fd7512ca9b4581b8b69bea6a32268670c06718c8369f5e62b4be86f1",
-        WorkshopSaveRejection.VerifierRejected, "This save cannot be loaded: The FlatBuffers verifier refused a CCWS buffer.",
-        WireFaultReason.VerifierRejected, "The FlatBuffers verifier refused a CCWC buffer.")]
+        WorkshopSaveRejection.VerifierRejected, VerifierSave, WireFaultReason.VerifierRejected, VerifierCommand)]
     [InlineData("counter_4", "30c31d97d4a74f46b892b5779087340c9e592e5b0d32b8c388e5071c67c72567", "86d189336724a5add8c234c923ed7237f25ee6e5ac9862ab3c1aa3814add3565",
-        WorkshopSaveRejection.MissingField, "This save cannot be loaded: Counter 1 has no target count.",
-        WireFaultReason.MissingField, "Counter 1 has no target count.")]
+        WorkshopSaveRejection.OutOfRange, TargetSave, WireFaultReason.OutOfRange, TargetCommand)]
     [InlineData("counter_3", "45882e833efb5593a8e096ce357a15fce05035ccb9f225f302682104c1b854c9", "278a2ce8210b739eab41c4e0d2221fc1d8c118d4e2e90af4ba8b1c1773864d20",
-        WorkshopSaveRejection.VerifierRejected, "This save cannot be loaded: The FlatBuffers verifier refused a CCWS buffer.",
-        WireFaultReason.VerifierRejected, "The FlatBuffers verifier refused a CCWC buffer.")]
+        WorkshopSaveRejection.OutOfRange, TargetSave, WireFaultReason.OutOfRange, TargetCommand)]
     [InlineData("counter_8", "51bbb19ef3ee46e76a38b879698d6a24c2228d644630ea508be95936d4d67d74", "63a28e4c28d67dbb920a15476294f97413f0138fcf358ac66fce5e02a4c6367d",
-        WorkshopSaveRejection.MissingField, "This save cannot be loaded: Counter 1 has no target count.",
-        WireFaultReason.MissingField, "Counter 1 has no target count.")]
+        WorkshopSaveRejection.OutOfRange, TargetSave, WireFaultReason.OutOfRange, TargetCommand)]
     [InlineData("generic_ball", "8d819cef4f1f3ab907a728e0b8874e07e3df7d3ab2c37e35c4c56d578ae8c90c", "56c55e27701c6ed85e7d288e39a55f9710ca6f50f256534b894fef0bb50e897c",
         WorkshopSaveRejection.OutOfRange, "This save cannot be loaded: an instance record holds a field the current record does not define.",
         WireFaultReason.OutOfRange, "An instance record holds a field the current record does not define.")]

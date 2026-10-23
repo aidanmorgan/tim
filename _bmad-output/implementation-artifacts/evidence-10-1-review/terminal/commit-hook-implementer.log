@@ -1,0 +1,56 @@
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.wutooN/solution.binlog
+
+Time Elapsed 00:00:10.61
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.wutooN/playtest.binlog
+
+Time Elapsed 00:00:12.97
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.wutooN/web.binlog
+
+Time Elapsed 00:00:07.81
+Test run for /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.7Zzkf8/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:   124, Skipped:     0, Total:   124, Duration: 4 s - CuriousContraptions.tests.dll (net10.0)
+[story-10-1 507c1a35] Add solid cylinder colliders with closed-form contacts and exact inertia
+ 29 files changed, 4181 insertions(+), 1 deletion(-)
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-10-1-review/round5/build-debug.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-10-1-review/round5/ci-tool-step.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-10-1-review/round5/identity-at-end.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-10-1-review/round5/identity-at-start.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-10-1-review/round5/probe-merged.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-10-1-review/round5/test-slnx.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-10-1-review/round5/worker-release.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-10-1/round6/appbundle-check.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-10-1/round6/build-debug.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-10-1/round6/candidate-identity.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-10-1/round6/ci-tool-step.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-10-1/round6/diff-check.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-10-1/round6/e2erunner-rerun-no-blame.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-10-1/round6/exit-codes.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-10-1/round6/gate-and-walk.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-10-1/round6/test-slnx.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-10-1/round6/worker-release.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-10-1/verify5.sh
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-22-review/terminal/artifact-deployment.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-22-review/terminal/build-job.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-22-review/terminal/commit-hook-implementer.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-22-review/terminal/deploy-job.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-22-review/terminal/deployment-status.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-22-review/terminal/hook-rerun.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-22-review/terminal/identities.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-9a-22-review/terminal/run.json

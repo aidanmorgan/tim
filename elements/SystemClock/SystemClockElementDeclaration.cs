@@ -54,10 +54,6 @@ public sealed class SystemClockElementDeclaration : IOscillatorElement, IElectri
 
     public IReadOnlyList<SignalTriggerDescriptor> Triggers => [];
 
-    public SignalLatchMode LatchMode => SignalLatchMode.None;
-
-    public SignalCounterDescriptor? Counter => null;
-
     /// <summary>The pendulum pulses its ActivationOut once per declared interval while its PowerIn is supplied (CAT-017).</summary>
     public SignalOscillatorDescriptor Oscillator => new("interval_seconds");
 

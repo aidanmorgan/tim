@@ -81,10 +81,6 @@ public sealed class PressurePlateElementDeclaration : IMechanicalElement, ISuppl
 
     public IReadOnlyList<SignalTriggerDescriptor> Triggers => [];
 
-    public SignalLatchMode LatchMode => SignalLatchMode.None;
-
-    public SignalCounterDescriptor? Counter => null;
-
     /// <summary>CAT-052 §2: the top face (baked collider 1) senses resting mass along its +Y normal (alignment 1 − 10⁻⁶, contact distance
     /// 10⁻⁴ m, z margin 10⁻⁶ m) against <c>minimum_mass</c>; the level is held 0.1 s after the last qualifying contact (Q3).</summary>
     public SignalContactLoadDescriptor ContactLoad => new("minimum_mass", 1, Vector3.UnitY, 1f - 1e-6f, 1e-4f, 1e-6f, .1f);

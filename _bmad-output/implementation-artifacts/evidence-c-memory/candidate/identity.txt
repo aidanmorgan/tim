@@ -1,0 +1,5 @@
+base HEAD fc7f7cacccdde0177cb37ab776a502038d71c08d
+tracked diff (HEAD, _bmad-output and TODO.md excluded) sha256 44b8535359085c96bf2866a6ad20944e3e7f8074f4268ca0315062133f62cc37
+new CuriousContraptions.tests/MemoryGuardTests.cs sha256 89abbef34c4f4082d35e1dd950b524e72d58eb0b71f05822fead68740d67e611
+new CuriousContraptions.tests/DeclaredMemoryTests.cs sha256 39845d700dbfa5f1d313ab128432936f82d10425bb41a9d015197ccbf73c1a9e
+MemoryGuardTests.cs byte-identical to the base-run copy: yes

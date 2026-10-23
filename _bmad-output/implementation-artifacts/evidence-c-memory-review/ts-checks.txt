@@ -1,0 +1,9 @@
+tsc Version 6.0.3
+tsc rc=0
+ℹ tests 24
+ℹ pass 24
+ℹ fail 0
+ℹ skipped 0
+tsx rc=0
+diff-check rc=0
+cached diff-check rc=0

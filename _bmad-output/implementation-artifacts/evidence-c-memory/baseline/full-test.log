@@ -1,0 +1,32 @@
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-memory/tools/WorkerAotGuard.Tests/bin/Debug/net10.0/WorkerAotGuard.Tests.dll (.NETCoreApp,Version=v10.0)
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-memory/tools/E2eRunner.Tests/bin/Debug/net10.0/E2eRunner.Tests.dll (.NETCoreApp,Version=v10.0)
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-memory/tools/Coverage.Tests/bin/Debug/net10.0/Coverage.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+A total of 1 test files matched the specified pattern.
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-memory/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-memory/tools/BundleElements.Tests/bin/Debug/net10.0/BundleElements.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+Blame: Attaching crash dump utility to process dotnet (82684).
+Blame: Attaching crash dump utility to process dotnet (82685).
+A total of 1 test files matched the specified pattern.
+Blame: Attaching crash dump utility to process dotnet (82686).
+Blame: Attaching crash dump utility to process dotnet (82688).
+Blame: Attaching crash dump utility to process dotnet (82690).
+
+Passed!  - Failed:     0, Passed:    17, Skipped:     0, Total:    17, Duration: 44 ms - WorkerAotGuard.Tests.dll (net10.0)
+
+
+Passed!  - Failed:     0, Passed:    77, Skipped:     0, Total:    77, Duration: 856 ms - Coverage.Tests.dll (net10.0)
+Passed!  - Failed:     0, Passed:   174, Skipped:     0, Total:   174, Duration: 446 ms - BundleElements.Tests.dll (net10.0)
+
+Passed!  - Failed:     0, Passed:   189, Skipped:     0, Total:   189, Duration: 1 m 4 s - E2eRunner.Tests.dll (net10.0)
+
+Passed!  - Failed:     0, Passed:  2728, Skipped:     0, Total:  2728, Duration: 1 m 11 s - CuriousContraptions.tests.dll (net10.0)
+
+Attachments:
+  /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-memory/tools/E2eRunner.Tests/TestResults/3e68004f-8066-4411-9091-5090df353f37/Preview_83326_1792776319_crashdump.dmp
+  /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-memory/tools/E2eRunner.Tests/TestResults/3e68004f-8066-4411-9091-5090df353f37/Preview_82952_1792776284_crashdump.dmp
+  /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-memory/tools/E2eRunner.Tests/TestResults/3e68004f-8066-4411-9091-5090df353f37/Preview_83112_1792776303_crashdump.dmp
+  /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-memory/tools/E2eRunner.Tests/TestResults/3e68004f-8066-4411-9091-5090df353f37/Preview_83013_1792776294_crashdump.dmp
+rc=0

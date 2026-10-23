@@ -1259,23 +1259,18 @@ length():number {
   return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
 }
 
-targetCount():number {
-  const offset = this.bb!.__offset(this.bb_pos, 18);
-  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
-}
-
 parameters(index: number, obj?:ParameterRecord):ParameterRecord|null {
-  const offset = this.bb!.__offset(this.bb_pos, 20);
+  const offset = this.bb!.__offset(this.bb_pos, 18);
   return offset ? (obj || new ParameterRecord()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
 }
 
 parametersLength():number {
-  const offset = this.bb!.__offset(this.bb_pos, 20);
+  const offset = this.bb!.__offset(this.bb_pos, 18);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
 static startInstanceRecord(builder:flatbuffers.Builder) {
-  builder.startObject(9);
+  builder.startObject(8);
 }
 
 static addId(builder:flatbuffers.Builder, id:bigint) {
@@ -1306,12 +1301,8 @@ static addLength(builder:flatbuffers.Builder, length:number) {
   builder.addFieldFloat32(6, length, 0.0);
 }
 
-static addTargetCount(builder:flatbuffers.Builder, targetCount:number) {
-  builder.addFieldInt32(7, targetCount, 0);
-}
-
 static addParameters(builder:flatbuffers.Builder, parametersOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(8, parametersOffset, 0);
+  builder.addFieldOffset(7, parametersOffset, 0);
 }
 
 static createParametersVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
@@ -2314,7 +2305,6 @@ export function dumpAuthored(saved: SavedConstruction): object {
                 const parameter = inst.parameters(index)!;
                 return {key: parameter.key(), value: parameter.value()};
             }),
-            targetCount: inst.targetCount(),
         });
     }
     const connections = [];

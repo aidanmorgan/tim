@@ -1,0 +1,14 @@
+base fc7f7cac (throwaway worktree, tools/BundleElements Debug build): 250699013a0fc48a20f181432c6432953a6f23173aad01397013a96913dfa02c     309701 bytes
+candidate: abbfd3c29909e45aab775fd3439d621544484112357e69f68ebe09a7512a4ea0     309385 bytes
+== element-level diff (python -I json compare, per element id):
+same element ids: True 28
+CHANGED ball_detector fields ['Signal'] signal ['LatchMode'] old {'LatchMode': 'None'} new {}
+CHANGED clock fields ['Signal'] signal ['LatchMode'] old {'LatchMode': 'None'} new {}
+CHANGED counter fields ['Signal'] signal ['Counter', 'LatchMode', 'PulseCount', 'Triggers'] old {'Counter': {'Threshold': 3, 'ResetOnThreshold': False}, 'LatchMode': 'None', 'Triggers': [{'TriggerId': 'pulse', 'Mode': 'Pulse', 'Threshold': 1, 'PulseDurationSeconds': 0.1}]} new {'PulseCount': {'TargetParameter': 'target_count'}, 'Triggers': []}
+CHANGED delay fields ['Signal'] signal ['LatchMode'] old {'LatchMode': 'None'} new {}
+CHANGED domino fields ['Signal'] signal ['LatchMode'] old {'LatchMode': 'SetReset'} new {}
+CHANGED hold_timer fields ['Signal'] signal ['LatchMode'] old {'LatchMode': 'None'} new {}
+CHANGED lamp fields ['Signal'] signal ['LatchMode'] old {'LatchMode': 'None'} new {}
+CHANGED latch fields ['Signal'] signal ['LatchMode', 'Memory', 'Triggers'] old {'LatchMode': 'SetReset', 'Triggers': [{'TriggerId': 'set_pulse', 'Mode': 'Pulse', 'Threshold': 1, 'PulseDurationSeconds': 0.1}]} new {'Memory': {'Set': 'SetIn', 'Reset': 'ResetIn'}, 'Triggers': []}
+CHANGED pressure_plate fields ['Signal'] signal ['LatchMode'] old {'LatchMode': 'None'} new {}
+CHANGED switch fields ['Signal'] signal ['LatchMode'] old {'LatchMode': 'None'} new {}

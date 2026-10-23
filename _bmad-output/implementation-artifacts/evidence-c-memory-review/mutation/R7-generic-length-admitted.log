@@ -1,0 +1,7 @@
+== 2026-10-23T18:33:17Z R7-generic-length-admitted (engine/gpu/WorkshopWireFlatBuffers.cs) mutation diff vs candidate:
+-        return BitConverter.SingleToUInt32Bits(r.Length) != 0;
++        return BitConverter.SingleToUInt32Bits(r.Length) != 0 && r.Length < 0;
+    0 Error(s)
+    0 Warning(s)
+CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.ACounterCarryingALengthIsRefusedBesideAnAdmittedTarget [FAIL]
+Failed!  - Failed:     1, Passed:   362, Skipped:     0, Total:   363, Duration: 5 s - CuriousContraptions.tests.dll (net10.0)

@@ -235,6 +235,97 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
         finally { Release(scene); }
     }
 
+    // C-Memory (9A.41, D3): a counter placed from the palette takes the declared target 3 and is configured through the generic editor
+    // (retro-verification #13: there was no editor). The editor names target_count with its declared whole range and applies the Reject
+    // policy: 0, 10, 2.5, -1, NaN, Infinity and text are refused with no change, no command and no undo (never clamped or rounded); 1
+    // and 9 are accepted, each one Undo and one command. Cancel changes nothing; an unchanged Apply adds no Undo; two Undos restore 3.
+    // A move keeps the target and a newly placed counter starts from 3. Running, Paused and a locked counter are refused.
+    [Fact]
+    public void TheCounterTargetEditorAdmitsOneToNineRefusesTheRestAndAppliesAsOneUndo()
+    {
+        var parameter = new ParameterId("target_count");
+        var (scene, client) = BenchScene(PartId.Counter, PlacementAnswer.Applied);
+        try
+        {
+            Assert.Empty(ClickBench(scene));
+            var placed = Assert.IsType<WorkshopGenericInstance>(Assert.Single(scene.World.Construction.Instances));
+            Assert.Equal(3f, placed.Parameters[parameter]);
+            var choices = Field<VBoxContainer>(scene, "_connectionChoices");
+            static IEnumerable<T> Nodes<T>(Node parent) where T : Node =>
+                parent.GetChildren().SelectMany(child => new[] { child }.Concat(Nodes<Node>(child))).OfType<T>();
+            void Press(string label) => Assert.Single(Nodes<Button>(choices), button => button.Text == label).EmitSignal(Button.SignalName.Pressed);
+            LineEdit Configure()
+            {
+                Press("Configure");
+                var field = Assert.Single(Nodes<LineEdit>(choices));
+                Assert.Equal(parameter.Value, field.Name.ToString());
+                Assert.Contains(Nodes<Label>(choices), label => label.Text == "target_count (1–9 )");
+                return field;
+            }
+            var input = Configure();
+            Assert.Equal("3", input.Text);
+            var before = scene.World.Construction;
+            var commands = client.Commands.Count;
+            var undos = Field<List<WorkshopConstruction>>(scene, "_undo").Count;
+            foreach (var invalid in new[] { "0", "10", "2.5", "-1", "NaN", "Infinity", "three" })
+            {
+                input.Text = invalid;
+                Press("Apply parameters");
+                Assert.Equal(before, scene.World.Construction);
+                Assert.Equal(commands, client.Commands.Count);
+                Assert.Equal(undos, Field<List<WorkshopConstruction>>(scene, "_undo").Count);
+            }
+            Press("Cancel");
+            Assert.Equal(before, scene.World.Construction);
+            foreach (var (text, value) in new[] { ("9", 9f), ("1", 1f) })
+            {
+                input = Configure();
+                input.Text = text;
+                Press("Apply parameters");
+                var current = Assert.IsType<WorkshopGenericInstance>(Assert.Single(scene.World.Construction.Instances));
+                Assert.Equal(value, current.Parameters[parameter]);
+                Assert.Equal(++undos, Field<List<WorkshopConstruction>>(scene, "_undo").Count);
+                Assert.Equal(++commands, client.Commands.Count);
+            }
+            // The editor shows the instance's value, and an unchanged Apply adds no Undo and sends no command.
+            input = Configure();
+            Assert.Equal("1", input.Text);
+            Press("Apply parameters");
+            Assert.Equal((undos, commands), (Field<List<WorkshopConstruction>>(scene, "_undo").Count, client.Commands.Count));
+
+            // A move re-captures the committed instance and keeps its target; a newly placed counter starts from the declared 3.
+            var applied = Assert.IsType<WorkshopGenericInstance>(Assert.Single(scene.World.Construction.Instances));
+            var moved = Assert.IsType<WorkshopGenericInstance>(scene.World.CaptureInstance(PartId.Counter, applied.Id, new Vector3(1, 3, 0), Quaternion.Identity));
+            Assert.Equal(applied.Parameters, moved.Parameters);
+            var fresh = Assert.IsType<WorkshopGenericInstance>(scene.World.CaptureInstance(PartId.Counter, new GpuBodyId(99), new Vector3(1, 3, 0), Quaternion.Identity));
+            Assert.Equal(3f, fresh.Parameters[parameter]);
+
+            Assert.Empty(InvokeHandler(scene, "Undo"));
+            Assert.Empty(InvokeHandler(scene, "Undo"));
+            var restored = Assert.IsType<WorkshopGenericInstance>(Assert.Single(scene.World.Construction.Instances));
+            Assert.Equal(3f, restored.Parameters[parameter]);
+
+            var accepted = scene.World.Construction;
+            commands = client.Commands.Count;
+            var proposed = new InstanceParameterCollection([new(parameter, 5f)]);
+            foreach (var phase in new[] { WorkshopSimulationPhase.Running, WorkshopSimulationPhase.Paused })
+            {
+                typeof(MachineWorld).GetProperty(nameof(MachineWorld.WorkshopPhase))!.SetValue(scene.World, phase);
+                Assert.Empty(InvokeHandler(scene, "ApplyDeclaredParameters", restored.Id, proposed));
+                Assert.Equal(accepted, scene.World.Construction);
+                Assert.Equal(commands, client.Commands.Count);
+            }
+            typeof(MachineWorld).GetProperty(nameof(MachineWorld.WorkshopPhase))!.SetValue(scene.World, WorkshopSimulationPhase.Building);
+            var locked = accepted with { Instances = new(restored with { Locked = true }) };
+            typeof(MachineWorld).GetProperty(nameof(MachineWorld.Construction))!.SetValue(scene.World, locked);
+            Assert.Empty(InvokeHandler(scene, "ApplyDeclaredParameters", restored.Id, proposed));
+            Assert.Equal(locked, scene.World.Construction);
+            Assert.Equal(commands, client.Commands.Count);
+            Assert.Empty(godot.Errors.Drain());
+        }
+        finally { Release(scene); }
+    }
+
     // F.6 F-1, coordinator decision B1: the preview and the click share one composed pose. A Basketball dropped into a plate whose face
     // lies at the top of the bench would rest above the 9 m volume: the preview hides, and the click is refused with the typed
     // UnplaceablePose message, no command, no undo and an unchanged construction. Control: the same drop into a plate at 8 m rests at
@@ -632,14 +723,21 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
     {
         // A bench point outside the world is a caller defect: the canonical position boundary throws a plain argument exception,
         // not a declared refusal, so Propose must not turn it into a placement rejection (the handler boundary logs it as a fault).
+        // C-Memory: the latch is a generic instance of a discovered part, so the defect is proposed on a discovered world.
+        var discovered = DiscoveredWorld();
+        try
+        {
+            var undo = 0;
+            var defect = Assert.Throws<ArgumentOutOfRangeException>(() => WorkshopBenchPlacement.Propose(discovered, PartId.Latch, new(7),
+                new(100, 0, 0), Quaternion.Identity, null, () => undo++));
+            Assert.Equal("metres", defect.ParamName);
+            Assert.Equal(0, undo);
+        }
+        finally { discovered.Free(); }
         var world = new MachineWorld();
         try
         {
             var undo = 0;
-            var defect = Assert.Throws<ArgumentOutOfRangeException>(() => WorkshopBenchPlacement.Propose(world, PartId.Latch, new(7),
-                new(100, 0, 0), Quaternion.Identity, null, () => undo++));
-            Assert.Equal("metres", defect.ParamName);
-            Assert.Equal(0, undo);
             // Control: with no discovered registry a payload is a generic instance the declared rule refuses (UnsupportedPart).
             var refused = WorkshopBenchPlacement.Propose(world, PartId.Basketball, new(7), BenchPoint, Quaternion.Identity, null, () => undo++);
             Assert.Equal(BenchPlacementRejection.UnsupportedPart, refused.Rejection);

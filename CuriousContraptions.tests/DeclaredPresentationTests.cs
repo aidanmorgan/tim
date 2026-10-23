@@ -125,7 +125,7 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
     {
         var battery = PlacedParts.Battery(new(1), -3, 3, 0, enabled: powered ? ElectricalEnable.Enabled : ElectricalEnable.Disabled);
         var clock = PlacedParts.Clock(new(2), 0, 3, 0, 0, 0, 0, 1, 1f);
-        var counter = WorkshopInput.Counter(new(3), 3, 3, 0, 0, 0, 0, 1, 3);
+        var counter = PlacedParts.Counter(new(3), 3, 3, 0, 0, 0, 0, 1, 3);
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(battery, clock, counter),
             Connections: new(
                 new WorkshopConnection(battery.Id, WorkshopSocket.Supply, clock.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical),
@@ -212,7 +212,7 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
     {
         var battery = PlacedParts.Battery(new(1), -3, 3, 0);
         var clock = PlacedParts.Clock(new(2), 0, 3, 0, 0, 0, 0, 1, 1f);
-        var counter = WorkshopInput.Counter(new(3), 3, 3, 0, 0, 0, 0, 1, 3);
+        var counter = PlacedParts.Counter(new(3), 3, 3, 0, 0, 0, 0, 1, 3);
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(battery, clock, counter),
             Connections: new(new WorkshopConnection(battery.Id, WorkshopSocket.Supply, clock.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical),
                 new WorkshopConnection(clock.Id, WorkshopSocket.ActivationOut, counter.Id, WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation)));
@@ -305,7 +305,7 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
     {
         var setClock = PlacedParts.Clock(new(1), -3, 0, 0, 0, 0, 0, 1, 1f);
         var resetClock = PlacedParts.Clock(new(2), -3, 3, 0, 0, 0, 0, 1, 1.5f);
-        var latch = WorkshopInput.Latch(new(3), 0, 0, 0, 0, 0, 0, 1);
+        var latch = PlacedParts.Latch(new(3), 0, 0, 0, 0, 0, 0, 1);
         var battery = PlacedParts.Battery(new(4), -6, 0, 0);
         var lamp = PlacedParts.Lamp(new(5), 3, 0, 0, 0, 0, 0, 1);
         var delay = WorkshopInput.Generic(PartId.Delay, new(6), 3, 3, 0, 0, 0, 0, 1, new InstanceParameterCollection([new(new ParameterId("delay_seconds"), (float).5f)]));

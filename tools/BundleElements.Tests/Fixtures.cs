@@ -78,8 +78,6 @@ internal sealed class SignalFixture : ISignalElement
     public IReadOnlyList<EventDescriptor> Events => [];
     public SimulationDomain SupportedDomains => SimulationDomain.Signal;
     public IReadOnlyList<SignalTriggerDescriptor> Triggers => [];
-    public SignalLatchMode LatchMode => SignalLatchMode.None;
-    public SignalCounterDescriptor? Counter => null;
 }
 
 internal static class TestRepository

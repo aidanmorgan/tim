@@ -1,0 +1,31 @@
+== reviewer hook re-run: worktree HEAD e7152d61069cf43e4d7506552ba763e0be51f2b3, index tree 0e51bbca78b579e7fa7a36a8b68b8e3f8011ffd7, staged paths 29, unstaged 0, untracked 0, start 2026-10-23T18:25:36Z
+hooks path /Users/aidan/dev/personal/tim/.git/hooks
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.nnqxOW/solution.binlog
+
+Time Elapsed 00:00:10.78
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.nnqxOW/playtest.binlog
+
+Time Elapsed 00:00:13.74
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.nnqxOW/web.binlog
+
+Time Elapsed 00:00:10.38
+Test run for /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.Mc6kJf/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:   124, Skipped:     0, Total:   124, Duration: 4 s - CuriousContraptions.tests.dll (net10.0)
+hook rc=0 end 2026-10-23T18:26:31Z

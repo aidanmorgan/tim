@@ -1,0 +1,11 @@
+repo aidanmorgan/tim
+{"created_at":"2026-10-23T18:23:23Z","digest":"sha256:e60e74f0f19a6ab7dec6d80eee79c0e49b2321f8c044ffee8d7879cddc6316ad","expired":false,"id":12521979747,"name":"github-pages","size_in_bytes":80258353,"workflow_run":{"head_branch":"main","head_repository_id":1390098517,"head_sha":"cf35a0645c719e2551fc7ffa2473416d404da8a0","id":39999273139,"repository_id":1390098517}}
+--- deployments (github-pages, newest 3)
+{"created_at":"2026-10-23T18:23:26Z","id":7285699895,"ref":"main","sha":"cf35a0645c719e2551fc7ffa2473416d404da8a0"}
+{"created_at":"2026-10-23T17:14:08Z","id":7284305323,"ref":"main","sha":"fc7f7cacccdde0177cb37ab776a502038d71c08d"}
+{"created_at":"2026-10-23T15:43:36Z","id":7282423433,"ref":"main","sha":"ae3cacf98f6fe8f7d3fb94a9d52b557ca970ae8a"}
+--- statuses for deployment 7285699895
+{"created_at":"2026-10-23T18:24:14Z","environment_url":"https://aidanmorgan.github.io/tim/","state":"success"}
+{"created_at":"2026-10-23T18:23:31Z","environment_url":"","state":"in_progress"}
+{"created_at":"2026-10-23T18:23:28Z","environment_url":"","state":"queued"}
+{"created_at":"2026-10-23T18:23:27Z","environment_url":"","state":"waiting"}

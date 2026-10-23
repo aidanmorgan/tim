@@ -1,0 +1,6 @@
+    0 Warning(s)
+    0 Error(s)
+CuriousContraptions.Simulation rc=0
+    0 Warning(s)
+    0 Error(s)
+CuriousContraptions.Animation.Worker rc=0

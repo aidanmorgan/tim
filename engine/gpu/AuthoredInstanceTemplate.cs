@@ -22,7 +22,7 @@ internal readonly record struct AuthoredAssistanceBinding(AssistanceValue Value,
 /// <summary>Explicit current-schema fields. No omitted scalar is replaced by a FlatBuffers default.</summary>
 internal sealed record AuthoredInstanceTemplate(PartId Part, CellOrigin Cell, LocalPosition Local,
     CanonicalRotation Rotation, bool Locked, ImmutableDictionary<AuthoredScalar, float> Scalars,
-    uint TargetCount, InstanceParameterCollection Parameters, AssistanceProfile Assistance, ImmutableArray<AuthoredAssistanceBinding> AssistanceBindings)
+    InstanceParameterCollection Parameters, AssistanceProfile Assistance, ImmutableArray<AuthoredAssistanceBinding> AssistanceBindings)
 {
     internal AuthoredInstanceTemplate At(PuzzlePrecision precision)
     {
@@ -88,7 +88,7 @@ internal static class AuthoredInstanceReader
     {
         var fields = PuzzleContentReader.Fields(json, where);
         Require(fields, where, "part", "cell", "local", "rotation", "locked", "scalars",
-            "target_count", "parameters", "assistance", "assistance_bindings");
+            "parameters", "assistance", "assistance_bindings");
         var part = new PartId(PuzzleContentReader.Text(fields, "part", where));
         if (!DeclaredPhysics.Contains(part)) throw PuzzleContentReader.Invalid(where, "part", "unknown declared part");
         var cell = Array(fields["cell"], 3, where + ".cell");
@@ -115,7 +115,6 @@ internal static class AuthoredInstanceReader
             new(local.X, local.Y, local.Z),
             new(Number(rotation[0], where), Number(rotation[1], where), Number(rotation[2], where), Number(rotation[3], where)),
             Boolean(fields["locked"], where + ".locked"), scalars.ToImmutable(),
-            Unsigned(fields["target_count"], where + ".target_count"),
             parameters, Profile(fields["assistance"], where), assistanceBindings.ToImmutable());
         try
         {
@@ -163,9 +162,6 @@ internal static class AuthoredInstanceReader
     internal static int Integer(JsonElement value, string where) =>
         value.ValueKind == JsonValueKind.Number && value.TryGetInt32(out var result) ? result :
             throw PuzzleContentReader.Invalid(where, "", "expected integer");
-    internal static uint Unsigned(JsonElement value, string where) =>
-        value.ValueKind == JsonValueKind.Number && value.TryGetUInt32(out var result) ? result :
-            throw PuzzleContentReader.Invalid(where, "", "expected unsigned integer");
     internal static bool Boolean(JsonElement value, string where) => value.ValueKind switch
     {
         JsonValueKind.True => true,

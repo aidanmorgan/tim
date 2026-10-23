@@ -159,8 +159,11 @@ public sealed class BundleRoundTripTests
         if (declaration is ISignalElement signal)
         {
             AssertSame(signal.Triggers, entry.Signal!.Triggers, "Triggers");
-            Assert.Equal(signal.LatchMode, entry.Signal.LatchMode);
-            AssertSame(signal.Counter, entry.Signal.Counter, "Counter");
+            // The pulse counter and the bistable memory (C-Memory).
+            Assert.Equal(signal is IPulseCountElement, entry.Signal.PulseCount is not null);
+            if (signal is IPulseCountElement count) AssertSame(count.PulseCount, entry.Signal.PulseCount!.Value, "PulseCount");
+            Assert.Equal(signal is IMemoryElement, entry.Signal.Memory is not null);
+            if (signal is IMemoryElement memory) Assert.Equal(memory.Memory, entry.Signal.Memory!.Value);
             // The node-selecting indicator and passage capabilities (C-Lamp+Detector).
             Assert.Equal(signal is IIndicatorElement, entry.Signal.Indicator is not null);
             if (signal is IIndicatorElement indicator) Assert.Equal(indicator.Indicator, entry.Signal.Indicator!.Value);

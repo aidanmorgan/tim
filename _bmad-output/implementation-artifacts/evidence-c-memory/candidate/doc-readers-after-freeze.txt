@@ -1,0 +1,1 @@
+Passed!  - Failed:     0, Passed:    98, Skipped:     0, Total:    98, Duration: 1 s - CuriousContraptions.tests.dll (net10.0)

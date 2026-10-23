@@ -1,0 +1,9 @@
+== 2026-10-23T18:32:50Z R6-capture-ignores-existing-parameters (engine/MachineWorld.Gpu.cs) mutation diff vs candidate:
+-        var current = Construction.Instances.FirstOrDefault(instance => instance.Id == owner) is WorkshopGenericInstance generic
+-            ? generic.Parameters : InstanceParameterCollection.Defaults(part);
++        var current = owner == default ? InstanceParameterCollection.Defaults(part) : InstanceParameterCollection.Defaults(part);
+    0 Error(s)
+    0 Warning(s)
+CuriousContraptions.Tests.PalettePlacementTests.TheClockIntervalEditorShowsTheInstanceValueClampsIntoRangeAndAppliesAsOneUndo [FAIL]
+CuriousContraptions.Tests.PalettePlacementTests.TheCounterTargetEditorAdmitsOneToNineRefusesTheRestAndAppliesAsOneUndo [FAIL]
+Failed!  - Failed:     2, Passed:   361, Skipped:     0, Total:   363, Duration: 5 s - CuriousContraptions.tests.dll (net10.0)

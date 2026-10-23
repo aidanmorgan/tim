@@ -1,0 +1,7 @@
+== 2026-10-23T18:33:46Z R8-validator-target-max-10 (CuriousContraptions.Bundle/BundleValidator.cs) mutation diff vs candidate:
+-                        parameter.Unit == ParameterUnit.None && parameter.Minimum >= 1f && parameter.Maximum <= 9f))
++                        parameter.Unit == ParameterUnit.None && parameter.Minimum >= 1f && parameter.Maximum <= 10f))
+    0 Error(s)
+    0 Warning(s)
+CuriousContraptions.BundleElements.Tests.BundleValidatorTests.ThePulseCountIsAWholeTargetOnPulsePortsWithASwitchedContactExclusiveAndCoupledToItsBindings [FAIL]
+Failed!  - Failed:     1, Passed:   175, Skipped:     0, Total:   176, Duration: 340 ms - BundleElements.Tests.dll (net10.0)

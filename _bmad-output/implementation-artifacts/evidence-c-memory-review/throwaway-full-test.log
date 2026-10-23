@@ -1,0 +1,33 @@
+Test run for /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/rev-wt/tools/WorkerAotGuard.Tests/bin/Debug/net10.0/WorkerAotGuard.Tests.dll (.NETCoreApp,Version=v10.0)
+Test run for /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/rev-wt/tools/E2eRunner.Tests/bin/Debug/net10.0/E2eRunner.Tests.dll (.NETCoreApp,Version=v10.0)
+Test run for /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/rev-wt/tools/Coverage.Tests/bin/Debug/net10.0/Coverage.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+A total of 1 test files matched the specified pattern.
+Test run for /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/rev-wt/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+Test run for /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/rev-wt/tools/BundleElements.Tests/bin/Debug/net10.0/BundleElements.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:    17, Skipped:     0, Total:    17, Duration: 52 ms - WorkerAotGuard.Tests.dll (net10.0)
+
+Passed!  - Failed:     0, Passed:    77, Skipped:     0, Total:    77, Duration: 1 s - Coverage.Tests.dll (net10.0)
+
+Passed!  - Failed:     0, Passed:   176, Skipped:     0, Total:   176, Duration: 489 ms - BundleElements.Tests.dll (net10.0)
+[xUnit.net 00:00:02.76]     CuriousContraptions.E2eRunner.Tests.TypeCheckTests.EverySuiteAndSharedModuleTypeChecks [FAIL]
+  Failed CuriousContraptions.E2eRunner.Tests.TypeCheckTests.EverySuiteAndSharedModuleTypeChecks [1 s]
+  Error Message:
+   tsc --noEmit -p tools/e2e/tsconfig.json exited 2:
+tools/e2e/run-reset-snapshot.ts(7,30): error TS2307: Cannot find module 'flatbuffers' or its corresponding type declarations.
+tools/e2e/unit/run-reset-snapshot.test.ts(7,30): error TS2307: Cannot find module 'flatbuffers' or its corresponding type declarations.
+tools/e2e/workshop-wire.ts(2,30): error TS2307: Cannot find module 'flatbuffers' or its corresponding type declarations.
+
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.TypeCheckTests.EverySuiteAndSharedModuleTypeChecks() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/rev-wt/tools/E2eRunner.Tests/TypeCheckTests.cs:line 17
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     1, Passed:   189, Skipped:     0, Total:   190, Duration: 24 s - E2eRunner.Tests.dll (net10.0)
+
+Passed!  - Failed:     0, Passed:  2775, Skipped:     0, Total:  2775, Duration: 1 m 6 s - CuriousContraptions.tests.dll (net10.0)
+rc=1

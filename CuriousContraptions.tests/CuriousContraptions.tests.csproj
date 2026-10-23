@@ -67,6 +67,8 @@
         <Compile Include="PlateGuardTests.cs" />
         <Compile Include="ClockGuardTests.cs" />
         <Compile Include="DeclaredOscillatorTests.cs" />
+        <Compile Include="MemoryGuardTests.cs" />
+        <Compile Include="DeclaredMemoryTests.cs" />
         <Compile Include="DeclaredContactLoadTests.cs" />
         <Compile Include="PlacementPoseTests.cs" />        <Compile Include="DeclaredIndicatorPassageTests.cs" />        <Compile Include="SourceStoreInstanceTests.cs" />
         <Compile Include="DeclaredPrismaticDriveTests.cs" />

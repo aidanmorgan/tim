@@ -38,7 +38,7 @@ public readonly record struct PipeLength(float Metres)
 
 /// <summary>The straight pipe: a typed instance whose 24 compound colliders are generated from its length at compile time.</summary>
 public readonly record struct WorkshopPipe(GpuBodyId Id, CellOrigin Cell, LocalPosition Local,
-    CanonicalRotation Rotation, PipeLength Length, bool Locked = false) : IWorkshopDeclaredColliders
+    CanonicalRotation Rotation, PipeLength Length, bool Locked = false) : IWorkshopInstance
 {
     public PartId PartId => PartId.Pipe;
     public CosmeticCurveDeclaration Cosmetic => CosmeticCurveDeclaration.For(PartId);

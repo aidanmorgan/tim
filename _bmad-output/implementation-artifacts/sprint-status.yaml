@@ -310,7 +310,7 @@ development_status:
   9a-21-declaration-free-worker-warmup: done # scoped native/publication Passf27cb7; browser pending
   # 33 (element)
   epic-10: backlog
-  10-1-solid-cylinder-collider-and-inertia: review
+  10-1-solid-cylinder-collider-and-inertia: done # scoped native/publication Passcf35a0; browser pending (engine-cylinder); restitution gate owned by engine-restitution slice
   # 34 (deletion)
   9a-39-generic-instance-battery: done # scoped native/publication Pass54ffd9; browser pending
   # 35 (element)
@@ -354,11 +354,11 @@ development_status:
   # 45 (element)
   11-2-mechanical-clutch-reverse-transmission: backlog
   # 46 (deletion): last record conversion
-  9a-c-memory-counter-latch-conversion: backlog
+  9a-c-memory-counter-latch-conversion: review # native candidate on fc7f7cac (worktree story-c-memory); browser pending
   # merged into 9a-c-memory (21 Oct 2026)
-  9a-41-generic-instance-pulse-counter: backlog
+  9a-41-generic-instance-pulse-counter: review # in 9a-c-memory; browser pending
   # merged into 9a-c-memory (21 Oct 2026)
-  9a-43-generic-instance-state-latch: backlog
+  9a-43-generic-instance-state-latch: review # in 9a-c-memory; browser pending
   # 47 (element)
   11-3-linear-pusher-telescopic-actuator: backlog
   # 48 (deletion): one slice with 9a-25b; before Epic 14 and any new one-shot cue

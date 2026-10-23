@@ -68,22 +68,6 @@ public readonly record struct WorkshopConstruction(ConstructionRevision Revision
 /// <summary>Only UI/resource boundary code may convert wider external numbers into game values.</summary>
 public static class WorkshopInput
 {
-    public static WorkshopCounter Counter(GpuBodyId id, double x, double y, double z,
-        double qx, double qy, double qz, double qw, int targetCount, bool locked = false)
-    {
-        var px = Position(x); var py = Position(y); var pz = Position(z);
-        var result = new WorkshopCounter(id, new(px.Cell, py.Cell, pz.Cell), new(px.Local, py.Local, pz.Local),
-            CanonicalRotation.Normalize(Rotation(qx), Rotation(qy), Rotation(qz), Rotation(qw)), targetCount, locked);
-        result.Validate(); return result;
-    }
-    public static WorkshopLatch Latch(GpuBodyId id, double x, double y, double z,
-        double qx, double qy, double qz, double qw, bool locked = false)
-    {
-        var px = Position(x); var py = Position(y); var pz = Position(z);
-        var result = new WorkshopLatch(id, new(px.Cell, py.Cell, pz.Cell), new(px.Local, py.Local, pz.Local),
-            CanonicalRotation.Normalize(Rotation(qx), Rotation(qy), Rotation(qz), Rotation(qw)), locked);
-        result.Validate(); return result;
-    }
     public static WorkshopGenericInstance Generic(PartId partId, GpuBodyId id, double x, double y, double z,
         double qx, double qy, double qz, double qw, InstanceParameterCollection? parameters = null)
     {
