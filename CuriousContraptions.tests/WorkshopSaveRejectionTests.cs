@@ -16,8 +16,7 @@ public sealed class WorkshopSaveRejectionTests
     /// <summary>InstanceRecord field ids, in schema order (the vtable slot of each field).</summary>
     public enum Field
     {
-        Id, PartId, Locked, Cell, Local, Rotation, Mass, Bounce, Length, Threshold,
-        HalfExtents, Friction, TargetCount, Parameters,
+        Id, PartId, Locked, Cell, Local, Rotation, Length, Threshold, TargetCount, Parameters,
     }
 
     internal sealed class Instance(string part, ulong id)
@@ -119,9 +118,7 @@ public sealed class WorkshopSaveRejectionTests
         {
             object value = field switch
             {
-                Field.Mass => record.Mass, Field.Bounce => record.Bounce, Field.Length => record.Length,
-                Field.Threshold => record.Threshold, Field.Friction => record.Friction, Field.TargetCount => record.TargetCount,
-                Field.HalfExtents => Vec(record.HalfExtents!.Value),
+                Field.Length => (object)record.Length, Field.Threshold => record.Threshold, Field.TargetCount => record.TargetCount,
                 _ => throw new InvalidOperationException($"No fixture reader for {field}."),
             };
             result.Values[field] = value;
@@ -129,14 +126,12 @@ public sealed class WorkshopSaveRejectionTests
         if (instance is WorkshopGenericInstance generic)
             result.Values[Field.Parameters] = generic.Parameters.Select(pair => KeyValuePair.Create(pair.Key.Value, pair.Value)).ToArray();
         return result;
-        static (float, float, float) Vec(Vec3f v) => (v.X, v.Y, v.Z);
     }
 
     /// <summary>The kind-specific fields each part's record carries.</summary>
     internal static Field[] Parameters(string part) => part switch
     {
         "switch" or "pressure_plate" or "clock" => [Field.Threshold],
-        "domino" => [Field.HalfExtents, Field.Mass, Field.Bounce, Field.Friction],
         "pipe" => [Field.Length],
         "counter" => [Field.TargetCount],
         _ => [],
@@ -155,7 +150,7 @@ public sealed class WorkshopSaveRejectionTests
         WorkshopInput.Generic(PartId.Springboard, new(8), 5, 0, 0, 0, 0, 0, 1),
         PlacedParts.Battery(new(9), 6, 0, 0),
         WorkshopInput.Generic(PartId.PinballBumper, new(10), 7, 0, 0, 0, 0, 0, 1),
-        WorkshopInput.Domino(new(11), 8, 0, 0, 0, 0, 0, 1),
+        PlacedParts.Domino(new(11), 8, 0, 0, 0, 0, 0, 1),
         PlacedParts.Lamp(new(12), 9, 0, 0, 0, 0, 0, 1),
         PlacedParts.Detector(new(13), 10, 0, 0, 0, 0, 0, 1),
         WorkshopInput.PressurePlate(new(14), 11, 0, 0, 0, 0, 0, 1, WorkshopPressurePlate.PlacedMinimumMass),
@@ -304,7 +299,7 @@ public sealed class WorkshopSaveRejectionTests
         ("no local", WorkshopSaveRejection.MissingField),
         ("no rotation", WorkshopSaveRejection.MissingField),
         ("no receiver parameter vector", WorkshopSaveRejection.OutOfRange),
-        ("no domino half extents", WorkshopSaveRejection.MissingField),
+        ("domino carrying a typed length", WorkshopSaveRejection.OutOfRange),
         ("no counter target", WorkshopSaveRejection.MissingField),
         ("undefined simulation cadence", WorkshopSaveRejection.UndefinedEnum),
         ("undefined receiver participation", WorkshopSaveRejection.OutOfRange),
@@ -322,7 +317,7 @@ public sealed class WorkshopSaveRejectionTests
         ("cell outside the world", WorkshopSaveRejection.OutOfRange),
         ("local remainder of one half", WorkshopSaveRejection.OutOfRange),
         ("scaled rotation", WorkshopSaveRejection.OutOfRange),
-        ("changed ball material", WorkshopSaveRejection.OutOfRange),
+        ("ball carrying a typed threshold", WorkshopSaveRejection.OutOfRange),
         ("unknown element", WorkshopSaveRejection.UnknownElement),
         ("no element", WorkshopSaveRejection.MissingField),
         ("duplicate instance", WorkshopSaveRejection.DuplicateInstance),
@@ -346,7 +341,7 @@ public sealed class WorkshopSaveRejectionTests
             "no local" => One(ramp.Without(Field.Local)),
             "no rotation" => One(ramp.Without(Field.Rotation)),
             "no receiver parameter vector" => One(receiver.Without(Field.Parameters)),
-            "no domino half extents" => One(FromProduction(WorkshopInput.Domino(new(1), 0, 1, 0, 0, 0, 0, 1)).Without(Field.HalfExtents)),
+            "domino carrying a typed length" => One(FromProduction(PlacedParts.Domino(new(1), 0, 1, 0, 0, 0, 0, 1)).With(Field.Length, .4f)),
             "no counter target" => One(Counter().Without(Field.TargetCount)),
             "undefined simulation cadence" => One(ramp) with { Simulation = 99 },
             "undefined receiver participation" => One(receiver.WithParameter(new("capture_participation"), 99f)),
@@ -364,7 +359,7 @@ public sealed class WorkshopSaveRejectionTests
             "cell outside the world" => One(ramp.With(Field.Cell, (2000, 0, 0))),
             "local remainder of one half" => One(ramp.With(Field.Local, (.5f, 0f, 0f))),
             "scaled rotation" => One(ramp.With(Field.Rotation, (0f, 0f, 0f, .5f))),
-            "changed ball material" => One(FromProduction(WorkshopInput.Generic(PartId.Basketball,new(1), 0, 3, 0, 0, 0, 0, 1)).With(Field.Mass, 2f)),
+            "ball carrying a typed threshold" => One(FromProduction(WorkshopInput.Generic(PartId.Basketball,new(1), 0, 3, 0, 0, 0, 0, 1)).With(Field.Threshold, 2f)),
             "unknown element" => One(ramp.Clone().Also(i => i.Part = "tennis")),
             "no element" => One(ramp.Clone().Also(i => i.Part = "")),
             "duplicate instance" => new([ramp, ramp], []),

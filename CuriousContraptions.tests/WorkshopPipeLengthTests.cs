@@ -260,7 +260,8 @@ public sealed class WorkshopPipeLengthTests(NativeSceneFixture godot)
         var builder = new Google.FlatBuffers.FlatBufferBuilder(512);
         builder.Finish(WorkshopWireFlatBuffers.EncodeConstructionRecord(builder, stored, validate: false).Value);
         var record = CuriousContraptions.Wire.ConstructionRecord.GetRootAsConstructionRecord(new Google.FlatBuffers.ByteBuffer(builder.SizedByteArray()));
-        Assert.Throws<ArgumentException>(() => WorkshopWireFlatBuffers.DecodeConstructionRecord(record));
+        // 9A.32: an absent length is the typed missing field at the decoder (as the Counter's absent target count), never defaulted.
+        Assert.Equal(WireFaultReason.MissingField, Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeConstructionRecord(record)).Reason);
     }
 
     private static byte[] RawSave(WorkshopConstruction construction)

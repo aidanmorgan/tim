@@ -1,0 +1,54 @@
+probe sha256: 0733d22ed9f55949bb211b8f0b2edbf1151d2e7675275b86fec89d6dfad2cc38
+candidate copy: tracked diff identical: yes
+probe include lines: 1
+    0 Warning(s)
+    0 Error(s)
+
+Passed!  - Failed:     0, Passed:    11, Skipped:     0, Total:    11, Duration: 13 s - CuriousContraptions.tests.dll (net10.0)
+candidate IDENTICAL axial-spin.txt
+candidate IDENTICAL legacy-solution-cause.txt
+candidate IDENTICAL lesson-world.txt
+candidate IDENTICAL old-save-outcomes.txt
+candidate IDENTICAL placed-solutions.txt
+candidate IDENTICAL trace-broken-gap.txt
+candidate IDENTICAL trace-close-gap-chain.txt
+candidate IDENTICAL trace-rock-10.txt
+candidate IDENTICAL trace-two-lane.txt
+candidate IDENTICAL trace-unwired-end.txt
+candidate IDENTICAL trace-wired-lesson.txt
+base: probe include lines: 1
+    0 Warning(s)
+    0 Error(s)
+
+Passed!  - Failed:     0, Passed:    11, Skipped:     0, Total:    11, Duration: 14 s - CuriousContraptions.tests.dll (net10.0)
+base IDENTICAL axial-spin.txt
+base IDENTICAL legacy-solution-cause.txt
+base IDENTICAL lesson-world.txt
+base IDENTICAL old-save-outcomes.txt
+base IDENTICAL placed-solutions.txt
+base IDENTICAL trace-broken-gap.txt
+base IDENTICAL trace-close-gap-chain.txt
+base IDENTICAL trace-rock-10.txt
+base IDENTICAL trace-two-lane.txt
+base IDENTICAL trace-unwired-end.txt
+base IDENTICAL trace-wired-lesson.txt
+== reviewer base-capture vs reviewer cand-capture
+base==cand IDENTICAL axial-spin.txt
+base==cand IDENTICAL legacy-solution-cause.txt
+base==cand IDENTICAL lesson-world.txt
+base==cand DIFFERS old-save-outcomes.txt
+base==cand DIFFERS placed-solutions.txt
+base==cand IDENTICAL trace-broken-gap.txt
+base==cand IDENTICAL trace-close-gap-chain.txt
+base==cand IDENTICAL trace-rock-10.txt
+base==cand IDENTICAL trace-two-lane.txt
+base==cand IDENTICAL trace-unwired-end.txt
+base==cand IDENTICAL trace-wired-lesson.txt
+40,42c40,42
+< DominoEffectAuthoredSolutionWired 0 instances=7 admission=B1E2F4390B1A0C363EC5F4F359EC52C37EB015A7D5F544CAD4FA3E6C4AC9
+< DominoEffectAuthoredSolutionWired 0.44995117 instances=7 admission=B1E2F4390B1A0C363EC5F4F359EC52C37EB015A7D5F544CAD4F
+< DominoEffectAuthoredSolutionWired 1 instances=7 admission=B1E2F4390B1A0C363EC5F4F359EC52C37EB015A7D5F544CAD4FA3E6C4AC9
+---
+> DominoEffectAuthoredSolutionWired 0 instances=7 admission=B3D84B7D64C6E6FD378C4D3D31A9B5567D8C166704E9DE513B54EA16CB50
+> DominoEffectAuthoredSolutionWired 0.44995117 instances=7 admission=B3D84B7D64C6E6FD378C4D3D31A9B5567D8C166704E9DE513B5
+> DominoEffectAuthoredSolutionWired 1 instances=7 admission=B3D84B7D64C6E6FD378C4D3D31A9B5567D8C166704E9DE513B54EA16CB50

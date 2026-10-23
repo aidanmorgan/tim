@@ -39,10 +39,11 @@ public sealed record MechanicalPayload(KinematicMode KinematicMode, RigidBodyMas
 public sealed record ElectricalPayload(IReadOnlyList<ElectricalNodeDescriptor> Nodes, SupplyCapabilityDescriptor? Supply);
 
 /// <summary>The signal payload. At most one node-selecting capability (<see cref="Timer"/>, <see cref="Contact"/>,
-/// <see cref="Indicator"/> or <see cref="Passage"/>) is present, each exactly when the element declares that contract.</summary>
+/// <see cref="Indicator"/>, <see cref="Passage"/> or <see cref="Orientation"/>) is present, each exactly when the element declares that
+/// contract.</summary>
 public sealed record SignalPayload(IReadOnlyList<SignalTriggerDescriptor> Triggers, SignalLatchMode LatchMode, SignalCounterDescriptor? Counter,
     SignalTimerDescriptor? Timer, SignalContactDescriptor? Contact = null, SignalIndicatorDescriptor? Indicator = null,
-    SignalPassageDescriptor? Passage = null);
+    SignalPassageDescriptor? Passage = null, SignalOrientationDescriptor? Orientation = null);
 
 public sealed record FluidPayload(FluidProperties Properties, IReadOnlyList<FluidPortDescriptor> Ports);
 
@@ -66,7 +67,8 @@ public static class BundleSchema
             declaration is ISignalElement signal ? new SignalPayload(signal.Triggers, signal.LatchMode, signal.Counter,
                 signal is ITimerElement timer ? timer.Timer : null, signal is IContactTriggerElement contact ? contact.Contact : null,
                 signal is IIndicatorElement indicator ? indicator.Indicator : null,
-                signal is IPassageSensorElement passage ? passage.Passage : null) : null,
+                signal is IPassageSensorElement passage ? passage.Passage : null,
+                signal is IOrientationSensorElement orientation ? orientation.Orientation : null) : null,
             declaration is IFluidElement fluid ? new FluidPayload(fluid.FluidProperties, fluid.FluidPorts) : null,
             declaration is IParameterizedGeometryElement geometry ? geometry.ColliderBindings : [], [],
             declaration is IParameterizedGeometryElement mouths ? mouths.TubeMouthBindings : [], declaration.Presentation);

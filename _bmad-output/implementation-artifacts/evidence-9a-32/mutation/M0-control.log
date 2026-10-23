@@ -1,0 +1,5 @@
+== M0-control: tracked diff sha256 cffbd4ca035cc6c12a202a7bf5b30d1e915a206da1c90afaaecb59763fcc209f
+    0 Error(s)
+    0 Warning(s)
+Passed!  - Failed:     0, Passed:   165, Skipped:     0, Total:   165, Duration: 11 s - CuriousContraptions.tests.dll (net10.0)
+Passed!  - Failed:     0, Passed:    91, Skipped:     0, Total:    91, Duration: 267 ms - BundleElements.Tests.dll (net10.0)

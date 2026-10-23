@@ -1,0 +1,20 @@
+candidate copy identical: yes; new tests: c4e0f23b7644220d
+    0 Warning(s)     0 Error(s)  <- build review-wt-cand2 HEAD 2065d3c5
+    0 Warning(s)     0 Error(s)  <- build review-wt-base2 HEAD 2065d3c5
+candidate run 1 start 2026-10-23T11:51:37Z rc=0 :: Passed!  - Failed:     0, Passed:  2483, Skipped:     0, Total:  2483, Duration: 52 s 0 crash-lines
+base run 1 start 2026-10-23T11:52:32Z rc=0 :: Passed!  - Failed:     0, Passed:  2464, Skipped:     0, Total:  2464, Duration: 46 s 0 crash-lines
+candidate run 2 start 2026-10-23T11:53:21Z rc=0 :: Passed!  - Failed:     0, Passed:  2483, Skipped:     0, Total:  2483, Duration: 52 s 0 crash-lines
+base run 2 start 2026-10-23T11:54:16Z rc=0 :: Passed!  - Failed:     0, Passed:  2464, Skipped:     0, Total:  2464, Duration: 44 s 0 crash-lines
+candidate run 3 start 2026-10-23T11:55:03Z rc=0 :: Passed!  - Failed:     0, Passed:  2483, Skipped:     0, Total:  2483, Duration: 54 s 0 crash-lines
+base run 3 start 2026-10-23T11:55:59Z rc=0 :: Passed!  - Failed:     0, Passed:  2464, Skipped:     0, Total:  2464, Duration: 46 s 0 crash-lines
+candidate run 4 start 2026-10-23T11:56:48Z rc=0 :: Passed!  - Failed:     0, Passed:  2483, Skipped:     0, Total:  2483, Duration: 52 s 0 crash-lines
+base run 4 start 2026-10-23T11:57:43Z rc=0 :: Passed!  - Failed:     0, Passed:  2464, Skipped:     0, Total:  2464, Duration: 46 s 0 crash-lines
+candidate run 5 start 2026-10-23T11:58:47Z rc=0 :: Passed!  - Failed:     0, Passed:  2483, Skipped:     0, Total:  2483, Duration: 52 s 0 crash-lines
+base run 5 start 2026-10-23T11:59:41Z rc=0 :: Passed!  - Failed:     0, Passed:  2464, Skipped:     0, Total:  2464, Duration: 45 s 0 crash-lines
+== R1 on the candidate copy
+1
+    0 Warning(s)     0 Error(s) 
+Failed!  - Failed:     1, Passed:  2482, Skipped:     0, Total:  2483, Duration: 52 s - CuriousContraptions.tests.dll (net10.0)
+Failed CuriousContraptions.Tests.DeclaredOrientationTests.AFieldAtExactlyTheFirstSlotBeyondTheTableIsRefusedAtBothBoundaries [< 1 ms]
+restored: yes
+final candidate copy identical: yes

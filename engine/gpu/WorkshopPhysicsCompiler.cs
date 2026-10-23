@@ -95,9 +95,10 @@ public static class WorkshopPhysicsCompiler
                 supplyNodes[slot] = supplyNodes[slot] with { Consumer = joint };
             }
         }
-        foreach (var domino in construction.Instances.OfType<WorkshopDomino>())
-            if (construction.Connections.HasSource(domino.Id))
-                orientationSensors.Add(new(OrientationSensor(domino.Id), domino.Id, domino.Rotation, WorkshopDomino.ActivationThreshold));
+        // A declared orientation threshold compiles its sensor only while its owner is wired, in instance order.
+        foreach (var owner in construction.Instances.OfType<WorkshopGenericInstance>())
+            if (DeclaredPhysics.Of(owner.PartId).Signal?.Orientation is { } orientation && construction.Connections.HasSource(owner.Id))
+                orientationSensors.Add(OrientationSensorFor(owner, orientation));
         foreach (var frame in construction.Instances.OfType<WorkshopGenericInstance>())
         {
             if (DeclaredPhysics.Of(frame.PartId).Mechanical?.Capture is not { } capture) continue;
@@ -218,6 +219,15 @@ public static class WorkshopPhysicsCompiler
     public static GpuContactTriggerId ContactTrigger(GpuBodyId owner) => new(checked(PartIdentities(owner) + 6));
 
     public static GpuOrientationSensorId OrientationSensor(GpuBodyId owner) => new(checked(PartIdentities(owner) + 6));
+
+    /// <summary>The orientation sensor a declared threshold compiles to on its owner's body, measured from the owner's admitted
+    /// rotation. The f32 degrees narrow to the sensor's binary16 half-angle cosine lane here (Story 9A.44 widens the lane).</summary>
+    public static OrientationSensorDeclaration OrientationSensorFor(IWorkshopInstance owner,
+        CuriousContraptions.Abstractions.Signal.SignalOrientationDescriptor orientation)
+    {
+        ArgumentNullException.ThrowIfNull(owner);
+        return new(OrientationSensor(owner.Id), owner.Id, owner.Rotation, OrientationThreshold.Degrees(orientation.ThresholdDegrees));
+    }
 
     public static GpuPassageSensorId PassageSensor(GpuBodyId owner) => new(checked(PartIdentities(owner) + 6));
 

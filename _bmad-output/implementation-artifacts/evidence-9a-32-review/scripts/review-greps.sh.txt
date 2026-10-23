@@ -1,0 +1,34 @@
+#!/bin/bash
+# Reviewer deletion greps: candidate worktree (cwd) vs base tree via git grep at HEAD. Production = exclude tests, _bmad-output, docs.
+EX=(--glob '!CuriousContraptions.tests/**' --glob '!_bmad-output/**' --glob '!docs/**' --glob '!tools/**/*Tests*/**')
+run() { # label, rg args...
+  local label=$1; shift
+  local c; c=$(rg -c "$@" "${EX[@]}" . 2>/dev/null | awk -F: '{s+=$NF} END{print s+0}')
+  echo "candidate-production  $label : $c"
+  rg -n "$@" "${EX[@]}" . 2>/dev/null | head -20
+}
+base() { # label, git-grep pattern args
+  local label=$1; shift
+  local c; c=$(git grep -c "$@" HEAD -- . ':(exclude)CuriousContraptions.tests' ':(exclude)_bmad-output' ':(exclude)docs' 2>/dev/null | awk -F: '{s+=$NF} END{print s+0}')
+  echo "base-production       $label : $c"
+}
+run "WorkshopDomino|DominoMaterial|MapDomino (word)" -w 'WorkshopDomino|DominoMaterial|MapDomino'
+base "WorkshopDomino|DominoMaterial|MapDomino (word)" -w -E 'WorkshopDomino|DominoMaterial|MapDomino'
+run 'WorkshopInput.Domino' 'WorkshopInput\.Domino\b'
+base 'WorkshopInput.Domino' -E 'WorkshopInput\.Domino\b'
+echo "candidate \"domino\" in engine/gpu + MachineWorld.Gpu.cs: $(rg -c '"domino"' engine/gpu engine/MachineWorld.Gpu.cs | awk -F: '{s+=$NF} END{print s+0}')"
+rg -n '"domino"' engine/gpu engine/MachineWorld.Gpu.cs
+echo "base \"domino\" in engine/gpu + MachineWorld.Gpu.cs: $(git grep -c '"domino"' HEAD -- engine/gpu engine/MachineWorld.Gpu.cs | awk -F: '{s+=$NF} END{print s+0}')"
+run 'InstanceRecord.(Add)?(Mass|Bounce|Friction|HalfExtents)|AuthoredScalar.(Mass|Bounce|Friction)' 'InstanceRecord\.(Add)?(Mass|Bounce|Friction|HalfExtents)\b|AuthoredScalar\.(Mass|Bounce|Friction)'
+echo "candidate all-tree (incl tests) same pattern: $(rg -c 'InstanceRecord\.(Add)?(Mass|Bounce|Friction|HalfExtents)\b|AuthoredScalar\.(Mass|Bounce|Friction)' --glob '!_bmad-output/**' . | awk -F: '{s+=$NF} END{print s+0}')"
+echo "candidate (r|inst).(Mass|Bounce|Friction|HalfExtents) in wire+prevalidation: $(rg -c '\b(r|inst)\.(Mass|Bounce|Friction|HalfExtents)\b' engine/gpu/WorkshopWireFlatBuffers.cs engine/gpu/WorkshopSavePrevalidation.cs | awk -F: '{s+=$NF} END{print s+0}')"
+echo "candidate \"half_extents\" in content+engine: $(rg -c '"half_extents"' content engine | awk -F: '{s+=$NF} END{print s+0}')"
+echo "base \"half_extents\" in content+engine: $(git grep -c '"half_extents"' HEAD -- content engine | awk -F: '{s+=$NF} END{print s+0}')"
+echo "candidate content keys \"mass\"|\"bounce\"|\"friction\"|Mass/Bounce/Friction scalars in content/puzzles.json:"
+rg -c '"(Mass|Bounce|Friction|mass|bounce|friction|half_extents)"' content/puzzles.json || echo 0
+echo "base same: $(git show HEAD:content/puzzles.json | rg -c '"(Mass|Bounce|Friction|mass|bounce|friction|half_extents)"')"
+echo "WorkshopDomino.cs files: candidate $(ls engine/gpu/WorkshopDomino.cs* 2>/dev/null | wc -l | tr -d ' '), base $(git ls-tree --name-only HEAD engine/gpu/ | rg -c 'WorkshopDomino\.cs')"
+echo "schema InstanceRecord mass/bounce/half_extents/friction: $(awk '/^table InstanceRecord/,/^}/' schemas/workshop_wire.fbs | rg -c '^\s*(mass|bounce|half_extents|friction):' || echo 0)"
+echo "TS workshop-wire.ts mass/bounce/halfExtents/friction accessors: $(rg -c '\b(mass|bounce|halfExtents|friction|addMass|addBounce|addHalfExtents|addFriction)\(' tools/e2e/workshop-wire.ts || echo 0)"
+echo "new production identifiers containing domino (diff added lines, non-test, non-doc):"
+git diff HEAD -- . ':(exclude)CuriousContraptions.tests' ':(exclude)_bmad-output' ':(exclude)docs' ':(exclude)tools' ':(exclude)content' | rg '^\+' | rg -i 'domino' || echo "(none)"

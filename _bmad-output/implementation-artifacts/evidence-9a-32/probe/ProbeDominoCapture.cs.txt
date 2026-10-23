@@ -1,0 +1,344 @@
+using System.Globalization;
+using System.Numerics;
+using System.Security.Cryptography;
+using System.Text;
+using CuriousContraptions.Gpu;
+
+namespace CuriousContraptions.Tests;
+
+/// <summary>9A.32 Domino evidence harness (not a deliverable). Identical source on base 2065d3c5 (+ the test-only adapter diff) and on
+/// the candidate; the only difference between them is <see cref="PlacedParts.Domino"/>. Writes, to DP_DIR: per-tick activation, memory
+/// and body bits plus the compiled nodes, edges, orientation sensors and admission hash for each Domino fixture; the 12 x 3 lesson
+/// admitted world and committed state; the 12 x 3 placed solutions plus the wired domino_effect variant; the axial-spin law probe; and
+/// (DP_OLD_SAVES) old saves written by the base encoder (DP_OLD_SAVES_WRITE=1 on base only) with their decode outcomes at both
+/// boundaries and a replay hash for each loadable one.</summary>
+public sealed class ProbeDominoCapture
+{
+    private static string? Dir => Environment.GetEnvironmentVariable("DP_DIR");
+    private static string Bits(float value) => BitConverter.SingleToUInt32Bits(value).ToString("x8", CultureInfo.InvariantCulture);
+    private static string HalfBits(Half value) => BitConverter.HalfToUInt16Bits(value).ToString("x4", CultureInfo.InvariantCulture);
+    private static string Hash(string text) => Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(text)));
+    private static readonly System.Text.Json.JsonSerializerOptions Options = new() { IncludeFields = true };
+
+    private static string Latch(ActivationLatch a) => string.Create(CultureInfo.InvariantCulture,
+        $"[{a.Node.Value}/{a.Owner.Value} {a.Phase} {a.Kind} em={a.Emitter.Value} src={a.Source.Value} body={a.Body.Value} col={a.Collider.Value} " +
+        $"ord={a.EventOrdinal} ph={Bits(a.EventPhase)} co={a.CauseOrdinal} cph={Bits(a.CausePhase)} v={Bits(a.ApproachSpeed.Value)}]");
+
+    private static string Row(WorkshopRead read)
+    {
+        var text = new StringBuilder();
+        text.Append(CultureInfo.InvariantCulture, $"t={read.Tick.Value}");
+        for (var i = 0; i < read.Activations.Count; i++) text.Append(' ').Append(Latch(read.Activations[i]));
+        for (var i = 0; i < read.Memory.Count; i++)
+        {
+            var m = read.Memory[i];
+            text.Append(CultureInfo.InvariantCulture, $" m[{m.Node.Value} {m.Kind} n={m.Count} last={m.Last.Ordinal}/{Bits(m.Last.Phase)} {m.Phase} due={m.DueTick}]");
+        }
+        for (var i = 0; i < read.Timers.Count; i++) text.Append(CultureInfo.InvariantCulture, $" tm[{read.Timers[i]}]");
+        for (var i = 0; i < read.Bodies.Count; i++)
+        {
+            var body = read.Bodies[i];
+            var b = body.Body;
+            text.Append(CultureInfo.InvariantCulture,
+                $" b[{b.Id.Value}] c={b.Cell.X},{b.Cell.Y},{b.Cell.Z} l={Bits((float)b.Local.X)},{Bits((float)b.Local.Y)},{Bits((float)b.Local.Z)} v={Bits((float)b.Velocity.X)},{Bits((float)b.Velocity.Y)},{Bits((float)b.Velocity.Z)}" +
+                $" q={Bits(body.Rotation.X)},{Bits(body.Rotation.Y)},{Bits(body.Rotation.Z)},{Bits(body.Rotation.W)}");
+        }
+        return text.ToString();
+    }
+
+    private static async Task<List<string>> Trace(WorkshopConstruction construction, int ticks)
+    {
+        var lines = new List<string>();
+        var (built, reads, reset) = await NoFixedCapacityTests.RunAndReset(construction, ticks);
+        lines.Add("built " + Row(built));
+        lines.AddRange(reads.Select(Row));
+        lines.Add("reset " + Row(reset));
+        var (_, replay, _) = await NoFixedCapacityTests.RunAndReset(construction, 30);
+        lines.AddRange(replay.Select(read => "replay " + Row(read)));
+        return lines;
+    }
+
+    private static readonly double Floor = (double)WorkshopConstruction.WorkbenchSurface.Value, Upright = Floor + .55;
+    private static WorkshopConnection Signal(GpuBodyId source, GpuBodyId target) =>
+        new(source, WorkshopSocket.ActivationOut, target, WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation);
+    private static WorkshopConstruction Bench(IWorkshopInstance[] instances, params WorkshopConnection[] links) =>
+        new(new(2), WorkshopCadenceSettings.Default(), new(instances), Connections: new(links));
+
+    private static WorkshopConstruction Lesson(Half precision) =>
+        PuzzleCatalogue.Create(new("domino_effect"), new(2), WorkshopCadenceSettings.Default(), new(1), new(precision));
+
+    /// <summary>domino_effect with the four inventory tiles at x = -4..-1 (as DominoEffectTests places them); wired end to lamp.</summary>
+    internal static WorkshopConstruction WiredLesson(Half precision, bool wired = true, int skip = -1)
+    {
+        var result = Lesson(precision);
+        for (var i = 0; i < 4; i++)
+            if (i != skip) result = result.WithInstance(PlacedParts.Domino(new((ulong)(4 + i)), -4 + i, Upright + .01, 0, 0, 0, 0, 1));
+        return wired ? result with { Connections = new(Signal(new(2), new(3))) } : result;
+    }
+
+    /// <summary>domino_effect with its authored `solution` rows (content/puzzles.json: four tiles, identity orientation) placed as
+    /// tiles at their authored positions, and the end wired to the lamp (the lesson's `solution_connections` is empty).</summary>
+    internal static WorkshopConstruction AuthoredSolutionWired(Half precision)
+    {
+        using var source = System.Text.Json.JsonDocument.Parse(File.ReadAllText(Path.Combine(twodog.Engine.ResolveProjectDir(), "content/puzzles.json")));
+        var level = source.RootElement.EnumerateArray().Single(value => value.GetProperty("id").GetString() == "domino_effect");
+        var result = Lesson(precision);
+        var next = 4UL;
+        foreach (var row in level.GetProperty("solution").EnumerateArray())
+        {
+            if (row.GetProperty("kind").GetString() != "domino") throw new InvalidDataException("domino_effect solution row is not a domino.");
+            var o = row.GetProperty("orientation").EnumerateArray().Select(value => value.GetDouble()).ToArray();
+            if (!o.SequenceEqual(new double[] { 1, 0, 0, 0, 1, 0, 0, 0, 1 })) throw new InvalidDataException("non-identity solution orientation.");
+            var p = row.GetProperty("position").EnumerateArray().Select(value => value.GetDouble()).ToArray();
+            result = result.WithInstance(PlacedParts.Domino(new(next++), p[0], p[1], p[2], 0, 0, 0, 1));
+        }
+        return result with { Connections = new(Signal(new(2), new(3))) };
+    }
+
+    /// <summary>domino_effect with four tiles at the given x (identity rotation, y and z = 0 as authored), end wired to the lamp.</summary>
+    internal static WorkshopConstruction SolutionWired(Half precision, double[] xs, double y)
+    {
+        var result = Lesson(precision);
+        for (var i = 0; i < xs.Length; i++) result = result.WithInstance(PlacedParts.Domino(new((ulong)(4 + i)), xs[i], y, 0, 0, 0, 0, 1));
+        return result with { Connections = new(Signal(new(2), new(3))) };
+    }
+
+    /// <summary>Why the legacy authored rows (x = -2.4, -1.6, -0.8, 0 at y = 1) never solve: per-tile peak tilt, the Basketball's closest
+    /// horizontal approach to the first tile, and the placement overlap of the last tile with the end tile.</summary>
+    [Fact]
+    public async Task LegacySolutionCause()
+    {
+        if (Dir is not { } dir) return;
+        var lines = new List<string>();
+        var xs = new[] { -2.4, -1.6, -0.8, 0 };
+        var construction = SolutionWired((Half).45, xs, 1);
+        var (_, reads, _) = await NoFixedCapacityTests.RunAndReset(construction, 1200);
+        double X(PhysicsBodyRead b) => (b.Body.Cell.X + (double)b.Body.Local.X) / 16;
+        double Y(PhysicsBodyRead b) => (b.Body.Cell.Y + (double)b.Body.Local.Y) / 16;
+        PhysicsBodyRead Body(WorkshopRead read, ulong id) { for (var i = 0; i < read.Bodies.Count; i++) if (read.Bodies[i].Body.Id.Value == id) return read.Bodies[i]; throw new ArgumentException(id.ToString(CultureInfo.InvariantCulture)); }
+        double Tilt(PhysicsBodyRead b) => Math.Acos(Math.Clamp(1 - 2 * (b.Rotation.X * b.Rotation.X + b.Rotation.Z * b.Rotation.Z), -1, 1)) * 180 / Math.PI;
+        foreach (var id in new ulong[] { 4, 5, 6, 7, 2 })
+            lines.Add(string.Create(CultureInfo.InvariantCulture, $"tile {id}: start x={X(Body(reads[0], id)):F3} peak tilt={reads.Max(r => Tilt(Body(r, id))):F2} deg final x={X(Body(reads[^1], id)):F3} y={Y(Body(reads[^1], id)):F3}"));
+        lines.Add(string.Create(CultureInfo.InvariantCulture, $"ball: start x={X(Body(reads[0], 1)):F3}; closest horizontal gap to tile 4 centre={reads.Min(r => Math.Abs(X(Body(r, 1)) - X(Body(r, 4)))):F3} m (contact needs < {.125 + .34:F3}); final x={X(Body(reads[^1], 1)):F3}"));
+        lines.Add(string.Create(CultureInfo.InvariantCulture, $"placement overlap: tile 7 spans [{xs[3] - .125:F3}, {xs[3] + .125:F3}], end tile spans [{.1 - .125:F3}, {.1 + .125:F3}]"));
+        lines.Add($"solved={LaunchLessonSolveTests.Solved(construction, reads)}");
+        await File.WriteAllLinesAsync(Path.Combine(dir, "legacy-solution-cause.txt"), lines, TestContext.Current.CancellationToken);
+    }
+
+    private static WorkshopConstruction Fixture(string name)
+    {
+        var tenDegrees = 10 * Math.PI / 180;
+        switch (name)
+        {
+            case "wired-lesson": return WiredLesson((Half).45);
+            case "unwired-end": return WiredLesson((Half).45, wired: false);
+            case "broken-gap": return WiredLesson((Half).45, skip: 2);
+            case "close-gap-chain":
+            {
+                // Free play: a Basketball dropped beside the first of five tiles at 1 m pitch; the last drives a lamp.
+                var parts = new List<IWorkshopInstance> { WorkshopInput.Generic(PartId.Basketball, new(1), -4.4, 3, 0, 0, 0, 0, 1) };
+                for (var i = 0; i < 5; i++) parts.Add(PlacedParts.Domino(new((ulong)(2 + i)), -4 + i, Upright + .01, 0, 0, 0, 0, 1));
+                parts.Add(PlacedParts.Lamp(new(7), 3, 1, 0, 0, 0, 0, 1));
+                return Bench([.. parts], Signal(new(6), new(7)));
+            }
+            case "rock-10":
+                return Bench([PlacedParts.Domino(new(1), 0, Floor + .55 * Math.Cos(tenDegrees) + .125 * Math.Sin(tenDegrees) + .005, 0,
+                    0, 0, Math.Sin(tenDegrees / 2), Math.Cos(tenDegrees / 2)), PlacedParts.Lamp(new(2), 3, 1, 0, 0, 0, 0, 1)], Signal(new(1), new(2)));
+            case "two-lane":
+                return Bench([PlacedParts.Domino(new(1), 0, Upright, -1.5, 0, 0, 0, 1), PlacedParts.Domino(new(2), 0, Upright, 1.5, 0, 0, 0, 1),
+                    WorkshopInput.Generic(PartId.Basketball, new(3), .3, 1.05, -1.5, 0, 0, 0, 1), WorkshopInput.Generic(PartId.BowlingBall, new(4), .3, 1.05, 1.5, 0, 0, 0, 1),
+                    PlacedParts.Lamp(new(5), 3, 1, -3, 0, 0, 0, 1), PlacedParts.Lamp(new(6), 3, 1, 3, 0, 0, 0, 1)], Signal(new(1), new(5)), Signal(new(2), new(6)));
+            default: throw new ArgumentOutOfRangeException(nameof(name));
+        }
+    }
+
+    public static TheoryData<string> Cases() => new(["wired-lesson", "unwired-end", "broken-gap", "close-gap-chain", "rock-10", "two-lane"]);
+
+    [Theory]
+    [MemberData(nameof(Cases))]
+    public async Task Capture(string name)
+    {
+        if (Dir is not { } dir) return;
+        var construction = Fixture(name);
+        var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
+        var network = WorkshopActivationCompiler.Compile(construction);
+        var rows = new List<string>();
+        foreach (var node in network.Nodes) rows.Add($"node {node}");
+        foreach (var edge in network.Edges) rows.Add($"edge {edge}");
+        foreach (var sensor in scene.OrientationSensors.ToArray())
+            rows.Add($"orientation {sensor.Id.Value} body={sensor.Body.Value} initial={Bits(sensor.Initial.X)},{Bits(sensor.Initial.Y)},{Bits(sensor.Initial.Z)},{Bits(sensor.Initial.W)} cos={HalfBits(sensor.Threshold.CosineHalfAngle)}");
+        foreach (var body in scene.Bodies.ToArray()) rows.Add($"body {body}");
+        foreach (var collider in scene.Colliders.ToArray()) rows.Add($"collider {collider}");
+        foreach (var material in scene.Materials.ToArray()) rows.Add($"material {material}");
+        var admission = PhysicsGpuAbi.Admission(scene, new(1), new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1)));
+        rows.Add("admission " + Convert.ToHexString(SHA256.HashData(admission)));
+        rows.AddRange(await Trace(construction, 840));
+        await File.WriteAllLinesAsync(Path.Combine(dir, "trace-" + name + ".txt"), rows, TestContext.Current.CancellationToken);
+    }
+
+    /// <summary>The axial-spin question (CAT-023 §6 item 3): the production orientation law on a stock tile spun about its own long (local
+    /// +Y) axis, standing on the bench and, as a control, floating without gravity. Reports per tick the yaw and tilt of the tile and the
+    /// sensor phase.</summary>
+    [Fact]
+    public void AxialSpin()
+    {
+        if (Dir is not { } dir) return;
+        var lines = new List<string>();
+        foreach (var (label, height, gravity, rate) in new[] { ("bench-4rad", LawScene.BenchY + LawTile.HalfExtents.Y + .002f, (float?)null, 4f),
+                     ("float-4rad", 5f, (float?)0f, 4f), ("bench-1rad", LawScene.BenchY + LawTile.HalfExtents.Y + .002f, (float?)null, 1f),
+                     ("bench-20rad", LawScene.BenchY + LawTile.HalfExtents.Y + .002f, (float?)null, 20f) })
+        {
+            var scene = new LawScene();
+            var tile = scene.Domino(new(0, height, 0), Quaternion.Identity, new(0, rate, 0), gravity);
+            scene.OrientationSensor(tile, Quaternion.Identity, 45);
+            var world = scene.Admit();
+            var firedTick = -1;
+            world.Step(world.TicksPerSecond, (tick, state) =>
+            {
+                var q = state[tile].Rotation;
+                var sensor = PhysicsGpuAbi.ReadOrientationSensor(state.World, 0);
+                if (firedTick < 0 && sensor.Phase == OrientationSensorPhase.Fired) firedTick = tick;
+                var yaw = 2 * Math.Atan2(q.Y, q.W) * 180 / Math.PI;
+                lines.Add(string.Create(CultureInfo.InvariantCulture,
+                    $"{label} t={tick} yaw={yaw:F3} tilt={state[tile].Tilt:F4} total={2 * Math.Acos(Math.Min(1, Math.Abs(q.W))) * 180 / Math.PI:F3} {sensor.Phase} ord={sensor.EventOrdinal}"));
+            });
+            lines.Add($"{label} FIRST-FIRED-TICK {firedTick}");
+        }
+        File.WriteAllLines(Path.Combine(dir, "axial-spin.txt"), lines);
+    }
+
+    internal static string Describe(IWorkshopInstance instance) => instance switch
+    {
+        WorkshopGenericInstance g => $"Generic {g.PartId.Value} id={g.Id.Value} cell={g.Cell} local={g.Local} rot={g.Rotation} locked={g.Locked} params=[" +
+            string.Join(",", g.Parameters.ToBundleValues().OrderBy(p => p.Key, StringComparer.Ordinal).Select(p => $"{p.Key}={p.Value:R}")) + "]",
+        _ => instance.ToString()!
+    };
+
+    private static string Outcome(Func<IEnumerable<IWorkshopInstance>> decode)
+    {
+        try { return "LOADED " + string.Join(" | ", decode().Select(Describe)); }
+        catch (WorkshopSaveRejectedException error) { return $"REFUSED save {error.Reason}: {error.Message}"; }
+        catch (WireFaultException error) { return $"REFUSED wire {error.Reason}: {error.Message}"; }
+        catch (Exception error) { return $"REFUSED UNTYPED {error.GetType().Name}: {error.Message}"; }
+    }
+
+    private static IWorkshopInstance Make(PartId kind, ulong id) => kind.Value switch
+    {
+        "domino" => PlacedParts.Domino(new(id), 0, Upright + .01, 0, 0, 0, 0, 1),
+        "pipe" => WorkshopInput.Pipe(new(id), 0, 1, 0, 0, 0, 0, 1, new(2.75f)),
+        "pressure_plate" => WorkshopInput.PressurePlate(new(id), 0, 1, 0, 0, 0, 0, 1, 1.25f),
+        "counter" => WorkshopInput.Counter(new(id), 0, 1, 0, 0, 0, 0, 1, 5),
+        "clock" => WorkshopInput.Clock(new(id), 0, 1, 0, 0, 0, 0, 1, 1.5f),
+        "latch" => WorkshopInput.Latch(new(id), 0, 1, 0, 0, 0, 0, 1),
+        _ => WorkshopInput.Generic(kind, new(id), 0, 1, 0, 0, 0, 0, 1)
+    };
+
+    /// <summary>DP_OLD_SAVES unset: no-op. DP_OLD_SAVES_WRITE=1 (base only): encode each construction with the production save and command
+    /// encoders and write the bytes. Always: decode every written file at both boundaries, report the outcome, and replay each loadable
+    /// save for 480 ticks (hash of the per-tick rows).</summary>
+    [Fact]
+    public async Task OldSaves()
+    {
+        if (Environment.GetEnvironmentVariable("DP_OLD_SAVES") is not { } dir) return;
+        if (Environment.GetEnvironmentVariable("DP_OLD_SAVES_WRITE") == "1")
+        {
+            Directory.CreateDirectory(dir);
+            var kinds = new List<(string Name, WorkshopConstruction Construction)>
+            {
+                ("domino_locked_rotated", Bench([PlacedParts.Domino(new(1), 2.5, Upright + .01, -1.25, 0, Math.Sqrt(.5), 0, Math.Sqrt(.5), locked: true)])),
+                ("wired_chain", Fixture("close-gap-chain")),
+                ("two_lane", Fixture("two-lane")),
+            };
+            foreach (var kind in WorkbenchCapacityTests.FreePalette.Keys.OrderBy(k => k.Value, StringComparer.Ordinal))
+            {
+                IWorkshopInstance part;
+                try { part = Make(kind, 1); }
+                catch (ArgumentException) { continue; } // not buildable alone at this pose: no save
+                kinds.Add(("kind_" + kind.Value, Bench([part, WorkshopInput.Generic(PartId.Basketball, new(2), 3, 2, 0, 0, 0, 0, 1)])));
+            }
+            foreach (var (name, construction) in kinds)
+            {
+                construction.Validate();
+                File.WriteAllBytes(Path.Combine(dir, name + ".save.bin"), WorkshopSaveCodec.Encode(new WorkshopSavedConstruction(construction, new(9))));
+                File.WriteAllBytes(Path.Combine(dir, name + ".command.bin"), WorkshopWireFlatBuffers.EncodeCommand(new WorkshopCommand(new(1),
+                    WorkshopCommandKind.Construct, new(1), new(1), construction, Session: new(1, 2), Cadence: new(1), Projection: new(1))));
+            }
+            File.WriteAllBytes(Path.Combine(dir, "forged_domino_parameter.save.bin"), PayloadInstanceTests.GenericSave("domino", null, [("radius", .5f)]));
+            File.WriteAllBytes(Path.Combine(dir, "forged_domino_bare.save.bin"), PayloadInstanceTests.GenericSave("domino", null));
+            File.WriteAllBytes(Path.Combine(dir, "preconversion_domino.save.bin"), PayloadInstanceTests.PreConversionDomino());
+        }
+        var report = new List<string>();
+        foreach (var save in Directory.GetFiles(dir, "*.save.bin").Order(StringComparer.Ordinal))
+        {
+            var name = Path.GetFileName(save)[..^".save.bin".Length];
+            var bytes = File.ReadAllBytes(save);
+            report.Add($"{name}: save {Outcome(() => WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes).Construction.Instances)}");
+            var command = Path.Combine(dir, name + ".command.bin");
+            if (File.Exists(command))
+                report.Add($"{name}: command {Outcome(() => WorkshopWireFlatBuffers.DecodeCommand(File.ReadAllBytes(command)).Construction!.Value.Instances)}");
+            else
+                report.Add($"{name}: record {Outcome(() => [WorkshopWireFlatBuffers.MapInstance(WorkshopSaveCodec.Open(bytes).Construction!.Value.Instances(0)!.Value)])}");
+            WorkshopSavedConstruction? loaded;
+            try { loaded = WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes); }
+            catch (WorkshopSaveRejectedException) { loaded = null; } // refused: reported above, nothing to replay
+            if (loaded is { } ok)
+            {
+                // The simulation starts at revision 1, so a revision-1 save (the hand-built forgeries) is constructed at revision 2;
+                // every encoder-written save here is already revision 2.
+                var construction = ok.Construction.Revision.Value == 1 ? ok.Construction with { Revision = new(2) } : ok.Construction;
+                var (_, reads, _) = await NoFixedCapacityTests.RunAndReset(construction, 480);
+                report.Add($"{name}: replay480 {Hash(string.Join("\n", reads.Select(Row)))} connections={ok.Construction.Connections.Count}");
+            }
+        }
+        File.WriteAllLines(Path.Combine(Dir ?? dir, "old-save-outcomes.txt"), report);
+    }
+
+    [Fact]
+    public async Task LessonWorldHashes()
+    {
+        if (Dir is not { } dir) return;
+        var lines = new List<string>();
+        foreach (var lesson in new[] { "first_principles", "spring_forward", "ready_to_rebound", "bumper_sidekick", "bumper_depth",
+                     "wall_and_bumper", "domino_effect", "delayed_signal", "clear_pipe", "gentle_bend", "quarter_bend", "joined_pipe" })
+            foreach (var precision in new[] { (Half)0, (Half).45, (Half)1 })
+            {
+                var construction = PuzzleCatalogue.Create(new(lesson), new(2), WorkshopCadenceSettings.Default(), new(11), new(precision));
+                var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
+                var bytes = PhysicsGpuAbi.Admission(scene, new(1), new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1)));
+                var (_, reads, _) = await NoFixedCapacityTests.RunAndReset(construction, 480);
+                var final = System.Text.Json.JsonSerializer.Serialize(Enumerable.Range(0, reads[^1].Bodies.Count)
+                    .Select(i => reads[^1].Bodies[i]).ToArray(), Options);
+                var committed = Hash(Row(reads[^1]));
+                var activations = Hash(string.Join("\n", reads.Select(read => string.Join(" ", Enumerable.Range(0, read.Activations.Count).Select(i => Latch(read.Activations[i]))))));
+                lines.Add($"{lesson} {(float)precision} instances={construction.Instances.Count} admission={Convert.ToHexString(SHA256.HashData(bytes))} final={Hash(final)} committed480={committed} activations={activations}");
+            }
+        await File.WriteAllLinesAsync(Path.Combine(dir, "lesson-world.txt"), lines, TestContext.Current.CancellationToken);
+    }
+
+    [Fact]
+    public async Task PlacedSolutionHashes()
+    {
+        if (Dir is not { } dir) return;
+        var lines = new List<string>();
+        var benches = new List<(string Name, Half Precision, WorkshopConstruction Construction)>();
+        foreach (var route in Enum.GetValues<LaunchLessonSolveTests.Route>())
+            foreach (var precision in new[] { (Half)0, (Half).45, (Half)1 })
+                benches.Add((route.ToString(), precision, PuzzleCatalogue.WithPrecision(LaunchLessonSolveTests.Bench(route), new(precision))));
+        foreach (var precision in new[] { (Half)0, (Half).45, (Half)1 })
+            benches.Add(("DominoEffectWired", precision, WiredLesson(precision)));
+        foreach (var precision in new[] { (Half)0, (Half).45, (Half)1 })
+            benches.Add(("DominoEffectAuthoredSolutionWired", precision, AuthoredSolutionWired(precision)));
+        foreach (var precision in new[] { (Half)0, (Half).45, (Half)1 })
+            benches.Add(("DominoEffectCorrectedSolutionWired", precision, SolutionWired(precision, [-4, -3, -2, -1], .1)));
+        foreach (var (name, precision, construction) in benches)
+        {
+            var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
+            var bytes = PhysicsGpuAbi.Admission(scene, new(1), new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1)));
+            var (_, reads, reset) = await NoFixedCapacityTests.RunAndReset(construction, 1200);
+            var trace = string.Join("\n", reads.Select(Row));
+            lines.Add($"{name} {(float)precision} instances={construction.Instances.Count} admission={Convert.ToHexString(SHA256.HashData(bytes))} " +
+                $"trace1200={Hash(trace)} reset={Hash(Row(reset))} solved={LaunchLessonSolveTests.Solved(construction, reads)}");
+        }
+        await File.WriteAllLinesAsync(Path.Combine(dir, "placed-solutions.txt"), lines, TestContext.Current.CancellationToken);
+    }
+}

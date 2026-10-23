@@ -1,0 +1,4 @@
+$ dotnet build CuriousContraptions.slnx -c Debug --no-incremental
+    0 Warning(s)
+    0 Error(s)
+rc=0

@@ -9,7 +9,7 @@ namespace CuriousContraptions.Gpu;
 // The current construction record's typed scalar fields, not element identities.
 internal enum AuthoredScalar
 {
-    Mass, Bounce, Length, Threshold, Friction
+    Length, Threshold
 }
 internal enum AssistanceValue
 {
@@ -22,8 +22,7 @@ internal readonly record struct AuthoredAssistanceBinding(AssistanceValue Value,
 /// <summary>Explicit current-schema fields. No omitted scalar is replaced by a FlatBuffers default.</summary>
 internal sealed record AuthoredInstanceTemplate(PartId Part, CellOrigin Cell, LocalPosition Local,
     CanonicalRotation Rotation, bool Locked, ImmutableDictionary<AuthoredScalar, float> Scalars,
-    uint TargetCount, System.Numerics.Vector3 HalfExtents,
-    InstanceParameterCollection Parameters, AssistanceProfile Assistance, ImmutableArray<AuthoredAssistanceBinding> AssistanceBindings)
+    uint TargetCount, InstanceParameterCollection Parameters, AssistanceProfile Assistance, ImmutableArray<AuthoredAssistanceBinding> AssistanceBindings)
 {
     internal AuthoredInstanceTemplate At(PuzzlePrecision precision)
     {
@@ -89,8 +88,7 @@ internal static class AuthoredInstanceReader
     {
         var fields = PuzzleContentReader.Fields(json, where);
         Require(fields, where, "part", "cell", "local", "rotation", "locked", "scalars",
-            "target_count", "half_extents",
-            "parameters", "assistance", "assistance_bindings");
+            "target_count", "parameters", "assistance", "assistance_bindings");
         var part = new PartId(PuzzleContentReader.Text(fields, "part", where));
         if (!DeclaredPhysics.Contains(part)) throw PuzzleContentReader.Invalid(where, "part", "unknown declared part");
         var cell = Array(fields["cell"], 3, where + ".cell");
@@ -118,7 +116,6 @@ internal static class AuthoredInstanceReader
             new(Number(rotation[0], where), Number(rotation[1], where), Number(rotation[2], where), Number(rotation[3], where)),
             Boolean(fields["locked"], where + ".locked"), scalars.ToImmutable(),
             Unsigned(fields["target_count"], where + ".target_count"),
-            Vector(fields["half_extents"], where),
             parameters, Profile(fields["assistance"], where), assistanceBindings.ToImmutable());
         try
         {

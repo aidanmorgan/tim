@@ -1,0 +1,16 @@
+$ dotnet publish CuriousContraptions.web -c Release --nologo -p:PlaytestDiagnostics=false
+   /Users/aidan/.dotnet/packs/Microsoft.NET.Runtime.Emscripten.3.1.56.Sdk.osx-arm64/10.0.12/tools/bin/wasm-opt --strip-target-features --post-emscripten -O2 --low-memory-unused --zero-filled-memory --pass-arg=directize-initial-contents-immutable /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-32/CuriousContraptions.Animation.Worker/obj/Release/net10.0/browser-wasm/wasm/for-publish/dotnet.native.wasm -o /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-32/CuriousContraptions.Animation.Worker/obj/Release/net10.0/browser-wasm/wasm/for-publish/dotnet.native.wasm -g --mvp-features --enable-bulk-memory --enable-exception-handling --enable-multivalue --enable-mutable-globals --enable-reference-types --enable-sign-ext --enable-simd
+  Generated app bundle at /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-32/CuriousContraptions.Animation.Worker/bin/Release/net10.0/browser-wasm/AppBundle/
+  WORKER_AOT_MODULES=CuriousContraptions.Abstractions.Electrical,CuriousContraptions.Abstractions.Fluid,CuriousContraptions.Abstractions.Mechanical,CuriousContraptions.Abstractions.Signal,CuriousContraptions.Abstractions,CuriousContraptions.Animation,CuriousContraptions.Animation.Worker,CuriousContraptions.Bundle,CuriousContraptions.FlatBuffers in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-32/CuriousContraptions.Animation.Worker/bin/Release/net10.0/browser-wasm/AppBundle/_framework/dotnet.native.wasm
+  Generated app bundle at /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-32/CuriousContraptions.web/AppBundle/
+  TwoDog: web app bundle finalized at /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-32/CuriousContraptions.web/AppBundle/
+  TwoDog: deployed godot.pck to the app bundle
+  TwoDog: wrote 228 precompressed sibling file(s)
+  WORKER_AOT_HOST_FILES=202 identical to the verified worker bundles
+rc=0
+present index.html
+present 404.html
+present godot.wasm
+present godot.pck
+present _framework/dotnet.js
+AppBundle moved to /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/review-appbundle

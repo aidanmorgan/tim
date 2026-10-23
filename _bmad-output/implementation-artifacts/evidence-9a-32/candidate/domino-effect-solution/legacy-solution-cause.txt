@@ -1,0 +1,8 @@
+tile 4: start x=-2.400 peak tilt=0.43 deg final x=-2.404 y=0.090
+tile 5: start x=-1.600 peak tilt=0.43 deg final x=-1.604 y=0.090
+tile 6: start x=-0.800 peak tilt=0.61 deg final x=-0.803 y=0.090
+tile 7: start x=-0.004 peak tilt=19.69 deg final x=-0.282 y=0.090
+tile 2: start x=0.105 peak tilt=7.11 deg final x=0.097 y=0.090
+ball: start x=-4.400; closest horizontal gap to tile 4 centre=1.994 m (contact needs < 0.465); final x=-4.400
+placement overlap: tile 7 spans [-0.125, 0.125], end tile spans [-0.025, 0.225]
+solved=False

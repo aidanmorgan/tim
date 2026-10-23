@@ -144,10 +144,11 @@ public sealed class PhysicsBodyReadSetTests
     [Fact]
     public void DominoTileMomentsFollowTheDeclaredHalfExtentsAndMass()
     {
-        var material = DominoMaterial.Default;
+        var tile = LawTile.HalfExtents;
         var body = new RigidBodyDeclaration(new(1), RigidMotionKind.Dynamic, default, default, CanonicalRotation.Identity,
-            default, default, material.Mass, default, default);
-        var collider = new ColliderDeclaration(new(2), new(1), new(3), ColliderShapeKind.Box, RigidLocalPose.Identity, new((Half)0), material.HalfExtents);
+            default, default, new((Half)LawTile.Mass), default, default);
+        var collider = new ColliderDeclaration(new(2), new(1), new(3), ColliderShapeKind.Box, RigidLocalPose.Identity, new((Half)0),
+            new((Half)tile.X, (Half)tile.Y, (Half)tile.Z));
         var properties = RigidMassProperties.Compile(body, collider);
         const double mass = .4, hx = .125, hy = .55, hz = .325;
         Near(properties.X, mass * (hy * hy + hz * hz) / 3);

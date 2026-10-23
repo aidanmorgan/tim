@@ -133,6 +133,9 @@ public sealed class BundleRoundTripTests
             if (signal is IIndicatorElement indicator) Assert.Equal(indicator.Indicator, entry.Signal.Indicator!.Value);
             Assert.Equal(signal is IPassageSensorElement, entry.Signal.Passage is not null);
             if (signal is IPassageSensorElement passage) AssertSame(passage.Passage, entry.Signal.Passage!.Value, "Passage");
+            // The orientation threshold (9A.32).
+            Assert.Equal(signal is IOrientationSensorElement, entry.Signal.Orientation is not null);
+            if (signal is IOrientationSensorElement orientation) AssertSame(orientation.Orientation, entry.Signal.Orientation!.Value, "Orientation");
         }
         Assert.Equal(declaration is IFluidElement, entry.Fluid is not null);
         if (declaration is IFluidElement fluid)

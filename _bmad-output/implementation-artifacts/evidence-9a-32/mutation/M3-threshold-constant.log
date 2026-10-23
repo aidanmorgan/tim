@@ -1,0 +1,6 @@
+== M3-threshold-constant: tracked diff sha256 bfae8829b84b25b8c0e9a2926d698de06568fd067d16293c24a7113b86a16522
+    0 Error(s)
+    0 Warning(s)
+  Failed CuriousContraptions.Tests.DeclaredOrientationTests.TheHelperCompilesEachDeclaredThresholdToItsOwnCosine [< 1 ms]
+Failed!  - Failed:     1, Passed:   164, Skipped:     0, Total:   165, Duration: 11 s - CuriousContraptions.tests.dll (net10.0)
+Passed!  - Failed:     0, Passed:    91, Skipped:     0, Total:    91, Duration: 269 ms - BundleElements.Tests.dll (net10.0)

@@ -35,10 +35,10 @@ function response(overrides: Partial<MockResponseParams> = {}): Uint8Array {
     }));
 }
 
-interface SavedOptions { mass?: number; toSocket?: number; revision?: bigint; goalTarget?: bigint; connections?: number }
+interface SavedOptions { length?: number; toSocket?: number; revision?: bigint; goalTarget?: bigint; connections?: number }
 function saved(options: SavedOptions = {}): Uint8Array {
     const builder = new flatbuffers.Builder(1024);
-    const instance = (id: bigint, part: string, mass: number) => {
+    const instance = (id: bigint, part: string, length: number) => {
         const name = builder.createString(part);
         InstanceRecord.startInstanceRecord(builder);
         InstanceRecord.addId(builder, id);
@@ -47,10 +47,10 @@ function saved(options: SavedOptions = {}): Uint8Array {
         InstanceRecord.addCell(builder, Vec3i.createVec3i(builder, 0, 1, 0));
         InstanceRecord.addLocal(builder, Vec3f.createVec3f(builder, 0.25, 3, 0));
         InstanceRecord.addRotation(builder, Quat4f.createQuat4f(builder, 0, 0, 0, 1));
-        InstanceRecord.addMass(builder, mass);
+        InstanceRecord.addLength(builder, length);
         return InstanceRecord.endInstanceRecord(builder);
     };
-    const instances = [instance(BALL, 'basketball', options.mass ?? 0), instance(RECEIVER, 'receiver', 0)];
+    const instances = [instance(BALL, 'basketball', options.length ?? 0), instance(RECEIVER, 'receiver', 0)];
     const instancesVector = ConstructionRecord.createInstancesVector(builder, instances);
     const connectionCount = options.connections ?? 1;
     ConstructionRecord.startConnectionsVector(builder, connectionCount);
@@ -216,7 +216,7 @@ describe('Run/Reset snapshot: bit-exact comparison', () => {
 
     test('a differing part parameter fails', () => {
         assert.match(failureOf(() => assertSnapshotEqual(snapshotFrom(response(), saved(), BENCH),
-            snapshotFrom(response(), saved({ mass: 4 }), BENCH))), /saved\.construction\.instances\[id=1\]\.mass absent≠0x40800000/);
+            snapshotFrom(response(), saved({ length: 4 }), BENCH))), /saved\.construction\.instances\[id=1\]\.length absent≠0x40800000/);
     });
 
     test('a differing authored goal fails', () => {
@@ -261,8 +261,8 @@ describe('Run/Reset snapshot: bit-exact comparison', () => {
     test('a Load comparison ignores only the restarted construction revision', () => {
         const s0 = snapshotFrom(response(), saved(), BENCH);
         assertLoadRestores(s0, snapshotFrom(response(), saved({ revision: 3n }), BENCH));
-        assert.match(failureOf(() => assertLoadRestores(s0, snapshotFrom(response(), saved({ revision: 3n, mass: 4 }), BENCH))),
-            /Load: saved\.construction\.instances\[id=1\]\.mass/);
+        assert.match(failureOf(() => assertLoadRestores(s0, snapshotFrom(response(), saved({ revision: 3n, length: 4 }), BENCH))),
+            /Load: saved\.construction\.instances\[id=1\]\.length/);
         const bytes = response();
         assert.match(failureOf(() => assertLoadRestores(s0, snapshotFrom(withU32(bytes, ballLocalY(bytes), 0x40400001), saved(), BENCH))),
             /Load: read\.bodies\[id=1\]\.local\.y/);

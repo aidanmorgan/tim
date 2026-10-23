@@ -3,11 +3,12 @@ using CuriousContraptions.Gpu;
 namespace CuriousContraptions.Tests;
 
 /// <summary>The one construction adapter of the converted suites and probes: a Bumper of a strength, a Springboard of a stiffness,
-/// damping and preload, a Battery of a finite store, and a Signal lamp and a Ball detector, at an f32-input pose, as generic instances
-/// of their packages. (On the record path the Bumper and Springboard signatures built `WorkshopBumper`/`WorkshopSpringboard` at
-/// 3fce7a03, the Battery built `WorkshopBattery` at f27cb71d, and the lamp and detector built their records at 54ffd9f0:
-/// evidence-c-bumper-spring/probe/PlacedParts-record-path.cs.txt, evidence-9a-39/probe/Probe9a39Adapter-base.cs.txt and
-/// evidence-c-lamp-detector/probe/PlacedParts-record-path.cs.txt.)</summary>
+/// damping and preload, a Battery of a finite store, a Signal lamp, a Ball detector and a Domino, at an f32-input pose, as generic
+/// instances of their packages. (On the record path the Bumper and Springboard signatures built `WorkshopBumper`/`WorkshopSpringboard`
+/// at 3fce7a03, the Battery built `WorkshopBattery` at f27cb71d, the lamp and detector built their records at 54ffd9f0, and the
+/// Domino built its record at 2065d3c5: evidence-c-bumper-spring/probe/PlacedParts-record-path.cs.txt,
+/// evidence-9a-39/probe/Probe9a39Adapter-base.cs.txt, evidence-c-lamp-detector/probe/PlacedParts-record-path.cs.txt and
+/// evidence-9a-32/probe/PlacedParts-record-path.cs.txt.)</summary>
 internal static class PlacedParts
 {
     /// <summary>A Battery with its declared store: capacity (J), power limit (W), initial charge (fraction of capacity) and the
@@ -40,4 +41,10 @@ internal static class PlacedParts
     public static IWorkshopInstance Detector(GpuBodyId id, double x, double y, double z,
         double qx, double qy, double qz, double qw, bool locked = false) =>
         WorkshopInput.Generic(PartId.BallDetector, id, x, y, z, qx, qy, qz, qw) with { Locked = locked };
+
+    /// <summary>A Domino tile at an f32-input pose: the domino package's generic instance (no parameters). (On the record path at
+    /// 2065d3c5 it built `WorkshopDomino`: evidence-9a-32/probe/PlacedParts-record-path.cs.txt.)</summary>
+    public static IWorkshopInstance Domino(GpuBodyId id, double x, double y, double z,
+        double qx, double qy, double qz, double qw, bool locked = false) =>
+        WorkshopInput.Generic(PartId.Domino, id, x, y, z, qx, qy, qz, qw) with { Locked = locked };
 }

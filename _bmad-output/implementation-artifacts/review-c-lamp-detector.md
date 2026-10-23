@@ -1,7 +1,7 @@
 ---
 title: "Review — C-Lamp+Detector (9A.36 + 9A.37 + 9R.9 + 9R.16), independent adversarial review"
 candidate: "uncommitted worktree story-c-lamp-detector on base 54ffd9f0; tracked diff (git diff --binary HEAD) sha256 55b99c26f868502e14b0a3f86603710dacd04036768a9e4cd5912aad86f5b70e, unchanged at start and end of review; LampDetectorGuardTests.cs sha256 1859953…cb3f, DeclaredIndicatorPassageTests.cs 5a8e2694…9955"
-verdict: "Pass (native, required-now scope). SnapshotApproval granted (see the section at the end). Publication-dependent checks are pending. Browser qualification is pending post-catalogue E2E."
+verdict: "Terminal scoped native and publication Pass at 2065d3c5 (23 Oct 2026); SnapshotApproval was granted for staged tree e575cb01 on base 54ffd9f0. Browser qualification is pending post-catalogue E2E."
 date: 2026-10-23
 ---
 
@@ -140,3 +140,29 @@ The detector's own latch cannot show 2: a `PassageSource` node latches its first
 - The `TODO.md` brief, and the spec's Current state and its SnapshotApproval → publication checkbox.
 - The Story 6.8 and Story 6.5e (9R.16 part) addenda (native only, browser pending).
 - The terminal publication-verification section of this record.
+
+## Terminal publication verification — 23 October 2026
+
+Raw outputs are in `evidence-c-lamp-detector-review/terminal/`.
+
+**Identities**
+- Slice commit: `86ad82ffe6a946413cea51ade6b9be2993b47328`, tree `b39f0cb3772b2065bfc84ae42a24aaed5a58f5a3`, parent `54ffd9f0`.
+- Published merge (`--no-ff`): `2065d3c5951232b3e04332101f3d31b45d5e10f1`, parents `54ffd9f0` and `86ad82ff`, tree `b39f0cb3…` (the same tree: main had not moved).
+- Remote: after a fetch, `origin/main` and `git ls-remote origin refs/heads/main` both return `2065d3c5…`.
+
+| # | Publication-dependent check | Result | Raw |
+|---|---|---|---|
+| 1 | The commit tree equals the approved snapshot | **Pass.** `86ad82ff^{tree}` = `b39f0cb3`, the final staged tree reported with the approval. Against the approved tree `e575cb01` the only difference is this record (+32, the SnapshotApproval append). Recomputed from `e575cb01`, the approved diff SHA-256 is `8c67b099…`, as approved. With this record excluded, the approved and published diffs both hash to `9b6e829f…` | `identities.txt` |
+| 2 | Hooks | **Pass.** The implementer kept no hook output, so this re-run is the hook evidence. I ran the repository pre-commit hook on the exact published tree, in a throwaway worktree at `54ffd9f0` with index `b39f0cb3` (270 staged paths; the two deleted files removed from disk; nothing unstaged or untracked). Results: 3 gate builds with 0 warnings and 0 errors; Anvil 44 snapshots, `hasBlockingWarnings: false`; `CSharpStaticGateTests` + `WorkshopUiFailureTests` 124/124; hook rc 0. The worktree was removed. My first invocation (`sh .git/hooks/pre-commit`) failed with "Not a directory" because a worktree's `.git` is a file, so the log's fallback invocation through the common hooks dir is the actual run | `hook-rerun.log` |
+| 3 | The merge tree equals the branch tree; remote main is the published merge | **Pass** | `identities.txt` |
+| 4 | Pages workflow on the exact SHA | **Pass.** Run 39936029766, "Build and deploy game", push, main, headSha `2065d3c5`, completed/success. Every build step succeeded (static gate, Test C# game, Test C# tools, publish, static-deployment check, upload), and the deploy job succeeded. Totals: Test C# game **2464**; Test C# tools **77 / 164 / 17 / 174**. CI's tools step excludes the 15 toolchain tests by design (174 vs the local 189). The local 2464/164/77/189/17 was proven on the same source before approval | `run.json`, `build-job.log` |
+| 5 | Pages artifact ownership and deployment | **Pass.** Artifact `github-pages` id 12494172072 (digest `sha256:026680f0…`, 79,810,916 bytes, not expired) belongs to run 39936029766 at headSha `2065d3c5` on main. The deploy job used `artifact_id` 12494172072 and created the deployment for `2065d3c5` (id 7275606022). Its status went waiting → queued → in_progress → success, with environment `https://aidanmorgan.github.io/tim/`. It is the newest `github-pages` deployment (the previous ones were `54ffd9f0` and `f27cb71d`). The site returns 200 for `/`, `/index.html`, `/_framework/dotnet.js` and `/404.html` | `artifact-deployment.txt`, `deployment-status.txt`, `deploy-job.log` |
+| 6 | Closing addenda | Appended (additions only): `review-6-8-ball-detector.md` (native Pass, Chrome clauses pending) and `review-6-5e-mechanisms-fixtures-conversion.md` (9R.16 part: native Pass, `cat-035` pending). Fresh run on `86ad82ff`/`b39f0cb3`, bundle `27bd3e44…`: 69/69 and 103/103, rc 0 | `addenda-native-rerun.log` |
+| 7 | Status rows | `9a-c-lamp-detector-conversion`, `9a-36` and `9a-37` set to `done` in this worktree. `9r-9` and `9r-16` stay backlog | — |
+| 8 | Browser cases | Still pending post-catalogue E2E: `cat-002` (lamp-target count, in-run second crossing (F1), position proofs) and `cat-035` (to be authored); re-runs of `cat-020`, `cat-023b`, `anim-1a`, `anim-1b`, `anim-1c`, `cat-037`, `cat-052-lamp`, and `cat-022` once 9.5a authors it | — |
+
+**Terminal verdict: scoped native and publication Pass at `2065d3c5`.**
+- Browser qualification is pending post-catalogue E2E. This is not a release, global-audit or runtime qualification.
+- Findings F1–F6 stand as recorded; F1 needs a coordinator decision before `cat-002` is authored post-catalogue.
+- **F1 ownership (coordinator decision, 23 Oct 2026):** Story 9A.22 owns F1 (and F2). It amends the epics 9R.9 text and CAT-002 so the in-run case reads the counter lamp or a 9A.22 Passage record, and it adds the committed per-pass detector read. `6-8` stays `done` under the 21 Oct native-proof policy, with `cat-002` Chrome pending.
+- **Additional (coordinator):** `sprint-status.yaml` shows `6-8-generic-aperture-sensor-directional-rearm: done`. That row predates this closure (a weak Pass never reopened). Its Chrome AC (`cat-002`) is still pending, so by the closure rule ("`done` only when its last closing addendum records a fresh terminal Pass") it should be `in-progress` until `cat-002` passes in Chrome, as `8-1` was handled. I left the row unchanged, as instructed.

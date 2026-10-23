@@ -326,7 +326,7 @@ public sealed class ActivationNetwork
             }
             Push(ref count, occurrence);
         }
-        // Every orientation source must be read each tick: a missing read would silently leave its Domino unlatched.
+        // Every orientation source must be read each tick: a missing read would silently leave its owner unlatched.
         for (var i = 0; i < _nodes.Length; i++)
         {
             if (stage != EvaluationStage.Physical || _nodes[i].Kind != ActivationNodeKind.OrientationSource) continue;
@@ -839,9 +839,10 @@ public static class WorkshopActivationCompiler
                 nodes.Add(new(new(instance.Id.Value), instance.Id, ActivationNodeKind.Timer, default,
                     ActivationTimerDeclaration.Duration(generic.Parameters[new ParameterId(timer.DurationParameter)], construction.Settings.Simulation),
                     Completion: timer.Completion, Boundary: timer.Boundary, ElapsedSignal: timer.ElapsedSignal));
-            // A Domino owns a node only while wired: its orientation sensor compiles under the same condition.
-            else if (instance is WorkshopDomino domino && construction.Connections.HasSource(domino.Id))
-                nodes.Add(new(new(domino.Id.Value), domino.Id, ActivationNodeKind.OrientationSource, default, 0, WorkshopPhysicsCompiler.OrientationSensor(domino.Id)));
+            // A declared orientation threshold owns a node only while wired: its sensor compiles under the same condition.
+            else if (instance is WorkshopGenericInstance && DeclaredPhysics.Of(instance.PartId).Signal?.Orientation is not null &&
+                     construction.Connections.HasSource(instance.Id))
+                nodes.Add(new(new(instance.Id.Value), instance.Id, ActivationNodeKind.OrientationSource, default, 0, WorkshopPhysicsCompiler.OrientationSensor(instance.Id)));
             else if (instance is WorkshopGenericInstance && DeclaredPhysics.Of(instance.PartId).Signal?.Passage is { } aperture)
             {
                 var sensor = PassageSensorFor(instance, aperture);

@@ -1,0 +1,44 @@
+#!/bin/bash
+# Reviewer: independently re-run the archived probe on (a) a throwaway copy of the candidate and (b) a throwaway base 2065d3c5
+# + the recorded test-only diff, and compare every capture against the implementer's candidate/ and baseline/ captures.
+set -u
+S=/private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad
+W=/Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-32
+E=$W/_bmad-output/implementation-artifacts/evidence-9a-32
+P=$S/review-probe
+mkdir -p "$P"
+cp "$E/probe/ProbeDominoCapture.cs.txt" "$P/ProbeDominoCapture.cs"
+echo "probe sha256: $(shasum -a 256 "$P/ProbeDominoCapture.cs" | cut -c1-64)"
+INC="        <Compile Include=\"$P/ProbeDominoCapture.cs\" Link=\"Probe/ProbeDominoCapture.cs\" />"
+
+# (a) candidate copy
+A=$S/review-wt-cand
+[ -d "$A" ] || git -C "$W" worktree add -q --detach "$A" 2065d3c5951232b3e04332101f3d31b45d5e10f1
+cd "$A" || exit 2
+git -C "$W" diff --binary HEAD > "$P/candidate.diff"
+git apply "$P/candidate.diff"
+cp "$W/CuriousContraptions.tests/DominoGuardTests.cs" "$W/CuriousContraptions.tests/DeclaredOrientationTests.cs" CuriousContraptions.tests/
+echo "candidate copy: tracked diff identical: $(git diff --binary HEAD | cmp -s - "$P/candidate.diff" && echo yes || echo no)"
+awk -v inc="$INC" '{print} /<Compile Include="DominoGuardTests.cs" \/>/ {print inc}' CuriousContraptions.tests/CuriousContraptions.tests.csproj > "$P/cand.csproj"
+cp "$P/cand.csproj" CuriousContraptions.tests/CuriousContraptions.tests.csproj
+echo "probe include lines: $(grep -c ProbeDominoCapture CuriousContraptions.tests/CuriousContraptions.tests.csproj)"
+dotnet build CuriousContraptions.tests/CuriousContraptions.tests.csproj -c Debug 2>&1 | grep -E "Warning\(s\)|Error\(s\)| error "
+mkdir -p "$P/cand-capture"
+DP_DIR=$P/cand-capture DP_OLD_SAVES=$E/baseline/capture/old-saves dotnet test CuriousContraptions.tests/CuriousContraptions.tests.csproj -c Debug --no-build --no-restore --filter "FullyQualifiedName~ProbeDominoCapture" 2>&1 | tail -2
+for f in "$E"/candidate/capture/*.txt; do n=$(basename "$f"); if cmp -s "$f" "$P/cand-capture/$n"; then echo "candidate IDENTICAL $n"; else echo "candidate DIFFERS $n"; fi; done
+
+# (b) base + recorded test-only diff
+B=$S/review-wt-base
+[ -d "$B" ] || git -C "$W" worktree add -q --detach "$B" 2065d3c5951232b3e04332101f3d31b45d5e10f1
+cd "$B" || exit 2
+sed "s#$S/probe/ProbeDominoCapture.cs#$P/ProbeDominoCapture.cs#" "$E/baseline/test-only.diff" > "$P/test-only.diff"
+git apply "$P/test-only.diff"
+cp "$W/CuriousContraptions.tests/DominoGuardTests.cs" CuriousContraptions.tests/DominoGuardTests.cs
+echo "base: probe include lines: $(grep -c "$P/ProbeDominoCapture" CuriousContraptions.tests/CuriousContraptions.tests.csproj)"
+dotnet build CuriousContraptions.tests/CuriousContraptions.tests.csproj -c Debug 2>&1 | grep -E "Warning\(s\)|Error\(s\)| error "
+mkdir -p "$P/base-capture"
+DP_DIR=$P/base-capture DP_OLD_SAVES=$E/baseline/capture/old-saves dotnet test CuriousContraptions.tests/CuriousContraptions.tests.csproj -c Debug --no-build --no-restore --filter "FullyQualifiedName~ProbeDominoCapture" 2>&1 | tail -2
+for f in "$E"/baseline/capture/*.txt; do n=$(basename "$f"); if cmp -s "$f" "$P/base-capture/$n"; then echo "base IDENTICAL $n"; else echo "base DIFFERS $n"; fi; done
+echo "== reviewer base-capture vs reviewer cand-capture"
+for f in "$P"/base-capture/*.txt; do n=$(basename "$f"); if cmp -s "$f" "$P/cand-capture/$n"; then echo "base==cand IDENTICAL $n"; else echo "base==cand DIFFERS $n"; fi; done
+diff "$P/base-capture/placed-solutions.txt" "$P/cand-capture/placed-solutions.txt" | cut -c1-120

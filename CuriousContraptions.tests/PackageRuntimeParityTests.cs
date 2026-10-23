@@ -43,10 +43,22 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
         Assert.Equal(packages["switch"].Metadata.Parameters.Single(p => p.Key == impact.Contact.ThresholdParameter).Default, trigger.Threshold.Value);
         var domino = (Abstractions.Signal.ISignalElement)packages["domino"];
         // The compiler declares this threshold on a wired tile's orientation sensor.
-        var compiledDegrees = 2 * Math.Acos((double)WorkshopDomino.ActivationThreshold.CosineHalfAngle) * 180 / Math.PI;
+        var wiredTile = WorkshopPhysicsCompiler.Compile(new WorkshopConstruction(new ConstructionRevision(1), WorkshopCadenceSettings.Default(),
+            new WorkshopInstances(PlacedParts.Domino(new(1), 0, 3, 0, 0, 0, 0, 1), PlacedParts.Lamp(new(2), 3, 1, 0, 0, 0, 0, 1)),
+            Connections: new(new WorkshopConnection(new(1), WorkshopSocket.ActivationOut, new(2), WorkshopSocket.ActivationIn,
+                WorkshopConnectionDomain.Activation))), new(1, 2));
+        var compiledDegrees = 2 * Math.Acos((double)Assert.Single(wiredTile.OrientationSensors.ToArray()).Threshold.CosineHalfAngle) * 180 / Math.PI;
         var declaredDegrees = Math.Acos(Assert.Single(domino.Triggers).Threshold) * 180 / Math.PI;
         Assert.True(Math.Abs(compiledDegrees - declaredDegrees) < .1,
             $"domino: topple threshold {declaredDegrees}° declared, {compiledDegrees}° compiled.");
+        // 9A.32: the declared f32 orientation threshold is the compiled sensor's, narrowed to the binary16 half-angle cosine lane bit-equal
+        // to the former record's OrientationThreshold.Degrees(45) (0x3b64, cos 22.5°).
+        var orientation = ((Abstractions.Signal.IOrientationSensorElement)packages["domino"]).Orientation;
+        Assert.Equal(45f, orientation.ThresholdDegrees);
+        var compiledThreshold = Assert.Single(wiredTile.OrientationSensors.ToArray()).Threshold;
+        Assert.Equal(OrientationThreshold.Degrees(orientation.ThresholdDegrees), compiledThreshold);
+        Assert.Equal(BitConverter.HalfToUInt16Bits(OrientationThreshold.Degrees(45).CosineHalfAngle), BitConverter.HalfToUInt16Bits(compiledThreshold.CosineHalfAngle));
+        Assert.Equal((ushort)0x3b64, BitConverter.HalfToUInt16Bits(compiledThreshold.CosineHalfAngle));
         var counter = (Abstractions.Signal.ISignalElement)packages["counter"];
         Assert.Equal(WorkshopCounter.PlacedTargetCount, Assert.NotNull(counter.Counter).Threshold);
         // The activation network publishes these event kinds for these elements (ActivationNetwork: the oscillator tick and the
@@ -411,7 +423,7 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
         "wall" => WorkshopInput.Generic(PartId.Wall, Owner, 0, 3, 0, 0, 0, 0, 1),
         "battery" => PlacedParts.Battery(Owner, 0, 3, 0),
         "bumper" => WorkshopInput.Generic(PartId.PinballBumper, Owner, 0, 3, 0, 0, 0, 0, 1),
-        "domino" => WorkshopInput.Domino(Owner, 0, 3, 0, 0, 0, 0, 1),
+        "domino" => PlacedParts.Domino(Owner, 0, 3, 0, 0, 0, 0, 1),
         "pipe" => WorkshopInput.Pipe(Owner, 0, 3, 0, 0, 0, 0, 1),
         "lamp" or "ball_detector" or "funnel" or "pipe_bend_45" or "pipe_bend_90" or "powered_gate" or "hold_timer" or "both_gate" or "electrical_nand" or "electrical_nor" or "electrical_or" or "electrical_xor" =>
             WorkshopInput.Generic(id, Owner, 0, 3, 0, 0, 0, 0, 1),

@@ -381,10 +381,10 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
     private static WorkshopPressurePlate Plate(ulong id, double x, double z, float minimum) =>
         WorkshopInput.PressurePlate(new(id), x, PlateY, z, 0, 0, 0, 1, minimum);
     private static WorkshopGenericInstance BallOn(ulong id, double x, double z) => WorkshopInput.Generic(PartId.Basketball,new(id), x, Face + .35, z, 0, 0, 0, 1);
-    private static WorkshopDomino StandingOn(ulong id, double x, double z) => WorkshopInput.Domino(new(id), x, Face + .551, z, 0, 0, 0, 1);
+    private static IWorkshopInstance StandingOn(ulong id, double x, double z) => PlacedParts.Domino(new(id), x, Face + .551, z, 0, 0, 0, 1);
     /// <summary>A Domino lying on its broad face (1.1 m along x, 0.65 m along z, 0.25 m tall) with its underside at <paramref name="under"/>.</summary>
-    private static WorkshopDomino FlatOn(ulong id, double x, double under, double z) =>
-        WorkshopInput.Domino(new(id), x, under + .126, z, 0, 0, Math.Sqrt(.5), Math.Sqrt(.5));
+    private static IWorkshopInstance FlatOn(ulong id, double x, double under, double z) =>
+        PlacedParts.Domino(new(id), x, under + .126, z, 0, 0, Math.Sqrt(.5), Math.Sqrt(.5));
     private static WorkshopConnection[] Circuit(WorkshopGenericInstance battery, WorkshopPressurePlate plate, WorkshopGenericInstance gate) =>
         [Supply(battery.Id, plate.Id), Supply(plate.Id, gate.Id)];
     private static WorkshopConstruction Bench(IWorkshopInstance[] instances, params WorkshopConnection[] connections) =>

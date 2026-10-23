@@ -13,8 +13,8 @@ namespace CuriousContraptions.Tests;
 public sealed class WorkshopPhysicsLawSensorWorkTests
 {
     private static readonly float BenchY = LawScene.BenchY;
-    private static float DominoHalfX => (float)DominoMaterial.Default.HalfExtents.X;
-    private static float DominoHalfY => (float)DominoMaterial.Default.HalfExtents.Y;
+    private static float DominoHalfX => LawTile.HalfExtents.X;
+    private static float DominoHalfY => LawTile.HalfExtents.Y;
     private static Quaternion AboutZ(double degrees) => Quaternion.CreateFromAxisAngle(Vector3.UnitZ, (float)(degrees * Math.PI / 180));
     private static OrientationSensorRead Sensor(LawState state) => PhysicsGpuAbi.ReadOrientationSensor(state.World, 0);
 
@@ -32,8 +32,7 @@ public sealed class WorkshopPhysicsLawSensorWorkTests
         LawWorld Admit(Vector3 angular, out GpuBodyId tile)
         {
             var scene = new LawScene();
-            tile = scene.Box(new(0, 5, 0), new(DominoHalfX, DominoHalfY, (float)DominoMaterial.Default.HalfExtents.Z),
-                (float)DominoMaterial.Default.Mass.Value, LawMaterial.Domino, q, angular: angular, gravity: 0);
+            tile = scene.Box(new(0, 5, 0), LawTile.HalfExtents, LawTile.Mass, LawMaterial.Domino, q, angular: angular, gravity: 0);
             scene.OrientationSensor(tile, q, 10);
             return scene.Admit();
         }

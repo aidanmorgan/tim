@@ -70,7 +70,7 @@ public sealed class NoFixedCapacityTests
                 // A Domino declares its orientation sensor only while wired: each of seventeen drives its own lamp.
                 for (var i = 0; i < 17; i++)
                 {
-                    var tile = WorkshopInput.Domino(Next(), X(i), -0.46 + .56, 0, 0, 0, 0, 1);
+                    var tile = PlacedParts.Domino(Next(), X(i), -0.46 + .56, 0, 0, 0, 0, 1);
                     var lamp = PlacedParts.Lamp(Next(), X(i), 1, 3, 0, 0, 0, 1);
                     parts.AddRange([tile, lamp]); links.Add(Signal(tile.Id, lamp.Id));
                 }
@@ -220,7 +220,7 @@ public sealed class NoFixedCapacityTests
         for (var i = 0; i < 17; i++) parts.Add(WorkshopInput.Generic(PartId.Springboard, Next(), X(i), 1, -4, 0, 0, 0, 1));
         for (var i = 0; i < 17; i++)
         {
-            var tile = WorkshopInput.Domino(Next(), X(i), -0.46 + .56, 0, 0, 0, 0, 1);
+            var tile = PlacedParts.Domino(Next(), X(i), -0.46 + .56, 0, 0, 0, 0, 1);
             var lamp = PlacedParts.Lamp(Next(), X(i), 1, 2, 0, 0, 0, 1);
             parts.AddRange([tile, lamp]); links.Add(Signal(tile.Id, lamp.Id));
         }

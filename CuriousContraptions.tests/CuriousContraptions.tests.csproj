@@ -89,7 +89,7 @@
         <Compile Include="PrismaticConstraintTests.cs" />
         <Compile Include="WorkshopSpringboardTests.cs" />
         <Compile Include="WorkshopDominoTests.cs" />
-        <Compile Include="WorkshopBowlingTests.cs" />
+        <Compile Include="DominoGuardTests.cs" />        <Compile Include="DeclaredOrientationTests.cs" />        <Compile Include="WorkshopBowlingTests.cs" />
         <Compile Include="PayloadInstanceTests.cs" />
         <Compile Include="PlacedParts.cs" />
         <Compile Include="LaunchLessonSolveTests.cs" />

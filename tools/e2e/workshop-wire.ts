@@ -1254,53 +1254,33 @@ rotation(obj?:Quat4f):Quat4f|null {
   return offset ? (obj || new Quat4f()).__init(this.bb_pos + offset, this.bb!) : null;
 }
 
-mass():number {
+length():number {
   const offset = this.bb!.__offset(this.bb_pos, 16);
   return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
 }
 
-bounce():number {
+threshold():number {
   const offset = this.bb!.__offset(this.bb_pos, 18);
   return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
 }
 
-length():number {
-  const offset = this.bb!.__offset(this.bb_pos, 20);
-  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
-}
-
-threshold():number {
-  const offset = this.bb!.__offset(this.bb_pos, 22);
-  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
-}
-
-halfExtents(obj?:Vec3f):Vec3f|null {
-  const offset = this.bb!.__offset(this.bb_pos, 24);
-  return offset ? (obj || new Vec3f()).__init(this.bb_pos + offset, this.bb!) : null;
-}
-
-friction():number {
-  const offset = this.bb!.__offset(this.bb_pos, 26);
-  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
-}
-
 targetCount():number {
-  const offset = this.bb!.__offset(this.bb_pos, 28);
+  const offset = this.bb!.__offset(this.bb_pos, 20);
   return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
 }
 
 parameters(index: number, obj?:ParameterRecord):ParameterRecord|null {
-  const offset = this.bb!.__offset(this.bb_pos, 30);
+  const offset = this.bb!.__offset(this.bb_pos, 22);
   return offset ? (obj || new ParameterRecord()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
 }
 
 parametersLength():number {
-  const offset = this.bb!.__offset(this.bb_pos, 30);
+  const offset = this.bb!.__offset(this.bb_pos, 22);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
 static startInstanceRecord(builder:flatbuffers.Builder) {
-  builder.startObject(14);
+  builder.startObject(10);
 }
 
 static addId(builder:flatbuffers.Builder, id:bigint) {
@@ -1327,36 +1307,20 @@ static addRotation(builder:flatbuffers.Builder, rotationOffset:flatbuffers.Offse
   builder.addFieldStruct(5, rotationOffset, 0);
 }
 
-static addMass(builder:flatbuffers.Builder, mass:number) {
-  builder.addFieldFloat32(6, mass, 0.0);
-}
-
-static addBounce(builder:flatbuffers.Builder, bounce:number) {
-  builder.addFieldFloat32(7, bounce, 0.0);
-}
-
 static addLength(builder:flatbuffers.Builder, length:number) {
-  builder.addFieldFloat32(8, length, 0.0);
+  builder.addFieldFloat32(6, length, 0.0);
 }
 
 static addThreshold(builder:flatbuffers.Builder, threshold:number) {
-  builder.addFieldFloat32(9, threshold, 0.0);
-}
-
-static addHalfExtents(builder:flatbuffers.Builder, halfExtentsOffset:flatbuffers.Offset) {
-  builder.addFieldStruct(10, halfExtentsOffset, 0);
-}
-
-static addFriction(builder:flatbuffers.Builder, friction:number) {
-  builder.addFieldFloat32(11, friction, 0.0);
+  builder.addFieldFloat32(7, threshold, 0.0);
 }
 
 static addTargetCount(builder:flatbuffers.Builder, targetCount:number) {
-  builder.addFieldInt32(12, targetCount, 0);
+  builder.addFieldInt32(8, targetCount, 0);
 }
 
 static addParameters(builder:flatbuffers.Builder, parametersOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(13, parametersOffset, 0);
+  builder.addFieldOffset(9, parametersOffset, 0);
 }
 
 static createParametersVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
@@ -2354,15 +2318,12 @@ export function dumpAuthored(saved: SavedConstruction): object {
             cell: c ? { x: c.x(), y: c.y(), z: c.z() } : null,
             local: l ? { x: l.x(), y: l.y(), z: l.z() } : null,
             rotation: r ? { x: r.x(), y: r.y(), z: r.z(), w: r.w() } : null,
-            mass: inst.mass(),
-            bounce: inst.bounce(),
             length: inst.length(),
             parameters: Array.from({length: inst.parametersLength()}, (_, index) => {
                 const parameter = inst.parameters(index)!;
                 return {key: parameter.key(), value: parameter.value()};
             }),
             threshold: inst.threshold(),
-            friction: inst.friction(),
             targetCount: inst.targetCount(),
         });
     }

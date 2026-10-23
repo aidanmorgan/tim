@@ -445,9 +445,9 @@ public sealed class WorkshopPhysicsEngineTests
     public async Task TheTwoLaneSetupSeparatesTheBallKindsAndBothStruckBallsComeToRest()
     {
         GpuBodyId tileA = new(1), tileB = new(2), ballA = new(3), ballB = new(4);
-        var tileY = BenchY + (float)DominoMaterial.Default.HalfExtents.Y + .01f;
+        var tileY = BenchY + LawTile.HalfExtents.Y + .01f;
         var reads = await Run(Free(
-            WorkshopInput.Domino(tileA, 0, tileY, -1.5, 0, 0, 0, 1), WorkshopInput.Domino(tileB, 0, tileY, 1.5, 0, 0, 0, 1),
+            PlacedParts.Domino(tileA, 0, tileY, -1.5, 0, 0, 0, 1), PlacedParts.Domino(tileB, 0, tileY, 1.5, 0, 0, 0, 1),
             WorkshopInput.Generic(LawBalls.Part(LawBall.Basketball), ballA, .3, 1.05, -1.5, 0, 0, 0, 1),
             WorkshopInput.Generic(LawBalls.Part(LawBall.Bowling), ballB, .3, 1.05, 1.5, 0, 0, 0, 1)), 7 * TicksPerSecond);
         var peakA = reads.Max(read => Tilt(Find(read.Bodies, tileA)));
@@ -693,7 +693,7 @@ public sealed class WorkshopPhysicsEngineTests
     [Fact]
     public async Task UprightDominoAloneStandsStill()
     {
-        var reads = await Run(Free(WorkshopInput.Domino(new(1), 0, .1, 0, 0, 0, 0, 1)), 3 * TicksPerSecond);
+        var reads = await Run(Free(PlacedParts.Domino(new(1), 0, .1, 0, 0, 0, 0, 1)), 3 * TicksPerSecond);
         var end = reads[^1].Bodies[0];
         var upY = 1 - 2 * (end.Rotation.X * end.Rotation.X + end.Rotation.Z * end.Rotation.Z);
         Assert.InRange(upY, .9999f, 1.0001f);
@@ -714,7 +714,7 @@ public sealed class WorkshopPhysicsEngineTests
         var radius = LawBalls.Radius(ballKind);
         var declaredMass = LawBalls.Mass(ballKind);
         var construction = Free(
-            WorkshopInput.Domino(new(1), 0, .09, 0, 0, 0, 0, 1),
+            PlacedParts.Domino(new(1), 0, .09, 0, 0, 0, 0, 1),
             WorkshopInput.Generic(kind, new(2), -(.125 + radius + .05), -.46 + radius, 0, 0, 0, 0, 1));
         var bytes = AdmitMoving(construction, 2, .7f);
         var ball = BodyRecord(bytes, 2);

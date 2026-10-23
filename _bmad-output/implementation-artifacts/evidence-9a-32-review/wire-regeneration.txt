@@ -1,0 +1,11 @@
+flatc: flatc version 25.2.10, sha256 f004709c0334edb3cdc0430395b9de1dc071f3618fc4ba43674c3c61201037ac; scratch /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/review-regen.A0pC
+== C# candidate engine/gpu/WorkshopWireGenerated.cs vs fresh:
+9a10
+> 
+diff rc=1
+== TS generated part of tools/e2e/workshop-wire.ts vs fresh:
+diff rc=0
+== base (HEAD) committed C# vs fresh from base schema:
+9a10
+> 
+diff rc=1

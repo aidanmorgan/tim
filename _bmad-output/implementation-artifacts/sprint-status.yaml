@@ -99,7 +99,7 @@ development_status:
   # weak Pass (retro-verification 18 Oct 2026); repaired by 9r-1; re-verified by addendum in 9a-pkg-2
   6-7-hollow-sdf-torus-cap-clear-pipe: in-progress # addendum Incomplete; owned by 9r-23
   # weak Pass (retro-verification 18 Oct 2026); repaired and re-verified by addendum in 9a-c-lamp-detector (9r-9)
-  6-8-generic-aperture-sensor-directional-rearm: done
+  6-8-generic-aperture-sensor-directional-rearm: done # native re-verified at 2065d3 (C-Lamp addendum); cat-002 Chrome pending; 9R.9 "one more" wording owned by 9a-22
   # reopened 18 Oct 2026 (retro-verification); closes via 9r-6-typed-mouth-snapping and an addendum in 9a-pkg-2
   6-9-pipe-bend-45-hollow-torus-segment: in-progress
   # reopened 18 Oct 2026 (retro-verification); repaired by 9r-2; closes via an addendum in 9a-1 (AbiOffsets)
@@ -314,11 +314,11 @@ development_status:
   # 35 (element)
   10-2-pulley-wheel-tensile-rope-dynamics: backlog
   # 36 (deletion)
-  9a-c-lamp-detector-conversion: review # native candidate on 54ffd9f0 (worktree story-c-lamp-detector); browser pending
+  9a-c-lamp-detector-conversion: done # scoped native/publication Pass2065d3; browser pending
   # merged into 9a-c-lamp-detector (21 Oct 2026)
-  9a-36-generic-instance-signal-lamp: review # with 9a-c-lamp-detector-conversion
+  9a-36-generic-instance-signal-lamp: done # scoped native/publication Pass2065d3; browser pending
   # merged into 9a-c-lamp-detector (21 Oct 2026)
-  9a-37-generic-instance-ball-detector: review # with 9a-c-lamp-detector-conversion
+  9a-37-generic-instance-ball-detector: done # scoped native/publication Pass2065d3; browser pending
   # merged into 9a-c-lamp-detector (21 Oct 2026) as a suite-first guard
   9r-9-ball-detector-forward-pass-assertion: backlog # native guard green on record path and candidate; Chrome ACs pending (post-catalogue)
   # merged into 9a-c-lamp-detector (21 Oct 2026) as a suite-first guard
@@ -326,7 +326,7 @@ development_status:
   # 37 (element)
   10-3-balanced-impact-lever-pivot-fulcrum: backlog
   # 38 (deletion)
-  9a-32-generic-instance-domino: backlog
+  9a-32-generic-instance-domino: review # native candidate on 2065d3c5 (worktree story-9a-32); browser pending
   # 39 (element)
   10-4-counterweight-multibody-pendulum-lifting: backlog
   # 40 (deletion): includes F.6 item F-1

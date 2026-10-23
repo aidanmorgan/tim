@@ -1,0 +1,13 @@
+Test run for /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/review-wt-cand/tools/BundleElements.Tests/bin/Debug/net10.0/BundleElements.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.61]     CuriousContraptions.BundleElements.Tests.BundleValidatorTests.TheOrientationThresholdIsTypedRangedOnADynamicPulseSourceAndExclusive [FAIL]
+  Failed CuriousContraptions.BundleElements.Tests.BundleValidatorTests.TheOrientationThresholdIsTypedRangedOnADynamicPulseSourceAndExclusive [16 ms]
+  Error Message:
+   Assert.Empty() Failure: Collection was not empty
+Collection: [BUNDLE006 Candidate.Orientation.ThresholdDegrees: outside its declared range]
+  Stack Trace:
+     at CuriousContraptions.BundleElements.Tests.BundleValidatorTests.TheOrientationThresholdIsTypedRangedOnADynamicPulseSourceAndExclusive() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/review-wt-cand/tools/BundleElements.Tests/BundleValidatorTests.cs:line 572
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     1, Passed:   164, Skipped:     0, Total:   165, Duration: 270 ms - BundleElements.Tests.dll (net10.0)

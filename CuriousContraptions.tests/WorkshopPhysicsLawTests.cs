@@ -31,13 +31,23 @@ internal static class LawBalls
     public static float BounceThreshold(LawBall ball) => (float)(Half)Sphere(ball).Material.BounceThreshold;
 }
 
+/// <summary>The Domino tile as the compiler compiles it: its package's baked box, mass and material narrowed to the binary16 body,
+/// collider and material lanes (WorkshopPhysicsCompiler), so a law test feeds the engine exactly the compiled tile.</summary>
+internal static class LawTile
+{
+    private static CuriousContraptions.Abstractions.ColliderDescriptor Box => Assert.Single(DeclaredPhysics.Of(PartId.Domino).Colliders);
+    public static Vector3 HalfExtents => new((float)(Half)Box.HalfExtents.X, (float)(Half)Box.HalfExtents.Y, (float)(Half)Box.HalfExtents.Z);
+    public static float Mass => (float)(Half)DeclaredPhysics.Of(PartId.Domino).Mechanical!.MassProperties.Mass;
+    public static LawMaterial Material => new((float)(Half)Box.Material.Restitution, (float)(Half)Box.Material.BounceThreshold,
+        (float)(Half)Box.Material.Friction, (float)(Half)Box.Material.RollingResistance);
+}
+
 /// <summary>Declared contact material of one law-test body (the same lanes ContactMaterialDeclaration admits).</summary>
 internal readonly record struct LawMaterial(float Restitution, float Threshold, float Friction, float Rolling)
 {
     /// <summary>The compiler's workbench plane material (WorkshopPhysicsCompiler).</summary>
     public static LawMaterial Bench => new(1f, .1f, .3f, 0f);
-    public static LawMaterial Domino => new((float)DominoMaterial.Default.Bounce.Value, (float)DominoMaterial.BounceThreshold.Value,
-        (float)DominoMaterial.Default.Friction.Value, 0f);
+    public static LawMaterial Domino => LawTile.Material;
     public static LawMaterial Ball(LawBall ball) =>
         new(LawBalls.Restitution(ball), LawBalls.BounceThreshold(ball), LawBalls.Friction(ball), LawBalls.Rolling(ball));
 }
@@ -120,11 +130,7 @@ internal sealed class LawScene
 
     /// <summary>The compiler's stock Domino tile: its declared extents, mass and material.</summary>
     public GpuBodyId Domino(Vector3 position, Quaternion? rotation = null, Vector3 angular = default, float? gravity = null)
-    {
-        var tile = DominoMaterial.Default;
-        return Box(position, new((float)tile.HalfExtents.X, (float)tile.HalfExtents.Y, (float)tile.HalfExtents.Z), (float)tile.Mass.Value,
-            LawMaterial.Domino, rotation, angular: angular, gravity: gravity);
-    }
+        => Box(position, LawTile.HalfExtents, LawTile.Mass, LawMaterial.Domino, rotation, angular: angular, gravity: gravity);
 
     public GpuBodyId StaticBox(Vector3 position, Vector3 half, Quaternion? rotation = null, LawMaterial? material = null,
         Vector3 colliderOffset = default) =>
@@ -291,8 +297,8 @@ public sealed class WorkshopPhysicsLawTests
     private static Vector3 At(float x, float y, float z = 0f) => new(x, y, z);
     private static Quaternion AboutZ(double degrees) => Quaternion.CreateFromAxisAngle(Vector3.UnitZ, (float)(degrees * Math.PI / 180));
     private static Quaternion AboutX(double degrees) => Quaternion.CreateFromAxisAngle(Vector3.UnitX, (float)(degrees * Math.PI / 180));
-    private static float DominoHalfY => (float)DominoMaterial.Default.HalfExtents.Y;
-    private static float DominoHalfX => (float)DominoMaterial.Default.HalfExtents.X;
+    private static float DominoHalfY => LawTile.HalfExtents.Y;
+    private static float DominoHalfX => LawTile.HalfExtents.X;
 
     // ---- rigid body ----
 

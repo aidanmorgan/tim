@@ -9,7 +9,7 @@ public sealed class WorkshopDominoTests
     private const double Upright = -0.46 + .55;
     private static WorkshopConstruction Construction() => new(new(1), WorkshopCadenceSettings.Default(),
         new(WorkshopInput.Generic(PartId.Basketball,new(1), .4, 3, 0, 0, 0, 0, 1),
-            WorkshopInput.Domino(new(2), 0, Upright, 0, 0, 0, 0, 1)));
+            PlacedParts.Domino(new(2), 0, Upright, 0, 0, 0, 0, 1)));
 
     [Fact]
     public void DominoCompilesAsOneDynamicBoxWithDeclaredMassMaterialAndGravity()
@@ -62,52 +62,44 @@ public sealed class WorkshopDominoTests
             Assert.InRange(Math.Abs(Math.ScaleB((double)value.Mantissa, value.Exponent) - expected) / expected, 0, .003);
     }
 
+    // 9A.32: the tile is a zero-parameter generic instance of its package; its material is the package's and no record field or
+    // parameter can carry another. A forged material is a typed field or a parameter, refused at the save and command boundaries.
     [Fact]
-    public void SaveRoundTripsTheDominoAndRejectsForgedMaterialOrPadding()
+    public void SaveRoundTripsTheGenericDominoAndRefusesAnyTypedFieldOrParameter()
     {
         var save = new WorkshopSavedConstruction(Construction(), new(3));
         var bytes = WorkshopSaveCodec.Encode(save);
         var decoded = WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes);
         Assert.Equal(save, decoded);
         Assert.Equal(bytes, WorkshopSaveCodec.Encode(decoded));
-        var domino = Assert.IsType<WorkshopDomino>(decoded.Construction.Instances[1]);
-        Assert.Equal(DominoMaterial.Default, domino.Material);
+        var domino = Assert.IsType<WorkshopGenericInstance>(decoded.Construction.Instances[1]);
         Assert.Equal(PartId.Domino, domino.PartId);
+        Assert.Empty(domino.Parameters);
         Assert.False(domino.Cosmetic.IsDeclared);
-        foreach (var forgedMaterial in new[]
+        var record = WorkshopSaveCodec.Open(bytes).Construction!.Value.Instances(1)!.Value;
+        Assert.Equal((false, 0), (WorkshopWireFlatBuffers.CarriesTypedField(record), record.ParametersLength));
+        foreach (var forged in Enum.GetValues<TypedField>().Select(field => PayloadInstanceTests.GenericSave("domino", field))
+                     .Append(PayloadInstanceTests.GenericSave("domino", null, [("mass", .5f)])))
         {
-            domino.Material with { Mass = new((Half)17) },
-            domino.Material with { Bounce = new((Half)17) },
-            domino.Material with { Friction = new((Half)17) },
-            domino.Material with { HalfExtents = new((Half)17, domino.Material.HalfExtents.Y, domino.Material.HalfExtents.Z) },
-            domino.Material with { HalfExtents = new(domino.Material.HalfExtents.X, (Half)17, domino.Material.HalfExtents.Z) },
-            domino.Material with { HalfExtents = new(domino.Material.HalfExtents.X, domino.Material.HalfExtents.Y, (Half)17) }
-        })
-        {
-            var forgedConstruction = save.Construction with { Instances = new WorkshopInstances(save.Construction.Instances[0], domino with { Material = forgedMaterial }) };
-            var builder = new Google.FlatBuffers.FlatBufferBuilder(512);
-            var crOffset = WorkshopWireFlatBuffers.EncodeConstructionRecord(builder, forgedConstruction, validate: false);
-            var savedBytes = SaveFixture.Finish(builder, crOffset, 3);
-            var forgedBytes = savedBytes;
-            SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(SaveFixture.Elements,forgedBytes));
+            SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(SaveFixture.Elements, forged));
+            var forgedRecord = WorkshopSaveCodec.Open(forged).Construction!.Value.Instances(0)!.Value;
+            Assert.Equal(WireFaultReason.OutOfRange, Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.MapInstance(forgedRecord)).Reason);
         }
+        // Control: the bare current-layout record loads as the same generic tile.
+        Assert.IsType<WorkshopGenericInstance>(Assert.Single(WorkshopSaveCodec.Decode(SaveFixture.Elements,
+            PayloadInstanceTests.GenericSave("domino", null)).Construction.Instances));
     }
 
     [Fact]
-    public void OnlyTheDefaultMaterialIsAdmittedAndTheDominoDeclaresActivationOutOnly()
+    public void TheDominoHasNoAuthorableParameterAndDeclaresActivationOutOnly()
     {
-        var domino = WorkshopInput.Domino(new(2), 0, Upright, 0, 0, 0, 0, 1);
+        var domino = Assert.IsType<WorkshopGenericInstance>(PlacedParts.Domino(new(2), 0, Upright, 0, 0, 0, 0, 1));
         domino.Validate();
-        foreach (var invalid in new[]
-        {
-            domino with { Material = DominoMaterial.Default with { Mass = new((Half).5) } },
-            domino with { Material = DominoMaterial.Default with { Bounce = new((Half)0) } },
-            domino with { Material = DominoMaterial.Default with { Friction = new((Half).3) } },
-            domino with { Material = DominoMaterial.Default with { HalfExtents = new((Half).125, (Half).55, (Half).3) } }
-        })
-            Assert.Throws<ArgumentException>(() => invalid.Validate());
-        Assert.Throws<ArgumentOutOfRangeException>(() => WorkshopInput.Domino(new(2), 0, 65, 0, 0, 0, 0, 1));
-        Assert.Throws<ArgumentException>(() => WorkshopInput.Domino(new(2), 0, 0, 0, 0, 0, 0, 0));
+        Assert.Empty(DeclaredPhysics.Of(PartId.Domino).Metadata.Parameters);
+        foreach (var forged in new[] { "mass", "bounce", "friction", "half_extents", "threshold_degrees" })
+            Assert.Throws<ArgumentException>(() => (domino with { Parameters = new([new(new(forged), 1f)]) }).Validate());
+        Assert.Throws<ArgumentOutOfRangeException>(() => PlacedParts.Domino(new(2), 0, 65, 0, 0, 0, 0, 1));
+        Assert.Throws<ArgumentException>(() => PlacedParts.Domino(new(2), 0, 0, 0, 0, 0, 0, 0));
         Assert.Equal([new WorkshopPort(WorkshopSocket.ActivationOut, WorkshopConnectionDomain.Activation, WorkshopPortDirection.Output, WorkshopSignalKind.Pulse,
             new(0f, .55f, 0f))], DeclaredPorts.Current.Of(PartId.Domino).ToArray());
         Assert.True(DeclaredPorts.Current.Has(PartId.Domino, WorkshopSocket.ActivationOut, WorkshopConnectionDomain.Activation, WorkshopPortDirection.Output));
@@ -115,7 +107,7 @@ public sealed class WorkshopDominoTests
         Assert.Equal(new System.Numerics.Vector3(0f, .55f, 0f), DeclaredPorts.Current.LocalPosition(PartId.Domino, WorkshopSocket.ActivationOut));
         // Story 9R.5b: the compiled scene is the footprint authority; the workbench plane adds one static body and collider.
         var world = WorkshopPhysicsCompiler.Compile(new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(),
-            new WorkshopInstances(WorkshopInput.Domino(new(1), 0, Upright, 0, 0, 0, 0, 1))), new(1, 2)).World;
+            new WorkshopInstances(PlacedParts.Domino(new(1), 0, Upright, 0, 0, 0, 0, 1))), new(1, 2)).World;
         Assert.Equal((1 + 1, 1, 1 + 1, 0, 0, 0), (world.Bodies, world.Dynamic, world.Colliders, world.Triggers, world.ContactWorks, world.ElectricalSources));
         Assert.Equal(PartAllowance.Unlimited, WorkbenchCapacityTests.FreePalette[PartId.Domino]);
     }
@@ -124,7 +116,7 @@ public sealed class WorkshopDominoTests
     public void SeventeenDynamicBodiesBuildAndCompileWithoutAMovingBodyLimit()
     {
         var items = new List<IWorkshopInstance>();
-        for (var i = 0; i < 16; i++) items.Add(WorkshopInput.Domino(new((ulong)(i + 1)), -6 + i * .8, Upright, 0, 0, 0, 0, 1));
+        for (var i = 0; i < 16; i++) items.Add(PlacedParts.Domino(new((ulong)(i + 1)), -6 + i * .8, Upright, 0, 0, 0, 0, 1));
         var sixteen = new WorkshopInstances([.. items]);
         sixteen.Validate();
         // Story 9R.5b: the retired 16-row moving-body table no longer refuses the seventeenth moving body.

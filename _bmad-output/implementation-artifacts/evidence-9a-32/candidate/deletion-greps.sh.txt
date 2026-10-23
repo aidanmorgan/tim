@@ -1,0 +1,24 @@
+#!/bin/bash
+# 9A.32 deletion greps: candidate (working tree incl. untracked, production paths) vs base control (git grep at HEAD = 2065d3c5).
+# Production = everything outside tests, evidence, planning/docs and _bmad output.
+cd "$1" || exit 2
+EXCL=(':(exclude)CuriousContraptions.tests' ':(exclude,glob)tools/*Tests*/**' ':(exclude)tools/e2e/unit' ':(exclude)_bmad-output' ':(exclude)docs' ':(exclude)_bmad')
+run() {
+  local label="$1" paths="$2"; shift 2
+  local base cand
+  # shellcheck disable=SC2086
+  base=$(git grep -c "$@" HEAD -- $paths "${EXCL[@]}" | awk -F: '{s+=$NF} END {print s+0}')
+  # shellcheck disable=SC2086
+  cand=$(git grep -c --untracked "$@" -- $paths "${EXCL[@]}" | awk -F: '{s+=$NF} END {print s+0}')
+  echo "$label | base $base | candidate $cand"
+  # shellcheck disable=SC2086
+  git grep -n --untracked "$@" -- $paths "${EXCL[@]}"
+}
+run 'WorkshopDomino|DominoMaterial|MapDomino (-w)' . -w -E 'WorkshopDomino|DominoMaterial|MapDomino'
+run 'WorkshopInput.Domino' . -P 'WorkshopInput\.Domino\b'
+run '"domino" in engine/gpu + engine/MachineWorld.Gpu.cs' 'engine/gpu engine/MachineWorld.Gpu.cs' -F '"domino"'
+run 'InstanceRecord.(Add)?(Mass|Bounce|Friction|HalfExtents) | AuthoredScalar.(Mass|Bounce|Friction)' . -P 'InstanceRecord\.(Add)?(Mass|Bounce|Friction|HalfExtents)\b|AuthoredScalar\.(Mass|Bounce|Friction)'
+run '(r|inst).(Mass|Bounce|Friction|HalfExtents) in wire + prevalidation' 'engine/gpu/WorkshopWireFlatBuffers.cs engine/gpu/WorkshopSavePrevalidation.cs' -P '\b(r|inst)\.(Mass|Bounce|Friction|HalfExtents)\b'
+run '"half_extents" in content + engine' 'content engine' -F '"half_extents"'
+run 'TS mass()/bounce()/friction()/halfExtents() and add* in tools/e2e' 'tools/e2e' -E '\.(mass|bounce|friction|halfExtents)\(|add(Mass|Bounce|Friction|HalfExtents)\('
+echo "file engine/gpu/WorkshopDomino.cs(.uid) | base $(git ls-tree --name-only HEAD engine/gpu/ | grep -c '^engine/gpu/WorkshopDomino.cs') | candidate $(ls engine/gpu/ | grep -c '^WorkshopDomino.cs')"

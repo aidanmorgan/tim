@@ -425,7 +425,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
         try
         {
             var undo = 0;
-            var defect = Assert.Throws<ArgumentOutOfRangeException>(() => WorkshopBenchPlacement.Propose(world, PartId.Domino, new(7),
+            var defect = Assert.Throws<ArgumentOutOfRangeException>(() => WorkshopBenchPlacement.Propose(world, PartId.Latch, new(7),
                 new(100, 0, 0), Quaternion.Identity, null, () => undo++));
             Assert.Equal("metres", defect.ParamName);
             Assert.Equal(0, undo);
@@ -789,13 +789,14 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
         finally { Release(scene); }
     }
 
-    // C-Lamp+Detector (9A.36/9A.37): the Signal lamp and the Ball detector placed through the drawer are their packages' generic
-    // instances with no parameters, so selecting one offers no Configure panel (control: the Impact switch editor above offers one)
+    // C-Lamp+Detector (9A.36/9A.37) and 9A.32: the Signal lamp, the Ball detector and the Domino placed through the drawer are their
+    // packages' generic instances with no parameters, so selecting one offers no Configure panel (control: the Impact switch editor above offers one)
     // and the declared-parameter path refuses any value. A rotate and a move gesture each record one Undo, keep the generic
     // instance and are undone by one Undo. Running, Paused and a locked part refuse an edit and send nothing.
     [Theory]
     [InlineData("lamp")]
     [InlineData("ball_detector")]
+    [InlineData("domino")]
     public void ZeroParameterSignalPartsArePlacedGenericWithoutAPanelAndEditAsOneUndoPerGesture(string id)
     {
         var kind = new PartId(id);

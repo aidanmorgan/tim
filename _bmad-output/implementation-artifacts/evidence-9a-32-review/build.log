@@ -1,0 +1,6 @@
+$ dotnet build CuriousContraptions.slnx -c Debug --no-incremental
+2026-10-23T11:29:39Z
+    0 Warning(s)
+    0 Error(s)
+Time Elapsed 00:00:09.71
+rc=0

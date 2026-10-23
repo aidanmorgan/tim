@@ -26,15 +26,18 @@ public sealed class PreConversionLaunchSaveTests
     // strength 8: its strength, reference mass and preload lie beyond the table, so it decodes as a parameterless generic Bumper whose
     // missing declared strength is refused (at C-Bumper+Spring the strength sat in the parameters slot and the verifier refused it). At
     // strength 0 likewise. Old Springboard: its stiffness and damping land in half_extents and friction, typed fields a generic record
-    // cannot carry. Old Battery: its capacity float sits in the parameters slot, so the verifier refuses the buffer. Old Domino and Counter: their half extents and target count lie beyond the table. Old Switch and resized Ramp: their
-    // parameters lie beyond the table.
+    // cannot carry. Old Battery: its capacity float sat in the 14-field table's parameters slot (the verifier refused the buffer); on the
+    // 10-field table of Story 9A.32 its four fields lie beyond the table, so it decodes as a parameterless generic Battery whose missing
+    // declared parameters are refused. Old Domino: it is a generic tile since 9A.32, and its mass and bounce (slots 6 and 7) land in
+    // length and threshold, typed fields a generic record cannot carry. Old Counter: its target count lies beyond the table. Old Switch
+    // and resized Ramp: their parameters lie beyond the table.
     [Theory]
     [InlineData("bumper strength 8", WorkshopSaveRejection.OutOfRange, WireFaultReason.OutOfRange)]
     [InlineData("bumper strength 0", WorkshopSaveRejection.OutOfRange, WireFaultReason.OutOfRange)]
     [InlineData("spring default", WorkshopSaveRejection.OutOfRange, WireFaultReason.OutOfRange)]
     [InlineData("spring charged", WorkshopSaveRejection.OutOfRange, WireFaultReason.OutOfRange)]
-    [InlineData("battery default", WorkshopSaveRejection.VerifierRejected, WireFaultReason.VerifierRejected)]
-    [InlineData("domino", WorkshopSaveRejection.MissingField, WireFaultReason.MissingField)]
+    [InlineData("battery default", WorkshopSaveRejection.OutOfRange, WireFaultReason.OutOfRange)]
+    [InlineData("domino", WorkshopSaveRejection.OutOfRange, WireFaultReason.OutOfRange)]
     [InlineData("counter", WorkshopSaveRejection.MissingField, WireFaultReason.MissingField)]
     [InlineData("switch threshold", WorkshopSaveRejection.OutOfRange, WireFaultReason.OutOfRange)]
     [InlineData("resized ramp", WorkshopSaveRejection.OutOfRange, WireFaultReason.OutOfRange)]
@@ -52,15 +55,17 @@ public sealed class PreConversionLaunchSaveTests
     // commit's own production encoder output (sha256 pinned from evidence-9a-39/baseline/capture/old-saves.sha256). There is no
     // migration: each is refused with a typed reason at both boundaries, never misread. Old Battery: its capacity, maximum power and
     // initial fraction land in half_extents, friction and target_count; where its enable byte (slot 13) is written it reads as the
-    // parameters offset and the verifier refuses the buffer, otherwise the typed fields are refused. Old Domino and Counter: half
-    // extents and target count now read beyond their old slots, so they are missing. Every parameterised generic: its parameters lie
-    // beyond the table, so its declared parameters are missing.
+    // parameters offset and the verifier refuses the buffer, otherwise the typed fields are refused. Re-derived on the 10-field table of
+    // Story 9A.32: the Battery's four fields (slots 10–13) lie beyond the table, so every old Battery decodes as a parameterless generic
+    // Battery whose missing declared parameters are refused. Old Domino: a generic tile since 9A.32, its mass and bounce (slots 6 and 7)
+    // land in length and threshold, typed fields a generic record cannot carry. Old Counter: its target count reads beyond its old
+    // slot, so it is missing. Every parameterised generic: its parameters lie beyond the table, so its declared parameters are missing.
     [Theory]
-    [InlineData("battery_default", "29ca2c042cfed22cb7b54cff4f8ad0c73801e700b362bd22965d7dcd939a2aaf", WorkshopSaveRejection.VerifierRejected, WireFaultReason.VerifierRejected)]
+    [InlineData("battery_default", "29ca2c042cfed22cb7b54cff4f8ad0c73801e700b362bd22965d7dcd939a2aaf", WorkshopSaveRejection.OutOfRange, WireFaultReason.OutOfRange)]
     [InlineData("battery_disabled", "f6814d3103970f0e92ff42cc769a109a6d4ca7a8964bf8bd74ad4751f9f85166", WorkshopSaveRejection.OutOfRange, WireFaultReason.OutOfRange)]
-    [InlineData("battery_custom_120_30_half", "3ca68bb944310a98001d5a013c7f822d1368cddbdbb8a4c92a3a524d72f8b04c", WorkshopSaveRejection.VerifierRejected, WireFaultReason.VerifierRejected)]
+    [InlineData("battery_custom_120_30_half", "3ca68bb944310a98001d5a013c7f822d1368cddbdbb8a4c92a3a524d72f8b04c", WorkshopSaveRejection.OutOfRange, WireFaultReason.OutOfRange)]
     [InlineData("battery_custom_disabled_zero", "bb81a4225332a58134f30b6ef2faaabfffee70c2982b1f87f210926ec323f16d", WorkshopSaveRejection.OutOfRange, WireFaultReason.OutOfRange)]
-    [InlineData("domino", "9715a1b50c2df29b8c1d8b3d6e51d185594ba10e3960967ddd1f507590f96828", WorkshopSaveRejection.MissingField, WireFaultReason.MissingField)]
+    [InlineData("domino", "9715a1b50c2df29b8c1d8b3d6e51d185594ba10e3960967ddd1f507590f96828", WorkshopSaveRejection.OutOfRange, WireFaultReason.OutOfRange)]
     [InlineData("counter", "28e34c0cbb55ff4f74e5b6e9ec7f587ba8373edebc4809b676bc8fde5493a70c", WorkshopSaveRejection.MissingField, WireFaultReason.MissingField)]
     [InlineData("impact_switch", "5616915e22c3a5850531aa8081837e123687710cfe36cc69c9192b21129194df", WorkshopSaveRejection.OutOfRange, WireFaultReason.OutOfRange)]
     [InlineData("ramp", "d0f3d6bbe76738031f2b778d921f95d8955e87ac6d1b56457219fe05601d1c0a", WorkshopSaveRejection.OutOfRange, WireFaultReason.OutOfRange)]

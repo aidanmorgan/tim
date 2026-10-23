@@ -1,0 +1,2 @@
+tracked diff sha256 b5226f9e2365c355f4c015d129eecacce432cd9a6a470e2eea281a7e81276c68
+CuriousContraptions.tests/DeclaredOrientationTests.cs c4e0f23b7644220dba78201754f59b84daf26cd06da173ddb4d45ea0e3edc17a

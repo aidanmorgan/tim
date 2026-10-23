@@ -1,0 +1,15 @@
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-32/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+  Failed CuriousContraptions.Tests.ProbeDominoCapture.OldSaves [18 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Rejected
+  Stack Trace:
+     at CuriousContraptions.Tests.NoFixedCapacityTests.RunAndReset(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-32/CuriousContraptions.tests/NoFixedCapacityTests.cs:line 262
+   at CuriousContraptions.Tests.NoFixedCapacityTests.RunAndReset(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-32/CuriousContraptions.tests/NoFixedCapacityTests.cs:line 272
+   at CuriousContraptions.Tests.NoFixedCapacityTests.RunAndReset(WorkshopConstruction construction, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-32/CuriousContraptions.tests/NoFixedCapacityTests.cs:line 272
+   at CuriousContraptions.Tests.ProbeDominoCapture.OldSaves() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/probe/ProbeDominoCapture.cs:line 237
+--- End of stack trace from previous location ---
+
+Failed!  - Failed:     1, Passed:     9, Skipped:     0, Total:    10, Duration: 8 s - CuriousContraptions.tests.dll (net10.0)

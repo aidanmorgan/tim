@@ -1,0 +1,18 @@
+== M4-node-ignores-wiring: tracked diff sha256 9ead783b73d106f35099e639154203fd66f89d8b0a8f0c3df994e67a375d3652
+    0 Error(s)
+    0 Warning(s)
+  Failed CuriousContraptions.Tests.DominoEffectTests.FourPlacedDominoesAndTheEndToLampWireRoundTripThroughSaveAndCompileOneSensor [52 ms]
+  Failed CuriousContraptions.Tests.DominoEffectTests.FixturesInventoryGoalAndPickerIdentityAreTheAuthoredLevel [11 ms]
+  Failed CuriousContraptions.Tests.DeclaredOrientationTests.EachWiredTileCompilesItsOwnSensorAndAnUnwiredTileNone [6 ms]
+  Failed CuriousContraptions.Tests.DominoGuardTests.TheWiredLessonCascadeTopplesByContactFiresOnceAtFortyFiveDegreesAndSolvesOnce(precision: 0) [8 ms]
+  Failed CuriousContraptions.Tests.DominoGuardTests.TheWiredLessonCascadeTopplesByContactFiresOnceAtFortyFiveDegreesAndSolvesOnce(precision: 1) [4 ms]
+  Failed CuriousContraptions.Tests.DominoGuardTests.TheWiredLessonCascadeTopplesByContactFiresOnceAtFortyFiveDegreesAndSolvesOnce(precision: 0.449999988) [4 ms]
+  Failed CuriousContraptions.Tests.DominoGuardTests.AGapBreaksTheChainSoTheEndStandsAndTheLampStaysDark [4 ms]
+  Failed CuriousContraptions.Tests.DominoGuardTests.TheHighestAndLowestPlacementsAreAdmittedAndOneBeyondIsRefused [5 ms]
+  Failed CuriousContraptions.Tests.DominoGuardTests.SaveAndLoadReplayTheWiredCascadeIdentically [5 ms]
+  Failed CuriousContraptions.Tests.DominoGuardTests.AnUnwiredEndCompilesNoSensorOrNodeAndFiresNothingWhenItFalls [3 ms]
+  Failed CuriousContraptions.Tests.DominoGuardTests.ResetRestoresUprightTilesAndRearmsTheSensorSoTheSecondRunReplaysTheFirst [5 ms]
+  Failed CuriousContraptions.Tests.OrientationSensorTests.SensorAndSourceNodeCompileOnlyForAWiredDomino [< 1 ms]
+  Failed CuriousContraptions.Tests.OrientationSensorTests.WiringIntoADominoRejectsAndAnyNumberOfWiredSourcesCompiles [1 ms]
+Failed!  - Failed:    13, Passed:   152, Skipped:     0, Total:   165, Duration: 5 s - CuriousContraptions.tests.dll (net10.0)
+Passed!  - Failed:     0, Passed:    91, Skipped:     0, Total:    91, Duration: 268 ms - BundleElements.Tests.dll (net10.0)

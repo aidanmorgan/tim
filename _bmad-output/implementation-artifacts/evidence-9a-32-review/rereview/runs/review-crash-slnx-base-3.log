@@ -1,0 +1,51 @@
+Test run for /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/review-wt-base2/tools/E2eRunner.Tests/bin/Debug/net10.0/E2eRunner.Tests.dll (.NETCoreApp,Version=v10.0)
+Test run for /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/review-wt-base2/tools/Coverage.Tests/bin/Debug/net10.0/Coverage.Tests.dll (.NETCoreApp,Version=v10.0)
+Test run for /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/review-wt-base2/tools/WorkerAotGuard.Tests/bin/Debug/net10.0/WorkerAotGuard.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+Test run for /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/review-wt-base2/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+A total of 1 test files matched the specified pattern.
+Test run for /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/review-wt-base2/tools/BundleElements.Tests/bin/Debug/net10.0/BundleElements.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+Blame: Attaching crash dump utility to process dotnet (41035).
+Blame: Attaching crash dump utility to process dotnet (41036).
+Blame: Attaching crash dump utility to process dotnet (41037).
+A total of 1 test files matched the specified pattern.
+Blame: Attaching crash dump utility to process dotnet (41039).
+Blame: Attaching crash dump utility to process dotnet (41040).
+
+Passed!  - Failed:     0, Passed:    17, Skipped:     0, Total:    17, Duration: 43 ms - WorkerAotGuard.Tests.dll (net10.0)
+
+Passed!  - Failed:     0, Passed:   164, Skipped:     0, Total:   164, Duration: 466 ms - BundleElements.Tests.dll (net10.0)
+[xUnit.net 00:00:01.17] CuriousContraptions.tests: Skipping test case with duplicate ID '28723296b7653446691d525f5a557135b59b360f8511bcbc04ccd3582e945802' ('CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.FlatBuffersRecordAcceptsExactlyTheAdmittedSetting(part: PressurePlate, value: 2.14748365E+09)' and 'CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.FlatBuffersRecordAcceptsExactlyTheAdmittedSetting(part: PressurePlate, value: 2.14748365E+09)')
+[xUnit.net 00:00:01.17] CuriousContraptions.tests: Skipping test case with duplicate ID 'fbe4c5c4a1541f8c8d54715681f93c59b89161b680096881a9146f9757a007f1' ('CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.FlatBuffersRecordAcceptsExactlyTheAdmittedSetting(part: PressurePlate, value: NaN)' and 'CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.FlatBuffersRecordAcceptsExactlyTheAdmittedSetting(part: PressurePlate, value: NaN)')
+[xUnit.net 00:00:01.17] CuriousContraptions.tests: Skipping test case with duplicate ID 'ab7fd6b7b6fd1303da41ef65090df6d05b0b642729b4782eb5ac52ea95278053' ('CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.FlatBuffersRecordAcceptsExactlyTheAdmittedSetting(part: Clock, value: 2.14748365E+09)' and 'CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.FlatBuffersRecordAcceptsExactlyTheAdmittedSetting(part: Clock, value: 2.14748365E+09)')
+[xUnit.net 00:00:01.17] CuriousContraptions.tests: Skipping test case with duplicate ID 'f1a744db43a4b64621aabaa71988d94661c6c87e3aefce38a43a99b8bf9136b8' ('CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.FlatBuffersRecordAcceptsExactlyTheAdmittedSetting(part: Clock, value: NaN)' and 'CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.FlatBuffersRecordAcceptsExactlyTheAdmittedSetting(part: Clock, value: NaN)')
+[xUnit.net 00:00:01.17] CuriousContraptions.tests: Skipping test case with duplicate ID '2c7630345975867acd597908c069b0e48eb5e0ae91918776c29c7636f0ca6c71' ('CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.SaveCodecAcceptsExactlyTheAdmittedSetting(part: PressurePlate, value: 2.14748365E+09)' and 'CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.SaveCodecAcceptsExactlyTheAdmittedSetting(part: PressurePlate, value: 2.14748365E+09)')
+[xUnit.net 00:00:01.17] CuriousContraptions.tests: Skipping test case with duplicate ID 'd72a87490262d9836c9114a1c4adc0e27d87090ee24b14e96662010fccf5af4b' ('CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.SaveCodecAcceptsExactlyTheAdmittedSetting(part: PressurePlate, value: NaN)' and 'CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.SaveCodecAcceptsExactlyTheAdmittedSetting(part: PressurePlate, value: NaN)')
+[xUnit.net 00:00:01.17] CuriousContraptions.tests: Skipping test case with duplicate ID '7343295843f3604641728976ec846757b320c77c9c9062dcd1a6aa87927e408b' ('CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.SaveCodecAcceptsExactlyTheAdmittedSetting(part: Clock, value: 2.14748365E+09)' and 'CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.SaveCodecAcceptsExactlyTheAdmittedSetting(part: Clock, value: 2.14748365E+09)')
+[xUnit.net 00:00:01.17] CuriousContraptions.tests: Skipping test case with duplicate ID '9d5a7f9113d8cbf6481b024ac762c17137b8506e6b3bece6f776d97608f2f7ac' ('CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.SaveCodecAcceptsExactlyTheAdmittedSetting(part: Clock, value: NaN)' and 'CuriousContraptions.Tests.ConstructionDecodeBoundaryTests.SaveCodecAcceptsExactlyTheAdmittedSetting(part: Clock, value: NaN)')
+
+Passed!  - Failed:     0, Passed:    77, Skipped:     0, Total:    77, Duration: 907 ms - Coverage.Tests.dll (net10.0)
+[xUnit.net 00:00:01.47]     CuriousContraptions.E2eRunner.Tests.TypeCheckTests.EverySuiteAndSharedModuleTypeChecks [FAIL]
+  Failed CuriousContraptions.E2eRunner.Tests.TypeCheckTests.EverySuiteAndSharedModuleTypeChecks [1 s]
+  Error Message:
+   tsc --noEmit -p tools/e2e/tsconfig.json exited 2:
+tools/e2e/run-reset-snapshot.ts(7,30): error TS2307: Cannot find module 'flatbuffers' or its corresponding type declarations.
+tools/e2e/unit/run-reset-snapshot.test.ts(7,30): error TS2307: Cannot find module 'flatbuffers' or its corresponding type declarations.
+tools/e2e/workshop-wire.ts(2,30): error TS2307: Cannot find module 'flatbuffers' or its corresponding type declarations.
+
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.TypeCheckTests.EverySuiteAndSharedModuleTypeChecks() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/review-wt-base2/tools/E2eRunner.Tests/TypeCheckTests.cs:line 17
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     1, Passed:   188, Skipped:     0, Total:   189, Duration: 24 s - E2eRunner.Tests.dll (net10.0)
+
+Passed!  - Failed:     0, Passed:  2464, Skipped:     0, Total:  2464, Duration: 46 s - CuriousContraptions.tests.dll (net10.0)
+
+Attachments:
+  /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/review-crash-slnx/base-3/aa742ea9-caba-43b1-afa5-aa32f909defc/Preview_41173_1792757542_crashdump.dmp
+  /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/review-crash-slnx/base-3/aa742ea9-caba-43b1-afa5-aa32f909defc/Preview_41163_1792757540_crashdump.dmp
+  /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/review-crash-slnx/base-3/aa742ea9-caba-43b1-afa5-aa32f909defc/Preview_41107_1792757539_crashdump.dmp
+  /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/review-crash-slnx/base-3/aa742ea9-caba-43b1-afa5-aa32f909defc/Preview_41253_1792757556_crashdump.dmp
