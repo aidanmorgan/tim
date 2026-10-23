@@ -1,0 +1,11 @@
+#!/bin/bash
+# C-Gate frozen candidate, in CI's order (.github/workflows/pages.yml). Run from the worktree root; $1 = evidence dir.
+E="$1"; S=/private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad
+test ! -e CuriousContraptions.web/AppBundle || { echo "AppBundle present"; exit 1; }
+dotnet build CuriousContraptions.slnx --nologo --no-incremental -p:PlaytestDiagnostics=true -clp:Summary > "$E/freeze-playtest-build.txt" 2>&1; echo "playtest build rc=$?"
+dotnet build CuriousContraptions.slnx --nologo --no-incremental -clp:Summary > "$E/freeze-build.txt" 2>&1; echo "build rc=$?"
+dotnet test CuriousContraptions.slnx -c Debug --no-build --no-restore --nologo > "$E/freeze-test.txt" 2>&1; echo "test rc=$?"
+bash "$S/ci-tools.sh" > "$E/freeze-ci-tools.txt" 2>&1; echo "ci tools rc=$?"
+dotnet publish CuriousContraptions.web -c Release --nologo -p:PlaytestDiagnostics=false > "$E/freeze-web-publish.txt" 2>&1; echo "web publish rc=$?"
+for f in index.html 404.html godot.wasm godot.pck _framework/dotnet.js; do test -s "CuriousContraptions.web/AppBundle/$f" && echo "present $f" || echo "MISSING $f"; done
+mkdir -p "$S/appbundle-out" && mv CuriousContraptions.web/AppBundle "$S/appbundle-out/AppBundle-$(date +%s)" && echo "AppBundle moved out of the tree"

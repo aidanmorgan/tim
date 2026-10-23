@@ -62,16 +62,6 @@ internal sealed class WorkshopPhysicsEngine
         _manifolds.Clear();
     }
 
-    /// <summary>The warm-up world's one contact-work store is a valid full 32 J store with an 8 m/s target, so warming
-    /// exercises the payment path rather than an empty store (Story 9.4b).</summary>
-    private static void WarmupStore(byte[] world)
-    {
-        var store = world.AsSpan(PhysicsGpuAbi.Layout(world).ContactWorkOffset(0), PhysicsGpuAbi.ContactWorkBytes);
-        BinaryPrimitives.WriteSingleLittleEndian(store[PhysicsGpuAbi.ContactWorkTargetSpeedOffset..], 8f);
-        BinaryPrimitives.WriteSingleLittleEndian(store[PhysicsGpuAbi.ContactWorkPreloadOffset..], 32f);
-        BinaryPrimitives.WriteSingleLittleEndian(store[PhysicsGpuAbi.ContactWorkAvailableOffset..], 32f);
-    }
-
     public void Warmup()
     {
         var dummyBodyA = new SimBody { Mass = 1f, InvMass = 1f, Motion = 1 };
@@ -198,100 +188,14 @@ internal sealed class WorkshopPhysicsEngine
         Span<float> elecAfter = stackalloc float[2];
         ElectricalSupply.Allocate(ElectricalEnable.Enabled, 50f, 10f, elecBefore, elecLimits, elecAfter);
 
-        // Each warm-up world is exactly as long as its own header's populations (Story 9R.5b): one trigger, one contact-work store
-        // and its occurrence row here; a two-body, one-joint stepped mock below.
-        var eventLayout = new PhysicsWorldLayout(0, 0, 0, 0, 0, 0, Triggers: 1, ContactWorks: 1, WorkOccurrences: 1, 0, 0, 0, 0, 0);
-        var mockBuffer = new byte[eventLayout.ByteLength];
-        eventLayout.WriteCounts(mockBuffer);
-        WarmupStore(mockBuffer);
-        if (warmupContacts.Count > 0)
-            EmitContactEvents(mockBuffer.AsSpan(), eventLayout, dummyBoxB, dummyBodyA, 2.0f, Vector3.UnitY, warmupContacts[0], 0, 0);
-
-        var dummyJoint = new SimJoint
+        // Story 9A.21: the one synthetic world, admitted as every compiled scene is and stepped by this engine; its drive is supplied
+        // for the first steps (WarmupScene names no element and carries no element's value).
+        var world = PhysicsGpuAbi.Admission(WarmupScene.Declaration(), new(1), WarmupScene.Profile);
+        var next = new byte[world.Length];
+        for (var step = 0; step < WarmupScene.Steps; step++)
         {
-            A = dummyBodyB,
-            B = dummyBodyA,
-            Lower = 0f,
-            Upper = 1.55f,
-            Soft = SoftConstraintCoefficients.FromSpring(14f, 1f, WorkshopConstraintSolver.SubstepSeconds),
-            SupplyClosed = true
-        };
-        var dummyJoints = new List<SimJoint> { dummyJoint };
-        for (var i = 0; i < 20; i++)
-        {
-            PrismaticConstraintSolver.PrepareJointRows(dummyJoint, WorkshopConstraintSolver.SubstepSeconds);
-            PrismaticConstraintSolver.SweepConstraints(dummyJoints, true);
-            PrismaticConstraintSolver.SweepConstraints(dummyJoints, false);
-            PrismaticConstraintSolver.ActuatorSliderDrive(dummyJoints, WorkshopConstraintSolver.SubstepSeconds);
-        }
-
-        var mockLayout = new PhysicsWorldLayout(Bodies: 2, Colliders: 2, Materials: 1, Sensors: 0, Dynamic: 1, Guides: 0,
-            Triggers: 1, ContactWorks: 1, WorkOccurrences: 1, OrientationSensors: 0, ElectricalSources: 0, ElectricalBindings: 0,
-            Prismatics: 1, ContactLoads: 0);
-        var mockSource = new byte[mockLayout.ByteLength];
-        var mockCandidate = new byte[mockLayout.ByteLength];
-        var mSpan = mockSource.AsSpan();
-        mockLayout.WriteCounts(mSpan);
-        BinaryPrimitives.WriteUInt32LittleEndian(mSpan.Slice(PhysicsGpuAbi.HeaderLayoutTagOffset, 4), PhysicsGpuAbi.CurrentLayoutTag);
-        BinaryPrimitives.WriteUInt64LittleEndian(mSpan.Slice(PhysicsGpuAbi.HeaderDocumentLowOffset, 8), 1);
-        BinaryPrimitives.WriteUInt64LittleEndian(mSpan.Slice(PhysicsGpuAbi.HeaderNextIdentityOffset, 8), 3);
-        BinaryPrimitives.WriteUInt32LittleEndian(mSpan.Slice(PhysicsGpuAbi.HeaderCadenceOffset, 4), 2);
-        WarmupStore(mockSource);
-
-        var b0 = mockLayout.BodyOffset(0);
-        BinaryPrimitives.WriteUInt32LittleEndian(mSpan.Slice(b0 + 8, 4), 0);
-        BinaryPrimitives.WriteSingleLittleEndian(mSpan.Slice(b0 + 60, 4), 1f);
-
-        var b1 = mockLayout.BodyOffset(1);
-        BinaryPrimitives.WriteUInt32LittleEndian(mSpan.Slice(b1, 4), 1);
-        BinaryPrimitives.WriteUInt32LittleEndian(mSpan.Slice(b1 + 8, 4), 1);
-        BinaryPrimitives.WriteSingleLittleEndian(mSpan.Slice(b1 + 36, 4), 6.4f);
-        BinaryPrimitives.WriteSingleLittleEndian(mSpan.Slice(b1 + 60, 4), 1f);
-        BinaryPrimitives.WriteSingleLittleEndian(mSpan.Slice(b1 + 68, 4), -1f);
-        BinaryPrimitives.WriteSingleLittleEndian(mSpan.Slice(b1 + 80, 4), 1f);
-        BinaryPrimitives.WriteHalfLittleEndian(mSpan.Slice(b1 + 88, 2), (Half)1f);
-        BinaryPrimitives.WriteHalfLittleEndian(mSpan.Slice(b1 + 90, 2), (Half)0.1f);
-        BinaryPrimitives.WriteHalfLittleEndian(mSpan.Slice(b1 + 94, 2), (Half)(-9.8f));
-        BinaryPrimitives.WriteHalfLittleEndian(mSpan.Slice(b1 + 110, 2), (Half)1f);
-        BinaryPrimitives.WriteHalfLittleEndian(mSpan.Slice(b1 + 112, 2), (Half)1f);
-        BinaryPrimitives.WriteHalfLittleEndian(mSpan.Slice(b1 + 114, 2), (Half)1f);
-        BinaryPrimitives.WriteHalfLittleEndian(mSpan.Slice(b1 + 116, 2), (Half)1f);
-
-        var c0 = mockLayout.ColliderOffset(0);
-        BinaryPrimitives.WriteUInt32LittleEndian(mSpan.Slice(c0 + 8, 4), 0);
-        BinaryPrimitives.WriteUInt32LittleEndian(mSpan.Slice(c0 + 12, 4), 0);
-        BinaryPrimitives.WriteUInt32LittleEndian(mSpan.Slice(c0 + 16, 4), 2);
-        BinaryPrimitives.WriteSingleLittleEndian(mSpan.Slice(c0 + 44, 4), 1f);
-
-        var c1 = mockLayout.ColliderOffset(1);
-        BinaryPrimitives.WriteUInt32LittleEndian(mSpan.Slice(c1 + 8, 4), 1);
-        BinaryPrimitives.WriteUInt32LittleEndian(mSpan.Slice(c1 + 12, 4), 0);
-        BinaryPrimitives.WriteUInt32LittleEndian(mSpan.Slice(c1 + 16, 4), 0);
-        BinaryPrimitives.WriteSingleLittleEndian(mSpan.Slice(c1 + 44, 4), 1f);
-        BinaryPrimitives.WriteHalfLittleEndian(mSpan.Slice(c1 + 48, 2), (Half)0.5f);
-
-        var mat = mockLayout.MaterialOffset(0);
-        BinaryPrimitives.WriteHalfLittleEndian(mSpan.Slice(mat + 8, 2), (Half)0.8f);
-        BinaryPrimitives.WriteHalfLittleEndian(mSpan.Slice(mat + 10, 2), (Half)0.2f);
-        BinaryPrimitives.WriteHalfLittleEndian(mSpan.Slice(mat + 12, 2), (Half)0.4f);
-        BinaryPrimitives.WriteHalfLittleEndian(mSpan.Slice(mat + 14, 2), (Half)0.05f);
-
-        var j0 = mockLayout.PrismaticOffset(0);
-        BinaryPrimitives.WriteUInt32LittleEndian(mSpan.Slice(j0 + 8, 4), 0);
-        BinaryPrimitives.WriteUInt32LittleEndian(mSpan.Slice(j0 + 12, 4), 1);
-        BinaryPrimitives.WriteSingleLittleEndian(mSpan.Slice(j0 + 40, 4), 1f);
-        BinaryPrimitives.WriteSingleLittleEndian(mSpan.Slice(j0 + 68, 4), 1f);
-        BinaryPrimitives.WriteSingleLittleEndian(mSpan.Slice(j0 + 76, 4), 1.55f);
-        BinaryPrimitives.WriteSingleLittleEndian(mSpan.Slice(j0 + 80, 4), 14f);
-        BinaryPrimitives.WriteSingleLittleEndian(mSpan.Slice(j0 + 84, 4), 1f);
-        BinaryPrimitives.WriteUInt32LittleEndian(mSpan.Slice(j0 + 88, 4), 1);
-
-        // Warm-up inputs match the mock document's own tables: every source disabled, no supply route closed.
-        var warmupInputs = new PhysicsTickInputs(new ElectricalEnable[mockLayout.ElectricalSources], new bool[mockLayout.Prismatics]);
-        for (var step = 0; step < 5; step++)
-        {
-            Advance(mockSource, mockCandidate, warmupInputs);
-            Array.Copy(mockCandidate, mockSource, mockSource.Length);
+            Advance(world, next, WarmupScene.Inputs(step));
+            (world, next) = (next, world);
         }
 
         Reset();
@@ -520,6 +424,9 @@ internal sealed class WorkshopPhysicsEngine
 
             if (motion == 0)
             {
+                // A pooled body may last have been dynamic (another world, or the warm-up): a static body has no motion, and the
+                // contact rows (rolling, prismatic frames) read its velocities directly.
+                b.Vx = b.Vy = b.Vz = b.Wx = b.Wy = b.Wz = 0f;
                 _staticBodies.Add(b);
                 _allBodies[slot] = b;
             }
@@ -656,9 +563,18 @@ internal sealed class WorkshopPhysicsEngine
             joint.B = _allBodies[bSlot];
             joint.Pa = pa; joint.Qa = qa; joint.Pb = pb; joint.Qb = qb;
             joint.Lower = lower; joint.Upper = upper;
+            joint.Stiffness = stiffness;
             joint.Soft = soft;
             joint.Collision = collision;
             joint.SupplyClosed = inputs.SupplyClosed[index];
+            joint.DriveKind = (PrismaticDriveKind)BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(offset + PhysicsGpuAbi.PrismaticDriveKindOffset, 4));
+            joint.Drive = new(new(BinaryPrimitives.ReadUInt64LittleEndian(span.Slice(offset, 8))),
+                BinaryPrimitives.ReadSingleLittleEndian(span.Slice(offset + PhysicsGpuAbi.PrismaticDriveOffset, 4)),
+                BinaryPrimitives.ReadSingleLittleEndian(span.Slice(offset + PhysicsGpuAbi.PrismaticDriveOffset + 4, 4)),
+                BinaryPrimitives.ReadSingleLittleEndian(span.Slice(offset + PhysicsGpuAbi.PrismaticDriveOffset + 8, 4)),
+                BinaryPrimitives.ReadSingleLittleEndian(span.Slice(offset + PhysicsGpuAbi.PrismaticDriveOffset + 12, 4)),
+                BinaryPrimitives.ReadSingleLittleEndian(span.Slice(offset + PhysicsGpuAbi.PrismaticDriveOffset + 16, 4)));
+            joint.MovingContact = false;
 
             for (var imp = 0; imp < 8; imp++)
                 joint.Impulses[imp] = BinaryPrimitives.ReadSingleLittleEndian(span.Slice(offset + 96 + imp * 4, 4));
@@ -831,8 +747,8 @@ internal sealed class WorkshopPhysicsEngine
                 }
             }
 
-            // Each supplied gate follows its own compiled route (SimJoint.SupplyClosed), closed from committed state, never a timer.
-            PrismaticConstraintSolver.ActuatorSliderDrive(_joints, dt);
+            // Each declared drive follows its own compiled route (SimJoint.SupplyClosed), closed from committed state, never a timer.
+            PrismaticConstraintSolver.ApplySuppliedDrives(_joints, dt);
 
             foreach (var b in _dynamicBodies)
             {
@@ -971,6 +887,15 @@ internal sealed class WorkshopPhysicsEngine
             {
                 for (var row = 0; row < 8; row++)
                     BinaryPrimitives.WriteSingleLittleEndian(span.Slice(joint.Offset + 96 + row * 4, 4), joint.Impulses[row]);
+                // The committed moving-contact lane: a positive normal impulse on the moving body from anything but its base.
+                foreach (var c in _contacts)
+                    if (c.LambdaN > 0f && ((c.A == joint.B && c.B != joint.A) || (c.B == joint.B && c.A != joint.A)))
+                    {
+                        joint.MovingContact = true;
+                        break;
+                    }
+                BinaryPrimitives.WriteUInt32LittleEndian(span.Slice(joint.Offset + PhysicsGpuAbi.PrismaticMovingContactOffset, 4),
+                    joint.MovingContact ? 1u : 0u);
             }
 
             foreach (var c in _contacts) WorkshopConstraintSolver.ApplyRestitution(c);

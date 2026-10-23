@@ -1,0 +1,12 @@
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-9-4c/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+The following Tests are available:
+    CuriousContraptions.Tests.LatchSupplyFixtureTests.SetClosesRouteOneTickAfterStrikeWithoutTopologyChange
+    CuriousContraptions.Tests.LatchSupplyFixtureTests.ResetWhenOpenClearsDownstreamAndSpringCloses
+    CuriousContraptions.Tests.LatchSupplyFixtureTests.MidStrokeResetStopsDriveAndReturnsClosed
+    CuriousContraptions.Tests.LatchSupplyFixtureTests.NoSwitchBCompletesOpeningHoldsAndPassesTheBall
+    CuriousContraptions.Tests.LatchSupplyFixtureTests.AuthoredDisabledBatteryNeverOpensAfterSet
+    CuriousContraptions.Tests.LatchSupplyFixtureTests.SupplyOffOnKeepsMemoryAndRepowersWithoutNewSet
+    CuriousContraptions.Tests.LatchSupplyFixtureTests.BallUpstreamAtCutStaysUpstream
+    CuriousContraptions.Tests.LatchSupplyFixtureTests.BallPartlyThroughStopsClosingBladeUncrushed
+    CuriousContraptions.Tests.LatchSupplyFixtureTests.RunResetRestoresLatchOffBladeClosedAuthoredBattery
+    CuriousContraptions.Tests.LatchSupplyFixtureTests.SaveLoadPreservesFiveSocketsAndReplaysIdentically

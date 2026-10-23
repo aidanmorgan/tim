@@ -1,0 +1,5 @@
+97f1bea25afff1fefae24f3a6c54fe74f94e2f8ba717a24a08d67d97e18621a5  -
+CuriousContraptions.Simulation/WarmupScene.cs
+CuriousContraptions.tests/DeclaredPrismaticDriveTests.cs
+a598a09e2b91d58135b3343a2beeea6b88578013
+97f1bea25afff1fefae24f3a6c54fe74f94e2f8ba717a24a08d67d97e18621a5 re-hashed after review (unchanged); throwaway worktrees wt-base, wt-cand removed

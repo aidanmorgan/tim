@@ -1,0 +1,11 @@
+playtest build rc=0
+build rc=0
+test rc=0
+ci tools rc=0
+web publish rc=0
+present index.html
+present 404.html
+present godot.wasm
+present godot.pck
+present _framework/dotnet.js
+AppBundle moved out of the tree

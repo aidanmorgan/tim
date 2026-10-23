@@ -1,0 +1,4 @@
+277c277
+<         var holding = stiffness * coordinate;
+---
+>         var holding = 0f;

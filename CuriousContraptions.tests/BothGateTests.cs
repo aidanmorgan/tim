@@ -25,7 +25,7 @@ public sealed class BothGateTests
     private static float BladeY(WorkshopRead read)
     {
         var body=Enumerable.Range(0,read.Bodies.Count).Select(i=>read.Bodies[i].Body)
-            .Single(row=>row.Id==WorkshopPhysicsCompiler.GateBlade(new(5)));
+            .Single(row=>row.Id==WorkshopPhysicsCompiler.SliderBody(new(5), 0));
         return (body.Cell.Y+body.Local.Y)/16f;
     }
 

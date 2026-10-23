@@ -177,6 +177,8 @@ struct ActuatorDriveRecord {
     joint: uint64;
     owner: uint64;
     supply_closed: bool;
+    // C-Gate: the moving body took a positive normal contact impulse from a body other than its base during the tick.
+    moving_contact: bool;
     coordinate: float;
     speed: float;
     lower: float;

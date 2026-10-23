@@ -18,7 +18,7 @@ public sealed class HoldTimerTests
     internal static ActivationTimerState State(WorkshopRead read) =>
         Enumerable.Range(0, read.Timers.Count).Select(i => read.Timers[i]).Single(row => row.Node.Value == 3);
     private static PhysicsBodyRead Blade(WorkshopRead read) =>
-        Enumerable.Range(0,read.Bodies.Count).Select(i=>read.Bodies[i]).Single(row=>row.Body.Id==WorkshopPhysicsCompiler.GateBlade(new(5)));
+        Enumerable.Range(0,read.Bodies.Count).Select(i=>read.Bodies[i]).Single(row=>row.Body.Id==WorkshopPhysicsCompiler.SliderBody(new(5), 0));
     private static float Travel(WorkshopRead read) => (Blade(read).Body.Cell.Y+Blade(read).Body.Local.Y)/16f-3f;
     private static bool Powered(WorkshopRead read) => read.Presentation.Actuators.ToArray().Single(row => row.Owner.Value == 5).SupplyClosed;
 

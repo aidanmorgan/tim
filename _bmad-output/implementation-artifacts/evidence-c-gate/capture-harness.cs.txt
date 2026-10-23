@@ -1,0 +1,144 @@
+using System.Globalization;
+using System.Text;
+using CuriousContraptions.Gpu;
+
+namespace CuriousContraptions.Tests;
+
+// C-Gate evidence harness (not a deliverable): records per-tick actuator and body bits, and the compiled supply/prismatic rows,
+// for the gate fixtures, to the directory named by CGATE_CAPTURE_DIR. Run once on the baseline and once on the candidate and diff.
+public sealed class CGateBaselineCapture
+{
+    private static string? Dir => Environment.GetEnvironmentVariable("CGATE_CAPTURE_DIR");
+
+    private static string Bits(float value) => BitConverter.SingleToUInt32Bits(value).ToString("x8", CultureInfo.InvariantCulture);
+
+    private static string Row(WorkshopRead read)
+    {
+        var text = new StringBuilder();
+        text.Append(CultureInfo.InvariantCulture, $"t={read.Tick.Value}");
+        foreach (var a in read.Presentation.Actuators)
+            text.Append(CultureInfo.InvariantCulture, $" a[{a.Joint.Value}] s={a.SupplyClosed} x={Bits(a.Coordinate)} v={Bits(a.Speed)} ({a.Coordinate:R},{a.Speed:R})");
+        for (var i = 0; i < read.Bodies.Count; i++)
+        {
+            var b = read.Bodies[i].Body;
+            text.Append(CultureInfo.InvariantCulture,
+                $" b[{b.Id.Value}] c={b.Cell.X},{b.Cell.Y},{b.Cell.Z} l={Bits((float)b.Local.X)},{Bits((float)b.Local.Y)},{Bits((float)b.Local.Z)} v={Bits((float)b.Velocity.X)},{Bits((float)b.Velocity.Y)},{Bits((float)b.Velocity.Z)}");
+        }
+        return text.ToString();
+    }
+
+    private static async Task<List<WorkshopRead>> Trace(WorkshopConstruction construction, params (WorkshopElectricalControl[] Controls, int Ticks)[] phases)
+    {
+        await using var device = new WorkshopGpuDevice(new CuriousContraptions.Simulation.BrowserGpuTransport(), new(101, 206));
+        await using var simulation = new WorkshopSimulation(device, new WorkshopPhysicsEngineTests.StepClock(), WorkshopCadenceSettings.Default(),
+            new(1), new WorkshopPhysicsEngineTests.NoInstallation(), GpuDeviceOwnership.Borrowed);
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Initialize()).Outcome);
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Construct(construction)).Outcome);
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Run()).Outcome);
+        var reads = new List<WorkshopRead>();
+        foreach (var (controls, ticks) in phases)
+        {
+            foreach (var control in controls) Assert.Equal(WorkshopCommandOutcome.Applied, simulation.ConfigureElectrical(control).Outcome);
+            for (var tick = 0; tick < ticks; tick++)
+            {
+                Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Advance()).Outcome);
+                reads.Add(simulation.Committed);
+            }
+        }
+        return reads;
+    }
+
+    private static WorkshopConstruction Probe(int sign, ElectricalEnable authored)
+    {
+        var half = sign * 7.5 * Math.PI / 180;
+        var gate = WorkshopInput.Generic(PartId.PoweredGate, new(1), 0, 3, 0, 0, 0, Math.Sin(half), Math.Cos(half));
+        var ball = WorkshopInput.Generic(PartId.Basketball, new(2), -0.08, 3, 0, 0, 0, 0, 1);
+        var battery = WorkshopInput.Battery(new(3), 3, 3, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default with { Enabled = authored });
+        return new(new(2), WorkshopCadenceSettings.Default(), new([gate, ball, battery]),
+            Connections: new(new WorkshopConnection(battery.Id, WorkshopSocket.Supply, gate.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical)));
+    }
+
+    /// <summary>Advisory native proxy for 9A.21: in a fresh process, the worker's transport Initialize (engine warm-up), the
+    /// Program-level warm-up lifecycle (CGATE_WARMUP=element: the baseline's battery/plate/gate scene; =empty: an empty bench),
+    /// then the first Run of the latch fixture and its first committed tick.</summary>
+    [Fact]
+    public async Task Timing()
+    {
+        if (Environment.GetEnvironmentVariable("CGATE_TIMING_OUT") is not { } output) return;
+        var watch = System.Diagnostics.Stopwatch.StartNew();
+        await using var device = new WorkshopGpuDevice(new CuriousContraptions.Simulation.BrowserGpuTransport(), new(101, 206));
+        await device.Prepare();
+        var prepared = watch.Elapsed.TotalMilliseconds;
+        var settings = WorkshopCadenceSettings.Default();
+        WorkshopConstruction warm = Environment.GetEnvironmentVariable("CGATE_WARMUP") == "element"
+            ? ElementWarmup(settings) : new(new(2), settings, new([]));
+        await using (var warmup = new WorkshopSimulation(device, new WorkshopPhysicsEngineTests.StepClock(), settings, new(1),
+            new WorkshopPhysicsEngineTests.NoInstallation(), GpuDeviceOwnership.Borrowed))
+        {
+            Assert.Equal(WorkshopCommandOutcome.Applied, (await warmup.Initialize()).Outcome);
+            Assert.Equal(WorkshopCommandOutcome.Applied, (await warmup.Construct(warm)).Outcome);
+            Assert.Equal(WorkshopCommandOutcome.Applied, (await warmup.Run()).Outcome);
+            for (var step = 0; step < 5; step++) Assert.Equal(WorkshopCommandOutcome.Applied, (await warmup.Advance()).Outcome);
+            Assert.Equal(WorkshopCommandOutcome.Applied, (await warmup.Reset()).Outcome);
+        }
+        var warmed = watch.Elapsed.TotalMilliseconds;
+        await using var simulation = new WorkshopSimulation(device, new WorkshopPhysicsEngineTests.StepClock(), settings, new(1),
+            new WorkshopPhysicsEngineTests.NoInstallation(), GpuDeviceOwnership.Borrowed);
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Initialize()).Outcome);
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Construct(LatchSupplyFixtureTests.Machine(null, payload: true))).Outcome);
+        var run = watch.Elapsed.TotalMilliseconds;
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Run()).Outcome);
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Advance()).Outcome);
+        var first = watch.Elapsed.TotalMilliseconds;
+        await File.AppendAllTextAsync(output, string.Create(CultureInfo.InvariantCulture,
+            $"warmup={Environment.GetEnvironmentVariable("CGATE_WARMUP")} prepare={prepared:F2}ms warm={warmed - prepared:F2}ms runToFirstTick={first - run:F2}ms\n"),
+            TestContext.Current.CancellationToken);
+    }
+
+    private static WorkshopConstruction ElementWarmup(WorkshopCadenceSettings settings)
+    {
+        var battery = WorkshopInput.Battery(new(1), -2, 0, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default);
+        var plate = WorkshopInput.PressurePlate(new(2), 0, 0, 0, 0, 0, 0, 1, WorkshopPressurePlate.PlacedMinimumMass);
+        var gate = WorkshopInput.Generic(PartId.PoweredGate, new(3), 2, 0, 0, 0, 0, 0, 1);
+        return new(new(2), settings, new([battery, plate, gate]), Connections: new([
+            new(battery.Id, WorkshopSocket.Supply, plate.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical),
+            new(plate.Id, WorkshopSocket.Supply, gate.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical)]));
+    }
+
+    public static TheoryData<string> Cases() => new(["latch-null", "latch-16", "latch-6", "latch-null-payload", "latch-9-payload",
+        "latch-5-payload", "latch-null-disabled", "probe-m1-ede", "probe-p1-ede", "probe-m1-de", "probe-p1-de", "probe-m1-start", "probe-p1-start"]);
+
+    [Theory]
+    [MemberData(nameof(Cases))]
+    public async Task Capture(string name)
+    {
+        if (Dir is not { } dir) return;
+        WorkshopElectricalControl Off(ulong id) => new(new(id), ElectricalEnable.Disabled);
+        WorkshopElectricalControl On(ulong id) => new(new(id), ElectricalEnable.Enabled);
+        var (construction, phases) = name switch
+        {
+            "latch-null" => (LatchSupplyFixtureTests.Machine(null), new (WorkshopElectricalControl[], int)[] { ([], 240) }),
+            "latch-16" => (LatchSupplyFixtureTests.Machine(16), [([], 480)]),
+            "latch-6" => (LatchSupplyFixtureTests.Machine(6), [([], 480)]),
+            "latch-null-payload" => (LatchSupplyFixtureTests.Machine(null, payload: true), [([], 360)]),
+            "latch-9-payload" => (LatchSupplyFixtureTests.Machine(9, payload: true), [([], 2400)]),
+            "latch-5-payload" => (LatchSupplyFixtureTests.Machine(5, payload: true), [([], 360)]),
+            "latch-null-disabled" => (LatchSupplyFixtureTests.Machine(null, battery: ElectricalEnable.Disabled), [([], 240)]),
+            "probe-m1-ede" => (Probe(-1, ElectricalEnable.Enabled), [([Off(3)], 180), ([On(3)], 300)]),
+            "probe-p1-ede" => (Probe(1, ElectricalEnable.Enabled), [([Off(3)], 180), ([On(3)], 300)]),
+            "probe-m1-de" => (Probe(-1, ElectricalEnable.Disabled), [([], 180), ([On(3)], 300)]),
+            "probe-p1-de" => (Probe(1, ElectricalEnable.Disabled), [([], 180), ([On(3)], 300)]),
+            "probe-m1-start" => (Probe(-1, ElectricalEnable.Enabled), [([], 180), ([], 300)]),
+            "probe-p1-start" => (Probe(1, ElectricalEnable.Enabled), [([], 180), ([], 300)]),
+            _ => throw new ArgumentOutOfRangeException(nameof(name))
+        };
+        var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
+        var rows = new StringBuilder();
+        foreach (var node in scene.SupplyGraph.Nodes) rows.AppendLine(CultureInfo.InvariantCulture, $"node {node}");
+        foreach (var joint in scene.Prismatics) rows.AppendLine(CultureInfo.InvariantCulture,
+            $"prismatic {joint.Id.Value} {joint.BodyA.Value} {joint.BodyB.Value} {joint.FrameA} {joint.FrameB} {Bits(joint.Lower)} {Bits(joint.Upper)} {Bits(joint.Stiffness)} {Bits(joint.Damping)} {joint.Collision}");
+        var reads = await Trace(construction, phases);
+        foreach (var read in reads) rows.AppendLine(Row(read));
+        await File.WriteAllTextAsync(Path.Combine(dir, name + ".txt"), rows.ToString(), TestContext.Current.CancellationToken);
+    }
+}

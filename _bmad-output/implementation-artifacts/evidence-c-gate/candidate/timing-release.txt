@@ -1,0 +1,5 @@
+warmup=empty prepare=44.59ms warm=36.34ms runToFirstTick=1.51ms
+warmup=empty prepare=44.35ms warm=35.51ms runToFirstTick=1.42ms
+warmup=empty prepare=44.41ms warm=35.35ms runToFirstTick=1.49ms
+warmup=empty prepare=43.82ms warm=35.38ms runToFirstTick=1.42ms
+warmup=empty prepare=44.46ms warm=35.00ms runToFirstTick=1.39ms

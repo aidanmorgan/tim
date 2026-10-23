@@ -1,0 +1,31 @@
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-gate/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:01.85]     CuriousContraptions.Tests.SliderInstanceTests.AMissedBallGetsNothingFromAChargedBoard [FAIL]
+  Failed CuriousContraptions.Tests.SliderInstanceTests.AMissedBallGetsNothingFromAChargedBoard [37 ms]
+  Error Message:
+   Assert.InRange() Failure: Value not in range
+Range:  (0 - 9.99999975E-05)
+Actual: 0.000158682466
+  Stack Trace:
+     at CuriousContraptions.Tests.SliderInstanceTests.AMissedBallGetsNothingFromAChargedBoard() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-gate/CuriousContraptions.tests/SliderInstanceTests.cs:line 55
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:13.72]     CuriousContraptions.Tests.WorkshopPhysicsEngineTests.DroppedBasketballBouncesLowerEachTimeAndRestsOnTheBench [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.DroppedBasketballBouncesLowerEachTimeAndRestsOnTheBench [24 ms]
+  Error Message:
+   at least two rebound apexes
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.DroppedBasketballBouncesLowerEachTimeAndRestsOnTheBench() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-gate/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 385
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:14.93]     CuriousContraptions.Tests.ElementIsolationTests.ProductionKnowledgeIsExactlyTheOwnedShrinkingList [FAIL]
+  Failed CuriousContraptions.Tests.ElementIsolationTests.ProductionKnowledgeIsExactlyTheOwnedShrinkingList [528 ms]
+  Error Message:
+   CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs:1: stale/count/meaning mismatch for generic WorkshopPhysicsEngine.Warmup/FromSpring: actual 0, pinned 1
+CuriousContraptions.Simulation/PrismaticConstraintSolver.cs:257: unowned PackageIdentifier Spring in PrismaticConstraintSolver.ApplySuppliedDrives
+  Stack Trace:
+     at CuriousContraptions.Tests.ElementIsolationTests.ProductionKnowledgeIsExactlyTheOwnedShrinkingList() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-gate/CuriousContraptions.tests/ElementIsolationTests.cs:line 340
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     3, Passed:   591, Skipped:     0, Total:   594, Duration: 15 s - CuriousContraptions.tests.dll (net10.0)

@@ -1,0 +1,1382 @@
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-gate/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:02.71]     CuriousContraptions.Tests.DeclaredPrismaticDriveTests.TheWarmupAdmitsAndStepsItsSceneWithTheDriveSuppliedThenUnsupplied [FAIL]
+[xUnit.net 00:00:02.75]     CuriousContraptions.Tests.DeclaredPrismaticDriveTests.ASyntheticDriveReachesItsOwnTargetOnItsOwnProfileWithItsEffortAndPowerBinding [FAIL]
+  Failed CuriousContraptions.Tests.DeclaredPrismaticDriveTests.TheWarmupAdmitsAndStepsItsSceneWithTheDriveSuppliedThenUnsupplied [5 ms]
+  Error Message:
+   the trigger fired
+  Stack Trace:
+     at CuriousContraptions.Tests.DeclaredPrismaticDriveTests.TheWarmupAdmitsAndStepsItsSceneWithTheDriveSuppliedThenUnsupplied() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-gate/CuriousContraptions.tests/DeclaredPrismaticDriveTests.cs:line 369
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.DeclaredPrismaticDriveTests.ASyntheticDriveReachesItsOwnTargetOnItsOwnProfileWithItsEffortAndPowerBinding [33 ms]
+  Error Message:
+   Assert.All() Failure: 681 out of 1919 items in the collection did not pass.
+[0]:    Item:  Tuple (17.808342, 0.0166491102, 0.0001039505)
+        Error: effort 17.808342 N within 16 N
+[1]:    Item:  Tuple (17.8085022, 0.0332806744, 0.000207901001)
+        Error: effort 17.808502 N within 16 N
+[2]:    Item:  Tuple (17.8087654, 0.0498947166, 0.000346660614)
+        Error: effort 17.808765 N within 16 N
+[3]:    Item:  Tuple (17.8091354, 0.0664912537, 0.000519752502)
+        Error: effort 17.809135 N within 16 N
+[4]:    Item:  Tuple (17.8096046, 0.083070308, 0.000727176666)
+        Error: effort 17.809605 N within 16 N
+[5]:    Item:  Tuple (17.8101807, 0.0996318907, 0.000969409943)
+        Error: effort 17.81018 N within 16 N
+[6]:    Item:  Tuple (17.8108654, 0.116176024, 0.00124597549)
+        Error: effort 17.810865 N within 16 N
+[7]:    Item:  Tuple (17.8116436, 0.132702738, 0.00155687332)
+        Error: effort 17.811644 N within 16 N
+[8]:    Item:  Tuple (17.8125229, 0.149212033, 0.00190210342)
+        Error: effort 17.812523 N within 16 N
+[9]:    Item:  Tuple (17.8135204, 0.165703923, 0.0022816658)
+        Error: effort 17.81352 N within 16 N
+[10]:   Item:  Tuple (17.8146095, 0.182178453, 0.00269556046)
+        Error: effort 17.81461 N within 16 N
+[11]:   Item:  Tuple (17.8158092, 0.198635623, 0.00314378738)
+        Error: effort 17.81581 N within 16 N
+[12]:   Item:  Tuple (17.8171024, 0.215075463, 0.00362586975)
+        Error: effort 17.817102 N within 16 N
+[13]:   Item:  Tuple (17.8185101, 0.231497973, 0.00414228439)
+        Error: effort 17.81851 N within 16 N
+[14]:   Item:  Tuple (17.8199978, 0.247903198, 0.00469303131)
+        Error: effort 17.819998 N within 16 N
+[15]:   Item:  Tuple (17.8215942, 0.264291108, 0.00527763367)
+        Error: effort 17.821594 N within 16 N
+[16]:   Item:  Tuple (17.8233109, 0.280661732, 0.0058965683)
+        Error: effort 17.82331 N within 16 N
+[17]:   Item:  Tuple (17.8251381, 0.297015131, 0.00654935837)
+        Error: effort 17.825138 N within 16 N
+[18]:   Item:  Tuple (17.8270416, 0.313351333, 0.00723600388)
+        Error: effort 17.827042 N within 16 N
+[19]:   Item:  Tuple (17.8290558, 0.32967031, 0.00795698166)
+        Error: effort 17.829056 N within 16 N
+[20]:   Item:  Tuple (17.8311615, 0.345972091, 0.00871181488)
+        Error: effort 17.831161 N within 16 N
+[21]:   Item:  Tuple (17.833374, 0.362256676, 0.00950050354)
+        Error: effort 17.833374 N within 16 N
+[22]:   Item:  Tuple (17.8357086, 0.378524095, 0.0103230476)
+        Error: effort 17.835709 N within 16 N
+[23]:   Item:  Tuple (17.8381233, 0.394774407, 0.0111794472)
+        Error: effort 17.838123 N within 16 N
+[24]:   Item:  Tuple (17.8406715, 0.411007583, 0.0120697021)
+        Error: effort 17.840672 N within 16 N
+[25]:   Item:  Tuple (17.8432579, 0.427223712, 0.0129933357)
+        Error: effort 17.843258 N within 16 N
+[26]:   Item:  Tuple (17.8460064, 0.443422675, 0.0139508247)
+        Error: effort 17.846006 N within 16 N
+[27]:   Item:  Tuple (17.8488197, 0.459604621, 0.0149421692)
+        Error: effort 17.84882 N within 16 N
+[28]:   Item:  Tuple (17.851738, 0.47576949, 0.0159668922)
+        Error: effort 17.851738 N within 16 N
+[29]:   Item:  Tuple (17.8547668, 0.491917312, 0.0170254707)
+        Error: effort 17.854767 N within 16 N
+[30]:   Item:  Tuple (17.8578987, 0.508048117, 0.0181174278)
+        Error: effort 17.857899 N within 16 N
+[31]:   Item:  Tuple (17.8611526, 0.524161935, 0.0192427635)
+        Error: effort 17.861153 N within 16 N
+[32]:   Item:  Tuple (17.8644676, 0.540258825, 0.0204019547)
+        Error: effort 17.864468 N within 16 N
+[33]:   Item:  Tuple (17.867878, 0.556338727, 0.0215945244)
+        Error: effort 17.867878 N within 16 N
+[34]:   Item:  Tuple (17.8714085, 0.572401643, 0.0228204727)
+        Error: effort 17.871408 N within 16 N
+[35]:   Item:  Tuple (17.8750572, 0.58844763, 0.0240797997)
+        Error: effort 17.875057 N within 16 N
+[36]:   Item:  Tuple (17.8787994, 0.60447675, 0.0253725052)
+        Error: effort 17.8788 N within 16 N
+[37]:   Item:  Tuple (17.8826332, 0.620489001, 0.0266985893)
+        Error: effort 17.882633 N within 16 N
+[38]:   Item:  Tuple (17.8865585, 0.636484385, 0.0280580521)
+        Error: effort 17.886559 N within 16 N
+[39]:   Item:  Tuple (17.8905754, 0.6524629, 0.0294504166)
+        Error: effort 17.890575 N within 16 N
+[40]:   Item:  Tuple (17.8947105, 0.668424547, 0.0308761597)
+        Error: effort 17.89471 N within 16 N
+[41]:   Item:  Tuple (17.5283833, 0.684369385, 0.032333374)
+        Error: effort 17.528383 N within 16 N
+[42]:   Item:  Tuple (17.1486149, 0.699525833, 0.0338206291)
+        Error: effort 17.148615 N within 16 N
+[43]:   Item:  Tuple (16.804163, 0.713866532, 0.0353360176)
+        Error: effort 16.804163 N within 16 N
+[645]:  Item:  Tuple (21.4085236, -0.0456316173, 1.19997549)
+        Error: effort 21.408524 N within 16 N
+[646]:  Item:  Tuple (21.4082928, -0.0289344341, 1.19994974)
+        Error: effort 21.408293 N within 16 N
+[647]:  Item:  Tuple (21.4081707, -0.0122548435, 1.1999588)
+        Error: effort 21.40817 N within 16 N
+[648]:  Item:  Tuple (21.4081478, 0.00440717628, 1.20000267)
+        Error: effort 21.408148 N within 16 N
+[651]:  Item:  Tuple (21.4082775, -0.0122733731, 1.19999504)
+        Error: effort 21.408278 N within 16 N
+[654]:  Item:  Tuple (20.2227135, -0.00771761499, 1.20001078)
+        Error: effort 20.222713 N within 16 N
+[656]:  Item:  Tuple (21.4082832, -0.0101849716, 1.20000315)
+        Error: effort 21.408283 N within 16 N
+[658]:  Item:  Tuple (21.408268, -0.00703467382, 1.20000839)
+        Error: effort 21.408268 N within 16 N
+[660]:  Item:  Tuple (21.408287, -0.00703740586, 1.20001364)
+        Error: effort 21.408287 N within 16 N
+[662]:  Item:  Tuple (18.8852043, -0.00704012392, 1.20000792)
+        Error: effort 18.885204 N within 16 N
+[664]:  Item:  Tuple (21.4082718, -0.0112080295, 1.19999599)
+        Error: effort 21.408272 N within 16 N
+[667]:  Item:  Tuple (21.4082928, -0.00861312822, 1.20001125)
+        Error: effort 21.408293 N within 16 N
+[669]:  Item:  Tuple (21.408289, -0.00861253217, 1.20000982)
+        Error: effort 21.408289 N within 16 N
+[671]:  Item:  Tuple (21.408287, -0.00861193612, 1.20000839)
+        Error: effort 21.408287 N within 16 N
+[673]:  Item:  Tuple (21.4082832, -0.00861134008, 1.20000696)
+        Error: effort 21.408283 N within 16 N
+[675]:  Item:  Tuple (21.4082756, -0.00861074403, 1.20000553)
+        Error: effort 21.408276 N within 16 N
+[677]:  Item:  Tuple (21.4082718, -0.00861015171, 1.2000041)
+        Error: effort 21.408272 N within 16 N
+[679]:  Item:  Tuple (21.4082718, -0.00804445706, 1.20000553)
+        Error: effort 21.408272 N within 16 N
+[681]:  Item:  Tuple (21.4082756, -0.00804505777, 1.20000696)
+        Error: effort 21.408276 N within 16 N
+[683]:  Item:  Tuple (21.4082794, -0.00804565847, 1.20000839)
+        Error: effort 21.40828 N within 16 N
+[685]:  Item:  Tuple (21.4082851, -0.00804625265, 1.20000982)
+        Error: effort 21.408285 N within 16 N
+[687]:  Item:  Tuple (21.408289, -0.00804684404, 1.20001125)
+        Error: effort 21.408289 N within 16 N
+[689]:  Item:  Tuple (21.4082928, -0.0080474373, 1.20001268)
+        Error: effort 21.408293 N within 16 N
+[691]:  Item:  Tuple (21.1369057, -0.00804803148, 1.20001268)
+        Error: effort 21.136906 N within 16 N
+[693]:  Item:  Tuple (21.4082928, -0.00861312449, 1.20001125)
+        Error: effort 21.408293 N within 16 N
+[695]:  Item:  Tuple (21.408289, -0.00861252844, 1.20000982)
+        Error: effort 21.408289 N within 16 N
+[697]:  Item:  Tuple (21.408287, -0.0086119324, 1.20000839)
+        Error: effort 21.408287 N within 16 N
+[699]:  Item:  Tuple (21.4082832, -0.00861133635, 1.20000696)
+        Error: effort 21.408283 N within 16 N
+[701]:  Item:  Tuple (21.4082756, -0.0086107403, 1.20000553)
+        Error: effort 21.408276 N within 16 N
+[703]:  Item:  Tuple (21.4082718, -0.00861014798, 1.2000041)
+        Error: effort 21.408272 N within 16 N
+[705]:  Item:  Tuple (21.4082718, -0.0080444552, 1.20000553)
+        Error: effort 21.408272 N within 16 N
+[707]:  Item:  Tuple (21.4082756, -0.00804505777, 1.20000696)
+        Error: effort 21.408276 N within 16 N
+[709]:  Item:  Tuple (21.4082794, -0.00804565847, 1.20000839)
+        Error: effort 21.40828 N within 16 N
+[711]:  Item:  Tuple (21.4082851, -0.00804625265, 1.20000982)
+        Error: effort 21.408285 N within 16 N
+[713]:  Item:  Tuple (21.408289, -0.00804684404, 1.20001125)
+        Error: effort 21.408289 N within 16 N
+[715]:  Item:  Tuple (21.4082928, -0.0080474373, 1.20001268)
+        Error: effort 21.408293 N within 16 N
+[717]:  Item:  Tuple (21.1369057, -0.00804803148, 1.20001268)
+        Error: effort 21.136906 N within 16 N
+[719]:  Item:  Tuple (21.4082928, -0.00861312449, 1.20001125)
+        Error: effort 21.408293 N within 16 N
+[721]:  Item:  Tuple (21.408289, -0.00861252844, 1.20000982)
+        Error: effort 21.408289 N within 16 N
+[723]:  Item:  Tuple (21.408287, -0.0086119324, 1.20000839)
+        Error: effort 21.408287 N within 16 N
+[725]:  Item:  Tuple (21.4082832, -0.00861133635, 1.20000696)
+        Error: effort 21.408283 N within 16 N
+[727]:  Item:  Tuple (21.4082756, -0.0086107403, 1.20000553)
+        Error: effort 21.408276 N within 16 N
+[729]:  Item:  Tuple (21.4082718, -0.00861014798, 1.2000041)
+        Error: effort 21.408272 N within 16 N
+[731]:  Item:  Tuple (21.4082718, -0.0080444552, 1.20000553)
+        Error: effort 21.408272 N within 16 N
+[733]:  Item:  Tuple (21.4082756, -0.00804505777, 1.20000696)
+        Error: effort 21.408276 N within 16 N
+[735]:  Item:  Tuple (21.4082794, -0.00804565847, 1.20000839)
+        Error: effort 21.40828 N within 16 N
+[737]:  Item:  Tuple (21.4082851, -0.00804625265, 1.20000982)
+        Error: effort 21.408285 N within 16 N
+[739]:  Item:  Tuple (21.408289, -0.00804684404, 1.20001125)
+        Error: effort 21.408289 N within 16 N
+[741]:  Item:  Tuple (21.4082928, -0.0080474373, 1.20001268)
+        Error: effort 21.408293 N within 16 N
+[743]:  Item:  Tuple (21.1369057, -0.00804803148, 1.20001268)
+        Error: effort 21.136906 N within 16 N
+[745]:  Item:  Tuple (21.4082928, -0.00861312449, 1.20001125)
+        Error: effort 21.408293 N within 16 N
+[747]:  Item:  Tuple (21.408289, -0.00861252844, 1.20000982)
+        Error: effort 21.408289 N within 16 N
+[749]:  Item:  Tuple (21.408287, -0.0086119324, 1.20000839)
+        Error: effort 21.408287 N within 16 N
+[751]:  Item:  Tuple (21.4082832, -0.00861133635, 1.20000696)
+        Error: effort 21.408283 N within 16 N
+[753]:  Item:  Tuple (21.4082756, -0.0086107403, 1.20000553)
+        Error: effort 21.408276 N within 16 N
+[755]:  Item:  Tuple (21.4082718, -0.00861014798, 1.2000041)
+        Error: effort 21.408272 N within 16 N
+[757]:  Item:  Tuple (21.4082718, -0.0080444552, 1.20000553)
+        Error: effort 21.408272 N within 16 N
+[759]:  Item:  Tuple (21.4082756, -0.00804505777, 1.20000696)
+        Error: effort 21.408276 N within 16 N
+[761]:  Item:  Tuple (21.4082794, -0.00804565847, 1.20000839)
+        Error: effort 21.40828 N within 16 N
+[763]:  Item:  Tuple (21.4082851, -0.00804625265, 1.20000982)
+        Error: effort 21.408285 N within 16 N
+[765]:  Item:  Tuple (21.408289, -0.00804684404, 1.20001125)
+        Error: effort 21.408289 N within 16 N
+[767]:  Item:  Tuple (21.4082928, -0.0080474373, 1.20001268)
+        Error: effort 21.408293 N within 16 N
+[769]:  Item:  Tuple (21.1369057, -0.00804803148, 1.20001268)
+        Error: effort 21.136906 N within 16 N
+[771]:  Item:  Tuple (21.4082928, -0.00861312449, 1.20001125)
+        Error: effort 21.408293 N within 16 N
+[773]:  Item:  Tuple (21.408289, -0.00861252844, 1.20000982)
+        Error: effort 21.408289 N within 16 N
+[775]:  Item:  Tuple (21.408287, -0.0086119324, 1.20000839)
+        Error: effort 21.408287 N within 16 N
+[777]:  Item:  Tuple (21.4082832, -0.00861133635, 1.20000696)
+        Error: effort 21.408283 N within 16 N
+[779]:  Item:  Tuple (21.4082756, -0.0086107403, 1.20000553)
+        Error: effort 21.408276 N within 16 N
+[781]:  Item:  Tuple (21.4082718, -0.00861014798, 1.2000041)
+        Error: effort 21.408272 N within 16 N
+[783]:  Item:  Tuple (21.4082718, -0.0080444552, 1.20000553)
+        Error: effort 21.408272 N within 16 N
+[785]:  Item:  Tuple (21.4082756, -0.00804505777, 1.20000696)
+        Error: effort 21.408276 N within 16 N
+[787]:  Item:  Tuple (21.4082794, -0.00804565847, 1.20000839)
+        Error: effort 21.40828 N within 16 N
+[789]:  Item:  Tuple (21.4082851, -0.00804625265, 1.20000982)
+        Error: effort 21.408285 N within 16 N
+[791]:  Item:  Tuple (21.408289, -0.00804684404, 1.20001125)
+        Error: effort 21.408289 N within 16 N
+[793]:  Item:  Tuple (21.4082928, -0.0080474373, 1.20001268)
+        Error: effort 21.408293 N within 16 N
+[795]:  Item:  Tuple (21.1369057, -0.00804803148, 1.20001268)
+        Error: effort 21.136906 N within 16 N
+[797]:  Item:  Tuple (21.4082928, -0.00861312449, 1.20001125)
+        Error: effort 21.408293 N within 16 N
+[799]:  Item:  Tuple (21.408289, -0.00861252844, 1.20000982)
+        Error: effort 21.408289 N within 16 N
+[801]:  Item:  Tuple (21.408287, -0.0086119324, 1.20000839)
+        Error: effort 21.408287 N within 16 N
+[803]:  Item:  Tuple (21.4082832, -0.00861133635, 1.20000696)
+        Error: effort 21.408283 N within 16 N
+[805]:  Item:  Tuple (21.4082756, -0.0086107403, 1.20000553)
+        Error: effort 21.408276 N within 16 N
+[807]:  Item:  Tuple (21.4082718, -0.00861014798, 1.2000041)
+        Error: effort 21.408272 N within 16 N
+[809]:  Item:  Tuple (21.4082718, -0.0080444552, 1.20000553)
+        Error: effort 21.408272 N within 16 N
+[811]:  Item:  Tuple (21.4082756, -0.00804505777, 1.20000696)
+        Error: effort 21.408276 N within 16 N
+[813]:  Item:  Tuple (21.4082794, -0.00804565847, 1.20000839)
+        Error: effort 21.40828 N within 16 N
+[815]:  Item:  Tuple (21.4082851, -0.00804625265, 1.20000982)
+        Error: effort 21.408285 N within 16 N
+[817]:  Item:  Tuple (21.408289, -0.00804684404, 1.20001125)
+        Error: effort 21.408289 N within 16 N
+[819]:  Item:  Tuple (21.4082928, -0.0080474373, 1.20001268)
+        Error: effort 21.408293 N within 16 N
+[821]:  Item:  Tuple (21.1369057, -0.00804803148, 1.20001268)
+        Error: effort 21.136906 N within 16 N
+[823]:  Item:  Tuple (21.4082928, -0.00861312449, 1.20001125)
+        Error: effort 21.408293 N within 16 N
+[825]:  Item:  Tuple (21.408289, -0.00861252844, 1.20000982)
+        Error: effort 21.408289 N within 16 N
+[827]:  Item:  Tuple (21.408287, -0.0086119324, 1.20000839)
+        Error: effort 21.408287 N within 16 N
+[829]:  Item:  Tuple (21.4082832, -0.00861133635, 1.20000696)
+        Error: effort 21.408283 N within 16 N
+[831]:  Item:  Tuple (21.4082756, -0.0086107403, 1.20000553)
+        Error: effort 21.408276 N within 16 N
+[833]:  Item:  Tuple (21.4082718, -0.00861014798, 1.2000041)
+        Error: effort 21.408272 N within 16 N
+[835]:  Item:  Tuple (21.4082718, -0.0080444552, 1.20000553)
+        Error: effort 21.408272 N within 16 N
+[837]:  Item:  Tuple (21.4082756, -0.00804505777, 1.20000696)
+        Error: effort 21.408276 N within 16 N
+[839]:  Item:  Tuple (21.4082794, -0.00804565847, 1.20000839)
+        Error: effort 21.40828 N within 16 N
+[841]:  Item:  Tuple (21.4082851, -0.00804625265, 1.20000982)
+        Error: effort 21.408285 N within 16 N
+[843]:  Item:  Tuple (21.408289, -0.00804684404, 1.20001125)
+        Error: effort 21.408289 N within 16 N
+[845]:  Item:  Tuple (21.4082928, -0.0080474373, 1.20001268)
+        Error: effort 21.408293 N within 16 N
+[847]:  Item:  Tuple (21.1369057, -0.00804803148, 1.20001268)
+        Error: effort 21.136906 N within 16 N
+[849]:  Item:  Tuple (21.4082928, -0.00861312449, 1.20001125)
+        Error: effort 21.408293 N within 16 N
+[851]:  Item:  Tuple (21.408289, -0.00861252844, 1.20000982)
+        Error: effort 21.408289 N within 16 N
+[853]:  Item:  Tuple (21.408287, -0.0086119324, 1.20000839)
+        Error: effort 21.408287 N within 16 N
+[855]:  Item:  Tuple (21.4082832, -0.00861133635, 1.20000696)
+        Error: effort 21.408283 N within 16 N
+[857]:  Item:  Tuple (21.4082756, -0.0086107403, 1.20000553)
+        Error: effort 21.408276 N within 16 N
+[859]:  Item:  Tuple (21.4082718, -0.00861014798, 1.2000041)
+        Error: effort 21.408272 N within 16 N
+[861]:  Item:  Tuple (21.4082718, -0.0080444552, 1.20000553)
+        Error: effort 21.408272 N within 16 N
+[863]:  Item:  Tuple (21.4082756, -0.00804505777, 1.20000696)
+        Error: effort 21.408276 N within 16 N
+[865]:  Item:  Tuple (21.4082794, -0.00804565847, 1.20000839)
+        Error: effort 21.40828 N within 16 N
+[867]:  Item:  Tuple (21.4082851, -0.00804625265, 1.20000982)
+        Error: effort 21.408285 N within 16 N
+[869]:  Item:  Tuple (21.408289, -0.00804684404, 1.20001125)
+        Error: effort 21.408289 N within 16 N
+[871]:  Item:  Tuple (21.4082928, -0.0080474373, 1.20001268)
+        Error: effort 21.408293 N within 16 N
+[873]:  Item:  Tuple (21.1369057, -0.00804803148, 1.20001268)
+        Error: effort 21.136906 N within 16 N
+[875]:  Item:  Tuple (21.4082928, -0.00861312449, 1.20001125)
+        Error: effort 21.408293 N within 16 N
+[877]:  Item:  Tuple (21.408289, -0.00861252844, 1.20000982)
+        Error: effort 21.408289 N within 16 N
+[879]:  Item:  Tuple (21.408287, -0.0086119324, 1.20000839)
+        Error: effort 21.408287 N within 16 N
+[881]:  Item:  Tuple (21.4082832, -0.00861133635, 1.20000696)
+        Error: effort 21.408283 N within 16 N
+[883]:  Item:  Tuple (21.4082756, -0.0086107403, 1.20000553)
+        Error: effort 21.408276 N within 16 N
+[885]:  Item:  Tuple (21.4082718, -0.00861014798, 1.2000041)
+        Error: effort 21.408272 N within 16 N
+[887]:  Item:  Tuple (21.4082718, -0.0080444552, 1.20000553)
+        Error: effort 21.408272 N within 16 N
+[889]:  Item:  Tuple (21.4082756, -0.00804505777, 1.20000696)
+        Error: effort 21.408276 N within 16 N
+[891]:  Item:  Tuple (21.4082794, -0.00804565847, 1.20000839)
+        Error: effort 21.40828 N within 16 N
+[893]:  Item:  Tuple (21.4082851, -0.00804625265, 1.20000982)
+        Error: effort 21.408285 N within 16 N
+[895]:  Item:  Tuple (21.408289, -0.00804684404, 1.20001125)
+        Error: effort 21.408289 N within 16 N
+[897]:  Item:  Tuple (21.4082928, -0.0080474373, 1.20001268)
+        Error: effort 21.408293 N within 16 N
+[899]:  Item:  Tuple (21.1369057, -0.00804803148, 1.20001268)
+        Error: effort 21.136906 N within 16 N
+[901]:  Item:  Tuple (21.4082928, -0.00861312449, 1.20001125)
+        Error: effort 21.408293 N within 16 N
+[903]:  Item:  Tuple (21.408289, -0.00861252844, 1.20000982)
+        Error: effort 21.408289 N within 16 N
+[905]:  Item:  Tuple (21.408287, -0.0086119324, 1.20000839)
+        Error: effort 21.408287 N within 16 N
+[907]:  Item:  Tuple (21.4082832, -0.00861133635, 1.20000696)
+        Error: effort 21.408283 N within 16 N
+[909]:  Item:  Tuple (21.4082756, -0.0086107403, 1.20000553)
+        Error: effort 21.408276 N within 16 N
+[911]:  Item:  Tuple (21.4082718, -0.00861014798, 1.2000041)
+        Error: effort 21.408272 N within 16 N
+[913]:  Item:  Tuple (21.4082718, -0.0080444552, 1.20000553)
+        Error: effort 21.408272 N within 16 N
+[915]:  Item:  Tuple (21.4082756, -0.00804505777, 1.20000696)
+        Error: effort 21.408276 N within 16 N
+[917]:  Item:  Tuple (21.4082794, -0.00804565847, 1.20000839)
+        Error: effort 21.40828 N within 16 N
+[919]:  Item:  Tuple (21.4082851, -0.00804625265, 1.20000982)
+        Error: effort 21.408285 N within 16 N
+[921]:  Item:  Tuple (21.408289, -0.00804684404, 1.20001125)
+        Error: effort 21.408289 N within 16 N
+[923]:  Item:  Tuple (21.4082928, -0.0080474373, 1.20001268)
+        Error: effort 21.408293 N within 16 N
+[925]:  Item:  Tuple (21.1369057, -0.00804803148, 1.20001268)
+        Error: effort 21.136906 N within 16 N
+[927]:  Item:  Tuple (21.4082928, -0.00861312449, 1.20001125)
+        Error: effort 21.408293 N within 16 N
+[929]:  Item:  Tuple (21.408289, -0.00861252844, 1.20000982)
+        Error: effort 21.408289 N within 16 N
+[931]:  Item:  Tuple (21.408287, -0.0086119324, 1.20000839)
+        Error: effort 21.408287 N within 16 N
+[933]:  Item:  Tuple (21.4082832, -0.00861133635, 1.20000696)
+        Error: effort 21.408283 N within 16 N
+[935]:  Item:  Tuple (21.4082756, -0.0086107403, 1.20000553)
+        Error: effort 21.408276 N within 16 N
+[937]:  Item:  Tuple (21.4082718, -0.00861014798, 1.2000041)
+        Error: effort 21.408272 N within 16 N
+[939]:  Item:  Tuple (21.4082718, -0.0080444552, 1.20000553)
+        Error: effort 21.408272 N within 16 N
+[941]:  Item:  Tuple (21.4082756, -0.00804505777, 1.20000696)
+        Error: effort 21.408276 N within 16 N
+[943]:  Item:  Tuple (21.4082794, -0.00804565847, 1.20000839)
+        Error: effort 21.40828 N within 16 N
+[945]:  Item:  Tuple (21.4082851, -0.00804625265, 1.20000982)
+        Error: effort 21.408285 N within 16 N
+[947]:  Item:  Tuple (21.408289, -0.00804684404, 1.20001125)
+        Error: effort 21.408289 N within 16 N
+[949]:  Item:  Tuple (21.4082928, -0.0080474373, 1.20001268)
+        Error: effort 21.408293 N within 16 N
+[951]:  Item:  Tuple (21.1369057, -0.00804803148, 1.20001268)
+        Error: effort 21.136906 N within 16 N
+[953]:  Item:  Tuple (21.4082928, -0.00861312449, 1.20001125)
+        Error: effort 21.408293 N within 16 N
+[955]:  Item:  Tuple (21.408289, -0.00861252844, 1.20000982)
+        Error: effort 21.408289 N within 16 N
+[957]:  Item:  Tuple (21.408287, -0.0086119324, 1.20000839)
+        Error: effort 21.408287 N within 16 N
+[959]:  Item:  Tuple (21.4082832, -0.00861133635, 1.20000696)
+        Error: effort 21.408283 N within 16 N
+[961]:  Item:  Tuple (21.4082756, -0.0086107403, 1.20000553)
+        Error: effort 21.408276 N within 16 N
+[963]:  Item:  Tuple (21.4082718, -0.00861014798, 1.2000041)
+        Error: effort 21.408272 N within 16 N
+[965]:  Item:  Tuple (21.4082718, -0.0080444552, 1.20000553)
+        Error: effort 21.408272 N within 16 N
+[967]:  Item:  Tuple (21.4082756, -0.00804505777, 1.20000696)
+        Error: effort 21.408276 N within 16 N
+[969]:  Item:  Tuple (21.4082794, -0.00804565847, 1.20000839)
+        Error: effort 21.40828 N within 16 N
+[971]:  Item:  Tuple (21.4082851, -0.00804625265, 1.20000982)
+        Error: effort 21.408285 N within 16 N
+[973]:  Item:  Tuple (21.408289, -0.00804684404, 1.20001125)
+        Error: effort 21.408289 N within 16 N
+[975]:  Item:  Tuple (21.4082928, -0.0080474373, 1.20001268)
+        Error: effort 21.408293 N within 16 N
+[977]:  Item:  Tuple (21.1369057, -0.00804803148, 1.20001268)
+        Error: effort 21.136906 N within 16 N
+[979]:  Item:  Tuple (21.4082928, -0.00861312449, 1.20001125)
+        Error: effort 21.408293 N within 16 N
+[981]:  Item:  Tuple (21.408289, -0.00861252844, 1.20000982)
+        Error: effort 21.408289 N within 16 N
+[983]:  Item:  Tuple (21.408287, -0.0086119324, 1.20000839)
+        Error: effort 21.408287 N within 16 N
+[985]:  Item:  Tuple (21.4082832, -0.00861133635, 1.20000696)
+        Error: effort 21.408283 N within 16 N
+[987]:  Item:  Tuple (21.4082756, -0.0086107403, 1.20000553)
+        Error: effort 21.408276 N within 16 N
+[989]:  Item:  Tuple (21.4082718, -0.00861014798, 1.2000041)
+        Error: effort 21.408272 N within 16 N
+[991]:  Item:  Tuple (21.4082718, -0.0080444552, 1.20000553)
+        Error: effort 21.408272 N within 16 N
+[993]:  Item:  Tuple (21.4082756, -0.00804505777, 1.20000696)
+        Error: effort 21.408276 N within 16 N
+[995]:  Item:  Tuple (21.4082794, -0.00804565847, 1.20000839)
+        Error: effort 21.40828 N within 16 N
+[997]:  Item:  Tuple (21.4082851, -0.00804625265, 1.20000982)
+        Error: effort 21.408285 N within 16 N
+[999]:  Item:  Tuple (21.408289, -0.00804684404, 1.20001125)
+        Error: effort 21.408289 N within 16 N
+[1001]: Item:  Tuple (21.4082928, -0.0080474373, 1.20001268)
+        Error: effort 21.408293 N within 16 N
+[1003]: Item:  Tuple (21.1369057, -0.00804803148, 1.20001268)
+        Error: effort 21.136906 N within 16 N
+[1005]: Item:  Tuple (21.4082928, -0.00861312449, 1.20001125)
+        Error: effort 21.408293 N within 16 N
+[1007]: Item:  Tuple (21.408289, -0.00861252844, 1.20000982)
+        Error: effort 21.408289 N within 16 N
+[1009]: Item:  Tuple (21.408287, -0.0086119324, 1.20000839)
+        Error: effort 21.408287 N within 16 N
+[1011]: Item:  Tuple (21.4082832, -0.00861133635, 1.20000696)
+        Error: effort 21.408283 N within 16 N
+[1013]: Item:  Tuple (21.4082756, -0.0086107403, 1.20000553)
+        Error: effort 21.408276 N within 16 N
+[1015]: Item:  Tuple (21.4082718, -0.00861014798, 1.2000041)
+        Error: effort 21.408272 N within 16 N
+[1017]: Item:  Tuple (21.4082718, -0.0080444552, 1.20000553)
+        Error: effort 21.408272 N within 16 N
+[1019]: Item:  Tuple (21.4082756, -0.00804505777, 1.20000696)
+        Error: effort 21.408276 N within 16 N
+[1021]: Item:  Tuple (21.4082794, -0.00804565847, 1.20000839)
+        Error: effort 21.40828 N within 16 N
+[1023]: Item:  Tuple (21.4082851, -0.00804625265, 1.20000982)
+        Error: effort 21.408285 N within 16 N
+[1025]: Item:  Tuple (21.408289, -0.00804684404, 1.20001125)
+        Error: effort 21.408289 N within 16 N
+[1027]: Item:  Tuple (21.4082928, -0.0080474373, 1.20001268)
+        Error: effort 21.408293 N within 16 N
+[1029]: Item:  Tuple (21.1369057, -0.00804803148, 1.20001268)
+        Error: effort 21.136906 N within 16 N
+[1031]: Item:  Tuple (21.4082928, -0.00861312449, 1.20001125)
+        Error: effort 21.408293 N within 16 N
+[1033]: Item:  Tuple (21.408289, -0.00861252844, 1.20000982)
+        Error: effort 21.408289 N within 16 N
+[1035]: Item:  Tuple (21.408287, -0.0086119324, 1.20000839)
+        Error: effort 21.408287 N within 16 N
+[1037]: Item:  Tuple (21.4082832, -0.00861133635, 1.20000696)
+        Error: effort 21.408283 N within 16 N
+[1039]: Item:  Tuple (21.4082756, -0.0086107403, 1.20000553)
+        Error: effort 21.408276 N within 16 N
+[1041]: Item:  Tuple (21.4082718, -0.00861014798, 1.2000041)
+        Error: effort 21.408272 N within 16 N
+[1043]: Item:  Tuple (21.4082718, -0.0080444552, 1.20000553)
+        Error: effort 21.408272 N within 16 N
+[1045]: Item:  Tuple (21.4082756, -0.00804505777, 1.20000696)
+        Error: effort 21.408276 N within 16 N
+[1047]: Item:  Tuple (21.4082794, -0.00804565847, 1.20000839)
+        Error: effort 21.40828 N within 16 N
+[1049]: Item:  Tuple (21.4082851, -0.00804625265, 1.20000982)
+        Error: effort 21.408285 N within 16 N
+[1051]: Item:  Tuple (21.408289, -0.00804684404, 1.20001125)
+        Error: effort 21.408289 N within 16 N
+[1053]: Item:  Tuple (21.4082928, -0.0080474373, 1.20001268)
+        Error: effort 21.408293 N within 16 N
+[1055]: Item:  Tuple (21.1369057, -0.00804803148, 1.20001268)
+        Error: effort 21.136906 N within 16 N
+[1057]: Item:  Tuple (21.4082928, -0.00861312449, 1.20001125)
+        Error: effort 21.408293 N within 16 N
+[1059]: Item:  Tuple (21.408289, -0.00861252844, 1.20000982)
+        Error: effort 21.408289 N within 16 N
+[1061]: Item:  Tuple (21.408287, -0.0086119324, 1.20000839)
+        Error: effort 21.408287 N within 16 N
+[1063]: Item:  Tuple (21.4082832, -0.00861133635, 1.20000696)
+        Error: effort 21.408283 N within 16 N
+[1065]: Item:  Tuple (21.4082756, -0.0086107403, 1.20000553)
+        Error: effort 21.408276 N within 16 N
+[1067]: Item:  Tuple (21.4082718, -0.00861014798, 1.2000041)
+        Error: effort 21.408272 N within 16 N
+[1069]: Item:  Tuple (21.4082718, -0.0080444552, 1.20000553)
+        Error: effort 21.408272 N within 16 N
+[1071]: Item:  Tuple (21.4082756, -0.00804505777, 1.20000696)
+        Error: effort 21.408276 N within 16 N
+[1073]: Item:  Tuple (21.4082794, -0.00804565847, 1.20000839)
+        Error: effort 21.40828 N within 16 N
+[1075]: Item:  Tuple (21.4082851, -0.00804625265, 1.20000982)
+        Error: effort 21.408285 N within 16 N
+[1077]: Item:  Tuple (21.408289, -0.00804684404, 1.20001125)
+        Error: effort 21.408289 N within 16 N
+[1079]: Item:  Tuple (21.4082928, -0.0080474373, 1.20001268)
+        Error: effort 21.408293 N within 16 N
+[1081]: Item:  Tuple (21.1369057, -0.00804803148, 1.20001268)
+        Error: effort 21.136906 N within 16 N
+[1083]: Item:  Tuple (21.4082928, -0.00861312449, 1.20001125)
+        Error: effort 21.408293 N within 16 N
+[1085]: Item:  Tuple (21.408289, -0.00861252844, 1.20000982)
+        Error: effort 21.408289 N within 16 N
+[1087]: Item:  Tuple (21.408287, -0.0086119324, 1.20000839)
+        Error: effort 21.408287 N within 16 N
+[1089]: Item:  Tuple (21.4082832, -0.00861133635, 1.20000696)
+        Error: effort 21.408283 N within 16 N
+[1091]: Item:  Tuple (21.4082756, -0.0086107403, 1.20000553)
+        Error: effort 21.408276 N within 16 N
+[1093]: Item:  Tuple (21.4082718, -0.00861014798, 1.2000041)
+        Error: effort 21.408272 N within 16 N
+[1095]: Item:  Tuple (21.4082718, -0.0080444552, 1.20000553)
+        Error: effort 21.408272 N within 16 N
+[1097]: Item:  Tuple (21.4082756, -0.00804505777, 1.20000696)
+        Error: effort 21.408276 N within 16 N
+[1099]: Item:  Tuple (21.4082794, -0.00804565847, 1.20000839)
+        Error: effort 21.40828 N within 16 N
+[1101]: Item:  Tuple (21.4082851, -0.00804625265, 1.20000982)
+        Error: effort 21.408285 N within 16 N
+[1103]: Item:  Tuple (21.408289, -0.00804684404, 1.20001125)
+        Error: effort 21.408289 N within 16 N
+[1105]: Item:  Tuple (21.4082928, -0.0080474373, 1.20001268)
+        Error: effort 21.408293 N within 16 N
+[1107]: Item:  Tuple (21.1369057, -0.00804803148, 1.20001268)
+        Error: effort 21.136906 N within 16 N
+[1109]: Item:  Tuple (21.4082928, -0.00861312449, 1.20001125)
+        Error: effort 21.408293 N within 16 N
+[1111]: Item:  Tuple (21.408289, -0.00861252844, 1.20000982)
+        Error: effort 21.408289 N within 16 N
+[1113]: Item:  Tuple (21.408287, -0.0086119324, 1.20000839)
+        Error: effort 21.408287 N within 16 N
+[1115]: Item:  Tuple (21.4082832, -0.00861133635, 1.20000696)
+        Error: effort 21.408283 N within 16 N
+[1117]: Item:  Tuple (21.4082756, -0.0086107403, 1.20000553)
+        Error: effort 21.408276 N within 16 N
+[1119]: Item:  Tuple (21.4082718, -0.00861014798, 1.2000041)
+        Error: effort 21.408272 N within 16 N
+[1121]: Item:  Tuple (21.4082718, -0.0080444552, 1.20000553)
+        Error: effort 21.408272 N within 16 N
+[1123]: Item:  Tuple (21.4082756, -0.00804505777, 1.20000696)
+        Error: effort 21.408276 N within 16 N
+[1125]: Item:  Tuple (21.4082794, -0.00804565847, 1.20000839)
+        Error: effort 21.40828 N within 16 N
+[1127]: Item:  Tuple (21.4082851, -0.00804625265, 1.20000982)
+        Error: effort 21.408285 N within 16 N
+[1129]: Item:  Tuple (21.408289, -0.00804684404, 1.20001125)
+        Error: effort 21.408289 N within 16 N
+[1131]: Item:  Tuple (21.4082928, -0.0080474373, 1.20001268)
+        Error: effort 21.408293 N within 16 N
+[1133]: Item:  Tuple (21.1369057, -0.00804803148, 1.20001268)
+        Error: effort 21.136906 N within 16 N
+[1135]: Item:  Tuple (21.4082928, -0.00861312449, 1.20001125)
+        Error: effort 21.408293 N within 16 N
+[1137]: Item:  Tuple (21.408289, -0.00861252844, 1.20000982)
+        Error: effort 21.408289 N within 16 N
+[1139]: Item:  Tuple (21.408287, -0.0086119324, 1.20000839)
+        Error: effort 21.408287 N within 16 N
+[1141]: Item:  Tuple (21.4082832, -0.00861133635, 1.20000696)
+        Error: effort 21.408283 N within 16 N
+[1143]: Item:  Tuple (21.4082756, -0.0086107403, 1.20000553)
+        Error: effort 21.408276 N within 16 N
+[1145]: Item:  Tuple (21.4082718, -0.00861014798, 1.2000041)
+        Error: effort 21.408272 N within 16 N
+[1147]: Item:  Tuple (21.4082718, -0.0080444552, 1.20000553)
+        Error: effort 21.408272 N within 16 N
+[1149]: Item:  Tuple (21.4082756, -0.00804505777, 1.20000696)
+        Error: effort 21.408276 N within 16 N
+[1151]: Item:  Tuple (21.4082794, -0.00804565847, 1.20000839)
+        Error: effort 21.40828 N within 16 N
+[1153]: Item:  Tuple (21.4082851, -0.00804625265, 1.20000982)
+        Error: effort 21.408285 N within 16 N
+[1155]: Item:  Tuple (21.408289, -0.00804684404, 1.20001125)
+        Error: effort 21.408289 N within 16 N
+[1157]: Item:  Tuple (21.4082928, -0.0080474373, 1.20001268)
+        Error: effort 21.408293 N within 16 N
+[1159]: Item:  Tuple (21.1369057, -0.00804803148, 1.20001268)
+        Error: effort 21.136906 N within 16 N
+[1161]: Item:  Tuple (21.4082928, -0.00861312449, 1.20001125)
+        Error: effort 21.408293 N within 16 N
+[1163]: Item:  Tuple (21.408289, -0.00861252844, 1.20000982)
+        Error: effort 21.408289 N within 16 N
+[1165]: Item:  Tuple (21.408287, -0.0086119324, 1.20000839)
+        Error: effort 21.408287 N within 16 N
+[1167]: Item:  Tuple (21.4082832, -0.00861133635, 1.20000696)
+        Error: effort 21.408283 N within 16 N
+[1169]: Item:  Tuple (21.4082756, -0.0086107403, 1.20000553)
+        Error: effort 21.408276 N within 16 N
+[1171]: Item:  Tuple (21.4082718, -0.00861014798, 1.2000041)
+        Error: effort 21.408272 N within 16 N
+[1173]: Item:  Tuple (21.4082718, -0.0080444552, 1.20000553)
+        Error: effort 21.408272 N within 16 N
+[1175]: Item:  Tuple (21.4082756, -0.00804505777, 1.20000696)
+        Error: effort 21.408276 N within 16 N
+[1177]: Item:  Tuple (21.4082794, -0.00804565847, 1.20000839)
+        Error: effort 21.40828 N within 16 N
+[1179]: Item:  Tuple (21.4082851, -0.00804625265, 1.20000982)
+        Error: effort 21.408285 N within 16 N
+[1181]: Item:  Tuple (21.408289, -0.00804684404, 1.20001125)
+        Error: effort 21.408289 N within 16 N
+[1183]: Item:  Tuple (21.4082928, -0.0080474373, 1.20001268)
+        Error: effort 21.408293 N within 16 N
+[1185]: Item:  Tuple (21.1369057, -0.00804803148, 1.20001268)
+        Error: effort 21.136906 N within 16 N
+[1187]: Item:  Tuple (21.4082928, -0.00861312449, 1.20001125)
+        Error: effort 21.408293 N within 16 N
+[1189]: Item:  Tuple (21.408289, -0.00861252844, 1.20000982)
+        Error: effort 21.408289 N within 16 N
+[1191]: Item:  Tuple (21.408287, -0.0086119324, 1.20000839)
+        Error: effort 21.408287 N within 16 N
+[1193]: Item:  Tuple (21.4082832, -0.00861133635, 1.20000696)
+        Error: effort 21.408283 N within 16 N
+[1195]: Item:  Tuple (21.4082756, -0.0086107403, 1.20000553)
+        Error: effort 21.408276 N within 16 N
+[1197]: Item:  Tuple (21.4082718, -0.00861014798, 1.2000041)
+        Error: effort 21.408272 N within 16 N
+[1199]: Item:  Tuple (21.4082718, -0.0080444552, 1.20000553)
+        Error: effort 21.408272 N within 16 N
+[1201]: Item:  Tuple (21.4082756, -0.00804505777, 1.20000696)
+        Error: effort 21.408276 N within 16 N
+[1203]: Item:  Tuple (21.4082794, -0.00804565847, 1.20000839)
+        Error: effort 21.40828 N within 16 N
+[1205]: Item:  Tuple (21.4082851, -0.00804625265, 1.20000982)
+        Error: effort 21.408285 N within 16 N
+[1207]: Item:  Tuple (21.408289, -0.00804684404, 1.20001125)
+        Error: effort 21.408289 N within 16 N
+[1209]: Item:  Tuple (21.4082928, -0.0080474373, 1.20001268)
+        Error: effort 21.408293 N within 16 N
+[1211]: Item:  Tuple (21.1369057, -0.00804803148, 1.20001268)
+        Error: effort 21.136906 N within 16 N
+[1213]: Item:  Tuple (21.4082928, -0.00861312449, 1.20001125)
+        Error: effort 21.408293 N within 16 N
+[1215]: Item:  Tuple (21.408289, -0.00861252844, 1.20000982)
+        Error: effort 21.408289 N within 16 N
+[1217]: Item:  Tuple (21.408287, -0.0086119324, 1.20000839)
+        Error: effort 21.408287 N within 16 N
+[1219]: Item:  Tuple (21.4082832, -0.00861133635, 1.20000696)
+        Error: effort 21.408283 N within 16 N
+[1221]: Item:  Tuple (21.4082756, -0.0086107403, 1.20000553)
+        Error: effort 21.408276 N within 16 N
+[1223]: Item:  Tuple (21.4082718, -0.00861014798, 1.2000041)
+        Error: effort 21.408272 N within 16 N
+[1225]: Item:  Tuple (21.4082718, -0.0080444552, 1.20000553)
+        Error: effort 21.408272 N within 16 N
+[1227]: Item:  Tuple (21.4082756, -0.00804505777, 1.20000696)
+        Error: effort 21.408276 N within 16 N
+[1229]: Item:  Tuple (21.4082794, -0.00804565847, 1.20000839)
+        Error: effort 21.40828 N within 16 N
+[1231]: Item:  Tuple (21.4082851, -0.00804625265, 1.20000982)
+        Error: effort 21.408285 N within 16 N
+[1233]: Item:  Tuple (21.408289, -0.00804684404, 1.20001125)
+        Error: effort 21.408289 N within 16 N
+[1235]: Item:  Tuple (21.4082928, -0.0080474373, 1.20001268)
+        Error: effort 21.408293 N within 16 N
+[1237]: Item:  Tuple (21.1369057, -0.00804803148, 1.20001268)
+        Error: effort 21.136906 N within 16 N
+[1239]: Item:  Tuple (21.4082928, -0.00861312449, 1.20001125)
+        Error: effort 21.408293 N within 16 N
+[1241]: Item:  Tuple (21.408289, -0.00861252844, 1.20000982)
+        Error: effort 21.408289 N within 16 N
+[1243]: Item:  Tuple (21.408287, -0.0086119324, 1.20000839)
+        Error: effort 21.408287 N within 16 N
+[1245]: Item:  Tuple (21.4082832, -0.00861133635, 1.20000696)
+        Error: effort 21.408283 N within 16 N
+[1247]: Item:  Tuple (21.4082756, -0.0086107403, 1.20000553)
+        Error: effort 21.408276 N within 16 N
+[1249]: Item:  Tuple (21.4082718, -0.00861014798, 1.2000041)
+        Error: effort 21.408272 N within 16 N
+[1251]: Item:  Tuple (21.4082718, -0.0080444552, 1.20000553)
+        Error: effort 21.408272 N within 16 N
+[1253]: Item:  Tuple (21.4082756, -0.00804505777, 1.20000696)
+        Error: effort 21.408276 N within 16 N
+[1255]: Item:  Tuple (21.4082794, -0.00804565847, 1.20000839)
+        Error: effort 21.40828 N within 16 N
+[1257]: Item:  Tuple (21.4082851, -0.00804625265, 1.20000982)
+        Error: effort 21.408285 N within 16 N
+[1259]: Item:  Tuple (21.408289, -0.00804684404, 1.20001125)
+        Error: effort 21.408289 N within 16 N
+[1261]: Item:  Tuple (21.4082928, -0.0080474373, 1.20001268)
+        Error: effort 21.408293 N within 16 N
+[1263]: Item:  Tuple (21.1369057, -0.00804803148, 1.20001268)
+        Error: effort 21.136906 N within 16 N
+[1265]: Item:  Tuple (21.4082928, -0.00861312449, 1.20001125)
+        Error: effort 21.408293 N within 16 N
+[1267]: Item:  Tuple (21.408289, -0.00861252844, 1.20000982)
+        Error: effort 21.408289 N within 16 N
+[1269]: Item:  Tuple (21.408287, -0.0086119324, 1.20000839)
+        Error: effort 21.408287 N within 16 N
+[1271]: Item:  Tuple (21.4082832, -0.00861133635, 1.20000696)
+        Error: effort 21.408283 N within 16 N
+[1273]: Item:  Tuple (21.4082756, -0.0086107403, 1.20000553)
+        Error: effort 21.408276 N within 16 N
+[1275]: Item:  Tuple (21.4082718, -0.00861014798, 1.2000041)
+        Error: effort 21.408272 N within 16 N
+[1277]: Item:  Tuple (21.4082718, -0.0080444552, 1.20000553)
+        Error: effort 21.408272 N within 16 N
+[1279]: Item:  Tuple (21.4082756, -0.00804505777, 1.20000696)
+        Error: effort 21.408276 N within 16 N
+[1281]: Item:  Tuple (21.4082794, -0.00804565847, 1.20000839)
+        Error: effort 21.40828 N within 16 N
+[1283]: Item:  Tuple (21.4082851, -0.00804625265, 1.20000982)
+        Error: effort 21.408285 N within 16 N
+[1285]: Item:  Tuple (21.408289, -0.00804684404, 1.20001125)
+        Error: effort 21.408289 N within 16 N
+[1287]: Item:  Tuple (21.4082928, -0.0080474373, 1.20001268)
+        Error: effort 21.408293 N within 16 N
+[1289]: Item:  Tuple (21.1369057, -0.00804803148, 1.20001268)
+        Error: effort 21.136906 N within 16 N
+[1291]: Item:  Tuple (21.4082928, -0.00861312449, 1.20001125)
+        Error: effort 21.408293 N within 16 N
+[1293]: Item:  Tuple (21.408289, -0.00861252844, 1.20000982)
+        Error: effort 21.408289 N within 16 N
+[1295]: Item:  Tuple (21.408287, -0.0086119324, 1.20000839)
+        Error: effort 21.408287 N within 16 N
+[1297]: Item:  Tuple (21.4082832, -0.00861133635, 1.20000696)
+        Error: effort 21.408283 N within 16 N
+[1299]: Item:  Tuple (21.4082756, -0.0086107403, 1.20000553)
+        Error: effort 21.408276 N within 16 N
+[1301]: Item:  Tuple (21.4082718, -0.00861014798, 1.2000041)
+        Error: effort 21.408272 N within 16 N
+[1303]: Item:  Tuple (21.4082718, -0.0080444552, 1.20000553)
+        Error: effort 21.408272 N within 16 N
+[1305]: Item:  Tuple (21.4082756, -0.00804505777, 1.20000696)
+        Error: effort 21.408276 N within 16 N
+[1307]: Item:  Tuple (21.4082794, -0.00804565847, 1.20000839)
+        Error: effort 21.40828 N within 16 N
+[1309]: Item:  Tuple (21.4082851, -0.00804625265, 1.20000982)
+        Error: effort 21.408285 N within 16 N
+[1311]: Item:  Tuple (21.408289, -0.00804684404, 1.20001125)
+        Error: effort 21.408289 N within 16 N
+[1313]: Item:  Tuple (21.4082928, -0.0080474373, 1.20001268)
+        Error: effort 21.408293 N within 16 N
+[1315]: Item:  Tuple (21.1369057, -0.00804803148, 1.20001268)
+        Error: effort 21.136906 N within 16 N
+[1317]: Item:  Tuple (21.4082928, -0.00861312449, 1.20001125)
+        Error: effort 21.408293 N within 16 N
+[1319]: Item:  Tuple (21.408289, -0.00861252844, 1.20000982)
+        Error: effort 21.408289 N within 16 N
+[1321]: Item:  Tuple (21.408287, -0.0086119324, 1.20000839)
+        Error: effort 21.408287 N within 16 N
+[1323]: Item:  Tuple (21.4082832, -0.00861133635, 1.20000696)
+        Error: effort 21.408283 N within 16 N
+[1325]: Item:  Tuple (21.4082756, -0.0086107403, 1.20000553)
+        Error: effort 21.408276 N within 16 N
+[1327]: Item:  Tuple (21.4082718, -0.00861014798, 1.2000041)
+        Error: effort 21.408272 N within 16 N
+[1329]: Item:  Tuple (21.4082718, -0.0080444552, 1.20000553)
+        Error: effort 21.408272 N within 16 N
+[1331]: Item:  Tuple (21.4082756, -0.00804505777, 1.20000696)
+        Error: effort 21.408276 N within 16 N
+[1333]: Item:  Tuple (21.4082794, -0.00804565847, 1.20000839)
+        Error: effort 21.40828 N within 16 N
+[1335]: Item:  Tuple (21.4082851, -0.00804625265, 1.20000982)
+        Error: effort 21.408285 N within 16 N
+[1337]: Item:  Tuple (21.408289, -0.00804684404, 1.20001125)
+        Error: effort 21.408289 N within 16 N
+[1339]: Item:  Tuple (21.4082928, -0.0080474373, 1.20001268)
+        Error: effort 21.408293 N within 16 N
+[1341]: Item:  Tuple (21.1369057, -0.00804803148, 1.20001268)
+        Error: effort 21.136906 N within 16 N
+[1343]: Item:  Tuple (21.4082928, -0.00861312449, 1.20001125)
+        Error: effort 21.408293 N within 16 N
+[1345]: Item:  Tuple (21.408289, -0.00861252844, 1.20000982)
+        Error: effort 21.408289 N within 16 N
+[1347]: Item:  Tuple (21.408287, -0.0086119324, 1.20000839)
+        Error: effort 21.408287 N within 16 N
+[1349]: Item:  Tuple (21.4082832, -0.00861133635, 1.20000696)
+        Error: effort 21.408283 N within 16 N
+[1351]: Item:  Tuple (21.4082756, -0.0086107403, 1.20000553)
+        Error: effort 21.408276 N within 16 N
+[1353]: Item:  Tuple (21.4082718, -0.00861014798, 1.2000041)
+        Error: effort 21.408272 N within 16 N
+[1355]: Item:  Tuple (21.4082718, -0.0080444552, 1.20000553)
+        Error: effort 21.408272 N within 16 N
+[1357]: Item:  Tuple (21.4082756, -0.00804505777, 1.20000696)
+        Error: effort 21.408276 N within 16 N
+[1359]: Item:  Tuple (21.4082794, -0.00804565847, 1.20000839)
+        Error: effort 21.40828 N within 16 N
+[1361]: Item:  Tuple (21.4082851, -0.00804625265, 1.20000982)
+        Error: effort 21.408285 N within 16 N
+[1363]: Item:  Tuple (21.408289, -0.00804684404, 1.20001125)
+        Error: effort 21.408289 N within 16 N
+[1365]: Item:  Tuple (21.4082928, -0.0080474373, 1.20001268)
+        Error: effort 21.408293 N within 16 N
+[1367]: Item:  Tuple (21.1369057, -0.00804803148, 1.20001268)
+        Error: effort 21.136906 N within 16 N
+[1369]: Item:  Tuple (21.4082928, -0.00861312449, 1.20001125)
+        Error: effort 21.408293 N within 16 N
+[1371]: Item:  Tuple (21.408289, -0.00861252844, 1.20000982)
+        Error: effort 21.408289 N within 16 N
+[1373]: Item:  Tuple (21.408287, -0.0086119324, 1.20000839)
+        Error: effort 21.408287 N within 16 N
+[1375]: Item:  Tuple (21.4082832, -0.00861133635, 1.20000696)
+        Error: effort 21.408283 N within 16 N
+[1377]: Item:  Tuple (21.4082756, -0.0086107403, 1.20000553)
+        Error: effort 21.408276 N within 16 N
+[1379]: Item:  Tuple (21.4082718, -0.00861014798, 1.2000041)
+        Error: effort 21.408272 N within 16 N
+[1381]: Item:  Tuple (21.4082718, -0.0080444552, 1.20000553)
+        Error: effort 21.408272 N within 16 N
+[1383]: Item:  Tuple (21.4082756, -0.00804505777, 1.20000696)
+        Error: effort 21.408276 N within 16 N
+[1385]: Item:  Tuple (21.4082794, -0.00804565847, 1.20000839)
+        Error: effort 21.40828 N within 16 N
+[1387]: Item:  Tuple (21.4082851, -0.00804625265, 1.20000982)
+        Error: effort 21.408285 N within 16 N
+[1389]: Item:  Tuple (21.408289, -0.00804684404, 1.20001125)
+        Error: effort 21.408289 N within 16 N
+[1391]: Item:  Tuple (21.4082928, -0.0080474373, 1.20001268)
+        Error: effort 21.408293 N within 16 N
+[1393]: Item:  Tuple (21.1369057, -0.00804803148, 1.20001268)
+        Error: effort 21.136906 N within 16 N
+[1395]: Item:  Tuple (21.4082928, -0.00861312449, 1.20001125)
+        Error: effort 21.408293 N within 16 N
+[1397]: Item:  Tuple (21.408289, -0.00861252844, 1.20000982)
+        Error: effort 21.408289 N within 16 N
+[1399]: Item:  Tuple (21.408287, -0.0086119324, 1.20000839)
+        Error: effort 21.408287 N within 16 N
+[1401]: Item:  Tuple (21.4082832, -0.00861133635, 1.20000696)
+        Error: effort 21.408283 N within 16 N
+[1403]: Item:  Tuple (21.4082756, -0.0086107403, 1.20000553)
+        Error: effort 21.408276 N within 16 N
+[1405]: Item:  Tuple (21.4082718, -0.00861014798, 1.2000041)
+        Error: effort 21.408272 N within 16 N
+[1407]: Item:  Tuple (21.4082718, -0.0080444552, 1.20000553)
+        Error: effort 21.408272 N within 16 N
+[1409]: Item:  Tuple (21.4082756, -0.00804505777, 1.20000696)
+        Error: effort 21.408276 N within 16 N
+[1411]: Item:  Tuple (21.4082794, -0.00804565847, 1.20000839)
+        Error: effort 21.40828 N within 16 N
+[1413]: Item:  Tuple (21.4082851, -0.00804625265, 1.20000982)
+        Error: effort 21.408285 N within 16 N
+[1415]: Item:  Tuple (21.408289, -0.00804684404, 1.20001125)
+        Error: effort 21.408289 N within 16 N
+[1417]: Item:  Tuple (21.4082928, -0.0080474373, 1.20001268)
+        Error: effort 21.408293 N within 16 N
+[1419]: Item:  Tuple (21.1369057, -0.00804803148, 1.20001268)
+        Error: effort 21.136906 N within 16 N
+[1421]: Item:  Tuple (21.4082928, -0.00861312449, 1.20001125)
+        Error: effort 21.408293 N within 16 N
+[1423]: Item:  Tuple (21.408289, -0.00861252844, 1.20000982)
+        Error: effort 21.408289 N within 16 N
+[1425]: Item:  Tuple (21.408287, -0.0086119324, 1.20000839)
+        Error: effort 21.408287 N within 16 N
+[1427]: Item:  Tuple (21.4082832, -0.00861133635, 1.20000696)
+        Error: effort 21.408283 N within 16 N
+[1429]: Item:  Tuple (21.4082756, -0.0086107403, 1.20000553)
+        Error: effort 21.408276 N within 16 N
+[1431]: Item:  Tuple (21.4082718, -0.00861014798, 1.2000041)
+        Error: effort 21.408272 N within 16 N
+[1433]: Item:  Tuple (21.4082718, -0.0080444552, 1.20000553)
+        Error: effort 21.408272 N within 16 N
+[1435]: Item:  Tuple (21.4082756, -0.00804505777, 1.20000696)
+        Error: effort 21.408276 N within 16 N
+[1437]: Item:  Tuple (21.4082794, -0.00804565847, 1.20000839)
+        Error: effort 21.40828 N within 16 N
+[1439]: Item:  Tuple (21.4082851, -0.00804625265, 1.20000982)
+        Error: effort 21.408285 N within 16 N
+[1441]: Item:  Tuple (21.408289, -0.00804684404, 1.20001125)
+        Error: effort 21.408289 N within 16 N
+[1443]: Item:  Tuple (21.4082928, -0.0080474373, 1.20001268)
+        Error: effort 21.408293 N within 16 N
+[1445]: Item:  Tuple (21.1369057, -0.00804803148, 1.20001268)
+        Error: effort 21.136906 N within 16 N
+[1447]: Item:  Tuple (21.4082928, -0.00861312449, 1.20001125)
+        Error: effort 21.408293 N within 16 N
+[1449]: Item:  Tuple (21.408289, -0.00861252844, 1.20000982)
+        Error: effort 21.408289 N within 16 N
+[1451]: Item:  Tuple (21.408287, -0.0086119324, 1.20000839)
+        Error: effort 21.408287 N within 16 N
+[1453]: Item:  Tuple (21.4082832, -0.00861133635, 1.20000696)
+        Error: effort 21.408283 N within 16 N
+[1455]: Item:  Tuple (21.4082756, -0.0086107403, 1.20000553)
+        Error: effort 21.408276 N within 16 N
+[1457]: Item:  Tuple (21.4082718, -0.00861014798, 1.2000041)
+        Error: effort 21.408272 N within 16 N
+[1459]: Item:  Tuple (21.4082718, -0.0080444552, 1.20000553)
+        Error: effort 21.408272 N within 16 N
+[1461]: Item:  Tuple (21.4082756, -0.00804505777, 1.20000696)
+        Error: effort 21.408276 N within 16 N
+[1463]: Item:  Tuple (21.4082794, -0.00804565847, 1.20000839)
+        Error: effort 21.40828 N within 16 N
+[1465]: Item:  Tuple (21.4082851, -0.00804625265, 1.20000982)
+        Error: effort 21.408285 N within 16 N
+[1467]: Item:  Tuple (21.408289, -0.00804684404, 1.20001125)
+        Error: effort 21.408289 N within 16 N
+[1469]: Item:  Tuple (21.4082928, -0.0080474373, 1.20001268)
+        Error: effort 21.408293 N within 16 N
+[1471]: Item:  Tuple (21.1369057, -0.00804803148, 1.20001268)
+        Error: effort 21.136906 N within 16 N
+[1473]: Item:  Tuple (21.4082928, -0.00861312449, 1.20001125)
+        Error: effort 21.408293 N within 16 N
+[1475]: Item:  Tuple (21.408289, -0.00861252844, 1.20000982)
+        Error: effort 21.408289 N within 16 N
+[1477]: Item:  Tuple (21.408287, -0.0086119324, 1.20000839)
+        Error: effort 21.408287 N within 16 N
+[1479]: Item:  Tuple (21.4082832, -0.00861133635, 1.20000696)
+        Error: effort 21.408283 N within 16 N
+[1481]: Item:  Tuple (21.4082756, -0.0086107403, 1.20000553)
+        Error: effort 21.408276 N within 16 N
+[1483]: Item:  Tuple (21.4082718, -0.00861014798, 1.2000041)
+        Error: effort 21.408272 N within 16 N
+[1485]: Item:  Tuple (21.4082718, -0.0080444552, 1.20000553)
+        Error: effort 21.408272 N within 16 N
+[1487]: Item:  Tuple (21.4082756, -0.00804505777, 1.20000696)
+        Error: effort 21.408276 N within 16 N
+[1489]: Item:  Tuple (21.4082794, -0.00804565847, 1.20000839)
+        Error: effort 21.40828 N within 16 N
+[1491]: Item:  Tuple (21.4082851, -0.00804625265, 1.20000982)
+        Error: effort 21.408285 N within 16 N
+[1493]: Item:  Tuple (21.408289, -0.00804684404, 1.20001125)
+        Error: effort 21.408289 N within 16 N
+[1495]: Item:  Tuple (21.4082928, -0.0080474373, 1.20001268)
+        Error: effort 21.408293 N within 16 N
+[1497]: Item:  Tuple (21.1369057, -0.00804803148, 1.20001268)
+        Error: effort 21.136906 N within 16 N
+[1499]: Item:  Tuple (21.4082928, -0.00861312449, 1.20001125)
+        Error: effort 21.408293 N within 16 N
+[1501]: Item:  Tuple (21.408289, -0.00861252844, 1.20000982)
+        Error: effort 21.408289 N within 16 N
+[1503]: Item:  Tuple (21.408287, -0.0086119324, 1.20000839)
+        Error: effort 21.408287 N within 16 N
+[1505]: Item:  Tuple (21.4082832, -0.00861133635, 1.20000696)
+        Error: effort 21.408283 N within 16 N
+[1507]: Item:  Tuple (21.4082756, -0.0086107403, 1.20000553)
+        Error: effort 21.408276 N within 16 N
+[1509]: Item:  Tuple (21.4082718, -0.00861014798, 1.2000041)
+        Error: effort 21.408272 N within 16 N
+[1511]: Item:  Tuple (21.4082718, -0.0080444552, 1.20000553)
+        Error: effort 21.408272 N within 16 N
+[1513]: Item:  Tuple (21.4082756, -0.00804505777, 1.20000696)
+        Error: effort 21.408276 N within 16 N
+[1515]: Item:  Tuple (21.4082794, -0.00804565847, 1.20000839)
+        Error: effort 21.40828 N within 16 N
+[1517]: Item:  Tuple (21.4082851, -0.00804625265, 1.20000982)
+        Error: effort 21.408285 N within 16 N
+[1519]: Item:  Tuple (21.408289, -0.00804684404, 1.20001125)
+        Error: effort 21.408289 N within 16 N
+[1521]: Item:  Tuple (21.4082928, -0.0080474373, 1.20001268)
+        Error: effort 21.408293 N within 16 N
+[1523]: Item:  Tuple (21.1369057, -0.00804803148, 1.20001268)
+        Error: effort 21.136906 N within 16 N
+[1525]: Item:  Tuple (21.4082928, -0.00861312449, 1.20001125)
+        Error: effort 21.408293 N within 16 N
+[1527]: Item:  Tuple (21.408289, -0.00861252844, 1.20000982)
+        Error: effort 21.408289 N within 16 N
+[1529]: Item:  Tuple (21.408287, -0.0086119324, 1.20000839)
+        Error: effort 21.408287 N within 16 N
+[1531]: Item:  Tuple (21.4082832, -0.00861133635, 1.20000696)
+        Error: effort 21.408283 N within 16 N
+[1533]: Item:  Tuple (21.4082756, -0.0086107403, 1.20000553)
+        Error: effort 21.408276 N within 16 N
+[1535]: Item:  Tuple (21.4082718, -0.00861014798, 1.2000041)
+        Error: effort 21.408272 N within 16 N
+[1537]: Item:  Tuple (21.4082718, -0.0080444552, 1.20000553)
+        Error: effort 21.408272 N within 16 N
+[1539]: Item:  Tuple (21.4082756, -0.00804505777, 1.20000696)
+        Error: effort 21.408276 N within 16 N
+[1541]: Item:  Tuple (21.4082794, -0.00804565847, 1.20000839)
+        Error: effort 21.40828 N within 16 N
+[1543]: Item:  Tuple (21.4082851, -0.00804625265, 1.20000982)
+        Error: effort 21.408285 N within 16 N
+[1545]: Item:  Tuple (21.408289, -0.00804684404, 1.20001125)
+        Error: effort 21.408289 N within 16 N
+[1547]: Item:  Tuple (21.4082928, -0.0080474373, 1.20001268)
+        Error: effort 21.408293 N within 16 N
+[1549]: Item:  Tuple (21.1369057, -0.00804803148, 1.20001268)
+        Error: effort 21.136906 N within 16 N
+[1551]: Item:  Tuple (21.4082928, -0.00861312449, 1.20001125)
+        Error: effort 21.408293 N within 16 N
+[1553]: Item:  Tuple (21.408289, -0.00861252844, 1.20000982)
+        Error: effort 21.408289 N within 16 N
+[1555]: Item:  Tuple (21.408287, -0.0086119324, 1.20000839)
+        Error: effort 21.408287 N within 16 N
+[1557]: Item:  Tuple (21.4082832, -0.00861133635, 1.20000696)
+        Error: effort 21.408283 N within 16 N
+[1559]: Item:  Tuple (21.4082756, -0.0086107403, 1.20000553)
+        Error: effort 21.408276 N within 16 N
+[1561]: Item:  Tuple (21.4082718, -0.00861014798, 1.2000041)
+        Error: effort 21.408272 N within 16 N
+[1563]: Item:  Tuple (21.4082718, -0.0080444552, 1.20000553)
+        Error: effort 21.408272 N within 16 N
+[1565]: Item:  Tuple (21.4082756, -0.00804505777, 1.20000696)
+        Error: effort 21.408276 N within 16 N
+[1567]: Item:  Tuple (21.4082794, -0.00804565847, 1.20000839)
+        Error: effort 21.40828 N within 16 N
+[1569]: Item:  Tuple (21.4082851, -0.00804625265, 1.20000982)
+        Error: effort 21.408285 N within 16 N
+[1571]: Item:  Tuple (21.408289, -0.00804684404, 1.20001125)
+        Error: effort 21.408289 N within 16 N
+[1573]: Item:  Tuple (21.4082928, -0.0080474373, 1.20001268)
+        Error: effort 21.408293 N within 16 N
+[1575]: Item:  Tuple (21.1369057, -0.00804803148, 1.20001268)
+        Error: effort 21.136906 N within 16 N
+[1577]: Item:  Tuple (21.4082928, -0.00861312449, 1.20001125)
+        Error: effort 21.408293 N within 16 N
+[1579]: Item:  Tuple (21.408289, -0.00861252844, 1.20000982)
+        Error: effort 21.408289 N within 16 N
+[1581]: Item:  Tuple (21.408287, -0.0086119324, 1.20000839)
+        Error: effort 21.408287 N within 16 N
+[1583]: Item:  Tuple (21.4082832, -0.00861133635, 1.20000696)
+        Error: effort 21.408283 N within 16 N
+[1585]: Item:  Tuple (21.4082756, -0.0086107403, 1.20000553)
+        Error: effort 21.408276 N within 16 N
+[1587]: Item:  Tuple (21.4082718, -0.00861014798, 1.2000041)
+        Error: effort 21.408272 N within 16 N
+[1589]: Item:  Tuple (21.4082718, -0.0080444552, 1.20000553)
+        Error: effort 21.408272 N within 16 N
+[1591]: Item:  Tuple (21.4082756, -0.00804505777, 1.20000696)
+        Error: effort 21.408276 N within 16 N
+[1593]: Item:  Tuple (21.4082794, -0.00804565847, 1.20000839)
+        Error: effort 21.40828 N within 16 N
+[1595]: Item:  Tuple (21.4082851, -0.00804625265, 1.20000982)
+        Error: effort 21.408285 N within 16 N
+[1597]: Item:  Tuple (21.408289, -0.00804684404, 1.20001125)
+        Error: effort 21.408289 N within 16 N
+[1599]: Item:  Tuple (21.4082928, -0.0080474373, 1.20001268)
+        Error: effort 21.408293 N within 16 N
+[1601]: Item:  Tuple (21.1369057, -0.00804803148, 1.20001268)
+        Error: effort 21.136906 N within 16 N
+[1603]: Item:  Tuple (21.4082928, -0.00861312449, 1.20001125)
+        Error: effort 21.408293 N within 16 N
+[1605]: Item:  Tuple (21.408289, -0.00861252844, 1.20000982)
+        Error: effort 21.408289 N within 16 N
+[1607]: Item:  Tuple (21.408287, -0.0086119324, 1.20000839)
+        Error: effort 21.408287 N within 16 N
+[1609]: Item:  Tuple (21.4082832, -0.00861133635, 1.20000696)
+        Error: effort 21.408283 N within 16 N
+[1611]: Item:  Tuple (21.4082756, -0.0086107403, 1.20000553)
+        Error: effort 21.408276 N within 16 N
+[1613]: Item:  Tuple (21.4082718, -0.00861014798, 1.2000041)
+        Error: effort 21.408272 N within 16 N
+[1615]: Item:  Tuple (21.4082718, -0.0080444552, 1.20000553)
+        Error: effort 21.408272 N within 16 N
+[1617]: Item:  Tuple (21.4082756, -0.00804505777, 1.20000696)
+        Error: effort 21.408276 N within 16 N
+[1619]: Item:  Tuple (21.4082794, -0.00804565847, 1.20000839)
+        Error: effort 21.40828 N within 16 N
+[1621]: Item:  Tuple (21.4082851, -0.00804625265, 1.20000982)
+        Error: effort 21.408285 N within 16 N
+[1623]: Item:  Tuple (21.408289, -0.00804684404, 1.20001125)
+        Error: effort 21.408289 N within 16 N
+[1625]: Item:  Tuple (21.4082928, -0.0080474373, 1.20001268)
+        Error: effort 21.408293 N within 16 N
+[1627]: Item:  Tuple (21.1369057, -0.00804803148, 1.20001268)
+        Error: effort 21.136906 N within 16 N
+[1629]: Item:  Tuple (21.4082928, -0.00861312449, 1.20001125)
+        Error: effort 21.408293 N within 16 N
+[1631]: Item:  Tuple (21.408289, -0.00861252844, 1.20000982)
+        Error: effort 21.408289 N within 16 N
+[1633]: Item:  Tuple (21.408287, -0.0086119324, 1.20000839)
+        Error: effort 21.408287 N within 16 N
+[1635]: Item:  Tuple (21.4082832, -0.00861133635, 1.20000696)
+        Error: effort 21.408283 N within 16 N
+[1637]: Item:  Tuple (21.4082756, -0.0086107403, 1.20000553)
+        Error: effort 21.408276 N within 16 N
+[1639]: Item:  Tuple (21.4082718, -0.00861014798, 1.2000041)
+        Error: effort 21.408272 N within 16 N
+[1641]: Item:  Tuple (21.4082718, -0.0080444552, 1.20000553)
+        Error: effort 21.408272 N within 16 N
+[1643]: Item:  Tuple (21.4082756, -0.00804505777, 1.20000696)
+        Error: effort 21.408276 N within 16 N
+[1645]: Item:  Tuple (21.4082794, -0.00804565847, 1.20000839)
+        Error: effort 21.40828 N within 16 N
+[1647]: Item:  Tuple (21.4082851, -0.00804625265, 1.20000982)
+        Error: effort 21.408285 N within 16 N
+[1649]: Item:  Tuple (21.408289, -0.00804684404, 1.20001125)
+        Error: effort 21.408289 N within 16 N
+[1651]: Item:  Tuple (21.4082928, -0.0080474373, 1.20001268)
+        Error: effort 21.408293 N within 16 N
+[1653]: Item:  Tuple (21.1369057, -0.00804803148, 1.20001268)
+        Error: effort 21.136906 N within 16 N
+[1655]: Item:  Tuple (21.4082928, -0.00861312449, 1.20001125)
+        Error: effort 21.408293 N within 16 N
+[1657]: Item:  Tuple (21.408289, -0.00861252844, 1.20000982)
+        Error: effort 21.408289 N within 16 N
+[1659]: Item:  Tuple (21.408287, -0.0086119324, 1.20000839)
+        Error: effort 21.408287 N within 16 N
+[1661]: Item:  Tuple (21.4082832, -0.00861133635, 1.20000696)
+        Error: effort 21.408283 N within 16 N
+[1663]: Item:  Tuple (21.4082756, -0.0086107403, 1.20000553)
+        Error: effort 21.408276 N within 16 N
+[1665]: Item:  Tuple (21.4082718, -0.00861014798, 1.2000041)
+        Error: effort 21.408272 N within 16 N
+[1667]: Item:  Tuple (21.4082718, -0.0080444552, 1.20000553)
+        Error: effort 21.408272 N within 16 N
+[1669]: Item:  Tuple (21.4082756, -0.00804505777, 1.20000696)
+        Error: effort 21.408276 N within 16 N
+[1671]: Item:  Tuple (21.4082794, -0.00804565847, 1.20000839)
+        Error: effort 21.40828 N within 16 N
+[1673]: Item:  Tuple (21.4082851, -0.00804625265, 1.20000982)
+        Error: effort 21.408285 N within 16 N
+[1675]: Item:  Tuple (21.408289, -0.00804684404, 1.20001125)
+        Error: effort 21.408289 N within 16 N
+[1677]: Item:  Tuple (21.4082928, -0.0080474373, 1.20001268)
+        Error: effort 21.408293 N within 16 N
+[1679]: Item:  Tuple (21.1369057, -0.00804803148, 1.20001268)
+        Error: effort 21.136906 N within 16 N
+[1681]: Item:  Tuple (21.4082928, -0.00861312449, 1.20001125)
+        Error: effort 21.408293 N within 16 N
+[1683]: Item:  Tuple (21.408289, -0.00861252844, 1.20000982)
+        Error: effort 21.408289 N within 16 N
+[1685]: Item:  Tuple (21.408287, -0.0086119324, 1.20000839)
+        Error: effort 21.408287 N within 16 N
+[1687]: Item:  Tuple (21.4082832, -0.00861133635, 1.20000696)
+        Error: effort 21.408283 N within 16 N
+[1689]: Item:  Tuple (21.4082756, -0.0086107403, 1.20000553)
+        Error: effort 21.408276 N within 16 N
+[1691]: Item:  Tuple (21.4082718, -0.00861014798, 1.2000041)
+        Error: effort 21.408272 N within 16 N
+[1693]: Item:  Tuple (21.4082718, -0.0080444552, 1.20000553)
+        Error: effort 21.408272 N within 16 N
+[1695]: Item:  Tuple (21.4082756, -0.00804505777, 1.20000696)
+        Error: effort 21.408276 N within 16 N
+[1697]: Item:  Tuple (21.4082794, -0.00804565847, 1.20000839)
+        Error: effort 21.40828 N within 16 N
+[1699]: Item:  Tuple (21.4082851, -0.00804625265, 1.20000982)
+        Error: effort 21.408285 N within 16 N
+[1701]: Item:  Tuple (21.408289, -0.00804684404, 1.20001125)
+        Error: effort 21.408289 N within 16 N
+[1703]: Item:  Tuple (21.4082928, -0.0080474373, 1.20001268)
+        Error: effort 21.408293 N within 16 N
+[1705]: Item:  Tuple (21.1369057, -0.00804803148, 1.20001268)
+        Error: effort 21.136906 N within 16 N
+[1707]: Item:  Tuple (21.4082928, -0.00861312449, 1.20001125)
+        Error: effort 21.408293 N within 16 N
+[1709]: Item:  Tuple (21.408289, -0.00861252844, 1.20000982)
+        Error: effort 21.408289 N within 16 N
+[1711]: Item:  Tuple (21.408287, -0.0086119324, 1.20000839)
+        Error: effort 21.408287 N within 16 N
+[1713]: Item:  Tuple (21.4082832, -0.00861133635, 1.20000696)
+        Error: effort 21.408283 N within 16 N
+[1715]: Item:  Tuple (21.4082756, -0.0086107403, 1.20000553)
+        Error: effort 21.408276 N within 16 N
+[1717]: Item:  Tuple (21.4082718, -0.00861014798, 1.2000041)
+        Error: effort 21.408272 N within 16 N
+[1719]: Item:  Tuple (21.4082718, -0.0080444552, 1.20000553)
+        Error: effort 21.408272 N within 16 N
+[1721]: Item:  Tuple (21.4082756, -0.00804505777, 1.20000696)
+        Error: effort 21.408276 N within 16 N
+[1723]: Item:  Tuple (21.4082794, -0.00804565847, 1.20000839)
+        Error: effort 21.40828 N within 16 N
+[1725]: Item:  Tuple (21.4082851, -0.00804625265, 1.20000982)
+        Error: effort 21.408285 N within 16 N
+[1727]: Item:  Tuple (21.408289, -0.00804684404, 1.20001125)
+        Error: effort 21.408289 N within 16 N
+[1729]: Item:  Tuple (21.4082928, -0.0080474373, 1.20001268)
+        Error: effort 21.408293 N within 16 N
+[1731]: Item:  Tuple (21.1369057, -0.00804803148, 1.20001268)
+        Error: effort 21.136906 N within 16 N
+[1733]: Item:  Tuple (21.4082928, -0.00861312449, 1.20001125)
+        Error: effort 21.408293 N within 16 N
+[1735]: Item:  Tuple (21.408289, -0.00861252844, 1.20000982)
+        Error: effort 21.408289 N within 16 N
+[1737]: Item:  Tuple (21.408287, -0.0086119324, 1.20000839)
+        Error: effort 21.408287 N within 16 N
+[1739]: Item:  Tuple (21.4082832, -0.00861133635, 1.20000696)
+        Error: effort 21.408283 N within 16 N
+[1741]: Item:  Tuple (21.4082756, -0.0086107403, 1.20000553)
+        Error: effort 21.408276 N within 16 N
+[1743]: Item:  Tuple (21.4082718, -0.00861014798, 1.2000041)
+        Error: effort 21.408272 N within 16 N
+[1745]: Item:  Tuple (21.4082718, -0.0080444552, 1.20000553)
+        Error: effort 21.408272 N within 16 N
+[1747]: Item:  Tuple (21.4082756, -0.00804505777, 1.20000696)
+        Error: effort 21.408276 N within 16 N
+[1749]: Item:  Tuple (21.4082794, -0.00804565847, 1.20000839)
+        Error: effort 21.40828 N within 16 N
+[1751]: Item:  Tuple (21.4082851, -0.00804625265, 1.20000982)
+        Error: effort 21.408285 N within 16 N
+[1753]: Item:  Tuple (21.408289, -0.00804684404, 1.20001125)
+        Error: effort 21.408289 N within 16 N
+[1755]: Item:  Tuple (21.4082928, -0.0080474373, 1.20001268)
+        Error: effort 21.408293 N within 16 N
+[1757]: Item:  Tuple (21.1369057, -0.00804803148, 1.20001268)
+        Error: effort 21.136906 N within 16 N
+[1759]: Item:  Tuple (21.4082928, -0.00861312449, 1.20001125)
+        Error: effort 21.408293 N within 16 N
+[1761]: Item:  Tuple (21.408289, -0.00861252844, 1.20000982)
+        Error: effort 21.408289 N within 16 N
+[1763]: Item:  Tuple (21.408287, -0.0086119324, 1.20000839)
+        Error: effort 21.408287 N within 16 N
+[1765]: Item:  Tuple (21.4082832, -0.00861133635, 1.20000696)
+        Error: effort 21.408283 N within 16 N
+[1767]: Item:  Tuple (21.4082756, -0.0086107403, 1.20000553)
+        Error: effort 21.408276 N within 16 N
+[1769]: Item:  Tuple (21.4082718, -0.00861014798, 1.2000041)
+        Error: effort 21.408272 N within 16 N
+[1771]: Item:  Tuple (21.4082718, -0.0080444552, 1.20000553)
+        Error: effort 21.408272 N within 16 N
+[1773]: Item:  Tuple (21.4082756, -0.00804505777, 1.20000696)
+        Error: effort 21.408276 N within 16 N
+[1775]: Item:  Tuple (21.4082794, -0.00804565847, 1.20000839)
+        Error: effort 21.40828 N within 16 N
+[1777]: Item:  Tuple (21.4082851, -0.00804625265, 1.20000982)
+        Error: effort 21.408285 N within 16 N
+[1779]: Item:  Tuple (21.408289, -0.00804684404, 1.20001125)
+        Error: effort 21.408289 N within 16 N
+[1781]: Item:  Tuple (21.4082928, -0.0080474373, 1.20001268)
+        Error: effort 21.408293 N within 16 N
+[1783]: Item:  Tuple (21.1369057, -0.00804803148, 1.20001268)
+        Error: effort 21.136906 N within 16 N
+[1785]: Item:  Tuple (21.4082928, -0.00861312449, 1.20001125)
+        Error: effort 21.408293 N within 16 N
+[1787]: Item:  Tuple (21.408289, -0.00861252844, 1.20000982)
+        Error: effort 21.408289 N within 16 N
+[1789]: Item:  Tuple (21.408287, -0.0086119324, 1.20000839)
+        Error: effort 21.408287 N within 16 N
+[1791]: Item:  Tuple (21.4082832, -0.00861133635, 1.20000696)
+        Error: effort 21.408283 N within 16 N
+[1793]: Item:  Tuple (21.4082756, -0.0086107403, 1.20000553)
+        Error: effort 21.408276 N within 16 N
+[1795]: Item:  Tuple (21.4082718, -0.00861014798, 1.2000041)
+        Error: effort 21.408272 N within 16 N
+[1797]: Item:  Tuple (21.4082718, -0.0080444552, 1.20000553)
+        Error: effort 21.408272 N within 16 N
+[1799]: Item:  Tuple (21.4082756, -0.00804505777, 1.20000696)
+        Error: effort 21.408276 N within 16 N
+[1801]: Item:  Tuple (21.4082794, -0.00804565847, 1.20000839)
+        Error: effort 21.40828 N within 16 N
+[1803]: Item:  Tuple (21.4082851, -0.00804625265, 1.20000982)
+        Error: effort 21.408285 N within 16 N
+[1805]: Item:  Tuple (21.408289, -0.00804684404, 1.20001125)
+        Error: effort 21.408289 N within 16 N
+[1807]: Item:  Tuple (21.4082928, -0.0080474373, 1.20001268)
+        Error: effort 21.408293 N within 16 N
+[1809]: Item:  Tuple (21.1369057, -0.00804803148, 1.20001268)
+        Error: effort 21.136906 N within 16 N
+[1811]: Item:  Tuple (21.4082928, -0.00861312449, 1.20001125)
+        Error: effort 21.408293 N within 16 N
+[1813]: Item:  Tuple (21.408289, -0.00861252844, 1.20000982)
+        Error: effort 21.408289 N within 16 N
+[1815]: Item:  Tuple (21.408287, -0.0086119324, 1.20000839)
+        Error: effort 21.408287 N within 16 N
+[1817]: Item:  Tuple (21.4082832, -0.00861133635, 1.20000696)
+        Error: effort 21.408283 N within 16 N
+[1819]: Item:  Tuple (21.4082756, -0.0086107403, 1.20000553)
+        Error: effort 21.408276 N within 16 N
+[1821]: Item:  Tuple (21.4082718, -0.00861014798, 1.2000041)
+        Error: effort 21.408272 N within 16 N
+[1823]: Item:  Tuple (21.4082718, -0.0080444552, 1.20000553)
+        Error: effort 21.408272 N within 16 N
+[1825]: Item:  Tuple (21.4082756, -0.00804505777, 1.20000696)
+        Error: effort 21.408276 N within 16 N
+[1827]: Item:  Tuple (21.4082794, -0.00804565847, 1.20000839)
+        Error: effort 21.40828 N within 16 N
+[1829]: Item:  Tuple (21.4082851, -0.00804625265, 1.20000982)
+        Error: effort 21.408285 N within 16 N
+[1831]: Item:  Tuple (21.408289, -0.00804684404, 1.20001125)
+        Error: effort 21.408289 N within 16 N
+[1833]: Item:  Tuple (21.4082928, -0.0080474373, 1.20001268)
+        Error: effort 21.408293 N within 16 N
+[1835]: Item:  Tuple (21.1369057, -0.00804803148, 1.20001268)
+        Error: effort 21.136906 N within 16 N
+[1837]: Item:  Tuple (21.4082928, -0.00861312449, 1.20001125)
+        Error: effort 21.408293 N within 16 N
+[1839]: Item:  Tuple (21.408289, -0.00861252844, 1.20000982)
+        Error: effort 21.408289 N within 16 N
+[1841]: Item:  Tuple (21.408287, -0.0086119324, 1.20000839)
+        Error: effort 21.408287 N within 16 N
+[1843]: Item:  Tuple (21.4082832, -0.00861133635, 1.20000696)
+        Error: effort 21.408283 N within 16 N
+[1845]: Item:  Tuple (21.4082756, -0.0086107403, 1.20000553)
+        Error: effort 21.408276 N within 16 N
+[1847]: Item:  Tuple (21.4082718, -0.00861014798, 1.2000041)
+        Error: effort 21.408272 N within 16 N
+[1849]: Item:  Tuple (21.4082718, -0.0080444552, 1.20000553)
+        Error: effort 21.408272 N within 16 N
+[1851]: Item:  Tuple (21.4082756, -0.00804505777, 1.20000696)
+        Error: effort 21.408276 N within 16 N
+[1853]: Item:  Tuple (21.4082794, -0.00804565847, 1.20000839)
+        Error: effort 21.40828 N within 16 N
+[1855]: Item:  Tuple (21.4082851, -0.00804625265, 1.20000982)
+        Error: effort 21.408285 N within 16 N
+[1857]: Item:  Tuple (21.408289, -0.00804684404, 1.20001125)
+        Error: effort 21.408289 N within 16 N
+[1859]: Item:  Tuple (21.4082928, -0.0080474373, 1.20001268)
+        Error: effort 21.408293 N within 16 N
+[1861]: Item:  Tuple (21.1369057, -0.00804803148, 1.20001268)
+        Error: effort 21.136906 N within 16 N
+[1863]: Item:  Tuple (21.4082928, -0.00861312449, 1.20001125)
+        Error: effort 21.408293 N within 16 N
+[1865]: Item:  Tuple (21.408289, -0.00861252844, 1.20000982)
+        Error: effort 21.408289 N within 16 N
+[1867]: Item:  Tuple (21.408287, -0.0086119324, 1.20000839)
+        Error: effort 21.408287 N within 16 N
+[1869]: Item:  Tuple (21.4082832, -0.00861133635, 1.20000696)
+        Error: effort 21.408283 N within 16 N
+[1871]: Item:  Tuple (21.4082756, -0.0086107403, 1.20000553)
+        Error: effort 21.408276 N within 16 N
+[1873]: Item:  Tuple (21.4082718, -0.00861014798, 1.2000041)
+        Error: effort 21.408272 N within 16 N
+[1875]: Item:  Tuple (21.4082718, -0.0080444552, 1.20000553)
+        Error: effort 21.408272 N within 16 N
+[1877]: Item:  Tuple (21.4082756, -0.00804505777, 1.20000696)
+        Error: effort 21.408276 N within 16 N
+[1879]: Item:  Tuple (21.4082794, -0.00804565847, 1.20000839)
+        Error: effort 21.40828 N within 16 N
+[1881]: Item:  Tuple (21.4082851, -0.00804625265, 1.20000982)
+        Error: effort 21.408285 N within 16 N
+[1883]: Item:  Tuple (21.408289, -0.00804684404, 1.20001125)
+        Error: effort 21.408289 N within 16 N
+[1885]: Item:  Tuple (21.4082928, -0.0080474373, 1.20001268)
+        Error: effort 21.408293 N within 16 N
+[1887]: Item:  Tuple (21.1369057, -0.00804803148, 1.20001268)
+        Error: effort 21.136906 N within 16 N
+[1889]: Item:  Tuple (21.4082928, -0.00861312449, 1.20001125)
+        Error: effort 21.408293 N within 16 N
+[1891]: Item:  Tuple (21.408289, -0.00861252844, 1.20000982)
+        Error: effort 21.408289 N within 16 N
+[1893]: Item:  Tuple (21.408287, -0.0086119324, 1.20000839)
+        Error: effort 21.408287 N within 16 N
+[1895]: Item:  Tuple (21.4082832, -0.00861133635, 1.20000696)
+        Error: effort 21.408283 N within 16 N
+[1897]: Item:  Tuple (21.4082756, -0.0086107403, 1.20000553)
+        Error: effort 21.408276 N within 16 N
+[1899]: Item:  Tuple (21.4082718, -0.00861014798, 1.2000041)
+        Error: effort 21.408272 N within 16 N
+[1901]: Item:  Tuple (21.4082718, -0.0080444552, 1.20000553)
+        Error: effort 21.408272 N within 16 N
+[1903]: Item:  Tuple (21.4082756, -0.00804505777, 1.20000696)
+        Error: effort 21.408276 N within 16 N
+[1905]: Item:  Tuple (21.4082794, -0.00804565847, 1.20000839)
+        Error: effort 21.40828 N within 16 N
+[1907]: Item:  Tuple (21.4082851, -0.00804625265, 1.20000982)
+        Error: effort 21.408285 N within 16 N
+[1909]: Item:  Tuple (21.408289, -0.00804684404, 1.20001125)
+        Error: effort 21.408289 N within 16 N
+[1911]: Item:  Tuple (21.4082928, -0.0080474373, 1.20001268)
+        Error: effort 21.408293 N within 16 N
+[1913]: Item:  Tuple (21.1369057, -0.00804803148, 1.20001268)
+        Error: effort 21.136906 N within 16 N
+[1915]: Item:  Tuple (21.4082928, -0.00861312449, 1.20001125)
+        Error: effort 21.408293 N within 16 N
+[1917]: Item:  Tuple (21.408289, -0.00861252844, 1.20000982)
+        Error: effort 21.408289 N within 16 N
+  Stack Trace:
+     at CuriousContraptions.Tests.DeclaredPrismaticDriveTests.ASyntheticDriveReachesItsOwnTargetOnItsOwnProfileWithItsEffortAndPowerBinding() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-gate/CuriousContraptions.tests/DeclaredPrismaticDriveTests.cs:line 131
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     2, Passed:    36, Skipped:     0, Total:    38, Duration: 1 s - CuriousContraptions.tests.dll (net10.0)

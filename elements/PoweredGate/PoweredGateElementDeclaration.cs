@@ -67,12 +67,16 @@ public sealed class PoweredGateElementDeclaration : ISliderElement, IElectricalE
         new("slider", Vector3.Zero, Quaternion.Identity, Vector3.UnitY)
     ];
 
+    /// <summary>The blade on its 14 N/m, 4 N·s/m return spring (the fail-closed law, CAT-051 Q1), and the supplied drive that opens it
+    /// to the full 1.55 m stroke: at most 2.8 m/s on a 14 m/s² stopping profile, 60 N and 120 W (CAT-051 §2).</summary>
     public IReadOnlyList<PrismaticSliderDescriptor> Sliders =>
     [
         new(new(Vector3.Zero, Quaternion.Identity), new(Vector3.Zero, Quaternion.Identity),
             0f, 1.55f, MechanicalValue.Fixed(14f), MechanicalValue.Fixed(4f), MechanicalValue.Fixed(0f), false,
             new(1f, new Vector3(0f, -9.81f, 0f), 0f,
-                []))
+                []),
+            new(Target: MechanicalValue.Fixed(1.55f), MaxSpeed: MechanicalValue.Fixed(2.8f), StoppingAcceleration: MechanicalValue.Fixed(14f),
+                MaxEffort: MechanicalValue.Fixed(60f), MaxPower: MechanicalValue.Fixed(120f)))
     ];
 
     public IReadOnlyList<ElectricalNodeDescriptor> ElectricalNodes =>

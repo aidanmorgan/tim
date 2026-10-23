@@ -91,7 +91,7 @@ public static class BundleValidator
             Geometry(entry);
             Presentation(entry.Presentation, entry.Metadata.Parameters, entry.Ports, entry.Electrical);
             for (var i = 0; i < entry.Events.Count; i++) Defined($"Events[{i}].EventKind", entry.Events[i].EventKind);
-            if (entry.Mechanical is { } mechanical) Mechanical(mechanical, entry.Metadata.Parameters);
+            if (entry.Mechanical is { } mechanical) Mechanical(mechanical, entry.Metadata.Parameters, entry.Ports);
             if (entry.Electrical is { } electrical) Electrical(electrical, entry.Ports);
             if (entry.Signal is { } signal) Signal(signal, entry.Metadata.Parameters, entry.Ports);
             if (entry.Fluid is { } fluid) Fluid(fluid);
@@ -325,7 +325,7 @@ public static class BundleValidator
             Finite(path + ".Material.BounceThreshold", collider.Material.BounceThreshold);
         }
 
-        private void Mechanical(MechanicalPayload mechanical, IReadOnlyList<ParameterDescriptor> parameters)
+        private void Mechanical(MechanicalPayload mechanical, IReadOnlyList<ParameterDescriptor> parameters, IReadOnlyList<PortDescriptor> ports)
         {
             Defined("KinematicMode", mechanical.KinematicMode);
             var mass = mechanical.MassProperties;
@@ -342,6 +342,13 @@ public static class BundleValidator
                 Finite($"AnchorPoints[{i}].Axis", anchor.Axis);
             }
             for (var i = 0; i < mechanical.Sliders.Count; i++) Slider($"Sliders[{i}]", mechanical.Sliders[i], parameters);
+            // A supplied drive is enabled by the element's one PowerIn route, so it needs that input, and one route drives one slider.
+            var driven = mechanical.Sliders.Select((slider, index) => (slider, index)).Where(pair => pair.slider.Drive is not null).ToArray();
+            if (driven.Length > 1) OutOfRange($"Sliders[{driven[1].index}].Drive");
+            if (driven.Length > 0 && !ports.Any(port => port.Socket == PortSocket.PowerIn && port.Domain == SimulationDomain.Electrical &&
+                    port.Direction == PortDirection.Input))
+                errors.Add(new(BundleErrorCode.UnresolvedReference,
+                    $"{source}.Sliders[{driven[0].index}].Drive: a supplied drive requires an electrical PowerIn input"));
             if (mechanical.Capture is { } capture)
             {
                 Volume("Capture",capture.Minimum,capture.Maximum);
@@ -424,6 +431,32 @@ public static class BundleValidator
             for (var i = 0; i < body.Colliders.Count; i++) Collider($"{path}.MovingBody.Colliders[{i}]", body.Colliders[i]);
             if (body.Colliders.Count == 0)
                 errors.Add(new(BundleErrorCode.BodyWithoutCollider, $"{source}.{path}.MovingBody.Colliders: a body declares no collider"));
+            if (slider.Drive is { } drive)
+            {
+                // The target lies within the travel; every bound is a finite positive f32 (a zero bound is a drive that cannot move).
+                DriveValue(path + ".Drive.Target", drive.Target, parameters, slider.LowerLimit, slider.UpperLimit, positive: false);
+                // 64 m/s: the game-grade envelope's linear speed bound.
+                DriveValue(path + ".Drive.MaxSpeed", drive.MaxSpeed, parameters, 0f, 64f, positive: true);
+                DriveValue(path + ".Drive.StoppingAcceleration", drive.StoppingAcceleration, parameters, 0f, float.MaxValue, positive: true);
+                DriveValue(path + ".Drive.MaxEffort", drive.MaxEffort, parameters, 0f, float.MaxValue, positive: true);
+                DriveValue(path + ".Drive.MaxPower", drive.MaxPower, parameters, 0f, float.MaxValue, positive: true);
+            }
+        }
+
+        /// <summary>One drive value inside [minimum, maximum] (excluding a zero bound when <paramref name="positive"/>): a constant
+        /// directly, a parameter by its whole declared range.</summary>
+        private void DriveValue(string path, MechanicalValue value, IReadOnlyList<ParameterDescriptor> parameters, float minimum, float maximum, bool positive)
+        {
+            if (value.Source == MechanicalValueSource.Constant && value.Parameter is null && float.IsFinite(value.Constant))
+            {
+                if (value.Constant < minimum || value.Constant > maximum || (positive && value.Constant <= 0f)) OutOfRange(path);
+                return;
+            }
+            Value(path, value, parameters);
+            if (value.Source == MechanicalValueSource.Parameter &&
+                parameters.SingleOrDefault(parameter => parameter.Key == value.Parameter && parameter.Kind == ParameterKind.Real) is { Key: not null } parameter &&
+                (parameter.Minimum < minimum || parameter.Maximum > maximum || (positive && parameter.Minimum <= 0f)))
+                OutOfRange(path);
         }
 
         private void Value(string path, MechanicalValue value, IReadOnlyList<ParameterDescriptor> parameters)

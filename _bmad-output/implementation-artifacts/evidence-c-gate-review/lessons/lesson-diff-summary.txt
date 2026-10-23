@@ -1,0 +1,10 @@
+lesson-ready_to_rebound.txt: first differing tick 1, max |dpos| 0.3032 m, final |dpos| 0.3032 m
+route-DepthPaid.txt: first differing tick 278, max |dpos| 0.0058 m, final |dpos| 0.0038 m
+route-ReadyMissingReceiver.txt: first differing tick 1, max |dpos| 0.3119 m, final |dpos| 0.3119 m
+route-ReadyReceiver.txt: first differing tick 1, max |dpos| 0.1372 m, final |dpos| 0.1372 m
+route-SidekickPaid.txt: first differing tick 278, max |dpos| 0.0058 m, final |dpos| 0.0038 m
+route-SidekickUnpaid.txt: first differing tick 333, max |dpos| 0.0002 m, final |dpos| 0.0002 m
+route-SpringCharged.txt: first differing tick 182, max |dpos| 0.0017 m, final |dpos| 0.0017 m
+route-SpringPassive.txt: first differing tick 203, max |dpos| 0.0026 m, final |dpos| 0.0026 m
+route-SpringZero.txt: first differing tick 188, max |dpos| 0.1786 m, final |dpos| 0.1786 m
+route-WallPaid.txt: first differing tick 427, max |dpos| 0.0015 m, final |dpos| 0.0015 m

@@ -72,6 +72,7 @@ public sealed class SpringboardElementDeclaration : ISliderElement, ISceneGeomet
                 Mass: 0.25f,
                 Gravity: new Vector3(0f, -9.81f, 0f),
                 LinearDrag: 0f,
-                Colliders: []))
+                Colliders: []),
+            Drive: null)
     ];
 }

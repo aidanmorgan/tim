@@ -1,0 +1,34 @@
+#!/bin/bash
+# C-Gate review mutation probes, run in the throwaway candidate copy only. Usage: mutate.sh <out-dir>
+set -u
+R=/private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad
+OUT="$1"; mkdir -p "$OUT"
+cd "$R/wt-cand"
+restore() {
+  cp "$R/orig/WorkshopPhysicsEngine.cs" "$R/orig/PrismaticConstraintSolver.cs" CuriousContraptions.Simulation/
+  cp "$R/orig/PhysicsPresentationRead.cs" "$R/orig/SupplyRoute.cs" "$R/orig/PrismaticConstraint.cs" engine/gpu/
+  cp "$R/orig/BundleValidator.cs" CuriousContraptions.Bundle/
+}
+run() { # name file perl-expr project filter
+  local name="$1" file="$2" expr="$3" project="$4" filter="$5"
+  restore
+  perl -0pi -e "$expr" "$file"
+  if git diff --quiet a598a09e -- "$file" && false; then :; fi
+  if cmp -s "$file" "$R/orig/$(basename "$file")"; then echo "$name NOT-APPLIED" | tee -a "$OUT/summary.txt"; return; fi
+  diff "$R/orig/$(basename "$file")" "$file" > "$OUT/$name.diff"
+  if ! dotnet build "$project" -c Debug > "$OUT/$name.build.log" 2>&1; then echo "$name BUILD-FAILED" | tee -a "$OUT/summary.txt"; return; fi
+  dotnet test "$project" -c Debug --no-build --no-restore --filter "$filter" > "$OUT/$name.test.log" 2>&1
+  local rc=$?
+  local line; line=$(grep -E "Passed!|Failed!" "$OUT/$name.test.log" | tail -1)
+  local failed; failed=$(grep -E "^\s+Failed " "$OUT/$name.test.log" | sed -E 's/^\s+Failed ([^ ]+).*/\1/' | sort -u | head -8 | tr '\n' ' ')
+  if [ $rc -ne 0 ]; then echo "$name KILLED rc=$rc | $line | $failed" | tee -a "$OUT/summary.txt"; else echo "$name SURVIVED | $line" | tee -a "$OUT/summary.txt"; fi
+}
+T=CuriousContraptions.tests/CuriousContraptions.tests.csproj
+B=tools/BundleElements.Tests/BundleElements.Tests.csproj
+GATE="FullyQualifiedName~DeclaredPrismaticDriveTests|FullyQualifiedName~LatchSupplyFixtureTests|FullyQualifiedName~DeclaredPresentationTests|FullyQualifiedName~PoweredGateTests|FullyQualifiedName~SliderInstanceTests|FullyQualifiedName~PrismaticConstraintTests|FullyQualifiedName~BothGateTests"
+run R3b-power-cap-off CuriousContraptions.Simulation/PrismaticConstraintSolver.cs 's/return power > drive\.MaxPower \?/return power > float.MaxValue ?/' $T "$GATE"
+run R7b-undriven-consumer-admitted engine/gpu/SupplyRoute.cs 's/ \|\| !supplied \|\|/ || !(supplied || true) ||/' $T "$GATE"
+run R9b-weight-term-dropped CuriousContraptions.Simulation/PrismaticConstraintSolver.cs 's/var weight = -mass \* gravityAlongAxis;/var weight = 0f * gravityAlongAxis;/' $T "$GATE"
+run R10b-holding-term-dropped CuriousContraptions.Simulation/PrismaticConstraintSolver.cs 's/var holding = stiffness \* coordinate;/var holding = 0f * stiffness * coordinate;/' $T "$GATE"
+restore
+dotnet build $T -c Debug > "$OUT/restore.build.log" 2>&1; echo "restored build rc=$?" | tee -a "$OUT/summary.txt"

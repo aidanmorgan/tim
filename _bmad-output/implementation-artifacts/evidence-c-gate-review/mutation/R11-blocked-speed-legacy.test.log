@@ -1,0 +1,42 @@
+Test run for /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/wt-cand/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:01.78]     CuriousContraptions.Tests.LatchSupplyFixtureTests.BallPartlyThroughStopsClosingBladeUncrushed [FAIL]
+  Failed CuriousContraptions.Tests.LatchSupplyFixtureTests.BallPartlyThroughStopsClosingBladeUncrushed [86 ms]
+  Error Message:
+   the blade comes to rest on the ball
+  Stack Trace:
+     at CuriousContraptions.Tests.LatchSupplyFixtureTests.BallPartlyThroughStopsClosingBladeUncrushed() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/wt-cand/CuriousContraptions.tests/LatchSupplyFixtureTests.cs:line 309
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:03.03]     CuriousContraptions.Tests.DeclaredPresentationTests.TheGateCueIsOchreWhileABallHoldsTheBladeAtRest [FAIL]
+  Failed CuriousContraptions.Tests.DeclaredPresentationTests.TheGateCueIsOchreWhileABallHoldsTheBladeAtRest [79 ms]
+  Error Message:
+   guard: the ball holds the unpowered blade at rest, ActuatorDriveRead { Joint = PrismaticConstraintId { Value = 4294968325 }, Owner = GpuBodyId { Value = 3 }, SupplyClosed = False, MovingContact = True, Coordinate = 0.7496985, Speed = -1.0832349E-05, Lower = 0, Upper = 1.55, Blocked = False }
+  Stack Trace:
+     at CuriousContraptions.Tests.DeclaredPresentationTests.TheGateCueIsOchreWhileABallHoldsTheBladeAtRest() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/wt-cand/CuriousContraptions.tests/DeclaredPresentationTests.cs:line 93
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:03.75]     CuriousContraptions.Tests.DeclaredPrismaticDriveTests.BlockedNeedsContactInteriorAndRestTogether [FAIL]
+[xUnit.net 00:00:03.87]     CuriousContraptions.Tests.DeclaredPrismaticDriveTests.AnUnpoweredInvertedOrTiltedMountRestingInItsInteriorWithNothingInTheWayIsNotBlocked(degrees: 135, equilibrium: 0.495479822) [FAIL]
+[xUnit.net 00:00:03.95]     CuriousContraptions.Tests.DeclaredPrismaticDriveTests.AnUnpoweredInvertedOrTiltedMountRestingInItsInteriorWithNothingInTheWayIsNotBlocked(degrees: 180, equilibrium: 0.70071429) [FAIL]
+  Failed CuriousContraptions.Tests.DeclaredPrismaticDriveTests.BlockedNeedsContactInteriorAndRestTogether [< 1 ms]
+  Error Message:
+   Assert.True() Failure
+Expected: True
+Actual:   False
+  Stack Trace:
+     at CuriousContraptions.Tests.DeclaredPrismaticDriveTests.BlockedNeedsContactInteriorAndRestTogether() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/wt-cand/CuriousContraptions.tests/DeclaredPrismaticDriveTests.cs:line 264
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.DeclaredPrismaticDriveTests.AnUnpoweredInvertedOrTiltedMountRestingInItsInteriorWithNothingInTheWayIsNotBlocked(degrees: 135, equilibrium: 0.495479822) [83 ms]
+  Error Message:
+   at rest, -3.5205132E-05
+  Stack Trace:
+     at CuriousContraptions.Tests.DeclaredPrismaticDriveTests.AnUnpoweredInvertedOrTiltedMountRestingInItsInteriorWithNothingInTheWayIsNotBlocked(Double degrees, Single equilibrium) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/wt-cand/CuriousContraptions.tests/DeclaredPrismaticDriveTests.cs:line 250
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.DeclaredPrismaticDriveTests.AnUnpoweredInvertedOrTiltedMountRestingInItsInteriorWithNothingInTheWayIsNotBlocked(degrees: 180, equilibrium: 0.70071429) [79 ms]
+  Error Message:
+   at rest, -9.315461E-05
+  Stack Trace:
+     at CuriousContraptions.Tests.DeclaredPrismaticDriveTests.AnUnpoweredInvertedOrTiltedMountRestingInItsInteriorWithNothingInTheWayIsNotBlocked(Double degrees, Single equilibrium) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/wt-cand/CuriousContraptions.tests/DeclaredPrismaticDriveTests.cs:line 250
+--- End of stack trace from previous location ---
+
+Failed!  - Failed:     5, Passed:   117, Skipped:     0, Total:   122, Duration: 2 s - CuriousContraptions.tests.dll (net10.0)

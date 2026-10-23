@@ -1,0 +1,4 @@
+39c39
+<     public bool Blocked => MovingContact && Coordinate > Lower + StopSlop && Coordinate < Upper - StopSlop && MathF.Abs(Speed) < RestSpeed;
+---
+>     public bool Blocked => Coordinate > Lower + StopSlop && Coordinate < Upper - StopSlop && MathF.Abs(Speed) < RestSpeed;

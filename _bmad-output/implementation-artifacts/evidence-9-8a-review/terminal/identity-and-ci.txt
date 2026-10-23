@@ -1,0 +1,23 @@
+$ git fetch origin
+$ git rev-parse origin/main HEAD
+a2eddf811323d95819fef5eeeb50a76a63bf428f
+28a59b71e555debb1d620d51368f01e74686c1d0
+$ git log -3 --format="%H %P %T %s" origin/main
+a2eddf811323d95819fef5eeeb50a76a63bf428f 711568c473cf3143b60ea9145635ccd1a10acf64 28a59b71e555debb1d620d51368f01e74686c1d0 3e7520ac002315d783d950850781604cbcae3aea Merge 9.8a Electrical OR gate
+28a59b71e555debb1d620d51368f01e74686c1d0 71f7ca1295e592db219bbc8bf1d2fcd76110afef 3e7520ac002315d783d950850781604cbcae3aea Add Electrical OR gate as a monotone supply law
+71f7ca1295e592db219bbc8bf1d2fcd76110afef 8527aa3f7c84d8aeaa966d2948284f128bec7543 711568c473cf3143b60ea9145635ccd1a10acf64 eb87ad00b876cfa4bc26028acc2186ef734981d1 Merge main 711568c4 (C-Bumper+Spring generic conversion) into 9.8a candidate
+$ git diff --stat 3389b9d0 3e7520ac
+ .../review-9-8a-electrical-or.md                   | 61 ++++++++++++++++++++++
+ 1 file changed, 61 insertions(+)
+$ added headers
+@@ -102,3 +102,64 @@ Pre-merge findings:
++## SnapshotApproval — 22 October 2026
++## Publication-dependent checks
+$ git diff --stat 3e7520ac origin/main^{tree}
+(empty = identical)
+$ C-Bumper+Spring precondition
+{"conclusion":"success","databaseId":39720896408,"headSha":"711568c473cf3143b60ea9145635ccd1a10acf64","status":"completed","updatedAt":"2026-10-22T04:24:36Z"}
+{"created_at":"2026-10-22T04:24:22Z","id":7243705510,"sha":"711568c473cf3143b60ea9145635ccd1a10acf64"}
+$ CI for a2eddf81
+[{"attempt":1,"conclusion":"success","databaseId":39722366290,"event":"push","headBranch":"main","name":"Build and deploy game","status":"completed"}]
+{"attempt":1,"conclusion":"success","createdAt":"2026-10-22T04:26:14Z","databaseId":39722366290,"event":"push","headBranch":"main","headSha":"a2eddf811323d95819fef5eeeb50a76a63bf428f","jobs":[{"conclusion":"success","databaseId":119638514681,"name":"build","steps":["1 Set up job: success","2 Run actions/checkout@v4: success","3 Run actions/setup-dotnet@v4: success","4 Install WebAssembly workload: success","5 C# static gate: success","6 Test C# game: success","7 Test C# tools: success","8 Publish production browser bundle: success","9 Check static deployment: success","10 Run actions/upload-pages-artifact@v3: success","19 Post Run actions/setup-dotnet@v4: success","20 Post Run actions/checkout@v4: success","21 Complete job: success"]},{"conclusion":"success","databaseId":119642039392,"name":"deploy","steps":["1 Set up job: success","2 Run actions/deploy-pages@v4: success","3 Complete job: success"]}],"status":"completed"}

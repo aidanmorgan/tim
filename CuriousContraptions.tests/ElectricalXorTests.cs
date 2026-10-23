@@ -20,7 +20,7 @@ public sealed class ElectricalXorTests
     private static float BladeY(WorkshopRead read)
     {
         var body=Enumerable.Range(0,read.Bodies.Count).Select(i=>read.Bodies[i].Body)
-            .Single(row=>row.Id==WorkshopPhysicsCompiler.GateBlade(new(Consumer)));
+            .Single(row=>row.Id==WorkshopPhysicsCompiler.SliderBody(new(Consumer), 0));
         return (body.Cell.Y+body.Local.Y)/16f;
     }
     /// <summary>The consumer blade has not left its rest height: the output never powered it, not even for one tick.</summary>
@@ -288,9 +288,9 @@ public sealed class ElectricalXorTests
         var (open,closing,_)=LoopCase(FeedbackLoop.WithOr);
         var scene=WorkshopPhysicsCompiler.Compile(open,new(1,2));
         var edges=SupplyTopology.Create(open,DeclaredPhysics.Of).Edges;
-        _=new CompiledSupplyGraph(scene.SupplyGraph.Nodes,edges,scene.Electrical.Sources,scene.Prismatics,scene.Bodies);
+        _=new CompiledSupplyGraph(scene.SupplyGraph.Nodes,edges,scene.Electrical.Sources,scene.Prismatics,scene.PrismaticDrives,scene.Bodies);
         var looped=edges.Append(new SupplyEdge(closing.Source,closing.Target,closing.Input)).ToArray();
-        var invariant=Assert.Throws<ArgumentException>(()=>new CompiledSupplyGraph(scene.SupplyGraph.Nodes,looped,scene.Electrical.Sources,scene.Prismatics,scene.Bodies));
+        var invariant=Assert.Throws<ArgumentException>(()=>new CompiledSupplyGraph(scene.SupplyGraph.Nodes,looped,scene.Electrical.Sources,scene.Prismatics,scene.PrismaticDrives,scene.Bodies));
         Assert.Equal("A nonmonotone electrical gate lies on a directed cycle.",invariant.Message);
     }
 

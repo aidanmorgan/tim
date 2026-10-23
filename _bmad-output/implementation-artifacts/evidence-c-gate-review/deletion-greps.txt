@@ -1,0 +1,17 @@
+## deletion greps; scope: engine ui elements CuriousContraptions.2dog CuriousContraptions.Abstractions CuriousContraptions.Abstractions.Electrical CuriousContraptions.Abstractions.Fluid CuriousContraptions.Abstractions.Mechanical CuriousContraptions.Abstractions.Signal CuriousContraptions.Animation CuriousContraptions.Animation.Worker CuriousContraptions.Bundle CuriousContraptions.FlatBuffers CuriousContraptions.Simulation CuriousContraptions.web (tests and tools excluded)
+-- rg -w ActuatorSliderDrive|SwitchedSupplyClosed|GateBlade|fSpring:
+rc=1 (1 = no hits)
+-- rg PartId\.PoweredGate:
+rc=1
+-- element names/values in warm-up sources:
+rc=1
+-- solver literals:
+rc=1
+-- positive control (same patterns on base a598a09e):
+CuriousContraptions.Simulation/PrismaticConstraintSolver.cs:3
+engine/gpu/WorkshopPhysicsCompiler.cs:1
+CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs:2
+CuriousContraptions.Simulation/Program.cs:1
+engine/gpu/WorkshopPhysicsCompiler.cs:1
+CuriousContraptions.Simulation/Program.cs:3
+CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs:2

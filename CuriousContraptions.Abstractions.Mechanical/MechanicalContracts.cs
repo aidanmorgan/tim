@@ -43,10 +43,22 @@ public readonly record struct SliderBodyDescriptor(
     float LinearDrag,
     IReadOnlyList<ColliderDescriptor> Colliders);
 
+/// <summary>A bounded drive on one slider, enabled while the element's PowerIn supply route is closed. It moves the slider toward
+/// <see cref="Target"/> (m, within the slider's limits) at the stopping-profile speed sign(d)·min(<see cref="MaxSpeed"/>,
+/// √(2·<see cref="StoppingAcceleration"/>·|d|)), changing speed by at most <see cref="StoppingAcceleration"/> (m/s²), holding
+/// against the slider's own spring and the moving body's gravity, with its force bounded by <see cref="MaxEffort"/> (N) and its
+/// power by <see cref="MaxPower"/> (W).</summary>
+public readonly record struct PrismaticDriveDescriptor(
+    MechanicalValue Target,
+    MechanicalValue MaxSpeed,
+    MechanicalValue StoppingAcceleration,
+    MechanicalValue MaxEffort,
+    MechanicalValue MaxPower);
+
 /// <summary>One prismatic slider joining the element's base body to a moving body. At rest the two frames coincide; the moving body
 /// may travel from <see cref="LowerLimit"/> to <see cref="UpperLimit"/> along the base frame's local Y. The axial spring's stiffness
 /// and damping, and the starting compression (how far below rest the moving body starts), are the element parameters these keys
-/// name.</summary>
+/// name. <see cref="Drive"/> is the slider's supplied drive, or null for a passive slider.</summary>
 public readonly record struct PrismaticSliderDescriptor(
     SliderFrame BaseFrame,
     SliderFrame MovingFrame,
@@ -56,7 +68,8 @@ public readonly record struct PrismaticSliderDescriptor(
     MechanicalValue Damping,
     MechanicalValue Compression,
     bool BodiesCollide,
-    SliderBodyDescriptor MovingBody);
+    SliderBodyDescriptor MovingBody,
+    PrismaticDriveDescriptor? Drive);
 
 /// <summary>A mechanical element whose base body carries moving bodies on prismatic sliders.</summary>
 public interface ISliderElement : IMechanicalElement

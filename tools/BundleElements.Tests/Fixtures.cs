@@ -11,7 +11,15 @@ public sealed class Fixture : ISliderElement
     /// <summary>A valid slider: a 0.25 kg plate that may travel 0.25 m below rest, on the fixture's three spring parameters.</summary>
     public static PrismaticSliderDescriptor Slider(IReadOnlyList<ColliderDescriptor>? moving = null, string stiffness = "stiffness") =>
         new(new(new(0f, .14f, 0f), Quaternion.Identity), new(Vector3.Zero, Quaternion.Identity), -.25f, 0f, MechanicalValue.FromParameter(stiffness), MechanicalValue.FromParameter("damping"),
-            MechanicalValue.FromParameter("initial_compression"), false, new(.25f, new(0f, -9.81f, 0f), 0f, moving ?? [Box(new(.65f, .075f, .6f))]));
+            MechanicalValue.FromParameter("initial_compression"), false, new(.25f, new(0f, -9.81f, 0f), 0f, moving ?? [Box(new(.65f, .075f, .6f))]), null);
+
+    /// <summary>A valid supplied drive for <see cref="Slider"/>: target 0.1 m below rest, inside its [-0.25, 0] travel.</summary>
+    public static PrismaticDriveDescriptor Drive() =>
+        new(MechanicalValue.Fixed(-.1f), MechanicalValue.Fixed(1.5f), MechanicalValue.Fixed(6f), MechanicalValue.Fixed(20f), MechanicalValue.Fixed(15f));
+
+    /// <summary>An electrical PowerIn input port, which a driven slider requires.</summary>
+    public static PortDescriptor PowerIn =>
+        new(PortSocket.PowerIn, SimulationDomain.Electrical, PortDirection.Input, null, Vector3.Zero, Vector3.UnitZ);
 
     public static IReadOnlyList<ParameterDescriptor> SpringParameters =>
     [

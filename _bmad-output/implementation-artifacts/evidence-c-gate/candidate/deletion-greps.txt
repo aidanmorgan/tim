@@ -1,0 +1,16 @@
+$ rg -w ActuatorSliderDrive|SwitchedSupplyClosed|GateBlade|fSpring <scope: production>
+hits=0
+$ rg -e PartId\.PoweredGate <scope: production>
+hits=0
+$ rg -e PoweredGate|PressurePlate|Battery|1\.55f <scope: Program.cs WorkshopPhysicsEngine.cs>
+hits=0
+$ rg -e \b(2\.8|14|60|120)f\b <scope: PrismaticConstraintSolver.cs>
+hits=0
+$ rg -i gate|powered|battery|plate|basket|bowling|lamp|latch|counter|bumper <scope: WarmupScene.cs>
+hits=0
+control (baseline HEAD a598a09e via git grep):
+HEAD:CuriousContraptions.Simulation/PrismaticConstraintSolver.cs:3
+HEAD:CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs:2
+HEAD:engine/gpu/WorkshopPhysicsCompiler.cs:1
+HEAD:CuriousContraptions.Simulation/Program.cs:1
+HEAD:engine/gpu/WorkshopPhysicsCompiler.cs:1

@@ -25,6 +25,7 @@ public static class WorkshopPhysicsCompiler
         var triggers = new List<ContactTriggerDeclaration>();
         var contactWorks = new List<ContactWorkDeclaration>();
         var prismatics = new List<PrismaticConstraintDeclaration>();
+        var drives = new List<PrismaticDriveDeclaration>();
         var topology = SupplyTopology.Create(construction, DeclaredPhysics.Of);
         var supplyNodes = topology.Nodes.ToArray();
         var electricalSources = new List<ElectricalSourceDeclaration>();
@@ -80,16 +81,18 @@ public static class WorkshopPhysicsCompiler
                     instance.Rotation, default, default, new((Half)body.Mass),
                     new((Half)body.Gravity.X, (Half)body.Gravity.Y, (Half)body.Gravity.Z), new((Half)body.LinearDrag)));
                 AddGeometry(moving, identity + 3, identity + 4, body.Colliders);
-                prismatics.Add(new(new(identity + 5), instance.Id, moving,
+                var joint = new PrismaticConstraintId(identity + 5);
+                prismatics.Add(new(joint, instance.Id, moving,
                     new(slider.BaseFrame.Position, slider.BaseFrame.Rotation), new(slider.MovingFrame.Position, slider.MovingFrame.Rotation),
                     slider.LowerLimit, slider.UpperLimit, slider.Stiffness.Evaluate(parameters), slider.Damping.Evaluate(parameters),
                     slider.BodiesCollide ? ConnectedCollision.Enabled : ConnectedCollision.Disabled));
-            }
-            if (instance.PartId == PartId.PoweredGate)
-            {
-                var slot=Array.FindIndex(supplyNodes,node=>node.Owner==instance.Id);
-                if(slot<0) throw new ArgumentException("Powered actuator requires its declared electrical input.");
-                supplyNodes[slot]=supplyNodes[slot] with {Consumer=new(first+5)};
+                if (slider.Drive is not { } drive) continue;
+                drives.Add(new(joint, drive.Target.Evaluate(parameters), drive.MaxSpeed.Evaluate(parameters),
+                    drive.StoppingAcceleration.Evaluate(parameters), drive.MaxEffort.Evaluate(parameters), drive.MaxPower.Evaluate(parameters)));
+                // The declared drive is enabled by the owner's PowerIn route: its consumer node drives this slider.
+                var slot = Array.FindIndex(supplyNodes, node => node.Owner == instance.Id && node.Kind == SupplyNodeKind.Consumer);
+                if (slot < 0) throw new ArgumentException("A supplied drive requires its owner's declared electrical input.");
+                supplyNodes[slot] = supplyNodes[slot] with { Consumer = joint };
             }
         }
         foreach (var domino in construction.Instances.OfType<WorkshopDomino>())
@@ -173,7 +176,7 @@ public static class WorkshopPhysicsCompiler
         return new(document, next, bodies.ToArray(), colliders.ToArray(), materials.ToArray(), sensors.ToArray(), guides.ToArray(), triggers.ToArray(), contactWorks.ToArray(), orientationSensors.ToArray(), electricalSources.OrderBy(source => source.Id.Value).ToArray(),
             construction.Connections.Where(link => link.Domain == WorkshopConnectionDomain.Electrical && contactWorkOwners.Contains(link.Target))
                 .Select(link => new ElectricalStorageBinding(ElectricalSource(link.Source), ContactWork(link.Target))).ToArray(), prismatics.ToArray(),
-            supplyNodes, topology.Edges, contactLoads.ToArray());
+            supplyNodes, topology.Edges, contactLoads.ToArray(), drives.ToArray());
     }
     public static bool IsSecondaryBodyIdentity(GpuBodyId owner, GpuBodyId body)
     {
@@ -194,8 +197,6 @@ public static class WorkshopPhysicsCompiler
         return new(ContactWork(owner), owner, targets, new(strength), new(.5f * work.ReferenceMass * strength * strength),
             new(work.Threshold), work.CooldownPhysicalSteps);
     }
-
-    public static GpuBodyId GateBlade(GpuBodyId owner) => new(checked(PartIdentities(owner) + 2));
 
     public static ElectricalSourceId ElectricalSource(GpuBodyId owner) => new(checked(PartIdentities(owner) + 6));
 

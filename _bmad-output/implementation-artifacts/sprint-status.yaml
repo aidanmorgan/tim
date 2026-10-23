@@ -270,7 +270,7 @@ development_status:
   # 25 (element)
   9-7a-electrical-nand-gate: done # scoped native/publication Passb35be7; browser pending
   # split into 9-7a and 9-7b (21 Oct 2026; one new element per story)
-  9-7-electrical-logic-gates-nand-nor: backlog
+  9-7-electrical-logic-gates-nand-nor: done # split stories 9.7a Passb35be7 and 9.7b Pass55ee05 (scoped native/publication); browser pending
   # 26 (deletion)
   9a-c-balls-conversion: done # scoped native/publication Pass3fce7a; browser pending
   # merged into 9a-c-balls (21 Oct 2026)
@@ -290,22 +290,22 @@ development_status:
   # merged into 9a-c-bumper-spring (21 Oct 2026) as its suite-first guard
   9r-8-spring-forward-lesson-chrome-proof: backlog
   # 29 (element)
-  9-8a-electrical-or-gate: review # native scope; merge main, SnapshotApproval/publication pending; browser post-catalogue
+  9-8a-electrical-or-gate: done # scoped native/publication Passa2eddf; browser pending
   # split into 9-8a and 9-8b (21 Oct 2026; one new element per story)
-  9-8-electrical-logic-gates-or-xor: backlog
+  9-8-electrical-logic-gates-or-xor: done # split stories 9.8a Passa2eddf and 9.8b Pass8bfddc (scoped native/publication); browser pending
   # 30 (deletion-lane slot): latch-dependent deferred integrations CAT-005 N19 and CAT-051 supply
   # interruption mid-stroke (coordinator 18 Oct 2026, review-9-4 D1). Placed before 9a-c-gate because the
   # 9a-19, 9a-39 and 9a-43 ACs require its suites.
-  9-4c-latch-fixture-deferred-integrations: review
+  9-4c-latch-fixture-deferred-integrations: done # scoped native/publication Pass a598a09e; browser pending
   # 31 (element)
-  9-8b-electrical-xor-gate: review # native scope; merge main, SnapshotApproval/publication pending; browser post-catalogue
+  9-8b-electrical-xor-gate: done # scoped native/publication Pass8bfddc; browser pending
   epic-9-retrospective: optional
   # 32 (deletion): before 11-3
-  9a-c-gate-declared-drive-warmup: backlog
+  9a-c-gate-declared-drive-warmup: review
   # merged into 9a-c-gate (21 Oct 2026)
-  9a-19-declared-prismatic-drive: backlog
+  9a-19-declared-prismatic-drive: review
   # merged into 9a-c-gate (21 Oct 2026)
-  9a-21-declaration-free-worker-warmup: backlog
+  9a-21-declaration-free-worker-warmup: review
   # 33 (element)
   epic-10: backlog
   10-1-solid-cylinder-collider-and-inertia: backlog

@@ -65,6 +65,37 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
         finally { part.Free(); controlPart.Free(); }
     }
 
+    /// <summary>C-Gate (CAT-051 fact 14, Q3): a blade held at rest on a ball shows the ochre Blocked cue from its committed read, over
+    /// the wire; the same gate before the ball holds it shows the slate unpowered cue.</summary>
+    [Fact]
+    public async Task TheGateCueIsOchreWhileABallHoldsTheBladeAtRest()
+    {
+        var construction = LatchSupplyFixtureTests.Machine(9, payload: true);
+        var reads = await WorkshopPhysicsEngineTests.Run(construction, 360);
+        var gate = construction.Instances.Single(instance => instance.PartId == PartId.PoweredGate).Id;
+        Color Cue(WorkshopRead read)
+        {
+            var endpoint = Response(read, 1);
+            var decoded = WorkshopWireFlatBuffers.DecodeResponse(WorkshopWireFlatBuffers.EncodeResponse(endpoint with { Construction = construction }));
+            var evaluator = new WorkshopDeclaredPresentation(construction, decoded with { Construction = null });
+            var registry = new PartRegistry(); registry.Load();
+            var part = registry.Create(PartId.PoweredGate);
+            try
+            {
+                godot.Tree.Root.AddChild(part);
+                foreach (var sample in evaluator.Advance(read.Capture!.Value.Time.Value / 1_000_000_000d))
+                    if (sample.Owner == gate) part.ApplyDeclaredProperty(sample.Binding, sample.Value);
+                return Assert.IsType<StandardMaterial3D>(part.GetNode<MeshInstance3D>("Visual/Visual_Indicator").MaterialOverride).AlbedoColor;
+            }
+            finally { part.Free(); }
+        }
+        var held = reads[^1].Presentation.Actuators.ToArray().Single(row => row.Owner == gate);
+        Assert.True(held.Blocked && held.MovingContact && !held.SupplyClosed, $"guard: the ball holds the unpowered blade at rest, {held}");
+        Assert.Equal(new Color("#e8b764"), Cue(reads[^1]));
+        Assert.False(reads[0].Presentation.Actuators.ToArray().Single(row => row.Owner == gate).Blocked);
+        Assert.Equal(new Color("#556573"), Cue(reads[0]));
+    }
+
     [Fact]
     public void SinglePrecisionEndpointSurvivesProductionBatchAndControlCodec()
     {

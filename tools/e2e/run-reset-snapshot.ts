@@ -40,7 +40,7 @@ export const SNAPSHOT_SCHEMA = {
             ['last_ordinal', 'uint32'], ['last_phase', 'float'], ['phase', 'uint32'], ['due_tick', 'uint64']] },
         ElectricalLogicRecord: { kind: 'struct', fields: [['owner', 'uint64'], ['inputs', 'uint8'], ['supplied', 'bool'], ['active', 'bool']] },
         ActuatorDriveRecord: { kind: 'struct', fields: [['joint', 'uint64'], ['owner', 'uint64'], ['supply_closed', 'bool'],
-            ['coordinate', 'float'], ['speed', 'float'], ['lower', 'float'], ['upper', 'float']] },
+            ['moving_contact', 'bool'], ['coordinate', 'float'], ['speed', 'float'], ['lower', 'float'], ['upper', 'float']] },
         ContactLoadRecord: { kind: 'struct', fields: [['sensor', 'uint64'], ['frame', 'uint64'], ['face', 'uint64'],
             ['measured_mass', 'float'], ['phase', 'uint32']] },
         ClockStamp: { kind: 'struct', fields: [['time', 'int64'], ['uncertainty', 'uint64'], ['domain', 'uint8']] },

@@ -1,0 +1,4 @@
+278c278
+<         var weight = -mass * gravityAlongAxis;
+---
+>         var weight = 0f;

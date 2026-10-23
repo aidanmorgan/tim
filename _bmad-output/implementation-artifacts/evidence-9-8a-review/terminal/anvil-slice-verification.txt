@@ -1,0 +1,14 @@
+$ slice files (71f7ca12..28a59b71)
+      19
+$ anvil check --no-tui <slice files>
+Last run written to .anvil/last-check.txt
+  ✓ No warnings found
+rc=0
+$ throwaway worktree at 71f7ca12 with slice staged; anvil hook pre-commit --no-tui -v
+<stdin>:433: trailing whitespace.
+  
+<stdin>:561: trailing whitespace.
+  
+warning: 2 lines add whitespace errors.
+staged tree: 3e7520ac002315d783d950850781604cbcae3aea (expected 3e7520ac002315d783d950850781604cbcae3aea)
+anvil hook rc=0

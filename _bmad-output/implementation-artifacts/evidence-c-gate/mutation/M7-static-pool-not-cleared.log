@@ -1,0 +1,32 @@
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-gate/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:01.75]     CuriousContraptions.Tests.WorkshopPhysicsEngineTests.DroppedBasketballBouncesLowerEachTimeAndRestsOnTheBench [FAIL]
+[xUnit.net 00:00:01.85]     CuriousContraptions.Tests.DeclaredPrismaticDriveTests.AWarmedEngineStepsAWorldExactlyLikeAFreshOne [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.DroppedBasketballBouncesLowerEachTimeAndRestsOnTheBench [119 ms]
+  Error Message:
+   at least two rebound apexes
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.DroppedBasketballBouncesLowerEachTimeAndRestsOnTheBench() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-gate/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 385
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.DeclaredPrismaticDriveTests.AWarmedEngineStepsAWorldExactlyLikeAFreshOne [48 ms]
+  Error Message:
+   Assert.Equal() Failure: Collections differ
+                      ↓ (pos 484)
+Expected: [···, 0, 0, 19, 0, 0, ···]
+Actual:   [···, 0, 0, 20, 0, 0, ···]
+                      ↑ (pos 484)
+  Stack Trace:
+     at CuriousContraptions.Tests.DeclaredPrismaticDriveTests.AWarmedEngineStepsAWorldExactlyLikeAFreshOne() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-gate/CuriousContraptions.tests/DeclaredPrismaticDriveTests.cs:line 389
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:02.82]     CuriousContraptions.Tests.SliderInstanceTests.AMissedBallGetsNothingFromAChargedBoard [FAIL]
+  Failed CuriousContraptions.Tests.SliderInstanceTests.AMissedBallGetsNothingFromAChargedBoard [36 ms]
+  Error Message:
+   Assert.InRange() Failure: Value not in range
+Range:  (0 - 9.99999975E-05)
+Actual: 0.000158682466
+  Stack Trace:
+     at CuriousContraptions.Tests.SliderInstanceTests.AMissedBallGetsNothingFromAChargedBoard() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-c-gate/CuriousContraptions.tests/SliderInstanceTests.cs:line 55
+--- End of stack trace from previous location ---
+
+Failed!  - Failed:     3, Passed:    20, Skipped:     0, Total:    23, Duration: 1 s - CuriousContraptions.tests.dll (net10.0)
