@@ -1,0 +1,10 @@
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:04.67
+simulation Release (--no-incremental) rc=0
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:03.98
+animation worker Release (--no-incremental) rc=0

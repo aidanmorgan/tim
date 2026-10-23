@@ -1,0 +1,11 @@
+== reviewer probes on the unmutated candidate (throwaway worktree)
+  Passed CuriousContraptions.Tests.ReviewerCadenceProbe.FullEngineCountIsFloorOfTickOverIntervalAtCadence(cadence: Hz60, seconds: 0.100000001, interval: 6) [170 ms]
+  Passed CuriousContraptions.Tests.ReviewerCadenceProbe.FullEngineCountIsFloorOfTickOverIntervalAtCadence(cadence: Hz120, seconds: 1, interval: 120) [106 ms]
+  Passed CuriousContraptions.Tests.ReviewerCadenceProbe.FullEngineCountIsFloorOfTickOverIntervalAtCadence(cadence: Hz240, seconds: 0.100000001, interval: 24) [208 ms]
+  Passed CuriousContraptions.Tests.ReviewerCadenceProbe.FullEngineCountIsFloorOfTickOverIntervalAtCadence(cadence: Hz60, seconds: 12, interval: 720) [55 ms]
+  Passed CuriousContraptions.Tests.ReviewerCadenceProbe.FullEngineCountIsFloorOfTickOverIntervalAtCadence(cadence: Hz240, seconds: 12, interval: 2880) [171 ms]
+  Passed CuriousContraptions.Tests.ReviewerCadenceProbe.FullEngineCountIsFloorOfTickOverIntervalAtCadence(cadence: Hz60, seconds: 1, interval: 60) [48 ms]
+  Passed CuriousContraptions.Tests.ReviewerCadenceProbe.FullEngineCountIsFloorOfTickOverIntervalAtCadence(cadence: Hz240, seconds: 1, interval: 240) [159 ms]
+  Passed CuriousContraptions.Tests.ReviewerTwoSourceProbe.ConstructionValidationAdmitsTwoSuppliersOnTheLatch [< 1 ms]
+  Passed CuriousContraptions.Tests.ReviewerTwoSourceProbe.TwoUpstreamSourcesThroughALatchAreRefusedByTheOscillatorArm [1 ms]
+  Passed CuriousContraptions.Tests.ReviewerTwoSourceProbe.OneUpstreamSourceThroughALatchCompiles [2 ms]

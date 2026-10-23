@@ -1,0 +1,51 @@
+== 2026-10-23T14:46:35Z diff under test:
+ engine/gpu/WorkshopWireFlatBuffers.cs              | 14 +++------
+ engine/gpu/WorkshopWireGenerated.cs                | 19 +++++-------
+ 13 files changed, 80 insertions(+), 81 deletions(-)
+-            Presentation(entry.Presentation, entry.Metadata.Parameters, entry.Ports, entry.Electrical);
++            Presentation(entry.Presentation, entry.Metadata.Parameters, entry.Ports, entry.Electrical, entry.Signal);
+-            if (entry.Signal is { } signal) Signal(signal, entry.Metadata.Parameters, entry.Ports, entry.Mechanical, entry.Colliders);
++            if (entry.Signal is { } signal) Signal(signal, entry.Metadata.Parameters, entry.Ports, entry.Mechanical, entry.Electrical, entry.Colliders);
+-        private void Presentation(ElementPresentation value, IReadOnlyList<ParameterDescriptor> parameters, IReadOnlyList<PortDescriptor> ports, ElectricalPayload? electrical)
++        private void Presentation(ElementPresentation value, IReadOnlyList<ParameterDescriptor> parameters, IReadOnlyList<PortDescriptor> ports, ElectricalPayload? electrical,
++            SignalPayload? signal)
++                // A committed oscillator binding reads the row only a declared oscillator compiles.
++                if (binding.Driver is PresentationDriver.CommittedOscillatorPhase or PresentationDriver.CommittedOscillatorPulse &&
++                    signal?.Oscillator is null)
++                    OutOfRange("Presentation.Oscillator");
+-            MechanicalPayload? mechanical, IReadOnlyList<ColliderDescriptor> colliders)
++            MechanicalPayload? mechanical, ElectricalPayload? electrical, IReadOnlyList<ColliderDescriptor> colliders)
+-                    (signal.Orientation is null ? 0 : 1) + (signal.ContactLoad is null ? 0 : 1) > 1)
++                    (signal.Orientation is null ? 0 : 1) + (signal.ContactLoad is null ? 0 : 1) + (signal.Oscillator is null ? 0 : 1) > 1)
++            if (signal.Oscillator is { } oscillator)
++            {
++                // The interval is a declared Real second parameter with a finite positive admitted minimum (never a zero-tick interval).
++                if (!parameters.Any(parameter => parameter.Key == oscillator.IntervalParameter && parameter.Kind == ParameterKind.Real &&
++                        parameter.Unit == ParameterUnit.Second && float.IsFinite(parameter.Minimum) && parameter.Minimum > 0f))
+    0 Warning(s)
+    0 Error(s)
+CuriousContraptions.Tests.ClockGuardTests.AOneSecondClockPulsesFiveTimesInFiveSecondsAtEachWholeSecondAndTheCounterCountsEach [FAIL]
+CuriousContraptions.Tests.ClockGuardTests.APauseAddsNoPulseAndNoPhaseAndResumeContinuesTheSpacing [FAIL]
+CuriousContraptions.Tests.ClockGuardTests.ResetStopsTheClockAndTheNextRunPulsesFirstAtOneSecondIdentically [FAIL]
+CuriousContraptions.Tests.ClockGuardTests.SupplyLostAtTheDeadlineSuppressesThePulseAndRestoreStartsAFreshInterval [FAIL]
+CuriousContraptions.Tests.ClockGuardTests.TheCountIsTheFloorOfTheTickOverTheIntervalAtEveryCadence(seconds: 0.100000001, cadence: Hz120, interval: 12) [FAIL]
+CuriousContraptions.Tests.ClockGuardTests.TheCountIsTheFloorOfTheTickOverTheIntervalAtEveryCadence(seconds: 0.100000001, cadence: Hz240, interval: 24) [FAIL]
+CuriousContraptions.Tests.ClockGuardTests.TheCountIsTheFloorOfTheTickOverTheIntervalAtEveryCadence(seconds: 0.100000001, cadence: Hz60, interval: 6) [FAIL]
+CuriousContraptions.Tests.ClockGuardTests.TheCountIsTheFloorOfTheTickOverTheIntervalAtEveryCadence(seconds: 1, cadence: Hz120, interval: 120) [FAIL]
+CuriousContraptions.Tests.ClockGuardTests.TheCountIsTheFloorOfTheTickOverTheIntervalAtEveryCadence(seconds: 1, cadence: Hz240, interval: 240) [FAIL]
+CuriousContraptions.Tests.ClockGuardTests.TheCountIsTheFloorOfTheTickOverTheIntervalAtEveryCadence(seconds: 1, cadence: Hz60, interval: 60) [FAIL]
+CuriousContraptions.Tests.ClockGuardTests.TheCountIsTheFloorOfTheTickOverTheIntervalAtEveryCadence(seconds: 12, cadence: Hz120, interval: 1440) [FAIL]
+CuriousContraptions.Tests.ClockGuardTests.TheCountIsTheFloorOfTheTickOverTheIntervalAtEveryCadence(seconds: 12, cadence: Hz240, interval: 2880) [FAIL]
+CuriousContraptions.Tests.ClockGuardTests.TheCountIsTheFloorOfTheTickOverTheIntervalAtEveryCadence(seconds: 12, cadence: Hz60, interval: 720) [FAIL]
+CuriousContraptions.Tests.ClockGuardTests.TheFaceFlashesOncePerCommittedPulse [FAIL]
+CuriousContraptions.Tests.ClockGuardTests.ThePendulumFollowsTheCommittedPhase(tick: 119) [FAIL]
+CuriousContraptions.Tests.ClockGuardTests.ThePendulumFollowsTheCommittedPhase(tick: 120) [FAIL]
+CuriousContraptions.Tests.ClockGuardTests.ThePendulumFollowsTheCommittedPhase(tick: 150) [FAIL]
+CuriousContraptions.Tests.ClockGuardTests.ThePendulumFollowsTheCommittedPhase(tick: 30) [FAIL]
+CuriousContraptions.Tests.ClockGuardTests.ThePendulumFollowsTheCommittedPhase(tick: 60) [FAIL]
+CuriousContraptions.Tests.ClockGuardTests.ThePendulumFollowsTheCommittedPhase(tick: 90) [FAIL]
+CuriousContraptions.Tests.ClockTests.ActivationNetwork_ClockPoweredPeriodicPulses_5PulsesIn5Seconds [FAIL]
+CuriousContraptions.Tests.ClockTests.ActivationNetwork_PowerLossAtDeadlineAndRestoration [FAIL]
+CuriousContraptions.Tests.ClockTests.ClockPhase_LivesInTheCommittedCheckpoint_SupersededCandidateLeavesItUnchanged_AndResetStopsIt [FAIL]
+CuriousContraptions.Tests.DeclaredOscillatorTests.TheDeclaredOscillatorCompilesItsExactNode(supplied: True) [FAIL]
+Failed!  - Failed:    24, Passed:    76, Skipped:     0, Total:   100, Duration: 977 ms - CuriousContraptions.tests.dll (net10.0)

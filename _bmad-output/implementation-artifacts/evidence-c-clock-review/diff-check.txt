@@ -1,0 +1,8 @@
+== git diff --check HEAD
+rc=0
+== git diff --no-index --check /dev/null CuriousContraptions.tests/ClockGuardTests.cs (rc 1 = new file, no whitespace findings printed)
+rc=1
+== git diff --no-index --check /dev/null CuriousContraptions.tests/DeclaredOscillatorTests.cs (rc 1 = new file, no whitespace findings printed)
+rc=1
+== git diff --no-index --check /dev/null _bmad-output/implementation-artifacts/spec-c-clock.md (rc 1 = new file, no whitespace findings printed)
+rc=1

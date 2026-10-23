@@ -258,9 +258,6 @@ table InstanceRecord {
     // Pipe
     length: float;
 
-    // Switch
-    threshold: float;
-
     // Counter: the whole target count; absent (0) is a missing field, never a default
     target_count: uint32;
 

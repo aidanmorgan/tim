@@ -126,7 +126,7 @@ public sealed class WorkbenchCapacityTests
         "powered_gate" => WorkshopInput.Generic(PartId.PoweredGate, id, x, 0, z, 0, 0, 0, 1),
         "pressure_plate" => PlacedParts.Plate(id, x, 1, z, .5f),
         "counter" => WorkshopInput.Counter(id, x, 1, z, 0, 0, 0, 1, WorkshopCounter.PlacedTargetCount),
-        "clock" => WorkshopInput.Clock(id, x, 1, z, 0, 0, 0, 1, WorkshopClock.PlacedIntervalSeconds),
+        "clock" => PlacedParts.Clock(id, x, 1, z, 0, 0, 0, 1, 1f),
         "latch" => WorkshopInput.Latch(id, x, 1, z, 0, 0, 0, 1),
         _ => throw new ArgumentException($"Unsupported palette part '{kind}'.", nameof(kind)),
     };

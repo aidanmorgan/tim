@@ -13,10 +13,10 @@ public sealed class WorkshopSaveRejectionTests
 {
     // ---------- a hand-built save record whose every field the test controls ----------
 
-    /// <summary>InstanceRecord field ids, in schema order (the vtable slot of each field).</summary>
+    /// <summary>InstanceRecord field ids, in schema order (the vtable slot of each field; C-Clock deleted the threshold).</summary>
     public enum Field
     {
-        Id, PartId, Locked, Cell, Local, Rotation, Length, Threshold, TargetCount, Parameters,
+        Id, PartId, Locked, Cell, Local, Rotation, Length, TargetCount, Parameters,
     }
 
     internal sealed class Instance(string part, ulong id)
@@ -118,7 +118,7 @@ public sealed class WorkshopSaveRejectionTests
         {
             object value = field switch
             {
-                Field.Length => (object)record.Length, Field.Threshold => record.Threshold, Field.TargetCount => record.TargetCount,
+                Field.Length => (object)record.Length, Field.TargetCount => record.TargetCount,
                 _ => throw new InvalidOperationException($"No fixture reader for {field}."),
             };
             result.Values[field] = value;
@@ -131,7 +131,6 @@ public sealed class WorkshopSaveRejectionTests
     /// <summary>The kind-specific fields each part's record carries.</summary>
     internal static Field[] Parameters(string part) => part switch
     {
-        "switch" or "pressure_plate" or "clock" => [Field.Threshold],
         "pipe" => [Field.Length],
         "counter" => [Field.TargetCount],
         _ => [],
@@ -155,7 +154,7 @@ public sealed class WorkshopSaveRejectionTests
         PlacedParts.Detector(new(13), 10, 0, 0, 0, 0, 0, 1),
         PlacedParts.Plate(new(14), 11, 0, 0, .5f),
         WorkshopInput.Counter(new(15), 12, 0, 0, 0, 0, 0, 1, WorkshopCounter.PlacedTargetCount),
-        WorkshopInput.Clock(new(16), 13, 0, 0, 0, 0, 0, 1, 1f),
+        PlacedParts.Clock(new(16), 13, 0, 0, 0, 0, 0, 1, 1f),
         WorkshopInput.Latch(new(17), 14, 0, 0, 0, 0, 0, 1),
         WorkshopInput.Pipe(new(18), 15, 0, 0, 0, 0, 0, 1),
         WorkshopInput.PipeBend45(new(19), 16, 0, 0, 0, 0, 0, 1),
@@ -212,9 +211,10 @@ public sealed class WorkshopSaveRejectionTests
             Assert.Contains(Rejection(bytes), new[] { WorkshopSaveRejection.OutOfRange, WorkshopSaveRejection.NonFinite });
             Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeConstructionRecord(WorkshopSaveCodec.Open(bytes).Construction!.Value));
         }
+        // A typed scalar beside the declared parameter (the deleted threshold's successor case: the length).
         foreach (var scalar in new[] { .8f, float.NaN })
         {
-            var bytes = Bytes(One(record.With(Field.Threshold, scalar)));
+            var bytes = Bytes(One(record.With(Field.Length, scalar)));
             Assert.Equal(WorkshopSaveRejection.OutOfRange, Rejection(bytes));
             Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeConstructionRecord(WorkshopSaveCodec.Open(bytes).Construction!.Value));
         }
@@ -317,7 +317,7 @@ public sealed class WorkshopSaveRejectionTests
         ("cell outside the world", WorkshopSaveRejection.OutOfRange),
         ("local remainder of one half", WorkshopSaveRejection.OutOfRange),
         ("scaled rotation", WorkshopSaveRejection.OutOfRange),
-        ("ball carrying a typed threshold", WorkshopSaveRejection.OutOfRange),
+        ("ball carrying a typed target count", WorkshopSaveRejection.OutOfRange),
         ("unknown element", WorkshopSaveRejection.UnknownElement),
         ("no element", WorkshopSaveRejection.MissingField),
         ("duplicate instance", WorkshopSaveRejection.DuplicateInstance),
@@ -359,7 +359,7 @@ public sealed class WorkshopSaveRejectionTests
             "cell outside the world" => One(ramp.With(Field.Cell, (2000, 0, 0))),
             "local remainder of one half" => One(ramp.With(Field.Local, (.5f, 0f, 0f))),
             "scaled rotation" => One(ramp.With(Field.Rotation, (0f, 0f, 0f, .5f))),
-            "ball carrying a typed threshold" => One(FromProduction(WorkshopInput.Generic(PartId.Basketball,new(1), 0, 3, 0, 0, 0, 0, 1)).With(Field.Threshold, 2f)),
+            "ball carrying a typed target count" => One(FromProduction(WorkshopInput.Generic(PartId.Basketball,new(1), 0, 3, 0, 0, 0, 0, 1)).With(Field.TargetCount, 2u)),
             "unknown element" => One(ramp.Clone().Also(i => i.Part = "tennis")),
             "no element" => One(ramp.Clone().Also(i => i.Part = "")),
             "duplicate instance" => new([ramp, ramp], []),

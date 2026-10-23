@@ -1,0 +1,13 @@
+Version 6.0.3
+tsc rc=0
+✔ Run/Reset snapshot: no vacuous pass (0.823666ms)
+ℹ tests 24
+ℹ suites 3
+ℹ pass 24
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 100.057667
+tsx rc=0
+git diff --check rc=0

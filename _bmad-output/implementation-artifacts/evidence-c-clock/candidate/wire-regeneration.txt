@@ -1,0 +1,11 @@
+flatc: /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/c-clock/../flatc/flatc (flatc version 25.2.10), sha256 f004709c0334edb3cdc0430395b9de1dc071f3618fc4ba43674c3c61201037ac
+== unchanged schema (base 14658883) reproduces committed files:
+C# (diff committed fresh):
+9a10
+> 
+TS generated part identical: yes
+== edited schema: candidate vs fresh flatc output
+C#:
+9a10
+> 
+TS generated part identical: yes

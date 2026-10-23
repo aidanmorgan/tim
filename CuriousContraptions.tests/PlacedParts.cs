@@ -55,4 +55,12 @@ internal static class PlacedParts
         double qx = 0, double qy = 0, double qz = 0, double qw = 1, bool locked = false) =>
         WorkshopInput.Generic(PartId.PressurePlate, id, x, y, z, qx, qy, qz, qw,
             new([new(new("minimum_mass"), minimumMass)])) with { Locked = locked };
+
+    /// <summary>A System Clock of an interval (f32 seconds) at an f32-input pose: the clock package's generic instance with its declared
+    /// <c>interval_seconds</c>. (On the record path at 14658883 it built `WorkshopClock`:
+    /// evidence-c-clock/probe/PlacedParts-record-path.cs.txt.)</summary>
+    public static IWorkshopInstance Clock(GpuBodyId id, double x, double y, double z, double qx, double qy, double qz, double qw,
+        float intervalSeconds, bool locked = false) =>
+        WorkshopInput.Generic(PartId.Clock, id, x, y, z, qx, qy, qz, qw,
+            new([new(new("interval_seconds"), intervalSeconds)])) with { Locked = locked };
 }

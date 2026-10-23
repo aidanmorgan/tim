@@ -1,0 +1,62 @@
+-- A: rg -w WorkshopClock|DefaultIntervalSeconds|AddClockConfiguration|ApplyClockInterval(Async)?|(Placed|Min|Max|Canonical)IntervalSeconds|ApplyIntervalSeconds
+count=      30
+engine/MachinePart.cs:103:    public float CanonicalIntervalSeconds { get; private set; } = WorkshopClock.PlacedIntervalSeconds;
+engine/MachinePart.cs:104:    public void ApplyIntervalSeconds(float seconds)
+engine/MachinePart.cs:106:        if (float.IsNaN(seconds) || float.IsInfinity(seconds) || seconds < WorkshopClock.MinIntervalSeconds || seconds > WorkshopClock.MaxIntervalSeconds)
+engine/MachinePart.cs:108:        CanonicalIntervalSeconds = seconds;
+engine/MachineWorld.Gpu.cs:116:                Construction.Instances.FirstOrDefault(instance => instance.Id == bodyId) is WorkshopClock clock ? clock.IntervalSeconds : WorkshopClock.PlacedIntervalSeconds),
+engine/gpu/ActivationNetwork.cs:862:            else if (instance is WorkshopClock clock)
+engine/gpu/WorkshopInstances.cs:77:            if (item is not (WorkshopCounter or WorkshopClock or WorkshopLatch or IWorkshopDeclaredColliders))
+engine/gpu/WorkshopConstruction.cs:79:    public static WorkshopClock Clock(GpuBodyId id, double x, double y, double z,
+engine/gpu/WorkshopConstruction.cs:83:        var result = new WorkshopClock(id, new(px.Cell, py.Cell, pz.Cell), new(px.Local, py.Local, pz.Local),
+engine/gpu/WorkshopWireFlatBuffers.cs:652:                case WorkshopClock clock:
+engine/gpu/WorkshopWireFlatBuffers.cs:759:            "clock" => new WorkshopClock(id, cell, local, rotation, inst.Threshold, locked),
+engine/gpu/WorkshopClock.cs:5:public readonly record struct WorkshopClock(
+engine/gpu/WorkshopClock.cs:14:    public const float PlacedIntervalSeconds = 1.0f;
+engine/gpu/WorkshopClock.cs:15:    public const float MinIntervalSeconds = 0.1f;
+engine/gpu/WorkshopClock.cs:16:    public const float MaxIntervalSeconds = 12.0f;
+engine/gpu/WorkshopClock.cs:26:            IntervalSeconds < MinIntervalSeconds || IntervalSeconds > MaxIntervalSeconds)
+engine/gpu/WorkshopClock.cs:28:            throw new ArgumentException($"Clock {Id.Value} interval seconds '{IntervalSeconds:R}' is outside admitted range [{MinIntervalSeconds}, {MaxIntervalSeconds}].");
+ui/WorkshopConfiguration.cs:16:        if (part.Definition?.PartId == PartId.Clock) { AddClockConfiguration(part); return; }
+ui/WorkshopConfiguration.cs:212:    private void AddClockConfiguration(MachinePart part)
+ui/WorkshopConfiguration.cs:215:        var configure = SignalButton("Interval: " + part.CanonicalIntervalSeconds.ToString("0.###", CultureInfo.CurrentCulture) + " s", () =>
+ui/WorkshopConfiguration.cs:219:            var interval = new SpinBox { MinValue = (double)WorkshopClock.MinIntervalSeconds, MaxValue = (double)WorkshopClock.MaxIntervalSeconds, Step = 0,
+ui/WorkshopConfiguration.cs:220:                Value = part.CanonicalIntervalSeconds, Suffix = "s", Name = "ClockInterval", CustomMinimumSize = new(140, 36) };
+ui/WorkshopConfiguration.cs:222:            _connectionChoices.AddChild(SignalButton("Apply interval", () => { interval.Apply(); ApplyClockInterval(owner, (float)interval.Value); }));
+ui/WorkshopConfiguration.cs:227:    private async void ApplyClockInterval(GpuBodyId owner, float seconds)
+ui/WorkshopConfiguration.cs:229:        try { await ApplyClockIntervalAsync(owner, seconds); }
+ui/WorkshopConfiguration.cs:230:        catch (Exception error) { HandlerFailed(nameof(ApplyClockInterval), error); }
+ui/WorkshopConfiguration.cs:232:    private async Task ApplyClockIntervalAsync(GpuBodyId owner, float seconds)
+ui/WorkshopConfiguration.cs:237:            if (World.Construction.Instances.Single(instance => instance.Id == owner) is not WorkshopClock current || current.Locked)
+ui/WorkshopConfiguration.cs:239:            if (float.IsNaN(seconds) || float.IsInfinity(seconds) || seconds < WorkshopClock.MinIntervalSeconds || seconds > WorkshopClock.MaxIntervalSeconds)
+engine/gpu/WorkshopSavePrevalidation.cs:125:                Within(id, "interval", r.Threshold, WorkshopClock.MinIntervalSeconds, WorkshopClock.MaxIntervalSeconds);
+-- B: rg WorkshopInput.Clock|"ClockInterval"|InstanceRecord.(Add)?Threshold|AuthoredScalar.Threshold|(r|inst).Threshold
+engine/MachineWorld.Gpu.cs:115:            "clock" => WorkshopInput.Clock(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
+ui/WorkshopConfiguration.cs:220:                Value = part.CanonicalIntervalSeconds, Suffix = "s", Name = "ClockInterval", CustomMinimumSize = new(140, 36) };
+engine/gpu/WorkshopWireFlatBuffers.cs:34:        InstanceRecord.AddThreshold(builder, values[AuthoredScalar.Threshold]);
+engine/gpu/WorkshopWireFlatBuffers.cs:653:                    InstanceRecord.AddThreshold(builder, clock.IntervalSeconds);
+engine/gpu/WorkshopWireFlatBuffers.cs:759:            "clock" => new WorkshopClock(id, cell, local, rotation, inst.Threshold, locked),
+engine/gpu/WorkshopWireFlatBuffers.cs:784:        return Set(r.Length) || Set(r.Threshold) || r.TargetCount != 0;
+engine/gpu/WorkshopSavePrevalidation.cs:125:                Within(id, "interval", r.Threshold, WorkshopClock.MinIntervalSeconds, WorkshopClock.MaxIntervalSeconds);
+count=7
+-- C: rg '"clock"' engine/gpu engine/MachineWorld.Gpu.cs ui
+engine/MachineWorld.Gpu.cs:115:            "clock" => WorkshopInput.Clock(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
+engine/gpu/WorkshopSavePrevalidation.cs:124:            case "clock":
+engine/gpu/WorkshopWireFlatBuffers.cs:759:            "clock" => new WorkshopClock(id, cell, local, rotation, inst.Threshold, locked),
+count=3
+-- D: rg -c '"Threshold"' content
+count=28
+-- E: rg -w threshold schemas/workshop_wire.fbs engine/gpu/WorkshopWireGenerated.cs tools/e2e/workshop-wire.ts tools/e2e/run-reset-snapshot.ts
+tools/e2e/run-reset-snapshot.ts:57:            ['local', 'Vec3f'], ['rotation', 'Quat4f'], ['length', 'float'], ['threshold', 'float'], ['target_count', 'uint32'],
+schemas/workshop_wire.fbs:262:    threshold: float;
+tools/e2e/workshop-wire.ts:1262:threshold():number {
+tools/e2e/workshop-wire.ts:1314:static addThreshold(builder:flatbuffers.Builder, threshold:number) {
+tools/e2e/workshop-wire.ts:1315:  builder.addFieldFloat32(7, threshold, 0.0);
+tools/e2e/workshop-wire.ts:2326:            threshold: inst.threshold(),
+engine/gpu/WorkshopWireGenerated.cs:536:  public float Threshold { get { int o = __p.__offset(18); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
+engine/gpu/WorkshopWireGenerated.cs:549:  public static void AddThreshold(FlatBufferBuilder builder, float threshold) { builder.AddFloat(7, threshold, 0.0f); }
+engine/gpu/WorkshopWireGenerated.cs:576:      && verifier.VerifyField(tablePos, 18 /*Threshold*/, 4 /*float*/, 4, false)
+count=9
+-- F: engine/gpu/WorkshopClock.cs exists?
+engine/gpu/WorkshopClock.cs
+engine/gpu/WorkshopClock.cs.uid

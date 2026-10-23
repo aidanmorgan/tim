@@ -301,12 +301,12 @@ public sealed class PayloadInstanceTests
 
     // The pre-conversion layout is unsupported: deleting radius, drag and buoyancy renumbered every later slot, so each of these saves
     // (each admitted by the record path at 59ecb70b, receipt evidence-c-balls/baseline/baseline-payload-suite.txt) is refused with the
-    // typed save refusal, never misread. Re-derived on the 10-field table of Story 9A.32 (mass, bounce, half extents and friction
-    // removed). Old ball: its drag (slot 9) now sits in the parameters slot, so the verifier refuses the buffer (at 2065d3c5 radius and
-    // mass landed in typed fields: OutOfRange). Old Domino: it is now a generic tile, and its mass and bounce (slots 7 and 8) land in
-    // threshold and target_count, typed fields a generic record cannot carry (at 2065d3c5 its half extents lay beyond the 14-field
-    // table: MissingField). Old pipe: its length lies beyond the table, so it reads the schema's 0. Old resized Ramp: its parameters are
-    // beyond the table, so its declared parameters are missing.
+    // typed save refusal, never misread. Re-derived on the 9-field table of C-Clock (threshold removed; slot 7 is target_count and
+    // slot 8 parameters). Old ball: its bounce (slot 8) now sits in the parameters slot, so the verifier refuses the buffer (at 9A.32 its
+    // drag in slot 9 did; at 2065d3c5 radius and mass landed in typed fields: OutOfRange). Old Domino: likewise its bounce (slot 8) is
+    // read as the parameters vector and the verifier refuses it (at 9A.32 its mass and bounce landed in threshold and target_count,
+    // typed fields: OutOfRange; at 2065d3c5 MissingField). Old pipe: its length lies beyond the table, so it reads the schema's 0. Old
+    // resized Ramp: its parameters are beyond the table, so its declared parameters are missing.
     [Fact]
     public void PreConversionRecordsAreRefusedWithTheTypedSaveRefusal()
     {
@@ -314,7 +314,7 @@ public sealed class PayloadInstanceTests
         {
             ("ball", PreConversionBall("ball", (float)(Half).34f, 1, (float)(Half).55f), WorkshopSaveRejection.VerifierRejected),
             ("bowling", PreConversionBall("bowling", (float)(Half).28f, 4, (float)(Half).14f), WorkshopSaveRejection.VerifierRejected),
-            ("domino", PreConversionDomino(), WorkshopSaveRejection.OutOfRange),
+            ("domino", PreConversionDomino(), WorkshopSaveRejection.VerifierRejected),
             ("pipe", PreConversionPipe(), WorkshopSaveRejection.OutOfRange),
             ("ramp", PreConversionResizedRamp(), WorkshopSaveRejection.OutOfRange)
         })
@@ -347,7 +347,6 @@ public sealed class PayloadInstanceTests
         {
             case null: break;
             case TypedField.Length: InstanceRecord.AddLength(builder, value); break;
-            case TypedField.Threshold: InstanceRecord.AddThreshold(builder, value); break;
             case TypedField.TargetCount: InstanceRecord.AddTargetCount(builder, 3); break;
             default: throw new ArgumentOutOfRangeException(nameof(field));
         }
@@ -363,27 +362,31 @@ public sealed class PayloadInstanceTests
         return SaveFixture.Finish(builder, ConstructionRecord.EndConstructionRecord(builder), 2);
     }
 
-    // Every typed record field, on a generic payload and on another generic element, is refused atomically by the save pre-validation
-    // and by the command decoder alike, a NaN included. (A signed zero cannot be stored: the builder elides any value equal to the
-    // field default.) Control: the bare record loads.
+    // Every typed record field, on a generic payload and on another generic element (the clock with its declared interval included), is
+    // refused atomically by the save pre-validation and by the command decoder alike, a NaN included. (A signed zero cannot be stored:
+    // the builder elides any value equal to the field default.) Control: the bare record loads.
     [Theory]
     [MemberData(nameof(EveryTypedFieldOnGenericRecords))]
     public void AGenericRecordCarryingAnyTypedFieldIsRefused(string part, TypedField field, float value)
     {
-        var bytes = GenericSave(part, field, part == "ramp" ? [("length", 3f), ("width", 1.3f)] : null, value);
+        (string, float)[]? parameters = part switch { "ramp" => [("length", 3f), ("width", 1.3f)], "clock" => [("interval_seconds", 1f)], _ => null };
+        var bytes = GenericSave(part, field, parameters, value);
         SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes));
         var record = WorkshopSaveCodec.Open(bytes).Construction!.Value.Instances(0)!.Value;
         Assert.Equal(WireFaultReason.OutOfRange, Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.MapInstance(record)).Reason);
+        // Control: the same record without the typed field loads.
+        Assert.Equal(new PartId(part), Assert.Single(WorkshopSaveCodec.Decode(SaveFixture.Elements, GenericSave(part, null, parameters)).Construction.Instances).PartId);
     }
 
     public static TheoryData<string, TypedField, float> EveryTypedFieldOnGenericRecords()
     {
         var data = new TheoryData<string, TypedField, float>();
-        foreach (var part in new[] { "ball", "bowling", "ramp", "domino" })
+        foreach (var part in new[] { "ball", "bowling", "ramp", "domino", "clock" })
             foreach (var field in Enum.GetValues<TypedField>())
                 data.Add(part, field, 4f);
-        data.Add("bowling", TypedField.Threshold, float.NaN);
+        data.Add("bowling", TypedField.Length, float.NaN);
         data.Add("domino", TypedField.Length, float.NaN);
+        data.Add("clock", TypedField.Length, float.NaN);
         return data;
     }
 
@@ -400,8 +403,8 @@ public sealed class PayloadInstanceTests
     }
 }
 
-/// <summary>Every typed field of the current InstanceRecord: a generic record carries none of them.</summary>
+/// <summary>Every typed field of the current InstanceRecord (C-Clock deleted the threshold): a generic record carries none of them.</summary>
 public enum TypedField
 {
-    Length, Threshold, TargetCount
+    Length, TargetCount
 }

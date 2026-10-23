@@ -139,6 +139,9 @@ public sealed class BundleRoundTripTests
             // The contact-load sensor (C-Plate).
             Assert.Equal(signal is IContactLoadSensorElement, entry.Signal.ContactLoad is not null);
             if (signal is IContactLoadSensorElement load) AssertSame(load.ContactLoad, entry.Signal.ContactLoad!.Value, "ContactLoad");
+            // The periodic pulse source (C-Clock).
+            Assert.Equal(signal is IOscillatorElement, entry.Signal.Oscillator is not null);
+            if (signal is IOscillatorElement oscillator) Assert.Equal(oscillator.Oscillator, entry.Signal.Oscillator!.Value);
         }
         Assert.Equal(declaration is IFluidElement, entry.Fluid is not null);
         if (declaration is IFluidElement fluid)

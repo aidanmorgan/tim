@@ -1,0 +1,4 @@
+== reviewer re-run of ClockGuardTests (byte-equal to candidate copy) on the record path: throwaway worktree at 14658883 + evidence-c-clock/baseline/test-only.diff (record-path PlacedParts.Clock -> WorkshopInput.Clock) + probe file
+    0 Error(s)
+    0 Warning(s)
+Passed!  - Failed:     0, Passed:    56, Skipped:     0, Total:    56, Duration: 726 ms - CuriousContraptions.tests.dll (net10.0)

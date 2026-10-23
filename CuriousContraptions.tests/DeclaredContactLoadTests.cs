@@ -116,7 +116,11 @@ public sealed class DeclaredContactLoadTests
     // Saves written by the record path's production encoders at 61ded7ad (evidence-c-plate/baseline/old-saves, sha256 in
     // old-saves.sha256): a plate record carries its minimum mass in the threshold field, a typed field the generic instance cannot
     // carry. Each is refused at the save boundary with the visible message and at the command boundary with the wire fault, never
-    // migrated (decision h).
+    // migrated (decision h). C-Clock deleted the threshold (9-field table): the plate's old slot 7 is now target_count, still a typed
+    // field, so a lone plate keeps its message; but every generic record of that layout wrote its parameters vector in slot 9, now
+    // beyond the table, so in the wired benches the battery (the first parametered record, before the plate) is refused first for its
+    // missing declared parameters. Both are typed OutOfRange refusals at both boundaries (evidence-c-clock/candidate old-save
+    // outcomes); no record loads.
     private const string PlainSave = "zAAAABQAAABDQ1dTAAAAAAgAFAAIAAQACAAAABwAAAALAAAAAAAAAAAAAAAMACgAIAAIAAAABAAMAAAAJAAAAAIAAAABAAAAAgAAAAIAAAA8AAAAAQAAAAIAAAAAAAAAAQAAABgAAAAUAEAANAAwAAAAJAAYAAgAAAAEABQAAAAAAAA/AAAAAAAAAAAAAAAAAACAPwAAAADheiQ+AAAAAAAAAAD8////AAAAABAAAAABAAAAAAAAAAAAAAAOAAAAcHJlc3N1cmVfcGxhdGUAAA==";
     private const string PlainCommand = "HAEAACQAAABDQ1dDHABEADgANAAoACAAHAAYABAACAAAAAAAAAAEABwAAABMAAAAAQAAAAAAAAABAAAAAAAAAMwAAAACAAAAAQAAAAAAAAABAAAAAAAAAAAAAAABAAAAAQAAAAAAAAAAAAAADAAoACAACAAAAAQADAAAACQAAAACAAAAAQAAAAIAAAACAAAAPAAAAAEAAAACAAAAAAAAAAEAAAAYAAAAFAA8ADQAMAAAACQAGAAIAAAABAAUAAAAAAAAPwAAAAAAAAAAAAAAAAAAgD8AAAAA4XokPgAAAAAAAAAA/P///wAAAAAMAAAAAQAAAAAAAAAOAAAAcHJlc3N1cmVfcGxhdGUAABAAAAABAAAAAAAAAAIAAAAAAAAA";
     private const string TwoKgSave = "zAAAABQAAABDQ1dTAAAAAAgAFAAIAAQACAAAABwAAAALAAAAAAAAAAAAAAAMACgAIAAIAAAABAAMAAAAJAAAAAIAAAABAAAAAgAAAAIAAAA8AAAAAQAAAAIAAAAAAAAAAQAAABgAAAAUAEAANAAwAAAAJAAYAAgAAAAEABQAAAAAAABAAAAAAAAAAAAAAAAAAACAPwAAAADheiQ+AAAAAAAAAAD8////AAAAABAAAAABAAAAAAAAAAAAAAAOAAAAcHJlc3N1cmVfcGxhdGUAAA==";
@@ -127,11 +131,11 @@ public sealed class DeclaredContactLoadTests
     private const string TwoPlateCommand = "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";
 
     [Theory]
-    [InlineData("two_plate", "5249e00ff51f13646d9e58b4a1c1830d2ef96f051dfb62f7b4e81a9ba55e7e75", "fae5726e914fbd9c8c394611251fbbc05b272d91d6c60dc6b7960ac4e30324e0", 3)]
+    [InlineData("two_plate", "5249e00ff51f13646d9e58b4a1c1830d2ef96f051dfb62f7b4e81a9ba55e7e75", "fae5726e914fbd9c8c394611251fbbc05b272d91d6c60dc6b7960ac4e30324e0", null)]
     [InlineData("plain","52ae128a998bb918485fdbaffb0cb198313c18eaa52e8f3bc47cbc571bef5fb5", "44edc0d8310f185279831a82e699e89356d1ba4c37af6acb6172766b990ea0b0", 1)]
     [InlineData("two_kg", "d9a178b6445cface75f6ba01388eef8d10ac08b091ab7940bbb07545e3973906", "f3c999cc832ea8fc71d05f8c8d65d5763f0247005bf0e33c354037acbf6499c6", 1)]
-    [InlineData("lamp_wired", "9df795e47e807a3ba6a5eb1d522b82436472f15c79ca1ebba4be6f58baf4b461", "ceb465f57de372497d70cfb839ba15de1c4d4996039b21a08c1f792023b7e99a", 3)]
-    public void ARecordPathPlateSaveIsRefusedTypedAtBothBoundaries(string name, string saveSha256, string commandSha256, int plate)
+    [InlineData("lamp_wired", "9df795e47e807a3ba6a5eb1d522b82436472f15c79ca1ebba4be6f58baf4b461", "ceb465f57de372497d70cfb839ba15de1c4d4996039b21a08c1f792023b7e99a", null)]
+    public void ARecordPathPlateSaveIsRefusedTypedAtBothBoundaries(string name, string saveSha256, string commandSha256, int? plate)
     {
         var (save, command) = name switch
         {
@@ -144,8 +148,12 @@ public sealed class DeclaredContactLoadTests
         var (saveBytes, commandBytes) = (Convert.FromBase64String(save), Convert.FromBase64String(command));
         Assert.Equal((saveSha256, commandSha256), (Convert.ToHexStringLower(SHA256.HashData(saveBytes)), Convert.ToHexStringLower(SHA256.HashData(commandBytes))));
         var refusal = SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(SaveFixture.Elements, saveBytes));
-        Assert.Equal($"This save cannot be loaded: Part {plate} is a generic instance and cannot carry a typed record field.", refusal.Message);
         var fault = Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeCommand(commandBytes));
-        Assert.Equal((WireFaultReason.OutOfRange, "Generic instance cannot carry a typed record field."), (fault.Reason, fault.Message));
+        // A lone plate is refused for its typed field; a wired bench first for the battery's parameters beyond the table.
+        var (refusedSave, refusedCommand) = plate is { } part
+            ? ($"This save cannot be loaded: Part {part} is a generic instance and cannot carry a typed record field.", "Generic instance cannot carry a typed record field.")
+            : ("This save cannot be loaded: Invalid declared parameters.", "Invalid declared parameters.");
+        Assert.Equal(refusedSave, refusal.Message);
+        Assert.Equal((WireFaultReason.OutOfRange, refusedCommand), (fault.Reason, fault.Message));
     }
 }

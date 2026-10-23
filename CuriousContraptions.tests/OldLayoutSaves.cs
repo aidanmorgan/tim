@@ -122,7 +122,7 @@ internal static class OldLayoutSaves
             yield return new(name, part.Value, [], Declared(part)) { Layout = layout };
     }
 
-    /// <summary>2065d3c5 records whose parameters vector (slot 13) lies beyond the current 10-field table: a zero-parameter domino and
+    /// <summary>2065d3c5 records whose parameters vector (slot 13) lies beyond the current 9-field table: a zero-parameter domino and
     /// lamp each carrying an undeclared parameter, and a bare Basketball with the empty parameters vector the base encoder wrote for
     /// every generic instance.</summary>
     internal static IEnumerable<OldRecord> PreDominoRecords()

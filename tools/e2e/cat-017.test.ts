@@ -8,10 +8,15 @@
 //    gate remains closed, upstream ball stopped.
 // 3. Positive trigger: running for 4.2 s emits 3rd pulse at 3.0 s, reaching target count 3,
 //    retracts gate blade, and ball traverses downstream.
-// 4. Pause and Reset restoration: pausing mid-interval freezes simulation, reset restores the exact initial state with the
-//    clock stopped (phase 0, no due tick).
+// 4. Pause and Reset restoration (Story 9R.10): a 2.0 s wall-clock pause mid-interval adds no tick, pulse or phase advance to the
+//    committed clock row; Reset restores the exact initial state with the clock stopped (phase 0, no due tick), and the next run's
+//    first pulse is committed at tick 120 (1.0 s).
 // 5. State persistence & replay: Save / reload / Load preserves clock, counter, gate, battery, and wiring;
 //    simulation replay triggers traversal.
+// 6. Pulse spacing (Story 9R.10): after more than 5.0 s the committed clock has pulsed once per 120 ticks, and its next pulse is due
+//    one interval after the last (pulses at 120, 240, 360, 480, 600, ...).
+// 7. Unsupplied control (Story 9R.10): a clock with no supply stays stopped and commits no pulse.
+// The clock is a generic instance (C-Clock): its interval is its declared interval_seconds parameter.
 // Story 9R.1: every test reloads and builds its own bench, and every Reset is followed by the exact snapshot assertion
 // (driver.expectResetMatches) against the snapshot taken before the first Run; each Run cycle first proves it advanced.
 import assert from 'node:assert/strict';
@@ -19,7 +24,7 @@ import { after, before, describe, test } from 'node:test';
 import type { ConsoleMessage, Worker } from 'playwright';
 import { isWorkshopConsoleFailure } from '../workshop-console.mjs';
 import { WorkshopDriver, type RunResetSnapshot, type WorkshopBodyPose } from './workshop-driver.ts';
-import { decodeSavedConstruction } from './workshop-wire.ts';
+import { decodeSavedConstruction, type InstanceRecord } from './workshop-wire.ts';
 import { MemoryKind, activationMemoryRows, assertLoadRestores, type ActivationMemoryRow } from './run-reset-snapshot.ts';
 
 const ConnectionDomain = { Activation: 1, Electrical: 2 } as const;
@@ -82,7 +87,18 @@ function assertClockWiring(bytes: Buffer, gateSlot: number, ballSlot: number, co
     assert(hasEdge(battId, clockId, ConnectionDomain.Electrical, Socket.Supply, Socket.PowerIn), 'Missing Battery -> Clock electrical link');
     const clockInst = construction.instances(clockSlot)!;
     assert.equal(clockInst.partId(), 'clock');
-    assert.equal(clockInst.threshold(), 1.0);
+    assert.equal(declaredParameter(clockInst, 'interval_seconds'), 1.0);
+}
+
+// The value of one declared parameter of a saved generic instance (exactly one record of that key).
+function declaredParameter(instance: InstanceRecord, key: string): number {
+    const values: number[] = [];
+    for (let i = 0; i < instance.parametersLength(); i++) {
+        const parameter = instance.parameters(i)!;
+        if (parameter.key() === key) values.push(parameter.value());
+    }
+    assert.equal(values.length, 1, `Expected one declared ${key} parameter, got ${values.length}`);
+    return values[0];
 }
 
 // The single committed row of one memory kind (the bench has one clock and one counter).
@@ -263,7 +279,7 @@ describe('CAT-017: System Clock Periodic Pulse Generator E2E', () => {
         assert.equal(errors.length, 0, `Zero errors expected, got: ${errors.join('; ')}`);
     });
 
-    test('4. Pause and Reset restoration: pausing freezes simulation, reset cleanly restores initial state', { timeout: 150000 }, async () => {
+    test('4. Pause and Reset restoration: a 2.0 s pause adds nothing; after Reset the first pulse is at 1.0 s', { timeout: 150000 }, async () => {
         const s0 = await buildClockBench();
 
         await driver.run(1500); // 1 pulse fired
@@ -271,18 +287,21 @@ describe('CAT-017: System Clock Periodic Pulse Generator E2E', () => {
         // Boundary: the clock is mid-interval at the pause: running, one pulse committed, the next due at 2.0 s (tick 240).
         const clock = row(paused, MemoryKind.Oscillator);
         assert.deepEqual([clock.phase, clock.count, clock.due_tick], ['1', '1', '240'], 'Paused mid-interval: running, 1 pulse, due at tick 240');
-        const pausedSlot = await driver.readLatestPose();
-        assert.ok(pausedSlot, 'Pose slot readable while paused');
-        const ballPaused = pausedSlot.bodies.find(b => b.id === '2');
-        assert.ok(ballPaused, 'Ball pose readable while paused');
-        assert.ok(ballPaused.px < 0.2, 'Ball still held upstream at pause');
+        // 2.0 s of wall-clock pause: the next committed read (one Step) is exactly one tick later, its clock row unchanged.
+        await driver.page.waitForTimeout(2000);
+        const stepped = await driver.stepSimulation();
+        assert.equal(stepped.tick, paused.tick + 1n, 'A 2.0 s pause commits no tick');
+        assert.deepEqual(row(stepped, MemoryKind.Oscillator), clock, 'A 2.0 s pause adds no pulse and no phase advance');
+        assert.deepEqual(row(stepped, MemoryKind.Counter), row(paused, MemoryKind.Counter), 'No pulse reaches the counter while paused');
 
-        await driver.page.waitForTimeout(500);
-        const afterPauseSlot = await driver.readLatestPose();
-        const ballAfterPause = afterPauseSlot?.bodies.find(b => b.id === '2');
-        assert.ok(ballAfterPause, 'Ball pose readable after the pause window');
-        assert.ok(Math.abs(ballAfterPause.px - ballPaused.px) < 0.01, 'No motion while paused');
-
+        await resetMatches(s0);
+        // After Reset (phase 0), a new run's first pulse is committed at tick 120 (1.0 s): the counter's last input is that tick's
+        // physical boundary (4 physical steps per tick).
+        await driver.run(1500);
+        const rerun = await driver.expectRunAdvanced(s0);
+        const restarted = row(rerun, MemoryKind.Oscillator);
+        assert.deepEqual([restarted.phase, restarted.count, restarted.due_tick], ['1', '1', '240'], 'After Reset: one pulse, the next due at tick 240');
+        assert.equal(row(rerun, MemoryKind.Counter).last_ordinal, '480', 'After Reset the first pulse is committed at tick 120');
         await resetMatches(s0);
         assert.equal(errors.length, 0, `Zero errors expected, got: ${errors.join('; ')}`);
     });
@@ -299,6 +318,43 @@ describe('CAT-017: System Clock Periodic Pulse Generator E2E', () => {
         // Replay simulation on restored construction
         await runTraverses(loaded, 'replay after reload');
         await resetMatches(loaded);
+        assert.equal(errors.length, 0, `Zero errors expected, got: ${errors.join('; ')}`);
+    });
+
+    test('6. Pulse spacing: one committed pulse per 120 ticks over more than 5.0 s', { timeout: 150000 }, async () => {
+        const s0 = await buildClockBench();
+        await driver.run(5300);
+        const paused = await driver.expectRunAdvanced(s0);
+        const clock = row(paused, MemoryKind.Oscillator);
+        const pulses = paused.tick / 120n;
+        assert.ok(pulses >= 5n, `Expected at least 5 pulses after 5.3 s, committed tick ${paused.tick}`);
+        assert.deepEqual([clock.phase, clock.count, clock.due_tick], ['1', String(pulses), String((pulses + 1n) * 120n)],
+            `At tick ${paused.tick}: one pulse per 120 ticks (120, 240, 360, 480, 600, ...) and the next one interval later`);
+        await resetMatches(s0);
+        assert.equal(errors.length, 0, `Zero errors expected, got: ${errors.join('; ')}`);
+    });
+
+    test('7. Unsupplied control: a clock with no supply stays stopped and commits no pulse', { timeout: 150000 }, async () => {
+        errors.length = 0;
+        await driver.reload();
+        await driver.selectTool('clock');
+        await driver.placeOnCanvas(450, 485);
+        // A basketball keeps one dynamic body in the committed reads and the pose ring, as in every other bench.
+        await driver.selectTool('basketball');
+        await driver.placeOnCanvas(920, 510);
+        await driver.page.keyboard.press('Escape');
+        await driver.page.waitForTimeout(200);
+        const s0 = await driver.captureSnapshot({ bodies: 1 });
+        assert.equal(declaredParameter(decodeSavedConstruction(await saved(driver)).construction()!.instances(0)!, 'interval_seconds'), 1.0);
+        await driver.run(1500);
+        await driver.pauseSimulation();
+        const stepped = await driver.stepSimulation();
+        assert.ok(stepped.tick > 120n, `The run passed one interval (committed tick ${stepped.tick})`);
+        const clock = row(stepped, MemoryKind.Oscillator);
+        assert.deepEqual([clock.phase, clock.count, clock.due_tick], ['0', '0', '0'], 'Unsupplied: stopped, no pulse, no due tick');
+        await driver.reset();
+        const reset = row(await driver.expectResetMatches(s0), MemoryKind.Oscillator);
+        assert.deepEqual([reset.phase, reset.due_tick, reset.count], ['0', '0', '0'], 'Reset: clock phase 0, no due tick, no pulses');
         assert.equal(errors.length, 0, `Zero errors expected, got: ${errors.join('; ')}`);
     });
 });

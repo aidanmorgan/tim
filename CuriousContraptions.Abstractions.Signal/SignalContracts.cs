@@ -96,3 +96,14 @@ public interface IContactLoadSensorElement : ISignalElement
 {
     SignalContactLoadDescriptor ContactLoad { get; }
 }
+
+/// <summary>A supplied periodic pulse source. While the owner's PowerIn route is supplied by exactly one source, its Pulse ActivationOut
+/// pulses once every <see cref="IntervalParameter"/> (a Real second parameter, compiled to whole ticks of the run's cadence rounded up),
+/// the first pulse one full interval after supply begins. Losing supply stops it with no pulse, and restored supply starts a fresh
+/// interval.</summary>
+public readonly record struct SignalOscillatorDescriptor(string IntervalParameter);
+
+public interface IOscillatorElement : ISignalElement
+{
+    SignalOscillatorDescriptor Oscillator { get; }
+}

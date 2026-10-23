@@ -304,3 +304,24 @@ This is a closing record under the epics rule "Reopened-record closure". Story 6
 | "All part-kind switches eradicated" (Domino arms) | C: `PartId` switch tables remain | `CaptureInstance` (`MachineWorld.Gpu.cs`): `"domino"` arm 1 → 0. The `WorkshopWireFlatBuffers` decode/encode arms (`"domino"` 1 → 0, `WorkshopDomino` 3 → 0), the save pre-validation `"domino"` case (1 → 0), the authored whitelist (`WorkshopInstances`, 1 → 0), the compiler's `OfType<WorkshopDomino>` (2 → 0) and the `ActivationNetwork` arm (1 → 0) are all deleted. `engine/gpu/WorkshopDomino.cs` is deleted. Production `rg -w "WorkshopDomino\|DominoMaterial\|MapDomino"` returns 0. The orientation sensor and node are now selected by the declared `SignalOrientationDescriptor`. | **Closed, Pass** (the Domino arms) |
 
 **Stays open in this record.** The other elements' arms belong to their own conversions: C-Plate, C-Clock and C-Memory. Cumulative Chrome is pending the post-catalogue E2E phase under the 21 Oct policy. Per the closure table, 6.5f stays open until C-Memory's addendum records its terminal Pass.
+
+## Addendum 23 Oct 2026, retro-verification (C-Plate, Pressure Plate)
+
+This is a closing record under the epics rule "Reopened-record closure". Story 6.5f's switch tables are owned by 9A.16, 9A.17, 9A.25 and 9A.27–9A.43, and the closure table lists "every conversion". This addendum covers only the Pressure Plate arms that C-Plate (9A.20 + 9A.40) removes. The original text and the addenda above are unchanged.
+
+**Reviewer.** I am the independent reviewer of C-Plate (`review-c-plate.md`). I am neither its implementer, nor Story 6.5f's implementer, nor the author of the original review or of any addendum above.
+
+**Identity**
+- Slice commit `9b2f93fbf03ce559fba22afb60c1443d31756de7`, tree `98270a0ab691aa92fcbd6b8d36f7894f03d7cb7d`.
+- Published merge `146588838b97d9634406c47f9e383b3dd24f8fa6`, the same tree, on `origin/main`.
+- Bundle `elements/elements.bundle.json` sha256 `23f6a93759e8c7e8fcafea11e2ba88a2a2aef67835f2874c9b60858f078aa526`, the output of the fresh build in the log below.
+
+**Evidence** (paths relative to `_bmad-output/implementation-artifacts/`)
+- `evidence-c-plate-review/terminal/addendum-native-rerun.log`: the fresh `--no-incremental` build (0 warnings), then the plate, contact-load, placement, isolation and parity guard classes, 393/393, rc 0, run 2026-10-23T14:11:07Z to 14:11:20Z. The same log holds the switch-table census against base `61ded7ad`, at 14:11:20Z.
+- `evidence-c-plate-review/terminal/run.json` and `build-job.log`: CI run 39964860374 on `146588838b97`, game 2533/2533.
+
+| Original clause (6.5f) | Retro-verification finding (18 Oct) | Fresh result | Verdict |
+|---|---|---|---|
+| "All part-kind switches eradicated" (Pressure Plate arms) | C: `PartId` switch tables remain | `CaptureInstance` (`MachineWorld.Gpu.cs`): `"pressure_plate"` arm 1 → 0, `WorkshopPressurePlate` 1 → 0. `WorkshopWireFlatBuffers` decode/encode (`"pressure_plate"` 1 → 0, `WorkshopPressurePlate` 2 → 0), the save pre-validation `"pressure_plate"` case (1 → 0), the authored whitelist (`WorkshopInstances`, 1 → 0), the compiler's `OfType<WorkshopPressurePlate>` loop (4 → 0), the `ActivationNetwork` arm (2 → 0) and `WorkshopInput.PressurePlate` (`WorkshopConstruction.cs`, 2 → 0) are all deleted. `engine/gpu/WorkshopPressurePlate.cs` is deleted. Production `rg -w "WorkshopPressurePlate\|_plateLoaded"` returns 0. The contact-load row, level node and release hold are now selected by the declared `SignalContactLoadDescriptor`. | **Closed, Pass** (the Pressure Plate arms) |
+
+**Stays open in this record.** The remaining arms belong to C-Clock and C-Memory. Cumulative Chrome is pending the post-catalogue E2E phase under the 21 Oct policy. Per the closure table, 6.5f stays open until C-Memory's addendum records its terminal Pass.

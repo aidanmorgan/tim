@@ -1,0 +1,13 @@
+-- A: rg -w WorkshopClock|DefaultIntervalSeconds|AddClockConfiguration|ApplyClockInterval(Async)?|(Placed|Min|Max|Canonical)IntervalSeconds|ApplyIntervalSeconds
+count=       0
+-- B: rg WorkshopInput.Clock|"ClockInterval"|InstanceRecord.(Add)?Threshold|AuthoredScalar.Threshold|(r|inst).Threshold
+count=0
+-- C: rg '"clock"' engine/gpu engine/MachineWorld.Gpu.cs ui
+count=0
+-- D: rg -c '"Threshold"' content
+count=0
+-- E: rg -w threshold schemas/workshop_wire.fbs engine/gpu/WorkshopWireGenerated.cs tools/e2e/workshop-wire.ts tools/e2e/run-reset-snapshot.ts
+count=0
+-- F: engine/gpu/WorkshopClock.cs exists?
+ls: engine/gpu/WorkshopClock.cs: No such file or directory
+ls: engine/gpu/WorkshopClock.cs.uid: No such file or directory

@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+# Reviewer's own mutations R1-R8 for C-Clock, run sequentially on the throwaway candidate worktree.
+M=/private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/review-clock/mutate.sh
+WT=/private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/review-clock/wt-mut
+echo "== control (unmutated candidate + probe)"
+cd "$WT" && dotnet build CuriousContraptions.slnx -c Debug --nologo 2>&1 | grep -E "Warning\(s\)|Error\(s\)"
+dotnet test CuriousContraptions.tests/CuriousContraptions.tests.csproj -c Debug --no-build --no-restore \
+  --filter "FullyQualifiedName~ClockGuardTests|FullyQualifiedName~DeclaredOscillatorTests|FullyQualifiedName~ClockTests|FullyQualifiedName~DeclaredOrientationTests|FullyQualifiedName~WorkshopSaveRejectionTests|FullyQualifiedName~PayloadInstanceTests|FullyQualifiedName~WorkshopWireFlatBuffersTests|FullyQualifiedName~DeclaredPresentationTests|FullyQualifiedName~PalettePlacementTests" 2>&1 | grep -E "Passed!|Failed!"
+dotnet test tools/BundleElements.Tests -c Debug --no-build --no-restore 2>&1 | grep -E "Passed!|Failed!"
+bash $M R1-validator-allows-ActivationIn CuriousContraptions.Bundle/BundleValidator.cs 's/\|\|\s*ports\.Any\(port => port\.Socket == PortSocket\.ActivationIn\)\)/)/'
+bash $M R2-pulse-collider-second-not-first engine/gpu/ActivationNetwork.cs 's/PartIdentities\(periodic\.Id\) \+ 1/PartIdentities(periodic.Id) + 2/'
+bash $M R3-typed-field-ignores-target-count engine/gpu/WorkshopWireFlatBuffers.cs 's/ \|\| r\.TargetCount != 0;/;/'
+bash $M R4-validator-admits-zero-minimum CuriousContraptions.Bundle/BundleValidator.cs 's/float\.IsFinite\(parameter\.Minimum\) && parameter\.Minimum > 0f/float.IsFinite(parameter.Minimum) \&\& parameter.Minimum >= 0f/'
+bash $M R5-interval-compiled-at-fixed-120Hz engine/gpu/ActivationNetwork.cs 's/(ActivationTimerDeclaration\.Duration\(periodic\.Parameters\[new ParameterId\(oscillator\.IntervalParameter\)\],\s*)construction\.Settings\.Simulation\)/$1SimulationCadence.Hz120)/'
+bash $M R6-length-typed-by-value-not-bits engine/gpu/WorkshopWireFlatBuffers.cs 's/BitConverter\.SingleToUInt32Bits\(r\.Length\) != 0/r.Length != 0f/'
+bash $M R7-validator-admits-dynamic-body CuriousContraptions.Bundle/BundleValidator.cs 's/frame\.KinematicMode != KinematicMode\.Static \|\| frame\.Sliders/frame.Sliders.Count < 0 || frame.Sliders/'
+bash $M R8-two-sources-admitted engine/gpu/ActivationNetwork.cs 's/if \(sources\.Length > 1\) throw new WorkshopEditRejectedException\(WorkshopEditRejection\.PowerInputSupplied,\s*"This source-accounted input requires one upstream source\."\);\s*var powerSource = sources\.Length == 1/var powerSource = sources.Length >= 1/'
+echo "== final restoration check"
+cd "$WT" && git diff --binary HEAD -- . ':!CuriousContraptions.tests/ReviewerOldSaveProbe.cs' ':!CuriousContraptions.tests/CuriousContraptions.tests.csproj' | shasum -a 256

@@ -100,14 +100,6 @@ public sealed partial class MachinePart : Node3D, IResizablePart
         if (presentation.Sizing is not null) PickRadius = nextRadius;
     }
 
-    public float CanonicalIntervalSeconds { get; private set; } = WorkshopClock.PlacedIntervalSeconds;
-    public void ApplyIntervalSeconds(float seconds)
-    {
-        if (float.IsNaN(seconds) || float.IsInfinity(seconds) || seconds < WorkshopClock.MinIntervalSeconds || seconds > WorkshopClock.MaxIntervalSeconds)
-            throw new ArgumentException($"Clock interval seconds '{seconds}' is outside admitted range.");
-        CanonicalIntervalSeconds = seconds;
-    }
-
     public void Configure(PartDefinition definition)
     {
         if (_built || Definition is not null) throw new InvalidOperationException("Part is already configured.");

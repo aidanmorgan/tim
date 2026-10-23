@@ -1,0 +1,10 @@
+IDENTICAL interval-parity.txt
+IDENTICAL lesson-world.txt
+IDENTICAL placed-solutions.txt
+IDENTICAL trace-clocks-latch.txt
+IDENTICAL trace-counter-gate.txt
+IDENTICAL trace-deadline-loss.txt
+IDENTICAL trace-palette-max.txt
+IDENTICAL trace-pulses-0.1s.txt
+IDENTICAL trace-pulses-12s.txt
+IDENTICAL trace-pulses-1s.txt

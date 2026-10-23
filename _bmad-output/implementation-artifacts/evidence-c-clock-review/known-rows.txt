@@ -1,0 +1,8 @@
+== Known fixture
+key Known base 166 cand 136
+removed 30 added 0
+removed owners {'Clock'}
+remaining Owner Clock rows []
+PartId.Clock rows in cand [{'File': 'engine/PartId.cs', 'Symbol': 'PartId.Clock', 'Rule': 'ElementLiteral', 'Token': 'clock', 'Count': 1, 'Owner': 'FinalIsolation'}, {'File': 'engine/PartId.cs', 'Symbol': 'PartId.Clock', 'Rule': 'PackageIdentifier', 'Token': 'Clock', 'Count': 1, 'Owner': 'FinalIsolation'}]
+other top-level keys equal: {'Generic': True}
+0	30	CuriousContraptions.tests/Fixtures/element-isolation-known.json

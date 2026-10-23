@@ -1,0 +1,3 @@
+Hz60: checked=57881396 first=3dcccccd last=41400000 mismatches=0
+Hz120: checked=57881396 first=3dcccccd last=41400000 mismatches=0
+Hz240: checked=57881396 first=3dcccccd last=41400000 mismatches=0
