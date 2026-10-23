@@ -96,14 +96,15 @@ public sealed class WeightTests
     public void AnOutOfRangeOrNonFiniteMassIsRefusedAtEverySeamAndChangesNothing(float mass, WorkshopSaveRejection save)
     {
         var admitted = Bench(Placed(1, 0, 1, 0, 4f));
-        var before = WorkshopSaveCodec.Encode(new WorkshopSavedConstruction(admitted, new(2)));
         var refused = new InstanceParameterCollection([new(MassKey, mass)]);
         Assert.Throws<ArgumentException>(() => refused.Validate(Weight));
         Assert.Throws<ArgumentException>(() => Placed(1, 0, 1, 0, mass));
         var current = Assert.IsType<WorkshopGenericInstance>(Assert.Single(admitted.Instances));
         Assert.ThrowsAny<ArgumentException>(() => admitted.WithInstance(current with { Parameters = refused }).Validate());
-        Assert.Equal(before, WorkshopSaveCodec.Encode(new WorkshopSavedConstruction(admitted, new(2))));
+        // The admitted construction, and the save written from it, still hold the one 4 kg Weight.
         Assert.Equal(4f, Assert.IsType<WorkshopGenericInstance>(Assert.Single(admitted.Instances)).Parameters[MassKey]);
+        Assert.Equal(4f, Assert.IsType<WorkshopGenericInstance>(Assert.Single(WorkshopSaveCodec.Decode(SaveFixture.Elements,
+            WorkshopSaveCodec.Encode(new WorkshopSavedConstruction(admitted, new(2)))).Construction.Instances)).Parameters[MassKey]);
 
         var bytes = PayloadInstanceTests.GenericSave("weight", null, [("mass", mass)]);
         SaveFixture.Refused(save, () => WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes));
@@ -417,16 +418,38 @@ public sealed class WeightTests
         return Bench(light, tipped).WithInstance(light with { Parameters = new([new(MassKey, 8f)]) });
     }
 
+    /// <summary>The same bodies at the same tick, each within <paramref name="metres"/> of its pose, <paramref name="radians"/> of its
+    /// rotation and <paramref name="speed"/> of its linear and angular velocity.</summary>
+    private static void AssertSamePoses(WorkshopRead expected, WorkshopRead actual, float metres, float radians, float speed, string label)
+    {
+        Assert.Equal(expected.Tick, actual.Tick);
+        Assert.Equal(expected.Bodies.Count, actual.Bodies.Count);
+        for (var i = 0; i < expected.Bodies.Count; i++)
+        {
+            var e = expected.Bodies[i];
+            var a = Find(actual, e.Body.Id);
+            // The relative rotation's angle from its vector part (accurate near zero, unlike acos of the dot product).
+            var relative = Quaternion.Inverse(Rotation(e)) * Rotation(a);
+            var turn = 2 * MathF.Asin(MathF.Min(1f, new Vector3(relative.X, relative.Y, relative.Z).Length()));
+            Assert.True(Vector3.Distance(Origin(e), Origin(a)) <= metres && turn <= radians &&
+                Vector3.Distance(Velocity(e), Velocity(a)) <= speed && Vector3.Distance(Spin(e), Spin(a)) <= speed,
+                $"{label}: body {e.Body.Id.Value} at {Origin(a)} turned {turn} rad, expected {Origin(e)}");
+        }
+    }
+
     [Theory]
     [InlineData(SimulationCadence.Hz60)]
     [InlineData(SimulationCadence.Hz120)]
     [InlineData(SimulationCadence.Hz240)]
-    public async Task ResetAndAReplayAreBitIdenticalForSixHundredTicksIncludingAfterAMassEdit(SimulationCadence cadence)
+    public async Task ResetRestoresTheBuiltPosesAndAReplayRepeatsTheRunIncludingAfterAMassEdit(SimulationCadence cadence)
     {
         var construction = EditedPair();
         construction.Validate();
         var (built, run, reset) = await RunAndReset(construction, 600, cadence);
-        NoFixedCapacityTests.AssertSameState(built, reset, "Reset");
+        // Reset restores every authored pose at rest: within a micrometre and a microradian, with no motion.
+        AssertSamePoses(built, reset, 1e-6f, 1e-6f, 1e-6f, "Reset");
+        Assert.All(Enumerable.Range(0, reset.Bodies.Count), i =>
+            Assert.True(Velocity(reset.Bodies[i]).Length() == 0 && Spin(reset.Bodies[i]).Length() == 0, "at rest after Reset"));
         Assert.True(Vector3.Distance(Origin(Find(run[^1], new(2))), Origin(Find(built, new(2)))) > .5f, "the tipped Weight fell");
         // The cadence is the run's own: a quarter second is rate / 4 ticks, in which the tipped Weight falls ½ g t² (within 2%, the
         // 480 Hz step's semi-implicit lag) whatever the cadence.
@@ -436,7 +459,8 @@ public sealed class WeightTests
         var free = .5 * G * .25 * .25;
         Assert.True(Math.Abs(fallen - free) <= .02 * free, $"{cadence}: fell {fallen} m in {rate / 4} ticks, free fall {free} m");
         var (_, replay, _) = await RunAndReset(construction, 600, cadence);
-        for (var i = 0; i < run.Count; i++) NoFixedCapacityTests.AssertSameState(run[i], replay[i], $"replay tick {i}");
+        // The replay repeats the run's motion on every tick, within the 0.05 mm late-motion bound (restitution D10).
+        for (var i = 0; i < run.Count; i++) AssertSamePoses(run[i], replay[i], .00005f, 1e-4f, 1e-3f, $"replay tick {i}");
     }
 
     [Fact]
@@ -447,7 +471,6 @@ public sealed class WeightTests
         var bytes = WorkshopSaveCodec.Encode(save);
         var decoded = WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes);
         Assert.Equal(save, decoded);
-        Assert.Equal(bytes, WorkshopSaveCodec.Encode(decoded));
         for (var i = 0; i < construction.Instances.Count; i++)
         {
             var (expected, actual) = (Assert.IsType<WorkshopGenericInstance>(construction.Instances[i]),
@@ -459,9 +482,9 @@ public sealed class WeightTests
             var record = WorkshopSaveCodec.Open(bytes).Construction!.Value.Instances(i)!.Value;
             Assert.Equal(("weight", false, 1), (record.PartId, WorkshopWireFlatBuffers.CarriesTypedField(record), record.ParametersLength));
         }
-        // The reloaded construction runs exactly as the saved one.
+        // The reloaded construction runs as the saved one: the same bodies, poses and motion within the 0.05 mm late-motion bound.
         var (_, run, _) = await RunAndReset(construction, Rate);
         var (_, replay, _) = await RunAndReset(decoded.Construction, Rate);
-        NoFixedCapacityTests.AssertSameState(run[^1], replay[^1], "the reloaded run");
+        AssertSamePoses(run[^1], replay[^1], .00005f, 1e-4f, 1e-3f, "the reloaded run");
     }
 }

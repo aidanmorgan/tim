@@ -1,0 +1,57 @@
+HEAD 2c668ecd7260fff3b74b0de01c6878681c5ce579 index-tree 786e1735518ada7e9c2797b9f041de71a73f089c
+staged       40 unstaged        0 untracked        0
+start 22:30:49Z
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.rDPstE/solution.binlog
+
+Time Elapsed 00:00:21.32
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.rDPstE/playtest.binlog
+
+Time Elapsed 00:00:12.31
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.rDPstE/web.binlog
+
+Time Elapsed 00:00:08.37
+Anvil snapshot 0.ts: CuriousContraptions.tests/WorkshopPhysicsLawRestitutionTests.cs
+{
+  "version": "1.0.0",
+  "timestamp": "2026-10-23T22:31:38.828484+00:00",
+  "files": [
+    "0.ts"
+  ],
+  "hasBlockingWarnings": false,
+  "executionTimeMs": 11,
+  "checksRun": [
+    "secret-detection",
+    "antipattern-scan"
+  ],
+  "notifications": [],
+  "warnings": [],
+  "summary": {
+    "total": 0,
+    "errors": 0,
+    "warnings": 0,
+    "info": 0,
+    "suppressed": 0
+  }
+}
+
+Test run for /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.Oat43l/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:   124, Skipped:     0, Total:   124, Duration: 5 s - CuriousContraptions.tests.dll (net10.0)
+hook rc 0
+end 22:31:48Z

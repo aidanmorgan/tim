@@ -1,0 +1,85 @@
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.bkzUL3/solution.binlog
+
+Time Elapsed 00:00:09.82
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.bkzUL3/playtest.binlog
+
+Time Elapsed 00:00:10.04
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.bkzUL3/web.binlog
+
+Time Elapsed 00:00:07.62
+Anvil snapshot 0.ts: CuriousContraptions.tests/WorkshopPhysicsLawRestitutionTests.cs
+{
+  "version": "1.0.0",
+  "timestamp": "2026-10-23T22:09:00.763567+00:00",
+  "files": [
+    "0.ts"
+  ],
+  "hasBlockingWarnings": false,
+  "executionTimeMs": 10,
+  "checksRun": [
+    "secret-detection",
+    "antipattern-scan"
+  ],
+  "notifications": [],
+  "warnings": [],
+  "summary": {
+    "total": 0,
+    "errors": 0,
+    "warnings": 0,
+    "info": 0,
+    "suppressed": 0
+  }
+}
+
+Test run for /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.QPQKwh/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:   124, Skipped:     0, Total:   124, Duration: 5 s - CuriousContraptions.tests.dll (net10.0)
+[story-engine-restitution adcffdb2] Bounce contacts in the substep they stop, solved together and energy-bounded
+ 40 files changed, 4479 insertions(+), 7 deletions(-)
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-memory-review/terminal/addendum-native-rerun.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-memory-review/terminal/artifact-deployment.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-memory-review/terminal/build-job.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-memory-review/terminal/deploy-job.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-memory-review/terminal/deployment-status.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-memory-review/terminal/hook-rerun.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-memory-review/terminal/rerun-build.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-memory-review/terminal/rerun-full-test.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-memory-review/terminal/run.json
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-c-memory-review/terminal/worktree-tree.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-engine-restitution-review/merged/MB2-mutation.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-engine-restitution-review/merged/build.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-engine-restitution-review/merged/ci-tools-step.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-engine-restitution-review/merged/diff-check.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-engine-restitution-review/merged/f1-probes-merged.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-engine-restitution-review/merged/identity-end.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-engine-restitution-review/merged/identity-start.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-engine-restitution-review/merged/lessons-restitution.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-engine-restitution-review/merged/test-full.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-engine-restitution-review/merged/worker-release.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-engine-restitution/merged/build-debug.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-engine-restitution/merged/ci-tool-step.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-engine-restitution/merged/diff-check.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-engine-restitution/merged/exit-codes.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-engine-restitution/merged/identity.txt
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-engine-restitution/merged/lessons-lively-cylinder.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-engine-restitution/merged/node-tests.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-engine-restitution/merged/test-slnx.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-engine-restitution/merged/worker-release.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-engine-restitution/mutations-round3/MB2-bound-presolve-only.log
+ create mode 100644 _bmad-output/implementation-artifacts/evidence-engine-restitution/mutations-round3/summary.txt

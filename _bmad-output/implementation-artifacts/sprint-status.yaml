@@ -312,7 +312,7 @@ development_status:
   epic-10: backlog
   10-1-solid-cylinder-collider-and-inertia: done # scoped native/publication Passcf35a0; browser pending (engine-cylinder); restitution gate owned by engine-restitution slice
   # engine slice after 10.1, before 10.2a (coordinator decision, 24 Oct 2026); spec-engine-restitution.md
-  engine-restitution-energy-correctness: review # review Pass-pending-merge; merged with main f5ffdb4e in worktree story-engine-restitution; browser pending
+  engine-restitution-energy-correctness: done # scoped native/publication Pass0cba94; browser pending
   # deferred follow-up (coordinator decision 3, 24 Oct 2026): pre-existing soft-contact limit cycle in some 3-box stacks
   engine-resting-stack-settling: backlog
   # 34 (deletion)
