@@ -1,0 +1,4 @@
+588c588
+<             float a = b.EnergyA, lin = b.EnergyB, c = b.EnergyC, bound = c + MathF.Max(0f, b.EnergyBudget);
+---
+>             float a = b.EnergyA, lin = b.EnergyB, c = b.EnergyC, bound = c + b.EnergyBudget;

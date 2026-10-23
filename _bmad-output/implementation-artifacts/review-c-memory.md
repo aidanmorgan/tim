@@ -153,3 +153,33 @@ Staged snapshot identity before this subsection was added:
 - **`git diff --cached --binary 4db597a3`:** sha256 `452f5a9d398a5bb142b41b4f3c4c2cd6f10924ef69e16cf421169f094a6feebb`. That is 56 files, +22161/−9, with no code paths: TODO, the isolation doc, sprint-status, the spec, this review, the 10.1 receipt and evidence directories.
 
 Only this subsection was added afterwards, and it was re-staged. The final staged tree is reported to the coordinator.
+
+## Terminal publication verification — 24 October 2026
+
+Raw outputs are in `evidence-c-memory-review/terminal/`. The system and GitHub timestamps read 23 Oct 2026 19:02–19:45Z (local time 24 Oct).
+
+**Identities**
+- **Slice commit:** `199e8ad658c9edfaeeb0149a04d0ba089f6f72a3`, tree `07cbd58a2093ee83a246db72241d078fcb8b92da`, parent `4db597a3`. This tree is the one I approved under SnapshotApproval.
+- **Published merge** (`--no-ff`): `f5ffdb4ee14a2fd575d726688c897cbf3816d456`, parents `cf35a064` and `199e8ad6`, same tree. `git diff 199e8ad6 f5ffdb4e` is empty.
+- **Remote:** after a fetch, `origin/main` and `git ls-remote origin refs/heads/main` both return `f5ffdb4e…`.
+- **Bundle:** `elements/elements.bundle.json` (generated, untracked) sha256 `b3aee420ddd8a96dfc63b7a7a7635eca311574fe657928504c2e36ab6c0a2424`. It matches the re-review's fresh throwaway build of `4db597a3`, whose code is identical.
+
+| # | Publication-dependent check | Result | Raw |
+|---|---|---|---|
+| 1 | Tree equivalence | Slice and merge both have tree `07cbd58a…`, and the worktree index equals it | `worktree-tree.txt`, `hook-rerun.log` (first line) |
+| 2 | Commit hook | The implementer's log shows the C# static gate: solution, playtest and web builds at 0 warnings, then gate tests 124/124. My re-run of `.githooks/pre-commit` on the exact tree (index = `07cbd58a…`), 19:44:22Z–19:45:05Z, gave the same result, rc 0 | `scratchpad/cmem-publish-commit-hook.log`; `hook-rerun.log` |
+| 3 | Native re-run on the published tree | `dotnet build CuriousContraptions.slnx -c Debug --no-incremental`: 0 warnings. Full `dotnet test … --no-build --no-restore` (no blame): 77/17/191/190/2856, 0 skipped, rc 0. The guard classes ran 358/358, 19:45:16Z–19:45:31Z | `rerun-build.log`, `rerun-full-test.log`, `addendum-native-rerun.log` |
+| 4 | Exact-SHA CI | Run 40008261973, "Build and deploy game", push to main, `headSha` `f5ffdb4e…`, conclusion success. Every step of job build (120601654842) succeeded. The C# static gate had 0 warnings ×3. Test C# game: 2856/2856. Test C# tools: Coverage 77, BundleElements 191, WorkerAotGuard 17, E2eRunner 174 (the toolchain-filtered set). Publish succeeded, and Check static deployment succeeded | `run.json`, `build-job.log` |
+| 5 | Pages artifact | `github-pages` id 12526267937, digest `sha256:0d3af228…6e1009`, 80238159 bytes, not expired, from `workflow_run` 40008261973 at `head_sha` `f5ffdb4e…`. The deploy job (120613701564) fetched `"artifact_id": 12526267937` and "Reported success!" | `artifact-deployment.txt`, `deploy-job.log` |
+| 6 | Deployment | github-pages deployment 7286979220, ref main, sha `f5ffdb4e…`, went waiting → queued → in_progress → success (19:33:48Z). It is the newest; the previous one is cf35a064 | `artifact-deployment.txt` |
+| 7 | Serving | Checked at 19:38:05Z. `/`, `/index.html`, `/404.html`, `/godot.wasm`, `/godot.pck` and `/_framework/dotnet.js` each returned HTTP/2 200, last-modified 19:33:45Z, after the f5ffdb4e deploy | `deployment-status.txt` |
+| 8 | Closing addenda | 6.5f (Counter and Latch arms) and 9.2 (pulse counter) are appended to their records, additions only. 9.4 is not in the closure table and is already `done`, so it needs no addendum | `review-6-5f-partart-partkind-legacy-purge.md`, `review-9-2-pulse-counter.md` |
+| 9 | Browser cases | Pending the post-catalogue E2E: `cat-020` (editor 1/9 and refuse 0/10, target 1, `ThresholdReached` via 9A.23/9A.24, Reset, Save/Load), `cat-037`, `cat-005-n19`, `cat-051-interrupt`, `engine-core-2b1` (refuses a C-Clock-base counter save), and the re-runs of `cat-017`, `cat-052*` and `palette-placement` | — |
+
+**Terminal verdict: scoped native and publication Pass at `f5ffdb4ee14a`.**
+- Browser qualification is pending the post-catalogue E2E.
+- This is not a release, global-audit or runtime qualification.
+- `sprint-status.yaml`: `9a-c-memory-counter-latch-conversion`, `9a-41` and `9a-43` are `done` (browser pending).
+- 6.5f stays `in-progress`: the Pipe residue belongs to 9A.45, and Chrome is pending.
+- 9.2 stays `in-progress`: `cat-020` Chrome is pending.
+- No commit was made by the reviewer.

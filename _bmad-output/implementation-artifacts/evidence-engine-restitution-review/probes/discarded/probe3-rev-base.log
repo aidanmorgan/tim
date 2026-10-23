@@ -1,0 +1,48 @@
+Test run for /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/rev-base/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+/private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/rev-base/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.5+1b188a7b0a (64-bit .NET 10.0.13)
+[xUnit.net 00:00:00.34]   Discovering: CuriousContraptions.tests
+[xUnit.net 00:00:01.11]   Discovered:  CuriousContraptions.tests
+[xUnit.net 00:00:01.22]   Starting:    CuriousContraptions.tests
+  Passed CuriousContraptions.Tests.ReviewRestitutionProbeTests.BoxOnDynBoxSweep(e: 0.850000024) [1 s]
+  Standard Output Messages:
+ e=0.85: rise 846.941 mJ (case 0 t51); genuine 370.482 mJ (case 0 t58); bound 5.887
+
+
+  Passed CuriousContraptions.Tests.ReviewRestitutionProbeTests.BoxOnDynBoxSweep(e: 1) [461 ms]
+  Standard Output Messages:
+   t36 E=13153.0 mJ lower v=<-2.6625763E-12, -4.4154133E-17, 5.8823506E-12> w=<9.655254E-15, 2.5840424E-12, 4.1071747E-15> y=0.09971 | top v=<0, -2.943752, 0> w=<-1.4736981, -3.4632776, 2.1266277> y=0.6775
+   t37 E=13152.2 mJ lower v=<-2.510282E-12, -4.4059266E-17, 5.3803273E-12> w=<8.559234E-15, 2.4078968E-12, 4.504101E-15> y=0.09971 | top v=<0, -3.025523, 0> w=<-1.4736981, -3.4632776, 2.1266277> y=0.6526
+   t38 E=13151.3 mJ lower v=<1.3878662E-12, -4.4147357E-17, -3.0157491E-12> w=<-4.867092E-15, -1.3308191E-12, -2.3395999E-15> y=0.09971 | top v=<0, -3.1072938, 0> w=<-1.4736981, -3.4632776, 2.1266277> y=0.6269
+   t39 E=13150.5 mJ lower v=<-3.2750734E-13, -4.412703E-17, 9.978797E-13> w=<2.0864387E-15, 3.1413327E-13, -4.8886676E-16> y=0.09971 | top v=<0, -3.1890647, 0> w=<-1.4736981, -3.4632776, 2.1266277> y=0.6006
+   t40 E=13149.7 mJ lower v=<1.0972859E-12, -4.4079595E-17, -2.4296316E-12> w=<-3.9951224E-15, -9.9365E-13, -1.747246E-15> y=0.09971 | top v=<0, -3.2708356, 0> w=<-1.4736981, -3.4632776, 2.1266277> y=0.5736
+   t41 E=13148.8 mJ lower v=<-2.6568572E-12, -4.4262554E-17, 5.8685756E-12> w=<9.631835E-15, 2.5786734E-12, 4.102838E-15> y=0.09971 | top v=<0, -3.3526065, 0> w=<-1.4736981, -3.4632776, 2.1266277> y=0.5459
+   t42 E=13148.0 mJ lower v=<-2.5102828E-12, -4.4208344E-17, 5.3803307E-12> w=<8.559668E-15, 2.4078968E-12, 4.5045348E-15> y=0.09971 | top v=<0, -3.4343774, 0> w=<-1.4736981, -3.4632776, 2.1266277> y=0.5176
+   t43 E=13147.2 mJ lower v=<1.3878658E-12, -4.4079595E-17, -3.0157493E-12> w=<-4.867092E-15, -1.33082E-12, -2.3411178E-15> y=0.09971 | top v=<0, -3.5161483, 0> w=<-1.4736981, -3.4632776, 2.1266277> y=0.4885
+   t44 E=13146.3 mJ lower v=<-3.2750734E-13, -4.412703E-17, 9.978797E-13> w=<2.0864387E-15, 3.1413327E-13, -4.8886676E-16> y=0.09971 | top v=<0, -3.5979192, 0> w=<-1.4736981, -3.4632776, 2.1266277> y=0.4588
+   t45 E=13145.5 mJ lower v=<1.0972859E-12, -4.414058E-17, -2.4296314E-12> w=<-3.9946345E-15, -9.936513E-13, -1.7468665E-15> y=0.09971 | top v=<0, -3.6796901, 0> w=<-1.4736981, -3.4632776, 2.1266277> y=0.4284
+   t46 E=11090.5 mJ lower v=<0.06862034, -0.025314413, -0.0549522> w=<-0.25281128, -0.03203796, -0.242492> y=0.09971 | top v=<-0.26974723, -3.1494808, 0.0632496> w=<2.934552, -2.0981216, 2.492035> y=0.3973
+   t47 E=7682.5 mJ lower v=<0.07223996, 0.1698868, -0.09219237> w=<1.3315694, 0.40795818, -1.679722> y=0.10210 | top v=<-0.7184512, -0.7798159, 0.5511105> w=<2.3395486, -3.1222417, 10.736577> y=0.3811
+   t48 E=10874.8 mJ lower v=<0.010180062, 1.1994822, -0.037279684> w=<-2.3943315, -0.364402, -2.5961614> y=0.10560 | top v=<-0.7545732, 0.79510117, 0.33003634> w=<-14.018459, -2.8292868, 12.147406> y=0.3845
+   t49 E=10924.8 mJ lower v=<0.018897753, 1.2828772, -0.0550065> w=<-0.8655054, -0.30675694, -1.0810058> y=0.11557 | top v=<-0.7545732, 0.71333027, 0.33003634> w=<-14.018459, -2.8292868, 12.147406> y=0.3907
+   t50 E=10922.3 mJ lower v=<0.018897753, 1.2011063, -0.0550065> w=<-0.8655054, -0.30675694, -1.0810058> y=0.12583 | top v=<-0.7545732, 0.6315594, 0.33003634> w=<-14.018459, -2.8292868, 12.147406> y=0.3962
+ e=1: rise 3192.381 mJ (case 22 t48); genuine 747.955 mJ (case 9 t51); bound 5.887
+
+
+  Passed CuriousContraptions.Tests.ReviewRestitutionProbeTests.BoxOnDynBoxSweep(e: 0.949999988) [1 s]
+  Standard Output Messages:
+ e=0.95: rise 2149.689 mJ (case 5 t99); genuine 660.328 mJ (case 15 t49); bound 5.887
+
+
+[xUnit.net 00:00:06.34]   Finished:    CuriousContraptions.tests (ID = 'a27c7145f29d76bb9c202f23fee95cf289ed3e58febc689eede18e26a8a06927')
+  Passed CuriousContraptions.Tests.ReviewRestitutionProbeTests.BoxOnDynBoxSweep(e: 0.899999976) [1 s]
+  Standard Output Messages:
+ e=0.9: rise 715.206 mJ (case 22 t197); genuine 164.195 mJ (case 28 t144); bound 5.887
+
+
+
+Test Run Successful.
+Total tests: 4
+     Passed: 4
+ Total time: 6.5375 Seconds

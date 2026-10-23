@@ -1,0 +1,4 @@
+602c602
+<             var w = b.RelaxedW + scale * (b.AngularVelocity - b.RelaxedW);
+---
+>             var w = b.AngularVelocity;

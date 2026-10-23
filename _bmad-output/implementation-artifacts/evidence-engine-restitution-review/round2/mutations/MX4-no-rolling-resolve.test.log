@@ -1,0 +1,14 @@
+Test run for /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/rev2/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:02:47.02]     CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.ABouncingSpinningBallLosesTheRollingResistanceOfTheWholeImpact [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.ABouncingSpinningBallLosesTheRollingResistanceOfTheWholeImpact [1 ms]
+  Error Message:
+   Assert.InRange() Failure: Value not in range
+Range:  (6.01364326 - 6.38562107)
+Actual: 0.884462357
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.ABouncingSpinningBallLosesTheRollingResistanceOfTheWholeImpact() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/rev2/CuriousContraptions.tests/WorkshopPhysicsLawRestitutionTests.cs:line 455
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     1, Passed:   249, Skipped:     0, Total:   250, Duration: 3 m 37 s - CuriousContraptions.tests.dll (net10.0)

@@ -1,0 +1,7 @@
+568a569
+>         ReviewCounters.Pass(touched.Count);
+588a590
+>             if (ReviewCounters.DisableBound) continue;
+591a594,595
+>             ReviewCounters.Scaled(b.EnergyScale);
+>             ReviewCounters.Log?.Add($"scale {b.EnergyScale:F4} a {a:G5} lin {lin:G5} relaxed {c:G5} bound {bound:G5} after {a + lin + c:G5} budget {b.EnergyBudget:G5} touched {touched.Count}");

@@ -1,0 +1,262 @@
+Test run for /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/restitution/base-cf35/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:08.12]     CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.AFlatDropReboundsAtItsRestitutionWithoutSpinOrEnergyGain(body: CylinderOnCap, e: 0.600000024) [FAIL]
+[xUnit.net 00:00:08.15]     CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.AFlatDropReboundsAtItsRestitutionWithoutSpinOrEnergyGain(body: BoxOnBox, e: 1) [FAIL]
+[xUnit.net 00:00:08.18]     CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.AFlatDropReboundsAtItsRestitutionWithoutSpinOrEnergyGain(body: BoxOnBench, e: 0.300000012) [FAIL]
+[xUnit.net 00:00:08.21]     CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.AFlatDropReboundsAtItsRestitutionWithoutSpinOrEnergyGain(body: BoxOnBox, e: 0.600000024) [FAIL]
+[xUnit.net 00:00:08.27]     CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.AFlatDropReboundsAtItsRestitutionWithoutSpinOrEnergyGain(body: BoxOnBench, e: 0.600000024) [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.AFlatDropReboundsAtItsRestitutionWithoutSpinOrEnergyGain(body: CylinderOnCap, e: 0.600000024) [21 ms]
+  Error Message:
+   a tick gained 87.585 mJ (slop 1.962 mJ)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.AFlatDropReboundsAtItsRestitutionWithoutSpinOrEnergyGain(Body body, Single e) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/restitution/base-cf35/CuriousContraptions.tests/WorkshopPhysicsLawRestitutionTests.cs:line 114
+   at InvokeStub_WorkshopPhysicsLawRestitutionTests.AFlatDropReboundsAtItsRestitutionWithoutSpinOrEnergyGain(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.AFlatDropReboundsAtItsRestitutionWithoutSpinOrEnergyGain(body: BoxOnBox, e: 1) [4 ms]
+  Error Message:
+   a tick gained 2209.511 mJ (slop 1.962 mJ)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.AFlatDropReboundsAtItsRestitutionWithoutSpinOrEnergyGain(Body body, Single e) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/restitution/base-cf35/CuriousContraptions.tests/WorkshopPhysicsLawRestitutionTests.cs:line 114
+   at InvokeStub_WorkshopPhysicsLawRestitutionTests.AFlatDropReboundsAtItsRestitutionWithoutSpinOrEnergyGain(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.AFlatDropReboundsAtItsRestitutionWithoutSpinOrEnergyGain(body: BoxOnBench, e: 0.300000012) [27 ms]
+  Error Message:
+   Assert.InRange() Failure: Value not in range
+Range:  (0.26486047833380272 - 0.30892140688432046)
+Actual: 0.21144404541264114
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.AFlatDropReboundsAtItsRestitutionWithoutSpinOrEnergyGain(Body body, Single e) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/restitution/base-cf35/CuriousContraptions.tests/WorkshopPhysicsLawRestitutionTests.cs:line 124
+   at InvokeStub_WorkshopPhysicsLawRestitutionTests.AFlatDropReboundsAtItsRestitutionWithoutSpinOrEnergyGain(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.AFlatDropReboundsAtItsRestitutionWithoutSpinOrEnergyGain(body: BoxOnBox, e: 0.600000024) [26 ms]
+  Error Message:
+   a tick gained 47.015 mJ (slop 1.962 mJ)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.AFlatDropReboundsAtItsRestitutionWithoutSpinOrEnergyGain(Body body, Single e) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/restitution/base-cf35/CuriousContraptions.tests/WorkshopPhysicsLawRestitutionTests.cs:line 114
+   at InvokeStub_WorkshopPhysicsLawRestitutionTests.AFlatDropReboundsAtItsRestitutionWithoutSpinOrEnergyGain(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.AFlatDropReboundsAtItsRestitutionWithoutSpinOrEnergyGain(body: BoxOnBench, e: 0.600000024) [24 ms]
+  Error Message:
+   a tick gained 39.268 mJ (slop 1.962 mJ)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.AFlatDropReboundsAtItsRestitutionWithoutSpinOrEnergyGain(Body body, Single e) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/restitution/base-cf35/CuriousContraptions.tests/WorkshopPhysicsLawRestitutionTests.cs:line 114
+   at InvokeStub_WorkshopPhysicsLawRestitutionTests.AFlatDropReboundsAtItsRestitutionWithoutSpinOrEnergyGain(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+[xUnit.net 00:00:08.28]     CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.AFlatDropReboundsAtItsRestitutionWithoutSpinOrEnergyGain(body: BoxOnBench, e: 1) [FAIL]
+[xUnit.net 00:00:08.28]     CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.AFlatDropReboundsAtItsRestitutionWithoutSpinOrEnergyGain(body: CylinderOnCap, e: 1) [FAIL]
+[xUnit.net 00:00:08.31]     CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.AFlatDropReboundsAtItsRestitutionWithoutSpinOrEnergyGain(body: BoxOnBox, e: 0.300000012) [FAIL]
+[xUnit.net 00:00:08.32]     CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.AFlatDropReboundsAtItsRestitutionWithoutSpinOrEnergyGain(body: Sphere, e: 1) [FAIL]
+[xUnit.net 00:00:08.34]     CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.AFlatDropReboundsAtItsRestitutionWithoutSpinOrEnergyGain(body: CylinderOnCap, e: 0.300000012) [FAIL]
+[xUnit.net 00:00:08.86]     CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.RandomPoseDropsNeverGainMoreThanTheSlopInATick(body: CylinderOnCap, e: 0.550000012) [FAIL]
+[xUnit.net 00:00:09.01]     CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.RandomPoseDropsNeverGainMoreThanTheSlopInATick(body: BoxOnBench, e: 1) [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.AFlatDropReboundsAtItsRestitutionWithoutSpinOrEnergyGain(body: BoxOnBench, e: 1) [5 ms]
+  Error Message:
+   a tick gained 1573.885 mJ (slop 1.962 mJ)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.AFlatDropReboundsAtItsRestitutionWithoutSpinOrEnergyGain(Body body, Single e) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/restitution/base-cf35/CuriousContraptions.tests/WorkshopPhysicsLawRestitutionTests.cs:line 114
+   at InvokeStub_WorkshopPhysicsLawRestitutionTests.AFlatDropReboundsAtItsRestitutionWithoutSpinOrEnergyGain(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.AFlatDropReboundsAtItsRestitutionWithoutSpinOrEnergyGain(body: CylinderOnCap, e: 1) [4 ms]
+  Error Message:
+   a tick gained 1026.941 mJ (slop 1.962 mJ)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.AFlatDropReboundsAtItsRestitutionWithoutSpinOrEnergyGain(Body body, Single e) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/restitution/base-cf35/CuriousContraptions.tests/WorkshopPhysicsLawRestitutionTests.cs:line 114
+   at InvokeStub_WorkshopPhysicsLawRestitutionTests.AFlatDropReboundsAtItsRestitutionWithoutSpinOrEnergyGain(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.AFlatDropReboundsAtItsRestitutionWithoutSpinOrEnergyGain(body: BoxOnBox, e: 0.300000012) [28 ms]
+  Error Message:
+   Assert.InRange() Failure: Value not in range
+Range:  (0.26486047833380272 - 0.30892140688432046)
+Actual: 0.20866867286608887
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.AFlatDropReboundsAtItsRestitutionWithoutSpinOrEnergyGain(Body body, Single e) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/restitution/base-cf35/CuriousContraptions.tests/WorkshopPhysicsLawRestitutionTests.cs:line 124
+   at InvokeStub_WorkshopPhysicsLawRestitutionTests.AFlatDropReboundsAtItsRestitutionWithoutSpinOrEnergyGain(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.AFlatDropReboundsAtItsRestitutionWithoutSpinOrEnergyGain(body: Sphere, e: 1) [2 ms]
+  Error Message:
+   a tick gained 14.287 mJ (slop 1.962 mJ)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.AFlatDropReboundsAtItsRestitutionWithoutSpinOrEnergyGain(Body body, Single e) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/restitution/base-cf35/CuriousContraptions.tests/WorkshopPhysicsLawRestitutionTests.cs:line 114
+   at InvokeStub_WorkshopPhysicsLawRestitutionTests.AFlatDropReboundsAtItsRestitutionWithoutSpinOrEnergyGain(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.AFlatDropReboundsAtItsRestitutionWithoutSpinOrEnergyGain(body: CylinderOnCap, e: 0.300000012) [26 ms]
+  Error Message:
+   a tick gained 7.582 mJ (slop 1.962 mJ)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.AFlatDropReboundsAtItsRestitutionWithoutSpinOrEnergyGain(Body body, Single e) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/restitution/base-cf35/CuriousContraptions.tests/WorkshopPhysicsLawRestitutionTests.cs:line 114
+   at InvokeStub_WorkshopPhysicsLawRestitutionTests.AFlatDropReboundsAtItsRestitutionWithoutSpinOrEnergyGain(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.RandomPoseDropsNeverGainMoreThanTheSlopInATick(body: CylinderOnCap, e: 0.550000012) [505 ms]
+  Error Message:
+   case 26: a tick gained 2011.811 mJ (slop 1.962 mJ)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.RandomPoseDropsNeverGainMoreThanTheSlopInATick(Body body, Single e) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/restitution/base-cf35/CuriousContraptions.tests/WorkshopPhysicsLawRestitutionTests.cs:line 162
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.RandomPoseDropsNeverGainMoreThanTheSlopInATick(body: BoxOnBench, e: 1) [149 ms]
+  Error Message:
+   case 22: a tick gained 4150.281 mJ (slop 1.962 mJ)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.RandomPoseDropsNeverGainMoreThanTheSlopInATick(Body body, Single e) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/restitution/base-cf35/CuriousContraptions.tests/WorkshopPhysicsLawRestitutionTests.cs:line 162
+   at InvokeStub_WorkshopPhysicsLawRestitutionTests.RandomPoseDropsNeverGainMoreThanTheSlopInATick(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+[xUnit.net 00:00:09.17]     CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.RandomPoseDropsNeverGainMoreThanTheSlopInATick(body: BoxOnBox, e: 1) [FAIL]
+[xUnit.net 00:00:10.05]     CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.RandomPoseDropsNeverGainMoreThanTheSlopInATick(body: BoxOnBench, e: 0.600000024) [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.RandomPoseDropsNeverGainMoreThanTheSlopInATick(body: BoxOnBox, e: 1) [159 ms]
+  Error Message:
+   case 11: a tick gained 8295.036 mJ (slop 1.962 mJ)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.RandomPoseDropsNeverGainMoreThanTheSlopInATick(Body body, Single e) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/restitution/base-cf35/CuriousContraptions.tests/WorkshopPhysicsLawRestitutionTests.cs:line 162
+   at InvokeStub_WorkshopPhysicsLawRestitutionTests.RandomPoseDropsNeverGainMoreThanTheSlopInATick(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.RandomPoseDropsNeverGainMoreThanTheSlopInATick(body: BoxOnBench, e: 0.600000024) [878 ms]
+  Error Message:
+   case 32: a tick gained 1243.964 mJ (slop 1.962 mJ)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.RandomPoseDropsNeverGainMoreThanTheSlopInATick(Body body, Single e) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/restitution/base-cf35/CuriousContraptions.tests/WorkshopPhysicsLawRestitutionTests.cs:line 162
+   at InvokeStub_WorkshopPhysicsLawRestitutionTests.RandomPoseDropsNeverGainMoreThanTheSlopInATick(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+[xUnit.net 00:00:11.64]     CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.RandomPoseDropsNeverGainMoreThanTheSlopInATick(body: CylinderOnCap, e: 0.300000012) [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.RandomPoseDropsNeverGainMoreThanTheSlopInATick(body: CylinderOnCap, e: 0.300000012) [561 ms]
+  Error Message:
+   case 21: a tick gained 523.394 mJ (slop 1.962 mJ)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.RandomPoseDropsNeverGainMoreThanTheSlopInATick(Body body, Single e) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/restitution/base-cf35/CuriousContraptions.tests/WorkshopPhysicsLawRestitutionTests.cs:line 162
+   at InvokeStub_WorkshopPhysicsLawRestitutionTests.RandomPoseDropsNeverGainMoreThanTheSlopInATick(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+[xUnit.net 00:00:12.89]     CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.RandomPoseDropsNeverGainMoreThanTheSlopInATick(body: BoxOnBench, e: 0.300000012) [FAIL]
+[xUnit.net 00:00:13.11]     CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.RandomPoseDropsNeverGainMoreThanTheSlopInATick(body: Sphere, e: 0.550000012) [FAIL]
+[xUnit.net 00:00:13.35]     CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.RandomPoseDropsNeverGainMoreThanTheSlopInATick(body: Sphere, e: 0.300000012) [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.RandomPoseDropsNeverGainMoreThanTheSlopInATick(body: BoxOnBench, e: 0.300000012) [987 ms]
+  Error Message:
+   case 27: a tick gained 243.014 mJ (slop 1.962 mJ)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.RandomPoseDropsNeverGainMoreThanTheSlopInATick(Body body, Single e) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/restitution/base-cf35/CuriousContraptions.tests/WorkshopPhysicsLawRestitutionTests.cs:line 162
+   at InvokeStub_WorkshopPhysicsLawRestitutionTests.RandomPoseDropsNeverGainMoreThanTheSlopInATick(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.RandomPoseDropsNeverGainMoreThanTheSlopInATick(body: Sphere, e: 0.550000012) [216 ms]
+  Error Message:
+   case 17: a tick gained 2302.500 mJ (slop 1.962 mJ)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.RandomPoseDropsNeverGainMoreThanTheSlopInATick(Body body, Single e) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/restitution/base-cf35/CuriousContraptions.tests/WorkshopPhysicsLawRestitutionTests.cs:line 162
+   at InvokeStub_WorkshopPhysicsLawRestitutionTests.RandomPoseDropsNeverGainMoreThanTheSlopInATick(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.RandomPoseDropsNeverGainMoreThanTheSlopInATick(body: Sphere, e: 0.300000012) [245 ms]
+  Error Message:
+   case 30: a tick gained 655.974 mJ (slop 1.962 mJ)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.RandomPoseDropsNeverGainMoreThanTheSlopInATick(Body body, Single e) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/restitution/base-cf35/CuriousContraptions.tests/WorkshopPhysicsLawRestitutionTests.cs:line 162
+   at InvokeStub_WorkshopPhysicsLawRestitutionTests.RandomPoseDropsNeverGainMoreThanTheSlopInATick(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+[xUnit.net 00:00:13.56]     CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.RandomPoseDropsNeverGainMoreThanTheSlopInATick(body: Sphere, e: 0.600000024) [FAIL]
+[xUnit.net 00:00:14.37]     CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.RandomPoseDropsNeverGainMoreThanTheSlopInATick(body: BoxOnBox, e: 0.600000024) [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.RandomPoseDropsNeverGainMoreThanTheSlopInATick(body: Sphere, e: 0.600000024) [204 ms]
+  Error Message:
+   case 19: a tick gained 2484.281 mJ (slop 1.962 mJ)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.RandomPoseDropsNeverGainMoreThanTheSlopInATick(Body body, Single e) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/restitution/base-cf35/CuriousContraptions.tests/WorkshopPhysicsLawRestitutionTests.cs:line 162
+   at InvokeStub_WorkshopPhysicsLawRestitutionTests.RandomPoseDropsNeverGainMoreThanTheSlopInATick(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.RandomPoseDropsNeverGainMoreThanTheSlopInATick(body: BoxOnBox, e: 0.600000024) [811 ms]
+  Error Message:
+   case 31: a tick gained 1898.618 mJ (slop 1.962 mJ)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.RandomPoseDropsNeverGainMoreThanTheSlopInATick(Body body, Single e) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/restitution/base-cf35/CuriousContraptions.tests/WorkshopPhysicsLawRestitutionTests.cs:line 162
+   at InvokeStub_WorkshopPhysicsLawRestitutionTests.RandomPoseDropsNeverGainMoreThanTheSlopInATick(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+[xUnit.net 00:00:15.42]     CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.RandomPoseDropsNeverGainMoreThanTheSlopInATick(body: BoxOnBox, e: 0.300000012) [FAIL]
+[xUnit.net 00:00:15.56]     CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.RandomPoseDropsNeverGainMoreThanTheSlopInATick(body: CylinderOnCap, e: 1) [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.RandomPoseDropsNeverGainMoreThanTheSlopInATick(body: BoxOnBox, e: 0.300000012) [1 s]
+  Error Message:
+   case 19: a tick gained 232.678 mJ (slop 1.962 mJ)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.RandomPoseDropsNeverGainMoreThanTheSlopInATick(Body body, Single e) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/restitution/base-cf35/CuriousContraptions.tests/WorkshopPhysicsLawRestitutionTests.cs:line 162
+   at InvokeStub_WorkshopPhysicsLawRestitutionTests.RandomPoseDropsNeverGainMoreThanTheSlopInATick(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.RandomPoseDropsNeverGainMoreThanTheSlopInATick(body: CylinderOnCap, e: 1) [140 ms]
+  Error Message:
+   case 1: a tick gained 5585.409 mJ (slop 1.962 mJ)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.RandomPoseDropsNeverGainMoreThanTheSlopInATick(Body body, Single e) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/restitution/base-cf35/CuriousContraptions.tests/WorkshopPhysicsLawRestitutionTests.cs:line 162
+   at InvokeStub_WorkshopPhysicsLawRestitutionTests.RandomPoseDropsNeverGainMoreThanTheSlopInATick(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+[xUnit.net 00:00:17.51]     CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.RandomPoseDropsNeverGainMoreThanTheSlopInATick(body: BoxOnBox, e: 0.550000012) [FAIL]
+[xUnit.net 00:00:17.61]     CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.RandomPoseDropsNeverGainMoreThanTheSlopInATick(body: Sphere, e: 1) [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.RandomPoseDropsNeverGainMoreThanTheSlopInATick(body: BoxOnBox, e: 0.550000012) [858 ms]
+  Error Message:
+   case 21: a tick gained 1257.876 mJ (slop 1.962 mJ)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.RandomPoseDropsNeverGainMoreThanTheSlopInATick(Body body, Single e) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/restitution/base-cf35/CuriousContraptions.tests/WorkshopPhysicsLawRestitutionTests.cs:line 162
+   at InvokeStub_WorkshopPhysicsLawRestitutionTests.RandomPoseDropsNeverGainMoreThanTheSlopInATick(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.RandomPoseDropsNeverGainMoreThanTheSlopInATick(body: Sphere, e: 1) [99 ms]
+  Error Message:
+   case 26: a tick gained 5522.806 mJ (slop 1.962 mJ)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.RandomPoseDropsNeverGainMoreThanTheSlopInATick(Body body, Single e) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/restitution/base-cf35/CuriousContraptions.tests/WorkshopPhysicsLawRestitutionTests.cs:line 162
+   at InvokeStub_WorkshopPhysicsLawRestitutionTests.RandomPoseDropsNeverGainMoreThanTheSlopInATick(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+[xUnit.net 00:00:19.14]     CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.RandomPoseDropsNeverGainMoreThanTheSlopInATick(body: BoxOnBench, e: 0.550000012) [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.RandomPoseDropsNeverGainMoreThanTheSlopInATick(body: BoxOnBench, e: 0.550000012) [913 ms]
+  Error Message:
+   case 0: a tick gained 1480.092 mJ (slop 1.962 mJ)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.RandomPoseDropsNeverGainMoreThanTheSlopInATick(Body body, Single e) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/restitution/base-cf35/CuriousContraptions.tests/WorkshopPhysicsLawRestitutionTests.cs:line 162
+   at InvokeStub_WorkshopPhysicsLawRestitutionTests.RandomPoseDropsNeverGainMoreThanTheSlopInATick(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+[xUnit.net 00:00:19.61]     CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.RandomPoseDropsNeverGainMoreThanTheSlopInATick(body: CylinderOnCap, e: 0.600000024) [FAIL]
+[xUnit.net 00:00:19.61]     CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.TheBounceThresholdIsStrict(above: False) [FAIL]
+[xUnit.net 00:00:19.62]     CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.ABallReflectsOffCurvedFeaturesAboutTheTouchNormalAtEverySpeed(speed: 12) [FAIL]
+[xUnit.net 00:00:19.62]     CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.ABallReflectsOffCurvedFeaturesAboutTheTouchNormalAtEverySpeed(speed: 6) [FAIL]
+[xUnit.net 00:00:19.63]     CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.ABallStrikeTransfersTheCoulombShareOfTangentialImpulse(spin: 10) [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.RandomPoseDropsNeverGainMoreThanTheSlopInATick(body: CylinderOnCap, e: 0.600000024) [466 ms]
+  Error Message:
+   case 6: a tick gained 2496.819 mJ (slop 1.962 mJ)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.RandomPoseDropsNeverGainMoreThanTheSlopInATick(Body body, Single e) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/restitution/base-cf35/CuriousContraptions.tests/WorkshopPhysicsLawRestitutionTests.cs:line 162
+   at InvokeStub_WorkshopPhysicsLawRestitutionTests.RandomPoseDropsNeverGainMoreThanTheSlopInATick(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.TheBounceThresholdIsStrict(above: False) [1 ms]
+  Error Message:
+   a threshold approach bounced (0.049987793)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.TheBounceThresholdIsStrict(Boolean above) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/restitution/base-cf35/CuriousContraptions.tests/WorkshopPhysicsLawRestitutionTests.cs:line 213
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.ABallReflectsOffCurvedFeaturesAboutTheTouchNormalAtEverySpeed(speed: 12) [1 ms]
+  Error Message:
+   rim at 12 m/s: outgoing <9.594321, 0, 7.207567> vs <10.392304, 0, 5.999998> (6.92°)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.<>c__DisplayClass21_0.<ABallReflectsOffCurvedFeaturesAboutTheTouchNormalAtEverySpeed>g__Reflects|0(Action`1 partner, Vector3 start, Vector3 velocity, Vector3 normal, String feature) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/restitution/base-cf35/CuriousContraptions.tests/WorkshopPhysicsLawRestitutionTests.cs:line 241
+   at CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.ABallReflectsOffCurvedFeaturesAboutTheTouchNormalAtEverySpeed(Single speed) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/restitution/base-cf35/CuriousContraptions.tests/WorkshopPhysicsLawRestitutionTests.cs:line 244
+   at InvokeStub_WorkshopPhysicsLawRestitutionTests.ABallReflectsOffCurvedFeaturesAboutTheTouchNormalAtEverySpeed(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.ABallReflectsOffCurvedFeaturesAboutTheTouchNormalAtEverySpeed(speed: 6) [1 ms]
+  Error Message:
+   rim at 6 m/s: outgoing <2.2357223, 0, -1.5334775> vs <5.196152, 0, 2.999999> (64.45°)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.<>c__DisplayClass21_0.<ABallReflectsOffCurvedFeaturesAboutTheTouchNormalAtEverySpeed>g__Reflects|0(Action`1 partner, Vector3 start, Vector3 velocity, Vector3 normal, String feature) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/restitution/base-cf35/CuriousContraptions.tests/WorkshopPhysicsLawRestitutionTests.cs:line 241
+   at CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.ABallReflectsOffCurvedFeaturesAboutTheTouchNormalAtEverySpeed(Single speed) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/restitution/base-cf35/CuriousContraptions.tests/WorkshopPhysicsLawRestitutionTests.cs:line 244
+   at InvokeStub_WorkshopPhysicsLawRestitutionTests.ABallReflectsOffCurvedFeaturesAboutTheTouchNormalAtEverySpeed(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.ABallStrikeTransfersTheCoulombShareOfTangentialImpulse(spin: 10) [4 ms]
+  Error Message:
+   Assert.InRange() Failure: Value not in range
+Range:  (0.38293416353408244 - 0.39856412939261648)
+Actual: 0.30004769563674927
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.ABallStrikeTransfersTheCoulombShareOfTangentialImpulse(Single spin) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/restitution/base-cf35/CuriousContraptions.tests/WorkshopPhysicsLawRestitutionTests.cs:line 189
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+[xUnit.net 00:00:20.67]     CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.ABallOnAnInclinedFaceLeavesWithTheCoulombSlidingReflection(friction: True) [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.ABallOnAnInclinedFaceLeavesWithTheCoulombSlidingReflection(friction: True) [< 1 ms]
+  Error Message:
+   Assert.InRange() Failure: Value not in range
+Range:  (8.11773491 - 8.28172874)
+Actual: 8.31442547
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.ABallOnAnInclinedFaceLeavesWithTheCoulombSlidingReflection(Boolean friction) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/restitution/base-cf35/CuriousContraptions.tests/WorkshopPhysicsLawRestitutionTests.cs:line 278
+   at InvokeStub_WorkshopPhysicsLawRestitutionTests.ABallOnAnInclinedFaceLeavesWithTheCoulombSlidingReflection(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+
+Failed!  - Failed:    31, Passed:    21, Skipped:     0, Total:    52, Duration: 19 s - CuriousContraptions.tests.dll (net10.0)

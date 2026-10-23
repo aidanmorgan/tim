@@ -1,0 +1,3 @@
+diff-check exit 0
+CuriousContraptions.tests/WorkshopPhysicsLawRestitutionTests.cs no-index (1 = differs, no whitespace output = clean)
+_bmad-output/implementation-artifacts/spec-engine-restitution.md no-index (1 = differs, no whitespace output = clean)

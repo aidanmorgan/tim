@@ -1519,8 +1519,8 @@ public sealed class WorkshopPhysicsLawCylinderTests
     private const int GateSeed = 91000;
 
     /// <summary>The gate's material sets. Rolling: the dropped body's rolling resistance 0.05 (restitution 0), so the curved-side
-    /// rolling row with per-point normals is active. (The restitution set returns with the restitution engine slice.)</summary>
-    public enum GateMaterials { Dead, Rolling }
+    /// rolling row with per-point normals is active. Lively: also restitution 0.3 against the bench material (product 0.3).</summary>
+    public enum GateMaterials { Dead, Rolling, Lively }
 
     /// <summary>One random case of a class: random orientation, spin (±3 rad/s per axis), drop height (0.1–0.6 m) and lateral offset;
     /// the roll-off case rolls a lying cylinder at 0.3–2 m/s off a box edge skewed 0–20°. Returns the worst per-tick energy rise.</summary>
@@ -1528,9 +1528,10 @@ public sealed class WorkshopPhysicsLawCylinderTests
     {
         var mover = materials switch
         {
-            GateMaterials.Dead => Dead, GateMaterials.Rolling => new LawMaterial(0f, .1f, .5f, .05f),
+            GateMaterials.Dead => Dead, GateMaterials.Rolling => new LawMaterial(0f, .1f, .5f, .05f), GateMaterials.Lively => Lively,
             _ => throw new ArgumentOutOfRangeException(nameof(materials), materials, "Unknown gate materials."),
         };
+        var partner = materials == GateMaterials.Lively ? LawMaterial.Bench : Dead;
         var q = RandomRotation(rng);
         var spin = new Vector3((float)(rng.NextDouble() * 6 - 3), (float)(rng.NextDouble() * 6 - 3), (float)(rng.NextDouble() * 6 - 3));
         var height = (float)(rng.NextDouble() * .5 + .1);
@@ -1546,17 +1547,17 @@ public sealed class WorkshopPhysicsLawCylinderTests
         switch (kind)
         {
             case GateClass.CylinderOntoPlane: top = BenchY; break;
-            case GateClass.CylinderOntoBox: scene.StaticBox(At(0, BenchY + .3f), At(.3f, .3f, .5f), null, Dead); break;
-            case GateClass.BoxOntoCylinder: case GateClass.CylinderOntoLyingCylinder: scene.StaticCylinder(At(0, BenchY + .3f), .3f, .5f, AlongZ, Dead); break;
-            case GateClass.CylinderOntoStandingCylinder: scene.StaticCylinder(At(0, BenchY + .3f), .3f, .3f, null, Dead); break;
-            case GateClass.SkewedRollOffEdge: scene.StaticBox(At(0, BenchY + H(.3f)), At(.5f, .3f, .6f), null, Dead); break;
+            case GateClass.CylinderOntoBox: scene.StaticBox(At(0, BenchY + .3f), At(.3f, .3f, .5f), null, partner); break;
+            case GateClass.BoxOntoCylinder: case GateClass.CylinderOntoLyingCylinder: scene.StaticCylinder(At(0, BenchY + .3f), .3f, .5f, AlongZ, partner); break;
+            case GateClass.CylinderOntoStandingCylinder: scene.StaticCylinder(At(0, BenchY + .3f), .3f, .3f, null, partner); break;
+            case GateClass.SkewedRollOffEdge: scene.StaticBox(At(0, BenchY + H(.3f)), At(.5f, .3f, .6f), null, partner); break;
             default: throw new ArgumentOutOfRangeException(nameof(kind), kind, "Unknown gate class.");
         }
         if (boxControl && kind != GateClass.CylinderOntoPlane && kind != GateClass.SkewedRollOffEdge)
         {
             // The control replaces every static partner by the same box (box onto box), and the dropped body by the box.
             scene = new LawScene();
-            scene.StaticBox(At(0, BenchY + .3f), At(.3f, .3f, .5f), null, Dead);
+            scene.StaticBox(At(0, BenchY + .3f), At(.3f, .3f, .5f), null, partner);
         }
         if (kind == GateClass.SkewedRollOffEdge && !boxControl)
         {
@@ -1582,6 +1583,8 @@ public sealed class WorkshopPhysicsLawCylinderTests
         });
         return worst;
     }
+
+    private static readonly LawMaterial Lively = new(.3f, .1f, .5f, .05f);
 
     /// <summary>Runs <paramref name="cases"/> per class on fixed seeds for each material set, and returns each class's failure count
     /// against that material's box control + m·g·ContactSlop.</summary>
@@ -1623,6 +1626,11 @@ public sealed class WorkshopPhysicsLawCylinderTests
 
     [Fact]
     public void FreshSeedDropsGainNoMoreEnergyThanTheBoxControlAndTheSlop() => AssertGate(200, GateMaterials.Dead, GateMaterials.Rolling);
+
+    /// <summary>The lively set (restitution 0.3), restored from Story 10.1 (evidence-10-1/lively-gate-source.txt) as the restitution
+    /// slice's entry check: red before that slice (a deferred bounce returned on a stale approach gains energy), green after.</summary>
+    [Fact]
+    public void FreshSeedDropsWithRestitutionGainNoMoreEnergyThanTheBoxControlAndTheSlop() => AssertGate(200, GateMaterials.Lively);
 
     [Theory]
     [InlineData(false, 402)]

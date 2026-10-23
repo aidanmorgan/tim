@@ -14,7 +14,8 @@ public enum ContactLoadPhase : uint
 
 /// <summary>One compiled contact-load row (CAT-052 §2), all f32. A contact qualifies when it touches the frame's sensing
 /// <paramref name="Face"/> collider, its normal toward the other body aligns with <paramref name="LocalNormal"/> by at least
-/// <paramref name="MinimumAlignment"/>, its gap is at most <paramref name="MaximumGap"/> (the contact distance), and its point lies
+/// <paramref name="MinimumAlignment"/>, its gap is at most <paramref name="MaximumGap"/> (the contact distance) or it carried normal
+/// contact impulse in the substep (a bounce resolved from the speculative gap still presses the face), and its point lies
 /// inside the face's local x–z footprint. The face is identified by its collider, normal and gap, never by a y band a resting
 /// box straddles (coordinator decision, 20 Oct 2026). Each dynamic body counts its mass once; bodies sum; Loaded is inclusive (≥).</summary>
 public readonly record struct ContactLoadSensorDeclaration(
@@ -64,7 +65,8 @@ public readonly record struct ContactLoadSensorRead(
     ContactLoadPhase Phase);
 
 /// <summary>One solver contact seen from its static side: the frame body and collider, the other (dynamic) body and its mass, the
-/// contact point and normal toward the other body (world space), and the signed gap (negative while penetrating).</summary>
+/// contact point and normal toward the other body (world space), the signed gap (negative while penetrating), and whether the
+/// point carried normal contact impulse in the substep.</summary>
 public readonly record struct ContactPointRecord(
     GpuBodyId Frame,
     GpuColliderId Collider,
@@ -72,7 +74,8 @@ public readonly record struct ContactPointRecord(
     float OtherMass,
     Vector3 Point,
     Vector3 NormalTowardOther,
-    float Gap);
+    float Gap,
+    bool Pressed);
 
 /// <summary>Evaluates one compiled contact-load row against one substep's contacts. Allocation-free (Story 9R.4 D4): the caller owns
 /// the scratch that records which bodies already counted.</summary>
@@ -88,7 +91,8 @@ public static class ContactLoadSensorTracker
         var mass = 0f;
         foreach (var contact in contacts)
         {
-            if (contact.Frame != sensor.Frame || contact.Collider != sensor.Face || contact.OtherMass <= 0 || contact.Gap > sensor.MaximumGap)
+            if (contact.Frame != sensor.Frame || contact.Collider != sensor.Face || contact.OtherMass <= 0 ||
+                (contact.Gap > sensor.MaximumGap && !contact.Pressed))
                 continue;
             if (Vector3.Dot(Vector3.Transform(contact.NormalTowardOther, inverse), sensor.LocalNormal) < sensor.MinimumAlignment)
                 continue;

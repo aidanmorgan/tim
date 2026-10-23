@@ -1,0 +1,33 @@
+#pragma warning disable CA2211, CA1305, CA1307, CA1805, CA1810, CA2002, CA1031, CA1508, CA5394
+namespace CuriousContraptions.Simulation;
+
+/// <summary>REVIEW-ONLY instrumentation (throwaway worktree).</summary>
+public static class ReviewCounters
+{
+    [ThreadStatic] public static long Passes, ScaledGroups, Below50, Below90, MaxTouched;
+    [ThreadStatic] public static float MinScale;
+    [ThreadStatic] public static bool DisableBound;
+    [ThreadStatic] public static List<string>? Log;
+    private static long _gPasses, _gScaled, _gBelow50, _gBelow90, _gMaxTouched;
+    private static float _gMin = 1f;
+    private static readonly object Gate = new();
+    static ReviewCounters()
+    {
+        var path = Environment.GetEnvironmentVariable("REVIEW_DUMP");
+        if (path is not null) AppDomain.CurrentDomain.ProcessExit += (_, _) => File.WriteAllText(path,
+            $"passes {_gPasses} scaledGroups {_gScaled} scale<0.5 {_gBelow50} scale<0.9 {_gBelow90} minScale {_gMin} maxTouched {_gMaxTouched}\n");
+    }
+    public static void Reset() { Passes = ScaledGroups = Below50 = Below90 = MaxTouched = 0; MinScale = 1f; }
+    internal static void Pass(int touched)
+    {
+        Passes++; if (touched > MaxTouched) MaxTouched = touched;
+        lock (Gate) { _gPasses++; if (touched > _gMaxTouched) _gMaxTouched = touched; }
+    }
+    internal static void Scaled(float s)
+    {
+        if (s >= 1f) return;
+        if (Passes == 0 && ScaledGroups == 0) MinScale = 1f;
+        ScaledGroups++; if (s < .5f) Below50++; if (s < .9f) Below90++; if (s < MinScale || ScaledGroups == 1) MinScale = MathF.Min(s, ScaledGroups == 1 ? s : MinScale);
+        lock (Gate) { _gScaled++; if (s < .5f) _gBelow50++; if (s < .9f) _gBelow90++; if (s < _gMin) _gMin = s; }
+    }
+}

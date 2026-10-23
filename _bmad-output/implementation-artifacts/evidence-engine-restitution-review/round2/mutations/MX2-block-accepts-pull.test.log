@@ -1,0 +1,39 @@
+Test run for /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/rev2/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:01:19.19]     CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.APullingOrRankDeficientBlockFallsBackWithoutNaNAndEachPointBouncesToItsTarget [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.APullingOrRankDeficientBlockFallsBackWithoutNaNAndEachPointBouncesToItsTarget [1 ms]
+  Error Message:
+   the separating corner was pulled (-2.2756732)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.APullingOrRankDeficientBlockFallsBackWithoutNaNAndEachPointBouncesToItsTarget() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/rev2/CuriousContraptions.tests/WorkshopPhysicsLawRestitutionTests.cs:line 401
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:02:04.90]     CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.FreshSeedDropsWithRestitutionGainNoMoreEnergyThanTheBoxControlAndTheSlop [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.FreshSeedDropsWithRestitutionGainNoMoreEnergyThanTheBoxControlAndTheSlop [45 s]
+  Error Message:
+   CylinderOntoPlane (Lively): 0/200 over 3.582 mJ (worst 1.471 mJ)
+CylinderOntoBox (Lively): 0/200 over 3.582 mJ (worst 1.010 mJ)
+BoxOntoCylinder (Lively): 0/200 over 3.582 mJ (worst 0.046 mJ)
+CylinderOntoLyingCylinder (Lively): 0/200 over 3.582 mJ (worst 1.466 mJ)
+CylinderOntoStandingCylinder (Lively): 1/200 over 3.582 mJ (worst 17.285 mJ)
+SkewedRollOffEdge (Lively): 0/200 over 3.582 mJ (worst 0.000 mJ)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.AssertGate(Int32 cases, GateMaterials[] sets) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/rev2/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 1624
+   at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.FreshSeedDropsWithRestitutionGainNoMoreEnergyThanTheBoxControlAndTheSlop() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/rev2/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 1633
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Standard Output Messages:
+ CylinderOntoPlane (Lively): 0/200 over 3.582 mJ (worst 1.471 mJ)
+ CylinderOntoBox (Lively): 0/200 over 3.582 mJ (worst 1.010 mJ)
+ BoxOntoCylinder (Lively): 0/200 over 3.582 mJ (worst 0.046 mJ)
+ CylinderOntoLyingCylinder (Lively): 0/200 over 3.582 mJ (worst 1.466 mJ)
+ CylinderOntoStandingCylinder (Lively): 1/200 over 3.582 mJ (worst 17.285 mJ)
+ SkewedRollOffEdge (Lively): 0/200 over 3.582 mJ (worst 0.000 mJ)
+
+
+
+Failed!  - Failed:     2, Passed:   248, Skipped:     0, Total:   250, Duration: 3 m 38 s - CuriousContraptions.tests.dll (net10.0)

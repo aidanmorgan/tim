@@ -1,0 +1,12 @@
+M1-separation-guard: Failed!  - Failed:     9, Passed:    64, Skipped:     0, Total:    73, Duration: 2 m 5 s - CuriousContraptions.tests.dll (net10.0) killed-by=9
+M2-gravity-in-approach: Failed!  - Failed:     3, Passed:    70, Skipped:     0, Total:    73, Duration: 1 m 57 s - CuriousContraptions.tests.dll (net10.0) killed-by=3
+M3-sequential-points: Failed!  - Failed:    11, Passed:    62, Skipped:     0, Total:    73, Duration: 1 m 58 s - CuriousContraptions.tests.dll (net10.0) killed-by=11
+M4-no-friction-resolve: Failed!  - Failed:     4, Passed:    69, Skipped:     0, Total:    73, Duration: 1 m 45 s - CuriousContraptions.tests.dll (net10.0) killed-by=4
+M5-no-touch-normal: Failed!  - Failed:     5, Passed:    68, Skipped:     0, Total:    73, Duration: 1 m 58 s - CuriousContraptions.tests.dll (net10.0) killed-by=5
+M6-load-ignores-pressed: Failed!  - Failed:     2, Passed:    71, Skipped:     0, Total:    73, Duration: 2 m - CuriousContraptions.tests.dll (net10.0) killed-by=2
+M7-events-touching-only: Failed!  - Failed:     2, Passed:    71, Skipped:     0, Total:    73, Duration: 2 m - CuriousContraptions.tests.dll (net10.0) killed-by=2
+M8-inclusive-threshold: Failed!  - Failed:     1, Passed:    72, Skipped:     0, Total:    73, Duration: 2 m 2 s - CuriousContraptions.tests.dll (net10.0) killed-by=1
+MX2-block-accepts-pull: Failed!  - Failed:     2, Passed:    71, Skipped:     0, Total:    73, Duration: 2 m 1 s - CuriousContraptions.tests.dll (net10.0) killed-by=2
+MX4-no-rolling-resolve: Failed!  - Failed:     1, Passed:    72, Skipped:     0, Total:    73, Duration: 2 m 3 s - CuriousContraptions.tests.dll (net10.0) killed-by=1
+M9-no-energy-bound: Failed!  - Failed:     3, Passed:    70, Skipped:     0, Total:    73, Duration: 2 m 1 s - CuriousContraptions.tests.dll (net10.0) killed-by=3
+done

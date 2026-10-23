@@ -1,0 +1,48 @@
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-restitution/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:02.36]     CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.ABallReflectsOffCurvedFeaturesAboutTheTouchNormalAtEverySpeed(speed: 12) [FAIL]
+[xUnit.net 00:00:02.37]     CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.ABallReflectsOffCurvedFeaturesAboutTheTouchNormalAtEverySpeed(speed: 6) [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.ABallReflectsOffCurvedFeaturesAboutTheTouchNormalAtEverySpeed(speed: 12) [7 ms]
+  Error Message:
+   sphere at 12 m/s: outgoing <5.1270733, 9.887518, 0> vs <5.999998, 10.392304, 0> (2.59°)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.<>c__DisplayClass21_0.<ABallReflectsOffCurvedFeaturesAboutTheTouchNormalAtEverySpeed>g__Reflects|0(Action`1 partner, Vector3 start, Vector3 velocity, Vector3 normal, String feature) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-restitution/CuriousContraptions.tests/WorkshopPhysicsLawRestitutionTests.cs:line 240
+   at CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.ABallReflectsOffCurvedFeaturesAboutTheTouchNormalAtEverySpeed(Single speed) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-restitution/CuriousContraptions.tests/WorkshopPhysicsLawRestitutionTests.cs:line 245
+   at InvokeStub_WorkshopPhysicsLawRestitutionTests.ABallReflectsOffCurvedFeaturesAboutTheTouchNormalAtEverySpeed(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.ABallReflectsOffCurvedFeaturesAboutTheTouchNormalAtEverySpeed(speed: 6) [5 ms]
+  Error Message:
+   Assert.InRange() Failure: Value not in range
+Range:  (5.93999958 - 6.05999947)
+Actual: 5.85772657
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.<>c__DisplayClass21_0.<ABallReflectsOffCurvedFeaturesAboutTheTouchNormalAtEverySpeed>g__Reflects|0(Action`1 partner, Vector3 start, Vector3 velocity, Vector3 normal, String feature) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-restitution/CuriousContraptions.tests/WorkshopPhysicsLawRestitutionTests.cs:line 241
+   at CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.ABallReflectsOffCurvedFeaturesAboutTheTouchNormalAtEverySpeed(Single speed) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-restitution/CuriousContraptions.tests/WorkshopPhysicsLawRestitutionTests.cs:line 245
+   at InvokeStub_WorkshopPhysicsLawRestitutionTests.ABallReflectsOffCurvedFeaturesAboutTheTouchNormalAtEverySpeed(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+[xUnit.net 00:00:15.05]     CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.AFlatDropReboundsAtItsRestitutionWithoutSpinOrEnergyGain(body: BoxOnBox, e: 0) [FAIL]
+[xUnit.net 00:00:15.11]     CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.AFlatDropReboundsAtItsRestitutionWithoutSpinOrEnergyGain(body: BoxOnBench, e: 0) [FAIL]
+[xUnit.net 00:00:15.14]     CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.AFlatDropReboundsAtItsRestitutionWithoutSpinOrEnergyGain(body: CylinderOnCap, e: 0) [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.AFlatDropReboundsAtItsRestitutionWithoutSpinOrEnergyGain(body: BoxOnBox, e: 0) [28 ms]
+  Error Message:
+   the body lands
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.AFlatDropReboundsAtItsRestitutionWithoutSpinOrEnergyGain(Body body, Single e) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-restitution/CuriousContraptions.tests/WorkshopPhysicsLawRestitutionTests.cs:line 112
+   at InvokeStub_WorkshopPhysicsLawRestitutionTests.AFlatDropReboundsAtItsRestitutionWithoutSpinOrEnergyGain(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.AFlatDropReboundsAtItsRestitutionWithoutSpinOrEnergyGain(body: BoxOnBench, e: 0) [26 ms]
+  Error Message:
+   the body lands
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.AFlatDropReboundsAtItsRestitutionWithoutSpinOrEnergyGain(Body body, Single e) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-restitution/CuriousContraptions.tests/WorkshopPhysicsLawRestitutionTests.cs:line 112
+   at InvokeStub_WorkshopPhysicsLawRestitutionTests.AFlatDropReboundsAtItsRestitutionWithoutSpinOrEnergyGain(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.AFlatDropReboundsAtItsRestitutionWithoutSpinOrEnergyGain(body: CylinderOnCap, e: 0) [26 ms]
+  Error Message:
+   the body lands
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.AFlatDropReboundsAtItsRestitutionWithoutSpinOrEnergyGain(Body body, Single e) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-restitution/CuriousContraptions.tests/WorkshopPhysicsLawRestitutionTests.cs:line 112
+   at InvokeStub_WorkshopPhysicsLawRestitutionTests.AFlatDropReboundsAtItsRestitutionWithoutSpinOrEnergyGain(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+
+Failed!  - Failed:     5, Passed:    52, Skipped:     0, Total:    57, Duration: 20 s - CuriousContraptions.tests.dll (net10.0)

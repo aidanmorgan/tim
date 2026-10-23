@@ -1,0 +1,14 @@
+MX1-no-impulse-gate: killed (3)
+MX2-block-accepts-pull: Failed!  - Failed:     2, Passed:   238, Skipped:     0, Total:   240, Duration: 2 m 45 s - CuriousContraptions.tests.dll (net10.0)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.FreshSeedDropsWithRestitutionGainNoMoreEnergyThanTheBoxControlAndTheSlop 
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.RandomPoseDropsNeverGainMoreThanTheSlopInATick(body: BoxOnBox, e: 1) 
+MX3-horizon-one-substep: Failed!  - Failed:     4, Passed:   236, Skipped:     0, Total:   240, Duration: 2 m 44 s - CuriousContraptions.tests.dll (net10.0)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.ABallReflectsOffCurvedFeaturesAboutTheTouchNormalAtEverySpeed(speed: 12) 
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.ABallReflectsOffCurvedFeaturesAboutTheTouchNormalAtEverySpeed(speed: 2) 
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.ABallReflectsOffCurvedFeaturesAboutTheTouchNormalAtEverySpeed(speed: 3) 
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.ABallReflectsOffCurvedFeaturesAboutTheTouchNormalAtEverySpeed(speed: 6) 
+MX4-no-rolling-resolve: Passed!  - Failed:     0, Passed:   240, Skipped:     0, Total:   240, Duration: 2 m 47 s - CuriousContraptions.tests.dll (net10.0)
+MX5-current-angular: Passed!  - Failed:     0, Passed:   240, Skipped:     0, Total:   240, Duration: 2 m 52 s - CuriousContraptions.tests.dll (net10.0)
+MX6-point-at-centre-line-no-halfgap: Passed!  - Failed:     0, Passed:   240, Skipped:     0, Total:   240, Duration: 2 m 47 s - CuriousContraptions.tests.dll (net10.0)
+
+[exited with code 0]

@@ -1,0 +1,42 @@
+Test run for /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/rev-probe/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:17.91]     CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.ABallReflectsOffCurvedFeaturesAboutTheTouchNormalAtEverySpeed(speed: 2) [FAIL]
+[xUnit.net 00:00:17.91]     CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.ABallReflectsOffCurvedFeaturesAboutTheTouchNormalAtEverySpeed(speed: 6) [FAIL]
+[xUnit.net 00:00:17.92]     CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.ABallReflectsOffCurvedFeaturesAboutTheTouchNormalAtEverySpeed(speed: 12) [FAIL]
+[xUnit.net 00:00:17.92]     CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.ABallReflectsOffCurvedFeaturesAboutTheTouchNormalAtEverySpeed(speed: 3) [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.ABallReflectsOffCurvedFeaturesAboutTheTouchNormalAtEverySpeed(speed: 2) [2 ms]
+  Error Message:
+   rim at 2 m/s: outgoing <1.6806196, 0, 1.0842128> vs <1.7320508, 0, 1> (2.83°)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.<>c__DisplayClass21_0.<ABallReflectsOffCurvedFeaturesAboutTheTouchNormalAtEverySpeed>g__Reflects|0(Action`1 partner, Vector3 start, Vector3 velocity, Vector3 normal, String feature) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/rev-probe/CuriousContraptions.tests/WorkshopPhysicsLawRestitutionTests.cs:line 241
+   at CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.ABallReflectsOffCurvedFeaturesAboutTheTouchNormalAtEverySpeed(Single speed) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/rev-probe/CuriousContraptions.tests/WorkshopPhysicsLawRestitutionTests.cs:line 244
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.ABallReflectsOffCurvedFeaturesAboutTheTouchNormalAtEverySpeed(speed: 6) [1 ms]
+  Error Message:
+   rim at 6 m/s: outgoing <4.7972274, 0, 3.603694> vs <5.196152, 0, 2.999999> (6.91°)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.<>c__DisplayClass21_0.<ABallReflectsOffCurvedFeaturesAboutTheTouchNormalAtEverySpeed>g__Reflects|0(Action`1 partner, Vector3 start, Vector3 velocity, Vector3 normal, String feature) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/rev-probe/CuriousContraptions.tests/WorkshopPhysicsLawRestitutionTests.cs:line 241
+   at CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.ABallReflectsOffCurvedFeaturesAboutTheTouchNormalAtEverySpeed(Single speed) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/rev-probe/CuriousContraptions.tests/WorkshopPhysicsLawRestitutionTests.cs:line 244
+   at InvokeStub_WorkshopPhysicsLawRestitutionTests.ABallReflectsOffCurvedFeaturesAboutTheTouchNormalAtEverySpeed(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.ABallReflectsOffCurvedFeaturesAboutTheTouchNormalAtEverySpeed(speed: 12) [3 ms]
+  Error Message:
+   sphere at 12 m/s: outgoing <6.6851387, 9.965385, 0> vs <5.999998, 10.392304, 0> (3.86°)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.<>c__DisplayClass21_0.<ABallReflectsOffCurvedFeaturesAboutTheTouchNormalAtEverySpeed>g__Reflects|0(Action`1 partner, Vector3 start, Vector3 velocity, Vector3 normal, String feature) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/rev-probe/CuriousContraptions.tests/WorkshopPhysicsLawRestitutionTests.cs:line 241
+   at CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.ABallReflectsOffCurvedFeaturesAboutTheTouchNormalAtEverySpeed(Single speed) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/rev-probe/CuriousContraptions.tests/WorkshopPhysicsLawRestitutionTests.cs:line 246
+   at InvokeStub_WorkshopPhysicsLawRestitutionTests.ABallReflectsOffCurvedFeaturesAboutTheTouchNormalAtEverySpeed(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.ABallReflectsOffCurvedFeaturesAboutTheTouchNormalAtEverySpeed(speed: 3) [1 ms]
+  Error Message:
+   rim at 3 m/s: outgoing <2.48996, 0, 1.6733499> vs <2.598076, 0, 1.4999995> (3.90°)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.<>c__DisplayClass21_0.<ABallReflectsOffCurvedFeaturesAboutTheTouchNormalAtEverySpeed>g__Reflects|0(Action`1 partner, Vector3 start, Vector3 velocity, Vector3 normal, String feature) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/rev-probe/CuriousContraptions.tests/WorkshopPhysicsLawRestitutionTests.cs:line 241
+   at CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.ABallReflectsOffCurvedFeaturesAboutTheTouchNormalAtEverySpeed(Single speed) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/rev-probe/CuriousContraptions.tests/WorkshopPhysicsLawRestitutionTests.cs:line 244
+   at InvokeStub_WorkshopPhysicsLawRestitutionTests.ABallReflectsOffCurvedFeaturesAboutTheTouchNormalAtEverySpeed(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+
+Failed!  - Failed:     4, Passed:   236, Skipped:     0, Total:   240, Duration: 2 m 44 s - CuriousContraptions.tests.dll (net10.0)
