@@ -1,0 +1,20 @@
+Impact record baseline re-captured on main 0cba945b (restitution), whose producer, device and ABI are the pre-D9 ones (occurrence rows on the read).
+
+Why: after the merge of main 0cba945b, EventRingConsumerTests.TheImpactRecordBytesOfTheBumperRunAreUnchanged failed (post-merge/test.log):
+the restitution slice changed the bumper run's physics (hit ordinals 0x9B->0x9A, 0xE9->0xE8, 0x3A1->0x3A0 and the paid magnitudes),
+so the f5ffdb4e-era pin E54B4A09...853CC8 no longer describes the engine. The test's claim is that D9 (device-private occurrence rows)
+leaves the Impact bytes unchanged, so the baseline must come from the same engine without D9.
+
+How: a detached scratch worktree of 0cba945b (scratchpad/impact-baseline-0cba945b, removed afterwards; nothing committed) with one
+scratch fact appended to its EventRingProducerTests.cs, the same bench as EventRingConsumerTests.BumperRun (Basketball 1 at (0, 4.5, 0),
+Bumper 2 at (0, 3, 0), default cadence, Ring.Running then Advance(360)), writing the Impact records with SimulationEventRecord.Write.
+Commands: dotnet build CuriousContraptions.tests -c Debug (0 errors), then
+dotnet test CuriousContraptions.tests --no-build --no-restore --filter "FullyQualifiedName~CaptureImpactRecordBaseline".
+
+Result on 0cba945b (pre-D9):
+BASELINE count 3 SHA-256 291756D737E1FF95741B6BCA83C2C67BD4B3F0B8451FBE9FD4363B0AEC00DB8F records 010000000000000027000000000000000100000001000000020000000000000001000000000000009A000000000000006C52F4410100000000000000000000000200000000000000E800000000000000010000000100000002000000000000000100000000000000A00300000000000040D9BA3F02000000000000000000000003000000000000005801000000000000010000000100000002000000000000000100000000000000600500000000000000000000030000000000000000000000
+
+Merged candidate 7d0c6d45 (with D9), from the failing assertion in post-merge/test.log:
+SHA-256 291756D737E1FF95741B6BCA83C2C67BD4B3F0B8451FBE9FD4363B0AEC00DB8F, the same 192 bytes.
+
+So D9 still leaves the Impact bytes byte-identical; only the pinned constant is re-pinned to the 0cba945b engine.

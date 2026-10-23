@@ -11,6 +11,13 @@ JS shared reader (CuriousContraptions.web/wwwroot/event-ring-cursor.js):
 - held-epoch-consumed (read ignores the installed epoch): KILLED by the epochs test.
 - record-twice (cursor re-reads a record): KILLED by 5 of the 6 tests.
 
+Review fixes (F1 seqlock with per-word Atomics on both sides, F2 older ring), each against the fixed code:
+- post-fix-second-fence-removed (the after-copy sequence load dropped, per-word Atomics kept): KILLED in 3 of 3 runs. Both stress
+  tests fail, the amplified one with 2001, 1924 and 1983 torn records at capacity 4 (js-post-fix-second-fence-removed-{1,2,3}.log).
+- older-ring-read (`this.epoch !== admitted` -> `this.epoch > admitted`, the reviewer's mutant): KILLED by the cursor test "a ring
+  older than the installed epoch is ignored" (js-older-ring-read.log) and by the Animation worker test of the same name, whose
+  EventRecords refuses a foreign epoch as AcceptEvents does (js-older-ring-read-worker.log, run after the merge of main 0cba945b).
+
 C# (production evaluator, goal wake, ledger, engine):
 - owner-filter-dropped (AcceptEvents ignores record.Source): KILLED by AForeignOwnerAnUndeclaredKindOrALevelCuesNothing.
 - cue-time-tick-boundary (EventSeconds from record.Tick, not Ordinal+Phase): KILLED by 7 tests, among them the real-run bumper and detector tests, TheCueStartsAtTheRecordsOwnOrdinalAndPhase, AHiddenPart… and ALappedRing…. The oracle `At` is derived independently of EventSeconds.

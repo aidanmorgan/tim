@@ -121,14 +121,14 @@ public sealed class EventRingConsumerTests
         var impacts = (await BumperRun()).Where(record => record.Kind == SimulationEventKind.Impact).ToArray();
         var bytes = new byte[impacts.Length * EventRingBuffer.SlotBytes];
         for (var i = 0; i < impacts.Length; i++) impacts[i].Write(bytes.AsSpan(i * EventRingBuffer.SlotBytes, EventRingBuffer.SlotBytes));
-        // Captured before 9A.23 made the occurrence rows device-private, with the producer, device and ABI as at f5ffdb4e
-        // (evidence-9a-23-25b/baseline/impact-records.txt, with its provenance).
+        // Captured without D9 (occurrence rows on the read) on main 0cba945b, the restitution engine this slice merged
+        // (evidence-9a-23-25b/post-merge/impact-records-0cba945b.txt, with its provenance; the f5ffdb4e capture is baseline/impact-records.txt).
         Assert.Equal(ImpactRecordCount, impacts.Length);
         var hash = Convert.ToHexString(SHA256.HashData(bytes));
         Assert.True(hash == ImpactRecordSha256, $"The Impact record bytes changed: SHA-256 {hash}, records {Convert.ToHexString(bytes)}");
     }
     private const int ImpactRecordCount = 3;
-    private const string ImpactRecordSha256 = "E54B4A09FFB15CC21408F8B06DAD2995A64A3EFCD0CEEF6F03446A379B853CC8";
+    private const string ImpactRecordSha256 = "291756D737E1FF95741B6BCA83C2C67BD4B3F0B8451FBE9FD4363B0AEC00DB8F";
 
     // ---------- 9A.25b: every declared one-shot is driven only by its ring kind ----------
 

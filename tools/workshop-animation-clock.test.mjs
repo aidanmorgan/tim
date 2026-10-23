@@ -25,13 +25,18 @@ function probe(sequence) {
 async function animationWorker() {
     let imports, service;
     const replies = [], controls = [], reads = [], messages = [], turns = [], channel = new MessageChannel(), ring = clockRing.createClockRing();
-    // Story 9A.23: the installed epoch the reader may consume, and each turn's managed calls in order.
+    // Story 9A.23: the installed epoch the reader may consume, and each turn's managed calls in order. EventRecords refuses a delivery of
+    // another epoch exactly as WorkshopDeclaredPresentation.AcceptEvents does ("Foreign event ring epoch."), so a leak faults the worker.
     const installed = { epoch: 0 };
     const host = {
         OutputKinds: () => [1, 2, 3], Bootstrap: () => {}, AnimationControl: () => {}, Service: () => turns.push('Service'),
         Reply: bytes => replies.push(bytes),
         ScheduleControl: bytes => controls.push(bytes), CommittedRead: bytes => reads.push(bytes),
-        EventEpoch: () => installed.epoch, EventRecords: bytes => turns.push(bytes)
+        EventEpoch: () => installed.epoch, EventRecords: bytes => {
+            if (new DataView(bytes.buffer, bytes.byteOffset, 8).getBigUint64(0, true) !== BigInt(installed.epoch))
+                throw new Error('Foreign event ring epoch.');
+            turns.push(bytes);
+        }
     };
     const runtime = {
         setModuleImports: (_, value) => { imports = value; },
@@ -110,6 +115,18 @@ test('each Service turn first delivers the new records of the installed epoch, o
         delivery.getBigUint64(16, true), delivery.getBigUint64(80, true)], [5n, 0n, 16 + 128, 1n, 2n]);
     worker.turns.length = 0; worker.turn();
     assert.deepEqual(worker.turns, ['Service'], 'nothing new: no delivery, and no record twice');
+    worker.close();
+});
+
+// Review F2: a ring older than the installed epoch (its world was replaced, and the new ring is not yet posted) is ignored by the
+// worker: nothing reaches EventRecords, so AcceptEvents never sees a foreign epoch, and every turn still services.
+test('a ring older than the installed epoch is ignored: no delivery, no foreign-epoch fault, and the turn still services', async () => {
+    const worker = await animationWorker();
+    worker.send({ eventRing: eventRing(5n, [1n, 2n]) }); await settle();
+    worker.installed.epoch = 6;
+    worker.turn(); worker.turn();
+    assert.deepEqual(worker.turns, ['Service', 'Service'], 'no delivery of the older epoch, and the turn still services');
+    assert.equal(worker.messages.filter(message => message.failure).length, 0, 'the worker is not faulted');
     worker.close();
 });
 

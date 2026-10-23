@@ -1,0 +1,43 @@
+✔ a served Animation probe reaches the host (control) (24.226917ms)
+✔ a disposed Animation worker holds no clock ring and refuses to probe it (0.933625ms)
+✔ a clock reply landing after the Animation worker was disposed never reaches the host (22.023958ms)
+✔ each Service turn first delivers the new records of the installed epoch, once (23.234625ms)
+✖ a ring older than the installed epoch is ignored: no delivery, no foreign-epoch fault, and the turn still services (23.823875ms)
+✔ owned master-port accepts exactly one scheduleControl payload (23.162125ms)
+✔ owned master-port accepts exactly one committedRead payload (23.107834ms)
+✔ mixed or unknown master-port envelope calls neither managed entry (22.917375ms)
+✔ mixed or unknown master-port envelope calls neither managed entry (22.766125ms)
+✔ mixed or unknown master-port envelope calls neither managed entry (22.901708ms)
+✔ mixed or unknown master-port envelope calls neither managed entry (22.743292ms)
+ℹ tests 11
+ℹ suites 0
+ℹ pass 10
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 292.732291
+
+✖ failing tests:
+
+test at tools/workshop-animation-clock.test.mjs:123:1
+✖ a ring older than the installed epoch is ignored: no delivery, no foreign-epoch fault, and the turn still services (23.823875ms)
+  AssertionError [ERR_ASSERTION]: no delivery of the older epoch, and the turn still services
+  + actual - expected
+  
+  + []
+  - [
+  -   'Service',
+  -   'Service'
+  - ]
+  
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/workshop-animation-clock.test.mjs:128:12)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [],
+    expected: [ 'Service', 'Service' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
