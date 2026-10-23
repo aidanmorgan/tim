@@ -1,0 +1,11 @@
+2c668ecd7260fff3b74b0de01c6878681c5ce579
+ M CuriousContraptions.tests/WorkshopPhysicsLawRestitutionTests.cs
+ M _bmad-output/implementation-artifacts/deferred-work.md
+ M _bmad-output/implementation-artifacts/review-6-5f-partart-partkind-legacy-purge.md
+ M _bmad-output/implementation-artifacts/review-9-2-pulse-counter.md
+ M _bmad-output/implementation-artifacts/review-c-memory.md
+ M _bmad-output/implementation-artifacts/sprint-status.yaml
+ M docs/gpu-f32-physics.md
+?? _bmad-output/implementation-artifacts/evidence-c-memory-review/terminal/
+?? _bmad-output/implementation-artifacts/evidence-engine-restitution/merged/
+?? _bmad-output/implementation-artifacts/evidence-engine-restitution/mutations-round3/

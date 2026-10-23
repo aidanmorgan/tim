@@ -1,0 +1,14 @@
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-restitution/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:01:15.24]     CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.APullingOrRankDeficientBlockFallsBackWithoutNaNAndEachPointBouncesToItsTarget [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.APullingOrRankDeficientBlockFallsBackWithoutNaNAndEachPointBouncesToItsTarget [1 ms]
+  Error Message:
+   the separating corner was pulled (0.14734687)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.APullingOrRankDeficientBlockFallsBackWithoutNaNAndEachPointBouncesToItsTarget() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-restitution/CuriousContraptions.tests/WorkshopPhysicsLawRestitutionTests.cs:line 392
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     1, Passed:    61, Skipped:     0, Total:    62, Duration: 1 m 13 s - CuriousContraptions.tests.dll (net10.0)

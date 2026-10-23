@@ -1,0 +1,4 @@
+1867c1867
+<         var point = centre - normal * (sphere.Radius + gap * .5f);
+---
+>         var point = centre - normal * sphere.Radius;

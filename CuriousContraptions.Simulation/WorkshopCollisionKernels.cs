@@ -51,6 +51,16 @@ internal sealed class SimBody
     public float SupportExtent;
     public int DynamicIndex;
     public uint Motion;
+    /// <summary>The body's velocities at the start of the substep, before guides, supplied drives, gravity and drag: the
+    /// approach a restitution target reflects (Box2D v3 prepares contacts before integrating velocities).</summary>
+    public Vector3 V0, W0;
+    /// <summary>The substep's restitution energy bound: the kinetic energy before the contact solve (after gravity and drag), the
+    /// velocities after the relax sweeps, and the group root and accumulators of the bodies joined by bouncing manifolds.</summary>
+    public float PreSolveKinetic;
+    public Vector3 RelaxedV, RelaxedW;
+    public SimBody RestitutionRoot = null!;
+    public int RestitutionStamp;
+    public float EnergyA, EnergyB, EnergyC, EnergyBudget, EnergyScale;
 
     public Vector3 Cm0;
     public Quaternion Q0;
@@ -118,9 +128,10 @@ internal sealed class ContactPoint
     public float LambdaN;
     public float LambdaT1;
     public float LambdaT2;
+    /// <summary>The substep-start relative normal velocity at this point (negative approaching): the restitution target's and the
+    /// contact events' approach.</summary>
     public float RelVel;
     public float MaxImpulse;
-    public bool Bounced;
 
     public Vector3 Normal => new(Nx, Ny, Nz);
     public Vector3 Point => new(Px, Py, Pz);
@@ -1796,6 +1807,75 @@ internal static class WorkshopCollisionKernels
                 Add(outList, p1 - g1 * 0.5f * capN, g1, Feature(CylinderFeature.Side, detail | 1 | (s > 0f ? 0 : 2)));
             }
         }
+    }
+
+    /// <summary>A sphere's speculative contact (positive gap, closing within two substeps h: the solve stops what this substep
+    /// reaches, the relax pass what the next one would) takes its normal at the predicted touch instead of at the current closest
+    /// point. Restitution resolves an impact in the substep that stops it, so a normal
+    /// read from the gap would tilt the bounce off a curved feature (a rim, an edge, another sphere) by up to about v·h/R. The touch
+    /// pose is found by conservative advancement of the sphere's centre along the pair's relative linear velocity (at most four
+    /// probes of the same pair kernel); the contact keeps the distance still to close along the touch normal as its gap, and its
+    /// point stays on the advanced sphere's centre line (a sphere's normal impulse has no torque). A pair of two moving spheres, or a
+    /// probe that misses, separates or leaves the horizon, keeps the contact as generated.</summary>
+    public static void AdvanceSpeculativeSphereContact(SimCollider colA, SimCollider colB, float margin, float h, List<ContactPoint> contacts,
+        int first, SimCollider probe, List<ContactPoint> probeContacts)
+    {
+        if (contacts.Count - first != 1) return;
+        static bool Moving(SimCollider c) => c.Shape == ShapeKind.Sphere && c.Body.Motion == 1;
+        // Two moving spheres: no single contact point keeps both lever arms on the normal, so the pair keeps its contact.
+        if (Moving(colA) && Moving(colB)) return;
+        // Advance the moving sphere when there is one: the contact point is placed on its centre line, so its arm stays normal.
+        var sphereIsA = Moving(colA) || (colA.Shape == ShapeKind.Sphere && !Moving(colB));
+        if (!sphereIsA && colB.Shape != ShapeKind.Sphere) return;
+        var sphere = sphereIsA ? colA : colB;
+        var other = sphereIsA ? colB : colA;
+        if (other.Shape == ShapeKind.Plane) return;
+        var contact = contacts[first];
+        if (!(contact.Gap > 0f)) return;
+
+        // A contact's normal points from its B toward its A (the pair kernels choose the order); read it toward the sphere.
+        var sign = contact.ColA == sphere ? 1f : -1f;
+        var velocity = (sphere.Body.Motion == 1 ? sphere.Body.LinearVelocity : Vector3.Zero) -
+            (other.Body.Motion == 1 ? other.Body.LinearVelocity : Vector3.Zero);
+        var normal = sign * contact.Normal;
+        var closing = -Vector3.Dot(velocity, normal);
+        if (!(closing > 0f)) return;
+        var t = contact.Gap / closing;
+        if (!(t <= 2f * h)) return;
+
+        probe.Index = sphere.Index; probe.Id = sphere.Id; probe.BodySlot = sphere.BodySlot; probe.Body = sphere.Body;
+        probe.Shape = ShapeKind.Sphere; probe.Radius = sphere.Radius;
+        probe.Qx = sphere.Qx; probe.Qy = sphere.Qy; probe.Qz = sphere.Qz; probe.Qw = sphere.Qw;
+        probe.U0 = sphere.U0; probe.U1 = sphere.U1; probe.U2 = sphere.U2;
+        var centre = sphere.Position;
+        float gap = 0f;
+        var feature = contact.Feature;
+        for (var probeIndex = 0; probeIndex < 4; probeIndex++)
+        {
+            var at = centre + velocity * t;
+            probe.Px = at.X; probe.Py = at.Y; probe.Pz = at.Z;
+            probeContacts.Clear();
+            GenerateManifold(sphereIsA ? probe : colA, sphereIsA ? colB : probe, margin, probeContacts);
+            if (probeContacts.Count != 1) return;
+            var touch = probeContacts[0];
+            normal = (touch.ColA == probe ? 1f : -1f) * touch.Normal;
+            closing = -Vector3.Dot(velocity, normal);
+            if (!(closing > 0f)) return;
+            // Still to close along this normal from the current pose: what the advance closed plus the probe's own gap.
+            gap = closing * t + touch.Gap;
+            feature = touch.Feature;
+            if (MathF.Abs(touch.Gap) <= 1e-6f) break;
+            t += touch.Gap / closing;
+            if (!(t >= 0f && t <= 2f * h)) return;
+        }
+        if (!(gap > 0f)) return;
+
+        var n = sign * normal;
+        var point = centre - normal * (sphere.Radius + gap * .5f);
+        contact.Nx = n.X; contact.Ny = n.Y; contact.Nz = n.Z;
+        contact.Px = point.X; contact.Py = point.Y; contact.Pz = point.Z;
+        contact.Gap = gap;
+        contact.Feature = feature;
     }
 
     /// <summary>The narrowphase is total over the admitted shapes (ingest rejects any other). Planes are static, so two planes never

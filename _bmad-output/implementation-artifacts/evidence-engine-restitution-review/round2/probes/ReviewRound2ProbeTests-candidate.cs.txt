@@ -1,0 +1,256 @@
+using System.Numerics;
+using System.Security.Cryptography;
+using CuriousContraptions.Gpu;
+using CuriousContraptions.Simulation;
+
+namespace CuriousContraptions.Tests;
+
+/// <summary>Reviewer round-2 probes (throwaway worktree only). On base, ReviewCounters calls are compiled out via #if.</summary>
+public sealed class ReviewRound2ProbeTests(ITestOutputHelper output)
+{
+    private static readonly float BenchY = LawScene.BenchY;
+    private static readonly float G = -(float)(Half)LawScene.Gravity;
+    private static float H(float v) => (float)(Half)v;
+    private static Vector3 At(float x, float y, float z = 0f) => new(x, y, z);
+    private static double Sq(Vector3 v) => (double)v.X * v.X + (double)v.Y * v.Y + (double)v.Z * v.Z;
+    private static double Slop => G * WorkshopConstraintSolver.ContactSlop;
+
+    private enum Shape { Sphere, Box }
+    private sealed record Dyn(GpuBodyId Id, Shape Shape, float Mass, float R, Vector3 Half);
+
+    private static double Energy(Dyn d, LawBody b, bool gravity = true)
+    {
+        var w = Vector3.Transform(b.Angular, Quaternion.Inverse(b.Rotation));
+        double m = H(d.Mass);
+        double rot = d.Shape == Shape.Sphere ? .4 * m * d.R * d.R * Sq(w)
+            : m * (((double)d.Half.Y * d.Half.Y + d.Half.Z * d.Half.Z) / 3 * w.X * w.X + ((double)d.Half.X * d.Half.X + d.Half.Z * d.Half.Z) / 3 * w.Y * w.Y +
+                ((double)d.Half.X * d.Half.X + d.Half.Y * d.Half.Y) / 3 * w.Z * w.Z);
+        return .5 * m * Sq(b.Velocity) + .5 * rot + (gravity ? m * G * (b.Position.Y - BenchY) : 0);
+    }
+
+    private static string Counters()
+    {
+#if REVIEW_COUNTERS
+        return $"passes {ReviewCounters.Passes} scaled {ReviewCounters.ScaledGroups} (<0.9: {ReviewCounters.Below90}, <0.5: {ReviewCounters.Below50}) minScale {(ReviewCounters.ScaledGroups > 0 ? ReviewCounters.MinScale : 1f):F4} maxTouched {ReviewCounters.MaxTouched}";
+#else
+        return "base";
+#endif
+    }
+    private static void ResetCounters()
+    {
+#if REVIEW_COUNTERS
+        ReviewCounters.Reset();
+#endif
+    }
+
+    private static Quaternion RandQ(Random r) => Quaternion.Normalize(new((float)(r.NextDouble() * 2 - 1), (float)(r.NextDouble() * 2 - 1),
+        (float)(r.NextDouble() * 2 - 1), (float)(r.NextDouble() * 2 - 1)));
+    private static Vector3 RandV(Random r, float k) => new((float)(r.NextDouble() * 2 - 1) * k, (float)(r.NextDouble() * 2 - 1) * k, (float)(r.NextDouble() * 2 - 1) * k);
+
+    /// <summary>Stacks of 3 and 4 dynamic boxes (1 mm gaps, settled by the drop's fall time), with a box or a ball dropped on top;
+    /// per-body e drawn from {random in [0,1]} (mixed) or all equal; 60 seeds per config. Per-tick rise and genuine gain vs Σm·g·slop.</summary>
+    [Theory]
+    [InlineData(3, "mixed")]
+    [InlineData(4, "mixed")]
+    [InlineData(3, "1")]
+    [InlineData(4, "1")]
+    [InlineData(4, ".55")]
+    public void TallStacksAndMixedE(int levels, string eMode)
+    {
+        double worstRise = double.NegativeInfinity, worstGain = double.NegativeInfinity, bound = 0; int rc = -1, gc = -1;
+        ResetCounters();
+        for (var i = 0; i < 60; i++)
+        {
+            var rng = new Random(770_000 + levels * 1000 + eMode.Length * 100 + i);
+            float E() => eMode == "mixed" ? (float)rng.NextDouble() : float.Parse(eMode, System.Globalization.CultureInfo.InvariantCulture);
+            var scene = new LawScene();
+            var bodies = new List<Dyn>();
+            var y = BenchY;
+            for (var k = 0; k < levels; k++)
+            {
+                y += .001f + .1f;
+                bodies.Add(new(scene.Box(At((float)(rng.NextDouble() * .04 - .02), y, 0), At(.3f, .1f, .3f), 1.5f, new LawMaterial(E(), .1f, .5f, 0f)), Shape.Box, 1.5f, 0, At(H(.3f), H(.1f), H(.3f))));
+                y += .1f;
+            }
+            var ball = rng.NextDouble() < .5;
+            var top = y + .4f + (float)rng.NextDouble() * .5f;
+            if (ball)
+                bodies.Add(new(scene.Sphere(At((float)rng.NextDouble() * .3f - .15f, top, (float)rng.NextDouble() * .3f - .15f), .12f, .6f, new LawMaterial(E(), .1f, .4f, 0f), default, RandV(rng, 8), 0f, LawScene.Gravity), Shape.Sphere, .6f, H(.12f), default));
+            else
+                bodies.Add(new(scene.Box(At((float)rng.NextDouble() * .2f - .1f, top, 0), At(.25f, .1f, .15f), 1f, new LawMaterial(E(), .1f, .5f, 0f), RandQ(rng), default, RandV(rng, 4)), Shape.Box, 1f, 0, At(H(.25f), H(.1f), H(.15f))));
+            bound = bodies.Sum(d => (double)H(d.Mass)) * Slop;
+            var world = scene.Admit();
+            var hist = new List<double>();
+            world.Step(480, (t, s) =>
+            {
+                var en = bodies.Sum(d => Energy(d, s[d.Id]));
+                if (hist.Count > 0 && en - hist[^1] > worstRise) { worstRise = en - hist[^1]; rc = i; }
+                if (hist.Count >= 3) { var g = en - hist.TakeLast(3).Max(); if (g > worstGain) { worstGain = g; gc = i; } }
+                hist.Add(en);
+            });
+        }
+        output.WriteLine($"stack {levels} e={eMode}: rise {worstRise * 1000:F3} mJ (case {rc}); genuine {worstGain * 1000:F3} mJ (case {gc}); bound {bound * 1000:F3} mJ; {Counters()}");
+        Assert.True(worstRise <= bound, $"rise {worstRise * 1000:F3} mJ");
+    }
+
+    /// <summary>Newton's-cradle-like chain: 5 spheres (r 0.1, 1 kg) in a row 1 mm apart, no gravity, frictionless; the striker at
+    /// 2 m/s. Reports every ball's final x velocity, KE ratio and momentum.</summary>
+    [Theory]
+    [InlineData(1f)]
+    [InlineData(.9f)]
+    [InlineData(.55f)]
+    public void CradleChain(float e)
+    {
+        ResetCounters();
+        var mat = new LawMaterial(e, .1f, 0f, 0f);
+        var scene = new LawScene(bench: false);
+        var ids = new List<GpuBodyId> { scene.Sphere(At(-.6f, 1), .1f, 1f, mat, At(2, 0, 0), default, 0f, 0f) };
+        for (var k = 0; k < 4; k++) ids.Add(scene.Sphere(At(k * .201f, 1), .1f, 1f, mat, default, default, 0f, 0f));
+        var world = scene.Admit();
+        var f = world.Step(world.TicksPerSecond);
+        var vs = ids.Select(id => f[id].Velocity.X).ToArray();
+        var ke = ids.Sum(id => .5 * Sq(f[id].Velocity));
+        output.WriteLine($"cradle e={e}: vx [{string.Join(", ", vs.Select(v => v.ToString("F4", System.Globalization.CultureInfo.InvariantCulture)))}] KE ratio {ke / 2:F5} p {vs.Sum():F5}; {Counters()}");
+        Assert.True(ke <= 2 * 1.0001);
+    }
+
+    /// <summary>Cradle on the bench with gravity (rolling balls, Basketball material scaled), striker rolling at 3 m/s.</summary>
+    [Fact]
+    public void RollingChainOnBench()
+    {
+        ResetCounters();
+        var mat = new LawMaterial(.55f, .1f, .4f, 0f);
+        var scene = new LawScene();
+        var bodies = new List<Dyn> { new(scene.Sphere(At(-.8f, BenchY + .1f), .1f, .6f, mat, At(3, 0, 0), At(0, 0, -30), 0f, LawScene.Gravity), Shape.Sphere, .6f, H(.1f), default) };
+        for (var k = 0; k < 4; k++) bodies.Add(new(scene.Sphere(At(k * .2005f, BenchY + .1f), .1f, .6f, mat, default, default, 0f, LawScene.Gravity), Shape.Sphere, .6f, H(.1f), default));
+        var world = scene.Admit();
+        double? prev = null; var worst = double.NegativeInfinity;
+        var f = world.Step(2 * world.TicksPerSecond, (_, s) => { var en = bodies.Sum(d => Energy(d, s[d.Id])); if (prev is { } p) worst = Math.Max(worst, en - p); prev = en; });
+        output.WriteLine($"rolling chain: vx [{string.Join(", ", bodies.Select(d => f[d.Id].Velocity.X.ToString("F3", System.Globalization.CultureInfo.InvariantCulture)))}] worst rise {worst * 1000:F3} mJ bound {3 * Slop * 1000:F3}; {Counters()}");
+        Assert.True(worst <= 3 * Slop);
+    }
+
+    /// <summary>Dead-impact check: a ball dropped 0.6 m onto a resting dynamic box on the bench vs the same ball onto a static box of the
+    /// same top height; first rebound speed ratio. e ∈ {0.55 (catalogue), 1}.</summary>
+    [Theory]
+    [InlineData(.55f, 2f)]
+    [InlineData(1f, 2f)]
+    [InlineData(1f, .3f)]
+    public void BallOntoRestingDynamicBox(float e, float boxMass)
+    {
+        double Rebound(bool dynamic)
+        {
+            ResetCounters();
+            var scene = new LawScene();
+            var mat = new LawMaterial(e, .1f, .4f, 0f);
+            if (dynamic) scene.Box(At(0, BenchY + .1f), At(.3f, .1f, .3f), boxMass, mat);
+            else scene.StaticBox(At(0, BenchY + .1f), At(.3f, .1f, .3f), null, mat);
+            var ball = scene.Sphere(At(0, BenchY + .2f + .12f + .6f), .12f, .6f, mat, default, default, 0f, LawScene.Gravity);
+            var world = scene.Admit();
+            double vin = 0; double? vout = null;
+            world.Step(world.TicksPerSecond, (_, s) => { var v = s[ball].Velocity.Y; if (vout is null && v < 0) vin = -v; if (vout is null && vin > 1 && v > 0) vout = v; });
+            return (vout ?? 0) / vin;
+        }
+        var stat = Rebound(false);
+        var dyn = Rebound(true);
+        output.WriteLine($"ball e={e} box {boxMass} kg: rebound ratio static {stat:F4}, dynamic {dyn:F4}; {Counters()}");
+    }
+
+    /// <summary>Isolation: a scaling system (the e = 1 dynamic-stack reproducer) far from an independent bouncing ball; the ball's
+    /// committed states are bit-identical with and without the other system, and the whole scene is deterministic and Reset-stable.</summary>
+    [Fact]
+    public void ScalingGroupDoesNotTouchAnUnrelatedBodyAndIsDeterministic()
+    {
+        LawWorld Build(bool withStack, out GpuBodyId ball)
+        {
+            var scene = new LawScene();
+            var mat = new LawMaterial(1f, .1f, .5f, 0f);
+            if (withStack)
+            {
+                scene.Box(At(0, BenchY + .1f), At(.3f, .1f, .3f), 2f, mat);
+                scene.Box(At(.06089176f, BenchY + .5f + .5262131f, 0), At(.25f, .1f, .15f), 1f, mat, new Quaternion(.5394204f, .28104627f, -.5952043f, .5251385f), default, new(1.5234644f, -.7419849f, -3.30802f));
+            }
+            ball = scene.Sphere(At(5, BenchY + .9f, 0), .1f, 1f, new LawMaterial(.8f, .1f, .4f, 0f), At(.3f, 0, 0), At(0, 2, 0), 0f, LawScene.Gravity);
+            return scene.Admit();
+        }
+        var alone = Build(false, out var b1);
+        var both = Build(true, out var b2);
+        var a = new List<LawBody>(); var c = new List<LawBody>();
+        alone.Step(360, (_, s) => a.Add(s[b1]));
+        ResetCounters();
+        var hashes = new List<string>();
+        var engine = new WorkshopPhysicsEngine();
+        both.Step(360, (_, s) => { c.Add(s[b2]); hashes.Add(Convert.ToHexString(SHA256.HashData(s.World))); }, engine: engine);
+        var counters = Counters();
+        var again = new List<string>();
+        both.Step(360, (_, s) => again.Add(Convert.ToHexString(SHA256.HashData(s.World))), engine: engine);
+        var fresh = new List<string>();
+        both.Step(360, (_, s) => fresh.Add(Convert.ToHexString(SHA256.HashData(s.World))));
+        var same = a.Zip(c).All(p => p.First.Velocity == p.Second.Velocity && p.First.Angular == p.Second.Angular && p.First.Local == p.Second.Local && p.First.Cell == p.Second.Cell);
+        output.WriteLine($"isolation bit-identical {same}; reset replay identical {hashes.SequenceEqual(again)}; fresh engine identical {hashes.SequenceEqual(fresh)}; {counters}");
+        Assert.True(same);
+        Assert.Equal(hashes, again);
+        Assert.Equal(hashes, fresh);
+    }
+}
+
+public sealed class ReviewRound2CradleDiagnosis(ITestOutputHelper output)
+{
+    [Theory]
+    [InlineData(.55f, false)]
+    [InlineData(.55f, true)]
+    [InlineData(1f, false)]
+    [InlineData(1f, true)]
+    public void CradleWithAndWithoutBound(float e, bool disable)
+    {
+        ReviewCounters.Reset();
+        ReviewCounters.DisableBound = disable;
+        ReviewCounters.Log = [];
+        var mat = new LawMaterial(e, .1f, 0f, 0f);
+        var scene = new LawScene(bench: false);
+        var ids = new List<GpuBodyId> { scene.Sphere(new(-.6f, 1, 0), .1f, 1f, mat, new(2, 0, 0), default, 0f, 0f) };
+        for (var k = 0; k < 4; k++) ids.Add(scene.Sphere(new(k * .201f, 1, 0), .1f, 1f, mat, default, default, 0f, 0f));
+        var world = scene.Admit();
+        var f = world.Step(world.TicksPerSecond);
+        ReviewCounters.DisableBound = false;
+        var vs = ids.Select(id => f[id].Velocity.X).ToArray();
+        var ke = vs.Sum(v => .5 * v * v);
+        output.WriteLine(FormattableString.Invariant($"cradle e={e} boundDisabled={disable}: vx [{string.Join(", ", vs.Select(v => v.ToString("F4", System.Globalization.CultureInfo.InvariantCulture)))}] KE {ke:F5} J (of 2)"));
+        foreach (var l in ReviewCounters.Log) output.WriteLine("  " + l);
+        ReviewCounters.Log = null;
+    }
+}
+
+public sealed class ReviewRound2Apex(ITestOutputHelper output)
+{
+    /// <summary>Ball (r .12, .6 kg) dropped 0.6 m onto a resting dynamic box (or a static box of the same top), apex ratio after the
+    /// first impact = (apex − rest) / 0.6; ideal for a rigidly supported box ≈ e².</summary>
+    [Theory]
+    [InlineData(.55f, 2f)]
+    [InlineData(.55f, .5f)]
+    [InlineData(1f, 2f)]
+    [InlineData(1f, .3f)]
+    public void ApexOnRestingDynamicBox(float e, float boxMass)
+    {
+        var y0 = LawScene.BenchY;
+        double Apex(bool dynamic)
+        {
+            var scene = new LawScene();
+            var mat = new LawMaterial(e, .1f, .4f, 0f);
+            if (dynamic) scene.Box(new(0, y0 + .1f, 0), new(.3f, .1f, .3f), boxMass, mat);
+            else scene.StaticBox(new(0, y0 + .1f, 0), new(.3f, .1f, .3f), null, mat);
+            var rest = y0 + .2f + .12f;
+            var ball = scene.Sphere(new(0, rest + .6f, 0), .12f, .6f, mat, default, default, 0f, LawScene.Gravity);
+            var world = scene.Admit();
+            var landed = false; var apex = double.NegativeInfinity; var done = false;
+            world.Step(world.TicksPerSecond * 2, (_, s) =>
+            {
+                var b = s[ball];
+                if (!landed && b.Position.Y - rest < .02f) landed = true;
+                if (landed && !done) { apex = Math.Max(apex, b.Position.Y - rest); if (b.Velocity.Y < -.5f && apex > .005) done = true; }
+            });
+            return apex / .6;
+        }
+        output.WriteLine(FormattableString.Invariant($"apex e={e} box {boxMass} kg: static {Apex(false):F4}, dynamic {Apex(true):F4} (e² of pair {(double)(Half)e * (double)(Half)e * (double)(Half)e * (double)(Half)e:F4})"));
+    }
+}

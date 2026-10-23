@@ -89,7 +89,7 @@ internal static class WorkshopConstraintSolver
         return k > 0f ? 1f / k : 0f;
     }
 
-    public static void PrepareContact(ContactPoint c, Dictionary<ulong, (float LambdaN, float LambdaT1, float LambdaT2, float Approach)> cache)
+    public static void PrepareContact(ContactPoint c, Dictionary<ulong, (float LambdaN, float LambdaT1, float LambdaT2)> cache)
     {
         var A = c.A;
         var B = c.B;
@@ -111,9 +111,10 @@ internal static class WorkshopConstraintSolver
         c.TangentMass1 = EffectiveMass(c, c.T1);
         c.TangentMass2 = EffectiveMass(c, c.T2);
 
-        var vA = WorkshopCollisionKernels.PointVelocity(A, new Vector3(c.RAx, c.RAy, c.RAz));
-        var vB = WorkshopCollisionKernels.PointVelocity(B, new Vector3(c.RBx, c.RBy, c.RBz));
-        var vn = Vector3.Dot(vA - vB, n);
+        // The approach before this substep's external velocity changes (guides, supplied drives, gravity, drag).
+        var vA = StartVelocity(A, new Vector3(c.RAx, c.RAy, c.RAz));
+        var vB = StartVelocity(B, new Vector3(c.RBx, c.RBy, c.RBz));
+        c.RelVel = Vector3.Dot(vA - vB, n);
 
         c.Restitution = c.ColA.Restitution * c.ColB.Restitution;
         c.Threshold = MathF.Max(c.ColA.BounceThreshold, c.ColB.BounceThreshold);
@@ -128,19 +129,18 @@ internal static class WorkshopConstraintSolver
             c.LambdaN = warm.LambdaN;
             c.LambdaT1 = warm.LambdaT1;
             c.LambdaT2 = warm.LambdaT2;
-            c.RelVel = MathF.Min(vn, warm.Approach);
         }
         else
         {
             c.LambdaN = 0f;
             c.LambdaT1 = 0f;
             c.LambdaT2 = 0f;
-            c.RelVel = vn;
         }
 
         c.MaxImpulse = 0f;
-        c.Bounced = false;
     }
+
+    private static Vector3 StartVelocity(SimBody b, Vector3 r) => b.Motion == 1 ? b.V0 + Vector3.Cross(b.W0, r) : Vector3.Zero;
 
     public static void WarmStartContact(ContactPoint c)
     {
@@ -486,10 +486,169 @@ internal static class WorkshopConstraintSolver
         }
     }
 
-    public static void ApplyRestitution(ContactPoint c)
+    /// <summary>A point bounces when it carried normal impulse this substep (touching or speculative) and approached faster than
+    /// the pair's bounce threshold at the substep start (Box2D v3 b2ApplyRestitution).</summary>
+    private static bool Bounces(ContactPoint c) => c.Restitution != 0f && c.RelVel < -c.Threshold && c.MaxImpulse > 0f;
+
+    /// <summary>The restitution pass for one manifold, once per substep after relax: the bouncing points' restitution
+    /// (<see cref="ApplyRestitution"/>), then one friction and rolling pass whose cones now include the restitution impulse, so a
+    /// bounce keeps its Coulomb share of tangential impulse (each 480 Hz substep is a whole Box2D step, so friction had only the
+    /// stop's impulse before).</summary>
+    public static void Restitute(ContactManifold m)
     {
-        if (c.Restitution == 0f || c.RelVel > -c.Threshold || c.MaxImpulse == 0f || CurrentSeparation(c) > 0f) return;
-        c.Bounced = true;
+        var any = false;
+        foreach (var c in m.Points) any |= Bounces(c);
+        if (!any) return;
+        ApplyRestitution(m.Points);
+        foreach (var c in m.Points) SolveFriction(c);
+        SolveRolling(m);
+    }
+
+    /// <summary>a·I·c for the body's compiled principal moments in its current principal frame (an axis with zero inverse moment
+    /// contributes nothing).</summary>
+    private static float InertiaDot(SimBody b, Vector3 a, Vector3 c)
+    {
+        var toPrincipal = Quaternion.Conjugate(Quaternion.Multiply(b.Rotation, b.Principal));
+        var ap = Vector3.Transform(a, toPrincipal);
+        var cp = Vector3.Transform(c, toPrincipal);
+        var sum = 0f;
+        if (b.InvI.X > 0f) sum += ap.X * cp.X / b.InvI.X;
+        if (b.InvI.Y > 0f) sum += ap.Y * cp.Y / b.InvI.Y;
+        if (b.InvI.Z > 0f) sum += ap.Z * cp.Z / b.InvI.Z;
+        return sum;
+    }
+
+    /// <summary>The body's kinetic energy at linear velocity v and angular velocity w.</summary>
+    public static float Kinetic(SimBody b, Vector3 v, Vector3 w) => .5f * b.Mass * Vector3.Dot(v, v) + .5f * InertiaDot(b, w, w);
+
+    private static SimBody Root(SimBody b)
+    {
+        while (b.RestitutionRoot != b)
+        {
+            b.RestitutionRoot = b.RestitutionRoot.RestitutionRoot;
+            b = b.RestitutionRoot;
+        }
+        return b;
+    }
+
+    private static void Join(SimBody b, List<SimBody> touched, int stamp)
+    {
+        if (b.Motion != 1 || b.RestitutionStamp == stamp) return;
+        b.RestitutionStamp = stamp;
+        b.RestitutionRoot = b;
+        b.RelaxedV = b.LinearVelocity;
+        b.RelaxedW = b.AngularVelocity;
+        touched.Add(b);
+    }
+
+    /// <summary>The substep's restitution pass over every manifold (<see cref="Restitute"/>), bounded by energy. The bodies joined by
+    /// this substep's bouncing manifolds form groups; a group's kinetic energy after the pass may not exceed the larger of its
+    /// kinetic energy before the contact solve and after the relax sweeps, so restitution returns at most what this substep's
+    /// contacts removed. Independent Newton targets on a body shared by several impacts (a box landing on a box resting on the
+    /// bench, which bounces on the bench in the same substep) can otherwise return more than was removed. Such a group's change is
+    /// scaled back along the straight line from its relaxed velocities to the largest fraction the bound allows.</summary>
+    public static void RestitutionPass(List<ContactManifold> manifolds, List<SimBody> touched, int stamp)
+    {
+        touched.Clear();
+        foreach (var m in manifolds)
+        {
+            var any = false;
+            foreach (var c in m.Points) any |= Bounces(c);
+            if (!any) continue;
+            var c0 = m.Points[0];
+            Join(c0.A, touched, stamp);
+            Join(c0.B, touched, stamp);
+            if (c0.A.Motion == 1 && c0.B.Motion == 1)
+            {
+                var ra = Root(c0.A);
+                var rb = Root(c0.B);
+                if (ra != rb) rb.RestitutionRoot = ra;
+            }
+        }
+        if (touched.Count == 0) return;
+        foreach (var m in manifolds) Restitute(m);
+
+        foreach (var b in touched) { b.EnergyA = 0f; b.EnergyB = 0f; b.EnergyC = 0f; b.EnergyBudget = 0f; }
+        foreach (var b in touched)
+        {
+            var r = Root(b);
+            var dv = b.LinearVelocity - b.RelaxedV;
+            var dw = b.AngularVelocity - b.RelaxedW;
+            var relaxed = Kinetic(b, b.RelaxedV, b.RelaxedW);
+            r.EnergyA += Kinetic(b, dv, dw);
+            r.EnergyB += b.Mass * Vector3.Dot(b.RelaxedV, dv) + InertiaDot(b, b.RelaxedW, dw);
+            r.EnergyC += relaxed;
+            r.EnergyBudget += b.PreSolveKinetic - relaxed;
+        }
+        foreach (var b in touched)
+        {
+            if (Root(b) != b) continue;
+            // Along the relaxed → restituted line the group's energy is c + bα + aα²; the bound is max(pre-solve, relaxed).
+            float a = b.EnergyA, lin = b.EnergyB, c = b.EnergyC, bound = c + MathF.Max(0f, b.EnergyBudget);
+            b.EnergyScale = 1f;
+            if (a <= 0f || a + lin + c <= bound * (1f + 1e-5f)) continue;
+            var disc = lin * lin + 4f * a * (bound - c);
+            b.EnergyScale = Math.Clamp((-lin + MathF.Sqrt(MathF.Max(0f, disc))) / (2f * a), 0f, 1f);
+        }
+        foreach (var b in touched)
+        {
+            var scale = Root(b).EnergyScale;
+            if (scale >= 1f) continue;
+            var v = b.RelaxedV + scale * (b.LinearVelocity - b.RelaxedV);
+            var w = b.RelaxedW + scale * (b.AngularVelocity - b.RelaxedW);
+            b.Vx = v.X; b.Vy = v.Y; b.Vz = v.Z;
+            b.Wx = w.X; b.Wy = w.Y; b.Wz = w.Z;
+        }
+    }
+
+    /// <summary>Every bouncing point's relative normal velocity is driven to −e·(its own substep-start approach) in one simultaneous
+    /// solve, so a face landing flat leaves flat; when that solve is singular or would pull a point (accumulated impulse below
+    /// zero) the points are applied one at a time, each clamped. No soft-contact or penetration bias enters the target.</summary>
+    public static void ApplyRestitution(List<ContactPoint> points)
+    {
+        var count = points.Count;
+        Span<int> index = stackalloc int[count];
+        var n = 0;
+        for (var i = 0; i < count; i++)
+            if (Bounces(points[i])) index[n++] = i;
+        if (n == 0) return;
+        if (n == 1) { ApplyRestitutionRow(points[index[0]]); return; }
+
+        Span<float> matrix = stackalloc float[n * n];
+        Span<float> rhs = stackalloc float[n];
+        Span<float> solution = stackalloc float[n];
+        for (var i = 0; i < n; i++)
+        {
+            var c = points[index[i]];
+            var vn = Vector3.Dot(RelativeVelocity(c), new Vector3(c.Nx, c.Ny, c.Nz));
+            rhs[i] = -(vn + c.Restitution * c.RelVel);
+            for (var j = 0; j < n; j++) matrix[i * n + j] = CouplingMass(c, points[index[j]]);
+        }
+        var trace = 0f;
+        for (var i = 0; i < n; i++) trace += matrix[i * n + i];
+        for (var i = 0; i < n; i++) matrix[i * n + i] += BlockRegularization * trace / n;
+
+        var solved = SolveLinear(matrix, rhs, solution, n);
+        for (var i = 0; solved && i < n; i++) solved = points[index[i]].LambdaN + solution[i] >= 0f;
+        if (!solved)
+        {
+            for (var i = 0; i < n; i++) ApplyRestitutionRow(points[index[i]]);
+            return;
+        }
+
+        for (var i = 0; i < n; i++)
+        {
+            var c = points[index[i]];
+            c.LambdaN += solution[i];
+            if (c.LambdaN > c.MaxImpulse) c.MaxImpulse = c.LambdaN;
+            var p = solution[i] * new Vector3(c.Nx, c.Ny, c.Nz);
+            WorkshopCollisionKernels.ApplyImpulse(c.A, p, new Vector3(c.RAx, c.RAy, c.RAz));
+            WorkshopCollisionKernels.ApplyImpulse(c.B, -p, new Vector3(c.RBx, c.RBy, c.RBz));
+        }
+    }
+
+    private static void ApplyRestitutionRow(ContactPoint c)
+    {
         var v = RelativeVelocity(c);
         var n = new Vector3(c.Nx, c.Ny, c.Nz);
         var vn = Vector3.Dot(v, n);

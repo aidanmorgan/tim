@@ -1,0 +1,4 @@
+565c565
+<                 if (ra != rb) rb.RestitutionRoot = ra;
+---
+>                 if (ra != rb) rb.RestitutionRoot = rb;

@@ -1,0 +1,4 @@
+491c491
+<     private static bool Bounces(ContactPoint c) => c.Restitution != 0f && c.RelVel < -c.Threshold && c.MaxImpulse > 0f;
+---
+>     private static bool Bounces(ContactPoint c) => c.Restitution != 0f && c.RelVel < -c.Threshold;

@@ -1,0 +1,29 @@
+Test run for /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/rev-probe/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:03.69]     CuriousContraptions.Tests.DeclaredPrismaticDriveTests.TheMovingContactLaneRecordsAContactInAnySubstepOfTheTick [FAIL]
+  Failed CuriousContraptions.Tests.DeclaredPrismaticDriveTests.TheMovingContactLaneRecordsAContactInAnySubstepOfTheTick [10 ms]
+  Error Message:
+   tick 103: the ball struck the plate in substep 1 and left by the last; the lane must record it
+  Stack Trace:
+     at CuriousContraptions.Tests.DeclaredPrismaticDriveTests.<>c__DisplayClass14_0.<TheMovingContactLaneRecordsAContactInAnySubstepOfTheTick>b__0(Int32 tick, LawState state) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/rev-probe/CuriousContraptions.tests/DeclaredPrismaticDriveTests.cs:line 278
+   at CuriousContraptions.Tests.LawWorld.Step(Int32 ticks, Action`2 observe, Boolean supplied, WorkshopPhysicsEngine engine) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/rev-probe/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 299
+   at CuriousContraptions.Tests.DeclaredPrismaticDriveTests.TheMovingContactLaneRecordsAContactInAnySubstepOfTheTick() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/rev-probe/CuriousContraptions.tests/DeclaredPrismaticDriveTests.cs:line 272
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:02:40.12]     CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.RandomPoseDropsNeverGainMoreThanTheSlopInATick(body: BoxOnBox, e: 1) [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.RandomPoseDropsNeverGainMoreThanTheSlopInATick(body: BoxOnBox, e: 1) [507 ms]
+  Error Message:
+   case 31: a tick gained 16.021 mJ (slop 1.962 mJ)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawRestitutionTests.RandomPoseDropsNeverGainMoreThanTheSlopInATick(Body body, Single e) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/rev-probe/CuriousContraptions.tests/WorkshopPhysicsLawRestitutionTests.cs:line 162
+   at InvokeStub_WorkshopPhysicsLawRestitutionTests.RandomPoseDropsNeverGainMoreThanTheSlopInATick(Object, Span`1)
+   at System.Reflection.RuntimeMethodInfo.Invoke(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+[xUnit.net 00:02:57.49]     CuriousContraptions.Tests.PressurePlateTests.ALoadRolledOffATiltedPlateReleasesItsLevelTwelveTicksAfterItsLastQualifyingTick [FAIL]
+  Failed CuriousContraptions.Tests.PressurePlateTests.ALoadRolledOffATiltedPlateReleasesItsLevelTwelveTicksAfterItsLastQualifyingTick [63 ms]
+  Error Message:
+   resting on the face qualifies at tick 8 (local <-0.20857657, 0.4207925, 0>)
+  Stack Trace:
+     at CuriousContraptions.Tests.PressurePlateTests.ALoadRolledOffATiltedPlateReleasesItsLevelTwelveTicksAfterItsLastQualifyingTick() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/rev-probe/CuriousContraptions.tests/PressurePlateTests.cs:line 537
+--- End of stack trace from previous location ---
+
+Failed!  - Failed:     3, Passed:   237, Skipped:     0, Total:   240, Duration: 2 m 56 s - CuriousContraptions.tests.dll (net10.0)

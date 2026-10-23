@@ -1,0 +1,6 @@
+build-debug exit 0 (9 s)
+test-slnx exit 0 (461 s)
+ci-tool-step exit 0 (17 s)
+worker-release exit 0 (8 s)
+diff-check exit 0
+done

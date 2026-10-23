@@ -1,0 +1,4 @@
+636c636
+<         for (var i = 0; solved && i < n; i++) solved = points[index[i]].LambdaN + solution[i] >= 0f;
+---
+>         

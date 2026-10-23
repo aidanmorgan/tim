@@ -1,0 +1,4 @@
+143c143
+<     private static Vector3 StartVelocity(SimBody b, Vector3 r) => b.Motion == 1 ? b.V0 + Vector3.Cross(b.W0, r) : Vector3.Zero;
+---
+>     private static Vector3 StartVelocity(SimBody b, Vector3 r) => b.Motion == 1 ? b.V0 + Vector3.Cross(b.AngularVelocity, r) : Vector3.Zero;

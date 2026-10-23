@@ -349,3 +349,31 @@ This is a closing record under the epics rule "Reopened-record closure". Story 6
 | "All part-kind switches eradicated" (System Clock arms) | C: `PartId` switch tables remain | Each of these arms is deleted:<br>• the `CaptureInstance` (`MachineWorld.Gpu.cs`) `"clock"` arm, 1 → 0;<br>• `WorkshopWireFlatBuffers` decode/encode (`"clock"` 1 → 0, `WorkshopClock` 2 → 0);<br>• the save pre-validation `case "clock"`, 1 → 0;<br>• the authored whitelist (`WorkshopInstances`), 1 → 0;<br>• the `ActivationNetwork` arm (`WorkshopClock`), 1 → 0;<br>• `WorkshopInput.Clock`, 1 → 0;<br>• the Clock panel (`AddClockConfiguration`/`ApplyClockInterval`, 7 → 0 lines);<br>• `MachinePart.CanonicalIntervalSeconds`/`ApplyIntervalSeconds`, 3 → 0.<br>`engine/gpu/WorkshopClock.cs` is deleted, and so is the last reader of the wire `threshold` field. Production `rg -w "WorkshopClock\|DefaultIntervalSeconds\|AddClockConfiguration"` returns 0. The oscillator node is now selected by the declared `SignalOscillatorDescriptor`. | **Closed, Pass** (the System Clock arms) |
 
 **Stays open in this record.** The remaining arms belong to C-Memory (Counter and State Latch). Cumulative Chrome is pending the post-catalogue E2E phase under the 21 Oct policy. Per the closure table, 6.5f stays open until C-Memory's addendum records its terminal Pass.
+
+## Addendum 24 Oct 2026, retro-verification (C-Memory, Pulse Counter and State Latch)
+
+This is a closing record under the epics rule "Reopened-record closure". The closure table says 6.5f "closes with C-Memory". This addendum covers the Pulse Counter and State Latch arms that C-Memory (9A.41 + 9A.43) removes, together with the whole `WorkshopInstances.Validate` type whitelist. The original text and the addenda above are unchanged.
+
+**Reviewer.** I am the independent reviewer of C-Memory (`review-c-memory.md`). I am neither its implementer, nor Story 6.5f's implementer, nor the author of the original review or of any addendum above.
+
+**Identity**
+- Slice commit `199e8ad658c9edfaeeb0149a04d0ba089f6f72a3`, tree `07cbd58a2093ee83a246db72241d078fcb8b92da`.
+- Published merge `f5ffdb4ee14a2fd575d726688c897cbf3816d456`, the same tree, on `origin/main`.
+- Bundle `elements/elements.bundle.json` sha256 `b3aee420ddd8a96dfc63b7a7a7635eca311574fe657928504c2e36ab6c0a2424`, the output of the published tree's build.
+
+**Evidence** (paths relative to `_bmad-output/implementation-artifacts/`)
+- `evidence-c-memory-review/terminal/rerun-build.log` and `rerun-full-test.log`: the fresh `--no-incremental` build (0 warnings) and the full slnx, game 2856/2856, rc 0.
+- `evidence-c-memory-review/terminal/addendum-native-rerun.log`:
+  - the counter, latch, memory, latch-fixture, editor, decode-boundary, isolation, parity and event-ring guard classes, 358/358, rc 0, run 2026-10-23T19:45:16Z to 19:45:31Z;
+  - the switch-table census against base `fc7f7cac`, at 19:45:32Z.
+- `evidence-c-memory-review/terminal/run.json` and `build-job.log`: CI run 40008261973 on `f5ffdb4e`, game 2856/2856.
+
+| Original clause (6.5f) | Retro-verification finding (18 Oct) | Fresh result | Verdict |
+|---|---|---|---|
+| "All part-kind switches eradicated" (Pulse Counter and State Latch arms) | C: `PartId` switch tables remain | Production counts in `engine`, `ui`, `CuriousContraptions.Simulation`, `CuriousContraptions.Bundle` and `CuriousContraptions.Abstractions.Signal`, base → published:<br>• `"counter"` 4 → 1, and `"latch"` 3 → 1; each remaining hit is the `PartId.cs` catalogue declaration;<br>• `WorkshopCounter` 10 → 0, and `WorkshopLatch` 7 → 0;<br>• `WorkshopInput.Counter(`/`.Latch(` 2 → 0;<br>• the wire `TargetCount(inst)`/`AddTargetCount` 4 → 0;<br>• `SignalLatchMode`/`LatchMode` 7 → 0.<br>The `CaptureInstance`, `MapInstance`, encoder and save pre-validation `counter`/`latch` arms are deleted, and so are the `ActivationNetwork` record arms. `engine/gpu/WorkshopCounter.cs` and `WorkshopLatch.cs` (with their `.uid` files) are deleted, along with the wire field `target_count`. The counter and latch nodes are selected only by the declared `SignalPulseCountDescriptor` and `SignalMemoryDescriptor`. Traces, ring bytes, lessons and placed solutions are byte-identical to the record path (`review-c-memory.md`). | **Closed, Pass** (the Pulse Counter and State Latch arms) |
+| Type whitelist (A5/A6) | The authored-instance type list remains | `Unsupported authored instance declaration` 1 → 0, and `IWorkshopDeclaredColliders` 5 → 0. `DeclaredColliders` is folded into `IWorkshopInstance`. Forged data is refused with a typed reason at both decode boundaries and at Construct (`evidence-c-memory-review/probe/forged-boundaries.txt`). | **Closed, Pass** |
+
+**Stays open in this record.**
+- The straight pipe's residue is still present: the `"pipe"` arms (4 → 4, i.e. `CaptureInstance`, the decoder, save pre-validation and the `PartId.cs` declaration) and the 5 `== PartId.Pipe` branches. Story 9A.45 owns it (coordinator decision, 23 Oct 2026).
+- Cumulative Chrome is pending the post-catalogue E2E phase under the 21 Oct policy.
+- 6.5f therefore stays `in-progress` in `sprint-status.yaml` until 9A.45's closing addendum records its terminal Pass.

@@ -1,0 +1,18 @@
+
+    /// <summary>Prints the explicit parameters of sweep cases (e, case) so they can be pinned as standalone reproducers.</summary>
+    [Theory]
+    [InlineData(.95f, 58)]
+    [InlineData(1f, 122)]
+    public void PrintSweepCase(float e, int target)
+    {
+        var rng = new Random(880_000 + 3000 + (int)(e * 100));
+        for (var i = 0; i <= target; i++)
+        {
+            var q = RandQ(rng); var h = (float)(rng.NextDouble() * .6 + .2);
+            var x = (float)rng.NextDouble() * .2f;
+            var spin = RandV(rng, 4);
+            if (i == target)
+                output.WriteLine(FormattableString.Invariant($"e={e} case {i}: q=({q.X:R}f, {q.Y:R}f, {q.Z:R}f, {q.W:R}f) h={h:R}f x={x:R}f spin=({spin.X:R}f, {spin.Y:R}f, {spin.Z:R}f)"));
+        }
+    }
+}

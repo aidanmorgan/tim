@@ -1,0 +1,338 @@
+Test run for /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/rev-base/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+/private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/rev-base/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.5+1b188a7b0a (64-bit .NET 10.0.13)
+[xUnit.net 00:00:00.15]   Discovering: CuriousContraptions.tests
+[xUnit.net 00:00:00.98]   Discovered:  CuriousContraptions.tests
+[xUnit.net 00:00:01.10]   Starting:    CuriousContraptions.tests
+  Passed CuriousContraptions.Tests.ReviewRestitutionProbeTests.DynamicStackDetail(e: 0.550000012, bench: 1) [4 s]
+  Standard Output Messages:
+ e=0.55 bench=1: rise 349.694 mJ (case 56 tick 179); genuine 0.215 mJ (case 57); net over E0 -5.287 mJ (case 14); bound 5.887
+
+
+  Passed CuriousContraptions.Tests.ReviewRestitutionProbeTests.DynamicStackDetail(e: 0.300000012, bench: 1) [4 s]
+  Standard Output Messages:
+ e=0.3 bench=1: rise 19.520 mJ (case 50 tick 108); genuine 0.192 mJ (case 35); net over E0 -5.287 mJ (case 14); bound 5.887
+
+
+  Passed CuriousContraptions.Tests.ReviewRestitutionProbeTests.DynamicStackDetail(e: 0.74000001, bench: 1) [3 s]
+  Standard Output Messages:
+ e=0.74 bench=1: rise 733.041 mJ (case 4 tick 99); genuine 132.565 mJ (case 9); net over E0 -5.287 mJ (case 14); bound 5.887
+
+
+  Passed CuriousContraptions.Tests.ReviewRestitutionProbeTests.DynamicStackDetail(e: 1, bench: 1) [1 s]
+  Standard Output Messages:
+ e=1 bench=1: rise 3870.788 mJ (case 44 tick 53); genuine 1016.877 mJ (case 8); net over E0 -5.287 mJ (case 14); bound 5.887
+
+
+  Passed CuriousContraptions.Tests.ReviewRestitutionProbeTests.DynamicStackDetail(e: 0.550000012, bench: 0.550000012) [4 s]
+  Standard Output Messages:
+ e=0.55 bench=0.55: rise 32.029 mJ (case 46 tick 57); genuine 0.223 mJ (case 26); net over E0 -5.287 mJ (case 14); bound 5.887
+
+
+  Passed CuriousContraptions.Tests.ReviewRestitutionProbeTests.DynamicStackDetail(e: 1, bench: 0.300000012) [3 s]
+  Standard Output Messages:
+ e=1 bench=0.3: rise 1547.496 mJ (case 25 tick 44); genuine 10.142 mJ (case 14); net over E0 -5.287 mJ (case 14); bound 5.887
+
+
+[xUnit.net 00:00:22.40]     CuriousContraptions.Tests.ReviewRestitutionProbeTests.MovingSpherePairOblique(v: 3) [FAIL]
+[xUnit.net 00:00:22.40]       Assert.True() Failure
+[xUnit.net 00:00:22.40]       Expected: True
+[xUnit.net 00:00:22.40]       Actual:   False
+[xUnit.net 00:00:22.40]       Stack Trace:
+[xUnit.net 00:00:22.40]         /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/rev-base/CuriousContraptions.tests/ReviewRestitutionProbeTests.cs(184,0): at CuriousContraptions.Tests.ReviewRestitutionProbeTests.MovingSpherePairOblique(Single v)
+[xUnit.net 00:00:22.40]            at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+[xUnit.net 00:00:22.40]            at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+[xUnit.net 00:00:22.40]       Output:
+[xUnit.net 00:00:22.40]         v=3: b dir err 0.545°, KE ratio 1.002045, p=(<3, 0, 0>)
+[xUnit.net 00:00:23.83]     CuriousContraptions.Tests.ReviewRestitutionProbeTests.HeldBackRandomEnergy(e: 1) [FAIL]
+[xUnit.net 00:00:23.83]       Assert.Empty() Failure: Collection was not empty
+[xUnit.net 00:00:23.83]       Collection: ["e=1 spinSphere: worst rise 6963.3436 mJ (case 23, "···, "e=1 box: worst rise 5717.3332 mJ (case 18, tick 10"···, "e=1 cylinder: worst rise 4975.1543 mJ (case 20, ti"···, "e=1 boxOnDynBox: worst rise 2942.0719 mJ (case 18,"···, "e=1 sphereOnSphere: worst rise 7286.6168 mJ (case "···, ···]
+[xUnit.net 00:00:23.83]       Stack Trace:
+[xUnit.net 00:00:23.83]         /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/rev-base/CuriousContraptions.tests/ReviewRestitutionProbeTests.cs(109,0): at CuriousContraptions.Tests.ReviewRestitutionProbeTests.HeldBackRandomEnergy(Single e)
+[xUnit.net 00:00:23.83]            at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+[xUnit.net 00:00:23.83]            at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+[xUnit.net 00:00:23.83]       Output:
+[xUnit.net 00:00:23.83]         e=1 spinSphere: worst rise 6963.3436 mJ (case 23, tick 47), bound 1.962 mJ
+[xUnit.net 00:00:23.83]         e=1 box: worst rise 5717.3332 mJ (case 18, tick 105), bound 1.962 mJ
+[xUnit.net 00:00:23.83]         e=1 cylinder: worst rise 4975.1543 mJ (case 20, tick 43), bound 1.962 mJ
+[xUnit.net 00:00:23.83]         e=1 boxOnDynBox: worst rise 2942.0719 mJ (case 18, tick 109), bound 5.887 mJ
+[xUnit.net 00:00:23.83]         e=1 sphereOnSphere: worst rise 7286.6168 mJ (case 10, tick 135), bound 7.850 mJ
+[xUnit.net 00:00:23.83]         e=1 sphereOnBoxEdge: worst rise 9643.5862 mJ (case 3, tick 138), bound 1.962 mJ
+[xUnit.net 00:00:23.83]         e=1 cylOnCyl: worst rise 9329.7595 mJ (case 29, tick 344), bound 1.962 mJ
+[xUnit.net 00:00:23.83]         e=1 rollingSphere: worst rise 1036.0393 mJ (case 17, tick 45), bound 1.962 mJ
+  Failed CuriousContraptions.Tests.ReviewRestitutionProbeTests.MovingSpherePairOblique(v: 3) [2 ms]
+  Error Message:
+   Assert.True() Failure
+Expected: True
+Actual:   False
+  Stack Trace:
+     at CuriousContraptions.Tests.ReviewRestitutionProbeTests.MovingSpherePairOblique(Single v) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/rev-base/CuriousContraptions.tests/ReviewRestitutionProbeTests.cs:line 184
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+  Standard Output Messages:
+ v=3: b dir err 0.545°, KE ratio 1.002045, p=(<3, 0, 0>)
+
+
+  Passed CuriousContraptions.Tests.ReviewRestitutionProbeTests.MovingSpherePairOblique(v: 12) [1 ms]
+  Standard Output Messages:
+ v=12: b dir err 3.435°, KE ratio 0.601788, p=(<12, 0, 0>)
+
+
+  Passed CuriousContraptions.Tests.ReviewRestitutionProbeTests.MovingSpherePairOblique(v: 6) [< 1 ms]
+  Standard Output Messages:
+ v=6: b dir err 1.724°, KE ratio 0.612742, p=(<6, 0, 0>)
+
+
+  Failed CuriousContraptions.Tests.ReviewRestitutionProbeTests.HeldBackRandomEnergy(e: 1) [1 s]
+  Error Message:
+   Assert.Empty() Failure: Collection was not empty
+Collection: ["e=1 spinSphere: worst rise 6963.3436 mJ (case 23, "···, "e=1 box: worst rise 5717.3332 mJ (case 18, tick 10"···, "e=1 cylinder: worst rise 4975.1543 mJ (case 20, ti"···, "e=1 boxOnDynBox: worst rise 2942.0719 mJ (case 18,"···, "e=1 sphereOnSphere: worst rise 7286.6168 mJ (case "···, ···]
+  Stack Trace:
+     at CuriousContraptions.Tests.ReviewRestitutionProbeTests.HeldBackRandomEnergy(Single e) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/rev-base/CuriousContraptions.tests/ReviewRestitutionProbeTests.cs:line 109
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+  Standard Output Messages:
+ e=1 spinSphere: worst rise 6963.3436 mJ (case 23, tick 47), bound 1.962 mJ
+ e=1 box: worst rise 5717.3332 mJ (case 18, tick 105), bound 1.962 mJ
+ e=1 cylinder: worst rise 4975.1543 mJ (case 20, tick 43), bound 1.962 mJ
+ e=1 boxOnDynBox: worst rise 2942.0719 mJ (case 18, tick 109), bound 5.887 mJ
+ e=1 sphereOnSphere: worst rise 7286.6168 mJ (case 10, tick 135), bound 7.850 mJ
+ e=1 sphereOnBoxEdge: worst rise 9643.5862 mJ (case 3, tick 138), bound 1.962 mJ
+ e=1 cylOnCyl: worst rise 9329.7595 mJ (case 29, tick 344), bound 1.962 mJ
+ e=1 rollingSphere: worst rise 1036.0393 mJ (case 17, tick 45), bound 1.962 mJ
+
+
+  Passed CuriousContraptions.Tests.ReviewRestitutionProbeTests.HeldBackRandomEnergy(e: 0) [4 s]
+  Standard Output Messages:
+ e=0 spinSphere: worst rise 0.0011 mJ (case 16, tick 286), bound 1.962 mJ
+ e=0 box: worst rise 0.0003 mJ (case 7, tick 110), bound 1.962 mJ
+ e=0 cylinder: worst rise 1.0522 mJ (case 5, tick 45), bound 1.962 mJ
+ e=0 boxOnDynBox: worst rise 0.1250 mJ (case 10, tick 123), bound 5.887 mJ
+ e=0 sphereOnSphere: worst rise 0.0006 mJ (case 19, tick 204), bound 7.850 mJ
+ e=0 sphereOnBoxEdge: worst rise 0.0018 mJ (case 11, tick 110), bound 1.962 mJ
+ e=0 cylOnCyl: worst rise 0.9885 mJ (case 21, tick 246), bound 1.962 mJ
+ e=0 rollingSphere: worst rise -0.8353 mJ (case 0, tick 2), bound 1.962 mJ
+
+
+[xUnit.net 00:00:33.27]     CuriousContraptions.Tests.ReviewRestitutionProbeTests.HeldBackRandomEnergy(e: 0.550000012) [FAIL]
+[xUnit.net 00:00:33.27]       Assert.Empty() Failure: Collection was not empty
+[xUnit.net 00:00:33.27]       Collection: ["e=0.55 spinSphere: worst rise 1673.8132 mJ (case 2"···, "e=0.55 box: worst rise 1515.5188 mJ (case 24, tick"···, "e=0.55 cylinder: worst rise 1144.6066 mJ (case 27,"···, "e=0.55 sphereOnSphere: worst rise 1027.6622 mJ (ca"···, "e=0.55 sphereOnBoxEdge: worst rise 1838.9091 mJ (c"···, ···]
+[xUnit.net 00:00:33.27]       Stack Trace:
+[xUnit.net 00:00:33.27]         /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/rev-base/CuriousContraptions.tests/ReviewRestitutionProbeTests.cs(109,0): at CuriousContraptions.Tests.ReviewRestitutionProbeTests.HeldBackRandomEnergy(Single e)
+[xUnit.net 00:00:33.27]            at InvokeStub_ReviewRestitutionProbeTests.HeldBackRandomEnergy(Object, Span`1)
+[xUnit.net 00:00:33.27]            at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+[xUnit.net 00:00:33.27]       Output:
+[xUnit.net 00:00:33.27]         e=0.55 spinSphere: worst rise 1673.8132 mJ (case 20, tick 55), bound 1.962 mJ
+[xUnit.net 00:00:33.27]         e=0.55 box: worst rise 1515.5188 mJ (case 24, tick 46), bound 1.962 mJ
+[xUnit.net 00:00:33.27]         e=0.55 cylinder: worst rise 1144.6066 mJ (case 27, tick 33), bound 1.962 mJ
+[xUnit.net 00:00:33.27]         e=0.55 boxOnDynBox: worst rise 4.3074 mJ (case 1, tick 47), bound 5.887 mJ
+[xUnit.net 00:00:33.27]         e=0.55 sphereOnSphere: worst rise 1027.6622 mJ (case 6, tick 81), bound 7.850 mJ
+[xUnit.net 00:00:33.27]         e=0.55 sphereOnBoxEdge: worst rise 1838.9091 mJ (case 0, tick 66), bound 1.962 mJ
+[xUnit.net 00:00:33.27]         e=0.55 cylOnCyl: worst rise 1027.3481 mJ (case 9, tick 116), bound 1.962 mJ
+[xUnit.net 00:00:33.27]         e=0.55 rollingSphere: worst rise 213.7500 mJ (case 19, tick 5), bound 1.962 mJ
+  Failed CuriousContraptions.Tests.ReviewRestitutionProbeTests.HeldBackRandomEnergy(e: 0.550000012) [4 s]
+  Error Message:
+   Assert.Empty() Failure: Collection was not empty
+Collection: ["e=0.55 spinSphere: worst rise 1673.8132 mJ (case 2"···, "e=0.55 box: worst rise 1515.5188 mJ (case 24, tick"···, "e=0.55 cylinder: worst rise 1144.6066 mJ (case 27,"···, "e=0.55 sphereOnSphere: worst rise 1027.6622 mJ (ca"···, "e=0.55 sphereOnBoxEdge: worst rise 1838.9091 mJ (c"···, ···]
+  Stack Trace:
+     at CuriousContraptions.Tests.ReviewRestitutionProbeTests.HeldBackRandomEnergy(Single e) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/rev-base/CuriousContraptions.tests/ReviewRestitutionProbeTests.cs:line 109
+   at InvokeStub_ReviewRestitutionProbeTests.HeldBackRandomEnergy(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Standard Output Messages:
+ e=0.55 spinSphere: worst rise 1673.8132 mJ (case 20, tick 55), bound 1.962 mJ
+ e=0.55 box: worst rise 1515.5188 mJ (case 24, tick 46), bound 1.962 mJ
+ e=0.55 cylinder: worst rise 1144.6066 mJ (case 27, tick 33), bound 1.962 mJ
+ e=0.55 boxOnDynBox: worst rise 4.3074 mJ (case 1, tick 47), bound 5.887 mJ
+ e=0.55 sphereOnSphere: worst rise 1027.6622 mJ (case 6, tick 81), bound 7.850 mJ
+ e=0.55 sphereOnBoxEdge: worst rise 1838.9091 mJ (case 0, tick 66), bound 1.962 mJ
+ e=0.55 cylOnCyl: worst rise 1027.3481 mJ (case 9, tick 116), bound 1.962 mJ
+ e=0.55 rollingSphere: worst rise 213.7500 mJ (case 19, tick 5), bound 1.962 mJ
+
+
+[xUnit.net 00:00:38.02]     CuriousContraptions.Tests.ReviewRestitutionProbeTests.HeldBackRandomEnergy(e: 0.300000012) [FAIL]
+[xUnit.net 00:00:38.02]       Assert.Empty() Failure: Collection was not empty
+[xUnit.net 00:00:38.02]       Collection: ["e=0.3 spinSphere: worst rise 651.9967 mJ (case 28,"···, "e=0.3 box: worst rise 316.2336 mJ (case 11, tick 6"···, "e=0.3 cylinder: worst rise 275.3534 mJ (case 21, t"···, "e=0.3 boxOnDynBox: worst rise 13.0541 mJ (case 15,"···, "e=0.3 sphereOnSphere: worst rise 261.9823 mJ (case"···, ···]
+[xUnit.net 00:00:38.02]       Stack Trace:
+[xUnit.net 00:00:38.02]         /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/rev-base/CuriousContraptions.tests/ReviewRestitutionProbeTests.cs(109,0): at CuriousContraptions.Tests.ReviewRestitutionProbeTests.HeldBackRandomEnergy(Single e)
+[xUnit.net 00:00:38.02]            at InvokeStub_ReviewRestitutionProbeTests.HeldBackRandomEnergy(Object, Span`1)
+[xUnit.net 00:00:38.02]            at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+[xUnit.net 00:00:38.02]       Output:
+[xUnit.net 00:00:38.02]         e=0.3 spinSphere: worst rise 651.9967 mJ (case 28, tick 51), bound 1.962 mJ
+[xUnit.net 00:00:38.02]         e=0.3 box: worst rise 316.2336 mJ (case 11, tick 64), bound 1.962 mJ
+[xUnit.net 00:00:38.02]         e=0.3 cylinder: worst rise 275.3534 mJ (case 21, tick 28), bound 1.962 mJ
+[xUnit.net 00:00:38.02]         e=0.3 boxOnDynBox: worst rise 13.0541 mJ (case 15, tick 221), bound 5.887 mJ
+[xUnit.net 00:00:38.02]         e=0.3 sphereOnSphere: worst rise 261.9823 mJ (case 4, tick 81), bound 7.850 mJ
+[xUnit.net 00:00:38.02]         e=0.3 sphereOnBoxEdge: worst rise 172.0742 mJ (case 4, tick 109), bound 1.962 mJ
+[xUnit.net 00:00:38.02]         e=0.3 cylOnCyl: worst rise 359.9340 mJ (case 23, tick 98), bound 1.962 mJ
+[xUnit.net 00:00:38.02]         e=0.3 rollingSphere: worst rise 23.7994 mJ (case 22, tick 7), bound 1.962 mJ
+  Failed CuriousContraptions.Tests.ReviewRestitutionProbeTests.HeldBackRandomEnergy(e: 0.300000012) [4 s]
+  Error Message:
+   Assert.Empty() Failure: Collection was not empty
+Collection: ["e=0.3 spinSphere: worst rise 651.9967 mJ (case 28,"···, "e=0.3 box: worst rise 316.2336 mJ (case 11, tick 6"···, "e=0.3 cylinder: worst rise 275.3534 mJ (case 21, t"···, "e=0.3 boxOnDynBox: worst rise 13.0541 mJ (case 15,"···, "e=0.3 sphereOnSphere: worst rise 261.9823 mJ (case"···, ···]
+  Stack Trace:
+     at CuriousContraptions.Tests.ReviewRestitutionProbeTests.HeldBackRandomEnergy(Single e) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/rev-base/CuriousContraptions.tests/ReviewRestitutionProbeTests.cs:line 109
+   at InvokeStub_ReviewRestitutionProbeTests.HeldBackRandomEnergy(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Standard Output Messages:
+ e=0.3 spinSphere: worst rise 651.9967 mJ (case 28, tick 51), bound 1.962 mJ
+ e=0.3 box: worst rise 316.2336 mJ (case 11, tick 64), bound 1.962 mJ
+ e=0.3 cylinder: worst rise 275.3534 mJ (case 21, tick 28), bound 1.962 mJ
+ e=0.3 boxOnDynBox: worst rise 13.0541 mJ (case 15, tick 221), bound 5.887 mJ
+ e=0.3 sphereOnSphere: worst rise 261.9823 mJ (case 4, tick 81), bound 7.850 mJ
+ e=0.3 sphereOnBoxEdge: worst rise 172.0742 mJ (case 4, tick 109), bound 1.962 mJ
+ e=0.3 cylOnCyl: worst rise 359.9340 mJ (case 23, tick 98), bound 1.962 mJ
+ e=0.3 rollingSphere: worst rise 23.7994 mJ (case 22, tick 7), bound 1.962 mJ
+
+
+  Passed CuriousContraptions.Tests.ReviewRestitutionProbeTests.PhaseSweepBounceRatio(v: 60, e: 0.5) [14 ms]
+  Standard Output Messages:
+ v=60 e=0.5: ratio [0.50000, 0.50000] (expected 0.50000)
+
+
+  Passed CuriousContraptions.Tests.ReviewRestitutionProbeTests.PhaseSweepBounceRatio(v: 4, e: 1) [15 ms]
+  Standard Output Messages:
+ v=4 e=1: ratio [1.00000, 1.00000] (expected 1.00000)
+
+
+  Passed CuriousContraptions.Tests.ReviewRestitutionProbeTests.PhaseSweepBounceRatio(v: 1, e: 0.5) [15 ms]
+  Standard Output Messages:
+ v=1 e=0.5: ratio [0.50000, 0.50000] (expected 0.50000)
+
+
+  Passed CuriousContraptions.Tests.ReviewRestitutionProbeTests.PhaseSweepBounceRatio(v: 60, e: 1) [14 ms]
+  Standard Output Messages:
+ v=60 e=1: ratio [1.00000, 1.00000] (expected 1.00000)
+
+
+  Passed CuriousContraptions.Tests.ReviewRestitutionProbeTests.PhaseSweepBounceRatio(v: 20, e: 0.5) [13 ms]
+  Standard Output Messages:
+ v=20 e=0.5: ratio [0.50000, 0.50000] (expected 0.50000)
+
+
+  Passed CuriousContraptions.Tests.ReviewRestitutionProbeTests.PhaseSweepBounceRatio(v: 4, e: 0.5) [14 ms]
+  Standard Output Messages:
+ v=4 e=0.5: ratio [0.50000, 0.50000] (expected 0.50000)
+
+
+  Passed CuriousContraptions.Tests.ReviewRestitutionProbeTests.BoxOnDynBoxSweep(e: 0.850000024) [1 s]
+  Standard Output Messages:
+ e=0.85: rise 920.596 mJ (case 27 t182); genuine 73.035 mJ (case 11 t48); bound 5.887
+
+
+  Passed CuriousContraptions.Tests.ReviewRestitutionProbeTests.BoxOnDynBoxSweep(e: 1) [573 ms]
+  Standard Output Messages:
+   t36 E=12548.5 mJ lower v=<-2.6625763E-12, -4.4154133E-17, 5.8823506E-12> w=<9.655254E-15, 2.5840424E-12, 4.1071747E-15> y=0.09971 | top v=<0, -2.943752, 0> w=<-2.8041341, -0.107938215, 1.3871087> y=0.6313
+   t37 E=12547.7 mJ lower v=<-2.510282E-12, -4.4059266E-17, 5.3803273E-12> w=<8.559234E-15, 2.4078968E-12, 4.504101E-15> y=0.09971 | top v=<0, -3.025523, 0> w=<-2.8041341, -0.107938215, 1.3871087> y=0.6064
+   t38 E=12546.8 mJ lower v=<1.3878662E-12, -4.4147357E-17, -3.0157491E-12> w=<-4.867092E-15, -1.3308191E-12, -2.3395999E-15> y=0.09971 | top v=<0, -3.1072938, 0> w=<-2.8041341, -0.107938215, 1.3871087> y=0.5807
+   t39 E=12546.0 mJ lower v=<-3.2750734E-13, -4.412703E-17, 9.978797E-13> w=<2.0864387E-15, 3.1413327E-13, -4.8886676E-16> y=0.09971 | top v=<0, -3.1890647, 0> w=<-2.8041341, -0.107938215, 1.3871087> y=0.5544
+   t40 E=12545.2 mJ lower v=<1.0972859E-12, -4.4079595E-17, -2.4296316E-12> w=<-3.9951224E-15, -9.9365E-13, -1.747246E-15> y=0.09971 | top v=<0, -3.2708356, 0> w=<-2.8041341, -0.107938215, 1.3871087> y=0.5274
+   t41 E=12544.3 mJ lower v=<-2.6568572E-12, -4.4262554E-17, 5.8685756E-12> w=<9.631835E-15, 2.5786734E-12, 4.102838E-15> y=0.09971 | top v=<0, -3.3526065, 0> w=<-2.8041341, -0.107938215, 1.3871087> y=0.4997
+   t42 E=12543.5 mJ lower v=<-2.5102828E-12, -4.4208344E-17, 5.3803307E-12> w=<8.559668E-15, 2.4078968E-12, 4.5045348E-15> y=0.09971 | top v=<0, -3.4343774, 0> w=<-2.8041341, -0.107938215, 1.3871087> y=0.4713
+   t43 E=10132.3 mJ lower v=<0.01873335, 0.65405333, -0.022280429> w=<-0.29335958, 0.03070138, 0.09072566> y=0.10077 | top v=<0.87773675, 0.081622444, -0.21897879> w=<-0.7449212, 1.1114662, -15.81377> y=0.4576
+   t44 E=10129.8 mJ lower v=<0.018733352, 0.57228243, -0.022280425> w=<-0.29335946, 0.030701378, 0.0907256> y=0.10579 | top v=<0.87773675, -0.00014839321, -0.21897879> w=<-0.7449212, 1.1114662, -15.81377> y=0.4578
+   t45 E=10127.3 mJ lower v=<0.018733352, 0.49051154, -0.022280425> w=<-0.29335946, 0.030701378, 0.0907256> y=0.11014 | top v=<0.87773675, -0.08191923, -0.21897879> w=<-0.7449212, 1.1114662, -15.81377> y=0.4574
+   t46 E=10124.8 mJ lower v=<0.018733352, 0.40874064, -0.022280425> w=<-0.29335946, 0.030701378, 0.0907256> y=0.11380 | top v=<0.87773675, -0.16369008, -0.21897879> w=<-0.7449212, 1.1114662, -15.81377> y=0.4563
+   t47 E=10122.3 mJ lower v=<0.018733352, 0.32696974, -0.022280425> w=<-0.29335946, 0.030701378, 0.0907256> y=0.11678 | top v=<0.87773675, -0.24546091, -0.21897879> w=<-0.7449212, 1.1114662, -15.81377> y=0.4545
+   t48 E=10119.8 mJ lower v=<0.018733352, 0.24519886, -0.022280425> w=<-0.29335946, 0.030701378, 0.0907256> y=0.11908 | top v=<0.87773675, -0.32723176, -0.21897879> w=<-0.7449212, 1.1114662, -15.81377> y=0.4520
+   t49 E=10117.3 mJ lower v=<0.018733352, 0.16342802, -0.022280425> w=<-0.29335946, 0.030701378, 0.0907256> y=0.12070 | top v=<0.87773675, -0.40900266, -0.21897879> w=<-0.7449212, 1.1114662, -15.81377> y=0.4489
+   t50 E=9440.0 mJ lower v=<-0.053297047, -0.066601925, -0.032967035> w=<-1.259113, 0.3170051, -0.76576334> y=0.12148 | top v=<1.0217974, -0.1942553, -0.1976056> w=<2.4612422, -0.4792038, -14.312372> y=0.4453
+ e=1: rise 2942.072 mJ (case 18 t109); genuine 538.311 mJ (case 12 t125); bound 5.887
+
+
+  Passed CuriousContraptions.Tests.ReviewRestitutionProbeTests.BoxOnDynBoxSweep(e: 0.949999988) [1 s]
+  Standard Output Messages:
+ e=0.95: rise 2290.922 mJ (case 9 t51); genuine 410.271 mJ (case 12 t186); bound 5.887
+
+
+[xUnit.net 00:00:43.00]   Finished:    CuriousContraptions.tests (ID = 'a27c7145f29d76bb9c202f23fee95cf289ed3e58febc689eede18e26a8a06927')
+  Passed CuriousContraptions.Tests.ReviewRestitutionProbeTests.BoxOnDynBoxSweep(e: 0.899999976) [1 s]
+  Standard Output Messages:
+ e=0.9: rise 1470.240 mJ (case 27 t40); genuine 346.395 mJ (case 22 t65); bound 5.887
+
+
+  Passed CuriousContraptions.Tests.ReviewRestitutionProbeTests.ElasticLongRunNoNetGain [139 ms]
+  Standard Output Messages:
+ kind 0: max E − E0 over 10 s -0.8357 mJ
+ kind 1: max E − E0 over 10 s -0.8357 mJ
+ kind 2: max E − E0 over 10 s -0.8357 mJ
+
+
+  Passed CuriousContraptions.Tests.ReviewRestitutionProbeTests.FastBoxNoGain(v: 40) [24 ms]
+  Standard Output Messages:
+ v=40 e=0.3 k=0: max gain over initial 0.0000 mJ
+ v=40 e=0.3 k=1: max gain over initial 0.0000 mJ
+ v=40 e=0.3 k=2: max gain over initial 0.0000 mJ
+ v=40 e=0.3 k=3: max gain over initial 0.0000 mJ
+ v=40 e=0.3 k=4: max gain over initial 0.0000 mJ
+ v=40 e=0.3 k=5: max gain over initial 0.0000 mJ
+ v=40 e=0.3 k=6: max gain over initial 0.0000 mJ
+ v=40 e=0.3 k=7: max gain over initial 0.0000 mJ
+ v=40 e=0.3 k=8: max gain over initial 0.0000 mJ
+ v=40 e=0.3 k=9: max gain over initial 0.0000 mJ
+ v=40 e=0.3 k=10: max gain over initial 0.0000 mJ
+ v=40 e=0.3 k=11: max gain over initial 0.0000 mJ
+ v=40 e=0.3 k=12: max gain over initial 0.0000 mJ
+ v=40 e=0.3 k=13: max gain over initial 0.0000 mJ
+ v=40 e=0.3 k=14: max gain over initial 0.0000 mJ
+ v=40 e=0.3 k=15: max gain over initial 0.0000 mJ
+ v=40 e=1 k=0: max gain over initial 0.0000 mJ
+ v=40 e=1 k=1: max gain over initial 0.0000 mJ
+ v=40 e=1 k=2: max gain over initial 0.0000 mJ
+ v=40 e=1 k=3: max gain over initial 0.0000 mJ
+ v=40 e=1 k=4: max gain over initial 0.0000 mJ
+ v=40 e=1 k=5: max gain over initial 0.0000 mJ
+ v=40 e=1 k=6: max gain over initial 0.0000 mJ
+ v=40 e=1 k=7: max gain over initial 0.0000 mJ
+ v=40 e=1 k=8: max gain over initial 0.0000 mJ
+ v=40 e=1 k=9: max gain over initial 0.0000 mJ
+ v=40 e=1 k=10: max gain over initial 0.0000 mJ
+ v=40 e=1 k=11: max gain over initial 0.0000 mJ
+ v=40 e=1 k=12: max gain over initial 0.0000 mJ
+ v=40 e=1 k=13: max gain over initial 0.0000 mJ
+ v=40 e=1 k=14: max gain over initial 0.0000 mJ
+ v=40 e=1 k=15: max gain over initial 0.0000 mJ
+
+
+  Passed CuriousContraptions.Tests.ReviewRestitutionProbeTests.FastBoxNoGain(v: 10) [22 ms]
+  Standard Output Messages:
+ v=10 e=0.3 k=0: max gain over initial 0.0000 mJ
+ v=10 e=0.3 k=1: max gain over initial 0.0000 mJ
+ v=10 e=0.3 k=2: max gain over initial 0.0000 mJ
+ v=10 e=0.3 k=3: max gain over initial 0.0000 mJ
+ v=10 e=0.3 k=4: max gain over initial 0.0000 mJ
+ v=10 e=0.3 k=5: max gain over initial 0.0000 mJ
+ v=10 e=0.3 k=6: max gain over initial 0.0000 mJ
+ v=10 e=0.3 k=7: max gain over initial 0.0000 mJ
+ v=10 e=0.3 k=8: max gain over initial 0.0000 mJ
+ v=10 e=0.3 k=9: max gain over initial 0.0000 mJ
+ v=10 e=0.3 k=10: max gain over initial 0.0000 mJ
+ v=10 e=0.3 k=11: max gain over initial 0.0000 mJ
+ v=10 e=0.3 k=12: max gain over initial 0.0000 mJ
+ v=10 e=0.3 k=13: max gain over initial 0.0000 mJ
+ v=10 e=0.3 k=14: max gain over initial 0.0000 mJ
+ v=10 e=0.3 k=15: max gain over initial 0.0000 mJ
+ v=10 e=1 k=0: max gain over initial 0.0000 mJ
+ v=10 e=1 k=1: max gain over initial 0.0000 mJ
+ v=10 e=1 k=2: max gain over initial 0.0000 mJ
+ v=10 e=1 k=3: max gain over initial 0.0000 mJ
+ v=10 e=1 k=4: max gain over initial 0.0000 mJ
+ v=10 e=1 k=5: max gain over initial 0.0000 mJ
+ v=10 e=1 k=6: max gain over initial 0.0000 mJ
+ v=10 e=1 k=7: max gain over initial 0.0000 mJ
+ v=10 e=1 k=8: max gain over initial 0.0000 mJ
+ v=10 e=1 k=9: max gain over initial 0.0000 mJ
+ v=10 e=1 k=10: max gain over initial 0.0000 mJ
+ v=10 e=1 k=11: max gain over initial 0.0000 mJ
+ v=10 e=1 k=12: max gain over initial 0.0000 mJ
+ v=10 e=1 k=13: max gain over initial 0.0000 mJ
+ v=10 e=1 k=14: max gain over initial 0.0000 mJ
+ v=10 e=1 k=15: max gain over initial 0.0000 mJ
+
+
+
+Test Run Failed.
+Total tests: 26
+     Passed: 22
+     Failed: 4
+ Total time: 43.2220 Seconds

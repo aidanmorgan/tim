@@ -1,0 +1,23 @@
+cf35a0645c719e2551fc7ffa2473416d404da8a0
+9d7056bba08fe4b5b0a302a9097eb7f7f588d88b55b1953d382d3241f2861629  -
+9eea9ca83cc870a19113f9f1e3e42e1ee487bc260646fe3319360c1b293f9cf1  -
+ M CuriousContraptions.Simulation/WorkshopCollisionKernels.cs
+ M CuriousContraptions.Simulation/WorkshopConstraintSolver.cs
+ M CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs
+ M CuriousContraptions.tests/CuriousContraptions.tests.csproj
+ M CuriousContraptions.tests/DeclaredPrismaticDriveTests.cs
+ M CuriousContraptions.tests/EventRingProducerTests.cs
+ M CuriousContraptions.tests/LaunchLessonSolveTests.cs
+ M CuriousContraptions.tests/PressurePlateTests.cs
+ M CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs
+ M CuriousContraptions.tests/WorkshopPhysicsLawTests.cs
+ M TODO.md
+ M _bmad-output/implementation-artifacts/deferred-work.md
+ M _bmad-output/implementation-artifacts/sprint-status.yaml
+ M docs/gpu-f32-physics.md
+ M docs/planning/elements/CAT-052-pressure_plate.md
+ M engine/gpu/ContactLoadSensorDeclaration.cs
+?? CuriousContraptions.tests/WorkshopPhysicsLawRestitutionTests.cs
+?? _bmad-output/implementation-artifacts/evidence-engine-restitution-review/
+?? _bmad-output/implementation-artifacts/evidence-engine-restitution/
+?? _bmad-output/implementation-artifacts/spec-engine-restitution.md

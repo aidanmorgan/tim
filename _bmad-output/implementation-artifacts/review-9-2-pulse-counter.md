@@ -163,3 +163,33 @@ Executed sequentially with zero concurrency to prevent WebGPU/SharedArrayBuffer 
 - The editor half of #13: the Counter's `target_count` has no UI editor, and targets 1 and 9 are unproven in Chrome. It is owned by Stories 9A.40 and 9A.41, and 9A.41 ships inside C-Memory.
 - Story 9.2's other reopened clauses close with C-Memory, the last closing story in the table.
 - Story 9.2 therefore stays `in-progress` in `sprint-status.yaml`.
+
+## Addendum 24 Oct 2026, retro-verification (C-Memory closing review)
+
+**Scope.** The closure table in [epics.md](../planning-artifacts/epics.md) ("Reopened-record closure") reads "9.2 → 9A.2, C-Memory". This addendum covers Story 9.2's clauses that remained open after the 9A.2 addendum above: the editor half of #13 and the other reopened items from the 18 Oct retro-verification (Story 9.2: W, U and P/U). The original text and the addendum above are unchanged; this section is an addition.
+
+**Reviewer.** I am the independent reviewer of C-Memory (`review-c-memory.md`). I am neither this story's implementer, nor its original reviewer, nor the author of the addendum above.
+
+**Identity.**
+- Slice commit `199e8ad658c9edfaeeb0149a04d0ba089f6f72a3`, tree `07cbd58a2093ee83a246db72241d078fcb8b92da`.
+- Published merge `f5ffdb4ee14a2fd575d726688c897cbf3816d456` on `origin/main`, the same tree.
+- Bundle sha256 `b3aee420ddd8a96dfc63b7a7a7635eca311574fe657928504c2e36ab6c0a2424`.
+
+**Evidence.**
+- `evidence-c-memory-review/terminal/rerun-full-test.log`: full slnx on the published tree, game 2856/2856, rc 0.
+- `evidence-c-memory-review/terminal/addendum-native-rerun.log`: guard classes 358/358, 2026-10-23T19:45:16Z to 19:45:31Z.
+- CI run 40008261973 on `f5ffdb4e` (`evidence-c-memory-review/terminal/build-job.log`), game 2856/2856.
+
+Every test named below runs the production C# compile, the worker engine and tick progression.
+
+| Reopened item (18 Oct) | Fresh result | Verdict |
+|---|---|---|
+| #13, editor half: `target_count` has no UI editor | The counter is a generic instance with its declared WholeNumber `target_count` (1–9, default 3, Reject, Build-only). `PalettePlacementTests.TheCounterTargetEditorAdmitsOneToNineRefusesTheRestAndAppliesAsOneUndo` checks the following in the native Godot scene:<br>• a palette placement starts at 3;<br>• 1 and 9 apply, each as one command and one Undo;<br>• 0, 10, 2.5, −1, NaN, Infinity and text are refused with no change;<br>• Cancel changes nothing;<br>• an unchanged Apply adds no Undo;<br>• a move keeps the target;<br>• Running, Paused and a locked counter are refused.<br>Mutant R6 (capture ignores the instance's parameters) is killed (`evidence-c-memory-review/mutation/R6-…log`). | **Native Pass**; Chrome pending |
+| W: targets 1 and 9 | `MemoryGuardTests.ThreeBallsThroughTheDetectorEmitOnceOnTheTargetCrossingOnly` (1, 3, 9) and `APulsedTargetEmitsOnItsOwnPulseAndNeverAfterSaturation` (1, 9) cover:<br>• emission on the target crossing or pulse only;<br>• one `ThresholdReached` ring record at that exact tick;<br>• the lamp and the contact following it;<br>• a target of 9 with three crossings never emitting. | **Native Pass**; Chrome pending |
+| W: Reset clears the count (the Chrome Reset had no assertion) | `MemoryGuardTests.ResetIsExactAndASavedCounterReplaysIdentically` checks:<br>• count 0, contact open, built state restored exactly;<br>• a new epoch;<br>• ring sequences restarting at 1;<br>• an identical replay. | **Native Pass**; the Chrome assertion is pending |
+| W: a held trigger does not recount | `CounterTests.ActivationNetwork_CountingProgression_SingleEmission_AndSaturation`: the same passage occurrence on the next tick leaves the count at 1. `MemoryGuardTests` asserts at most one increment per tick over each run. | **Native Pass** |
+| P/U: Save/Load (partial count) | The save holds no count by design: run memory is committed state, not construction. A run leaves the save bytes unchanged, and the loaded construction replays the same ring records (`ResetIsExactAndASavedCounterReplaysIdentically`). | **Native Pass**; Chrome pending |
+| U: three gold dots | `DeclaredPresentationTests.ClockTicksDrivePendulumPulseAndCounterLamps` runs the generic counter through the declared presentation evaluator into the native scene. At committed count 1, `DotLamp_0` turns gold `#f7cb52` and `DotLamp_1` stays slate; unpowered, all stay slate. The `CommittedCount` binding is admitted only with the declared pulse-count capability (validator rule, mutant R4 killed). Three gold dots at count 3 are not shown natively. | Partly native; three dots open for Chrome (post-catalogue `cat-020`) |
+| X6: animation follows the event ring | The `ThresholdReached` record is produced at the exact tick (9A.22 producer, asserted above). Its runtime consumer is Stories 9A.23 and 9A.25b. | Open: 9A.23 and 9A.25b |
+
+**New verdict.** The native clauses Pass. Story 9.2 stays `in-progress` in `sprint-status.yaml` until `cat-020` runs in Chrome at the post-catalogue E2E phase (editor 1/9 and refuse 0/10, target 1, Reset, Save/Load, the dots). The event-ring consumer belongs to 9A.23 and 9A.25b.

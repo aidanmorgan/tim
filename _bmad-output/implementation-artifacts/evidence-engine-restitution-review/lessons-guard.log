@@ -1,0 +1,37 @@
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-restitution/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.5+1b188a7b0a (64-bit .NET 10.0.13)
+[xUnit.net 00:00:00.15]   Discovering: CuriousContraptions.tests
+[xUnit.net 00:00:00.90]   Discovered:  CuriousContraptions.tests
+[xUnit.net 00:00:01.01]   Starting:    CuriousContraptions.tests
+  Passed CuriousContraptions.Tests.LaunchLessonSolveTests.EachLaunchRouteSolvesOrStaysUnsolvedAndResetRestoresTheBench(route: SpringZero, solves: False) [295 ms]
+  Passed CuriousContraptions.Tests.LaunchLessonSolveTests.EachLaunchRouteSolvesOrStaysUnsolvedAndResetRestoresTheBench(route: ReadyReceiver, solves: True) [173 ms]
+  Passed CuriousContraptions.Tests.LaunchLessonSolveTests.EachLaunchRouteSolvesOrStaysUnsolvedAndResetRestoresTheBench(route: SidekickPaid, solves: True) [78 ms]
+  Passed CuriousContraptions.Tests.LaunchLessonSolveTests.EachLaunchRouteSolvesOrStaysUnsolvedAndResetRestoresTheBench(route: DepthPaid, solves: True) [73 ms]
+  Passed CuriousContraptions.Tests.LaunchLessonSolveTests.EachLaunchRouteSolvesOrStaysUnsolvedAndResetRestoresTheBench(route: SpringAway, solves: False) [141 ms]
+  Passed CuriousContraptions.Tests.LaunchLessonSolveTests.EachLaunchRouteSolvesOrStaysUnsolvedAndResetRestoresTheBench(route: SidekickUnpaid, solves: False) [56 ms]
+  Passed CuriousContraptions.Tests.LaunchLessonSolveTests.EachLaunchRouteSolvesOrStaysUnsolvedAndResetRestoresTheBench(route: ReadyMissingReceiver, solves: False) [113 ms]
+  Passed CuriousContraptions.Tests.LaunchLessonSolveTests.EachLaunchRouteSolvesOrStaysUnsolvedAndResetRestoresTheBench(route: SpringCharged, solves: True) [139 ms]
+  Passed CuriousContraptions.Tests.LaunchLessonSolveTests.EachLaunchRouteSolvesOrStaysUnsolvedAndResetRestoresTheBench(route: DepthMiss, solves: False) [57 ms]
+  Passed CuriousContraptions.Tests.LaunchLessonSolveTests.EachLaunchRouteSolvesOrStaysUnsolvedAndResetRestoresTheBench(route: SpringPassive, solves: True) [125 ms]
+  Passed CuriousContraptions.Tests.LaunchLessonSolveTests.EachLaunchRouteSolvesOrStaysUnsolvedAndResetRestoresTheBench(route: WallMiss, solves: False) [54 ms]
+  Passed CuriousContraptions.Tests.LaunchLessonSolveTests.EachLaunchRouteSolvesOrStaysUnsolvedAndResetRestoresTheBench(route: WallPaid, solves: True) [58 ms]
+  Passed CuriousContraptions.Tests.LaunchLessonSolveTests.EveryPlayableLessonHasAnAuthoredSolutionUnderTheGuard [7 ms]
+  Passed CuriousContraptions.Tests.LaunchLessonSolveTests.TheAuthoredSolutionSolvesAtEveryPrecision(lesson: "first_principles") [186 ms]
+  Passed CuriousContraptions.Tests.LaunchLessonSolveTests.TheAuthoredSolutionSolvesAtEveryPrecision(lesson: "delayed_signal") [202 ms]
+  Passed CuriousContraptions.Tests.LaunchLessonSolveTests.TheAuthoredSolutionSolvesAtEveryPrecision(lesson: "domino_effect") [2 s]
+  Passed CuriousContraptions.Tests.LaunchLessonSolveTests.TheAuthoredSolutionSolvesAtEveryPrecision(lesson: "bumper_sidekick") [180 ms]
+  Passed CuriousContraptions.Tests.LaunchLessonSolveTests.TheAuthoredSolutionSolvesAtEveryPrecision(lesson: "bumper_depth") [179 ms]
+  Passed CuriousContraptions.Tests.LaunchLessonSolveTests.TheAuthoredSolutionSolvesAtEveryPrecision(lesson: "wall_and_bumper") [180 ms]
+  Passed CuriousContraptions.Tests.LaunchLessonSolveTests.TheAuthoredSolutionSolvesAtEveryPrecision(lesson: "spring_forward") [396 ms]
+  Passed CuriousContraptions.Tests.LaunchLessonSolveTests.TheAuthoredSolutionSolvesAtEveryPrecision(lesson: "ready_to_rebound") [436 ms]
+  Passed CuriousContraptions.Tests.LaunchLessonSolveTests.TheAuthoredSolutionSolvesAtEveryPrecision(lesson: "clear_pipe") [276 ms]
+  Passed CuriousContraptions.Tests.LaunchLessonSolveTests.TheAuthoredSolutionSolvesAtEveryPrecision(lesson: "gentle_bend") [359 ms]
+  Passed CuriousContraptions.Tests.LaunchLessonSolveTests.TheAuthoredSolutionSolvesAtEveryPrecision(lesson: "quarter_bend") [729 ms]
+[xUnit.net 00:00:08.98]   Finished:    CuriousContraptions.tests (ID = 'f62651f1b1d54fc043fcab386725aff4e185d93710b68a50a4d691bd5a2b4a43')
+  Passed CuriousContraptions.Tests.LaunchLessonSolveTests.TheAuthoredSolutionSolvesAtEveryPrecision(lesson: "joined_pipe") [936 ms]
+
+Test Run Successful.
+Total tests: 25
+     Passed: 25
+ Total time: 9.1835 Seconds

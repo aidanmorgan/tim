@@ -69,6 +69,9 @@ public sealed class LaunchLessonSolveTests
             Assert.Equal(row.GetProperty("instance").GetProperty("part").GetString(), fixture.PartId.Value);
             return KeyValuePair.Create(row.GetProperty("slot").GetString()!, fixture.Id);
         }).ToDictionary();
+        // Content wiring may name a fixture by its part ("switch", "lamp") when that part is unique among the fixtures.
+        foreach (var group in construction.Instances.GroupBy(instance => instance.PartId.Value).Where(group => group.Count() == 1))
+            slots.TryAdd(group.Key, group.Single().Id);
         var next = construction.Instances.Max(instance => instance.Id.Value) + 1;
         foreach (var row in level.GetProperty("solution").EnumerateArray())
         {
@@ -85,6 +88,12 @@ public sealed class LaunchLessonSolveTests
                 "wall" => WorkshopInput.Generic(PartId.Wall, id, p[0], p[1], p[2], q.X, q.Y, q.Z, q.W, new(
                     WallKeys.Select(key => KeyValuePair.Create(new ParameterId(key), (float)properties.GetProperty(key).GetDouble())))),
                 "domino" => PlacedParts.Domino(id, p[0], p[1], p[2], q.X, q.Y, q.Z, q.W),
+                "ramp" => WorkshopInput.Generic(PartId.Ramp, id, p[0], p[1], p[2], q.X, q.Y, q.Z, q.W),
+                "delay" => WorkshopInput.Generic(PartId.Delay, id, p[0], p[1], p[2], q.X, q.Y, q.Z, q.W),
+                "basket" => WorkshopInput.Generic(PartId.Receiver, id, p[0], p[1], p[2], q.X, q.Y, q.Z, q.W),
+                "pipe_bend_45" => WorkshopInput.Generic(PartId.PipeBend45, id, p[0], p[1], p[2], q.X, q.Y, q.Z, q.W),
+                "pipe_bend_90" => WorkshopInput.Generic(PartId.PipeBend90, id, p[0], p[1], p[2], q.X, q.Y, q.Z, q.W),
+                "pipe" => WorkshopInput.Pipe(id, p[0], p[1], p[2], q.X, q.Y, q.Z, q.W, new((float)properties.GetProperty("length").GetDouble())),
                 var kind => throw new ArgumentException($"No authored-solution placement for '{kind}'.")
             };
             slots.Add(row.GetProperty("id").GetString()!, id);
@@ -107,12 +116,24 @@ public sealed class LaunchLessonSolveTests
     // evidence-c-bumper-spring/lesson-pose/). domino_effect's rows were corrected on 23 Oct 2026 (9A.32): the legacy tiles at
     // x = -2.4…0, y = 1 lay 2 m from the falling Basketball and the last overlapped the end tile, so the chain never started; the four
     // tiles now stand at x = -4…-1 on the bench and the end tile is wired to the lamp (evidence-9a-32/candidate/domino-effect-solution/).
+    // The restitution slice (24 Oct 2026) extends the guard to every Playable lesson whose content has an authored solution.
+    public static TheoryData<string> AuthoredLessons()
+    {
+        using var source = System.Text.Json.JsonDocument.Parse(File.ReadAllText(Path.Combine(twodog.Engine.ResolveProjectDir(), "content/puzzles.json")));
+        var authored = source.RootElement.EnumerateArray()
+            .Where(level => level.TryGetProperty("solution", out var rows) && rows.GetArrayLength() > 0)
+            .Select(level => level.GetProperty("id").GetString()!).ToHashSet();
+        var data = new TheoryData<string>();
+        foreach (var lesson in PuzzleCatalogue.Playable.Where(id => authored.Contains(id.Value))) data.Add(lesson.Value);
+        return data;
+    }
+
+    [Fact]
+    public void EveryPlayableLessonHasAnAuthoredSolutionUnderTheGuard() =>
+        Assert.Equal(PuzzleCatalogue.Playable.Count, AuthoredLessons().Count);
+
     [Theory]
-    [InlineData("spring_forward")]
-    [InlineData("bumper_sidekick")]
-    [InlineData("bumper_depth")]
-    [InlineData("wall_and_bumper")]
-    [InlineData("domino_effect")]
+    [MemberData(nameof(AuthoredLessons))]
     public async Task TheAuthoredSolutionSolvesAtEveryPrecision(string lesson)
     {
         foreach (var precision in new[] { (Half)0, (Half).45, (Half)1 })

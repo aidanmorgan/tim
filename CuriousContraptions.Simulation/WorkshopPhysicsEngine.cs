@@ -9,7 +9,7 @@ namespace CuriousContraptions.Simulation;
 
 internal sealed class WorkshopPhysicsEngine
 {
-    private readonly Dictionary<ulong, (float LambdaN, float LambdaT1, float LambdaT2, float Approach)> _contactCache = new();
+    private readonly Dictionary<ulong, (float LambdaN, float LambdaT1, float LambdaT2)> _contactCache = new();
     private readonly WorkshopDynamicBvh _bvh = new();
     // Story 9R.4: one substep's static-side contact records and the bodies a contact-load row already counted (caller-owned
     // scratch, so ContactLoadSensorTracker allocates nothing per substep).
@@ -18,11 +18,17 @@ internal sealed class WorkshopPhysicsEngine
 
     private readonly List<SimBody> _staticBodies = new(64);
     private readonly List<SimBody> _dynamicBodies = new(64);
+    // The restitution pass's touched bodies and its per-substep stamp (WorkshopConstraintSolver.RestitutionPass).
+    private readonly List<SimBody> _restitutionBodies = new(64);
+    private int _restitutionStamp;
     private readonly Dictionary<int, SimBody> _allBodies = new(64);
     private readonly List<SimCollider> _colliders = new(64);
     private readonly List<SimJoint> _joints = new(32);
     private readonly List<(SimCollider ColA, SimCollider ColB)> _candidatePairs = new(64);
     private readonly List<ContactPoint> _contacts = new(128);
+    // Scratch for the speculative sphere-contact touch probe (WorkshopCollisionKernels.AdvanceSpeculativeSphereContact).
+    private readonly SimCollider _probeCollider = new();
+    private readonly List<ContactPoint> _probeContacts = new(4);
     private readonly List<ContactManifold> _manifolds = new(32);
     private readonly List<int> _storeIndices = new(8);
     private readonly List<float> _balances = new(8);
@@ -197,10 +203,10 @@ internal sealed class WorkshopPhysicsEngine
                 WorkshopConstraintSolver.SweepManifolds(warmupManifolds, false, soft, WorkshopConstraintSolver.SubstepSeconds);
                 warmupContacts[0].RelVel = -2f;
                 warmupContacts[0].MaxImpulse = 1f;
-                WorkshopConstraintSolver.ApplyRestitution(warmupContacts[0]);
+                WorkshopConstraintSolver.Restitute(m);
                 WorkshopConstraintSolver.CurrentSeparation(warmupContacts[0]);
                 WorkshopConstraintSolver.SettleVelocity(dummyBodyA);
-                _contactCache[warmupContacts[0].Key] = (warmupContacts[0].LambdaN, warmupContacts[0].LambdaT1, warmupContacts[0].LambdaT2, 0f);
+                _contactCache[warmupContacts[0].Key] = (warmupContacts[0].LambdaN, warmupContacts[0].LambdaT1, warmupContacts[0].LambdaT2);
                 WorkshopConstraintSolver.PrepareContact(warmupContacts[0], _contactCache);
             }
         }
@@ -217,6 +223,9 @@ internal sealed class WorkshopPhysicsEngine
                 foreach (var cp in boxContacts) WorkshopConstraintSolver.PrepareContact(cp, _contactCache);
                 WorkshopConstraintSolver.SweepManifolds(boxManifolds, true, soft, WorkshopConstraintSolver.SubstepSeconds);
                 WorkshopConstraintSolver.SweepManifolds(boxManifolds, false, soft, WorkshopConstraintSolver.SubstepSeconds);
+                foreach (var cp in boxContacts) { cp.RelVel = -2f; cp.MaxImpulse = 1f; }
+                WorkshopConstraintSolver.Restitute(boxManifold);
+                WorkshopConstraintSolver.RestitutionPass(boxManifolds, _restitutionBodies, ++_restitutionStamp);
             }
         }
 
@@ -352,9 +361,9 @@ internal sealed class WorkshopPhysicsEngine
         {
             // ContactPoint.Normal points from B toward A.
             if (c.A.Motion == 0 && c.B.Motion == 1)
-                _loadContacts.Add(new(new(c.A.Id), new(c.ColA.Id), new(c.B.Id), c.B.Mass, c.Point, -c.Normal, c.Gap));
+                _loadContacts.Add(new(new(c.A.Id), new(c.ColA.Id), new(c.B.Id), c.B.Mass, c.Point, -c.Normal, c.Gap, c.MaxImpulse > 0f));
             else if (c.B.Motion == 0 && c.A.Motion == 1)
-                _loadContacts.Add(new(new(c.B.Id), new(c.ColB.Id), new(c.A.Id), c.A.Mass, c.Point, c.Normal, c.Gap));
+                _loadContacts.Add(new(new(c.B.Id), new(c.ColB.Id), new(c.A.Id), c.A.Mass, c.Point, c.Normal, c.Gap, c.MaxImpulse > 0f));
         }
         if (_loadCounted.Length < _loadContacts.Count) _loadCounted = new GpuBodyId[_loadContacts.Count * 2];
         var records = System.Runtime.InteropServices.CollectionsMarshal.AsSpan(_loadContacts);
@@ -720,6 +729,13 @@ internal sealed class WorkshopPhysicsEngine
 
         for (var s = 0; s < steps; s++)
         {
+            // Box2D v3 prepares contacts before integrating velocities: the restitution approach is the substep-start velocity.
+            foreach (var b in _dynamicBodies)
+            {
+                b.V0 = b.LinearVelocity;
+                b.W0 = b.AngularVelocity;
+            }
+
             if ((sourceOrdinal + s) % 4 == 0)
             {
                 for (var supply = 0; supply < supplyCount; supply++)
@@ -823,6 +839,7 @@ internal sealed class WorkshopPhysicsEngine
                 b.Vx *= decay;
                 b.Vy *= decay;
                 b.Vz *= decay;
+                b.PreSolveKinetic = WorkshopConstraintSolver.Kinetic(b, b.LinearVelocity, b.AngularVelocity);
             }
 
             foreach (var c in _colliders)
@@ -843,7 +860,9 @@ internal sealed class WorkshopPhysicsEngine
                     bB.AngularVelocity.Length() * WorkshopCollisionKernels.ColliderExtent(colB);
 
                 var first = _contacts.Count;
-                WorkshopCollisionKernels.GenerateManifold(colA, colB, WorkshopConstraintSolver.SpeculativeSlop + relSpeed * dt, _contacts);
+                var margin = WorkshopConstraintSolver.SpeculativeSlop + relSpeed * dt;
+                WorkshopCollisionKernels.GenerateManifold(colA, colB, margin, _contacts);
+                WorkshopCollisionKernels.AdvanceSpeculativeSphereContact(colA, colB, margin, dt, _contacts, first, _probeCollider, _probeContacts);
                 if (_contacts.Count > first)
                 {
                     while (_manifoldPool.Count <= _manifolds.Count) _manifoldPool.Add(new ContactManifold());
@@ -858,8 +877,6 @@ internal sealed class WorkshopPhysicsEngine
                     _manifolds.Add(manifold);
                 }
             }
-
-            if (loadRows > 0) MeasureContactLoads(loadDeclarations[..loadRows], loadFrames[..loadRows], loadMass[..loadRows]);
 
             foreach (var c in _contacts) WorkshopConstraintSolver.PrepareContact(c, _contactCache);
             foreach (var m in _manifolds) WorkshopConstraintSolver.PrepareRolling(m);
@@ -962,19 +979,18 @@ internal sealed class WorkshopPhysicsEngine
                     joint.MovingContact ? 1u : 0u);
             }
 
-            foreach (var c in _contacts) WorkshopConstraintSolver.ApplyRestitution(c);
+            WorkshopConstraintSolver.RestitutionPass(_manifolds, _restitutionBodies, ++_restitutionStamp);
+            // Loads are read after the restitution pass: a point that carried normal impulse presses its face even from the gap.
+            if (loadRows > 0) MeasureContactLoads(loadDeclarations[..loadRows], loadFrames[..loadRows], loadMass[..loadRows]);
             foreach (var b in _dynamicBodies) WorkshopConstraintSolver.SettleVelocity(b);
 
             _contactCache.Clear();
-            foreach (var c in _contacts)
-            {
-                var approach = (c.Bounced || WorkshopConstraintSolver.CurrentSeparation(c) <= 0f) ? 0f : c.RelVel;
-                _contactCache[c.Key] = (c.LambdaN, c.LambdaT1, c.LambdaT2, approach);
-            }
+            foreach (var c in _contacts) _contactCache[c.Key] = (c.LambdaN, c.LambdaT1, c.LambdaT2);
 
+            // A point that carried normal impulse this substep, touching or speculative, is a contact (Box2D v3 hit events).
             foreach (var c in _contacts)
             {
-                if (c.MaxImpulse <= 0f || WorkshopConstraintSolver.CurrentSeparation(c) > 0f) continue;
+                if (c.MaxImpulse <= 0f) continue;
                 if (c.A.Motion == 1 && c.B.Motion == 0) EmitContactEvents(span, layout, c.ColB, c.A, -c.RelVel, c.Normal, c, s, sourceOrdinal);
                 else if (c.B.Motion == 1 && c.A.Motion == 0) EmitContactEvents(span, layout, c.ColA, c.B, -c.RelVel, -c.Normal, c, s, sourceOrdinal);
             }
