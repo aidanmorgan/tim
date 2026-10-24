@@ -63,6 +63,11 @@ For required publication, independent SnapshotApproval first verifies every pre-
   - Delete a test only when its behaviour is removed or provably covered elsewhere, and record which.
   - A reviewer treats any skipped or excluded test as a Fail.
 - Game-grade tolerances: follow the envelope in [docs/gpu-f32-physics.md](docs/gpu-f32-physics.md#game-grade-envelope); numerical residuals clamp or continue, never fault the tick; proof-grade certificates are not acceptance criteria.
+- **TypeScript, not JavaScript (owner, 24 October 2026).**
+  - Code that cannot be C# (browser and worker glue, client runtime, node harnesses, tooling) is written in strict TypeScript (`strict: true`, no `any` escapes).
+  - Shipped JS is only the output of a pinned `tsc` build that runs inside the normal build, publish and CI. No hand-written `.js` is committed in runtime or tool sources.
+  - Tests run against the compiled output that ships.
+  - Existing hand-written JS is converted by a dedicated slice. New or changed runtime and tool code from then on is TypeScript.
 - Use C# wherever possible. Closed sets are enums end-to-end in production, configuration, tests and automation: API parameters/returns, collections/keys, comparisons and control flow retain enum types. Named string constants, ToString, nameof, interpolation or parsing in domain logic do not substitute for typing. Extensible identities use strongly typed IDs and resource/external strings use named boundaries. Convert/validate strings only at genuine UI/serialization/external boundaries; reject unknown/undefined values. Compile affected callers and test changed canonical mappings/rejection. Existing violations remain required refactoring; no repository-wide compliance claim before the verified audit.
 - Preserve the approved palette; follow [DESIGN.md](DESIGN.md) for form, composition, lighting and motion.
 - Use **Chrome through the available Playwright connector**. Check that connection directly before reporting it missing; an empty in-app Browser discovery does not establish unavailability. Do not substitute another browser.
