@@ -1,5 +1,6 @@
 // Supplemental control of the actual shipped worker module; no gameplay outcomes are fabricated.
 import assert from 'node:assert/strict';
+import test from 'node:test';
 import vm from 'node:vm';
 import { readFile } from 'node:fs/promises';
 import { MessagePort, MessageChannel, Worker as NodeWorker } from 'node:worker_threads';
@@ -123,7 +124,8 @@ const envelopeRejections = record => ({
 });
 const hex = bytes => Array.from(bytes, value => value.toString(16).padStart(2, '0')).join('');
 
-for (const captureMode of [1, 2]) {
+for (const captureMode of [1, 2]) test(`capture mode ${captureMode}: preparation, receipts, queued terminal, output failure, retired envelopes and disposal`,
+    async () => {
     let flushes = 0, release, releasePreparation, preparations = 0, throwOutput = false;
     const receipts = [], rejectedEnvelopes = [], logged = [];
     const derivation = derivationHost();
@@ -280,11 +282,11 @@ for (const captureMode of [1, 2]) {
     console.log(JSON.stringify({ captureMode, passed: true, controls: ['preparationClockOverlap', 'noEarlyWorld', 'pending', 'receiptsToLedger',
         'queuedTerminal', 'activeCommand', 'matchingReceipt', 'outputFailureLogged', 'ordinaryReadNoExport', 'acknowledgementOnlyReset',
         'retiredEnvelopesRejected', 'dispose'] }));
-}
+});
 
 // Story 9A.3: a receipt the managed ledger refuses (a mismatched, duplicate or unpublished one) is a typed rejection reported
 // through the failure envelope, never a silent return; the session is retired, so no later read or receipt is handled.
-{
+test('a receipt the managed ledger refuses is a failure and retires the session', async () => {
     const forwarded = [];
     const host = {
         ScheduleRoles: () => [1, 2], ...envelopeRejections([]),
@@ -305,11 +307,11 @@ for (const captureMode of [1, 2]) {
     await self.onmessage({ data: { readAcknowledged: identity.slice() } });
     assert.equal(forwarded.length, 2, 'the retired session forwards no later receipt');
     console.log(JSON.stringify({ refusedReceiptIsAFailure: true }));
-}
+});
 
 // Story 9A.3: the memory query travels the command transport like every command (one typed buffer for the managed decoder, its
 // acknowledgement keyed by its sequence); a third outstanding command is refused with its typed reason, never dispatched.
-{
+test('the memory query travels the command transport and a third outstanding command is refused', async () => {
     const dispatched = [], rejected = [], releases = [];
     const host = {
         ScheduleRoles: () => [1, 2], ...envelopeRejections(rejected),
@@ -329,12 +331,12 @@ for (const captureMode of [1, 2]) {
     for (const release of releases) release();
     await first; await second;
     console.log(JSON.stringify({ memoryQueryOnCommandTransport: true }));
-}
+});
 
 // The worker owns no WebGPU device since the pure C# WASM engine (Story 9.2b), so startup has only preparation
 // rejection to control; the former device-loss control was deleted with that device path (Story 9.4b).
 const StartupControl = Object.freeze({ Reject: 1, DisposeThenReject: 2 });
-for (const control of Object.values(StartupControl)) {
+for (const control of Object.values(StartupControl)) test(`startup control ${control}: a rejected preparation`, async () => {
     let rejectPreparation;
     const host = {
         ...derivationHost(),
@@ -355,11 +357,11 @@ for (const control of Object.values(StartupControl)) {
         control === StartupControl.DisposeThenReject ? 0 : 1, 'late failures cannot resurrect disposed ownership');
     assert.equal(boundary.messages.filter(item => item.read || item.acknowledgement).length, 0);
     console.log(JSON.stringify({ startupControl: control, passed: true }));
-}
+});
 
 // Story 9A.2: the worker reads no command width or layout. Every byte buffer goes to the one managed decoder, which admits or
 // refuses its exact framed shape; only a non-buffer envelope is the transport's own rejection.
-{
+test('every byte buffer reaches the one managed decoder', async () => {
     let dispatched = 0;
     const host = { ScheduleRoles: () => [1, 2], ...envelopeRejections([]), Dispatch: async () => { dispatched++; } };
     const { self, messages } = await loadWorker(host);
@@ -369,11 +371,11 @@ for (const control of Object.values(StartupControl)) {
     assert.equal(dispatched, 4);
     assert.equal(messages.filter(message => message.rejected).length, 1);
     console.log(JSON.stringify({ commandsReachTheManagedDecoder: true, dispatched: [0, 7, 72, 70000], rejected: ['array'] }));
-}
+});
 
 // Blind hunter 10 (Story 9.4b final round): a scheduler turn that cannot resume is reported through the failure envelope,
 // never as an uncaught worker error; a disposed session resumes no queued or timed turn.
-{
+test('a scheduler turn that cannot resume is a failure envelope', async () => {
     const resumed = [];
     const host = {
         ScheduleRoles: () => [1, 2],
@@ -387,8 +389,8 @@ for (const control of Object.values(StartupControl)) {
     await new Promise(resolve => setTimeout(resolve, 20));
     assert.deepEqual(resumed, [7], 'a failed session resumes no later turn');
     console.log(JSON.stringify({ schedulerTurnFailureEnvelope: true }));
-}
-{
+});
+test('disposal cancels the timed and the queued scheduler turn', async () => {
     const resumed = [];
     const host = { ScheduleRoles: () => [1, 2], ResumeTurn: turn => resumed.push(turn) };
     // Instrumented timers and turn channel: disposal must cancel the timed turn and close the channel, not merely rely on
@@ -415,10 +417,10 @@ for (const control of Object.values(StartupControl)) {
     assert.ok(cleared.has(turnTimers[0]), 'disposal clears the timed turn instead of leaving it to fire');
     assert.deepEqual(closed.sort(), ['port1', 'port2'], 'disposal closes both ends of the turn channel');
     console.log(JSON.stringify({ disposalCancelsSchedulerTurns: true }));
-}
+});
 
 // A recognized transport field never makes an unknown companion field legal. Rejection is atomic.
-{
+test('a mixed envelope is rejected atomically', async () => {
     let dispatches = 0, receipts = 0, schedules = 0;
     const host = {
         ScheduleRoles: () => [1, 2], ...envelopeRejections([]),
@@ -438,4 +440,4 @@ for (const control of Object.values(StartupControl)) {
     }
     assert.deepEqual([dispatches, receipts, schedules], [0, 0, 0], 'mixed envelopes mutate no managed state');
     console.log(JSON.stringify({ mixedEnvelopesRejectedAtomically: true }));
-}
+});

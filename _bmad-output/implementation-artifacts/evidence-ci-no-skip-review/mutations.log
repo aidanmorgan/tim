@@ -1,0 +1,48 @@
+===== M1: unlisted test file outside tools/ (CuriousContraptions.web/wwwroot/zz-review.test.js)
+[xUnit.net 00:00:00.56]     CuriousContraptions.E2eRunner.Tests.BrowserDeferralTests.EveryOtherTestFileOfTheSystemRunsOrIsDeferred [FAIL]
+  Error Message:
+   Assert.Empty() Failure: Collection was not empty
+Collection: ["CuriousContraptions.web/wwwroot/zz-review.test.js"]
+Failed!  - Failed:     1, Passed:     4, Skipped:     0, Total:     5, Duration: 546 ms - E2eRunner.Tests.dll (net10.0)
+===== M2: unlisted python test outside the OutsideTheSystemProof scope (scripts/test_zz.py)
+[xUnit.net 00:00:00.57]     CuriousContraptions.E2eRunner.Tests.BrowserDeferralTests.EveryOtherTestFileOfTheSystemRunsOrIsDeferred [FAIL]
+  Error Message:
+   Assert.Empty() Failure: Collection was not empty
+Collection: ["zz-review/test_zz.py"]
+Failed!  - Failed:     1, Passed:     4, Skipped:     0, Total:     5, Duration: 543 ms - E2eRunner.Tests.dll (net10.0)
+===== M3: hand-written FullyQualifiedName filter added to the workflow
+[xUnit.net 00:00:00.55]     CuriousContraptions.E2eRunner.Tests.BrowserDeferralTests.CiFilterIsGeneratedFromTheListAndExcludesExactlyItsMethods [FAIL]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: 2
+Actual:   3
+Failed!  - Failed:     1, Passed:     4, Skipped:     0, Total:     5, Duration: 123 ms - E2eRunner.Tests.dll (net10.0)
+===== M4: emptied game runtime harness (tools/workshop-save-storage.test.mjs body replaced)
+[xUnit.net 00:00:02.49]     CuriousContraptions.E2eRunner.Tests.NodeHarnessTests.HarnessPasses(harness: "tools/workshop-save-storage.test.mjs") [FAIL]
+  Error Message:
+   tools/workshop-save-storage.test.mjs: NoTests (exit 0)
+Failed!  - Failed:     1, Passed:     8, Skipped:     0, Total:     9, Duration: 2 s - E2eRunner.Tests.dll (net10.0)
+===== M5: skipped test in a game runtime harness
+[xUnit.net 00:00:02.43]     CuriousContraptions.E2eRunner.Tests.NodeHarnessTests.HarnessPasses(harness: "tools/workshop-save-storage.test.mjs") [FAIL]
+  Error Message:
+   tools/workshop-save-storage.test.mjs: SkippedTests (exit 0)
+Failed!  - Failed:     1, Passed:     8, Skipped:     0, Total:     9, Duration: 2 s - E2eRunner.Tests.dll (net10.0)
+===== control: git status after reverts
+ M .github/workflows/pages.yml
+ M tools/E2eRunner.Tests/CommandLineTests.cs
+ M tools/E2eRunner.Tests/TypeCheckTests.cs
+ M tools/E2eRunner/Program.cs
+ M tools/E2eRunner/RunnerError.cs
+ M tools/e2e/README.md
+ M tools/workshop-animation-output.test.mjs
+ M tools/workshop-clock-ring.test.mjs
+ M tools/workshop-observation.test.mjs
+?? _bmad-output/implementation-artifacts/evidence-ci-no-skip-review/
+?? _bmad-output/implementation-artifacts/evidence-ci-no-skip/
+?? _bmad-output/implementation-artifacts/spec-ci-no-skip.md
+?? tools/E2eRunner.Tests/BrowserDeferralTests.cs
+?? tools/E2eRunner.Tests/NodeHarnessTests.cs
+?? tools/E2eRunner.Tests/ProcessesTests.cs
+?? tools/E2eRunner/BrowserDeferral.cs
+===== control: BrowserDeferralTests + NodeHarnessTests + ProcessesTests clean
+Passed!  - Failed:     0, Passed:    16, Skipped:     0, Total:    16, Duration: 2 s - E2eRunner.Tests.dll (net10.0)

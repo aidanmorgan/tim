@@ -1,0 +1,16 @@
+v20.19.5
+not ok 4 - a blocking master thread answers each requester through its own slot; a foreign probe is rejected explicitly
+not ok 5 - a drifted master is re-derived: the next exchange and every reply carry the new correction and epoch
+not ok 6 - a slew installs the new correction under the same epoch, so requester mappings keep their calibration
+not ok 7 - the Simulation heartbeat advances only when the Simulation beats, and a ring of another layout is refused
+not ok 8 - a newer probe of the same requester supersedes an unconsumed answer, which resolves to null
+not ok 9 - a probe the master has not served is never overwritten: the next probe resolves null and the session continues
+not ok 10 - an unanswered derivation exchange returns null, a check while it is pending never blocks, and its late answer is consumed
+not ok 11 - a reply wait ends after the probe lifetime when the master never answers
+not ok 12 - startup qualification waits out a stalled master instead of burning its attempt budget
+# tests 12
+# pass 3
+# fail 0
+# cancelled 9
+# skipped 0
+# todo 0
