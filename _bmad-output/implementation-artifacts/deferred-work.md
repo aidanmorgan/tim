@@ -132,3 +132,8 @@
   summary: Test-host SIGSEGV under concurrent load. Owner: engine/test infrastructure. The xUnit test host has twice crashed with exit code 139 (SIGSEGV) in the full native suite with no failing test.
   evidence: (1) 9A.32 implementer run, exit 139 after 2045 tests (`evidence-9a-32/candidate/review-fix-test-run1-crashed-139.txt`; spec-9a-32-domino.md, review-9a-32-domino.md "Crash investigation"). (2) Restitution reviewer run, SIGSEGV after 848 tests while probe builds ran concurrently (`evidence-engine-restitution-review/round2/test-full-run1-crashed.log`). Both were unreproducible in isolation: reruns on the same binaries passed in full.
   destination: test infrastructure investigation (collect a native crash dump on the next occurrence; `--blame-crash` only on CuriousContraptions.tests with `--blame-crash-dump-type mini`).
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-ci-harness-determinism.md` (review pass 1)
+  summary: Remaining wall-clock waits in the game-runtime node harnesses (docs/testing-guidance.md rule 7: no wall-clock sleeps). They are `tools/workshop-animation-clock.test.mjs`'s 20 ms `settle`, the 5 ms retry pause inside `tools/workshop-clock-ring.test.mjs`'s bounded exchange loop, and `tools/workshop-observation.test.mjs`'s `until`, which polls a positive condition in 1 ms steps under an attempt deadline. Each should wait on the deciding event or a deterministic quiescence point instead.
+  evidence: Not CI failures today. The two that failed (client-lifecycle test 15, observation test 1) and the observation absence checks were made event-driven in this slice.
+  destination: the JS-to-TypeScript conversion slice (AGENTS.md TypeScript rule), which rewrites these harnesses.

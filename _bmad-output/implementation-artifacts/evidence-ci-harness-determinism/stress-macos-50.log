@@ -1,0 +1,3 @@
+macOS arm64 v26.12.1, 50 runs each, sequential (after the quiescence change)
+tools/workshop-observation.test.mjs failing runs: 0/50
+tools/workshop-client-lifecycle.test.mjs failing runs: 0/50

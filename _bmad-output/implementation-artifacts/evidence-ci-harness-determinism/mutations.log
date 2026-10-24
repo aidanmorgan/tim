@@ -1,0 +1,61 @@
+# Mutation controls. Base e344b19c2dee4e3c139a7730de43fd40b39d4dff plus this slice's uncommitted harness changes; v26.12.1 Darwin arm64.
+# Command per mutation: node --experimental-vm-modules --test --test-reporter=tap tools/workshop-observation.test.mjs (TAP filtered to not-ok lines, their diffs and the summary). Each mutation is applied to worker.js alone and reverted.
+
+## M1: the scheduler-turn failure catch no longer disposes the session
+-    catch (error) { disposeOwned(); self.postMessage({ failure: true, detail: 'Scheduler turn failed: ' + String(error) }); }
++    catch (error) { self.postMessage({ failure: true, detail: 'Scheduler turn failed: ' + String(error) }); }
+not ok 9 - a scheduler turn that cannot resume is a failure envelope
+    + actual - expected
+    +   8
+# tests 11
+# pass 10
+# fail 1
+
+## M2: the dispose import does nothing
+-    dispose: disposeOwned
++    dispose: () => {}
+not ok 1 - capture mode 1: preparation, receipts, queued terminal, output failure, retired envelopes and disposal
+not ok 2 - capture mode 2: preparation, receipts, queued terminal, output failure, retired envelopes and disposal
+not ok 7 - startup control 2: a rejected preparation
+not ok 10 - disposal cancels the timed and the queued scheduler turn
+    + actual - expected
+    +   3,
+    +   2
+# tests 11
+# pass 7
+# fail 4
+
+## M3: a missed running check faults the session instead of being counted
+-            if (!exchange) { host.ClockDerivationMissed(); return; }
++            if (!exchange) throw new Error('missed');
+not ok 3 - a slow clock master costs counted missed checks, never a failure, and the session continues
+  error: 'running checks the master does not answer are counted as missed'
+# tests 11
+# pass 10
+# fail 1
+
+## M4: a check's retry is given the whole budget again instead of what is left of the shared one
+-                const next = deriveExchange(clock, clockNow, remaining);
++                const next = deriveExchange(clock, clockNow, exchangeTimeout);
+not ok 1 - capture mode 1: preparation, receipts, queued terminal, output failure, retired envelopes and disposal
+    + actual - expected
+    +   2
+    -   1.25
+not ok 2 - capture mode 2: preparation, receipts, queued terminal, output failure, retired envelopes and disposal
+    + actual - expected
+    +   2
+    -   1.25
+# tests 11
+# pass 9
+# fail 2
+
+## M5: the client delivers a reply that lands after its failure or disposal (command: the same with tools/workshop-client-lifecycle.test.mjs)
+-        if (!reply || client.failure || !clients.has(id)) return;
++        if (!reply) return;
+not ok 15 - a clock reply landing after the client failed is never delivered
+  error: |-
+not ok 16 - a clock reply landing after disposal is never delivered
+  error: |-
+# tests 39
+# pass 37
+# fail 2

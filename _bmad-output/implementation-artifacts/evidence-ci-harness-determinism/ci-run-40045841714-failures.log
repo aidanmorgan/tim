@@ -1,0 +1,59 @@
+# Excerpt of the failed CI log, run 40045841714 (main 7143a874, Test C# tools step): the two failing test points with their assertion details.
+build	Test C# tools	2026-10-24T00:55:22.7305841Z not ok 15 - a clock reply landing after the client failed is never delivered
+build	Test C# tools	2026-10-24T00:55:22.7306135Z   ---
+build	Test C# tools	2026-10-24T00:55:22.7306295Z   duration_ms: 26.193072
+build	Test C# tools	2026-10-24T00:55:22.7306478Z   type: 'test'
+build	Test C# tools	2026-10-24T00:55:22.7306809Z   location: '/home/runner/work/tim/tim/tools/workshop-client-lifecycle.test.mjs:238:1'
+build	Test C# tools	2026-10-24T00:55:22.7307169Z   failureType: 'testCodeFailure'
+build	Test C# tools	2026-10-24T00:55:22.7307393Z   error: |-
+build	Test C# tools	2026-10-24T00:55:22.7307588Z     control: an answered probe is delivered
+build	Test C# tools	2026-10-24T00:55:22.7307916Z     
+build	Test C# tools	2026-10-24T00:55:22.7308064Z     0 !== 1
+build	Test C# tools	2026-10-24T00:55:22.7308219Z     
+build	Test C# tools	2026-10-24T00:55:22.7308372Z   code: 'ERR_ASSERTION'
+build	Test C# tools	2026-10-24T00:55:22.7308558Z   name: 'AssertionError'
+build	Test C# tools	2026-10-24T00:55:22.7308738Z   expected: 1
+build	Test C# tools	2026-10-24T00:55:22.7308895Z   actual: 0
+build	Test C# tools	2026-10-24T00:55:22.7309053Z   operator: 'strictEqual'
+build	Test C# tools	2026-10-24T00:55:22.7309233Z   stack: |-
+build	Test C# tools	2026-10-24T00:55:22.7309624Z     TestContext.<anonymous> (file:///home/runner/work/tim/tim/tools/workshop-client-lifecycle.test.mjs:242:12)
+build	Test C# tools	2026-10-24T00:55:22.7310082Z     async Test.run (node:internal/test_runner/test:1409:7)
+build	Test C# tools	2026-10-24T00:55:22.7310455Z     async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+build	Test C# tools	2026-10-24T00:55:22.7310743Z   ...
+build	Test C# tools	2026-10-24T00:55:22.7311038Z # Subtest: a clock reply landing after disposal is never delivered
+build	Test C# tools	2026-10-24T00:55:24.1896710Z # (Use `node --trace-warnings ...` to show where the warning was created)
+build	Test C# tools	2026-10-24T00:55:24.1897933Z # Subtest: capture mode 1: preparation, receipts, queued terminal, output failure, retired envelopes and disposal
+build	Test C# tools	2026-10-24T00:55:24.1899334Z not ok 1 - capture mode 1: preparation, receipts, queued terminal, output failure, retired envelopes and disposal
+build	Test C# tools	2026-10-24T00:55:24.1900137Z   ---
+build	Test C# tools	2026-10-24T00:55:24.1900537Z   duration_ms: 239.986091
+build	Test C# tools	2026-10-24T00:55:24.1900987Z   type: 'test'
+build	Test C# tools	2026-10-24T00:55:24.1901657Z   location: '/home/runner/work/tim/tim/tools/workshop-observation.test.mjs:127:35'
+build	Test C# tools	2026-10-24T00:55:24.1902555Z   failureType: 'testCodeFailure'
+build	Test C# tools	2026-10-24T00:55:24.1903237Z   error: |-
+build	Test C# tools	2026-10-24T00:55:24.1903715Z     Expected values to be strictly deep-equal:
+build	Test C# tools	2026-10-24T00:55:24.1904273Z     + actual - expected
+build	Test C# tools	2026-10-24T00:55:24.1904717Z     
+build	Test C# tools	2026-10-24T00:55:24.1905115Z       [
+build	Test C# tools	2026-10-24T00:55:24.1905514Z     -   0,
+build	Test C# tools	2026-10-24T00:55:24.1905919Z         1,
+build	Test C# tools	2026-10-24T00:55:24.1906308Z     +   1
+build	Test C# tools	2026-10-24T00:55:24.1906700Z       ]
+build	Test C# tools	2026-10-24T00:55:24.1907088Z     
+build	Test C# tools	2026-10-24T00:55:24.1907502Z   code: 'ERR_ASSERTION'
+build	Test C# tools	2026-10-24T00:55:24.1907960Z   name: 'AssertionError'
+build	Test C# tools	2026-10-24T00:55:24.1908455Z   expected:
+build	Test C# tools	2026-10-24T00:55:24.1908846Z     0: 0
+build	Test C# tools	2026-10-24T00:55:24.1909215Z     1: 1
+build	Test C# tools	2026-10-24T00:55:24.1909601Z   actual:
+build	Test C# tools	2026-10-24T00:55:24.1909977Z     0: 1
+build	Test C# tools	2026-10-24T00:55:24.1910348Z     1: 1
+build	Test C# tools	2026-10-24T00:55:24.1910757Z   operator: 'deepStrictEqual'
+build	Test C# tools	2026-10-24T00:55:24.1911232Z   stack: |-
+build	Test C# tools	2026-10-24T00:55:24.1912307Z     TestContext.<anonymous> (file:///home/runner/work/tim/tim/tools/workshop-observation.test.mjs:154:12)
+build	Test C# tools	2026-10-24T00:55:24.1913303Z     async Test.run (node:internal/test_runner/test:1409:7)
+build	Test C# tools	2026-10-24T00:55:24.1914104Z     async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3)
+build	Test C# tools	2026-10-24T00:55:24.1914780Z   ...
+build	Test C# tools	2026-10-24T00:55:24.1916497Z # {"captureMode":2,"passed":true,"controls":["preparationClockOverlap","noEarlyWorld","pending","receiptsToLedger","queuedTerminal","activeCommand","matchingReceipt","outputFailureLogged","ordinaryReadNoExport","acknowledgementOnlyReset","retiredEnvelopesRejected","dispose"]}
+build	Test C# tools	2026-10-24T00:55:24.1918381Z # {"refusedReceiptIsAFailure":true}
+build	Test C# tools	2026-10-24T00:55:24.1918998Z # {"memoryQueryOnCommandTransport":true}
+build	Test C# tools	2026-10-24T00:55:24.1920055Z # Subtest: capture mode 2: preparation, receipts, queued terminal, output failure, retired envelopes and disposal
