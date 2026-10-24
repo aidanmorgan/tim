@@ -1,0 +1,22 @@
+✔ concurrent stress: over a million records through the shipped writer, no reader ever receives a torn record (1190.828292ms)
+✔ amplified concurrent stress at capacity 4: rounds of fresh writer and reader threads, no torn record (3047.879709ms)
+✔ a reader that keeps pace receives every record exactly once and skips none (1.223625ms)
+✔ a parked reader lapped by a capacity and more reports exactly the skipped records, then reads the newest intact (0.176375ms)
+✔ a slot reused while it is copied is skipped, never delivered (0.075666ms)
+✔ epochs: a newer ring is held unread until it is installed, an older one is ignored, and a new ring restarts at sequence 1 (0.399292ms)
+✔ a ring older than the installed epoch is ignored: nothing is delivered and the cursor does not move (0.112833ms)
+✔ the ring memory is reachable only through its atomic API: no raw buffer, a private cursor ring, and postTo posts the adoptable ring (0.085917ms)
+✔ a delivery carries the epoch and skipped count before the records (0.059666ms)
+✔ each new ring is posted to the browser and to the Animation worker on its master port, the same buffer (0.776208ms)
+✔ the first publication of an epoch allocates and posts its ring, and writes each record at its sequence slot (0.16325ms)
+✔ a new epoch or capacity replaces the ring; an empty publication (no admitted world) changes nothing (0.097ms)
+✔ the header carries the producer's lapped count, and a publication of more records than its ring is refused (0.210375ms)
+✔ disposal drops the ring, so the next session allocates a fresh one (0.088125ms)
+ℹ tests 14
+ℹ suites 0
+ℹ pass 14
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4300.581375

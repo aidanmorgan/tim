@@ -1,0 +1,49 @@
+Test run for /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/wt-r3/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:09.78]     CuriousContraptions.Tests.EventRingProducerTests.EachBumperHitPublishesExactlyOneImpactAtItsOwnTimeAndNoTrigger [FAIL]
+  Failed CuriousContraptions.Tests.EventRingProducerTests.EachBumperHitPublishesExactlyOneImpactAtItsOwnTimeAndNoTrigger [21 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: 1
+Actual:   0
+  Stack Trace:
+     at CuriousContraptions.Tests.EventRingProducerTests.EachBumperHitPublishesExactlyOneImpactAtItsOwnTimeAndNoTrigger() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/wt-r3/CuriousContraptions.tests/EventRingProducerTests.cs:line 192
+   at CuriousContraptions.Tests.EventRingProducerTests.EachBumperHitPublishesExactlyOneImpactAtItsOwnTimeAndNoTrigger() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/wt-r3/CuriousContraptions.tests/EventRingProducerTests.cs:line 206
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:11.12]     CuriousContraptions.Tests.EventRingConsumerTests.EachPaidBumperImpactCuesExactlyOnePulseAtItsOwnPhysicalTime(payload: "ball", height: 4.5, strength: 0, ticks: 360) [FAIL]
+[xUnit.net 00:00:11.14]     CuriousContraptions.Tests.EventRingConsumerTests.EachPaidBumperImpactCuesExactlyOnePulseAtItsOwnPhysicalTime(payload: "bowling", height: 6, strength: 8, ticks: 480) [FAIL]
+[xUnit.net 00:00:11.16]     CuriousContraptions.Tests.EventRingConsumerTests.EachPaidBumperImpactCuesExactlyOnePulseAtItsOwnPhysicalTime(payload: "ball", height: 4.5, strength: 8, ticks: 360) [FAIL]
+  Failed CuriousContraptions.Tests.EventRingConsumerTests.EachPaidBumperImpactCuesExactlyOnePulseAtItsOwnPhysicalTime(payload: "ball", height: 4.5, strength: 0, ticks: 360) [20 ms]
+  Error Message:
+   Assert.NotEmpty() Failure: Collection was empty
+  Stack Trace:
+     at CuriousContraptions.Tests.EventRingConsumerTests.EachPaidBumperImpactCuesExactlyOnePulseAtItsOwnPhysicalTime(String payload, Double height, Single strength, Int32 ticks) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/wt-r3/CuriousContraptions.tests/EventRingConsumerTests.cs:line 226
+   at CuriousContraptions.Tests.EventRingConsumerTests.EachPaidBumperImpactCuesExactlyOnePulseAtItsOwnPhysicalTime(String payload, Double height, Single strength, Int32 ticks) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/wt-r3/CuriousContraptions.tests/EventRingConsumerTests.cs:line 251
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.EventRingConsumerTests.EachPaidBumperImpactCuesExactlyOnePulseAtItsOwnPhysicalTime(payload: "bowling", height: 6, strength: 8, ticks: 480) [23 ms]
+  Error Message:
+   Assert.Contains() Failure: Filter not matched in collection
+Collection: [SimulationEventRecord { Sequence = 1, Tick = 79, Kind = Impact, Source = 2, Other = 1, Ordinal = 313, Phase = 0, Magnitude = 32, Count = 1, Level = 0, Domain = Mechanical }]
+  Stack Trace:
+     at CuriousContraptions.Tests.EventRingConsumerTests.EachPaidBumperImpactCuesExactlyOnePulseAtItsOwnPhysicalTime(String payload, Double height, Single strength, Int32 ticks) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/wt-r3/CuriousContraptions.tests/EventRingConsumerTests.cs:line 229
+   at CuriousContraptions.Tests.EventRingConsumerTests.EachPaidBumperImpactCuesExactlyOnePulseAtItsOwnPhysicalTime(String payload, Double height, Single strength, Int32 ticks) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/wt-r3/CuriousContraptions.tests/EventRingConsumerTests.cs:line 251
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.EventRingConsumerTests.EachPaidBumperImpactCuesExactlyOnePulseAtItsOwnPhysicalTime(payload: "ball", height: 4.5, strength: 8, ticks: 360) [15 ms]
+  Error Message:
+   Assert.Contains() Failure: Filter not matched in collection
+Collection: [SimulationEventRecord { Sequence = 1, Tick = 39, Kind = Impact, Source = 2, Other = 1, Ordinal = 154, Phase = 0, Magnitude = 30.540245, Count = 1, Level = 0, Domain = Mechanical }, SimulationEventRecord { Sequence = 2, Tick = 232, Kind = Impact, Source = 2, Other = 1, Ordinal = 928, Phase = 0, Magnitude = 1.459755, Count = 2, Level = 0, Domain = Mechanical }]
+  Stack Trace:
+     at CuriousContraptions.Tests.EventRingConsumerTests.EachPaidBumperImpactCuesExactlyOnePulseAtItsOwnPhysicalTime(String payload, Double height, Single strength, Int32 ticks) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/wt-r3/CuriousContraptions.tests/EventRingConsumerTests.cs:line 229
+   at CuriousContraptions.Tests.EventRingConsumerTests.EachPaidBumperImpactCuesExactlyOnePulseAtItsOwnPhysicalTime(String payload, Double height, Single strength, Int32 ticks) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/wt-r3/CuriousContraptions.tests/EventRingConsumerTests.cs:line 251
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:11.49]     CuriousContraptions.Tests.EventRingConsumerTests.TheBumperRunsImpactRecordsFollowTheBallisticLawAndTheStore [FAIL]
+  Failed CuriousContraptions.Tests.EventRingConsumerTests.TheBumperRunsImpactRecordsFollowTheBallisticLawAndTheStore [19 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: 3
+Actual:   2
+  Stack Trace:
+     at CuriousContraptions.Tests.EventRingConsumerTests.TheBumperRunsImpactRecordsFollowTheBallisticLawAndTheStore() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/wt-r3/CuriousContraptions.tests/EventRingConsumerTests.cs:line 169
+--- End of stack trace from previous location ---
+
+Failed!  - Failed:     5, Passed:    71, Skipped:     0, Total:    76, Duration: 10 s - CuriousContraptions.tests.dll (net10.0)

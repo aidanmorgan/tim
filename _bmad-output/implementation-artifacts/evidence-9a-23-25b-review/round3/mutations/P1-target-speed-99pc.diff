@@ -1,0 +1,13 @@
+diff --git a/engine/gpu/ContactWorkImpulse.cs b/engine/gpu/ContactWorkImpulse.cs
+index 8adbacb9..cddb2cc7 100644
+--- a/engine/gpu/ContactWorkImpulse.cs
++++ b/engine/gpu/ContactWorkImpulse.cs
+@@ -70,7 +70,7 @@ public static class ContactWorkImpulse
+             !float.IsFinite(availableWork) || availableWork <= 0)
+             return default;
+ 
+-        var requestedImpulse = (targetNormalSpeed - outgoingNormalSpeed) / inverseEffectiveMass;
++        var requestedImpulse = (targetNormalSpeed * .99f - outgoingNormalSpeed) / inverseEffectiveMass; // REVIEWER MUTANT
+         var requestedWork = requestedImpulse *
+             (outgoingNormalSpeed + .5f * inverseEffectiveMass * requestedImpulse);
+         return requestedWork < availableWork

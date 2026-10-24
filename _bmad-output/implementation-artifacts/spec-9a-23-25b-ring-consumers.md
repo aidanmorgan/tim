@@ -347,6 +347,20 @@ Native candidate committed locally and not pushed (worktree `story-9a-23-25b`): 
     - C# `LoadPayload` plain.
 
     The functional node tests pass under the JS mutants (13/13 and 8/8), so the guard is the deterministic check. The behavioural, reused-slot, lap and stress tests stay green.
+- **R3-F1 (round 3): no raw ring memory outside the module.** Evidence is in `evidence-9a-23-25b/encapsulation-r3/`.
+  - **The encapsulation is now closed by construction:**
+    - The JS `EventRingMemory` has no `buffer` getter. Its `postTo(target)` posts `{ eventRing }` itself, the worker uses it for all three posts, and a reader adopts the ring with `EventRingCursor.attach` (`EventRingMemory.attach`).
+    - `EventRingCursor`'s ring is a private `#ring`.
+  - **Defined-interface test** in `workshop-event-ring-cursor.test.mjs`: the memory has no `buffer` and no own keys, `postTo` posts exactly `{ eventRing: SharedArrayBuffer }`, and the cursor adopts that ring while exposing only `cursor`, `epoch` and `lapped`. Restoring a public getter fails this test (`api-public-buffer-getter.log`).
+  - **Guard:** renamed `GuardOnlyTheEventRingMemoryViewsTheRingAndEveryAccessorIsAtomic` (an architecture guard, per `docs/testing-guidance.md`).
+    - The files that touch the ring are the module and exactly the production scripts that import it: the Simulation worker, the Animation worker and the client.
+    - For each of those four files, it asserts the exact, ordered list of every typed-array/DataView construction and every `.buffer` access. The event ring's only view is the wrapper's `BigUint64Array(buffer`, so any new view or `.buffer` access fails until it is reviewed.
+    - It also checks the wrapper: `#words` is used only through `Atomics.load`/`Atomics.store`, and `#buffer` is read only by `postTo`. The C# part is unchanged.
+  - **The reviewer's four mutants, each applied alone and reverted, all killed by the guard** (`encapsulation-r3/mutations/G*.log`):
+    - **G1** (plain `#words` load) fails the Atomics count; the node tests pass under it.
+    - **G2** (`new BigUint64Array(eventRing.buffer)` in the worker) fails the construction list.
+    - **G3** (`new BigUint64Array(events.ring.buffer)` in the client) fails the construction list.
+    - **G4** (`const { buffer: shared } = eventRing` with plain stores) fails the construction list. With no getter, the node tests now fail too (7 of 14).
 - **R2-F2: structural seqlock guard (superseded by the encapsulation above).** `EverySeqlockPayloadWordIsAnAtomicWholeWordAccessOnBothSidesOfTheRing` checked the source of this checkout, in the style of `Hits()`:
   - **JS writer (`writeEventRing`):** between the slot's two sequence stores, each payload word is `Atomics.store(eventWords, slot / 8 + word, …)` in the word loop. Every other use of `eventWords` is an `Atomics.store` (only its creation is not), and `eventRing` is only allocated and posted.
   - **JS reader (`read`):** between `before` and `after`, each payload word is `Atomics.load(this.words, slot / 8 + word)`. Every `this.words` use is an `Atomics.load`, and `this.buffer` appears only in the guard.
@@ -423,4 +437,9 @@ Folder: `_bmad-output/implementation-artifacts/evidence-9a-23-25b/`.
 | Encapsulation tree: node harnesses (`--test-timeout=120000` under `timeout 900`) | `encapsulation/node-harness.log` | 112/112, 0 cancelled, 0 skipped, 0 todo, rc 0 |
 | Encapsulation tree: amplified stress ×10 | `encapsulation/stress-10.txt` | 0 of 10 failed (about 3 s a run) |
 | Encapsulation tree: `git diff --check` (worktree, and vs origin/main excluding raw evidence logs) | `encapsulation/diff-check.txt` | clean |
+| R3 tree (on merge 56f7c034 of origin/main f9ce61ef): one Debug slnx build | `encapsulation-r3/build.log` | 0 warnings, 0 errors |
+| R3 tree: full slnx `--no-build --no-restore`, no blame | `encapsulation-r3/test.log` | WorkerAotGuard 17, BundleElements 191, Coverage 77, E2eRunner 208, CuriousContraptions.tests 2950; 0 failed, 0 skipped, rc 0 |
+| R3 tree: node harnesses (`--test-timeout=120000` under `timeout 900`) | `encapsulation-r3/node-harness.log` | 122/122, 0 cancelled, 0 skipped, 0 todo, rc 0 |
+| R3 tree: amplified stress ×10 | `encapsulation-r3/stress-10.txt` | 0 of 10 failed |
+| R3 tree: `git diff --check` (worktree, and vs origin/main excluding raw evidence logs) | `encapsulation-r3/diff-check.txt` | clean |
 | Strict tsc, snapshot schema unit | `candidate/tsc.log`, `candidate/e2e-unit.log` | not re-run: no `.ts` or tsconfig input changed since (`git diff --stat 7d0c6d45 HEAD -- '*.ts' '*.json'` is empty, and the merges touched none) |

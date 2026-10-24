@@ -755,38 +755,81 @@ public sealed class EventRingConsumerTests
 
     private static int Count(string text, string pattern) => System.Text.RegularExpressions.Regex.Count(text, pattern);
 
-    // A plain (non-atomic) payload access on either side of the ring behaves identically under any single-threaded interleaving, and the
-    // concurrent stress tests catch a one-sided regression only by chance on a weakly ordered CPU (the reviewer's one-sided mutants
-    // survived 0 of 20 runs each). So the encapsulation itself is checked, in each language: the raw view over the ring's memory is
-    // constructed in exactly one place, the EventRingMemory wrapper, and each of the wrapper's accessors is an atomic whole-word access.
-    // The seqlock protocols (writer: sequence 0, payload, sequence; reader: sequence, payload, sequence) are written against those
-    // accessors and proven by the reused-slot, lap and stress tests.
+    // Every typed-array or DataView construction in a source, as "Type(first argument", in order.
+    private static string[] Views(string text) => System.Text.RegularExpressions.Regex.Matches(text, @"new (\w+Array|DataView)\(\s*([\w$#.]*)")
+        .Select(match => $"{match.Groups[1].Value}({match.Groups[2].Value}").ToArray();
+
+    // Every `.buffer` access in a source, as its receiver expression, in order.
+    private static string[] Buffers(string text) => System.Text.RegularExpressions.Regex.Matches(text, @"([\w$#]+(?:\.[\w$#]+)*(?:\(\))?)\.buffer\b")
+        .Select(match => match.Groups[1].Value).ToArray();
+
+    // The ring's JS files: the module that owns its memory, and every production script that imports it.
+    private const string RingModule = "CuriousContraptions.web/wwwroot/event-ring-cursor.js";
+    private const string SimulationWorker = "CuriousContraptions.Simulation/wwwroot/worker.js";
+    private const string AnimationWorker = "CuriousContraptions.Animation.Worker/wwwroot/worker.js";
+    private const string WorkshopClient = "CuriousContraptions.web/wwwroot/workshop-client.js";
+
+    // Each file's complete list of views and `.buffer` accesses (pose ring, clock ring, wire and sample buffers); none is over the event
+    // ring, whose one view is the wrapper's `BigUint64Array(buffer` in the module. A new view or `.buffer` access anywhere in these files
+    // (the reviewer's G3 `events.ring.buffer` in the client, G4 `const { buffer: shared } = eventRing` in the worker) fails until it is
+    // reviewed and listed here; the ring itself must go through EventRingMemory.
+    private static readonly (string Path, string[] Views, string[] Buffers)[] RingFiles =
+    [
+        (RingModule,
+            ["Uint8Array(0", "BigUint64Array(buffer", "BigUint64Array(EVENT_SLOT_BYTES", "BigUint64Array(records.length", "Uint8Array(words.buffer",
+                "Uint8Array(EVENT_DELIVERY_BYTES", "DataView(delivery.buffer"],
+            ["words", "delivery"]),
+        (SimulationWorker,
+            ["BigInt64Array(buffer", "Uint8Array(poseRing", "DataView(batch.buffer", "BigUint64Array(aligned", "Uint8Array(bytes", "Uint8Array(bytes",
+                "Uint8Array(sequenceBytes", "Uint8Array(batch", "Uint8Array(bytes", "Uint8Array(identity", "Uint8Array(poseSlot",
+                "Uint8Array(host.Bootstrap", "Uint8Array(host.AnimationPeer", "Float64Array(nativeClockEvidence", "Uint8Array(host.AnimationPeer"],
+            ["batch", "batch", "batch.slice()", "bytes", "bytes", "read.bytes", "read.identity", "res", "sequence", "committed", "nativeClock",
+                "masterPeer", "animationPeer"]),
+        (AnimationWorker,
+            ["Uint8Array(bytes", "Uint8Array(bytes", "Uint8Array(bytes", "DataView(value.buffer", "DataView(value.buffer", "Float64Array(nativeClockEvidence"],
+            ["value", "value", "value", "value", "value", "nativeClock"]),
+        (WorkshopClient,
+            ["BigInt64Array(buffer", "DataView(buffer", "Float32Array(buffer", "DataView(bytes.buffer", "Uint8Array(bootstrapBytes", "Uint8Array(128",
+                "Uint8Array(32", "Uint8Array(bootstrapBytes", "DataView(item.animationOutput.buffer", "DataView(item.animationOutput.buffer",
+                "DataView(item.animationOutput.buffer", "DataView(item.animationOutput.buffer", "DataView(item.animationOutput.buffer",
+                "DataView(masterPeer.buffer", "Uint8Array(bytes", "Uint8Array(bytes", "Uint8Array(bytes", "Uint8Array(sequenceBytes", "Uint8Array(bytes",
+                "Uint8Array(bytes"],
+            ["bytes", "bootstrap", "item.animationOutput", "item.animationOutput", "item.animationOutput", "item.animationOutput",
+                "item.animationOutput", "animationAcknowledged", "masterPeer", "bootstrap", "message.readIdentity", "scheduleControl",
+                "animationControl", "owned"]),
+    ];
+
+    // Architecture guard (docs/testing-guidance.md): a plain (non-atomic) access on either side of the ring behaves identically under any
+    // single-threaded interleaving, and the concurrent stress tests catch a one-sided regression only by chance on a weakly ordered CPU
+    // (the reviewer's one-sided mutants survived 0 of 20 runs each). The encapsulation makes the violation impossible through the public
+    // API (EventRingMemory has no raw accessor, the cursor's ring is private; the node harness checks both through the API), and this guard
+    // checks it is respected, in each language: the raw view over the ring's memory is constructed in exactly one place, the
+    // EventRingMemory wrapper, and each of the wrapper's accessors is an atomic whole-word access.
     [Fact]
-    public void OnlyTheEventRingMemoryViewsTheRingAndEveryAccessorIsAtomic()
+    public void GuardOnlyTheEventRingMemoryViewsTheRingAndEveryAccessorIsAtomic()
     {
-        // JS: the one module that owns the ring's memory.
-        var module = Source("CuriousContraptions.web/wwwroot/event-ring-cursor.js");
-        var memory = Declaration(module, "export class EventRingMemory {");
-        // Every typed array or DataView the module builds over an existing buffer: the wrapper's one view over the ring, and the two
-        // fresh, unshared delivery buffers. A view over the ring anywhere else (`this.ring.buffer`, …) adds an entry.
-        var views = System.Text.RegularExpressions.Regex.Matches(module, @"new (?:\w+Array|DataView)\(([\w.#]*buffer)\b")
-            .Select(match => match.Groups[1].Value).Order().ToArray();
-        Assert.Equal(["buffer", "delivery.buffer", "words.buffer"], views);
-        Assert.Contains("this.#words = new BigUint64Array(buffer);", memory);
-        // The wrapper's view is private and each use of it is one Atomics.load or Atomics.store (its declaration and assignment aside).
-        // (A private field is unreachable outside the class, so the class is the whole of its use.)
-        Assert.Equal(2 + Count(memory, @"Atomics\.(load|store)\((this|ring)\.#words, "), Count(memory, "#words"));
-        // Everyone else holds the ring's SharedArrayBuffer only to post it or hand it to the reader.
-        var worker = Source("CuriousContraptions.Simulation/wwwroot/worker.js");
-        Assert.Equal(Count(worker, @"\{ eventRing: eventRing\.buffer \}"), Count(worker, @"eventRing\.buffer"));
-        Assert.Equal(0, Count(module, @"ring\.buffer"));
-        foreach (var (path, message) in new[] { ("CuriousContraptions.Animation.Worker/wwwroot/worker.js", "envelope"),
-            ("CuriousContraptions.web/wwwroot/workshop-client.js", "message") })
+        // JS: the files that touch the ring are the module and exactly the production scripts that import it.
+        var root = twodog.Engine.ResolveProjectDir();
+        string[] scripts = ["CuriousContraptions.Simulation/wwwroot", "CuriousContraptions.Animation.Worker/wwwroot", "CuriousContraptions.web/wwwroot"];
+        var importers = scripts.SelectMany(folder => Directory.EnumerateFiles(Path.Combine(root, folder), "*.js", SearchOption.TopDirectoryOnly))
+            .Where(path => File.ReadAllText(path).Contains("event-ring-cursor.js", StringComparison.Ordinal))
+            .Select(path => Path.GetRelativePath(root, path).Replace('\\', '/')).Order().ToArray();
+        Assert.Equal(new[] { AnimationWorker, SimulationWorker, WorkshopClient }.Order(), importers);
+        foreach (var (path, views, buffers) in RingFiles)
         {
-            var reader = Source(path);
-            Assert.Equal(Count(reader, $@"{message}\.eventRing instanceof SharedArrayBuffer") + Count(reader, $@"\.attach\({message}\.eventRing\)"),
-                Count(reader, @"\.eventRing\b"));
+            var text = Source(path);
+            Assert.True(views.SequenceEqual(Views(text)), $"{path}: the typed-array/DataView constructions changed: {string.Join(", ", Views(text))}");
+            Assert.True(buffers.SequenceEqual(Buffers(text)), $"{path}: the .buffer accesses changed: {string.Join(", ", Buffers(text))}");
         }
+        // The module's one view over an existing shared buffer is the wrapper's, its view is private, and each use of it is one
+        // Atomics.load or Atomics.store (its declaration and assignment aside; a private field is unreachable outside the class).
+        var module = Source(RingModule);
+        var memory = Declaration(module, "export class EventRingMemory {");
+        Assert.Contains("this.#words = new BigUint64Array(buffer);", memory);
+        Assert.Equal(2 + Count(memory, @"Atomics\.(load|store)\((this|ring)\.#words, "), Count(memory, "#words"));
+        // The SharedArrayBuffer is declared, kept, and read only to post it.
+        Assert.Equal(3, Count(memory, "#buffer"));
+        Assert.Contains("postTo(target) { target.postMessage({ eventRing: this.#buffer }); }", memory);
 
         // C#: the reference ring's memory.
         var reference = Source("CuriousContraptions.Abstractions/EventRingBuffer.cs");

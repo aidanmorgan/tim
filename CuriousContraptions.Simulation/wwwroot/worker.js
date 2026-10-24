@@ -84,8 +84,8 @@ function writeEventRing(batch) {
     if (!Number.isInteger(records) || records < 0 || records > capacity) throw new Error('An event publication is not whole records within its ring.');
     if (!eventRing || capacity !== eventRing.capacity || epoch !== eventRing.epoch) {
         eventRing = EventRingMemory.allocate(capacity, epoch);
-        self.postMessage({ eventRing: eventRing.buffer });
-        if (animationPort) animationPort.postMessage({ eventRing: eventRing.buffer });
+        eventRing.postTo(self);
+        if (animationPort) eventRing.postTo(animationPort);
     }
     // The publication's own words (an aligned copy when the view is not 8-byte aligned), in platform order like the ring's.
     const aligned = batch.byteOffset % 8 === 0;
@@ -342,7 +342,7 @@ self.onmessage = async event => {
             };
             animationPort.start();
             // A ring allocated before the port arrived reaches the Animation worker's reader too.
-            if (eventRing) animationPort.postMessage({ eventRing: eventRing.buffer });
+            if (eventRing) eventRing.postTo(animationPort);
             self.postMessage({ animationPeer }, [animationPeer.buffer]);
         } catch (error) { disposeOwned(); self.postMessage({ failure: true, detail: String(error) }); }
         return;

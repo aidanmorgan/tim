@@ -226,3 +226,83 @@ Raw results are in `seqlock-round2.txt`.
 1. **R2-F1:** behavioural Impact assertions in place of the hash.
 2. **R2-F2:** a structural Atomics guard for the reader and writer payload accesses.
 3. **Rebase on main:** re-merge current main dc0356de. Then return the frozen candidate for independent re-review and SnapshotApproval.
+
+# Re-review round 3: tip 3fff114e (2026-10-24)
+
+**Scope.** The chain since round 2:
+
+- 1c4847b0 (merges dc0356de);
+- 09422c12 (the R2 fixes);
+- 7a008021 (merges 54e19147);
+- 3fff114e (the `EventRingMemory` encapsulation).
+
+The worktree was clean at review start. Evidence is in `evidence-9a-23-25b-review/round3/`.
+
+## Verdict: FAIL
+
+There is one blocking finding, R3-F1. No SnapshotApproval was given, nothing was staged and nothing was committed.
+
+Separately, origin/main has moved again. It is now f9ce61ef, not 54e19147.
+
+## R3-F1 (Blocking). The JS encapsulation can be bypassed, and the guard misses it
+
+The C# `EventRingMemory` is properly closed: private bytes and no raw accessor. The JS wrapper still hands the raw `SharedArrayBuffer` out in two ways:
+
+- the public `get buffer()`;
+- the public `EventRingCursor.ring` property, which reaches `buffer`.
+
+`OnlyTheEventRingMemoryViewsTheRingAndEveryAccessorIsAtomic` is a lexical scan, so ordinary aliasing gets past it.
+
+Throwaway worktree at 3fff114e; each mutant applied with Edit and restored with `git checkout`. Results are in `round3/mutations/G*`:
+
+| Mutant | Guard | Node cursor and writer tests |
+|---|---|---|
+| G1: `loadPayload` made a plain `#words[...]` read (reader) | **killed** | pass |
+| G2: worker writes the payload through `new BigUint64Array(eventRing.buffer)` | **killed** | pass |
+| G3: `workshop-client.js` `readEvents` builds `new BigUint64Array(events.ring.buffer)` | **survives** | pass |
+| G4: worker `const { buffer: shared } = eventRing` with plain payload stores through `new BigUint64Array(shared)` | **survives** | pass |
+
+G4 is exactly the round-1 F1 defect (plain writer stores), reintroduced in a natural destructuring form. Nothing detects it: the stress test runs at about 0 detection on one-sided regressions (round 2).
+
+**Required:**
+
+1. Remove `get buffer()` from the JS `EventRingMemory`. Give it the posting operation instead, for example `postTo(target)` calling `target.postMessage({ eventRing: this.#buffer })`, so the writer never holds the SharedArrayBuffer.
+2. Make `EventRingCursor`'s ring private (`#ring`), so no consumer can reach the memory object.
+3. Strengthen the guard so the encapsulation is checked by construction, not by naming:
+   - in `worker.js`, the Animation `worker.js` and `workshop-client.js`, assert the exact list of every `new …Array(` / `new DataView(` construction, so any new view fails;
+   - assert that no code outside the module names `.buffer` of the ring object;
+   - re-run G3 and G4; both must be killed.
+
+## Other round-3 checks: all Pass
+
+| Item | Evidence | Result |
+|---|---|---|
+| Behavioural Impact assertions (R2-F1) | See the breakdown below this table. | Pass |
+| Output-hash rule | Only one hit in `git diff 54e19147 HEAD` (`*.cs`, `*.mjs`, `*.ts`): `Convert.ToHexString`, which hex-encodes the ring input for the JS process and is not a hash assertion. Byte-equal checks are round-trip, differential or transport properties (round 2). The Reset and save replay test now asserts the tick, sequence 1, rest and quarter-point values. | Pass |
+| Stress | `loop2.sh` on the tip: **0 of 40** (`stress-x40.txt`) | Pass |
+| Merges | `git show --remerge-diff` for 1c4847b0 and 7a008021: 0 conflicts and 0 resolution diffs. Every file in `git diff 54e19147 HEAD` is a slice file; AGENTS.md is identical to main. | Pass |
+| No-skip rule | Full slnx: 77 / 17 / 191 / 190 / **2950**, all Skipped 0. Node **112/112**, 0 skipped, 0 todo. | Pass |
+| Build | One `--no-incremental` Debug build: 0 warnings, 0 errors | Pass |
+
+**Behavioural Impact assertions, in detail:**
+
+- **Constants and tolerances come from the declarations and physics, not observed output:**
+  - the expectations use the Ball's 1 kg mass, its .55 restitution and its .04 drag (from the Ball and Bumper declarations), and the store ½·m·8² = 32 J;
+  - tolerances come from tick granularity: k/120 s per hit, and m·e²·v·g/120 for the paid work.
+- **The D9 claim is now stated as behaviour:** each record equals the device's hit row, field by field.
+- **Mutants:**
+  - Reviewer P1 (contact-work target speed ×0.99 in `ContactWorkImpulse.TowardTarget`): **killed** by `TheBumperRunsImpactRecordsFollowTheBallisticLawAndTheStore`.
+  - Reviewer P3 (unpaid hits unpublished in `EventRecordProducer.Stage`): **killed** by 5 tests.
+  - The implementer's 1%-high and one-tick-late mutants were also killed.
+
+**Commands.**
+
+- **Build and suite:** `dotnet build CuriousContraptions.slnx -c Debug --no-incremental`, then `dotnet test CuriousContraptions.slnx -c Debug --no-build --no-restore` with no blame (`build.log`, `test.log`, rc 0).
+- **Node harnesses:** `node --experimental-vm-modules --test --test-timeout=120000 tools/*.test.mjs` under `timeout 900` (`node-harness.log`).
+- **Probes:** a throwaway worktree, built once for the guard mutants, which read sources at test time, and rebuilt for each C# mutant. It has been removed; `git worktree list` shows none.
+
+## Return to the implementation owner
+
+1. Fix R3-F1 as specified above.
+2. Re-merge current main (f9ce61ef).
+3. Return the frozen tip for re-review and SnapshotApproval.

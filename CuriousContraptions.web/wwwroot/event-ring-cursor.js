@@ -9,7 +9,8 @@
 // - the reader (EventRingCursor.read) loads the sequence, loads every payload word, then loads the sequence again, and keeps the copy
 //   only when both loads equal the sequence it wants. A plain payload access may be reordered past the sequence accesses, so a slot
 //   reused while it was copied could pass both checks torn (review F1); the accessors make every access atomic.
-// Everything else holds the ring only to post it (`buffer`) or to read records through EventRingCursor.
+// Nothing else can reach the SharedArrayBuffer: the writer posts it with postTo, and a reader adopts it with EventRingCursor.attach,
+// whose ring is private.
 const EVENT_HEADER_BYTES = 64;          // EventRingBuffer.HeaderBytes
 const EVENT_SLOT_BYTES = 64;            // EventRingBuffer.SlotBytes
 const EVENT_CAPACITY_OFFSET = 0;        // EventRingHeader.CapacityOffset
@@ -42,7 +43,7 @@ export class EventRingMemory {
         return ring;
     }
 
-    // The ring a writer posted, after its fixed header words are checked against the layout.
+    // Adopts the ring a writer posted, after its fixed header words are checked against the layout.
     static attach(buffer) {
         const ring = new EventRingMemory(buffer);
         const layout = Atomics.load(ring.#words, EVENT_CAPACITY_OFFSET / 8), epoch = Atomics.load(ring.#words, EVENT_EPOCH_OFFSET / 8);
@@ -54,8 +55,9 @@ export class EventRingMemory {
         return ring;
     }
 
-    // The SharedArrayBuffer itself, only to post it to a reader.
-    get buffer() { return this.#buffer; }
+    // Posts the ring to one of its readers (the main thread, or the Animation worker's master port) as `{ eventRing }`: the
+    // SharedArrayBuffer leaves this module only inside that message, and a reader adopts it with attach (review R3-F1).
+    postTo(target) { target.postMessage({ eventRing: this.#buffer }); }
     get capacity() { return this.#capacity; }
     get epoch() { return this.#epoch; }
 
@@ -82,16 +84,17 @@ export class EventRingMemory {
 // - a slot the writer reused while it was copied is never delivered: it is skipped and counted;
 // - a reader more than a capacity behind jumps to the oldest record the ring still holds and counts the records it passed.
 export class EventRingCursor {
+    #ring; // the adopted EventRingMemory: private, so no consumer can reach the ring's memory through the cursor (review R3-F1)
+
     constructor() {
-        this.ring = undefined;
         this.epoch = 0n; this.cursor = 0n; this.lapped = 0n;
     }
 
     // Attaches the ring the Simulation worker posted for an admission. A new ring always restarts the cursor at sequence 1: the worker
     // allocates one exactly when the epoch or capacity changes, and the producer's sequences restart with it.
     attach(buffer) {
-        this.ring = EventRingMemory.attach(buffer);
-        this.epoch = this.ring.epoch; this.cursor = 0n;
+        this.#ring = EventRingMemory.attach(buffer);
+        this.epoch = this.#ring.epoch; this.cursor = 0n;
     }
 
     // Reads every whole record committed since the cursor, only while the ring's epoch is the one the caller has installed (D5): a
@@ -99,8 +102,8 @@ export class EventRingCursor {
     // Returns the records (64 bytes each, ascending sequence), the records skipped by this read and the ring's epoch.
     read(admitted) {
         if (typeof admitted !== 'bigint') throw new Error('An event read names its installed epoch.');
-        if (!this.ring || this.epoch !== admitted) return { records: NO_RECORDS, skipped: 0n, epoch: this.epoch };
-        const written = this.ring.loadWriteSequence(), capacity = BigInt(this.ring.capacity);
+        if (!this.#ring || this.epoch !== admitted) return { records: NO_RECORDS, skipped: 0n, epoch: this.epoch };
+        const written = this.#ring.loadWriteSequence(), capacity = BigInt(this.#ring.capacity);
         const records = [];
         let skipped = 0n;
         while (this.cursor < written) {
@@ -110,10 +113,10 @@ export class EventRingCursor {
             }
             const target = this.cursor + 1n;
             // The reader's seqlock: the sequence, every payload word, then the sequence again.
-            const before = this.ring.loadSequence(target);
+            const before = this.#ring.loadSequence(target);
             const copy = new BigUint64Array(EVENT_SLOT_BYTES / 8);
-            for (let word = 1; word < EVENT_SLOT_BYTES / 8; word++) copy[word] = this.ring.loadPayload(target, word);
-            const after = this.ring.loadSequence(target);
+            for (let word = 1; word < EVENT_SLOT_BYTES / 8; word++) copy[word] = this.#ring.loadPayload(target, word);
+            const after = this.#ring.loadSequence(target);
             this.cursor = target;
             if (before !== target || after !== target) { skipped++; continue; }
             copy[0] = target;

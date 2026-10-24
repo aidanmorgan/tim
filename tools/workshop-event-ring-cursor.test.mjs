@@ -288,6 +288,23 @@ test('a ring older than the installed epoch is ignored: nothing is delivered and
     assert.deepEqual(sequences(cursor.read(7n)), [1n, 2n, 3n]); // the same ring still reads whole for its own installation
 });
 
+// Review R3-F1: the ring's shared memory is reachable only through EventRingMemory's atomic accessors. Its public surface has no raw
+// buffer, the cursor's ring is private, and the ring leaves its writer only as the `{ eventRing }` message a reader adopts.
+test('the ring memory is reachable only through its atomic API: no raw buffer, a private cursor ring, and postTo posts the adoptable ring', () => {
+    const memory = EventRingMemory.allocate(4, 3n);
+    assert.equal(memory.buffer, undefined);
+    assert.deepEqual(Object.keys(memory), []);
+    const messages = [];
+    memory.postTo({ postMessage: message => messages.push(message) });
+    assert.deepEqual(Object.keys(messages[0]), ['eventRing']);
+    assert.ok(messages[0].eventRing instanceof SharedArrayBuffer);
+    const cursor = new EventRingCursor();
+    cursor.attach(messages[0].eventRing);
+    assert.equal(cursor.ring, undefined);
+    assert.deepEqual(Object.keys(cursor).sort(), ['cursor', 'epoch', 'lapped']);
+    assert.equal(cursor.epoch, 3n); // the adopted ring is the posted one
+});
+
 test('a delivery carries the epoch and skipped count before the records', () => {
     const records = new Uint8Array(64); records[0] = 9;
     const delivery = eventDelivery({ records, skipped: 2n, epoch: 11n });
