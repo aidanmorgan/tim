@@ -1,0 +1,29 @@
+TAP version 13
+# Subtest: a clock reply landing after disposal is never delivered
+not ok 1 - a clock reply landing after disposal is never delivered
+  ---
+  duration_ms: 255.448958
+  type: 'test'
+  location: '/private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/rv-chd/mut/tools/workshop-client-lifecycle.test.mjs:269:1'
+  failureType: 'testCodeFailure'
+  error: 'after disposal: the master answered it'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: ~
+  actual: ~
+  operator: 'notStrictEqual'
+  stack: |-
+    assertOneAnsweredWait (file:///private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/rv-chd/mut/tools/workshop-client-lifecycle.test.mjs:253:12)
+    TestContext.<anonymous> (file:///private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/rv-chd/mut/tools/workshop-client-lifecycle.test.mjs:274:5)
+    async Test.run (node:internal/test_runner/test:1409:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3)
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 0
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 315.311833

@@ -1,0 +1,185 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  CuriousContraptions.FlatBuffers -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-ci-harness-determinism/CuriousContraptions.FlatBuffers/bin/Debug/net10.0/CuriousContraptions.FlatBuffers.dll
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-ci-harness-determinism/CuriousContraptions.Abstractions/bin/Debug/net10.0/CuriousContraptions.Abstractions.dll
+  WorkerAotGuard -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-ci-harness-determinism/tools/WorkerAotGuard/bin/Debug/net10.0/WorkerAotGuard.dll
+  CuriousContraptions.Animation -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-ci-harness-determinism/CuriousContraptions.Animation/bin/Debug/net10.0/CuriousContraptions.Animation.dll
+  LifecycleContract -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-ci-harness-determinism/tools/LifecycleContract/bin/Debug/net10.0/LifecycleContract.dll
+  TraceAllocations -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-ci-harness-determinism/tools/TraceAllocations/bin/Debug/net10.0/TraceAllocations.dll
+  CuriousContraptions.Abstractions.Signal -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-ci-harness-determinism/CuriousContraptions.Abstractions.Signal/bin/Debug/net10.0/CuriousContraptions.Abstractions.Signal.dll
+  CuriousContraptions.Abstractions.Fluid -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-ci-harness-determinism/CuriousContraptions.Abstractions.Fluid/bin/Debug/net10.0/CuriousContraptions.Abstractions.Fluid.dll
+  CuriousContraptions.Abstractions.Mechanical -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-ci-harness-determinism/CuriousContraptions.Abstractions.Mechanical/bin/Debug/net10.0/CuriousContraptions.Abstractions.Mechanical.dll
+  CuriousContraptions.Abstractions.Electrical -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-ci-harness-determinism/CuriousContraptions.Abstractions.Electrical/bin/Debug/net10.0/CuriousContraptions.Abstractions.Electrical.dll
+  Ownership -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-ci-harness-determinism/tools/Ownership/bin/Debug/net10.0/Ownership.dll
+  Preview -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-ci-harness-determinism/tools/Preview/bin/Debug/net10.0/Preview.dll
+  ElectricalXor -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-ci-harness-determinism/elements/ElectricalXor/bin/Debug/net10.0/ElectricalXor.dll
+  Springboard -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-ci-harness-determinism/elements/Springboard/bin/Debug/net10.0/Springboard.dll
+  ElectricalOr -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-ci-harness-determinism/elements/ElectricalOr/bin/Debug/net10.0/ElectricalOr.dll
+  WireContract -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-ci-harness-determinism/tools/WireContract/bin/Debug/net10.0/WireContract.dll
+  Wall -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-ci-harness-determinism/elements/Wall/bin/Debug/net10.0/Wall.dll
+  BowlingBall -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-ci-harness-determinism/elements/BowlingBall/bin/Debug/net10.0/BowlingBall.dll
+  Pipe -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-ci-harness-determinism/elements/Pipe/bin/Debug/net10.0/Pipe.dll
+  PipeBend90 -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-ci-harness-determinism/elements/PipeBend90/bin/Debug/net10.0/PipeBend90.dll
+  ElectricalNor -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-ci-harness-determinism/elements/ElectricalNor/bin/Debug/net10.0/ElectricalNor.dll
+  Ramp -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-ci-harness-determinism/elements/Ramp/bin/Debug/net10.0/Ramp.dll
+  Battery -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-ci-harness-determinism/elements/Battery/bin/Debug/net10.0/Battery.dll
+  PoweredGate -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-ci-harness-determinism/elements/PoweredGate/bin/Debug/net10.0/PoweredGate.dll
+  PipeBend45 -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-ci-harness-determinism/elements/PipeBend45/bin/Debug/net10.0/PipeBend45.dll
+  Bumper -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-ci-harness-determinism/elements/Bumper/bin/Debug/net10.0/Bumper.dll
+  Coverage -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-ci-harness-determinism/tools/Coverage/bin/Debug/net10.0/Coverage.dll
+  SystemClock -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-ci-harness-determinism/elements/SystemClock/bin/Debug/net10.0/SystemClock.dll
+  BallDetector -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-ci-harness-determinism/elements/BallDetector/bin/Debug/net10.0/BallDetector.dll
+  Domino -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-ci-harness-determinism/elements/Domino/bin/Debug/net10.0/Domino.dll
+  StateLatch -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-ci-harness-determinism/elements/StateLatch/bin/Debug/net10.0/StateLatch.dll
+  SignalLamp -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-ci-harness-determinism/elements/SignalLamp/bin/Debug/net10.0/SignalLamp.dll
+  Ball -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-ci-harness-determinism/elements/Ball/bin/Debug/net10.0/Ball.dll
+  ImpactSwitch -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-ci-harness-determinism/elements/ImpactSwitch/bin/Debug/net10.0/ImpactSwitch.dll
+  PressurePlate -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-ci-harness-determinism/elements/PressurePlate/bin/Debug/net10.0/PressurePlate.dll
+  E2eRunner -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-ci-harness-determinism/tools/E2eRunner/bin/Debug/net10.0/E2eRunner.dll
+  ElectricalNand -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-ci-harness-determinism/elements/ElectricalNand/bin/Debug/net10.0/ElectricalNand.dll
+  Funnel -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-ci-harness-determinism/elements/Funnel/bin/Debug/net10.0/Funnel.dll
+  DelayBox -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-ci-harness-determinism/elements/DelayBox/bin/Debug/net10.0/DelayBox.dll
+  WorkerAotGuard.Tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-ci-harness-determinism/tools/WorkerAotGuard.Tests/bin/Debug/net10.0/WorkerAotGuard.Tests.dll
+  Counter -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-ci-harness-determinism/elements/Counter/bin/Debug/net10.0/Counter.dll
+  Receiver -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-ci-harness-determinism/elements/Receiver/bin/Debug/net10.0/Receiver.dll
+  Coverage.Tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-ci-harness-determinism/tools/Coverage.Tests/bin/Debug/net10.0/Coverage.Tests.dll
+  HoldTimer -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-ci-harness-determinism/elements/HoldTimer/bin/Debug/net10.0/HoldTimer.dll
+  BothGate -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-ci-harness-determinism/elements/BothGate/bin/Debug/net10.0/BothGate.dll
+  CuriousContraptions.Bundle -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-ci-harness-determinism/CuriousContraptions.Bundle/bin/Debug/net10.0/CuriousContraptions.Bundle.dll
+  E2eRunner.Tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-ci-harness-determinism/tools/E2eRunner.Tests/bin/Debug/net10.0/E2eRunner.Tests.dll
+  BundleElements -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-ci-harness-determinism/tools/BundleElements/bin/Debug/net10.0/BundleElements.dll
+  Element bundle: /Users/aidan/dev/personal/tim/.claude/worktrees/story-ci-harness-determinism/tools/BundleElements/bin/Debug/net10.0/elements.bundle.json (28 elements)
+  Element bundle: /Users/aidan/dev/personal/tim/.claude/worktrees/story-ci-harness-determinism/elements/elements.bundle.json (28 elements)
+  CuriousContraptions -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-ci-harness-determinism/.godot/mono/temp/bin/Debug/CuriousContraptions.dll
+  CuriousContraptions.2dog -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-ci-harness-determinism/CuriousContraptions.2dog/bin/Debug/net10.0/CuriousContraptions.2dog.dll
+  Godot Engine (2dog) v4.7.2.stable.mono.2dog.161236340 (2026-09-24 19:51:42 UTC) - https://2dog.dev
+  
+  CuriousContraptions.Simulation -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-ci-harness-determinism/CuriousContraptions.Simulation/bin/Debug/net10.0/browser-wasm/CuriousContraptions.Simulation.dll
+  BundleElements.Tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-ci-harness-determinism/tools/BundleElements.Tests/bin/Debug/net10.0/BundleElements.Tests.dll
+  CuriousContraptions.tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-ci-harness-determinism/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll
+  [   0% ] [90m[1mfirst_scan_filesystem[22m | Started Project initialization (5 steps)[39m[0m
+  [   0% ] [90m[1mfirst_scan_filesystem[22m | Scanning file structure...[39m[0m
+  [  16% ] [90m[1mfirst_scan_filesystem[22m | Loading global class names...[39m[0m
+  [  33% ] [90m[1mfirst_scan_filesystem[22m | Verifying GDExtensions...[39m[0m
+  [  50% ] [90m[1mfirst_scan_filesystem[22m | Creating autoload scripts...[39m[0m
+  [  66% ] [90m[1mfirst_scan_filesystem[22m | Initializing plugins...[39m[0m
+  [  83% ] [90m[1mfirst_scan_filesystem[22m | Starting file scan...[39m[0m
+  [92m[ DONE ][39m [1mfirst_scan_filesystem[22m
+  [0m
+  [   0% ] [90m[1mupdate_scripts_classes[22m | Started Registering global classes... (33 steps)[39m[0m
+  [   0% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [   2% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [   5% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [   8% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  11% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  14% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  17% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  20% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  23% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  26% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  29% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  32% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  35% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  38% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  41% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  44% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  47% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  50% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  52% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  55% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  58% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  61% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  64% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  67% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  70% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  73% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  76% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  79% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  82% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  85% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  88% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  91% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  94% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [92m[ DONE ][39m [1mupdate_scripts_classes[22m
+  [0m
+  [   0% ] [90m[1m_update_scan_actions[22m | Started Scanning actions... (22 steps)[39m[0m
+  [   0% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [   4% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [   8% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  13% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  17% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  21% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  26% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  30% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  34% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  39% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  43% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  47% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  52% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  56% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  60% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  65% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  69% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  73% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  78% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  82% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  86% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  91% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [92m[ DONE ][39m [1m_update_scan_actions[22m
+  [0m
+  [   0% ] [90m[1mloading_editor_layout[22m | Started Loading editor (5 steps)[39m[0m
+  [   0% ] [90m[1mloading_editor_layout[22m | Loading editor layout...[39m[0m
+  [  16% ] [90m[1mloading_editor_layout[22m | Loading docks...[39m[0m
+  [92m[ DONE ][39m [1mloading_editor_layout[22m
+  [0m
+  TwoDog: Imported Godot project /Users/aidan/dev/personal/tim/.claude/worktrees/story-ci-harness-determinism
+  CuriousContraptions.Animation.Worker -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-ci-harness-determinism/CuriousContraptions.Animation.Worker/bin/Debug/net10.0/browser-wasm/CuriousContraptions.Animation.Worker.dll
+  Godot Engine (2dog) v4.7.2.stable.mono.2dog.161236340 (2026-09-24 19:51:42 UTC) - https://2dog.dev
+  
+  [   0% ] [90m[1mfirst_scan_filesystem[22m | Started Project initialization (5 steps)[39m[0m
+  [   0% ] [90m[1mfirst_scan_filesystem[22m | Scanning file structure...[39m[0m
+  [  16% ] [90m[1mfirst_scan_filesystem[22m | Loading global class names...[39m[0m
+  [  33% ] [90m[1mfirst_scan_filesystem[22m | Verifying GDExtensions...[39m[0m
+  [  50% ] [90m[1mfirst_scan_filesystem[22m | Creating autoload scripts...[39m[0m
+  [  66% ] [90m[1mfirst_scan_filesystem[22m | Initializing plugins...[39m[0m
+  [  83% ] [90m[1mfirst_scan_filesystem[22m | Starting file scan...[39m[0m
+  [92m[ DONE ][39m [1mfirst_scan_filesystem[22m
+  [0m
+  [   0% ] [90m[1m_update_scan_actions[22m | Started Scanning actions... (22 steps)[39m[0m
+  [   0% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [   4% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [   8% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  13% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  17% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  21% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  26% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  30% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  34% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  39% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  43% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  47% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  52% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  56% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  60% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  65% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  69% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  73% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  78% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  82% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  86% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [  91% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+  [92m[ DONE ][39m [1m_update_scan_actions[22m
+  [0m
+  [   0% ] [90m[1mloading_editor_layout[22m | Started Loading editor (5 steps)[39m[0m
+  [   0% ] [90m[1mloading_editor_layout[22m | Loading editor layout...[39m[0m
+  [  16% ] [90m[1mloading_editor_layout[22m | Loading docks...[39m[0m
+  [92m[ DONE ][39m [1mloading_editor_layout[22m
+  [0m
+  TwoDog: Imported Godot project /Users/aidan/dev/personal/tim/.claude/worktrees/story-ci-harness-determinism
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:12.47
+dotnet build CuriousContraptions.slnx -c Debug  6.22s user 2.24s system 67% cpu 12.576 total

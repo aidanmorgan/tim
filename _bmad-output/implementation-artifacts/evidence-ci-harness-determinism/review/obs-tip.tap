@@ -1,0 +1,89 @@
+TAP version 13
+# (node:8399) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# {"captureMode":1,"passed":true,"controls":["preparationClockOverlap","noEarlyWorld","pending","receiptsToLedger","queuedTerminal","activeCommand","matchingReceipt","outputFailureLogged","ordinaryReadNoExport","acknowledgementOnlyReset","retiredEnvelopesRejected","dispose"]}
+# Subtest: capture mode 1: preparation, receipts, queued terminal, output failure, retired envelopes and disposal
+ok 1 - capture mode 1: preparation, receipts, queued terminal, output failure, retired envelopes and disposal
+  ---
+  duration_ms: 105.070625
+  type: 'test'
+  ...
+# {"captureMode":2,"passed":true,"controls":["preparationClockOverlap","noEarlyWorld","pending","receiptsToLedger","queuedTerminal","activeCommand","matchingReceipt","outputFailureLogged","ordinaryReadNoExport","acknowledgementOnlyReset","retiredEnvelopesRejected","dispose"]}
+# Subtest: capture mode 2: preparation, receipts, queued terminal, output failure, retired envelopes and disposal
+ok 2 - capture mode 2: preparation, receipts, queued terminal, output failure, retired envelopes and disposal
+  ---
+  duration_ms: 103.770833
+  type: 'test'
+  ...
+# {"slowMasterMissesAreCounted":true}
+# {"refusedReceiptIsAFailure":true}
+# {"memoryQueryOnCommandTransport":true}
+# Subtest: a slow clock master costs counted missed checks, never a failure, and the session continues
+ok 3 - a slow clock master costs counted missed checks, never a failure, and the session continues
+  ---
+  duration_ms: 302.468875
+  type: 'test'
+  ...
+# Subtest: a receipt the managed ledger refuses is a failure and retires the session
+ok 4 - a receipt the managed ledger refuses is a failure and retires the session
+  ---
+  duration_ms: 3.93575
+  type: 'test'
+  ...
+# Subtest: the memory query travels the command transport and a third outstanding command is refused
+ok 5 - the memory query travels the command transport and a third outstanding command is refused
+  ---
+  duration_ms: 2.523583
+  type: 'test'
+  ...
+# {"startupControl":1,"passed":true}
+# Subtest: startup control 1: a rejected preparation
+ok 6 - startup control 1: a rejected preparation
+  ---
+  duration_ms: 3.527958
+  type: 'test'
+  ...
+# {"startupControl":2,"passed":true}
+# {"commandsReachTheManagedDecoder":true,"dispatched":[0,7,72,70000],"rejected":["array"]}
+# {"schedulerTurnFailureEnvelope":true}
+# {"disposalCancelsSchedulerTurns":true}
+# {"mixedEnvelopesRejectedAtomically":true}
+# Subtest: startup control 2: a rejected preparation
+ok 7 - startup control 2: a rejected preparation
+  ---
+  duration_ms: 2.564167
+  type: 'test'
+  ...
+# Subtest: every byte buffer reaches the one managed decoder
+ok 8 - every byte buffer reaches the one managed decoder
+  ---
+  duration_ms: 1.676875
+  type: 'test'
+  ...
+# Subtest: a scheduler turn that cannot resume is a failure envelope
+ok 9 - a scheduler turn that cannot resume is a failure envelope
+  ---
+  duration_ms: 1.289791
+  type: 'test'
+  ...
+# Subtest: disposal cancels the timed and the queued scheduler turn
+ok 10 - disposal cancels the timed and the queued scheduler turn
+  ---
+  duration_ms: 1.38175
+  type: 'test'
+  ...
+# Subtest: a mixed envelope is rejected atomically
+ok 11 - a mixed envelope is rejected atomically
+  ---
+  duration_ms: 1.28125
+  type: 'test'
+  ...
+1..11
+# tests 11
+# suites 0
+# pass 11
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 590.132583

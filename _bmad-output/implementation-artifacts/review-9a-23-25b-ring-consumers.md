@@ -390,3 +390,72 @@ The guard's file set is the scripts that import `event-ring-cursor.js` (top leve
 
 - The throwaway worktree (wt-r4) was removed. `ring-peek.js` existed only there.
 - **Reviewer's disclosure:** the scratch helper script was retargeted with `sed`. That was outside the repository; it touched no deliverable.
+
+# Final re-review round 5: tip f2aff60b (2026-10-24)
+
+**Scope.** The chain since round 4:
+
+- 9fcff9f5 (the R4-F1 guard pins every `eventRing` mention; the R4-F2 debt note);
+- f797eea6 (merges main 860c3cb1);
+- 794f47b2 (the amplified stress removed; one bounded smoke test kept);
+- f2aff60b (merges main 9536e2ff, which is green: CI 40052056113 per the coordinator).
+
+Evidence is in `evidence-9a-23-25b-review/round5/`.
+
+## Verdict: PASS
+
+The checks below are native and scoped to this slice. Browser qualification is still pending, at the post-catalogue E2E phase.
+
+| Item | Evidence | Result |
+|---|---|---|
+| R4-F1 | G6 was re-run in throwaway worktree wt-r5 at f2aff60b (since removed). A new non-importing module `ring-peek.js` receives `message.eventRing` from `workshop-client.js` and views it plainly. The guard is **killed**: `RingMentions` differ at index 17, `client.peeked = peek(mess…` (`round5/mutations/G6-*`). | Closed |
+| R4-F2 | Recorded by the coordinator as accepted debt, owned by the test-hygiene slice (9fcff9f5 debt note). | Accepted (coordinator ruling) |
+| Stress change | `docs/testing-guidance.md` §Stress allows one bounded concurrency smoke test of a few seconds, and says repeat-N loops are not acceptance evidence. One stress test remains (capacities 4/16/128/1024, 1.04 M records, 2 readers, fixed seeds, 120 s bound). Correctness rests on the guard plus the atomic API. | Complies |
+| Merge f797eea6 | `--remerge-diff`: one conflict, `TODO.md`, resolved to main's version. `git diff 9536e2ff HEAD -- TODO.md AGENTS.md docs/testing-guidance.md` is empty. | Pass |
+| Merge f2aff60b | One conflict, `tools/workshop-client-lifecycle.test.mjs`. Both sides were kept: main's `requestReply` wait capture plus the slice's `EventRingCursor`/`eventDelivery` bindings. **Note:** the merge commit also adds this slice's own `evidence-9a-23-25b/main-green-merge/*` logs. They are slice evidence, not a change to main's content. | Pass (note) |
+| Scope vs main | Every file in `git diff --name-only 9536e2ff HEAD` is a file of a slice commit, or one of those evidence logs. | Pass |
+| Build | One `dotnet build CuriousContraptions.slnx -c Debug --no-incremental`: 0 warnings, 0 errors | Pass |
+| Full suite | `dotnet test CuriousContraptions.slnx -c Debug --no-build --no-restore` (no blame): 77 / 17 / 191 / 208 / 2950, all Skipped 0, rc 0 | Pass |
+| Node harnesses | `node --experimental-vm-modules --test --test-timeout=120000 tools/*.test.mjs` under `timeout 900`: 122/122, 0 skipped, 0 todo, rc 0 | Pass |
+| Carried CI receipts, byte integrity | Compared with the coordinator's `scratchpad/carry`: `git diff -- review-ci-no-skip.md` is byte-identical to `ci-no-skip-addendum.patch`. `review-ci-harness-determinism.md` matches (`cmp`). `evidence-ci-harness-determinism/{review,terminal}` match (`diff -r`), 25 files each. Only integrity was checked, not content. | Pass |
+
+## SnapshotApproval
+
+The SnapshotApproval record follows this section. It is computed after the review records and the carried files are staged.
+
+### SnapshotApproval record (independent reviewer, 2026-10-24)
+
+**Approved candidate:**
+
+- HEAD `f2aff60be773d45f5b26ce25c0fd89bc4bca0c8f` (branch `story-9a-23-25b`);
+- origin/main `9536e2ff70bfc0fe157a27bf1f7436727ea05dd0`, confirmed by `git fetch` immediately before staging;
+- the following files staged on that HEAD, and nothing else (36 files, all under `_bmad-output/`; no source, test, tool or content file):
+  - this record;
+  - `evidence-9a-23-25b-review/round5/`;
+  - the coordinator-carried receipts: the `review-ci-no-skip.md` addendum, `review-ci-harness-determinism.md` and `evidence-ci-harness-determinism/{review,terminal}/`.
+
+**Recorded identities (before this record was appended):**
+
+- `git write-tree`: `8e6c5142d33198b45a01e8121369d36981c452da`;
+- SHA-256 of `git diff --cached --binary HEAD`: `c54cacbafe2cb285ee2a0146b733f54007bf3ebd6ced311a0e7a5f4e6360ef75`.
+
+**Every pre-publication criterion is verified for this exact candidate:** rounds 1 to 5 above; the native suite, node harnesses, build and merges are as in the round 5 table; and the carried-receipt byte integrity was checked against the working copy.
+
+**Integrity note (carried receipt).**
+
+- `evidence-ci-harness-determinism/terminal/index-headers.txt` contains raw HTTP CRLF line endings. The repository's `core.autocrlf=input` normalises it to LF in the index (`git ls-files --eol`: `i/lf w/crlf`).
+- So the staged and committed blob differs from the carried bytes in its line endings only: working copy SHA-256 `60c88907…`, staged blob `1e4cfb2b…`.
+- No record pins that file's hash. If byte-exact header capture matters, the receipt owner should add a `-text` attribute for that path (a repository change, not made by the reviewer).
+
+**Publication-dependent checks:** verified by the reviewer after publication, before implementation Pass.
+
+1. **Commit identity.** The commit made from this snapshot has, as its tree, exactly the staged tree recorded below, after the final re-stage. Its parent is `f2aff60b`.
+2. **Merge to main.** The merge or fast-forward to origin/main changes only this slice's files relative to `9536e2ff`. If main moves first, the candidate's relevant inputs change, and this approval is void for the changed scope.
+3. **Exact-SHA CI.** The pushed main SHA's CI run is green. That includes "Test C# game", "Test C# tools" and the node harnesses on Linux, with Skipped 0.
+4. **Deploy.**
+   - The Pages deployment for that SHA succeeds.
+   - The served `index.html` and `_framework` match the run's artifact.
+   - The served bundle contains `event-ring-cursor.js` with `EventRingMemory`, `postTo` and no `buffer` getter.
+5. **Browser qualification stays pending.** Production-origin browser cases remain queued for the post-catalogue E2E phase (the spec's pending list and the 13 relay-range suites plus `cat-062b`); they are not run now.
+
+**Final staged tree:** reported to the coordinator after this record was appended and re-staged. That is the tree the commit must carry.

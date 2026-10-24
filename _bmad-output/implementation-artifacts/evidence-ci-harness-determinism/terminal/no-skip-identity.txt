@@ -1,0 +1,34 @@
+7143a874 parents: 54e19147525d40b815f2c1243f92fa9cb2e28c7b 87d27e12191a11dca8c8ebe68ae290e49e289ba7 
+7143a874 tree: 6970535d3691e1bd0f7889e914821e737d40e0ec
+7143a874 vs approved tree 114e9710:
+_bmad-output/implementation-artifacts/review-ci-no-skip.md
+(end)
+commits 7143a874..9536e2ff:
+9536e2ff Merge CI harness determinism fix
+4f2ad2af Make the lifecycle and observation harnesses deterministic
+860c3cb1 Merge plan re-prioritisation and stress-test guidance
+d94e9208 Re-prioritise delivery and set stress-test guidance
+e344b19c Merge TypeScript rule
+79ca0018 Require strict TypeScript for all non-C# code
+f9ce61ef Merge integration testing guidance
+3737c281 Add browser-free integration testing guidance
+a9f943af Merge browser E2E deferral gate
+95fa1ff2 Gate browser E2E on all puzzle elements passing unit and integration tests
+8669cf29 Merge unit-testing guidance
+14044875 Define unit-testing guidance: behaviour through defined interfaces
+files 7143a874..9536e2ff:
+AGENTS.md
+TODO.md
+_bmad-output/implementation-artifacts/deferred-work.md
+_bmad-output/implementation-artifacts/evidence-ci-harness-determinism/before-amd64-loaded.log
+_bmad-output/implementation-artifacts/evidence-ci-harness-determinism/ci-run-40045841714-failures.log
+_bmad-output/implementation-artifacts/evidence-ci-harness-determinism/mutation-absence-checks.log
+_bmad-output/implementation-artifacts/evidence-ci-harness-determinism/mutations.log
+_bmad-output/implementation-artifacts/evidence-ci-harness-determinism/node-harness-tests.log
+_bmad-output/implementation-artifacts/evidence-ci-harness-determinism/stress-amd64-loaded.log
+_bmad-output/implementation-artifacts/evidence-ci-harness-determinism/stress-macos-50.log
+_bmad-output/implementation-artifacts/spec-ci-harness-determinism.md
+_bmad-output/planning-artifacts/epics.md
+docs/testing-guidance.md
+tools/workshop-client-lifecycle.test.mjs
+tools/workshop-observation.test.mjs

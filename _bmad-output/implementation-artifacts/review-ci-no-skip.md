@@ -95,3 +95,64 @@ These are required for terminal Pass. Artifact upload and deploy run only on `re
 3. **Pages.** `upload-pages-artifact` uploads the bundle, and `deploy-pages` succeeds for that run. The served Pages origin loads the new build: its `index.html` and `_framework/dotnet.js` are served from that deployment.
 
 Until these checks are verified, the terminal verdict stays Incomplete.
+
+# Addendum, 2026-10-24: terminal publication result (append-only)
+
+This was recorded by the independent follow-up reviewer of the forward-fix slice "CI harness determinism". The text above is unchanged. Raw outputs are in the determinism slice's `_bmad-output/implementation-artifacts/evidence-ci-harness-determinism/terminal/`, in its worktree and on main after 9536e2ff.
+
+## 1. Commit identity: Pass
+
+| Item | Value |
+|---|---|
+| Merge commit | `7143a874d8e334911dd0dfaf38f5db788c405d1b` |
+| Parents | `54e19147` (approved base) and `87d27e12` (slice commit) |
+| Tree | `6970535d…` |
+
+`git diff --name-only 114e9710 7143a874^{tree}` lists only `review-ci-no-skip.md`. Raw output: `no-skip-identity.txt`.
+
+## 2. First CI run on main: failed, fixed forward
+
+Run [40045841714](https://github.com/aidanmorgan/tim/actions/runs/40045841714), head `7143a874`, concluded `failure`:
+- the **Test C# tools** step failed;
+- publish, static check and Pages upload were skipped;
+- deploy was skipped.
+
+The cause was two game-runtime node harnesses whose assertions depended on wall-clock and thread scheduling:
+- `workshop-client-lifecycle` test 15;
+- `workshop-observation` test 1.
+
+This slice newly ran them in CI. That is the no-skip rule working as intended, not a defect in this slice's own change. Raw output: `failed-run-40045841714-jobs.json`, and the determinism slice's `ci-run-40045841714-failures.log`.
+
+**Forward fix.** "CI harness determinism", commit `4f2ad2af2b4a98c91ccfffac4c6fde051e02780d`, independently reviewed in `review-ci-harness-determinism.md`.
+- It was merged `--no-ff` as `9536e2ff70bfc0fe157a27bf1f7436727ea05dd0`, with parents `860c3cb1` and `4f2ad2af`, and tree `12dd70ded8f4894c758b0131a13fddb283f23e8c`.
+- Between `7143a874` and `9536e2ff`, the only non-documentation files that changed are the two harness files (`git diff --name-only 7143a874 9536e2ff`). This slice's workflow, `E2eRunner` deferral list and test projects are unchanged.
+
+## 3. Green run: Pass
+
+Run [40052056113](https://github.com/aidanmorgan/tim/actions/runs/40052056113), head `9536e2ff`, concluded `success`, with every step of both jobs successful:
+- setup-node resolved `node: v26.12.1`.
+- C# static gate passed.
+- **Test C# game**: CuriousContraptions.tests 2928/2928, Skipped 0.
+- **Test C# tools**, Skipped 0 in every project:
+  - Coverage 77/77;
+  - BundleElements 191/191;
+  - WorkerAotGuard 17/17;
+  - E2eRunner 191/191 under the generated deferral filter, the same 191 that I reproduced locally.
+- Publish and the static deployment check passed.
+
+Raw output: `run.json` and `run.log`.
+
+## 4. Pages: Pass
+
+| Item | Value |
+|---|---|
+| Artifact | `github-pages`, id 12544457446, head `9536e2ff`, digest `sha256:9b88d4ef…` |
+| Deployment | 7292816973, sha `9536e2ff`, state `success`, at https://aidanmorgan.github.io/tim/ |
+
+It is the latest `github-pages` deployment. `index.html`, `404.html`, `clock-ring.js`, `native-clock.js`, `godot.wasm`, `godot.pck` and `_framework/dotnet.js` are served with HTTP 200, and each is byte-equal (SHA-256) to the same file in the downloaded artifact. Raw output: `served-vs-artifact.txt`.
+
+These are the slice's first exact-SHA green CI and deployment. They run on the forward-fix merge, which contains this slice unchanged.
+
+## Terminal verdict
+
+**Pass.** This covers the slice scope and publication only. It is not global, browser or release qualification. Browser qualification stays pending until the post-catalogue browser phase.
