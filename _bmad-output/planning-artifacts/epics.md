@@ -203,6 +203,22 @@ The coordinator adopted the re-examination and decided the items below. This ord
 - **Why:** restitution on multi-point manifolds gains energy engine-wide. The box control gains 205 mJ in a tick at e = 0.3 ([10.1 spec, round 4](../implementation-artifacts/spec-10-1-solid-cylinder.md); `evidence-10-1/round5/`). The reviewer confirmed the gain on base a598a09e, with bit-identical cylinder-free scenes ([re-review 3](../implementation-artifacts/review-10-1-solid-cylinder.md)).
 - **Entry check:** the Lively gate, re-added as a routine `[Fact]` from `evidence-10-1/lively-gate-source.txt`. It is currently red.
 
+**Re-prioritisation (coordinator, 24 October 2026, from owner directives).** This supersedes the strict lane alternation for the following items, which run before the next element story (10.2b) in this order:
+1. **9A.44 f32 everywhere.** This is the owner's priority: "we should be using f32 everywhere". Scope:
+   - every binary16 lane;
+   - every `double` game value;
+   - `double` only at named external adapters;
+   - game time as integer ticks plus an f32 phase;
+   - a guard.
+
+   It may split into A (solver/wire) and B (presentation/clock).
+2. **Engine: lying cylinder axial creep.** Found in 10.2a.
+3. **Workshop integration harness.** Owner directive: browser-free integration tests through one shared deterministic native harness (`docs/testing-guidance.md`). A is the harness plus migration; B is the cross-element coverage matrix.
+4. **TypeScript conversion.** Owner rule: all non-C# code is strict TypeScript compiled by a pinned `tsc`. This includes the encapsulated shared-memory access for the pose ring.
+5. **Test hygiene.** Owner rules: no output-hash assertions, and tests go through defined interfaces.
+
+Then 9A.24, 9A.45 and the element lane continue in their existing order. All browser/E2E tests stay deferred until every named puzzle element is implemented and passing its unit and integration tests (AGENTS.md).
+
 From position 62, only the element lane remains, in its existing order:
 - 13.1c, 13.1d, then 13.2–13.8;
 - 14.0, 14.2, 14.1, 14.3, 14.4;

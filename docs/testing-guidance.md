@@ -91,6 +91,13 @@ The JS runtime layer (simulation and animation workers, client, rings) is covere
 - New elements add their integration scenarios in the same slice. A slice that adds or changes an interaction adds or updates the scenario that proves it.
 - Browser E2E tests are a separate, later layer (see AGENTS.md). They are not a substitute for, or a prerequisite of, integration proof.
 
+## Stress and randomised tests (coordinator, 24 October 2026)
+
+- **Concurrency correctness comes from design.** Shared memory is reached only through one encapsulated atomic API per side, and a named guard proves nothing bypasses it. A stress test cannot prove the absence of races.
+- **One bounded concurrency stress run is allowed in the routine suite**, as a smoke test of a few seconds.
+- **Repeat-N loops are not acceptance evidence.** "Run it 40 times" is not required in reviews or evidence. Use them only as a one-off diagnosis tool when a flaky test is being investigated.
+- **Randomised physics gates stay as routine tests:** fixed committed seeds, a bounded case count (e.g. 200 per class), and bounds derived from the envelope. Reviewers may add held-back seeds. Larger sweeps are one-off acceptance evidence, not routine tests.
+
 ## Architecture guards: a separate, small category
 
 A few tests protect structural invariants that behaviour tests cannot see:
