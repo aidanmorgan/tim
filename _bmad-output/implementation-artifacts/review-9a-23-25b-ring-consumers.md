@@ -306,3 +306,87 @@ G4 is exactly the round-1 F1 defect (plain writer stores), reintroduced in a nat
 1. Fix R3-F1 as specified above.
 2. Re-merge current main (f9ce61ef).
 3. Return the frozen tip for re-review and SnapshotApproval.
+
+# Re-review round 4: tip 0cbae773 (2026-10-24)
+
+**Scope.** Merge 56f7c034 of main f9ce61ef, and fix commit 0cbae773 for R3-F1. The worktree was clean at review start. Evidence is in `evidence-9a-23-25b-review/round4/`.
+
+## Verdict: PASS-PENDING-MAIN-GREEN
+
+R3-F1 is closed. Two Low findings remain. Neither is a blocker in the reviewer's judgement, but each needs an owner, and the coordinator may escalate R4-F2.
+
+**Not done in this round:**
+
+- **No SnapshotApproval.** By coordinator direction it comes after the final merge.
+- **Merges still needed:** origin/main is now e344b19c (the TypeScript rule, AGENTS-only), which the slice still has to merge.
+- **Publication waits for green CI on main.** Main's CI is red (Linux node harness failures that belong to a separate fix slice), and this slice must not publish until it is green.
+- **Nothing staged or committed.**
+
+## R3-F1 re-check
+
+Throwaway worktree at 0cbae773, each mutant applied with Edit and restored with `git checkout`. Results are in `round4/mutations/`:
+
+| Mutant | Guard `GuardOnlyTheEventRingMemoryViewsTheRingAndEveryAccessorIsAtomic` | Node ring tests |
+|---|---|---|
+| G1: `loadPayload` made a plain `#words[...]` read | **killed** | pass |
+| G2: writer view over `eventRing.buffer` | **killed** | 7 fail (no getter) |
+| G3: `workshop-client` view over the cursor's `ring.buffer` | **killed** | pass |
+| G4: writer `const { buffer } = eventRing` with plain stores | **killed** | 7 fail |
+| G5: Animation worker builds `new BigInt64Array(shared)` from the posted `envelope.eventRing` | **killed** | pass |
+| G6: a new module `ring-peek.js` (it does not import the ring module) receives `message.eventRing` from `workshop-client` and views it plainly | **survives** | pass |
+
+The public surface is now closed:
+
+- `EventRingMemory` has no `buffer` getter.
+- The ring leaves its writer only through `postTo`.
+- The cursor's ring is private (`#ring`).
+- The new node test checks this through the exported API: no `buffer`, no own keys, one posted SharedArrayBuffer, and the cursor's ring hidden.
+
+## Findings
+
+### R4-F1 (Low). The guard scans only files that import the ring module
+
+The guard's file set is the scripts that import `event-ring-cursor.js` (top level only), so G6 gets past it.
+
+**Suggested fix:** in the reader files, pin the uses of `.eventRing` to exactly the `instanceof SharedArrayBuffer` check and the `attach(...)` call, as the round-3 guard did, so forwarding the SharedArrayBuffer elsewhere fails.
+
+**Owner:** the implementation owner, in this slice or the next ring change.
+
+### R4-F2 (Low, coordinator ruling). Reflection in changed tests
+
+`docs/testing-guidance.md`, under "Internals", forbids reflection into non-public members. This slice's changed `WorkshopActivationAnimationTests` add 9 lines that use the file's existing `Set`/`Field`/`Invoke` reflection helpers on `BrowserWorkshopClient` private members (`_readConstruction`, `_declaredSamples`, `_animationPending`, `_goalWake`, `InstallDeclaredTargets`).
+
+**Mitigating context:**
+
+- The file's reflection uses fell from 133 at f5ffdb4e to 61 at the tip.
+- The guidance landed in the middle of the slice (f9ce61ef).
+- The client's real seam is a JS import, which is not reachable natively.
+
+**Recommendation:** the coordinator rules. Either accept it as existing harness debt with a follow-up slice that tests the client through a defined seam, or require the rewrite now.
+
+## Guidance check on the new tests
+
+- **The node API test:**
+  - goes through the module's exported API (the "JS runtime" row);
+  - its behaviour is a sentence;
+  - it is deterministic and has no hashes;
+  - it fails if the getter or a public ring is restored.
+- **The renamed guard:**
+  - is named as a guard, reads source, and is proven by mutation (G1–G5);
+  - **trade-off:** it pins *every* typed-array, DataView and `.buffer` use in the three reader and writer scripts, unrelated ones included. A correct pose-ring or clock refactor in those files will fail it. This follows the reviewer's own round-3 requirement, so it is recorded as accepted brittleness, not a finding.
+
+## Merge and checks
+
+| Check | Result |
+|---|---|
+| Merge 56f7c034 (`git show --remerge-diff`) | One conflict, `tools/workshop-animation-output.test.mjs`. The resolution is main's restructured test plus the slice's `event-ring-cursor.js` import stub, nothing else. AGENTS.md and `docs/testing-guidance.md` are identical to f9ce61ef. |
+| `dotnet build CuriousContraptions.slnx -c Debug --no-incremental` | 0 warnings, 0 errors |
+| `dotnet test CuriousContraptions.slnx -c Debug --no-build --no-restore` (no blame) | 17 / 77 / 191 / **208** / **2950**, all Skipped 0, rc 0 |
+| `node --experimental-vm-modules --test --test-timeout=120000 tools/*.test.mjs` | **122/122**, 0 skipped, 0 todo, rc 0 |
+| Stress (`loop2.sh`, full cursor file) | 0 of 20 |
+| Output-hash rule | No hash assertions added in this round |
+
+**Hygiene.**
+
+- The throwaway worktree (wt-r4) was removed. `ring-peek.js` existed only there.
+- **Reviewer's disclosure:** the scratch helper script was retargeted with `sed`. That was outside the repository; it touched no deliverable.

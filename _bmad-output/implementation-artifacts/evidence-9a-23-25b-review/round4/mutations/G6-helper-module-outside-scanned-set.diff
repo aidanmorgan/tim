@@ -1,0 +1,21 @@
+diff --git a/CuriousContraptions.web/wwwroot/workshop-client.js b/CuriousContraptions.web/wwwroot/workshop-client.js
+index 0dae4afd..908e891b 100644
+--- a/CuriousContraptions.web/wwwroot/workshop-client.js
++++ b/CuriousContraptions.web/wwwroot/workshop-client.js
+@@ -2,6 +2,7 @@ import { admitNativeClock, nativeNow, nativeProfile, nativeClockEvidence } from
+ import { requireIsolation, watchIsolation, isolationQualified, isolationEvidence, stopIsolation } from './workshop-isolation.js';
+ import { createClockRing, attachClockRing, requestReply, heartbeat, ClockRole } from './clock-ring.js';
+ import { EventRingCursor, eventDelivery } from './event-ring-cursor.js';
++import { peek } from './ring-peek.js';
+ 
+ // The session pose ring layout, owned by WorkshopPoseRing (WorkerAbiTests pins every value against its C# owner).
+ const POSE_SLOT_COUNT = 3;             // WorkshopPoseRing.SlotCount
+@@ -256,7 +257,7 @@ export async function create(states, bootstrapBytes, clockAbi, captureMode, admi
+                     } else if (message.eventRing instanceof SharedArrayBuffer) {
+                         // Story 9A.23: the session's event ring for an admitted epoch, read by the main thread's own cursor.
+                         if (!readyReceived) throw new Error('An event ring arrived before the session was ready.');
+-                        client.events.attach(message.eventRing);
++                        client.events.attach(message.eventRing); client.peeked = peek(message.eventRing);
+                     } else if (message.scheduleControl instanceof Uint8Array) {
+                         deliver(client, message.scheduleControl, received, scheduleControl);
+                     } else if (message.acknowledgement instanceof Uint8Array) {

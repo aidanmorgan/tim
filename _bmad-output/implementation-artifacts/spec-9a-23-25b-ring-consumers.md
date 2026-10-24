@@ -361,6 +361,12 @@ Native candidate committed locally and not pushed (worktree `story-9a-23-25b`): 
     - **G2** (`new BigUint64Array(eventRing.buffer)` in the worker) fails the construction list.
     - **G3** (`new BigUint64Array(events.ring.buffer)` in the client) fails the construction list.
     - **G4** (`const { buffer: shared } = eventRing` with plain stores) fails the construction list. With no getter, the node tests now fail too (7 of 14).
+- **R4-F1 (round 4, Low; coordinator: fix now): every receiver is pinned.**
+  - The gap: a script that never imports the module could still take the posted `{ eventRing }` and view it.
+  - The fix: the guard now pins, line by line, every mention of `eventRing` in every production script and page (`*.js`, `*.html`) of the Simulation, Animation and web `wwwroot` folders. That covers the writer's own `EventRingMemory` variable, the module's `postTo` and, in each reader, exactly the `instanceof SharedArrayBuffer` check followed by `EventRingCursor.attach`. A new receiver or any new use of the posted buffer adds a line and fails.
+  - Mutant: `workshop-isolation.js`, which does not import the module, gains `export function peekEvents(message) { return new BigUint64Array(message.eventRing)[9]; }`. The guard kills it (`encapsulation-r4/mutations/R4-non-importing-module-views-posted-ring.log`), and it was reverted.
+  - The check stays lexical. An obfuscated property name such as `message['event' + 'Ring']` is not a natural form and is outside what it claims.
+- **R4-F2 (round 4, Low; coordinator: accepted as existing debt).** The 9 lines of `WorkshopActivationAnimationTests` that reach private members stay for now. Owner: the test-hygiene cleanup slice, which rewrites them through public interfaces (`docs/testing-guidance.md`).
 - **R2-F2: structural seqlock guard (superseded by the encapsulation above).** `EverySeqlockPayloadWordIsAnAtomicWholeWordAccessOnBothSidesOfTheRing` checked the source of this checkout, in the style of `Hits()`:
   - **JS writer (`writeEventRing`):** between the slot's two sequence stores, each payload word is `Atomics.store(eventWords, slot / 8 + word, …)` in the word loop. Every other use of `eventWords` is an `Atomics.store` (only its creation is not), and `eventRing` is only allocated and posted.
   - **JS reader (`read`):** between `before` and `after`, each payload word is `Atomics.load(this.words, slot / 8 + word)`. Every `this.words` use is an `Atomics.load`, and `this.buffer` appears only in the guard.

@@ -799,6 +799,30 @@ public sealed class EventRingConsumerTests
                 "animationControl", "owned"]),
     ];
 
+    // Every line of every production script or page that names `eventRing`. A new receiver (a script that never imports the module but
+    // takes the posted message's ring) or any new use of the posted buffer adds a line and fails until it is reviewed.
+    private static readonly string[] RingMentions =
+    [
+        $"{RingModule}: // Posts the ring to one of its readers (the main thread, or the Animation worker's master port) as `{{ eventRing }}`: the",
+        $"{RingModule}: postTo(target) {{ target.postMessage({{ eventRing: this.#buffer }}); }}",
+        $"{SimulationWorker}: let eventRing; // the EventRingMemory of the current epoch and capacity: this worker never touches the ring's memory directly",
+        $"{SimulationWorker}: if (!eventRing || capacity !== eventRing.capacity || epoch !== eventRing.epoch) {{",
+        $"{SimulationWorker}: eventRing = EventRingMemory.allocate(capacity, epoch);",
+        $"{SimulationWorker}: eventRing.postTo(self);",
+        $"{SimulationWorker}: if (animationPort) eventRing.postTo(animationPort);",
+        $"{SimulationWorker}: eventRing.publishSequence(sequence, 0n);",
+        $"{SimulationWorker}: for (let word = 1; word < EVENT_SLOT_BYTES / 8; word++) eventRing.storePayload(sequence, word, source[offset / 8 + word]);",
+        $"{SimulationWorker}: eventRing.publishSequence(sequence, sequence);",
+        $"{SimulationWorker}: eventRing.storeLapped(view.getBigUint64(EVENT_LAPPED_OFFSET, true));",
+        $"{SimulationWorker}: eventRing.storeWriteSequence(view.getBigUint64(EVENT_WRITE_SEQUENCE_OFFSET, true));",
+        $"{SimulationWorker}: eventRing = undefined;",
+        $"{SimulationWorker}: if (eventRing) eventRing.postTo(animationPort);",
+        $"{AnimationWorker}: else if (envelope.eventRing instanceof SharedArrayBuffer)",
+        $"{AnimationWorker}: events.attach(envelope.eventRing);",
+        $"{WorkshopClient}: }} else if (message.eventRing instanceof SharedArrayBuffer) {{",
+        $"{WorkshopClient}: client.events.attach(message.eventRing);",
+    ];
+
     // Architecture guard (docs/testing-guidance.md): a plain (non-atomic) access on either side of the ring behaves identically under any
     // single-threaded interleaving, and the concurrent stress tests catch a one-sided regression only by chance on a weakly ordered CPU
     // (the reviewer's one-sided mutants survived 0 of 20 runs each). The encapsulation makes the violation impossible through the public
@@ -815,6 +839,16 @@ public sealed class EventRingConsumerTests
             .Where(path => File.ReadAllText(path).Contains("event-ring-cursor.js", StringComparison.Ordinal))
             .Select(path => Path.GetRelativePath(root, path).Replace('\\', '/')).Order().ToArray();
         Assert.Equal(new[] { AnimationWorker, SimulationWorker, WorkshopClient }.Order(), importers);
+        // Review R4-F1: a script that never imports the module could still take the posted `{ eventRing }` and view it. So every mention
+        // of `eventRing` in every production script and page is pinned line by line: the writer's own EventRingMemory variable, the
+        // module's postTo, and in each reader exactly the `instanceof SharedArrayBuffer` check followed by EventRingCursor.attach.
+        var mentions = scripts.SelectMany(folder => Directory.EnumerateFiles(Path.Combine(root, folder), "*.*", SearchOption.TopDirectoryOnly))
+            .Where(path => path.EndsWith(".js", StringComparison.Ordinal) || path.EndsWith(".html", StringComparison.Ordinal))
+            .SelectMany(path => File.ReadAllLines(path)
+                .Where(line => System.Text.RegularExpressions.Regex.IsMatch(line, @"\beventRing\b"))
+                .Select(line => $"{Path.GetRelativePath(root, path).Replace('\\', '/')}: {line.Trim()}"))
+            .Order(StringComparer.Ordinal).ToArray();
+        Assert.Equal(RingMentions.Order(StringComparer.Ordinal), mentions);
         foreach (var (path, views, buffers) in RingFiles)
         {
             var text = Source(path);

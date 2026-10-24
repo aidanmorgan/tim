@@ -1,0 +1,14 @@
+diff --git a/CuriousContraptions.Simulation/wwwroot/worker.js b/CuriousContraptions.Simulation/wwwroot/worker.js
+index f82fb6dd..444dc445 100644
+--- a/CuriousContraptions.Simulation/wwwroot/worker.js
++++ b/CuriousContraptions.Simulation/wwwroot/worker.js
+@@ -94,7 +94,8 @@ function writeEventRing(batch) {
+         // The writer's seqlock: the slot's sequence word is 0 while every payload word is stored, then the sequence is published.
+         const sequence = view.getBigUint64(offset, true);
+         eventRing.publishSequence(sequence, 0n);
+-        for (let word = 1; word < EVENT_SLOT_BYTES / 8; word++) eventRing.storePayload(sequence, word, source[offset / 8 + word]);
++        const raw = new BigUint64Array(eventRing.buffer), at = EVENT_HEADER_BYTES / 8 + Number((sequence - 1n) & BigInt(capacity - 1)) * (EVENT_SLOT_BYTES / 8);
++        for (let word = 1; word < EVENT_SLOT_BYTES / 8; word++) raw[at + word] = source[offset / 8 + word];
+         eventRing.publishSequence(sequence, sequence);
+     }
+     eventRing.storeLapped(view.getBigUint64(EVENT_LAPPED_OFFSET, true));
