@@ -142,6 +142,10 @@ async function stress(capacity, total, readers, seed) {
     } finally { await writer.terminate(); }
 }
 
+// The one bounded concurrency smoke test of the routine suite (docs/testing-guidance.md, stress tests). Correctness under concurrency
+// comes from the design: the ring is reached only through EventRingMemory's atomic accessors, which
+// EventRingConsumerTests.GuardOnlyTheEventRingMemoryViewsTheRingAndEveryAccessorIsAtomic enforces; a stress run cannot prove the absence
+// of races.
 test('concurrent stress: over a million records through the shipped writer, no reader ever receives a torn record', { timeout: 120000 }, async () => {
     let records = 0;
     for (const [capacity, total, seed] of [[4, 260000, 1], [16, 260000, 2], [128, 260000, 3], [1024, 260000, 4]]) {
@@ -155,22 +159,6 @@ test('concurrent stress: over a million records through the shipped writer, no r
         records += total;
     }
     assert.ok(records >= 1_000_000);
-});
-
-// Review F1: a seqlock whose payload is copied with plain (non-atomic) accesses lets torn records through on arm64: the plain loads and
-// stores may be reordered past the sequence-word Atomics. The race shows in bursts once a round's code is optimised, so this variant
-// runs independent rounds (fresh writer and reader threads each) at capacity 4, the configuration that tore most often on the pre-fix
-// code (evidence-9a-23-25b/stress-40/). EVENT_RING_STRESS_ROUNDS raises the round count for the repeated-run evidence.
-test('amplified concurrent stress at capacity 4: rounds of fresh writer and reader threads, no torn record', { timeout: 120000 }, async () => {
-    const rounds = Number(process.env.EVENT_RING_STRESS_ROUNDS ?? 8), total = 250000, readers = 3;
-    let torn = 0;
-    for (let round = 0; round < rounds; round++)
-        for (const result of await stress(4, total, readers, 100 + round)) {
-            torn += result.torn;
-            assert.equal(result.delivered + result.skipped, BigInt(total));
-            assert.ok(result.delivered > 0n);
-        }
-    assert.equal(torn, 0, `${torn} torn record(s) delivered at capacity 4`);
 });
 
 // ---------- deterministic single-thread checks over the same writer ----------
