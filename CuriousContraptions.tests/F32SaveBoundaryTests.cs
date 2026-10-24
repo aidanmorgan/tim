@@ -52,20 +52,27 @@ public sealed class F32SaveBoundaryTests
     }
 
     [Fact]
-    public async Task ARefusedLegacyLoadLeavesTheBenchUnchangedAndShowsItsExplanation()
+    public async Task ARefusedLegacyLoadLeavesTheLiveSimulationUnchangedAndShowsItsExplanation()
     {
-        // The Workshop's Load decodes the stored text before it submits anything (ui/Workshop.cs LoadSaveAsync): the refusal is the
-        // status the player reads, and the bench that was admitted before the attempt is admitted to the same state after it.
-        var bench = Lesson("first_principles", .45f);
-        var (before, _, _) = await NoFixedCapacityTests.RunAndReset(bench, 2);
+        // The Workshop's Load decodes the stored text before it submits anything (ui/Workshop.cs LoadSaveAsync), so a refused legacy
+        // save never reaches the live simulation: the refusal is the status the player reads, the simulation's committed read is the
+        // same after the attempt, and it goes on advancing its own bench.
+        await using var device = new WorkshopGpuDevice(new CuriousContraptions.Simulation.BrowserGpuTransport(), new(101, 206));
+        await using var simulation = new WorkshopSimulation(device, new WorkshopPhysicsEngineTests.StepClock(), WorkshopCadenceSettings.Default(),
+            new(1), new WorkshopPhysicsEngineTests.NoInstallation(), GpuDeviceOwnership.Borrowed);
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Initialize()).Outcome);
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Construct(Lesson("first_principles", .45f))).Outcome);
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Run()).Outcome);
+        for (var tick = 0; tick < 3; tick++) Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Advance()).Outcome);
+        var before = simulation.Committed;
         var stored = Convert.ToBase64String(await File.ReadAllBytesAsync(Fixture("save-f1ad3bd1-authored-puzzle.bin"),
             TestContext.Current.CancellationToken));
         var refusal = SaveFixture.Refused(WorkshopSaveRejection.MissingField, () => WorkshopSaveCodec.DecodeStored(SaveFixture.Elements, stored));
         Assert.True(WorkshopUiFailure.IsRejection(refusal));
         Assert.Equal(NoKnotsExplanation, WorkshopUiFailure.Report(refusal));
-        Assert.Equal(Lesson("first_principles", .45f), bench);
-        var (after, _, _) = await NoFixedCapacityTests.RunAndReset(bench, 2);
-        NoFixedCapacityTests.AssertSameState(before, after, "the bench after a refused load");
+        NoFixedCapacityTests.AssertSameState(before, simulation.Committed, "the live simulation after a refused load");
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Advance()).Outcome);
+        Assert.Equal(before.Tick.Value + 1, simulation.Committed.Tick.Value);
     }
 
     [Fact]
@@ -179,33 +186,75 @@ public sealed class F32SaveBoundaryTests
         SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSavePrevalidation.Check(Opened(MathF.BitIncrement(120f)), SaveFixture.Elements));
     }
 
+    /// <summary>The encoded buffer with one lane of one profile's Balanced knot (the knot records are contiguous, 44 bytes each in
+    /// primary, target, placement order) replaced by <paramref name="value"/>.</summary>
+    private static byte[] WithKnotLane(byte[] encoded, WorkshopPuzzle puzzle, int profile, int lane, float value)
+    {
+        var at = encoded.AsSpan().IndexOf(Lanes(Knots(puzzle)[0]).SelectMany(v => BitConverter.GetBytes(v)).ToArray());
+        Assert.True(at >= 4, "the encoded puzzle's assistance vector");
+        var changed = (byte[])encoded.Clone();
+        BinaryPrimitives.WriteSingleLittleEndian(changed.AsSpan(at + (profile * WorkshopWireFlatBuffers.KnotsPerProfile + 1) * 44 + lane * 4), value);
+        return changed;
+    }
+
+    /// <summary>Every lane (11) of every profile (3), each with NaN, +∞, −∞ and a finite negative value.</summary>
+    public static TheoryData<int, int, float> PoisonedKnotLanes()
+    {
+        var data = new TheoryData<int, int, float>();
+        foreach (var profile in new[] { 0, 1, 2 })
+            for (var lane = 0; lane < 11; lane++)
+                foreach (var value in new[] { float.NaN, float.PositiveInfinity, float.NegativeInfinity, -.5f })
+                    data.Add(profile, lane, value);
+        return data;
+    }
+
+    // Save boundary: a non-finite lane is NonFinite and a finite negative one OutOfRange, both refused before any domain construction.
     [Theory]
-    [InlineData(0)]
-    [InlineData(1)]
-    [InlineData(2)]
-    [InlineData(3)]
-    [InlineData(4)]
-    [InlineData(5)]
-    [InlineData(6)]
-    [InlineData(7)]
-    [InlineData(8)]
-    [InlineData(9)]
-    [InlineData(10)]
-    public void ANonFiniteAssistanceKnotLaneIsRefusedAtTheSaveBoundary(int lane)
+    [MemberData(nameof(PoisonedKnotLanes))]
+    public void APoisonedKnotLaneIsTheTypedRefusalAtTheSaveBoundary(int profile, int lane, float value)
     {
         var construction = Lesson("first_principles", .45f);
-        var k = construction.Puzzle.PrimaryAssistance.Balanced;
-        var nan = float.NaN;
-        var poisoned = lane switch
-        {
-            0 => k with { Precision = nan }, 1 => k with { PositionWindow = new(nan) }, 2 => k with { RotationWindowDegrees = nan },
-            3 => k with { MaximumPositionCorrection = new(nan) }, 4 => k with { MaximumRotationCorrectionDegrees = nan },
-            5 => k with { Blend = new(nan) }, 6 => k with { CaptureMargin = new(nan) }, 7 => k with { CaptureSpeed = new(nan) },
-            8 => k with { CaptureDwell = new(nan) }, 9 => k with { GuideAcceleration = new(nan) }, _ => k with { TriggerThreshold = nan },
-        };
-        var forged = construction with { Puzzle = construction.Puzzle with { PrimaryAssistance = construction.Puzzle.PrimaryAssistance with { Balanced = poisoned } } };
-        Assert.Equal(float.NaN, Lanes(poisoned)[lane]);
-        SaveFixture.Refused(WorkshopSaveRejection.NonFinite, () => WorkshopSaveCodec.Decode(SaveFixture.Elements, SaveFixture.Forged(forged, 3)));
+        var encoded = WorkshopSaveCodec.Encode(new(construction, new(3)));
+        Assert.Equal(new WorkshopSavedConstruction(construction, new(3)), WorkshopSaveCodec.Decode(SaveFixture.Elements, encoded)); // control
+        SaveFixture.Refused(float.IsFinite(value) ? WorkshopSaveRejection.OutOfRange : WorkshopSaveRejection.NonFinite,
+            () => WorkshopSaveCodec.Decode(SaveFixture.Elements, WithKnotLane(encoded, construction.Puzzle, profile, lane, value)));
+    }
+
+    // Command boundary: the same lanes break the authored knot rule, refused as the typed OutOfRange wire fault.
+    [Theory]
+    [MemberData(nameof(PoisonedKnotLanes))]
+    public void APoisonedKnotLaneIsTheTypedWireFaultAtTheCommandBoundary(int profile, int lane, float value)
+    {
+        var construction = Lesson("first_principles", .45f);
+        var command = new WorkshopCommand(new(1), WorkshopCommandKind.Construct, new(1), new(1), construction,
+            Session: new(1, 2), Cadence: new(1), Projection: new(1));
+        var encoded = WorkshopWireFlatBuffers.EncodeCommand(command);
+        Assert.Equal(command, WorkshopWireFlatBuffers.DecodeCommand(encoded)); // control
+        var fault = Assert.Throws<WireFaultException>(() =>
+            WorkshopWireFlatBuffers.DecodeCommand(WithKnotLane(encoded, construction.Puzzle, profile, lane, value)));
+        Assert.Equal(WireFaultReason.OutOfRange, fault.Reason);
+    }
+
+    // Command boundary, authored shape: a finite knot off its precision (Balanced at 0.5) is the same typed fault.
+    [Fact]
+    public void AKnotOffItsAuthoredPrecisionIsTheTypedWireFaultAtTheCommandBoundary()
+    {
+        var construction = Lesson("first_principles", .45f);
+        var encoded = WorkshopWireFlatBuffers.EncodeCommand(new WorkshopCommand(new(1), WorkshopCommandKind.Construct, new(1), new(1),
+            construction, Session: new(1, 2), Cadence: new(1), Projection: new(1)));
+        Assert.Equal(WireFaultReason.OutOfRange, Assert.Throws<WireFaultException>(() =>
+            WorkshopWireFlatBuffers.DecodeCommand(WithKnotLane(encoded, construction.Puzzle, 1, 0, .5f))).Reason);
+    }
+
+    // A current save whose assistance vector is empty (no deprecated slot) is told its count, not that it predates f32 assistance.
+    [Fact]
+    public void AnEmptyKnotVectorWithoutTheDeprecatedSlotIsToldItsCount()
+    {
+        var construction = Lesson("first_principles", .45f);
+        var encoded = WorkshopSaveCodec.Encode(new(construction, new(3)));
+        var refusal = SaveFixture.Refused(WorkshopSaveRejection.MissingField,
+            () => WorkshopSaveCodec.Decode(SaveFixture.Elements, WithKnotCount(encoded, construction.Puzzle, 0)));
+        Assert.Equal("This save cannot be loaded: The saved puzzle holds 0 assistance knots; a puzzle holds exactly nine.", refusal.Message);
     }
 
     [Theory]

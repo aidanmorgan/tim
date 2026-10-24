@@ -21,7 +21,7 @@ public sealed partial class F32BehaviourIdentityTests
     // 3.4e-4, Balanced precision 1.1e-4):
     // - An element placed alone for 240 ticks (2 s) can move by at most ½·|Δg|·t² = ½·0.0025·2² = 5.0 mm through its fall, plus the
     //   0.09 mm radius change where it rests: 5.1 mm.
-    // - To first order the same deltas move a gravity-driven arrival by ½·3.4e-4·T, under 0.1 tick for T ≤ 600 ticks. Contact sequences
+    // - To first order the same deltas move a gravity-driven arrival by ½·3.4e-4·T, at most 0.2 tick over the 1200-tick lesson run. Contact sequences
     //   (ramp landings, domino impacts, bumper rebounds, capture dwell) amplify that by an amount no input delta bounds, so the event
     //   timing bound is a declared tolerance, not derived: 0.1 s (12 ticks), the smallest timing change a player perceives. Observed:
     //   −4…+9 ticks (evidence-9a-44/t1/outcome-deltas-notes.txt).

@@ -35,8 +35,8 @@ public readonly record struct CanonicalRotation(float X, float Y, float Z, float
     public void ValidateCommitted()
     {
         if (!float.IsFinite(X) || !float.IsFinite(Y) || !float.IsFinite(Z) || !float.IsFinite(W) ||
-            X < (-1f) || X > 1f || Y < (-1f) || Y > 1f ||
-            Z < (-1f) || Z > 1f || W < (-1f) || W > 1f ||
+            X < -1f || X > 1f || Y < -1f || Y > 1f ||
+            Z < -1f || Z > 1f || W < -1f || W > 1f ||
             (X == 0f && Y == 0f && Z == 0f && W == 0f))
             throw new ArgumentException("Unsupported committed rotation.");
         // One canonical f32 rotation: allow rounding residual, reject scaled quaternions.

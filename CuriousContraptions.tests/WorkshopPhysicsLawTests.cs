@@ -22,13 +22,13 @@ internal static class LawBalls
     private static CuriousContraptions.Abstractions.ColliderDescriptor Sphere(LawBall ball) => Assert.Single(DeclaredPhysics.Of(Part(ball)).Colliders);
     private static CuriousContraptions.Abstractions.Mechanical.RigidBodyMassProperties Body(LawBall ball) =>
         DeclaredPhysics.Of(Part(ball)).Mechanical!.MassProperties;
-    public static float Radius(LawBall ball) => (float)Sphere(ball).HalfExtents.X;
-    public static float Mass(LawBall ball) => (float)Body(ball).Mass;
-    public static float Drag(LawBall ball) => (float)Body(ball).LinearDrag;
-    public static float Rolling(LawBall ball) => (float)Sphere(ball).Material.RollingResistance;
-    public static float Restitution(LawBall ball) => (float)Sphere(ball).Material.Restitution;
-    public static float Friction(LawBall ball) => (float)Sphere(ball).Material.Friction;
-    public static float BounceThreshold(LawBall ball) => (float)Sphere(ball).Material.BounceThreshold;
+    public static float Radius(LawBall ball) => Sphere(ball).HalfExtents.X;
+    public static float Mass(LawBall ball) => Body(ball).Mass;
+    public static float Drag(LawBall ball) => Body(ball).LinearDrag;
+    public static float Rolling(LawBall ball) => Sphere(ball).Material.RollingResistance;
+    public static float Restitution(LawBall ball) => Sphere(ball).Material.Restitution;
+    public static float Friction(LawBall ball) => Sphere(ball).Material.Friction;
+    public static float BounceThreshold(LawBall ball) => Sphere(ball).Material.BounceThreshold;
 }
 
 /// <summary>The Domino tile as the compiler compiles it: its package's baked box, mass and material in the f32 body,
@@ -217,7 +217,7 @@ internal sealed class LawState(PhysicsSceneDeclaration scene, byte[] world)
         var local = new LocalPosition(F(PhysicsGpuAbi.BodyLocalOffset), F(PhysicsGpuAbi.BodyLocalOffset + 4), F(PhysicsGpuAbi.BodyLocalOffset + 8));
         return new(new((cell.X + local.X) / 16f, (cell.Y + local.Y) / 16f, (cell.Z + local.Z) / 16f),
             new(F(PhysicsGpuAbi.BodyRotationOffset), F(PhysicsGpuAbi.BodyRotationOffset + 4), F(PhysicsGpuAbi.BodyRotationOffset + 8),
-                F(PhysicsGpuAbi.BodyRotationOffset + 12)),
+                F(PhysicsGpuAbi.BodyRotationOffset + PhysicsGpuAbi.RotationWOffset)),
             new(F(PhysicsGpuAbi.BodyVelocityOffset), F(PhysicsGpuAbi.BodyVelocityOffset + 4), F(PhysicsGpuAbi.BodyVelocityOffset + 8)),
             new(F(PhysicsGpuAbi.BodyAngularVelocityOffset), F(PhysicsGpuAbi.BodyAngularVelocityOffset + 4),
                 F(PhysicsGpuAbi.BodyAngularVelocityOffset + 8)),

@@ -167,7 +167,8 @@ public sealed class WorkshopPhysicsLawRestitutionTests
     /// <summary>A Basketball (r, m from its declaration; solid sphere I = 0.4 m r²) at 2 m/s with spin ω about z strikes an equal
     /// resting ball head-on (no gravity, drag or rolling resistance). Normal impulse Λ = (m/2)(1+e)v; tangential effective mass
     /// m_t = m/7; initial slip ω r. Sliding throughout when μΛ &lt; m_t·ω r: the struck ball's tangential speed is μ(1+e)v/2 and the
-    /// slip keeps its sign; otherwise it sticks and takes ω r/7. Within 2 % (an allowance kept from the half-precision lanes; the f32 μ and e are exact).</summary>
+    /// slip keeps its sign; otherwise it sticks and takes ω r/7. Sliding holds to f32 arithmetic (2^-20); sticking within the solver's 1 %
+/// onset-slip residual.</summary>
     [Theory]
     [InlineData(10f)]
     [InlineData(.3f)]
@@ -186,7 +187,11 @@ public sealed class WorkshopPhysicsLawRestitutionTests
         var sliding = mu * normal < m / 7 * slip0;
         var expected = sliding ? mu * normal / m : slip0 / 7;
         Assert.Equal(spin > 1, sliding);
-        Assert.InRange(final[b].Velocity.Y, .98 * expected, 1.02 * expected);
+        // Sliding: the transfer is the closed form computed from exact f32 μ, e, m and v, so it holds to f32 arithmetic (2^-20 relative,
+        // sixteen roundings of 2^-24). Sticking: the onset of contact slips until the normal impulse can hold the spin, so the struck ball
+        // takes slightly less than ω r/7; that is the solver's sticking residual (1 %), not a precision allowance.
+        var tolerance = sliding ? 1.0 / (1 << 20) : .01;
+        Assert.InRange(final[b].Velocity.Y, (1 - tolerance) * expected, (1 + tolerance) * expected);
         // Contact-point slip after the impact: (v_A + ω_A × r_A − v_B − ω_B × r_B)·ŷ with r_A = +r x̂, r_B = −r x̂.
         var slip = final[a].Velocity.Y + final[a].Angular.Z * r - final[b].Velocity.Y + final[b].Angular.Z * r;
         if (sliding) Assert.True(slip > 0, $"the slip reversed ({slip})");

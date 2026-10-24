@@ -161,6 +161,36 @@ public sealed class WorkshopSaveTests
                     Assert.Equal(new LocalPosition(F(local[0]), F(local[1]), F(local[2])), instance.Local);
                     Assert.Equal(new CanonicalRotation(F(rotation[0]), F(rotation[1]), F(rotation[2]), F(rotation[3])), instance.Rotation);
                     Assert.Equal(authored.GetProperty("locked").GetBoolean(), instance.Locked);
+                    // Its parameters at this precision: each authored value, and each assistance-bound one the f32 lane of the
+                    // placement's own knot at this precision (0, 0.45 and 1 are exactly its three knots).
+                    var expected = authored.GetProperty("parameters").EnumerateObject().ToDictionary(p => p.Name, p => F(p.Value), StringComparer.Ordinal);
+                    var knot = authored.GetProperty("assistance")[precision == 0f ? 0 : precision == 1f ? 2 : 1];
+                    foreach (var binding in authored.GetProperty("assistance_bindings").EnumerateArray())
+                        if (binding.GetProperty("parameter").ValueKind == System.Text.Json.JsonValueKind.String)
+                            expected[binding.GetProperty("parameter").GetString()!] = F(knot[1 + (int)Enum.Parse<AssistanceValue>(binding.GetProperty("value").GetString()!)]);
+                    Assert.Equal(expected.Count, instance.Parameters.Count);
+                    foreach (var (key, value) in expected)
+                        Assert.True(BitConverter.SingleToUInt32Bits(value) == BitConverter.SingleToUInt32Bits(instance.Parameters[new(key)]),
+                            $"{id}@{precision} {authored.GetProperty("part").GetString()} {key}: {instance.Parameters[new(key)]}, authored {value}");
+                }
+                // The goal's identities are its authored slots' instances (a goal on a part the player places names a fresh one).
+                var slots = lesson.GetProperty("placements").EnumerateArray().Select(p => p.GetProperty("slot").GetString()!).ToArray();
+                GpuBodyId Slot(string slot) => Array.IndexOf(slots, slot) is var index and >= 0 ? instances[index].Id : default;
+                var authoredGoal = lesson.GetProperty("goal");
+                var (sourceId, targetId) = (Slot(authoredGoal.GetProperty("source").GetString()!), Slot(authoredGoal.GetProperty("target").GetString()!));
+                var compiledGoal = construction.Puzzle.Goal;
+                Assert.NotEqual(default, sourceId);
+                if (compiledGoal.Kind == WorkshopGoalKind.Captured)
+                {
+                    Assert.Equal((sourceId, default(ActivationNodeId), default(ActivationNodeId)), (compiledGoal.Body, compiledGoal.SourceNode, compiledGoal.TargetNode));
+                    if (targetId != default) Assert.Equal(targetId, compiledGoal.Target);
+                    else Assert.DoesNotContain(compiledGoal.Target, instances.Select(instance => instance.Id));
+                    Assert.NotEqual(default, compiledGoal.Target);
+                }
+                else
+                {
+                    Assert.Equal((default(GpuBodyId), default(GpuBodyId), new ActivationNodeId(sourceId.Value), new ActivationNodeId(targetId.Value)),
+                        (compiledGoal.Body, compiledGoal.Target, compiledGoal.SourceNode, compiledGoal.TargetNode));
                 }
                 var inventory = WorkshopInventoryPolicy.Authored(construction.Puzzle);
                 foreach (var row in lesson.GetProperty("inventory").EnumerateArray())

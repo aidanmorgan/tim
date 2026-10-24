@@ -333,7 +333,7 @@ public sealed class ActivationNetwork
             for (var j = 0; j < i; j++) if (events[j].Id == item.Id)
                 throw new ArgumentException("Duplicate contact occurrence batch.");
             if (item.OccurrenceCount == 0) continue;
-            var time = new ActivationTime(item.EventOrdinal, (float)item.EventPhase);
+            var time = new ActivationTime(item.EventOrdinal, item.EventPhase);
             var occurrence = new ActivationOccurrence(ActivationOccurrenceKind.Contact, _nodes[slot].Id, time,
                 new(new(item.Id.Value), item.Target, item.Collider, time, item.ApproachSpeed));
             occurrence.Validate();
@@ -370,7 +370,7 @@ public sealed class ActivationNetwork
                 if (values[slot].Phase == ActivationPhase.Latched) throw new ArgumentException("Orientation sensor regressed.");
                 continue;
             }
-            var time = new ActivationTime(item.EventOrdinal, (float)item.EventPhase);
+            var time = new ActivationTime(item.EventOrdinal, item.EventPhase);
             var occurrence = new ActivationOccurrence(ActivationOccurrenceKind.Orientation, _nodes[slot].Id, time,
                 new(new(item.Id.Value), item.Body, item.Collider, time, new(0f)));
             occurrence.Validate();
@@ -392,7 +392,7 @@ public sealed class ActivationNetwork
             for (var j = 0; j < i; j++) if (passages[j].Id == item.Id)
                 throw new ArgumentException("Duplicate passage occurrence batch.");
             if (item.Phase != PassageSensorPhase.Fired) continue;
-            var time = new ActivationTime(item.EventOrdinal, (float)item.EventPhase);
+            var time = new ActivationTime(item.EventOrdinal, item.EventPhase);
             var occurrence = new ActivationOccurrence(ActivationOccurrenceKind.Passage, _nodes[slot].Id, time,
                 new(new(item.Id.Value), item.Body, item.Collider, time, new(item.Speed.Value)));
             occurrence.Validate();

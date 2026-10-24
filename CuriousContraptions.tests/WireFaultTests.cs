@@ -51,7 +51,7 @@ public sealed class WireFaultTests
             U32(bytes, piece + PhysicsMotionRead.AnchorOrdinalOffset, start + i);
             U32(bytes, piece + PhysicsMotionRead.FrequencyOffset, WorkshopCadenceSettings.PhysicalFrequency);
             BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(piece + PhysicsMotionRead.OwnerOffset), body.Id.Value);
-            BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(piece + PhysicsMotionRead.RotationOffset + 12), 1f);
+            BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(piece + PhysicsMotionRead.RotationOffset + PhysicsGpuAbi.RotationWOffset), 1f);
         }
         return bytes;
     }

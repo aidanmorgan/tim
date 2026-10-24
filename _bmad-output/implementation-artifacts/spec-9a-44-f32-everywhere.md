@@ -3,7 +3,7 @@ title: "9A.44 — f32 everywhere (Half purge and double game values to f32)"
 status: done
 baseline: f1ad3bd19e27c32cb05ba34f83ccc1d6cf59fc76
 review_loop_iteration: 0
-followup_review_recommended: true
+followup_review_recommended: false
 deferred:
   - summary: >-
       The run-reset-snapshot.ts mirror parity check (its mirrored assistance and save fields) has not been run against the f32 layout.
@@ -11,6 +11,13 @@ deferred:
       The mirror lives in the browser E2E toolchain, which owner policy (24 Oct) defers until every named puzzle element passes unit and integration tests; it compiles under tsc but is not executed.
     location: >-
       tools/e2e/run-reset-snapshot.ts
+    severity: low
+  - summary: >-
+      AssistanceProfile.Evaluate on the default (all-zero) profile at a precision other than 0 divides by a zero-width bracket and yields NaN knot lanes.
+    evidence: |-
+      HasAuthoredShape admits the default profile. AuthoredInstanceTemplate.At evaluates every template, but a default profile has no assistance bindings, so the NaN knot is discarded. The f1ad3bd1 Half code divided by the same zero (pre-existing). Settle it by refusing bindings without a profile, or by returning the default knot for a default profile.
+    location: >-
+      engine/gpu/WorkshopPuzzle.cs:48-57
     severity: low
 context:
   - AGENTS.md
@@ -307,6 +314,43 @@ Decisions:
     - `carried` The AC's serial Chrome run is superseded by the owner.
     - `reject` (h) `double` presentation and clock are Part B.
 
+### 2026-10-24 — Review pass (follow-up 2 on 961afb79)
+- verdicts: 30 findings — high 0, medium 5, low 14, false 1, maybe-false 0, plus 10 carried, rejected or deferred rows.
+- findings:
+  - Intent Alignment:
+    - `carried` (a) `double` presentation and clock are Part B.
+    - `carried` (b) Guard scope covers code and schema files, not prose (decision 2 / P2).
+    - `low` (c) The restitution test keeps a 2 % tolerance from the half-precision era. Grouped with Blind 11.
+    - `carried` (d) Refusal is proven at the codec and the UI failure report. Free saves load by design (D4).
+    - `carried` (e) The layout tag and the deprecated slot are not format versions (D3).
+    - `carried` (f) CLR stand-in for WASM.
+    - `carried` (g) Drive law, content literals and legacy deletions.
+    - `carried` (h) CAT-037 Q2 resolved for the Half lanes; `double` is Part B.
+  - Verification Gap:
+    - `[medium]` `patch` The forged-knot refusal is tested on the Target profile and one negative lane only. A dropped lane or a profile loop that skips Placement would pass. Fix: a theory over all 11 lanes × 3 profiles, each negative, refused as `OutOfRange`, plus the unforged control.
+    - `[low]` `patch` The drive doc comments in `MechanicalContracts.cs:46-47` and `PrismaticConstraint.cs:41-42` still state the old law. Fix: add the |d|/h cap.
+  - Blind Hunter:
+    - `[low]` `patch` The provenance of `outcomes-f1ad3bd1.json` relies on an uncommitted scratch harness, and the save `.bin` files have no provenance. Fix: a fixture note stating the baseline SHA, what was captured, and that the baseline cannot be regenerated after the purge.
+    - `[low]` `patch` The NaN test injects only 4 worker-written lanes. Fix: add the remaining worker-written f32 lanes. The device's refusal path is pre-existing (carried B9).
+    - `[medium]` `patch` `ARefusedLegacyLoadLeavesTheBenchUnchangedAndShowsItsExplanation` compares an immutable record with itself, a tautology. Fix: hold a live `WorkshopSimulation`, attempt the legacy decode, and assert the simulation's committed reads are unchanged and it still runs.
+    - `[medium]` `patch` Knot non-finite coverage is NaN only, on one profile, and the command boundary is untested. Grouped with the VG forged-knot row. Fix: NaN and ±∞ in every profile at the save boundary, plus NaN and authored-shape cases at `DecodeCommand`.
+    - `[low]` `reject` The guard misses shader `half`/`mediump`/`lowp` and magic constants (15360, 0x3C00, `& 0x3ff`, `2 ** -14`) and does not scan .yml/.patch. No shader in this repo uses these. The constants would flag unrelated bitmasks, and the fix adds patterns with false-positive risk.
+    - `[low]` `patch` / `reject` In the literal scan: helper-literal arguments and `+ 4` after scalar fields are rejected, because the rule would need per-field type knowledge. The `RotationOffset + 12` uses left in test fixtures (ActivationTimer, PrismaticConstraint, WireFault and WorkshopRead tests) are patched to `RotationWOffset`.
+    - `[medium]` `patch` The closed-form oracle reuses the bundle's own `Multiplier*L+Offset` and re-evaluates the slider declaration, so it is not independent. Its inertia `_ =>` arm silently applies the box formula. Fix: assert the physical closed forms (half-length L/2, rims at ±L/2) and throw on an unknown shape.
+    - `[medium]` `patch` The lesson replacement test dropped per-placement parameters at each precision and the goal identities. Fix: assert them against `content/puzzles.json`.
+    - `[false]` `reject` "2.324 was the authored Balanced-knot literal". CAT-004 row 12 and EL-192 author 2.325 from `tools/Campaign@a6c914e`. The 70 knot-array values of 2.324 came from 2f5650b6 generated content printing the half-precision 2.32421875.
+    - `[low]` `patch` The D6 deltas in the docs omit the one-ulp `max_position_correction` changes 0.080000006→0.08 and 0.120000005→0.12. Fix: list them.
+    - `[low]` `patch` The zero-knot message asserts a legacy cause without checking `raw_assistance`. Fix: use the legacy text only when the deprecated slot is present, otherwise a count message.
+    - `[low]` `patch` Two tolerances are not derived. The restitution test keeps a 2 % allowance from the half-precision era, and the behaviour-identity derivation covers T ≤ 600 ticks while lessons run for 1,200. Fix: derive the restitution bound for f32 and correct the derivation's range.
+    - `[low]` `patch` Two assertions are trivial: `BasketballResourceTests` asserts NotEqual right after Equal, and `JoinedPipeTests` checks only a binding count. Fix: delete the redundant one and assert the binding mapping from the template.
+    - `[low]` `patch` Cast and parenthesis leftovers remain, e.g. `(float)item.EventPhase` and `(-1f)`. Fix: remove them.
+  - Edge Case Hunter:
+    - `[low]` `patch` Body bytes 12–16 (motion U32 to cell) are unchecked padding. Fix: check them at admission.
+    - `[low]` `defer` A default profile evaluated at a non-zero precision yields NaN knots, which are discarded because the template has no bindings. The f1ad3bd1 code divided by the same zero (pre-existing).
+    - `[low]` `reject` The guard does not scan .md/.json. Coordinator decision 2 and P2 (carried) scope it to code and schema files.
+    - `[low]` `reject` The D5 regenerated lesson golden is missing. It was deleted on purpose under the behaviour-not-hashes rule after the owner's question; the fix would be a spec edit.
+    - `[low]` `carried` (P15) The round-trip coverage claim was narrowed to the lanes the test checks.
+
 ## Auto Run Result
 
 - **Summary:** Layer A of 9A.44. Every Half/binary16 game value, wire lane, decoder and save field is now canonical f32.
@@ -376,3 +420,27 @@ Decisions:
   - `dotnet test CuriousContraptions.slnx --no-build --no-restore`: CuriousContraptions.tests 3142/3142, E2eRunner.Tests 208/208, BundleElements.Tests 191/191, Coverage.Tests 77/77, WorkerAotGuard.Tests 17/17. Skipped 0 in every project.
   - `anvil_check` on 54 changed code files: 0 findings.
   - `git diff --check`: clean.
+
+### Follow-up pass 2 (24 Oct, on 961afb79)
+- **Patched:** 0 high, 5 medium, 14 low, all fixed by the same implementer.
+  - The knot boundary matrix covers 11 lanes × 3 profiles × {NaN, +∞, −∞, −0.5}, at both the save and the command boundary. `MapConstructionRecord` applies the authored-knot rule.
+  - The legacy-load test holds a live `WorkshopSimulation`: the committed read is unchanged after the refusal, and the next `Advance` reaches tick + 1.
+  - The zero-knot message is chosen by whether the deprecated slot is present.
+  - The oracle uses physical closed forms for pipes (L/2 and the rims) and authored slider numbers, and an unknown shape now throws.
+  - The lesson test asserts every placement parameter at each precision and the goal identities.
+  - Drive-law doc comments are updated.
+  - The body 12–16 padding is checked.
+  - NaN injection covers 16 worker-written lanes.
+  - The trivial assertions are fixed, `RotationWOffset` is used in fixtures, the D6 deltas list the 0.08/0.12 ulp change, `Fixtures/f1ad3bd1-provenance.md` is added, and the cast leftovers are removed.
+- **Rejected:** 5 rows, including one false (the claim that 2.324 was authored). **Deferred:** 1 row (the default-profile NaN, pre-existing).
+- **Declared tolerances:** accepted by the coordinator under delegated authority, each with its reason stated.
+  - Sticking restitution: within 1 %, measured 0.47 % short of ω·r/7. The cause is the onset slip while the normal impulse builds.
+  - Identity event timing: 12 ticks. The direct f32 shift is at most 0.2 tick over 1200 ticks, but contact amplification is not bounded by the input deltas.
+  - The sliding restitution case is now held to f32 arithmetic (2⁻²⁰).
+- **followup_review_recommended: false.** The follow-up pass patched no high, so the work has converged.
+- **Verification (coordinator):**
+  - `dotnet build CuriousContraptions.slnx`: 0 warnings, 0 errors.
+  - `dotnet test CuriousContraptions.slnx --no-build --no-restore`: CuriousContraptions.tests 3410/3410, E2eRunner.Tests 208/208, BundleElements.Tests 191/191, Coverage.Tests 77/77, WorkerAotGuard.Tests 17/17. Skipped 0 in every project.
+  - `anvil_check` on 23 changed code files: 0 findings.
+  - `git diff --check`: clean.
+- **Browser qualification:** pending post-catalogue.

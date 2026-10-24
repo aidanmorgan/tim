@@ -39,18 +39,18 @@ public sealed class PrismaticConstraintTests
         {
             var payload = new byte[PhysicsBodyWire.ByteLength];
             PhysicsBodyWire.Write(PhysicsGpuAbi.ReadDynamicBodies(source)[0], payload);
-            BinaryPrimitives.WriteSingleLittleEndian(payload.AsSpan(PhysicsBodyWire.RotationOffset + 12), w);
+            BinaryPrimitives.WriteSingleLittleEndian(payload.AsSpan(PhysicsBodyWire.RotationOffset + PhysicsGpuAbi.RotationWOffset), w);
             PhysicsBodyWire.Read(payload, new(1), new(0));
         }
         else if (boundary == RotationBoundary.Candidate)
         {
-            BinaryPrimitives.WriteSingleLittleEndian(candidate.AsSpan(PhysicsGpuAbi.Layout(candidate).BodyOffset(1) + PhysicsGpuAbi.BodyRotationOffset + 12), w);
+            BinaryPrimitives.WriteSingleLittleEndian(candidate.AsSpan(PhysicsGpuAbi.Layout(candidate).BodyOffset(1) + PhysicsGpuAbi.BodyRotationOffset + PhysicsGpuAbi.RotationWOffset), w);
             PhysicsGpuAbi.ValidateCandidate(candidate, source, new(1));
         }
         else
         {
             var layout = PhysicsGpuAbi.Layout(candidate);
-            BinaryPrimitives.WriteSingleLittleEndian(candidate.AsSpan(layout.MotionOffset + PhysicsMotionRead.HeaderBytes + PhysicsMotionRead.RotationOffset + 12), w);
+            BinaryPrimitives.WriteSingleLittleEndian(candidate.AsSpan(layout.MotionOffset + PhysicsMotionRead.HeaderBytes + PhysicsMotionRead.RotationOffset + PhysicsGpuAbi.RotationWOffset), w);
             PhysicsMotionRead.Decode(candidate.AsSpan(layout.MotionOffset, layout.MotionBytes),
                 PhysicsGpuAbi.ReadDynamicBodies(candidate), new(1));
         }

@@ -39,7 +39,8 @@ public readonly record struct PrismaticConstraintDeclaration(PrismaticConstraint
 public enum PrismaticDriveKind : uint { None, Supplied }
 
 /// <summary>The supplied drive of one prismatic joint, moving its BodyB along the joint axis toward <see cref="Target"/> (m) at the
-/// stopping-profile speed sign(d)·min(<see cref="MaxSpeed"/>, √(2·<see cref="StoppingAcceleration"/>·|d|)), with its force bounded
+/// stopping-profile speed sign(d)·min(<see cref="MaxSpeed"/>, √(2·<see cref="StoppingAcceleration"/>·|d|), |d|/h) for a substep h,
+/// with its force bounded
 /// by <see cref="MaxEffort"/> (N) and its power by <see cref="MaxPower"/> (W). A separate table, so the joint rows stay the
 /// declared slider's rows.</summary>
 public readonly record struct PrismaticDriveDeclaration(PrismaticConstraintId Joint, float Target, float MaxSpeed,

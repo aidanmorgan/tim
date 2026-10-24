@@ -115,14 +115,58 @@ public sealed class F32LaneRoundTripTests
 
     /// <summary>The f32 lanes the worker writes on every tick: the candidate decode reads their values (it cannot compare them with the
     /// committed world), so a NaN or infinity there is refused as a value, while a finite change of the same lane commits.</summary>
-    public enum CandidateLane { BodyVelocity, BodyAngularVelocity, MotionAngularVelocity, MotionVelocity }
+    public enum CandidateLane { BodyVelocity, BodyAngularVelocity, MotionAngularVelocity, MotionVelocity,
+        BodyLocal, BodyRotation, MotionStartPhase, MotionEndPhase, MotionAnchorPhase, MotionCentreRemainder, MotionDragRate, MotionRotation,
+        MotionGravity, MotionSupportedAcceleration, MotionAngularAcceleration, MotionFlaggedVector }
 
+    private static int LaneOffset(PhysicsSceneDeclaration scene, CandidateLane lane)
+    {
+        var firstPiece = scene.World.MotionOffset + PhysicsMotionRead.HeaderBytes;
+        var body = scene.Layout.GetBodyOffset(Ball);
+        return lane switch
+        {
+            CandidateLane.BodyVelocity => body + PhysicsGpuAbi.BodyVelocityOffset,
+            CandidateLane.BodyAngularVelocity => body + PhysicsGpuAbi.BodyAngularVelocityOffset,
+            CandidateLane.BodyLocal => body + PhysicsGpuAbi.BodyLocalOffset,
+            CandidateLane.BodyRotation => body + PhysicsGpuAbi.BodyRotationOffset + PhysicsGpuAbi.RotationWOffset,
+            CandidateLane.MotionAngularVelocity => firstPiece + PhysicsMotionRead.AngularVelocityOffset,
+            CandidateLane.MotionVelocity => firstPiece + PhysicsMotionRead.VelocityOffset,
+            CandidateLane.MotionStartPhase => firstPiece + PhysicsMotionRead.StartPhaseOffset,
+            CandidateLane.MotionEndPhase => firstPiece + PhysicsMotionRead.EndPhaseOffset,
+            CandidateLane.MotionAnchorPhase => firstPiece + PhysicsMotionRead.AnchorPhaseOffset,
+            CandidateLane.MotionCentreRemainder => firstPiece + PhysicsMotionRead.CentreRemainderOffset,
+            CandidateLane.MotionDragRate => firstPiece + PhysicsMotionRead.DragRateOffset,
+            CandidateLane.MotionRotation => firstPiece + PhysicsMotionRead.RotationOffset + PhysicsGpuAbi.RotationWOffset,
+            CandidateLane.MotionGravity => firstPiece + PhysicsMotionRead.GravityOffset + 4,
+            CandidateLane.MotionSupportedAcceleration => firstPiece + PhysicsMotionRead.SupportedAccelerationOffset,
+            CandidateLane.MotionAngularAcceleration => firstPiece + PhysicsMotionRead.AngularAccelerationOffset,
+            CandidateLane.MotionFlaggedVector => firstPiece + PhysicsMotionRead.FlaggedVectorOffset,
+            _ => throw new ArgumentOutOfRangeException(nameof(lane))
+        };
+    }
+
+    // Every f32 lane the worker writes for a moving body. Value lanes take any finite value, so moving one by an f32 step still commits
+    // (a rotation's w steps down, keeping the quaternion unit); structural lanes (an interval's start and anchor phases, the zero
+    // supported and angular accelerations and flagged vector of a free piece) are pinned by the decode, so a finite change is refused
+    // too. A NaN or infinity is refused in both.
     [Theory]
-    [InlineData(CandidateLane.BodyVelocity, float.NaN)]
-    [InlineData(CandidateLane.BodyAngularVelocity, float.PositiveInfinity)]
-    [InlineData(CandidateLane.MotionAngularVelocity, float.NegativeInfinity)]
-    [InlineData(CandidateLane.MotionVelocity, float.NaN)]
-    public void ANonFiniteValueInAWorkerWrittenLaneIsRefusedAFiniteChangeCommitsAndTheTickContinues(CandidateLane lane, float value)
+    [InlineData(CandidateLane.BodyVelocity, float.NaN, true)]
+    [InlineData(CandidateLane.BodyAngularVelocity, float.PositiveInfinity, true)]
+    [InlineData(CandidateLane.BodyLocal, float.NegativeInfinity, true)]
+    [InlineData(CandidateLane.BodyRotation, float.NaN, true)]
+    [InlineData(CandidateLane.MotionAngularVelocity, float.NegativeInfinity, true)]
+    [InlineData(CandidateLane.MotionVelocity, float.NaN, true)]
+    [InlineData(CandidateLane.MotionEndPhase, float.PositiveInfinity, true)]
+    [InlineData(CandidateLane.MotionCentreRemainder, float.NaN, true)]
+    [InlineData(CandidateLane.MotionDragRate, float.NaN, true)]
+    [InlineData(CandidateLane.MotionRotation, float.NegativeInfinity, true)]
+    [InlineData(CandidateLane.MotionGravity, float.NaN, true)]
+    [InlineData(CandidateLane.MotionStartPhase, float.NaN, false)]
+    [InlineData(CandidateLane.MotionAnchorPhase, float.PositiveInfinity, false)]
+    [InlineData(CandidateLane.MotionSupportedAcceleration, float.NaN, false)]
+    [InlineData(CandidateLane.MotionAngularAcceleration, float.NegativeInfinity, false)]
+    [InlineData(CandidateLane.MotionFlaggedVector, float.NaN, false)]
+    public void ANonFiniteValueInAWorkerWrittenLaneIsRefusedAFiniteChangeCommitsAndTheTickContinues(CandidateLane lane, float value, bool valueLane)
     {
         var scene = WorkshopPhysicsCompiler.Compile(Bench(), new(1, 2));
         var admitted = PhysicsGpuAbi.Admission(scene, new(1), Profile);
@@ -133,23 +177,16 @@ public sealed class F32LaneRoundTripTests
                 new(new ElectricalEnable[scene.World.ElectricalSources], new bool[scene.World.Prismatics]));
             return candidate;
         }
-        var firstPiece = scene.World.MotionOffset + PhysicsMotionRead.HeaderBytes;
-        var offset = lane switch
-        {
-            CandidateLane.BodyVelocity => scene.Layout.GetBodyOffset(Ball) + PhysicsGpuAbi.BodyVelocityOffset,
-            CandidateLane.BodyAngularVelocity => scene.Layout.GetBodyOffset(Ball) + PhysicsGpuAbi.BodyAngularVelocityOffset,
-            CandidateLane.MotionAngularVelocity => firstPiece + PhysicsMotionRead.AngularVelocityOffset,
-            CandidateLane.MotionVelocity => firstPiece + PhysicsMotionRead.VelocityOffset,
-            _ => throw new ArgumentOutOfRangeException(nameof(lane))
-        };
-        // Finite control: the same lane moved by one f32 step still commits, so the refusal below is the value's, not the change's.
+        var offset = LaneOffset(scene, lane);
+        // Finite control: a value lane moved by one f32 step still commits, so the refusal below is the value's, not the change's.
         var changed = Stepped();
         var finite = BinaryPrimitives.ReadSingleLittleEndian(changed.AsSpan(offset));
-        BinaryPrimitives.WriteSingleLittleEndian(changed.AsSpan(offset), MathF.BitIncrement(finite));
-        PhysicsGpuAbi.ValidateCandidate(changed, admitted, new(1));
+        BinaryPrimitives.WriteSingleLittleEndian(changed.AsSpan(offset), finite == 1f ? MathF.BitDecrement(finite) : MathF.BitIncrement(finite));
+        if (valueLane) PhysicsGpuAbi.ValidateCandidate(changed, admitted, new(1));
+        else Assert.ThrowsAny<ArgumentException>(() => PhysicsGpuAbi.ValidateCandidate(changed, admitted, new(1)));
         var poisoned = Stepped();
         BinaryPrimitives.WriteSingleLittleEndian(poisoned.AsSpan(offset), value);
-        Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ValidateCandidate(poisoned, admitted, new(1)));
+        Assert.ThrowsAny<ArgumentException>(() => PhysicsGpuAbi.ValidateCandidate(poisoned, admitted, new(1)));
         // The refused candidate is discarded: the committed world's next tick steps and commits.
         var next = PhysicsGpuAbi.ValidateCandidate(Stepped(), admitted, new(1));
         Assert.True(next.Bodies.TryGet(Ball, out var ball) && float.IsFinite(ball.Body.Velocity.Y));

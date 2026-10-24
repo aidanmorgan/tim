@@ -215,6 +215,23 @@ public static class WorkshopWireFlatBuffers
         return false;
     }
 
+    /// <summary>The vtable offsets of <c>ConstructionRecord.puzzle</c> (field 2) and the deprecated <c>PuzzleRecord.raw_assistance</c>
+    /// (field 10), which only a lesson saved before Story 9A.44 holds.</summary>
+    internal const int ConstructionPuzzleSlot = 8, PuzzleRawAssistanceSlot = 24;
+
+    /// <summary>Whether the verified root's puzzle record holds the deprecated half-precision assistance slot (a pre-9A.44 lesson).
+    /// Reads only vtable entries inside each verified vtable.</summary>
+    internal static bool HoldsDeprecatedAssistance(ByteBuffer bb, int constructionSlot)
+    {
+        var root = new Table(bb.GetInt(bb.Position) + bb.Position, bb);
+        var field = root.__offset(constructionSlot);
+        if (field == 0) return false;
+        var construction = new Table(root.__indirect(field + root.bb_pos), bb);
+        var puzzle = construction.__offset(ConstructionPuzzleSlot);
+        if (puzzle == 0) return false;
+        return new Table(construction.__indirect(puzzle + construction.bb_pos), bb).__offset(PuzzleRawAssistanceSlot) != 0;
+    }
+
     /// <summary>The 24-byte receipt identity of a physical read (its session, then its publication): the Simulation worker hands
     /// it to the browser with the read, so no script parses a buffer to acknowledge it.</summary>
     public static byte[] ReadIdentity(WorkshopResponse response)
@@ -703,9 +720,14 @@ public static class WorkshopWireFlatBuffers
                 : new WorkshopGoal(kind, new(p.GoalBody), new(p.GoalTarget), sensor, MinimumDuration: new(p.GoalDelay));
             if (p.AssistanceLength != AssistanceKnotCount)
                 throw new WireFaultException(WireFaultReason.MissingField, "An authored puzzle requires its nine assistance knots.");
+            AssistanceProfile[] profiles = [Profile(p, 0), Profile(p, KnotsPerProfile), Profile(p, 2 * KnotsPerProfile)];
+            // The authored knot rule (finite, non-negative, knots at 0, 0.45 and 1): a saved record is pre-validated against it.
+            if (profiles.Any(profile => !profile.HasAuthoredShape()))
+                throw new WireFaultException(WireFaultReason.OutOfRange,
+                    "An authored puzzle's assistance knots must be finite, non-negative and at precisions 0, 0.45 and 1.");
             puzzle = new WorkshopPuzzle(new PuzzleId(p.Id ?? throw new WireFaultException(WireFaultReason.MissingField, "Missing puzzle identity.")), (WorkshopPlacementMode)p.Placement, new(p.Precision),
                 p.InventoryPart != null ? new PartId(p.InventoryPart) : default, p.InventoryCount, goal,
-                Profile(p, 0), Profile(p, KnotsPerProfile), Profile(p, 2 * KnotsPerProfile));
+                profiles[0], profiles[1], profiles[2]);
         }
 
         // No instance or connection limit (Story 9R.5b): the record's own vectors are the population.

@@ -1281,9 +1281,10 @@ public sealed class WorkshopWireTests
     // Story 9A.44: every fixed row's zero padding (a body's tail, a collider's shape gap and tail, a material's tail) is checked in the
     // world itself, at admission (tick 0) and on every tick. The same nonzero byte in the source and the candidate passes the
     // unchanged-row comparison, so only the padding rule can refuse it.
-    public enum FixedRowPadding { BodyTail, ColliderShapeGap, ColliderTail, MaterialTail }
+    public enum FixedRowPadding { BodyMotionGap, BodyTail, ColliderShapeGap, ColliderTail, MaterialTail }
 
     [Theory]
+    [InlineData(FixedRowPadding.BodyMotionGap)]
     [InlineData(FixedRowPadding.BodyTail)]
     [InlineData(FixedRowPadding.ColliderShapeGap)]
     [InlineData(FixedRowPadding.ColliderTail)]
@@ -1297,6 +1298,8 @@ public sealed class WorkshopWireTests
         var layout = PhysicsGpuAbi.Layout(candidate);
         var (start, length) = region switch
         {
+            FixedRowPadding.BodyMotionGap => (layout.BodyOffset(0) + PhysicsGpuAbi.BodyMotionPaddingOffset,
+                PhysicsGpuAbi.BodyCellOffset - PhysicsGpuAbi.BodyMotionPaddingOffset),
             FixedRowPadding.BodyTail => (layout.BodyOffset(0) + PhysicsGpuAbi.BodyPaddingOffset, PhysicsGpuAbi.BodyBytes - PhysicsGpuAbi.BodyPaddingOffset),
             FixedRowPadding.ColliderShapeGap => (layout.ColliderOffset(0) + PhysicsGpuAbi.ColliderShapePaddingOffset,
                 PhysicsGpuAbi.ColliderPoseOffset - PhysicsGpuAbi.ColliderShapePaddingOffset),

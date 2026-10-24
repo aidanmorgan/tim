@@ -45,7 +45,7 @@ public readonly record struct SliderBodyDescriptor(
 
 /// <summary>A bounded drive on one slider, enabled while the element's PowerIn supply route is closed. It moves the slider toward
 /// <see cref="Target"/> (m, within the slider's limits) at the stopping-profile speed sign(d)·min(<see cref="MaxSpeed"/>,
-/// √(2·<see cref="StoppingAcceleration"/>·|d|)), changing speed by at most <see cref="StoppingAcceleration"/> (m/s²), holding
+/// √(2·<see cref="StoppingAcceleration"/>·|d|), |d|/h) for a substep h, changing speed by at most <see cref="StoppingAcceleration"/> (m/s²), holding
 /// against the slider's own spring and the moving body's gravity, with its force bounded by <see cref="MaxEffort"/> (N) and its
 /// power by <see cref="MaxPower"/> (W).</summary>
 public readonly record struct PrismaticDriveDescriptor(

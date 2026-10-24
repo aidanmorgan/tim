@@ -21,8 +21,8 @@ Goal-tick deltas, grouped:
   goal is the lamp activation, not a receiver capture. This fits the constant-change explanation but was not isolated by ablation.
 - delayed_signal: 0 at every precision (timer-driven goal; integer ticks unaffected).
 
-Tolerance basis: to first order the D6 deltas (≤ 3.4e-4 relative) move a gravity-driven arrival by under 0.1 tick for T ≤ 600
-ticks; contact sequences amplify that by an amount no input delta bounds, so the 12-tick (0.1 s) event bound is a declared
+Tolerance basis: to first order the D6 deltas (≤ 3.4e-4 relative) move a gravity-driven arrival by at most 0.2 tick over the
+1200-tick lesson run; contact sequences amplify that by an amount no input delta bounds, so the 12-tick (0.1 s) event bound is a declared
 tolerance, not derived from the deltas.
 
 Final poses: lesson final body positions differ by up to 0.103 m (gentle_bend@0.45) because trajectories diverge after the goal

@@ -12,7 +12,6 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
     {
         var declared = (WorkshopGenericInstance)PlacedParts.Bumper(new(2), 0, 4, 0, strength: 8.000001f);
         Assert.Equal(8.000001f, declared.Parameters[new("strength")]);
-        Assert.NotEqual(8f, declared.Parameters[new("strength")]);
         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(
             WorkshopInput.Generic(PartId.Basketball,new(1), 0, 6, 0, 0, 0, 0, 1), declared));
         var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));

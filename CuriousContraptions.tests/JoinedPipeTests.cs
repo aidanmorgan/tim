@@ -180,16 +180,20 @@ public sealed class JoinedPipeTests
         var t = (precision - a.Precision) / (b.Precision - a.Precision);
         float Blend(float x, float y) => x + (y - x) * t;
         var receiver = (WorkshopGenericInstance)Lesson(precision).Instances.Single(instance => instance.PartId == PartId.Receiver);
-        var lanes = new (string Parameter, float A, float B)[]
+        var lanes = new (string Parameter, AssistanceValue Knot, float A, float B)[]
         {
-            ("capture_margin", a.CaptureMargin.Value, b.CaptureMargin.Value), ("capture_speed_limit", a.CaptureSpeed.Value, b.CaptureSpeed.Value),
-            ("capture_dwell", a.CaptureDwell.Value, b.CaptureDwell.Value),
-            ("force_support_margin", a.CaptureMargin.Value, b.CaptureMargin.Value),
-            ("force_maximum_acceleration", a.GuideAcceleration.Value, b.GuideAcceleration.Value),
+            ("capture_margin", AssistanceValue.CaptureMargin, a.CaptureMargin.Value, b.CaptureMargin.Value),
+            ("capture_speed_limit", AssistanceValue.CaptureSpeed, a.CaptureSpeed.Value, b.CaptureSpeed.Value),
+            ("capture_dwell", AssistanceValue.CaptureDwell, a.CaptureDwell.Value, b.CaptureDwell.Value),
+            ("force_support_margin", AssistanceValue.CaptureMargin, a.CaptureMargin.Value, b.CaptureMargin.Value),
+            ("force_maximum_acceleration", AssistanceValue.GuideAcceleration, a.GuideAcceleration.Value, b.GuideAcceleration.Value),
         };
-        // Every bound Receiver parameter (the template's five assistance bindings) takes its blend.
+        // Each lane is the template's own binding (parameter ← knot lane, force_support_margin ← CaptureMargin among them), and
+        // every one of its five bindings takes its blend.
+        var bound = template.AssistanceBindings.Select(binding => (binding.Parameter.Value, binding.Value)).ToHashSet();
         Assert.Equal(template.AssistanceBindings.Length, lanes.Length);
-        foreach (var (parameter, x, y) in lanes)
+        Assert.True(bound.SetEquals(lanes.Select(lane => (lane.Parameter, lane.Knot))), "the lanes are the template's own bindings");
+        foreach (var (parameter, _, x, y) in lanes)
         {
             var actual = receiver.Parameters[new(parameter)];
             Assert.Equal(BitConverter.SingleToUInt32Bits(Blend(x, y)), BitConverter.SingleToUInt32Bits(actual));

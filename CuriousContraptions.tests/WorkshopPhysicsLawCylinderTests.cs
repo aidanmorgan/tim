@@ -159,7 +159,7 @@ public sealed class WorkshopPhysicsLawCylinderTests
         var rampCentre = At(0, BenchY + 2);
         var scene = new LawScene();
         scene.StaticBox(rampCentre, At(4, .25f, 1), AboutZ(degrees), new LawMaterial(0f, .1f, friction, 0f));
-        var start = rampCentre + .25f * normal + 3f * uphill + (radius) * normal;
+        var start = rampCentre + .25f * normal + 3f * uphill + radius * normal;
         var drum = scene.Cylinder(start, radius, .2f, 1f, new LawMaterial(0f, .1f, friction, 0f), AlongZ);
         var world = scene.Admit();
         var downhill = -uphill;
@@ -218,7 +218,7 @@ public sealed class WorkshopPhysicsLawCylinderTests
             var drum = scene.Cylinder(At(0, BenchY + r), .3f, .15f, 1f, new LawMaterial(0f, .1f, .6f, rolling), AlongZ,
                 velocity: At(1, 0, 0), angular: At(0, 0, -1 / r));
             var world = scene.Admit();
-            var stop = 3.0 / (2 * (crr) * G);
+            var stop = 3.0 / (2 * crr * G);
             double moving = 0;
             var final = world.Step((int)(1.5 * stop * world.TicksPerSecond), (tick, state) =>
             {
@@ -614,7 +614,7 @@ public sealed class WorkshopPhysicsLawCylinderTests
         double azimuth, int seconds = 4)
     {
         var q = Tipped(degrees, azimuth);
-        float r = (radius), h = (halfWidth);
+        float r = radius, h = halfWidth;
         var scene = new LawScene();
         var body = scene.Cylinder(At(0, BenchY + Lowest(q, r, h) + .0005f), radius, halfWidth, 1f, Dead, q);
         var world = scene.Admit();
@@ -651,7 +651,7 @@ public sealed class WorkshopPhysicsLawCylinderTests
     {
         // Every tilt rights itself onto the cap (atan(r/h) > 20° for each). The envelope: transient penetration ≤ 5 % of the smaller
         // extent, resting ≤ 0.5 mm, and no tick gains more than the slop energy.
-        var extent = 2 * MathF.Min((radius), (halfWidth));
+        var extent = 2 * MathF.Min(radius, halfWidth);
         foreach (var azimuth in new[] { 0.0, 45.0 })
             foreach (var degrees in new[] { 5.0, 11.0, 20.0 })
             {

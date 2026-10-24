@@ -30,7 +30,8 @@ internal static class WorkshopSavePrevalidation
                 throw Refuse(WorkshopSaveRejection.DuplicateInstance, $"Two saved parts share identity {instance.Id}.");
         }
         CheckConnections(record, parts);
-        CheckPuzzle(record, elements);
+        CheckPuzzle(record, elements,
+            WorkshopWireFlatBuffers.HoldsDeprecatedAssistance(saved.ByteBuffer, WorkshopWireFlatBuffers.SavedConstructionSlot));
         foreach (var id in parts.Keys)
             if (saved.NextBodyId <= id.Value)
                 throw Refuse(WorkshopSaveRejection.InvalidAllocator, "The save's next part identity is not above every saved identity.");
@@ -156,7 +157,7 @@ internal static class WorkshopSavePrevalidation
 
     /// <summary>An authored puzzle's record: defined enums, finite values, all three assistance profiles and a supported
     /// named goal. A Free construction carries no puzzle record. The lesson's own authored-settings rules stay its typed refusals.</summary>
-    private static void CheckPuzzle(ConstructionRecord record, IReadOnlySet<PartId> elements)
+    private static void CheckPuzzle(ConstructionRecord record, IReadOnlySet<PartId> elements, bool holdsDeprecatedAssistance)
     {
         if (record.Puzzle is not { } p) return;
         if (string.IsNullOrWhiteSpace(p.Id))
@@ -165,8 +166,8 @@ internal static class WorkshopSavePrevalidation
             throw Refuse(WorkshopSaveRejection.UndefinedEnum, "The saved puzzle names an undefined puzzle, placement or goal.");
         if (!float.IsFinite(p.Precision) || !float.IsFinite(p.GoalDelay))
             throw Refuse(WorkshopSaveRejection.NonFinite, "The saved puzzle has a non-finite precision or goal delay.");
-        // A puzzle written before Story 9A.44 holds its knots only in the deprecated raw_assistance slot, so it has none here.
-        if (p.AssistanceLength == 0)
+        // A puzzle written before Story 9A.44 holds its knots only in the deprecated raw_assistance slot.
+        if (p.AssistanceLength == 0 && holdsDeprecatedAssistance)
             throw Refuse(WorkshopSaveRejection.MissingField,
                 "The saved puzzle lacks its nine assistance knots; a lesson saved before f32 assistance cannot be loaded.");
         if (p.AssistanceLength != WorkshopWireFlatBuffers.AssistanceKnotCount)

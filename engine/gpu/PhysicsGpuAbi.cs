@@ -345,8 +345,11 @@ public static partial class PhysicsGpuAbi
         // Every fixed row's zero padding is checked in the candidate itself (at admission, tick 0, too): an unchanged nonzero byte
         // passes the row comparisons above, so only these checks see it.
         for (var i = 0; i < bodyCount; i++)
-            if (!AllZero(candidate.Slice(layout.BodyOffset(i) + BodyPaddingOffset, BodyBytes - BodyPaddingOffset)))
+        {
+            var body = candidate.Slice(layout.BodyOffset(i), BodyBytes);
+            if (!AllZero(body[BodyMotionPaddingOffset..BodyCellOffset]) || !AllZero(body[BodyPaddingOffset..]))
                 throw new ArgumentException("Nonzero body padding.");
+        }
         for (var i = 0; i < layout.Colliders; i++)
         {
             var collider = candidate.Slice(layout.ColliderOffset(i), ColliderBytes);

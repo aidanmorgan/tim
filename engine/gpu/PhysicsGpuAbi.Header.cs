@@ -93,6 +93,7 @@ public static partial class PhysicsGpuAbi
 
     // Body record (BodyBytes): motion, cell, f32 local remainder, f32 rotation and velocities, then the immutable declared lanes
     // from BodyMassOffset: mass, drag, gravity, centre of mass, principal frame and moments, and the owned collider slot.
+    public const int BodyMotionPaddingOffset = 12;
     public const int BodyCellPaddingOffset = 28;
     public const int BodyLocalPaddingOffset = 44;
     public const int BodyColliderSlotOffset = 148;
