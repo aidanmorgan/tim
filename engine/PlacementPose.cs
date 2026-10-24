@@ -20,10 +20,10 @@ public readonly record struct ComposedPlacement(Vector3 Position, Quaternion Rot
 /// and the native tests: the 0.1 m grid, then a typed tube-mouth snap when one exists (Story 9R.6), otherwise rest. Rest lifts a
 /// Dynamic part that truly overlaps a Static part's collider whose top is horizontal, lies within the part's vertical extent and lies
 /// under the part's x–z centre, so its lowest point rests on the highest such top; x, z and the rotation are unchanged. A lifted pose
-/// is admitted only when the lifted body's world-space extent lies in the bench volume (x ∈ [−7, 7], y from the bench surface to 9,
-/// z ∈ [−4, 4] m; coordinator decision on 10.2a F3, 24 Oct 2026: the body, not its origin) and it is clear of every Static part
-/// (beyond a 10⁻⁴ m contact slop); otherwise it is refused (coordinator decision B1, 23 Oct 2026). Every other pose is the snap or
-/// the grid. Geometry is the declared f32 colliders of the
+/// is admitted only when it is clear of every Static part (beyond a 10⁻⁴ m contact slop; coordinator decision B1, 23 Oct 2026).
+/// Every final pose (snap, grid or rest) is admitted only when the part's world-space extent lies in the bench volume (x ∈ [−7, 7],
+/// y from the bench surface to 9, z ∈ [−4, 4] m; coordinator decisions on 10.2a F3, 24 Oct 2026: the body, not its origin, on every
+/// placement path); otherwise it is refused. Geometry is the declared f32 colliders of the
 /// bundle (no part identity); it creates no command.</summary>
 public static class PlacementPose
 {
@@ -79,10 +79,19 @@ public static class PlacementPose
         ArgumentNullException.ThrowIfNull(placed);
         var grid = at.Snapped(Vector3.One * Grid);
         if (TubeMouthSnap.Find(definitions, placed, candidate, grid, rotation) is { } joined)
-            return new(joined.Position, joined.Rotation, joined, PlacementRefusal.None);
+            return new(joined.Position, joined.Rotation, joined, Bounded(candidate.Part, joined.Position, joined.Rotation));
         var (position, refusal) = Rest(placed, candidate, grid, rotation.Normalized());
-        return new(position, rotation, null, refusal);
+        return new(position, rotation, null, refusal != PlacementRefusal.None ? refusal : Bounded(candidate.Part, position, rotation.Normalized()));
     }
+
+    /// <summary>The one bench-volume rule of every placement path (snap, grid and rest): the part's declared colliders at its default
+    /// parameters, posed at the final pose, must lie in the bench volume (<see cref="Within"/>), or the pose is refused OutsideBench.
+    /// An undeclared part, or one that declares no collider, has no geometry to bound; capturing an undeclared part is the placement's
+    /// own typed refusal.</summary>
+    private static PlacementRefusal Bounded(PartId part, Vector3 position, Quaternion rotation) =>
+        !DeclaredPhysics.Contains(part) || DeclaredPhysics.Of(part).Colliders.Count == 0 ||
+        Within(Pose(BundleGeometry.Colliders(DeclaredPhysics.Of(part)), position, rotation))
+            ? PlacementRefusal.None : PlacementRefusal.OutsideBench;
 
     private static (Vector3 Position, PlacementRefusal Refusal) Rest(IReadOnlyList<IWorkshopInstance> placed, TubeMouthMover candidate,
         Vector3 at, Quaternion rotation)
@@ -145,6 +154,26 @@ public static class PlacementPose
         return result;
     }
 
+    /// <summary>The point of the box nearest a point, both relative to the box's centre.</summary>
+    private static Vector3 ClosestOnBox(Posed box, Vector3 offset)
+    {
+        var closest = Vector3.Zero;
+        for (var i = 0; i < 3; i++)
+            closest += box.Axis(i) * Math.Clamp(offset.Dot(box.Axis(i)), -box.HalfAlong(i), box.HalfAlong(i));
+        return closest;
+    }
+
+    /// <summary>The point of the solid cylinder (axis its local Y, half-height h, radius r) nearest a point, both relative to its centre:
+    /// the axial coordinate clamped to [−h, h] and the radial part clamped to r.</summary>
+    private static Vector3 ClosestOnCylinder(Posed cylinder, Vector3 offset)
+    {
+        var along = offset.Dot(cylinder.Y);
+        var radial = offset - cylinder.Y * along;
+        var distance = radial.Length();
+        if (distance > cylinder.Half.X) radial *= cylinder.Half.X / distance;
+        return cylinder.Y * Math.Clamp(along, -cylinder.Half.Y, cylinder.Half.Y) + radial;
+    }
+
     /// <summary>The box's vertical axis, when its top is horizontal.</summary>
     private static int? Vertical(Posed box)
     {
@@ -161,23 +190,21 @@ public static class PlacementPose
         return true;
     }
 
-    /// <summary>A true overlap: the shapes interpenetrate by more than <paramref name="slop"/>; touching is not overlapping. A cylinder
-    /// is separated on the box's and its own frame axes and their cross products by its exact projection; against a sphere it is
-    /// bounded by its (r, h, r) box.</summary>
+    /// <summary>A true overlap: the shapes interpenetrate by more than <paramref name="slop"/>; touching is not overlapping. A sphere
+    /// meets a box or a cylinder at its exact closest point; a cylinder and a box are separated on both frames' axes and their cross
+    /// products by the cylinder's exact projection.</summary>
     private static bool Overlaps(Posed shape, Posed box, float slop)
     {
         if (box.Kind == Shape.Sphere)
         {
-            if (shape.Kind == Shape.Box) return Overlaps(box, shape, slop);
+            if (shape.Kind != Shape.Sphere) return Overlaps(box, shape, slop);
             var reach = shape.Radius + box.Radius - slop;
             return (shape.Centre - box.Centre).LengthSquared() < reach * reach;
         }
         var offset = shape.Centre - box.Centre;
         if (shape.Kind == Shape.Sphere)
         {
-            var closest = Vector3.Zero;
-            for (var i = 0; i < 3; i++)
-                closest += box.Axis(i) * Math.Clamp(offset.Dot(box.Axis(i)), -box.HalfAlong(i), box.HalfAlong(i));
+            var closest = box.Kind == Shape.Cylinder ? ClosestOnCylinder(box, offset) : ClosestOnBox(box, offset);
             var radius = shape.Radius - slop;
             return (offset - closest).LengthSquared() < radius * radius;
         }

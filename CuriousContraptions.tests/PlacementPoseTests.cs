@@ -145,7 +145,9 @@ public sealed class PlacementPoseTests
             ("ball in a ramp tilted 5°", [At(PartId.Ramp, 1, new(0, 0, 0), new Quaternion(Vector3.Back, Mathf.DegToRad(5)))],
                 new(PartId.Basketball, new(2), false), new(0, .2f, 0), Quaternion.Identity),
             ("ball inside a tall wall", [At(PartId.Wall, 1, new(0, 1, 0), Quaternion.Identity)], new(PartId.Basketball, new(2), false), new(0, .5f, 0), Quaternion.Identity),
-            ("wall into a plate", [PlacedParts.Plate(new(1), 0, PlateY, 0, .5f)], new(PartId.Wall, new(2), false), new(0, PlateY, 0), Quaternion.Identity),
+            // The 2 m Wall's centre 1 m above the plate, so its body reaches into the plate face but not into the bench (10.2a F3: every
+            // placement is bounded by the body; centred on the plate it would reach 0.78 m below the bench and be refused).
+            ("wall into a plate", [PlacedParts.Plate(new(1), 0, PlateY, 0, .5f)], new(PartId.Wall, new(2), false), new(0, PlateY + 1, 0), Quaternion.Identity),
             // The recipes' commonest pattern (cat-017, cat-020, cat-051, cat-052): a Basketball placed inside a Powered gate tilted −15°.
             ("ball inside a gate tilted -15°", [At(PartId.PoweredGate, 1, new(0, 3, 0), new Quaternion(Vector3.Back, Mathf.DegToRad(-15)))],
                 new(PartId.Basketball, new(2), false), new(-.08f, 3, 0), Quaternion.Identity),
@@ -210,6 +212,56 @@ public sealed class PlacementPoseTests
         // The point rule this replaces refused the low Weight and admitted the high one.
         Assert.False(PlacementPose.Inside(new(0, PlateY + .08f, 0)));
         Assert.True(PlacementPose.Inside(new(0, 8.9f, 0)));
+    }
+
+    // Review R1 (10.2a): a lifted cylinder is tested against a static sphere at its exact closest point, not as a point. A Weight
+    // dropped upright onto the bench-standing plate beside a Bumper (a static sphere, r 0.65) whose centre is 0.9 m from the Weight's
+    // axis at its mid-height reaches 0.35 m from the axis while the sphere reaches 0.25 m: refused IntoPart. With the Bumper 1.05 m away
+    // (a 0.05 m gap) it is admitted. A Basketball (r 0.34) dropped on the same spot gets the same verdict each time.
+    [Fact]
+    public void ALiftedWeightBesideABumperIsRefusedAndAClearGapIsAdmittedLikeABall()
+    {
+        var definitions = Definitions();
+        var face = PlateY + .08f;
+        var h = TestBundle.Entry(WeightTests.Weight).Colliders[0].HalfExtents.Y;
+        foreach (var (distance, refusal) in new[] { (.9, PlacementRefusal.IntoPart), (1.05, PlacementRefusal.None) })
+        {
+            IWorkshopInstance[] placed = [PlacedParts.Plate(new(1), 0, PlateY, 0, .5f),
+                WorkshopInput.Generic(PartId.PinballBumper, new(3), distance, face + h, 0, 0, 0, 0, 1)];
+            foreach (var part in new[] { WeightTests.Weight, PartId.Basketball })
+            {
+                var composed = PlacementPose.Compose(definitions, placed, new(part, new(2), false), new(0, PlateY, 0), Quaternion.Identity);
+                Assert.True(refusal == composed.Refusal, $"{part} with the Bumper {distance} m away: {composed.Refusal}");
+            }
+        }
+    }
+
+    // 10.2a F3 for every placement path: an unlifted (grid) pose is bounded by the part's world-space extent too, not its point. With no
+    // part on the bench, at x = 0 a Weight (base origin, top 2h ≈ 0.56 m up), a Basketball (r 0.34) and a Domino (a box, centre origin,
+    // half 0.125 × 0.55 × 0.325) are admitted at 1 m. At 8.5 m the Weight's top (9.06) and the Domino's (9.05) are above 9 m and refused,
+    // while the ball's (8.84) is admitted; at 8.9 m all are refused, although the point 8.9 m lies in the point volume. At x = 6.9 m each
+    // body crosses x = 7 (Weight 7.25, ball 7.24, Domino 7.025) and is refused; at 6.6 m each is inside and admitted.
+    [Fact]
+    public void AGridPlacementIsBoundedByTheBodyNotItsPoint()
+    {
+        var definitions = Definitions();
+        foreach (var (at, weight, ball, box) in new[]
+        {
+            (new Vector3(0, 1, 0), PlacementRefusal.None, PlacementRefusal.None, PlacementRefusal.None),
+            (new Vector3(0, 8.5f, 0), PlacementRefusal.OutsideBench, PlacementRefusal.None, PlacementRefusal.OutsideBench),
+            (new Vector3(0, 8.9f, 0), PlacementRefusal.OutsideBench, PlacementRefusal.OutsideBench, PlacementRefusal.OutsideBench),
+            (new Vector3(6.9f, 1, 0), PlacementRefusal.OutsideBench, PlacementRefusal.OutsideBench, PlacementRefusal.OutsideBench),
+            (new Vector3(6.6f, 1, 0), PlacementRefusal.None, PlacementRefusal.None, PlacementRefusal.None)
+        })
+        {
+            Assert.True(PlacementPose.Inside(at), $"{at} is inside the point volume");
+            foreach (var (part, refusal) in new[] { (WeightTests.Weight, weight), (PartId.Basketball, ball), (PartId.Domino, box) })
+            {
+                var composed = PlacementPose.Compose(definitions, [], new(part, new(2), false), at, Quaternion.Identity);
+                Assert.True(refusal == composed.Refusal, $"{part} at {at}: {composed.Refusal}");
+                Assert.Equal(at.Snapped(Vector3.One * .1f), composed.Position);
+            }
+        }
     }
 
     // B1: a part lifted onto a lower top into a higher box is refused (IntoPart). A Basketball at 0.7 m in a plate at 1 m overlaps only

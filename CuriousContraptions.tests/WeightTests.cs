@@ -388,11 +388,20 @@ public sealed class WeightTests
         Assert.InRange(final.Lower, BenchY - .0005f, BenchY + .0005f);
         var face = final.Lower + 2 * H(HalfHeight(lower));
         Assert.InRange(final.Upper, face - .0005f, face + .0005f);
-        // D8 (restitution D10): after settling no bounce, and the last second moves at most 0.05 mm per tick.
+        // D8 (restitution D10): after settling no bounce, and the last second moves at most 0.05 mm per tick and at most 0.5 mm in all
+        // (its path length, the resting envelope), so no steady drift hides under the per-tick bound.
         Assert.All(reads.Skip(2 * Rate), read => Assert.True(Find(read, top.Id).Body.Velocity.Y < .01f, "no bounce after settling"));
-        for (var i = reads.Count - Rate; i < reads.Count; i++)
-            foreach (var id in new[] { bottom.Id, top.Id })
-                Assert.True(Vector3.Distance(Origin(Find(reads[i], id)), Origin(Find(reads[i - 1], id))) <= .00005f, $"tick {i}: body {id.Value} moved");
+        foreach (var id in new[] { bottom.Id, top.Id })
+        {
+            var path = 0f;
+            for (var i = reads.Count - Rate; i < reads.Count; i++)
+            {
+                var step = Vector3.Distance(Origin(Find(reads[i], id)), Origin(Find(reads[i - 1], id)));
+                Assert.True(step <= .00005f, $"tick {i}: body {id.Value} moved {step * 1000} mm");
+                path += step;
+            }
+            Assert.True(path <= .0005f, $"body {id.Value} moved {path * 1000} mm in the last second");
+        }
         Assert.True(Tilt(Find(reads[^1], top.Id)) < .5);
     }
 
