@@ -1,0 +1,13 @@
+x86_64 node v26.12.1 cpus=1 load=6 busy loops
+tools/workshop-observation.test.mjs failing runs: 0/10
+not ok 15 - a clock reply landing after the client failed is never delivered
+not ok 15 - a clock reply landing after the client failed is never delivered
+not ok 15 - a clock reply landing after the client failed is never delivered
+not ok 15 - a clock reply landing after the client failed is never delivered
+not ok 15 - a clock reply landing after the client failed is never delivered
+not ok 15 - a clock reply landing after the client failed is never delivered
+not ok 15 - a clock reply landing after the client failed is never delivered
+not ok 15 - a clock reply landing after the client failed is never delivered
+not ok 15 - a clock reply landing after the client failed is never delivered
+not ok 15 - a clock reply landing after the client failed is never delivered
+tools/workshop-client-lifecycle.test.mjs failing runs: 10/10
