@@ -1,5 +1,7 @@
 # EL-143 · Red optical filter — named-identity spec
 
+**Current delivery (24 October 2026):** [EL-143 delivery slice](../invest/named-elements.md#element-143). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 full spec for a named puzzle-element identity. Baseline commit `a6c914e`. Legacy citations use `path@a6c914e:Lstart-Lend` and stay retrievable from git history after the Epic 7 purge. Lengths are legacy scene units, which the current engine treats as metres (`MetreVector`). The pane normal is local −X; the filter works from either face.
 
 The three channel filters (EL-143 red, EL-144 green, EL-145 blue) share one body and one filter law; they differ only in the passed channel, pane ink, channel marks and icon. Each is specified in full in its own file.
@@ -15,7 +17,7 @@ The three channel filters (EL-143 red, EL-144 green, EL-145 blue) share one body
 | Owner | S498 |
 | Refines CAT | [CAT-055 red_filter](CAT-055-red_filter.md) (`red_filter`, "Red filter"). One catalogue part satisfies both identities; not a second implementation. |
 | Related | EL-144, EL-145 (sibling channels); EL-146 red receiver and EL-176 red laser (channel partners); EL-174 prism (separates channels instead of absorbing them) |
-| Roadmap story | 13.4 Spectral Color Bandpass Filters (Red, Green, Blue) (CAT-055, CAT-031, CAT-011) |
+| Roadmap story | [EL-143 delivery slice](../invest/named-elements.md#element-143); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration
@@ -45,7 +47,7 @@ Binding shard ([element-02.json](../../coverage/engine/element-02.json)): Finite
 - OpticalTransport Filter interaction (two-sided aperture, per-channel transmission, shared range and interaction budget) and light-transparent solid colliders — Story 13.4 (emission from Story 13.1). Decision owner **S484** ([decisions](../invest/decisions.md#s484)): S485, S486, S488 (transparent and opaque paths).
 - OpticalAbsorption and SensibleHeat for the absorbed channels — S489 and S543; applicable only to a heat mode (mode-specific per the map).
 - Construction preview of optical paths — Story 13.5.
-- No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`).
+- No package declaration is established by the cited harvest baseline (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`).
 
 **Element dependencies:** a multi-channel source (CAT-036 amber laser or EL-213 combiner output; Story 13.1/13.5), CAT-005 battery (Story 8.1), an observer (EL-146 / CAT-056 red receiver or CAT-038; Story 13.2), CAT-066 wall (delivered).
 

@@ -1,5 +1,7 @@
 # EL-039 · Air reservoir — element readiness spec
 
+**Current delivery (24 October 2026):** [EL-039 delivery slice](../invest/named-elements.md#element-039). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 Batch H named-identity spec. Legacy citations are pinned to `a6c914e` and resolve with `git show a6c914e:<path> | sed -n 'start,endp'`. Values marked *proposed* have no legacy or requirement source; each carries a one-line justification, stays inside the [game-grade envelope](../../gpu-f32-physics.md#game-grade-envelope) and may be revised by the owner. Box sizes are full extents. This spec also holds the **shared sealed-gas family facts (P1–P20)** that the other pneumatic identities ([EL-037](EL-037-air-compressor.md), [EL-038](EL-038-pneumatic-hose.md), [EL-040](EL-040-pneumatic-release-valve.md), [EL-041](EL-041-pneumatic-directional-valve.md), [EL-042](EL-042-air-nozzle.md), [EL-043](EL-043-pneumatic-pressure-gauge.md)) and the gas-fed [EL-045](EL-045-air-whistle.md) point to instead of repeating.
 
 ## 1. Identity
@@ -10,7 +12,7 @@ Story 7.0 Batch H named-identity spec. Legacy citations are pinned to `a6c914e` 
 | Type | Pneumatic |
 | Anchor | [requirements.md#element-039](../requirements.md#element-039); scope index [todo-376](../requirements.md#todo-376); [named-elements entry](../invest/named-elements.md#element-039); owner S474 |
 | Related | Refines no CAT spec. Related: [CAT-010 Bellows](CAT-010-bellows.md) (open airflow, not a sealed store), [CAT-028 Fan](CAT-028-fan.md) (open airflow). Pneumatic integration task [todo-426](../requirements.md#todo-426) and [todo-427](../requirements.md#todo-427) (spring-return and double-acting pistons, not EL identities). |
-| Roadmap story | unscheduled (Epic 12 delivers only open airflow and the bellows) |
+| Roadmap story | [EL-039 delivery slice](../invest/named-elements.md#element-039); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration

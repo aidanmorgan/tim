@@ -1,5 +1,7 @@
 # RAD-08 · Radiation rate meter — element readiness spec
 
+**Current delivery (24 October 2026):** [RAD-08 delivery slice](../invest/named-elements.md#radiation-08). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 Batch O named-identity spec. Legacy citations are pinned to `a6c914e` and resolve with `git show a6c914e:<path> | sed -n 'start,endp'`. Requirement row: [radiation-08](../requirements.md#radiation-08) (P1 potential). The instrument reads fictional toy sources in game units; nothing here is real-world dosimetry guidance. This spec also holds the **shared proposed rate law and detector defaults** that the other radiation specs reference.
 
 ## 1. Identity
@@ -11,7 +13,7 @@ Story 7.0 Batch O named-identity spec. Legacy citations are pinned to `a6c914e` 
 | Anchor | [requirements.md#radiation-08](../requirements.md#radiation-08); [named-elements.md#radiation-08](../invest/named-elements.md#radiation-08) |
 | Related identities | Sources [RAD-01](RAD-01-gamma-source-capsule.md), [RAD-02](RAD-02-powered-x-ray-emitter.md), [RAD-03](RAD-03-alpha-source-cartridge.md), [RAD-04](RAD-04-beta-minus-source-cartridge.md); neutron counterparts [EL-131](EL-131-fast-neutron-detector.md), [EL-132](EL-132-slow-neutron-detector.md). Supply from [CAT-005 Battery](CAT-005-battery.md); typical load [CAT-051 Powered gate](CAT-051-powered_gate.md). No CAT spec is refined. |
 | Proof owner | S615 |
-| Roadmap story | unscheduled; campaign 101, 108, 115, 116 |
+| Roadmap story | [RAD-08 delivery slice](../invest/named-elements.md#radiation-08); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration
@@ -53,13 +55,13 @@ Families from the [map row](../general-engine-element-map.md) and [binding](../.
 
 | Family | Status | Basis or builder |
 | --- | --- | --- |
-| FiniteLedger | missing | unscheduled (S010-D); the only current finite store is bumper contact work, `engine/gpu/ContactWorkDeclaration.cs@a6c914e:L5-L9` |
-| GeometryQuery | exists now for contact only; missing for radiation paths | BVH `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L74-L204` and sphere/box/plane narrowphase `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L325-L620` (the coverage JSON's `engine/gpu/physics.wgsl` basis is not in the tree); sampled material-interval path queries: unscheduled (P0-004, S606-D) |
-| IonizingTransport | missing | unscheduled (S606-D/F) |
+| FiniteLedger | missing | required in the linked delivery slice (S010-D); the only current finite store is bumper contact work, `engine/gpu/ContactWorkDeclaration.cs@a6c914e:L5-L9` |
+| GeometryQuery | exists now for contact only; missing for radiation paths | BVH `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L74-L204` and sphere/box/plane narrowphase `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L325-L620` (the coverage JSON's `engine/gpu/physics.wgsl` basis is not in the tree); sampled material-interval path queries: required in the linked delivery slice (P0-004, S606-D) |
+| IonizingTransport | missing | required in the linked delivery slice (S606-D/F) |
 | SignalPropagation | missing | Story 8.1 (supplied contacts); the current `engine/gpu/ActivationNetwork.cs@a6c914e:L7-L14` is activation-only |
-| StateTransaction | exists now | construct/run/reset owner `engine/gpu/WorkshopSimulation.cs@a6c914e:L44-L161`; meter state joins it with this element (unscheduled) |
+| StateTransaction | exists now | construct/run/reset owner `engine/gpu/WorkshopSimulation.cs@a6c914e:L44-L161`; meter state joins it with this element (required in the linked delivery slice) |
 
-Also used: ElectricalPower supply (missing; Story 8.1). Inspector selectors for mode and thresholds: unscheduled with this element. Cosmetic needle: `CosmeticCurveDeclaration`, `engine/gpu/WorkshopCosmetic.cs@a6c914e:L16-L17` (exists).
+Also used: ElectricalPower supply (missing; Story 8.1). Inspector selectors for mode and thresholds: required in the linked delivery slice with this element. Cosmetic needle: `CosmeticCurveDeclaration`, `engine/gpu/WorkshopCosmetic.cs@a6c914e:L16-L17` (exists).
 
 **Dependencies.** CAT-005 Battery (Story 8.1); an electrical load such as CAT-051 Powered gate (Story 8.2); any radiation source.
 

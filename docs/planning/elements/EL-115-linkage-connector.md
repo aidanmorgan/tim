@@ -1,5 +1,7 @@
 # EL-115 · Linkage connector — named-identity readiness spec
 
+**Current delivery (24 October 2026):** [EL-115 delivery slice](../invest/named-elements.md#element-115). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 readiness spec ([spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations are `path@a6c914e:Lstart-Lend`. Values marked **proposed** have no legacy or requirement source; each carries a one-line justification and the owner may revise it.
 
 ## 1. Identity
@@ -9,8 +11,8 @@ Story 7.0 readiness spec ([spec](../../../_bmad-output/implementation-artifacts/
 | ID / name / type | EL-115 · Linkage connector · Construction |
 | Anchor | [requirements.md#element-115](../requirements.md#element-115); [named-elements entry](../invest/named-elements.md#element-115); umbrella [gap-02](../requirements.md#gap-02) (index only) |
 | Related identities | [EL-114 Placeable pivot](EL-114-placeable-pivot.md) (same lesson); contrast with the tension-only rope [EL-205](../invest/named-elements.md#element-205) and [CAT-058 Rope anchor](CAT-058-rope_anchor.md): a link pushes and pulls. No CAT refines it. |
-| Roadmap story | Unscheduled. Campaign: introduction 9 "Joint Effort", practice 10, reuse 38, 46, 138 ([gap-02](../requirements.md#gap-02)). |
-| Status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
+| Roadmap story | [EL-115 delivery slice](../invest/named-elements.md#element-115); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
 
 ## 2. Declaration
 
@@ -35,7 +37,7 @@ The requirements row names no variants; there is one mode. A linkage is a finite
 
 - **Cosmetic curves and UI bindings.** None; art follows the committed pose. Length changes with the resize mode along local X.
 - **Art.** Cream rod `#fff8e9`, gold end pins `#f7cb52`, navy end notches `#293954` ([gap-02 visual style](../requirements.md#gap-02); `DESIGN.md@a6c914e:L147-L154`).
-- **Catalogue and inventory.** **Proposed** id `linkage`, title "Linkage", category Structure; `WorkshopPartKind.Linkage` appended last in the Free palette (`engine/gpu/WorkshopInventory.cs@a6c914e:L47-L60`).
+- **Catalogue and inventory.** **Proposed** id `linkage`, title "Linkage", category Structure; package-owned metadata discovered into the Free palette from the bundle (`engine/gpu/WorkshopInventory.cs@a6c914e:L47-L60`).
 
 ## 3. Engine capabilities
 

@@ -1,5 +1,7 @@
 # TH-37 · Heat-sensitive target — named-identity readiness spec
 
+**Current delivery (24 October 2026):** [TH-37 delivery slice](../invest/named-elements.md#thermal-37). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations are `path@a6c914e:Lstart-Lend`. No legacy holds heat-target values, so every design value without a cited source is marked "(proposed: …)" with a one-line justification; the owner may revise it.
 
 ## 1. Identity
@@ -12,8 +14,8 @@ Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artif
 | Proof owner / research | S602 · [TH-S01 heat transfer and finite stores](../../thermal-component-research.md#th-s01) |
 | Related identities | Historical record [todo-304](../requirements.md#todo-304) is shared with [TH-06 Converging lens](TH-06-converging-lens.md); the lens → heat-sensitive latch integration is [sequence-task-402](../requirements.md#sequence-task-402). Goal sibling of [CAT-004 Receiver](CAT-004-basket.md) (capture goal) and sensor sibling of [TH-21](TH-21-temperature-sensor.md). Receiver in the [TH-01](TH-01-candle.md), [TH-26](TH-26-thermal-storage-block.md), [TH-27](TH-27-phase-change-cartridge.md) and [TH-34](TH-34-timed-toaster-ejector.md) recipes. |
 | Campaign | Intro 15; practice 16; reuse 59, 90, 145 ([thermal allocation](../requirements.md#thermal-campaign-allocation)); the optical chapter notes "heat target returns in 81–90". |
-| Roadmap story | Unscheduled. No epic in `_bmad-output/planning-artifacts/epics.md` schedules a thermal element. |
-| Status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`); no legacy part. |
+| Roadmap story | [TH-37 delivery slice](../invest/named-elements.md#thermal-37); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`); no legacy part. |
 
 ## 2. Declaration
 
@@ -37,14 +39,14 @@ Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artif
 
 - **Cosmetic curves and UI bindings.** Tint ← temperature ([research per-element table](../../thermal-component-research.md)), always with the navy degree marks and the gold shaped state indicator (row); the goal UI uses the existing goal feedback (`engine/gpu/WorkshopUi.cs@a6c914e:L7-L13`).
 - **Art.** "Cream target disc with navy degree marks and a gold shaped state indicator" (row). Nearest [DESIGN.md](../../../DESIGN.md) source colours (proposed mapping): cream `#ead39b` (`DESIGN.md@a6c914e:L146-L146`), navy `#293954` (`DESIGN.md@a6c914e:L147-L147`), gold `#f7cb52` (`DESIGN.md@a6c914e:L154-L154`).
-- **Catalogue and inventory entry.** New `WorkshopPartKind.HeatTarget`; id `heat_target`, title "Heat-sensitive target", category Goals (proposed: beside the Receiver and Signal lamp goals).
+- **Catalogue and inventory entry.** Package-owned declaration, discovered into the bundle; id `heat_target`, title "Heat-sensitive target", category Goals (proposed: beside the Receiver and Signal lamp goals).
 
 ## 3. Engine capabilities
 
 Families (map row TH-37, [general-engine-element-map](../general-engine-element-map.md); binding [thermal-01.json](../../coverage/engine/thermal-01.json)): FiniteLedger, ObjectiveEvaluation, SensibleHeat, SignalPropagation, TemperatureSensing; the JSON adds StateTransaction, ReliablePublication and TypedContracts. Decision note LAW-GOALS-D: exact quantity, window, order and final predicate.
 
 - **Exists now.** Goal evaluator (`engine/gpu/WorkshopGoalEvaluator.cs@a6c914e:L5-L8`); dwell-counted residence sensors as the closest dwell precedent (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L123-L141`); activation signals and ports (`engine/gpu/ActivationNetwork.cs@a6c914e:L7-L14`, `engine/gpu/WorkshopConnections.cs@a6c914e:L8-L11`); Run/Reset and save (`engine/gpu/ActivationNetwork.cs@a6c914e:L67-L67`, `engine/gpu/WorkshopSaveCodec.cs@a6c914e:L6-L10`).
-- **Missing.** Temperature goal predicate: [S635](../invest/decisions.md#s635) goal-occurrences → LAW-GOALS-I. TemperatureSensing (IX-17) has no S543 row. [S543](../invest/decisions.md#s543) conduction → S544; absorption [S484](../invest/decisions.md#s484) → S489. Unscheduled.
+- **Missing.** Temperature goal predicate: [S635](../invest/decisions.md#s635) goal-occurrences → LAW-GOALS-I. TemperatureSensing (IX-17) is a required entry decision under S543 owned by the linked delivery slice. [S543](../invest/decisions.md#s543) conduction → S544; absorption [S484](../invest/decisions.md#s484) → S489. Required in the linked delivery slice.
 - **Dependencies.** Any heat source (TH-01, TH-04, TH-06 with light, TH-26).
 
 ## 4. Sources and legacy

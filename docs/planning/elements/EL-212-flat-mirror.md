@@ -1,5 +1,7 @@
 # EL-212 · Flat mirror — named-identity spec
 
+**Current delivery (24 October 2026):** [EL-212 delivery slice](../invest/named-elements.md#element-212). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 full spec for a named puzzle-element identity. Baseline commit `a6c914e`. Legacy citations use `path@a6c914e:Lstart-Lend` and stay retrievable from git history after the Epic 7 purge. Lengths are legacy scene units, which the current engine treats as metres (`MetreVector`). The silvered face looks along local −X.
 
 EL-212 refines the catalogue mirror [CAT-041 mirror](CAT-041-mirror.md), whose spec holds the full legacy harvest (13 facts). This file restates the declaration and the named identity's own acceptance: a finite front surface reflects according to its normal and material model, while the opaque frame and back stay physical.
@@ -15,7 +17,7 @@ EL-212 refines the catalogue mirror [CAT-041 mirror](CAT-041-mirror.md), whose s
 | Owner | S496 |
 | Refines CAT | [CAT-041 mirror](CAT-041-mirror.md) (`mirror`, "Flat mirror"). One catalogue part satisfies both identities; not a second implementation. |
 | Related | CAT-008 beam splitter (half-silvered sibling); EL-213 combiner; EL-175 optical fibre (must not erase the mirror challenge); CAT-036 and EL-176 to EL-178 lasers |
-| Roadmap story | 13.5 Planar Reflection Mirror, Beam Splitter & Beam Combiner (CAT-041, CAT-008, CAT-006) |
+| Roadmap story | [EL-212 delivery slice](../invest/named-elements.md#element-212); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration
@@ -45,7 +47,7 @@ Binding shard ([element-03.json](../../coverage/engine/element-03.json)): Finite
 **Missing**
 - OpticalTransport Mirror interaction with per-bounce retention, shared range and interaction budget, and construction preview — Story 13.5 (emission Story 13.1). Decision owner **S484** ([decisions](../invest/decisions.md#s484)): S485, S486, S488.
 - OpticalAbsorption/SensibleHeat for the absorbed 5% and back-face light — S489/S543, mode-specific.
-- `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`).
+- package declaration and bundle-issued typed id (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`).
 
 **Element dependencies:** a laser (CAT-036 or EL-176 to EL-178; Story 13.1), CAT-005 battery (Story 8.1), a receiver (CAT-038 / EL-214; Story 13.2), CAT-066 wall (delivered).
 

@@ -1,5 +1,7 @@
 # TH-20 · Steam turbine — named-identity readiness spec
 
+**Current delivery (24 October 2026):** [TH-20 delivery slice](../invest/named-elements.md#thermal-20). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations are `path@a6c914e:Lstart-Lend`. No legacy turbine exists; the legacy converging nozzle supplies the jet law and test oracles (section 4). Every design value without a cited source is marked "(proposed: …)" with a one-line justification; the owner may revise it.
 
 ## 1. Identity
@@ -12,8 +14,8 @@ Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artif
 | Proof owner / research | S584 · [TH-S07 heat to mechanical work](../../thermal-component-research.md#th-s07) |
 | Related identities | No CAT spec. Rotary capture shares the gas family law with [CAT-070 Windmill](CAT-070-windmill.md) ([gas family](../../finite-gas-foundation.md)); shaft output drives [CAT-019 Conveyor](CAT-019-conveyor.md) or other shaft loads (Story 11.1). Vapour from [TH-17](TH-17-kettle.md); exhaust to [TH-18](TH-18-condenser.md). |
 | Campaign | Intro 76; practice 77; reuse 87, 147 ([thermal allocation](../requirements.md#thermal-campaign-allocation)) |
-| Roadmap story | Unscheduled. No epic in `_bmad-output/planning-artifacts/epics.md` schedules a thermal element or a gas nozzle source. |
-| Status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`); no legacy part. |
+| Roadmap story | [TH-20 delivery slice](../invest/named-elements.md#thermal-20); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`); no legacy part. |
 
 ## 2. Declaration
 
@@ -36,14 +38,14 @@ Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artif
 
 - **Cosmetic curves and UI bindings.** Rotor ← committed hinge angle ([research per-element table](../../thermal-component-research.md)); the cyan flow window shows the jet's presence; no cosmetic spin.
 - **Art.** "Gold radial wheel in a cream partial cutaway shell with cyan flow window" (row). Nearest [DESIGN.md](../../../DESIGN.md) source colours (proposed mapping): gold `#f7cb52` (`DESIGN.md@a6c914e:L154-L154`), cream `#ead39b` (`DESIGN.md@a6c914e:L146-L146`), cyan `#66b8c9` (`DESIGN.md@a6c914e:L172-L172`).
-- **Catalogue and inventory entry.** New `WorkshopPartKind.SteamTurbine`; id `steam_turbine`, title "Steam turbine", category Heat (proposed: no current category covers thermal parts; Motion is the alternative).
+- **Catalogue and inventory entry.** Package-owned declaration, discovered into the bundle; id `steam_turbine`, title "Steam turbine", category Heat (proposed: no current category covers thermal parts; Motion is the alternative).
 
 ## 3. Engine capabilities
 
 Families (map row TH-20, [general-engine-element-map](../general-engine-element-map.md); binding [thermal-01.json](../../coverage/engine/thermal-01.json)): EnvironmentState, FiniteLedger, GasState, JointConstraint, PressureWork, RigidBodyDynamics, ShaftTorque; JSON adds StateTransaction. Composition note: freeze the pressure/enthalpy-to-shaft constitutive model and exhaust flow; no prescribed speed.
 
 - **Exists now.** Rigid bodies and box colliders (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L120`); Run/Reset and save (`engine/gpu/ActivationNetwork.cs@a6c914e:L67-L67`, `engine/gpu/WorkshopSaveCodec.cs@a6c914e:L6-L10`).
-- **Missing.** Hinge: Story 10.3. Rotary capture: Story 12.3 (Windmill). ShaftTorque output: Story 11.1. Gas nozzle source and sealed store: [S470](../invest/decisions.md#s470) → S471 (unscheduled). PressureWork: [S416](../invest/decisions.md#s416) → S419.
+- **Missing.** Hinge: Story 10.3. Rotary capture: Story 12.3 (Windmill). ShaftTorque output: Story 11.1. Gas nozzle source and sealed store: [S470](../invest/decisions.md#s470) → S471 (required in the linked delivery slice). PressureWork: [S416](../invest/decisions.md#s416) → S419.
 - **Dependencies.** A vapour source (TH-17); a shaft load (Story 11.1 shaft consumers).
 
 ## 4. Sources and legacy
@@ -81,4 +83,4 @@ Point of truth: [thermal-20](../requirements.md#thermal-20), [TX-13](../requirem
 1. **Batch N game scale.** Adopt or revise the one scale in section 2 (×¼ specific heat, ×1/16 latent heat, gas ×1, reaction energy and O₂ ×1/1024, h 2.5 W/(m²·K), per-pair series contact conductance from per-part face values, 1 intensity unit = 1 W, and which research-table rows the scale multiplies). It carries two consequences: boiling needs a declared saturation curve (S550) because scaled water latent heat is below R·T_sat, and gas-node time constants run about 4× slower than SI (TH-25). Owner decision.
 2. **Shaft power.** About 2.9 W of jet power from the toy kettle may be too little for heavier shaft loads; raise the boil rate, add a pressure head, or keep loads light. Owner decision.
 3. **Constitutive model.** Impulse rotary-capture law versus a reaction-turbine efficiency curve. Owner decision (S584 composition).
-4. **Gas source schedule.** S471 and a nozzle source story are unscheduled. Owner decision.
+4. **Gas source schedule.** S471 and a nozzle source story are required in the linked delivery slice. Owner decision.

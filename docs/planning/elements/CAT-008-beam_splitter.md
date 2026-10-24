@@ -1,5 +1,7 @@
 # CAT-008 · beam_splitter — declaration readiness spec (CAT-008-D)
 
+**Current delivery (24 October 2026):** [CAT-008 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 ## Identity
 
 - **CAT ID / kind:** CAT-008 · `beam_splitter` (catalogue title "Beam splitter", category Optics).
@@ -36,7 +38,7 @@ Families (map row CAT-008): ContactImpulse, EnvironmentState, FiniteLedger, Geom
 - OpticalTransport two-sided split with finite branch allocation, shared range and segment caps — Story 13.5. Decision owner **S484** ([decisions](../invest/decisions.md#s484)); S485 finite-colour allocation is the governing row ("neither receiver reads more than it would alone").
 - Collider optical opacity (transparent pane versus opaque frame) — Story 13.1 occlusion; S488 transparent/hollow paths.
 - SensibleHeat coupling — S543, mode-specific only.
-- No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`).
+- No package declaration is established by the cited harvest baseline (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`).
 
 **Element dependencies:** CAT-036 laser (Story 13.1), CAT-038 light_receiver ×2 (Story 13.2), CAT-005 battery (Story 8.1), CAT-066 wall (delivered), CAT-001 ball (delivered; pane collision control), CAT-041 mirror (bounded-loop control).
 

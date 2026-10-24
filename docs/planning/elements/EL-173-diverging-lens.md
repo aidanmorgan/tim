@@ -1,5 +1,7 @@
 # EL-173 · Diverging lens — named-identity spec
 
+**Current delivery (24 October 2026):** [EL-173 delivery slice](../invest/named-elements.md#element-173). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 full spec for a named puzzle-element identity. Baseline commit `a6c914e`. Legacy citations use `path@a6c914e:Lstart-Lend` and stay retrievable from git history after the Epic 7 purge. Lengths in metres; the lens axis is local X and the lens works from either face.
 
 No legacy part implements a lens; legacy optics were narrow rays plus a separate cone network, with no refraction ("Flashlight cones do not reflect or refract", [sequence-task-396](../requirements.md#sequence-task-396)). The frame reuses the legacy filter frame; every other value is **proposed** with a justification.
@@ -15,7 +17,7 @@ No legacy part implements a lens; legacy optics were narrow rays plus a separate
 | Owner | S519 (refinement S524 divergent-lens) |
 | Refines CAT | none. Frame shared with [CAT-055 red_filter](CAT-055-red_filter.md) family; finite-width output is read like the cone of [CAT-029 flashlight](CAT-029-flashlight.md). |
 | Related | TH-06 converging lens (focus; separate thermal identity, scope index [todo-304](../requirements.md#todo-304)); EL-174 prism; EL-214 broadband detector and EL-153 general-light receiver (targets) |
-| Roadmap story | unscheduled |
+| Roadmap story | [EL-173 delivery slice](../invest/named-elements.md#element-173); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration
@@ -47,10 +49,10 @@ Binding shard ([element-02.json](../../coverage/engine/element-02.json)): Finite
 **Exists now:** static box body and colliders (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L60`, `engine/gpu/PhysicsDeclarations.cs@a6c914e:L89-L91`).
 
 **Missing**
-- Finite-width beam coverage (narrow ray → cone with area-shared power) — no story; [todo-309](../requirements.md#todo-309) requires it before any lens. Decision owner **S484** ([decisions](../invest/decisions.md#s484)): S485 finite-colour allocation across receivers, S488 interval law with partial occlusion; refinement S524.
+- Finite-width beam coverage (narrow ray → cone with area-shared power) — required prerequisite owned by the linked delivery slice; [todo-309](../requirements.md#todo-309) requires it before any lens. Decision owner **S484** ([decisions](../invest/decisions.md#s484)): S485 finite-colour allocation across receivers, S488 interval law with partial occlusion; refinement S524.
 - Light-transparent solid collider — Story 13.4 (filters).
 - OpticalAbsorption/SensibleHeat for the 5% loss — S489/S543, mode-specific.
-- `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`).
+- package declaration and bundle-issued typed id (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`).
 
 **Element dependencies:** CAT-036 laser or EL-176 to EL-178 (Story 13.1), CAT-005 battery (Story 8.1), two receivers (CAT-038 / EL-214, Story 13.2), CAT-066 wall.
 
@@ -80,4 +82,4 @@ Binding shard ([element-02.json](../../coverage/engine/element-02.json)): Finite
 1. The finite-width model (cone from the hit point with area-shared power) is proposed; S488 must adopt the interval/coverage law first.
 2. Fixed 15° spread and 0.95 retention are proposed; should spread be authorable?
 3. Does a diverging lens also act on torch cones (widen further), or only on narrow rays? Proposed: narrow rays only.
-4. Roadmap: unscheduled; it depends on the finite-width capability, which no story builds yet.
+4. Roadmap: required in the linked delivery slice; it depends on the finite-width capability, whose decision and implementation belong to this delivery slice.

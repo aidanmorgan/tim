@@ -1,5 +1,7 @@
 # EL-199 · Electric motor named-identity spec
 
+**Current delivery (24 October 2026):** [EL-199 delivery slice](../invest/named-elements.md#element-199). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec (Batch J). Baseline commit `a6c914e`; every citation is `path@a6c914e:Lstart-Lend` and resolves with `git show a6c914e:<path> | sed -n 'start,endp'`. **Proposed** marks an unsourced design value with a one-line justification; the owner may revise it. All values are canonical IEEE-754 f32 game values inside the [game-grade envelope](../../gpu-f32-physics.md#game-grade-envelope).
 
 ## 1. Identity
@@ -13,7 +15,7 @@ Story 7.0 named-identity spec (Batch J). Baseline commit `a6c914e`; every citati
 | Proof owner | S305 |
 | Refines / extends | Refines [CAT-042 motor](CAT-042-motor.md) ([requirement](../requirements.md#current-cat-042)); the full legacy harvest is in that spec |
 | Related | EL-196 Battery, EL-202 Conveyor, EL-203 Reverse transmission, EL-110 Flywheel, EL-209 Fan (shaft supply) |
-| Roadmap story | Story 11.1 (CAT-042 with CAT-019) |
+| Roadmap story | [EL-199 delivery slice](../invest/named-elements.md#element-199); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration
@@ -58,7 +60,7 @@ Supply lamp blends slate `#556573` → gold `#f7cb52` over 0.1 s SmoothStep whil
 Electric motor colour `#66b8c9` (`parts/catalog/motor.tres@a6c914e:L13-L13`); navy `#293954` base; cream wheel; gold lamp and index ([CAT-042 art](CAT-042-motor.md); [DESIGN colour system](../../../DESIGN.md#colour-system); [mechanical work feedback](../../../DESIGN.md#mechanical-work-feedback)).
 
 ### Catalogue and inventory entry
-Id `motor`, title "Electric motor", category Power (`parts/catalog/motor.tres@a6c914e:L8-L14`). Add `WorkshopPartKind.Motor` with a counted allowance (`engine/gpu/WorkshopInventory.cs@a6c914e:L9-L23`).
+Id `motor`, title "Electric motor", category Power (`parts/catalog/motor.tres@a6c914e:L8-L14`). Declare the package with a counted allowance keyed by its bundle-issued typed id (`engine/gpu/WorkshopInventory.cs@a6c914e:L9-L23`).
 
 ### Variants
 One outcome in the row; no variants.

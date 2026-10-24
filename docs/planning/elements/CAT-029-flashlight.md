@@ -1,5 +1,7 @@
 # CAT-029 · flashlight — declaration readiness spec (CAT-029-D)
 
+**Current delivery (24 October 2026):** [CAT-029 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 ## Identity
 
 - **CAT ID / kind:** CAT-029 · `flashlight` (catalogue title "Flashlight", category Power).
@@ -39,7 +41,7 @@ Families (map row CAT-029): AnimationEvaluation, AnimationLifecycle, ContactImpu
 - OpticalTransport cone emission with facing, range, inverse-square game falloff and occlusion — Story 13.1; decision owner **S484** (S485 finite-colour, S486 optical-commit, S488 optical-law partial occlusion).
 - Local contact-region predicate on a contact trigger (button only) — Story 13.1.
 - Cone presentation (nested shells clipped against committed geometry) — Story 13.1 renderer work.
-- No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`).
+- No package declaration is established by the cited harvest baseline (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`).
 
 **Element dependencies:** CAT-001 ball (button strike; delivered), CAT-059 solar_panel (the only legacy cone receiver; Story 13.7), CAT-063 switch and CAT-022 delay (activation; delivered), CAT-066 wall (occluder; delivered), CAT-042 motor (lesson goal; Story 11.1).
 

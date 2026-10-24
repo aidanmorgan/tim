@@ -1,5 +1,7 @@
 # RAD-16 · Neutron source module — element readiness spec
 
+**Current delivery (24 October 2026):** [RAD-16 delivery slice](../invest/named-elements.md#radiation-16). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 Batch O named-identity spec. Legacy citations are pinned to `a6c914e` and resolve with `git show a6c914e:<path> | sed -n 'start,endp'`. Requirement row: [radiation-16](../requirements.md#radiation-16) (P3 potential). A **distinct contained toy source**: no implied reactor, multiplication or gamma-shielding equivalence; game units only.
 
 ## 1. Identity
@@ -11,7 +13,7 @@ Story 7.0 Batch O named-identity spec. Legacy citations are pinned to `a6c914e` 
 | Anchor | [requirements.md#radiation-16](../requirements.md#radiation-16); [named-elements.md#radiation-16](../invest/named-elements.md#radiation-16) |
 | Related identities | Detectors [EL-131 Fast](EL-131-fast-neutron-detector.md), [EL-132 Slow](EL-132-slow-neutron-detector.md); moderator [RAD-17](RAD-17-water-moderator-tank.md); absorber [RAD-18](RAD-18-neutron-absorber-panel.md); photon-only control [RAD-08](RAD-08-radiation-rate-meter.md); field control [RAD-14](RAD-14-magnetic-deflector.md). No CAT spec. |
 | Proof owner | S626 |
-| Roadmap story | unscheduled; campaign 125, 130 (research slots 100, 105) |
+| Roadmap story | [RAD-16 delivery slice](../invest/named-elements.md#radiation-16); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration
@@ -38,10 +40,10 @@ Families from the [map row](../general-engine-element-map.md) and [binding](../.
 
 | Family | Status | Basis or builder |
 | --- | --- | --- |
-| FiniteLedger | missing | unscheduled (S010-D); emitted-quanta ledger; the only current finite store is bumper contact work, `engine/gpu/ContactWorkDeclaration.cs@a6c914e:L5-L9` |
-| GeometryQuery | exists now for contact only; missing for radiation paths | BVH `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L74-L204` and narrowphase `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L325-L620` (the coverage JSON's `engine/gpu/physics.wgsl` basis is not in the tree); sampled path queries: unscheduled (S606-D) |
-| IonizingTransport | missing | unscheduled (S606-D/F); two-group neutron channel ([S605 neutron row](../invest/decisions.md#s605): "with moderator the slow detector reads, without it the fast detector reads; absent source reads nothing") |
-| RadioactiveDecay | missing | unscheduled (S607-D/F); steady case |
+| FiniteLedger | missing | required in the linked delivery slice (S010-D); emitted-quanta ledger; the only current finite store is bumper contact work, `engine/gpu/ContactWorkDeclaration.cs@a6c914e:L5-L9` |
+| GeometryQuery | exists now for contact only; missing for radiation paths | BVH `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L74-L204` and narrowphase `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L325-L620` (the coverage JSON's `engine/gpu/physics.wgsl` basis is not in the tree); sampled path queries: required in the linked delivery slice (S606-D) |
+| IonizingTransport | missing | required in the linked delivery slice (S606-D/F); two-group neutron channel ([S605 neutron row](../invest/decisions.md#s605): "with moderator the slow detector reads, without it the fast detector reads; absent source reads nothing") |
+| RadioactiveDecay | missing | required in the linked delivery slice (S607-D/F); steady case |
 | StateTransaction | exists now | `engine/gpu/WorkshopSimulation.cs@a6c914e:L44-L161`; pose and initial state restore with Reset |
 
 **Dependencies.** EL-131 (positive), RAD-08 photon mode (control), RAD-14 (field control); RAD-17/RAD-18 for later lessons.

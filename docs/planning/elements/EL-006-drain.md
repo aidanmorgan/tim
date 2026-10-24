@@ -1,5 +1,7 @@
 # EL-006 · Drain — named-identity spec
 
+**Current delivery (24 October 2026):** [EL-006 delivery slice](../invest/named-elements.md#element-006). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec ([readiness spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations `path@a6c914e:Lstart-Lend` resolve with `git show a6c914e:<path>` after the Epic 7 purge. A value marked **proposed** has no legacy or requirement source; it carries a one-line justification and the owner may revise it.
 
 ## Identity
@@ -11,8 +13,8 @@ Story 7.0 named-identity spec ([readiness spec](../../../_bmad-output/implementa
 | Named entry | [element-006](../invest/named-elements.md#element-006); per-element proof owner S427 |
 | CAT spec refined | None. |
 | Related identities | [EL-001](EL-001-finite-reservoir.md), [EL-004](EL-004-catch-basin.md), [EL-007](EL-007-open-gutter.md), pipe kit EL-008–EL-012, EL-031 Volume meter |
-| Roadmap story | Unscheduled; ELEMENT-n row of the [roadmap](../invest/vertical-delivery.md#rolling-playable-roadmap), campaign chapter 7, levels 61–70. |
-| Status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
+| Roadmap story | [EL-006 delivery slice](../invest/named-elements.md#element-006); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
 
 ## Declaration
 
@@ -44,7 +46,7 @@ Story 7.0 named-identity spec ([readiness spec](../../../_bmad-output/implementa
 Families ([element map](../general-engine-element-map.md); binding [`element-01.json`](../../coverage/engine/element-01.json), consumer `element/element-006`): EnvironmentState, FiniteLedger, FluidAdvection, GeometryQuery, JointConstraint, PressureWork, RigidBodyDynamics, StateTransaction, TopologyTransaction.
 
 - **Exists now.** Static box geometry (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L120`); committed goal reads (`engine/gpu/WorkshopGoalEvaluator.cs@a6c914e:L5-L8`); Run/Reset (`engine/gpu/WorkshopSimulation.cs@a6c914e:L238-L245`).
-- **Missing.** Sink ledger term, packet capture across the grate plane, pooled-depth intake ([S416](../invest/decisions.md#s416) advection → S418; "drain under pressure/head", pressure-work → S419). Unscheduled.
+- **Missing.** Sink ledger term, packet capture across the grate plane, pooled-depth intake ([S416](../invest/decisions.md#s416) advection → S418; "drain under pressure/head", pressure-work → S419). Required in the linked delivery slice.
 - **Element dependencies.** A liquid source (EL-001 + EL-003, EL-007 end, EL-014 tip).
 
 ## Sources and legacy

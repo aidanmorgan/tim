@@ -1,5 +1,7 @@
 # EL-164 · Alternating ball diverter named-identity spec
 
+**Current delivery (24 October 2026):** [EL-164 delivery slice](../invest/named-elements.md#element-164). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec (Batch J). Baseline commit `a6c914e`; every citation is `path@a6c914e:Lstart-Lend` and resolves with `git show a6c914e:<path> | sed -n 'start,endp'`. **Proposed** marks an unsourced design value with a one-line justification; the owner may revise it. All values are canonical IEEE-754 f32 game values inside the [game-grade envelope](../../gpu-f32-physics.md#game-grade-envelope).
 
 ## 1. Identity
@@ -13,7 +15,7 @@ Story 7.0 named-identity spec (Batch J). Baseline commit `a6c914e`; every citati
 | Proof owner | S375 |
 | Refines / extends | No CAT spec. Junction and actuator of [EL-163](EL-163-powered-ball-diverter.md); passage sensing of [CAT-002 ball detector](CAT-002-ball_detector.md); supply from [CAT-005 battery](CAT-005-battery.md) |
 | Related | EL-162, EL-163 (same scope index); CAT-020 Counter (the todo-319 combination) |
-| Roadmap story | unscheduled |
+| Roadmap story | [EL-164 delivery slice](../invest/named-elements.md#element-164); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration
@@ -58,7 +60,7 @@ None internal; blade work comes from `PowerIn`.
 Ramp colour `#c28f52` channel, gold `#f7cb52` blade, cream `#fff8e9` aperture frames, navy `#293954` housing ([DESIGN colour system](../../../DESIGN.md#colour-system)). **Proposed**.
 
 ### Catalogue and inventory entry
-Id `diverter_alternating`, title "Alternating diverter", category Motion — **proposed**. Add `WorkshopPartKind.AlternatingDiverter` with a counted allowance (`engine/gpu/WorkshopInventory.cs@a6c914e:L9-L23`).
+Id `diverter_alternating`, title "Alternating diverter", category Motion — **proposed**. Declare the package with a counted allowance keyed by its bundle-issued typed id (`engine/gpu/WorkshopInventory.cs@a6c914e:L9-L23`).
 
 ### Variants
 One outcome in the row; fixed and powered modes are EL-162 and EL-163.

@@ -1,5 +1,7 @@
 # CAT-055 · red_filter — declaration readiness spec (CAT-055-D)
 
+**Current delivery (24 October 2026):** [CAT-055 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 ## Identity
 
 - **CAT ID / kind:** CAT-055 · `red_filter` (catalogue title "Red filter", category Optics).
@@ -38,7 +40,7 @@ Families (map row CAT-055): ContactImpulse, EnvironmentState, FiniteLedger, Geom
 - OpticalTransport per-channel transmission at a two-sided aperture — Story 13.4. Decision owner **S484** ([decisions](../invest/decisions.md#s484)): S485 finite-colour, S488 transparent pane versus opaque frame.
 - OpticalAbsorption of the removed channels; SensibleHeat of absorbed light — S489/S543, mode-specific.
 - Closed `OpticalChannel` enum in the current declaration model — Story 13.4.
-- No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`).
+- No package declaration is established by the cited harvest baseline (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`).
 
 **Element dependencies:** CAT-036 laser (Story 13.1), CAT-056 red_receiver (observer; Story 13.2), CAT-005 battery (Story 8.1), CAT-031/CAT-011 (unlike-stack controls), CAT-001 ball (pane collision control; delivered).
 

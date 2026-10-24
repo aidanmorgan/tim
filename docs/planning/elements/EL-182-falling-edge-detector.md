@@ -1,5 +1,7 @@
 # EL-182 · Falling-edge detector — element readiness spec
 
+**Current delivery (24 October 2026):** [EL-182 delivery slice](../invest/named-elements.md#element-182). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 Batch H named-identity spec. Legacy citations are pinned to `a6c914e` and resolve with `git show a6c914e:<path> | sed -n 'start,endp'`. Values marked *proposed* have no legacy or requirement source; each carries a one-line justification and may be revised by the owner. Box sizes are full extents. Edge-detector rules X1–X7 are in [EL-181](EL-181-rising-edge-detector.md#edge-detector-rules-shared-with-el-182).
 
 ## 1. Identity
@@ -10,7 +12,7 @@ Story 7.0 Batch H named-identity spec. Legacy citations are pinned to `a6c914e` 
 | Type | Control |
 | Anchor | [requirements.md#element-182](../requirements.md#element-182); existing record [campaign-element-coverage](../requirements.md#campaign-element-coverage) ("edge detection"); [named-elements entry](../invest/named-elements.md#element-182); owner S403 |
 | Related | Refines no CAT spec. Mirror of [EL-181 Rising-edge detector](EL-181-rising-edge-detector.md) — not a renamed rising detector (map composition). Typical inputs: [EL-198 Switch](EL-198-switch.md) contact, [CAT-060](CAT-060-sound_meter.md) meter contact going quiet, a ball leaving a pressure plate ([CAT-052](../requirements.md#current-cat-052)). |
-| Roadmap story | unscheduled |
+| Roadmap story | [EL-182 delivery slice](../invest/named-elements.md#element-182); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration

@@ -1,5 +1,7 @@
 # GAP-04 · Driven wheel — named-identity readiness spec
 
+**Current delivery (24 October 2026):** [GAP-04 delivery slice](../invest/named-elements.md#gap-04). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 readiness spec ([spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations are `path@a6c914e:Lstart-Lend`. Values marked **proposed** have no legacy or requirement source; each carries a one-line justification and the owner may revise it.
 
 ## 1. Identity
@@ -9,7 +11,7 @@ Story 7.0 readiness spec ([spec](../../../_bmad-output/implementation-artifacts/
 | ID / name / type | GAP-04 · Driven wheel · Mechanical (P2 potential) |
 | Anchor | [requirements.md#gap-04](../requirements.md#gap-04); [named-elements entry](../invest/named-elements.md#gap-04) |
 | Related identities | Extends [EL-116 Passive wheel](EL-116-passive-wheel.md) and [EL-117 Axle](EL-117-axle.md) (same silhouette, verified independently of GAP-03); supply from [CAT-042 Motor](CAT-042-motor.md) (shaft) or [CAT-005 Battery](CAT-005-battery.md) (electrical). No CAT refines it. |
-| Roadmap story | Unscheduled. Campaign: introduction 37 "Driven to Deliver", practice 38, reuse 48, 68, 138 ([gap-04](../requirements.md#gap-04)). |
+| Roadmap story | [GAP-04 delivery slice](../invest/named-elements.md#gap-04); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | Not started. Disposition potential/conditional ([element map](../general-engine-element-map.md)). |
 
 ## 2. Declaration
@@ -38,7 +40,7 @@ Two variants, each specified separately: "initially use the already taught elect
   `ShaftDrive` exposes no parameters; speed and torque come from the upstream Motor.
 - **Cosmetic curves and UI bindings.** Gold spoke shows spin (committed pose); a shaped supply mark on the pod supplements a state lamp ← committed supply ([gap-04 visual style](../requirements.md#gap-04)).
 - **Art.** Cream disc `#fff8e9`, wood tread `#c28f52`, cyan drive pod `#66b8c9`, gold shaft collar `#f7cb52` (`DESIGN.md@a6c914e:L147-L154`, `DESIGN.md@a6c914e:L169-L172`).
-- **Catalogue and inventory.** **Proposed** id `driven_wheel`, title "Driven wheel", category Power (with the Motor); `WorkshopPartKind.DrivenWheel` with enum `DriveInput { Electrical, Shaft }`, appended last in the Free palette (`engine/gpu/WorkshopInventory.cs@a6c914e:L47-L60`).
+- **Catalogue and inventory.** **Proposed** id `driven_wheel`, title "Driven wheel", category Power (with the Motor); package-owned declaration with enum `DriveInput { Electrical, Shaft }`, discovered into the Free palette from the bundle (`engine/gpu/WorkshopInventory.cs@a6c914e:L47-L60`).
 
 ## 3. Engine capabilities
 

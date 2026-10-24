@@ -1,5 +1,7 @@
 # EL-207 · Moving pulley named-identity spec
 
+**Current delivery (24 October 2026):** [EL-207 delivery slice](../invest/named-elements.md#element-207). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec (Batch J). Baseline commit `a6c914e`; every citation is `path@a6c914e:Lstart-Lend` and resolves with `git show a6c914e:<path> | sed -n 'start,endp'`. **Proposed** marks an unsourced design value with a one-line justification; the owner may revise it. All values are canonical IEEE-754 f32 game values inside the [game-grade envelope](../../gpu-f32-physics.md#game-grade-envelope).
 
 ## 1. Identity
@@ -13,7 +15,7 @@ Story 7.0 named-identity spec (Batch J). Baseline commit `a6c914e`; every citati
 | Proof owner | S309 |
 | Refines / extends | Extends [CAT-053 pulley](CAT-053-pulley.md) (its open questions ask whether this is a variant or a separate element); rope law from [CAT-058](CAT-058-rope_anchor.md) |
 | Related | EL-205 Rope, EL-206 Fixed pulley, CAT-067 Weight, EL-204 Weight |
-| Roadmap story | unscheduled (Story 10.2 covers fixed pulleys only) |
+| Roadmap story | [EL-207 delivery slice](../invest/named-elements.md#element-207); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration
@@ -51,7 +53,7 @@ Wheel turns with relative rope travel ÷ 0.4 m while the route is taut, as the f
 Wheel in the Pulley colour `#d69c47` with cream `#fff8e9` rim, navy `#293954` spoke and gold `#f7cb52` marker as the fixed pulley (`parts/PulleyPart.cs@a6c914e:L27-L32`); cream hook block — **proposed**.
 
 ### Catalogue and inventory entry
-Id `moving_pulley`, title "Moving pulley", category Ropes — **proposed**. Add `WorkshopPartKind.MovingPulley` with an allowance (`engine/gpu/WorkshopInventory.cs@a6c914e:L9-L23`).
+Id `moving_pulley`, title "Moving pulley", category Ropes — **proposed**. Declare the package and its bundle-issued typed id with an authored allowance (`engine/gpu/WorkshopInventory.cs@a6c914e:L9-L23`).
 
 ### Variants
 One outcome in the row; no variants.
@@ -64,7 +66,7 @@ Families: EnvironmentState, GeometryQuery, JointConstraint, RigidBodyDynamics, T
 - Dynamic sphere body: `engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L120`.
 
 **Missing**
-- Rope route with a dynamic guide whose groove tangents move with the body (TensionTransmission/JointConstraint): Story 10.2 builds static guides; a dynamic guide is unscheduled. Decision S257 rope-port ([decisions](../invest/decisions.md#s257)). Owner S309.
+- Rope route with a dynamic guide whose groove tangents move with the body (TensionTransmission/JointConstraint): Story 10.2 builds static guides; a dynamic guide is required in the linked delivery slice. Decision S257 rope-port ([decisions](../invest/decisions.md#s257)). Owner S309.
 
 **Dependencies.** EL-205 rope and EL-206 fixed pulley (Story 10.2); CAT-067 weight (Story 10.4).
 

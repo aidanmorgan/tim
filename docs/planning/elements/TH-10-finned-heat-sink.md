@@ -1,5 +1,7 @@
 # TH-10 · Finned heat sink — named-identity readiness spec
 
+**Current delivery (24 October 2026):** [TH-10 delivery slice](../invest/named-elements.md#thermal-10). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations are `path@a6c914e:Lstart-Lend`. No legacy holds heat-sink values, so every design value without a cited source is marked "(proposed: …)" with a one-line justification; the owner may revise it.
 
 ## 1. Identity
@@ -12,8 +14,8 @@ Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artif
 | Proof owner / research | S572 · [TH-S01 heat transfer and finite stores](../../thermal-component-research.md#th-s01) |
 | Related identities | No CAT spec. Airflow from [CAT-028 Fan](CAT-028-fan.md) (TX-08); cold-side rejection for [TH-12](TH-12-reversible-heat-pump.md) and [TH-30](TH-30-thermoelectric-generator.md). |
 | Campaign | Intro 40; practice 41; reuse 78, 87, 145 ([thermal allocation](../requirements.md#thermal-campaign-allocation)) |
-| Roadmap story | Unscheduled. No epic in `_bmad-output/planning-artifacts/epics.md` schedules a thermal element. |
-| Status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`); no legacy part. |
+| Roadmap story | [TH-10 delivery slice](../invest/named-elements.md#thermal-10); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`); no legacy part. |
 
 ## 2. Declaration
 
@@ -36,14 +38,14 @@ Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artif
   Fan flow speed 12 m/s is sourced from the [gas family parameters](../../finite-gas-foundation.md).
 - **Cosmetic curves and UI bindings.** None ([research per-element table](../../thermal-component-research.md)).
 - **Art.** "Ordered cream architectural fins and a gold contact foot; no industrial clutter" (row). Nearest [DESIGN.md](../../../DESIGN.md) source colours (proposed mapping): cream `#ead39b` (`DESIGN.md@a6c914e:L146-L146`), gold `#f7cb52` (`DESIGN.md@a6c914e:L154-L154`).
-- **Catalogue and inventory entry.** New `WorkshopPartKind.HeatSink`; id `heat_sink`, title "Finned heat sink", category Heat (proposed: no current category covers thermal parts).
+- **Catalogue and inventory entry.** Package-owned declaration, discovered into the bundle; id `heat_sink`, title "Finned heat sink", category Heat (proposed: no current category covers thermal parts).
 
 ## 3. Engine capabilities
 
 Families (map row TH-10, [general-engine-element-map](../general-engine-element-map.md); binding [thermal-01.json](../../coverage/engine/thermal-01.json)): FiniteLedger, FluidAdvection, GeometryQuery, SensibleHeat, ThermalConduction, ThermalConvection, TopologyTransaction; JSON adds StateTransaction.
 
 - **Exists now.** Static body and box colliders (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L120`); Run/Reset and save (`engine/gpu/ActivationNetwork.cs@a6c914e:L67-L67`, `engine/gpu/WorkshopSaveCodec.cs@a6c914e:L6-L10`).
-- **Missing.** Airflow receiver sampling: Story 12.2 (CAT-028 Fan). Gas-side transfer model: [S416/S470](../invest/decisions.md#s470) (map note "liquid/gas boundary and coupled transfer model"). [S543](../invest/decisions.md#s543): convection → S545, conduction → S544; SensibleHeat (IX-43) has no S543 row. Unscheduled.
+- **Missing.** Airflow receiver sampling: Story 12.2 (CAT-028 Fan). Gas-side transfer model: [S416/S470](../invest/decisions.md#s470) (map note "liquid/gas boundary and coupled transfer model"). [S543](../invest/decisions.md#s543): convection → S545, conduction → S544; SensibleHeat (IX-43) is a required entry decision under S543 owned by the linked delivery slice. Required in the linked delivery slice.
 - **Dependencies.** A hot body (TH-26, TH-12 hot face); CAT-028 Fan for the forced case.
 
 ## 4. Sources and legacy

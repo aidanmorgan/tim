@@ -1,5 +1,7 @@
 # EL-153 · General-light receiver — named-identity spec
 
+**Current delivery (24 October 2026):** [EL-153 delivery slice](../invest/named-elements.md#element-153). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 full spec for a named puzzle-element identity. Baseline commit `a6c914e`. Legacy citations use `path@a6c914e:Lstart-Lend` and stay retrievable from git history after the Epic 7 purge. Lengths in metres. The sensing face looks along local −X.
 
 No legacy part implements this identity. The legacy cone-light law and the solar panel's nine-sample face are the nearest mechanisms and are cited as such; every other value is **proposed** with a justification, for the owner to revise.
@@ -15,7 +17,7 @@ No legacy part implements this identity. The legacy cone-light law and the solar
 | Owner | S515 |
 | Refines CAT | none one-to-one. Extends the cone-sampling mechanism of [CAT-059 solar_panel](CAT-059-solar_panel.md) to a separately supplied contact; distinct from [CAT-038 light_receiver](CAT-038-light_receiver.md), which is laser-only. Source: [CAT-029 flashlight](CAT-029-flashlight.md) / EL-210. |
 | Related | EL-154 light-charge receiver (charging sibling); EL-210 flashlight; EL-155 rope-operated light; EL-214 broadband beam detector (narrow-ray sibling) |
-| Roadmap story | unscheduled |
+| Roadmap story | [EL-153 delivery slice](../invest/named-elements.md#element-153); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration
@@ -47,7 +49,7 @@ Binding shard ([element-02.json](../../coverage/engine/element-02.json)): Finite
 - OpticalTransport cone emission and multi-sample cone reception with shared-proxy occlusion — Story 13.1 (torch) and Story 13.7 (solar sampling). Decision owner **S484** ([decisions](../invest/decisions.md#s484)): S486 optical-commit, S488 interval law (partial occlusion). Refinements S522 cone-visibility and S523 moving-shadow ([refinements](../invest/refinements.md)).
 - ElectricalPower switched contact — Story 8.1 plus an Epic 13 slice; S257.
 - OpticalAbsorption/SensibleHeat — S489/S543, mode-specific.
-- `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`).
+- package declaration and bundle-issued typed id (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`).
 
 **Element dependencies:** EL-210 / CAT-029 flashlight (Story 13.1), CAT-005 battery (Story 8.1), a load (CAT-035 lamp), CAT-066 wall (delivered).
 
@@ -77,4 +79,4 @@ Binding shard ([element-02.json](../../coverage/engine/element-02.json)): Finite
 1. Must the receiver also sample narrow laser rays, and in what unit (game optical power versus game irradiance)? Proposed: cone light only until S488 unifies the units.
 2. All geometry, threshold, hysteresis, art and catalogue values are proposed; owner to confirm.
 3. Is the 0.9 × release hysteresis wanted, or should it match the solar panel's single threshold?
-4. Roadmap: unscheduled; propose an Epic 13 story after 13.7.
+4. Roadmap: required in the linked delivery slice; propose an Epic 13 story after 13.7.

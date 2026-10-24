@@ -1,5 +1,7 @@
 # EL-211 · Solar panel — element readiness spec
 
+**Current delivery (24 October 2026):** [EL-211 delivery slice](../invest/named-elements.md#element-211). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 Batch H named-identity spec. Legacy citations are pinned to `a6c914e` and resolve with `git show a6c914e:<path> | sed -n 'start,endp'`. Values marked *proposed* have no legacy or requirement source; each carries a one-line justification, stays inside the [game-grade envelope](../../gpu-f32-physics.md#game-grade-envelope) and may be revised by the owner. Box sizes are full extents (legacy `AddBox` takes the full size and stores half-extents, `reference/cpu/MachinePart.cs@a6c914e:L352-L356`). The catalogue harvest is [CAT-059](CAT-059-solar_panel.md); this spec adds the declared efficiency and the absorbed-energy bound.
 
 ## 1. Identity
@@ -10,7 +12,7 @@ Story 7.0 Batch H named-identity spec. Legacy citations are pinned to `a6c914e` 
 | Type | Electrical |
 | Anchor | [requirements.md#element-211](../requirements.md#element-211); existing record [campaign-element-coverage](../requirements.md#campaign-element-coverage) ("Flashlight, lamp, drawstring source, solar panel …", first use 51–60); [named-elements entry](../invest/named-elements.md#element-211); owner S508 |
 | Related | Refines [CAT-059 Solar panel](CAT-059-solar_panel.md) ([current-cat-059](../requirements.md#current-cat-059)); light from [CAT-029](CAT-029-flashlight.md)/[EL-210 Flashlight](EL-210-flashlight.md); supplies loads through [EL-197](EL-197-electrical-wire.md) like [EL-196](EL-196-battery.md); first consumer [CAT-042 Motor](CAT-042-motor.md). |
-| Roadmap story | 13.7 "Photovoltaic Solar Panel Energy Conversion" (Epic 13) |
+| Roadmap story | [EL-211 delivery slice](../invest/named-elements.md#element-211); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration

@@ -1,5 +1,7 @@
 # RAD-07 · Collimator block — element readiness spec
 
+**Current delivery (24 October 2026):** [RAD-07 delivery slice](../invest/named-elements.md#radiation-07). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 Batch O named-identity spec. Legacy citations are pinned to `a6c914e` and resolve with `git show a6c914e:<path> | sed -n 'start,endp'`. Requirement row: [radiation-07](../requirements.md#radiation-07) (P1 potential). Toy shielding geometry in game units; never real-world guidance.
 
 ## 1. Identity
@@ -11,7 +13,7 @@ Story 7.0 Batch O named-identity spec. Legacy citations are pinned to `a6c914e` 
 | Anchor | [requirements.md#radiation-07](../requirements.md#radiation-07); [named-elements.md#radiation-07](../invest/named-elements.md#radiation-07) |
 | Related identities | Material from [EL-128 Dense shield](EL-128-dense-shield.md); sources [RAD-01](RAD-01-gamma-source-capsule.md), [RAD-02](RAD-02-powered-x-ray-emitter.md); receivers [RAD-08](RAD-08-radiation-rate-meter.md). Not a lens: optical lenses ([TH-06](../invest/named-elements.md#thermal-06)) are a different family. No CAT spec. |
 | Proof owner | S614 |
-| Roadmap story | unscheduled; campaign 106, 114 (research slots 81, 89) |
+| Roadmap story | [RAD-07 delivery slice](../invest/named-elements.md#radiation-07); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration
@@ -46,12 +48,12 @@ Families from the [map row](../general-engine-element-map.md) and [binding](../.
 
 | Family | Status | Basis or builder |
 | --- | --- | --- |
-| FiniteLedger | missing | unscheduled (S010-D); the only current finite store is bumper contact work, `engine/gpu/ContactWorkDeclaration.cs@a6c914e:L5-L9` |
-| GeometryQuery | exists now for contact only; missing for radiation paths | dynamic AABB BVH `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L74-L204` and sphere/box/plane narrowphase `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L325-L620` (the coverage JSON's `engine/gpu/physics.wgsl` basis is not in the tree); sampled path intervals through a compound body without double counting: unscheduled (P0-004, S606-D) |
-| IonizingTransport | missing | unscheduled (S606-D/F); finite aperture coverage, absorbing rejected directions |
+| FiniteLedger | missing | required in the linked delivery slice (S010-D); the only current finite store is bumper contact work, `engine/gpu/ContactWorkDeclaration.cs@a6c914e:L5-L9` |
+| GeometryQuery | exists now for contact only; missing for radiation paths | dynamic AABB BVH `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L74-L204` and sphere/box/plane narrowphase `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L325-L620` (the coverage JSON's `engine/gpu/physics.wgsl` basis is not in the tree); sampled path intervals through a compound body without double counting: required in the linked delivery slice (P0-004, S606-D) |
+| IonizingTransport | missing | required in the linked delivery slice (S606-D/F); finite aperture coverage, absorbing rejected directions |
 | StateTransaction | exists now | `engine/gpu/WorkshopSimulation.cs@a6c914e:L44-L161` (static part; no Run state of its own) |
 
-Also needed: the inspector enum selector (unscheduled with this element).
+Also needed: the inspector enum selector (required in the linked delivery slice with this element).
 
 **Dependencies.** A source (RAD-01/RAD-02) and two receivers (RAD-08) for the aligned/off-axis control.
 

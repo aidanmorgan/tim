@@ -1,5 +1,7 @@
 # RAD-06 · Powered radiation shutter — element readiness spec
 
+**Current delivery (24 October 2026):** [RAD-06 delivery slice](../invest/named-elements.md#radiation-06). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 Batch O named-identity spec. Legacy citations are pinned to `a6c914e` and resolve with `git show a6c914e:<path> | sed -n 'start,endp'`. Requirement row: [radiation-06](../requirements.md#radiation-06) (P1 potential). Toy shielding in game units; never real-world shielding guidance.
 
 ## 1. Identity
@@ -11,7 +13,7 @@ Story 7.0 Batch O named-identity spec. Legacy citations are pinned to `a6c914e` 
 | Anchor | [requirements.md#radiation-06](../requirements.md#radiation-06); [named-elements.md#radiation-06](../invest/named-elements.md#radiation-06) |
 | Related identities | Blade material from [EL-128 Dense shield](EL-128-dense-shield.md); sources [RAD-01](RAD-01-gamma-source-capsule.md), [RAD-02](RAD-02-powered-x-ray-emitter.md); [RAD-08](RAD-08-radiation-rate-meter.md), [RAD-09](RAD-09-integrating-dosimeter.md). Mechanical analogues [CAT-007 beam shutter](CAT-007-beam_shutter.md) (optical, not refined here) and [CAT-039 linear pusher](CAT-039-linear_pusher.md) (finite-work actuator). No CAT spec refined. |
 | Proof owner | S613 |
-| Roadmap story | unscheduled; campaign 105, 110 (research slots 80, 85) |
+| Roadmap story | [RAD-06 delivery slice](../invest/named-elements.md#radiation-06); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration
@@ -41,10 +43,10 @@ Families from the [map row](../general-engine-element-map.md) and [binding](../.
 | --- | --- | --- |
 | ElectricalPower | missing | Story 8.1; the `Electrical` domain enum exists, `engine/gpu/WorkshopConnections.cs@a6c914e:L8-L12` |
 | EnvironmentState | exists now | gravity lane of `RigidBodyDeclaration`, `engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L86` |
-| FiniteLedger | missing | unscheduled (S010-D); the only current finite store is bumper contact work, `engine/gpu/ContactWorkDeclaration.cs@a6c914e:L5-L9` |
+| FiniteLedger | missing | required in the linked delivery slice (S010-D); the only current finite store is bumper contact work, `engine/gpu/ContactWorkDeclaration.cs@a6c914e:L5-L9` |
 | FiniteWorkActuation | missing | Story 11.3 (bounded slider drive, reused by 8.2 and 13.3) |
-| GeometryQuery | exists now for contact only; missing for radiation paths | BVH `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L74-L204` and narrowphase `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L325-L620` (the coverage JSON's `engine/gpu/physics.wgsl` basis is not in the tree); moving-blade path sampling: unscheduled (S606-D) |
-| IonizingTransport | missing | unscheduled (S606-D/F); samples the blade at substep endpoints |
+| GeometryQuery | exists now for contact only; missing for radiation paths | BVH `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L74-L204` and narrowphase `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L325-L620` (the coverage JSON's `engine/gpu/physics.wgsl` basis is not in the tree); moving-blade path sampling: required in the linked delivery slice (S606-D) |
+| IonizingTransport | missing | required in the linked delivery slice (S606-D/F); samples the blade at substep endpoints |
 | JointConstraint | missing | Story 6.4 (prismatic slider with limits) |
 | RigidBodyDynamics | exists now | bodies `engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L86`; integration `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L216-L285` |
 | StateTransaction | exists now | `engine/gpu/WorkshopSimulation.cs@a6c914e:L44-L161`; blade pose restores with Reset |

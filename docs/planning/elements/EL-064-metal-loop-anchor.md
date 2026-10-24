@@ -1,5 +1,7 @@
 # EL-064 · Metal loop anchor declaration readiness spec
 
+**Current delivery (24 October 2026):** [EL-064 delivery slice](../invest/named-elements.md#element-064). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec. Baseline commit `a6c914e`. Legacy citations use `path@a6c914e:Lstart-Lend` and stay retrievable from git history after the Epic 7 purge. Values marked **proposed** are design values the owner may revise.
 
 ## 1. Identity
@@ -13,7 +15,7 @@ Story 7.0 named-identity spec. Baseline commit `a6c914e`. Legacy citations use `
 | Named entry | [named-elements.md#element-064](../invest/named-elements.md#element-064); proof owner S332 |
 | CAT spec refined or extended | Refines [CAT-058 rope anchor](CAT-058-rope_anchor.md), which lists EL-064 as a candidate mapping (Batch A confirms). The rope route law, admission rules and legacy harvest R1–R29 live in CAT-058 and are not repeated here |
 | Related identities | [EL-067 steel cable](EL-067-steel-cable.md) (second connector it must accept), EL-205 rope (Batch J), [EL-065 load hook](EL-065-load-hook.md), [EL-063 cable winch](EL-063-cable-winch.md) |
-| Roadmap story | unscheduled as EL-064. CAT-058 itself is Story 10.2; if Batch A confirms the mapping, EL-064 is delivered by Story 10.2 plus the steel-cable admission below |
+| Roadmap story | [EL-064 delivery slice](../invest/named-elements.md#element-064); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration
@@ -60,7 +62,7 @@ Legacy: cream mount `#fff8e9`, ring r 0.2 m, tube 0.055 m at z 0.16 m, rotated 9
 
 ### Catalogue and inventory entry
 
-If EL-064 is the CAT-058 part: id `rope_anchor`, title "Rope anchor", category "Ropes" (`parts/catalog/rope_anchor.tres@a6c914e:L8-L14`), `WorkshopPartKind.RopeAnchor` appended last to the free inventory. If separate: id `metal_loop_anchor`, title "Metal loop", category "Ropes" (**proposed**).
+If EL-064 is the CAT-058 part: id `rope_anchor`, title "Rope anchor", category "Ropes" (`parts/catalog/rope_anchor.tres@a6c914e:L8-L14`), package-owned metadata discovered into the Free palette from the bundle. If separate: id `metal_loop_anchor`, title "Metal loop", category "Ropes" (**proposed**).
 
 ### Variants
 
@@ -72,7 +74,7 @@ Binding: ContactImpulse, EnvironmentState, FiniteLedger, FiniteWorkActuation, Ge
 
 **Exists now:** static box body and collider (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L120`); TGS Soft contacts (`CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L208-L236`).
 
-**Missing:** rope domain, `Tie` socket, `Anchor` role and tension-only route — Story 10.2; connector material enum distinguishing rope and steel cable — no story (EL-067 decision, owner S336).
+**Missing:** rope domain, `Tie` socket, `Anchor` role and tension-only route — Story 10.2; connector material enum distinguishing rope and steel cable — required prerequisite owned by the linked delivery slice (EL-067 decision, owner S336).
 
 **Dependencies.** A load (CAT-067 Weight, 10.4) and a connector (EL-205 rope or EL-067 cable).
 

@@ -1,5 +1,7 @@
 # RAD-02 · Powered X-ray emitter — element readiness spec
 
+**Current delivery (24 October 2026):** [RAD-02 delivery slice](../invest/named-elements.md#radiation-02). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 Batch O named-identity spec. Legacy citations are pinned to `a6c914e` and resolve with `git show a6c914e:<path> | sed -n 'start,endp'`. Requirement row: [radiation-02](../requirements.md#radiation-02) (P1 potential). A toy emitter in game units; not real-world X-ray equipment or shielding guidance.
 
 ## 1. Identity
@@ -11,7 +13,7 @@ Story 7.0 Batch O named-identity spec. Legacy citations are pinned to `a6c914e` 
 | Anchor | [requirements.md#radiation-02](../requirements.md#radiation-02); [named-elements.md#radiation-02](../invest/named-elements.md#radiation-02) |
 | Related identities | Steady alternative [RAD-01](RAD-01-gamma-source-capsule.md); receivers [RAD-08](RAD-08-radiation-rate-meter.md), [RAD-09](RAD-09-integrating-dosimeter.md) (burst source); [RAD-07 Collimator](RAD-07-collimator-block.md); [EL-128 Dense shield](EL-128-dense-shield.md). Supply [CAT-005 Battery](CAT-005-battery.md); enable from a switch, a supplied logic contact such as [CAT-013 Both gate](CAT-013-both_gate.md), or a [CAT-017 Clock](CAT-017-clock.md). No CAT spec refined. |
 | Proof owner | S609 |
-| Roadmap story | unscheduled; campaign 107, 114 (research slots 82, 89) |
+| Roadmap story | [RAD-02 delivery slice](../invest/named-elements.md#radiation-02); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration
@@ -49,12 +51,12 @@ Families from the [map row](../general-engine-element-map.md) and [binding](../.
 | Family | Status | Basis or builder |
 | --- | --- | --- |
 | ElectricalPower | missing | Story 8.1; the `Electrical` domain and `PowerIn` socket enums exist, `engine/gpu/WorkshopConnections.cs@a6c914e:L8-L12` |
-| FiniteLedger | missing | unscheduled (S010-D); electrical draw and emitted quanta; the only current finite store is bumper contact work, `engine/gpu/ContactWorkDeclaration.cs@a6c914e:L5-L9` |
-| GeometryQuery | exists now for contact only; missing for radiation paths | BVH `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L74-L204` and narrowphase `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L325-L620` (the coverage JSON's `engine/gpu/physics.wgsl` basis is not in the tree); cone-limited sampled paths: unscheduled (S606-D) |
-| IonizingTransport | missing | unscheduled (S606-D/F); directional photon source with bands |
+| FiniteLedger | missing | required in the linked delivery slice (S010-D); electrical draw and emitted quanta; the only current finite store is bumper contact work, `engine/gpu/ContactWorkDeclaration.cs@a6c914e:L5-L9` |
+| GeometryQuery | exists now for contact only; missing for radiation paths | BVH `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L74-L204` and narrowphase `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L325-L620` (the coverage JSON's `engine/gpu/physics.wgsl` basis is not in the tree); cone-limited sampled paths: required in the linked delivery slice (S606-D) |
+| IonizingTransport | missing | required in the linked delivery slice (S606-D/F); directional photon source with bands |
 | StateTransaction | exists now | `engine/gpu/WorkshopSimulation.cs@a6c914e:L44-L161`; emitter state returns to Unpowered on Reset |
 
-Also used: the `EnableIn` signal (SignalPropagation, missing; Story 8.1); tube glow via `CosmeticCurveDeclaration` (exists, `engine/gpu/WorkshopCosmetic.cs@a6c914e:L16-L17`); band selector in the inspector (unscheduled).
+Also used: the `EnableIn` signal (SignalPropagation, missing; Story 8.1); tube glow via `CosmeticCurveDeclaration` (exists, `engine/gpu/WorkshopCosmetic.cs@a6c914e:L16-L17`); band selector in the inspector (required in the linked delivery slice).
 
 **Dependencies.** CAT-005 Battery; a supplied enable signal (switch, logic gate or clock); RAD-08.
 

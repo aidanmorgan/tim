@@ -1,5 +1,7 @@
 # EL-030 · Flow meter named-identity spec
 
+**Current delivery (24 October 2026):** [EL-030 delivery slice](../invest/named-elements.md#element-030). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 This is the Story 7.0 full spec for named identity EL-030. The baseline is commit `a6c914e`; every citation uses `path@a6c914e:Lstart-Lend`. Values without a source are marked **proposed**, each with a one-line justification; the owner may revise them.
 
 ## 1. Identity
@@ -13,8 +15,8 @@ This is the Story 7.0 full spec for named identity EL-030. The baseline is commi
 | Proof owner | S451 |
 | CAT spec refined | none. Related: [CAT-060 Sound meter](CAT-060-sound_meter.md) (meter presentation and threshold-output precedent) |
 | Related identities | [EL-031 Volume meter](EL-031-volume-meter.md) and [EL-032 Pressure meter](EL-032-pressure-meter.md) (distinct readings, separate identities); EL-008 Straight water pipe (inline connection); [EL-003 Tap](EL-003-tap.md) (reference flow) |
-| Roadmap story | unscheduled |
-| Status | not started (no `WorkshopPartKind` member, `engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`) |
+| Roadmap story | [EL-030 delivery slice](../invest/named-elements.md#element-030); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | not started (no `WorkshopPartKind` member, `engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`) |
 
 ## 2. Declaration
 
@@ -57,9 +59,9 @@ Families ([element-map row](../general-engine-element-map.md), [coverage binding
 - Static Box collider: `engine/gpu/PhysicsDeclarations.cs@a6c914e:L89-L120`.
 
 **Missing**
-- Water passage on a network node and per-tick transferred volume (S418): owner [S416](../invest/decisions.md#s416); unscheduled.
-- Committed meter reading exposed to the animation worker as a feedback source: unscheduled.
-- Threshold-with-dwell evaluation on a fluid reading (generic sensor kind): unscheduled.
+- Water passage on a network node and per-tick transferred volume (S418): owner [S416](../invest/decisions.md#s416); required in the linked delivery slice.
+- Committed meter reading exposed to the animation worker as a feedback source: required in the linked delivery slice.
+- Threshold-with-dwell evaluation on a fluid reading (generic sensor kind): required in the linked delivery slice.
 
 **Element dependencies.** A supplied route (EL-001 reservoir, EL-003/EL-165 tap, EL-008 pipes); a signal consumer (CAT-022 Delay, signal lamp, CAT-020 Counter).
 

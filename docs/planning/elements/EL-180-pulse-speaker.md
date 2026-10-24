@@ -1,5 +1,7 @@
 # EL-180 · Pulse speaker — element readiness spec
 
+**Current delivery (24 October 2026):** [EL-180 delivery slice](../invest/named-elements.md#element-180). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 Batch H named-identity spec. Legacy citations are pinned to `a6c914e` and resolve with `git show a6c914e:<path> | sed -n 'start,endp'`. Values marked *proposed* have no legacy or requirement source; each carries a one-line justification, stays inside the [game-grade envelope](../../gpu-f32-physics.md#game-grade-envelope) and may be revised by the owner. Box sizes are full extents (legacy `AddBox` takes the full size and stores half-extents, `reference/cpu/MachinePart.cs@a6c914e:L352-L356`). Shared acoustic facts A1–A13 are in [EL-044](EL-044-tone-selective-sound-meter.md#shared-acoustic-family-facts). This spec holds the **speaker facts K1–K10** that [EL-179](EL-179-continuous-tone-speaker.md) reuses.
 
 ## 1. Identity
@@ -10,7 +12,7 @@ Story 7.0 Batch H named-identity spec. Legacy citations are pinned to `a6c914e` 
 | Type | Sound |
 | Anchor | [requirements.md#element-180](../requirements.md#element-180); existing record [campaign-element-coverage](../requirements.md#campaign-element-coverage) ("Speaker/pulse/continuous modes"); [named-elements entry](../invest/named-elements.md#element-180); owner S532 |
 | Related | Refines [CAT-061 Speaker](CAT-061-speaker.md) (`speaker`, [current-cat-061](../requirements.md#current-cat-061)); sibling mode [EL-179 Continuous-tone speaker](EL-179-continuous-tone-speaker.md); supply [CAT-005](CAT-005-battery.md)/[EL-196](EL-196-battery.md); triggers from [CAT-017 Clock](CAT-017-clock.md), [CAT-063 Switch](CAT-063-switch.md); heard by [CAT-060](CAT-060-sound_meter.md)/[EL-044](EL-044-tone-selective-sound-meter.md). |
-| Roadmap story | 14.3 "Audio Speaker Directional Pulse Emission" (Epic 14) |
+| Roadmap story | [EL-180 delivery slice](../invest/named-elements.md#element-180); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration

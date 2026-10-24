@@ -1,5 +1,7 @@
 # CAT-051 · powered_gate declaration readiness spec
 
+**Current delivery (24 October 2026):** [CAT-051 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 CAT-051-D readiness spec. Baseline commit `a6c914e`. Legacy citations use `path@a6c914e:Lstart-Lend` and stay retrievable from git history after the Epic 7 purge. Current-engine files are cited at the same commit. Values are authored as f32 game values under [the numeric contract](../../gpu-f32-physics.md#numeric-representation-and-precision). The blade law is shared with [CAT-007 beam shutter](CAT-007-beam_shutter.md) through one legacy controller, `engine/SlidingBlade.cs`. The two parts differ only in geometry, material, mouths and integrations.
 
 ## 1. Identity
@@ -10,8 +12,8 @@ Story 7.0 CAT-051-D readiness spec. Baseline commit `a6c914e`. Legacy citations 
 | Kind | `powered_gate` (catalogue title "Powered gate", category Motion) |
 | Requirement anchor | [CAT-051](../requirements.md#current-cat-051); retained behaviour [todo-244](../requirements.md#todo-244); consumers [CAT-051-I](../invest/current-consumers.md#cat-051-i) |
 | Mapped identities | None found in [named-elements](../invest/named-elements.md). EL-184 mechanical ball gate (linkage-driven) and EL-163 powered ball diverter are separate elements. |
-| Roadmap story | 8.2 Powered Gate Passageway Barrier ([epics](../../../_bmad-output/planning-artifacts/epics.md), Epic 8) |
-| Status | Not started. No `WorkshopPartKind` member exists (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
+| Roadmap story | 8.2 Powered Gate Passageway Barrier ([epics](../../../_bmad-output/planning-artifacts/epics.md), Epic 8) Current [CAT-051 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). |
+| Harvest-baseline status | Not started. No `WorkshopPartKind` member exists (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
 
 ## 2. Declaration
 

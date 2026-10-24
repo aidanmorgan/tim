@@ -1,5 +1,7 @@
 # EL-209 · Fan named-identity spec
 
+**Current delivery (24 October 2026):** [EL-209 delivery slice](../invest/named-elements.md#element-209). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec (Batch J). Baseline commit `a6c914e`; every citation is `path@a6c914e:Lstart-Lend` and resolves with `git show a6c914e:<path> | sed -n 'start,endp'`. **Proposed** marks an unsourced design value with a one-line justification; the owner may revise it. All values are canonical IEEE-754 f32 game values inside the [game-grade envelope](../../gpu-f32-physics.md#game-grade-envelope).
 
 ## 1. Identity
@@ -13,7 +15,7 @@ Story 7.0 named-identity spec (Batch J). Baseline commit `a6c914e`; every citati
 | Proof owner | S313 |
 | Refines / extends | Extends [CAT-028 fan](CAT-028-fan.md) ([requirement](../requirements.md#current-cat-028)): CAT-028 is a self-contained activation-controlled fan; EL-209 requires explicit electrical or shaft supply |
 | Related | EL-108 Powered airlift (same field), EL-196 Battery, EL-199 Electric motor (shaft source), CAT-069 Wind chimes and CAT-070 Windmill (receivers) |
-| Roadmap story | Electrical variant: Story 12.2 (its acceptance names a battery-powered fan). Shaft variant: unscheduled |
+| Roadmap story | [EL-209 delivery slice](../invest/named-elements.md#element-209); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration
@@ -63,7 +65,7 @@ Rotor spins one revolution (0 → 2π) per 0.349 s (animation duration τ/18), l
 Housing ring and blades in the Fan colour `#66b8c9` (blades lightened 15%); base `#263d4b`; post `#ccd8dc`; hub `#f4d089`; airflow line `#a9e7e0` (`parts/FanPart.cs@a6c914e:L36-L48`; `parts/catalog/fan.tres@a6c914e:L13-L13`; [DESIGN colour system](../../../DESIGN.md#colour-system)).
 
 ### Catalogue and inventory entry
-Id `fan`, title "Fan", category Power (`parts/catalog/fan.tres@a6c914e:L8-L14`). Whether EL-209 is the same catalogue part with a supply setting or a separate part is open question 1. Add `WorkshopPartKind.Fan` with a counted allowance (`engine/gpu/WorkshopInventory.cs@a6c914e:L9-L23`).
+Id `fan`, title "Fan", category Power (`parts/catalog/fan.tres@a6c914e:L8-L14`). Whether EL-209 is the same catalogue part with a supply setting or a separate part is open question 1. Declare the package with a counted allowance keyed by its bundle-issued typed id (`engine/gpu/WorkshopInventory.cs@a6c914e:L9-L23`).
 
 ### Variants
 - **Electrical supply.** `PowerIn` from a battery. Positive: the field pushes a light ball. Control: no or depleted battery, no force.

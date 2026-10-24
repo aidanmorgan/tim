@@ -1,5 +1,7 @@
 # CAT-033 · hold_timer — declaration readiness spec
 
+**Current delivery (24 October 2026):** [CAT-033 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 Batch B declaration spec (CAT-033-D). Legacy citations are pinned to `a6c914e` and resolve with `git show a6c914e:<path> | sed -n 'start,endp'`. Requirement row: [CAT-033](../requirements.md#current-cat-033). Supplied-network facts (N1–N24) are in [CAT-005](CAT-005-battery.md#4-legacy-harvest).
 
 ## 1. Identity
@@ -9,7 +11,7 @@ Story 7.0 Batch B declaration spec (CAT-033-D). Legacy citations are pinned to `
 | CAT ID / kind | CAT-033 · `hold_timer` |
 | Requirement anchor | [current-cat-033](../requirements.md#current-cat-033); retained behaviour [todo-261](../requirements.md#todo-261) |
 | Mapped identities | none owned. Related: [TH-34 Timed toaster ejector](../invest/named-elements.md#thermal-34) composes a generic timer; its requirement row stands as the source. |
-| Roadmap story | 9.5 "Hold Timer Pulse Stretcher" (Epic 9) |
+| Roadmap story | 9.5 "Hold Timer Pulse Stretcher" (Epic 9) Current [CAT-033 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). |
 | Status | implemented; native review in progress, browser qualification deferred until catalogue complete |
 
 ## 2. Declaration

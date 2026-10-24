@@ -1,5 +1,7 @@
 # EL-018 · Electronic level switch — named-identity spec
 
+**Current delivery (24 October 2026):** [EL-018 delivery slice](../invest/named-elements.md#element-018). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec ([readiness spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations `path@a6c914e:Lstart-Lend` resolve with `git show a6c914e:<path>` after the Epic 7 purge. A value marked **proposed** has no legacy or requirement source; it carries a one-line justification and the owner may revise it.
 
 ## Identity
@@ -11,8 +13,8 @@ Story 7.0 named-identity spec ([readiness spec](../../../_bmad-output/implementa
 | Named entry | [element-018](../invest/named-elements.md#element-018); per-element proof owner S439 |
 | CAT spec refined | None. Supplied by the Battery ([CAT-005](CAT-005-battery.md), Story 8.1); follows the supplied-contact pattern of the Switch ([CAT-063](../requirements.md#current-cat-063)). |
 | Related identities | [EL-017](EL-017-mechanical-float-valve.md) (unsupplied mechanical alternative), [EL-016](EL-016-float.md), [EL-004](EL-004-catch-basin.md) (sensed vessel), [EL-022](EL-022-water-pump.md) (typical load), EL-167 Solenoid tap |
-| Roadmap story | Unscheduled; ELEMENT-n row of the [roadmap](../invest/vertical-delivery.md#rolling-playable-roadmap), campaign chapter 7, levels 61–70. Supply prerequisite: Story 8.1. |
-| Status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
+| Roadmap story | [EL-018 delivery slice](../invest/named-elements.md#element-018); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
 
 ## Declaration
 
@@ -55,7 +57,7 @@ Story 7.0 named-identity spec ([readiness spec](../../../_bmad-output/implementa
 Families ([element map](../general-engine-element-map.md); binding [`element-01.json`](../../coverage/engine/element-01.json), consumer `element/element-018`): EnvironmentState, FiniteLedger, FluidAdvection, GeometryQuery, JointConstraint, PressureWork, RigidBodyDynamics, SignalPropagation, StateTransaction, TopologyTransaction.
 
 - **Exists now.** Activation network with typed nodes and edges (`engine/gpu/ActivationNetwork.cs@a6c914e:L7-L12`); Electrical/Supply/PowerIn enum members (`engine/gpu/WorkshopConnections.cs@a6c914e:L8-L11`); Run/Reset (`engine/gpu/WorkshopSimulation.cs@a6c914e:L238-L245`).
-- **Missing.** ElectricalPower network and supplied-contact routes (Story 8.1; decision [S257](../invest/decisions.md#s257) electrical-port → S270); a level-sampling sensor over a liquid store ([S416](../invest/decisions.md#s416) → S418); a new `ActivationNodeKind` for a level source. Unscheduled.
+- **Missing.** ElectricalPower network and supplied-contact routes (Story 8.1; decision [S257](../invest/decisions.md#s257) electrical-port → S270); a level-sampling sensor over a liquid store ([S416](../invest/decisions.md#s416) → S418); a new `ActivationNodeKind` for a level source. Required in the linked delivery slice.
 - **Element dependencies.** CAT-005 Battery; a load (Lamp CAT-035, Motor CAT-042, or EL-022 pump); a vessel (EL-001/EL-004).
 
 ## Sources and legacy

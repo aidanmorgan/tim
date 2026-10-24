@@ -1,5 +1,7 @@
 # TH-16 · Fusible link — named-identity readiness spec
 
+**Current delivery (24 October 2026):** [TH-16 delivery slice](../invest/named-elements.md#thermal-16). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations are `path@a6c914e:Lstart-Lend`. No legacy holds fusible-link values, so every design value without a cited source is marked "(proposed: …)" with a one-line justification; the owner may revise it.
 
 ## 1. Identity
@@ -12,8 +14,8 @@ Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artif
 | Proof owner / research | S580 · [TH-S02 phase change](../../thermal-component-research.md#th-s02) |
 | Related identities | No CAT spec. Load paths: [CAT-058 Rope anchor](CAT-058-rope_anchor.md) and [CAT-067 Weight](CAT-067-weight.md). Heat sources [TH-01](TH-01-candle.md), [TH-04](TH-04-electrical-heating-plate.md). Neighbour: [RAD-21](../invest/named-elements.md#radiation-21) is a radiation-weakened latch, a different identity. |
 | Campaign | Intro 85; practice 86; reuse 96, 149 ([thermal allocation](../requirements.md#thermal-campaign-allocation)) |
-| Roadmap story | Unscheduled. No epic in `_bmad-output/planning-artifacts/epics.md` schedules a thermal element. |
-| Status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`); no legacy part. |
+| Roadmap story | [TH-16 delivery slice](../invest/named-elements.md#thermal-16); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`); no legacy part. |
 
 ## 2. Declaration
 
@@ -35,14 +37,14 @@ Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artif
 
 - **Cosmetic curves and UI bindings.** Link snap ← committed joint state ([research per-element table](../../thermal-component-research.md)); the navy witness gap widens with melted fraction (row).
 - **Art.** "Small cream wax-like collar between gold load ends with a navy witness gap" (row). Nearest [DESIGN.md](../../../DESIGN.md) source colours (proposed mapping): cream `#ead39b` (`DESIGN.md@a6c914e:L146-L146`), gold `#f7cb52` (`DESIGN.md@a6c914e:L154-L154`), navy `#293954` (`DESIGN.md@a6c914e:L147-L147`).
-- **Catalogue and inventory entry.** New `WorkshopPartKind.FusibleLink`; id `fusible_link`, title "Fusible link", category Ropes (proposed: it connects rope loads; Heat is the alternative).
+- **Catalogue and inventory entry.** Package-owned declaration, discovered into the bundle; id `fusible_link`, title "Fusible link", category Ropes (proposed: it connects rope loads; Heat is the alternative).
 
 ## 3. Engine capabilities
 
 Families (map row TH-16, [general-engine-element-map](../general-engine-element-map.md); binding [thermal-01.json](../../coverage/engine/thermal-01.json)): EnvironmentState, FiniteLedger, GasState, GeometryQuery, JointConstraint, PhaseTopology, RigidBodyDynamics, SensibleHeat, SolidMelting, StructuralFracture, TemperatureStrength, TopologyTransaction; JSON adds StateTransaction.
 
 - **Exists now.** Dynamic box bodies (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L120`); Run/Reset and save (`engine/gpu/ActivationNetwork.cs@a6c914e:L67-L67`, `engine/gpu/WorkshopSaveCodec.cs@a6c914e:L6-L10`).
-- **Missing.** Joints and rope: Story 6.4 constraints, Story 10.2 rope. Breakable joint lifecycle: [S543](../invest/decisions.md#s543) fracture → S563, temperature-strength → S566, melting → S547, phase-topology → S565. All thermal rows unscheduled.
+- **Missing.** Joints and rope: Story 6.4 constraints, Story 10.2 rope. Breakable joint lifecycle: [S543](../invest/decisions.md#s543) fracture → S563, temperature-strength → S566, melting → S547, phase-topology → S565. All thermal rows required in the linked delivery slice.
 - **Dependencies.** Rope anchor (CAT-058) and Weight (CAT-067), Stories 10.2 and 10.4; a heat source.
 
 ## 4. Sources and legacy

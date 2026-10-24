@@ -1,5 +1,7 @@
 # EL-068 · Tin snips declaration readiness spec
 
+**Current delivery (24 October 2026):** [EL-068 delivery slice](../invest/named-elements.md#element-068). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec. Baseline commit `a6c914e`. Legacy citations use `path@a6c914e:Lstart-Lend` and stay retrievable from git history after the Epic 7 purge. Values marked **proposed** are design values the owner may revise.
 
 ## 1. Identity
@@ -13,7 +15,7 @@ Story 7.0 named-identity spec. Baseline commit `a6c914e`. Legacy citations use `
 | Named entry | [named-elements.md#element-068](../invest/named-elements.md#element-068); proof owner S357 |
 | CAT spec refined or extended | none. Related: [CAT-005 battery](CAT-005-battery.md) (Powered mode supply), [CAT-063 switch](CAT-063-switch.md) (Actuated mode trigger), [CAT-071 wound spring](CAT-071-wound_spring.md) (stored-charge release pattern), [CAT-058 rope anchor](CAT-058-rope_anchor.md) (route topology) |
 | Related identities | [EL-066 scissors](EL-066-scissors.md) (same cut criterion, unpowered), [EL-067 steel cable](EL-067-steel-cable.md) (resistant target), EL-205 rope |
-| Roadmap story | unscheduled |
+| Roadmap story | [EL-068 delivery slice](../invest/named-elements.md#element-068); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration
@@ -71,7 +73,7 @@ Pale grey jaws `#ccd9df`, cyan housing band `#66b8c9` (powered parts family, `DE
 
 ### Catalogue and inventory entry
 
-Id `tin_snips`, title "Tin snips", category "Ropes"; `WorkshopPartKind.TinSnips` appended last to the free inventory (`engine/gpu/WorkshopInventory.cs@a6c914e:L49-L60`). **Proposed**.
+Id `tin_snips`, title "Tin snips", category "Ropes"; package-owned metadata discovered into the Free palette from the bundle (`engine/gpu/WorkshopInventory.cs@a6c914e:L49-L60`). **Proposed**.
 
 ### Variants
 
@@ -90,7 +92,7 @@ Binding: EnvironmentState, FiniteLedger, GeometryQuery, JointConstraint, RigidBo
 
 - Hinge: Story 10.3. Bounded joint drive (work and power budget): Story 11.3 (linear pusher drive) is the nearest.
 - Electrical supply: Story 8.1.
-- Span-in-region query, fracture criterion (S563), topology transaction (S565 pattern): no story.
+- Span-in-region query, fracture criterion (S563), topology transaction (S565 pattern): required prerequisite owned by the linked delivery slice.
 
 **Dependencies.** A rope or cable route (Stories 10.2/10.4, EL-067); CAT-005 Battery (Powered); a trigger (CAT-063 Switch, delivered).
 

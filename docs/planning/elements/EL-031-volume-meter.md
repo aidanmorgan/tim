@@ -1,5 +1,7 @@
 # EL-031 · Volume meter named-identity spec
 
+**Current delivery (24 October 2026):** [EL-031 delivery slice](../invest/named-elements.md#element-031). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 This is the Story 7.0 full spec for named identity EL-031. The baseline is commit `a6c914e`; every citation uses `path@a6c914e:Lstart-Lend`. Values without a source are marked **proposed**, each with a one-line justification; the owner may revise them.
 
 ## 1. Identity
@@ -13,8 +15,8 @@ This is the Story 7.0 full spec for named identity EL-031. The baseline is commi
 | Proof owner | S452 |
 | CAT spec refined | none. Related: [CAT-020 Counter](CAT-020-counter.md) (accumulator presentation), [CAT-060 Sound meter](CAT-060-sound_meter.md) (threshold output) |
 | Related identities | [EL-030 Flow meter](EL-030-flow-meter.md) (instantaneous rate, separate identity), [EL-032 Pressure meter](EL-032-pressure-meter.md); [EL-014 Water-carrying bucket](EL-014-water-carrying-bucket.md) (the 0.125 m³ default target) |
-| Roadmap story | unscheduled |
-| Status | not started (no `WorkshopPartKind` member, `engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`) |
+| Roadmap story | [EL-031 delivery slice](../invest/named-elements.md#element-031); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | not started (no `WorkshopPartKind` member, `engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`) |
 
 ## 2. Declaration
 
@@ -54,9 +56,9 @@ Families ([element-map row](../general-engine-element-map.md), [coverage binding
 - Committed, Reset-restorable world state read by the host rather than computed on inspection (sensor read records such as `engine/gpu/OrientationSensorDeclaration.cs@a6c914e:L38-L39`).
 
 **Missing**
-- Per-tick transferred volume across a network node (S418): owner [S416](../invest/decisions.md#s416); unscheduled.
-- A committed integrating reading (StateTransaction) with latch output: unscheduled.
-- Reading feedback source for animation: unscheduled.
+- Per-tick transferred volume across a network node (S418): owner [S416](../invest/decisions.md#s416); required in the linked delivery slice.
+- A committed integrating reading (StateTransaction) with latch output: required in the linked delivery slice.
+- Reading feedback source for animation: required in the linked delivery slice.
 
 **Element dependencies.** A supplied route (reservoir, tap, pipes) and a signal consumer.
 

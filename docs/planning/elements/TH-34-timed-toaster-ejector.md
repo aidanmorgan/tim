@@ -1,5 +1,7 @@
 # TH-34 · Timed toaster ejector — named-identity readiness spec
 
+**Current delivery (24 October 2026):** [TH-34 delivery slice](../invest/named-elements.md#thermal-34). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations are `path@a6c914e:Lstart-Lend`. No legacy holds toaster values, so every design value without a cited source is marked "(proposed: …)" with a one-line justification; the owner may revise it.
 
 ## 1. Identity
@@ -12,8 +14,8 @@ Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artif
 | Proof owner / research | S599 · [TH-S01 heat transfer and finite stores](../../thermal-component-research.md#th-s01) |
 | Related identities | Historical record [todo-214](../requirements.md#todo-214) is shared with [EL-075 Toy pulse emitter](../invest/named-elements.md#element-075) (Batch L). Composes the heater law of [TH-04](TH-04-electrical-heating-plate.md), the timer of [CAT-022 Delay](CAT-022-delay.md) / [CAT-033 Hold timer](CAT-033-hold_timer.md), a latch like [CAT-037](CAT-037-latch.md) and a spring like [CAT-071](CAT-071-wound_spring.md). Temperature proof by [TH-21](TH-21-temperature-sensor.md) or [TH-37](TH-37-heat-sensitive-target.md). |
 | Campaign | Intro 91; practice 92; reuse 99, 146 ([thermal allocation](../requirements.md#thermal-campaign-allocation)) |
-| Roadmap story | Unscheduled. No epic in `_bmad-output/planning-artifacts/epics.md` schedules a thermal element. |
-| Status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`); no legacy part. |
+| Roadmap story | [TH-34 delivery slice](../invest/named-elements.md#thermal-34); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`); no legacy part. |
 
 ## 2. Declaration
 
@@ -37,14 +39,14 @@ Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artif
 
 - **Cosmetic curves and UI bindings.** Lever ← committed latch state ([research per-element table](../../thermal-component-research.md)); the cyan timed-state window shows the timer phase (row); the gold tray shows heater power. A small dial sets the duration.
 - **Art.** "Rounded cream housing, gold warming tray and cyan timed-state window" (row). Nearest [DESIGN.md](../../../DESIGN.md) source colours (proposed mapping): cream `#ead39b` (`DESIGN.md@a6c914e:L146-L146`), gold `#f7cb52` (`DESIGN.md@a6c914e:L154-L154`), cyan `#66b8c9` (`DESIGN.md@a6c914e:L172-L172`).
-- **Catalogue and inventory entry.** New `WorkshopPartKind.ToasterEjector`; id `toaster_ejector`, title "Timed toaster ejector", category Heat (proposed: no current category covers thermal parts).
+- **Catalogue and inventory entry.** Package-owned declaration, discovered into the bundle; id `toaster_ejector`, title "Timed toaster ejector", category Heat (proposed: no current category covers thermal parts).
 
 ## 3. Engine capabilities
 
 Families (map row TH-34, [general-engine-element-map](../general-engine-element-map.md); binding [thermal-01.json](../../coverage/engine/thermal-01.json)): ElasticStorage, ElectricalDissipation, ElectricalPower, EnvironmentState, FiniteLedger, FiniteWorkActuation, JointConstraint, RigidBodyDynamics, SensibleHeat, SignalPropagation, TemperatureSensing; JSON adds StateTransaction. Composition note: add TimedCommand/latch ordering and a contact-obstructed spring carriage; elapsed time is not measured cargo temperature.
 
 - **Exists now.** Activation network and timers (TimedCommand) (`engine/gpu/ActivationNetwork.cs@a6c914e:L7-L14`, `engine/gpu/ActivationTimers.cs@a6c914e:L66-L74`); typed sockets (`engine/gpu/WorkshopConnections.cs@a6c914e:L8-L11`); rigid bodies (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L120`); Run/Reset and save (`engine/gpu/ActivationNetwork.cs@a6c914e:L67-L67`, `engine/gpu/WorkshopSaveCodec.cs@a6c914e:L6-L10`).
-- **Missing.** ElectricalPower: Story 8.1. Slider and spring preload: Stories 6.4–6.5. Latch: Story 9.4. [S543](../invest/decisions.md#s543): electrical-heat → S564, conduction → S544, thermal-radiation (the slot coupling) → S546. TimedCommand is not in the map family list despite the note. Unscheduled.
+- **Missing.** ElectricalPower: Story 8.1. Slider and spring preload: Stories 6.4–6.5. Latch: Story 9.4. [S543](../invest/decisions.md#s543): electrical-heat → S564, conduction → S544, thermal-radiation (the slot coupling) → S546. TimedCommand is not in the map family list despite the note. Required in the linked delivery slice.
 - **Dependencies.** Battery (CAT-005), a start signal (CAT-063 Switch), and a temperature proof (TH-21 or TH-37).
 
 ## 4. Sources and legacy

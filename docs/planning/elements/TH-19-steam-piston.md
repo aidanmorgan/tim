@@ -1,5 +1,7 @@
 # TH-19 · Steam piston — named-identity readiness spec
 
+**Current delivery (24 October 2026):** [TH-19 delivery slice](../invest/named-elements.md#thermal-19). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations are `path@a6c914e:Lstart-Lend`. No legacy steam piston exists; the legacy sealed-gas chamber supplies the actuator law and test oracles (section 4). Every design value without a cited source is marked "(proposed: …)" with a one-line justification; the owner may revise it.
 
 ## 1. Identity
@@ -12,8 +14,8 @@ Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artif
 | Proof owner / research | S583 · [TH-S07 heat to mechanical work](../../thermal-component-research.md#th-s07) |
 | Related identities | No CAT spec. Configures the same generic pressure actuator as the gas family's pneumatic piston ([gas family per-element table](../../finite-gas-foundation.md)) and the hydraulic piston of [S416](../invest/decisions.md#s416) pressure-work. Vapour from [TH-17](TH-17-kettle.md) or [TH-35](TH-35-coffee-pot-steam-vessel.md); exhaust to [TH-18](TH-18-condenser.md). Rod geometry echoes [CAT-039 Linear pusher](CAT-039-linear_pusher.md). |
 | Campaign | Intro 75; practice 76; reuse 86, 143 ([thermal allocation](../requirements.md#thermal-campaign-allocation)) |
-| Roadmap story | Unscheduled. No epic in `_bmad-output/planning-artifacts/epics.md` schedules a thermal element or the sealed gas chamber. |
-| Status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`); no legacy part. |
+| Roadmap story | [TH-19 delivery slice](../invest/named-elements.md#thermal-19); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`); no legacy part. |
 
 ## 2. Declaration
 
@@ -37,14 +39,14 @@ Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artif
 
 - **Cosmetic curves and UI bindings.** Rod ← committed slider position ([research per-element table](../../thermal-component-research.md)); no cosmetic stroke animation.
 - **Art.** "Cream cylinder, gold rod and separate embossed inlet/exhaust ports" (row). Nearest [DESIGN.md](../../../DESIGN.md) source colours (proposed mapping): cream `#ead39b` (`DESIGN.md@a6c914e:L146-L146`), gold `#f7cb52` (`DESIGN.md@a6c914e:L154-L154`).
-- **Catalogue and inventory entry.** New `WorkshopPartKind.SteamPiston`; id `steam_piston`, title "Steam piston", category Heat (proposed: no current category covers thermal parts; Motion is the alternative).
+- **Catalogue and inventory entry.** Package-owned declaration, discovered into the bundle; id `steam_piston`, title "Steam piston", category Heat (proposed: no current category covers thermal parts; Motion is the alternative).
 
 ## 3. Engine capabilities
 
 Families (map row TH-19, [general-engine-element-map](../general-engine-element-map.md); binding [thermal-01.json](../../coverage/engine/thermal-01.json)): EnvironmentState, FiniteLedger, GasState, JointConstraint, PressureWork, RigidBodyDynamics; JSON adds StateTransaction. Composition note: inlet/exhaust finite mass and enthalpy transport, chamber work and load coupling; GasState alone is not a piston cycle.
 
 - **Exists now.** Rigid bodies and box colliders (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L120`); Run/Reset and save (`engine/gpu/ActivationNetwork.cs@a6c914e:L67-L67`, `engine/gpu/WorkshopSaveCodec.cs@a6c914e:L6-L10`).
-- **Missing.** Slider joint and spring: Story 6.4 (prismatic slider, TGS soft spring). Sealed gas chamber: [S470](../invest/decisions.md#s470) gas-state → S471. PressureWork: [S416](../invest/decisions.md#s416) pressure-work → S419. Gas ports and advection: S471/S697. All gas and thermal rows unscheduled.
+- **Missing.** Slider joint and spring: Story 6.4 (prismatic slider, TGS soft spring). Sealed gas chamber: [S470](../invest/decisions.md#s470) gas-state → S471. PressureWork: [S416](../invest/decisions.md#s416) pressure-work → S419. Gas ports and advection: S471/S697. All gas and thermal rows required in the linked delivery slice.
 - **Dependencies.** A vapour source (TH-17); a load (CAT-067 Weight, a ball).
 
 ## 4. Sources and legacy
@@ -84,6 +86,6 @@ Point of truth: [thermal-19](../requirements.md#thermal-19), [TX-04](../requirem
 ## 6. Open questions
 
 1. **Batch N game scale.** Adopt or revise the one scale in section 2 (×¼ specific heat, ×1/16 latent heat, gas ×1, reaction energy and O₂ ×1/1024, h 2.5 W/(m²·K), per-pair series contact conductance from per-part face values, 1 intensity unit = 1 W, and which research-table rows the scale multiplies). It carries two consequences: boiling needs a declared saturation curve (S550) because scaled water latent heat is below R·T_sat, and gas-node time constants run about 4× slower than SI (TH-25). Owner decision.
-2. **Gas chamber schedule.** No epic schedules S471 or a pneumatic piston story; both are prerequisites. Owner decision.
+2. **Gas chamber schedule.** This delivery slice owns the S471 gas-chamber and generic pressure-actuator prerequisite decisions; settle and prove both before the steam piston.
 3. **Valve gear.** Position-uncovered exhaust versus an explicit valve or a double-acting cylinder. Owner decision.
 4. **Condensation in the chamber.** Does steam condense on the cold barrel during the stroke? Owner decision (S551).

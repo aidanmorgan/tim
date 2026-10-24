@@ -1,5 +1,7 @@
 # TH-31 · Flint striker — named-identity readiness spec
 
+**Current delivery (24 October 2026):** [TH-31 delivery slice](../invest/named-elements.md#thermal-31). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations are `path@a6c914e:Lstart-Lend`. No legacy holds striker values, so every design value without a cited source is marked "(proposed: …)" with a one-line justification; the owner may revise it.
 
 ## 1. Identity
@@ -12,8 +14,8 @@ Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artif
 | Proof owner / research | S593 · [TH-S03 combustion and suppression](../../thermal-component-research.md#th-s03) |
 | Related identities | No CAT spec. Ignites [TH-32 Tinder pad](TH-32-tinder-pad.md) and the [TH-01 Candle](TH-01-candle.md) wick; strikes the tip of [TH-33 Spring-mounted match](TH-33-spring-mounted-match.md). Pushed through its swing by a rolling ball ([CAT-001](CAT-001-ball.md)); a single tap from a lever ([CAT-034](CAT-034-impact_lever.md)) transfers too little (Open question 4). |
 | Campaign | Intro 58; practice 59; reuse 85, 99 ([thermal allocation](../requirements.md#thermal-campaign-allocation)) |
-| Roadmap story | Unscheduled. No epic in `_bmad-output/planning-artifacts/epics.md` schedules a thermal element. |
-| Status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`); no legacy part. |
+| Roadmap story | [TH-31 delivery slice](../invest/named-elements.md#thermal-31); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`); no legacy part. |
 
 ## 2. Declaration
 
@@ -38,14 +40,14 @@ Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artif
 
 - **Cosmetic curves and UI bindings.** Spark ← committed strike occurrence ([research per-element table](../../thermal-component-research.md)): "a restrained brief spark cue" (row); arm pose ← committed hinge angle.
 - **Art.** "Cream hinge mount with gold striking face and a restrained brief spark cue" (row). Nearest [DESIGN.md](../../../DESIGN.md) source colours (proposed mapping): cream `#ead39b` (`DESIGN.md@a6c914e:L146-L146`), gold `#f7cb52` (`DESIGN.md@a6c914e:L154-L154`).
-- **Catalogue and inventory entry.** New `WorkshopPartKind.FlintStriker`; id `flint_striker`, title "Flint striker", category Heat (proposed: no current category covers thermal parts).
+- **Catalogue and inventory entry.** Package-owned declaration, discovered into the bundle; id `flint_striker`, title "Flint striker", category Heat (proposed: no current category covers thermal parts).
 
 ## 3. Engine capabilities
 
 Families (map row TH-31, [general-engine-element-map](../general-engine-element-map.md); binding [thermal-01.json](../../coverage/engine/thermal-01.json)): ChemicalReaction, ContactImpulse, EnvironmentState, FiniteLedger, GeometryQuery, Ignition, RigidBodyDynamics, SensibleHeat, SlidingFriction, TopologyTransaction; JSON adds StateTransaction.
 
 - **Exists now.** Rigid bodies, contacts, friction materials (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L42-L120`); ball materials and solid-sphere inertia (`engine/gpu/WorkshopConstruction.cs@a6c914e:L45-L51`, `engine/gpu/RigidMassProperties.cs@a6c914e:L34-L37`); first-qualifying-impact contact triggers (`engine/gpu/ContactTriggerDeclaration.cs@a6c914e:L8-L8`); finite paid contact work in joules (`engine/gpu/ContactWorkDeclaration.cs@a6c914e:L5-L38`); Run/Reset and save (`engine/gpu/ActivationNetwork.cs@a6c914e:L67-L67`, `engine/gpu/WorkshopSaveCodec.cs@a6c914e:L6-L10`).
-- **Missing.** Hinge and return spring: Stories 6.4 and 10.3. Sprung contact normal load and friction-work debit to a heat deposit (IX-02) and ignition: [S543](../invest/decisions.md#s543) ignition → S555, reaction → S554. Thermal-only patch nodes (batch scale). Unscheduled.
+- **Missing.** Hinge and return spring: Stories 6.4 and 10.3. Sprung contact normal load and friction-work debit to a heat deposit (IX-02) and ignition: [S543](../invest/decisions.md#s543) ignition → S555, reaction → S554. Thermal-only patch nodes (batch scale). Required in the linked delivery slice.
 - **Dependencies.** A pushing body (a rolling ball); a reactive target (TH-32, TH-01 wick, TH-33 tip).
 
 ## 4. Sources and legacy

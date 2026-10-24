@@ -1,5 +1,7 @@
 # EL-078 · Can opener — named-identity spec
 
+**Current delivery (24 October 2026):** [EL-078 delivery slice](../invest/named-elements.md#element-078). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec ([story spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations are `path@a6c914e:Lstart-Lend`. Values with no legacy or requirement source are **proposed**, each with a one-line justification; the owner may revise them. Game values are canonical f32 ([numeric contract](../../gpu-f32-physics.md#f32-migration-status)).
 
 ## 1. Identity
@@ -11,8 +13,8 @@ Story 7.0 named-identity spec ([story spec](../../../_bmad-output/implementation
 | Named entry | [element-078](../invest/named-elements.md#element-078); source owner **S648** |
 | CAT spec refined or extended | None. It consumes supply from [CAT-005 Battery](CAT-005-battery.md) and rotary drive like [CAT-042 Motor](CAT-042-motor.md). |
 | Related identities | EL-066 Scissors and EL-068 Tin snips (the same generic cutting work), EL-079 Electric mixer (supplied rotating tool) |
-| Roadmap story | Unscheduled |
-| Status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
+| Roadmap story | [EL-078 delivery slice](../invest/named-elements.md#element-078); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
 
 ## 2. Declaration
 

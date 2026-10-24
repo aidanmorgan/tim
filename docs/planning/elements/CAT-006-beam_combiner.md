@@ -1,5 +1,7 @@
 # CAT-006 · beam_combiner — declaration readiness spec (CAT-006-D)
 
+**Current delivery (24 October 2026):** [CAT-006 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 ## Identity
 
 - **CAT ID / kind:** CAT-006 · `beam_combiner` (catalogue title "Beam combiner", category Optics).
@@ -45,7 +47,7 @@ Families (map row CAT-006): AnimationEvaluation, AnimationLifecycle, ContactImpu
 - OpticalTransport routing (entry aperture → declared outlet, internal travel counted, 90% retention) — Story 13.5. Decision owner **S484** ([decisions](../invest/decisions.md#s484)): S485 finite allocation, S486 commit boundary.
 - Per-channel output-power observation and spectral colour feedback — Story 13.5 (P0-022/023 shared evaluator/feedback registration).
 - OpticalAbsorption/SensibleHeat for lost power — S489/S543, mode-specific.
-- No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`).
+- No package declaration is established by the cited harvest baseline (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`).
 
 **Element dependencies:** CAT-036 laser (two or three sources; Story 13.1), CAT-055/031/011 filters (to make distinct channels; Story 13.4), CAT-068 white_receiver or other receivers (Stories 13.2 and 13.6), CAT-005 battery (Story 8.1), CAT-041 mirror (loop control), CAT-066 wall (delivered).
 

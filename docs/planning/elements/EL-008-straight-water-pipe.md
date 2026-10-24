@@ -1,5 +1,7 @@
 # EL-008 · Straight water pipe — named-identity spec
 
+**Current delivery (24 October 2026):** [EL-008 delivery slice](../invest/named-elements.md#element-008). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec ([readiness spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations `path@a6c914e:Lstart-Lend` resolve with `git show a6c914e:<path>` after the Epic 7 purge. A value marked **proposed** has no legacy or requirement source; it carries a one-line justification and the owner may revise it.
 
 ## Identity
@@ -11,8 +13,8 @@ Story 7.0 named-identity spec ([readiness spec](../../../_bmad-output/implementa
 | Named entry | [element-008](../invest/named-elements.md#element-008); per-element proof owner S429 |
 | CAT spec refined | None. The clear ball pipe [CAT-048](../requirements.md#current-cat-048) (Stories 6.6–6.7) is a separate element: it carries balls by contact, this one carries liquid in the network. |
 | Related identities | Pipe kit: [EL-009](EL-009-water-elbow-45.md), [EL-010](EL-010-water-elbow-90.md), [EL-011](EL-011-water-t-junction.md), [EL-012](EL-012-water-pipe-cap.md), [EL-013](EL-013-water-nozzle.md); supplies [EL-001](EL-001-finite-reservoir.md), [EL-002](EL-002-header-tank.md) |
-| Roadmap story | Unscheduled; ELEMENT-n row of the [roadmap](../invest/vertical-delivery.md#rolling-playable-roadmap), campaign chapter 7, levels 61–70. |
-| Status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
+| Roadmap story | [EL-008 delivery slice](../invest/named-elements.md#element-008); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
 
 ## Declaration
 
@@ -54,8 +56,8 @@ Story 7.0 named-identity spec ([readiness spec](../../../_bmad-output/implementa
 
 Families ([element map](../general-engine-element-map.md); binding [`element-01.json`](../../coverage/engine/element-01.json), consumer `element/element-008`): EnvironmentState, FiniteLedger, FluidAdvection, GeometryQuery, JointConstraint, PressureWork, RigidBodyDynamics, StateTransaction, TopologyTransaction.
 
-- **Exists now.** Static box body (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L120`); resizable-length pattern (parked ball-pipe `PipeDimensions` clamps length 1–8 m, `engine/gpu/WorkshopPipe.cs@a6c914e:L6-L29`, excluded from the build by `CuriousContraptions.csproj@a6c914e:L29-L29`); typed connections without a Water domain (`engine/gpu/WorkshopConnections.cs@a6c914e:L8-L12`), capacity 8 edges (`engine/gpu/WorkshopConnections.cs@a6c914e:L65-L67`).
-- **Missing.** Water network nodes and head propagation ([S416](../invest/decisions.md#s416) advection → S418, pressure-work → S419); mouth-join TopologyTransaction (EL-001 open question 3); the connection capacity of 8 is too small for a pipe network. Unscheduled.
+- **Exists now.** Static box body (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L120`); resizable-length pattern (parked ball-pipe `PipeDimensions` clamps length 1–8 m, `engine/gpu/WorkshopPipe.cs@a6c914e:L6-L29`, excluded from the build by `CuriousContraptions.csproj@a6c914e:L29-L29`); typed connections without a Water domain (`engine/gpu/WorkshopConnections.cs@a6c914e:L8-L12`), historical capacity 8 edges (`engine/gpu/WorkshopConnections.cs@a6c914e:L65-L67`), replaced by scene-sized current tables.
+- **Missing.** Water network nodes and head propagation ([S416](../invest/decisions.md#s416) advection → S418, pressure-work → S419); mouth-join TopologyTransaction (EL-001 open question 3); connection-table sizing from the compiled scene, with explicit atomic memory-admission refusal. Required in the linked delivery slice.
 - **Element dependencies.** A supply with an outlet mouth (EL-001, EL-002, EL-003); a receiver (EL-004) or nozzle (EL-013).
 
 ## Sources and legacy
@@ -87,6 +89,6 @@ Point of truth: [element-008](../requirements.md#element-008).
 
 1. Lossless pipes versus a per-length head loss (affects EL-002 lift and EL-013 reach).
 2. Join tolerance 0.15 m / 10°: confirm.
-3. Connection capacity (8 today) must grow for water networks; what bound?
+3. The retired 8-edge capacity is not a supported bound. This slice must use scene-sized connection tables and define atomic memory-admission refusal under the current architecture.
 4. Should a water pipe be a hollow collider so balls can also pass, or stay a solid outside?
 5. ρw = 16 kg/m³ is one water-family constant, aligned with Batch G (EL-023–EL-036, EL-165–EL-172); the owner confirms or replaces it once for the whole family (S416 buoyancy row → S420). The orifice law and Cd = 0.6 are the S416 advection decision (→ S418).

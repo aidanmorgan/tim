@@ -1,5 +1,7 @@
 # EL-122 · Ordered-events goal — named-identity readiness spec
 
+**Current delivery (24 October 2026):** [EL-122 delivery slice](../invest/named-elements.md#element-122). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 readiness spec ([spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations are `path@a6c914e:Lstart-Lend`. Values marked **proposed** have no legacy or requirement source; each carries a one-line justification and the owner may revise it.
 
 ## 1. Identity
@@ -9,8 +11,8 @@ Story 7.0 readiness spec ([spec](../../../_bmad-output/implementation-artifacts/
 | ID / name / type | EL-122 · Ordered-events goal · Goal |
 | Anchor | [requirements.md#element-122](../requirements.md#element-122); [named-elements entry](../invest/named-elements.md#element-122); umbrella [gap-16](../requirements.md#gap-16) (index only) |
 | Related identities | Siblings [EL-120](EL-120-quantity-goal.md), [EL-121](EL-121-rate-window-goal.md), [EL-123](EL-123-protected-end-state-goal.md). The current two-event `ActivatedAfter` goal (used by `delayed_signal`, [CAT-022 Delay](CAT-022-delay.md)) is its two-step special case. No CAT refines it. |
-| Roadmap story | Unscheduled. Campaign: introduction 49 "First Things First", practice 50, reuse 100, 146 ([gap-16](../requirements.md#gap-16)). |
-| Status | Not started as an N-step goal; the 2-step `ActivatedAfter` exists (`engine/gpu/WorkshopPuzzle.cs@a6c914e:L7-L24`). |
+| Roadmap story | [EL-122 delivery slice](../invest/named-elements.md#element-122); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | Not started as an N-step goal; the 2-step `ActivatedAfter` exists (`engine/gpu/WorkshopPuzzle.cs@a6c914e:L7-L24`). |
 
 ## 2. Declaration
 

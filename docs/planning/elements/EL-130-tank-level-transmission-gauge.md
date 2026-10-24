@@ -1,5 +1,7 @@
 # EL-130 · Tank-level transmission gauge — element readiness spec
 
+**Current delivery (24 October 2026):** [EL-130 delivery slice](../invest/named-elements.md#element-130). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 Batch O named-identity spec. Legacy citations are pinned to `a6c914e` and resolve with `git show a6c914e:<path> | sed -n 'start,endp'`. Requirement row: [element-130](../requirements.md#element-130). A toy inspection instrument for fictional toy sources in game units; never real-world level-gauging guidance.
 
 ## 1. Identity
@@ -11,7 +13,7 @@ Story 7.0 Batch O named-identity spec. Legacy citations are pinned to `a6c914e` 
 | Anchor | [requirements.md#element-130](../requirements.md#element-130); [named-elements.md#element-130](../invest/named-elements.md#element-130); scope source [radiation-11](../requirements.md#radiation-11) (umbrella, index only) |
 | Related identities | Sibling [EL-129 Sheet gauge](EL-129-sheet-thickness-transmission-gauge.md); sources [RAD-01](RAD-01-gamma-source-capsule.md), [RAD-02](RAD-02-powered-x-ray-emitter.md); vessels such as [EL-001 Finite reservoir](EL-001-finite-reservoir.md), [EL-026 Communicating tank](EL-026-communicating-tank.md) or [RAD-17](RAD-17-water-moderator-tank.md); controlled tap [EL-167 Solenoid tap](EL-167-solenoid-tap.md); shared detector defaults [RAD-08](RAD-08-radiation-rate-meter.md). No CAT spec. |
 | Proof owner | S619 |
-| Roadmap story | unscheduled; campaign chapter 12 (levels 111–120; research slot 89 → 114) |
+| Roadmap story | [EL-130 delivery slice](../invest/named-elements.md#element-130); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration
@@ -38,13 +40,13 @@ Families from the [map row](../general-engine-element-map.md) and [binding](../.
 
 | Family | Status | Basis or builder |
 | --- | --- | --- |
-| FiniteLedger | missing | unscheduled (S010-D); the only current finite store is bumper contact work, `engine/gpu/ContactWorkDeclaration.cs@a6c914e:L5-L9` |
-| GeometryQuery | exists now for contact only; missing for radiation paths | BVH `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L74-L204` and narrowphase `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L325-L620` (the coverage JSON's `engine/gpu/physics.wgsl` basis is not in the tree); liquid intervals bounded by the committed waterline: unscheduled (S606-D) |
-| IonizingTransport | missing | unscheduled (S606-D/F) |
+| FiniteLedger | missing | required in the linked delivery slice (S010-D); the only current finite store is bumper contact work, `engine/gpu/ContactWorkDeclaration.cs@a6c914e:L5-L9` |
+| GeometryQuery | exists now for contact only; missing for radiation paths | BVH `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L74-L204` and narrowphase `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L325-L620` (the coverage JSON's `engine/gpu/physics.wgsl` basis is not in the tree); liquid intervals bounded by the committed waterline: required in the linked delivery slice (S606-D) |
+| IonizingTransport | missing | required in the linked delivery slice (S606-D/F) |
 | SignalPropagation | missing | Story 8.1 (supplied contacts); the current `engine/gpu/ActivationNetwork.cs@a6c914e:L7-L14` is activation-only |
 | StateTransaction | exists now | `engine/gpu/WorkshopSimulation.cs@a6c914e:L44-L161`; calibration recomputed each Run |
 
-Also used: ElectricalPower (missing; Story 8.1); a conserved liquid store in the observed vessel (FluidAdvection, missing; unscheduled, S418-D).
+Also used: ElectricalPower (missing; Story 8.1); a conserved liquid store in the observed vessel (FluidAdvection, missing; required in the linked delivery slice, S418-D).
 
 **Dependencies.** A water vessel and supply (water family); a photon source; CAT-005 Battery; a controlled tap for the feedback lesson.
 

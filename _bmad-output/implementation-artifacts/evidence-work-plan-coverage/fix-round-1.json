@@ -1,0 +1,48 @@
+{
+  "scope": "Narrow V1 review fix; first candidate and first-review evidence unchanged.",
+  "changed_files": [
+    {
+      "path": "_bmad-output/planning-artifacts/epics.md",
+      "before_sha256": "5cbe85d711a9ff9d8ece0dec5e7df54a144403e3425c2d3ead5f55ea936c792b",
+      "after_sha256": "5b081f2f6b7d4c1e8dd856ae67c882f26eeb8f3726eb5aa4025e60d5b7ba8473"
+    },
+    {
+      "path": "TODO.md",
+      "before_sha256": "12b1f60336c0e43fd446dca8aa0a4a2891f6ee8fc22297c5da17e2d52bac6369",
+      "after_sha256": "b76fe5b82008df77795836041e30c27fc2e074a36fdc4f4661f6ba4c4301bb21"
+    },
+    {
+      "path": "docs/planning/invest/vertical-delivery.md",
+      "before_sha256": "7956b4783806d45d31d6c1da46c1ab668b1fde8a2b6a093fc00c20ba8bd3826e",
+      "after_sha256": "0c439b793dd8a2e5219c0f8d09e654722a72cf02bc67f8f5162c340e80afb4fb"
+    },
+    {
+      "path": "_bmad-output/implementation-artifacts/sprint-status.yaml",
+      "before_sha256": "bed1716192c91c445a7cc63de3b0e8dba83610baed54a999e1bb3c2ce92d75fd",
+      "after_sha256": "3e31bde51569d760c85b701e8c1ec2f62aa003cb373761c73598063a908213d7"
+    },
+    {
+      "path": "docs/planning/elements/CAT-049-pipe_bend_45.md",
+      "before_sha256": "1c9098a60baed6e68051c8289402918440449fd48282a0d8c557f07990f07a5b",
+      "after_sha256": "2c47dc558636176f6e905e84d731a2444162a158cb09c878f47c59d8c6a6accf"
+    },
+    {
+      "path": "docs/planning/elements/CAT-050-pipe_bend_90.md",
+      "before_sha256": "70889a185fdc77a887a9532294875c9ec68f414c3cce2bc2ef04fb97e7575db9",
+      "after_sha256": "cb8d9157a17db526b2354d18653a1fc560356010f2cbadf39626f5fb7d58b682"
+    },
+    {
+      "path": "_bmad-output/implementation-artifacts/spec-work-plan-coverage.md",
+      "before_sha256": "d6c00366ec924b08f1e9012f07c29716b3fa9fe6613295a013df2386052a34b3",
+      "after_sha256": "adae0395356d8def6b35bc6f916aaab079dec5678c2809503ed2fef2443c0e7a"
+    }
+  ],
+  "command": "python3 - <<'PY'\nfrom pathlib import Path\nimport re,subprocess,yaml,json\npaths=[\"_bmad-output/planning-artifacts/epics.md\",\"TODO.md\",\"docs/planning/invest/vertical-delivery.md\",\"_bmad-output/implementation-artifacts/sprint-status.yaml\",\"docs/planning/elements/CAT-049-pipe_bend_45.md\",\"docs/planning/elements/CAT-050-pipe_bend_90.md\",\"_bmad-output/implementation-artifacts/spec-work-plan-coverage.md\"]\nep=Path(paths[0]).read_text()\nplan=ep.split('## Current execution plan',1)[1].split('**Required-now proof:**',1)[0]\nassert plan.index('4. Complete every remaining') < plan.index('5. After all named intrinsic') < plan.index('6. Verify full catalogue closure')\nstory=ep.split('### Story 15.0:',1)[1].split('### Story 15.1:',1)[0]\nassert 'before `catalogue-native-closure`' in story\nassert 'Browser re-enablement depends on native Story 15.0, never the reverse.' in story\nassert 'CAT-049 valid Precise alternative route' in story\nassert '`tools/e2e/nudging.test.ts` passes 100%' in story\nclosure=ep.split('### Catalogue native closure (aggregate)',1)[1].split('## Delivery order',1)[0]\nassert 'completed native stage of Story 15.0' in closure\nclass Unique(yaml.SafeLoader):pass\ndef mapping(loader,node,deep=False):\n out={}\n for k,v in node.value:\n  key=loader.construct_object(k,deep=deep)\n  assert key not in out, key\n  out[key]=loader.construct_object(v,deep=deep)\n return out\nUnique.add_constructor(yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG,mapping)\nstatus=yaml.load(Path('_bmad-output/implementation-artifacts/sprint-status.yaml').read_text(),Loader=Unique)['development_status']\nassert status['15-0-physical-placement-nudging-difficulty-assistance']=='backlog'\nassert status['catalogue-native-closure']=='backlog'\npreservation=[]\nfor p in [Path(paths[4]),Path(paths[5])]:\n text=p.read_text();base=subprocess.check_output(['git','show','HEAD:'+str(p)],text=True)\n legacy=lambda t:t.split('## 4.',1)[1].split('## 5.',1)[0]\n assert legacy(text)==legacy(base),str(p)+' legacy'\n acceptance=lambda t:[line for line in t.split('## 5.',1)[1].split('## 6.',1)[0].splitlines() if not line.startswith('- **Remaining (unmet now).**')]\n assert acceptance(text)==acceptance(base),str(p)+' acceptance'\n assert 'not scheduled' not in text\n assert 'before catalogue-native-closure' in text\n preservation.append(str(p)+': legacy + all nonscheduling acceptance unchanged')\nspec=Path(paths[6]).read_text();assert \"status: 'in-review'\" in spec\nassert all(x in spec for x in ['Blind Hunter','Edge Case Hunter','V1 high, patch','early' if False else 'YAML status placement'])\ndiff=subprocess.run(['git','diff','--check','--',*paths],capture_output=True,text=True);assert diff.returncode==0,diff.stdout\n# Added link targets in this fix are current15.0 and retained review evidence.\nassert '### Story 15.0: Physical Placement Nudging & Difficulty Assistance' in ep\nassert Path('_bmad-output/implementation-artifacts/evidence-work-plan-coverage/reviewer-round-1.json').exists()\nassert Path('_bmad-output/implementation-artifacts/evidence-work-plan-coverage/candidate.json').exists()\nprint(json.dumps({'phase_order':'named intrinsic -> native15.0/mode integration -> native closure -> browser/campaign','native15_story_and_closure':'Pass','yaml_unique_keys_and_affected_statuses':'Pass','source_preservation':preservation,'triage_and_in_review':'Pass','affected_diff_check':'Pass','new_link_targets':'Pass','runtime_browser_tests':'not run; documentation-only'},indent=2))\nPY",
+  "raw_result": {
+    "chunk_id": "192a97",
+    "wall_time_seconds": 0.044537333,
+    "exit_code": 0,
+    "original_token_count": 148,
+    "output": "{\n  \"phase_order\": \"named intrinsic -> native15.0/mode integration -> native closure -> browser/campaign\",\n  \"native15_story_and_closure\": \"Pass\",\n  \"yaml_unique_keys_and_affected_statuses\": \"Pass\",\n  \"source_preservation\": [\n    \"docs/planning/elements/CAT-049-pipe_bend_45.md: legacy + all nonscheduling acceptance unchanged\",\n    \"docs/planning/elements/CAT-050-pipe_bend_90.md: legacy + all nonscheduling acceptance unchanged\"\n  ],\n  \"triage_and_in_review\": \"Pass\",\n  \"affected_diff_check\": \"Pass\",\n  \"new_link_targets\": \"Pass\",\n  \"runtime_browser_tests\": \"not run; documentation-only\"\n}\n"
+  }
+}

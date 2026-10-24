@@ -1,5 +1,7 @@
 # EL-198 · Switch — element readiness spec
 
+**Current delivery (24 October 2026):** [EL-198 delivery slice](../invest/named-elements.md#element-198). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 Batch H named-identity spec. Legacy and current citations are pinned to `a6c914e` and resolve with `git show a6c914e:<path> | sed -n 'start,endp'`. Values marked *proposed* have no legacy or requirement source; each carries a one-line justification and may be revised by the owner. Current collider sizes below are half-extents, as the current compiler stores them. Supplied-network facts N1–N21 are in [CAT-005](CAT-005-battery.md#4-legacy-harvest).
 
 ## 1. Identity
@@ -10,7 +12,7 @@ Story 7.0 Batch H named-identity spec. Legacy and current citations are pinned t
 | Type | Electrical |
 | Anchor | [requirements.md#element-198](../requirements.md#element-198); existing record [campaign-element-coverage](../requirements.md#campaign-element-coverage) ("Battery, wire, switch …"); [named-elements entry](../invest/named-elements.md#element-198); owner S304 |
 | Related | Refines [CAT-063 Switch](CAT-063-switch.md) ([current-cat-063](../requirements.md#current-cat-063): "ActivationOut and separately supplied PowerIn→Supply remain distinct contracts"); supply from [CAT-005](CAT-005-battery.md)/[EL-196](EL-196-battery.md) via [EL-197](EL-197-electrical-wire.md); conditions for [EL-133](EL-133-electrical-and-gate.md)–[EL-137](EL-137-electrical-nand-gate.md) and [EL-181](EL-181-rising-edge-detector.md). |
-| Roadmap story | unscheduled as its own story: the activation half is delivered (CAT-063); the electrical contact is first needed by Story 9.7 ("gates wired to input power switches") |
+| Roadmap story | [EL-198 delivery slice](../invest/named-elements.md#element-198); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | partial — impact switch with `ActivationOut` delivered; electrical contact not started |
 
 ## 2. Declaration

@@ -1,5 +1,7 @@
 # TH-17 · Kettle — named-identity readiness spec
 
+**Current delivery (24 October 2026):** [TH-17 delivery slice](../invest/named-elements.md#thermal-17). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations are `path@a6c914e:Lstart-Lend`. No legacy kettle exists; the legacy sealed-gas foundation supplies laws and test oracles (section 4). Every design value without a cited source is marked "(proposed: …)" with a one-line justification; the owner may revise it. This spec also holds the [Batch N chain derivations](#batch-n-chains) for the shared game scale.
 
 ## 1. Identity
@@ -12,8 +14,8 @@ Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artif
 | Proof owner / research | S581 · [TH-S02 phase change](../../thermal-component-research.md#th-s02), [TH-S07](../../thermal-component-research.md#th-s07) |
 | Related identities | No CAT spec. Sibling vessel [TH-35 Coffee-pot steam vessel](TH-35-coffee-pot-steam-vessel.md) (distinct geometry). Heat from [TH-04](TH-04-electrical-heating-plate.md), [TH-01](TH-01-candle.md), [TH-02](TH-02-fire-bowl.md), [TH-26](TH-26-thermal-storage-block.md) (TX-01 swap). Vapour consumers [TH-19](TH-19-steam-piston.md), [TH-20](TH-20-steam-turbine.md), [TH-18](TH-18-condenser.md). |
 | Campaign | Intro 70; practice 71; reuse 86, 140 ([thermal allocation](../requirements.md#thermal-campaign-allocation)) |
-| Roadmap story | Unscheduled. No epic in `_bmad-output/planning-artifacts/epics.md` schedules a thermal element or the sealed gas store. |
-| Status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`); no legacy part. |
+| Roadmap story | [TH-17 delivery slice](../invest/named-elements.md#thermal-17); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`); no legacy part. |
 
 ## 2. Declaration
 
@@ -36,7 +38,7 @@ Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artif
 
 - **Cosmetic curves and UI bindings.** Lid rattle ← committed head pressure ([research per-element table](../../thermal-component-research.md)); cyan water gauge ← committed liquid mass (row). Water vapour is never shown as a white condensed plume ([visual contract](../requirements.md#thermal-elements)).
 - **Art.** "Rounded cream vessel, cyan water gauge and clearly visible gold outlet" (row). Nearest [DESIGN.md](../../../DESIGN.md) source colours (proposed mapping): cream `#ead39b` (`DESIGN.md@a6c914e:L146-L146`), cyan `#66b8c9` (`DESIGN.md@a6c914e:L172-L172`), gold `#f7cb52` (`DESIGN.md@a6c914e:L154-L154`).
-- **Catalogue and inventory entry.** New `WorkshopPartKind.Kettle`; id `kettle`, title "Kettle", category Heat (proposed: no current category covers thermal parts).
+- **Catalogue and inventory entry.** Package-owned declaration, discovered into the bundle; id `kettle`, title "Kettle", category Heat (proposed: no current category covers thermal parts).
 
 <a id="batch-n-chains"></a>
 ### Batch N chains (derived against the game scale)
@@ -64,7 +66,7 @@ All values follow from the batch scale and the proposed part values in each link
 Families (map row TH-17, [general-engine-element-map](../general-engine-element-map.md); binding [thermal-01.json](../../coverage/engine/thermal-01.json)): EnvironmentState, FiniteLedger, GasState, GeometryQuery, JointConstraint, LiquidBoiling, PhaseTopology, PressureWork, RigidBodyDynamics, SensibleHeat, TopologyTransaction; JSON adds StateTransaction.
 
 - **Exists now.** Dynamic box body (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L120`); Run/Reset and save (`engine/gpu/ActivationNetwork.cs@a6c914e:L67-L67`, `engine/gpu/WorkshopSaveCodec.cs@a6c914e:L6-L10`).
-- **Missing.** Sealed gas store and nozzle: [S470](../invest/decisions.md#s470) gas-state → S471 (no epic story; Epic 12 builds airflow only). Liquid inventory: [S416](../invest/decisions.md#s416) → S418. [S543](../invest/decisions.md#s543): boiling → S550, conduction → S544, phase-topology → S565. PressureWork → S419/S471. All unscheduled.
+- **Missing.** Sealed gas store and nozzle: [S470](../invest/decisions.md#s470) gas-state → S471 (required prerequisite owned by the linked delivery slice; Epic 12 builds airflow only). Liquid inventory: [S416](../invest/decisions.md#s416) → S418. [S543](../invest/decisions.md#s543): boiling → S550, conduction → S544, phase-topology → S565. PressureWork → S419/S471. All required in the linked delivery slice.
 - **Dependencies.** A heat source (TH-04, TH-01, TH-02, TH-26); a vapour consumer for TX-01/TX-04.
 
 ## 4. Sources and legacy
@@ -105,7 +107,7 @@ Point of truth: [thermal-17](../requirements.md#thermal-17), [TX-01](../requirem
 
 1. **Batch N game scale.** Adopt or revise the one scale in section 2 (×¼ specific heat, ×1/16 latent heat, gas ×1, reaction energy and O₂ ×1/1024, h 2.5 W/(m²·K), per-pair series contact conductance from per-part face values, 1 intensity unit = 1 W, and which research-table rows the scale multiplies). It carries two consequences: boiling needs a declared saturation curve (S550) because scaled water latent heat is below R·T_sat, and gas-node time constants run about 4× slower than SI (TH-25). Owner decision.
 2. **Pacing.** Under the scale the candle needs about 67 s to deliver the first 2 g of vapour, the plate about 20 s. Accept the slow-candle contrast, or tune powers. Owner decision.
-3. **Gas store schedule.** No epic schedules S471; the kettle cannot start before it. Owner decision.
+3. **Gas store schedule.** This delivery slice owns its S471 prerequisite decision; the kettle cannot start before the required gas-state capability is proved.
 4. **Enthalpy reference.** The scale fixes the condensed-phase enthalpy offset so boiling conserves energy with SI gas Cv; confirm the reference with S550. Owner decision.
 5. **Mixture.** Air plus steam in the head space requires a two-species gas store; the legacy store is single-species. Owner decision (S471).
 6. **Saturation curve.** Water's scaled latent heat (141,250 J/kg) is below R·T_sat (461.5 × 373 ≈ 172 kJ/kg). Clausius–Clapeyron with the scaled L (L/R ≈ 306 K) gives no finite boiling point above about 230 kPa, below the 400 kPa relief, so S550 needs a declared saturation curve, for example the SI steam curve, instead. Owner decision (S550).

@@ -1,0 +1,1498 @@
+{
+  "summary": {
+    "yaml_unique_keys": 587,
+    "named_exact_set": 276,
+    "source_anchors_preserved": 293,
+    "source_outcomes_preserved": 293,
+    "CAT_specs": 72,
+    "all_specs": 348,
+    "umbrellas": 10,
+    "features": 7,
+    "requirements_preservation": "anchors,checkbox lines,Successful outcome lines unchanged",
+    "diff_check": "Pass",
+    "runtime_browser_tests": "not run: documentation-only"
+  },
+  "baseline": "b88ca4251d8ff37272981bdd4654bd950987d04d",
+  "files": [
+    {
+      "path": "TODO.md",
+      "sha256": "12b1f60336c0e43fd446dca8aa0a4a2891f6ee8fc22297c5da17e2d52bac6369"
+    },
+    {
+      "path": "_bmad-output/implementation-artifacts/spec-work-plan-coverage.md",
+      "sha256": "d6c00366ec924b08f1e9012f07c29716b3fa9fe6613295a013df2386052a34b3"
+    },
+    {
+      "path": "_bmad-output/implementation-artifacts/sprint-status.yaml",
+      "sha256": "bed1716192c91c445a7cc63de3b0e8dba83610baed54a999e1bb3c2ce92d75fd"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/epics.md",
+      "sha256": "5cbe85d711a9ff9d8ece0dec5e7df54a144403e3425c2d3ead5f55ea936c792b"
+    },
+    {
+      "path": "docs/gpu-f32-physics.md",
+      "sha256": "bf2898ac52d79d901453a8d2abc2fad0739d7bd62ae975a979340e69090ad936"
+    },
+    {
+      "path": "docs/planning/elements/CAT-001-ball.md",
+      "sha256": "b327f98110391d5ebec0e300b8a85a58587044a6aba5e95dfd3fb332281d7c57"
+    },
+    {
+      "path": "docs/planning/elements/CAT-002-ball_detector.md",
+      "sha256": "afeade6e45dfe61a4387f6b3827870ea35f23605d50980530532705328c3e448"
+    },
+    {
+      "path": "docs/planning/elements/CAT-003-balloon.md",
+      "sha256": "53b0c2e3b524fc4e0644cd3e6d6d17cd861af8ab1808b31f1fa49e9b6ecb169a"
+    },
+    {
+      "path": "docs/planning/elements/CAT-004-basket.md",
+      "sha256": "732eaeeef90e464034aea3bba5b6fb6af4d02c5f979c9b30114ad624ad5569a0"
+    },
+    {
+      "path": "docs/planning/elements/CAT-005-battery.md",
+      "sha256": "fa6400a1a4ba35b7653a085e87e84fda30c42ef14f6a0ed60efb4c18adc9c638"
+    },
+    {
+      "path": "docs/planning/elements/CAT-006-beam_combiner.md",
+      "sha256": "d45436b0432d21a8e53f338f93278a8d8076b837e99a9d3a9d7690562fe2426a"
+    },
+    {
+      "path": "docs/planning/elements/CAT-007-beam_shutter.md",
+      "sha256": "7bca7df7d0d98e7e249b11f07532db946a759cdd675ea8f39ecaa92015ebb243"
+    },
+    {
+      "path": "docs/planning/elements/CAT-008-beam_splitter.md",
+      "sha256": "d3b931c1343f9414e29c4bc483dbd5819f1548810536630dab5f1ab6236bc489"
+    },
+    {
+      "path": "docs/planning/elements/CAT-009-bell.md",
+      "sha256": "7afc4c5a8fe83a6d0ec944759b312055f4e84cc4a9e01535c9933b3c3b7eec4f"
+    },
+    {
+      "path": "docs/planning/elements/CAT-010-bellows.md",
+      "sha256": "e1b1504ae432cfa01741363f4b6aa572dc83a190641978297188afdf2b5f2ee5"
+    },
+    {
+      "path": "docs/planning/elements/CAT-011-blue_filter.md",
+      "sha256": "17f28975e73dc22b387c5fd291b5ea58da48d48480696292908ed07e6a430d71"
+    },
+    {
+      "path": "docs/planning/elements/CAT-012-blue_receiver.md",
+      "sha256": "1269b50ff303260d61136407f4c1250dfa086576fa60d457de61bd24665c01d7"
+    },
+    {
+      "path": "docs/planning/elements/CAT-013-both_gate.md",
+      "sha256": "a6cb77ed3b4ec63fd06476922d2616e736103855e641ee56828fa080e69fca53"
+    },
+    {
+      "path": "docs/planning/elements/CAT-014-bowling.md",
+      "sha256": "3f111ee6f037050770bd75e7a370ad12a4959bc3b3e6873112c8ffc8a91d0c28"
+    },
+    {
+      "path": "docs/planning/elements/CAT-015-bumper.md",
+      "sha256": "d7d7b7fd3b24fdf14bf03b132f973a651a3fe268865a6c9a34f12675a6c4d933"
+    },
+    {
+      "path": "docs/planning/elements/CAT-016-cannon.md",
+      "sha256": "3d38a491ad2ef35b59947055a07820b2fe101a219e75ebd7c3afe7b894f9f19e"
+    },
+    {
+      "path": "docs/planning/elements/CAT-017-clock.md",
+      "sha256": "0e6851a27bd55572f27a7e13b617b0c567bcbf583b57da6256e84035e4f25d02"
+    },
+    {
+      "path": "docs/planning/elements/CAT-018-clutch.md",
+      "sha256": "678bc020e0edbd21564b624dd762b95e9aea02f84e9c7ff27c62b2f821d6e124"
+    },
+    {
+      "path": "docs/planning/elements/CAT-019-conveyor.md",
+      "sha256": "76d7fd13d959394b378740715116164d8b5613911e32bbe9afed6b729777f376"
+    },
+    {
+      "path": "docs/planning/elements/CAT-020-counter.md",
+      "sha256": "4dfa5f457076a7285e22f91623f0fa0e1ddddd446bfd6e052e9c7f98e033cdd0"
+    },
+    {
+      "path": "docs/planning/elements/CAT-021-cyan_receiver.md",
+      "sha256": "ccbca91271ebdbe021af572e124101db1df15fcbb46b30a139da33600fb236b5"
+    },
+    {
+      "path": "docs/planning/elements/CAT-022-delay.md",
+      "sha256": "936020e265ff2be96c5424617b7237bfbff9a7b60c65fa1cb1afa9cbb74220f4"
+    },
+    {
+      "path": "docs/planning/elements/CAT-023-domino.md",
+      "sha256": "b2a76c6db706ed4f00dd46026af1fad2c8fbcabf47f07c0ada0beb6ad78c038d"
+    },
+    {
+      "path": "docs/planning/elements/CAT-024-electrical_nand.md",
+      "sha256": "de49ec121e7bcc681f88a8da057674b68b8808360bc173289e5734ce7f936bb4"
+    },
+    {
+      "path": "docs/planning/elements/CAT-025-electrical_nor.md",
+      "sha256": "961e855ac15e5f28db6f25768eeb894530838f629117fc40dfc54f39efaeb573"
+    },
+    {
+      "path": "docs/planning/elements/CAT-026-electrical_or.md",
+      "sha256": "5a5be0a9da3a7e1b0ea6c7cd95b870171b79e3550b9afff53bd644c93266478c"
+    },
+    {
+      "path": "docs/planning/elements/CAT-027-electrical_xor.md",
+      "sha256": "93adfb929d577bb75e32e0b5c30c7b64b0fa86b546dfd5fcedd0eb36d82ad03c"
+    },
+    {
+      "path": "docs/planning/elements/CAT-028-fan.md",
+      "sha256": "fff66ac9a995c4b3dc69c424c3e1a0a81b2b61463d4b8375d148815033662765"
+    },
+    {
+      "path": "docs/planning/elements/CAT-029-flashlight.md",
+      "sha256": "62c387cf543d380f5b60ed7faf99ea978bedd5e4f5fc647420b576a4365b4336"
+    },
+    {
+      "path": "docs/planning/elements/CAT-030-funnel.md",
+      "sha256": "243af403579e3a83984ab67caad1489a5106cb10752e10f58e43541d6dbf3cde"
+    },
+    {
+      "path": "docs/planning/elements/CAT-031-green_filter.md",
+      "sha256": "d1ddce1b19d4a80d6a8f41b35c962deb56fbe99871661ae16b454bcfa6b11d0b"
+    },
+    {
+      "path": "docs/planning/elements/CAT-032-green_receiver.md",
+      "sha256": "504c0d067837c22547a2734bccfc1d6707324fc61a66e18e8ba9ee0b0463a633"
+    },
+    {
+      "path": "docs/planning/elements/CAT-033-hold_timer.md",
+      "sha256": "f718812d2ad6f6b1b5662cd48c2896bc622257764e2ac67b2ebd068d46ba3b35"
+    },
+    {
+      "path": "docs/planning/elements/CAT-034-impact_lever.md",
+      "sha256": "237a412157878055213cbab2b9d9bf064f8cf23d6fce0dbeedafa7c268df60d8"
+    },
+    {
+      "path": "docs/planning/elements/CAT-035-lamp.md",
+      "sha256": "ee21dc1d2d345f1cfe3f14babc7238eb7f4d21de631e8f589ee21b06b564de6a"
+    },
+    {
+      "path": "docs/planning/elements/CAT-036-laser.md",
+      "sha256": "89655c311927e35acf35280da2202142caed604419caac9a0c7a1fc014873af2"
+    },
+    {
+      "path": "docs/planning/elements/CAT-037-latch.md",
+      "sha256": "fe827150f5ae23079b08d799641d4a5cc821ef5bd7dea899151b1ad1aeb499a2"
+    },
+    {
+      "path": "docs/planning/elements/CAT-038-light_receiver.md",
+      "sha256": "59760d2041af94958b2938c876c6ff4b48e7555f3e3b43585f4a6d666b382e5d"
+    },
+    {
+      "path": "docs/planning/elements/CAT-039-linear_pusher.md",
+      "sha256": "b623b8d40dee8ec2f98d451e094bd6fa889cd9010f352353fe513b477709ca5c"
+    },
+    {
+      "path": "docs/planning/elements/CAT-040-magenta_receiver.md",
+      "sha256": "1cd0ed4f2f6519a952552d8818a45b32e6f34fcf342d9504e6d37994642124db"
+    },
+    {
+      "path": "docs/planning/elements/CAT-041-mirror.md",
+      "sha256": "57e1c20796af3658d4539c55861e75401eb9c0d7895e80326b192797357e12ed"
+    },
+    {
+      "path": "docs/planning/elements/CAT-042-motor.md",
+      "sha256": "92cb8403e9f1964cbf7954645de2f50cbde420a626bd538509c2821703add5be"
+    },
+    {
+      "path": "docs/planning/elements/CAT-043-optical_and.md",
+      "sha256": "3dd1ef1377affa583aae1a2db31d73227045a9d3424f6c523bb1ce0b91ebd0d6"
+    },
+    {
+      "path": "docs/planning/elements/CAT-044-optical_nand.md",
+      "sha256": "fc97ef56ca9d3ac7fa600c95b3cb83c448d4e97cfd34f270992f4c98acef2857"
+    },
+    {
+      "path": "docs/planning/elements/CAT-045-optical_nor.md",
+      "sha256": "6d14146e0b9f4cdcd501c8ba9b1de7f314038fd1e3b5e1d64dae3c9ae8ebf5de"
+    },
+    {
+      "path": "docs/planning/elements/CAT-046-optical_or.md",
+      "sha256": "70c2c10a91a75d7f56000e0fc1353f2a2c57dfa14572ff229ac483eb02ff7ff3"
+    },
+    {
+      "path": "docs/planning/elements/CAT-047-optical_xor.md",
+      "sha256": "f3814e6ffb03ab484a58aaa5b0a8730b2dbbd2274abb619adc896c10919e011a"
+    },
+    {
+      "path": "docs/planning/elements/CAT-048-pipe.md",
+      "sha256": "3bb2a62e12b3d340ad84b71cf70de0f3887e4cc330a243494fff18c04d6d80e7"
+    },
+    {
+      "path": "docs/planning/elements/CAT-049-pipe_bend_45.md",
+      "sha256": "1c9098a60baed6e68051c8289402918440449fd48282a0d8c557f07990f07a5b"
+    },
+    {
+      "path": "docs/planning/elements/CAT-050-pipe_bend_90.md",
+      "sha256": "70889a185fdc77a887a9532294875c9ec68f414c3cce2bc2ef04fb97e7575db9"
+    },
+    {
+      "path": "docs/planning/elements/CAT-051-powered_gate.md",
+      "sha256": "fd8e959c8b564a95a3836567e2cba85857fe0572166296b11306501e27db597b"
+    },
+    {
+      "path": "docs/planning/elements/CAT-052-pressure_plate.md",
+      "sha256": "37a15db6993b10195c264dd5f6bcf0fa2815c4461f9b21ce187a2ee572707209"
+    },
+    {
+      "path": "docs/planning/elements/CAT-053-pulley.md",
+      "sha256": "4d54016f6d3018016e657b8ab4b40ce401b7adf31477d8ce6c0a2f69372ffdcc"
+    },
+    {
+      "path": "docs/planning/elements/CAT-054-ramp.md",
+      "sha256": "4dda85998622313d02340e3c29aaf0991640a71b91e397d7642fc57a86c5ed23"
+    },
+    {
+      "path": "docs/planning/elements/CAT-055-red_filter.md",
+      "sha256": "0ad77d416bb9224fd543b2dcd10eb3960b9907b06da22adcfe598558dcaed53d"
+    },
+    {
+      "path": "docs/planning/elements/CAT-056-red_receiver.md",
+      "sha256": "695740d6edbfad8c47c8c09a7f6f87eaed591df0eed2e39ff5dea11596bf939a"
+    },
+    {
+      "path": "docs/planning/elements/CAT-057-reverse_transmission.md",
+      "sha256": "dad4becb464ea988f2649acaba6d7fb52ffe7a029031254bf0b7f29690426eff"
+    },
+    {
+      "path": "docs/planning/elements/CAT-058-rope_anchor.md",
+      "sha256": "23b1cf1fc4592f1937c4f5861416bee0c91310a1d0531e479453461797664d22"
+    },
+    {
+      "path": "docs/planning/elements/CAT-059-solar_panel.md",
+      "sha256": "12a1d0956c615e3282c713deb2d0782e5f468c1af3e311071ae3269688a551d5"
+    },
+    {
+      "path": "docs/planning/elements/CAT-060-sound_meter.md",
+      "sha256": "a27dc152fedf171f2500f681c25c2cff82539535e56b9ab4f96b4a64bdb14677"
+    },
+    {
+      "path": "docs/planning/elements/CAT-061-speaker.md",
+      "sha256": "bfb1e239b05cf9fd785072262ba096840948969280fac96aeab9b2eb4d02c18f"
+    },
+    {
+      "path": "docs/planning/elements/CAT-062-spring.md",
+      "sha256": "f6b869c3535c3f7898c95cf8ede12eaa51b0d0e7f8066debea2c1c531fa53b1a"
+    },
+    {
+      "path": "docs/planning/elements/CAT-063-switch.md",
+      "sha256": "a1f7ea287f767f47beeb1ff6bc38d72437971f86a9c38e2c3e67f11acdc92d46"
+    },
+    {
+      "path": "docs/planning/elements/CAT-064-tennis.md",
+      "sha256": "ede6379f1c289a846e54bb2a239b484901bb83af24dd5431e7dd720802f6446a"
+    },
+    {
+      "path": "docs/planning/elements/CAT-065-trampoline.md",
+      "sha256": "5a1fdc1a5cadee86017c8564e88b916972fc92589c3fb00ab40289f38db2db22"
+    },
+    {
+      "path": "docs/planning/elements/CAT-066-wall.md",
+      "sha256": "9ba408aed75b4c51a1b11a948dd701236316c60eb1d6fe4b8259c4d7f2f1cb49"
+    },
+    {
+      "path": "docs/planning/elements/CAT-067-weight.md",
+      "sha256": "70526d2a55816704dee7bbd03829558ebd2c6c3a89802a3ae0bee0ec5de809e4"
+    },
+    {
+      "path": "docs/planning/elements/CAT-068-white_receiver.md",
+      "sha256": "392866f9375b301d7b4b8277a922bb92976a478b775a946282c8d1a5651f2cbd"
+    },
+    {
+      "path": "docs/planning/elements/CAT-069-wind_chimes.md",
+      "sha256": "6868ce262dac6e81fe8887f58a504392f584238b5b4f0f2972faa9a8279f3d18"
+    },
+    {
+      "path": "docs/planning/elements/CAT-070-windmill.md",
+      "sha256": "0486b04e9405294c29bcd04af264e83721b5b5fdd4a91c5b6b2ae38cb0269b93"
+    },
+    {
+      "path": "docs/planning/elements/CAT-071-wound_spring.md",
+      "sha256": "e16bcfe04d45153cf5536f4050fa7bf79f8edf1ec20c0e545b0d8aefd3739e6d"
+    },
+    {
+      "path": "docs/planning/elements/CAT-072-yellow_receiver.md",
+      "sha256": "bab196359d39c2c780e772f063f965509d178e337ead7455918f58e4041ebb5c"
+    },
+    {
+      "path": "docs/planning/elements/EL-001-finite-reservoir.md",
+      "sha256": "182c0813c1f18b286997c3fb8350622a066746d6dd39a534cb8e7860ed7894f1"
+    },
+    {
+      "path": "docs/planning/elements/EL-002-header-tank.md",
+      "sha256": "82678a21de7acea6cfc68c7b6b968fb70f647a86d4c61550010949a771a718e1"
+    },
+    {
+      "path": "docs/planning/elements/EL-003-tap.md",
+      "sha256": "29fad0ca2bb3cc6028b1979b0e6abbb3e46ee831d8a2d965796bb051196f69cd"
+    },
+    {
+      "path": "docs/planning/elements/EL-004-catch-basin.md",
+      "sha256": "b22bc76719be87b1c1de9b39780e632146a4f9225ee00864d10c603aa4c38a93"
+    },
+    {
+      "path": "docs/planning/elements/EL-005-liquid-funnel.md",
+      "sha256": "2c5311eca50b8b736d7058bb2fdd5ebb59ab6243889c076e6bc0cc8d6439160b"
+    },
+    {
+      "path": "docs/planning/elements/EL-006-drain.md",
+      "sha256": "5ca090e639a55009df7f85c06f4d4aecd98c56c8d914a188f2d7062337e04bf7"
+    },
+    {
+      "path": "docs/planning/elements/EL-007-open-gutter.md",
+      "sha256": "d242ef91095bbd9beae26d4ce36b5d6a8b3fe07b8da5ce5cfda4cd8c2de9264c"
+    },
+    {
+      "path": "docs/planning/elements/EL-008-straight-water-pipe.md",
+      "sha256": "a6f0f98c916aeed435fe0a50755c7e08a60196c1c8789458d5d8f6371b5b9f9e"
+    },
+    {
+      "path": "docs/planning/elements/EL-009-water-elbow-45.md",
+      "sha256": "8a3c4fb59e2c94d3f00a921710de97df4e0e6b30a92f96558208db1b90856039"
+    },
+    {
+      "path": "docs/planning/elements/EL-010-water-elbow-90.md",
+      "sha256": "2c9730051e55c01549f27a0ae3ace21392c895e64f607a5558080fe8ffada9e6"
+    },
+    {
+      "path": "docs/planning/elements/EL-011-water-t-junction.md",
+      "sha256": "0ebb29cba6d7d24484d9b0ff259f500ec7dd18c4272fca9ec0a6d41cf7ce5b70"
+    },
+    {
+      "path": "docs/planning/elements/EL-012-water-pipe-cap.md",
+      "sha256": "e6d2536d597dae0a98fbc396d56446be9d6de65729a2ddbc7175e2bd4d9570a6"
+    },
+    {
+      "path": "docs/planning/elements/EL-013-water-nozzle.md",
+      "sha256": "d5b860e99ea431da62ef590779b32f8c0e158ce00976fdc582ad52e8384be067"
+    },
+    {
+      "path": "docs/planning/elements/EL-014-water-carrying-bucket.md",
+      "sha256": "9b800e3b02e7526c5c93e8c27ae4b1f9967997e979956a3cdfb7be056b4f935b"
+    },
+    {
+      "path": "docs/planning/elements/EL-015-leaky-bucket.md",
+      "sha256": "7face1b67da2950414bec2696d398c5cc6950539f8a6dab56b64d9f5478c3c79"
+    },
+    {
+      "path": "docs/planning/elements/EL-016-float.md",
+      "sha256": "e6bba8ba7a86f0e021ab89cf3cec8305e1e2471115bade5de03c509739c43a90"
+    },
+    {
+      "path": "docs/planning/elements/EL-017-mechanical-float-valve.md",
+      "sha256": "d3903a29cb8858e3bcae9469b20f3c96b4f95411f9e48eecb29479374b1c5e51"
+    },
+    {
+      "path": "docs/planning/elements/EL-018-electronic-level-switch.md",
+      "sha256": "e0545630676ddeb1901e351c26ceef7f0e413468fe11917789de3babc92e0276"
+    },
+    {
+      "path": "docs/planning/elements/EL-019-water-check-valve.md",
+      "sha256": "cadb1456527a103aeca08367041fcd5ab73b8c806817c4fd528f91949d6e89aa"
+    },
+    {
+      "path": "docs/planning/elements/EL-020-water-diverter.md",
+      "sha256": "01a89889d09e7f8a418acdbaaef8ab0cb66d44042bbaa456ab672bed210637db"
+    },
+    {
+      "path": "docs/planning/elements/EL-021-sluice-gate.md",
+      "sha256": "5e0d35ae2a99d09b74d5e3d65155825dd87cee6c5ecc8419b405e943bac31e0f"
+    },
+    {
+      "path": "docs/planning/elements/EL-022-water-pump.md",
+      "sha256": "5541fb3c57db84f0c337b11bc08f1a8b6fd661c25158cc584e8ec79d5ae50314"
+    },
+    {
+      "path": "docs/planning/elements/EL-023-archimedes-screw.md",
+      "sha256": "e467675c3d895bd68971887b944f988f2150905112cbe54e48bb7b54d9318aa7"
+    },
+    {
+      "path": "docs/planning/elements/EL-024-primed-siphon.md",
+      "sha256": "57f1437ae42331d99a87bba41cffeebf9cb73367edd22b77989d0e047ec7595a"
+    },
+    {
+      "path": "docs/planning/elements/EL-025-tipping-bucket-water-clock.md",
+      "sha256": "6c183c0cb4ff3a60b6b24a41855278f66ffbedfd4aba38c994e4ab70ce730bf1"
+    },
+    {
+      "path": "docs/planning/elements/EL-026-communicating-tank.md",
+      "sha256": "f0d7fb54b811c7f4d9036063c4482c420af4bba038087756ce7e4b6c5fdb99bc"
+    },
+    {
+      "path": "docs/planning/elements/EL-027-canal-lock-chamber.md",
+      "sha256": "e58c5033bf1ffdbba1fd3e340f0f85d90d428d8bc34528eb61e4eb27e7df5faf"
+    },
+    {
+      "path": "docs/planning/elements/EL-028-buoyant-platform.md",
+      "sha256": "b21b2d787e1dee7a1ad9112ed1a5aa749146daec99e6ad98e7938dd62471b3f9"
+    },
+    {
+      "path": "docs/planning/elements/EL-029-boat.md",
+      "sha256": "0deb1fed88631ea86cab7c1552b3cca4f0d3ae005b68542fab462e167ef389f6"
+    },
+    {
+      "path": "docs/planning/elements/EL-030-flow-meter.md",
+      "sha256": "c4c2c806913bf3e68d8bc0b4c55091abaf25029c6a4e7761a1c83ffcc8af1e51"
+    },
+    {
+      "path": "docs/planning/elements/EL-031-volume-meter.md",
+      "sha256": "2a909b1430fed26589ee933e489516f108341a978004a3ab20ca3e9d7829df89"
+    },
+    {
+      "path": "docs/planning/elements/EL-032-pressure-meter.md",
+      "sha256": "1d434669d1ca22ab9da6aa65ad14cea5c234c15b8a268ad207ea665885688225"
+    },
+    {
+      "path": "docs/planning/elements/EL-033-fluid-accumulator.md",
+      "sha256": "69287ab1833c3348ab51bb128ab9e13b7585a92db19a6ab9bbb38dc7278a7161"
+    },
+    {
+      "path": "docs/planning/elements/EL-034-sponge.md",
+      "sha256": "0d58a1d164b9ab8a2db43565940ca9b977e949dbd84e5d39b78c084222a54e3d"
+    },
+    {
+      "path": "docs/planning/elements/EL-035-wick.md",
+      "sha256": "6590429199357861ce6ff98d091d092739fa4680c6354b95960c48a62602ceb1"
+    },
+    {
+      "path": "docs/planning/elements/EL-036-sprinkler.md",
+      "sha256": "7b3636e3a14289320ac15af5f5348be3d84ceb32f875b36bdc90b0c4e13789b4"
+    },
+    {
+      "path": "docs/planning/elements/EL-037-air-compressor.md",
+      "sha256": "c9c139107cb541eb7cb36e280c3cc66187e1347476c67319587b36997feadc2e"
+    },
+    {
+      "path": "docs/planning/elements/EL-038-pneumatic-hose.md",
+      "sha256": "a5c224be706381f67b5c13d8aa36c7c78a92ac9e83a52b7d8c1fc8a82ef713e6"
+    },
+    {
+      "path": "docs/planning/elements/EL-039-air-reservoir.md",
+      "sha256": "2dd621d8252db551a9c38b06adce67e553489393729c0e120aff7e31b0998be6"
+    },
+    {
+      "path": "docs/planning/elements/EL-040-pneumatic-release-valve.md",
+      "sha256": "dfc927d70572ba82ea3c13f7365fbdbce14edb6df7fb2981edbbd5fd903d76a3"
+    },
+    {
+      "path": "docs/planning/elements/EL-041-pneumatic-directional-valve.md",
+      "sha256": "b5777ca3ad634cac2b71191123841993c7304cc5f57d73bcc77881605b9ac7bf"
+    },
+    {
+      "path": "docs/planning/elements/EL-042-air-nozzle.md",
+      "sha256": "405cb41be74f91cf541cb2630d1114add53578abb154a5c39833d68a8b8930aa"
+    },
+    {
+      "path": "docs/planning/elements/EL-043-pneumatic-pressure-gauge.md",
+      "sha256": "69d9bbd9c1f76abd2562929595dd1642395670f8621d7e4ea235ada6ca37156c"
+    },
+    {
+      "path": "docs/planning/elements/EL-044-tone-selective-sound-meter.md",
+      "sha256": "fd63a9aec2de4c4169ae768cf9d9199e93d0fd082bfd99dd75e4a2445d2f678b"
+    },
+    {
+      "path": "docs/planning/elements/EL-045-air-whistle.md",
+      "sha256": "a76fc42d3659d7e5ef6e20116b590b5c3600675e05eb69ffba25afbdfb44908d"
+    },
+    {
+      "path": "docs/planning/elements/EL-046-listening-horn.md",
+      "sha256": "4937665e9adaf6ee50371f7dc6a7b64b85c48df1d69df2a28afc484de05f247f"
+    },
+    {
+      "path": "docs/planning/elements/EL-047-exit-horn.md",
+      "sha256": "8e356f9b279d9cda92f3e1e98ca13507056cf984320f7cc3f724e1ba29940d41"
+    },
+    {
+      "path": "docs/planning/elements/EL-048-acoustic-duct.md",
+      "sha256": "104680f9ddae650de28422c6837d61b743a2804c220ddcdfe7d07b35a8a976b1"
+    },
+    {
+      "path": "docs/planning/elements/EL-049-acoustic-resonator.md",
+      "sha256": "9dc39a6c937a17cb027b7ef1f5bc5b6b2acfa903712181db26cfc107e8f680b0"
+    },
+    {
+      "path": "docs/planning/elements/EL-050-acoustic-screen.md",
+      "sha256": "3556becd48a67f4deaabab30f9c57e22f6679c9b184eb58da9a2ca30ff9f636e"
+    },
+    {
+      "path": "docs/planning/elements/EL-051-acoustic-dish.md",
+      "sha256": "3fc01298d7083fcdb0831eee83455f7ca249b0ba2cf5107d85d07b553575a4f4"
+    },
+    {
+      "path": "docs/planning/elements/EL-052-water-tuned-bottle.md",
+      "sha256": "073488ee1fb2cb885caef73a0c77ee76669277ce5a98b309b699bd04e814c320"
+    },
+    {
+      "path": "docs/planning/elements/EL-053-rotary-to-linear-converter.md",
+      "sha256": "fd536bb93609258e8f8a80344a8b37c70c0fc130cdb60e99659d41887345ac4e"
+    },
+    {
+      "path": "docs/planning/elements/EL-054-linear-to-rotary-converter.md",
+      "sha256": "a28e951b5e6bc183787e27a537c7b5d66cc252b1945122d740e316f36859bcec"
+    },
+    {
+      "path": "docs/planning/elements/EL-055-mechanical-brake.md",
+      "sha256": "5d8e6914ac5cf9f03fb3999f78c2296a51ff361dd6cdd53a138edc17898d5dd9"
+    },
+    {
+      "path": "docs/planning/elements/EL-056-ratchet.md",
+      "sha256": "e478d8dea52f9891d4b0e008ff38fde21038ba195013e92b920f119d96c3b91a"
+    },
+    {
+      "path": "docs/planning/elements/EL-057-escapement.md",
+      "sha256": "75710398fcef5eba641a1f3f9ea4d5fba05a127991527e9d4275109a6d9e95a7"
+    },
+    {
+      "path": "docs/planning/elements/EL-058-size-grate.md",
+      "sha256": "4b6d8072a60deaac658994ada5e51c84d5a2ae9e2ed49b37b5c13ab86697d7bf"
+    },
+    {
+      "path": "docs/planning/elements/EL-059-weight-tray.md",
+      "sha256": "fec760a3b17a7b2e9d803dad1895aad15af679789b7406963dc6087c31ae670d"
+    },
+    {
+      "path": "docs/planning/elements/EL-060-electromagnet.md",
+      "sha256": "e72c6bd6ee49549e1418280d67e090e82de19bd64bb23169f7992e2b3aa9b10f"
+    },
+    {
+      "path": "docs/planning/elements/EL-061-indexed-carousel.md",
+      "sha256": "aa5ee700148d7902b936594385cac8ab60994c533102262695afdd077af13a83"
+    },
+    {
+      "path": "docs/planning/elements/EL-062-docking-ferry.md",
+      "sha256": "73a71ce06ed7a6f8affe35c4729819a4259ef05fc7a524895046647e6246d0b7"
+    },
+    {
+      "path": "docs/planning/elements/EL-063-cable-winch.md",
+      "sha256": "f55cba26107ebcb54bb2ff49a2dbb25661b5ba64ad4c06ce6b68e24c755ace2d"
+    },
+    {
+      "path": "docs/planning/elements/EL-064-metal-loop-anchor.md",
+      "sha256": "aa8957b69bc5b6cadb4c17f9384bab8ca8a77af339e2b72bd1d9a5aabf0bac43"
+    },
+    {
+      "path": "docs/planning/elements/EL-065-load-hook.md",
+      "sha256": "0e2f9d0e66fcc7624deeeabe734f96ce5f2814a79c68f8f1fbbf51ddf5989586"
+    },
+    {
+      "path": "docs/planning/elements/EL-066-scissors.md",
+      "sha256": "b4b7dd484cfdd234891583af429d1cde5553f768148df02dd441a86402c73667"
+    },
+    {
+      "path": "docs/planning/elements/EL-067-steel-cable.md",
+      "sha256": "0b0ac32321e4e8c6ddcc4236e5b0763f208ea688a5e4e25afce8a7b2ab74f4eb"
+    },
+    {
+      "path": "docs/planning/elements/EL-068-tin-snips.md",
+      "sha256": "af334b68dc51fce1e0a553ecb3b8e78c813a78f9f7aa456f5d0e84befa6ef19f"
+    },
+    {
+      "path": "docs/planning/elements/EL-069-moving-bucket.md",
+      "sha256": "d50da1f70d6dc5692d59b6db89ac766f282c418729e621f35dc08af04e551eea"
+    },
+    {
+      "path": "docs/planning/elements/EL-070-moving-cage.md",
+      "sha256": "5ab1bb28a78aa56a62f5a18d286c92c89d3b6e520cd231affc776e82159dbcf6"
+    },
+    {
+      "path": "docs/planning/elements/EL-071-straight-metal-ball-pipe.md",
+      "sha256": "cad64ffecab4f4a9e1e57798bceadfa664071a96991cc5fd8ee44e5d88db632e"
+    },
+    {
+      "path": "docs/planning/elements/EL-072-curved-metal-ball-pipe.md",
+      "sha256": "1b992ca3d977d8b7c49280ff47e0ce515c29c991bfb92a1c52cf8018d26b654d"
+    },
+    {
+      "path": "docs/planning/elements/EL-073-brick-barrier.md",
+      "sha256": "dff9d511dd04c0e25bb86ae042b060269df2ba6c41d5183fe3b7126fee735fd1"
+    },
+    {
+      "path": "docs/planning/elements/EL-074-wood-barrier.md",
+      "sha256": "3d53f29e063b6b3c573223b74f2bad595652ea34c4e58cadc8f002ad57e68c3c"
+    },
+    {
+      "path": "docs/planning/elements/EL-075-toy-pulse-emitter.md",
+      "sha256": "a1e0e5585c6c6beaf8b312dd88980db0c75a847f4d79cec08604e81a9068b317"
+    },
+    {
+      "path": "docs/planning/elements/EL-076-programmable-ball.md",
+      "sha256": "1d15e5dc9a417d3da44923272b23a7518dfee09df5a716e991ed480ba0ae1519"
+    },
+    {
+      "path": "docs/planning/elements/EL-077-soccer-ball.md",
+      "sha256": "b59ce5f838e5cdd94644afe40f4481f83e6d6513a832d8a9a25fdd78d2846a72"
+    },
+    {
+      "path": "docs/planning/elements/EL-078-can-opener.md",
+      "sha256": "10d61e97a7fcf6b17f6947e204f89b6d4c917a9ed74c04777adb21cef6e4d7d2"
+    },
+    {
+      "path": "docs/planning/elements/EL-079-electric-mixer.md",
+      "sha256": "e51b4979a72850278f5bf5952a0f8ddcd839e65fbc34f25991778ba7eb3fe9c4"
+    },
+    {
+      "path": "docs/planning/elements/EL-080-programmable-box.md",
+      "sha256": "1f9a204e9527d74add22fe7380ae564c64c6371275f6d732849b969186e3637f"
+    },
+    {
+      "path": "docs/planning/elements/EL-081-message-display.md",
+      "sha256": "91f4a1e58ae2259e1fe3fca29b782840dcde591ad226204d55050f6d0787749e"
+    },
+    {
+      "path": "docs/planning/elements/EL-082-lured-character.md",
+      "sha256": "7eefe466ba08e5718a111030f45359ccf692d243d052275ca6879be89b0adfa5"
+    },
+    {
+      "path": "docs/planning/elements/EL-083-escaping-character.md",
+      "sha256": "2650a68b6f9b762b4c0eff96cbdcd77cc055e0511f821dca7613c06810e42c73"
+    },
+    {
+      "path": "docs/planning/elements/EL-084-fragile-fish-bowl.md",
+      "sha256": "4ccf228f8d107172f31077b5b09b0b352b98153b56ea29704a2587b193efaebf"
+    },
+    {
+      "path": "docs/planning/elements/EL-085-rope-driven-character-wheel.md",
+      "sha256": "046d44819f2f267e68ef4a7d0c289774c4c8c1c0b4a24623f8f390c15c40648f"
+    },
+    {
+      "path": "docs/planning/elements/EL-086-obstacle-reversing-walker.md",
+      "sha256": "3927b7c529049981fb95b04e8b854dc865e51b97a8f4641e24ecca5a3a93ed65"
+    },
+    {
+      "path": "docs/planning/elements/EL-087-predator-character.md",
+      "sha256": "b67c2e6f6f2b07bcdb4b55ca223b7d05a5255ceb5ecb2fb03b13ae286c79dfbb"
+    },
+    {
+      "path": "docs/planning/elements/EL-088-fish-tank-lure.md",
+      "sha256": "89eadd013205c543ccf24bf0a0a565d4f85ac7a775a4f32fdbc91b8a04e0e00b"
+    },
+    {
+      "path": "docs/planning/elements/EL-089-gravity-effect-pad.md",
+      "sha256": "8036119023bdf698b7911308f1e4cee85691dc888f74c1728f585ab78672f71a"
+    },
+    {
+      "path": "docs/planning/elements/EL-090-steerable-blimp.md",
+      "sha256": "7e2a6f9223e9e7e64e806eeede2125b5ef1f23d564f8488e23dd7bab76e9c8c0"
+    },
+    {
+      "path": "docs/planning/elements/EL-091-cannonball.md",
+      "sha256": "10e8837797a6b7a03db0c83b7d709cdc106e3a35f4fb91269604820da488e4a2"
+    },
+    {
+      "path": "docs/planning/elements/EL-092-toy-rocket.md",
+      "sha256": "8b3d27cf085a9ff3a46296ae93775e040c129b7aa46a2e0d9a29dc3471fde731"
+    },
+    {
+      "path": "docs/planning/elements/EL-093-toy-dynamite-charge.md",
+      "sha256": "be318ed4f05daab44d54f95adeb2740e2ee6d1b8476cf212d93352edd8ca5fc9"
+    },
+    {
+      "path": "docs/planning/elements/EL-094-detonation-plunger.md",
+      "sha256": "e5e325fb6cc7f4275c6c9d20a3bc92505597de2b0fd6895122059673efa7aab4"
+    },
+    {
+      "path": "docs/planning/elements/EL-095-toy-revolver.md",
+      "sha256": "ee50e679cd53af72faa4eb79944c18397e66a2e4012883fd458b7b17dee4aa4e"
+    },
+    {
+      "path": "docs/planning/elements/EL-096-tipsy-platform.md",
+      "sha256": "b3db35e583c96d196ae251dfd74a08f15e6cccb04fa6f3d7c97027dd227d3636"
+    },
+    {
+      "path": "docs/planning/elements/EL-097-pool-cue.md",
+      "sha256": "12092f5aa02e87de32409034c0e029062ccd34adc5073e1a17d3ed74fea042e4"
+    },
+    {
+      "path": "docs/planning/elements/EL-098-pool-ball.md",
+      "sha256": "d4c8e055d7fda545772f214ab9f4ea3c0fd2392f64b53ceeb4dc91f1afec4218"
+    },
+    {
+      "path": "docs/planning/elements/EL-099-pool-pocket.md",
+      "sha256": "aa92af9797f4103e71b57fb092c4d62846f455fdb47c4092ae74002e85180a30"
+    },
+    {
+      "path": "docs/planning/elements/EL-100-vacuum-nozzle.md",
+      "sha256": "77ec6bd684421638d2adf5454139934c4b17c44c751604ed106a364a442c8004"
+    },
+    {
+      "path": "docs/planning/elements/EL-101-thumb-tack.md",
+      "sha256": "177f6e61239036a55f87a880dc25c7b3a1d5c3e15de3827b40d7e2c788d326c4"
+    },
+    {
+      "path": "docs/planning/elements/EL-102-large-bore-ball-pipe.md",
+      "sha256": "531f3ff01d3cfd3bacbb7d521fed2e2cbf84ffde9f2d303ec404db68b7f9c072"
+    },
+    {
+      "path": "docs/planning/elements/EL-103-accelerator-tube.md",
+      "sha256": "81821b759bdd2ee8d1f880e75f54a6214693e914458cd577383b02f5bd701ab7"
+    },
+    {
+      "path": "docs/planning/elements/EL-104-toy-firework.md",
+      "sha256": "c1f04a17a4b0715b52b9fe55c87e1a7c24b5ea006c9d8c176db189a990edf739"
+    },
+    {
+      "path": "docs/planning/elements/EL-105-toy-missile.md",
+      "sha256": "d5b8e8f255cbe385c4a2e2c65d6a39227d9fe9e2005868716fa81220313cc459"
+    },
+    {
+      "path": "docs/planning/elements/EL-106-impact-sensitive-toy-charge.md",
+      "sha256": "a1478d19ac7d2f5b8731b0fc0890f69c09462817d46abc889e52dc20b8bb02b1"
+    },
+    {
+      "path": "docs/planning/elements/EL-107-spiral-delay-tube.md",
+      "sha256": "f32bbf15a4e29b170c81a1d435a39bc1702615b34a023ee53e62cece91210fc3"
+    },
+    {
+      "path": "docs/planning/elements/EL-108-powered-airlift.md",
+      "sha256": "5af262fc2fd1a0ceebefcb4344a14f7db0240d76e3d496e23f3f674d7b072de7"
+    },
+    {
+      "path": "docs/planning/elements/EL-109-speed-trapdoor.md",
+      "sha256": "64c99e13cdd8cb71e2d573f579f5b63da6eaa7d125184675db8ed70a98b1c18b"
+    },
+    {
+      "path": "docs/planning/elements/EL-110-flywheel.md",
+      "sha256": "f03ff55d84a1dbec89e3440c0826c865ce65d87b6aaefe7bfdb3b3a485dc768a"
+    },
+    {
+      "path": "docs/planning/elements/EL-111-centrifugal-governor.md",
+      "sha256": "6efc3132eb7504b907c3fdae3f5961910c360ea4319a8153ceed47d670a91720"
+    },
+    {
+      "path": "docs/planning/elements/EL-112-structural-beam.md",
+      "sha256": "07062e3ca097065e7105743c5b7ecea55b7ff2085f5ad26e87e040805dee8693"
+    },
+    {
+      "path": "docs/planning/elements/EL-113-structural-brace.md",
+      "sha256": "a186fc657f66e28f165dd54e43e7ebe86194b9eb5d0d3d739a7d7e87c6010ea2"
+    },
+    {
+      "path": "docs/planning/elements/EL-114-placeable-pivot.md",
+      "sha256": "d4426fb2bed3c9adfec1f451bffd5ffb2b9404dd9e1ab787a9341b74077900cf"
+    },
+    {
+      "path": "docs/planning/elements/EL-115-linkage-connector.md",
+      "sha256": "5c0e83af6fe9456d199cbad65e9b2de38a1265cc457dd9a35b00a0e733ff7f42"
+    },
+    {
+      "path": "docs/planning/elements/EL-116-passive-wheel.md",
+      "sha256": "6655311c8d888462d76c561cf834be634201eed31e0499d368b46c034714e001"
+    },
+    {
+      "path": "docs/planning/elements/EL-117-axle.md",
+      "sha256": "7743a40c974f3bb91a624bb4568e61a702772790552799baf8ef0357b3af24ed"
+    },
+    {
+      "path": "docs/planning/elements/EL-118-coating-station.md",
+      "sha256": "4d540cc4c17ee7617f0af23c9fb473d4a58c18e5a7d0a6fd8f7008a2ea07d42a"
+    },
+    {
+      "path": "docs/planning/elements/EL-119-dye-station.md",
+      "sha256": "76cf035823001de3c7a8035ea4a3846f3789d21a700bcc527978ef80e8936554"
+    },
+    {
+      "path": "docs/planning/elements/EL-120-quantity-goal.md",
+      "sha256": "fa7c2e35eaa426ea23e8df22d9c69971e60d77baba97b56dc126de09d6199acd"
+    },
+    {
+      "path": "docs/planning/elements/EL-121-rate-window-goal.md",
+      "sha256": "2639f0ff88e12324fcf98b72c6d1765ecdbb28f1f8ffea5acb74cf16ee4924a8"
+    },
+    {
+      "path": "docs/planning/elements/EL-122-ordered-events-goal.md",
+      "sha256": "da2254e1161cde8bc7b41d41a3b7dd2556cea17eb24445378cacc46199623388"
+    },
+    {
+      "path": "docs/planning/elements/EL-123-protected-end-state-goal.md",
+      "sha256": "63b6d90bcc3f40b193adc26ac04ae903ed18318bc37b5fb29d9faedb57488eab"
+    },
+    {
+      "path": "docs/planning/elements/EL-124-authored-gravity-preset.md",
+      "sha256": "89061b0bc5511a93f7b727b49239def8ed3a79523647dc733277674ff23b81b3"
+    },
+    {
+      "path": "docs/planning/elements/EL-125-authored-atmosphere-preset.md",
+      "sha256": "5c26cc0f422fb78e81bf2ac727f9e8332dcca08b1825fb9aacb9d21953268fea"
+    },
+    {
+      "path": "docs/planning/elements/EL-126-thin-screen-shield.md",
+      "sha256": "4167c51e51724ccf218d64d8e0f635e69cb3e9f8ce77e9588383ee6ccc3a3710"
+    },
+    {
+      "path": "docs/planning/elements/EL-127-polymer-shield.md",
+      "sha256": "6995002d35169b75fe6acd50f34222d9d0ae9aa13547f9dc09eca586cb3b6de9"
+    },
+    {
+      "path": "docs/planning/elements/EL-128-dense-shield.md",
+      "sha256": "8d7cbe96dd2af05dec9cffb96fc842f653158be8d412fdd749179a8ea1f0c2ca"
+    },
+    {
+      "path": "docs/planning/elements/EL-129-sheet-thickness-transmission-gauge.md",
+      "sha256": "19b411353da9784dc604b975fe3da5387a88e4d9c9131ef07cc222458a8415c1"
+    },
+    {
+      "path": "docs/planning/elements/EL-130-tank-level-transmission-gauge.md",
+      "sha256": "fe9d4ef0995967430fed0086c3da6f5f3ea6a98488a687f861be464cea5b2b84"
+    },
+    {
+      "path": "docs/planning/elements/EL-131-fast-neutron-detector.md",
+      "sha256": "f89fce8933e9f86881e62261a87aad55c2eaacc8636167faef8946f22ca06d1f"
+    },
+    {
+      "path": "docs/planning/elements/EL-132-slow-neutron-detector.md",
+      "sha256": "3319b6ddf241ac16f502564d687effa90075719ab4c9dc0f12f5bb599e550698"
+    },
+    {
+      "path": "docs/planning/elements/EL-133-electrical-and-gate.md",
+      "sha256": "1815b6c8fa9eda90bc291e2c17c439edd5ac804bf12d61eff59a0efb3e620485"
+    },
+    {
+      "path": "docs/planning/elements/EL-134-electrical-or-gate.md",
+      "sha256": "30a90a395147f6b0aa03d1fd8d6fbc5083d91dc7d7c6ca9ca9b4ee4c1868f311"
+    },
+    {
+      "path": "docs/planning/elements/EL-135-electrical-xor-gate.md",
+      "sha256": "806f4209803537355e1cead2ac6a4472dc7cfc066d34996ddc17e696be5edb6b"
+    },
+    {
+      "path": "docs/planning/elements/EL-136-electrical-nor-gate.md",
+      "sha256": "8751929978aec8f59aea08bc04fa68934e167c59fb1c45dabfd884db890dd52b"
+    },
+    {
+      "path": "docs/planning/elements/EL-137-electrical-nand-gate.md",
+      "sha256": "06c8d5f7927fd60aa844545b745f154b467b80333ccf26fd180a257109b1c3bb"
+    },
+    {
+      "path": "docs/planning/elements/EL-138-optical-and-gate.md",
+      "sha256": "d947da12fdc74018680f1aa27085bc2046a922296f50b0abebe473b9206c33d9"
+    },
+    {
+      "path": "docs/planning/elements/EL-139-optical-or-gate.md",
+      "sha256": "ca7e8d9c96a377e09a189ee14a83912d5179a0adfe54d4205fbf482da030207b"
+    },
+    {
+      "path": "docs/planning/elements/EL-140-optical-xor-gate.md",
+      "sha256": "c9da0c6edf4026e7530e6d5fe2095f019620076251065ee48cb15ca1ec4a9a5c"
+    },
+    {
+      "path": "docs/planning/elements/EL-141-optical-nor-gate.md",
+      "sha256": "8c5e207b26be5a1d63f6df0df3b9ada7db39bec9427a1b678905e2fb4d70d131"
+    },
+    {
+      "path": "docs/planning/elements/EL-142-optical-nand-gate.md",
+      "sha256": "861bbc19b7ba40711e6ca033cb11907c46a6ccf720c8c80bcb600d2776bf5c46"
+    },
+    {
+      "path": "docs/planning/elements/EL-143-red-optical-filter.md",
+      "sha256": "9c780a9c23b75e90678928e62c14684ef96dee4f9bb4529937cbbf3711d83825"
+    },
+    {
+      "path": "docs/planning/elements/EL-144-green-optical-filter.md",
+      "sha256": "9dbed371d7e18055fde84c73721fd245b44f75f2309eda9a0804bf6ff225eef6"
+    },
+    {
+      "path": "docs/planning/elements/EL-145-blue-optical-filter.md",
+      "sha256": "edaef11ed06c386d5a1ed0ade377a29b1b9a3ae86a8b399ae00ef466c43db91b"
+    },
+    {
+      "path": "docs/planning/elements/EL-146-red-selective-receiver.md",
+      "sha256": "f030c0be599bd3928f4281575c7fb3528e44132f7029b2ec42887ef3a9cbd2aa"
+    },
+    {
+      "path": "docs/planning/elements/EL-147-green-selective-receiver.md",
+      "sha256": "74ecabfeea85870504afbe4ea96ca71c0ad4449abb899dd22cabe9cdf0f88083"
+    },
+    {
+      "path": "docs/planning/elements/EL-148-blue-selective-receiver.md",
+      "sha256": "64cd881d2d9922cbf652e88d5fba64d244bd032b72fc78510583439f647367a0"
+    },
+    {
+      "path": "docs/planning/elements/EL-149-yellow-selective-receiver.md",
+      "sha256": "bf4e5e877d3a4a38e51000f377840d9c913b8f9dab1047793eb3be96387447fb"
+    },
+    {
+      "path": "docs/planning/elements/EL-150-cyan-selective-receiver.md",
+      "sha256": "7d3b8f21c6877a637e2cf971e5f6d95a159b268963adf680fb1a0acb802e9f08"
+    },
+    {
+      "path": "docs/planning/elements/EL-151-magenta-selective-receiver.md",
+      "sha256": "c284a57d1c4f7349318f521a883e738f31fa9a4a7e05f193dcdd3276e652a566"
+    },
+    {
+      "path": "docs/planning/elements/EL-152-white-selective-receiver.md",
+      "sha256": "ad94eb60779f2f72f4e4fecb5365734178f4c410bc4cbf65ef66189685dc3b34"
+    },
+    {
+      "path": "docs/planning/elements/EL-153-general-light-receiver.md",
+      "sha256": "05fcf407c5e6472dbad064bba75777f2ed287f4b22736ae129baca692833e1bb"
+    },
+    {
+      "path": "docs/planning/elements/EL-154-light-charge-receiver.md",
+      "sha256": "dc6c44a96bc248f7b133612083d7b82cce2bab177cac61b5aa38b44c656dd4ae"
+    },
+    {
+      "path": "docs/planning/elements/EL-155-rope-operated-light.md",
+      "sha256": "5ba055869f092d4f85da3e37f603e8d888a162644ac6d1d79c1d6a40d0346f13"
+    },
+    {
+      "path": "docs/planning/elements/EL-156-single-lobe-cam.md",
+      "sha256": "3b56bce6319c66c238baf55f7a4307277a9b03e709e9eee16ec15035e84677d5"
+    },
+    {
+      "path": "docs/planning/elements/EL-157-double-lobe-cam.md",
+      "sha256": "aa398b6d9d1695b4aa0a78d589ed137ba25ef2909c97c2e2f08908049bb7021e"
+    },
+    {
+      "path": "docs/planning/elements/EL-158-rise-hold-fall-cam.md",
+      "sha256": "85393693f8a7110241b2569dae7a2c0ee3c6da79c5cafe158f4c5d678fe16f13"
+    },
+    {
+      "path": "docs/planning/elements/EL-159-tension-limited-connector.md",
+      "sha256": "595711fa146a9cbe20aa3e81e053d924549a63264d48d1e1bab9b1e611276b1b"
+    },
+    {
+      "path": "docs/planning/elements/EL-160-shear-limited-connector.md",
+      "sha256": "6431d806d180a9f2b4b383dcdf7abf3aaee0c364e0a4445cea29694cc0801205"
+    },
+    {
+      "path": "docs/planning/elements/EL-161-bending-limited-connector.md",
+      "sha256": "276f92fc96fd0280db98298cdb25e229514e191fd3aef131ff0d0d01071e502e"
+    },
+    {
+      "path": "docs/planning/elements/EL-162-fixed-ball-diverter.md",
+      "sha256": "13af3c4e22db5101137975f81cf23b8b059016be4ec467fd3c0311491eed74c4"
+    },
+    {
+      "path": "docs/planning/elements/EL-163-powered-ball-diverter.md",
+      "sha256": "0323d6536a0fe945cfaea18607df78b9f19ba2b4ff7cc059decb53c765a72078"
+    },
+    {
+      "path": "docs/planning/elements/EL-164-alternating-ball-diverter.md",
+      "sha256": "ec2ef273f14a2df29c365958c202802a792a2d6b07669b8254a0496dbae0281f"
+    },
+    {
+      "path": "docs/planning/elements/EL-165-manual-tap.md",
+      "sha256": "7637d4e4d459381a3a4e8e0aad1c2176e6782edd2a29f91c255a66b9c4024d33"
+    },
+    {
+      "path": "docs/planning/elements/EL-166-mechanically-actuated-tap.md",
+      "sha256": "b9875b0df22ff1ed609a6d873f5ee3d5cb59c5273612fd6c16a866f2cb43361a"
+    },
+    {
+      "path": "docs/planning/elements/EL-167-solenoid-tap.md",
+      "sha256": "ff4be7225c860a92d14514e52004a25c96438b5d345f5fe64e85a7e3f295b0a5"
+    },
+    {
+      "path": "docs/planning/elements/EL-168-siphon-priming-bulb.md",
+      "sha256": "c908d90280be6d1e989e6969f8ce05790bf2b9a97e6f1a7bb58f255c25389243"
+    },
+    {
+      "path": "docs/planning/elements/EL-169-cork-float.md",
+      "sha256": "7fc8ae25a8369d69928c93f84ab1d86241744be231599f63c73db02ed5dd6a62"
+    },
+    {
+      "path": "docs/planning/elements/EL-170-raft.md",
+      "sha256": "d8223caa1c10dc385d5d5f03206e884ceaa0e053b93e7867160d5379a1824316"
+    },
+    {
+      "path": "docs/planning/elements/EL-171-squeeze-pad.md",
+      "sha256": "aa781c3b3e63ce158b8b3d8cdc875c1e935b9fd2f4f8b33411010d54f9845574"
+    },
+    {
+      "path": "docs/planning/elements/EL-172-rain-collector.md",
+      "sha256": "04bd8705b067ab63c186533244fb8d09ddc584e822282082dd8df231d955959f"
+    },
+    {
+      "path": "docs/planning/elements/EL-173-diverging-lens.md",
+      "sha256": "99742e5db8f0b867c209e0becae8825cca31677a20ca65ad3f7b687d92713aa0"
+    },
+    {
+      "path": "docs/planning/elements/EL-174-prism.md",
+      "sha256": "ae861968d8c642e5e31d7aea6a71339912ef5877b08077e9afeb75d9bcea67ee"
+    },
+    {
+      "path": "docs/planning/elements/EL-175-optical-fibre.md",
+      "sha256": "0092ddfc6c88586a3b1160a568ee9a995dbbafd7c561081b59d5cab3d1e17f18"
+    },
+    {
+      "path": "docs/planning/elements/EL-176-red-laser-emitter.md",
+      "sha256": "bb1b00ec6fe9ca5e2fe45725e782fcbd324b4bb461debf857cb3c210ba61de83"
+    },
+    {
+      "path": "docs/planning/elements/EL-177-green-laser-emitter.md",
+      "sha256": "0d19e6fc10b5a6edfd5f98d6b7f8b11af7ea4d273f92069fd2975c433040116c"
+    },
+    {
+      "path": "docs/planning/elements/EL-178-blue-laser-emitter.md",
+      "sha256": "5a582f7b53a422c73465a4ff181a819c1248661c3a8d591a45f0bd5aa6e573cf"
+    },
+    {
+      "path": "docs/planning/elements/EL-179-continuous-tone-speaker.md",
+      "sha256": "b1eac897971280091503d377db3a25ee74609d97f23fff59700dc6e67c07a12d"
+    },
+    {
+      "path": "docs/planning/elements/EL-180-pulse-speaker.md",
+      "sha256": "73d7190962bc93a21c13f5470d21a6a0cb15aff647ef05fe092c696884526ed9"
+    },
+    {
+      "path": "docs/planning/elements/EL-181-rising-edge-detector.md",
+      "sha256": "ea639a1ba0780271dde7317f7ea374fbf79e7717f2586ebd004be51588cff485"
+    },
+    {
+      "path": "docs/planning/elements/EL-182-falling-edge-detector.md",
+      "sha256": "2b9bd6ff4baf94f73a5cd71699e8f606339cbde7be1d20fd9ca46ece3868df0f"
+    },
+    {
+      "path": "docs/planning/elements/EL-183-resettable-counter.md",
+      "sha256": "ac644caa4bb5363c8573da268d27be4c887ea1cf51f90e7f32421eeee31d86ae"
+    },
+    {
+      "path": "docs/planning/elements/EL-184-mechanical-ball-gate.md",
+      "sha256": "3d7c20961520adc0e55ba1279a78177d1d3c7661f301ec85cfd4eca6dc8b9c74"
+    },
+    {
+      "path": "docs/planning/elements/EL-185-releasable-assembly-joint.md",
+      "sha256": "ce774fc128ba0d0de530ab7f632a149ba63c4fcae3c9534bd8b4710cf44fa19a"
+    },
+    {
+      "path": "docs/planning/elements/EL-186-temporary-bridge.md",
+      "sha256": "81e8a55d9cbdf70c7bef5c863051649316148f798afec585959a75159131142b"
+    },
+    {
+      "path": "docs/planning/elements/EL-187-basketball.md",
+      "sha256": "064a77403a06eb6055489150e1980020f4563c2abda53f1a2daf3aa844fbbfa9"
+    },
+    {
+      "path": "docs/planning/elements/EL-188-bowling-ball.md",
+      "sha256": "2d56f303223c2b9ded86bb65e257ac30d956709ce65f1646c11394aac9225c51"
+    },
+    {
+      "path": "docs/planning/elements/EL-189-tennis-ball.md",
+      "sha256": "f9d14f033a964b05ef6d6fdfc9c9b5236711bccbaf481d598f188c2105846312"
+    },
+    {
+      "path": "docs/planning/elements/EL-190-ramp.md",
+      "sha256": "395375cc75e1264ecaf62f00c1f762979214322dfa0c3fae9b55c0c86e6432d2"
+    },
+    {
+      "path": "docs/planning/elements/EL-191-wall.md",
+      "sha256": "eb9a8759c276993cc951713f01aa4993d825244602c1e455dbde3522ab82349b"
+    },
+    {
+      "path": "docs/planning/elements/EL-192-receiving-basket.md",
+      "sha256": "36171018d47e59ff98f6b3686e8cae4d8f42d3104535f683f129c464da8a9e11"
+    },
+    {
+      "path": "docs/planning/elements/EL-193-domino.md",
+      "sha256": "5d5234662044e7271283cf1101b4355719f75915ae2b16187ae2ed57baf568d9"
+    },
+    {
+      "path": "docs/planning/elements/EL-194-springboard.md",
+      "sha256": "22eb1b030be27bd8ec74b830af694bd329bbf23e36beddaa4728f48d77c579fa"
+    },
+    {
+      "path": "docs/planning/elements/EL-195-pinball-bumper.md",
+      "sha256": "e64b815f745b240920e5c6297b49668c8f5040b4bf241053a8841efb5bd003a4"
+    },
+    {
+      "path": "docs/planning/elements/EL-196-battery.md",
+      "sha256": "dd7ae7d460d7efee84e55170ed813e4160e1d070c1574da4d265ae2d15f44ccd"
+    },
+    {
+      "path": "docs/planning/elements/EL-197-electrical-wire.md",
+      "sha256": "578f72525b6e2f02e9f5805dec1a76a8378d1568785802e876239717ed2a0a76"
+    },
+    {
+      "path": "docs/planning/elements/EL-198-switch.md",
+      "sha256": "9b139bddf6104ba00d34dbe2ba82b652c6b6710302319739b48836d4c50fd6fe"
+    },
+    {
+      "path": "docs/planning/elements/EL-199-electric-motor.md",
+      "sha256": "220b79dbcce65a88edb4458c29b241bb527390ad2e98b3c1e10ff92b46c27321"
+    },
+    {
+      "path": "docs/planning/elements/EL-200-drive-belt.md",
+      "sha256": "6cd5b306adeb1f26a6416c54ec82c8c850a9e456e7ac4b48340af2aed289d349"
+    },
+    {
+      "path": "docs/planning/elements/EL-201-drive-chain.md",
+      "sha256": "cb5f8669df19365a41c0cbf712d76e9e40733e54b7ac9aed231233c7f4c95561"
+    },
+    {
+      "path": "docs/planning/elements/EL-202-conveyor.md",
+      "sha256": "4394ca411747e08411377af0deea0332cb5a61f95a2acdd0216e59446daf063b"
+    },
+    {
+      "path": "docs/planning/elements/EL-203-reverse-transmission.md",
+      "sha256": "13ea39334318f9aeb922633ad6de76e0a20e741c6be864f8a4631c85b69bff69"
+    },
+    {
+      "path": "docs/planning/elements/EL-204-weight.md",
+      "sha256": "b18caeeff69c0e65793747b7597356f544045aa875b8ef58e762635523b52536"
+    },
+    {
+      "path": "docs/planning/elements/EL-205-rope.md",
+      "sha256": "4e328c5ba588d69fcfecdf89c5cae8bd1cb4ec8c4021661e6d5d116d37e014b5"
+    },
+    {
+      "path": "docs/planning/elements/EL-206-fixed-pulley.md",
+      "sha256": "923b03f2bbbcdc7dbf1094f98304a76c24661090ddd642d1b9e90bc6c18bbdf7"
+    },
+    {
+      "path": "docs/planning/elements/EL-207-moving-pulley.md",
+      "sha256": "82b23c2c2e889be602663c430fc531a0fcae2716e446ee7af3da01fd1b561561"
+    },
+    {
+      "path": "docs/planning/elements/EL-208-balloon.md",
+      "sha256": "97fab72dbad20c58adbccbd776fff0992f6320a82939136ce553458eea47ca58"
+    },
+    {
+      "path": "docs/planning/elements/EL-209-fan.md",
+      "sha256": "7bf6a42fe0ccd3b97615453711d2cd280380d98b93f77732e717481151b33e60"
+    },
+    {
+      "path": "docs/planning/elements/EL-210-flashlight.md",
+      "sha256": "130afa2266659e617b65160e1b0c65177b570f67be6d3769e2d6bc7b0aa14c62"
+    },
+    {
+      "path": "docs/planning/elements/EL-211-solar-panel.md",
+      "sha256": "6a9ce1c48b9491d22e0fbb770c428ad65e1b5415766c1b807be5982743eb55f4"
+    },
+    {
+      "path": "docs/planning/elements/EL-212-flat-mirror.md",
+      "sha256": "5d67779f7876eb366c9276b1c46e5eaef9eb89b6b88f20011cbc2158a6ca384c"
+    },
+    {
+      "path": "docs/planning/elements/EL-213-optical-combiner.md",
+      "sha256": "4e5d0e19558698713fecc7c2697d7901620d68dbdfb63f221c4d9cf888634aa2"
+    },
+    {
+      "path": "docs/planning/elements/EL-214-broadband-beam-detector.md",
+      "sha256": "2b884d2529b1be1e8671e3850c817d3ddd506df6e54621236acee2cf70dbc135"
+    },
+    {
+      "path": "docs/planning/elements/EL-215-damped-cushion.md",
+      "sha256": "7ecf8797ab19160cb8f7f3994eb96f83840f35c5b841b38ecceb3a854924178c"
+    },
+    {
+      "path": "docs/planning/elements/EL-216-capture-cradle.md",
+      "sha256": "c4a43cb5b8066d45bedf338f8905f30c786c722548094611d3e78c8220cb1405"
+    },
+    {
+      "path": "docs/planning/elements/GAP-04-driven-wheel.md",
+      "sha256": "6d243deed4f2d0969e1f928f7d72c457f6839ded351f04466b385da76c25c215"
+    },
+    {
+      "path": "docs/planning/elements/GAP-06-granular-dispenser.md",
+      "sha256": "b73239e36ed3201bfdf40f4babfe450f5cf1827a735e20061be8601596905582"
+    },
+    {
+      "path": "docs/planning/elements/GAP-07-granular-sieve.md",
+      "sha256": "6087733d3475c5c1b1cb94b5f02ab8651b5c01b8bd65e50498b0c8864671f3b0"
+    },
+    {
+      "path": "docs/planning/elements/GAP-09-fragmentation-station.md",
+      "sha256": "7388d42320992743ce92b14159387affe9f6de390ad2a3cf74330cac6cdea3ba"
+    },
+    {
+      "path": "docs/planning/elements/RAD-01-gamma-source-capsule.md",
+      "sha256": "75b17f6f2c7a72dd89748cee85a24d0fb0304306ee193dc3f3725fe6dfeec101"
+    },
+    {
+      "path": "docs/planning/elements/RAD-02-powered-x-ray-emitter.md",
+      "sha256": "024724a53bb40ca267813c5eefa44c9bdfeecd2d629c2aa70b73e9a58bca846b"
+    },
+    {
+      "path": "docs/planning/elements/RAD-03-alpha-source-cartridge.md",
+      "sha256": "da4cab7fc06f210caff3ebbd96178f2120241b304a4ad817ef3da5a3023fbf25"
+    },
+    {
+      "path": "docs/planning/elements/RAD-04-beta-minus-source-cartridge.md",
+      "sha256": "6aa2c22f00f18e6efc1fcd5314d992c932ff0eee3045e3c54b362f42ef8b30e9"
+    },
+    {
+      "path": "docs/planning/elements/RAD-06-powered-radiation-shutter.md",
+      "sha256": "87e9e47daa8c821590a96e5a6127145e27aeba8808c320f1e3f4f98908d62e72"
+    },
+    {
+      "path": "docs/planning/elements/RAD-07-collimator-block.md",
+      "sha256": "6e868aa7bb71904d45081bf8c8d936cba645b91938b438327fcf2cd0d29109df"
+    },
+    {
+      "path": "docs/planning/elements/RAD-08-radiation-rate-meter.md",
+      "sha256": "86b83736d0f04f30a7fee2ae64da62c37420241fbd16dc53ce16fb00b8798c87"
+    },
+    {
+      "path": "docs/planning/elements/RAD-09-integrating-dosimeter.md",
+      "sha256": "e391c92335639978c1349de2ce67857e86932a0268fa3f1d9ab700858e527ea4"
+    },
+    {
+      "path": "docs/planning/elements/RAD-10-exposure-sensitive-cargo-badge.md",
+      "sha256": "7db97dbcdd89dfa8c50c957368ef3771802586596670b2b0ac7275722e1c5c9e"
+    },
+    {
+      "path": "docs/planning/elements/RAD-12-scintillator-tile.md",
+      "sha256": "3f8e342d8cd23b897ac1ef61b233b19bc82b8bb5b5c267044ef0b64ad9990bad"
+    },
+    {
+      "path": "docs/planning/elements/RAD-13-decay-clock-capsule.md",
+      "sha256": "06f1b03d8ac909df0931450cc68d377323fb333cdf5ef8bae8e61b7bbb9b4728"
+    },
+    {
+      "path": "docs/planning/elements/RAD-14-magnetic-deflector.md",
+      "sha256": "8a7ca21eebf4b66cf929ab7fff88bae73d870224716fac93ac27db6fc72af38d"
+    },
+    {
+      "path": "docs/planning/elements/RAD-15-track-chamber.md",
+      "sha256": "e8bcb6bc3318bafb65f2be887dedcf65c447e41eb9a94a64a6f05c310d7e4935"
+    },
+    {
+      "path": "docs/planning/elements/RAD-16-neutron-source-module.md",
+      "sha256": "845d9db9bccade3be5c79368de677395cb30c83a2f17e2920ad590baaa21b91f"
+    },
+    {
+      "path": "docs/planning/elements/RAD-17-water-moderator-tank.md",
+      "sha256": "872694a6a330197d2c6978f2c70e2bd32934054aa0d2bfbafacb86fafd3f01a9"
+    },
+    {
+      "path": "docs/planning/elements/RAD-18-neutron-absorber-panel.md",
+      "sha256": "59db041e160878cfedef3dde43d9816f50ce2d91c1e159a8e0825d5b15bcaac9"
+    },
+    {
+      "path": "docs/planning/elements/RAD-20-radioisotope-thermoelectric-generator.md",
+      "sha256": "338248111faebb91dc907a41c273a0f48ba67eeaa81580a8d9882d93042df42e"
+    },
+    {
+      "path": "docs/planning/elements/RAD-21-radiation-responsive-material-latch.md",
+      "sha256": "39b4a6f33a1d2c1d97f9e534bf37eb90dd546b2dbd43ed00de34a99ee65401b5"
+    },
+    {
+      "path": "docs/planning/elements/RAD-22-sealed-tracer-capsule.md",
+      "sha256": "e8419d957aa1920a033270e387686b490a5af83ebc5c79e9832d46a5aeefb0c1"
+    },
+    {
+      "path": "docs/planning/elements/README.md",
+      "sha256": "596d7c8e7ab8591038d38e0ead4511d8175b9d25df212d11619d9fd4158e00f8"
+    },
+    {
+      "path": "docs/planning/elements/TH-01-candle.md",
+      "sha256": "af45ede6dc30c6705bb708db5d35e59ff99730fbda0f242874d71b25211951f5"
+    },
+    {
+      "path": "docs/planning/elements/TH-02-fire-bowl.md",
+      "sha256": "b990325c9f3ebe9d8e7bdc8a8caf5e032d6b5da18f7e21877bc54c445dcdb0fb"
+    },
+    {
+      "path": "docs/planning/elements/TH-03-combustible-block.md",
+      "sha256": "b4075749eb04ba475996543a214473a5198a842e5aa4d61e85f9a65faa06c119"
+    },
+    {
+      "path": "docs/planning/elements/TH-04-electrical-heating-plate.md",
+      "sha256": "30bdca3e6ea8314bc13b343477c350c318e4efb0e53fd0418a43839a4334b5a8"
+    },
+    {
+      "path": "docs/planning/elements/TH-05-friction-brake.md",
+      "sha256": "6e98a1bfdfed25ff67f3efb76042999c99eab1e32f747ff8c0ecdeec8c4a944f"
+    },
+    {
+      "path": "docs/planning/elements/TH-06-converging-lens.md",
+      "sha256": "c31c377c3839c6b482499c2867e154e5caeba584bbde305d3f0748cbafb2456a"
+    },
+    {
+      "path": "docs/planning/elements/TH-07-solar-absorber-plate.md",
+      "sha256": "deeb3213dc4ca80d93677fe969972a6b6141918d7a935d38698253936660244c"
+    },
+    {
+      "path": "docs/planning/elements/TH-08-heat-conducting-bar.md",
+      "sha256": "5a7623f346f0ccd3fe4e635c149dbdcedbe6c5291c9462e9823fbb7f462abcb4"
+    },
+    {
+      "path": "docs/planning/elements/TH-09-insulating-panel.md",
+      "sha256": "f38c4d8835289aa3c4ca3364604a147b2418d6506530b238b92148426af9ffac"
+    },
+    {
+      "path": "docs/planning/elements/TH-10-finned-heat-sink.md",
+      "sha256": "d4bcd908e10dfa26f4e2fd148983007c6b5bc0c8a6e4f19f649c88971703804e"
+    },
+    {
+      "path": "docs/planning/elements/TH-11-heat-exchanger.md",
+      "sha256": "08efe0b690a5efc50f5e8fcbeb43ec640c5bfeed34c3f022b04cbf0b078be7a6"
+    },
+    {
+      "path": "docs/planning/elements/TH-12-reversible-heat-pump.md",
+      "sha256": "2a886a6b75f269d11a7263225b90f0ec67884a2cb7571c80093770196948e9fa"
+    },
+    {
+      "path": "docs/planning/elements/TH-13-freezing-mold.md",
+      "sha256": "540639d133317e0849f3df53c5945bd84e3368cdd53ebada4ce4b8814b56d529"
+    },
+    {
+      "path": "docs/planning/elements/TH-14-ice-block.md",
+      "sha256": "4d3db610a28fe9553fef117a43a909a915ee7c2c855849ffd419cd3f44ed48aa"
+    },
+    {
+      "path": "docs/planning/elements/TH-15-ice-plug.md",
+      "sha256": "d84abb808d92f27de7d7eed6d7ac1bdc95e5f186e0f3435acd04caa78caa01fc"
+    },
+    {
+      "path": "docs/planning/elements/TH-16-fusible-link.md",
+      "sha256": "f2f58381e5379cd8afe5eea7eab29c942412c65caa13310d39b709b48a8e165f"
+    },
+    {
+      "path": "docs/planning/elements/TH-17-kettle.md",
+      "sha256": "247e2c976eb5f3ad666bf0fb66782ae73e081519952ea1921ecb1826154e12f9"
+    },
+    {
+      "path": "docs/planning/elements/TH-18-condenser.md",
+      "sha256": "80bf7f528d5bb3e0acdedda9eabf64d4fa15099400cb3568205ac476ce455805"
+    },
+    {
+      "path": "docs/planning/elements/TH-19-steam-piston.md",
+      "sha256": "942f1aed935ff40b91f311e3232dc3769407c625a7e624ca8418e3c5575fbb6c"
+    },
+    {
+      "path": "docs/planning/elements/TH-20-steam-turbine.md",
+      "sha256": "d0793667028078a8e227291e71d35c6c64c39c3d0b45c57632b8bd6063e0f9c1"
+    },
+    {
+      "path": "docs/planning/elements/TH-21-temperature-sensor.md",
+      "sha256": "a71115adcd4b4ff992ff583864bd6a6392c2795e562b618cec8c838658124040"
+    },
+    {
+      "path": "docs/planning/elements/TH-22-bimetal-thermostat.md",
+      "sha256": "a8a09bab97a7d6927a5dd2701e76d4c1fa01eff2ea7d699efa847c0f9beab5b3"
+    },
+    {
+      "path": "docs/planning/elements/TH-23-expansion-rod.md",
+      "sha256": "f4ce7532da984e5499824c8cba0f7e03e1b020aa9173caefee4fad97deb6af75"
+    },
+    {
+      "path": "docs/planning/elements/TH-24-gas-expansion-bladder.md",
+      "sha256": "8dbb394226dfa33b36e1fd513a61c0a186071fb662dcbb5740808b4c58c07378"
+    },
+    {
+      "path": "docs/planning/elements/TH-25-hot-air-balloon.md",
+      "sha256": "cf11f9a0edf6b67578eb0782399f52ef0d5eb0bf110957ec90cdb7fa3dee8cb3"
+    },
+    {
+      "path": "docs/planning/elements/TH-26-thermal-storage-block.md",
+      "sha256": "cc949b2db0fb1eb0168f3c3d53b2f0c00b47ffd2b034e564c9d3f3e195bf6be1"
+    },
+    {
+      "path": "docs/planning/elements/TH-27-phase-change-cartridge.md",
+      "sha256": "da799572c3b148c365859180fb860912eb2fa5ad0b67fbfe4c3666777937789e"
+    },
+    {
+      "path": "docs/planning/elements/TH-28-evaporative-cooling-pad.md",
+      "sha256": "de390c080d384f810006939c864eb44921129861e9e3f7477f44251d4d4d9020"
+    },
+    {
+      "path": "docs/planning/elements/TH-29-cold-pack.md",
+      "sha256": "a9ba39335547cd42f000be42ee64b33264aec64b00fe0ccfe1d51623cf55232c"
+    },
+    {
+      "path": "docs/planning/elements/TH-30-thermoelectric-generator.md",
+      "sha256": "af5db791e22e15e370c9656ba6d2e7c5876e6c70ee7795ffca1737320b7d7b1e"
+    },
+    {
+      "path": "docs/planning/elements/TH-31-flint-striker.md",
+      "sha256": "c814d0a0c6aad504e272d20dfd83cba8a2941aaa762942757d7c7bd6c618a9cc"
+    },
+    {
+      "path": "docs/planning/elements/TH-32-tinder-pad.md",
+      "sha256": "6d3e2be31481812214e20e3aed8c385a1ae2b9d4aba3e016088200518577ce23"
+    },
+    {
+      "path": "docs/planning/elements/TH-33-spring-mounted-match.md",
+      "sha256": "fd7c1ca4750433e0e97c3cf51468b342a827f2bb68bceb94878e94dd10de0f43"
+    },
+    {
+      "path": "docs/planning/elements/TH-34-timed-toaster-ejector.md",
+      "sha256": "7236a92e639dfe94ca8a775d5820470bd28bd15ceb0b5e6a111d2acd676d6682"
+    },
+    {
+      "path": "docs/planning/elements/TH-35-coffee-pot-steam-vessel.md",
+      "sha256": "555ae7b4599362ad04ae7cfd1e87330631aaef23d878cfb221ca04202022d6b6"
+    },
+    {
+      "path": "docs/planning/elements/TH-36-lamp-trigger-apparatus.md",
+      "sha256": "6ad32e2e856ead4323f49fefacf434316ed1302b356d89d30bb94ac0f0fd4ed0"
+    },
+    {
+      "path": "docs/planning/elements/TH-37-heat-sensitive-target.md",
+      "sha256": "ad9c47e394afd7e5692b67bcffbffed6c0b8608f9cf0c3589f2d78090eb691f5"
+    },
+    {
+      "path": "docs/planning/invest-index.md",
+      "sha256": "ede577fa45c1673cca4f4fe88cdb6ff1c9b44ec561ba94b04e791fdde5b2b264"
+    },
+    {
+      "path": "docs/planning/invest/named-elements.md",
+      "sha256": "b058ec608bac6e4ccb0c4468b1f09697ea45a34c784def7bf9cfbeff167361ca"
+    },
+    {
+      "path": "docs/planning/invest/vertical-delivery.md",
+      "sha256": "7956b4783806d45d31d6c1da46c1ab668b1fde8a2b6a093fc00c20ba8bd3826e"
+    },
+    {
+      "path": "docs/planning/requirements.md",
+      "sha256": "a1d13b53e252975b01cf4227ca3e02176718fc3552725be11740f7702e449335"
+    },
+    {
+      "path": "docs/testing-guidance.md",
+      "sha256": "52c7691ffe3cca0bc02ca285acb3013056b83a1a4a8e8fda7015edeccd1505a6"
+    }
+  ],
+  "inputs": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "4e07b7b4e8df0caa9533c3abc05c6cd37769d7b0ada55918a9c543a788d9053b"
+    },
+    {
+      "path": "docs/architecture/element-package-isolation.md",
+      "sha256": "8c6346c3ce31c9851929a37dadc4b848e4540652c3ca1cffc347ef98d9889646"
+    },
+    {
+      "path": "docs/delivery-workflow.md",
+      "sha256": "42ee016525394aa542071fce56cda5213c5726b4c06d3cffdc34f0dc29c5ec6a"
+    },
+    {
+      "path": "_bmad-output/implementation-artifacts/review-work-plan-2026-10-24.json",
+      "sha256": "344d3ded179a151c0d76cbec93e0b46b31ced2b5eba733e22b6062f9869704a6"
+    }
+  ],
+  "authority_head": "686bdfd0bb33cd433054a9e6fbc5e67213899bd3",
+  "authority_change": "AGENTS delivery speed rules committed during review; applied to future backlog contracts, current slice retains starting review rules.",
+  "diff_parts": [
+    "candidate-part-1.diff",
+    "candidate-part-2.diff",
+    "candidate-part-3.diff",
+    "candidate-part-4.diff"
+  ],
+  "validation": {
+    "command": "python3 - <<'PY'\nfrom pathlib import Path\nimport re,subprocess,yaml,json,hashlib\nclass UniqueLoader(yaml.SafeLoader): pass\ndef unique_mapping(loader,node,deep=False):\n out={}\n for k,v in node.value:\n  key=loader.construct_object(k,deep=deep)\n  if key in out: raise ValueError('duplicate YAML key: '+key)\n  out[key]=loader.construct_object(v,deep=deep)\n return out\nUniqueLoader.add_constructor(yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG,unique_mapping)\nstatus=yaml.load(Path('_bmad-output/implementation-artifacts/sprint-status.yaml').read_text(),Loader=UniqueLoader)['development_status']\nreadme=Path('docs/planning/elements/README.md').read_text().split('## Index-only entries')[0]\nids=set(re.findall(r'^\\| \\[((?:EL|TH|RAD|GAP)-\\d+)\\]',readme,re.M))\nnamed={k.removeprefix('named-').upper() for k in status if k.startswith('named-')}\nassert ids==named and len(ids)==276\nledger=Path('docs/planning/invest/named-elements.md').read_text()\nbase=subprocess.check_output(['git','show','HEAD:docs/planning/invest/named-elements.md'],text=True)\nanchors=lambda t:re.findall(r'<a id=\"([^\"]+)\"',t)\noutcomes=lambda t:re.findall(r'\\*\\*Exact source outcome:\\*\\* ([^\\n]+)',t)\nassert anchors(ledger)==anchors(base) and len(anchors(ledger))==293\nassert outcomes(ledger)==outcomes(base)\nassert len(re.findall(r'\\*\\*Delivery slice:\\*\\* `named-',ledger))==276\nassert len(re.findall(r'\\*\\*Delivery disposition:\\*\\* umbrella;',ledger))==10\nassert len(re.findall(r'\\*\\*Delivery slice:\\*\\* `feature-',ledger))==7\ncats=list(Path('docs/planning/elements').glob('CAT-*.md'));assert len(cats)==72\nspecs=cats+[p for p in Path('docs/planning/elements').glob('*.md') if re.match(r'(EL|TH|RAD|GAP)-\\d+',p.name)]\nassert len(specs)==348\nreq=Path('docs/planning/requirements.md').read_text();oldreq=subprocess.check_output(['git','show','HEAD:docs/planning/requirements.md'],text=True)\nfor pat in [r'<a id=\"[^\"]+\"',r'^.*\\[[ xX]\\].*$',r'^.*Successful outcome.*$']:\n assert re.findall(pat,req,re.M)==re.findall(pat,oldreq,re.M),pat\ndiffcheck=subprocess.run(['git','diff','--check'],capture_output=True,text=True);assert diffcheck.returncode==0,diffcheck.stdout\nfiles=[p for p in subprocess.check_output(['git','diff','--name-only'],text=True).splitlines() if p!='_bmad-output/implementation-artifacts/review-9a-17-bundle-ports-and-footprint.md']\nfiles+=['_bmad-output/implementation-artifacts/spec-work-plan-coverage.md']\ninputs=['AGENTS.md','docs/architecture/element-package-isolation.md','docs/delivery-workflow.md','_bmad-output/implementation-artifacts/review-work-plan-2026-10-24.json']\nsummary={'yaml_unique_keys':len(status),'named_exact_set':276,'source_anchors_preserved':293,'source_outcomes_preserved':len(outcomes(ledger)),'CAT_specs':72,'all_specs':348,'umbrellas':10,'features':7,'requirements_preservation':'anchors,checkbox lines,Successful outcome lines unchanged','diff_check':'Pass','runtime_browser_tests':'not run: documentation-only'}\nprint(json.dumps({'summary':summary,'baseline':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'files':[{'path':p,'sha256':hashlib.sha256(Path(p).read_bytes()).hexdigest()} for p in sorted(files)],'inputs':[{'path':p,'sha256':hashlib.sha256(Path(p).read_bytes()).hexdigest()} for p in inputs]},indent=2))\nPY",
+    "stdout": {
+      "yaml_unique_keys": 587,
+      "named_exact_set": 276,
+      "source_anchors_preserved": 293,
+      "source_outcomes_preserved": 293,
+      "CAT_specs": 72,
+      "all_specs": 348,
+      "umbrellas": 10,
+      "features": 7,
+      "requirements_preservation": "anchors,checkbox lines,Successful outcome lines unchanged",
+      "diff_check": "Pass",
+      "runtime_browser_tests": "not run: documentation-only"
+    },
+    "exit_code": 0
+  },
+  "scope": "Planning-only. No runtime/browser qualification. Review-only staged diff excludes unrelated initial changes and is not a new deliverable."
+}

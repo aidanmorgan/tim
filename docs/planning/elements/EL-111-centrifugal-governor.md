@@ -1,5 +1,7 @@
 # EL-111 · Centrifugal governor named-identity spec
 
+**Current delivery (24 October 2026):** [EL-111 delivery slice](../invest/named-elements.md#element-111). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec (Batch J). Baseline commit `a6c914e`; every citation is `path@a6c914e:Lstart-Lend` and resolves with `git show a6c914e:<path> | sed -n 'start,endp'`. **Proposed** marks an unsourced design value with a one-line justification; the owner may revise it. All values are canonical IEEE-754 f32 game values inside the [game-grade envelope](../../gpu-f32-physics.md#game-grade-envelope).
 
 ## 1. Identity
@@ -13,7 +15,7 @@ Story 7.0 named-identity spec (Batch J). Baseline commit `a6c914e`; every citati
 | Proof owner | S338 |
 | Refines / extends | No CAT spec. Driven like [CAT-019 conveyor](CAT-019-conveyor.md) through a mechanical input; uses the slider spring of [CAT-062 spring](CAT-062-spring.md) |
 | Related | EL-110 Flywheel (same scope index), EL-199 Electric motor, EL-184 Mechanical ball gate (a linear consumer) |
-| Roadmap story | unscheduled |
+| Roadmap story | [EL-111 delivery slice](../invest/named-elements.md#element-111); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration
@@ -61,7 +63,7 @@ The spring stores ½·k·x² at sleeve lift x; all energy comes from the driven 
 Brass-like flyballs in gold `#f7cb52`; spindle and arms pale grey `#ccd8dc` metal detail; housing navy `#293954` with cream `#fff8e9` yoke; sleeve in the drivetrain colour `#d69c47` ([DESIGN colour system](../../../DESIGN.md#colour-system)). **Proposed**.
 
 ### Catalogue and inventory entry
-Id `governor`, title "Centrifugal governor", category Motion — **proposed**. Add `WorkshopPartKind.Governor` with a counted allowance (`engine/gpu/WorkshopInventory.cs@a6c914e:L9-L23`).
+Id `governor`, title "Centrifugal governor", category Motion — **proposed**. Declare the package with a counted allowance keyed by its bundle-issued typed id (`engine/gpu/WorkshopInventory.cs@a6c914e:L9-L23`).
 
 ### Variants
 One outcome, no named variants ([element-111](../requirements.md#element-111)).

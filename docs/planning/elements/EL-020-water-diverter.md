@@ -1,5 +1,7 @@
 # EL-020 · Water diverter — named-identity spec
 
+**Current delivery (24 October 2026):** [EL-020 delivery slice](../invest/named-elements.md#element-020). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec ([readiness spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations `path@a6c914e:Lstart-Lend` resolve with `git show a6c914e:<path>` after the Epic 7 purge. A value marked **proposed** has no legacy or requirement source; it carries a one-line justification and the owner may revise it.
 
 ## Identity
@@ -11,8 +13,8 @@ Story 7.0 named-identity spec ([readiness spec](../../../_bmad-output/implementa
 | Named entry | [element-020](../invest/named-elements.md#element-020); per-element proof owner S441 |
 | CAT spec refined | None. The campaign's "fixed/powered/alternating diverter" is a ball-route element in a different row ([campaign table](../requirements.md#campaign-element-coverage)); this is the liquid route selector. |
 | Related identities | [EL-011 Water T](EL-011-water-t-junction.md) (shares instead of selecting), [EL-003 Tap](EL-003-tap.md), pipe kit [EL-008](EL-008-straight-water-pipe.md)–[EL-012](EL-012-water-pipe-cap.md), [EL-004](EL-004-catch-basin.md) |
-| Roadmap story | Unscheduled; ELEMENT-n row of the [roadmap](../invest/vertical-delivery.md#rolling-playable-roadmap), campaign chapter 7, levels 61–70. |
-| Status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
+| Roadmap story | [EL-020 delivery slice](../invest/named-elements.md#element-020); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
 
 ## Declaration
 
@@ -50,7 +52,7 @@ Story 7.0 named-identity spec ([readiness spec](../../../_bmad-output/implementa
 Families ([element map](../general-engine-element-map.md); binding [`element-01.json`](../../coverage/engine/element-01.json), consumer `element/element-020`): EnvironmentState, FiniteLedger, FluidAdvection, GeometryQuery, JointConstraint, PressureWork, RigidBodyDynamics, StateTransaction, TopologyTransaction.
 
 - **Exists now.** Static boxes (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L120`); enum-typed authored parameters and their save path (`engine/gpu/WorkshopSaveCodec.cs@a6c914e:L9-L10`); Run/Reset (`engine/gpu/WorkshopSimulation.cs@a6c914e:L238-L245`).
-- **Missing.** A route-selecting network node ([S416](../invest/decisions.md#s416) advection → S418); mouth joins (EL-001 open question 3). Unscheduled.
+- **Missing.** A route-selecting network node ([S416](../invest/decisions.md#s416) advection → S418); mouth joins (EL-001 open question 3). Required in the linked delivery slice.
 - **Element dependencies.** A supply, pipes and two receivers (EL-004).
 
 ## Sources and legacy

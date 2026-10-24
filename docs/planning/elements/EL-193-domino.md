@@ -1,5 +1,7 @@
 # EL-193 · Domino named-identity spec
 
+**Current delivery (24 October 2026):** [EL-193 delivery slice](../invest/named-elements.md#element-193). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec (Batch J). Baseline commit `a6c914e`; every citation is `path@a6c914e:Lstart-Lend` and resolves with `git show a6c914e:<path> | sed -n 'start,endp'`. **Proposed** marks an unsourced design value with a one-line justification; the owner may revise it. All values are canonical IEEE-754 f32 game values inside the [game-grade envelope](../../gpu-f32-physics.md#game-grade-envelope); the current declaration still stores them as binary16 ([f32 migration status](../../gpu-f32-physics.md#f32-migration-status)) and they are recorded here by decimal meaning.
 
 ## 1. Identity
@@ -13,7 +15,7 @@ Story 7.0 named-identity spec (Batch J). Baseline commit `a6c914e`; every citati
 | Proof owner | S299 |
 | Refines / extends | Refines [CAT-023 domino](CAT-023-domino.md) ([requirement](../requirements.md#current-cat-023)) |
 | Related | CAT-035 Lamp (the `domino_effect` goal), EL-205 Rope and EL-209 Fan (domino lanes in composite levels) |
-| Roadmap story | Stories 5.1 and 5.2 (delivered through CAT-023); the offset centre of mass is unscheduled after its re-deferral from Story 6.1 |
+| Roadmap story | [EL-193 delivery slice](../invest/named-elements.md#element-193); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | partial: delivered except the offset centre of mass |
 
 ## 2. Declaration
@@ -53,7 +55,7 @@ None: the package declares `Parameters: []`, so the placed tile is a zero-parame
 Tile in the Domino colour `#e8d4a6`; two pips, spheres of radius 0.045 m in `#384757` at (0.14, ±0.25, 0) (`parts/DominoPart.cs@a6c914e:L16-L18`; `parts/catalog/domino.tres@a6c914e:L13-L13`; [DESIGN colour system](../../../DESIGN.md#colour-system)).
 
 ### Catalogue and inventory entry
-Id `domino`, title "Domino", category Motion, description "A physical tile: knock it over to hit the next domino. Its activation output signals once it has turned 45° from its placed pose." (`parts/catalog/domino.tres@a6c914e:L8-L14`). `WorkshopPartKind.Domino` exists (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`).
+Id `domino`, title "Domino", category Motion, description "A physical tile: knock it over to hit the next domino. Its activation output signals once it has turned 45° from its placed pose." (`parts/catalog/domino.tres@a6c914e:L8-L14`). Historical registration was `WorkshopPartKind.Domino` (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`).
 
 ### Variants
 One outcome in the row; no variants. The offset centre of mass is part of the CAT-023 declaration, not a variant.

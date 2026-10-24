@@ -1,5 +1,7 @@
 # EL-200 · Drive belt named-identity spec
 
+**Current delivery (24 October 2026):** [EL-200 delivery slice](../invest/named-elements.md#element-200). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec (Batch J). Baseline commit `a6c914e`; every citation is `path@a6c914e:Lstart-Lend` and resolves with `git show a6c914e:<path> | sed -n 'start,endp'`. **Proposed** marks an unsourced design value with a one-line justification; the owner may revise it. All values are canonical IEEE-754 f32 game values inside the [game-grade envelope](../../gpu-f32-physics.md#game-grade-envelope).
 
 ## 1. Identity
@@ -13,7 +15,7 @@ Story 7.0 named-identity spec (Batch J). Baseline commit `a6c914e`; every citati
 | Proof owner | S310 |
 | Refines / extends | No CAT spec of its own; the belt is a connection, not a catalogue part. [CAT-019 conveyor](CAT-019-conveyor.md) and [CAT-057 reverse transmission](CAT-057-reverse_transmission.md) list it as a candidate mapping for the legacy mechanical link |
 | Related | EL-201 Drive chain (must not be interchangeable), EL-199 Electric motor, EL-202 Conveyor, EL-203 Reverse transmission |
-| Roadmap story | unscheduled as a friction-and-tension belt; Stories 11.1–11.2 build the rigid mechanical link that is its nearest precursor |
+| Roadmap story | [EL-200 delivery slice](../invest/named-elements.md#element-200); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration
@@ -67,7 +69,7 @@ Families: ContactImpulse, EnvironmentState, FiniteLedger, FiniteWorkActuation, G
 - Typed connection storage (Activation and Electrical only): `engine/gpu/WorkshopConnections.cs@a6c914e:L8-L13`.
 
 **Missing**
-- Mechanical domain and shaft hinges: Story 11.1. A frictional, tension-limited shaft coupling row (ShaftTorque/SlidingFriction): unscheduled; decision S257 mechanical-port, next implementation S690 ([decisions](../invest/decisions.md#s257)). Owner S310.
+- Mechanical domain and shaft hinges: Story 11.1. A frictional, tension-limited shaft coupling row (ShaftTorque/SlidingFriction): required in the linked delivery slice; decision S257 mechanical-port, next implementation S690 ([decisions](../invest/decisions.md#s257)). Owner S310.
 
 **Dependencies.** CAT-042 motor and CAT-019 conveyor (Story 11.1) as the first drive pair.
 

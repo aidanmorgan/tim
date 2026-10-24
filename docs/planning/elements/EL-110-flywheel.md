@@ -1,5 +1,7 @@
 # EL-110 · Flywheel named-identity spec
 
+**Current delivery (24 October 2026):** [EL-110 delivery slice](../invest/named-elements.md#element-110). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec (Batch J). Baseline commit `a6c914e`; every citation is `path@a6c914e:Lstart-Lend` and resolves with `git show a6c914e:<path> | sed -n 'start,endp'`. **Proposed** marks an unsourced design value with a one-line justification; the owner may revise it. All values are canonical IEEE-754 f32 game values inside the [game-grade envelope](../../gpu-f32-physics.md#game-grade-envelope).
 
 ## 1. Identity
@@ -13,7 +15,7 @@ Story 7.0 named-identity spec (Batch J). Baseline commit `a6c914e`; every citati
 | Proof owner | S337 |
 | Refines / extends | No CAT spec. Uses the finite-inertia shaft and mechanical ports of [CAT-042 motor](CAT-042-motor.md), [CAT-019 conveyor](CAT-019-conveyor.md) and [CAT-057 reverse transmission](CAT-057-reverse_transmission.md) |
 | Related | EL-111 Centrifugal governor (same scope index), EL-199 Electric motor, EL-200 Drive belt |
-| Roadmap story | unscheduled |
+| Roadmap story | [EL-110 delivery slice](../invest/named-elements.md#element-110); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration
@@ -59,7 +61,7 @@ The wheel's kinetic energy ½·I·ω² is the store. It charges only through `Dr
 Wheel in the Reverse transmission colour `#d69c47`; navy `#293954` base and index bar; cream `#fff8e9` bearing block; gold `#f7cb52` index ([DESIGN colour system](../../../DESIGN.md#colour-system); [mechanical work feedback](../../../DESIGN.md#mechanical-work-feedback)). **Proposed**: the drivetrain colour family.
 
 ### Catalogue and inventory entry
-Id `flywheel`, title "Flywheel", category Motion — **proposed**. Add `WorkshopPartKind.Flywheel` with a counted allowance (`engine/gpu/WorkshopInventory.cs@a6c914e:L9-L23`).
+Id `flywheel`, title "Flywheel", category Motion — **proposed**. Declare the package with a counted allowance keyed by its bundle-issued typed id (`engine/gpu/WorkshopInventory.cs@a6c914e:L9-L23`).
 
 ### Variants
 One outcome, no named variants ([element-110](../requirements.md#element-110)).

@@ -8,6 +8,14 @@ The index has three groups, laid out by batch letter:
 2. [Named-identity specs](#named-identity-specs): 276 specs, one per named puzzle-element identity (`EL-NNN-<slug>.md`, `TH-NN-<slug>.md`, `RAD-NN-<slug>.md`, `GAP-NN-<slug>.md`), batches F–O.
 3. [Index-only entries](#index-only-entries): 17 rows (10 umbrella scope-index entries and 7 GAP product features), which get a row but no spec.
 
+## Current delivery applicability
+
+Owner decision, 24 October 2026: every actual named identity in this index is adopted for implementation. “Potential” and historical readiness status do not exclude thermal, radiation or other named elements. Conditional inputs/modes and unnamed alternative designs retain their explicit decision boundaries. All 276 actual named specs, 72 overlapping CAT specs and 17 index-only entries map through the [current identity execution contracts](../invest/named-elements.md#execution-contract--complete-named-catalogue-24-october-2026) and [individual CAT children](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). The existing canonical requirement/S owners remain.
+
+These specifications preserve source behavior and historical harvest. Current implementation uses package-owned .tscn, bundle discovery, typed command/query/event interfaces and generic f32 C# engines; old pinned declarations and “exists now” citations describe their harvest baseline, not current APIs or capacity limits. Source Open questions are entry decisions owned by the selected slice, never permission to omit it. “done” below means readiness documentation reviewed only.
+
+Acceptance outlines are exercised now through production unit/integration tests with positive, negative/control, boundary, tick and Reset/save/load behavior. The Chrome recipes remain pending final-phase proof. Do not write/run/provision browser tests until every required element and all source modes/variants pass native proof. A shared family example never closes its distinct named variants.
+
 ## How to read a spec
 
 Every spec has six sections, in this order:

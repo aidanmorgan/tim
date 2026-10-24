@@ -1,5 +1,7 @@
 # EL-158 · Rise-hold-fall cam named-identity spec
 
+**Current delivery (24 October 2026):** [EL-158 delivery slice](../invest/named-elements.md#element-158). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec (Batch J). Baseline commit `a6c914e`; every citation is `path@a6c914e:Lstart-Lend` and resolves with `git show a6c914e:<path> | sed -n 'start,endp'`. **Proposed** marks an unsourced design value with a one-line justification; the owner may revise it. All values are canonical IEEE-754 f32 game values inside the [game-grade envelope](../../gpu-f32-physics.md#game-grade-envelope).
 
 ## 1. Identity
@@ -13,7 +15,7 @@ Story 7.0 named-identity spec (Batch J). Baseline commit `a6c914e`; every citati
 | Proof owner | S346 |
 | Refines / extends | No CAT spec. Same cam-unit layout as [EL-156](EL-156-single-lobe-cam.md); drive from [CAT-042 motor](CAT-042-motor.md); follower slider as [CAT-062 spring](CAT-062-spring.md) |
 | Related | EL-156 Single-lobe cam, EL-157 Double-lobe cam; contrasts with timer elements such as CAT-033 Hold timer |
-| Roadmap story | unscheduled |
+| Roadmap story | [EL-158 delivery slice](../invest/named-elements.md#element-158); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration
@@ -58,7 +60,7 @@ Cam and follower follow committed poses; the dwell arc is drawn as a gold `#f7cb
 Drivetrain colour `#d69c47` cam with a gold dwell band; cream `#fff8e9` follower; navy `#293954` base ([DESIGN colour system](../../../DESIGN.md#colour-system)). **Proposed**.
 
 ### Catalogue and inventory entry
-Id `cam_dwell`, title "Rise-hold-fall cam", category Motion — **proposed**. Add `WorkshopPartKind.DwellCam` with a counted allowance (`engine/gpu/WorkshopInventory.cs@a6c914e:L9-L23`).
+Id `cam_dwell`, title "Rise-hold-fall cam", category Motion — **proposed**. Declare the package with a counted allowance keyed by its bundle-issued typed id (`engine/gpu/WorkshopInventory.cs@a6c914e:L9-L23`).
 
 ### Variants
 One outcome in the row; no variants.
@@ -71,7 +73,7 @@ Families: ContactImpulse, EnvironmentState, FiniteLedger, GeometryQuery, JointCo
 - Box contact with friction and restitution: `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L701-L719`, `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L886-L900`.
 
 **Missing**
-- Convex prism collider with a constant-radius arc (GeometryQuery/ContactImpulse), owner S346; hinge (Story 10.3); slider spring (Story 6.4); mechanical input (Story 11.1); linear output domain unscheduled (S257, [decisions](../invest/decisions.md#s257)).
+- Convex prism collider with a constant-radius arc (GeometryQuery/ContactImpulse), owner S346; hinge (Story 10.3); slider spring (Story 6.4); mechanical input (Story 11.1); linear output domain required in the linked delivery slice (S257, [decisions](../invest/decisions.md#s257)).
 
 **Dependencies.** A shaft source such as CAT-042 (Story 11.1); shares every capability with EL-156.
 

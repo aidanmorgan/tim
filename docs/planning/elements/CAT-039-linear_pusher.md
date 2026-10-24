@@ -1,5 +1,7 @@
 # CAT-039 · linear_pusher declaration readiness spec
 
+**Current delivery (24 October 2026):** [CAT-039 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 CAT-039-D readiness spec. Baseline commit `a6c914e`. Legacy citations use `path@a6c914e:Lstart-Lend` and stay retrievable from git history after the Epic 7 purge. Current-engine files are cited at the same commit. Values are authored as f32 game values under [the numeric contract](../../gpu-f32-physics.md#numeric-representation-and-precision); legacy `double`/`float` magnitudes carry forward only as authored values.
 
 ## 1. Identity
@@ -10,8 +12,8 @@ Story 7.0 CAT-039-D readiness spec. Baseline commit `a6c914e`. Legacy citations 
 | Kind | `linear_pusher` (catalogue title "Linear pusher", category Power) |
 | Requirement anchor | [CAT-039](../requirements.md#current-cat-039); retained behaviour [sequence-task-309](../requirements.md#sequence-task-309); consumers [CAT-039-I](../invest/current-consumers.md#cat-039-i) |
 | Mapped identities | None found in [named-elements](../invest/named-elements.md). EL-053 rotary-to-linear converter is a separate shaft-driven element, not this electric servo. |
-| Roadmap story | 11.3 Linear Pusher Telescopic Actuator ([epics](../../../_bmad-output/planning-artifacts/epics.md), Epic 11) |
-| Status | Not started. No `WorkshopPartKind` member exists (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
+| Roadmap story | 11.3 Linear Pusher Telescopic Actuator ([epics](../../../_bmad-output/planning-artifacts/epics.md), Epic 11) Current [CAT-039 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). |
+| Harvest-baseline status | Not started. No `WorkshopPartKind` member exists (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
 
 ## 2. Declaration
 

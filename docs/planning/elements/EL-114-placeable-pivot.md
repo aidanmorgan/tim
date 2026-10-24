@@ -1,5 +1,7 @@
 # EL-114 · Placeable pivot — named-identity readiness spec
 
+**Current delivery (24 October 2026):** [EL-114 delivery slice](../invest/named-elements.md#element-114). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 readiness spec ([spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations are `path@a6c914e:Lstart-Lend`. Values marked **proposed** have no legacy or requirement source; each carries a one-line justification and the owner may revise it.
 
 ## 1. Identity
@@ -9,8 +11,8 @@ Story 7.0 readiness spec ([spec](../../../_bmad-output/implementation-artifacts/
 | ID / name / type | EL-114 · Placeable pivot · Construction |
 | Anchor | [requirements.md#element-114](../requirements.md#element-114); [named-elements entry](../invest/named-elements.md#element-114); umbrella [gap-02](../requirements.md#gap-02) (index only) |
 | Related identities | [EL-115 Linkage connector](EL-115-linkage-connector.md) (same lesson); [EL-112](EL-112-structural-beam.md)/[EL-113](EL-113-structural-brace.md) (frame corners); [EL-117 Axle](EL-117-axle.md) (the same revolute row on a wheel). It reuses the hinge the [CAT-034 Impact lever](CAT-034-impact_lever.md) introduces; no CAT refines it. |
-| Roadmap story | Unscheduled. Campaign: introduction 9 "Joint Effort", practice 10, reuse 38, 46, 138 ([gap-02](../requirements.md#gap-02)). |
-| Status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
+| Roadmap story | [EL-114 delivery slice](../invest/named-elements.md#element-114); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
 
 ## 2. Declaration
 
@@ -38,14 +40,14 @@ Two variants from the gap-02 integration: "A free pivot rotates and a limited pi
 
 - **Cosmetic curves and UI bindings.** Moving art follows the solved joint pose; no curve. A selected-only arc shows the actual limits ([gap-02 visual style](../requirements.md#gap-02)). Angles set by a rotate-gizmo drag on the arc handles, not a numeric inspector.
 - **Art.** Cream bearing plinth `#fff8e9`, gold visible pin `#f7cb52`, navy axis notch `#293954` ([gap-02](../requirements.md#gap-02); `DESIGN.md@a6c914e:L147-L154`).
-- **Catalogue and inventory.** **Proposed** id `pivot`, title "Pivot", category Structure; `WorkshopPartKind.Pivot` appended last in the Free palette (`engine/gpu/WorkshopInventory.cs@a6c914e:L47-L60`).
+- **Catalogue and inventory.** **Proposed** id `pivot`, title "Pivot", category Structure; package-owned metadata discovered into the Free palette from the bundle (`engine/gpu/WorkshopInventory.cs@a6c914e:L47-L60`).
 
 ## 3. Engine capabilities
 
 Families ([element map row](../general-engine-element-map.md), [binding](../../coverage/engine/element-02.json)): ContactImpulse, EnvironmentState, FiniteLedger, GeometryQuery, JointConstraint, RigidBodyDynamics, SlidingFriction, StateTransaction.
 
 - **Exists now.** Static box plinth, dynamic members, contact and gravity (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L120`). TGS Soft contact rows and soft parameters (`CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L205-L240`).
-- **Missing.** Revolute joint row with travel limits: Story 10.3 builds it for CAT-034 ([epics](../../../_bmad-output/planning-artifacts/epics.md)). The placeable part, its sockets and the structural domain: unscheduled, owner S328.
+- **Missing.** Revolute joint row with travel limits: Story 10.3 builds it for CAT-034 ([epics](../../../_bmad-output/planning-artifacts/epics.md)). The placeable part, its sockets and the structural domain: required in the linked delivery slice, owner S328.
 - **Dependencies.** Story 10.3 hinge row; a dynamic member (EL-112 beam or EL-115 link) to rotate.
 
 ## 4. Sources and legacy

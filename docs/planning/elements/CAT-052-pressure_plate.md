@@ -1,5 +1,7 @@
 # CAT-052 · pressure_plate — declaration readiness spec
 
+**Current delivery (24 October 2026):** [CAT-052 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 Batch B declaration spec (CAT-052-D). Legacy citations are pinned to `a6c914e` and resolve with `git show a6c914e:<path> | sed -n 'start,endp'`. Requirement row: [CAT-052](../requirements.md#current-cat-052). Supplied-network facts (N1–N24) are in [CAT-005](CAT-005-battery.md#4-legacy-harvest).
 
 ## 1. Identity
@@ -9,7 +11,7 @@ Story 7.0 Batch B declaration spec (CAT-052-D). Legacy citations are pinned to `
 | CAT ID / kind | CAT-052 · `pressure_plate` |
 | Requirement anchor | [current-cat-052](../requirements.md#current-cat-052); retained behaviour [todo-265](../requirements.md#todo-265) |
 | Mapped identities | none owned. Related but distinct: [EL-059 Weight tray](../invest/named-elements.md#element-059) ("loaded support exposes measured force or threshold state"); no legacy implementation links them, so its requirement row stands as the source. |
-| Roadmap story | 9.1 "Pressure Plate Surface Contact Load Sensor" (Epic 9) |
+| Roadmap story | 9.1 "Pressure Plate Surface Contact Load Sensor" (Epic 9) Current [CAT-052 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). |
 | Status | not started |
 
 ## 2. Declaration

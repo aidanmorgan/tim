@@ -1,0 +1,142 @@
+[
+  {
+    "lens": "adversarial",
+    "location": "_bmad-output/planning-artifacts/epics.md:222-227; docs/planning/elements/EL-001-finite-reservoir.md:14,53",
+    "trigger_condition": "The element lane ends at Epic 14 while the larger named inventory includes unscheduled elements and capabilities.",
+    "guard_snippet": "Map every required named identity to an ordered implementation slice before campaign/browser qualification; distinguish 276 element specs from 17 index-only entries and preserve adoption decisions.",
+    "potential_consequence": "The all-elements browser gate cannot be reached, or 72 catalogue entries are mistaken for full scope."
+  },
+  {
+    "lens": "adversarial",
+    "location": "_bmad-output/planning-artifacts/epics.md:3792,3807,3834,3856,3925,3993,4022,4038,4054,4086",
+    "trigger_condition": "Outstanding stories combine multiple new elements and variants.",
+    "guard_snippet": "Split into one element or variant per slice; assign every original acceptance clause and shared prerequisite.",
+    "potential_consequence": "Combined deliveries can hide missing variants and violate the one-element rule."
+  },
+  {
+    "lens": "adversarial",
+    "location": "TODO.md:13-20; _bmad-output/implementation-artifacts/review-ci-harness-determinism.md:181-234",
+    "trigger_condition": "TODO's red-main blocker conflicts with recorded terminal Pass and exact-SHA CI success at 9536e2ff.",
+    "guard_snippet": "Reconcile current branch state and the recorded receipt; retire the blocker if no later failure supersedes it and link the actual next check. This review did not freshly query CI.",
+    "potential_consequence": "Resolved infrastructure work can continue blocking ready publication."
+  },
+  {
+    "lens": "adversarial",
+    "location": "TODO.md:25-28; _bmad-output/planning-artifacts/epics.md:215-218; _bmad-output/implementation-artifacts/sprint-status.yaml",
+    "trigger_condition": "Stabilization priorities lack corresponding executable sprint entries and linked contracts; the claimed ready cylinder spec is not linked.",
+    "guard_snippet": "Specify bounded creep, harness A/B, TypeScript and test-hygiene slices with dependencies, deletions, native positive/control/boundary acceptance and an explicit stabilization exit.",
+    "potential_consequence": "Stabilization is not reliably selectable or closable and can expand indefinitely."
+  },
+  {
+    "lens": "adversarial",
+    "location": "TODO.md:24; _bmad-output/planning-artifacts/epics.md:207-214,3623-3649",
+    "trigger_condition": "Detailed 9A.44 acceptance covers binary16 but not the full new double-game-value and tick/phase scope.",
+    "guard_snippet": "Inventory double boundaries, permitted external adapters, integer ticks/f32 phase and overflow behavior; add independent numerical and rejection acceptance.",
+    "potential_consequence": "The detailed story can pass while violating the new numeric directive."
+  },
+  {
+    "lens": "adversarial",
+    "location": "_bmad-output/planning-artifacts/epics.md:3643",
+    "trigger_condition": "The zero-hit Half/Float16 scan includes specifications and preserved evidence containing those tokens.",
+    "guard_snippet": "Scope the architecture guard to relevant executable source and schemas, explicitly preserving documents, historical evidence and legacy-input fixtures.",
+    "potential_consequence": "Acceptance requires erasing evidence or silently weakening the scan."
+  },
+  {
+    "lens": "adversarial",
+    "location": "TODO.md:24,27; _bmad-output/planning-artifacts/epics.md:3635",
+    "trigger_condition": "f32 precedes TypeScript conversion but requires editing workshop-client.js under the changed-code TypeScript rule.",
+    "guard_snippet": "Convert the affected modules as a bounded f32 prerequisite or within its dependency closure; specify pinned compilation and tests against shipped output.",
+    "potential_consequence": "The next slice violates the TypeScript rule or discovers an unplanned dependency."
+  },
+  {
+    "lens": "adversarial",
+    "location": "TODO.md:30; _bmad-output/planning-artifacts/epics.md:3720; docs/planning/elements/CAT-058-rope_anchor.md:171-177",
+    "trigger_condition": "Rope remains provisional; cutting is still an open question in its declaration despite the approved requirement, with length/compliance/slack decisions unresolved.",
+    "guard_snippet": "Finalize 10.2b including cut command, state transition, Reset/save behavior and finite physics/authoring decisions.",
+    "potential_consequence": "Rope can omit approved behavior or establish incompatible semantics for Pulley and Lever."
+  },
+  {
+    "lens": "adversarial",
+    "location": "docs/planning/elements/CAT-058-rope_anchor.md:70",
+    "trigger_condition": "The next element's active declaration instructs adding WorkshopPartKind.RopeAnchor and a manual inventory row.",
+    "guard_snippet": "Replace active instructions with package/bundle/generic-instance registration; retain old facts only as legacy evidence and check other pending declarations.",
+    "potential_consequence": "Implementation recreates retired element-specific registration."
+  },
+  {
+    "lens": "adversarial",
+    "location": "docs/planning/invest/vertical-delivery.md:200; docs/architecture/element-package-isolation.md:17; docs/gpu-f32-physics.md:59,71",
+    "trigger_condition": "Roadmap programme completion requires .glb while the sole current design authority requires package .tscn scenes.",
+    "guard_snippet": "Update the roadmap to the current .tscn/package authority; retain the already-correct .tscn element contracts. Coordinator corrected the lens's initially inverted fix.",
+    "potential_consequence": "Implementers receive conflicting asset contracts and can recreate a retired path."
+  },
+  {
+    "lens": "edge-case-hunter",
+    "location": "_bmad-output/planning-artifacts/epics.md:223-229; docs/planning/elements/EL-112-structural-beam.md:12; docs/planning/elements/TH-01-candle.md:15",
+    "trigger_condition": "Epic 14 completes while structural and thermal identities remain unscheduled.",
+    "guard_snippet": "Schedule all outstanding named identities before the catalogue completion/browser gate.",
+    "potential_consequence": "Campaign or browser work begins without the required large element set."
+  },
+  {
+    "lens": "edge-case-hunter",
+    "location": "_bmad-output/planning-artifacts/epics.md:3792-3848; docs/planning/invest/vertical-delivery.md:171-174",
+    "trigger_condition": "An implementer selects grouped Motor/Conveyor, Clutch/Reverser or Spring/Cannon work.",
+    "guard_snippet": "Split each group, preserving integration ownership and shared prerequisites.",
+    "potential_consequence": "Several new elements enter one mandatory single-element slice."
+  },
+  {
+    "lens": "edge-case-hunter",
+    "location": "_bmad-output/planning-artifacts/epics.md:3720-3731; TODO.md:30",
+    "trigger_condition": "10.2b begins before Pulley exists, but inherited acceptance requires two pulleys.",
+    "guard_snippet": "Define Rope Anchor/Tie/Load/cut native acceptance using delivered fixtures; reserve pulley routing for 10.2c.",
+    "potential_consequence": "The provisional rope slice has no independent completion boundary."
+  },
+  {
+    "lens": "edge-case-hunter",
+    "location": "_bmad-output/planning-artifacts/epics.md:3643",
+    "trigger_condition": "The f32 zero-hit scan runs over its own specification and retained evidence.",
+    "guard_snippet": "Restrict the guard to appropriate executable inputs and preserve documentation.",
+    "potential_consequence": "A successful migration cannot satisfy the literal scan."
+  },
+  {
+    "lens": "edge-case-hunter",
+    "location": "TODO.md:29-30,40; _bmad-output/implementation-artifacts/deferred-work.md:127-129",
+    "trigger_condition": "Dynamic Impact Lever is selected while supported-impact restitution remains deferred.",
+    "guard_snippet": "Make the recorded supported-impact check an explicit 10.3 prerequisite when its seesaw geometry applies, with a native entry check.",
+    "potential_consequence": "A dynamic support consumer can precede its mandatory engine check."
+  },
+  {
+    "lens": "structure",
+    "location": "TODO.md:13-30,40",
+    "trigger_condition": "Current priorities and deferred-work names lack direct contract links.",
+    "guard_snippet": "Link each current item to its exact spec/epic section and evidence; label outlines as needing specification.",
+    "potential_consequence": "Readers must search to determine readiness."
+  },
+  {
+    "lens": "structure",
+    "location": "docs/planning/invest/vertical-delivery.md:3-108",
+    "trigger_condition": "Historical first-delivery examples precede the current execution order.",
+    "guard_snippet": "Move the current roadmap and phase policy ahead of reference examples, preserving acceptance.",
+    "potential_consequence": "Readers reconstruct the plan from stale introductory context."
+  },
+  {
+    "lens": "structure",
+    "location": "docs/planning/invest/vertical-delivery.md:9,119,202-210",
+    "trigger_condition": "The reusable slice template foregrounds Chrome while newer policy defers it.",
+    "guard_snippet": "Put the native-first policy beside the table/template and distinguish required-now tests from retained later browser acceptance.",
+    "potential_consequence": "Copying the template can reintroduce premature browser work; this is navigation drift, not a claim that superseded rules still govern."
+  },
+  {
+    "lens": "structure",
+    "location": "docs/planning/invest/vertical-delivery.md:156-198",
+    "trigger_condition": "Historical offsets, renumbering and obsolete open-question lists sit inside the current ordered roadmap.",
+    "guard_snippet": "Keep effective order and current decision links in the roadmap; retain history in evidence records.",
+    "potential_consequence": "Readers must interpret successive amendments to select work."
+  },
+  {
+    "lens": "structure",
+    "location": "TODO.md:5-20",
+    "trigger_condition": "Verified-work inventory and wildcard evidence precede actionable status.",
+    "guard_snippet": "Lead with current blocker/retry/next acceptance check and use exact current review links.",
+    "potential_consequence": "Current action and supporting proof are difficult to discover."
+  }
+]

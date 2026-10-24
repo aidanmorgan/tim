@@ -1,5 +1,7 @@
 # EL-154 · Light-charge receiver — named-identity spec
 
+**Current delivery (24 October 2026):** [EL-154 delivery slice](../invest/named-elements.md#element-154). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 full spec for a named puzzle-element identity. Baseline commit `a6c914e`. Legacy citations use `path@a6c914e:Lstart-Lend` and stay retrievable from git history after the Epic 7 purge. Lengths in metres. The sensing face looks along local −X.
 
 No legacy part implements this identity, and legacy explicitly had no light storage ("No ambient-sky power, storage or voltage/current model", `parts/SolarPanelPart.cs@a6c914e:L8-L9`). Every value below that is not a cited mechanism is **proposed** with a justification.
@@ -15,7 +17,7 @@ No legacy part implements this identity, and legacy explicitly had no light stor
 | Owner | S516 |
 | Refines CAT | none. Extends [EL-153](EL-153-general-light-receiver.md) (same sensing face) with a finite charge store; related to [CAT-059 solar_panel](CAT-059-solar_panel.md) (instantaneous, no store). |
 | Related | EL-153 general-light receiver; EL-210 flashlight and EL-155 rope-operated light (sources); EL-211 solar panel (converts rather than switches) |
-| Roadmap story | unscheduled |
+| Roadmap story | [EL-154 delivery slice](../invest/named-elements.md#element-154); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration
@@ -54,10 +56,10 @@ Binding shard ([element-02.json](../../coverage/engine/element-02.json)): Electr
 
 **Missing**
 - OpticalTransport cone reception — Stories 13.1 and 13.7; S484 ([decisions](../invest/decisions.md#s484)): S486, S488.
-- FiniteLedger charge store with intake, leak and clamp, committed per tick — no story yet; S485 (finite allocation) and refinement S710 **charge** ("store/deplete converted optical energy rather than instantaneous free power", [refinements](../invest/refinements.md)).
+- FiniteLedger charge store with intake, leak and clamp, committed per tick — required prerequisite owned by the linked delivery slice; S485 (finite allocation) and refinement S710 **charge** ("store/deplete converted optical energy rather than instantaneous free power", [refinements](../invest/refinements.md)).
 - ElectricalPower switched contact — Story 8.1 plus an Epic 13 slice; S257.
 - OpticalAbsorption/SensibleHeat — S489/S543 (whether the 20% lost intake becomes heat).
-- `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`).
+- package declaration and bundle-issued typed id (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`).
 
 **Element dependencies:** EL-153 sensing face, EL-210 flashlight (Story 13.1), CAT-005 battery, a load (CAT-035 lamp), CAT-022 delay or CAT-063 switch to pulse the torch.
 
@@ -88,4 +90,4 @@ Binding shard ([element-02.json](../../coverage/engine/element-02.json)): Electr
 2. All store constants and parameters are proposed (capacity, η, λ, release and reset levels).
 3. Does the lost 20% intake become heat (SensibleHeat) or vanish? Owner S489.
 4. Does it also charge from narrow laser light? Proposed: cone light only, as EL-153.
-5. Roadmap: unscheduled.
+5. Roadmap: required in the linked delivery slice.

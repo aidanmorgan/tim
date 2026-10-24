@@ -1,5 +1,7 @@
 # EL-109 · Speed-sensitive trapdoor named-identity spec
 
+**Current delivery (24 October 2026):** [EL-109 delivery slice](../invest/named-elements.md#element-109). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec (Batch J). Baseline commit `a6c914e`; every citation is `path@a6c914e:Lstart-Lend` and resolves with `git show a6c914e:<path> | sed -n 'start,endp'`. **Proposed** marks an unsourced design value with a one-line justification; the owner may revise it. All values are canonical IEEE-754 f32 game values inside the [game-grade envelope](../../gpu-f32-physics.md#game-grade-envelope).
 
 ## 1. Identity
@@ -13,7 +15,7 @@ Story 7.0 named-identity spec (Batch J). Baseline commit `a6c914e`; every citati
 | Proof owner | S376 |
 | Refines / extends | No CAT spec. Reuses the aperture sensor of [CAT-002 ball detector](CAT-002-ball_detector.md) and the hinge of [CAT-034 impact lever](CAT-034-impact_lever.md) |
 | Related | EL-107, EL-108 (same scope index); EL-162–EL-164 diverters (alternative routing) |
-| Roadmap story | unscheduled |
+| Roadmap story | [EL-109 delivery slice](../invest/named-elements.md#element-109); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration
@@ -64,7 +66,7 @@ The sensor-to-latch binding is internal typed discrete state, not a player wire 
 Track in the Ramp colour `#c28f52`; door in the same colour with navy `#293954` hinge; gold `#f7cb52` latch pin; speed gate frame cream `#fff8e9` ([DESIGN colour system](../../../DESIGN.md#colour-system)). **Proposed** within the approved palette.
 
 ### Catalogue and inventory entry
-Id `speed_trapdoor`, title "Speed trapdoor", category Motion — **proposed**. Add `WorkshopPartKind.SpeedTrapdoor` with a counted allowance (`engine/gpu/WorkshopInventory.cs@a6c914e:L9-L23`).
+Id `speed_trapdoor`, title "Speed trapdoor", category Motion — **proposed**. Declare the package with a counted allowance keyed by its bundle-issued typed id (`engine/gpu/WorkshopInventory.cs@a6c914e:L9-L23`).
 
 ### Variants
 One outcome in the row. The campaign coverage row lists unnamed "trapdoor variants" ([campaign-element-coverage](../requirements.md#campaign-element-coverage)); [todo-220](../requirements.md#todo-220) asks to verify the historical selection rule rather than guess a size filter. Open question 1.

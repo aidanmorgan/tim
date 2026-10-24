@@ -1,5 +1,7 @@
 # EL-160 · Shear-limited connector — named-identity readiness spec
 
+**Current delivery (24 October 2026):** [EL-160 delivery slice](../invest/named-elements.md#element-160). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 readiness spec ([spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations are `path@a6c914e:Lstart-Lend`. Values marked **proposed** have no legacy or requirement source; each carries a one-line justification and the owner may revise it.
 
 ## 1. Identity
@@ -9,8 +11,8 @@ Story 7.0 readiness spec ([spec](../../../_bmad-output/implementation-artifacts/
 | ID / name / type | EL-160 · Shear-limited connector · Construction |
 | Anchor | [requirements.md#element-160](../requirements.md#element-160); [named-elements entry](../invest/named-elements.md#element-160); umbrella [gap-05](../requirements.md#gap-05) (index only) |
 | Related identities | Siblings [EL-159 Tension-limited](EL-159-tension-limited-connector.md) and [EL-161 Bending-limited](EL-161-bending-limited-connector.md); joins [EL-112](EL-112-structural-beam.md) members. No CAT refines it. |
-| Roadmap story | Unscheduled. Campaign: introduction 43 "The Last Straw", practice 44, reuse 65, 96, 139 ([gap-05](../requirements.md#gap-05)). |
-| Status | Not started (no joint or fracture capability, `engine/gpu/PhysicsDeclarations.cs@a6c914e:L163-L192`). |
+| Roadmap story | [EL-160 delivery slice](../invest/named-elements.md#element-160); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | Not started (no joint or fracture capability, `engine/gpu/PhysicsDeclarations.cs@a6c914e:L163-L192`). |
 
 ## 2. Declaration
 

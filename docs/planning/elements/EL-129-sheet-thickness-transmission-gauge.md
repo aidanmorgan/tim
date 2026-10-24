@@ -1,5 +1,7 @@
 # EL-129 · Sheet-thickness transmission gauge — element readiness spec
 
+**Current delivery (24 October 2026):** [EL-129 delivery slice](../invest/named-elements.md#element-129). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 Batch O named-identity spec. Legacy citations are pinned to `a6c914e` and resolve with `git show a6c914e:<path> | sed -n 'start,endp'`. Requirement row: [element-129](../requirements.md#element-129). A toy inspection instrument for fictional toy sources in game units; never real-world gauging guidance.
 
 ## 1. Identity
@@ -11,7 +13,7 @@ Story 7.0 Batch O named-identity spec. Legacy citations are pinned to `a6c914e` 
 | Anchor | [requirements.md#element-129](../requirements.md#element-129); [named-elements.md#element-129](../invest/named-elements.md#element-129); scope source [radiation-11](../requirements.md#radiation-11) (umbrella "Transmission gauge", index only) |
 | Related identities | Sibling [EL-130 Tank-level gauge](EL-130-tank-level-transmission-gauge.md); sources [RAD-01](RAD-01-gamma-source-capsule.md), [RAD-02](RAD-02-powered-x-ray-emitter.md); sample materials from [EL-127](EL-127-polymer-shield.md), [EL-128](EL-128-dense-shield.md); shared detector defaults [RAD-08](RAD-08-radiation-rate-meter.md); routing via [CAT-019 Conveyor](CAT-019-conveyor.md) and a [powered diverter EL-163](../invest/named-elements.md#element-163). No CAT spec. |
 | Proof owner | S618 |
-| Roadmap story | unscheduled; campaign chapter 12 (levels 111–120; research slot 88 → 113) |
+| Roadmap story | [EL-129 delivery slice](../invest/named-elements.md#element-129); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration
@@ -40,13 +42,13 @@ Families from the [map row](../general-engine-element-map.md) and [binding](../.
 
 | Family | Status | Basis or builder |
 | --- | --- | --- |
-| FiniteLedger | missing | unscheduled (S010-D); the only current finite store is bumper contact work, `engine/gpu/ContactWorkDeclaration.cs@a6c914e:L5-L9` |
-| GeometryQuery | exists now for contact only; missing for radiation paths | BVH `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L74-L204` and narrowphase `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L325-L620` (the coverage JSON's `engine/gpu/physics.wgsl` basis is not in the tree); reference-path query excluding dynamic bodies: unscheduled (P0-004, S606-D) |
-| IonizingTransport | missing | unscheduled (S606-D/F) |
+| FiniteLedger | missing | required in the linked delivery slice (S010-D); the only current finite store is bumper contact work, `engine/gpu/ContactWorkDeclaration.cs@a6c914e:L5-L9` |
+| GeometryQuery | exists now for contact only; missing for radiation paths | BVH `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L74-L204` and narrowphase `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L325-L620` (the coverage JSON's `engine/gpu/physics.wgsl` basis is not in the tree); reference-path query excluding dynamic bodies: required in the linked delivery slice (P0-004, S606-D) |
+| IonizingTransport | missing | required in the linked delivery slice (S606-D/F) |
 | SignalPropagation | missing | Story 8.1 (supplied contacts); the current `engine/gpu/ActivationNetwork.cs@a6c914e:L7-L14` is activation-only |
 | StateTransaction | exists now | `engine/gpu/WorkshopSimulation.cs@a6c914e:L44-L161`; calibration recomputed each Run |
 
-Also used: ElectricalPower (missing; Story 8.1); inspector selectors for material and threshold (unscheduled with this element).
+Also used: ElectricalPower (missing; Story 8.1); inspector selectors for material and threshold (required in the linked delivery slice with this element).
 
 **Dependencies.** A photon source; samples on transport (CAT-019 Conveyor, Story 11.1); a diverter for routing; CAT-005 Battery.
 

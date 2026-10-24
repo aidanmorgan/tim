@@ -1,5 +1,7 @@
 # EL-194 · Springboard named-identity spec
 
+**Current delivery (24 October 2026):** [EL-194 delivery slice](../invest/named-elements.md#element-194). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec (Batch J). Baseline commit `a6c914e`; every citation is `path@a6c914e:Lstart-Lend` and resolves with `git show a6c914e:<path> | sed -n 'start,endp'`. **Proposed** marks an unsourced design value with a one-line justification; the owner may revise it. All values are canonical IEEE-754 f32 game values inside the [game-grade envelope](../../gpu-f32-physics.md#game-grade-envelope).
 
 Current implementation (C-Bumper+Spring, 22 Oct 2026): the Springboard is a generic instance of the `spring` package. Its typed `stiffness`, `damping` and `initial_compression` parameters drive the shared slider compile, and its plate is presented by the generic slider presentation. The record-era citations below (`parts/SpringPart.cs`, `parts/catalog/spring.tres`) are historical. See [CAT-062 §2](CAT-062-spring.md#2-declaration).
@@ -15,7 +17,7 @@ Current implementation (C-Bumper+Spring, 22 Oct 2026): the Springboard is a gene
 | Proof owner | S300 |
 | Refines / extends | Refines [CAT-062 spring](CAT-062-spring.md) ([requirement](../requirements.md#current-cat-062)) |
 | Related | CAT-065 Trampoline (shares the elastic capability, different declaration), EL-215 Damped cushion |
-| Roadmap story | Story 6.4 (slider and spring) and Story 6.5 (preload and `spring_forward`) |
+| Roadmap story | [EL-194 delivery slice](../invest/named-elements.md#element-194); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | Passive Story6.4 published at `781e0c81b838abe13fea8bc72d10e60f0ee67dca` with independent terminal scoped Pass. Preload and `spring_forward` remain Story6.5. |
 
 ## 2. Declaration
@@ -64,7 +66,7 @@ Parameter keys are an enum (`SpringParameter`); the removed `strength` field rej
 Plate in the Spring colour `#f5b354`; base `#273446`; coil `#ccd9df` (`parts/SpringPart.cs@a6c914e:L89-L94`; `parts/catalog/spring.tres@a6c914e:L13-L13`; [DESIGN colour system](../../../DESIGN.md#colour-system)).
 
 ### Catalogue and inventory entry
-Id `spring`, title "Springboard", category Motion, "A rigid plate compresses its finite spring and returns stored energy." (`parts/catalog/spring.tres@a6c914e:L8-L14`). Add `WorkshopPartKind.Springboard` with a counted allowance (`engine/gpu/WorkshopInventory.cs@a6c914e:L9-L23`).
+Id `spring`, title "Springboard", category Motion, "A rigid plate compresses its finite spring and returns stored energy." (`parts/catalog/spring.tres@a6c914e:L8-L14`). Declare the package with a counted allowance keyed by its bundle-issued typed id (`engine/gpu/WorkshopInventory.cs@a6c914e:L9-L23`).
 
 ### Variants
 - **Passive (uncharged).** `initial_compression` = 0. A payload loads the plate through contact and gets back stored energy less damping; a missed or absent payload gets nothing.

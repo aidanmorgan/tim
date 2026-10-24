@@ -1,5 +1,7 @@
 # RAD-09 · Integrating dosimeter — element readiness spec
 
+**Current delivery (24 October 2026):** [RAD-09 delivery slice](../invest/named-elements.md#radiation-09). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 Batch O named-identity spec. Legacy citations are pinned to `a6c914e` and resolve with `git show a6c914e:<path> | sed -n 'start,endp'`. Requirement row: [radiation-09](../requirements.md#radiation-09) (P1 potential). Game exposure units for fictional toy sources; never real-world dosimetry.
 
 ## 1. Identity
@@ -11,7 +13,7 @@ Story 7.0 Batch O named-identity spec. Legacy citations are pinned to `a6c914e` 
 | Anchor | [requirements.md#radiation-09](../requirements.md#radiation-09); [named-elements.md#radiation-09](../invest/named-elements.md#radiation-09) |
 | Related identities | Rate-only counterpart [RAD-08](RAD-08-radiation-rate-meter.md) (shared rate law); burst source [RAD-02 X-ray emitter](RAD-02-powered-x-ray-emitter.md); passive cargo counterpart [RAD-10](RAD-10-exposure-sensitive-cargo-badge.md); feedback partner [RAD-06 shutter](RAD-06-powered-radiation-shutter.md). Must stay distinct from [CAT-033 hold timer](CAT-033-hold_timer.md) (continuous residence timer); bursts come from [CAT-017 Clock](CAT-017-clock.md). No CAT spec refined. |
 | Proof owner | S616 |
-| Roadmap story | unscheduled; campaign 109, 110 (research slots 84, 85) |
+| Roadmap story | [RAD-09 delivery slice](../invest/named-elements.md#radiation-09); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration
@@ -40,13 +42,13 @@ Families from the [map row](../general-engine-element-map.md) and [binding](../.
 
 | Family | Status | Basis or builder |
 | --- | --- | --- |
-| FiniteLedger | missing | unscheduled (S010-D); per-instrument accumulated store; the only current finite store is bumper contact work, `engine/gpu/ContactWorkDeclaration.cs@a6c914e:L5-L9` |
-| GeometryQuery | exists now for contact only; missing for radiation paths | BVH `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L74-L204` and narrowphase `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L325-L620` (the coverage JSON's `engine/gpu/physics.wgsl` basis is not in the tree); sampled path queries: unscheduled (S606-D) |
-| IonizingTransport | missing | unscheduled (S606-D/F) |
+| FiniteLedger | missing | required in the linked delivery slice (S010-D); per-instrument accumulated store; the only current finite store is bumper contact work, `engine/gpu/ContactWorkDeclaration.cs@a6c914e:L5-L9` |
+| GeometryQuery | exists now for contact only; missing for radiation paths | BVH `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L74-L204` and narrowphase `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L325-L620` (the coverage JSON's `engine/gpu/physics.wgsl` basis is not in the tree); sampled path queries: required in the linked delivery slice (S606-D) |
+| IonizingTransport | missing | required in the linked delivery slice (S606-D/F) |
 | SignalPropagation | missing | Story 8.1 (supplied contacts); the current `engine/gpu/ActivationNetwork.cs@a6c914e:L7-L14` is activation-only |
-| StateTransaction | exists now | `engine/gpu/WorkshopSimulation.cs@a6c914e:L44-L161`; D commits with the tick and clears on Reset (unscheduled with this element) |
+| StateTransaction | exists now | `engine/gpu/WorkshopSimulation.cs@a6c914e:L44-L161`; D commits with the tick and clears on Reset (required in the linked delivery slice with this element) |
 
-Also used: ElectricalPower (missing; Story 8.1). Threshold selector in the inspector: unscheduled with this element.
+Also used: ElectricalPower (missing; Story 8.1). Threshold selector in the inspector: required in the linked delivery slice with this element.
 
 **Dependencies.** CAT-005 Battery; RAD-02 X-ray emitter; a burst source on its `EnableIn` (CAT-017 Clock, Story 9.3, with a 1 s pulse width).
 

@@ -1,5 +1,7 @@
 # RAD-21 · Radiation-responsive material latch — element readiness spec
 
+**Current delivery (24 October 2026):** [RAD-21 delivery slice](../invest/named-elements.md#radiation-21). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 Batch O named-identity spec. Legacy citations are pinned to `a6c914e` and resolve with `git show a6c914e:<path> | sed -n 'start,endp'`. Requirement row: [radiation-21](../requirements.md#radiation-21) (P3 potential). The **threshold-to-release behaviour is authored material fiction** inspired by radiation processing; never real-world material data.
 
 ## 1. Identity
@@ -11,7 +13,7 @@ Story 7.0 Batch O named-identity spec. Legacy citations are pinned to `a6c914e` 
 | Anchor | [requirements.md#radiation-21](../requirements.md#radiation-21); [named-elements.md#radiation-21](../invest/named-elements.md#radiation-21) |
 | Related identities | Sources [RAD-01](RAD-01-gamma-source-capsule.md), [RAD-02](RAD-02-powered-x-ray-emitter.md); shields [EL-128](EL-128-dense-shield.md); exposure accounting shared with [RAD-09](RAD-09-integrating-dosimeter.md)/[RAD-10](RAD-10-exposure-sensitive-cargo-badge.md); temperature-driven analogue [TH-16 Fusible link](../invest/named-elements.md#thermal-16) (not a substitute); payloads such as [CAT-067 Weight](CAT-067-weight.md). No CAT spec refined. |
 | Proof owner | S632 |
-| Roadmap story | unscheduled; campaign 133, 134 (research slots 108, 109) |
+| Roadmap story | [RAD-21 delivery slice](../invest/named-elements.md#radiation-21); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration
@@ -41,16 +43,16 @@ Families from the [map row](../general-engine-element-map.md) and [binding](../.
 | Family | Status | Basis or builder |
 | --- | --- | --- |
 | EnvironmentState | exists now | gravity lane of `RigidBodyDeclaration`, `engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L86` (loads the pin) |
-| FiniteLedger | missing | unscheduled (S010-D); accumulated D at the insert; the only current finite store is bumper contact work, `engine/gpu/ContactWorkDeclaration.cs@a6c914e:L5-L9` |
-| GeometryQuery | exists now for contact only; missing for radiation paths | BVH `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L74-L204` and narrowphase `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L325-L620` (the coverage JSON's `engine/gpu/physics.wgsl` basis is not in the tree); sampled path queries: unscheduled (S606-D) |
-| IonizingTransport | missing | unscheduled (S606-D/F); deposition at the insert |
-| JointConstraint | missing | revolute shelf hinge Story 10.3; pin support constraint unscheduled (S018-D; legacy `engine/physics/PhysicsJoint.cs` is deleted by Epic 7) |
+| FiniteLedger | missing | required in the linked delivery slice (S010-D); accumulated D at the insert; the only current finite store is bumper contact work, `engine/gpu/ContactWorkDeclaration.cs@a6c914e:L5-L9` |
+| GeometryQuery | exists now for contact only; missing for radiation paths | BVH `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L74-L204` and narrowphase `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L325-L620` (the coverage JSON's `engine/gpu/physics.wgsl` basis is not in the tree); sampled path queries: required in the linked delivery slice (S606-D) |
+| IonizingTransport | missing | required in the linked delivery slice (S606-D/F); deposition at the insert |
+| JointConstraint | missing | revolute shelf hinge Story 10.3; pin support constraint required in the linked delivery slice (S018-D; legacy `engine/physics/PhysicsJoint.cs` is deleted by Epic 7) |
 | RigidBodyDynamics | exists now | bodies `engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L86`; integration `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L216-L285` |
-| SensibleHeat | missing | unscheduled (S491-D); see open question 3 |
+| SensibleHeat | missing | required in the linked delivery slice (S491-D); see open question 3 |
 | StateTransaction | exists now | `engine/gpu/WorkshopSimulation.cs@a6c914e:L44-L161`; material state, shelf pose and load restore with Reset |
-| StructuralFracture | missing | unscheduled (S563-D); constraint failure at the strength limit |
-| TemperatureStrength | missing | unscheduled (S566-D); the analogous family — the map says the exposure-to-strength response must be frozen separately, "temperature-only strength is not a substitute" |
-| TopologyTransaction | exists now for construction admission only | `engine/gpu/WorkshopSimulation.cs@a6c914e:L113-L151`; in-Run constraint removal: unscheduled |
+| StructuralFracture | missing | required in the linked delivery slice (S563-D); constraint failure at the strength limit |
+| TemperatureStrength | missing | required in the linked delivery slice (S566-D); the analogous family — the map says the exposure-to-strength response must be frozen separately, "temperature-only strength is not a substitute" |
+| TopologyTransaction | exists now for construction admission only | `engine/gpu/WorkshopSimulation.cs@a6c914e:L113-L151`; in-Run constraint removal: required in the linked delivery slice |
 
 **Dependencies.** A photon source; a payload (CAT-067 Weight or a ball); a catcher (Basket/Receiver).
 

@@ -1,5 +1,7 @@
 # CAT-027 · electrical_xor — declaration readiness spec
 
+**Current delivery (24 October 2026):** [CAT-027 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 Batch B declaration spec (CAT-027-D). Legacy citations are pinned to `a6c914e` and resolve with `git show a6c914e:<path> | sed -n 'start,endp'`. Requirement row: [CAT-027](../requirements.md#current-cat-027). All five supplied gates share one declaration: shared gate facts G1–G15 are in [CAT-013](CAT-013-both_gate.md#4-legacy-harvest) and network facts N1–N24 in [CAT-005](CAT-005-battery.md#4-legacy-harvest). This spec adds only what is specific to Xor.
 
 ## 1. Identity
@@ -9,7 +11,7 @@ Story 7.0 Batch B declaration spec (CAT-027-D). Legacy citations are pinned to `
 | CAT ID / kind | CAT-027 · `electrical_xor` (operation Xor) |
 | Requirement anchor | [current-cat-027](../requirements.md#current-cat-027); retained behaviour [todo-362](../requirements.md#todo-362) |
 | Mapped identities | [EL-135 Electrical XOR gate](../invest/named-elements.md#element-135). No TH/RAD/GAP identity. |
-| Roadmap story | 9.8 "Electrical Logic Gates OR & XOR" (Epic 9), shared with CAT-026 |
+| Roadmap story | 9.8 "Electrical Logic Gates OR & XOR" (Epic 9), shared with CAT-026 Current [CAT-027 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). |
 | Status | Story 9.8b candidate: package `elements/ElectricalXor` and shared nonmonotone `Xor` law on the Story 9.7a ordered supply resolve; every loop containing the gate is refused as `NonmonotoneFeedback`. Implemented with native proof ([spec](../../../_bmad-output/implementation-artifacts/spec-9-8b-electrical-xor.md)); independent review and publication pending; browser qualification pending post-catalogue. |
 
 ## 2. Declaration

@@ -1,5 +1,7 @@
 # CAT-005 · battery — declaration readiness spec
 
+**Current delivery (24 October 2026):** [CAT-005 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 Batch B declaration spec (CAT-005-D). Legacy citations are pinned to `a6c914e` and resolve with `git show a6c914e:<path> | sed -n 'start,endp'`. Requirement row: [CAT-005](../requirements.md#current-cat-005). This spec also records the **shared supplied-electrical network** facts that every supplied contact (CAT-013, 020, 024–027, 033, 037, 052) depends on; those specs point here instead of repeating them.
 
 ## 1. Identity
@@ -9,7 +11,7 @@ Story 7.0 Batch B declaration spec (CAT-005-D). Legacy citations are pinned to `
 | CAT ID / kind | CAT-005 · `battery` |
 | Requirement anchor | [current-cat-005](../requirements.md#current-cat-005); retained behaviour [todo-146](../requirements.md#todo-146) |
 | Mapped identities | [EL-196 Battery](../invest/named-elements.md#element-196) (finite store; see open question 1). Related, not owned: [EL-197 Electrical wire](../invest/named-elements.md#element-197) (typed electrical connection used by every supplied part). No TH/RAD/GAP identity. |
-| Roadmap story | 8.1 "Battery DC Power Source & Network Graph" (Epic 8) |
+| Roadmap story | 8.1 "Battery DC Power Source & Network Graph" (Epic 8) Current [CAT-005 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). |
 | Status | direct finite-source prerequisite and root integration with Bumper Story6.2 have terminal scoped Pass at published60ddbbe; see [integration review](../../../_bmad-output/implementation-artifacts/review-6-2-bumper-battery-integration.md). Full Story8.1/Motor/network acceptance remains incomplete. |
 
 ## 2. Declaration

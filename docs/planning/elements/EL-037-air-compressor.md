@@ -1,5 +1,7 @@
 # EL-037 · Air compressor — element readiness spec
 
+**Current delivery (24 October 2026):** [EL-037 delivery slice](../invest/named-elements.md#element-037). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 Batch H named-identity spec. Legacy citations are pinned to `a6c914e` and resolve with `git show a6c914e:<path> | sed -n 'start,endp'`. Values marked *proposed* have no legacy or requirement source; each carries a one-line justification, stays inside the [game-grade envelope](../../gpu-f32-physics.md#game-grade-envelope) and may be revised by the owner. Box sizes are full extents. Shared sealed-gas facts P1–P20, the `Gas` domain and the "Air" material are in [EL-039](EL-039-air-reservoir.md#shared-sealed-gas-family-facts).
 
 ## 1. Identity
@@ -10,7 +12,7 @@ Story 7.0 Batch H named-identity spec. Legacy citations are pinned to `a6c914e` 
 | Type | Pneumatic |
 | Anchor | [requirements.md#element-037](../requirements.md#element-037); scope index [todo-376](../requirements.md#todo-376); [named-elements entry](../invest/named-elements.md#element-037); owner S472 |
 | Related | Refines no CAT spec. Electrical supply from [CAT-005 Battery](CAT-005-battery.md) / [EL-196](EL-196-battery.md) through [EL-197 wire](EL-197-electrical-wire.md); shaft supply from [CAT-042 Motor](CAT-042-motor.md); charges [EL-039 Air reservoir](EL-039-air-reservoir.md) through [EL-038 hose](EL-038-pneumatic-hose.md). |
-| Roadmap story | unscheduled |
+| Roadmap story | [EL-037 delivery slice](../invest/named-elements.md#element-037); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration

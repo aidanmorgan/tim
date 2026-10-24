@@ -1,5 +1,7 @@
 # EL-186 · Temporary bridge named-identity spec
 
+**Current delivery (24 October 2026):** [EL-186 delivery slice](../invest/named-elements.md#element-186). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec (Batch J). Baseline commit `a6c914e`; every citation is `path@a6c914e:Lstart-Lend` and resolves with `git show a6c914e:<path> | sed -n 'start,endp'`. **Proposed** marks an unsourced design value with a one-line justification; the owner may revise it. All values are canonical IEEE-754 f32 game values inside the [game-grade envelope](../../gpu-f32-physics.md#game-grade-envelope).
 
 ## 1. Identity
@@ -13,7 +15,7 @@ Story 7.0 named-identity spec (Batch J). Baseline commit `a6c914e`; every citati
 | Proof owner | S365 |
 | Refines / extends | No CAT spec. Built from the [EL-185 releasable joint](EL-185-releasable-assembly-joint.md); deck sized like [CAT-054 ramp](CAT-054-ramp.md) |
 | Related | EL-185; EL-159/EL-160 load-limited connectors (the material-failure mode); GAP-05 load-limited connector lesson |
-| Roadmap story | unscheduled |
+| Roadmap story | [EL-186 delivery slice](../invest/named-elements.md#element-186); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration
@@ -61,7 +63,7 @@ Deck follows committed pose; attachment clamps open on release or show a snapped
 Deck in the Ramp colour `#c28f52`; abutments cream `#fff8e9`; navy `#293954` clamps with gold `#f7cb52` pins ([DESIGN colour system](../../../DESIGN.md#colour-system)). **Proposed**.
 
 ### Catalogue and inventory entry
-Id `temporary_bridge`, title "Temporary bridge", category Motion — **proposed**. Add `WorkshopPartKind.TemporaryBridge` with a counted allowance (`engine/gpu/WorkshopInventory.cs@a6c914e:L9-L23`).
+Id `temporary_bridge`, title "Temporary bridge", category Motion — **proposed**. Declare the package with a counted allowance keyed by its bundle-issued typed id (`engine/gpu/WorkshopInventory.cs@a6c914e:L9-L23`).
 
 ## 3. Engine capabilities
 
@@ -71,7 +73,7 @@ Families: EnvironmentState, FiniteLedger, GeometryQuery, JointConstraint, PhaseT
 - Dynamic box deck on static boxes with contact and friction: `engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L120`; `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L701-L719`.
 
 **Missing**
-- Weld joint and runtime joint removal (JointConstraint/TopologyTransaction): as EL-185, unscheduled. Owner S365.
+- Weld joint and runtime joint removal (JointConstraint/TopologyTransaction): as EL-185, required in the linked delivery slice. Owner S365.
 - Load-limited attachment failure (StructuralFracture): decision S543 fracture, next implementation S563 ([decisions](../invest/decisions.md#s543)); GAP-05 lesson.
 
 **Dependencies.** EL-185 releasable joint; EL-159/EL-160 load-limited connector law for the Failing variant.

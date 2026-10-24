@@ -1,5 +1,7 @@
 # CAT-053 · pulley declaration readiness spec
 
+**Current delivery (24 October 2026):** [CAT-053 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 This is the Story 7.0 CAT-053-D declaration readiness spec for the fixed pulley. Rope route, length and tension facts shared by every rope element live in [CAT-058 rope_anchor](CAT-058-rope_anchor.md) (rows R3–R27 there); this file holds the pulley-specific facts and refers to those rows instead of repeating them. Baseline commit is `a6c914e`. Legacy citations use `path@a6c914e:Lstart-Lend` and stay retrievable from git history after the Epic 7 purge; current-engine files are cited at the same commit.
 
 ## 1. Identity
@@ -10,7 +12,7 @@ This is the Story 7.0 CAT-053-D declaration readiness spec for the fixed pulley.
 | Kind | `pulley`, catalogue title "Pulley" |
 | Requirement anchor | [CAT-053](../requirements.md#current-cat-053); retained behaviour [todo-140](../requirements.md#todo-140) and [todo-141](../requirements.md#todo-141) |
 | Mapped identities | [EL-206 Fixed pulley](../invest/named-elements.md#element-206) (candidate — Batch A confirms); [EL-207 Moving pulley](../invest/named-elements.md#element-207) (candidate variant — Batch A confirms; the requirement keeps finite-inertia/frictional pulleys as separate future models, see Open question 4) |
-| Roadmap story | 10.2 Pulley Wheel & Tensile Rope Dynamics (CAT-053, CAT-058) in [epics.md](../../../_bmad-output/planning-artifacts/epics.md) |
+| Roadmap story | [10.2c Pulley](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership); retain every CAT-053 mode and mapped named-identity obligation. |
 | Status | not started |
 
 ## 2. Declaration
@@ -69,7 +71,7 @@ Groove radius 0.4 m and rope-plane depth 0.12 m are fixed declaration constants,
 ### Catalogue and inventory entry
 
 - Id `pulley`, title "Pulley", category "Ropes", description "Redirect a continuous rope. Connect both sides to loads or anchors; unfinished ropes cannot carry tension." — `parts/catalog/pulley.tres@a6c914e:L8-L14`.
-- Add `WorkshopPartKind.Pulley` (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3`) and append a `WorkshopInventoryPolicy.Free` row (`engine/gpu/WorkshopInventory.cs@a6c914e:L47-L60`).
+- Declare the element in its package and expose its bundle-issued typed id with the authored allowance (`engine/gpu/WorkshopInventory.cs@a6c914e:L47-L60`).
 - Levels: `counterweight` places two locked pulleys; `pulley_depth` places one locked pulley and stocks one more (harvest P12).
 
 ## 3. Engine capabilities

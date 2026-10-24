@@ -1,5 +1,7 @@
 # CAT-048 · pipe (Clear pipe) — declaration readiness spec
 
+**Current delivery (24 October 2026):** [CAT-048 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 ## 1. Identity
 
 | Field | Value |
@@ -8,7 +10,7 @@
 | Requirement | [CAT-048](../requirements.md#current-cat-048) |
 | Mapped identities | EL-071 Straight metal ball pipe (refines the straight tube). Related, own specs: EL-102 Large-bore ball pipe, EL-103 Accelerator tube, EL-107 Spiral gravity-delay tube, EL-008 Straight water pipe (liquid, not balls). |
 | Roadmap | Stories 6.6 (CAT-048a compound cylindrical collider), 6.7 (CAT-048b hollow torus/rim cap collider, clear_pipe) |
-| Status | not started on the current engine; owner decision (10 Oct 2026) removes the twelve parked files in Story 7.4 and requires a fresh canonical f32/WASM SIMD implementation at Story 6.6. The old code was excluded (`CuriousContraptions.csproj@a6c914e:L29-L29`) |
+| Harvest-baseline status | not started on the current engine; owner decision (10 Oct 2026) removes the twelve parked files in Story 7.4 and requires a fresh canonical f32/WASM SIMD implementation at Story 6.6. The old code was excluded (`CuriousContraptions.csproj@a6c914e:L29-L29`) |
 | Levels | inventory in clear_pipe, joined_pipe; see [CAT-048-I consumers](../invest/current-consumers.md#cat-048-i) |
 
 ## 2. Declaration
@@ -39,7 +41,7 @@ Families from the [element map row](../general-engine-element-map.md): ContactIm
 
 | Missing | Story that builds it |
 | --- | --- |
-| `WorkshopPartKind.Pipe`, compiled hollow-tube collider (compound cylinder in the shared pair table) | Story 6.6 |
+| Package-owned Pipe declaration and compiled hollow-tube collider (compound cylinder in the shared pair table) | Story 6.6 |
 | Rim/collar caps and edge entries (signed-distance torus caps); clear_pipe | Story 6.7 |
 | Typed mouth snapping (0.45 m / 20°), idle-construction-only, non-mutating preview | Story 6.6 or 6.7 (UI criterion inside the pipe slice) |
 | Physical placement nudging (authored correction that moves the pipe's collider; the depth-error difficulty controls of facts 5 and 18 depend on it) | not scheduled, owner decision: the roadmap reports physical nudging unsupported in the current playable mode ([first_principles](../invest/vertical-delivery.md#first-principles)) |

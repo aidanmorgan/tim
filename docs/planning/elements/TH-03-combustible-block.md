@@ -1,5 +1,7 @@
 # TH-03 · Combustible block — named-identity readiness spec
 
+**Current delivery (24 October 2026):** [TH-03 delivery slice](../invest/named-elements.md#thermal-03). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations are `path@a6c914e:Lstart-Lend`. No legacy holds combustible-block values, so every design value without a cited source is marked "(proposed: …)" with a one-line justification; the owner may revise it.
 
 ## 1. Identity
@@ -12,8 +14,8 @@ Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artif
 | Proof owner / research | S596 · [TH-S03 combustion and suppression](../../thermal-component-research.md#th-s03) |
 | Related identities | Historical record [todo-196](../requirements.md#todo-196) is shared with [EL-155](../invest/named-elements.md#element-155), [EL-210](../invest/named-elements.md#element-210), [TH-01](TH-01-candle.md) and [TH-06](TH-06-converging-lens.md). Shape and dynamics follow the delivered box body of [CAT-023 Domino](CAT-023-domino.md). Noncombustible control: [TH-26 Thermal storage block](TH-26-thermal-storage-block.md). |
 | Campaign | Intro 58; practice 59; reuse 85, 149 ([thermal allocation](../requirements.md#thermal-campaign-allocation)) |
-| Roadmap story | Unscheduled. No epic in `_bmad-output/planning-artifacts/epics.md` schedules a thermal element. |
-| Status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`); no legacy part. |
+| Roadmap story | [TH-03 delivery slice](../invest/named-elements.md#thermal-03); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`); no legacy part. |
 
 ## 2. Declaration
 
@@ -37,14 +39,14 @@ Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artif
 
 - **Cosmetic curves and UI bindings.** Char fraction ← burnt fraction ([research per-element table](../../thermal-component-research.md)); engraved fuel symbol plus readable consumed volume (row).
 - **Art.** "Warm-wood chamfered block, engraved fuel symbol and readable consumed volume" (row). Nearest [DESIGN.md](../../../DESIGN.md) source colour (proposed mapping): warm wood `#b77c42` (`DESIGN.md@a6c914e:L146-L146`), navy symbol `#293954` (`DESIGN.md@a6c914e:L147-L147`).
-- **Catalogue and inventory entry.** New `WorkshopPartKind.CombustibleBlock`; id `combustible_block`, title "Combustible block", category Heat (proposed: no current category covers thermal parts).
+- **Catalogue and inventory entry.** Package-owned declaration, discovered into the bundle; id `combustible_block`, title "Combustible block", category Heat (proposed: no current category covers thermal parts).
 
 ## 3. Engine capabilities
 
 Families (map row TH-03, [general-engine-element-map](../general-engine-element-map.md); binding [thermal-01.json](../../coverage/engine/thermal-01.json)): ChemicalReaction, EnvironmentState, Extinction, FiniteLedger, GeometryQuery, Ignition, JointConstraint, RigidBodyDynamics, SensibleHeat, StructuralFracture, TopologyTransaction; JSON adds StateTransaction.
 
 - **Exists now.** Dynamic box body with derived inertia (Story 5.1; `engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L120`, `engine/gpu/RigidMassProperties.cs@a6c914e:L17-L17`); contact and friction; Run/Reset and save (`engine/gpu/ActivationNetwork.cs@a6c914e:L67-L67`, `engine/gpu/WorkshopSaveCodec.cs@a6c914e:L6-L10`).
-- **Missing.** [S543](../invest/decisions.md#s543): reaction → S554, ignition → S555, extinction → S556, fracture → S563, phase-topology (shrinking collider, mass and inertia) → S565, temperature-strength → S566. JointConstraint: Story 6.4 slider and Story 10.3 pivot. EnvironmentState: [S635](../invest/decisions.md#s635) environment → LAW-ENVIRONMENT-I. All thermal rows unscheduled.
+- **Missing.** [S543](../invest/decisions.md#s543): reaction → S554, ignition → S555, extinction → S556, fracture → S563, phase-topology (shrinking collider, mass and inertia) → S565, temperature-strength → S566. JointConstraint: Story 6.4 slider and Story 10.3 pivot. EnvironmentState: [S635](../invest/decisions.md#s635) environment → LAW-ENVIRONMENT-I. All thermal rows required in the linked delivery slice.
 - **Composition gap.** The row text requires temperature-dependent strength but the map row omits TemperatureStrength. See Open questions.
 - **Dependencies.** An ignition source and a heat path; TH-26 for the control.
 

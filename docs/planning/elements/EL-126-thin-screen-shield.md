@@ -1,5 +1,7 @@
 # EL-126 · Thin-screen shield — element readiness spec
 
+**Current delivery (24 October 2026):** [EL-126 delivery slice](../invest/named-elements.md#element-126). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 Batch O named-identity spec. Legacy citations are pinned to `a6c914e` and resolve with `git show a6c914e:<path> | sed -n 'start,endp'`. Requirement row: [element-126](../requirements.md#element-126). This is a fictional toy material: the simplified shield chart is never real-world shielding guidance ([radiation research](../../radiation-component-research.md#laws-at-puzzle-scale)).
 
 ## 1. Identity
@@ -11,7 +13,7 @@ Story 7.0 Batch O named-identity spec. Legacy citations are pinned to `a6c914e` 
 | Anchor | [requirements.md#element-126](../requirements.md#element-126); [named-elements.md#element-126](../invest/named-elements.md#element-126); scope source [radiation-05](../requirements.md#radiation-05) (umbrella, index only) |
 | Related identities | Siblings [EL-127 Polymer shield](EL-127-polymer-shield.md), [EL-128 Dense shield](EL-128-dense-shield.md). Proving partners [RAD-03 Alpha](RAD-03-alpha-source-cartridge.md), [RAD-04 Beta-minus](RAD-04-beta-minus-source-cartridge.md), [RAD-01 Gamma](RAD-01-gamma-source-capsule.md), [RAD-08 Rate meter](RAD-08-radiation-rate-meter.md). No CAT spec: no catalogue element is refined or extended. |
 | Proof owner | S610 |
-| Roadmap story | unscheduled (no radiation epic in the [roadmap](../invest/vertical-delivery.md#rolling-playable-roadmap)); campaign chapter 11, levels 101–110 ([campaign plan](../requirements.md#campaign-plan)) |
+| Roadmap story | [EL-126 delivery slice](../invest/named-elements.md#element-126); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration
@@ -42,13 +44,13 @@ Families from the [map row](../general-engine-element-map.md) and [binding](../.
 
 | Family | Status | Basis or builder |
 | --- | --- | --- |
-| FiniteLedger | missing | unscheduled (S010-D); deposited-energy accounting; the only current finite store is bumper contact work, `engine/gpu/ContactWorkDeclaration.cs@a6c914e:L5-L9` |
-| GeometryQuery | exists now for contact only; missing for radiation paths | dynamic AABB BVH `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L74-L204` and sphere/box/plane narrowphase `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L325-L620` (the coverage JSON's `engine/gpu/physics.wgsl` basis is not in the tree); ordered material intervals along sampled paths: unscheduled (P0-004, S606-D) |
-| IonizingTransport | missing | unscheduled (S606-D/F); typed kinds, material table, charged range, neutron groups ([S605 rows](../invest/decisions.md#s605)) |
+| FiniteLedger | missing | required in the linked delivery slice (S010-D); deposited-energy accounting; the only current finite store is bumper contact work, `engine/gpu/ContactWorkDeclaration.cs@a6c914e:L5-L9` |
+| GeometryQuery | exists now for contact only; missing for radiation paths | dynamic AABB BVH `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L74-L204` and sphere/box/plane narrowphase `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L325-L620` (the coverage JSON's `engine/gpu/physics.wgsl` basis is not in the tree); ordered material intervals along sampled paths: required in the linked delivery slice (P0-004, S606-D) |
+| IonizingTransport | missing | required in the linked delivery slice (S606-D/F); typed kinds, material table, charged range, neutron groups ([S605 rows](../invest/decisions.md#s605)) |
 | SignalPropagation | missing | Story 8.1; listed by the map but the shield has no signal port — it belongs to the meter in the proof construction |
 | StateTransaction | exists now | `engine/gpu/WorkshopSimulation.cs@a6c914e:L44-L161`; the panel pose restores with Reset |
 
-As a dynamic panel it also uses RigidBodyDynamics (exists now: `engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L86`, integration `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L216-L285`), ContactImpulse (exists now: `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L623-L700`) and SlidingFriction (exists now: `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L702-L726`). No radiation `WorkshopPartKind` exists (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`).
+As a dynamic panel it also uses RigidBodyDynamics (exists now: `engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L86`, integration `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L216-L285`), ContactImpulse (exists now: `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L623-L700`) and SlidingFriction (exists now: `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L702-L726`). The cited harvest baseline has no radiation package declaration (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`).
 
 **Dependencies.** Needs at least one source (RAD-01, RAD-03 or RAD-04) and a receiver (RAD-08) to be observable.
 

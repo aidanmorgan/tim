@@ -1,5 +1,7 @@
 # EL-029 · Boat named-identity spec
 
+**Current delivery (24 October 2026):** [EL-029 delivery slice](../invest/named-elements.md#element-029). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 This is the Story 7.0 full spec for named identity EL-029. The baseline is commit `a6c914e`; every citation uses `path@a6c914e:Lstart-Lend`. Values without a source are marked **proposed**, each with a one-line justification; the owner may revise them.
 
 ## 1. Identity
@@ -13,8 +15,8 @@ This is the Story 7.0 full spec for named identity EL-029. The baseline is commi
 | Proof owner | S450 |
 | CAT spec refined | none. Related: [CAT-003 Balloon](CAT-003-balloon.md) (gas buoyancy precedent, Story 12.1) |
 | Related identities | [EL-028 Buoyant platform](EL-028-buoyant-platform.md), [EL-169 Cork float](EL-169-cork-float.md), [EL-170 Raft](EL-170-raft.md) (separate flotation identities); [EL-014 Water-carrying bucket](EL-014-water-carrying-bucket.md) and [EL-015 Leaky bucket](EL-015-leaky-bucket.md) (open container store and leak precedent); [EL-027 Canal lock chamber](EL-027-canal-lock-chamber.md) |
-| Roadmap story | unscheduled |
-| Status | not started (no `WorkshopPartKind` member, `engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`) |
+| Roadmap story | [EL-029 delivery slice](../invest/named-elements.md#element-029); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | not started (no `WorkshopPartKind` member, `engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`) |
 
 ## 2. Declaration
 
@@ -47,10 +49,10 @@ Families ([element-map row](../general-engine-element-map.md), [coverage binding
 - Dynamic Box bodies, contact friction and impulses, gravity and linear drag: `engine/gpu/PhysicsDeclarations.cs@a6c914e:L42-L120`, `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L1271-L1279`.
 
 **Missing**
-- Compound collider set on one dynamic body (the Receiver's five boxes are static): unscheduled; also needed by EL-014.
-- Displaced-volume buoyancy and immersion damping: [S416](../invest/decisions.md#s416) buoyancy → S420; unscheduled.
-- Moving container store with leak port and mass coupling: S418; unscheduled.
-- Drag toward a liquid current, if adopted: S418; unscheduled.
+- Compound collider set on one dynamic body (the Receiver's five boxes are static): required in the linked delivery slice; also needed by EL-014.
+- Displaced-volume buoyancy and immersion damping: [S416](../invest/decisions.md#s416) buoyancy → S420; required in the linked delivery slice.
+- Moving container store with leak port and mass coupling: S418; required in the linked delivery slice.
+- Drag toward a liquid current, if adopted: S418; required in the linked delivery slice.
 
 **Element dependencies.** A liquid store (EL-026, EL-027, EL-001); cargo (CAT-001 Basketball, CAT-014 Bowling ball as overload); movers such as CAT-039 Linear pusher or CAT-058 Rope anchor.
 

@@ -1,5 +1,7 @@
 # EL-156 · Single-lobe cam named-identity spec
 
+**Current delivery (24 October 2026):** [EL-156 delivery slice](../invest/named-elements.md#element-156). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec (Batch J). Baseline commit `a6c914e`; every citation is `path@a6c914e:Lstart-Lend` and resolves with `git show a6c914e:<path> | sed -n 'start,endp'`. **Proposed** marks an unsourced design value with a one-line justification; the owner may revise it. All values are canonical IEEE-754 f32 game values inside the [game-grade envelope](../../gpu-f32-physics.md#game-grade-envelope).
 
 ## 1. Identity
@@ -13,7 +15,7 @@ Story 7.0 named-identity spec (Batch J). Baseline commit `a6c914e`; every citati
 | Proof owner | S344 |
 | Refines / extends | No CAT spec. Driven through the mechanical input of [CAT-019 conveyor](CAT-019-conveyor.md) / [CAT-042 motor](CAT-042-motor.md); follower uses the slider of [CAT-062 spring](CAT-062-spring.md) |
 | Related | EL-157 Double-lobe cam, EL-158 Rise-hold-fall cam (separate identities, same cam unit layout) |
-| Roadmap story | unscheduled |
+| Roadmap story | [EL-156 delivery slice](../invest/named-elements.md#element-156); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration
@@ -61,7 +63,7 @@ Cam and follower art follow committed poses; a gold mark on the lobe tip shows p
 Cam in the drivetrain colour `#d69c47` with a gold `#f7cb52` lobe mark; follower cream `#fff8e9`; navy `#293954` base and guide ([DESIGN colour system](../../../DESIGN.md#colour-system)). **Proposed**.
 
 ### Catalogue and inventory entry
-Id `cam_single`, title "Single-lobe cam", category Motion — **proposed**. Add `WorkshopPartKind.SingleLobeCam` with a counted allowance (`engine/gpu/WorkshopInventory.cs@a6c914e:L9-L23`).
+Id `cam_single`, title "Single-lobe cam", category Motion — **proposed**. Declare the package with a counted allowance keyed by its bundle-issued typed id (`engine/gpu/WorkshopInventory.cs@a6c914e:L9-L23`).
 
 ### Variants
 One outcome in the row. EL-157 and EL-158 are separate identities, not variants of this one ([todo-424](../requirements.md#todo-424)).
@@ -75,7 +77,7 @@ Families: ContactImpulse, EnvironmentState, FiniteLedger, GeometryQuery, JointCo
 
 **Missing**
 - Convex prism collider for the profile (GeometryQuery/ContactImpulse). Owner S344.
-- Hinge (Story 10.3), slider with spring (Story 6.4), mechanical input (Story 11.1); linear output domain unscheduled (S257 mechanical-port, [decisions](../invest/decisions.md#s257)).
+- Hinge (Story 10.3), slider with spring (Story 6.4), mechanical input (Story 11.1); linear output domain required in the linked delivery slice (S257 mechanical-port, [decisions](../invest/decisions.md#s257)).
 
 **Dependencies.** CAT-042 motor (Story 11.1) or another shaft source.
 

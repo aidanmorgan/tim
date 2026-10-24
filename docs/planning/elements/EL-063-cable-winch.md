@@ -1,5 +1,7 @@
 # EL-063 · Cable winch declaration readiness spec
 
+**Current delivery (24 October 2026):** [EL-063 delivery slice](../invest/named-elements.md#element-063). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec. Baseline commit `a6c914e`. Legacy citations use `path@a6c914e:Lstart-Lend` and stay retrievable from git history after the Epic 7 purge. Values marked **proposed** are design values the owner may revise.
 
 ## 1. Identity
@@ -13,7 +15,7 @@ Story 7.0 named-identity spec. Baseline commit `a6c914e`. Legacy citations use `
 | Named entry | [named-elements.md#element-063](../invest/named-elements.md#element-063); proof owner S334 |
 | CAT spec refined or extended | none. Related: [CAT-042 motor](CAT-042-motor.md) (shaft source), [CAT-058 rope anchor](CAT-058-rope_anchor.md) (rope route law, EL-205), [CAT-053 pulley](CAT-053-pulley.md), [CAT-067 weight](CAT-067-weight.md) (load) |
 | Related identities | [EL-067 steel cable](EL-067-steel-cable.md), [EL-065 load hook](EL-065-load-hook.md), [EL-056 ratchet](EL-056-ratchet.md), [EL-055 brake](EL-055-mechanical-brake.md), [EL-057 escapement](EL-057-escapement.md); recipe-only "winch" record in [gap-historical-followthrough](../requirements.md#gap-historical-followthrough) |
-| Roadmap story | unscheduled |
+| Roadmap story | [EL-063 delivery slice](../invest/named-elements.md#element-063); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration
@@ -69,7 +71,7 @@ Cream frame `#fff8e9`, navy foot `#293954`, ochre drum `#d69c47` with gold spoke
 
 ### Catalogue and inventory entry
 
-Id `cable_winch`, title "Winch", category "Ropes"; `WorkshopPartKind.CableWinch` appended last to the free inventory (`engine/gpu/WorkshopInventory.cs@a6c914e:L49-L60`). **Proposed**.
+Id `cable_winch`, title "Winch", category "Ropes"; package-owned metadata discovered into the Free palette from the bundle (`engine/gpu/WorkshopInventory.cs@a6c914e:L49-L60`). **Proposed**.
 
 ### Variants
 
@@ -84,9 +86,9 @@ Binding: ContactImpulse, EnvironmentState, FiniteLedger, FiniteWorkActuation, Ge
 **Missing**
 
 - Rope domain, `Tie`, tension-only route and admission: Story 10.2; counterweight lifting: Story 10.4.
-- Variable-length (spooled) route coupled to a hinge angle: no story; decision owner S334.
+- Variable-length (spooled) route coupled to a hinge angle: required prerequisite owned by the linked delivery slice; decision owner S334.
 - Hinge: Story 10.3. `Mechanical` domain and shaft torque: Story 11.1.
-- Cylinder collider and inertia (drum): no owning story; owner decision 9 Oct 2026: a new cylinder-collider story comes before the first shaft wheel.
+- Cylinder collider and inertia (drum): Story 10.1 owns the shared solid-cylinder collider and inertia before this consumer.
 
 **Dependencies.** CAT-042 Motor + CAT-005 Battery (11.1/8.1); a load (CAT-067 Weight, 10.4); EL-067 Steel cable or the EL-205 rope as connector.
 

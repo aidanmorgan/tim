@@ -1,5 +1,7 @@
 # EL-197 · Electrical wire — element readiness spec
 
+**Current delivery (24 October 2026):** [EL-197 delivery slice](../invest/named-elements.md#element-197). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 Batch H named-identity spec. Legacy citations are pinned to `a6c914e` and resolve with `git show a6c914e:<path> | sed -n 'start,endp'`. Values marked *proposed* have no legacy or requirement source; each carries a one-line justification and may be revised by the owner. Supplied-network facts N1–N21 are in [CAT-005](CAT-005-battery.md#4-legacy-harvest).
 
 ## 1. Identity
@@ -10,7 +12,7 @@ Story 7.0 Batch H named-identity spec. Legacy citations are pinned to `a6c914e` 
 | Type | Electrical |
 | Anchor | [requirements.md#element-197](../requirements.md#element-197); existing record [campaign-element-coverage](../requirements.md#campaign-element-coverage) ("Battery, wire, switch …", first use 11–20); [named-elements entry](../invest/named-elements.md#element-197); owner S303 |
 | Related | No CAT kind of its own: it is the Electrical connection every supplied part uses ([CAT-005](CAT-005-battery.md) names it "related, not owned"). Connection-kind siblings: activation links (current), [EL-038 hose](EL-038-pneumatic-hose.md), [EL-048 duct](EL-048-acoustic-duct.md). |
-| Roadmap story | 8.1 "Battery DC Power Source & Network Graph" (Epic 8) — the first electrical connection |
+| Roadmap story | [EL-197 delivery slice](../invest/named-elements.md#element-197); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started (the Electrical domain exists as an enum value but validation rejects every non-activation link) |
 
 ## 2. Declaration

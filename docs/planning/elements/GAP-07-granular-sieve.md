@@ -1,5 +1,7 @@
 # GAP-07 · Granular sieve — named-identity readiness spec
 
+**Current delivery (24 October 2026):** [GAP-07 delivery slice](../invest/named-elements.md#gap-07). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 readiness spec ([spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations are `path@a6c914e:Lstart-Lend`. Values marked **proposed** have no legacy or requirement source; each carries a one-line justification and the owner may revise it.
 
 ## 1. Identity
@@ -9,7 +11,7 @@ Story 7.0 readiness spec ([spec](../../../_bmad-output/implementation-artifacts/
 | ID / name / type | GAP-07 · Granular sieve · Mechanical (P3 potential) |
 | Anchor | [requirements.md#gap-07](../requirements.md#gap-07); [named-elements entry](../invest/named-elements.md#gap-07) |
 | Related identities | Depends on [GAP-06 Granular dispenser](GAP-06-granular-dispenser.md) (grain presets and feed); outputs feed [EL-120 Quantity goal](EL-120-quantity-goal.md). No CAT refines it. |
-| Roadmap story | Unscheduled. Campaign: introduction 93 "Sift Happens", practice 94, reuse 97, 136, 141 ([gap-07](../requirements.md#gap-07)). |
+| Roadmap story | [GAP-07 delivery slice](../invest/named-elements.md#gap-07); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | Not started. Disposition potential/conditional ([element map](../general-engine-element-map.md)). |
 
 ## 2. Declaration
@@ -46,7 +48,7 @@ Families ([element map row](../general-engine-element-map.md), [binding](../../c
 
 - **Exists now.** Static boxes and sphere–box contact with friction (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L89-L120`; `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L345-L407`).
 - **Missing.**
-  - GranularTransport and the grain feed: GAP-06 / LAW-GRANULAR-I ([S635](../invest/decisions.md#s635)); owner S640. The feed is capped at 12 grains by the 16-body dynamic table (see [GAP-06](GAP-06-granular-dispenser.md)); a larger mixed feed waits on that capacity decision.
+  - GranularTransport and the grain feed: GAP-06 / LAW-GRANULAR-I ([S635](../invest/decisions.md#s635)); owner S640. The [GAP-06](GAP-06-granular-dispenser.md) 12-grain example profile is an authored proposal, not a runtime capacity. Tables are scene-sized at Run; S639 resolves the authored feed range before this dependent scenario.
   - A kinematic motion kind for `PoweredShake`: today only `Static` and `Dynamic` exist (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L6-L6`), although the f32 inventory lists Kinematic ([gpu-f32-physics](../../gpu-f32-physics.md)). Owner S640.
   - Collider capacity: 64 per document (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L166-L167`); a Narrow insert uses about six bars.
 - **Dependencies.** GAP-06 dispenser with a mixed feed; a Receiver per fraction for the conservation check; Battery (CAT-005) for `PoweredShake`.

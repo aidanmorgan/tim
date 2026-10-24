@@ -1,5 +1,7 @@
 # EL-091 · Cannonball — named-identity spec
 
+**Current delivery (24 October 2026):** [EL-091 delivery slice](../invest/named-elements.md#element-091). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec ([story spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations are `path@a6c914e:Lstart-Lend`. Values with no legacy or requirement source are **proposed**, each with a one-line justification; the owner may revise them. Game values are canonical f32 ([numeric contract](../../gpu-f32-physics.md#f32-migration-status)).
 
 ## 1. Identity
@@ -11,8 +13,8 @@ Story 7.0 named-identity spec ([story spec](../../../_bmad-output/implementation
 | Named entry | [element-091](../invest/named-elements.md#element-091); source owner **S661** |
 | CAT spec refined or extended | Extends the ball family ([CAT-014 Bowling ball](CAT-014-bowling.md)); payload for [CAT-016 Toy cannon](CAT-016-cannon.md) and [CAT-015 Bumper](CAT-015-bumper.md) |
 | Related identities | EL-095 Toy revolver (another launcher), EL-097 Pool cue (another launcher), CAT-062 Spring |
-| Roadmap story | Unscheduled |
-| Status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
+| Roadmap story | [EL-091 delivery slice](../invest/named-elements.md#element-091); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
 
 ## 2. Declaration
 
@@ -48,7 +50,7 @@ The requirement row separates cargo from launcher: the cannonball declares its o
 Families: the [element-map row](../general-engine-element-map.md) and the binding in `docs/coverage/engine/element-01.json` (ContactImpulse, EnvironmentState, FiniteLedger, GeometryQuery, JointConstraint, RigidBodyDynamics, SlidingFriction, StateTransaction).
 
 - **Exists now.** Every needed family for the body (`engine/gpu/WorkshopPhysicsCompiler.cs@a6c914e:L32-L42`). Contact work from a static owner already pays finite joules to any dynamic body: the Pinball bumper (`engine/gpu/WorkshopBumper.cs@a6c914e:L6-L28`; `engine/gpu/ContactWorkDeclaration.cs@a6c914e:L19-L36`).
-- **Missing.** The `WorkshopPartKind` member, material arm, icon and catalogue resource (S661). The cannon launcher itself: Story 11.4 ([CAT-016](CAT-016-cannon.md)).
+- **Missing.** The package declaration and bundle-issued typed id, material arm, icon and catalogue resource (S661). The cannon launcher itself: Story 11.4 ([CAT-016](CAT-016-cannon.md)).
 - **Dependencies.** CAT-015 Bumper (delivered launcher), CAT-016 Cannon (Story 11.4), CAT-014 Bowling ball (comparison).
 
 ## 4. Sources and legacy

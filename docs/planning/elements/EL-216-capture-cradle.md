@@ -1,5 +1,7 @@
 # EL-216 · Capture cradle named-identity spec
 
+**Current delivery (24 October 2026):** [EL-216 delivery slice](../invest/named-elements.md#element-216). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec (Batch J). Baseline commit `a6c914e`; every citation is `path@a6c914e:Lstart-Lend` and resolves with `git show a6c914e:<path> | sed -n 'start,endp'`. **Proposed** marks an unsourced design value with a one-line justification; the owner may revise it. All values are canonical IEEE-754 f32 game values inside the [game-grade envelope](../../gpu-f32-physics.md#game-grade-envelope).
 
 ## 1. Identity
@@ -13,7 +15,7 @@ Story 7.0 named-identity spec (Batch J). Baseline commit `a6c914e`; every citati
 | Proof owner | S382 |
 | Refines / extends | No CAT spec. Box-wall cup like [CAT-004 basket](CAT-004-basket.md) but without the receiver's capture sensor or guiding force; released through a separately placed gate of the [CAT-051 powered gate](CAT-051-powered_gate.md) / [EL-184](EL-184-mechanical-ball-gate.md) slider family, sized to the cup |
 | Related | EL-215 Damped cushion (same campaign slots), EL-184 Mechanical ball gate |
-| Roadmap story | unscheduled |
+| Roadmap story | [EL-216 delivery slice](../invest/named-elements.md#element-216); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration
@@ -57,7 +59,7 @@ None: the cup's geometry is its whole state. UI: `outlet` through the configurat
 Walls in the Basket colour `#4aab94` with a cream `#fff8e9` rim and navy `#293954` base ([DESIGN colour system](../../../DESIGN.md#colour-system)); no halo, which distinguishes it from the receiver's capture halo (`parts/BasketPart.cs@a6c914e:L16-L22`). **Proposed**.
 
 ### Catalogue and inventory entry
-Id `cradle`, title "Capture cradle", category Motion — **proposed**. Add `WorkshopPartKind.Cradle` with a counted allowance (`engine/gpu/WorkshopInventory.cs@a6c914e:L9-L23`).
+Id `cradle`, title "Capture cradle", category Motion — **proposed**. Declare the package with a counted allowance keyed by its bundle-issued typed id (`engine/gpu/WorkshopInventory.cs@a6c914e:L9-L23`).
 
 ### Variants
 One outcome in the row; `outlet` is configuration.
@@ -70,7 +72,7 @@ Families: ContactImpulse, EnvironmentState, FiniteLedger, GeometryQuery, JointCo
 - Static multi-box bodies, sphere–box contact, friction, restitution and rolling resistance: `engine/gpu/PhysicsDeclarations.cs@a6c914e:L42-L120`; `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L701-L719`, `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L886-L900`.
 
 **Missing**
-- A `WorkshopPartKind` member and save fields. A cup-scale release gate (slider, finite-work drive): Stories 6.4 and 8.2. Owner S382.
+- A package declaration and bundle-issued typed id and save fields. A cup-scale release gate (slider, finite-work drive): Stories 6.4 and 8.2. Owner S382.
 
 **Dependencies.** For SideGate: a cup-scale gate from the CAT-051 (Story 8.2) or EL-184 family.
 

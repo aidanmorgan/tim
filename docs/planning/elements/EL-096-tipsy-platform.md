@@ -1,5 +1,7 @@
 # EL-096 · Tipsy platform — named-identity spec
 
+**Current delivery (24 October 2026):** [EL-096 delivery slice](../invest/named-elements.md#element-096). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec ([story spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations are `path@a6c914e:Lstart-Lend`. Values with no legacy or requirement source are **proposed**, each with a one-line justification; the owner may revise them. Game values are canonical f32 ([numeric contract](../../gpu-f32-physics.md#f32-migration-status)).
 
 ## 1. Identity
@@ -11,8 +13,8 @@ Story 7.0 named-identity spec ([story spec](../../../_bmad-output/implementation
 | Named entry | [element-096](../invest/named-elements.md#element-096); source owner **S666** |
 | CAT spec refined or extended | Related to [CAT-034 Impact lever](CAT-034-impact_lever.md) (a hinged beam) and [CAT-023 Domino](CAT-023-domino.md) (contact tipping of a dynamic box); it extends neither |
 | Related identities | EL-112 Structural beam, CAT-054 Ramp |
-| Roadmap story | Unscheduled |
-| Status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
+| Roadmap story | [EL-096 delivery slice](../invest/named-elements.md#element-096); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
 
 ## 2. Declaration
 
@@ -44,7 +46,7 @@ Tipping is pure rigid-body contact: the platform rests on a narrow flat ridge an
 Families: the [element-map row](../general-engine-element-map.md) and the binding in `docs/coverage/engine/element-01.json` (ContactImpulse, EnvironmentState, FiniteLedger, GeometryQuery, JointConstraint, RigidBodyDynamics, SlidingFriction, StateTransaction).
 
 - **Exists now.** Every needed physical family: dynamic box on static box, with box–box manifolds, friction and four-point area reduction (`engine/gpu/WorkshopDomino.cs@a6c914e:L7-L35`; `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L623-L774`). Derived inertia from extents and mass (`engine/gpu/RigidMassProperties.cs@a6c914e:L17-L30`). JointConstraint is inherited and not used.
-- **Missing.** A two-body part (one static ridge and one dynamic platform as a single placed part), its `WorkshopPartKind`, the `ridge_offset` parameter, icon and catalogue entry: owner S666.
+- **Missing.** A two-body part (one static ridge and one dynamic platform as a single placed part), its package declaration and bundle-issued typed id, the `ridge_offset` parameter, icon and catalogue entry: owner S666.
 - **Dependencies.** None to place it. Loads: CAT-001 Basketball, CAT-014 Bowling ball; a CAT-066 Wall as the prop control.
 
 ## 4. Sources and legacy

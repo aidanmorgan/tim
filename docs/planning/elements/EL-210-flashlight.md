@@ -1,5 +1,7 @@
 # EL-210 · Flashlight — named-identity spec
 
+**Current delivery (24 October 2026):** [EL-210 delivery slice](../invest/named-elements.md#element-210). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 full spec for a named puzzle-element identity. Baseline commit `a6c914e`. Legacy citations use `path@a6c914e:Lstart-Lend` and stay retrievable from git history after the Epic 7 purge. Lengths are legacy scene units, which the current engine treats as metres (`MetreVector`). Local +X is the beam direction.
 
 EL-210 refines the catalogue torch [CAT-029 flashlight](CAT-029-flashlight.md), whose spec holds the full legacy harvest. This file restates the declaration and adds what the named identity requires: a *supplied* source where no supply means no emission. Legacy and the CAT-029 row describe a self-contained, unbounded battery with no store and no parameters, so how EL-210's supply is modelled is unspecified — owner decision (Open question 1). No value is invented for it here.
@@ -15,7 +17,7 @@ EL-210 refines the catalogue torch [CAT-029 flashlight](CAT-029-flashlight.md), 
 | Owner | S495 |
 | Refines CAT | [CAT-029 flashlight](CAT-029-flashlight.md) (`flashlight`, "Flashlight"). One catalogue part satisfies both identities; not a second implementation. |
 | Related | EL-153 general-light receiver, EL-154 light-charge receiver, EL-211 / CAT-059 solar panel (targets); EL-155 rope-operated light (rope-switched sibling); CAT-036 laser (narrow-ray contrast) |
-| Roadmap story | 13.1 Flashlight Torch & Collimated Laser Emitters (CAT-029, CAT-036) |
+| Roadmap story | [EL-210 delivery slice](../invest/named-elements.md#element-210); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration
@@ -46,7 +48,7 @@ Binding shard ([element-03.json](../../coverage/engine/element-03.json)): Finite
 - OpticalTransport cone emission with shared-proxy occlusion and committed readings — Story 13.1. Decision owner **S484** ([decisions](../invest/decisions.md#s484)): S486, S488; refinements S522/S523.
 - The finite supplied source declaration the map row names (FiniteLedger store or ElectricalPower input) — pending Open question 1; Story 13.1 once decided.
 - Cone presentation shells — Story 13.1 (render-only).
-- `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`).
+- package declaration and bundle-issued typed id (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`).
 
 **Element dependencies:** a falling ball (delivered) or CAT-063 switch / CAT-022 delay (delivered) for activation; CAT-059 solar panel or EL-153 as observer (Epic 13); CAT-066 wall (delivered); CAT-005 battery (Story 8.1) only if Open question 1 chooses an external supply.
 

@@ -1,5 +1,7 @@
 # CAT-071 · wound_spring declaration readiness spec
 
+**Current delivery (24 October 2026):** [CAT-071 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 CAT-071-D readiness spec. Baseline commit `a6c914e`. Legacy citations use `path@a6c914e:Lstart-Lend` and stay retrievable after the Epic 7 purge. Current-engine files are cited at the same commit. This page records the declaration knowledge the legacy holds; it does not restate the requirement row. Visual authority is the [Latched wound-spring launcher](../../../DESIGN.md#latched-wound-spring-launcher) section of DESIGN.md.
 
 ## 1. Identity
@@ -10,8 +12,8 @@ Story 7.0 CAT-071-D readiness spec. Baseline commit `a6c914e`. Legacy citations 
 | Kind | `wound_spring`, catalogue title "Wound spring", category "Motion" (`parts/catalog/wound_spring.tres@a6c914e:L6-L8`) |
 | Requirement anchor | [CAT-071](../requirements.md#current-cat-071); retained behaviour [todo-394](../requirements.md#todo-394); DESIGN source record [todo-085](../requirements.md#todo-085) |
 | Mapped identities | None. [EL-056 Ratchet](../invest/named-elements.md#element-056), [EL-063 Cable winch](../invest/named-elements.md#element-063) and [EL-194 Springboard](../invest/named-elements.md#element-194) are separate elements. Batch A confirms. |
-| Roadmap story | [Story 11.4](../../../_bmad-output/planning-artifacts/epics.md) Wound Spring Potential Motor & Toy Cannon Launcher (CAT-071, CAT-016) |
-| Status | Not started. `WorkshopPartKind` has no wound-spring member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
+| Roadmap story | [11.4a Wound spring](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership); retain every CAT-071 mode and mapped named-identity obligation. |
+| Harvest-baseline status | Not started. `WorkshopPartKind` has no wound-spring member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
 
 ## 2. Declaration
 
@@ -78,7 +80,7 @@ The parameter names are a closed enum `WoundSpringParameter { Stiffness, Stroke,
 
 ### Catalogue and inventory entry
 - Description: "A mechanical belt winds a finite spring. Its latch holds charge after power stops; a separate trigger releases the guided plunger. An empty spring cannot launch." (`parts/catalog/wound_spring.tres@a6c914e:L9-L9`).
-- Inventory: one wound spring in `wind_then_release` (`content/puzzles.json@a6c914e:L31312-L31314`). It is placed and locked in `saved_for_later` (`content/puzzles.json@a6c914e:L32312-L32374`). Add `WorkshopPartKind.WoundSpring` and a counted `PartAllowance` (`engine/gpu/WorkshopInventory.cs@a6c914e:L9-L23`).
+- Inventory: one wound spring in `wind_then_release` (`content/puzzles.json@a6c914e:L31312-L31314`). It is placed and locked in `saved_for_later` (`content/puzzles.json@a6c914e:L32312-L32374`). Declare the package with a counted allowance keyed by its bundle-issued typed id (`engine/gpu/WorkshopInventory.cs@a6c914e:L9-L23`).
 
 ## 3. Engine capabilities
 

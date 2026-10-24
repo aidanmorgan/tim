@@ -1,5 +1,7 @@
 # EL-074 · Wood barrier declaration readiness spec
 
+**Current delivery (24 October 2026):** [EL-074 delivery slice](../invest/named-elements.md#element-074). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec. Baseline commit `a6c914e`. Legacy citations use `path@a6c914e:Lstart-Lend` and stay retrievable from git history after the Epic 7 purge. Values marked **proposed** are design values the owner may revise.
 
 ## 1. Identity
@@ -13,7 +15,7 @@ Story 7.0 named-identity spec. Baseline commit `a6c914e`. Legacy citations use `
 | Named entry | [named-elements.md#element-074](../invest/named-elements.md#element-074); proof owner S644 |
 | CAT spec refined or extended | Extends [CAT-066 wall](CAT-066-wall.md) (delivered static resizable box) with its own declared contact and combustible material. The legacy "wooden wall" in level `solar_shadow` was the generic Wall kind (Sources) |
 | Related identities | [EL-073 brick barrier](EL-073-brick-barrier.md) (independent material), thermal combustion identities TH-* (Batch N; S554/S555 reaction and ignition), [EL-014](EL-014-water-carrying-bucket.md) (water-family density constant) |
-| Roadmap story | unscheduled |
+| Roadmap story | [EL-074 delivery slice](../invest/named-elements.md#element-074); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration
@@ -69,7 +71,7 @@ Warm-wood planks in the Physical-wall/Ramp body colour `#c28f52` (`DESIGN.md@a6c
 
 ### Catalogue and inventory entry
 
-Id `wood_barrier`, title "Wooden wall", category "Structure"; `WorkshopPartKind.WoodBarrier` appended last to the free inventory (`engine/gpu/WorkshopInventory.cs@a6c914e:L49-L60`). **Proposed**.
+Id `wood_barrier`, title "Wooden wall", category "Structure"; package-owned metadata discovered into the Free palette from the bundle (`engine/gpu/WorkshopInventory.cs@a6c914e:L49-L60`). **Proposed**.
 
 ### Variants
 
@@ -83,7 +85,7 @@ Binding: ContactImpulse, EnvironmentState, FiniteLedger, GeometryQuery, JointCon
 
 **Missing**
 
-- Per-kind static material (today every static surface is (1, 0.1, 0.3), `engine/gpu/WorkshopPhysicsCompiler.cs@a6c914e:L109-L110`): no story; decision owner S644.
+- Per-kind static material (today every static surface is (1, 0.1, 0.3), `engine/gpu/WorkshopPhysicsCompiler.cs@a6c914e:L109-L110`): required prerequisite owned by the linked delivery slice; decision owner S644.
 - Combustible material fields, reaction and ignition: S554/S555 ([decisions.md#s543](../invest/decisions.md#s543)); thermal identities in Batch N.
 - Fracture: S563.
 

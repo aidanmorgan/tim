@@ -1,5 +1,7 @@
 # EL-073 · Brick barrier declaration readiness spec
 
+**Current delivery (24 October 2026):** [EL-073 delivery slice](../invest/named-elements.md#element-073). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec. Baseline commit `a6c914e`. Legacy citations use `path@a6c914e:Lstart-Lend` and stay retrievable from git history after the Epic 7 purge. Values marked **proposed** are design values the owner may revise.
 
 ## 1. Identity
@@ -13,7 +15,7 @@ Story 7.0 named-identity spec. Baseline commit `a6c914e`. Legacy citations use `
 | Named entry | [named-elements.md#element-073](../invest/named-elements.md#element-073); proof owner S643 |
 | CAT spec refined or extended | Extends [CAT-066 wall](CAT-066-wall.md) (delivered static resizable box, Stories 1.4/1.5) with its own declared contact material and strength properties |
 | Related identities | [EL-074 wood barrier](EL-074-wood-barrier.md) (independent material; must not share brick values), structural fracture consumers (S563), thermal identities TH-* (Batch N) for temperature-dependent strength |
-| Roadmap story | unscheduled |
+| Roadmap story | [EL-073 delivery slice](../invest/named-elements.md#element-073); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration
@@ -67,7 +69,7 @@ Terracotta brick courses `#a96f5c` on the Physical-wall body `#c28f52` with crea
 
 ### Catalogue and inventory entry
 
-Id `brick_barrier`, title "Brick wall", category "Structure"; `WorkshopPartKind.BrickBarrier` appended last to the free inventory (`engine/gpu/WorkshopInventory.cs@a6c914e:L49-L60`). **Proposed**.
+Id `brick_barrier`, title "Brick wall", category "Structure"; package-owned metadata discovered into the Free palette from the bundle (`engine/gpu/WorkshopInventory.cs@a6c914e:L49-L60`). **Proposed**.
 
 ### Variants
 
@@ -85,8 +87,8 @@ Binding: ContactImpulse, EnvironmentState, FiniteLedger, GeometryQuery, JointCon
 
 **Missing**
 
-- Static parts with a non-default material: the compiler gives every static surface (1, 0.1, 0.3) (`engine/gpu/WorkshopPhysicsCompiler.cs@a6c914e:L109-L110`); a declared per-kind static material is needed. No story; decision owner S643.
-- Strength and density material fields and the fracture criterion: S563; no story.
+- Static parts with a non-default material: the compiler gives every static surface (1, 0.1, 0.3) (`engine/gpu/WorkshopPhysicsCompiler.cs@a6c914e:L109-L110`); a declared per-kind static material is needed. required prerequisite owned by the linked delivery slice; decision owner S643.
+- Strength and density material fields and the fracture criterion: S563; required prerequisite owned by the linked delivery slice.
 
 **Dependencies.** None for the intact barrier (balls CAT-001/014 delivered).
 

@@ -1,5 +1,7 @@
 # EL-025 · Tipping-bucket water clock named-identity spec
 
+**Current delivery (24 October 2026):** [EL-025 delivery slice](../invest/named-elements.md#element-025). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 This is the Story 7.0 full spec for named identity EL-025. The baseline is commit `a6c914e`; every citation uses `path@a6c914e:Lstart-Lend`. Values without a source are marked **proposed**, each with a one-line justification; the owner may revise them.
 
 ## 1. Identity
@@ -13,8 +15,8 @@ This is the Story 7.0 full spec for named identity EL-025. The baseline is commi
 | Proof owner | S446 |
 | CAT spec refined | none. Related: [CAT-034 Impact lever](CAT-034-impact_lever.md) (hinge precedent), [CAT-009 Bell](CAT-009-bell.md) and [CAT-020 Counter](CAT-020-counter.md) (downstream of the tip) |
 | Related identities | EL-003/EL-165 taps and EL-013 nozzle (inflow), EL-004 Catch basin (discharge receiver), [EL-014 Water-carrying bucket](EL-014-water-carrying-bucket.md) (moving container precedent) |
-| Roadmap story | unscheduled |
-| Status | not started (no `WorkshopPartKind` member, `engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`) |
+| Roadmap story | [EL-025 delivery slice](../invest/named-elements.md#element-025); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | not started (no `WorkshopPartKind` member, `engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`) |
 
 ## 2. Declaration
 
@@ -58,10 +60,10 @@ Families ([element-map row](../general-engine-element-map.md), [coverage binding
 
 **Missing**
 - Hinge with travel limits: Story 10.3.
-- Rearmable orientation threshold: unscheduled (generic sensor extension; owner of the sensor family).
-- Moving container store with mass and centre-of-mass coupling, spill through the lip: [S416](../invest/decisions.md#s416) advection (S418); unscheduled.
-- Free-stream capture by an open mouth: S418; unscheduled.
-- Several colliders on one dynamic body (cup walls plus counterweight): unscheduled; also needed by EL-014.
+- Rearmable orientation threshold: required in the linked delivery slice (generic sensor extension; owner of the sensor family).
+- Moving container store with mass and centre-of-mass coupling, spill through the lip: [S416](../invest/decisions.md#s416) advection (S418); required in the linked delivery slice.
+- Free-stream capture by an open mouth: S418; required in the linked delivery slice.
+- Several colliders on one dynamic body (cup walls plus counterweight): required in the linked delivery slice; also needed by EL-014.
 
 **Element dependencies.** An inflow (EL-003/EL-165 tap or EL-013 nozzle on a reservoir), a discharge receiver (EL-004). Optional CAT-009 Bell (Story 14.2) and CAT-020 Counter (Story 9.2).
 

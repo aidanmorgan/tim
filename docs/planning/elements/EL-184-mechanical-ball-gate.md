@@ -1,5 +1,7 @@
 # EL-184 · Mechanical ball gate named-identity spec
 
+**Current delivery (24 October 2026):** [EL-184 delivery slice](../invest/named-elements.md#element-184). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec (Batch J). Baseline commit `a6c914e`; every citation is `path@a6c914e:Lstart-Lend` and resolves with `git show a6c914e:<path> | sed -n 'start,endp'`. **Proposed** marks an unsourced design value with a one-line justification; the owner may revise it. All values are canonical IEEE-754 f32 game values inside the [game-grade envelope](../../gpu-f32-physics.md#game-grade-envelope).
 
 ## 1. Identity
@@ -13,7 +15,7 @@ Story 7.0 named-identity spec (Batch J). Baseline commit `a6c914e`; every citati
 | Proof owner | S366 |
 | Refines / extends | No CAT spec of its own. Shares the conduit, blade and slider of [CAT-051 powered gate](CAT-051-powered_gate.md) but is driven by linkage work instead of electricity; rope input per [CAT-058 rope anchor](CAT-058-rope_anchor.md) and [CAT-053 pulley](CAT-053-pulley.md) |
 | Related | EL-205 Rope, EL-206/EL-207 pulleys, EL-111 governor and EL-156–EL-158 cams (linear linkage sources), CAT-067 Weight |
-| Roadmap story | unscheduled (CAT-051 is Story 8.2) |
+| Roadmap story | [EL-184 delivery slice](../invest/named-elements.md#element-184); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration
@@ -58,7 +60,7 @@ None — **proposed**: the sourced blade, spring and stroke fix the required pul
 Clear shell `#66b8c9` alpha 0.16, cream `#fff8e9` collars and posts, navy `#293954` header, gold `#f7cb52` blade (`parts/PoweredGatePart.cs@a6c914e:L35-L47`); catalogue colour of the powered gate (0.97, 0.796, 0.322) (`parts/catalog/powered_gate.tres@a6c914e:L13-L13`). A gold rope eye on the pull rod — **proposed**.
 
 ### Catalogue and inventory entry
-Id `mechanical_gate`, title "Mechanical gate", category Ropes — **proposed**: placed next to the rope parts it needs. Add `WorkshopPartKind.MechanicalGate` with a counted allowance (`engine/gpu/WorkshopInventory.cs@a6c914e:L9-L23`).
+Id `mechanical_gate`, title "Mechanical gate", category Ropes — **proposed**: placed next to the rope parts it needs. Declare the package with a counted allowance keyed by its bundle-issued typed id (`engine/gpu/WorkshopInventory.cs@a6c914e:L9-L23`).
 
 ### Variants
 One outcome in the row; the powered gate is CAT-051.

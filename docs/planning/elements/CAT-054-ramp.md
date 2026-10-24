@@ -1,5 +1,7 @@
 # CAT-054 · ramp — declaration readiness spec
 
+**Current delivery (24 October 2026):** [CAT-054 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 ## 1. Identity
 
 | Field | Value |

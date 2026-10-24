@@ -1,5 +1,7 @@
 # EL-178 · Blue laser emitter — named-identity spec
 
+**Current delivery (24 October 2026):** [EL-178 delivery slice](../invest/named-elements.md#element-178). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 full spec for a named puzzle-element identity. Baseline commit `a6c914e`. Legacy citations use `path@a6c914e:Lstart-Lend` and stay retrievable from git history after the Epic 7 purge. Lengths are legacy scene units, which the current engine treats as metres (`MetreVector`). Local +X is the beam direction.
 
 The channel lasers (EL-176 to EL-178) are separate identities from the amber [CAT-036 laser](CAT-036-laser.md). Body, ports, enable latch, range and lens curve are the legacy amber laser's (sourced); channel power and channel art are **proposed**. The full legacy harvest is in [EL-176](EL-176-red-laser-emitter.md#4-sources-and-legacy).
@@ -15,7 +17,7 @@ The channel lasers (EL-176 to EL-178) are separate identities from the amber [CA
 | Owner | S494 |
 | Refines CAT | none one-to-one; extends [CAT-036 laser](CAT-036-laser.md). |
 | Related | EL-176, EL-177 (sibling channels); EL-145 blue filter; EL-148 blue receiver; EL-150, EL-151, EL-152 mixed receivers; EL-213 combiner |
-| Roadmap story | unscheduled (Story 13.1 covers only CAT-029 and CAT-036) |
+| Roadmap story | [EL-178 delivery slice](../invest/named-elements.md#element-178); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration
@@ -42,7 +44,7 @@ Binding shard ([element-02.json](../../coverage/engine/element-02.json)): Electr
 
 **Exists now:** static body and colliders (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L60`, `engine/gpu/PhysicsDeclarations.cs@a6c914e:L89-L91`); activation latch (`engine/gpu/ActivationNetwork.cs@a6c914e:L7-L17`); typed ports (`engine/gpu/WorkshopConnections.cs@a6c914e:L8-L13`).
 
-**Missing:** OpticalTransport narrow-ray emission with opaque-geometry occlusion — Story 13.1 (S484: S485, S486, S488, [decisions](../invest/decisions.md#s484)); ElectricalPower supply — Story 8.1 (S257); `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`).
+**Missing:** OpticalTransport narrow-ray emission with opaque-geometry occlusion — Story 13.1 (S484: S485, S486, S488, [decisions](../invest/decisions.md#s484)); ElectricalPower supply — Story 8.1 (S257); package declaration and bundle-issued typed id (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`).
 
 **Element dependencies:** CAT-005 battery; a trigger (CAT-063 or CAT-022, delivered); a blue observer (EL-148 / CAT-012, Story 13.2); an occluder (CAT-066 wall, delivered, or CAT-007 beam shutter, Story 13.3).
 

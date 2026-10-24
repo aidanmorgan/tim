@@ -1,5 +1,7 @@
 # RAD-17 · Water moderator tank — element readiness spec
 
+**Current delivery (24 October 2026):** [RAD-17 delivery slice](../invest/named-elements.md#radiation-17). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 Batch O named-identity spec. Legacy citations are pinned to `a6c914e` and resolve with `git show a6c914e:<path> | sed -n 'start,endp'`. Requirement row: [radiation-17](../requirements.md#radiation-17) (P3 potential). Toy two-group neutron model in game units; no reactor, multiplication or real-world shielding guidance.
 
 ## 1. Identity
@@ -11,7 +13,7 @@ Story 7.0 Batch O named-identity spec. Legacy citations are pinned to `a6c914e` 
 | Anchor | [requirements.md#radiation-17](../requirements.md#radiation-17); [named-elements.md#radiation-17](../invest/named-elements.md#radiation-17) |
 | Related identities | Source [RAD-16](RAD-16-neutron-source-module.md); detectors [EL-131](EL-131-fast-neutron-detector.md), [EL-132](EL-132-slow-neutron-detector.md); absorber [RAD-18](RAD-18-neutron-absorber-panel.md). Water supply and drain from [EL-001 Finite reservoir](EL-001-finite-reservoir.md), [EL-003 Tap](EL-003-tap.md), [EL-022 Water pump](../invest/named-elements.md#element-022), [EL-006 Drain](EL-006-drain.md). Transmission-gauge sibling [EL-130](EL-130-tank-level-transmission-gauge.md). No CAT spec. |
 | Proof owner | S627 |
-| Roadmap story | unscheduled; campaign 126, 128 (research slots 101, 103) |
+| Roadmap story | [RAD-17 delivery slice](../invest/named-elements.md#radiation-17); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration
@@ -38,14 +40,14 @@ Families from the [map row](../general-engine-element-map.md) and [binding](../.
 
 | Family | Status | Basis or builder |
 | --- | --- | --- |
-| FiniteLedger | missing | unscheduled (S010-D); conserved water and neutron counts; the only current finite store is bumper contact work, `engine/gpu/ContactWorkDeclaration.cs@a6c914e:L5-L9` |
-| FluidAdvection | missing | unscheduled (S418-D; liquid boundary decision S416/S470; no water epic yet) |
-| GeometryQuery | exists now for contact only; missing for radiation paths | BVH `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L74-L204` and narrowphase `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L325-L620` (the coverage JSON's `engine/gpu/physics.wgsl` basis is not in the tree); wet-chord queries below a waterline: unscheduled (S606-D) |
-| IonizingTransport | missing | unscheduled (S606-D/F); fast-to-slow transfer versus absorption |
-| StateTransaction | exists now | `engine/gpu/WorkshopSimulation.cs@a6c914e:L44-L161`; water volume restores with Reset (unscheduled with this element) |
-| TopologyTransaction | exists now for construction admission only | `engine/gpu/WorkshopSimulation.cs@a6c914e:L113-L151`; in-Run liquid volume and fluid links: unscheduled |
+| FiniteLedger | missing | required in the linked delivery slice (S010-D); conserved water and neutron counts; the only current finite store is bumper contact work, `engine/gpu/ContactWorkDeclaration.cs@a6c914e:L5-L9` |
+| FluidAdvection | missing | required in the linked delivery slice (S418-D; liquid boundary decision S416/S470; no water epic yet) |
+| GeometryQuery | exists now for contact only; missing for radiation paths | BVH `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L74-L204` and narrowphase `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L325-L620` (the coverage JSON's `engine/gpu/physics.wgsl` basis is not in the tree); wet-chord queries below a waterline: required in the linked delivery slice (S606-D) |
+| IonizingTransport | missing | required in the linked delivery slice (S606-D/F); fast-to-slow transfer versus absorption |
+| StateTransaction | exists now | `engine/gpu/WorkshopSimulation.cs@a6c914e:L44-L161`; water volume restores with Reset (required in the linked delivery slice with this element) |
+| TopologyTransaction | exists now for construction admission only | `engine/gpu/WorkshopSimulation.cs@a6c914e:L113-L151`; in-Run liquid volume and fluid links: required in the linked delivery slice |
 
-Also needed: the shared Water connection domain and ports (unscheduled with the water family).
+Also needed: the shared Water connection domain and ports (required in the linked delivery slice with the water family).
 
 **Dependencies.** A water supply and drain (water family, Epic not yet scheduled); RAD-16; EL-131/EL-132.
 

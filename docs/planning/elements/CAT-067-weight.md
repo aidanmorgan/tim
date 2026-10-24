@@ -1,5 +1,7 @@
 # CAT-067 · weight declaration readiness spec
 
+**Current delivery (24 October 2026):** [CAT-067 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 This is the Story 7.0 CAT-067-D declaration readiness spec for the weight. Rope route, length, tension and pendulum facts live in [CAT-058 rope_anchor](CAT-058-rope_anchor.md); two-pulley counterbalance facts live in [CAT-053 pulley](CAT-053-pulley.md). This file holds the weight body, its mass parameter and its integrations. Baseline commit is `a6c914e`. Legacy citations use `path@a6c914e:Lstart-Lend` and stay retrievable from git history after the Epic 7 purge; current-engine files are cited at the same commit.
 
 ## 1. Identity
@@ -10,7 +12,7 @@ This is the Story 7.0 CAT-067-D declaration readiness spec for the weight. Rope 
 | Kind | `weight`, catalogue title "Weight" |
 | Requirement anchor | [CAT-067](../requirements.md#current-cat-067); retained behaviour [todo-141](../requirements.md#todo-141) and [todo-140](../requirements.md#todo-140) |
 | Mapped identities | [EL-204 Weight](../invest/named-elements.md#element-204) (candidate — Batch A confirms) |
-| Roadmap story | 10.2a Weight body (package `elements/Weight`); 10.2b the rope Tie socket and Load role; 10.4 pendulum qualification only ([epics.md](../../../_bmad-output/planning-artifacts/epics.md)) |
+| Roadmap story | [10.2a Weight](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership); retain every CAT-067 mode and mapped named-identity obligation. |
 | Status | 10.2a body: native candidate in review ([spec](../../../_bmad-output/implementation-artifacts/spec-10-2a-weight.md)); browser case `cat-067` pending (post-catalogue E2E) |
 
 ## 2. Declaration
@@ -158,7 +160,7 @@ Requirement row: [CAT-067](../requirements.md#current-cat-067); stories 10.2 and
 
 ## 6. Open questions
 
-1. Collision shape versus artwork: legacy collides as a sphere but draws a cylinder (0.85 r radius, 1.35 r tall). Keep the sphere and reshape the art, or change the collider? A cylinder collider has no owning story — owner decision. Owner decision 9 Oct 2026: new cylinder-collider story before first shaft wheel; Story 10.1 (ENGINE-CYLINDER). **Answered (10.2a):** the collider is the art's solid cylinder, origin at the base centre (D1).
+1. Collision shape versus artwork: legacy collides as a sphere but draws a cylinder (0.85 r radius, 1.35 r tall). Keep the sphere and reshape the art, or change the collider? The shared cylinder prerequisite is Story 10.1 (ENGINE-CYLINDER). **Answered (10.2a):** the collider is the art's solid cylinder, origin at the base centre (D1).
 2. Contact material: confirm restitution 0.08, friction 0.3, threshold 0.1 m/s, drag 0, and set a rolling-resistance coefficient (none in legacy; current materials require one). **Answered (10.2a, by game intent under owner delegation):** those values, with rolling resistance 0.03 (the Bowling ball's).
 3. Confirm the radius law 0.32 ∛m and tie offset 0.08 m. **Answered (10.2a, by game intent):** the size is linear in mass, exact at 0.25 and 8 kg against the legacy art (r = 0.85 · 0.32∛m, h = 0.675 · 0.32∛m), monotone in between. The tie offset is 10.2b's (it needs a size binding).
 4. How the player sets `mass`: a UI control, or authored fixtures only? No current control exists. **Answered (10.2a):** the generic parameter editor, kg, Clamp policy, Build only.

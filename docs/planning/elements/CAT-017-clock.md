@@ -1,5 +1,7 @@
 # CAT-017 · clock — declaration readiness spec
 
+**Current delivery (24 October 2026):** [CAT-017 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 Batch B declaration spec (CAT-017-D). Legacy citations are pinned to `a6c914e` and resolve with `git show a6c914e:<path> | sed -n 'start,endp'`. Requirement row: [CAT-017](../requirements.md#current-cat-017). Supplied-network facts (N1–N24) are in [CAT-005](CAT-005-battery.md#4-legacy-harvest).
 
 ## 1. Identity
@@ -9,7 +11,7 @@ Story 7.0 Batch B declaration spec (CAT-017-D). Legacy citations are pinned to `
 | CAT ID / kind | CAT-017 · `clock` ("Repeating clock") |
 | Requirement anchor | [current-cat-017](../requirements.md#current-cat-017); retained behaviour [todo-273](../requirements.md#todo-273) |
 | Mapped identities | none owned. Related but distinct: [EL-025 Tipping-bucket water clock](../invest/named-elements.md#element-025), [EL-057 Escapement](../invest/named-elements.md#element-057). No legacy implementation links them; their requirement rows stand as the source. |
-| Roadmap story | 9.3 "System Clock Periodic Pulse Generator" (Epic 9) |
+| Roadmap story | 9.3 "System Clock Periodic Pulse Generator" (Epic 9) Current [CAT-017 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). |
 | Status | not started |
 
 ## 2. Declaration

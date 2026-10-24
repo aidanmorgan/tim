@@ -1,5 +1,7 @@
 # EL-121 · Rate-window goal — named-identity readiness spec
 
+**Current delivery (24 October 2026):** [EL-121 delivery slice](../invest/named-elements.md#element-121). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 readiness spec ([spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations are `path@a6c914e:Lstart-Lend`. Values marked **proposed** have no legacy or requirement source; each carries a one-line justification and the owner may revise it.
 
 ## 1. Identity
@@ -9,8 +11,8 @@ Story 7.0 readiness spec ([spec](../../../_bmad-output/implementation-artifacts/
 | ID / name / type | EL-121 · Rate-window goal · Goal |
 | Anchor | [requirements.md#element-121](../requirements.md#element-121); [named-elements entry](../invest/named-elements.md#element-121); umbrella [gap-16](../requirements.md#gap-16) (index only) |
 | Related identities | Siblings [EL-120 Quantity](EL-120-quantity-goal.md) (same delivery count, plus a time window), [EL-122](EL-122-ordered-events-goal.md), [EL-123](EL-123-protected-end-state-goal.md). Timing reuses the clock of the current `ActivatedAfter` goal. No CAT refines it. |
-| Roadmap story | Unscheduled. Campaign: introduction 29 "Going Steady", practice 30, reuse 97, 140 ([gap-16](../requirements.md#gap-16)). |
-| Status | Not started (`engine/gpu/WorkshopPuzzle.cs@a6c914e:L7-L7` has no rate kind). |
+| Roadmap story | [EL-121 delivery slice](../invest/named-elements.md#element-121); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | Not started (`engine/gpu/WorkshopPuzzle.cs@a6c914e:L7-L7` has no rate kind). |
 
 ## 2. Declaration
 

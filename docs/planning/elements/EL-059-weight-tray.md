@@ -1,5 +1,7 @@
 # EL-059 · Weight tray declaration readiness spec
 
+**Current delivery (24 October 2026):** [EL-059 delivery slice](../invest/named-elements.md#element-059). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec. Baseline commit `a6c914e`. Legacy citations use `path@a6c914e:Lstart-Lend` and stay retrievable from git history after the Epic 7 purge. Values marked **proposed** are design values the owner may revise.
 
 ## 1. Identity
@@ -13,7 +15,7 @@ Story 7.0 named-identity spec. Baseline commit `a6c914e`. Legacy citations use `
 | Named entry | [named-elements.md#element-059](../invest/named-elements.md#element-059); proof owner S368 |
 | CAT spec refined or extended | Extends the contact-load sensing of [CAT-052 pressure plate](CAT-052-pressure_plate.md) (Story 9.1) with a supported, deflecting tray and a measured output; it is a separate identity, not a pressure-plate mode |
 | Related identities | [EL-058 size grate](EL-058-size-grate.md) (sorting by size; this sorts by mass), [EL-069 moving bucket](EL-069-moving-bucket.md) |
-| Roadmap story | unscheduled |
+| Roadmap story | [EL-059 delivery slice](../invest/named-elements.md#element-059); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration
@@ -69,7 +71,7 @@ Cream tray `#fff8e9`, navy base `#293954`, ochre dial ring `#d69c47`, gold studs
 
 ### Catalogue and inventory entry
 
-Id `weight_tray`, title "Weighing tray", category "Control"; `WorkshopPartKind.WeightTray` appended last to the free inventory (`engine/gpu/WorkshopInventory.cs@a6c914e:L49-L60`). **Proposed**.
+Id `weight_tray`, title "Weighing tray", category "Control"; package-owned metadata discovered into the Free palette from the bundle (`engine/gpu/WorkshopInventory.cs@a6c914e:L49-L60`). **Proposed**.
 
 ### Variants
 
@@ -83,10 +85,10 @@ Binding: ContactImpulse, EnvironmentState, GeometryQuery, RigidBodyDynamics, Sig
 
 **Missing**
 
-- Compound dynamic body (tray plate plus four rim boxes) with combined mass properties: `RigidMassProperties.Compile` admits one homogeneous sphere or box per dynamic body (`engine/gpu/RigidMassProperties.cs@a6c914e:L26-L31`); no story. Decision owner S368.
+- Compound dynamic body (tray plate plus four rim boxes) with combined mass properties: `RigidMassProperties.Compile` admits one homogeneous sphere or box per dynamic body (`engine/gpu/RigidMassProperties.cs@a6c914e:L26-L31`); required prerequisite owned by the linked delivery slice. Decision owner S368.
 - Slider with soft spring row: Story 6.4 (CAT-062a prismatic slider and TGS Soft spring).
 - Contact-load reading (direct-contact load): Story 9.1 (CAT-052). The tray instead reads its spring force, which is new.
-- Scalar signal domain and `MeasureOut`: no story; S257 decision.
+- Scalar signal domain and `MeasureOut`: required prerequisite owned by the linked delivery slice; S257 decision.
 - Dwell-qualified threshold occurrence: Story 9.5 (hold timer) has the nearest timing primitive.
 
 **Dependencies.** Loads of different mass: CAT-001 Basketball (1 kg), CAT-014 Bowling ball (4 kg) delivered; CAT-067 Weight (0.25–8 kg) Story 10.4. A consumer for `ActivationOut`: CAT-035 Lamp (delivered).

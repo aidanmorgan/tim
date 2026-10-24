@@ -114,6 +114,8 @@ All authoritative continuous simulation state, velocity integration, spatial coo
 <a id="f32-migration-status"></a>
 ### f32 Migration Status
 
+**Owner scope, 24 October 2026:** Story 9A.44 also removes every remaining double-valued game calculation, state and presentation value, not only binary16. Game time is integer ticks plus an f32 phase; only named genuine external adapters may accept double, converting/validating at the boundary. Its contract inventories authoring, solver, wire/save, presentation, clock derivation and worker scheduling callers, explicitly tests tick overflow/range/non-finite refusal and permits no shadow precision path. This is required migration work, not a claim that the current tree is compliant. Existing f64 calculations mentioned in prior envelope evidence below remain baseline evidence to replace, not an exemption.
+
 The f32 contract above is the target; the code does not meet it everywhere yet. The lanes below still store or compute game values as IEEE-754 binary16 (`System.Half` in C#, decoded in the WASM worker by `WorkshopPhysicsEngine.ReadF16`, and by `decodeFloat16` in `CuriousContraptions.web/wwwroot/workshop-client.js` for the Animation output channel value). Each lane is required forward refactoring, not a supported second format. Integers, enums and identity tags keep their types. **Story 9A.44 owns every remaining binary16 lane** (owner decision, 18 Oct 2026; Epic 9A). It deletes each lane with no conversion shim and runs as soon as its preconditions allow, so that no lane is migrated and then deleted. Story9.5a migrates timer duration and activation phase first; integer started/due ticks keep their types.
 
 | Remaining binary16 lane | Where | Owning story |

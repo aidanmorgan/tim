@@ -1,5 +1,7 @@
 # EL-112 · Structural beam — named-identity readiness spec
 
+**Current delivery (24 October 2026):** [EL-112 delivery slice](../invest/named-elements.md#element-112). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 readiness spec ([spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations are `path@a6c914e:Lstart-Lend`; current-tree citations use the same baseline. Values marked **proposed** have no legacy or requirement source; each carries a one-line justification and the owner may revise it.
 
 ## 1. Identity
@@ -9,8 +11,8 @@ Story 7.0 readiness spec ([spec](../../../_bmad-output/implementation-artifacts/
 | ID / name / type | EL-112 · Structural beam · Construction |
 | Anchor | [requirements.md#element-112](../requirements.md#element-112); [named-elements entry](../invest/named-elements.md#element-112); umbrella [gap-01](../requirements.md#gap-01) (index only) |
 | Related identities | [EL-113 Structural brace](EL-113-structural-brace.md) (same frame lesson); [EL-114 Placeable pivot](EL-114-placeable-pivot.md) and [EL-159](EL-159-tension-limited-connector.md)/[160](EL-160-shear-limited-connector.md)/[161](EL-161-bending-limited-connector.md) connectors (what a beam end attaches to). No CAT refines it; the nearest catalogue box geometry is [CAT-066 Wall](CAT-066-wall.md) (static) and the [CAT-034 Impact lever](CAT-034-impact_lever.md) beam (dynamic box on a hinge). |
-| Roadmap story | Unscheduled. Campaign: introduction 4 "Brace Yourself", practice 5, reuse 18, 65, 138 ([gap-01](../requirements.md#gap-01)). |
-| Status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
+| Roadmap story | [EL-112 delivery slice](../invest/named-elements.md#element-112); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
 
 ## 2. Declaration
 
@@ -36,7 +38,7 @@ The requirements row names no variants; there is one mode.
 
 - **Cosmetic curves and UI bindings.** No curve; the artwork follows the committed pose. Resize along local X with the existing resize mode, as the Ramp does (`parts/RampPart.cs@a6c914e:L13-L13`).
 - **Art.** Chamfered cream ceramic beam with warm-wood inset faces, navy joint marks and gold connection collars ([gap-01 visual style](../requirements.md#gap-01)). Tokens: cream `#fff8e9`, wood `#c28f52`, navy `#293954`, gold `#f7cb52` (`DESIGN.md@a6c914e:L147-L154`, `DESIGN.md@a6c914e:L169-L169`).
-- **Catalogue and inventory.** **Proposed** id `structural_beam`, title "Structural beam", category Structure (as Ramp and Wall, `parts/catalog/wall.tres@a6c914e:L15-L18`). `WorkshopPartKind.StructuralBeam` appended as the last Free palette row (`engine/gpu/WorkshopInventory.cs@a6c914e:L47-L60`).
+- **Catalogue and inventory.** **Proposed** id `structural_beam`, title "Structural beam", category Structure (as Ramp and Wall, `parts/catalog/wall.tres@a6c914e:L15-L18`). package-owned metadata discovered into the Free palette from the bundle (`engine/gpu/WorkshopInventory.cs@a6c914e:L47-L60`).
 
 ## 3. Engine capabilities
 
@@ -44,9 +46,9 @@ Families ([element map row](../general-engine-element-map.md), [binding](../../c
 
 - **Exists now.** Dynamic box body, box–box/plane/sphere manifolds, Coulomb friction, gravity and Run/Reset (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L120`; `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L205-L229`). Gravity is a per-body vector (`CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L1271-L1279`).
 - **Missing.**
-  - JointConstraint. No joint exists in `engine/gpu`. Story 6.4 adds the first (prismatic) and Story 10.3 the revolute hinge ([epics](../../../_bmad-output/planning-artifacts/epics.md)). A rigid (weld) joint kind is in no story; owner S326 ([element map](../general-engine-element-map.md)).
+  - JointConstraint. No joint exists in `engine/gpu`. Story 6.4 adds the first (prismatic) and Story 10.3 the revolute hinge ([epics](../../../_bmad-output/planning-artifacts/epics.md)). A rigid (weld) joint kind is owned by this delivery slice; canonical owner S326 ([element map](../general-engine-element-map.md)).
   - Structural connection domain and sockets: S257 typed-port decisions ([decisions](../invest/decisions.md#s257)) have no structural row; owner S326. The rope sockets `TieA`/`TieB` wait for the Story 10.2 rope domain.
-  - Capacity: 16 dynamic bodies per workbench (`engine/gpu/PhysicsBodyReadSet.cs@a6c914e:L30-L30`) bounds frame size.
+  - Capacity: compile scene-sized body/joint tables at Run under the [current isolation authority](../../architecture/element-package-isolation.md); the historical 16-body limit (`engine/gpu/PhysicsBodyReadSet.cs@a6c914e:L30-L30`) is retired and does not bound frame size.
 - **Dependencies.** At least one connector (EL-114 or EL-159–161) or the bench to support it; EL-113 for the braced-frame integration.
 
 ## 4. Sources and legacy

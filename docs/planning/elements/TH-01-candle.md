@@ -1,5 +1,7 @@
 # TH-01 · Candle — named-identity readiness spec
 
+**Current delivery (24 October 2026):** [TH-01 delivery slice](../invest/named-elements.md#thermal-01). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations are `path@a6c914e:Lstart-Lend`. No legacy holds candle values, so every design value without a cited source is marked "(proposed: …)" with a one-line justification; the owner may revise it.
 
 ## 1. Identity
@@ -12,8 +14,8 @@ Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artif
 | Proof owner / research | S598 · [TH-S03 combustion and suppression](../../thermal-component-research.md#th-s03) |
 | Related identities | Historical record [todo-196](../requirements.md#todo-196) is shared with [EL-155](../invest/named-elements.md#element-155), [EL-210](../invest/named-elements.md#element-210), [TH-03](TH-03-combustible-block.md) and [TH-06](TH-06-converging-lens.md). No CAT spec: no catalogue candle exists. Ignition sources [TH-31](TH-31-flint-striker.md), [TH-32](TH-32-tinder-pad.md), [TH-33](TH-33-spring-mounted-match.md); receivers [TH-17](TH-17-kettle.md), [TH-37](TH-37-heat-sensitive-target.md). |
 | Campaign | Intro 56; practice 57; reuse 83, 137 ([thermal allocation](../requirements.md#thermal-campaign-allocation)) |
-| Roadmap story | Unscheduled. No epic in `_bmad-output/planning-artifacts/epics.md` schedules a thermal element. |
-| Status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`); no legacy part. |
+| Roadmap story | [TH-01 delivery slice](../invest/named-elements.md#thermal-01); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`); no legacy part. |
 
 ## 2. Declaration
 
@@ -37,14 +39,14 @@ Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artif
   Authored per level, not player-tuned (proposed: matches fixed-per-kind ball materials, `engine/gpu/WorkshopConstruction.cs@a6c914e:L45-L61`).
 - **Cosmetic curves and UI bindings.** Flame scale ← committed reaction power; wax height ← remaining fuel ([research per-element table](../../thermal-component-research.md)). Engraved height marks show fuel without colour alone ([visual contract](../requirements.md#thermal-elements)).
 - **Art.** "Cream wax cylinder with a recessed wick and restrained, state-driven flame" (row). Nearest [DESIGN.md](../../../DESIGN.md) source colours (proposed mapping): cream deck `#ead39b` (`DESIGN.md@a6c914e:L146-L146`), gold `#f7cb52` flame core (`DESIGN.md@a6c914e:L154-L154`).
-- **Catalogue and inventory entry.** New `WorkshopPartKind.Candle`; catalogue id `candle`, title "Candle", category Heat (proposed: no current category covers thermal parts; existing ones are Control, Goals, Motion, Optics, Power, Ropes, Sound, Structure).
+- **Catalogue and inventory entry.** Package-owned declaration, discovered into the bundle; catalogue id `candle`, title "Candle", category Heat (proposed: no current category covers thermal parts; existing ones are Control, Goals, Motion, Optics, Power, Ropes, Sound, Structure).
 
 ## 3. Engine capabilities
 
 Families (map row TH-01 in [general-engine-element-map](../general-engine-element-map.md), binding [thermal-01.json](../../coverage/engine/thermal-01.json)): ChemicalReaction, Extinction, FiniteLedger, GeometryQuery, Ignition, SensibleHeat, TopologyTransaction; the JSON also lists StateTransaction.
 
 - **Exists now.** Static body and box collider (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L120`); finite paid work in joules, partial FiniteLedger (`engine/gpu/ContactWorkDeclaration.cs@a6c914e:L5-L38`); Run/Reset checkpoint and save codec, StateTransaction (`engine/gpu/ActivationNetwork.cs@a6c914e:L67-L67`, `engine/gpu/WorkshopSaveCodec.cs@a6c914e:L6-L10`).
-- **Missing.** Every thermal family. Decision owner [S543](../invest/decisions.md#s543): reaction → S554, ignition → S555, extinction → S556, phase-topology (mass/geometry consumption) → S565. SensibleHeat (IX-43) has no S543 row. No epic story builds any of them.
+- **Missing.** Every thermal family. Decision owner [S543](../invest/decisions.md#s543): reaction → S554, ignition → S555, extinction → S556, phase-topology (mass/geometry consumption) → S565. SensibleHeat (IX-43) is a required entry decision under S543 owned by the linked delivery slice. The linked delivery owner implements or reuses each required capability after its bounded decision.
 - **Composition gaps.** The map row omits ThermalConvection (plume, S545), ThermalRadiation (S546), OpticalTransport ([S484](../invest/decisions.md#s484), Story 13.1 builds emitters) and GasState/EnvironmentState for oxygen ([S470](../invest/decisions.md#s470) → S471; [S635](../invest/decisions.md#s635) environment). See Open questions.
 - **Dependencies.** An ignition source (TH-31, TH-32, TH-33, or TH-06 with TH-32) and a heat receiver (TH-37 or TH-17).
 

@@ -1,5 +1,7 @@
 # EL-009 · 45-degree water elbow — named-identity spec
 
+**Current delivery (24 October 2026):** [EL-009 delivery slice](../invest/named-elements.md#element-009). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec ([readiness spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations `path@a6c914e:Lstart-Lend` resolve with `git show a6c914e:<path>` after the Epic 7 purge. A value marked **proposed** has no legacy or requirement source; it carries a one-line justification and the owner may revise it.
 
 ## Identity
@@ -11,8 +13,8 @@ Story 7.0 named-identity spec ([readiness spec](../../../_bmad-output/implementa
 | Named entry | [element-009](../invest/named-elements.md#element-009); per-element proof owner S430 |
 | CAT spec refined | None. The 45° ball-pipe bend [CAT-049](../requirements.md#current-cat-049) (Story 6.9) is a separate element. |
 | Related identities | [EL-008](EL-008-straight-water-pipe.md) (shared pipe-kit values), [EL-010](EL-010-water-elbow-90.md), [EL-011](EL-011-water-t-junction.md), [EL-012](EL-012-water-pipe-cap.md), [EL-013](EL-013-water-nozzle.md) |
-| Roadmap story | Unscheduled; ELEMENT-n row of the [roadmap](../invest/vertical-delivery.md#rolling-playable-roadmap), campaign chapter 7, levels 61–70. |
-| Status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
+| Roadmap story | [EL-009 delivery slice](../invest/named-elements.md#element-009); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
 
 ## Declaration
 
@@ -46,7 +48,7 @@ Story 7.0 named-identity spec ([readiness spec](../../../_bmad-output/implementa
 Families ([element map](../general-engine-element-map.md); binding [`element-01.json`](../../coverage/engine/element-01.json), consumer `element/element-009`): EnvironmentState, FiniteLedger, FluidAdvection, GeometryQuery, JointConstraint, PressureWork, RigidBodyDynamics, StateTransaction, TopologyTransaction.
 
 - **Exists now.** Static boxes (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L120`); Run/Reset (`engine/gpu/WorkshopSimulation.cs@a6c914e:L238-L245`).
-- **Missing.** Network node and head propagation ([S416](../invest/decisions.md#s416) → S418/S419); mouth joins (EL-001 open question 3). A bend's torus-segment collider is built for balls by Story 6.9 and could replace the box stand-in. Unscheduled.
+- **Missing.** Network node and head propagation ([S416](../invest/decisions.md#s416) → S418/S419); mouth joins (EL-001 open question 3). A bend's torus-segment collider is built for balls by Story 6.9 and could replace the box stand-in. Required in the linked delivery slice.
 - **Element dependencies.** EL-008 straight pipes and a supply.
 
 ## Sources and legacy

@@ -1,5 +1,7 @@
 # RAD-15 · Track chamber — element readiness spec
 
+**Current delivery (24 October 2026):** [RAD-15 delivery slice](../invest/named-elements.md#radiation-15). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 Batch O named-identity spec. Legacy citations are pinned to `a6c914e` and resolve with `git show a6c914e:<path> | sed -n 'start,endp'`. Requirement row: [radiation-15](../requirements.md#radiation-15) (P3 potential). A toy readout for fictional toy sources in game units.
 
 ## 1. Identity
@@ -11,7 +13,7 @@ Story 7.0 Batch O named-identity spec. Legacy citations are pinned to `a6c914e` 
 | Anchor | [requirements.md#radiation-15](../requirements.md#radiation-15); [named-elements.md#radiation-15](../invest/named-elements.md#radiation-15) |
 | Related identities | Charged sources [RAD-03](RAD-03-alpha-source-cartridge.md), [RAD-04](RAD-04-beta-minus-source-cartridge.md); steering [RAD-14](RAD-14-magnetic-deflector.md); neutral control [RAD-01](RAD-01-gamma-source-capsule.md). No CAT spec refined. |
 | Proof owner | S625 |
-| Roadmap story | unscheduled; campaign 120, 121 (research slots 95, 96) |
+| Roadmap story | [RAD-15 delivery slice](../invest/named-elements.md#radiation-15); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration
@@ -41,11 +43,11 @@ Families from the [map row](../general-engine-element-map.md) and [binding](../.
 
 | Family | Status | Basis or builder |
 | --- | --- | --- |
-| FiniteLedger | missing | unscheduled (S010-D); the only current finite store is bumper contact work, `engine/gpu/ContactWorkDeclaration.cs@a6c914e:L5-L9` |
-| GeometryQuery | exists now for contact only; missing for radiation paths | BVH `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L74-L204` and narrowphase `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L325-L620` (the coverage JSON's `engine/gpu/physics.wgsl` basis is not in the tree); track-versus-segment crossing queries: unscheduled (S606-D) |
-| IonizingTransport | missing | unscheduled (S606-D/F); charged trajectory samples exposed to sensors |
+| FiniteLedger | missing | required in the linked delivery slice (S010-D); the only current finite store is bumper contact work, `engine/gpu/ContactWorkDeclaration.cs@a6c914e:L5-L9` |
+| GeometryQuery | exists now for contact only; missing for radiation paths | BVH `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L74-L204` and narrowphase `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L325-L620` (the coverage JSON's `engine/gpu/physics.wgsl` basis is not in the tree); track-versus-segment crossing queries: required in the linked delivery slice (S606-D) |
+| IonizingTransport | missing | required in the linked delivery slice (S606-D/F); charged trajectory samples exposed to sensors |
 | SignalPropagation | missing | Story 8.1 (supplied contacts); the current `engine/gpu/ActivationNetwork.cs@a6c914e:L7-L14` is activation-only |
-| StateTransaction | exists now | `engine/gpu/WorkshopSimulation.cs@a6c914e:L44-L161`; segment state joins it with this element (unscheduled) |
+| StateTransaction | exists now | `engine/gpu/WorkshopSimulation.cs@a6c914e:L44-L161`; segment state joins it with this element (required in the linked delivery slice) |
 
 Also used: trail animation binding (AnimationEvaluation exists on the animation worker; map composition: "actual charged trajectory samples bind shared bounded trail animation, without controlling propagation or replaying stale tracks"); ElectricalPower (missing; Story 8.1).
 

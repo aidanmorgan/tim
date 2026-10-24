@@ -1,5 +1,7 @@
 # EL-021 · Sluice gate — named-identity spec
 
+**Current delivery (24 October 2026):** [EL-021 delivery slice](../invest/named-elements.md#element-021). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec ([readiness spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations `path@a6c914e:Lstart-Lend` resolve with `git show a6c914e:<path>` after the Epic 7 purge. A value marked **proposed** has no legacy or requirement source; it carries a one-line justification and the owner may revise it.
 
 ## Identity
@@ -11,8 +13,8 @@ Story 7.0 named-identity spec ([readiness spec](../../../_bmad-output/implementa
 | Named entry | [element-021](../invest/named-elements.md#element-021); per-element proof owner S442 |
 | CAT spec refined | None. Its slider uses the prismatic joint first built for the Springboard ([CAT-062](../requirements.md#current-cat-062), Story 6.4); the legacy ball-tube Powered gate ([CAT-051](../requirements.md#current-cat-051)) is the nearest analogue. |
 | Related identities | [EL-007 Open gutter](EL-007-open-gutter.md) (the channel it gates), [EL-003 Tap](EL-003-tap.md) (sealed aperture counterpart), EL-027 Canal lock chamber and EL-028 Buoyant platform (sluice-controlled transport), [CAT-058 rope](CAT-058-rope_anchor.md) and [CAT-039 pusher](CAT-039-linear_pusher.md) (actuators) |
-| Roadmap story | Unscheduled; ELEMENT-n row of the [roadmap](../invest/vertical-delivery.md#rolling-playable-roadmap), campaign chapter 7, levels 61–70. Slider prerequisite: Story 6.4. |
-| Status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
+| Roadmap story | [EL-021 delivery slice](../invest/named-elements.md#element-021); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
 
 ## Declaration
 
@@ -51,7 +53,7 @@ Story 7.0 named-identity spec ([readiness spec](../../../_bmad-output/implementa
 Families ([element map](../general-engine-element-map.md); binding [`element-01.json`](../../coverage/engine/element-01.json), consumer `element/element-021`): EnvironmentState, FiniteLedger, FluidAdvection, GeometryQuery, JointConstraint, PressureWork, RigidBodyDynamics, StateTransaction, TopologyTransaction.
 
 - **Exists now.** Dynamic and static boxes (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L120`); Run/Reset (`engine/gpu/WorkshopSimulation.cs@a6c914e:L238-L245`).
-- **Missing.** Prismatic slider with limits (JointConstraint, Story 6.4); a channel aperture bound to a committed joint coordinate ([S416](../invest/decisions.md#s416) advection → S418); rope tie (Story 10.2, S257 rope-port → S688). Unscheduled.
+- **Missing.** Prismatic slider with limits (JointConstraint, Story 6.4); a channel aperture bound to a committed joint coordinate ([S416](../invest/decisions.md#s416) advection → S418); rope tie (Story 10.2, S257 rope-port → S688). Required in the linked delivery slice.
 - **Element dependencies.** EL-007 gutter; an actuator (CAT-058 rope + CAT-067 Weight, or CAT-039 pusher); a source.
 
 ## Sources and legacy

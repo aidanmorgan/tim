@@ -1,5 +1,7 @@
 # EL-195 · Pinball bumper named-identity spec
 
+**Current delivery (24 October 2026):** [EL-195 delivery slice](../invest/named-elements.md#element-195). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec (Batch J). Baseline commit `a6c914e`; every citation is `path@a6c914e:Lstart-Lend` and resolves with `git show a6c914e:<path> | sed -n 'start,endp'`. **Proposed** marks an unsourced design value with a one-line justification; the owner may revise it. All values are canonical IEEE-754 f32 game values inside the [game-grade envelope](../../gpu-f32-physics.md#game-grade-envelope); current declarations still store them as binary16 ([f32 migration status](../../gpu-f32-physics.md#f32-migration-status)) and they are recorded here by decimal meaning.
 
 Current implementation (C-Bumper+Spring, 22 Oct 2026): the Bumper is a generic instance of the `bumper` package. Its `strength` parameter and declared `ContactWorkDescriptor` (1 kg reference mass, 0.05 m/s threshold, 72-step cooldown) are compiled by the shared `WorkshopPhysicsCompiler.ContactWorkFor`. The `engine/gpu/WorkshopBumper.cs@a6c914e` citations below are historical: that record was deleted. See [CAT-015 §2](CAT-015-bumper.md#2-declaration).
@@ -15,8 +17,8 @@ Current implementation (C-Bumper+Spring, 22 Oct 2026): the Bumper is a generic i
 | Proof owner | S301 |
 | Refines / extends | Refines [CAT-015 bumper](CAT-015-bumper.md) ([requirement](../requirements.md#current-cat-015)); the supplied variant extends it with [CAT-005 battery](CAT-005-battery.md) supply |
 | Related | CAT-066 Wall (`wall_and_bumper`), EL-194 Springboard (finite elastic store) |
-| Roadmap story | Charged variant: Stories 6.2 and 6.3 (CAT-015). Supplied variant: unscheduled |
-| Status | partial: `WorkshopPartKind.PinballBumper` exists with a contact-work declaration; the finite work law (Story 6.2) and the supplied variant are not delivered |
+| Roadmap story | [EL-195 delivery slice](../invest/named-elements.md#element-195); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | partial: Historical registration was `WorkshopPartKind.PinballBumper` with a contact-work declaration; the finite work law (Story 6.2) and the supplied variant are not delivered |
 
 ## 2. Declaration
 
@@ -57,7 +59,7 @@ A contact-work declaration qualifies each dynamic target's impact at approach sp
 Head in the Pinball bumper colour `#de7059`; navy-slate base cylinder `#273744`; gold cap `#f7cb52`; cream rings `#fff0c2` (`parts/BumperPart.cs@a6c914e:L18-L24`; [DESIGN colour system](../../../DESIGN.md#colour-system)). The supplied variant adds a gold `PowerIn` stud — **proposed**.
 
 ### Catalogue and inventory entry
-Id `bumper`; `WorkshopPartKind.PinballBumper` exists (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`); catalogue resource `parts/catalog/bumper.tres@a6c914e:L8-L16`.
+Id `bumper`; Historical registration was `WorkshopPartKind.PinballBumper` (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`); catalogue resource `parts/catalog/bumper.tres@a6c914e:L8-L16`.
 
 ### Variants
 - **Charged.** Baseline declaration: finite preload and no ports; Story 6.2 now adds the owner-requested recharge connection (mapping pending). Positive: a ball touching it is repelled radially, debiting the store. Control: an exhausted store gives an ordinary bounce.
@@ -73,7 +75,7 @@ Families: ContactImpulse, EnvironmentState, FiniteLedger, FiniteWorkActuation, G
 
 **Missing**
 - The finite work law (radial impulse debiting the store, no target-velocity launch): Story 6.2. Multi-angle and glancing contacts: Story 6.3.
-- Electrical supply for the Supplied variant: Story 8.1, then unscheduled. Owner S301.
+- Electrical supply for the Supplied variant: Story 8.1, then required in the linked delivery slice. Owner S301.
 
 **Dependencies.** Story 6.2 before 6.3; CAT-005 battery for the supplied variant.
 

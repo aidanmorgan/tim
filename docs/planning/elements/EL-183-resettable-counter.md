@@ -1,5 +1,7 @@
 # EL-183 · Resettable counter — element readiness spec
 
+**Current delivery (24 October 2026):** [EL-183 delivery slice](../invest/named-elements.md#element-183). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 Batch H named-identity spec. Legacy citations are pinned to `a6c914e` and resolve with `git show a6c914e:<path> | sed -n 'start,endp'`. Values marked *proposed* have no legacy or requirement source; each carries a one-line justification and may be revised by the owner. Box sizes are full extents (legacy `AddBox` takes the full size and stores half-extents, `reference/cpu/MachinePart.cs@a6c914e:L352-L356`). The base counter harvest is [CAT-020](CAT-020-counter.md); this spec adds the separately addressed reset input.
 
 ## 1. Identity
@@ -10,7 +12,7 @@ Story 7.0 Batch H named-identity spec. Legacy citations are pinned to `a6c914e` 
 | Type | Control |
 | Anchor | [requirements.md#element-183](../requirements.md#element-183); existing record [campaign-element-coverage](../requirements.md#campaign-element-coverage) ("counter/reset input"); [named-elements entry](../invest/named-elements.md#element-183); owner S404 |
 | Related | Extends [CAT-020 Counter](CAT-020-counter.md) (partial match recorded there: the legacy counter has no reset socket). Reset socket modelled on [CAT-037 Latch](../requirements.md#current-cat-037) `ResetIn`. Inputs from [EL-181](EL-181-rising-edge-detector.md)/[EL-182](EL-182-falling-edge-detector.md), [CAT-002 Ball detector](../requirements.md#current-cat-002), [CAT-063 Switch](CAT-063-switch.md). |
-| Roadmap story | unscheduled (the base counter is Story 9.2; the reset input has no story) |
+| Roadmap story | [EL-183 delivery slice](../invest/named-elements.md#element-183); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration

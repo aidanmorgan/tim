@@ -1,5 +1,7 @@
 # EL-045 · Air whistle — element readiness spec
 
+**Current delivery (24 October 2026):** [EL-045 delivery slice](../invest/named-elements.md#element-045). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 Batch H named-identity spec. Legacy citations are pinned to `a6c914e` and resolve with `git show a6c914e:<path> | sed -n 'start,endp'`. Values marked *proposed* have no legacy or requirement source; each carries a one-line justification, stays inside the [game-grade envelope](../../gpu-f32-physics.md#game-grade-envelope) and may be revised by the owner. Box sizes are full extents. Shared acoustic facts A1–A13 are in [EL-044](EL-044-tone-selective-sound-meter.md#shared-acoustic-family-facts); shared sealed-gas facts P1–P20 in [EL-039](EL-039-air-reservoir.md#shared-sealed-gas-family-facts). This spec defines the **sustained emission rule (S1)** that [EL-179](EL-179-continuous-tone-speaker.md) and [EL-052](EL-052-water-tuned-bottle.md) reuse.
 
 ## 1. Identity
@@ -10,7 +12,7 @@ Story 7.0 Batch H named-identity spec. Legacy citations are pinned to `a6c914e` 
 | Type | Sound |
 | Anchor | [requirements.md#element-045](../requirements.md#element-045); scope index [todo-352](../requirements.md#todo-352); [named-elements entry](../invest/named-elements.md#element-045); owner S533 |
 | Related | Refines no CAT spec. Airflow sources [CAT-028 Fan](CAT-028-fan.md), [CAT-010 Bellows](CAT-010-bellows.md), [EL-042 Air nozzle](EL-042-air-nozzle.md); gas source via [EL-040](EL-040-pneumatic-release-valve.md)/[EL-038](EL-038-pneumatic-hose.md) (piston "exhaust → whistle", [todo-426](../requirements.md#todo-426)); heard by [CAT-060](CAT-060-sound_meter.md)/[EL-044](EL-044-tone-selective-sound-meter.md). Airflow-excited sibling: [CAT-069 Wind chimes](CAT-069-wind_chimes.md). |
-| Roadmap story | unscheduled |
+| Roadmap story | [EL-045 delivery slice](../invest/named-elements.md#element-045); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration

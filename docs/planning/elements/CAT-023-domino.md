@@ -1,5 +1,7 @@
 # CAT-023 · domino — declaration readiness spec
 
+**Current delivery (24 October 2026):** [CAT-023 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 ## 1. Identity
 
 | Field | Value |
@@ -41,7 +43,7 @@ Families from the [element map row](../general-engine-element-map.md): ContactIm
 
 | Missing | Story that builds it |
 | --- | --- |
-| Offset centre of mass (body origin ≠ mass centre) in the shared rigid-body record | roadmap item CAT-023c (no epics.md story yet) |
+| Offset centre of mass (body origin ≠ mass centre) in the shared rigid-body record | CAT-023c follow-up owned by the CAT-023 delivery contract, before its first offset-COM consumer |
 | f32 lanes: the package declares the extents, mass, material and threshold in f32, but the compiled body, collider, material, half-angle cosine and inertia lanes are still binary16 (`Half`) | Remaining f32 migration ([f32 migration status](../../gpu-f32-physics.md#f32-migration-status)) |
 
 Dependencies: a striker (Bowling or Basketball) and a supporting surface.

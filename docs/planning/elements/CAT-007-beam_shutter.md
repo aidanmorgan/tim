@@ -1,5 +1,7 @@
 # CAT-007 · beam_shutter declaration readiness spec
 
+**Current delivery (24 October 2026):** [CAT-007 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 CAT-007-D readiness spec. Baseline commit `a6c914e`. Legacy citations use `path@a6c914e:Lstart-Lend` and stay retrievable from git history after the Epic 7 purge. Current-engine files are cited at the same commit. Values are authored as f32 game values under [the numeric contract](../../gpu-f32-physics.md#numeric-representation-and-precision). The blade law is shared with [CAT-051 powered gate](CAT-051-powered_gate.md) through one legacy controller, `engine/SlidingBlade.cs`. The shared facts are harvested in full there and summarised here.
 
 ## 1. Identity
@@ -10,8 +12,8 @@ Story 7.0 CAT-007-D readiness spec. Baseline commit `a6c914e`. Legacy citations 
 | Kind | `beam_shutter` (catalogue title "Beam shutter", category Optics) |
 | Requirement anchor | [CAT-007](../requirements.md#current-cat-007); retained behaviour [todo-292](../requirements.md#todo-292); consumers [CAT-007-I](../invest/current-consumers.md#cat-007-i) |
 | Mapped identities | None directly. [RAD-06 powered radiation shutter](../invest/named-elements.md#radiation-06) is a separate P1 potential element that would reuse the same supplied blade declaration (candidate relation — Batch A confirms). |
-| Roadmap story | 13.3 Beam Shutter Mechanical Guillotine ([epics](../../../_bmad-output/planning-artifacts/epics.md), Epic 13) |
-| Status | Not started. No `WorkshopPartKind` member exists (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
+| Roadmap story | 13.3 Beam Shutter Mechanical Guillotine ([epics](../../../_bmad-output/planning-artifacts/epics.md), Epic 13) Current [CAT-007 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). |
+| Harvest-baseline status | Not started. No `WorkshopPartKind` member exists (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
 
 ## 2. Declaration
 

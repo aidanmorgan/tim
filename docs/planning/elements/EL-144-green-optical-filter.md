@@ -1,5 +1,7 @@
 # EL-144 · Green optical filter — named-identity spec
 
+**Current delivery (24 October 2026):** [EL-144 delivery slice](../invest/named-elements.md#element-144). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 full spec for a named puzzle-element identity. Baseline commit `a6c914e`. Legacy citations use `path@a6c914e:Lstart-Lend` and stay retrievable from git history after the Epic 7 purge. Lengths are legacy scene units, which the current engine treats as metres (`MetreVector`). The pane normal is local −X; the filter works from either face.
 
 The three channel filters (EL-143 red, EL-144 green, EL-145 blue) share one body and one filter law; they differ only in the passed channel, pane ink, channel marks and icon.
@@ -15,7 +17,7 @@ The three channel filters (EL-143 red, EL-144 green, EL-145 blue) share one body
 | Owner | S499 |
 | Refines CAT | [CAT-031 green_filter](CAT-031-green_filter.md) (`green_filter`, "Green filter"). One catalogue part satisfies both identities; not a second implementation. |
 | Related | EL-143, EL-145 (sibling channels); EL-147 green receiver and EL-177 green laser (channel partners); EL-174 prism |
-| Roadmap story | 13.4 Spectral Color Bandpass Filters (Red, Green, Blue) (CAT-055, CAT-031, CAT-011) |
+| Roadmap story | [EL-144 delivery slice](../invest/named-elements.md#element-144); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration
@@ -44,7 +46,7 @@ Binding shard ([element-02.json](../../coverage/engine/element-02.json)): Finite
 **Missing**
 - OpticalTransport Filter interaction and light-transparent solid colliders — Story 13.4 (emission Story 13.1). Decision owner **S484** ([decisions](../invest/decisions.md#s484)): S485, S486, S488.
 - OpticalAbsorption and SensibleHeat for absorbed channels — S489, S543 (mode-specific).
-- Construction preview — Story 13.5. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`).
+- Construction preview — Story 13.5. No package declaration is established by the cited harvest baseline (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`).
 
 **Element dependencies:** a source carrying green (CAT-036 amber laser, EL-177, EL-213 output; Story 13.1/13.5), CAT-005 battery (Story 8.1), an observer (EL-147 / CAT-032 or CAT-038; Story 13.2), CAT-066 wall (delivered).
 

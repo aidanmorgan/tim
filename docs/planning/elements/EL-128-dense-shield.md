@@ -1,5 +1,7 @@
 # EL-128 · Dense shield — element readiness spec
 
+**Current delivery (24 October 2026):** [EL-128 delivery slice](../invest/named-elements.md#element-128). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 Batch O named-identity spec. Legacy citations are pinned to `a6c914e` and resolve with `git show a6c914e:<path> | sed -n 'start,endp'`. Requirement row: [element-128](../requirements.md#element-128). This is a fictional toy material: the simplified shield chart is never real-world shielding guidance ([radiation research](../../radiation-component-research.md#laws-at-puzzle-scale)).
 
 ## 1. Identity
@@ -11,7 +13,7 @@ Story 7.0 Batch O named-identity spec. Legacy citations are pinned to `a6c914e` 
 | Anchor | [requirements.md#element-128](../requirements.md#element-128); [named-elements.md#element-128](../invest/named-elements.md#element-128); scope source [radiation-05](../requirements.md#radiation-05) (umbrella, index only) |
 | Related identities | Siblings [EL-126](EL-126-thin-screen-shield.md), [EL-127](EL-127-polymer-shield.md). Proving partners [RAD-01 Gamma](RAD-01-gamma-source-capsule.md), [RAD-02 X-ray](RAD-02-powered-x-ray-emitter.md), [RAD-08 Rate meter](RAD-08-radiation-rate-meter.md). The dense material is reused by [RAD-06 shutter blade](RAD-06-powered-radiation-shutter.md), [RAD-07 collimator](RAD-07-collimator-block.md) and the [RAD-14](RAD-14-magnetic-deflector.md) poles and obstacle. No CAT spec. |
 | Proof owner | S612 |
-| Roadmap story | unscheduled; campaign chapter 11 (levels 101–110; "Behind the Slab" and "Two Thin Walls" at 102, 104) |
+| Roadmap story | [EL-128 delivery slice](../invest/named-elements.md#element-128); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration
@@ -48,13 +50,13 @@ Families from the [map row](../general-engine-element-map.md) and [binding](../.
 
 | Family | Status | Basis or builder |
 | --- | --- | --- |
-| FiniteLedger | missing | unscheduled (S010-D); deposited-energy accounting; the only current finite store is bumper contact work, `engine/gpu/ContactWorkDeclaration.cs@a6c914e:L5-L9` |
-| GeometryQuery | exists now for contact only; missing for radiation paths | BVH `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L74-L204` and narrowphase `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L325-L620` (the coverage JSON's `engine/gpu/physics.wgsl` basis is not in the tree); oriented-box path length along sampled paths: unscheduled (P0-004, S606-D) |
-| IonizingTransport | missing | unscheduled (S606-D/F); exponential photon attenuation over actual path intervals ([S605 photon row](../invest/decisions.md#s605): "thicker shield reads less; missing source or gap reads as declared") |
+| FiniteLedger | missing | required in the linked delivery slice (S010-D); deposited-energy accounting; the only current finite store is bumper contact work, `engine/gpu/ContactWorkDeclaration.cs@a6c914e:L5-L9` |
+| GeometryQuery | exists now for contact only; missing for radiation paths | BVH `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L74-L204` and narrowphase `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L325-L620` (the coverage JSON's `engine/gpu/physics.wgsl` basis is not in the tree); oriented-box path length along sampled paths: required in the linked delivery slice (P0-004, S606-D) |
+| IonizingTransport | missing | required in the linked delivery slice (S606-D/F); exponential photon attenuation over actual path intervals ([S605 photon row](../invest/decisions.md#s605): "thicker shield reads less; missing source or gap reads as declared") |
 | SignalPropagation | missing | Story 8.1; no signal port on the shield — used by the meter in the proof |
 | StateTransaction | exists now | `engine/gpu/WorkshopSimulation.cs@a6c914e:L44-L161`; pose and preset restore with Reset |
 
-As a dynamic panel it also uses RigidBodyDynamics, ContactImpulse and SlidingFriction (exist now: `engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L86`, `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L623-L726`). The thickness enum selector is unscheduled with this element.
+As a dynamic panel it also uses RigidBodyDynamics, ContactImpulse and SlidingFriction (exist now: `engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L86`, `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L623-L726`). The thickness enum selector is required in the linked delivery slice with this element.
 
 **Dependencies.** RAD-01 (or RAD-02) and RAD-08 to observe; EL-127 for the equal-geometry control.
 

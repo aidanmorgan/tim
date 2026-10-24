@@ -1,5 +1,7 @@
 # EL-013 · Water nozzle — named-identity spec
 
+**Current delivery (24 October 2026):** [EL-013 delivery slice](../invest/named-elements.md#element-013). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec ([readiness spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations `path@a6c914e:Lstart-Lend` resolve with `git show a6c914e:<path>` after the Epic 7 purge. A value marked **proposed** has no legacy or requirement source; it carries a one-line justification and the owner may revise it.
 
 ## Identity
@@ -11,8 +13,8 @@ Story 7.0 named-identity spec ([readiness spec](../../../_bmad-output/implementa
 | Named entry | [element-013](../invest/named-elements.md#element-013); per-element proof owner S434 |
 | CAT spec refined | None. |
 | Related identities | [EL-008](EL-008-straight-water-pipe.md) (shared pipe-kit values), [EL-002](EL-002-header-tank.md) (head source), [EL-022](EL-022-water-pump.md) (pumped head), [EL-004](EL-004-catch-basin.md) (target), EL-036 Sprinkler (distributed source, separate) |
-| Roadmap story | Unscheduled; ELEMENT-n row of the [roadmap](../invest/vertical-delivery.md#rolling-playable-roadmap), campaign chapter 7, levels 61–70. |
-| Status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
+| Roadmap story | [EL-013 delivery slice](../invest/named-elements.md#element-013); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
 
 ## Declaration
 
@@ -47,7 +49,7 @@ Story 7.0 named-identity spec ([readiness spec](../../../_bmad-output/implementa
 Families ([element map](../general-engine-element-map.md); binding [`element-01.json`](../../coverage/engine/element-01.json), consumer `element/element-013`): EnvironmentState, FiniteLedger, FluidAdvection, GeometryQuery, JointConstraint, PressureWork, RigidBodyDynamics, StateTransaction, TopologyTransaction.
 
 - **Exists now.** Static box (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L120`); constant gravity for ballistic flight (`engine/gpu/WorkshopConstruction.cs@a6c914e:L123-L124`); the speed envelope ([game-grade envelope](../../gpu-f32-physics.md#game-grade-envelope)).
-- **Missing.** Free-stream packets with initial velocity and swept capture ([S416](../invest/decisions.md#s416) advection → S418); head-to-speed conversion (pressure-work → S419). Jet impact on bodies needs ContactImpulse coupling, which is not in this element's family list (see Open questions). Unscheduled.
+- **Missing.** Free-stream packets with initial velocity and swept capture ([S416](../invest/decisions.md#s416) advection → S418); head-to-speed conversion (pressure-work → S419). Jet impact on bodies needs ContactImpulse coupling, which is not in this element's family list (see Open questions). Required in the linked delivery slice.
 - **Element dependencies.** A head source (EL-002 via pipes, or EL-022); EL-004 target.
 
 ## Sources and legacy

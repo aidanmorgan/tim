@@ -1,5 +1,7 @@
 # EL-052 · Water-tuned bottle — element readiness spec
 
+**Current delivery (24 October 2026):** [EL-052 delivery slice](../invest/named-elements.md#element-052). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 Batch H named-identity spec. Legacy citations are pinned to `a6c914e` and resolve with `git show a6c914e:<path> | sed -n 'start,endp'`. Values marked *proposed* have no legacy or requirement source; each carries a one-line justification, stays inside the [game-grade envelope](../../gpu-f32-physics.md#game-grade-envelope) and may be revised by the owner. Box sizes are full extents. Shared acoustic facts A1–A13 are in [EL-044](EL-044-tone-selective-sound-meter.md#shared-acoustic-family-facts); sustained emission S1 and the airflow inlet in [EL-045](EL-045-air-whistle.md); the water conventions (domain `Water`, density 16 kg/m³, volume step 2⁻⁴ m³, `OpenMouth` capture) follow Batch F, e.g. [EL-001](EL-001-finite-reservoir.md) and [EL-003](EL-003-tap.md).
 
 ## 1. Identity
@@ -10,7 +12,7 @@ Story 7.0 Batch H named-identity spec. Legacy citations are pinned to `a6c914e` 
 | Type | Sound |
 | Anchor | [requirements.md#element-052](../requirements.md#element-052); scope index [todo-352](../requirements.md#todo-352); [named-elements entry](../invest/named-elements.md#element-052); owner S539 |
 | Related | Refines no CAT spec. A resonator ([EL-049](EL-049-acoustic-resonator.md)) whose band follows conserved water fill, excited by airflow like [EL-045](EL-045-air-whistle.md); filled from a [EL-003 Tap](EL-003-tap.md) over an [EL-001 reservoir](EL-001-finite-reservoir.md); heard by [EL-044](EL-044-tone-selective-sound-meter.md). Campaign: "water-tuned bottle follows chapter 7 water". |
-| Roadmap story | unscheduled |
+| Roadmap story | [EL-052 delivery slice](../invest/named-elements.md#element-052); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration

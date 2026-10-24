@@ -1,5 +1,7 @@
 # TH-28 · Evaporative cooling pad — named-identity readiness spec
 
+**Current delivery (24 October 2026):** [TH-28 delivery slice](../invest/named-elements.md#thermal-28). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations are `path@a6c914e:Lstart-Lend`. No legacy holds evaporative-pad values, so every design value without a cited source is marked "(proposed: …)" with a one-line justification; the owner may revise it.
 
 ## 1. Identity
@@ -12,8 +14,8 @@ Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artif
 | Proof owner / research | S590 · [TH-S08 evaporative cooling](../../thermal-component-research.md#th-s08) |
 | Related identities | No CAT spec. Airflow from [CAT-028 Fan](CAT-028-fan.md); capillary feed shares the water family's wick law (Batches F and G; [S416](../invest/decisions.md#s416) capillary). Read by a [TH-21 Temperature sensor](TH-21-temperature-sensor.md); contrast [TH-10](TH-10-finned-heat-sink.md), which cannot go below ambient (TX-08). |
 | Campaign | Intro 73; practice 74; reuse 88, 145 ([thermal allocation](../requirements.md#thermal-campaign-allocation)) |
-| Roadmap story | Unscheduled. No epic in `_bmad-output/planning-artifacts/epics.md` schedules a thermal element. |
-| Status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`); no legacy part. |
+| Roadmap story | [TH-28 delivery slice](../invest/named-elements.md#thermal-28); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`); no legacy part. |
 
 ## 2. Declaration
 
@@ -39,14 +41,14 @@ Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artif
   Fan flow speed 12 m/s is sourced from the [gas family parameters](../../finite-gas-foundation.md).
 - **Cosmetic curves and UI bindings.** Damp fraction ← committed pad water ([research per-element table](../../thermal-component-research.md)); the visible wet/dry pattern follows it (row). Vapour is invisible; droplets and vapour stay distinct ([visual contract](../requirements.md#thermal-elements)).
 - **Art.** "Cream ribbed wick above a cyan reservoir with a visible wet/dry pattern" (row). Nearest [DESIGN.md](../../../DESIGN.md) source colours (proposed mapping): cream `#ead39b` (`DESIGN.md@a6c914e:L146-L146`), cyan `#66b8c9` (`DESIGN.md@a6c914e:L172-L172`).
-- **Catalogue and inventory entry.** New `WorkshopPartKind.EvaporativePad`; id `evaporative_pad`, title "Evaporative cooling pad", category Heat (proposed: no current category covers thermal parts).
+- **Catalogue and inventory entry.** Package-owned declaration, discovered into the bundle; id `evaporative_pad`, title "Evaporative cooling pad", category Heat (proposed: no current category covers thermal parts).
 
 ## 3. Engine capabilities
 
 Families (map row TH-28, [general-engine-element-map](../general-engine-element-map.md); binding [thermal-01.json](../../coverage/engine/thermal-01.json)): CapillaryTransport, EnvironmentState, FiniteLedger, FluidAdvection, GasState, GeometryQuery, LiquidEvaporation, PhaseTopology, SensibleHeat, ThermalConvection, TopologyTransaction; JSON adds StateTransaction.
 
 - **Exists now.** Static body and box colliders (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L120`); Run/Reset and save (`engine/gpu/ActivationNetwork.cs@a6c914e:L67-L67`, `engine/gpu/WorkshopSaveCodec.cs@a6c914e:L6-L10`).
-- **Missing.** Airflow receiver: Story 12.2. Capillary wick: [S416](../invest/decisions.md#s416) capillary → S421. Humidity and atmosphere: [S635](../invest/decisions.md#s635) environment, [S470](../invest/decisions.md#s470) gas-state → S471. [S543](../invest/decisions.md#s543): evaporation → S549, convection → S545. All thermal rows unscheduled.
+- **Missing.** Airflow receiver: Story 12.2. Capillary wick: [S416](../invest/decisions.md#s416) capillary → S421. Humidity and atmosphere: [S635](../invest/decisions.md#s635) environment, [S470](../invest/decisions.md#s470) gas-state → S471. [S543](../invest/decisions.md#s543): evaporation → S549, convection → S545. All thermal rows required in the linked delivery slice.
 - **Dependencies.** CAT-028 Fan (Story 12.2); water fill; TH-21 to read the pad.
 
 ## 4. Sources and legacy

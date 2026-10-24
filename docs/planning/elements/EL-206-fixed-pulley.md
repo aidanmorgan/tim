@@ -1,5 +1,7 @@
 # EL-206 · Fixed pulley named-identity spec
 
+**Current delivery (24 October 2026):** [EL-206 delivery slice](../invest/named-elements.md#element-206). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec (Batch J). Baseline commit `a6c914e`; every citation is `path@a6c914e:Lstart-Lend` and resolves with `git show a6c914e:<path> | sed -n 'start,endp'`. **Proposed** marks an unsourced design value with a one-line justification; the owner may revise it. All values are canonical IEEE-754 f32 game values inside the [game-grade envelope](../../gpu-f32-physics.md#game-grade-envelope).
 
 ## 1. Identity
@@ -13,7 +15,7 @@ Story 7.0 named-identity spec (Batch J). Baseline commit `a6c914e`; every citati
 | Proof owner | S308 |
 | Refines / extends | Refines [CAT-053 pulley](CAT-053-pulley.md) ([requirement](../requirements.md#current-cat-053)); the full harvest is in that spec |
 | Related | EL-205 Rope, EL-207 Moving pulley, CAT-058 Rope anchor, CAT-067 Weight |
-| Roadmap story | Story 10.2 (CAT-053 with CAT-058) |
+| Roadmap story | [EL-206 delivery slice](../invest/named-elements.md#element-206); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration
@@ -51,7 +53,7 @@ Wheel angle advances by route travel ÷ 0.4 m, wrapped to 2π, only while the ro
 Navy `#293954` mount, cream `#fff8e9` post and rim, wheel in the Pulley colour `#d69c47`, navy spoke bar, gold `#f7cb52` marker (`parts/PulleyPart.cs@a6c914e:L22-L32`; `parts/catalog/pulley.tres@a6c914e:L13-L13`; [DESIGN colour system](../../../DESIGN.md#colour-system)).
 
 ### Catalogue and inventory entry
-Id `pulley`, title "Pulley", category Ropes, "Redirect a continuous rope. Connect both sides to loads or anchors; unfinished ropes cannot carry tension." (`parts/catalog/pulley.tres@a6c914e:L8-L14`). Add `WorkshopPartKind.Pulley` with an allowance (`engine/gpu/WorkshopInventory.cs@a6c914e:L9-L23`).
+Id `pulley`, title "Pulley", category Ropes, "Redirect a continuous rope. Connect both sides to loads or anchors; unfinished ropes cannot carry tension." (`parts/catalog/pulley.tres@a6c914e:L8-L14`). Declare the package and its bundle-issued typed id with an authored allowance (`engine/gpu/WorkshopInventory.cs@a6c914e:L9-L23`).
 
 ### Variants
 One outcome in the row; the load-attached sheave is EL-207.

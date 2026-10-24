@@ -1,5 +1,7 @@
 # EL-095 · Toy revolver — named-identity spec
 
+**Current delivery (24 October 2026):** [EL-095 delivery slice](../invest/named-elements.md#element-095). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec ([story spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations are `path@a6c914e:Lstart-Lend`. Values with no legacy or requirement source are **proposed**, each with a one-line justification; the owner may revise them. Game values are canonical f32 ([numeric contract](../../gpu-f32-physics.md#f32-migration-status)).
 
 **Safety boundary.** This is an abstract toy launcher of soft balls. Its energy is a declared store in joules; no real firearm mechanism, propellant or construction is modelled or described.
@@ -13,8 +15,8 @@ Story 7.0 named-identity spec ([story spec](../../../_bmad-output/implementation
 | Named entry | [element-095](../invest/named-elements.md#element-095); source owner **S665** |
 | CAT spec refined or extended | Extends [CAT-016 Toy cannon](CAT-016-cannon.md): the same finite-store release law, with a gravity-fed magazine for repeated shots |
 | Related identities | EL-091 Cannonball (launcher-independent cargo), CAT-064 Tennis ball (default payload), CAT-005 Battery |
-| Roadmap story | Unscheduled |
-| Status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
+| Roadmap story | [EL-095 delivery slice](../invest/named-elements.md#element-095); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
 
 ## 2. Declaration
 

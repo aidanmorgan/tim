@@ -1,5 +1,7 @@
 # EL-125 · Authored atmosphere preset — named-identity readiness spec
 
+**Current delivery (24 October 2026):** [EL-125 delivery slice](../invest/named-elements.md#element-125). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 readiness spec ([spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations are `path@a6c914e:Lstart-Lend`. Values marked **proposed** have no legacy or requirement source; each carries a one-line justification and the owner may revise it.
 
 ## 1. Identity
@@ -9,8 +11,8 @@ Story 7.0 readiness spec ([spec](../../../_bmad-output/implementation-artifacts/
 | ID / name / type | EL-125 · Authored atmosphere preset · Environment |
 | Anchor | [requirements.md#element-125](../requirements.md#element-125); [named-elements entry](../invest/named-elements.md#element-125); umbrella [gap-18](../requirements.md#gap-18) (index only) |
 | Related identities | [EL-124 Authored gravity preset](EL-124-authored-gravity-preset.md); consumers [EL-208 Balloon](EL-208-balloon.md) / [CAT-003](CAT-003-balloon.md) (buoyancy), [CAT-028 Fan](CAT-028-fan.md) (airflow), every ball's drag ([CAT-001](CAT-001-ball.md)). No CAT refines it. |
-| Roadmap story | Unscheduled. Campaign: introduction 79 "Air on the Side", practice 80, reuse 99, 143 ([gap-18](../requirements.md#gap-18)). |
-| Status | Not started. The current world has no pressure or density (`engine/gpu/WorkshopConstruction.cs@a6c914e:L123-L124`). |
+| Roadmap story | [EL-125 delivery slice](../invest/named-elements.md#element-125); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | Not started. The current world has no pressure or density (`engine/gpu/WorkshopConstruction.cs@a6c914e:L123-L124`). |
 
 ## 2. Declaration
 

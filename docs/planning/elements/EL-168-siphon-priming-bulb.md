@@ -1,5 +1,7 @@
 # EL-168 · Siphon priming bulb named-identity spec
 
+**Current delivery (24 October 2026):** [EL-168 delivery slice](../invest/named-elements.md#element-168). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 This is the Story 7.0 full spec for named identity EL-168. The baseline is commit `a6c914e`; every citation uses `path@a6c914e:Lstart-Lend`. Values without a source are marked **proposed**, each with a one-line justification; the owner may revise them.
 
 ## 1. Identity
@@ -13,8 +15,8 @@ This is the Story 7.0 full spec for named identity EL-168. The baseline is commi
 | Proof owner | S461 |
 | CAT spec refined | none. Related: [CAT-010 Bellows](CAT-010-bellows.md) (compressed-chamber precedent, Story 12.4), [CAT-062 Spring](CAT-062-spring.md) (slider and return spring, Story 6.4) |
 | Related identities | [EL-024 Primed siphon](EL-024-primed-siphon.md) (the only consumer); EL-022 Water pump (alternative primer); [EL-039 Air reservoir](EL-039-air-reservoir.md) and the EL-037–EL-043 pneumatic family (sealed-gas siblings) |
-| Roadmap story | unscheduled |
-| Status | not started (no `WorkshopPartKind` member, `engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`) |
+| Roadmap story | [EL-168 delivery slice](../invest/named-elements.md#element-168); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | not started (no `WorkshopPartKind` member, `engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`) |
 
 ## 2. Declaration
 
@@ -46,10 +48,10 @@ Families ([element-map row](../general-engine-element-map.md), [coverage binding
 - Static and dynamic Box bodies, contact normal impulses: `engine/gpu/PhysicsDeclarations.cs@a6c914e:L42-L120`.
 
 **Missing**
-- Sealed gas chamber whose volume follows a slider (GasState): [S470 gas-state](../invest/decisions.md#s470) → S471; unscheduled.
+- Sealed gas chamber whose volume follows a slider (GasState): [S470 gas-state](../invest/decisions.md#s470) → S471; required in the linked delivery slice.
 - Prismatic slider with spring: Story 6.4.
-- Coupling of drawn gas volume to the siphon column, with the end-seal rule (S445-D) and the liquid/gas boundary ([S416](../invest/decisions.md#s416)/S470): unscheduled.
-- Connection between the bulb and the siphon `WaterPrime` port (TopologyTransaction): S416 with [S257](../invest/decisions.md#s257); unscheduled.
+- Coupling of drawn gas volume to the siphon column, with the end-seal rule (S445-D) and the liquid/gas boundary ([S416](../invest/decisions.md#s416)/S470): required in the linked delivery slice.
+- Connection between the bulb and the siphon `WaterPrime` port (TopologyTransaction): S416 with [S257](../invest/decisions.md#s257); required in the linked delivery slice.
 
 **Element dependencies.** EL-024 Primed siphon (required consumer) with a submerged or sealed outlet; a presser: CAT-039 Linear pusher (Story 11.3), a falling ball, CAT-034 Impact lever.
 

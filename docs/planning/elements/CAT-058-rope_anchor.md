@@ -2,6 +2,8 @@
 
 This is the Story 7.0 CAT-058-D declaration readiness spec for the rope anchor. It also carries the route, length and tension facts of the rope connector itself (EL-205), which has no catalogue entry of its own; [CAT-053 pulley](CAT-053-pulley.md) and [CAT-067 weight](CAT-067-weight.md) cross-reference this file for them. Baseline commit is `a6c914e`. Legacy citations use `path@a6c914e:Lstart-Lend` and stay retrievable from git history after the Epic 7 purge; current-engine files are cited at the same commit.
 
+Current implementation authority: package/bundle discovery and .tscn assets; C# f32 generic constraints and typed command/query/event interfaces. Pinned source/API citations below describe harvest baseline. Native unit/integration acceptance applies now; Chrome recipes are retained post-catalogue. Finite entry decisions 1–6 remain explicit blockers under 10.2b, not guessed constants.
+
 ## 1. Identity
 
 | Field | Value |
@@ -10,7 +12,7 @@ This is the Story 7.0 CAT-058-D declaration readiness spec for the rope anchor. 
 | Kind | `rope_anchor`, catalogue title "Rope anchor" |
 | Requirement anchor | [CAT-058](../requirements.md#current-cat-058); retained behaviour [todo-140](../requirements.md#todo-140) and [todo-141](../requirements.md#todo-141) |
 | Mapped identities | [EL-064 Metal loop anchor](../invest/named-elements.md#element-064) (candidate — Batch A confirms); [EL-205 Rope](../invest/named-elements.md#element-205) (candidate — Batch A confirms; the rope is a connection, not a catalogue part) |
-| Roadmap story | 10.2 Pulley Wheel & Tensile Rope Dynamics (CAT-053, CAT-058) in [epics.md](../../../_bmad-output/planning-artifacts/epics.md) |
+| Roadmap story |10.2b Rope Anchor, tensile rope and cutting;10.2c owns later pulley routing. [Independent contracts](../../../_bmad-output/planning-artifacts/epics.md#story-102b-rope-anchor-tensile-rope-and-cutting-cat-058). |
 | Status | not started |
 
 ## 2. Declaration
@@ -67,7 +69,7 @@ None — a fixed endpoint stores no energy. The rope is tension-only and massles
 ### Catalogue and inventory entry
 
 - Id `rope_anchor`, title "Rope anchor", category "Ropes", description "A fixed tie-off for a rope. Connect a weight to make a hanging load or pendulum." — `parts/catalog/rope_anchor.tres@a6c914e:L8-L14`.
-- Add `WorkshopPartKind.RopeAnchor` (enum today ends at `BowlingBall`, `engine/gpu/WorkshopPartKind.cs@a6c914e:L3`) and append one row to `WorkshopInventoryPolicy.Free` (`engine/gpu/WorkshopInventory.cs@a6c914e:L47-L60`; new kinds append last). No campaign level at `a6c914e` places or stocks a rope anchor (checked `content/puzzles.json`).
+- Declare RopeAnchor metadata, typed parameters/ports and package-owned .tscn in `elements/RopeAnchor`; bundle discovery supplies catalogue/inventory identity. No WorkshopPartKind or manual Free inventory row. Legacy registration citations remain harvest evidence, not instructions.
 
 ## 3. Engine capabilities
 
@@ -174,4 +176,4 @@ Requirement row: [CAT-058](../requirements.md#current-cat-058); story 10.2.
 4. Anchor contact material (restitution, friction) and whether the anchor may be rotated or wall-mounted (supported orientation modes). Unspecified — owner decision.
 5. Is EL-205 Rope only a connection type (legacy), or does it need its own inventory allowance in campaign levels? Unspecified — owner decision.
 6. f32 taut/slack threshold that replaces the legacy 0.001 m literal. Unspecified — owner decision.
-7. **Epic story vs requirement conflict.** Story 10.2 says "cutting or releasing tension uncouples the bodies". No legacy rope implements cutting (`engine/RopeNetwork.cs`, `engine/physics/PhysicsRopeJoint.cs`), CAT-058 requires slack, incomplete and open routes rather than cutting ([CAT-058](../requirements.md#current-cat-058)), and cutting resistance belongs to the separate EL-067 steel cable. Is rope cutting in scope for Story 10.2? Unspecified — owner decision.
+7. **Resolved scope, owner, 24 October 2026:** cutting is required in 10.2b. Before implementation, define the typed cut/release command and supported phase, atomic committed removal, unknown/already-cut refusal and Reset restoration of the original authored route. Save/load preserves authored endpoints/length; runtime cut state is not silently baked into construction. Steel-cable cutting resistance remains EL-067's separate acceptance.

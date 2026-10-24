@@ -1,5 +1,7 @@
 # EL-208 · Balloon — named-identity readiness spec
 
+**Current delivery (24 October 2026):** [EL-208 delivery slice](../invest/named-elements.md#element-208). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 readiness spec ([spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations are `path@a6c914e:Lstart-Lend`. Values marked **proposed** have no legacy or requirement source; each carries a one-line justification and the owner may revise it.
 
 ## 1. Identity
@@ -9,8 +11,8 @@ Story 7.0 readiness spec ([spec](../../../_bmad-output/implementation-artifacts/
 | ID / name / type | EL-208 · Balloon · Gravity |
 | Anchor | [requirements.md#element-208](../requirements.md#element-208); [named-elements entry](../invest/named-elements.md#element-208); scope source [campaign element coverage](../requirements.md#campaign-element-coverage) |
 | Refines | [CAT-003 balloon](CAT-003-balloon.md) ([requirement](../requirements.md#current-cat-003)); the CAT spec holds the material and buoyancy harvest. Neighbours, not merged: TH-25 Hot-air balloon, EL-090 Steerable blimp, [EL-125 Atmosphere](EL-125-authored-atmosphere-preset.md). |
-| Roadmap story | Story 12.1 "Lightweight Tennis Ball & Floating Balloon Buoyancy" for buoyancy; gas store and puncture unscheduled ([epics](../../../_bmad-output/planning-artifacts/epics.md)). |
-| Status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
+| Roadmap story | [EL-208 delivery slice](../invest/named-elements.md#element-208); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
 
 ## 2. Declaration
 
@@ -44,7 +46,7 @@ Families ([element map row](../general-engine-element-map.md), [binding](../../c
 - **Missing.**
   - Buoyancy and pressure: Story 12.1 and EL-125 (LAW-ENVIRONMENT-I, [S635](../invest/decisions.md#s635)).
   - Tether rope row: Story 10.2.
-  - GasState sealed store and puncture (StructuralFracture/TopologyTransaction): S470 gas-state S471 and S543 fracture S563 ([decisions](../invest/decisions.md#s470)); unscheduled, owner S479.
+  - GasState sealed store and puncture (StructuralFracture/TopologyTransaction): S470 gas-state S471 and S543 fracture S563 ([decisions](../invest/decisions.md#s470)); required in the linked delivery slice, owner S479.
   - Per-contact impulse read-back for the puncture event: owner S479.
 - **Dependencies.** EL-125 atmosphere; Rope (EL-205) or Rope anchor (CAT-058); a Wall as ceiling; Fan (CAT-028) for guidance.
 

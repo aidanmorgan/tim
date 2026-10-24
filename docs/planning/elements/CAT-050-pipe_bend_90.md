@@ -1,5 +1,7 @@
 # CAT-050 · pipe_bend_90 (90° pipe bend) — declaration readiness spec
 
+**Current delivery (24 October 2026):** [CAT-050 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 ## 1. Identity
 
 | Field | Value |
@@ -41,8 +43,8 @@ Families from the [element map row](../general-engine-element-map.md): ContactIm
 | --- | --- |
 | Hollow torus-segment collider with rim caps | Story 6.7, applied by Stories 6.9/6.10 |
 | Straight tube collider, length resize and mouth snapping (joined_pipe) | Stories 6.6, 6.7 (CAT-048) |
-| `WorkshopPartKind` member and declaration for the 90° bend | Story 6.10 |
-| Physical placement nudging (the declared depth-error result "Forgiving/Balanced succeed where Precise fails", facts 2 and 7) | not scheduled, owner decision: the roadmap reports physical nudging unsupported in the current playable mode ([first_principles](../invest/vertical-delivery.md#first-principles)) |
+| package declaration and bundle-issued typed id and declaration for the 90° bend | Story 6.10 |
+| Physical placement nudging (the declared depth-error result "Forgiving/Balanced succeed where Precise fails", facts 2 and 7) | [Story 15.0 native assistance](../../../_bmad-output/planning-artifacts/epics.md#story-150-physical-placement-nudging--difficulty-assistance), after all named intrinsic implementations and before catalogue-native-closure; browser qualification remains later |
 | Air blocking across the bend shell; optical clarity (fact 11) | Epic 12 (Story 12.2) and Epic 13 (Story 13.1) |
 
 Dependencies: CAT-048. Builds after CAT-049 (Story 6.9), which introduces the bend declaration.
@@ -90,9 +92,9 @@ Acceptance: [CAT-050](../requirements.md#current-cat-050) and [retained behaviou
 - **Run/Reset, Save/Load.** Poses and pipe length restored.
 - **Distinctness.** Matching collars, rails and own icon; no 45° representative closure.
 - **Integrations.** Contact and cargo connection audit [sequence-task-285](../requirements.md#sequence-task-285) (pipe/bend/funnel); bend combinations [todo-250](../requirements.md#todo-250); [IX-01 contact impulse](../requirements.md#interaction-01); campaign first use 21–30 in the [element coverage ledger](../requirements.md#campaign-element-coverage) (ball routes row: both bend angles) and chapter 3 "Pipe Dreams" of the [150-level progression](../requirements.md#sequence-task-315). Partners: straight pipe (CAT-048) in joined_pipe, 45° bend (CAT-049), Receiver (CAT-004).
-- **Remaining (unmet now).** The Forgiving/Balanced depth-error successes (facts 2, 7) depend on physical placement nudging, which is not scheduled.
+- **Remaining (unmet now).** The Forgiving/Balanced depth-error successes (facts 2, 7) depend on [Story 15.0's bounded native assistance stage](../../../_bmad-output/planning-artifacts/epics.md#story-150-physical-placement-nudging--difficulty-assistance), required before catalogue-native-closure after all named intrinsic implementations.
 
 ## 6. Open questions
 
 - Oversize payload for the oversize control: see CAT-048 §6: unspecified — owner decision.
-- Physical placement nudging: not scheduled, owner decision. Story 6.10's "Forgiving/Balanced succeed where Precise fails" needs it; which story builds it, or whether Story 6.10 closes with that criterion deferred, is unspecified.
+- Physical placement nudging scheduling is resolved: Story 15.0 owns the bounded native assistance criteria from Story 6.10 after all named intrinsic implementations and before catalogue-native-closure. The source numerical/behavioral expectations remain unchanged; actual UI proof and exhaustive difficulty/campaign sweeps are post-catalogue. Any remaining model/parameter decisions stay within Story 15.0 before implementation.

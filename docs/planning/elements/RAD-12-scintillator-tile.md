@@ -1,5 +1,7 @@
 # RAD-12 · Scintillator tile — element readiness spec
 
+**Current delivery (24 October 2026):** [RAD-12 delivery slice](../invest/named-elements.md#radiation-12). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 Batch O named-identity spec. Legacy citations are pinned to `a6c914e` and resolve with `git show a6c914e:<path> | sed -n 'start,endp'`. Requirement row: [radiation-12](../requirements.md#radiation-12) (P2 potential). Toy conversion of fictional toy sources in game units; never real-world detector guidance.
 
 ## 1. Identity
@@ -11,7 +13,7 @@ Story 7.0 Batch O named-identity spec. Legacy citations are pinned to `a6c914e` 
 | Anchor | [requirements.md#radiation-12](../requirements.md#radiation-12); [named-elements.md#radiation-12](../invest/named-elements.md#radiation-12) |
 | Related identities | Optical receiver [CAT-038 light receiver](CAT-038-light_receiver.md) and [EL-153 General-light receiver](../invest/named-elements.md#element-153); sources [RAD-01](RAD-01-gamma-source-capsule.md), [RAD-02](RAD-02-powered-x-ray-emitter.md); shield control [EL-128](EL-128-dense-shield.md). No CAT spec refined. |
 | Proof owner | S622 |
-| Roadmap story | unscheduled; campaign 117, 122 (research slots 92, 97) |
+| Roadmap story | [RAD-12 delivery slice](../invest/named-elements.md#radiation-12); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration
@@ -38,9 +40,9 @@ Families from the [map row](../general-engine-element-map.md) and [binding](../.
 
 | Family | Status | Basis or builder |
 | --- | --- | --- |
-| FiniteLedger | missing | unscheduled (S010-D); absorbed energy and conversion loss; the only current finite store is bumper contact work, `engine/gpu/ContactWorkDeclaration.cs@a6c914e:L5-L9` |
-| GeometryQuery | exists now for contact only; missing for radiation paths | BVH `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L74-L204` and narrowphase `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L325-L620` (the coverage JSON's `engine/gpu/physics.wgsl` basis is not in the tree); sampled path queries: unscheduled (S606-D) |
-| IonizingTransport | missing | unscheduled (S606-D/F); deposition per receiver and material |
+| FiniteLedger | missing | required in the linked delivery slice (S010-D); absorbed energy and conversion loss; the only current finite store is bumper contact work, `engine/gpu/ContactWorkDeclaration.cs@a6c914e:L5-L9` |
+| GeometryQuery | exists now for contact only; missing for radiation paths | BVH `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L74-L204` and narrowphase `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L325-L620` (the coverage JSON's `engine/gpu/physics.wgsl` basis is not in the tree); sampled path queries: required in the linked delivery slice (S606-D) |
+| IonizingTransport | missing | required in the linked delivery slice (S606-D/F); deposition per receiver and material |
 | OpticalTransport | missing | Stories 13.1 (sources) and 13.2 (receivers); the coverage JSON's "Partial" basis is legacy `engine/OpticalNetwork.cs`, deleted by Epic 7. Map composition: "ionizing deposition debits energy before bounded OpticalTransport emission; conversion is not an unpowered light source" (S484) |
 | StateTransaction | exists now | `engine/gpu/WorkshopSimulation.cs@a6c914e:L44-L161` (no stored state of its own) |
 

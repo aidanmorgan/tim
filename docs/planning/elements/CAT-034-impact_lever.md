@@ -1,5 +1,7 @@
 # CAT-034 · impact_lever declaration readiness spec
 
+**Current delivery (24 October 2026):** [CAT-034 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 This is the Story 7.0 CAT-034-D declaration readiness spec for the impact lever. The baseline is commit `a6c914e`. Legacy citations use `path@a6c914e:Lstart-Lend` and stay retrievable from git history after the Epic 7 purge. Current-engine files are cited at the same commit. Legacy world units are carried as metres, as the delivered Switch and Bumper declarations already do (`engine/gpu/WorkshopPhysicsCompiler.cs@a6c914e:L109-L122`).
 
 ## 1. Identity
@@ -10,8 +12,8 @@ This is the Story 7.0 CAT-034-D declaration readiness spec for the impact lever.
 | Kind | `impact_lever`, catalogue title "Impact lever" (`parts/catalog/impact_lever.tres@a6c914e:L6-L7`) |
 | Requirement anchor | [CAT-034](../requirements.md#current-cat-034); retained behaviour [sequence-task-307 / todo-409](../requirements.md#sequence-task-307) |
 | Mapped identities | None. No EL, TH, RAD or GAP identity in [named-elements.md](../invest/named-elements.md) names an impact lever, teeter-totter or fulcrum beam. Batch A confirms. |
-| Roadmap story | [10.3 Balanced Impact Lever & Pivot Fulcrum](../../../_bmad-output/planning-artifacts/epics.md) (Epic 10) |
-| Status | Not started. There is no `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3`). |
+| Roadmap story | [10.3 Balanced Impact Lever & Pivot Fulcrum](../../../_bmad-output/planning-artifacts/epics.md) (Epic 10) Current [CAT-034 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). |
+| Harvest-baseline status | Not started. There is no `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3`). |
 
 ## 2. Declaration
 
@@ -83,7 +85,7 @@ The palette tokens are cream, cyan inset, gold pivot, marks and stops, and a nav
 ### Catalogue and inventory entry
 
 - **Catalogue.** Id `impact_lever`, title "Impact lever", category "Motion". Description: "A passive hinged beam. A falling load turns one end and can lift a lighter load at the other. Gold marks show the lever arms; fixed stops limit its swing. No power or automatic launch." (`parts/catalog/impact_lever.tres@a6c914e:L6-L9`).
-- **Inventory.** Story 10.3 adds a `WorkshopPartKind` member and a `PartInventoryDictionary` allowance (`engine/gpu/WorkshopInventory.cs@a6c914e:L9-L23`). No level at `a6c914e` places the lever or stocks it in an inventory: `content/puzzles.json` has zero `impact_lever` occurrences at that commit.
+- **Inventory.** Story 10.3 adds a package declaration and bundle-issued typed id and a `PartInventoryDictionary` allowance (`engine/gpu/WorkshopInventory.cs@a6c914e:L9-L23`). No level at `a6c914e` places the lever or stocks it in an inventory: `content/puzzles.json` has zero `impact_lever` occurrences at that commit.
 
 ## 3. Engine capabilities
 
@@ -92,7 +94,7 @@ The capability families are those in the [CAT-034 map row](../general-engine-ele
 **Exists now:**
 - **Dynamic box body.** Box rigid body, homogeneous box inertia and box-box, box-sphere and box-plane contact: `engine/gpu/RigidMassProperties.cs@a6c914e:L26-L51` and `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L503` (`collideBoxBox`). The Domino is the nearest dynamic-box precedent (`engine/gpu/WorkshopDomino.cs@a6c914e:L7-L24`).
 - **Contact solver.** TGS Soft contact solve at 480 Hz substeps (`CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L208`), with 8 biased and 4 relax iterations (`CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L225-L226`), `makeSoft` (`CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L230-L236`), `prepareContact` (`CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L623`), `solveNormalRow` (`CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L774`) and `sweepManifolds` (`CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L878`).
-- **Static fixture.** Multi-box static bodies and scene capacity (33 bodies, 64 colliders): `engine/gpu/PhysicsDeclarations.cs@a6c914e:L164-L168`.
+- **Static fixture.** Multi-box static bodies; current tables are scene-sized. Historical capacities (33 bodies, 64 colliders) are retired: `engine/gpu/PhysicsDeclarations.cs@a6c914e:L164-L168`.
 - **Save codec.** Part pose and rotation: `engine/gpu/WorkshopSaveCodec.cs@a6c914e:L6-L10`.
 
 **Missing:**

@@ -1,5 +1,7 @@
 # EL-116 · Passive wheel — named-identity readiness spec
 
+**Current delivery (24 October 2026):** [EL-116 delivery slice](../invest/named-elements.md#element-116). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 readiness spec ([spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations are `path@a6c914e:Lstart-Lend`. Values marked **proposed** have no legacy or requirement source; each carries a one-line justification and the owner may revise it.
 
 ## 1. Identity
@@ -9,8 +11,8 @@ Story 7.0 readiness spec ([spec](../../../_bmad-output/implementation-artifacts/
 | ID / name / type | EL-116 · Passive wheel · Construction |
 | Anchor | [requirements.md#element-116](../requirements.md#element-116); [named-elements entry](../invest/named-elements.md#element-116); umbrella [gap-03](../requirements.md#gap-03) (index only) |
 | Related identities | [EL-117 Axle](EL-117-axle.md) (couples it to a chassis); [GAP-04 Driven wheel](GAP-04-driven-wheel.md) (same silhouette, supplied torque); [EL-112 Structural beam](EL-112-structural-beam.md) as chassis. No CAT refines it. |
-| Roadmap story | Unscheduled. Campaign: introduction 18 "Wheel Meet Again", practice 19, reuse 37, 68, 138 ([gap-03](../requirements.md#gap-03)). |
-| Status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
+| Roadmap story | [EL-116 delivery slice](../invest/named-elements.md#element-116); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
 
 ## 2. Declaration
 
@@ -37,7 +39,7 @@ The requirements row names no variants; there is one mode.
 
 - **Cosmetic curves and UI bindings.** None; spin is the committed body rotation. One gold spoke makes spin and slip visible.
 - **Art.** Cream disc `#fff8e9`, warm-wood tread `#c28f52`, navy hub recess `#293954`, one gold spoke `#f7cb52` ([gap-03 visual style](../requirements.md#gap-03); `DESIGN.md@a6c914e:L147-L154`, `DESIGN.md@a6c914e:L169-L169`).
-- **Catalogue and inventory.** **Proposed** id `wheel`, title "Wheel", category Motion (with the balls, `parts/catalog/ball.tres@a6c914e:L21-L24`); `WorkshopPartKind.Wheel` appended last in the Free palette (`engine/gpu/WorkshopInventory.cs@a6c914e:L47-L60`).
+- **Catalogue and inventory.** **Proposed** id `wheel`, title "Wheel", category Motion (with the balls, `parts/catalog/ball.tres@a6c914e:L21-L24`); package-owned metadata discovered into the Free palette from the bundle (`engine/gpu/WorkshopInventory.cs@a6c914e:L47-L60`).
 
 ## 3. Engine capabilities
 

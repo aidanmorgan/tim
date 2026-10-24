@@ -1,5 +1,7 @@
 # EL-170 · Raft named-identity spec
 
+**Current delivery (24 October 2026):** [EL-170 delivery slice](../invest/named-elements.md#element-170). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 This is the Story 7.0 full spec for named identity EL-170. The baseline is commit `a6c914e`; every citation uses `path@a6c914e:Lstart-Lend`. Values without a source are marked **proposed**, each with a one-line justification; the owner may revise them.
 
 ## 1. Identity
@@ -13,8 +15,8 @@ This is the Story 7.0 full spec for named identity EL-170. The baseline is commi
 | Proof owner | S463 |
 | CAT spec refined | none |
 | Related identities | [EL-169 Cork float](EL-169-cork-float.md) (single buoyant body), [EL-028 Buoyant platform](EL-028-buoyant-platform.md) (single rigid deck), [EL-029 Boat](EL-029-boat.md) (hull); each a separate flotation identity |
-| Roadmap story | unscheduled |
-| Status | not started (no `WorkshopPartKind` member, `engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`) |
+| Roadmap story | [EL-170 delivery slice](../invest/named-elements.md#element-170); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | not started (no `WorkshopPartKind` member, `engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`) |
 
 ## 2. Declaration
 
@@ -47,9 +49,9 @@ Families ([element-map row](../general-engine-element-map.md), [coverage binding
 - Dynamic Box bodies, contact impulses, gravity and linear drag: `engine/gpu/PhysicsDeclarations.cs@a6c914e:L42-L120`, `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L1271-L1279`.
 
 **Missing**
-- Weld (fixed) joint: unscheduled (Story 6.4 brings the first prismatic joint, Story 10.3 the hinge).
-- Displaced-volume buoyancy per body and immersion damping: [S416 buoyancy](../invest/decisions.md#s416) → S420; unscheduled.
-- A multi-body catalogue part placed as one assembly: unscheduled.
+- Weld (fixed) joint: required in the linked delivery slice (Story 6.4 brings the first prismatic joint, Story 10.3 the hinge).
+- Displaced-volume buoyancy per body and immersion damping: [S416 buoyancy](../invest/decisions.md#s416) → S420; required in the linked delivery slice.
+- A multi-body catalogue part placed as one assembly: required in the linked delivery slice.
 
 **Element dependencies.** A liquid store large enough (EL-026, EL-027, EL-001); cargo (CAT-001 Basketball, CAT-014 Bowling ball as overload).
 

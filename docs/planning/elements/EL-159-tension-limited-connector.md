@@ -1,5 +1,7 @@
 # EL-159 · Tension-limited connector — named-identity readiness spec
 
+**Current delivery (24 October 2026):** [EL-159 delivery slice](../invest/named-elements.md#element-159). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 readiness spec ([spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations are `path@a6c914e:Lstart-Lend`. Values marked **proposed** have no legacy or requirement source; each carries a one-line justification and the owner may revise it.
 
 ## 1. Identity
@@ -9,8 +11,8 @@ Story 7.0 readiness spec ([spec](../../../_bmad-output/implementation-artifacts/
 | ID / name / type | EL-159 · Tension-limited connector · Construction |
 | Anchor | [requirements.md#element-159](../requirements.md#element-159); [named-elements entry](../invest/named-elements.md#element-159); umbrella [gap-05](../requirements.md#gap-05) (index only) |
 | Related identities | Siblings [EL-160 Shear-limited](EL-160-shear-limited-connector.md) and [EL-161 Bending-limited](EL-161-bending-limited-connector.md) (same collar, different failure mode); joins [EL-112](EL-112-structural-beam.md)/[EL-113](EL-113-structural-brace.md) members; loaded by a [EL-204 Weight](EL-204-weight.md); extends releasable bridges (EL-186). No CAT refines it. |
-| Roadmap story | Unscheduled. Campaign: introduction 43 "The Last Straw", practice 44, reuse 65, 96, 139 ([gap-05](../requirements.md#gap-05)). |
-| Status | Not started. No joint or fracture capability in `engine/gpu` (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L163-L192`). |
+| Roadmap story | [EL-159 delivery slice](../invest/named-elements.md#element-159); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | Not started. No joint or fracture capability in `engine/gpu` (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L163-L192`). |
 
 ## 2. Declaration
 
@@ -46,7 +48,7 @@ Families ([element map row](../general-engine-element-map.md), [binding](../../c
 - **Exists now.** Committed per-tick reads and atomic Run/Reset of the document (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L163-L192`).
 - **Missing.**
   - Joint rows (Story 10.3 hinge, [epics](../../../_bmad-output/planning-artifacts/epics.md)) and a per-joint reaction read-back: owner S680.
-  - StructuralFracture / TopologyTransaction (joint removal mid-Run): decision owner S543 "fracture" row, named next S563 ([decisions](../invest/decisions.md#s543)); no story schedules it.
+  - StructuralFracture / TopologyTransaction (joint removal mid-Run): decision owner S543 "fracture" row, named next S563 ([decisions](../invest/decisions.md#s543)); required prerequisite owned by the linked delivery slice.
   - Rope domain and the beam's rope socket `TieB` (proposed in EL-112) for the Weight load: Story 10.2.
 - **Dependencies.** A structural member (EL-112) and a fixed overhead support; a Weight (EL-204) on a rope (EL-205) as the load.
 

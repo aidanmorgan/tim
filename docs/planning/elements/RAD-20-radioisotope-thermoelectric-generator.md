@@ -1,5 +1,7 @@
 # RAD-20 · Radioisotope thermoelectric generator — element readiness spec
 
+**Current delivery (24 October 2026):** [RAD-20 delivery slice](../invest/named-elements.md#radiation-20). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 Batch O named-identity spec. Legacy citations are pinned to `a6c914e` and resolve with `git show a6c914e:<path> | sed -n 'start,endp'`. Requirement row: [radiation-20](../requirements.md#radiation-20) (P3 potential). A **contained toy decay-heat module**; values are game fiction, never real-world RTG data.
 
 ## 1. Identity
@@ -11,7 +13,7 @@ Story 7.0 Batch O named-identity spec. Legacy citations are pinned to `a6c914e` 
 | Anchor | [requirements.md#radiation-20](../requirements.md#radiation-20); [named-elements.md#radiation-20](../invest/named-elements.md#radiation-20) |
 | Related identities | Generic converter [TH-30 Thermoelectric generator](../invest/named-elements.md#thermal-30) (RTG = decay heat + the same record); cooling [TH-10 Finned heat sink](../invest/named-elements.md#thermal-10), fan [CAT-028](CAT-028-fan.md); loads such as [CAT-042 Motor](CAT-042-motor.md); startup supply [CAT-005 Battery](CAT-005-battery.md). Not a battery with decorative fins. No CAT spec refined. |
 | Proof owner | S631 |
-| Roadmap story | unscheduled; campaign 131, 132 (research slots 106, 107) |
+| Roadmap story | [RAD-20 delivery slice](../invest/named-elements.md#radiation-20); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration
@@ -43,13 +45,13 @@ Families from the [map row](../general-engine-element-map.md) and [binding](../.
 | Family | Status | Basis or builder |
 | --- | --- | --- |
 | ElectricalPower | missing | Story 8.1; the `Electrical` domain and `Supply` socket enums exist, `engine/gpu/WorkshopConnections.cs@a6c914e:L8-L12` |
-| FiniteLedger | missing | unscheduled (S010-D); heat and electrical work accounting; the only current finite store is bumper contact work, `engine/gpu/ContactWorkDeclaration.cs@a6c914e:L5-L9` |
-| RadioactiveDecay | missing | unscheduled (S607-D/F); decay heat source |
-| SensibleHeat | missing | unscheduled (S491-D; S543 coupling) |
-| StateTransaction | exists now | `engine/gpu/WorkshopSimulation.cs@a6c914e:L44-L161`; temperatures restore with Reset (unscheduled with this element) |
-| ThermoelectricConversion | missing | unscheduled (S560-D/F; [S416 thermoelectric row](../invest/decisions.md#s416): "hot/cold pair lights a lamp; equal temperatures or open load light nothing") |
+| FiniteLedger | missing | required in the linked delivery slice (S010-D); heat and electrical work accounting; the only current finite store is bumper contact work, `engine/gpu/ContactWorkDeclaration.cs@a6c914e:L5-L9` |
+| RadioactiveDecay | missing | required in the linked delivery slice (S607-D/F); decay heat source |
+| SensibleHeat | missing | required in the linked delivery slice (S491-D; S543 coupling) |
+| StateTransaction | exists now | `engine/gpu/WorkshopSimulation.cs@a6c914e:L44-L161`; temperatures restore with Reset (required in the linked delivery slice with this element) |
+| ThermoelectricConversion | missing | required in the linked delivery slice (S560-D/F; [S416 thermoelectric row](../invest/decisions.md#s416): "hot/cold pair lights a lamp; equal temperatures or open load light nothing") |
 
-Also needed: the Thermal connection domain (unscheduled with the thermal family).
+Also needed: the Thermal connection domain (required in the linked delivery slice with the thermal family).
 
 **Dependencies.** TH-30 converter record; a cold sink (TH-10, fan CAT-028 with a finite startup supply); an electrical load.
 

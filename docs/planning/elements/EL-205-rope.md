@@ -1,5 +1,7 @@
 # EL-205 · Rope named-identity spec
 
+**Current delivery (24 October 2026):** [EL-205 delivery slice](../invest/named-elements.md#element-205). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec (Batch J). Baseline commit `a6c914e`; every citation is `path@a6c914e:Lstart-Lend` and resolves with `git show a6c914e:<path> | sed -n 'start,endp'`. **Proposed** marks an unsourced design value with a one-line justification; the owner may revise it. All values are canonical IEEE-754 f32 game values inside the [game-grade envelope](../../gpu-f32-physics.md#game-grade-envelope).
 
 ## 1. Identity
@@ -13,7 +15,7 @@ Story 7.0 named-identity spec (Batch J). Baseline commit `a6c914e`; every citati
 | Proof owner | S307 |
 | Refines / extends | No CAT spec of its own: the rope is a connection. Specified jointly with [CAT-058 rope anchor](CAT-058-rope_anchor.md) (rope harvest) and [CAT-053 pulley](CAT-053-pulley.md) |
 | Related | EL-206 Fixed pulley, EL-207 Moving pulley, EL-064 Metal loop anchor, CAT-067 Weight, EL-184 Mechanical ball gate |
-| Roadmap story | Story 10.2 (CAT-053 with CAT-058) |
+| Roadmap story | [EL-205 delivery slice](../invest/named-elements.md#element-205); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration

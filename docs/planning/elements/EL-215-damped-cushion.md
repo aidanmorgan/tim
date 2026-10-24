@@ -1,5 +1,7 @@
 # EL-215 · Damped cushion named-identity spec
 
+**Current delivery (24 October 2026):** [EL-215 delivery slice](../invest/named-elements.md#element-215). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec (Batch J). Baseline commit `a6c914e`; every citation is `path@a6c914e:Lstart-Lend` and resolves with `git show a6c914e:<path> | sed -n 'start,endp'`. **Proposed** marks an unsourced design value with a one-line justification; the owner may revise it. All values are canonical IEEE-754 f32 game values inside the [game-grade envelope](../../gpu-f32-physics.md#game-grade-envelope).
 
 ## 1. Identity
@@ -13,7 +15,7 @@ Story 7.0 named-identity spec (Batch J). Baseline commit `a6c914e`; every citati
 | Proof owner | S381 |
 | Refines / extends | No CAT spec. Same compliant-surface law as [CAT-065 trampoline](CAT-065-trampoline.md), tuned to dissipate rather than return energy |
 | Related | EL-216 Capture cradle (same campaign slots), EL-194 Springboard, CAT-065 Trampoline |
-| Roadmap story | unscheduled (the compliant-surface capability arrives with Story 10.5) |
+| Roadmap story | [EL-215 delivery slice](../invest/named-elements.md#element-215); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration
@@ -55,7 +57,7 @@ Pad skin dents under committed contact patches, as the trampoline membrane (`par
 Pad in the Domino cream `#e8d4a6` (soft, matte), navy `#293954` base, cream `#fff8e9` rim ([DESIGN colour system](../../../DESIGN.md#colour-system)). **Proposed**.
 
 ### Catalogue and inventory entry
-Id `cushion`, title "Damped cushion", category Motion — **proposed**. Add `WorkshopPartKind.Cushion` with a counted allowance (`engine/gpu/WorkshopInventory.cs@a6c914e:L9-L23`).
+Id `cushion`, title "Damped cushion", category Motion — **proposed**. Declare the package with a counted allowance keyed by its bundle-issued typed id (`engine/gpu/WorkshopInventory.cs@a6c914e:L9-L23`).
 
 ### Variants
 One outcome in the row; no variants.
@@ -68,7 +70,7 @@ Families: ContactImpulse, ElasticStorage, EnvironmentState, FiniteLedger, Geomet
 - Static base box, dynamic cargo, restitution and threshold: `engine/gpu/PhysicsDeclarations.cs@a6c914e:L42-L120`; `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L886-L900`.
 
 **Missing**
-- Compliant-surface declaration and worker law (ElasticStorage): Story 10.5 (CAT-065). Heat entry in the finite ledger: unscheduled. Owner S381.
+- Compliant-surface declaration and worker law (ElasticStorage): Story 10.5 (CAT-065). Heat entry in the finite ledger: required in the linked delivery slice. Owner S381.
 
 **Dependencies.** Story 10.5 compliant surface.
 

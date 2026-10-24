@@ -1,5 +1,7 @@
 # TH-25 · Hot-air balloon — named-identity readiness spec
 
+**Current delivery (24 October 2026):** [TH-25 delivery slice](../invest/named-elements.md#thermal-25). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations are `path@a6c914e:Lstart-Lend`. No legacy hot-air balloon exists; the legacy sealed-gas state supplies the gas law and the delivered catalogue balloon supplies scale (section 4). Every design value without a cited source is marked "(proposed: …)" with a one-line justification; the owner may revise it.
 
 ## 1. Identity
@@ -12,8 +14,8 @@ Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artif
 | Proof owner / research | S588 · [TH-S06 thermal expansion](../../thermal-component-research.md#th-s06) |
 | Related identities | **Distinct neighbour of [CAT-003 Balloon](CAT-003-balloon.md)** (Batch D) and [EL-208 Balloon](../invest/named-elements.md#element-208): those are sealed buoyant cargo; this is an open envelope whose lift comes from heated air. Shares the [gas family](../../finite-gas-foundation.md) row with [TH-24](TH-24-gas-expansion-bladder.md). Heat from [TH-02 Fire bowl](TH-02-fire-bowl.md) or [TH-01 Candle](TH-01-candle.md) under the opening. |
 | Campaign | Intro 80; practice 81; reuse 99, 149 ([thermal allocation](../requirements.md#thermal-campaign-allocation)) |
-| Roadmap story | Unscheduled. Story 12.1 builds buoyancy for CAT-003 only. |
-| Status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`); no legacy part. |
+| Roadmap story | [TH-25 delivery slice](../invest/named-elements.md#thermal-25); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`); no legacy part. |
 
 ## 2. Declaration
 
@@ -36,14 +38,14 @@ Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artif
 
 - **Cosmetic curves and UI bindings.** Envelope ← committed volume ([research per-element table](../../thermal-component-research.md)); a shaped temperature band on the envelope.
 - **Art.** "Faceted envelope in established balloon colour with a small cream cargo platform" (row). Balloon colour `#ed6378` (`DESIGN.md@a6c914e:L168-L168`); cream `#ead39b` platform (proposed mapping, `DESIGN.md@a6c914e:L146-L146`).
-- **Catalogue and inventory entry.** New `WorkshopPartKind.HotAirBalloon`; id `hot_air_balloon`, title "Hot-air balloon", category Motion (proposed: beside the catalogue Balloon).
+- **Catalogue and inventory entry.** Package-owned declaration, discovered into the bundle; id `hot_air_balloon`, title "Hot-air balloon", category Motion (proposed: beside the catalogue Balloon).
 
 ## 3. Engine capabilities
 
 Families (map row TH-25, [general-engine-element-map](../general-engine-element-map.md); binding [thermal-01.json](../../coverage/engine/thermal-01.json)): Buoyancy, EnvironmentState, FiniteLedger, FluidAdvection, GasState, GeometryQuery, RigidBodyDynamics, SensibleHeat, ThermalConvection, TopologyTransaction; JSON adds StateTransaction.
 
 - **Exists now.** Dynamic sphere and box bodies, per-body gravity (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L120`); Run/Reset and save (`engine/gpu/ActivationNetwork.cs@a6c914e:L67-L67`, `engine/gpu/WorkshopSaveCodec.cs@a6c914e:L6-L10`).
-- **Missing.** Buoyancy and atmosphere: Story 12.1 (CAT-003), [S635](../invest/decisions.md#s635) environment. Open gas store with exchange: [S470](../invest/decisions.md#s470) gas-state and open-versus-sealed → S471, S697. [S543](../invest/decisions.md#s543) convection → S545. Unscheduled.
+- **Missing.** Buoyancy and atmosphere: Story 12.1 (CAT-003), [S635](../invest/decisions.md#s635) environment. Open gas store with exchange: [S470](../invest/decisions.md#s470) gas-state and open-versus-sealed → S471, S697. [S543](../invest/decisions.md#s543) convection → S545. Required in the linked delivery slice.
 - **Dependencies.** A heat source under the opening (TH-02, or a source the owner adds per Open question 2); cargo; optional rope tether (Story 10.2).
 
 ## 4. Sources and legacy

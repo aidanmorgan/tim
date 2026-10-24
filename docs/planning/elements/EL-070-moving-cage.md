@@ -1,5 +1,7 @@
 # EL-070 · Moving cage declaration readiness spec
 
+**Current delivery (24 October 2026):** [EL-070 delivery slice](../invest/named-elements.md#element-070). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec. Baseline commit `a6c914e`. Legacy citations use `path@a6c914e:Lstart-Lend` and stay retrievable from git history after the Epic 7 purge. Values marked **proposed** are design values the owner may revise.
 
 ## 1. Identity
@@ -13,7 +15,7 @@ Story 7.0 named-identity spec. Baseline commit `a6c914e`. Legacy citations use `
 | Named entry | [named-elements.md#element-070](../invest/named-elements.md#element-070); proof owner S370 |
 | CAT spec refined or extended | none. Related: [CAT-004 basket](CAT-004-basket.md) (container geometry), [CAT-058 rope anchor](CAT-058-rope_anchor.md) and [CAT-053 pulley](CAT-053-pulley.md) (rope carriage), [CAT-034 impact lever](CAT-034-impact_lever.md) (hinged member pattern) |
 | Related identities | [EL-069 moving bucket](EL-069-moving-bucket.md), [EL-065 load hook](EL-065-load-hook.md), [EL-063 cable winch](EL-063-cable-winch.md); character elements EL-082..088 (Batch L) as likely cargo |
-| Roadmap story | unscheduled |
+| Roadmap story | [EL-070 delivery slice](../invest/named-elements.md#element-070); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration
@@ -68,7 +70,7 @@ Pale grey bars `#ccd9df`, navy floor and roof `#293954`, cream posts `#fff8e9`, 
 
 ### Catalogue and inventory entry
 
-Id `moving_cage`, title "Cage", category "Ropes"; `WorkshopPartKind.MovingCage` appended last to the free inventory (`engine/gpu/WorkshopInventory.cs@a6c914e:L49-L60`). **Proposed**.
+Id `moving_cage`, title "Cage", category "Ropes"; package-owned metadata discovered into the Free palette from the bundle (`engine/gpu/WorkshopInventory.cs@a6c914e:L49-L60`). **Proposed**.
 
 ### Variants
 
@@ -82,8 +84,8 @@ Binding: ContactImpulse, EnvironmentState, FiniteLedger, FiniteWorkActuation, Ge
 
 **Missing**
 
-- Compound dynamic body (15 frame boxes): `engine/gpu/RigidMassProperties.cs@a6c914e:L26-L31` admits one primitive; one cage uses 16 of the scene's 64 colliders (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L166-L172`), about a quarter (Open question 2). No story; decision owner S370.
-- Hinge with limits and a latch row: Story 10.3 plus a latch (no story).
+- Compound dynamic body (15 frame boxes): `engine/gpu/RigidMassProperties.cs@a6c914e:L26-L31` admits one primitive; one cage uses 16 collider rows in the scene-sized table. The historical 64-row limit (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L166-L172`) is retired (Open question 2). This prerequisite is owned by the linked delivery slice; decision owner S370.
+- Hinge with limits and a latch row: Story 10.3 plus a latch (required prerequisite owned by the linked delivery slice).
 - Rope domain and lifting: Stories 10.2/10.4.
 
 **Dependencies.** A rope lifter (EL-063 or CAT-053 + CAT-067); cargo (CAT-001/014 balls).
@@ -115,5 +117,5 @@ Requirement row: [element-070](../requirements.md#element-070).
 ## 6. Open questions
 
 1. Is the door state only authored (build time), or also commanded during a run by `ActivationIn`? Owner decision.
-2. Collider budget: 16 colliders per cage against 64 per scene. Accept, raise the budget, or use fewer, thicker bars? Owner decision.
+2. Collider admission: preserve the proposed 16-collider cage geometry and allocate from the compiled scene. The old 64-row scene budget is retired; define atomic refusal for actual memory exhaustion, not an element-count cap.
 3. Should the cage also stand on the bench as a static trap (no rope)? Proposed: yes, any pose. Owner decision.

@@ -1,5 +1,7 @@
 # EL-161 · Bending-limited connector — named-identity readiness spec
 
+**Current delivery (24 October 2026):** [EL-161 delivery slice](../invest/named-elements.md#element-161). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 readiness spec ([spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations are `path@a6c914e:Lstart-Lend`. Values marked **proposed** have no legacy or requirement source; each carries a one-line justification and the owner may revise it.
 
 ## 1. Identity
@@ -9,8 +11,8 @@ Story 7.0 readiness spec ([spec](../../../_bmad-output/implementation-artifacts/
 | ID / name / type | EL-161 · Bending-limited connector · Construction |
 | Anchor | [requirements.md#element-161](../requirements.md#element-161); [named-elements entry](../invest/named-elements.md#element-161); umbrella [gap-05](../requirements.md#gap-05) (index only) |
 | Related identities | Siblings [EL-159 Tension-limited](EL-159-tension-limited-connector.md) and [EL-160 Shear-limited](EL-160-shear-limited-connector.md); the rigid (weld) joint it needs is the open question of [EL-112](EL-112-structural-beam.md). No CAT refines it. |
-| Roadmap story | Unscheduled. Campaign: introduction 43 "The Last Straw", practice 44, reuse 65, 96, 139 ([gap-05](../requirements.md#gap-05)). |
-| Status | Not started (no joint or fracture capability, `engine/gpu/PhysicsDeclarations.cs@a6c914e:L163-L192`). |
+| Roadmap story | [EL-161 delivery slice](../invest/named-elements.md#element-161); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | Not started (no joint or fracture capability, `engine/gpu/PhysicsDeclarations.cs@a6c914e:L163-L192`). |
 
 ## 2. Declaration
 
@@ -43,7 +45,7 @@ Families ([element map row](../general-engine-element-map.md), [binding](../../c
 
 - **Exists now.** Atomic Run/Reset of the physics document (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L163-L192`).
 - **Missing.**
-  - A rigid weld joint with angular rows: no story builds it; Story 10.3's hinge with a zero-width range is the nearest ([epics](../../../_bmad-output/planning-artifacts/epics.md)). Owner S682.
+  - A rigid weld joint with angular rows: required prerequisite owned by the linked delivery slice; Story 10.3's hinge with a zero-width range is the nearest ([epics](../../../_bmad-output/planning-artifacts/epics.md)). Owner S682.
   - Reaction torque read-back and the fracture topology change: S543 fracture row, S563 ([decisions](../invest/decisions.md#s543)).
 - **Dependencies.** A fixed support (Wall or Pivot plinth) and a member (EL-112).
 

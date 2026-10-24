@@ -1,5 +1,7 @@
 # RAD-03 · Alpha source cartridge — element readiness spec
 
+**Current delivery (24 October 2026):** [RAD-03 delivery slice](../invest/named-elements.md#radiation-03). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 Batch O named-identity spec. Legacy citations are pinned to `a6c914e` and resolve with `git show a6c914e:<path> | sed -n 'start,endp'`. Requirement row: [radiation-03](../requirements.md#radiation-03) (P2 potential). A fictional sealed toy cartridge in game units; never real-world source guidance.
 
 ## 1. Identity
@@ -11,7 +13,7 @@ Story 7.0 Batch O named-identity spec. Legacy citations are pinned to `a6c914e` 
 | Anchor | [requirements.md#radiation-03](../requirements.md#radiation-03); [named-elements.md#radiation-03](../invest/named-elements.md#radiation-03) |
 | Related identities | Distinct sibling [RAD-04 Beta-minus](RAD-04-beta-minus-source-cartridge.md); receiver [RAD-08](RAD-08-radiation-rate-meter.md) Alpha mode; stopper [EL-126 Thin screen](EL-126-thin-screen-shield.md); later steering [RAD-14](RAD-14-magnetic-deflector.md), [RAD-15](RAD-15-track-chamber.md). No CAT spec. |
 | Proof owner | S620 |
-| Roadmap story | unscheduled; campaign 115, 118 (research slots 90, 93) |
+| Roadmap story | [RAD-03 delivery slice](../invest/named-elements.md#radiation-03); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration
@@ -40,11 +42,11 @@ Families from the [map row](../general-engine-element-map.md) and [binding](../.
 
 | Family | Status | Basis or builder |
 | --- | --- | --- |
-| FiniteLedger | missing | unscheduled (S010-D); the only current finite store is bumper contact work, `engine/gpu/ContactWorkDeclaration.cs@a6c914e:L5-L9` |
-| GeometryQuery | exists now for contact only; missing for radiation paths | BVH `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L74-L204` and narrowphase `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L325-L620` (the coverage JSON's `engine/gpu/physics.wgsl` basis is not in the tree); air-equivalent path accumulation: unscheduled (S606-D) |
-| IonizingTransport | missing | unscheduled (S606-D/F); charged range-loss model, not relabelled photon attenuation |
-| RadioactiveDecay | missing | unscheduled (S607-D/F); steady case |
-| StateTransaction | exists now | `engine/gpu/WorkshopSimulation.cs@a6c914e:L44-L161`; source state joins it with this element (unscheduled) |
+| FiniteLedger | missing | required in the linked delivery slice (S010-D); the only current finite store is bumper contact work, `engine/gpu/ContactWorkDeclaration.cs@a6c914e:L5-L9` |
+| GeometryQuery | exists now for contact only; missing for radiation paths | BVH `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L74-L204` and narrowphase `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L325-L620` (the coverage JSON's `engine/gpu/physics.wgsl` basis is not in the tree); air-equivalent path accumulation: required in the linked delivery slice (S606-D) |
+| IonizingTransport | missing | required in the linked delivery slice (S606-D/F); charged range-loss model, not relabelled photon attenuation |
+| RadioactiveDecay | missing | required in the linked delivery slice (S607-D/F); steady case |
+| StateTransaction | exists now | `engine/gpu/WorkshopSimulation.cs@a6c914e:L44-L161`; source state joins it with this element (required in the linked delivery slice) |
 
 **Dependencies.** RAD-08 in Alpha mode; EL-126 for the screen control.
 

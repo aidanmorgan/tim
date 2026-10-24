@@ -1,5 +1,7 @@
 # EL-058 · Size grate declaration readiness spec
 
+**Current delivery (24 October 2026):** [EL-058 delivery slice](../invest/named-elements.md#element-058). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec. Baseline commit `a6c914e`. Legacy citations use `path@a6c914e:Lstart-Lend` and stay retrievable from git history after the Epic 7 purge. Values marked **proposed** are design values the owner may revise.
 
 ## 1. Identity
@@ -13,7 +15,7 @@ Story 7.0 named-identity spec. Baseline commit `a6c914e`. Legacy citations use `
 | Named entry | [named-elements.md#element-058](../invest/named-elements.md#element-058); proof owner S367 |
 | CAT spec refined or extended | none. Related: [CAT-001 ball](CAT-001-ball.md) and [CAT-014 bowling](CAT-014-bowling.md) (the two sizes it separates), [CAT-004 basket](CAT-004-basket.md) (catch below), [CAT-066 wall](CAT-066-wall.md) (static panel family) |
 | Related identities | [EL-071 straight metal ball pipe](EL-071-straight-metal-ball-pipe.md) (same 0.62 m gauge), [EL-059 weight tray](EL-059-weight-tray.md), [EL-060 electromagnet](EL-060-electromagnet.md) (sorting by material, todo-320 integration) |
-| Roadmap story | unscheduled |
+| Roadmap story | [EL-058 delivery slice](../invest/named-elements.md#element-058); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration
@@ -21,7 +23,7 @@ Story 7.0 named-identity spec. Baseline commit `a6c914e`. Legacy citations use `
 ### Bodies and shapes
 
 - One static body: a rectangular frame with a 3 × 3 grid of square openings of side `opening`, separated by bars of square section 0.08 m; plate thickness 0.08 m. Footprint = 3·opening + 4·0.08 m (2.18 m at default). **Proposed**: three openings per side give a target wide enough for a rolling ball; the 0.08 m bar is ⅔ of the 0.12 m Wall minimum thickness (`engine/gpu/WorkshopWall.cs@a6c914e:L9-L9`), so the grid reads lighter than a wall while staying well above the 1 cm tunnelling bound.
-- Compiled as 4 + 4 static box colliders (frame edges and inner bars). With current capacity 64 colliders (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L166-L172`) one grate costs 8.
+- Compiled as 4 + 4 static box colliders (frame edges and inner bars). One grate needs 8 rows in the scene-sized collider table; the historical capacity 64 (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L166-L172`) is retired.
 
 ### Mass and material
 
@@ -61,7 +63,7 @@ Pale grey metal bars `#ccd9df` on a navy frame `#293954`, cream corner studs `#f
 
 ### Catalogue and inventory entry
 
-Id `size_grate`, title "Sorting grate", category "Motion"; `WorkshopPartKind.SizeGrate` appended last to the free inventory (`engine/gpu/WorkshopInventory.cs@a6c914e:L49-L60`). **Proposed**.
+Id `size_grate`, title "Sorting grate", category "Motion"; package-owned metadata discovered into the Free palette from the bundle (`engine/gpu/WorkshopInventory.cs@a6c914e:L49-L60`). **Proposed**.
 
 ### Variants
 
@@ -78,7 +80,7 @@ Binding: ContactImpulse, EnvironmentState, GeometryQuery, RigidBodyDynamics, Sig
 
 **Missing**
 
-- A static multi-box (compound) part compiled from one placed instance. The Receiver already compiles five static boxes from one part (`engine/gpu/ReceiverGeometry.cs@a6c914e:L10-L18`), so the pattern exists; only the grate's parameterised layout is new. No story.
+- A static multi-box (compound) part compiled from one placed instance. The Receiver already compiles five static boxes from one part (`engine/gpu/ReceiverGeometry.cs@a6c914e:L10-L18`), so the pattern exists; only the grate's parameterised layout is new. required prerequisite owned by the linked delivery slice.
 - Resize control for `opening` (or fixed size; Open question 1).
 
 **Dependencies.** Two ball sizes: CAT-001 Basketball and CAT-014 Bowling ball (both delivered).

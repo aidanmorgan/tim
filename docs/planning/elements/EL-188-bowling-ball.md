@@ -1,5 +1,7 @@
 # EL-188 · Bowling ball — named-identity readiness spec
 
+**Current delivery (24 October 2026):** [EL-188 delivery slice](../invest/named-elements.md#element-188). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 readiness spec ([spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations are `path@a6c914e:Lstart-Lend`. Every value below is sourced; this identity has no proposed values.
 
 ## 1. Identity
@@ -9,7 +11,7 @@ Story 7.0 readiness spec ([spec](../../../_bmad-output/implementation-artifacts/
 | ID / name / type | EL-188 · Bowling ball · Gravity |
 | Anchor | [requirements.md#element-188](../requirements.md#element-188); [named-elements entry](../invest/named-elements.md#element-188); scope source [campaign element coverage](../requirements.md#campaign-element-coverage) |
 | Refines | [CAT-014 bowling](CAT-014-bowling.md) ([requirement](../requirements.md#current-cat-014)). Contrasts: [EL-187 Basketball](EL-187-basketball.md), [EL-189 Tennis ball](EL-189-tennis-ball.md). |
-| Roadmap story | Delivered: Story 6.1 (0.38 m original), re-tuned to 0.28 m with drag and rolling resistance in Stories 6.1b/6.1c ([epics](../../../_bmad-output/planning-artifacts/epics.md)). Lever loading waits for Story 10.3. |
+| Roadmap story | [EL-188 delivery slice](../invest/named-elements.md#element-188); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | delivered; remaining items in §5 |
 
 ## 2. Declaration

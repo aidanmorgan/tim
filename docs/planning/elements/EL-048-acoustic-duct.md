@@ -1,5 +1,7 @@
 # EL-048 · Acoustic duct — element readiness spec
 
+**Current delivery (24 October 2026):** [EL-048 delivery slice](../invest/named-elements.md#element-048). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 Batch H named-identity spec. Legacy citations are pinned to `a6c914e` and resolve with `git show a6c914e:<path> | sed -n 'start,endp'`. Values marked *proposed* have no legacy or requirement source; each carries a one-line justification, stays inside the [game-grade envelope](../../gpu-f32-physics.md#game-grade-envelope) and may be revised by the owner. Shared acoustic facts A1–A13 are in [EL-044](EL-044-tone-selective-sound-meter.md#shared-acoustic-family-facts); acoustic route rules R1–R6 in [EL-046](EL-046-listening-horn.md#acoustic-route-rules-shared-by-el-046-el-047-el-048).
 
 ## 1. Identity
@@ -10,7 +12,7 @@ Story 7.0 Batch H named-identity spec. Legacy citations are pinned to `a6c914e` 
 | Type | Sound |
 | Anchor | [requirements.md#element-048](../requirements.md#element-048); scope index [todo-352](../requirements.md#todo-352); [named-elements entry](../invest/named-elements.md#element-048); owner S535 |
 | Related | Refines no CAT spec. Joins [EL-046 Listening horn](EL-046-listening-horn.md) `SoundOut` to [EL-047 Exit horn](EL-047-exit-horn.md) `SoundIn`. Connection-kind sibling of [EL-038 hose](EL-038-pneumatic-hose.md) and [EL-197 wire](EL-197-electrical-wire.md); not the [CAT-048](../requirements.md#current-cat-048) ball pipe (R6). |
-| Roadmap story | unscheduled |
+| Roadmap story | [EL-048 delivery slice](../invest/named-elements.md#element-048); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration
@@ -45,7 +47,7 @@ Families ([element map row](../general-engine-element-map.md); [binding](../../c
 - Typed connection record, validation and contextual Connect UI (activation domain only, capacity 8): `engine/gpu/WorkshopConnections.cs@a6c914e:L11-L13`, `engine/gpu/WorkshopConnections.cs@a6c914e:L83-L99`, `ui/WorkshopConnections.cs@a6c914e:L37-L72`.
 
 **Missing**
-- Acoustic domain, sockets and route rendering — [S257](../invest/decisions.md#s257); first acoustic-route story (unscheduled).
+- Acoustic domain, sockets and route rendering — [S257](../invest/decisions.md#s257); first acoustic-route story (required in the linked delivery slice).
 - Routed occurrences with delay, loss and loop rejection — [S528](../invest/decisions.md#s528) event-routing → S529.
 
 **Dependencies.** EL-046 and EL-047 (its only endpoints); a sound source and a meter to observe.

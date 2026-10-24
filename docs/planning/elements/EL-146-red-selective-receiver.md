@@ -1,5 +1,7 @@
 # EL-146 · Red selective receiver — named-identity spec
 
+**Current delivery (24 October 2026):** [EL-146 delivery slice](../invest/named-elements.md#element-146). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 full spec for a named puzzle-element identity. Baseline commit `a6c914e`. Legacy citations use `path@a6c914e:Lstart-Lend` and stay retrievable from git history after the Epic 7 purge. Lengths are legacy scene units, which the current engine treats as metres (`MetreVector`). The sensitive face looks along local −X.
 
 All seven selective receivers (EL-146 to EL-152) and the broadband detector (EL-214) share one legacy body, one absorbing aperture and one switched electrical contact; they differ in the channel acceptance rule, marks and icon. Each is specified in full in its own file.
@@ -15,7 +17,7 @@ All seven selective receivers (EL-146 to EL-152) and the broadband detector (EL-
 | Owner | S501 |
 | Refines CAT | [CAT-056 red_receiver](CAT-056-red_receiver.md) (`red_receiver`, "Red receiver"). One catalogue part satisfies both identities; not a second implementation. |
 | Related | EL-147, EL-148 (sibling primary channels); EL-149 to EL-152 (mixed); EL-214 broadband; EL-143 red filter and EL-176 red laser |
-| Roadmap story | 13.2 Broadband & Pure Channel Optical Receivers (CAT-038, CAT-056, CAT-032, CAT-012) |
+| Roadmap story | [EL-146 delivery slice](../invest/named-elements.md#element-146); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration
@@ -49,7 +51,7 @@ Binding shard ([element-02.json](../../coverage/engine/element-02.json)): Finite
 - OpticalTransport Absorb aperture with snapshot-aggregated readings — Story 13.2 (emission Story 13.1). Decision owner **S484** ([decisions](../invest/decisions.md#s484)): S485 finite-colour allocation, S486 optical-commit, S488 interval law.
 - ElectricalPower switched contact (`PowerIn` → `Supply` route gated by an optical match) — Story 8.1 network plus Story 13.2; S257.
 - OpticalAbsorption and SensibleHeat (absorbed power to heat) — S489/S543, mode-specific.
-- No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`).
+- No package declaration is established by the cited harvest baseline (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`).
 
 **Element dependencies:** a red-carrying source (EL-176 red laser, or CAT-036 amber laser through EL-143 red filter; Stories 13.1/13.4), CAT-005 battery (Story 8.1), a load such as CAT-035 lamp (delivered) or CAT-051 powered gate, CAT-066 wall (delivered).
 

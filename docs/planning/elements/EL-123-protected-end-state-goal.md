@@ -1,5 +1,7 @@
 # EL-123 · Protected-end-state goal — named-identity readiness spec
 
+**Current delivery (24 October 2026):** [EL-123 delivery slice](../invest/named-elements.md#element-123). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 readiness spec ([spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations are `path@a6c914e:Lstart-Lend`. Values marked **proposed** have no legacy or requirement source; each carries a one-line justification and the owner may revise it.
 
 ## 1. Identity
@@ -9,8 +11,8 @@ Story 7.0 readiness spec ([spec](../../../_bmad-output/implementation-artifacts/
 | ID / name / type | EL-123 · Protected-end-state goal · Goal |
 | Anchor | [requirements.md#element-123](../requirements.md#element-123); [named-elements entry](../invest/named-elements.md#element-123); umbrella [gap-16](../requirements.md#gap-16) (index only) |
 | Related identities | Siblings [EL-120](EL-120-quantity-goal.md), [EL-121](EL-121-rate-window-goal.md), [EL-122](EL-122-ordered-events-goal.md). Reuses the Domino orientation sensor ([CAT-023](CAT-023-domino.md)) and Receiver residence ([EL-192](EL-192-receiving-basket.md)); later consumers include fragile cargo (EL-084) and coated/dyed cargo ([EL-118](EL-118-coating-station.md), [EL-119](EL-119-dye-station.md)). No CAT refines it. |
-| Roadmap story | Unscheduled. Campaign: introduction 89 "Leave It Lovely", practice 90, reuse 100, 150 ([gap-16](../requirements.md#gap-16)). |
-| Status | Not started (`engine/gpu/WorkshopPuzzle.cs@a6c914e:L7-L7`). |
+| Roadmap story | [EL-123 delivery slice](../invest/named-elements.md#element-123); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | Not started (`engine/gpu/WorkshopPuzzle.cs@a6c914e:L7-L7`). |
 
 ## 2. Declaration
 

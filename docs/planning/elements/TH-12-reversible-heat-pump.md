@@ -1,5 +1,7 @@
 # TH-12 · Reversible heat pump — named-identity readiness spec
 
+**Current delivery (24 October 2026):** [TH-12 delivery slice](../invest/named-elements.md#thermal-12). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations are `path@a6c914e:Lstart-Lend`. No legacy holds heat-pump values, so every design value without a cited source is marked "(proposed: …)" with a one-line justification; the owner may revise it.
 
 ## 1. Identity
@@ -12,8 +14,8 @@ Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artif
 | Proof owner / research | S576 · [TH-S05 active cooling](../../thermal-component-research.md#th-s05) |
 | Related identities | No CAT spec. Supplied by [CAT-005 Battery](CAT-005-battery.md); cools [TH-13 Freezing mold](TH-13-freezing-mold.md) (TX-02); rejects to [TH-10 Finned heat sink](TH-10-finned-heat-sink.md). Contrast: [TH-29 Cold pack](TH-29-cold-pack.md) is a store, not a pump. |
 | Campaign | Intro 78; practice 79; reuse 89, 145 ([thermal allocation](../requirements.md#thermal-campaign-allocation)); forward and reverse modes taught separately before dependent use. |
-| Roadmap story | Unscheduled. No epic in `_bmad-output/planning-artifacts/epics.md` schedules a thermal element. |
-| Status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`); no legacy part. |
+| Roadmap story | [TH-12 delivery slice](../invest/named-elements.md#thermal-12); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`); no legacy part. |
 
 ## 2. Declaration
 
@@ -39,14 +41,14 @@ Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artif
 
 - **Cosmetic curves and UI bindings.** Compressor spin ← committed input power ([research per-element table](../../thermal-component-research.md)); hot and cold shape glyphs on the faces swap with the mode.
 - **Art.** "Opposed cream/gold faces with hot/cold shape glyphs and a cyan supply core" (row). Nearest [DESIGN.md](../../../DESIGN.md) source colours (proposed mapping): cream `#ead39b` (`DESIGN.md@a6c914e:L146-L146`), gold `#f7cb52` (`DESIGN.md@a6c914e:L154-L154`), cyan `#66b8c9` (`DESIGN.md@a6c914e:L172-L172`).
-- **Catalogue and inventory entry.** New `WorkshopPartKind.HeatPump`; id `heat_pump`, title "Reversible heat pump", category Heat (proposed: no current category covers thermal parts).
+- **Catalogue and inventory entry.** Package-owned declaration, discovered into the bundle; id `heat_pump`, title "Reversible heat pump", category Heat (proposed: no current category covers thermal parts).
 
 ## 3. Engine capabilities
 
 Families (map row TH-12, [general-engine-element-map](../general-engine-element-map.md); binding [thermal-01.json](../../coverage/engine/thermal-01.json)): ElectricalPower, FiniteLedger, GeometryQuery, HeatPumping, SensibleHeat, ThermalConduction; JSON adds StateTransaction.
 
 - **Exists now.** Static body and box collider (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L120`); typed `PowerIn` socket enum (`engine/gpu/WorkshopConnections.cs@a6c914e:L8-L11`); Run/Reset and save (`engine/gpu/ActivationNetwork.cs@a6c914e:L67-L67`, `engine/gpu/WorkshopSaveCodec.cs@a6c914e:L6-L10`).
-- **Missing.** ElectricalPower: Story 8.1 ([S257](../invest/decisions.md#s257) → S270). [S543](../invest/decisions.md#s543): heat-pump → S559, conduction → S544. SensibleHeat (IX-43) has no S543 row. Unscheduled.
+- **Missing.** ElectricalPower: Story 8.1 ([S257](../invest/decisions.md#s257) → S270). [S543](../invest/decisions.md#s543): heat-pump → S559, conduction → S544. SensibleHeat (IX-43) is a required entry decision under S543 owned by the linked delivery slice. Required in the linked delivery slice.
 - **Dependencies.** A supply (CAT-005); a cold load (TH-13, TH-26); a hot-side sink (TH-10).
 
 ## 4. Sources and legacy

@@ -1,5 +1,7 @@
 # EL-017 · Mechanical float valve — named-identity spec
 
+**Current delivery (24 October 2026):** [EL-017 delivery slice](../invest/named-elements.md#element-017). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec ([readiness spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations `path@a6c914e:Lstart-Lend` resolve with `git show a6c914e:<path>` after the Epic 7 purge. A value marked **proposed** has no legacy or requirement source; it carries a one-line justification and the owner may revise it.
 
 ## Identity
@@ -11,8 +13,8 @@ Story 7.0 named-identity spec ([readiness spec](../../../_bmad-output/implementa
 | Named entry | [element-017](../invest/named-elements.md#element-017); per-element proof owner S438 |
 | CAT spec refined | None. Its pivot uses the hinge capability first built for the Impact lever ([CAT-034](CAT-034-impact_lever.md), Story 10.3). |
 | Related identities | [EL-016 Float](EL-016-float.md) (buoyancy law), [EL-003 Tap](EL-003-tap.md) (aperture law), [EL-018](EL-018-electronic-level-switch.md) (supplied alternative), EL-166 Mechanically actuated tap |
-| Roadmap story | Unscheduled; ELEMENT-n row of the [roadmap](../invest/vertical-delivery.md#rolling-playable-roadmap), campaign chapter 7, levels 61–70. Hinge prerequisite: Story 10.3. |
-| Status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
+| Roadmap story | [EL-017 delivery slice](../invest/named-elements.md#element-017); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
 
 ## Declaration
 
@@ -52,7 +54,7 @@ Story 7.0 named-identity spec ([readiness spec](../../../_bmad-output/implementa
 Families ([element map](../general-engine-element-map.md); binding [`element-01.json`](../../coverage/engine/element-01.json), consumer `element/element-017`): Buoyancy, ContactImpulse, EnvironmentState, FiniteLedger, FluidAdvection, GeometryQuery, JointConstraint, RigidBodyDynamics, StateTransaction, TopologyTransaction.
 
 - **Exists now.** Dynamic spheres and boxes with contacts (`engine/gpu/WorkshopPhysicsCompiler.cs@a6c914e:L32-L56`); Run/Reset (`engine/gpu/WorkshopSimulation.cs@a6c914e:L238-L245`).
-- **Missing.** Hinge with limits (JointConstraint; Story 10.3 pivot, solver joints per the [capability inventory](../../gpu-f32-physics.md#capability-inventory)); displacement buoyancy ([S416](../invest/decisions.md#s416) → S420); a valve node whose opening is bound to a committed joint angle (S418); multi-body parts. Unscheduled.
+- **Missing.** Hinge with limits (JointConstraint; Story 10.3 pivot, solver joints per the [capability inventory](../../gpu-f32-physics.md#capability-inventory)); displacement buoyancy ([S416](../invest/decisions.md#s416) → S420); a valve node whose opening is bound to a committed joint angle (S418); multi-body parts. Required in the linked delivery slice.
 - **Element dependencies.** A supply into `WaterInlet` (EL-001/EL-002 + pipes); a vessel to fill (EL-004); EL-016's buoyancy law.
 
 ## Sources and legacy

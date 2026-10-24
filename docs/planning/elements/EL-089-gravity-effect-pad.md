@@ -1,5 +1,7 @@
 # EL-089 · Gravity-effect pad — named-identity spec
 
+**Current delivery (24 October 2026):** [EL-089 delivery slice](../invest/named-elements.md#element-089). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec ([story spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations are `path@a6c914e:Lstart-Lend`. Values with no legacy or requirement source are **proposed**, each with a one-line justification; the owner may revise them. Game values are canonical f32 ([numeric contract](../../gpu-f32-physics.md#f32-migration-status)).
 
 ## 1. Identity
@@ -11,8 +13,8 @@ Story 7.0 named-identity spec ([story spec](../../../_bmad-output/implementation
 | Named entry | [element-089](../invest/named-elements.md#element-089); source owner **S659** |
 | CAT spec refined or extended | None |
 | Related identities | EL-124 Authored gravity preset (world gravity), EL-098 Pool ball (its conditional no-gravity variant would reuse this field rule), EL-090 Steerable blimp |
-| Roadmap story | Unscheduled |
-| Status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
+| Roadmap story | [EL-089 delivery slice](../invest/named-elements.md#element-089); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
 
 ## 2. Declaration
 

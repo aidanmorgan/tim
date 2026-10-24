@@ -1,5 +1,7 @@
 # CAT-003 · balloon — declaration readiness spec
 
+**Current delivery (24 October 2026):** [CAT-003 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 readiness spec ([spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Legacy citations are `path@a6c914e:Lstart-Lend` and stay retrievable from git history after Epic 7. Current-tree citations also use the a6c914e baseline.
 
 ## Identity
@@ -10,8 +12,8 @@ Story 7.0 readiness spec ([spec](../../../_bmad-output/implementation-artifacts/
 | Requirement anchor | [CAT-003](../requirements.md#current-cat-003); D/I/V row [CAT-003-I](../invest/current-consumers.md#cat-003-i) |
 | Mapped identities | [EL-208 Balloon](../invest/named-elements.md#element-208). Distinct neighbours, not merged: [TH-25 Hot-air balloon](../invest/named-elements.md#thermal-25), [EL-090 Steerable blimp](../invest/named-elements.md#element-090), [EL-125 Authored atmosphere preset](../invest/named-elements.md#element-125). No RAD or GAP identity. |
 | Capability row | [general-engine-element-map, CAT-003](../general-engine-element-map.md) |
-| Roadmap story | Epic 12, Story 12.1 "Lightweight Tennis Ball & Floating Balloon Buoyancy" (CAT-064, CAT-003); roadmap family "Conserved airflow and buoyancy" ([vertical-delivery](../invest/vertical-delivery.md#existing-element-order)) |
-| Status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`); no level uses it. |
+| Roadmap story | [12.1b Balloon](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership); retain every CAT-003 mode and mapped named-identity obligation. |
+| Harvest-baseline status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`); no level uses it. |
 
 ## Declaration
 
@@ -50,7 +52,7 @@ Families: the [CAT-003 row](../general-engine-element-map.md) and `docs/coverage
   - Buoyancy consumption and world pressure (EnvironmentState). `BallMaterial.Buoyancy` is carried but never compiled, and gravity is a constant 9.81 with no pressure (`engine/gpu/WorkshopConstruction.cs@a6c914e:L123-L124`). Built by Story 12.1.
   - Drag above 0.125 1/s: admission widening, Story 12.1.
   - Airflow receiver: Story 12.2 (CAT-028).
-  - GasState (sealed gas store, puncture): decision owner S470 ([decisions](../invest/decisions.md#s470)); named next implementations S471 (gas-state) and S697 (open versus sealed). No epic story schedules it.
+  - GasState (sealed gas store, puncture): decision owner S470 ([decisions](../invest/decisions.md#s470)); named next implementations S471 (gas-state) and S697 (open versus sealed). The linked delivery slice owns the required capability decision and native proof.
   - Tether: rope capability, Story 10.2 (CAT-053 Pulley, CAT-058 Rope anchor).
 - **Element dependencies.** Fan (CAT-028) for "fans can guide it"; Rope anchor (CAT-058) for tethering; a Wall (CAT-066) or ceiling for the rise-until-contact control.
 
@@ -96,7 +98,7 @@ Point of truth: [CAT-003](../requirements.md#current-cat-003) and [simulation an
 
 1. **Pressure.** The current world has no pressure parameter. Decide whether the balloon declares net lift as a per-body gravity vector (gravity − buoyancy × pressure fits the magnitude-16 bound) or waits for an EnvironmentState pressure (EL-125). Unspecified — owner decision.
 2. **Drag bound.** 0.4 1/s exceeds the admitted 0.125 1/s. Widen the bound or change the balloon value. Unspecified — owner decision.
-3. **Gas state and puncture.** EL-208 requires gas-filled behaviour and puncture; no epic story schedules S471/S697. Decide whether Story 12.1 delivers the buoyancy-only mode with the gas mode deferred, or a gas story is added.
+3. **Gas state and puncture.** EL-208 requires gas-filled behaviour and puncture; the linked Balloon delivery contract requires the S471/S697 gas-state decisions. Settle gas/puncture semantics before the dependent EL-208 mode; buoyancy-only proof cannot close that named obligation.
 4. **Rolling resistance.** No legacy value. Unspecified — owner decision.
 5. **Configurable material.** The requirement lists mass, bounce, radius, buoyancy and drag as configuration; the engine fixes material per kind. Owner decision.
 6. **Ceiling.** Story 12.1 says "until contacting a ceiling or wall"; the Workshop has no ceiling body. Decide whether an authored Wall stands in for it.

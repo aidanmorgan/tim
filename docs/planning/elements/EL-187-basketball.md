@@ -1,5 +1,7 @@
 # EL-187 · Basketball — named-identity readiness spec
 
+**Current delivery (24 October 2026):** [EL-187 delivery slice](../invest/named-elements.md#element-187). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 readiness spec ([spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations are `path@a6c914e:Lstart-Lend`. Every value below is sourced; this identity has no proposed values.
 
 ## 1. Identity
@@ -9,7 +11,7 @@ Story 7.0 readiness spec ([spec](../../../_bmad-output/implementation-artifacts/
 | ID / name / type | EL-187 · Basketball · Gravity |
 | Anchor | [requirements.md#element-187](../requirements.md#element-187); [named-elements entry](../invest/named-elements.md#element-187); scope source [campaign element coverage](../requirements.md#campaign-element-coverage) |
 | Refines | [CAT-001 ball](CAT-001-ball.md) ([requirement](../requirements.md#current-cat-001)). Contrasts: [EL-188 Bowling ball](EL-188-bowling-ball.md), [EL-189 Tennis ball](EL-189-tennis-ball.md). |
-| Roadmap story | Delivered: CAT-001-I, Epics 1–2 ([roadmap](../invest/vertical-delivery.md)); remaining modes (buoyancy/pressure) wait for Story 12.1 and [EL-125](EL-125-authored-atmosphere-preset.md). |
+| Roadmap story | [EL-187 delivery slice](../invest/named-elements.md#element-187); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | delivered; remaining items in §5 |
 
 ## 2. Declaration

@@ -1,5 +1,7 @@
 # EL-061 · Indexed carousel declaration readiness spec
 
+**Current delivery (24 October 2026):** [EL-061 delivery slice](../invest/named-elements.md#element-061). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec. Baseline commit `a6c914e`. Legacy citations use `path@a6c914e:Lstart-Lend` and stay retrievable from git history after the Epic 7 purge. Values marked **proposed** are design values the owner may revise.
 
 ## 1. Identity
@@ -13,7 +15,7 @@ Story 7.0 named-identity spec. Baseline commit `a6c914e`. Legacy citations use `
 | Named entry | [named-elements.md#element-061](../invest/named-elements.md#element-061); proof owner S371 |
 | CAT spec refined or extended | none. Related: [CAT-042 motor](CAT-042-motor.md) (finite-work drive), [CAT-018 clutch](CAT-018-clutch.md), [CAT-004 basket](CAT-004-basket.md) (open-pocket geometry) |
 | Related identities | [EL-057 escapement](EL-057-escapement.md) (discrete steps), [EL-062 docking ferry](EL-062-docking-ferry.md) (carrier transfer), [EL-055 brake](EL-055-mechanical-brake.md) |
-| Roadmap story | unscheduled |
+| Roadmap story | [EL-061 delivery slice](../invest/named-elements.md#element-061); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration
@@ -72,7 +74,7 @@ Cream platter `#fff8e9`, ochre pocket walls `#d69c47`, navy base `#293954`, gold
 
 ### Catalogue and inventory entry
 
-Id `indexed_carousel`, title "Carousel", category "Motion"; `WorkshopPartKind.IndexedCarousel` appended last to the free inventory (`engine/gpu/WorkshopInventory.cs@a6c914e:L49-L60`). **Proposed**.
+Id `indexed_carousel`, title "Carousel", category "Motion"; package-owned metadata discovered into the Free palette from the bundle (`engine/gpu/WorkshopInventory.cs@a6c914e:L49-L60`). **Proposed**.
 
 ### Variants
 
@@ -86,11 +88,11 @@ Binding: EnvironmentState, FiniteLedger, FiniteWorkActuation, JointConstraint, R
 
 **Missing**
 
-- Compound dynamic body with combined mass properties: `RigidMassProperties.Compile` admits one homogeneous sphere or box per dynamic body (`engine/gpu/RigidMassProperties.cs@a6c914e:L26-L31`); no story. Decision owner S371.
-- Cylinder (disc) collider and inertia: no owning story; owner decision 9 Oct 2026: a new cylinder-collider story comes before the first shaft wheel.
+- Compound dynamic body with combined mass properties: `RigidMassProperties.Compile` admits one homogeneous sphere or box per dynamic body (`engine/gpu/RigidMassProperties.cs@a6c914e:L26-L31`); required prerequisite owned by the linked delivery slice. Decision owner S371.
+- Cylinder (disc) collider and inertia: Story 10.1 owns the shared solid-cylinder collider and inertia before this consumer.
 - Hinge: Story 10.3. Ratio row: Story 11.2. `Mechanical` domain and shaft drive: Story 11.1.
-- Angular detent spring on a hinge: no story (soft rows arrive with Story 6.4 for sliders).
-- Hinge-angle index sensor: no story (the orientation sensor, `engine/gpu/OrientationSensorDeclaration.cs@a6c914e:L24-L26`, is a one-shot threshold from the initial pose, not an indexed angle).
+- Angular detent spring on a hinge: required prerequisite owned by the linked delivery slice (soft rows arrive with Story 6.4 for sliders).
+- Hinge-angle index sensor: required prerequisite owned by the linked delivery slice (the orientation sensor, `engine/gpu/OrientationSensorDeclaration.cs@a6c914e:L24-L26`, is a one-shot threshold from the initial pose, not an indexed angle).
 
 **Dependencies.** CAT-042 Motor and CAT-005 Battery (11.1, 8.1).
 
