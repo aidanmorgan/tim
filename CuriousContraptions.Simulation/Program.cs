@@ -129,13 +129,11 @@ public static partial class Program
     /// <summary>Publishes one committed read with its 24-byte receipt identity and its composed pose-ring slot: the worker copies
     /// the slot into the ring verbatim and the browser echoes the identity, so no script parses the read.</summary>
     [JSImport("publish", "workshopGpu")]
-    private static partial void Publish(byte[] read, byte[] readIdentity, byte[] poseSlot, bool observationPending, bool retainOccurrence);
+    private static partial void Publish(byte[] read, byte[] readIdentity, byte[] poseSlot, bool observationPending);
     /// <summary>Story 9A.22: copies one event ring publication (the C#-composed header, then each committed record with its sequence)
     /// into the session's event ring; the worker allocates a fresh ring, posted before any later message, when the epoch or capacity
     /// changes. Called before every read and acknowledgement, so each committed record is published exactly once and in order.</summary>
     [JSImport("publishEvents", "workshopGpu")] private static partial void PublishEvents(byte[] batch);
-    [JSImport("reserveOccurrenceRead", "workshopGpu")] private static partial bool ReserveOccurrenceRead();
-    [JSImport("releaseOccurrenceRead", "workshopGpu")] private static partial void ReleaseOccurrenceRead();
 
     /// <summary>Acknowledges one command with its response and its 8-byte little-endian sequence (the browser's receipt key).</summary>
     [JSImport("acknowledge", "workshopGpu")]
@@ -383,15 +381,10 @@ public static partial class Program
 
         public async ValueTask<TickAttempt> Advance()
         {
-            if (!ReserveOccurrenceRead()) return TickAttempt.NotReserved;
-            var previousRead = Simulation.Committed;
             var tickStarted = ObservationMilliseconds();
-            WorkshopCommandResult result;
-            try { result = await Simulation.Advance(); }
-            catch { ReleaseOccurrenceRead(); throw; }
-            if (owner != _loopOwner) { ReleaseOccurrenceRead(); return TickAttempt.Stopped; }
-            if (result.Outcome is WorkshopCommandOutcome.Superseded or WorkshopCommandOutcome.Cancelled)
-            { ReleaseOccurrenceRead(); return TickAttempt.Superseded; }
+            var result = await Simulation.Advance();
+            if (owner != _loopOwner) return TickAttempt.Stopped;
+            if (result.Outcome is WorkshopCommandOutcome.Superseded or WorkshopCommandOutcome.Cancelled) return TickAttempt.Superseded;
 #if PLAYTEST
             if (result.Outcome == WorkshopCommandOutcome.Applied) Trace.Append(Device.DiagnosticCommitted);
 #endif
@@ -400,7 +393,7 @@ public static partial class Program
                 Console.WriteLine($"CCGPU_TICK_FAILED: {result.Outcome} {result.Reason} fault={Simulation.Fault}");
                 Trace.End(CuriousContraptions.Simulation.TraceEnd.Fault);
             }
-            EmitRead(result, Simulation.Committed.RequiresReliableRead(previousRead));
+            EmitRead(result);
             if (result.Outcome != WorkshopCommandOutcome.Applied) return TickAttempt.Stopped;
             Trace.RecordTickDuration(Simulation.Committed.Tick, ObservationMilliseconds() - tickStarted);
             return TickAttempt.Committed;
@@ -410,7 +403,9 @@ public static partial class Program
         public async ValueTask AwaitWork() => await NextTurn(1);
     }
 
-    private static void EmitRead(WorkshopCommandResult result, bool retainOccurrence = false)
+    /// <summary>Publishes the committed read: the event ring publication first (Story 9A.22 D7 order), then the read, which the worker
+    /// coalesces to the latest (Story 9A.23 D9: no read is reliable; every one-shot occurrence is a ring record).</summary>
+    private static void EmitRead(WorkshopCommandResult result)
     {
         if (_publication == ulong.MaxValue) throw new InvalidOperationException("Physical publication identity exhausted.");
         var sequence = new PublicationSequence(_publication + 1);
@@ -427,12 +422,12 @@ public static partial class Program
         // h; Story 9A.24 replaces it with the typed observation port): retained energy/event commits prove finite
         // transfers in UI runs. Its measured cost (Story 9.4b D1, evidence-9-4b/diagnosis/retained-cost) is flagged to
         // the owner. The PlaytestDiagnostics variant only adds diagnostic recording and is never a gate.
-        if (retainOccurrence)
+        if (Simulation.Committed.CarriesBalanceTransfer())
         {
             Console.WriteLine("CCGPU_RETAINED " + Convert.ToBase64String(encoded));
         }
         PublishEvents(Device.DrainEvents());
         Publish(encoded, WorkshopWireFlatBuffers.ReadIdentity(readResponse), WorkshopPoseRing.ComposeSlot(readResponse.Read.Capture?.Time.Value ?? 0, readResponse.Read.Bodies),
-            Trace.CanFlush(Simulation.Phase), retainOccurrence);
+            Trace.CanFlush(Simulation.Phase));
     }
 }

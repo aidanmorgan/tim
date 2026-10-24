@@ -1,0 +1,12 @@
+Test run for /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/wt-0cba/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:02.40]     CuriousContraptions.Tests.ReviewerImpactBaselineProbe.ImpactRecordBytesAtBase [FAIL]
+  Failed CuriousContraptions.Tests.ReviewerImpactBaselineProbe.ImpactRecordBytesAtBase [137 ms]
+  Error Message:
+   BASE count=3 sha256=291756D737E1FF95741B6BCA83C2C67BD4B3F0B8451FBE9FD4363B0AEC00DB8F
+  Stack Trace:
+     at CuriousContraptions.Tests.ReviewerImpactBaselineProbe.ImpactRecordBytesAtBase() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/wt-0cba/CuriousContraptions.tests/ReviewerImpactBaselineProbe.cs:line 21
+   at CuriousContraptions.Tests.ReviewerImpactBaselineProbe.ImpactRecordBytesAtBase() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/wt-0cba/CuriousContraptions.tests/ReviewerImpactBaselineProbe.cs:line 21
+--- End of stack trace from previous location ---
+
+Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 148 ms - CuriousContraptions.tests.dll (net10.0)

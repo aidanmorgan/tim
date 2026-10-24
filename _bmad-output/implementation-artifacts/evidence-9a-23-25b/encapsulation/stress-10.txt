@@ -1,0 +1,11 @@
+encapsulated run 1: rc=0 pass=1 torn=0 duration_ms=3142.984834
+encapsulated run 2: rc=0 pass=1 torn=0 duration_ms=3176.204208
+encapsulated run 3: rc=0 pass=1 torn=0 duration_ms=3164.751667
+encapsulated run 4: rc=0 pass=1 torn=0 duration_ms=3104.483208
+encapsulated run 5: rc=0 pass=1 torn=0 duration_ms=3219.73475
+encapsulated run 6: rc=0 pass=1 torn=0 duration_ms=3194.972208
+encapsulated run 7: rc=0 pass=1 torn=0 duration_ms=3130.764208
+encapsulated run 8: rc=0 pass=1 torn=0 duration_ms=3088.692667
+encapsulated run 9: rc=0 pass=1 torn=0 duration_ms=3176.966791
+encapsulated run 10: rc=0 pass=1 torn=0 duration_ms=3043.818791
+encapsulated: 0 of 10 runs failed (total=0 readers=0)

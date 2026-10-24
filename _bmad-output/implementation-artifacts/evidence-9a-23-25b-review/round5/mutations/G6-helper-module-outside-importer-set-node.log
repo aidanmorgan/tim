@@ -1,0 +1,25 @@
+(node:17138) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ concurrent stress: over a million records through the shipped writer, no reader ever receives a torn record (1106.759ms)
+✔ a reader that keeps pace receives every record exactly once and skips none (1.118291ms)
+✔ a parked reader lapped by a capacity and more reports exactly the skipped records, then reads the newest intact (0.172042ms)
+✔ a slot reused while it is copied is skipped, never delivered (0.068458ms)
+✔ epochs: a newer ring is held unread until it is installed, an older one is ignored, and a new ring restarts at sequence 1 (0.255791ms)
+✔ a ring older than the installed epoch is ignored: nothing is delivered and the cursor does not move (0.086041ms)
+✔ the ring memory is reachable only through its atomic API: no raw buffer, a private cursor ring, and postTo posts the adoptable ring (0.071625ms)
+✔ a delivery carries the epoch and skipped count before the records (0.043958ms)
+(node:17139) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ each new ring is posted to the browser and to the Animation worker on its master port, the same buffer (0.775167ms)
+✔ the first publication of an epoch allocates and posts its ring, and writes each record at its sequence slot (0.1585ms)
+✔ a new epoch or capacity replaces the ring; an empty publication (no admitted world) changes nothing (0.094834ms)
+✔ the header carries the producer's lapped count, and a publication of more records than its ring is refused (0.207792ms)
+✔ disposal drops the ring, so the next session allocates a fresh one (0.088708ms)
+ℹ tests 13
+ℹ suites 0
+ℹ pass 13
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1171.925666

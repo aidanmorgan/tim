@@ -1,0 +1,204 @@
+✖ concurrent stress: over a million records through the shipped writer, no reader ever receives a torn record (441.758375ms)
+✖ amplified concurrent stress at capacity 4: rounds of fresh writer and reader threads, no torn record (3083.769166ms)
+✖ a reader that keeps pace receives every record exactly once and skips none (3.84425ms)
+✖ a parked reader lapped by a capacity and more reports exactly the skipped records, then reads the newest intact (0.598042ms)
+✔ a slot reused while it is copied is skipped, never delivered (0.153583ms)
+✔ epochs: a newer ring is held unread until it is installed, an older one is ignored, and a new ring restarts at sequence 1 (0.273542ms)
+✔ a ring older than the installed epoch is ignored: nothing is delivered and the cursor does not move (0.100625ms)
+✔ the ring memory is reachable only through its atomic API: no raw buffer, a private cursor ring, and postTo posts the adoptable ring (0.0775ms)
+✔ a delivery carries the epoch and skipped count before the records (0.061791ms)
+✔ each new ring is posted to the browser and to the Animation worker on its master port, the same buffer (0.788417ms)
+✖ the first publication of an epoch allocates and posts its ring, and writes each record at its sequence slot (0.676ms)
+✖ a new epoch or capacity replaces the ring; an empty publication (no admitted world) changes nothing (1.629375ms)
+✖ the header carries the producer's lapped count, and a publication of more records than its ring is refused (0.187791ms)
+✔ disposal drops the ring, so the next session allocates a fresh one (0.12075ms)
+ℹ tests 14
+ℹ suites 0
+ℹ pass 7
+ℹ fail 7
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3593.408042
+
+✖ failing tests:
+
+test at tools/workshop-event-ring-cursor.test.mjs:145:1
+✖ concurrent stress: over a million records through the shipped writer, no reader ever receives a torn record (441.758375ms)
+  AssertionError [ERR_ASSERTION]: capacity 4: a torn record was delivered
+  
+  238209 !== 0
+  
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/workshop-event-ring-cursor.test.mjs:149:20)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 238209,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tools/workshop-event-ring-cursor.test.mjs:164:1
+✖ amplified concurrent stress at capacity 4: rounds of fresh writer and reader threads, no torn record (3083.769166ms)
+  AssertionError [ERR_ASSERTION]: 5005151 torn record(s) delivered at capacity 4
+  
+  5005151 !== 0
+  
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/workshop-event-ring-cursor.test.mjs:173:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 5005151,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tools/workshop-event-ring-cursor.test.mjs:209:1
+✖ a reader that keeps pace receives every record exactly once and skips none (3.84425ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert.ok(intact(read))
+  
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/workshop-event-ring-cursor.test.mjs:218:78)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tools/workshop-event-ring-cursor.test.mjs:226:1
+✖ a parked reader lapped by a capacity and more reports exactly the skipped records, then reads the newest intact (0.598042ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert.ok(intact(read))
+  
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/workshop-event-ring-cursor.test.mjs:237:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tools/workshop-event-ring.test.mjs:72:1
+✖ the first publication of an epoch allocates and posts its ring, and writes each record at its sequence slot (0.676ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+      [
+        1n,
+  +     0
+  -     10
+      ],
+      [
+        2n,
+  +     0
+  -     20
+      ],
+      [
+        3n,
+  +     0
+  -     30
+      ],
+      [
+        0n,
+        0
+      ]
+  
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/workshop-event-ring.test.mjs:79:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ [ 1n, 0 ], [ 2n, 0 ], [ 3n, 0 ], [ 0n, 0 ] ],
+    expected: [ [ 1n, 10 ], [ 2n, 20 ], [ 3n, 30 ], [ 0n, 0 ] ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tools/workshop-event-ring.test.mjs:87:1
+✖ a new epoch or capacity replaces the ring; an empty publication (no admitted world) changes nothing (1.629375ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+      1n,
+  +   0
+  -   10
+    ]
+  
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/workshop-event-ring.test.mjs:98:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ 1n, 0 ],
+    expected: [ 1n, 10 ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tools/workshop-event-ring.test.mjs:101:1
+✖ the header carries the producer's lapped count, and a publication of more records than its ring is refused (0.187791ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+      [
+        3n,
+  +     0
+  -     30
+      ],
+      [
+        6n,
+  +     0
+  -     60
+      ]
+    ]
+  
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/workshop-event-ring.test.mjs:105:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ [ 3n, 0 ], [ 6n, 0 ] ],
+    expected: [ [ 3n, 30 ], [ 6n, 60 ] ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }

@@ -1,0 +1,49 @@
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/Coverage.Tests/bin/Debug/net10.0/Coverage.Tests.dll (.NETCoreApp,Version=v10.0)
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/E2eRunner.Tests/bin/Debug/net10.0/E2eRunner.Tests.dll (.NETCoreApp,Version=v10.0)
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/WorkerAotGuard.Tests/bin/Debug/net10.0/WorkerAotGuard.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+A total of 1 test files matched the specified pattern.
+A total of 1 test files matched the specified pattern.
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/BundleElements.Tests/bin/Debug/net10.0/BundleElements.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:    17, Skipped:     0, Total:    17, Duration: 44 ms - WorkerAotGuard.Tests.dll (net10.0)
+
+Passed!  - Failed:     0, Passed:    77, Skipped:     0, Total:    77, Duration: 707 ms - Coverage.Tests.dll (net10.0)
+
+Passed!  - Failed:     0, Passed:   191, Skipped:     0, Total:   191, Duration: 391 ms - BundleElements.Tests.dll (net10.0)
+[xUnit.net 00:00:13.65]     CuriousContraptions.E2eRunner.Tests.SelectionTests.AreaTableMatchesEngineUiAndScenes [FAIL]
+  Failed CuriousContraptions.E2eRunner.Tests.SelectionTests.AreaTableMatchesEngineUiAndScenes [46 ms]
+  Error Message:
+   Assert.Equal() Failure: Strings differ
+Expected: ""
+Actual:   "engine/CosmeticBindingSet.cs"
+           ↑ (pos 0)
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.SelectionTests.AreaTableMatchesEngineUiAndScenes() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/E2eRunner.Tests/SelectionTests.cs:line 225
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     1, Passed:   189, Skipped:     0, Total:   190, Duration: 23 s - E2eRunner.Tests.dll (net10.0)
+[xUnit.net 00:00:58.69]     CuriousContraptions.Tests.ElementIsolationTests.ProductionKnowledgeIsExactlyTheOwnedShrinkingList [FAIL]
+  Failed CuriousContraptions.Tests.ElementIsolationTests.ProductionKnowledgeIsExactlyTheOwnedShrinkingList [447 ms]
+  Error Message:
+   CuriousContraptions.Animation.Worker/Program.cs:1: stale/count/meaning mismatch for generic Program.AnimationControl/AnimationClock: actual 1, pinned 2
+engine/gpu/BrowserWorkshopClient.Activation.cs:1: stale/count/meaning mismatch for generic BrowserWorkshopClient._activationRequested/ActivationLatch: actual 0, pinned 1
+engine/gpu/BrowserWorkshopClient.Capture.cs:1: stale/count/meaning mismatch for generic BrowserWorkshopClient.CaptureRequestedFor/latch: actual 0, pinned 2
+engine/gpu/BrowserWorkshopClient.Capture.cs:1: stale/count/meaning mismatch for generic BrowserWorkshopClient.PumpCapture/CaptureLatchPhase: actual 0, pinned 1
+engine/gpu/BrowserWorkshopClient.Capture.cs:1: stale/count/meaning mismatch for generic BrowserWorkshopClient._captureRequested/CaptureLatch: actual 0, pinned 1
+engine/gpu/WorkshopDeclaredPresentation.cs:1: stale/count/meaning mismatch for generic WorkshopDeclaredPresentation.WorkshopDeclaredPresentation/AnimationClock: actual 4, pinned 3
+engine/presentation/AnimationBatch.cs:320: unowned PackageIdentifier Clock in AnimationBatch.StartAtOccurrence
+engine/presentation/AnimationBatch.cs:320: unowned PackageIdentifier Clock in AnimationBatch.StartAtOccurrence
+  Stack Trace:
+     at CuriousContraptions.Tests.ElementIsolationTests.ProductionKnowledgeIsExactlyTheOwnedShrinkingList() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/CuriousContraptions.tests/ElementIsolationTests.cs:line 340
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     1, Passed:  2865, Skipped:     0, Total:  2866, Duration: 6 m 19 s - CuriousContraptions.tests.dll (net10.0)
+exit 1

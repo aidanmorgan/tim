@@ -23,7 +23,8 @@ public sealed class WorkshopBowlingTests
         var ball = Bowling(4, .3, 1.05, 1.5);
         Assert.Equal(PartId.BowlingBall, ball.PartId);
         Assert.Empty(ball.Parameters);
-        Assert.False(ball.Cosmetic.IsDeclared);
+        Assert.DoesNotContain(DeclaredPhysics.Of(PartId.BowlingBall).Presentation.Bindings,
+            binding => binding.Driver == CuriousContraptions.Abstractions.PresentationDriver.Event);
         Assert.Empty(DeclaredPhysics.Of(PartId.BowlingBall).Metadata.Parameters);
         Assert.Empty(DeclaredPhysics.Of(PartId.Basketball).Metadata.Parameters);
         Assert.True(DeclaredPhysics.IsPayload(PartId.BowlingBall) && DeclaredPhysics.IsPayload(PartId.Basketball));

@@ -1,10 +1,13 @@
 import { dotnet } from './_framework/dotnet.js';
 import { admitNativeClock, nativeNow, nativeClockEvidence } from '../native-clock.js';
 import { attachClockRing, requestReply, ClockRole } from '../clock-ring.js';
+import { EventRingCursor, eventDelivery } from '../event-ring-cursor.js';
 
 await admitNativeClock();
 const runtime = await dotnet.create();
 let host, port, clock, service, disposed = false, bootstrapped = false, qualified = false;
+// Story 9A.23: this worker's own cursor over the session event ring (the Simulation worker posts each ring on the master port).
+let events = new EventRingCursor();
 // The latest sample per target: one entry per animated target of the machine, with no fixed target capacity (Story 9R.5b).
 let outputKinds, pendingSample;
 const latestSamples = new Map();
@@ -13,6 +16,7 @@ function closeOwned() {
     disposed = true;
     latestSamples.clear(); pendingSample = undefined;
     clearInterval(service); service = undefined;
+    events = undefined;
     if (port) { port.onmessage = null; port.close(); port = undefined; }
     clock = undefined;
 }
@@ -91,6 +95,8 @@ self.onmessage = event => {
                         host.ScheduleControl(envelope.scheduleControl);
                     else if (envelope.committedRead instanceof Uint8Array)
                         host.CommittedRead(envelope.committedRead);
+                    else if (envelope.eventRing instanceof SharedArrayBuffer)
+                        events.attach(envelope.eventRing);
                     else throw new Error('Unsupported Animation master-port envelope.');
                 } catch (error) { fail(error); }
             };
@@ -99,6 +105,9 @@ self.onmessage = event => {
             // reply never faults the session: the mapping recalibrates as counted telemetry (Story 9.4b).
             service = setInterval(() => {
                 try {
+                    // Each turn first takes the records committed since this worker's cursor, for the installed world only.
+                    const read = events.read(BigInt(host.EventEpoch()));
+                    if (read.records.length !== 0 || read.skipped !== 0n) host.EventRecords(eventDelivery(read));
                     host.Service();
                 } catch (error) { fail(error); }
             }, 1);

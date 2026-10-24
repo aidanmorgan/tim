@@ -1,0 +1,13 @@
+diff --git a/engine/gpu/EventRecordProducer.cs b/engine/gpu/EventRecordProducer.cs
+index b6749fd2..5d2d51d2 100644
+--- a/engine/gpu/EventRecordProducer.cs
++++ b/engine/gpu/EventRecordProducer.cs
+@@ -154,7 +154,7 @@ public sealed class EventRecordProducer
+             for (var i = 0; i < candidate.ContactWorks.OccurrenceCount; i++)
+             {
+                 var hit = candidate.ContactWorks.Occurrence(i);
+-                if (hit.Work.Value != work || hit.Sequence <= before) continue;
++                if (hit.Work.Value != work || hit.Sequence <= before || hit.Debit.Value == 0) continue; // REVIEWER MUTANT: unpaid hits unpublished
+                 Add(SimulationEventKind.Impact, owner, hit.Target, new(hit.EventOrdinal, (float)hit.EventPhase), hit.Debit.Value, hit.Sequence, 0);
+             }
+         }

@@ -13,10 +13,10 @@ public sealed class ImpactSwitchElementDeclaration : IMechanicalElement, IContac
 {
     public ElementPresentation Presentation => new(.65f, PresentationAxes.None,
         [
-            new("Visual/Button", PresentationProperty.LocalY, PresentationDriver.ActivationPulse, .06f, -.02f, PresentationCurve.SmoothStep, .16f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None),
-            new("Visual/Button", PresentationProperty.AlbedoRed, PresentationDriver.ActivationPulse, .94f, 191f / 255f, PresentationCurve.SmoothStep, .16f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None),
-            new("Visual/Button", PresentationProperty.AlbedoGreen, PresentationDriver.ActivationPulse, .43f, 245f / 255f, PresentationCurve.SmoothStep, .16f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None),
-            new("Visual/Button", PresentationProperty.AlbedoBlue, PresentationDriver.ActivationPulse, .33f, 176f / 255f, PresentationCurve.SmoothStep, .16f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None)
+            new("Visual/Button", PresentationProperty.LocalY, PresentationDriver.Event, .06f, -.02f, PresentationCurve.SmoothStep, .16f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None, Event: SimulationEventKind.TriggerActivated),
+            new("Visual/Button", PresentationProperty.AlbedoRed, PresentationDriver.Event, .94f, 191f / 255f, PresentationCurve.SmoothStep, .16f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None, Event: SimulationEventKind.TriggerActivated),
+            new("Visual/Button", PresentationProperty.AlbedoGreen, PresentationDriver.Event, .43f, 245f / 255f, PresentationCurve.SmoothStep, .16f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None, Event: SimulationEventKind.TriggerActivated),
+            new("Visual/Button", PresentationProperty.AlbedoBlue, PresentationDriver.Event, .33f, 176f / 255f, PresentationCurve.SmoothStep, .16f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None, Event: SimulationEventKind.TriggerActivated)
         ], [], [], []);
 
     public ElementMetadata Metadata => new(

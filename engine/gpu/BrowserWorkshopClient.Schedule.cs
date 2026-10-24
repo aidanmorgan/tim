@@ -79,11 +79,9 @@ public sealed partial class BrowserWorkshopClient
                     schedule.World.Playback == WorldPlayback.Completed ? PresentationBoundary.Completed : PresentationBoundary.Seed;
                 var history = _history.PrepareInstall(schedule, prepared.Endpoint, mapped, boundary, Clock.DisplayEpoch);
                 var cursor = _cursor.PrepareInstallation(prepared.Endpoint);
-                FitFeedbackSlots(prepared.Endpoint.Read);
                 _history.Commit(history); _cursor.Commit(cursor);
                 ReconcileAnimationSchedule(schedule);
                 EnsureInstalledScene(_proposedConstruction ?? _construction);
-                ObserveContactFeedback(prepared.Endpoint.Read);
                 _schedule = schedule; _preparation = null;
                 _construction = (_proposedConstruction ?? _construction) with { Settings = schedule.Settings };
                 _lastPresentation = new(schedule.FirstPresentation.Value - 1);
@@ -129,10 +127,8 @@ public sealed partial class BrowserWorkshopClient
     private void ReconcileAnimationSchedule(WorkshopSchedule schedule)
     {
         _declaredVisibilitySent.Clear();
-        if (_schedule?.World.WorldGeneration != schedule.World.WorldGeneration)
-        { RetireCaptureFeedback(); RetireActivationFeedback(); RetireGoalFeedback(); RetireContactFeedback(schedule.World.WorldGeneration); }
-        if (_schedule?.Revision != schedule.Revision)
-        { _declaredSamples.Clear(); _hintOrdinal = _goalOrdinal = 0; Array.Clear(_captureOrdinals); Array.Clear(_activationOrdinals); }
+        if (_schedule?.World.WorldGeneration != schedule.World.WorldGeneration) RetireGoalFeedback();
+        if (_schedule?.Revision != schedule.Revision) { _declaredSamples.Clear(); _hintOrdinal = _goalOrdinal = 0; }
     }
     private void ReceiveAnimation() => ReceiveAnimation(EventBytes(_id.Value));
     internal void ReceiveAnimation(byte[] bytes)
@@ -148,26 +144,18 @@ public sealed partial class BrowserWorkshopClient
         {
             if (_animationPending is not { } command || cadence != _animationPendingCadence || sample.Pulse.Value != command.Sequence ||
                 sample.Property != command.Property || sample.Target != command.Target || sample.World != command.World || sample.Generation != command.Generation ||
-                sample.Timer != command.Timer || !F32Bits.Equal(sample.PulseDuration,
-                    command.Kind == AnimationControlKind.Impulse ? command.Duration : (float)0) || sample.EventOrdinal != command.EventOrdinal || !F32Bits.Equal(sample.EventPhase, command.EventPhase))
+                sample.Timer != command.Timer || sample.EventOrdinal != command.EventOrdinal || !F32Bits.Equal(sample.EventPhase, command.EventPhase))
                 throw new ArgumentException("Unowned animation acknowledgement.");
             _animationPending = null;
-            if (kind == AnimationOutputKind.Rejected) { RetryRejectedGoal(command); RetryRejectedCapture(command); RetryRejectedContact(command); RetryDeclaredVisibility(command); return; }
+            if (kind == AnimationOutputKind.Rejected) { RetryRejectedGoal(command); RetryDeclaredVisibility(command); return; }
         }
-        if (cadence.Value < active.Revision.Value)
-        {
-            if (kind == AnimationOutputKind.Acknowledgement && sample.World == active.World.WorldGeneration &&
-                sample.PulseDuration > (float)0)
-                RetryStaleContactAcknowledgement(sample);
-            return;
-        }
-        // Target ranges are declared identities: fixed UI targets, then capture, contact, timer and activation ranges.
+        if (cadence.Value < active.Revision.Value) return;
+        // Target ranges are declared identities: the fixed UI targets, then the declared (package binding) range. Every one-shot cue is
+        // a declared binding the Animation worker drives from the event ring (Story 9A.25b); the main thread relays none.
         if (sample.Target == UiCurves.Hint.AnimationTarget) ReceiveHintSample(sample, kind);
         else if (sample.Target == UiCurves.Goal.AnimationTarget) ReceiveGoalSample(sample, kind, active);
         else if (sample.Target.Value >= WorkshopDeclaredPresentation.TargetBase) ReceiveDeclaredSample(sample, kind, active);
-        else if (IsCaptureTarget(sample.Target)) ReceiveCaptureSample(sample, kind, active);
-        else if (sample.PulseDuration > (float)0) ReceiveContactSample(sample, active);
-        else ReceiveActivationSample(sample, kind, active);
+        else throw new ArgumentException("Unowned animation output target.");
         // The JS ACK lease releases after this callback returns; next presentation pumps the next owner.
     }
     private bool AdmitPresentationFrame(ulong frame)
@@ -176,7 +164,6 @@ public sealed partial class BrowserWorkshopClient
         if (_hasPresentationFrame && frame == _presentationFrame) return _frameAdmitted;
         _hasPresentationFrame = true; _presentationFrame = frame;
         _frameAdmitted = _framePoseTaken = _frameHintTaken = _frameGoalTaken = false;
-        Array.Clear(_activationFrameTaken); Array.Clear(_captureFrameTaken);
         _frameObservedAt = WorkshopNativeClock.FromMilliseconds(NativeMilliseconds());
         if (_preparation is not null || _schedule is not { } schedule ||
             !Clock.TryMasterNow(_frameObservedAt, out var master)) return false;

@@ -1,6 +1,7 @@
 import { admitNativeClock, nativeNow, nativeProfile, nativeClockEvidence } from './native-clock.js';
 import { requireIsolation, watchIsolation, isolationQualified, isolationEvidence, stopIsolation } from './workshop-isolation.js';
 import { createClockRing, attachClockRing, requestReply, heartbeat, ClockRole } from './clock-ring.js';
+import { EventRingCursor, eventDelivery } from './event-ring-cursor.js';
 
 // The session pose ring layout, owned by WorkshopPoseRing (WorkerAbiTests pins every value against its C# owner).
 const POSE_SLOT_COUNT = 3;             // WorkshopPoseRing.SlotCount
@@ -61,6 +62,7 @@ function fail(client, error, retiring = false) {
     client.animationPort?.close(); client.animationPort = undefined;
     // The session clock ring is detached with its workers (dispose goes through here): nothing probes or reads it again.
     client.clock = client.clockRing = undefined;
+    client.events = undefined;
     for (const pending of client.pending.values()) pending.reject(error);
     client.pending.clear();
     client.bootstrapReject?.(error);
@@ -126,7 +128,8 @@ export async function create(states, bootstrapBytes, clockAbi, captureMode, admi
             state: ready,
             identity: undefined, clockAbi: { clockProfile, peerBytes, probeBytes, replyBytes, diagnosticBytes, browserRole, masterRole }, captureMode,
             observations: captureMode === 2 ? new Uint8Array(128 * diagnosticBytes) : undefined, observationNext: 0, observationCount: 0, observationSequence: 0n,
-            presentations: captureMode === 2 ? new Uint8Array(32 * 360) : undefined, presentationSequence: 0n };
+            presentations: captureMode === 2 ? new Uint8Array(32 * 360) : undefined, presentationSequence: 0n,
+            events: new EventRingCursor() };
         attachPoseRing(client, poseRing);
         const worker = new Worker(new URL('./simulation/worker.js', document.baseURI), { type: 'module' });
         client.worker = worker;
@@ -251,9 +254,9 @@ export async function create(states, bootstrapBytes, clockAbi, captureMode, admi
                         if (!readyReceived) throw new Error('A pose ring arrived before the session was ready.');
                         attachPoseRing(client, message.poseRing);
                     } else if (message.eventRing instanceof SharedArrayBuffer) {
-                        // Story 9A.22: the session's event ring for the admitted epoch, attached only; its readers are Story 9A.23's.
+                        // Story 9A.23: the session's event ring for an admitted epoch, read by the main thread's own cursor.
                         if (!readyReceived) throw new Error('An event ring arrived before the session was ready.');
-                        client.eventRing = message.eventRing;
+                        client.events.attach(message.eventRing);
                     } else if (message.scheduleControl instanceof Uint8Array) {
                         deliver(client, message.scheduleControl, received, scheduleControl);
                     } else if (message.acknowledgement instanceof Uint8Array) {
@@ -590,6 +593,14 @@ export function readLatestPoseSlot(id) {
     }
     if (altSlot < 0) return null;
     return readPoseSlot(id, altSlot);
+}
+
+// Story 9A.23 D8: the main thread's event ring read, for the epoch C# has installed (the reader holds a newer ring and ignores an
+// older one). C# decodes the delivery (EventRingDelivery); this script reads no record field.
+export function readEvents(id, epoch) {
+    const events = owner(id).events;
+    if (!events) throw new Error('The event ring reader is retired.');
+    return eventDelivery(events.read(BigInt(epoch)));
 }
 
 export function hasPoseRing(id) {

@@ -57,7 +57,7 @@ public sealed class LaunchLessonSolveTests
     /// production placement. The orientation is the Basis column-major array the content stores (as JoinedPipeTests reads it).</summary>
     private static readonly string[] WallKeys = ["width", "height", "thickness"];
 
-    private static WorkshopConstruction AuthoredSolution(string lesson, Half precision)
+    internal static WorkshopConstruction AuthoredSolution(string lesson, Half precision)
     {
         using var source = System.Text.Json.JsonDocument.Parse(File.ReadAllText(Path.Combine(twodog.Engine.ResolveProjectDir(), "content/puzzles.json")));
         var level = source.RootElement.EnumerateArray().Single(value => value.GetProperty("id").GetString() == lesson);

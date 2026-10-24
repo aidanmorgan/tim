@@ -1,0 +1,5 @@
+git diff --check 0cba945b HEAD excluding evidence-* raw logs
+source rc=0
+evidence-only findings (raw tool logs, preserved unchanged):
+185
+worktree rc=0

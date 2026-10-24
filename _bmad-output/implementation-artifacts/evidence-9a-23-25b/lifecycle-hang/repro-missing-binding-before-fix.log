@@ -1,0 +1,19 @@
+
+Interrupted while running:
+
+⚠ tools/workshop-client-lifecycle.test.mjs (tools/workshop-client-lifecycle.test.mjs:1:1)
+✖ tools/workshop-client-lifecycle.test.mjs (59964.94275ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 0
+ℹ cancelled 1
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 59967.273666
+
+✖ failing tests:
+
+test at tools/workshop-client-lifecycle.test.mjs:1:1
+✖ tools/workshop-client-lifecycle.test.mjs (59964.94275ms)
+  'Promise resolution is still pending but the event loop has already resolved'

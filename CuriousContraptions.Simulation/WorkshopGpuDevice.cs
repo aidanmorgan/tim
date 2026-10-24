@@ -61,6 +61,8 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
     internal EventRingOutbox Events => _outbox;
     /// <summary>The committed world's compiled event rows.</summary>
     internal EventRecordProducer? EventRows => _committedEvents;
+    /// <summary>The committed world's device-private contact-work ledger (Story 9A.23 D9): the occurrence rows behind its Impact records.</summary>
+    internal ContactWorkLedger CommittedContactWork => _committedSources.ContactWorks;
     /// <summary>The publication of every committed record not yet published (the worker copies it into the event ring).</summary>
     internal byte[] DrainEvents() => _outbox.Drain();
 #if PLAYTEST
@@ -200,12 +202,16 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
                 network.ConsumeScheduled(scheduled ?? throw new InvalidOperationException("Scheduled checkpoint missing."),
                     triggers[..triggerCount], expectedTick, orientations[..orientationCount], passages[..passageCount], electrical, loads[..loadCount]);
             _candidateActivations = logical.Activations; _candidateTimers = logical.Timers; _candidateMemory = logical.Memory;            _candidateNetwork = network; _candidateSupply = supply;
+            // Story 9A.23 D9: the contact-work occurrence rows are device-private. They feed only the Impact records and the reservoir
+            // accounting (ValidateCandidate checks the ledger's advance); the read carries the owners' stores.
             var contactWorks=PhysicsGpuAbi.ReadContactWorks(bytes);
             // Story 9A.22: admission compiles the world's event rows and publishes nothing; an Advance stages its tick's records from
             // the committed and candidate row states and the network's transitions. Nothing is sequenced before Commit.
             var sources = new EventSourceRows(_candidateCaptures, contactWorks, electrical, _candidatePassageTracker);
             if (operation == WorkshopGpuOperation.Admit)
             {
+                contactWorks.ValidateScene(scene!, bodies);
+                contactWorks.ValidateAdmission();
                 _candidateEvents = EventRecordProducer.Compile(scene!, network, _candidatePassageTracker, profile);
                 _candidateRecords = [];
                 _candidateEpoch = new(BinaryPrimitives.ReadUInt64LittleEndian(bytes.AsSpan(PhysicsGpuAbi.HeaderEpochOffset)));
@@ -220,7 +226,7 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
             var read = new WorkshopRead(new(BinaryPrimitives.ReadUInt64LittleEndian(bytes.AsSpan(PhysicsGpuAbi.HeaderEpochOffset))),
                 expectedTick, bodies,
                 Captures: _candidateCaptures, Activations: _candidateActivations, Timers: _candidateTimers,
-                Motion: validated.Motion, ContactWorks: contactWorks, Electrical: electrical, Memory: _candidateMemory,
+                Motion: validated.Motion, ContactWorks: contactWorks.Stores, Electrical: electrical, Memory: _candidateMemory,
                 Presentation: PhysicsGpuAbi.ReadPresentation(bytes, inputs, operation == WorkshopGpuOperation.Admit));
             _candidateWorld = bytes;
             _candidateProfile = profile;

@@ -2,12 +2,17 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import fs from 'node:fs/promises';
 import vm from 'node:vm';
+import * as eventRingCursor from '../CuriousContraptions.web/wwwroot/event-ring-cursor.js';
 
 // Expose the existing private client registry only in this isolated test module.
 const source = await fs.readFile(new URL('../CuriousContraptions.web/wwwroot/workshop-client.js', import.meta.url), 'utf8');
 const context = vm.createContext({ SharedArrayBuffer, BigInt64Array, DataView, Float32Array, Atomics });
 const module = new vm.SourceTextModule(source + '\nexport { clients, attachPoseRing };', { context });
 await module.link(async (specifier) => {
+    // Story 9A.23: the shared event ring reader is the real module.
+    if (specifier.includes('event-ring-cursor')) return new vm.SyntheticModule(['EventRingCursor', 'eventDelivery'], function () {
+        this.setExport('EventRingCursor', eventRingCursor.EventRingCursor); this.setExport('eventDelivery', eventRingCursor.eventDelivery);
+    }, { context });
     const names = specifier.includes('native-clock') ?
         ['admitNativeClock', 'nativeNow', 'nativeProfile', 'nativeClockEvidence'] :
         specifier.includes('clock-ring') ? ['createClockRing', 'attachClockRing', 'requestReply', 'heartbeat', 'ClockRole'] :
@@ -99,6 +104,9 @@ export { writePoseRing };
         if (name === '../clock-ring.js') return new vm.SyntheticModule(['attachClockRing', 'deriveExchange', 'qualifyDerivation', 'writeDerivation', 'beat'], function () {
             for (const name of ['attachClockRing', 'deriveExchange', 'qualifyDerivation', 'writeDerivation', 'beat'])
                 this.setExport(name, () => { throw new Error('The pose writer control never bootstraps a clock.'); });
+        }, { context: workerContext });
+        if (name === '../event-ring-cursor.js') return new vm.SyntheticModule(['EventRingMemory'], function () {
+            this.setExport('EventRingMemory', eventRingCursor.EventRingMemory);
         }, { context: workerContext });
         return new vm.SyntheticModule(['admitNativeClock', 'nativeNow', 'nativeClockEvidence'], function () {
             this.setExport('admitNativeClock', async () => {});

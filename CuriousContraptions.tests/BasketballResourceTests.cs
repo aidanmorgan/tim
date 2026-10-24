@@ -96,6 +96,17 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
         finally {delay.GetParent()?.RemoveChild(delay);delay.Free();}
     }
 
+    /// <summary>Story 9A.25b: a one-shot cue's sample at <paramref name="amount"/> of its declared curve, applied to every binding of the
+    /// part exactly as MachineWorld applies the Animation worker's declared samples.</summary>
+    private static void ApplyCue(MachinePart part, float amount)
+    {
+        var bindings = part.Definition.Presentation.Bindings;
+        for (var i = 0; i < bindings.Count; i++)
+            part.ApplyDeclaredProperty(i, CuriousContraptions.Presentation.AnimationValue.Blend(
+                WorkshopDeclaredPresentation.Value(bindings[i].Property, bindings[i].From),
+                WorkshopDeclaredPresentation.Value(bindings[i].Property, bindings[i].To), new(amount)));
+    }
+
     [Fact]
     public void ReceiverHaloFollowsTheDeclaredCaptureBlendAndRestsOnItsNeutralPalette()
     {
@@ -107,17 +118,18 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
             var halo=receiver.Visual.GetChildren().OfType<MeshInstance3D>().Single(mesh=>mesh.Mesh is TorusMesh);
             var material=(StandardMaterial3D)halo.MaterialOverride;
             var neutral=new Color("#bdf4bd");
-            Assert.True(receiver.HasCosmeticBindings); Assert.Equal(CosmeticCurveDeclaration.For(PartId.Receiver),receiver.Cosmetic);
-            Assert.Equal(CosmeticCurveDeclaration.For(PartId.Receiver),WorkshopInput.Generic(PartId.Receiver, new(2),0,1,0,0,0,0,1).Cosmetic);
-            receiver.ApplyCosmetic(WorkshopCosmeticSample.Neutral); // construction/Reset restore the declared neutral palette
+            Assert.All(receiver.Definition.Presentation.Bindings, binding =>
+                Assert.Equal((CuriousContraptions.Abstractions.PresentationDriver.Event, CuriousContraptions.Abstractions.SimulationEventKind.Captured), (binding.Driver, binding.Event)));
+            receiver.ResetPhysicalVisuals(); // construction/Reset restore the declared neutral palette
             Assert.Equal((float)neutral.R,material.AlbedoColor.R); Assert.Equal((float)neutral.G,material.AlbedoColor.G);
-            receiver.ApplyCosmetic(new((float)1,CuriousContraptions.Presentation.AnimationTimerPhase.None));
+            ApplyCue(receiver, 1);
             Assert.Equal(1,material.AlbedoColor.R); Assert.Equal(1,material.AlbedoColor.G); Assert.Equal(1,material.AlbedoColor.B);
-            receiver.ApplyCosmetic(new((float).5,CuriousContraptions.Presentation.AnimationTimerPhase.None));
+            ApplyCue(receiver, .5f);
             Assert.InRange(material.AlbedoColor.R,(float)neutral.R+.01f,.99f);
-            receiver.ApplyCosmetic(new(float.NaN,CuriousContraptions.Presentation.AnimationTimerPhase.None));
-            Assert.InRange(material.AlbedoColor.R,(float)neutral.R+.01f,.99f); // game-grade: invalid blends keep the committed value
-            receiver.ApplyCosmetic(WorkshopCosmeticSample.Neutral);
+            // A non-finite cue value is refused where it is made, so it never reaches the halo.
+            Assert.ThrowsAny<ArgumentException>(() => ApplyCue(receiver, float.NaN));
+            Assert.InRange(material.AlbedoColor.R,(float)neutral.R+.01f,.99f);
+            receiver.ResetPhysicalVisuals();
             Assert.Equal((float)neutral.R,material.AlbedoColor.R); Assert.Equal((float)neutral.G,material.AlbedoColor.G);
         }
         finally { receiver.GetParent()?.RemoveChild(receiver); receiver.Free(); }
@@ -135,18 +147,19 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
             var head=bumper.Visual.GetNode<MeshInstance3D>("BumperHead");
             var ring=bumper.Visual.GetNode<MeshInstance3D>("ImpactRing");
             var button=toggle.Visual.GetChildren().OfType<MeshInstance3D>().Single(mesh=>mesh.Mesh is CylinderMesh);
-            Assert.Equal(CosmeticCurveDeclaration.For(PartId.PinballBumper),bumper.Cosmetic); Assert.Equal(CosmeticCurveDeclaration.For(PartId.ImpactSwitch),toggle.Cosmetic);
-            var active=new WorkshopCosmeticSample((float)1,CuriousContraptions.Presentation.AnimationTimerPhase.None);
-            bumper.ApplyCosmetic(active); toggle.ApplyCosmetic(active);
+            Assert.All(bumper.Definition.Presentation.Bindings, binding => Assert.Equal(CuriousContraptions.Abstractions.SimulationEventKind.Impact, binding.Event));
+            Assert.All(toggle.Definition.Presentation.Bindings, binding => Assert.Equal(CuriousContraptions.Abstractions.SimulationEventKind.TriggerActivated, binding.Event));
+            ApplyCue(bumper, 1); ApplyCue(toggle, 1);
             Assert.Equal(Vector3.One*(float).88,head.Scale); Assert.Equal(Vector3.One*(float)1.24,ring.Scale);
             Assert.Equal((float)(82d/255),((StandardMaterial3D)ring.MaterialOverride).AlbedoColor.B);
             var pressed=new Color("#bff5b0");
             Assert.Equal((float)(-.02),button.Position.Y);
             Assert.Equal((float)pressed.G,((StandardMaterial3D)button.MaterialOverride).AlbedoColor.G);
-            bumper.ApplyCosmetic(new(float.NaN,CuriousContraptions.Presentation.AnimationTimerPhase.None));
-            bumper.ApplyCosmetic(new((float)1.5,CuriousContraptions.Presentation.AnimationTimerPhase.None));
-            Assert.Equal(Vector3.One*(float).88,head.Scale); // game-grade: invalid blends keep the committed value
-            bumper.ApplyCosmetic(WorkshopCosmeticSample.Neutral); toggle.ApplyCosmetic(WorkshopCosmeticSample.Neutral);
+            // An out-of-range or non-finite cue amount is refused where it is made, so the committed value holds.
+            Assert.ThrowsAny<ArgumentException>(() => ApplyCue(bumper, float.NaN));
+            Assert.ThrowsAny<ArgumentException>(() => ApplyCue(bumper, 1.5f));
+            Assert.Equal(Vector3.One*(float).88,head.Scale);
+            bumper.ResetPhysicalVisuals(); toggle.ResetPhysicalVisuals();
             Assert.Equal(Vector3.One,head.Scale); Assert.Equal(Vector3.One,ring.Scale);
             Assert.Equal((float)(194d/255),((StandardMaterial3D)ring.MaterialOverride).AlbedoColor.B);
             Assert.Equal((float).06,button.Position.Y);
@@ -159,40 +172,6 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
         }
     }
 
-    // Story 9A.1: the cosmetic binding rules live on the composed CosmeticBindingSet, so they are proven directly on it; the part is
-    // sealed, so no test subclass can reach a construction hook.
-    private static void WithBindingTarget(Action<Action<CosmeticBindingSet, CosmeticCurveDeclaration, CuriousContraptions.Presentation.AnimationTimerPhase>> body)
-    {
-        var target = new MeshInstance3D { MaterialOverride = new StandardMaterial3D() };
-        try { body((set, declaration, phase) => set.Add(declaration, target, WorkshopVisualProperty.AlbedoRed, (float)0, (float)1, phase)); }
-        finally { target.Free(); }
-    }
-
-    [Fact]
-    public void ACosmeticBindingRequiresADeclaredCurve() => WithBindingTarget(add =>
-        Assert.Throws<ArgumentException>(() => add(new(), CosmeticCurveDeclaration.None, CuriousContraptions.Presentation.AnimationTimerPhase.None)));
-
-    [Fact]
-    public void ACosmeticBindingSetHoldsExactlyOneCurve() => WithBindingTarget(add =>
-    {
-        var set = new CosmeticBindingSet();
-        add(set, CosmeticCurveDeclaration.For(PartId.ImpactSwitch), CuriousContraptions.Presentation.AnimationTimerPhase.None);
-        Assert.Throws<ArgumentException>(() => add(set, CosmeticCurveDeclaration.For(PartId.PinballBumper), CuriousContraptions.Presentation.AnimationTimerPhase.None));
-    });
-
-    [Fact]
-    public void ATimerPhaseBindingRequiresTimerFeedback() => WithBindingTarget(add =>
-        Assert.Throws<ArgumentException>(() => add(new(), CosmeticCurveDeclaration.For(PartId.ImpactSwitch), CuriousContraptions.Presentation.AnimationTimerPhase.Counting)));
-
-    [Fact]
-    public void ATimerCurveAcceptsBlendAndPhaseBindings() => WithBindingTarget(add =>
-    {
-        var set = new CosmeticBindingSet();
-        add(set, new CosmeticCurveDeclaration(AnimationFeedbackSource.Timer, CuriousContraptions.Presentation.AnimationCurve.Linear, 0, default, default), CuriousContraptions.Presentation.AnimationTimerPhase.None);
-        add(set, new CosmeticCurveDeclaration(AnimationFeedbackSource.Timer, CuriousContraptions.Presentation.AnimationCurve.Linear, 0, default, default), CuriousContraptions.Presentation.AnimationTimerPhase.Finished);
-        Assert.Equal((false, new CosmeticCurveDeclaration(AnimationFeedbackSource.Timer, CuriousContraptions.Presentation.AnimationCurve.Linear, 0, default, default)), (set.IsEmpty, set.Declaration));
-    });
-
     [Fact]
     public void ADeclaredDelayPartBindsTheDelayCurve()
     {
@@ -201,7 +180,7 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
         try
         {
             part.EnsureConstructed();
-            Assert.False(part.HasCosmeticBindings);
+            Assert.DoesNotContain(part.Definition.Presentation.Bindings, b => b.Driver == CuriousContraptions.Abstractions.PresentationDriver.Event);
             Assert.Contains(part.Definition.Presentation.Bindings, b => b.Driver == CuriousContraptions.Abstractions.PresentationDriver.CommittedTimerProgress);
             Assert.Contains(part.Definition.Presentation.Bindings, b => b.Driver == CuriousContraptions.Abstractions.PresentationDriver.CommittedTimerPhase);
         }
@@ -415,7 +394,6 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
         public void ControlUi(WorkshopUiTarget target, AnimationControlKind kind, bool visible) { Retire(); Controls++; }
         public bool TryUiFrame(ulong frame, WorkshopPresentationSample physical, WorkshopUiTarget target, out CuriousContraptions.Presentation.AnimationOpacity opacity)
         { Retire(); Frames++; opacity = default; return true; }
-        public bool TryCosmeticFrame(ulong frame, WorkshopPresentationSample physical, GpuBodyId owner, out WorkshopCosmeticSample sample) { sample = default; return false; }
         public void SetDeclaredVisible(GpuBodyId owner, bool visible) { }
         public bool TryDeclaredFrame(ulong frame, WorkshopPresentationSample physical, GpuBodyId owner, out System.Collections.Generic.IReadOnlyList<DeclaredPresentationSample> samples) { samples = System.Array.Empty<DeclaredPresentationSample>(); return false; }
         public Task<WorkshopDelivery> Execute(WorkshopCommandKind kind, WorkshopConstruction? construction = null,
@@ -485,7 +463,6 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
         public bool TryPresent(ulong frame, out WorkshopPresentationSample sample) { sample = default; return false; }
         public void ControlUi(WorkshopUiTarget target, AnimationControlKind kind, bool visible) => throw new InvalidOperationException("UI control is outside this held read/ACK fixture.");
         public bool TryUiFrame(ulong frame, WorkshopPresentationSample physical, WorkshopUiTarget target, out CuriousContraptions.Presentation.AnimationOpacity opacity) { opacity = default; return false; }
-        public bool TryCosmeticFrame(ulong frame, WorkshopPresentationSample physical, GpuBodyId owner, out WorkshopCosmeticSample sample) { sample = default; return false; }
         public void RecordPresentation(WorkshopPresentationSample sample, bool selected, PresentationScene scene) { }
         public void SetDeclaredVisible(GpuBodyId owner, bool visible) { }
         public bool TryDeclaredFrame(ulong frame, WorkshopPresentationSample physical, GpuBodyId owner, out System.Collections.Generic.IReadOnlyList<DeclaredPresentationSample> samples) { samples = System.Array.Empty<DeclaredPresentationSample>(); return false; }

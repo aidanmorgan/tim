@@ -54,7 +54,6 @@ internal static class ImpactRules
         ["ui/WorkshopConfiguration.cs"] = WorkshopArea.Configuration,
         ["ui/WorkshopPuzzle.cs"] = WorkshopArea.LevelPicker,
         ["engine/WorkshopVisualBinding.cs"] = WorkshopArea.Presentation,
-        ["engine/CosmeticBindingSet.cs"] = WorkshopArea.Presentation,
         ["ui/WorkshopAnimation.cs"] = WorkshopArea.Presentation,
         ["ui/WorkshopArtwork.cs"] = WorkshopArea.Presentation,
         ["engine/presentation/AnimationBatch.cs"] = WorkshopArea.Presentation,

@@ -464,9 +464,8 @@ public sealed class WorkshopSimulation : IAsyncDisposable
                 !actual.Remaining.HasSameBits(source.InitialEnergy) || actual.Debit.Value != 0)
                 throw new ArgumentException("Admission retained source work.");
         }
-        read.ContactWorks.ValidateScene(physics,read.Bodies);
-        for (var i=0; i<read.ContactWorks.OccurrenceCount; i++)
-            if (read.ContactWorks.Occurrence(i).Sequence != 0) throw new ArgumentException("Admission retained contact occurrence.");
+        // The occurrence rows are device-private (Story 9A.23 D9): the device admits them against the scene; the read carries the stores.
+        read.ContactWorks.ValidateScene(physics);
         var network = WorkshopActivationCompiler.Compile(construction);
         var initial = network.Clear();
         var timers = network.ClearTimers();

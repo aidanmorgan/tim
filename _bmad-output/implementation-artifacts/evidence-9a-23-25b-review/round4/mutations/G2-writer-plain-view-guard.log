@@ -1,0 +1,12 @@
+Test run for /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/wt-r4/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:01.45]     CuriousContraptions.Tests.EventRingConsumerTests.GuardOnlyTheEventRingMemoryViewsTheRingAndEveryAccessorIsAtomic [FAIL]
+  Failed CuriousContraptions.Tests.EventRingConsumerTests.GuardOnlyTheEventRingMemoryViewsTheRingAndEveryAccessorIsAtomic [21 ms]
+  Error Message:
+   CuriousContraptions.Simulation/wwwroot/worker.js: the typed-array/DataView constructions changed: BigInt64Array(buffer, Uint8Array(poseRing, DataView(batch.buffer, BigUint64Array(aligned, BigUint64Array(eventRing.buffer, Uint8Array(bytes, Uint8Array(bytes, Uint8Array(sequenceBytes, Uint8Array(batch, Uint8Array(bytes, Uint8Array(identity, Uint8Array(poseSlot, Uint8Array(host.Bootstrap, Uint8Array(host.AnimationPeer, Float64Array(nativeClockEvidence, Uint8Array(host.AnimationPeer
+  Stack Trace:
+     at CuriousContraptions.Tests.EventRingConsumerTests.GuardOnlyTheEventRingMemoryViewsTheRingAndEveryAccessorIsAtomic() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/wt-r4/CuriousContraptions.tests/EventRingConsumerTests.cs:line 821
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 32 ms - CuriousContraptions.tests.dll (net10.0)

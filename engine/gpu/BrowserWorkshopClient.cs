@@ -195,7 +195,7 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
                         installed.Read.HasSameContent(response.Read) ? null :
                         PrepareHistory(response, boundary, WorkshopNativeClock.FromMilliseconds(NativeMilliseconds()));
                     _cursor.Commit(prepared);
-                    if (history is { } ready) { FitFeedbackSlots(response.Read); _history.Commit(ready); }
+                    if (history is { } ready) _history.Commit(ready);
                     if (response.Result.Outcome == WorkshopCommandOutcome.Applied && construction is { } admitted)
                     {
                         _construction = admitted;
@@ -287,26 +287,8 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
         var boundary = response.Phase == WorkshopSimulationPhase.Completed ? PresentationBoundary.Completed : PresentationBoundary.Continuous;
         var history = PrepareHistory(response, boundary, WorkshopNativeClock.FromMilliseconds(milliseconds));
         EnsureInstalledScene(_construction);
-        FitFeedbackSlots(response.Read);
-        ObserveContactFeedback(response.Read);
         _cursor.Commit(prepared);
         _history.Commit(history);
-    }
-
-    /// <summary>Story 9R.5b: grows the cosmetic feedback slots to a committed read's populations before it enters the history, so
-    /// every slot-indexed lookup of that read is in range. Growth keeps existing slots; it happens once per larger world.</summary>
-    private void FitFeedbackSlots(WorkshopRead read)
-    {
-        var activations = read.Activations.Count;
-        Fit(ref _activationRequested, activations); Fit(ref _activationSamples, activations);
-        Fit(ref _activationOrdinals, activations); Fit(ref _activationFrameTaken, activations);
-        var captures = read.Captures.Count;
-        Fit(ref _captureRequested, captures); Fit(ref _captureSamples, captures);
-        Fit(ref _captureOrdinals, captures); Fit(ref _captureFrameTaken, captures);
-    }
-    private static void Fit<T>(ref T[] slots, int count)
-    {
-        if (slots.Length < count) Array.Resize(ref slots, count);
     }
 
     private WorkshopPoseHistory.Prepared PrepareHistory(WorkshopResponse response, PresentationBoundary boundary, MonotonicNanoseconds now)

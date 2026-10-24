@@ -373,7 +373,6 @@ public sealed class WorkshopHintTests(NativeSceneFixture godot) : IAsyncDisposab
             if (target != WorkshopUiTarget.Hint || Disposed || Next is not { } value) { opacity = default; return false; }
             Next = null; opacity = new(value); return true;
         }
-        public bool TryCosmeticFrame(ulong frame, WorkshopPresentationSample physical, GpuBodyId owner, out WorkshopCosmeticSample sample) { sample = default; return false; }
         public bool TryRead(out WorkshopResponse response) { response = default; return false; }
         public bool TryPresent(ulong frame, out WorkshopPresentationSample sample) { sample = default; return false; }
         public void RecordPresentation(WorkshopPresentationSample sample, bool selected, PresentationScene scene) { }

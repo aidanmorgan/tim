@@ -1,0 +1,355 @@
+f2aff60be773d45f5b26ce25c0fd89bc4bca0c8f 794f47b2028ddc66b47ae761f740f8d961f0da34 9536e2ff70bfc0fe157a27bf1f7436727ea05dd0 Merge origin/main 9536e2ff into 9A.23 + 9A.25b
+
+diff --git a/_bmad-output/implementation-artifacts/evidence-9a-23-25b/main-green-merge/build.log b/_bmad-output/implementation-artifacts/evidence-9a-23-25b/main-green-merge/build.log
+new file mode 100644
+index 00000000..0987ab6b
+--- /dev/null
++++ b/_bmad-output/implementation-artifacts/evidence-9a-23-25b/main-green-merge/build.log
+@@ -0,0 +1,142 @@
++  Determining projects to restore...
++  All projects are up-to-date for restore.
++  CuriousContraptions.FlatBuffers -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/CuriousContraptions.FlatBuffers/bin/Debug/net10.0/CuriousContraptions.FlatBuffers.dll
++  TraceAllocations -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/TraceAllocations/bin/Debug/net10.0/TraceAllocations.dll
++  WorkerAotGuard -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/WorkerAotGuard/bin/Debug/net10.0/WorkerAotGuard.dll
++  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/CuriousContraptions.Abstractions/bin/Debug/net10.0/CuriousContraptions.Abstractions.dll
++  Preview -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/Preview/bin/Debug/net10.0/Preview.dll
++  LifecycleContract -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/LifecycleContract/bin/Debug/net10.0/LifecycleContract.dll
++  CuriousContraptions.Abstractions.Signal -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/CuriousContraptions.Abstractions.Signal/bin/Debug/net10.0/CuriousContraptions.Abstractions.Signal.dll
++  WorkerAotGuard.Tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/WorkerAotGuard.Tests/bin/Debug/net10.0/WorkerAotGuard.Tests.dll
++  Ownership -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/Ownership/bin/Debug/net10.0/Ownership.dll
++  CuriousContraptions.Animation -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/CuriousContraptions.Animation/bin/Debug/net10.0/CuriousContraptions.Animation.dll
++  CuriousContraptions.Abstractions.Mechanical -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/CuriousContraptions.Abstractions.Mechanical/bin/Debug/net10.0/CuriousContraptions.Abstractions.Mechanical.dll
++  WireContract -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/WireContract/bin/Debug/net10.0/WireContract.dll
++  CuriousContraptions.Abstractions.Fluid -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/CuriousContraptions.Abstractions.Fluid/bin/Debug/net10.0/CuriousContraptions.Abstractions.Fluid.dll
++  CuriousContraptions.Abstractions.Electrical -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/CuriousContraptions.Abstractions.Electrical/bin/Debug/net10.0/CuriousContraptions.Abstractions.Electrical.dll
++  Springboard -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/elements/Springboard/bin/Debug/net10.0/Springboard.dll
++  Funnel -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/elements/Funnel/bin/Debug/net10.0/Funnel.dll
++  Ball -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/elements/Ball/bin/Debug/net10.0/Ball.dll
++  PipeBend90 -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/elements/PipeBend90/bin/Debug/net10.0/PipeBend90.dll
++  Wall -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/elements/Wall/bin/Debug/net10.0/Wall.dll
++  Ramp -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/elements/Ramp/bin/Debug/net10.0/Ramp.dll
++  BallDetector -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/elements/BallDetector/bin/Debug/net10.0/BallDetector.dll
++  Receiver -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/elements/Receiver/bin/Debug/net10.0/Receiver.dll
++  Domino -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/elements/Domino/bin/Debug/net10.0/Domino.dll
++  BowlingBall -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/elements/BowlingBall/bin/Debug/net10.0/BowlingBall.dll
++  Pipe -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/elements/Pipe/bin/Debug/net10.0/Pipe.dll
++  SystemClock -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/elements/SystemClock/bin/Debug/net10.0/SystemClock.dll
++  ImpactSwitch -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/elements/ImpactSwitch/bin/Debug/net10.0/ImpactSwitch.dll
++  SignalLamp -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/elements/SignalLamp/bin/Debug/net10.0/SignalLamp.dll
++  ElectricalNor -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/elements/ElectricalNor/bin/Debug/net10.0/ElectricalNor.dll
++  PoweredGate -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/elements/PoweredGate/bin/Debug/net10.0/PoweredGate.dll
++  PressurePlate -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/elements/PressurePlate/bin/Debug/net10.0/PressurePlate.dll
++  ElectricalXor -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/elements/ElectricalXor/bin/Debug/net10.0/ElectricalXor.dll
++  Battery -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/elements/Battery/bin/Debug/net10.0/Battery.dll
++  ElectricalNand -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/elements/ElectricalNand/bin/Debug/net10.0/ElectricalNand.dll
++  Counter -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/elements/Counter/bin/Debug/net10.0/Counter.dll
++  ElectricalOr -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/elements/ElectricalOr/bin/Debug/net10.0/ElectricalOr.dll
++  Bumper -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/elements/Bumper/bin/Debug/net10.0/Bumper.dll
++  BothGate -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/elements/BothGate/bin/Debug/net10.0/BothGate.dll
++  StateLatch -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/elements/StateLatch/bin/Debug/net10.0/StateLatch.dll
++  HoldTimer -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/elements/HoldTimer/bin/Debug/net10.0/HoldTimer.dll
++  E2eRunner -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/E2eRunner/bin/Debug/net10.0/E2eRunner.dll
++  PipeBend45 -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/elements/PipeBend45/bin/Debug/net10.0/PipeBend45.dll
++  Coverage -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/Coverage/bin/Debug/net10.0/Coverage.dll
++  DelayBox -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/elements/DelayBox/bin/Debug/net10.0/DelayBox.dll
++  CuriousContraptions.Bundle -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/CuriousContraptions.Bundle/bin/Debug/net10.0/CuriousContraptions.Bundle.dll
++  Coverage.Tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/Coverage.Tests/bin/Debug/net10.0/Coverage.Tests.dll
++  E2eRunner.Tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/E2eRunner.Tests/bin/Debug/net10.0/E2eRunner.Tests.dll
++  CuriousContraptions -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/.godot/mono/temp/bin/Debug/CuriousContraptions.dll
++  CuriousContraptions.2dog -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/CuriousContraptions.2dog/bin/Debug/net10.0/CuriousContraptions.2dog.dll
++  Godot Engine (2dog) v4.7.2.stable.mono.2dog.161236340 (2026-09-24 19:51:42 UTC) - https://2dog.dev
++  
++  [   0% ] [90m[1mfirst_scan_filesystem[22m | Started Project initialization (5 steps)[39m[0m
++  [   0% ] [90m[1mfirst_scan_filesystem[22m | Scanning file structure...[39m[0m
++  [  16% ] [90m[1mfirst_scan_filesystem[22m | Loading global class names...[39m[0m
++  [  33% ] [90m[1mfirst_scan_filesystem[22m | Verifying GDExtensions...[39m[0m
++  [  50% ] [90m[1mfirst_scan_filesystem[22m | Creating autoload scripts...[39m[0m
++  [  66% ] [90m[1mfirst_scan_filesystem[22m | Initializing plugins...[39m[0m
++  [  83% ] [90m[1mfirst_scan_filesystem[22m | Starting file scan...[39m[0m
++  [92m[ DONE ][39m [1mfirst_scan_filesystem[22m
++  [0m
++  [   0% ] [90m[1mupdate_scripts_classes[22m | Started Registering global classes... (33 steps)[39m[0m
++  [   0% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
++  [   2% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
++  [   5% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
++  [   8% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
++  [  11% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
++  [  14% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
++  [  17% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
++  [  20% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
++  [  23% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
++  [  26% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
++  [  29% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
++  [  32% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
++  [  35% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
++  [  38% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
++  [  41% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
++  [  44% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
++  [  47% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
++  [  50% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
++  [  52% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
++  [  55% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
++  [  58% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
++  [  61% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
++  [  64% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
++  [  67% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
++  [  70% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
++  [  73% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
++  [  76% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
++  [  79% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
++  [  82% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
++  [  85% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
++  [  88% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
++  [  91% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
++  [  94% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
++  [92m[ DONE ][39m [1mupdate_scripts_classes[22m
++  [0m
++  [   0% ] [90m[1m_update_scan_actions[22m | Started Scanning actions... (22 steps)[39m[0m
++  [   0% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
++  [   4% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
++  [   8% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
++  [  13% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
++  [  17% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
++  [  21% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
++  [  26% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
++  [  30% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
++  [  34% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
++  [  39% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
++  [  43% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
++  [  47% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
++  [  52% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
++  [  56% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
++  [  60% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
++  [  65% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
++  [  69% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
++  [  73% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
++  [  78% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
++  [  82% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
++  [  86% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
++  [  91% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
++  [92m[ DONE ][39m [1m_update_scan_actions[22m
++  [0m
++  [   0% ] [90m[1mloading_editor_layout[22m | Started Loading editor (5 steps)[39m[0m
++  [   0% ] [90m[1mloading_editor_layout[22m | Loading editor layout...[39m[0m
++  [  16% ] [90m[1mloading_editor_layout[22m | Loading docks...[39m[0m
++  [92m[ DONE ][39m [1mloading_editor_layout[22m
++  [0m
++  TwoDog: Imported Godot project /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b
++  BundleElements -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/BundleElements/bin/Debug/net10.0/BundleElements.dll
++  Element bundle: /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/BundleElements/bin/Debug/net10.0/elements.bundle.json (28 elements)
++  Element bundle: /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/elements/elements.bundle.json (28 elements)
++  CuriousContraptions.Animation.Worker -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/CuriousContraptions.Animation.Worker/bin/Debug/net10.0/browser-wasm/CuriousContraptions.Animation.Worker.dll
++  CuriousContraptions.Simulation -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/CuriousContraptions.Simulation/bin/Debug/net10.0/browser-wasm/CuriousContraptions.Simulation.dll
++  BundleElements.Tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/BundleElements.Tests/bin/Debug/net10.0/BundleElements.Tests.dll
++  CuriousContraptions.tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll
++
++Build succeeded.
++    0 Warning(s)
++    0 Error(s)
++
++Time Elapsed 00:00:20.89
+diff --git a/_bmad-output/implementation-artifacts/evidence-9a-23-25b/main-green-merge/diff-check.txt b/_bmad-output/implementation-artifacts/evidence-9a-23-25b/main-green-merge/diff-check.txt
+new file mode 100644
+index 00000000..08648b40
+--- /dev/null
++++ b/_bmad-output/implementation-artifacts/evidence-9a-23-25b/main-green-merge/diff-check.txt
+@@ -0,0 +1,2 @@
++worktree rc=0
++index rc=0
+diff --git a/_bmad-output/implementation-artifacts/evidence-9a-23-25b/main-green-merge/node-harness.log b/_bmad-output/implementation-artifacts/evidence-9a-23-25b/main-green-merge/node-harness.log
+new file mode 100644
+index 00000000..0c78f86f
+--- /dev/null
++++ b/_bmad-output/implementation-artifacts/evidence-9a-23-25b/main-green-merge/node-harness.log
+@@ -0,0 +1,143 @@
++✔ a served Animation probe reaches the host (control) (23.444042ms)
++✔ a disposed Animation worker holds no clock ring and refuses to probe it (0.954083ms)
++✔ a clock reply landing after the Animation worker was disposed never reaches the host (22.057875ms)
++✔ each Service turn first delivers the new records of the installed epoch, once (23.5695ms)
++✔ a ring older than the installed epoch is ignored: no delivery, no foreign-epoch fault, and the turn still services (23.015667ms)
++✔ owned master-port accepts exactly one scheduleControl payload (21.765292ms)
++✔ owned master-port accepts exactly one committedRead payload (22.189292ms)
++✔ mixed or unknown master-port envelope calls neither managed entry (22.8435ms)
++✔ mixed or unknown master-port envelope calls neither managed entry (22.83825ms)
++✔ mixed or unknown master-port envelope calls neither managed entry (22.985875ms)
++✔ mixed or unknown master-port envelope calls neither managed entry (20.95075ms)
++{"passed":true,"targets":40,"controls":["unboundedTargets","heldReceipt","latestReplacement","orderedDrain","renamedControl","disposedLateOutput"]}
++✔ every admitted target publishes its latest sample in order, holding one receipt, and a disposed worker publishes nothing (2.677333ms)
++✔ normal publication activates exactly one service and retains startup qualification (3.372834ms)
++✔ a master peer whose leading padding holds the retired clock wire version 4 is refused (0.612125ms)
++✔ a master peer whose leading padding holds a non-zero high padding byte is refused (0.392208ms)
++✔ delayed managed publication has no callback until explicit activation (0.440208ms)
++✔ default and missing IDs reject without scheduling or changing the ready owner (0.442416ms)
++✔ pre-ready activation rejects atomically and subsequent legitimate activation succeeds (0.402584ms)
++✔ duplicate activation preserves the one original timer and owner state (0.392208ms)
++✔ startup timeout before worker readiness rejects creation and activation (0.369083ms)
++✔ startup timeout after JS return remains anchored to both runtime readiness (0.402125ms)
++✔ worker failure rejects activation without invoking managed service (0.447459ms)
++✔ disposal before managed publication prevents later activation (0.347208ms)
++✔ disposal after activation makes a captured late callback inert (0.335209ms)
++✔ failure after activation makes a captured late callback inert (0.330417ms)
++✔ a failed client detaches its clock ring (0.298458ms)
++✔ a clock reply landing after the client failed is never delivered (3.2305ms)
++✔ a clock reply landing after disposal is never delivered (0.898958ms)
++✔ a clock reply missing beyond 1000ms never faults the session and the service keeps probing (0.616458ms)
++✔ a Simulation heartbeat silent for 1000ms of running service faults the session as SimulationUnresponsive (2.394875ms)
++✔ a Browser that was itself blocked never mistakes the Simulation for hung (0.853833ms)
++✔ both runtimes must be ready before the one qualification deadline (0,1) (0.375292ms)
++✔ both runtimes must be ready before the one qualification deadline (1,0) (0.289917ms)
++✔ duplicate runtime readiness rejects worker 0 (0.287208ms)
++✔ early ready rejects worker 0 (0.304333ms)
++✔ duplicate runtime readiness rejects worker 1 (0.265959ms)
++✔ early ready rejects worker 1 (0.246ms)
++✔ early Animation qualification rejects before bootstrap (0.275833ms)
++✔ duplicate authoritative Animation peer rejects without a second transfer (0.301042ms)
++✔ disposal during asset loading prevents late readiness from rearming (0.297458ms)
++✔ Animation constructor failure closes the already owned Simulation worker (0.313ms)
++✔ premature Animation output fails without delivering to the managed consumer (0.272041ms)
++✔ delayed valid ACK keeps Backpressure until managed validation completes, and posts no stall flag (0.447166ms)
++✔ a command older than two seconds is TimedOut for the player, still without a stall flag (0.340958ms)
++✔ completing an older ACK cannot clear another aged request or exceed two leases (0.382834ms)
++✔ taken but invalid ACK cannot release capacity or report healthy without completion (0.401708ms)
++✔ unmatched or duplicate ACK faults the session (false) (0.337583ms)
++✔ unmatched or duplicate ACK faults the session (true) (0.308084ms)
++✔ the deleted worker channel memoryResult is an unknown envelope that faults the session (0.29575ms)
++✔ the deleted worker channel candidateTimedOut is an unknown envelope that faults the session (0.281709ms)
++✔ two animation owners send sequential controls only after managed ACK delivery returns (0.362958ms)
++✔ nanoseconds is the exact round-half-even port of WorkshopNativeClock.FromMilliseconds (0.614375ms)
++✔ a valid probe is answered with itself followed by the two master stamps and their derivation epoch (0.385458ms)
++✔ the master rejects every probe, stamp or epoch WorkshopClockWire.EncodeReply rejects (0.174125ms)
++✔ a blocking master thread answers each requester through its own slot; a foreign probe is rejected explicitly (8.536ms)
++✔ a drifted master is re-derived: the next exchange and every reply carry the new correction and epoch (7.074417ms)
++✔ a slew installs the new correction under the same epoch, so requester mappings keep their calibration (7.22775ms)
++✔ the Simulation heartbeat advances only when the Simulation beats, and a ring of another layout is refused (0.179834ms)
++✔ a newer probe of the same requester supersedes an unconsumed answer, which resolves to null (0.355459ms)
++✔ a probe the master has not served is never overwritten: the next probe resolves null and the session continues (0.247375ms)
++✔ an unanswered derivation exchange returns null, a check while it is pending never blocks, and its late answer is consumed (15.140375ms)
++✔ a reply wait ends after the probe lifetime when the master never answers (252.039917ms)
++✔ startup qualification waits out a stalled master instead of burning its attempt budget (47.382083ms)
++✔ a close finding fails a test that otherwise passed (112.314125ms)
++✔ a close finding never replaces the test's own failure, and is still reported (114.413459ms)
++✔ several findings of one test are aggregated, not dropped (114.074ms)
++✔ a recorded finding with no test to fail still fails the file (catch-all) (112.780208ms)
++✔ a finding raised in a suite's after hook is reported against that suite (115.802833ms)
++✔ closeAfterSuite with no findings passes (control) (114.501125ms)
++✔ no Chrome suite closes its driver with close() in a suite after hook (2.373583ms)
++✔ a clean close passes (control), and a finding is raised once, not again for later tests (231.68325ms)
++✔ a declared session fault that occurred is not a finding (0.150875ms)
++✔ a declared session fault that did not occur is a finding (0.14775ms)
++✔ a different fault than the declared one is a finding, and the declared one is still required (0.086875ms)
++✔ a declared fault does not excuse another fault that also occurred (0.063334ms)
++✔ an undeclared debt fault is a finding (0.051667ms)
++✔ unknown session faults are rejected (0.172292ms)
++✔ encoded trace bytes containing NaN are not diagnostic text (0.4545ms)
++✔ a typed base64 envelope never fails on a NaN substring of its payload (Murdoch-2 F1) (0.207667ms)
++✔ no Chrome suite checks a raw NaN substring of console text; each goes through reportsNaN (whole class of F1) (6.832334ms)
++✔ actual errors survive encoded-looking messages and ordinary diagnostics (0.143667ms)
++✔ concurrent stress: over a million records through the shipped writer, no reader ever receives a torn record (1112.699291ms)
++✔ a reader that keeps pace receives every record exactly once and skips none (1.09175ms)
++✔ a parked reader lapped by a capacity and more reports exactly the skipped records, then reads the newest intact (0.167292ms)
++✔ a slot reused while it is copied is skipped, never delivered (0.065ms)
++✔ epochs: a newer ring is held unread until it is installed, an older one is ignored, and a new ring restarts at sequence 1 (0.243375ms)
++✔ a ring older than the installed epoch is ignored: nothing is delivered and the cursor does not move (0.084833ms)
++✔ the ring memory is reachable only through its atomic API: no raw buffer, a private cursor ring, and postTo posts the adoptable ring (0.068ms)
++✔ a delivery carries the epoch and skipped count before the records (0.043792ms)
++✔ each new ring is posted to the browser and to the Animation worker on its master port, the same buffer (0.845041ms)
++✔ the first publication of an epoch allocates and posts its ring, and writes each record at its sequence slot (0.16175ms)
++✔ a new epoch or capacity replaces the ring; an empty publication (no admitted world) changes nothing (0.103083ms)
++✔ the header carries the producer's lapped count, and a publication of more records than its ring is refused (0.217833ms)
++✔ disposal drops the ring, so the next session allocates a fresh one (0.089708ms)
++✔ established isolation permits delayed runtime loading and records actual usable time (1.831167ms)
++✔ incomplete isolation handshake still fails at the existing deadline (0.514917ms)
++✔ controller replacement retires booting ownership (0.496208ms)
++✔ controller replacement retires qualified ownership (0.37075ms)
++✔ at most one isolation reload remains permitted (1.626584ms)
++✔ manual navigation after slow runtime loading starts a fresh isolation attempt (0.692334ms)
++✔ another deploy's changed isolation worker waiting behind the controller is refused (0.328625ms)
++✔ a controller answering the handshake in another shape (the retired numbered reply) is refused (0.305667ms)
++✔ the isolation worker answers only the structural policy request from an eligible client (0.684416ms)
++{"captureMode":1,"passed":true,"controls":["preparationClockOverlap","noEarlyWorld","pending","receiptsToLedger","queuedTerminal","activeCommand","matchingReceipt","outputFailureLogged","ordinaryReadNoExport","acknowledgementOnlyReset","retiredEnvelopesRejected","dispose"]}
++✔ capture mode 1: preparation, receipts, queued terminal, output failure, retired envelopes and disposal (105.442375ms)
++{"captureMode":2,"passed":true,"controls":["preparationClockOverlap","noEarlyWorld","pending","receiptsToLedger","queuedTerminal","activeCommand","matchingReceipt","outputFailureLogged","ordinaryReadNoExport","acknowledgementOnlyReset","retiredEnvelopesRejected","dispose"]}
++✔ capture mode 2: preparation, receipts, queued terminal, output failure, retired envelopes and disposal (103.177125ms)
++{"slowMasterMissesAreCounted":true}
++{"refusedReceiptIsAFailure":true}
++{"memoryQueryOnCommandTransport":true}
++✔ a slow clock master costs counted missed checks, never a failure, and the session continues (302.088291ms)
++✔ a receipt the managed ledger refuses is a failure and retires the session (1.226ms)
++✔ the memory query travels the command transport and a third outstanding command is refused (0.930542ms)
++{"startupControl":1,"passed":true}
++✔ startup control 1: a rejected preparation (1.66525ms)
++{"startupControl":2,"passed":true}
++{"commandsReachTheManagedDecoder":true,"dispatched":[0,7,72,70000],"rejected":["array"]}
++{"schedulerTurnFailureEnvelope":true}
++{"disposalCancelsSchedulerTurns":true}
++{"mixedEnvelopesRejectedAtomically":true}
++✔ startup control 2: a rejected preparation (2.656583ms)
++✔ every byte buffer reaches the one managed decoder (0.883292ms)
++✔ a scheduler turn that cannot resume is a failure envelope (0.78375ms)
++✔ disposal cancels the timed and the queued scheduler turn (0.706958ms)
++✔ a mixed envelope is rejected atomically (0.8925ms)
++✔ actual pose reader preserves first secondary and full-width IDs without owner alias (0.775292ms)
++✔ actual latest reader ignores in-progress slot and uses new aligned stride (0.125333ms)
++✔ a ring that is not a whole number of slots and body records is refused (0.189584ms)
++✔ a grown ring of any capacity reads every body (no fixed body capacity) (0.083958ms)
++✔ actual worker writer publishes globally newest frames across wraps and shrinking populations (3.253167ms)
++✔ request success cannot complete Save; transaction abort preserves prior exact bytes (1.972ms)
++✔ completed Save owns input bytes and Load returns an exact independent roundtrip (0.50625ms)
++✔ missing save is empty and incompatible width rejects without replacement (0.58425ms)
++ℹ tests 122
++ℹ suites 0
++ℹ pass 122
++ℹ fail 0
++ℹ cancelled 0
++ℹ skipped 0
++ℹ todo 0
++ℹ duration_ms 1187.65575
++rc=0
+diff --git a/_bmad-output/implementation-artifacts/evidence-9a-23-25b/main-green-merge/test.log b/_bmad-output/implementation-artifacts/evidence-9a-23-25b/main-green-merge/test.log
+new file mode 100644
+index 00000000..1190caac
+--- /dev/null
++++ b/_bmad-output/implementation-artifacts/evidence-9a-23-25b/main-green-merge/test.log
+@@ -0,0 +1,21 @@
++Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/WorkerAotGuard.Tests/bin/Debug/net10.0/WorkerAotGuard.Tests.dll (.NETCoreApp,Version=v10.0)
++Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/Coverage.Tests/bin/Debug/net10.0/Coverage.Tests.dll (.NETCoreApp,Version=v10.0)
++Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/E2eRunner.Tests/bin/Debug/net10.0/E2eRunner.Tests.dll (.NETCoreApp,Version=v10.0)
++A total of 1 test files matched the specified pattern.
++Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
++A total of 1 test files matched the specified pattern.
++A total of 1 test files matched the specified pattern.
++Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/BundleElements.Tests/bin/Debug/net10.0/BundleElements.Tests.dll (.NETCoreApp,Version=v10.0)
++A total of 1 test files matched the specified pattern.
++A total of 1 test files matched the specified pattern.
++
++Passed!  - Failed:     0, Passed:    17, Skipped:     0, Total:    17, Duration: 40 ms - WorkerAotGuard.Tests.dll (net10.0)
++
++Passed!  - Failed:     0, Passed:    77, Skipped:     0, Total:    77, Duration: 695 ms - Coverage.Tests.dll (net10.0)
++
++Passed!  - Failed:     0, Passed:   191, Skipped:     0, Total:   191, Duration: 413 ms - BundleElements.Tests.dll (net10.0)
++
++Passed!  - Failed:     0, Passed:   208, Skipped:     0, Total:   208, Duration: 23 s - E2eRunner.Tests.dll (net10.0)
++
++Passed!  - Failed:     0, Passed:  2950, Skipped:     0, Total:  2950, Duration: 8 m 13 s - CuriousContraptions.tests.dll (net10.0)
++rc=0
+diff --git a/tools/workshop-client-lifecycle.test.mjs b/tools/workshop-client-lifecycle.test.mjs
+remerge CONFLICT (content): Merge conflict in tools/workshop-client-lifecycle.test.mjs
+index 5fed2cdf..2ff1698e 100644
+--- a/tools/workshop-client-lifecycle.test.mjs
++++ b/tools/workshop-client-lifecycle.test.mjs
+@@ -31,14 +31,9 @@ async function clientHarness(loadRuntimes = true, failAnimationConstructor = fal
+     const context = {
+         Uint8Array, Float64Array, DataView, URL, Map, Error, Array, Promise, Math,
+         SharedArrayBuffer, BigInt64Array, Float32Array, Atomics,
+-<<<<<<< 794f47b2 (Keep one bounded event ring stress smoke test)
+-        createClockRing: clockRing.createClockRing, attachClockRing: clockRing.attachClockRing, requestReply: clockRing.requestReply, ClockRole: clockRing.ClockRole,
+-        heartbeat: clockRing.heartbeat, EventRingCursor, eventDelivery,
+-=======
+         createClockRing: clockRing.createClockRing, attachClockRing: clockRing.attachClockRing, ClockRole: clockRing.ClockRole,
+         requestReply: (...request) => { const wait = clockRing.requestReply(...request); replyWaits.push(wait); return wait; },
+-        heartbeat: clockRing.heartbeat,
+->>>>>>> 9536e2ff (Merge CI harness determinism fix)
++        heartbeat: clockRing.heartbeat, EventRingCursor, eventDelivery,
+         document: { baseURI: 'http://127.0.0.1:8060/', hidden: false },
+         nativeProfile: 2, nativeNow: () => milliseconds,
+         nativeClockEvidence: () => Array.from(profile), admitNativeClock: async () => {},

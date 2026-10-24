@@ -5,20 +5,19 @@ namespace CuriousContraptions.Tests;
 
 public sealed class WorkshopReadTests
 {
+    // Story 9A.23 D9: no read is reliable. A commit that credits a store or debits a source carries a balance transfer, which gates only
+    // the CCGPU_RETAINED observation line; a hit or an enable edge is an event ring record (Impact, ElectricalPowered), not a read.
     [Fact]
-    public void PerCommitEnergyAndEnableChangesCannotBeCoalesced()
+    public void OnlyACommitThatMovesEnergyCarriesABalanceTransfer()
     {
         var baseline = new WorkshopRead(new(1), new(1), default, new(1),
-            ContactWorks: new([new(new(2), new(3), 0, new(20f))], []),
+            ContactWorks: new([new(new(2), new(3), 0, new(20f))]),
             Electrical: new([new(new(4), new(5), new(100f), default, ElectricalEnable.Enabled)]));
-        Assert.False(baseline.RequiresReliableRead(baseline));
-        var credit = baseline with { ContactWorks = new([new(new(2), new(3), 0, new(21f), new(1f))], []) };
-        Assert.True(credit.RequiresReliableRead(baseline));
-        var debit = baseline with { Electrical = new([new(new(4), new(5), new(99f), new(1f), ElectricalEnable.Enabled)]) };
-        Assert.True(debit.RequiresReliableRead(baseline));
-        var disabled = baseline with { Electrical = new([new(new(4), new(5), new(100f), default, ElectricalEnable.Disabled)]) };
-        Assert.True(disabled.RequiresReliableRead(baseline));
-        Assert.False(disabled.RequiresReliableRead(disabled));
+        Assert.False(baseline.CarriesBalanceTransfer());
+        Assert.True((baseline with { ContactWorks = new([new(new(2), new(3), 0, new(21f), new(1f))]) }).CarriesBalanceTransfer());
+        Assert.True((baseline with { Electrical = new([new(new(4), new(5), new(99f), new(1f), ElectricalEnable.Enabled)]) }).CarriesBalanceTransfer());
+        Assert.False((baseline with { ContactWorks = new([new(new(2), new(3), 1, new(20f))]) }).CarriesBalanceTransfer()); // a passive hit
+        Assert.False((baseline with { Electrical = new([new(new(4), new(5), new(100f), default, ElectricalEnable.Disabled)]) }).CarriesBalanceTransfer());
     }
 
     [Theory]
@@ -189,8 +188,9 @@ public sealed class WorkshopReadTests
     [Theory]
     [InlineData(ContactWorkEffect.Paid)]
     [InlineData(ContactWorkEffect.Passive)]
-    public void CurrentWireContactOccurrenceMustOwnColliderAndInclusiveThreshold(ContactWorkEffect effect)
+    public void ADevicePrivateContactOccurrenceMustOwnColliderAndInclusiveThreshold(ContactWorkEffect effect)
     {
+        // Story 9A.23 D9: the occurrence rows are the device's ledger, never on the read or the wire; the scene binds them there.
         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(
             WorkshopInput.Generic(PartId.Basketball,new(1),0,6,0,0,0,0,1),
             WorkshopInput.Generic(PartId.PinballBumper,new(2),0,4,0,0,0,0,1)));
@@ -200,22 +200,52 @@ public sealed class WorkshopReadTests
         var owned = new ColliderSlot(checked((ushort)Array.FindIndex(colliders, c => c.Body == declaration.Owner)));
         var foreign = new ColliderSlot(checked((ushort)Array.FindIndex(colliders, c => c.Body == new GpuBodyId(1))));
         var body = new CanonicalBody(new(1),2,1,default,default,default);
-        var motion = PhysicsMotionRead.Decode(MotionBytes(body),Bodies(body),new(1));
         var store = new ContactWorkRead(declaration.Id,declaration.Owner,1,new(20));
         var hit = new ContactWorkOccurrence(new(0),owned,new(1),1,1,(Half)0,
             declaration.Threshold,new(effect == ContactWorkEffect.Paid ? 12 : 0),effect);
-        WorkshopResponse Wire(ContactWorkOccurrence occurrence) => WorkshopWireFlatBuffers.DecodeResponse(WorkshopWireFlatBuffers.EncodeResponse(
-            Response(MotionRead(body,motion) with { ContactWorks=new(new[] {store}, new[] {occurrence}) })));
-        Wire(hit).Read.ContactWorks.ValidateScene(scene, Wire(hit).Read.Bodies);
-        var initial = new PhysicsContactWorkRead(
+        ContactWorkLedger Ledger(ContactWorkOccurrence occurrence) => new([store], [occurrence]);
+        Ledger(hit).ValidateScene(scene, Bodies(body));
+        var initial = new ContactWorkLedger(
             new[] { new ContactWorkRead(declaration.Id,declaration.Owner,0,declaration.InitialEnergy) },
             new[] { new ContactWorkOccurrence(new(0),default,new(1),0,0,default,default,default,ContactWorkEffect.Passive) });
         initial.ValidateScene(scene, Bodies(body));
+        initial.ValidateAdmission();
+        Assert.Throws<ArgumentException>(() => Ledger(hit).ValidateAdmission()); // an admitted world has hit nothing
         foreach (var invalid in new[] {
             hit with { Collider=foreign },
             hit with { Collider=new(ushort.MaxValue) },
             hit with { ApproachSpeed=new(float.BitDecrement(declaration.Threshold.Value)) } })
-            Assert.Throws<ArgumentException>(()=>Wire(invalid).Read.ContactWorks.ValidateScene(scene, Wire(invalid).Read.Bodies));
+            Assert.Throws<ArgumentException>(()=>Ledger(invalid).ValidateScene(scene, Bodies(body)));
+        // The read carries the stores alone, and they cross the wire unchanged.
+        var read = MotionRead(body, PhysicsMotionRead.Decode(MotionBytes(body),Bodies(body),new(1))) with { ContactWorks = Ledger(hit).Stores };
+        Assert.True(read.ContactWorks.HasSameBits(WorkshopWireFlatBuffers.DecodeResponse(WorkshopWireFlatBuffers.EncodeResponse(Response(read))).Read.ContactWorks));
+    }
+
+    // Story 9A.23 D9: the reservoir accounting lives on the device ledger (the client copy is deleted). Every count increment is exactly
+    // its new rows, each later than the row it replaces, and the store moves by exactly their debits; anything else is refused.
+    [Fact]
+    public void TheDeviceLedgerAccountsForEveryHitAndRefusesAMalformedAdvance()
+    {
+        var target = new GpuBodyId(1);
+        ContactWorkLedger Ledger(uint count, float remaining, ContactWorkOccurrence row, float supplied = 0f) =>
+            new([new ContactWorkRead(new(9), new(8), count, new(remaining), new(supplied))], [row]);
+        var clear = new ContactWorkOccurrence(new(0), default, target, 0, 0, (Half)0, default, default, ContactWorkEffect.Passive);
+        var hit = new ContactWorkOccurrence(new(0), new(3), target, 1, 16, (Half)0, new(4f), new(12f), ContactWorkEffect.Paid);
+        var before = Ledger(0, 32f, clear);
+        var after = Ledger(1, 20f, hit);
+        after.ValidateAdvance(before);
+        Ledger(1, 20.5f, hit, supplied: .5f).ValidateAdvance(before); // a recharge in the same commit is its own transfer
+        Ledger(1, 20f, hit).ValidateAdvance(after);                     // a repeated commit with no new hit
+        foreach (var (name, invalid, previous) in new (string, ContactWorkLedger, ContactWorkLedger)[] {
+            ("the store moved by other than the debit", Ledger(1, 21f, hit), before),
+            ("a counted hit has no row", Ledger(2, 20f, hit), before),
+            ("a hit reversed in time", Ledger(2, 8f, hit with { Sequence = 2, EventOrdinal = 10 }), after),
+            ("an unchanged row mutated", Ledger(1, 20f, hit with { Debit = new(11f) }), after),
+            ("the store moved with no hit", Ledger(0, 31f, clear), before) })
+            Assert.True(Assert.Throws<ArgumentException>(() => invalid.ValidateAdvance(previous)) is not null, name);
+        // A paid row without a debit, or a passive row with one, is refused where the ledger is read.
+        Assert.Throws<ArgumentException>(() => Ledger(1, 32f, hit with { Debit = default }));
+        Assert.Throws<ArgumentException>(() => Ledger(1, 20f, hit with { Effect = ContactWorkEffect.Passive }));
     }
 
     private static WorkshopRead MotionRead(CanonicalBody body, PhysicsMotionRead motion) =>

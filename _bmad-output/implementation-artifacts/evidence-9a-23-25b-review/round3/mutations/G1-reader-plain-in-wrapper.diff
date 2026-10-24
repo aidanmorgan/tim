@@ -1,0 +1,13 @@
+diff --git a/CuriousContraptions.web/wwwroot/event-ring-cursor.js b/CuriousContraptions.web/wwwroot/event-ring-cursor.js
+index 18b4fe39..9d2b3a9c 100644
+--- a/CuriousContraptions.web/wwwroot/event-ring-cursor.js
++++ b/CuriousContraptions.web/wwwroot/event-ring-cursor.js
+@@ -66,7 +66,7 @@ export class EventRingMemory {
+     loadSequence(sequence) { return Atomics.load(this.#words, this.#slot(sequence)); }
+     publishSequence(sequence, value) { Atomics.store(this.#words, this.#slot(sequence), value); }
+     // Payload word <word> (1 to 7; word 0 is the sequence) of the slot that holds record <sequence>.
+-    loadPayload(sequence, word) { return Atomics.load(this.#words, this.#slot(sequence) + EventRingMemory.#payload(word)); }
++    loadPayload(sequence, word) { return this.#words[this.#slot(sequence) + EventRingMemory.#payload(word)]; }
+     storePayload(sequence, word, value) { Atomics.store(this.#words, this.#slot(sequence) + EventRingMemory.#payload(word), value); }
+ 
+     #slot(sequence) { return EVENT_HEADER_BYTES / 8 + Number((sequence - 1n) & BigInt(this.#capacity - 1)) * (EVENT_SLOT_BYTES / 8); }

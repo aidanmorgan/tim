@@ -1,0 +1,4 @@
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-ci-harness-determinism/tools/E2eRunner.Tests/bin/Debug/net10.0/E2eRunner.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:   191, Skipped:     0, Total:   191, Duration: 11 s - E2eRunner.Tests.dll (net10.0)

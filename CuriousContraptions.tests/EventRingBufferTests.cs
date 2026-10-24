@@ -116,7 +116,7 @@ public sealed class EventRingBufferTests
     public void ASlotBeingWrittenIsSkippedAndCountedNeverRead()
     {
         var ring = EventRingBuffer.Append(null, Publication(3, 4, 0, Record(1), Record(2), Record(3)));
-        BinaryPrimitives.WriteUInt64LittleEndian(ring.AsSpan(EventRingBuffer.HeaderBytes + EventRingBuffer.SlotBytes), 0);
+        ring.PublishSequence(2, 0); // the writer's first step on record 2's slot: its sequence word is 0 while the slot is written
         var consumer = new EventRingConsumer();
         var read = new List<ulong>();
         while (consumer.TryRead(ring, SimulationDomain.None, out var record)) read.Add(record.Sequence);

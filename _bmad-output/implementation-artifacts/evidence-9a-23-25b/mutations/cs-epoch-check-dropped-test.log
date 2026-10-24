@@ -1,0 +1,13 @@
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:02.77]     CuriousContraptions.Tests.EventRingConsumerTests.ADeliveryOfAnotherEpochOrARecordAlreadyAppliedIsRefused [FAIL]
+  Failed CuriousContraptions.Tests.EventRingConsumerTests.ADeliveryOfAnotherEpochOrARecordAlreadyAppliedIsRefused [6 ms]
+  Error Message:
+   Assert.Throws() Failure: No exception was thrown
+Expected: typeof(System.ArgumentException)
+  Stack Trace:
+     at CuriousContraptions.Tests.EventRingConsumerTests.ADeliveryOfAnotherEpochOrARecordAlreadyAppliedIsRefused() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/CuriousContraptions.tests/EventRingConsumerTests.cs:line 396
+   at CuriousContraptions.Tests.EventRingConsumerTests.ADeliveryOfAnotherEpochOrARecordAlreadyAppliedIsRefused() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/CuriousContraptions.tests/EventRingConsumerTests.cs:line 404
+--- End of stack trace from previous location ---
+
+Failed!  - Failed:     1, Passed:    29, Skipped:     0, Total:    30, Duration: 1 s - CuriousContraptions.tests.dll (net10.0)

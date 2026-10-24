@@ -1,0 +1,13 @@
+diff --git a/CuriousContraptions.Animation.Worker/wwwroot/worker.js b/CuriousContraptions.Animation.Worker/wwwroot/worker.js
+index e222a36d..b4788c06 100644
+--- a/CuriousContraptions.Animation.Worker/wwwroot/worker.js
++++ b/CuriousContraptions.Animation.Worker/wwwroot/worker.js
+@@ -96,7 +96,7 @@ self.onmessage = event => {
+                     else if (envelope.committedRead instanceof Uint8Array)
+                         host.CommittedRead(envelope.committedRead);
+                     else if (envelope.eventRing instanceof SharedArrayBuffer)
+-                        events.attach(envelope.eventRing);
++                        { events.attach(envelope.eventRing); const { eventRing: shared } = envelope; peek = Atomics.load(new BigInt64Array(shared), 8); } // REVIEWER BYPASS G5
+                     else throw new Error('Unsupported Animation master-port envelope.');
+                 } catch (error) { fail(error); }
+             };

@@ -1,0 +1,55 @@
+== mutant record-applied-twice
+ .../ElementPresentation.cs                         |  17 ++-
+ .../EventRingBuffer.cs                             |  38 ++++++-
+ CuriousContraptions.Bundle/BundleSchema.cs         |   2 +-
+ CuriousContraptions.Bundle/BundleValidator.cs      |  21 +++-
+ CuriousContraptions.Simulation/Program.cs          |  25 ++---
+ .../WorkshopGpuDevice.cs                           |   8 +-
+ CuriousContraptions.Simulation/wwwroot/worker.js   |  47 ++++----
+ .../BallDetector/BallDetectorElementDeclaration.cs |   6 +-
+ elements/Bumper/BumperElementDeclaration.cs        |  10 +-
+ .../ImpactSwitch/ImpactSwitchElementDeclaration.cs |   8 +-
+ elements/Receiver/ReceiverElementDeclaration.cs    |   8 +-
+ engine/MachinePart.cs                              |  21 +---
+ engine/MachineWorld.Gpu.cs                         |   8 --
+ engine/gpu/BrowserWorkshopClient.Schedule.cs       |  29 ++---
+ engine/gpu/BrowserWorkshopClient.Ui.cs             |  24 +++-
+ engine/gpu/BrowserWorkshopClient.cs                |  20 +---
+ engine/gpu/EventRecordProducer.cs                  |   7 +-
+ engine/gpu/IWorkshopClient.cs                      |   2 -
+ engine/gpu/PhysicsContactWorkRead.cs               | 122 +++++++++++++++------
+ engine/gpu/PhysicsGpuAbi.ContactWork.cs            |   5 +-
+ engine/gpu/WorkshopDeclaredPresentation.cs         |  76 ++++++++++++-
+ engine/gpu/WorkshopHint.cs                         |  38 +++----
+ engine/gpu/WorkshopInstances.cs                    |   3 -
+ engine/gpu/WorkshopMessages.cs                     |   2 +-
+ engine/gpu/WorkshopPipe.cs                         |   1 -
+ engine/gpu/WorkshopRead.cs                         |  14 +--
+ engine/gpu/WorkshopSimulation.cs                   |   5 +-
+ engine/gpu/WorkshopTickLoop.cs                     |   5 +-
+ engine/gpu/WorkshopWireFlatBuffers.cs              |  23 +---
+ engine/gpu/WorkshopWireGenerated.cs                | 114 ++++++-------------
+ engine/presentation/AnimationBatch.cs              |  19 ++++
+ 31 files changed, 395 insertions(+), 333 deletions(-)
+-    ActivationPulse, ContactImpulse, CapturePulse,
++    /// <summary>A one-shot cue started by each event ring record of <see cref="PresentationBinding.Event"/> from the owning instance.</summary>
++    Event,
+-/// <summary>A package-owned property writer. Threshold selects count/charge levels; phase selects a timer phase.
+-/// Values and time are f32. One-shot drivers retain their existing relay until the ring-driver cutover.</summary>
++/// <summary>Which records of its kind cue an event binding: any record, or only one whose Magnitude is positive (an Impact that paid
++/// energy, so an unpaid or empty-store hit leaves the cue at rest).</summary>
++public enum PresentationEventMagnitude : byte { Any, Positive }
++/// <summary>A package-owned property writer. Threshold selects count/charge levels; phase selects a timer phase. An
++/// <see cref="PresentationDriver.Event"/> binding names the ring record kind that cues it and which of its records do (Story 9A.25b);
++/// every committed driver names <see cref="SimulationEventKind.None"/> and <see cref="PresentationEventMagnitude.Any"/>. Values and time
++/// are f32.</summary>
+-    PresentationOverlap Overlap, float Threshold, PresentationTimerPhase Phase, float Response = 0f, float? Intermediate = null, PortSocket? Socket = null);
++    PresentationOverlap Overlap, float Threshold, PresentationTimerPhase Phase, float Response = 0f, float? Intermediate = null, PortSocket? Socket = null,
++    SimulationEventKind Event = SimulationEventKind.None, PresentationEventMagnitude EventMagnitude = PresentationEventMagnitude.Any);
+-/// <summary>One consumer's cursor over the event ring (the reference reader; Story 9A.23 builds the workers' own). A new epoch in the
++/// <summary>One consumer's cursor over the event ring (the C# reference reader; the workers' own is the shared <c>EventRingCursor</c> of
++/// <c>event-ring-cursor.js</c>, which reproduces these semantics across threads and is proven equal to it). A new epoch in the
++/// <summary>One read of the shared event ring reader (Story 9A.23, <c>event-ring-cursor.js</c> <c>eventDelivery</c>): the ring's Epoch
++/// u64 at 0, Skipped u64 at 8 (the records this read passed without delivering: lapped by the writer, or reused while copied), then the
+Failed!  - Failed:     2, Passed:    28, Skipped:     0, Total:    30, Duration: 1 s - CuriousContraptions.tests.dll (net10.0)
+CuriousContraptions.Tests.EventRingConsumerTests.ADeliveryOfAnotherEpochOrARecordAlreadyAppliedIsRefused [6 ms];CuriousContraptions.Tests.EventRingConsumerTests.PauseResumeAndStepRetainTheCursorAndTheCuesWithNoDuplicate [26 ms];

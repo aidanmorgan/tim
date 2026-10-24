@@ -16,13 +16,14 @@ public sealed class ContactWorkInstanceTests
     private static WorkshopConstruction Drop(PartId payload, double height, float strength, double z = 0) => Free(
         WorkshopInput.Generic(payload, Ball, 0, height, z, 0, 0, 0, 1), PlacedParts.Bumper(Owner, 0, 3, 0, strength));
 
-    private static IEnumerable<ContactWorkOccurrence> Occurrences(IEnumerable<WorkshopRead> reads)
+    /// <summary>Each new occurrence row of the device-private ledgers (Story 9A.23 D9), once.</summary>
+    private static IEnumerable<ContactWorkOccurrence> Occurrences(IEnumerable<ContactWorkLedger> ledgers)
     {
         var seen = new HashSet<uint>();
-        foreach (var read in reads)
-            for (var i = 0; i < read.ContactWorks.OccurrenceCount; i++)
+        foreach (var ledger in ledgers)
+            for (var i = 0; i < ledger.OccurrenceCount; i++)
             {
-                var occurrence = read.ContactWorks.Occurrence(i);
+                var occurrence = ledger.Occurrence(i);
                 if (occurrence.Sequence != 0 && seen.Add(occurrence.Sequence)) yield return occurrence;
             }
     }
@@ -89,7 +90,9 @@ public sealed class ContactWorkInstanceTests
     {
         var bench = Drop(PartId.Basketball, 4.5, 12.5f);
         var (built, run, reset) = await NoFixedCapacityTests.RunAndReset(bench, 2 * TicksPerSecond);
-        Assert.Contains(run, read => read.ContactWorks.OccurrenceCount > 0 && read.ContactWorks.Occurrence(0).Effect == ContactWorkEffect.Paid);
+        // A paid hit during the run: the store counted it and spent energy (its occurrence row is device-private, Story 9A.23 D9).
+        Assert.Contains(run, read => read.ContactWorks[0].OccurrenceCount > 0 &&
+            read.ContactWorks[0].RemainingEnergy.Value < built.ContactWorks[0].RemainingEnergy.Value);
         NoFixedCapacityTests.AssertSameState(built, reset, "Reset");
         Assert.Equal(built.ContactWorks[0], reset.ContactWorks[0]);
         var saved = new WorkshopSavedConstruction(bench, new(3));
@@ -115,11 +118,11 @@ public sealed class ContactWorkInstanceTests
     [Fact]
     public async Task StrengthEightLaunchesTheBallPaidAtTheTargetSpeedAndTheLedgerCloses()
     {
-        var reads = await WorkshopPhysicsEngineTests.Run(Drop(PartId.Basketball, 4.5, 8f), 2 * TicksPerSecond);
+        var (reads, ledgers) = await WorkshopPhysicsEngineTests.RunWithLedgers(Drop(PartId.Basketball, 4.5, 8f), 2 * TicksPerSecond);
         Assert.Equal(32f, reads[0].ContactWorks[0].RemainingEnergy.Value);
-        var index = reads.FindIndex(read => read.ContactWorks.OccurrenceCount > 0 && read.ContactWorks.Occurrence(0).Sequence == 1);
+        var index = ledgers.FindIndex(ledger => ledger.OccurrenceCount > 0 && ledger.Occurrence(0).Sequence == 1);
         Assert.True(index > 0, "the ball reaches the Bumper");
-        var first = reads[index].ContactWorks.Occurrence(0);
+        var first = ledgers[index].Occurrence(0);
         Assert.Equal(ContactWorkEffect.Paid, first.Effect);
         Assert.Equal(32f, reads[index].ContactWorks[0].RemainingEnergy.Value + first.Debit.Value);
         // The read closes the tick after the event: gravity acts for at most one tick (≤ 9.81/120 m/s) after the 8 m/s launch. The
@@ -133,14 +136,14 @@ public sealed class ContactWorkInstanceTests
     [Fact]
     public async Task APartiallyAffordableBoostEmptiesTheStoreAndALaterContactIsAnOrdinaryUnpaidBounce()
     {
-        var reads = await WorkshopPhysicsEngineTests.Run(Drop(PartId.BowlingBall, 6, 8f), 4 * TicksPerSecond);
-        var occurrences = Occurrences(reads).ToArray();
+        var (reads, ledgers) = await WorkshopPhysicsEngineTests.RunWithLedgers(Drop(PartId.BowlingBall, 6, 8f), 4 * TicksPerSecond);
+        var occurrences = Occurrences(ledgers).ToArray();
         Assert.True(occurrences.Length >= 2, "the ball returns to the empty Bumper");
         Assert.Equal((32f, ContactWorkEffect.Paid), (occurrences[0].Debit.Value, occurrences[0].Effect));
         Assert.All(occurrences.Skip(1), later => Assert.Equal((0f, ContactWorkEffect.Passive), (later.Debit.Value, later.Effect)));
-        var paidAt = reads.FindIndex(read => read.ContactWorks.OccurrenceCount > 0 && read.ContactWorks.Occurrence(0).Sequence == 1);
+        var paidAt = ledgers.FindIndex(ledger => ledger.OccurrenceCount > 0 && ledger.Occurrence(0).Sequence == 1);
         Assert.True(Speed(Body(reads[paidAt], Ball)) < 7.99f, "the heavy ball cannot reach the target");
-        var laterAt = reads.FindIndex(read => read.ContactWorks.OccurrenceCount > 0 && read.ContactWorks.Occurrence(0).Sequence == 2);
+        var laterAt = ledgers.FindIndex(ledger => ledger.OccurrenceCount > 0 && ledger.Occurrence(0).Sequence == 2);
         Assert.Contains(reads.Skip(laterAt).Take(TicksPerSecond / 4), read => Body(read, Ball).Body.Velocity.Y > 0f);
         Assert.Equal(0f, reads[^1].ContactWorks[0].RemainingEnergy.Value);
     }
@@ -148,8 +151,8 @@ public sealed class ContactWorkInstanceTests
     [Fact]
     public async Task StrengthZeroIsAnEmptyStoreWhoseContactsAreUnpaid()
     {
-        var reads = await WorkshopPhysicsEngineTests.Run(Drop(PartId.Basketball, 4.5, 0f), 2 * TicksPerSecond);
-        var occurrences = Occurrences(reads).ToArray();
+        var (reads, ledgers) = await WorkshopPhysicsEngineTests.RunWithLedgers(Drop(PartId.Basketball, 4.5, 0f), 2 * TicksPerSecond);
+        var occurrences = Occurrences(ledgers).ToArray();
         Assert.NotEmpty(occurrences);
         Assert.All(occurrences, occurrence => Assert.Equal((0f, ContactWorkEffect.Passive), (occurrence.Debit.Value, occurrence.Effect)));
         Assert.All(reads, read => Assert.Equal(0f, read.ContactWorks[0].RemainingEnergy.Value));
@@ -159,8 +162,8 @@ public sealed class ContactWorkInstanceTests
     [Fact]
     public async Task ABallInAnotherDepthPlaneNeverPays()
     {
-        var reads = await WorkshopPhysicsEngineTests.Run(Drop(PartId.Basketball, 4.5, 8f, z: 2), 2 * TicksPerSecond);
-        Assert.Empty(Occurrences(reads));
+        var (reads, ledgers) = await WorkshopPhysicsEngineTests.RunWithLedgers(Drop(PartId.Basketball, 4.5, 8f, z: 2), 2 * TicksPerSecond);
+        Assert.Empty(Occurrences(ledgers));
         Assert.All(reads, read => Assert.Equal(32f, read.ContactWorks[0].RemainingEnergy.Value));
     }
 

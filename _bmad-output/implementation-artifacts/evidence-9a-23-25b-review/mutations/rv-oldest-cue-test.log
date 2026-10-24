@@ -1,0 +1,16 @@
+Test run for /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/wt-base/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:01.76]     CuriousContraptions.Tests.EventRingConsumerTests.ALappedRingCountsItsSkipLosesOnlyThoseCuesAndKeepsTheRestExact [FAIL]
+  Failed CuriousContraptions.Tests.EventRingConsumerTests.ALappedRingCountsItsSkipLosesOnlyThoseCuesAndKeepsTheRestExact [81 ms]
+  Error Message:
+   Assert.Equal() Failure: Collections differ
+                       ↓ (pos 1)
+Expected: [1.01999998, 0.870588243, 0.978431344, 0.870588243]
+Actual:   [1.01999998, 0.876651883, 0.979442, 0.876651883]
+                       ↑ (pos 1)
+  Stack Trace:
+     at CuriousContraptions.Tests.EventRingConsumerTests.ALappedRingCountsItsSkipLosesOnlyThoseCuesAndKeepsTheRestExact() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/wt-base/CuriousContraptions.tests/EventRingConsumerTests.cs:line 407
+   at CuriousContraptions.Tests.EventRingConsumerTests.ALappedRingCountsItsSkipLosesOnlyThoseCuesAndKeepsTheRestExact() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/wt-base/CuriousContraptions.tests/EventRingConsumerTests.cs:line 409
+--- End of stack trace from previous location ---
+
+Failed!  - Failed:     1, Passed:    57, Skipped:     0, Total:    58, Duration: 3 s - CuriousContraptions.tests.dll (net10.0)

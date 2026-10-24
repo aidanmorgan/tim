@@ -13,11 +13,11 @@ public sealed class BumperElementDeclaration : IContactWorkElement, IElectricalE
 {
     public ElementPresentation Presentation => new(.8f, PresentationAxes.None,
         [
-            new("Visual/BumperHead", PresentationProperty.UniformScale, PresentationDriver.ContactImpulse, 1f, .88f, PresentationCurve.SineSquaredPulse, .32f, PresentationOverlap.SaturatingSum, 0f, PresentationTimerPhase.None),
-            new("Visual/ImpactRing", PresentationProperty.UniformScale, PresentationDriver.ContactImpulse, 1f, 1.24f, PresentationCurve.SineSquaredPulse, .32f, PresentationOverlap.SaturatingSum, 0f, PresentationTimerPhase.None),
-            new("Visual/ImpactRing", PresentationProperty.AlbedoRed, PresentationDriver.ContactImpulse, 1f, 247f / 255f, PresentationCurve.SineSquaredPulse, .32f, PresentationOverlap.SaturatingSum, 0f, PresentationTimerPhase.None),
-            new("Visual/ImpactRing", PresentationProperty.AlbedoGreen, PresentationDriver.ContactImpulse, 240f / 255f, 203f / 255f, PresentationCurve.SineSquaredPulse, .32f, PresentationOverlap.SaturatingSum, 0f, PresentationTimerPhase.None),
-            new("Visual/ImpactRing", PresentationProperty.AlbedoBlue, PresentationDriver.ContactImpulse, 194f / 255f, 82f / 255f, PresentationCurve.SineSquaredPulse, .32f, PresentationOverlap.SaturatingSum, 0f, PresentationTimerPhase.None)
+            new("Visual/BumperHead", PresentationProperty.UniformScale, PresentationDriver.Event, 1f, .88f, PresentationCurve.SineSquaredPulse, .32f, PresentationOverlap.SaturatingSum, 0f, PresentationTimerPhase.None, Event: SimulationEventKind.Impact, EventMagnitude: PresentationEventMagnitude.Positive),
+            new("Visual/ImpactRing", PresentationProperty.UniformScale, PresentationDriver.Event, 1f, 1.24f, PresentationCurve.SineSquaredPulse, .32f, PresentationOverlap.SaturatingSum, 0f, PresentationTimerPhase.None, Event: SimulationEventKind.Impact, EventMagnitude: PresentationEventMagnitude.Positive),
+            new("Visual/ImpactRing", PresentationProperty.AlbedoRed, PresentationDriver.Event, 1f, 247f / 255f, PresentationCurve.SineSquaredPulse, .32f, PresentationOverlap.SaturatingSum, 0f, PresentationTimerPhase.None, Event: SimulationEventKind.Impact, EventMagnitude: PresentationEventMagnitude.Positive),
+            new("Visual/ImpactRing", PresentationProperty.AlbedoGreen, PresentationDriver.Event, 240f / 255f, 203f / 255f, PresentationCurve.SineSquaredPulse, .32f, PresentationOverlap.SaturatingSum, 0f, PresentationTimerPhase.None, Event: SimulationEventKind.Impact, EventMagnitude: PresentationEventMagnitude.Positive),
+            new("Visual/ImpactRing", PresentationProperty.AlbedoBlue, PresentationDriver.Event, 194f / 255f, 82f / 255f, PresentationCurve.SineSquaredPulse, .32f, PresentationOverlap.SaturatingSum, 0f, PresentationTimerPhase.None, Event: SimulationEventKind.Impact, EventMagnitude: PresentationEventMagnitude.Positive)
         ], [], [], []);
 
     public ElementMetadata Metadata => new(

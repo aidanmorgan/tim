@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { WorkshopDriver } from './workshop-driver.ts';
-import { decodeWorkshopResponse, decodeSavedConstruction, authoredState, parameter, type WorkshopResponse } from './workshop-wire.ts';
+import { decodeWorkshopResponse, decodeSavedConstruction, authoredState, parameter, contactHits, type WorkshopResponse } from './workshop-wire.ts';
 
 type Scenario='paid'|'unpaid'|'miss';
 async function press(driver:WorkshopDriver,x:number,y:number){
@@ -64,7 +64,10 @@ for(const scenario of ['paid','unpaid','miss'] as Scenario[])test('Sidekick '+sc
         }
         await driver.pauseSimulation();const after=reads.at(-1)!;
         const rings=await driver.readAnimationSamplesForTarget(String((2n<<32n)+owner));
-        const powered=events.filter(res=>res.occurrencesLength()>0 && res.occurrences(0)!.effect()===1 && res.occurrences(0)!.debit()>0);
+        // Story 9A.23 D9: hits and their debits from the owner's stores (the occurrence rows are device-private).
+        const preload=scenario==='unpaid'?0:32;
+        const powered=contactHits(events,preload).filter(hit=>hit.debit>0);
+        const lastHit=contactHits(reads,preload).at(-1);
         if(scenario==='paid'){
             assert.equal(await driver.readCaptured(),1);
             assert.ok(powered.length>0 && after.contactWorks(0)!.remainingEnergy()<32);
@@ -75,7 +78,7 @@ for(const scenario of ['paid','unpaid','miss'] as Scenario[])test('Sidekick '+sc
             assert.ok(rings.every(value=>value.value===0),'Rejected/unpaid contact has no powered ring');
             if(scenario==='unpaid'){
                 assert.ok(after.contactWorks(0)!.occurrenceCount()>0,'Ordinary contact occurred');
-                assert.equal(after.occurrences(0)!.debit(),0);assert.equal(after.occurrences(0)!.effect(),0);
+                assert.ok(lastHit,'Ordinary contact is a hit');assert.equal(lastHit.debit,0,'Ordinary contact is passive');
                 assert.ok(samples.some(body=>body.vy>0),'Ordinary bounce remains');
             }else assert.equal(after.contactWorks(0)!.occurrenceCount(),0);
         }
@@ -83,7 +86,7 @@ for(const scenario of ['paid','unpaid','miss'] as Scenario[])test('Sidekick '+sc
         await driver.reset();const reset=reads.at(-1)!;
         assert.equal(reset.contactWorks(0)!.remainingEnergy(),scenario==='unpaid'?0:32);assert.equal(reset.contactWorks(0)!.occurrenceCount(),0);
         await driver.save();assert.deepEqual(authoredState(await saved(driver)),authoredState(initialBytes));assert.deepEqual(errors,[]);
-        console.log(JSON.stringify({scenario,solved,debit:after.occurrencesLength()>0?after.occurrences(0)!.debit():0,remaining:after.contactWorksLength()>0?after.contactWorks(0)!.remainingEnergy():0,samples}));
+        console.log(JSON.stringify({scenario,solved,debit:lastHit?.debit??0,remaining:after.contactWorksLength()>0?after.contactWorks(0)!.remainingEnergy():0,samples}));
     }catch(error){console.error(JSON.stringify({scenario,errors}));await driver.page.screenshot({path:'/tmp/sidekick-'+scenario+'-failure.png'});throw error;}
     finally{await driver.close();}
 });

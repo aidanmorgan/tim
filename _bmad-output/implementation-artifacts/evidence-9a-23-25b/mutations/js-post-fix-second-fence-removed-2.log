@@ -1,0 +1,54 @@
+✖ concurrent stress: over a million records through the shipped writer, no reader ever receives a torn record (513.851542ms)
+✖ amplified concurrent stress at capacity 4: rounds of fresh writer and reader threads, no torn record (3793.289958ms)
+✔ a reader that keeps pace receives every record exactly once and skips none (1.298166ms)
+✔ a parked reader lapped by a capacity and more reports exactly the skipped records, then reads the newest intact (0.155375ms)
+✔ a slot reused while it is copied is skipped, never delivered (0.063833ms)
+✔ epochs: a newer ring is held unread until it is installed, an older one is ignored, and a new ring restarts at sequence 1 (0.229875ms)
+✔ a ring older than the installed epoch is ignored: nothing is delivered and the cursor does not move (0.077334ms)
+✔ a delivery carries the epoch and skipped count before the records (0.043875ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 6
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4366.953833
+
+✖ failing tests:
+
+test at tools/workshop-event-ring-cursor.test.mjs:141:1
+✖ concurrent stress: over a million records through the shipped writer, no reader ever receives a torn record (513.851542ms)
+  AssertionError [ERR_ASSERTION]: capacity 4: a torn record was delivered
+  
+  81 !== 0
+  
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/workshop-event-ring-cursor.test.mjs:145:20)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 81,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tools/workshop-event-ring-cursor.test.mjs:160:1
+✖ amplified concurrent stress at capacity 4: rounds of fresh writer and reader threads, no torn record (3793.289958ms)
+  AssertionError [ERR_ASSERTION]: 1983 torn record(s) delivered at capacity 4
+  
+  1983 !== 0
+  
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/workshop-event-ring-cursor.test.mjs:169:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1983,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

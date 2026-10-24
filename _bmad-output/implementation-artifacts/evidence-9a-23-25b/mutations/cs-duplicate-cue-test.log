@@ -1,0 +1,45 @@
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:02.51]     CuriousContraptions.Tests.EventRingConsumerTests.AHiddenPartResumesAtItsCuesExactPhaseOrEndValue(name: "bumper") [FAIL]
+[xUnit.net 00:00:02.59]     CuriousContraptions.Tests.EventRingConsumerTests.EachPaidBumperImpactCuesExactlyOnePulseAtItsOwnPhysicalTime(payload: "ball", height: 4.5, strength: 8, ticks: 360) [FAIL]
+[xUnit.net 00:00:02.61]     CuriousContraptions.Tests.EventRingConsumerTests.EachPaidBumperImpactCuesExactlyOnePulseAtItsOwnPhysicalTime(payload: "bowling", height: 6, strength: 8, ticks: 480) [FAIL]
+  Failed CuriousContraptions.Tests.EventRingConsumerTests.AHiddenPartResumesAtItsCuesExactPhaseOrEndValue(name: "bumper") [8 ms]
+  Error Message:
+   Assert.Equal() Failure: Collections differ
+           ↓ (pos 0)
+Expected: [0.939999998, 1.12, 0.984313726, 0.868627429, 0.541176498]
+Actual:   [0.879999995, 1.24000001, 0.968627453, 0.796078444, 0.321568638]
+           ↑ (pos 0)
+  Stack Trace:
+     at CuriousContraptions.Tests.EventRingConsumerTests.AHiddenPartResumesAtItsCuesExactPhaseOrEndValue(String name) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/CuriousContraptions.tests/EventRingConsumerTests.cs:line 327
+   at CuriousContraptions.Tests.EventRingConsumerTests.AHiddenPartResumesAtItsCuesExactPhaseOrEndValue(String name) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/CuriousContraptions.tests/EventRingConsumerTests.cs:line 327
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.EventRingConsumerTests.EachPaidBumperImpactCuesExactlyOnePulseAtItsOwnPhysicalTime(payload: "ball", height: 4.5, strength: 8, ticks: 360) [15 ms]
+  Error Message:
+   Assert.Equal() Failure: Values are not within tolerance 9.99999975E-06
+Expected: 0.939999998
+Actual:   0.879999995
+  Stack Trace:
+     at CuriousContraptions.Tests.EventRingConsumerTests.EachPaidBumperImpactCuesExactlyOnePulseAtItsOwnPhysicalTime(String payload, Double height, Single strength, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/CuriousContraptions.tests/EventRingConsumerTests.cs:line 173
+   at CuriousContraptions.Tests.EventRingConsumerTests.EachPaidBumperImpactCuesExactlyOnePulseAtItsOwnPhysicalTime(String payload, Double height, Single strength, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/CuriousContraptions.tests/EventRingConsumerTests.cs:line 176
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.EventRingConsumerTests.EachPaidBumperImpactCuesExactlyOnePulseAtItsOwnPhysicalTime(payload: "bowling", height: 6, strength: 8, ticks: 480) [22 ms]
+  Error Message:
+   Assert.Equal() Failure: Values are not within tolerance 9.99999975E-06
+Expected: 0.939999998
+Actual:   0.879999995
+  Stack Trace:
+     at CuriousContraptions.Tests.EventRingConsumerTests.EachPaidBumperImpactCuesExactlyOnePulseAtItsOwnPhysicalTime(String payload, Double height, Single strength, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/CuriousContraptions.tests/EventRingConsumerTests.cs:line 173
+   at CuriousContraptions.Tests.EventRingConsumerTests.EachPaidBumperImpactCuesExactlyOnePulseAtItsOwnPhysicalTime(String payload, Double height, Single strength, Int32 ticks) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/CuriousContraptions.tests/EventRingConsumerTests.cs:line 176
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:03.19]     CuriousContraptions.Tests.PresentationBindingGoldenTests.RingDrivenOneShotBindingsMatchFixedNativeProperties(id: bumper, duration: 0.319999993, kind: Impact) [FAIL]
+  Failed CuriousContraptions.Tests.PresentationBindingGoldenTests.RingDrivenOneShotBindingsMatchFixedNativeProperties(id: bumper, duration: 0.319999993, kind: Impact) [16 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: 0.939999998
+Actual:   0.879999995
+  Stack Trace:
+     at CuriousContraptions.Tests.PresentationBindingGoldenTests.RingDrivenOneShotBindingsMatchFixedNativeProperties(PartId id, Single duration, SimulationEventKind kind) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/CuriousContraptions.tests/PresentationBindingGoldenTests.cs:line 93
+--- End of stack trace from previous location ---
+
+Failed!  - Failed:     4, Passed:    31, Skipped:     0, Total:    35, Duration: 1 s - CuriousContraptions.tests.dll (net10.0)

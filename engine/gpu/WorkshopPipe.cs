@@ -41,7 +41,6 @@ public readonly record struct WorkshopPipe(GpuBodyId Id, CellOrigin Cell, LocalP
     CanonicalRotation Rotation, PipeLength Length, bool Locked = false) : IWorkshopInstance
 {
     public PartId PartId => PartId.Pipe;
-    public CosmeticCurveDeclaration Cosmetic => CosmeticCurveDeclaration.For(PartId);
     public IReadOnlyList<ExtractedCollider> DeclaredColliders => DeclaredPhysics.Colliders(PartId, DeclaredPhysics.Parameters(this));
     public void Validate()
     {

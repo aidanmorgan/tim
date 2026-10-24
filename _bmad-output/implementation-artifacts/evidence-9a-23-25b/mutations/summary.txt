@@ -1,0 +1,43 @@
+Story 9A.23 + 9A.25b mutation results. Each mutant was applied alone, run, then reverted. The raw logs sit beside this file:
+- js-<name>.log: `node --experimental-vm-modules --test tools/workshop-event-ring-cursor.test.mjs`;
+- cs-<name>{,-build,-test}.log: the test project build, then the filter.
+The tree was confirmed unmutated after the last revert (grep of each mutant's text: 0 hits).
+
+JS shared reader (CuriousContraptions.web/wwwroot/event-ring-cursor.js):
+- fence-removed (no before/after sequence check): KILLED. The concurrent stress test reports "capacity 4: a torn record was delivered", and the reused-slot test fails.
+- after-fence-removed (before load only): KILLED. The concurrent stress test detects a torn record, so the fence is proven by test, not only by inspection (F5).
+- lap-not-counted: KILLED by the stress test (delivered + skipped != written) and the parked-reader lap test.
+- epoch-cursor-not-reset (attach keeps the cursor): KILLED by the epochs test and the stress test.
+- held-epoch-consumed (read ignores the installed epoch): KILLED by the epochs test.
+- record-twice (cursor re-reads a record): KILLED by 5 of the 6 tests.
+
+Review fixes (F1 seqlock with per-word Atomics on both sides, F2 older ring), each against the fixed code:
+- post-fix-second-fence-removed (the after-copy sequence load dropped, per-word Atomics kept): KILLED in 3 of 3 runs. Both stress
+  tests fail, the amplified one with 2001, 1924 and 1983 torn records at capacity 4 (js-post-fix-second-fence-removed-{1,2,3}.log).
+- older-ring-read (`this.epoch !== admitted` -> `this.epoch > admitted`, the reviewer's mutant): KILLED by the cursor test "a ring
+  older than the installed epoch is ignored" (js-older-ring-read.log) and by the Animation worker test of the same name, whose
+  EventRecords refuses a foreign epoch as AcceptEvents does (js-older-ring-read-worker.log, run after the merge of main 0cba945b).
+
+C# (production evaluator, goal wake, ledger, engine):
+- owner-filter-dropped (AcceptEvents ignores record.Source): KILLED by AForeignOwnerAnUndeclaredKindOrALevelCuesNothing.
+- cue-time-tick-boundary (EventSeconds from record.Tick, not Ordinal+Phase): KILLED by 7 tests, among them the real-run bumper and detector tests, TheCueStartsAtTheRecordsOwnOrdinalAndPhase, AHiddenPart… and ALappedRing…. The oracle `At` is derived independently of EventSeconds.
+- record-applied-twice (an equal sequence admitted): KILLED by ADeliveryOfAnotherEpochOrARecordAlreadyAppliedIsRefused and PauseResumeAndStep…NoDuplicate. The first variant, which removed the guard, was killed only at build (IDE0052) and is superseded.
+- epoch-check-dropped (AcceptEvents admits a foreign epoch): KILLED by ADeliveryOfAnotherEpoch….
+- lap-not-counted (C# Lapped not accumulated): KILLED by ALappedRingCountsItsSkip….
+- duplicate-cue (two pulses per Impact): KILLED by the real-run bumper tests (ball, bowling) and the hidden bumper test.
+- unpaid-gate-dropped (EventMagnitude.Positive ignored): KILLED by all three bumper runs (strength 0, the empty-store return, the target-limited run).
+- detector-passage-to-trigger (BallDetector binding kind TriggerActivated): KILLED at bundle build. BUNDLE006 refuses a kind the package does not declare.
+- late-cue-starts-when-observed (StartAtOccurrence starts at the observed clock): KILLED by ALateRecordStartsItsCueAtItsOwnTimeNotWhenObserved (switch). It survived before that test was added, which is how the test came to be written.
+- goal-wake-node-owners-only (ActivatedAfter woken only by its node owners): KILLED by EveryAuthoredGoalSolvesOnItsWakeExactlyWhenPollingWould(delayed_signal), because the target lamp publishes nothing, and by TheGoalWakeFindsItsOwners….
+- goal-wake-owner-filter-dropped (Captured woken by any record): KILLED by TheGoalWakeIgnoresOtherOwners… and TheGoalWakeFindsItsOwners….
+- goal-wake-not-held (due one tick before its read): KILLED by TheGoalWakeWaitsForItsCommittedRead…(captures: True) and TheGoalWakeIgnoresOtherOwners….
+- ledger-accounting-dropped (ContactWorkLedger reservoir check widened 1e9x): KILLED by TheDeviceLedgerAccountsForEveryHitAndRefusesAMalformedAdvance.
+
+Round 2 (R2-F1 behavioural Impact test, R2-F2 seqlock guard), each applied with Edit, run against the fixed code and reverted:
+- cs-impact-paid-1pc-high (EventRecordProducer Magnitude = Debit x 1.01): KILLED by TheBumperRunsImpactRecordsFollowTheBallisticLawAndTheStore
+  (30.85 outside the derived 30.42-30.58).
+- cs-impact-one-tick-late (Ordinal + 4): KILLED by the same test ("ordinal 158 is outside tick 39").
+- r2-guard-js-writer-plain-indexed, r2-guard-js-writer-plain-bulk, r2-guard-js-reader-plain-indexed, r2-guard-js-reader-plain-bulk,
+  r2-guard-js-reader-extra-plain-view, r2-guard-cs-writer-plain, r2-guard-cs-reader-plain: all KILLED by
+  EverySeqlockPayloadWordIsAnAtomicWholeWordAccessOnBothSidesOfTheRing. The functional node tests pass under the JS writer-bulk
+  (13/13) and reader (8/8) mutants (r2-js-*-node.log), so the structural guard is the deterministic check.
