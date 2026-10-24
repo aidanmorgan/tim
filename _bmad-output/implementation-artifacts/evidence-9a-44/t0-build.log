@@ -1,0 +1,17 @@
+  [0m
+  [   0% ] [90m[1mloading_editor_layout[22m | Started Loading editor (5 steps)[39m[0m
+  [   0% ] [90m[1mloading_editor_layout[22m | Loading editor layout...[39m[0m
+  [  16% ] [90m[1mloading_editor_layout[22m | Loading docks...[39m[0m
+  [92m[ DONE ][39m [1mloading_editor_layout[22m
+  [0m
+  TwoDog: Imported Godot project /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-44
+  BundleElements.Tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-44/tools/BundleElements.Tests/bin/Debug/net10.0/BundleElements.Tests.dll
+  CuriousContraptions.Simulation -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-44/CuriousContraptions.Simulation/bin/Debug/net10.0/browser-wasm/CuriousContraptions.Simulation.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:11.33
+dotnet build CuriousContraptions.slnx -c Debug 2>&1  6.91s user 2.43s system 81% cpu 11.449 total
+tail -15  0.00s user 0.00s system 0% cpu 11.449 total

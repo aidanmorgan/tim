@@ -100,7 +100,7 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
     public void SinglePrecisionEndpointSurvivesProductionBatchAndControlCodec()
     {
         const float endpoint = .42000002f;
-        Assert.NotEqual(endpoint, (float)(Half)endpoint);
+        Assert.True(TestPrecision.NeedsMoreThanElevenSignificantBits(endpoint));
         var batch = new AnimationBatch(1);
         var handle = batch.Register(new(new(1), AnimationProperty.LocalRotationAngle),
             new(new(new AnimationRadians(-endpoint)), new(new AnimationRadians(endpoint)), new(.125f),

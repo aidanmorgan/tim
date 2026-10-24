@@ -30,7 +30,7 @@ function workerAt(driver: WorkshopDriver, path: string): Worker {
     return worker;
 }
 const TILE_Y = 676, tileScreenX = (x: number) => Math.round(720 + 65.2 * x); // the cat-023b domino_effect recipe
-const LAMP_TARGET = '5', HALF_ONE = 15360;
+const LAMP_TARGET = '5'; // the lamp's full glow is the f32 channel value 1
 
 async function injectDutyCycle(worker: Worker, milliseconds: number): Promise<void> {
     await worker.evaluate(duty => {
@@ -179,7 +179,7 @@ test('A running wired chain survives a 20 ms duty cycle on the Animation worker 
         const solved = driver.capturedCount;
         let lit = false;
         for (const deadline = Date.now() + 3000; !lit && Date.now() < deadline; await driver.page.waitForTimeout(50))
-            lit = (await driver.readLastAnimationSample(LAMP_TARGET))?.valBits === HALF_ONE;
+            lit = (await driver.readLastAnimationSample(LAMP_TARGET))?.value === 1;
         const roles = driver.clockRecalibrations.map(line => JSON.parse(line.slice('CCGPU_CLOCK_RECALIBRATED '.length)).role);
         const recalibrating = deferrals.filter(deferral => deferral.causeName === 'Recalibrating');
         // Evidence only (Story 9.4b round 3): each recalibration's cause and prior state, and any late renewal.
@@ -338,15 +338,15 @@ test('H3: the lamp ramps over 0.16 s of master time after the solve, so a read a
         const immediate = await driver.readLastAnimationSample(LAMP_TARGET); // the former assertion's single read
         let lit = false;
         for (const deadline = Date.now() + 3000; !lit && Date.now() < deadline; await driver.page.waitForTimeout(50))
-            lit = (await driver.readLastAnimationSample(LAMP_TARGET))?.valBits === HALF_ONE;
+            lit = (await driver.readLastAnimationSample(LAMP_TARGET))?.value === 1;
         const lamp = await driver.readAnimationSamplesForTarget(LAMP_TARGET);
-        const rising = lamp.find(sample => sample.valBits !== 0);
-        const full = lamp.find(sample => sample.valBits === HALF_ONE);
+        const rising = lamp.find(sample => sample.value !== 0);
+        const full = lamp.find(sample => sample.value === 1);
         assert.ok(rising && full, 'the lamp ramp was sampled');
         const rampOrdinals = Number(BigInt(full.ordinal) - BigInt(rising.ordinal));
         console.log(JSON.stringify({ immediate: immediate ? { value: immediate.value, ordinal: immediate.ordinal } : null,
             firstLit: { value: rising.value, ordinal: rising.ordinal }, full: full.ordinal, rampOrdinals, lit }));
-        assert.ok(rising.valBits !== HALF_ONE, 'the first lit lamp sample is partial');
+        assert.ok(rising.value !== 1, 'the first lit lamp sample is partial');
         // 0.16 s on the 60 Hz animation lattice is 9.6 ordinals.
         assert.ok(rampOrdinals >= 9, `the lamp reaches full only after its 0.16 s ramp (${rampOrdinals} ordinals)`);
         assert.ok(lit, 'polling observes the lit lamp');

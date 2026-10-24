@@ -68,16 +68,16 @@ internal sealed record AuthoredInstanceTemplate(PartId Part, CellOrigin Cell, Lo
 
     private static float Value(AssistanceKnot knot, AssistanceValue field) => field switch
     {
-        AssistanceValue.PositionWindow => (float)knot.PositionWindow.Value,
-        AssistanceValue.RotationWindow => (float)knot.RotationWindowDegrees,
-        AssistanceValue.MaximumPositionCorrection => (float)knot.MaximumPositionCorrection.Value,
-        AssistanceValue.MaximumRotationCorrection => (float)knot.MaximumRotationCorrectionDegrees,
-        AssistanceValue.Blend => (float)knot.Blend.Value,
-        AssistanceValue.CaptureMargin => (float)knot.CaptureMargin.Value,
-        AssistanceValue.CaptureSpeed => (float)knot.CaptureSpeed.Value,
-        AssistanceValue.CaptureDwell => (float)knot.CaptureDwell.Value,
-        AssistanceValue.GuideAcceleration => (float)knot.GuideAcceleration.Value,
-        AssistanceValue.TriggerThreshold => (float)knot.TriggerThreshold,
+        AssistanceValue.PositionWindow => knot.PositionWindow.Value,
+        AssistanceValue.RotationWindow => knot.RotationWindowDegrees,
+        AssistanceValue.MaximumPositionCorrection => knot.MaximumPositionCorrection.Value,
+        AssistanceValue.MaximumRotationCorrection => knot.MaximumRotationCorrectionDegrees,
+        AssistanceValue.Blend => knot.Blend.Value,
+        AssistanceValue.CaptureMargin => knot.CaptureMargin.Value,
+        AssistanceValue.CaptureSpeed => knot.CaptureSpeed.Value,
+        AssistanceValue.CaptureDwell => knot.CaptureDwell.Value,
+        AssistanceValue.GuideAcceleration => knot.GuideAcceleration.Value,
+        AssistanceValue.TriggerThreshold => knot.TriggerThreshold,
         _ => throw new ArgumentOutOfRangeException(nameof(field))
     };
 }
@@ -119,7 +119,7 @@ internal static class AuthoredInstanceReader
         try
         {
             result.Validate();
-            foreach (var precision in new Half[] { (Half)0, (Half).45, (Half)1 }) result.Create(new(1), new(precision));
+            foreach (var precision in new[] { 0f, .45f, 1f }) result.Create(new(1), new(precision));
         }
         catch (ArgumentException error) { throw PuzzleContentReader.Invalid(where, "instance", error.Message); }
         return result;
@@ -130,8 +130,8 @@ internal static class AuthoredInstanceReader
         var knots = Array(value, 3, where + ".assistance");
         var result = new AssistanceProfile(Knot(knots[0], where), Knot(knots[1], where), Knot(knots[2], where));
         if (result == default) return result;
-        if (result.Forgiving.Precision != (Half)0 || result.Balanced.Precision != (Half).45 ||
-            result.Precise.Precision != (Half)1)
+        if (result.Forgiving.Precision != 0f || result.Balanced.Precision != .45f ||
+            result.Precise.Precision != 1f)
             throw PuzzleContentReader.Invalid(where, "assistance", "expected authored precision knots");
         return result;
     }
@@ -139,11 +139,11 @@ internal static class AuthoredInstanceReader
     private static AssistanceKnot Knot(JsonElement value, string where)
     {
         var row = Array(value, 11, where + ".assistance");
-        Half N(int index)
+        float N(int index)
         {
             var number = Number(row[index], where);
-            var admitted = (Half)number;
-            if (!Half.IsFinite(admitted) || admitted < (Half)0)
+            var admitted = (float)number;
+            if (!float.IsFinite(admitted) || admitted < 0f)
                 throw PuzzleContentReader.Invalid(where, "assistance", "nonfinite or negative value");
             return admitted;
         }

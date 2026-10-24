@@ -44,7 +44,7 @@ Families from the [element map row](../general-engine-element-map.md): ContactIm
 | Moving receiver frame (residence in a kinematic/moving frame) | not scheduled; needed by any level that moves a Receiver (see §6) |
 | FiniteWorkActuation, JointConstraint memberships (inventory only; no current mode needs them) | none required now |
 | Further goal kinds (quantity, ordered events, protected end state) | EL-120–EL-123 (Batch M) and Epic 15 |
-| f32 declarations: `ReceiverGeometry` boxes, `ReceiverCaptureSettings`, `ReceiverForceRegion`, residence and guide declarations and the assistance knots are still binary16 (`Half`) | Remaining f32 migration ([f32 migration status](../../gpu-f32-physics.md#f32-migration-status)) |
+| f32 declarations: `ReceiverGeometry` boxes, `ReceiverCaptureSettings`, `ReceiverForceRegion`, residence and guide declarations and the assistance knots are f32 (Story 9A.44) | Delivered by Story 9A.44 ([numeric authority](../../gpu-f32-physics.md)) |
 
 Dependencies: CAT-001 or another dynamic body as the named target.
 

@@ -26,14 +26,14 @@ public sealed class ContactActivationTests
         var boxes = scene.Colliders.ToArray().Where(c => c.Body == new GpuBodyId(2)).ToArray();
         Assert.Equal(2, boxes.Length);
         Assert.All(boxes, b => Assert.Equal(ColliderShapeKind.Box, b.Shape));
-        Assert.Equal(new MetreVector((Half)0, (Half)(-.15), (Half)0), boxes[0].Pose.Translation);
-        Assert.Equal(new MetreVector((Half).55, (Half).125, (Half).5), boxes[0].HalfExtents);
-        Assert.Equal(new MetreVector((Half)0, (Half).05, (Half)0), boxes[1].Pose.Translation);
-        Assert.Equal(new MetreVector((Half).4, (Half).09, (Half).375), boxes[1].HalfExtents);
+        Assert.Equal(new MetreVector(0f, (float)(-.15), 0f), boxes[0].Pose.Translation);
+        Assert.Equal(new MetreVector(.55f, .125f, .5f), boxes[0].HalfExtents);
+        Assert.Equal(new MetreVector(0f, .05f, 0f), boxes[1].Pose.Translation);
+        Assert.Equal(new MetreVector(.4f, .09f, .375f), boxes[1].HalfExtents);
         var material = scene.Materials.ToArray().Single(m => m.Id == boxes[0].Material);
-        Assert.Equal(new Restitution((Half)1), material.Restitution);
-        Assert.Equal(new LinearSpeed((Half).1), material.BounceThreshold);
-        Assert.Equal(new FrictionCoefficient((Half).3), material.Friction);
+        Assert.Equal(new Restitution(1f), material.Restitution);
+        Assert.Equal(new LinearSpeed(.1f), material.BounceThreshold);
+        Assert.Equal(new FrictionCoefficient(.3f), material.Friction);
         var trigger = Assert.Single(scene.Triggers.ToArray());
         Assert.Equal(new GpuBodyId(2), trigger.Owner);
         Assert.Equal(new BodyTargetSet(BodyTargetKind.AllDynamic, default), trigger.Targets);
@@ -86,7 +86,7 @@ public sealed class ContactActivationTests
         var source = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
         var collider = source.Colliders.ToArray().First(c => c.Body == new GpuBodyId(2));
         return (WorkshopActivationCompiler.Compile(construction), new(source.Triggers[0].Id, new(2), new(1),
-            1, collider.Id, 10, (Half)0, new((float).8)));
+            1, collider.Id, 10, 0f, new(.8f)));
     }
 
     [Fact]
@@ -102,7 +102,7 @@ public sealed class ContactActivationTests
         Assert.Equal(impact.Id.Value, candidate[1].Source.Value);
         var replay = Consume(network, candidate, new[] { impact });
         Assert.Equal(candidate[0], replay[0]); Assert.Equal(candidate[1], replay[1]);
-        var bounced = Consume(network, candidate, new[] { impact with { EventOrdinal = 20, ApproachSpeed = new((float)2) } });
+        var bounced = Consume(network, candidate, new[] { impact with { EventOrdinal = 20, ApproachSpeed = new(2f) } });
         Assert.Equal(candidate[0], bounced[0]); Assert.Equal(candidate[1], bounced[1]);
         var reset = network.Clear();
         Assert.Equal(clear[0], reset[0]); Assert.Equal(clear[1], reset[1]);
@@ -113,7 +113,7 @@ public sealed class ContactActivationTests
     {
         var (network, impact) = Activation(false); var clear = network.Clear();
         var absent = impact with { OccurrenceCount = 0, Collider = default, EventOrdinal = 0,
-            EventPhase = (Half)0, ApproachSpeed = new((float)0) };
+            EventPhase = 0f, ApproachSpeed = new(0f) };
         Assert.Equal(ActivationPhase.Clear, Consume(network, clear, new[] { absent })[0].Phase);
         var candidate = Consume(network, clear, new[] { impact });
         Assert.Equal(ActivationPhase.Latched, candidate[0].Phase);
@@ -150,7 +150,7 @@ public sealed class ContactActivationTests
         {
             active[0] with { Node = new(1) }, active[0] with { Owner = new(99) },
             active[0] with { Collider = new(99) }, active[0] with { Source = new(99) },
-            active[0] with { Body = new(99) }, active[0] with { ApproachSpeed = new((float).5) }
+            active[0] with { Body = new(99) }, active[0] with { ApproachSpeed = new(.5f) }
         }) Assert.Throws<ArgumentException>(() => ValidateRead(network, new(new[] { changed, active[1] }), new(3), 4, scene));
         var disconnected = Activation(false).Network;
         Assert.Throws<ArgumentException>(() => ValidateRead(disconnected, active, new(3), 4, scene));
@@ -201,7 +201,7 @@ public sealed class ContactActivationTests
             Assert.Equal(untouched, candidate);
             Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ValidateCandidate(old, bytes, new(0)));
         }
-        foreach (var padding in new[] { PhysicsGpuAbi.TriggerThresholdPaddingOffset, PhysicsGpuAbi.TriggerPhasePaddingOffset, PhysicsGpuAbi.TriggerPaddingOffset })
+        foreach (var padding in new[] { PhysicsGpuAbi.TriggerThresholdPaddingOffset, PhysicsGpuAbi.TriggerNamedPaddingOffset, PhysicsGpuAbi.TriggerPaddingOffset })
         {
             var invalid = (byte[])bytes.Clone(); invalid[scene.World.TriggerOffset(0) + padding] = 1;
             Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ReadTrigger(invalid, 0));
@@ -212,7 +212,7 @@ public sealed class ContactActivationTests
     public void ActualBaseBoxContactUsesInclusiveNonHalfThresholdAndExactReportedSpeed()
     {
         const float threshold = 1.234567f;
-        Assert.NotEqual(threshold, (float)(Half)threshold);
+        Assert.True(TestPrecision.NeedsMoreThanElevenSignificantBits(threshold));
         foreach (var speed in new[] { MathF.BitDecrement(threshold), threshold, MathF.BitIncrement(threshold) })
         {
             var trigger = WorkshopInput.Generic(PartId.ImpactSwitch, new(2), 0, 1, 0, 0, 0, 0, 1,

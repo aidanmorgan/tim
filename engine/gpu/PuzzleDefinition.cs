@@ -43,7 +43,7 @@ internal sealed record PuzzleDefinition(PuzzleContentEntry Entry,
             WorkshopGoalKind.Captured => new WorkshopGoal(Goal.Kind, source, target,
                 WorkshopPhysicsCompiler.CaptureSensor(target)),
             WorkshopGoalKind.ActivatedAfter => new WorkshopGoal(Goal.Kind, default, default, default,
-                new(source.Value), new(target.Value), new((Half)Goal.MinimumSeconds)),
+                new(source.Value), new(target.Value), new(Goal.MinimumSeconds)),
             _ => throw PuzzleContentReader.Invalid(Entry.Id.Value, "goal.kind", "unsupported authored goal")
         };
         goal.Validate();

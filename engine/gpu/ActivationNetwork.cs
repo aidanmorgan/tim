@@ -395,7 +395,7 @@ public sealed class ActivationNetwork
             if (item.Phase != PassageSensorPhase.Fired) continue;
             var time = new ActivationTime(item.EventOrdinal, (float)item.EventPhase);
             var occurrence = new ActivationOccurrence(ActivationOccurrenceKind.Passage, _nodes[slot].Id, time,
-                new(new(item.Id.Value), item.Body, item.Collider, time, new((float)item.Speed.Value)));
+                new(new(item.Id.Value), item.Body, item.Collider, time, new(item.Speed.Value)));
             occurrence.Validate();
             if (time.CompareTo(end) > 0) throw new ArgumentException("Future passage occurrence.");
             if (values[slot].Phase == ActivationPhase.Latched)
@@ -915,12 +915,12 @@ public static class WorkshopActivationCompiler
             ? ActivationNodeKind.LevelIndicator : ActivationNodeKind.StickyFirstInput;
     }
 
-    /// <summary>The passage sensor a declared aperture compiles to on its owner's frame. The f32 radius and clearance narrow to the
-    /// sensor's binary16 lanes here (Story 9A.44 widens the lanes).</summary>
+    /// <summary>The passage sensor a declared aperture compiles to on its owner's frame, at the owner's placed pose, with the
+    /// declared f32 radius and rearm clearance exactly.</summary>
     public static PassageSensorDeclaration PassageSensorFor(IWorkshopInstance owner, SignalPassageDescriptor aperture)
     {
         ArgumentNullException.ThrowIfNull(owner);
         return new(WorkshopPhysicsCompiler.PassageSensor(owner.Id), owner.Id, owner.Cell, owner.Local, owner.Rotation,
-            new((Half)aperture.ApertureRadius), new((Half)aperture.RearmClearance));
+            new(aperture.ApertureRadius), new(aperture.RearmClearance));
     }
 }

@@ -17,7 +17,7 @@ import { after, before, describe, test } from 'node:test';
 import type { ConsoleMessage } from 'playwright';
 import { isWorkshopConsoleFailure } from '../workshop-console.mjs';
 import { WorkshopDriver, type RunResetSnapshot } from './workshop-driver.ts';
-import { decodeSavedConstruction } from './workshop-wire.ts';
+import { decodeSavedConstruction, type AssistanceKnotRecord } from './workshop-wire.ts';
 import { assertLoadRestores, snapshotEntries, snapshotValue } from './run-reset-snapshot.ts';
 import { assertJoined, assertNotJoined, dot, length, mouth, pipeLength, pose, rotate, sub, type Vec3 } from './tube-mouths.ts';
 
@@ -49,10 +49,11 @@ const CONTENT = (JSON.parse(readFileSync(new URL('../../content/puzzles.json', i
 const KNOT_FIELDS = ['precision', 'position_window', 'rotation_window', 'max_position_correction', 'max_rotation_correction',
     'blend_seconds', 'capture_margin', 'capture_speed', 'capture_dwell', 'guide_acceleration', 'trigger_threshold'];
 
-function half(bits: number): number {
-    const sign = bits & 0x8000 ? -1 : 1, exponent = (bits >> 10) & 0x1f, fraction = bits & 0x3ff;
-    if (exponent === 0) return sign * 2 ** -14 * (fraction / 1024);
-    return sign * 2 ** (exponent - 15) * (1 + fraction / 1024);
+/** The eleven f32 lanes of one saved assistance knot, in KNOT_FIELDS order. */
+function knotLanes(knot: AssistanceKnotRecord): number[] {
+    return [knot.precision(), knot.positionWindow(), knot.rotationWindowDegrees(), knot.maximumPositionCorrection(),
+        knot.maximumRotationCorrectionDegrees(), knot.blend(), knot.captureMargin(), knot.captureSpeed(), knot.captureDwell(),
+        knot.guideAcceleration(), knot.triggerThreshold()];
 }
 
 describe('Story 9R.7: joined_pipe lesson (Meet in the middle)', () => {
@@ -195,15 +196,14 @@ describe('Story 9R.7: joined_pipe lesson (Meet in the middle)', () => {
         assert.deepEqual(CONTENT.inventory, { pipe: 1 });
         assert.equal(puzzle.inventoryPart(), 'pipe');
         assert.equal(puzzle.inventoryCount(), 1);
-        // Three profiles (ball, receiver, pipe) of three knots each, in the saved assistance bytes.
-        const raw = Array.from({ length: puzzle.rawAssistanceLength() }, (_, i) => puzzle.rawAssistance(i)!);
+        // Three profiles (ball, receiver, pipe) of three f32 knots each, the saved assistance records (Story 9A.44).
+        assert.equal(puzzle.assistanceLength(), 9);
         const profiles = [parts.ball.difficulty, parts.receiver.difficulty, CONTENT.solution[0].difficulty];
         assert.deepEqual(parts.bend.difficulty, parts.ball.difficulty, 'the bend repeats the ball knots');
         assert.equal(CONTENT.solution[0].properties.length, 2);
         profiles.forEach((profile, p) => profile.forEach((knot, k) => KNOT_FIELDS.forEach((field, f) => {
-            const at = p * 66 + k * 22 + f * 2;
-            const value = half(raw[at] | (raw[at + 1] << 8));
-            assert.ok(Math.abs(value - knot[field]) <= Math.max(1e-3, Math.abs(knot[field]) * 1e-3), `profile ${p} knot ${k} ${field}: ${value} ≠ ${knot[field]}`);
+            const value = knotLanes(puzzle.assistance(p * 3 + k)!)[f];
+            assert.equal(value, Math.fround(knot[field]), `profile ${p} knot ${k} ${field}: ${value} ≠ ${knot[field]}`);
         })));
 
         // The granted pipe is the only one: with it placed, the drawer row is spent and a canvas click issues nothing.

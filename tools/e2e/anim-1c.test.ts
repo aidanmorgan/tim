@@ -17,7 +17,6 @@ const SWITCH_TARGET = '4';                      // delayed_signal activation nod
 const DELAY_TARGET = '4294967300';              // 2^32 + placed Delay node 4
 const OPACITY = 3;
 const COLOUR_BLEND = 5;
-const HALF_ONE = 15360;
 const SWITCH_SCREEN = { x: 524, y: 622 };
 const LAMP_SCREEN = { x: 915, y: 612 };
 const DELAY_SCREEN = { x: 720, y: 482 };
@@ -75,8 +74,8 @@ describe('ANIM-1c: Legacy presentation code retirement', () => {
         assert.equal(await driver.readLastAnimationSample(GOAL_TARGET), null, 'No goal sample before Run');
 
         await driver.run();
-        const captured = await waitFor(async () => (await driver.readLastAnimationSample(RECEIVER_HALO_TARGET))?.valBits === HALF_ONE, 12000);
-        assert.ok(captured, 'Capture target sample must ramp to Half 1.0 once the ball is captured');
+        const captured = await waitFor(async () => (await driver.readLastAnimationSample(RECEIVER_HALO_TARGET))?.value === 1, 12000);
+        assert.ok(captured, 'Capture target sample must ramp to 1 once the ball is captured');
         const halo = await driver.readAnimationSamplesForTarget(RECEIVER_HALO_TARGET);
         assert.ok(halo.every((s: AnimationSampleRecord) => s.property === COLOUR_BLEND), 'Capture halo samples are ColourBlend channels');
         const ramp = halo.map((s: AnimationSampleRecord) => s.value);
@@ -84,7 +83,7 @@ describe('ANIM-1c: Legacy presentation code retirement', () => {
         assert.ok(ramp.some(v => v > 0 && v < 1), `Ramp passes through intermediate blends (got ${ramp.slice(0, 8).join(',')}...)`);
         assert.ok(monotonic(ramp), 'Capture ramp is monotonic');
 
-        const solved = await waitFor(async () => (await driver.readLastAnimationSample(GOAL_TARGET))?.valBits === HALF_ONE, 5000);
+        const solved = await waitFor(async () => (await driver.readLastAnimationSample(GOAL_TARGET))?.value === 1, 5000);
         assert.ok(solved, 'Goal UI target sample must reach 1');
         assert.equal((await driver.readLastAnimationSample(GOAL_TARGET))!.property, OPACITY, 'Goal samples are Opacity channels');
         await driver.page.waitForTimeout(800);
@@ -107,8 +106,8 @@ describe('ANIM-1c: Legacy presentation code retirement', () => {
         await driver.selectLevel('first_principles');
         await driver.load();
         await driver.run();
-        const recaptured = await waitFor(async () => (await driver.readLastAnimationSample(RECEIVER_HALO_TARGET))?.valBits === HALF_ONE, 12000);
-        assert.ok(recaptured, 'Loaded construction must re-animate the capture halo to Half 1.0');
+        const recaptured = await waitFor(async () => (await driver.readLastAnimationSample(RECEIVER_HALO_TARGET))?.value === 1, 12000);
+        assert.ok(recaptured, 'Loaded construction must re-animate the capture halo to 1');
         assert.equal(await driver.readCaptured(), 1, 'Loaded construction solves the level once');
         await driver.reset(500);
         assert.equal(errors.length, 0, `Zero errors expected, got: ${errors.join('; ')}`);
@@ -134,9 +133,9 @@ describe('ANIM-1c: Legacy presentation code retirement', () => {
         await driver.showHint();
         const revealed = await waitFor(async () => {
             const fresh = (await driver.readAnimationSamplesForTarget(HINT_TARGET)).slice(hintBefore);
-            return fresh.some((s: AnimationSampleRecord) => s.value < 1) && fresh[fresh.length - 1]?.valBits === HALF_ONE;
+            return fresh.some((s: AnimationSampleRecord) => s.value < 1) && fresh[fresh.length - 1]?.value === 1;
         }, 5000);
-        assert.ok(revealed, 'Hint target must reveal from 0 to Half 1.0 while the Delay counts');
+        assert.ok(revealed, 'Hint target must reveal from 0 to 1 while the Delay counts');
         const fresh = (await driver.readAnimationSamplesForTarget(HINT_TARGET)).slice(hintBefore);
         assert.ok(fresh.every((s: AnimationSampleRecord) => s.property === OPACITY), 'Hint samples are Opacity channels');
         // Neutral pulses already in flight before the Reveal clip registered precede the ramp; the ramp starts at its first sub-unit sample.
@@ -149,7 +148,7 @@ describe('ANIM-1c: Legacy presentation code retirement', () => {
         assert.ok(fillAfter > fillBefore, `Delay fill keeps publishing while the hint animates (${fillBefore} → ${fillAfter})`);
         const fill = (await driver.readAnimationSamplesForTarget(DELAY_TARGET)).map((s: AnimationSampleRecord) => s.value);
         assert.ok(monotonic(fill), 'Delay fill stays monotonic across the hint control');
-        assert.ok((await driver.readLastAnimationSample(SWITCH_TARGET))?.valBits === HALF_ONE, 'Switch depression already reached 1');
+        assert.ok((await driver.readLastAnimationSample(SWITCH_TARGET))?.value === 1, 'Switch depression already reached 1');
 
         // Hide: the label is hidden by its control and the hint target rests on its declared neutral opacity (1) from then on.
         const hintAtHide = (await driver.readAnimationSamplesForTarget(HINT_TARGET)).length;
@@ -170,7 +169,7 @@ describe('ANIM-1c: Legacy presentation code retirement', () => {
         await driver.showHint();
         const revealed = await waitFor(async () => {
             const fresh = (await driver.readAnimationSamplesForTarget(HINT_TARGET)).slice(hintBefore);
-            return fresh.some((s: AnimationSampleRecord) => s.value < 1) && fresh[fresh.length - 1]?.valBits === HALF_ONE;
+            return fresh.some((s: AnimationSampleRecord) => s.value < 1) && fresh[fresh.length - 1]?.value === 1;
         }, 5000);
         assert.ok(revealed, 'Hint reveals 0→1 in Build mode without a running world');
         const hintAtHide = (await driver.readAnimationSamplesForTarget(HINT_TARGET)).length;
@@ -194,8 +193,8 @@ describe('ANIM-1c: Legacy presentation code retirement', () => {
         assert.equal(await driver.readLastAnimationSample(RECEIVER_HALO_TARGET), null, 'No capture sample before Run');
 
         await driver.run();
-        const captured = await waitFor(async () => (await driver.readLastAnimationSample(RECEIVER_HALO_TARGET))?.valBits === HALF_ONE, 12000);
-        assert.ok(captured, 'Free-workshop Receiver capture target must ramp to Half 1.0 when the dropped ball settles in it');
+        const captured = await waitFor(async () => (await driver.readLastAnimationSample(RECEIVER_HALO_TARGET))?.value === 1, 12000);
+        assert.ok(captured, 'Free-workshop Receiver capture target must ramp to 1 when the dropped ball settles in it');
         const halo = await driver.readAnimationSamplesForTarget(RECEIVER_HALO_TARGET);
         assert.ok(halo.every((s: AnimationSampleRecord) => s.property === COLOUR_BLEND), 'Capture halo samples are ColourBlend channels');
         assert.ok(monotonic(halo.map((s: AnimationSampleRecord) => s.value)), 'Capture ramp is monotonic in free play');

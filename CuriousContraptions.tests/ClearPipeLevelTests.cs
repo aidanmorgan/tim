@@ -9,7 +9,7 @@ namespace CuriousContraptions.Tests;
 
 public sealed class ClearPipeLevelTests
 {
-    private static WorkshopConstruction Lesson(Half precision) =>
+    private static WorkshopConstruction Lesson(float precision) =>
         PuzzleCatalogue.Create(new("clear_pipe"), new(1), WorkshopCadenceSettings.Default(), new(1), new(precision));
 
     [Fact]
@@ -20,7 +20,7 @@ public sealed class ClearPipeLevelTests
         Assert.Equal("Through the looking tube", level.GetProperty("title").GetString());
         Assert.Equal(1, level.GetProperty("inventory").EnumerateArray().Single(row => row.GetProperty("part").GetString() == "pipe").GetProperty("count").GetInt32());
 
-        var construction = Lesson((Half)0);
+        var construction = Lesson(0f);
         Assert.Equal(WorkshopGoalKind.Captured, construction.Puzzle.Goal.Kind);
         Assert.Equal(new GpuBodyId(1), construction.Puzzle.Goal.Body);
         Assert.Equal(new GpuBodyId(2), construction.Puzzle.Goal.Target);
@@ -44,7 +44,7 @@ public sealed class ClearPipeLevelTests
     [Fact]
     public void ValidateEnforcesFixturesAndInventory()
     {
-        var construction = Lesson((Half)0);
+        var construction = Lesson(0f);
         construction.Validate();
 
         var pipe = WorkshopInput.Pipe(new(3), 0, 3, 0, 0.7071068, 0, 0, 0.7071068);
@@ -73,17 +73,17 @@ public sealed class ClearPipeLevelTests
 
     [Theory]
     [InlineData(0, 0.3, 3.0, 0.15, 12)]
-    [InlineData(0.45, 0.174, 2.325, 0.24, 6.6)]
+    [InlineData(0.45, 0.174, 2.324, 0.24, 6.6)]
     [InlineData(1.0, 0.02, 1.5, 0.35, 0)]
     public void PrecisionEvaluatesAssistanceAndRoundtripsSaveCodec(double precision, double margin, double speed, double dwell, double accel)
     {
-        var construction = Lesson((Half)precision);
+        var construction = Lesson((float)precision);
         var receiver = ((WorkshopGenericInstance)construction.Instances.Single(instance => instance.PartId == PartId.Receiver));
 
-        Assert.Equal((float)(Half)margin, receiver.Parameters[new("capture_margin")]);
-        Assert.Equal((float)(Half)speed, receiver.Parameters[new("capture_speed_limit")]);
-        Assert.Equal((float)(Half)dwell, receiver.Parameters[new("capture_dwell")]);
-        Assert.Equal((float)(Half)accel, receiver.Parameters[new("force_maximum_acceleration")]);
+        Assert.Equal((float)margin, receiver.Parameters[new("capture_margin")]);
+        Assert.Equal((float)speed, receiver.Parameters[new("capture_speed_limit")]);
+        Assert.Equal((float)dwell, receiver.Parameters[new("capture_dwell")]);
+        Assert.Equal((float)accel, receiver.Parameters[new("force_maximum_acceleration")]);
 
         var pipe = WorkshopInput.Pipe(new(3), 0, 3, 0, 0, 0, 0, 1);
         var placed = construction.WithInstance(pipe);
@@ -94,14 +94,14 @@ public sealed class ClearPipeLevelTests
         var decoded = WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes);
         Assert.Equal(save, decoded);
 
-        var updated = PuzzleCatalogue.WithPrecision(placed, new((Half)0.45));
-        Assert.Equal((float)(Half)0.174, ((WorkshopGenericInstance)updated.Instances.Single(instance => instance.PartId == PartId.Receiver)).Parameters[new("capture_margin")]);
+        var updated = PuzzleCatalogue.WithPrecision(placed, new(0.45f));
+        Assert.Equal(0.174f, ((WorkshopGenericInstance)updated.Instances.Single(instance => instance.PartId == PartId.Receiver)).Parameters[new("capture_margin")]);
     }
 
     [Fact]
     public void CompilerEmitsCompoundCollidersAndSensors()
     {
-        var construction = Lesson((Half)0.45);
+        var construction = Lesson(0.45f);
         var pipe = WorkshopInput.Pipe(new(3), 0, 3, 0, 0.7071068, 0, 0, 0.7071068);
         var placed = construction.WithInstance(pipe);
 
@@ -129,11 +129,11 @@ public sealed class ClearPipeLevelTests
         for (var i = 0; i < 3; i++)
         {
             var k = values[i];
-            Half[] actual = [k.Precision, k.PositionWindow.Value, k.RotationWindowDegrees, k.MaximumPositionCorrection.Value,
+            float[] actual = [k.Precision, k.PositionWindow.Value, k.RotationWindowDegrees, k.MaximumPositionCorrection.Value,
                 k.MaximumRotationCorrectionDegrees, k.Blend.Value, k.CaptureMargin.Value, k.CaptureSpeed.Value,
                 k.CaptureDwell.Value, k.GuideAcceleration.Value, k.TriggerThreshold];
             for (var field = 0; field < names.Length; field++)
-                Assert.Equal((Half)data[i].GetProperty(names[field]).GetDouble(), actual[field]);
+                Assert.Equal((float)data[i].GetProperty(names[field]).GetDouble(), actual[field]);
         }
     }
 }

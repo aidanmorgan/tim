@@ -9,7 +9,7 @@ namespace CuriousContraptions.Tests;
 /// <summary>Ball kinds the law tests declare; each maps to its catalogue identity and its package's declared material.</summary>
 public enum LawBall { Basketball, Bowling }
 
-/// <summary>Each kind's declared material as the compiler compiles it: the package's f32 declaration narrowed to the binary16 body,
+/// <summary>Each kind's declared material as the compiler compiles it: the package's f32 declaration in the f32 body,
 /// collider and material lanes (WorkshopPhysicsCompiler), so a law test feeds the engine exactly the compiled values.</summary>
 internal static class LawBalls
 {
@@ -22,24 +22,24 @@ internal static class LawBalls
     private static CuriousContraptions.Abstractions.ColliderDescriptor Sphere(LawBall ball) => Assert.Single(DeclaredPhysics.Of(Part(ball)).Colliders);
     private static CuriousContraptions.Abstractions.Mechanical.RigidBodyMassProperties Body(LawBall ball) =>
         DeclaredPhysics.Of(Part(ball)).Mechanical!.MassProperties;
-    public static float Radius(LawBall ball) => (float)(Half)Sphere(ball).HalfExtents.X;
-    public static float Mass(LawBall ball) => (float)(Half)Body(ball).Mass;
-    public static float Drag(LawBall ball) => (float)(Half)Body(ball).LinearDrag;
-    public static float Rolling(LawBall ball) => (float)(Half)Sphere(ball).Material.RollingResistance;
-    public static float Restitution(LawBall ball) => (float)(Half)Sphere(ball).Material.Restitution;
-    public static float Friction(LawBall ball) => (float)(Half)Sphere(ball).Material.Friction;
-    public static float BounceThreshold(LawBall ball) => (float)(Half)Sphere(ball).Material.BounceThreshold;
+    public static float Radius(LawBall ball) => (float)Sphere(ball).HalfExtents.X;
+    public static float Mass(LawBall ball) => (float)Body(ball).Mass;
+    public static float Drag(LawBall ball) => (float)Body(ball).LinearDrag;
+    public static float Rolling(LawBall ball) => (float)Sphere(ball).Material.RollingResistance;
+    public static float Restitution(LawBall ball) => (float)Sphere(ball).Material.Restitution;
+    public static float Friction(LawBall ball) => (float)Sphere(ball).Material.Friction;
+    public static float BounceThreshold(LawBall ball) => (float)Sphere(ball).Material.BounceThreshold;
 }
 
-/// <summary>The Domino tile as the compiler compiles it: its package's baked box, mass and material narrowed to the binary16 body,
+/// <summary>The Domino tile as the compiler compiles it: its package's baked box, mass and material in the f32 body,
 /// collider and material lanes (WorkshopPhysicsCompiler), so a law test feeds the engine exactly the compiled tile.</summary>
 internal static class LawTile
 {
     private static CuriousContraptions.Abstractions.ColliderDescriptor Box => Assert.Single(DeclaredPhysics.Of(PartId.Domino).Colliders);
-    public static Vector3 HalfExtents => new((float)(Half)Box.HalfExtents.X, (float)(Half)Box.HalfExtents.Y, (float)(Half)Box.HalfExtents.Z);
-    public static float Mass => (float)(Half)DeclaredPhysics.Of(PartId.Domino).Mechanical!.MassProperties.Mass;
-    public static LawMaterial Material => new((float)(Half)Box.Material.Restitution, (float)(Half)Box.Material.BounceThreshold,
-        (float)(Half)Box.Material.Friction, (float)(Half)Box.Material.RollingResistance);
+    public static Vector3 HalfExtents => new((float)Box.HalfExtents.X, (float)Box.HalfExtents.Y, (float)Box.HalfExtents.Z);
+    public static float Mass => (float)DeclaredPhysics.Of(PartId.Domino).Mechanical!.MassProperties.Mass;
+    public static LawMaterial Material => new((float)Box.Material.Restitution, (float)Box.Material.BounceThreshold,
+        (float)Box.Material.Friction, (float)Box.Material.RollingResistance);
 }
 
 /// <summary>Declared contact material of one law-test body (the same lanes ContactMaterialDeclaration admits).</summary>
@@ -77,15 +77,15 @@ internal sealed class LawScene
         var height = WorkshopInput.Position(BenchY);
         var plane = new GpuBodyId(_next++);
         _bodies.Add(new(plane, RigidMotionKind.Static, new(0, height.Cell, 0), new(0f, height.Local, 0f), CanonicalRotation.Identity,
-            default, default, new((Half)0), default, new((Half)0)));
+            default, default, new(0f), default, new(0f)));
         var material = Material(LawMaterial.Bench);
-        _colliders.Add(new(new(_next++), plane, material, ColliderShapeKind.Plane, RigidLocalPose.Identity, new((Half)0), default));
+        _colliders.Add(new(new(_next++), plane, material, ColliderShapeKind.Plane, RigidLocalPose.Identity, new(0f), default));
     }
 
     private GpuMaterialId Material(LawMaterial value)
     {
         var id = new GpuMaterialId(_next++);
-        _materials.Add(new(id, new((Half)value.Restitution), new((Half)value.Threshold), new((Half)value.Friction), new((Half)value.Rolling)));
+        _materials.Add(new(id, new((float)value.Restitution), new((float)value.Threshold), new((float)value.Friction), new((float)value.Rolling)));
         return id;
     }
 
@@ -98,17 +98,17 @@ internal sealed class LawScene
         _bodies.Add(new(id, motion, new(x.Cell, y.Cell, z.Cell), new(x.Local, y.Local, z.Local),
             CanonicalRotation.Normalize(rotation.X, rotation.Y, rotation.Z, rotation.W),
             dynamic ? new(velocity.X, velocity.Y, velocity.Z) : default, dynamic ? new(angular.X, angular.Y, angular.Z) : default,
-            new((Half)(dynamic ? mass : 0f)), dynamic ? new((Half)0, (Half)gravity, (Half)0) : default, new((Half)(dynamic ? drag : 0f))));
+            new((float)(dynamic ? mass : 0f)), dynamic ? new(0f, (float)gravity, 0f) : default, new((float)(dynamic ? drag : 0f))));
         var materialId = Material(material);
         var collider = new GpuColliderId(_next++);
         _colliderOf[id] = collider;
         _colliders.Add(new(collider, id, materialId, shape,
-            new(new((Half)colliderOffset.X, (Half)colliderOffset.Y, (Half)colliderOffset.Z), CanonicalRotation.Identity),
-            new((Half)(shape is ColliderShapeKind.Sphere or ColliderShapeKind.Cylinder ? radius : 0f)),
+            new(new((float)colliderOffset.X, (float)colliderOffset.Y, (float)colliderOffset.Z), CanonicalRotation.Identity),
+            new((float)(shape is ColliderShapeKind.Sphere or ColliderShapeKind.Cylinder ? radius : 0f)),
             shape switch
             {
-                ColliderShapeKind.Box => new((Half)half.X, (Half)half.Y, (Half)half.Z),
-                ColliderShapeKind.Cylinder => new((Half)0, (Half)half.Y, (Half)0),
+                ColliderShapeKind.Box => new((float)half.X, (float)half.Y, (float)half.Z),
+                ColliderShapeKind.Cylinder => new(0f, (float)half.Y, 0f),
                 _ => default
             }));
         return id;
@@ -238,16 +238,14 @@ internal sealed class LawWorld(PhysicsSceneDeclaration scene, byte[] admitted, S
 
     private int Body(GpuBodyId id) => scene.Layout.GetBodyOffset(id);
 
-    /// <summary>Overrides a body's admitted principal moments (mantissa in [0.5, 1) times 2^exponent; zero stays zero).</summary>
+    /// <summary>Overrides a body's admitted principal moments (one f32 each; zero stays zero).</summary>
     public void SetPrincipalMoments(GpuBodyId id, Vector3 moments)
     {
         for (var axis = 0; axis < 3; axis++)
         {
             var value = axis == 0 ? moments.X : axis == 1 ? moments.Y : moments.Z;
             var slot = admitted.AsSpan(Body(id) + PhysicsGpuAbi.BodyPrincipalInertiaOffset + axis * PhysicsGpuAbi.PrincipalInertiaBytes);
-            var exponent = value > 0 ? MathF.ILogB(value) + 1 : 0;
-            BinaryPrimitives.WriteHalfLittleEndian(slot, (Half)(value > 0 ? value / MathF.Pow(2, exponent) : 0f));
-            BinaryPrimitives.WriteInt32LittleEndian(slot[PhysicsGpuAbi.PrincipalExponentOffset..], exponent);
+            BinaryPrimitives.WriteSingleLittleEndian(slot, value);
         }
     }
 
@@ -565,7 +563,10 @@ public sealed class WorkshopPhysicsLawTests
     // Reviewed identifiers that contain an element name but name no element: "clamp" contains "lamp", "conjugate" contains
     // "gate". The shared electrical-domain tables contain "electrical" (the domain word of the electrical_* gate ids) but name no gate.
     private static readonly string[] GenericIdentifiers = ["Clamp", "ClampVelocity", "SpeedClamp", "SpinClamp", "Conjugate",
-        "ElectricalSupply", "ElectricalEnable", "ElectricalSources", "ElectricalBindings", "ElectricalSourceOffset", "ElectricalBindingOffset"];
+        "ElectricalSupply", "ElectricalEnable", "ElectricalSources", "ElectricalBindings", "ElectricalSourceOffset", "ElectricalBindingOffset",
+        // Story 9A.44: the generic electrical-supply capability's named record fields (every supply source and storage route).
+        "ElectricalSourceEnableOffset", "ElectricalSourceRemainingOffset", "ElectricalSourceMaximumPowerOffset", "ElectricalSourceDebitOffset",
+        "ElectricalBindingSourceOffset", "ElectricalBindingStorageOffset"];
 
     // Reviewed qualified names: the prismatic constraint's soft spring row is the generic declared stiffness/damping law of
     // every prismatic, not the Springboard part. Only these exact qualified forms are set aside, so a bare "Spring" token
@@ -796,7 +797,7 @@ public sealed class WorkshopPhysicsLawTests
     [Fact]
     public void EveryMotionPieceCarriesItsBodysDeclaredDragRate()
     {
-        const int MotionPieceBodyIdOffset = 24; // PhysicsMotionRead piece layout: body identity (u64) at +24
+        const int MotionPieceBodyIdOffset = PhysicsMotionRead.OwnerOffset;
         var scene = new LawScene(bench: false);
         var ball = scene.Ball(LawBall.Basketball, At(0, 1), velocity: At(2, 0, 0), gravity: 0);
         var bowling = scene.Sphere(At(0, 1, 2), LawBalls.Radius(LawBall.Bowling), LawBalls.Mass(LawBall.Bowling),
@@ -805,16 +806,16 @@ public sealed class WorkshopPhysicsLawTests
         var world = scene.Admit();
         var stepped = world.Step(1).World;
         var motion = stepped.AsSpan(PhysicsGpuAbi.Layout(stepped).MotionOffset);
-        var declared = new Dictionary<ulong, Half> { [ball.Value] = (Half)LawBalls.Drag(LawBall.Basketball), [bowling.Value] = (Half).125f,
-            [free.Value] = (Half)0 };
+        var declared = new Dictionary<ulong, float> { [ball.Value] = (float)LawBalls.Drag(LawBall.Basketball), [bowling.Value] = (float).125f,
+            [free.Value] = 0f };
         var count = (int)BinaryPrimitives.ReadUInt32LittleEndian(motion);
         Assert.Equal(12, count);
         for (var i = 0; i < count; i++)
         {
             var piece = motion[(PhysicsMotionRead.HeaderBytes + i * PhysicsMotionRead.PieceBytes)..];
             var id = BinaryPrimitives.ReadUInt64LittleEndian(piece[MotionPieceBodyIdOffset..]);
-            Assert.Equal(BitConverter.HalfToUInt16Bits(declared[id]),
-                BinaryPrimitives.ReadUInt16LittleEndian(piece[PhysicsMotionRead.DragRateOffset..]));
+            Assert.Equal(BitConverter.SingleToUInt32Bits(declared[id]),
+                BinaryPrimitives.ReadUInt32LittleEndian(piece[PhysicsMotionRead.DragRateOffset..]));
         }
     }
 

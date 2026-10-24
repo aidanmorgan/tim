@@ -29,7 +29,8 @@ public sealed class DeclaredOrientationTests
         Assert.Equal(WorkshopPhysicsCompiler.OrientationSensorFor(tile, declared), sensor);
         Assert.Equal((WorkshopPhysicsCompiler.OrientationSensor(tile.Id), tile.Id, tile.Rotation), (sensor.Id, sensor.Body, sensor.Initial));
         Assert.NotEqual(CanonicalRotation.Identity, sensor.Initial);
-        Assert.Equal((ushort)0x3b64, BitConverter.HalfToUInt16Bits(sensor.Threshold.CosineHalfAngle));
+        // The Domino's declared 45° compiles to the f32 cosine of 22.5°, rounded once from its exact value.
+        Assert.Equal(BitConverter.SingleToUInt32Bits((float)Math.Cos(Math.PI / 8)), BitConverter.SingleToUInt32Bits(sensor.Threshold.CosineHalfAngle));
         var node = Assert.Single(WorkshopActivationCompiler.Compile(bench).Nodes.ToArray(), row => row.Owner == tile.Id);
         Assert.Equal((ActivationNodeKind.OrientationSource, new GpuOrientationSensorId(sensor.Id.Value)), (node.Kind, node.Sensor));
 
@@ -39,13 +40,14 @@ public sealed class DeclaredOrientationTests
         Assert.Equal(ActivationNodeKind.ContactSource, Assert.Single(WorkshopActivationCompiler.Compile(control).Nodes.ToArray(), row => row.Owner == hit.Id).Kind);
     }
 
-    // The helper narrows any admitted declaration to its own half-angle cosine: the threshold is read from the declaration, never
-    // assumed. Its admitted range is the validator's (4-179°); beyond it the shared threshold law refuses.
+    // The helper compiles any admitted declaration to the f32 cosine of its own half angle: the threshold is read from the
+    // declaration, never assumed. Its admitted range is the declared 4-179°; beyond it the shared threshold law refuses.
     [Fact]
     public void TheHelperCompilesEachDeclaredThresholdToItsOwnCosine()
     {
         var tile = PlacedParts.Domino(new(1), 0, Upright, 0, 0, 0, 0, 1);
-        Assert.Equal((ushort)0x3bba, BitConverter.HalfToUInt16Bits(WorkshopPhysicsCompiler.OrientationSensorFor(tile, new(30f)).Threshold.CosineHalfAngle));
+        Assert.Equal(BitConverter.SingleToUInt32Bits((float)Math.Cos(Math.PI / 12)),
+            BitConverter.SingleToUInt32Bits(WorkshopPhysicsCompiler.OrientationSensorFor(tile, new(30f)).Threshold.CosineHalfAngle));
         foreach (var degrees in new[] { 4f, 30f, 45f, 179f })
             Assert.Equal(OrientationThreshold.Degrees(degrees), WorkshopPhysicsCompiler.OrientationSensorFor(tile, new(degrees)).Threshold);
         Assert.NotEqual(WorkshopPhysicsCompiler.OrientationSensorFor(tile, new(30f)).Threshold, WorkshopPhysicsCompiler.OrientationSensorFor(tile, new(45f)).Threshold);

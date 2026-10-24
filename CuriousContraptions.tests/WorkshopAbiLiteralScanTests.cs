@@ -4,10 +4,10 @@ namespace CuriousContraptions.Tests;
 
 /// <summary>Murdoch-2 R2-F4 (Story 9.4b): the physical world's header, contact-work, work-occurrence and trigger fields are
 /// read and written only through the named PhysicsGpuAbi offsets, so the tests that pin those names pin the shipped
-/// layout. A literal offset in any of these places fails here.</summary>
+/// layout. Story 9A.44 extends the scan to every relaid f32 record field. A literal offset in any of these places fails here.</summary>
 public sealed class WorkshopAbiLiteralScanTests(ITestOutputHelper output)
 {
-    public enum Rule { WorldHeader, ContactWorkRecords, ContactEventLoop, TriggerRead }
+    public enum Rule { WorldHeader, ContactWorkRecords, ContactEventLoop, TriggerRead, RecordFields }
 
     private static string Root => twodog.Engine.ResolveProjectDir();
     private static string Source(string path) => File.ReadAllText(Path.Combine(Root, path));
@@ -35,8 +35,32 @@ public sealed class WorkshopAbiLiteralScanTests(ITestOutputHelper output)
         // The committed trigger reader: no literal record offset, padding slice or shared body/collider field.
         Rule.TriggerRead => [("PhysicsGpuAbi.ReadTrigger", Method(Source("engine/gpu/PhysicsGpuAbi.cs"), " ContactTriggerRead ReadTrigger("),
             new Regex(@"\b(?:R32|R64|RF|RH)\(record, ?[1-9]|\brecord\[[1-9]|Bytes \+ \d"))],
+        // Story 9A.44 D3: every world record (body, collider, material, sensor, guide, trigger, orientation, work occurrence,
+        // prismatic, electrical source and binding, contact load, motion piece, body wire, trace capture) is read and written
+        // through its named field offsets on both sides: the ABI and read models (record spans `record`, `bodyRecord`,
+        // `declaration`, `slot`, `bytes`, `_bytes`, `p`, `piece`) and the worker (record bases `bodyOffset`, ... `prismaticOffset`,
+        // `supplyOffset`, `bindingOffset`, `joint.Offset`, or a `layout.…Offset(i)` call). A literal first offset, slice or
+        // base + literal is a field; a named field plus a component step (`VelocityOffset + 4`) is not.
+        Rule.RecordFields => RecordFiles.Select(path => (path, Source(path), RecordSpanLiteral))
+            .Append(("WorkshopTraceRecord.Encode", Method(Source("engine/gpu/WorkshopTraceRecord.cs"), " byte[] Encode("),
+                new Regex(@"\boffset ?\+ ?\d")))
+            .Append(("CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs", Source("CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs"),
+                new Regex(@"\b(?:bodyOffset|colliderOffset|materialOffset|sensorOffset|guideOffset|oOffset|tOffset|wOffset|storeOffset|pieceOffset|motionOffset|rotationOffset|prismaticOffset|supplyOffset|bindingOffset) ?\+ ?\d" +
+                    @"|\.Offset ?\+ ?\d|Offset\([^()]*\) ?\+ ?\d" + RotationDriveFootprintLiteral))),
         _ => throw new ArgumentOutOfRangeException(nameof(rule), rule, "Unknown scan rule.")
     };
+
+    private static readonly string[] RecordFiles = ["engine/gpu/PhysicsGpuAbi.cs", "engine/gpu/PhysicsGpuAbi.Header.cs",
+        "engine/gpu/PhysicsGpuAbi.ContactWork.cs", "engine/gpu/PhysicsGpuAbi.Constraints.cs", "engine/gpu/PhysicsGpuAbi.Electrical.cs",
+        "engine/gpu/PhysicsGpuAbi.ContactLoad.cs", "engine/gpu/PhysicsMotionRead.cs", "engine/gpu/PhysicsBodyWire.cs"];
+
+    private static readonly Regex RecordSpanLiteral = new(
+        @"\b(?:R32|R64|RF|U32|U64|F32|F32Vector|F|Vector|WriteEnergy)\((?:record|bodyRecord|declaration|slot|bytes|_bytes|p|piece), ?\d" +
+        @"|\b(?:record|bodyRecord|declaration|slot|bytes|_bytes|p|piece)(?:\[\(?|\.Slice\(|\.AsSpan\()\d" +
+        // A rotation's y/z/w, a drive's five values and a footprint's four bounds are named fields, never base + literal.
+        RotationDriveFootprintLiteral);
+
+    private const string RotationDriveFootprintLiteral = @"|(?:Rotation|Drive|Footprint)\w*Offset ?\+ ?\d|\b(?:rotation|drive) ?\+ ?\d";
 
     private static string Method(string source, string declaration)
     {
@@ -56,6 +80,7 @@ public sealed class WorkshopAbiLiteralScanTests(ITestOutputHelper output)
     [InlineData(Rule.ContactWorkRecords)]
     [InlineData(Rule.ContactEventLoop)]
     [InlineData(Rule.TriggerRead)]
+    [InlineData(Rule.RecordFields)]
     public void NoLiteralAbiOffsetRemains(Rule rule)
     {
         var hits = new List<string>();
@@ -83,6 +108,32 @@ public sealed class WorkshopAbiLiteralScanTests(ITestOutputHelper output)
     [InlineData(Rule.ContactEventLoop, "            var owner = Read(span.Slice(wOffset + PhysicsGpuAbi.ContactWorkOwnerOffset, 4));", false)]
     [InlineData(Rule.TriggerRead, "            var colliderSlot = R32(record, 36);", true)]
     [InlineData(Rule.TriggerRead, "            var colliderSlot = R32(record, TriggerColliderOffset);", false)]
+    [InlineData(Rule.RecordFields, "            F32(record, 88, body.Mass.Value);", true)]
+    [InlineData(Rule.RecordFields, "            stores[i]=new(new(R64(record,0)),", true)]
+    [InlineData(Rule.RecordFields, "        var phase = F(p,16);", true)]
+    [InlineData(Rule.RecordFields, "        BinaryPrimitives.WriteInt32LittleEndian(bytes[(8 + 4)..], value.Body.Cell.Y);", true)]
+    [InlineData(Rule.RecordFields, "            U32(b,offset+8,(uint)c.Phase);", true)]
+    [InlineData(Rule.RecordFields, "            var mass = ReadF32(span, bodyOffset + 88);", true)]
+    [InlineData(Rule.RecordFields, "            WriteF32(span, pieceOffset + 28, b.Drag);", true)]
+    [InlineData(Rule.RecordFields, "            var a = R32(record, 8); var b = R32(record, 12);", true)]
+    [InlineData(Rule.RecordFields, "            WriteEnergy(record, 16, source.Capacity.Value);", true)]
+    [InlineData(Rule.RecordFields, "            var lower = BinaryPrimitives.ReadSingleLittleEndian(span.Slice(prismaticOffset + 72, 4));", true)]
+    [InlineData(Rule.RecordFields, "            BinaryPrimitives.WriteSingleLittleEndian(span.Slice(layout.ElectricalSourceOffset(supply) + 40, 4), 0f);", true)]
+    [InlineData(Rule.RecordFields, "                    WriteF32(span, joint.Offset + 96 + row * 4, joint.Impulses[row]);", true)]
+    [InlineData(Rule.RecordFields, "            var a = R32(record, PrismaticBodyAOffset);", false)]
+    [InlineData(Rule.RecordFields, "            WriteEnergy(record, ElectricalSourceCapacityOffset, source.Capacity.Value);", false)]
+    [InlineData(Rule.RecordFields, "            WriteF32(span, layout.ElectricalSourceOffset(supply) + PhysicsGpuAbi.ElectricalSourceDebitOffset, 0f);", false)]
+    [InlineData(Rule.RecordFields, "        F(bytes, RotationOffset + 12, value.Rotation.W);", true)]
+    [InlineData(Rule.RecordFields, "            RF(record, PrismaticDriveOffset + 16));", true)]
+    [InlineData(Rule.RecordFields, "            RF(record, ContactLoadFootprintOffset + 8),", true)]
+    [InlineData(Rule.RecordFields, "        WriteEnergy(data, rotation + 4, frame.Rotation.Y);", true)]
+    [InlineData(Rule.RecordFields, "                ReadF32(span, drive + 12),", true)]
+    [InlineData(Rule.RecordFields, "        F(bytes, RotationOffset + PhysicsGpuAbi.RotationWOffset, value.Rotation.W);", false)]
+    [InlineData(Rule.RecordFields, "            RF(record, PrismaticDriveMaxPowerOffset));", false)]
+    [InlineData(Rule.RecordFields, "            F32(record, BodyMassOffset, body.Mass.Value);", false)]
+    [InlineData(Rule.RecordFields, "        var wy = (double)F(p,AngularVelocityOffset+4);", false)]
+    [InlineData(Rule.RecordFields, "            U32(b,offset+CapturePhaseOffset,(uint)c.Phase);", false)]
+    [InlineData(Rule.RecordFields, "            var mass = ReadF32(span, bodyOffset + PhysicsGpuAbi.BodyMassOffset);", false)]
     public void EachRuleCatchesItsLiteralForm(Rule rule, string line, bool forbidden) =>
         Assert.Equal(forbidden, Scope(rule).Any(scope => scope.Forbidden.IsMatch(line)));
 }

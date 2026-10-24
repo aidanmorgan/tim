@@ -338,7 +338,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
         var (scene, client) = BenchScene(PartId.Basketball, PlacementAnswer.Applied);
         try
         {
-            var bench = (Half)height;
+            var bench = (float)height;
             SetField(scene, "_placementHeight", new Metres(bench));
             var plate = PlacedParts.Plate(new(1), 0, (double)bench, 0, .5f);
             var before = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(plate));
@@ -772,7 +772,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
         var world = DiscoveredWorld();
         try
         {
-            var lesson = PuzzleCatalogue.Create(new PuzzleId("ready_to_rebound"), new(1), WorkshopCadenceSettings.Default(), new(1), new((Half).5));
+            var lesson = PuzzleCatalogue.Create(new PuzzleId("ready_to_rebound"), new(1), WorkshopCadenceSettings.Default(), new(1), new(.5f));
             typeof(MachineWorld).GetProperty(nameof(MachineWorld.Construction))!.SetValue(world, lesson);
             var undo = 0;
             // The Receiver captures, but the lesson's Receiver composition refuses an identity outside the authored domain.
@@ -1651,7 +1651,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
             Press("Configure");
             Fields()[new("length")].Text = "1.234567";
             Press("Apply parameters");
-            Assert.NotEqual(1.234567f, (float)(Half)1.234567f);
+            Assert.True(TestPrecision.NeedsMoreThanElevenSignificantBits(1.234567f));
             var current = Assert.IsType<WorkshopGenericInstance>(Assert.Single(scene.World.Construction.Instances));
             Assert.Equal(1.234567f, current.Parameters[new("length")]);
             Assert.Equal(1.234567f, part.Dimensions.X);

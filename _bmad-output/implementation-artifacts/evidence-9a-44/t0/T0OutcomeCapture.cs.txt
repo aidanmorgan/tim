@@ -1,0 +1,143 @@
+// Scratch-only T0 capture of Half-era native outcomes (Story 9A.44). Never committed; runs in the baseline worktree.
+using System.Text.Json;
+using System.Text.Json.Nodes;
+using CuriousContraptions.Gpu;
+
+namespace CuriousContraptions.Tests;
+
+public sealed class T0OutcomeCapture
+{
+    private static readonly JsonSerializerOptions Options = new() { IncludeFields = true };
+
+    [Fact]
+    public async Task Capture()
+    {
+        var root = new JsonObject
+        {
+            ["Provenance"] = new JsonObject
+            {
+                ["Sha"] = Environment.GetEnvironmentVariable("T0_SHA") ?? "unknown",
+                ["Command"] = "dotnet test CuriousContraptions.tests -c Debug --no-build --no-restore --filter FullyQualifiedName~T0OutcomeCapture (scratch T0OutcomeCapture.cs in a detached worktree of the baseline)",
+                ["Date"] = DateTime.UtcNow.ToString("O"),
+                ["Ticks"] = "lessons 1200 ticks at 120 Hz default cadence; elements 240 ticks",
+            }
+        };
+        var lessons = new JsonArray();
+        foreach (var row in LaunchLessonSolveTests.AuthoredLessons())
+        {
+            var lesson = row.Data;
+            foreach (var precision in new[] { (Half)0, (Half).45, (Half)1 })
+            {
+                var bench = LaunchLessonSolveTests.AuthoredSolution(lesson, precision);
+                var (_, run, _) = await NoFixedCapacityTests.RunAndReset(bench, 1200);
+                var entry = Outcome(run, bench);
+                entry["Id"] = lesson; entry["Precision"] = (float)precision;
+                lessons.Add(entry);
+            }
+        }
+        root["Lessons"] = lessons;
+        var elements = new JsonArray();
+        var discovered = CuriousContraptions.BundleElements.PackageDiscovery.Discover(twodog.Engine.ResolveProjectDir());
+        foreach (var package in discovered.Packages.OrderBy(p => p.Declaration.Metadata.Id, StringComparer.Ordinal))
+        {
+            var id = package.Declaration.Metadata.Id;
+            var bench = new WorkshopConstruction(new ConstructionRevision(2), WorkshopCadenceSettings.Default(),
+                new WorkshopInstances(PackageRuntimeParityTests.Placed(new PartId(id))));
+            JsonObject entry;
+            try
+            {
+                var (_, run, _) = await NoFixedCapacityTests.RunAndReset(bench, 240);
+                entry = Outcome(run, bench);
+                entry["Constructed"] = true;
+            }
+            catch (Xunit.Sdk.XunitException)
+            {
+                // A part that cannot stand alone (Construct refused) records that refusal as its baseline outcome.
+                entry = new JsonObject { ["Constructed"] = false };
+            }
+            entry["Id"] = id;
+            elements.Add(entry);
+        }
+        root["Elements"] = elements;
+        // Half-era legacy save bytes (D4 refusal fixtures) and the compiled rows of every element and lesson (D5 delta table input).
+        var fixtures = Environment.GetEnvironmentVariable("T0_FIXTURES") ?? "/tmp";
+        var authored = LaunchLessonSolveTests.AuthoredSolution("first_principles", (Half).45);
+        await File.WriteAllBytesAsync(Path.Combine(fixtures, "save-f1ad3bd1-authored-puzzle.bin"),
+            WorkshopSaveCodec.Encode(new WorkshopSavedConstruction(authored, new(authored.Instances.Max(i => i.Id.Value) + 1))), TestContext.Current.CancellationToken);
+        var free = new WorkshopConstruction(new ConstructionRevision(2), WorkshopCadenceSettings.Default(), new WorkshopInstances(
+            WorkshopInput.Generic(PartId.Basketball, new(1), 0, 3, 0, 0, 0, 0, 1), WorkshopInput.Generic(PartId.Ramp, new(2), 1, 1, 0, 0, 0, 0, 1)));
+        await File.WriteAllBytesAsync(Path.Combine(fixtures, "save-f1ad3bd1-free.bin"),
+            WorkshopSaveCodec.Encode(new WorkshopSavedConstruction(free, new(3))), TestContext.Current.CancellationToken);
+        var compiled = new JsonArray();
+        void Rows(string key, WorkshopConstruction c)
+        {
+            var scene = WorkshopPhysicsCompiler.Compile(c, new(1, 2));
+            compiled.Add(new JsonObject
+            {
+                ["Key"] = key,
+                ["Bodies"] = JsonSerializer.SerializeToNode(scene.Bodies.ToArray(), Options),
+                ["Colliders"] = JsonSerializer.SerializeToNode(scene.Colliders.ToArray(), Options),
+                ["Materials"] = JsonSerializer.SerializeToNode(scene.Materials.ToArray(), Options),
+                ["Sensors"] = JsonSerializer.SerializeToNode(scene.Sensors.ToArray(), Options),
+                ["Guides"] = JsonSerializer.SerializeToNode(scene.Guides.ToArray(), Options),
+                ["Triggers"] = JsonSerializer.SerializeToNode(scene.Triggers.ToArray(), Options),
+                ["ContactWorks"] = JsonSerializer.SerializeToNode(scene.ContactWorks.ToArray(), Options),
+                ["OrientationSensors"] = JsonSerializer.SerializeToNode(scene.OrientationSensors.ToArray(), Options),
+                ["Puzzle"] = JsonSerializer.SerializeToNode(c.Puzzle, Options),
+            });
+        }
+        foreach (var package in discovered.Packages.OrderBy(p => p.Declaration.Metadata.Id, StringComparer.Ordinal))
+            Rows(package.Declaration.Metadata.Id, new WorkshopConstruction(new ConstructionRevision(2), WorkshopCadenceSettings.Default(),
+                new WorkshopInstances(PackageRuntimeParityTests.Placed(new PartId(package.Declaration.Metadata.Id)))));
+        foreach (var row in LaunchLessonSolveTests.AuthoredLessons())
+            foreach (var precision in new[] { (Half)0, (Half).45, (Half)1 })
+                Rows(row.Data + "@" + (float)precision, LaunchLessonSolveTests.AuthoredSolution(row.Data, precision));
+        await File.WriteAllTextAsync(Path.Combine(fixtures, "compiled-rows-f1ad3bd1.json"),
+            compiled.ToJsonString(new JsonSerializerOptions { WriteIndented = true }), TestContext.Current.CancellationToken);
+        await File.WriteAllTextAsync(Environment.GetEnvironmentVariable("T0_OUT") ?? "/tmp/t0-outcomes.json",
+            root.ToJsonString(new JsonSerializerOptions { WriteIndented = true }), TestContext.Current.CancellationToken);
+    }
+
+    private static JsonObject Outcome(List<WorkshopRead> run, WorkshopConstruction bench)
+    {
+        int? goalTick = null;
+        var events = new JsonArray();
+        var previousCaptures = new List<string>(); var previousActivations = new List<string>();
+        for (var t = 0; t < run.Count; t++)
+        {
+            var read = run[t];
+            if (goalTick is null && bench.Puzzle.Goal.Kind != WorkshopGoalKind.None &&
+                WorkshopGoalEvaluator.Occurrence(bench.Puzzle.Goal, read.Captures, read.Activations) is not null)
+                goalTick = (int)read.Tick.Value;
+            for (var i = 0; i < read.Captures.Count; i++)
+            {
+                var c = read.Captures[i];
+                var text = $"capture sensor={c.Sensor.Value} phase={c.Phase} ordinal={c.EventOrdinal} eventPhase={(float)c.EventPhase}";
+                if (i >= previousCaptures.Count) previousCaptures.Add("");
+                if (previousCaptures[i] != text) { events.Add($"tick {read.Tick.Value}: {text}"); previousCaptures[i] = text; }
+            }
+            for (var i = 0; i < read.Activations.Count; i++)
+            {
+                var text = "activation " + JsonSerializer.Serialize(read.Activations[i], Options);
+                if (i >= previousActivations.Count) previousActivations.Add("");
+                if (previousActivations[i] != text) { events.Add($"tick {read.Tick.Value}: {text}"); previousActivations[i] = text; }
+            }
+        }
+        var bodies = new JsonArray();
+        var last = run[^1];
+        for (var i = 0; i < last.Bodies.Count; i++)
+        {
+            var b = last.Bodies[i].Body;
+            bodies.Add(new JsonObject
+            {
+                ["Id"] = b.Id.Value,
+                ["X"] = (b.Cell.X + (double)b.Local.X) / 16, ["Y"] = (b.Cell.Y + (double)b.Local.Y) / 16, ["Z"] = (b.Cell.Z + (double)b.Local.Z) / 16,
+                ["Com"] = JsonSerializer.SerializeToNode(last.Bodies[i].LocalCentreOfMass, Options),
+            });
+        }
+        return new JsonObject
+        {
+            ["GoalMet"] = goalTick is not null, ["GoalTick"] = goalTick, ["Events"] = events, ["FinalBodies"] = bodies,
+        };
+    }
+}

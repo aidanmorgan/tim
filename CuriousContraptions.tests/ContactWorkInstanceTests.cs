@@ -39,7 +39,7 @@ public sealed class ContactWorkInstanceTests
 
     // ---------- compiled store ----------
 
-    // Preload = (½·m)·s·s in f32 with the declared 1 kg reference mass, bit for bit, at both ends, the default and a non-binary16
+    // Preload = (½·m)·s·s in f32 with the declared 1 kg reference mass, bit for bit, at both ends, the default and a full-precision
     // strength; threshold 0.05 m/s and the 72-step cooldown come with it.
     [Theory]
     [InlineData(0f)]

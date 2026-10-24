@@ -1,6 +1,6 @@
 # EL-083 · Escaping character — named-identity spec
 
-Story 7.0 named-identity spec ([story spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations are `path@a6c914e:Lstart-Lend`. Values with no legacy or requirement source are **proposed**, each with a one-line justification; the owner may revise them. Game values are canonical f32 ([numeric contract](../../gpu-f32-physics.md#f32-migration-status)).
+Story 7.0 named-identity spec ([story spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations are `path@a6c914e:Lstart-Lend`. Values with no legacy or requirement source are **proposed**, each with a one-line justification; the owner may revise them. Game values are canonical f32 ([numeric contract](../../gpu-f32-physics.md)).
 
 ## 1. Identity
 
@@ -46,7 +46,7 @@ Story 7.0 named-identity spec ([story spec](../../../_bmad-output/implementation
 
 Families: the [element-map row](../general-engine-element-map.md) and the binding in `docs/coverage/engine/element-01.json` (ContactImpulse, EnvironmentState, FiniteLedger, FiniteWorkActuation, GeometryQuery, JointConstraint, ProgrammableController, RigidBodyDynamics, SignalPropagation, StateTransaction, TimedCommand, TypedContracts).
 
-- **Exists now.** Dynamic box contact and friction (`engine/gpu/WorkshopDomino.cs@a6c914e:L7-L35`; `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L623-L774`); committed body velocities as f32 for closing-speed queries ([f32 migration status](../../gpu-f32-physics.md#f32-migration-status)).
+- **Exists now.** Dynamic box contact and friction (`engine/gpu/WorkshopDomino.cs@a6c914e:L7-L35`; `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L623-L774`); committed body velocities as f32 for closing-speed queries ([numeric authority](../../gpu-f32-physics.md)).
 - **Missing.** ProgrammableController: S635 controller, next LAW-CONTROLLER-I, source D S653. A visibility query: S484 optical-commit, next S486. Upright constraint and locomotion: Epic 10 joints, owner S653. Finite store: the ENGINE-LEDGER law.
 - **Dependencies.** A hazard source: EL-087 Predator or a rolling CAT-014 Bowling ball. CAT-066 Wall as the occluder and route block.
 

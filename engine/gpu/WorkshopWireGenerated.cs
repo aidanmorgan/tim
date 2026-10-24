@@ -109,6 +109,42 @@ public struct ActuatorDriveRecord : IFlatbufferObject
   }
 }
 
+public struct AssistanceKnotRecord : IFlatbufferObject
+{
+  private Struct __p;
+  public ByteBuffer ByteBuffer { get { return __p.bb; } }
+  public void __init(int _i, ByteBuffer _bb) { __p = new Struct(_i, _bb); }
+  public AssistanceKnotRecord __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
+
+  public float Precision { get { return __p.bb.GetFloat(__p.bb_pos + 0); } }
+  public float PositionWindow { get { return __p.bb.GetFloat(__p.bb_pos + 4); } }
+  public float RotationWindowDegrees { get { return __p.bb.GetFloat(__p.bb_pos + 8); } }
+  public float MaximumPositionCorrection { get { return __p.bb.GetFloat(__p.bb_pos + 12); } }
+  public float MaximumRotationCorrectionDegrees { get { return __p.bb.GetFloat(__p.bb_pos + 16); } }
+  public float Blend { get { return __p.bb.GetFloat(__p.bb_pos + 20); } }
+  public float CaptureMargin { get { return __p.bb.GetFloat(__p.bb_pos + 24); } }
+  public float CaptureSpeed { get { return __p.bb.GetFloat(__p.bb_pos + 28); } }
+  public float CaptureDwell { get { return __p.bb.GetFloat(__p.bb_pos + 32); } }
+  public float GuideAcceleration { get { return __p.bb.GetFloat(__p.bb_pos + 36); } }
+  public float TriggerThreshold { get { return __p.bb.GetFloat(__p.bb_pos + 40); } }
+
+  public static Offset<CuriousContraptions.Wire.AssistanceKnotRecord> CreateAssistanceKnotRecord(FlatBufferBuilder builder, float Precision, float PositionWindow, float RotationWindowDegrees, float MaximumPositionCorrection, float MaximumRotationCorrectionDegrees, float Blend, float CaptureMargin, float CaptureSpeed, float CaptureDwell, float GuideAcceleration, float TriggerThreshold) {
+    builder.Prep(4, 44);
+    builder.PutFloat(TriggerThreshold);
+    builder.PutFloat(GuideAcceleration);
+    builder.PutFloat(CaptureDwell);
+    builder.PutFloat(CaptureSpeed);
+    builder.PutFloat(CaptureMargin);
+    builder.PutFloat(Blend);
+    builder.PutFloat(MaximumRotationCorrectionDegrees);
+    builder.PutFloat(MaximumPositionCorrection);
+    builder.PutFloat(RotationWindowDegrees);
+    builder.PutFloat(PositionWindow);
+    builder.PutFloat(Precision);
+    return new Offset<CuriousContraptions.Wire.AssistanceKnotRecord>(builder.Offset);
+  }
+}
+
 public struct BodyRead : IFlatbufferObject
 {
   private Struct __p;
@@ -653,14 +689,8 @@ public struct PuzzleRecord : IFlatbufferObject
   public ulong GoalTarget { get { int o = __p.__offset(18); return o != 0 ? __p.bb.GetUlong(o + __p.bb_pos) : (ulong)0; } }
   public ulong GoalEventSource { get { int o = __p.__offset(20); return o != 0 ? __p.bb.GetUlong(o + __p.bb_pos) : (ulong)0; } }
   public float GoalDelay { get { int o = __p.__offset(22); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
-  public byte RawAssistance(int j) { int o = __p.__offset(24); return o != 0 ? __p.bb.Get(__p.__vector(o) + j * 1) : (byte)0; }
-  public int RawAssistanceLength { get { int o = __p.__offset(24); return o != 0 ? __p.__vector_len(o) : 0; } }
-#if ENABLE_SPAN_T
-  public Span<byte> GetRawAssistanceBytes() { return __p.__vector_as_span<byte>(24, 1); }
-#else
-  public ArraySegment<byte>? GetRawAssistanceBytes() { return __p.__vector_as_arraysegment(24); }
-#endif
-  public byte[] GetRawAssistanceArray() { return __p.__vector_as_array<byte>(24); }
+  public CuriousContraptions.Wire.AssistanceKnotRecord? Assistance(int j) { int o = __p.__offset(26); return o != 0 ? (CuriousContraptions.Wire.AssistanceKnotRecord?)(new CuriousContraptions.Wire.AssistanceKnotRecord()).__assign(__p.__vector(o) + j * 44, __p.bb) : null; }
+  public int AssistanceLength { get { int o = __p.__offset(26); return o != 0 ? __p.__vector_len(o) : 0; } }
 
   public static Offset<CuriousContraptions.Wire.PuzzleRecord> CreatePuzzleRecord(FlatBufferBuilder builder,
       StringOffset idOffset = default(StringOffset),
@@ -673,12 +703,12 @@ public struct PuzzleRecord : IFlatbufferObject
       ulong goal_target = 0,
       ulong goal_event_source = 0,
       float goal_delay = 0.0f,
-      VectorOffset raw_assistanceOffset = default(VectorOffset)) {
-    builder.StartTable(11);
+      VectorOffset assistanceOffset = default(VectorOffset)) {
+    builder.StartTable(12);
     PuzzleRecord.AddGoalEventSource(builder, goal_event_source);
     PuzzleRecord.AddGoalTarget(builder, goal_target);
     PuzzleRecord.AddGoalBody(builder, goal_body);
-    PuzzleRecord.AddRawAssistance(builder, raw_assistanceOffset);
+    PuzzleRecord.AddAssistance(builder, assistanceOffset);
     PuzzleRecord.AddGoalDelay(builder, goal_delay);
     PuzzleRecord.AddGoalKind(builder, goal_kind);
     PuzzleRecord.AddInventoryCount(builder, inventory_count);
@@ -689,7 +719,7 @@ public struct PuzzleRecord : IFlatbufferObject
     return PuzzleRecord.EndPuzzleRecord(builder);
   }
 
-  public static void StartPuzzleRecord(FlatBufferBuilder builder) { builder.StartTable(11); }
+  public static void StartPuzzleRecord(FlatBufferBuilder builder) { builder.StartTable(12); }
   public static void AddId(FlatBufferBuilder builder, StringOffset idOffset) { builder.AddOffset(0, idOffset.Value, 0); }
   public static void AddPlacement(FlatBufferBuilder builder, uint placement) { builder.AddUint(1, placement, 0); }
   public static void AddPrecision(FlatBufferBuilder builder, float precision) { builder.AddFloat(2, precision, 0.0f); }
@@ -700,12 +730,8 @@ public struct PuzzleRecord : IFlatbufferObject
   public static void AddGoalTarget(FlatBufferBuilder builder, ulong goalTarget) { builder.AddUlong(7, goalTarget, 0); }
   public static void AddGoalEventSource(FlatBufferBuilder builder, ulong goalEventSource) { builder.AddUlong(8, goalEventSource, 0); }
   public static void AddGoalDelay(FlatBufferBuilder builder, float goalDelay) { builder.AddFloat(9, goalDelay, 0.0f); }
-  public static void AddRawAssistance(FlatBufferBuilder builder, VectorOffset rawAssistanceOffset) { builder.AddOffset(10, rawAssistanceOffset.Value, 0); }
-  public static VectorOffset CreateRawAssistanceVector(FlatBufferBuilder builder, byte[] data) { builder.StartVector(1, data.Length, 1); for (int i = data.Length - 1; i >= 0; i--) builder.AddByte(data[i]); return builder.EndVector(); }
-  public static VectorOffset CreateRawAssistanceVectorBlock(FlatBufferBuilder builder, byte[] data) { builder.StartVector(1, data.Length, 1); builder.Add(data); return builder.EndVector(); }
-  public static VectorOffset CreateRawAssistanceVectorBlock(FlatBufferBuilder builder, ArraySegment<byte> data) { builder.StartVector(1, data.Count, 1); builder.Add(data); return builder.EndVector(); }
-  public static VectorOffset CreateRawAssistanceVectorBlock(FlatBufferBuilder builder, IntPtr dataPtr, int sizeInBytes) { builder.StartVector(1, sizeInBytes, 1); builder.Add<byte>(dataPtr, sizeInBytes); return builder.EndVector(); }
-  public static void StartRawAssistanceVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(1, numElems, 1); }
+  public static void AddAssistance(FlatBufferBuilder builder, VectorOffset assistanceOffset) { builder.AddOffset(11, assistanceOffset.Value, 0); }
+  public static void StartAssistanceVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(44, numElems, 4); }
   public static Offset<CuriousContraptions.Wire.PuzzleRecord> EndPuzzleRecord(FlatBufferBuilder builder) {
     int o = builder.EndTable();
     builder.Required(o, 4);  // id
@@ -729,7 +755,7 @@ static public class PuzzleRecordVerify
       && verifier.VerifyField(tablePos, 18 /*GoalTarget*/, 8 /*ulong*/, 8, false)
       && verifier.VerifyField(tablePos, 20 /*GoalEventSource*/, 8 /*ulong*/, 8, false)
       && verifier.VerifyField(tablePos, 22 /*GoalDelay*/, 4 /*float*/, 4, false)
-      && verifier.VerifyVectorOfData(tablePos, 24 /*RawAssistance*/, 1 /*byte*/, false)
+      && verifier.VerifyVectorOfData(tablePos, 26 /*Assistance*/, 44 /*CuriousContraptions.Wire.AssistanceKnotRecord*/, false)
       && verifier.VerifyTableEnd(tablePos);
   }
 }

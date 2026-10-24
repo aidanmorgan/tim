@@ -1071,6 +1071,83 @@ static createConnectionRecord(builder:flatbuffers.Builder, source: bigint, targe
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
+export class AssistanceKnotRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):AssistanceKnotRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+precision():number {
+  return this.bb!.readFloat32(this.bb_pos);
+}
+
+positionWindow():number {
+  return this.bb!.readFloat32(this.bb_pos + 4);
+}
+
+rotationWindowDegrees():number {
+  return this.bb!.readFloat32(this.bb_pos + 8);
+}
+
+maximumPositionCorrection():number {
+  return this.bb!.readFloat32(this.bb_pos + 12);
+}
+
+maximumRotationCorrectionDegrees():number {
+  return this.bb!.readFloat32(this.bb_pos + 16);
+}
+
+blend():number {
+  return this.bb!.readFloat32(this.bb_pos + 20);
+}
+
+captureMargin():number {
+  return this.bb!.readFloat32(this.bb_pos + 24);
+}
+
+captureSpeed():number {
+  return this.bb!.readFloat32(this.bb_pos + 28);
+}
+
+captureDwell():number {
+  return this.bb!.readFloat32(this.bb_pos + 32);
+}
+
+guideAcceleration():number {
+  return this.bb!.readFloat32(this.bb_pos + 36);
+}
+
+triggerThreshold():number {
+  return this.bb!.readFloat32(this.bb_pos + 40);
+}
+
+static sizeOf():number {
+  return 44;
+}
+
+static createAssistanceKnotRecord(builder:flatbuffers.Builder, precision: number, position_window: number, rotation_window_degrees: number, maximum_position_correction: number, maximum_rotation_correction_degrees: number, blend: number, capture_margin: number, capture_speed: number, capture_dwell: number, guide_acceleration: number, trigger_threshold: number):flatbuffers.Offset {
+  builder.prep(4, 44);
+  builder.writeFloat32(trigger_threshold);
+  builder.writeFloat32(guide_acceleration);
+  builder.writeFloat32(capture_dwell);
+  builder.writeFloat32(capture_speed);
+  builder.writeFloat32(capture_margin);
+  builder.writeFloat32(blend);
+  builder.writeFloat32(maximum_rotation_correction_degrees);
+  builder.writeFloat32(maximum_position_correction);
+  builder.writeFloat32(rotation_window_degrees);
+  builder.writeFloat32(position_window);
+  builder.writeFloat32(precision);
+  return builder.offset();
+}
+
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
 export class ParameterRecord {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
@@ -1323,23 +1400,18 @@ goalDelay():number {
   return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
 }
 
-rawAssistance(index: number):number|null {
-  const offset = this.bb!.__offset(this.bb_pos, 24);
-  return offset ? this.bb!.readUint8(this.bb!.__vector(this.bb_pos + offset) + index) : 0;
+assistance(index: number, obj?:AssistanceKnotRecord):AssistanceKnotRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 26);
+  return offset ? (obj || new AssistanceKnotRecord()).__init(this.bb!.__vector(this.bb_pos + offset) + index * 44, this.bb!) : null;
 }
 
-rawAssistanceLength():number {
-  const offset = this.bb!.__offset(this.bb_pos, 24);
+assistanceLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 26);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
-rawAssistanceArray():Uint8Array|null {
-  const offset = this.bb!.__offset(this.bb_pos, 24);
-  return offset ? new Uint8Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
-}
-
 static startPuzzleRecord(builder:flatbuffers.Builder) {
-  builder.startObject(11);
+  builder.startObject(12);
 }
 
 static addId(builder:flatbuffers.Builder, idOffset:flatbuffers.Offset) {
@@ -1382,20 +1454,12 @@ static addGoalDelay(builder:flatbuffers.Builder, goalDelay:number) {
   builder.addFieldFloat32(9, goalDelay, 0.0);
 }
 
-static addRawAssistance(builder:flatbuffers.Builder, rawAssistanceOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(10, rawAssistanceOffset, 0);
+static addAssistance(builder:flatbuffers.Builder, assistanceOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(11, assistanceOffset, 0);
 }
 
-static createRawAssistanceVector(builder:flatbuffers.Builder, data:number[]|Uint8Array):flatbuffers.Offset {
-  builder.startVector(1, data.length, 1);
-  for (let i = data.length - 1; i >= 0; i--) {
-    builder.addInt8(data[i]!);
-  }
-  return builder.endVector();
-}
-
-static startRawAssistanceVector(builder:flatbuffers.Builder, numElems:number) {
-  builder.startVector(1, numElems, 1);
+static startAssistanceVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(44, numElems, 4);
 }
 
 static endPuzzleRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
@@ -1404,7 +1468,7 @@ static endPuzzleRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
   return offset;
 }
 
-static createPuzzleRecord(builder:flatbuffers.Builder, idOffset:flatbuffers.Offset, placement:number, precision:number, inventoryPartOffset:flatbuffers.Offset, inventoryCount:number, goalKind:number, goalBody:bigint, goalTarget:bigint, goalEventSource:bigint, goalDelay:number, rawAssistanceOffset:flatbuffers.Offset):flatbuffers.Offset {
+static createPuzzleRecord(builder:flatbuffers.Builder, idOffset:flatbuffers.Offset, placement:number, precision:number, inventoryPartOffset:flatbuffers.Offset, inventoryCount:number, goalKind:number, goalBody:bigint, goalTarget:bigint, goalEventSource:bigint, goalDelay:number, assistanceOffset:flatbuffers.Offset):flatbuffers.Offset {
   PuzzleRecord.startPuzzleRecord(builder);
   PuzzleRecord.addId(builder, idOffset);
   PuzzleRecord.addPlacement(builder, placement);
@@ -1416,7 +1480,7 @@ static createPuzzleRecord(builder:flatbuffers.Builder, idOffset:flatbuffers.Offs
   PuzzleRecord.addGoalTarget(builder, goalTarget);
   PuzzleRecord.addGoalEventSource(builder, goalEventSource);
   PuzzleRecord.addGoalDelay(builder, goalDelay);
-  PuzzleRecord.addRawAssistance(builder, rawAssistanceOffset);
+  PuzzleRecord.addAssistance(builder, assistanceOffset);
   return PuzzleRecord.endPuzzleRecord(builder);
 }
 }

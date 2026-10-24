@@ -19,6 +19,13 @@ public static class WorkshopAnimationWire
     public const int ImpulseCapacity = 64;
     public const int ControlBytes = 144;
     public const int OutputBytes = 144;
+    /// <summary>Output record fields the main-thread client also reads (workshop-client.js): the animation pulse ordinal, the f32
+    /// channel value, the output kind, the target and the channel property.</summary>
+    public const int OutputPulseOffset = 40;
+    public const int OutputValueOffset = 56;
+    public const int OutputKindOffset = 60;
+    public const int OutputTargetOffset = 64;
+    public const int OutputPropertyOffset = 136;
     public static byte[] Control(RuntimeSessionId session, ClockGeneration master, CadenceRevision cadence,
         WorkshopAnimationControl control)
     {
@@ -82,12 +89,13 @@ public static class WorkshopAnimationWire
         if (BinaryPrimitives.ReadUInt64LittleEndian(bytes[88..]) != 0 || BinaryPrimitives.ReadUInt32LittleEndian(bytes[132..]) != 0 ||
             BinaryPrimitives.ReadUInt16LittleEndian(bytes[138..]) != 0 || BinaryPrimitives.ReadUInt32LittleEndian(bytes[140..]) != 0)
             throw new ArgumentException("Invalid animation channel padding.");
-        kind = (AnimationOutputKind)BinaryPrimitives.ReadUInt32LittleEndian(bytes[60..]);
-        var result = new WorkshopAnimationSample(new(BinaryPrimitives.ReadUInt64LittleEndian(bytes[64..])),
+        kind = (AnimationOutputKind)BinaryPrimitives.ReadUInt32LittleEndian(bytes[OutputKindOffset..]);
+        var result = new WorkshopAnimationSample(new(BinaryPrimitives.ReadUInt64LittleEndian(bytes[OutputTargetOffset..])),
             new(BinaryPrimitives.ReadUInt64LittleEndian(bytes[72..])), BinaryPrimitives.ReadUInt64LittleEndian(bytes[32..]),
-            new(BinaryPrimitives.ReadUInt64LittleEndian(bytes[40..])),
-            new(BinaryPrimitives.ReadInt64LittleEndian(bytes[48..])), ReadFloat(bytes,56),
-            BinaryPrimitives.ReadUInt32LittleEndian(bytes[80..]), ReadFloat(bytes,84), (AnimationProperty)BinaryPrimitives.ReadUInt16LittleEndian(bytes[136..]), ReadTimer(bytes));
+            new(BinaryPrimitives.ReadUInt64LittleEndian(bytes[OutputPulseOffset..])),
+            new(BinaryPrimitives.ReadInt64LittleEndian(bytes[48..])), ReadFloat(bytes, OutputValueOffset),
+            BinaryPrimitives.ReadUInt32LittleEndian(bytes[80..]), ReadFloat(bytes,84),
+            (AnimationProperty)BinaryPrimitives.ReadUInt16LittleEndian(bytes[OutputPropertyOffset..]), ReadTimer(bytes));
         result.AppliedAt.Validate();
         _ = Value(result.Property, result.Value);
         if (!IsChannel(result.Property) || !Enum.IsDefined(kind) || result.Generation == 0 || !float.IsFinite(result.Value) ||

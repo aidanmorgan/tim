@@ -265,12 +265,15 @@ internal static class PrismaticConstraintSolver
 
     /// <summary>The supplied drive law on one substep: the stopping-profile speed toward the target, reached by at most
     /// StoppingAcceleration·dt per substep, holding against the joint's spring (stiffness·coordinate) and the moving body's gravity
-    /// along the axis; the force is clamped to ±MaxEffort, then to |F·v| ≤ MaxPower at the current axial speed.</summary>
+    /// along the axis; the force is clamped to ±MaxEffort, then to |F·v| ≤ MaxPower at the current axial speed. The commanded speed
+    /// never exceeds |d|/dt, the speed that closes the remaining distance in one substep: the profile √(2·a·|d|) is infinitely steep
+    /// at the target, so without that bound each substep overshoots and the hold chatters.</summary>
     internal static float SuppliedDriveForce(in PrismaticDriveDeclaration drive, float coordinate, float speed, float mass,
         float stiffness, float gravityAlongAxis, float dt)
     {
         var d = drive.Target - coordinate;
-        var targetSpeed = MathF.Sign(d) * MathF.Min(drive.MaxSpeed, MathF.Sqrt(2f * drive.StoppingAcceleration * MathF.Abs(d)));
+        var targetSpeed = MathF.Sign(d) * MathF.Min(MathF.Min(drive.MaxSpeed, MathF.Sqrt(2f * drive.StoppingAcceleration * MathF.Abs(d))),
+            MathF.Abs(d) / dt);
         var maxDeltaV = drive.StoppingAcceleration * dt;
         var deltaV = Math.Clamp(targetSpeed - speed, -maxDeltaV, maxDeltaV);
         var acceleration = mass * (deltaV / dt);

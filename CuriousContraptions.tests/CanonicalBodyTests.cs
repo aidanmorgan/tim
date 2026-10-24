@@ -8,9 +8,9 @@ namespace CuriousContraptions.Tests;
 public sealed class CanonicalBodyTests
 {
     public enum InvalidField { LeadingPadding, Status, CellScale, TimeScale, Reserved, LocalInfinity, LocalBeyondRange, LocalNan, VelocityInfinity, VelocityNan, VelocityBeyondEnvelope, EmptyIdentity, OutwardPosition }
-    // Velocity is f32 in m/s: 1e-7 m/s (far below a binary16 step at 1 m/s) survives the round trip.
+    // Velocity is f32 in m/s: 1e-7 m/s (far below a half-precision step at 1 m/s) survives the round trip.
     private static CanonicalBody Body => new(new(0xfedcba9876543210), 0xfedcba9876543210, 0x20000000000001,
-        new(160, -1024, 1024), new((float)(-0.5), (float)0, (float)0),
+        new(160, -1024, 1024), new((float)(-0.5), 0f, 0f),
         new(0.01f, 1e-7f, -1f));
 
     [Fact]

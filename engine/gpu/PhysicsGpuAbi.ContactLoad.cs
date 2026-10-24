@@ -13,6 +13,10 @@ public static partial class PhysicsGpuAbi
     public const int ContactLoadFrameOffset = 8;
     public const int ContactLoadFaceOffset = 12;
     public const int ContactLoadFootprintOffset = 16;
+    public const int ContactLoadMinimumXOffset = ContactLoadFootprintOffset;
+    public const int ContactLoadMaximumXOffset = 20;
+    public const int ContactLoadMinimumZOffset = 24;
+    public const int ContactLoadMaximumZOffset = 28;
     public const int ContactLoadNormalOffset = 32;
     public const int ContactLoadAlignmentOffset = 44;
     public const int ContactLoadGapOffset = 48;
@@ -27,11 +31,11 @@ public static partial class PhysicsGpuAbi
         {
             var sensor = scene.ContactLoadSensors[i];
             var record = data.Slice(scene.World.ContactLoadOffset(i), ContactLoadSensorBytes);
-            U64(record, 0, sensor.Id.Value);
+            U64(record, RecordIdentityOffset, sensor.Id.Value);
             U32(record, ContactLoadFrameOffset, BodySlot(scene, sensor.Frame));
             U32(record, ContactLoadFaceOffset, (uint)scene.Layout.GetColliderSlot(sensor.Face));
-            WriteEnergy(record, ContactLoadFootprintOffset, sensor.MinimumX); WriteEnergy(record, ContactLoadFootprintOffset + 4, sensor.MaximumX);
-            WriteEnergy(record, ContactLoadFootprintOffset + 8, sensor.MinimumZ); WriteEnergy(record, ContactLoadFootprintOffset + 12, sensor.MaximumZ);
+            WriteEnergy(record, ContactLoadMinimumXOffset, sensor.MinimumX); WriteEnergy(record, ContactLoadMaximumXOffset, sensor.MaximumX);
+            WriteEnergy(record, ContactLoadMinimumZOffset, sensor.MinimumZ); WriteEnergy(record, ContactLoadMaximumZOffset, sensor.MaximumZ);
             F32Vector(record, ContactLoadNormalOffset, sensor.LocalNormal.X, sensor.LocalNormal.Y, sensor.LocalNormal.Z);
             WriteEnergy(record, ContactLoadAlignmentOffset, sensor.MinimumAlignment);
             WriteEnergy(record, ContactLoadGapOffset, sensor.MaximumGap);
@@ -59,10 +63,10 @@ public static partial class PhysicsGpuAbi
             face >= R32(data, HeaderColliderCountOffset) ||
             R32(data, layout.ColliderOffset(checked((int)face)) + ColliderBodyOffset) != frame)
             throw new ArgumentException("Contact-load row names an unowned frame or face.");
-        var result = new ContactLoadSensorDeclaration(new(R64(record, 0)), new(R64(data, layout.BodyOffset(checked((int)frame)))),
+        var result = new ContactLoadSensorDeclaration(new(R64(record, RecordIdentityOffset)), new(R64(data, layout.BodyOffset(checked((int)frame)))),
             new(R64(data, layout.ColliderOffset(checked((int)face)))),
-            RF(record, ContactLoadFootprintOffset), RF(record, ContactLoadFootprintOffset + 4),
-            RF(record, ContactLoadFootprintOffset + 8), RF(record, ContactLoadFootprintOffset + 12),
+            RF(record, ContactLoadMinimumXOffset), RF(record, ContactLoadMaximumXOffset),
+            RF(record, ContactLoadMinimumZOffset), RF(record, ContactLoadMaximumZOffset),
             new Vector3(RF(record, ContactLoadNormalOffset), RF(record, ContactLoadNormalOffset + 4), RF(record, ContactLoadNormalOffset + 8)),
             RF(record, ContactLoadAlignmentOffset), RF(record, ContactLoadGapOffset), RF(record, ContactLoadMinimumMassOffset));
         result.Validate();

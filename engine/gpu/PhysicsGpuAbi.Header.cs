@@ -8,8 +8,9 @@ public static partial class PhysicsGpuAbi
 {
     /// <summary>One current layout identity; every other value is unsupported.</summary>
     public const int HeaderLayoutTagOffset = 0;
-    /// <summary>"CTF3" (C-Gate): the prismatic record carries its supplied drive and its committed moving-contact lane.</summary>
-    public const uint CurrentLayoutTag = 0x43544633;
+    /// <summary>"CTF4" (Story 9A.44): every declared and committed game value in every record is IEEE-754 f32. An in-memory layout
+    /// identity; no save carries it.</summary>
+    public const uint CurrentLayoutTag = 0x43544634;
     public const int HeaderStatusOffset = 4;
     public const int HeaderFailureOffset = 8;
     /// <summary>Header word holding the admitted body count.</summary>
@@ -62,8 +63,8 @@ public static partial class PhysicsGpuAbi
     /// <summary>The collider record's owning body slot U32.</summary>
     public const int ColliderBodyOffset = 8;
 
-    // Trigger record (TriggerBytes): owner body slot, target kind, binary16 threshold, named target slot, then the last
-    // qualified contact: count, collider, physical-step ordinal, binary16 phase and f32 approach, and the touching body slot.
+    // Trigger record (TriggerBytes): owner body slot, target kind, f32 threshold, named target slot, then the last
+    // qualified contact: count, collider, physical-step ordinal, f32 phase and f32 approach, and the touching body slot.
     public const int TriggerOwnerOffset = 8;
     public const int TriggerTargetKindOffset = 12;
     public const int TriggerThresholdOffset = 16;
@@ -74,8 +75,82 @@ public static partial class PhysicsGpuAbi
     public const int TriggerColliderOffset = 36;
     public const int TriggerOrdinalOffset = 40;
     public const int TriggerPhaseOffset = 44;
-    public const int TriggerPhasePaddingOffset = 46;
     public const int TriggerApproachOffset = 48;
     public const int TriggerBodyOffset = 52;
     public const int TriggerPaddingOffset = 56;
+
+    // Every record identity is a U64 at 0. Every scalar game value is one f32 (4 bytes), every vector three consecutive f32 and every
+    // rotation four (x, y, z, w); a pose is a vector then a rotation (PoseBytes). Story 9A.44: no record holds a half-precision lane.
+    public const int RecordIdentityOffset = 0;
+    public const int VectorBytes = 12;
+    public const int RotationBytes = 16;
+    /// <summary>A rotation's f32 components after its x: y, z, then w.</summary>
+    public const int RotationYOffset = 4;
+    public const int RotationZOffset = 8;
+    public const int RotationWOffset = VectorBytes;
+    public const int PoseRotationOffset = VectorBytes;
+    public const int PoseBytes = VectorBytes + RotationBytes;
+
+    // Body record (BodyBytes): motion, cell, f32 local remainder, f32 rotation and velocities, then the immutable declared lanes
+    // from BodyMassOffset: mass, drag, gravity, centre of mass, principal frame and moments, and the owned collider slot.
+    public const int BodyCellPaddingOffset = 28;
+    public const int BodyLocalPaddingOffset = 44;
+    public const int BodyColliderSlotOffset = 148;
+    public const int BodyPaddingOffset = 152;
+
+    // Collider record (ColliderBytes): owning body slot, material slot, shape, f32 pose, radius and half-extents.
+    public const int ColliderMaterialOffset = 12;
+    public const int ColliderShapeOffset = 16;
+    public const int ColliderPoseOffset = 24;
+    public const int ColliderRadiusOffset = 52;
+    public const int ColliderHalfExtentsOffset = 56;
+    public const int ColliderPaddingOffset = 68;
+
+    // Material record (MaterialBytes): f32 restitution, bounce threshold, friction and rolling resistance.
+    public const int MaterialRestitutionOffset = 8;
+    public const int MaterialBounceThresholdOffset = 12;
+    public const int MaterialFrictionOffset = 16;
+    public const int MaterialRollingResistanceOffset = 20;
+    public const int MaterialPaddingOffset = 24;
+
+    // Residence sensor record (SensorBytes): the immutable declaration (frame and target slots, participation, f32 pose, bounds,
+    // speed limit and dwell) in its first SensorDeclarationBytes, then the committed residence state with f32 phases.
+    public const int SensorFrameOffset = 8;
+    public const int SensorTargetOffset = 12;
+    public const int SensorParticipationOffset = 16;
+    public const int SensorPoseOffset = 24;
+    public const int SensorMinimumOffset = 52;
+    public const int SensorMaximumOffset = 64;
+    public const int SensorSpeedLimitOffset = 76;
+    public const int SensorDwellOffset = 80;
+    public const int SensorDeclarationBytes = 84;
+    public const int SensorPhaseOffset = 84;
+    public const int SensorStartOrdinalOffset = 88;
+    public const int SensorStartPhaseOffset = 92;
+    public const int SensorOccurrenceCountOffset = 96;
+    public const int SensorEventOrdinalOffset = 100;
+    public const int SensorEventPhaseOffset = 104;
+    public const int SensorPaddingOffset = 108;
+
+    // Planar guide record (GuideBytes): frame and target slots, f32 pose, bounds, maximum acceleration, support height and margin.
+    public const int GuideFrameOffset = 8;
+    public const int GuideTargetOffset = 12;
+    public const int GuidePoseOffset = 16;
+    public const int GuideMinimumOffset = 44;
+    public const int GuideMaximumOffset = 56;
+    public const int GuideMaximumAccelerationOffset = 68;
+    public const int GuideSupportHeightOffset = 72;
+    public const int GuideSupportMarginOffset = 76;
+
+    // Orientation sensor record (OrientationSensorBytes): the immutable declaration (body slot, initial rotation and the f32
+    // cosine of the half threshold angle) in its first OrientationSensorDeclarationBytes, then the sticky fired state.
+    public const int OrientationSensorBodyOffset = 8;
+    public const int OrientationSensorBodyPaddingOffset = 12;
+    public const int OrientationSensorCosineOffset = 32;
+    public const int OrientationSensorCosinePaddingOffset = 36;
+    public const int OrientationSensorDeclarationBytes = 40;
+    public const int OrientationSensorPhaseOffset = 40;
+    public const int OrientationSensorOrdinalOffset = 44;
+    public const int OrientationSensorEventPhaseOffset = 48;
+    public const int OrientationSensorPaddingOffset = 52;
 }

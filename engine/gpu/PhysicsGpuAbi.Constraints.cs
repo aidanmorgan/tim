@@ -6,12 +6,30 @@ namespace CuriousContraptions.Gpu;
 public static partial class PhysicsGpuAbi
 {
     public const int PrismaticBytes = 160;
+    // Row: identity U64 at 0, body A and body B slots, frame A and frame B (f32 position then f32 rotation), f32 lower and upper
+    // limits, f32 stiffness and damping, connected-collision U32; then the drive kind, impulses, drive values and contact lane.
+    public const int PrismaticBodyAOffset = 8;
+    public const int PrismaticBodyBOffset = 12;
+    public const int PrismaticFrameAOffset = 16;
+    public const int PrismaticFrameBOffset = 44;
+    /// <summary>A constraint frame's f32 rotation follows its f32 position vector.</summary>
+    public const int ConstraintFrameRotationOffset = VectorBytes;
+    public const int PrismaticLowerOffset = 72;
+    public const int PrismaticUpperOffset = 76;
+    public const int PrismaticStiffnessOffset = 80;
+    public const int PrismaticDampingOffset = 84;
+    public const int PrismaticCollisionOffset = 88;
     /// <summary>u32 <see cref="PrismaticDriveKind"/>: immutable after admission.</summary>
     public const int PrismaticDriveKindOffset = 92;
     public const int PrismaticImpulseOffset = 96;
     /// <summary>Five immutable f32 drive values (target, maximum speed, stopping acceleration, maximum effort, maximum power); all
     /// zero for <see cref="PrismaticDriveKind.None"/>.</summary>
     public const int PrismaticDriveOffset = 128;
+    public const int PrismaticDriveTargetOffset = PrismaticDriveOffset;
+    public const int PrismaticDriveMaxSpeedOffset = 132;
+    public const int PrismaticDriveStoppingAccelerationOffset = 136;
+    public const int PrismaticDriveMaxEffortOffset = 140;
+    public const int PrismaticDriveMaxPowerOffset = 144;
     public const int PrismaticDriveBytes = 20;
     /// <summary>u32 0 or 1, written by every committed tick: whether the joint's moving body took a positive normal contact impulse
     /// from a body other than the joint's base in any substep of that tick (coordinator decision 2, C-Gate). Zero at admission.</summary>
@@ -26,19 +44,20 @@ public static partial class PhysicsGpuAbi
         {
             var value = scene.Prismatics[i];
             var record = data.Slice(scene.Layout.GetPrismaticOffset(value.Id.Value), PrismaticBytes);
-            U64(record, 0, value.Id.Value);
-            U32(record, 8, (uint)scene.Layout.GetBodySlot(value.BodyA)); U32(record, 12, (uint)scene.Layout.GetBodySlot(value.BodyB));
-            WriteConstraintFrame(record, 16, value.FrameA); WriteConstraintFrame(record, 44, value.FrameB);
-            WriteEnergy(record, 72, value.Lower); WriteEnergy(record, 76, value.Upper);
-            WriteEnergy(record, 80, value.Stiffness); WriteEnergy(record, 84, value.Damping);
-            U32(record, 88, (uint)value.Collision);
+            U64(record, RecordIdentityOffset, value.Id.Value);
+            U32(record, PrismaticBodyAOffset, (uint)scene.Layout.GetBodySlot(value.BodyA));
+            U32(record, PrismaticBodyBOffset, (uint)scene.Layout.GetBodySlot(value.BodyB));
+            WriteConstraintFrame(record, PrismaticFrameAOffset, value.FrameA); WriteConstraintFrame(record, PrismaticFrameBOffset, value.FrameB);
+            WriteEnergy(record, PrismaticLowerOffset, value.Lower); WriteEnergy(record, PrismaticUpperOffset, value.Upper);
+            WriteEnergy(record, PrismaticStiffnessOffset, value.Stiffness); WriteEnergy(record, PrismaticDampingOffset, value.Damping);
+            U32(record, PrismaticCollisionOffset, (uint)value.Collision);
             foreach (var drive in scene.PrismaticDrives)
             {
                 if (drive.Joint != value.Id) continue;
                 U32(record, PrismaticDriveKindOffset, (uint)PrismaticDriveKind.Supplied);
-                WriteEnergy(record, PrismaticDriveOffset, drive.Target); WriteEnergy(record, PrismaticDriveOffset + 4, drive.MaxSpeed);
-                WriteEnergy(record, PrismaticDriveOffset + 8, drive.StoppingAcceleration);
-                WriteEnergy(record, PrismaticDriveOffset + 12, drive.MaxEffort); WriteEnergy(record, PrismaticDriveOffset + 16, drive.MaxPower);
+                WriteEnergy(record, PrismaticDriveTargetOffset, drive.Target); WriteEnergy(record, PrismaticDriveMaxSpeedOffset, drive.MaxSpeed);
+                WriteEnergy(record, PrismaticDriveStoppingAccelerationOffset, drive.StoppingAcceleration);
+                WriteEnergy(record, PrismaticDriveMaxEffortOffset, drive.MaxEffort); WriteEnergy(record, PrismaticDriveMaxPowerOffset, drive.MaxPower);
             }
         }
     }
@@ -60,15 +79,19 @@ public static partial class PhysicsGpuAbi
 
     private static void WriteConstraintFrame(Span<byte> data, int offset, ConstraintFrame frame)
     {
-        WriteEnergy(data, offset, frame.Position.X); WriteEnergy(data, offset + 4, frame.Position.Y);
-        WriteEnergy(data, offset + 8, frame.Position.Z);
-        WriteEnergy(data, offset + 12, frame.Rotation.X); WriteEnergy(data, offset + 16, frame.Rotation.Y);
-        WriteEnergy(data, offset + 20, frame.Rotation.Z); WriteEnergy(data, offset + 24, frame.Rotation.W);
+        F32Vector(data, offset, frame.Position.X, frame.Position.Y, frame.Position.Z);
+        var rotation = offset + ConstraintFrameRotationOffset;
+        WriteEnergy(data, rotation, frame.Rotation.X); WriteEnergy(data, rotation + RotationYOffset, frame.Rotation.Y);
+        WriteEnergy(data, rotation + RotationZOffset, frame.Rotation.Z); WriteEnergy(data, rotation + RotationWOffset, frame.Rotation.W);
     }
 
-    private static ConstraintFrame ReadConstraintFrame(ReadOnlySpan<byte> data, int offset) =>
-        new(new Vector3(RF(data, offset), RF(data, offset + 4), RF(data, offset + 8)),
-            new Quaternion(RF(data, offset + 12), RF(data, offset + 16), RF(data, offset + 20), RF(data, offset + 24)));
+    private static ConstraintFrame ReadConstraintFrame(ReadOnlySpan<byte> data, int offset)
+    {
+        var rotation = offset + ConstraintFrameRotationOffset;
+        return new(new Vector3(RF(data, offset), RF(data, offset + 4), RF(data, offset + 8)),
+            new Quaternion(RF(data, rotation), RF(data, rotation + RotationYOffset), RF(data, rotation + RotationZOffset),
+                RF(data, rotation + RotationWOffset)));
+    }
 
     public static PrismaticConstraintDeclaration ReadPrismatic(ReadOnlySpan<byte> data, int index)
     {
@@ -76,16 +99,17 @@ public static partial class PhysicsGpuAbi
         var layout = Layout(data);
         if (index < 0 || index >= layout.Prismatics) throw new ArgumentException("Invalid prismatic table.");
         var record = data.Slice(layout.PrismaticOffset(index), PrismaticBytes);
-        var a = R32(record, 8); var b = R32(record, 12);
+        var a = R32(record, PrismaticBodyAOffset); var b = R32(record, PrismaticBodyBOffset);
         var drive = (PrismaticDriveKind)R32(record, PrismaticDriveKindOffset);
-        if (a >= R32(data, HeaderBodyCountOffset) || b >= R32(data, HeaderBodyCountOffset) || R32(record, 88) > (uint)ConnectedCollision.Enabled ||
+        if (a >= R32(data, HeaderBodyCountOffset) || b >= R32(data, HeaderBodyCountOffset) || R32(record, PrismaticCollisionOffset) > (uint)ConnectedCollision.Enabled ||
             !Enum.IsDefined(drive) || (drive == PrismaticDriveKind.None && !AllZero(record.Slice(PrismaticDriveOffset, PrismaticDriveBytes))) ||
             R32(record, PrismaticMovingContactOffset) > 1 || !AllZero(record[PrismaticPaddingOffset..]))
             throw new ArgumentException("Invalid prismatic record.");
-        var result = new PrismaticConstraintDeclaration(new(R64(record, 0)),
+        var result = new PrismaticConstraintDeclaration(new(R64(record, RecordIdentityOffset)),
             new(R64(data, layout.BodyOffset((int)a))), new(R64(data, layout.BodyOffset((int)b))),
-            ReadConstraintFrame(record, 16), ReadConstraintFrame(record, 44),
-            RF(record, 72), RF(record, 76), RF(record, 80), RF(record, 84), (ConnectedCollision)R32(record, 88));
+            ReadConstraintFrame(record, PrismaticFrameAOffset), ReadConstraintFrame(record, PrismaticFrameBOffset),
+            RF(record, PrismaticLowerOffset), RF(record, PrismaticUpperOffset), RF(record, PrismaticStiffnessOffset),
+            RF(record, PrismaticDampingOffset), (ConnectedCollision)R32(record, PrismaticCollisionOffset));
         result.Validate();
         // A supplied record carries a valid drive for this joint (its values within the joint's limits and the envelope).
         if (drive == PrismaticDriveKind.Supplied) DriveOf(result, record).Validate(result);
@@ -93,8 +117,8 @@ public static partial class PhysicsGpuAbi
     }
 
     private static PrismaticDriveDeclaration DriveOf(PrismaticConstraintDeclaration joint, ReadOnlySpan<byte> record) =>
-        new(joint.Id, RF(record, PrismaticDriveOffset), RF(record, PrismaticDriveOffset + 4), RF(record, PrismaticDriveOffset + 8),
-            RF(record, PrismaticDriveOffset + 12), RF(record, PrismaticDriveOffset + 16));
+        new(joint.Id, RF(record, PrismaticDriveTargetOffset), RF(record, PrismaticDriveMaxSpeedOffset),
+            RF(record, PrismaticDriveStoppingAccelerationOffset), RF(record, PrismaticDriveMaxEffortOffset), RF(record, PrismaticDriveMaxPowerOffset));
 
     private static void ValidatePrismaticCandidate(ReadOnlySpan<byte> candidate, ReadOnlySpan<byte> source)
     {

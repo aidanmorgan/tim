@@ -24,7 +24,7 @@ public partial class Workshop
     private SpinBox _layerDepth = null!;
     private Label _buildHelp = null!;
     private bool _buildView, _updatingLayers, _lifting;
-    private Metres _placementHeight = new((Half)3);
+    private Metres _placementHeight = new(3f);
     private Vector2 _liftStartMouse, _liftScreenAxis;
     private Vector3 _liftStartPosition;
     private Control _partTools = null!;
@@ -172,7 +172,7 @@ public partial class Workshop
     private void SetLayer(float depth)
     {
         if (!CanEdit) return;
-        _depth = new((Half)(Mathf.Clamp(depth, -4, 4)));
+        _depth = new(Mathf.Clamp(depth, -4f, 4f));
         _depthText.Text = "Drag to slide · Lift for height";
         _workGrid.Position = new(0, 0, (float)_depth.Value - .03f);
         _updatingLayers = true;
@@ -359,7 +359,7 @@ public partial class Workshop
         // A preview steps its placement plane, which it may not have reached yet while the pointer is over the menu.
         var height = _preview != null ? (float)_placementHeight.Value : target.Position.Y;
         target.Position = new(target.Position.X, Mathf.Clamp(height + amount, 0, 9), target.Position.Z);
-        _placementHeight = new((Half)(target.Position.Y));
+        _placementHeight = new(target.Position.Y);
         if (_preview == null) CommitSelected();
         
     }
@@ -490,7 +490,7 @@ public partial class Workshop
             {
                 var rise = (motion.Position - _liftStartMouse).Dot(_liftScreenAxis) / _liftScreenAxis.LengthSquared();
                 target.Position = new(_liftStartPosition.X, Mathf.Clamp(_liftStartPosition.Y + rise, 0, 9), _liftStartPosition.Z);
-                _placementHeight = new((Half)(target.Position.Y));
+                _placementHeight = new(target.Position.Y);
                 
             }
         }

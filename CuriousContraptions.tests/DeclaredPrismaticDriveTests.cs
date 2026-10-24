@@ -26,10 +26,11 @@ public sealed class DeclaredPrismaticDriveTests
         for (var i = 0; i < count; i++)
         {
             var piece = motion.Slice(PhysicsMotionRead.HeaderBytes + i * PhysicsMotionRead.PieceBytes, PhysicsMotionRead.PieceBytes).ToArray();
-            if (BinaryPrimitives.ReadUInt64LittleEndian(piece.AsSpan(24)) != owner) continue;
+            if (BinaryPrimitives.ReadUInt64LittleEndian(piece.AsSpan(PhysicsMotionRead.OwnerOffset)) != owner) continue;
             float F(int at) => BinaryPrimitives.ReadSingleLittleEndian(piece.AsSpan(at));
             int I(int at) => BinaryPrimitives.ReadInt32LittleEndian(piece.AsSpan(at));
-            result.Add(new(new((I(32) + F(48)) / 16f, (I(36) + F(52)) / 16f, (I(40) + F(56)) / 16f),
+            const int cell = PhysicsMotionRead.CellOffset, remainder = PhysicsMotionRead.CentreRemainderOffset;
+            result.Add(new(new((I(cell) + F(remainder)) / 16f, (I(cell + 4) + F(remainder + 4)) / 16f, (I(cell + 8) + F(remainder + 8)) / 16f),
                 new(F(PhysicsMotionRead.VelocityOffset), F(PhysicsMotionRead.VelocityOffset + 4), F(PhysicsMotionRead.VelocityOffset + 8))));
         }
         return result;

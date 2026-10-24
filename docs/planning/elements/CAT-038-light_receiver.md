@@ -34,7 +34,7 @@ Families (map row CAT-038): AnimationEvaluation, AnimationLifecycle, ContactImpu
 - Static box body/colliders: `engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L60`, `engine/gpu/PhysicsDeclarations.cs@a6c914e:L89-L91`.
 - `PowerIn` and `Supply` sockets in the Electrical domain: `engine/gpu/WorkshopConnections.cs@a6c914e:L8-L13`.
 - Cosmetic blend channel (Activation feedback): `engine/gpu/WorkshopCosmetic.cs@a6c914e:L7-L7`.
-- Binary16 debt: at a6c914e `MetreVector`, `LinearSpeed` (the contact-trigger threshold type) and `AccelerationVector` are `Half` — `engine/gpu/PhysicsDeclarations.cs@a6c914e:L18-L21`; `RigidLocalPose` translation is a `Half` vector bounded to ±16 — `engine/gpu/PhysicsDeclarations.cs@a6c914e:L31-L38`; `WorkshopCosmeticSample.Blend` is `Half` — `engine/gpu/WorkshopCosmetic.cs@a6c914e:L10-L10`. These are remaining lanes in the [f32 migration status](../../gpu-f32-physics.md#f32-migration-status); this element's new values are declared as f32.
+- f32 lanes: Story 9A.44 migrated every lane this element uses (declarations, compiled body/collider/material/sensor lanes, ABI, worker and save) to IEEE-754 f32 ([numeric authority](../../gpu-f32-physics.md)); this element's new values are declared as f32.
 
 **Missing**
 - OpticalTransport absorption at a finite front disc, per-port summation and joint commit — Story 13.2 (emission from 13.1). Decision owner **S484** ([decisions](../invest/decisions.md#s484)): S485, S486 (commit before electrical solve).

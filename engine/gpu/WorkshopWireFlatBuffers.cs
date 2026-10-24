@@ -319,7 +319,7 @@ public static class WorkshopWireFlatBuffers
                     b.Body.Cell.X, b.Body.Cell.Y, b.Body.Cell.Z,
                     b.Body.Local.X, b.Body.Local.Y, b.Body.Local.Z,
                     b.Rotation.X, b.Rotation.Y, b.Rotation.Z, b.Rotation.W,
-                    (float)b.LocalCentreOfMass.X, (float)b.LocalCentreOfMass.Y, (float)b.LocalCentreOfMass.Z,
+                    b.LocalCentreOfMass.X, b.LocalCentreOfMass.Y, b.LocalCentreOfMass.Z,
                     b.Body.Velocity.X, b.Body.Velocity.Y, b.Body.Velocity.Z,
                     b.AngularVelocity.X, b.AngularVelocity.Y, b.AngularVelocity.Z);
             }
@@ -333,7 +333,7 @@ public static class WorkshopWireFlatBuffers
             for (var i = read.Captures.Count - 1; i >= 0; i--)
             {
                 var c = read.Captures[i];
-                CaptureLatchRead.CreateCaptureLatchRead(builder, c.Sensor.Value, (uint)c.Phase, c.EventOrdinal, (float)c.EventPhase);
+                CaptureLatchRead.CreateCaptureLatchRead(builder, c.Sensor.Value, (uint)c.Phase, c.EventOrdinal, c.EventPhase);
             }
             capturesOffset = builder.EndVector();
         }
@@ -449,7 +449,7 @@ public static class WorkshopWireFlatBuffers
                 new LinearVelocity(b.Velocity.X, b.Velocity.Y, b.Velocity.Z));
             bodyValues[i] = new PhysicsBodyRead(body, new CanonicalRotation(b.Rotation.X, b.Rotation.Y, b.Rotation.Z, b.Rotation.W),
                 new AngularVelocity(b.AngularVelocity.X, b.AngularVelocity.Y, b.AngularVelocity.Z),
-                new MetreVector((Half)b.Com.X, (Half)b.Com.Y, (Half)b.Com.Z));
+                new MetreVector(b.Com.X, b.Com.Y, b.Com.Z));
         }
         var bodies = new PhysicsBodyReadSet(bodyValues);
 
@@ -457,7 +457,7 @@ public static class WorkshopWireFlatBuffers
         for (var i = 0; i < latches.Length; i++)
         {
             var cl = fb.Captures(i)!.Value;
-            latches[i] = new CaptureLatch(new GpuSensorId(cl.Sensor), (CaptureLatchPhase)cl.Phase, cl.EventOrdinal, (Half)cl.EventPhase);
+            latches[i] = new CaptureLatch(new GpuSensorId(cl.Sensor), (CaptureLatchPhase)cl.Phase, cl.EventOrdinal, cl.EventPhase);
         }
 
         var actValues = new ActivationLatch[fb.ActivationsLength];
@@ -569,11 +569,7 @@ public static class WorkshopWireFlatBuffers
             var puzzleIdOffset = builder.CreateString(puzzle.Id.Value);
             var invPartOffset = puzzle.InventoryPart.Value != null ? builder.CreateString(puzzle.InventoryPart.Value) : default;
 
-            var assistanceBytes = new byte[WorkshopPuzzleWire.AssistanceBytes];
-            WorkshopPuzzleWire.WriteProfile(assistanceBytes.AsSpan(0, WorkshopPuzzleWire.ProfileBytes), puzzle.PrimaryAssistance);
-            WorkshopPuzzleWire.WriteProfile(assistanceBytes.AsSpan(WorkshopPuzzleWire.ProfileBytes, WorkshopPuzzleWire.ProfileBytes), puzzle.TargetAssistance);
-            WorkshopPuzzleWire.WriteProfile(assistanceBytes.AsSpan(2 * WorkshopPuzzleWire.ProfileBytes, WorkshopPuzzleWire.ProfileBytes), puzzle.PlacementAssistance);
-            var assistVec = PuzzleRecord.CreateRawAssistanceVector(builder, assistanceBytes);
+            var assistVec = EncodeAssistance(builder, puzzle);
 
             var goalBody = puzzle.Goal.Kind == WorkshopGoalKind.ActivatedAfter ? puzzle.Goal.SourceNode.Value : puzzle.Goal.Body.Value;
             var goalTarget = puzzle.Goal.Kind == WorkshopGoalKind.ActivatedAfter ? puzzle.Goal.TargetNode.Value : puzzle.Goal.Target.Value;
@@ -581,15 +577,15 @@ public static class WorkshopWireFlatBuffers
             PuzzleRecord.StartPuzzleRecord(builder);
             PuzzleRecord.AddId(builder, puzzleIdOffset);
             PuzzleRecord.AddPlacement(builder, (uint)puzzle.Placement);
-            PuzzleRecord.AddPrecision(builder, (float)puzzle.Precision.Value);
+            PuzzleRecord.AddPrecision(builder, puzzle.Precision.Value);
             if (puzzle.InventoryPart.Value != null) PuzzleRecord.AddInventoryPart(builder, invPartOffset);
             PuzzleRecord.AddInventoryCount(builder, puzzle.InventoryCount);
             PuzzleRecord.AddGoalKind(builder, (uint)puzzle.Goal.Kind);
             PuzzleRecord.AddGoalBody(builder, goalBody);
             PuzzleRecord.AddGoalTarget(builder, goalTarget);
             PuzzleRecord.AddGoalEventSource(builder, puzzle.Goal.EventSource.Value);
-            PuzzleRecord.AddGoalDelay(builder, (float)puzzle.Goal.MinimumDuration.Value);
-            PuzzleRecord.AddRawAssistance(builder, assistVec);
+            PuzzleRecord.AddGoalDelay(builder, puzzle.Goal.MinimumDuration.Value);
+            PuzzleRecord.AddAssistance(builder, assistVec);
             puzzleOffset = PuzzleRecord.EndPuzzleRecord(builder);
         }
 
@@ -653,6 +649,40 @@ public static class WorkshopWireFlatBuffers
         return construction;
     }
 
+    /// <summary>A puzzle record's assistance: the primary, target and placement profiles, three f32 knots each (Story 9A.44).</summary>
+    internal const int KnotsPerProfile = 3;
+    internal const int AssistanceKnotCount = 3 * KnotsPerProfile;
+
+    private static VectorOffset EncodeAssistance(FlatBufferBuilder builder, WorkshopPuzzle puzzle)
+    {
+        AssistanceKnot[] knots =
+        [
+            puzzle.PrimaryAssistance.Forgiving, puzzle.PrimaryAssistance.Balanced, puzzle.PrimaryAssistance.Precise,
+            puzzle.TargetAssistance.Forgiving, puzzle.TargetAssistance.Balanced, puzzle.TargetAssistance.Precise,
+            puzzle.PlacementAssistance.Forgiving, puzzle.PlacementAssistance.Balanced, puzzle.PlacementAssistance.Precise,
+        ];
+        PuzzleRecord.StartAssistanceVector(builder, knots.Length);
+        for (var i = knots.Length - 1; i >= 0; i--)
+        {
+            var k = knots[i];
+            AssistanceKnotRecord.CreateAssistanceKnotRecord(builder, k.Precision, k.PositionWindow.Value, k.RotationWindowDegrees,
+                k.MaximumPositionCorrection.Value, k.MaximumRotationCorrectionDegrees, k.Blend.Value, k.CaptureMargin.Value,
+                k.CaptureSpeed.Value, k.CaptureDwell.Value, k.GuideAcceleration.Value, k.TriggerThreshold);
+        }
+        return builder.EndVector();
+    }
+
+    private static AssistanceProfile Profile(PuzzleRecord record, int first) =>
+        new(Knot(record, first), Knot(record, first + 1), Knot(record, first + 2));
+
+    private static AssistanceKnot Knot(PuzzleRecord record, int index)
+    {
+        var k = record.Assistance(index)!.Value;
+        return new(k.Precision, new(k.PositionWindow), k.RotationWindowDegrees, new(k.MaximumPositionCorrection),
+            k.MaximumRotationCorrectionDegrees, new(k.Blend), new(k.CaptureMargin), new(k.CaptureSpeed), new(k.CaptureDwell),
+            new(k.GuideAcceleration), k.TriggerThreshold);
+    }
+
     /// <summary>The record's values as a construction, without validating them (a save's pre-validation has already admitted them;
     /// a command's are validated by <see cref="DecodeConstructionRecord"/>). An absent required record or field is a
     /// <see cref="WireFaultException"/>; nothing is defaulted.</summary>
@@ -669,16 +699,13 @@ public static class WorkshopWireFlatBuffers
             var kind = (WorkshopGoalKind)p.GoalKind;
             var sensor = new GpuSensorId(p.GoalEventSource);
             var goal = kind == WorkshopGoalKind.ActivatedAfter
-                ? new WorkshopGoal(kind, default, default, sensor, new(p.GoalBody), new(p.GoalTarget), new((Half)p.GoalDelay))
-                : new WorkshopGoal(kind, new(p.GoalBody), new(p.GoalTarget), sensor, MinimumDuration: new((Half)p.GoalDelay));
-            var assistance = p.GetRawAssistanceArray();
-            if (assistance is not { Length: WorkshopPuzzleWire.AssistanceBytes })
-                throw new WireFaultException(WireFaultReason.MissingField, "An authored puzzle requires its three assistance profiles.");
-            puzzle = new WorkshopPuzzle(new PuzzleId(p.Id ?? throw new WireFaultException(WireFaultReason.MissingField, "Missing puzzle identity.")), (WorkshopPlacementMode)p.Placement, new((Half)p.Precision),
+                ? new WorkshopGoal(kind, default, default, sensor, new(p.GoalBody), new(p.GoalTarget), new(p.GoalDelay))
+                : new WorkshopGoal(kind, new(p.GoalBody), new(p.GoalTarget), sensor, MinimumDuration: new(p.GoalDelay));
+            if (p.AssistanceLength != AssistanceKnotCount)
+                throw new WireFaultException(WireFaultReason.MissingField, "An authored puzzle requires its nine assistance knots.");
+            puzzle = new WorkshopPuzzle(new PuzzleId(p.Id ?? throw new WireFaultException(WireFaultReason.MissingField, "Missing puzzle identity.")), (WorkshopPlacementMode)p.Placement, new(p.Precision),
                 p.InventoryPart != null ? new PartId(p.InventoryPart) : default, p.InventoryCount, goal,
-                WorkshopPuzzleWire.ReadProfile(assistance.AsSpan(0, WorkshopPuzzleWire.ProfileBytes)),
-                WorkshopPuzzleWire.ReadProfile(assistance.AsSpan(WorkshopPuzzleWire.ProfileBytes, WorkshopPuzzleWire.ProfileBytes)),
-                WorkshopPuzzleWire.ReadProfile(assistance.AsSpan(2 * WorkshopPuzzleWire.ProfileBytes, WorkshopPuzzleWire.ProfileBytes)));
+                Profile(p, 0), Profile(p, KnotsPerProfile), Profile(p, 2 * KnotsPerProfile));
         }
 
         // No instance or connection limit (Story 9R.5b): the record's own vectors are the population.

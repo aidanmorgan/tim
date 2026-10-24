@@ -17,36 +17,36 @@ internal static class WarmupScene
     public static readonly PrismaticConstraintId Joint = new(7);
     public const float Lower = -.5f, Upper = .75f, Stiffness = 37f, Damping = 1.5f;
     public const float Target = .5f, MaxSpeed = 1.25f, StoppingAcceleration = 9f, MaxEffort = 22f, MaxPower = 18f;
-    private const float RiderRadius = .25f, RiderMass = 1.5f, BaseHalf = .5f, BaseHeight = 2f;
+    private const float RiderRadius = .25f, RiderMass = 1.5f, BaseHalfExtent = .5f, BaseHeight = 2f;
     public static readonly WorkshopGpuProfile Profile = new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1));
 
     public static PhysicsSceneDeclaration Declaration()
     {
-        var gravity = -(float)WorkshopConstruction.Gravity.Value;
+        var gravity = -WorkshopConstruction.Gravity.Value;
         var baseY = WorkshopInput.Position(BaseHeight);
-        var riderY = WorkshopInput.Position(BaseHeight + BaseHalf + RiderRadius);
+        var riderY = WorkshopInput.Position(BaseHeight + BaseHalfExtent + RiderRadius);
         RigidBodyDeclaration[] bodies =
         [
             new(Base, RigidMotionKind.Static, new(0, baseY.Cell, 0), new(0f, baseY.Local, 0f), CanonicalRotation.Identity,
-                default, default, new((Half)0), default, new((Half)0)),
+                default, default, new(0f), default, new(0f)),
             new(Rider, RigidMotionKind.Dynamic, new(0, riderY.Cell, 0), new(0f, riderY.Local, 0f), CanonicalRotation.Identity,
-                default, default, new((Half)RiderMass), new((Half)0, (Half)gravity, (Half)0), new((Half)0)),
+                default, default, new(RiderMass), new(0f, gravity, 0f), new(0f)),
         ];
         ContactMaterialDeclaration[] materials =
         [
-            new(new(3), new((Half).25f), new((Half).5f), new((Half).5f), new((Half)0)),
-            new(new(4), new((Half).25f), new((Half).5f), new((Half).5f), new((Half).0625f)),
+            new(new(3), new(.25f), new(.5f), new(.5f), new(0f)),
+            new(new(4), new(.25f), new(.5f), new(.5f), new(.0625f)),
         ];
         ColliderDeclaration[] colliders =
         [
-            new(new(5), Base, new(3), ColliderShapeKind.Box, RigidLocalPose.Identity, new((Half)0),
-                new((Half)BaseHalf, (Half)BaseHalf, (Half)BaseHalf)),
-            new(new(6), Rider, new(4), ColliderShapeKind.Sphere, RigidLocalPose.Identity, new((Half)RiderRadius), default),
+            new(new(5), Base, new(3), ColliderShapeKind.Box, RigidLocalPose.Identity, new(0f),
+                new(BaseHalfExtent, BaseHalfExtent, BaseHalfExtent)),
+            new(new(6), Rider, new(4), ColliderShapeKind.Sphere, RigidLocalPose.Identity, new(RiderRadius), default),
         ];
         var targets = new BodyTargetSet(BodyTargetKind.AllDynamic, default);
         PrismaticConstraintDeclaration[] prismatics =
         [
-            new(Joint, Base, Rider, new(new(0f, BaseHalf + RiderRadius, 0f), System.Numerics.Quaternion.Identity), ConstraintFrame.Identity,
+            new(Joint, Base, Rider, new(new(0f, BaseHalfExtent + RiderRadius, 0f), System.Numerics.Quaternion.Identity), ConstraintFrame.Identity,
                 Lower, Upper, Stiffness, Damping, ConnectedCollision.Enabled),
         ];
         return new(new(1, 2), 10, bodies, colliders, materials, [], [],

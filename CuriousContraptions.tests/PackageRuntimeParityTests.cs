@@ -50,30 +50,27 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
         var declaredDegrees = Math.Acos(Assert.Single(domino.Triggers).Threshold) * 180 / Math.PI;
         Assert.True(Math.Abs(compiledDegrees - declaredDegrees) < .1,
             $"domino: topple threshold {declaredDegrees}° declared, {compiledDegrees}° compiled.");
-        // 9A.32: the declared f32 orientation threshold is the compiled sensor's, narrowed to the binary16 half-angle cosine lane bit-equal
-        // to the former record's OrientationThreshold.Degrees(45) (0x3b64, cos 22.5°).
+        // 9A.32: the declared f32 orientation threshold is the compiled sensor's: the f32 cosine of half the declared 45° (cos 22.5°,
+        // rounded once), with no narrower lane.
         var orientation = ((Abstractions.Signal.IOrientationSensorElement)packages["domino"]).Orientation;
         Assert.Equal(45f, orientation.ThresholdDegrees);
         var compiledThreshold = Assert.Single(wiredTile.OrientationSensors.ToArray()).Threshold;
         Assert.Equal(OrientationThreshold.Degrees(orientation.ThresholdDegrees), compiledThreshold);
-        Assert.Equal(BitConverter.HalfToUInt16Bits(OrientationThreshold.Degrees(45).CosineHalfAngle), BitConverter.HalfToUInt16Bits(compiledThreshold.CosineHalfAngle));
-        Assert.Equal((ushort)0x3b64, BitConverter.HalfToUInt16Bits(compiledThreshold.CosineHalfAngle));
+        Assert.Equal(BitConverter.SingleToUInt32Bits((float)Math.Cos(Math.PI / 8)), BitConverter.SingleToUInt32Bits(compiledThreshold.CosineHalfAngle));
         // C-Memory: the counter's target is its declared parameter, and the latch's memory reads the two inputs the shared law reads.
         Assert.Equal("target_count", ((Abstractions.Signal.IPulseCountElement)packages["counter"]).PulseCount.TargetParameter);
         Assert.Equal(new Abstractions.Signal.SignalMemoryDescriptor(Abstractions.PortSocket.SetIn, Abstractions.PortSocket.ResetIn),
             ((Abstractions.Signal.IMemoryElement)packages["latch"]).Memory);
         // Story 9A.22: every package's declared event kinds equal its compiled rows' kinds (EventRingProducerTests).
         // C-Lamp+Detector: the lamp's declared indicator input selects its node, and the detector's declared f32 aperture is the
-        // compiled passage sensor's radius and rearm clearance, narrowed to the binary16 lanes bit-equal to the former record's
-        // (Half)0.65 and (Half)0.02.
+        // compiled passage sensor's radius and rearm clearance, bit for bit (0.65 and 0.02 need a full f32 significand).
         Assert.Equal(Abstractions.PortSocket.ActivationIn, ((Abstractions.Signal.IIndicatorElement)packages["lamp"]).Indicator.Input);
         var aperture = ((Abstractions.Signal.IPassageSensorElement)packages["ball_detector"]).Passage;
         Assert.Equal((.65f, .02f), (aperture.ApertureRadius, aperture.RearmClearance));
         var sensor = Assert.Single(WorkshopActivationCompiler.Compile(new WorkshopConstruction(new ConstructionRevision(1),
             WorkshopCadenceSettings.Default(), new WorkshopInstances(Placed(PartId.BallDetector)))).PassageSensors.ToArray());
-        Assert.Equal(((ushort)0x3933, (ushort)0x251f), (BitConverter.HalfToUInt16Bits(sensor.Radius.Value), BitConverter.HalfToUInt16Bits(sensor.RearmClearance.Value)));
-        Assert.Equal((BitConverter.HalfToUInt16Bits((Half)0.65), BitConverter.HalfToUInt16Bits((Half)0.02)),
-            (BitConverter.HalfToUInt16Bits(sensor.Radius.Value), BitConverter.HalfToUInt16Bits(sensor.RearmClearance.Value)));
+        Assert.Equal((BitConverter.SingleToUInt32Bits(.65f), BitConverter.SingleToUInt32Bits(.02f)),
+            (BitConverter.SingleToUInt32Bits(sensor.Radius.Value), BitConverter.SingleToUInt32Bits(sensor.RearmClearance.Value)));
     }
 
     [Fact]
@@ -212,38 +209,55 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
         }
     }
 
+    // Story 9A.44 (D5): the analytic oracle that replaces the half-precision-era geometry golden. The declared lanes are bit-exact to their
+    // packages (EveryPackageDeclaresTheCompiledFootprintCollidersAndMaterial); every derived lane is its closed form of those f32
+    // inputs: each admitted principal moment within the 6 · 2^-24 inertia bound of the exact moment, and the capture volume's upper
+    // bound the declared Y plus the margin with one f32 rounding.
     [Fact]
-    public void CompiledGeometryMatchesPreCutoverGolden()
+    public void EveryDerivedCompiledLaneIsItsF32ClosedForm()
     {
         _ = godot;
-        var options = new System.Text.Json.JsonSerializerOptions { IncludeFields = true };
-        var rows = new List<System.Text.Json.Nodes.JsonNode>();
-        // The immutable 9A.16 baseline predates Hold and the supplied gates; their new geometry is checked separately.
-        foreach (var package in Packages().Where(package => package.Declaration.Metadata.Id is not ("hold_timer" or "both_gate" or "electrical_nand" or "electrical_nor" or "electrical_or" or "electrical_xor")).OrderBy(package => package.Package, StringComparer.Ordinal))
+        var checkedMoments = 0; var checkedCaptures = 0;
+        foreach (var package in Packages().OrderBy(package => package.Package, StringComparer.Ordinal))
         {
-            Capture(package.Declaration.Metadata.Id, Placed(new PartId(package.Declaration.Metadata.Id)));
-        }
-        foreach (var length in new[] { 1f, 3.6f, 8f })
-            Capture("pipe/" + length.ToString(System.Globalization.CultureInfo.InvariantCulture),
-                WorkshopInput.Pipe(Owner, 0, 3, 0, 0, 0, 0, 1, new PipeLength(length)));
-
-        var expected = System.Text.Json.Nodes.JsonNode.Parse(System.IO.File.ReadAllText(System.IO.Path.Combine(
-            twodog.Engine.ResolveProjectDir(), "CuriousContraptions.tests/Fixtures/compiled-geometry-9a16.json")));
-        var actual = new System.Text.Json.Nodes.JsonArray(rows.ToArray());
-        Assert.True(System.Text.Json.Nodes.JsonNode.DeepEquals(expected, actual), "Compiled physical rows differ from the pre-cutover golden.");
-
-        void Capture(string key, IWorkshopInstance instance)
-        {
+            var instance = Placed(new PartId(package.Declaration.Metadata.Id));
             var scene = Compile(instance);
-            rows.Add(System.Text.Json.JsonSerializer.SerializeToNode(new
+            var admitted = PhysicsGpuAbi.Admission(scene, new(1), new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1)));
+            foreach (var body in scene.Bodies.ToArray().Where(body => body.Motion == RigidMotionKind.Dynamic))
             {
-                Key = key,
-                Bodies = scene.Bodies.ToArray(),
-                Colliders = scene.Colliders.ToArray(),
-                Materials = scene.Materials.ToArray(),
-                Prismatics = scene.Prismatics.ToArray()
-            }, options)!);
+                var collider = scene.Colliders.ToArray().Single(row => row.Body == body.Id);
+                double m = body.Mass.Value, r = collider.Radius.Value;
+                double a = collider.HalfExtents.X, b = collider.HalfExtents.Y, c = collider.HalfExtents.Z;
+                var exact = collider.Shape switch
+                {
+                    RuntimeShape.Sphere => (X: .4 * m * r * r, Y: .4 * m * r * r, Z: .4 * m * r * r),
+                    RuntimeShape.Cylinder => (X: m * (r * r / 4 + b * b / 3), Y: m * r * r / 2, Z: m * (r * r / 4 + b * b / 3)),
+                    _ => (X: m * (b * b + c * c) / 3, Y: m * (a * a + c * c) / 3, Z: m * (a * a + b * b) / 3)
+                };
+                var offset = scene.Layout.GetBodyOffset(body.Id) + PhysicsGpuAbi.BodyPrincipalInertiaOffset;
+                double Moment(int axis) => System.Buffers.Binary.BinaryPrimitives.ReadSingleLittleEndian(
+                    admitted.AsSpan(offset + axis * PhysicsGpuAbi.PrincipalInertiaBytes));
+                foreach (var (axis, value) in new[] { (0, exact.X), (1, exact.Y), (2, exact.Z) })
+                    Assert.True(Math.Abs(Moment(axis) - value) / value <= 6.0 / (1 << 24),
+                        $"{package.Package}: body {body.Id.Value} moment {axis} is {Moment(axis)}, closed form {value}.");
+                checkedMoments++;
+            }
+            if (DeclaredPhysics.Of(instance.PartId).Mechanical?.Capture is { } capture)
+            {
+                var margin = capture.UpperMargin.Evaluate(DeclaredPhysics.Parameters(instance));
+                // A capture volume compiles per payload: place one ball beside the part.
+                var withBall = WorkshopPhysicsCompiler.Compile(new WorkshopConstruction(new ConstructionRevision(1), WorkshopCadenceSettings.Default(),
+                    new WorkshopInstances(instance, WorkshopInput.Generic(PartId.Basketball, new(2), 3, 3, 0, 0, 0, 0, 1))), new(1, 2));
+                foreach (var sensor in withBall.Sensors.ToArray())
+                {
+                    Assert.Equal(BitConverter.SingleToUInt32Bits((float)((double)capture.Maximum.Y + margin)), BitConverter.SingleToUInt32Bits(sensor.Maximum.Y));
+                    Assert.Equal((Bits(capture.Minimum.X), Bits(capture.Minimum.Y), Bits(capture.Minimum.Z), Bits(capture.Maximum.X), Bits(capture.Maximum.Z)),
+                        (Bits(sensor.Minimum.X), Bits(sensor.Minimum.Y), Bits(sensor.Minimum.Z), Bits(sensor.Maximum.X), Bits(sensor.Maximum.Z)));
+                    checkedCaptures++;
+                }
+            }
         }
+        Assert.True(checkedMoments > 0 && checkedCaptures > 0, "The oracle covered no dynamic body or capture volume.");
     }
 
     private static PhysicsSceneDeclaration Compile(IWorkshopInstance instance) =>
@@ -283,25 +297,22 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
         }
     }
 
-    private enum Lane { Half, Single, Whole }
+    private enum Lane { Single, Whole }
 
     private static float Narrow(Lane lane, float value) => lane switch
     {
-        Lane.Half => (float)(Half)value,
         Lane.Single => value,
         Lane.Whole => MathF.Round(value),
         _ => throw new ArgumentException("Undefined lane.")
     };
     private static float Below(Lane lane, float value) => lane switch
     {
-        Lane.Half => (float)Half.BitDecrement((Half)value),
         Lane.Single => float.BitDecrement(value),
         Lane.Whole => value - 1,
         _ => throw new ArgumentException("Undefined lane.")
     };
     private static float Above(Lane lane, float value) => lane switch
     {
-        Lane.Half => (float)Half.BitIncrement((Half)value),
         Lane.Single => float.BitIncrement(value),
         Lane.Whole => value + 1,
         _ => throw new ArgumentException("Undefined lane.")
@@ -444,7 +455,7 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
     };
 
     private static void AssertColliders(string package, IReadOnlyList<ColliderDescriptor> declared,
-        (RuntimeShape Shape, RigidLocalPose Pose, Half Radius, MetreVector HalfExtents)[] runtime)
+        (RuntimeShape Shape, RigidLocalPose Pose, float Radius, MetreVector HalfExtents)[] runtime)
     {
         Assert.True(declared.Count == runtime.Length, $"{package}: {declared.Count} colliders declared, {runtime.Length} at runtime.");
         for (var i = 0; i < runtime.Length; i++)
@@ -474,5 +485,6 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
     }
 
     private static int Bits(float value) => BitConverter.SingleToInt32Bits(value);
-    private static bool Same(float declared, Half runtime) => BitConverter.HalfToInt16Bits((Half)declared) == BitConverter.HalfToInt16Bits(runtime);
+    /// <summary>9A.4: the runtime holds the declared f32 exactly (bit equality, so −0 differs from +0).</summary>
+    private static bool Same(float declared, float runtime) => Bits(declared) == Bits(runtime);
 }

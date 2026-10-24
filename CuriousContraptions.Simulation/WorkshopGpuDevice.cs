@@ -4,7 +4,7 @@ using CuriousContraptions.Gpu;
 
 internal interface IWorkshopGpuTransport
 {
-    Task Initialize(string preamble);
+    Task Initialize();
     Task Stage(byte[] input, WorkshopGpuOperation operation, PhysicsTickInputs inputs);
     byte[] Read();
     void Commit();
@@ -89,7 +89,7 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
         ObjectDisposedException.ThrowIf(_disposed, this);
         _preparationFailure?.Throw();
         if (_initialized) return;
-        await transport.Initialize(PhysicsGpuAbi.ShaderPreamble());
+        await transport.Initialize();
         ObjectDisposedException.ThrowIf(_disposed, this);
         if (!transport.DeviceReady()) throw new InvalidOperationException("GPU preparation did not retain a live device.");
         _initialized = true;

@@ -56,7 +56,7 @@ public sealed class BallDetectorTests(NativeSceneFixture godot)
 
             // 16 circumference colliders
             var circumference = colliders.Take(16).ToArray();
-            var expectedCircHalfExtents = new MetreVector((Half)0.28, (Half)0.025, (Half)0.14);
+            var expectedCircHalfExtents = new MetreVector(0.28f, 0.025f, 0.14f);
             foreach (var col in circumference)
             {
                 Assert.Equal(ColliderShapeKind.Box, col.ShapeKind);
@@ -64,7 +64,7 @@ public sealed class BallDetectorTests(NativeSceneFixture godot)
                 Assert.Equal(expectedCircHalfExtents.Y, col.HalfExtents.Y);
                 Assert.Equal(expectedCircHalfExtents.Z, col.HalfExtents.Z);
 
-                Assert.Equal((Half)0, col.LocalPose.Translation.X);
+                Assert.Equal(0f, col.LocalPose.Translation.X);
                 var py = (float)col.LocalPose.Translation.Y;
                 var pz = (float)col.LocalPose.Translation.Z;
                 var dist = MathF.Sqrt(py * py + pz * pz);
@@ -74,10 +74,10 @@ public sealed class BallDetectorTests(NativeSceneFixture godot)
             // 1 housing collider
             var housing = colliders[16];
             Assert.Equal(ColliderShapeKind.Box, housing.ShapeKind);
-            Assert.Equal(new MetreVector((Half)0.25, (Half)0.12, (Half)0.25), housing.HalfExtents);
-            Assert.Equal((Half)0, housing.LocalPose.Translation.X);
-            Assert.Equal((Half)0.93, housing.LocalPose.Translation.Y);
-            Assert.Equal((Half)0, housing.LocalPose.Translation.Z);
+            Assert.Equal(new MetreVector(0.25f, 0.12f, 0.25f), housing.HalfExtents);
+            Assert.Equal(0f, housing.LocalPose.Translation.X);
+            Assert.Equal(0.93f, housing.LocalPose.Translation.Y);
+            Assert.Equal(0f, housing.LocalPose.Translation.Z);
 
             // 3 port locators: ActivationOut, mouth_start, mouth_end
             Assert.Equal(3, ports.Count);
@@ -151,8 +151,8 @@ public sealed class BallDetectorTests(NativeSceneFixture godot)
         Assert.Equal(1, network.PassageSensors.Length);
         var sensor = network.PassageSensors[0];
         Assert.Equal(detector.Id, sensor.Frame);
-        Assert.Equal((Half)0.65, sensor.Radius.Value);
-        Assert.Equal((Half)0.02, sensor.RearmClearance.Value);
+        Assert.Equal(0.65f, sensor.Radius.Value);
+        Assert.Equal(0.02f, sensor.RearmClearance.Value);
     }
 
     [Theory]

@@ -17,7 +17,7 @@ public sealed class WorkshopBumperTests
         using var source = System.Text.Json.JsonDocument.Parse(File.ReadAllText(Path.Combine(
             twodog.Engine.ResolveProjectDir(), "content/puzzles.json")));
         var level = source.RootElement.EnumerateArray().Single(value => value.GetProperty("id").GetString() == sourceId);
-        var construction = PuzzleCatalogue.Create(lesson, new(1), WorkshopCadenceSettings.Default(), new(1), new((Half)0));
+        var construction = PuzzleCatalogue.Create(lesson, new(1), WorkshopCadenceSettings.Default(), new(1), new(0f));
         Assert.Equal(WorkshopGoalKind.Captured, construction.Puzzle.Goal.Kind);
         Assert.Equal(new GpuBodyId(1), construction.Puzzle.Goal.Body);
         Assert.Equal(new GpuBodyId(2), construction.Puzzle.Goal.Target);
@@ -57,14 +57,14 @@ public sealed class WorkshopBumperTests
         EditRefusal.Is(WorkshopEditRejection.FixedPart, () => placed.WithInstance(Payloads.First(construction) with { Locked = false }).Validate());
         EditRefusal.Is(WorkshopEditRejection.PuzzleSettings, () => (placed with { Puzzle = placed.Puzzle with { InventoryCount = 2 } }).Validate());
         EditRefusal.Is(WorkshopEditRejection.PuzzleSettings, () => (placed with { Puzzle = placed.Puzzle with { PlacementAssistance = PuzzleCatalogue.Definition(new("first_principles")).Placement } }).Validate());
-        foreach (var precision in new Half[] { (Half)0, (Half).45, (Half)1 })
+        foreach (var precision in new float[] { 0f, .45f, 1f })
         {
             var next = PuzzleCatalogue.WithPrecision(placed, new(precision));
-            var expected = precision == (Half)0 ? (.3,3,.15,12) : precision == (Half)1 ? (.02,1.5,.35,0) : (.174,2.325,.24,6.6);
-            Assert.Equal((float)(Half)expected.Item1,((WorkshopGenericInstance)next.Instances.Single(instance => instance.PartId == PartId.Receiver)).Parameters[new("capture_margin")]);
-            Assert.Equal((float)(Half)expected.Item2,((WorkshopGenericInstance)next.Instances.Single(instance => instance.PartId == PartId.Receiver)).Parameters[new("capture_speed_limit")]);
-            Assert.Equal((float)(Half)expected.Item3,((WorkshopGenericInstance)next.Instances.Single(instance => instance.PartId == PartId.Receiver)).Parameters[new("capture_dwell")]);
-            Assert.Equal((float)(Half)expected.Item4,((WorkshopGenericInstance)next.Instances.Single(instance => instance.PartId == PartId.Receiver)).Parameters[new("force_maximum_acceleration")]);
+            var expected = precision == 0f ? (.3,3,.15,12) : precision == 1f ? (.02,1.5,.35,0) : (.174,2.324,.24,6.6);
+            Assert.Equal((float)expected.Item1,((WorkshopGenericInstance)next.Instances.Single(instance => instance.PartId == PartId.Receiver)).Parameters[new("capture_margin")]);
+            Assert.Equal((float)expected.Item2,((WorkshopGenericInstance)next.Instances.Single(instance => instance.PartId == PartId.Receiver)).Parameters[new("capture_speed_limit")]);
+            Assert.Equal((float)expected.Item3,((WorkshopGenericInstance)next.Instances.Single(instance => instance.PartId == PartId.Receiver)).Parameters[new("capture_dwell")]);
+            Assert.Equal((float)expected.Item4,((WorkshopGenericInstance)next.Instances.Single(instance => instance.PartId == PartId.Receiver)).Parameters[new("force_maximum_acceleration")]);
             var save = new WorkshopSavedConstruction(next, new(6));
             var bytes = WorkshopSaveCodec.Encode(save);
             Assert.Equal(save, WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes));
@@ -81,7 +81,7 @@ public sealed class WorkshopBumperTests
     public void AdvancedLessonSaveAndCommandRejectMalformedIdentityProfileAndInventory(string lessonId)
     {
         var lesson = new PuzzleId(lessonId);
-        var construction = PuzzleCatalogue.Create(lesson, new(1), WorkshopCadenceSettings.Default(), new(1), new((Half).45));
+        var construction = PuzzleCatalogue.Create(lesson, new(1), WorkshopCadenceSettings.Default(), new(1), new(.45f));
         var saved = new WorkshopSavedConstruction(construction,new(3));
         var original = WorkshopSaveCodec.Encode(saved);
         var command = new WorkshopCommand(new(1),WorkshopCommandKind.Construct,new(1),new(1),construction,
@@ -91,7 +91,7 @@ public sealed class WorkshopBumperTests
         {
             construction.Puzzle! with { Id = new PuzzleId("unknown") },
             construction.Puzzle! with { InventoryCount = 2 },
-            construction.Puzzle! with { Precision = new(Half.NaN) },
+            construction.Puzzle! with { Precision = new(float.NaN) },
             construction.Puzzle! with { PlacementAssistance = PuzzleCatalogue.Definition(new("first_principles")).Placement }
         };
 
@@ -102,14 +102,14 @@ public sealed class WorkshopBumperTests
             var crOffset = WorkshopWireFlatBuffers.EncodeConstructionRecord(builder, badConstruction, validate: false);
             var badSave = SaveFixture.Finish(builder, crOffset, 3);
             // Extensible unknown identities use the authored puzzle refusal; nonfinite precision is a structural refusal.
-            if (Half.IsNaN(badPuzzle.Precision.Value)) SaveFixture.Refused(WorkshopSaveRejection.NonFinite, () => WorkshopSaveCodec.Decode(SaveFixture.Elements,badSave));
+            if (float.IsNaN(badPuzzle.Precision.Value)) SaveFixture.Refused(WorkshopSaveRejection.NonFinite, () => WorkshopSaveCodec.Decode(SaveFixture.Elements,badSave));
             else EditRefusal.Is(WorkshopEditRejection.PuzzleSettings, () => WorkshopSaveCodec.Decode(SaveFixture.Elements,badSave));
 
             var badCommand = command with { Construction = badConstruction };
             // The wire encoder validates the construction it carries: a puzzle rule's typed refusal, or for a
             // non-finite precision the structural bound (an argument guard).
             var refused = Assert.ThrowsAny<ArgumentException>(() => WorkshopWireFlatBuffers.EncodeCommand(badCommand));
-            Assert.Equal(Half.IsNaN(badPuzzle.Precision.Value) ? typeof(ArgumentException) : typeof(WorkshopEditRejectedException), refused.GetType());
+            Assert.Equal(float.IsNaN(badPuzzle.Precision.Value) ? typeof(ArgumentException) : typeof(WorkshopEditRejectedException), refused.GetType());
         }
         Assert.Equal(original, WorkshopSaveCodec.Encode(saved));
         Assert.Equal(saved, WorkshopSaveCodec.Decode(SaveFixture.Elements,original));
@@ -126,11 +126,11 @@ public sealed class WorkshopBumperTests
         for (var i = 0; i < 3; i++)
         {
             var k = values[i];
-            Half[] actual = [k.Precision, k.PositionWindow.Value, k.RotationWindowDegrees, k.MaximumPositionCorrection.Value,
+            float[] actual = [k.Precision, k.PositionWindow.Value, k.RotationWindowDegrees, k.MaximumPositionCorrection.Value,
                 k.MaximumRotationCorrectionDegrees, k.Blend.Value, k.CaptureMargin.Value, k.CaptureSpeed.Value,
                 k.CaptureDwell.Value, k.GuideAcceleration.Value, k.TriggerThreshold];
             for (var field = 0; field < names.Length; field++)
-                Assert.Equal((Half)data[i].GetProperty(names[field]).GetDouble(), actual[field]);
+                Assert.Equal((float)data[i].GetProperty(names[field]).GetDouble(), actual[field]);
         }
     }
 
@@ -140,7 +140,7 @@ public sealed class WorkshopBumperTests
         using var source = System.Text.Json.JsonDocument.Parse(File.ReadAllText(Path.Combine(twodog.Engine.ResolveProjectDir(), "content/puzzles.json")));
         var level = source.RootElement.EnumerateArray().Single(value => value.GetProperty("id").GetString() == "bumper_sidekick");
         Assert.Equal(1, level.GetProperty("inventory").EnumerateArray().Single(row => row.GetProperty("part").GetString() == "bumper").GetProperty("count").GetInt32());
-        var construction = PuzzleCatalogue.Create(new("bumper_sidekick"), new(1), WorkshopCadenceSettings.Default(), new(1), new((Half)0));
+        var construction = PuzzleCatalogue.Create(new("bumper_sidekick"), new(1), WorkshopCadenceSettings.Default(), new(1), new(0f));
         Assert.Equal(WorkshopGoalKind.Captured, construction.Puzzle.Goal.Kind);
         AuthoredContentAssertions.Profile(level.GetProperty("placements")[0].GetProperty("instance").GetProperty("assistance"), construction.Puzzle.PrimaryAssistance);
         AuthoredContentAssertions.Profile(level.GetProperty("placements")[1].GetProperty("instance").GetProperty("assistance"), construction.Puzzle.TargetAssistance);
@@ -156,7 +156,7 @@ public sealed class WorkshopBumperTests
         EditRefusal.Is(WorkshopEditRejection.PuzzleSettings, () => (placed with { Puzzle = placed.Puzzle with { PlacementAssistance = PuzzleCatalogue.Definition(new("first_principles")).Placement } }).Validate());
         var unpaid = placed.WithInstance(bumper with { Parameters = new([new(new("strength"), 0f)]) }); unpaid.Validate();
         Assert.Equal(0f, Assert.Single(WorkshopPhysicsCompiler.Compile(unpaid, new(1, 2)).ContactWorks.ToArray()).InitialEnergy.Value);
-        foreach (var precision in new Half[] { (Half)0, (Half).45, (Half)1 })
+        foreach (var precision in new float[] { 0f, .45f, 1f })
         {
             var next = PuzzleCatalogue.WithPrecision(placed, new(precision)); next.Validate();
             var saved = new WorkshopSavedConstruction(next, new(4));
@@ -170,11 +170,11 @@ public sealed class WorkshopBumperTests
             for (var i = 0; i < 3; i++)
             {
                 var k = values[i];
-                Half[] actual = [k.Precision, k.PositionWindow.Value, k.RotationWindowDegrees, k.MaximumPositionCorrection.Value,
+                float[] actual = [k.Precision, k.PositionWindow.Value, k.RotationWindowDegrees, k.MaximumPositionCorrection.Value,
                     k.MaximumRotationCorrectionDegrees, k.Blend.Value, k.CaptureMargin.Value, k.CaptureSpeed.Value,
                     k.CaptureDwell.Value, k.GuideAcceleration.Value, k.TriggerThreshold];
                 for (var field = 0; field < names.Length; field++)
-                    Assert.Equal((Half)data[i].GetProperty(names[field]).GetDouble(), actual[field]);
+                    Assert.Equal((float)data[i].GetProperty(names[field]).GetDouble(), actual[field]);
             }
         }
     }
@@ -359,7 +359,7 @@ public sealed class WorkshopBumperTests
     [Fact]
     public void PaidGpuRecordReadsF32WorkAndRejectsPadding()
     {
-        var scene = WorkshopPhysicsCompiler.Compile(Construction((Half)8), new(1, 2));
+        var scene = WorkshopPhysicsCompiler.Compile(Construction(8f), new(1, 2));
         var bytes = PhysicsGpuAbi.Admission(scene, new(1),
             new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1)));
         var before = PhysicsGpuAbi.ReadContactWorks(bytes);
@@ -448,29 +448,29 @@ public sealed class WorkshopBumperTests
     public void AnUndefinedPaymentLimitNeverProducesAnImpulse() =>
         Assert.Equal(default, ContactWorkImpulse.FromAuthorizedWork(4f, 1f, 24f, (ContactWorkLimit)7));
 
-    private static WorkshopConstruction Construction(Half strength) => new(new(1), WorkshopCadenceSettings.Default(),
+    private static WorkshopConstruction Construction(float strength) => new(new(1), WorkshopCadenceSettings.Default(),
         new(WorkshopInput.Generic(PartId.Basketball,new(1), 0, 6, 0, 0, 0, 0, 1),
             PlacedParts.Bumper(new(2), 0, 4, 0, strength: (float)strength)));
 
     [Fact]
     public void SourceSphereAndExplicitPreloadCompileAsGenericDeclarations()
     {
-        var scene = WorkshopPhysicsCompiler.Compile(Construction((Half)8), new(1, 2));
+        var scene = WorkshopPhysicsCompiler.Compile(Construction(8f), new(1, 2));
         var sphere = Assert.Single(scene.Colliders.ToArray(), x => x.Body == new GpuBodyId(2));
         Assert.Equal(ColliderShapeKind.Sphere, sphere.Shape);
-        Assert.Equal(new Metres((Half).65), sphere.Radius);
+        Assert.Equal(new Metres(.65f), sphere.Radius);
         Assert.Equal(RigidLocalPose.Identity, sphere.Pose);
         var material = Assert.Single(scene.Materials.ToArray(), x => x.Id == sphere.Material);
-        Assert.Equal(new Restitution((Half)1), material.Restitution);
-        Assert.Equal(new LinearSpeed((Half).1), material.BounceThreshold);
-        Assert.Equal(new FrictionCoefficient((Half).3), material.Friction);
+        Assert.Equal(new Restitution(1f), material.Restitution);
+        Assert.Equal(new LinearSpeed(.1f), material.BounceThreshold);
+        Assert.Equal(new FrictionCoefficient(.3f), material.Friction);
         var work = Assert.Single(scene.ContactWorks.ToArray());
         Assert.Equal(new GpuBodyId(2), work.Owner);
         Assert.Equal(new BodyTargetSet(BodyTargetKind.AllDynamic, default), work.Targets);
         Assert.True(work.Targets.Contains(new(1)));
-        Assert.Equal(new ContactSpeed((float)8), work.TargetSpeed);
+        Assert.Equal(new ContactSpeed(8f), work.TargetSpeed);
         Assert.Equal(new Joules(32), work.InitialEnergy);
-        Assert.Equal(new ContactSpeed((float).05), work.Threshold);
+        Assert.Equal(new ContactSpeed(.05f), work.Threshold);
         Assert.Equal(72u, work.CooldownPhysicalSteps);
     }
 
@@ -479,7 +479,7 @@ public sealed class WorkshopBumperTests
     [Fact]
     public void ConstructionRoundTripPreservesTheStrengthAndRefusesForgedStores()
     {
-        foreach (var strength in new Half[] { (Half)0, (Half)8, (Half)20 })
+        foreach (var strength in new float[] { 0f, 8f, 20f })
         {
             var save = new WorkshopSavedConstruction(Construction(strength), new(3));
             var bytes = WorkshopSaveCodec.Encode(save);
@@ -507,7 +507,7 @@ public sealed class WorkshopBumperTests
     [Fact]
     public void WorkRequiresUniquePhysicalStaticOwnerAndDynamicTarget()
     {
-        var scene = WorkshopPhysicsCompiler.Compile(Construction((Half)8), new(1, 2));
+        var scene = WorkshopPhysicsCompiler.Compile(Construction(8f), new(1, 2));
         var work = scene.ContactWorks[0];
         foreach (var invalid in new[] {
             work with { Owner = new(1) }, work with { Targets = new(BodyTargetKind.NamedBody, work.Owner) },
@@ -527,7 +527,7 @@ public sealed class WorkshopBumperTests
             Assert.ThrowsAny<ArgumentException>(() => PlacedParts.Bumper(new(2), 0, 4, 0, strength: invalid));
         foreach (var valid in new[] { 0f, 20f })
             Assert.Equal(valid, ((WorkshopGenericInstance)PlacedParts.Bumper(new(2), 0, 4, 0, strength: valid)).Parameters[new("strength")]);
-        var construction = Construction((Half)8);
+        var construction = Construction(8f);
         var bumper = Assert.IsType<WorkshopGenericInstance>(construction.Instances[1]);
         construction.WithInstance(bumper with { Id = new(3) }).Validate(); // No per-kind bumper count in free play.
         Assert.False(DeclaredPorts.Current.Has(PartId.PinballBumper, WorkshopSocket.ActivationOut,

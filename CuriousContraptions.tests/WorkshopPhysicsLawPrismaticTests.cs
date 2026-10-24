@@ -22,16 +22,11 @@ public sealed class WorkshopPhysicsLawPrismaticTests
         new(new(x, y, z), rotation ?? Quaternion.Identity);
     private static Quaternion Axis(Vector3 axis, double angle) => Quaternion.CreateFromAxisAngle(Vector3.Normalize(axis), (float)angle);
 
-    /// <summary>The admitted principal moments (Half mantissa times 2^exponent).</summary>
+    /// <summary>The admitted principal moments (one f32 each).</summary>
     private static Vector3 Moments(LawWorld world, GpuBodyId id)
     {
         var o = world.Scene.Layout.GetBodyOffset(id) + PhysicsGpuAbi.BodyPrincipalInertiaOffset;
-        float M(int axis)
-        {
-            var slot = world.Admitted.AsSpan(o + axis * PhysicsGpuAbi.PrincipalInertiaBytes);
-            return (float)BinaryPrimitives.ReadHalfLittleEndian(slot) *
-                MathF.Pow(2, BinaryPrimitives.ReadInt32LittleEndian(slot[PhysicsGpuAbi.PrincipalExponentOffset..]));
-        }
+        float M(int axis) => BinaryPrimitives.ReadSingleLittleEndian(world.Admitted.AsSpan(o + axis * PhysicsGpuAbi.PrincipalInertiaBytes));
         return new(M(0), M(1), M(2));
     }
 

@@ -352,7 +352,7 @@ test('Battery disconnected authored settings and rendered charge thresholds rest
         await driver.run();await driver.page.waitForTimeout(1800);await driver.pauseSimulation();
         const budget=accounting(limited,1);assert.ok(budget.debit>0 && budget.credit>0);
         assert.ok(budget.unique.every(read=>decodeWorkshopResponse(read).electrical(0)!.debit()<=.5),'Authored30W limits each at-most-two-phase commit to0.5J');
-        assert.ok(decodeWorkshopResponse(reads.at(-1)!).electrical(0)!.remaining()<60,'Half-full authored source funds actual demand');
+        assert.ok(decodeWorkshopResponse(reads.at(-1)!).electrical(0)!.remaining()<60,'a half-charged authored source funds actual demand');
         await driver.reset();await driver.save();assert.deepEqual(authored(await saved(driver)),authored(connected));
         assert.equal(decodeWorkshopResponse(reads.at(-1)!).electrical(0)!.remaining(),60);
         assert.deepEqual(errors,[]);

@@ -33,7 +33,7 @@ Families (map row CAT-029): AnimationEvaluation, AnimationLifecycle, ContactImpu
 - Impact contact trigger by approach speed: `engine/gpu/ContactTriggerDeclaration.cs@a6c914e:L7-L18` (the button region predicate is missing).
 - Activation latch and input: `engine/gpu/ActivationNetwork.cs@a6c914e:L7-L17`.
 - Cosmetic Activation feedback for button and lens: `engine/gpu/WorkshopCosmetic.cs@a6c914e:L7-L7`.
-- Binary16 debt: at a6c914e `MetreVector`, `LinearSpeed` (the contact-trigger threshold type) and `AccelerationVector` are `Half` — `engine/gpu/PhysicsDeclarations.cs@a6c914e:L18-L21`; `RigidLocalPose` translation is a `Half` vector bounded to ±16 — `engine/gpu/PhysicsDeclarations.cs@a6c914e:L31-L38`; `WorkshopCosmeticSample.Blend` is `Half` — `engine/gpu/WorkshopCosmetic.cs@a6c914e:L10-L10`. These are remaining lanes in the [f32 migration status](../../gpu-f32-physics.md#f32-migration-status); this element's new values are declared as f32.
+- f32 lanes: Story 9A.44 migrated every lane this element uses (declarations, compiled body/collider/material/sensor lanes, ABI, worker and save) to IEEE-754 f32 ([numeric authority](../../gpu-f32-physics.md)); this element's new values are declared as f32.
 
 **Missing**
 - OpticalTransport cone emission with facing, range, inverse-square game falloff and occlusion — Story 13.1; decision owner **S484** (S485 finite-colour, S486 optical-commit, S488 optical-law partial occlusion).

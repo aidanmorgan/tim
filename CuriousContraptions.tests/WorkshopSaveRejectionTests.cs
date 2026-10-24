@@ -247,7 +247,7 @@ public sealed class WorkshopSaveRejectionTests
     public void EveryAuthoredLessonSaveLoadsIncludingAMissingGoalPart()
     {
         var settings = WorkshopCadenceSettings.Default();
-        var precision = new PuzzlePrecision((Half)1);
+        var precision = new PuzzlePrecision(1f);
         var lessons = new[]
         {
             PuzzleCatalogue.Create(new("first_principles"), new(1), settings, new(1), precision),

@@ -1,6 +1,6 @@
 # EL-193 · Domino named-identity spec
 
-Story 7.0 named-identity spec (Batch J). Baseline commit `a6c914e`; every citation is `path@a6c914e:Lstart-Lend` and resolves with `git show a6c914e:<path> | sed -n 'start,endp'`. **Proposed** marks an unsourced design value with a one-line justification; the owner may revise it. All values are canonical IEEE-754 f32 game values inside the [game-grade envelope](../../gpu-f32-physics.md#game-grade-envelope); the current declaration still stores them as binary16 ([f32 migration status](../../gpu-f32-physics.md#f32-migration-status)) and they are recorded here by decimal meaning.
+Story 7.0 named-identity spec (Batch J). Baseline commit `a6c914e`; every citation is `path@a6c914e:Lstart-Lend` and resolves with `git show a6c914e:<path> | sed -n 'start,endp'`. **Proposed** marks an unsourced design value with a one-line justification; the owner may revise it. All values are canonical IEEE-754 f32 game values inside the [game-grade envelope](../../gpu-f32-physics.md#game-grade-envelope); the current declaration stores them as f32 (Story 9A.44, [numeric authority](../../gpu-f32-physics.md)) and they are recorded here by decimal meaning.
 
 ## 1. Identity
 

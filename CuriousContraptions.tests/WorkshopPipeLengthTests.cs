@@ -71,12 +71,12 @@ public sealed class WorkshopPipeLengthTests(NativeSceneFixture godot)
         Assert.Equal(24, colliders.Count);
         foreach (var shell in colliders.Take(16))
         {
-            Assert.Equal((Half)(metres / 2), shell.HalfExtents.X);
-            Assert.Equal((Half)0, shell.LocalPose.Translation.X);
+            Assert.Equal((float)(metres / 2), shell.HalfExtents.X);
+            Assert.Equal(0f, shell.LocalPose.Translation.X);
         }
         var rims = colliders.Skip(16).ToArray();
-        Assert.Equal(4, rims.Count(rim => rim.LocalPose.Translation.X == (Half)(-metres / 2)));
-        Assert.Equal(4, rims.Count(rim => rim.LocalPose.Translation.X == (Half)(metres / 2)));
+        Assert.Equal(4, rims.Count(rim => rim.LocalPose.Translation.X == (float)(-metres / 2)));
+        Assert.Equal(4, rims.Count(rim => rim.LocalPose.Translation.X == (float)(metres / 2)));
         // The bore stays 0.65 m whatever the length.
         foreach (var shell in colliders.Take(16))
         {

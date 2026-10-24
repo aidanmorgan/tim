@@ -1,0 +1,69 @@
+LESSONS (Half-era T0 vs f32): goal met, goal tick old->new, event kind order identical, event ticks, max final body displacement m
+first_principles p=0       met true->true tick 335->331 (d=-4) order_same=true eventticks [1,335]->[1,331] dFinal=0.05955
+first_principles p=0.44995117 met true->true tick 344->342 (d=-2) order_same=true eventticks [1,344]->[1,342] dFinal=0.02594
+first_principles p=1       met true->true tick 362->359 (d=-3) order_same=true eventticks [1,362]->[1,359] dFinal=0.00576
+delayed_signal p=0         met true->true tick 207->207 (d=0) order_same=true eventticks [1,1,1,87,207,207]->[1,1,1,87,207,207] dFinal=0.00004
+delayed_signal p=0.44995117 met true->true tick 207->207 (d=0) order_same=true eventticks [1,1,1,87,207,207]->[1,1,1,87,207,207] dFinal=0.00004
+delayed_signal p=1         met true->true tick 207->207 (d=0) order_same=true eventticks [1,1,1,87,207,207]->[1,1,1,87,207,207] dFinal=0.00004
+domino_effect p=0          met true->true tick 335->332 (d=-3) order_same=true eventticks [1,1,335,335]->[1,1,332,332] dFinal=0.07644
+domino_effect p=0.44995117 met true->true tick 335->332 (d=-3) order_same=true eventticks [1,1,335,335]->[1,1,332,332] dFinal=0.07644
+domino_effect p=1          met true->true tick 335->332 (d=-3) order_same=true eventticks [1,1,335,335]->[1,1,332,332] dFinal=0.07644
+bumper_sidekick p=0        met true->true tick 325->324 (d=-1) order_same=true eventticks [1,325]->[1,324] dFinal=0.00338
+bumper_sidekick p=0.44995117 met true->true tick 337->337 (d=0) order_same=true eventticks [1,337]->[1,337] dFinal=0.00506
+bumper_sidekick p=1        met true->true tick 368->367 (d=-1) order_same=true eventticks [1,368]->[1,367] dFinal=0.00081
+bumper_depth p=0           met true->true tick 325->324 (d=-1) order_same=true eventticks [1,325]->[1,324] dFinal=0.00357
+bumper_depth p=0.44995117  met true->true tick 337->337 (d=0) order_same=true eventticks [1,337]->[1,337] dFinal=0.00505
+bumper_depth p=1           met true->true tick 368->367 (d=-1) order_same=true eventticks [1,368]->[1,367] dFinal=0.00080
+wall_and_bumper p=0        met true->true tick 464->463 (d=-1) order_same=true eventticks [1,464]->[1,463] dFinal=0.00102
+wall_and_bumper p=0.44995117 met true->true tick 474->483 (d=9) order_same=true eventticks [1,474]->[1,483] dFinal=0.01006
+wall_and_bumper p=1        met true->true tick 488->488 (d=0) order_same=true eventticks [1,488]->[1,488] dFinal=0.00442
+spring_forward p=0         met true->true tick 220->219 (d=-1) order_same=true eventticks [1,220]->[1,219] dFinal=0.00022
+spring_forward p=0.44995117 met true->true tick 227->227 (d=0) order_same=true eventticks [1,227]->[1,227] dFinal=0.02249
+spring_forward p=1         met true->true tick 245->244 (d=-1) order_same=true eventticks [1,245]->[1,244] dFinal=0.00092
+ready_to_rebound p=0       met true->true tick 136->135 (d=-1) order_same=true eventticks [1,136]->[1,135] dFinal=0.00045
+ready_to_rebound p=0.44995117 met true->true tick 146->146 (d=0) order_same=true eventticks [1,146]->[1,146] dFinal=0.00045
+ready_to_rebound p=1       met true->true tick 160->159 (d=-1) order_same=true eventticks [1,160]->[1,159] dFinal=0.00045
+clear_pipe p=0             met true->true tick 208->207 (d=-1) order_same=true eventticks [1,208]->[1,207] dFinal=0.05953
+clear_pipe p=0.44995117    met true->true tick 262->262 (d=0) order_same=true eventticks [1,262]->[1,262] dFinal=0.00341
+clear_pipe p=1             met true->true tick 263->262 (d=-1) order_same=true eventticks [1,263]->[1,262] dFinal=0.00045
+gentle_bend p=0            met true->true tick 182->181 (d=-1) order_same=true eventticks [1,182]->[1,181] dFinal=0.00571
+gentle_bend p=0.44995117   met true->true tick 189->193 (d=4) order_same=true eventticks [1,189]->[1,193] dFinal=0.10311
+gentle_bend p=1            met true->true tick 212->211 (d=-1) order_same=true eventticks [1,212]->[1,211] dFinal=0.00045
+quarter_bend p=0           met true->true tick 259->258 (d=-1) order_same=true eventticks [1,259]->[1,258] dFinal=0.00365
+quarter_bend p=0.44995117  met true->true tick 268->268 (d=0) order_same=true eventticks [1,268]->[1,268] dFinal=0.00140
+quarter_bend p=1           met true->true tick 322->321 (d=-1) order_same=true eventticks [1,322]->[1,321] dFinal=0.00339
+joined_pipe p=0            met true->true tick 240->239 (d=-1) order_same=true eventticks [1,240]->[1,239] dFinal=0.01728
+joined_pipe p=0.44995117   met true->true tick 253->250 (d=-3) order_same=true eventticks [1,253]->[1,250] dFinal=0.04155
+joined_pipe p=1            met true->true tick 277->276 (d=-1) order_same=true eventticks [1,277]->[1,276] dFinal=0.00064
+
+ELEMENTS (placed alone, 240 ticks)
+ball                       met false->false order_same=true eventticks []->[] dFinal=0.00112
+ball_detector              met false->false order_same=true eventticks [1]->[1] dFinal=0.00000
+basket                     met false->false order_same=true eventticks []->[] dFinal=0.00000
+battery                    met false->false order_same=true eventticks []->[] dFinal=0.00000
+both_gate                  met false->false order_same=true eventticks []->[] dFinal=0.00000
+bowling                    met false->false order_same=true eventticks []->[] dFinal=0.00007
+bumper                     met false->false order_same=true eventticks []->[] dFinal=0.00000
+clock                      met false->false order_same=true eventticks [1]->[1] dFinal=0.00000
+counter                    met false->false order_same=true eventticks [1]->[1] dFinal=0.00000
+delay                      met false->false order_same=true eventticks [1]->[1] dFinal=0.00000
+domino                     met false->false order_same=true eventticks []->[] dFinal=0.00016
+electrical_nand            met false->false order_same=true eventticks []->[] dFinal=0.00000
+electrical_nor             met false->false order_same=true eventticks []->[] dFinal=0.00000
+electrical_or              met false->false order_same=true eventticks []->[] dFinal=0.00000
+electrical_xor             met false->false order_same=true eventticks []->[] dFinal=0.00000
+funnel                     met false->false order_same=true eventticks []->[] dFinal=0.00000
+hold_timer                 met false->false order_same=true eventticks [1]->[1] dFinal=0.00000
+lamp                       met false->false order_same=true eventticks [1]->[1] dFinal=0.00000
+latch                      met false->false order_same=true eventticks [1]->[1] dFinal=0.00000
+pipe                       met false->false order_same=true eventticks []->[] dFinal=0.00000
+pipe_bend_45               met false->false order_same=true eventticks []->[] dFinal=0.00000
+pipe_bend_90               met false->false order_same=true eventticks []->[] dFinal=0.00000
+powered_gate               met false->false order_same=true eventticks []->[] dFinal=0.00000
+pressure_plate             met false->false order_same=true eventticks [1]->[1] dFinal=0.00000
+ramp                       met false->false order_same=true eventticks []->[] dFinal=0.00000
+spring                     met false->false order_same=true eventticks []->[] dFinal=0.00000
+switch                     met false->false order_same=true eventticks [1]->[1] dFinal=0.00000
+wall                       met false->false order_same=true eventticks []->[] dFinal=0.00000
+
+rows with goal-met or event-kind-order differences: 0

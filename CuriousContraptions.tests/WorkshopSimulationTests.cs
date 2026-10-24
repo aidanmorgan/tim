@@ -299,7 +299,7 @@ public sealed class WorkshopSimulationTests
         var initialGeneration = simulation.Epoch;
         var advance = simulation.Advance().AsTask();
         device.CompleteAdvance(0, read => ChangeOnlyBody(read, value => value with { Body = value.Body with
-            { Cell = new(0, 48, 0), Local = new((float)0, (float)0.25, (float)0), Velocity = new(0f, -3.2f, 0f) } }));
+            { Cell = new(0, 48, 0), Local = new(0f, 0.25f, 0f), Velocity = new(0f, -3.2f, 0f) } }));
         await advance;
         Assert.NotEqual(construction.Instances.ToArray().Single(instance => instance.PartId == PartId.Basketball).Cell, simulation.Committed.Bodies[0].Body.Cell);
         var reset = simulation.Reset().AsTask();
@@ -368,7 +368,7 @@ public sealed class WorkshopSimulationTests
         device.CompleteAdvance(0, read =>
         {
             var body = read.Bodies[0].Body;
-            body = body with { Local = new((float).25, body.Local.Y, (float)(-.25)),
+            body = body with { Local = new(.25f, body.Local.Y, (float)(-.25)),
                 Velocity = new(1f, 0f, -1f) };
             return change switch
             {
@@ -386,7 +386,7 @@ public sealed class WorkshopSimulationTests
         if (change != AdvancedIdentityChange.None) Assert.Equal(before, simulation.Committed);
         else
         {
-            Assert.Equal((float).25, simulation.Committed.Bodies[0].Body.Local.X);
+            Assert.Equal(.25f, simulation.Committed.Bodies[0].Body.Local.X);
             Assert.Equal((float)(-.25), simulation.Committed.Bodies[0].Body.Local.Z);
             Assert.Equal(1f, simulation.Committed.Bodies[0].Body.Velocity.X);
             Assert.Equal(-1f, simulation.Committed.Bodies[0].Body.Velocity.Z);
@@ -628,7 +628,7 @@ public sealed class WorkshopSimulationTests
         var scene = WorkshopPhysicsCompiler.Compile(construction,new(1,2));
         var trigger = scene.Triggers[0];
         var collider = scene.Colliders.ToArray().First(value=>value.Body==trigger.Owner).Id;
-        var occurrence = new ContactTriggerRead(trigger.Id,trigger.Owner,new GpuBodyId(1),1,collider,1,(Half)0,new((float)1));
+        var occurrence = new ContactTriggerRead(trigger.Id,trigger.Owner,new GpuBodyId(1),1,collider,1,0f,new(1f));
         WorkshopRead Counting(WorkshopRead read)
         {
             var checkpoint = network.Consume(read.Activations,read.Timers,new[] {occurrence},read.Tick,[]);

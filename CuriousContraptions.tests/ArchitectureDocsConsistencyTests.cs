@@ -20,7 +20,7 @@ public sealed class ArchitectureDocsConsistencyTests(ITestOutputHelper output)
     ];
 
     /// <summary>Retired designs, matched case-insensitively: the catalogue resources, the nonexistent pose-ring script and
-    /// engine assembly, and the deleted worker binary16 accessors.</summary>
+    /// engine assembly, and the deleted worker half-precision accessors.</summary>
     private static readonly Regex[] RetiredPhrases =
     [
         // Story 9A.14 deleted the whole res://parts tree: the bundle is the sole catalogue and scenes live in their packages.

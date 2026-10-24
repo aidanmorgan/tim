@@ -6,5 +6,5 @@ namespace CuriousContraptions.Gpu;
 public readonly record struct ExtractedCollider(
     ColliderShapeKind ShapeKind,
     RigidLocalPose LocalPose,
-    Half Radius,
+    float Radius,
     MetreVector HalfExtents);

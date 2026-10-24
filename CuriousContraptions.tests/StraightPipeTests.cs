@@ -54,7 +54,7 @@ public sealed class StraightPipeTests(NativeSceneFixture godot)
 
             // 16 circumference colliders
             var circumference = colliders.Take(16).ToArray();
-            var expectedCircHalfExtents = new MetreVector((Half)1.8, (Half)0.025, (Half)0.14);
+            var expectedCircHalfExtents = new MetreVector(1.8f, 0.025f, 0.14f);
             foreach (var col in circumference)
             {
                 Assert.Equal(ColliderShapeKind.Box, col.ShapeKind);
@@ -63,7 +63,7 @@ public sealed class StraightPipeTests(NativeSceneFixture godot)
                 Assert.Equal(expectedCircHalfExtents.Z, col.HalfExtents.Z);
 
                 // Origin should be at X = 0, distance in YZ plane should be ~0.675
-                Assert.Equal((Half)0, col.LocalPose.Translation.X);
+                Assert.Equal(0f, col.LocalPose.Translation.X);
                 var py = (float)col.LocalPose.Translation.Y;
                 var pz = (float)col.LocalPose.Translation.Z;
                 var dist = MathF.Sqrt(py * py + pz * pz);
@@ -117,8 +117,8 @@ public sealed class StraightPipeTests(NativeSceneFixture godot)
         Assert.Equal(2, scene.Bodies.Length); // plane + pipe
         var body = Assert.Single(scene.Bodies.ToArray(), b => b.Id == new GpuBodyId(10));
         Assert.Equal(RigidMotionKind.Static, body.Motion);
-        Assert.Equal(new Kilograms((Half)0), body.Mass);
-        Assert.Equal(new InverseSeconds((Half)0), body.LinearDrag);
+        Assert.Equal(new Kilograms(0f), body.Mass);
+        Assert.Equal(new InverseSeconds(0f), body.LinearDrag);
         Assert.Equal(default, body.Gravity);
 
         var colliders = scene.Colliders.ToArray().Where(c => c.Body == body.Id).ToArray();
@@ -126,10 +126,10 @@ public sealed class StraightPipeTests(NativeSceneFixture godot)
 
         // All colliders use the body's material (restitution 1.0, bounce threshold 0.1, friction 0.3)
         var material = Assert.Single(scene.Materials.ToArray(), m => m.Id == colliders[0].Material);
-        Assert.Equal(new Restitution((Half)1), material.Restitution);
-        Assert.Equal(new LinearSpeed((Half)0.1), material.BounceThreshold);
-        Assert.Equal(new FrictionCoefficient((Half)0.3), material.Friction);
-        Assert.Equal(new RollingResistance((Half)0), material.RollingResistance);
+        Assert.Equal(new Restitution(1f), material.Restitution);
+        Assert.Equal(new LinearSpeed(0.1f), material.BounceThreshold);
+        Assert.Equal(new FrictionCoefficient(0.3f), material.Friction);
+        Assert.Equal(new RollingResistance(0f), material.RollingResistance);
     }
 
     [Fact]

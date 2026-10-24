@@ -422,7 +422,7 @@ public sealed class EventRingConsumerTests
             checked((uint)Math.Round((.2 - duration / 4) * WorkshopCadenceSettings.PhysicalFrequency + run.World.AnchorTick.Value * Substeps)), 0f, 1f, 0, 0);
         Assert.True(run.At(late) < run.Origin + .2);
         run.Presentation.AcceptEvents(new(run.World.WorldGeneration.Value, 0, [late]), run.World);
-        // Half its duration has passed since its own instant: the clip is half way, the pulse at its peak.
+        // A half of its duration has passed since its own instant: the clip is half way, the pulse at its peak.
         Assert.Equal(Cue(part, name == "bumper" ? 1 : Quarter[2]), run.Sample(run.At(late) + duration / 2, owner));
     }
 
@@ -615,8 +615,8 @@ public sealed class EventRingConsumerTests
     {
         foreach (var solved in new[] { true, false })
         {
-            var bench = solved ? LaunchLessonSolveTests.AuthoredSolution(lesson, (Half).45)
-                : PuzzleCatalogue.Create(new PuzzleId(lesson), new(2), WorkshopCadenceSettings.Default(), new(1), new((Half).45));
+            var bench = solved ? LaunchLessonSolveTests.AuthoredSolution(lesson, .45f)
+                : PuzzleCatalogue.Create(new PuzzleId(lesson), new(2), WorkshopCadenceSettings.Default(), new(1), new(.45f));
             var goal = bench.Puzzle.Goal;
             await using var ring = await Ring.Running(bench);
             var wake = new WorkshopGoalWake(goal, WorkshopPhysicsCompiler.Compile(bench, new(1, 2)));
@@ -790,13 +790,12 @@ public sealed class EventRingConsumerTests
             ["value", "value", "value", "value", "value", "nativeClock"]),
         (WorkshopClient,
             ["BigInt64Array(buffer", "DataView(buffer", "Float32Array(buffer", "DataView(bytes.buffer", "Uint8Array(bootstrapBytes", "Uint8Array(128",
-                "Uint8Array(32", "Uint8Array(bootstrapBytes", "DataView(item.animationOutput.buffer", "DataView(item.animationOutput.buffer",
-                "DataView(item.animationOutput.buffer", "DataView(item.animationOutput.buffer", "DataView(item.animationOutput.buffer",
+                // Story 9A.44: the Animation output is read through one DataView over its named offsets.
+                "Uint8Array(32", "Uint8Array(bootstrapBytes", "DataView(item.animationOutput.buffer",
                 "DataView(masterPeer.buffer", "Uint8Array(bytes", "Uint8Array(bytes", "Uint8Array(bytes", "Uint8Array(sequenceBytes", "Uint8Array(bytes",
                 "Uint8Array(bytes"],
-            ["bytes", "bootstrap", "item.animationOutput", "item.animationOutput", "item.animationOutput", "item.animationOutput",
-                "item.animationOutput", "animationAcknowledged", "masterPeer", "bootstrap", "message.readIdentity", "scheduleControl",
-                "animationControl", "owned"]),
+            ["bytes", "bootstrap", "item.animationOutput", "animationAcknowledged", "masterPeer", "bootstrap", "message.readIdentity",
+                "scheduleControl", "animationControl", "owned"]),
     ];
 
     // Every line of every production script or page that names `eventRing`. A new receiver (a script that never imports the module but

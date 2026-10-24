@@ -532,4 +532,31 @@ public sealed class PortableAnimationTests(ITestOutputHelper output)
         }
     }
 
+    // Story 9A.44 D7: a lamp's 0→1 colour clip ends on exactly the f32 1 the client reads (`value === 1` in the browser suites):
+    // at its end position and once completed, every rising curve returns its To endpoint bit for bit, and the last position before
+    // the end is never above 1. Control: a sine pulse ends back on its From endpoint.
+    [Theory]
+    [InlineData(AnimationCurve.Linear)]
+    [InlineData(AnimationCurve.SmoothStep)]
+    [InlineData(AnimationCurve.CubicSmoothStep)]
+    [InlineData(AnimationCurve.SinePulse)]
+    public void AUnitClipEndsOnExactlyItsF32Endpoint(AnimationCurve curve)
+    {
+        var batch = new AnimationBatch(1);
+        var handle = batch.Register(Binding(property: AnimationProperty.ColourBlend), new AnimationDefinition(
+            Value(AnimationProperty.ColourBlend, 0), Value(AnimationProperty.ColourBlend, 1), new(.25f), curve, AnimationRepeat.Once,
+            AnimationClock.Presentation));
+        float At(ulong frame, double time) { batch.Advance(frame, time, 0); return BitConverter.UInt32BitsToSingle(batch.Read(handle).Value.CanonicalBits); }
+        batch.Start(handle); At(1, 0);
+        var mid = At(2, .125);
+        var last = At(3, Math.BitDecrement(.25));
+        var end = At(4, .25);
+        var completed = At(5, 1);
+        var endpoint = curve == AnimationCurve.SinePulse ? 0f : 1f;
+        Assert.Equal(BitConverter.SingleToUInt32Bits(endpoint), BitConverter.SingleToUInt32Bits(end));
+        Assert.Equal(BitConverter.SingleToUInt32Bits(endpoint), BitConverter.SingleToUInt32Bits(completed));
+        Assert.Equal(AnimationPlayback.Completed, batch.Read(handle).Playback);
+        Assert.InRange(last, 0f, 1f);
+        if (curve != AnimationCurve.SinePulse) Assert.True(mid is > 0f and < 1f, $"mid-clip is partial: {mid}");
+    }
 }

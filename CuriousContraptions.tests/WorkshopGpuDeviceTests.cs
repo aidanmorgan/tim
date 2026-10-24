@@ -42,9 +42,9 @@ public sealed class WorkshopGpuDeviceTests
                     BinaryPrimitives.WriteUInt32LittleEndian(piece[4..], first + (uint)step);
                     BinaryPrimitives.WriteUInt32LittleEndian(piece[8..], first + (uint)step + 1);
                     BinaryPrimitives.WriteUInt32LittleEndian(piece[12..], first + (uint)step);
-                    BinaryPrimitives.WriteUInt16LittleEndian(piece[22..], BitConverter.HalfToUInt16Bits((Half)480));
-                    body[..8].CopyTo(piece[24..]); body[16..28].CopyTo(piece[32..]);
-                    body[32..44].CopyTo(piece[48..]); body[48..64].CopyTo(piece[64..]);
+                    BinaryPrimitives.WriteUInt32LittleEndian(piece[PhysicsMotionRead.FrequencyOffset..], WorkshopCadenceSettings.PhysicalFrequency);
+                    body[..8].CopyTo(piece[PhysicsMotionRead.OwnerOffset..]); body[16..28].CopyTo(piece[PhysicsMotionRead.CellOffset..]);
+                    body[32..44].CopyTo(piece[PhysicsMotionRead.CentreRemainderOffset..]); body[48..64].CopyTo(piece[PhysicsMotionRead.RotationOffset..]);
                 }
                 for (var lane = 0; lane < 8; lane++)
                     BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(offset + lane * 4), lane < 6 ? -.125f * (lane + 1) : .125f);
@@ -412,7 +412,7 @@ public sealed class WorkshopGpuDeviceTests
         public byte[] Record { get; set; } = [];
         public int Initializations, Stages, Reads, Commits, Disposals, Discards;
         public Action<byte[]>? ReadMutation;
-        public Task Initialize(string preamble)
+        public Task Initialize()
         { Initializations++; return holdInitialization ? Held.Task : Task.CompletedTask; }
         public PhysicsTickInputs? LastInputs { get; private set; }
         public Task Stage(byte[] input, WorkshopGpuOperation operation, PhysicsTickInputs inputs)

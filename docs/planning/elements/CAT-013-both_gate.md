@@ -34,7 +34,7 @@ Families ([map row](../general-engine-element-map.md)): AnimationEvaluation, Ani
 **Exists now**
 - Static box bodies/colliders/material: `engine/gpu/PhysicsDeclarations.cs`, `engine/gpu/WorkshopPhysicsCompiler.cs`.
 - Electrical connection domain enum: `engine/gpu/WorkshopConnections.cs@a6c914e:L8-L13`.
-- Declared cosmetic curve record (no electrical source yet): `engine/gpu/WorkshopCosmetic.cs@a6c914e:L16-L48`. It stores its duration as binary16 (`Half`); cosmetic durations are listed as remaining f32 migration (`docs/gpu-f32-physics.md@a6c914e:L96-L98`), so extending it inherits that debt (open question 3).
+- Declared cosmetic curve record (no electrical source yet): `engine/gpu/WorkshopCosmetic.cs@a6c914e:L16-L48`. At a6c914e it stored its duration as half-precision, with cosmetic durations listed as remaining f32 migration (`docs/gpu-f32-physics.md@a6c914e:L96-L98`); Story 9A.44 migrated them to f32, so extending it inherits no precision debt (open question 3).
 
 **Missing**
 - Binary supply network with sources/wires/contacts — Story 8.1 ([CAT-005](CAT-005-battery.md#3-engine-capabilities)).

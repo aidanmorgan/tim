@@ -70,7 +70,7 @@ Families ([element map](../general-engine-element-map.md); binding [`element-01.
 | 2 | Snapping is refused while running and for parts of another world; it works again after Reset; running leaves pose and bodies unchanged. | `CuriousContraptions.tests/TubePlacementSnapTests.cs@a6c914e:L54-L85` | Carry forward: joins are an authoring-only transaction. |
 | 3 | Mouths 0.72 m apart, or 40° wrong-facing, do not snap. | `CuriousContraptions.tests/TubePlacementSnapTests.cs@a6c914e:L87-L101` | Carry forward as the wrong-facing / distant control. |
 | 4 | An occupied mouth and a locked part are not snap candidates; deleting the occupant frees the mouth. | `CuriousContraptions.tests/TubePlacementSnapTests.cs@a6c914e:L103-L121` | Carry forward. |
-| 5 | Ball-pipe catalogue: length bits 17203 (binary16 3.5996 m, i.e. 3.6 m), title "Clear pipe", colour (0.40, 0.72, 0.79). | `parts/catalog/pipe.tres@a6c914e:L8-L20` | Do not carry forward (CAT-048 owns it; binary16 lane). Recorded so the water pipe is not confused with it. |
+| 5 | Ball-pipe catalogue: length bits 17203 (half-precision 3.5996 m, i.e. 3.6 m), title "Clear pipe", colour (0.40, 0.72, 0.79). | `parts/catalog/pipe.tres@a6c914e:L8-L20` | Do not carry forward (CAT-048 owns it; half-precision lane). Recorded so the water pipe is not confused with it. |
 
 ## Acceptance outline
 

@@ -224,6 +224,22 @@ struct ConnectionRecord {
     to_socket: uint32;
 }
 
+// One authored assistance knot (Story 9A.44): eleven f32 lanes. A puzzle record carries exactly nine, the forgiving, balanced
+// and precise knots of its primary, target and placement profiles in that order.
+struct AssistanceKnotRecord {
+    precision: float;
+    position_window: float;
+    rotation_window_degrees: float;
+    maximum_position_correction: float;
+    maximum_rotation_correction_degrees: float;
+    blend: float;
+    capture_margin: float;
+    capture_speed: float;
+    capture_dwell: float;
+    guide_acceleration: float;
+    trigger_threshold: float;
+}
+
 table ParameterRecord {
     key: string (required);
     value: float;
@@ -254,7 +270,10 @@ table PuzzleRecord {
     goal_target: uint64;
     goal_event_source: uint64;
     goal_delay: float;
-    raw_assistance: [uint8];
+    // Pre-9A.44 lessons stored nine half-precision knots here; the slot stays reserved so such a save decodes and is refused
+    // with its typed explanation (no assistance knots), never read.
+    raw_assistance: [uint8] (deprecated);
+    assistance: [AssistanceKnotRecord];
 }
 
 table ConstructionRecord {

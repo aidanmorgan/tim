@@ -114,8 +114,8 @@ internal static class OldLayoutSaves
         yield return new("battery_disabled", "battery", [new(10, 3600f), new(11, 120f), new(12, 1f)]) { Layout = layout };
         yield return new("battery_custom_120_30_half", "battery", [new(10, 120f), new(11, 30f), new(12, .5f), new(13, Byte: 1)]) { Layout = layout };
         yield return new("battery_custom_disabled_zero", "battery", [new(10, 600f), new(11, 10f)]) { Layout = layout };
-        yield return new("domino", "domino", [new(14, Vector: new((float)(Half).125, (float)(Half).55, (float)(Half).325)),
-            new(6, (float)(Half).4), new(7, (float)(Half).05), new(15, (float)(Half).6)]) { Layout = layout };
+        yield return new("domino", "domino", [new(14, Vector: OldDominoHalfExtents),
+            new(6, OldDominoMass), new(7, OldDominoBounce), new(15, OldDominoFriction)]) { Layout = layout };
         yield return new("counter", "counter", [new(16, Unsigned: 3)]) { Layout = layout };
         foreach (var (name, part) in new[] { ("impact_switch", PartId.ImpactSwitch), ("ramp", PartId.Ramp), ("bumper", PartId.PinballBumper),
                      ("receiver", PartId.Receiver), ("springboard", PartId.Springboard), ("wall", PartId.Wall), ("hold_timer", new PartId("hold_timer")) })
@@ -133,6 +133,11 @@ internal static class OldLayoutSaves
         yield return new("bare ball, empty parameters vector", "ball", [], []) { Layout = layout };
     }
 
+    /// <summary>The old Domino record's material as its encoder stored it: the half-precision-rounded 0.125 × 0.55 × 0.325 m, 0.4 kg,
+    /// bounce 0.05 and friction 0.6, widened to f32 (exact constants, so the old bytes depend on no current narrowing).</summary>
+    internal static readonly System.Numerics.Vector3 OldDominoHalfExtents = new(.125f, .5498046875f, .324951171875f);
+    internal const float OldDominoMass = .39990234375f, OldDominoBounce = .04998779296875f, OldDominoFriction = .60009765625f;
+
     /// <summary>Each pre-conversion record kind C-Bumper+Spring's schema change moved, with the old values it stored.</summary>
     internal static IEnumerable<OldRecord> Records()
     {
@@ -141,8 +146,8 @@ internal static class OldLayoutSaves
         yield return new("spring default", "spring", [new(10, 400f), new(11, .2f)]);
         yield return new("spring charged", "spring", [new(10, 400f), new(11, .2f), new(12, .2f)]);
         yield return new("battery default", "battery", [new(13, 3600f), new(14, 120f), new(15, 1f), new(16, Byte: 1)]);
-        yield return new("domino", "domino", [new(20, Vector: new((float)(Half).125, (float)(Half).55, (float)(Half).325)),
-            new(6, (float)(Half).4), new(7, (float)(Half).05), new(21, (float)(Half).6)]);
+        yield return new("domino", "domino", [new(20, Vector: OldDominoHalfExtents),
+            new(6, OldDominoMass), new(7, OldDominoBounce), new(21, OldDominoFriction)]);
         yield return new("counter", "counter", [new(22, Unsigned: 3)]);
         yield return new("switch threshold", "switch", [], [("trigger_threshold", 1.5f)]);
         yield return new("resized ramp", "ramp", [], [("length", 3.123457f), ("width", 1.234567f)]);

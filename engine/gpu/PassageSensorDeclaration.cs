@@ -19,8 +19,8 @@ public readonly record struct PassageSensorDeclaration(
     {
         if (Id.Value == 0 || Frame.Value == 0) throw new ArgumentException("Invalid passage sensor identity.");
         Rotation.Validate();
-        PhysicsDeclarationBounds.Range(Radius.Value, (Half)0.01, (Half)10);
-        PhysicsDeclarationBounds.Range(RearmClearance.Value, (Half)0.001, (Half)10);
+        PhysicsDeclarationBounds.Range(Radius.Value, 0.01f, 10f);
+        PhysicsDeclarationBounds.Range(RearmClearance.Value, 0.001f, 10f);
     }
 }
 
@@ -33,7 +33,7 @@ public readonly record struct PassageSensorRead(
     GpuColliderId Collider,
     PassageSensorPhase Phase,
     uint EventOrdinal,
-    Half EventPhase,
+    float EventPhase,
     LinearSpeed Speed);
 
 public readonly record struct PassageBodyState(
@@ -102,9 +102,9 @@ public sealed class PassageSensorTracker
                             colliderId = c.Id;
                             radius = c.Shape switch
                             {
-                                ColliderShapeKind.Sphere => (float)c.Radius.Value,
-                                ColliderShapeKind.Box => Math.Max((float)c.HalfExtents.X, Math.Max((float)c.HalfExtents.Y, (float)c.HalfExtents.Z)),
-                                ColliderShapeKind.Cylinder => Math.Max((float)c.Radius.Value, (float)c.HalfExtents.Y),
+                                ColliderShapeKind.Sphere => c.Radius.Value,
+                                ColliderShapeKind.Box => Math.Max(c.HalfExtents.X, Math.Max(c.HalfExtents.Y, c.HalfExtents.Z)),
+                                ColliderShapeKind.Cylinder => Math.Max(c.Radius.Value, c.HalfExtents.Y),
                                 ColliderShapeKind.Plane => 0f,
                                 _ => throw new ArgumentOutOfRangeException(nameof(colliders), c.Shape, "Undefined collider shape.")
                             };
@@ -115,7 +115,7 @@ public sealed class PassageSensorTracker
 
                 if (radius <= 0f) radius = 0.34f;
 
-                var armed = localPos.X < -(float)sensor.RearmClearance.Value - radius;
+                var armed = localPos.X < -sensor.RearmClearance.Value - radius;
                 stateList.Add(new PassageBodyState(
                     sensor.Id,
                     body.Body.Id,
@@ -183,8 +183,8 @@ public sealed class PassageSensorTracker
             var prevZ = current.PreviousLocalZ;
             var passedCount = current.PassedCount;
 
-            var rearmThreshold = -(float)sensor.RearmClearance.Value - radius;
-            var boreRadiusSq = (float)sensor.Radius.Value * (float)sensor.Radius.Value;
+            var rearmThreshold = -sensor.RearmClearance.Value - radius;
+            var boreRadiusSq = sensor.Radius.Value * sensor.Radius.Value;
 
             for (uint s = 0; s < substeps; s++)
             {
@@ -242,8 +242,8 @@ public sealed class PassageSensorTracker
                             current.Collider,
                             PassageSensorPhase.Fired,
                             ordinal,
-                            (Half)0,
-                            new LinearSpeed((Half)Math.Clamp(speedVal, 0f, 4096f)));
+                            0f,
+                            new LinearSpeed(Math.Clamp(speedVal, 0f, 4096f)));
                         fired.Add(read);
                         if (outputCount < outputs.Length) outputs[outputCount++] = read;
                     }

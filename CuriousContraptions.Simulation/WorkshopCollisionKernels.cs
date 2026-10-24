@@ -42,7 +42,6 @@ internal sealed class SimBody
     public float InvMass;
     public float Gx, Gy, Gz;
     public float Drag;
-    public ushort DragBits;
     public Vector3 ComLocal;
     public Quaternion Principal;
     public Vector3 InvI;
@@ -258,7 +257,7 @@ internal static class WorkshopCollisionKernels
         _ => 0f
     };
 
-    /// <summary>Half a cylinder's extent along unit <paramref name="axis"/> about its centre, exactly: h |u·a| + r √(1 − (u·a)²).</summary>
+    /// <summary>The half-extent of a cylinder along unit <paramref name="axis"/> about its centre, exactly: h |u·a| + r √(1 − (u·a)²).</summary>
     public static float CylinderProjection(SimCollider c, Vector3 axis)
     {
         var t = MathF.Abs(Vector3.Dot(axis, c.U1));

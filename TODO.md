@@ -21,7 +21,7 @@
 
 **Priority order after main is green** (coordinator, 24 Oct 2026, from owner directives):
 1. Publish 9A.23 + 9A.25b, then 10.2a.
-2. **9A.44 f32 everywhere** (owner priority). Remove every binary16 lane and every `double` game value. `double` is allowed only at named external adapters. Game time is integer ticks plus an f32 phase. A guard enforces this. Split into A (solver/wire) and B (presentation/clock) if needed.
+2. **9A.44 f32 everywhere** (owner priority). Part A (solver/wire): every half-precision lane removed, guarded by `HalfPrecisionGuardTests`; implemented, awaiting independent review and publication. Part B (presentation/clock): remove every `double` game value (`double` only at named external adapters), integer-tick game time plus an f32 phase, and a guard; not started.
 3. Engine: lying cylinder axial creep (spec ready; orientation remainder approved).
 4. Workshop integration harness. A is the shared deterministic native harness plus migration; B is the cross-element coverage matrix, with every lesson at 3 precisions.
 5. TypeScript conversion of the wwwroot runtime JS and the node harnesses (pinned `tsc` in build/CI), including the same encapsulation for the pose ring and other shared-memory views.

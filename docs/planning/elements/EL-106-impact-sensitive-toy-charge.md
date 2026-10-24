@@ -1,6 +1,6 @@
 # EL-106 · Impact-sensitive toy charge — named-identity spec
 
-Story 7.0 named-identity spec ([story spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations are `path@a6c914e:Lstart-Lend`. Values with no legacy or requirement source are **proposed**, each with a one-line justification; the owner may revise them. Game values are canonical f32 ([numeric contract](../../gpu-f32-physics.md#f32-migration-status)).
+Story 7.0 named-identity spec ([story spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations are `path@a6c914e:Lstart-Lend`. Values with no legacy or requirement source are **proposed**, each with a one-line justification; the owner may revise them. Game values are canonical f32 ([numeric contract](../../gpu-f32-physics.md)).
 
 **Safety boundary.** An abstract toy store of energy in joules with a generic shock threshold. The historical nitroglycerine piece is a reference only (requirement row); no real substance, formulation, quantity or handling is modelled or described.
 

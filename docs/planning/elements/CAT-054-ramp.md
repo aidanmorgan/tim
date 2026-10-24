@@ -41,7 +41,7 @@ Families from the [element map row](../general-engine-element-map.md): ContactIm
 | --- | --- |
 | Physical placement nudging (prescribed kinematic correction of the ramp with contact) | not scheduled; the roadmap reports it unsupported in the current playable mode ([first_principles](../invest/vertical-delivery.md#first-principles)) |
 | Ramp width/length resize handles in the playable UI (X/Z) | already declared; Chrome proof of supported dimensions still required |
-| f32 declarations: `RampDimensions`, the fixed thickness, pose, the assistance knots and the `RampDimensionsResource` `*Bits` fields are still binary16 (`Half`) | Remaining f32 migration ([f32 migration status](../../gpu-f32-physics.md#f32-migration-status)) |
+| f32 declarations: the ramp dimensions, the fixed thickness, pose and the assistance knots are f32 (Story 9A.44); `RampDimensions` and the `RampDimensionsResource` `*Bits` fields are retired | Delivered by Story 9A.44 ([numeric authority](../../gpu-f32-physics.md)) |
 
 Dependencies: none. Consumers: Basketball, Bowling, Domino, Receiver levels.
 

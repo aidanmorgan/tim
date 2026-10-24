@@ -55,12 +55,12 @@ public static class DeclaredPhysics
         // A baked cylinder is (r, h, r) about its local +Y axis; unequal radial lanes are no cylinder (as a sphere is uniform).
         if (shape == ColliderShapeKind.Cylinder && !(h.X == h.Z))
             throw new ArgumentException("A baked cylinder's radial half-extents must be equal.");
-        return new(shape, new(new((Half)p.X, (Half)p.Y, (Half)p.Z), new(q.X, q.Y, q.Z, q.W)),
-            shape is ColliderShapeKind.Sphere or ColliderShapeKind.Cylinder ? (Half)h.X : (Half)0,
+        return new(shape, new(new(p.X, p.Y, p.Z), new(q.X, q.Y, q.Z, q.W)),
+            shape is ColliderShapeKind.Sphere or ColliderShapeKind.Cylinder ? h.X : 0f,
             shape switch
             {
-                ColliderShapeKind.Box => new((Half)h.X, (Half)h.Y, (Half)h.Z),
-                ColliderShapeKind.Cylinder => new((Half)0, (Half)h.Y, (Half)0),
+                ColliderShapeKind.Box => new(h.X, h.Y, h.Z),
+                ColliderShapeKind.Cylinder => new(0f, h.Y, 0f),
                 _ => default
             });
     }

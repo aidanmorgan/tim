@@ -1,0 +1,116 @@
+./engine/gpu/PhysicsBodyWire.cs:50:        BitConverter.UInt16BitsToHalf(BinaryPrimitives.ReadUInt16LittleEndian(bytes[offset..]));
+./engine/gpu/PhysicsBodyWire.cs:52:        BinaryPrimitives.WriteUInt16LittleEndian(bytes[offset..],BitConverter.HalfToUInt16Bits(value));
+./engine/gpu/WorkshopConstruction.cs:123:    public static bool Equal(Half a, Half b) => BitConverter.HalfToUInt16Bits(a) == BitConverter.HalfToUInt16Bits(b);
+./engine/gpu/PhysicsGpuAbi.cs:521:        BinaryPrimitives.WriteUInt16LittleEndian(bytes[offset..], BitConverter.HalfToUInt16Bits(value));
+./engine/gpu/PhysicsGpuAbi.cs:523:        BitConverter.UInt16BitsToHalf(BinaryPrimitives.ReadUInt16LittleEndian(bytes[offset..]));
+./engine/gpu/PhysicsDeclarations.cs:392:    internal static bool Zero(Half value) => BitConverter.HalfToUInt16Bits(value) == 0;
+./CuriousContraptions.Simulation/WorkshopCollisionKernels.cs:45:    public ushort DragBits;
+./CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs:250:    private static float ReadF16(ReadOnlySpan<byte> span, int offset) =>
+./CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs:251:        (float)BinaryPrimitives.ReadHalfLittleEndian(span.Slice(offset, 2));
+./CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs:253:    private static void WriteF16(Span<byte> span, int offset, float value) =>
+./CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs:254:        BinaryPrimitives.WriteHalfLittleEndian(span.Slice(offset, 2), (Half)value);
+./CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs:258:        var mantissa = ReadF16(span, offset);
+./CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs:283:                    WriteF16(span, tOffset + PhysicsGpuAbi.TriggerPhaseOffset, 0f);
+./CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs:322:                    WriteF16(span, oOffset + PhysicsGpuAbi.WorkOccurrencePhaseOffset, 0f);
+./CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs:500:                var mass = ReadF16(span, bodyOffset + PhysicsGpuAbi.BodyMassOffset);
+./CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs:501:                var drag = ReadF16(span, bodyOffset + PhysicsGpuAbi.BodyDragOffset);
+./CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs:504:                var gx = ReadF16(span, bodyOffset + PhysicsGpuAbi.BodyGravityOffset);
+./CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs:505:                var gy = ReadF16(span, bodyOffset + PhysicsGpuAbi.BodyGravityOffset + 2);
+./CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs:506:                var gz = ReadF16(span, bodyOffset + PhysicsGpuAbi.BodyGravityOffset + 4);
+./CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs:509:                    ReadF16(span, bodyOffset + PhysicsGpuAbi.BodyCentreOfMassOffset),
+./CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs:510:                    ReadF16(span, bodyOffset + PhysicsGpuAbi.BodyCentreOfMassOffset + 2),
+./CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs:511:                    ReadF16(span, bodyOffset + PhysicsGpuAbi.BodyCentreOfMassOffset + 4));
+./CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs:532:                b.Drag = drag; b.DragBits = dragBits;
+./CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs:551:            var tx = ReadF16(span, offset + 24);
+./CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs:552:            var ty = ReadF16(span, offset + 26);
+./CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs:553:            var tz = ReadF16(span, offset + 28);
+./CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs:558:            var radius = ReadF16(span, offset + 48);
+./CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs:559:            var hx = ReadF16(span, offset + 50);
+./CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs:560:            var hy = ReadF16(span, offset + 52);
+./CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs:561:            var hz = ReadF16(span, offset + 54);
+./CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs:564:            var restitution = ReadF16(span, matOffset + 8);
+./CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs:565:            var bounceThreshold = ReadF16(span, matOffset + 10);
+./CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs:566:            var friction = ReadF16(span, matOffset + 12);
+./CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs:567:            var rollingResistance = ReadF16(span, matOffset + 14);
+./CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs:796:                var minX = ReadF16(span, offset + 40);
+./CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs:797:                var minY = ReadF16(span, offset + 42);
+./CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs:798:                var minZ = ReadF16(span, offset + 44);
+./CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs:799:                var maxX = ReadF16(span, offset + 48);
+./CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs:800:                var maxY = ReadF16(span, offset + 50);
+./CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs:801:                var maxZ = ReadF16(span, offset + 52);
+./CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs:802:                var maxAcc = ReadF16(span, offset + 56);
+./CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs:803:                var supportHeight = ReadF16(span, offset + 58);
+./CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs:804:                var supportMargin = ReadF16(span, offset + 60);
+./CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs:1013:                if (alignment <= ReadF16(span, oOffset + 32))
+./CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs:1017:                    WriteF16(span, oOffset + 48, 0f);
+./CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs:1031:                WriteF16(pieceSpan, 16, 0f);
+./CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs:1032:                WriteF16(pieceSpan, 18, 0f);
+./CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs:1033:                WriteF16(pieceSpan, 20, 0f);
+./CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs:1034:                WriteF16(pieceSpan, 22, 480f);
+./CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs:1043:                BinaryPrimitives.WriteUInt16LittleEndian(pieceSpan.Slice(PhysicsMotionRead.DragRateOffset, 2), b.DragBits);
+./CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs:1054:                WriteF16(pieceSpan, PhysicsMotionRead.GravityOffset, b.Gx);
+./CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs:1055:                WriteF16(pieceSpan, PhysicsMotionRead.GravityOffset + 2, b.Gy);
+./CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs:1056:                WriteF16(pieceSpan, PhysicsMotionRead.GravityOffset + 4, b.Gz);
+./CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs:1075:            var minX = ReadF16(span, offset + 48);
+./CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs:1076:            var minY = ReadF16(span, offset + 50);
+./CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs:1077:            var minZ = ReadF16(span, offset + 52);
+./CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs:1078:            var maxX = ReadF16(span, offset + 56);
+./CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs:1079:            var maxY = ReadF16(span, offset + 58);
+./CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs:1080:            var maxZ = ReadF16(span, offset + 60);
+./CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs:1081:            var speedLimit = ReadF16(span, offset + 64);
+./CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs:1082:            var dwell = ReadF16(span, offset + 66);
+./CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs:1086:            var prevStartPhase = ReadF16(span, offset + 80);
+./CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs:1143:            WriteF16(span, offset + 80, startPhase);
+./CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs:1147:            WriteF16(span, offset + 92, eventPhase);
+./engine/gpu/WorkshopPuzzleWire.cs:29:    private static void H(Span<byte> bytes, int offset, Half value) => BinaryPrimitives.WriteUInt16LittleEndian(bytes[offset..], BitConverter.HalfToUInt16Bits(value));
+./engine/gpu/WorkshopPuzzleWire.cs:30:    private static Half H(ReadOnlySpan<byte> bytes, int offset) => BitConverter.UInt16BitsToHalf(BinaryPrimitives.ReadUInt16LittleEndian(bytes[offset..]));
+./engine/gpu/PhysicsMotionRead.cs:222:    private static Half H(ReadOnlySpan<byte> p,int offset)=>BitConverter.UInt16BitsToHalf(BinaryPrimitives.ReadUInt16LittleEndian(p[offset..]));
+./CuriousContraptions.tests/OrientationSensorTests.cs:50:                BinaryPrimitives.WriteUInt16LittleEndian(piece[22..], BitConverter.HalfToUInt16Bits((Half)480));
+./CuriousContraptions.tests/OrientationSensorTests.cs:133:        Assert.Equal(BitConverter.HalfToUInt16Bits((Half)Math.Cos(Math.PI / 8)), BinaryPrimitives.ReadUInt16LittleEndian(Record(bytes, 0)[32..]));
+./engine/gpu/WorkshopTraceRecord.cs:56:    private static void H(Span<byte>b,int o,Half v)=>BinaryPrimitives.WriteUInt16LittleEndian(b[o..],BitConverter.HalfToUInt16Bits(v));
+./CuriousContraptions.tests/WorkshopWallTests.cs:46:        var above = BitConverter.UInt16BitsToHalf((ushort)(BitConverter.HalfToUInt16Bits((Half)16) + 1));
+./CuriousContraptions.tests/DominoGuardTests.cs:58:        Assert.Equal(new[] { (Half).125, (Half).55, (Half).325 }.Select(BitConverter.HalfToUInt16Bits),
+./CuriousContraptions.tests/DominoGuardTests.cs:59:            new[] { LawTile.HalfExtents.X, LawTile.HalfExtents.Y, LawTile.HalfExtents.Z }.Select(value => BitConverter.HalfToUInt16Bits((Half)value)));
+./CuriousContraptions.tests/DominoGuardTests.cs:60:        Assert.Equal(BitConverter.HalfToUInt16Bits((Half).4), BitConverter.HalfToUInt16Bits((Half)LawTile.Mass));
+./CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:1082:        Assert.Equal((Half).3f, BinaryPrimitives.ReadHalfLittleEndian(record[48..]));
+./CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:1083:        Assert.Equal((Half)0, BinaryPrimitives.ReadHalfLittleEndian(record[50..]));
+./CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:1084:        Assert.Equal((Half).1f, BinaryPrimitives.ReadHalfLittleEndian(record[52..]));
+./CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:1085:        Assert.Equal((Half)0, BinaryPrimitives.ReadHalfLittleEndian(record[54..]));
+./CuriousContraptions.tests/WorkshopPhysicsLawPrismaticTests.cs:32:            return (float)BinaryPrimitives.ReadHalfLittleEndian(slot) *
+./CuriousContraptions.tests/BasketballResourceTests.cs:46:            return (BitConverter.HalfToUInt16Bits(sphere.Radius.Value), BitConverter.HalfToUInt16Bits(body.Mass.Value),
+./CuriousContraptions.tests/BasketballResourceTests.cs:47:                BitConverter.HalfToUInt16Bits(surface.Restitution.Value), BitConverter.HalfToUInt16Bits(surface.RollingResistance.Value));
+./CuriousContraptions.tests/WireFaultTests.cs:51:            BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(piece + 22), BitConverter.HalfToUInt16Bits((Half)WorkshopCadenceSettings.PhysicalFrequency));
+./CuriousContraptions.tests/WorkshopSaveTests.cs:631:                    Assert.Equal(BitConverter.HalfToUInt16Bits((Half)data[i].GetProperty(names[field]).GetDouble()), BitConverter.HalfToUInt16Bits(actual[field]));
+./CuriousContraptions.web/wwwroot/workshop-client.js:188:                                value: decodeFloat16(valBits),
+./CuriousContraptions.web/wwwroot/workshop-client.js:633:function decodeFloat16(binary) {
+./CuriousContraptions.web/wwwroot/workshop-client.js:656:        decodeFloat16
+./docs/work-orders/P0-004/ownership/part-023.json:4024:        "Value": "P:CuriousContraptions.BasketballMaterialResource.DragBits"
+./CuriousContraptions.tests/PrismaticConstraintTests.cs:162:            BinaryPrimitives.WriteUInt16LittleEndian(piece[22..], BitConverter.HalfToUInt16Bits((Half)480));
+./CuriousContraptions.tests/PackageRuntimeParityTests.cs:59:        Assert.Equal(BitConverter.HalfToUInt16Bits(OrientationThreshold.Degrees(45).CosineHalfAngle), BitConverter.HalfToUInt16Bits(compiledThreshold.CosineHalfAngle));
+./CuriousContraptions.tests/PackageRuntimeParityTests.cs:60:        Assert.Equal((ushort)0x3b64, BitConverter.HalfToUInt16Bits(compiledThreshold.CosineHalfAngle));
+./CuriousContraptions.tests/PackageRuntimeParityTests.cs:74:        Assert.Equal(((ushort)0x3933, (ushort)0x251f), (BitConverter.HalfToUInt16Bits(sensor.Radius.Value), BitConverter.HalfToUInt16Bits(sensor.RearmClearance.Value)));
+./CuriousContraptions.tests/PackageRuntimeParityTests.cs:75:        Assert.Equal((BitConverter.HalfToUInt16Bits((Half)0.65), BitConverter.HalfToUInt16Bits((Half)0.02)),
+./CuriousContraptions.tests/PackageRuntimeParityTests.cs:76:            (BitConverter.HalfToUInt16Bits(sensor.Radius.Value), BitConverter.HalfToUInt16Bits(sensor.RearmClearance.Value)));
+./docs/gpu-f32-physics.md:117:The f32 contract above is the target; the code does not meet it everywhere yet. The lanes below still store or compute game values as IEEE-754 binary16 (`System.Half` in C#, decoded in the WASM worker by `WorkshopPhysicsEngine.ReadF16`, and by `decodeFloat16` in `CuriousContraptions.web/wwwroot/workshop-client.js` for the Animation output channel value). Each lane is required forward refactoring, not a supported second format. Integers, enums and identity tags keep their types. **Story 9A.44 owns every remaining binary16 lane** (owner decision, 18 Oct 2026; Epic 9A). It deletes each lane with no conversion shim and runs as soon as its preconditions allow, so that no lane is migrated and then deleted. Story9.5a migrates timer duration and activation phase first; integer started/due ticks keep their types.
+./docs/gpu-f32-physics.md:126:| Animation values, cosmetic durations and the `Half` lanes of the [animation channel ABI](presentation-bindings.md#declared-cosmetic-curves-anim-1b-and-ui-bindings-anim-1c) | `engine/presentation/AnimationValues.cs`, `WorkshopCosmetic.cs`, `WorkshopHint.cs`, `CuriousContraptions.Animation.Worker/Program.cs` (output channel bits), `workshop-client.js` (`decodeFloat16`) | Story 9A.44 |
+./CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:728:        BinaryPrimitives.WriteHalfLittleEndian(bytes.AsSpan(ball + PhysicsGpuAbi.BodyMassOffset), (Half)mass);
+./CuriousContraptions.tests/ActivationTimerTests.cs:148:                BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(offset+22),BitConverter.HalfToUInt16Bits((Half)480));
+./CuriousContraptions.tests/WorkshopGpuDeviceTests.cs:45:                    BinaryPrimitives.WriteUInt16LittleEndian(piece[22..], BitConverter.HalfToUInt16Bits((Half)480));
+./CuriousContraptions.tests/WorkshopDominoTests.cs:55:        Assert.Equal(BitConverter.HalfToUInt16Bits(properties.X.Mantissa), BinaryPrimitives.ReadUInt16LittleEndian(record[120..]));
+./CuriousContraptions.tests/WorkshopDominoTests.cs:57:        Assert.Equal(BitConverter.HalfToUInt16Bits(properties.Y.Mantissa), BinaryPrimitives.ReadUInt16LittleEndian(record[128..]));
+./CuriousContraptions.tests/WorkshopDominoTests.cs:59:        Assert.Equal(BitConverter.HalfToUInt16Bits(properties.Z.Mantissa), BinaryPrimitives.ReadUInt16LittleEndian(record[136..]));
+./CuriousContraptions.tests/WorkshopReadTests.cs:75:        Assert.False(first.HasSameContent(Wire(read with { Captures = new([new(new(9), CaptureLatchPhase.Latched, 1, BitConverter.UInt16BitsToHalf(0x8000))]) })));
+./CuriousContraptions.tests/WorkshopReadTests.cs:281:    private static void H(byte[] bytes, int offset, Half value) => BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(offset), BitConverter.HalfToUInt16Bits(value));
+./CuriousContraptions.tests/DeclaredOrientationTests.cs:32:        Assert.Equal((ushort)0x3b64, BitConverter.HalfToUInt16Bits(sensor.Threshold.CosineHalfAngle));
+./CuriousContraptions.tests/DeclaredOrientationTests.cs:48:        Assert.Equal((ushort)0x3bba, BitConverter.HalfToUInt16Bits(WorkshopPhysicsCompiler.OrientationSensorFor(tile, new(30f)).Threshold.CosineHalfAngle));
+./CuriousContraptions.tests/WorkshopWireTests.cs:478:                    BinaryPrimitives.WriteUInt16LittleEndian(target[offset..], BitConverter.HalfToUInt16Bits(number));
+./CuriousContraptions.tests/WorkshopWireTests.cs:929:    private static void WriteHalf(byte[] bytes, int offset, Half value) =>
+./CuriousContraptions.tests/WorkshopWireTests.cs:930:        BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(offset), BitConverter.HalfToUInt16Bits(value));
+./CuriousContraptions.tests/WorkshopWireTests.cs:1141:        WriteHalf(segment, DynamicOffset(source) + 104, (Half)2);
+./CuriousContraptions.tests/WorkshopWireTests.cs:1142:        WriteHalf(segment, DynamicOffset(source) + 106, (Half)2);
+./CuriousContraptions.tests/WorkshopWireTests.cs:1159:            WriteHalf(bytes, piece + 20, phase);
+./CuriousContraptions.tests/WorkshopWireTests.cs:1219:            WriteHalf(bytes, offset + PhysicsMotionRead.SupportedAccelerationOffset, (Half)32);
+./CuriousContraptions.tests/WorkshopWireTests.cs:1220:            WriteHalf(bytes, offset + PhysicsMotionRead.AngularAccelerationOffset + 4, (Half).5);
+./CuriousContraptions.tests/WorkshopWireTests.cs:1229:        WriteHalf(spinning, PhysicsMotionRead.HeaderBytes + PhysicsMotionRead.AngularAccelerationOffset, (Half)2048);
+./CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:249:            BinaryPrimitives.WriteHalfLittleEndian(slot, (Half)(value > 0 ? value / MathF.Pow(2, exponent) : 0f));
+./CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:816:            Assert.Equal(BitConverter.HalfToUInt16Bits(declared[id]),

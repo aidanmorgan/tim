@@ -10,12 +10,11 @@ import { WorkshopDriver } from './workshop-driver.ts';
 import { reportsNaN } from '../workshop-console.mjs';
 
 // ANIM-1c moved the Receiver halo onto the declared Capture cosmetic path: target 3·2^32 + receiver body (First principles
-// authors ball 1, receiver 2), ColourBlend (property 5) ramping over the declared 0.5 s SmoothStep curve to Half 1.0.
+// authors ball 1, receiver 2), ColourBlend (property 5) ramping over the declared 0.5 s SmoothStep curve to the f32 value 1.
 const RECEIVER_HALO_TARGET = '12884901890';
 const GOAL_TARGET = '18446744073709551615';
 const COLOUR_BLEND = 5;
 const OPACITY = 3;
-const HALF_ONE = 15360;
 
 async function waitFor(fn: () => Promise<boolean>, timeoutMs: number, stepMs = 100): Promise<boolean> {
     const start = Date.now();
@@ -100,13 +99,13 @@ describe('ANIM-1a: Dedicated 60 Hz WebAssembly Animation Worker Pipeline & Core 
         assert.ok(sampleCount > 0, `Animation worker must deliver 60 Hz samples (sampleCount=${sampleCount})`);
 
         // Verify Receiver halo capture sample (declared Capture target) ramps to full blend
-        const brightened = await waitFor(async () => (await driver.readLastAnimationSample(RECEIVER_HALO_TARGET))?.valBits === HALF_ONE, 3000);
-        assert.ok(brightened, 'Receiver halo capture sample must ramp to Half 1.0 (15360)');
+        const brightened = await waitFor(async () => (await driver.readLastAnimationSample(RECEIVER_HALO_TARGET))?.value === 1, 3000);
+        assert.ok(brightened, 'Receiver halo capture sample must ramp to 1');
         const haloSample = await driver.readLastAnimationSample(RECEIVER_HALO_TARGET);
         assert.ok(haloSample !== null, 'Receiver halo capture animation sample must be received');
         assert.equal(haloSample.target, RECEIVER_HALO_TARGET, 'Sample target must match the Receiver capture target (3·2^32 + body 2)');
         assert.equal(haloSample.property, COLOUR_BLEND, 'Sample property must be AnimationProperty.ColourBlend (5)');
-        assert.equal(haloSample.valBits, HALF_ONE, 'Sample value must reach full blend (Half 1.0 = 15360)');
+        assert.equal(haloSample.value, 1, 'Sample value must reach full blend (f32 1)');
 
         // Verify Goal solved animation sample (declared UI target ulong.MaxValue)
         const goalSample = await driver.readLastAnimationSample(GOAL_TARGET);
@@ -190,7 +189,7 @@ describe('ANIM-1a: Dedicated 60 Hz WebAssembly Animation Worker Pipeline & Core 
         // Verify halo capture sample is active from animation worker and completes its declared ramp before Reset
         const initialHalo = await driver.readLastAnimationSample(RECEIVER_HALO_TARGET);
         assert.ok(initialHalo !== null, 'Receiver halo capture sample must be active upon solve');
-        assert.ok(await waitFor(async () => (await driver.readLastAnimationSample(RECEIVER_HALO_TARGET))?.valBits === HALF_ONE, 3000),
+        assert.ok(await waitFor(async () => (await driver.readLastAnimationSample(RECEIVER_HALO_TARGET))?.value === 1, 3000),
             'Receiver halo must reach full blend before Reset');
 
         // Reset simulation: ball must return to starting elevation py ~ 6.5
@@ -226,11 +225,11 @@ describe('ANIM-1a: Dedicated 60 Hz WebAssembly Animation Worker Pipeline & Core 
         );
 
         // Verify animation samples continue delivering on re-solve
-        assert.ok(await waitFor(async () => (await driver.readLastAnimationSample(RECEIVER_HALO_TARGET))?.valBits === HALF_ONE, 3000),
+        assert.ok(await waitFor(async () => (await driver.readLastAnimationSample(RECEIVER_HALO_TARGET))?.value === 1, 3000),
             'Receiver halo capture animation must re-activate after Load roundtrip');
         await driver.reset();
         const reHaloSample = await driver.readLastAnimationSample(RECEIVER_HALO_TARGET);
         assert.ok(reHaloSample !== null, 'Receiver halo capture animation must re-activate after Load roundtrip');
-        assert.equal(reHaloSample.valBits, HALF_ONE, 'Re-activated halo sample must reach full blend');
+        assert.equal(reHaloSample.value, 1,'Re-activated halo sample must reach full blend');
     });
 });

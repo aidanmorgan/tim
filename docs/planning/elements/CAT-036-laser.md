@@ -33,7 +33,7 @@ Capability families (from [general-engine-element-map](../general-engine-element
 - Activation input, latch and edges: `engine/gpu/ActivationNetwork.cs@a6c914e:L7-L17`.
 - Typed port enums (Activation and Electrical domains): `engine/gpu/WorkshopConnections.cs@a6c914e:L8-L13`.
 - Cosmetic feedback channel (Activation source only): `engine/gpu/WorkshopCosmetic.cs@a6c914e:L7-L7`.
-- Binary16 debt: at a6c914e `MetreVector`, `LinearSpeed` (the contact-trigger threshold type) and `AccelerationVector` are `Half` — `engine/gpu/PhysicsDeclarations.cs@a6c914e:L18-L21`; `RigidLocalPose` translation is a `Half` vector bounded to ±16 — `engine/gpu/PhysicsDeclarations.cs@a6c914e:L31-L38`; `WorkshopCosmeticSample.Blend` is `Half` — `engine/gpu/WorkshopCosmetic.cs@a6c914e:L10-L10`. These are remaining lanes in the [f32 migration status](../../gpu-f32-physics.md#f32-migration-status); this element's new values are declared as f32.
+- f32 lanes: Story 9A.44 migrated every lane this element uses (declarations, compiled body/collider/material/sensor lanes, ABI, worker and save) to IEEE-754 f32 ([numeric authority](../../gpu-f32-physics.md)); this element's new values are declared as f32.
 
 **Missing**
 - OpticalTransport (narrow-ray emission, nearest-hit occlusion, range budget, committed beam path) — built by Story 13.1. Decision owner **S484** ([decisions](../invest/decisions.md#s484)): S485 finite-colour allocation, S486 optical-commit snapshot boundary, S488 interval transport law.

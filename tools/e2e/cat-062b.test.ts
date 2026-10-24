@@ -33,10 +33,6 @@ function rotate(v: V, q: Q): V {
     const tx=2*(y*c-z*b),ty=2*(z*a-x*c),tz=2*(x*b-y*a);
     return [a+w*tx+y*tz-z*ty,b+w*ty+z*tx-x*tz,c+w*tz+x*ty-y*tx];
 }
-function half(bits: number): number {
-    const sign=bits&0x8000?-1:1,e=(bits>>>10)&31,m=bits&1023;
-    return sign*(e===0?m*2**-24:(1+m/1024)*2**(e-15));
-}
 async function saved(d: WorkshopDriver): Promise<Buffer> {
     return Buffer.from(await d.page.evaluate(()=>new Promise<number[]>((resolve,reject)=>{
         const request=indexedDB.open('curious-contraptions-workshop');
@@ -87,13 +83,14 @@ function clearances(save: Buffer, boardIndex: number) {
     const b: V=[(ball.cell()!.x()+ball.local()!.x())/16,(ball.cell()!.y()+ball.local()!.y())/16,(ball.cell()!.z()+ball.local()!.z())/16];
     const q: Q=[board.rotation()!.x(),board.rotation()!.y(),board.rotation()!.z(),board.rotation()!.w()];
     const local=rotate(b.map((v,i)=>v-p[i]) as V,[-q[0],-q[1],-q[2],q[3]]);
-    const radius=half(0x3571);
+    // The compiled f32 lanes (Story 9A.44): ball radius 0.34, plate half-extents 0.65/0.075/0.6, base centre -0.36 and half-height 0.06.
+    const radius=f(.34);
     const gap=(center: number, height: number)=>Math.hypot(
-        Math.max(Math.abs(local[0])-half(0x3933),0),
+        Math.max(Math.abs(local[0])-f(.65),0),
         Math.max(Math.abs(local[1]-center)-height,0),
-        Math.max(Math.abs(local[2])-half(0x38cd),0))-radius;
-    const plate=gap(f(f(.14)-parameter(board,'initial_compression')),half(0x2ccd));
-    const base=gap(-half(0x35c3),half(0x2bae));
+        Math.max(Math.abs(local[2])-f(.6),0))-radius;
+    const plate=gap(f(f(.14)-parameter(board,'initial_compression')),f(.075));
+    const base=gap(f(-.36),f(.06));
     assert.ok(plate>0&&base>0,JSON.stringify({local,plate,base}));
     return {plate,base};
 }

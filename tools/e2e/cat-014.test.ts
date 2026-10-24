@@ -36,8 +36,6 @@ const GRAVITY = 9.81;
 const FREE_FALL_MS = 500;                // a ball dropped from the 3 m plane is in free fall for ≈ 0.79 s
 const TILE_A = '1', TILE_B = '2', BASKETBALL = '3', BOWLING = '4';      // placement order
 const RECEIVER_HALO_TARGET = '12884901890';                     // 3·2^32 + receiver body 2 (free play: ball 1, receiver 2)
-const HALF_ONE = 15360;
-
 function tiltDegrees(b: WorkshopBodyPose): number {
     const upY = 1 - 2 * (b.qx * b.qx + b.qz * b.qz);
     return Math.acos(Math.max(-1, Math.min(1, upY))) * 180 / Math.PI;
@@ -267,8 +265,8 @@ describe('CAT-014: Bowling ball dynamic sphere by material declaration', () => {
         assert.equal(await driver.readLastAnimationSample(RECEIVER_HALO_TARGET), null, 'No capture sample before Run');
 
         await driver.run();
-        const captured = await waitFor(async () => (await driver.readLastAnimationSample(RECEIVER_HALO_TARGET))?.valBits === HALF_ONE, 12000);
-        assert.ok(captured, 'The Receiver capture target ramps to Half 1.0 once the Bowling ball settles in it');
+        const captured = await waitFor(async () => (await driver.readLastAnimationSample(RECEIVER_HALO_TARGET))?.value === 1, 12000);
+        assert.ok(captured, 'The Receiver capture target ramps to 1 once the Bowling ball settles in it');
         const ball = (await bodies(driver)).get('1')!;
         assert.ok(speed(ball) <= 1.5, `Captured below the 1.5 m/s capture speed (speed ${speed(ball).toFixed(3)})`);
         assert.ok(Math.abs(ball.px) < 0.7 && Math.abs(ball.pz) < 0.7 && ball.py > 2.5 && ball.py < 4, `The ball sits inside the Receiver (${ball.px.toFixed(2)}, ${ball.py.toFixed(2)}, ${ball.pz.toFixed(2)})`);

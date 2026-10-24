@@ -70,7 +70,7 @@ public readonly record struct ContactWorkRead(GpuContactWorkId Id, GpuBodyId Own
 
 /// <summary>Last qualified occurrence for one owner/target; slots bind to the installed immutable scene.</summary>
 public readonly record struct ContactWorkOccurrence(ContactWorkSlot Work, ColliderSlot Collider,
-    GpuBodyId Target, uint Sequence, uint EventOrdinal, Half EventPhase, ContactSpeed ApproachSpeed,
+    GpuBodyId Target, uint Sequence, uint EventOrdinal, float EventPhase, ContactSpeed ApproachSpeed,
     Joules Debit, ContactWorkEffect Effect)
 {
     public void Validate()
@@ -88,14 +88,13 @@ public readonly record struct ContactWorkOccurrence(ContactWorkSlot Work, Collid
                 Effect != ContactWorkEffect.Passive)
                 throw new ArgumentException("Unused contact target retained an occurrence.");
         }
-        else if (EventOrdinal > 14400 || !Half.IsFinite(EventPhase) ||
-            EventPhase < (Half)(-2048) || EventPhase >= (Half)2048 || (EventOrdinal == 0 && EventPhase < (Half)0) ||
+        else if (EventOrdinal > 14400 || !PhysicalPhase.IsAdmitted(EventOrdinal, EventPhase) ||
             (Effect == ContactWorkEffect.Passive ? !Debit.HasSameBits(default) : Debit.Value <= 0f))
             throw new ArgumentException("Invalid contact-work event time or effect accounting.");
     }
 
     public bool HasSameBits(ContactWorkOccurrence other) => Work == other.Work && Collider == other.Collider &&
         Target == other.Target && Sequence == other.Sequence && EventOrdinal == other.EventOrdinal && Effect == other.Effect &&
-        HalfBits.Equal(EventPhase, other.EventPhase) && ApproachSpeed.HasSameBits(other.ApproachSpeed) &&
+        F32Bits.Equal(EventPhase, other.EventPhase) && ApproachSpeed.HasSameBits(other.ApproachSpeed) &&
         Debit.HasSameBits(other.Debit);
 }

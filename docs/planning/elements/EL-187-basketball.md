@@ -54,7 +54,7 @@ Families ([element map row](../general-engine-element-map.md), [binding](../../c
 
 | # | Fact | Citation | Disposition |
 | --- | --- | --- | --- |
-| 1 | Catalogue stores the material as binary16 bit patterns (RadiusBits 13681 = 0.34, …). | `parts/catalog/ball.tres@a6c914e:L8-L17` | Carry forward the decimal values; do not carry forward binary16 storage (f32 contract, [gpu-f32-physics](../../gpu-f32-physics.md)). |
+| 1 | Catalogue stores the material as half-precision bit patterns (RadiusBits 13681 = 0.34, …). | `parts/catalog/ball.tres@a6c914e:L8-L17` | Carry forward the decimal values; do not carry forward half-precision storage (f32 contract, [gpu-f32-physics](../../gpu-f32-physics.md)). |
 | 2 | Isolated drop at zero pressure: first impact at √(2h/g) ± 0.02 s; rebound height ratio bounce² ± 0.015 (0.3025 for 0.55); identical replay after Restore. | `CuriousContraptions.tests/PhysicsCalibrationTests.cs@a6c914e:L14-L81` | Carry forward as the "reproducible material-dependent rebound" acceptance. |
 | 3 | Dropped on the bench it bounces, never sinks more than 1 mm, settles below 0.05 m/s and never escapes. | `CuriousContraptions.tests/FloorTests.cs@a6c914e:L26-L51` | Carry forward. |
 | 4 | Legacy drag scaled by world pressure. | `reference/cpu/MachineWorld.cs@a6c914e:L877-L883` | Carry forward only through EL-125. |

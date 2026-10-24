@@ -284,7 +284,7 @@ loop and prints `CCGOAL_SOLVED <epoch>` once per world when the goal binding fir
 registers a neutral (1) clip and hides the label; the worker keeps publishing that neutral every pulse until
 the session ends, as for every registered target.
 
-Animation channel ABI, Version 5 (`WorkshopAnimationWire`; little-endian; both records are 144 bytes):
+Animation channel ABI (`WorkshopAnimationWire` in `engine/gpu/WorkshopHint.cs`; little-endian; both records are 144 bytes; no version field):
 
 | Bytes | Control (`ControlBytes`) | Output (`OutputBytes`) |
 | --- | --- | --- |
@@ -294,17 +294,17 @@ Animation channel ABI, Version 5 (`WorkshopAnimationWire`; little-endian; both r
 | 32–39 | Sequence | Generation |
 | 40–47 | Generation | ordinal (ACK: Sequence; Sample: animation pulse) |
 | 48–51 / 48–55 | Kind U32 (48), Visible U32 (52) | AppliedAt I64 |
-| 56–63 | Target U64 | Value Half (56), Property U16 (58), kind U32 (60) |
+| 56–63 | Target U64 | Value f32 (56), kind U32 (60) |
 | 64–71 | World U64 | Target U64 |
-| 72–79 | From/To/Duration Half (72/74/76), Property U16 (78) | World U64 |
-| 80–87 | Curve U32 (80), EventOrdinal U32 (84) | EventOrdinal U32 (80), EventPhase Half (84), Version U16 (86) |
-| 88–95 | EventPhase Half (88), Version U16 (90), ImpulseCurve U16 (92), Overlap U16 (94) | zero padding U64 (88) |
+| 72–79 | From/To f32 (72/76) | World U64 |
+| 80–87 | Curve U32 (80), EventOrdinal U32 (84) | EventOrdinal U32 (80), EventPhase f32 (84) |
+| 88–95 | EventPhase f32 (88), zero padding U32 (92) | zero padding U64 (88) |
 | 96–131 | Timer: Started/Due/Observed/InputEmitter U64 (96/104/112/120), Phase U32 (128) | same timer layout |
-| 132–143 | zero padding U16 (132), U16 (134), U64 (136) | PulseDuration Half (132, impulse only), zero padding U16 (134), U64 (136) |
+| 132–143 | zero padding U32 (132), Duration f32 (136), Property U16 (140), zero padding U16 (142) | zero padding U32 (132), Property U16 (136), zero padding U16 (138), U32 (140) |
 
-Readers reject any non-zero padding, a wrong Version, undefined enum members, an impulse envelope on a non-impulse control, and a PulseDuration outside (0, 30] or carried without a ColourBlend world target or alongside a timer observation.
+Readers reject any non-zero padding, a record of the wrong length or identity, undefined enum members, a non-finite value, a Duration outside (0, 30], an EventPhase outside [−2048, 2048), and a timer observation without its ColourBlend world target.
 
-The `Half` lanes above record the current binary16 implementation layout, not the numeric contract: these values are f32 game values and the layout changes when they migrate ([f32 migration status](gpu-f32-physics.md#f32-migration-status)).
+Every value lane is f32 (Story 9A.44): `workshop-client.js` reads a Sample's value with `getFloat32(56)` and its property with `getUint16(136)`, and carries no half-precision decoder.
 
 Impulse overlap is worker-owned: the first Impulse control for a target registers one
 `AnimationImpulseDefinition` from the declared envelope (`WorkshopAnimationWire.ImpulseCapacity`

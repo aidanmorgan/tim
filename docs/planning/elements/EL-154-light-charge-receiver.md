@@ -35,7 +35,7 @@ No legacy part implements this identity, and legacy explicitly had no light stor
   | Name | Type | Range | Default | Unit | Justification |
   | --- | --- | --- | --- | --- | --- |
   | `release_level` | f32 | 0.5–10 | 6 | game optical energy | One 2 s torch burst at 3 m stores 4.06 (leak included), below 6; a second burst 10 s later reaches ≈ 6.29, matching "two bursts accumulate". |
-  | `reset_level` | f32 | 0–release | 3 | game optical energy | Half the release level gives visible persistence (≈ 14 s of dark from 6) without permanent latching. |
+  | `reset_level` | f32 | 0–release | 3 | game optical energy | Setting it to half the release level gives visible persistence (≈ 14 s of dark from 6) without permanent latching. |
 
   Fixed constants (**proposed**): capacity 10, η 0.8, λ 0.05 /s.
 - **Cosmetic curves and UI bindings:** a vertical gold gauge `#f7cb52` on the plate edge fills to Q / capacity from the committed ledger, with a cream tick `#fff8e9` at the release level (**proposed**: shows why it has not switched yet); the gold centre ring eases slate `#556573` → gold over 0.125 s on contact state (receiver-family legacy indicator).

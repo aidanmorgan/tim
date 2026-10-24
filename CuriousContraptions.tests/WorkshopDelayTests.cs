@@ -31,7 +31,7 @@ public sealed class WorkshopDelayTests
         var trigger = WorkshopInput.Generic(PartId.ImpactSwitch, new(1), -2, 2, 0, 0, 0, 0, 1);
         var lamp = PlacedParts.Lamp(new(2), 3, 2, 0, 0, 0, 0, 1);
         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(),
-            new(trigger, lamp, Delay((float)8.9375)), Connections: new(
+            new(trigger, lamp, Delay(8.9375f)), Connections: new(
                 new(new(1), WorkshopSocket.ActivationOut, new(3), WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation),
                 new(new(3), WorkshopSocket.ActivationOut, new(2), WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation)));
         var saved = new WorkshopSavedConstruction(construction, new(4));
@@ -39,17 +39,17 @@ public sealed class WorkshopDelayTests
         var scene = WorkshopPhysicsCompiler.Compile(construction, new(1,2));
         var box = Assert.Single(scene.Colliders.ToArray(), c => c.Body == new GpuBodyId(3));
         Assert.Equal(ColliderShapeKind.Box, box.Shape);
-        Assert.Equal(new MetreVector((Half)0,(Half)(-.7),(Half)0), box.Pose.Translation);
-        Assert.Equal(new MetreVector((Half).675,(Half).075,(Half).4), box.HalfExtents);
+        Assert.Equal(new MetreVector(0f,(float)(-.7),0f), box.Pose.Translation);
+        Assert.Equal(new MetreVector(.675f,.075f,.4f), box.HalfExtents);
         var material = Assert.Single(scene.Materials.ToArray(), m => m.Id == box.Material);
-        Assert.Equal(new Restitution((Half)1), material.Restitution);
-        Assert.Equal(new LinearSpeed((Half).1), material.BounceThreshold);
-        Assert.Equal(new FrictionCoefficient((Half).3), material.Friction);
+        Assert.Equal(new Restitution(1f), material.Restitution);
+        Assert.Equal(new LinearSpeed(.1f), material.BounceThreshold);
+        Assert.Equal(new FrictionCoefficient(.3f), material.Friction);
     }
     [Fact]
     public void InvalidCanonicalDurationPaddingAndPreviousSchemasReject()
     {
-        var saved = new WorkshopSavedConstruction(new(new(1), WorkshopCadenceSettings.Default(), new(Delay((float)1))), new(4));
+        var saved = new WorkshopSavedConstruction(new(new(1), WorkshopCadenceSettings.Default(), new(Delay(1f))), new(4));
         var bytes = WorkshopSaveCodec.Encode(saved);
         foreach (var invalid in new[] { 0f, -.1f, .09f, 13f, float.NaN, float.PositiveInfinity, MathF.BitDecrement(.1f), MathF.BitIncrement(12f) })
         {
@@ -74,7 +74,7 @@ public sealed class WorkshopDelayTests
             WorkshopInput.Generic(PartId.Ramp, new(4),-2,2,0,0,0,0,1),
             WorkshopInput.Generic(PartId.ImpactSwitch, new(5),0,1,0,0,0,0,1),
             WorkshopInput.Generic(PartId.ImpactSwitch, new(6),2,1,0,0,0,0,1),
-            PlacedParts.Lamp(new(7),5,2,0,0,0,0,1), Delay((float)1) with {Id=new(8)});
+            PlacedParts.Lamp(new(7),5,2,0,0,0,0,1), Delay(1f) with {Id=new(8)});
         var construction = new WorkshopConstruction(new(1),WorkshopCadenceSettings.Default(),instances);
         var scene = WorkshopPhysicsCompiler.Compile(construction,new(1,2));
         Assert.Equal(9,scene.Bodies.Length);
@@ -93,9 +93,9 @@ public sealed class WorkshopDelayTests
         Assert.True(DeclaredPorts.Current.Has(PartId.Delay, WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation, WorkshopPortDirection.Input));
         Assert.True(DeclaredPorts.Current.Has(PartId.Delay, WorkshopSocket.ActivationOut, WorkshopConnectionDomain.Activation, WorkshopPortDirection.Output));
         Assert.False(DeclaredPorts.Current.Has(PartId.Delay, WorkshopSocket.Supply, WorkshopConnectionDomain.Electrical, WorkshopPortDirection.Output));
-        new WorkshopInstances(Delay((float)1), Delay((float)2) with {Id=new(4)}).Validate(); // No per-kind delay count in free play.
-        var puzzle = PuzzleCatalogue.Create(new("first_principles"), new(1), WorkshopCadenceSettings.Default(), new(1), new((Half)0));
-        EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => puzzle.WithInstance(Delay((float)1)).Validate());
+        new WorkshopInstances(Delay(1f), Delay(2f) with {Id=new(4)}).Validate(); // No per-kind delay count in free play.
+        var puzzle = PuzzleCatalogue.Create(new("first_principles"), new(1), WorkshopCadenceSettings.Default(), new(1), new(0f));
+        EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => puzzle.WithInstance(Delay(1f)).Validate());
     }
 
     private static WorkshopConnection Signal(ulong source, ulong target) =>
@@ -135,7 +135,7 @@ public sealed class WorkshopDelayTests
     public async Task RealContactNonHalfDurationSurvivesSaveLoadAndResetExactly()
     {
         const float seconds = .1234567f;
-        Assert.NotEqual(seconds, (float)(Half)seconds);
+        Assert.True(TestPrecision.NeedsMoreThanElevenSignificantBits(seconds));
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(),
             new(WorkshopInput.Generic(PartId.Basketball,new(1), 0, 3, 0, 0, 0, 0, 1),
                 WorkshopInput.Generic(PartId.ImpactSwitch, new(2), 0, 1, 0, 0, 0, 0, 1),

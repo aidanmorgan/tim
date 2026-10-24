@@ -38,12 +38,12 @@ public static class PlacementPose
         point.Z >= -4 && point.Z <= 4 && point.X >= -7 && point.X <= 7 && point.Y >= 0 && point.Y <= 9;
 
     private enum Shape : byte { Sphere, Box }
-    private readonly record struct Posed(Shape Kind, Vector3 Centre, Vector3 X, Vector3 Y, Vector3 Z, Vector3 Half, float Radius)
+    private readonly record struct Posed(Shape Kind, Vector3 Centre, Vector3 X, Vector3 Y, Vector3 Z, Vector3 HalfExtent, float Radius)
     {
         public Vector3 Axis(int i) => i switch { 0 => X, 1 => Y, _ => Z };
-        public float HalfAlong(int i) => i switch { 0 => Half.X, 1 => Half.Y, _ => Half.Z };
-        /// <summary>Half the shape's world vertical extent.</summary>
-        public float Height => Kind == Shape.Sphere ? Radius : MathF.Abs(X.Y) * Half.X + MathF.Abs(Y.Y) * Half.Y + MathF.Abs(Z.Y) * Half.Z;
+        public float HalfAlong(int i) => i switch { 0 => HalfExtent.X, 1 => HalfExtent.Y, _ => HalfExtent.Z };
+        /// <summary>The shape's world vertical half-extent: its centre to its top.</summary>
+        public float Height => Kind == Shape.Sphere ? Radius : MathF.Abs(X.Y) * HalfExtent.X + MathF.Abs(Y.Y) * HalfExtent.Y + MathF.Abs(Z.Y) * HalfExtent.Z;
     }
 
     public static ComposedPlacement Compose(IReadOnlyDictionary<PartId, PartDefinition> definitions,

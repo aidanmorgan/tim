@@ -105,9 +105,9 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
         {
             var (colliders, ports) = TestBundle.SceneGeometry(instance);
             Assert.Equal(2, colliders.Count);
-            Assert.Equal(new MetreVector((Half)0.825f, (Half)0.625f, (Half)0.325f), colliders[0].HalfExtents);
-            Assert.Equal(new MetreVector((Half)0.9f, (Half)0.08f, (Half)0.425f), colliders[1].HalfExtents);
-            Assert.Equal((Half)(-0.72f), colliders[1].LocalPose.Translation.Y);
+            Assert.Equal(new MetreVector((float)0.825f, (float)0.625f, (float)0.325f), colliders[0].HalfExtents);
+            Assert.Equal(new MetreVector((float)0.9f, (float)0.08f, (float)0.425f), colliders[1].HalfExtents);
+            Assert.Equal((float)(-0.72f), colliders[1].LocalPose.Translation.Y);
             Assert.Equal(colliders.Select(c => c.HalfExtents), DeclaredPhysics.Colliders(PartId.Latch).Select(c => c.HalfExtents));
             Assert.Equal(new Godot.Vector3(-0.45f, 0.72f, 0), ports["SetIn"].Position);
             Assert.Equal(new Godot.Vector3(0.45f, 0.72f, 0), ports["ResetIn"].Position);
@@ -349,7 +349,7 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
     private static ActivationNodeDeclaration Memory(ulong id) => new(new(id), new(id), ActivationNodeKind.StateLatch, default);
     // One impact inside tick `tick` (4 substeps per tick): ordinal (tick − 1) · 4 + substep.
     private static ContactTriggerRead Hit(ActivationNodeDeclaration source, ulong tick, uint substep = 2) =>
-        new(source.Trigger, source.Owner, new(99), 1, new(7), (uint)((tick - 1) * 4 + substep), (Half)0, new((float)2));
+        new(source.Trigger, source.Owner, new(99), 1, new(7), (uint)((tick - 1) * 4 + substep), 0f, new(2f));
     private static void Step(ActivationNetwork network, ref PhysicsActivationRead activations, ref PhysicsTimerRead timers, ulong tick,
         params ContactTriggerRead[] hits)
     {

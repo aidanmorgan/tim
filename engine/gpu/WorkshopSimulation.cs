@@ -548,7 +548,7 @@ public sealed class WorkshopSimulation : IAsyncDisposable
         {
             var value = read.Bodies[i]; value.Validate();
             if (value.Body.Id != source.Bodies[i].Body.Id ||
-                !HalfBits.Equal(value.LocalCentreOfMass, source.Bodies[i].LocalCentreOfMass))
+                !F32Bits.Equal(value.LocalCentreOfMass, source.Bodies[i].LocalCentreOfMass))
                 throw new ArgumentException("GPU body identity or centre of mass changed.");
         }
     }

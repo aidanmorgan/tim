@@ -63,8 +63,8 @@ describe('ANIM-1b: Mechanical cosmetic bindings and procedural curves', () => {
         assert.equal(await driver.isAnimationQualified(), true, 'Animation worker must be qualified');
 
         await driver.run();
-        const pressed = await waitFor(async () => (await driver.readLastAnimationSample(SWITCH_TARGET))?.valBits === 15360, 8000);
-        assert.ok(pressed, 'Switch target sample must reach Half 1.0 after the locked ball lands on it');
+        const pressed = await waitFor(async () => (await driver.readLastAnimationSample(SWITCH_TARGET))?.value === 1, 8000);
+        assert.ok(pressed, 'Switch target sample must reach 1 after the locked ball lands on it');
 
         const ramp = (await driver.readAnimationSamplesForTarget(SWITCH_TARGET)).map((s: AnimationSampleRecord) => s.value);
         assert.ok(ramp.length >= 2, `Declared 0.16 s SmoothStep ramp must publish several 60 Hz samples (got ${ramp.length})`);
@@ -92,7 +92,7 @@ describe('ANIM-1b: Mechanical cosmetic bindings and procedural curves', () => {
         await driver.save();
 
         await driver.run();
-        const lit = await waitFor(async () => (await driver.readLastAnimationSample(LAMP_TARGET))?.valBits === 15360, 10000);
+        const lit = await waitFor(async () => (await driver.readLastAnimationSample(LAMP_TARGET))?.value === 1, 10000);
         assert.ok(lit, 'Lamp must light once the wired Delay finishes its countdown');
 
         const progress = await driver.readAnimationSamplesForTarget(DELAY_TARGET);
@@ -122,7 +122,7 @@ describe('ANIM-1b: Mechanical cosmetic bindings and procedural curves', () => {
         await driver.selectLevel('delayed_signal');
         await driver.load();
         await driver.run();
-        const relit = await waitFor(async () => (await driver.readLastAnimationSample(LAMP_TARGET))?.valBits === 15360, 10000);
+        const relit = await waitFor(async () => (await driver.readLastAnimationSample(LAMP_TARGET))?.value === 1, 10000);
         assert.ok(relit, 'Loaded construction must re-animate switch → delay → lamp');
         const reloadedProgress = (await driver.readAnimationSamplesForTarget(DELAY_TARGET)).map((s: AnimationSampleRecord) => s.value);
         assert.ok(reloadedProgress.length >= 10 && monotonic(reloadedProgress), 'Loaded Delay fills again from its declared curve');

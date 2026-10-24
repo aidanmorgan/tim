@@ -75,7 +75,7 @@ describe('CAT-002: Ball Detector Aperture Passage Sensor', () => {
     async function lampActivations(): Promise<number> {
         const edges = new Map<number, { lit: boolean; count: number }>();
         for (const s of await driver.readAnimationSamplesForTarget(LAMP_TARGET)) {
-            const on = s.valBits === 15360 || s.value >= 0.5;
+            const on = s.value >= 0.5;
             const state = edges.get(s.property) ?? { lit: false, count: 0 };
             if (on && !state.lit) state.count++;
             state.lit = on;

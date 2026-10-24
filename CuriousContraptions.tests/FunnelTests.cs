@@ -59,8 +59,8 @@ public sealed class FunnelTests(NativeSceneFixture godot)
             foreach (var col in walls)
             {
                 Assert.Equal(ColliderShapeKind.Box, col.ShapeKind);
-                Assert.Equal((Half)(0.485f * 0.5f), col.HalfExtents.X);
-                Assert.Equal((Half)(0.05f * 0.5f), col.HalfExtents.Y);
+                Assert.Equal((float)(0.485f * 0.5f), col.HalfExtents.X);
+                Assert.Equal((float)(0.05f * 0.5f), col.HalfExtents.Y);
             }
 
             // 8 rim colliders
@@ -116,18 +116,18 @@ public sealed class FunnelTests(NativeSceneFixture godot)
         Assert.Equal(2, scene.Bodies.Length); // plane + funnel
         var body = Assert.Single(scene.Bodies.ToArray(), b => b.Id == new GpuBodyId(10));
         Assert.Equal(RigidMotionKind.Static, body.Motion);
-        Assert.Equal(new Kilograms((Half)0), body.Mass);
-        Assert.Equal(new InverseSeconds((Half)0), body.LinearDrag);
+        Assert.Equal(new Kilograms(0f), body.Mass);
+        Assert.Equal(new InverseSeconds(0f), body.LinearDrag);
         Assert.Equal(default, body.Gravity);
 
         var colliders = scene.Colliders.ToArray().Where(c => c.Body == body.Id).ToArray();
         Assert.Equal(72, colliders.Length);
 
         var material = Assert.Single(scene.Materials.ToArray(), m => m.Id == colliders[0].Material);
-        Assert.Equal(new Restitution((Half)1), material.Restitution);
-        Assert.Equal(new LinearSpeed((Half)0.1), material.BounceThreshold);
-        Assert.Equal(new FrictionCoefficient((Half)0.3), material.Friction);
-        Assert.Equal(new RollingResistance((Half)0), material.RollingResistance);
+        Assert.Equal(new Restitution(1f), material.Restitution);
+        Assert.Equal(new LinearSpeed(0.1f), material.BounceThreshold);
+        Assert.Equal(new FrictionCoefficient(0.3f), material.Friction);
+        Assert.Equal(new RollingResistance(0f), material.RollingResistance);
     }
 
     [Fact]

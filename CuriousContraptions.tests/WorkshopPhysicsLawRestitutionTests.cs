@@ -15,21 +15,20 @@ namespace CuriousContraptions.Tests;
 public sealed class WorkshopPhysicsLawRestitutionTests
 {
     private static readonly float BenchY = LawScene.BenchY;
-    private static readonly float G = -(float)(Half)LawScene.Gravity;
+    private static readonly float G = -(float)LawScene.Gravity;
     private const double T = 1.0 / 120;
     private static Vector3 At(float x, float y, float z = 0f) => new(x, y, z);
-    private static float H(float value) => (float)(Half)value;
     private static double Squared(Vector3 v) => (double)v.X * v.X + (double)v.Y * v.Y + (double)v.Z * v.Z;
     /// <summary>The energy a tick may add: lifting 1 kg by the solver's contact slop.</summary>
     private static double Slop => G * WorkshopConstraintSolver.ContactSlop;
 
     public enum Body { Sphere, BoxOnBench, BoxOnBox, CylinderOnCap }
 
-    private static readonly float SphereRadius = H(.1f);
-    private static readonly Vector3 BoxHalf = At(H(.25f), H(.1f), H(.15f));
-    private static readonly float CylinderRadius = H(.2f), CylinderHalf = H(.15f);
+    private static readonly float SphereRadius = (.1f);
+    private static readonly Vector3 BoxHalf = At((.25f), (.1f), (.15f));
+    private static readonly float CylinderRadius = (.2f), CylinderHalf = (.15f);
 
-    /// <summary>Kinetic plus potential energy (J) of the 1 kg dropped body from its admitted (binary16) geometry.</summary>
+    /// <summary>Kinetic plus potential energy (J) of the 1 kg dropped body from its admitted f32 geometry.</summary>
     private static double Energy(Body body, LawBody b)
     {
         var w = Vector3.Transform(b.Angular, Quaternion.Inverse(b.Rotation));
@@ -88,7 +87,7 @@ public sealed class WorkshopPhysicsLawRestitutionTests
 
     /// <summary>A body dropped 0.5 m flat onto the bench (or a static box top). Sampled at the 120 Hz commit, the first rising tick's
     /// speed over the last falling tick's lies in [e − g·T·(1+e)/v_in, e·(1 + g·T/v_in)] (gravity acts for at most one period around
-    /// the impact; ± 2⁻¹⁰ for the binary16 e); a flat landing leaves without spin; e = 0 never leaves the support; and no committed
+    /// the impact; ± 2⁻²⁰ for the f32 speed ratio); a flat landing leaves without spin; e = 0 never leaves the support; and no committed
     /// tick gains more than m·g·ContactSlop.</summary>
     [Theory]
     [MemberData(nameof(FlatDrops))]
@@ -112,7 +111,7 @@ public sealed class WorkshopPhysicsLawRestitutionTests
         });
         Assert.True(landed, "the body lands");
         Assert.True(worstRise <= Slop, $"a tick gained {worstRise * 1000:F3} mJ (slop {Slop * 1000:F3} mJ)");
-        var eh = (float)(Half)e;
+        var eh = (float)e;
         if (eh == 0f)
         {
             Assert.True(highestAfterImpact <= .001, $"e = 0 left the support by {highestAfterImpact * 1000:F3} mm");
@@ -121,7 +120,8 @@ public sealed class WorkshopPhysicsLawRestitutionTests
         Assert.True(vOut is not null, "the body rebounds");
         var ratio = vOut!.Value / vIn;
         var g = G * T / vIn;
-        Assert.InRange(ratio, eh - g * (1 + eh) - 1.0 / 1024, eh * (1 + g) + 1.0 / 1024);
+        // The declared e compiles exactly; the f32 speeds' rounding bounds the ratio within 2⁻²⁰.
+        Assert.InRange(ratio, eh - g * (1 + eh) - 1.0 / (1 << 20), eh * (1 + g) + 1.0 / (1 << 20));
         Assert.True(spinOut <= 1e-3f, $"a flat landing left spinning at {spinOut} rad/s");
     }
 
@@ -167,7 +167,7 @@ public sealed class WorkshopPhysicsLawRestitutionTests
     /// <summary>A Basketball (r, m from its declaration; solid sphere I = 0.4 m r²) at 2 m/s with spin ω about z strikes an equal
     /// resting ball head-on (no gravity, drag or rolling resistance). Normal impulse Λ = (m/2)(1+e)v; tangential effective mass
     /// m_t = m/7; initial slip ω r. Sliding throughout when μΛ &lt; m_t·ω r: the struck ball's tangential speed is μ(1+e)v/2 and the
-    /// slip keeps its sign; otherwise it sticks and takes ω r/7. Within 2 % (binary16 μ and e).</summary>
+    /// slip keeps its sign; otherwise it sticks and takes ω r/7. Within 2 % (an allowance kept from the half-precision lanes; the f32 μ and e are exact).</summary>
     [Theory]
     [InlineData(10f)]
     [InlineData(.3f)]
@@ -202,7 +202,7 @@ public sealed class WorkshopPhysicsLawRestitutionTests
     [InlineData(true)]
     public void TheBounceThresholdIsStrict(bool above)
     {
-        var threshold = H(.1f);
+        var threshold = (.1f);
         var speed = above ? MathF.BitIncrement(threshold) : threshold;
         var scene = new LawScene(bench: false);
         scene.StaticBox(At(0, 0), At(1, .5f, 1), null, new LawMaterial(1f, .1f, 0f, 0f));
@@ -241,7 +241,7 @@ public sealed class WorkshopPhysicsLawRestitutionTests
             Assert.True(angle < 2, $"{feature} at {speed} m/s: outgoing {final.Velocity} vs {expected} ({angle:F2}°)");
             Assert.InRange(final.Velocity.Length(), .99f * expected.Length(), 1.01f * expected.Length());
         }
-        Reflects(s => s.StaticCylinder(At(0, 1), .3f, .4f, alongZ, elastic), At(H(.3f) + .05f, 1, 1.5f), At(0, 0, -speed),
+        Reflects(s => s.StaticCylinder(At(0, 1), .3f, .4f, alongZ, elastic), At((.3f) + .05f, 1, 1.5f), At(0, 0, -speed),
             Vector3.Normalize(new Vector3(.05f, 0, MathF.Sqrt(.01f - .0025f))), "rim");
         Reflects(s => s.StaticSphere(At(0, 1), .3f, Quaternion.Identity, elastic), At(1.5f, 1.2f, 0), At(-speed, 0, 0),
             new Vector3(MathF.Cos(MathF.PI / 6), .5f, 0), "sphere");
@@ -266,7 +266,7 @@ public sealed class WorkshopPhysicsLawRestitutionTests
         var ball = scene.Sphere(n * (.5f + .1f) + At(0, .5f), .1f, 1f, ballMaterial, v, default, 0f, 0f);
         var world = scene.Admit();
         var final = world.Step(world.TicksPerSecond / 2)[ball];
-        double e = H(ballMaterial.Restitution) * (double)H(face.Restitution), mu = Math.Sqrt((double)H(ballMaterial.Friction) * H(face.Friction));
+        double e = (ballMaterial.Restitution) * (double)(face.Restitution), mu = Math.Sqrt((double)(ballMaterial.Friction) * (face.Friction));
         var vn = Vector3.Dot(v, n);
         var vt = v - vn * n;
         var tangent = Vector3.Normalize(vt);
@@ -280,7 +280,7 @@ public sealed class WorkshopPhysicsLawRestitutionTests
 
     // ---- a body landing on a resting dynamic body (reviewer F1) ----
 
-    private static readonly Vector3 LowerHalf = At(H(.3f), H(.1f), H(.3f));
+    private static readonly Vector3 LowerHalf = At((.3f), (.1f), (.3f));
 
     /// <summary>Kinetic plus potential energy (J) of a box of mass m and admitted half-extents.</summary>
     private static double BoxEnergy(LawBody b, float m, Vector3 half)
@@ -353,8 +353,8 @@ public sealed class WorkshopPhysicsLawRestitutionTests
     private static (SimBody Box, ContactPoint P, ContactPoint Q) Pair(Vector3 rp, Vector3 rq, Vector3 velocity, Vector3 angular,
         float relP, float relQ)
     {
-        float ix = (H(.1f) * H(.1f) + H(.15f) * H(.15f)) / 3f, iy = (H(.25f) * H(.25f) + H(.15f) * H(.15f)) / 3f,
-            iz = (H(.25f) * H(.25f) + H(.1f) * H(.1f)) / 3f;
+        float ix = ((.1f) * (.1f) + (.15f) * (.15f)) / 3f, iy = ((.25f) * (.25f) + (.15f) * (.15f)) / 3f,
+            iz = ((.25f) * (.25f) + (.1f) * (.1f)) / 3f;
         var box = new SimBody
         {
             Motion = 1, Mass = 1f, InvMass = 1f, InvI = new(1f / ix, 1f / iy, 1f / iz), Principal = Quaternion.Identity, Qw = 1f,
@@ -471,7 +471,7 @@ public sealed class WorkshopPhysicsLawRestitutionTests
         });
         Assert.True(before is not null && after is not null, "the ball bounces");
         var impulse = 1f * (after!.Value.Velocity.Y - before!.Value.Velocity.Y + G * (float)T);
-        float r = H(.1f), inertia = .4f * r * r, rolling = H(.05f) * r;
+        float r = (.1f), inertia = .4f * r * r, rolling = (.05f) * r;
         var expected = rolling * impulse / inertia;
         Assert.InRange(before.Value.Angular.Z - after.Value.Angular.Z, .97f * expected, 1.03f * expected);
     }
@@ -492,7 +492,7 @@ public sealed class WorkshopPhysicsLawRestitutionTests
             foreach (var offset in new[] { 0f, .01f })
             {
                 var scene = new LawScene();
-                var hy = H(.1f);
+                var hy = (.1f);
                 var ids = new List<GpuBodyId>();
                 for (var k = 0; k < 3; k++)
                     ids.Add(scene.Box(At(k == 1 ? offset : 0, BenchY + hy + k * 2 * hy + gap * (k + 1)), At(.25f, .1f, .15f), 1f,

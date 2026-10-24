@@ -4,21 +4,26 @@ namespace CuriousContraptions.Gpu;
 
 public readonly record struct GpuOrientationSensorId(ulong Value);
 
-/// <summary>Half-angle cosine form of an orientation threshold: a body has turned at least θ from its admitted pose once
+/// <summary>Orientation threshold as the cosine of θ/2: a body has turned at least θ from its admitted pose once
 /// |⟨q, q₀⟩| ≤ cos(θ/2). Declared data evaluated by the shared solver; no element identity selects it.</summary>
-public readonly record struct OrientationThreshold(Half CosineHalfAngle)
+public readonly record struct OrientationThreshold(float CosineHalfAngle)
 {
-    // Half rounding of the cosine admits angles from 4° (cos 2° = 0.99939 stays below 1 − 2^-11) to 179°; outside that the value would fail Validate obscurely.
+    /// <summary>The declared threshold angle range in degrees (Domino: 45°).</summary>
+    public const double MinimumDegrees = 4;
+    public const double MaximumDegrees = 179;
+    /// <summary>The f32 cosines of the bounding half-angles: the admitted range of the compiled lane.</summary>
+    public static float MinimumCosine => Cosine(MaximumDegrees);
+    public static float MaximumCosine => Cosine(MinimumDegrees);
     public static OrientationThreshold Degrees(double angle)
     {
-        if (!double.IsFinite(angle) || angle < 4 || angle > 179) throw new ArgumentOutOfRangeException(nameof(angle));
-        return new((Half)Math.Cos(angle * Math.PI / 360));
+        if (!double.IsFinite(angle) || angle < MinimumDegrees || angle > MaximumDegrees) throw new ArgumentOutOfRangeException(nameof(angle));
+        return new(Cosine(angle));
     }
     public void Validate()
     {
-        PhysicsDeclarationBounds.Range(CosineHalfAngle, (Half)(1.0 / 1024), (Half)1);
-        if (CosineHalfAngle == (Half)1) throw new ArgumentException("An orientation threshold must admit some rotation.");
+        PhysicsDeclarationBounds.Range(CosineHalfAngle, MinimumCosine, MaximumCosine);
     }
+    private static float Cosine(double angle) => (float)Math.Cos(angle * Math.PI / 360);
 }
 
 /// <summary>Sticky orientation-threshold sensor on one dynamic body: it fires once per world when the body's rotation from its
@@ -37,4 +42,4 @@ public enum OrientationSensorPhase : uint { Armed, Fired }
 
 /// <summary>Committed sensor state read from the candidate record; the collider is the sensed body's own homogeneous shape.</summary>
 public readonly record struct OrientationSensorRead(GpuOrientationSensorId Id, GpuBodyId Body, GpuColliderId Collider,
-    OrientationSensorPhase Phase, uint EventOrdinal, Half EventPhase);
+    OrientationSensorPhase Phase, uint EventOrdinal, float EventPhase);

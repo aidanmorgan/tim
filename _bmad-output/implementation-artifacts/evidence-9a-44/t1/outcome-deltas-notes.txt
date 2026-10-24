@@ -1,0 +1,29 @@
+Story 9A.44 D5: explanation of the outcome deltas in outcome-comparison.txt (half-precision baseline f1ad3bd1 vs f32 candidate)
+
+Identity (asserted by F32BehaviourIdentityTests): every lesson at precisions 0, 0.45 and 1 has the baseline's goal result (met in
+both), the same event-kind order and every event tick and ordinal within 12 ticks; every element placed alone keeps its event order
+and timings. Rows with goal-met or event-kind-order differences: 0. (Regenerated after the review restored the authored content
+literals 2.324 / 0.12 / 0.08: the outcomes are unchanged.)
+
+What changed in the inputs (compiled-delta-table.tsv): only values half precision had rounded. The behaviour-relevant ones are
+gravity 9.8125 -> 9.81, ball radius 0.340088 -> 0.34 (bowling 0.280029 -> 0.28), declared drag 0.040009 -> 0.04, domino mass
+0.399902 -> 0.4 and friction 0.600098 -> 0.6, receiver capture speed 2.32421875 -> 2.324, collider translations/half-extents by
+at most one half-precision step, and the Balanced precision 0.449951 -> 0.45 (which moves every mixed assistance lane).
+
+Goal-tick deltas, grouped:
+- Precision 0 and 1 (assistance at its exact endpoint knots, unaffected by the 0.45 change): -1 tick in 17 of 24 rows, 0 in three
+  (delayed_signal at both, wall_and_bumper@1), and first_principles -4/-3 and domino_effect -3/-3 (below). Consistent with the
+  combined constant changes above; not attributed to a single constant (no per-constant ablation was run).
+- Precision 0.45: 0 ticks in 7 of 12 rows. Outliers: wall_and_bumper +9, gentle_bend +4 and joined_pipe -3, lessons whose arrival
+  depends on the mixed assistance lanes that the precision change moves; and first_principles -2 and domino_effect -3 (below).
+- first_principles (-4/-2/-3) and domino_effect (-3 at every precision): the longest unassisted rolling/toppling chains before
+  the goal, where the same small constant changes accumulate over more ticks. domino_effect is precision-independent because its
+  goal is the lamp activation, not a receiver capture. This fits the constant-change explanation but was not isolated by ablation.
+- delayed_signal: 0 at every precision (timer-driven goal; integer ticks unaffected).
+
+Tolerance basis: the test bound of 12 ticks (0.1 s at 120 Hz) was chosen after observing a maximum |delta| of 9 ticks; it is a
+regression bound on these recorded deltas, not an envelope quantity (the game-grade envelope defines no goal-timing tolerance).
+
+Final poses: lesson final body positions differ by up to 0.103 m (gentle_bend@0.45) because trajectories diverge after the goal
+(capture or activation) by the same timing shifts; post-goal pose is not a lesson acceptance criterion and is not asserted. Element
+fixtures placed alone (240 ticks, no goal) are asserted within 2 mm; the observed maximum is 1.12 mm (ball).
