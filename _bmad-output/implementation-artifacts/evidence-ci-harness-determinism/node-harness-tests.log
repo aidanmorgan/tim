@@ -1,0 +1,5 @@
+# dotnet test tools/E2eRunner.Tests --no-build --no-restore -c Debug -f net10.0 --filter NodeHarnessTests|BrowserDeferralTests; v26.12.1; base e344b19c2dee4e3c139a7730de43fd40b39d4dff plus uncommitted harness changes
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-ci-harness-determinism/tools/E2eRunner.Tests/bin/Debug/net10.0/E2eRunner.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:    14, Skipped:     0, Total:    14, Duration: 2 s - E2eRunner.Tests.dll (net10.0)

@@ -22,12 +22,17 @@ const state = Object.freeze({ Ready: 0, Backpressure: 1, TimedOut: 2, Indetermin
 async function clientHarness(loadRuntimes = true, failAnimationConstructor = false) {
     const intervals = new Map(), timers = new Map(), workers = [], errors = [], probes = [], messages = [];
     let timerId = 0, milliseconds = 0, publishedId = 0, calls = 0, outputCalls = 0, clockReplies = 0, outputCallback, resolveWorker, simulationRuns = true;
+    // Every clock reply wait the client starts (the real ring's Atomics.waitAsync). A test awaits these waits themselves, not a
+    // wall-clock pause: the client's own continuation is attached first, so once a wait has settled its reply was delivered
+    // or dropped.
+    const replyWaits = [];
     const workerCreated = new Promise(resolve => { resolveWorker = resolve; });
     const profile = new Float64Array([2, 1, 1, 0, 0.001, 1, 1]);
     const context = {
         Uint8Array, Float64Array, DataView, URL, Map, Error, Array, Promise, Math,
         SharedArrayBuffer, BigInt64Array, Float32Array, Atomics,
-        createClockRing: clockRing.createClockRing, attachClockRing: clockRing.attachClockRing, requestReply: clockRing.requestReply, ClockRole: clockRing.ClockRole,
+        createClockRing: clockRing.createClockRing, attachClockRing: clockRing.attachClockRing, ClockRole: clockRing.ClockRole,
+        requestReply: (...request) => { const wait = clockRing.requestReply(...request); replyWaits.push(wait); return wait; },
         heartbeat: clockRing.heartbeat, EventRingCursor, eventDelivery,
         document: { baseURI: 'http://127.0.0.1:8060/', hidden: false },
         nativeProfile: 2, nativeNow: () => milliseconds,
@@ -90,6 +95,13 @@ async function clientHarness(loadRuntimes = true, failAnimationConstructor = fal
         get startup() { return startup(); },
         onOutput: callback => { outputCallback = callback; },
         calls: () => calls, outputCalls: () => outputCalls, clockReplies: () => clockReplies, publish: id => { publishedId = id; },
+        /** The outcomes of every reply wait, including any started while settling, once each has settled and the client has
+         * handled it. */
+        replyWaitsSettled: async () => {
+            const outcomes = [];
+            while (replyWaits.length) outcomes.push(...await Promise.allSettled(replyWaits.splice(0)));
+            return outcomes;
+        },
         peer,
         /** The stand-in master answers whatever is requested in the ring now (a reply that lands late). */
         serveRing: () => {
@@ -225,7 +237,6 @@ test('failure after activation makes a captured late callback inert', async () =
 
 // Murdoch-2 R2-F2 (Story 9.4b): the BH10 cleanup, proved. A failed client holds no clock ring, and a clock reply that the
 // master writes after the failure (the probe was already waiting) is never delivered to the retired managed client.
-const settle = () => new Promise(resolve => setTimeout(resolve, 20));
 function ownedProbe(h, sequence) {
     const probe = new Uint8Array(clockRing.ProbeBytes), view = new DataView(probe.buffer);
     probe.set(h.peer, 0); view.setBigUint64(64, BigInt(sequence), true); view.setBigInt64(72, 0n, true);
@@ -242,15 +253,23 @@ test('a failed client detaches its clock ring', async () => {
     assert.equal(client.clockRing, undefined);
     h.api.dispose(id);
 });
+/** Exactly one reply wait was pending, and it settled with the master's answer (not the 250 ms release, which is null). */
+function assertOneAnsweredWait(outcomes, label) {
+    assert.equal(outcomes.length, 1, `${label}: exactly one reply wait was pending`);
+    assert.equal(outcomes[0].status, 'fulfilled', `${label}: the wait settled without error`);
+    assert.notEqual(outcomes[0].value, null, `${label}: the master answered it`);
+}
 test('a clock reply landing after the client failed is never delivered', async () => {
     const h = await clientHarness(), id = await h.ready();
     h.publish(id); h.api.activate(id);
-    h.tick(); await settle();
+    h.tick();
+    assertOneAnsweredWait(await h.replyWaitsSettled(), 'control');
     assert.equal(h.clockReplies(), 1, 'control: an answered probe is delivered');
     h.api.probe(id, ownedProbe(h, 100)); // the master has not answered it yet
     h.workers[0].onerror({ message: 'controlled worker failure' });
-    h.serveRing(); await settle();       // the master answers the waiting probe after the failure
-    assert.equal(h.clockReplies(), 1);
+    h.serveRing(); // the master answers the waiting probe after the failure
+    assertOneAnsweredWait(await h.replyWaitsSettled(), 'after the failure');
+    assert.equal(h.clockReplies(), 1, 'the failed client dropped the answered reply');
     assert.deepEqual(h.errors.filter(([kind]) => kind !== 'CCGPU_TRANSPORT_FAILURE'), []);
     h.api.dispose(id);
 });
@@ -259,8 +278,9 @@ test('a clock reply landing after disposal is never delivered', async () => {
     h.publish(id); h.api.activate(id);
     h.api.probe(id, ownedProbe(h, 100));
     h.api.dispose(id);
-    h.serveRing(); await settle();
-    assert.equal(h.clockReplies(), 0);
+    h.serveRing();
+    assertOneAnsweredWait(await h.replyWaitsSettled(), 'after disposal');
+    assert.equal(h.clockReplies(), 0, 'the disposed client dropped the answered reply');
 });
 
 // Story 9.4b (game-grade envelope): a clock reply missing for longer than the former 1000 ms liveness bound never faults
