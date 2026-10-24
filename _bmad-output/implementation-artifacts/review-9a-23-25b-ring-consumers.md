@@ -135,3 +135,94 @@ The spec's disclosure says some pre-write `anvil_validate_write` calls were skip
 # Return to the implementation owner
 
 Fix F1 (atomic payload accesses) and F2 (the older-ring test), and tidy F3. Re-run the stress test at least 40 times with the raw counts, plus the node harnesses and the affected checks, then return the candidate to this reviewer for re-review of the affected scope.
+
+# Re-review round 2: branch tip 3b9e8ac7 (2026-10-24)
+
+**Scope.** Branch tip 3b9e8ac7 includes:
+
+- merge 7d0c6d45 of main 0cba945b (restitution);
+- re-pin commit 44dc161c;
+- merge 41069f66 of main 8411ba3b (the no-skipped-tests rule).
+
+Evidence is in `evidence-9a-23-25b-review/round2/`.
+
+## Verdict: FAIL
+
+**R2-F1 is blocking.** It comes from the owner rule in AGENTS.md on main dc0356de, which arrived during this re-review.
+
+- **R2-F1 was reported to the coordinator; the implementer had already started a behavioural replacement.** While I was writing this record, the worktree changed under me. `EventRingConsumerTests.cs` and the spec were modified, AGENTS.md was staged, and new `evidence-9a-23-25b/behavioural/` files appeared. That work is not reviewed here.
+- **origin/main has moved.** It is now dc0356de, not 8411ba3b, so a SnapshotApproval was not possible either way. Nothing was staged by the reviewer and nothing was committed.
+
+## Findings
+
+### R2-F1 (Blocking). A new output-hash assertion
+
+- **Rule:** the owner's 24 Oct rule (AGENTS.md on main dc0356de) forbids committed tests from asserting hashes or byte-identity of event output.
+- **Violation:** `EventRingConsumerTests.TheImpactRecordBytesOfTheBumperRunAreUnchanged` asserts the SHA-256 (`ImpactRecordSha256` = `291756D7…`) of the bumper run's Impact record bytes.
+- **Required:** replace it with explicit behavioural assertions on the Impact records of the real run. For example:
+  - one record per new occurrence;
+  - Source is the bumper's owner, and Other is the struck ball;
+  - Ordinal and Phase are inside the committed tick, and the Count sequence is 1..n;
+  - Magnitude equals the paid debit, and is 0 when unpaid;
+  - the Impact records equal the device ledger's new occurrence rows field by field, the D9 claim stated as behaviour.
+- **What may stay:** the byte-identity check may remain as one-off review evidence only, such as the provenance file.
+
+**Other byte-equality assertions this slice adds** (`git diff 8411ba3b 3b9e8ac7`). I judged these behavioural, not output pins:
+
+- **JS ≡ C# reference reader** (`TheSharedJsReaderDeliversExactlyWhatTheReferenceConsumerReads`): a differential equivalence of two readers over the same ring bytes. It pins no hash.
+- **Codec and ledger `HasSameBits` round trips** (`WorkshopReadTests`, `WorkshopWireFlatBuffersTests`, `WorkbenchCapacityTests`, `EventRingProducerTests`): encode → decode value equality, and "the read carries exactly the ledger's stores".
+- **Cursor stress "byte-equal to its source"**: an integrity check against a function of the sequence.
+- **`workshop-observation` coalescing**: the transported read equals the latest read.
+
+The coordinator may rule otherwise on the first item. No other new hash pin was found.
+
+### R2-F2 (Medium, return with R2-F1). The stress test does not detect a one-sided regression
+
+| Variant | Runs failed | Torn records |
+|---|---|---|
+| Tip code, full cursor test file including the amplified test | 0 of 40 | — |
+| Reviewer mutant: **reader** payload loads plain, writer atomic | **0 of 20 (survives)** | — |
+| Reviewer mutant: **writer** payload stores plain, reader atomic | **0 of 20 (survives)** | — |
+| Reviewer mutant: second sequence check removed | 10 of 10 | 65–147 in the 1M stress, 1837–2294 in the amplified test |
+
+Raw results are in `seqlock-round2.txt`.
+
+**A deterministic fault-injection test cannot close this gap.**
+
+- A plain access and an `Atomics` access behave identically under any single-threaded interleaving. The defect is a hardware memory-ordering effect, so no forced interleaving fails on the old protocol every time.
+- My probe of the old (plain) protocol at capacity 1 and 2 found no tears in 10 runs. A smaller ring did not raise the rate.
+- The deterministic reused-slot test and the second-check mutant already cover the protocol logic, meaning the before and after checks.
+
+**Required:** a structural guard in the existing `Hits()` style (`EventRingProducerTests`). It must assert that the reader's payload copy, between its two sequence loads, and the writer's payload stores, between its two sequence stores, are per-word `Atomics.load` and `Atomics.store`, with no plain slice, `set` or indexed copy. A reintroduced plain copy then fails deterministically. Correctness itself rests on inspection:
+
+- **Protocol:** zero/sequence, not odd/even. The writer stores 0, then the payload words, then the sequence. The reader loads the sequence before, the payload words, then the sequence after. Every access is seq-cst `Atomics`.
+- **Reasoning:** if both sequence loads read S, both precede the reuse's store of 0 in the total order. So every payload load precedes the new payload stores. The protocol is sound under the JS memory model.
+
+## Re-review matrix
+
+| Item | Expected | Evidence | Result |
+|---|---|---|---|
+| 1 Seqlock protocol | Per-word Atomics on both sides; C# reference consistent | Reader and writer as above. The C# `Append` and `EventRingConsumer` also copy whole words between the sequence words (`Volatile`; a single-threaded test reference). Stress 0 of 40 on the tip. | Pass, except R2-F2 |
+| 2 Discrimination | Plain-copy regressions detected | One-sided mutants survive. Fault injection is infeasible, so a structural guard is needed. | **R2-F2** |
+| 3 Impact re-pin provenance | Pin equals the pre-D9 engine | Throwaway worktree at **0cba945b** (`impact-0cba945b-probe.log`): 3 records, SHA-256 `291756D7…00DB8F`, equal to the pin. D9 leaves the Impact bytes unchanged, kept here as one-off review evidence. | Provenance verified; the assertion itself fails R2-F1 |
+| 4 Merges | Main's changes plus resolutions only | `git show --remerge-diff`: 7d0c6d45 has one conflict (`LaunchLessonSolveTests.cs`), resolved to main's superset (the unique-part wiring, plus ramp, basket and pipe placements). 41069f66 is conflict-free. Every file in `git diff 8411ba3b 3b9e8ac7` is a slice file. The overlapping test files differ from main only by slice additions (`EventRingConsumerTests` registration, `AuthoredSolution` made internal, the ledger list, the retirement greps). | Pass |
+| 5 No-skip rule | Skipped 0 in non-browser projects | Full slnx: 17 / 77 / 191 / 190 / 2949, all Skipped 0. Node 112/112, 0 skipped, 0 todo. | Pass |
+| — | Build | One `--no-incremental` Debug slnx build: 0 warnings, 0 errors (`build.log`) | Pass |
+| — | F1/F2/F3 from round 1 | F1 fixed and sound by inspection. The F2 older-ring cursor and worker tests are present and pass. F3 is formatted. | Pass |
+
+## Commands and results (round 2)
+
+| Check | Command | Result |
+|---|---|---|
+| Build | `dotnet build CuriousContraptions.slnx -c Debug --no-incremental` | rc 0, 0 warnings |
+| Full suite | `dotnet test CuriousContraptions.slnx -c Debug --no-build --no-restore` (no blame) (`test.log`) | rc 0 |
+| Node harnesses | `node --experimental-vm-modules --test --test-timeout=120000 tools/*.test.mjs` under `timeout 900` (`node-harness.log`) | 112/112, rc 0 |
+| Stress and mutants | `seqlock/loop2.sh` over the tip and the scratch mutant copies | See R2-F2 |
+
+**Hygiene.** Probe worktree 0cba945b was created and then removed; `git worktree list` shows none. The mutants lived only in scratchpad copies. The reviewer changed no deliverable.
+
+## Return to the implementation owner
+
+1. **R2-F1:** behavioural Impact assertions in place of the hash.
+2. **R2-F2:** a structural Atomics guard for the reader and writer payload accesses.
+3. **Rebase on main:** re-merge current main dc0356de. Then return the frozen candidate for independent re-review and SnapshotApproval.

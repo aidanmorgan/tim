@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using System.Security.Cryptography;
 using System.Text.Json;
 using CuriousContraptions.Abstractions;
 using CuriousContraptions.Bundle;
@@ -105,30 +104,105 @@ public sealed class EventRingConsumerTests
     // The quintic SmoothStep at the quarter points, exactly (the 9A.25a golden amounts).
     private static readonly double[] Quarter = [0, .103515625, .5, .896484375, 1];
 
-    // ---------- the 9A.22 Impact record bytes stay the same after the occurrence rows become device-private ----------
+    // ---------- the 9A.22 Impact records of the bumper run, after the occurrence rows become device-private (D9) ----------
 
-    private static async Task<List<SimulationEventRecord>> BumperRun()
+    /// <summary>The bumper run's published records, and every hit row the device's private contact-work ledger held over the run (each
+    /// committed tick's ledger holds its stores' latest rows; a sequence-0 row is the admission's empty slot), once each by sequence.</summary>
+    private static async Task<(List<SimulationEventRecord> Records, ContactWorkOccurrence[] Hits)> BumperRun()
     {
         await using var ring = await Ring.Running(Bench([WorkshopInput.Generic(PartId.Basketball, new(1), 0, 4.5, 0, 0, 0, 0, 1),
             PlacedParts.Bumper(new(2), 0, 3, 0)], []));
         await ring.Advance(360);
-        return ring.Records;
+        return (ring.Records, ring.Ledgers.SelectMany(ledger => Enumerable.Range(0, ledger.OccurrenceCount).Select(ledger.Occurrence))
+            .Where(hit => hit.Sequence > 0).DistinctBy(hit => hit.Sequence).OrderBy(hit => hit.Sequence).ToArray());
     }
 
-    [Fact]
-    public async Task TheImpactRecordBytesOfTheBumperRunAreUnchanged()
+    // The bench, from the declarations: a Ball (mass 1 kg, collider radius .34 m, restitution .55, linear drag .04/s, gravity 9.81 m/s²)
+    // released at rest at y 4.5 above a static Bumper sphere (radius .65 m, restitution 1) at y 3, at the default strength 8 m/s: a store
+    // of ½·1 kg·(8 m/s)² = 32 J. A contact bounces at the product of the restitutions and the store then pays toward 8 m/s normal speed.
+    private const double G = 9.81, LinearDrag = .04, BounceRestitution = .55 * 1.0, Strength = 8, BallMass = 1, ReferenceMass = 1;
+    private const double ContactHeight = 3 + .65 + .34; // the ball's centre when the spheres touch, the bumper directly below
+    private const double StoreCapacity = .5 * ReferenceMass * Strength * Strength;
+
+    /// <summary>Height and upward speed after <paramref name="t"/> s of vertical flight from <paramref name="y0"/> at upward speed
+    /// <paramref name="v0"/>, under gravity and linear drag (the engine decays velocity by exp(−k·dt) each step).</summary>
+    private static (double Height, double Speed) Flight(double y0, double v0, double t) =>
+        (y0 + (v0 + G / LinearDrag) * (1 - Math.Exp(-LinearDrag * t)) / LinearDrag - G / LinearDrag * t,
+            (v0 + G / LinearDrag) * Math.Exp(-LinearDrag * t) - G / LinearDrag);
+
+    /// <summary>The flight time until a ball leaving <paramref name="y0"/> upward at <paramref name="v0"/> descends to the contact
+    /// height: past the apex the descent is monotone, so it is bracketed from the apex and bisected.</summary>
+    private static double Arrival(double y0, double v0)
     {
-        var impacts = (await BumperRun()).Where(record => record.Kind == SimulationEventKind.Impact).ToArray();
-        var bytes = new byte[impacts.Length * EventRingBuffer.SlotBytes];
-        for (var i = 0; i < impacts.Length; i++) impacts[i].Write(bytes.AsSpan(i * EventRingBuffer.SlotBytes, EventRingBuffer.SlotBytes));
-        // Captured without D9 (occurrence rows on the read) on main 0cba945b, the restitution engine this slice merged
-        // (evidence-9a-23-25b/post-merge/impact-records-0cba945b.txt, with its provenance; the f5ffdb4e capture is baseline/impact-records.txt).
-        Assert.Equal(ImpactRecordCount, impacts.Length);
-        var hash = Convert.ToHexString(SHA256.HashData(bytes));
-        Assert.True(hash == ImpactRecordSha256, $"The Impact record bytes changed: SHA-256 {hash}, records {Convert.ToHexString(bytes)}");
+        bool Reached(double t) { var (y, v) = Flight(y0, v0, t); return v < 0 && y <= ContactHeight; }
+        var lo = Math.Log(1 + LinearDrag * v0 / G) / LinearDrag;
+        var hi = lo + 1;
+        while (!Reached(hi)) (lo, hi) = (hi, hi + 1);
+        for (var i = 0; i < 80; i++) { var mid = (lo + hi) / 2; if (Reached(mid)) hi = mid; else lo = mid; }
+        return hi;
     }
-    private const int ImpactRecordCount = 3;
-    private const string ImpactRecordSha256 = "291756D737E1FF95741B6BCA83C2C67BD4B3F0B8451FBE9FD4363B0AEC00DB8F";
+
+    // The bumper run's Impact records, against the ballistic law and the store's ledger (Story 9A.22 records; 9A.23 D9 moves their
+    // occurrence rows into the device's private ledger, and these records are what every consumer sees):
+    // - hit 1: the dropped ball bounces at e·v₁ and the store pays the target-limited work ½m(8² − (e·v₁)²) < 32 J;
+    // - hit 2: the ball, kicked to 8 m/s, returns at v₂; the target needs ½m(8² − (e·v₂)²), more than the remainder, so the store pays
+    //   all it holds (the ledger closes: the two payments sum to the capacity);
+    // - hit 3: the ball, launched at √((e·v₂)² + 2·paid₂/m), returns to an empty store: an Impact occurrence that pays nothing.
+    // Tolerances: contact is resolved at 480 Hz step granularity, at most one 120 Hz tick from the analytic instant per contact, and each
+    // launch inherits the earlier hits' offsets, so hit k lies within k ticks; a one-tick timing offset moves the impact speed by g/120,
+    // so the paid work by m·e²·v·g/120.
+    [Fact]
+    public async Task TheBumperRunsImpactRecordsFollowTheBallisticLawAndTheStore()
+    {
+        var (records, rows) = await BumperRun();
+        var impacts = records.Where(record => record.Kind == SimulationEventKind.Impact).ToArray();
+        var t1 = Arrival(4.5, 0);
+        var v1 = -Flight(4.5, 0, t1).Speed;
+        var paid1 = .5 * BallMass * (Strength * Strength - Math.Pow(BounceRestitution * v1, 2));
+        Assert.InRange(paid1, 0, StoreCapacity); // the derivation's premise: hit 1 is target-limited
+        var flight2 = Arrival(ContactHeight, Strength);
+        var v2 = -Flight(ContactHeight, Strength, flight2).Speed;
+        var t2 = t1 + flight2;
+        Assert.True(.5 * BallMass * (Strength * Strength - Math.Pow(BounceRestitution * v2, 2)) > StoreCapacity - paid1); // store-limited
+        double[] times = [t1, t2, double.NaN];
+
+        Assert.Equal(3, impacts.Length);
+        Assert.All(impacts, record => Assert.Equal((SimulationEventKind.Impact, SimulationDomain.Mechanical, 2UL, 1UL, 0U),
+            (record.Kind, record.Domain, record.Source, record.Other, record.Level))); // the bumper's records, striking the ball
+        Assert.Equal(new ulong[] { 1, 2, 3 }, impacts.Select(record => record.Sequence).ToArray());
+        Assert.Equal(new uint[] { 1, 2, 3 }, impacts.Select(record => record.Count).ToArray()); // the bumper's occurrence count
+        static double Steps(SimulationEventRecord record) => record.Ordinal + record.Phase / 4096.0;
+        foreach (var record in impacts) // each record lies inside its own tick's four physical steps
+            Assert.True(record.Ordinal > (record.Tick - 1) * Substeps && record.Ordinal <= record.Tick * Substeps,
+                $"Impact {record.Sequence}: ordinal {record.Ordinal} is outside tick {record.Tick}");
+        for (var i = 1; i < impacts.Length; i++) // sequences ascend with the physical time, within a tick and across ticks
+            Assert.True(impacts[i - 1].Tick < impacts[i].Tick || (impacts[i - 1].Tick == impacts[i].Tick && Steps(impacts[i - 1]) <= Steps(impacts[i])));
+
+        var workTolerance = BallMass * BounceRestitution * BounceRestitution * v1 * G / 120;
+        Assert.InRange((double)impacts[0].Magnitude, paid1 - workTolerance, paid1 + workTolerance);
+        // The store-limited payment is everything the first left: their sum is the capacity, to the f32 rounding of the remainder (the
+        // ledger may hold the remainder one f32 step low so that it never pays work it did not hold).
+        var ulp = (double)(MathF.BitIncrement(32f) - 32f);
+        Assert.InRange((double)impacts[0].Magnitude + impacts[1].Magnitude, StoreCapacity - 2 * ulp, StoreCapacity + 2 * ulp);
+        Assert.Equal(0f, impacts[2].Magnitude); // the store is empty
+
+        // D9 as behaviour: each Impact record is the device's private hit row, field by field, and the first hit's recorded approach
+        // speed is the analytic impact speed within one tick's change of gravity.
+        Assert.Equal(impacts.Length, rows.Length);
+        foreach (var (hit, record) in rows.Zip(impacts))
+            Assert.Equal((hit.Target.Value, hit.Sequence, hit.EventOrdinal, (float)hit.EventPhase, hit.Debit.Value),
+                (record.Other, record.Count, record.Ordinal, record.Phase, record.Magnitude));
+        Assert.InRange((double)rows[0].ApproachSpeed.Value, v1 - G / 120, v1 + G / 120);
+
+        var launch3 = Math.Sqrt(Math.Pow(BounceRestitution * v2, 2) + 2 * impacts[1].Magnitude / BallMass);
+        times[2] = t2 + Arrival(ContactHeight, launch3);
+        for (var k = 0; k < 3; k++)
+        {
+            var tolerance = (k + 1) / 120.0;
+            Assert.InRange(Steps(impacts[k]) / 480.0, times[k] - tolerance, times[k] + tolerance);
+            Assert.InRange(impacts[k].Tick, (ulong)Math.Ceiling((times[k] - tolerance) * 120), (ulong)Math.Ceiling((times[k] + tolerance) * 120));
+        }
+    }
 
     // ---------- 9A.25b: every declared one-shot is driven only by its ring kind ----------
 
@@ -353,32 +427,35 @@ public sealed class EventRingConsumerTests
     }
 
     // Reset (a non-retained installation of a new epoch) puts every one-shot target at rest and restarts the cursor at sequence 1; Run →
-    // Reset → Run, and Save → Load → Run, give identical samples.
+    // Reset → Run, and Save → Load → Run, each restart the cursor at sequence 1, capture the ball again at the same tick, and play the
+    // declared cue from rest through its quarter points to its held end value.
     [Fact]
-    public async Task ResetRestsEveryCueRestartsTheCursorAndRunsReplayIdentically()
+    public async Task ResetRestsEveryCueRestartsTheCursorAndRunsReplayTheCue()
     {
         var (bench, owner, part, kind, ticks) = Scenario("capture");
         var duration = (double)Duration(part);
-        async Task<float[][]> Trace(Animation run)
+        async Task<SimulationEventRecord> Replay(Animation run)
         {
             await run.Advance(ticks);
             var cue = Assert.Single(run.Delivered, record => record.Kind == kind);
-            Assert.Equal(1UL, run.Delivered[0].Sequence);
-            return Enumerable.Range(-1, 7).Select(k => run.Sample(run.At(cue) + duration * k / 4, owner)).ToArray();
+            Assert.Equal((1UL, owner.Value), (run.Delivered[0].Sequence, cue.Source));
+            Assert.Equal(Cue(part, 0), run.Sample(run.At(cue) - duration / 4, owner)); // at rest before the capture
+            for (var k = 0; k <= 4; k++) Assert.Equal(Cue(part, Quarter[k]), run.Sample(run.At(cue) + duration * k / 4, owner));
+            Assert.Equal(Cue(part, 1), run.Sample(run.At(cue) + duration * 5 / 4, owner)); // the end value holds
+            return cue;
         }
         await using var ring = await Ring.Running(bench);
         var run = new Animation(ring, bench);
-        var first = await Trace(run);
-        Assert.Equal(Cue(part, 1), first[^1]);
+        var first = await Replay(run);
         var epoch = run.World.WorldGeneration;
         await run.ResetAndRun();
         Assert.NotEqual(epoch, run.World.WorldGeneration);
         Assert.Equal(Cue(part, 0), run.Sample(run.Origin, owner)); // at rest after Reset
-        Assert.Equal(first, await Trace(run));
+        Assert.Equal(first.Tick, (await Replay(run)).Tick);
         var restored = WorkshopSaveCodec.Decode(SaveFixture.Elements, WorkshopSaveCodec.Encode(new WorkshopSavedConstruction(bench, new(9)))).Construction;
         await using var loadedRing = await Ring.Running(restored);
         var loaded = new Animation(loadedRing, restored);
-        Assert.Equal(first, await Trace(loaded));
+        Assert.Equal(first.Tick, (await Replay(loaded)).Tick);
     }
 
     // A lapped delivery (D6): the skip is counted, cumulative and typed; the lost cue is never replayed and the later cues are exact.
@@ -662,5 +739,79 @@ public sealed class EventRingConsumerTests
         // The overflowing ring: six written into four slots, so both readers skip the same two and deliver the newest four.
         Assert.Equal(("2", 4 * EventRingBuffer.SlotBytes), (results[1].GetProperty("skipped").GetString(),
             Convert.FromHexString(results[1].GetProperty("records").GetString()!).Length));
+    }
+
+    // ---------- review F1 / R2-F2: every seqlock payload word is an atomic (JS) or volatile (C#) whole-word access ----------
+
+    /// <summary>The source text of one function or method of this checkout, from its signature to its closing line.</summary>
+    private static string Body(string path, string signature, string end)
+    {
+        var text = File.ReadAllText(Path.Combine(twodog.Engine.ResolveProjectDir(), path)).ReplaceLineEndings("\n");
+        var start = text.IndexOf(signature, StringComparison.Ordinal);
+        Assert.True(start >= 0, $"{path}: '{signature}' is missing");
+        var stop = text.IndexOf(end, start, StringComparison.Ordinal);
+        Assert.True(stop > start, $"{path}: '{signature}' has no end");
+        return text[start..stop];
+    }
+
+    private static int Count(string text, string token)
+    {
+        var count = 0;
+        for (var at = text.IndexOf(token, StringComparison.Ordinal); at >= 0; at = text.IndexOf(token, at + token.Length, StringComparison.Ordinal)) count++;
+        return count;
+    }
+
+    /// <summary>The text strictly between a slot's two sequence accesses.</summary>
+    private static string Between(string body, string first, string last)
+    {
+        var start = body.IndexOf(first, StringComparison.Ordinal);
+        var stop = body.IndexOf(last, start + 1, StringComparison.Ordinal);
+        Assert.True(start >= 0 && stop > start, $"the sequence accesses '{first}' … '{last}' are missing");
+        return body[(start + first.Length)..stop];
+    }
+
+    // A plain (non-atomic) payload copy on either side of the ring behaves identically under any single-threaded interleaving, and the
+    // concurrent stress tests catch a one-sided regression only by chance on a weakly ordered CPU (the reviewer's one-sided mutants
+    // survived 0 of 20 runs each). So the seqlock's shape is checked in the source: between a slot's two sequence accesses, every
+    // payload word is stored with Atomics.store (writer) and loaded with Atomics.load (reader), and neither side reaches the ring
+    // through any other view (an indexed access, a slice, a set or a DataView). The C# reference keeps the same shape with Volatile.
+    [Fact]
+    public void EverySeqlockPayloadWordIsAnAtomicWholeWordAccessOnBothSidesOfTheRing()
+    {
+        // The JS writer (the Simulation worker's copy of each publication).
+        var writer = Body("CuriousContraptions.Simulation/wwwroot/worker.js", "function writeEventRing(batch) {", "\n}\n");
+        Assert.Contains("Atomics.store(eventWords, slot / 8 + word, ", Between(writer,
+            "Atomics.store(eventWords, slot / 8, 0n);", "Atomics.store(eventWords, slot / 8, sequence);"));
+        Assert.Contains("for (let word = 1; word < EVENT_SLOT_BYTES / 8; word++)", writer);
+        // Every use of the ring's word view is an Atomics.store, but its creation; the ring buffer itself is only allocated and posted.
+        Assert.Equal(Count(writer, "Atomics.store(eventWords, ") + 1, Count(writer, "eventWords"));
+        Assert.Equal(1, Count(writer, "eventWords = new BigUint64Array(buffer)"));
+        Assert.Equal(4, Count(writer, "eventRing")); // `!eventRing ||`, `eventRing = buffer` and the two `{ eventRing: buffer }` posts
+
+        // The shared JS reader.
+        var reader = Body("CuriousContraptions.web/wwwroot/event-ring-cursor.js", "    read(admitted) {", "\n    }\n");
+        Assert.Contains("Atomics.load(this.words, slot / 8 + word)", Between(reader,
+            "const before = Atomics.load(this.words, slot / 8);", "const after = Atomics.load(this.words, slot / 8);"));
+        Assert.Contains("for (let word = 1; word < EVENT_SLOT_BYTES / 8; word++)", reader);
+        Assert.Equal(Count(reader, "Atomics.load(this.words, "), Count(reader, "this.words"));
+        Assert.Equal(1, Count(reader, "this.buffer")); // only the `!this.buffer` guard: no other view over the ring
+
+        // The C# reference writer and reader: whole-word Volatile accesses only.
+        const string Reference = "CuriousContraptions.Abstractions/EventRingBuffer.cs";
+        var append = Body(Reference,"public static byte[] Append(byte[]? ring, ReadOnlySpan<byte> batch)", "\n    }\n");
+        Assert.Contains("Volatile.Write(ref Word(ring, slot + word), ", Between(append,
+            "Volatile.Write(ref Word(ring, slot), 0);", "Volatile.Write(ref Word(ring, slot), sequence);"));
+        Assert.Equal(Count(append, "Volatile.Write(ref Word(ring, "), Count(append, "Word(ring, "));
+        Assert.Equal(1, Count(append, "CopyTo(ring)")); // the fresh ring's header, before any slot is published
+        Assert.Equal(1, Count(append, "ring.AsSpan(")); // the epoch check
+        Assert.Equal(0, Count(append, "ring["));
+        var consumer = Body(Reference,"public bool TryRead(ReadOnlySpan<byte> ring, SimulationDomain filter, out SimulationEventRecord record)", "\n    }\n");
+        Assert.Contains("EventRingBuffer.ReadWord(ring, slot + word)", Between(consumer,
+            "var before = EventRingBuffer.ReadWord(ring, slot);", "var after = EventRingBuffer.ReadWord(ring, slot);"));
+        // The signature, the header read, the length check and its message ("The ring is not its header's size."); every other reach
+        // into the ring is a whole-word volatile read.
+        Assert.Equal(4 + Count(consumer, "EventRingBuffer.ReadWord(ring, "), System.Text.RegularExpressions.Regex.Count(consumer, @"\bring\b"));
+        Assert.Contains("internal static ulong ReadWord(ReadOnlySpan<byte> ring, int offset) =>\n        Volatile.Read(",
+            File.ReadAllText(Path.Combine(twodog.Engine.ResolveProjectDir(), Reference)).ReplaceLineEndings("\n"));
     }
 }

@@ -97,7 +97,7 @@ Native real-simulation proof is PRIMARY. Browser proof is pending.
   - record the 9A.22 Impact record bytes;
   - confirm Source = the owning instance for Impact, Passage, Captured and Trigger.
 - [x] Abstractions and Bundle: D3 driver and field, validator rules, the 4 packages, bundle regenerated.
-- [x] Make the occurrence rows device-private (D9); Impact record bytes unchanged.
+- [x] Make the occurrence rows device-private (D9). The bumper run's Impact records keep their asserted behaviour against the ballistic law and the store: count, kind, owners, ticks, paid work and ordering.
 - [x] `event-ring-cursor.js` and the C# `EventRecords` intake in the Animation worker; SAB posted on `animationPort`; D5–D7 in `WorkshopDeclaredPresentation` (drop both `IsOneShot` skips).
 - [x] Main-thread cursor and goal wake (D8).
 - [x] Deletions (table), with callers, tests and `tools/workshop-observation.test.mjs` updated together.
@@ -144,7 +144,7 @@ Native real-simulation proof is PRIMARY. Browser proof is pending.
     - a level change (MemoryChanged or ContactLoad).
   - Pause/Resume/Step: no duplicate cue, and the cursor is retained.
   - Hidden 2 s then visible: an expired cue sits at its end value and an in-flight cue is at its exact phase.
-  - Reset: every one-shot target is at rest and the cursor restarts at 1. Run/Reset/Run gives identical samples. Save/Load then Run gives identical samples.
+  - Reset: every one-shot target is at rest and the cursor restarts at 1. Run/Reset/Run and Save/Load then Run each capture at the same tick and play the declared cue from rest through its quarter points to its held end value.
   - A lapped ring: the counted skip, the lost cue only, and the later cues exact.
   - Goal wake: the record arrives before its read, so the wake is held, then the cue fires once at the committed occurrence time. Unsolved: no cue.
   - Validator refusals (D3); bundle conformance.
@@ -202,7 +202,7 @@ Decided by game intent:
 
 # Implementation decisions (24 Oct 2026, implementation owner, by game intent)
 
-- **D3a, paid impacts only.** The deleted contact relay pulsed only a paid hit (`Effect == Paid`). So an event binding also declares `EventMagnitude` (`PresentationEventMagnitude { Any, Positive }`, a closed enum), and the bundle refuses a non-`Any` value on a committed driver. The Bumper's five bindings declare `Positive`: an Impact cues only when its Magnitude (the energy paid) is > 0, so a strength-0 or empty-store hit leaves the ring at rest. The Impact record bytes are unchanged.
+- **D3a, paid impacts only.** The deleted contact relay pulsed only a paid hit (`Effect == Paid`). So an event binding also declares `EventMagnitude` (`PresentationEventMagnitude { Any, Positive }`, a closed enum), and the bundle refuses a non-`Any` value on a committed driver. The Bumper's five bindings declare `Positive`: an Impact cues only when its Magnitude (the energy paid) is > 0, so a strength-0 or empty-store hit leaves the ring at rest. The Impact records themselves are unchanged in behaviour (see the device ledger in Current state).
 - **D4a, cue clock.** A cue's time is the record's ordinal plus its phase (1/4096 of a 480 Hz step), placed on the presentation clock through the installed projection's anchor (`WorkshopDeclaredPresentation.EventSeconds`).
   - Pulses use `AnimationImpulseTiming.EventTime`.
   - A Replace clip restarts through the new engine method `AnimationBatch.StartAtOccurrence` once the clock reaches the cue. A late cue is at its exact phase, or at To once it has ended.
@@ -237,7 +237,17 @@ Native candidate committed locally and not pushed (worktree `story-9a-23-25b`): 
 - `occurrenceReads`, the reservation and release, `retainOccurrence`, `RequiresReliableRead` and `NotReserved`;
 - the occurrence arrays on the read and the wire.
 
-**Device ledger.** `ContactWorkLedger` holds the rows, validated at admission and by `ValidateContactWorkCandidate`. The Impact record bytes are identical to the baseline (3 records, SHA-256 E54B4A09…853CC8).
+**Device ledger.** `ContactWorkLedger` holds the rows, validated at admission and by `ValidateContactWorkCandidate`.
+- `TheBumperRunsImpactRecordsFollowTheBallisticLawAndTheStore` asserts the bumper run's Impact records explicitly. Expected values and tolerances come from the declared physics and the store, never from observed values:
+  - three Impact records from the bumper (Source 2) striking the ball (Other 1), Mechanical, at Level 0;
+  - sequences and counts 1, 2 and 3, with each ordinal inside its own tick and sequences ascending with physical time;
+  - hit times from the linear-drag ballistic law within k ticks for hit k;
+  - hit 1 paying the target-limited work ½m(8² − (e·v₁)²) within m·e²·v₁·g/120;
+  - hits 1 and 2 summing to the 32 J capacity within 2 f32 ULPs (hit 2 is store-limited);
+  - hit 3 paying 0.
+- **D9 without/with: one-off evidence only.** Running the test against a "without D9" mode is not feasible, because the old path is deleted and the slice is refactor-forward with no legacy mode. Instead:
+  - the same test was run verbatim on main dc0356de, which has no D9, in a scratch detached worktree that was removed afterwards. It passed (`post-merge/d9-behaviour-on-main-dc0356de.log`, scratch diff `.diff`);
+  - the earlier one-off byte comparison shows identical bytes on 0cba945b and on the candidate (`post-merge/impact-records-0cba945b.txt`). It is evidence, not a committed test.
 
 **Isolation.** The Known list is 94 → 94: no row added, and none inside a deleted symbol. Generic contexts are 519 → 516.
 
@@ -298,6 +308,36 @@ Native candidate committed locally and not pushed (worktree `story-9a-23-25b`): 
   - `TheImpactRecordBytesOfTheBumperRunAreUnchanged` failed after the merge, because restitution changed the bumper run's hits.
   - The pin was re-captured on 0cba945b itself, without D9, using a scratch detached worktree that was removed afterwards: SHA-256 291756D7…DB8F, 3 records.
   - The merged candidate's bytes are identical to it, so D9 still leaves the Impact bytes unchanged (`post-merge/impact-records-0cba945b.txt`; the failing run is `post-merge/test-before-repin.log`).
+  - Superseded: this pin is no longer a committed test (next item).
+- **Behavioural assertions (owner rule on main dc0356de: no committed output hashes or byte-identity).** origin/main dc0356de is merged, staged and uncommitted as instructed (MERGE_HEAD set; AGENTS.md only).
+  - `TheImpactRecordBytesOfTheBumperRunAreUnchanged` (SHA-256 pin) is replaced by `TheBumperRunsImpactRecordsFollowTheBallisticLawAndTheStore`. Its assertions are listed under "Device ledger" above, and the D9 comparison is kept as one-off evidence only.
+  - `ResetRestsEveryCueRestartsTheCursorAndRunsReplayIdentically` compared whole sample traces across runs. It is now `…RunsReplayTheCue`, which checks each run separately: the cursor at sequence 1, the capture owner, rest before the cue, the declared quarter-point values, the held end value, and the same capture tick after Reset and after Save/Load.
+  - Mutants of the new test, each applied with Edit, run and reverted:
+    - paid work +1 % in `EventRecordProducer`: killed, 30.85 outside 30.42–30.58 (`mutations/cs-impact-paid-1pc-high.log`);
+    - ordinal one tick late: killed, "ordinal 158 is outside tick 39" (`mutations/cs-impact-one-tick-late.log`).
+  - **Audit of the slice's other equality checks.** None pins a hash or golden bytes. These compare two live values:
+    - `HasSameBits` checks that the wire codec round-trips the stores and that the read carries exactly the device ledger's stores (`WorkshopReadTests`, `WorkshopWireFlatBuffersTests`, `WorkbenchCapacityTests`, `EventRingProducerTests`);
+    - the shared JS reader is checked equal to the C# reference consumer over the same ring, and the cursor stress checks each delivered record equal to its source. Transport fidelity is the behaviour being tested.
+    - The 9A.25a goldens are declared values and analytic curve amounts, not output digests.
+  - These are left as they are and flagged for the reviewer.
+- **R2-F1 (round 2): equality to the device's hit rows.** The bumper test also takes every hit row the device's private ledger held over the run: one per sequence, ignoring the admission's sequence-0 empty slot.
+  - Each Impact record equals its row field by field: struck body, Count = row sequence, Ordinal, Phase, and Magnitude = Debit. This states the D9 claim as behaviour.
+  - Hit 1's recorded approach speed is within g/120 of the analytic impact speed.
+  - The one-off run on main dc0356de predates this row check. That run covers the records without D9; the row check needs D9's ledger.
+- **R2-F2: structural seqlock guard.** `EverySeqlockPayloadWordIsAnAtomicWholeWordAccessOnBothSidesOfTheRing` checks the source of this checkout, in the style of `Hits()`:
+  - **JS writer (`writeEventRing`):** between the slot's two sequence stores, each payload word is `Atomics.store(eventWords, slot / 8 + word, …)` in the word loop. Every other use of `eventWords` is an `Atomics.store` (only its creation is not), and `eventRing` is only allocated and posted.
+  - **JS reader (`read`):** between `before` and `after`, each payload word is `Atomics.load(this.words, slot / 8 + word)`. Every `this.words` use is an `Atomics.load`, and `this.buffer` appears only in the guard.
+  - **C# `Append`:** each payload word is `Volatile.Write(ref Word(ring, slot + word), …)`. Every `Word(ring, …)` is a `Volatile.Write`. The only other ring accesses are the header `CopyTo` and the epoch check, and there is no `ring[`.
+  - **C# `TryRead`:** each payload word is `EventRingBuffer.ReadWord(ring, slot + word)`, and every other mention of `ring` is the signature, the header read, the length check or its message. `ReadWord` is a `Volatile.Read`.
+  - **Mutants, each applied with Edit, run and reverted; all killed** (logs `mutations/r2-guard-*.log`):
+    - JS writer, plain indexed store;
+    - JS writer, bulk `Uint8Array.set` over the ring;
+    - JS reader, plain indexed load;
+    - JS reader, bulk `BigUint64Array` view;
+    - JS reader, an extra plain view kept beside the atomic loop (killed by the `this.buffer` count);
+    - C# writer, plain store;
+    - C# reader, plain `ReadUInt64LittleEndian`.
+  - The functional node tests pass under the JS writer-bulk mutant (13/13) and the JS reader mutants (8/8) (`mutations/r2-js-*-node.log`). The guard is the deterministic check.
 - **No skipped tests (new hard rule).**
   - Every result below has Skipped 0, and node reports skipped 0 and todo 0.
   - The slice adds no `Skip`, `Explicit`, `.skip`/`.todo` or excluding filter.
@@ -332,7 +372,7 @@ Folder: `_bmad-output/implementation-artifacts/evidence-9a-23-25b/`.
 | Check | Where | Result |
 | --- | --- | --- |
 | Baseline (f5ffdb4e): Debug build, full slnx | `baseline/build.log`, `baseline/test.log` | 0 warnings; 17/77/191/190/2856, rc 0 |
-| Impact record bytes before D9 | `baseline/impact-records.txt` | pinned in `EventRingConsumerTests` |
+| Impact records without D9 | `baseline/impact-records.txt`, `post-merge/impact-records-0cba945b.txt`, `post-merge/d9-behaviour-on-main-dc0356de.log` | one-off evidence only. The committed test asserts behaviour; it passes verbatim on main dc0356de without D9 |
 | Final: one Debug slnx build | `final/build.log` | 0 warnings, 0 errors |
 | Final: full slnx `--no-build --no-restore` (after the last C# input: the D3a validator tests) | `final/test.log` | WorkerAotGuard 17, Coverage 77, BundleElements 191, E2eRunner 190, CuriousContraptions.tests 2877; 0 failed, 0 skipped, rc 0 |
 | CI "Test C# tools" step | `final/ci-tools.log` | 77/191/17/174, rc 0. The tool projects are unchanged since; the later inputs were the C# test project, `.mjs` and docs |
@@ -351,4 +391,8 @@ Folder: `_bmad-output/implementation-artifacts/evidence-9a-23-25b/`.
 | Merged tree: CI "Test C# tools" (the workflow step run verbatim under bash) | `final-merged/ci-tools.log` | 77/191/17/174, rc 0 (`ci-tools-zsh-unfiltered.log`: the same under zsh, whose loop does not split the filter, 190) |
 | Merged tree: Release Simulation, Animation.Worker | `final-merged/worker-release.log` | rc 0/0, 0 warnings |
 | Merged tree: `git diff --check` (origin/main..HEAD, excluding raw evidence logs; worktree; index) | `final-merged/diff-check.txt` | clean. Raw tool logs under `evidence-*` keep their tools' trailing spaces unchanged |
+| Round 2 tree (3b9e8ac7, plus origin/main dc0356de merged and uncommitted, plus R2-F1/R2-F2): one Debug slnx build | `behavioural/build.log` | 0 warnings, 0 errors |
+| Round 2 tree: full slnx `--no-build --no-restore`, no blame | `behavioural/test.log` | WorkerAotGuard 17, BundleElements 191, Coverage 77, E2eRunner 190, CuriousContraptions.tests 2950; 0 failed, 0 skipped, rc 0 (`test-before-r2.log`: the R2-F1 first cut, 2949, rc 0) |
+| Round 2 tree: node harnesses (`--test-timeout=120000` under `timeout 900`) | `behavioural/node-harness.log` | 112/112, 0 cancelled, 0 skipped, 0 todo, rc 0 |
+| Round 2 tree: `git diff --check` (worktree, index, vs HEAD and vs origin/main, excluding raw evidence logs) | `behavioural/diff-check.txt` | clean |
 | Strict tsc, snapshot schema unit | `candidate/tsc.log`, `candidate/e2e-unit.log` | not re-run: no `.ts` or tsconfig input changed since (`git diff --stat 7d0c6d45 HEAD -- '*.ts' '*.json'` is empty, and the merges touched none) |

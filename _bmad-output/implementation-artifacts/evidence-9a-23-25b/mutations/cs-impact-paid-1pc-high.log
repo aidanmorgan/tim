@@ -1,0 +1,13 @@
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:01.63]     CuriousContraptions.Tests.EventRingConsumerTests.TheBumperRunsImpactRecordsFollowTheBallisticLawAndTheStore [FAIL]
+  Failed CuriousContraptions.Tests.EventRingConsumerTests.TheBumperRunsImpactRecordsFollowTheBallisticLawAndTheStore [142 ms]
+  Error Message:
+   Assert.InRange() Failure: Value not in range
+Range:  (30.421644534657801 - 30.577423397307413)
+Actual: 30.845647811889648
+  Stack Trace:
+     at CuriousContraptions.Tests.EventRingConsumerTests.TheBumperRunsImpactRecordsFollowTheBallisticLawAndTheStore() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/CuriousContraptions.tests/EventRingConsumerTests.cs:line 178
+--- End of stack trace from previous location ---
+
+Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 155 ms - CuriousContraptions.tests.dll (net10.0)

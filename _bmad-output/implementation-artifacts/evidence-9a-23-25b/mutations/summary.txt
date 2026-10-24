@@ -32,3 +32,12 @@ C# (production evaluator, goal wake, ledger, engine):
 - goal-wake-owner-filter-dropped (Captured woken by any record): KILLED by TheGoalWakeIgnoresOtherOwners… and TheGoalWakeFindsItsOwners….
 - goal-wake-not-held (due one tick before its read): KILLED by TheGoalWakeWaitsForItsCommittedRead…(captures: True) and TheGoalWakeIgnoresOtherOwners….
 - ledger-accounting-dropped (ContactWorkLedger reservoir check widened 1e9x): KILLED by TheDeviceLedgerAccountsForEveryHitAndRefusesAMalformedAdvance.
+
+Round 2 (R2-F1 behavioural Impact test, R2-F2 seqlock guard), each applied with Edit, run against the fixed code and reverted:
+- cs-impact-paid-1pc-high (EventRecordProducer Magnitude = Debit x 1.01): KILLED by TheBumperRunsImpactRecordsFollowTheBallisticLawAndTheStore
+  (30.85 outside the derived 30.42-30.58).
+- cs-impact-one-tick-late (Ordinal + 4): KILLED by the same test ("ordinal 158 is outside tick 39").
+- r2-guard-js-writer-plain-indexed, r2-guard-js-writer-plain-bulk, r2-guard-js-reader-plain-indexed, r2-guard-js-reader-plain-bulk,
+  r2-guard-js-reader-extra-plain-view, r2-guard-cs-writer-plain, r2-guard-cs-reader-plain: all KILLED by
+  EverySeqlockPayloadWordIsAnAtomicWholeWordAccessOnBothSidesOfTheRing. The functional node tests pass under the JS writer-bulk
+  (13/13) and reader (8/8) mutants (r2-js-*-node.log), so the structural guard is the deterministic check.
