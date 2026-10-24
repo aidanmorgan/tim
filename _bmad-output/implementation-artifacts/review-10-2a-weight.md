@@ -252,3 +252,77 @@ The bench-volume boundary itself is the shared `Within` rule. Its literal-edge c
 **Still open, non-blocking:**
 - L6: conservative cylinder–box overlap near corners (over-refusal only).
 - Browser cases accumulated for the post-catalogue E2E phase: `cat-067`, the Weight beside a Bumper, edge placements under the grid rule, and `cat-015b`'s Wall click.
+
+# Round 4: merge of green main f1ad3bd1, and SnapshotApproval (24 October 2026)
+
+**Candidate.** HEAD `56f3e327` = merge of slice `6387b589` (first parent) and origin/main `f1ad3bd1` (second parent). The tree identity is in `evidence-10-2a-review/r3/head.txt`.
+
+## Verdict: **Pre-publication Pass** (scoped native). SnapshotApproval is below.
+
+### Merge integrity
+
+`git merge-tree --write-tree 6387b589 f1ad3bd1` gives auto tree `86029d46`. HEAD differs from that tree only in:
+- **`TODO.md`.** Main's version was kept: `git diff f1ad3bd1 HEAD -- TODO.md` is empty. Main's TODO already lists 10.2a and the "Engine: lying cylinder axial creep" next slice.
+- **`deferred-work.md`.** Both sides were kept: the 10.2a F1 entry and main's harness-determinism entry each appear once.
+- **Records added in the merge commit.** These are review and evidence files: my `evidence-10-2a-review/r2/` and the round-3 text of this record, both byte-identical to what I wrote, plus the implementer's `evidence-10-2a/` gate logs.
+
+Six code files were auto-merged on both sides (`BundleSchema`, `BundleValidator`, the tests csproj, `BasketballResourceTests`, `PalettePlacementTests`, `WorkbenchCapacityTests`). Each is main's text plus the slice's own hunk only.
+
+The R2/L5 inputs are unchanged by the merge (`git diff 6387b589 HEAD` is empty for each):
+- `PlacementPose.cs`
+- `WorkshopBenchPlacement.cs`
+- `PlacementPoseTests.cs`
+- `WeightTests.cs`
+- `elements/Weight`
+- `WorkshopPhysicsCompiler.cs`
+
+So the round-3 R2/L5 checks and mutations (MX7, MX8) still apply.
+
+### The restitution receipt is carried exactly once
+
+- **Review record:** `review-engine-restitution.md` blob `7e4477ac` holds the terminal section once. Main's copy holds it zero times.
+- **Sprint status:** `sprint-status.yaml` has one `engine-restitution-energy-correctness: done` row.
+- **Evidence:** `evidence-engine-restitution-review/terminal/` is identical to the carry under `diff -r`.
+- **Patch:** the carry patch reverse-applies cleanly.
+
+### Gates on `56f3e327` (one rebuild)
+
+| Command | Result | Raw |
+| --- | --- | --- |
+| `dotnet build CuriousContraptions.slnx -c Debug` | 0 W / 0 E | `r3/build-debug.log` |
+| `dotnet test CuriousContraptions.slnx -c Debug --no-build --no-restore` (no blame) | native **2988/2988**, BundleElements 194, E2eRunner **208** (the node harnesses run inside `NodeHarnessTests`), Coverage 77, WorkerAotGuard 17; **Skipped 0** in every row; 0 duplicates | `r3/test-slnx.log` |
+| CI "Test C# tools" step, run from the body of HEAD `pages.yml` | 77 / 194 / 17 / E2eRunner 192 (deferral filter generated from `BrowserDeferral.cs`); exit 0 | `r3/ci-tool-step-body.txt`, `r3/ci-tool-step.log` |
+| Release Simulation / Animation.Worker | 0 W / 0 E each | `r3/worker-release.log`, `r3/animation-worker-release.log` |
+| `git diff --check HEAD` | clean | — |
+| origin/main at approval | `f1ad3bd19e27` (the same as the merge's second parent) | — |
+
+## SnapshotApproval
+
+**Approved candidate.** HEAD `56f3e327` plus the staged delta: this record and `evidence-10-2a-review/r3/`. The staged identities are recorded below.
+
+Before committing, the implementer must:
+- confirm the staged tree is unchanged;
+- let the normal pre-commit protections run, with no `--no-verify`.
+
+**Do not push until main's CI on `f1ad3bd1` (9A.23 + 9A.25b) is green.**
+
+### Publication-dependent checks (the reviewer verifies them after the push)
+
+| # | Check |
+| --- | --- |
+| 1 | The slice commit's tree equals the final staged tree reported with this approval. |
+| 2 | Hooks: the implementer's commit log shows the gate builds at 0 W and passing tests, and a reviewer re-run on the exact published tree. |
+| 3 | The published merge's tree equals the branch tree, and `origin/main` and `git ls-remote origin refs/heads/main` equal the published merge. |
+| 4 | The Pages workflow on that exact SHA has completed with success: every step, including the C# game and tools tests, Skipped 0. |
+| 5 | The Pages artifact belongs to that run and is deployed. |
+| 6 | Serving: `/`, `/index.html`, `/404.html`, `/godot.wasm`, `/godot.pck` and `/_framework/dotnet.js` each return 200 from this deployment. |
+| 7 | Status: `10-2a-weight` → done (scoped native/publication Pass; browser pending `cat-067`, including the engine-cylinder case), and TODO updated. |
+| 8 | Browser cases remain pending for post-catalogue E2E (listed above). |
+
+### Snapshot identities
+
+These were taken after staging the candidate, before this section was appended:
+- **Staged tree:** `a95056fafe10cfef4988a8939827f6162a2a4eea`.
+- **SHA-256 of `git diff --cached --binary HEAD`:** `c53177ed64e1bba73d62ac2eb91102befba77dfe343adc47805a27881412b35f`.
+
+This section was then appended and the record re-staged. The final staged tree is the one reported to the coordinator, and publication check 1 compares against it.
