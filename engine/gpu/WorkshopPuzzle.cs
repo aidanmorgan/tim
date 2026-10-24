@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 
 namespace CuriousContraptions.Gpu;
 
@@ -30,6 +31,20 @@ public readonly record struct AssistanceKnot(float Precision, Metres PositionWin
     float TriggerThreshold);
 public readonly record struct AssistanceProfile(AssistanceKnot Forgiving, AssistanceKnot Balanced, AssistanceKnot Precise)
 {
+    /// <summary>The authored knot rule (content and saves alike): no profile, or every lane finite and non-negative with its knots at
+    /// precisions exactly 0, 0.45 and 1.</summary>
+    internal bool HasAuthoredShape()
+    {
+        if (this == default) return true;
+        static bool Admitted(AssistanceKnot k) => new[]
+        {
+            k.Precision, k.PositionWindow.Value, k.RotationWindowDegrees, k.MaximumPositionCorrection.Value, k.MaximumRotationCorrectionDegrees,
+            k.Blend.Value, k.CaptureMargin.Value, k.CaptureSpeed.Value, k.CaptureDwell.Value, k.GuideAcceleration.Value, k.TriggerThreshold
+        }.All(lane => float.IsFinite(lane) && lane >= 0f);
+        return Admitted(Forgiving) && Admitted(Balanced) && Admitted(Precise) &&
+            Forgiving.Precision == 0f && Balanced.Precision == .45f && Precise.Precision == 1f;
+    }
+
     public AssistanceKnot Evaluate(PuzzlePrecision precision)
     {
         PhysicsDeclarationBounds.Range(precision.Value, 0f, 1f);

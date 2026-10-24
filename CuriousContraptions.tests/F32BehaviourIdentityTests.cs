@@ -9,16 +9,24 @@ namespace CuriousContraptions.Tests;
 /// the half-precision-era engine at f1ad3bd1 before any 9A.44 edit. Every authored lesson at precisions 0, 0.45 and 1, and every element
 /// fixture placed alone, runs on the production simulation over the worker transport. Goal met equals the baseline's and the order of
 /// event kinds is identical; every event (and a lesson's goal) happens within <see cref="GoalTickTolerance"/> ticks (0.1 s) of its
-/// baseline counterpart, its ordinals within the same span of substeps, and an element placed alone ends within 2 mm of its baseline
+/// baseline counterpart, its ordinals within the same span of substeps, and an element placed alone ends within 5.1 mm of its baseline
 /// pose. The deltas come from the exact f32 values that half precision rounded (g 9.81 for 9.8125, ball radius 0.34 for 0.340088,
-/// drag 0.04 for 0.040009, precision 0.45 for 0.449951, capture speed 2.324 for 2.32421875); each one is listed and explained in
+/// drag 0.04 for 0.040009, precision 0.45 for 0.449951, capture speed 2.325 for 2.32421875); each one is listed and explained in
 /// evidence-9a-44/t1/outcome-comparison.txt and outcome-deltas-notes.txt.</summary>
 public sealed partial class F32BehaviourIdentityTests
 {
     private const int LessonTicks = 1200;
     private const int ElementTicks = 240;
+    // The bounds, from the D6 input deltas (every one ≤ 3.4e-4 relative: g 2.5e-4, ball radius 2.6e-4, drag 2.1e-4, capture speed
+    // 3.4e-4, Balanced precision 1.1e-4):
+    // - An element placed alone for 240 ticks (2 s) can move by at most ½·|Δg|·t² = ½·0.0025·2² = 5.0 mm through its fall, plus the
+    //   0.09 mm radius change where it rests: 5.1 mm.
+    // - To first order the same deltas move a gravity-driven arrival by ½·3.4e-4·T, under 0.1 tick for T ≤ 600 ticks. Contact sequences
+    //   (ramp landings, domino impacts, bumper rebounds, capture dwell) amplify that by an amount no input delta bounds, so the event
+    //   timing bound is a declared tolerance, not derived: 0.1 s (12 ticks), the smallest timing change a player perceives. Observed:
+    //   −4…+9 ticks (evidence-9a-44/t1/outcome-deltas-notes.txt).
     private const int GoalTickTolerance = 12;
-    private const double ElementPoseTolerance = 2e-3;
+    private const double ElementPoseTolerance = 5.1e-3;
     private static readonly JsonSerializerOptions Options = new() { IncludeFields = true };
     private static readonly Lazy<JsonObject> Baseline = new(() => JsonNode.Parse(File.ReadAllText(Path.Combine(
         twodog.Engine.ResolveProjectDir(), "CuriousContraptions.tests/Fixtures/outcomes-f1ad3bd1.json")))!.AsObject());

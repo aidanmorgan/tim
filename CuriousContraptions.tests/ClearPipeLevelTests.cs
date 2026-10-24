@@ -73,7 +73,7 @@ public sealed class ClearPipeLevelTests
 
     [Theory]
     [InlineData(0, 0.3, 3.0, 0.15, 12)]
-    [InlineData(0.45, 0.174, 2.324, 0.24, 6.6)]
+    [InlineData(0.45, 0.174, 2.325, 0.24, 6.6)]
     [InlineData(1.0, 0.02, 1.5, 0.35, 0)]
     public void PrecisionEvaluatesAssistanceAndRoundtripsSaveCodec(double precision, double margin, double speed, double dwell, double accel)
     {

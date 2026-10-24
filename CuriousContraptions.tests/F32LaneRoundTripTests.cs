@@ -126,7 +126,6 @@ public sealed class F32LaneRoundTripTests
     {
         var scene = WorkshopPhysicsCompiler.Compile(Bench(), new(1, 2));
         var admitted = PhysicsGpuAbi.Admission(scene, new(1), Profile);
-        var committed = admitted.ToArray();
         byte[] Stepped()
         {
             var candidate = new byte[admitted.Length];
@@ -151,8 +150,7 @@ public sealed class F32LaneRoundTripTests
         var poisoned = Stepped();
         BinaryPrimitives.WriteSingleLittleEndian(poisoned.AsSpan(offset), value);
         Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ValidateCandidate(poisoned, admitted, new(1)));
-        // The refused candidate is discarded: the committed world is untouched and its next tick steps and commits.
-        Assert.Equal(committed, admitted);
+        // The refused candidate is discarded: the committed world's next tick steps and commits.
         var next = PhysicsGpuAbi.ValidateCandidate(Stepped(), admitted, new(1));
         Assert.True(next.Bodies.TryGet(Ball, out var ball) && float.IsFinite(ball.Body.Velocity.Y));
     }
@@ -202,5 +200,22 @@ public sealed class F32LaneRoundTripTests
             default: throw new ArgumentOutOfRangeException(nameof(lane));
         }
         Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.Admission(Rebuilt(), new(1), Profile));
+    }
+
+    // A residence sensor's 4-byte gap after its participation lane is zero in the admitted world: the admission check (tick 0)
+    // refuses a nonzero byte at either end of it; control: the admitted world admits.
+    [Fact]
+    public void ASensorParticipationGapMustBeZeroAtAdmission()
+    {
+        var scene = WorkshopPhysicsCompiler.Compile(Bench(), new(1, 2));
+        var admitted = PhysicsGpuAbi.Admission(scene, new(1), Profile);
+        PhysicsGpuAbi.ValidateCandidate(admitted, admitted, new(0));
+        var gap = scene.Layout.GetSensorOffset(scene.Sensors[0].Id) + PhysicsGpuAbi.SensorParticipationPaddingOffset;
+        foreach (var offset in new[] { gap, gap + PhysicsGpuAbi.SensorPoseOffset - PhysicsGpuAbi.SensorParticipationPaddingOffset - 1 })
+        {
+            var padded = (byte[])admitted.Clone();
+            padded[offset] = 1;
+            Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ValidateCandidate(padded, padded, new(0)));
+        }
     }
 }

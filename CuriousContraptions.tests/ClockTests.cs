@@ -94,16 +94,16 @@ public sealed class ClockTests(NativeSceneFixture godot)
 
             var housing = colliders[0];
             Assert.Equal(ColliderShapeKind.Box, housing.ShapeKind);
-            Assert.Equal(new MetreVector((float)0.7f, (float)0.85f, (float)0.3f), housing.HalfExtents);
+            Assert.Equal(new MetreVector(0.7f, 0.85f, 0.3f), housing.HalfExtents);
             Assert.Equal(0f, housing.LocalPose.Translation.X);
             Assert.Equal(0f, housing.LocalPose.Translation.Y);
             Assert.Equal(0f, housing.LocalPose.Translation.Z);
 
             var foot = colliders[1];
             Assert.Equal(ColliderShapeKind.Box, foot.ShapeKind);
-            Assert.Equal(new MetreVector((float)0.8f, (float)0.1f, (float)0.425f), foot.HalfExtents);
+            Assert.Equal(new MetreVector(0.8f, 0.1f, 0.425f), foot.HalfExtents);
             Assert.Equal(0f, foot.LocalPose.Translation.X);
-            Assert.Equal((float)(-0.95f), foot.LocalPose.Translation.Y);
+            Assert.Equal(-0.95f, foot.LocalPose.Translation.Y);
             Assert.Equal(0f, foot.LocalPose.Translation.Z);
 
             Assert.True(ports.ContainsKey("PowerIn"));

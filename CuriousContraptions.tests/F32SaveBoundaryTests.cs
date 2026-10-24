@@ -73,8 +73,34 @@ public sealed class F32SaveBoundaryTests
     {
         var construction = Lesson("first_principles", .45f);
         var encoded = WorkshopSaveCodec.Encode(new(construction, new(3)));
-        SaveFixture.Refused(WorkshopSaveRejection.MissingField,
+        var refusal = SaveFixture.Refused(WorkshopSaveRejection.MissingField,
             () => WorkshopSaveCodec.Decode(SaveFixture.Elements, WithKnotCount(encoded, construction.Puzzle, 8)));
+        // A current save with the wrong count is told its count, not that it predates f32 assistance.
+        Assert.Equal("This save cannot be loaded: The saved puzzle holds 8 assistance knots; a puzzle holds exactly nine.", refusal.Message);
+    }
+
+    // The authored knot rule (finite, non-negative, knots at precisions 0, 0.45 and 1) is applied before any domain construction:
+    // a finite forged knot that breaks it is the typed OutOfRange refusal. Control: the authored knots load.
+    public enum ForgedKnot { NegativeSpeed, BalancedAtHalf, ForgivingAboveZero }
+
+    [Theory]
+    [InlineData(ForgedKnot.NegativeSpeed)]
+    [InlineData(ForgedKnot.BalancedAtHalf)]
+    [InlineData(ForgedKnot.ForgivingAboveZero)]
+    public void AFiniteKnotOutsideTheAuthoredRuleIsOutOfRangeAtTheSaveBoundary(ForgedKnot forged)
+    {
+        var construction = Lesson("first_principles", .45f);
+        var profile = construction.Puzzle.TargetAssistance;
+        Assert.Equal(new WorkshopSavedConstruction(construction, new(3)),
+            WorkshopSaveCodec.Decode(SaveFixture.Elements, SaveFixture.Forged(construction, 3)));
+        var changed = forged switch
+        {
+            ForgedKnot.NegativeSpeed => profile with { Balanced = profile.Balanced with { CaptureSpeed = new(-.5f) } },
+            ForgedKnot.BalancedAtHalf => profile with { Balanced = profile.Balanced with { Precision = .5f } },
+            _ => profile with { Forgiving = profile.Forgiving with { Precision = .1f } },
+        };
+        var save = SaveFixture.Forged(construction with { Puzzle = construction.Puzzle with { TargetAssistance = changed } }, 3);
+        SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(SaveFixture.Elements, save));
     }
 
     [Fact]

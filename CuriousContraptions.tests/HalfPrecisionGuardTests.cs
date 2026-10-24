@@ -8,20 +8,23 @@ namespace CuriousContraptions.Tests;
 /// accessor names, and the shape of a hand-written half-precision decoder. Prose (Markdown, JSON content) is out of scope.</summary>
 public sealed class HalfPrecisionGuardTests(ITestOutputHelper output)
 {
-    private static readonly Regex Words = new(@"\b(?:Half|HalfBits|Float16|float16|getF16|setF16|binary16|f16)\b", RegexOptions.CultureInvariant); // guard control
+    private static readonly Regex Words = new( // guard control
+        @"\b(?:Half|HalfBits|Float16|float16|float16_t|min16float|vec[234]h|getF16|setF16|binary16|f16)\b", RegexOptions.CultureInvariant); // guard control
     private static readonly Regex Accessors = new( // guard control
         @"ReadF16|WriteF16|ReadHalf|WriteHalf|HalfToUInt16Bits|UInt16BitsToHalf|HalfToInt16Bits|Int16BitsToHalf|decodeFloat16|encodeFloat16|" + // guard control
-        @"getFloat16|setFloat16|Float16Array|DragBits", RegexOptions.CultureInvariant); // guard control
-    /// <summary>A hand-written half-precision decoder extracts the 5-bit exponent from bits 10–14.</summary>
-    private static readonly Regex DecoderShape = new(@">>>?\s*10\)?\s*&\s*(?:31|0x1[fF])\b", RegexOptions.CultureInvariant);
+        @"getFloat16|setFloat16|Float16Array|DragBits|ToHalf|Math\.f16round", RegexOptions.CultureInvariant); // guard control
+    /// <summary>A hand-written half-precision decoder takes the 5-bit exponent from bits 10–14, shifting then masking or masking then
+    /// shifting.</summary>
+    private static readonly Regex DecoderShape = new(@">>>?\s*10\)?\s*&\s*(?:31|0x1[fF])\b|&\s*0x7[cC]00\)?\s*>>>?\s*10\b", RegexOptions.CultureInvariant);
 
     /// <summary>OQ1: a campaign title that uses the ordinary word is removed token by token before the line is matched.</summary>
     private static readonly Regex CampaignTitles = new(@"Half the Battle|Half-life of the party", RegexOptions.CultureInvariant); // guard control
 
-    private static readonly string[] Extensions = [".cs", ".ts", ".js", ".mjs", ".fbs", ".wgsl", ".glsl", ".gdshader", ".shader"];
+    private static readonly string[] Extensions = [".cs", ".ts", ".mts", ".cts", ".tsx", ".js", ".mjs", ".cjs", ".html", ".fbs", ".wgsl",
+        ".glsl", ".gdshader", ".shader", ".tscn", ".tres"];
 
-    /// <summary>Planning records (historical evidence), archives, and build or package output.</summary>
-    private static readonly string[] ExcludedDirectories = ["_bmad-output", "archives", "node_modules", "bin", "obj", "AppBundle", ".godot", ".git"];
+    /// <summary>Planning records (historical evidence) and archives; build and package output is never listed by git.</summary>
+    private static readonly string[] ExcludedPrefixes = ["_bmad-output/", "archives/"];
 
     /// <summary>The only exempt lines: this guard's own patterns and positive controls, each marked at its end.</summary>
     private const string GuardFile = "CuriousContraptions.tests/HalfPrecisionGuardTests.cs";
@@ -35,19 +38,12 @@ public sealed class HalfPrecisionGuardTests(ITestOutputHelper output)
         return Words.IsMatch(code) || Accessors.IsMatch(code) || DecoderShape.IsMatch(code);
     }
 
-    private static IEnumerable<string> Sources()
-    {
-        var pending = new Stack<string>([Root]);
-        while (pending.Count > 0)
-        {
-            var directory = pending.Pop();
-            foreach (var child in Directory.EnumerateDirectories(directory))
-                if (!ExcludedDirectories.Contains(Path.GetFileName(child), StringComparer.Ordinal)) pending.Push(child);
-            foreach (var file in Directory.EnumerateFiles(directory))
-                if (Extensions.Contains(Path.GetExtension(file), StringComparer.Ordinal))
-                    yield return Path.GetRelativePath(Root, file).Replace('\\', '/');
-        }
-    }
+    /// <summary>The repository's own files, as git lists them (tracked plus untracked, not ignored), so another worktree nested under
+    /// this checkout and every ignored build directory are never scanned.</summary>
+    private static IEnumerable<string> Sources() => CSharpStaticGateTests.RepositoryFiles()
+        .Where(path => Extensions.Contains(Path.GetExtension(path), StringComparer.Ordinal) &&
+            !ExcludedPrefixes.Any(prefix => path.StartsWith(prefix, StringComparison.Ordinal)))
+        .Order(StringComparer.Ordinal);
 
     [Fact]
     public void GuardNoHalfPrecisionTypeCodecOrLaneRemainsInCodeOrSchemas()
@@ -59,6 +55,9 @@ public sealed class HalfPrecisionGuardTests(ITestOutputHelper output)
         Assert.Contains("CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs", sources);
         Assert.Contains("CuriousContraptions.Simulation/wwwroot/worker.js", sources);
         Assert.Contains("tools/e2e/cat-062b.test.ts", sources);
+        Assert.Contains("elements/Springboard/springboard.tscn", sources);
+        Assert.Contains("CuriousContraptions.web/wwwroot/index.html", sources);
+        Assert.DoesNotContain(sources, path => path.StartsWith(".claude/worktrees/", StringComparison.Ordinal));
         var hits = new List<string>();
         var exempt = 0;
         foreach (var source in sources)
@@ -89,6 +88,12 @@ public sealed class HalfPrecisionGuardTests(ITestOutputHelper output)
     [InlineData("        BinaryPrimitives.WriteUInt16LittleEndian(span, BitConverter.HalfToUInt16Bits(value));", true)] // guard control
     [InlineData("        var bits = BitConverter.HalfToInt16Bits(value);", true)] // guard control
     [InlineData("        var value = BitConverter.Int16BitsToHalf(bits);", true)] // guard control
+    [InlineData("        var narrow = Convert.ToHalf(value);", true)] // guard control
+    [InlineData("    const rounded = Math.f16round(value);", true)] // guard control
+    [InlineData("    float16_t lane = value;", true)] // guard control
+    [InlineData("    min16float lane = value;", true)] // guard control
+    [InlineData("    var lanes: vec3h = vec3h(0.0h);", true)] // guard control
+    [InlineData("    const e = (bits & 0x7C00) >> 10;", true)] // guard control
     [InlineData("    const value = view.getFloat16(56, true);", true)] // guard control
     [InlineData("    view.setFloat16(56, value, true);", true)] // guard control
     [InlineData("    const lanes = new Float16Array(buffer);", true)] // guard control

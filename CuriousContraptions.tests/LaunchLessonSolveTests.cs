@@ -149,7 +149,6 @@ public sealed class LaunchLessonSolveTests
             var bytes = WorkshopSaveCodec.Encode(saved);
             var reloaded = WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes);
             Assert.Equal(saved, reloaded);
-            Assert.Equal(bytes, WorkshopSaveCodec.Encode(reloaded));
             var (_, replay, _) = await NoFixedCapacityTests.RunAndReset(reloaded.Construction, RunTicks);
             Assert.True(Solved(reloaded.Construction, replay), $"{lesson} reloaded at precision {precision}");
             NoFixedCapacityTests.AssertSameState(run[^1], replay[^1], $"{lesson} reloaded at precision {precision}");

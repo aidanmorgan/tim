@@ -108,7 +108,7 @@ public sealed class WorkshopReadTests
         // of the exponential decay the solver applies; the same piece without its drag lane overshoots by the decay it omits.
         // The pieces keep their primary anchor at ordinal 0, so the sample at ordinal 58 extrapolates t = 58/480 s.
         var body = new CanonicalBody(new(1), 2, 15, default, default, default);
-        var k = .125f; var g = (float)(-9.81); const float v0 = 8f;
+        var k = .125f; var g = (-9.81f); const float v0 = 8f;
         byte[] Pieces(float drag)
         {
             var bytes = MotionBytes(body);

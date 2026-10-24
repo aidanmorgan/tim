@@ -165,10 +165,15 @@ internal static class WorkshopSavePrevalidation
             throw Refuse(WorkshopSaveRejection.UndefinedEnum, "The saved puzzle names an undefined puzzle, placement or goal.");
         if (!float.IsFinite(p.Precision) || !float.IsFinite(p.GoalDelay))
             throw Refuse(WorkshopSaveRejection.NonFinite, "The saved puzzle has a non-finite precision or goal delay.");
-        if (p.AssistanceLength != WorkshopWireFlatBuffers.AssistanceKnotCount)
+        // A puzzle written before Story 9A.44 holds its knots only in the deprecated raw_assistance slot, so it has none here.
+        if (p.AssistanceLength == 0)
             throw Refuse(WorkshopSaveRejection.MissingField,
                 "The saved puzzle lacks its nine assistance knots; a lesson saved before f32 assistance cannot be loaded.");
-        for (var i = 0; i < WorkshopWireFlatBuffers.AssistanceKnotCount; i++)
+        if (p.AssistanceLength != WorkshopWireFlatBuffers.AssistanceKnotCount)
+            throw Refuse(WorkshopSaveRejection.MissingField,
+                $"The saved puzzle holds {p.AssistanceLength} assistance knots; a puzzle holds exactly nine.");
+        var knots = new AssistanceKnot[WorkshopWireFlatBuffers.AssistanceKnotCount];
+        for (var i = 0; i < knots.Length; i++)
         {
             var k = p.Assistance(i)!.Value;
             if (!float.IsFinite(k.Precision) || !float.IsFinite(k.PositionWindow) || !float.IsFinite(k.RotationWindowDegrees) ||
@@ -176,7 +181,15 @@ internal static class WorkshopSavePrevalidation
                 !float.IsFinite(k.Blend) || !float.IsFinite(k.CaptureMargin) || !float.IsFinite(k.CaptureSpeed) ||
                 !float.IsFinite(k.CaptureDwell) || !float.IsFinite(k.GuideAcceleration) || !float.IsFinite(k.TriggerThreshold))
                 throw Refuse(WorkshopSaveRejection.NonFinite, "A saved assistance knot has a non-finite value.");
+            knots[i] = new(k.Precision, new(k.PositionWindow), k.RotationWindowDegrees, new(k.MaximumPositionCorrection),
+                k.MaximumRotationCorrectionDegrees, new(k.Blend), new(k.CaptureMargin), new(k.CaptureSpeed), new(k.CaptureDwell),
+                new(k.GuideAcceleration), k.TriggerThreshold);
         }
+        // The authored knot rule the content reader applies (AssistanceProfile.HasAuthoredShape), on each of the three profiles.
+        for (var first = 0; first < knots.Length; first += WorkshopWireFlatBuffers.KnotsPerProfile)
+            if (!new AssistanceProfile(knots[first], knots[first + 1], knots[first + 2]).HasAuthoredShape())
+                throw Refuse(WorkshopSaveRejection.OutOfRange,
+                    "A saved assistance profile has a negative value or knots not at precisions 0, 0.45 and 1.");
         var precision = p.Precision;
         var minimumGoalSeconds = p.GoalDelay;
         if (precision < 0f || precision > 1f || minimumGoalSeconds < 0f || minimumGoalSeconds > 120f)

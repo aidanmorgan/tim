@@ -19,33 +19,72 @@ public static class WorkshopAnimationWire
     public const int ImpulseCapacity = 64;
     public const int ControlBytes = 144;
     public const int OutputBytes = 144;
-    /// <summary>Output record fields the main-thread client also reads (workshop-client.js): the animation pulse ordinal, the f32
-    /// channel value, the output kind, the target and the channel property.</summary>
+    // Both records: the session (RuntimeSessionId.ByteLength) at 0, the master generation at 16 and the cadence revision at 24, then
+    // their own fields; the timer observation occupies 96–132 in both.
+    public const int SessionOffset = 0;
+    public const int MasterOffset = 16;
+    public const int CadenceOffset = 24;
+    public const int TimerStartedOffset = 96;
+    public const int TimerDueOffset = 104;
+    public const int TimerObservedOffset = 112;
+    public const int TimerInputEmitterOffset = 120;
+    public const int TimerPhaseOffset = 128;
+    // Control record: sequence, generation, kind, visible, target, world, f32 from/to, curve, event ordinal, f32 event phase, zero U32,
+    // timer, zero U32, f32 duration, property U16 and a zero U16 tail.
+    public const int ControlSequenceOffset = 32;
+    public const int ControlGenerationOffset = 40;
+    public const int ControlKindOffset = 48;
+    public const int ControlVisibleOffset = 52;
+    public const int ControlTargetOffset = 56;
+    public const int ControlWorldOffset = 64;
+    public const int ControlFromOffset = 72;
+    public const int ControlToOffset = 76;
+    public const int ControlCurveOffset = 80;
+    public const int ControlEventOrdinalOffset = 84;
+    public const int ControlEventPhaseOffset = 88;
+    private const int ControlPaddingOffset = 92;
+    private const int ControlTimerPaddingOffset = 132;
+    public const int ControlDurationOffset = 136;
+    public const int ControlPropertyOffset = 140;
+    private const int ControlPropertyPaddingOffset = 142;
+    /// <summary>Output record fields (the main-thread client reads the pulse, value, kind, target and property: workshop-client.js):
+    /// generation, pulse ordinal, applied-at I64, f32 value, kind, target, world, event ordinal, f32 event phase, zero U64, timer, zero
+    /// U32, property U16, then zero U16 and U32 tails.</summary>
+    public const int OutputGenerationOffset = 32;
     public const int OutputPulseOffset = 40;
+    public const int OutputAppliedAtOffset = 48;
     public const int OutputValueOffset = 56;
     public const int OutputKindOffset = 60;
     public const int OutputTargetOffset = 64;
+    public const int OutputWorldOffset = 72;
+    public const int OutputEventOrdinalOffset = 80;
+    public const int OutputEventPhaseOffset = 84;
+    private const int OutputPaddingOffset = 88;
+    private const int OutputTimerPaddingOffset = 132;
     public const int OutputPropertyOffset = 136;
+    private const int OutputPropertyPaddingOffset = 138;
+    private const int OutputTailPaddingOffset = 140;
     public static byte[] Control(RuntimeSessionId session, ClockGeneration master, CadenceRevision cadence,
         WorkshopAnimationControl control)
     {
         session.Validate(); cadence.Validate(); Validate(control);
         if (master.Value == 0) throw new ArgumentException("Invalid animation master.");
         var bytes = new byte[ControlBytes];
-        session.WriteTo(bytes.AsSpan(0, RuntimeSessionId.ByteLength));
-        BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(16), master.Value);
-        BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(24), cadence.Value);
-        BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(32), control.Sequence);
-        BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(40), control.Generation);
-        BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(48), (uint)control.Kind);
-        BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(52), control.Visible ? 1u : 0u);
-        BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(56), control.Target.Value);
-        BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(64), control.World.Value);
-        WriteFloat(bytes, 72, control.From); WriteFloat(bytes, 76, control.To); WriteFloat(bytes, 136, control.Duration);
-        BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(80), (uint)control.Curve);
-        BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(84), control.EventOrdinal);
-        WriteFloat(bytes, 88, control.EventPhase);
-        BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(140), (ushort)control.Property);
+        session.WriteTo(bytes.AsSpan(SessionOffset, RuntimeSessionId.ByteLength));
+        BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(MasterOffset), master.Value);
+        BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(CadenceOffset), cadence.Value);
+        BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(ControlSequenceOffset), control.Sequence);
+        BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(ControlGenerationOffset), control.Generation);
+        BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(ControlKindOffset), (uint)control.Kind);
+        BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(ControlVisibleOffset), control.Visible ? 1u : 0u);
+        BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(ControlTargetOffset), control.Target.Value);
+        BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(ControlWorldOffset), control.World.Value);
+        WriteFloat(bytes, ControlFromOffset, control.From); WriteFloat(bytes, ControlToOffset, control.To);
+        WriteFloat(bytes, ControlDurationOffset, control.Duration);
+        BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(ControlCurveOffset), (uint)control.Curve);
+        BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(ControlEventOrdinalOffset), control.EventOrdinal);
+        WriteFloat(bytes, ControlEventPhaseOffset, control.EventPhase);
+        BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(ControlPropertyOffset), (ushort)control.Property);
         WriteTimer(bytes, control.Timer);
         return bytes;
     }
@@ -53,16 +92,20 @@ public static class WorkshopAnimationWire
         ClockGeneration master, CadenceRevision cadence)
     {
         Identity(bytes, ControlBytes, session, master, cadence);
-        var visible = BinaryPrimitives.ReadUInt32LittleEndian(bytes[52..]);
-        if (visible > 1 || BinaryPrimitives.ReadUInt32LittleEndian(bytes[92..]) != 0 ||
-            BinaryPrimitives.ReadUInt32LittleEndian(bytes[132..]) != 0 || BinaryPrimitives.ReadUInt16LittleEndian(bytes[142..]) != 0)
+        var visible = BinaryPrimitives.ReadUInt32LittleEndian(bytes[ControlVisibleOffset..]);
+        if (visible > 1 || BinaryPrimitives.ReadUInt32LittleEndian(bytes[ControlPaddingOffset..]) != 0 ||
+            BinaryPrimitives.ReadUInt32LittleEndian(bytes[ControlTimerPaddingOffset..]) != 0 ||
+            BinaryPrimitives.ReadUInt16LittleEndian(bytes[ControlPropertyPaddingOffset..]) != 0)
             throw new ArgumentException("Invalid animation channel control padding.");
-        var value = new WorkshopAnimationControl(new(BinaryPrimitives.ReadUInt64LittleEndian(bytes[56..])),
-            new(BinaryPrimitives.ReadUInt64LittleEndian(bytes[64..])), BinaryPrimitives.ReadUInt64LittleEndian(bytes[32..]),
-            BinaryPrimitives.ReadUInt64LittleEndian(bytes[40..]), (AnimationControlKind)BinaryPrimitives.ReadUInt32LittleEndian(bytes[48..]),
-            visible != 0, ReadFloat(bytes,72), ReadFloat(bytes,76), ReadFloat(bytes,136),
-            (AnimationCurve)BinaryPrimitives.ReadUInt32LittleEndian(bytes[80..]),
-            BinaryPrimitives.ReadUInt32LittleEndian(bytes[84..]), ReadFloat(bytes,88), (AnimationProperty)BinaryPrimitives.ReadUInt16LittleEndian(bytes[140..]), ReadTimer(bytes));
+        var value = new WorkshopAnimationControl(new(BinaryPrimitives.ReadUInt64LittleEndian(bytes[ControlTargetOffset..])),
+            new(BinaryPrimitives.ReadUInt64LittleEndian(bytes[ControlWorldOffset..])),
+            BinaryPrimitives.ReadUInt64LittleEndian(bytes[ControlSequenceOffset..]),
+            BinaryPrimitives.ReadUInt64LittleEndian(bytes[ControlGenerationOffset..]),
+            (AnimationControlKind)BinaryPrimitives.ReadUInt32LittleEndian(bytes[ControlKindOffset..]),
+            visible != 0, ReadFloat(bytes, ControlFromOffset), ReadFloat(bytes, ControlToOffset), ReadFloat(bytes, ControlDurationOffset),
+            (AnimationCurve)BinaryPrimitives.ReadUInt32LittleEndian(bytes[ControlCurveOffset..]),
+            BinaryPrimitives.ReadUInt32LittleEndian(bytes[ControlEventOrdinalOffset..]), ReadFloat(bytes, ControlEventPhaseOffset),
+            (AnimationProperty)BinaryPrimitives.ReadUInt16LittleEndian(bytes[ControlPropertyOffset..]), ReadTimer(bytes));
         Validate(value); return value;
     }
     private static void Validate(WorkshopAnimationControl value)
@@ -75,51 +118,52 @@ public static class WorkshopAnimationWire
         if (value.Target.Value == 0 || value.Sequence == 0 || value.Generation == 0 ||
             !IsChannel(value.Property) || !Enum.IsDefined(value.Kind) || !Enum.IsDefined(value.Curve) || !float.IsFinite(value.From) ||
             !float.IsFinite(value.To) || !float.IsFinite(value.Duration) ||
-            value.Duration <= (float)0 || value.Duration > (float)30 ||
+            value.Duration <= 0f || value.Duration > 30f ||
             (value.Kind == AnimationControlKind.Endpoint && value.From != value.To) ||
-            !float.IsFinite(value.EventPhase) || value.EventPhase < (float)(-2048) || value.EventPhase >= (float)2048 ||
-            (value.EventOrdinal == 0 && value.EventPhase < (float)0) ||
-            (value.World.Value == 0 && (value.EventOrdinal != 0 || value.EventPhase != (float)0)))
+            !PhysicalPhase.IsAdmitted(value.EventOrdinal, value.EventPhase) ||
+            (value.World.Value == 0 && (value.EventOrdinal != 0 || value.EventPhase != 0f)))
             throw new ArgumentException("Invalid animation channel declaration.");
     }
     public static WorkshopAnimationSample Read(ReadOnlySpan<byte> bytes, RuntimeSessionId session,
         ClockGeneration master, CadenceRevision cadence, out AnimationOutputKind kind)
     {
         Identity(bytes, OutputBytes, session, master, cadence);
-        if (BinaryPrimitives.ReadUInt64LittleEndian(bytes[88..]) != 0 || BinaryPrimitives.ReadUInt32LittleEndian(bytes[132..]) != 0 ||
-            BinaryPrimitives.ReadUInt16LittleEndian(bytes[138..]) != 0 || BinaryPrimitives.ReadUInt32LittleEndian(bytes[140..]) != 0)
+        if (BinaryPrimitives.ReadUInt64LittleEndian(bytes[OutputPaddingOffset..]) != 0 ||
+            BinaryPrimitives.ReadUInt32LittleEndian(bytes[OutputTimerPaddingOffset..]) != 0 ||
+            BinaryPrimitives.ReadUInt16LittleEndian(bytes[OutputPropertyPaddingOffset..]) != 0 ||
+            BinaryPrimitives.ReadUInt32LittleEndian(bytes[OutputTailPaddingOffset..]) != 0)
             throw new ArgumentException("Invalid animation channel padding.");
         kind = (AnimationOutputKind)BinaryPrimitives.ReadUInt32LittleEndian(bytes[OutputKindOffset..]);
         var result = new WorkshopAnimationSample(new(BinaryPrimitives.ReadUInt64LittleEndian(bytes[OutputTargetOffset..])),
-            new(BinaryPrimitives.ReadUInt64LittleEndian(bytes[72..])), BinaryPrimitives.ReadUInt64LittleEndian(bytes[32..]),
+            new(BinaryPrimitives.ReadUInt64LittleEndian(bytes[OutputWorldOffset..])),
+            BinaryPrimitives.ReadUInt64LittleEndian(bytes[OutputGenerationOffset..]),
             new(BinaryPrimitives.ReadUInt64LittleEndian(bytes[OutputPulseOffset..])),
-            new(BinaryPrimitives.ReadInt64LittleEndian(bytes[48..])), ReadFloat(bytes, OutputValueOffset),
-            BinaryPrimitives.ReadUInt32LittleEndian(bytes[80..]), ReadFloat(bytes,84),
+            new(BinaryPrimitives.ReadInt64LittleEndian(bytes[OutputAppliedAtOffset..])), ReadFloat(bytes, OutputValueOffset),
+            BinaryPrimitives.ReadUInt32LittleEndian(bytes[OutputEventOrdinalOffset..]), ReadFloat(bytes, OutputEventPhaseOffset),
             (AnimationProperty)BinaryPrimitives.ReadUInt16LittleEndian(bytes[OutputPropertyOffset..]), ReadTimer(bytes));
         result.AppliedAt.Validate();
         _ = Value(result.Property, result.Value);
         if (!IsChannel(result.Property) || !Enum.IsDefined(kind) || result.Generation == 0 || !float.IsFinite(result.Value) ||
-            !float.IsFinite(result.EventPhase) ||
-            result.EventPhase < (float)(-2048) || result.EventPhase >= (float)2048 ||
-            (result.EventOrdinal == 0 && result.EventPhase < (float)0) ||
-            (result.World.Value == 0 && (result.EventOrdinal != 0 || result.EventPhase != (float)0)))
+            !PhysicalPhase.IsAdmitted(result.EventOrdinal, result.EventPhase) ||
+            (result.World.Value == 0 && (result.EventOrdinal != 0 || result.EventPhase != 0f)))
             throw new ArgumentException("Invalid animation channel output.");
         return result;
     }
     public static void WriteTimer(Span<byte> bytes, AnimationTimerObservation timer)
     {
         timer.Validate();
-        BinaryPrimitives.WriteUInt64LittleEndian(bytes[96..], timer.Started);
-        BinaryPrimitives.WriteUInt64LittleEndian(bytes[104..], timer.Due);
-        BinaryPrimitives.WriteUInt64LittleEndian(bytes[112..], timer.Observed);
-        BinaryPrimitives.WriteUInt64LittleEndian(bytes[120..], timer.InputEmitter);
-        BinaryPrimitives.WriteUInt32LittleEndian(bytes[128..], (uint)timer.Phase);
+        BinaryPrimitives.WriteUInt64LittleEndian(bytes[TimerStartedOffset..], timer.Started);
+        BinaryPrimitives.WriteUInt64LittleEndian(bytes[TimerDueOffset..], timer.Due);
+        BinaryPrimitives.WriteUInt64LittleEndian(bytes[TimerObservedOffset..], timer.Observed);
+        BinaryPrimitives.WriteUInt64LittleEndian(bytes[TimerInputEmitterOffset..], timer.InputEmitter);
+        BinaryPrimitives.WriteUInt32LittleEndian(bytes[TimerPhaseOffset..], (uint)timer.Phase);
     }
     private static AnimationTimerObservation ReadTimer(ReadOnlySpan<byte> bytes)
     {
-        var timer = new AnimationTimerObservation(BinaryPrimitives.ReadUInt64LittleEndian(bytes[96..]),
-            BinaryPrimitives.ReadUInt64LittleEndian(bytes[104..]), BinaryPrimitives.ReadUInt64LittleEndian(bytes[112..]),
-            BinaryPrimitives.ReadUInt64LittleEndian(bytes[120..]), (AnimationTimerPhase)BinaryPrimitives.ReadUInt32LittleEndian(bytes[128..]));
+        var timer = new AnimationTimerObservation(BinaryPrimitives.ReadUInt64LittleEndian(bytes[TimerStartedOffset..]),
+            BinaryPrimitives.ReadUInt64LittleEndian(bytes[TimerDueOffset..]), BinaryPrimitives.ReadUInt64LittleEndian(bytes[TimerObservedOffset..]),
+            BinaryPrimitives.ReadUInt64LittleEndian(bytes[TimerInputEmitterOffset..]),
+            (AnimationTimerPhase)BinaryPrimitives.ReadUInt32LittleEndian(bytes[TimerPhaseOffset..]));
         timer.Validate(); return timer;
     }
     public static bool IsChannel(AnimationProperty property) => Enum.IsDefined(property);
@@ -135,9 +179,9 @@ public static class WorkshopAnimationWire
     };
     private static void Identity(ReadOnlySpan<byte> bytes, int length, RuntimeSessionId session, ClockGeneration master, CadenceRevision cadence)
     {
-        if (bytes.Length != length || RuntimeSessionId.Read(bytes[..16]) != session ||
-            BinaryPrimitives.ReadUInt64LittleEndian(bytes[16..]) != master.Value ||
-            BinaryPrimitives.ReadUInt64LittleEndian(bytes[24..]) != cadence.Value)
+        if (bytes.Length != length || RuntimeSessionId.Read(bytes.Slice(SessionOffset, RuntimeSessionId.ByteLength)) != session ||
+            BinaryPrimitives.ReadUInt64LittleEndian(bytes[MasterOffset..]) != master.Value ||
+            BinaryPrimitives.ReadUInt64LittleEndian(bytes[CadenceOffset..]) != cadence.Value)
             throw new ArgumentException("Invalid animation identity.");
     }
     private static float ReadFloat(ReadOnlySpan<byte> data, int offset) =>

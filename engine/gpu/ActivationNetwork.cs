@@ -44,8 +44,7 @@ public readonly record struct ActivationLatch(ActivationNodeId Node, GpuBodyId O
     public void Validate()
     {
         if (Node.Value == 0 || Owner.Value == 0 || !Enum.IsDefined(Phase) ||
-            !float.IsFinite(EventPhase) || EventPhase < -2048f || EventPhase >= 2048f ||
-            (EventOrdinal == 0 && EventPhase < 0f) ||
+            !PhysicalPhase.IsAdmitted(EventOrdinal, EventPhase) ||
             !float.IsFinite(ApproachSpeed.Value) || ApproachSpeed.Value < 0f || ApproachSpeed.Value > 4096f)
             throw new ArgumentException("Invalid activation latch.");
         if (Phase == ActivationPhase.Clear)

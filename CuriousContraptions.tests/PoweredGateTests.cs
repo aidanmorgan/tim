@@ -66,7 +66,7 @@ public sealed class PoweredGateTests(NativeSceneFixture godot)
             Assert.Equal(19, colliders.Count);
 
             var circumference = colliders.Take(16).ToArray();
-            var expectedCircHalfExtents = new MetreVector((float)0.4f, (float)0.025f, (float)0.14f);
+            var expectedCircHalfExtents = new MetreVector(0.4f, 0.025f, 0.14f);
             foreach (var col in circumference)
             {
                 Assert.Equal(ColliderShapeKind.Box, col.ShapeKind);
@@ -77,20 +77,20 @@ public sealed class PoweredGateTests(NativeSceneFixture godot)
 
             var housing = colliders[16];
             Assert.Equal(ColliderShapeKind.Box, housing.ShapeKind);
-            Assert.Equal(new MetreVector((float)0.4f, (float)0.325f, (float)0.9f), housing.HalfExtents);
+            Assert.Equal(new MetreVector(0.4f, 0.325f, 0.9f), housing.HalfExtents);
             Assert.Equal(0f, housing.LocalPose.Translation.X);
-            Assert.Equal((float)1.65f, housing.LocalPose.Translation.Y);
+            Assert.Equal(1.65f, housing.LocalPose.Translation.Y);
             Assert.Equal(0f, housing.LocalPose.Translation.Z);
 
             var railStart = colliders[17];
             Assert.Equal(ColliderShapeKind.Box, railStart.ShapeKind);
-            Assert.Equal(new MetreVector((float)0.12f, (float)0.85f, (float)0.06f), railStart.HalfExtents);
-            Assert.Equal((float)(-0.82f), railStart.LocalPose.Translation.Z);
+            Assert.Equal(new MetreVector(0.12f, 0.85f, 0.06f), railStart.HalfExtents);
+            Assert.Equal(-0.82f, railStart.LocalPose.Translation.Z);
 
             var railEnd = colliders[18];
             Assert.Equal(ColliderShapeKind.Box, railEnd.ShapeKind);
-            Assert.Equal(new MetreVector((float)0.12f, (float)0.85f, (float)0.06f), railEnd.HalfExtents);
-            Assert.Equal((float)0.82f, railEnd.LocalPose.Translation.Z);
+            Assert.Equal(new MetreVector(0.12f, 0.85f, 0.06f), railEnd.HalfExtents);
+            Assert.Equal(0.82f, railEnd.LocalPose.Translation.Z);
 
             Assert.Equal(3, ports.Count);
             Assert.True(ports.ContainsKey("PowerIn"));
@@ -170,14 +170,14 @@ public sealed class PoweredGateTests(NativeSceneFixture godot)
         var bladeId = WorkshopPhysicsCompiler.SliderBody(gate.Id, 0);
         var gateBlade = scene.Bodies.ToArray().Single(b => b.Id == bladeId);
         Assert.Equal(RigidMotionKind.Dynamic, gateBlade.Motion);
-        Assert.Equal((float)1f, gateBlade.Mass.Value);
-        Assert.Equal((float)0f, gateBlade.LinearDrag.Value); // Unwired -> 0 drag
+        Assert.Equal(1f, gateBlade.Mass.Value);
+        Assert.Equal(0f, gateBlade.LinearDrag.Value); // Unwired -> 0 drag
 
         // Colliders: plane (1) + ball (1) + blade (1) + frame (19) = 22 colliders
         Assert.Equal(22, scene.Colliders.Length);
         var bladeCollider = scene.Colliders.ToArray().Single(c => c.Body == bladeId);
         Assert.Equal(ColliderShapeKind.Box, bladeCollider.Shape);
-        Assert.Equal(new MetreVector((float)0.06f, (float)0.72f, (float)0.72f), bladeCollider.HalfExtents);
+        Assert.Equal(new MetreVector(0.06f, 0.72f, 0.72f), bladeCollider.HalfExtents);
 
         // Prismatic joint
         var joint = Assert.Single(scene.Prismatics.ToArray());

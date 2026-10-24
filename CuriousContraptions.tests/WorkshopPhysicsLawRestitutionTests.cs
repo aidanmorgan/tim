@@ -24,9 +24,9 @@ public sealed class WorkshopPhysicsLawRestitutionTests
 
     public enum Body { Sphere, BoxOnBench, BoxOnBox, CylinderOnCap }
 
-    private static readonly float SphereRadius = (.1f);
-    private static readonly Vector3 BoxHalf = At((.25f), (.1f), (.15f));
-    private static readonly float CylinderRadius = (.2f), CylinderHalf = (.15f);
+    private static readonly float SphereRadius = .1f;
+    private static readonly Vector3 BoxHalf = At(.25f, .1f, .15f);
+    private static readonly float CylinderRadius = .2f, CylinderHalf = .15f;
 
     /// <summary>Kinetic plus potential energy (J) of the 1 kg dropped body from its admitted f32 geometry.</summary>
     private static double Energy(Body body, LawBody b)
@@ -202,7 +202,7 @@ public sealed class WorkshopPhysicsLawRestitutionTests
     [InlineData(true)]
     public void TheBounceThresholdIsStrict(bool above)
     {
-        var threshold = (.1f);
+        var threshold = .1f;
         var speed = above ? MathF.BitIncrement(threshold) : threshold;
         var scene = new LawScene(bench: false);
         scene.StaticBox(At(0, 0), At(1, .5f, 1), null, new LawMaterial(1f, .1f, 0f, 0f));
@@ -241,7 +241,7 @@ public sealed class WorkshopPhysicsLawRestitutionTests
             Assert.True(angle < 2, $"{feature} at {speed} m/s: outgoing {final.Velocity} vs {expected} ({angle:F2}°)");
             Assert.InRange(final.Velocity.Length(), .99f * expected.Length(), 1.01f * expected.Length());
         }
-        Reflects(s => s.StaticCylinder(At(0, 1), .3f, .4f, alongZ, elastic), At((.3f) + .05f, 1, 1.5f), At(0, 0, -speed),
+        Reflects(s => s.StaticCylinder(At(0, 1), .3f, .4f, alongZ, elastic), At(.3f + .05f, 1, 1.5f), At(0, 0, -speed),
             Vector3.Normalize(new Vector3(.05f, 0, MathF.Sqrt(.01f - .0025f))), "rim");
         Reflects(s => s.StaticSphere(At(0, 1), .3f, Quaternion.Identity, elastic), At(1.5f, 1.2f, 0), At(-speed, 0, 0),
             new Vector3(MathF.Cos(MathF.PI / 6), .5f, 0), "sphere");
@@ -280,7 +280,7 @@ public sealed class WorkshopPhysicsLawRestitutionTests
 
     // ---- a body landing on a resting dynamic body (reviewer F1) ----
 
-    private static readonly Vector3 LowerHalf = At((.3f), (.1f), (.3f));
+    private static readonly Vector3 LowerHalf = At(.3f, .1f, .3f);
 
     /// <summary>Kinetic plus potential energy (J) of a box of mass m and admitted half-extents.</summary>
     private static double BoxEnergy(LawBody b, float m, Vector3 half)
@@ -353,8 +353,8 @@ public sealed class WorkshopPhysicsLawRestitutionTests
     private static (SimBody Box, ContactPoint P, ContactPoint Q) Pair(Vector3 rp, Vector3 rq, Vector3 velocity, Vector3 angular,
         float relP, float relQ)
     {
-        float ix = ((.1f) * (.1f) + (.15f) * (.15f)) / 3f, iy = ((.25f) * (.25f) + (.15f) * (.15f)) / 3f,
-            iz = ((.25f) * (.25f) + (.1f) * (.1f)) / 3f;
+        float ix = (.1f * .1f + .15f * .15f) / 3f, iy = (.25f * .25f + .15f * .15f) / 3f,
+            iz = (.25f * .25f + .1f * .1f) / 3f;
         var box = new SimBody
         {
             Motion = 1, Mass = 1f, InvMass = 1f, InvI = new(1f / ix, 1f / iy, 1f / iz), Principal = Quaternion.Identity, Qw = 1f,
@@ -471,7 +471,7 @@ public sealed class WorkshopPhysicsLawRestitutionTests
         });
         Assert.True(before is not null && after is not null, "the ball bounces");
         var impulse = 1f * (after!.Value.Velocity.Y - before!.Value.Velocity.Y + G * (float)T);
-        float r = (.1f), inertia = .4f * r * r, rolling = (.05f) * r;
+        float r = .1f, inertia = .4f * r * r, rolling = .05f * r;
         var expected = rolling * impulse / inertia;
         Assert.InRange(before.Value.Angular.Z - after.Value.Angular.Z, .97f * expected, 1.03f * expected);
     }
@@ -492,7 +492,7 @@ public sealed class WorkshopPhysicsLawRestitutionTests
             foreach (var offset in new[] { 0f, .01f })
             {
                 var scene = new LawScene();
-                var hy = (.1f);
+                var hy = .1f;
                 var ids = new List<GpuBodyId>();
                 for (var k = 0; k < 3; k++)
                     ids.Add(scene.Box(At(k == 1 ? offset : 0, BenchY + hy + k * 2 * hy + gap * (k + 1)), At(.25f, .1f, .15f), 1f,

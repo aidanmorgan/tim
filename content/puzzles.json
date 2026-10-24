@@ -32,7 +32,7 @@
             2,
             0.4,
             0.174,
-            2.324,
+            2.325,
             0.24,
             0,
             0.47
@@ -81,7 +81,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -144,7 +144,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -232,7 +232,7 @@
               0,
               0.4,
               0.174,
-              2.324,
+              2.325,
               0.24,
               0,
               0.47
@@ -308,7 +308,7 @@
               0,
               0.4,
               0.174,
-              2.324,
+              2.325,
               0.24,
               6.6,
               0.47
@@ -387,7 +387,7 @@
           0,
           0.4,
           0.174,
-          2.324,
+          2.325,
           0.24,
           0,
           0.47
@@ -428,7 +428,7 @@
           0,
           0.4,
           0.174,
-          2.324,
+          2.325,
           0.24,
           6.6,
           0.47
@@ -469,7 +469,7 @@
           2,
           0.4,
           0.174,
-          2.324,
+          2.325,
           0.24,
           0,
           0.47
@@ -575,7 +575,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -638,7 +638,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -710,7 +710,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -796,7 +796,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -859,7 +859,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 6.6,
             "trigger_threshold": 0.47
@@ -931,7 +931,7 @@
             "max_rotation_correction": 6,
             "blend_seconds": 0.15,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -1005,7 +1005,7 @@
             1.2,
             0.4,
             0.174,
-            2.324,
+            2.325,
             0.24,
             0,
             0.47
@@ -1054,7 +1054,7 @@
             "max_rotation_correction": 1.2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -1142,7 +1142,7 @@
               0,
               0.4,
               0.174,
-              2.324,
+              2.325,
               0.24,
               0,
               0.47
@@ -1218,7 +1218,7 @@
               0,
               0.4,
               0.174,
-              2.324,
+              2.325,
               0.24,
               6.6,
               0.47
@@ -1297,7 +1297,7 @@
           0,
           0.4,
           0.174,
-          2.324,
+          2.325,
           0.24,
           0,
           0.47
@@ -1338,7 +1338,7 @@
           0,
           0.4,
           0.174,
-          2.324,
+          2.325,
           0.24,
           6.6,
           0.47
@@ -1379,7 +1379,7 @@
           1.2,
           0.4,
           0.174,
-          2.324,
+          2.325,
           0.24,
           0,
           0.47
@@ -1485,7 +1485,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -1548,7 +1548,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 6.6,
             "trigger_threshold": 0.47
@@ -1620,7 +1620,7 @@
             "max_rotation_correction": 6,
             "blend_seconds": 0.15,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -1694,7 +1694,7 @@
             2,
             0.4,
             0.174,
-            2.324,
+            2.325,
             0.24,
             0,
             0.47
@@ -1743,7 +1743,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.3075
@@ -1806,7 +1806,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.3075
@@ -1869,7 +1869,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.3075
@@ -1932,7 +1932,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.3075
@@ -2028,7 +2028,7 @@
               0,
               0.4,
               0.174,
-              2.324,
+              2.325,
               0.24,
               0,
               0.47
@@ -2097,7 +2097,7 @@
               0,
               0.4,
               0.174,
-              2.324,
+              2.325,
               0.24,
               0,
               0.47
@@ -2166,7 +2166,7 @@
               0,
               0.4,
               0.174,
-              2.324,
+              2.325,
               0.24,
               0,
               0.47
@@ -2407,7 +2407,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -2470,7 +2470,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -2533,7 +2533,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -2605,7 +2605,7 @@
             "max_rotation_correction": 1.2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -2690,7 +2690,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -2753,7 +2753,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -2816,7 +2816,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -2888,7 +2888,7 @@
             "max_rotation_correction": 6,
             "blend_seconds": 0.15,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -2973,7 +2973,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -3036,7 +3036,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 6.6,
             "trigger_threshold": 0.47
@@ -3099,7 +3099,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.15,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -3164,7 +3164,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -3241,7 +3241,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -3323,7 +3323,7 @@
             0,
             0.4,
             0.174,
-            2.324,
+            2.325,
             0.24,
             0,
             0.47
@@ -3372,7 +3372,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -3460,7 +3460,7 @@
               0,
               0.4,
               0.174,
-              2.324,
+              2.325,
               0.24,
               0,
               0.47
@@ -3536,7 +3536,7 @@
               0,
               0.4,
               0.174,
-              2.324,
+              2.325,
               0.24,
               6.6,
               0.47
@@ -3615,7 +3615,7 @@
           0,
           0.4,
           0.174,
-          2.324,
+          2.325,
           0.24,
           0,
           0.47
@@ -3656,7 +3656,7 @@
           0,
           0.4,
           0.174,
-          2.324,
+          2.325,
           0.24,
           6.6,
           0.47
@@ -3697,7 +3697,7 @@
           0,
           0.4,
           0.174,
-          2.324,
+          2.325,
           0.24,
           0,
           0.47
@@ -3800,7 +3800,7 @@
             0,
             0.4,
             0.174,
-            2.324,
+            2.325,
             0.24,
             0,
             0.47
@@ -3849,7 +3849,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -3937,7 +3937,7 @@
               0,
               0.4,
               0.174,
-              2.324,
+              2.325,
               0.24,
               0,
               0.47
@@ -4013,7 +4013,7 @@
               0,
               0.4,
               0.174,
-              2.324,
+              2.325,
               0.24,
               6.6,
               0.47
@@ -4092,7 +4092,7 @@
           0,
           0.4,
           0.174,
-          2.324,
+          2.325,
           0.24,
           0,
           0.47
@@ -4133,7 +4133,7 @@
           0,
           0.4,
           0.174,
-          2.324,
+          2.325,
           0.24,
           6.6,
           0.47
@@ -4174,7 +4174,7 @@
           0,
           0.4,
           0.174,
-          2.324,
+          2.325,
           0.24,
           0,
           0.47
@@ -4280,7 +4280,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -4343,7 +4343,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -4406,7 +4406,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 6.6,
             "trigger_threshold": 0.47
@@ -4478,7 +4478,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -4556,7 +4556,7 @@
             2,
             0.4,
             0.174,
-            2.324,
+            2.325,
             0.24,
             0,
             0.47
@@ -4603,7 +4603,7 @@
             0,
             0.4,
             0.174,
-            2.324,
+            2.325,
             0.24,
             0,
             0.47
@@ -4652,7 +4652,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -4715,7 +4715,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -4807,7 +4807,7 @@
               0,
               0.4,
               0.174,
-              2.324,
+              2.325,
               0.24,
               0,
               0.47
@@ -4883,7 +4883,7 @@
               0,
               0.4,
               0.174,
-              2.324,
+              2.325,
               0.24,
               6.6,
               0.47
@@ -4962,7 +4962,7 @@
           0,
           0.4,
           0.174,
-          2.324,
+          2.325,
           0.24,
           0,
           0.47
@@ -5003,7 +5003,7 @@
           0,
           0.4,
           0.174,
-          2.324,
+          2.325,
           0.24,
           6.6,
           0.47
@@ -5044,7 +5044,7 @@
           0,
           0.4,
           0.174,
-          2.324,
+          2.325,
           0.24,
           0,
           0.47
@@ -5085,7 +5085,7 @@
           2,
           0.4,
           0.174,
-          2.324,
+          2.325,
           0.24,
           0,
           0.47
@@ -5150,7 +5150,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -5222,7 +5222,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -5307,7 +5307,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -5370,7 +5370,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -5433,7 +5433,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -5510,7 +5510,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -5602,7 +5602,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -5665,7 +5665,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 6.6,
             "trigger_threshold": 0.47
@@ -5728,7 +5728,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -5791,7 +5791,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -5863,7 +5863,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -5955,7 +5955,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -6018,7 +6018,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 6.6,
             "trigger_threshold": 0.47
@@ -6081,7 +6081,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -6144,7 +6144,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -6207,7 +6207,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -6279,7 +6279,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -6379,7 +6379,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -6442,7 +6442,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 6.6,
             "trigger_threshold": 0.47
@@ -6505,7 +6505,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -6568,7 +6568,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -6640,7 +6640,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -6703,7 +6703,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -6802,7 +6802,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -6867,7 +6867,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -6930,7 +6930,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -6993,7 +6993,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -7056,7 +7056,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -7128,7 +7128,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -7240,7 +7240,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -7305,7 +7305,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -7368,7 +7368,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -7431,7 +7431,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -7503,7 +7503,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -7568,7 +7568,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -7677,7 +7677,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -7740,7 +7740,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -7803,7 +7803,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -7875,7 +7875,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -7960,7 +7960,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -8023,7 +8023,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -8086,7 +8086,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -8149,7 +8149,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -8225,7 +8225,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -8307,7 +8307,7 @@
             2,
             0.4,
             0.174,
-            2.324,
+            2.325,
             0.24,
             0,
             0.47
@@ -8356,7 +8356,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -8459,7 +8459,7 @@
               0,
               0.4,
               0.174,
-              2.324,
+              2.325,
               0.24,
               0,
               0.47
@@ -8530,7 +8530,7 @@
               0,
               0.4,
               0.174,
-              2.324,
+              2.325,
               0.24,
               0,
               0.47
@@ -8605,7 +8605,7 @@
               0,
               0.4,
               0.174,
-              2.324,
+              2.325,
               0.24,
               0,
               0.47
@@ -8847,7 +8847,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -8910,7 +8910,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -8973,7 +8973,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -9036,7 +9036,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -9114,7 +9114,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -9177,7 +9177,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -9273,7 +9273,7 @@
             2,
             0.4,
             0.174,
-            2.324,
+            2.325,
             0.24,
             0,
             0.47
@@ -9322,7 +9322,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -9412,7 +9412,7 @@
               0,
               0.4,
               0.174,
-              2.324,
+              2.325,
               0.24,
               0,
               0.47
@@ -9488,7 +9488,7 @@
               0,
               0.4,
               0.174,
-              2.324,
+              2.325,
               0.24,
               6.6,
               0.47
@@ -9567,7 +9567,7 @@
           0,
           0.4,
           0.174,
-          2.324,
+          2.325,
           0.24,
           0,
           0.47
@@ -9608,7 +9608,7 @@
           0,
           0.4,
           0.174,
-          2.324,
+          2.325,
           0.24,
           6.6,
           0.47
@@ -9649,7 +9649,7 @@
           2,
           0.4,
           0.174,
-          2.324,
+          2.325,
           0.24,
           0,
           0.47
@@ -9752,7 +9752,7 @@
             2,
             0.4,
             0.174,
-            2.324,
+            2.325,
             0.24,
             0,
             0.47
@@ -9801,7 +9801,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -9889,7 +9889,7 @@
               0,
               0.4,
               0.174,
-              2.324,
+              2.325,
               0.24,
               0,
               0.47
@@ -9965,7 +9965,7 @@
               0,
               0.4,
               0.174,
-              2.324,
+              2.325,
               0.24,
               6.6,
               0.47
@@ -10044,7 +10044,7 @@
           0,
           0.4,
           0.174,
-          2.324,
+          2.325,
           0.24,
           0,
           0.47
@@ -10085,7 +10085,7 @@
           0,
           0.4,
           0.174,
-          2.324,
+          2.325,
           0.24,
           6.6,
           0.47
@@ -10126,7 +10126,7 @@
           2,
           0.4,
           0.174,
-          2.324,
+          2.325,
           0.24,
           0,
           0.47
@@ -10229,7 +10229,7 @@
             2,
             0.4,
             0.174,
-            2.324,
+            2.325,
             0.24,
             0,
             0.47
@@ -10278,7 +10278,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -10366,7 +10366,7 @@
               0,
               0.4,
               0.174,
-              2.324,
+              2.325,
               0.24,
               0,
               0.47
@@ -10442,7 +10442,7 @@
               0,
               0.4,
               0.174,
-              2.324,
+              2.325,
               0.24,
               6.6,
               0.47
@@ -10521,7 +10521,7 @@
           0,
           0.4,
           0.174,
-          2.324,
+          2.325,
           0.24,
           0,
           0.47
@@ -10562,7 +10562,7 @@
           0,
           0.4,
           0.174,
-          2.324,
+          2.325,
           0.24,
           6.6,
           0.47
@@ -10603,7 +10603,7 @@
           2,
           0.4,
           0.174,
-          2.324,
+          2.325,
           0.24,
           0,
           0.47
@@ -10706,7 +10706,7 @@
             2,
             0.4,
             0.174,
-            2.324,
+            2.325,
             0.24,
             0,
             0.47
@@ -10755,7 +10755,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -10845,7 +10845,7 @@
               0,
               0.4,
               0.174,
-              2.324,
+              2.325,
               0.24,
               0,
               0.47
@@ -10914,7 +10914,7 @@
               0,
               0.4,
               0.174,
-              2.324,
+              2.325,
               0.24,
               0,
               0.47
@@ -10990,7 +10990,7 @@
               0,
               0.4,
               0.174,
-              2.324,
+              2.325,
               0.24,
               6.6,
               0.47
@@ -11069,7 +11069,7 @@
           0,
           0.4,
           0.174,
-          2.324,
+          2.325,
           0.24,
           0,
           0.47
@@ -11110,7 +11110,7 @@
           0,
           0.4,
           0.174,
-          2.324,
+          2.325,
           0.24,
           6.6,
           0.47
@@ -11151,7 +11151,7 @@
           2,
           0.4,
           0.174,
-          2.324,
+          2.325,
           0.24,
           0,
           0.47
@@ -11258,7 +11258,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -11321,7 +11321,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 6.6,
             "trigger_threshold": 0.47
@@ -11384,7 +11384,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -11447,7 +11447,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 6.6,
             "trigger_threshold": 0.47
@@ -11524,7 +11524,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -11587,7 +11587,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -11650,7 +11650,7 @@
             "max_rotation_correction": 6,
             "blend_seconds": 0.15,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -11728,7 +11728,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -11791,7 +11791,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 6.6,
             "trigger_threshold": 0.47
@@ -11854,7 +11854,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -11917,7 +11917,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 6.6,
             "trigger_threshold": 0.47
@@ -11994,7 +11994,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -12057,7 +12057,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -12120,7 +12120,7 @@
             "max_rotation_correction": 1.2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -12198,7 +12198,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -12261,7 +12261,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 6.6,
             "trigger_threshold": 0.47
@@ -12324,7 +12324,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -12387,7 +12387,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 6.6,
             "trigger_threshold": 0.47
@@ -12450,7 +12450,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -12513,7 +12513,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -12590,7 +12590,7 @@
             "max_rotation_correction": 6,
             "blend_seconds": 0.15,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -12653,7 +12653,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -12746,7 +12746,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -12809,7 +12809,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 6.6,
             "trigger_threshold": 0.47
@@ -12872,7 +12872,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -12935,7 +12935,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -13012,7 +13012,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -13075,7 +13075,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -13138,7 +13138,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -13224,7 +13224,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -13287,7 +13287,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 6.6,
             "trigger_threshold": 0.47
@@ -13350,7 +13350,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -13413,7 +13413,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.3075
@@ -13490,7 +13490,7 @@
             "max_rotation_correction": 6,
             "blend_seconds": 0.15,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -13553,7 +13553,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.3075
@@ -13616,7 +13616,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.3075
@@ -13679,7 +13679,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.3075
@@ -13742,7 +13742,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.3075
@@ -13820,7 +13820,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -13883,7 +13883,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 6.6,
             "trigger_threshold": 0.47
@@ -13946,7 +13946,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.15,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -14011,7 +14011,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -14074,7 +14074,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -14137,7 +14137,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 6.6,
             "trigger_threshold": 0.47
@@ -14219,7 +14219,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -14282,7 +14282,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -14345,7 +14345,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -14431,7 +14431,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -14494,7 +14494,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 6.6,
             "trigger_threshold": 0.47
@@ -14557,7 +14557,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -14620,7 +14620,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.3075
@@ -14697,7 +14697,7 @@
             "max_rotation_correction": 1.2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -14760,7 +14760,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.3075
@@ -14823,7 +14823,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.3075
@@ -14886,7 +14886,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.3075
@@ -14949,7 +14949,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.3075
@@ -15027,7 +15027,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -15090,7 +15090,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -15153,7 +15153,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -15216,7 +15216,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -15279,7 +15279,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -15342,7 +15342,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -15419,7 +15419,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -15482,7 +15482,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -15545,7 +15545,7 @@
             "max_rotation_correction": 1.2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -15638,7 +15638,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -15701,7 +15701,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 6.6,
             "trigger_threshold": 0.47
@@ -15764,7 +15764,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -15827,7 +15827,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -15890,7 +15890,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -15953,7 +15953,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -16016,7 +16016,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -16093,7 +16093,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -16156,7 +16156,7 @@
             "max_rotation_correction": 6,
             "blend_seconds": 0.15,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -16256,7 +16256,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -16319,7 +16319,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 6.6,
             "trigger_threshold": 0.47
@@ -16382,7 +16382,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.15,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -16447,7 +16447,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -16510,7 +16510,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -16573,7 +16573,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.3075
@@ -16655,7 +16655,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -16718,7 +16718,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.3075
@@ -16781,7 +16781,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.3075
@@ -16844,7 +16844,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.3075
@@ -16907,7 +16907,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.3075
@@ -16992,7 +16992,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -17055,7 +17055,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 6.6,
             "trigger_threshold": 0.47
@@ -17118,7 +17118,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -17181,7 +17181,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 6.6,
             "trigger_threshold": 0.47
@@ -17258,7 +17258,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -17321,7 +17321,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -17384,7 +17384,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -17447,7 +17447,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -17524,7 +17524,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -17587,7 +17587,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 6.6,
             "trigger_threshold": 0.47
@@ -17650,7 +17650,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -17713,7 +17713,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 6.6,
             "trigger_threshold": 0.47
@@ -17790,7 +17790,7 @@
             "max_rotation_correction": 6,
             "blend_seconds": 0.15,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -17853,7 +17853,7 @@
             "max_rotation_correction": 6,
             "blend_seconds": 0.15,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -17930,7 +17930,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -17993,7 +17993,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 6.6,
             "trigger_threshold": 0.47
@@ -18056,7 +18056,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -18119,7 +18119,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 6.6,
             "trigger_threshold": 0.47
@@ -18196,7 +18196,7 @@
             "max_rotation_correction": 1.2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -18259,7 +18259,7 @@
             "max_rotation_correction": 1.2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -18337,7 +18337,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -18400,7 +18400,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -18463,7 +18463,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -18526,7 +18526,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -18589,7 +18589,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -18652,7 +18652,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -18729,7 +18729,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -18792,7 +18792,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -18855,7 +18855,7 @@
             "max_rotation_correction": 6,
             "blend_seconds": 0.15,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -18949,7 +18949,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -19012,7 +19012,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 6.6,
             "trigger_threshold": 0.47
@@ -19075,7 +19075,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -19138,7 +19138,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 6.6,
             "trigger_threshold": 0.47
@@ -19201,7 +19201,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -19264,7 +19264,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 6.6,
             "trigger_threshold": 0.47
@@ -19346,7 +19346,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -19409,7 +19409,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -19472,7 +19472,7 @@
             "max_rotation_correction": 6,
             "blend_seconds": 0.15,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -19535,7 +19535,7 @@
             "max_rotation_correction": 1.2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -19614,7 +19614,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -19677,7 +19677,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -19740,7 +19740,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -19803,7 +19803,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -19866,7 +19866,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -19929,7 +19929,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -19992,7 +19992,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -20055,7 +20055,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -20118,7 +20118,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -20200,7 +20200,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -20263,7 +20263,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -20326,7 +20326,7 @@
             "max_rotation_correction": 1.2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -20389,7 +20389,7 @@
             "max_rotation_correction": 6,
             "blend_seconds": 0.15,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -20490,7 +20490,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -20553,7 +20553,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 6.6,
             "trigger_threshold": 0.47
@@ -20616,7 +20616,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.15,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -20681,7 +20681,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -20744,7 +20744,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -20807,7 +20807,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 6.6,
             "trigger_threshold": 0.47
@@ -20870,7 +20870,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -20933,7 +20933,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 6.6,
             "trigger_threshold": 0.47
@@ -21020,7 +21020,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -21083,7 +21083,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -21146,7 +21146,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -21209,7 +21209,7 @@
             "max_rotation_correction": 1.2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -21296,7 +21296,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -21359,7 +21359,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 6.6,
             "trigger_threshold": 0.47
@@ -21422,7 +21422,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -21485,7 +21485,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 6.6,
             "trigger_threshold": 0.47
@@ -21548,7 +21548,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -21611,7 +21611,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -21674,7 +21674,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -21737,7 +21737,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.3075
@@ -21819,7 +21819,7 @@
             "max_rotation_correction": 6,
             "blend_seconds": 0.15,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -21882,7 +21882,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -21945,7 +21945,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.3075
@@ -22008,7 +22008,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.3075
@@ -22071,7 +22071,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.3075
@@ -22134,7 +22134,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.3075
@@ -22228,7 +22228,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -22291,7 +22291,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 6.6,
             "trigger_threshold": 0.47
@@ -22354,7 +22354,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -22417,7 +22417,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -22480,7 +22480,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -22543,7 +22543,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -22606,7 +22606,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.3075
@@ -22688,7 +22688,7 @@
             "max_rotation_correction": 1.2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -22751,7 +22751,7 @@
             "max_rotation_correction": 6,
             "blend_seconds": 0.15,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -22814,7 +22814,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.3075
@@ -22877,7 +22877,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.3075
@@ -22940,7 +22940,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.3075
@@ -23003,7 +23003,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.3075
@@ -23090,7 +23090,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -23153,7 +23153,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 6.6,
             "trigger_threshold": 0.47
@@ -23216,7 +23216,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.15,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -23281,7 +23281,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -23344,7 +23344,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -23407,7 +23407,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -23470,7 +23470,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -23533,7 +23533,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -23596,7 +23596,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.3075
@@ -23683,7 +23683,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -23746,7 +23746,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -23809,7 +23809,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -23872,7 +23872,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.3075
@@ -23935,7 +23935,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.3075
@@ -23998,7 +23998,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.3075
@@ -24061,7 +24061,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.3075
@@ -24154,7 +24154,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -24217,7 +24217,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 6.6,
             "trigger_threshold": 0.47
@@ -24280,7 +24280,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -24343,7 +24343,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -24406,7 +24406,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -24469,7 +24469,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -24532,7 +24532,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -24595,7 +24595,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 6.6,
             "trigger_threshold": 0.47
@@ -24658,7 +24658,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -24721,7 +24721,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 6.6,
             "trigger_threshold": 0.47
@@ -24784,7 +24784,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.15,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -24849,7 +24849,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -24941,7 +24941,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -25004,7 +25004,7 @@
             "max_rotation_correction": 1.2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -25067,7 +25067,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -25173,7 +25173,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -25236,7 +25236,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.3075
@@ -25299,7 +25299,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -25362,7 +25362,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.3075
@@ -25425,7 +25425,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -25488,7 +25488,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.3075
@@ -25570,7 +25570,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.3075
@@ -25633,7 +25633,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.3075
@@ -25696,7 +25696,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.3075
@@ -25759,7 +25759,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.3075
@@ -25822,7 +25822,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.3075
@@ -25885,7 +25885,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.3075
@@ -25948,7 +25948,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.3075
@@ -26011,7 +26011,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.3075
@@ -26074,7 +26074,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.3075
@@ -26137,7 +26137,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.3075
@@ -26200,7 +26200,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.3075
@@ -26263,7 +26263,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.3075
@@ -26342,7 +26342,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -26405,7 +26405,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -26468,7 +26468,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -26531,7 +26531,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -26594,7 +26594,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -26657,7 +26657,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -26720,7 +26720,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -26783,7 +26783,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.3075
@@ -26865,7 +26865,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -26928,7 +26928,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -26991,7 +26991,7 @@
             "max_rotation_correction": 1.2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -27054,7 +27054,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.3075
@@ -27117,7 +27117,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.3075
@@ -27180,7 +27180,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.3075
@@ -27243,7 +27243,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.3075
@@ -27337,7 +27337,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -27400,7 +27400,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 6.6,
             "trigger_threshold": 0.47
@@ -27463,7 +27463,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.15,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -27528,7 +27528,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -27591,7 +27591,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -27654,7 +27654,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -27717,7 +27717,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -27780,7 +27780,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -27843,7 +27843,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -27906,7 +27906,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -27993,7 +27993,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -28056,7 +28056,7 @@
             "max_rotation_correction": 1.2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -28119,7 +28119,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -28182,7 +28182,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -28283,7 +28283,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -28346,7 +28346,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 6.6,
             "trigger_threshold": 0.47
@@ -28409,7 +28409,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -28472,7 +28472,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 6.6,
             "trigger_threshold": 0.47
@@ -28535,7 +28535,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -28598,7 +28598,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -28661,7 +28661,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -28724,7 +28724,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 6.6,
             "trigger_threshold": 0.47
@@ -28806,7 +28806,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -28869,7 +28869,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -28932,7 +28932,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -28995,7 +28995,7 @@
             "max_rotation_correction": 1.2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -29089,7 +29089,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -29152,7 +29152,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -29215,7 +29215,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -29278,7 +29278,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -29341,7 +29341,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -29404,7 +29404,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -29467,7 +29467,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -29530,7 +29530,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -29593,7 +29593,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -29675,7 +29675,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -29738,7 +29738,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -29801,7 +29801,7 @@
             "max_rotation_correction": 1.2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -29864,7 +29864,7 @@
             "max_rotation_correction": 6,
             "blend_seconds": 0.15,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -29964,7 +29964,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -30027,7 +30027,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.3075
@@ -30090,7 +30090,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -30153,7 +30153,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 6.6,
             "trigger_threshold": 0.47
@@ -30216,7 +30216,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -30279,7 +30279,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -30342,7 +30342,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -30405,7 +30405,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.3075
@@ -30487,7 +30487,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.3075
@@ -30550,7 +30550,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.3075
@@ -30613,7 +30613,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.3075
@@ -30676,7 +30676,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.3075
@@ -30739,7 +30739,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -30802,7 +30802,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.3075
@@ -30865,7 +30865,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.3075
@@ -30928,7 +30928,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.3075
@@ -30991,7 +30991,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.3075
@@ -31084,7 +31084,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -31147,7 +31147,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.3075
@@ -31210,7 +31210,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -31273,7 +31273,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -31336,7 +31336,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -31399,7 +31399,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -31462,7 +31462,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.3075
@@ -31544,7 +31544,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.3075
@@ -31607,7 +31607,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.3075
@@ -31670,7 +31670,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.3075
@@ -31733,7 +31733,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.3075
@@ -31796,7 +31796,7 @@
             "max_rotation_correction": 1.2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -31859,7 +31859,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.3075
@@ -31922,7 +31922,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.3075
@@ -31985,7 +31985,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.3075
@@ -32048,7 +32048,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.3075
@@ -32134,7 +32134,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -32197,7 +32197,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.3075
@@ -32260,7 +32260,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -32323,7 +32323,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 6.6,
             "trigger_threshold": 0.47
@@ -32386,7 +32386,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.15,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -32451,7 +32451,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -32514,7 +32514,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -32577,7 +32577,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.3075
@@ -32664,7 +32664,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.3075
@@ -32727,7 +32727,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.3075
@@ -32790,7 +32790,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.3075
@@ -32853,7 +32853,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.3075
@@ -32916,7 +32916,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -32979,7 +32979,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.3075
@@ -33042,7 +33042,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.3075
@@ -33105,7 +33105,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.3075
@@ -33168,7 +33168,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.3075
@@ -33255,7 +33255,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -33318,7 +33318,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -33381,7 +33381,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -33444,7 +33444,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -33507,7 +33507,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.3075
@@ -33570,7 +33570,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -33633,7 +33633,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -33696,7 +33696,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -33759,7 +33759,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -33822,7 +33822,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -33904,7 +33904,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -33967,7 +33967,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -34030,7 +34030,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.3075
@@ -34093,7 +34093,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.3075
@@ -34156,7 +34156,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.3075
@@ -34219,7 +34219,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.3075
@@ -34282,7 +34282,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -34388,7 +34388,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -34451,7 +34451,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -34514,7 +34514,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -34577,7 +34577,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -34640,7 +34640,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -34703,7 +34703,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -34766,7 +34766,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -34838,7 +34838,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -34944,7 +34944,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -35007,7 +35007,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -35070,7 +35070,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -35133,7 +35133,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -35196,7 +35196,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -35259,7 +35259,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -35322,7 +35322,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -35385,7 +35385,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -35448,7 +35448,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -35522,7 +35522,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.47
@@ -35649,7 +35649,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.8
@@ -35712,7 +35712,7 @@
             "max_rotation_correction": 0,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.8
@@ -35784,7 +35784,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.8
@@ -35858,7 +35858,7 @@
             2,
             0.4,
             0.174,
-            2.324,
+            2.325,
             0.24,
             0,
             0.8
@@ -35930,7 +35930,7 @@
               2,
               0.4,
               0.174,
-              2.324,
+              2.325,
               0.24,
               0,
               0.8
@@ -36005,7 +36005,7 @@
             "max_rotation_correction": 2,
             "blend_seconds": 0.4,
             "capture_margin": 0.174,
-            "capture_speed": 2.324,
+            "capture_speed": 2.325,
             "capture_dwell": 0.24,
             "guide_acceleration": 0,
             "trigger_threshold": 0.8
@@ -36099,7 +36099,7 @@
               0,
               0.4,
               0.174,
-              2.324,
+              2.325,
               0.24,
               0,
               0.8
@@ -36172,7 +36172,7 @@
               0,
               0.4,
               0.174,
-              2.324,
+              2.325,
               0.24,
               0,
               0.8
@@ -36225,7 +36225,7 @@
           0,
           0.4,
           0.174,
-          2.324,
+          2.325,
           0.24,
           0,
           0.8
@@ -36266,7 +36266,7 @@
           2,
           0.4,
           0.174,
-          2.324,
+          2.325,
           0.24,
           0,
           0.8
@@ -36307,7 +36307,7 @@
           0,
           0.4,
           0.174,
-          2.324,
+          2.325,
           0.24,
           0,
           0.8

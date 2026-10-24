@@ -55,15 +55,15 @@ public sealed class PayloadInstanceTests
             var body = Assert.Single(scene.Bodies.ToArray(), b => b.Id == new GpuBodyId(id));
             Assert.Equal(RigidMotionKind.Dynamic, body.Motion);
             Assert.Equal(new Kilograms((float)mass), body.Mass);
-            Assert.Equal(new InverseSeconds((float).04f), body.LinearDrag);
-            Assert.Equal(new AccelerationVector(0f, (float)(-9.81f), 0f), body.Gravity);
+            Assert.Equal(new InverseSeconds(.04f), body.LinearDrag);
+            Assert.Equal(new AccelerationVector(0f, -9.81f, 0f), body.Gravity);
             var collider = Assert.Single(scene.Colliders.ToArray(), c => c.Body == body.Id);
             Assert.Equal(ColliderShapeKind.Sphere, collider.Shape);
             Assert.Equal(new Metres((float)radius), collider.Radius);
             var material = Assert.Single(scene.Materials.ToArray(), m => m.Id == collider.Material);
             Assert.Equal(new Restitution((float)bounce), material.Restitution);
-            Assert.Equal(new FrictionCoefficient((float).3f), material.Friction);
-            Assert.Equal(new LinearSpeed((float).1f), material.BounceThreshold);
+            Assert.Equal(new FrictionCoefficient(.3f), material.Friction);
+            Assert.Equal(new LinearSpeed(.1f), material.BounceThreshold);
             Assert.Equal(new RollingResistance((float)rolling), material.RollingResistance);
             // The package is the f32 authority the compiler narrows from.
             var entry = DeclaredPhysics.Of(kind);

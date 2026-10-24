@@ -225,7 +225,11 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
             var admitted = PhysicsGpuAbi.Admission(scene, new(1), new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1)));
             foreach (var body in scene.Bodies.ToArray().Where(body => body.Motion == RigidMotionKind.Dynamic))
             {
-                var collider = scene.Colliders.ToArray().Single(row => row.Body == body.Id);
+                // The moment's own collider is the one the body record owns (a compound part's other colliders are static).
+                var slot = (int)System.Buffers.Binary.BinaryPrimitives.ReadUInt32LittleEndian(
+                    admitted.AsSpan(scene.Layout.GetBodyOffset(body.Id) + PhysicsGpuAbi.BodyColliderSlotOffset));
+                var collider = scene.Colliders.ToArray().Single(row => scene.Layout.GetColliderSlot(row.Id) == slot);
+                Assert.Equal(body.Id, collider.Body);
                 double m = body.Mass.Value, r = collider.Radius.Value;
                 double a = collider.HalfExtents.X, b = collider.HalfExtents.Y, c = collider.HalfExtents.Z;
                 var exact = collider.Shape switch
@@ -258,6 +262,53 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
             }
         }
         Assert.True(checkedMoments > 0 && checkedCaptures > 0, "The oracle covered no dynamic body or capture volume.");
+
+        // A parameterised length (the rows the retired golden held at 1, 3.6 and 8 m): each bound collider component is its closed
+        // form, the binding's f32 multiplier × length + offset, and every unbound collider is its baked declaration.
+        var pipe = TestBundle.Entry(PartId.Pipe);
+        Assert.NotEmpty(pipe.ColliderBindings);
+        foreach (var length in new[] { 1f, 3.6f, 8f })
+        {
+            var expected = pipe.Colliders.ToArray();
+            foreach (var binding in pipe.ColliderBindings)
+            {
+                var value = binding.Multiplier * length + binding.Offset;
+                var c = expected[binding.Collider];
+                expected[binding.Collider] = binding.Component switch
+                {
+                    GeometryComponent.HalfExtentX => c with { HalfExtents = c.HalfExtents with { X = value } },
+                    GeometryComponent.HalfExtentY => c with { HalfExtents = c.HalfExtents with { Y = value } },
+                    GeometryComponent.HalfExtentZ => c with { HalfExtents = c.HalfExtents with { Z = value } },
+                    GeometryComponent.OffsetX => c with { Offset = c.Offset with { X = value } },
+                    GeometryComponent.OffsetY => c with { Offset = c.Offset with { Y = value } },
+                    GeometryComponent.OffsetZ => c with { Offset = c.Offset with { Z = value } },
+                    _ => throw new ArgumentOutOfRangeException(nameof(binding))
+                };
+            }
+            var compiled = Compile(WorkshopInput.Pipe(Owner, 0, 3, 0, 0, 0, 0, 1, new PipeLength(length))).Colliders.ToArray()
+                .Where(row => row.Body == Owner).ToArray();
+            AssertColliders($"pipe/{length}", expected, compiled.Select(row => (row.Shape, row.Pose, row.Radius.Value, row.HalfExtents)).ToArray());
+        }
+
+        // Every slider at its default parameters (the rows the retired golden held): frames, limits, stiffness, damping and collision
+        // are its declaration evaluated at the defaults, bit for bit.
+        foreach (var package in Packages().Where(package => package.Declaration is ISliderElement))
+        {
+            var id = new PartId(package.Declaration.Metadata.Id);
+            var defaults = package.Declaration.Metadata.Parameters.ToDictionary(parameter => parameter.Key, parameter => parameter.Default, StringComparer.Ordinal);
+            var joints = Compile(Placed(id)).Prismatics.ToArray();
+            var declared = TestBundle.Entry(id).Mechanical!.Sliders;
+            Assert.Equal(declared.Count, joints.Length);
+            for (var i = 0; i < joints.Length; i++)
+            {
+                var (slider, joint, where) = (declared[i], joints[i], $"{package.Package}.Sliders[{i}] at defaults");
+                AssertFrame(where + ".BaseFrame", slider.BaseFrame, joint.FrameA);
+                AssertFrame(where + ".MovingFrame", slider.MovingFrame, joint.FrameB);
+                Assert.Equal((Bits(slider.LowerLimit), Bits(slider.UpperLimit), Bits(slider.Stiffness.Evaluate(defaults)), Bits(slider.Damping.Evaluate(defaults))),
+                    (Bits(joint.Lower), Bits(joint.Upper), Bits(joint.Stiffness), Bits(joint.Damping)));
+                Assert.Equal(slider.BodiesCollide ? ConnectedCollision.Enabled : ConnectedCollision.Disabled, joint.Collision);
+            }
+        }
     }
 
     private static PhysicsSceneDeclaration Compile(IWorkshopInstance instance) =>

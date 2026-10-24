@@ -144,24 +144,23 @@ public sealed class PrismaticConstraintTests
     private static byte[] Advance(byte[] source)
     {
         var bytes = source.ToArray();
-        BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(40), 1);
-        BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(88), 4);
+        BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(PhysicsGpuAbi.HeaderTickOffset), 1);
+        BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(PhysicsGpuAbi.HeaderSourceOrdinalOffset), 4);
         var layout = PhysicsGpuAbi.Layout(bytes);
         var motion = bytes.AsSpan(layout.MotionOffset, layout.MotionBytes);
-        BinaryPrimitives.WriteUInt32LittleEndian(motion, 4);
-        BinaryPrimitives.WriteUInt32LittleEndian(motion[4..], 4);
-        BinaryPrimitives.WriteUInt32LittleEndian(motion[12..], 4);
+        BinaryPrimitives.WriteUInt32LittleEndian(motion[PhysicsMotionRead.CountOffset..], 4);
+        BinaryPrimitives.WriteUInt32LittleEndian(motion[PhysicsMotionRead.SubstepsOffset..], 4);
+        BinaryPrimitives.WriteUInt32LittleEndian(motion[PhysicsMotionRead.LastOrdinalOffset..], 4);
         var body = bytes.AsSpan(layout.BodyOffset(1), PhysicsGpuAbi.BodyBytes);
         for (var step = 0; step < 4; step++)
         {
             var piece = motion.Slice(PhysicsMotionRead.HeaderBytes + step * PhysicsMotionRead.PieceBytes, PhysicsMotionRead.PieceBytes);
-            BinaryPrimitives.WriteUInt32LittleEndian(piece, (uint)PhysicsMotionKind.FreePolynomial);
-            BinaryPrimitives.WriteUInt32LittleEndian(piece[4..], (uint)step);
-            BinaryPrimitives.WriteUInt32LittleEndian(piece[8..], (uint)step + 1);
-            BinaryPrimitives.WriteUInt32LittleEndian(piece[12..], (uint)step);
+            BinaryPrimitives.WriteUInt32LittleEndian(piece[PhysicsMotionRead.KindOffset..], (uint)PhysicsMotionKind.FreePolynomial);
+            BinaryPrimitives.WriteUInt32LittleEndian(piece[PhysicsMotionRead.StartOrdinalOffset..], (uint)step);
+            BinaryPrimitives.WriteUInt32LittleEndian(piece[PhysicsMotionRead.EndOrdinalOffset..], (uint)step + 1);
+            BinaryPrimitives.WriteUInt32LittleEndian(piece[PhysicsMotionRead.AnchorOrdinalOffset..], (uint)step);
             BinaryPrimitives.WriteUInt32LittleEndian(piece[PhysicsMotionRead.FrequencyOffset..], WorkshopCadenceSettings.PhysicalFrequency);
-            body[..8].CopyTo(piece[PhysicsMotionRead.OwnerOffset..]); body[16..28].CopyTo(piece[PhysicsMotionRead.CellOffset..]);
-            body[32..44].CopyTo(piece[PhysicsMotionRead.CentreRemainderOffset..]); body[48..64].CopyTo(piece[PhysicsMotionRead.RotationOffset..]);
+            OrientationSensorTests.CopyRestingPose(body, piece);
         }
         return bytes;
     }

@@ -101,6 +101,7 @@ public static partial class PhysicsGpuAbi
     // Collider record (ColliderBytes): owning body slot, material slot, shape, f32 pose, radius and half-extents.
     public const int ColliderMaterialOffset = 12;
     public const int ColliderShapeOffset = 16;
+    public const int ColliderShapePaddingOffset = 20;
     public const int ColliderPoseOffset = 24;
     public const int ColliderRadiusOffset = 52;
     public const int ColliderHalfExtentsOffset = 56;
@@ -118,6 +119,7 @@ public static partial class PhysicsGpuAbi
     public const int SensorFrameOffset = 8;
     public const int SensorTargetOffset = 12;
     public const int SensorParticipationOffset = 16;
+    public const int SensorParticipationPaddingOffset = 20;
     public const int SensorPoseOffset = 24;
     public const int SensorMinimumOffset = 52;
     public const int SensorMaximumOffset = 64;

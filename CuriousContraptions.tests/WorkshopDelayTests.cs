@@ -39,7 +39,7 @@ public sealed class WorkshopDelayTests
         var scene = WorkshopPhysicsCompiler.Compile(construction, new(1,2));
         var box = Assert.Single(scene.Colliders.ToArray(), c => c.Body == new GpuBodyId(3));
         Assert.Equal(ColliderShapeKind.Box, box.Shape);
-        Assert.Equal(new MetreVector(0f,(float)(-.7),0f), box.Pose.Translation);
+        Assert.Equal(new MetreVector(0f,-.7f,0f), box.Pose.Translation);
         Assert.Equal(new MetreVector(.675f,.075f,.4f), box.HalfExtents);
         var material = Assert.Single(scene.Materials.ToArray(), m => m.Id == box.Material);
         Assert.Equal(new Restitution(1f), material.Restitution);

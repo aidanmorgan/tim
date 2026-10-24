@@ -66,16 +66,16 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
 
             var baseCol = colliders[0];
             Assert.Equal(ColliderShapeKind.Box, baseCol.ShapeKind);
-            Assert.Equal(new MetreVector((float)1.1f, (float)0.1f, (float)1.1f), baseCol.HalfExtents);
+            Assert.Equal(new MetreVector(1.1f, 0.1f, 1.1f), baseCol.HalfExtents);
             Assert.Equal(0f, baseCol.LocalPose.Translation.X);
-            Assert.Equal((float)(-0.12f), baseCol.LocalPose.Translation.Y);
+            Assert.Equal(-0.12f, baseCol.LocalPose.Translation.Y);
             Assert.Equal(0f, baseCol.LocalPose.Translation.Z);
 
             var topCol = colliders[1];
             Assert.Equal(ColliderShapeKind.Box, topCol.ShapeKind);
-            Assert.Equal(new MetreVector((float)0.9f, (float)0.05f, (float)0.9f), topCol.HalfExtents);
+            Assert.Equal(new MetreVector(0.9f, 0.05f, 0.9f), topCol.HalfExtents);
             Assert.Equal(0f, topCol.LocalPose.Translation.X);
-            Assert.Equal((float)0.03f, topCol.LocalPose.Translation.Y);
+            Assert.Equal(0.03f, topCol.LocalPose.Translation.Y);
             Assert.Equal(0f, topCol.LocalPose.Translation.Z);
 
             Assert.Equal(3, ports.Count);
@@ -200,7 +200,7 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
     [Fact]
     public void ContactLoadSensorTracker_CountsEachBodyOnceAndSumsBodies()
     {
-        var domino = (float).4f;
+        var domino = .4f;
         Assert.Equal(0f, Measure(Row()));
         Assert.Equal(domino, Measure(Row(), On(20, domino, -.2f, -.3f), On(20, domino, .2f, -.3f), On(20, domino, .2f, .3f), On(20, domino, -.2f, .3f)));
         Assert.Equal(ContactLoadPhase.Underweight, Row().PhaseOf(Measure(Row(), On(20, domino, -.2f), On(20, domino, .2f))));
@@ -278,7 +278,7 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
         {
             Assert.Equal(WorkshopPhysicsCompiler.ContactLoadSensor(instance.Id), row.Id);
             var face = scene.Colliders.ToArray().Single(c => c.Id == row.Face);
-            Assert.Equal((instance.Id, (float).03f, new MetreVector((float).9f, (float).05f, (float).9f)), (face.Body, face.Pose.Translation.Y, face.HalfExtents));
+            Assert.Equal((instance.Id, .03f, new MetreVector(.9f, .05f, .9f)), (face.Body, face.Pose.Translation.Y, face.HalfExtents));
             Assert.Equal((-.9001f, .9001f, -.900001f, .900001f), (row.MinimumX, row.MaximumX, row.MinimumZ, row.MaximumZ));
             Assert.Equal((Up, 1f - 1e-6f, .0001f), (row.LocalNormal, row.MinimumAlignment, row.MaximumGap));
             Assert.Equal(minimum, row.MinimumMass);

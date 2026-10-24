@@ -90,16 +90,16 @@ public sealed class CounterTests(NativeSceneFixture godot)
 
             var housing = colliders[0];
             Assert.Equal(ColliderShapeKind.Box, housing.ShapeKind);
-            Assert.Equal(new MetreVector((float)0.825f, (float)0.625f, (float)0.325f), housing.HalfExtents);
+            Assert.Equal(new MetreVector(0.825f, 0.625f, 0.325f), housing.HalfExtents);
             Assert.Equal(0f, housing.LocalPose.Translation.X);
             Assert.Equal(0f, housing.LocalPose.Translation.Y);
             Assert.Equal(0f, housing.LocalPose.Translation.Z);
 
             var foot = colliders[1];
             Assert.Equal(ColliderShapeKind.Box, foot.ShapeKind);
-            Assert.Equal(new MetreVector((float)0.9f, (float)0.08f, (float)0.425f), foot.HalfExtents);
+            Assert.Equal(new MetreVector(0.9f, 0.08f, 0.425f), foot.HalfExtents);
             Assert.Equal(0f, foot.LocalPose.Translation.X);
-            Assert.Equal((float)(-0.72f), foot.LocalPose.Translation.Y);
+            Assert.Equal(-0.72f, foot.LocalPose.Translation.Y);
             Assert.Equal(0f, foot.LocalPose.Translation.Z);
 
             Assert.True(ports.ContainsKey("ActivationIn"));
@@ -209,13 +209,13 @@ public sealed class CounterTests(NativeSceneFixture godot)
 
         var sceneUnpowered = WorkshopPhysicsCompiler.Compile(constructionUnpowered, new(1, 1));
         var bladeUnpowered = sceneUnpowered.Bodies.ToArray().First(b => b.Id == WorkshopPhysicsCompiler.SliderBody(gate.Id, 0));
-        Assert.Equal((float)0f, bladeUnpowered.LinearDrag.Value);
+        Assert.Equal(0f, bladeUnpowered.LinearDrag.Value);
 
         // Counter static body has 2 box colliders
         var counterColliders = sceneUnpowered.Colliders.ToArray().Where(c => c.Body == counter.Id).ToArray();
         Assert.Equal(2, counterColliders.Length);
-        Assert.Equal(new MetreVector((float)0.825f, (float)0.625f, (float)0.325f), counterColliders[0].HalfExtents);
-        Assert.Equal(new MetreVector((float)0.9f, (float)0.08f, (float)0.425f), counterColliders[1].HalfExtents);
+        Assert.Equal(new MetreVector(0.825f, 0.625f, 0.325f), counterColliders[0].HalfExtents);
+        Assert.Equal(new MetreVector(0.9f, 0.08f, 0.425f), counterColliders[1].HalfExtents);
 
         // With battery connected to counter PowerIn and counter Supply to gate PowerIn the gate is a switched route resolved per tick from
         // the Counter's committed contact; the blade carries no mode-encoding drag.
@@ -228,7 +228,7 @@ public sealed class CounterTests(NativeSceneFixture godot)
 
         var scenePowered = WorkshopPhysicsCompiler.Compile(constructionPowered, new(1, 1));
         var bladePowered = scenePowered.Bodies.ToArray().First(b => b.Id == WorkshopPhysicsCompiler.SliderBody(gate.Id, 0));
-        Assert.Equal((float)0f, bladePowered.LinearDrag.Value);
+        Assert.Equal(0f, bladePowered.LinearDrag.Value);
         Assert.Contains(scenePowered.SupplyGraph.Nodes.ToArray(),node=>node.Owner==counter.Id && node.Kind==SupplyNodeKind.Contact);
         Assert.Equal(battery.Id,scenePowered.Electrical.Sources[0].Owner);
     }
@@ -263,7 +263,7 @@ public sealed class CounterTests(NativeSceneFixture godot)
         var ballColliderId = new GpuColliderId(11);
 
         // Tick 1: passage 1
-        var passageRead1 = new PassageSensorRead(sensorId, detector.Id, ballBodyId, ballColliderId, PassageSensorPhase.Fired, 1, 0f, new((float)2f));
+        var passageRead1 = new PassageSensorRead(sensorId, detector.Id, ballBodyId, ballColliderId, PassageSensorPhase.Fired, 1, 0f, new(2f));
         var cp1 = network.Consume(activations, timers, [], new(1), [], [passageRead1], memory: memory);
         activations = cp1.Activations; timers = cp1.Timers; memory = cp1.Memory;
 
@@ -277,7 +277,7 @@ public sealed class CounterTests(NativeSceneFixture godot)
         Assert.Equal(1U, network.Memory(cpHeld.Memory, counter.Id).Count);
 
         // Tick 2: passage 2 (distinct time: ordinal 2)
-        var passageRead2 = new PassageSensorRead(sensorId, detector.Id, ballBodyId, ballColliderId, PassageSensorPhase.Fired, 2, 0f, new((float)2f));
+        var passageRead2 = new PassageSensorRead(sensorId, detector.Id, ballBodyId, ballColliderId, PassageSensorPhase.Fired, 2, 0f, new(2f));
         var cp2 = network.Consume(activations, timers, [], new(2), [], [passageRead2], memory: memory);
         activations = cp2.Activations; timers = cp2.Timers; memory = cp2.Memory;
 
@@ -285,7 +285,7 @@ public sealed class CounterTests(NativeSceneFixture godot)
         Assert.False(network.ContactClosed(activations, network.ClearTimers(), counter.Id));
 
         // Tick 3: passage 3 (target reached!)
-        var passageRead3 = new PassageSensorRead(sensorId, detector.Id, ballBodyId, ballColliderId, PassageSensorPhase.Fired, 3, 0f, new((float)2f));
+        var passageRead3 = new PassageSensorRead(sensorId, detector.Id, ballBodyId, ballColliderId, PassageSensorPhase.Fired, 3, 0f, new(2f));
         var cp3 = network.Consume(activations, timers, [], new(3), [], [passageRead3], memory: memory);
         activations = cp3.Activations; timers = cp3.Timers; memory = cp3.Memory;
 
@@ -299,7 +299,7 @@ public sealed class CounterTests(NativeSceneFixture godot)
         // Saturation: 20 extra passages
         for (uint i = 4; i < 24; i++)
         {
-            var passageReadExtra = new PassageSensorRead(sensorId, detector.Id, ballBodyId, ballColliderId, PassageSensorPhase.Fired, i, 0f, new((float)2f));
+            var passageReadExtra = new PassageSensorRead(sensorId, detector.Id, ballBodyId, ballColliderId, PassageSensorPhase.Fired, i, 0f, new(2f));
             var cpExtra = network.Consume(activations, timers, [], new(i), [], [passageReadExtra], memory: memory);
             activations = cpExtra.Activations; timers = cpExtra.Timers; memory = cpExtra.Memory;
         }
@@ -328,7 +328,7 @@ public sealed class CounterTests(NativeSceneFixture godot)
                 WorkshopConnectionDomain.Activation)]));
         var network = WorkshopActivationCompiler.Compile(construction);
         var sensor = WorkshopPhysicsCompiler.PassageSensor(detector.Id);
-        PassageSensorRead Pass(uint ordinal) => new(sensor, detector.Id, new(10), new(11), PassageSensorPhase.Fired, ordinal, 0f, new((float)2f));
+        PassageSensorRead Pass(uint ordinal) => new(sensor, detector.Id, new(10), new(11), PassageSensorPhase.Fired, ordinal, 0f, new(2f));
 
         var committed = network.Consume(network.Clear(), network.ClearTimers(), [], new(1), [], [Pass(4)], memory: network.ClearMemory());
         committed = network.Consume(committed.Activations, committed.Timers, [], new(2), [], [Pass(8)], memory: committed.Memory);

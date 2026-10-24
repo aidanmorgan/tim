@@ -45,7 +45,7 @@ public sealed class WorkshopBowlingTests
         Assert.Equal(RigidMotionKind.Dynamic, body.Motion);
         Assert.Equal(new Kilograms(4f), body.Mass);
         Assert.Equal(new InverseSeconds(.04f), body.LinearDrag);
-        Assert.Equal(new AccelerationVector(0f, (float)(-9.81), 0f), body.Gravity);
+        Assert.Equal(new AccelerationVector(0f, -9.81f, 0f), body.Gravity);
         var sphere = Assert.Single(scene.Colliders.ToArray(), c => c.Body == body.Id);
         Assert.Equal(ColliderShapeKind.Sphere, sphere.Shape);
         Assert.Equal(new Metres(.28f), sphere.Radius);
@@ -119,7 +119,7 @@ public sealed class WorkshopBowlingTests
         // The coefficient is a bounded, finite declaration in [0, 0.1].
         var declared = materials[0];
         foreach (var admitted in new[] { 0f, .1f }) (declared with { RollingResistance = new(admitted) }).Validate();
-        foreach (var rejected in new[] { (float)(-.01), .11f, float.NaN, float.PositiveInfinity })
+        foreach (var rejected in new[] { (-.01f), .11f, float.NaN, float.PositiveInfinity })
             Assert.Throws<ArgumentException>(() => (declared with { RollingResistance = new(rejected) }).Validate());
     }
 

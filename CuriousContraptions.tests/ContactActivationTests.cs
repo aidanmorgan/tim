@@ -26,7 +26,7 @@ public sealed class ContactActivationTests
         var boxes = scene.Colliders.ToArray().Where(c => c.Body == new GpuBodyId(2)).ToArray();
         Assert.Equal(2, boxes.Length);
         Assert.All(boxes, b => Assert.Equal(ColliderShapeKind.Box, b.Shape));
-        Assert.Equal(new MetreVector(0f, (float)(-.15), 0f), boxes[0].Pose.Translation);
+        Assert.Equal(new MetreVector(0f, -.15f, 0f), boxes[0].Pose.Translation);
         Assert.Equal(new MetreVector(.55f, .125f, .5f), boxes[0].HalfExtents);
         Assert.Equal(new MetreVector(0f, .05f, 0f), boxes[1].Pose.Translation);
         Assert.Equal(new MetreVector(.4f, .09f, .375f), boxes[1].HalfExtents);
@@ -70,7 +70,7 @@ public sealed class ContactActivationTests
         {
             trigger with { Owner = new(1), Targets = new(BodyTargetKind.NamedBody, trigger.Owner) },
             trigger with { Owner = new(99) }, trigger with { Targets = new(BodyTargetKind.NamedBody, trigger.Owner) },
-            trigger with { Threshold = new(float.NaN) }, trigger with { Threshold = new((float)(-1)) }
+            trigger with { Threshold = new(float.NaN) }, trigger with { Threshold = new(-1f) }
         })
             Assert.Throws<ArgumentException>(() => new PhysicsSceneDeclaration(scene.Document, scene.NextIdentity,
                 scene.Bodies, scene.Colliders, scene.Materials, scene.Sensors, scene.Guides, new[] { invalid }));

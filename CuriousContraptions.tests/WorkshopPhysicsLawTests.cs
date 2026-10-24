@@ -806,7 +806,7 @@ public sealed class WorkshopPhysicsLawTests
         var world = scene.Admit();
         var stepped = world.Step(1).World;
         var motion = stepped.AsSpan(PhysicsGpuAbi.Layout(stepped).MotionOffset);
-        var declared = new Dictionary<ulong, float> { [ball.Value] = (float)LawBalls.Drag(LawBall.Basketball), [bowling.Value] = (float).125f,
+        var declared = new Dictionary<ulong, float> { [ball.Value] = (float)LawBalls.Drag(LawBall.Basketball), [bowling.Value] = .125f,
             [free.Value] = 0f };
         var count = (int)BinaryPrimitives.ReadUInt32LittleEndian(motion);
         Assert.Equal(12, count);

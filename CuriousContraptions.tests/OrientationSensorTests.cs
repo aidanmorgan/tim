@@ -19,7 +19,8 @@ public sealed class OrientationSensorTests
     private static void Fire(byte[] bytes, int slot, uint ordinal)
     {
         var record = Record(bytes, slot);
-        BinaryPrimitives.WriteUInt32LittleEndian(record[40..], 1); BinaryPrimitives.WriteUInt32LittleEndian(record[44..], ordinal);
+        BinaryPrimitives.WriteUInt32LittleEndian(record[PhysicsGpuAbi.OrientationSensorPhaseOffset..], 1);
+        BinaryPrimitives.WriteUInt32LittleEndian(record[PhysicsGpuAbi.OrientationSensorOrdinalOffset..], ordinal);
     }
 
     // A tick-N candidate over an unchanged world: header time advanced and a minimal valid motion description (bodies at rest).
@@ -27,33 +28,41 @@ public sealed class OrientationSensorTests
     {
         var bytes = (byte[])source.Clone(); var span = bytes.AsSpan();
         const uint steps = 4; var ordinal = tick * steps;
-        BinaryPrimitives.WriteUInt64LittleEndian(span[40..], tick);
-        BinaryPrimitives.WriteUInt32LittleEndian(span[88..], ordinal);
+        BinaryPrimitives.WriteUInt64LittleEndian(span[PhysicsGpuAbi.HeaderTickOffset..], tick);
+        BinaryPrimitives.WriteUInt32LittleEndian(span[PhysicsGpuAbi.HeaderSourceOrdinalOffset..], ordinal);
         var layout = PhysicsGpuAbi.Layout(span);
         var motion = span.Slice(layout.MotionOffset, layout.MotionBytes); motion.Clear();
-        BinaryPrimitives.WriteUInt32LittleEndian(motion[4..], steps);
-        BinaryPrimitives.WriteUInt32LittleEndian(motion[8..], ordinal - steps);
-        BinaryPrimitives.WriteUInt32LittleEndian(motion[12..], ordinal);
+        BinaryPrimitives.WriteUInt32LittleEndian(motion[PhysicsMotionRead.SubstepsOffset..], steps);
+        BinaryPrimitives.WriteUInt32LittleEndian(motion[PhysicsMotionRead.FirstOrdinalOffset..], ordinal - steps);
+        BinaryPrimitives.WriteUInt32LittleEndian(motion[PhysicsMotionRead.LastOrdinalOffset..], ordinal);
         var count = 0;
-        var bodyCount = BinaryPrimitives.ReadUInt32LittleEndian(span[12..]);
+        var bodyCount = BinaryPrimitives.ReadUInt32LittleEndian(span[PhysicsGpuAbi.HeaderBodyCountOffset..]);
         for (var slot = 0; slot < bodyCount; slot++)
         {
             var record = span.Slice(layout.BodyOffset(slot), PhysicsGpuAbi.BodyBytes);
-            if ((RigidMotionKind)BinaryPrimitives.ReadUInt32LittleEndian(record[8..]) != RigidMotionKind.Dynamic) continue;
+            if ((RigidMotionKind)BinaryPrimitives.ReadUInt32LittleEndian(record[PhysicsGpuAbi.BodyMotionOffset..]) != RigidMotionKind.Dynamic) continue;
             for (var s = 0u; s < steps; s++)
             {
                 var piece = motion.Slice(PhysicsMotionRead.HeaderBytes + count++ * PhysicsMotionRead.PieceBytes, PhysicsMotionRead.PieceBytes);
-                BinaryPrimitives.WriteUInt32LittleEndian(piece, (uint)PhysicsMotionKind.FreePolynomial);
-                BinaryPrimitives.WriteUInt32LittleEndian(piece[4..], ordinal - steps + s);
-                BinaryPrimitives.WriteUInt32LittleEndian(piece[8..], ordinal - steps + s + 1);
-                BinaryPrimitives.WriteUInt32LittleEndian(piece[12..], ordinal - steps + s);
+                BinaryPrimitives.WriteUInt32LittleEndian(piece[PhysicsMotionRead.KindOffset..], (uint)PhysicsMotionKind.FreePolynomial);
+                BinaryPrimitives.WriteUInt32LittleEndian(piece[PhysicsMotionRead.StartOrdinalOffset..], ordinal - steps + s);
+                BinaryPrimitives.WriteUInt32LittleEndian(piece[PhysicsMotionRead.EndOrdinalOffset..], ordinal - steps + s + 1);
+                BinaryPrimitives.WriteUInt32LittleEndian(piece[PhysicsMotionRead.AnchorOrdinalOffset..], ordinal - steps + s);
                 BinaryPrimitives.WriteUInt32LittleEndian(piece[PhysicsMotionRead.FrequencyOffset..], WorkshopCadenceSettings.PhysicalFrequency);
-                record[..8].CopyTo(piece[PhysicsMotionRead.OwnerOffset..]); record[16..28].CopyTo(piece[PhysicsMotionRead.CellOffset..]);
-                record[32..44].CopyTo(piece[PhysicsMotionRead.CentreRemainderOffset..]); record[48..64].CopyTo(piece[PhysicsMotionRead.RotationOffset..]);
+                CopyRestingPose(record, piece);
             }
         }
-        BinaryPrimitives.WriteUInt32LittleEndian(motion, (uint)count);
+        BinaryPrimitives.WriteUInt32LittleEndian(motion[PhysicsMotionRead.CountOffset..], (uint)count);
         return bytes;
+    }
+
+    /// <summary>A resting body's identity, cell, f32 remainder and rotation copied from its body record into a motion piece.</summary>
+    internal static void CopyRestingPose(ReadOnlySpan<byte> body, Span<byte> piece)
+    {
+        body.Slice(PhysicsGpuAbi.RecordIdentityOffset, 8).CopyTo(piece[PhysicsMotionRead.OwnerOffset..]);
+        body.Slice(PhysicsGpuAbi.BodyCellOffset, PhysicsGpuAbi.VectorBytes).CopyTo(piece[PhysicsMotionRead.CellOffset..]);
+        body.Slice(PhysicsGpuAbi.BodyLocalOffset, PhysicsGpuAbi.VectorBytes).CopyTo(piece[PhysicsMotionRead.CentreRemainderOffset..]);
+        body.Slice(PhysicsGpuAbi.BodyRotationOffset, PhysicsGpuAbi.RotationBytes).CopyTo(piece[PhysicsMotionRead.RotationOffset..]);
     }
 
     [Fact]
@@ -122,7 +131,7 @@ public sealed class OrientationSensorTests
     {
         var scene = WorkshopPhysicsCompiler.Compile(Construction(), new(1, 2));
         var bytes = PhysicsGpuAbi.Admission(scene, new(1), Profile);
-        Assert.Equal(1u, BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(116)));
+        Assert.Equal(1u, BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(PhysicsGpuAbi.HeaderOrientationSensorCountOffset)));
         // Story 9R.5b: the sensor table is exactly its population, directly before the motion payload.
         var layout = PhysicsGpuAbi.Layout(bytes);
         Assert.Equal(layout.OrientationSensorsOffset + PhysicsGpuAbi.OrientationSensorBytes, layout.MotionOffset);

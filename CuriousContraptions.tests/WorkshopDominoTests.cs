@@ -18,7 +18,7 @@ public sealed class WorkshopDominoTests
         var body = Assert.Single(scene.Bodies.ToArray(), b => b.Id == new GpuBodyId(2));
         Assert.Equal(RigidMotionKind.Dynamic, body.Motion);
         Assert.Equal(new Kilograms(.4f), body.Mass);
-        Assert.Equal(new AccelerationVector(0f, (float)(-9.81), 0f), body.Gravity);
+        Assert.Equal(new AccelerationVector(0f, -9.81f, 0f), body.Gravity);
         Assert.Equal(new InverseSeconds(0f), body.LinearDrag);
         Assert.True(body.Velocity.IsPositiveZero);
         Assert.True(body.AngularVelocity.IsPositiveZero);

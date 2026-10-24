@@ -2,8 +2,16 @@
 title: "9A.44 — f32 everywhere (Half purge and double game values to f32)"
 status: done
 baseline: f1ad3bd19e27c32cb05ba34f83ccc1d6cf59fc76
-review_loop_iteration: 1
+review_loop_iteration: 0
 followup_review_recommended: true
+deferred:
+  - summary: >-
+      The run-reset-snapshot.ts mirror parity check (its mirrored assistance and save fields) has not been run against the f32 layout.
+    evidence: |-
+      The mirror lives in the browser E2E toolchain, which owner policy (24 Oct) defers until every named puzzle element passes unit and integration tests; it compiles under tsc but is not executed.
+    location: >-
+      tools/e2e/run-reset-snapshot.ts
+    severity: low
 context:
   - AGENTS.md
   - docs/testing-guidance.md
@@ -257,6 +265,48 @@ Decisions:
 - **defer:** the run-reset-snapshot.ts mirror parity test is browser-deferred by owner policy. Queue it for the browser phase.
 - **accept:** this candidate delivers Part A only, which the spec permits. Part B is the next iteration, 9A.44B.
 
+### 2026-10-24 — Review pass (follow-up on e06ef6e5)
+- verdicts: 31 findings — high 1, medium 8, low 11, false 0, maybe-false 0, plus 11 carried, accepted or rejected rows.
+- findings:
+  - Blind Hunter:
+    - `[high]` `patch` The new `Assert.Equal(bytes, WorkshopSaveCodec.Encode(reloaded))` in `LaunchLessonSolveTests.cs:152` asserts save byte-identity, which the AGENTS hard rule forbids. Fix: delete it; the `saved == reloaded` check and the replay cover the behaviour.
+    - `[medium]` `patch` The P5 restore went the wrong way. Baseline `content/puzzles.json` has `capture_speed` 2.325 in all 460 blocks, as do CAT-004 and EL-192. 2.324 is the half-precision artefact 2.32421875, and the `"Value": 2.324` entries come from 2f5650b6 generated content. Fix: set every capture speed to 2.325, keep 0.08/0.12, and set the doc line to "2.325 (was 2.32421875)".
+    - `[medium]` `patch` The `SuppliedDriveForce` |d|/dt cap has no direct test, and `docs/gpu-f32-physics.md:292` still states the old drive law. Grouped with Verification Gap 1. Fix: add a hold-window assertion and update the law in the doc.
+    - `[low]` `patch` The Animation Output and Control record offsets are still literals in `Program.cs` and `WorkshopHint.cs`, and the scan skips both files. Fix: name the offsets and add both files to `RecordFiles`.
+    - `[low]` `patch` The literal scan accepts any `NamedOffset + digit`. Fix: allow only `+ 4`, `+ 8` or `sizeof(float)` steps.
+    - `[low]` `patch` The [−2048, 2048) phase rule is hand-written in five places, and `PhysicalPhase` lives in `CaptureLatch.cs`. Fix: use `PhysicalPhase.IsAdmitted` everywhere and move it to its own file.
+    - `[medium]` `patch` The guard misses `ToHalf`, `Math.f16round`, `float16_t`, `min16float`, `vec3h`/`vec4h`, the mask-first decoder `(bits & 0x7C00) >> 10`, and the `.html`/`.mts`/`.cts`/`.cjs`/`.tsx`/`.tscn`/`.tres` extensions. Grouped with Edge Case 1 and 2. Fix: add each pattern and extension with a positive control.
+    - `[low]` `patch` `BodyPaddingOffset` 152–160 and the collider/sensor 20–24 gaps are unchecked. Fix: check the zero padding of the admitted world at admission.
+    - `[low]` `patch` In the NaN test, `Assert.Equal(committed, admitted)` is trivially true. Fix: delete it. The refusal-then-advance check stays as is, because `ValidateCandidate` is the production gate.
+    - `[medium]` `patch` The `lessons-f32.json` DeepEquals golden pins the slice's own compile output. That is an output pin the hard rule forbids, and this slice regenerated it. First routed `defer` because the pattern pre-existed; re-routed to `patch` after the owner asked on 24 Oct why byte-identity checks exist. Fix: delete the golden, and assert any behaviour it uniquely covered explicitly.
+    - `[medium]` `patch` The analytic oracle dropped the pipe-length (1/3.6/8 m) and prismatic rows that the deleted golden covered, and `.Single(collider)` throws on compound bodies. Grouped with Edge Case 3. Fix: extend the closed-form checks to those rows.
+    - `[low]` `patch` The knot-interpolation theory never asserts `NotEqual(y)` and covers only four lanes. Fix: assert strictly between both ends and add the remaining Receiver lanes.
+    - `[medium]` `patch` Prevalidation admits finite knots that domain construction refuses, which breaks the "admits exactly what construction admits" contract. The `MissingField` text also blames "saved before f32" for a current save with the wrong count. Fix: prevalidation applies the domain's knot rule, and the message is chosen by cause.
+    - `[low]` `patch` The behaviour-identity tolerances (12 ticks, 2 mm) were fitted to observed results. Grouped with Intent Alignment (g). Fix: derive the bound from the D6 input deltas in the test and doc, and tighten if the derivation allows.
+    - `[low]` `patch` About 40 redundant casts remain, e.g. `(float)0.7f`, `(float)(-.5)`, `var h = (.085f)`. Fix: remove them.
+    - `[low]` `patch` Hand-built test fixtures still use literal motion and body offsets (`OrientationSensorTests`, `PrismaticConstraintTests`, `WorkshopWireTests`). Fix: use the named offsets.
+  - Verification Gap:
+    - `[medium]` `patch` The drive-law fix is only proven when the final tick lands on a peak: the mutant passes in 144 of 240 phases. Fix: assert max substep |v| < 1e-3 over the last 240 ticks.
+    - `[medium]` `patch` `HalfPrecisionGuardTests` walks the file system, so from the main checkout it scans `.claude/worktrees/*` (excluded only through `.git/info/exclude`) and fails. Fix: list sources with `git ls-files --cached --others --exclude-standard`, like the other scans.
+  - Edge Case Hunter:
+    - `[medium]` `patch` Guard misses `ToHalf`, `float16_t` and `half`. Grouped with Blind 7.
+    - `[medium]` `patch` Guard misses the `.mts`/`.cjs`/`.tsx`/`.html` extensions. Grouped with Blind 7.
+    - `[medium]` `patch` Deleted golden coverage for pipe lengths and prismatic rows. Grouped with Blind 11.
+    - `[low]` `patch` `PhysicsPresentationRead.cs:97-98` reads `R32(record, 8/12)` and the scan does not see that file. Fix: name the offsets and add the file to `RecordFiles`.
+    - `[low]` `reject` `PhysicsMotionRead.Sample` still computes in double. The intent text assigns `double` game values to Part B (9A.44B).
+  - Intent Alignment:
+    - `accept` (carried) Part A only.
+    - `carried` CLR stand-in instead of WASM; the Release worker build is CI's.
+    - `carried` (P6) Refusal proved at the codec and UI failure report, not the Godot Load UI. The browser path is deferred.
+    - `carried` (P7) Synthetic Animation buffer plus pinned offsets.
+    - `carried` (P2, coordinator decision 2) Guard scope covers identifiers in code, not prose (R4 over R3).
+    - `reject` R6(a): the layout tag and the deprecated `raw_assistance` slot as "format versions". D3 names the tag as an in-memory layout identity. The deprecated slot is the refusal mechanism: nothing reads it and nothing migrates.
+    - `reject` R7(a): Half-era baselines as test inputs. D6 requires comparing against the f1ad3bd1 baseline, which is the reference, not a Half-pinned expectation.
+    - `low` (g) Tolerance is not the envelope table. Grouped with Blind 14.
+    - `accept` (carried) No authoring-package change; elements were already f32.
+    - `carried` The AC's serial Chrome run is superseded by the owner.
+    - `reject` (h) `double` presentation and clock are Part B.
+
 ## Auto Run Result
 
 - **Summary:** Layer A of 9A.44. Every Half/binary16 game value, wire lane, decoder and save field is now canonical f32.
@@ -296,3 +346,33 @@ Decisions:
   - The t3–t5 evidence logs predate the review fixes. This candidate's evidence is the test totals above, plus CI on the published SHA.
   - The isolation ratchet's AppBundle scan hazard remains deferred.
   - Browser qualification is pending post-catalogue.
+
+### Follow-up pass (24 Oct, on e06ef6e5)
+- **Patched:** 1 high, 8 medium, 11 low, all fixed by the same implementer:
+  - The save byte-identity assert is deleted.
+  - The `lessons-f32.json` golden is deleted and replaced by `EveryLessonAdmitsItsAuthoredPlacementsInventoryGoalAndKnotsAsF32`, which asserts placements, inventory, goal and knots against `content/puzzles.json`.
+  - `capture_speed` is back to the authored 2.325 (532 values). The P5 instruction to use 2.324 was a coordinator error: that value was the half-precision artefact.
+  - The drive hold-window assertion is added (every substep |v| < 1e-3 over 240 ticks) and the documented drive law updated.
+  - The guard lists sources through git, with the new patterns and extensions.
+  - The closed-form oracle now covers pipe lengths, slider rows and compound bodies.
+  - `AssistanceProfile.HasAuthoredShape` is shared by the content reader and prevalidation; the refusal message is chosen by cause.
+  - Animation, presentation and prismatic offsets are named and scanned, and the scan step rule is tightened.
+  - `PhysicalPhase` has its own file and is the single phase rule.
+  - Body, collider, material and sensor padding is checked in `ValidateCandidate`.
+  - Interpolation is strictly between both knots, over five lanes.
+  - About 330 redundant casts are removed, and test fixtures use named offsets.
+- **Tolerances:**
+  - The element pose bound is now derived (½·|Δg|·t² over 2 s plus the radius change = 5.1 mm; observed 1.12 mm).
+  - The 12-tick event bound is a declared tolerance with its reason stated: contact sequences amplify the sub-tick first-order shift beyond what any input delta bounds.
+- **Rejected:** `PhysicsMotionRead.Sample` doubles (Part B), the layout tag and deprecated slot as "format versions" (D3), and the Half-era baseline as a test input (D6).
+- **Carried:** the remaining Intent rows.
+- **Out of scope:** the save byte-identity asserts in `ContactWorkInstanceTests:102` and `SliderInstanceTests:145` existed at baseline. They are owned by the test-hygiene slice.
+- **followup_review_recommended: true.** This follow-up pass patched a high. These production changes from this round are not yet reviewed by any layer:
+  - per-tick padding validation in `ValidateCandidate`, which could refuse a valid worker candidate;
+  - the `HasAuthoredShape` prevalidation rule, which could refuse a valid save;
+  - the `PhysicalPhase` consolidation across timers, the network, the ABI and hints.
+- **Verification (coordinator):**
+  - `dotnet build CuriousContraptions.slnx`: 0 warnings, 0 errors.
+  - `dotnet test CuriousContraptions.slnx --no-build --no-restore`: CuriousContraptions.tests 3142/3142, E2eRunner.Tests 208/208, BundleElements.Tests 191/191, Coverage.Tests 77/77, WorkerAotGuard.Tests 17/17. Skipped 0 in every project.
+  - `anvil_check` on 54 changed code files: 0 findings.
+  - `git diff --check`: clean.

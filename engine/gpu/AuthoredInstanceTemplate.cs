@@ -129,9 +129,7 @@ internal static class AuthoredInstanceReader
     {
         var knots = Array(value, 3, where + ".assistance");
         var result = new AssistanceProfile(Knot(knots[0], where), Knot(knots[1], where), Knot(knots[2], where));
-        if (result == default) return result;
-        if (result.Forgiving.Precision != 0f || result.Balanced.Precision != .45f ||
-            result.Precise.Precision != 1f)
+        if (!result.HasAuthoredShape())
             throw PuzzleContentReader.Invalid(where, "assistance", "expected authored precision knots");
         return result;
     }

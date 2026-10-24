@@ -46,21 +46,28 @@ public sealed class WorkshopAbiLiteralScanTests(ITestOutputHelper output)
                 new Regex(@"\boffset ?\+ ?\d")))
             .Append(("CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs", Source("CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs"),
                 new Regex(@"\b(?:bodyOffset|colliderOffset|materialOffset|sensorOffset|guideOffset|oOffset|tOffset|wOffset|storeOffset|pieceOffset|motionOffset|rotationOffset|prismaticOffset|supplyOffset|bindingOffset) ?\+ ?\d" +
-                    @"|\.Offset ?\+ ?\d|Offset\([^()]*\) ?\+ ?\d" + RotationDriveFootprintLiteral))),
+                    @"|\.Offset ?\+ ?\d|Offset\([^()]*\) ?\+ ?\d" + RotationDriveFootprintLiteral + ComponentStepLiteral)))
+            // The Animation worker writes the Animation output record (WorkshopAnimationWire's named fields).
+            .Append(("CuriousContraptions.Animation.Worker/Program.cs", Source("CuriousContraptions.Animation.Worker/Program.cs"),
+                new Regex(@"\b(?:Output|bytes)\.AsSpan\(\d" + ComponentStepLiteral))),
         _ => throw new ArgumentOutOfRangeException(nameof(rule), rule, "Unknown scan rule.")
     };
 
     private static readonly string[] RecordFiles = ["engine/gpu/PhysicsGpuAbi.cs", "engine/gpu/PhysicsGpuAbi.Header.cs",
         "engine/gpu/PhysicsGpuAbi.ContactWork.cs", "engine/gpu/PhysicsGpuAbi.Constraints.cs", "engine/gpu/PhysicsGpuAbi.Electrical.cs",
-        "engine/gpu/PhysicsGpuAbi.ContactLoad.cs", "engine/gpu/PhysicsMotionRead.cs", "engine/gpu/PhysicsBodyWire.cs"];
+        "engine/gpu/PhysicsGpuAbi.ContactLoad.cs", "engine/gpu/PhysicsMotionRead.cs", "engine/gpu/PhysicsBodyWire.cs",
+        "engine/gpu/PhysicsPresentationRead.cs", "engine/gpu/WorkshopHint.cs"];
 
     private static readonly Regex RecordSpanLiteral = new(
-        @"\b(?:R32|R64|RF|U32|U64|F32|F32Vector|F|Vector|WriteEnergy)\((?:record|bodyRecord|declaration|slot|bytes|_bytes|p|piece), ?\d" +
+        @"\b(?:R32|R64|RF|U32|U64|F32|F32Vector|F|Vector|WriteEnergy|ReadFloat|WriteFloat)\((?:record|bodyRecord|declaration|slot|bytes|_bytes|data|p|piece), ?\d" +
         @"|\b(?:record|bodyRecord|declaration|slot|bytes|_bytes|p|piece)(?:\[\(?|\.Slice\(|\.AsSpan\()\d" +
         // A rotation's y/z/w, a drive's five values and a footprint's four bounds are named fields, never base + literal.
-        RotationDriveFootprintLiteral);
+        RotationDriveFootprintLiteral + ComponentStepLiteral);
 
     private const string RotationDriveFootprintLiteral = @"|(?:Rotation|Drive|Footprint)\w*Offset ?\+ ?\d|\b(?:rotation|drive) ?\+ ?\d";
+    /// <summary>A named field plus a literal is only a vector component step: + 4, + 8, or a multiple of sizeof(float) or of a named
+    /// one-lane size (PrincipalInertiaBytes).</summary>
+    private const string ComponentStepLiteral = @"|\w*Offset ?\+ ?(?!(?:4|8)\b|\d+ ?\* ?(?:sizeof\b|[\w.]*Bytes\b))\d";
 
     private static string Method(string source, string declaration)
     {
@@ -131,6 +138,14 @@ public sealed class WorkshopAbiLiteralScanTests(ITestOutputHelper output)
     [InlineData(Rule.RecordFields, "        F(bytes, RotationOffset + PhysicsGpuAbi.RotationWOffset, value.Rotation.W);", false)]
     [InlineData(Rule.RecordFields, "            RF(record, PrismaticDriveMaxPowerOffset));", false)]
     [InlineData(Rule.RecordFields, "            F32(record, BodyMassOffset, body.Mass.Value);", false)]
+    [InlineData(Rule.RecordFields, "            RF(record, ContactLoadNormalOffset + 12),", true)]
+    [InlineData(Rule.RecordFields, "            R32(record, SensorTargetOffset + 16),", true)]
+    [InlineData(Rule.RecordFields, "        BinaryPrimitives.WriteUInt64LittleEndian(Output.AsSpan(72), control.World.Value);", true)]
+    [InlineData(Rule.RecordFields, "        WriteFloat(bytes, 72, control.From);", true)]
+    [InlineData(Rule.RecordFields, "            RF(record, ContactLoadNormalOffset + 8),", false)]
+    [InlineData(Rule.RecordFields, "        RF(record, ContactLoadNormalOffset + 2 * sizeof(float)),", false)]
+    [InlineData(Rule.RecordFields, "        ReadPrincipal(record, BodyPrincipalInertiaOffset + 2 * PrincipalInertiaBytes));", false)]
+    [InlineData(Rule.RecordFields, "        WriteFloat(bytes, ControlFromOffset, control.From);", false)]
     [InlineData(Rule.RecordFields, "        var wy = (double)F(p,AngularVelocityOffset+4);", false)]
     [InlineData(Rule.RecordFields, "            U32(b,offset+CapturePhaseOffset,(uint)c.Phase);", false)]
     [InlineData(Rule.RecordFields, "            var mass = ReadF32(span, bodyOffset + PhysicsGpuAbi.BodyMassOffset);", false)]

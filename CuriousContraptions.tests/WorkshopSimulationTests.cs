@@ -368,7 +368,7 @@ public sealed class WorkshopSimulationTests
         device.CompleteAdvance(0, read =>
         {
             var body = read.Bodies[0].Body;
-            body = body with { Local = new(.25f, body.Local.Y, (float)(-.25)),
+            body = body with { Local = new(.25f, body.Local.Y, -.25f),
                 Velocity = new(1f, 0f, -1f) };
             return change switch
             {
@@ -387,7 +387,7 @@ public sealed class WorkshopSimulationTests
         else
         {
             Assert.Equal(.25f, simulation.Committed.Bodies[0].Body.Local.X);
-            Assert.Equal((float)(-.25), simulation.Committed.Bodies[0].Body.Local.Z);
+            Assert.Equal(-.25f, simulation.Committed.Bodies[0].Body.Local.Z);
             Assert.Equal(1f, simulation.Committed.Bodies[0].Body.Velocity.X);
             Assert.Equal(-1f, simulation.Committed.Bodies[0].Body.Velocity.Z);
         }

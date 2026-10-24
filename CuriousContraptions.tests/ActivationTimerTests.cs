@@ -106,12 +106,12 @@ public sealed class ActivationTimerTests
         foreach(var substeps in new uint[]{2,4,8})
         {
             var boundary=10*substeps;
-            Assert.Equal(10UL,new ActivationTime(boundary,(float)(-2048)).CeilingTick(substeps));
+            Assert.Equal(10UL,new ActivationTime(boundary,-2048f).CeilingTick(substeps));
             Assert.Equal(10UL,new ActivationTime(boundary,0f).CeilingTick(substeps));
             Assert.Equal(11UL,new ActivationTime(boundary,.25f).CeilingTick(substeps));
             Assert.Equal(10UL,new ActivationTime(boundary-1,2047f).CeilingTick(substeps));
         }
-        Assert.Throws<ArgumentException>(()=>new ActivationTime(0,(float)(-1)).CeilingTick(4));
+        Assert.Throws<ArgumentException>(()=>new ActivationTime(0,-1f).CeilingTick(4));
         foreach (var invalid in new[] { float.NaN, float.PositiveInfinity, float.NegativeInfinity, 2048f, MathF.BitDecrement(-2048f) })
             Assert.Throws<ArgumentException>(() => new ActivationTime(1, invalid).Validate());
         var cause=new ActivationCause(new(1),new(1),new(1),new(uint.MaxValue,0f),new(1f));

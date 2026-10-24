@@ -342,13 +342,23 @@ public static partial class PhysicsGpuAbi
             !candidate[layout.MaterialsOffset..layout.SensorsOffset].SequenceEqual(source[layout.MaterialsOffset..layout.SensorsOffset]) ||
             !candidate[layout.CollidersOffset..].SequenceEqual(source[layout.CollidersOffset..]))
             throw new ArgumentException("Candidate changed body population, geometry or material.");
-        // Collider and material rows are fixed from admission, so their zero tails are checked once per candidate here.
+        // Every fixed row's zero padding is checked in the candidate itself (at admission, tick 0, too): an unchanged nonzero byte
+        // passes the row comparisons above, so only these checks see it.
+        for (var i = 0; i < bodyCount; i++)
+            if (!AllZero(candidate.Slice(layout.BodyOffset(i) + BodyPaddingOffset, BodyBytes - BodyPaddingOffset)))
+                throw new ArgumentException("Nonzero body padding.");
         for (var i = 0; i < layout.Colliders; i++)
-            if (!AllZero(candidate.Slice(layout.ColliderOffset(i) + ColliderPaddingOffset, ColliderBytes - ColliderPaddingOffset)))
+        {
+            var collider = candidate.Slice(layout.ColliderOffset(i), ColliderBytes);
+            if (!AllZero(collider[ColliderShapePaddingOffset..ColliderPoseOffset]) || !AllZero(collider[ColliderPaddingOffset..]))
                 throw new ArgumentException("Nonzero collider padding.");
+        }
         for (var i = 0; i < layout.Materials; i++)
             if (!AllZero(candidate.Slice(layout.MaterialOffset(i) + MaterialPaddingOffset, MaterialBytes - MaterialPaddingOffset)))
                 throw new ArgumentException("Nonzero material padding.");
+        for (var i = 0; i < layout.Sensors; i++)
+            if (!AllZero(candidate.Slice(layout.SensorOffset(i) + SensorParticipationPaddingOffset, SensorPoseOffset - SensorParticipationPaddingOffset)))
+                throw new ArgumentException("Nonzero sensor padding.");
         var bodies = ReadDynamicBodies(candidate);
         uint captured = 0;
         for (var i = 0; i < layout.Sensors; i++)
@@ -438,8 +448,7 @@ public static partial class PhysicsGpuAbi
     /// <summary>A physical time: an ordinal and its f32 phase in [−2048, 2048) of the ordinal's 4096 phase units, inside the
     /// committed interval.</summary>
     private static bool AdmittedTime(uint ordinal, float phase, uint end) =>
-        float.IsFinite(phase) && phase >= -2048f && phase < 2048f &&
-        ordinal <= end && (ordinal != 0 || phase >= 0f) && (ordinal != end || phase <= 0f);
+        PhysicalPhase.IsAdmitted(ordinal, phase) && ordinal <= end && (ordinal != end || phase <= 0f);
     private static bool Before(uint a, float ap, uint b, float bp) => a < b || (a == b && ap < bp);
 
     private static void Header(ReadOnlySpan<byte> data)

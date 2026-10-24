@@ -201,8 +201,8 @@ public sealed class PhysicsMotionRead
     {
         var local = (double)centre.Local - offset * 16;
         var carry = checked((int)Math.Floor(local + .5)); var remainder = (float)(local - carry);
-        if (remainder >= .5f) { carry++; remainder = (float)(remainder - 1f); }
-        if (remainder < (float)(-.5)) { carry--; remainder = (float)(remainder + 1f); }
+        if (remainder >= .5f) { carry++; remainder -= 1f; }
+        if (remainder < -.5f) { carry--; remainder += 1f; }
         return (checked(centre.Cell + carry), remainder);
     }
     private static (int Cell, float Local) Position(ReadOnlySpan<byte> p,int axis,int cell,double elapsed,double k,double polynomial,bool supported)
@@ -211,8 +211,8 @@ public sealed class PhysicsMotionRead
         var acceleration=supported?(double)F(p,SupportedAccelerationOffset+axis*4):(double)F(p,GravityOffset+axis*4)-k*velocity;
         var local=(double)F(p,CentreRemainderOffset+axis*4)+(velocity*elapsed+acceleration*elapsed*elapsed*polynomial)*16;
         var carry=checked((int)Math.Floor(local+.5));var remainder=(float)(local-carry);
-        if(remainder >= .5f){carry++;remainder=(float)(remainder-1f);}
-        if(remainder < (float)(-.5)){carry--;remainder=(float)(remainder+1f);}
+        if(remainder >= .5f){carry++;remainder-=1f;}
+        if(remainder < -.5f){carry--;remainder+=1f;}
         return(checked(cell+carry),remainder);
     }
     private static void Norm(ReadOnlySpan<byte> p,int offset,double maximum)

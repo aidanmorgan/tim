@@ -60,7 +60,7 @@ public sealed class WorkshopBumperTests
         foreach (var precision in new float[] { 0f, .45f, 1f })
         {
             var next = PuzzleCatalogue.WithPrecision(placed, new(precision));
-            var expected = precision == 0f ? (.3,3,.15,12) : precision == 1f ? (.02,1.5,.35,0) : (.174,2.324,.24,6.6);
+            var expected = precision == 0f ? (.3,3,.15,12) : precision == 1f ? (.02,1.5,.35,0) : (.174,2.325,.24,6.6);
             Assert.Equal((float)expected.Item1,((WorkshopGenericInstance)next.Instances.Single(instance => instance.PartId == PartId.Receiver)).Parameters[new("capture_margin")]);
             Assert.Equal((float)expected.Item2,((WorkshopGenericInstance)next.Instances.Single(instance => instance.PartId == PartId.Receiver)).Parameters[new("capture_speed_limit")]);
             Assert.Equal((float)expected.Item3,((WorkshopGenericInstance)next.Instances.Single(instance => instance.PartId == PartId.Receiver)).Parameters[new("capture_dwell")]);

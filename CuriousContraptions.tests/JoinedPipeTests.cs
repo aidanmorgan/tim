@@ -184,20 +184,23 @@ public sealed class JoinedPipeTests
         {
             ("capture_margin", a.CaptureMargin.Value, b.CaptureMargin.Value), ("capture_speed_limit", a.CaptureSpeed.Value, b.CaptureSpeed.Value),
             ("capture_dwell", a.CaptureDwell.Value, b.CaptureDwell.Value),
+            ("force_support_margin", a.CaptureMargin.Value, b.CaptureMargin.Value),
             ("force_maximum_acceleration", a.GuideAcceleration.Value, b.GuideAcceleration.Value),
         };
+        // Every bound Receiver parameter (the template's five assistance bindings) takes its blend.
+        Assert.Equal(template.AssistanceBindings.Length, lanes.Length);
         foreach (var (parameter, x, y) in lanes)
         {
             var actual = receiver.Parameters[new(parameter)];
             Assert.Equal(BitConverter.SingleToUInt32Bits(Blend(x, y)), BitConverter.SingleToUInt32Bits(actual));
-            if (x != y) Assert.InRange(actual, MathF.Min(x, y), MathF.Max(x, y));
-            if (x != y) Assert.NotEqual(x, actual);
+            Assert.NotEqual(x, y);
+            Assert.True(actual > MathF.Min(x, y) && actual < MathF.Max(x, y), $"{parameter} {actual} strictly between {x} and {y}");
         }
     }
 
     [Theory]
     [InlineData(0, .3, 3.0, .15, 12)]
-    [InlineData(.45, .174, 2.324, .24, 6.6)]
+    [InlineData(.45, .174, 2.325, .24, 6.6)]
     [InlineData(1.0, .02, 1.5, .35, 0)]
     public void PrecisionEvaluatesTheReceiverAndTheLessonRoundTripsTheSaveCodec(double precision, double margin, double speed, double dwell, double accel)
     {

@@ -157,7 +157,7 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
             Assert.Equal(Vector3.One*.88f,head.Scale); Assert.Equal(Vector3.One*1.24f,ring.Scale);
             Assert.Equal((float)(82d/255),((StandardMaterial3D)ring.MaterialOverride).AlbedoColor.B);
             var pressed=new Color("#bff5b0");
-            Assert.Equal((float)(-.02),button.Position.Y);
+            Assert.Equal(-.02f,button.Position.Y);
             Assert.Equal((float)pressed.G,((StandardMaterial3D)button.MaterialOverride).AlbedoColor.G);
             // An out-of-range or non-finite cue amount is refused where it is made, so the committed value holds.
             Assert.ThrowsAny<ArgumentException>(() => ApplyCue(bumper, float.NaN));

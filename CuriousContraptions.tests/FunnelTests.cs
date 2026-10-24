@@ -59,8 +59,8 @@ public sealed class FunnelTests(NativeSceneFixture godot)
             foreach (var col in walls)
             {
                 Assert.Equal(ColliderShapeKind.Box, col.ShapeKind);
-                Assert.Equal((float)(0.485f * 0.5f), col.HalfExtents.X);
-                Assert.Equal((float)(0.05f * 0.5f), col.HalfExtents.Y);
+                Assert.Equal(0.485f * 0.5f, col.HalfExtents.X);
+                Assert.Equal(0.05f * 0.5f, col.HalfExtents.Y);
             }
 
             // 8 rim colliders

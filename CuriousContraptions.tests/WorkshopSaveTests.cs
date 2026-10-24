@@ -115,66 +115,66 @@ public sealed class WorkshopSaveTests
         Assert.Equal(saved, WorkshopSaveCodec.Decode(SaveFixture.Elements, WorkshopSaveCodec.Encode(saved)));
     }
 
-    /// <summary>Story 9A.44 (D5): every lesson's authored geometry, inventory, goal and assistance compile to the f32 golden
-    /// (Fixtures/lessons-f32.json: these rows, serialised from the 9A.44 f32 compile of content/puzzles.json). The half-precision-era
-    /// golden is retired, never reinterpreted: its "0.04" read as an f32 would silently change meaning.</summary>
+    /// <summary>Story 9A.44 (D5): every Playable lesson, at precisions 0, 0.45 and 1, admits exactly its authored content as f32: one
+    /// instance per placement with the authored part, cell, f32 local remainder, rotation and lock; the authored inventory counts; the
+    /// authored goal kind and minimum duration; and every lane of its primary, target and placement knots bit for bit the f32 of the
+    /// authored number (never a half-precision value). Covered elsewhere, so not repeated here: each element's compiled bodies,
+    /// colliders, materials and joints against their f32 closed forms (PackageRuntimeParityTests); each lesson solving with Run, Reset
+    /// and save/load (LaunchLessonSolveTests); behaviour against the half-precision baseline (F32BehaviourIdentityTests); the instance
+    /// parameters an interpolated precision sets (JoinedPipeTests).</summary>
     [Fact]
-    public void ContentPreservesLessonGeometryInventoryAndProfiles()
+    public void EveryLessonAdmitsItsAuthoredPlacementsInventoryGoalAndKnotsAsF32()
     {
         _ = SaveFixture.Elements;
-        var baseline = System.Text.Json.Nodes.JsonNode.Parse(System.IO.File.ReadAllText(System.IO.Path.Combine(
-            twodog.Engine.ResolveProjectDir(), "CuriousContraptions.tests/Fixtures/lessons-f32.json")))!["Rows"]!.AsArray();
-        var rows = LessonRows();
-        Assert.Equal(36, rows.Count);
-        Assert.Equal(baseline.Count, rows.Count);
-        for (var i = 0; i < rows.Count; i++)
-            Assert.True(System.Text.Json.Nodes.JsonNode.DeepEquals(baseline[i], rows[i]),
-                $"Lesson golden differs at {rows[i]["Id"]}, precision {rows[i]["Precision"]}.");
-    }
-
-    /// <summary>Every lesson's compiled content at the three authored precisions, in a stable JSON projection.</summary>
-    internal static List<System.Text.Json.Nodes.JsonNode> LessonRows()
-    {
-        var options = new System.Text.Json.JsonSerializerOptions { IncludeFields = true, WriteIndented = true };
-        var rows = new List<System.Text.Json.Nodes.JsonNode>();
-        foreach (var value in new[] { 0f, .45f, 1f })
+        using var content = System.Text.Json.JsonDocument.Parse(System.IO.File.ReadAllText(System.IO.Path.Combine(
+            twodog.Engine.ResolveProjectDir(), "content/puzzles.json")));
+        static float F(System.Text.Json.JsonElement number) => (float)number.GetDouble();
+        static float[] Lanes(AssistanceKnot k) =>
+        [
+            k.Precision, k.PositionWindow.Value, k.RotationWindowDegrees, k.MaximumPositionCorrection.Value, k.MaximumRotationCorrectionDegrees,
+            k.Blend.Value, k.CaptureMargin.Value, k.CaptureSpeed.Value, k.CaptureDwell.Value, k.GuideAcceleration.Value, k.TriggerThreshold
+        ];
+        static void Profile(System.Text.Json.JsonElement authored, AssistanceProfile profile, string where)
         {
-            var settings = WorkshopCadenceSettings.Default();
-            var p = new PuzzlePrecision(value);
-            (string Id, WorkshopConstruction Construction)[] lessons =
-            [
-                ("first_principles", PuzzleCatalogue.Create(new("first_principles"), new(1), settings, new(11), p)),
-                ("spring_forward", PuzzleCatalogue.Create(new PuzzleId("spring_forward"), new(1), settings, new(11), p)),
-                ("ready_to_rebound", PuzzleCatalogue.Create(new PuzzleId("ready_to_rebound"), new(1), settings, new(11), p)),
-                ("bumper_sidekick", PuzzleCatalogue.Create(new("bumper_sidekick"), new(1), settings, new(11), p)),
-                ("bumper_depth", PuzzleCatalogue.Create(new PuzzleId("bumper_depth"), new(1), settings, new(11), p)),
-                ("wall_and_bumper", PuzzleCatalogue.Create(new PuzzleId("wall_and_bumper"), new(1), settings, new(11), p)),
-                ("domino_effect", PuzzleCatalogue.Create(new("domino_effect"), new(1), settings, new(11), p)),
-                ("delayed_signal", PuzzleCatalogue.Create(new("delayed_signal"), new(1), settings, new(11), p)),
-                ("clear_pipe", PuzzleCatalogue.Create(new("clear_pipe"), new(1), settings, new(11), p)),
-                ("gentle_bend", PuzzleCatalogue.Create(new("gentle_bend"), new(1), settings, new(11), p)),
-                ("quarter_bend", PuzzleCatalogue.Create(new("quarter_bend"), new(1), settings, new(11), p)),
-                ("joined_pipe", PuzzleCatalogue.Create(new("joined_pipe"), new(1), settings, new(11), p))
-            ];
-            foreach (var (id, construction) in lessons)
-            {
-                var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
-                var puzzle = construction.Puzzle;
-                rows.Add(System.Text.Json.JsonSerializer.SerializeToNode(new
-                {
-                    Id = id, Precision = (float)value,
-                    Instances = construction.Instances.Select(instance =>
-                        instance is WorkshopGenericInstance generic
-                            ? System.Text.Json.JsonSerializer.SerializeToNode(new { generic.PartId, generic.Id, generic.Cell, generic.Local, generic.Rotation, generic.Locked, Parameters = generic.Parameters.Select(pair => new { Key = pair.Key.Value, pair.Value }).ToArray() }, options)
-                            : System.Text.Json.JsonSerializer.SerializeToNode(instance, instance.GetType(), options)).ToArray(),
-                    Inventory = WorkshopInventoryPolicy.Authored(puzzle).Select(pair => new { Part = pair.Key.Value, pair.Value }).ToArray(),
-                    puzzle.Goal, puzzle.PrimaryAssistance, puzzle.TargetAssistance, puzzle.PlacementAssistance, puzzle.SecondaryAssistance,
-                    Bodies = scene.Bodies.ToArray(), Colliders = scene.Colliders.ToArray(),
-                    Materials = scene.Materials.ToArray(), Prismatics = scene.Prismatics.ToArray()
-                }, options)!);
-            }
+            var knots = new[] { profile.Forgiving, profile.Balanced, profile.Precise };
+            Assert.Equal(3, authored.GetArrayLength());
+            for (var k = 0; k < 3; k++)
+                Assert.True(authored[k].EnumerateArray().Select(F).Select(BitConverter.SingleToUInt32Bits)
+                    .SequenceEqual(Lanes(knots[k]).Select(BitConverter.SingleToUInt32Bits)), $"{where} knot {k}");
         }
-        return rows;
+        var lessons = content.RootElement.EnumerateArray().Where(level => level.GetProperty("availability").GetString() == "Playable").ToArray();
+        Assert.Equal(PuzzleCatalogue.Playable.Count, lessons.Length);
+        foreach (var precision in new[] { 0f, .45f, 1f })
+            foreach (var lesson in lessons)
+            {
+                var id = lesson.GetProperty("id").GetString()!;
+                var construction = PuzzleCatalogue.Create(new(id), new(1), WorkshopCadenceSettings.Default(), new(11), new(precision));
+                var placements = lesson.GetProperty("placements").EnumerateArray().Select(p => p.GetProperty("instance")).ToArray();
+                var instances = construction.Instances.Cast<WorkshopGenericInstance>().ToArray();
+                Assert.Equal(placements.Length, instances.Length);
+                for (var i = 0; i < placements.Length; i++)
+                {
+                    var (authored, instance) = (placements[i], instances[i]);
+                    var cell = authored.GetProperty("cell"); var local = authored.GetProperty("local"); var rotation = authored.GetProperty("rotation");
+                    Assert.Equal(new PartId(authored.GetProperty("part").GetString()!), instance.PartId);
+                    Assert.Equal(new CellOrigin(cell[0].GetInt32(), cell[1].GetInt32(), cell[2].GetInt32()), instance.Cell);
+                    Assert.Equal(new LocalPosition(F(local[0]), F(local[1]), F(local[2])), instance.Local);
+                    Assert.Equal(new CanonicalRotation(F(rotation[0]), F(rotation[1]), F(rotation[2]), F(rotation[3])), instance.Rotation);
+                    Assert.Equal(authored.GetProperty("locked").GetBoolean(), instance.Locked);
+                }
+                var inventory = WorkshopInventoryPolicy.Authored(construction.Puzzle);
+                foreach (var row in lesson.GetProperty("inventory").EnumerateArray())
+                    Assert.Equal(PartAllowance.Counted(row.GetProperty("count").GetInt32()), inventory[new(row.GetProperty("part").GetString()!)]);
+                Assert.Equal(lesson.GetProperty("inventory").GetArrayLength(), inventory.Count);
+                var goal = lesson.GetProperty("goal");
+                Assert.Equal(Enum.Parse<WorkshopGoalKind>(goal.GetProperty("kind").GetString()!), construction.Puzzle.Goal.Kind);
+                Assert.Equal(BitConverter.SingleToUInt32Bits(F(goal.GetProperty("minimum_seconds"))),
+                    BitConverter.SingleToUInt32Bits(construction.Puzzle.Goal.MinimumDuration.Value));
+                var profiles = lesson.GetProperty("profiles");
+                Profile(profiles.GetProperty("primary"), construction.Puzzle.PrimaryAssistance, $"{id} primary");
+                Profile(profiles.GetProperty("target"), construction.Puzzle.TargetAssistance, $"{id} target");
+                Profile(profiles.GetProperty("placement"), construction.Puzzle.PlacementAssistance, $"{id} placement");
+            }
     }
     // Every malformed stored save, in a deterministic corpus (each truncation, each single-bit flip and seeded random
     // buffers of a valid save with parts and connections), decodes or is the typed save refusal; nothing else escapes.
@@ -221,7 +221,7 @@ public sealed class WorkshopSaveTests
         var scene = WorkshopPhysicsCompiler.Compile(decoded.Construction, new(1, 2));
         {
             var guide = Assert.Single(scene.Guides.ToArray());
-            Assert.Equal(new MetreVector((float)(-1.1), .5f, (float)(-1.1)), guide.Minimum);
+            Assert.Equal(new MetreVector(-1.1f, .5f, -1.1f), guide.Minimum);
             Assert.Equal(new MetreVector(1.1f, 1.5f, 1.1f), guide.Maximum);
             Assert.Equal((float)receiver.Parameters[new("force_maximum_acceleration")], guide.MaximumAcceleration.Value);
             Assert.Equal(.5f, guide.SupportHeight.Value);
@@ -362,7 +362,7 @@ public sealed class WorkshopSaveTests
             Assert.Equal(ColliderShapeKind.Box, box.Shape);
             Assert.Equal((float)(ramp.Parameters[new("length")] * .5f), box.HalfExtents.X);
             Assert.Equal((float)(ramp.Parameters[new("width")] * .5f), box.HalfExtents.Z);
-            Assert.Equal((float)(.18f * .5f), box.HalfExtents.Y);
+            Assert.Equal(.18f * .5f, box.HalfExtents.Y);
             Assert.Equal(1f, Assert.Single(scene.Materials.ToArray(), material => material.Id == box.Material).Restitution.Value);
         }
     }
@@ -392,7 +392,7 @@ public sealed class WorkshopSaveTests
         var duplicate = saved.Construction with { Instances = new(Payloads.First(saved.Construction), Payloads.First(saved.Construction)) };
         Assert.Throws<ArgumentException>(duplicate.Validate);
         var ramp = WorkshopInput.Generic(PartId.Ramp, new(4), 0, 3, 0, 0, 0, 0, 1);
-        foreach (var value in new[] { 0f, (float)(-1), 4.5f, float.NaN, float.PositiveInfinity })
+        foreach (var value in new[] { 0f, (-1f), 4.5f, float.NaN, float.PositiveInfinity })
         {
             var invalid = saved with { Construction = saved.Construction.WithInstance(ramp with { Parameters = new([new(new("length"), (float)value), new(new("width"), 1f)]) }) };
             Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Encode(invalid));

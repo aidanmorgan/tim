@@ -281,14 +281,14 @@ public sealed class HoldTimerTests
         var boxes=scene.Colliders.ToArray().Where(row=>row.Body.Value==3).ToArray();
         Assert.Equal(2,boxes.Length);
         Assert.All(boxes,row=>Assert.Equal(ColliderShapeKind.Box,row.Shape));
-        Assert.Contains(boxes,row=>row.HalfExtents==new MetreVector((float).7f,(float).55f,(float).325f) && row.Pose.Translation==new MetreVector(0f,0f,0f));
-        Assert.Contains(boxes,row=>row.HalfExtents==new MetreVector((float).8f,(float).07f,(float).425f) && row.Pose.Translation==new MetreVector(0f,(float)(-.62f),0f));
+        Assert.Contains(boxes,row=>row.HalfExtents==new MetreVector(.7f,.55f,.325f) && row.Pose.Translation==new MetreVector(0f,0f,0f));
+        Assert.Contains(boxes,row=>row.HalfExtents==new MetreVector(.8f,.07f,.425f) && row.Pose.Translation==new MetreVector(0f,-.62f,0f));
         foreach(var box in boxes)
         {
             var material=scene.Materials.ToArray().Single(row=>row.Id==box.Material);
             Assert.Equal(new Restitution(1f),material.Restitution);
-            Assert.Equal(new FrictionCoefficient((float).3f),material.Friction);
-            Assert.Equal(new LinearSpeed((float).1f),material.BounceThreshold);
+            Assert.Equal(new FrictionCoefficient(.3f),material.Friction);
+            Assert.Equal(new LinearSpeed(.1f),material.BounceThreshold);
         }
     }
 
