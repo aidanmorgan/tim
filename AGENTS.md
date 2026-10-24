@@ -8,6 +8,20 @@ Read [TODO.md](TODO.md) for the current outcome, blocker and next check. Read on
 
 Apply the [focused engineering rules and role prompts](docs/delivery-workflow.md#focused-agentic-engineering): state material assumptions, choose the simplest complete design, limit changes to the affected dependency closure, and define observable success before implementation. For an authorised backlog goal, finish and verify the current slice, complete required publication, then continue to the next ready TODO-linked outcome. A request confined to one change does not authorise executing the backlog. Reassess stalled work using the workflow's progress trigger; do not weaken gates or turn supporting administration into a new project.
 
+## Delivery speed rules (owner, 24 October 2026; these take precedence over conflicting wording below)
+
+- **One loop, one review system.** Every slice runs the `bmad-build-auto` workflow. Its step-04 review layers (Blind Hunter, Edge Case Hunter, Verification Gap, Intent Alignment) are the independent adversarial review. No separate reviewer agent repeats them. After publication, a small verifier runs only the terminal checks (CI on the exact SHA, Pages artifact, deployment).
+- **One slice at a time.** Start the next slice from the published main, so a slice merges main at most once. Parallel work is limited to read-only drafting of the next spec.
+- **Builds.** Use incremental builds. Run the full solution suite once per round, at the end. Do not run the local Release worker build or web publish; CI owns them.
+- **Mutations once.** A small set of mutants covers each new test's key behaviour. The review's verification layer checks them; the implementer does not repeat them.
+- **Light evidence.**
+  - Identities are commit SHAs, CI run IDs and test totals.
+  - No staged-tree or diff hashing, and no duplicated manifests.
+  - SnapshotApproval is the review Pass on a committed SHA.
+  - Terminal receipts are a short section in the review record.
+- **Fresh agents.** Each slice gets a fresh implementer, and review fixes go back to it. Do not carry long-lived agents across slices.
+- **Stable rules.** A new rule applies from the next slice unless the owner says otherwise. A slice already in review finishes under the rules it started with.
+
 ## Delivery slices and independent review
 
 Implement one small functional slice: one behavior, defect or invariant plus its necessary callers, content, tests and documentation. Select its bounded [INVEST scope](docs/planning/invest-index.md), then read the exact source acceptance and technical prerequisites; card summaries cannot waive them. Use a dedicated implementation subagent and a different independent adversarial review subagent; the coordinator delegates, reconciles results and reports status. Keep that pair through debugging and forward fixes. Self-review never qualifies.
