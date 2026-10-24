@@ -354,7 +354,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
             if (!admitted)
             {
                 Assert.False(shown.Visible);
-                Assert.Equal("Placement rejected: resting there would lift the part above the bench.", Field<Label>(scene, "_status").Text);
+                Assert.Equal("Placement rejected: resting there would lift the part outside the bench.", Field<Label>(scene, "_status").Text);
                 Assert.Equal(before, scene.World.Construction);
                 Assert.Equal((commands, undos), (client.Commands.Count, Field<List<WorkshopConstruction>>(scene, "_undo").Count));
             }

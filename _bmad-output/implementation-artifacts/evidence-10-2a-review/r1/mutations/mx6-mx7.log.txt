@@ -1,0 +1,12 @@
+Test run for /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/review-10-2a/wt-r1/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:02.57]     CuriousContraptions.Tests.PlacementPoseTests.ALiftedWeightBesideABumperIsRefusedAndAClearGapIsAdmittedLikeABall [FAIL]
+  Failed CuriousContraptions.Tests.PlacementPoseTests.ALiftedWeightBesideABumperIsRefusedAndAClearGapIsAdmittedLikeABall [12 ms]
+  Error Message:
+   weight with the Bumper 1.05 m away: IntoPart
+  Stack Trace:
+     at CuriousContraptions.Tests.PlacementPoseTests.ALiftedWeightBesideABumperIsRefusedAndAClearGapIsAdmittedLikeABall() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/review-10-2a/wt-r1/CuriousContraptions.tests/PlacementPoseTests.cs:line 234
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     1, Passed:   102, Skipped:     0, Total:   103, Duration: 2 s - CuriousContraptions.tests.dll (net10.0)

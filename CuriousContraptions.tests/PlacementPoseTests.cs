@@ -179,7 +179,7 @@ public sealed class PlacementPoseTests
     public void ARestedPoseAboveTheBenchIsRefused(PartId part, float halfHeight)
     {
         var definitions = Definitions();
-        foreach (var (height, refusal) in new[] { (8.9f, PlacementRefusal.OutsideBench), (7.5f, PlacementRefusal.None) })
+        foreach (var (height, refusal) in new[] { (8.9f, PlacementRefusal.RestOutsideBench), (7.5f, PlacementRefusal.None) })
         {
             IWorkshopInstance[] placed = [PlacedParts.Plate(new(1), 0, height, 0, .5f)];
             var composed = PlacementPose.Compose(definitions, placed, new(part, new(2), false), new(0, height, 0), Quaternion.Identity);
@@ -197,7 +197,7 @@ public sealed class PlacementPoseTests
     {
         var definitions = Definitions();
         var h = TestBundle.Entry(WeightTests.Weight).Colliders[0].HalfExtents.Y;
-        foreach (var (plate, refusal) in new[] { (PlateY, PlacementRefusal.None), (8.9f - .08f, PlacementRefusal.OutsideBench) })
+        foreach (var (plate, refusal) in new[] { (PlateY, PlacementRefusal.None), (8.9f - .08f, PlacementRefusal.RestOutsideBench) })
         {
             var face = plate + .08f;
             IWorkshopInstance[] placed = [PlacedParts.Plate(new(1), 0, plate, 0, .5f)];
@@ -262,6 +262,56 @@ public sealed class PlacementPoseTests
                 Assert.Equal(at.Snapped(Vector3.One * .1f), composed.Position);
             }
         }
+    }
+
+    // Review R2 (10.2a F3 on the snap path): a new 3.6 m Pipe joined at a placed Pipe's end mouth continues it along +x, its start
+    // mouth on the placed end mouth, so its centre is twice the mouth's offset (2 × 1.89 m) beyond the placed one's and its body reaches
+    // 1.8 m further. Joined to a Pipe centred at x = 3 it would reach x ≈ 8.6, past the bench edge at 7: refused SnapOutsideBench.
+    // Control: joined to a Pipe centred at x = −3 it reaches ≈ 2.6 and is admitted.
+    // The drop point is inside the point volume in both cases, and the composed pose is the snap's own.
+    [Fact]
+    public void ATubeMouthSnapAcrossTheBenchEdgeIsRefusedAndOneInsideIsAdmitted()
+    {
+        var definitions = Definitions();
+        var mouth = TubeMouthSnap.LocalMouth(definitions[PartId.Pipe], TubeMouthEnd.End, PipeLength.Default);
+        var mover = new TubeMouthMover(PartId.Pipe, new(2), false, PipeLength.Default);
+        foreach (var (x, refusal) in new[] { (3f, PlacementRefusal.SnapOutsideBench), (-3f, PlacementRefusal.None) })
+        {
+            IWorkshopInstance[] placed = [WorkshopInput.Pipe(new(1), x, 1, 0, 0, 0, 0, 1)];
+            var at = new Vector3(x, 1, 0) + mouth + new Vector3(1.9f, .05f, 0);
+            Assert.True(PlacementPose.Inside(at), $"the drop point {at} is inside the point volume");
+            var composed = PlacementPose.Compose(definitions, placed, mover, at, Quaternion.Identity);
+            Assert.NotNull(composed.Snap);
+            var joined = composed.Snap.Value;
+            Assert.Equal((joined.Position, joined.Rotation), (composed.Position, composed.Rotation));
+            Assert.True(MathF.Abs(composed.Position.X - (x + 2 * mouth.X)) < 1e-4f, $"joined at {composed.Position}, mouth offset {mouth.X}");
+            Assert.True(refusal == composed.Refusal, $"a Pipe joined to one at x = {x}: {composed.Refusal}");
+        }
+    }
+
+    // L5: each placement path's refusal is its own typed reason with its own status text; the construction is unchanged, and a pose
+    // that is not refused has no refusal message.
+    [Fact]
+    public void EachPlacementRefusalHasItsOwnStatusText()
+    {
+        var world = new MachineWorld();
+        try
+        {
+            var before = world.Construction;
+            foreach (var (refusal, text) in new[]
+            {
+                (PlacementRefusal.OutsideBench, "Placement rejected: the part would reach outside the bench there."),
+                (PlacementRefusal.SnapOutsideBench, "Placement rejected: joining that tube mouth would take the part outside the bench."),
+                (PlacementRefusal.RestOutsideBench, "Placement rejected: resting there would lift the part outside the bench."),
+                (PlacementRefusal.IntoPart, "Placement rejected: resting there would push the part into another part.")
+            })
+            {
+                var proposal = WorkshopBenchPlacement.Refuse(world, refusal);
+                Assert.Equal((BenchPlacementRejection.UnplaceablePose, before, text), (proposal.Rejection, proposal.Construction, proposal.Message));
+            }
+            Assert.Throws<ArgumentOutOfRangeException>(() => WorkshopBenchPlacement.Refuse(world, PlacementRefusal.None));
+        }
+        finally { world.Free(); }
     }
 
     // B1: a part lifted onto a lower top into a higher box is refused (IntoPart). A Basketball at 0.7 m in a plate at 1 m overlaps only

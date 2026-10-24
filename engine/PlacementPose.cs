@@ -9,9 +9,11 @@ using ColliderShapeKind = CuriousContraptions.Abstractions.ColliderShapeKind;
 
 namespace CuriousContraptions;
 
-/// <summary>Why a rested placement pose is refused: it would leave the bench volume, or it would interpenetrate a Static part (for
-/// example a part lifted onto a lower top into a higher box).</summary>
-public enum PlacementRefusal : byte { None, OutsideBench, IntoPart }
+/// <summary>Why a composed placement pose is refused, by placement path: the part at its grid pose would reach outside the bench
+/// volume (<see cref="OutsideBench"/>); joined at a tube mouth it would (<see cref="SnapOutsideBench"/>); rested on a top it would be
+/// lifted outside it (<see cref="RestOutsideBench"/>), or into a Static part (<see cref="IntoPart"/>, for example a part lifted onto
+/// a lower top into a higher box).</summary>
+public enum PlacementRefusal : byte { None, OutsideBench, IntoPart, RestOutsideBench, SnapOutsideBench }
 
 /// <summary>A composed placement: the pose, the tube-mouth snap that produced it (if any) and whether the pose is refused.</summary>
 public readonly record struct ComposedPlacement(Vector3 Position, Quaternion Rotation, TubeMouthSnapResult? Snap, PlacementRefusal Refusal);
@@ -79,19 +81,20 @@ public static class PlacementPose
         ArgumentNullException.ThrowIfNull(placed);
         var grid = at.Snapped(Vector3.One * Grid);
         if (TubeMouthSnap.Find(definitions, placed, candidate, grid, rotation) is { } joined)
-            return new(joined.Position, joined.Rotation, joined, Bounded(candidate.Part, joined.Position, joined.Rotation));
+            return new(joined.Position, joined.Rotation, joined, Bounded(candidate.Part, joined.Position, joined.Rotation, PlacementRefusal.SnapOutsideBench));
         var (position, refusal) = Rest(placed, candidate, grid, rotation.Normalized());
-        return new(position, rotation, null, refusal != PlacementRefusal.None ? refusal : Bounded(candidate.Part, position, rotation.Normalized()));
+        return new(position, rotation, null, refusal != PlacementRefusal.None ? refusal
+            : Bounded(candidate.Part, position, rotation.Normalized(), PlacementRefusal.OutsideBench));
     }
 
     /// <summary>The one bench-volume rule of every placement path (snap, grid and rest): the part's declared colliders at its default
-    /// parameters, posed at the final pose, must lie in the bench volume (<see cref="Within"/>), or the pose is refused OutsideBench.
-    /// An undeclared part, or one that declares no collider, has no geometry to bound; capturing an undeclared part is the placement's
-    /// own typed refusal.</summary>
-    private static PlacementRefusal Bounded(PartId part, Vector3 position, Quaternion rotation) =>
+    /// parameters, posed at the final pose, must lie in the bench volume (<see cref="Within"/>), or the pose is refused with the path's
+    /// <paramref name="outside"/> reason. An undeclared part, or one that declares no collider, has no geometry to bound; capturing an
+    /// undeclared part is the placement's own typed refusal.</summary>
+    private static PlacementRefusal Bounded(PartId part, Vector3 position, Quaternion rotation, PlacementRefusal outside) =>
         !DeclaredPhysics.Contains(part) || DeclaredPhysics.Of(part).Colliders.Count == 0 ||
         Within(Pose(BundleGeometry.Colliders(DeclaredPhysics.Of(part)), position, rotation))
-            ? PlacementRefusal.None : PlacementRefusal.OutsideBench;
+            ? PlacementRefusal.None : outside;
 
     private static (Vector3 Position, PlacementRefusal Refusal) Rest(IReadOnlyList<IWorkshopInstance> placed, TubeMouthMover candidate,
         Vector3 at, Quaternion rotation)
@@ -128,7 +131,7 @@ public static class PlacementPose
         // The lifted pose must stay in the bench volume and clear every Static part (B1).
         var lifted = at with { Y = at.Y + (y - bottom) };
         var raised = Pose(BundleGeometry.Colliders(entry), lifted, rotation);
-        if (!Within(raised)) return (lifted, PlacementRefusal.OutsideBench);
+        if (!Within(raised)) return (lifted, PlacementRefusal.RestOutsideBench);
         foreach (var other in statics)
             if (Array.Exists(raised, shape => Overlaps(shape, other, ContactSlop))) return (lifted, PlacementRefusal.IntoPart);
         return (lifted, PlacementRefusal.None);

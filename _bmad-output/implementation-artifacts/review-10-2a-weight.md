@@ -99,3 +99,83 @@ Each mutation ran on a throwaway worktree of `e52c5473`, which has since been re
 Browser qualification remains **pending** until post-catalogue E2E. `cat-067` includes the engine-cylinder dynamic case from 10.1, and a Weight placed beside a Bumper should be added to it.
 
 Publication is not reached. After the R1 fix, the same implementation owner returns the candidate for independent re-review of the affected placement closure and a fresh full slnx. SnapshotApproval follows only after that.
+
+# Re-review, round 2: fixes for R1 and coordinator additions (a)–(c), 24 October 2026
+
+**Candidate.** HEAD `d29cb06e` = fix `710a084e` merged with main `54e19147` (which changes only AGENTS.md), plus the uncommitted gate logs in `evidence-10-2a/r1-merged-54e19147/`. The tree identity is in `evidence-10-2a-review/r1/head.txt`.
+
+## Round-2 verdict: **Incomplete** (one blocking gap, R2). SnapshotApproval not performed.
+
+origin/main has also moved to `7143a874`. That merge (`87d27e12`) changes CI and the test-deferral list, so a merge and a gate rerun are needed before SnapshotApproval in any case.
+
+### R1: resolved (Pass)
+
+**The fix.** In `Overlaps`, a static sphere now hands any non-sphere to the closest-point path. `ClosestOnCylinder` clamps the axial coordinate to ±h and the radial part to r; this is the exact solid-cylinder closest point. The doc comment now matches the code.
+
+**Probe** (`r1/probes/placement-overlap-probe-d29cb06e.log`): the Bumper reproducer and every exact-geometry case agree with the analytic answer.
+
+| Case | Result | Exact answer |
+| --- | --- | --- |
+| Bumper at 0.9 m | Weight and ball both refused, IntoPart | IntoPart |
+| Bumper at 1.0 m | Weight IntoPart; ball None | IntoPart (0.0017 m) for the Weight; None for the ball |
+| Bumper at 1.05 m | both None | None |
+
+The same probe also matches the exact answer for:
+- a Weight facing a box face, with gaps −0.027, −0.007, +0.013 and +0.043 m;
+- a lying Weight beside a box end;
+- cylinder against cylinder: side by side, crossed on top, and rim to rim. The result is the same when the two arguments are swapped.
+
+**Committed test.** `ALiftedWeightBesideABumperIsRefusedAndAClearGapIsAdmittedLikeABall`. Reviewer mutation MX6 (the radial clamp disabled) turns it red, in addition to the implementer's M13.
+
+### R2: blocking (Incomplete). Addition (a) is untested on the snap path
+
+Addition (a) claims the extent rule applies to "every placement path (snap, grid and rest)". Reviewer mutation MX7 makes the snap path return `None` instead of calling `Bounded`. It **survives** every `PlacementPoseTests`, `PalettePlacementTests` and `TubeMouth*` test (103 passed; `r1/mutations/mx6-mx7.*`).
+
+**Required:** a native test in which a tube-mouth snap puts the body across the bench edge and is refused `OutsideBench`, plus a control that is admitted. The only moving input here is the claimed snap behaviour, so a re-review of that test and its mutation is enough, followed by the gate on the merged candidate.
+
+### Addition (a): grid bounding, and the Wall test edit
+
+**The rule is generic.** It uses each part's declared colliders at default parameters. That is correct, because `Compose` is only called for new parts (`WorkshopGuidance.PlacementPose`, `_nextId`); moving a part uses `MoveSnap` only.
+
+**The Wall edit in `EveryOtherPlacementKeepsTheBasePose` is a correction, not a loosening:**
+- Centred on the bench plate, the old 2 m Wall reached 0.78 m below the bench surface, so under the new rule it is correctly refused.
+- The moved case still overlaps the plate face, so it still exercises "a Static part keeps its base pose".
+- Nothing about the refusal was weakened. A static part sunk into the bench is refused by the same generic `Within` that `AGridPlacementIsBoundedByTheBodyNotItsPoint` tests, but only for dynamic parts (L5).
+
+**Regression scope (deliberate rule change, not an accident).** `r1/probes/grid-admitted-range-per-part-d29cb06e.log` sweeps every registered part on an empty bench at its default rotation. The old point rule admitted every point in the work-point volume; the new rule admits less:
+
+| Part | Lowest admitted grid y | Range at y = 4 |
+| --- | --- | --- |
+| Funnel | 1.2 m | — |
+| Pipe bend 90 | 1.4 m | — |
+| Wall | 0.6 m | x ∈ [−5.5, 5.5] |
+| Pipe | — | x ∈ [−5.1, 5.1] |
+
+Every Playable lesson's solution position stays admissible at default parameters, though the Bumper at z = 3.3 has only 0.05 m to spare. The 12 Playable lessons and the full native suite are green.
+
+Browser recipes that click near the volume's edges (for example `cat-015b`'s Wall) must be re-checked in the post-catalogue E2E phase. Record them as accumulated browser cases.
+
+### New non-blocking findings
+
+| # | Severity | Finding |
+| --- | --- | --- |
+| L5 | Low | **Wrong message for grid refusals.** `WorkshopBenchPlacement.Refuse` still says "resting there would lift the part above the bench" for every `OutsideBench`, but grid and snap refusals (for example a Wall clicked at y = 0.3, or a part crossing x = ±7) are not rests. The `BenchPlacementRejection` doc ("a rested part outside the bench volume") is stale too. No test covers a static part sunk into the bench being refused. |
+| L6 | Low (over-refusal) | **Conservative cylinder test near corners.** Cylinder–box and cylinder–cylinder use a 15-axis SAT without the cylinder's rim axes, so it can refuse placements that are actually clear, but it never admits an overlap. Measured: a Weight diagonally 0.018–0.098 m clear of a Wall corner is refused, as is an upright cylinder 0.10 m clear on the diagonal. Only cylinder–box cases reach the catalogue today; static cylinders arrive with 10.2c. |
+| L1 | — | Superseded by addition (a). |
+| L2 | — | Resolved by (b): the cumulative path bound is ≤ 0.5 mm in the last second. |
+| L3 | — | Resolved by (c). |
+
+### Gates on `d29cb06e` (one rebuild)
+
+| Command | Result | Raw |
+| --- | --- | --- |
+| `dotnet build CuriousContraptions.slnx -c Debug` | 0 W / 0 E | `r1/build-debug.log` |
+| `dotnet test CuriousContraptions.slnx -c Debug --no-build --no-restore` | native **2964/2964**, BundleElements 194, E2eRunner 190, Coverage 77, WorkerAotGuard 17; **Skipped 0**; 0 duplicates | `r1/test-slnx.log` |
+| CI "Test C# tools" step (body identical to HEAD `pages.yml`) | 77 / 194 / 17 / E2eRunner 174; exit 0 | `r1/ci-tool-step.log` |
+| Release Simulation / Animation.Worker | 0 W / 0 E each | `r1/worker-release.log`, `r1/animation-worker-release.log` |
+
+**Other checks:**
+- **No hashes or skips:** the `+` lines of the `e52c5473..d29cb06e` C# diff add no hash, digest or byte-identity assertion, and no `Skip` or `Explicit`.
+- **Throwaway worktree:** `wt-r1` has been removed.
+
+**Next:** the same implementation owner adds the R2 test and merges origin/main `7143a874`. Then the reviewer re-checks R2 (test plus MX7 red) and reruns the gate on the merged tree. SnapshotApproval follows only after that.

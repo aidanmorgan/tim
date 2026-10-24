@@ -1,0 +1,27 @@
+using CuriousContraptions.Gpu;
+using Godot;
+
+namespace CuriousContraptions.Tests;
+
+// Reviewer throwaway probe (10.2a addition (a)): for every registered part on an empty bench at its default rotation, the admitted
+// range of grid placement points that the old point rule (Inside) admitted everywhere: y at x = z = 0, and x at y = 4, z = 0.
+[Collection<NativeSceneCollectionDefinition>]
+public sealed class ReviewerPlacementProbe3
+{
+    [Fact]
+    public void Probe()
+    {
+        var registry = new PartRegistry();
+        registry.Load();
+        var log = new System.Text.StringBuilder();
+        foreach (var part in registry.Definitions.Keys.OrderBy(p => p.Value, StringComparer.Ordinal))
+        {
+            PlacementRefusal At(Vector3 at) => PlacementPose.Compose(registry.Definitions, [], new(part, new(2), false, part == PartId.Pipe ? PipeLength.Default : null), at, Quaternion.Identity).Refusal;
+            var ys = Enumerable.Range(0, 91).Select(i => i / 10f).Where(y => At(new(0, y, 0)) == PlacementRefusal.None).ToArray();
+            var xs = Enumerable.Range(-70, 141).Select(i => i / 10f).Where(x => At(new(x, 4, 0)) == PlacementRefusal.None).ToArray();
+            log.AppendLine(FormattableString.Invariant(
+                $"{part.Value,-18} y [{(ys.Length > 0 ? ys.Min() : float.NaN):F1}, {(ys.Length > 0 ? ys.Max() : float.NaN):F1}] ({ys.Length}/91)  x@4 [{(xs.Length > 0 ? xs.Min() : float.NaN):F1}, {(xs.Length > 0 ? xs.Max() : float.NaN):F1}] ({xs.Length}/141)"));
+        }
+        Assert.Fail(log.ToString());
+    }
+}
