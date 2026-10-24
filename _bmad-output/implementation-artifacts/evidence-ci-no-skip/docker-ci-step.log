@@ -1,0 +1,35 @@
+user runner uid 1655; node v26.12.1 (workflow pin); dotnet 10.0.401; npx cache: ls: cannot access '/home/runner/.npm/_npx': No such file or directory
+An issue was encountered verifying workloads. For more information, run "dotnet workload update".
+    2 Error(s)
+/home/runner/.nuget/packages/2dog.engine/4.7.2.91/build/2dog.engine.targets(221,9): error MSB3073: The command ""/usr/share/dotnet/dotnet" exec "/home/runner/.nuget/packages/2dog.engine/4.7.2.91/build/../tools/net10.0/2dog.import.dll" ... exited with code 134. [/work/CuriousContraptions.2dog/CuriousContraptions.2dog.csproj]
+/home/runner/.nuget/packages/2dog.engine/4.7.2.91/build/2dog.engine.targets(221,9): error MSB3073: The command ""/usr/share/dotnet/dotnet" exec "/home/runner/.nuget/packages/2dog.engine/4.7.2.91/build/../tools/net10.0/2dog.import.dll" ... exited with code 134. [/work/CuriousContraptions.tests/CuriousContraptions.tests.csproj]
+===== extracted CI step
+dotnet test tools/Coverage.Tests --nologo --no-build --no-restore -c Debug -f net10.0 -noAutoResponse
+dotnet test tools/BundleElements.Tests --nologo --no-build --no-restore -c Debug -f net10.0 -noAutoResponse
+dotnet test tools/WorkerAotGuard.Tests --nologo --no-build --no-restore -c Debug -f net10.0 -noAutoResponse
+deferred=$(dotnet run --project tools/E2eRunner --no-build -c Debug -- deferred-filter)
+dotnet test tools/E2eRunner.Tests --nologo --no-build --no-restore -c Debug -f net10.0 -noAutoResponse --filter "$deferred"
+===== run (bash --noprofile --norc -eo pipefail)
+step exit 0
+Passed!  - Failed:     0, Passed:    77, Skipped:     0, Total:    77, Duration: 676 ms - Coverage.Tests.dll (net10.0)
+Passed!  - Failed:     0, Passed:   191, Skipped:     0, Total:   191, Duration: 330 ms - BundleElements.Tests.dll (net10.0)
+Passed!  - Failed:     0, Passed:    17, Skipped:     0, Total:    17, Duration: 40 ms - WorkerAotGuard.Tests.dll (net10.0)
+Passed!  - Failed:     0, Passed:   191, Skipped:     0, Total:   191, Duration: 13 s - E2eRunner.Tests.dll (net10.0)
+===== generated filter
+FullyQualifiedName!=CuriousContraptions.E2eRunner.Tests.TypeCheckTests.EverySuiteAndSharedModuleTypeChecks
+FullyQualifiedName!=CuriousContraptions.E2eRunner.Tests.TypeCheckTests.ASuiteReadingADeletedAccessorFailsTheTypeCheck
+FullyQualifiedName!=CuriousContraptions.E2eRunner.Tests.SuiteProcessTests.EnvironmentIsScrubbed
+FullyQualifiedName!=CuriousContraptions.E2eRunner.Tests.SuiteProcessTests.HangIsTimedOutAndTheWholeTreeIsKilled
+FullyQualifiedName!=CuriousContraptions.E2eRunner.Tests.SuiteProcessTests.FailingAssertionFailsTheFile
+FullyQualifiedName!=CuriousContraptions.E2eRunner.Tests.SuiteProcessTests.CloseFindingInAfterHookFailsTheFile
+FullyQualifiedName!=CuriousContraptions.E2eRunner.Tests.SuiteProcessTests.FileWithoutTestsIsNoTests
+FullyQualifiedName!=CuriousContraptions.E2eRunner.Tests.SuiteProcessTests.CrashFailsTheFile
+FullyQualifiedName!=CuriousContraptions.E2eRunner.Tests.SuiteProcessTests.PassingFileIsPassAndCountsDriverSignals
+FullyQualifiedName!=CuriousContraptions.E2eRunner.Tests.SuiteProcessTests.ImportErrorFailsWithNoTests
+FullyQualifiedName!=CuriousContraptions.E2eRunner.Tests.IdentityTests.UnchangedRunPasses
+FullyQualifiedName!=CuriousContraptions.E2eRunner.Tests.IdentityTests.BundleChangedMidRunAbortsWithIdentityChanged
+FullyQualifiedName!=CuriousContraptions.E2eRunner.Tests.IdentityTests.BundleChangedAndRestoredIsStillIdentityChanged
+FullyQualifiedName!=CuriousContraptions.E2eRunner.Tests.IdentityTests.SuiteSourceChangedMidRunIsIdentityChanged
+FullyQualifiedName!=CuriousContraptions.E2eRunner.Tests.IdentityTests.EndRehashCatchesAChangeTheWatcherMissed
+===== git status after the step (outside bin/obj)
+===== end

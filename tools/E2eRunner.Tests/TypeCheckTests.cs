@@ -3,7 +3,8 @@ using Xunit;
 
 namespace CuriousContraptions.E2eRunner.Tests;
 
-/// <summary>Story T.1 AC1: `tsc --noEmit -p tools/e2e/tsconfig.json` is part of Tier 1 (this test runs in `dotnet test`), so a suite
+/// <summary>Story T.1 AC1: `tsc --noEmit -p tools/e2e/tsconfig.json` is part of Tier 1 (this test runs in `dotnet test` on a workstation
+/// with the browser-suite toolchain; CI defers it to the post-catalogue browser phase through BrowserDeferral), so a suite
 /// that reads the Counter's retired accessor fails before Chrome. The TypeScript toolchain resolves from the npx cache by exact version and is
 /// never downloaded; a missing toolchain fails, it does not skip.</summary>
 public sealed partial class TypeCheckTests

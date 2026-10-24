@@ -1,0 +1,38 @@
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-ci-no-skip/tools/E2eRunner.Tests/bin/Debug/net10.0/E2eRunner.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.58]     CuriousContraptions.E2eRunner.Tests.BrowserDeferralTests.EveryOtherTestFileOfTheSystemRunsOrIsDeferred [FAIL]
+  Failed CuriousContraptions.E2eRunner.Tests.BrowserDeferralTests.EveryOtherTestFileOfTheSystemRunsOrIsDeferred [93 ms]
+  Error Message:
+   Assert.Empty() Failure: Collection was not empty
+Collection: ["CuriousContraptions.Simulation/zz-control.test.ts"]
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.BrowserDeferralTests.EveryOtherTestFileOfTheSystemRunsOrIsDeferred() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-ci-no-skip/tools/E2eRunner.Tests/BrowserDeferralTests.cs:line 92
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:02.52]     CuriousContraptions.E2eRunner.Tests.NodeHarnessTests.HarnessPasses(harness: "tools/zz-control.test.mjs") [FAIL]
+  Failed CuriousContraptions.E2eRunner.Tests.NodeHarnessTests.HarnessPasses(harness: "tools/zz-control.test.mjs") [121 ms]
+  Error Message:
+   tools/zz-control.test.mjs: NoTests (exit 0)
+TAP version 13
+# Subtest: tools/zz-control.test.mjs
+ok 1 - tools/zz-control.test.mjs
+  ---
+  duration_ms: 51.3595
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 54.902
+
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.NodeHarnessTests.HarnessPasses(String harness) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-ci-no-skip/tools/E2eRunner.Tests/NodeHarnessTests.cs:line 24
+   at InvokeStub_NodeHarnessTests.HarnessPasses(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+
+Failed!  - Failed:     2, Passed:    15, Skipped:     0, Total:    17, Duration: 3 s - E2eRunner.Tests.dll (net10.0)
