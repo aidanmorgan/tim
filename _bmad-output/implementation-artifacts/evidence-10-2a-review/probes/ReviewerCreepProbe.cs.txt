@@ -1,0 +1,39 @@
+using System.Numerics;
+using CuriousContraptions.Gpu;
+
+namespace CuriousContraptions.Tests;
+
+// Reviewer throwaway probe (10.2a F1): a plain engine cylinder (LawScene, centred origin, no Weight package) rolled down a 15° static
+// box ramp onto the bench, once with a drop (the slab's bottom corner on the bench, top face ~0.17 m up) and once flush (top face's
+// lower edge on the bench). Reports the axial (world Z) drift of the centre from the tick it stops (< 1 mm/s) to 14 s.
+public sealed class ReviewerCreepProbe
+{
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void Probe(bool drop)
+    {
+        const double degrees = 15;
+        var benchY = LawScene.BenchY;
+        var a = (float)(-degrees * Math.PI / 180);
+        var lift = drop ? 1.5 * Math.Sin(degrees * Math.PI / 180) + .09 * Math.Cos(degrees * Math.PI / 180)
+            : 1.5 * Math.Sin(degrees * Math.PI / 180) - .09 * Math.Cos(degrees * Math.PI / 180);
+        var rampCentre = new Vector3(0, (float)(benchY + lift), 0);
+        var scene = new LawScene();
+        scene.StaticBox(rampCentre, new Vector3(1.5f, .09f, .65f), Quaternion.CreateFromAxisAngle(Vector3.UnitZ, a), new LawMaterial(1f, .1f, .3f, 0f));
+        var normal = new Vector3(-MathF.Sin(a), MathF.Cos(a), 0);
+        var downhill = new Vector3(MathF.Cos(a), MathF.Sin(a), 0);
+        const float r = .35166413f, h = .27926272f;
+        var centre = rampCentre + .09f * normal + .5f * downhill + (r + .003f) * normal;
+        var drum = scene.Cylinder(centre, r, h, 4f, new LawMaterial(.08f, .1f, .3f, .03f), Quaternion.CreateFromAxisAngle(Vector3.UnitX, MathF.PI / 2));
+        var world = scene.Admit();
+        var rate = world.TicksPerSecond;
+        var zs = new List<float>(); var speeds = new List<double>();
+        world.Step(14 * rate, (tick, state) => { zs.Add(state[drum].Position.Z); speeds.Add(state[drum].Speed); });
+        var stopped = Enumerable.Range(2 * rate, zs.Count - 2 * rate).FirstOrDefault(i => speeds[i] < .001, -1);
+        var maxAbsZ = zs.Max(z => MathF.Abs(z));
+        var drift = stopped < 0 ? double.NaN : Math.Abs(zs[^1] - zs[stopped]);
+        Assert.Fail(FormattableString.Invariant(
+            $"PROBE drop={drop} stoppedTick={stopped} zAtStop={(stopped < 0 ? double.NaN : zs[stopped]) * 1000:F4}mm zEnd={zs[^1] * 1000:F4}mm postStopAxialDrift={drift * 1000:F4}mm max|z|={maxAbsZ * 1000:F4}mm finalSpeed={speeds[^1]:E3}"));
+    }
+}

@@ -1,0 +1,75 @@
+Test run for /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/review-10-2a/wt-mut/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:01.82]     CuriousContraptions.Tests.PlacementPoseTests.DominoesPlacedOnAPlateFromThePaletteOpenTheGateOnlyWhenTheySum(dominoes: 2, opens: True) [FAIL]
+[xUnit.net 00:00:01.83]     CuriousContraptions.Tests.PlacementPoseTests.DominoesPlacedOnAPlateFromThePaletteOpenTheGateOnlyWhenTheySum(dominoes: 1, opens: False) [FAIL]
+[xUnit.net 00:00:01.84]     CuriousContraptions.Tests.PlacementPoseTests.TheBenchVolumeBoundsTheRestedBodyNotItsOrigin [FAIL]
+[xUnit.net 00:00:01.87]     CuriousContraptions.Tests.PlacementPoseTests.ADynamicPartDroppedIntoAPlateRestsOnItsFace(part: domino, halfHeight: 0.550000012) [FAIL]
+[xUnit.net 00:00:01.87]     CuriousContraptions.Tests.PlacementPoseTests.ADynamicPartDroppedIntoAPlateRestsOnItsFace(part: ball, halfHeight: 0.340000004) [FAIL]
+[xUnit.net 00:00:01.88]     CuriousContraptions.Tests.PlacementPoseTests.ADynamicPartDroppedIntoAPlateRestsOnItsFace(part: bowling, halfHeight: 0.280000001) [FAIL]
+  Failed CuriousContraptions.Tests.PlacementPoseTests.DominoesPlacedOnAPlateFromThePaletteOpenTheGateOnlyWhenTheySum(dominoes: 2, opens: True) [21 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: None
+Actual:   OutsideBench
+  Stack Trace:
+     at CuriousContraptions.Tests.PlacementPoseTests.Composed(IReadOnlyDictionary`2 definitions, IReadOnlyList`1 placed, TubeMouthMover mover, Vector3 at, Quaternion rotation) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/review-10-2a/wt-mut/CuriousContraptions.tests/PlacementPoseTests.cs:line 36
+   at CuriousContraptions.Tests.PlacementPoseTests.DominoesPlacedOnAPlateFromThePaletteOpenTheGateOnlyWhenTheySum(Int32 dominoes, Boolean opens) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/review-10-2a/wt-mut/CuriousContraptions.tests/PlacementPoseTests.cs:line 104
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.PlacementPoseTests.DominoesPlacedOnAPlateFromThePaletteOpenTheGateOnlyWhenTheySum(dominoes: 1, opens: False) [9 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: None
+Actual:   OutsideBench
+  Stack Trace:
+     at CuriousContraptions.Tests.PlacementPoseTests.Composed(IReadOnlyDictionary`2 definitions, IReadOnlyList`1 placed, TubeMouthMover mover, Vector3 at, Quaternion rotation) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/review-10-2a/wt-mut/CuriousContraptions.tests/PlacementPoseTests.cs:line 36
+   at CuriousContraptions.Tests.PlacementPoseTests.DominoesPlacedOnAPlateFromThePaletteOpenTheGateOnlyWhenTheySum(Int32 dominoes, Boolean opens) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/review-10-2a/wt-mut/CuriousContraptions.tests/PlacementPoseTests.cs:line 104
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.PlacementPoseTests.TheBenchVolumeBoundsTheRestedBodyNotItsOrigin [7 ms]
+  Error Message:
+   weight on the plate at -0.23996094 m (top 0.39856452 m): OutsideBench
+  Stack Trace:
+     at CuriousContraptions.Tests.PlacementPoseTests.TheBenchVolumeBoundsTheRestedBodyNotItsOrigin() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/review-10-2a/wt-mut/CuriousContraptions.tests/PlacementPoseTests.cs:line 206
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.PlacementPoseTests.ADynamicPartDroppedIntoAPlateRestsOnItsFace(part: domino, halfHeight: 0.550000012) [6 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: None
+Actual:   OutsideBench
+  Stack Trace:
+     at CuriousContraptions.Tests.PlacementPoseTests.Composed(IReadOnlyDictionary`2 definitions, IReadOnlyList`1 placed, TubeMouthMover mover, Vector3 at, Quaternion rotation) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/review-10-2a/wt-mut/CuriousContraptions.tests/PlacementPoseTests.cs:line 36
+   at CuriousContraptions.Tests.PlacementPoseTests.ADynamicPartDroppedIntoAPlateRestsOnItsFace(PartId part, Single halfHeight) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/review-10-2a/wt-mut/CuriousContraptions.tests/PlacementPoseTests.cs:line 58
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.PlacementPoseTests.ADynamicPartDroppedIntoAPlateRestsOnItsFace(part: ball, halfHeight: 0.340000004) [9 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: None
+Actual:   OutsideBench
+  Stack Trace:
+     at CuriousContraptions.Tests.PlacementPoseTests.Composed(IReadOnlyDictionary`2 definitions, IReadOnlyList`1 placed, TubeMouthMover mover, Vector3 at, Quaternion rotation) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/review-10-2a/wt-mut/CuriousContraptions.tests/PlacementPoseTests.cs:line 36
+   at CuriousContraptions.Tests.PlacementPoseTests.ADynamicPartDroppedIntoAPlateRestsOnItsFace(PartId part, Single halfHeight) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/review-10-2a/wt-mut/CuriousContraptions.tests/PlacementPoseTests.cs:line 58
+   at InvokeStub_PlacementPoseTests.ADynamicPartDroppedIntoAPlateRestsOnItsFace(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.PlacementPoseTests.ADynamicPartDroppedIntoAPlateRestsOnItsFace(part: bowling, halfHeight: 0.280000001) [6 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: None
+Actual:   OutsideBench
+  Stack Trace:
+     at CuriousContraptions.Tests.PlacementPoseTests.Composed(IReadOnlyDictionary`2 definitions, IReadOnlyList`1 placed, TubeMouthMover mover, Vector3 at, Quaternion rotation) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/review-10-2a/wt-mut/CuriousContraptions.tests/PlacementPoseTests.cs:line 36
+   at CuriousContraptions.Tests.PlacementPoseTests.ADynamicPartDroppedIntoAPlateRestsOnItsFace(PartId part, Single halfHeight) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/review-10-2a/wt-mut/CuriousContraptions.tests/PlacementPoseTests.cs:line 58
+   at InvokeStub_PlacementPoseTests.ADynamicPartDroppedIntoAPlateRestsOnItsFace(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+[xUnit.net 00:00:02.01]     CuriousContraptions.Tests.WeightTests.TheWeightIsAMassBoundDynamicCylinderWithNoPortAndNoPayloadRole [FAIL]
+  Failed CuriousContraptions.Tests.WeightTests.TheWeightIsAMassBoundDynamicCylinderWithNoPortAndNoPayloadRole [11 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Tuple (Motion, "Weight", 31, 0.699999988)
+Actual:   Tuple (Motion, "Weight", 31, 0.600000024)
+  Stack Trace:
+     at CuriousContraptions.Tests.WeightTests.TheWeightIsAMassBoundDynamicCylinderWithNoPortAndNoPayloadRole() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/review-10-2a/wt-mut/CuriousContraptions.tests/WeightTests.cs:line 56
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     7, Passed:     7, Skipped:     0, Total:    14, Duration: 221 ms - CuriousContraptions.tests.dll (net10.0)

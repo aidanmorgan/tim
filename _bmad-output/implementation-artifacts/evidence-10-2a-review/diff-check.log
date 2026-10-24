@@ -1,0 +1,20 @@
+## git diff --check HEAD (uncommitted delta): exit 0, no output
+## git diff --check 0cba945b, files with findings:
+   1 _bmad-output/implementation-artifacts/evidence-10-2a/baseline/build-debug.log
+   2 _bmad-output/implementation-artifacts/evidence-10-2a/final/build-debug.log
+   1 _bmad-output/implementation-artifacts/evidence-10-2a/merged/build-debug.log
+   2 _bmad-output/implementation-artifacts/evidence-10-2a/mutations/m1-build.log
+   2 _bmad-output/implementation-artifacts/evidence-10-2a/mutations/m1-rerun-build.log
+   1 _bmad-output/implementation-artifacts/evidence-10-2a/mutations/m2-x-ne-z-declaration-build.log
+   1 _bmad-output/implementation-artifacts/evidence-10-2a/mutations/m3-build.log
+   1 _bmad-output/implementation-artifacts/evidence-10-2a/mutations/m4-build.log
+   1 _bmad-output/implementation-artifacts/evidence-10-2a/mutations/m5-m9-build.log
+   1 _bmad-output/implementation-artifacts/evidence-10-2a/mutations/m5-rename-reverted-m9-placement-arm-removed.log
+   1 _bmad-output/implementation-artifacts/evidence-10-2a/mutations/m7-build.log
+   1 _bmad-output/implementation-artifacts/evidence-10-2a/mutations/m8-build.log
+  22 _bmad-output/implementation-artifacts/evidence-engine-restitution-review/terminal/build-job.log
+   6 _bmad-output/implementation-artifacts/evidence-engine-restitution-review/terminal/deployment-status.txt
+   2 _bmad-output/implementation-artifacts/evidence-engine-restitution-review/terminal/identities.txt
+## non-log files with findings:
+_bmad-output/implementation-artifacts/evidence-engine-restitution-review/terminal/deployment-status.txt
+_bmad-output/implementation-artifacts/evidence-engine-restitution-review/terminal/identities.txt

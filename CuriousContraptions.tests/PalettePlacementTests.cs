@@ -354,7 +354,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
             if (!admitted)
             {
                 Assert.False(shown.Visible);
-                Assert.Equal("Placement rejected: resting there would lift the part above the bench.", Field<Label>(scene, "_status").Text);
+                Assert.Equal("Placement rejected: resting there would lift the part outside the bench.", Field<Label>(scene, "_status").Text);
                 Assert.Equal(before, scene.World.Construction);
                 Assert.Equal((commands, undos), (client.Commands.Count, Field<List<WorkshopConstruction>>(scene, "_undo").Count));
             }
@@ -1255,6 +1255,70 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
             Assert.Empty(InvokeHandler(scene, "ApplyDeclaredParameters", Current().Id, values));
             Assert.Equal(locked, scene.World.Construction);
             Assert.Equal(commands, client.Commands.Count);
+            Assert.Empty(godot.Errors.Drain());
+        }
+        finally { Release(scene); }
+    }
+
+    // Story 10.2a (D4): the Weight placed through the drawer is a generic instance at its declared 4 kg, and the generic editor names
+    // mass in kg with its declared range. A finite out-of-range entry clamps into 0.25–8 kg (the Clamp policy) and applies as one Undo,
+    // and the compiled body takes the mass; NaN, ±Infinity and text are refused with no change, no command and no Undo. Behind the
+    // field, the declared-parameter handler refuses an out-of-range, non-finite, missing or unknown mass atomically: nothing is clamped,
+    // defaulted or migrated there.
+    [Fact]
+    public void TheWeightMassEditorClampsFiniteEntriesAndEverySeamBehindItRefusesAnInvalidMass()
+    {
+        var key = new ParameterId("mass");
+        var (scene, client) = BenchScene(WeightTests.Weight, PlacementAnswer.Applied);
+        try
+        {
+            Assert.Empty(ClickBench(scene));
+            var choices = Field<VBoxContainer>(scene, "_connectionChoices");
+            static IEnumerable<T> Nodes<T>(Node parent) where T : Node =>
+                parent.GetChildren().SelectMany(child => new[] { child }.Concat(Nodes<Node>(child))).OfType<T>();
+            void Press(string label) => Assert.Single(Nodes<Button>(choices), button => button.Text == label).EmitSignal(Button.SignalName.Pressed);
+            WorkshopGenericInstance Current() => Assert.IsType<WorkshopGenericInstance>(Assert.Single(scene.World.Construction.Instances));
+            int Undos() => Field<List<WorkshopConstruction>>(scene, "_undo").Count;
+            Assert.Equal((WeightTests.Weight, 4f), (Current().PartId, Current().Parameters[key]));
+            var undo = Undos();
+            Assert.Empty(InvokeHandler(scene, "Select", Assert.Single(scene.World.Parts)));
+            Press("Configure");
+            Assert.Contains(Nodes<Label>(choices), label => label.Text == "mass (0.25–8 kg)");
+            var field = Assert.Single(Nodes<LineEdit>(choices));
+            Assert.Equal((key.Value, "4"), (field.Name.ToString(), field.Text));
+            Press("Cancel");
+            Assert.Equal(undo, Undos());
+            foreach (var (text, expected) in new[] { ("0.249", .25f), ("8.01", 8f), ("0", .25f), ("6.5", 6.5f), ("-1", .25f), ("8", 8f), ("0.25", .25f) })
+            {
+                Press("Configure");
+                Assert.Single(Nodes<LineEdit>(choices)).Text = text;
+                Press("Apply parameters");
+                Assert.Equal(BitConverter.SingleToUInt32Bits(expected), BitConverter.SingleToUInt32Bits(Current().Parameters[key]));
+                Assert.Equal(++undo, Undos());
+                Assert.Equal(new Kilograms((Half)expected), Assert.Single(WorkshopPhysicsCompiler.Compile(scene.World.Construction, new(1, 2))
+                    .Bodies.ToArray(), body => body.Id == Current().Id).Mass);
+            }
+            var accepted = scene.World.Construction;
+            var commands = client.Commands.Count;
+            foreach (var text in new[] { "NaN", "Infinity", "-Infinity", "two" })
+            {
+                Press("Configure");
+                Assert.Single(Nodes<LineEdit>(choices)).Text = text;
+                Press("Apply parameters");
+                Assert.Equal((accepted, commands, undo), (scene.World.Construction, client.Commands.Count, Undos()));
+                Press("Cancel");
+            }
+            var unknown = new ParameterId("radius");
+            foreach (var values in new InstanceParameterCollection[]
+            {
+                new([new(key, .249f)]), new([new(key, 8.01f)]), new([new(key, 0f)]), new([new(key, -1f)]), new([new(key, float.NaN)]),
+                new([new(key, float.PositiveInfinity)]), new([new(key, float.NegativeInfinity)]), new([]), new([new(unknown, 4f)]),
+                new([new(key, 4f), new(unknown, .3f)])
+            })
+            {
+                Assert.Empty(InvokeHandler(scene, "ApplyDeclaredParameters", Current().Id, values));
+                Assert.Equal((accepted, commands, undo), (scene.World.Construction, client.Commands.Count, Undos()));
+            }
             Assert.Empty(godot.Errors.Drain());
         }
         finally { Release(scene); }

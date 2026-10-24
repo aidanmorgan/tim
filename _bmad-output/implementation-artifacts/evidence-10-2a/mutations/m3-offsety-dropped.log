@@ -1,0 +1,68 @@
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:01.99]     CuriousContraptions.Tests.WeightTests.DroppedEndDownItRestsOnItsBaseWithoutSinkingDriftOrEnergyGain(mass: 8) [FAIL]
+[xUnit.net 00:00:02.14]     CuriousContraptions.Tests.WeightTests.DroppedEndDownItRestsOnItsBaseWithoutSinkingDriftOrEnergyGain(mass: 0.25) [FAIL]
+[xUnit.net 00:00:02.43]     CuriousContraptions.Tests.WeightTests.TheCompiledMassSizeCentreAndInertiaFollowTheMassParameter(mass: 0.25) [FAIL]
+[xUnit.net 00:00:02.44]     CuriousContraptions.Tests.WeightTests.TheCompiledMassSizeCentreAndInertiaFollowTheMassParameter(mass: 8) [FAIL]
+  Failed CuriousContraptions.Tests.WeightTests.DroppedEndDownItRestsOnItsBaseWithoutSinkingDriftOrEnergyGain(mass: 8) [157 ms]
+  Error Message:
+   Assert.InRange() Failure: Value not in range
+Range:  (-0.460460931 - -0.459460944)
+Actual: -0.307642579
+  Stack Trace:
+     at CuriousContraptions.Tests.WeightTests.DroppedEndDownItRestsOnItsBaseWithoutSinkingDriftOrEnergyGain(Single mass) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/CuriousContraptions.tests/WeightTests.cs:line 295
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.WeightTests.DroppedEndDownItRestsOnItsBaseWithoutSinkingDriftOrEnergyGain(mass: 0.25) [150 ms]
+  Error Message:
+   Assert.InRange() Failure: Value not in range
+Range:  (-0.460460931 - -0.459460944)
+Actual: -0.603417277
+  Stack Trace:
+     at CuriousContraptions.Tests.WeightTests.DroppedEndDownItRestsOnItsBaseWithoutSinkingDriftOrEnergyGain(Single mass) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/CuriousContraptions.tests/WeightTests.cs:line 295
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.WeightTests.TheCompiledMassSizeCentreAndInertiaFollowTheMassParameter(mass: 0.25) [8 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: MetreVector { X = 0, Y = 0.1361, Z = 0 }
+Actual:   MetreVector { X = 0, Y = 0.2793, Z = 0 }
+  Stack Trace:
+     at CuriousContraptions.Tests.WeightTests.TheCompiledMassSizeCentreAndInertiaFollowTheMassParameter(Single mass) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/CuriousContraptions.tests/WeightTests.cs:line 155
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WeightTests.TheCompiledMassSizeCentreAndInertiaFollowTheMassParameter(mass: 8) [< 1 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: MetreVector { X = 0, Y = 0.432, Z = 0 }
+Actual:   MetreVector { X = 0, Y = 0.2793, Z = 0 }
+  Stack Trace:
+     at CuriousContraptions.Tests.WeightTests.TheCompiledMassSizeCentreAndInertiaFollowTheMassParameter(Single mass) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/CuriousContraptions.tests/WeightTests.cs:line 155
+   at InvokeStub_WeightTests.TheCompiledMassSizeCentreAndInertiaFollowTheMassParameter(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+[xUnit.net 00:00:02.77]     CuriousContraptions.Tests.WeightTests.AStackEndDownHoldsWithoutBounceOrCreep(lower: 8, upper: 1) [FAIL]
+  Failed CuriousContraptions.Tests.WeightTests.AStackEndDownHoldsWithoutBounceOrCreep(lower: 8, upper: 1) [160 ms]
+  Error Message:
+   Assert.InRange() Failure: Value not in range
+Range:  (-0.460460931 - -0.459460944)
+Actual: -0.307651222
+  Stack Trace:
+     at CuriousContraptions.Tests.WeightTests.AStackEndDownHoldsWithoutBounceOrCreep(Single lower, Single upper) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/CuriousContraptions.tests/WeightTests.cs:line 387
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:02.80]     CuriousContraptions.Tests.WeightTests.AMassEditGrowsABenchRestingWeightUpwardAndItsBaseStaysOnTheBench [FAIL]
+[xUnit.net 00:00:03.17]     CuriousContraptions.Tests.WeightTests.TheSizeStrictlyIncreasesWithMass [FAIL]
+  Failed CuriousContraptions.Tests.WeightTests.AMassEditGrowsABenchRestingWeightUpwardAndItsBaseStaysOnTheBench [1 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: 0.432
+Actual:   0.2793
+  Stack Trace:
+     at CuriousContraptions.Tests.WeightTests.AMassEditGrowsABenchRestingWeightUpwardAndItsBaseStaysOnTheBench() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/CuriousContraptions.tests/WeightTests.cs:line 316
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.WeightTests.TheSizeStrictlyIncreasesWithMass [1 ms]
+  Error Message:
+   0.2793 after 0.2793
+  Stack Trace:
+     at CuriousContraptions.Tests.WeightTests.TheSizeStrictlyIncreasesWithMass() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/CuriousContraptions.tests/WeightTests.cs:line 212
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     7, Passed:    22, Skipped:     0, Total:    29, Duration: 2 s - CuriousContraptions.tests.dll (net10.0)

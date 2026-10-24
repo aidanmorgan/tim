@@ -1,0 +1,42 @@
+Test run for /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/review-10-2a/wt-mut/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:01.56]     CuriousContraptions.Tests.WeightTests.TheCompiledMassSizeCentreAndInertiaFollowTheMassParameter(mass: 0.25) [FAIL]
+[xUnit.net 00:00:01.57]     CuriousContraptions.Tests.WeightTests.TheCompiledMassSizeCentreAndInertiaFollowTheMassParameter(mass: 8) [FAIL]
+[xUnit.net 00:00:01.57]     CuriousContraptions.Tests.WeightTests.TheCompiledMassSizeCentreAndInertiaFollowTheMassParameter(mass: 4) [FAIL]
+[xUnit.net 00:00:02.14]     CuriousContraptions.Tests.PlacementPoseTests.ADroppedWeightRestsOnThePlateFaceUprightOnItsBaseAndOnItsSide [FAIL]
+  Failed CuriousContraptions.Tests.WeightTests.TheCompiledMassSizeCentreAndInertiaFollowTheMassParameter(mass: 0.25) [52 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Tuple (Restitution { Value = 0.08 }, FrictionCoefficient { Value = 0.3 }, RollingResistance { Value = 0.03 }, LinearSpeed { Value = 0.1 })
+Actual:   Tuple (Restitution { Value = 0.3 }, FrictionCoefficient { Value = 0.3 }, RollingResistance { Value = 0.03 }, LinearSpeed { Value = 0.1 })
+  Stack Trace:
+     at CuriousContraptions.Tests.WeightTests.TheCompiledMassSizeCentreAndInertiaFollowTheMassParameter(Single mass) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/review-10-2a/wt-mut/CuriousContraptions.tests/WeightTests.cs:line 159
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WeightTests.TheCompiledMassSizeCentreAndInertiaFollowTheMassParameter(mass: 8) [< 1 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Tuple (Restitution { Value = 0.08 }, FrictionCoefficient { Value = 0.3 }, RollingResistance { Value = 0.03 }, LinearSpeed { Value = 0.1 })
+Actual:   Tuple (Restitution { Value = 0.3 }, FrictionCoefficient { Value = 0.3 }, RollingResistance { Value = 0.03 }, LinearSpeed { Value = 0.1 })
+  Stack Trace:
+     at CuriousContraptions.Tests.WeightTests.TheCompiledMassSizeCentreAndInertiaFollowTheMassParameter(Single mass) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/review-10-2a/wt-mut/CuriousContraptions.tests/WeightTests.cs:line 159
+   at InvokeStub_WeightTests.TheCompiledMassSizeCentreAndInertiaFollowTheMassParameter(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.WeightTests.TheCompiledMassSizeCentreAndInertiaFollowTheMassParameter(mass: 4) [< 1 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Tuple (Restitution { Value = 0.08 }, FrictionCoefficient { Value = 0.3 }, RollingResistance { Value = 0.03 }, LinearSpeed { Value = 0.1 })
+Actual:   Tuple (Restitution { Value = 0.3 }, FrictionCoefficient { Value = 0.3 }, RollingResistance { Value = 0.03 }, LinearSpeed { Value = 0.1 })
+  Stack Trace:
+     at CuriousContraptions.Tests.WeightTests.TheCompiledMassSizeCentreAndInertiaFollowTheMassParameter(Single mass) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/review-10-2a/wt-mut/CuriousContraptions.tests/WeightTests.cs:line 159
+   at InvokeStub_WeightTests.TheCompiledMassSizeCentreAndInertiaFollowTheMassParameter(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.PlacementPoseTests.ADroppedWeightRestsOnThePlateFaceUprightOnItsBaseAndOnItsSide [7 ms]
+  Error Message:
+   lying Weight rests at 1, face top + r 1.431664
+  Stack Trace:
+     at CuriousContraptions.Tests.PlacementPoseTests.ADroppedWeightRestsOnThePlateFaceUprightOnItsBaseAndOnItsSide() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/review-10-2a/wt-mut/CuriousContraptions.tests/PlacementPoseTests.cs:line 83
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     4, Passed:    12, Skipped:     0, Total:    16, Duration: 717 ms - CuriousContraptions.tests.dll (net10.0)

@@ -1,0 +1,415 @@
+✖ a served Animation probe reaches the host (control) (0.896458ms)
+✖ a disposed Animation worker holds no clock ring and refuses to probe it (0.3425ms)
+✖ a clock reply landing after the Animation worker was disposed never reaches the host (0.29525ms)
+✖ each Service turn first delivers the new records of the installed epoch, once (0.276167ms)
+✖ a ring older than the installed epoch is ignored: no delivery, no foreign-epoch fault, and the turn still services (0.851292ms)
+✖ owned master-port accepts exactly one scheduleControl payload (0.417292ms)
+✖ owned master-port accepts exactly one committedRead payload (0.322917ms)
+✖ mixed or unknown master-port envelope calls neither managed entry (0.305875ms)
+✖ mixed or unknown master-port envelope calls neither managed entry (0.30325ms)
+✖ mixed or unknown master-port envelope calls neither managed entry (0.290667ms)
+✖ mixed or unknown master-port envelope calls neither managed entry (0.246667ms)
+✖ every admitted target publishes its latest sample in order, holding one receipt, and a disposed worker publishes nothing (1.515042ms)
+✔ normal publication activates exactly one service and retains startup qualification (3.785625ms)
+✔ a master peer whose leading padding holds the retired clock wire version 4 is refused (0.626042ms)
+✔ a master peer whose leading padding holds a non-zero high padding byte is refused (0.391667ms)
+✔ delayed managed publication has no callback until explicit activation (0.448167ms)
+✔ default and missing IDs reject without scheduling or changing the ready owner (0.455459ms)
+✔ pre-ready activation rejects atomically and subsequent legitimate activation succeeds (0.392709ms)
+✔ duplicate activation preserves the one original timer and owner state (0.401458ms)
+✔ startup timeout before worker readiness rejects creation and activation (0.355042ms)
+✔ startup timeout after JS return remains anchored to both runtime readiness (0.408375ms)
+✔ worker failure rejects activation without invoking managed service (0.450042ms)
+✔ disposal before managed publication prevents later activation (0.379875ms)
+✔ disposal after activation makes a captured late callback inert (0.353834ms)
+✔ failure after activation makes a captured late callback inert (0.342959ms)
+✔ a failed client detaches its clock ring (0.324208ms)
+✔ a clock reply landing after the client failed is never delivered (3.41675ms)
+✔ a clock reply landing after disposal is never delivered (0.958917ms)
+✔ a clock reply missing beyond 1000ms never faults the session and the service keeps probing (0.619625ms)
+✔ a Simulation heartbeat silent for 1000ms of running service faults the session as SimulationUnresponsive (2.560959ms)
+✔ a Browser that was itself blocked never mistakes the Simulation for hung (0.886959ms)
+✔ both runtimes must be ready before the one qualification deadline (0,1) (0.394166ms)
+✔ both runtimes must be ready before the one qualification deadline (1,0) (0.295459ms)
+✔ duplicate runtime readiness rejects worker 0 (0.292167ms)
+✔ early ready rejects worker 0 (0.310166ms)
+✔ duplicate runtime readiness rejects worker 1 (0.288792ms)
+✔ early ready rejects worker 1 (0.260584ms)
+✔ early Animation qualification rejects before bootstrap (0.279625ms)
+✔ duplicate authoritative Animation peer rejects without a second transfer (0.311542ms)
+✔ disposal during asset loading prevents late readiness from rearming (0.293875ms)
+✔ Animation constructor failure closes the already owned Simulation worker (0.305458ms)
+✔ premature Animation output fails without delivering to the managed consumer (0.281667ms)
+✔ delayed valid ACK keeps Backpressure until managed validation completes, and posts no stall flag (0.475708ms)
+✔ a command older than two seconds is TimedOut for the player, still without a stall flag (0.332583ms)
+✔ completing an older ACK cannot clear another aged request or exceed two leases (0.403167ms)
+✔ taken but invalid ACK cannot release capacity or report healthy without completion (0.399458ms)
+✔ unmatched or duplicate ACK faults the session (false) (0.564417ms)
+✔ unmatched or duplicate ACK faults the session (true) (0.4135ms)
+✔ the deleted worker channel memoryResult is an unknown envelope that faults the session (0.385959ms)
+✔ the deleted worker channel candidateTimedOut is an unknown envelope that faults the session (0.324667ms)
+✔ two animation owners send sequential controls only after managed ACK delivery returns (0.426458ms)
+✔ nanoseconds is the exact round-half-even port of WorkshopNativeClock.FromMilliseconds (0.660375ms)
+✔ a valid probe is answered with itself followed by the two master stamps and their derivation epoch (0.408458ms)
+✔ the master rejects every probe, stamp or epoch WorkshopClockWire.EncodeReply rejects (0.191625ms)
+✔ a blocking master thread answers each requester through its own slot; a foreign probe is rejected explicitly (10.132917ms)
+✔ a drifted master is re-derived: the next exchange and every reply carry the new correction and epoch (7.013375ms)
+✔ a slew installs the new correction under the same epoch, so requester mappings keep their calibration (6.549042ms)
+✔ the Simulation heartbeat advances only when the Simulation beats, and a ring of another layout is refused (0.139ms)
+✔ a newer probe of the same requester supersedes an unconsumed answer, which resolves to null (0.308917ms)
+✔ a probe the master has not served is never overwritten: the next probe resolves null and the session continues (0.213917ms)
+✔ an unanswered derivation exchange returns null, a check while it is pending never blocks, and its late answer is consumed (15.01625ms)
+✔ a reply wait ends after the probe lifetime when the master never answers (252.326583ms)
+✔ startup qualification waits out a stalled master instead of burning its attempt budget (48.655708ms)
+✔ a close finding fails a test that otherwise passed (110.720459ms)
+✔ a close finding never replaces the test's own failure, and is still reported (115.620291ms)
+✔ several findings of one test are aggregated, not dropped (113.883125ms)
+✔ a recorded finding with no test to fail still fails the file (catch-all) (117.715083ms)
+✔ a finding raised in a suite's after hook is reported against that suite (117.066416ms)
+✔ closeAfterSuite with no findings passes (control) (114.3615ms)
+✔ no Chrome suite closes its driver with close() in a suite after hook (2.27475ms)
+✔ a clean close passes (control), and a finding is raised once, not again for later tests (232.616375ms)
+✔ a declared session fault that occurred is not a finding (0.167666ms)
+✔ a declared session fault that did not occur is a finding (0.16075ms)
+✔ a different fault than the declared one is a finding, and the declared one is still required (0.118208ms)
+✔ a declared fault does not excuse another fault that also occurred (0.058166ms)
+✔ an undeclared debt fault is a finding (0.056167ms)
+✔ unknown session faults are rejected (0.176709ms)
+✔ encoded trace bytes containing NaN are not diagnostic text (0.460167ms)
+✔ a typed base64 envelope never fails on a NaN substring of its payload (Murdoch-2 F1) (0.204125ms)
+✔ no Chrome suite checks a raw NaN substring of console text; each goes through reportsNaN (whole class of F1) (9.37825ms)
+✔ actual errors survive encoded-looking messages and ordinary diagnostics (0.130166ms)
+✔ concurrent stress: over a million records through the shipped writer, no reader ever receives a torn record (1152.991417ms)
+ℹ Error: A resource generated asynchronous activity after the test ended. This activity created the error "TypeError: vm.SourceTextModule is not a constructor" which triggered an uncaughtException event, caught by the test runner.
+✖ tools/workshop-event-ring-cursor.test.mjs (1224.363792ms)
+file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/tools/workshop-event-ring.test.mjs:28
+const worker = new vm.SourceTextModule(workerSource + '\nexport { writeEventRing, disposeOwned };' +
+               ^
+
+TypeError: vm.SourceTextModule is not a constructor
+    at file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/tools/workshop-event-ring.test.mjs:28:16
+
+Node.js v26.12.1
+✖ tools/workshop-event-ring.test.mjs (72.888792ms)
+✔ established isolation permits delayed runtime loading and records actual usable time (1.596542ms)
+✔ incomplete isolation handshake still fails at the existing deadline (0.483125ms)
+✔ controller replacement retires booting ownership (0.374875ms)
+✔ controller replacement retires qualified ownership (0.305042ms)
+✔ at most one isolation reload remains permitted (1.012583ms)
+✔ manual navigation after slow runtime loading starts a fresh isolation attempt (0.549ms)
+✔ another deploy's changed isolation worker waiting behind the controller is refused (0.287334ms)
+✔ a controller answering the handshake in another shape (the retired numbered reply) is refused (0.274875ms)
+✔ the isolation worker answers only the structural policy request from an eligible client (0.629459ms)
+✖ capture mode 1: preparation, receipts, queued terminal, output failure, retired envelopes and disposal (1.290916ms)
+✖ capture mode 2: preparation, receipts, queued terminal, output failure, retired envelopes and disposal (1.136125ms)
+✖ a slow clock master costs counted missed checks, never a failure, and the session continues (0.397875ms)
+✖ a receipt the managed ledger refuses is a failure and retires the session (0.389584ms)
+✖ the memory query travels the command transport and a third outstanding command is refused (0.328625ms)
+✖ startup control 1: a rejected preparation (0.286042ms)
+✖ startup control 2: a rejected preparation (0.22925ms)
+✖ every byte buffer reaches the one managed decoder (0.254709ms)
+✖ a scheduler turn that cannot resume is a failure envelope (0.325541ms)
+✖ disposal cancels the timed and the queued scheduler turn (0.325958ms)
+✖ a mixed envelope is rejected atomically (0.283583ms)
+file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/tools/workshop-pose-ring.test.mjs:10
+const module = new vm.SourceTextModule(source + '\nexport { clients, attachPoseRing };', { context });
+               ^
+
+TypeError: vm.SourceTextModule is not a constructor
+    at file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/tools/workshop-pose-ring.test.mjs:10:16
+
+Node.js v26.12.1
+✖ tools/workshop-pose-ring.test.mjs (73.839291ms)
+✔ request success cannot complete Save; transaction abort preserves prior exact bytes (2.384209ms)
+✔ completed Save owns input bytes and Load returns an exact independent roundtrip (0.534833ms)
+✔ missing save is empty and incompatible width rejects without replacement (0.599166ms)
+ℹ tests 108
+ℹ suites 0
+ℹ pass 82
+ℹ fail 26
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1233.044958
+
+✖ failing tests:
+
+test at tools/workshop-animation-clock.test.mjs:70:1
+✖ a served Animation probe reaches the host (control) (0.896458ms)
+  TypeError [Error]: vm.SourceTextModule is not a constructor
+      at animationWorker (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/tools/workshop-animation-clock.test.mjs:49:20)
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/tools/workshop-animation-clock.test.mjs:71:26)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17)
+
+test at tools/workshop-animation-clock.test.mjs:78:1
+✖ a disposed Animation worker holds no clock ring and refuses to probe it (0.3425ms)
+  TypeError [Error]: vm.SourceTextModule is not a constructor
+      at animationWorker (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/tools/workshop-animation-clock.test.mjs:49:20)
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/tools/workshop-animation-clock.test.mjs:79:26)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3)
+
+test at tools/workshop-animation-clock.test.mjs:85:1
+✖ a clock reply landing after the Animation worker was disposed never reaches the host (0.29525ms)
+  TypeError [Error]: vm.SourceTextModule is not a constructor
+      at animationWorker (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/tools/workshop-animation-clock.test.mjs:49:20)
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/tools/workshop-animation-clock.test.mjs:86:26)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+
+test at tools/workshop-animation-clock.test.mjs:104:1
+✖ each Service turn first delivers the new records of the installed epoch, once (0.276167ms)
+  TypeError [Error]: vm.SourceTextModule is not a constructor
+      at animationWorker (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/tools/workshop-animation-clock.test.mjs:49:20)
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/tools/workshop-animation-clock.test.mjs:105:26)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+
+test at tools/workshop-animation-clock.test.mjs:123:1
+✖ a ring older than the installed epoch is ignored: no delivery, no foreign-epoch fault, and the turn still services (0.851292ms)
+  TypeError [Error]: vm.SourceTextModule is not a constructor
+      at animationWorker (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/tools/workshop-animation-clock.test.mjs:49:20)
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/tools/workshop-animation-clock.test.mjs:124:26)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+
+test at tools/workshop-animation-clock.test.mjs:134:5
+✖ owned master-port accepts exactly one scheduleControl payload (0.417292ms)
+  TypeError [Error]: vm.SourceTextModule is not a constructor
+      at animationWorker (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/tools/workshop-animation-clock.test.mjs:49:20)
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/tools/workshop-animation-clock.test.mjs:135:30)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+
+test at tools/workshop-animation-clock.test.mjs:134:5
+✖ owned master-port accepts exactly one committedRead payload (0.322917ms)
+  TypeError [Error]: vm.SourceTextModule is not a constructor
+      at animationWorker (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/tools/workshop-animation-clock.test.mjs:49:20)
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/tools/workshop-animation-clock.test.mjs:135:30)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+
+test at tools/workshop-animation-clock.test.mjs:149:5
+✖ mixed or unknown master-port envelope calls neither managed entry (0.305875ms)
+  TypeError [Error]: vm.SourceTextModule is not a constructor
+      at animationWorker (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/tools/workshop-animation-clock.test.mjs:49:20)
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/tools/workshop-animation-clock.test.mjs:150:30)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+
+test at tools/workshop-animation-clock.test.mjs:149:5
+✖ mixed or unknown master-port envelope calls neither managed entry (0.30325ms)
+  TypeError [Error]: vm.SourceTextModule is not a constructor
+      at animationWorker (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/tools/workshop-animation-clock.test.mjs:49:20)
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/tools/workshop-animation-clock.test.mjs:150:30)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+
+test at tools/workshop-animation-clock.test.mjs:149:5
+✖ mixed or unknown master-port envelope calls neither managed entry (0.290667ms)
+  TypeError [Error]: vm.SourceTextModule is not a constructor
+      at animationWorker (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/tools/workshop-animation-clock.test.mjs:49:20)
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/tools/workshop-animation-clock.test.mjs:150:30)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+
+test at tools/workshop-animation-clock.test.mjs:149:5
+✖ mixed or unknown master-port envelope calls neither managed entry (0.246667ms)
+  TypeError [Error]: vm.SourceTextModule is not a constructor
+      at animationWorker (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/tools/workshop-animation-clock.test.mjs:49:20)
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/tools/workshop-animation-clock.test.mjs:150:30)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+
+test at tools/workshop-animation-output.test.mjs:10:1
+✖ every admitted target publishes its latest sample in order, holding one receipt, and a disposed worker publishes nothing (1.515042ms)
+  TypeError [Error]: vm.SyntheticModule is not a constructor
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/tools/workshop-animation-output.test.mjs:31:18)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3)
+
+test at tools/workshop-event-ring-cursor.test.mjs:1:1
+✖ tools/workshop-event-ring-cursor.test.mjs (1224.363792ms)
+  'test failed'
+
+test at tools/workshop-event-ring.test.mjs:1:1
+✖ tools/workshop-event-ring.test.mjs (72.888792ms)
+  'test failed'
+
+test at tools/workshop-observation.test.mjs:142:35
+✖ capture mode 1: preparation, receipts, queued terminal, output failure, retired envelopes and disposal (1.290916ms)
+  TypeError [Error]: vm.SyntheticModule is not a constructor
+      at loadWorker (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/tools/workshop-observation.test.mjs:111:20)
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/tools/workshop-observation.test.mjs:163:28)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17)
+
+test at tools/workshop-observation.test.mjs:142:35
+✖ capture mode 2: preparation, receipts, queued terminal, output failure, retired envelopes and disposal (1.136125ms)
+  TypeError [Error]: vm.SyntheticModule is not a constructor
+      at loadWorker (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/tools/workshop-observation.test.mjs:111:20)
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/tools/workshop-observation.test.mjs:163:28)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3)
+
+test at tools/workshop-observation.test.mjs:298:1
+✖ a slow clock master costs counted missed checks, never a failure, and the session continues (0.397875ms)
+  TypeError [Error]: vm.SyntheticModule is not a constructor
+      at loadWorker (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/tools/workshop-observation.test.mjs:111:20)
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/tools/workshop-observation.test.mjs:302:28)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+
+test at tools/workshop-observation.test.mjs:326:1
+✖ a receipt the managed ledger refuses is a failure and retires the session (0.389584ms)
+  TypeError [Error]: vm.SyntheticModule is not a constructor
+      at loadWorker (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/tools/workshop-observation.test.mjs:111:20)
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/tools/workshop-observation.test.mjs:335:47)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+
+test at tools/workshop-observation.test.mjs:351:1
+✖ the memory query travels the command transport and a third outstanding command is refused (0.328625ms)
+  TypeError [Error]: vm.SyntheticModule is not a constructor
+      at loadWorker (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/tools/workshop-observation.test.mjs:111:20)
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/tools/workshop-observation.test.mjs:357:47)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+
+test at tools/workshop-observation.test.mjs:376:54
+✖ startup control 1: a rejected preparation (0.286042ms)
+  TypeError [Error]: vm.SyntheticModule is not a constructor
+      at loadWorker (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/tools/workshop-observation.test.mjs:111:20)
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/tools/workshop-observation.test.mjs:385:28)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+
+test at tools/workshop-observation.test.mjs:376:54
+✖ startup control 2: a rejected preparation (0.22925ms)
+  TypeError [Error]: vm.SyntheticModule is not a constructor
+      at loadWorker (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/tools/workshop-observation.test.mjs:111:20)
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/tools/workshop-observation.test.mjs:385:28)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+
+test at tools/workshop-observation.test.mjs:401:1
+✖ every byte buffer reaches the one managed decoder (0.254709ms)
+  TypeError [Error]: vm.SyntheticModule is not a constructor
+      at loadWorker (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/tools/workshop-observation.test.mjs:111:20)
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/tools/workshop-observation.test.mjs:404:38)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+
+test at tools/workshop-observation.test.mjs:459:1
+✖ a scheduler turn that cannot resume is a failure envelope (0.325541ms)
+  TypeError [Error]: vm.SyntheticModule is not a constructor
+      at loadWorker (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/tools/workshop-observation.test.mjs:111:20)
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/tools/workshop-observation.test.mjs:466:41)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+
+test at tools/workshop-observation.test.mjs:475:1
+✖ disposal cancels the timed and the queued scheduler turn (0.325958ms)
+  TypeError [Error]: vm.SyntheticModule is not a constructor
+      at loadWorker (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/tools/workshop-observation.test.mjs:111:20)
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/tools/workshop-observation.test.mjs:481:31)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+
+test at tools/workshop-observation.test.mjs:497:1
+✖ a mixed envelope is rejected atomically (0.283583ms)
+  TypeError [Error]: vm.SyntheticModule is not a constructor
+      at loadWorker (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/tools/workshop-observation.test.mjs:111:20)
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/tools/workshop-observation.test.mjs:505:38)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+
+test at tools/workshop-pose-ring.test.mjs:1:1
+✖ tools/workshop-pose-ring.test.mjs (73.839291ms)
+  'test failed'
+node exit 1

@@ -1,0 +1,62 @@
+Test run for /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/review-10-2a/wt-r2/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:03.18]     CuriousContraptions.Tests.PalettePlacementTests.ThePreviewAndTheClickShareTheComposedPoseAndItsRefusal(height: 8.89999962, admitted: False) [FAIL]
+  Failed CuriousContraptions.Tests.PalettePlacementTests.ThePreviewAndTheClickShareTheComposedPoseAndItsRefusal(height: 8.89999962, admitted: False) [45 ms]
+  Error Message:
+   Assert.Equal() Failure: Strings differ
+                               ↓ (pos 20)
+Expected: "Placement rejected: resting there would lift the p"···
+Actual:   "Placement rejected: the part would reach outside t"···
+                               ↑ (pos 20)
+  Stack Trace:
+     at CuriousContraptions.Tests.PalettePlacementTests.ThePreviewAndTheClickShareTheComposedPoseAndItsRefusal(Single height, Boolean admitted) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/review-10-2a/wt-r2/CuriousContraptions.tests/PalettePlacementTests.cs:line 357
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+[xUnit.net 00:00:05.30]     CuriousContraptions.Tests.PlacementPoseTests.ARestedPoseAboveTheBenchIsRefused(part: domino, halfHeight: 0.550000012) [FAIL]
+[xUnit.net 00:00:05.31]     CuriousContraptions.Tests.PlacementPoseTests.ARestedPoseAboveTheBenchIsRefused(part: ball, halfHeight: 0.340000004) [FAIL]
+  Failed CuriousContraptions.Tests.PlacementPoseTests.ARestedPoseAboveTheBenchIsRefused(part: domino, halfHeight: 0.550000012) [7 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: RestOutsideBench
+Actual:   OutsideBench
+  Stack Trace:
+     at CuriousContraptions.Tests.PlacementPoseTests.ARestedPoseAboveTheBenchIsRefused(PartId part, Single halfHeight) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/review-10-2a/wt-r2/CuriousContraptions.tests/PlacementPoseTests.cs:line 186
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.PlacementPoseTests.ARestedPoseAboveTheBenchIsRefused(part: ball, halfHeight: 0.340000004) [6 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: RestOutsideBench
+Actual:   OutsideBench
+  Stack Trace:
+     at CuriousContraptions.Tests.PlacementPoseTests.ARestedPoseAboveTheBenchIsRefused(PartId part, Single halfHeight) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/review-10-2a/wt-r2/CuriousContraptions.tests/PlacementPoseTests.cs:line 186
+   at InvokeStub_PlacementPoseTests.ARestedPoseAboveTheBenchIsRefused(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+[xUnit.net 00:00:05.31]     CuriousContraptions.Tests.PlacementPoseTests.ARestedPoseAboveTheBenchIsRefused(part: bowling, halfHeight: 0.280000001) [FAIL]
+[xUnit.net 00:00:05.36]     CuriousContraptions.Tests.PlacementPoseTests.ATubeMouthSnapAcrossTheBenchEdgeIsRefusedAndOneInsideIsAdmitted [FAIL]
+[xUnit.net 00:00:05.37]     CuriousContraptions.Tests.PlacementPoseTests.TheBenchVolumeBoundsTheRestedBodyNotItsOrigin [FAIL]
+  Failed CuriousContraptions.Tests.PlacementPoseTests.ARestedPoseAboveTheBenchIsRefused(part: bowling, halfHeight: 0.280000001) [6 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: RestOutsideBench
+Actual:   OutsideBench
+  Stack Trace:
+     at CuriousContraptions.Tests.PlacementPoseTests.ARestedPoseAboveTheBenchIsRefused(PartId part, Single halfHeight) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/review-10-2a/wt-r2/CuriousContraptions.tests/PlacementPoseTests.cs:line 186
+   at InvokeStub_PlacementPoseTests.ARestedPoseAboveTheBenchIsRefused(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.PlacementPoseTests.ATubeMouthSnapAcrossTheBenchEdgeIsRefusedAndOneInsideIsAdmitted [6 ms]
+  Error Message:
+   a Pipe joined to one at x = 3: None
+  Stack Trace:
+     at CuriousContraptions.Tests.PlacementPoseTests.ATubeMouthSnapAcrossTheBenchEdgeIsRefusedAndOneInsideIsAdmitted() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/review-10-2a/wt-r2/CuriousContraptions.tests/PlacementPoseTests.cs:line 288
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.PlacementPoseTests.TheBenchVolumeBoundsTheRestedBodyNotItsOrigin [6 ms]
+  Error Message:
+   weight on the plate at 8.82 m (top 9.458525 m): OutsideBench
+  Stack Trace:
+     at CuriousContraptions.Tests.PlacementPoseTests.TheBenchVolumeBoundsTheRestedBodyNotItsOrigin() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/review-10-2a/wt-r2/CuriousContraptions.tests/PlacementPoseTests.cs:line 208
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     6, Passed:    71, Skipped:     0, Total:    77, Duration: 2 s - CuriousContraptions.tests.dll (net10.0)

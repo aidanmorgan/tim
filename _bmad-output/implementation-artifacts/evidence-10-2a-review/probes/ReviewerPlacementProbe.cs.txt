@@ -1,0 +1,26 @@
+using CuriousContraptions.Gpu;
+using Godot;
+
+namespace CuriousContraptions.Tests;
+
+// Reviewer throwaway probe (10.2a PlacementPose cylinder rule): a Weight dropped upright into a bench-standing plate beside a static
+// Bumper (sphere r 0.65) whose centre is 0.9 m from the Weight's axis at the Weight's mid-height. The cylinder (r 0.3517) reaches
+// 0.3517 m, the sphere 0.25 m from the axis: a 0.10 m interpenetration. Control: a Basketball (r 0.34) at the same spot.
+[Collection<NativeSceneCollectionDefinition>]
+public sealed class ReviewerPlacementProbe
+{
+    [Fact]
+    public void Probe()
+    {
+        var registry = new PartRegistry();
+        registry.Load();
+        var plateY = (float)((double)WorkshopConstruction.WorkbenchSurface.Value + .22);
+        var face = plateY + .08f;
+        var h = TestBundle.Entry(WeightTests.Weight).Colliders[0].HalfExtents.Y;
+        IWorkshopInstance[] placed = [PlacedParts.Plate(new(1), 0, plateY, 0, .5f),
+            WorkshopInput.Generic(PartId.PinballBumper, new(3), .9, face + h, 0, 0, 0, 0, 1)];
+        var weight = PlacementPose.Compose(registry.Definitions, placed, new(WeightTests.Weight, new(2), false), new(0, plateY, 0), Quaternion.Identity);
+        var ball = PlacementPose.Compose(registry.Definitions, placed, new(PartId.Basketball, new(2), false), new(0, plateY, 0), Quaternion.Identity);
+        Assert.Fail(FormattableString.Invariant($"PROBE weight {weight.Refusal} at {weight.Position.Y} (face {face}); basketball {ball.Refusal} at {ball.Position.Y}"));
+    }
+}

@@ -319,3 +319,31 @@ Return to the same implementation owner. Re-review covers:
 - the spec and doc text.
 
 Then a fresh full slnx run on the frozen candidate. After that, Pass-pending-merge: merge main f5ffdb4e, then SnapshotApproval.
+
+## Terminal publication verification — 24 October 2026
+
+Raw outputs are in `evidence-engine-restitution-review/terminal/`. The system and GitHub timestamps read 23 Oct 2026 22:29–22:32Z (local 24 Oct).
+
+**Identities**
+- **Slice commit:** `adcffdb2e2be3b0ac7d1dd412c7e92e22c7b4b10`, tree `786e1735518ada7e9c2797b9f041de71a73f089c`, parent `2c668ecd`.
+- **Published merge** (`--no-ff`): `0cba945b1d3765a4bb95bd2bbd56dfe58f497e43`, parents `f5ffdb4e` and `adcffdb2`, the same tree. `git diff adcffdb2 0cba945b` is empty.
+- **Remote:** `origin/main` and `git ls-remote origin refs/heads/main` both return `0cba945b…`.
+
+| # | Publication-dependent check | Result | Raw |
+|---|---|---|---|
+| 1 | The commit tree equals the approved snapshot | **Pass.** `adcffdb2^{tree}` is `786e1735`, the final staged tree reported with the SnapshotApproval. `git diff --binary 2c668ecd adcffdb2` sha256 is `02d33da5…98da46`, equal to the post-append staged-diff hash (40 files) | `identities.txt` |
+| 2 | Hooks | **Pass.**<br>• **Implementer's commit log:** 3 gate builds, 0 warnings and 0 errors; 124/124; commit `adcffdb2` created.<br>• **My re-run** on the exact published tree: a throwaway worktree with HEAD `2c668ecd` and index `786e1735` (40 staged paths, 0 unstaged, 0 untracked), through `.git/hooks/pre-commit` → `.githooks/pre-commit`, 22:30:49Z–22:31:48Z. Result: 3 gate builds, 0 warnings and 0 errors; 124/124; hook rc 0. The worktree was removed | `commit-hook-implementer.log`, `hook-rerun.log` |
+| 3 | The merge tree equals the branch tree, and remote main is the published merge | **Pass** | `identities.txt` |
+| 4 | Pages workflow on the exact SHA | **Pass.**<br>• Run 40031774258, "Build and deploy game", push, main, headSha `0cba945b`, completed/success. Checkout fetched `0cba945b…`.<br>• Every build step succeeded: static gate (3 builds, 0 warnings, 0 errors), Test C# game, Test C# tools, publish, static-deployment check and Pages upload. The deploy job succeeded.<br>• **Totals:** game **2928**; tools **77 / 191 / 17 / 174**; Failed 0 and Skipped 0 everywhere. The job log never mentions `blame` | `run.json`, `build-job.log` |
+| 5 | Pages artifact ownership and deployment | **Pass.**<br>• Artifact `github-pages` id 12536451244 (digest `sha256:790638bb…f58900`, 80,275,862 bytes, not expired) belongs to run 40031774258 at headSha `0cba945b` on main.<br>• The deploy job logged "Created deployment for 0cba945b…" and "Reported success!".<br>• Deployment 7290143602 (sha `0cba945b`, ref main) is the newest `github-pages` deployment; the previous one is `f5ffdb4e`. Its status went waiting → queued → in_progress → success (22:29:30Z), environment `https://aidanmorgan.github.io/tim/` | `artifact-deployment.txt`, `deploy-job.log` |
+| 6 | Serving | **Pass.** `/`, `/index.html`, `/404.html`, `/godot.wasm`, `/godot.pck` and `/_framework/dotnet.js` each return 200 with `last-modified` 22:29:26 GMT, this deployment's own time (checked 22:32:16Z) | `deployment-status.txt` |
+| 7 | Status | `engine-restitution-energy-correctness` → `done # scoped native/publication Pass0cba94; browser pending` | `sprint-status.yaml` |
+| 8 | Browser cases | Pending post-catalogue E2E: the changed bounce trajectories (same-substep restitution, touch-normal reflections, the plate impact tick) | — |
+
+**Terminal verdict: scoped native and publication Pass at `0cba945b1d37`.**
+- Browser qualification is pending post-catalogue E2E.
+- The deferred items remain open with their owners:
+  - `engine-resting-stack-settling`;
+  - "Engine: simultaneous/supported-impact restitution", to be checked before any dynamic plank, crate or seesaw element;
+  - "Test-host SIGSEGV under concurrent load".
+- This is not a release, global-audit or runtime qualification.

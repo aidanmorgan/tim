@@ -1,0 +1,148 @@
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:01.82]     CuriousContraptions.Tests.WeightTests.SaveRoundTripsPoseRotationAndMassExactlyWithNoWireChange [FAIL]
+[xUnit.net 00:00:01.84]     CuriousContraptions.Tests.WeightTests.DroppedEndDownItRestsOnItsBaseWithoutSinkingDriftOrEnergyGain(mass: 8) [FAIL]
+[xUnit.net 00:00:01.85]     CuriousContraptions.Tests.WeightTests.DroppedEndDownItRestsOnItsBaseWithoutSinkingDriftOrEnergyGain(mass: 0.25) [FAIL]
+[xUnit.net 00:00:01.85]     CuriousContraptions.Tests.WeightTests.DroppedEndDownItRestsOnItsBaseWithoutSinkingDriftOrEnergyGain(mass: 4) [FAIL]
+[xUnit.net 00:00:01.87]     CuriousContraptions.Tests.WeightTests.OnItsSideItRollsDownARampWithoutSlippingAndComesToRestOnTheBenchWithoutAxialCreep [FAIL]
+  Failed CuriousContraptions.Tests.WeightTests.SaveRoundTripsPoseRotationAndMassExactlyWithNoWireChange [118 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Rejected
+  Stack Trace:
+     at CuriousContraptions.Tests.WeightTests.RunAndReset(WorkshopConstruction construction, Int32 ticks, SimulationCadence cadence) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/CuriousContraptions.tests/WeightTests.cs:line 268
+   at CuriousContraptions.Tests.WeightTests.RunAndReset(WorkshopConstruction construction, Int32 ticks, SimulationCadence cadence) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/CuriousContraptions.tests/WeightTests.cs:line 278
+   at CuriousContraptions.Tests.WeightTests.RunAndReset(WorkshopConstruction construction, Int32 ticks, SimulationCadence cadence) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/CuriousContraptions.tests/WeightTests.cs:line 278
+   at CuriousContraptions.Tests.WeightTests.SaveRoundTripsPoseRotationAndMassExactlyWithNoWireChange() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/CuriousContraptions.tests/WeightTests.cs:line 442
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.WeightTests.DroppedEndDownItRestsOnItsBaseWithoutSinkingDriftOrEnergyGain(mass: 8) [6 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Rejected
+  Stack Trace:
+     at CuriousContraptions.Tests.WeightTests.RunAndReset(WorkshopConstruction construction, Int32 ticks, SimulationCadence cadence) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/CuriousContraptions.tests/WeightTests.cs:line 268
+   at CuriousContraptions.Tests.WeightTests.RunAndReset(WorkshopConstruction construction, Int32 ticks, SimulationCadence cadence) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/CuriousContraptions.tests/WeightTests.cs:line 278
+   at CuriousContraptions.Tests.WeightTests.RunAndReset(WorkshopConstruction construction, Int32 ticks, SimulationCadence cadence) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/CuriousContraptions.tests/WeightTests.cs:line 278
+   at CuriousContraptions.Tests.WeightTests.DroppedEndDownItRestsOnItsBaseWithoutSinkingDriftOrEnergyGain(Single mass) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/CuriousContraptions.tests/WeightTests.cs:line 290
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.WeightTests.DroppedEndDownItRestsOnItsBaseWithoutSinkingDriftOrEnergyGain(mass: 0.25) [5 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Rejected
+  Stack Trace:
+     at CuriousContraptions.Tests.WeightTests.RunAndReset(WorkshopConstruction construction, Int32 ticks, SimulationCadence cadence) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/CuriousContraptions.tests/WeightTests.cs:line 268
+   at CuriousContraptions.Tests.WeightTests.RunAndReset(WorkshopConstruction construction, Int32 ticks, SimulationCadence cadence) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/CuriousContraptions.tests/WeightTests.cs:line 278
+   at CuriousContraptions.Tests.WeightTests.RunAndReset(WorkshopConstruction construction, Int32 ticks, SimulationCadence cadence) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/CuriousContraptions.tests/WeightTests.cs:line 278
+   at CuriousContraptions.Tests.WeightTests.DroppedEndDownItRestsOnItsBaseWithoutSinkingDriftOrEnergyGain(Single mass) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/CuriousContraptions.tests/WeightTests.cs:line 290
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.WeightTests.DroppedEndDownItRestsOnItsBaseWithoutSinkingDriftOrEnergyGain(mass: 4) [5 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Rejected
+  Stack Trace:
+     at CuriousContraptions.Tests.WeightTests.RunAndReset(WorkshopConstruction construction, Int32 ticks, SimulationCadence cadence) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/CuriousContraptions.tests/WeightTests.cs:line 268
+   at CuriousContraptions.Tests.WeightTests.RunAndReset(WorkshopConstruction construction, Int32 ticks, SimulationCadence cadence) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/CuriousContraptions.tests/WeightTests.cs:line 278
+   at CuriousContraptions.Tests.WeightTests.RunAndReset(WorkshopConstruction construction, Int32 ticks, SimulationCadence cadence) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/CuriousContraptions.tests/WeightTests.cs:line 278
+   at CuriousContraptions.Tests.WeightTests.DroppedEndDownItRestsOnItsBaseWithoutSinkingDriftOrEnergyGain(Single mass) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/CuriousContraptions.tests/WeightTests.cs:line 290
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.WeightTests.OnItsSideItRollsDownARampWithoutSlippingAndComesToRestOnTheBenchWithoutAxialCreep [6 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Rejected
+  Stack Trace:
+     at CuriousContraptions.Tests.WeightTests.RunAndReset(WorkshopConstruction construction, Int32 ticks, SimulationCadence cadence) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/CuriousContraptions.tests/WeightTests.cs:line 268
+   at CuriousContraptions.Tests.WeightTests.RunAndReset(WorkshopConstruction construction, Int32 ticks, SimulationCadence cadence) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/CuriousContraptions.tests/WeightTests.cs:line 278
+   at CuriousContraptions.Tests.WeightTests.RunAndReset(WorkshopConstruction construction, Int32 ticks, SimulationCadence cadence) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/CuriousContraptions.tests/WeightTests.cs:line 278
+   at CuriousContraptions.Tests.WeightTests.OnItsSideItRollsDownARampWithoutSlippingAndComesToRestOnTheBenchWithoutAxialCreep() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/CuriousContraptions.tests/WeightTests.cs:line 347
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:01.89]     CuriousContraptions.Tests.WeightTests.AStackEndDownHoldsWithoutBounceOrCreep(lower: 4, upper: 4) [FAIL]
+[xUnit.net 00:00:01.90]     CuriousContraptions.Tests.WeightTests.AStackEndDownHoldsWithoutBounceOrCreep(lower: 8, upper: 1) [FAIL]
+  Failed CuriousContraptions.Tests.WeightTests.AStackEndDownHoldsWithoutBounceOrCreep(lower: 4, upper: 4) [6 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Rejected
+  Stack Trace:
+     at CuriousContraptions.Tests.WeightTests.RunAndReset(WorkshopConstruction construction, Int32 ticks, SimulationCadence cadence) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/CuriousContraptions.tests/WeightTests.cs:line 268
+   at CuriousContraptions.Tests.WeightTests.RunAndReset(WorkshopConstruction construction, Int32 ticks, SimulationCadence cadence) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/CuriousContraptions.tests/WeightTests.cs:line 278
+   at CuriousContraptions.Tests.WeightTests.RunAndReset(WorkshopConstruction construction, Int32 ticks, SimulationCadence cadence) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/CuriousContraptions.tests/WeightTests.cs:line 278
+   at CuriousContraptions.Tests.WeightTests.AStackEndDownHoldsWithoutBounceOrCreep(Single lower, Single upper) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/CuriousContraptions.tests/WeightTests.cs:line 372
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.WeightTests.AStackEndDownHoldsWithoutBounceOrCreep(lower: 8, upper: 1) [5 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Rejected
+  Stack Trace:
+     at CuriousContraptions.Tests.WeightTests.RunAndReset(WorkshopConstruction construction, Int32 ticks, SimulationCadence cadence) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/CuriousContraptions.tests/WeightTests.cs:line 268
+   at CuriousContraptions.Tests.WeightTests.RunAndReset(WorkshopConstruction construction, Int32 ticks, SimulationCadence cadence) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/CuriousContraptions.tests/WeightTests.cs:line 278
+   at CuriousContraptions.Tests.WeightTests.RunAndReset(WorkshopConstruction construction, Int32 ticks, SimulationCadence cadence) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/CuriousContraptions.tests/WeightTests.cs:line 278
+   at CuriousContraptions.Tests.WeightTests.AStackEndDownHoldsWithoutBounceOrCreep(Single lower, Single upper) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/CuriousContraptions.tests/WeightTests.cs:line 372
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:01.93]     CuriousContraptions.Tests.WeightTests.AMassEditGrowsABenchRestingWeightUpwardAndItsBaseStaysOnTheBench [FAIL]
+[xUnit.net 00:00:01.94]     CuriousContraptions.Tests.WeightTests.AWeightRollingOffARampTopplesADominoAndARestingWeightBesideOneLeavesItStanding [FAIL]
+[xUnit.net 00:00:01.95]     CuriousContraptions.Tests.WeightTests.ResetAndAReplayAreBitIdenticalForSixHundredTicksIncludingAfterAMassEdit(cadence: Hz120) [FAIL]
+[xUnit.net 00:00:01.96]     CuriousContraptions.Tests.WeightTests.ResetAndAReplayAreBitIdenticalForSixHundredTicksIncludingAfterAMassEdit(cadence: Hz240) [FAIL]
+  Failed CuriousContraptions.Tests.WeightTests.AMassEditGrowsABenchRestingWeightUpwardAndItsBaseStaysOnTheBench [6 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Rejected
+  Stack Trace:
+     at CuriousContraptions.Tests.WeightTests.RunAndReset(WorkshopConstruction construction, Int32 ticks, SimulationCadence cadence) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/CuriousContraptions.tests/WeightTests.cs:line 268
+   at CuriousContraptions.Tests.WeightTests.RunAndReset(WorkshopConstruction construction, Int32 ticks, SimulationCadence cadence) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/CuriousContraptions.tests/WeightTests.cs:line 278
+   at CuriousContraptions.Tests.WeightTests.RunAndReset(WorkshopConstruction construction, Int32 ticks, SimulationCadence cadence) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/CuriousContraptions.tests/WeightTests.cs:line 278
+   at CuriousContraptions.Tests.WeightTests.AMassEditGrowsABenchRestingWeightUpwardAndItsBaseStaysOnTheBench() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/CuriousContraptions.tests/WeightTests.cs:line 315
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.WeightTests.AWeightRollingOffARampTopplesADominoAndARestingWeightBesideOneLeavesItStanding [5 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Rejected
+  Stack Trace:
+     at CuriousContraptions.Tests.WeightTests.RunAndReset(WorkshopConstruction construction, Int32 ticks, SimulationCadence cadence) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/CuriousContraptions.tests/WeightTests.cs:line 268
+   at CuriousContraptions.Tests.WeightTests.RunAndReset(WorkshopConstruction construction, Int32 ticks, SimulationCadence cadence) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/CuriousContraptions.tests/WeightTests.cs:line 278
+   at CuriousContraptions.Tests.WeightTests.RunAndReset(WorkshopConstruction construction, Int32 ticks, SimulationCadence cadence) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/CuriousContraptions.tests/WeightTests.cs:line 278
+   at CuriousContraptions.Tests.WeightTests.AWeightRollingOffARampTopplesADominoAndARestingWeightBesideOneLeavesItStanding() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/CuriousContraptions.tests/WeightTests.cs:line 388
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.WeightTests.ResetAndAReplayAreBitIdenticalForSixHundredTicksIncludingAfterAMassEdit(cadence: Hz120) [5 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Rejected
+  Stack Trace:
+     at CuriousContraptions.Tests.WeightTests.RunAndReset(WorkshopConstruction construction, Int32 ticks, SimulationCadence cadence) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/CuriousContraptions.tests/WeightTests.cs:line 268
+   at CuriousContraptions.Tests.WeightTests.RunAndReset(WorkshopConstruction construction, Int32 ticks, SimulationCadence cadence) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/CuriousContraptions.tests/WeightTests.cs:line 278
+   at CuriousContraptions.Tests.WeightTests.RunAndReset(WorkshopConstruction construction, Int32 ticks, SimulationCadence cadence) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/CuriousContraptions.tests/WeightTests.cs:line 278
+   at CuriousContraptions.Tests.WeightTests.ResetAndAReplayAreBitIdenticalForSixHundredTicksIncludingAfterAMassEdit(SimulationCadence cadence) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/CuriousContraptions.tests/WeightTests.cs:line 414
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.WeightTests.ResetAndAReplayAreBitIdenticalForSixHundredTicksIncludingAfterAMassEdit(cadence: Hz240) [5 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Rejected
+  Stack Trace:
+     at CuriousContraptions.Tests.WeightTests.RunAndReset(WorkshopConstruction construction, Int32 ticks, SimulationCadence cadence) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/CuriousContraptions.tests/WeightTests.cs:line 268
+   at CuriousContraptions.Tests.WeightTests.RunAndReset(WorkshopConstruction construction, Int32 ticks, SimulationCadence cadence) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/CuriousContraptions.tests/WeightTests.cs:line 278
+   at CuriousContraptions.Tests.WeightTests.RunAndReset(WorkshopConstruction construction, Int32 ticks, SimulationCadence cadence) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/CuriousContraptions.tests/WeightTests.cs:line 278
+   at CuriousContraptions.Tests.WeightTests.ResetAndAReplayAreBitIdenticalForSixHundredTicksIncludingAfterAMassEdit(SimulationCadence cadence) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/CuriousContraptions.tests/WeightTests.cs:line 414
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:01.96]     CuriousContraptions.Tests.WeightTests.ResetAndAReplayAreBitIdenticalForSixHundredTicksIncludingAfterAMassEdit(cadence: Hz60) [FAIL]
+  Failed CuriousContraptions.Tests.WeightTests.ResetAndAReplayAreBitIdenticalForSixHundredTicksIncludingAfterAMassEdit(cadence: Hz60) [5 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Applied
+Actual:   Rejected
+  Stack Trace:
+     at CuriousContraptions.Tests.WeightTests.RunAndReset(WorkshopConstruction construction, Int32 ticks, SimulationCadence cadence) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/CuriousContraptions.tests/WeightTests.cs:line 268
+   at CuriousContraptions.Tests.WeightTests.RunAndReset(WorkshopConstruction construction, Int32 ticks, SimulationCadence cadence) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/CuriousContraptions.tests/WeightTests.cs:line 278
+   at CuriousContraptions.Tests.WeightTests.RunAndReset(WorkshopConstruction construction, Int32 ticks, SimulationCadence cadence) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/CuriousContraptions.tests/WeightTests.cs:line 278
+   at CuriousContraptions.Tests.WeightTests.ResetAndAReplayAreBitIdenticalForSixHundredTicksIncludingAfterAMassEdit(SimulationCadence cadence) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/CuriousContraptions.tests/WeightTests.cs:line 414
+--- End of stack trace from previous location ---
+
+Failed!  - Failed:    12, Passed:    16, Skipped:     0, Total:    28, Duration: 273 ms - CuriousContraptions.tests.dll (net10.0)

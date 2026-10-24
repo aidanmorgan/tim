@@ -10,22 +10,24 @@ This is the Story 7.0 CAT-067-D declaration readiness spec for the weight. Rope 
 | Kind | `weight`, catalogue title "Weight" |
 | Requirement anchor | [CAT-067](../requirements.md#current-cat-067); retained behaviour [todo-141](../requirements.md#todo-141) and [todo-140](../requirements.md#todo-140) |
 | Mapped identities | [EL-204 Weight](../invest/named-elements.md#element-204) (candidate — Batch A confirms) |
-| Roadmap story | 10.4 Counterweight & Multi-Body Pendulum Lifting (CAT-067) in [epics.md](../../../_bmad-output/planning-artifacts/epics.md); first rope use in 10.2 |
-| Status | not started |
+| Roadmap story | 10.2a Weight body (package `elements/Weight`); 10.2b the rope Tie socket and Load role; 10.4 pendulum qualification only ([epics.md](../../../_bmad-output/planning-artifacts/epics.md)) |
+| Status | 10.2a body: native candidate in review ([spec](../../../_bmad-output/implementation-artifacts/spec-10-2a-weight.md)); browser case `cat-067` pending (post-catalogue E2E) |
 
 ## 2. Declaration
 
 ### Bodies and shapes
 
-- One dynamic body with a spherical collision envelope; radius r = 0.32 · ∛mass m — `parts/WeightPart.cs@a6c914e:L13-L15`, `parts/WeightPart.cs@a6c914e:L30-L32`; `engine/MachineData.cs@a6c914e:L99`. Derived from that formula: mass 4 (default) → 0.508 m (the legacy test pins 0.507–0.509, `CuriousContraptions.tests/WoundSpringTests.cs@a6c914e:L591-L597`); mass 1 (lesson fixture) → 0.32 m; mass range 0.25–8 → 0.2016–0.64 m.
+- **Delivered (10.2a).** One dynamic solid cylinder (axis +Y) whose collider follows the art (Q1): scene `elements/Weight/weight.tscn`, collider `col_cylinder`. The body origin is the base centre; the collider centre, and so the compiled centre of mass, is h above it, so a mass edit grows the Weight upward.
+- Size is linear in mass, exact at 0.25 and 8 kg against the legacy art r = 0.85 · 0.32∛m and h = 0.675 · 0.32∛m (Q3): r = 0.04808397 m + 0.15932827 and h = 0.03818433 m + 0.12652539 (the X/Z, Y and OffsetY collider bindings). Values: 0.25 kg → r 0.17135, h 0.13607; 4 kg → 0.35166, 0.27926 (about 19% under the cube-root law, monotone); 8 kg → 0.544, 0.432.
 - "Locked" means fixed during editing only, never immovable in simulation — `parts/WeightPart.cs@a6c914e:L7-L8`.
-- Pick radius r + 0.22 m — `parts/WeightPart.cs@a6c914e:L35`.
-- Current types: dynamic `RigidBodyDeclaration` (mass bound 1/1024–1024 kg, `engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L86`) and one `ColliderShapeKind.Sphere` `ColliderDeclaration` (radius bound 1/16–16 m, `engine/gpu/PhysicsDeclarations.cs@a6c914e:L89-L120`). Both bounds admit the whole legacy range.
+- Pick radius 0.7 m, which covers the 8 kg Weight (√(r² + h²) = 0.695 m).
+- Current types: dynamic `RigidBodyDeclaration` (mass bound 1/1024–1024 kg) and one `ColliderShapeKind.Cylinder` `ColliderDeclaration` (Story 10.1). Both admit the whole range.
 
 ### Mass and material
 
-- Mass: the authored `mass` parameter, default 4 kg (`parts/catalog/weight.tres@a6c914e:L14`), valid 0.25–8 (`parts/WeightPart.cs@a6c914e:L22-L27`).
-- Inertia: solid sphere 0.4 m r² — legacy `parts/WeightPart.cs@a6c914e:L14-L15` with `engine/BodyDynamics.cs@a6c914e:L39-L44`; current `RigidMassProperties.Compile` computes the same for a sphere (`engine/gpu/RigidMassProperties.cs@a6c914e:L34-L38`).
+- Mass: the authored `mass` parameter, default 4 kg (`parts/catalog/weight.tres@a6c914e:L14`), valid 0.25–8 (`parts/WeightPart.cs@a6c914e:L22-L27`). **Delivered (10.2a):** the compiled body mass is the parameter (`IParameterizedMassElement.Mass`, carried as `MechanicalPayload.MassParameter`); the declared fixed mass equals the binding at its default (one truth, enforced by the bundle validator). The body record narrows it to binary16; the save keeps the f32.
+- Inertia: the solid cylinder m r²/2 (axial) and m(r²/4 + h²/3), compiled from the bound collider by `RigidMassProperties.Compile` (Story 10.1). The legacy sphere moment no longer applies.
+- Material (Q2, decided 10.2a): restitution 0.08, friction 0.3, rolling resistance 0.03, bounce threshold 0.1 m/s, linear drag 0.
 - Material: restitution 0.08, linear drag 0 (`parts/WeightPart.cs@a6c914e:L33-L34`); bounce threshold 0.1 m/s and friction 0.3 from the legacy dynamic default (`reference/cpu/MachinePart.cs@a6c914e:L236`). No rolling resistance existed in legacy. Current pattern: the per-kind `BallMaterial` record (radius, mass, bounce, drag, buoyancy, friction, threshold, rolling resistance; `engine/gpu/WorkshopConstruction.cs@a6c914e:L38-L53`), except that the weight's radius and mass derive from its parameter (Open questions 2 and 3). Nearest heavy-sphere precedent: Bowling ball 0.28 m / 4 kg / bounce 0.14 / Crr 0.03 (`engine/gpu/WorkshopConstruction.cs@a6c914e:L45-L51`); it is a precedent only, not the weight's values.
 
 ### Constraints and joints
@@ -35,7 +37,8 @@ None owned by the weight. It is a rope endpoint (role `Load`); the rope law and 
 ### Typed sockets and ports
 
 - One socket `Tie`, domain `Rope`, bidirectional, at local (0, r + 0.08, 0) m (the eye above the body) — `parts/WeightPart.cs@a6c914e:L16-L21`; `engine/MachineData.cs@a6c914e:L100`. Role `Load`: one rope end (`engine/RopeNetwork.cs@a6c914e:L76-L77`).
-- Rope domain and `Tie` socket do not exist in `engine/gpu/WorkshopConnections.cs@a6c914e:L8-L13`; Story 10.2 adds them.
+- Rope domain and `Tie` socket do not exist in `engine/gpu/WorkshopConnections.cs@a6c914e:L8-L13`; Story 10.2b adds them.
+- **10.2a declares no port.** The Tie, the Rope domain and the `Load` role belong to 10.2b. With the base-centre origin the centre of mass is h(m) above the origin, so a Tie at the centre of mass (or at the eye, above 2h) needs a size binding on its anchor in 10.2b.
 
 ### Sensors and activation
 
@@ -51,12 +54,12 @@ None declared. It exchanges gravitational potential and rope tension (EL-204: "R
 | --- | --- | --- | --- | --- | --- |
 | `mass` | f32 | 0.25–8 (finite; others reject before the instance is added) | 4 | kg | `parts/WeightPart.cs@a6c914e:L22-L27`; `parts/catalog/weight.tres@a6c914e:L14`; `CuriousContraptions.tests/RopeTests.cs@a6c914e:L110-L124` |
 
-The legacy enum `WeightParameter { Mass }` maps to the wire name `mass` (`engine/MachineData.cs@a6c914e:L92`; `CuriousContraptions.tests/SceneRopeBindingTests.cs@a6c914e:L308-L309`). The requirement lists one configuration mode, `mass`; no current UI control exists for it (Open question 4).
+The legacy enum `WeightParameter { Mass }` maps to the wire name `mass` (`engine/MachineData.cs@a6c914e:L92`; `CuriousContraptions.tests/SceneRopeBindingTests.cs@a6c914e:L308-L309`). The requirement lists one configuration mode, `mass`. **Delivered (10.2a, Q4):** the generic parameter editor edits `mass` in kg (Clamp policy, Build only); admission, save pre-validation and wire decode still refuse an out-of-range, non-finite, missing or unknown value, with no default fill.
 
 ### Cosmetic curves and UI bindings
 
 - No cosmetic curve: the body follows its committed physical pose (`DESIGN.md@a6c914e:L284`).
-- Band count = ⌈mass⌉ conveys heavier loads (`parts/WeightPart.cs@a6c914e:L40-L46`); it is static art chosen from the parameter at construction.
+- Legacy band count = ⌈mass⌉ conveyed heavier loads (`parts/WeightPart.cs@a6c914e:L40-L46`). **10.2a:** two fixed cream bands, because ⌈mass⌉ bands cannot be expressed as a linear binding; a uniform-scale binding on `Visual` (0.136734 m + 0.453070, so scale ÷ r is constant to 1e-5) makes heavier Weights visibly larger.
 
 ### Art
 
@@ -69,7 +72,7 @@ The legacy enum `WeightParameter { Mass }` maps to the wire name `mass` (`engine
 ### Catalogue and inventory entry
 
 - Id `weight`, title "Weight", category "Ropes", description "A rope-linked load. Larger weights have more bands and pull harder. Connect through pulleys to lift a lighter load.", parameters `{"mass": 4.0}` — `parts/catalog/weight.tres@a6c914e:L8-L14`.
-- Add `WorkshopPartKind.Weight` (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3`) and append a `WorkshopInventoryPolicy.Free` row (`engine/gpu/WorkshopInventory.cs@a6c914e:L47-L60`).
+- **Delivered (10.2a):** package `elements/Weight` (declaration data, scene, icon; no `PartId` member). Id `weight`, "Weight", category Motion ("Ropes" is not an `ElementCategory`), colour (0.27, 0.39, 0.61), palette order 31, description "A heavy cylindrical load. Larger weights are heavier.". The Free palette lists it from the bundle.
 - Levels: `counterweight` and `pulley_depth` each place a locked mass-1 `load` and stock one weight; the solution weight has mass 4 (harvest W9).
 
 ## 3. Engine capabilities
@@ -81,13 +84,13 @@ Capability families: see the CAT-067 row of the [general-engine element map](../
 - Dynamic sphere body, collider and compiled sphere inertia: `engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L120`; `engine/gpu/RigidMassProperties.cs@a6c914e:L17-L51`.
 - Contact material with friction, restitution, threshold and rolling resistance, and the TGS Soft contact solver: `engine/gpu/PhysicsDeclarations.cs@a6c914e:L42-L54`; `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L208`, `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L225-L226`, `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L230-L236`, `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L878-L884`.
 - A free weight that falls, rolls and collides can therefore be declared today; only its rope coupling is missing.
+- Per-instance mass and size (10.2a): `MechanicalPayload.MassParameter` (the compiled body mass is a declared kilogram parameter) and `ColliderParameterBinding`s on the cylinder; the dynamic solid cylinder itself is Story 10.1.
 
 **Missing**
 
-- Rope domain, `Tie` socket and `Load` role — Story 10.2.
-- Tension-only rope constraint (hanging, counterbalance) — Story 10.2.
+- Rope domain, `Tie` socket and `Load` role — Story 10.2b.
+- Tension-only rope constraint (hanging, counterbalance) — Story 10.2 (10.2b onward).
 - Pendulum and counterweight qualification (period, damping, length/energy bounds, exact Reset) — Story 10.4.
-- Parametric per-instance mass/radius in the kind declaration (current `BallMaterial` fixes radius and mass per kind) — Story 10.4 (or 10.2 if the weight lands there first).
 
 **Element dependencies**
 
@@ -97,13 +100,13 @@ Capability families: see the CAT-067 row of the [general-engine element map](../
 
 | # | Fact | Citation | Disposition | Reason |
 | --- | --- | --- | --- | --- |
-| W1 | Translating load with a spherical collision envelope and a rope eye; Locked is edit-time only. | `parts/WeightPart.cs@a6c914e:L7-L8`, `parts/WeightPart.cs@a6c914e:L13` | carry forward | Matches "spherical body/socket"; a locked weight still moves in Run. |
+| W1 | Translating load with a spherical collision envelope and a rope eye; Locked is edit-time only. | `parts/WeightPart.cs@a6c914e:L7-L8`, `parts/WeightPart.cs@a6c914e:L13` | carry forward the rope eye and edit-time Locked; the envelope is the art's cylinder (Q1, 10.2a) | A locked weight still moves in Run. |
 | W2 | Mass must be finite and within 0.25–8; −1, 0, 20 and NaN reject before any instance is added. | `parts/WeightPart.cs@a6c914e:L22-L27`; `CuriousContraptions.tests/RopeTests.cs@a6c914e:L110-L124` | carry forward | Authored range and atomic rejection. |
 | W3 | Catalogue default mass 4; lesson fixture loads use mass 1. | `parts/catalog/weight.tres@a6c914e:L14`; `content/puzzles.json@a6c914e:L5142-L5144` | carry forward | Requirement: default 4 is not the fixture mass 1. |
 | W4 | Radius 0.32 ∛m; tie height r + 0.08. | `engine/MachineData.cs@a6c914e:L99-L100`; `parts/WeightPart.cs@a6c914e:L19-L20`, `parts/WeightPart.cs@a6c914e:L32` | carry forward | Size encodes mass; rope length depends on the tie height. |
-| W5 | Solid-sphere dynamics with authored initial velocity. | `parts/WeightPart.cs@a6c914e:L14-L15`; `engine/BodyDynamics.cs@a6c914e:L39-L44` | carry forward the law; do not carry forward `BodyDynamics` | Current `RigidMassProperties` already compiles the sphere moment. |
+| W5 | Solid-sphere dynamics with authored initial velocity. | `parts/WeightPart.cs@a6c914e:L14-L15`; `engine/BodyDynamics.cs@a6c914e:L39-L44` | superseded by the solid-cylinder law (10.1, 10.2a); do not carry forward `BodyDynamics` | `RigidMassProperties` compiles the cylinder moments from the bound collider. |
 | W6 | Restitution 0.08, drag 0, bounce threshold 0.1 m/s, friction 0.3. | `parts/WeightPart.cs@a6c914e:L33-L34`; `reference/cpu/MachinePart.cs@a6c914e:L236` | carry forward as candidate values (Open question 2) | Authored legacy values; current material also needs rolling resistance. |
-| W7 | Artwork: cylinder body, base band, gold eye, ⌈mass⌉ bands (dimensions in Art). | `parts/WeightPart.cs@a6c914e:L36-L46` | carry forward the art; the collision envelope stays spherical (Open question 1) | Requirement: solid pose and rope attachment agree. |
+| W7 | Artwork: cylinder body, base band, gold eye, ⌈mass⌉ bands (dimensions in Art). | `parts/WeightPart.cs@a6c914e:L36-L46` | carry forward the art; the collider follows it (Q1, 10.2a); two fixed bands replace ⌈mass⌉ | Requirement: solid pose and rope attachment agree. |
 | W8 | Rope eye socket at (0, r + 0.08, 0); role `Load` takes one rope end. | `parts/WeightPart.cs@a6c914e:L16-L21`; `engine/RopeNetwork.cs@a6c914e:L76-L77` | carry forward | Typed socket. |
 | W9 | Levels: `counterweight` — locked `load` mass 1 at (−2, 1, 0.12), solution `weight_1` mass 4 at (2, 5, 0.12), inventory weight 1. `pulley_depth` — same load, solution `weight_1` mass 4 at (2, 5, 2.12), inventory weight 1 and pulley 1. Goal: lamp activated via the overhead Switch at (−2, 3.2, 0.12), rotated 180°. | `content/puzzles.json@a6c914e:L5072-L5145`, `content/puzzles.json@a6c914e:L5273-L5333`, `content/puzzles.json@a6c914e:L5399-L5471`, `content/puzzles.json@a6c914e:L5508-L5582`, `content/puzzles.json@a6c914e:L5781-L5845` | carry forward | Lesson set-ups to rebuild in Epic 15. |
 | W10 | Lesson authoring source for both levels (positions, masses, rope spans by connect-time distance). | `tools/Campaign/Program.cs@a6c914e:L173-L223`, `tools/Campaign/Program.cs@a6c914e:L408-L413` | carry forward | Campaign rebuild input. |
@@ -155,9 +158,9 @@ Requirement row: [CAT-067](../requirements.md#current-cat-067); stories 10.2 and
 
 ## 6. Open questions
 
-1. Collision shape versus artwork: legacy collides as a sphere but draws a cylinder (0.85 r radius, 1.35 r tall). Keep the sphere and reshape the art, or change the collider? A cylinder collider has no owning story — owner decision. Owner decision 9 Oct 2026: new cylinder-collider story before first shaft wheel; Story 10.1 (ENGINE-CYLINDER).
-2. Contact material: confirm restitution 0.08, friction 0.3, threshold 0.1 m/s, drag 0, and set a rolling-resistance coefficient (none in legacy; current materials require one). Unspecified — owner decision.
-3. Confirm the radius law 0.32 ∛m and tie offset 0.08 m. Unspecified — owner decision.
-4. How the player sets `mass`: a UI control, or authored fixtures only? No current control exists. Unspecified — owner decision.
+1. Collision shape versus artwork: legacy collides as a sphere but draws a cylinder (0.85 r radius, 1.35 r tall). Keep the sphere and reshape the art, or change the collider? A cylinder collider has no owning story — owner decision. Owner decision 9 Oct 2026: new cylinder-collider story before first shaft wheel; Story 10.1 (ENGINE-CYLINDER). **Answered (10.2a):** the collider is the art's solid cylinder, origin at the base centre (D1).
+2. Contact material: confirm restitution 0.08, friction 0.3, threshold 0.1 m/s, drag 0, and set a rolling-resistance coefficient (none in legacy; current materials require one). **Answered (10.2a, by game intent under owner delegation):** those values, with rolling resistance 0.03 (the Bowling ball's).
+3. Confirm the radius law 0.32 ∛m and tie offset 0.08 m. **Answered (10.2a, by game intent):** the size is linear in mass, exact at 0.25 and 8 kg against the legacy art (r = 0.85 · 0.32∛m, h = 0.675 · 0.32∛m), monotone in between. The tie offset is 10.2b's (it needs a size binding).
+4. How the player sets `mass`: a UI control, or authored fixtures only? No current control exists. **Answered (10.2a):** the generic parameter editor, kg, Clamp policy, Build only.
 5. **Epic story vs requirement conflict.** Pendulum damping source for story 10.4 ("damps gradually"): legacy weight drag is 0 and the rope is lossless. Which explicit physical law supplies the damping? Unspecified — owner decision.
 6. Pendulum length L for T = 2π√(L/g): from the anchor socket to the weight's centre of mass (rope length plus tie offset)? Unspecified — owner decision.

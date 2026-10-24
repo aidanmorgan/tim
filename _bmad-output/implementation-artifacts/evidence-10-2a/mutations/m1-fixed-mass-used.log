@@ -1,0 +1,61 @@
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:02.22]     CuriousContraptions.Tests.PalettePlacementTests.TheWeightMassEditorClampsFiniteEntriesAndEverySeamBehindItRefusesAnInvalidMass [FAIL]
+  Failed CuriousContraptions.Tests.PalettePlacementTests.TheWeightMassEditorClampsFiniteEntriesAndEverySeamBehindItRefusesAnInvalidMass [102 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Kilograms { Value = 0.25 }
+Actual:   Kilograms { Value = 4 }
+  Stack Trace:
+     at CuriousContraptions.Tests.PalettePlacementTests.TheWeightMassEditorClampsFiniteEntriesAndEverySeamBehindItRefusesAnInvalidMass() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/CuriousContraptions.tests/PalettePlacementTests.cs:line 1298
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:03.10]     CuriousContraptions.Tests.WeightTests.OnItsSideItRollsDownARampWithoutSlippingAndComesToRestOnTheBenchWithoutAxialCreep [FAIL]
+[xUnit.net 00:00:03.10]     CuriousContraptions.Tests.WeightTests.TheCompiledMassSizeCentreAndInertiaFollowTheMassParameter(mass: 0.25) [FAIL]
+[xUnit.net 00:00:03.11]     CuriousContraptions.Tests.WeightTests.TheCompiledMassSizeCentreAndInertiaFollowTheMassParameter(mass: 8) [FAIL]
+  Failed CuriousContraptions.Tests.WeightTests.OnItsSideItRollsDownARampWithoutSlippingAndComesToRestOnTheBenchWithoutAxialCreep [144 ms]
+  Error Message:
+   moved 0.22983551 mm after stopping
+  Stack Trace:
+     at CuriousContraptions.Tests.WeightTests.OnItsSideItRollsDownARampWithoutSlippingAndComesToRestOnTheBenchWithoutAxialCreep() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/CuriousContraptions.tests/WeightTests.cs:line 372
+--- End of stack trace from previous location ---
+  Failed CuriousContraptions.Tests.WeightTests.TheCompiledMassSizeCentreAndInertiaFollowTheMassParameter(mass: 0.25) [< 1 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Kilograms { Value = 0.25 }
+Actual:   Kilograms { Value = 4 }
+  Stack Trace:
+     at CuriousContraptions.Tests.WeightTests.TheCompiledMassSizeCentreAndInertiaFollowTheMassParameter(Single mass) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/CuriousContraptions.tests/WeightTests.cs:line 146
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WeightTests.TheCompiledMassSizeCentreAndInertiaFollowTheMassParameter(mass: 8) [< 1 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Kilograms { Value = 8 }
+Actual:   Kilograms { Value = 4 }
+  Stack Trace:
+     at CuriousContraptions.Tests.WeightTests.TheCompiledMassSizeCentreAndInertiaFollowTheMassParameter(Single mass) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/CuriousContraptions.tests/WeightTests.cs:line 146
+   at InvokeStub_WeightTests.TheCompiledMassSizeCentreAndInertiaFollowTheMassParameter(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+[xUnit.net 00:00:03.86]     CuriousContraptions.Tests.WeightTests.TheBoundaryMassesAreAdmittedAtEverySeam(mass: 0.25) [FAIL]
+[xUnit.net 00:00:03.86]     CuriousContraptions.Tests.WeightTests.TheBoundaryMassesAreAdmittedAtEverySeam(mass: 8) [FAIL]
+  Failed CuriousContraptions.Tests.WeightTests.TheBoundaryMassesAreAdmittedAtEverySeam(mass: 0.25) [< 1 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Kilograms { Value = 0.25 }
+Actual:   Kilograms { Value = 4 }
+  Stack Trace:
+     at CuriousContraptions.Tests.WeightTests.TheBoundaryMassesAreAdmittedAtEverySeam(Single mass) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/CuriousContraptions.tests/WeightTests.cs:line 75
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WeightTests.TheBoundaryMassesAreAdmittedAtEverySeam(mass: 8) [< 1 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Kilograms { Value = 8 }
+Actual:   Kilograms { Value = 4 }
+  Stack Trace:
+     at CuriousContraptions.Tests.WeightTests.TheBoundaryMassesAreAdmittedAtEverySeam(Single mass) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/CuriousContraptions.tests/WeightTests.cs:line 75
+   at InvokeStub_WeightTests.TheBoundaryMassesAreAdmittedAtEverySeam(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+
+Failed!  - Failed:     6, Passed:    30, Skipped:     0, Total:    36, Duration: 2 s - CuriousContraptions.tests.dll (net10.0)

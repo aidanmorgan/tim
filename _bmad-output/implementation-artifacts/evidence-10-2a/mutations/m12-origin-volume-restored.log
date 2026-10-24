@@ -1,0 +1,12 @@
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:02.74]     CuriousContraptions.Tests.PlacementPoseTests.TheBenchVolumeBoundsTheRestedBodyNotItsOrigin [FAIL]
+  Failed CuriousContraptions.Tests.PlacementPoseTests.TheBenchVolumeBoundsTheRestedBodyNotItsOrigin [19 ms]
+  Error Message:
+   weight on the plate at -0.23996094 m (top 0.39856452 m): OutsideBench
+  Stack Trace:
+     at CuriousContraptions.Tests.PlacementPoseTests.TheBenchVolumeBoundsTheRestedBodyNotItsOrigin() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/CuriousContraptions.tests/PlacementPoseTests.cs:line 206
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     1, Passed:    12, Skipped:     0, Total:    13, Duration: 627 ms - CuriousContraptions.tests.dll (net10.0)

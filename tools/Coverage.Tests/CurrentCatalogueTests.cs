@@ -193,8 +193,9 @@ public class CurrentCatalogueTests
         Assert.NotNull(root);
         var plan = CurrentCatalogue.Read(root);
         // Every package in the generated bundle, including the Hold Timer (CAT-033) and the supplied gates: Both (CAT-013), Not both
-        // (CAT-024), Neither (CAT-025), Either (CAT-026) and Exactly one (CAT-027).
-        Assert.Equal(28, plan.Admitted.Count);
+        // (CAT-024), Neither (CAT-025), Either (CAT-026) and Exactly one (CAT-027), and the Weight (CAT-067).
+        Assert.Equal(29, plan.Admitted.Count);
+        Assert.Equal(new SourcePath("elements/Weight/WeightElementDeclaration.cs"), plan.Admitted[new("weight")]);
         Assert.Equal(new SourcePath("elements/ElectricalXor/ElectricalXorElementDeclaration.cs"), plan.Admitted[new("electrical_xor")]);
         Assert.Equal(new SourcePath("elements/ElectricalNand/ElectricalNandElementDeclaration.cs"), plan.Admitted[new("electrical_nand")]);
         Assert.Equal(new SourcePath("elements/ElectricalNor/ElectricalNorElementDeclaration.cs"), plan.Admitted[new("electrical_nor")]);

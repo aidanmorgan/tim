@@ -102,7 +102,7 @@ Legacy deleted:
 - **Determinism and Reset:**
   - Two runs and a re-admission (engine Reset) give bit-identical poses for 600 ticks at 60, 120 and 240 Hz.
   - The ABI admission bytes and the bundle JSON round-trip exactly (the native save/load equivalent).
-  - **Carried to 10.2:** native Workshop Reset/Save-Load of a placed cylinder pose is proven through the Pulley wheel package, in that story's PRIMARY tests and recorded in its spec.
+  - **Carried to 10.2a (moved from the Pulley to the Weight, coordinator decision 1):** native Workshop Reset/Save-Load of a placed cylinder pose is proven through the Weight package (`WeightTests`), recorded in [spec-10-2a-weight.md](spec-10-2a-weight.md).
 - **Regression:** the existing law, golden geometry and lesson classes are unchanged.
 
 Performance (narrowphase cost per pair, SIMD) is deferred to the named qualification gate and reported only as advisory.
@@ -500,7 +500,7 @@ The routine suite's 200-case subset (Dead and Rolling) is also 0 over in all 12 
 
 # Coordinator decisions (22 October 2026, under owner delegation; nothing here blocks 10.1)
 
-1. **UI source of a dynamic cylinder:** deferred to Story 10.2. Owner decision (f), 18 Oct 2026, ships the Counterweight body (CAT-067) with 10.2, and 10.2 decides its shape by game intent. The UI criterion "dynamic cylinder falls, rolls, rests" is a post-catalogue browser case, so no fixture package is added in 10.1. The native engine proof is the 10.1 acceptance.
+1. **UI source of a dynamic cylinder:** deferred to Story 10.2. Owner decision (f), 18 Oct 2026, ships the Counterweight body (CAT-067) with 10.2, and 10.2 decides its shape by game intent. The UI criterion "dynamic cylinder falls, rolls, rests" is a post-catalogue browser case, so no fixture package is added in 10.1. The native engine proof is the 10.1 acceptance. **Resolved (10.2a):** the CAT-067 Weight is the UI's dynamic cylinder; the browser case `engine-cylinder` joins `cat-067` (post-catalogue E2E).
 2. **Thin tubes:** deferred to the Wind chimes story (14.4), which owns that element's geometry. 10.1 keeps the sphere radius floor.
 
 # Former open questions (resolved above)
