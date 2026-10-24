@@ -1,60 +1,40 @@
 # Current delivery
 
-**Goal:** 150 progressively taught levels, unlimited Free Workshop and complete catalogue through named qualification gates.
+**Goal:** 150 progressively taught levels, unlimited Free Workshop, and the complete catalogue through named qualification gates.
 
-**Verified:** C-Ramp+Receiver terminal scoped Pass, source8665e68b at main9b324bbd; CI39697329074 native2138/2138, artifact12392320102, deployment7240389509. [Review](_bmad-output/implementation-artifacts/review-c-ramp-receiver.md#terminal-scoped-pass--22-october-2026). Prior Both Gate9.6 terminal scoped Pass, main e036b7f9; CI39690098234 2123/2123, artifact12388827243, deployment7239438508. [Terminal publication verification](_bmad-output/implementation-artifacts/review-9-6-both-gate.md#terminal-publication-verification--22-october-2026).
+**Verified (terminal scoped native/publication Pass, browser pending):**
+- Electrical logic: 9.6 Both, 9.7a NAND, 9.7b NOR, 9.8a OR, 9.8b XOR.
+- Conversions: C-Ramp+Receiver, C-Balls, C-Bumper+Spring, 9.4c, C-Gate, 9A.39 Battery, C-Lamp+Detector, 9A.32 Domino, C-Plate, C-Clock, C-Memory. All element record conversions are done; the remaining Known rows belong to Pipe (9A.45).
+- 9A.22 event ring producer.
+- 10.1 solid cylinder.
+- Engine restitution energy correctness (main 0cba945b).
+- Review records are in `_bmad-output/implementation-artifacts/review-*.md`.
 
-**Also verified:** 9.7a Electrical NAND (CAT-024, position 25) terminal scoped native/publication Pass at main b35be7f4: CI 39706295965 native 2173/2173, artifact 12395965745, deployment 7241638673; browser pending. [Review](_bmad-output/implementation-artifacts/review-9-7a-electrical-nand.md#terminal-publication-verification--22-october-2026). The C-Ramp+Receiver corrective forward fix's terminal receipt is carried with C-Balls ([review](_bmad-output/implementation-artifacts/review-c-ramp-receiver.md)).
+**Blocker:** main CI has been red since 7143a874 (CI no-skip slice). Two game node harnesses were timing-dependent on Linux x64.
+- Owner: forward-fix slice `story-ci-harness-determinism`.
+- Retry condition: CI green on main.
+- No other slice publishes until then.
 
-**Also verified (receipts carried with C-Bumper+Spring):** C-Balls (position 26) terminal scoped Pass at main 3fce7a03 ([review](_bmad-output/implementation-artifacts/review-c-balls.md)); 9.7b Electrical NOR (position 27) terminal scoped Pass at main 55ee05b9, CI 39714013919, deployment 7242636803 ([review](_bmad-output/implementation-artifacts/review-9-7b-electrical-nor.md)); browser pending for both.
+**In flight, waiting for green main:**
+- 9A.23 + 9A.25b ring consumers and one-shot bindings. Review is Pass-pending-main-green. The ring's shared memory is encapsulated behind an atomic word API in JS and C#.
+- 10.2a Weight. Review is Pass-pending-main-green.
 
-**In flight:** C-Gate (position 32: 9A.19 declared prismatic drive + 9A.21 declaration-free warm-up, plus the 9.4c Blocked handoff; worktree `story-c-gate`, main 8bfddc91 merged in). Pre-merge review Pass-pending-merge ([review](_bmad-output/implementation-artifacts/review-c-gate.md), [spec and current state](_bmad-output/implementation-artifacts/spec-c-gate.md#current-state)). Blocked now needs solver contact (coordinator decision 2), so `ActuatorDriveRecord` gains `moving_contact` (saves unchanged). Reviewer findings recorded in the spec:
-- F1: a ball placed 0.3 m inside the closed blade is ejected upstream. This is physically consistent and accepted. The queued cat-051 browser test 3 "downstream" expectation must be corrected (owner: post-catalogue E2E).
-- F2: 9A.21 timing is advisory-not-met (native 0.20→1.42 ms; production is AOT). Measure in Chrome at the Epic 16 performance qualification.
-- F3: the static-velocity fix changed 10 of 24 lesson/route trajectories (solve outcomes unchanged), so the base browser proofs are stale.
-- F4: an any-substep versus last-substep contact test was added (`TheMovingContactLaneRecordsAContactInAnySubstepOfTheTick`); it kills the last-substep-only mutant M9.
+**Priority order after main is green** (coordinator, 24 Oct 2026, from owner directives):
+1. Publish 9A.23 + 9A.25b, then 10.2a.
+2. **9A.44 f32 everywhere** (owner priority). Remove every binary16 lane and every `double` game value. `double` is allowed only at named external adapters. Game time is integer ticks plus an f32 phase. A guard enforces this. Split into A (solver/wire) and B (presentation/clock) if needed.
+3. Engine: lying cylinder axial creep (spec ready; orientation remainder approved).
+4. Workshop integration harness. A is the shared deterministic native harness plus migration; B is the cross-element coverage matrix, with every lesson at 3 precisions.
+5. TypeScript conversion of the wwwroot runtime JS and the node harnesses (pinned `tsc` in build/CI), including the same encapsulation for the pose ring and other shared-memory views.
+6. Test hygiene: replace output-hash pins with behavioural assertions, turn hash-pinned fixtures into fixture files, and remove private-member reach-ins (e.g. WorkshopActivationAnimationTests) per `docs/testing-guidance.md`.
+7. Deletion lane: 9A.24 typed observation port, then 9A.45 final isolation gate (Pipe arms, unused `TimerObservation`).
+8. Element lane: 10.2b Rope anchor (rope law plus the owner-mandated rope cut), 10.2c Pulley, 10.3 Lever, 10.4 pendulum qualification, 10.5 Trampoline, 11.x, 12.x, 13.x, 14.x, in epics delivery order.
 
-Pending browser cases: `cat-051`, `cat-051-own-supply`, `cat-051-interrupt`, `cat-052`, `cat-037`, `cat-005-n19`, `cat-020`, the 9A.19 downstream-ball check and 9A.21 first-Run timing (post-catalogue E2E).
+**Verification (binding):**
+- `docs/testing-guidance.md` applies: behaviour through defined interfaces, browser-free integration through the shared harness, derived oracles, mutation-proven, deterministic.
+- No skipped tests and no output-hash assertions (AGENTS.md).
+- One matching build, then `--no-build --no-restore`.
+- Never `--blame-crash` on the full solution.
 
-**In flight (parallel, deletion lane):** 9A.39 Battery (position 34) has an uncommitted native candidate on base f27cb71d in worktree `story-9a-39`. The finite store and the run-time control are now declared: `SupplySourceStoreDescriptor` and `ParameterRunEdit.RunControl`. `WorkshopBattery` and `ui/WorkshopBattery.cs` are deleted, and the Known list goes from 301 to 234 rows. Native traces, lessons and placed solutions are bit-identical to the record path. Old saves are refused with a typed reason. Next: independent review. Browser cases are pending ([spec and current state](_bmad-output/implementation-artifacts/spec-9a-39-battery.md#current-state)).
+**Deferred browser phase:** all browser/E2E suites stay disabled through the one explicit list (`tools/E2eRunner/BrowserDeferral.cs`). They run only when every named puzzle element is implemented and passing its unit and integration tests.
 
-**In flight (deletion lane):** C-Lamp+Detector (position 36: 9A.36 + 9A.37, 9R.9/9R.16 suite-first guards) has an uncommitted native candidate on base 54ffd9f0 in worktree `story-c-lamp-detector`. The lamp's node is selected by a declared indicator input and the detector's by a declared passage aperture; both records and their arms are deleted, and the Known list goes from 234 to 207 rows. Guards, traces, lessons and placed solutions are identical to the record path; record-path saves load as generic instances. Next: independent review. Browser cases are pending ([spec and current state](_bmad-output/implementation-artifacts/spec-c-lamp-detector.md#current-state)).
-
-**In flight (deletion lane):** 9A.32 Domino (position 38) has an uncommitted native candidate on base 2065d3c5 in worktree `story-9a-32`. The orientation sensor is selected by a declared `SignalOrientationDescriptor`; `WorkshopDomino`/`DominoMaterial` and the four record wire fields are deleted, and the Known list goes from 207 to 181 rows. Traces, lessons and placed solutions are bit-identical to the record path. Old saves are refused with a typed reason when their fields moved or a field lies beyond the current instance table, which covers every base-encoder save holding a generic part. The domino_effect authored solution is corrected and solves at every precision. Axial spin is decided: total-rotation behaviour preserved, and the tilt rule stays open in CAT-023 §6 ([spec and current state](_bmad-output/implementation-artifacts/spec-9a-32-domino.md#current-state)). Next: independent review. Browser cases pending.
-
-**In flight (deletion lane):** C-Plate (position 40: 9A.20 + 9A.40 + F.6 F-1) has an uncommitted native candidate on base 61ded7ad in worktree `story-c-plate`. The plate's contact-load row, level node and 0.1 s hold come from a declared `SignalContactLoadDescriptor`; `WorkshopPressurePlate` and its arms are deleted, and the Known list goes from 181 to 166 rows. Traces, rows, lessons and placed solutions are bit-identical to the record path; record-path plate saves are refused typed at both boundaries. Palette placement rests a dropped Dynamic part on a horizontal top (`PlacementPose.Compose`). Next: independent review. Browser cases pending ([spec and current state](_bmad-output/implementation-artifacts/spec-c-plate.md#current-state)).
-
-**In flight (deletion lane):** C-Clock (position 42: 9A.42 + 9R.10) has an uncommitted native candidate on base 14658883 in worktree `story-c-clock`. The clock's oscillator node is selected by a declared `SignalOscillatorDescriptor`; `WorkshopClock`, `WorkshopInput.Clock`, the Clock panel, their arms and the `threshold` wire field are deleted, and the Known list goes from 166 to 136 rows. Traces, lessons and placed solutions are bit-identical to the record path; record-path saves are refused typed at both boundaries (pipe and latch saves load unchanged). `interval_seconds` is edited in the generic editor (Clamp). Next: independent review. Browser cases pending ([spec and current state](_bmad-output/implementation-artifacts/spec-c-clock.md#current-state)).
-
-**Also verified:** 9A.22 Event ring producer (position 44) terminal scoped native/publication Pass at main fc7f7cac: CI 39992032903, artifact 12518097906 ([review](_bmad-output/implementation-artifacts/review-9a-22-event-ring.md#terminal-publication-verification--24-october-2026)). Each committed tick's one-shot transitions become exactly one 64-byte record from one compiled row, sequenced only at Commit and copied by `worker.js` into a scene-sized ring; `eventBuffer`, `CounterReached`, `LatchSet`, `PrismaticLimit` and `PayloadLayout` are deleted. The isolation-doc rows A16 and D1 are closed (24 Oct 2026). Browser cases pending.
-
-**In flight (deletion lane):** C-Memory (position 46: 9A.41 + 9A.43, the last record conversion) has a native candidate in worktree `story-c-memory`: WIP 9b756844 with main cf35a064 merged in (merge 4db597a3). Reviewer verdict Incomplete on docs only (F1); F1–F3 addressed, coordinator confirmed the Clear-admission rule, the typed old-save refusals and the PulseCount rename (24 Oct 2026). The counter's node and target come from a declared `SignalPulseCountDescriptor` and the latch's from a declared `SignalMemoryDescriptor`; `WorkshopCounter`, `WorkshopLatch`, their arms, the `target_count` wire field and the whole `WorkshopInstances.Validate` whitelist are deleted, and the Known list goes from 127 to 94 rows (only Pipe/FinalIsolation remain, owned by 9A.45). Traces, ring records, lessons and placed solutions are bit-identical to the record path; record-path counter saves are refused typed at both boundaries. Next: independent review. Browser cases pending ([spec and current state](_bmad-output/implementation-artifacts/spec-c-memory.md#current-state)).
-
-**In flight (deletion lane):** 9A.23 + 9A.25b Event ring consumers and one-shot bindings (position 48) is committed locally, not pushed, in worktree `story-9a-23-25b`, with origin/main 8411ba3b merged (merge 41069f66).
-- Both consumers read the ring through one shared reader (`event-ring-cursor.js`). The Animation worker drives every one-shot binding from its ring kind. The main thread's cursor wakes the goal.
-- The occurrence rows are device-private, and the reliable reads and the main-thread relay are deleted.
-- The review's F1–F4 are addressed: a seqlock with per-word Atomics on the 9A.22 writer and on both readers, the older-ring test, and the two-line restore. The Impact pin was re-captured on 0cba945b.
-- Next: independent re-review. Browser cases are pending ([spec and current state](_bmad-output/implementation-artifacts/spec-9a-23-25b-ring-consumers.md#current-state)).
-
-**Merged, receipts carried with C-Gate:** 9.8b Exactly one gate (CAT-027, position 31) is merged to main 8bfddc91 ([spec and evidence](_bmad-output/implementation-artifacts/spec-9-8b-electrical-xor.md#current-state)).
-
-**Merged, receipts pending (9.4c):** 9.4c latch-fixture integrations (position 30, guards C-Gate) is merged to main a598a09e: native `LatchSupplyFixtureTests` (10 cases); pre-merge review Pass-pending-merge ([review](_bmad-output/implementation-artifacts/review-9-4c-latch-fixture-deferred-integrations.md)). The supply lag is one tick: coordinator decision under owner delegation, 22 Oct 2026 (spec D3), which supersedes the "+2" wording in the frozen Set row, AC1 and CAT-037 T14. Pending browser cases `cat-005-n19` and `cat-051-interrupt` (post-catalogue E2E). **Handoff (coordinator decision, 22 Oct 2026):** `ActuatorDriveRead.Blocked` reads false for a blade resting on a ball (−1.083e-5 m/s residual vs the 1e-5 threshold, so the indicator shows unpowered). Owner: the C-Gate implementation owner; native proof required; the threshold is CAT-051 open question 3. [Spec](_bmad-output/implementation-artifacts/spec-9-4c-latch-fixture-deferred-integrations.md#evidence).
-
-**Also verified (receipt carried with C-Memory):** 10.1 Solid Cylinder Collider & Inertia (position 33, engine-only, no package) terminal scoped native/publication Pass at main cf35a064: CI 39999273139, artifact 12521979747 ([review](_bmad-output/implementation-artifacts/review-10-1-solid-cylinder.md)).
-- Round 4 added the single side-emission rule. The 1000-per-class acceptance gate is 0 over in all 12 Dead/Rolling classes, the reviewer's held-back seeds pass, and the routine suite keeps the 200-per-class subset.
-- Browser `engine-cylinder` is pending. The UI dynamic cylinder moves to 10.2 and thin tubes to 14.4.
-- [Spec, round 4](_bmad-output/implementation-artifacts/spec-10-1-solid-cylinder.md#round-4-the-single-emission-fix-2324-oct-2026-evidence-evidence-10-1round5-mutations-round4).
-
-**Merged, receipts pending:** 9.8a Either gate (CAT-026, position 29: package `elements/ElectricalOr` and the monotone Or law; Or-only loops admitted at their least fixed point, mixed loops refused) is merged to main a2eddf81 ([review](_bmad-output/implementation-artifacts/review-9-8a-electrical-or.md), [spec and evidence](_bmad-output/implementation-artifacts/spec-9-8a-electrical-or.md#current-state)); its terminal receipt stays with its owner. C-Bumper+Spring (position 28: Pinball Bumper and Springboard as generic instances, [spec](_bmad-output/implementation-artifacts/spec-c-bumper-spring.md#evidence)) is merged to main 711568c4; its terminal receipt is carried with 9.4c ([review](_bmad-output/implementation-artifacts/review-c-bumper-spring.md)).
-
-**Owner / next check:** C-Gate implementation owner, retained for reviewer findings. Full `dotnet test CuriousContraptions.slnx --no-build --no-restore` on one matching 0-warning Debug build of the merged candidate (totals in the spec evidence); CI tools step and Release worker clean. Next: independent review and SnapshotApproval of the merged snapshot, then normal publication. No known product blocker; browser qualification deferred.
-
-**Verification:** Production C# UNIT tests PRIMARY, integration supplemental. Real behavior/control/boundary/ticks/Reset/save-load; one matching build per changed input/config then --no-build --no-restore. Chrome/E2E deferred until all catalogue elements complete.
-
-**Cleanup/design:** Explicit record/factory/compiler/capture/whitelist/caller deletion, package-owned declarations and typed shared engines. No fallback, compatibility bridge or new platform.
-
-**Next:** publish C-Gate (position 32) after its SnapshotApproval, then the next ready roadmap item (coordinator). Preserve unrelated main dirt and historical evidence.
-- **Element lane after 10.1, before 10.2a: Engine: restitution energy correctness** (coordinator decision, 24 Oct 2026).
-  - Root cause: a speculative stop skipped its bounce, and a sticky cached approach bounced it a substep (often a tick) later on a stale speed; per-point restitution on manifolds and a gravity-inclusive approach added spin and gain.
-  - **In flight: review Pass-pending-merge; merged with main f5ffdb4e** in worktree `story-engine-restitution` (originally on base cf35a064); next SnapshotApproval, then publication: same-substep Box2D-style restitution on the substep-start approach, manifold block solve, friction re-solve after the bounce, speculative sphere contacts at the touch normal, events and plate loads on carried impulse. The Lively entry check is red on base and green on the candidate (0/200 every class); every authored lesson solves at 3 precisions; slnx 2847 + tools green; 11/11 mutants killed. Review round 1 (Fail F1, Incomplete F2/F3) fixed: an energy-bounded restitution pass removes the dynamic-stack gain at e ≥ 0.95, and the missing tests are added. Follow-up `engine-resting-stack-settling` deferred. [Spec and current state](_bmad-output/implementation-artifacts/spec-engine-restitution.md#current-state-24-october-2026-implementation-owner-native-candidate-in-review-uncommitted).
-  - [10.1 spec, restitution](_bmad-output/implementation-artifacts/spec-10-1-solid-cylinder.md#round-4-the-single-emission-fix-2324-oct-2026-evidence-evidence-10-1round5-mutations-round4).
+**Deferred engine follow-ups (in `deferred-work.md`):** resting-stack settling, supported-impact restitution, test-host SIGSEGV under concurrent load, and the cylinder narrowphase cost (performance gate).
