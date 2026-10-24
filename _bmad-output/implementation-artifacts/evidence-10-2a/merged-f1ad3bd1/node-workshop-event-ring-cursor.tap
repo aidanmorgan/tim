@@ -1,0 +1,60 @@
+TAP version 13
+# (node:23828) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: concurrent stress: over a million records through the shipped writer, no reader ever receives a torn record
+ok 1 - concurrent stress: over a million records through the shipped writer, no reader ever receives a torn record
+  ---
+  duration_ms: 1066.883458
+  type: 'test'
+  ...
+# Subtest: a reader that keeps pace receives every record exactly once and skips none
+ok 2 - a reader that keeps pace receives every record exactly once and skips none
+  ---
+  duration_ms: 1.090958
+  type: 'test'
+  ...
+# Subtest: a parked reader lapped by a capacity and more reports exactly the skipped records, then reads the newest intact
+ok 3 - a parked reader lapped by a capacity and more reports exactly the skipped records, then reads the newest intact
+  ---
+  duration_ms: 0.179875
+  type: 'test'
+  ...
+# Subtest: a slot reused while it is copied is skipped, never delivered
+ok 4 - a slot reused while it is copied is skipped, never delivered
+  ---
+  duration_ms: 0.065917
+  type: 'test'
+  ...
+# Subtest: epochs: a newer ring is held unread until it is installed, an older one is ignored, and a new ring restarts at sequence 1
+ok 5 - epochs: a newer ring is held unread until it is installed, an older one is ignored, and a new ring restarts at sequence 1
+  ---
+  duration_ms: 0.245958
+  type: 'test'
+  ...
+# Subtest: a ring older than the installed epoch is ignored: nothing is delivered and the cursor does not move
+ok 6 - a ring older than the installed epoch is ignored: nothing is delivered and the cursor does not move
+  ---
+  duration_ms: 0.091708
+  type: 'test'
+  ...
+# Subtest: the ring memory is reachable only through its atomic API: no raw buffer, a private cursor ring, and postTo posts the adoptable ring
+ok 7 - the ring memory is reachable only through its atomic API: no raw buffer, a private cursor ring, and postTo posts the adoptable ring
+  ---
+  duration_ms: 0.071083
+  type: 'test'
+  ...
+# Subtest: a delivery carries the epoch and skipped count before the records
+ok 8 - a delivery carries the epoch and skipped count before the records
+  ---
+  duration_ms: 0.043792
+  type: 'test'
+  ...
+1..8
+# tests 8
+# suites 0
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1128.792209

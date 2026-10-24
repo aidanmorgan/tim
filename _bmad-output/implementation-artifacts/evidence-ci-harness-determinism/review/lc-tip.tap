@@ -1,0 +1,244 @@
+TAP version 13
+# Subtest: normal publication activates exactly one service and retains startup qualification
+ok 1 - normal publication activates exactly one service and retains startup qualification
+  ---
+  duration_ms: 2.524042
+  type: 'test'
+  ...
+# Subtest: a master peer whose leading padding holds the retired clock wire version 4 is refused
+ok 2 - a master peer whose leading padding holds the retired clock wire version 4 is refused
+  ---
+  duration_ms: 0.497125
+  type: 'test'
+  ...
+# Subtest: a master peer whose leading padding holds a non-zero high padding byte is refused
+ok 3 - a master peer whose leading padding holds a non-zero high padding byte is refused
+  ---
+  duration_ms: 0.345333
+  type: 'test'
+  ...
+# Subtest: delayed managed publication has no callback until explicit activation
+ok 4 - delayed managed publication has no callback until explicit activation
+  ---
+  duration_ms: 0.39625
+  type: 'test'
+  ...
+# Subtest: default and missing IDs reject without scheduling or changing the ready owner
+ok 5 - default and missing IDs reject without scheduling or changing the ready owner
+  ---
+  duration_ms: 0.389791
+  type: 'test'
+  ...
+# Subtest: pre-ready activation rejects atomically and subsequent legitimate activation succeeds
+ok 6 - pre-ready activation rejects atomically and subsequent legitimate activation succeeds
+  ---
+  duration_ms: 0.3565
+  type: 'test'
+  ...
+# Subtest: duplicate activation preserves the one original timer and owner state
+ok 7 - duplicate activation preserves the one original timer and owner state
+  ---
+  duration_ms: 0.342792
+  type: 'test'
+  ...
+# Subtest: startup timeout before worker readiness rejects creation and activation
+ok 8 - startup timeout before worker readiness rejects creation and activation
+  ---
+  duration_ms: 0.316333
+  type: 'test'
+  ...
+# Subtest: startup timeout after JS return remains anchored to both runtime readiness
+ok 9 - startup timeout after JS return remains anchored to both runtime readiness
+  ---
+  duration_ms: 0.335542
+  type: 'test'
+  ...
+# Subtest: worker failure rejects activation without invoking managed service
+ok 10 - worker failure rejects activation without invoking managed service
+  ---
+  duration_ms: 0.378625
+  type: 'test'
+  ...
+# Subtest: disposal before managed publication prevents later activation
+ok 11 - disposal before managed publication prevents later activation
+  ---
+  duration_ms: 0.318208
+  type: 'test'
+  ...
+# Subtest: disposal after activation makes a captured late callback inert
+ok 12 - disposal after activation makes a captured late callback inert
+  ---
+  duration_ms: 0.299458
+  type: 'test'
+  ...
+# Subtest: failure after activation makes a captured late callback inert
+ok 13 - failure after activation makes a captured late callback inert
+  ---
+  duration_ms: 0.294167
+  type: 'test'
+  ...
+# Subtest: a failed client detaches its clock ring
+ok 14 - a failed client detaches its clock ring
+  ---
+  duration_ms: 0.288042
+  type: 'test'
+  ...
+# Subtest: a clock reply landing after the client failed is never delivered
+ok 15 - a clock reply landing after the client failed is never delivered
+  ---
+  duration_ms: 3.014541
+  type: 'test'
+  ...
+# Subtest: a clock reply landing after disposal is never delivered
+ok 16 - a clock reply landing after disposal is never delivered
+  ---
+  duration_ms: 0.538
+  type: 'test'
+  ...
+# Subtest: a clock reply missing beyond 1000ms never faults the session and the service keeps probing
+ok 17 - a clock reply missing beyond 1000ms never faults the session and the service keeps probing
+  ---
+  duration_ms: 0.461458
+  type: 'test'
+  ...
+# Subtest: a Simulation heartbeat silent for 1000ms of running service faults the session as SimulationUnresponsive
+ok 18 - a Simulation heartbeat silent for 1000ms of running service faults the session as SimulationUnresponsive
+  ---
+  duration_ms: 2.209083
+  type: 'test'
+  ...
+# Subtest: a Browser that was itself blocked never mistakes the Simulation for hung
+ok 19 - a Browser that was itself blocked never mistakes the Simulation for hung
+  ---
+  duration_ms: 0.943125
+  type: 'test'
+  ...
+# Subtest: both runtimes must be ready before the one qualification deadline (0,1)
+ok 20 - both runtimes must be ready before the one qualification deadline (0,1)
+  ---
+  duration_ms: 0.310709
+  type: 'test'
+  ...
+# Subtest: both runtimes must be ready before the one qualification deadline (1,0)
+ok 21 - both runtimes must be ready before the one qualification deadline (1,0)
+  ---
+  duration_ms: 0.24525
+  type: 'test'
+  ...
+# Subtest: duplicate runtime readiness rejects worker 0
+ok 22 - duplicate runtime readiness rejects worker 0
+  ---
+  duration_ms: 0.237167
+  type: 'test'
+  ...
+# Subtest: early ready rejects worker 0
+ok 23 - early ready rejects worker 0
+  ---
+  duration_ms: 0.258292
+  type: 'test'
+  ...
+# Subtest: duplicate runtime readiness rejects worker 1
+ok 24 - duplicate runtime readiness rejects worker 1
+  ---
+  duration_ms: 0.239792
+  type: 'test'
+  ...
+# Subtest: early ready rejects worker 1
+ok 25 - early ready rejects worker 1
+  ---
+  duration_ms: 0.23925
+  type: 'test'
+  ...
+# Subtest: early Animation qualification rejects before bootstrap
+ok 26 - early Animation qualification rejects before bootstrap
+  ---
+  duration_ms: 0.272458
+  type: 'test'
+  ...
+# Subtest: duplicate authoritative Animation peer rejects without a second transfer
+ok 27 - duplicate authoritative Animation peer rejects without a second transfer
+  ---
+  duration_ms: 0.261
+  type: 'test'
+  ...
+# Subtest: disposal during asset loading prevents late readiness from rearming
+ok 28 - disposal during asset loading prevents late readiness from rearming
+  ---
+  duration_ms: 0.288709
+  type: 'test'
+  ...
+# Subtest: Animation constructor failure closes the already owned Simulation worker
+ok 29 - Animation constructor failure closes the already owned Simulation worker
+  ---
+  duration_ms: 0.291583
+  type: 'test'
+  ...
+# Subtest: premature Animation output fails without delivering to the managed consumer
+ok 30 - premature Animation output fails without delivering to the managed consumer
+  ---
+  duration_ms: 0.252
+  type: 'test'
+  ...
+# Subtest: delayed valid ACK keeps Backpressure until managed validation completes, and posts no stall flag
+ok 31 - delayed valid ACK keeps Backpressure until managed validation completes, and posts no stall flag
+  ---
+  duration_ms: 0.431708
+  type: 'test'
+  ...
+# Subtest: a command older than two seconds is TimedOut for the player, still without a stall flag
+ok 32 - a command older than two seconds is TimedOut for the player, still without a stall flag
+  ---
+  duration_ms: 0.297708
+  type: 'test'
+  ...
+# Subtest: completing an older ACK cannot clear another aged request or exceed two leases
+ok 33 - completing an older ACK cannot clear another aged request or exceed two leases
+  ---
+  duration_ms: 0.363333
+  type: 'test'
+  ...
+# Subtest: taken but invalid ACK cannot release capacity or report healthy without completion
+ok 34 - taken but invalid ACK cannot release capacity or report healthy without completion
+  ---
+  duration_ms: 0.347625
+  type: 'test'
+  ...
+# Subtest: unmatched or duplicate ACK faults the session (false)
+ok 35 - unmatched or duplicate ACK faults the session (false)
+  ---
+  duration_ms: 0.312041
+  type: 'test'
+  ...
+# Subtest: unmatched or duplicate ACK faults the session (true)
+ok 36 - unmatched or duplicate ACK faults the session (true)
+  ---
+  duration_ms: 0.283416
+  type: 'test'
+  ...
+# Subtest: the deleted worker channel memoryResult is an unknown envelope that faults the session
+ok 37 - the deleted worker channel memoryResult is an unknown envelope that faults the session
+  ---
+  duration_ms: 0.281708
+  type: 'test'
+  ...
+# Subtest: the deleted worker channel candidateTimedOut is an unknown envelope that faults the session
+ok 38 - the deleted worker channel candidateTimedOut is an unknown envelope that faults the session
+  ---
+  duration_ms: 0.294667
+  type: 'test'
+  ...
+# Subtest: two animation owners send sequential controls only after managed ACK delivery returns
+ok 39 - two animation owners send sequential controls only after managed ACK delivery returns
+  ---
+  duration_ms: 0.399375
+  type: 'test'
+  ...
+1..39
+# tests 39
+# suites 0
+# pass 39
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 79.29825

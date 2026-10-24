@@ -1,0 +1,28 @@
+M1 (temporary, reverted): worker.js resumeTurn catch no longer calls disposeOwned(), so a failed session keeps resuming turns
+not ok 8 - a scheduler turn that cannot resume is a failure envelope
+  location: '/Users/aidan/dev/personal/tim/.claude/worktrees/story-ci-harness-determinism/tools/workshop-observation.test.mjs:416:1'
+  error: |-
+    + actual - expected
+    +   8
+# tests 10
+# pass 9
+# fail 1
+
+M2 (temporary, reverted): worker.js dispose import does nothing, so the queued turn 3 and the timed turn 2 stay live
+not ok 1 - capture mode 1: preparation, receipts, queued terminal, output failure, retired envelopes and disposal
+  location: '/Users/aidan/dev/personal/tim/.claude/worktrees/story-ci-harness-determinism/tools/workshop-observation.test.mjs:131:35'
+  error: |-
+not ok 2 - capture mode 2: preparation, receipts, queued terminal, output failure, retired envelopes and disposal
+  location: '/Users/aidan/dev/personal/tim/.claude/worktrees/story-ci-harness-determinism/tools/workshop-observation.test.mjs:131:35'
+  error: |-
+not ok 6 - startup control 2: a rejected preparation
+  location: '/Users/aidan/dev/personal/tim/.claude/worktrees/story-ci-harness-determinism/tools/workshop-observation.test.mjs:343:54'
+  error: |-
+not ok 9 - disposal cancels the timed and the queued scheduler turn
+  location: '/Users/aidan/dev/personal/tim/.claude/worktrees/story-ci-harness-determinism/tools/workshop-observation.test.mjs:432:1'
+  error: |-
+not ok 9 - disposal cancels the timed and the queued scheduler turn
+  location: '/Users/aidan/dev/personal/tim/.claude/worktrees/story-ci-harness-determinism/tools/workshop-observation.test.mjs:432:1'
+    + actual - expected
+    +   3,
+    +   2

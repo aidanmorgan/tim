@@ -1753,7 +1753,6 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
         public WorkshopTransportState TransportState => WorkshopTransportState.Ready;
         public void ControlUi(WorkshopUiTarget target, AnimationControlKind kind, bool visible) { }
         public bool TryUiFrame(ulong frame, WorkshopPresentationSample physical, WorkshopUiTarget target, out AnimationOpacity opacity) { opacity = default; return false; }
-        public bool TryCosmeticFrame(ulong frame, WorkshopPresentationSample physical, GpuBodyId owner, out WorkshopCosmeticSample sample) { sample = default; return false; }
         public void SetDeclaredVisible(GpuBodyId owner, bool visible) { }
         public bool TryDeclaredFrame(ulong frame, WorkshopPresentationSample physical, GpuBodyId owner, out System.Collections.Generic.IReadOnlyList<DeclaredPresentationSample> samples) { samples = System.Array.Empty<DeclaredPresentationSample>(); return false; }
         public bool TryRead(out WorkshopResponse response) { response = default; return false; }

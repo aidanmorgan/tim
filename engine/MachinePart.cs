@@ -119,12 +119,6 @@ public sealed partial class MachinePart : Node3D, IResizablePart
         _highlight.Visible = false;
         _built = true;
     }
-    private readonly CosmeticBindingSet _cosmetic = new();
-    internal bool HasCosmeticBindings => !_cosmetic.IsEmpty;
-    internal CosmeticCurveDeclaration Cosmetic => _cosmetic.Declaration;
-    private void BindVisual(CosmeticCurveDeclaration declaration, Node3D target, WorkshopVisualProperty property, float neutral, float active) =>
-        _cosmetic.Add(declaration, target, property, neutral, active, AnimationTimerPhase.None);
-    internal void ApplyCosmetic(WorkshopCosmeticSample sample) => _cosmetic.Apply(sample);
     private readonly Dictionary<PhysicalVisualSlot, (GpuBodyId Id, Node3D Target, Transform3D RestPose)> _physicalBodies = new();
     private readonly List<(Node3D Moving, Vector3 MovingAnchor, Node3D Target, Vector3 FixedAnchor, float RestLength)> _physicalSpans = new();
     /// <summary>Each bound visual's scene rest pose (after its declared rest offset): the frame a slider compression displaces.</summary>
@@ -227,16 +221,11 @@ public sealed partial class MachinePart : Node3D, IResizablePart
                         copy.EmissionEnabled = true;
                 mesh.MaterialOverride = copy;
             }
-            var curve = CosmeticCurveDeclaration.From(declaration);
-            if (curve.IsDeclared)
-                BindVisual(curve, target, property, declaration.From, declaration.To);
-            else
-            {
-                var binding = new WorkshopVisualBinding(target, property, declaration.From, declaration.To);
-                _declaredBindings.Add(i, binding);
-                binding.ApplyValue(WorkshopDeclaredPresentation.Value(declaration.Property,
-                    declaration.Curve == PresentationCurve.ExponentialFollow ? 0 : declaration.From));
-            }
+            // Every binding, one-shot cues included (Story 9A.25b), is applied from the Animation worker's declared samples.
+            var binding = new WorkshopVisualBinding(target, property, declaration.From, declaration.To);
+            _declaredBindings.Add(i, binding);
+            binding.ApplyValue(WorkshopDeclaredPresentation.Value(declaration.Property,
+                declaration.Curve == PresentationCurve.ExponentialFollow ? 0 : declaration.From));
         }
         foreach (var binding in presentation.Bodies)
         {

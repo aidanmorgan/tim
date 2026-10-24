@@ -36,7 +36,16 @@ public sealed class WorkshopTickLoopTests
         public long Debt => Now - (long)Committed * Period;
 
         public bool Owns => DebtStops == 0 && Completions == 0;
-        public bool Blocked => false;
+        /// <summary>The committed tick at which a command or installation owns the world once (the loop waits for it).</summary>
+        public ulong? BlockAt { get; set; }
+        public bool Blocked
+        {
+            get
+            {
+                if (BlockAt != Committed) return false;
+                BlockAt = null; return true;
+            }
+        }
         public bool DebtExceeded
         {
             get
@@ -83,12 +92,9 @@ public sealed class WorkshopTickLoopTests
     [Fact]
     public async Task AWaitForWorkEndsTheTurnSoTheNextTurnRunsAFullBatch()
     {
-        // Behind from the start and after a 60 ms first tick; the third attempt finds no free publication slot
-        // (NotReserved) and waits.
-        var worker = new VirtualWorker(tick => tick == 0 ? 60 * Millisecond : 5 * Millisecond) { Now = 20 * Millisecond };
-        worker.Scripted.Enqueue(TickAttempt.Committed);
-        worker.Scripted.Enqueue(TickAttempt.Committed);
-        worker.Scripted.Enqueue(TickAttempt.NotReserved);
+        // Behind from the start and after a 60 ms first tick; after two ticks a command owns the world, so the loop waits.
+        // (Story 9A.23 deleted the reliable-read reservation that was the other wait: every read is now the latest.)
+        var worker = new VirtualWorker(tick => tick == 0 ? 60 * Millisecond : 5 * Millisecond) { Now = 20 * Millisecond, BlockAt = 2 };
         await WorkshopTickLoop.Run(worker);
         Assert.Equal(2, worker.Turns[0]);
         Assert.Equal(ContractTicksPerTurn, worker.Turns[1]);

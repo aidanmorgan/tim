@@ -75,7 +75,8 @@ public sealed class WorkshopDominoTests
         var domino = Assert.IsType<WorkshopGenericInstance>(decoded.Construction.Instances[1]);
         Assert.Equal(PartId.Domino, domino.PartId);
         Assert.Empty(domino.Parameters);
-        Assert.False(domino.Cosmetic.IsDeclared);
+        Assert.DoesNotContain(DeclaredPhysics.Of(PartId.Domino).Presentation.Bindings,
+            binding => binding.Driver == CuriousContraptions.Abstractions.PresentationDriver.Event);
         var record = WorkshopSaveCodec.Open(bytes).Construction!.Value.Instances(1)!.Value;
         Assert.Equal((false, 0), (WorkshopWireFlatBuffers.CarriesTypedField(record), record.ParametersLength));
         foreach (var forged in Enum.GetValues<TypedField>().Select(field => PayloadInstanceTests.GenericSave("domino", field))

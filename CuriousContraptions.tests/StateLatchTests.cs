@@ -67,8 +67,8 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
             var rocker = (Node3D)visual.FindChild("Rocker", recursive: false)!;
             var lamp = (MeshInstance3D)visual.FindChild("IndicatorLamp", recursive: false)!;
 
-            Assert.False(part.HasCosmeticBindings);
-            Assert.False(PlacedParts.Latch(new(1), 0, 0, 0, 0, 0, 0, 1).Cosmetic.IsDeclared);
+            // Latch memory is a level (Story 9A.25b): no binding of the latch is cued by a ring record.
+            Assert.DoesNotContain(part.Definition.Presentation.Bindings, binding => binding.Driver == CuriousContraptions.Abstractions.PresentationDriver.Event);
             Assert.All(part.Definition.Presentation.Bindings, binding =>
             {
                 Assert.Equal(CuriousContraptions.Abstractions.PresentationDriver.CommittedActivation, binding.Driver);

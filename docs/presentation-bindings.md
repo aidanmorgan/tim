@@ -234,44 +234,43 @@ receipt, late scalar sample or late registration result cannot complete or anima
 P0-016/023/024/026 must update codec, feedback, history, browser application and present-once
 consumers together; no target/property-only sample path remains.
 
-## Declared cosmetic curves (ANIM-1b) and UI bindings (ANIM-1c)
+## One-shot cues on the event ring (Story 9A.25b) and UI bindings (ANIM-1c)
 
-Every currently playable animated part declares its cosmetic curve as typed data next to its physics
-record and nowhere else. `CosmeticCurveDeclaration` (`engine/gpu/WorkshopCosmetic.cs`) carries
-`Source` (`AnimationFeedbackSource`: None=0, Activation=1, Timer=2, ContactWork=3, Capture=4), `Curve`
-(`AnimationCurve`), `Duration` (seconds; f32 contract, binary16 storage until migrated), `ImpulseCurve` (`AnimationImpulseCurve`) and `Overlap`
-(`AnimationImpulseOverlap`). `Validate` rejects unknown members and any field a source does not use.
-The per-part constants live in `CosmeticCurves`: ImpactSwitch and SignalLamp (Activation, SmoothStep,
-0.16 s), Delay (Timer, Linear; the duration is the committed Started..Due interval), PinballBumper
-(ContactWork, 0.32 s, SineSquaredPulse, SaturatingSum) and Receiver (Capture, SmoothStep, 0.5 s: the
-halo albedo blends from `#bdf4bd` to white while the capture sensor is latched). Each `IWorkshopInstance`
-exposes `Cosmetic`; it is never persisted, so the save format and the physics wire are unchanged.
-Basketball, Ramp and Wall declare `None`, and a part artwork that binds visuals without a declared curve
-is rejected at construction, as is artwork whose declaration differs from its instance's.
+Every package binding is declared in its package (Story 9A.25a) and evaluated by the Animation worker; the main thread only
+applies the samples (`MachineWorld` → `MachinePart.ApplyDeclaredProperty`). A one-shot cue is a binding with
+`PresentationDriver.Event` that names the ring record kind cueing it (`PresentationBinding.Event`, a `SimulationEventKind`; every
+committed driver names `None`). The bundle refuses an event binding without a kind, a kind on a committed driver, a kind its
+package does not declare in `Events`, and any envelope other than SmoothStep with Replace or SineSquaredPulse with SaturatingSum
+(duration > 0). The shipped cues, with their 9A.25a values unchanged:
 
-Evaluation path, in order and with nothing evaluated on the main thread: committed physics read →
-`BrowserWorkshopClient` resolves the owning instance's declaration by body id and sends one
-`WorkshopAnimationControl` (Version 5; bytes 92–93 `ImpulseCurve`, 94–95 `Overlap`, both zero unless
-the kind is Impulse) → the animation worker evaluates the shared clip or impulse slot → the 60 Hz
-sample returns as a 0..1 blend → `TryCosmeticFrame` hands a `WorkshopCosmeticSample` (blend, timer
-phase) to `MachinePart.ApplyCosmetic`, whose single binding list drives `WorkshopVisualBinding`.
-Capture feedback resolves the latched sensor to its owning Receiver through the compiled scene's residence
-sensor declarations (the sensor's frame body; free play compiles one sensor per ball, so the authored id is
-never assumed) and sends a ColourBlend Endpoint that the worker ramps 0→1; one receiver owns one capture
-target per world, and a rejected or re-captured occurrence releases its slot for a fresh request.
-`WorkshopAnimationWire.TargetCapacity` grew to 42 (2·activation + contact + one capture target per sensor + two
-UI targets); that sizes the worker's register table only — the Version 5 byte layout is unchanged.
+| Package | Bindings | Kind | Envelope |
+| --- | --- | --- | --- |
+| Pinball Bumper | 5 (head scale, ring scale and colour) | Impact, `EventMagnitude.Positive` | SineSquaredPulse, SaturatingSum, 0.32 s: each paid hit adds one pulse; an unpaid hit (empty store, strength 0) cues nothing |
+| Receiver | 4 (halo scale and colour) | Captured | SmoothStep, Replace, 0.5 s: each capture replays the halo and it holds lit |
+| Impact Switch | 4 (button travel and colour) | TriggerActivated | SmoothStep, Replace, 0.16 s |
+| Ball detector | 3 (indicator colour) | Passage | SmoothStep, Replace, 0.35 s, on every crossing (CAT-002 §2) |
+
+The State Latch has no one-shot: its memory is a level, and its 0.125 s transition is a committed-state binding (9A.25a).
+
+Evaluation path (Story 9A.23): the Simulation worker posts each event ring to the Animation worker on its master port; at the start
+of each Service turn the shared reader (`event-ring-cursor.js`) hands the new whole records to `Program.EventRecords`, and
+`WorkshopDeclaredPresentation.AcceptEvents` starts one cue on every event binding whose owner is the record's Source and whose kind
+is the record's. The cue starts at the record's physical time (its ordinal and phase on the 480 Hz clock, placed on the presentation
+clock through the installed projection's anchor, the `AnimationImpulseTiming.EventTime` clock), not at the tick boundary: a pulse is
+enqueued at that time, and a Replace clip restarts from its rest value at that time once the clock reaches it
+(`AnimationBatch.StartAtOccurrence`). A cue observed late (a hidden part, a stalled worker) is at its exact phase, or at its end value
+once it has ended, and never restarts. A lapped record's cue is lost and counted (`Lapped`), never replayed; a record is never
+applied twice. A non-retained installation (Run, Reset, a new world) starts every cue at rest; a retained rebind (Pause, Resume,
+Step, a cadence change) keeps the cursor and the cues. One-shot samples arrive through `TryDeclaredFrame` like every declared
+binding; the main thread relays and evaluates no one-shot.
 
 Animation target identities (all declared, none element-keyed):
 
 | Range | Target | Source |
 | --- | --- | --- |
 | `1` | Hint (`UiCurves.Hint`, Opacity) | player control: Reveal / Hide / Visibility |
-| `node + 2` | activation part | `AnimationFeedbackSource.Activation` |
-| `2^32 + node` | timer part | `AnimationFeedbackSource.Timer` |
-| `2·2^32 + body` | contact owner | `AnimationFeedbackSource.ContactWork` |
-| `3·2^32 + body` | capture receiver | `AnimationFeedbackSource.Capture` |
-| `2^64 − 1` | Goal (`UiCurves.Goal`, Opacity) | committed goal occurrence |
+| `5·2^32 + index` | declared package binding, in instance then binding order | committed-state query or ring kind (`WorkshopDeclaredPresentation.Targets`) |
+| `2^64 − 1` | Goal (`UiCurves.Goal`, Opacity) | committed goal occurrence, woken by the main-thread ring cursor (`WorkshopGoalWake`) |
 
 UI bindings (ANIM-1c) use the same worker path as parts. `UiCurveDeclaration` (`engine/gpu/WorkshopUi.cs`)
 declares one `WorkshopUiTarget` (Hint=1, Goal=2), its `WorkshopUiFeedback` (Control or Goal), curve, duration

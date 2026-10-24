@@ -30,7 +30,7 @@ function response(overrides: Partial<MockResponseParams> = {}): Uint8Array {
             { id: RECEIVER, cell: { x: -2, y: 0, z: 0 }, local: { x: 0, y: 0.6, z: 0 }, rotation: { w: 1 } },
         ],
         captures: [{ sensor: 9n, phase: 0, eventOrdinal: 0, eventPhase: 0 }],
-        occurrences: [{ work: 1, collider: 2, target: BALL, sequence: 0, eventOrdinal: 0 }],
+        contactWorks: [{ id: 1n, owner: RECEIVER, occurrenceCount: 0, remainingEnergy: 32 }],
         ...overrides,
     }));
 }
@@ -251,9 +251,10 @@ describe('Run/Reset snapshot: bit-exact comparison', () => {
 
     test('a nested field that shares an excluded name is still compared', () => {
         const s0 = snapshotFrom(response(), saved(), BENCH);
+        // The stores' own count is compared too (a nested field of a compared vector).
         assert.match(failureOf(() => assertSnapshotEqual(s0, snapshotFrom(response({
-            occurrences: [{ work: 1, collider: 2, target: BALL, sequence: 1, eventOrdinal: 0 }] }), saved(), BENCH))),
-        /read\.occurrences\[0\]\.sequence 0≠1/);
+            contactWorks: [{ id: 1n, owner: RECEIVER, occurrenceCount: 1, remainingEnergy: 32 }] }), saved(), BENCH))),
+        /read\.contact_works\[id=1\]\.occurrence_count 0≠1/);
         assert.match(failureOf(() => assertSnapshotEqual(s0, snapshotFrom(response(), saved({ revision: 6n }), BENCH))),
             /saved\.construction\.revision 5≠6/);
     });

@@ -1,0 +1,38 @@
+✔ concurrent stress: over a million records through the shipped writer, no reader ever receives a torn record (1203.582666ms)
+✔ a reader that keeps pace receives every record exactly once and skips none (0.947ms)
+✔ a parked reader lapped by a capacity and more reports exactly the skipped records, then reads the newest intact (0.141167ms)
+✔ a slot reused while it is copied is skipped, never delivered (0.062917ms)
+✖ epochs: a newer ring is held unread until it is installed, an older one is ignored, and a new ring restarts at sequence 1 (0.4205ms)
+✔ a delivery carries the epoch and skipped count before the records (0.05375ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 5
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1263.649791
+
+✖ failing tests:
+
+test at tools/workshop-event-ring-cursor.test.mjs:237:1
+✖ epochs: a newer ring is held unread until it is installed, an older one is ignored, and a new ring restarts at sequence 1 (0.4205ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  192 !== 0
+  
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/workshop-event-ring-cursor.test.mjs:245:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 192,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

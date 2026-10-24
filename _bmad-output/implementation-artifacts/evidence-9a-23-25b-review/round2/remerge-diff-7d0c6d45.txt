@@ -1,0 +1,42 @@
+7d0c6d457832766d71c860f00f1e0ada2838e6b6 Merge main 0cba945b (restitution) into 9A.23 + 9A.25b
+
+diff --git a/CuriousContraptions.tests/LaunchLessonSolveTests.cs b/CuriousContraptions.tests/LaunchLessonSolveTests.cs
+remerge CONFLICT (content): Merge conflict in CuriousContraptions.tests/LaunchLessonSolveTests.cs
+index bc1155b3..f9672fac 100644
+--- a/CuriousContraptions.tests/LaunchLessonSolveTests.cs
++++ b/CuriousContraptions.tests/LaunchLessonSolveTests.cs
+@@ -69,17 +69,9 @@ public sealed class LaunchLessonSolveTests
+             Assert.Equal(row.GetProperty("instance").GetProperty("part").GetString(), fixture.PartId.Value);
+             return KeyValuePair.Create(row.GetProperty("slot").GetString()!, fixture.Id);
+         }).ToDictionary();
+-<<<<<<< f69a8573 (WIP 9A.23 + 9A.25b event ring consumers (pre-merge))
+-        // delayed_signal's wiring names a fixture by its part ("switch", "lamp"); each such name is unique among its placements.
+-        foreach (var named in level.GetProperty("placements").EnumerateArray().Select((row, index) =>
+-                (Part: row.GetProperty("instance").GetProperty("part").GetString()!, construction.Instances[index].Id))
+-            .GroupBy(row => row.Part).Where(group => group.Count() == 1))
+-            slots.TryAdd(named.Key, named.Single().Id);
+-=======
+         // Content wiring may name a fixture by its part ("switch", "lamp") when that part is unique among the fixtures.
+         foreach (var group in construction.Instances.GroupBy(instance => instance.PartId.Value).Where(group => group.Count() == 1))
+             slots.TryAdd(group.Key, group.Single().Id);
+->>>>>>> 0cba945b (Merge engine restitution energy correctness)
+         var next = construction.Instances.Max(instance => instance.Id.Value) + 1;
+         foreach (var row in level.GetProperty("solution").EnumerateArray())
+         {
+@@ -96,16 +88,12 @@ public sealed class LaunchLessonSolveTests
+                 "wall" => WorkshopInput.Generic(PartId.Wall, id, p[0], p[1], p[2], q.X, q.Y, q.Z, q.W, new(
+                     WallKeys.Select(key => KeyValuePair.Create(new ParameterId(key), (float)properties.GetProperty(key).GetDouble())))),
+                 "domino" => PlacedParts.Domino(id, p[0], p[1], p[2], q.X, q.Y, q.Z, q.W),
+-<<<<<<< f69a8573 (WIP 9A.23 + 9A.25b event ring consumers (pre-merge))
+-                "delay" => WorkshopInput.Generic(PartId.Delay, id, p[0], p[1], p[2], q.X, q.Y, q.Z, q.W),
+-=======
+                 "ramp" => WorkshopInput.Generic(PartId.Ramp, id, p[0], p[1], p[2], q.X, q.Y, q.Z, q.W),
+                 "delay" => WorkshopInput.Generic(PartId.Delay, id, p[0], p[1], p[2], q.X, q.Y, q.Z, q.W),
+                 "basket" => WorkshopInput.Generic(PartId.Receiver, id, p[0], p[1], p[2], q.X, q.Y, q.Z, q.W),
+                 "pipe_bend_45" => WorkshopInput.Generic(PartId.PipeBend45, id, p[0], p[1], p[2], q.X, q.Y, q.Z, q.W),
+                 "pipe_bend_90" => WorkshopInput.Generic(PartId.PipeBend90, id, p[0], p[1], p[2], q.X, q.Y, q.Z, q.W),
+                 "pipe" => WorkshopInput.Pipe(id, p[0], p[1], p[2], q.X, q.Y, q.Z, q.W, new((float)properties.GetProperty("length").GetDouble())),
+->>>>>>> 0cba945b (Merge engine restitution energy correctness)
+                 var kind => throw new ArgumentException($"No authored-solution placement for '{kind}'.")
+             };
+             slots.Add(row.GetProperty("id").GetString()!, id);

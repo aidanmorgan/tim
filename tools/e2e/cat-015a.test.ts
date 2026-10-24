@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { WorkshopDriver } from './workshop-driver.ts';
-import { decodeWorkshopResponse, authoredState, decodeSavedConstruction, parameter, type BodyRead, type WorkshopResponse, type InstanceRecord } from './workshop-wire.ts';
+import { decodeWorkshopResponse, authoredState, decodeSavedConstruction, parameter, contactHits, type BodyRead, type WorkshopResponse, type InstanceRecord } from './workshop-wire.ts';
 
 
 function bodyState(b: BodyRead) {
@@ -84,10 +84,12 @@ async function scenario(kind: 'basketball' | 'bowling', duration: number) {
         }
         await driver.pauseSimulation();
         const paid = observations[observations.length - 1];
-        assert.ok(paid.contactWorksLength() >= 1 && paid.occurrencesLength() >= 1);
+        // Story 9A.23 D9: the last hit's debit from the owner's stores (the occurrence rows are device-private).
+        const hits = contactHits(observations, 32);
+        assert.ok(paid.contactWorksLength() >= 1 && hits.length >= 1);
         const remaining = paid.contactWorks(0)!.remainingEnergy();
-        const debit = paid.occurrences(0)!.debit();
-        const effect = paid.occurrences(0)!.effect();
+        const debit = hits[hits.length - 1].debit;
+        const effect = debit > 0 ? 1 : 0;
         const count = paid.contactWorks(0)!.occurrenceCount();
         const history = await driver.readAnimationSamplesForTarget(String((2n << 32n) + 2n));
         assert.ok(history.some(value => value.value > .5), 'A paid impact must produce its gold-ring pulse');

@@ -1,0 +1,49 @@
+✔ concurrent stress: over a million records through the shipped writer, no reader ever receives a torn record (1464.704542ms)
+✔ amplified concurrent stress at capacity 4: rounds of fresh writer and reader threads, no torn record (3734.934917ms)
+✔ a reader that keeps pace receives every record exactly once and skips none (1.086792ms)
+✔ a parked reader lapped by a capacity and more reports exactly the skipped records, then reads the newest intact (0.144167ms)
+✔ a slot reused while it is copied is skipped, never delivered (0.060458ms)
+✔ epochs: a newer ring is held unread until it is installed, an older one is ignored, and a new ring restarts at sequence 1 (0.2205ms)
+✖ a ring older than the installed epoch is ignored: nothing is delivered and the cursor does not move (0.709542ms)
+✔ a delivery carries the epoch and skipped count before the records (0.080917ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 7
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 5260.344833
+
+✖ failing tests:
+
+test at tools/workshop-event-ring-cursor.test.mjs:275:1
+✖ a ring older than the installed epoch is ignored: nothing is delivered and the cursor does not move (0.709542ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+  +   192,
+  -   0,
+      0n,
+      7n,
+  +   3n,
+      0n,
+  -   0n
+    ]
+  
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/workshop-event-ring-cursor.test.mjs:280:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ 192, 0n, 7n, 3n, 0n ],
+    expected: [ 0, 0n, 7n, 0n, 0n ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }

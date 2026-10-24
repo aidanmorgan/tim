@@ -3,55 +3,71 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import vm from 'node:vm';
 import { readFile } from 'node:fs/promises';
-import { MessagePort, MessageChannel, Worker as NodeWorker } from 'node:worker_threads';
+import { MessagePort, MessageChannel } from 'node:worker_threads';
 import { pathToFileURL } from 'node:url';
 import * as clockRing from '../CuriousContraptions.web/wwwroot/clock-ring.js';
+import { EventRingMemory } from '../CuriousContraptions.web/wwwroot/event-ring-cursor.js';
 
 const source = await readFile('CuriousContraptions.Simulation/wwwroot/worker.js', 'utf8');
 const workerUrl = pathToFileURL('CuriousContraptions.Simulation/wwwroot/worker.js').href;
-const ringModuleUrl = new URL('../CuriousContraptions.web/wwwroot/clock-ring.js', import.meta.url).href;
-// A stand-in for the Simulation-owned clock master context: a real blocking thread on the shared clock ring that
-// answers in the stub native time (1 ms) the worker module reads here, so its live qualification can pass.
-const masterScript = `
-const { parentPort, workerData } = require('node:worker_threads');
-import(workerData.ringModule).then(ring => {
-    parentPort.once('message', bootstrap => {
-        const clock = ring.attachClockRing(bootstrap.ring);
-        const peers = { [ring.ClockRole.Browser]: bootstrap.browserPeer, [ring.ClockRole.Animation]: bootstrap.animationPeer };
-        parentPort.postMessage({ ready: true });
-        for (;;) ring.awaitRequest(clock, ring.serveRequests(clock, peers, () => 1));
-    });
-    parentPort.postMessage({ awaitingBootstrap: true });
-});`;
-class StandInClockMaster {
-    constructor() {
-        this.node = new NodeWorker(masterScript, { eval: true, workerData: { ringModule: ringModuleUrl } });
-        this.node.on('message', data => this.onmessage?.({ data }));
-        this.node.on('error', error => this.onerror?.({ message: String(error) }));
-        this.node.unref();
-    }
-    postMessage(message) { this.node.postMessage(message); }
-    terminate() { this.node.terminate(); }
+const ringSource = await readFile('CuriousContraptions.web/wwwroot/clock-ring.js', 'utf8');
+// Production's WorkshopClockDerivation profile: one check every 100 ms, of at most 4 exchanges that together share one 2 ms
+// budget (the exchanges of a check never block the worker loop for longer than that in total).
+const ExchangeTimeoutMilliseconds = 2, CheckIntervalMilliseconds = 100, CheckExchanges = 4;
+// The master reading the stand-in master stamps into every derivation reply (native milliseconds, before correction).
+const MasterReading = 1;
+// How far an advancing stub native clock moves per read (exact in binary, so derived budgets compare exactly).
+const ClockStepMilliseconds = 0.25;
+// The Simulation-owned clock master context, made deterministic: no thread races the worker's blocking exchange. The worker
+// reads the shipped clock-ring.js, evaluated in its own context, whose Atomics.wait first lets this master serve every
+// request already posted in the ring, as a master scheduled at once would; the shipped wait then finds the reply and returns
+// without blocking. A slow master (`answering` returns false) serves nothing, so the shipped wait runs its whole timeout and
+// the exchange is missed. Every ring wait's timeout is recorded, so a test can derive the budget each exchange was given.
+function clockMaster() {
+    let ring;
+    const master = {
+        answering: () => true, waits: [],
+        /** The master serves every request now posted in the ring (a slow master's late answer). */
+        serve() { clockRing.serveRequests(ring, {}, () => MasterReading); },
+        atomics: Object.create(Atomics, { wait: { value(words, index, value, timeout) {
+            if (ring && words.buffer === ring.buffer) { master.waits.push(timeout); if (master.answering()) master.serve(); }
+            return Atomics.wait(words, index, value, timeout);
+        } } }),
+        // The context the worker starts; its bootstrap handshake as clock-master.js answers it.
+        Worker: class {
+            constructor() { queueMicrotask(() => this.onmessage?.({ data: { awaitingBootstrap: true } })); }
+            postMessage(bootstrap) {
+                ring = clockRing.attachClockRing(bootstrap.ring);
+                queueMicrotask(() => this.onmessage?.({ data: { ready: true } }));
+            }
+            terminate() { ring = undefined; }
+        }
+    };
+    return master;
 }
+// until() counts attempts of at least 1 ms each, and the worker's blocking waits share its thread, so its deadline can only
+// stretch; it always outlasts ten check intervals with their whole exchange budgets.
+const UntilAttempts = 2000;
+assert.ok(UntilAttempts >= 10 * (CheckIntervalMilliseconds + ExchangeTimeoutMilliseconds));
 async function until(predicate, label) {
-    for (let attempt = 0; attempt < 2000 && !predicate(); attempt++) await new Promise(resolve => setTimeout(resolve, 1));
+    for (let attempt = 0; attempt < UntilAttempts && !predicate(); attempt++) await new Promise(resolve => setTimeout(resolve, 1));
     assert.ok(predicate(), label);
 }
-// The worker's managed derivation check (WorkshopClockDerivation), recorded: the stand-in master and the stub native
-// clock both read 1 ms, so every exchange is narrow and consistent and no correction is ever installed.
+// The worker's managed derivation check (WorkshopClockDerivation), recorded. Every check's installation is empty, so no
+// correction beyond the startup one is ever adopted.
 function derivationHost() {
     const record = { qualified: 0, startupMissed: 0, checks: 0, missed: 0, adopted: 0, narrowQueries: 0, retried: 0 };
     return {
         record,
-        // [exchange timeout ms, check interval ms, exchanges per check] (WorkshopClockDerivation).
-        ClockDerivationProfile: () => [2, 100, 4],
+        // [exchange timeout ms, check interval ms, exchanges per check]: production's profile.
+        ClockDerivationProfile: () => [ExchangeTimeoutMilliseconds, CheckIntervalMilliseconds, CheckExchanges],
         ClockDerivationQualified: () => record.qualified === 16,
         QualifyClockDerivation: (before, master, after, epoch) => {
-            assert.ok(before === 1 && master === 1 && after === 1 && epoch === 0, 'a consistent startup exchange');
+            assert.ok(after >= before && master === MasterReading && epoch === 0, 'a consistent startup exchange');
             record.qualified++;
         },
         ClockDerivationQualificationMissed: () => { record.startupMissed++; },
-        // The stand-in master and the stub native clock agree exactly, so the derived startup offset is zero.
+        // The derived startup offset is zero.
         ClockDerivationStartupCorrection: () => 0,
         // An empty installation: the check was consistent, so nothing is written to the ring.
         CheckClockDerivation: () => { record.checks++; return []; },
@@ -72,8 +88,10 @@ class HarnessMessageChannel {
             get onmessage() { return channel.port1.onmessage; }, close: () => channel.port1.close() };
     }
 }
-async function loadWorker(host, additionalGlobals = {}) {
+// `nativeNow` is the stub native clock the worker reads (a fixed 1 ms unless a test advances it).
+async function loadWorker(host, additionalGlobals = {}, { nativeNow = () => 1 } = {}) {
     let imports;
+    const master = clockMaster();
     const messages = [];
     const runtime = {
         setModuleImports: (_, methods) => { imports = methods; },
@@ -86,34 +104,31 @@ async function loadWorker(host, additionalGlobals = {}) {
         close: () => {}
     };
     const context = vm.createContext({ self, Uint8Array, Float64Array, ArrayBuffer, DataView,
-        MessagePort, MessageChannel: HarnessMessageChannel, console, setTimeout, clearTimeout, Promise, Error, URL, SharedArrayBuffer, Atomics, performance,
+        MessagePort, MessageChannel: HarnessMessageChannel, console, setTimeout, clearTimeout, Promise, Error, URL, SharedArrayBuffer, Atomics: master.atomics, performance,
         // The derivation check interval, unreferenced so the harness process can exit.
         setInterval: (callback, milliseconds) => setInterval(callback, milliseconds).unref(), clearInterval,
-        Worker: StandInClockMaster, ...additionalGlobals });
+        Worker: master.Worker, ...additionalGlobals });
     const dotnet = new vm.SyntheticModule(['dotnet'], function () {
         this.setExport('dotnet', { create: async () => runtime });
     }, { context });
-    const ring = new vm.SyntheticModule(['attachClockRing', 'deriveExchange', 'qualifyDerivation', 'writeDerivation', 'beat'], function () {
-        this.setExport('attachClockRing', clockRing.attachClockRing);
-        this.setExport('deriveExchange', clockRing.deriveExchange);
-        this.setExport('qualifyDerivation', clockRing.qualifyDerivation);
-        this.setExport('writeDerivation', clockRing.writeDerivation);
-        this.setExport('beat', clockRing.beat);
-    }, { context });
+    // The shipped clock ring, evaluated in the worker's context so its blocking waits go through the stand-in master.
+    const ring = new vm.SourceTextModule(ringSource, { context });
     const clock = new vm.SyntheticModule(['admitNativeClock', 'nativeNow', 'nativeClockEvidence'], function () {
         this.setExport('admitNativeClock', async () => {});
-        this.setExport('nativeNow', () => 1);
+        this.setExport('nativeNow', nativeNow);
         this.setExport('nativeClockEvidence', () => [2, 1, 1, 1, .005, 1, 1]);
     }, { context });
+    const eventRing = new vm.SyntheticModule(['EventRingMemory'], function () { this.setExport('EventRingMemory', EventRingMemory); }, { context });
     const module = new vm.SourceTextModule(source, { context, initializeImportMeta: meta => { meta.url = workerUrl; } });
     await module.link(name => {
         if (name === './_framework/dotnet.js') return dotnet;
         if (name === '../native-clock.js') return clock;
         if (name === '../clock-ring.js') return ring;
+        if (name === '../event-ring-cursor.js') return eventRing;
         throw Error('Unexpected worker import');
     });
     await module.evaluate();
-    return { self, messages, get imports() { return imports; } };
+    return { self, messages, master, get imports() { return imports; } };
 }
 
 // Story 9A.3: the worker refuses every envelope no handler owns through the managed typed rejection, which names its keys
@@ -142,7 +157,10 @@ for (const captureMode of [1, 2]) test(`capture mode ${captureMode}: preparation
         AcknowledgeRead: receipt => { receipts.push(hex(receipt)); }
     };
     const recordingConsole = { ...console, error: (...items) => { logged.push(items.map(String).join(' ')); } };
-    const boundary = await loadWorker(host, { console: recordingConsole });
+    // The stub native clock advances a quarter millisecond per read, so a check's retry is given only what is left of the
+    // check's shared budget.
+    let nativeReading = 0;
+    const boundary = await loadWorker(host, { console: recordingConsole }, { nativeNow: () => (nativeReading += ClockStepMilliseconds) });
     const { self, messages, imports } = boundary;
     const sessionClock = clockRing.createClockRing();
     const preparing = self.onmessage({ data: { bootstrap: new Uint8Array(16), captureMode, clockRing: sessionClock,
@@ -154,6 +172,11 @@ for (const captureMode of [1, 2]) test(`capture mode ${captureMode}: preparation
     assert.deepEqual([derivation.record.missed, derivation.record.adopted], [0, 1]);
     assert.equal(derivation.record.retried, derivation.record.checks,
         'a wide first exchange is retried within its check, and the check rests on the narrow one');
+    // The shared budget: each of the 16 answered startup exchanges waits with the whole budget; a running check's first
+    // exchange too, and its retry with what is left after the three clock reads since the check began (its start, then the
+    // first exchange's before and after).
+    assert.deepEqual(boundary.master.waits.slice(0, 18), [...Array(17).fill(ExchangeTimeoutMilliseconds),
+        ExchangeTimeoutMilliseconds - 3 * ClockStepMilliseconds]);
     assert.ok(clockRing.heartbeat(clockRing.attachClockRing(sessionClock)) >= derivation.record.checks,
         'every check turn also beats the Simulation heartbeat the Browser watches');
     assert.equal(preparations, 1);
@@ -175,7 +198,7 @@ for (const captureMode of [1, 2]) test(`capture mode ${captureMode}: preparation
         return { bytes, identity: receipt };
     }
     const receipt = read => read.identity.slice();
-    const publish = (read, pending, retain) => imports.publish(read.bytes, read.identity, new Uint8Array(16), pending, retain);
+    const publish = (read, pending) => imports.publish(read.bytes, read.identity, new Uint8Array(16), pending);
     const posted = () => messages.filter(item => item.read).at(-1);
     const first = publication(1n), final = publication(2n);
     for (let index = 0; index < 8; index++) {
@@ -241,39 +264,24 @@ for (const captureMode of [1, 2]) test(`capture mode ${captureMode}: preparation
     }
     assert.equal(receipts.length, receiptsBefore);
     assert.equal(host.SetReliableStall, undefined, 'no stall setter exists to forward to');
-    const held = publication(100n), eventOne = publication(102n), eventTwo = publication(104n), latest = publication(105n);
+    // Story 9A.23 D9: no read is reliable or retained (every one-shot occurrence is an event ring record), so the occurrence-read
+    // reservation is gone and the reads behind the one in flight coalesce to the latest; an installation still waits behind it.
+    assert.equal(imports.reserveOccurrenceRead, undefined, 'the occurrence-read reservation is deleted');
+    assert.equal(imports.releaseOccurrenceRead, undefined, 'the occurrence-read release is deleted');
+    const held = publication(100n), latest = publication(105n);
     publish(held, false);
-    publish(publication(101n), false);
-    assert.equal(imports.reserveOccurrenceRead(), true);
-    publish(eventOne, false, true);
-    publish(publication(103n), false);
-    assert.equal(imports.reserveOccurrenceRead(), true);
-    publish(eventTwo, false, true);
+    for (const skipped of [101n, 102n, 103n, 104n]) publish(publication(skipped), false);
     publish(latest, false);
     const controlsBefore = messages.filter(item => item.scheduleControl).length;
     imports.scheduleControl(new Uint8Array([7]), 1);
     assert.equal(messages.filter(item => item.scheduleControl).length, controlsBefore);
-    for (const expected of [eventOne, eventTwo, latest]) {
-        assert.equal(posted().readIdentity.length, 24, 'the worker posts the C# receipt identity with its read');
-        await self.onmessage({ data: { readAcknowledged: posted().readIdentity } });
-        assert.deepEqual(posted().read, expected.bytes);
-        assert.equal(messages.filter(item => item.scheduleControl).length, controlsBefore,
-            'installation cannot overtake a committed occurrence or final endpoint');
-    }
+    assert.equal(posted().readIdentity.length, 24, 'the worker posts the C# receipt identity with its read');
+    await self.onmessage({ data: { readAcknowledged: posted().readIdentity } });
+    assert.deepEqual(posted().read, latest.bytes, 'the reads behind the one in flight coalesce to the latest');
+    assert.equal(messages.filter(item => item.scheduleControl).length, controlsBefore,
+        'installation cannot overtake the final endpoint');
     await self.onmessage({ data: { readAcknowledged: receipt(latest) } });
     assert.equal(messages.filter(item => item.scheduleControl).length, controlsBefore + 1);
-    const capacityHeld = publication(200n);
-    publish(capacityHeld, false);
-    for (let index = 0; index < 64; index++) {
-        assert.equal(imports.reserveOccurrenceRead(), true);
-        publish(publication(BigInt(201 + index)), false, true);
-    }
-    assert.equal(imports.reserveOccurrenceRead(), false, 'backpressure precedes the next GPU commit');
-    await self.onmessage({ data: { readAcknowledged: receipt(capacityHeld) } });
-    assert.equal(imports.reserveOccurrenceRead(), true, 'exact ACK returns one reserved capacity slot');
-    imports.releaseOccurrenceRead();
-    for (let index = 0; index < 64; index++)
-        await self.onmessage({ data: { readAcknowledged: receipt(publication(BigInt(201 + index))) } });
     imports.dispose();
     const receiptsAtDisposal = receipts.length;
     await self.onmessage({ data: { readAcknowledged: receipt(publication(300n)) } });
@@ -282,6 +290,35 @@ for (const captureMode of [1, 2]) test(`capture mode ${captureMode}: preparation
     console.log(JSON.stringify({ captureMode, passed: true, controls: ['preparationClockOverlap', 'noEarlyWorld', 'pending', 'receiptsToLedger',
         'queuedTerminal', 'activeCommand', 'matchingReceipt', 'outputFailureLogged', 'ordinaryReadNoExport', 'acknowledgementOnlyReset',
         'retiredEnvelopesRejected', 'dispose'] }));
+});
+
+// A slow clock master: a running check it does not answer within the shared budget is counted as missed, never a failure. The
+// session keeps beating and checking, and once the master serves the stale request, the next check consumes that late answer
+// unread and completes on its own exchange.
+test('a slow clock master costs counted missed checks, never a failure, and the session continues', async () => {
+    const derivation = derivationHost();
+    const host = { ...derivation, ScheduleRoles: () => [1, 2], CaptureMode: () => 1, Bootstrap: () => new Uint8Array(16),
+        AnimationPeer: () => new Uint8Array(64), PrepareGpu: () => new Promise(() => {}) };
+    const boundary = await loadWorker(host);
+    const { self, messages, master } = boundary;
+    // The master answers every startup exchange, then no running one.
+    master.answering = () => derivation.record.qualified < 16;
+    const sessionClock = clockRing.createClockRing(), beats = () => clockRing.heartbeat(clockRing.attachClockRing(sessionClock));
+    self.onmessage({ data: { bootstrap: new Uint8Array(16), captureMode: 1, clockRing: sessionClock, poseRing: new SharedArrayBuffer(3120) } });
+    await until(() => messages.some(message => message.ready === true), 'ready: the master answered every startup exchange');
+    await until(() => derivation.record.missed >= 2, 'running checks the master does not answer are counted as missed');
+    assert.ok(derivation.record.missed > 0);
+    assert.equal(derivation.record.checks, 0, 'no check completed without its master');
+    assert.equal(messages.filter(message => message.failure).length, 0, 'a missed check is never a session failure');
+    const beatsWhileSlow = beats();
+    assert.ok(beatsWhileSlow >= derivation.record.missed, 'every missed check turn still beats the heartbeat');
+    master.answering = () => true;
+    master.serve();
+    await until(() => derivation.record.checks > 0, 'the session continues: a later check completes');
+    assert.ok(beats() > beatsWhileSlow, 'the worker loop kept running its check turns');
+    assert.equal(messages.filter(message => message.failure).length, 0);
+    boundary.imports.dispose();
+    console.log(JSON.stringify({ slowMasterMissesAreCounted: true }));
 });
 
 // Story 9A.3: a receipt the managed ledger refuses (a mismatched, duplicate or unpublished one) is a typed rejection reported
@@ -297,7 +334,7 @@ test('a receipt the managed ledger refuses is a failure and retires the session'
     };
     const { self, messages, imports } = await loadWorker(host);
     const identity = new Uint8Array(24); identity.fill(7, 0, 16); identity[16] = 1;
-    imports.publish(new Uint8Array(8), identity, new Uint8Array(16), false, false);
+    imports.publish(new Uint8Array(8), identity, new Uint8Array(16), false);
     assert.equal(messages.filter(item => item.read).length, 1);
     await self.onmessage({ data: { readAcknowledged: identity.slice() } });
     assert.equal(messages.filter(item => item.failure).length, 0, 'an accepted receipt is no failure');
@@ -373,6 +410,50 @@ test('every byte buffer reaches the one managed decoder', async () => {
     console.log(JSON.stringify({ commandsReachTheManagedDecoder: true, dispatched: [0, 7, 72, 70000], rejected: ['array'] }));
 });
 
+// Deterministic scheduler turns for the absence controls: the worker's turn channel delivers only when the test pumps it, and its
+// turn timers fire only when the test runs them, on a virtual clock. "No turn resumed" is asserted at a quiescence point, after
+// every posted turn message was delivered (or dropped by a closed port, as a MessagePort drops it) and every live timer has
+// fired, never after a wall-clock pause. A run that never quiesces (a delivery or timer that keeps scheduling more) fails at
+// QuiescenceLimit steps instead of hanging.
+const QuiescenceLimit = 1000;
+function manualTurns() {
+    const deliveries = [], timers = new Map(), cleared = new Set(), closed = [];
+    let handler, receiving = true, sending = true, nextTimer = 0, now = 0;
+    class ManualTurnChannel {
+        constructor() {
+            this.port1 = { set onmessage(value) { handler = value; }, get onmessage() { return handler; },
+                close: () => { receiving = false; closed.push('port1'); } };
+            this.port2 = { postMessage: data => { if (sending) deliveries.push(data); }, close: () => { sending = false; closed.push('port2'); } };
+        }
+    }
+    return {
+        cleared, closed, timers,
+        globals: {
+            MessageChannel: ManualTurnChannel,
+            setTimeout: (callback, milliseconds) => { const id = ++nextTimer; timers.set(id, { callback, due: now + milliseconds }); return id; },
+            clearTimeout: id => { cleared.add(id); timers.delete(id); }
+        },
+        /** Every turn message posted so far is delivered in order, including any a delivery posts. */
+        pump() {
+            for (let delivered = 0; deliveries.length; delivered++) {
+                assert.ok(delivered < QuiescenceLimit, 'the turn channel quiesces: deliveries keep posting turns');
+                const data = deliveries.shift();
+                if (receiving && handler) handler({ data });
+            }
+        },
+        /** The quiescence point: every posted turn message is delivered, then every live timer fires in due-time order (the
+         * virtual clock advancing to each), pumping after each. */
+        quiesce() {
+            this.pump();
+            for (let fired = 0; timers.size; fired++) {
+                assert.ok(fired < QuiescenceLimit, 'the turn timers quiesce: firing keeps arming timers');
+                const [id, timer] = [...timers].sort((a, b) => a[1].due - b[1].due || a[0] - b[0])[0];
+                timers.delete(id); now = timer.due; timer.callback(); this.pump();
+            }
+        }
+    };
+}
+
 // Blind hunter 10 (Story 9.4b final round): a scheduler turn that cannot resume is reported through the failure envelope,
 // never as an uncaught worker error; a disposed session resumes no queued or timed turn.
 test('a scheduler turn that cannot resume is a failure envelope', async () => {
@@ -381,41 +462,34 @@ test('a scheduler turn that cannot resume is a failure envelope', async () => {
         ScheduleRoles: () => [1, 2],
         ResumeTurn: turn => { resumed.push(turn); if (turn === 7) throw new Error('Scheduler turn 7 was never requested.'); }
     };
-    const { messages, imports } = await loadWorker(host);
+    const turns = manualTurns();
+    const { messages, imports } = await loadWorker(host, turns.globals);
     imports.scheduleTurn(7, 0);
-    await until(() => messages.some(message => message.failure), 'the throwing turn becomes a failure envelope');
-    assert.match(messages.find(message => message.failure).detail, /Scheduler turn failed: Error: Scheduler turn 7/);
+    turns.pump();
+    assert.match(messages.find(message => message.failure)?.detail ?? 'no failure envelope', /Scheduler turn failed: Error: Scheduler turn 7/);
     imports.scheduleTurn(8, 0);
-    await new Promise(resolve => setTimeout(resolve, 20));
+    turns.quiesce();
     assert.deepEqual(resumed, [7], 'a failed session resumes no later turn');
     console.log(JSON.stringify({ schedulerTurnFailureEnvelope: true }));
 });
 test('disposal cancels the timed and the queued scheduler turn', async () => {
     const resumed = [];
     const host = { ScheduleRoles: () => [1, 2], ResumeTurn: turn => resumed.push(turn) };
-    // Instrumented timers and turn channel: disposal must cancel the timed turn and close the channel, not merely rely on
-    // the disposed guard (reviewer mutation: delete the cleanup and only the guard remains).
-    const turnTimers = [], cleared = new Set(), closed = [];
-    class ClosingChannel extends HarnessMessageChannel {
-        constructor() {
-            super();
-            const port1 = this.port1, port2 = this.port2, close1 = port1.close, close2 = port2.close.bind(port2);
-            port1.close = () => { closed.push('port1'); close1(); };
-            port2.close = () => { closed.push('port2'); close2(); };
-        }
-    }
-    const { imports } = await loadWorker(host, { MessageChannel: ClosingChannel,
-        setTimeout: (callback, milliseconds) => { const timer = setTimeout(callback, milliseconds); if (milliseconds === 5) turnTimers.push(timer); return timer; },
-        clearTimeout: timer => { cleared.add(timer); clearTimeout(timer); } });
+    // Manual timers and turn channel: disposal must cancel the timed turn and close the channel, not merely rely on the
+    // disposed guard (reviewer mutation: delete the cleanup and only the guard remains).
+    const turns = manualTurns();
+    const { imports } = await loadWorker(host, turns.globals);
     imports.scheduleTurn(1, 0);
-    await until(() => resumed.length === 1, 'control: an immediate turn resumes');
+    turns.pump();
+    assert.deepEqual(resumed, [1], 'control: an immediate turn resumes');
     imports.scheduleTurn(2, 5); imports.scheduleTurn(3, 0);
+    const timed = [...turns.timers.keys()];
     imports.dispose();
-    await new Promise(resolve => setTimeout(resolve, 30));
+    turns.quiesce();
     assert.deepEqual(resumed, [1], 'disposal cancels the timed and the queued turn');
-    assert.equal(turnTimers.length, 1);
-    assert.ok(cleared.has(turnTimers[0]), 'disposal clears the timed turn instead of leaving it to fire');
-    assert.deepEqual(closed.sort(), ['port1', 'port2'], 'disposal closes both ends of the turn channel');
+    assert.equal(timed.length, 1);
+    assert.ok(turns.cleared.has(timed[0]), 'disposal clears the timed turn instead of leaving it to fire');
+    assert.deepEqual(turns.closed.sort(), ['port1', 'port2'], 'disposal closes both ends of the turn channel');
     console.log(JSON.stringify({ disposalCancelsSchedulerTurns: true }));
 });
 

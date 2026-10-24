@@ -1,0 +1,11 @@
+r3 run 1: rc=0 pass=1 torn=0 duration_ms=2916.256917
+r3 run 2: rc=0 pass=1 torn=0 duration_ms=2911.485625
+r3 run 3: rc=0 pass=1 torn=0 duration_ms=2961.909917
+r3 run 4: rc=0 pass=1 torn=0 duration_ms=2913.7365
+r3 run 5: rc=0 pass=1 torn=0 duration_ms=2923.717125
+r3 run 6: rc=0 pass=1 torn=0 duration_ms=2870.201667
+r3 run 7: rc=0 pass=1 torn=0 duration_ms=2943.558958
+r3 run 8: rc=0 pass=1 torn=0 duration_ms=2940.971375
+r3 run 9: rc=0 pass=1 torn=0 duration_ms=2959.130709
+r3 run 10: rc=0 pass=1 torn=0 duration_ms=2880.403458
+r3: 0 of 10 runs failed (total=0 readers=0)

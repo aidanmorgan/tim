@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices.JavaScript;
 using CuriousContraptions.Presentation;
 
 namespace CuriousContraptions.Gpu;
@@ -66,20 +67,31 @@ public sealed partial class BrowserWorkshopClient
         }
         _hintSample = sample;
     }
+    /// <summary>Story 9A.23 D8: the main thread's own event ring read (the shared reader), for the installed world's epoch.</summary>
+    [JSImport("readEvents", "workshopClient")]
+    private static partial byte[] ReadEvents(int client, double epoch);
+    private WorkshopGoalWake? _goalWake;
     private void RetireGoalFeedback()
-    { _goalRequested = null; _goalSample = null; _goalOrdinal = 0; _goalRetry = false; }
+    { _goalRequested = null; _goalSample = null; _goalOrdinal = 0; _goalRetry = false; _goalWake = null; }
     private void RetryRejectedGoal(WorkshopAnimationControl command)
     {
         if (command.Target == UiCurves.Goal.AnimationTarget && command.World == Epoch && _goalRequested is { } occurrence &&
             command.EventOrdinal == occurrence.Ordinal && F32Bits.Equal(command.EventPhase, (float)occurrence.Phase))
             _goalRetry = true;
     }
+    /// <summary>Drains the main-thread cursor every pump (so it never laps while the lease is busy) into the goal wake; the goal is
+    /// evaluated only when the wake is due, or again when a rejected goal cue is retried.</summary>
     private void PumpGoal()
     {
-        if (_animationPending is not null || _preparation is not null || _schedule is not { } schedule ||
-            _history.Latest is not { } latest || latest.Read.Epoch != schedule.World.WorldGeneration ||
-            (_goalRequested is not null && !_goalRetry)) return;
-        if (WorkshopGoalEvaluator.Occurrence(_construction.Puzzle.Goal, latest.Read, Epoch) is not { } occurrence) return;
+        if (_preparation is not null || _schedule is not { } schedule || _readScene is not { } scene ||
+            _history.Latest is not { } latest || latest.Read.Epoch != schedule.World.WorldGeneration) return;
+        _goalWake ??= new WorkshopGoalWake(_construction.Puzzle.Goal, scene);
+        _goalWake.Observe(Abstractions.EventRingDelivery.Read(ReadEvents(_id.Value, schedule.World.WorldGeneration.Value)), latest.Read.Tick);
+        if (_animationPending is not null || (_goalRequested is not null && !_goalRetry) ||
+            (!_goalRetry && !_goalWake.Due(latest.Read.Tick))) return;
+        var solved = WorkshopGoalEvaluator.Occurrence(_construction.Puzzle.Goal, latest.Read, Epoch);
+        _goalWake.Evaluated(latest.Read.Tick, solved is not null);
+        if (solved is not { } occurrence) return;
         var declaration = UiCurves.Goal;
         SendAnimation(new(declaration.AnimationTarget, Epoch, checked(_animationSequence + 1), 1,
             AnimationControlKind.Endpoint, true, (float)1, (float)1, declaration.Duration,
@@ -102,7 +114,7 @@ public sealed partial class BrowserWorkshopClient
     }
     public bool TryUiFrame(ulong frame, WorkshopPresentationSample physical, WorkshopUiTarget target, out AnimationOpacity opacity)
     {
-        ObjectDisposedException.ThrowIf(_disposed, this); ThrowIfTransportFailed(); PumpCosmetics();
+        ObjectDisposedException.ThrowIf(_disposed, this); ThrowIfTransportFailed(); PumpDeclaredVisibility(); PumpUi();
         opacity = default;
         var declaration = UiCurveDeclaration.For(target); declaration.Validate();
         if (!AdmitPresentationFrame(frame)) return false;

@@ -234,24 +234,24 @@ public sealed class WorkbenchCapacityTests
     }
 
     /// <summary>Story 9R.5b: a work occurrence names its owner's collider and work slots in 32 bits, so a slot past 16 bits (a machine
-    /// with more than 65,536 colliders) crosses both response codecs unchanged.</summary>
+    /// with more than 65,536 colliders) is held unchanged. Story 9A.23 D9: the occurrence rows are the device's private ledger; the
+    /// response carries the owners' stores, which cross both codecs unchanged.</summary>
     [Fact]
-    public void AWorkOccurrenceSlotPastSixteenBitsCrossesBothResponseCodecs()
+    public void AWorkOccurrenceSlotPastSixteenBitsIsHeldByTheDeviceLedger()
     {
         var occurrence = new ContactWorkOccurrence(new(0), new(70_000), new(5), 1, 4, (Half)0, new(3f), new(1.5f), ContactWorkEffect.Paid);
-        var works = new PhysicsContactWorkRead([new(new(9), new(8), 1, new(30f))], [occurrence]);
+        var ledger = new ContactWorkLedger([new(new(9), new(8), 1, new(30f))], [occurrence]);
+        Assert.Equal(70_000u, ledger.Occurrence(0).Collider.Value);
+        Assert.True(occurrence.HasSameBits(ledger.Occurrence(0)));
         var bodies = new PhysicsBodyReadSet([new PhysicsBodyRead(new CanonicalBody(new(5), 1, 0, default, default, default),
             CanonicalRotation.Identity, default, default)]);
         var read = new WorkshopRead(new(1), new(0), bodies, new(2),
-            new(WorkshopClockDomain.SimulationMonotonic, new(1), new(100000000), new(100000)), ContactWorks: works);
+            new(WorkshopClockDomain.SimulationMonotonic, new(1), new(100000000), new(100000)), ContactWorks: ledger.Stores);
         var response = new WorkshopResponse(new(4), WorkshopResponseKind.Acknowledgement, new(WorkshopCommandOutcome.Applied, WorkshopRejection.None),
             WorkshopSimulationPhase.Building, read, new(1, 2), default, new(1), new(1), new(1), new(0));
         foreach (var decoded in new[] { WorkshopWireFlatBuffers.DecodeResponse(WorkshopWireFlatBuffers.EncodeResponse(response)),
             WorkshopWireFlatBuffers.DecodeResponse(WorkshopWireFlatBuffers.EncodeResponse(response)) })
-        {
-            Assert.Equal(70_000u, decoded.Read.ContactWorks.Occurrence(0).Collider.Value);
-            Assert.True(occurrence.HasSameBits(decoded.Read.ContactWorks.Occurrence(0)));
-        }
+            Assert.True(ledger.Stores.HasSameBits(decoded.Read.ContactWorks));
     }
 
     [Fact]

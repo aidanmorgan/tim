@@ -1,0 +1,10 @@
+x86_64 node v26.12.1 cpus=2 load=4 busy loops (after the quiescence change)
+tools/workshop-observation.test.mjs failing runs: 0/50
+tools/workshop-client-lifecycle.test.mjs failing runs: 0/50
+tools/workshop-animation-clock.test.mjs failing runs: 0/10
+tools/workshop-animation-output.test.mjs failing runs: 0/10
+tools/workshop-clock-ring.test.mjs failing runs: 0/10
+tools/workshop-event-ring.test.mjs failing runs: 0/10
+tools/workshop-isolation.test.mjs failing runs: 0/10
+tools/workshop-pose-ring.test.mjs failing runs: 0/10
+tools/workshop-save-storage.test.mjs failing runs: 0/10

@@ -37,7 +37,8 @@ public static partial class PhysicsGpuAbi
     /// <summary>The occurrence row's owning work slot (u32: no work-table bound).</summary>
     private static void WriteWorkSlot(Span<byte> slot, int work) => U32(slot, WorkOccurrenceWorkOffset, checked((uint)work));
 
-    public static PhysicsContactWorkRead ReadContactWorks(ReadOnlySpan<byte> data)
+    /// <summary>The device-private contact-work ledger of a world: its owners' stores and occurrence rows (Story 9A.23 D9).</summary>
+    public static ContactWorkLedger ReadContactWorks(ReadOnlySpan<byte> data)
     {
         if (ReadFailure(data)!=PhysicsFailure.None) throw new ArgumentException("Invalid contact-work read.");
         var layout=Layout(data);
@@ -88,7 +89,7 @@ public static partial class PhysicsGpuAbi
                 throw new ArgumentException("Occurrence does not bind its dynamic target, collider or time.");
             events[i]=value;
         }
-        return PhysicsContactWorkRead.Adopt(stores,events);
+        return ContactWorkLedger.Adopt(stores,events);
     }
 
     /// <summary>The body table is the first table after the header, so a body row needs no other population.</summary>

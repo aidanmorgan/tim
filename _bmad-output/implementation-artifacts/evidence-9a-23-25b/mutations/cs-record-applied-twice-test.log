@@ -1,0 +1,22 @@
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:02.81]     CuriousContraptions.Tests.EventRingConsumerTests.ADeliveryOfAnotherEpochOrARecordAlreadyAppliedIsRefused [FAIL]
+  Failed CuriousContraptions.Tests.EventRingConsumerTests.ADeliveryOfAnotherEpochOrARecordAlreadyAppliedIsRefused [6 ms]
+  Error Message:
+   Assert.Throws() Failure: No exception was thrown
+Expected: typeof(System.ArgumentException)
+  Stack Trace:
+     at CuriousContraptions.Tests.EventRingConsumerTests.ADeliveryOfAnotherEpochOrARecordAlreadyAppliedIsRefused() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/CuriousContraptions.tests/EventRingConsumerTests.cs:line 398
+   at CuriousContraptions.Tests.EventRingConsumerTests.ADeliveryOfAnotherEpochOrARecordAlreadyAppliedIsRefused() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/CuriousContraptions.tests/EventRingConsumerTests.cs:line 404
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:02.92]     CuriousContraptions.Tests.EventRingConsumerTests.PauseResumeAndStepRetainTheCursorAndTheCuesWithNoDuplicate [FAIL]
+  Failed CuriousContraptions.Tests.EventRingConsumerTests.PauseResumeAndStepRetainTheCursorAndTheCuesWithNoDuplicate [26 ms]
+  Error Message:
+   Assert.Throws() Failure: No exception was thrown
+Expected: typeof(System.ArgumentException)
+  Stack Trace:
+     at CuriousContraptions.Tests.EventRingConsumerTests.PauseResumeAndStepRetainTheCursorAndTheCuesWithNoDuplicate() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/CuriousContraptions.tests/EventRingConsumerTests.cs:line 291
+   at CuriousContraptions.Tests.EventRingConsumerTests.PauseResumeAndStepRetainTheCursorAndTheCuesWithNoDuplicate() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/CuriousContraptions.tests/EventRingConsumerTests.cs:line 292
+--- End of stack trace from previous location ---
+
+Failed!  - Failed:     2, Passed:    28, Skipped:     0, Total:    30, Duration: 1 s - CuriousContraptions.tests.dll (net10.0)

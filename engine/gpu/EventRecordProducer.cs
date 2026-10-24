@@ -9,9 +9,10 @@ namespace CuriousContraptions.Gpu;
 /// are counted per owner and kind, never per (owner, body) pair, so the ring grows linearly with the scene's producers.</summary>
 public readonly record struct EventRow(GpuBodyId Owner, SimulationEventKind Kind);
 
-/// <summary>The row states one tick's records are derived from: the capture latches, the contact-work ledger, the supply sources and
-/// the passage tracker (its per-body pass counts and the passes of the step that produced it).</summary>
-public readonly record struct EventSourceRows(PhysicsCaptureRead Captures, PhysicsContactWorkRead ContactWorks,
+/// <summary>The row states one tick's records are derived from: the capture latches, the device-private contact-work ledger (its
+/// occurrence rows never leave the device, Story 9A.23 D9), the supply sources and the passage tracker (its per-body pass counts and the
+/// passes of the step that produced it).</summary>
+public readonly record struct EventSourceRows(PhysicsCaptureRead Captures, ContactWorkLedger ContactWorks,
     PhysicsElectricalRead Electrical, PassageSensorTracker Passages);
 
 /// <summary>The event ring producer of one admitted world (Story 9A.22). Every one-shot transition of a committed tick becomes exactly

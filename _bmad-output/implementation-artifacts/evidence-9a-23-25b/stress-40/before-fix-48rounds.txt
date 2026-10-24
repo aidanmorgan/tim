@@ -1,0 +1,11 @@
+before-fix-48rounds run 1: rc=0 pass=1 torn=0 duration_ms=18595.851833
+before-fix-48rounds run 2: rc=0 pass=1 torn=0 duration_ms=18619.987041
+before-fix-48rounds run 3: rc=0 pass=1 torn=0 duration_ms=18804.624167
+before-fix-48rounds run 4: rc=0 pass=1 torn=0 duration_ms=18432.992
+before-fix-48rounds run 5: rc=0 pass=1 torn=0 duration_ms=18451.612667
+before-fix-48rounds run 6: rc=0 pass=1 torn=0 duration_ms=18711.468916
+before-fix-48rounds run 7: rc=0 pass=1 torn=0 duration_ms=18555.289209
+before-fix-48rounds run 8: rc=1 pass=0 torn=9 duration_ms=18689.079042
+before-fix-48rounds run 9: rc=0 pass=1 torn=0 duration_ms=18906.174208
+before-fix-48rounds run 10: rc=0 pass=1 torn=0 duration_ms=19081.685708
+before-fix-48rounds: 1 of 10 runs failed (total=0 readers=0)

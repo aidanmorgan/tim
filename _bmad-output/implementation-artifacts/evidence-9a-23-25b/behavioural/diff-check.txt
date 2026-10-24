@@ -1,0 +1,5 @@
+git diff --check (worktree, index, and HEAD..index+worktree), excluding raw evidence logs
+worktree rc=0
+index rc=0
+vs HEAD rc=0
+vs origin/main rc=0

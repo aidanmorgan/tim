@@ -305,6 +305,25 @@ public sealed class AnimationBatch
         Schedule(index);
     }
 
+    /// <summary>Restart a once-clip from its From value at an occurrence's clock time, which may already have passed (an
+    /// occurrence observed late): the clip is at the phase it would have reached had it started then, and at To once
+    /// that time plus its duration has passed. A future occurrence is admitted at its own time, as <see cref="StartAt"/>.</summary>
+    public void StartAtOccurrence(AnimationHandle handle, double occurredAt)
+    {
+        var index = Resolve(handle);
+        ref var slot = ref _slots[index];
+        if (slot.Kind != AnimationKind.Clip) throw new InvalidOperationException("Start requires a clip definition.");
+        if (slot.Definition!.Repeat != AnimationRepeat.Once) throw new InvalidOperationException("An occurrence starts a once-clip.");
+        if (!double.IsFinite(occurredAt)) throw new ArgumentOutOfRangeException(nameof(occurredAt));
+        _sampleCount = 0;
+        slot.Started = occurredAt;
+        slot.Admitted = Math.Max(Math.Max(slot.Admitted, Clock(slot.Clock)), occurredAt);
+        slot.Offset = default; slot.Rate = new((float)1); slot.Endpoint = AnimationEndpoint.To;
+        slot.Value = slot.Definition.From;
+        slot.Playback = AnimationPlayback.Playing;
+        Schedule(index);
+    }
+
     /// <summary>Drive a once-clip toward either endpoint without resetting its phase.
     /// A reversal evaluates the control boundary even if no frame was rendered.</summary>
     public void DriveTo(AnimationHandle handle, AnimationEndpoint endpoint, double clockTime)

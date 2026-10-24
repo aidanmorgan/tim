@@ -1,0 +1,83 @@
+56f7c0344fecca20e6715728e7291015ea40e0af 3fff114e92d0d970d4e8d14bf9a2a13a8dc06f22 f9ce61ef6c884701f5fc9ad289ecc7db5ea89200 Merge origin/main f9ce61ef into 9A.23 + 9A.25b
+
+diff --git a/tools/workshop-animation-output.test.mjs b/tools/workshop-animation-output.test.mjs
+remerge CONFLICT (content): Merge conflict in tools/workshop-animation-output.test.mjs
+index cf60961a..86b11181 100644
+--- a/tools/workshop-animation-output.test.mjs
++++ b/tools/workshop-animation-output.test.mjs
+@@ -7,52 +7,6 @@ import { MessagePort, MessageChannel } from 'node:worker_threads';
+ import * as clockRing from '../CuriousContraptions.web/wwwroot/clock-ring.js';
+ import * as eventRingCursor from '../CuriousContraptions.web/wwwroot/event-ring-cursor.js';
+ 
+-<<<<<<< 3fff114e (Encapsulate event ring shared memory behind an atomic word API)
+-const source = await readFile('CuriousContraptions.Animation.Worker/wwwroot/worker.js', 'utf8');
+-let imports, closed = false, controls = 0;
+-const messages = [];
+-const host = {
+-    OutputKinds: () => [1, 2, 3],
+-    Bootstrap: () => {}, AnimationControl: () => { controls++; }
+-};
+-// Story 9R.5b: the latest-sample table has no target capacity; this many targets is only the harness's population.
+-const targets = 40;
+-const runtime = {
+-    setModuleImports: (_, value) => { imports = value; },
+-    getAssemblyExports: async () => ({ CuriousContraptions: { Animation: { Worker: { Program: host } } } }),
+-    getConfig: () => ({ mainAssemblyName: 'AnimationBoundaryControl' })
+-};
+-const self = {
+-    postMessage: (value, transfer = []) => messages.push(structuredClone(value, { transfer })),
+-    close: () => { closed = true; }
+-};
+-const context = vm.createContext({ self, Uint8Array, Float64Array, DataView, ArrayBuffer, MessagePort, SharedArrayBuffer,
+-    Number, Error, Map, console, setInterval: () => 1, clearInterval: () => {} });
+-const ring = new vm.SyntheticModule(['attachClockRing', 'requestReply', 'ClockRole'], function () {
+-    this.setExport('attachClockRing', clockRing.attachClockRing);
+-    this.setExport('requestReply', clockRing.requestReply);
+-    this.setExport('ClockRole', clockRing.ClockRole);
+-}, { context });
+-const dotnet = new vm.SyntheticModule(['dotnet'], function () {
+-    this.setExport('dotnet', { create: async () => runtime });
+-}, { context });
+-const clock = new vm.SyntheticModule(['admitNativeClock', 'nativeNow', 'nativeClockEvidence'], function () {
+-    this.setExport('admitNativeClock', async () => {});
+-    this.setExport('nativeNow', () => 1);
+-    this.setExport('nativeClockEvidence', () => [2, 1, 1, 1, .005, 1, 1]);
+-}, { context });
+-const cursor = new vm.SyntheticModule(['EventRingCursor', 'eventDelivery'], function () {
+-    this.setExport('EventRingCursor', eventRingCursor.EventRingCursor);
+-    this.setExport('eventDelivery', eventRingCursor.eventDelivery);
+-}, { context });
+-const module = new vm.SourceTextModule(source, { context });
+-await module.link(name => {
+-    if (name === './_framework/dotnet.js') return dotnet;
+-    if (name === '../native-clock.js') return clock;
+-    if (name === '../clock-ring.js') return ring;
+-    if (name === '../event-ring-cursor.js') return cursor;
+-    throw Error('Unexpected import');
+-=======
+ test('every admitted target publishes its latest sample in order, holding one receipt, and a disposed worker publishes nothing', async () => {
+     const source = await readFile('CuriousContraptions.Animation.Worker/wwwroot/worker.js', 'utf8');
+     let imports, closed = false, controls = 0;
+@@ -87,11 +41,16 @@ test('every admitted target publishes its latest sample in order, holding one re
+         this.setExport('nativeNow', () => 1);
+         this.setExport('nativeClockEvidence', () => [2, 1, 1, 1, .005, 1, 1]);
+     }, { context });
++    const cursor = new vm.SyntheticModule(['EventRingCursor', 'eventDelivery'], function () {
++        this.setExport('EventRingCursor', eventRingCursor.EventRingCursor);
++        this.setExport('eventDelivery', eventRingCursor.eventDelivery);
++    }, { context });
+     const module = new vm.SourceTextModule(source, { context });
+     await module.link(name => {
+         if (name === './_framework/dotnet.js') return dotnet;
+         if (name === '../native-clock.js') return clock;
+         if (name === '../clock-ring.js') return ring;
++        if (name === '../event-ring-cursor.js') return cursor;
+         throw Error('Unexpected import');
+     });
+     await module.evaluate();
+@@ -127,5 +86,4 @@ test('every admitted target publishes its latest sample in order, holding one re
+     channel.port2.close();
+     console.log(JSON.stringify({ passed: true, targets, controls:
+         ['unboundedTargets', 'heldReceipt', 'latestReplacement', 'orderedDrain', 'renamedControl', 'disposedLateOutput'] }));
+->>>>>>> f9ce61ef (Merge integration testing guidance)
+ });

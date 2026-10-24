@@ -1,0 +1,55 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/CuriousContraptions.Abstractions/bin/Debug/net10.0/CuriousContraptions.Abstractions.dll
+  CuriousContraptions.FlatBuffers -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/CuriousContraptions.FlatBuffers/bin/Debug/net10.0/CuriousContraptions.FlatBuffers.dll
+  CuriousContraptions.Abstractions.Mechanical -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/CuriousContraptions.Abstractions.Mechanical/bin/Debug/net10.0/CuriousContraptions.Abstractions.Mechanical.dll
+  CuriousContraptions.Abstractions.Electrical -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/CuriousContraptions.Abstractions.Electrical/bin/Debug/net10.0/CuriousContraptions.Abstractions.Electrical.dll
+  CuriousContraptions.Abstractions.Signal -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/CuriousContraptions.Abstractions.Signal/bin/Debug/net10.0/CuriousContraptions.Abstractions.Signal.dll
+  CuriousContraptions.Abstractions.Fluid -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/CuriousContraptions.Abstractions.Fluid/bin/Debug/net10.0/CuriousContraptions.Abstractions.Fluid.dll
+  ElectricalNand -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/elements/ElectricalNand/bin/Debug/net10.0/ElectricalNand.dll
+  ElectricalOr -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/elements/ElectricalOr/bin/Debug/net10.0/ElectricalOr.dll
+  ElectricalXor -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/elements/ElectricalXor/bin/Debug/net10.0/ElectricalXor.dll
+  BothGate -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/elements/BothGate/bin/Debug/net10.0/BothGate.dll
+  PoweredGate -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/elements/PoweredGate/bin/Debug/net10.0/PoweredGate.dll
+  StateLatch -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/elements/StateLatch/bin/Debug/net10.0/StateLatch.dll
+  Battery -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/elements/Battery/bin/Debug/net10.0/Battery.dll
+  PipeBend45 -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/elements/PipeBend45/bin/Debug/net10.0/PipeBend45.dll
+  Funnel -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/elements/Funnel/bin/Debug/net10.0/Funnel.dll
+  Wall -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/elements/Wall/bin/Debug/net10.0/Wall.dll
+  Pipe -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/elements/Pipe/bin/Debug/net10.0/Pipe.dll
+  CuriousContraptions.Animation -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/CuriousContraptions.Animation/bin/Debug/net10.0/CuriousContraptions.Animation.dll
+  BowlingBall -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/elements/BowlingBall/bin/Debug/net10.0/BowlingBall.dll
+  Bumper -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/elements/Bumper/bin/Debug/net10.0/Bumper.dll
+  PipeBend90 -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/elements/PipeBend90/bin/Debug/net10.0/PipeBend90.dll
+  Ball -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/elements/Ball/bin/Debug/net10.0/Ball.dll
+  ElectricalNor -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/elements/ElectricalNor/bin/Debug/net10.0/ElectricalNor.dll
+  Ramp -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/elements/Ramp/bin/Debug/net10.0/Ramp.dll
+  Counter -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/elements/Counter/bin/Debug/net10.0/Counter.dll
+  ImpactSwitch -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/elements/ImpactSwitch/bin/Debug/net10.0/ImpactSwitch.dll
+  SystemClock -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/elements/SystemClock/bin/Debug/net10.0/SystemClock.dll
+  HoldTimer -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/elements/HoldTimer/bin/Debug/net10.0/HoldTimer.dll
+  Domino -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/elements/Domino/bin/Debug/net10.0/Domino.dll
+  Springboard -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/elements/Springboard/bin/Debug/net10.0/Springboard.dll
+  SignalLamp -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/elements/SignalLamp/bin/Debug/net10.0/SignalLamp.dll
+  DelayBox -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/elements/DelayBox/bin/Debug/net10.0/DelayBox.dll
+  CuriousContraptions.Bundle -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/CuriousContraptions.Bundle/bin/Debug/net10.0/CuriousContraptions.Bundle.dll
+  BallDetector -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/elements/BallDetector/bin/Debug/net10.0/BallDetector.dll
+  PressurePlate -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/elements/PressurePlate/bin/Debug/net10.0/PressurePlate.dll
+  Receiver -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/elements/Receiver/bin/Debug/net10.0/Receiver.dll
+  BundleElements -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/BundleElements/bin/Debug/net10.0/BundleElements.dll
+BundleElements : error BUNDLE006: BallDetector.Presentation.Event: outside its declared range [/Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/BundleElements/BundleElements.csproj]
+BundleElements : error BUNDLE006: BallDetector.Presentation.Event: outside its declared range [/Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/BundleElements/BundleElements.csproj]
+BundleElements : error BUNDLE006: BallDetector.Presentation.Event: outside its declared range [/Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/BundleElements/BundleElements.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/BundleElements/BundleElements.csproj(29,5): error MSB3073: The command ""/opt/homebrew/Cellar/dotnet/10.0.402/libexec/dotnet" "/Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/BundleElements/bin/Debug/net10.0/BundleElements.dll" --root "/Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/" --out "/Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/BundleElements/bin/Debug/net10.0/elements.bundle.json" --out "/Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/elements/elements.bundle.json"" exited with code 1.
+  CuriousContraptions -> /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/.godot/mono/temp/bin/Debug/CuriousContraptions.dll
+
+Build FAILED.
+
+BundleElements : error BUNDLE006: BallDetector.Presentation.Event: outside its declared range [/Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/BundleElements/BundleElements.csproj]
+BundleElements : error BUNDLE006: BallDetector.Presentation.Event: outside its declared range [/Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/BundleElements/BundleElements.csproj]
+BundleElements : error BUNDLE006: BallDetector.Presentation.Event: outside its declared range [/Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/BundleElements/BundleElements.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/BundleElements/BundleElements.csproj(29,5): error MSB3073: The command ""/opt/homebrew/Cellar/dotnet/10.0.402/libexec/dotnet" "/Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/BundleElements/bin/Debug/net10.0/BundleElements.dll" --root "/Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/" --out "/Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/BundleElements/bin/Debug/net10.0/elements.bundle.json" --out "/Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/elements/elements.bundle.json"" exited with code 1.
+    0 Warning(s)
+    4 Error(s)
+
+Time Elapsed 00:00:03.40

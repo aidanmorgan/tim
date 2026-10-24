@@ -256,9 +256,6 @@ public partial class MachineWorld
             }
             var frame = Engine.GetProcessFrames();
             foreach (var part in _parts)
-                if (part.HasCosmeticBindings && _workshopClient.TryCosmeticFrame(frame, _workshopPresentation, part.AuthoredId, out var cosmetic))
-                    part.ApplyCosmetic(cosmetic);
-            foreach (var part in _parts)
                 if (_workshopClient.TryDeclaredFrame(frame, _workshopPresentation, part.AuthoredId, out var declared))
                     foreach (var property in declared) part.ApplyDeclaredProperty(property.Binding, property.Value);
             // Telemetry follows the lowest-identity payload; zero only while the construction has no payload.
@@ -282,8 +279,6 @@ public partial class MachineWorld
     private void ApplyWorkshopRead(WorkshopRead read)
     {
         ValidateWorkshopRead(read, Construction);
-        if (read.Epoch != WorkshopRead.Epoch)
-            foreach (var part in _parts) if (part.HasCosmeticBindings) part.ApplyCosmetic(WorkshopCosmeticSample.Neutral);
         WorkshopRead = read;
         Ticks = checked((int)read.Tick.Value);
         Running = WorkshopPhase == WorkshopPhase.Running;
@@ -323,9 +318,6 @@ public partial class MachineWorld
             part.Position = RenderPosition(instance.Cell, instance.Local);
             var q = instance.Rotation;
             part.Quaternion = new((float)q.X, (float)q.Y, (float)q.Z, (float)q.W);
-            if (part.HasCosmeticBindings != instance.Cosmetic.IsDeclared || (part.HasCosmeticBindings && part.Cosmetic != instance.Cosmetic))
-                throw new ArgumentException("Part artwork and its instance must declare the same cosmetic curve.");
-            if (part.HasCosmeticBindings) part.ApplyCosmetic(WorkshopCosmeticSample.Neutral);
             part.ResetPhysicalVisuals();
         }
     }

@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 namespace CuriousContraptions.Gpu;
 
 /// <summary>What one attempt to advance the committed world produced.</summary>
-public enum TickAttempt { Committed, Superseded, NotReserved, Stopped }
+public enum TickAttempt { Committed, Superseded, Stopped }
 
 /// <summary>The Simulation worker's side effects the run loop schedules; the worker supplies them, tests fake them.</summary>
 public interface ITickLoopHost
@@ -23,7 +23,7 @@ public interface ITickLoopHost
     ValueTask CompleteRun();
     /// <summary>Ends this scheduler turn so controls and queued messages run, then resumes without a timer clamp.</summary>
     ValueTask YieldTurn();
-    /// <summary>Waits for work (a due tick, a released block or a free publication slot) on the ordinary wake-up timer.</summary>
+    /// <summary>Waits for work (a due tick or a released block) on the ordinary wake-up timer.</summary>
     ValueTask AwaitWork();
 }
 
@@ -55,7 +55,6 @@ public static class WorkshopTickLoop
             switch (attempt)
             {
                 case TickAttempt.Stopped: return;
-                case TickAttempt.NotReserved: batch = 0; await host.AwaitWork(); continue;
                 case TickAttempt.Superseded: break;
                 case TickAttempt.Committed: break;
                 default: throw new InvalidOperationException($"Unknown tick attempt {attempt}.");

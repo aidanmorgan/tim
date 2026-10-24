@@ -218,7 +218,12 @@ public sealed class WorkshopPhysicsEngineTests
     private static readonly WorkshopCadenceSettings Settings = WorkshopCadenceSettings.Default();
     private static readonly float BenchY = (float)WorkshopConstruction.WorkbenchSurface.Value;
 
-    internal static async Task<List<WorkshopRead>> Run(WorkshopConstruction construction, int ticks)
+    internal static async Task<List<WorkshopRead>> Run(WorkshopConstruction construction, int ticks) =>
+        (await RunWithLedgers(construction, ticks)).Reads;
+
+    /// <summary>The committed reads and, beside each, the device-private contact-work ledger the read's stores come from (Story 9A.23
+    /// D9: the occurrence rows never leave the device; tests read them where the producer and the accounting do).</summary>
+    internal static async Task<(List<WorkshopRead> Reads, List<ContactWorkLedger> Ledgers)> RunWithLedgers(WorkshopConstruction construction, int ticks)
     {
         await using var device = new WorkshopGpuDevice(new BrowserGpuTransport(), new(101, 206));
         await using var simulation = new WorkshopSimulation(device, new StepClock(), Settings, new(1), new NoInstallation(),
@@ -227,12 +232,14 @@ public sealed class WorkshopPhysicsEngineTests
         Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Construct(construction)).Outcome);
         Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Run()).Outcome);
         var reads = new List<WorkshopRead>(ticks + 1) { simulation.Committed };
+        var ledgers = new List<ContactWorkLedger>(ticks + 1) { device.CommittedContactWork };
         for (var tick = 0; tick < ticks; tick++)
         {
             Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Advance()).Outcome);
             reads.Add(simulation.Committed);
+            ledgers.Add(device.CommittedContactWork);
         }
-        return reads;
+        return (reads, ledgers);
     }
 
     private static WorkshopConstruction Free(params IWorkshopInstance[] instances) =>
@@ -258,20 +265,20 @@ public sealed class WorkshopPhysicsEngineTests
     [InlineData(5.75)] [InlineData(6)] [InlineData(6.375)] [InlineData(6.75)] [InlineData(7.125)] [InlineData(7.5)]
     public async Task HeavyPayloadSpendsTheWholeStoreOnceAndEveryLaterBumperContactIsUnpaid(double dropHeight)
     {
-        var reads = await Run(Free(
+        var (reads, ledgers) = await RunWithLedgers(Free(
             WorkshopInput.Generic(PartId.BowlingBall, new(1), 0, dropHeight, 0, 0, 0, 0, 1),
             WorkshopInput.Generic(PartId.PinballBumper, new(2), 0, 3, 0, 0, 0, 0, 1)), 4 * TicksPerSecond);
         var seen = new HashSet<uint>();
         var paid = new List<float>();
         var exhausted = false;
-        foreach (var read in reads)
+        for (var tick = 0; tick < reads.Count; tick++)
         {
-            var store = read.ContactWorks[0].RemainingEnergy.Value;
+            var store = reads[tick].ContactWorks[0].RemainingEnergy.Value;
             if (exhausted) Assert.Equal(0f, store);
             exhausted |= store == 0f;
-            for (var i = 0; i < read.ContactWorks.OccurrenceCount; i++)
+            for (var i = 0; i < ledgers[tick].OccurrenceCount; i++)
             {
-                var occurrence = read.ContactWorks.Occurrence(i);
+                var occurrence = ledgers[tick].Occurrence(i);
                 if (occurrence.Sequence == 0 || !seen.Add(occurrence.Sequence)) continue;
                 paid.Add(occurrence.Debit.Value);
                 Assert.Equal(occurrence.Debit.Value > 0, occurrence.Effect == ContactWorkEffect.Paid);
@@ -288,13 +295,13 @@ public sealed class WorkshopPhysicsEngineTests
     [Fact]
     public async Task TargetLimitedPayoutLeavesTheExactRemainder()
     {
-        var reads = await Run(Free(
+        var (reads, ledgers) = await RunWithLedgers(Free(
             WorkshopInput.Generic(PartId.Basketball,new(1), 0, 4.5, 0, 0, 0, 0, 1),
             WorkshopInput.Generic(PartId.PinballBumper, new(2), 0, 3, 0, 0, 0, 0, 1)), 2 * TicksPerSecond);
-        var first = reads.First(read => read.ContactWorks.OccurrenceCount > 0 && read.ContactWorks.Occurrence(0).Sequence == 1);
-        var debit = first.ContactWorks.Occurrence(0).Debit.Value;
+        var first = ledgers.FindIndex(ledger => ledger.OccurrenceCount > 0 && ledger.Occurrence(0).Sequence == 1);
+        var debit = ledgers[first].Occurrence(0).Debit.Value;
         Assert.InRange(debit, 1f, 31f);
-        Assert.Equal(32f, first.ContactWorks[0].RemainingEnergy.Value + debit);
+        Assert.Equal(32f, reads[first].ContactWorks[0].RemainingEnergy.Value + debit);
     }
 
     private static byte[] BasketballOverBumperWithStore(float available)
@@ -362,10 +369,10 @@ public sealed class WorkshopPhysicsEngineTests
     [Fact]
     public async Task AStrengthZeroBumpersEmptyStoreIsPassiveAndNeverFaults()
     {
-        var reads = await Run(Free(
+        var (reads, ledgers) = await RunWithLedgers(Free(
             WorkshopInput.Generic(PartId.Basketball,new(1), 0, 4.5, 0, 0, 0, 0, 1),
             PlacedParts.Bumper(new(2), 0, 3, 0, strength: 0f)), 2 * TicksPerSecond);
-        var occurrences = reads.SelectMany(read => Enumerable.Range(0, read.ContactWorks.OccurrenceCount).Select(read.ContactWorks.Occurrence))
+        var occurrences = ledgers.SelectMany(ledger => Enumerable.Range(0, ledger.OccurrenceCount).Select(ledger.Occurrence))
             .Where(occurrence => occurrence.Sequence != 0).ToArray();
         Assert.NotEmpty(occurrences); // the ball struck the Bumper with a qualifying approach
         Assert.All(occurrences, occurrence => Assert.Equal((0f, ContactWorkEffect.Passive), (occurrence.Debit.Value, occurrence.Effect)));

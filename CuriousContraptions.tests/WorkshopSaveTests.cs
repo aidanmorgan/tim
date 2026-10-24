@@ -200,8 +200,10 @@ public sealed class WorkshopSaveTests
                         Assert.Equal((Extent("X"), Extent("Y"), Extent("Z"), Declared("Mass"), Declared("Bounce"), Declared("Friction")),
                             (box.HalfExtents.X, box.HalfExtents.Y, box.HalfExtents.Z, compiled.Mass.Value, surface.Restitution.Value, surface.Friction.Value));
                         Assert.Equal(ColliderShapeKind.Box, box.Shape);
-                        Assert.True(System.Text.Json.Nodes.JsonNode.DeepEquals(expected["Cosmetic"], System.Text.Json.JsonSerializer.SerializeToNode(
-                            construction.Instances.Single(instance => instance.Id == body).Cosmetic, options)));
+                        // The historical record had no cosmetic curve, and the package declares no one-shot cue (Story 9A.25b).
+                        Assert.False(expected["Cosmetic"]!["IsDeclared"]!.GetValue<bool>());
+                        Assert.DoesNotContain(DeclaredPhysics.Of(construction.Instances.Single(instance => instance.Id == body).PartId).Presentation.Bindings,
+                            binding => binding.Driver == CuriousContraptions.Abstractions.PresentationDriver.Event);
                         var tile = expected.AsObject();
                         tile.Remove("Material"); tile.Remove("Cosmetic");
                         tile["Parameters"] = new System.Text.Json.Nodes.JsonArray();
@@ -210,10 +212,11 @@ public sealed class WorkshopSaveTests
                     if (expected!["PartId"]!["Value"]!.GetValue<string>() == "lamp")
                     {
                         // The historical lamp record carried no setting: it is now its package's generic instance with no parameters,
-                        // and its (undeclared) cosmetic curve is still the part's own.
+                        // and, as its record had no cosmetic curve, its package declares no one-shot cue (Story 9A.25b).
                         var body = new GpuBodyId(expected["Id"]!["Value"]!.GetValue<ulong>());
-                        Assert.True(System.Text.Json.Nodes.JsonNode.DeepEquals(expected["Cosmetic"], System.Text.Json.JsonSerializer.SerializeToNode(
-                            construction.Instances.Single(instance => instance.Id == body).Cosmetic, options)));
+                        Assert.False(expected["Cosmetic"]!["IsDeclared"]!.GetValue<bool>());
+                        Assert.DoesNotContain(DeclaredPhysics.Of(construction.Instances.Single(instance => instance.Id == body).PartId).Presentation.Bindings,
+                            binding => binding.Driver == CuriousContraptions.Abstractions.PresentationDriver.Event);
                         var lamp = expected.AsObject();
                         lamp.Remove("Cosmetic");
                         lamp["Parameters"] = new System.Text.Json.Nodes.JsonArray();

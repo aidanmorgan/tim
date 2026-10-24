@@ -308,19 +308,6 @@ public static class WorkshopWireFlatBuffers
             contactWorksOffset = builder.EndVector();
         }
 
-        VectorOffset? occurrencesOffset = null;
-        if (read.ContactWorks.OccurrenceCount > 0)
-        {
-            Wire.WorkshopResponse.StartOccurrencesVector(builder, read.ContactWorks.OccurrenceCount);
-            for (var i = read.ContactWorks.OccurrenceCount - 1; i >= 0; i--)
-            {
-                var occ = read.ContactWorks.Occurrence(i);
-                ContactWorkOccurrenceRecord.CreateContactWorkOccurrenceRecord(builder, occ.Work.Value, occ.Collider.Value, occ.Target.Value,
-                    occ.Sequence, occ.EventOrdinal, (float)occ.EventPhase, occ.ApproachSpeed.Value, occ.Debit.Value, (byte)occ.Effect);
-            }
-            occurrencesOffset = builder.EndVector();
-        }
-
         VectorOffset? bodiesOffset = null;
         if (read.Bodies.Count > 0)
         {
@@ -419,7 +406,6 @@ public static class WorkshopWireFlatBuffers
         if (activationsOffset.HasValue) Wire.WorkshopResponse.AddActivations(builder, activationsOffset.Value);
         if (timersOffset.HasValue) Wire.WorkshopResponse.AddTimers(builder, timersOffset.Value);
         if (contactWorksOffset.HasValue) Wire.WorkshopResponse.AddContactWorks(builder, contactWorksOffset.Value);
-        if (occurrencesOffset.HasValue) Wire.WorkshopResponse.AddOccurrences(builder, occurrencesOffset.Value);
         if (electricalOffset.HasValue) Wire.WorkshopResponse.AddElectrical(builder, electricalOffset.Value);
         if (memoryOffset.HasValue) Wire.WorkshopResponse.AddActivationMemory(builder, memoryOffset.Value);
         if (motion.HasValue) Wire.WorkshopResponse.AddMotion(builder, motion.Value);
@@ -505,13 +491,6 @@ public static class WorkshopWireFlatBuffers
             var s = fb.ContactWorks(i)!.Value;
             stores[i] = new ContactWorkRead(new GpuContactWorkId(s.Id), new GpuBodyId(s.Owner), s.OccurrenceCount, new Joules(s.RemainingEnergy), new Joules(s.SuppliedEnergy));
         }
-        var occurrences = new ContactWorkOccurrence[fb.OccurrencesLength];
-        for (var i = 0; i < occurrences.Length; i++)
-        {
-            var occ = fb.Occurrences(i)!.Value;
-            occurrences[i] = new ContactWorkOccurrence(new ContactWorkSlot(occ.Work), new ColliderSlot(occ.Collider), new GpuBodyId(occ.Target),
-                occ.Sequence, occ.EventOrdinal, (Half)occ.EventPhase, new ContactSpeed(occ.ApproachSpeed), new Joules(occ.Debit), (ContactWorkEffect)occ.Effect);
-        }
 
         var sources = new ElectricalSourceRead[fb.ElectricalLength];
         for (var i = 0; i < sources.Length; i++)
@@ -553,7 +532,7 @@ public static class WorkshopWireFlatBuffers
         var motion = motionBytes is null ? null : PhysicsMotionRead.Decode(motionBytes, bodies, tick);
 
         var read = new WorkshopRead(epoch, tick, bodies, new AuthorityRevision(fb.Revision), capture, new PhysicsCaptureRead(latches), motion,
-            new PhysicsActivationRead(actValues), new PhysicsTimerRead(timerValues), new PhysicsContactWorkRead(stores, occurrences),
+            new PhysicsActivationRead(actValues), new PhysicsTimerRead(timerValues), new PhysicsContactWorkRead(stores),
             new PhysicsElectricalRead(sources), new PhysicsMemoryRead(memoryValues), new PhysicsPresentationRead(actuatorValues, loadValues, logicValues));
         WorkshopMessages.ValidatePhysicalRead(read);
         WorkshopMessages.ValidateCapture(read);

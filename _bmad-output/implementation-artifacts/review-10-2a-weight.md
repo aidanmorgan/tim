@@ -179,3 +179,76 @@ Browser recipes that click near the volume's edges (for example `cat-015b`'s Wal
 - **Throwaway worktree:** `wt-r1` has been removed.
 
 **Next:** the same implementation owner adds the R2 test and merges origin/main `7143a874`. Then the reviewer re-checks R2 (test plus MX7 red) and reruns the gate on the merged tree. SnapshotApproval follows only after that.
+
+# Re-review, round 3: fixes for R2 and L5, 24 October 2026
+
+**Candidate.** HEAD `6387b5892aac` (tree `722b201ef4a5`). It is fix `16b13bb0` merged with origin/main `f9ce61ef`, which brought the testing guidance and the CI no-skip deferral list. The merge touches no `engine/`, `elements/`, `ui/`, Bundle or `CuriousContraptions.tests` file.
+
+Uncommitted: `evidence-10-2a/ci-tool-step-f9ce61ef.sh` and `evidence-10-2a/r2-merged-f9ce61ef/`. Evidence is in `evidence-10-2a-review/r2/`.
+
+## Round-3 verdict: **Pass-pending-main-green** (scoped native)
+
+There are no blocking findings, and every test I re-checked or added complies with `docs/testing-guidance.md`.
+
+SnapshotApproval waits until both of these have happened:
+1. Main's CI is green again. The red node harnesses on Linux at `7143a874`+ belong to a separate fix slice, not 10.2a.
+2. The branch has re-merged origin/main `e344b19c`, which adds the TypeScript rule to `AGENTS.md` and nothing else: `git diff --stat f9ce61ef e344b19c` shows only `AGENTS.md`. 10.2a adds no TS, JS or runtime tool source. Its only scripts are bash copies of CI-step bodies kept as evidence.
+
+Publication must not happen before then.
+
+### R2: resolved
+
+New test: `ATubeMouthSnapAcrossTheBenchEdgeIsRefusedAndOneInsideIsAdmitted`.
+- **Positive case:** a new 3.6 m Pipe joined to a Pipe at x = 3 would reach about 8.6 m. It is refused with `SnapOutsideBench`.
+- **Control:** the same join at x = −3 reaches about 2.6 m and is admitted. It differs from the positive case only in the placed Pipe's x.
+- **Expected pose:** derived from the declared mouth (`2 × mouth.X`), not copied from output.
+- **Mutations:** the composed pose is the snap's own. Reviewer mutation MX7 (snap returns `None`) is now **red**, and so is the implementer's M15.
+
+Guidance check:
+
+| Checklist item | Result |
+| --- | --- |
+| Defined interface | `PlacementPose` |
+| Derived expectation | Yes |
+| Positive and control cases | Yes |
+| Mutation-proven | Yes |
+| Deterministic | Yes |
+| No hash, no skip | Yes |
+
+The bench-volume boundary itself is the shared `Within` rule. Its literal-edge cases are in the grid test (6.9 / 6.6 m) and the rest tests.
+
+### L5: resolved. The expectation update is a correction
+
+`PlacementRefusal` is now typed per path: `OutsideBench` for grid, plus `SnapOutsideBench`, `RestOutsideBench` and `IntoPart`. The new values are appended after the existing ones, and nothing serialises the enum.
+
+**Message text.** Each reason has its own text. `EachPlacementRefusalHasItsOwnStatusText` checks them through `WorkshopBenchPlacement.Refuse` (the UI-logic seam), along with:
+- the unchanged construction;
+- the `UnplaceablePose` kind;
+- that `None` throws.
+
+**The `PalettePlacementTests` expectation change.** "resting there would lift the part above the bench" becomes "…outside the bench" for the same rest refusal. It is a correction:
+- A rest refusal can now come from x/z as well as from height, so "above" was inaccurate.
+- The test still asserts the exact string and the unchanged construction, commands and Undo.
+- It is the same rest-path case: under reviewer mutation MX8 (rest returns the grid reason), the 8.9 m palette case goes red, along with three `ARestedPoseAboveTheBenchIsRefused` cases and `TheBenchVolumeBoundsTheRestedBodyNotItsOrigin`.
+
+**The `BenchPlacementRejection` doc** now describes the grid, snap and rest paths.
+
+### Gates on `6387b589` (one rebuild)
+
+| Command | Result | Raw |
+| --- | --- | --- |
+| `dotnet build CuriousContraptions.slnx -c Debug` | 0 W / 0 E | `r2/build-debug.log`, `r2/head.txt` |
+| `dotnet test CuriousContraptions.slnx -c Debug --no-build --no-restore` | native **2966/2966**, BundleElements 194, E2eRunner **207**, Coverage 77, WorkerAotGuard 17; **Skipped 0**; 0 duplicates. Node harnesses run inside E2eRunner.Tests (`NodeHarnessTests`) and passed locally. | `r2/test-slnx.log` |
+| CI "Test C# tools" step (body identical to the HEAD `pages.yml`; the filter is generated from `BrowserDeferral.cs`) | 77 / 194 / 17 / E2eRunner 191 (16 deferred browser-toolchain cases, explicitly listed); exit 0 | `r2/ci-tool-step.log` |
+| Release Simulation / Animation.Worker | 0 W / 0 E each | `r2/worker-release.log`, `r2/animation-worker-release.log` |
+| `git diff --check HEAD` | clean | — |
+
+**Reviewer mutations.** MX7 (snap unbounded) and MX8 (rest gives the grid reason) were applied together on a throwaway worktree of `6387b589`, now removed. Six tests went red; each mutant has its own reds, attributed above (`r2/mutations/mx7-mx8.*`).
+
+**Other checks:**
+- The `+` lines of the `d29cb06e..16b13bb0` C# diff add no hash, digest, byte-identity, `Skip` or `Explicit`.
+- A bare `node --test` run without `--experimental-vm-modules` is not the supported invocation; it failed on `vm.SyntheticModule`. That log was discarded, and the supported run is the slnx row above.
+
+**Still open, non-blocking:**
+- L6: conservative cylinder–box overlap near corners (over-refusal only).
+- Browser cases accumulated for the post-catalogue E2E phase: `cat-067`, the Weight beside a Bumper, edge placements under the grid rule, and `cat-015b`'s Wall click.

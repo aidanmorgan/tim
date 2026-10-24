@@ -691,14 +691,9 @@ public sealed class WorkshopSimulationTests
         var admission = simulation.Construct(construction).AsTask(); device.CompleteAdmission(0); await admission;
         await simulation.Run(); await simulation.Pause();
         var before = simulation.Committed; var commits = device.Commits;
-        var scene = WorkshopPhysicsCompiler.Compile(construction,new(1,2));
-        var collider = scene.Colliders.ToArray().First(value=>value.Body==new GpuBodyId(2)).Id;
+        // The read carries the owner's stores alone (Story 9A.23 D9: the hit's occurrence row is the device's private ledger).
         WorkshopRead Paid(WorkshopRead read) => read with {
-            ContactWorks = new(new[] { read.ContactWorks[0] with {
-                OccurrenceCount=1, RemainingEnergy=new(16) } },
-                new[] { new ContactWorkOccurrence(new(0),
-                    new(checked((ushort)Array.FindIndex(scene.Colliders.ToArray(), value => value.Id == collider))),
-                    new(1), 1, 1, (Half)0, new((float)4), new(16), ContactWorkEffect.Paid) }) };
+            ContactWorks = new(new[] { read.ContactWorks[0] with { OccurrenceCount=1, RemainingEnergy=new(16) } }) };
         installation.HoldNext = true;
         var rejected = simulation.Step().AsTask(); device.CompleteAdvance(0,Paid);
         Assert.Equal(before,simulation.Committed); Assert.Equal(commits,device.Commits);
@@ -714,7 +709,7 @@ public sealed class WorkshopSimulationTests
         var restored = simulation.Committed;
         Assert.Equal(0u,restored.ContactWorks[0].OccurrenceCount);
         Assert.Equal(32,restored.ContactWorks[0].RemainingEnergy.Value);
-        Assert.Equal(0,restored.ContactWorks.Occurrence(0).Debit.Value);
+        Assert.Equal(0,restored.ContactWorks[0].SuppliedEnergy.Value);
         Assert.Equal(0ul,restored.Tick.Value); Assert.NotEqual(spent.Epoch,restored.Epoch);
         device.CompleteAdvance(2); Assert.Equal(WorkshopCommandOutcome.Superseded,(await pending).Outcome);
         Assert.Equal(restored,simulation.Committed);
@@ -786,7 +781,7 @@ public sealed class WorkshopSimulationTests
             var network = WorkshopActivationCompiler.Compile(construction);
             return new(epoch, new(0), PhysicsGpuAbi.ReadDynamicBodies(bytes),
                 Activations: network.Clear(), Timers: network.ClearTimers(),
-                ContactWorks: PhysicsGpuAbi.ReadContactWorks(bytes), Electrical: PhysicsGpuAbi.ReadElectrical(bytes));
+                ContactWorks: PhysicsGpuAbi.ReadContactWorks(bytes).Stores, Electrical: PhysicsGpuAbi.ReadElectrical(bytes));
         }
         public void FailAdvance(int index) => _advances[index].Completion.SetException(new InvalidOperationException("Injected old transport failure."));
         public void CompleteAdvance(int index, Func<WorkshopRead, WorkshopRead>? transform = null)

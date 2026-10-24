@@ -1,0 +1,3 @@
+base: 5 of 40 runs failed; capacity 4/1 capacity 4/4 capacity 4/2 capacity 4/3 capacity 4/4
+readatomic: 0 of 40 runs failed;
+writeatomic: 0 of 40 runs failed;

@@ -89,7 +89,7 @@ public static class BundleValidator
             }
             for (var i = 0; i < entry.Colliders.Count; i++) Collider($"Colliders[{i}]", entry.Colliders[i]);
             Geometry(entry);
-            Presentation(entry.Presentation, entry.Metadata.Parameters, entry.Ports, entry.Electrical, entry.Signal);
+            Presentation(entry.Presentation, entry.Metadata.Parameters, entry.Ports, entry.Electrical, entry.Signal, entry.Events);
             // Story 9A.22: each declared event kind is a defined record kind (None is no record), declared once.
             var kinds = new HashSet<SimulationEventKind>();
             for (var i = 0; i < entry.Events.Count; i++)
@@ -110,7 +110,7 @@ public static class BundleValidator
         }
 
         private void Presentation(ElementPresentation value, IReadOnlyList<ParameterDescriptor> parameters, IReadOnlyList<PortDescriptor> ports, ElectricalPayload? electrical,
-            SignalPayload? signal)
+            SignalPayload? signal, IReadOnlyList<EventDescriptor> events)
         {
             if (!Finite("Presentation.PickRadius", value.PickRadius) || value.PickRadius <= 0)
                 OutOfRange("Presentation.PickRadius");
@@ -161,9 +161,12 @@ public static class BundleValidator
                     OutOfRange("Presentation.Value");
                 var supported = binding.Driver switch
                 {
-                    PresentationDriver.ActivationPulse or PresentationDriver.CapturePulse or PresentationDriver.CommittedActivation or
+                    // Story 9A.25b: a ring-kind cue replays a Replace endpoint clip or adds a saturating pulse per record.
+                    PresentationDriver.Event => binding.Duration > 0 &&
+                        ((binding.Curve == PresentationCurve.SmoothStep && binding.Overlap == PresentationOverlap.Replace) ||
+                         (binding.Curve == PresentationCurve.SineSquaredPulse && binding.Overlap == PresentationOverlap.SaturatingSum)),
+                    PresentationDriver.CommittedActivation or
                         PresentationDriver.CommittedCount or PresentationDriver.CommittedElectricalSocket => binding.Curve == PresentationCurve.SmoothStep && binding.Duration > 0 && binding.Overlap == PresentationOverlap.Replace,
-                    PresentationDriver.ContactImpulse => binding.Curve == PresentationCurve.SineSquaredPulse && binding.Duration > 0 && binding.Overlap == PresentationOverlap.SaturatingSum,
                     PresentationDriver.CommittedOscillatorPhase => binding.Curve == PresentationCurve.ExponentialFollow && binding.Duration == 0 && binding.Overlap == PresentationOverlap.Replace,
                     PresentationDriver.CommittedOscillatorPulse => binding.Curve == PresentationCurve.LinearDecay && binding.Duration > 0 && binding.Overlap == PresentationOverlap.Maximum,
                     PresentationDriver.CommittedContactLoadPhase => binding.Curve == PresentationCurve.CubicSmoothStep && binding.Duration > 0 && binding.Overlap == PresentationOverlap.Replace,
@@ -190,6 +193,16 @@ public static class BundleValidator
                 if (!supported || (binding.Curve != PresentationCurve.ExponentialFollow && binding.Response != 0) ||
                     (binding.Driver == PresentationDriver.CommittedTimerPhase && binding.Phase == PresentationTimerPhase.None))
                     OutOfRange("Presentation.DriverCurve");
+                // Story 9A.25b: exactly an event-driven binding names a record kind, and only a kind its package declares it produces.
+                if ((binding.Driver == PresentationDriver.Event) != (binding.Event != SimulationEventKind.None)) OutOfRange("Presentation.Event");
+                Defined("Presentation.EventMagnitude", binding.EventMagnitude);
+                if (binding.Driver != PresentationDriver.Event && binding.EventMagnitude != PresentationEventMagnitude.Any)
+                    OutOfRange("Presentation.EventMagnitude");
+                if (binding.Event != SimulationEventKind.None)
+                {
+                    Defined("Presentation.Event", binding.Event);
+                    if (!events.Any(declared => declared.Kind == binding.Event)) OutOfRange("Presentation.Event");
+                }
                 if (!writers.Add((binding.Node, binding.Property, binding.Phase)))
                     errors.Add(new(BundleErrorCode.UnresolvedReference, $"{source}.Presentation: duplicate property writer"));
                 if (binding.Phase != PresentationTimerPhase.None && binding.Driver != PresentationDriver.CommittedTimerPhase)

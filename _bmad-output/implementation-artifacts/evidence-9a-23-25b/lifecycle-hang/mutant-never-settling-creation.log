@@ -1,0 +1,737 @@
+✖ normal publication activates exactly one service and retains startup qualification (2.362417ms)
+✖ a master peer whose leading padding holds the retired clock wire version 4 is refused (0.444208ms)
+✖ a master peer whose leading padding holds a non-zero high padding byte is refused (0.382916ms)
+✖ delayed managed publication has no callback until explicit activation (0.372459ms)
+✖ default and missing IDs reject without scheduling or changing the ready owner (0.356ms)
+✖ pre-ready activation rejects atomically and subsequent legitimate activation succeeds (0.320292ms)
+✖ duplicate activation preserves the one original timer and owner state (0.319917ms)
+✖ startup timeout before worker readiness rejects creation and activation (0.304042ms)
+✖ startup timeout after JS return remains anchored to both runtime readiness (0.351125ms)
+✖ worker failure rejects activation without invoking managed service (0.374792ms)
+✖ disposal before managed publication prevents later activation (0.332958ms)
+✖ disposal after activation makes a captured late callback inert (0.2965ms)
+✖ failure after activation makes a captured late callback inert (0.282416ms)
+✖ a failed client detaches its clock ring (0.283709ms)
+✖ a clock reply landing after the client failed is never delivered (0.288625ms)
+✖ a clock reply landing after disposal is never delivered (0.271875ms)
+✖ a clock reply missing beyond 1000ms never faults the session and the service keeps probing (0.606583ms)
+✖ a Simulation heartbeat silent for 1000ms of running service faults the session as SimulationUnresponsive (0.423ms)
+✖ a Browser that was itself blocked never mistakes the Simulation for hung (0.346208ms)
+✖ both runtimes must be ready before the one qualification deadline (0,1) (0.335667ms)
+✖ both runtimes must be ready before the one qualification deadline (1,0) (0.287291ms)
+✖ duplicate runtime readiness rejects worker 0 (0.298959ms)
+✖ early ready rejects worker 0 (0.295542ms)
+✖ duplicate runtime readiness rejects worker 1 (0.283458ms)
+✖ early ready rejects worker 1 (0.263833ms)
+✖ early Animation qualification rejects before bootstrap (0.265ms)
+✖ duplicate authoritative Animation peer rejects without a second transfer (0.267458ms)
+✖ disposal during asset loading prevents late readiness from rearming (0.2715ms)
+✖ Animation constructor failure closes the already owned Simulation worker (10002.233167ms)
+✖ premature Animation output fails without delivering to the managed consumer (0.640291ms)
+✖ delayed valid ACK keeps Backpressure until managed validation completes, and posts no stall flag (0.375292ms)
+✖ a command older than two seconds is TimedOut for the player, still without a stall flag (0.330708ms)
+✖ completing an older ACK cannot clear another aged request or exceed two leases (0.350833ms)
+✖ taken but invalid ACK cannot release capacity or report healthy without completion (0.498833ms)
+✖ unmatched or duplicate ACK faults the session (false) (0.411542ms)
+✖ unmatched or duplicate ACK faults the session (true) (0.305958ms)
+✖ the deleted worker channel memoryResult is an unknown envelope that faults the session (0.31475ms)
+✖ the deleted worker channel candidateTimedOut is an unknown envelope that faults the session (0.415416ms)
+✖ two animation owners send sequential controls only after managed ACK delivery returns (0.416417ms)
+ℹ tests 39
+ℹ suites 0
+ℹ pass 0
+ℹ fail 38
+ℹ cancelled 1
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 10079.860833
+
+✖ failing tests:
+
+test at tools/workshop-client-lifecycle.test.mjs:9:30
+✖ normal publication activates exactly one service and retains startup qualification (2.362417ms)
+  AssertionError [ERR_ASSERTION]: both runtime loads start concurrently
+  
+  1 !== 2
+  
+      at clientHarness (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/workshop-client-lifecycle.test.mjs:83:12)
+      at async TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/workshop-client-lifecycle.test.mjs:115:15)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 2,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tools/workshop-client-lifecycle.test.mjs:9:30
+✖ a master peer whose leading padding holds the retired clock wire version 4 is refused (0.444208ms)
+  AssertionError [ERR_ASSERTION]: both runtime loads start concurrently
+  
+  1 !== 2
+  
+      at clientHarness (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/workshop-client-lifecycle.test.mjs:83:12)
+      at async TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/workshop-client-lifecycle.test.mjs:131:19)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 2,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tools/workshop-client-lifecycle.test.mjs:9:30
+✖ a master peer whose leading padding holds a non-zero high padding byte is refused (0.382916ms)
+  AssertionError [ERR_ASSERTION]: both runtime loads start concurrently
+  
+  1 !== 2
+  
+      at clientHarness (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/workshop-client-lifecycle.test.mjs:83:12)
+      at async TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/workshop-client-lifecycle.test.mjs:131:19)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 2,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tools/workshop-client-lifecycle.test.mjs:9:30
+✖ delayed managed publication has no callback until explicit activation (0.372459ms)
+  AssertionError [ERR_ASSERTION]: both runtime loads start concurrently
+  
+  1 !== 2
+  
+      at clientHarness (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/workshop-client-lifecycle.test.mjs:83:12)
+      at async TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/workshop-client-lifecycle.test.mjs:138:15)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 2,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tools/workshop-client-lifecycle.test.mjs:9:30
+✖ default and missing IDs reject without scheduling or changing the ready owner (0.356ms)
+  AssertionError [ERR_ASSERTION]: both runtime loads start concurrently
+  
+  1 !== 2
+  
+      at clientHarness (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/workshop-client-lifecycle.test.mjs:83:12)
+      at async TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/workshop-client-lifecycle.test.mjs:148:15)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 2,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tools/workshop-client-lifecycle.test.mjs:9:30
+✖ pre-ready activation rejects atomically and subsequent legitimate activation succeeds (0.320292ms)
+  AssertionError [ERR_ASSERTION]: both runtime loads start concurrently
+  
+  1 !== 2
+  
+      at clientHarness (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/workshop-client-lifecycle.test.mjs:83:12)
+      at async TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/workshop-client-lifecycle.test.mjs:156:15)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 2,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tools/workshop-client-lifecycle.test.mjs:9:30
+✖ duplicate activation preserves the one original timer and owner state (0.319917ms)
+  AssertionError [ERR_ASSERTION]: both runtime loads start concurrently
+  
+  1 !== 2
+  
+      at clientHarness (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/workshop-client-lifecycle.test.mjs:83:12)
+      at async TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/workshop-client-lifecycle.test.mjs:164:15)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 2,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tools/workshop-client-lifecycle.test.mjs:9:30
+✖ startup timeout before worker readiness rejects creation and activation (0.304042ms)
+  AssertionError [ERR_ASSERTION]: both runtime loads start concurrently
+  
+  1 !== 2
+  
+      at clientHarness (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/workshop-client-lifecycle.test.mjs:83:12)
+      at async TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/workshop-client-lifecycle.test.mjs:174:15)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 2,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tools/workshop-client-lifecycle.test.mjs:9:30
+✖ startup timeout after JS return remains anchored to both runtime readiness (0.351125ms)
+  AssertionError [ERR_ASSERTION]: both runtime loads start concurrently
+  
+  1 !== 2
+  
+      at clientHarness (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/workshop-client-lifecycle.test.mjs:83:12)
+      at async TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/workshop-client-lifecycle.test.mjs:183:15)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 2,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tools/workshop-client-lifecycle.test.mjs:9:30
+✖ worker failure rejects activation without invoking managed service (0.374792ms)
+  AssertionError [ERR_ASSERTION]: both runtime loads start concurrently
+  
+  1 !== 2
+  
+      at clientHarness (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/workshop-client-lifecycle.test.mjs:83:12)
+      at async TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/workshop-client-lifecycle.test.mjs:192:15)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 2,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tools/workshop-client-lifecycle.test.mjs:9:30
+✖ disposal before managed publication prevents later activation (0.332958ms)
+  AssertionError [ERR_ASSERTION]: both runtime loads start concurrently
+  
+  1 !== 2
+  
+      at clientHarness (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/workshop-client-lifecycle.test.mjs:83:12)
+      at async TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/workshop-client-lifecycle.test.mjs:200:15)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 2,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tools/workshop-client-lifecycle.test.mjs:9:30
+✖ disposal after activation makes a captured late callback inert (0.2965ms)
+  AssertionError [ERR_ASSERTION]: both runtime loads start concurrently
+  
+  1 !== 2
+  
+      at clientHarness (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/workshop-client-lifecycle.test.mjs:83:12)
+      at async TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/workshop-client-lifecycle.test.mjs:208:15)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 2,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tools/workshop-client-lifecycle.test.mjs:9:30
+✖ failure after activation makes a captured late callback inert (0.282416ms)
+  AssertionError [ERR_ASSERTION]: both runtime loads start concurrently
+  
+  1 !== 2
+  
+      at clientHarness (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/workshop-client-lifecycle.test.mjs:83:12)
+      at async TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/workshop-client-lifecycle.test.mjs:218:15)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 2,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tools/workshop-client-lifecycle.test.mjs:9:30
+✖ a failed client detaches its clock ring (0.283709ms)
+  AssertionError [ERR_ASSERTION]: both runtime loads start concurrently
+  
+  1 !== 2
+  
+      at clientHarness (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/workshop-client-lifecycle.test.mjs:83:12)
+      at async TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/workshop-client-lifecycle.test.mjs:235:15)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 2,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tools/workshop-client-lifecycle.test.mjs:9:30
+✖ a clock reply landing after the client failed is never delivered (0.288625ms)
+  AssertionError [ERR_ASSERTION]: both runtime loads start concurrently
+  
+  1 !== 2
+  
+      at clientHarness (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/workshop-client-lifecycle.test.mjs:83:12)
+      at async TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/workshop-client-lifecycle.test.mjs:246:15)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 2,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tools/workshop-client-lifecycle.test.mjs:9:30
+✖ a clock reply landing after disposal is never delivered (0.271875ms)
+  AssertionError [ERR_ASSERTION]: both runtime loads start concurrently
+  
+  1 !== 2
+  
+      at clientHarness (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/workshop-client-lifecycle.test.mjs:83:12)
+      at async TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/workshop-client-lifecycle.test.mjs:258:15)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 2,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tools/workshop-client-lifecycle.test.mjs:9:30
+✖ a clock reply missing beyond 1000ms never faults the session and the service keeps probing (0.606583ms)
+  AssertionError [ERR_ASSERTION]: both runtime loads start concurrently
+  
+  1 !== 2
+  
+      at clientHarness (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/workshop-client-lifecycle.test.mjs:83:12)
+      at async TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/workshop-client-lifecycle.test.mjs:270:15)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 2,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tools/workshop-client-lifecycle.test.mjs:9:30
+✖ a Simulation heartbeat silent for 1000ms of running service faults the session as SimulationUnresponsive (0.423ms)
+  AssertionError [ERR_ASSERTION]: both runtime loads start concurrently
+  
+  1 !== 2
+  
+      at clientHarness (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/workshop-client-lifecycle.test.mjs:83:12)
+      at async TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/workshop-client-lifecycle.test.mjs:289:15)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 2,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tools/workshop-client-lifecycle.test.mjs:9:30
+✖ a Browser that was itself blocked never mistakes the Simulation for hung (0.346208ms)
+  AssertionError [ERR_ASSERTION]: both runtime loads start concurrently
+  
+  1 !== 2
+  
+      at clientHarness (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/workshop-client-lifecycle.test.mjs:83:12)
+      at async TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/workshop-client-lifecycle.test.mjs:305:15)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 2,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tools/workshop-client-lifecycle.test.mjs:9:30
+✖ both runtimes must be ready before the one qualification deadline (0,1) (0.335667ms)
+  AssertionError [ERR_ASSERTION]: both runtime loads start concurrently
+  
+  1 !== 2
+  
+      at clientHarness (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/workshop-client-lifecycle.test.mjs:83:12)
+      at async TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/workshop-client-lifecycle.test.mjs:318:19)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 2,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tools/workshop-client-lifecycle.test.mjs:9:30
+✖ both runtimes must be ready before the one qualification deadline (1,0) (0.287291ms)
+  AssertionError [ERR_ASSERTION]: both runtime loads start concurrently
+  
+  1 !== 2
+  
+      at clientHarness (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/workshop-client-lifecycle.test.mjs:83:12)
+      at async TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/workshop-client-lifecycle.test.mjs:318:19)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 2,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tools/workshop-client-lifecycle.test.mjs:9:30
+✖ duplicate runtime readiness rejects worker 0 (0.298959ms)
+  AssertionError [ERR_ASSERTION]: both runtime loads start concurrently
+  
+  1 !== 2
+  
+      at clientHarness (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/workshop-client-lifecycle.test.mjs:83:12)
+      at async TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/workshop-client-lifecycle.test.mjs:335:19)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 2,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tools/workshop-client-lifecycle.test.mjs:9:30
+✖ early ready rejects worker 0 (0.295542ms)
+  AssertionError [ERR_ASSERTION]: both runtime loads start concurrently
+  
+  1 !== 2
+  
+      at clientHarness (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/workshop-client-lifecycle.test.mjs:83:12)
+      at async TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/workshop-client-lifecycle.test.mjs:342:19)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 2,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tools/workshop-client-lifecycle.test.mjs:9:30
+✖ duplicate runtime readiness rejects worker 1 (0.283458ms)
+  AssertionError [ERR_ASSERTION]: both runtime loads start concurrently
+  
+  1 !== 2
+  
+      at clientHarness (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/workshop-client-lifecycle.test.mjs:83:12)
+      at async TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/workshop-client-lifecycle.test.mjs:335:19)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 2,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tools/workshop-client-lifecycle.test.mjs:9:30
+✖ early ready rejects worker 1 (0.263833ms)
+  AssertionError [ERR_ASSERTION]: both runtime loads start concurrently
+  
+  1 !== 2
+  
+      at clientHarness (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/workshop-client-lifecycle.test.mjs:83:12)
+      at async TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/workshop-client-lifecycle.test.mjs:342:19)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 2,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tools/workshop-client-lifecycle.test.mjs:9:30
+✖ early Animation qualification rejects before bootstrap (0.265ms)
+  AssertionError [ERR_ASSERTION]: both runtime loads start concurrently
+  
+  1 !== 2
+  
+      at clientHarness (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/workshop-client-lifecycle.test.mjs:83:12)
+      at async TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/workshop-client-lifecycle.test.mjs:349:15)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 2,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tools/workshop-client-lifecycle.test.mjs:9:30
+✖ duplicate authoritative Animation peer rejects without a second transfer (0.267458ms)
+  AssertionError [ERR_ASSERTION]: both runtime loads start concurrently
+  
+  1 !== 2
+  
+      at clientHarness (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/workshop-client-lifecycle.test.mjs:83:12)
+      at async TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/workshop-client-lifecycle.test.mjs:355:15)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 2,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tools/workshop-client-lifecycle.test.mjs:9:30
+✖ disposal during asset loading prevents late readiness from rearming (0.2715ms)
+  AssertionError [ERR_ASSERTION]: both runtime loads start concurrently
+  
+  1 !== 2
+  
+      at clientHarness (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/workshop-client-lifecycle.test.mjs:83:12)
+      at async TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/workshop-client-lifecycle.test.mjs:363:15)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 2,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tools/workshop-client-lifecycle.test.mjs:9:30
+✖ Animation constructor failure closes the already owned Simulation worker (10002.233167ms)
+  'test timed out after 10000ms'
+
+test at tools/workshop-client-lifecycle.test.mjs:9:30
+✖ premature Animation output fails without delivering to the managed consumer (0.640291ms)
+  AssertionError [ERR_ASSERTION]: both runtime loads start concurrently
+  
+  1 !== 2
+  
+      at clientHarness (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/workshop-client-lifecycle.test.mjs:83:12)
+      at async TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/workshop-client-lifecycle.test.mjs:378:15)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 2,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tools/workshop-client-lifecycle.test.mjs:9:30
+✖ delayed valid ACK keeps Backpressure until managed validation completes, and posts no stall flag (0.375292ms)
+  AssertionError [ERR_ASSERTION]: both runtime loads start concurrently
+  
+  1 !== 2
+  
+      at clientHarness (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/workshop-client-lifecycle.test.mjs:83:12)
+      at async TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/workshop-client-lifecycle.test.mjs:395:15)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 2,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tools/workshop-client-lifecycle.test.mjs:9:30
+✖ a command older than two seconds is TimedOut for the player, still without a stall flag (0.330708ms)
+  AssertionError [ERR_ASSERTION]: both runtime loads start concurrently
+  
+  1 !== 2
+  
+      at clientHarness (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/workshop-client-lifecycle.test.mjs:83:12)
+      at async TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/workshop-client-lifecycle.test.mjs:412:15)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 2,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tools/workshop-client-lifecycle.test.mjs:9:30
+✖ completing an older ACK cannot clear another aged request or exceed two leases (0.350833ms)
+  AssertionError [ERR_ASSERTION]: both runtime loads start concurrently
+  
+  1 !== 2
+  
+      at clientHarness (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/workshop-client-lifecycle.test.mjs:83:12)
+      at async TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/workshop-client-lifecycle.test.mjs:420:15)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 2,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tools/workshop-client-lifecycle.test.mjs:9:30
+✖ taken but invalid ACK cannot release capacity or report healthy without completion (0.498833ms)
+  AssertionError [ERR_ASSERTION]: both runtime loads start concurrently
+  
+  1 !== 2
+  
+      at clientHarness (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/workshop-client-lifecycle.test.mjs:83:12)
+      at async TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/workshop-client-lifecycle.test.mjs:436:15)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 2,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tools/workshop-client-lifecycle.test.mjs:9:30
+✖ unmatched or duplicate ACK faults the session (false) (0.411542ms)
+  AssertionError [ERR_ASSERTION]: both runtime loads start concurrently
+  
+  1 !== 2
+  
+      at clientHarness (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/workshop-client-lifecycle.test.mjs:83:12)
+      at async TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/workshop-client-lifecycle.test.mjs:455:15)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 2,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tools/workshop-client-lifecycle.test.mjs:9:30
+✖ unmatched or duplicate ACK faults the session (true) (0.305958ms)
+  AssertionError [ERR_ASSERTION]: both runtime loads start concurrently
+  
+  1 !== 2
+  
+      at clientHarness (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/workshop-client-lifecycle.test.mjs:83:12)
+      at async TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/workshop-client-lifecycle.test.mjs:455:15)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 2,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tools/workshop-client-lifecycle.test.mjs:9:30
+✖ the deleted worker channel memoryResult is an unknown envelope that faults the session (0.31475ms)
+  AssertionError [ERR_ASSERTION]: both runtime loads start concurrently
+  
+  1 !== 2
+  
+      at clientHarness (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/workshop-client-lifecycle.test.mjs:83:12)
+      at async TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/workshop-client-lifecycle.test.mjs:467:19)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 2,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tools/workshop-client-lifecycle.test.mjs:9:30
+✖ the deleted worker channel candidateTimedOut is an unknown envelope that faults the session (0.415416ms)
+  AssertionError [ERR_ASSERTION]: both runtime loads start concurrently
+  
+  1 !== 2
+  
+      at clientHarness (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/workshop-client-lifecycle.test.mjs:83:12)
+      at async TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/workshop-client-lifecycle.test.mjs:467:19)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 2,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tools/workshop-client-lifecycle.test.mjs:9:30
+✖ two animation owners send sequential controls only after managed ACK delivery returns (0.416417ms)
+  AssertionError [ERR_ASSERTION]: both runtime loads start concurrently
+  
+  1 !== 2
+  
+      at clientHarness (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/workshop-client-lifecycle.test.mjs:83:12)
+      at async TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/tools/workshop-client-lifecycle.test.mjs:476:15)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 2,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

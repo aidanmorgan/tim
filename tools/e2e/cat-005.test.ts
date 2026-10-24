@@ -5,7 +5,7 @@ import { createRequire } from 'node:module';
 const requireMcp=createRequire('/opt/homebrew/lib/node_modules/@playwright/mcp/package.json');
 const {PNG}=requireMcp('./node_modules/playwright-core/lib/utilsBundle.js');
 import { WorkshopDriver } from './workshop-driver.ts';
-import { decodeWorkshopResponse, encodeWorkshopResponse, decodeSavedConstruction, authoredState, WorkEffect, encodeWorkshopCommand, CommandKind, parameter } from './workshop-wire.ts';
+import { decodeWorkshopResponse, encodeWorkshopResponse, decodeSavedConstruction, authoredState, contactHits, encodeWorkshopCommand, CommandKind, parameter } from './workshop-wire.ts';
 const ElectricalEnable={Disabled:0,Enabled:1} as const;
 type ElectricalEnable=typeof ElectricalEnable[keyof typeof ElectricalEnable];
 const WorkshopCommand={ConfigureCadence:6} as const;
@@ -70,7 +70,7 @@ function accounting(reads:Buffer[], stores:number) {
 }
 function assertTransfers(reads:Buffer[], stores:number, depleted=false) {
     const transfer=accounting(reads,stores);reads=transfer.unique;
-    const seen=new Set<string>(), paid=Array.from({length:stores},()=>[] as {tick:bigint,debit:number}[]);
+    const paid=Array.from({length:stores},()=>[] as {tick:bigint,debit:number}[]);
     const credits=Array(stores).fill(0); let finalTick:bigint|undefined;
     for(const read of reads) {
         const res = decodeWorkshopResponse(read);
@@ -85,20 +85,12 @@ function assertTransfers(reads:Buffer[], stores:number, depleted=false) {
             assert.ok(store && store.suppliedEnergy() > 0, 'Final positive debit must deliver a positive store credit');
             finalTick=tick;
         }
-        const occCount = res.occurrencesLength();
-        for(let i=0;i<occCount;i++) {
-            const occ = res.occurrences(i)!;
-            const slot = occ.work();
-            const sequence = occ.sequence();
-            const key = res.epoch() + ':' + slot + ':' + sequence;
-            if(!sequence || seen.has(key))continue; seen.add(key);
-            if(occ.effect() === WorkEffect.Paid) {
-                const debit = occ.debit();
-                assert.ok(debit>0);
-                paid[slot].push({tick,debit});
-            }
-        }
     }
+    // Story 9A.23 D9: each paid hit from the owners' stores (the occurrence rows are device-private; the ring carries each Impact).
+    const responses = reads.map(read => decodeWorkshopResponse(read));
+    for(let slot=0;slot<stores;slot++)
+        for(const hit of contactHits(responses, 32, slot))
+            if(hit.debit>0) paid[slot].push({tick:hit.response.tick(),debit:hit.debit});
     for(let slot=0;slot<stores;slot++) {
         assert.ok(credits[slot]>0,'Every connected store must receive positive credit');
         assert.ok(paid[slot].length>=3,'Recharge must fund additional paid impacts, not passive contacts');

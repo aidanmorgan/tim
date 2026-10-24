@@ -1,0 +1,2 @@
+worktree rc=0
+index rc=0

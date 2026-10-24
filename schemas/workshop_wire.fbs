@@ -49,11 +49,6 @@ enum ElectricalEnable : uint8 {
     Enabled = 1
 }
 
-enum WorkEffect : uint8 {
-    Passive = 0,
-    Paid = 1
-}
-
 struct Vec3f {
     x: float;
     y: float;
@@ -105,19 +100,6 @@ struct ContactWorkStoreRecord {
     occurrence_count: uint32;
     remaining_energy: float;
     supplied_energy: float;
-}
-
-// Story 9R.5b: u32 work and collider slots (no work or collider table bound); the record stays 40 bytes.
-struct ContactWorkOccurrenceRecord {
-    work: uint32;
-    collider: uint32;
-    target: uint64;
-    sequence: uint32;
-    event_ordinal: uint32;
-    event_phase: float;
-    approach_speed: float;
-    debit: float;
-    effect: uint8;
 }
 
 struct ActivationRecord {
@@ -307,8 +289,8 @@ table WorkshopResponse {
     captures: [CaptureLatchRead];
     activations: [ActivationRecord];
     timers: [TimerRecord];
+    // Story 9A.23 D9: the owners' stores only; each hit reaches consumers as its event ring Impact record.
     contact_works: [ContactWorkStoreRecord];
-    occurrences: [ContactWorkOccurrenceRecord];
     electrical: [ElectricalSourceRecord];
     activation_memory: [ActivationMemoryRecord];
     // The committed render trajectory: the physics ABI's PhysicsMotionRead record, validated against this read's bodies and tick.

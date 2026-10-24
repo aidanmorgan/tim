@@ -169,6 +169,21 @@ public static partial class Program
         }
     }
 
+    /// <summary>Story 9A.23 D5: the epoch whose event ring this worker reads, the installed world's (0 while none is installed or an
+    /// installation is being prepared). The shared reader holds a newer ring unread and ignores an older one.</summary>
+    [JSExport]
+    public static double EventEpoch() =>
+        _schedule is { } schedule && _prepared is null && _declared is not null ? schedule.World.WorldGeneration.Value : 0;
+
+    /// <summary>Story 9A.23 D1: the records the shared reader copied at the start of this Service turn, for the declared one-shot cues.</summary>
+    [JSExport]
+    public static void EventRecords(byte[] delivery)
+    {
+        if (_schedule is not { } schedule || _prepared is not null || _declared is null)
+            throw new InvalidOperationException("Event records arrived without an installed world.");
+        _declared.AcceptEvents(Abstractions.EventRingDelivery.Read(delivery), schedule.World);
+    }
+
     [JSExport]
     public static void CommittedRead(byte[] bytes)
     {
@@ -275,37 +290,7 @@ public static partial class Program
             Deferred.Hold(bytes, AnimationDeferralCause.Recalibrating);
             return;
         }
-        if (control.Kind == AnimationControlKind.Impulse)
-        {
-            // One impulse slot per target; every committed occurrence is enqueued and overlap is combined here.
-            AnimationHandle handle;
-            if (previous.Handle is { } existing)
-            {
-                if (previous.Control.Kind != AnimationControlKind.Impulse || previous.Control.ImpulseCurve != control.ImpulseCurve ||
-                    previous.Control.Overlap != control.Overlap || previous.Control.Duration != control.Duration)
-                    throw new ArgumentException("Impulse target changed its declared envelope.");
-                handle = existing;
-            }
-            else
-            {
-                var envelope = new AnimationImpulseDefinition(new(control.Duration), control.ImpulseCurve, control.Overlap,
-                    AnimationImpulseVisibility.AdvanceWhileHidden, AnimationClock.Presentation, WorkshopAnimationWire.ImpulseCapacity,
-                    AnimationImpulseTiming.EventTime, AnimationImpulseDefinition.CanonicalPeak(control.ImpulseCurve));
-                handle = Tracks.RegisterImpulses(new(control.Target, control.Property), envelope,
-                    WorkshopAnimationWire.Value(control.Property, control.From), WorkshopAnimationWire.Value(control.Property, control.To));
-            }
-            // A retransmitted occurrence is already admitted; only a newer occurrence sequence enqueues.
-            if (previous.Handle is null || control.Generation > previous.Control.Generation)
-            {
-                var admission = Tracks.EnqueueImpulse(handle, new(control.Generation), new((float)1),
-                    (double)now.Lower / WorkshopPulse.NanosecondsPerSecond);
-                if (admission == AnimationImpulseAdmission.CapacityExhausted)
-                    Console.Error.WriteLine("Impulse occurrence dropped: animation target capacity exhausted.");
-            }
-            Tracks.SetVisible(handle, control.Visible);
-            Instances[slot] = new() { Handle = handle, Control = control };
-        }
-        else if (control.Kind != AnimationControlKind.Visibility)
+        if (control.Kind != AnimationControlKind.Visibility)
         {
             float from, to;
             bool start;
@@ -328,17 +313,11 @@ public static partial class Program
                     start = false;
                 }
             }
-            else if (control.Kind == AnimationControlKind.Endpoint && control.Property == AnimationProperty.ColourBlend)
-            {
-                from = (float)0;
-                to = (float)1;
-                start = true;
-            }
             else
             {
                 from = control.From;
                 to = control.To;
-                start = control.Kind is AnimationControlKind.Reveal or AnimationControlKind.Transition;
+                start = control.Kind == AnimationControlKind.Reveal;
             }
             var duration = control.Kind == AnimationControlKind.TimerObservation && control.Timer.Phase == AnimationTimerPhase.Counting
                 ? (float)Math.Max(0.01, (control.Timer.Due - control.Timer.Observed) * (double)schedule.Settings.SimulationRate.Denominator / schedule.Settings.SimulationRate.Numerator)
@@ -385,8 +364,6 @@ public static partial class Program
         BinaryPrimitives.WriteUInt32LittleEndian(Output.AsSpan(80), control.EventOrdinal);
         BinaryPrimitives.WriteSingleLittleEndian(Output.AsSpan(84), control.EventPhase);
         WorkshopAnimationWire.WriteTimer(Output, control.Timer);
-        if (control.Kind == AnimationControlKind.Impulse)
-            BinaryPrimitives.WriteSingleLittleEndian(Output.AsSpan(132), control.Duration);
         SendOutput(Output);
     }
 }

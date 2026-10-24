@@ -1,0 +1,594 @@
+_bmad-output/implementation-artifacts/evidence-9a-23-25b-review/build-no-incremental.log:54: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b-review/cursor-run-16.log:23: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b-review/cursor-run-16.log:25: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b-review/cursor-stress-repeats.txt:1: trailing whitespace.
++ℹ pass 6 ℹ fail 0 ℹ duration_ms 1224.305292 
+_bmad-output/implementation-artifacts/evidence-9a-23-25b-review/cursor-stress-repeats.txt:2: trailing whitespace.
++ℹ pass 5 ℹ fail 1 ℹ duration_ms 499.914625 
+_bmad-output/implementation-artifacts/evidence-9a-23-25b-review/cursor-stress-repeats.txt:3: trailing whitespace.
++ℹ pass 6 ℹ fail 0 ℹ duration_ms 1221.648584 
+_bmad-output/implementation-artifacts/evidence-9a-23-25b-review/mutations/rv-oldest-cue-build.log:45: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b-review/mutations/rv-pulse-defer-hidden-build.log:45: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b-review/round2/build.log:54: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b-review/round2/build.log:168: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b-review/round2/impact-0cba945b-build.log:83: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b-review/round3/build.log:56: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b-review/round3/mutations/G1-reader-plain-in-wrapper.diff:12: trailing whitespace.
++ 
+_bmad-output/implementation-artifacts/evidence-9a-23-25b-review/round3/mutations/G3-client-view-via-cursor-ring.diff:12: trailing whitespace.
++ 
+_bmad-output/implementation-artifacts/evidence-9a-23-25b-review/round3/mutations/G3-client-view-via-cursor-ring.diff:12: new blank line at EOF.
+_bmad-output/implementation-artifacts/evidence-9a-23-25b-review/round3/mutations/P1-target-speed-99pc-build.log:45: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b-review/round3/mutations/P1-target-speed-99pc.diff:8: trailing whitespace.
++ 
+_bmad-output/implementation-artifacts/evidence-9a-23-25b-review/round3/mutations/P3-unpaid-impacts-unpublished-build.log:45: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b-review/round4/build.log:54: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b-review/round4/mutations/G1-reader-plain-in-wrapper.diff:12: trailing whitespace.
++ 
+_bmad-output/implementation-artifacts/evidence-9a-23-25b-review/round4/mutations/G2-writer-plain-view-node.log:33: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b-review/round4/mutations/G2-writer-plain-view-node.log:35: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b-review/round4/mutations/G2-writer-plain-view-node.log:51: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b-review/round4/mutations/G2-writer-plain-view-node.log:53: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b-review/round4/mutations/G2-writer-plain-view-node.log:69: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b-review/round4/mutations/G2-writer-plain-view-node.log:71: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b-review/round4/mutations/G2-writer-plain-view-node.log:91: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b-review/round4/mutations/G2-writer-plain-view-node.log:93: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b-review/round4/mutations/G2-writer-plain-view-node.log:114: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b-review/round4/mutations/G2-writer-plain-view-node.log:135: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b-review/round4/mutations/G2-writer-plain-view-node.log:155: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b-review/round4/mutations/G2-writer-plain-view-node.log:161: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b-review/round4/mutations/G2-writer-plain-view-node.log:181: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b-review/round4/mutations/G2-writer-plain-view-node.log:194: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b-review/round4/mutations/G3-client-view-via-cursor-ring.diff:12: trailing whitespace.
++ 
+_bmad-output/implementation-artifacts/evidence-9a-23-25b-review/round4/mutations/G3-client-view-via-cursor-ring.diff:12: new blank line at EOF.
+_bmad-output/implementation-artifacts/evidence-9a-23-25b-review/round4/mutations/G4-writer-plain-via-destructured-buffer-node.log:33: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b-review/round4/mutations/G4-writer-plain-via-destructured-buffer-node.log:35: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b-review/round4/mutations/G4-writer-plain-via-destructured-buffer-node.log:51: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b-review/round4/mutations/G4-writer-plain-via-destructured-buffer-node.log:53: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b-review/round4/mutations/G4-writer-plain-via-destructured-buffer-node.log:69: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b-review/round4/mutations/G4-writer-plain-via-destructured-buffer-node.log:71: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b-review/round4/mutations/G4-writer-plain-via-destructured-buffer-node.log:91: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b-review/round4/mutations/G4-writer-plain-via-destructured-buffer-node.log:93: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b-review/round4/mutations/G4-writer-plain-via-destructured-buffer-node.log:114: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b-review/round4/mutations/G4-writer-plain-via-destructured-buffer-node.log:135: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b-review/round4/mutations/G4-writer-plain-via-destructured-buffer-node.log:155: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b-review/round4/mutations/G4-writer-plain-via-destructured-buffer-node.log:161: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b-review/round4/mutations/G4-writer-plain-via-destructured-buffer-node.log:181: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b-review/round4/mutations/G4-writer-plain-via-destructured-buffer-node.log:194: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b-review/round4/mutations/G6-helper-module-outside-scanned-set.diff:10: trailing whitespace.
++ 
+_bmad-output/implementation-artifacts/evidence-9a-23-25b-review/round4/remerge-diff-56f7c034.txt:11: trailing whitespace.
++ 
+_bmad-output/implementation-artifacts/evidence-9a-23-25b-review/round5/build.log:57: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b-review/round5/build.log:138: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b-review/round5/mutations/G6-helper-module-outside-importer-set.diff:10: trailing whitespace.
++ 
+_bmad-output/implementation-artifacts/evidence-9a-23-25b-review/round5/remerge-diff-f2aff60b.txt:61: trailing whitespace.
+++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b-review/round5/remerge-diff-f797eea6.txt:9: trailing whitespace.
++ 
+_bmad-output/implementation-artifacts/evidence-9a-23-25b-review/round5/remerge-diff-f797eea6.txt:11: trailing whitespace.
++ 
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/baseline/build.log:107: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/candidate/e2e-unit.log:1: trailing whitespace.
++tools/e2e/unit/run-reset-snapshot.test.ts ℹ pass 24 ℹ fail 0 
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/encapsulation-r3/build.log:54: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/encapsulation-r3/mutations/G4-node.log:29: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/encapsulation-r3/mutations/G4-node.log:31: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/encapsulation-r3/mutations/G4-node.log:47: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/encapsulation-r3/mutations/G4-node.log:49: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/encapsulation-r3/mutations/G4-node.log:65: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/encapsulation-r3/mutations/G4-node.log:67: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/encapsulation-r3/mutations/G4-node.log:87: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/encapsulation-r3/mutations/G4-node.log:89: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/encapsulation-r3/mutations/G4-node.log:110: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/encapsulation-r3/mutations/G4-node.log:131: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/encapsulation-r3/mutations/G4-node.log:151: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/encapsulation-r3/mutations/G4-node.log:157: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/encapsulation-r3/mutations/G4-node.log:177: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/encapsulation-r3/mutations/G4-node.log:190: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/encapsulation-r3/mutations/api-public-buffer-getter.log:17: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/encapsulation-r3/mutations/api-public-buffer-getter.log:23: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/encapsulation-r4/build.log:54: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/encapsulation/build.log:54: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/final-merged/build.log:54: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/final-merged/build.log:137: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/lifecycle-hang/mutant-never-settling-creation.log:54: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/lifecycle-hang/mutant-never-settling-creation.log:56: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/lifecycle-hang/mutant-never-settling-creation.log:72: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/lifecycle-hang/mutant-never-settling-creation.log:74: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/lifecycle-hang/mutant-never-settling-creation.log:90: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/lifecycle-hang/mutant-never-settling-creation.log:92: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/lifecycle-hang/mutant-never-settling-creation.log:108: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/lifecycle-hang/mutant-never-settling-creation.log:110: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/lifecycle-hang/mutant-never-settling-creation.log:126: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/lifecycle-hang/mutant-never-settling-creation.log:128: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/lifecycle-hang/mutant-never-settling-creation.log:144: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/lifecycle-hang/mutant-never-settling-creation.log:146: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/lifecycle-hang/mutant-never-settling-creation.log:162: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/lifecycle-hang/mutant-never-settling-creation.log:164: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/lifecycle-hang/mutant-never-settling-creation.log:180: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/lifecycle-hang/mutant-never-settling-creation.log:182: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/lifecycle-hang/mutant-never-settling-creation.log:198: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/lifecycle-hang/mutant-never-settling-creation.log:200: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/lifecycle-hang/mutant-never-settling-creation.log:216: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/lifecycle-hang/mutant-never-settling-creation.log:218: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/lifecycle-hang/mutant-never-settling-creation.log:234: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/lifecycle-hang/mutant-never-settling-creation.log:236: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/lifecycle-hang/mutant-never-settling-creation.log:252: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/lifecycle-hang/mutant-never-settling-creation.log:254: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/lifecycle-hang/mutant-never-settling-creation.log:270: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/lifecycle-hang/mutant-never-settling-creation.log:272: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/lifecycle-hang/mutant-never-settling-creation.log:288: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/lifecycle-hang/mutant-never-settling-creation.log:290: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/lifecycle-hang/mutant-never-settling-creation.log:306: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/lifecycle-hang/mutant-never-settling-creation.log:308: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/lifecycle-hang/mutant-never-settling-creation.log:324: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/lifecycle-hang/mutant-never-settling-creation.log:326: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/lifecycle-hang/mutant-never-settling-creation.log:342: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/lifecycle-hang/mutant-never-settling-creation.log:344: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/lifecycle-hang/mutant-never-settling-creation.log:360: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/lifecycle-hang/mutant-never-settling-creation.log:362: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/lifecycle-hang/mutant-never-settling-creation.log:378: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/lifecycle-hang/mutant-never-settling-creation.log:380: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/lifecycle-hang/mutant-never-settling-creation.log:396: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/lifecycle-hang/mutant-never-settling-creation.log:398: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/lifecycle-hang/mutant-never-settling-creation.log:414: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/lifecycle-hang/mutant-never-settling-creation.log:416: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/lifecycle-hang/mutant-never-settling-creation.log:432: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/lifecycle-hang/mutant-never-settling-creation.log:434: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/lifecycle-hang/mutant-never-settling-creation.log:450: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/lifecycle-hang/mutant-never-settling-creation.log:452: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/lifecycle-hang/mutant-never-settling-creation.log:468: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/lifecycle-hang/mutant-never-settling-creation.log:470: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/lifecycle-hang/mutant-never-settling-creation.log:486: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/lifecycle-hang/mutant-never-settling-creation.log:488: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/lifecycle-hang/mutant-never-settling-creation.log:504: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/lifecycle-hang/mutant-never-settling-creation.log:506: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/lifecycle-hang/mutant-never-settling-creation.log:522: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/lifecycle-hang/mutant-never-settling-creation.log:524: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/lifecycle-hang/mutant-never-settling-creation.log:540: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/lifecycle-hang/mutant-never-settling-creation.log:542: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/lifecycle-hang/mutant-never-settling-creation.log:562: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/lifecycle-hang/mutant-never-settling-creation.log:564: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/lifecycle-hang/mutant-never-settling-creation.log:580: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/lifecycle-hang/mutant-never-settling-creation.log:582: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/lifecycle-hang/mutant-never-settling-creation.log:598: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/lifecycle-hang/mutant-never-settling-creation.log:600: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/lifecycle-hang/mutant-never-settling-creation.log:616: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/lifecycle-hang/mutant-never-settling-creation.log:618: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/lifecycle-hang/mutant-never-settling-creation.log:634: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/lifecycle-hang/mutant-never-settling-creation.log:636: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/lifecycle-hang/mutant-never-settling-creation.log:652: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/lifecycle-hang/mutant-never-settling-creation.log:654: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/lifecycle-hang/mutant-never-settling-creation.log:670: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/lifecycle-hang/mutant-never-settling-creation.log:672: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/lifecycle-hang/mutant-never-settling-creation.log:688: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/lifecycle-hang/mutant-never-settling-creation.log:690: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/lifecycle-hang/mutant-never-settling-creation.log:706: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/lifecycle-hang/mutant-never-settling-creation.log:708: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/lifecycle-hang/mutant-never-settling-creation.log:724: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/lifecycle-hang/mutant-never-settling-creation.log:726: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/main-green-merge/build.log:53: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/mutations/cs-cue-time-tick-boundary-build.log:45: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/mutations/cs-detector-passage-to-trigger.log:56: trailing whitespace.
++BundleElements : error BUNDLE006: BallDetector.Presentation.Event: outside its declared range 
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/mutations/cs-duplicate-cue-build.log:45: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/mutations/cs-epoch-check-dropped-build.log:45: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/mutations/cs-goal-wake-node-owners-only-build.log:45: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/mutations/cs-goal-wake-not-held-build.log:45: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/mutations/cs-goal-wake-owner-filter-dropped-build.log:45: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/mutations/cs-impact-one-tick-late-build.log:45: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/mutations/cs-impact-paid-1pc-high-build.log:45: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/mutations/cs-lap-not-counted-build.log:45: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/mutations/cs-late-cue-starts-when-observed-build.log:45: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/mutations/cs-ledger-accounting-dropped-build.log:45: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/mutations/cs-owner-filter-dropped-build.log:45: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/mutations/cs-record-applied-twice-build.log:45: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/mutations/cs-unpaid-gate-dropped-build.log:45: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/mutations/js-after-fence-removed.log:21: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/mutations/js-after-fence-removed.log:23: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/mutations/js-epoch-cursor-not-reset.log:21: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/mutations/js-epoch-cursor-not-reset.log:23: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/mutations/js-epoch-cursor-not-reset.log:39: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/mutations/js-epoch-cursor-not-reset.log:41: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/mutations/js-fence-removed.log:21: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/mutations/js-fence-removed.log:23: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/mutations/js-fence-removed.log:40: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/mutations/js-fence-removed.log:46: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/mutations/js-held-epoch-consumed.log:21: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/mutations/js-held-epoch-consumed.log:23: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/mutations/js-lap-not-counted.log:32: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/mutations/js-lap-not-counted.log:34: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/mutations/js-older-ring-read-worker.log:27: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/mutations/js-older-ring-read-worker.log:33: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/mutations/js-older-ring-read.log:24: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/mutations/js-older-ring-read.log:34: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/mutations/js-post-fix-second-fence-removed-1.log:23: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/mutations/js-post-fix-second-fence-removed-1.log:25: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/mutations/js-post-fix-second-fence-removed-1.log:41: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/mutations/js-post-fix-second-fence-removed-1.log:43: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/mutations/js-post-fix-second-fence-removed-2.log:23: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/mutations/js-post-fix-second-fence-removed-2.log:25: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/mutations/js-post-fix-second-fence-removed-2.log:41: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/mutations/js-post-fix-second-fence-removed-2.log:43: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/mutations/js-post-fix-second-fence-removed-3.log:23: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/mutations/js-post-fix-second-fence-removed-3.log:25: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/mutations/js-post-fix-second-fence-removed-3.log:41: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/mutations/js-post-fix-second-fence-removed-3.log:43: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/mutations/js-record-twice.log:34: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/mutations/js-record-twice.log:66: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/mutations/js-record-twice.log:98: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/mutations/js-record-twice.log:106: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/mutations/js-record-twice.log:127: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/mutations/js-record-twice.log:133: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/mutations/js-record-twice.log:154: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/mutations/js-record-twice.log:160: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/post-merge/build-after-repin.log:54: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/stress-40/before-fix-48rounds-run-8.log:16: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/stress-40/before-fix-48rounds-run-8.log:18: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/stress-40/before-fix-run-13.log:16: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/stress-40/before-fix-run-13.log:18: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/stress-40/before-fix-run-17.log:16: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/stress-40/before-fix-run-17.log:18: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/stress-40/before-fix-run-31.log:16: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/stress-40/before-fix-run-31.log:18: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/stress-40/before-fix-run-4.log:16: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/stress-40/before-fix-run-4.log:18: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/stress-40/file-after-fix-40.txt:1: trailing whitespace.
++file run 1: ℹ pass 8 ℹ fail 0 
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/stress-40/file-after-fix-40.txt:2: trailing whitespace.
++file run 2: ℹ pass 8 ℹ fail 0 
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/stress-40/file-after-fix-40.txt:3: trailing whitespace.
++file run 3: ℹ pass 8 ℹ fail 0 
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/stress-40/file-after-fix-40.txt:4: trailing whitespace.
++file run 4: ℹ pass 8 ℹ fail 0 
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/stress-40/file-after-fix-40.txt:5: trailing whitespace.
++file run 5: ℹ pass 8 ℹ fail 0 
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/stress-40/file-after-fix-40.txt:6: trailing whitespace.
++file run 6: ℹ pass 8 ℹ fail 0 
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/stress-40/file-after-fix-40.txt:7: trailing whitespace.
++file run 7: ℹ pass 8 ℹ fail 0 
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/stress-40/file-after-fix-40.txt:8: trailing whitespace.
++file run 8: ℹ pass 8 ℹ fail 0 
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/stress-40/file-after-fix-40.txt:9: trailing whitespace.
++file run 9: ℹ pass 8 ℹ fail 0 
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/stress-40/file-after-fix-40.txt:10: trailing whitespace.
++file run 10: ℹ pass 8 ℹ fail 0 
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/stress-40/file-after-fix-40.txt:11: trailing whitespace.
++file run 11: ℹ pass 8 ℹ fail 0 
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/stress-40/file-after-fix-40.txt:12: trailing whitespace.
++file run 12: ℹ pass 8 ℹ fail 0 
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/stress-40/file-after-fix-40.txt:13: trailing whitespace.
++file run 13: ℹ pass 8 ℹ fail 0 
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/stress-40/file-after-fix-40.txt:14: trailing whitespace.
++file run 14: ℹ pass 8 ℹ fail 0 
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/stress-40/file-after-fix-40.txt:15: trailing whitespace.
++file run 15: ℹ pass 8 ℹ fail 0 
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/stress-40/file-after-fix-40.txt:16: trailing whitespace.
++file run 16: ℹ pass 8 ℹ fail 0 
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/stress-40/file-after-fix-40.txt:17: trailing whitespace.
++file run 17: ℹ pass 8 ℹ fail 0 
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/stress-40/file-after-fix-40.txt:18: trailing whitespace.
++file run 18: ℹ pass 8 ℹ fail 0 
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/stress-40/file-after-fix-40.txt:19: trailing whitespace.
++file run 19: ℹ pass 8 ℹ fail 0 
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/stress-40/file-after-fix-40.txt:20: trailing whitespace.
++file run 20: ℹ pass 8 ℹ fail 0 
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/stress-40/file-after-fix-40.txt:21: trailing whitespace.
++file run 21: ℹ pass 8 ℹ fail 0 
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/stress-40/file-after-fix-40.txt:22: trailing whitespace.
++file run 22: ℹ pass 8 ℹ fail 0 
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/stress-40/file-after-fix-40.txt:23: trailing whitespace.
++file run 23: ℹ pass 8 ℹ fail 0 
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/stress-40/file-after-fix-40.txt:24: trailing whitespace.
++file run 24: ℹ pass 8 ℹ fail 0 
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/stress-40/file-after-fix-40.txt:25: trailing whitespace.
++file run 25: ℹ pass 8 ℹ fail 0 
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/stress-40/file-after-fix-40.txt:26: trailing whitespace.
++file run 26: ℹ pass 8 ℹ fail 0 
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/stress-40/file-after-fix-40.txt:27: trailing whitespace.
++file run 27: ℹ pass 8 ℹ fail 0 
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/stress-40/file-after-fix-40.txt:28: trailing whitespace.
++file run 28: ℹ pass 8 ℹ fail 0 
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/stress-40/file-after-fix-40.txt:29: trailing whitespace.
++file run 29: ℹ pass 8 ℹ fail 0 
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/stress-40/file-after-fix-40.txt:30: trailing whitespace.
++file run 30: ℹ pass 8 ℹ fail 0 
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/stress-40/file-after-fix-40.txt:31: trailing whitespace.
++file run 31: ℹ pass 8 ℹ fail 0 
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/stress-40/file-after-fix-40.txt:32: trailing whitespace.
++file run 32: ℹ pass 8 ℹ fail 0 
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/stress-40/file-after-fix-40.txt:33: trailing whitespace.
++file run 33: ℹ pass 8 ℹ fail 0 
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/stress-40/file-after-fix-40.txt:34: trailing whitespace.
++file run 34: ℹ pass 8 ℹ fail 0 
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/stress-40/file-after-fix-40.txt:35: trailing whitespace.
++file run 35: ℹ pass 8 ℹ fail 0 
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/stress-40/file-after-fix-40.txt:36: trailing whitespace.
++file run 36: ℹ pass 8 ℹ fail 0 
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/stress-40/file-after-fix-40.txt:37: trailing whitespace.
++file run 37: ℹ pass 8 ℹ fail 0 
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/stress-40/file-after-fix-40.txt:38: trailing whitespace.
++file run 38: ℹ pass 8 ℹ fail 0 
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/stress-40/file-after-fix-40.txt:39: trailing whitespace.
++file run 39: ℹ pass 8 ℹ fail 0 
+_bmad-output/implementation-artifacts/evidence-9a-23-25b/stress-40/file-after-fix-40.txt:40: trailing whitespace.
++file run 40: ℹ pass 8 ℹ fail 0 
+_bmad-output/implementation-artifacts/evidence-ci-harness-determinism/ci-run-40045841714-failures.log:10: trailing whitespace.
++build	Test C# tools	2026-10-24T00:55:22.7307916Z     
+_bmad-output/implementation-artifacts/evidence-ci-harness-determinism/ci-run-40045841714-failures.log:12: trailing whitespace.
++build	Test C# tools	2026-10-24T00:55:22.7308219Z     
+_bmad-output/implementation-artifacts/evidence-ci-harness-determinism/ci-run-40045841714-failures.log:35: trailing whitespace.
++build	Test C# tools	2026-10-24T00:55:24.1904717Z     
+_bmad-output/implementation-artifacts/evidence-ci-harness-determinism/ci-run-40045841714-failures.log:41: trailing whitespace.
++build	Test C# tools	2026-10-24T00:55:24.1907088Z     
+_bmad-output/implementation-artifacts/evidence-ci-harness-determinism/review/build.log:56: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-ci-harness-determinism/review/build.log:138: trailing whitespace.
++  
+_bmad-output/implementation-artifacts/evidence-ci-harness-determinism/review/m4.tap:15: trailing whitespace.
++    
+_bmad-output/implementation-artifacts/evidence-ci-harness-determinism/review/m4.tap:26: trailing whitespace.
++    
+_bmad-output/implementation-artifacts/evidence-ci-harness-determinism/review/m4.tap:84: trailing whitespace.
++    
+_bmad-output/implementation-artifacts/evidence-ci-harness-determinism/review/m4.tap:95: trailing whitespace.
++    
+_bmad-output/implementation-artifacts/evidence-ci-harness-determinism/terminal/index-headers.txt:1: trailing whitespace.
++HTTP/2 200 
+_bmad-output/implementation-artifacts/evidence-ci-harness-determinism/terminal/index-headers.txt:23: new blank line at EOF.
+_bmad-output/implementation-artifacts/evidence-ci-harness-determinism/terminal/no-skip-identity.txt:1: trailing whitespace.
++7143a874 parents: 54e19147525d40b815f2c1243f92fa9cb2e28c7b 87d27e12191a11dca8c8ebe68ae290e49e289ba7 
+_bmad-output/implementation-artifacts/evidence-ci-harness-determinism/terminal/run.log:137: trailing whitespace.
++build	Install WebAssembly workload	2026-10-24T01:56:57.8625067Z 
+_bmad-output/implementation-artifacts/evidence-ci-harness-determinism/terminal/run.log:176: trailing whitespace.
++build	Install WebAssembly workload	2026-10-24T01:57:11.7044739Z 
+_bmad-output/implementation-artifacts/evidence-ci-harness-determinism/terminal/run.log:178: trailing whitespace.
++build	Install WebAssembly workload	2026-10-24T01:57:11.7045786Z 
+_bmad-output/implementation-artifacts/evidence-ci-harness-determinism/terminal/run.log:301: trailing whitespace.
++build	C# static gate	2026-10-24T01:58:24.9681282Z   
+_bmad-output/implementation-artifacts/evidence-ci-harness-determinism/terminal/run.log:676: trailing whitespace.
++build	C# static gate	2026-10-24T01:59:11.3314864Z 
+_bmad-output/implementation-artifacts/evidence-ci-harness-determinism/terminal/run.log:680: trailing whitespace.
++build	C# static gate	2026-10-24T01:59:11.3323873Z 
+_bmad-output/implementation-artifacts/evidence-ci-harness-determinism/terminal/run.log:682: trailing whitespace.
++build	C# static gate	2026-10-24T01:59:11.3325013Z 
+_bmad-output/implementation-artifacts/evidence-ci-harness-determinism/terminal/run.log:735: trailing whitespace.
++build	C# static gate	2026-10-24T01:59:34.7533377Z   
+_bmad-output/implementation-artifacts/evidence-ci-harness-determinism/terminal/run.log:818: trailing whitespace.
++build	C# static gate	2026-10-24T01:59:58.7076397Z 
+_bmad-output/implementation-artifacts/evidence-ci-harness-determinism/terminal/run.log:822: trailing whitespace.
++build	C# static gate	2026-10-24T01:59:58.7082891Z 
+_bmad-output/implementation-artifacts/evidence-ci-harness-determinism/terminal/run.log:824: trailing whitespace.
++build	C# static gate	2026-10-24T01:59:58.7083846Z 
+_bmad-output/implementation-artifacts/evidence-ci-harness-determinism/terminal/run.log:890: trailing whitespace.
++build	C# static gate	2026-10-24T02:00:16.6231386Z   
+_bmad-output/implementation-artifacts/evidence-ci-harness-determinism/terminal/run.log:1233: trailing whitespace.
++build	C# static gate	2026-10-24T02:00:20.1621864Z 
+_bmad-output/implementation-artifacts/evidence-ci-harness-determinism/terminal/run.log:1237: trailing whitespace.
++build	C# static gate	2026-10-24T02:00:20.1625787Z 
+_bmad-output/implementation-artifacts/evidence-ci-harness-determinism/terminal/run.log:1239: trailing whitespace.
++build	C# static gate	2026-10-24T02:00:20.1627307Z 
+_bmad-output/implementation-artifacts/evidence-ci-harness-determinism/terminal/run.log:1277: trailing whitespace.
++build	Test C# game	2026-10-24T02:15:12.8836461Z 
+_bmad-output/implementation-artifacts/evidence-ci-harness-determinism/terminal/run.log:1291: trailing whitespace.
++build	Test C# tools	2026-10-24T02:15:15.6029009Z 
+_bmad-output/implementation-artifacts/evidence-ci-harness-determinism/terminal/run.log:1295: trailing whitespace.
++build	Test C# tools	2026-10-24T02:15:17.9389537Z 
+_bmad-output/implementation-artifacts/evidence-ci-harness-determinism/terminal/run.log:1299: trailing whitespace.
++build	Test C# tools	2026-10-24T02:15:19.4583817Z 
+_bmad-output/implementation-artifacts/evidence-ci-harness-determinism/terminal/run.log:1303: trailing whitespace.
++build	Test C# tools	2026-10-24T02:15:43.4102567Z 
+_bmad-output/implementation-artifacts/evidence-ci-harness-determinism/terminal/run.log:1338: trailing whitespace.
++build	Publish production browser bundle	2026-10-24T02:16:28.8431370Z   
+_bmad-output/implementation-artifacts/evidence-ci-harness-determinism/terminal/run.log:1433: trailing whitespace.
++build	Publish production browser bundle	2026-10-24T02:16:43.5593749Z   
+_bmad-output/implementation-artifacts/evidence-ci-harness-determinism/terminal/tree.txt:4: trailing whitespace.
++parents: 860c3cb15f1635821ec8d09f2c68ad88e4c2e550 4f2ad2af2b4a98c91ccfffac4c6fde051e02780d 
+diff-check exit 2

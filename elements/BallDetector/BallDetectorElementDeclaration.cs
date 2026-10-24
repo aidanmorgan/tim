@@ -11,9 +11,9 @@ public sealed class BallDetectorElementDeclaration : IMechanicalElement, IPassag
 {
     public ElementPresentation Presentation => new(1.15f, PresentationAxes.None,
         [
-            new("Visual/Visual_Indicator", PresentationProperty.AlbedoRed, PresentationDriver.ActivationPulse, 85f / 255f, 247f / 255f, PresentationCurve.SmoothStep, .35f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None),
-            new("Visual/Visual_Indicator", PresentationProperty.AlbedoGreen, PresentationDriver.ActivationPulse, 101f / 255f, 203f / 255f, PresentationCurve.SmoothStep, .35f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None),
-            new("Visual/Visual_Indicator", PresentationProperty.AlbedoBlue, PresentationDriver.ActivationPulse, 115f / 255f, 82f / 255f, PresentationCurve.SmoothStep, .35f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None)
+            new("Visual/Visual_Indicator", PresentationProperty.AlbedoRed, PresentationDriver.Event, 85f / 255f, 247f / 255f, PresentationCurve.SmoothStep, .35f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None, Event: SimulationEventKind.Passage),
+            new("Visual/Visual_Indicator", PresentationProperty.AlbedoGreen, PresentationDriver.Event, 101f / 255f, 203f / 255f, PresentationCurve.SmoothStep, .35f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None, Event: SimulationEventKind.Passage),
+            new("Visual/Visual_Indicator", PresentationProperty.AlbedoBlue, PresentationDriver.Event, 115f / 255f, 82f / 255f, PresentationCurve.SmoothStep, .35f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None, Event: SimulationEventKind.Passage)
         ], [], [], []);
 
     public ElementMetadata Metadata => new(

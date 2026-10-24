@@ -1,0 +1,24 @@
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:02.45]     CuriousContraptions.Tests.EventRingConsumerTests.TheGoalWakeWaitsForItsCommittedReadThenSolvesOnceAtTheRecordsOccurrence(captures: True) [FAIL]
+  Failed CuriousContraptions.Tests.EventRingConsumerTests.TheGoalWakeWaitsForItsCommittedReadThenSolvesOnceAtTheRecordsOccurrence(captures: True) [9 ms]
+  Error Message:
+   Assert.False() Failure
+Expected: False
+Actual:   True
+  Stack Trace:
+     at CuriousContraptions.Tests.EventRingConsumerTests.TheGoalWakeWaitsForItsCommittedReadThenSolvesOnceAtTheRecordsOccurrence(Boolean captures) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/CuriousContraptions.tests/EventRingConsumerTests.cs:line 438
+   at CuriousContraptions.Tests.EventRingConsumerTests.TheGoalWakeWaitsForItsCommittedReadThenSolvesOnceAtTheRecordsOccurrence(Boolean captures) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/CuriousContraptions.tests/EventRingConsumerTests.cs:line 450
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:02.69]     CuriousContraptions.Tests.EventRingConsumerTests.TheGoalWakeIgnoresOtherOwnersAndALapMakesItDueAtOnceAndAfterTheNewestRecord [FAIL]
+  Failed CuriousContraptions.Tests.EventRingConsumerTests.TheGoalWakeIgnoresOtherOwnersAndALapMakesItDueAtOnceAndAfterTheNewestRecord [< 1 ms]
+  Error Message:
+   Assert.False() Failure
+Expected: False
+Actual:   True
+  Stack Trace:
+     at CuriousContraptions.Tests.EventRingConsumerTests.TheGoalWakeIgnoresOtherOwnersAndALapMakesItDueAtOnceAndAfterTheNewestRecord() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-23-25b/CuriousContraptions.tests/EventRingConsumerTests.cs:line 467
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     2, Passed:    28, Skipped:     0, Total:    30, Duration: 1 s - CuriousContraptions.tests.dll (net10.0)
