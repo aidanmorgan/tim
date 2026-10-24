@@ -1,7 +1,6 @@
 using System;
 using System.Buffers.Binary;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using System.Threading;
 
 namespace CuriousContraptions.Abstractions;
@@ -127,37 +126,88 @@ public static class EventRingBuffer
     }
 
     /// <summary>Copies one publication into the ring under each slot's seqlock (the slot's sequence is zero while it is written and
-    /// set last), then stores Lapped and WriteSequence. A different epoch or capacity replaces the ring with a fresh one first, as
-    /// the worker does. Returns the ring that holds the publication.</summary>
-    public static byte[] Append(byte[]? ring, ReadOnlySpan<byte> batch)
+    /// published last), then stores Lapped and WriteSequence, all through <see cref="EventRingMemory"/>'s word accessors. A different
+    /// epoch or capacity replaces the ring with a fresh one first, as the worker does. Returns the ring that holds the publication.</summary>
+    public static EventRingMemory Append(EventRingMemory? ring, ReadOnlySpan<byte> batch)
     {
         var header = EventRingHeader.Read(batch);
         if ((batch.Length - HeaderBytes) % SlotBytes != 0 || (batch.Length - HeaderBytes) / SlotBytes > header.Capacity)
             throw new ArgumentException("A publication is whole records within its ring.");
-        if (ring is null || ring.Length != ByteLength(header.Capacity) ||
-            BinaryPrimitives.ReadUInt64LittleEndian(ring.AsSpan(EventRingHeader.EpochOffset)) != header.Epoch)
-        {
-            ring = new byte[ByteLength(header.Capacity)];
-            batch[..EventRingHeader.WriteSequenceOffset].CopyTo(ring);
-        }
+        if (ring is null || ring.Capacity != header.Capacity || ring.Epoch != header.Epoch) ring = new EventRingMemory(header.Capacity, header.Epoch);
         for (var offset = HeaderBytes; offset < batch.Length; offset += SlotBytes)
         {
+            // The writer's seqlock, as the shipped worker's: the sequence word is 0 while every payload word is stored, then published.
             var sequence = BinaryPrimitives.ReadUInt64LittleEndian(batch[offset..]);
-            var slot = HeaderBytes + (int)((sequence - 1) & (header.Capacity - 1)) * SlotBytes;
-            Volatile.Write(ref Word(ring, slot), 0);
-            // The seqlock of the shipped writer (review F1): each payload word is a whole-word store between the sequence stores.
-            for (var word = 8; word < SlotBytes; word += 8)
-                Volatile.Write(ref Word(ring, slot + word), BinaryPrimitives.ReadUInt64LittleEndian(batch[(offset + word)..]));
-            Volatile.Write(ref Word(ring, slot), sequence);
+            ring.PublishSequence(sequence, 0);
+            for (var word = 1; word < SlotBytes / 8; word++)
+                ring.StorePayload(sequence, word, BinaryPrimitives.ReadUInt64LittleEndian(batch[(offset + word * 8)..]));
+            ring.PublishSequence(sequence, sequence);
         }
-        Volatile.Write(ref Word(ring, EventRingHeader.LappedOffset), header.Lapped);
-        Volatile.Write(ref Word(ring, EventRingHeader.WriteSequenceOffset), header.WriteSequence);
+        ring.StoreLapped(header.Lapped);
+        ring.StoreWriteSequence(header.WriteSequence);
         return ring;
     }
+}
 
-    internal static ref ulong Word(Span<byte> ring, int offset) => ref Unsafe.As<byte, ulong>(ref ring[offset]);
-    internal static ulong ReadWord(ReadOnlySpan<byte> ring, int offset) =>
-        Volatile.Read(ref Unsafe.As<byte, ulong>(ref MemoryMarshal.GetReference(ring[offset..])));
+/// <summary>The C# reference ring's memory (owner request, review R2-F2), the twin of <c>event-ring-cursor.js</c>'s
+/// <c>EventRingMemory</c>: it alone holds the ring's bytes, and every accessor is one whole-word <see cref="Volatile"/> load or store.
+/// The writer (<see cref="EventRingBuffer"/>'s <c>Append</c>) and the reader (<see cref="EventRingConsumer.TryRead"/>) implement the slot seqlock
+/// against these accessors only.</summary>
+public sealed class EventRingMemory
+{
+    private readonly byte[] _memory;
+
+    /// <summary>A fresh ring: its fixed header words (capacity and slot size, then epoch) are stored before any slot.</summary>
+    public EventRingMemory(uint capacity, ulong epoch)
+    {
+        if (capacity == 0 || (capacity & (capacity - 1)) != 0 || epoch == 0) throw new ArgumentException("Unsupported event ring layout.");
+        _memory = new byte[EventRingBuffer.ByteLength(capacity)];
+        Capacity = capacity; Epoch = epoch;
+        Volatile.Write(ref Word(EventRingHeader.CapacityOffset), capacity | (ulong)EventRingBuffer.SlotBytes << (8 * EventRingHeader.SlotBytesOffset));
+        Volatile.Write(ref Word(EventRingHeader.EpochOffset), epoch);
+    }
+
+    /// <summary>A copy of a ring another writer produced (the shipped worker's bytes): its header is validated and every word stored.</summary>
+    public static EventRingMemory Load(ReadOnlySpan<byte> ring)
+    {
+        var header = EventRingHeader.Read(ring);
+        if (ring.Length != EventRingBuffer.ByteLength(header.Capacity)) throw new ArgumentException("The ring is not its header's size.");
+        var memory = new EventRingMemory(header.Capacity, header.Epoch);
+        for (var offset = 0; offset < ring.Length; offset += 8)
+            Volatile.Write(ref memory.Word(offset), BinaryPrimitives.ReadUInt64LittleEndian(ring[offset..]));
+        return memory;
+    }
+
+    public uint Capacity { get; }
+    public ulong Epoch { get; }
+
+    public ulong LoadWriteSequence() => Volatile.Read(ref Word(EventRingHeader.WriteSequenceOffset));
+    public void StoreWriteSequence(ulong value) => Volatile.Write(ref Word(EventRingHeader.WriteSequenceOffset), value);
+    public void StoreLapped(ulong value) => Volatile.Write(ref Word(EventRingHeader.LappedOffset), value);
+    /// <summary>The seqlock word of the slot that holds record <paramref name="sequence"/>.</summary>
+    public ulong LoadSequence(ulong sequence) => Volatile.Read(ref Word(Slot(sequence)));
+    public void PublishSequence(ulong sequence, ulong value) => Volatile.Write(ref Word(Slot(sequence)), value);
+    /// <summary>Payload word <paramref name="word"/> (1 to 7; word 0 is the sequence) of the slot that holds record <paramref name="sequence"/>.</summary>
+    public ulong LoadPayload(ulong sequence, int word) => Volatile.Read(ref Word(Slot(sequence) + Payload(word)));
+    public void StorePayload(ulong sequence, int word, ulong value) => Volatile.Write(ref Word(Slot(sequence) + Payload(word)), value);
+
+    /// <summary>The ring's header, read word by word.</summary>
+    public EventRingHeader Header => EventRingHeader.Read(Snapshot(EventRingBuffer.HeaderBytes));
+
+    /// <summary>A copy of the whole ring, read word by word (little-endian), to compare it with another reader's view.</summary>
+    public byte[] Snapshot() => Snapshot(_memory.Length);
+
+    private byte[] Snapshot(int length)
+    {
+        var copy = new byte[length];
+        for (var offset = 0; offset < length; offset += 8) BinaryPrimitives.WriteUInt64LittleEndian(copy.AsSpan(offset), Volatile.Read(ref Word(offset)));
+        return copy;
+    }
+
+    private int Slot(ulong sequence) => EventRingBuffer.HeaderBytes + (int)((sequence - 1) & (Capacity - 1)) * EventRingBuffer.SlotBytes;
+    private static int Payload(int word) => word is >= 1 and < EventRingBuffer.SlotBytes / 8
+        ? word * 8 : throw new ArgumentOutOfRangeException(nameof(word), word, "A payload word is 1 to 7.");
+    private ref ulong Word(int offset) => ref Unsafe.As<byte, ulong>(ref _memory[offset]);
 }
 
 /// <summary>One consumer's cursor over the event ring (the C# reference reader; the workers' own is the shared <c>EventRingCursor</c> of
@@ -170,24 +220,21 @@ public sealed class EventRingConsumer
     public ulong Cursor { get; private set; }
     public ulong Lapped { get; private set; }
 
-    public bool TryRead(ReadOnlySpan<byte> ring, SimulationDomain filter, out SimulationEventRecord record)
+    public bool TryRead(EventRingMemory ring, SimulationDomain filter, out SimulationEventRecord record)
     {
         record = default;
-        var header = EventRingHeader.Read(ring);
-        if (ring.Length != EventRingBuffer.ByteLength(header.Capacity)) throw new ArgumentException("The ring is not its header's size.");
-        if (header.Epoch != Epoch) { Epoch = header.Epoch; Cursor = 0; }
-        var written = EventRingBuffer.ReadWord(ring, EventRingHeader.WriteSequenceOffset);
+        if (ring.Epoch != Epoch) { Epoch = ring.Epoch; Cursor = 0; }
+        var written = ring.LoadWriteSequence();
         while (Cursor < written)
         {
-            if (written - Cursor > header.Capacity) { Lapped += written - header.Capacity - Cursor; Cursor = written - header.Capacity; }
+            if (written - Cursor > ring.Capacity) { Lapped += written - ring.Capacity - Cursor; Cursor = written - ring.Capacity; }
             var target = Cursor + 1;
-            var slot = EventRingBuffer.HeaderBytes + (int)(Cursor & (header.Capacity - 1)) * EventRingBuffer.SlotBytes;
-            var before = EventRingBuffer.ReadWord(ring, slot);
+            // The reader's seqlock, as the shared JS reader's (review F1): the sequence, every payload word, then the sequence again.
+            var before = ring.LoadSequence(target);
             Span<byte> copy = stackalloc byte[EventRingBuffer.SlotBytes];
-            // Each payload word is a whole-word load between the sequence loads, as the shared JS reader does (review F1).
-            for (var word = 8; word < EventRingBuffer.SlotBytes; word += 8)
-                BinaryPrimitives.WriteUInt64LittleEndian(copy[word..], EventRingBuffer.ReadWord(ring, slot + word));
-            var after = EventRingBuffer.ReadWord(ring, slot);
+            for (var word = 1; word < EventRingBuffer.SlotBytes / 8; word++)
+                BinaryPrimitives.WriteUInt64LittleEndian(copy[(word * 8)..], ring.LoadPayload(target, word));
+            var after = ring.LoadSequence(target);
             Cursor = target;
             if (before != target || after != target) { Lapped++; continue; }
             BinaryPrimitives.WriteUInt64LittleEndian(copy, target);

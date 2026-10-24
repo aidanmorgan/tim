@@ -38,7 +38,7 @@ public sealed class EventRingProducerTests
     {
         public WorkshopGpuDevice Device { get; } = new(new CuriousContraptions.Simulation.BrowserGpuTransport(), new(101, 206));
         public WorkshopSimulation Simulation { get; }
-        public byte[]? Bytes { get; private set; }
+        public EventRingMemory? Shared { get; private set; }
         public List<SimulationEventRecord> Records { get; } = [];
         public List<byte[]> Publications { get; } = [];
         public List<WorkshopRead> Reads { get; } = [];
@@ -90,7 +90,7 @@ public sealed class EventRingProducerTests
             var batch = Device.DrainEvents();
             Publications.Add(batch);
             if (batch.Length == 0) return batch;
-            Bytes = EventRingBuffer.Append(Bytes, batch);
+            Shared = EventRingBuffer.Append(Shared, batch);
             Records.AddRange(Decode(batch));
             return batch;
         }
@@ -541,10 +541,10 @@ public sealed class EventRingProducerTests
         await using var second = await Ring.Running(Memory());
         await second.Advance(600);
         Assert.Equal(first.Records, second.Records);
-        Assert.Equal(first.Bytes, second.Bytes);
+        Assert.Equal(first.Shared!.Snapshot(), second.Shared!.Snapshot());
         Assert.NotEmpty(first.Records);
 
-        var epoch = EventRingHeader.Read(first.Bytes).Epoch;
+        var epoch = first.Shared!.Header.Epoch;
         var once = first.Records.ToArray();
         await first.Reset();
         // Reset restarts the ring: nothing pending, sequence 0, a new epoch and its own fresh ring.
@@ -554,14 +554,14 @@ public sealed class EventRingProducerTests
         await first.Run();
         await first.Advance(600);
         Assert.Equal(once, first.Records);
-        var header = EventRingHeader.Read(first.Bytes);
+        var header = first.Shared!.Header;
         Assert.True(header.Epoch > epoch, "the header carries the new run's epoch");
         Assert.Equal((ulong)once.Length, header.WriteSequence);
 
         // A consumer that read the first run restarts at the new epoch and reads the second run's records.
         var consumer = new EventRingConsumer();
         var read = new List<SimulationEventRecord>();
-        while (consumer.TryRead(first.Bytes, SimulationDomain.None, out var record)) read.Add(record);
+        while (consumer.TryRead(first.Shared!, SimulationDomain.None, out var record)) read.Add(record);
         Assert.Equal(once.TakeLast((int)Math.Min(header.Capacity, (uint)once.Length)), read);
         Assert.Equal(header.Epoch, consumer.Epoch);
     }
@@ -593,8 +593,8 @@ public sealed class EventRingProducerTests
         Assert.Equal([new EventRow(new(1), SimulationEventKind.ElectricalPowered), new EventRow(new(2), SimulationEventKind.TriggerActivated),
             new EventRow(new(3), SimulationEventKind.ThresholdReached)], ring.Device.EventRows!.Rows.OrderBy(row => row.Owner.Value));
         Assert.Equal(capacity, ring.Device.Events.Capacity);
-        Assert.Equal(capacity, EventRingHeader.Read(ring.Bytes).Capacity);
-        Assert.Equal(EventRingBuffer.ByteLength(capacity), ring.Bytes!.Length);
+        Assert.Equal(capacity, ring.Shared!.Header.Capacity);
+        Assert.Equal(EventRingBuffer.ByteLength(capacity), ring.Shared!.Snapshot().Length);
     }
 
     [Fact]
@@ -602,7 +602,7 @@ public sealed class EventRingProducerTests
     {
         await using var ring = await Ring.Building(Bench([], []));
         Assert.Empty(ring.Device.EventRows!.Rows);
-        Assert.Equal(1u, EventRingHeader.Read(ring.Bytes).Capacity);
+        Assert.Equal(1u, ring.Shared!.Header.Capacity);
     }
 
     // ---------- linear sizing and the hard limit (coordinator decision, 24 Oct 2026) ----------
@@ -688,7 +688,7 @@ public sealed class EventRingProducerTests
         Assert.Equal(all.TakeLast(256), Decode(publication));
         var consumer = new EventRingConsumer();
         var read = new List<SimulationEventRecord>();
-        while (consumer.TryRead(burst.Bytes, SimulationDomain.None, out var record)) read.Add(record);
+        while (consumer.TryRead(burst.Shared!, SimulationDomain.None, out var record)) read.Add(record);
         Assert.Equal(all.TakeLast(256), read);
         Assert.Equal((ulong)all.Count - 256, consumer.Lapped);
         // The run continues: the next tick's records follow the burst's sequence.
@@ -716,7 +716,7 @@ public sealed class EventRingProducerTests
         while (consumer.TryRead(ring, SimulationDomain.Mechanical, out var record)) read.Add(record.Sequence);
         Assert.Equal([3UL, 4UL, 5UL, 6UL], read);
         Assert.Equal(2UL, consumer.Lapped);
-        Assert.Equal(2UL, EventRingHeader.Read(ring).Lapped);
+        Assert.Equal(2UL, ring.Header.Lapped);
         // The next tick continues the sequence; nothing is re-published.
         outbox.Commit(batch.AsSpan(0, 1));
         Assert.Equal([7UL], Decode(outbox.Drain()).Select(record => record.Sequence));
@@ -740,7 +740,11 @@ public sealed class EventRingProducerTests
         const runtime = { setModuleImports() {}, getAssemblyExports: async () => ({ CuriousContraptions: { Simulation: { Program: host } } }),
             getConfig: () => ({ mainAssemblyName: 'EventRingRoundTrip' }) };
         const worker = new vm.SourceTextModule(source + '\nexport { writeEventRing };', { context });
+        // The ring's memory is the shipped EventRingMemory (the writer's one way into the ring).
+        const { EventRingMemory } = await import(new URL('../../CuriousContraptions.web/wwwroot/event-ring-cursor.js', process.env.WORKER_URL).href);
         await worker.link(async name => {
+            if (name === '../event-ring-cursor.js')
+                return new vm.SyntheticModule(['EventRingMemory'], function () { this.setExport('EventRingMemory', EventRingMemory); }, { context });
             const names = name.includes('dotnet') ? ['dotnet'] : name.includes('clock-ring')
                 ? ['attachClockRing', 'deriveExchange', 'qualifyDerivation', 'writeDerivation', 'beat'] : ['admitNativeClock', 'nativeNow', 'nativeClockEvidence'];
             return new vm.SyntheticModule(names, function () {
@@ -785,7 +789,7 @@ public sealed class EventRingProducerTests
         outbox.Restart(new(99), 4);
         outbox.Commit(ring.Records.Take(6).ToArray());
         var batches = ring.Publications.Append(outbox.Drain()).ToList();
-        byte[]? reference = null;
+        EventRingMemory? reference = null;
         var fresh = 0;
         foreach (var batch in batches.Where(batch => batch.Length != 0))
         {
@@ -795,11 +799,12 @@ public sealed class EventRingProducerTests
         }
         var (rings, written) = RunWorker(batches);
         Assert.Equal(fresh, rings);
-        Assert.Equal(reference, written);
+        Assert.Equal(reference!.Snapshot(), written);
         Assert.Equal(new EventRingHeader(4, 64, 99, 6, 2), EventRingHeader.Read(written));
+        var shipped = EventRingMemory.Load(written);
         var consumer = new EventRingConsumer();
         var read = new List<SimulationEventRecord>();
-        while (consumer.TryRead(written, SimulationDomain.None, out var record)) read.Add(record);
+        while (consumer.TryRead(shipped, SimulationDomain.None, out var record)) read.Add(record);
         Assert.Equal(ring.Records.Take(6).Skip(2).Select((record, i) => record with { Sequence = (ulong)i + 3 }), read);
     }
 

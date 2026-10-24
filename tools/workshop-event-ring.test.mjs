@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import fs from 'node:fs/promises';
 import vm from 'node:vm';
+import { EventRingMemory } from '../CuriousContraptions.web/wwwroot/event-ring-cursor.js';
 
 // Story 9A.22: the shipped Simulation worker's event ring writer, evaluated from worker.js itself. C# composes each publication (the
 // 64-byte header the ring holds after it, then 64-byte records each led by its sequence); the worker only copies it. The C# side of the
@@ -27,6 +28,9 @@ const runtime = { setModuleImports() {}, getAssemblyExports: async () => ({ Curi
 const worker = new vm.SourceTextModule(workerSource + '\nexport { writeEventRing, disposeOwned };' +
     '\nexport function seatAnimationPort(port) { animationPort = port; }', { context });
 await worker.link(async name => {
+    // The ring's memory is the shipped EventRingMemory (the writer's one way into the ring).
+    if (name === '../event-ring-cursor.js')
+        return new vm.SyntheticModule(['EventRingMemory'], function () { this.setExport('EventRingMemory', EventRingMemory); }, { context });
     const names = name.includes('dotnet') ? ['dotnet'] : name === '../clock-ring.js'
         ? ['attachClockRing', 'deriveExchange', 'qualifyDerivation', 'writeDerivation', 'beat'] : ['admitNativeClock', 'nativeNow', 'nativeClockEvidence'];
     return new vm.SyntheticModule(names, function () {

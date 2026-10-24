@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { Worker } from 'node:worker_threads';
-import { EventRingCursor, eventDelivery } from '../CuriousContraptions.web/wwwroot/event-ring-cursor.js';
+import { EventRingCursor, EventRingMemory, eventDelivery } from '../CuriousContraptions.web/wwwroot/event-ring-cursor.js';
 
 // Story 9A.23: the shared event ring reader against the shipped Simulation worker's writer (writeEventRing, evaluated from worker.js
 // itself in a writer thread) and concurrent readers in their own threads. Every record's 64 bytes are a function of its sequence, so a
@@ -27,7 +27,11 @@ async function loadWriter(url, onRing) {
     const runtime = { setModuleImports() {}, getAssemblyExports: async () => ({ CuriousContraptions: { Simulation: { Program: host } } }),
         getConfig: () => ({ mainAssemblyName: 'EventRingCursorStress' }) };
     const worker = new vm.SourceTextModule(source + '\\nexport { writeEventRing, disposeOwned };', { context });
+    const { EventRingMemory } = await import(new URL('../../CuriousContraptions.web/wwwroot/event-ring-cursor.js', url).href);
     await worker.link(async name => {
+        // The ring's memory is the shipped EventRingMemory (the writer's one way into the ring).
+        if (name === '../event-ring-cursor.js')
+            return new vm.SyntheticModule(['EventRingMemory'], function () { this.setExport('EventRingMemory', EventRingMemory); }, { context });
         const names = name.includes('dotnet') ? ['dotnet'] : name === '../clock-ring.js'
             ? ['attachClockRing', 'deriveExchange', 'qualifyDerivation', 'writeDerivation', 'beat'] : ['admitNativeClock', 'nativeNow', 'nativeClockEvidence'];
         return new vm.SyntheticModule(names, function () {
@@ -184,6 +188,8 @@ const { writeEventRing, disposeOwned, posted } = await (async () => {
         getConfig: () => ({ mainAssemblyName: 'EventRingCursorControl' }) };
     const worker = new vm.SourceTextModule(source + '\nexport { writeEventRing, disposeOwned };', { context });
     await worker.link(async name => {
+        if (name === '../event-ring-cursor.js')
+            return new vm.SyntheticModule(['EventRingMemory'], function () { this.setExport('EventRingMemory', EventRingMemory); }, { context });
         const names = name.includes('dotnet') ? ['dotnet'] : name === '../clock-ring.js'
             ? ['attachClockRing', 'deriveExchange', 'qualifyDerivation', 'writeDerivation', 'beat'] : ['admitNativeClock', 'nativeNow', 'nativeClockEvidence'];
         return new vm.SyntheticModule(names, function () {

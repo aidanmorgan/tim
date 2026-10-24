@@ -56,7 +56,7 @@ public sealed class EventRingConsumerTests
         public void Drain()
         {
             var records = new List<SimulationEventRecord>();
-            while (_cursor.TryRead(Ring.Bytes, SimulationDomain.None, out var record)) records.Add(record);
+            while (_cursor.TryRead(Ring.Shared!, SimulationDomain.None, out var record)) records.Add(record);
             var skipped = _cursor.Lapped - _lapped; _lapped = _cursor.Lapped;
             if (records.Count == 0 && skipped == 0) return;
             Presentation.AcceptEvents(new(_cursor.Epoch, skipped, records.ToArray()), World);
@@ -532,7 +532,7 @@ public sealed class EventRingConsumerTests
         {
             await ring.Advance(1);
             var records = new List<SimulationEventRecord>();
-            while (cursor.TryRead(ring.Bytes, SimulationDomain.None, out var record)) records.Add(record);
+            while (cursor.TryRead(ring.Shared!, SimulationDomain.None, out var record)) records.Add(record);
             wake.Observe(new(cursor.Epoch, 0, records.ToArray()), installed.Tick);
             if (records.Any(record => record.Kind == SimulationEventKind.Captured))
             {
@@ -629,7 +629,7 @@ public sealed class EventRingConsumerTests
             {
                 await ring.Advance(1);
                 var records = new List<SimulationEventRecord>();
-                while (cursor.TryRead(ring.Bytes, SimulationDomain.None, out var record)) records.Add(record);
+                while (cursor.TryRead(ring.Shared!, SimulationDomain.None, out var record)) records.Add(record);
                 wake.Observe(new(cursor.Epoch, 0, records.ToArray()), installed.Tick);
                 installed = ring.Simulation.Committed;
                 if (WorkshopGoalEvaluator.Occurrence(goal, installed, installed.Epoch) is { } truth) polled.Add((installed.Tick.Value, truth));
@@ -723,8 +723,8 @@ public sealed class EventRingConsumerTests
         var outbox = new EventRingOutbox();
         outbox.Restart(new(77), 4);
         outbox.Commit(ring.Records.Take(2).Concat(ring.Records.Take(2)).Concat(ring.Records.Take(2)).ToArray());
-        byte[][] rings = [ring.Bytes!, EventRingBuffer.Append(null, outbox.Drain())];
-        var results = RunReader(rings);
+        EventRingMemory[] rings = [ring.Shared!, EventRingBuffer.Append(null, outbox.Drain())];
+        var results = RunReader(rings.Select(shared => shared.Snapshot()).ToArray());
         for (var i = 0; i < rings.Length; i++)
         {
             var consumer = new EventRingConsumer();
@@ -741,77 +741,64 @@ public sealed class EventRingConsumerTests
             Convert.FromHexString(results[1].GetProperty("records").GetString()!).Length));
     }
 
-    // ---------- review F1 / R2-F2: every seqlock payload word is an atomic (JS) or volatile (C#) whole-word access ----------
+    // ---------- review F1 / R2-F2 and the owner's encapsulation: only EventRingMemory touches the ring, atomically ----------
 
-    /// <summary>The source text of one function or method of this checkout, from its signature to its closing line.</summary>
-    private static string Body(string path, string signature, string end)
+    private static string Source(string path) => File.ReadAllText(Path.Combine(twodog.Engine.ResolveProjectDir(), path)).ReplaceLineEndings("\n");
+
+    /// <summary>The text of a top-level declaration, from its first line to the first line that is a lone closing brace.</summary>
+    private static string Declaration(string text, string start)
     {
-        var text = File.ReadAllText(Path.Combine(twodog.Engine.ResolveProjectDir(), path)).ReplaceLineEndings("\n");
-        var start = text.IndexOf(signature, StringComparison.Ordinal);
-        Assert.True(start >= 0, $"{path}: '{signature}' is missing");
-        var stop = text.IndexOf(end, start, StringComparison.Ordinal);
-        Assert.True(stop > start, $"{path}: '{signature}' has no end");
-        return text[start..stop];
+        var from = text.IndexOf(start, StringComparison.Ordinal);
+        Assert.True(from >= 0, $"'{start}' is missing");
+        return text[from..text.IndexOf("\n}\n", from, StringComparison.Ordinal)];
     }
 
-    private static int Count(string text, string token)
-    {
-        var count = 0;
-        for (var at = text.IndexOf(token, StringComparison.Ordinal); at >= 0; at = text.IndexOf(token, at + token.Length, StringComparison.Ordinal)) count++;
-        return count;
-    }
+    private static int Count(string text, string pattern) => System.Text.RegularExpressions.Regex.Count(text, pattern);
 
-    /// <summary>The text strictly between a slot's two sequence accesses.</summary>
-    private static string Between(string body, string first, string last)
-    {
-        var start = body.IndexOf(first, StringComparison.Ordinal);
-        var stop = body.IndexOf(last, start + 1, StringComparison.Ordinal);
-        Assert.True(start >= 0 && stop > start, $"the sequence accesses '{first}' … '{last}' are missing");
-        return body[(start + first.Length)..stop];
-    }
-
-    // A plain (non-atomic) payload copy on either side of the ring behaves identically under any single-threaded interleaving, and the
+    // A plain (non-atomic) payload access on either side of the ring behaves identically under any single-threaded interleaving, and the
     // concurrent stress tests catch a one-sided regression only by chance on a weakly ordered CPU (the reviewer's one-sided mutants
-    // survived 0 of 20 runs each). So the seqlock's shape is checked in the source: between a slot's two sequence accesses, every
-    // payload word is stored with Atomics.store (writer) and loaded with Atomics.load (reader), and neither side reaches the ring
-    // through any other view (an indexed access, a slice, a set or a DataView). The C# reference keeps the same shape with Volatile.
+    // survived 0 of 20 runs each). So the encapsulation itself is checked, in each language: the raw view over the ring's memory is
+    // constructed in exactly one place, the EventRingMemory wrapper, and each of the wrapper's accessors is an atomic whole-word access.
+    // The seqlock protocols (writer: sequence 0, payload, sequence; reader: sequence, payload, sequence) are written against those
+    // accessors and proven by the reused-slot, lap and stress tests.
     [Fact]
-    public void EverySeqlockPayloadWordIsAnAtomicWholeWordAccessOnBothSidesOfTheRing()
+    public void OnlyTheEventRingMemoryViewsTheRingAndEveryAccessorIsAtomic()
     {
-        // The JS writer (the Simulation worker's copy of each publication).
-        var writer = Body("CuriousContraptions.Simulation/wwwroot/worker.js", "function writeEventRing(batch) {", "\n}\n");
-        Assert.Contains("Atomics.store(eventWords, slot / 8 + word, ", Between(writer,
-            "Atomics.store(eventWords, slot / 8, 0n);", "Atomics.store(eventWords, slot / 8, sequence);"));
-        Assert.Contains("for (let word = 1; word < EVENT_SLOT_BYTES / 8; word++)", writer);
-        // Every use of the ring's word view is an Atomics.store, but its creation; the ring buffer itself is only allocated and posted.
-        Assert.Equal(Count(writer, "Atomics.store(eventWords, ") + 1, Count(writer, "eventWords"));
-        Assert.Equal(1, Count(writer, "eventWords = new BigUint64Array(buffer)"));
-        Assert.Equal(4, Count(writer, "eventRing")); // `!eventRing ||`, `eventRing = buffer` and the two `{ eventRing: buffer }` posts
+        // JS: the one module that owns the ring's memory.
+        var module = Source("CuriousContraptions.web/wwwroot/event-ring-cursor.js");
+        var memory = Declaration(module, "export class EventRingMemory {");
+        // Every typed array or DataView the module builds over an existing buffer: the wrapper's one view over the ring, and the two
+        // fresh, unshared delivery buffers. A view over the ring anywhere else (`this.ring.buffer`, …) adds an entry.
+        var views = System.Text.RegularExpressions.Regex.Matches(module, @"new (?:\w+Array|DataView)\(([\w.#]*buffer)\b")
+            .Select(match => match.Groups[1].Value).Order().ToArray();
+        Assert.Equal(["buffer", "delivery.buffer", "words.buffer"], views);
+        Assert.Contains("this.#words = new BigUint64Array(buffer);", memory);
+        // The wrapper's view is private and each use of it is one Atomics.load or Atomics.store (its declaration and assignment aside).
+        // (A private field is unreachable outside the class, so the class is the whole of its use.)
+        Assert.Equal(2 + Count(memory, @"Atomics\.(load|store)\((this|ring)\.#words, "), Count(memory, "#words"));
+        // Everyone else holds the ring's SharedArrayBuffer only to post it or hand it to the reader.
+        var worker = Source("CuriousContraptions.Simulation/wwwroot/worker.js");
+        Assert.Equal(Count(worker, @"\{ eventRing: eventRing\.buffer \}"), Count(worker, @"eventRing\.buffer"));
+        Assert.Equal(0, Count(module, @"ring\.buffer"));
+        foreach (var (path, message) in new[] { ("CuriousContraptions.Animation.Worker/wwwroot/worker.js", "envelope"),
+            ("CuriousContraptions.web/wwwroot/workshop-client.js", "message") })
+        {
+            var reader = Source(path);
+            Assert.Equal(Count(reader, $@"{message}\.eventRing instanceof SharedArrayBuffer") + Count(reader, $@"\.attach\({message}\.eventRing\)"),
+                Count(reader, @"\.eventRing\b"));
+        }
 
-        // The shared JS reader.
-        var reader = Body("CuriousContraptions.web/wwwroot/event-ring-cursor.js", "    read(admitted) {", "\n    }\n");
-        Assert.Contains("Atomics.load(this.words, slot / 8 + word)", Between(reader,
-            "const before = Atomics.load(this.words, slot / 8);", "const after = Atomics.load(this.words, slot / 8);"));
-        Assert.Contains("for (let word = 1; word < EVENT_SLOT_BYTES / 8; word++)", reader);
-        Assert.Equal(Count(reader, "Atomics.load(this.words, "), Count(reader, "this.words"));
-        Assert.Equal(1, Count(reader, "this.buffer")); // only the `!this.buffer` guard: no other view over the ring
-
-        // The C# reference writer and reader: whole-word Volatile accesses only.
-        const string Reference = "CuriousContraptions.Abstractions/EventRingBuffer.cs";
-        var append = Body(Reference,"public static byte[] Append(byte[]? ring, ReadOnlySpan<byte> batch)", "\n    }\n");
-        Assert.Contains("Volatile.Write(ref Word(ring, slot + word), ", Between(append,
-            "Volatile.Write(ref Word(ring, slot), 0);", "Volatile.Write(ref Word(ring, slot), sequence);"));
-        Assert.Equal(Count(append, "Volatile.Write(ref Word(ring, "), Count(append, "Word(ring, "));
-        Assert.Equal(1, Count(append, "CopyTo(ring)")); // the fresh ring's header, before any slot is published
-        Assert.Equal(1, Count(append, "ring.AsSpan(")); // the epoch check
-        Assert.Equal(0, Count(append, "ring["));
-        var consumer = Body(Reference,"public bool TryRead(ReadOnlySpan<byte> ring, SimulationDomain filter, out SimulationEventRecord record)", "\n    }\n");
-        Assert.Contains("EventRingBuffer.ReadWord(ring, slot + word)", Between(consumer,
-            "var before = EventRingBuffer.ReadWord(ring, slot);", "var after = EventRingBuffer.ReadWord(ring, slot);"));
-        // The signature, the header read, the length check and its message ("The ring is not its header's size."); every other reach
-        // into the ring is a whole-word volatile read.
-        Assert.Equal(4 + Count(consumer, "EventRingBuffer.ReadWord(ring, "), System.Text.RegularExpressions.Regex.Count(consumer, @"\bring\b"));
-        Assert.Contains("internal static ulong ReadWord(ReadOnlySpan<byte> ring, int offset) =>\n        Volatile.Read(",
-            File.ReadAllText(Path.Combine(twodog.Engine.ResolveProjectDir(), Reference)).ReplaceLineEndings("\n"));
+        // C#: the reference ring's memory.
+        var reference = Source("CuriousContraptions.Abstractions/EventRingBuffer.cs");
+        var wrapper = Declaration(reference, "public sealed class EventRingMemory");
+        // The raw word view is made once, in the wrapper's private Word accessor, over its private bytes.
+        Assert.Equal(1, Count(reference, @"Unsafe\.As<"));
+        Assert.Contains("private ref ulong Word(int offset) => ref Unsafe.As<byte, ulong>(ref _memory[offset]);", wrapper);
+        Assert.Equal(["private readonly byte[] _memory;", "_memory = new byte[", "_memory.Length", "ref _memory[offset]"],
+            System.Text.RegularExpressions.Regex.Matches(wrapper, @"private readonly byte\[\] _memory;|_memory = new byte\[|_memory\.Length|ref _memory\[offset\]|_memory")
+                .Select(match => match.Value));
+        // Every use of Word, but its definition, is one Volatile read or write; nothing outside the wrapper uses Volatile on the ring.
+        Assert.Equal(1 + Count(wrapper, @"Volatile\.(Read|Write)\(ref (memory\.)?Word\("), Count(wrapper, @"\bWord\("));
+        Assert.Equal(Count(wrapper, @"Volatile\."), Count(reference, @"Volatile\."));
     }
 }

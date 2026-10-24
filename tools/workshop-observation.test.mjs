@@ -5,6 +5,7 @@ import { readFile } from 'node:fs/promises';
 import { MessagePort, MessageChannel, Worker as NodeWorker } from 'node:worker_threads';
 import { pathToFileURL } from 'node:url';
 import * as clockRing from '../CuriousContraptions.web/wwwroot/clock-ring.js';
+import { EventRingMemory } from '../CuriousContraptions.web/wwwroot/event-ring-cursor.js';
 
 const source = await readFile('CuriousContraptions.Simulation/wwwroot/worker.js', 'utf8');
 const workerUrl = pathToFileURL('CuriousContraptions.Simulation/wwwroot/worker.js').href;
@@ -104,11 +105,13 @@ async function loadWorker(host, additionalGlobals = {}) {
         this.setExport('nativeNow', () => 1);
         this.setExport('nativeClockEvidence', () => [2, 1, 1, 1, .005, 1, 1]);
     }, { context });
+    const eventRing = new vm.SyntheticModule(['EventRingMemory'], function () { this.setExport('EventRingMemory', EventRingMemory); }, { context });
     const module = new vm.SourceTextModule(source, { context, initializeImportMeta: meta => { meta.url = workerUrl; } });
     await module.link(name => {
         if (name === './_framework/dotnet.js') return dotnet;
         if (name === '../native-clock.js') return clock;
         if (name === '../clock-ring.js') return ring;
+        if (name === '../event-ring-cursor.js') return eventRing;
         throw Error('Unexpected worker import');
     });
     await module.evaluate();

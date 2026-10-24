@@ -1,6 +1,7 @@
 import { dotnet } from './_framework/dotnet.js';
 import { admitNativeClock, nativeNow, nativeClockEvidence } from '../native-clock.js';
 import { attachClockRing, deriveExchange, qualifyDerivation, writeDerivation, beat } from '../clock-ring.js';
+import { EventRingMemory } from '../event-ring-cursor.js';
 
 await admitNativeClock();
 const runtime = await dotnet.create();
@@ -69,10 +70,10 @@ const EVENT_CAPACITY_OFFSET = 0;        // EventRingHeader.CapacityOffset
 const EVENT_EPOCH_OFFSET = 8;           // EventRingHeader.EpochOffset
 const EVENT_WRITE_SEQUENCE_OFFSET = 16; // EventRingHeader.WriteSequenceOffset
 const EVENT_LAPPED_OFFSET = 24;         // EventRingHeader.LappedOffset
-let eventRing, eventWords, eventCapacity = 0, eventEpoch = 0n;
+let eventRing; // the EventRingMemory of the current epoch and capacity: this worker never touches the ring's memory directly
 
-// Copies one publication slot by slot under each slot's seqlock (its sequence word is zero while written and stored last), then
-// stores Lapped and WriteSequence. A different epoch or capacity replaces the ring with a fresh one first; it is posted to both of its
+// Copies one publication slot by slot under each slot's seqlock, through EventRingMemory's atomic word accessors, then stores
+// Lapped and WriteSequence. A different epoch or capacity replaces the ring with a fresh one first; it is posted to both of its
 // readers (the browser, and the Animation worker on its master port) before any later message (the growPoseRing precedent), so each
 // holds it before the read that follows (Story 9A.23 D1). An empty publication means no world has been admitted yet.
 function writeEventRing(batch) {
@@ -81,28 +82,23 @@ function writeEventRing(batch) {
     const capacity = view.getUint32(EVENT_CAPACITY_OFFSET, true), epoch = view.getBigUint64(EVENT_EPOCH_OFFSET, true);
     const records = (batch.length - EVENT_HEADER_BYTES) / EVENT_SLOT_BYTES;
     if (!Number.isInteger(records) || records < 0 || records > capacity) throw new Error('An event publication is not whole records within its ring.');
-    if (!eventRing || capacity !== eventCapacity || epoch !== eventEpoch) {
-        const buffer = new SharedArrayBuffer(EVENT_HEADER_BYTES + capacity * EVENT_SLOT_BYTES);
-        new Uint8Array(buffer).set(batch.subarray(0, EVENT_WRITE_SEQUENCE_OFFSET));
-        eventRing = buffer; eventWords = new BigUint64Array(buffer); eventCapacity = capacity; eventEpoch = epoch;
-        self.postMessage({ eventRing: buffer });
-        if (animationPort) animationPort.postMessage({ eventRing: buffer });
+    if (!eventRing || capacity !== eventRing.capacity || epoch !== eventRing.epoch) {
+        eventRing = EventRingMemory.allocate(capacity, epoch);
+        self.postMessage({ eventRing: eventRing.buffer });
+        if (animationPort) animationPort.postMessage({ eventRing: eventRing.buffer });
     }
     // The publication's own words (an aligned copy when the view is not 8-byte aligned), in platform order like the ring's.
     const aligned = batch.byteOffset % 8 === 0;
     const source = new BigUint64Array(aligned ? batch.buffer : batch.slice().buffer, aligned ? batch.byteOffset : 0, batch.length / 8);
     for (let offset = EVENT_HEADER_BYTES; offset < batch.length; offset += EVENT_SLOT_BYTES) {
+        // The writer's seqlock: the slot's sequence word is 0 while every payload word is stored, then the sequence is published.
         const sequence = view.getBigUint64(offset, true);
-        const slot = EVENT_HEADER_BYTES + Number((sequence - 1n) & BigInt(capacity - 1)) * EVENT_SLOT_BYTES;
-        // Seqlock (review F1): the sequence word is invalid (0) while every payload word is stored with Atomics.store, then published.
-        // A plain payload copy may be reordered past the sequence stores, so a reader could accept a torn slot.
-        Atomics.store(eventWords, slot / 8, 0n);
-        for (let word = 1; word < EVENT_SLOT_BYTES / 8; word++)
-            Atomics.store(eventWords, slot / 8 + word, source[offset / 8 + word]);
-        Atomics.store(eventWords, slot / 8, sequence);
+        eventRing.publishSequence(sequence, 0n);
+        for (let word = 1; word < EVENT_SLOT_BYTES / 8; word++) eventRing.storePayload(sequence, word, source[offset / 8 + word]);
+        eventRing.publishSequence(sequence, sequence);
     }
-    Atomics.store(eventWords, EVENT_LAPPED_OFFSET / 8, view.getBigUint64(EVENT_LAPPED_OFFSET, true));
-    Atomics.store(eventWords, EVENT_WRITE_SEQUENCE_OFFSET / 8, view.getBigUint64(EVENT_WRITE_SEQUENCE_OFFSET, true));
+    eventRing.storeLapped(view.getBigUint64(EVENT_LAPPED_OFFSET, true));
+    eventRing.storeWriteSequence(view.getBigUint64(EVENT_WRITE_SEQUENCE_OFFSET, true));
 }
 
 function clockNow() {
@@ -120,7 +116,7 @@ function disposeOwned() {
     for (const timer of turnTimers) clearTimeout(timer);
     turnTimers.clear(); queuedTurns.length = 0;
     poseRing = poseSeqView = undefined; poseCapacity = 0;
-    eventRing = eventWords = undefined; eventCapacity = 0; eventEpoch = 0n;
+    eventRing = undefined;
     pendingScheduleControls.length = 0;
     latestRead = undefined; readInFlight = false;
 }
@@ -346,7 +342,7 @@ self.onmessage = async event => {
             };
             animationPort.start();
             // A ring allocated before the port arrived reaches the Animation worker's reader too.
-            if (eventRing) animationPort.postMessage({ eventRing });
+            if (eventRing) animationPort.postMessage({ eventRing: eventRing.buffer });
             self.postMessage({ animationPeer }, [animationPeer.buffer]);
         } catch (error) { disposeOwned(); self.postMessage({ failure: true, detail: String(error) }); }
         return;

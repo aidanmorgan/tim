@@ -324,7 +324,30 @@ Native candidate committed locally and not pushed (worktree `story-9a-23-25b`): 
   - Each Impact record equals its row field by field: struck body, Count = row sequence, Ordinal, Phase, and Magnitude = Debit. This states the D9 claim as behaviour.
   - Hit 1's recorded approach speed is within g/120 of the analytic impact speed.
   - The one-off run on main dc0356de predates this row check. That run covers the records without D9; the row check needs D9's ledger.
-- **R2-F2: structural seqlock guard.** `EverySeqlockPayloadWordIsAnAtomicWholeWordAccessOnBothSidesOfTheRing` checks the source of this checkout, in the style of `Hits()`:
+- **Encapsulation of the ring's shared memory (owner request, 24 Oct 2026; supersedes the R2-F2 source scan below).** Evidence is in `evidence-9a-23-25b/encapsulation/`.
+  - **JS.** `EventRingMemory` lives in `event-ring-cursor.js`, and the Simulation worker imports it from there.
+    - It alone constructs the view over the SharedArrayBuffer: a private `#words` `BigUint64Array`.
+    - Each accessor is one `Atomics.load` or `Atomics.store` of a whole word: `loadSequence`/`publishSequence`, `loadPayload`/`storePayload`, `loadWriteSequence`/`storeWriteSequence` and `storeLapped`. The header words are stored by `allocate` and validated by `attach`.
+    - The writer's seqlock in `writeEventRing` and the reader's seqlock in `EventRingCursor.read` are each written once, against these accessors.
+    - The worker and the cursor hold the ring only through the wrapper. Its `buffer` getter exists only to post the ring.
+  - **C#.** `EventRingMemory` lives in `EventRingBuffer.cs`.
+    - It holds private bytes, with one raw word view (`Word`, `Unsafe.As`) used only inside `Volatile.Read`/`Volatile.Write` accessors of the same shape as the JS ones.
+    - It also offers `Header` and `Snapshot()`, both read word by word, and `Load(bytes)` for a ring another writer produced.
+    - `Append` (the writer) and `EventRingConsumer.TryRead` (the reader) use only those accessors. Callers and tests hold an `EventRingMemory` instead of a `byte[]`.
+  - **Guard: `OnlyTheEventRingMemoryViewsTheRingAndEveryAccessorIsAtomic`** replaces the broad source scan below.
+    - **JS:** the only view over an existing buffer in the module is the wrapper's, besides two fresh delivery buffers. Every use of `#words` is an `Atomics.load`/`Atomics.store`. No code reaches `ring.buffer`. The worker uses `eventRing.buffer` only in its posts. Both readers hand the posted ring only to `attach`.
+    - **C#:** `Unsafe.As` appears once, in the wrapper's `Word`, and `_memory` is used in exactly four places. Every use of `Word` is a `Volatile` read or write, and no `Volatile` call appears outside the wrapper.
+  - **Seven one-sided mutants, each killed by the guard** (logs `encapsulation/mutations/*.log`):
+    - JS `storePayload` plain;
+    - JS `loadPayload` plain;
+    - JS writer bulk `Uint8Array` over `eventRing.buffer`;
+    - JS reader bulk `BigUint64Array` over `this.ring.buffer`;
+    - JS reader extra `DataView` over `this.ring.buffer`;
+    - C# `StorePayload` plain;
+    - C# `LoadPayload` plain.
+
+    The functional node tests pass under the JS mutants (13/13 and 8/8), so the guard is the deterministic check. The behavioural, reused-slot, lap and stress tests stay green.
+- **R2-F2: structural seqlock guard (superseded by the encapsulation above).** `EverySeqlockPayloadWordIsAnAtomicWholeWordAccessOnBothSidesOfTheRing` checked the source of this checkout, in the style of `Hits()`:
   - **JS writer (`writeEventRing`):** between the slot's two sequence stores, each payload word is `Atomics.store(eventWords, slot / 8 + word, …)` in the word loop. Every other use of `eventWords` is an `Atomics.store` (only its creation is not), and `eventRing` is only allocated and posted.
   - **JS reader (`read`):** between `before` and `after`, each payload word is `Atomics.load(this.words, slot / 8 + word)`. Every `this.words` use is an `Atomics.load`, and `this.buffer` appears only in the guard.
   - **C# `Append`:** each payload word is `Volatile.Write(ref Word(ring, slot + word), …)`. Every `Word(ring, …)` is a `Volatile.Write`. The only other ring accesses are the header `CopyTo` and the epoch check, and there is no `ring[`.
@@ -395,4 +418,9 @@ Folder: `_bmad-output/implementation-artifacts/evidence-9a-23-25b/`.
 | Round 2 tree: full slnx `--no-build --no-restore`, no blame | `behavioural/test.log` | WorkerAotGuard 17, BundleElements 191, Coverage 77, E2eRunner 190, CuriousContraptions.tests 2950; 0 failed, 0 skipped, rc 0 (`test-before-r2.log`: the R2-F1 first cut, 2949, rc 0) |
 | Round 2 tree: node harnesses (`--test-timeout=120000` under `timeout 900`) | `behavioural/node-harness.log` | 112/112, 0 cancelled, 0 skipped, 0 todo, rc 0 |
 | Round 2 tree: `git diff --check` (worktree, index, vs HEAD and vs origin/main, excluding raw evidence logs) | `behavioural/diff-check.txt` | clean |
+| Encapsulation tree (on merge 7a008021): one Debug slnx build | `encapsulation/build.log` | 0 warnings, 0 errors |
+| Encapsulation tree: full slnx `--no-build --no-restore`, no blame | `encapsulation/test.log` | WorkerAotGuard 17, Coverage 77, BundleElements 191, E2eRunner 190, CuriousContraptions.tests 2950; 0 failed, 0 skipped, rc 0 |
+| Encapsulation tree: node harnesses (`--test-timeout=120000` under `timeout 900`) | `encapsulation/node-harness.log` | 112/112, 0 cancelled, 0 skipped, 0 todo, rc 0 |
+| Encapsulation tree: amplified stress ×10 | `encapsulation/stress-10.txt` | 0 of 10 failed (about 3 s a run) |
+| Encapsulation tree: `git diff --check` (worktree, and vs origin/main excluding raw evidence logs) | `encapsulation/diff-check.txt` | clean |
 | Strict tsc, snapshot schema unit | `candidate/tsc.log`, `candidate/e2e-unit.log` | not re-run: no `.ts` or tsconfig input changed since (`git diff --stat 7d0c6d45 HEAD -- '*.ts' '*.json'` is empty, and the merges touched none) |

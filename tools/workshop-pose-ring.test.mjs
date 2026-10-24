@@ -105,6 +105,9 @@ export { writePoseRing };
             for (const name of ['attachClockRing', 'deriveExchange', 'qualifyDerivation', 'writeDerivation', 'beat'])
                 this.setExport(name, () => { throw new Error('The pose writer control never bootstraps a clock.'); });
         }, { context: workerContext });
+        if (name === '../event-ring-cursor.js') return new vm.SyntheticModule(['EventRingMemory'], function () {
+            this.setExport('EventRingMemory', eventRingCursor.EventRingMemory);
+        }, { context: workerContext });
         return new vm.SyntheticModule(['admitNativeClock', 'nativeNow', 'nativeClockEvidence'], function () {
             this.setExport('admitNativeClock', async () => {});
             this.setExport('nativeNow', () => 1); this.setExport('nativeClockEvidence', () => []);
