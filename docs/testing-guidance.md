@@ -48,6 +48,49 @@ Use the existing test builders (`PlacedParts`, `LawScene`, `SwitchMachine` and s
 - **Duplicate test-data rows** that xUnit collapses.
 - **Tests that cannot fail**, such as tautologies or assertions that a value equals itself.
 
+## Integration tests: the system working as a whole, without a browser
+
+Integration tests prove that the real subsystems work together as players experience them:
+- content and packages;
+- authoring;
+- compilation;
+- the worker device and solver;
+- committed reads;
+- the event ring;
+- presentation;
+- saves.
+
+They never need Chrome, Playwright or a running browser. They run the core systems through one well-defined, deterministic mechanism.
+
+**The mechanism.** All integration tests use the single shared native harness, the *Workshop integration harness* in `CuriousContraptions.tests`. It composes the production pieces:
+- **Bundle:** the real `elements.bundle.json`, loaded through `PartRegistry`. Content comes from `content/` through its production reader.
+- **Simulation:** the real `WorkshopSimulation`, over the real `WorkshopGpuDevice` and `BrowserGpuTransport`. Commands and responses cross the production wire codec, so the encode/decode path is exercised every tick.
+- **Clock:** a deterministic step clock and fixed cadence settings (60, 120 or 240 Hz, as declared). The harness advances time only by explicit ticks. No wall clock, no real threads racing, no sleeps.
+- **Authoring:** construction goes through the same operations the UI performs (placement through `PlacementPose`, generic-editor parameter operations, wiring, Undo and Cancel), or through authored lesson content. Hand-built internal tables are not allowed.
+- **Observation:** committed reads, event-ring records read through the production reader (`EventRingMemory`), presentation samples from the declared presentation evaluator, goal outcomes and typed refusals.
+
+**A scenario** is a short, deterministic script:
+1. **Build.** Place parts, set parameters and wire them through authoring operations.
+2. **Run.** Run for N ticks, or until a named committed condition, with a bounded tick limit.
+3. **Interact.** Pause, Step, Reset, Save, then Load into a fresh harness, where the behaviour applies.
+4. **Assert.** Check observable outcomes: which bodies moved where, within envelope tolerances; which events fired, at which ticks; which lamps or gates changed state; whether the goal was met; and what the player would see (presentation values) and read (status or refusal text).
+
+**What integration tests must cover:**
+- **Elements:** every catalogue element in at least one cross-element scenario with the parts it is designed to interact with (e.g. switch → latch → supply → powered gate; ball → bumper → receiver).
+- **Lessons:** every Playable lesson's authored solution solves at all 3 precisions.
+- **Reset:** exact after a run.
+- **Save/Load:** reproduces the run.
+- **Unsupported inputs:** refused atomically, end to end.
+
+The JS runtime layer (simulation and animation workers, client, rings) is covered through the node harnesses. They drive the shipped modules under Node with SharedArrayBuffer and workers, deterministically, with no browser.
+
+**Rules:**
+- Integration tests follow every rule above: derived expectations, envelope tolerances, controls and boundaries, mutation-proven, deterministic, no hashes, nothing skipped.
+- Each test states the behaviour of the *system*, not of one unit. If a scenario fails, the assertion message names the observable that diverged.
+- They run in the routine native suite and in CI. Keep them fast: bounded tick counts, the smallest construction that shows the interaction, and fixed seeds for sweeps.
+- New elements add their integration scenarios in the same slice. A slice that adds or changes an interaction adds or updates the scenario that proves it.
+- Browser E2E tests are a separate, later layer (see AGENTS.md). They are not a substitute for, or a prerequisite of, integration proof.
+
 ## Architecture guards: a separate, small category
 
 A few tests protect structural invariants that behaviour tests cannot see:
@@ -73,7 +116,7 @@ Legacy inputs are committed fixture files. They are not pinned by hash.
 
 ## Reviewer checklist
 
-For each new or changed test, confirm:
+For each new or changed unit or integration test, confirm:
 - it goes through a defined interface;
 - the expected values are derived independently;
 - the tolerances are derived from the envelope or the calculation;
