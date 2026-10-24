@@ -4,11 +4,17 @@
 // managed decoder (DecodeReply) consumes these replies in every Chrome suite, and WorkshopWireTests pins the same layout
 // on the C# side. WorkshopClockDerivationTests decide drift natively; this file proves the ring mechanics they rely on.
 import assert from 'node:assert/strict';
-import test from 'node:test';
+import test, { after } from 'node:test';
 import { Worker } from 'node:worker_threads';
 import * as clockRing from '../CuriousContraptions.web/wwwroot/clock-ring.js';
 
 const { ClockRole, ProbeBytes, ReplyBytes } = clockRing;
+
+// A pending Atomics.waitAsync is not a handle that keeps a Node process alive, so a test awaiting a ring reply with no other
+// pending work could end with the process instead of with the reply's timeout or answer. A page's event loop always runs the
+// wait to its end; the harness holds the loop open the same way until every test has finished.
+const keepAlive = setInterval(() => {}, 60_000);
+after(() => clearInterval(keepAlive));
 
 function peer(role, origin = 1_000_000n) {
     const bytes = new Uint8Array(64), view = new DataView(bytes.buffer);
@@ -80,8 +86,25 @@ import(workerData.ringModule).then(ring => {
 function startMaster(buffer, peers) {
     const worker = new Worker(masterScript, { eval: true, workerData: { buffer, peers,
         ringModule: new URL('../CuriousContraptions.web/wwwroot/clock-ring.js', import.meta.url).href } });
+    const failed = watch(worker);
+    return Promise.race([new Promise(resolve => worker.once('message', () => resolve(worker))), failed]);
+}
+// A worker that fails (its module import or its serving loop throws, or a message cannot be deserialized) fails the test that
+// owns it: a start still waiting for the worker rejects at once, and stop() rethrows the failure after terminating the worker.
+const failures = new WeakMap();
+function watch(worker) {
     worker.unref();
-    return new Promise(resolve => worker.once('message', () => resolve(worker)));
+    const failed = new Promise((_, reject) => {
+        const fail = error => { if (!failures.has(worker)) failures.set(worker, error); reject(error); };
+        worker.on('error', fail);
+        worker.on('messageerror', fail);
+    });
+    failed.catch(() => {});
+    return failed;
+}
+async function stop(worker) {
+    await worker.terminate();
+    if (failures.has(worker)) throw failures.get(worker);
 }
 
 test('a blocking master thread answers each requester through its own slot; a foreign probe is rejected explicitly', async () => {
@@ -102,7 +125,7 @@ test('a blocking master thread answers each requester through its own slot; a fo
         const exchange = clockRing.deriveExchange(clock, () => 1.5, 50);
         assert.ok(exchange.before === 1.5 && exchange.after === 1.5 && exchange.master > 1.5 && exchange.epoch === 0,
             'the derivation exchange returns the master reading, its bracket and its epoch');
-    } finally { await master.terminate(); }
+    } finally { await stop(master); }
 });
 
 test('a drifted master is re-derived: the next exchange and every reply carry the new correction and epoch', async () => {
@@ -125,7 +148,7 @@ test('a drifted master is re-derived: the next exchange and every reply carry th
         assert.throws(() => clockRing.writeDerivation(clock, NaN), /Invalid clock derivation correction/);
         assert.throws(() => clockRing.writeDerivation(clock, 0), /must say whether it re-derives/);
         assert.throws(() => clockRing.writeDerivation(clock, 0, 1), /must say whether it re-derives/);
-    } finally { await master.terminate(); }
+    } finally { await stop(master); }
 });
 
 test('a slew installs the new correction under the same epoch, so requester mappings keep their calibration', async () => {
@@ -141,7 +164,7 @@ test('a slew installs the new correction under the same epoch, so requester mapp
         // The stand-in master advances 1 us per stamp; the slew pulls the next stamps 5 us back.
         assert.ok(after.received < before.received, 'stamps moved by the slewed correction');
         assert.equal(clockRing.writeDerivation(clock, 0, true), 1, 'a later re-derivation still advances the epoch');
-    } finally { await master.terminate(); }
+    } finally { await stop(master); }
 });
 
 test('the Simulation heartbeat advances only when the Simulation beats, and a ring of another layout is refused', () => {
@@ -201,7 +224,7 @@ test('an unanswered derivation exchange returns null, a check while it is pendin
             if (!exchange) await new Promise(resolve => setTimeout(resolve, 5));
         }
         assert.ok(exchange && exchange.master > 1.5 && exchange.epoch === 0, 'the next exchange is answered for itself');
-    } finally { await master.terminate(); }
+    } finally { await stop(master); }
 });
 
 // Blind hunter 10 (Story 9.4b final round): a requester's wait for its reply is bounded by the mapping's probe lifetime,
@@ -233,7 +256,7 @@ import(workerData.ringModule).then(ring => {
     let now = 1.5;
     setTimeout(() => { for (;;) ring.awaitRequest(clock, ring.serveRequests(clock, {}, () => (now += 0.001))); }, 40);
 });`, { eval: true, workerData: { buffer, ringModule: new URL('../CuriousContraptions.web/wwwroot/clock-ring.js', import.meta.url).href } });
-    stalled.unref();
+    watch(stalled);
     try {
         let qualified = 0, missed = 0;
         const started = performance.now();
@@ -246,5 +269,5 @@ import(workerData.ringModule).then(ring => {
         assert.equal(qualified, 3);
         assert.ok(elapsed >= 30, `the stall was waited out (${elapsed} ms)`);
         assert.ok(missed <= elapsed / 2 + 2, `${missed} missed attempts in ${elapsed} ms: each cost a full timeout`);
-    } finally { await stalled.terminate(); }
+    } finally { await stop(stalled); }
 });

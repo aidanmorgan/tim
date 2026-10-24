@@ -1,0 +1,12 @@
+379357d8ba7516104a2a44d66d0e2480fc1c5152e6223b5a3d9508c2e5327450  tools/E2eRunner/BrowserDeferral.cs
+===== M6: ChromeSuites entry (tools/e2e/*.test.ts) removed
+    0 Warning(s)
+    0 Error(s)
+[xUnit.net 00:00:00.55]     CuriousContraptions.E2eRunner.Tests.BrowserDeferralTests.EveryOtherTestFileOfTheSystemRunsOrIsDeferred [FAIL]
+Collection: ["tools/e2e/anim-1a.test.ts", "tools/e2e/anim-1b.test.ts", "tools/e2e/anim-1c.test.ts", "tools/e2e/arch-9a-catalogue.test.ts", "tools/e2e/capacity-9r.test.ts", ···]
+Failed!  - Failed:     1, Passed:     4, Skipped:     0, Total:     5, Duration: 995 ms - E2eRunner.Tests.dll (net10.0)
+===== revert + rebuild
+379357d8ba7516104a2a44d66d0e2480fc1c5152e6223b5a3d9508c2e5327450  tools/E2eRunner/BrowserDeferral.cs
+    0 Warning(s)
+    0 Error(s)
+Passed!  - Failed:     0, Passed:     5, Skipped:     0, Total:     5, Duration: 672 ms - E2eRunner.Tests.dll (net10.0)

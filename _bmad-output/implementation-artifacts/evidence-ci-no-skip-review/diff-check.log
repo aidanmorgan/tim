@@ -1,0 +1,4 @@
+$ git diff --check HEAD
+exit 0
+$ untracked new source files trailing whitespace
+grep exit 1 (1 = none)

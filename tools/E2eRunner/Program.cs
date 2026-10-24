@@ -5,7 +5,7 @@ using System.Text;
 namespace CuriousContraptions.E2eRunner;
 
 /// <summary>The runner's verbs (the CLI boundary converts the first argument to one of these).</summary>
-internal enum Verb { Full = 1, Select, Run, Calibrate }
+internal enum Verb { Full = 1, Select, Run, Calibrate, DeferredFilter }
 
 /// <summary>The runner's options.</summary>
 internal enum Option { Out = 1, Workers, Durations, Diff, Changed }
@@ -16,6 +16,7 @@ internal sealed record CommandLine(Verb Verb, IReadOnlyDictionary<Option, string
     private static readonly Dictionary<string, Verb> Verbs = new(StringComparer.Ordinal)
     {
         ["full"] = Verb.Full, ["select"] = Verb.Select, ["run"] = Verb.Run, ["calibrate"] = Verb.Calibrate,
+        ["deferred-filter"] = Verb.DeferredFilter,
     };
     private static readonly Dictionary<string, Option> Names = new(StringComparer.Ordinal)
     {
@@ -28,10 +29,12 @@ internal sealed record CommandLine(Verb Verb, IReadOnlyDictionary<Option, string
         [Verb.Select] = [Option.Diff, Option.Changed],
         [Verb.Run] = [Option.Diff, Option.Changed, Option.Out, Option.Workers, Option.Durations],
         [Verb.Calibrate] = [Option.Out],
+        [Verb.DeferredFilter] = [],
     };
     private static readonly Dictionary<Verb, Option[]> Required = new()
     {
         [Verb.Full] = [Option.Out], [Verb.Select] = [], [Verb.Run] = [Option.Out], [Verb.Calibrate] = [Option.Out],
+        [Verb.DeferredFilter] = [],
     };
 
     public const string Usage = """
@@ -40,6 +43,7 @@ internal sealed record CommandLine(Verb Verb, IReadOnlyDictionary<Option, string
           select (--diff B | --changed F)                 print the Tier 2 selection with one reason per suite
           run (--diff B | --changed F) --out D            publish, then run the Tier 2 selection (the full run when Mode: Full)
           calibrate --out D                               publish, then measure N and print the MeasuredWorkers.cs value
+          deferred-filter                                 print the E2eRunner.Tests filter that excludes the BrowserDeferral list
         """;
 
     public static CommandLine Parse(IReadOnlyList<string> arguments)
@@ -82,6 +86,11 @@ internal static class Program
 
     private static async Task<int> RunAsync(CommandLine command)
     {
+        if (command.Verb == Verb.DeferredFilter)
+        {
+            Console.WriteLine(BrowserDeferral.CiFilter());
+            return 0;
+        }
         var root = Processes.Git(Directory.GetCurrentDirectory(), "rev-parse", "--show-toplevel").Trim();
         if (command.Verb == Verb.Select)
         {
