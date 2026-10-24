@@ -12,6 +12,7 @@ public sealed class CommandLineTests
         Assert.Equal((Verb.Full, "D", 4), (full.Verb, full.Options[Option.Out], full.Workers));
         Assert.Equal(Verb.Select, CommandLine.Parse(["select", "--diff", "main"]).Verb);
         Assert.Equal(Verb.Calibrate, CommandLine.Parse(["calibrate", "--out", "D"]).Verb);
+        Assert.Equal(Verb.DeferredFilter, CommandLine.Parse(["deferred-filter"]).Verb);
     }
 
     [Theory]
@@ -27,6 +28,7 @@ public sealed class CommandLineTests
     [InlineData("checkpoint --out D")]
     [InlineData("full --out D --workers 9")]
     [InlineData("full --out D --workers two")]
+    [InlineData("deferred-filter --out D")]
     public void InvalidCommandLinesAreUsageRefusals(string line)
     {
         var arguments = line.Split(' ', StringSplitOptions.RemoveEmptyEntries);

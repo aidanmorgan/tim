@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Globalization;
 
 namespace CuriousContraptions.E2eRunner;
 
@@ -6,7 +7,7 @@ namespace CuriousContraptions.E2eRunner;
 internal enum RunnerError
 {
     Usage = 1, UndeclaredSuite, InvalidChangedPath, GitFailed, ToolchainMissing, PreviewUnavailable, ServedIdentityMismatch,
-    OutputExists, Uncalibrated, RunnerBusy, NoPrimarySuite, PublishFailed,
+    OutputExists, Uncalibrated, RunnerBusy, NoPrimarySuite, PublishFailed, ProcessTimedOut,
 }
 
 /// <summary>A typed runner refusal.</summary>
@@ -25,8 +26,13 @@ internal sealed record ProcessResult(int ExitCode, string Output, string Error);
 
 internal static class Processes
 {
-    /// <summary>Runs a short command to completion, capturing its output (git, sysctl, ps, node --version).</summary>
-    public static ProcessResult Run(string file, IEnumerable<string> arguments, string? workingDirectory = null)
+    /// <summary>The longest a short command may run, output included, unless its caller gives another limit.</summary>
+    public static readonly TimeSpan DefaultLimit = TimeSpan.FromMinutes(10);
+
+    /// <summary>Runs a short command to completion, capturing its output (git, sysctl, ps, node --version). A command still running
+    /// at its limit is killed with its whole process tree and refused as ProcessTimedOut; so is one whose output stays open past it
+    /// (a descendant still holding the pipes).</summary>
+    public static ProcessResult Run(string file, IEnumerable<string> arguments, string? workingDirectory = null, TimeSpan? limit = null)
     {
         var start = new ProcessStartInfo(file)
         {
@@ -34,12 +40,26 @@ internal static class Processes
             WorkingDirectory = workingDirectory ?? Directory.GetCurrentDirectory(),
         };
         foreach (var argument in arguments) start.ArgumentList.Add(argument);
+        var wall = limit ?? DefaultLimit;
+        var clock = Stopwatch.StartNew();
         using var process = Process.Start(start) ?? throw new InvalidOperationException($"Could not start {file}.");
         var error = process.StandardError.ReadToEndAsync();
-        var output = process.StandardOutput.ReadToEnd();
-        process.WaitForExit();
-        return new ProcessResult(process.ExitCode, output, error.GetAwaiter().GetResult());
+        var output = process.StandardOutput.ReadToEndAsync();
+        if (!process.WaitForExit(wall))
+        {
+            process.Kill(entireProcessTree: true);
+            process.WaitForExit();
+            throw TimedOut(file, start, wall, "its process tree was killed");
+        }
+        var remaining = wall - clock.Elapsed;
+        if (remaining <= TimeSpan.Zero || !Task.WaitAll([output, error], remaining))
+            throw TimedOut(file, start, wall, "it exited but its output stayed open");
+        return new ProcessResult(process.ExitCode, output.Result, error.Result);
     }
+
+    private static RunnerException TimedOut(string file, ProcessStartInfo start, TimeSpan wall, string detail) =>
+        new(RunnerError.ProcessTimedOut, $"{file} {string.Join(' ', start.ArgumentList)} ran past its "
+            + $"{wall.TotalSeconds.ToString(CultureInfo.InvariantCulture)} s limit; {detail}.");
 
     /// <summary>Runs git in a repository and returns its output, or throws a typed GitFailed refusal.</summary>
     public static string Git(string repository, params string[] arguments)

@@ -1,0 +1,12 @@
+not ok 4 - a blocking master thread answers each requester through its own slot; a foreign probe is rejected explicitly
+  error: "Cannot find module '/Users/aidan/dev/personal/tim/.claude/worktrees/story-ci-no-skip/CuriousContraptions.web/wwwroot/clock-ring.js.missing' imported from /Users/aidan/dev/personal/tim/.claude/worktrees/story-ci-no-skip/[worker eval]"
+  code: 'ERR_MODULE_NOT_FOUND'
+not ok 5 - a drifted master is re-derived: the next exchange and every reply carry the new correction and epoch
+  error: "Cannot find module '/Users/aidan/dev/personal/tim/.claude/worktrees/story-ci-no-skip/CuriousContraptions.web/wwwroot/clock-ring.js.missing' imported from /Users/aidan/dev/personal/tim/.claude/worktrees/story-ci-no-skip/[worker eval]"
+  code: 'ERR_MODULE_NOT_FOUND'
+not ok 6 - a slew installs the new correction under the same epoch, so requester mappings keep their calibration
+  error: "Cannot find module '/Users/aidan/dev/personal/tim/.claude/worktrees/story-ci-no-skip/CuriousContraptions.web/wwwroot/clock-ring.js.missing' imported from /Users/aidan/dev/personal/tim/.claude/worktrees/story-ci-no-skip/[worker eval]"
+  code: 'ERR_MODULE_NOT_FOUND'
+not ok 10 - an unanswered derivation exchange returns null, a check while it is pending never blocks, and its late answer is consumed
+  error: "Cannot find module '/Users/aidan/dev/personal/tim/.claude/worktrees/story-ci-no-skip/CuriousContraptions.web/wwwroot/clock-ring.js.missing' imported from /Users/aidan/dev/personal/tim/.claude/worktrees/story-ci-no-skip/[worker eval]"
+  code: 'ERR_MODULE_NOT_FOUND'

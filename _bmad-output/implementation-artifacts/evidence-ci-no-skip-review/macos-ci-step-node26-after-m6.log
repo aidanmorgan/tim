@@ -1,0 +1,29 @@
+===== node v26.12.1 (/opt/homebrew/bin/node); workflow pin: node-version: '26.12.1'
+===== extracted step
+dotnet test tools/Coverage.Tests --nologo --no-build --no-restore -c Debug -f net10.0 -noAutoResponse
+dotnet test tools/BundleElements.Tests --nologo --no-build --no-restore -c Debug -f net10.0 -noAutoResponse
+dotnet test tools/WorkerAotGuard.Tests --nologo --no-build --no-restore -c Debug -f net10.0 -noAutoResponse
+deferred=$(dotnet run --project tools/E2eRunner --no-build -c Debug -- deferred-filter)
+dotnet test tools/E2eRunner.Tests --nologo --no-build --no-restore -c Debug -f net10.0 -noAutoResponse --filter "$deferred"
+===== run (bash --noprofile --norc -eo pipefail)
+Passed!  - Failed:     0, Passed:    77, Skipped:     0, Total:    77, Duration: 680 ms - Coverage.Tests.dll (net10.0)
+Passed!  - Failed:     0, Passed:   191, Skipped:     0, Total:   191, Duration: 351 ms - BundleElements.Tests.dll (net10.0)
+Passed!  - Failed:     0, Passed:    17, Skipped:     0, Total:    17, Duration: 41 ms - WorkerAotGuard.Tests.dll (net10.0)
+Passed!  - Failed:     0, Passed:   191, Skipped:     0, Total:   191, Duration: 14 s - E2eRunner.Tests.dll (net10.0)
+step exit 0
+===== generated filter
+FullyQualifiedName!=CuriousContraptions.E2eRunner.Tests.TypeCheckTests.EverySuiteAndSharedModuleTypeChecks
+FullyQualifiedName!=CuriousContraptions.E2eRunner.Tests.TypeCheckTests.ASuiteReadingADeletedAccessorFailsTheTypeCheck
+FullyQualifiedName!=CuriousContraptions.E2eRunner.Tests.SuiteProcessTests.EnvironmentIsScrubbed
+FullyQualifiedName!=CuriousContraptions.E2eRunner.Tests.SuiteProcessTests.HangIsTimedOutAndTheWholeTreeIsKilled
+FullyQualifiedName!=CuriousContraptions.E2eRunner.Tests.SuiteProcessTests.FailingAssertionFailsTheFile
+FullyQualifiedName!=CuriousContraptions.E2eRunner.Tests.SuiteProcessTests.CloseFindingInAfterHookFailsTheFile
+FullyQualifiedName!=CuriousContraptions.E2eRunner.Tests.SuiteProcessTests.FileWithoutTestsIsNoTests
+FullyQualifiedName!=CuriousContraptions.E2eRunner.Tests.SuiteProcessTests.CrashFailsTheFile
+FullyQualifiedName!=CuriousContraptions.E2eRunner.Tests.SuiteProcessTests.PassingFileIsPassAndCountsDriverSignals
+FullyQualifiedName!=CuriousContraptions.E2eRunner.Tests.SuiteProcessTests.ImportErrorFailsWithNoTests
+FullyQualifiedName!=CuriousContraptions.E2eRunner.Tests.IdentityTests.UnchangedRunPasses
+FullyQualifiedName!=CuriousContraptions.E2eRunner.Tests.IdentityTests.BundleChangedMidRunAbortsWithIdentityChanged
+FullyQualifiedName!=CuriousContraptions.E2eRunner.Tests.IdentityTests.BundleChangedAndRestoredIsStillIdentityChanged
+FullyQualifiedName!=CuriousContraptions.E2eRunner.Tests.IdentityTests.SuiteSourceChangedMidRunIsIdentityChanged
+FullyQualifiedName!=CuriousContraptions.E2eRunner.Tests.IdentityTests.EndRehashCatchesAChangeTheWatcherMissed
