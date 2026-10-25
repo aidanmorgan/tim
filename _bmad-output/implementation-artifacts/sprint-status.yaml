@@ -510,7 +510,8 @@ development_status:
   # engine-hollow-shapes, engine-two-point-friction, engine-cap-block (retry), engine-orientation-levelling, then 9a-44b.
   # Stories and acceptance: epics.md#engine-and-collider-slices.
   engine-cap-block: blocked # HALT 25 Oct after 3 bounded attempts (spec-engine-cap-block.md, engine-cap-block-attempt.patch): face drift 4/60 > 1e-9 m/s and box-on-box energy gain; retry after engine-two-point-friction (central friction anchor)
-  elements-visible-solid: in-progress # owner 25 Oct "visible = solid"; lamp, switch, delay, ramp, battery, detector, gate colliders
+  elements-visible-solid: done # lamp, switch, delay, ramp, battery, detector, gate colliders as drawn; cylinder-cap placement rest; collider-vs-art test over all 29 packages
+  elements-visible-solid-sweep: backlog # proud parts of 9 elements still uncollided (basketball seam, bumper cap/ring, domino pips, weight base/bands/eye, pressure plate studs/sockets/ring, logic parts panels/lamps/sockets)
   engine-hollow-shapes: backlog # owner 25 Oct "true hollow shapes"; ring/torus-segment/frustum kinds, surface-error bound, continuous joints
   engine-two-point-friction: backlog # drop-ramp landing yaw kick (1.25 mm); simultaneous two-point friction; central friction anchor for multi-point manifolds (unblocks engine-cap-block)
   engine-orientation-levelling: backlog # sub-f32-step levelling (axial drift to 2.2e-5 m/s); keeps the energy gates
