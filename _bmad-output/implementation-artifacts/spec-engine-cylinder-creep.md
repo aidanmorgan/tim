@@ -4,7 +4,7 @@ type: 'bugfix'
 created: '2026-10-24'
 status: 'done'
 baseline: 9568500d
-review_loop_iteration: 1
+review_loop_iteration: 0
 followup_review_recommended: true
 context:
   - '/Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-44/AGENTS.md'
@@ -183,6 +183,39 @@ Measured on f32 at 9568500d+main: M alone and M+M2 turn the Weight roll test gre
     - `[medium]` `patch` (2) The removed parallel-bisector branch and the removed B-curved branch both pass all tests. Fix: a parallel lying-on-lying cylinder with Crr > 0, whose pitch rocking does not depend on Crr, plus a crossed-pair control where Crr does change the outcome.
     - `[low]` `patch` (other) The box-face comment. Grouped with Blind 6.
 
+### 2026-10-25 — Review pass (follow-up on 02593110)
+- verdicts: 24 findings — high 3, medium 3, low 8, false 0, maybe-false 0, plus 10 carried or rejected rows.
+- findings:
+  - Forward-Only Auditor (each confirmed finding is high, per the owner gate):
+    - `[high]` `patch` `AxisSupportNormal` ends with `return m.Points[0].Normal`, an unreachable fallback. Fix: `RollingArm` returns the axis-support point with the radius, `RollingAxis` takes its normal, and `AxisSupportNormal` is deleted.
+    - `[high]` `patch` The `length >= .5f ? … : null` guard switches a short projection to the two-tangent rule, a second rule. Fix: delete it and normalise directly; the invariant gives a length ≥ 0.98. First verify the invariant holds at the narrowphase sites that set `ContactSupport.Axis` without the `SideAlignment` test (`WorkshopCollisionKernels.cs:937, 990, 1533, 1603`). If it does not, those sites are fixed so that every axis-support point satisfies it.
+    - `[high]` `patch` `gpu-f32-physics.md:217` writes the fallback rule ("a shorter one … both tangents") into the contract. Fix: delete it and keep the 0.98 invariant.
+  - Intent Alignment:
+    - `carried` Earlier divergences: entry-check surface, level control, micro-tilt, lying drops, drop ramp, box and sphere "unchanged", rocked damping.
+    - `[low]` `patch` The M1 unit test covers only the relax pass and the negative-λ recovery. Fix: add the solve-pass band bias (biasRate·s), and a mixed band/soft manifold whose block solve succeeds.
+    - `carried` (owner decision 3) The rod oracle with its declared margin.
+  - Blind Hunter:
+    - `[low]` `patch` Wrong arithmetic in the band-test comment: λ_sep is −0.064, not −0.004.
+    - `[low]` `patch` The band test is white-box, sits in the cylinder class, and does not exercise solve-pass or block success. The internal solver row is the law's defined interface, since a scene cannot force the recovery path deterministically. Grouped with the Intent M1 row. Fix: move it to `WorkshopPhysicsLawTests`, which owns contact-row laws.
+    - `[medium]` `patch` The crossed-log control cannot catch a single-axis rule. Grouped with VG 3.
+    - `[medium]` `patch` The antiparallel branch is untested. Grouped with VG 1.
+    - `[low]` `patch` The cap-chord test assumes pair order. Fix: assert in the test that the manifold reaches the B-only-curved case (collider order), or build the pair so the order is explicit.
+    - `[low]` `patch` The micro-tilt test checks only the final tilt. Fix: assert the peak tilt over the run, and correct the comment about windows.
+    - `[low]` `patch` The Resting Drift headline overclaims "face or cap … does not walk", and "M1" is an undefined spec label. Fix: narrow the headline to what is tested and name the rule in words.
+    - `reject` The lying-drops axial ceiling: owner decision (option 3 rejected).
+    - `carried` (owner decision 3) Rod retention and margin.
+    - `[low]` `patch` The Weight constants are copied. Fix: at merge, the coordinator binds the test to `WeightElementDeclaration`.
+    - `[low]` `patch` `SolveNormalRow` takes adjacent `bool manifoldSoft, bool useBias` parameters. Fix: closed-set enums (the AGENTS enum rule) and `private`.
+    - `reject` The "redundant" `Roll1`/`Roll2` reset was requested last pass. It is ordinary pool hygiene.
+  - Edge Case Hunter:
+    - `carried` (defer) The single-point curved-side pitch case.
+    - `[low]` `patch` `deferred-work.md` is not updated. Fix: at merge, the coordinator closes "Engine: lying cylinder axial creep" and adds the follow-up "orientation levelling and two-point friction" entry.
+  - Verification Gap:
+    - `[medium]` `patch` (1) The antiparallel bisector is unverified; mutant M1 passes all tests. Fix: an antiparallel `[InlineData]` (`AboutX(-90)`) on the parallel-pitch test.
+    - `[medium]` `patch` (2) Resistance about a parallel pair's common axis is never asserted; mutant M2 passes. Fix: a parallel log rolling about Z loses spin faster with Crr 0.1 than with Crr 0.
+    - `[medium]` `patch` (3) The crossed test's assertion is too weak; mutant M7 passes. Fix: assert its own derived stop (resisted < 0.1 × free at 0.35 s).
+    - `reject` (M8) The singular-matrix recovery passing `false`: with `BlockRegularization` it is unreachable for realistic inverse masses. It is covered by the shared helper's single signature.
+
 ## Design Notes
 
 **Why M1.** The normal row's branch is per point: s > 0 is rigid, with an s/h speculative allowance, and s ≤ 0 is soft. A loaded soft row sags about 70–100 µm, while a rigid row does not sag. So a two-point line contact can rest with one end on the rigid ledge and the other in the soft sag. That leaves a tilt of about sag/length, which the friction rows (r below the centre of mass) turn into axial walking. The rigid end is offered its allowance again every substep. Making the whole touching band soft whenever a sibling point is soft removes the ledge only where it coexists with a sag.
@@ -227,3 +260,21 @@ Measured on f32 at 9568500d+main: M alone and M+M2 turn the Weight roll test gre
   - The M3 and drop-ramp residuals are an open defect owned by the follow-up slice.
   - The rod settle clause has not been shown to catch a plausible defect; only its rim-angle clause has a mutant.
   - Browser qualification is pending post-catalogue.
+
+### Follow-up pass 1 (25 Oct, on 02593110)
+- **Patched:** 3 high (forward-only), 3 medium, 8 low.
+  - The fallback in `AxisSupportNormal` is gone: `RollingArm` returns the axis-support point.
+  - The short-projection guard is deleted. The 0.98 invariant was verified at every `ContactSupport.Axis` site, and none needed fixing.
+  - The doc clause stating the fallback is gone.
+  - New tests: antiparallel pitch, a parallel roll about the common axis, and the crossed log stopping at its own derived time.
+  - The band tests moved to `WorkshopPhysicsLawTests`. They cover the relax pass, the solve pass, and a block success, and the comment arithmetic is fixed.
+  - The cap chord asserts its pair order, and the micro-tilt test asserts the peak tilt.
+  - `SolveNormalRow` is private and takes the `ManifoldSoftness` and `ContactPass` enums.
+  - The docs are narrowed and name the "coherent slop band" in words.
+- **Mutants now caught:** fallback-`false`, no-parallel, no-B, plain-sum bisector, parallel mass 0, and no `LineAlignment` gate (implementer logs `scratchpad/creep-slice/review2-*`).
+- **Rejected:** 3 (the axial ceiling, the pool reset, M8). **Carried:** the remaining rows.
+- **followup_review_recommended: true.** This follow-up pass patched a high. Not yet reviewed: the `RollingArm`/`RollingAxis` signature change, the enum plumbing through six engine call sites, and the new band tests.
+- **Verification (coordinator):**
+  - Build: 0 warnings.
+  - Full suite: CuriousContraptions.tests 3429/3429, E2eRunner.Tests 208/208, BundleElements.Tests 191/191, Coverage.Tests 77/77, WorkerAotGuard.Tests 17/17. Skipped 0 in every project.
+  - Anvil: 0. `git diff --check`: clean.

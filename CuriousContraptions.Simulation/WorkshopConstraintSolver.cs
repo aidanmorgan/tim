@@ -16,6 +16,12 @@ internal readonly record struct SoftCoefficients(float BiasRate, float MassScale
     }
 }
 
+/// <summary>The TGS Soft pass a contact sweep belongs to: the biased solve, or the unbiased relax.</summary>
+internal enum ContactPass { Solve, Relax }
+
+/// <summary>Whether some point of a manifold is soft (s = separation + slop ≤ 0), which makes its slop-band points soft too.</summary>
+internal enum ManifoldSoftness { NoSoftPoint, SoftPoint }
+
 internal static class WorkshopConstraintSolver
 {
     public const float SubstepSeconds = 1.0f / 480.0f;
@@ -236,10 +242,10 @@ internal static class WorkshopConstraintSolver
     public static void PrepareRolling(ContactManifold m)
     {
         var c = m.Points[0];
-        var radiusA = RollingArm(m, c.ColA, true);
-        var radiusB = RollingArm(m, c.ColB, false);
+        var (radiusA, sideA) = RollingArm(m, c.ColA, true);
+        var (radiusB, sideB) = RollingArm(m, c.ColB, false);
         m.Rolling = MathF.Max(c.ColA.RollingResistance, c.ColB.RollingResistance) * MathF.Max(radiusA, radiusB);
-        var line = RollingAxis(m, radiusA > 0f, radiusB > 0f);
+        var line = RollingAxis(c, sideA, sideB);
         m.Roll1 = line ?? c.T1;
         m.Roll2 = line is null ? c.T2 : Vector3.Zero;
         m.RollingMass1 = m.Rolling > 0f ? AngularMass(c, m.Roll1) : 0f;
@@ -254,46 +260,35 @@ internal static class WorkshopConstraintSolver
     /// the line contact that its normal rows carry. Two curved sides whose raw axes are parallel within the narrowphase's 2°
     /// (<see cref="WorkshopCollisionKernels.LineAlignment"/>, the same test) roll about their common axis, the sign-aligned bisector;
     /// crossed sides touch at a point and roll about both tangents.</summary>
-    private static Vector3? RollingAxis(ContactManifold m, bool curvedA, bool curvedB)
+    private static Vector3? RollingAxis(ContactPoint c, ContactPoint? sideA, ContactPoint? sideB)
     {
-        var c = m.Points[0];
         if (c.ColA.Shape == ShapeKind.Sphere || c.ColB.Shape == ShapeKind.Sphere) return null;
-        if (!curvedA && !curvedB) return null;
-        Vector3 axis;
-        if (curvedA && curvedB)
+        Vector3 axis, n;
+        if (sideA is { } a && sideB is not null)
         {
             var dot = Vector3.Dot(c.ColA.U1, c.ColB.U1);
             if (MathF.Abs(dot) < WorkshopCollisionKernels.LineAlignment) return null;
-            axis = Vector3.Normalize(dot >= 0f ? c.ColA.U1 + c.ColB.U1 : c.ColA.U1 - c.ColB.U1);
+            (axis, n) = (Vector3.Normalize(dot >= 0f ? c.ColA.U1 + c.ColB.U1 : c.ColA.U1 - c.ColB.U1), a.Normal);
         }
-        else axis = curvedA ? c.ColA.U1 : c.ColB.U1;
-        // An axis-support point's own normal is within the side tolerance of its axis's perpendicular plane (|n·a| ≤ 0.199), so the
-        // projection keeps at least √(1 − 0.199²) = 0.98 of the unit axis. A projection under half of it is impossible for a classified
-        // side; it would carry no rolling line, so the row then rolls about both tangents and no NaN reaches it.
-        var n = AxisSupportNormal(m, curvedA);
-        var t = axis - Vector3.Dot(axis, n) * n;
-        var length = t.Length();
-        return length >= .5f ? t / length : null;
+        else if (sideA is { } onlyA) (axis, n) = (c.ColA.U1, onlyA.Normal);
+        else if (sideB is { } onlyB) (axis, n) = (c.ColB.U1, onlyB.Normal);
+        else return null;
+        // Every axis-support point's normal is within the side tolerance of its axis's perpendicular plane (|n·a| ≤ 0.199: the pair
+        // normal the narrowphase classified it by, or a radial normal of that cylinder's own axis), so the projection keeps at least
+        // √(1 − 0.199²) = 0.98 of the axis; two parallel sides' bisector is within 1° of each.
+        return Vector3.Normalize(axis - Vector3.Dot(axis, n) * n);
     }
 
-    /// <summary>The normal of the manifold's first axis-support point on side A (or on side B).</summary>
-    private static Vector3 AxisSupportNormal(ContactManifold m, bool sideA)
+    /// <summary>The rolling arm one side brings to its manifold, with its curved-side support: a sphere's radius at every contact (no
+    /// side), a cylinder's radius and its first axis-support point when the manifold rolls on its curved side (as the narrowphase
+    /// classified it), otherwise none (flat faces, rims and caps do not roll).</summary>
+    private static (float Arm, ContactPoint? Side) RollingArm(ContactManifold m, SimCollider collider, bool sideA)
     {
+        if (collider.Shape == ShapeKind.Sphere) return (collider.Radius, null);
+        if (collider.Shape != ShapeKind.Cylinder) return (0f, null);
         foreach (var p in m.Points)
-            if ((sideA ? p.SupportA : p.SupportB) == ContactSupport.Axis) return p.Normal;
-        return m.Points[0].Normal;
-    }
-
-    /// <summary>The rolling arm one side brings to its manifold: a sphere's radius at every contact, a cylinder's radius when the
-    /// manifold rolls on its curved side (any axis-support point, as the narrowphase classified it), otherwise none (flat faces,
-    /// rims and caps do not roll).</summary>
-    private static float RollingArm(ContactManifold m, SimCollider collider, bool sideA)
-    {
-        if (collider.Shape == ShapeKind.Sphere) return collider.Radius;
-        if (collider.Shape != ShapeKind.Cylinder) return 0f;
-        foreach (var p in m.Points)
-            if ((sideA ? p.SupportA : p.SupportB) == ContactSupport.Axis) return collider.Radius;
-        return 0f;
+            if ((sideA ? p.SupportA : p.SupportB) == ContactSupport.Axis) return (collider.Radius, p);
+        return (0f, null);
     }
 
     private static float AngularMass(ContactPoint c, Vector3 t)
@@ -357,23 +352,22 @@ internal static class WorkshopConstraintSolver
     /// Box2D's per-point rule: in a manifold where any point is soft, a point inside the band is soft too in the solve pass (bias
     /// biasRate·s) and gets no allowance in relax. Otherwise a line contact rests with one end on the rigid ledge and the other in
     /// the soft row's static sag, a tilt the friction rows turn into axial walking.</summary>
-    private static (float Bias, float MassScale, float ImpulseScale) NormalBranch(float separation, bool manifoldSoft, bool useBias,
+    private static (float Bias, float MassScale, float ImpulseScale) NormalBranch(float separation, ManifoldSoftness softness, ContactPass pass,
         in SoftCoefficients soft, float h)
     {
         var s = separation + ContactSlop;
-        if (s > 0f && !(manifoldSoft && separation <= 0f)) return (s / h, 1f, 0f);
-        if (!useBias) return (0f, 1f, 0f);
+        if (s > 0f && !(softness == ManifoldSoftness.SoftPoint && separation <= 0f)) return (s / h, 1f, 0f);
+        if (pass == ContactPass.Relax) return (0f, 1f, 0f);
         return (MathF.Max(soft.BiasRate * s, -MaxPushoutSpeed), soft.MassScale, soft.ImpulseScale);
     }
 
-    /// <summary>One normal row, solved alone. <paramref name="manifoldSoft"/>: some point of its manifold is soft (s ≤ 0); false for a
-    /// single-point manifold.</summary>
-    public static void SolveNormalRow(ContactPoint c, bool manifoldSoft, bool useBias, in SoftCoefficients soft, float h)
+    /// <summary>One normal row, solved alone, with its manifold's <paramref name="softness"/> (no soft point for a single-point one).</summary>
+    private static void SolveNormalRow(ContactPoint c, ManifoldSoftness softness, ContactPass pass, in SoftCoefficients soft, float h)
     {
         var v = RelativeVelocity(c);
         var n = new Vector3(c.Nx, c.Ny, c.Nz);
         var vn = Vector3.Dot(v, n);
-        var (bias, massScale, impulseScale) = NormalBranch(CurrentSeparation(c), manifoldSoft, useBias, soft, h);
+        var (bias, massScale, impulseScale) = NormalBranch(CurrentSeparation(c), softness, pass, soft, h);
 
         var impulse = -c.NormalMass * massScale * (vn + bias) - impulseScale * c.LambdaN;
         var total = MathF.Max(c.LambdaN + impulse, 0f);
@@ -455,21 +449,21 @@ internal static class WorkshopConstraintSolver
         return true;
     }
 
-    public static void SolveNormalBlock(List<ContactPoint> group, bool useBias, in SoftCoefficients soft, float h)
+    public static void SolveNormalBlock(List<ContactPoint> group, ContactPass pass, in SoftCoefficients soft, float h)
     {
         var n = group.Count;
-        if (n == 1) { SolveNormalRow(group[0], false, useBias, soft, h); return; }
+        if (n == 1) { SolveNormalRow(group[0], ManifoldSoftness.NoSoftPoint, pass, soft, h); return; }
 
         Span<float> rhs = stackalloc float[n];
         Span<float> scale = stackalloc float[n];
         Span<float> impulseScale = stackalloc float[n];
         Span<float> matrix = stackalloc float[n * n];
         Span<float> separation = stackalloc float[n];
-        var manifoldSoft = false;
+        var softness = ManifoldSoftness.NoSoftPoint;
         for (var i = 0; i < n; i++)
         {
             separation[i] = CurrentSeparation(group[i]);
-            manifoldSoft |= separation[i] + ContactSlop <= 0f;
+            if (separation[i] + ContactSlop <= 0f) softness = ManifoldSoftness.SoftPoint;
         }
 
         for (var i = 0; i < n; i++)
@@ -478,7 +472,7 @@ internal static class WorkshopConstraintSolver
             var v = RelativeVelocity(c);
             var normal = new Vector3(c.Nx, c.Ny, c.Nz);
             var vn = Vector3.Dot(v, normal);
-            var (bias, massScale, rowImpulseScale) = NormalBranch(separation[i], manifoldSoft, useBias, soft, h);
+            var (bias, massScale, rowImpulseScale) = NormalBranch(separation[i], softness, pass, soft, h);
             scale[i] = massScale;
             impulseScale[i] = rowImpulseScale;
 
@@ -493,7 +487,7 @@ internal static class WorkshopConstraintSolver
         Span<float> solution = stackalloc float[n];
         if (!SolveLinear(matrix, rhs, solution, n))
         {
-            for (var i = 0; i < n; i++) SolveNormalRow(group[i], manifoldSoft, useBias, soft, h);
+            for (var i = 0; i < n; i++) SolveNormalRow(group[i], softness, pass, soft, h);
             return;
         }
 
@@ -503,7 +497,7 @@ internal static class WorkshopConstraintSolver
             deltas[i] = scale[i] * solution[i] - impulseScale[i] * group[i].LambdaN;
             if (group[i].LambdaN + deltas[i] < 0f)
             {
-                for (var j = 0; j < n; j++) SolveNormalRow(group[j], manifoldSoft, useBias, soft, h);
+                for (var j = 0; j < n; j++) SolveNormalRow(group[j], softness, pass, soft, h);
                 return;
             }
         }
@@ -521,12 +515,12 @@ internal static class WorkshopConstraintSolver
         }
     }
 
-    public static void SweepManifolds(List<ContactManifold> manifolds, bool useBias, in SoftCoefficients soft, float h)
+    public static void SweepManifolds(List<ContactManifold> manifolds, ContactPass pass, in SoftCoefficients soft, float h)
     {
         foreach (var m in manifolds)
         {
             foreach (var c in m.Points) SolveFriction(c);
-            SolveNormalBlock(m.Points, useBias, soft, h);
+            SolveNormalBlock(m.Points, pass, soft, h);
             SolveRolling(m);
         }
     }

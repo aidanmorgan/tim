@@ -1172,4 +1172,91 @@ public sealed class WorkshopPhysicsLawTests
         stale.CopyTo(dynamic.InvIWorld, 0);
         Assert.InRange(1 / WorkshopConstraintSolver.EffectiveMass(contact, contact.Normal), 2 - 1e-6f, 2 + 1e-6f);
     }
+
+    // ---- the normal-branch rule: a coherent slop band (engine slice "lying cylinder axial creep", 24–25 Oct 2026) ----
+    // A body (1 kg, unit inverse inertia, its frame the world's) touches a static floor (normal +Y) at x = +0.5 and x = −0.5, 0.1 m below
+    // its centre. Each point's effective mass is 1 / (1 + 0.5²) = 0.8 and the two couple by 1 − 0.5² = 0.75. The slop is 0.2 mm, so a
+    // point 0.1 mm deep is in the band (s = +0.1 mm, Box2D's allowance s/h = 0.0001 × 480 = 0.048 m/s) and one 0.5 mm deep is soft
+    // (s = −0.3 mm).
+
+    private static (ContactPoint Right, ContactPoint Left, SoftCoefficients Soft) FloorPair(float spin, float fall, float rightGap, float leftGap)
+    {
+        var body = new SimBody
+        {
+            Qw = 1, Motion = 1, Mass = 1, InvMass = 1, Principal = Quaternion.Identity, InvI = Vector3.One, Q0 = Quaternion.Identity,
+            Vy = -fall, Wz = spin
+        };
+        WorkshopCollisionKernels.UpdateDynamicFrame(body);
+        var floor = new SimBody { Qw = 1, Motion = 0, Principal = Quaternion.Identity, Q0 = Quaternion.Identity };
+        var bodyCollider = new SimCollider { Index = 0, Body = body, Shape = ShapeKind.Box, Rq = Quaternion.Identity };
+        var floorCollider = new SimCollider { Index = 1, Body = floor, Shape = ShapeKind.Plane, Rq = Quaternion.Identity };
+        ContactPoint Point(float x, float gap, int feature) => new()
+        {
+            A = body, B = floor, ColA = bodyCollider, ColB = floorCollider, Ny = 1, Px = x, Py = -.1f, Gap = gap, Feature = feature
+        };
+        var right = Point(.5f, rightGap, 0);
+        var left = Point(-.5f, leftGap, 1);
+        var cache = new Dictionary<ulong, (float LambdaN, float LambdaT1, float LambdaT2)>();
+        WorkshopConstraintSolver.PrepareContact(right, cache);
+        WorkshopConstraintSolver.PrepareContact(left, cache);
+        return (right, left, SoftCoefficients.MakeSoft(WorkshopConstraintSolver.ContactHertz, WorkshopConstraintSolver.ContactDampingRatio,
+            WorkshopConstraintSolver.SubstepSeconds));
+    }
+
+    private static float Approach(ContactPoint c) => Vector3.Dot(WorkshopConstraintSolver.RelativeVelocity(c), Vector3.UnitY);
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void InRelaxABandPointWithASoftSiblingGetsNoAllowanceEvenWhenTheBlockFallsBackToRows(bool siblingSoft)
+    {
+        // Turning at 0.04 rad/s about Z: the left (band) point approaches at 0.02 m/s and the right one separates at 0.02 m/s. On the
+        // relax pass the block would pull the right point, so the solve falls back to rows:
+        // - with a soft right sibling, both rows carry no bias: rhs (−0.02, +0.02), λ_right = 1.25 × −0.02 − 0.75 × 0.02 = −0.04 N·s;
+        // - without one (right 0.1 mm deep too), both keep the 0.048 m/s allowance: rhs (−0.068, −0.028), λ_right = 1.25 × −0.068
+        //   − 0.75 × −0.028 = −0.064 N·s.
+        // With the soft sibling the band row is soft, has no allowance and removes the approach; without one its allowance covers the
+        // 0.02 m/s approach, so nothing is applied. f32: a removed approach is zero within the rounding of the 0.02 m/s it cancels
+        // (2^-24 × 0.02 < 1e-8).
+        var (right, left, soft) = FloorPair(.04f, 0f, siblingSoft ? -.0005f : -.0001f, -.0001f);
+        WorkshopConstraintSolver.SolveNormalBlock([right, left], ContactPass.Relax, soft, WorkshopConstraintSolver.SubstepSeconds);
+        var expected = siblingSoft ? 0f : -.02f;
+        Assert.True(MathF.Abs(Approach(left) - expected) <= 1e-8f, $"band point approaches at {Approach(left)} m/s, expected {expected}");
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void InTheSolvePassABandPointWithASoftSiblingIsSoftWithBiasRateTimesS(bool siblingSoft)
+    {
+        // The same turning pair on the biased solve pass. The right row (soft, bias max(b·s, −3) = b × −0.0003 with b the soft bias
+        // rate, about 18.1 /s, so −0.0054 m/s) still separates faster than its bias, so it takes nothing, and the block, which would pull
+        // it, falls back to rows. With a soft right sibling the left band row is soft with bias b·s = b × 0.0001: one soft row moves its
+        // approach v to v − massScale × (v + b·s), about −0.0029 m/s (that the right row took nothing is part of this expectation). Without
+        // one it keeps the 0.048 m/s allowance and takes nothing.
+        var (right, left, soft) = FloorPair(.04f, 0f, siblingSoft ? -.0005f : -.0001f, -.0001f);
+        var before = Approach(left);
+        WorkshopConstraintSolver.SolveNormalBlock([right, left], ContactPass.Solve, soft, WorkshopConstraintSolver.SubstepSeconds);
+        var s = -.0001f + WorkshopConstraintSolver.ContactSlop;
+        var expected = siblingSoft ? before - soft.MassScale * (before + soft.BiasRate * s) : before;
+        Assert.True(MathF.Abs(Approach(left) - expected) <= 1e-8f, $"band point approaches at {Approach(left)} m/s, expected {expected}");
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void AMixedBandAndSoftManifoldSolvesAsOneBlockWithItsBandPointSoft(bool siblingSoft)
+    {
+        // Falling at 0.02 m/s without turning, both points approach at 0.02 m/s on the relax pass.
+        // - With a soft right sibling, the band row is soft too: rhs (0.02, 0.02), the block's solution is non-negative and applied. With
+        //   the block regularisation ε = 1e-3 × trace / 2 = 1.25e-3 on its diagonal, both approaches end at −0.02 × ε / (2 + ε)
+        //   (the eigenvalue of (1, 1) is 2), −1.25e-5 m/s.
+        // - Without one, both keep the 0.048 m/s allowance (rhs −0.028 each), the block would pull, and the rows take nothing.
+        var (right, left, soft) = FloorPair(0f, .02f, siblingSoft ? -.0005f : -.0001f, -.0001f);
+        WorkshopConstraintSolver.SolveNormalBlock([right, left], ContactPass.Relax, soft, WorkshopConstraintSolver.SubstepSeconds);
+        const float epsilon = WorkshopConstraintSolver.BlockRegularization * 2.5f / 2;
+        var expected = siblingSoft ? -.02f * epsilon / (2 + epsilon) : -.02f;
+        foreach (var point in new[] { right, left })
+            Assert.True(MathF.Abs(Approach(point) - expected) <= 1e-8f, $"approach {Approach(point)} m/s, expected {expected}");
+    }
 }

@@ -199,8 +199,8 @@ internal sealed class WorkshopPhysicsEngine
                 WorkshopConstraintSolver.PrepareContact(warmupContacts[0], _contactCache);
                 WorkshopConstraintSolver.PrepareRolling(m);
                 WorkshopConstraintSolver.WarmStartContact(warmupContacts[0]);
-                WorkshopConstraintSolver.SweepManifolds(warmupManifolds, true, soft, WorkshopConstraintSolver.SubstepSeconds);
-                WorkshopConstraintSolver.SweepManifolds(warmupManifolds, false, soft, WorkshopConstraintSolver.SubstepSeconds);
+                WorkshopConstraintSolver.SweepManifolds(warmupManifolds, ContactPass.Solve, soft, WorkshopConstraintSolver.SubstepSeconds);
+                WorkshopConstraintSolver.SweepManifolds(warmupManifolds, ContactPass.Relax, soft, WorkshopConstraintSolver.SubstepSeconds);
                 warmupContacts[0].RelVel = -2f;
                 warmupContacts[0].MaxImpulse = 1f;
                 WorkshopConstraintSolver.Restitute(m);
@@ -221,8 +221,8 @@ internal sealed class WorkshopPhysicsEngine
             for (var i = 0; i < 20; i++)
             {
                 foreach (var cp in boxContacts) WorkshopConstraintSolver.PrepareContact(cp, _contactCache);
-                WorkshopConstraintSolver.SweepManifolds(boxManifolds, true, soft, WorkshopConstraintSolver.SubstepSeconds);
-                WorkshopConstraintSolver.SweepManifolds(boxManifolds, false, soft, WorkshopConstraintSolver.SubstepSeconds);
+                WorkshopConstraintSolver.SweepManifolds(boxManifolds, ContactPass.Solve, soft, WorkshopConstraintSolver.SubstepSeconds);
+                WorkshopConstraintSolver.SweepManifolds(boxManifolds, ContactPass.Relax, soft, WorkshopConstraintSolver.SubstepSeconds);
                 foreach (var cp in boxContacts) { cp.RelVel = -2f; cp.MaxImpulse = 1f; }
                 WorkshopConstraintSolver.Restitute(boxManifold);
                 WorkshopConstraintSolver.RestitutionPass(boxManifolds, _restitutionBodies, ++_restitutionStamp);
@@ -886,7 +886,7 @@ internal sealed class WorkshopPhysicsEngine
             for (var iteration = 0; iteration < WorkshopConstraintSolver.SolverIterations; iteration++)
             {
                 PrismaticConstraintSolver.SweepConstraints(_joints, true);
-                WorkshopConstraintSolver.SweepManifolds(_manifolds, true, softCoeffs, dt);
+                WorkshopConstraintSolver.SweepManifolds(_manifolds, ContactPass.Solve, softCoeffs, dt);
             }
 
             foreach (var b in _dynamicBodies)
@@ -950,7 +950,7 @@ internal sealed class WorkshopPhysicsEngine
             for (var iteration = 0; iteration < WorkshopConstraintSolver.RelaxIterations; iteration++)
             {
                 PrismaticConstraintSolver.SweepConstraints(_joints, false);
-                WorkshopConstraintSolver.SweepManifolds(_manifolds, false, softCoeffs, dt);
+                WorkshopConstraintSolver.SweepManifolds(_manifolds, ContactPass.Relax, softCoeffs, dt);
             }
 
             foreach (var joint in _joints)
