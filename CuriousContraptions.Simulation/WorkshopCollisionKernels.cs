@@ -747,7 +747,7 @@ internal static class WorkshopCollisionKernels
 
     /// <summary>The side tolerance mirrors the cap tolerance (EdgeFaceAlignment): a normal within the same angle of the plane
     /// perpendicular to the axis (|n·a| ≤ √(1 − 0.98²)) meets the curved side along a generator line.</summary>
-    private const float SideAlignment = 0.19899749f;
+    internal const float SideAlignment = 0.19899749f;
     /// <summary>Relative slack of the in-disc and in-face tests, so equal coaxial radii keep their shared rim.</summary>
     private const float InsideTolerance = 1e-4f;
     /// <summary>A SAT axis that is no face normal must beat the best face axis by this many metres, so a resting face keeps one

@@ -275,7 +275,8 @@ internal static class WorkshopConstraintSolver
         else return null;
         // Every axis-support point's normal is within the side tolerance of its axis's perpendicular plane (|n·a| ≤ 0.199: the pair
         // normal the narrowphase classified it by, or a radial normal of that cylinder's own axis), so the projection keeps at least
-        // √(1 − 0.199²) = 0.98 of the axis; two parallel sides' bisector is within 1° of each.
+        // √(1 − 0.199²) = 0.98 of one side's axis, and of two parallel sides' bisector (within 1° of each axis: |n·b| ≤ sin(asin 0.199 +
+        // 1°) = 0.216) at least 0.976.
         return Vector3.Normalize(axis - Vector3.Dot(axis, n) * n);
     }
 

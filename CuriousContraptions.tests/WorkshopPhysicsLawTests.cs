@@ -1261,4 +1261,46 @@ public sealed class WorkshopPhysicsLawTests
         foreach (var point in new[] { right, left })
             Assert.True(MathF.Abs(Approach(point) - expected) <= 1e-8f, $"approach {Approach(point)} m/s, expected {expected}");
     }
+
+    [Fact]
+    public void ACurvedSidesRollingRowActsOnlyAboutItsAxisProjectedIntoTheContactsTangentPlane()
+    {
+        // A dynamic lying cylinder (r 0.3, unit inverse inertia, axis U1 = +Z, Crr 0.1) touches a static floor at one curved-side point
+        // whose normal leans toward the axis, n = (0, √(1 − 0.15²), 0.15): n·U1 = 0.15, inside the side tolerance. Its rolling row
+        // resists only the axis projected into the contact's tangent plane, p = (U1 − 0.15 n) / |U1 − 0.15 n|. With an isotropic inverse
+        // inertia the row turns the spin only along p, so the spin about n is unchanged (within the f32 rounding of the 1 rad/s
+        // components, 1e-6) and the spin about p is taken out. The point's normal load, 100 N·s, bounds the row at Crr × r × 100 = 3 N·m·s,
+        // above the w·p = 0.4 × −0.15 + 1 × 0.989 ≈ 0.93 it takes. An unprojected axis would also turn the spin about n, by 0.15 × w·U1.
+        var body = new SimBody
+        {
+            Qw = 1, Motion = 1, Mass = 1, InvMass = 1, Principal = Quaternion.Identity, InvI = Vector3.One, Q0 = Quaternion.Identity,
+            Wx = .3f, Wy = .4f, Wz = 1f
+        };
+        WorkshopCollisionKernels.UpdateDynamicFrame(body);
+        var floor = new SimBody { Qw = 1, Motion = 0, Principal = Quaternion.Identity, Q0 = Quaternion.Identity };
+        var cylinder = new SimCollider
+        {
+            Index = 0, Body = body, Shape = ShapeKind.Cylinder, Radius = .3f, Hy = .4f, U1 = Vector3.UnitZ, Rq = Quaternion.Identity,
+            RollingResistance = .1f
+        };
+        var floorCollider = new SimCollider { Index = 1, Body = floor, Shape = ShapeKind.Plane, Rq = Quaternion.Identity };
+        var n = new Vector3(0, MathF.Sqrt(1 - .15f * .15f), .15f);
+        var point = new ContactPoint
+        {
+            A = body, B = floor, ColA = cylinder, ColB = floorCollider, Nx = n.X, Ny = n.Y, Nz = n.Z, Py = -.3f,
+            SupportA = ContactSupport.Axis, SupportB = ContactSupport.Material
+        };
+        WorkshopConstraintSolver.PrepareContact(point, new Dictionary<ulong, (float LambdaN, float LambdaT1, float LambdaT2)>());
+        point.LambdaN = 100f;
+        var manifold = new ContactManifold();
+        manifold.Points.Add(point);
+        WorkshopConstraintSolver.PrepareRolling(manifold);
+        var p = Vector3.Normalize(Vector3.UnitZ - Vector3.Dot(Vector3.UnitZ, n) * n);
+        var aboutNormal = Vector3.Dot(body.AngularVelocity, n);
+        Assert.True(MathF.Abs(Vector3.Dot(body.AngularVelocity, p)) > .9f, "the spin about p is there to take out");
+        WorkshopConstraintSolver.SolveRolling(manifold);
+        Assert.True(MathF.Abs(Vector3.Dot(body.AngularVelocity, n) - aboutNormal) <= 1e-6f,
+            $"spin about n {Vector3.Dot(body.AngularVelocity, n)} rad/s, was {aboutNormal}");
+        Assert.True(MathF.Abs(Vector3.Dot(body.AngularVelocity, p)) <= 1e-6f, $"spin about p {Vector3.Dot(body.AngularVelocity, p)} rad/s");
+    }
 }

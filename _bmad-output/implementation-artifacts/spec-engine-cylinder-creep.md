@@ -5,7 +5,7 @@ created: '2026-10-24'
 status: 'done'
 baseline: 9568500d
 review_loop_iteration: 0
-followup_review_recommended: true
+followup_review_recommended: false
 context:
   - '/Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-44/AGENTS.md'
   - '/Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-44/docs/testing-guidance.md'
@@ -216,6 +216,38 @@ Measured on f32 at 9568500d+main: M alone and M+M2 turn the Weight roll test gre
     - `[medium]` `patch` (3) The crossed test's assertion is too weak; mutant M7 passes. Fix: assert its own derived stop (resisted < 0.1 × free at 0.35 s).
     - `reject` (M8) The singular-matrix recovery passing `false`: with `BlockRegularization` it is unreachable for realistic inverse masses. It is covered by the shared helper's single signature.
 
+### 2026-10-25 — Review pass (follow-up 2 on 60d6a14c)
+- verdicts: 22 findings — high 0, medium 3, low 7, false 3, maybe-false 2, plus 7 carried or rejected rows.
+- findings:
+  - Forward-Only Auditor:
+    - `reject` No violations. The borderline items were checked and allowed.
+    - `[low]` `defer` The prismatic `SweepConstraints(bool useBias)` is pre-existing and falls under the enum rule (also flagged by Blind Hunter).
+  - Intent Alignment: `carried` Every divergence repeats an earlier row: level control, micro-tilt, box, lying drops, drop ramp, rod model, and the Weight surface (now bound to the declaration in merge 54622267).
+  - Verification Gap:
+    - `[medium]` `patch` (1) Deleting the sphere guard passes every test, because every ball–cylinder scene has Crr 0. Fix: a ball rolling along a static lying log with Crr 0.1, slowed against Crr 0.
+    - `[medium]` `patch` (2) The `LineAlignment` 2° boundary is untested; replacing it with 26° passes. Fix: skew cases inside and outside 2° on the parallel-pitch test.
+    - `[medium]` `patch` (3) The tangent-plane projection is untested; removing it passes. Fix: a row-level test with n·U1 ≈ 0.15. After the rolling row, spin about n is unchanged within f32 rounding and spin about the projected axis is reduced.
+  - Blind Hunter:
+    - `[false]` `reject` "The onlyA branch is never run." VG mutant m-line-273 fails 6 tests.
+    - `[low]` `patch` The 2° boundary is untested. Grouped with VG 2.
+    - `[medium]` `patch` The sphere shortcut is untested. Grouped with VG 1.
+    - `[false]` `reject` "Dropping `separation <= 0` passes every test." The apart-point mutant fails 9 energy tests.
+    - `[low]` `patch` The projection bound: with the parallel bisector, |n·b| can reach ≈ 0.216, giving ≈ 0.976, not 0.98. Fix: correct the comment and the doc. Pin the invariant with a test that every axis-support point the narrowphase emits satisfies |n·U1| ≤ `SideAlignment`, on the current sites and a seeded pose sweep. Do not add a guard: a guard would be a second rule (forward-only gate).
+    - `[maybe-false]` `reject` The normal frame mismatch (`Points[0]` versus the side point). VG shows every manifold the narrowphase builds gives all its points one support kind, so the mutant behaves identically.
+    - `defer` The prismatic bool. Grouped with the Forward-Only row.
+    - `reject` The lying-drops axial ceiling: owner decision. `[low]` `patch` The lying-drops resting gap has no lower bound. Fix: assert the body rests in contact (gap ≤ slop).
+    - `[maybe-false]` `patch` The box face bound may sit below one f32 step if a box rests away from the origin. Fix: assert each box rests within the radius where one f32 step is far below the bound, or scale the bound by the f32 step at the rest position.
+    - `carried` (owner decision 3) The rod margin.
+    - `reject` The normal-branch expectations use the declared soft coefficients and slop. Those are the law's parameters, not its logic.
+    - `[false]` `reject` "The Weight constants are copied." Merge 54622267 reads them from `WeightElementDeclaration`.
+    - `reject` Ceiling tests for the open defects: owner decision (option 3 rejected).
+    - `[low]` `patch` The pre-9A.44 save contract was deleted from `gpu-f32-physics.md`, which no longer describes the behaviour. Fix: state it. Such a save is refused as `VerifierRejected` at both boundaries and never migrated. Grouped with Edge 2.
+    - `reject` The parallel-spin 0.3 rad/s threshold is declared. It is mutation-proven against parallel mass 0, and the roll-over kinematics are not modelled.
+    - `[low]` `patch` The Resting Drift row cites only the cylinder class. Fix: cite the band unit tests in `WorkshopPhysicsLawTests` too.
+  - Edge Case Hunter:
+    - `[low]` `patch` The unguarded projection. Grouped with Blind's bound row: pin the invariant with a test, with no guard.
+    - `[low]` `patch` The deleted save contract. Grouped with Blind.
+
 ## Design Notes
 
 **Why M1.** The normal row's branch is per point: s > 0 is rigid, with an s/h speculative allowance, and s ≤ 0 is soft. A loaded soft row sags about 70–100 µm, while a rigid row does not sag. So a two-point line contact can rest with one end on the rigid ledge and the other in the soft sag. That leaves a tilt of about sag/length, which the friction rows (r below the centre of mass) turn into axial walking. The rigid end is offered its allowance again every substep. Making the whole touching band soft whenever a sibling point is soft removes the ledge only where it coexists with a sag.
@@ -278,3 +310,17 @@ Measured on f32 at 9568500d+main: M alone and M+M2 turn the Weight roll test gre
   - Build: 0 warnings.
   - Full suite: CuriousContraptions.tests 3429/3429, E2eRunner.Tests 208/208, BundleElements.Tests 191/191, Coverage.Tests 77/77, WorkerAotGuard.Tests 17/17. Skipped 0 in every project.
   - Anvil: 0. `git diff --check`: clean.
+
+### Follow-up pass 2 (25 Oct, on 60d6a14c)
+- **Patched:** 0 high, 3 medium, 7 low.
+  - New tests: a ball rolling on a lying log, skew cases inside and outside 2°, a row-level tangent-plane projection test, and an invariant test (2,547 points: every projected axis-support point satisfies |n·U1| ≤ `SideAlignment`, with no guard in the code).
+  - Lying drops assert contact at rest. Box drops assert the rest radius within which one f32 step stays below the bound.
+  - The bound is corrected (0.98 for one side, 0.976 for the parallel bisector).
+  - The pre-9A.44 save contract is restated in the docs.
+- **Rejected:** 3 false, 1 maybe-false and 5 others. **Deferred:** the prismatic bool (enum rule).
+- **Mutation testing:** deferred to the post-catalogue E2E phase (owner, 25 Oct, main 9853aea8). The implementer's last mutant checks ran before that decision arrived.
+- **followup_review_recommended: false.** This follow-up pass patched no high, so the review has converged.
+- **Verification (coordinator, after merge 54622267):**
+  - Build: 0 warnings.
+  - Full suite: CuriousContraptions.tests 3472/3472, E2eRunner.Tests 208/208, BundleElements.Tests 194/194, Coverage.Tests 77/77, WorkerAotGuard.Tests 17/17. Skipped 0 in every project.
+  - `git diff --check`: clean.
