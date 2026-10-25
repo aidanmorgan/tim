@@ -75,7 +75,7 @@ Every single story across all epics must formally satisfy the following mandator
 **Selection:** use phases below, then source dependencies and the first ready slice in that phase. Sprint file order is a status view, not a dependency oracle. A blocked slice records its concrete missing capability/decision owner and retry condition; select another independent slice within the same phase. Split parent stories are conjunctions, never implementation dispatch. A named CAT refinement shares its source owner's package where semantically identical, but distinct variants have separate delivery and proof. Existing completion evidence may be reused only after independent applicability review.
 
 1. Delivered at main d87b6a1e (CI 40181624977: 3,952 tests, 0 failed, 0 skipped; deployment 7311595713): 9A.44 Part A, the axial-creep slice `engine-cylinder-axial-creep`, and the 9A.23+9A.25b and 10.2a terminal receipts ([delivered slices](../../docs/planning/delivered-slices.md)).
-2. Stabilize in this order (coordinator, 25 Oct 2026, from the owner directives): `engine-cap-block` (in progress) → `elements-visible-solid` → `engine-hollow-shapes` → `engine-two-point-friction` → `engine-orientation-levelling` → 9A.44B → integration harness A then B → remaining TypeScript conversion → test hygiene → 9A.24 → 9A.45. Detailed contracts and [engine and collider stories](#engine-and-collider-slices) below bound this work.
+2. Stabilize in this order (coordinator, 25 Oct 2026, from the owner directives; reordered after the cap-block HALT): `elements-visible-solid` (in progress) → `engine-hollow-shapes` → `engine-two-point-friction` → `engine-cap-block` (blocked; retry after the friction anchor) → `engine-orientation-levelling` → 9A.44B → integration harness A then B → remaining TypeScript conversion → test hygiene → 9A.24 → 9A.45. Detailed contracts and [engine and collider stories](#engine-and-collider-slices) below bound this work.
 3. Continue individual CAT slices 10.2b, 10.2c, supported-impact prerequisite before 10.3, 10.4, 10.5, split 11.x/12.x/13.x, then 14.0, 14.2, 14.1, 14.3, 14.4. Resolve CAT-023 offset-COM and its motion-piece origin/tick obligations before its complete claim; attach all F.16 catalogue remainders and required F.4 collider behavior to their actual first consumer rather than leaving them after catalogue qualification.
 4. Complete every remaining `named-*` slice under the identity ledger's family/dependency order. Its source spec/requirement and canonical S owner are the detailed contract; its native entry decisions stay within the slice. Carry remaining CAT modes/fixtures with their owners. A feature/umbrella cannot stand in for a physical element.
 5. After all named intrinsic element implementations, complete the bounded native stage of [Story 15.0](#story-150-physical-placement-nudging--difficulty-assistance) and all remaining required native mode/collaborator integrations under their existing owners. Story 15.0 owns the CAT-049/CAT-050 assistance clauses retained by Stories 6.9/6.10. This native behavior precedes catalogue closure; exhaustive difficulty/campaign sweeps and browser proof do not.
@@ -89,7 +89,7 @@ Each item is one bounded native slice with its current source paths, deletion sc
 
 | Slice / sprint key | Paths and deletion | Native acceptance and dependencies |
 |---|---|---|
-|`engine-cap-block` (in progress)|`CuriousContraptions.Simulation/WorkshopConstraintSolver.cs` normal block and restitution block; delete both per-row recovery paths.|[Story engine-cap-block](#story-engine-cap-block).|
+|`engine-cap-block` (blocked: HALT 25 Oct; retry after `engine-two-point-friction`)|`CuriousContraptions.Simulation/WorkshopConstraintSolver.cs` normal block and restitution block; delete both per-row recovery paths.|[Story engine-cap-block](#story-engine-cap-block).|
 |`elements-visible-solid`|The listed element packages' collider declarations and a collider-vs-art test per element; delete each collider approximation that differs from the art.|[Story elements-visible-solid](#story-elements-visible-solid).|
 |`engine-hollow-shapes`|Shared shape-pair table, compiler, the Pipe, PipeBend45, PipeBend90 and Funnel packages, and the BallDetector collar and PoweredGate collars and sleeve; delete their box approximations.|[Story engine-hollow-shapes](#story-engine-hollow-shapes).|
 |`engine-two-point-friction`|Manifold friction rows in the constraint solver; delete the order-dependent per-point friction sequence.|[Story engine-two-point-friction](#story-engine-two-point-friction).|
@@ -114,7 +114,7 @@ Each item is one bounded native slice with its current source paths, deletion sc
 
 <a id="story-engine-cap-block"></a>
 ### Story engine-cap-block: Well-posed contact block for coplanar manifolds
-*Sprint key: `engine-cap-block`. Status: in progress; spec `spec-engine-cap-block.md` in the slice worktree. Depends on the published axial-creep slice (d87b6a1e). Diagnosis: draft spec (c).*
+*Sprint key: `engine-cap-block`. Status: **blocked** (HALT 25 Oct 2026 after three bounded designs; spec [`spec-engine-cap-block.md`](../implementation-artifacts/spec-engine-cap-block.md), patch [`engine-cap-block-attempt.patch`](../implementation-artifacts/engine-cap-block-attempt.patch); resting faces drift because face load distribution moves the per-point friction limits, and box-on-box contacts gain energy). Retry after `engine-two-point-friction` lands a central friction anchor. Depends on the published axial-creep slice (d87b6a1e). Diagnosis: draft spec (c).*
 
 *Deletes:* both per-row recovery paths in `SolveNormalBlock` and `ApplyRestitution`, and the diagonal block regularisation unless the enumeration's documented derivation still needs it.
 
@@ -127,7 +127,7 @@ Each item is one bounded native slice with its current source paths, deletion sc
 
 <a id="story-elements-visible-solid"></a>
 ### Story elements-visible-solid: Every visible solid collides with its true shape
-*Sprint key: `elements-visible-solid`. Status: backlog; after `engine-cap-block`. Owner decision (a), 25 Oct 2026.*
+*Sprint key: `elements-visible-solid`. Status: in progress (next after the cap-block HALT). Owner decision (a), 25 Oct 2026.*
 
 *Current state (collider audit, 25 Oct 2026):* the switch button collides as a box whose corners reach 0.55 m against the drawn 0.38 m button; the ball detector's outer surface stops at 0.70 m against the drawn 0.82 m; the lamp bulb and stem, the delay box's 1.25 m housing, the ramp rails, the battery terminal and the powered gate's collars and outer surfaces do not collide with their drawn shapes.
 
