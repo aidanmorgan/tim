@@ -64,6 +64,7 @@
     <ItemGroup>
         <Compile Include="ElementIsolationTests.cs" />
         <Compile Include="LampDetectorGuardTests.cs" />
+        <Compile Include="VisibleSolidColliderTests.cs" />
         <Compile Include="PlateGuardTests.cs" />
         <Compile Include="ClockGuardTests.cs" />
         <Compile Include="DeclaredOscillatorTests.cs" />

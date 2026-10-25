@@ -331,20 +331,42 @@ public sealed class PlacementPoseTests
         Assert.True(MathF.Abs(admitted.Position.Y - (1.08f + .34f)) < 1e-4f, $"rests at {admitted.Position.Y}");
     }
 
-    // The rest rule's own boundaries: a Basketball whose centre lies just outside the box's footprint is not lifted, and one held above
-    // it (no overlap) is not moved. Control: the same ball 0.05 m inside the footprint rests on the top.
+    // The rest rule's own boundaries: a Basketball whose centre lies just outside the ramp's footprint is not lifted, and one held
+    // above it (no overlap) is not moved. Control: the same ball 0.05 m inside the footprint, over the ramp's +Z rail (0.055 m square
+    // at z 0.598, y 0.11, elements-visible-solid), rests on the rail's top at 0.1375 m.
     [Fact]
     public void RestNeedsTheCentreOverTheFootprintAndATrueOverlap()
     {
         var definitions = Definitions();
-        IWorkshopInstance[] placed = [At(PartId.Ramp, 1, new(0, 0, 0), Quaternion.Identity)]; // a flat 3 m x 1.3 m box, its top at 0.09 m
+        IWorkshopInstance[] placed = [At(PartId.Ramp, 1, new(0, 0, 0), Quaternion.Identity)]; // a 3 m x 1.3 m slab, its top at 0.09 m
         var mover = new TubeMouthMover(PartId.Basketball, new(2), false);
         var outside = new Vector3(0, .1f, .7f); // |z| = 0.7 > 0.65 (the box's half width)
         Assert.Equal(Base(definitions, placed, mover, outside, Quaternion.Identity), Composed(definitions, placed, mover, outside, Quaternion.Identity));
         var inside = new Vector3(0, .1f, .6f);
         var rested = Composed(definitions, placed, mover, inside, Quaternion.Identity).Position;
-        Assert.True(MathF.Abs(rested.Y - (.09f + .34f)) < 1e-5f, $"rests at {rested.Y}");
+        Assert.True(MathF.Abs(rested.Y - (.11f + .0275f + .34f)) < 1e-5f, $"rests at {rested.Y}");
+        var slab = new Vector3(0, .1f, .2f); // 0.37 m from the rail's inner face (z 0.5705), beyond the 0.34 m radius
+        var onSlab = Composed(definitions, placed, mover, slab, Quaternion.Identity).Position;
+        Assert.True(MathF.Abs(onSlab.Y - (.09f + .34f)) < 1e-5f, $"rests on the slab at {onSlab.Y}");
         var above = new Vector3(0, .5f, 0); // its lowest point 0.16 m is above the 0.09 m top
         Assert.Equal(Base(definitions, placed, mover, above, Quaternion.Identity), Composed(definitions, placed, mover, above, Quaternion.Identity));
+    }
+
+    // elements-visible-solid: an upright cylinder's flat cap is a rest surface under the box-top rule. A Basketball dropped into the
+    // Impact switch (at 1 m) over its button (cylinder r 0.38, h 0.18 at y 0.06) rests on the button's top, 1 + 0.15 + 0.34; dropped
+    // into the Battery (at 1 m) over its terminal (cylinder r 0.16, h 0.14 at y 0.59) it rests on the terminal's top, 1 + 0.66 + 0.34,
+    // the highest top under its centre (the body's top, 0.525, is lower). Control: held clear above either part it is not moved.
+    [Theory]
+    [InlineData("switch", 1.1f, 1f + .15f + .34f)]
+    [InlineData("battery", 1.5f, 1f + .66f + .34f)]
+    public void ABallDroppedOverAnUprightCylinderRestsOnItsCap(string part, float dropY, float restY)
+    {
+        var definitions = Definitions();
+        IWorkshopInstance[] placed = [At(new PartId(part), 1, new(0, 1, 0), Quaternion.Identity)];
+        var mover = new TubeMouthMover(PartId.Basketball, new(2), false);
+        var rested = Composed(definitions, placed, mover, new(0, dropY, 0), Quaternion.Identity).Position;
+        Assert.True(MathF.Abs(rested.Y - restY) < 1e-5f, $"a ball over the {part} rests at {rested.Y}, not {restY}");
+        var clear = new Vector3(0, 3, 0);
+        Assert.Equal(Base(definitions, placed, mover, clear, Quaternion.Identity), Composed(definitions, placed, mover, clear, Quaternion.Identity));
     }
 }

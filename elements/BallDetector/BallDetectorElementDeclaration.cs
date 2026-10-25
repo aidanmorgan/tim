@@ -7,6 +7,10 @@ using CuriousContraptions.Abstractions.Signal;
 
 namespace CuriousContraptions.Elements.BallDetector;
 
+/// <summary>The Ball detector (CAT-002). Its scene's colliders: a 16-box ring (each box turned about +X to its angle) solid from the
+/// 0.65 m bore to the drawn 0.82 m collar, its tangential width 2 · 0.82 · tan(π/16) so the outer faces meet and the end faces are
+/// closed; the sensor housing above it; and the ActivationOut socket and indicator spheres. A true ring kind replaces the boxes in
+/// engine-hollow-shapes.</summary>
 public sealed class BallDetectorElementDeclaration : IMechanicalElement, IPassageSensorElement, ISceneGeometryElement
 {
     public ElementPresentation Presentation => new(1.15f, PresentationAxes.None,
@@ -34,12 +38,12 @@ public sealed class BallDetectorElementDeclaration : IMechanicalElement, IPassag
         new(PortSocket.ActivationOut, SimulationDomain.Signal, PortDirection.Output, PortSignalKind.Pulse, new Vector3(0f, 1.12f, 0f), Vector3.UnitY)
     ];
 
-    /// <summary>The 16-box ring around the 0.65 m bore (each box turned about +X to its angle) and the sensor housing above it.</summary>
     public IReadOnlyList<ColliderDescriptor> Colliders => [];
 
+    /// <summary>The detector's documented contact material (CAT-002 §2): restitution 0.15, friction 0.3, threshold 0.1 m/s.</summary>
     public IReadOnlyList<SceneBodyGeometry> SceneBodies =>
     [
-        new(".", new(1f, 0.3f, 0f, 0.1f))
+        new(".", new(0.15f, 0.3f, 0f, 0.1f))
     ];
 
     public IReadOnlyList<EventDescriptor> Events => [new(SimulationEventKind.Passage)];

@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3]
+[gd_scene load_steps=15 format=3]
 
 [ext_resource type="Script" path="res://engine/MachinePart.cs" id="1"]
 
@@ -42,6 +42,13 @@ size = Vector3(0.07, 0.32, 0.015)
 
 [sub_resource type="BoxShape3D" id="BakedShape_0_0"]
 size = Vector3(0.8500000238418579, 1.0499999523162842, 0.75)
+
+[sub_resource type="BoxShape3D" id="BakedShape_0_1"]
+size = Vector3(0.87, 0.25, 0.77)
+
+[sub_resource type="CylinderShape3D" id="BakedShape_0_2"]
+radius = 0.16
+height = 0.14
 
 [node name="battery" type="Node3D"]
 script = ExtResource("1")
@@ -96,3 +103,15 @@ position = Vector3(0, 0, 0)
 quaternion = Quaternion(0, 0, 0, 1)
 visible = false
 shape = SubResource("BakedShape_0_0")
+
+[node name="col_0_1" type="CollisionShape3D" parent="."]
+position = Vector3(0, 0.3, 0)
+quaternion = Quaternion(0, 0, 0, 1)
+visible = false
+shape = SubResource("BakedShape_0_1")
+
+[node name="col_0_2" type="CollisionShape3D" parent="."]
+position = Vector3(0, 0.59, 0)
+quaternion = Quaternion(0, 0, 0, 1)
+visible = false
+shape = SubResource("BakedShape_0_2")

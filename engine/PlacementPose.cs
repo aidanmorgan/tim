@@ -20,7 +20,8 @@ public readonly record struct ComposedPlacement(Vector3 Position, Quaternion Rot
 
 /// <summary>The pose a new part takes at a bench point (F.6 F-1), one pure main-thread composition shared by the preview, the click
 /// and the native tests: the 0.1 m grid, then a typed tube-mouth snap when one exists (Story 9R.6), otherwise rest. Rest lifts a
-/// Dynamic part that truly overlaps a Static part's collider whose top is horizontal, lies within the part's vertical extent and lies
+/// Dynamic part that truly overlaps a Static part's collider whose top is flat and horizontal (a box face or an upright cylinder's
+/// cap), lies within the part's vertical extent and lies
 /// under the part's x–z centre, so its lowest point rests on the highest such top; x, z and the rotation are unchanged. A lifted pose
 /// is admitted only when it is clear of every Static part (beyond a 10⁻⁴ m contact slop; coordinator decision B1, 23 Oct 2026).
 /// Every final pose (snap, grid or rest) is admitted only when the part's world-space extent lies in the bench volume (x ∈ [−7, 7],
@@ -120,11 +121,11 @@ public static class PlacementPose
             statics.AddRange(Pose(BundleGeometry.Colliders(other, DeclaredPhysics.Parameters(instance)), position, turn));
         }
         float? rest = null;
-        foreach (var box in statics)
+        foreach (var support in statics)
         {
-            if (box.Kind != Shape.Box || Vertical(box) is not { } up) continue;
-            var surface = box.Centre.Y + box.Height;
-            if (surface < bottom || surface > top || !Over(box, up, at) || !Array.Exists(shapes, shape => Overlaps(shape, box, 0f))) continue;
+            if (Vertical(support) is not { } up) continue;
+            var surface = support.Centre.Y + support.Height;
+            if (surface < bottom || surface > top || !Over(support, up, at) || !Array.Exists(shapes, shape => Overlaps(shape, support, 0f))) continue;
             if (rest is not { } highest || surface > highest) rest = surface;
         }
         if (rest is not { } y) return (at, PlacementRefusal.None);
@@ -177,19 +178,24 @@ public static class PlacementPose
         return cylinder.Y * Math.Clamp(along, -cylinder.HalfExtent.Y, cylinder.HalfExtent.Y) + radial;
     }
 
-    /// <summary>The box's vertical axis, when its top is horizontal.</summary>
-    private static int? Vertical(Posed box)
+    /// <summary>The vertical axis of a shape whose top is flat and horizontal: any vertical axis of a box, or an upright cylinder's own
+    /// axis (its cap). A sphere, and a cylinder on its side, have no flat top.</summary>
+    private static int? Vertical(Posed shape)
     {
-        for (var i = 0; i < 3; i++) if (MathF.Abs(box.Axis(i).Y) >= VerticalAxis) return i;
+        if (shape.Kind == Shape.Cylinder) return MathF.Abs(shape.Y.Y) >= VerticalAxis ? 1 : null;
+        if (shape.Kind != Shape.Box) return null;
+        for (var i = 0; i < 3; i++) if (MathF.Abs(shape.Axis(i).Y) >= VerticalAxis) return i;
         return null;
     }
 
-    /// <summary>Whether the x–z point lies over the box's footprint (its two horizontal axes, edges included).</summary>
-    private static bool Over(Posed box, int up, Vector3 point)
+    /// <summary>Whether the x–z point lies over the top's footprint, edges included: a box's two horizontal axes, or an upright
+    /// cylinder's cap disc.</summary>
+    private static bool Over(Posed shape, int up, Vector3 point)
     {
-        var offset = point - box.Centre;
+        var offset = point - shape.Centre;
+        if (shape.Kind == Shape.Cylinder) return offset.X * offset.X + offset.Z * offset.Z <= shape.HalfExtent.X * shape.HalfExtent.X;
         for (var i = 0; i < 3; i++)
-            if (i != up && MathF.Abs(offset.Dot(box.Axis(i))) > box.HalfAlong(i)) return false;
+            if (i != up && MathF.Abs(offset.Dot(shape.Axis(i))) > shape.HalfAlong(i)) return false;
         return true;
     }
 

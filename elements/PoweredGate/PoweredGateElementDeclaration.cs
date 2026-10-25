@@ -7,7 +7,10 @@ using CuriousContraptions.Abstractions.Mechanical;
 
 namespace CuriousContraptions.Elements.PoweredGate;
 
-/// <summary>The scene-owned frame and blade, with declared material, mass and fixed prismatic slider values.</summary>
+/// <summary>The scene-owned frame and blade, with declared material, mass and fixed prismatic slider values. The frame's colliders: the
+/// 16-box sleeve ring (each box turned about +X to its angle), solid from the 0.65 m bore to the drawn 0.70 m sleeve, its tangential
+/// width 2 · 0.70 · tan(π/16) so the outer faces meet; the motor housing above it; the two blade rails; and the PowerIn socket and
+/// indicator spheres. The 0.78 m collars are not yet solid: they need a ring kind (engine-hollow-shapes).</summary>
 public sealed class PoweredGateElementDeclaration : ISliderElement, IElectricalElement, ISceneGeometryElement
 {
     public ElementPresentation Presentation => new(1.5f, PresentationAxes.None,
@@ -35,13 +38,13 @@ public sealed class PoweredGateElementDeclaration : ISliderElement, IElectricalE
         new(PortSocket.PowerIn, SimulationDomain.Electrical, PortDirection.Input, null, new Vector3(0f, 1.65f, .92f), Vector3.UnitZ)
     ];
 
-    /// <summary>The 16-box ring around the 0.65 m bore (each box turned about +X to its angle), the motor housing above it and the
-    /// two blade rails.</summary>
     public IReadOnlyList<ColliderDescriptor> Colliders => [];
 
+    /// <summary>The frame and the blade both take the gate's documented contact material (CAT-051 §2): restitution 0.1, friction 0.3,
+    /// threshold 0.1 m/s.</summary>
     public IReadOnlyList<SceneBodyGeometry> SceneBodies =>
     [
-        new(".", new(1f, 0.3f, 0f, 0.1f)),
+        new(".", new(0.1f, 0.3f, 0f, 0.1f)),
         new("Visual/Blade", new(0.1f, 0.3f, 0f, 0.1f))
     ];
 

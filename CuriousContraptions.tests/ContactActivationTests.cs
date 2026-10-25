@@ -19,27 +19,38 @@ public sealed class ContactActivationTests
         uint substeps, PhysicsSceneDeclaration scene) => network.ValidateRead(read, network.ClearTimers(), tick, substeps, scene);
 
     [Fact]
-    public void CompilerPreservesBothSwitchBoxesAndInheritedStaticMaterials()
+    public void CompilerKeepsEverySwitchColliderAsDrawnWithTheInheritedStaticMaterial()
     {
         var construction = Construction();
         var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
         var boxes = scene.Colliders.ToArray().Where(c => c.Body == new GpuBodyId(2)).ToArray();
-        Assert.Equal(2, boxes.Length);
-        Assert.All(boxes, b => Assert.Equal(ColliderShapeKind.Box, b.Shape));
+        // The base and the button, then (elements-visible-solid) the two terminal spheres and the activation socket sphere.
+        Assert.Equal(5, boxes.Length);
+        Assert.Equal(ColliderShapeKind.Box, boxes[0].Shape);
         Assert.Equal(new MetreVector(0f, -.15f, 0f), boxes[0].Pose.Translation);
         Assert.Equal(new MetreVector(.55f, .125f, .5f), boxes[0].HalfExtents);
-        Assert.Equal(new MetreVector(0f, .05f, 0f), boxes[1].Pose.Translation);
-        Assert.Equal(new MetreVector(.4f, .09f, .375f), boxes[1].HalfExtents);
-        var material = scene.Materials.ToArray().Single(m => m.Id == boxes[0].Material);
-        Assert.Equal(new Restitution(1f), material.Restitution);
-        Assert.Equal(new LinearSpeed(.1f), material.BounceThreshold);
-        Assert.Equal(new FrictionCoefficient(.3f), material.Friction);
+        // The drawn button (elements-visible-solid): a cylinder of radius 0.38 and height 0.18 at y 0.06, axis local +Y.
+        Assert.Equal(ColliderShapeKind.Cylinder, boxes[1].Shape);
+        Assert.Equal(new MetreVector(0f, .06f, 0f), boxes[1].Pose.Translation);
+        Assert.Equal((.38f, new MetreVector(0f, .09f, 0f)), (boxes[1].Radius.Value, boxes[1].HalfExtents));
+        // The terminals (spheres r 0.08 at x ∓0.58) and the ActivationOut socket (sphere r 0.09 at (0.45, 0, 0.4)), as drawn.
+        Assert.Equal([(ColliderShapeKind.Sphere, new MetreVector(-.58f, 0f, 0f), .08f), (ColliderShapeKind.Sphere, new MetreVector(.58f, 0f, 0f), .08f),
+                (ColliderShapeKind.Sphere, new MetreVector(.45f, 0f, .4f), .09f)],
+            boxes[2..].Select(c => (c.Shape, c.Pose.Translation, c.Radius.Value)));
+        // Every collider of the switch takes the inherited static material.
+        Assert.All(boxes, collider =>
+        {
+            var material = scene.Materials.ToArray().Single(m => m.Id == collider.Material);
+            Assert.Equal((new Restitution(1f), new LinearSpeed(.1f), new FrictionCoefficient(.3f)),
+                (material.Restitution, material.BounceThreshold, material.Friction));
+        });
         var trigger = Assert.Single(scene.Triggers.ToArray());
         Assert.Equal(new GpuBodyId(2), trigger.Owner);
         Assert.Equal(new BodyTargetSet(BodyTargetKind.AllDynamic, default), trigger.Targets);
         Assert.True(trigger.Targets.Contains(new(1)));
         Assert.Equal(new ContactSpeed(.8f), trigger.Threshold);
-        Assert.Single(scene.Colliders.ToArray(), c => c.Body == new GpuBodyId(3));
+        // The lamp's base box, bulb sphere and stem cylinder (elements-visible-solid).
+        Assert.Equal(3, scene.Colliders.ToArray().Count(c => c.Body == new GpuBodyId(3)));
     }
 
     [Fact]

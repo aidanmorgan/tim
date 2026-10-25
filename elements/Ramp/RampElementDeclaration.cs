@@ -32,13 +32,21 @@ public sealed class RampElementDeclaration : IMechanicalElement, ISceneGeometryE
 
     public IReadOnlyList<PortDescriptor> Ports => [];
 
-    /// <summary>The slab at the default dimensions: half the length, half the 0.18 m thickness and half the width.</summary>
     public IReadOnlyList<TubeMouthParameterBinding> TubeMouthBindings => [];
 
+    /// <summary>The slab (collider 0) and the two rails (colliders 1 and 2, at z −0.598 and +0.598 for the default 1.3 m width)
+    /// follow the art's own scaling: the Visual node scales X by length / 3 and Z by width / 1.3, so each rail is as long as the
+    /// slab, and its 0.055 m depth and its offset from the centre line scale with the width. Its 0.055 m height does not scale.</summary>
     public IReadOnlyList<ColliderParameterBinding> ColliderBindings =>
     [
         new(0, GeometryComponent.HalfExtentX, "length", .5f, 0f),
-        new(0, GeometryComponent.HalfExtentZ, "width", .5f, 0f)
+        new(0, GeometryComponent.HalfExtentZ, "width", .5f, 0f),
+        new(1, GeometryComponent.HalfExtentX, "length", .5f, 0f),
+        new(1, GeometryComponent.HalfExtentZ, "width", .0275f / 1.3f, 0f),
+        new(1, GeometryComponent.OffsetZ, "width", -.598f / 1.3f, 0f),
+        new(2, GeometryComponent.HalfExtentX, "length", .5f, 0f),
+        new(2, GeometryComponent.HalfExtentZ, "width", .0275f / 1.3f, 0f),
+        new(2, GeometryComponent.OffsetZ, "width", .598f / 1.3f, 0f)
     ];
 
     public IReadOnlyList<ColliderDescriptor> Colliders => [];

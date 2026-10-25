@@ -171,10 +171,12 @@ public sealed class WorkshopWallTests
             WorkshopInput.Generic(PartId.Wall, new(7), -4, 4, -2, 0, 0, 0, 1, WallFixture.Maximum));
         var scene = WorkshopPhysicsCompiler.Compile(new(new(1), WorkshopCadenceSettings.Default(), instances), new(1, 2));
         Assert.Equal(8, scene.Bodies.Length);
-        Assert.Equal(13, scene.Colliders.Length);
+        // The 13 colliders of the harvest shapes plus, since elements-visible-solid, two rails on each of the two ramps, the lamp's
+        // bulb and stem, and the switch's two terminals and socket: 22.
+        Assert.Equal(22, scene.Colliders.Length);
         Assert.Equal(8, scene.Materials.Length);
         // Story 9R.5b: no fixed capacity; the world tables are exactly the compiled populations.
-        Assert.Equal((8, 13, 8), (scene.World.Bodies, scene.World.Colliders, scene.World.Materials));
+        Assert.Equal((8, 22, 8), (scene.World.Bodies, scene.World.Colliders, scene.World.Materials));
     }
 }
 

@@ -388,12 +388,25 @@ public sealed class WorkshopSaveTests
         {
             var body = Assert.Single(scene.Bodies.ToArray(), body => body.Id == ramp.Id);
             Assert.Equal(RigidMotionKind.Static, body.Motion);
-            var box = Assert.Single(scene.Colliders.ToArray(), collider => collider.Body == ramp.Id);
+            var colliders = scene.Colliders.ToArray().Where(collider => collider.Body == ramp.Id).ToArray();
+            Assert.Equal(3, colliders.Length);
+            var box = colliders[0];
             Assert.Equal(ColliderShapeKind.Box, box.Shape);
             Assert.Equal((float)(ramp.Parameters[new("length")] * .5f), box.HalfExtents.X);
             Assert.Equal((float)(ramp.Parameters[new("width")] * .5f), box.HalfExtents.Z);
             Assert.Equal(.18f * .5f, box.HalfExtents.Y);
             Assert.Equal(1f, Assert.Single(scene.Materials.ToArray(), material => material.Id == box.Material).Restitution.Value);
+            // The two rails (elements-visible-solid) scale with the art: the drawn 3 × 0.055 × 0.055 rails at z ∓0.598, y 0.11 have
+            // X scaled by length / 3 and Z by width / 1.3. Tolerance: a few f32 roundings of the width / 1.3 product (≤ 1e-6 m).
+            var (length, width) = ((float)ramp.Parameters[new("length")], (float)ramp.Parameters[new("width")]);
+            foreach (var (rail, side) in new[] { (colliders[1], -1f), (colliders[2], 1f) })
+            {
+                Assert.Equal(ColliderShapeKind.Box, rail.Shape);
+                Assert.Equal((length * .5f, .055f * .5f), (rail.HalfExtents.X, rail.HalfExtents.Y));
+                Assert.Equal(.0275f * width / 1.3f, rail.HalfExtents.Z, 1e-6f);
+                Assert.Equal((0f, .11f), (rail.Pose.Translation.X, rail.Pose.Translation.Y));
+                Assert.Equal(side * .598f * width / 1.3f, rail.Pose.Translation.Z, 1e-6f);
+            }
         }
     }
 

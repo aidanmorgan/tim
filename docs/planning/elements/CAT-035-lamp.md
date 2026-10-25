@@ -2,7 +2,7 @@
 
 **Current delivery (24 October 2026):** [CAT-035 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
 
-**Collider target (owner, 25 October 2026, "visible = solid"):** every part a player sees as solid collides with its true shape, overriding the harvest's "art only" bulb below. The bulb (r 0.43 at y 0.22) collides as a sphere and the stem (r 0.18, h 0.3 at y −0.17) as a cylinder, with the base box. The declared static restitution (1 in the harvest) is checked against this doc in the same slice. Planned in [`elements-visible-solid`](../../../_bmad-output/planning-artifacts/epics.md#story-elements-visible-solid) with a collider-vs-art test; not delivered yet.
+**Colliders (owner, 25 October 2026, "visible = solid"):** every part a player sees as solid collides with its true shape, overriding the harvest's "art only" bulb below. Since [`elements-visible-solid`](../../../_bmad-output/planning-artifacts/epics.md#story-elements-visible-solid) the bulb (r 0.43 at y 0.22) collides as a sphere and the stem (r 0.18, h 0.3 at y −0.17) as a cylinder, with the base box (`elements/SignalLamp/lamp.tscn`; `VisibleSolidColliderTests` checks them against the art). Static restitution 1 is this doc's value and the neutral one: pair restitution is the product of the two materials (`WorkshopConstraintSolver`, as the legacy `ContactMaterial.Combine`), so a ball leaves the lamp at its own restitution (0.55 for the Basketball, tested by a drop onto the bulb).
 
 ## 1. Identity
 
@@ -19,7 +19,7 @@
 
 | Item | Value and source |
 | --- | --- |
-| Body and shape | One static body with one static box: centre (0, −0.35, 0), half (0.425, 0.1, 0.425) `engine/gpu/WorkshopPhysicsCompiler.cs@a6c914e:L129-L129`. In the harvest baseline the bulb was art only; the target is the collider target above (visible = solid). |
+| Body and shape | One static body: the base box, centre (0, −0.35, 0), half (0.425, 0.1, 0.425) `engine/gpu/WorkshopPhysicsCompiler.cs@a6c914e:L129-L129`; the bulb sphere and the stem cylinder (Colliders above). In the harvest baseline the bulb was art only. |
 | Material | restitution 1, bounce threshold 0.1 m/s, friction 0.3 `engine/gpu/WorkshopPhysicsCompiler.cs@a6c914e:L107-L110`. |
 | Constraints and joints | none. |
 | Sockets and ports | ActivationIn (Activation, Input) at local origin `engine/gpu/WorkshopConnections.cs@a6c914e:L36-L39`, `engine/gpu/WorkshopConnections.cs@a6c914e:L47-L55`. No electrical PowerIn (the requirement forbids fabricating one). |

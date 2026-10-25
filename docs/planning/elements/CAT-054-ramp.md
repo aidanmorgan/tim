@@ -2,7 +2,7 @@
 
 **Current delivery (24 October 2026):** [CAT-054 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
 
-**Collider target (owner, 25 October 2026, "visible = solid"):** every part a player sees as solid collides with its true shape. The two rails (length × 0.055 × 0.055 at y 0.11, z ±0.46 × width, §2 Art) collide as drawn, with the slab; today they do not collide with their exact drawn shape. Planned in [`elements-visible-solid`](../../../_bmad-output/planning-artifacts/epics.md#story-elements-visible-solid) with a collider-vs-art test; not delivered yet.
+**Colliders (owner, 25 October 2026, "visible = solid"):** every part a player sees as solid collides with its true shape. Since [`elements-visible-solid`](../../../_bmad-output/planning-artifacts/epics.md#story-elements-visible-solid) the two rails collide as boxes, with the slab (`elements/Ramp/ramp.tscn`). They follow the art's own scaling (`RampElementDeclaration.ColliderBindings`): length × 0.055 m high, 0.055 × width / 1.3 deep, at y 0.11 and z ±0.46 × width, so at the default 1.3 m they stand 0.0475 m above the slab at z ±0.598. A ball rolling across the slab below about 0.82 m/s is held by a rail (`VisibleSolidColliderTests`). Placement now rests a ball over a rail on the rail's top. Static restitution 1 is this doc's value and the neutral one under the product pair law, tested by a drop onto the slab.
 
 ## 1. Identity
 
@@ -19,7 +19,7 @@
 
 | Item | Value and source |
 | --- | --- |
-| Body and shape | One static box: half extents (length/2, 0.09, width/2), identity local pose `engine/gpu/WorkshopPhysicsCompiler.cs@a6c914e:L83-L101`; thickness fixed at 0.18 m `engine/gpu/WorkshopInstances.cs@a6c914e:L22-L31`. Arbitrary full pose (`CanonicalRotation`) `engine/gpu/WorkshopInstances.cs@a6c914e:L33-L43`. |
+| Body and shape | The slab: one static box, half extents (length/2, 0.09, width/2), identity local pose `engine/gpu/WorkshopPhysicsCompiler.cs@a6c914e:L83-L101`; thickness fixed at 0.18 m `engine/gpu/WorkshopInstances.cs@a6c914e:L22-L31`; and since elements-visible-solid the two rail boxes (Colliders above). Arbitrary full pose (`CanonicalRotation`) `engine/gpu/WorkshopInstances.cs@a6c914e:L33-L43`. |
 | Material | restitution 1, bounce threshold 0.1 m/s, friction 0.3, rolling resistance 0 `engine/gpu/WorkshopPhysicsCompiler.cs@a6c914e:L87-L90`. |
 | Constraints and joints | none (static). During authored assistance the legacy made the ramp kinematic (§4 fact 4). |
 | Sockets and ports | none `engine/gpu/WorkshopConnections.cs@a6c914e:L18-L26`. |

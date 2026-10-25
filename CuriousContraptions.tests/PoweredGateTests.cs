@@ -53,7 +53,7 @@ public sealed class PoweredGateTests(NativeSceneFixture godot)
     }
 
     [Fact]
-    public void PoweredGateScene_ExtractsExact19CollidersAndThreePortLocators()
+    public void PoweredGateScene_ExtractsExact21CollidersAndThreePortLocators()
     {
         var packedScene = ResourceLoader.Load<PackedScene>("res://elements/PoweredGate/powered_gate.tscn");
         Assert.NotNull(packedScene);
@@ -62,11 +62,13 @@ public sealed class PoweredGateTests(NativeSceneFixture godot)
         {
             var (colliders, ports) = TestBundle.SceneGeometry(instance);
 
-            // Exactly 19 colliders: 16 circumference + 1 housing + 2 rails
-            Assert.Equal(19, colliders.Count);
+            // Exactly 21 colliders: 16 circumference + 1 housing + 2 rails, and (elements-visible-solid) the PowerIn socket and the
+            // indicator spheres
+            Assert.Equal(21, colliders.Count);
 
             var circumference = colliders.Take(16).ToArray();
-            var expectedCircHalfExtents = new MetreVector(0.4f, 0.025f, 0.14f);
+            // Tangential width 2·0.70·tan(π/16) rounded up to f32 (0.278477341): the sleeve's outer faces meet at its drawn 0.70 m.
+            var expectedCircHalfExtents = new MetreVector(0.4f, 0.025f, .278477341f * .5f);
             foreach (var col in circumference)
             {
                 Assert.Equal(ColliderShapeKind.Box, col.ShapeKind);
@@ -111,7 +113,7 @@ public sealed class PoweredGateTests(NativeSceneFixture godot)
     public void CanonicalColliders_MatchSceneExtractedColliders()
     {
         var canonical = DeclaredPhysics.Colliders(PartId.PoweredGate);
-        Assert.Equal(19, canonical.Count);
+        Assert.Equal(21, canonical.Count);
         Assert.Equal(canonical, DeclaredPhysics.Colliders(PartId.PoweredGate));
     }
 
@@ -173,8 +175,8 @@ public sealed class PoweredGateTests(NativeSceneFixture godot)
         Assert.Equal(1f, gateBlade.Mass.Value);
         Assert.Equal(0f, gateBlade.LinearDrag.Value); // Unwired -> 0 drag
 
-        // Colliders: plane (1) + ball (1) + blade (1) + frame (19) = 22 colliders
-        Assert.Equal(22, scene.Colliders.Length);
+        // Colliders: plane (1) + ball (1) + blade (1) + frame (21) = 24 colliders
+        Assert.Equal(24, scene.Colliders.Length);
         var bladeCollider = scene.Colliders.ToArray().Single(c => c.Body == bladeId);
         Assert.Equal(ColliderShapeKind.Box, bladeCollider.Shape);
         Assert.Equal(new MetreVector(0.06f, 0.72f, 0.72f), bladeCollider.HalfExtents);
@@ -286,7 +288,7 @@ public sealed class PoweredGateTests(NativeSceneFixture godot)
             new WorkshopInstances(gate)), new(1, 2)).World;
         Assert.Equal(2 + 1, world.Bodies);
         Assert.Equal(1, world.Dynamic);
-        Assert.Equal(20 + 1, world.Colliders);
+        Assert.Equal(22 + 1, world.Colliders); // the frame's 21 (with the socket and indicator spheres) and the blade's 1, plus the plane
         Assert.Equal(0, world.Triggers);
         Assert.Equal(0, world.ContactWorks);
         Assert.Equal(0, world.ElectricalSources);

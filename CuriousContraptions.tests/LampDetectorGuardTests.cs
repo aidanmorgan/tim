@@ -163,11 +163,28 @@ public sealed class LampDetectorGuardTests
     [Fact]
     public async Task AGlancingCrossingOutsideTheApertureFiresNothing()
     {
-        var (bench, detector, lamp, ball) = DropBench(forwardDown: true, ballX: -1.1);
+        // Just clear of the collar: its 16 boxes reach 0.82 / cos(π/16) = 0.836 m from the axis at their corners (the drawn
+        // 0.82 m collar, elements-visible-solid), so a ball of radius 0.34 centred 1.2 m out falls past them by 2.4 cm.
+        const double ballX = -1.2;
+        var (bench, detector, lamp, ball) = DropBench(forwardDown: true, ballX: ballX);
         var reads = await WorkshopPhysicsEngineTests.Run(bench, Ticks);
         Assert.Contains(reads, read => Height(read, ball) > Rearm);
         Assert.Contains(reads, read => Height(read, ball) < Plane);
-        Assert.All(reads, read => Assert.True(Math.Abs(X(read, ball) + 1.1) < .05, $"a vertical drop at tick {read.Tick.Value}"));
+        Assert.All(reads, read => Assert.True(Math.Abs(X(read, ball) - ballX) < .05, $"a vertical drop at tick {read.Tick.Value}"));
+        Assert.Empty(Passages(reads, detector));
+        Assert.All(reads, read => Assert.False(Lit(read, lamp), $"the lamp stays dark at tick {read.Tick.Value}"));
+    }
+
+    // The outer collar is solid out to its drawn 0.82 m (elements-visible-solid): a ball dropped 0.9 m out lands on the edge of the
+    // collar's upper end face (0.65–0.82 m from the axis), outside the 0.65 m aperture, and is turned aside (its x moves more than 5 cm
+    // from its drop line). No Passage fires and the lamp stays dark.
+    [Fact]
+    public async Task ABallStrikingTheOuterCollarFiresNothing()
+    {
+        const double ballX = -.9;
+        var (bench, detector, lamp, ball) = DropBench(forwardDown: true, ballX: ballX);
+        var reads = await WorkshopPhysicsEngineTests.Run(bench, Ticks);
+        Assert.Contains(reads, read => Math.Abs(X(read, ball) - ballX) > .05);
         Assert.Empty(Passages(reads, detector));
         Assert.All(reads, read => Assert.False(Lit(read, lamp), $"the lamp stays dark at tick {read.Tick.Value}"));
     }

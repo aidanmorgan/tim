@@ -26,7 +26,7 @@ public sealed class WorkshopDelayTests
         Assert.Equal(24u, ActivationTimerDeclaration.Duration(.2f, SimulationCadence.Hz120));
     }
     [Fact]
-    public void DurationPoseAndConnectionsRoundTripAndCompileOnlySourceBaseBox()
+    public void DurationPoseAndConnectionsRoundTripAndCompileTheBaseHousingAndFace()
     {
         var trigger = WorkshopInput.Generic(PartId.ImpactSwitch, new(1), -2, 2, 0, 0, 0, 0, 1);
         var lamp = PlacedParts.Lamp(new(2), 3, 2, 0, 0, 0, 0, 1);
@@ -37,10 +37,23 @@ public sealed class WorkshopDelayTests
         var saved = new WorkshopSavedConstruction(construction, new(4));
         Assert.Equal(saved, WorkshopSaveCodec.Decode(SaveFixture.Elements,WorkshopSaveCodec.Encode(saved)));
         var scene = WorkshopPhysicsCompiler.Compile(construction, new(1,2));
-        var box = Assert.Single(scene.Colliders.ToArray(), c => c.Body == new GpuBodyId(3));
+        var colliders = scene.Colliders.ToArray().Where(c => c.Body == new GpuBodyId(3)).ToArray();
+        // The base, housing and face (below), then the hub pip, the indicator and the two port sockets as spheres
+        // (elements-visible-solid; the collider-vs-art test checks them against the art).
+        Assert.Equal(7, colliders.Length);
+        var box = colliders[0];
         Assert.Equal(ColliderShapeKind.Box, box.Shape);
         Assert.Equal(new MetreVector(0f,-.7f,0f), box.Pose.Translation);
         Assert.Equal(new MetreVector(.675f,.075f,.4f), box.HalfExtents);
+        // elements-visible-solid: the drawn 1.25 × 1.25 × 0.6 housing at the origin, and the r 0.55, 0.035 m face disc at z 0.32
+        // with its axis along +Z.
+        Assert.Equal((ColliderShapeKind.Box, new MetreVector(0f, 0f, 0f), new MetreVector(.625f, .625f, .3f)),
+            (colliders[1].Shape, colliders[1].Pose.Translation, colliders[1].HalfExtents));
+        Assert.Equal((ColliderShapeKind.Cylinder, .55f, .035f * .5f), (colliders[2].Shape, colliders[2].Radius.Value, colliders[2].HalfExtents.Y));
+        Assert.Equal(new MetreVector(0f, 0f, .32f), colliders[2].Pose.Translation);
+        var face = colliders[2].Pose.Rotation;
+        var axis = System.Numerics.Vector3.Transform(System.Numerics.Vector3.UnitY, new System.Numerics.Quaternion(face.X, face.Y, face.Z, face.W));
+        Assert.True(System.Numerics.Vector3.Distance(axis, System.Numerics.Vector3.UnitZ) < 1e-6f, $"the face's axis is {axis}");
         var material = Assert.Single(scene.Materials.ToArray(), m => m.Id == box.Material);
         Assert.Equal(new Restitution(1f), material.Restitution);
         Assert.Equal(new LinearSpeed(.1f), material.BounceThreshold);

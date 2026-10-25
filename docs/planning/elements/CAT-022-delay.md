@@ -2,7 +2,7 @@
 
 **Current delivery (24 October 2026):** [CAT-022 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
 
-**Collider target (owner, 25 October 2026, "visible = solid"):** every part a player sees as solid collides with its true shape. The 1.25 m housing (the ochre 1.25 × 1.25 × 0.6 box and the r 0.65 cylinder housing in §2 Art) collides as drawn, with the base box; today it does not collide with its exact drawn shape. Planned in [`elements-visible-solid`](../../../_bmad-output/planning-artifacts/epics.md#story-elements-visible-solid) with a collider-vs-art test; not delivered yet.
+**Colliders (owner, 25 October 2026, "visible = solid"):** every part a player sees as solid collides with its true shape. Since [`elements-visible-solid`](../../../_bmad-output/planning-artifacts/epics.md#story-elements-visible-solid) the ochre 1.25 × 1.25 × 0.6 housing collides as a box at the origin and the cream face disc (r 0.55, 0.035 thick at z 0.32, axis +Z) as a cylinder, with the base box (`elements/DelayBox/delay.tscn`; `VisibleSolidColliderTests`). The current scene draws no r 0.65 cylinder housing: that was legacy art (§2 Art), so nothing collides as one. The hub pip (sphere r 0.075 at z 0.4), the indicator (sphere r 0.065 at (0, −0.35, 0.37)) and the two port sockets (spheres r 0.075 at x ±0.72) collide as drawn (coordinator decision, 25 October 2026); only the countdown hand does not, because it turns with the timer and a static collider cannot follow it. Static restitution 1 is this doc's value and the neutral one under the product pair law, tested by a drop onto the housing.
 
 ## 1. Identity
 
@@ -19,7 +19,7 @@
 
 | Item | Value and source |
 | --- | --- |
-| Body and shape | One static body with one static box: centre (0, −0.7, 0), half (0.675, 0.075, 0.4) `engine/gpu/WorkshopPhysicsCompiler.cs@a6c914e:L127-L128`. |
+| Body and shape | Harvest baseline: one static body with one static box: centre (0, −0.7, 0), half (0.675, 0.075, 0.4) `engine/gpu/WorkshopPhysicsCompiler.cs@a6c914e:L127-L128`. Current: that base box, the housing box and the face cylinder (Colliders above). |
 | Material | restitution 1, bounce threshold 0.1 m/s, friction 0.3 `engine/gpu/WorkshopPhysicsCompiler.cs@a6c914e:L107-L110`. |
 | Constraints and joints | none. |
 | Sockets and ports | ActivationIn at local (−0.72, 0, 0); ActivationOut at (0.72, 0, 0) `engine/gpu/WorkshopConnections.cs@a6c914e:L41-L52`. No electrical supply generated. |

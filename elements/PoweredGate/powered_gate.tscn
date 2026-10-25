@@ -1,4 +1,4 @@
-[gd_scene load_steps=35 format=3]
+[gd_scene load_steps=37 format=3]
 
 [ext_resource type="Script" path="res://engine/MachinePart.cs" id="1"]
 
@@ -66,52 +66,52 @@ radius = 0.07
 height = 0.14
 
 [sub_resource type="BoxShape3D" id="BakedShape_0_0"]
-size = Vector3(0.800000011920929, 0.05000000074505806, 0.2800000011920929)
+size = Vector3(0.8, 0.05, 0.278477341)
 
 [sub_resource type="BoxShape3D" id="BakedShape_0_1"]
-size = Vector3(0.800000011920929, 0.05000000074505806, 0.2800000011920929)
+size = Vector3(0.8, 0.05, 0.278477341)
 
 [sub_resource type="BoxShape3D" id="BakedShape_0_2"]
-size = Vector3(0.800000011920929, 0.05000000074505806, 0.2800000011920929)
+size = Vector3(0.8, 0.05, 0.278477341)
 
 [sub_resource type="BoxShape3D" id="BakedShape_0_3"]
-size = Vector3(0.800000011920929, 0.05000000074505806, 0.2800000011920929)
+size = Vector3(0.8, 0.05, 0.278477341)
 
 [sub_resource type="BoxShape3D" id="BakedShape_0_4"]
-size = Vector3(0.800000011920929, 0.05000000074505806, 0.2800000011920929)
+size = Vector3(0.8, 0.05, 0.278477341)
 
 [sub_resource type="BoxShape3D" id="BakedShape_0_5"]
-size = Vector3(0.800000011920929, 0.05000000074505806, 0.2800000011920929)
+size = Vector3(0.8, 0.05, 0.278477341)
 
 [sub_resource type="BoxShape3D" id="BakedShape_0_6"]
-size = Vector3(0.800000011920929, 0.05000000074505806, 0.2800000011920929)
+size = Vector3(0.8, 0.05, 0.278477341)
 
 [sub_resource type="BoxShape3D" id="BakedShape_0_7"]
-size = Vector3(0.800000011920929, 0.05000000074505806, 0.2800000011920929)
+size = Vector3(0.8, 0.05, 0.278477341)
 
 [sub_resource type="BoxShape3D" id="BakedShape_0_8"]
-size = Vector3(0.800000011920929, 0.05000000074505806, 0.2800000011920929)
+size = Vector3(0.8, 0.05, 0.278477341)
 
 [sub_resource type="BoxShape3D" id="BakedShape_0_9"]
-size = Vector3(0.800000011920929, 0.05000000074505806, 0.2800000011920929)
+size = Vector3(0.8, 0.05, 0.278477341)
 
 [sub_resource type="BoxShape3D" id="BakedShape_0_10"]
-size = Vector3(0.800000011920929, 0.05000000074505806, 0.2800000011920929)
+size = Vector3(0.8, 0.05, 0.278477341)
 
 [sub_resource type="BoxShape3D" id="BakedShape_0_11"]
-size = Vector3(0.800000011920929, 0.05000000074505806, 0.2800000011920929)
+size = Vector3(0.8, 0.05, 0.278477341)
 
 [sub_resource type="BoxShape3D" id="BakedShape_0_12"]
-size = Vector3(0.800000011920929, 0.05000000074505806, 0.2800000011920929)
+size = Vector3(0.8, 0.05, 0.278477341)
 
 [sub_resource type="BoxShape3D" id="BakedShape_0_13"]
-size = Vector3(0.800000011920929, 0.05000000074505806, 0.2800000011920929)
+size = Vector3(0.8, 0.05, 0.278477341)
 
 [sub_resource type="BoxShape3D" id="BakedShape_0_14"]
-size = Vector3(0.800000011920929, 0.05000000074505806, 0.2800000011920929)
+size = Vector3(0.8, 0.05, 0.278477341)
 
 [sub_resource type="BoxShape3D" id="BakedShape_0_15"]
-size = Vector3(0.800000011920929, 0.05000000074505806, 0.2800000011920929)
+size = Vector3(0.8, 0.05, 0.278477341)
 
 [sub_resource type="BoxShape3D" id="BakedShape_0_16"]
 size = Vector3(0.800000011920929, 0.6499999761581421, 1.7999999523162842)
@@ -124,6 +124,12 @@ size = Vector3(0.23999999463558197, 1.7000000476837158, 0.11999999731779099)
 
 [sub_resource type="BoxShape3D" id="BakedShape_1_0"]
 size = Vector3(0.11999999731779099, 1.440000057220459, 1.440000057220459)
+
+[sub_resource type="SphereShape3D" id="BakedShape_0_19"]
+radius = 0.09
+
+[sub_resource type="SphereShape3D" id="BakedShape_0_20"]
+radius = 0.07
 
 [node name="powered_gate" type="Node3D"]
 script = ExtResource("1")
@@ -297,3 +303,15 @@ position = Vector3(0, 0, 0)
 quaternion = Quaternion(0, 0, 0, 1)
 visible = false
 shape = SubResource("BakedShape_1_0")
+
+[node name="col_0_19" type="CollisionShape3D" parent="."]
+position = Vector3(0, 1.65, 0.92)
+quaternion = Quaternion(0, 0, 0, 1)
+visible = false
+shape = SubResource("BakedShape_0_19")
+
+[node name="col_0_20" type="CollisionShape3D" parent="."]
+position = Vector3(0.42, 1.65, 0.55)
+quaternion = Quaternion(0, 0, 0, 1)
+visible = false
+shape = SubResource("BakedShape_0_20")

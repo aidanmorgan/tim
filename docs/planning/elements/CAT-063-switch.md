@@ -2,7 +2,7 @@
 
 **Current delivery (24 October 2026):** [CAT-063 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
 
-**Collider target (owner, 25 October 2026, "visible = solid"):** every part a player sees as solid collides with its true shape. The button collides as a cylinder (r 0.38, h 0.18 at y 0.06), with the base box. Today it collides as a box whose corners reach 0.55 m from the axis against the drawn 0.38 m button; that box is current state, not the target. Planned in [`elements-visible-solid`](../../../_bmad-output/planning-artifacts/epics.md#story-elements-visible-solid) with a collider-vs-art test; not delivered yet.
+**Colliders (owner, 25 October 2026, "visible = solid"):** every part a player sees as solid collides with its true shape. Since [`elements-visible-solid`](../../../_bmad-output/planning-artifacts/epics.md#story-elements-visible-solid) the button collides as a cylinder (r 0.38, h 0.18 at y 0.06), with the base box (`elements/ImpactSwitch/switch.tscn`); the box (0.8 × 0.18 × 0.75 at y 0.05) whose corners reached 0.55 m from the axis is deleted. The contact trigger stays keyed to the whole body: a qualifying impact anywhere on the part (base, button, terminals or socket) fires it (decision, 25 October 2026; tested by a drop onto a terminal); a ball falling where only the old box's corner reached touches nothing and fires nothing (`VisibleSolidColliderTests`). The two terminals (spheres r 0.08 at x ±0.58, reaching about 0.11 m past the base) and the activation socket (sphere r 0.09 at (0.45, 0, 0.4)) collide as drawn (coordinator decision, 25 October 2026). Static restitution 1 is this doc's value and the neutral one under the product pair law, tested by a drop onto the button.
 
 ## 1. Identity
 
@@ -19,7 +19,7 @@
 
 | Item | Value and source |
 | --- | --- |
-| Bodies and shapes | One static body, two static boxes: base centre (0, −0.15, 0) half (0.55, 0.125, 0.5); button centre (0, 0.05, 0) half (0.4, 0.09, 0.375) `engine/gpu/WorkshopPhysicsCompiler.cs@a6c914e:L111-L118`. |
+| Bodies and shapes | Harvest baseline: one static body, two static boxes: base centre (0, −0.15, 0) half (0.55, 0.125, 0.5); button centre (0, 0.05, 0) half (0.4, 0.09, 0.375) `engine/gpu/WorkshopPhysicsCompiler.cs@a6c914e:L111-L118`. Current: the base box and the button cylinder (Colliders above). |
 | Material | restitution 1, bounce threshold 0.1 m/s, friction 0.3 (inherited static default) `engine/gpu/WorkshopPhysicsCompiler.cs@a6c914e:L107-L110`. |
 | Constraints and joints | none; the button does not move physically (its depression is cosmetic). |
 | Sockets and ports | Declared ActivationOut (Signal Output Pulse) at (.45,0,.4), PowerIn (Electrical Input) at (−.58,0,0), Supply (Electrical Output) at (.58,0,0). Gold terminals and scene locators match the package ports. Source: elements/ImpactSwitch/ImpactSwitchElementDeclaration.cs and switch.tscn. |
