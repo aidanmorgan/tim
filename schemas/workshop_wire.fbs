@@ -270,9 +270,6 @@ table PuzzleRecord {
     goal_target: uint64;
     goal_event_source: uint64;
     goal_delay: float;
-    // Pre-9A.44 lessons stored nine half-precision knots here; the slot stays reserved so such a save decodes and is refused
-    // with its typed explanation (no assistance knots), never read.
-    raw_assistance: [uint8] (deprecated);
     assistance: [AssistanceKnotRecord];
 }
 

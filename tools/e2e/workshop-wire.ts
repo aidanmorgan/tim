@@ -1401,17 +1401,17 @@ goalDelay():number {
 }
 
 assistance(index: number, obj?:AssistanceKnotRecord):AssistanceKnotRecord|null {
-  const offset = this.bb!.__offset(this.bb_pos, 26);
+  const offset = this.bb!.__offset(this.bb_pos, 24);
   return offset ? (obj || new AssistanceKnotRecord()).__init(this.bb!.__vector(this.bb_pos + offset) + index * 44, this.bb!) : null;
 }
 
 assistanceLength():number {
-  const offset = this.bb!.__offset(this.bb_pos, 26);
+  const offset = this.bb!.__offset(this.bb_pos, 24);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
 static startPuzzleRecord(builder:flatbuffers.Builder) {
-  builder.startObject(12);
+  builder.startObject(11);
 }
 
 static addId(builder:flatbuffers.Builder, idOffset:flatbuffers.Offset) {
@@ -1455,7 +1455,7 @@ static addGoalDelay(builder:flatbuffers.Builder, goalDelay:number) {
 }
 
 static addAssistance(builder:flatbuffers.Builder, assistanceOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(11, assistanceOffset, 0);
+  builder.addFieldOffset(10, assistanceOffset, 0);
 }
 
 static startAssistanceVector(builder:flatbuffers.Builder, numElems:number) {

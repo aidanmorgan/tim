@@ -60,8 +60,7 @@ export const SNAPSHOT_SCHEMA = {
         PuzzleRecord: { kind: 'table', fields: [['id', 'string'], ['placement', 'uint32'], ['precision', 'float'],
             ['inventory_part', 'string'], ['inventory_count', 'uint32'], ['goal_kind', 'uint32'], ['goal_body', 'uint64'],
             ['goal_target', 'uint64'], ['goal_event_source', 'uint64'], ['goal_delay', 'float'],
-            // raw_assistance is deprecated (never written since Story 9A.44) but keeps its slot, so assistance is field 11.
-            ['raw_assistance', '[uint8]'], ['assistance', '[AssistanceKnotRecord]']] },
+            ['assistance', '[AssistanceKnotRecord]']] },
         ConstructionRecord: { kind: 'table', fields: [['revision', 'uint64'], ['settings', 'CadenceSettingsRecord'],
             ['puzzle', 'PuzzleRecord'], ['instances', '[InstanceRecord]'], ['connections', '[ConnectionRecord]']] },
         SavedConstruction: { kind: 'table', fields: [['next_body_id', 'uint64'], ['construction', 'ConstructionRecord']] },

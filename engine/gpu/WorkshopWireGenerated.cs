@@ -689,8 +689,8 @@ public struct PuzzleRecord : IFlatbufferObject
   public ulong GoalTarget { get { int o = __p.__offset(18); return o != 0 ? __p.bb.GetUlong(o + __p.bb_pos) : (ulong)0; } }
   public ulong GoalEventSource { get { int o = __p.__offset(20); return o != 0 ? __p.bb.GetUlong(o + __p.bb_pos) : (ulong)0; } }
   public float GoalDelay { get { int o = __p.__offset(22); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
-  public CuriousContraptions.Wire.AssistanceKnotRecord? Assistance(int j) { int o = __p.__offset(26); return o != 0 ? (CuriousContraptions.Wire.AssistanceKnotRecord?)(new CuriousContraptions.Wire.AssistanceKnotRecord()).__assign(__p.__vector(o) + j * 44, __p.bb) : null; }
-  public int AssistanceLength { get { int o = __p.__offset(26); return o != 0 ? __p.__vector_len(o) : 0; } }
+  public CuriousContraptions.Wire.AssistanceKnotRecord? Assistance(int j) { int o = __p.__offset(24); return o != 0 ? (CuriousContraptions.Wire.AssistanceKnotRecord?)(new CuriousContraptions.Wire.AssistanceKnotRecord()).__assign(__p.__vector(o) + j * 44, __p.bb) : null; }
+  public int AssistanceLength { get { int o = __p.__offset(24); return o != 0 ? __p.__vector_len(o) : 0; } }
 
   public static Offset<CuriousContraptions.Wire.PuzzleRecord> CreatePuzzleRecord(FlatBufferBuilder builder,
       StringOffset idOffset = default(StringOffset),
@@ -704,7 +704,7 @@ public struct PuzzleRecord : IFlatbufferObject
       ulong goal_event_source = 0,
       float goal_delay = 0.0f,
       VectorOffset assistanceOffset = default(VectorOffset)) {
-    builder.StartTable(12);
+    builder.StartTable(11);
     PuzzleRecord.AddGoalEventSource(builder, goal_event_source);
     PuzzleRecord.AddGoalTarget(builder, goal_target);
     PuzzleRecord.AddGoalBody(builder, goal_body);
@@ -719,7 +719,7 @@ public struct PuzzleRecord : IFlatbufferObject
     return PuzzleRecord.EndPuzzleRecord(builder);
   }
 
-  public static void StartPuzzleRecord(FlatBufferBuilder builder) { builder.StartTable(12); }
+  public static void StartPuzzleRecord(FlatBufferBuilder builder) { builder.StartTable(11); }
   public static void AddId(FlatBufferBuilder builder, StringOffset idOffset) { builder.AddOffset(0, idOffset.Value, 0); }
   public static void AddPlacement(FlatBufferBuilder builder, uint placement) { builder.AddUint(1, placement, 0); }
   public static void AddPrecision(FlatBufferBuilder builder, float precision) { builder.AddFloat(2, precision, 0.0f); }
@@ -730,7 +730,7 @@ public struct PuzzleRecord : IFlatbufferObject
   public static void AddGoalTarget(FlatBufferBuilder builder, ulong goalTarget) { builder.AddUlong(7, goalTarget, 0); }
   public static void AddGoalEventSource(FlatBufferBuilder builder, ulong goalEventSource) { builder.AddUlong(8, goalEventSource, 0); }
   public static void AddGoalDelay(FlatBufferBuilder builder, float goalDelay) { builder.AddFloat(9, goalDelay, 0.0f); }
-  public static void AddAssistance(FlatBufferBuilder builder, VectorOffset assistanceOffset) { builder.AddOffset(11, assistanceOffset.Value, 0); }
+  public static void AddAssistance(FlatBufferBuilder builder, VectorOffset assistanceOffset) { builder.AddOffset(10, assistanceOffset.Value, 0); }
   public static void StartAssistanceVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(44, numElems, 4); }
   public static Offset<CuriousContraptions.Wire.PuzzleRecord> EndPuzzleRecord(FlatBufferBuilder builder) {
     int o = builder.EndTable();
@@ -755,7 +755,7 @@ static public class PuzzleRecordVerify
       && verifier.VerifyField(tablePos, 18 /*GoalTarget*/, 8 /*ulong*/, 8, false)
       && verifier.VerifyField(tablePos, 20 /*GoalEventSource*/, 8 /*ulong*/, 8, false)
       && verifier.VerifyField(tablePos, 22 /*GoalDelay*/, 4 /*float*/, 4, false)
-      && verifier.VerifyVectorOfData(tablePos, 26 /*Assistance*/, 44 /*CuriousContraptions.Wire.AssistanceKnotRecord*/, false)
+      && verifier.VerifyVectorOfData(tablePos, 24 /*Assistance*/, 44 /*CuriousContraptions.Wire.AssistanceKnotRecord*/, false)
       && verifier.VerifyTableEnd(tablePos);
   }
 }

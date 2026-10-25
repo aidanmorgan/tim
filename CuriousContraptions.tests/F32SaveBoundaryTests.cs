@@ -4,7 +4,7 @@ using CuriousContraptions.Gpu;
 namespace CuriousContraptions.Tests;
 
 /// <summary>Story 9A.44 (D4): a puzzle record carries exactly nine f32 assistance knots. Every half-precision-era lesson save is refused
-/// with its typed reason at both decode boundaries, a nine-knot save round-trips bit for bit, and a Free save is unaffected.</summary>
+/// with its typed reason at both decode boundaries, and a nine-knot save round-trips bit for bit.</summary>
 public sealed class F32SaveBoundaryTests
 {
     private static string Fixture(string name) => Path.Combine(twodog.Engine.ResolveProjectDir(), "CuriousContraptions.tests/Fixtures", name);
@@ -38,17 +38,25 @@ public sealed class F32SaveBoundaryTests
         return changed;
     }
 
-    private const string NoKnotsExplanation =
-        "This save cannot be loaded: The saved puzzle lacks its nine assistance knots; a lesson saved before f32 assistance cannot be loaded.";
+    private const string VerifierExplanation = "This save cannot be loaded: The FlatBuffers verifier refused a CCWS buffer.";
 
     [Fact]
-    public void AHalfPrecisionEraLessonSaveIsAMissingFieldWithItsExplanation()
+    public void AHalfPrecisionEraLessonSaveIsAVerifierRefusalAtBothBoundaries()
     {
-        // A pre-9A.44 lesson save (captured at f1ad3bd1) holds its 198 bytes of half-precision knots in the deprecated raw_assistance
-        // slot, which nothing reads; the save verifies and has no f32 assistance knots.
+        // A pre-9A.44 lesson save (captured at f1ad3bd1) is not a save of this schema: its puzzle's assistance vector holds 198
+        // elements, which as 44-byte knot records overrun the buffer, so the verifier refuses it before any field rule.
         var legacy = File.ReadAllBytes(Fixture("save-f1ad3bd1-authored-puzzle.bin"));
-        var refusal = SaveFixture.Refused(WorkshopSaveRejection.MissingField, () => WorkshopSaveCodec.Decode(SaveFixture.Elements, legacy));
-        Assert.Equal(NoKnotsExplanation, refusal.Message);
+        var refusal = SaveFixture.Refused(WorkshopSaveRejection.VerifierRejected, () => WorkshopSaveCodec.Decode(SaveFixture.Elements, legacy));
+        Assert.Equal(VerifierExplanation, refusal.Message);
+        // The command boundary: a Construct command whose puzzle carries the legacy file's own element count is the typed verifier fault.
+        var count = (uint)CuriousContraptions.Wire.SavedConstruction.GetRootAsSavedConstruction(new Google.FlatBuffers.ByteBuffer(legacy, sizeof(int)))
+            .Construction!.Value.Puzzle!.Value.AssistanceLength;
+        Assert.Equal(198u, count);
+        var construction = Lesson("first_principles", .45f);
+        var encoded = WorkshopWireFlatBuffers.EncodeCommand(new WorkshopCommand(new(1), WorkshopCommandKind.Construct, new(1), new(1), construction,
+            Session: new(1, 2), Cadence: new(1), Projection: new(1)));
+        Assert.Equal(WireFaultReason.VerifierRejected, Assert.Throws<WireFaultException>(() =>
+            WorkshopWireFlatBuffers.DecodeCommand(WithKnotCount(encoded, construction.Puzzle, count))).Reason);
     }
 
     [Fact]
@@ -67,9 +75,9 @@ public sealed class F32SaveBoundaryTests
         var before = simulation.Committed;
         var stored = Convert.ToBase64String(await File.ReadAllBytesAsync(Fixture("save-f1ad3bd1-authored-puzzle.bin"),
             TestContext.Current.CancellationToken));
-        var refusal = SaveFixture.Refused(WorkshopSaveRejection.MissingField, () => WorkshopSaveCodec.DecodeStored(SaveFixture.Elements, stored));
+        var refusal = SaveFixture.Refused(WorkshopSaveRejection.VerifierRejected, () => WorkshopSaveCodec.DecodeStored(SaveFixture.Elements, stored));
         Assert.True(WorkshopUiFailure.IsRejection(refusal));
-        Assert.Equal(NoKnotsExplanation, WorkshopUiFailure.Report(refusal));
+        Assert.Equal(VerifierExplanation, WorkshopUiFailure.Report(refusal));
         NoFixedCapacityTests.AssertSameState(before, simulation.Committed, "the live simulation after a refused load");
         Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Advance()).Outcome);
         Assert.Equal(before.Tick.Value + 1, simulation.Committed.Tick.Value);
@@ -82,7 +90,7 @@ public sealed class F32SaveBoundaryTests
         var encoded = WorkshopSaveCodec.Encode(new(construction, new(3)));
         var refusal = SaveFixture.Refused(WorkshopSaveRejection.MissingField,
             () => WorkshopSaveCodec.Decode(SaveFixture.Elements, WithKnotCount(encoded, construction.Puzzle, 8)));
-        // A current save with the wrong count is told its count, not that it predates f32 assistance.
+        // A current save with the wrong count is told its count.
         Assert.Equal("This save cannot be loaded: The saved puzzle holds 8 assistance knots; a puzzle holds exactly nine.", refusal.Message);
     }
 
@@ -148,17 +156,6 @@ public sealed class F32SaveBoundaryTests
         for (var knot = 0; knot < expected.Length; knot++)
             Assert.Equal(Lanes(expected[knot]).Select(BitConverter.SingleToUInt32Bits), Lanes(actual[knot]).Select(BitConverter.SingleToUInt32Bits));
         Assert.Equal(BitConverter.SingleToUInt32Bits(.45f), BitConverter.SingleToUInt32Bits(decoded.Construction.Puzzle.Precision.Value));
-    }
-
-    [Fact]
-    public void ABinary16EraFreeSaveStillLoadsAsItsExactConstruction()
-    {
-        // The f1ad3bd1 Free save (a Basketball at (0, 3, 0) and a Ramp at (1, 1, 0), next identity 3): its fields were already f32.
-        var legacy = File.ReadAllBytes(Fixture("save-f1ad3bd1-free.bin"));
-        var expected = new WorkshopSavedConstruction(new WorkshopConstruction(new ConstructionRevision(2), WorkshopCadenceSettings.Default(),
-            new WorkshopInstances(WorkshopInput.Generic(PartId.Basketball, new(1), 0, 3, 0, 0, 0, 0, 1),
-                WorkshopInput.Generic(PartId.Ramp, new(2), 1, 1, 0, 0, 0, 0, 1))), new(3));
-        Assert.Equal(expected, WorkshopSaveCodec.Decode(SaveFixture.Elements, legacy));
     }
 
     [Fact]

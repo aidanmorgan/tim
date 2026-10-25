@@ -351,6 +351,23 @@ Decisions:
     - `[low]` `reject` The D5 regenerated lesson golden is missing. It was deleted on purpose under the behaviour-not-hashes rule after the owner's question; the fix would be a spec edit.
     - `[low]` `carried` (P15) The round-trip coverage claim was narrowed to the lanes the test checks.
 
+### 2026-10-25 — Forward-Only Auditor pass (owner review gate, main 4a9624c9) on 9568500d
+- verdicts: 4 findings — high 4 (a confirmed forward-only finding is always high under the gate), medium 0, low 0, false 0, maybe-false 0.
+- findings:
+  - `[high]` `patch` Old-slot refusal is conditional. `WorkshopSavePrevalidation.cs:169-172` refuses only when `AssistanceLength == 0 && holdsDeprecatedAssistance`, so a save carrying both the old `raw_assistance` and nine knots passes with the old bytes silently ignored. `DecodeCommand` never checks the slot at all. Grouped with the next row.
+  - `[high]` `patch` The deprecated `raw_assistance` slot (`schemas/workshop_wire.fbs:273-275`), `PuzzleRawAssistanceSlot` and `HoldsDeprecatedAssistance` are kept only for pre-9A.44 inputs. Fix: delete the slot so `assistance` becomes field 10. Delete the detector and its branch. A pre-9A.44 lesson save must then be a typed refusal at both boundaries; this has to be verified, and the test updated to the reason actually produced. The explanatory text tied to the old slot goes away.
+  - `[high]` `patch` `tools/e2e/run-reset-snapshot.ts:63-64` lists `raw_assistance` as a live `[uint8]` field, so it would flatten old bytes into the snapshot. Fix: delete the entry together with the slot.
+  - `[high]` `patch` `F32SaveBoundaryTests.ABinary16EraFreeSaveStillLoadsAsItsExactConstruction`, the `save-f1ad3bd1-free.bin` fixture with its provenance line, and the "Free saves … load unchanged" sentence in `gpu-f32-physics.md:117` make a historical file supported current input. Fix: delete all three. A current-encoder save round trip covers the same behaviour.
+- Applied 25 Oct on top of 02593110:
+  - The deprecated slot, its detector and its branch are deleted; `assistance` is field 10, regenerated with flatc 25.2.10.
+  - The real pre-9A.44 lesson save is refused as `VerifierRejected` at the save boundary and at the command boundary (knot count 198).
+  - The run-reset-snapshot entry is deleted.
+  - The Free-save test, its fixture, its provenance line and the doc sentence are deleted. Coverage is `WorkshopSaveTests.CanonicalBitsAndAllocatorRoundTripWithoutLiveState`.
+- Verification:
+  - Full suite: CuriousContraptions.tests 3423/3423, E2eRunner.Tests 208/208, BundleElements.Tests 191/191, Coverage.Tests 77/77, WorkerAotGuard.Tests 17/17. Skipped 0 in every project.
+  - Build: 0 warnings. `git diff --check`: clean.
+  - The e2e TypeScript edits are not type-checked: there is no pinned tsc until the TS conversion slice, and these sources are browser-deferred.
+
 ## Auto Run Result
 
 - **Summary:** Layer A of 9A.44. Every Half/binary16 game value, wire lane, decoder and save field is now canonical f32.

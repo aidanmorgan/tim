@@ -215,23 +215,6 @@ public static class WorkshopWireFlatBuffers
         return false;
     }
 
-    /// <summary>The vtable offsets of <c>ConstructionRecord.puzzle</c> (field 2) and the deprecated <c>PuzzleRecord.raw_assistance</c>
-    /// (field 10), which only a lesson saved before Story 9A.44 holds.</summary>
-    internal const int ConstructionPuzzleSlot = 8, PuzzleRawAssistanceSlot = 24;
-
-    /// <summary>Whether the verified root's puzzle record holds the deprecated half-precision assistance slot (a pre-9A.44 lesson).
-    /// Reads only vtable entries inside each verified vtable.</summary>
-    internal static bool HoldsDeprecatedAssistance(ByteBuffer bb, int constructionSlot)
-    {
-        var root = new Table(bb.GetInt(bb.Position) + bb.Position, bb);
-        var field = root.__offset(constructionSlot);
-        if (field == 0) return false;
-        var construction = new Table(root.__indirect(field + root.bb_pos), bb);
-        var puzzle = construction.__offset(ConstructionPuzzleSlot);
-        if (puzzle == 0) return false;
-        return new Table(construction.__indirect(puzzle + construction.bb_pos), bb).__offset(PuzzleRawAssistanceSlot) != 0;
-    }
-
     /// <summary>The 24-byte receipt identity of a physical read (its session, then its publication): the Simulation worker hands
     /// it to the browser with the read, so no script parses a buffer to acknowledge it.</summary>
     public static byte[] ReadIdentity(WorkshopResponse response)
