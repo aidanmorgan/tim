@@ -89,4 +89,4 @@ Acceptance authority: [element-181](../requirements.md#element-181), [electrical
 
 1. **First-tick edge.** Whether a condition already true when Run starts counts as a rising edge (proposed, X2) or the detector arms silently: owner decision under S402.
 2. **Input domain.** Electrical condition input (proposed) versus also accepting an activation input: owner decision.
-3. **binary16 activation and cosmetic lanes.** The occurrence timestamps (ordinal and phase) and the flash cosmetic curve this detector emits through still hold binary16 values, listed as remaining f32 migration (`docs/gpu-f32-physics.md@a6c914e:L96-L98`). Whether the edge-node slice migrates them to f32 first or extends them as they are: the same decision as [CAT-020 open question 3](CAT-020-counter.md#6-open-questions), owner decision. EL-182 inherits this question.
+3. **f32 activation and cosmetic lanes (resolved).** Story 9A.44 migrated the occurrence timestamps (ordinal and f32 phase) and the flash cosmetic curve this detector emits through to f32; no migration choice remains, as in [CAT-020 open question 3](CAT-020-counter.md#6-open-questions). EL-182 inherits this resolution.

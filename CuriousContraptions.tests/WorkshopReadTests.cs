@@ -43,7 +43,7 @@ public sealed class WorkshopReadTests
         Assert.False(first.HasSameContent(second with { Capture = second.Capture!.Value with { Time = new(100_000_001) } }));
         if (bodyPresent)
         {
-            var signedZero = second.Bodies[0].Body with { Local = new(BitConverter.UInt32BitsToSingle(0x80000000), (float)0, (float)0) };
+            var signedZero = second.Bodies[0].Body with { Local = new(BitConverter.UInt32BitsToSingle(0x80000000), 0f, 0f) };
             Assert.False(first.HasSameContent(second with { Bodies = Bodies(signedZero) }));
         }
         if (captured)
@@ -61,7 +61,7 @@ public sealed class WorkshopReadTests
         var piece = PhysicsMotionRead.HeaderBytes;
         var read = new WorkshopRead(new(2), new(1), Bodies(body), new(4),
             new(WorkshopClockDomain.SimulationMonotonic, new(1), new(100_000_000), new(100_000)),
-            Captures: new([new(new(9), CaptureLatchPhase.Latched, 1, (Half)0)]),
+            Captures: new([new(new(9), CaptureLatchPhase.Latched, 1, 0f)]),
             Motion: PhysicsMotionRead.Decode(motion, Bodies(body), new(1)));
         var encoded = WorkshopWireFlatBuffers.EncodeResponse(Response(read));
         var first = WorkshopWireFlatBuffers.DecodeResponse(encoded).Read;
@@ -69,10 +69,10 @@ public sealed class WorkshopReadTests
         Assert.True(first.HasSameContent(second));
         WorkshopRead Wire(WorkshopRead changed) => WorkshopWireFlatBuffers.DecodeResponse(WorkshopWireFlatBuffers.EncodeResponse(Response(changed))).Read;
         var drag = (byte[])motion.Clone();
-        H(drag, piece + PhysicsMotionRead.DragRateOffset, (Half).125);
+        F(drag, piece + PhysicsMotionRead.DragRateOffset, .125f);
         Assert.False(first.HasSameContent(Wire(read with { Motion = PhysicsMotionRead.Decode(drag, Bodies(body), new(1)) })));
-        Assert.False(first.HasSameContent(Wire(read with { Captures = new([new(new(9), CaptureLatchPhase.Latched, 2, (Half)0)]) })));
-        Assert.False(first.HasSameContent(Wire(read with { Captures = new([new(new(9), CaptureLatchPhase.Latched, 1, BitConverter.UInt16BitsToHalf(0x8000))]) })));
+        Assert.False(first.HasSameContent(Wire(read with { Captures = new([new(new(9), CaptureLatchPhase.Latched, 2, 0f)]) })));
+        Assert.False(first.HasSameContent(Wire(read with { Captures = new([new(new(9), CaptureLatchPhase.Latched, 1, -0f)]) })));
     }
 
     [Fact]
@@ -87,16 +87,17 @@ public sealed class WorkshopReadTests
         Assert.True(motion.TrySample(body.Id, 58, out var pose));
         Assert.Equal(2, pose.Cell.X);
         Assert.Equal((float)(58.0 / WorkshopCadenceSettings.PhysicalFrequency * 16 - 2), pose.Local.X);
-        foreach (var invalid in new Half[] { (Half)(1.0 / 480), (Half)240, Half.NaN })
+        // The piece frequency is the U32 physical rate: every other rate is retired timing.
+        foreach (var invalid in new uint[] { 0, 240, WorkshopCadenceSettings.PhysicalFrequency + 1 })
         {
-            var changed = (byte[])bytes.Clone(); H(changed, piece + 22, invalid);
+            var changed = (byte[])bytes.Clone(); U32(changed, piece + PhysicsMotionRead.FrequencyOffset, invalid);
             Assert.Throws<ArgumentException>(() => PhysicsMotionRead.Decode(changed, Bodies(body), new(15)));
         }
         // The next interval must use its newly committed primary anchor.
         U32(bytes, 8, 60); U32(bytes, 12, 64);
         for (var i = 0; i < 4; i++)
-        { U32(bytes, piece + i * PhysicsMotionRead.PieceBytes + 4, (uint)(60 + i));
-          U32(bytes, piece + i * PhysicsMotionRead.PieceBytes + 8, (uint)(61 + i)); }
+        { U32(bytes, piece + i * PhysicsMotionRead.PieceBytes + PhysicsMotionRead.StartOrdinalOffset, (uint)(60 + i));
+          U32(bytes, piece + i * PhysicsMotionRead.PieceBytes + PhysicsMotionRead.EndOrdinalOffset, (uint)(61 + i)); }
         Assert.Throws<ArgumentException>(() => PhysicsMotionRead.Decode(bytes, Bodies(body with { Tick = 16 }), new(16)));
     }
 
@@ -107,16 +108,16 @@ public sealed class WorkshopReadTests
         // of the exponential decay the solver applies; the same piece without its drag lane overshoots by the decay it omits.
         // The pieces keep their primary anchor at ordinal 0, so the sample at ordinal 58 extrapolates t = 58/480 s.
         var body = new CanonicalBody(new(1), 2, 15, default, default, default);
-        var k = (Half).125; var g = (Half)(-9.81); const float v0 = 8f;
-        byte[] Pieces(Half drag)
+        var k = .125f; var g = -9.81f; const float v0 = 8f;
+        byte[] Pieces(float drag)
         {
             var bytes = MotionBytes(body);
             for (var i = 0; i < 4; i++)
             {
                 var piece = PhysicsMotionRead.HeaderBytes + i * PhysicsMotionRead.PieceBytes;
                 BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(piece + PhysicsMotionRead.VelocityOffset), v0);
-                H(bytes, piece + PhysicsMotionRead.GravityOffset + 2, g);
-                H(bytes, piece + PhysicsMotionRead.DragRateOffset, drag);
+                F(bytes, piece + PhysicsMotionRead.GravityOffset + 4, g);
+                F(bytes, piece + PhysicsMotionRead.DragRateOffset, drag);
             }
             return bytes;
         }
@@ -127,7 +128,7 @@ public sealed class WorkshopReadTests
         Assert.True(PhysicsMotionRead.Decode(Pieces(k), Bodies(body), new(15)).TrySample(body.Id, 58, out var dragged));
         Assert.InRange(Metres(dragged, 0) - v0 * decay, -1e-4, 1e-4);
         Assert.InRange(Metres(dragged, 1) - gravity / rate * (t - decay), -1e-4, 1e-4);
-        Assert.True(PhysicsMotionRead.Decode(Pieces((Half)0), Bodies(body), new(15)).TrySample(body.Id, 58, out var undamped));
+        Assert.True(PhysicsMotionRead.Decode(Pieces(0f), Bodies(body), new(15)).TrySample(body.Id, 58, out var undamped));
         Assert.True(Metres(undamped, 0) - Metres(dragged, 0) > 5e-3);
     }
 
@@ -201,7 +202,7 @@ public sealed class WorkshopReadTests
         var foreign = new ColliderSlot(checked((ushort)Array.FindIndex(colliders, c => c.Body == new GpuBodyId(1))));
         var body = new CanonicalBody(new(1),2,1,default,default,default);
         var store = new ContactWorkRead(declaration.Id,declaration.Owner,1,new(20));
-        var hit = new ContactWorkOccurrence(new(0),owned,new(1),1,1,(Half)0,
+        var hit = new ContactWorkOccurrence(new(0),owned,new(1),1,1,0f,
             declaration.Threshold,new(effect == ContactWorkEffect.Paid ? 12 : 0),effect);
         ContactWorkLedger Ledger(ContactWorkOccurrence occurrence) => new([store], [occurrence]);
         Ledger(hit).ValidateScene(scene, Bodies(body));
@@ -229,8 +230,8 @@ public sealed class WorkshopReadTests
         var target = new GpuBodyId(1);
         ContactWorkLedger Ledger(uint count, float remaining, ContactWorkOccurrence row, float supplied = 0f) =>
             new([new ContactWorkRead(new(9), new(8), count, new(remaining), new(supplied))], [row]);
-        var clear = new ContactWorkOccurrence(new(0), default, target, 0, 0, (Half)0, default, default, ContactWorkEffect.Passive);
-        var hit = new ContactWorkOccurrence(new(0), new(3), target, 1, 16, (Half)0, new(4f), new(12f), ContactWorkEffect.Paid);
+        var clear = new ContactWorkOccurrence(new(0), default, target, 0, 0, 0f, default, default, ContactWorkEffect.Passive);
+        var hit = new ContactWorkOccurrence(new(0), new(3), target, 1, 16, 0f, new(4f), new(12f), ContactWorkEffect.Paid);
         var before = Ledger(0, 32f, clear);
         var after = Ledger(1, 20f, hit);
         after.ValidateAdvance(before);
@@ -265,10 +266,10 @@ public sealed class WorkshopReadTests
         {
             var piece = PhysicsMotionRead.HeaderBytes + checked((int)i) * PhysicsMotionRead.PieceBytes;
             U32(bytes, piece, (uint)PhysicsMotionKind.FreePolynomial);
-            U32(bytes, piece + 4, start + i); U32(bytes, piece + 8, start + i + 1);
-            H(bytes, piece + 22, (Half)WorkshopCadenceSettings.PhysicalFrequency);
-            BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(piece + 24), body.Id.Value);
-            BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(piece + 76), 1f);
+            U32(bytes, piece + PhysicsMotionRead.StartOrdinalOffset, start + i); U32(bytes, piece + PhysicsMotionRead.EndOrdinalOffset, start + i + 1);
+            U32(bytes, piece + PhysicsMotionRead.FrequencyOffset, WorkshopCadenceSettings.PhysicalFrequency);
+            BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(piece + PhysicsMotionRead.OwnerOffset), body.Id.Value);
+            BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(piece + PhysicsMotionRead.RotationOffset + PhysicsGpuAbi.RotationWOffset), 1f);
         }
         return bytes;
     }
@@ -278,5 +279,5 @@ public sealed class WorkshopReadTests
         read.Tick.Value == 0 ? WorkshopSimulationPhase.Building : WorkshopSimulationPhase.Running,
         read, new(11, 23), default, new(1), new(1), new(1), new(read.Tick.Value));
     private static void U32(byte[] bytes, int offset, uint value) => BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(offset), value);
-    private static void H(byte[] bytes, int offset, Half value) => BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(offset), BitConverter.HalfToUInt16Bits(value));
+    private static void F(byte[] bytes, int offset, float value) => BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(offset), value);
 }

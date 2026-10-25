@@ -35,13 +35,18 @@ public sealed class WorkshopPhysicsEngineTests
         Assert.True(Height(Find(longRun[^1].Bodies, new(1))) < Height(Find(longRun[0].Bodies, new(1))));
     }
 
+    // Story 9A.44 adds the support gate: the Receiver's guide volume spans local Y 0.5–1.5 with its support height 0.5 and default
+    // margin 0, so a ball (radius 0.34) whose underside is below 0.5 (local Y 0.7, world 1.7) is not pushed, while one just above
+    // the gate (local Y 1.0, world 2.0) is.
     [Theory]
-    [InlineData(0, -1, .8, true)]
-    [InlineData(45, -1, .8, true)]
-    [InlineData(0, 1, .8, false)]
-    [InlineData(0, -1, 2, false)]
+    [InlineData(0, -1, .8, 2.1, true)]
+    [InlineData(45, -1, .8, 2.1, true)]
+    [InlineData(0, 1, .8, 2.1, false)]
+    [InlineData(0, -1, 2, 2.1, false)]
+    [InlineData(0, -1, .8, 1.7, false)]
+    [InlineData(0, -1, .8, 2.0, true)]
     public void DeclaredReceiverGuideActsOnlyForDescendingInsideTargetsAndDoesNotMoveItsFrame(
-        double degrees, float verticalSpeed, double localX, bool guides)
+        double degrees, float verticalSpeed, double localX, double height, bool guides)
     {
         var radians = degrees * Math.PI / 180;
         var x = localX * Math.Cos(radians);
@@ -49,7 +54,7 @@ public sealed class WorkshopPhysicsEngineTests
         var parameters = InstanceParameterCollection.Defaults(PartId.Receiver).ToDictionary();
         parameters[new("force_maximum_acceleration")] = 12f;
         var construction = Free(
-            WorkshopInput.Generic(PartId.Basketball,new(1), x, 2.1, z, 0, 0, 0, 1),
+            WorkshopInput.Generic(PartId.Basketball,new(1), x, height, z, 0, 0, 0, 1),
             WorkshopInput.Generic(PartId.Receiver, new(2), 0, 1, 0, 0, Math.Sin(radians / 2), 0, Math.Cos(radians / 2), new(parameters)));
         var world = AdmitMoving(construction, 1, 0f, verticalSpeed);
         var frameOffset = BodyRecord(world, 2);
@@ -178,14 +183,14 @@ public sealed class WorkshopPhysicsEngineTests
         });
     }
 
-    // CAT-004/CAT-054 Run/Reset and Save/Load with non-binary16 authored values: a ball rolls down a resized Ramp while a
+    // CAT-004/CAT-054 Run/Reset and Save/Load with full-precision f32 authored values: a ball rolls down a resized Ramp while a
     // second ball is captured by a Receiver with non-default capture settings; Reset restores the built state bit for bit and
     // the reloaded construction replays the identical run.
     [Fact]
     public async Task NonHalfRampAndReceiverParametersRunCaptureResetAndReloadExactly()
     {
         const float length = 3.123457f, width = 1.234567f, margin = .1234567f, speed = 2.345678f, dwell = .2345678f;
-        foreach (var value in new[] { length, width, margin, speed, dwell }) Assert.NotEqual(value, (float)(Half)value);
+        foreach (var value in new[] { length, width, margin, speed, dwell }) Assert.True(TestPrecision.NeedsMoreThanElevenSignificantBits(value));
         var capture = InstanceParameterCollection.Defaults(PartId.Receiver).ToDictionary();
         capture[new("capture_margin")] = margin;
         capture[new("capture_speed_limit")] = speed;
@@ -316,7 +321,7 @@ public sealed class WorkshopPhysicsEngineTests
     }
 
     // Verification gap V1 (Story 9.4b): the engine must judge a partly spent store against its declared 32 J preload, not
-    // its available work. Half the minimum payable work of the preload is dust: the contact qualifies and is recorded,
+    // its available work. A half of the minimum payable work of the preload is dust: the contact qualifies and is recorded,
     // debits nothing and leaves the store unchanged. Control: twice the minimum pays, store-limited, the whole store.
     [Theory]
     [InlineData(.5f, false)]
@@ -556,7 +561,7 @@ public sealed class WorkshopPhysicsEngineTests
     [InlineData(3.5, false)] // control: a Receiver far beyond the launch arc never captures
     public void ForgivingSpringForwardReceiverOffsetsCaptureInTheShippedEngine(double offset, bool captures)
     {
-        var lesson = PuzzleCatalogue.Create(new PuzzleId("spring_forward"), new(1), Settings, new(1), new((Half)0));
+        var lesson = PuzzleCatalogue.Create(new PuzzleId("spring_forward"), new(1), Settings, new(1), new(0f));
         var construction = lesson.WithInstance(WorkshopInput.Generic(PartId.Springboard, new(3), -3, .8, 0,
             0, 0, -Math.Sin(Math.PI / 18), Math.Cos(Math.PI / 18)));
         var receiver = ((WorkshopGenericInstance)construction.Instances.Single(instance => instance.PartId == PartId.Receiver));
@@ -725,13 +730,13 @@ public sealed class WorkshopPhysicsEngineTests
             WorkshopInput.Generic(kind, new(2), -(.125 + radius + .05), -.46 + radius, 0, 0, 0, 0, 1));
         var bytes = AdmitMoving(construction, 2, .7f);
         var ball = BodyRecord(bytes, 2);
-        BinaryPrimitives.WriteHalfLittleEndian(bytes.AsSpan(ball + PhysicsGpuAbi.BodyMassOffset), (Half)mass);
-        var octaves = (int)MathF.Round(MathF.Log2(mass / declaredMass));
+        BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(ball + PhysicsGpuAbi.BodyMassOffset), (float)mass);
+        // The mass ratio is a power of two, so scaling each f32 moment by it is exact.
+        var scale = (float)(mass / declaredMass);
         for (var axis = 0; axis < 3; axis++)
         {
-            var exponent = bytes.AsSpan(ball + PhysicsGpuAbi.BodyPrincipalInertiaOffset + axis * PhysicsGpuAbi.PrincipalInertiaBytes +
-                PhysicsGpuAbi.PrincipalExponentOffset, 4);
-            BinaryPrimitives.WriteInt32LittleEndian(exponent, BinaryPrimitives.ReadInt32LittleEndian(exponent) + octaves);
+            var moment = bytes.AsSpan(ball + PhysicsGpuAbi.BodyPrincipalInertiaOffset + axis * PhysicsGpuAbi.PrincipalInertiaBytes, 4);
+            BinaryPrimitives.WriteSingleLittleEndian(moment, BinaryPrimitives.ReadSingleLittleEndian(moment) * scale);
         }
         var maximumTilt = 0.0;
         Step(bytes, 4 * TicksPerSecond, (_, bodies) =>

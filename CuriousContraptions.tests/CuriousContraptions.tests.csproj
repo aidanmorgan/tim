@@ -118,6 +118,11 @@
         <Compile Include="WireFaultTests.cs" />
         <Compile Include="WorkshopSaveRejectionTests.cs" />
         <Compile Include="SaveFixture.cs" />
+        <Compile Include="TestPrecision.cs" />
+        <Compile Include="F32SaveBoundaryTests.cs" />
+        <Compile Include="HalfPrecisionGuardTests.cs" />
+        <Compile Include="F32LaneRoundTripTests.cs" />
+        <Compile Include="F32BehaviourIdentityTests.cs" />
         <Compile Include="BundleElementIdTests.cs" />
         <Compile Include="CSharpStaticGateTests.cs" />
         <Compile Include="WorkshopUiFailureTests.cs" />

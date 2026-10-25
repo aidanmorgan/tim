@@ -33,7 +33,7 @@ Story 7.0 readiness spec ([spec](../../../_bmad-output/implementation-artifacts/
 
   Admission bounds that apply: restitution 0–1, friction 0–1, rolling resistance 0–0.1 (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L42-L54`); mass 1/1024–1024 kg and drag 0–0.125 1/s (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L82`); sphere radius 1/16–16 m (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L89-L120`). All tennis values fit.
 
-  Storage type: the package declares f32; the compiled body, collider and material lanes are still binary16 until Story 9A.44 ([f32 migration status](../../gpu-f32-physics.md#f32-migration-status)). The tennis package follows whatever those lanes are when Story 12.1 lands.
+  Storage type: the package declares f32; the compiled body, collider and material lanes are f32 since Story 9A.44 ([numeric authority](../../gpu-f32-physics.md)). The tennis package follows whatever those lanes are when Story 12.1 lands.
 - **Constraints and joints.** None. A free dynamic body.
 - **Typed sockets and ports.** None.
 - **Sensors and activation.** None owned. It is a payload for Receiver capture, Switch impact and Pressure plate load (see Legacy harvest).
@@ -57,7 +57,7 @@ Families: the [CAT-064 row](../general-engine-element-map.md) and `docs/coverage
 
 | # | Fact | Citation | Disposition |
 | --- | --- | --- | --- |
-| 1 | Material: mass 0.35, bounce 0.78, radius 0.25, buoyancy 0, drag 0.04. | `parts/catalog/tennis.tres@a6c914e:L14-L14` | Carry forward, except bounce pending the owner decision. Do not carry forward the legacy float parameter dictionary. The values enter the package declaration (f32); the compiled lanes stay binary16 until Story 9A.44, which is not a precondition of Story 12.1. |
+| 1 | Material: mass 0.35, bounce 0.78, radius 0.25, buoyancy 0, drag 0.04. | `parts/catalog/tennis.tres@a6c914e:L14-L14` | Carry forward, except bounce pending the owner decision. Do not carry forward the legacy float parameter dictionary. The values enter the package declaration (f32); the compiled lanes are f32 since Story 9A.44, so f32 is no precondition of Story 12.1. |
 | 2 | Legacy ball contact material: restitution = bounce, bounce threshold 0.1, friction 0.3 (argument order restitution, threshold, friction). | `reference/cpu/MachinePart.cs@a6c914e:L236-L236`; `engine/physics/PersistentContactPair.cs@a6c914e:L23-L23` | Carry forward as declared material values, not as a CPU solver path. |
 | 3 | Legacy drag load = drag × world pressure; buoyant force = buoyancy × pressure × mass (zero for tennis). | `reference/cpu/MachineWorld.cs@a6c914e:L869-L883` | Carry forward the law as declaration input. Do not carry forward the per-substep CPU loop. |
 | 4 | Legacy ball parameter enum: Radius, Mass, Bounce, Buoyancy, Drag; Sphere envelope; solid-sphere dynamics. | `reference/cpu/BallPart.cs@a6c914e:L4-L13` | Carry forward the field set, as the package's declared mass properties and collider material. |

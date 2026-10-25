@@ -36,7 +36,7 @@ Families ([map row](../general-engine-element-map.md)): AnimationEvaluation, Ani
 **Exists now**
 - Discrete activation network: contact sources (Switch), orientation sources (Domino), sticky lamp nodes and delay timers; one emission per source per world; fan-out by edge; capacity 8 nodes: `engine/gpu/ActivationNetwork.cs@a6c914e:L7-L12` and `engine/gpu/ActivationNetwork.cs@a6c914e:L70-L231`.
 - Activation sockets: `engine/gpu/WorkshopConnections.cs@a6c914e:L8-L13`.
-- Note: the network's `ActivationTime`/`ActivationLatch` and the cosmetic curve record store times and durations as binary16 (`Half`), listed as remaining f32 migration (`docs/gpu-f32-physics.md@a6c914e:L96-L98`). Extending them for the counter inherits that debt (open question 3).
+- Note: at a6c914e the network's `ActivationTime`/`ActivationLatch` and the cosmetic curve record stored times and durations as half-precision, listed as remaining f32 migration (`docs/gpu-f32-physics.md@a6c914e:L96-L98`); Story 9A.44 migrated them to f32, so extending them for the counter inherits no precision debt (open question 3).
 - Current (Story 9.2, 9R.1, 9A.22, C-Memory): the Counter node kind and its committed memory row, selected by the declared `SignalPulseCountDescriptor`; the switched contact closes at the target until Reset; the 27 dot-lamp bindings read the committed count (`CommittedCount`).
 
 **Missing**
@@ -104,4 +104,4 @@ Authority: [CAT-020](../requirements.md#current-cat-020), [todo-269](../requirem
 
 1. **Supplied contact in Story 9.2.** The requirement and legacy include a supplied contact that latches until Reset; the supply network (Story 8.1) now precedes Story 9.2. Whether 9.2 delivers the contact mode with the activation-only mode or defers it, per the existing-element order row ("supply-consuming modes additionally require the next row's source/contact contract"): unspecified — owner decision.
 2. **Separately addressed reset input (EL-183).** EL-183 requires a reset input; the legacy counter is cleared only by Workshop Reset and has no `ResetIn` socket. Whether the counter gains a reset socket, or EL-183 is a separate element: unspecified — owner decision.
-3. **binary16 activation and cosmetic lanes.** The activation network and cosmetic curves the counter extends still hold binary16 values (`docs/gpu-f32-physics.md@a6c914e:L96-L98`, remaining f32 migration). Whether Story 9.2 migrates those lanes to f32 before extending them, or extends them as they are and leaves migration to the scheduled f32 work: unspecified — owner decision.
+3. **f32 activation and cosmetic lanes (resolved).** Story 9A.44 migrated the activation network and cosmetic curves the counter extends to f32; no migration choice remains.

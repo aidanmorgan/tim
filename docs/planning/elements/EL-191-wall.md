@@ -53,7 +53,7 @@ Families ([element map row](../general-engine-element-map.md), [binding](../../c
 
 | # | Fact | Citation | Disposition |
 | --- | --- | --- | --- |
-| 1 | Catalogue dimensions WidthBits 16896 = 3, HeightBits 16384 = 2, ThicknessBits 13312 = 0.25 (binary16). | `parts/catalog/wall.tres@a6c914e:L7-L11` | Carry forward values; not binary16 storage. |
+| 1 | Catalogue dimensions WidthBits 16896 = 3, HeightBits 16384 = 2, ThicknessBits 13312 = 0.25 (half-precision). | `parts/catalog/wall.tres@a6c914e:L7-L11` | Carry forward values; not half-precision storage. |
 | 2 | Lessons: `wall_return` (wall returns a ball via a bumper), `wall_and_bumper`, `solar_shadow` (wall shades a solar panel). | `content/puzzles.json@a6c914e:L2867-L3144`, `content/puzzles.json@a6c914e:L3145-L3423`, `content/puzzles.json@a6c914e:L6226-L6574` | Carry forward; solar_shadow waits for Epic 13. |
 
 Files consulted: `parts/catalog/wall.tres`, `parts/WallPart.cs`, `content/puzzles.json`.

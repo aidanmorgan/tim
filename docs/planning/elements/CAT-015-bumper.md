@@ -46,7 +46,7 @@ Families from the [element map row](../general-engine-element-map.md): Animation
 | --- | --- |
 | SignalPropagation / JointConstraint memberships (no declared mode uses them yet) | owner decision (§6) |
 | Physical placement nudging (authored placement correction that moves the bumper's collider; legacy fact 5) | not scheduled, owner decision: the roadmap reports physical nudging unsupported in the current playable mode ([first_principles](../invest/vertical-delivery.md#first-principles)) |
-| Remaining sphere geometry, pose and cosmetic lanes retain inherited binary16 precision. Current integration migrates strength, reference mass, preload, contact speeds/debits and resource authoring to f32; `BumperWorkResource` is retired for generic `ContactWorkResource`. | Remaining shared lanes: Epic16 ([f32 migration status](../../gpu-f32-physics.md#f32-migration-status)); affected contact-work integration proof: Story6.2 |
+| Sphere geometry, pose and cosmetic lanes are f32 (Story 9A.44). Current integration migrates strength, reference mass, preload, contact speeds/debits and resource authoring to f32; `BumperWorkResource` is retired for generic `ContactWorkResource`. | Shared lanes: delivered by Story 9A.44 ([numeric authority](../../gpu-f32-physics.md)); affected contact-work integration proof: Story6.2 |
 
 Dependencies: a dynamic body; Wall (CAT-066) for wall_return and wall_and_bumper.
 

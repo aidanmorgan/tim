@@ -20,7 +20,7 @@ No enumerated selector; one mode. Capture settings vary by authored precision, n
 
 - **Bodies and shapes.** One static body with five boxes, given as centre and **half-extents** (`engine/gpu/ReceiverGeometry.cs@a6c914e:L10-L18`):
 
-  | Box | Centre (m) | Half-extents (m) | Full size (m) |
+  | Box | Centre (m) | half-extents (m) | Full size (m) |
   | --- | --- | --- | --- |
   | Floor | (0, −0.45, 0) | (0.75, 0.075, 0.75) | 1.5 × 0.15 × 1.5 |
   | Left / right wall | (∓0.75, 0, 0) | (0.06, 0.5, 0.8) | 0.12 × 1.0 × 1.6 |

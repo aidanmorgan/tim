@@ -36,7 +36,7 @@ Families ([map row](../general-engine-element-map.md)): AnimationEvaluation, Ani
 **Exists now**
 - Discrete activation network and its node kinds: `engine/gpu/ActivationNetwork.cs@a6c914e:L7-L12`. Note: the current `ActivationNodeKind.Latch` is the Signal lamp's sticky "first input wins" node, not this Set/Reset memory; the two must not be conflated or share a name.
 - Activation sockets and connection storage: `engine/gpu/WorkshopConnections.cs@a6c914e:L8-L13`.
-- Note: the network's `ActivationTime`/`ActivationLatch` and the cosmetic curve record store times and durations as binary16 (`Half`), listed as remaining f32 migration (`docs/gpu-f32-physics.md@a6c914e:L96-L98`). Extending them for the latch inherits that debt (open question 2).
+- Note: at a6c914e the network's `ActivationTime`/`ActivationLatch` and the cosmetic curve record stored times and durations as half-precision, listed as remaining f32 migration (`docs/gpu-f32-physics.md@a6c914e:L96-L98`); Story 9A.44 migrated them to f32, so extending them for the latch inherits no precision debt (open question 2).
 
 **Missing**
 - A Set/Reset memory node: typed `SetIn`/`ResetIn` inputs with per-socket commands, two request buckets (current boundary and next), next-boundary settlement with Reset dominance, memory persisting without new commands — Story 9.4.
@@ -106,7 +106,7 @@ Authority: [CAT-037](../requirements.md#current-cat-037), [todo-267](../requirem
 ## 6. Open questions
 
 1. **Output domain in Story 9.4.** The Story 9.4 AC says "the latch output transitions to high", but the legacy and the requirement give the latch only a supplied electrical contact (no activation output); the supply network (Story 8.1) now precedes Story 9.4. Whether 9.4 proves the output through the Story 8.1 supplied contact, or adds an output the requirement does not define: unspecified — owner decision. **Decided 18 Oct 2026 (owner): supplied contact plus ActivationOut.** The latch keeps its supplied `PowerIn`→`Supply` contact and gains an Activation output that is high while memory is On and low while Off (Story 9.4; `spec-9-4-state-latch.md` D13).
-2. **binary16 activation and cosmetic lanes.** The activation network and cosmetic curves the latch extends still hold binary16 values (`docs/gpu-f32-physics.md@a6c914e:L96-L98`, remaining f32 migration). Whether Story 9.4 migrates those lanes to f32 before extending them, or extends them as they are and leaves migration to the scheduled f32 work: unspecified — owner decision. **Decided 18 Oct 2026 (owner): moved to a separate Epic 9A story;** Story 9.4 extends the existing lanes and adds no new binary16 API.
+2. **f32 activation and cosmetic lanes (resolved).** At a6c914e the activation network and cosmetic curves the latch extends held half-precision values (`docs/gpu-f32-physics.md@a6c914e:L96-L98`), and whether Story 9.4 migrated them to f32 first was an owner decision. **Decided 18 Oct 2026 (owner): moved to a separate Epic 9A story;** Story 9.4 extends the existing lanes and adds no new half-precision API. Story 9A.44 migrated those lanes to f32; no migration choice remains.
 
 ### Decided 18 Oct 2026 by coordinator under owner delegation (playability)
 

@@ -35,11 +35,11 @@ public static class WorkshopPhysicsCompiler
         var planeMaterial = new GpuMaterialId(InternalIdentityBase + 1);
         var height = WorkshopInput.Position((double)WorkshopConstruction.WorkbenchSurface.Value);
         bodies.Add(new(plane, RigidMotionKind.Static, new(0, height.Cell, 0),
-            new(0f, height.Local, 0f), CanonicalRotation.Identity, default, default, new((Half)0), default, new((Half)0)));
+            new(0f, height.Local, 0f), CanonicalRotation.Identity, default, default, new(0f), default, new(0f)));
         // Static surfaces and boxes declare zero rolling resistance; only a ball material carries a coefficient.
-        materials.Add(new(planeMaterial, new((Half)1), new((Half).1), new((Half).3), new((Half)0)));
+        materials.Add(new(planeMaterial, new(1f), new(.1f), new(.3f), new(0f)));
         colliders.Add(new(new(InternalIdentityBase + 2), plane, planeMaterial,
-            ColliderShapeKind.Plane, RigidLocalPose.Identity, new((Half)0), default));
+            ColliderShapeKind.Plane, RigidLocalPose.Identity, new(0f), default));
         var next = InternalIdentityBase + 3;
         foreach (var instance in construction.Instances)
         {
@@ -50,7 +50,7 @@ public static class WorkshopPhysicsCompiler
             var shapes = BundleGeometry.Colliders(entry, parameters);
             var mechanical = entry.Mechanical;
             var mass = mechanical?.MassProperties ?? default;
-            // A declared mass binding is the instance's own parameter (f32; the body record's mass lane is binary16), so the body mass
+            // A declared mass binding is the instance's own f32 parameter, written to the body record's f32 mass lane, so the body mass
             // and the inertia compiled from it and the bound collider follow the edited value.
             var bodyMass = mechanical?.MassParameter is { } bound ? bound.Evaluate(parameters) : mass.Mass;
             var mode = (mechanical?.KinematicMode ?? KinematicMode.Static) switch
@@ -65,7 +65,7 @@ public static class WorkshopPhysicsCompiler
                 entry.Footprint.PrismaticConstraints != sliders.Count)
                 throw new ArgumentException("Physical declaration disagrees with its compiled footprint.");
             bodies.Add(new(instance.Id, mode, instance.Cell, instance.Local, instance.Rotation, default, default,
-                new((Half)bodyMass), new((Half)mass.Gravity.X, (Half)mass.Gravity.Y, (Half)mass.Gravity.Z), new((Half)mass.LinearDrag)));
+                new(bodyMass), new(mass.Gravity.X, mass.Gravity.Y, mass.Gravity.Z), new(mass.LinearDrag)));
             AddGeometry(instance.Id, first, first + (sliders.Count != 0 && shapes.Count > 1 ? 6UL : 1UL), shapes);
             for (var i = 0; i < sliders.Count; i++)
             {
@@ -81,8 +81,8 @@ public static class WorkshopPhysicsCompiler
                 var z = WorkshopInput.Position((instance.Cell.Z + instance.Local.Z) / 16f + displacement.Z);
                 var body = slider.MovingBody;
                 bodies.Add(new(moving, RigidMotionKind.Dynamic, new(x.Cell, y.Cell, z.Cell), new(x.Local, y.Local, z.Local),
-                    instance.Rotation, default, default, new((Half)body.Mass),
-                    new((Half)body.Gravity.X, (Half)body.Gravity.Y, (Half)body.Gravity.Z), new((Half)body.LinearDrag)));
+                    instance.Rotation, default, default, new(body.Mass),
+                    new(body.Gravity.X, body.Gravity.Y, body.Gravity.Z), new(body.LinearDrag)));
                 AddGeometry(moving, identity + 3, identity + 4, body.Colliders);
                 var joint = new PrismaticConstraintId(identity + 5);
                 prismatics.Add(new(joint, instance.Id, moving,
@@ -106,10 +106,10 @@ public static class WorkshopPhysicsCompiler
         {
             if (DeclaredPhysics.Of(frame.PartId).Mechanical?.Capture is not { } capture) continue;
             var parameters = frame.Parameters.ToBundleValues();
-            // Current shared residence/guide ABI is still binary16 (9A.44); authoring remains f32.
-            var margin = (Half)capture.UpperMargin.Evaluate(parameters);
-            var speed = new LinearSpeed((Half)capture.SpeedLimit.Evaluate(parameters));
-            var dwell = new DurationSeconds((Half)capture.Dwell.Evaluate(parameters));
+            // The declared f32 capture and guide values compile exactly; the upper bound is Y + margin with one f32 rounding.
+            var margin = capture.UpperMargin.Evaluate(parameters);
+            var speed = new LinearSpeed(capture.SpeedLimit.Evaluate(parameters));
+            var dwell = new DurationSeconds(capture.Dwell.Evaluate(parameters));
             var participation = parameters[capture.ParticipationParameter] switch
             {
                 0f => SensorParticipation.Disabled,
@@ -122,15 +122,15 @@ public static class WorkshopPhysicsCompiler
             {
                 var sensorId = !construction.Puzzle.Id.IsAuthored ? first + 16 + targetIndex * 2 : first + 6;
                 sensors.Add(new(new(sensorId), frame.Id, target.Id, RigidLocalPose.Identity,
-                    new((Half)capture.Minimum.X,(Half)capture.Minimum.Y,(Half)capture.Minimum.Z),
-                    new((Half)capture.Maximum.X,(Half)((Half)capture.Maximum.Y+margin),(Half)capture.Maximum.Z),
+                    new(capture.Minimum.X,capture.Minimum.Y,capture.Minimum.Z),
+                    new(capture.Maximum.X,capture.Maximum.Y+margin,capture.Maximum.Z),
                     speed,dwell,participation));
                 var guide = capture.Guide;
                 guides.Add(new(new(sensorId+1),frame.Id,target.Id,RigidLocalPose.Identity,
-                    new((Half)guide.Minimum.X,(Half)guide.Minimum.Y,(Half)guide.Minimum.Z),
-                    new((Half)guide.Maximum.X,(Half)guide.Maximum.Y,(Half)guide.Maximum.Z),
-                    new((Half)guide.SupportHeight),new((Half)guide.SupportMargin.Evaluate(parameters)),
-                    new((Half)guide.MaximumAcceleration.Evaluate(parameters))));
+                    new(guide.Minimum.X,guide.Minimum.Y,guide.Minimum.Z),
+                    new(guide.Maximum.X,guide.Maximum.Y,guide.Maximum.Z),
+                    new(guide.SupportHeight),new(guide.SupportMargin.Evaluate(parameters)),
+                    new(guide.MaximumAcceleration.Evaluate(parameters))));
                 targetIndex++;
             }
         }
@@ -167,8 +167,8 @@ public static class WorkshopPhysicsCompiler
             if (shapes.Any(shape => shape.Material != surface))
                 throw new ArgumentException("One compiled body must declare one contact material.");
             var material = new GpuMaterialId(materialIdentity);
-            materials.Add(new(material, new((Half)surface.Restitution), new((Half)surface.BounceThreshold),
-                new((Half)surface.Friction), new((Half)surface.RollingResistance)));
+            materials.Add(new(material, new(surface.Restitution), new(surface.BounceThreshold),
+                new(surface.Friction), new(surface.RollingResistance)));
             for (var i = 0; i < shapes.Count; i++)
             {
                 var shape = DeclaredPhysics.Admit(shapes[i]);
@@ -223,7 +223,7 @@ public static class WorkshopPhysicsCompiler
     public static GpuOrientationSensorId OrientationSensor(GpuBodyId owner) => new(checked(PartIdentities(owner) + 6));
 
     /// <summary>The orientation sensor a declared threshold compiles to on its owner's body, measured from the owner's admitted
-    /// rotation. The f32 degrees narrow to the sensor's binary16 half-angle cosine lane here (Story 9A.44 widens the lane).</summary>
+    /// rotation. The declared f32 degrees compile to the f32 cosine of half the angle.</summary>
     public static OrientationSensorDeclaration OrientationSensorFor(IWorkshopInstance owner,
         CuriousContraptions.Abstractions.Signal.SignalOrientationDescriptor orientation)
     {

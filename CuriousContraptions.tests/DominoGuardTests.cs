@@ -17,7 +17,7 @@ public sealed class DominoGuardTests
         new(new(2), WorkshopCadenceSettings.Default(), new(instances), Connections: new(links));
 
     /// <summary>domino_effect with its four inventory tiles at x = -4, -3, -2, -1 (ids 4-7), optionally without one, end wired to the lamp.</summary>
-    private static WorkshopConstruction Lesson(Half precision, bool wired = true, int skip = -1)
+    private static WorkshopConstruction Lesson(float precision, bool wired = true, int skip = -1)
     {
         var result = PuzzleCatalogue.Create(new("domino_effect"), new(2), WorkshopCadenceSettings.Default(), new(1), new(precision));
         for (var i = 0; i < 4; i++)
@@ -55,10 +55,11 @@ public sealed class DominoGuardTests
     [Fact]
     public void TheCompiledTileIsTheFormerDominoMaterialBitForBit()
     {
-        Assert.Equal(new[] { (Half).125, (Half).55, (Half).325 }.Select(BitConverter.HalfToUInt16Bits),
-            new[] { LawTile.HalfExtents.X, LawTile.HalfExtents.Y, LawTile.HalfExtents.Z }.Select(value => BitConverter.HalfToUInt16Bits((Half)value)));
-        Assert.Equal(BitConverter.HalfToUInt16Bits((Half).4), BitConverter.HalfToUInt16Bits((Half)LawTile.Mass));
-        Assert.Equal(new LawMaterial((float)(Half).05, (float)(Half).1, (float)(Half).6, 0f), LawTile.Material);
+        Assert.Equal((BitConverter.SingleToUInt32Bits(.125f), BitConverter.SingleToUInt32Bits(.55f), BitConverter.SingleToUInt32Bits(.325f)),
+            (BitConverter.SingleToUInt32Bits(LawTile.HalfExtents.X), BitConverter.SingleToUInt32Bits(LawTile.HalfExtents.Y),
+                BitConverter.SingleToUInt32Bits(LawTile.HalfExtents.Z)));
+        Assert.Equal(BitConverter.SingleToUInt32Bits(.4f), BitConverter.SingleToUInt32Bits(LawTile.Mass));
+        Assert.Equal(new LawMaterial(.05f, .1f, .6f, 0f), LawTile.Material);
     }
 
     [Theory]
@@ -67,7 +68,7 @@ public sealed class DominoGuardTests
     [InlineData(1f)]
     public async Task TheWiredLessonCascadeTopplesByContactFiresOnceAtFortyFiveDegreesAndSolvesOnce(float precision)
     {
-        var lesson = Lesson((Half)precision);
+        var lesson = Lesson((float)precision);
         lesson.Validate();
         var (built, run, reset) = await NoFixedCapacityTests.RunAndReset(lesson, Ticks);
         // The chain topples in order, each tile starting to turn only after the one before it: real contact, not a shared push.
@@ -100,7 +101,7 @@ public sealed class DominoGuardTests
     [Fact]
     public async Task AGapBreaksTheChainSoTheEndStandsAndTheLampStaysDark()
     {
-        var gap = Lesson((Half).45, skip: 2);
+        var gap = Lesson(.45f, skip: 2);
         var (_, run, _) = await NoFixedCapacityTests.RunAndReset(gap, Ticks);
         // Control: the chain runs up to the gap.
         Assert.True(run.Max(read => Tilt(Find(read, new(4)))) > 60 && run.Max(read => Tilt(Find(read, new(5)))) > 60, "the chain runs to the gap");
@@ -114,7 +115,7 @@ public sealed class DominoGuardTests
     [Fact]
     public async Task AnUnwiredEndCompilesNoSensorOrNodeAndFiresNothingWhenItFalls()
     {
-        var unwired = Lesson((Half).45, wired: false);
+        var unwired = Lesson(.45f, wired: false);
         Assert.Empty(WorkshopPhysicsCompiler.Compile(unwired, new(1, 2)).OrientationSensors.ToArray());
         Assert.Equal([Lamp], WorkshopActivationCompiler.Compile(unwired).Nodes.ToArray().Select(node => node.Owner));
         var (_, run, _) = await NoFixedCapacityTests.RunAndReset(unwired, Ticks);
@@ -189,7 +190,7 @@ public sealed class DominoGuardTests
     [Fact]
     public async Task ResetRestoresUprightTilesAndRearmsTheSensorSoTheSecondRunReplaysTheFirst()
     {
-        var lesson = Lesson((Half).45);
+        var lesson = Lesson(.45f);
         await using var device = new WorkshopGpuDevice(new CuriousContraptions.Simulation.BrowserGpuTransport(), new(101, 206));
         await using var simulation = new WorkshopSimulation(device, new WorkshopPhysicsEngineTests.StepClock(), WorkshopCadenceSettings.Default(),
             new(1), new WorkshopPhysicsEngineTests.NoInstallation(), GpuDeviceOwnership.Borrowed);
@@ -220,7 +221,7 @@ public sealed class DominoGuardTests
     [Fact]
     public async Task SaveAndLoadReplayTheWiredCascadeIdentically()
     {
-        var lesson = Lesson((Half).45);
+        var lesson = Lesson(.45f);
         var save = new WorkshopSavedConstruction(lesson, new(8));
         var loaded = WorkshopSaveCodec.Decode(SaveFixture.Elements, WorkshopSaveCodec.Encode(save));
         Assert.Equal(save, loaded);

@@ -65,4 +65,4 @@ Acceptance authority: [element-134](../requirements.md#element-134), [current-ca
 
 ## 6. Open questions
 
-none beyond [EL-133](EL-133-electrical-and-gate.md#6-open-questions) (observable consumer, condition sources, binary16 lanes, finite supply).
+none beyond [EL-133](EL-133-electrical-and-gate.md#6-open-questions) (observable consumer, condition sources, f32 lanes (resolved), finite supply).

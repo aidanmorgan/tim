@@ -4,14 +4,12 @@ using CuriousContraptions.Gpu;
 
 namespace CuriousContraptions;
 
-/// <summary>Visible adapter for canonical deck support and finite workbench extents.</summary>
+/// <summary>Visible adapter for canonical deck support and finite workbench extents (f32 metres).</summary>
 public static class Workbench
 {
-    public readonly record struct RenderBox(Vector3 At, Vector3 Half);
-    private static float Render(Half value) => (float)value;
-    public static readonly RenderBox Base = new(new(0, Render((Half)(-.7)), 0),
-        new(Render((Half)8.5), Render((Half).175), Render((Half)5)));
+    public readonly record struct RenderBox(Vector3 At, Vector3 HalfExtent);
+    public static readonly RenderBox Base = new(new(0, -.7f, 0), new(8.5f, .175f, 5f));
     public static readonly RenderBox Deck = new(
-        new(0, Render(WorkshopConstruction.WorkbenchSurface.Value) - Render((Half).03), 0),
-        new(Render((Half)8.4), Render((Half).03), Render((Half)4.9)));
+        new(0, WorkshopConstruction.WorkbenchSurface.Value - .03f, 0),
+        new(8.4f, .03f, 4.9f));
 }

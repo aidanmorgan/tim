@@ -8,7 +8,7 @@ public readonly record struct PhysicsBodyRead(CanonicalBody Body, CanonicalRotat
     public void Validate()
     {
         Body.Validate(); Rotation.ValidateCommitted(); AngularVelocity.Validate();
-        PhysicsDeclarationBounds.Vector(LocalCentreOfMass.X, LocalCentreOfMass.Y, LocalCentreOfMass.Z, (Half)16);
+        PhysicsDeclarationBounds.Vector(LocalCentreOfMass.X, LocalCentreOfMass.Y, LocalCentreOfMass.Z, 16f);
     }
 
     public bool HasSameBits(PhysicsBodyRead other) =>
@@ -18,9 +18,7 @@ public readonly record struct PhysicsBodyRead(CanonicalBody Body, CanonicalRotat
         F32Bits.Equal(Rotation.X, other.Rotation.X) && F32Bits.Equal(Rotation.Y, other.Rotation.Y) &&
         F32Bits.Equal(Rotation.Z, other.Rotation.Z) && F32Bits.Equal(Rotation.W, other.Rotation.W) &&
         AngularVelocity.HasSameBits(other.AngularVelocity) &&
-        HalfBits.Equal(LocalCentreOfMass.X, other.LocalCentreOfMass.X) &&
-        HalfBits.Equal(LocalCentreOfMass.Y, other.LocalCentreOfMass.Y) &&
-        HalfBits.Equal(LocalCentreOfMass.Z, other.LocalCentreOfMass.Z);
+        F32Bits.Equal(LocalCentreOfMass, other.LocalCentreOfMass);
 }
 
 
@@ -89,7 +87,7 @@ public readonly struct PhysicsBodyReadSet
                     if (geometry.HasValue) throw new ArgumentException("Dynamic compound is not admitted.");
                     geometry = collider;
                 }
-            if (geometry is not { } shape || !HalfBits.Equal(value.LocalCentreOfMass, shape.Pose.Translation))
+            if (geometry is not { } shape || !F32Bits.Equal(value.LocalCentreOfMass, shape.Pose.Translation))
                 throw new ArgumentException("Committed centre of mass differs from declaration.");
             if (tick.Value == 0 && (value.Body.Cell != declared.Cell ||
                 !F32Bits.Equal(value.Body.Local, declared.Local) ||

@@ -231,7 +231,7 @@ public static partial class Program
     {
         if (_schedule is not { } schedule || bytes.Length != WorkshopAnimationWire.ControlBytes)
             throw new InvalidOperationException("Animation installation is not available.");
-        var cadence = new CadenceRevision(BinaryPrimitives.ReadUInt64LittleEndian(bytes.AsSpan(24)));
+        var cadence = new CadenceRevision(BinaryPrimitives.ReadUInt64LittleEndian(bytes.AsSpan(WorkshopAnimationWire.CadenceOffset)));
         cadence.Validate();
         var control = WorkshopAnimationWire.ReadControl(bytes, Peer.Session, Peer.Generation, cadence);
         if (control.Sequence <= _commandSequence || cadence.Value > schedule.Revision.Value ||
@@ -299,17 +299,17 @@ public static partial class Program
                 if (control.Timer.Phase == AnimationTimerPhase.Counting)
                 {
                     from = AnimationTimerSegment.Create(control.Timer).Endpoint.Value;
-                    to = (float)1;
+                    to = 1f;
                     start = true;
                 }
                 else if (control.Timer.Phase == AnimationTimerPhase.Finished)
                 {
-                    from = to = (float)1;
+                    from = to = 1f;
                     start = false;
                 }
                 else
                 {
-                    from = to = (float)0;
+                    from = to = 0f;
                     start = false;
                 }
             }
@@ -350,19 +350,19 @@ public static partial class Program
     {
         _ = WorkshopAnimationWire.Value(control.Property, channel);
         Output.AsSpan().Clear();
-        Peer.Session.WriteTo(Output.AsSpan(0, RuntimeSessionId.ByteLength));
-        BinaryPrimitives.WriteUInt64LittleEndian(Output.AsSpan(16), Peer.Generation.Value);
-        BinaryPrimitives.WriteUInt64LittleEndian(Output.AsSpan(24), (cadence ?? _schedule!.Value.Revision).Value);
-        BinaryPrimitives.WriteUInt64LittleEndian(Output.AsSpan(32), control.Generation);
-        BinaryPrimitives.WriteUInt64LittleEndian(Output.AsSpan(40), ordinal);
-        BinaryPrimitives.WriteInt64LittleEndian(Output.AsSpan(48), _lastApplied.Value);
-        BinaryPrimitives.WriteSingleLittleEndian(Output.AsSpan(56), channel);
-        BinaryPrimitives.WriteUInt16LittleEndian(Output.AsSpan(136), (ushort)control.Property);
-        BinaryPrimitives.WriteUInt32LittleEndian(Output.AsSpan(60), (uint)kind);
-        BinaryPrimitives.WriteUInt64LittleEndian(Output.AsSpan(64), control.Target.Value);
-        BinaryPrimitives.WriteUInt64LittleEndian(Output.AsSpan(72), control.World.Value);
-        BinaryPrimitives.WriteUInt32LittleEndian(Output.AsSpan(80), control.EventOrdinal);
-        BinaryPrimitives.WriteSingleLittleEndian(Output.AsSpan(84), control.EventPhase);
+        Peer.Session.WriteTo(Output.AsSpan(WorkshopAnimationWire.SessionOffset, RuntimeSessionId.ByteLength));
+        BinaryPrimitives.WriteUInt64LittleEndian(Output.AsSpan(WorkshopAnimationWire.MasterOffset), Peer.Generation.Value);
+        BinaryPrimitives.WriteUInt64LittleEndian(Output.AsSpan(WorkshopAnimationWire.CadenceOffset), (cadence ?? _schedule!.Value.Revision).Value);
+        BinaryPrimitives.WriteUInt64LittleEndian(Output.AsSpan(WorkshopAnimationWire.OutputGenerationOffset), control.Generation);
+        BinaryPrimitives.WriteUInt64LittleEndian(Output.AsSpan(WorkshopAnimationWire.OutputPulseOffset), ordinal);
+        BinaryPrimitives.WriteInt64LittleEndian(Output.AsSpan(WorkshopAnimationWire.OutputAppliedAtOffset), _lastApplied.Value);
+        BinaryPrimitives.WriteSingleLittleEndian(Output.AsSpan(WorkshopAnimationWire.OutputValueOffset), channel);
+        BinaryPrimitives.WriteUInt16LittleEndian(Output.AsSpan(WorkshopAnimationWire.OutputPropertyOffset), (ushort)control.Property);
+        BinaryPrimitives.WriteUInt32LittleEndian(Output.AsSpan(WorkshopAnimationWire.OutputKindOffset), (uint)kind);
+        BinaryPrimitives.WriteUInt64LittleEndian(Output.AsSpan(WorkshopAnimationWire.OutputTargetOffset), control.Target.Value);
+        BinaryPrimitives.WriteUInt64LittleEndian(Output.AsSpan(WorkshopAnimationWire.OutputWorldOffset), control.World.Value);
+        BinaryPrimitives.WriteUInt32LittleEndian(Output.AsSpan(WorkshopAnimationWire.OutputEventOrdinalOffset), control.EventOrdinal);
+        BinaryPrimitives.WriteSingleLittleEndian(Output.AsSpan(WorkshopAnimationWire.OutputEventPhaseOffset), control.EventPhase);
         WorkshopAnimationWire.WriteTimer(Output, control.Timer);
         SendOutput(Output);
     }

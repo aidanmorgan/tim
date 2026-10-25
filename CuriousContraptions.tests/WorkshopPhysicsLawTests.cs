@@ -9,7 +9,7 @@ namespace CuriousContraptions.Tests;
 /// <summary>Ball kinds the law tests declare; each maps to its catalogue identity and its package's declared material.</summary>
 public enum LawBall { Basketball, Bowling }
 
-/// <summary>Each kind's declared material as the compiler compiles it: the package's f32 declaration narrowed to the binary16 body,
+/// <summary>Each kind's declared material as the compiler compiles it: the package's f32 declaration in the f32 body,
 /// collider and material lanes (WorkshopPhysicsCompiler), so a law test feeds the engine exactly the compiled values.</summary>
 internal static class LawBalls
 {
@@ -22,24 +22,24 @@ internal static class LawBalls
     private static CuriousContraptions.Abstractions.ColliderDescriptor Sphere(LawBall ball) => Assert.Single(DeclaredPhysics.Of(Part(ball)).Colliders);
     private static CuriousContraptions.Abstractions.Mechanical.RigidBodyMassProperties Body(LawBall ball) =>
         DeclaredPhysics.Of(Part(ball)).Mechanical!.MassProperties;
-    public static float Radius(LawBall ball) => (float)(Half)Sphere(ball).HalfExtents.X;
-    public static float Mass(LawBall ball) => (float)(Half)Body(ball).Mass;
-    public static float Drag(LawBall ball) => (float)(Half)Body(ball).LinearDrag;
-    public static float Rolling(LawBall ball) => (float)(Half)Sphere(ball).Material.RollingResistance;
-    public static float Restitution(LawBall ball) => (float)(Half)Sphere(ball).Material.Restitution;
-    public static float Friction(LawBall ball) => (float)(Half)Sphere(ball).Material.Friction;
-    public static float BounceThreshold(LawBall ball) => (float)(Half)Sphere(ball).Material.BounceThreshold;
+    public static float Radius(LawBall ball) => Sphere(ball).HalfExtents.X;
+    public static float Mass(LawBall ball) => Body(ball).Mass;
+    public static float Drag(LawBall ball) => Body(ball).LinearDrag;
+    public static float Rolling(LawBall ball) => Sphere(ball).Material.RollingResistance;
+    public static float Restitution(LawBall ball) => Sphere(ball).Material.Restitution;
+    public static float Friction(LawBall ball) => Sphere(ball).Material.Friction;
+    public static float BounceThreshold(LawBall ball) => Sphere(ball).Material.BounceThreshold;
 }
 
-/// <summary>The Domino tile as the compiler compiles it: its package's baked box, mass and material narrowed to the binary16 body,
+/// <summary>The Domino tile as the compiler compiles it: its package's baked box, mass and material in the f32 body,
 /// collider and material lanes (WorkshopPhysicsCompiler), so a law test feeds the engine exactly the compiled tile.</summary>
 internal static class LawTile
 {
     private static CuriousContraptions.Abstractions.ColliderDescriptor Box => Assert.Single(DeclaredPhysics.Of(PartId.Domino).Colliders);
-    public static Vector3 HalfExtents => new((float)(Half)Box.HalfExtents.X, (float)(Half)Box.HalfExtents.Y, (float)(Half)Box.HalfExtents.Z);
-    public static float Mass => (float)(Half)DeclaredPhysics.Of(PartId.Domino).Mechanical!.MassProperties.Mass;
-    public static LawMaterial Material => new((float)(Half)Box.Material.Restitution, (float)(Half)Box.Material.BounceThreshold,
-        (float)(Half)Box.Material.Friction, (float)(Half)Box.Material.RollingResistance);
+    public static Vector3 HalfExtents => new((float)Box.HalfExtents.X, (float)Box.HalfExtents.Y, (float)Box.HalfExtents.Z);
+    public static float Mass => (float)DeclaredPhysics.Of(PartId.Domino).Mechanical!.MassProperties.Mass;
+    public static LawMaterial Material => new((float)Box.Material.Restitution, (float)Box.Material.BounceThreshold,
+        (float)Box.Material.Friction, (float)Box.Material.RollingResistance);
 }
 
 /// <summary>Declared contact material of one law-test body (the same lanes ContactMaterialDeclaration admits).</summary>
@@ -77,15 +77,15 @@ internal sealed class LawScene
         var height = WorkshopInput.Position(BenchY);
         var plane = new GpuBodyId(_next++);
         _bodies.Add(new(plane, RigidMotionKind.Static, new(0, height.Cell, 0), new(0f, height.Local, 0f), CanonicalRotation.Identity,
-            default, default, new((Half)0), default, new((Half)0)));
+            default, default, new(0f), default, new(0f)));
         var material = Material(LawMaterial.Bench);
-        _colliders.Add(new(new(_next++), plane, material, ColliderShapeKind.Plane, RigidLocalPose.Identity, new((Half)0), default));
+        _colliders.Add(new(new(_next++), plane, material, ColliderShapeKind.Plane, RigidLocalPose.Identity, new(0f), default));
     }
 
     private GpuMaterialId Material(LawMaterial value)
     {
         var id = new GpuMaterialId(_next++);
-        _materials.Add(new(id, new((Half)value.Restitution), new((Half)value.Threshold), new((Half)value.Friction), new((Half)value.Rolling)));
+        _materials.Add(new(id, new((float)value.Restitution), new((float)value.Threshold), new((float)value.Friction), new((float)value.Rolling)));
         return id;
     }
 
@@ -98,17 +98,17 @@ internal sealed class LawScene
         _bodies.Add(new(id, motion, new(x.Cell, y.Cell, z.Cell), new(x.Local, y.Local, z.Local),
             CanonicalRotation.Normalize(rotation.X, rotation.Y, rotation.Z, rotation.W),
             dynamic ? new(velocity.X, velocity.Y, velocity.Z) : default, dynamic ? new(angular.X, angular.Y, angular.Z) : default,
-            new((Half)(dynamic ? mass : 0f)), dynamic ? new((Half)0, (Half)gravity, (Half)0) : default, new((Half)(dynamic ? drag : 0f))));
+            new((float)(dynamic ? mass : 0f)), dynamic ? new(0f, (float)gravity, 0f) : default, new((float)(dynamic ? drag : 0f))));
         var materialId = Material(material);
         var collider = new GpuColliderId(_next++);
         _colliderOf[id] = collider;
         _colliders.Add(new(collider, id, materialId, shape,
-            new(new((Half)colliderOffset.X, (Half)colliderOffset.Y, (Half)colliderOffset.Z), CanonicalRotation.Identity),
-            new((Half)(shape is ColliderShapeKind.Sphere or ColliderShapeKind.Cylinder ? radius : 0f)),
+            new(new((float)colliderOffset.X, (float)colliderOffset.Y, (float)colliderOffset.Z), CanonicalRotation.Identity),
+            new((float)(shape is ColliderShapeKind.Sphere or ColliderShapeKind.Cylinder ? radius : 0f)),
             shape switch
             {
-                ColliderShapeKind.Box => new((Half)half.X, (Half)half.Y, (Half)half.Z),
-                ColliderShapeKind.Cylinder => new((Half)0, (Half)half.Y, (Half)0),
+                ColliderShapeKind.Box => new((float)half.X, (float)half.Y, (float)half.Z),
+                ColliderShapeKind.Cylinder => new(0f, (float)half.Y, 0f),
                 _ => default
             }));
         return id;
@@ -217,7 +217,7 @@ internal sealed class LawState(PhysicsSceneDeclaration scene, byte[] world)
         var local = new LocalPosition(F(PhysicsGpuAbi.BodyLocalOffset), F(PhysicsGpuAbi.BodyLocalOffset + 4), F(PhysicsGpuAbi.BodyLocalOffset + 8));
         return new(new((cell.X + local.X) / 16f, (cell.Y + local.Y) / 16f, (cell.Z + local.Z) / 16f),
             new(F(PhysicsGpuAbi.BodyRotationOffset), F(PhysicsGpuAbi.BodyRotationOffset + 4), F(PhysicsGpuAbi.BodyRotationOffset + 8),
-                F(PhysicsGpuAbi.BodyRotationOffset + 12)),
+                F(PhysicsGpuAbi.BodyRotationOffset + PhysicsGpuAbi.RotationWOffset)),
             new(F(PhysicsGpuAbi.BodyVelocityOffset), F(PhysicsGpuAbi.BodyVelocityOffset + 4), F(PhysicsGpuAbi.BodyVelocityOffset + 8)),
             new(F(PhysicsGpuAbi.BodyAngularVelocityOffset), F(PhysicsGpuAbi.BodyAngularVelocityOffset + 4),
                 F(PhysicsGpuAbi.BodyAngularVelocityOffset + 8)),
@@ -238,16 +238,14 @@ internal sealed class LawWorld(PhysicsSceneDeclaration scene, byte[] admitted, S
 
     private int Body(GpuBodyId id) => scene.Layout.GetBodyOffset(id);
 
-    /// <summary>Overrides a body's admitted principal moments (mantissa in [0.5, 1) times 2^exponent; zero stays zero).</summary>
+    /// <summary>Overrides a body's admitted principal moments (one f32 each; zero stays zero).</summary>
     public void SetPrincipalMoments(GpuBodyId id, Vector3 moments)
     {
         for (var axis = 0; axis < 3; axis++)
         {
             var value = axis == 0 ? moments.X : axis == 1 ? moments.Y : moments.Z;
             var slot = admitted.AsSpan(Body(id) + PhysicsGpuAbi.BodyPrincipalInertiaOffset + axis * PhysicsGpuAbi.PrincipalInertiaBytes);
-            var exponent = value > 0 ? MathF.ILogB(value) + 1 : 0;
-            BinaryPrimitives.WriteHalfLittleEndian(slot, (Half)(value > 0 ? value / MathF.Pow(2, exponent) : 0f));
-            BinaryPrimitives.WriteInt32LittleEndian(slot[PhysicsGpuAbi.PrincipalExponentOffset..], exponent);
+            BinaryPrimitives.WriteSingleLittleEndian(slot, value);
         }
     }
 
@@ -565,7 +563,10 @@ public sealed class WorkshopPhysicsLawTests
     // Reviewed identifiers that contain an element name but name no element: "clamp" contains "lamp", "conjugate" contains
     // "gate". The shared electrical-domain tables contain "electrical" (the domain word of the electrical_* gate ids) but name no gate.
     private static readonly string[] GenericIdentifiers = ["Clamp", "ClampVelocity", "SpeedClamp", "SpinClamp", "Conjugate",
-        "ElectricalSupply", "ElectricalEnable", "ElectricalSources", "ElectricalBindings", "ElectricalSourceOffset", "ElectricalBindingOffset"];
+        "ElectricalSupply", "ElectricalEnable", "ElectricalSources", "ElectricalBindings", "ElectricalSourceOffset", "ElectricalBindingOffset",
+        // Story 9A.44: the generic electrical-supply capability's named record fields (every supply source and storage route).
+        "ElectricalSourceEnableOffset", "ElectricalSourceRemainingOffset", "ElectricalSourceMaximumPowerOffset", "ElectricalSourceDebitOffset",
+        "ElectricalBindingSourceOffset", "ElectricalBindingStorageOffset"];
 
     // Reviewed qualified names: the prismatic constraint's soft spring row is the generic declared stiffness/damping law of
     // every prismatic, not the Springboard part. Only these exact qualified forms are set aside, so a bare "Spring" token
@@ -798,7 +799,7 @@ public sealed class WorkshopPhysicsLawTests
     [Fact]
     public void EveryMotionPieceCarriesItsBodysDeclaredDragRate()
     {
-        const int MotionPieceBodyIdOffset = 24; // PhysicsMotionRead piece layout: body identity (u64) at +24
+        const int MotionPieceBodyIdOffset = PhysicsMotionRead.OwnerOffset;
         var scene = new LawScene(bench: false);
         var ball = scene.Ball(LawBall.Basketball, At(0, 1), velocity: At(2, 0, 0), gravity: 0);
         var bowling = scene.Sphere(At(0, 1, 2), LawBalls.Radius(LawBall.Bowling), LawBalls.Mass(LawBall.Bowling),
@@ -807,16 +808,16 @@ public sealed class WorkshopPhysicsLawTests
         var world = scene.Admit();
         var stepped = world.Step(1).World;
         var motion = stepped.AsSpan(PhysicsGpuAbi.Layout(stepped).MotionOffset);
-        var declared = new Dictionary<ulong, Half> { [ball.Value] = (Half)LawBalls.Drag(LawBall.Basketball), [bowling.Value] = (Half).125f,
-            [free.Value] = (Half)0 };
+        var declared = new Dictionary<ulong, float> { [ball.Value] = (float)LawBalls.Drag(LawBall.Basketball), [bowling.Value] = .125f,
+            [free.Value] = 0f };
         var count = (int)BinaryPrimitives.ReadUInt32LittleEndian(motion);
         Assert.Equal(12, count);
         for (var i = 0; i < count; i++)
         {
             var piece = motion[(PhysicsMotionRead.HeaderBytes + i * PhysicsMotionRead.PieceBytes)..];
             var id = BinaryPrimitives.ReadUInt64LittleEndian(piece[MotionPieceBodyIdOffset..]);
-            Assert.Equal(BitConverter.HalfToUInt16Bits(declared[id]),
-                BinaryPrimitives.ReadUInt16LittleEndian(piece[PhysicsMotionRead.DragRateOffset..]));
+            Assert.Equal(BitConverter.SingleToUInt32Bits(declared[id]),
+                BinaryPrimitives.ReadUInt32LittleEndian(piece[PhysicsMotionRead.DragRateOffset..]));
         }
     }
 
@@ -1172,5 +1173,134 @@ public sealed class WorkshopPhysicsLawTests
         float[] stale = [1, 0, 0, 0, 1, 0, 0, 0, 1];
         stale.CopyTo(dynamic.InvIWorld, 0);
         Assert.InRange(1 / WorkshopConstraintSolver.EffectiveMass(contact, contact.Normal), 2 - 1e-6f, 2 + 1e-6f);
+    }
+
+    // ---- the normal-branch rule: a coherent slop band (engine slice "lying cylinder axial creep", 24–25 Oct 2026) ----
+    // A body (1 kg, unit inverse inertia, its frame the world's) touches a static floor (normal +Y) at x = +0.5 and x = −0.5, 0.1 m below
+    // its centre. Each point's effective mass is 1 / (1 + 0.5²) = 0.8 and the two couple by 1 − 0.5² = 0.75. The slop is 0.2 mm, so a
+    // point 0.1 mm deep is in the band (s = +0.1 mm, Box2D's allowance s/h = 0.0001 × 480 = 0.048 m/s) and one 0.5 mm deep is soft
+    // (s = −0.3 mm).
+
+    private static (ContactPoint Right, ContactPoint Left, SoftCoefficients Soft) FloorPair(float spin, float fall, float rightGap, float leftGap)
+    {
+        var body = new SimBody
+        {
+            Qw = 1, Motion = 1, Mass = 1, InvMass = 1, Principal = Quaternion.Identity, InvI = Vector3.One, Q0 = Quaternion.Identity,
+            Vy = -fall, Wz = spin
+        };
+        WorkshopCollisionKernels.UpdateDynamicFrame(body);
+        var floor = new SimBody { Qw = 1, Motion = 0, Principal = Quaternion.Identity, Q0 = Quaternion.Identity };
+        var bodyCollider = new SimCollider { Index = 0, Body = body, Shape = ShapeKind.Box, Rq = Quaternion.Identity };
+        var floorCollider = new SimCollider { Index = 1, Body = floor, Shape = ShapeKind.Plane, Rq = Quaternion.Identity };
+        ContactPoint Point(float x, float gap, int feature) => new()
+        {
+            A = body, B = floor, ColA = bodyCollider, ColB = floorCollider, Ny = 1, Px = x, Py = -.1f, Gap = gap, Feature = feature
+        };
+        var right = Point(.5f, rightGap, 0);
+        var left = Point(-.5f, leftGap, 1);
+        var cache = new Dictionary<ulong, (float LambdaN, float LambdaT1, float LambdaT2)>();
+        WorkshopConstraintSolver.PrepareContact(right, cache);
+        WorkshopConstraintSolver.PrepareContact(left, cache);
+        return (right, left, SoftCoefficients.MakeSoft(WorkshopConstraintSolver.ContactHertz, WorkshopConstraintSolver.ContactDampingRatio,
+            WorkshopConstraintSolver.SubstepSeconds));
+    }
+
+    private static float Approach(ContactPoint c) => Vector3.Dot(WorkshopConstraintSolver.RelativeVelocity(c), Vector3.UnitY);
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void InRelaxABandPointWithASoftSiblingGetsNoAllowanceEvenWhenTheBlockFallsBackToRows(bool siblingSoft)
+    {
+        // Turning at 0.04 rad/s about Z: the left (band) point approaches at 0.02 m/s and the right one separates at 0.02 m/s. On the
+        // relax pass the block would pull the right point, so the solve falls back to rows:
+        // - with a soft right sibling, both rows carry no bias: rhs (−0.02, +0.02), λ_right = 1.25 × −0.02 − 0.75 × 0.02 = −0.04 N·s;
+        // - without one (right 0.1 mm deep too), both keep the 0.048 m/s allowance: rhs (−0.068, −0.028), λ_right = 1.25 × −0.068
+        //   − 0.75 × −0.028 = −0.064 N·s.
+        // With the soft sibling the band row is soft, has no allowance and removes the approach; without one its allowance covers the
+        // 0.02 m/s approach, so nothing is applied. f32: a removed approach is zero within the rounding of the 0.02 m/s it cancels
+        // (2^-24 × 0.02 < 1e-8).
+        var (right, left, soft) = FloorPair(.04f, 0f, siblingSoft ? -.0005f : -.0001f, -.0001f);
+        WorkshopConstraintSolver.SolveNormalBlock([right, left], ContactPass.Relax, soft, WorkshopConstraintSolver.SubstepSeconds);
+        var expected = siblingSoft ? 0f : -.02f;
+        Assert.True(MathF.Abs(Approach(left) - expected) <= 1e-8f, $"band point approaches at {Approach(left)} m/s, expected {expected}");
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void InTheSolvePassABandPointWithASoftSiblingIsSoftWithBiasRateTimesS(bool siblingSoft)
+    {
+        // The same turning pair on the biased solve pass. The right row (soft, bias max(b·s, −3) = b × −0.0003 with b the soft bias
+        // rate, about 18.1 /s, so −0.0054 m/s) still separates faster than its bias, so it takes nothing, and the block, which would pull
+        // it, falls back to rows. With a soft right sibling the left band row is soft with bias b·s = b × 0.0001: one soft row moves its
+        // approach v to v − massScale × (v + b·s), about −0.0029 m/s (that the right row took nothing is part of this expectation). Without
+        // one it keeps the 0.048 m/s allowance and takes nothing.
+        var (right, left, soft) = FloorPair(.04f, 0f, siblingSoft ? -.0005f : -.0001f, -.0001f);
+        var before = Approach(left);
+        WorkshopConstraintSolver.SolveNormalBlock([right, left], ContactPass.Solve, soft, WorkshopConstraintSolver.SubstepSeconds);
+        var s = -.0001f + WorkshopConstraintSolver.ContactSlop;
+        var expected = siblingSoft ? before - soft.MassScale * (before + soft.BiasRate * s) : before;
+        Assert.True(MathF.Abs(Approach(left) - expected) <= 1e-8f, $"band point approaches at {Approach(left)} m/s, expected {expected}");
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void AMixedBandAndSoftManifoldSolvesAsOneBlockWithItsBandPointSoft(bool siblingSoft)
+    {
+        // Falling at 0.02 m/s without turning, both points approach at 0.02 m/s on the relax pass.
+        // - With a soft right sibling, the band row is soft too: rhs (0.02, 0.02), the block's solution is non-negative and applied. With
+        //   the block regularisation ε = 1e-3 × trace / 2 = 1.25e-3 on its diagonal, both approaches end at −0.02 × ε / (2 + ε)
+        //   (the eigenvalue of (1, 1) is 2), −1.25e-5 m/s.
+        // - Without one, both keep the 0.048 m/s allowance (rhs −0.028 each), the block would pull, and the rows take nothing.
+        var (right, left, soft) = FloorPair(0f, .02f, siblingSoft ? -.0005f : -.0001f, -.0001f);
+        WorkshopConstraintSolver.SolveNormalBlock([right, left], ContactPass.Relax, soft, WorkshopConstraintSolver.SubstepSeconds);
+        const float epsilon = WorkshopConstraintSolver.BlockRegularization * 2.5f / 2;
+        var expected = siblingSoft ? -.02f * epsilon / (2 + epsilon) : -.02f;
+        foreach (var point in new[] { right, left })
+            Assert.True(MathF.Abs(Approach(point) - expected) <= 1e-8f, $"approach {Approach(point)} m/s, expected {expected}");
+    }
+
+    [Fact]
+    public void ACurvedSidesRollingRowActsOnlyAboutItsAxisProjectedIntoTheContactsTangentPlane()
+    {
+        // A dynamic lying cylinder (r 0.3, unit inverse inertia, axis U1 = +Z, Crr 0.1) touches a static floor at one curved-side point
+        // whose normal leans toward the axis, n = (0, √(1 − 0.15²), 0.15): n·U1 = 0.15, inside the side tolerance. Its rolling row
+        // resists only the axis projected into the contact's tangent plane, p = (U1 − 0.15 n) / |U1 − 0.15 n|. With an isotropic inverse
+        // inertia the row turns the spin only along p, so the spin about n is unchanged (within the f32 rounding of the 1 rad/s
+        // components, 1e-6) and the spin about p is taken out. The point's normal load, 100 N·s, bounds the row at Crr × r × 100 = 3 N·m·s,
+        // above the w·p = 0.4 × −0.15 + 1 × 0.989 ≈ 0.93 it takes. An unprojected axis would also turn the spin about n, by 0.15 × w·U1.
+        var body = new SimBody
+        {
+            Qw = 1, Motion = 1, Mass = 1, InvMass = 1, Principal = Quaternion.Identity, InvI = Vector3.One, Q0 = Quaternion.Identity,
+            Wx = .3f, Wy = .4f, Wz = 1f
+        };
+        WorkshopCollisionKernels.UpdateDynamicFrame(body);
+        var floor = new SimBody { Qw = 1, Motion = 0, Principal = Quaternion.Identity, Q0 = Quaternion.Identity };
+        var cylinder = new SimCollider
+        {
+            Index = 0, Body = body, Shape = ShapeKind.Cylinder, Radius = .3f, Hy = .4f, U1 = Vector3.UnitZ, Rq = Quaternion.Identity,
+            RollingResistance = .1f
+        };
+        var floorCollider = new SimCollider { Index = 1, Body = floor, Shape = ShapeKind.Plane, Rq = Quaternion.Identity };
+        var n = new Vector3(0, MathF.Sqrt(1 - .15f * .15f), .15f);
+        var point = new ContactPoint
+        {
+            A = body, B = floor, ColA = cylinder, ColB = floorCollider, Nx = n.X, Ny = n.Y, Nz = n.Z, Py = -.3f,
+            SupportA = ContactSupport.Axis, SupportB = ContactSupport.Material
+        };
+        WorkshopConstraintSolver.PrepareContact(point, new Dictionary<ulong, (float LambdaN, float LambdaT1, float LambdaT2)>());
+        point.LambdaN = 100f;
+        var manifold = new ContactManifold();
+        manifold.Points.Add(point);
+        WorkshopConstraintSolver.PrepareRolling(manifold);
+        var p = Vector3.Normalize(Vector3.UnitZ - Vector3.Dot(Vector3.UnitZ, n) * n);
+        var aboutNormal = Vector3.Dot(body.AngularVelocity, n);
+        Assert.True(MathF.Abs(Vector3.Dot(body.AngularVelocity, p)) > .9f, "the spin about p is there to take out");
+        WorkshopConstraintSolver.SolveRolling(manifold);
+        Assert.True(MathF.Abs(Vector3.Dot(body.AngularVelocity, n) - aboutNormal) <= 1e-6f,
+            $"spin about n {Vector3.Dot(body.AngularVelocity, n)} rad/s, was {aboutNormal}");
+        Assert.True(MathF.Abs(Vector3.Dot(body.AngularVelocity, p)) <= 1e-6f, $"spin about p {Vector3.Dot(body.AngularVelocity, p)} rad/s");
     }
 }

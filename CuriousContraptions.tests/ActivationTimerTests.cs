@@ -18,7 +18,7 @@ public sealed class ActivationTimerTests
         var construction = new WorkshopConstruction(new(1),WorkshopCadenceSettings.Default(),instances,Connections:links);
         var scene = WorkshopPhysicsCompiler.Compile(construction,new(1,2));
         ContactTriggerRead Event(ulong owner,uint ordinal) => new(WorkshopPhysicsCompiler.ContactTrigger(new(owner)),
-            new(owner),new(1),1,scene.Colliders.ToArray().First(c=>c.Body.Value==owner).Id,ordinal,(Half)0,new((float)1));
+            new(owner),new(1),1,scene.Colliders.ToArray().First(c=>c.Body.Value==owner).Id,ordinal,0f,new(1f));
         return (WorkshopActivationCompiler.Compile(construction),scene,Event(2,10),Event(5,20));
     }
     private static WorkshopConnection Link(ulong a,ulong b) => new(new(a),WorkshopSocket.ActivationOut,new(b),WorkshopSocket.ActivationIn,WorkshopConnectionDomain.Activation);
@@ -106,15 +106,15 @@ public sealed class ActivationTimerTests
         foreach(var substeps in new uint[]{2,4,8})
         {
             var boundary=10*substeps;
-            Assert.Equal(10UL,new ActivationTime(boundary,(float)(-2048)).CeilingTick(substeps));
-            Assert.Equal(10UL,new ActivationTime(boundary,(float)0).CeilingTick(substeps));
-            Assert.Equal(11UL,new ActivationTime(boundary,(float).25).CeilingTick(substeps));
-            Assert.Equal(10UL,new ActivationTime(boundary-1,(float)2047).CeilingTick(substeps));
+            Assert.Equal(10UL,new ActivationTime(boundary,-2048f).CeilingTick(substeps));
+            Assert.Equal(10UL,new ActivationTime(boundary,0f).CeilingTick(substeps));
+            Assert.Equal(11UL,new ActivationTime(boundary,.25f).CeilingTick(substeps));
+            Assert.Equal(10UL,new ActivationTime(boundary-1,2047f).CeilingTick(substeps));
         }
-        Assert.Throws<ArgumentException>(()=>new ActivationTime(0,(float)(-1)).CeilingTick(4));
+        Assert.Throws<ArgumentException>(()=>new ActivationTime(0,-1f).CeilingTick(4));
         foreach (var invalid in new[] { float.NaN, float.PositiveInfinity, float.NegativeInfinity, 2048f, MathF.BitDecrement(-2048f) })
             Assert.Throws<ArgumentException>(() => new ActivationTime(1, invalid).Validate());
-        var cause=new ActivationCause(new(1),new(1),new(1),new(uint.MaxValue,0f),new((float)1));
+        var cause=new ActivationCause(new(1),new(1),new(1),new(uint.MaxValue,0f),new(1f));
         var input=new ActivationOccurrence(ActivationOccurrenceKind.Contact,new(1),cause.Time,cause);
         Assert.Throws<OverflowException>(()=>ActivationTimerState.Ready(new(2)).Trigger(new(new(2),1440),input,4));
         Assert.Throws<ArgumentException>(() => (input with {Kind=ActivationOccurrenceKind.TimerElapsed,Time=new(uint.MaxValue,.25f)}).Validate());
@@ -125,7 +125,7 @@ public sealed class ActivationTimerTests
         var (network,_,first,_) = Fixture();
         var counting=network.Consume(network.Clear(),network.ClearTimers(),new[]{first},new(3),[]);
         const float phase = 1.000123f;
-        Assert.NotEqual(phase, (float)(Half)phase);
+        Assert.True(TestPrecision.NeedsMoreThanElevenSignificantBits(phase));
         var timer = counting.Timers[0];
         var input = timer.Input with { Time = timer.Input.Time with { Phase = phase },
             Cause = timer.Input.Cause with { Time = timer.Input.Cause.Time with { Phase = phase } } };
@@ -143,11 +143,12 @@ public sealed class ActivationTimerTests
             for (uint step=0;step<4;step++)
             {
                 var offset=p+checked((int)step)*PhysicsMotionRead.PieceBytes;
-                U(offset,(uint)PhysicsMotionKind.FreePolynomial);U(offset+4,checked((uint)(tick-1)*4+step));
-                U(offset+8,checked((uint)(tick-1)*4+step+1));U(offset+12,checked((uint)(tick-1)*4));
-                BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(offset+22),BitConverter.HalfToUInt16Bits((Half)480));
-                BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(offset+76),1f);
-                BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(offset+24),1);
+                U(offset+PhysicsMotionRead.KindOffset,(uint)PhysicsMotionKind.FreePolynomial);
+                U(offset+PhysicsMotionRead.StartOrdinalOffset,checked((uint)(tick-1)*4+step));
+                U(offset+PhysicsMotionRead.EndOrdinalOffset,checked((uint)(tick-1)*4+step+1));U(offset+PhysicsMotionRead.AnchorOrdinalOffset,checked((uint)(tick-1)*4));
+                U(offset+PhysicsMotionRead.FrequencyOffset,WorkshopCadenceSettings.PhysicalFrequency);
+                BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(offset+PhysicsMotionRead.RotationOffset+PhysicsGpuAbi.RotationWOffset),1f);
+                BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(offset+PhysicsMotionRead.OwnerOffset),1);
             }
             var bodies=new PhysicsBodyReadSet(new[] {new PhysicsBodyRead(body,CanonicalRotation.Identity,default,default)});
             var read=new WorkshopRead(new(1),new(tick),bodies,new(2),

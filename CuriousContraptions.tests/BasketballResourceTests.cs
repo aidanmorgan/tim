@@ -12,7 +12,6 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
     {
         var declared = (WorkshopGenericInstance)PlacedParts.Bumper(new(2), 0, 4, 0, strength: 8.000001f);
         Assert.Equal(8.000001f, declared.Parameters[new("strength")]);
-        Assert.NotEqual((float)(Half)8.000001f, declared.Parameters[new("strength")]);
         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(
             WorkshopInput.Generic(PartId.Basketball,new(1), 0, 6, 0, 0, 0, 0, 1), declared));
         var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
@@ -34,20 +33,24 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
         registry.Load();
         Assert.Equal(new[] { PartId.Basketball, PartId.Receiver, PartId.Ramp, PartId.ImpactSwitch, PartId.SignalLamp, PartId.Wall, PartId.Delay, PartId.PinballBumper, PartId.Domino, PartId.BowlingBall, PartId.Battery, PartId.Springboard, PartId.Pipe, PartId.BallDetector, PartId.PipeBend45, PartId.PipeBend90, PartId.Funnel, PartId.PoweredGate, PartId.PressurePlate, PartId.Counter, PartId.Clock, PartId.Latch, new PartId("hold_timer"), new PartId("both_gate"), new PartId("electrical_nand"), new PartId("electrical_nor"), new PartId("electrical_or"), new PartId("electrical_xor"), new PartId("weight") }.OrderBy(id => id),
             registry.Definitions.Keys.OrderBy(id => id));
-        // The canonical binary16 bits each package's material compiles to (the generic dynamic-body compile).
+        // Each package's declared f32 material compiles exactly (the generic dynamic-body compile): Basketball 0.34 m, 1 kg,
+        // restitution 0.55, rolling 0.035; Bowling 0.28 m, 4 kg, restitution 0.14, rolling 0.03 (CAT-014, owner 9 Oct 2026).
         var scene = WorkshopPhysicsCompiler.Compile(new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(
             WorkshopInput.Generic(PartId.Basketball, new(1), -1, 2, 0, 0, 0, 0, 1),
             WorkshopInput.Generic(PartId.BowlingBall, new(2), 1, 2, 0, 0, 0, 0, 1))), new(1, 2));
-        (ushort Radius, ushort Mass, ushort Bounce, ushort Rolling) Bits(ulong id)
+        (uint Radius, uint Mass, uint Bounce, uint Rolling) Bits(ulong id)
         {
             var body = Assert.Single(scene.Bodies.ToArray(), row => row.Id == new GpuBodyId(id));
             var sphere = Assert.Single(scene.Colliders.ToArray(), row => row.Body == body.Id);
             var surface = Assert.Single(scene.Materials.ToArray(), row => row.Id == sphere.Material);
-            return (BitConverter.HalfToUInt16Bits(sphere.Radius.Value), BitConverter.HalfToUInt16Bits(body.Mass.Value),
-                BitConverter.HalfToUInt16Bits(surface.Restitution.Value), BitConverter.HalfToUInt16Bits(surface.RollingResistance.Value));
+            return (BitConverter.SingleToUInt32Bits(sphere.Radius.Value), BitConverter.SingleToUInt32Bits(body.Mass.Value),
+                BitConverter.SingleToUInt32Bits(surface.Restitution.Value), BitConverter.SingleToUInt32Bits(surface.RollingResistance.Value));
         }
-        Assert.Equal(((ushort)13681, (ushort)15360, (ushort)14438, (ushort)10363), Bits(1));
-        Assert.Equal(((ushort)13435, (ushort)17408, (ushort)12411, (ushort)10158), Bits(2));
+        static (uint, uint, uint, uint) Declared(float radius, float mass, float bounce, float rolling) =>
+            (BitConverter.SingleToUInt32Bits(radius), BitConverter.SingleToUInt32Bits(mass),
+                BitConverter.SingleToUInt32Bits(bounce), BitConverter.SingleToUInt32Bits(rolling));
+        Assert.Equal(Declared(.34f, 1f, .55f, .035f), Bits(1));
+        Assert.Equal(Declared(.28f, 4f, .14f, .03f), Bits(2));
         var ball = registry.Create(PartId.Basketball);
         var bowling = registry.Create(PartId.BowlingBall);
         try
@@ -76,9 +79,9 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
             var indicator=delay.Visual.GetChildren().OfType<MeshInstance3D>()
                 .Single(mesh=>mesh.Position==new Vector3(0,-.35f,.37f));
             foreach(var (phase,progress,colour) in new[] {
-                (CuriousContraptions.Abstractions.PresentationTimerPhase.Ready,(float)0,new Color("#556573")),
-                (CuriousContraptions.Abstractions.PresentationTimerPhase.Counting,(float).25,new Color("#e8b764")),
-                (CuriousContraptions.Abstractions.PresentationTimerPhase.Finished,(float)1,new Color("#f7cb52")) })
+                (CuriousContraptions.Abstractions.PresentationTimerPhase.Ready,0f,new Color("#556573")),
+                (CuriousContraptions.Abstractions.PresentationTimerPhase.Counting,.25f,new Color("#e8b764")),
+                (CuriousContraptions.Abstractions.PresentationTimerPhase.Finished,1f,new Color("#f7cb52")) })
             {
                 for (var i = 0; i < delay.Definition.Presentation.Bindings.Count; i++)
                 {
@@ -150,19 +153,19 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
             Assert.All(bumper.Definition.Presentation.Bindings, binding => Assert.Equal(CuriousContraptions.Abstractions.SimulationEventKind.Impact, binding.Event));
             Assert.All(toggle.Definition.Presentation.Bindings, binding => Assert.Equal(CuriousContraptions.Abstractions.SimulationEventKind.TriggerActivated, binding.Event));
             ApplyCue(bumper, 1); ApplyCue(toggle, 1);
-            Assert.Equal(Vector3.One*(float).88,head.Scale); Assert.Equal(Vector3.One*(float)1.24,ring.Scale);
+            Assert.Equal(Vector3.One*.88f,head.Scale); Assert.Equal(Vector3.One*1.24f,ring.Scale);
             Assert.Equal((float)(82d/255),((StandardMaterial3D)ring.MaterialOverride).AlbedoColor.B);
             var pressed=new Color("#bff5b0");
-            Assert.Equal((float)(-.02),button.Position.Y);
+            Assert.Equal(-.02f,button.Position.Y);
             Assert.Equal((float)pressed.G,((StandardMaterial3D)button.MaterialOverride).AlbedoColor.G);
             // An out-of-range or non-finite cue amount is refused where it is made, so the committed value holds.
             Assert.ThrowsAny<ArgumentException>(() => ApplyCue(bumper, float.NaN));
             Assert.ThrowsAny<ArgumentException>(() => ApplyCue(bumper, 1.5f));
-            Assert.Equal(Vector3.One*(float).88,head.Scale);
+            Assert.Equal(Vector3.One*.88f,head.Scale);
             bumper.ResetPhysicalVisuals(); toggle.ResetPhysicalVisuals();
             Assert.Equal(Vector3.One,head.Scale); Assert.Equal(Vector3.One,ring.Scale);
             Assert.Equal((float)(194d/255),((StandardMaterial3D)ring.MaterialOverride).AlbedoColor.B);
-            Assert.Equal((float).06,button.Position.Y);
+            Assert.Equal(.06f,button.Position.Y);
             Assert.Equal((float)toggle.Definition.Color.R,((StandardMaterial3D)button.MaterialOverride).AlbedoColor.R);
         }
         finally

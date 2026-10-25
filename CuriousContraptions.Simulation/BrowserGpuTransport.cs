@@ -15,7 +15,7 @@ internal sealed class BrowserGpuTransport : IWorkshopGpuTransport
     private bool _readyCandidate;
     private bool _initialized;
 
-    public Task Initialize(string preamble)
+    public Task Initialize()
     {
         _engine.Reset();
         _engine.Warmup();

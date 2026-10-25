@@ -1,0 +1,127 @@
+// Scratch-only generator (Story 9A.44 D5): regenerates the f32 lesson golden and the f32 outcome/compiled-row evidence. Never committed.
+using System.Text.Json;
+using System.Text.Json.Nodes;
+using CuriousContraptions.Gpu;
+
+namespace CuriousContraptions.Tests;
+
+public sealed class Scratch9A44Generator
+{
+    private static readonly JsonSerializerOptions Options = new() { IncludeFields = true };
+    private static readonly JsonSerializerOptions Indented = new() { WriteIndented = true };
+
+    [Fact]
+    public async Task Generate()
+    {
+        var root = twodog.Engine.ResolveProjectDir();
+        var evidence = Path.Combine(root, "_bmad-output/implementation-artifacts/evidence-9a-44/t1");
+        Directory.CreateDirectory(evidence);
+        var command = "dotnet test CuriousContraptions.tests -c Debug --no-build --no-restore --filter FullyQualifiedName~Scratch9A44Generator " +
+            "(scratch Scratch9A44Generator.cs, compiled only for this run; its source is kept in evidence-9a-44/t1)";
+        var golden = new JsonObject
+        {
+            ["Provenance"] = new JsonObject
+            {
+                ["Story"] = "9A.44 f32 everywhere: the f32 compile of content/puzzles.json; replaces the half-precision-era lessons-484ec38.json",
+                ["Rows"] = "WorkshopSaveTests.LessonRows(): every authored lesson's compiled geometry, inventory and assistance profiles",
+                ["Date"] = DateTime.UtcNow.ToString("O"),
+            },
+            ["Rows"] = new JsonArray(WorkshopSaveTests.LessonRows().ToArray()),
+        };
+        await File.WriteAllTextAsync(Path.Combine(root, "CuriousContraptions.tests/Fixtures/lessons-f32.json"),
+            golden.ToJsonString(Indented), TestContext.Current.CancellationToken);
+
+        var lessons = new JsonArray();
+        foreach (var row in LaunchLessonSolveTests.AuthoredLessons())
+            foreach (var precision in new[] { 0f, .45f, 1f })
+            {
+                var bench = LaunchLessonSolveTests.AuthoredSolution(row.Data, precision);
+                var (_, run, _) = await NoFixedCapacityTests.RunAndReset(bench, 1200);
+                var entry = Outcome(run, bench);
+                entry["Id"] = row.Data; entry["Precision"] = precision;
+                lessons.Add(entry);
+            }
+        var elements = new JsonArray();
+        var discovered = CuriousContraptions.BundleElements.PackageDiscovery.Discover(root);
+        foreach (var package in discovered.Packages.OrderBy(p => p.Declaration.Metadata.Id, StringComparer.Ordinal))
+        {
+            var id = package.Declaration.Metadata.Id;
+            var bench = new WorkshopConstruction(new ConstructionRevision(2), WorkshopCadenceSettings.Default(),
+                new WorkshopInstances(PackageRuntimeParityTests.Placed(new PartId(id))));
+            var (_, run, _) = await NoFixedCapacityTests.RunAndReset(bench, 240);
+            var entry = Outcome(run, bench);
+            entry["Constructed"] = true; entry["Id"] = id;
+            elements.Add(entry);
+        }
+        await File.WriteAllTextAsync(Path.Combine(evidence, "outcomes-f32.json"),
+            new JsonObject { ["Command"] = command, ["Lessons"] = lessons, ["Elements"] = elements }.ToJsonString(Indented),
+            TestContext.Current.CancellationToken);
+
+        var compiled = new JsonArray();
+        void Rows(string key, WorkshopConstruction c)
+        {
+            var scene = WorkshopPhysicsCompiler.Compile(c, new(1, 2));
+            compiled.Add(new JsonObject
+            {
+                ["Key"] = key,
+                ["Bodies"] = JsonSerializer.SerializeToNode(scene.Bodies.ToArray(), Options),
+                ["Colliders"] = JsonSerializer.SerializeToNode(scene.Colliders.ToArray(), Options),
+                ["Materials"] = JsonSerializer.SerializeToNode(scene.Materials.ToArray(), Options),
+                ["Sensors"] = JsonSerializer.SerializeToNode(scene.Sensors.ToArray(), Options),
+                ["Guides"] = JsonSerializer.SerializeToNode(scene.Guides.ToArray(), Options),
+                ["Triggers"] = JsonSerializer.SerializeToNode(scene.Triggers.ToArray(), Options),
+                ["ContactWorks"] = JsonSerializer.SerializeToNode(scene.ContactWorks.ToArray(), Options),
+                ["OrientationSensors"] = JsonSerializer.SerializeToNode(scene.OrientationSensors.ToArray(), Options),
+                ["Puzzle"] = JsonSerializer.SerializeToNode(c.Puzzle, Options),
+            });
+        }
+        foreach (var package in discovered.Packages.OrderBy(p => p.Declaration.Metadata.Id, StringComparer.Ordinal))
+            Rows(package.Declaration.Metadata.Id, new WorkshopConstruction(new ConstructionRevision(2), WorkshopCadenceSettings.Default(),
+                new WorkshopInstances(PackageRuntimeParityTests.Placed(new PartId(package.Declaration.Metadata.Id)))));
+        foreach (var row in LaunchLessonSolveTests.AuthoredLessons())
+            foreach (var precision in new[] { 0f, .45f, 1f })
+                Rows(row.Data + "@" + precision, LaunchLessonSolveTests.AuthoredSolution(row.Data, precision));
+        await File.WriteAllTextAsync(Path.Combine(evidence, "compiled-rows-f32.json"), compiled.ToJsonString(Indented),
+            TestContext.Current.CancellationToken);
+    }
+
+    private static JsonObject Outcome(List<WorkshopRead> run, WorkshopConstruction bench)
+    {
+        int? goalTick = null;
+        var events = new JsonArray();
+        var previousCaptures = new List<string>(); var previousActivations = new List<string>();
+        for (var t = 0; t < run.Count; t++)
+        {
+            var read = run[t];
+            if (goalTick is null && bench.Puzzle.Goal.Kind != WorkshopGoalKind.None &&
+                WorkshopGoalEvaluator.Occurrence(bench.Puzzle.Goal, read.Captures, read.Activations) is not null)
+                goalTick = (int)read.Tick.Value;
+            for (var i = 0; i < read.Captures.Count; i++)
+            {
+                var c = read.Captures[i];
+                var text = $"capture sensor={c.Sensor.Value} phase={c.Phase} ordinal={c.EventOrdinal} eventPhase={c.EventPhase}";
+                if (i >= previousCaptures.Count) previousCaptures.Add("");
+                if (previousCaptures[i] != text) { events.Add($"tick {read.Tick.Value}: {text}"); previousCaptures[i] = text; }
+            }
+            for (var i = 0; i < read.Activations.Count; i++)
+            {
+                var text = "activation " + JsonSerializer.Serialize(read.Activations[i], Options);
+                if (i >= previousActivations.Count) previousActivations.Add("");
+                if (previousActivations[i] != text) { events.Add($"tick {read.Tick.Value}: {text}"); previousActivations[i] = text; }
+            }
+        }
+        var bodies = new JsonArray();
+        var last = run[^1];
+        for (var i = 0; i < last.Bodies.Count; i++)
+        {
+            var b = last.Bodies[i].Body;
+            bodies.Add(new JsonObject
+            {
+                ["Id"] = b.Id.Value,
+                ["X"] = (b.Cell.X + (double)b.Local.X) / 16, ["Y"] = (b.Cell.Y + (double)b.Local.Y) / 16, ["Z"] = (b.Cell.Z + (double)b.Local.Z) / 16,
+                ["Com"] = JsonSerializer.SerializeToNode(last.Bodies[i].LocalCentreOfMass, Options),
+            });
+        }
+        return new JsonObject { ["GoalMet"] = goalTick is not null, ["GoalTick"] = goalTick, ["Events"] = events, ["FinalBodies"] = bodies };
+    }
+}

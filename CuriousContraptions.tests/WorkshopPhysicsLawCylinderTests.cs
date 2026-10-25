@@ -8,17 +8,16 @@ namespace CuriousContraptions.Tests;
 /// <summary>
 /// Story 10.1 (ENGINE-CYLINDER): the solid cylinder collider and its compiled inertia, proven on the shipped C# engine
 /// (WorkshopPhysicsEngine) through real admission (PhysicsSceneDeclaration → PhysicsGpuAbi.Admission) and tick progression.
-/// Every expectation is derived analytically from the declared (binary16-rounded) geometry, never from observed output.
+/// Every expectation is derived analytically from the declared f32 geometry, never from observed output.
 /// </summary>
 public sealed class WorkshopPhysicsLawCylinderTests
 {
     private static readonly float BenchY = LawScene.BenchY;
-    /// <summary>The gravity a law body is admitted with (its binary16 lane).</summary>
-    private static readonly float G = -(float)(Half)LawScene.Gravity;
+    /// <summary>The gravity a law body is admitted with (its f32 lane).</summary>
+    private static readonly float G = -(float)LawScene.Gravity;
     private static Vector3 At(float x, float y, float z = 0f) => new(x, y, z);
     private static Quaternion AboutX(double degrees) => Quaternion.CreateFromAxisAngle(Vector3.UnitX, (float)(degrees * Math.PI / 180));
     private static Quaternion AboutZ(double degrees) => Quaternion.CreateFromAxisAngle(Vector3.UnitZ, (float)(degrees * Math.PI / 180));
-    private static float H(float value) => (float)(Half)value;
     /// <summary>A cylinder lying with its axis along world Z.</summary>
     private static readonly Quaternion AlongZ = AboutX(90);
     private static readonly LawMaterial Dead = new(0f, .1f, .5f, 0f);
@@ -32,13 +31,14 @@ public sealed class WorkshopPhysicsLawCylinderTests
     public void CompiledMomentsAreTheSolidCylinderMomentsOfTheDeclaredGeometry(double radius, double width, double mass)
     {
         var body = new RigidBodyDeclaration(new(1), RigidMotionKind.Dynamic, default, default, CanonicalRotation.Identity, default, default,
-            new((Half)mass), default, default);
+            new((float)mass), default, default);
         var collider = new ColliderDeclaration(new(2), new(1), new(3), ColliderShapeKind.Cylinder, RigidLocalPose.Identity,
-            new((Half)radius), new((Half)0, (Half)(width / 2), (Half)0));
+            new((float)radius), new(0f, (float)(width / 2), 0f));
         var properties = RigidMassProperties.Compile(body, collider);
-        double m = (double)(Half)mass, r = (double)(Half)radius, h = (double)(Half)(width / 2);
-        // Six binary16 roundings at most (r², h², the 1/3 constant, its product, the sum, the mass product): 6 x 2^-11 relative.
-        const double bound = 6.0 / 2048;
+        double m = (double)(float)mass, r = (double)(float)radius, h = (double)(float)(width / 2);
+        // Six f32 roundings at most (r², h², the division by 3, the sum, the two products): 6 x 2^-24 relative to the exact
+        // moment of the declared f32 inputs.
+        const double bound = 6.0 / (1 << 24);
         Near(properties.Y, m * r * r / 2, bound);
         Near(properties.X, m * (r * r / 4 + h * h / 3), bound);
         Near(properties.Z, m * (r * r / 4 + h * h / 3), bound);
@@ -48,7 +48,7 @@ public sealed class WorkshopPhysicsLawCylinderTests
         static void Near(PrincipalInertia value, double expected, double bound)
         {
             value.Validate();
-            var actual = Math.ScaleB((double)value.Mantissa, value.Exponent);
+            var actual = (double)value.Moment;
             Assert.True(Math.Abs(actual - expected) / expected <= bound, $"moment {actual} vs analytic {expected}");
         }
     }
@@ -98,22 +98,22 @@ public sealed class WorkshopPhysicsLawCylinderTests
     [Fact]
     public void UnusedCylinderLanesAndUnequalBakedRadiiAreRejected()
     {
-        ColliderDeclaration Cylinder(Half x, Half z) => new(new(2), new(1), new(3), ColliderShapeKind.Cylinder, RigidLocalPose.Identity,
-            new((Half).3), new(x, (Half).1, z));
-        Cylinder((Half)0, (Half)0).Validate();
-        Assert.Throws<ArgumentException>(() => Cylinder((Half).3, (Half)0).Validate());
-        Assert.Throws<ArgumentException>(() => Cylinder((Half)0, (Half).3).Validate());
-        Assert.Throws<ArgumentException>(() => Cylinder((Half)(-0.0), (Half)0).Validate());
+        ColliderDeclaration Cylinder(float x, float z) => new(new(2), new(1), new(3), ColliderShapeKind.Cylinder, RigidLocalPose.Identity,
+            new(.3f), new(x, .1f, z));
+        Cylinder(0f, 0f).Validate();
+        Assert.Throws<ArgumentException>(() => Cylinder(.3f, 0f).Validate());
+        Assert.Throws<ArgumentException>(() => Cylinder(0f, .3f).Validate());
+        Assert.Throws<ArgumentException>(() => Cylinder(-0.0f, 0f).Validate());
         // Range: radius in [1/16, 16] (the sphere range), half-width in [1/1024, 16] (the box range).
-        Assert.Throws<ArgumentException>(() => (Cylinder((Half)0, (Half)0) with { Radius = new((Half)(1.0 / 32)) }).Validate());
-        Assert.Throws<ArgumentException>(() => (Cylinder((Half)0, (Half)0) with { Radius = new((Half)17) }).Validate());
-        Assert.Throws<ArgumentException>(() => (Cylinder((Half)0, (Half)0) with { HalfExtents = new((Half)0, (Half)17, (Half)0) }).Validate());
+        Assert.Throws<ArgumentException>(() => (Cylinder(0f, 0f) with { Radius = new((float)(1.0 / 32)) }).Validate());
+        Assert.Throws<ArgumentException>(() => (Cylinder(0f, 0f) with { Radius = new(17f) }).Validate());
+        Assert.Throws<ArgumentException>(() => (Cylinder(0f, 0f) with { HalfExtents = new(0f, 17f, 0f) }).Validate());
 
         var baked = DeclaredPhysics.Admit(new(CuriousContraptions.Abstractions.ColliderShapeKind.Cylinder, new(.4f, .085f, .4f),
             new(0, .5f, 0), Quaternion.Identity, default));
         Assert.Equal(ColliderShapeKind.Cylinder, baked.ShapeKind);
-        Assert.Equal((Half).4f, baked.Radius);
-        Assert.Equal(new MetreVector((Half)0, (Half).085f, (Half)0), baked.HalfExtents);
+        Assert.Equal(.4f, baked.Radius);
+        Assert.Equal(new MetreVector(0f, .085f, 0f), baked.HalfExtents);
         Assert.Throws<ArgumentException>(() => DeclaredPhysics.Admit(new(CuriousContraptions.Abstractions.ColliderShapeKind.Cylinder,
             new(.4f, .085f, .41f), default, Quaternion.Identity, default)));
         Assert.Throws<ArgumentException>(() => DeclaredPhysics.Admit(new(CuriousContraptions.Abstractions.ColliderShapeKind.Capsule,
@@ -159,7 +159,7 @@ public sealed class WorkshopPhysicsLawCylinderTests
         var rampCentre = At(0, BenchY + 2);
         var scene = new LawScene();
         scene.StaticBox(rampCentre, At(4, .25f, 1), AboutZ(degrees), new LawMaterial(0f, .1f, friction, 0f));
-        var start = rampCentre + .25f * normal + 3f * uphill + H(radius) * normal;
+        var start = rampCentre + .25f * normal + 3f * uphill + radius * normal;
         var drum = scene.Cylinder(start, radius, .2f, 1f, new LawMaterial(0f, .1f, friction, 0f), AlongZ);
         var world = scene.Admit();
         var downhill = -uphill;
@@ -187,7 +187,7 @@ public sealed class WorkshopPhysicsLawCylinderTests
         Assert.True(Math.Abs(acceleration - expected) <= .03 * expected, $"a {acceleration} vs (2/3) g sinθ {expected}");
         var sphere = 5.0 / 7 * G * sin;
         Assert.True(Math.Abs(acceleration - sphere) > .03 * sphere, $"a {acceleration} is distinguishable from a sphere's {sphere}");
-        var r = H(.25f);
+        var r = .25f;
         Assert.True(Math.Abs(spin - speed / r) <= .02 * speed / r, $"ω {spin} vs v/r {speed / r}");
     }
 
@@ -203,7 +203,7 @@ public sealed class WorkshopPhysicsLawCylinderTests
         // Sliding with kinetic friction: a = g (sinθ − μ cosθ).
         var sliding = G * (sin - friction * Math.Cos(degrees * Math.PI / 180));
         Assert.True(Math.Abs(acceleration - sliding) <= .05 * sliding, $"a {acceleration} vs sliding {sliding}");
-        Assert.True(spin < .9 * speed / H(.25f), $"ω {spin} < v/r {speed / H(.25f)}");
+        Assert.True(spin < .9 * speed / .25f, $"ω {spin} < v/r {speed / .25f}");
     }
 
     [Fact]
@@ -211,14 +211,14 @@ public sealed class WorkshopPhysicsLawCylinderTests
     {
         // Rolling with Crr on the side: a = −Crr g m r² / (I + m r²) = −(2/3) Crr g, so v0 = 1 m/s stops at 3 v0 / (2 Crr g).
         const float crr = .05f;
-        var r = H(.3f);
+        var r = .3f;
         (double Speed, double Spin, double Moving) Roll(float rolling)
         {
             var scene = new LawScene();
             var drum = scene.Cylinder(At(0, BenchY + r), .3f, .15f, 1f, new LawMaterial(0f, .1f, .6f, rolling), AlongZ,
                 velocity: At(1, 0, 0), angular: At(0, 0, -1 / r));
             var world = scene.Admit();
-            var stop = 3.0 / (2 * H(crr) * G);
+            var stop = 3.0 / (2 * crr * G);
             double moving = 0;
             var final = world.Step((int)(1.5 * stop * world.TicksPerSecond), (tick, state) =>
             {
@@ -240,7 +240,7 @@ public sealed class WorkshopPhysicsLawCylinderTests
     {
         // The side support is the axis point, not the material point: a rolling contact never lifts off, so with Crr 0 and no drag
         // the roll keeps v and ω = v / r and the axis stays r above the bench on every tick.
-        var r = H(.25f);
+        var r = .25f;
         var scene = new LawScene();
         var drum = scene.Cylinder(At(0, BenchY + r), .25f, .3f, 1f, new LawMaterial(0f, .1f, .6f, 0f), AlongZ,
             velocity: At(speed, 0, 0), angular: At(0, 0, -speed / r));
@@ -262,7 +262,7 @@ public sealed class WorkshopPhysicsLawCylinderTests
     [Fact]
     public void DroppedEndDownACylinderSettlesOnItsCapWithoutJitterOrDrift()
     {
-        var h = H(.085f);
+        var h = .085f;
         var scene = new LawScene();
         var wheel = scene.Cylinder(At(.2f, BenchY + h + .05f, -.1f), .4f, .085f, 1f, Dead);
         var world = scene.Admit();
@@ -279,7 +279,7 @@ public sealed class WorkshopPhysicsLawCylinderTests
     [Fact]
     public void DroppedOnItsSideACylinderRestsAlongALineWithoutCreepingAlongItsAxis()
     {
-        var r = H(.25f);
+        var r = .25f;
         var scene = new LawScene();
         var drum = scene.Cylinder(At(0, BenchY + r + .03f, .3f), .25f, .4f, 1f, Dead, AlongZ);
         var world = scene.Admit();
@@ -292,12 +292,312 @@ public sealed class WorkshopPhysicsLawCylinderTests
         Assert.True(final.Speed < .01 && final.Spin < .05, $"rest v {final.Speed} ω {final.Spin}");
     }
 
+    // ---- lying rest without axial creep (engine slice "lying cylinder axial creep", 24 Oct 2026) ----
+
+    /// <summary>The 10.2a Weight at its default mass, read from its package's public declaration
+    /// (<see cref="CuriousContraptions.Elements.Weight.WeightElementDeclaration"/>): its size bindings (multiplier·m + offset, in f32) give
+    /// the radius (HalfExtentX) and half-width (HalfExtentY), and its one scene material gives the restitution, bounce threshold, friction
+    /// and Crr.</summary>
+    private static readonly CuriousContraptions.Elements.Weight.WeightElementDeclaration WeightPackage = new();
+    private static readonly float WeightMass = WeightPackage.Metadata.Parameters.Single().Default;
+    private static readonly float WeightRadius = WeightSize(CuriousContraptions.Abstractions.GeometryComponent.HalfExtentX);
+    private static readonly float WeightHalfWidth = WeightSize(CuriousContraptions.Abstractions.GeometryComponent.HalfExtentY);
+    private static readonly LawMaterial WeightMaterial = WeightLawMaterial(WeightPackage.SceneBodies.Single().Material);
+
+    private static float WeightSize(CuriousContraptions.Abstractions.GeometryComponent component)
+    {
+        var binding = WeightPackage.ColliderBindings.Single(binding => binding.Component == component);
+        return binding.Multiplier * WeightMass + binding.Offset;
+    }
+
+    private static LawMaterial WeightLawMaterial(CuriousContraptions.Abstractions.MaterialProperties material) =>
+        new(material.Restitution, material.BounceThreshold, material.Friction, material.RollingResistance);
+
+    /// <summary>The body's own axis (its local +Y) in world space.</summary>
+    private static Vector3 AxisOf(LawBody b) => Vector3.Transform(Vector3.UnitY, b.Rotation);
+
+    /// <summary>The angle in radians between a body-fixed direction and the horizontal plane.</summary>
+    private static double FromHorizontal(Vector3 direction) => Math.Asin(Math.Min(1, Math.Abs(direction.Y) / Math.Sqrt(Squared(direction))));
+
+    /// <summary>The centre's displacement along the body's own axis summed tick by tick (the axis of each tick), so a yaw while rolling
+    /// does not count as axial motion.</summary>
+    private static double AxialStep(LawBody previous, LawBody current) => Vector3.Dot(current.Position - previous.Position, AxisOf(current));
+
+    [Fact]
+    public void AWeightRollingOffAFlushRampRollsStraightAndStaysPutOnceStopped()
+    {
+        // The 10.2a roll on LawScene: the default Ramp's 3 × 0.18 × 1.3 m slab at 15°, its top face's lower edge meeting the bench, and
+        // the Weight lying along world Z, 0.5 m downhill of the ramp's centre and 3 mm clear of its top face.
+        // A straight roll keeps the centre within the 0.5 mm resting envelope of z = 0 and moves it at most that far along its own axis;
+        // once stopped (below 1 mm/s, which leaves under 3 µm of Crr deceleration) it moves at most a tenth of the envelope, 0.05 mm.
+        const double degrees = 15;
+        var a = (float)(-degrees * Math.PI / 180);
+        var normal = new Vector3(-MathF.Sin(a), MathF.Cos(a), 0);
+        var downhill = new Vector3(MathF.Cos(a), MathF.Sin(a), 0);
+        var centre = At(0, (float)(BenchY + 1.5 * Math.Sin(degrees * Math.PI / 180) - .09 * Math.Cos(degrees * Math.PI / 180)));
+        var scene = new LawScene();
+        // The Ramp declares the bench's material.
+        scene.StaticBox(centre, At(1.5f, .09f, .65f), AboutZ(-degrees));
+        var weight = scene.Cylinder(centre + .09f * normal + .5f * downhill + (WeightRadius + .003f) * normal, WeightRadius, WeightHalfWidth,
+            WeightMass, WeightMaterial, AlongZ);
+        var world = scene.Admit();
+        var tps = world.TicksPerSecond;
+        var reads = new List<LawBody>();
+        world.Step(14 * tps, (_, state) => reads.Add(state[weight]));
+
+        var final = reads[^1];
+        Assert.True(final.Position.X > centre.X + 2.5f, $"rolled off the ramp onto the bench (x {final.Position.X})");
+        Assert.InRange(final.Position.Y, BenchY + WeightRadius - .0005f, BenchY + WeightRadius + .0005f);
+        var stopped = reads.FindIndex(2 * tps, b => b.Speed < .001);
+        Assert.True(stopped > 0 && stopped < reads.Count - 2 * tps, $"stopped at tick {stopped + 1}");
+
+        var problems = new List<string>();
+        var worstZ = reads.Select((b, tick) => (Z: MathF.Abs(b.Position.Z), Tick: tick + 1)).MaxBy(s => s.Z);
+        if (worstZ.Z > .0005f) problems.Add($"world |z| {worstZ.Z * 1000:F3} mm at tick {worstZ.Tick} (bound 0.5 mm)");
+        double axial = 0, worstAxial = 0;
+        for (var i = 1; i < reads.Count; i++)
+        {
+            axial += AxialStep(reads[i - 1], reads[i]);
+            worstAxial = Math.Max(worstAxial, Math.Abs(axial));
+        }
+        if (worstAxial > .0005) problems.Add($"moved {worstAxial * 1000:F3} mm along its own axis (bound 0.5 mm)");
+        var after = Vector3.Distance(final.Position, reads[stopped].Position);
+        if (after > .00005f) problems.Add($"moved {after * 1000:F4} mm after stopping at tick {stopped + 1} (bound 0.05 mm)");
+        Assert.True(problems.Count == 0, string.Join("; ", problems));
+    }
+
+    /// <summary>The exact level pose: an f32 quarter turn about X leaves a lying axis about 4e-8 rad off level (√½ is not exact), but
+    /// the third of a turn about (1, 1, 1) has the exact f32 quaternion (½, ½, ½, ½) and carries local +X, +Y, +Z onto world +Y, +Z, +X.
+    /// A cylinder in it lies along world Z.</summary>
+    private static readonly Quaternion ExactlyLevel = new(.5f, .5f, .5f, .5f);
+
+    /// <summary>The set-down cases stand at the horizontal origin. The integrator moves a body by f32 world-coordinate steps, one ulp of
+    /// the coordinate (15 nm at 0.2 m), so away from the origin a drift under about 3.6e-6 m/s (half an ulp per 480 Hz substep) reads as
+    /// none and anything above it as at least 7.15e-6 m/s: the 1e-6 m/s bound could not be resolved there. Near the origin the step is
+    /// far finer than any bound below.</summary>
+    private static readonly Vector3 SetDownAt = Vector3.Zero;
+
+    [Fact]
+    public void ALyingCylinderSetDownWithAMicroTiltDoesNotWalkAndItsTiltDoesNotGrow()
+    {
+        // The exact level pose tilted 2e-6 rad about the transverse X (one end low), set down touching at its lowest point: tilt is the
+        // only difference from the level control. Over the whole 10 s run its tilt never exceeds the admitted tilt plus two f32 steps of
+        // the quaternion's ½ components (each 2^-24, turning the axis by 2 × 2^-24 = 1.19e-7 rad), 2.4e-7 rad; and from 2 s to 10 s the
+        // centre's horizontal drift stays under 1e-6 m/s (8 µm in the 8 s). A ledge-and-sag rest grows the tilt (to 1.5e-4 rad without
+        // the coherent slop band rule). Whether such a tilt levels, and larger set-down tilts (1e-5, 1e-4 rad) and a box on its end,
+        // belong to the follow-up slice "orientation levelling and two-point friction".
+        const double tilt = 2e-6;
+        var scene = new LawScene();
+        var q = Quaternion.CreateFromAxisAngle(Vector3.UnitX, (float)tilt) * ExactlyLevel;
+        var body = scene.Cylinder(SetDownAt + At(0, BenchY + Lowest(q, WeightRadius, WeightHalfWidth)), WeightRadius, WeightHalfWidth, WeightMass,
+            WeightMaterial, q);
+        var world = scene.Admit();
+        var tps = world.TicksPerSecond;
+        // The admitted tilt (f32 rotation) is the requested one.
+        var initial = FromHorizontal(AxisOf(world.Initial(body)));
+        Assert.InRange(initial, .5 * tilt, 1.5 * tilt);
+        LawBody? settled = null;
+        double peak = initial;
+        var final = world.Step(10 * tps, (tick, state) =>
+        {
+            peak = Math.Max(peak, FromHorizontal(AxisOf(state[body])));
+            if (tick == 2 * tps) settled = state[body];
+        })[body];
+        var drift = final.Position - settled!.Value.Position;
+        drift.Y = 0;
+        var speed = drift.Length() / 8;
+        Assert.True(speed < 1e-6 && peak <= initial + 2.4e-7,
+            $"tilted {initial:E2} rad: drift {speed:E2} m/s over 8 s (bound 1e-6), peak tilt {peak:E2} rad (bound {initial + 2.4e-7:E2})");
+    }
+
+    [Fact]
+    public void ACylinderSetDownExactlyLevelOnItsSideDoesNotDrift()
+    {
+        // The control for the micro-tilt, at the same place and in the same pose with no tilt: there is nothing to level, so once set down
+        // (its first second, as it takes up its slop) the centre stays put for 9 s within the face bound of the box control, 1e-9 m/s
+        // (9 nm), three orders below the tilted cases' 1e-6 m/s. Bit-stillness is not the measure: at the origin the solver's own
+        // round-off is resolved (a level cylinder reads about 1.3e-11 m/s, as before this slice's laws), and away from it a 1e-6 m/s
+        // drift would round away.
+        var scene = new LawScene();
+        var drum = scene.Cylinder(SetDownAt + At(0, BenchY + WeightRadius), WeightRadius, WeightHalfWidth, WeightMass, WeightMaterial, ExactlyLevel);
+        var world = scene.Admit();
+        var tps = world.TicksPerSecond;
+        LawBody? settled = null;
+        var final = world.Step(10 * tps, (tick, state) => { if (tick == tps) settled = state[drum]; })[drum];
+        var drift = final.Position - settled!.Value.Position;
+        drift.Y = 0;
+        var speed = drift.Length() / 9;
+        Assert.True(speed <= 1e-9, $"drift {speed:E2} m/s over 9 s (bound 1e-9)");
+    }
+
+    /// <summary>The peak tilt from the horizontal (radians) of <paramref name="rocker"/>'s axis over <paramref name="seconds"/>.</summary>
+    private static double PeakPitch(LawWorld world, GpuBodyId rocker, double seconds)
+    {
+        double peak = 0;
+        world.Step((int)(seconds * world.TicksPerSecond), (_, state) => peak = Math.Max(peak, FromHorizontal(AxisOf(state[rocker]))));
+        return peak;
+    }
+
+    [Fact]
+    public void ARockingLyingCylinderIsDampedByItsNormalRowsAndNotByRollingResistance()
+    {
+        // Pitching a lying cylinder about the transverse axis rocks it on its contact line; it is no roll, so rolling resistance (a torque
+        // about the rolling axis) must not act on it: the rocking peaks at the same tilt with Crr 0.1 as with Crr 0. A row that resisted
+        // pitch would take Crr r m g = 0.25 N·m of the 3.9 N·m gravity torque m g h (Crr r / h = 0.1 × 0.25 / 0.4 = 6.25 %), lowering
+        // the peak by about that much; the two peaks must agree within 0.5 %, an order of magnitude under that effect.
+        double Peak(float rolling)
+        {
+            var scene = new LawScene();
+            var drum = scene.Cylinder(At(0, BenchY + .25f), .25f, .4f, 1f, new LawMaterial(0f, .1f, .6f, rolling), AlongZ, angular: At(4f, 0, 0));
+            return PeakPitch(scene.Admit(), drum, 1);
+        }
+        var free = Peak(0f);
+        var resisted = Peak(.1f);
+        Assert.True(free > .01, $"the rocking lifts an end ({free} rad; {resisted} rad with Crr 0.1)");
+        Assert.True(Math.Abs(resisted - free) <= .005 * free, $"peak tilt {resisted} rad with Crr 0.1 vs {free} rad with Crr 0 (within 0.5 %)");
+    }
+
+    [Theory]
+    [InlineData(false, 0.0)]
+    [InlineData(true, 0.0)]
+    [InlineData(false, 1.0)]
+    [InlineData(false, 4.0)]
+    public void ALogPitchingOnALogIsUntouchedByRollingResistanceUnlessTheirAxesAreSkewedPastTwoDegrees(bool antiparallel, double skew)
+    {
+        // Two parallel curved sides (a log r 0.25, half-width 0.4 lying along Z on a static log r 0.3 along Z, a two-point line contact)
+        // roll about their one common axis, whichever way each axis points (antiparallel: the log turned end for end, its axis along −Z),
+        // so a pitch rocking about X is no roll: it peaks at the same tilt with Crr 0.1 as with Crr 0. The pitch stays under 2°. A row that
+        // resisted pitch would take Crr × arm / h = 0.1 × 0.3 / 0.4 = 7.5 % of the gravity torque; the peaks must agree within 0.5 %, an
+        // order of magnitude under that effect. Turned about Y by `skew`, the log stays parallel within the narrowphase's 2°
+        // (`LineAlignment`) at 1°, peaks unchanged; at 4° the sides are skewed and touch at a point, which rolls about both tangents, so
+        // Crr lowers the peak by at least a third of that 7.5 %, 2.5 %.
+        double Peak(float rolling)
+        {
+            var scene = new LawScene(bench: false);
+            scene.StaticCylinder(At(0, 1), .3f, .5f, AlongZ, new LawMaterial(0f, .1f, .6f, 0f));
+            var rotation = Quaternion.Normalize(Quaternion.CreateFromAxisAngle(Vector3.UnitY, (float)(skew * Math.PI / 180)) *
+                (antiparallel ? AboutX(-90) : AlongZ));
+            var log = scene.Cylinder(At(0, 1 + .3f + .25f + .0005f), .25f, .4f, 1f, new LawMaterial(0f, .1f, .6f, rolling), rotation,
+                angular: At(2f, 0, 0));
+            return PeakPitch(scene.Admit(), log, 1);
+        }
+        var free = Peak(0f);
+        var resisted = Peak(.1f);
+        Assert.True(free > .002 && free < 2 * Math.PI / 180, $"the rocking lifts an end within 2° ({free} rad; {resisted} rad with Crr 0.1)");
+        if (skew < 2) Assert.True(Math.Abs(resisted - free) <= .005 * free, $"peak tilt {resisted} rad with Crr 0.1 vs {free} rad with Crr 0 (within 0.5 %)");
+        else Assert.True(resisted <= .975 * free, $"peak tilt {resisted} rad with Crr 0.1 vs {free} rad with Crr 0 (at least 2.5 % lower)");
+    }
+
+    [Fact]
+    public void ALogRollingOverAParallelLogLosesSpinToRollingResistance()
+    {
+        // The parallel pair's common axis is a rolling axis: the same log rolling over the static log about Z (1 rad/s, its centre at
+        // r ω = 0.25 m/s along −X so its contact does not slip) is resisted. The row's bound, Crr × arm × m g = 0.1 × 0.3 × 9.81 = 0.29 N·m,
+        // against I + m r² = 0.094 kg·m² about the contact, would take up to 3.1 rad/s² off the spin, 0.94 rad/s in the 0.3 s watched; the
+        // normal load falls as the log rolls off its apex and the curved support changes the rolling kinematics, so the spin with Crr 0.1
+        // must end at least a third of that, 0.3 rad/s, below the spin with Crr 0.
+        double Spin(float rolling)
+        {
+            var scene = new LawScene(bench: false);
+            scene.StaticCylinder(At(0, 1), .3f, .5f, AlongZ, new LawMaterial(0f, .1f, .6f, 0f));
+            var log = scene.Cylinder(At(0, 1 + .3f + .25f + .0005f), .25f, .4f, 1f, new LawMaterial(0f, .1f, .6f, rolling), AlongZ,
+                velocity: At(-.25f, 0, 0), angular: At(0, 0, 1f));
+            var world = scene.Admit();
+            return world.Step((int)(.3 * world.TicksPerSecond))[log].Spin;
+        }
+        var free = Spin(0f);
+        var resisted = Spin(.1f);
+        Assert.True(resisted <= free - .3, $"spin {resisted} rad/s with Crr 0.1 vs {free} rad/s with Crr 0");
+    }
+
+    [Fact]
+    public void ALogPitchingOnAStandingCylindersCapIsUntouchedByRollingResistance()
+    {
+        // One curved side on the second collider: a log (r 0.1, half-width 0.5) lying along Z across a static standing cylinder's cap
+        // (r 0.3, declared first, so the cap is the pair's first collider and the log's side its second) rests on the cap's chord, a
+        // two-point line along the log's axis. Its only rolling axis is the log's own, so a pitch rocking about X is no roll: it peaks at
+        // the same tilt with Crr 0.1 as with Crr 0. A row that resisted pitch would take Crr × r × m g of the m g × 0.3 gravity torque
+        // about a chord end (0.1 × 0.1 / 0.3 = 3.3 %); the peaks must agree within 0.5 %, well under that effect.
+        double Peak(float rolling)
+        {
+            var scene = new LawScene(bench: false);
+            scene.StaticCylinder(At(0, 1), .3f, .2f, null, new LawMaterial(0f, .1f, .6f, 0f));
+            var log = scene.Cylinder(At(0, 1 + .2f + .1f + .0005f), .1f, .5f, 1f, new LawMaterial(0f, .1f, .6f, rolling), AlongZ,
+                angular: At(2f, 0, 0));
+            return PeakPitch(scene.Admit(), log, 1);
+        }
+        // The pair is the second-side-only case: the cap's collider precedes the log's in the compiled scene (the engine orders a pair by
+        // collider slot), and the narrowphase gives every point of that pair cap material on the first side and an axis support on the
+        // second.
+        var probe = new LawScene(bench: false);
+        var cap = probe.StaticCylinder(At(0, 1), .3f, .2f, null, new LawMaterial(0f, .1f, .6f, 0f));
+        var lying = probe.Cylinder(At(0, 1 + .2f + .1f + .0005f), .1f, .5f, 1f, new LawMaterial(0f, .1f, .6f, 0f), AlongZ);
+        var layout = probe.Admit().Scene.Layout;
+        Assert.True(layout.GetColliderSlot(probe.ColliderOf(cap)) < layout.GetColliderSlot(probe.ColliderOf(lying)), "the cap is the first collider");
+        var contacts = Contacts(Collider(ShapeKind.Cylinder, At(0, 1), Quaternion.Identity, .3f, .2f),
+            Collider(ShapeKind.Cylinder, At(0, 1 + .2f + .1f + .0005f), AlongZ, .1f, .5f, index: 1));
+        Assert.Equal(2, contacts.Count);
+        Assert.All(contacts, c => Assert.True(c.SupportA == ContactSupport.Material && c.SupportB == ContactSupport.Axis,
+            $"supports {c.SupportA} / {c.SupportB}"));
+        var free = Peak(0f);
+        var resisted = Peak(.1f);
+        Assert.True(free > .002, $"the rocking lifts an end ({free} rad; {resisted} rad with Crr 0.1)");
+        Assert.True(Math.Abs(resisted - free) <= .005 * free, $"peak tilt {resisted} rad with Crr 0.1 vs {free} rad with Crr 0 (within 0.5 %)");
+    }
+
+    [Fact]
+    public void ABallRollingAlongALyingLogIsSlowedByRollingResistance()
+    {
+        // A sphere on a curved side rolls about both tangents, whatever the side's own axis: a ball (r 0.1, 1 kg) rolling along the top of
+        // a static log (r 0.3, half-width 1, along Z) spins about X, across the log's axis, and is resisted. The row's bound,
+        // Crr × arm × m g = 0.1 × 0.3 × 9.81 = 0.29 N·m (the larger rolling radius is the log's), against I + m r² = 0.014 kg·m² about
+        // the contact, takes at least 21 rad/s² off the spin, so the 5 rad/s roll (0.5 m/s, rolling without slip) stops within 0.24 s;
+        // free (Crr 0) it keeps rolling. At 0.3 s the resisted spin is under a tenth of the free one.
+        double Spin(float rolling)
+        {
+            var scene = new LawScene(bench: false);
+            scene.StaticCylinder(At(0, 1), .3f, 1f, AlongZ, new LawMaterial(0f, .1f, .6f, 0f));
+            var ball = scene.Sphere(At(0, 1 + .3f + .1f + .0005f, -.5f), .1f, 1f, new LawMaterial(0f, .1f, .6f, rolling), At(0, 0, .5f),
+                At(5f, 0, 0), 0f, LawScene.Gravity);
+            var world = scene.Admit();
+            return world.Step((int)Math.Round(.3 * world.TicksPerSecond))[ball].Spin;
+        }
+        var free = Spin(0f);
+        var resisted = Spin(.1f);
+        Assert.True(free > 4, $"free, the ball keeps rolling ({free} rad/s; {resisted} rad/s with Crr 0.1)");
+        Assert.True(resisted < .1 * free, $"spin {resisted} rad/s with Crr 0.1 vs {free} rad/s with Crr 0");
+    }
+
+    [Fact]
+    public void ALogRollingAcrossACrossedLogIsSlowedByRollingResistance()
+    {
+        // The control for the parallel pair: the same log turned to lie along X across the static log (crossed sides, one point) rolls
+        // about both tangents, so a spin about its own axis X, a roll along the static log, is resisted. The row's bound,
+        // Crr × arm × m g = 0.1 × 0.3 × 9.81 = 0.29 N·m, against at most I + m r² = 0.094 kg·m² about the contact, takes at least
+        // 3.1 rad/s² off the spin, so the 1 rad/s roll stops within 0.32 s; free (Crr 0) it keeps rolling. At 0.35 s, past that stop,
+        // the resisted spin is under a tenth of the free one. It starts rolling without slip (centre at r ω = 0.25 m/s along +Z): spun in
+        // place it would first slip to ω I / (I + m r²) = 1/3 of its spin.
+        double Spin(float rolling)
+        {
+            var scene = new LawScene(bench: false);
+            scene.StaticCylinder(At(0, 1), .3f, .5f, AlongZ, new LawMaterial(0f, .1f, .6f, 0f));
+            var log = scene.Cylinder(At(0, 1 + .3f + .25f + .0005f), .25f, .4f, 1f, new LawMaterial(0f, .1f, .6f, rolling), AboutZ(-90),
+                velocity: At(0, 0, .25f), angular: At(1f, 0, 0));
+            var world = scene.Admit();
+            return world.Step((int)Math.Round(.35 * world.TicksPerSecond))[log].Spin;
+        }
+        var free = Spin(0f);
+        var resisted = Spin(.1f);
+        Assert.True(free > .5, $"free, the log keeps rolling ({free} rad/s; {resisted} rad/s with Crr 0.1)");
+        Assert.True(resisted < .1 * free, $"spin {resisted} rad/s with Crr 0.1 vs {free} rad/s with Crr 0");
+    }
+
     [Theory]
     [InlineData(20.0, true)]   // past atan(r/h) = 14.04°: the centre is outside the rim, it topples
     [InlineData(8.0, false)]   // inside it: it rights itself onto its cap
     public void ATallCylinderTippedPastItsRimTopplesOntoItsSideAndOtherwiseRightsItself(double degrees, bool topples)
     {
-        float r = H(.1f), h = H(.4f);
+        float r = .1f, h = .4f;
         var theta = degrees * Math.PI / 180;
         var centreY = BenchY + (float)(h * Math.Cos(theta) + r * Math.Sin(theta)) + .0005f;
         var scene = new LawScene();
@@ -330,33 +630,33 @@ public sealed class WorkshopPhysicsLawCylinderTests
     [Fact]
     public void ABoxRestsOnACylinderCap()
     {
-        var h = H(.085f);
+        var h = .085f;
         var scene = new LawScene();
         scene.Cylinder(At(0, BenchY + h), .4f, .085f, 1f, Dead);
-        var box = scene.Box(At(.05f, BenchY + 2 * h + H(.1f) + .005f), At(.15f, .1f, .15f), .5f, LawMaterial.Domino);
-        Holds(scene.Admit(), box, BenchY + 2 * h + H(.1f));
+        var box = scene.Box(At(.05f, BenchY + 2 * h + .1f + .005f), At(.15f, .1f, .15f), .5f, LawMaterial.Domino);
+        Holds(scene.Admit(), box, BenchY + 2 * h + .1f);
     }
 
     [Fact]
     public void ACylinderStandsOnItsEndAtopABox()
     {
-        var h = H(.085f);
+        var h = .085f;
         var scene = new LawScene();
-        scene.Box(At(0, BenchY + H(.2f)), At(.3f, .2f, .3f), 2f, LawMaterial.Domino);
-        var wheel = scene.Cylinder(At(0, BenchY + 2 * H(.2f) + h + .005f), .25f, .085f, 1f, Dead);
-        Holds(scene.Admit(), wheel, BenchY + 2 * H(.2f) + h);
+        scene.Box(At(0, BenchY + .2f), At(.3f, .2f, .3f), 2f, LawMaterial.Domino);
+        var wheel = scene.Cylinder(At(0, BenchY + 2 * .2f + h + .005f), .25f, .085f, 1f, Dead);
+        Holds(scene.Admit(), wheel, BenchY + 2 * .2f + h);
     }
 
     [Fact]
     public void AHorizontalCylinderIsCradledByTwoBoxEdges()
     {
         // Inner top edges at x = ±0.15, top 0.4 above the bench: the r = 0.25 drum's axis rests √(r² − 0.15²) above them.
-        var top = BenchY + 2 * H(.2f);
-        var r = H(.25f);
+        var top = BenchY + 2 * .2f;
+        var r = .25f;
         var rest = top + MathF.Sqrt(r * r - .15f * .15f);
         var scene = new LawScene();
-        scene.StaticBox(At(-.35f, BenchY + H(.2f)), At(.2f, .2f, .5f));
-        scene.StaticBox(At(.35f, BenchY + H(.2f)), At(.2f, .2f, .5f));
+        scene.StaticBox(At(-.35f, BenchY + .2f), At(.2f, .2f, .5f));
+        scene.StaticBox(At(.35f, BenchY + .2f), At(.2f, .2f, .5f));
         var drum = scene.Cylinder(At(0, rest + .005f), .25f, .4f, 1f, Dead, AlongZ);
         var world = scene.Admit();
         Holds(world, drum, rest);
@@ -367,7 +667,7 @@ public sealed class WorkshopPhysicsLawCylinderTests
     public void ALogRestsInTheGrooveOfTwoParallelLogs()
     {
         // Static logs (r 0.2) at x = ±0.25: the top log's axis rests √(0.4² − 0.25²) above theirs, held along its whole length.
-        var r = H(.2f);
+        var r = .2f;
         var below = BenchY + 1;
         var rest = below + MathF.Sqrt(4 * r * r - .25f * .25f);
         var scene = new LawScene();
@@ -386,8 +686,8 @@ public sealed class WorkshopPhysicsLawCylinderTests
     {
         // The log's lowest generator crosses the cap disc: a chord of two points (z = ±0.3), the axis r above the cap. Its centre at
         // z = 0.15 is inside the chord, so it holds level.
-        var top = BenchY + 1 + H(.2f);
-        var rest = top + H(.1f);
+        var top = BenchY + 1 + .2f;
+        var rest = top + .1f;
         var scene = new LawScene();
         scene.StaticCylinder(At(0, BenchY + 1), .3f, .2f);
         var log = scene.Cylinder(At(0, rest + .005f, .15f), .1f, .5f, 1f, Dead, AlongZ);
@@ -401,7 +701,7 @@ public sealed class WorkshopPhysicsLawCylinderTests
     [Fact]
     public void ThreeCylindersStackEndToEnd()
     {
-        var h = H(.1f);
+        var h = .1f;
         var scene = new LawScene();
         scene.Cylinder(At(0, BenchY + h + .002f), .2f, .1f, .5f, Dead);
         scene.Cylinder(At(0, BenchY + 3 * h + .004f), .2f, .1f, .5f, Dead);
@@ -445,14 +745,14 @@ public sealed class WorkshopPhysicsLawCylinderTests
     {
         // Centre path x = r + 0.05 meets the rim circle (r, ·, h) at distance R: n = (0.05, 0, √(R² − 0.05²)) / R.
         var normal = Vector3.Normalize(new Vector3(.05f, 0, MathF.Sqrt(.01f - .0025f)));
-        Reflects(At(H(.3f) + .05f, 1, 1.5f), At(0, 0, -3), normal);
+        Reflects(At(.3f + .05f, 1, 1.5f), At(0, 0, -3), normal);
     }
 
     [Fact]
     public void ABallInTheBoundingBoxCornerOutsideTheTrueCylinderIsNeverTouched()
     {
         // Radial distance 0.9 (r + R) √2 > r + R: inside the box hull of the cylinder grown by R, outside the cylinder.
-        float r = H(.3f), d = .9f * (H(.3f) + .1f);
+        float r = .3f, d = .9f * (.3f + .1f);
         var scene = new LawScene(bench: false);
         scene.StaticCylinder(At(0, 1), .3f, .4f);
         var ball = scene.Sphere(At(d, 1, d), .1f, 1f, Dead, default, default, 0f, 0f);
@@ -460,11 +760,11 @@ public sealed class WorkshopPhysicsLawCylinderTests
         var final = world.Step(world.TicksPerSecond)[ball];
         Assert.Equal(At(d, 1, d), final.Position, new Vector3Comparer(1e-6f));
         Assert.Equal(0.0, final.Speed);
-        Assert.Empty(Contacts(Collider(ShapeKind.Cylinder, At(0, 0), Quaternion.Identity, r, H(.4f)),
-            Collider(ShapeKind.Sphere, At(d, 0, d), Quaternion.Identity, H(.1f), index: 1)));
+        Assert.Empty(Contacts(Collider(ShapeKind.Cylinder, At(0, 0), Quaternion.Identity, r, .4f),
+            Collider(ShapeKind.Sphere, At(d, 0, d), Quaternion.Identity, .1f, index: 1)));
         // Control: a box of the cylinder's bounds would touch it.
-        Assert.NotEmpty(Contacts(Collider(ShapeKind.Box, At(0, 0), Quaternion.Identity, 0, At(r, H(.4f), r)),
-            Collider(ShapeKind.Sphere, At(d, 0, d), Quaternion.Identity, H(.1f), index: 1)));
+        Assert.NotEmpty(Contacts(Collider(ShapeKind.Box, At(0, 0), Quaternion.Identity, 0, At(r, .4f, r)),
+            Collider(ShapeKind.Sphere, At(d, 0, d), Quaternion.Identity, .1f, index: 1)));
     }
 
     // ---- pairs: contact counts and gaps, through the shipped narrowphase ----
@@ -579,6 +879,82 @@ public sealed class WorkshopPhysicsLawCylinderTests
         Assert.Empty(Contacts(a, Collider(ShapeKind.Cylinder, At(.6f + .02f, 0), AlongZ, .3f, .4f, index: 1)));
     }
 
+    /// <summary>Every axis-support point of <paramref name="contacts"/> whose manifold a rolling row projects through (not a sphere's,
+    /// whose row rolls about both tangents, and not two skewed curved sides', which do too), with its |n·U1| against its own cylinder's
+    /// axis.</summary>
+    private static IEnumerable<(ContactPoint Point, float Alignment)> ProjectedAxisSupports(List<ContactPoint> contacts)
+    {
+        if (contacts.Count == 0) yield break;
+        var c = contacts[0];
+        if (c.ColA.Shape == ShapeKind.Sphere || c.ColB.Shape == ShapeKind.Sphere) yield break;
+        bool curvedA = contacts.Any(p => p.SupportA == ContactSupport.Axis), curvedB = contacts.Any(p => p.SupportB == ContactSupport.Axis);
+        if (curvedA && curvedB && MathF.Abs(Vector3.Dot(c.ColA.U1, c.ColB.U1)) < WorkshopCollisionKernels.LineAlignment) yield break;
+        foreach (var p in contacts)
+        {
+            if (p.SupportA == ContactSupport.Axis) yield return (p, MathF.Abs(Vector3.Dot(p.Normal, p.ColA.U1)));
+            if (p.SupportB == ContactSupport.Axis) yield return (p, MathF.Abs(Vector3.Dot(p.Normal, p.ColB.U1)));
+        }
+    }
+
+    [Fact]
+    public void EveryAxisSupportPointARollingRowProjectsThroughIsWithinTheSideTolerance()
+    {
+        // The rolling row projects a one-axis manifold's axis through an axis-support point's normal. That keeps at least √(1 − 0.199²)
+        // = 0.98 of one side's axis (and at least 0.976 of two parallel sides' bisector, which is within 1° of each axis) only if every
+        // such normal is within the side tolerance of its own cylinder's axis: |n·U1| ≤ SideAlignment (0.199). f32 slack: the dot of two
+        // unit f32 vectors rounds by a few 2^-24, so 1e-6. The named sites (a side on the plane, a box face and a parallel box edge on a
+        // side, parallel sides, a cap's chord on a side), then 2000 seeded poses: a cylinder 2 mm into to 10 mm above the plane, and at
+        // random offsets (within ±0.7 m) from a box and from another cylinder, where only touching poses emit points.
+        const float slack = 1e-6f;
+        var failures = new List<string>();
+        var checkedPoints = 0;
+        int Check(string label, SimCollider a, SimCollider b)
+        {
+            var count = 0;
+            foreach (var (p, alignment) in ProjectedAxisSupports(Contacts(a, b, .01f)))
+            {
+                count++;
+                if (alignment > WorkshopCollisionKernels.SideAlignment + slack)
+                    failures.Add(FormattableString.Invariant($"{label}: feature {p.Feature:x} |n·U1| {alignment}"));
+            }
+            checkedPoints += count;
+            return count;
+        }
+        var plane = Collider(ShapeKind.Plane, Vector3.Zero, Quaternion.Identity, index: 1);
+        var half = At(.1f, .1f, .1f);
+        var sites = new[]
+        {
+            Check("side on plane", Collider(ShapeKind.Cylinder, At(0, .3f + .002f), AlongZ, .3f, .2f), plane),
+            Check("box face on side", Collider(ShapeKind.Cylinder, Vector3.Zero, Quaternion.Identity, .3f, .2f),
+                Collider(ShapeKind.Box, At(.3f + .1f + .002f, 0), Quaternion.Identity, 0, half, 1)),
+            Check("box edge along side", Collider(ShapeKind.Cylinder, Vector3.Zero, Quaternion.Identity, .3f, .2f),
+                Collider(ShapeKind.Box, At(.3f + .1f * MathF.Sqrt(2) + .002f, 0), Quaternion.CreateFromAxisAngle(Vector3.UnitY, MathF.PI / 4), 0,
+                    half, 1)),
+            Check("parallel sides", Collider(ShapeKind.Cylinder, Vector3.Zero, AlongZ, .3f, .5f),
+                Collider(ShapeKind.Cylinder, At(.6f + .002f, 0), AlongZ, .3f, .4f, index: 1)),
+            Check("cap chord on side", Collider(ShapeKind.Cylinder, Vector3.Zero, Quaternion.Identity, .2f, .1f),
+                Collider(ShapeKind.Cylinder, At(0, .1f + .15f + .002f), AlongZ, .15f, .5f, index: 1)),
+        };
+        Assert.All(sites, count => Assert.True(count > 0, "every named site emits an axis-support point"));
+        var rng = new Random(DriftSeed + 20);
+        for (var i = 0; i < 2000; i++)
+        {
+            var q = RandomRotation(rng);
+            float r = .1f + .3f * (float)rng.NextDouble(), h = .05f + .5f * (float)rng.NextDouble();
+            var lift = (float)(rng.NextDouble() * .012 - .002);
+            Check(FormattableString.Invariant($"plane #{i}"), Collider(ShapeKind.Cylinder, At(0, Lowest(q, r, h) + lift), q, r, h), plane);
+            var offset = new Vector3((float)rng.NextDouble() - .5f, (float)rng.NextDouble() - .5f, (float)rng.NextDouble() - .5f) * 1.4f;
+            Check(FormattableString.Invariant($"box #{i}"), Collider(ShapeKind.Cylinder, offset, q, r, h),
+                Collider(ShapeKind.Box, Vector3.Zero, RandomRotation(rng), 0, At(.3f, .2f, .25f), 1));
+            var qb = rng.NextDouble() < .5 ? q : RandomRotation(rng);
+            Check(FormattableString.Invariant($"cylinder #{i}"), Collider(ShapeKind.Cylinder, Vector3.Zero, q, r, h),
+                Collider(ShapeKind.Cylinder, offset, qb, .25f, .3f, index: 1));
+        }
+        Assert.True(failures.Count == 0, FormattableString.Invariant($"{failures.Count} of {checkedPoints} points:") + Environment.NewLine +
+            string.Join(Environment.NewLine, failures.Take(20)));
+        TestContext.Current.TestOutputHelper?.WriteLine(FormattableString.Invariant($"{checkedPoints} axis-support points checked"));
+    }
+
     // ---- review F1: the cap on the plane at any azimuth (the true deepest rim point) ----
 
     private static Quaternion About(Vector3 axis, double degrees) =>
@@ -614,7 +990,7 @@ public sealed class WorkshopPhysicsLawCylinderTests
         double azimuth, int seconds = 4)
     {
         var q = Tipped(degrees, azimuth);
-        float r = H(radius), h = H(halfWidth);
+        float r = radius, h = halfWidth;
         var scene = new LawScene();
         var body = scene.Cylinder(At(0, BenchY + Lowest(q, r, h) + .0005f), radius, halfWidth, 1f, Dead, q);
         var world = scene.Admit();
@@ -624,11 +1000,73 @@ public sealed class WorkshopPhysicsLawCylinderTests
         {
             var b = state[body];
             transient = Math.Max(transient, BenchY - (b.Position.Y - Lowest(b.Rotation, r, h)));
-            var e = Energy(b, H(1f), r, h);
+            var e = Energy(b, 1f, r, h);
             if (previous is { } p) rise = Math.Max(rise, e - p);
             previous = e;
         })[body];
         return (final.Tilt, transient, BenchY - (final.Position.Y - Lowest(final.Rotation, r, h)), rise);
+    }
+
+    /// <summary>The time by which a solid rod (radius r, half-height h) released from rest on its rim, tilted <paramref name="degrees"/>
+    /// below the rim angle α = atan(r/h) with its lowest point 0.5 mm up, is upright within 1° for good, from the inelastic rigid rocking
+    /// model (Housner) with a declared retention margin. Per kg, with d = √(r² + h²):
+    /// <list type="bullet">
+    /// <item>Between impacts it is an inverted pendulum about one rim point: I = r²/4 + h²/3 + d² (0.22583 for r 0.1, h 0.4), rate
+    /// p = √(g d / I) (4.232 /s); from rest at tilt θ it reaches the impact (upright) after acosh(α / (α − θ)) / p.</item>
+    /// <item>At the impact on the opposite rim point, angular momentum about that point is kept (e = 0, the old pivot released):
+    /// ω₂/ω₁ = (4h²/3 − 3r²/4) / (4h²/3 + 5r²/4) = 0.91144, so a perfectly inelastic impact keeps 0.8307 of the energy.</item>
+    /// <item>The solver resolves an impact over at least one substep h_s = 1/480 s, in which the old pivot (carrying at most m g at 2r
+    /// from the new one) and gravity (at r) add at most m g r h_s = 2.04e-3 of angular momentum: ω₂/ω₁ ≤ 0.91144 + m g r h_s / (I ω₁).</item>
+    /// <item>Declared retention margin +0.01 on the squared ratio: it covers the worst excess measured over that bound, 0.008 (12.5° at
+    /// azimuth 45, second impact: 0.8561 against 0.8483; rod diagnosis, 25 Oct 2026).</item>
+    /// <item>Each rebound peak follows from the kept energy, cos(α − θ') − cos α = retention × (cos(α − θ) − cos α); a rebound takes twice
+    /// the fall time. T is the time of the impact after which every peak stays under 1°: 5.09 s from 10.5°, 5.51 s from 12.5° (14
+    /// impacts each; the 0.5 mm lift adds √(2 · 0.0005 / g) = 0.010 s).</item>
+    /// </list></summary>
+    private static double InelasticRockingSettleSeconds(double r, double h, double degrees)
+    {
+        const double margin = .01;
+        const double lift = .0005;
+        double g = G, d = Math.Sqrt(r * r + h * h), alpha = Math.Atan2(r, h);
+        var pivot = r * r / 4 + h * h / 3 + d * d;
+        var p = Math.Sqrt(g * d / pivot);
+        var kept = (4 * h * h / 3 - 3 * r * r / 4) / (4 * h * h / 3 + 5 * r * r / 4);
+        var allowance = g * r * WorkshopConstraintSolver.SubstepSeconds;
+        double Fall(double tilt) => Math.Acosh(alpha / (alpha - tilt)) / p;
+        double Energy(double tilt) => Math.Cos(alpha - tilt) - Math.Cos(alpha);
+        var theta = degrees * Math.PI / 180;
+        if (!(theta > 0 && theta < alpha))
+            throw new ArgumentOutOfRangeException(nameof(degrees), degrees, $"the model rocks only from a tilt in (0, {alpha * 180 / Math.PI}°)");
+        var t = Math.Sqrt(2 * lift / g) + Fall(theta);
+        while (true)
+        {
+            var omega = Math.Sqrt(2 * g * d * Energy(theta) / pivot);
+            var retention = Math.Pow(kept + allowance / (pivot * omega), 2) + margin;
+            if (retention >= 1) throw new InvalidOperationException($"the rocking model keeps all its energy at {theta} rad: no settle time");
+            theta = alpha - Math.Acos(retention * Energy(theta) + Math.Cos(alpha));
+            if (theta < Math.PI / 180) return t;
+            t += 2 * Fall(theta);
+        }
+    }
+
+    /// <summary>Releases the rod as <see cref="Release"/> does and runs it a second past <paramref name="settle"/>: its peak tilt over the
+    /// whole run, and its largest tilt from the settle time on.</summary>
+    private static (float Peak, float AfterSettle) Rock(float radius, float halfWidth, double degrees, double azimuth, double settle)
+    {
+        var q = Tipped(degrees, azimuth);
+        var scene = new LawScene();
+        var body = scene.Cylinder(At(0, BenchY + Lowest(q, radius, halfWidth) + .0005f), radius, halfWidth, 1f, Dead, q);
+        var world = scene.Admit();
+        var tps = world.TicksPerSecond;
+        var from = (int)Math.Ceiling(settle * tps);
+        float peak = world.Initial(body).Tilt, after = 0f;
+        world.Step(from + tps, (tick, state) =>
+        {
+            var tilt = state[body].Tilt;
+            peak = MathF.Max(peak, tilt);
+            if (tick >= from) after = MathF.Max(after, tilt);
+        });
+        return (peak, after);
     }
 
     [Theory]
@@ -637,9 +1075,18 @@ public sealed class WorkshopPhysicsLawCylinderTests
     [InlineData(45.0)]
     public void ARodRightsItselfBelowAtanROverHAndTopplesAboveItAtEveryAzimuth(double azimuth)
     {
-        // r 0.1, h 0.4: the centre passes over the rim at atan(r/h) = 14.04°, whatever the tilt's direction.
-        Assert.True(Release(.1f, .4f, 10.5, azimuth).Tilt < 1f, "10.5° rights itself");
-        Assert.True(Release(.1f, .4f, 12.5, azimuth).Tilt < 1f, "12.5° rights itself");
+        // r 0.1, h 0.4: the centre passes over the rim at atan(r/h) = 14.04°, whatever the tilt's direction. Below it the rod rocks rim to
+        // rim but never passes over the rim (its peak tilt over the run stays below 14.04°), and it is upright within 1° from the
+        // inelastic rigid rocking settle time (InelasticRockingSettleSeconds) to a second after it. Above it, it topples onto its side.
+        float r = .1f, h = .4f;
+        var rim = (float)(Math.Atan2(r, h) * 180 / Math.PI);
+        foreach (var degrees in new[] { 10.5, 12.5 })
+        {
+            var settle = InelasticRockingSettleSeconds(r, h, degrees);
+            var (peak, after) = Rock(r, h, degrees, azimuth, settle);
+            Assert.True(peak < rim, $"{degrees}°: peak tilt {peak}° reaches the rim at {rim}°");
+            Assert.True(after < 1f, $"{degrees}°: tilt {after}° after the {settle:F2} s settle time");
+        }
         Assert.InRange(Release(.1f, .4f, 15.5, azimuth).Tilt, 88f, 92f);
     }
 
@@ -651,7 +1098,7 @@ public sealed class WorkshopPhysicsLawCylinderTests
     {
         // Every tilt rights itself onto the cap (atan(r/h) > 20° for each). The envelope: transient penetration ≤ 5 % of the smaller
         // extent, resting ≤ 0.5 mm, and no tick gains more than the slop energy.
-        var extent = 2 * MathF.Min(H(radius), H(halfWidth));
+        var extent = 2 * MathF.Min(radius, halfWidth);
         foreach (var azimuth in new[] { 0.0, 45.0 })
             foreach (var degrees in new[] { 5.0, 11.0, 20.0 })
             {
@@ -660,7 +1107,7 @@ public sealed class WorkshopPhysicsLawCylinderTests
                 Assert.True(tilt < 1f, $"{at}: rests on its cap (tilt {tilt})");
                 Assert.True(transient <= .05 * extent, $"{at}: transient penetration {transient * 1000} mm");
                 Assert.True(resting <= .0005, $"{at}: resting penetration {resting * 1000} mm");
-                Assert.True(rise <= SlopEnergy(H(1f)), $"{at}: a tick gained {rise * 1000} mJ");
+                Assert.True(rise <= SlopEnergy(1f), $"{at}: a tick gained {rise * 1000} mJ");
             }
     }
 
@@ -716,7 +1163,7 @@ public sealed class WorkshopPhysicsLawCylinderTests
                 double? previous = null;
                 world.Step(3 * world.TicksPerSecond, (_, state) =>
                 {
-                    var e = Energy(state[body], 1f, H(.2f), H(.15f));
+                    var e = Energy(state[body], 1f, .2f, .15f);
                     if (previous is { } p) cylinder = Math.Max(cylinder, e - p);
                     previous = e;
                 });
@@ -725,7 +1172,7 @@ public sealed class WorkshopPhysicsLawCylinderTests
                 var scene = new LawScene();
                 var body = scene.Box(At(0, BenchY + .6f), At(.2f, .15f, .2f), 1f, Dead, q);
                 var world = scene.Admit();
-                double hx = H(.2f), hy = H(.15f), hz = H(.2f);
+                double hx = .2f, hy = .15f, hz = .2f;
                 double? previous = null;
                 world.Step(3 * world.TicksPerSecond, (_, state) =>
                 {
@@ -854,11 +1301,11 @@ public sealed class WorkshopPhysicsLawCylinderTests
         var failures = new List<string>();
         for (var pose = 0; pose < 200; pose++)
         {
-            var a = Collider(ShapeKind.Cylinder, Vector3.Zero, RandomRotation(rng), H(.3f), H(.2f));
+            var a = Collider(ShapeKind.Cylinder, Vector3.Zero, RandomRotation(rng), .3f, .2f);
             var qb = RandomRotation(rng);
             SimCollider Partner(Vector3 at) => cylinderPartner
-                ? Collider(ShapeKind.Cylinder, at, qb, H(.2f), H(.35f), index: 1)
-                : Collider(ShapeKind.Box, at, qb, 0f, At(H(.25f), H(.1f), H(.15f)), 1);
+                ? Collider(ShapeKind.Cylinder, at, qb, .2f, .35f, index: 1)
+                : Collider(ShapeKind.Box, at, qb, 0f, At(.25f, .1f, .15f), 1);
             Vector3 direction;
             if (pose % 2 == 0)
                 direction = Vector3.Normalize(new((float)(rng.NextDouble() * 2 - 1), (float)(rng.NextDouble() * 2 - 1), (float)(rng.NextDouble() * 2 - 1)));
@@ -898,9 +1345,9 @@ public sealed class WorkshopPhysicsLawCylinderTests
         var failures = new List<string>();
         for (var pose = 0; pose < 100; pose++)
         {
-            var a = Collider(ShapeKind.Cylinder, Vector3.Zero, RandomRotation(rng), H(.3f), H(.01f));
+            var a = Collider(ShapeKind.Cylinder, Vector3.Zero, RandomRotation(rng), .3f, .01f);
             var qb = RandomRotation(rng);
-            SimCollider Partner(Vector3 at) => Collider(ShapeKind.Cylinder, at, qb, H(.3f), H(.01f), index: 1);
+            SimCollider Partner(Vector3 at) => Collider(ShapeKind.Cylinder, at, qb, .3f, .01f, index: 1);
             var angle = rng.NextDouble() * 2 * Math.PI;
             var direction = Vector3.Normalize((float)Math.Cos(angle) * a.U0 + (float)Math.Sin(angle) * a.U2 + .3f * a.U1);
             var (partner, exact) = Place(a, Partner, direction, .002);
@@ -926,10 +1373,10 @@ public sealed class WorkshopPhysicsLawCylinderTests
             var qa = RandomRotation(rng);
             var qb = RandomRotation(rng);
             var direction = Vector3.Normalize(new((float)(rng.NextDouble() * 2 - 1), (float)(rng.NextDouble() * 2 - 1), (float)(rng.NextDouble() * 2 - 1)));
-            var a = Collider(ShapeKind.Cylinder, centre, qa, H(.3f), H(.2f));
+            var a = Collider(ShapeKind.Cylinder, centre, qa, .3f, .2f);
             SimCollider Partner(Vector3 offset) => cylinderPartner
-                ? Collider(ShapeKind.Cylinder, centre + offset, qb, H(.2f), H(.35f), index: 1)
-                : Collider(ShapeKind.Box, centre + offset, qb, 0f, At(H(.25f), H(.1f), H(.15f)), 1);
+                ? Collider(ShapeKind.Cylinder, centre + offset, qb, .2f, .35f, index: 1)
+                : Collider(ShapeKind.Box, centre + offset, qb, 0f, At(.25f, .1f, .15f), 1);
             var (placed, _) = Place(a, Partner, direction, .003);
             var scene = new LawScene(bench: false);
             scene.StaticCylinder(centre, .3f, .2f, qa, Dead);
@@ -939,8 +1386,8 @@ public sealed class WorkshopPhysicsLawCylinderTests
             var world = scene.Admit();
             var initial = world.Initial(body);
             var admitted = Distance(a, cylinderPartner
-                ? Collider(ShapeKind.Cylinder, initial.Position, initial.Rotation, H(.2f), H(.35f), index: 1)
-                : Collider(ShapeKind.Box, initial.Position, initial.Rotation, 0f, At(H(.25f), H(.1f), H(.15f)), 1));
+                ? Collider(ShapeKind.Cylinder, initial.Position, initial.Rotation, .2f, .35f, index: 1)
+                : Collider(ShapeKind.Box, initial.Position, initial.Rotation, 0f, At(.25f, .1f, .15f), 1));
             Assert.True(admitted >= .002, $"pose {pose}: admitted separation {admitted * 1000} mm");
             var final = world.Step(60)[body];
             var moved = (final.Position - initial.Position).Length();
@@ -962,7 +1409,7 @@ public sealed class WorkshopPhysicsLawCylinderTests
         (Vector3, Quaternion, Vector3, Vector3) Upright(float rolling)
         {
             var scene = new LawScene();
-            var h = H(.15f);
+            var h = .15f;
             var body = scene.Cylinder(At(0, BenchY + h + .0005f), .2f, .15f, 1f, new LawMaterial(0f, .1f, .5f, rolling),
                 velocity: rocked ? default : At(1, 0, 0), angular: rocked ? At(0, 0, 1.5f) : default);
             var world = scene.Admit();
@@ -975,7 +1422,7 @@ public sealed class WorkshopPhysicsLawCylinderTests
         (Vector3, Quaternion, Vector3, Vector3) Lying(float rolling)
         {
             var scene = new LawScene();
-            var r = H(.2f);
+            var r = .2f;
             var body = scene.Cylinder(At(0, BenchY + r), .2f, .15f, 1f, new LawMaterial(0f, .1f, .5f, rolling), AlongZ,
                 velocity: At(1, 0, 0), angular: At(0, 0, -1 / r));
             var world = scene.Admit();
@@ -996,7 +1443,7 @@ public sealed class WorkshopPhysicsLawCylinderTests
         var rotation = endOn ? AboutZ(-90) : AlongZ;
         var drum = scene.Cylinder(At(-3, 1), .2f, .2f, 1f, new LawMaterial(.5f, .1f, .5f, 0f), rotation, velocity: At(64, 0, 0), gravity: 0f);
         var world = scene.Admit();
-        var nearFace = -.005f - H(.2f);
+        var nearFace = -.005f - .2f;
         var maximumX = float.MinValue;
         world.Step(world.TicksPerSecond, (_, state) => maximumX = MathF.Max(maximumX, state[drum].Position.X));
         Assert.True(maximumX < nearFace + .01f, $"reached x {maximumX}, the wall's near face is at {nearFace}");
@@ -1040,7 +1487,7 @@ public sealed class WorkshopPhysicsLawCylinderTests
     {
         var scene = new LawScene();
         scene.Cylinder(At(-1, BenchY + .25f), .25f, .3f, 1f, new LawMaterial(0f, .1f, .6f, .05f), AlongZ, velocity: At(1, 0, 0));
-        var h = H(.085f);
+        var h = .085f;
         scene.Cylinder(At(1, BenchY + h + .05f), .4f, .085f, 1f, Dead);
         scene.Box(At(1, BenchY + 2 * h + .2f), At(.15f, .1f, .15f), .5f, LawMaterial.Domino);
         scene.StaticCylinder(At(0, BenchY + .5f, 2), .3f, .4f, AlongZ);
@@ -1072,17 +1519,20 @@ public sealed class WorkshopPhysicsLawCylinderTests
     }
 
     [Fact]
-    public void TheAdmittedCylinderRecordCarriesItsShapeAndBinary16Lanes()
+    public void TheAdmittedCylinderRecordCarriesItsShapeAndExactF32Lanes()
     {
         var scene = new LawScene();
         var drum = scene.Cylinder(At(0, BenchY + .3f), .3f, .1f, 1f, Dead, AlongZ);
         var world = scene.Admit();
         var record = world.Admitted.AsSpan(world.Scene.Layout.GetColliderOffset(scene.ColliderOf(drum)));
-        Assert.Equal((uint)ColliderShapeKind.Cylinder, BinaryPrimitives.ReadUInt32LittleEndian(record[16..]));
-        Assert.Equal((Half).3f, BinaryPrimitives.ReadHalfLittleEndian(record[48..]));
-        Assert.Equal((Half)0, BinaryPrimitives.ReadHalfLittleEndian(record[50..]));
-        Assert.Equal((Half).1f, BinaryPrimitives.ReadHalfLittleEndian(record[52..]));
-        Assert.Equal((Half)0, BinaryPrimitives.ReadHalfLittleEndian(record[54..]));
+        Assert.Equal((uint)ColliderShapeKind.Cylinder, BinaryPrimitives.ReadUInt32LittleEndian(record[PhysicsGpuAbi.ColliderShapeOffset..]));
+        // The declared radius 0.3 and half-width 0.1 need a full f32 significand: the record holds their exact f32 bits.
+        uint Lane(int offset) => BinaryPrimitives.ReadUInt32LittleEndian(world.Admitted.AsSpan(
+            world.Scene.Layout.GetColliderOffset(scene.ColliderOf(drum)) + offset));
+        Assert.Equal(BitConverter.SingleToUInt32Bits(.3f), Lane(PhysicsGpuAbi.ColliderRadiusOffset));
+        Assert.Equal(0u, Lane(PhysicsGpuAbi.ColliderHalfExtentsOffset));
+        Assert.Equal(BitConverter.SingleToUInt32Bits(.1f), Lane(PhysicsGpuAbi.ColliderHalfExtentsOffset + 4));
+        Assert.Equal(0u, Lane(PhysicsGpuAbi.ColliderHalfExtentsOffset + 8));
     }
 
     private sealed class Vector3Comparer(float tolerance) : IEqualityComparer<Vector3>
@@ -1174,9 +1624,9 @@ public sealed class WorkshopPhysicsLawCylinderTests
         var angle = MathF.Acos(Math.Clamp(Vector3.Dot(dir, Vector3.UnitY), -1f, 1f));
         var turn = axis.Length() < 1e-6f ? Quaternion.Identity : Quaternion.CreateFromAxisAngle(Vector3.Normalize(axis), angle);
         qa = Quaternion.Normalize(turn * qa); qb = Quaternion.Normalize(turn * qb);
-        var half = At(H(.25f), H(.1f), H(.15f));
-        var a = cylinderBelow ? Collider(ShapeKind.Cylinder, centre, qa, H(.3f), H(.2f))
-            : Collider(ShapeKind.Box, centre, qa, 0f, At(H(.3f), H(.2f), H(.3f)), 0);
+        var half = At(.25f, .1f, .15f);
+        var a = cylinderBelow ? Collider(ShapeKind.Cylinder, centre, qa, .3f, .2f)
+            : Collider(ShapeKind.Box, centre, qa, 0f, At(.3f, .2f, .3f), 0);
         var touch = CertifiedTouch(a, at => Collider(ShapeKind.Box, at, qb, 0f, half, 1), centre, Vector3.UnitY);
         var scene = new LawScene(bench: false);
         if (cylinderBelow) scene.StaticCylinder(centre, .3f, .2f, qa, Dead); else scene.StaticBox(centre, At(.3f, .2f, .3f), qa, Dead);
@@ -1212,8 +1662,8 @@ public sealed class WorkshopPhysicsLawCylinderTests
             var axis = Vector3.Cross(dir, Vector3.UnitY);
             var turn = axis.Length() < 1e-6f ? Quaternion.Identity : Quaternion.CreateFromAxisAngle(Vector3.Normalize(axis), MathF.Acos(Math.Clamp(Vector3.Dot(dir, Vector3.UnitY), -1f, 1f)));
             qa = Quaternion.Normalize(turn * qa); qb = Quaternion.Normalize(turn * qb);
-            var a = Collider(ShapeKind.Cylinder, centre, qa, H(.3f), H(.2f));
-            var touch = CertifiedTouch(a, at => Collider(ShapeKind.Cylinder, at, qb, H(.2f), H(.15f), index: 1), centre, Vector3.UnitY);
+            var a = Collider(ShapeKind.Cylinder, centre, qa, .3f, .2f);
+            var touch = CertifiedTouch(a, at => Collider(ShapeKind.Cylinder, at, qb, .2f, .15f, index: 1), centre, Vector3.UnitY);
             var scene = new LawScene(bench: false);
             scene.StaticCylinder(centre, .3f, .2f, qa, Dead);
             var body = scene.Cylinder(centre + Vector3.UnitY * (touch - 2e-4f - .0003f), .2f, .15f, 1f, Dead, qb);
@@ -1221,7 +1671,7 @@ public sealed class WorkshopPhysicsLawCylinderTests
             double rise = 0; double? previous = null;
             world.Step(2 * world.TicksPerSecond, (_, state) =>
             {
-                var e = Energy(state[body], 1f, H(.2f), H(.15f));
+                var e = Energy(state[body], 1f, .2f, .15f);
                 if (previous is { } p) rise = Math.Max(rise, e - p);
                 previous = e;
             });
@@ -1248,8 +1698,8 @@ public sealed class WorkshopPhysicsLawCylinderTests
     {
         var rng = new Random(77);
         double worst = 0;
-        var half = At(H(.25f), H(.1f), H(.15f));
-        float r = H(.2f), h = H(.15f);
+        var half = At(.25f, .1f, .15f);
+        float r = .2f, h = .15f;
         for (var drop = 0; drop < 40; drop++)
         {
             var q = RandomRotation(rng);
@@ -1294,9 +1744,9 @@ public sealed class WorkshopPhysicsLawCylinderTests
         {
             var qa = RandomRotation(rng); var qb = RandomRotation(rng);
             var dir = Vector3.Normalize(new((float)(rng.NextDouble() * 2 - 1), (float)(rng.NextDouble() * 2 - 1), (float)(rng.NextDouble() * 2 - 1)));
-            var a = Collider(ShapeKind.Cylinder, centre, qa, H(.3f), H(.2f));
-            SimCollider B(Vector3 at) => cylinderPartner ? Collider(ShapeKind.Cylinder, at, qb, H(.2f), H(.35f), index: 1)
-                : Collider(ShapeKind.Box, at, qb, 0f, At(H(.25f), H(.1f), H(.15f)), 1);
+            var a = Collider(ShapeKind.Cylinder, centre, qa, .3f, .2f);
+            SimCollider B(Vector3 at) => cylinderPartner ? Collider(ShapeKind.Cylinder, at, qb, .2f, .35f, index: 1)
+                : Collider(ShapeKind.Box, at, qb, 0f, At(.25f, .1f, .15f), 1);
             // Place by a rough projection distance (2000 alternating projections, an upper bound), then advance until the touch is
             // certified apart: any certified t* bounds the depth.
             static double Rough(SimCollider x, SimCollider y)
@@ -1339,12 +1789,12 @@ public sealed class WorkshopPhysicsLawCylinderTests
         for (var pose = 0; pose < 60; pose++)
         {
             var qa = RandomRotation(rng); var qb = RandomRotation(rng);
-            var a = Collider(ShapeKind.Cylinder, centre, qa, H(.3f), H(.2f));
+            var a = Collider(ShapeKind.Cylinder, centre, qa, .3f, .2f);
             var angle = rng.NextDouble() * 2 * Math.PI;
             var rim = (rng.NextDouble() < .5 ? a.Hy : -a.Hy) * a.U1 + a.Radius * ((float)Math.Cos(angle) * a.U0 + (float)Math.Sin(angle) * a.U2);
             var dir = Vector3.Normalize(rim);
-            SimCollider B(Vector3 at) => cylinderPartner ? Collider(ShapeKind.Cylinder, at, qb, H(.2f), H(.35f), index: 1)
-                : Collider(ShapeKind.Box, at, qb, 0f, At(H(.25f), H(.1f), H(.15f)), 1);
+            SimCollider B(Vector3 at) => cylinderPartner ? Collider(ShapeKind.Cylinder, at, qb, .2f, .35f, index: 1)
+                : Collider(ShapeKind.Box, at, qb, 0f, At(.25f, .1f, .15f), 1);
             var touch = CertifiedTouch(a, B, centre, dir);
             float? previous = null;
             for (var k = 20; k >= -32; k--)
@@ -1402,7 +1852,7 @@ public sealed class WorkshopPhysicsLawCylinderTests
         // Side emission rule (E2): two equal lying cylinders crossed at 5°, 1 mm apart over their crossing. A facing generator's end at
         // axial h lies √((r + g)² + (h sin φ)²) from the other axis, so each end reads that radial gap and a normal turned
         // atan(h sin φ / (r + g)) from the closest point's; the reduction keeps the closest point and three of the four ends.
-        float r = H(.2f), h = H(.15f), g = .001f, phi = 5f * MathF.PI / 180;
+        float r = .2f, h = .15f, g = .001f, phi = 5f * MathF.PI / 180;
         var lower = Collider(ShapeKind.Cylinder, Vector3.Zero, AlongZ, r, h);
         var upper = Collider(ShapeKind.Cylinder, At(0, 2 * r + g), Quaternion.CreateFromAxisAngle(Vector3.UnitY, phi) * AlongZ, r, h, index: 1);
         var contacts = Contacts(upper, lower);
@@ -1425,7 +1875,7 @@ public sealed class WorkshopPhysicsLawCylinderTests
         // Side emission rule (E4): a box ridge 1 mm under a lying cylinder, skewed 5° from its axis. The ridge point at axial z lies
         // √(d² + (z tan φ)²) from the axis (d = r + 1 mm), so each emitted point reads that radial gap at its own z and a normal turned
         // atan(|z| tan φ / d) from vertical; the closest point is the crossing at 1 mm and the stretch ends reach the cylinder's ends.
-        float r = H(.2f), h = H(.15f), g = .001f, phi = 5f * MathF.PI / 180, e = .1f;
+        float r = .2f, h = .15f, g = .001f, phi = 5f * MathF.PI / 180, e = .1f;
         var d = r + g;
         var log = Collider(ShapeKind.Cylinder, Vector3.Zero, AlongZ, r, h);
         var ridge = Collider(ShapeKind.Box, At(0, -d - e * MathF.Sqrt(2)), Quaternion.CreateFromAxisAngle(Vector3.UnitY, phi) * AboutZ(45), 0f,
@@ -1450,7 +1900,7 @@ public sealed class WorkshopPhysicsLawCylinderTests
         // A box vertex pushed δ along the rim's 45° diagonal into an upright cylinder overlaps by δ/√2, yet the 1 mm shrunk core reads
         // √2·s − δ − s > 0 from it (its rim is rounded). The exact shapes overlap, so no contact may report them apart, and none deeper
         // than the true overlap.
-        float r = H(.2f), h = H(.15f), e = .05f;
+        float r = .2f, h = .15f, e = .05f;
         var cylinder = Collider(ShapeKind.Cylinder, Vector3.Zero, Quaternion.Identity, r, h);
         var outward = Vector3.Normalize(At(1, 1));
         var corner = Vector3.Normalize(new Vector3(-1, -1, -1));
@@ -1470,7 +1920,7 @@ public sealed class WorkshopPhysicsLawCylinderTests
     {
         // Warm starts match points by feature id: within one manifold every point names a different feature, and the cap points of a
         // standing cylinder name another feature kind than the side points of a lying one (review F3; mutation n11).
-        float r = H(.2f), h = H(.15f);
+        float r = .2f, h = .15f;
         var plane = Collider(ShapeKind.Plane, Vector3.Zero, Quaternion.Identity, index: 1);
         var standing = Contacts(Collider(ShapeKind.Cylinder, At(0, h + .001f), Quaternion.Identity, r, h), plane);
         var lying = Contacts(Collider(ShapeKind.Cylinder, At(0, r + .001f), AlongZ, r, h), plane);
@@ -1492,7 +1942,7 @@ public sealed class WorkshopPhysicsLawCylinderTests
         // The engine's integrated orientation is not exactly unit: an upside-down body (|x|,|z| ≈ 1) turns a norm error ε into an
         // axis of length ≈ 1 − 2ε, whose axial residue dwarfs a micro-radian radial part. Upright and flipped, at unit and integrated
         // norms, placed analytically with its lowest rim point on the plane, every cap point's gap lies in [0, 2 r sin(tilt)] + slack.
-        float r = H(.2f), h = H(.15f);
+        float r = .2f, h = .15f;
         var plane = Collider(ShapeKind.Plane, Vector3.Zero, Quaternion.Identity, index: 1);
         foreach (var flip in new[] { Quaternion.Identity, AboutX(180) })
         foreach (var norm in new[] { 1f, 1f - 6e-8f, 1f - 1.2e-7f, 1f + 1.2e-7f })
@@ -1538,8 +1988,8 @@ public sealed class WorkshopPhysicsLawCylinderTests
         var offset = new Vector3((float)(rng.NextDouble() * .5 - .25), 0, (float)(rng.NextDouble() * .4 - .2));
         var skew = (float)(rng.NextDouble() * 20);
         var speed = (float)(rng.NextDouble() * 1.7 + .3);
-        float r = H(.2f), h = H(.15f);
-        var half = At(H(.25f), H(.1f), H(.15f));
+        float r = .2f, h = .15f;
+        var half = At(.25f, .1f, .15f);
         var scene = new LawScene();
         GpuBodyId body;
         var dynamicBox = boxControl || kind == GateClass.BoxOntoCylinder;
@@ -1550,7 +2000,7 @@ public sealed class WorkshopPhysicsLawCylinderTests
             case GateClass.CylinderOntoBox: scene.StaticBox(At(0, BenchY + .3f), At(.3f, .3f, .5f), null, partner); break;
             case GateClass.BoxOntoCylinder: case GateClass.CylinderOntoLyingCylinder: scene.StaticCylinder(At(0, BenchY + .3f), .3f, .5f, AlongZ, partner); break;
             case GateClass.CylinderOntoStandingCylinder: scene.StaticCylinder(At(0, BenchY + .3f), .3f, .3f, null, partner); break;
-            case GateClass.SkewedRollOffEdge: scene.StaticBox(At(0, BenchY + H(.3f)), At(.5f, .3f, .6f), null, partner); break;
+            case GateClass.SkewedRollOffEdge: scene.StaticBox(At(0, BenchY + .3f), At(.5f, .3f, .6f), null, partner); break;
             default: throw new ArgumentOutOfRangeException(nameof(kind), kind, "Unknown gate class.");
         }
         if (boxControl && kind != GateClass.CylinderOntoPlane && kind != GateClass.SkewedRollOffEdge)
@@ -1562,7 +2012,7 @@ public sealed class WorkshopPhysicsLawCylinderTests
         if (kind == GateClass.SkewedRollOffEdge && !boxControl)
         {
             var rotation = Quaternion.Normalize(Quaternion.CreateFromAxisAngle(Vector3.UnitY, skew * MathF.PI / 180) * AlongZ);
-            body = scene.Cylinder(At(.1f, BenchY + 2 * H(.3f) + r, offset.Z), .2f, .15f, 1f, mover, rotation, velocity: At(speed, 0, 0),
+            body = scene.Cylinder(At(.1f, BenchY + 2 * .3f + r, offset.Z), .2f, .15f, 1f, mover, rotation, velocity: At(speed, 0, 0),
                 angular: At(0, 0, -speed / r));
         }
         else
@@ -1639,5 +2089,99 @@ public sealed class WorkshopPhysicsLawCylinderTests
     {
         var failures = OverlapOverestimates(cylinderPartner, seed, 200);
         Assert.True(failures.Count == 0, string.Join(Environment.NewLine, failures));
+    }
+
+    // ---- resting drift: lying drops and the box face control (engine slice "lying cylinder axial creep", 24 Oct 2026) ----
+    // Fixed seeds chosen once before the first run and never tuned against. Each case settles for 4 s, then is watched for 6 s.
+
+    private const int DriftSeed = 92000;
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(1)]
+    [InlineData(2)]
+    [InlineData(3)]
+    public void LyingDropsComeToRestLevelWithinTheRestingEnvelope(int batch)
+    {
+        // 50 random lying drops per batch (200 in all): r 0.1–0.4, half-width 0.1–0.6, 0.5–5 kg, axis tilted ±0.05 rad from level with a
+        // random heading and turn about the axis, lowest point 0.5–150 mm up, Crr {0, 0.03, 0.1}, μ {0.1, 0.3, 0.6}, restitution 0–0.3.
+        // At rest the axis is level within 1e-5 rad, the body rests in contact (its lowest point no more than the 0.2 mm slop above the
+        // bench) with its penetration within the 0.5 mm envelope, and the speed stays under 2 mm/s over the 6 s (a measure, never a
+        // threshold the engine applies). Their residual axial drift (up to 2.2e-5 m/s, sub-ulp
+        // orientation levelling) is an open defect of the follow-up slice "orientation levelling and two-point friction".
+        float[] rolling = [0f, .03f, .1f];
+        float[] friction = [.1f, .3f, .6f];
+        var rng = new Random(DriftSeed + batch);
+        var failures = new List<string>();
+        double fastestOfAll = 0;
+        for (var drop = 0; drop < 50; drop++)
+        {
+            float r = .1f + .3f * (float)rng.NextDouble(), h = .1f + .5f * (float)rng.NextDouble(), m = .5f + 4.5f * (float)rng.NextDouble();
+            float tilt = (float)((rng.NextDouble() * 2 - 1) * .05), heading = (float)(rng.NextDouble() * 2 * Math.PI);
+            float turn = (float)(rng.NextDouble() * 2 * Math.PI), height = .0005f + .1495f * (float)rng.NextDouble();
+            var material = new LawMaterial(.3f * (float)rng.NextDouble(), .1f, friction[rng.Next(3)], rolling[rng.Next(3)]);
+            var q = Quaternion.Normalize(Quaternion.CreateFromAxisAngle(Vector3.UnitY, heading) *
+                Quaternion.CreateFromAxisAngle(Vector3.UnitX, MathF.PI / 2 + tilt) * Quaternion.CreateFromAxisAngle(Vector3.UnitY, turn));
+            var scene = new LawScene();
+            var body = scene.Cylinder(At(0, BenchY + Lowest(q, r, h) + height), r, h, m, material, q);
+            var world = scene.Admit();
+            var tps = world.TicksPerSecond;
+            double fastest = 0;
+            var final = world.Step(10 * tps, (tick, state) => { if (tick > 4 * tps) fastest = Math.Max(fastest, state[body].Speed); })[body];
+            fastestOfAll = Math.Max(fastestOfAll, fastest);
+            var level = FromHorizontal(AxisOf(final));
+            var penetration = BenchY - (final.Position.Y - Lowest(final.Rotation, r, h));
+            if (level >= 1e-5 || penetration < -WorkshopConstraintSolver.ContactSlop || penetration > .0005 || fastest >= .002)
+                failures.Add(FormattableString.Invariant(
+                    $"#{drop} r {r:F3} h {h:F3} m {m:F2} tilt {tilt:F4} drop {height * 1000:F1} mm e {material.Restitution:F2} μ {material.Friction} Crr {material.Rolling}: level {level:E2} rad, penetration {penetration * 1000:F3} mm, speed {fastest:E2} m/s"));
+        }
+        Assert.True(failures.Count == 0, FormattableString.Invariant($"{failures.Count}/50 failed (fastest {fastestOfAll:E2} m/s):") +
+            Environment.NewLine + string.Join(Environment.NewLine, failures));
+    }
+
+    [Fact]
+    public void BoxesDroppedOntoAFaceStayPutAtRest()
+    {
+        // The four-point face control for the lying drops: 60 random boxes (half-extents 0.05–0.55 × 0.03–0.23 × 0.05–0.35 m, 0.5–5 kg),
+        // tilted ±0.05 rad about two horizontal axes with a random heading, dropped 0.5–150 mm, μ {0.1, 0.3, 0.6}, restitution 0–0.3. A
+        // face has no rolling axis, but its four points do take the coherent slop band rule, so this is that rule's box regression check: over
+        // 6 s at rest the centre's horizontal drift stays at most 1e-9 m/s (6 nm), the slice's face bound, three orders below the
+        // micro-tilt's 1e-6 m/s. A drift is resolved only where one f32 position step, the ulp of the world coordinate, is well under
+        // the 6 nm the bound allows: within 2^-5 m = 31 mm of the origin it is at most 2^-6 × 2^-23 = 2^-29 m = 1.9 nm, under a third.
+        // The boxes fall at the horizontal origin, and each must rest within that radius.
+        float[] friction = [.1f, .3f, .6f];
+        var rng = new Random(DriftSeed + 10);
+        var failures = new List<string>();
+        double worst = 0;
+        for (var drop = 0; drop < 60; drop++)
+        {
+            var half = At(.05f + .5f * (float)rng.NextDouble(), .03f + .2f * (float)rng.NextDouble(), .05f + .3f * (float)rng.NextDouble());
+            var m = .5f + 4.5f * (float)rng.NextDouble();
+            float tx = (float)((rng.NextDouble() * 2 - 1) * .05), tz = (float)((rng.NextDouble() * 2 - 1) * .05);
+            float heading = (float)(rng.NextDouble() * 2 * Math.PI), height = .0005f + .1495f * (float)rng.NextDouble();
+            var material = new LawMaterial(.3f * (float)rng.NextDouble(), .1f, friction[rng.Next(3)], 0f);
+            var q = Quaternion.Normalize(Quaternion.CreateFromAxisAngle(Vector3.UnitY, heading) * Quaternion.CreateFromAxisAngle(Vector3.UnitX, tx) *
+                Quaternion.CreateFromAxisAngle(Vector3.UnitZ, tz));
+            var lowest = half.X * MathF.Abs(Vector3.Transform(Vector3.UnitX, q).Y) + half.Y * MathF.Abs(Vector3.Transform(Vector3.UnitY, q).Y) +
+                half.Z * MathF.Abs(Vector3.Transform(Vector3.UnitZ, q).Y);
+            var scene = new LawScene();
+            var body = scene.Box(At(0, BenchY + lowest + height), half, m, material, q);
+            var world = scene.Admit();
+            var tps = world.TicksPerSecond;
+            LawBody? settled = null;
+            var final = world.Step(10 * tps, (tick, state) => { if (tick == 4 * tps) settled = state[body]; })[body];
+            var drift = final.Position - settled!.Value.Position;
+            drift.Y = 0;
+            var creep = drift.Length() / 6;
+            worst = Math.Max(worst, creep);
+            if (MathF.Abs(final.Position.X) >= 1f / 32 || MathF.Abs(final.Position.Z) >= 1f / 32)
+                failures.Add(FormattableString.Invariant(
+                    $"#{drop} rests at ({final.Position.X:F4}, {final.Position.Z:F4}) m, outside the 31 mm where a 1e-9 m/s drift is resolved"));
+            if (creep > 1e-9)
+                failures.Add(FormattableString.Invariant(
+                    $"#{drop} half ({half.X:F3}, {half.Y:F3}, {half.Z:F3}) m {m:F2} drop {height * 1000:F1} mm e {material.Restitution:F2} μ {material.Friction}: drift {creep:E2} m/s"));
+        }
+        Assert.True(failures.Count == 0, FormattableString.Invariant($"{failures.Count}/60 failed (worst {worst:E2} m/s):") +
+            Environment.NewLine + string.Join(Environment.NewLine, failures));
     }
 }

@@ -33,7 +33,7 @@ Every spec has six sections, in this order:
 
 **Citations.** `path@a6c914e:Lstart-Lend` resolves with `git show a6c914e:<path> | sed -n 'start,endp'` and stays retrievable from git history after the purge. Current (surviving) declarations are cited the same way so the line ranges are stable. Untracked build output is not harvested.
 
-**Values.** Legacy values are recorded as found. The current numeric contract is [canonical IEEE-754 f32](../../gpu-f32-physics.md); a value stored as binary16 in a legacy or current declaration is carried forward as its decimal meaning, never as binary16 bits.
+**Values.** Legacy values are recorded as found. The current numeric contract is [canonical IEEE-754 f32](../../gpu-f32-physics.md); a value stored in half precision in a legacy declaration is carried forward as its decimal meaning, never as half-precision bits.
 
 **Story numbers.** Roadmap story numbers in this index and in every spec follow the owner's 9 Oct 2026 roadmap reorder; the old-to-new mapping is in [owner reordering dependencies](../invest/vertical-delivery.md#owner-reordering-dependencies). Story 10.1 is ENGINE-CYLINDER.
 

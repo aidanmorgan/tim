@@ -65,7 +65,7 @@ public sealed class WorkbenchCapacityTests
     public void CampaignInventoriesAndFixturesAreUnchanged()
     {
         // Fixture identities sit far above the shared test counter so WithInstance appends rather than replaces.
-        var first = PuzzleCatalogue.Create(new("first_principles"), new(1), WorkshopCadenceSettings.Default(), new(100001), new((Half).5));
+        var first = PuzzleCatalogue.Create(new("first_principles"), new(1), WorkshopCadenceSettings.Default(), new(100001), new(.5f));
         Assert.Equal(PartId.Ramp, first.Puzzle.InventoryPart);
         Assert.Equal(2u, first.Puzzle.InventoryCount);
         var ramps = first.WithInstance(Make(PartId.Ramp, 0)).WithInstance(Make(PartId.Ramp, 1));
@@ -74,7 +74,7 @@ public sealed class WorkbenchCapacityTests
         Assert.ThrowsAny<ArgumentException>(() => first.WithInstance(Make(PartId.Receiver, 3)).Validate());
         EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => first.WithInstance(Make(PartId.Wall, 4)).Validate());
 
-        var delayed = PuzzleCatalogue.Create(new("delayed_signal"), new(1), WorkshopCadenceSettings.Default(), new(100001), new((Half).5));
+        var delayed = PuzzleCatalogue.Create(new("delayed_signal"), new(1), WorkshopCadenceSettings.Default(), new(100001), new(.5f));
         Assert.Equal(PartId.Delay, delayed.Puzzle.InventoryPart);
         Assert.Equal(1u, delayed.Puzzle.InventoryCount);
         var delay = delayed.WithInstance(Make(PartId.Delay, 0));
@@ -239,7 +239,7 @@ public sealed class WorkbenchCapacityTests
     [Fact]
     public void AWorkOccurrenceSlotPastSixteenBitsIsHeldByTheDeviceLedger()
     {
-        var occurrence = new ContactWorkOccurrence(new(0), new(70_000), new(5), 1, 4, (Half)0, new(3f), new(1.5f), ContactWorkEffect.Paid);
+        var occurrence = new ContactWorkOccurrence(new(0), new(70_000), new(5), 1, 4, 0f, new(3f), new(1.5f), ContactWorkEffect.Paid);
         var ledger = new ContactWorkLedger([new(new(9), new(8), 1, new(30f))], [occurrence]);
         Assert.Equal(70_000u, ledger.Occurrence(0).Collider.Value);
         Assert.True(occurrence.HasSameBits(ledger.Occurrence(0)));

@@ -8,6 +8,13 @@ const POSE_SLOT_COUNT = 3;             // WorkshopPoseRing.SlotCount
 const POSE_HEADER_BYTES = 16;          // WorkshopPoseRing.HeaderBytes
 const POSE_BODY_BYTES = 64;            // WorkshopPoseRing.BodyBytes
 const POSE_INITIAL_BODIES = 16;        // WorkshopPoseRing.InitialBodyCapacity
+// The Animation output record fields this client reads, owned by WorkshopAnimationWire (WorkerAbiTests pins each one).
+const ANIMATION_OUTPUT_BYTES = 144;            // WorkshopAnimationWire.OutputBytes
+const ANIMATION_OUTPUT_PULSE_OFFSET = 40;      // WorkshopAnimationWire.OutputPulseOffset
+const ANIMATION_OUTPUT_VALUE_OFFSET = 56;      // WorkshopAnimationWire.OutputValueOffset (f32)
+const ANIMATION_OUTPUT_KIND_OFFSET = 60;       // WorkshopAnimationWire.OutputKindOffset
+const ANIMATION_OUTPUT_TARGET_OFFSET = 64;     // WorkshopAnimationWire.OutputTargetOffset
+const ANIMATION_OUTPUT_PROPERTY_OFFSET = 136;  // WorkshopAnimationWire.OutputPropertyOffset (u16)
 
 // Story 9R.5b: a ring's body capacity is its own length (no fixed capacity). The Simulation worker replaces the bootstrap ring
 // with a larger one at Run when a world holds more moving bodies; it is attached here before the read that needs it arrives.
@@ -170,22 +177,22 @@ export async function create(states, bootstrapBytes, clockAbi, captureMode, admi
                         client.animationQualified = true;
                     } else if (item.animationOutput instanceof Uint8Array) {
                         if (!animationBootstrapped || !client.animationReady) throw new Error('Animation output precedes admission.');
-                        if (item.animationOutput.length !== 144) throw new Error('Wrong Animation output length.');
+                        if (item.animationOutput.length !== ANIMATION_OUTPUT_BYTES) throw new Error('Wrong Animation output length.');
                         deliver(client, item.animationOutput, now(), animationOutput);
-                        const kind = new DataView(item.animationOutput.buffer, item.animationOutput.byteOffset, 144).getUint32(60, true);
+                        const output = new DataView(item.animationOutput.buffer, item.animationOutput.byteOffset, ANIMATION_OUTPUT_BYTES);
+                        const kind = output.getUint32(ANIMATION_OUTPUT_KIND_OFFSET, true);
                         if (kind === client.hintKinds[1]) {
                             client.animationSampleCount = (client.animationSampleCount || 0) + 1;
-                            const target = new DataView(item.animationOutput.buffer, item.animationOutput.byteOffset, 144).getBigUint64(64, true);
-                            const ordinal = new DataView(item.animationOutput.buffer, item.animationOutput.byteOffset, 144).getBigUint64(40, true);
-                            const property = new DataView(item.animationOutput.buffer, item.animationOutput.byteOffset, 144).getUint16(58, true);
-                            const valBits = new DataView(item.animationOutput.buffer, item.animationOutput.byteOffset, 144).getUint16(56, true);
+                            const target = output.getBigUint64(ANIMATION_OUTPUT_TARGET_OFFSET, true);
+                            const ordinal = output.getBigUint64(ANIMATION_OUTPUT_PULSE_OFFSET, true);
+                            const property = output.getUint16(ANIMATION_OUTPUT_PROPERTY_OFFSET, true);
+                            const value = output.getFloat32(ANIMATION_OUTPUT_VALUE_OFFSET, true);
                             const sampleObj = {
                                 target: target.toString(),
                                 kind,
                                 ordinal: ordinal.toString(),
                                 property,
-                                valBits,
-                                value: decodeFloat16(valBits),
+                                value,
                                 timestamp: now()
                             };
                             if (!client.lastAnimationSamples) client.lastAnimationSamples = new Map();
@@ -630,15 +637,6 @@ export function readAllAnimationSamples(id = 1) {
     return Array.from(client.lastAnimationSamples.values());
 }
 
-function decodeFloat16(binary) {
-    const exponent = (binary & 0x7C00) >> 10;
-    const fraction = binary & 0x03FF;
-    const sign = (binary & 0x8000) !== 0 ? -1 : 1;
-    if (exponent === 0) return sign * Math.pow(2, -14) * (fraction / 1024);
-    if (exponent === 0x1F) return fraction ? NaN : sign * Infinity;
-    return sign * Math.pow(2, exponent - 15) * (1 + fraction / 1024);
-}
-
 export function readAnimationSamplesForTarget(id = 1, targetId = 2) {
     const client = clients.get(id);
     if (!client || !client.animationSamplesByTarget) return [];
@@ -652,7 +650,6 @@ if (typeof globalThis !== 'undefined') {
         readAnimationSampleCount,
         readLastAnimationSample,
         readAllAnimationSamples,
-        readAnimationSamplesForTarget,
-        decodeFloat16
+        readAnimationSamplesForTarget
     };
 }

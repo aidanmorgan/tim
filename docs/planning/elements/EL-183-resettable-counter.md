@@ -78,4 +78,4 @@ Acceptance authority: [element-183](../requirements.md#element-183), [current-ca
 
 1. **Separate entry or extended counter.** A new `reset_counter` entry (proposed) versus adding `ResetIn` to CAT-020: owner decision (also CAT-020 open question 2).
 2. **Same-tick order.** Reset-dominant (proposed) versus applying the arrival after the reset (count 1): owner decision.
-3. **binary16 activation and cosmetic lanes.** The activation times, occurrence phases and dot cosmetic curves this counter extends still hold binary16 values, listed as remaining f32 migration (`docs/gpu-f32-physics.md@a6c914e:L96-L98`). Whether the slice migrates them to f32 first or extends them as they are: [CAT-020 open question 3](CAT-020-counter.md#6-open-questions), owner decision.
+3. **f32 activation and cosmetic lanes (resolved).** Story 9A.44 migrated the activation times, occurrence phases and dot cosmetic curves this counter extends to f32; no migration choice remains ([CAT-020 open question 3](CAT-020-counter.md#6-open-questions)).

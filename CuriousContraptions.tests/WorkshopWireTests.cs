@@ -359,13 +359,6 @@ public sealed class WorkshopWireTests
     }
 
     [Fact]
-    public void PhysicalFrequencyIsExactlyRepresentableInTheHalfWireField()
-    {
-        // The motion read carries the physical frequency as a binary16 field; the constant must round-trip exactly.
-        Assert.Equal(WorkshopCadenceSettings.PhysicalFrequency, (uint)(Half)WorkshopCadenceSettings.PhysicalFrequency);
-    }
-
-    [Fact]
     public void WorldPauseLeavesAutonomousMasterPulsesAdvancingAndResumeWaitsAWholePeriod()
     {
         var settings = WorkshopCadenceSettings.Default();
@@ -456,29 +449,30 @@ public sealed class WorkshopWireTests
         if (read.Tick.Value != 0)
         {
             var last = checked((uint)(read.Tick.Value * Profile.Substeps)); var first = last - Profile.Substeps;
-            BinaryPrimitives.WriteUInt32LittleEndian(bytes, checked((uint)read.Bodies.Count * Profile.Substeps));
-            BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(4), Profile.Substeps);
-            BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(8), first);
-            BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(12), last);
+            BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(PhysicsMotionRead.CountOffset), checked((uint)read.Bodies.Count * Profile.Substeps));
+            BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(PhysicsMotionRead.SubstepsOffset), Profile.Substeps);
+            BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(PhysicsMotionRead.FirstOrdinalOffset), first);
+            BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(PhysicsMotionRead.LastOrdinalOffset), last);
             for (var bodyIndex = 0; bodyIndex < read.Bodies.Count; bodyIndex++)
             for (uint step = 0; step < Profile.Substeps; step++)
             {
                 var value = read.Bodies[bodyIndex]; var body = value.Body;
                 var pieceIndex = checked(bodyIndex * (int)Profile.Substeps + (int)step);
                 var piece = bytes.AsSpan(PhysicsMotionRead.HeaderBytes + pieceIndex * PhysicsMotionRead.PieceBytes, PhysicsMotionRead.PieceBytes);
-                BinaryPrimitives.WriteUInt32LittleEndian(piece, (uint)PhysicsMotionKind.FreePolynomial);
-                BinaryPrimitives.WriteUInt32LittleEndian(piece[4..], first + step);
-                BinaryPrimitives.WriteUInt32LittleEndian(piece[8..], first + step + 1);
-                BinaryPrimitives.WriteUInt32LittleEndian(piece[12..], first);
-                BinaryPrimitives.WriteUInt64LittleEndian(piece[24..], body.Id.Value);
-                BinaryPrimitives.WriteInt32LittleEndian(piece[32..], body.Cell.X);
-                BinaryPrimitives.WriteInt32LittleEndian(piece[36..], body.Cell.Y);
-                BinaryPrimitives.WriteInt32LittleEndian(piece[40..], body.Cell.Z);
-                static void H(Span<byte> target, int offset, Half number) =>
-                    BinaryPrimitives.WriteUInt16LittleEndian(target[offset..], BitConverter.HalfToUInt16Bits(number));
-                H(piece,22,(Half)WorkshopCadenceSettings.PhysicalFrequency); F(piece,48,body.Local.X); F(piece,52,body.Local.Y); F(piece,56,body.Local.Z);
+                BinaryPrimitives.WriteUInt32LittleEndian(piece[PhysicsMotionRead.KindOffset..], (uint)PhysicsMotionKind.FreePolynomial);
+                BinaryPrimitives.WriteUInt32LittleEndian(piece[PhysicsMotionRead.StartOrdinalOffset..], first + step);
+                BinaryPrimitives.WriteUInt32LittleEndian(piece[PhysicsMotionRead.EndOrdinalOffset..], first + step + 1);
+                BinaryPrimitives.WriteUInt32LittleEndian(piece[PhysicsMotionRead.AnchorOrdinalOffset..], first);
+                BinaryPrimitives.WriteUInt64LittleEndian(piece[PhysicsMotionRead.OwnerOffset..], body.Id.Value);
+                BinaryPrimitives.WriteInt32LittleEndian(piece[PhysicsMotionRead.CellOffset..], body.Cell.X);
+                BinaryPrimitives.WriteInt32LittleEndian(piece[(PhysicsMotionRead.CellOffset + 4)..], body.Cell.Y);
+                BinaryPrimitives.WriteInt32LittleEndian(piece[(PhysicsMotionRead.CellOffset + 8)..], body.Cell.Z);
+                BinaryPrimitives.WriteUInt32LittleEndian(piece[PhysicsMotionRead.FrequencyOffset..], WorkshopCadenceSettings.PhysicalFrequency);
+                const int c = PhysicsMotionRead.CentreRemainderOffset, r = PhysicsMotionRead.RotationOffset;
+                F(piece,c,body.Local.X); F(piece,c+4,body.Local.Y); F(piece,c+8,body.Local.Z);
                 var q = value.Rotation;
-                F(piece,64,q.X); F(piece,68,q.Y); F(piece,72,q.Z); F(piece,76,q.W);
+                F(piece,r,q.X); F(piece,r+PhysicsGpuAbi.RotationYOffset,q.Y); F(piece,r+PhysicsGpuAbi.RotationZOffset,q.Z);
+                F(piece,r+PhysicsGpuAbi.RotationWOffset,q.W);
                 static void F(Span<byte> target, int offset, float number) => BinaryPrimitives.WriteSingleLittleEndian(target[offset..], number);
                 const int v = PhysicsMotionRead.VelocityOffset, w = PhysicsMotionRead.AngularVelocityOffset;
                 F(piece,v,body.Velocity.X); F(piece,v+4,body.Velocity.Y); F(piece,v+8,body.Velocity.Z);
@@ -881,8 +875,8 @@ public sealed class WorkshopWireTests
     [Fact]
     public void InvalidQuaternionAndOutOfDeckDescriptorReject()
     {
-        Assert.Throws<ArgumentException>(() => new CanonicalRotation((float)1, (float)1, (float)1, (float)1).Validate());
-        Assert.Throws<ArgumentException>(() => new CanonicalRotation((float).001, (float)0, (float)0, (float)0).Validate());
+        Assert.Throws<ArgumentException>(() => new CanonicalRotation(1f, 1f, 1f, 1f).Validate());
+        Assert.Throws<ArgumentException>(() => new CanonicalRotation(.001f, 0f, 0f, 0f).Validate());
         var bytes = GenericAdmission();
         BinaryPrimitives.WriteInt32LittleEndian(bytes.AsSpan(DynamicOffset(bytes) + 16), 2048);
         Assert.ThrowsAny<ArgumentException>(() => PhysicsGpuAbi.ReadDynamicBodies(bytes));
@@ -893,8 +887,8 @@ public sealed class WorkshopWireTests
     {
         var ball = OnlyBall(Construction) with
         {
-            Local = new(BitConverter.UInt32BitsToSingle(0x80000000), (float)0.25, (float)0),
-            Rotation = new(BitConverter.UInt32BitsToSingle(0x80000000), (float)0, (float)0, (float)1)
+            Local = new(BitConverter.UInt32BitsToSingle(0x80000000), 0.25f, 0f),
+            Rotation = new(BitConverter.UInt32BitsToSingle(0x80000000), 0f, 0f, 1f)
         };
         var command = new WorkshopCommand(new(0x20000000000001), WorkshopCommandKind.Construct,
             new(0x30000000000001), new(1), Construction.WithoutInstance(OnlyBall(Construction).Id).WithInstance(ball), Session: Session, Cadence: new(1), Projection: new(1));
@@ -918,16 +912,14 @@ public sealed class WorkshopWireTests
     private static byte[] GenericAdmission() => PhysicsGpuAbi.Admission(GenericScene, new(2), Profile);
     private static int DynamicOffset(byte[] bytes)
     {
-        var count = BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(12));
+        var count = BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(PhysicsGpuAbi.HeaderBodyCountOffset));
         for (var i = 0; i < count; i++)
         {
             var offset = PhysicsWorldLayout.BodiesOffset + checked((int)i) * PhysicsGpuAbi.BodyBytes;
-            if (BinaryPrimitives.ReadUInt64LittleEndian(bytes.AsSpan(offset)) == 1) return offset;
+            if (BinaryPrimitives.ReadUInt64LittleEndian(bytes.AsSpan(offset + PhysicsGpuAbi.RecordIdentityOffset)) == 1) return offset;
         }
         throw new InvalidOperationException("Fixture dynamic body identity is missing.");
     }
-    private static void WriteHalf(byte[] bytes, int offset, Half value) =>
-        BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(offset), BitConverter.HalfToUInt16Bits(value));
     private static void WriteSingle(byte[] bytes, int offset, float value) =>
         BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(offset), value);
 
@@ -957,7 +949,7 @@ public sealed class WorkshopWireTests
     [InlineData(1)]
     public void GuideDeclarationPreservesAuthoredKnotsAndRejectsCandidateMutation(double precision)
     {
-        var construction = PuzzleCatalogue.Create(new("first_principles"), new(1), WorkshopCadenceSettings.Default(), new(1), new((Half)precision));
+        var construction = PuzzleCatalogue.Create(new("first_principles"), new(1), WorkshopCadenceSettings.Default(), new(1), new((float)precision));
         var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
         Assert.Equal(1, scene.Guides.Length);
         var guide = scene.Guides[0];
@@ -966,15 +958,15 @@ public sealed class WorkshopWireTests
         Assert.Equal(construction.Puzzle.Goal.Target, guide.Frame);
         Assert.Equal(knot.GuideAcceleration, guide.MaximumAcceleration);
         Assert.Equal(knot.CaptureMargin, guide.SupportMargin);
-        Assert.Equal(new MetreVector((Half)(-1.1), (Half).5, (Half)(-1.1)), guide.Minimum);
-        Assert.Equal(new MetreVector((Half)1.1, (Half)1.5, (Half)1.1), guide.Maximum);
+        Assert.Equal(new MetreVector(-1.1f, .5f, -1.1f), guide.Minimum);
+        Assert.Equal(new MetreVector(1.1f, 1.5f, 1.1f), guide.Maximum);
         var bytes = PhysicsGpuAbi.Admission(scene, new(2), Profile);
         PhysicsGpuAbi.ValidateCandidate(bytes, bytes, new(0));
         // Only the current layout tag is admitted; a retired state version remains unsupported.
         Assert.Equal(PhysicsGpuAbi.CurrentLayoutTag, BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(PhysicsGpuAbi.HeaderLayoutTagOffset)));
         var versioned = (byte[])bytes.Clone(); BinaryPrimitives.WriteUInt32LittleEndian(versioned.AsSpan(PhysicsGpuAbi.HeaderLayoutTagOffset), 13);
         Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ValidateCandidate(versioned, versioned, new(0)));
-        Assert.Equal(1u, BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(96)));
+        Assert.Equal(1u, BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(PhysicsGpuAbi.HeaderGuideCountOffset)));
         var layout = PhysicsGpuAbi.Layout(bytes);
         for (var offset = layout.GuidesOffset; offset < layout.MotionOffset; offset++)
         {
@@ -986,12 +978,12 @@ public sealed class WorkshopWireTests
     [Fact]
     public void GuideAdmissionRejectsUnsupportedOrAmbiguousForceOwnership()
     {
-        var scene = WorkshopPhysicsCompiler.Compile(PuzzleCatalogue.Create(new("first_principles"), new(1), WorkshopCadenceSettings.Default(), new(1), new((Half)0)), new(1, 2));
+        var scene = WorkshopPhysicsCompiler.Compile(PuzzleCatalogue.Create(new("first_principles"), new(1), WorkshopCadenceSettings.Default(), new(1), new(0f)), new(1, 2));
         var guide = scene.Guides[0];
         PhysicsSceneDeclaration Replace(params PlanarGuideDeclaration[] values) => new(scene.Document, scene.NextIdentity,
             scene.Bodies, scene.Colliders, scene.Materials, scene.Sensors, values);
-        Assert.Throws<ArgumentException>(() => Replace(guide with { MaximumAcceleration = new((Half)13) }));
-        Assert.Throws<ArgumentException>(() => Replace(guide with { SupportMargin = new(Half.NaN) }));
+        Assert.Throws<ArgumentException>(() => Replace(guide with { MaximumAcceleration = new(13f) }));
+        Assert.Throws<ArgumentException>(() => Replace(guide with { SupportMargin = new(float.NaN) }));
         Assert.Throws<ArgumentException>(() => Replace(guide with { Frame = guide.Target }));
         Assert.Throws<ArgumentException>(() => Replace(guide with { Target = guide.Frame }));
         Assert.Throws<ArgumentException>(() => Replace(guide with { Target = new(99) }));
@@ -1138,16 +1130,16 @@ public sealed class WorkshopWireTests
             Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ValidateCandidate(velocity, source, new(0)));
         }
         var segment = (byte[])source.Clone();
-        WriteHalf(segment, DynamicOffset(source) + 104, (Half)2);
-        WriteHalf(segment, DynamicOffset(source) + 106, (Half)2);
+        WriteSingle(segment, DynamicOffset(source) + PhysicsGpuAbi.BodyPrincipalFrameOffset, 2f);
+        WriteSingle(segment, DynamicOffset(source) + PhysicsGpuAbi.BodyPrincipalFrameOffset + 4, 2f);
         Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ValidateCandidate(segment, source, new(0)));
     }
 
-    private static byte[] GenericEndpoint(ulong tick, uint origin, Half phase)
+    private static byte[] GenericEndpoint(ulong tick, uint origin, float phase)
     {
         var bytes = GenericAdmission();
-        BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(40), tick);
-        BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(88), checked((uint)(tick * Profile.Substeps)));
+        BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(PhysicsGpuAbi.HeaderTickOffset), tick);
+        BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(PhysicsGpuAbi.HeaderSourceOrdinalOffset), checked((uint)(tick * Profile.Substeps)));
         var body = NamedBody(bytes, new(1));
         var read = Described(new(new(2), new(tick), new(new[] { body })));
         var motion = PhysicsGpuAbi.Layout(bytes).MotionOffset;
@@ -1155,8 +1147,8 @@ public sealed class WorkshopWireTests
         for (var i = 0; i < Profile.Substeps; i++)
         {
             var piece = motion + PhysicsMotionRead.HeaderBytes + i * PhysicsMotionRead.PieceBytes;
-            BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(piece + 12), origin);
-            WriteHalf(bytes, piece + 20, phase);
+            BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(piece + PhysicsMotionRead.AnchorOrdinalOffset), origin);
+            WriteSingle(bytes, piece + PhysicsMotionRead.AnchorPhaseOffset, phase);
         }
         return bytes;
     }
@@ -1172,7 +1164,7 @@ public sealed class WorkshopWireTests
     [InlineData(16UL, 3u, 0, false)]
     public void GenericMotionAnchorKeepsCanonicalPhaseAndBoundedAge(ulong tick, uint origin, int phase, bool accepted)
     {
-        var source = GenericAdmission(); var candidate = GenericEndpoint(tick, origin, (Half)phase);
+        var source = GenericAdmission(); var candidate = GenericEndpoint(tick, origin, (float)phase);
         if (accepted) PhysicsGpuAbi.ValidateCandidate(candidate, source, new(tick));
         else Assert.ThrowsAny<ArgumentException>(() => PhysicsGpuAbi.ValidateCandidate(candidate, source, new(tick)));
     }
@@ -1180,18 +1172,18 @@ public sealed class WorkshopWireTests
     [Fact]
     public void GenericMotionMustMatchWorldProfileAndCoverItsWholeCommit()
     {
-        var source = GenericAdmission(); var candidate = GenericEndpoint(1, 0, (Half)0);
+        var source = GenericAdmission(); var candidate = GenericEndpoint(1, 0, 0f);
         PhysicsGpuAbi.ValidateCandidate(candidate, source, new(1));
         var motion = PhysicsGpuAbi.Layout(candidate).MotionOffset;
         // Internally valid two-substep motion cannot describe this four-substep world.
         var wrongProfile = (byte[])candidate.Clone();
         BinaryPrimitives.WriteUInt32LittleEndian(wrongProfile.AsSpan(motion + 4), 2);
         BinaryPrimitives.WriteUInt32LittleEndian(wrongProfile.AsSpan(motion + 12), 2);
-        BinaryPrimitives.WriteUInt32LittleEndian(wrongProfile.AsSpan(motion + PhysicsMotionRead.HeaderBytes + 8), 2);
+        BinaryPrimitives.WriteUInt32LittleEndian(wrongProfile.AsSpan(motion + PhysicsMotionRead.HeaderBytes + PhysicsMotionRead.EndOrdinalOffset), 2);
         Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ValidateCandidate(wrongProfile, source, new(1)));
-        foreach (var offset in new[] { motion + PhysicsMotionRead.HeaderBytes + 4, // missing beginning
-            motion + PhysicsMotionRead.HeaderBytes + 24, // wrong body
-            motion + PhysicsMotionRead.HeaderBytes + 110, // padding
+        foreach (var offset in new[] { motion + PhysicsMotionRead.HeaderBytes + PhysicsMotionRead.StartOrdinalOffset, // missing beginning
+            motion + PhysicsMotionRead.HeaderBytes + PhysicsMotionRead.OwnerOffset, // wrong body
+            motion + PhysicsMotionRead.HeaderBytes + PhysicsMotionRead.FlaggedVectorOffset + 1, // an unflagged vector lane
             motion + PhysicsMotionRead.HeaderBytes + checked((int)Profile.Substeps) * PhysicsMotionRead.PieceBytes }) // unused tail
         {
             var changed = (byte[])candidate.Clone(); changed[offset] ^= 1;
@@ -1202,7 +1194,7 @@ public sealed class WorkshopWireTests
     [Fact]
     public void ForceDrivenMotionSamplesQuadraticAndBoundsItsAccelerations()
     {
-        var state = GenericEndpoint(1, 0, (Half)0);
+        var state = GenericEndpoint(1, 0, 0f);
         var body = NamedBody(state, new(1)).Body;
         var layout = PhysicsGpuAbi.Layout(state);
         var bytes = state.AsSpan(layout.MotionOffset, layout.MotionBytes).ToArray();
@@ -1213,11 +1205,11 @@ public sealed class WorkshopWireTests
             var offset = PhysicsMotionRead.HeaderBytes + index * PhysicsMotionRead.PieceBytes;
             seed.CopyTo(bytes, offset);
             BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(offset), (uint)PhysicsMotionKind.ForceDrivenQuadratic);
-            BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(offset + 4), (uint)index);
-            BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(offset + 8), (uint)index + 1);
-            BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(offset + 12), (uint)index);
-            WriteHalf(bytes, offset + PhysicsMotionRead.SupportedAccelerationOffset, (Half)32);
-            WriteHalf(bytes, offset + PhysicsMotionRead.AngularAccelerationOffset + 4, (Half).5);
+            BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(offset + PhysicsMotionRead.StartOrdinalOffset), (uint)index);
+            BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(offset + PhysicsMotionRead.EndOrdinalOffset), (uint)index + 1);
+            BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(offset + PhysicsMotionRead.AnchorOrdinalOffset), (uint)index);
+            WriteSingle(bytes, offset + PhysicsMotionRead.SupportedAccelerationOffset, 32f);
+            WriteSingle(bytes, offset + PhysicsMotionRead.AngularAccelerationOffset + 4, .5f);
         }
         var motion = PhysicsMotionRead.Decode(bytes, Bodies(body), new(1));
         Assert.True(motion.TrySample(body.Id, .5, out var pose));
@@ -1226,7 +1218,7 @@ public sealed class WorkshopWireTests
         var unknown = (byte[])bytes.Clone(); BinaryPrimitives.WriteUInt32LittleEndian(unknown.AsSpan(PhysicsMotionRead.HeaderBytes), 4);
         Assert.Throws<ArgumentException>(() => PhysicsMotionRead.Decode(unknown, Bodies(body), new(1)));
         var spinning = (byte[])bytes.Clone();
-        WriteHalf(spinning, PhysicsMotionRead.HeaderBytes + PhysicsMotionRead.AngularAccelerationOffset, (Half)2048);
+        WriteSingle(spinning, PhysicsMotionRead.HeaderBytes + PhysicsMotionRead.AngularAccelerationOffset, 2048f);
         Assert.Throws<ArgumentException>(() => PhysicsMotionRead.Decode(spinning, Bodies(body), new(1)));
         var free = (byte[])bytes.Clone(); BinaryPrimitives.WriteUInt32LittleEndian(free.AsSpan(PhysicsMotionRead.HeaderBytes), (uint)PhysicsMotionKind.FreePolynomial);
         Assert.Throws<ArgumentException>(() => PhysicsMotionRead.Decode(free, Bodies(body), new(1)));
@@ -1235,15 +1227,15 @@ public sealed class WorkshopWireTests
     [Fact]
     public void NormalizedF32QuaternionUsesOneCanonicalNormGate()
     {
-        var rotation = new CanonicalRotation((float).57861328125, (float)(-.57275390625),
-            (float).55712890625, (float).1676025390625);
+        var rotation = new CanonicalRotation(.57861328125f, -.57275390625f,
+            .55712890625f, (float).1676025390625);
         Assert.Throws<ArgumentException>(() => rotation.ValidateCommitted());
         var computed = System.Numerics.Quaternion.Normalize(
             new(rotation.X, rotation.Y, rotation.Z, rotation.W));
         rotation = new(computed.X, computed.Y, computed.Z, computed.W);
         rotation.ValidateCommitted();
         rotation.Validate();
-        var state = GenericEndpoint(1, 0, (Half)0);
+        var state = GenericEndpoint(1, 0, 0f);
         var values = new[] { rotation.X, rotation.Y, rotation.Z, rotation.W };
         for (var i = 0; i < 4; i++) BinaryPrimitives.WriteSingleLittleEndian(state.AsSpan(DynamicOffset(state) + 48 + i * 4), values[i]);
         Assert.Equal(rotation, NamedBody(state, new(1)).Rotation);
@@ -1262,15 +1254,16 @@ public sealed class WorkshopWireTests
     public void GenericCandidateRejectsEveryBoundaryOfZeroRegions(CanonicalPaddingRegion region)
     {
         var source = GenericAdmission();
-        var candidate = GenericEndpoint(1, 0, (Half)0);
+        var candidate = GenericEndpoint(1, 0, 0f);
         var layout = PhysicsGpuAbi.Layout(candidate);
         var motionTail = layout.MotionOffset + PhysicsMotionRead.HeaderBytes +
             checked((int)BinaryPrimitives.ReadUInt32LittleEndian(candidate.AsSpan(layout.MotionOffset))) * PhysicsMotionRead.PieceBytes;
         var (start, length) = region switch
         {
             CanonicalPaddingRegion.UnusedMotion => (motionTail, layout.ElectricalSourcesOffset - motionTail),
-            CanonicalPaddingRegion.BodyPadding => (DynamicOffset(candidate) + 148, 12),
-            CanonicalPaddingRegion.MotionPadding => (layout.MotionOffset + PhysicsMotionRead.HeaderBytes + 140, 4),
+            CanonicalPaddingRegion.BodyPadding => (DynamicOffset(candidate) + PhysicsGpuAbi.BodyPaddingOffset, PhysicsGpuAbi.BodyBytes - PhysicsGpuAbi.BodyPaddingOffset),
+            // A piece has no padding; its flagged vector lane is zero while its flag is clear.
+            CanonicalPaddingRegion.MotionPadding => (layout.MotionOffset + PhysicsMotionRead.HeaderBytes + PhysicsMotionRead.FlaggedVectorOffset, 12),
             _ => throw new ArgumentOutOfRangeException(nameof(region))
         };
         Assert.True(length > 0);
@@ -1279,10 +1272,48 @@ public sealed class WorkshopWireTests
         foreach (var value in new byte[] { 1, 0x80, 0xff })
         {
             var changed = (byte[])candidate.Clone();
-            changed[offset] = value; // 0x80 also exercises a Half negative-zero sign bit in raw-zero storage.
+            changed[offset] = value; // 0x80 also exercises a negative-zero sign bit in raw-zero storage.
             Assert.ThrowsAny<ArgumentException>(() => PhysicsGpuAbi.ValidateCandidate(changed, source, new(1)));
         }
         Assert.True(originalMotion.Motion.Bytes.SequenceEqual(PhysicsGpuAbi.ValidateCandidate(candidate, source, new(1)).Motion.Bytes));
+    }
+
+    // Story 9A.44: every fixed row's zero padding (a body's tail, a collider's shape gap and tail, a material's tail) is checked in the
+    // world itself, at admission (tick 0) and on every tick. The same nonzero byte in the source and the candidate passes the
+    // unchanged-row comparison, so only the padding rule can refuse it.
+    public enum FixedRowPadding { BodyMotionGap, BodyTail, ColliderShapeGap, ColliderTail, MaterialTail }
+
+    [Theory]
+    [InlineData(FixedRowPadding.BodyMotionGap)]
+    [InlineData(FixedRowPadding.BodyTail)]
+    [InlineData(FixedRowPadding.ColliderShapeGap)]
+    [InlineData(FixedRowPadding.ColliderTail)]
+    [InlineData(FixedRowPadding.MaterialTail)]
+    public void FixedRowPaddingMustBeZeroAtAdmissionAndWhenUnchanged(FixedRowPadding region)
+    {
+        var source = GenericAdmission();
+        var candidate = GenericEndpoint(1, 0, 0f);
+        PhysicsGpuAbi.ValidateCandidate(source, source, new(0)); // controls: the zero tails admit and commit
+        PhysicsGpuAbi.ValidateCandidate(candidate, source, new(1));
+        var layout = PhysicsGpuAbi.Layout(candidate);
+        var (start, length) = region switch
+        {
+            FixedRowPadding.BodyMotionGap => (layout.BodyOffset(0) + PhysicsGpuAbi.BodyMotionPaddingOffset,
+                PhysicsGpuAbi.BodyCellOffset - PhysicsGpuAbi.BodyMotionPaddingOffset),
+            FixedRowPadding.BodyTail => (layout.BodyOffset(0) + PhysicsGpuAbi.BodyPaddingOffset, PhysicsGpuAbi.BodyBytes - PhysicsGpuAbi.BodyPaddingOffset),
+            FixedRowPadding.ColliderShapeGap => (layout.ColliderOffset(0) + PhysicsGpuAbi.ColliderShapePaddingOffset,
+                PhysicsGpuAbi.ColliderPoseOffset - PhysicsGpuAbi.ColliderShapePaddingOffset),
+            FixedRowPadding.ColliderTail => (layout.ColliderOffset(0) + PhysicsGpuAbi.ColliderPaddingOffset, PhysicsGpuAbi.ColliderBytes - PhysicsGpuAbi.ColliderPaddingOffset),
+            FixedRowPadding.MaterialTail => (layout.MaterialOffset(0) + PhysicsGpuAbi.MaterialPaddingOffset, PhysicsGpuAbi.MaterialBytes - PhysicsGpuAbi.MaterialPaddingOffset),
+            _ => throw new ArgumentOutOfRangeException(nameof(region))
+        };
+        foreach (var offset in new[] { start, start + length - 1 })
+        {
+            var (paddedSource, paddedCandidate) = ((byte[])source.Clone(), (byte[])candidate.Clone());
+            paddedSource[offset] = paddedCandidate[offset] = 1;
+            Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ValidateCandidate(paddedSource, paddedSource, new(0)));
+            Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ValidateCandidate(paddedCandidate, paddedSource, new(1)));
+        }
     }
 
     [Theory]

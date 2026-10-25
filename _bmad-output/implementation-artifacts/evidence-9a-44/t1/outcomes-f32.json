@@ -1,0 +1,1386 @@
+{
+  "Command": "dotnet test CuriousContraptions.tests -c Debug --no-build --no-restore --filter FullyQualifiedName~Scratch9A44Generator (scratch Scratch9A44Generator.cs, compiled only for this run; its source is kept in evidence-9a-44/t1)",
+  "Lessons": [
+    {
+      "GoalMet": true,
+      "GoalTick": 331,
+      "Events": [
+        "tick 1: capture sensor=4294968070 phase=Clear ordinal=0 eventPhase=0",
+        "tick 331: capture sensor=4294968070 phase=Latched ordinal=1324 eventPhase=0"
+      ],
+      "FinalBodies": [
+        {
+          "Id": 1,
+          "X": 2.638913154602051,
+          "Y": 0.8647317886352539,
+          "Z": 0,
+          "Com": {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        }
+      ],
+      "Id": "first_principles",
+      "Precision": 0
+    },
+    {
+      "GoalMet": true,
+      "GoalTick": 342,
+      "Events": [
+        "tick 1: capture sensor=4294968070 phase=Clear ordinal=0 eventPhase=0",
+        "tick 342: capture sensor=4294968070 phase=Latched ordinal=1368 eventPhase=0"
+      ],
+      "FinalBodies": [
+        {
+          "Id": 1,
+          "X": 2.7887518405914307,
+          "Y": 0.8647317886352539,
+          "Z": 0,
+          "Com": {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        }
+      ],
+      "Id": "first_principles",
+      "Precision": 0.45
+    },
+    {
+      "GoalMet": true,
+      "GoalTick": 359,
+      "Events": [
+        "tick 1: capture sensor=4294968070 phase=Clear ordinal=0 eventPhase=0",
+        "tick 359: capture sensor=4294968070 phase=Latched ordinal=1436 eventPhase=0"
+      ],
+      "FinalBodies": [
+        {
+          "Id": 1,
+          "X": 2.7891478538513184,
+          "Y": 0.8647317886352539,
+          "Z": 0,
+          "Com": {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        }
+      ],
+      "Id": "first_principles",
+      "Precision": 1
+    },
+    {
+      "GoalMet": true,
+      "GoalTick": 207,
+      "Events": [
+        "tick 1: activation {\u0022Node\u0022:{\u0022Value\u0022:2},\u0022Owner\u0022:{\u0022Value\u0022:2},\u0022Phase\u0022:0,\u0022Source\u0022:{\u0022Value\u0022:0},\u0022Body\u0022:{\u0022Value\u0022:0},\u0022Collider\u0022:{\u0022Value\u0022:0},\u0022EventOrdinal\u0022:0,\u0022EventPhase\u0022:0,\u0022ApproachSpeed\u0022:{\u0022Value\u0022:0},\u0022Kind\u0022:0,\u0022Emitter\u0022:{\u0022Value\u0022:0},\u0022CauseOrdinal\u0022:0,\u0022CausePhase\u0022:0,\u0022Occurrence\u0022:{\u0022Kind\u0022:0,\u0022Emitter\u0022:{\u0022Value\u0022:0},\u0022Time\u0022:{\u0022Ordinal\u0022:0,\u0022Phase\u0022:0},\u0022Cause\u0022:{\u0022Source\u0022:{\u0022Value\u0022:0},\u0022Body\u0022:{\u0022Value\u0022:0},\u0022Collider\u0022:{\u0022Value\u0022:0},\u0022Time\u0022:{\u0022Ordinal\u0022:0,\u0022Phase\u0022:0},\u0022ApproachSpeed\u0022:{\u0022Value\u0022:0}}}}",
+        "tick 1: activation {\u0022Node\u0022:{\u0022Value\u0022:3},\u0022Owner\u0022:{\u0022Value\u0022:3},\u0022Phase\u0022:0,\u0022Source\u0022:{\u0022Value\u0022:0},\u0022Body\u0022:{\u0022Value\u0022:0},\u0022Collider\u0022:{\u0022Value\u0022:0},\u0022EventOrdinal\u0022:0,\u0022EventPhase\u0022:0,\u0022ApproachSpeed\u0022:{\u0022Value\u0022:0},\u0022Kind\u0022:0,\u0022Emitter\u0022:{\u0022Value\u0022:0},\u0022CauseOrdinal\u0022:0,\u0022CausePhase\u0022:0,\u0022Occurrence\u0022:{\u0022Kind\u0022:0,\u0022Emitter\u0022:{\u0022Value\u0022:0},\u0022Time\u0022:{\u0022Ordinal\u0022:0,\u0022Phase\u0022:0},\u0022Cause\u0022:{\u0022Source\u0022:{\u0022Value\u0022:0},\u0022Body\u0022:{\u0022Value\u0022:0},\u0022Collider\u0022:{\u0022Value\u0022:0},\u0022Time\u0022:{\u0022Ordinal\u0022:0,\u0022Phase\u0022:0},\u0022ApproachSpeed\u0022:{\u0022Value\u0022:0}}}}",
+        "tick 1: activation {\u0022Node\u0022:{\u0022Value\u0022:4},\u0022Owner\u0022:{\u0022Value\u0022:4},\u0022Phase\u0022:0,\u0022Source\u0022:{\u0022Value\u0022:0},\u0022Body\u0022:{\u0022Value\u0022:0},\u0022Collider\u0022:{\u0022Value\u0022:0},\u0022EventOrdinal\u0022:0,\u0022EventPhase\u0022:0,\u0022ApproachSpeed\u0022:{\u0022Value\u0022:0},\u0022Kind\u0022:0,\u0022Emitter\u0022:{\u0022Value\u0022:0},\u0022CauseOrdinal\u0022:0,\u0022CausePhase\u0022:0,\u0022Occurrence\u0022:{\u0022Kind\u0022:0,\u0022Emitter\u0022:{\u0022Value\u0022:0},\u0022Time\u0022:{\u0022Ordinal\u0022:0,\u0022Phase\u0022:0},\u0022Cause\u0022:{\u0022Source\u0022:{\u0022Value\u0022:0},\u0022Body\u0022:{\u0022Value\u0022:0},\u0022Collider\u0022:{\u0022Value\u0022:0},\u0022Time\u0022:{\u0022Ordinal\u0022:0,\u0022Phase\u0022:0},\u0022ApproachSpeed\u0022:{\u0022Value\u0022:0}}}}",
+        "tick 87: activation {\u0022Node\u0022:{\u0022Value\u0022:2},\u0022Owner\u0022:{\u0022Value\u0022:2},\u0022Phase\u0022:1,\u0022Source\u0022:{\u0022Value\u0022:4294968070},\u0022Body\u0022:{\u0022Value\u0022:1},\u0022Collider\u0022:{\u0022Value\u0022:4294968066},\u0022EventOrdinal\u0022:345,\u0022EventPhase\u0022:0,\u0022ApproachSpeed\u0022:{\u0022Value\u0022:6.9304256},\u0022Kind\u0022:1,\u0022Emitter\u0022:{\u0022Value\u0022:2},\u0022CauseOrdinal\u0022:345,\u0022CausePhase\u0022:0,\u0022Occurrence\u0022:{\u0022Kind\u0022:1,\u0022Emitter\u0022:{\u0022Value\u0022:2},\u0022Time\u0022:{\u0022Ordinal\u0022:345,\u0022Phase\u0022:0},\u0022Cause\u0022:{\u0022Source\u0022:{\u0022Value\u0022:4294968070},\u0022Body\u0022:{\u0022Value\u0022:1},\u0022Collider\u0022:{\u0022Value\u0022:4294968066},\u0022Time\u0022:{\u0022Ordinal\u0022:345,\u0022Phase\u0022:0},\u0022ApproachSpeed\u0022:{\u0022Value\u0022:6.9304256}}}}",
+        "tick 207: activation {\u0022Node\u0022:{\u0022Value\u0022:3},\u0022Owner\u0022:{\u0022Value\u0022:3},\u0022Phase\u0022:1,\u0022Source\u0022:{\u0022Value\u0022:4294968070},\u0022Body\u0022:{\u0022Value\u0022:1},\u0022Collider\u0022:{\u0022Value\u0022:4294968066},\u0022EventOrdinal\u0022:828,\u0022EventPhase\u0022:0,\u0022ApproachSpeed\u0022:{\u0022Value\u0022:6.9304256},\u0022Kind\u0022:2,\u0022Emitter\u0022:{\u0022Value\u0022:4},\u0022CauseOrdinal\u0022:345,\u0022CausePhase\u0022:0,\u0022Occurrence\u0022:{\u0022Kind\u0022:2,\u0022Emitter\u0022:{\u0022Value\u0022:4},\u0022Time\u0022:{\u0022Ordinal\u0022:828,\u0022Phase\u0022:0},\u0022Cause\u0022:{\u0022Source\u0022:{\u0022Value\u0022:4294968070},\u0022Body\u0022:{\u0022Value\u0022:1},\u0022Collider\u0022:{\u0022Value\u0022:4294968066},\u0022Time\u0022:{\u0022Ordinal\u0022:345,\u0022Phase\u0022:0},\u0022ApproachSpeed\u0022:{\u0022Value\u0022:6.9304256}}}}",
+        "tick 207: activation {\u0022Node\u0022:{\u0022Value\u0022:4},\u0022Owner\u0022:{\u0022Value\u0022:4},\u0022Phase\u0022:1,\u0022Source\u0022:{\u0022Value\u0022:4294968070},\u0022Body\u0022:{\u0022Value\u0022:1},\u0022Collider\u0022:{\u0022Value\u0022:4294968066},\u0022EventOrdinal\u0022:828,\u0022EventPhase\u0022:0,\u0022ApproachSpeed\u0022:{\u0022Value\u0022:6.9304256},\u0022Kind\u0022:2,\u0022Emitter\u0022:{\u0022Value\u0022:4},\u0022CauseOrdinal\u0022:345,\u0022CausePhase\u0022:0,\u0022Occurrence\u0022:{\u0022Kind\u0022:2,\u0022Emitter\u0022:{\u0022Value\u0022:4},\u0022Time\u0022:{\u0022Ordinal\u0022:828,\u0022Phase\u0022:0},\u0022Cause\u0022:{\u0022Source\u0022:{\u0022Value\u0022:4294968070},\u0022Body\u0022:{\u0022Value\u0022:1},\u0022Collider\u0022:{\u0022Value\u0022:4294968066},\u0022Time\u0022:{\u0022Ordinal\u0022:345,\u0022Phase\u0022:0},\u0022ApproachSpeed\u0022:{\u0022Value\u0022:6.9304256}}}}"
+      ],
+      "FinalBodies": [
+        {
+          "Id": 1,
+          "X": -3,
+          "Y": 1.4797999858856201,
+          "Z": 0,
+          "Com": {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        }
+      ],
+      "Id": "delayed_signal",
+      "Precision": 0
+    },
+    {
+      "GoalMet": true,
+      "GoalTick": 207,
+      "Events": [
+        "tick 1: activation {\u0022Node\u0022:{\u0022Value\u0022:2},\u0022Owner\u0022:{\u0022Value\u0022:2},\u0022Phase\u0022:0,\u0022Source\u0022:{\u0022Value\u0022:0},\u0022Body\u0022:{\u0022Value\u0022:0},\u0022Collider\u0022:{\u0022Value\u0022:0},\u0022EventOrdinal\u0022:0,\u0022EventPhase\u0022:0,\u0022ApproachSpeed\u0022:{\u0022Value\u0022:0},\u0022Kind\u0022:0,\u0022Emitter\u0022:{\u0022Value\u0022:0},\u0022CauseOrdinal\u0022:0,\u0022CausePhase\u0022:0,\u0022Occurrence\u0022:{\u0022Kind\u0022:0,\u0022Emitter\u0022:{\u0022Value\u0022:0},\u0022Time\u0022:{\u0022Ordinal\u0022:0,\u0022Phase\u0022:0},\u0022Cause\u0022:{\u0022Source\u0022:{\u0022Value\u0022:0},\u0022Body\u0022:{\u0022Value\u0022:0},\u0022Collider\u0022:{\u0022Value\u0022:0},\u0022Time\u0022:{\u0022Ordinal\u0022:0,\u0022Phase\u0022:0},\u0022ApproachSpeed\u0022:{\u0022Value\u0022:0}}}}",
+        "tick 1: activation {\u0022Node\u0022:{\u0022Value\u0022:3},\u0022Owner\u0022:{\u0022Value\u0022:3},\u0022Phase\u0022:0,\u0022Source\u0022:{\u0022Value\u0022:0},\u0022Body\u0022:{\u0022Value\u0022:0},\u0022Collider\u0022:{\u0022Value\u0022:0},\u0022EventOrdinal\u0022:0,\u0022EventPhase\u0022:0,\u0022ApproachSpeed\u0022:{\u0022Value\u0022:0},\u0022Kind\u0022:0,\u0022Emitter\u0022:{\u0022Value\u0022:0},\u0022CauseOrdinal\u0022:0,\u0022CausePhase\u0022:0,\u0022Occurrence\u0022:{\u0022Kind\u0022:0,\u0022Emitter\u0022:{\u0022Value\u0022:0},\u0022Time\u0022:{\u0022Ordinal\u0022:0,\u0022Phase\u0022:0},\u0022Cause\u0022:{\u0022Source\u0022:{\u0022Value\u0022:0},\u0022Body\u0022:{\u0022Value\u0022:0},\u0022Collider\u0022:{\u0022Value\u0022:0},\u0022Time\u0022:{\u0022Ordinal\u0022:0,\u0022Phase\u0022:0},\u0022ApproachSpeed\u0022:{\u0022Value\u0022:0}}}}",
+        "tick 1: activation {\u0022Node\u0022:{\u0022Value\u0022:4},\u0022Owner\u0022:{\u0022Value\u0022:4},\u0022Phase\u0022:0,\u0022Source\u0022:{\u0022Value\u0022:0},\u0022Body\u0022:{\u0022Value\u0022:0},\u0022Collider\u0022:{\u0022Value\u0022:0},\u0022EventOrdinal\u0022:0,\u0022EventPhase\u0022:0,\u0022ApproachSpeed\u0022:{\u0022Value\u0022:0},\u0022Kind\u0022:0,\u0022Emitter\u0022:{\u0022Value\u0022:0},\u0022CauseOrdinal\u0022:0,\u0022CausePhase\u0022:0,\u0022Occurrence\u0022:{\u0022Kind\u0022:0,\u0022Emitter\u0022:{\u0022Value\u0022:0},\u0022Time\u0022:{\u0022Ordinal\u0022:0,\u0022Phase\u0022:0},\u0022Cause\u0022:{\u0022Source\u0022:{\u0022Value\u0022:0},\u0022Body\u0022:{\u0022Value\u0022:0},\u0022Collider\u0022:{\u0022Value\u0022:0},\u0022Time\u0022:{\u0022Ordinal\u0022:0,\u0022Phase\u0022:0},\u0022ApproachSpeed\u0022:{\u0022Value\u0022:0}}}}",
+        "tick 87: activation {\u0022Node\u0022:{\u0022Value\u0022:2},\u0022Owner\u0022:{\u0022Value\u0022:2},\u0022Phase\u0022:1,\u0022Source\u0022:{\u0022Value\u0022:4294968070},\u0022Body\u0022:{\u0022Value\u0022:1},\u0022Collider\u0022:{\u0022Value\u0022:4294968066},\u0022EventOrdinal\u0022:345,\u0022EventPhase\u0022:0,\u0022ApproachSpeed\u0022:{\u0022Value\u0022:6.9304256},\u0022Kind\u0022:1,\u0022Emitter\u0022:{\u0022Value\u0022:2},\u0022CauseOrdinal\u0022:345,\u0022CausePhase\u0022:0,\u0022Occurrence\u0022:{\u0022Kind\u0022:1,\u0022Emitter\u0022:{\u0022Value\u0022:2},\u0022Time\u0022:{\u0022Ordinal\u0022:345,\u0022Phase\u0022:0},\u0022Cause\u0022:{\u0022Source\u0022:{\u0022Value\u0022:4294968070},\u0022Body\u0022:{\u0022Value\u0022:1},\u0022Collider\u0022:{\u0022Value\u0022:4294968066},\u0022Time\u0022:{\u0022Ordinal\u0022:345,\u0022Phase\u0022:0},\u0022ApproachSpeed\u0022:{\u0022Value\u0022:6.9304256}}}}",
+        "tick 207: activation {\u0022Node\u0022:{\u0022Value\u0022:3},\u0022Owner\u0022:{\u0022Value\u0022:3},\u0022Phase\u0022:1,\u0022Source\u0022:{\u0022Value\u0022:4294968070},\u0022Body\u0022:{\u0022Value\u0022:1},\u0022Collider\u0022:{\u0022Value\u0022:4294968066},\u0022EventOrdinal\u0022:828,\u0022EventPhase\u0022:0,\u0022ApproachSpeed\u0022:{\u0022Value\u0022:6.9304256},\u0022Kind\u0022:2,\u0022Emitter\u0022:{\u0022Value\u0022:4},\u0022CauseOrdinal\u0022:345,\u0022CausePhase\u0022:0,\u0022Occurrence\u0022:{\u0022Kind\u0022:2,\u0022Emitter\u0022:{\u0022Value\u0022:4},\u0022Time\u0022:{\u0022Ordinal\u0022:828,\u0022Phase\u0022:0},\u0022Cause\u0022:{\u0022Source\u0022:{\u0022Value\u0022:4294968070},\u0022Body\u0022:{\u0022Value\u0022:1},\u0022Collider\u0022:{\u0022Value\u0022:4294968066},\u0022Time\u0022:{\u0022Ordinal\u0022:345,\u0022Phase\u0022:0},\u0022ApproachSpeed\u0022:{\u0022Value\u0022:6.9304256}}}}",
+        "tick 207: activation {\u0022Node\u0022:{\u0022Value\u0022:4},\u0022Owner\u0022:{\u0022Value\u0022:4},\u0022Phase\u0022:1,\u0022Source\u0022:{\u0022Value\u0022:4294968070},\u0022Body\u0022:{\u0022Value\u0022:1},\u0022Collider\u0022:{\u0022Value\u0022:4294968066},\u0022EventOrdinal\u0022:828,\u0022EventPhase\u0022:0,\u0022ApproachSpeed\u0022:{\u0022Value\u0022:6.9304256},\u0022Kind\u0022:2,\u0022Emitter\u0022:{\u0022Value\u0022:4},\u0022CauseOrdinal\u0022:345,\u0022CausePhase\u0022:0,\u0022Occurrence\u0022:{\u0022Kind\u0022:2,\u0022Emitter\u0022:{\u0022Value\u0022:4},\u0022Time\u0022:{\u0022Ordinal\u0022:828,\u0022Phase\u0022:0},\u0022Cause\u0022:{\u0022Source\u0022:{\u0022Value\u0022:4294968070},\u0022Body\u0022:{\u0022Value\u0022:1},\u0022Collider\u0022:{\u0022Value\u0022:4294968066},\u0022Time\u0022:{\u0022Ordinal\u0022:345,\u0022Phase\u0022:0},\u0022ApproachSpeed\u0022:{\u0022Value\u0022:6.9304256}}}}"
+      ],
+      "FinalBodies": [
+        {
+          "Id": 1,
+          "X": -3,
+          "Y": 1.4797999858856201,
+          "Z": 0,
+          "Com": {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        }
+      ],
+      "Id": "delayed_signal",
+      "Precision": 0.45
+    },
+    {
+      "GoalMet": true,
+      "GoalTick": 207,
+      "Events": [
+        "tick 1: activation {\u0022Node\u0022:{\u0022Value\u0022:2},\u0022Owner\u0022:{\u0022Value\u0022:2},\u0022Phase\u0022:0,\u0022Source\u0022:{\u0022Value\u0022:0},\u0022Body\u0022:{\u0022Value\u0022:0},\u0022Collider\u0022:{\u0022Value\u0022:0},\u0022EventOrdinal\u0022:0,\u0022EventPhase\u0022:0,\u0022ApproachSpeed\u0022:{\u0022Value\u0022:0},\u0022Kind\u0022:0,\u0022Emitter\u0022:{\u0022Value\u0022:0},\u0022CauseOrdinal\u0022:0,\u0022CausePhase\u0022:0,\u0022Occurrence\u0022:{\u0022Kind\u0022:0,\u0022Emitter\u0022:{\u0022Value\u0022:0},\u0022Time\u0022:{\u0022Ordinal\u0022:0,\u0022Phase\u0022:0},\u0022Cause\u0022:{\u0022Source\u0022:{\u0022Value\u0022:0},\u0022Body\u0022:{\u0022Value\u0022:0},\u0022Collider\u0022:{\u0022Value\u0022:0},\u0022Time\u0022:{\u0022Ordinal\u0022:0,\u0022Phase\u0022:0},\u0022ApproachSpeed\u0022:{\u0022Value\u0022:0}}}}",
+        "tick 1: activation {\u0022Node\u0022:{\u0022Value\u0022:3},\u0022Owner\u0022:{\u0022Value\u0022:3},\u0022Phase\u0022:0,\u0022Source\u0022:{\u0022Value\u0022:0},\u0022Body\u0022:{\u0022Value\u0022:0},\u0022Collider\u0022:{\u0022Value\u0022:0},\u0022EventOrdinal\u0022:0,\u0022EventPhase\u0022:0,\u0022ApproachSpeed\u0022:{\u0022Value\u0022:0},\u0022Kind\u0022:0,\u0022Emitter\u0022:{\u0022Value\u0022:0},\u0022CauseOrdinal\u0022:0,\u0022CausePhase\u0022:0,\u0022Occurrence\u0022:{\u0022Kind\u0022:0,\u0022Emitter\u0022:{\u0022Value\u0022:0},\u0022Time\u0022:{\u0022Ordinal\u0022:0,\u0022Phase\u0022:0},\u0022Cause\u0022:{\u0022Source\u0022:{\u0022Value\u0022:0},\u0022Body\u0022:{\u0022Value\u0022:0},\u0022Collider\u0022:{\u0022Value\u0022:0},\u0022Time\u0022:{\u0022Ordinal\u0022:0,\u0022Phase\u0022:0},\u0022ApproachSpeed\u0022:{\u0022Value\u0022:0}}}}",
+        "tick 1: activation {\u0022Node\u0022:{\u0022Value\u0022:4},\u0022Owner\u0022:{\u0022Value\u0022:4},\u0022Phase\u0022:0,\u0022Source\u0022:{\u0022Value\u0022:0},\u0022Body\u0022:{\u0022Value\u0022:0},\u0022Collider\u0022:{\u0022Value\u0022:0},\u0022EventOrdinal\u0022:0,\u0022EventPhase\u0022:0,\u0022ApproachSpeed\u0022:{\u0022Value\u0022:0},\u0022Kind\u0022:0,\u0022Emitter\u0022:{\u0022Value\u0022:0},\u0022CauseOrdinal\u0022:0,\u0022CausePhase\u0022:0,\u0022Occurrence\u0022:{\u0022Kind\u0022:0,\u0022Emitter\u0022:{\u0022Value\u0022:0},\u0022Time\u0022:{\u0022Ordinal\u0022:0,\u0022Phase\u0022:0},\u0022Cause\u0022:{\u0022Source\u0022:{\u0022Value\u0022:0},\u0022Body\u0022:{\u0022Value\u0022:0},\u0022Collider\u0022:{\u0022Value\u0022:0},\u0022Time\u0022:{\u0022Ordinal\u0022:0,\u0022Phase\u0022:0},\u0022ApproachSpeed\u0022:{\u0022Value\u0022:0}}}}",
+        "tick 87: activation {\u0022Node\u0022:{\u0022Value\u0022:2},\u0022Owner\u0022:{\u0022Value\u0022:2},\u0022Phase\u0022:1,\u0022Source\u0022:{\u0022Value\u0022:4294968070},\u0022Body\u0022:{\u0022Value\u0022:1},\u0022Collider\u0022:{\u0022Value\u0022:4294968066},\u0022EventOrdinal\u0022:345,\u0022EventPhase\u0022:0,\u0022ApproachSpeed\u0022:{\u0022Value\u0022:6.9304256},\u0022Kind\u0022:1,\u0022Emitter\u0022:{\u0022Value\u0022:2},\u0022CauseOrdinal\u0022:345,\u0022CausePhase\u0022:0,\u0022Occurrence\u0022:{\u0022Kind\u0022:1,\u0022Emitter\u0022:{\u0022Value\u0022:2},\u0022Time\u0022:{\u0022Ordinal\u0022:345,\u0022Phase\u0022:0},\u0022Cause\u0022:{\u0022Source\u0022:{\u0022Value\u0022:4294968070},\u0022Body\u0022:{\u0022Value\u0022:1},\u0022Collider\u0022:{\u0022Value\u0022:4294968066},\u0022Time\u0022:{\u0022Ordinal\u0022:345,\u0022Phase\u0022:0},\u0022ApproachSpeed\u0022:{\u0022Value\u0022:6.9304256}}}}",
+        "tick 207: activation {\u0022Node\u0022:{\u0022Value\u0022:3},\u0022Owner\u0022:{\u0022Value\u0022:3},\u0022Phase\u0022:1,\u0022Source\u0022:{\u0022Value\u0022:4294968070},\u0022Body\u0022:{\u0022Value\u0022:1},\u0022Collider\u0022:{\u0022Value\u0022:4294968066},\u0022EventOrdinal\u0022:828,\u0022EventPhase\u0022:0,\u0022ApproachSpeed\u0022:{\u0022Value\u0022:6.9304256},\u0022Kind\u0022:2,\u0022Emitter\u0022:{\u0022Value\u0022:4},\u0022CauseOrdinal\u0022:345,\u0022CausePhase\u0022:0,\u0022Occurrence\u0022:{\u0022Kind\u0022:2,\u0022Emitter\u0022:{\u0022Value\u0022:4},\u0022Time\u0022:{\u0022Ordinal\u0022:828,\u0022Phase\u0022:0},\u0022Cause\u0022:{\u0022Source\u0022:{\u0022Value\u0022:4294968070},\u0022Body\u0022:{\u0022Value\u0022:1},\u0022Collider\u0022:{\u0022Value\u0022:4294968066},\u0022Time\u0022:{\u0022Ordinal\u0022:345,\u0022Phase\u0022:0},\u0022ApproachSpeed\u0022:{\u0022Value\u0022:6.9304256}}}}",
+        "tick 207: activation {\u0022Node\u0022:{\u0022Value\u0022:4},\u0022Owner\u0022:{\u0022Value\u0022:4},\u0022Phase\u0022:1,\u0022Source\u0022:{\u0022Value\u0022:4294968070},\u0022Body\u0022:{\u0022Value\u0022:1},\u0022Collider\u0022:{\u0022Value\u0022:4294968066},\u0022EventOrdinal\u0022:828,\u0022EventPhase\u0022:0,\u0022ApproachSpeed\u0022:{\u0022Value\u0022:6.9304256},\u0022Kind\u0022:2,\u0022Emitter\u0022:{\u0022Value\u0022:4},\u0022CauseOrdinal\u0022:345,\u0022CausePhase\u0022:0,\u0022Occurrence\u0022:{\u0022Kind\u0022:2,\u0022Emitter\u0022:{\u0022Value\u0022:4},\u0022Time\u0022:{\u0022Ordinal\u0022:828,\u0022Phase\u0022:0},\u0022Cause\u0022:{\u0022Source\u0022:{\u0022Value\u0022:4294968070},\u0022Body\u0022:{\u0022Value\u0022:1},\u0022Collider\u0022:{\u0022Value\u0022:4294968066},\u0022Time\u0022:{\u0022Ordinal\u0022:345,\u0022Phase\u0022:0},\u0022ApproachSpeed\u0022:{\u0022Value\u0022:6.9304256}}}}"
+      ],
+      "FinalBodies": [
+        {
+          "Id": 1,
+          "X": -3,
+          "Y": 1.4797999858856201,
+          "Z": 0,
+          "Com": {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        }
+      ],
+      "Id": "delayed_signal",
+      "Precision": 1
+    },
+    {
+      "GoalMet": true,
+      "GoalTick": 332,
+      "Events": [
+        "tick 1: activation {\u0022Node\u0022:{\u0022Value\u0022:2},\u0022Owner\u0022:{\u0022Value\u0022:2},\u0022Phase\u0022:0,\u0022Source\u0022:{\u0022Value\u0022:0},\u0022Body\u0022:{\u0022Value\u0022:0},\u0022Collider\u0022:{\u0022Value\u0022:0},\u0022EventOrdinal\u0022:0,\u0022EventPhase\u0022:0,\u0022ApproachSpeed\u0022:{\u0022Value\u0022:0},\u0022Kind\u0022:0,\u0022Emitter\u0022:{\u0022Value\u0022:0},\u0022CauseOrdinal\u0022:0,\u0022CausePhase\u0022:0,\u0022Occurrence\u0022:{\u0022Kind\u0022:0,\u0022Emitter\u0022:{\u0022Value\u0022:0},\u0022Time\u0022:{\u0022Ordinal\u0022:0,\u0022Phase\u0022:0},\u0022Cause\u0022:{\u0022Source\u0022:{\u0022Value\u0022:0},\u0022Body\u0022:{\u0022Value\u0022:0},\u0022Collider\u0022:{\u0022Value\u0022:0},\u0022Time\u0022:{\u0022Ordinal\u0022:0,\u0022Phase\u0022:0},\u0022ApproachSpeed\u0022:{\u0022Value\u0022:0}}}}",
+        "tick 1: activation {\u0022Node\u0022:{\u0022Value\u0022:3},\u0022Owner\u0022:{\u0022Value\u0022:3},\u0022Phase\u0022:0,\u0022Source\u0022:{\u0022Value\u0022:0},\u0022Body\u0022:{\u0022Value\u0022:0},\u0022Collider\u0022:{\u0022Value\u0022:0},\u0022EventOrdinal\u0022:0,\u0022EventPhase\u0022:0,\u0022ApproachSpeed\u0022:{\u0022Value\u0022:0},\u0022Kind\u0022:0,\u0022Emitter\u0022:{\u0022Value\u0022:0},\u0022CauseOrdinal\u0022:0,\u0022CausePhase\u0022:0,\u0022Occurrence\u0022:{\u0022Kind\u0022:0,\u0022Emitter\u0022:{\u0022Value\u0022:0},\u0022Time\u0022:{\u0022Ordinal\u0022:0,\u0022Phase\u0022:0},\u0022Cause\u0022:{\u0022Source\u0022:{\u0022Value\u0022:0},\u0022Body\u0022:{\u0022Value\u0022:0},\u0022Collider\u0022:{\u0022Value\u0022:0},\u0022Time\u0022:{\u0022Ordinal\u0022:0,\u0022Phase\u0022:0},\u0022ApproachSpeed\u0022:{\u0022Value\u0022:0}}}}",
+        "tick 332: activation {\u0022Node\u0022:{\u0022Value\u0022:2},\u0022Owner\u0022:{\u0022Value\u0022:2},\u0022Phase\u0022:1,\u0022Source\u0022:{\u0022Value\u0022:4294968070},\u0022Body\u0022:{\u0022Value\u0022:2},\u0022Collider\u0022:{\u0022Value\u0022:4294968065},\u0022EventOrdinal\u0022:1328,\u0022EventPhase\u0022:0,\u0022ApproachSpeed\u0022:{\u0022Value\u0022:0},\u0022Kind\u0022:3,\u0022Emitter\u0022:{\u0022Value\u0022:2},\u0022CauseOrdinal\u0022:1328,\u0022CausePhase\u0022:0,\u0022Occurrence\u0022:{\u0022Kind\u0022:3,\u0022Emitter\u0022:{\u0022Value\u0022:2},\u0022Time\u0022:{\u0022Ordinal\u0022:1328,\u0022Phase\u0022:0},\u0022Cause\u0022:{\u0022Source\u0022:{\u0022Value\u0022:4294968070},\u0022Body\u0022:{\u0022Value\u0022:2},\u0022Collider\u0022:{\u0022Value\u0022:4294968065},\u0022Time\u0022:{\u0022Ordinal\u0022:1328,\u0022Phase\u0022:0},\u0022ApproachSpeed\u0022:{\u0022Value\u0022:0}}}}",
+        "tick 332: activation {\u0022Node\u0022:{\u0022Value\u0022:3},\u0022Owner\u0022:{\u0022Value\u0022:3},\u0022Phase\u0022:1,\u0022Source\u0022:{\u0022Value\u0022:4294968070},\u0022Body\u0022:{\u0022Value\u0022:2},\u0022Collider\u0022:{\u0022Value\u0022:4294968065},\u0022EventOrdinal\u0022:1328,\u0022EventPhase\u0022:0,\u0022ApproachSpeed\u0022:{\u0022Value\u0022:0},\u0022Kind\u0022:3,\u0022Emitter\u0022:{\u0022Value\u0022:2},\u0022CauseOrdinal\u0022:1328,\u0022CausePhase\u0022:0,\u0022Occurrence\u0022:{\u0022Kind\u0022:3,\u0022Emitter\u0022:{\u0022Value\u0022:2},\u0022Time\u0022:{\u0022Ordinal\u0022:1328,\u0022Phase\u0022:0},\u0022Cause\u0022:{\u0022Source\u0022:{\u0022Value\u0022:4294968070},\u0022Body\u0022:{\u0022Value\u0022:2},\u0022Collider\u0022:{\u0022Value\u0022:4294968065},\u0022Time\u0022:{\u0022Ordinal\u0022:1328,\u0022Phase\u0022:0},\u0022ApproachSpeed\u0022:{\u0022Value\u0022:0}}}}"
+      ],
+      "FinalBodies": [
+        {
+          "Id": 1,
+          "X": -5.4518860802054405,
+          "Y": -0.12026893347501755,
+          "Z": 0.001458950457163155,
+          "Com": {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        },
+        {
+          "Id": 2,
+          "X": 0.7854666113853455,
+          "Y": -0.3352687358856201,
+          "Z": -0.0005597103154286742,
+          "Com": {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        },
+        {
+          "Id": 4,
+          "X": -3.3631298542022705,
+          "Y": -0.20112060010433197,
+          "Z": -0.0013917622854933143,
+          "Com": {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        },
+        {
+          "Id": 5,
+          "X": -2.3696179389953613,
+          "Y": -0.20267543196678162,
+          "Z": -0.0013153970940038562,
+          "Com": {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        },
+        {
+          "Id": 6,
+          "X": -1.3644800186157227,
+          "Y": -0.20490407943725586,
+          "Z": -0.0016530045541003346,
+          "Com": {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        },
+        {
+          "Id": 7,
+          "X": -0.3272301256656647,
+          "Y": -0.3353798985481262,
+          "Z": -0.0005298450705595315,
+          "Com": {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        }
+      ],
+      "Id": "domino_effect",
+      "Precision": 0
+    },
+    {
+      "GoalMet": true,
+      "GoalTick": 332,
+      "Events": [
+        "tick 1: activation {\u0022Node\u0022:{\u0022Value\u0022:2},\u0022Owner\u0022:{\u0022Value\u0022:2},\u0022Phase\u0022:0,\u0022Source\u0022:{\u0022Value\u0022:0},\u0022Body\u0022:{\u0022Value\u0022:0},\u0022Collider\u0022:{\u0022Value\u0022:0},\u0022EventOrdinal\u0022:0,\u0022EventPhase\u0022:0,\u0022ApproachSpeed\u0022:{\u0022Value\u0022:0},\u0022Kind\u0022:0,\u0022Emitter\u0022:{\u0022Value\u0022:0},\u0022CauseOrdinal\u0022:0,\u0022CausePhase\u0022:0,\u0022Occurrence\u0022:{\u0022Kind\u0022:0,\u0022Emitter\u0022:{\u0022Value\u0022:0},\u0022Time\u0022:{\u0022Ordinal\u0022:0,\u0022Phase\u0022:0},\u0022Cause\u0022:{\u0022Source\u0022:{\u0022Value\u0022:0},\u0022Body\u0022:{\u0022Value\u0022:0},\u0022Collider\u0022:{\u0022Value\u0022:0},\u0022Time\u0022:{\u0022Ordinal\u0022:0,\u0022Phase\u0022:0},\u0022ApproachSpeed\u0022:{\u0022Value\u0022:0}}}}",
+        "tick 1: activation {\u0022Node\u0022:{\u0022Value\u0022:3},\u0022Owner\u0022:{\u0022Value\u0022:3},\u0022Phase\u0022:0,\u0022Source\u0022:{\u0022Value\u0022:0},\u0022Body\u0022:{\u0022Value\u0022:0},\u0022Collider\u0022:{\u0022Value\u0022:0},\u0022EventOrdinal\u0022:0,\u0022EventPhase\u0022:0,\u0022ApproachSpeed\u0022:{\u0022Value\u0022:0},\u0022Kind\u0022:0,\u0022Emitter\u0022:{\u0022Value\u0022:0},\u0022CauseOrdinal\u0022:0,\u0022CausePhase\u0022:0,\u0022Occurrence\u0022:{\u0022Kind\u0022:0,\u0022Emitter\u0022:{\u0022Value\u0022:0},\u0022Time\u0022:{\u0022Ordinal\u0022:0,\u0022Phase\u0022:0},\u0022Cause\u0022:{\u0022Source\u0022:{\u0022Value\u0022:0},\u0022Body\u0022:{\u0022Value\u0022:0},\u0022Collider\u0022:{\u0022Value\u0022:0},\u0022Time\u0022:{\u0022Ordinal\u0022:0,\u0022Phase\u0022:0},\u0022ApproachSpeed\u0022:{\u0022Value\u0022:0}}}}",
+        "tick 332: activation {\u0022Node\u0022:{\u0022Value\u0022:2},\u0022Owner\u0022:{\u0022Value\u0022:2},\u0022Phase\u0022:1,\u0022Source\u0022:{\u0022Value\u0022:4294968070},\u0022Body\u0022:{\u0022Value\u0022:2},\u0022Collider\u0022:{\u0022Value\u0022:4294968065},\u0022EventOrdinal\u0022:1328,\u0022EventPhase\u0022:0,\u0022ApproachSpeed\u0022:{\u0022Value\u0022:0},\u0022Kind\u0022:3,\u0022Emitter\u0022:{\u0022Value\u0022:2},\u0022CauseOrdinal\u0022:1328,\u0022CausePhase\u0022:0,\u0022Occurrence\u0022:{\u0022Kind\u0022:3,\u0022Emitter\u0022:{\u0022Value\u0022:2},\u0022Time\u0022:{\u0022Ordinal\u0022:1328,\u0022Phase\u0022:0},\u0022Cause\u0022:{\u0022Source\u0022:{\u0022Value\u0022:4294968070},\u0022Body\u0022:{\u0022Value\u0022:2},\u0022Collider\u0022:{\u0022Value\u0022:4294968065},\u0022Time\u0022:{\u0022Ordinal\u0022:1328,\u0022Phase\u0022:0},\u0022ApproachSpeed\u0022:{\u0022Value\u0022:0}}}}",
+        "tick 332: activation {\u0022Node\u0022:{\u0022Value\u0022:3},\u0022Owner\u0022:{\u0022Value\u0022:3},\u0022Phase\u0022:1,\u0022Source\u0022:{\u0022Value\u0022:4294968070},\u0022Body\u0022:{\u0022Value\u0022:2},\u0022Collider\u0022:{\u0022Value\u0022:4294968065},\u0022EventOrdinal\u0022:1328,\u0022EventPhase\u0022:0,\u0022ApproachSpeed\u0022:{\u0022Value\u0022:0},\u0022Kind\u0022:3,\u0022Emitter\u0022:{\u0022Value\u0022:2},\u0022CauseOrdinal\u0022:1328,\u0022CausePhase\u0022:0,\u0022Occurrence\u0022:{\u0022Kind\u0022:3,\u0022Emitter\u0022:{\u0022Value\u0022:2},\u0022Time\u0022:{\u0022Ordinal\u0022:1328,\u0022Phase\u0022:0},\u0022Cause\u0022:{\u0022Source\u0022:{\u0022Value\u0022:4294968070},\u0022Body\u0022:{\u0022Value\u0022:2},\u0022Collider\u0022:{\u0022Value\u0022:4294968065},\u0022Time\u0022:{\u0022Ordinal\u0022:1328,\u0022Phase\u0022:0},\u0022ApproachSpeed\u0022:{\u0022Value\u0022:0}}}}"
+      ],
+      "FinalBodies": [
+        {
+          "Id": 1,
+          "X": -5.4518860802054405,
+          "Y": -0.12026893347501755,
+          "Z": 0.001458950457163155,
+          "Com": {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        },
+        {
+          "Id": 2,
+          "X": 0.7854666113853455,
+          "Y": -0.3352687358856201,
+          "Z": -0.0005597103154286742,
+          "Com": {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        },
+        {
+          "Id": 4,
+          "X": -3.3631298542022705,
+          "Y": -0.20112060010433197,
+          "Z": -0.0013917622854933143,
+          "Com": {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        },
+        {
+          "Id": 5,
+          "X": -2.3696179389953613,
+          "Y": -0.20267543196678162,
+          "Z": -0.0013153970940038562,
+          "Com": {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        },
+        {
+          "Id": 6,
+          "X": -1.3644800186157227,
+          "Y": -0.20490407943725586,
+          "Z": -0.0016530045541003346,
+          "Com": {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        },
+        {
+          "Id": 7,
+          "X": -0.3272301256656647,
+          "Y": -0.3353798985481262,
+          "Z": -0.0005298450705595315,
+          "Com": {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        }
+      ],
+      "Id": "domino_effect",
+      "Precision": 0.45
+    },
+    {
+      "GoalMet": true,
+      "GoalTick": 332,
+      "Events": [
+        "tick 1: activation {\u0022Node\u0022:{\u0022Value\u0022:2},\u0022Owner\u0022:{\u0022Value\u0022:2},\u0022Phase\u0022:0,\u0022Source\u0022:{\u0022Value\u0022:0},\u0022Body\u0022:{\u0022Value\u0022:0},\u0022Collider\u0022:{\u0022Value\u0022:0},\u0022EventOrdinal\u0022:0,\u0022EventPhase\u0022:0,\u0022ApproachSpeed\u0022:{\u0022Value\u0022:0},\u0022Kind\u0022:0,\u0022Emitter\u0022:{\u0022Value\u0022:0},\u0022CauseOrdinal\u0022:0,\u0022CausePhase\u0022:0,\u0022Occurrence\u0022:{\u0022Kind\u0022:0,\u0022Emitter\u0022:{\u0022Value\u0022:0},\u0022Time\u0022:{\u0022Ordinal\u0022:0,\u0022Phase\u0022:0},\u0022Cause\u0022:{\u0022Source\u0022:{\u0022Value\u0022:0},\u0022Body\u0022:{\u0022Value\u0022:0},\u0022Collider\u0022:{\u0022Value\u0022:0},\u0022Time\u0022:{\u0022Ordinal\u0022:0,\u0022Phase\u0022:0},\u0022ApproachSpeed\u0022:{\u0022Value\u0022:0}}}}",
+        "tick 1: activation {\u0022Node\u0022:{\u0022Value\u0022:3},\u0022Owner\u0022:{\u0022Value\u0022:3},\u0022Phase\u0022:0,\u0022Source\u0022:{\u0022Value\u0022:0},\u0022Body\u0022:{\u0022Value\u0022:0},\u0022Collider\u0022:{\u0022Value\u0022:0},\u0022EventOrdinal\u0022:0,\u0022EventPhase\u0022:0,\u0022ApproachSpeed\u0022:{\u0022Value\u0022:0},\u0022Kind\u0022:0,\u0022Emitter\u0022:{\u0022Value\u0022:0},\u0022CauseOrdinal\u0022:0,\u0022CausePhase\u0022:0,\u0022Occurrence\u0022:{\u0022Kind\u0022:0,\u0022Emitter\u0022:{\u0022Value\u0022:0},\u0022Time\u0022:{\u0022Ordinal\u0022:0,\u0022Phase\u0022:0},\u0022Cause\u0022:{\u0022Source\u0022:{\u0022Value\u0022:0},\u0022Body\u0022:{\u0022Value\u0022:0},\u0022Collider\u0022:{\u0022Value\u0022:0},\u0022Time\u0022:{\u0022Ordinal\u0022:0,\u0022Phase\u0022:0},\u0022ApproachSpeed\u0022:{\u0022Value\u0022:0}}}}",
+        "tick 332: activation {\u0022Node\u0022:{\u0022Value\u0022:2},\u0022Owner\u0022:{\u0022Value\u0022:2},\u0022Phase\u0022:1,\u0022Source\u0022:{\u0022Value\u0022:4294968070},\u0022Body\u0022:{\u0022Value\u0022:2},\u0022Collider\u0022:{\u0022Value\u0022:4294968065},\u0022EventOrdinal\u0022:1328,\u0022EventPhase\u0022:0,\u0022ApproachSpeed\u0022:{\u0022Value\u0022:0},\u0022Kind\u0022:3,\u0022Emitter\u0022:{\u0022Value\u0022:2},\u0022CauseOrdinal\u0022:1328,\u0022CausePhase\u0022:0,\u0022Occurrence\u0022:{\u0022Kind\u0022:3,\u0022Emitter\u0022:{\u0022Value\u0022:2},\u0022Time\u0022:{\u0022Ordinal\u0022:1328,\u0022Phase\u0022:0},\u0022Cause\u0022:{\u0022Source\u0022:{\u0022Value\u0022:4294968070},\u0022Body\u0022:{\u0022Value\u0022:2},\u0022Collider\u0022:{\u0022Value\u0022:4294968065},\u0022Time\u0022:{\u0022Ordinal\u0022:1328,\u0022Phase\u0022:0},\u0022ApproachSpeed\u0022:{\u0022Value\u0022:0}}}}",
+        "tick 332: activation {\u0022Node\u0022:{\u0022Value\u0022:3},\u0022Owner\u0022:{\u0022Value\u0022:3},\u0022Phase\u0022:1,\u0022Source\u0022:{\u0022Value\u0022:4294968070},\u0022Body\u0022:{\u0022Value\u0022:2},\u0022Collider\u0022:{\u0022Value\u0022:4294968065},\u0022EventOrdinal\u0022:1328,\u0022EventPhase\u0022:0,\u0022ApproachSpeed\u0022:{\u0022Value\u0022:0},\u0022Kind\u0022:3,\u0022Emitter\u0022:{\u0022Value\u0022:2},\u0022CauseOrdinal\u0022:1328,\u0022CausePhase\u0022:0,\u0022Occurrence\u0022:{\u0022Kind\u0022:3,\u0022Emitter\u0022:{\u0022Value\u0022:2},\u0022Time\u0022:{\u0022Ordinal\u0022:1328,\u0022Phase\u0022:0},\u0022Cause\u0022:{\u0022Source\u0022:{\u0022Value\u0022:4294968070},\u0022Body\u0022:{\u0022Value\u0022:2},\u0022Collider\u0022:{\u0022Value\u0022:4294968065},\u0022Time\u0022:{\u0022Ordinal\u0022:1328,\u0022Phase\u0022:0},\u0022ApproachSpeed\u0022:{\u0022Value\u0022:0}}}}"
+      ],
+      "FinalBodies": [
+        {
+          "Id": 1,
+          "X": -5.4518860802054405,
+          "Y": -0.12026893347501755,
+          "Z": 0.001458950457163155,
+          "Com": {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        },
+        {
+          "Id": 2,
+          "X": 0.7854666113853455,
+          "Y": -0.3352687358856201,
+          "Z": -0.0005597103154286742,
+          "Com": {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        },
+        {
+          "Id": 4,
+          "X": -3.3631298542022705,
+          "Y": -0.20112060010433197,
+          "Z": -0.0013917622854933143,
+          "Com": {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        },
+        {
+          "Id": 5,
+          "X": -2.3696179389953613,
+          "Y": -0.20267543196678162,
+          "Z": -0.0013153970940038562,
+          "Com": {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        },
+        {
+          "Id": 6,
+          "X": -1.3644800186157227,
+          "Y": -0.20490407943725586,
+          "Z": -0.0016530045541003346,
+          "Com": {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        },
+        {
+          "Id": 7,
+          "X": -0.3272301256656647,
+          "Y": -0.3353798985481262,
+          "Z": -0.0005298450705595315,
+          "Com": {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        }
+      ],
+      "Id": "domino_effect",
+      "Precision": 1
+    },
+    {
+      "GoalMet": true,
+      "GoalTick": 324,
+      "Events": [
+        "tick 1: capture sensor=4294968070 phase=Clear ordinal=0 eventPhase=0",
+        "tick 324: capture sensor=4294968070 phase=Latched ordinal=1296 eventPhase=0"
+      ],
+      "FinalBodies": [
+        {
+          "Id": 1,
+          "X": 1.6733124256134033,
+          "Y": 0.8647317886352539,
+          "Z": 0,
+          "Com": {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        }
+      ],
+      "Id": "bumper_sidekick",
+      "Precision": 0
+    },
+    {
+      "GoalMet": true,
+      "GoalTick": 337,
+      "Events": [
+        "tick 1: capture sensor=4294968070 phase=Clear ordinal=0 eventPhase=0",
+        "tick 337: capture sensor=4294968070 phase=Latched ordinal=1348 eventPhase=0"
+      ],
+      "FinalBodies": [
+        {
+          "Id": 1,
+          "X": 1.6668850183486938,
+          "Y": 0.8647317886352539,
+          "Z": 0,
+          "Com": {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        }
+      ],
+      "Id": "bumper_sidekick",
+      "Precision": 0.45
+    },
+    {
+      "GoalMet": true,
+      "GoalTick": 367,
+      "Events": [
+        "tick 1: capture sensor=4294968070 phase=Clear ordinal=0 eventPhase=0",
+        "tick 367: capture sensor=4294968070 phase=Latched ordinal=1468 eventPhase=0"
+      ],
+      "FinalBodies": [
+        {
+          "Id": 1,
+          "X": 1.6625871658325195,
+          "Y": 0.8647317886352539,
+          "Z": 0,
+          "Com": {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        }
+      ],
+      "Id": "bumper_sidekick",
+      "Precision": 1
+    },
+    {
+      "GoalMet": true,
+      "GoalTick": 324,
+      "Events": [
+        "tick 1: capture sensor=4294968070 phase=Clear ordinal=0 eventPhase=0",
+        "tick 324: capture sensor=4294968070 phase=Latched ordinal=1296 eventPhase=0"
+      ],
+      "FinalBodies": [
+        {
+          "Id": 1,
+          "X": -6.9012280334845855E-09,
+          "Y": 0.8647316694259644,
+          "Z": -1.6733131408691406,
+          "Com": {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        }
+      ],
+      "Id": "bumper_depth",
+      "Precision": 0
+    },
+    {
+      "GoalMet": true,
+      "GoalTick": 337,
+      "Events": [
+        "tick 1: capture sensor=4294968070 phase=Clear ordinal=0 eventPhase=0",
+        "tick 337: capture sensor=4294968070 phase=Latched ordinal=1348 eventPhase=0"
+      ],
+      "FinalBodies": [
+        {
+          "Id": 1,
+          "X": 2.0674535861076038E-08,
+          "Y": 0.8647316694259644,
+          "Z": -1.666883945465088,
+          "Com": {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        }
+      ],
+      "Id": "bumper_depth",
+      "Precision": 0.45
+    },
+    {
+      "GoalMet": true,
+      "GoalTick": 367,
+      "Events": [
+        "tick 1: capture sensor=4294968070 phase=Clear ordinal=0 eventPhase=0",
+        "tick 367: capture sensor=4294968070 phase=Latched ordinal=1468 eventPhase=0"
+      ],
+      "FinalBodies": [
+        {
+          "Id": 1,
+          "X": 2.0150572765942343E-08,
+          "Y": 0.8647316694259644,
+          "Z": -1.6625875234603882,
+          "Com": {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        }
+      ],
+      "Id": "bumper_depth",
+      "Precision": 1
+    },
+    {
+      "GoalMet": true,
+      "GoalTick": 463,
+      "Events": [
+        "tick 1: capture sensor=4294968070 phase=Clear ordinal=0 eventPhase=0",
+        "tick 463: capture sensor=4294968070 phase=Latched ordinal=1852 eventPhase=0"
+      ],
+      "FinalBodies": [
+        {
+          "Id": 1,
+          "X": -5.338364124298096,
+          "Y": 0.8647317886352539,
+          "Z": 0,
+          "Com": {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        }
+      ],
+      "Id": "wall_and_bumper",
+      "Precision": 0
+    },
+    {
+      "GoalMet": true,
+      "GoalTick": 483,
+      "Events": [
+        "tick 1: capture sensor=4294968070 phase=Clear ordinal=0 eventPhase=0",
+        "tick 483: capture sensor=4294968070 phase=Latched ordinal=1932 eventPhase=0"
+      ],
+      "FinalBodies": [
+        {
+          "Id": 1,
+          "X": -5.3437089920043945,
+          "Y": 0.8647317886352539,
+          "Z": 0,
+          "Com": {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        }
+      ],
+      "Id": "wall_and_bumper",
+      "Precision": 0.45
+    },
+    {
+      "GoalMet": true,
+      "GoalTick": 488,
+      "Events": [
+        "tick 1: capture sensor=4294968070 phase=Clear ordinal=0 eventPhase=0",
+        "tick 488: capture sensor=4294968070 phase=Latched ordinal=1952 eventPhase=0"
+      ],
+      "FinalBodies": [
+        {
+          "Id": 1,
+          "X": -5.3357253074646,
+          "Y": 0.8647317886352539,
+          "Z": 0,
+          "Com": {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        }
+      ],
+      "Id": "wall_and_bumper",
+      "Precision": 1
+    },
+    {
+      "GoalMet": true,
+      "GoalTick": 219,
+      "Events": [
+        "tick 1: capture sensor=4294968070 phase=Clear ordinal=0 eventPhase=0",
+        "tick 219: capture sensor=4294968070 phase=Latched ordinal=876 eventPhase=0"
+      ],
+      "FinalBodies": [
+        {
+          "Id": 1,
+          "X": -1.0500338077545166,
+          "Y": 0.514731802046299,
+          "Z": 0,
+          "Com": {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        },
+        {
+          "Id": 4294968322,
+          "X": -2.954087734222412,
+          "Y": 0.9261429309844971,
+          "Z": 0,
+          "Com": {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        }
+      ],
+      "Id": "spring_forward",
+      "Precision": 0
+    },
+    {
+      "GoalMet": true,
+      "GoalTick": 227,
+      "Events": [
+        "tick 1: capture sensor=4294968070 phase=Clear ordinal=0 eventPhase=0",
+        "tick 227: capture sensor=4294968070 phase=Latched ordinal=908 eventPhase=0"
+      ],
+      "FinalBodies": [
+        {
+          "Id": 1,
+          "X": -0.7110486030578613,
+          "Y": 0.514731802046299,
+          "Z": 0,
+          "Com": {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        },
+        {
+          "Id": 4294968322,
+          "X": -2.954087734222412,
+          "Y": 0.9261429309844971,
+          "Z": 0,
+          "Com": {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        }
+      ],
+      "Id": "spring_forward",
+      "Precision": 0.45
+    },
+    {
+      "GoalMet": true,
+      "GoalTick": 244,
+      "Events": [
+        "tick 1: capture sensor=4294968070 phase=Clear ordinal=0 eventPhase=0",
+        "tick 244: capture sensor=4294968070 phase=Latched ordinal=976 eventPhase=0"
+      ],
+      "FinalBodies": [
+        {
+          "Id": 1,
+          "X": -0.36463966965675354,
+          "Y": 0.514731802046299,
+          "Z": 0,
+          "Com": {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        },
+        {
+          "Id": 4294968322,
+          "X": -2.954087734222412,
+          "Y": 0.9261429309844971,
+          "Z": 0,
+          "Com": {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        }
+      ],
+      "Id": "spring_forward",
+      "Precision": 1
+    },
+    {
+      "GoalMet": true,
+      "GoalTick": 135,
+      "Events": [
+        "tick 1: capture sensor=4294968326 phase=Clear ordinal=0 eventPhase=0",
+        "tick 135: capture sensor=4294968326 phase=Latched ordinal=540 eventPhase=0"
+      ],
+      "FinalBodies": [
+        {
+          "Id": 1,
+          "X": 2.1467189826071262,
+          "Y": 1.2647326365113258,
+          "Z": 0,
+          "Com": {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        },
+        {
+          "Id": 4294968066,
+          "X": 0.06734512746334076,
+          "Y": 2.616645097732544,
+          "Z": 0,
+          "Com": {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        }
+      ],
+      "Id": "ready_to_rebound",
+      "Precision": 0
+    },
+    {
+      "GoalMet": true,
+      "GoalTick": 146,
+      "Events": [
+        "tick 1: capture sensor=4294968326 phase=Clear ordinal=0 eventPhase=0",
+        "tick 146: capture sensor=4294968326 phase=Latched ordinal=584 eventPhase=0"
+      ],
+      "FinalBodies": [
+        {
+          "Id": 1,
+          "X": 2.1467189826071262,
+          "Y": 1.2647326365113258,
+          "Z": 0,
+          "Com": {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        },
+        {
+          "Id": 4294968066,
+          "X": 0.06734512746334076,
+          "Y": 2.616645097732544,
+          "Z": 0,
+          "Com": {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        }
+      ],
+      "Id": "ready_to_rebound",
+      "Precision": 0.45
+    },
+    {
+      "GoalMet": true,
+      "GoalTick": 159,
+      "Events": [
+        "tick 1: capture sensor=4294968326 phase=Clear ordinal=0 eventPhase=0",
+        "tick 159: capture sensor=4294968326 phase=Latched ordinal=636 eventPhase=0"
+      ],
+      "FinalBodies": [
+        {
+          "Id": 1,
+          "X": 2.1467189826071262,
+          "Y": 1.2647326365113258,
+          "Z": 0,
+          "Com": {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        },
+        {
+          "Id": 4294968066,
+          "X": 0.06734512746334076,
+          "Y": 2.616645097732544,
+          "Z": 0,
+          "Com": {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        }
+      ],
+      "Id": "ready_to_rebound",
+      "Precision": 1
+    },
+    {
+      "GoalMet": true,
+      "GoalTick": 207,
+      "Events": [
+        "tick 1: capture sensor=4294968070 phase=Clear ordinal=0 eventPhase=0",
+        "tick 207: capture sensor=4294968070 phase=Latched ordinal=828 eventPhase=0"
+      ],
+      "FinalBodies": [
+        {
+          "Id": 1,
+          "X": 1.9967995882034302,
+          "Y": 0.5647318363189697,
+          "Z": -1.722800675452163E-07,
+          "Com": {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        }
+      ],
+      "Id": "clear_pipe",
+      "Precision": 0
+    },
+    {
+      "GoalMet": true,
+      "GoalTick": 262,
+      "Events": [
+        "tick 1: capture sensor=4294968070 phase=Clear ordinal=0 eventPhase=0",
+        "tick 262: capture sensor=4294968070 phase=Latched ordinal=1048 eventPhase=0"
+      ],
+      "FinalBodies": [
+        {
+          "Id": 1,
+          "X": 2.207516670227051,
+          "Y": 0.5647318363189697,
+          "Z": 2.643662355694687E-07,
+          "Com": {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        }
+      ],
+      "Id": "clear_pipe",
+      "Precision": 0.45
+    },
+    {
+      "GoalMet": true,
+      "GoalTick": 262,
+      "Events": [
+        "tick 1: capture sensor=4294968070 phase=Clear ordinal=0 eventPhase=0",
+        "tick 262: capture sensor=4294968070 phase=Latched ordinal=1048 eventPhase=0"
+      ],
+      "FinalBodies": [
+        {
+          "Id": 1,
+          "X": 2.28989315032959,
+          "Y": 0.5647318363189697,
+          "Z": 4.1697026631482004E-07,
+          "Com": {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        }
+      ],
+      "Id": "clear_pipe",
+      "Precision": 1
+    },
+    {
+      "GoalMet": true,
+      "GoalTick": 181,
+      "Events": [
+        "tick 1: capture sensor=4294968070 phase=Clear ordinal=0 eventPhase=0",
+        "tick 181: capture sensor=4294968070 phase=Latched ordinal=724 eventPhase=0"
+      ],
+      "FinalBodies": [
+        {
+          "Id": 1,
+          "X": -2.290522575378418,
+          "Y": 0.5647318549454212,
+          "Z": 0,
+          "Com": {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        }
+      ],
+      "Id": "gentle_bend",
+      "Precision": 0
+    },
+    {
+      "GoalMet": true,
+      "GoalTick": 193,
+      "Events": [
+        "tick 1: capture sensor=4294968070 phase=Clear ordinal=0 eventPhase=0",
+        "tick 193: capture sensor=4294968070 phase=Latched ordinal=772 eventPhase=0"
+      ],
+      "FinalBodies": [
+        {
+          "Id": 1,
+          "X": -2.332763910293579,
+          "Y": 0.5647318549454212,
+          "Z": 0,
+          "Com": {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        }
+      ],
+      "Id": "gentle_bend",
+      "Precision": 0.45
+    },
+    {
+      "GoalMet": true,
+      "GoalTick": 211,
+      "Events": [
+        "tick 1: capture sensor=4294968070 phase=Clear ordinal=0 eventPhase=0",
+        "tick 211: capture sensor=4294968070 phase=Latched ordinal=844 eventPhase=0"
+      ],
+      "FinalBodies": [
+        {
+          "Id": 1,
+          "X": -2.3157567977905273,
+          "Y": 0.5647318549454212,
+          "Z": 0,
+          "Com": {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        }
+      ],
+      "Id": "gentle_bend",
+      "Precision": 1
+    },
+    {
+      "GoalMet": true,
+      "GoalTick": 258,
+      "Events": [
+        "tick 1: capture sensor=4294968070 phase=Clear ordinal=0 eventPhase=0",
+        "tick 258: capture sensor=4294968070 phase=Latched ordinal=1032 eventPhase=0"
+      ],
+      "FinalBodies": [
+        {
+          "Id": 1,
+          "X": -5.742459774017334,
+          "Y": 0.5647318251430988,
+          "Z": 0,
+          "Com": {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        }
+      ],
+      "Id": "quarter_bend",
+      "Precision": 0
+    },
+    {
+      "GoalMet": true,
+      "GoalTick": 268,
+      "Events": [
+        "tick 1: capture sensor=4294968070 phase=Clear ordinal=0 eventPhase=0",
+        "tick 268: capture sensor=4294968070 phase=Latched ordinal=1072 eventPhase=0"
+      ],
+      "FinalBodies": [
+        {
+          "Id": 1,
+          "X": -5.778234481811523,
+          "Y": 0.5647318251430988,
+          "Z": 0,
+          "Com": {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        }
+      ],
+      "Id": "quarter_bend",
+      "Precision": 0.45
+    },
+    {
+      "GoalMet": true,
+      "GoalTick": 321,
+      "Events": [
+        "tick 1: capture sensor=4294968070 phase=Clear ordinal=0 eventPhase=0",
+        "tick 321: capture sensor=4294968070 phase=Latched ordinal=1284 eventPhase=0"
+      ],
+      "FinalBodies": [
+        {
+          "Id": 1,
+          "X": -5.726579666137695,
+          "Y": 0.5647318251430988,
+          "Z": 0,
+          "Com": {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        }
+      ],
+      "Id": "quarter_bend",
+      "Precision": 1
+    },
+    {
+      "GoalMet": true,
+      "GoalTick": 239,
+      "Events": [
+        "tick 1: capture sensor=4294968326 phase=Clear ordinal=0 eventPhase=0",
+        "tick 239: capture sensor=4294968326 phase=Latched ordinal=956 eventPhase=0"
+      ],
+      "FinalBodies": [
+        {
+          "Id": 1,
+          "X": -0.4651961922645569,
+          "Y": 0.5647318325936794,
+          "Z": 2.2891666162649926E-07,
+          "Com": {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        }
+      ],
+      "Id": "joined_pipe",
+      "Precision": 0
+    },
+    {
+      "GoalMet": true,
+      "GoalTick": 250,
+      "Events": [
+        "tick 1: capture sensor=4294968326 phase=Clear ordinal=0 eventPhase=0",
+        "tick 250: capture sensor=4294968326 phase=Latched ordinal=1000 eventPhase=0"
+      ],
+      "FinalBodies": [
+        {
+          "Id": 1,
+          "X": -0.4415683150291443,
+          "Y": 0.5647318325936794,
+          "Z": 3.4354525269009173E-07,
+          "Com": {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        }
+      ],
+      "Id": "joined_pipe",
+      "Precision": 0.45
+    },
+    {
+      "GoalMet": true,
+      "GoalTick": 276,
+      "Events": [
+        "tick 1: capture sensor=4294968326 phase=Clear ordinal=0 eventPhase=0",
+        "tick 276: capture sensor=4294968326 phase=Latched ordinal=1104 eventPhase=0"
+      ],
+      "FinalBodies": [
+        {
+          "Id": 1,
+          "X": -0.5078912973403931,
+          "Y": 0.5647318325936794,
+          "Z": 4.1355181679136876E-07,
+          "Com": {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        }
+      ],
+      "Id": "joined_pipe",
+      "Precision": 1
+    }
+  ],
+  "Elements": [
+    {
+      "GoalMet": false,
+      "GoalTick": null,
+      "Events": [],
+      "FinalBodies": [
+        {
+          "Id": 1,
+          "X": 0,
+          "Y": 0.08650055527687073,
+          "Z": 0,
+          "Com": {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        }
+      ],
+      "Constructed": true,
+      "Id": "ball"
+    },
+    {
+      "GoalMet": false,
+      "GoalTick": null,
+      "Events": [
+        "tick 1: activation {\u0022Node\u0022:{\u0022Value\u0022:1},\u0022Owner\u0022:{\u0022Value\u0022:1},\u0022Phase\u0022:0,\u0022Source\u0022:{\u0022Value\u0022:0},\u0022Body\u0022:{\u0022Value\u0022:0},\u0022Collider\u0022:{\u0022Value\u0022:0},\u0022EventOrdinal\u0022:0,\u0022EventPhase\u0022:0,\u0022ApproachSpeed\u0022:{\u0022Value\u0022:0},\u0022Kind\u0022:0,\u0022Emitter\u0022:{\u0022Value\u0022:0},\u0022CauseOrdinal\u0022:0,\u0022CausePhase\u0022:0,\u0022Occurrence\u0022:{\u0022Kind\u0022:0,\u0022Emitter\u0022:{\u0022Value\u0022:0},\u0022Time\u0022:{\u0022Ordinal\u0022:0,\u0022Phase\u0022:0},\u0022Cause\u0022:{\u0022Source\u0022:{\u0022Value\u0022:0},\u0022Body\u0022:{\u0022Value\u0022:0},\u0022Collider\u0022:{\u0022Value\u0022:0},\u0022Time\u0022:{\u0022Ordinal\u0022:0,\u0022Phase\u0022:0},\u0022ApproachSpeed\u0022:{\u0022Value\u0022:0}}}}"
+      ],
+      "FinalBodies": [],
+      "Constructed": true,
+      "Id": "ball_detector"
+    },
+    {
+      "GoalMet": false,
+      "GoalTick": null,
+      "Events": [],
+      "FinalBodies": [],
+      "Constructed": true,
+      "Id": "basket"
+    },
+    {
+      "GoalMet": false,
+      "GoalTick": null,
+      "Events": [],
+      "FinalBodies": [],
+      "Constructed": true,
+      "Id": "battery"
+    },
+    {
+      "GoalMet": false,
+      "GoalTick": null,
+      "Events": [],
+      "FinalBodies": [],
+      "Constructed": true,
+      "Id": "both_gate"
+    },
+    {
+      "GoalMet": false,
+      "GoalTick": null,
+      "Events": [],
+      "FinalBodies": [
+        {
+          "Id": 1,
+          "X": 0,
+          "Y": -0.18026882410049438,
+          "Z": 0,
+          "Com": {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        }
+      ],
+      "Constructed": true,
+      "Id": "bowling"
+    },
+    {
+      "GoalMet": false,
+      "GoalTick": null,
+      "Events": [],
+      "FinalBodies": [],
+      "Constructed": true,
+      "Id": "bumper"
+    },
+    {
+      "GoalMet": false,
+      "GoalTick": null,
+      "Events": [
+        "tick 1: activation {\u0022Node\u0022:{\u0022Value\u0022:1},\u0022Owner\u0022:{\u0022Value\u0022:1},\u0022Phase\u0022:0,\u0022Source\u0022:{\u0022Value\u0022:0},\u0022Body\u0022:{\u0022Value\u0022:0},\u0022Collider\u0022:{\u0022Value\u0022:0},\u0022EventOrdinal\u0022:0,\u0022EventPhase\u0022:0,\u0022ApproachSpeed\u0022:{\u0022Value\u0022:0},\u0022Kind\u0022:0,\u0022Emitter\u0022:{\u0022Value\u0022:0},\u0022CauseOrdinal\u0022:0,\u0022CausePhase\u0022:0,\u0022Occurrence\u0022:{\u0022Kind\u0022:0,\u0022Emitter\u0022:{\u0022Value\u0022:0},\u0022Time\u0022:{\u0022Ordinal\u0022:0,\u0022Phase\u0022:0},\u0022Cause\u0022:{\u0022Source\u0022:{\u0022Value\u0022:0},\u0022Body\u0022:{\u0022Value\u0022:0},\u0022Collider\u0022:{\u0022Value\u0022:0},\u0022Time\u0022:{\u0022Ordinal\u0022:0,\u0022Phase\u0022:0},\u0022ApproachSpeed\u0022:{\u0022Value\u0022:0}}}}"
+      ],
+      "FinalBodies": [],
+      "Constructed": true,
+      "Id": "clock"
+    },
+    {
+      "GoalMet": false,
+      "GoalTick": null,
+      "Events": [
+        "tick 1: activation {\u0022Node\u0022:{\u0022Value\u0022:1},\u0022Owner\u0022:{\u0022Value\u0022:1},\u0022Phase\u0022:0,\u0022Source\u0022:{\u0022Value\u0022:0},\u0022Body\u0022:{\u0022Value\u0022:0},\u0022Collider\u0022:{\u0022Value\u0022:0},\u0022EventOrdinal\u0022:0,\u0022EventPhase\u0022:0,\u0022ApproachSpeed\u0022:{\u0022Value\u0022:0},\u0022Kind\u0022:0,\u0022Emitter\u0022:{\u0022Value\u0022:0},\u0022CauseOrdinal\u0022:0,\u0022CausePhase\u0022:0,\u0022Occurrence\u0022:{\u0022Kind\u0022:0,\u0022Emitter\u0022:{\u0022Value\u0022:0},\u0022Time\u0022:{\u0022Ordinal\u0022:0,\u0022Phase\u0022:0},\u0022Cause\u0022:{\u0022Source\u0022:{\u0022Value\u0022:0},\u0022Body\u0022:{\u0022Value\u0022:0},\u0022Collider\u0022:{\u0022Value\u0022:0},\u0022Time\u0022:{\u0022Ordinal\u0022:0,\u0022Phase\u0022:0},\u0022ApproachSpeed\u0022:{\u0022Value\u0022:0}}}}"
+      ],
+      "FinalBodies": [],
+      "Constructed": true,
+      "Id": "counter"
+    },
+    {
+      "GoalMet": false,
+      "GoalTick": null,
+      "Events": [
+        "tick 1: activation {\u0022Node\u0022:{\u0022Value\u0022:1},\u0022Owner\u0022:{\u0022Value\u0022:1},\u0022Phase\u0022:0,\u0022Source\u0022:{\u0022Value\u0022:0},\u0022Body\u0022:{\u0022Value\u0022:0},\u0022Collider\u0022:{\u0022Value\u0022:0},\u0022EventOrdinal\u0022:0,\u0022EventPhase\u0022:0,\u0022ApproachSpeed\u0022:{\u0022Value\u0022:0},\u0022Kind\u0022:0,\u0022Emitter\u0022:{\u0022Value\u0022:0},\u0022CauseOrdinal\u0022:0,\u0022CausePhase\u0022:0,\u0022Occurrence\u0022:{\u0022Kind\u0022:0,\u0022Emitter\u0022:{\u0022Value\u0022:0},\u0022Time\u0022:{\u0022Ordinal\u0022:0,\u0022Phase\u0022:0},\u0022Cause\u0022:{\u0022Source\u0022:{\u0022Value\u0022:0},\u0022Body\u0022:{\u0022Value\u0022:0},\u0022Collider\u0022:{\u0022Value\u0022:0},\u0022Time\u0022:{\u0022Ordinal\u0022:0,\u0022Phase\u0022:0},\u0022ApproachSpeed\u0022:{\u0022Value\u0022:0}}}}"
+      ],
+      "FinalBodies": [],
+      "Constructed": true,
+      "Id": "delay"
+    },
+    {
+      "GoalMet": false,
+      "GoalTick": null,
+      "Events": [],
+      "FinalBodies": [
+        {
+          "Id": 1,
+          "X": -4.058275049345639E-09,
+          "Y": 0.08973105251789093,
+          "Z": 3.0723097399487642E-09,
+          "Com": {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        }
+      ],
+      "Constructed": true,
+      "Id": "domino"
+    },
+    {
+      "GoalMet": false,
+      "GoalTick": null,
+      "Events": [],
+      "FinalBodies": [],
+      "Constructed": true,
+      "Id": "electrical_nand"
+    },
+    {
+      "GoalMet": false,
+      "GoalTick": null,
+      "Events": [],
+      "FinalBodies": [],
+      "Constructed": true,
+      "Id": "electrical_nor"
+    },
+    {
+      "GoalMet": false,
+      "GoalTick": null,
+      "Events": [],
+      "FinalBodies": [],
+      "Constructed": true,
+      "Id": "electrical_or"
+    },
+    {
+      "GoalMet": false,
+      "GoalTick": null,
+      "Events": [],
+      "FinalBodies": [],
+      "Constructed": true,
+      "Id": "electrical_xor"
+    },
+    {
+      "GoalMet": false,
+      "GoalTick": null,
+      "Events": [],
+      "FinalBodies": [],
+      "Constructed": true,
+      "Id": "funnel"
+    },
+    {
+      "GoalMet": false,
+      "GoalTick": null,
+      "Events": [
+        "tick 1: activation {\u0022Node\u0022:{\u0022Value\u0022:1},\u0022Owner\u0022:{\u0022Value\u0022:1},\u0022Phase\u0022:0,\u0022Source\u0022:{\u0022Value\u0022:0},\u0022Body\u0022:{\u0022Value\u0022:0},\u0022Collider\u0022:{\u0022Value\u0022:0},\u0022EventOrdinal\u0022:0,\u0022EventPhase\u0022:0,\u0022ApproachSpeed\u0022:{\u0022Value\u0022:0},\u0022Kind\u0022:0,\u0022Emitter\u0022:{\u0022Value\u0022:0},\u0022CauseOrdinal\u0022:0,\u0022CausePhase\u0022:0,\u0022Occurrence\u0022:{\u0022Kind\u0022:0,\u0022Emitter\u0022:{\u0022Value\u0022:0},\u0022Time\u0022:{\u0022Ordinal\u0022:0,\u0022Phase\u0022:0},\u0022Cause\u0022:{\u0022Source\u0022:{\u0022Value\u0022:0},\u0022Body\u0022:{\u0022Value\u0022:0},\u0022Collider\u0022:{\u0022Value\u0022:0},\u0022Time\u0022:{\u0022Ordinal\u0022:0,\u0022Phase\u0022:0},\u0022ApproachSpeed\u0022:{\u0022Value\u0022:0}}}}"
+      ],
+      "FinalBodies": [],
+      "Constructed": true,
+      "Id": "hold_timer"
+    },
+    {
+      "GoalMet": false,
+      "GoalTick": null,
+      "Events": [
+        "tick 1: activation {\u0022Node\u0022:{\u0022Value\u0022:1},\u0022Owner\u0022:{\u0022Value\u0022:1},\u0022Phase\u0022:0,\u0022Source\u0022:{\u0022Value\u0022:0},\u0022Body\u0022:{\u0022Value\u0022:0},\u0022Collider\u0022:{\u0022Value\u0022:0},\u0022EventOrdinal\u0022:0,\u0022EventPhase\u0022:0,\u0022ApproachSpeed\u0022:{\u0022Value\u0022:0},\u0022Kind\u0022:0,\u0022Emitter\u0022:{\u0022Value\u0022:0},\u0022CauseOrdinal\u0022:0,\u0022CausePhase\u0022:0,\u0022Occurrence\u0022:{\u0022Kind\u0022:0,\u0022Emitter\u0022:{\u0022Value\u0022:0},\u0022Time\u0022:{\u0022Ordinal\u0022:0,\u0022Phase\u0022:0},\u0022Cause\u0022:{\u0022Source\u0022:{\u0022Value\u0022:0},\u0022Body\u0022:{\u0022Value\u0022:0},\u0022Collider\u0022:{\u0022Value\u0022:0},\u0022Time\u0022:{\u0022Ordinal\u0022:0,\u0022Phase\u0022:0},\u0022ApproachSpeed\u0022:{\u0022Value\u0022:0}}}}"
+      ],
+      "FinalBodies": [],
+      "Constructed": true,
+      "Id": "lamp"
+    },
+    {
+      "GoalMet": false,
+      "GoalTick": null,
+      "Events": [
+        "tick 1: activation {\u0022Node\u0022:{\u0022Value\u0022:1},\u0022Owner\u0022:{\u0022Value\u0022:1},\u0022Phase\u0022:0,\u0022Source\u0022:{\u0022Value\u0022:0},\u0022Body\u0022:{\u0022Value\u0022:0},\u0022Collider\u0022:{\u0022Value\u0022:0},\u0022EventOrdinal\u0022:0,\u0022EventPhase\u0022:0,\u0022ApproachSpeed\u0022:{\u0022Value\u0022:0},\u0022Kind\u0022:0,\u0022Emitter\u0022:{\u0022Value\u0022:0},\u0022CauseOrdinal\u0022:0,\u0022CausePhase\u0022:0,\u0022Occurrence\u0022:{\u0022Kind\u0022:0,\u0022Emitter\u0022:{\u0022Value\u0022:0},\u0022Time\u0022:{\u0022Ordinal\u0022:0,\u0022Phase\u0022:0},\u0022Cause\u0022:{\u0022Source\u0022:{\u0022Value\u0022:0},\u0022Body\u0022:{\u0022Value\u0022:0},\u0022Collider\u0022:{\u0022Value\u0022:0},\u0022Time\u0022:{\u0022Ordinal\u0022:0,\u0022Phase\u0022:0},\u0022ApproachSpeed\u0022:{\u0022Value\u0022:0}}}}"
+      ],
+      "FinalBodies": [],
+      "Constructed": true,
+      "Id": "latch"
+    },
+    {
+      "GoalMet": false,
+      "GoalTick": null,
+      "Events": [],
+      "FinalBodies": [],
+      "Constructed": true,
+      "Id": "pipe"
+    },
+    {
+      "GoalMet": false,
+      "GoalTick": null,
+      "Events": [],
+      "FinalBodies": [],
+      "Constructed": true,
+      "Id": "pipe_bend_45"
+    },
+    {
+      "GoalMet": false,
+      "GoalTick": null,
+      "Events": [],
+      "FinalBodies": [],
+      "Constructed": true,
+      "Id": "pipe_bend_90"
+    },
+    {
+      "GoalMet": false,
+      "GoalTick": null,
+      "Events": [],
+      "FinalBodies": [
+        {
+          "Id": 4294967810,
+          "X": 0,
+          "Y": 3,
+          "Z": 0,
+          "Com": {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        }
+      ],
+      "Constructed": true,
+      "Id": "powered_gate"
+    },
+    {
+      "GoalMet": false,
+      "GoalTick": null,
+      "Events": [
+        "tick 1: activation {\u0022Node\u0022:{\u0022Value\u0022:1},\u0022Owner\u0022:{\u0022Value\u0022:1},\u0022Phase\u0022:0,\u0022Source\u0022:{\u0022Value\u0022:0},\u0022Body\u0022:{\u0022Value\u0022:0},\u0022Collider\u0022:{\u0022Value\u0022:0},\u0022EventOrdinal\u0022:0,\u0022EventPhase\u0022:0,\u0022ApproachSpeed\u0022:{\u0022Value\u0022:0},\u0022Kind\u0022:0,\u0022Emitter\u0022:{\u0022Value\u0022:0},\u0022CauseOrdinal\u0022:0,\u0022CausePhase\u0022:0,\u0022Occurrence\u0022:{\u0022Kind\u0022:0,\u0022Emitter\u0022:{\u0022Value\u0022:0},\u0022Time\u0022:{\u0022Ordinal\u0022:0,\u0022Phase\u0022:0},\u0022Cause\u0022:{\u0022Source\u0022:{\u0022Value\u0022:0},\u0022Body\u0022:{\u0022Value\u0022:0},\u0022Collider\u0022:{\u0022Value\u0022:0},\u0022Time\u0022:{\u0022Ordinal\u0022:0,\u0022Phase\u0022:0},\u0022ApproachSpeed\u0022:{\u0022Value\u0022:0}}}}"
+      ],
+      "FinalBodies": [],
+      "Constructed": true,
+      "Id": "pressure_plate"
+    },
+    {
+      "GoalMet": false,
+      "GoalTick": null,
+      "Events": [],
+      "FinalBodies": [],
+      "Constructed": true,
+      "Id": "ramp"
+    },
+    {
+      "GoalMet": false,
+      "GoalTick": null,
+      "Events": [],
+      "FinalBodies": [
+        {
+          "Id": 4294967810,
+          "X": 0,
+          "Y": 3.1338322162628174,
+          "Z": 0,
+          "Com": {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        }
+      ],
+      "Constructed": true,
+      "Id": "spring"
+    },
+    {
+      "GoalMet": false,
+      "GoalTick": null,
+      "Events": [
+        "tick 1: activation {\u0022Node\u0022:{\u0022Value\u0022:1},\u0022Owner\u0022:{\u0022Value\u0022:1},\u0022Phase\u0022:0,\u0022Source\u0022:{\u0022Value\u0022:0},\u0022Body\u0022:{\u0022Value\u0022:0},\u0022Collider\u0022:{\u0022Value\u0022:0},\u0022EventOrdinal\u0022:0,\u0022EventPhase\u0022:0,\u0022ApproachSpeed\u0022:{\u0022Value\u0022:0},\u0022Kind\u0022:0,\u0022Emitter\u0022:{\u0022Value\u0022:0},\u0022CauseOrdinal\u0022:0,\u0022CausePhase\u0022:0,\u0022Occurrence\u0022:{\u0022Kind\u0022:0,\u0022Emitter\u0022:{\u0022Value\u0022:0},\u0022Time\u0022:{\u0022Ordinal\u0022:0,\u0022Phase\u0022:0},\u0022Cause\u0022:{\u0022Source\u0022:{\u0022Value\u0022:0},\u0022Body\u0022:{\u0022Value\u0022:0},\u0022Collider\u0022:{\u0022Value\u0022:0},\u0022Time\u0022:{\u0022Ordinal\u0022:0,\u0022Phase\u0022:0},\u0022ApproachSpeed\u0022:{\u0022Value\u0022:0}}}}"
+      ],
+      "FinalBodies": [],
+      "Constructed": true,
+      "Id": "switch"
+    },
+    {
+      "GoalMet": false,
+      "GoalTick": null,
+      "Events": [],
+      "FinalBodies": [],
+      "Constructed": true,
+      "Id": "wall"
+    }
+  ]
+}

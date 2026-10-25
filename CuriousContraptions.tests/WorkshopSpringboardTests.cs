@@ -14,7 +14,7 @@ public sealed class WorkshopSpringboardTests(NativeSceneFixture godot)
     [InlineData(-.5)]
     public void ForgivingSpringForwardReceiverBoundaryUsesCompiledSourceScene(double offset)
     {
-        var lesson = PuzzleCatalogue.Create(new PuzzleId("spring_forward"), new(1), WorkshopCadenceSettings.Default(), new(1), new((Half)0));
+        var lesson = PuzzleCatalogue.Create(new PuzzleId("spring_forward"), new(1), WorkshopCadenceSettings.Default(), new(1), new(0f));
         var construction = lesson.WithInstance(WorkshopInput.Generic(PartId.Springboard, new(3), -3, .8, 0,
             0, 0, -Math.Sin(Math.PI / 18), Math.Cos(Math.PI / 18)));
         var original = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
@@ -26,8 +26,8 @@ public sealed class WorkshopSpringboardTests(NativeSceneFixture godot)
             original.Colliders, original.Materials, original.Sensors, original.Guides,
             original.Triggers, original.ContactWorks, original.OrientationSensors,
             prismatics: original.Prismatics);
-        Assert.Equal((float)(Half).3, ((WorkshopGenericInstance)construction.Instances.Single(instance => instance.PartId == PartId.Receiver)).Parameters[new("capture_margin")]);
-        Assert.Equal((float)(Half)12, ((WorkshopGenericInstance)construction.Instances.Single(instance => instance.PartId == PartId.Receiver)).Parameters[new("force_maximum_acceleration")]);
+        Assert.Equal(.3f, ((WorkshopGenericInstance)construction.Instances.Single(instance => instance.PartId == PartId.Receiver)).Parameters[new("capture_margin")]);
+        Assert.Equal(12f, ((WorkshopGenericInstance)construction.Instances.Single(instance => instance.PartId == PartId.Receiver)).Parameters[new("force_maximum_acceleration")]);
         var bytes = PhysicsGpuAbi.Admission(scene, new(1),
             new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1)));
         // Supplemental immutable-fixture boundary: the player cannot move this locked Receiver, but the compiled scene
@@ -45,7 +45,7 @@ public sealed class WorkshopSpringboardTests(NativeSceneFixture godot)
         using var source = System.Text.Json.JsonDocument.Parse(File.ReadAllText(Path.Combine(
             twodog.Engine.ResolveProjectDir(), "content/puzzles.json")));
         var level = source.RootElement.EnumerateArray().Single(x => x.GetProperty("id").GetString() == sourceId);
-        var initial = PuzzleCatalogue.Create(lesson, new(1), WorkshopCadenceSettings.Default(), new(1), new((Half)1));
+        var initial = PuzzleCatalogue.Create(lesson, new(1), WorkshopCadenceSettings.Default(), new(1), new(1f));
         foreach (var (fixture, actual) in level.GetProperty("placements").EnumerateArray()
             .Select(row => row.GetProperty("instance")).Zip(initial.Instances))
         {
@@ -70,12 +70,12 @@ public sealed class WorkshopSpringboardTests(NativeSceneFixture godot)
         var construction = initial.WithInstance(placed); construction.Validate();
         Assert.Equal(WorkshopGoalKind.Captured, construction.Puzzle.Goal.Kind);
         Assert.Equal(WorkshopPhysicsCompiler.CaptureSensor((((WorkshopGenericInstance)construction.Instances.Single(instance => instance.PartId == PartId.Receiver))).Id), construction.Puzzle.Goal.EventSource);
-        foreach (var precision in new Half[] { (Half)0, (Half).45, (Half)1 })
+        foreach (var precision in new float[] { 0f, .45f, 1f })
         {
             var next = PuzzleCatalogue.WithPrecision(construction, new(precision));
             var receiver = ((WorkshopGenericInstance)next.Instances.Single(instance => instance.PartId == PartId.Receiver));
-            Assert.Equal((float)(Half)(precision == (Half)0 ? .3 : precision == (Half)1 ? .02 : .174), receiver.Parameters[new("capture_margin")]);
-            Assert.Equal((float)(Half)(ready ? 0 : precision == (Half)0 ? 12 : precision == (Half)1 ? 0 : 6.6), receiver.Parameters[new("force_maximum_acceleration")]);
+            Assert.Equal((float)(precision == 0f ? .3 : precision == 1f ? .02 : .174), receiver.Parameters[new("capture_margin")]);
+            Assert.Equal((float)(ready ? 0 : precision == 0f ? 12 : precision == 1f ? 0 : 6.6), receiver.Parameters[new("force_maximum_acceleration")]);
             var saved = new WorkshopSavedConstruction(next, new(4));
             Assert.Equal(saved, WorkshopSaveCodec.Decode(SaveFixture.Elements,WorkshopSaveCodec.Encode(saved)));
             Assert.Single(WorkshopPhysicsCompiler.Compile(next, new(1,2)).Prismatics.ToArray());
@@ -98,10 +98,10 @@ public sealed class WorkshopSpringboardTests(NativeSceneFixture godot)
             for (var i = 0; i < 3; i++)
             {
                 var k = knots[i];
-                Half[] values = [k.Precision,k.PositionWindow.Value,k.RotationWindowDegrees,k.MaximumPositionCorrection.Value,
+                float[] values = [k.Precision,k.PositionWindow.Value,k.RotationWindowDegrees,k.MaximumPositionCorrection.Value,
                     k.MaximumRotationCorrectionDegrees,k.Blend.Value,k.CaptureMargin.Value,k.CaptureSpeed.Value,k.CaptureDwell.Value,
                     k.GuideAcceleration.Value,k.TriggerThreshold];
-                for (var j = 0; j < names.Length; j++) Assert.Equal((Half)data[i].GetProperty(names[j]).GetDouble(), values[j]);
+                for (var j = 0; j < names.Length; j++) Assert.Equal((float)data[i].GetProperty(names[j]).GetDouble(), values[j]);
             }
         }
     }
@@ -194,7 +194,7 @@ public sealed class WorkshopSpringboardTests(NativeSceneFixture godot)
         Assert.Equal(ConnectedCollision.Disabled, joint.Collision);
         Assert.Equal(-.25f, joint.Lower); Assert.Equal(0f, joint.Upper);
         var plate = scene.Bodies.ToArray().Single(body => body.Id == joint.BodyB);
-        Assert.Equal((Half).25, plate.Mass.Value);
+        Assert.Equal(.25f, plate.Mass.Value);
         var bytes = PhysicsGpuAbi.Admission(scene, new(1), new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1)));
         var read = PhysicsGpuAbi.ReadDynamicBodies(bytes);
         Assert.Equal(2, read.Count);

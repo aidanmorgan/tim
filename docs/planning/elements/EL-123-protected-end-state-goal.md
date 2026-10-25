@@ -35,7 +35,7 @@ The requirements row names no variants; this is the end-state variant of the gap
   | --- | --- | --- | --- | --- | --- |
   | `predicates` | list of (`GpuBodyId`, enum `ProtectedPredicate { InsideRegion, Upright, NotEscaped }`) | 1–4 | — | — | **proposed** — three predicates cover "unsafe" (fallen, escaped) and "unfinished" (not in place); 4 keeps the card readable |
   | `region_min`, `region_max` | `MetreVector` (f32) | within ±16 m, min < max | — | m | bounds rule from residence sensors (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L134-L137`) |
-  | `tilt_limit` | f32 | 1°–179° | 30° | degrees | **proposed** range and default — under f32 the half-angle cosine resolves small angles, so 1°–179° replaces the binary16 4°–179° bound (fact 4); 30° sits below the Domino's 45° tip threshold, so a toppled piece fails |
+  | `tilt_limit` | f32 | 1°–179° | 30° | degrees | **proposed** range and default — under f32 the half-angle cosine resolves small angles, so 1°–179° replaces the 4°–179° bound, which originated as a half-precision rounding limit and is now an explicit degree bound on the orientation sensor (fact 4); 30° sits below the Domino's 45° tip threshold, so a toppled piece fails |
   | `settle_speed`, `settle_time` | f32 | fixed | 0.05, 1.0 | m/s, s | speed from `CuriousContraptions.tests/FloorTests.cs@a6c914e:L47-L47`; time **proposed** (see settle rule) |
 
 - **Cosmetic curves and UI bindings.** Goal card shows a small on-object gauge per protected body: navy outline while unsettled, gold when its predicate holds at settle; a failed predicate shows a shaped warning mark, not colour only ([gap-16 visual style](../requirements.md#gap-16)).
@@ -63,7 +63,7 @@ Families ([element map row](../general-engine-element-map.md), [binding](../../c
 | 1 | Legacy escape bounds: a body with centre y < −5 or y > 20, |x| > 18 or |z| > 12 was hidden, its collider disabled, and an `Escaped` event recorded once. | `reference/cpu/MachineWorld.cs@a6c914e:L903-L916` | Carry forward the bounds as the `NotEscaped` volume; the per-tick CPU loop and hiding do not carry forward. |
 | 2 | A ball, Bowling ball or Tennis ball dropped on the bench bounces, settles below 0.05 m/s and never raises `Escaped`; bodies placed off the finite bench (x = 10 or z = 6) fall and raise `Escaped`. | `CuriousContraptions.tests/FloorTests.cs@a6c914e:L26-L51`, `CuriousContraptions.tests/FloorTests.cs@a6c914e:L53-L67` | Carry forward as boundary acceptance. |
 | 3 | Legacy `Won` latched at the first tick when all goals were met and stopped the run; nothing checked the state afterwards. | `reference/cpu/MachineWorld.cs@a6c914e:L921-L925` | Do not carry forward: this is the "premature success" the end-state goal forbids. |
-| 4 | The orientation threshold admits only 4°–179° because the binary16 rounding of cos(θ/2) cannot represent smaller angles. | `engine/gpu/OrientationSensorDeclaration.cs@a6c914e:L11-L12` | Do not carry forward: a binary16 artefact; the f32 range is proposed above. |
+| 4 | The orientation threshold admits only 4°–179° because the half-precision rounding of cos(θ/2) cannot represent smaller angles. | `engine/gpu/OrientationSensorDeclaration.cs@a6c914e:L11-L12` | Do not carry forward: a half-precision rounding artefact; the f32 range is proposed above. |
 
 Files consulted: `reference/cpu/MachineWorld.cs`, `CuriousContraptions.tests/FloorTests.cs`.
 

@@ -27,27 +27,27 @@ public sealed class WorkshopWallTests
             var box = Assert.Single(scene.Colliders.ToArray(), c => c.Body == body.Id);
             Assert.Equal(ColliderShapeKind.Box, box.Shape);
             Assert.Equal(RigidLocalPose.Identity, box.Pose);
-            Assert.Equal(new MetreVector((Half)(dimensions[new("width")] * .5f),
-                (Half)(dimensions[new("height")] * .5f), (Half)(dimensions[new("thickness")] * .5f)), box.HalfExtents);
+            Assert.Equal(new MetreVector((float)(dimensions[new("width")] * .5f),
+                (float)(dimensions[new("height")] * .5f), (float)(dimensions[new("thickness")] * .5f)), box.HalfExtents);
             var material = Assert.Single(scene.Materials.ToArray(), m => m.Id == box.Material);
-            Assert.Equal(new Restitution((Half)1), material.Restitution);
-            Assert.Equal(new LinearSpeed((Half).1), material.BounceThreshold);
-            Assert.Equal(new FrictionCoefficient((Half).3), material.Friction);
+            Assert.Equal(new Restitution(1f), material.Restitution);
+            Assert.Equal(new LinearSpeed(.1f), material.BounceThreshold);
+            Assert.Equal(new FrictionCoefficient(.3f), material.Friction);
         }
     }
 
     [Fact]
-    public void GenericShapeEnvelopeAcceptsSixteenAndRejectsTheNextHalfValue()
+    public void GenericShapeEnvelopeAcceptsSixteenAndRejectsTheNextF32Value()
     {
         var scene = WorkshopPhysicsCompiler.Compile(Saved(WallFixture.Maximum).Construction, new(1, 2));
         var box = Assert.Single(scene.Colliders.ToArray(), c => c.Shape == ColliderShapeKind.Box);
         box.Validate();
-        (box with { HalfExtents = new((Half)16, (Half)16, (Half)16) }).Validate();
-        var above = BitConverter.UInt16BitsToHalf((ushort)(BitConverter.HalfToUInt16Bits((Half)16) + 1));
-        foreach (var extents in new[] { new MetreVector(above, (Half)1, (Half)1),
-            new MetreVector((Half)1, above, (Half)1), new MetreVector((Half)1, (Half)1, above) })
+        (box with { HalfExtents = new(16f, 16f, 16f) }).Validate();
+        var above = MathF.BitIncrement(16f);
+        foreach (var extents in new[] { new MetreVector(above, 1f, 1f),
+            new MetreVector(1f, above, 1f), new MetreVector(1f, 1f, above) })
             Assert.Throws<ArgumentException>(() => (box with { HalfExtents = extents }).Validate());
-        var sphere = box with { Shape = ColliderShapeKind.Sphere, HalfExtents = default, Radius = new((Half)16) };
+        var sphere = box with { Shape = ColliderShapeKind.Sphere, HalfExtents = default, Radius = new(16f) };
         sphere.Validate();
         Assert.Throws<ArgumentException>(() => (sphere with { Radius = new(above) }).Validate());
     }
@@ -147,7 +147,7 @@ public sealed class WorkshopWallTests
             WorkshopConnectionDomain.Activation, WorkshopPortDirection.Input));
         // Free play has no per-kind wall count; only the compiled table capacities limit the population.
         new WorkshopInstances(wall, wall with { Id = new(3) }).Validate();
-        var puzzle = PuzzleCatalogue.Create(new("first_principles"), new(1), WorkshopCadenceSettings.Default(), new(4), new((Half)1));
+        var puzzle = PuzzleCatalogue.Create(new("first_principles"), new(1), WorkshopCadenceSettings.Default(), new(4), new(1f));
         EditRefusal.Is(WorkshopEditRejection.InventoryUnsupported, () => puzzle.WithInstance(wall).Validate());
         var construction = Saved(WallFixture.Default).Construction.WithInstance(
             PlacedParts.Lamp(new(3), 3, 2, 0, 0, 0, 0, 1)) with

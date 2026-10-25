@@ -41,7 +41,6 @@ export interface AnimationSampleRecord {
     kind: number;
     ordinal: string;
     property: number;
-    valBits: number;
     value: number;
     timestamp: number;
 }

@@ -56,7 +56,7 @@ Families ([element map row](../general-engine-element-map.md), [binding](../../c
 
 | # | Fact | Citation | Disposition |
 | --- | --- | --- | --- |
-| 1 | Material bits: RadiusBits 13435 = 0.28, MassBits 17408 = 4, BounceBits 12411 = 0.14, RollingResistanceBits 10158 = 0.03. | `parts/catalog/bowling.tres@a6c914e:L8-L17` | Carry forward decimal values; binary16 storage does not carry forward. |
+| 1 | Material bits: RadiusBits 13435 = 0.28, MassBits 17408 = 4, BounceBits 12411 = 0.14, RollingResistanceBits 10158 = 0.03. | `parts/catalog/bowling.tres@a6c914e:L8-L17` | Carry forward decimal values; half-precision storage does not carry forward. |
 | 2 | Drop calibration and bench settle as EL-187, run for bowling too. | `CuriousContraptions.tests/PhysicsCalibrationTests.cs@a6c914e:L14-L81`; `CuriousContraptions.tests/FloorTests.cs@a6c914e:L26-L51` | Carry forward. |
 | 3 | Legacy levels used the Bowling ball as the heavy trigger in 30 placements (e.g. `power_trip`, `domino_effect`). | `content/puzzles.json@a6c914e:L276-L494`, `content/puzzles.json@a6c914e:L1129-L1528` | Carry forward as lesson references (content stays after Epic 7). |
 

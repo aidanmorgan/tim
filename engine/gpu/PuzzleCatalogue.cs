@@ -69,7 +69,7 @@ public static class PuzzleCatalogue
     internal static void Validate(WorkshopPuzzle puzzle, WorkshopConstruction construction)
     {
         var definition = Definition(puzzle.Id);
-        PhysicsDeclarationBounds.Range(puzzle.Precision.Value, (Half)0, (Half)1);
+        PhysicsDeclarationBounds.Range(puzzle.Precision.Value, 0f, 1f);
         puzzle.Goal.Validate();
         if (puzzle.Placement != WorkshopPlacementMode.Manual ||
             puzzle.InventoryPart != definition.Inventory[0].Part ||

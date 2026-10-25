@@ -15,7 +15,7 @@ const path = new URL('../CuriousContraptions.web/wwwroot/workshop-client.js', im
 const source = readFileSync(path, 'utf8');
 const executable = source.replace(/^import .*;\n/gm, '').replace(/^export /gm, '') +
     // `clients` is read only by the clock-ring detach control (R2-F2); the module never exports it.
-    '\n;({create, activate, probe, status, dispose, qualified, send, acknowledgement, completeAcknowledgement, animationControl, animationKinds, clients});';
+    '\n;({create, activate, probe, status, dispose, qualified, send, acknowledgement, completeAcknowledgement, animationControl, animationKinds, readLastAnimationSample, clients});';
 // These integers are the C# WorkshopTransportState values at the JS import boundary.
 const state = Object.freeze({ Ready: 0, Backpressure: 1, TimedOut: 2, Indeterminate: 3, RecoveryBlocked: 4 });
 
@@ -509,5 +509,27 @@ test('two animation owners send sequential controls only after managed ACK deliv
     h.onOutput(() => {}); h.api.animationControl(id, second);
     h.workers[1].onmessage({ data: { animationOutput: ack } });
     assert.equal(h.messages.filter(message => message.animationControl).length, 2);
+    assert.equal(h.errors.length, 0); h.api.dispose(id);
+});
+
+// Story 9A.44 (D7): the Animation worker writes the channel value as f32 at 56 and the property as u16 at 136; the client records
+// exactly those, so a value no half-precision lane holds (0.34) and the declared property are read back unchanged.
+test('an Animation sample records the f32 channel value at 56 and the u16 property at 136', async () => {
+    const h = await clientHarness(), id = await h.ready();
+    h.workers[0].onmessage({ data: { animationPeer: new Uint8Array(64) } });
+    h.workers[1].onmessage({ data: { ready: true, nativeClock: new Float64Array([2, 1, 1, 0, .001, 1, 1]) } });
+    h.workers[1].onmessage({ data: { qualified: true } });
+    h.api.animationKinds(id, [1, 2, 3]);
+    const sample = new Uint8Array(144), view = new DataView(sample.buffer);
+    view.setUint32(60, 2, true);            // the sample kind (the second declared output kind)
+    view.setBigUint64(64, 7n, true);        // its target
+    view.setBigUint64(40, 9n, true);        // its ordinal
+    view.setFloat32(56, 0.34, true);        // the f32 channel value
+    view.setUint16(136, 5, true);           // the animated property
+    h.workers[1].onmessage({ data: { animationOutput: sample } });
+    const recorded = h.api.readLastAnimationSample(id, 7);
+    assert.equal(recorded.value, Math.fround(0.34), 'the f32 channel value');
+    assert.equal(recorded.property, 5, 'the property at 136');
+    assert.equal(recorded.ordinal, '9');
     assert.equal(h.errors.length, 0); h.api.dispose(id);
 });

@@ -8,14 +8,14 @@ public readonly record struct AuthorityRevision(ulong Value);
 public readonly record struct SimulationEpoch(ulong Value);
 public readonly record struct SimulationTick(ulong Value);
 public readonly record struct CommandSequence(ulong Value);
-public readonly record struct Metres(Half Value);
-public readonly record struct Kilograms(Half Value);
-public readonly record struct Acceleration(Half Value);
-public readonly record struct InverseSeconds(Half Value);
-public readonly record struct Restitution(Half Value);
+public readonly record struct Metres(float Value);
+public readonly record struct Kilograms(float Value);
+public readonly record struct Acceleration(float Value);
+public readonly record struct InverseSeconds(float Value);
+public readonly record struct Restitution(float Value);
 public readonly record struct CanonicalRotation(float X, float Y, float Z, float W)
 {
-    public static CanonicalRotation Identity => new((float)0, (float)0, (float)0, (float)1);
+    public static CanonicalRotation Identity => new(0f, 0f, 0f, 1f);
 
     public static CanonicalRotation Normalize(float x, float y, float z, float w)
     {
@@ -35,9 +35,9 @@ public readonly record struct CanonicalRotation(float X, float Y, float Z, float
     public void ValidateCommitted()
     {
         if (!float.IsFinite(X) || !float.IsFinite(Y) || !float.IsFinite(Z) || !float.IsFinite(W) ||
-            X < (float)(-1) || X > (float)1 || Y < (float)(-1) || Y > (float)1 ||
-            Z < (float)(-1) || Z > (float)1 || W < (float)(-1) || W > (float)1 ||
-            (X == (float)0 && Y == (float)0 && Z == (float)0 && W == (float)0))
+            X < -1f || X > 1f || Y < -1f || Y > 1f ||
+            Z < -1f || Z > 1f || W < -1f || W > 1f ||
+            (X == 0f && Y == 0f && Z == 0f && W == 0f))
             throw new ArgumentException("Unsupported committed rotation.");
         // One canonical f32 rotation: allow rounding residual, reject scaled quaternions.
         var norm = X * X + Y * Y + Z * Z + W * W;
@@ -53,8 +53,8 @@ public readonly record struct WorkshopConstruction(ConstructionRevision Revision
         PuzzleCatalogue.WithInstance(this, instance);
     public WorkshopConnections Connections { get; init; } = Connections ?? WorkshopConnections.Empty;
     public WorkshopConstruction WithoutInstance(GpuBodyId id) => this with { Instances = Instances.Without(id), Connections = Connections.Without(id) };
-    public static Acceleration Gravity => new((Half)9.81);
-    public static Metres WorkbenchSurface => new((Half)(-0.46));
+    public static Acceleration Gravity => new(9.81f);
+    public static Metres WorkbenchSurface => new(-0.46f);
     public void Validate()
     {
         if (Revision.Value == 0) throw new ArgumentException("Construction revision must be nonzero.");
@@ -117,17 +117,11 @@ public static class WorkshopInput
 }
 
 
-/// <summary>Canonical bit identity is stronger than Half numeric equality, including signed zero.</summary>
-public static class HalfBits
-{
-    public static bool Equal(Half a, Half b) => BitConverter.HalfToUInt16Bits(a) == BitConverter.HalfToUInt16Bits(b);
-    public static bool Equal(MetreVector a, MetreVector b) => Equal(a.X, b.X) && Equal(a.Y, b.Y) && Equal(a.Z, b.Z);
-}
-
 /// <summary>Canonical f32 bit identity, including signed zero; positive zero is the all-zero bit pattern.</summary>
 public static class F32Bits
 {
     public static bool Equal(LocalPosition a, LocalPosition b) => Equal(a.X,b.X) && Equal(a.Y,b.Y) && Equal(a.Z,b.Z);
+    public static bool Equal(MetreVector a, MetreVector b) => Equal(a.X,b.X) && Equal(a.Y,b.Y) && Equal(a.Z,b.Z);
     public static bool Equal(float a, float b) => BitConverter.SingleToUInt32Bits(a) == BitConverter.SingleToUInt32Bits(b);
     public static bool IsPositiveZero(float x, float y, float z) =>
         (BitConverter.SingleToUInt32Bits(x) | BitConverter.SingleToUInt32Bits(y) | BitConverter.SingleToUInt32Bits(z)) == 0;

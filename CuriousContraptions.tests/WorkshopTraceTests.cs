@@ -41,7 +41,7 @@ public sealed class WorkshopTraceTests(ITestOutputHelper testOutput)
 
     [Theory]
     [InlineData(1u)]
-    [InlineData(2u)] // the retired schema whose bodies were 56-byte binary16-velocity records
+    [InlineData(2u)] // the retired schema whose bodies were 56-byte half-precision-velocity records
     [InlineData(5u)] // the retired trace version: a structurally invalid record now
     public void ATraceRecordsLeadingWordIsZeroPaddingAndAnyOtherValueRejects(uint leading)
     {

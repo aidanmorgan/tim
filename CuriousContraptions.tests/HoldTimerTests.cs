@@ -108,7 +108,7 @@ public sealed class HoldTimerTests
     {
         var declaration=new ActivationTimerDeclaration(new(1),12,TimerCompletionPolicy.Rearm,TimerBoundary.BeforeNetworks,TimerElapsedSignal.None);
         var first=new ActivationOccurrence(ActivationOccurrenceKind.Contact,new(2),new(0,0),
-            new(new(2),new(3),new(4),new(0,0),new((float)1)));
+            new(new(2),new(3),new(4),new(0,0),new(1f)));
         var counting=ActivationTimerState.Ready(new(1)).Trigger(declaration,first,4);
         var busy=first with {Time=new(4,0),Cause=first.Cause with {Time=new(4,0)}};
         Assert.Equal(counting,counting.Trigger(declaration,busy,4));
@@ -142,14 +142,14 @@ public sealed class HoldTimerTests
             new(new(2),new(6),WorkshopSocket.ResetIn),new(new(5),new(4),WorkshopSocket.ActivationIn),
             new(new(5),new(6),WorkshopSocket.SetIn)
         ], contacts: [new(3)]);
-        var first = new ContactTriggerRead(new(9),new(1),new(99),1,new(100),0,(Half)0,new((float)1));
+        var first = new ContactTriggerRead(new(9),new(1),new(99),1,new(100),0,0f,new(1f));
         var initial = network.Consume(network.Clear(),network.ClearTimers(),[first],new(0),[],memory:network.ClearMemory());
         var scheduled = network.AdvanceScheduled(initial,new(12));
         Assert.Equal(24UL,scheduled.State.Timers[1].DueTick);
         Assert.Equal(ActivationPhase.Clear,scheduled.State.Activations[3].Phase);
         Assert.True(network.ContactClosed(scheduled.State.Activations,scheduled.State.Timers,new(3)));
         Assert.Equal(12UL,initial.Timers[1].DueTick); // candidate did not mutate its source
-        var physical = new ContactTriggerRead(new(10),new(5),new(99),1,new(100),47,(Half)0,new((float)1));
+        var physical = new ContactTriggerRead(new(10),new(5),new(99),1,new(100),47,0f,new(1f));
         var final = network.ConsumeScheduled(scheduled,[physical],new(12),[],[],default,[]);
         Assert.Equal(new ActivationNodeId(5),final.Activations[3].Emitter); // earlier physical bypass wins
         Assert.Equal(ActivationPhase.Clear,final.Activations[5].Phase); // scheduled Reset dominates physical Set
@@ -281,14 +281,14 @@ public sealed class HoldTimerTests
         var boxes=scene.Colliders.ToArray().Where(row=>row.Body.Value==3).ToArray();
         Assert.Equal(2,boxes.Length);
         Assert.All(boxes,row=>Assert.Equal(ColliderShapeKind.Box,row.Shape));
-        Assert.Contains(boxes,row=>row.HalfExtents==new MetreVector((Half).7f,(Half).55f,(Half).325f) && row.Pose.Translation==new MetreVector((Half)0,(Half)0,(Half)0));
-        Assert.Contains(boxes,row=>row.HalfExtents==new MetreVector((Half).8f,(Half).07f,(Half).425f) && row.Pose.Translation==new MetreVector((Half)0,(Half)(-.62f),(Half)0));
+        Assert.Contains(boxes,row=>row.HalfExtents==new MetreVector(.7f,.55f,.325f) && row.Pose.Translation==new MetreVector(0f,0f,0f));
+        Assert.Contains(boxes,row=>row.HalfExtents==new MetreVector(.8f,.07f,.425f) && row.Pose.Translation==new MetreVector(0f,-.62f,0f));
         foreach(var box in boxes)
         {
             var material=scene.Materials.ToArray().Single(row=>row.Id==box.Material);
-            Assert.Equal(new Restitution((Half)1),material.Restitution);
-            Assert.Equal(new FrictionCoefficient((Half).3f),material.Friction);
-            Assert.Equal(new LinearSpeed((Half).1f),material.BounceThreshold);
+            Assert.Equal(new Restitution(1f),material.Restitution);
+            Assert.Equal(new FrictionCoefficient(.3f),material.Friction);
+            Assert.Equal(new LinearSpeed(.1f),material.BounceThreshold);
         }
     }
 
@@ -297,7 +297,7 @@ public sealed class HoldTimerTests
         private readonly CuriousContraptions.Simulation.BrowserGpuTransport _real=new();
         public TaskCompletionSource? Entered, Release;
         public bool FailRead;
-        public Task Initialize(string preamble)=>_real.Initialize(preamble);
+        public Task Initialize()=>_real.Initialize();
         public async Task Stage(byte[] input,WorkshopGpuOperation operation,PhysicsTickInputs inputs)
         {
             if(Release is { } gate && operation==WorkshopGpuOperation.Advance)

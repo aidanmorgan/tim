@@ -155,7 +155,7 @@ public sealed class MemoryGuardTests
         var bench = ThreeBalls(3);
         var network = WorkshopActivationCompiler.Compile(bench);
         var sensor = WorkshopPhysicsCompiler.PassageSensor(Detector);
-        PassageSensorRead Pass(uint ordinal) => new(sensor, Detector, Balls[0], new(11), PassageSensorPhase.Fired, ordinal, (Half)0, new((Half)2f));
+        PassageSensorRead Pass(uint ordinal) => new(sensor, Detector, Balls[0], new(11), PassageSensorPhase.Fired, ordinal, 0f, new(2f));
         var committed = network.Consume(network.Clear(), network.ClearTimers(), [], new(1), [], [Pass(4)], memory: network.ClearMemory());
         committed = network.Consume(committed.Activations, committed.Timers, [], new(2), [], [Pass(8)], memory: committed.Memory);
         var first = network.Consume(committed.Activations, committed.Timers, [], new(3), [], [Pass(12)], memory: committed.Memory);

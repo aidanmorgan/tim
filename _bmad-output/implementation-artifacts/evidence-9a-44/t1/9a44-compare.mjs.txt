@@ -1,0 +1,90 @@
+// Story 9A.44 evidence: Half-era (T0) vs f32 outcomes, and the one-time compiled-lane delta table.
+// Usage: node 9a44-compare.mjs <worktree> <outcome-comparison.txt> <delta-table.txt>
+import { readFileSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
+
+const [root, outcomePath, deltaPath] = process.argv.slice(2);
+const read = p => JSON.parse(readFileSync(join(root, p), 'utf8'));
+const old = read('CuriousContraptions.tests/Fixtures/outcomes-f1ad3bd1.json');
+const cur = read('_bmad-output/implementation-artifacts/evidence-9a-44/t1/outcomes-f32.json');
+
+// Event kind order: the event text without its time (tick, ordinals, phases) and its measured approach speed.
+const kinds = events => events.map(e => e.replace(/^tick \d+: /, '').replace(/ordinal=\d+ eventPhase=[^ ]+/, '')
+  .replace(/"ApproachSpeed":\{[^}]*\}/g, '').replace(/"(?:Ordinal|EventOrdinal|CauseOrdinal|EventPhase|CausePhase)":[^,}]+/g, ''));
+const ticks = events => events.map(e => Number(/^tick (\d+)/.exec(e)[1]));
+const maxCom = (a, b) => Math.max(0, ...a.FinalBodies.map((x, i) => {
+  const y = b.FinalBodies[i];
+  return y ? Math.hypot(x.X - y.X, x.Y - y.Y, x.Z - y.Z) : Infinity;
+}));
+
+const out = [];
+let failures = 0;
+const row = (label, a, b) => {
+  const same = JSON.stringify(kinds(a.Events)) === JSON.stringify(kinds(b.Events));
+  const met = a.GoalMet === b.GoalMet;
+  if (!same || !met) failures++;
+  const d = a.GoalTick == null ? '' : ` tick ${a.GoalTick}->${b.GoalTick} (d=${b.GoalTick - a.GoalTick})`;
+  out.push(`${label.padEnd(26)} met ${a.GoalMet}->${b.GoalMet}${d} order_same=${same} eventticks [${ticks(a.Events)}]->[${ticks(b.Events)}] dFinal=${maxCom(a, b).toFixed(5)}`);
+};
+out.push('LESSONS (Half-era T0 vs f32): goal met, goal tick old->new, event kind order identical, event ticks, max final body displacement m');
+for (const a of old.Lessons) {
+  // The Half-era run admitted precision 0.45 as 0.44995117 (its binary16 value); the f32 run admits 0.45 exactly.
+  const b = cur.Lessons.find(x => x.Id === a.Id && Math.abs(x.Precision - a.Precision) <= 2 ** -11);
+  row(`${a.Id} p=${a.Precision}`, a, b);
+}
+out.push('', 'ELEMENTS (placed alone, 240 ticks)');
+for (const a of old.Elements) row(a.Id, a, cur.Elements.find(x => x.Id === a.Id));
+out.push('', `rows with goal-met or event-kind-order differences: ${failures}`);
+writeFileSync(outcomePath, out.join('\n') + '\n');
+
+// Delta table: every numeric leaf of every compiled row. Half-era JSON prints a Half lane as its shortest binary16 round-trip
+// string ("1.057" is 1.056640625), so a changed Half-typed leaf is decoded to its exact binary16 value with Math.f16round
+// (number arithmetic only; no Half type in test code). f32-typed leaves (CanonicalRotation, body Local) are taken as printed.
+// A body's Local is in 1/16 m cell units beside its integer Cell, so it is compared as its world metres (Cell + Local) / 16.
+const oldRows = read('_bmad-output/implementation-artifacts/evidence-9a-44/t0/compiled-rows-f1ad3bd1.json');
+const newRows = read('_bmad-output/implementation-artifacts/evidence-9a-44/t1/compiled-rows-f32.json');
+const delta = ['key\tpath\told (exact)\tnew\t|delta|\twithin 2^-11*|new|'];
+const counts = { equal: 0, within: 0, beyond: 0, missing: 0 };
+const f32Segments = new Set(['Rotation', 'Local', 'Cell']);
+const compare = (key, path, a, b) => {
+  const d = Math.abs(a - b), ok = d <= 2 ** -11 * Math.abs(b);
+  counts[ok ? 'within' : 'beyond']++;
+  delta.push(`${key}\t${path}\t${a}\t${b}\t${d.toExponential(3)}\t${ok ? 'yes' : 'NO'}`);
+};
+const walk = (key, path, a, b, halfTyped = true) => {
+  if (typeof a === 'number' || typeof b === 'number') {
+    if (typeof a !== 'number' || typeof b !== 'number') { counts.missing++; delta.push(`${key}\t${path}\t${a}\t${b}\t-\tMISSING`); return; }
+    // Integers (identities, cells, and Half lanes holding small integers, which binary16 represents exactly) stay as printed.
+    const exact = halfTyped && !Number.isInteger(a) ? Math.f16round(a) : a;
+    if (exact === b) { counts.equal++; return; }
+    compare(key, path, exact, b);
+    return;
+  }
+  if (a && b && typeof a === 'object' && typeof b === 'object') {
+    if (!Array.isArray(a) && a.Cell && a.Local && b.Cell && b.Local) {
+      for (const axis of ['X', 'Y', 'Z']) {
+        const x = (a.Cell[axis] + a.Local[axis]) / 16, y = (b.Cell[axis] + b.Local[axis]) / 16;
+        if (x === y) counts.equal++; else compare(key, `${path}.(Cell+Local)/16.${axis}`, x, y);
+      }
+      for (const k of Object.keys(a)) if (k !== 'Cell' && k !== 'Local') walk(key, `${path}.${k}`, a[k], b[k], halfTyped);
+      return;
+    }
+    for (const k of new Set([...Object.keys(a), ...Object.keys(b)]))
+      walk(key, `${path}.${k}`, a[k], b[k], halfTyped && !f32Segments.has(k));
+    return;
+  }
+  if (JSON.stringify(a) !== JSON.stringify(b)) { counts.missing++; delta.push(`${key}\t${path}\t${JSON.stringify(a)}\t${JSON.stringify(b)}\t-\tSHAPE`); }
+};
+const lessonKey = k => k.replace('@0.44995117', '@0.45');
+for (const a of oldRows) {
+  const b = newRows.find(x => x.Key === lessonKey(a.Key));
+  if (!b) { counts.missing++; delta.push(`${a.Key}\t-\tpresent\tabsent\t-\tMISSING`); continue; }
+  walk(a.Key, '', { ...a, Key: undefined }, { ...b, Key: undefined });
+}
+const beyond = delta.filter(l => l.endsWith('\tNO'));
+const beyondMax = Math.max(0, ...beyond.map(l => Number(l.split('\t')[4])));
+delta.unshift(`# beyond the relative bound: ${beyond.length} leaves, all |delta| <= ${beyondMax.toExponential(3)} m (< 2^-24 = 5.96e-8, binary16's ` +
+  `smallest subnormal step): f32 rotation residue of sub-collider offsets that binary16 flushed to 0 or one subnormal step`);
+delta.unshift(`# compiled rows ${oldRows.length} old / ${newRows.length} new; numeric leaves equal ${counts.equal}, changed within bound ${counts.within}, beyond bound ${counts.beyond}, missing/shape ${counts.missing}`);
+writeFileSync(deltaPath, delta.join('\n') + '\n');
+console.log(out.at(-1)); console.log(delta[0]);

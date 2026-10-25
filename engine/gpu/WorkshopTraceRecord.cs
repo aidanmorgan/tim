@@ -2,13 +2,18 @@ using System;
 using System.Buffers.Binary;
 namespace CuriousContraptions.Gpu;
 
-/// <summary>Bounded observational projection of every committed body and capture latch. Every committed body uses the 80-byte
+/// <summary>Bounded observational projection of every committed body and capture latch. Every committed body uses the 96-byte
 /// <see cref="PhysicsBodyWire"/> with canonical f32 pose and velocity, and the population counts are u32 (Story 9R.5b). Header bytes
 /// 0..3 are zero padding (one bundle, one schema); a record that is not structurally valid for this layout is rejected.</summary>
 public static class WorkshopTraceRecord
 {
     public const int HeaderBytes = 48;
     public const int CaptureBytes = 24;
+    /// <summary>Capture record: sensor identity U64, latch phase U32, event ordinal U32, f32 event phase, zero tail.</summary>
+    public const int CaptureSensorOffset = 0;
+    public const int CapturePhaseOffset = 8;
+    public const int CaptureOrdinalOffset = 12;
+    public const int CaptureEventPhaseOffset = 16;
     public static int ByteLength(int bodies, int captures)
     {
         // No population bound (Story 9R.5b): the record is exactly its committed bodies and captures.
@@ -32,8 +37,8 @@ public static class WorkshopTraceRecord
         for (var i=0; i<read.Captures.Count; i++)
         {
             var c=read.Captures[i]; c.Validate();
-            U64(b,offset,c.Sensor.Value); U32(b,offset+8,(uint)c.Phase);
-            U32(b,offset+12,c.EventOrdinal); H(b,offset+16,c.EventPhase);
+            U64(b,offset+CaptureSensorOffset,c.Sensor.Value); U32(b,offset+CapturePhaseOffset,(uint)c.Phase);
+            U32(b,offset+CaptureOrdinalOffset,c.EventOrdinal); BinaryPrimitives.WriteSingleLittleEndian(b.AsSpan(offset+CaptureEventPhaseOffset),c.EventPhase);
             offset+=CaptureBytes;
         }
         return b;
@@ -53,5 +58,4 @@ public static class WorkshopTraceRecord
     }
     private static void U32(Span<byte>b,int o,uint v)=>BinaryPrimitives.WriteUInt32LittleEndian(b[o..],v);
     private static void U64(Span<byte>b,int o,ulong v)=>BinaryPrimitives.WriteUInt64LittleEndian(b[o..],v);
-    private static void H(Span<byte>b,int o,Half v)=>BinaryPrimitives.WriteUInt16LittleEndian(b[o..],BitConverter.HalfToUInt16Bits(v));
 }

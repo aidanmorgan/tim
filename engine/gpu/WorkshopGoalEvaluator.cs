@@ -52,12 +52,11 @@ public static class WorkshopGoalEvaluator
     public static bool ElapsedAtLeast(ActivationTime source, ActivationTime target, DurationSeconds minimum)
     {
         source.Validate(); target.Validate();
-        PhysicsDeclarationBounds.Range(minimum.Value, (Half)0, (Half)120);
+        PhysicsDeclarationBounds.Range(minimum.Value, 0f, 120f);
         if (target.CompareTo(source) < 0) return false;
         // Keep the integer origin separate: adding a small f32 phase to a large ordinal would erase it.
-        // The remaining goal-duration ABI widens at this boundary; timer phases never narrow to it.
         var ordinals = (long)target.Ordinal - source.Ordinal;
-        var required = (float)minimum.Value * 480f;
+        var required = minimum.Value * WorkshopCadenceSettings.PhysicalFrequency;
         var whole = (long)MathF.Floor(required);
         var fraction = required - whole;
         var elapsedPhase = target.Phase - source.Phase;

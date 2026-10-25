@@ -54,17 +54,17 @@ public sealed class PayloadInstanceTests
         {
             var body = Assert.Single(scene.Bodies.ToArray(), b => b.Id == new GpuBodyId(id));
             Assert.Equal(RigidMotionKind.Dynamic, body.Motion);
-            Assert.Equal(new Kilograms((Half)mass), body.Mass);
-            Assert.Equal(new InverseSeconds((Half).04f), body.LinearDrag);
-            Assert.Equal(new AccelerationVector((Half)0, (Half)(-9.81f), (Half)0), body.Gravity);
+            Assert.Equal(new Kilograms((float)mass), body.Mass);
+            Assert.Equal(new InverseSeconds(.04f), body.LinearDrag);
+            Assert.Equal(new AccelerationVector(0f, -9.81f, 0f), body.Gravity);
             var collider = Assert.Single(scene.Colliders.ToArray(), c => c.Body == body.Id);
             Assert.Equal(ColliderShapeKind.Sphere, collider.Shape);
-            Assert.Equal(new Metres((Half)radius), collider.Radius);
+            Assert.Equal(new Metres((float)radius), collider.Radius);
             var material = Assert.Single(scene.Materials.ToArray(), m => m.Id == collider.Material);
-            Assert.Equal(new Restitution((Half)bounce), material.Restitution);
-            Assert.Equal(new FrictionCoefficient((Half).3f), material.Friction);
-            Assert.Equal(new LinearSpeed((Half).1f), material.BounceThreshold);
-            Assert.Equal(new RollingResistance((Half)rolling), material.RollingResistance);
+            Assert.Equal(new Restitution((float)bounce), material.Restitution);
+            Assert.Equal(new FrictionCoefficient(.3f), material.Friction);
+            Assert.Equal(new LinearSpeed(.1f), material.BounceThreshold);
+            Assert.Equal(new RollingResistance((float)rolling), material.RollingResistance);
             // The package is the f32 authority the compiler narrows from.
             var entry = DeclaredPhysics.Of(kind);
             var sphere = Assert.Single(entry.Colliders);
@@ -135,7 +135,7 @@ public sealed class PayloadInstanceTests
         foreach (var lesson in new[] { "first_principles", "spring_forward", "ready_to_rebound", "bumper_sidekick", "bumper_depth",
                      "wall_and_bumper", "domino_effect", "delayed_signal", "clear_pipe", "gentle_bend", "quarter_bend", "joined_pipe" })
         {
-            var level = PuzzleCatalogue.Create(new(lesson), new(1), WorkshopCadenceSettings.Default(), new(11), new((Half).45));
+            var level = PuzzleCatalogue.Create(new(lesson), new(1), WorkshopCadenceSettings.Default(), new(11), new(.45f));
             // A lesson that offers a Bumper gets one placed from its inventory, so the player's Bumper is named too.
             if (WorkshopInventoryPolicy.Authored(level.Puzzle).ContainsKey(PartId.PinballBumper))
                 level = level.WithInstance(WorkshopInput.Generic(PartId.PinballBumper, new(900), 3, 1, 0, 0, 0, 0, 1));
@@ -286,13 +286,13 @@ public sealed class PayloadInstanceTests
     }
 
     internal static byte[] PreConversionBall(string part, float radius, float mass, float bounce) =>
-        PreConversionSave(part, new Dictionary<int, float> { [6] = radius, [7] = mass, [8] = bounce, [9] = (float)(Half).04f });
+        PreConversionSave(part, new Dictionary<int, float> { [6] = radius, [7] = mass, [8] = bounce, [9] = .040008544921875f });
 
-    /// <summary>The pre-conversion Domino record: the former record's binary16 material (0.4 kg, bounce 0.05, friction 0.6, half
+    /// <summary>The pre-conversion Domino record: the former record's half-precision material (0.4 kg, bounce 0.05, friction 0.6, half
     /// extents 0.125 × 0.55 × 0.325 m) widened to the f32 slots it was written in.</summary>
     internal static byte[] PreConversionDomino() =>
-        PreConversionSave("domino", new Dictionary<int, float> { [7] = (float)(Half).4, [8] = (float)(Half).05, [24] = (float)(Half).6 },
-            new((float)(Half).125, (float)(Half).55, (float)(Half).325));
+        PreConversionSave("domino", new Dictionary<int, float> { [7] = OldLayoutSaves.OldDominoMass, [8] = OldLayoutSaves.OldDominoBounce,
+            [24] = OldLayoutSaves.OldDominoFriction }, OldLayoutSaves.OldDominoHalfExtents);
 
     internal static byte[] PreConversionPipe() => PreConversionSave("pipe", new Dictionary<int, float> { [11] = 3.6f });
 
@@ -312,8 +312,8 @@ public sealed class PayloadInstanceTests
     {
         foreach (var (name, bytes, reason) in new[]
         {
-            ("ball", PreConversionBall("ball", (float)(Half).34f, 1, (float)(Half).55f), WorkshopSaveRejection.VerifierRejected),
-            ("bowling", PreConversionBall("bowling", (float)(Half).28f, 4, (float)(Half).14f), WorkshopSaveRejection.VerifierRejected),
+            ("ball", PreConversionBall("ball", .340087890625f, 1, .5498046875f), WorkshopSaveRejection.VerifierRejected),
+            ("bowling", PreConversionBall("bowling", .280029296875f, 4, .1400146484375f), WorkshopSaveRejection.VerifierRejected),
             ("domino", PreConversionDomino(), WorkshopSaveRejection.VerifierRejected),
             ("pipe", PreConversionPipe(), WorkshopSaveRejection.OutOfRange),
             ("ramp", PreConversionResizedRamp(), WorkshopSaveRejection.OutOfRange)

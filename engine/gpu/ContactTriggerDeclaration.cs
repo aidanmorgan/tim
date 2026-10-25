@@ -19,4 +19,4 @@ public readonly record struct ContactTriggerDeclaration(GpuContactTriggerId Id, 
 
 public readonly record struct ContactTriggerRead(GpuContactTriggerId Id, GpuBodyId Owner,
     GpuBodyId Target, uint OccurrenceCount, GpuColliderId Collider, uint EventOrdinal,
-    Half EventPhase, ContactSpeed ApproachSpeed);
+    float EventPhase, ContactSpeed ApproachSpeed);

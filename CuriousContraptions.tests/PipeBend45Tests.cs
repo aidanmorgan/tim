@@ -12,7 +12,7 @@ namespace CuriousContraptions.Tests;
 [Collection<NativeSceneCollectionDefinition>]
 public sealed class PipeBend45Tests(NativeSceneFixture godot)
 {
-    private static WorkshopConstruction Lesson(Half precision) =>
+    private static WorkshopConstruction Lesson(float precision) =>
         PuzzleCatalogue.Create(new("gentle_bend"), new(1), WorkshopCadenceSettings.Default(), new(1), new(precision));
 
     [Fact]
@@ -60,7 +60,7 @@ public sealed class PipeBend45Tests(NativeSceneFixture godot)
 
             // 32 wall colliders
             var walls = colliders.Take(32).ToArray();
-            var expectedWallHalfExtents = new MetreVector((Half)0.26, (Half)0.025, (Half)0.29);
+            var expectedWallHalfExtents = new MetreVector(0.26f, 0.025f, 0.29f);
             foreach (var col in walls)
             {
                 Assert.Equal(ColliderShapeKind.Box, col.ShapeKind);
@@ -122,8 +122,8 @@ public sealed class PipeBend45Tests(NativeSceneFixture godot)
         Assert.Equal(2, scene.Bodies.Length); // plane + pipe_bend_45
         var body = Assert.Single(scene.Bodies.ToArray(), b => b.Id == new GpuBodyId(10));
         Assert.Equal(RigidMotionKind.Static, body.Motion);
-        Assert.Equal(new Kilograms((Half)0), body.Mass);
-        Assert.Equal(new InverseSeconds((Half)0), body.LinearDrag);
+        Assert.Equal(new Kilograms(0f), body.Mass);
+        Assert.Equal(new InverseSeconds(0f), body.LinearDrag);
         Assert.Equal(default, body.Gravity);
 
         var colliders = scene.Colliders.ToArray().Where(c => c.Body == body.Id).ToArray();
@@ -131,10 +131,10 @@ public sealed class PipeBend45Tests(NativeSceneFixture godot)
 
         // All colliders use the body's material
         var material = Assert.Single(scene.Materials.ToArray(), m => m.Id == colliders[0].Material);
-        Assert.Equal(new Restitution((Half)1), material.Restitution);
-        Assert.Equal(new LinearSpeed((Half)0.1), material.BounceThreshold);
-        Assert.Equal(new FrictionCoefficient((Half)0.3), material.Friction);
-        Assert.Equal(new RollingResistance((Half)0), material.RollingResistance);
+        Assert.Equal(new Restitution(1f), material.Restitution);
+        Assert.Equal(new LinearSpeed(0.1f), material.BounceThreshold);
+        Assert.Equal(new FrictionCoefficient(0.3f), material.Friction);
+        Assert.Equal(new RollingResistance(0f), material.RollingResistance);
     }
 
     [Fact]
@@ -221,7 +221,7 @@ public sealed class PipeBend45Tests(NativeSceneFixture godot)
         Assert.Equal("A gentle turn", level.GetProperty("title").GetString());
         Assert.Equal(1, level.GetProperty("inventory").EnumerateArray().Single(row => row.GetProperty("part").GetString() == "pipe_bend_45").GetProperty("count").GetInt32());
 
-        var construction = Lesson((Half)0);
+        var construction = Lesson(0f);
         Assert.Equal(WorkshopGoalKind.Captured, construction.Puzzle.Goal.Kind);
         Assert.Equal(new GpuBodyId(1), construction.Puzzle.Goal.Body);
         Assert.Equal(new GpuBodyId(2), construction.Puzzle.Goal.Target);
@@ -245,7 +245,7 @@ public sealed class PipeBend45Tests(NativeSceneFixture godot)
     [Fact]
     public void GentleBend_ValidateEnforcesFixturesAndInventory()
     {
-        var construction = Lesson((Half)0);
+        var construction = Lesson(0f);
         construction.Validate();
 
         var bend = WorkshopInput.PipeBend45(new(3), 0, 4, 0, 0, 0, -0.7071068, 0.7071068);
@@ -278,13 +278,13 @@ public sealed class PipeBend45Tests(NativeSceneFixture godot)
     [InlineData(1.0, 0.02, 1.5, 0.35, 0)]
     public void GentleBend_PrecisionEvaluatesAssistanceAndRoundtripsSaveCodec(double precision, double margin, double speed, double dwell, double accel)
     {
-        var construction = Lesson((Half)precision);
+        var construction = Lesson((float)precision);
         var receiver = ((WorkshopGenericInstance)construction.Instances.Single(instance => instance.PartId == PartId.Receiver));
 
-        Assert.Equal((float)(Half)margin, receiver.Parameters[new("capture_margin")]);
-        Assert.Equal((float)(Half)speed, receiver.Parameters[new("capture_speed_limit")]);
-        Assert.Equal((float)(Half)dwell, receiver.Parameters[new("capture_dwell")]);
-        Assert.Equal((float)(Half)accel, receiver.Parameters[new("force_maximum_acceleration")]);
+        Assert.Equal((float)margin, receiver.Parameters[new("capture_margin")]);
+        Assert.Equal((float)speed, receiver.Parameters[new("capture_speed_limit")]);
+        Assert.Equal((float)dwell, receiver.Parameters[new("capture_dwell")]);
+        Assert.Equal((float)accel, receiver.Parameters[new("force_maximum_acceleration")]);
 
         var bend = WorkshopInput.PipeBend45(new(3), 0, 4, 0, 0, 0, -0.7071068, 0.7071068);
         var placed = construction.WithInstance(bend);
@@ -295,14 +295,14 @@ public sealed class PipeBend45Tests(NativeSceneFixture godot)
         var decoded = WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes);
         Assert.Equal(save, decoded);
 
-        var updated = PuzzleCatalogue.WithPrecision(placed, new((Half)0.45));
-        Assert.Equal((float)(Half)0.174, ((WorkshopGenericInstance)updated.Instances.Single(instance => instance.PartId == PartId.Receiver)).Parameters[new("capture_margin")]);
+        var updated = PuzzleCatalogue.WithPrecision(placed, new(0.45f));
+        Assert.Equal(0.174f, ((WorkshopGenericInstance)updated.Instances.Single(instance => instance.PartId == PartId.Receiver)).Parameters[new("capture_margin")]);
     }
 
     [Fact]
     public void GentleBend_CompilerEmitsCompoundCollidersAndSensors()
     {
-        var construction = Lesson((Half)0.45);
+        var construction = Lesson(0.45f);
         var bend = WorkshopInput.PipeBend45(new(3), 0, 4, 0, 0, 0, -0.7071068, 0.7071068);
         var placed = construction.WithInstance(bend);
 
@@ -330,11 +330,11 @@ public sealed class PipeBend45Tests(NativeSceneFixture godot)
         for (var i = 0; i < 3; i++)
         {
             var k = values[i];
-            Half[] actual = [k.Precision, k.PositionWindow.Value, k.RotationWindowDegrees, k.MaximumPositionCorrection.Value,
+            float[] actual = [k.Precision, k.PositionWindow.Value, k.RotationWindowDegrees, k.MaximumPositionCorrection.Value,
                 k.MaximumRotationCorrectionDegrees, k.Blend.Value, k.CaptureMargin.Value, k.CaptureSpeed.Value,
                 k.CaptureDwell.Value, k.GuideAcceleration.Value, k.TriggerThreshold];
             for (var field = 0; field < names.Length; field++)
-                Assert.Equal((Half)data[i].GetProperty(names[field]).GetDouble(), actual[field]);
+                Assert.Equal((float)data[i].GetProperty(names[field]).GetDouble(), actual[field]);
         }
     }
 }

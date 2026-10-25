@@ -66,17 +66,17 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
 
             var baseCol = colliders[0];
             Assert.Equal(ColliderShapeKind.Box, baseCol.ShapeKind);
-            Assert.Equal(new MetreVector((Half)1.1f, (Half)0.1f, (Half)1.1f), baseCol.HalfExtents);
-            Assert.Equal((Half)0, baseCol.LocalPose.Translation.X);
-            Assert.Equal((Half)(-0.12f), baseCol.LocalPose.Translation.Y);
-            Assert.Equal((Half)0, baseCol.LocalPose.Translation.Z);
+            Assert.Equal(new MetreVector(1.1f, 0.1f, 1.1f), baseCol.HalfExtents);
+            Assert.Equal(0f, baseCol.LocalPose.Translation.X);
+            Assert.Equal(-0.12f, baseCol.LocalPose.Translation.Y);
+            Assert.Equal(0f, baseCol.LocalPose.Translation.Z);
 
             var topCol = colliders[1];
             Assert.Equal(ColliderShapeKind.Box, topCol.ShapeKind);
-            Assert.Equal(new MetreVector((Half)0.9f, (Half)0.05f, (Half)0.9f), topCol.HalfExtents);
-            Assert.Equal((Half)0, topCol.LocalPose.Translation.X);
-            Assert.Equal((Half)0.03f, topCol.LocalPose.Translation.Y);
-            Assert.Equal((Half)0, topCol.LocalPose.Translation.Z);
+            Assert.Equal(new MetreVector(0.9f, 0.05f, 0.9f), topCol.HalfExtents);
+            Assert.Equal(0f, topCol.LocalPose.Translation.X);
+            Assert.Equal(0.03f, topCol.LocalPose.Translation.Y);
+            Assert.Equal(0f, topCol.LocalPose.Translation.Z);
 
             Assert.Equal(3, ports.Count);
             Assert.Equal(new Godot.Vector3(-1.18f, -0.08f, 0), ports["PowerIn"].Position);
@@ -164,11 +164,10 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
     {
         var row = Row(.3f);
         row.Validate();
-        // D1: the f32 row keeps CAT-052's alignment (1 − 10⁻⁶, which binary16 rounds to 1) and a non-dyadic minimum exactly.
+        // D1: the f32 row keeps CAT-052's alignment (1 − 10⁻⁶, which a half-precision lane rounds to 1) and a non-dyadic minimum exactly.
         Assert.NotEqual(1f, row.MinimumAlignment);
         Assert.Equal(1f - 1e-6f, row.MinimumAlignment);
         Assert.Equal(.3f, row.MinimumMass);
-        Assert.Equal((Half)1, (Half)row.MinimumAlignment); // control: the deleted Half field lost the instance value
 
         Assert.Throws<ArgumentException>(() => (row with { Id = default }).Validate());
         Assert.Throws<ArgumentException>(() => (row with { Frame = default }).Validate());
@@ -201,7 +200,7 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
     [Fact]
     public void ContactLoadSensorTracker_CountsEachBodyOnceAndSumsBodies()
     {
-        var domino = (float)(Half).4f;
+        var domino = .4f;
         Assert.Equal(0f, Measure(Row()));
         Assert.Equal(domino, Measure(Row(), On(20, domino, -.2f, -.3f), On(20, domino, .2f, -.3f), On(20, domino, .2f, .3f), On(20, domino, -.2f, .3f)));
         Assert.Equal(ContactLoadPhase.Underweight, Row().PhaseOf(Measure(Row(), On(20, domino, -.2f), On(20, domino, .2f))));
@@ -279,7 +278,7 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
         {
             Assert.Equal(WorkshopPhysicsCompiler.ContactLoadSensor(instance.Id), row.Id);
             var face = scene.Colliders.ToArray().Single(c => c.Id == row.Face);
-            Assert.Equal((instance.Id, (Half).03f, new MetreVector((Half).9f, (Half).05f, (Half).9f)), (face.Body, face.Pose.Translation.Y, face.HalfExtents));
+            Assert.Equal((instance.Id, .03f, new MetreVector(.9f, .05f, .9f)), (face.Body, face.Pose.Translation.Y, face.HalfExtents));
             Assert.Equal((-.9001f, .9001f, -.900001f, .900001f), (row.MinimumX, row.MaximumX, row.MinimumZ, row.MaximumZ));
             Assert.Equal((Up, 1f - 1e-6f, .0001f), (row.LocalNormal, row.MinimumAlignment, row.MaximumGap));
             Assert.Equal(minimum, row.MinimumMass);
@@ -288,7 +287,7 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
         Assert.Equal(battery.Id,scene.Electrical.Sources[0].Owner);
         Assert.Equal(gate.Id,scene.Prismatics[0].BodyA);
         // The deleted drag encoding: the blade declares no drag whatever feeds it.
-        Assert.Equal((Half)0, scene.Bodies.ToArray().Single(b => b.Id == WorkshopPhysicsCompiler.SliderBody(gate.Id, 0)).LinearDrag.Value);
+        Assert.Equal(0f, scene.Bodies.ToArray().Single(b => b.Id == WorkshopPhysicsCompiler.SliderBody(gate.Id, 0)).LinearDrag.Value);
     }
 
     [Fact]

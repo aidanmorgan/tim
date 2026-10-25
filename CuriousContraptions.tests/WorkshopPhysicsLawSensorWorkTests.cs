@@ -79,7 +79,7 @@ public sealed class WorkshopPhysicsLawSensorWorkTests
         var final = world.Step(4 * world.TicksPerSecond, (_, state) => everFired |= Sensor(state).Phase == OrientationSensorPhase.Fired);
         Assert.False(everFired);
         var sensor = Sensor(final);
-        Assert.Equal((OrientationSensorPhase.Armed, 0u, (Half)0), (sensor.Phase, sensor.EventOrdinal, sensor.EventPhase));
+        Assert.Equal((OrientationSensorPhase.Armed, 0u, 0f), (sensor.Phase, sensor.EventOrdinal, sensor.EventPhase));
         const int DeclarationBytes = 34; // id, body slot, padding, initial rotation and threshold precede the event lanes
         var sensorRecord = PhysicsGpuAbi.Layout(world.Admitted).OrientationSensorOffset(0);
         Assert.Equal(world.Admitted.AsSpan(sensorRecord, DeclarationBytes).ToArray(),
@@ -132,7 +132,7 @@ public sealed class WorkshopPhysicsLawSensorWorkTests
         Assert.Equal(crossed, fired!.Value.Tick);
         Assert.InRange(fired.Value.Ordinal, (uint)(fired.Value.Tick - 1) * 4 + 1, (uint)fired.Value.Tick * 4);
         var sensorFinal = Sensor(final);
-        Assert.Equal((OrientationSensorPhase.Fired, fired.Value.Ordinal, (Half)0), (sensorFinal.Phase, sensorFinal.EventOrdinal, sensorFinal.EventPhase));
+        Assert.Equal((OrientationSensorPhase.Fired, fired.Value.Ordinal, 0f), (sensorFinal.Phase, sensorFinal.EventOrdinal, sensorFinal.EventPhase));
         Assert.InRange(final[tile].Tilt, 87f, 93f);
     }
 

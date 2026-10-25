@@ -17,20 +17,20 @@ public sealed class WorkshopDominoTests
         var scene = WorkshopPhysicsCompiler.Compile(Construction(), new(1, 2));
         var body = Assert.Single(scene.Bodies.ToArray(), b => b.Id == new GpuBodyId(2));
         Assert.Equal(RigidMotionKind.Dynamic, body.Motion);
-        Assert.Equal(new Kilograms((Half).4), body.Mass);
-        Assert.Equal(new AccelerationVector((Half)0, (Half)(-9.81), (Half)0), body.Gravity);
-        Assert.Equal(new InverseSeconds((Half)0), body.LinearDrag);
+        Assert.Equal(new Kilograms(.4f), body.Mass);
+        Assert.Equal(new AccelerationVector(0f, -9.81f, 0f), body.Gravity);
+        Assert.Equal(new InverseSeconds(0f), body.LinearDrag);
         Assert.True(body.Velocity.IsPositiveZero);
         Assert.True(body.AngularVelocity.IsPositiveZero);
         var box = Assert.Single(scene.Colliders.ToArray(), c => c.Body == body.Id);
         Assert.Equal(ColliderShapeKind.Box, box.Shape);
         Assert.Equal(RigidLocalPose.Identity, box.Pose);
-        Assert.Equal(new MetreVector((Half).125, (Half).55, (Half).325), box.HalfExtents);
+        Assert.Equal(new MetreVector(.125f, .55f, .325f), box.HalfExtents);
         var material = Assert.Single(scene.Materials.ToArray(), m => m.Id == box.Material);
-        Assert.Equal(new Restitution((Half).05), material.Restitution);
-        Assert.Equal(new LinearSpeed((Half).1), material.BounceThreshold);
-        Assert.Equal(new FrictionCoefficient((Half).6), material.Friction);
-        Assert.Equal(new RollingResistance((Half)0), material.RollingResistance); // a box declares no rolling resistance
+        Assert.Equal(new Restitution(.05f), material.Restitution);
+        Assert.Equal(new LinearSpeed(.1f), material.BounceThreshold);
+        Assert.Equal(new FrictionCoefficient(.6f), material.Friction);
+        Assert.Equal(new RollingResistance(0f), material.RollingResistance); // a box declares no rolling resistance
         Assert.Equal(2, scene.Bodies.ToArray().Count(b => b.Motion == RigidMotionKind.Dynamic));
         Assert.Empty(scene.Sensors.ToArray()); Assert.Empty(scene.Triggers.ToArray()); Assert.Empty(scene.ContactWorks.ToArray());
     }
@@ -44,22 +44,21 @@ public sealed class WorkshopDominoTests
         var properties = RigidMassProperties.Compile(body, box);
         Assert.Equal(default, properties.LocalCentreOfMass);
         Assert.Equal(CanonicalRotation.Identity, properties.PrincipalFrame);
-        const double mass = .4, hx = .125, hy = .55, hz = .325;
+        // The exact moments of the declared f32 inputs, within the five f32 roundings of the closed form (6 · 2^-24 relative).
+        double mass = .4f, hx = .125f, hy = .55f, hz = .325f;
         Near(properties.X, mass * (hy * hy + hz * hz) / 3);
         Near(properties.Y, mass * (hx * hx + hz * hz) / 3);
         Near(properties.Z, mass * (hx * hx + hy * hy) / 3);
-        // The admission record carries exactly these moments (Half mantissa + int32 exponent) for the worker to read.
+        // The admission record carries exactly these f32 moments for the worker to read.
         var bytes = PhysicsGpuAbi.Admission(scene, new(1), new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1)));
         var slot = Array.FindIndex(scene.Bodies.ToArray(), b => b.Id == body.Id);
-        var record = bytes.AsSpan(scene.World.BodyOffset(slot), PhysicsGpuAbi.BodyBytes);
-        Assert.Equal(BitConverter.HalfToUInt16Bits(properties.X.Mantissa), BinaryPrimitives.ReadUInt16LittleEndian(record[120..]));
-        Assert.Equal(properties.X.Exponent, BinaryPrimitives.ReadInt32LittleEndian(record[124..]));
-        Assert.Equal(BitConverter.HalfToUInt16Bits(properties.Y.Mantissa), BinaryPrimitives.ReadUInt16LittleEndian(record[128..]));
-        Assert.Equal(properties.Y.Exponent, BinaryPrimitives.ReadInt32LittleEndian(record[132..]));
-        Assert.Equal(BitConverter.HalfToUInt16Bits(properties.Z.Mantissa), BinaryPrimitives.ReadUInt16LittleEndian(record[136..]));
-        Assert.Equal(properties.Z.Exponent, BinaryPrimitives.ReadInt32LittleEndian(record[140..]));
+        var offset = scene.World.BodyOffset(slot) + PhysicsGpuAbi.BodyPrincipalInertiaOffset;
+        uint Moment(int axis) => BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(offset + axis * PhysicsGpuAbi.PrincipalInertiaBytes));
+        Assert.Equal(BitConverter.SingleToUInt32Bits(properties.X.Moment), Moment(0));
+        Assert.Equal(BitConverter.SingleToUInt32Bits(properties.Y.Moment), Moment(1));
+        Assert.Equal(BitConverter.SingleToUInt32Bits(properties.Z.Moment), Moment(2));
         static void Near(PrincipalInertia value, double expected) =>
-            Assert.InRange(Math.Abs(Math.ScaleB((double)value.Mantissa, value.Exponent) - expected) / expected, 0, .003);
+            Assert.InRange(Math.Abs(value.Moment - expected) / expected, 0, 6.0 / (1 << 24));
     }
 
     // 9A.32: the tile is a zero-parameter generic instance of its package; its material is the package's and no record field or

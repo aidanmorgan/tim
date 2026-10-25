@@ -100,7 +100,7 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
     public void SinglePrecisionEndpointSurvivesProductionBatchAndControlCodec()
     {
         const float endpoint = .42000002f;
-        Assert.NotEqual(endpoint, (float)(Half)endpoint);
+        Assert.True(TestPrecision.NeedsMoreThanElevenSignificantBits(endpoint));
         var batch = new AnimationBatch(1);
         var handle = batch.Register(new(new(1), AnimationProperty.LocalRotationAngle),
             new(new(new AnimationRadians(-endpoint)), new(new AnimationRadians(endpoint)), new(.125f),
@@ -308,7 +308,7 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
         var latch = PlacedParts.Latch(new(3), 0, 0, 0, 0, 0, 0, 1);
         var battery = PlacedParts.Battery(new(4), -6, 0, 0);
         var lamp = PlacedParts.Lamp(new(5), 3, 0, 0, 0, 0, 0, 1);
-        var delay = WorkshopInput.Generic(PartId.Delay, new(6), 3, 3, 0, 0, 0, 0, 1, new InstanceParameterCollection([new(new ParameterId("delay_seconds"), (float).5f)]));
+        var delay = WorkshopInput.Generic(PartId.Delay, new(6), 3, 3, 0, 0, 0, 0, 1, new InstanceParameterCollection([new(new ParameterId("delay_seconds"), .5f)]));
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(),
             new(setClock, resetClock, latch, battery, lamp, delay),
             Connections: new(

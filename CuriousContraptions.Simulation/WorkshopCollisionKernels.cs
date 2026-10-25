@@ -42,7 +42,6 @@ internal sealed class SimBody
     public float InvMass;
     public float Gx, Gy, Gz;
     public float Drag;
-    public ushort DragBits;
     public Vector3 ComLocal;
     public Quaternion Principal;
     public Vector3 InvI;
@@ -141,6 +140,12 @@ internal sealed class ContactManifold
 {
     public List<ContactPoint> Points = new();
     public float Rolling;
+    /// <summary>The rolling-resistance row's directions, set by <see cref="WorkshopConstraintSolver.PrepareRolling"/> from the
+    /// manifold's curved supports (each point's <see cref="ContactPoint.SupportA"/>/<see cref="ContactPoint.SupportB"/> and its
+    /// colliders' shapes): both contact tangents for a sphere or crossed curved sides, or one rolling axis (Roll2 zero, with zero
+    /// mass) for one curved side or two parallel ones.</summary>
+    public Vector3 Roll1;
+    public Vector3 Roll2;
     public float RollingMass1;
     public float RollingMass2;
     public float LambdaR1;
@@ -258,7 +263,7 @@ internal static class WorkshopCollisionKernels
         _ => 0f
     };
 
-    /// <summary>Half a cylinder's extent along unit <paramref name="axis"/> about its centre, exactly: h |u·a| + r √(1 − (u·a)²).</summary>
+    /// <summary>The half-extent of a cylinder along unit <paramref name="axis"/> about its centre, exactly: h |u·a| + r √(1 − (u·a)²).</summary>
     public static float CylinderProjection(SimCollider c, Vector3 axis)
     {
         var t = MathF.Abs(Vector3.Dot(axis, c.U1));
@@ -742,7 +747,7 @@ internal static class WorkshopCollisionKernels
 
     /// <summary>The side tolerance mirrors the cap tolerance (EdgeFaceAlignment): a normal within the same angle of the plane
     /// perpendicular to the axis (|n·a| ≤ √(1 − 0.98²)) meets the curved side along a generator line.</summary>
-    private const float SideAlignment = 0.19899749f;
+    internal const float SideAlignment = 0.19899749f;
     /// <summary>Relative slack of the in-disc and in-face tests, so equal coaxial radii keep their shared rim.</summary>
     private const float InsideTolerance = 1e-4f;
     /// <summary>A SAT axis that is no face normal must beat the best face axis by this many metres, so a resting face keeps one
@@ -751,8 +756,8 @@ internal static class WorkshopCollisionKernels
     private const float RimDiagonal = 0.70710677f;
     /// <summary>Two cylinder sides touch along a stretch only when their axes are parallel within 2° (cos 2°). Skewed further, they
     /// touch at one point: a two-point stretch on a skewed pair puts the rows at the rolling body's rim ends and pumps energy into it
-    /// (review F4, measured on the reviewer's drop 17).</summary>
-    private const float LineAlignment = 0.99939083f;
+    /// (review F4, measured on the reviewer's drop 17). The rolling row shares it: parallel curved sides roll about one common axis.</summary>
+    internal const float LineAlignment = 0.99939083f;
 
     /// <summary>Which cylinder feature a contact came from; the feature id is (kind &lt;&lt; 12) | detail, distinct within a manifold,
     /// so a warm start carries over while that feature persists (stability while rolling is not separately qualified).</summary>

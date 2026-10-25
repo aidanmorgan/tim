@@ -196,7 +196,7 @@ public sealed class CSharpStaticGateTests
     /// index snapshot (no .git), every file except build outputs and nested repositories.</summary>
     private static readonly IReadOnlyList<string> Files = RepositoryFiles();
 
-    private static string[] RepositoryFiles()
+    internal static string[] RepositoryFiles()
     {
         if (!File.Exists(Path.Combine(Root, ".git")) && !Directory.Exists(Path.Combine(Root, ".git"))) return Walk(Root).ToArray();
         var listed = Run("git", ["-C", Root, "ls-files", "-z", "--cached", "--others", "--exclude-standard"]);

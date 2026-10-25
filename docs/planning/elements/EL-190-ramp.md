@@ -54,7 +54,7 @@ Families ([element map row](../general-engine-element-map.md), [binding](../../c
 | --- | --- | --- | --- |
 | 1 | first_principles: Basketball locked at (−4, 6.5, 0), Receiver at (2.5, 0.9, 0), inventory 2 ramps, captured goal. | `content/puzzles.json@a6c914e:L2-L275`; `engine/gpu/WorkshopPuzzle.cs@a6c914e:L119-L134` | Carry forward (current). |
 | 2 | Ramp used in 36 legacy placements across delivery lessons. | `content/puzzles.json@a6c914e:L8205-L8673` (`two_deliveries`), `content/puzzles.json@a6c914e:L13930-L14460` (`deep_routes`) | Carry forward as lesson references. |
-| 3 | Legacy resize took a free float vector and converted to binary16. | `parts/RampPart.cs@a6c914e:L27-L31` | Do not carry forward binary16 conversion (f32 contract). |
+| 3 | Legacy resize took a free float vector and converted to half-precision. | `parts/RampPart.cs@a6c914e:L27-L31` | Do not carry forward half-precision conversion (f32 contract). |
 
 Files consulted: `content/puzzles.json`, `parts/RampPart.cs`, `parts/catalog/ramp.tres`.
 

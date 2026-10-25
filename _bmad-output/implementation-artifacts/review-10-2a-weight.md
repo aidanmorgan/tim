@@ -326,3 +326,37 @@ These were taken after staging the candidate, before this section was appended:
 - **SHA-256 of `git diff --cached --binary HEAD`:** `c53177ed64e1bba73d62ac2eb91102befba77dfe343adc47805a27881412b35f`.
 
 This section was then appended and the record re-staged. The final staged tree is the one reported to the coordinator, and publication check 1 compares against it.
+
+## Terminal publication verification — 24 October 2026
+
+Raw outputs are in `evidence-10-2a-review/terminal/`. They were checked between 03:40 and 03:42Z on 24 October 2026.
+
+**Identities**
+- **Slice commit:** `960e3e0374622cd061e585d628ad49e805303914`, tree `55dfb78d882bbf535db4cd1e9dfa7ffe77b25a63`, parent `56f3e327`.
+- **Published merge:** `b88ca4251d8ff37272981bdd4654bd950987d04d`, parents `f1ad3bd1` and `960e3e03`, same tree as the slice commit. `git diff 960e3e03 b88ca425` is empty.
+- **Remote:** `origin/main` and `git ls-remote origin refs/heads/main` both return `b88ca425…`.
+
+| # | Publication-dependent check | Result | Raw |
+| --- | --- | --- | --- |
+| 1 | The commit tree equals the approved snapshot | **Pass.** `960e3e03^{tree}` is `55dfb78d`, the final staged tree reported with the SnapshotApproval. `git diff --binary 56f3e327 960e3e03` has SHA-256 `65ef8f89…25ff`. This is the post-append delta; the recorded `c53177ed…` was the pre-append delta, as stated above. | `identities.txt` |
+| 2 | Hooks | **Pass.** I re-ran the hook on the exact published tree. Setup: a throwaway worktree with HEAD `56f3e327` and index `55dfb78d` (8 staged paths, 0 unstaged, 0 untracked), run through `.git/hooks/pre-commit` from 03:40:50Z to 03:41:35Z. Result: 3 gate builds with 0 warnings and 0 errors; 124/124 tests; hook rc 0. The worktree has been removed. | `hook-rerun.log` |
+| 3 | The merge tree equals the branch tree, and remote main is the published merge | **Pass** | `identities.txt` |
+| 4 | Pages workflow on the exact SHA, every step, Skipped 0 | **Pass.** Run `40057791030`, "Build and deploy game": push to main, headSha `b88ca425`, completed with success. The checkout fetched `b88ca425…`. Every build step (1–11 and the post steps) and every deploy step succeeded. Totals below. | `run.json`, `build-job.log`, `deploy-job.log` |
+| 5 | Pages artifact ownership and deployment | **Pass.** Artifact `github-pages`, id `12546214650` (digest `sha256:2e47dfed…80fe`, 80,416,250 bytes, not expired), belongs to run `40057791030` at headSha `b88ca425`. `deploy-pages` fetched artifact id `12546214650` and created the deployment for `b88ca425…` ("Reported success!" at 03:39:03Z). The newest github-pages deployment, `7293547849` (sha `b88ca425`), has status success with environment URL `https://aidanmorgan.github.io/tim/`. | `artifact-deployment.txt`, `deployment-status.txt`, `deploy-job.log` |
+| 6 | Serving | **Pass.** `/`, `/index.html`, `/404.html`, `/godot.wasm`, `/godot.pck` and `/_framework/dotnet.js` each return 200. Every `last-modified` is 03:39:03 GMT, this deployment's own time. | `deployment-status.txt` |
+| 7 | Status | `10-2a-weight` → `done # scoped native/publication Passb88ca4; browser pending (cat-067, engine-cylinder)` | `sprint-status.yaml` |
+| 8 | Browser cases | Pending for post-catalogue E2E: `cat-067` (including the 10.1 engine-cylinder dynamic case), the Weight beside a Bumper, edge placements under the body-extent grid rule, and `cat-015b`'s Wall click | — |
+
+**CI totals for run `40057791030`:**
+
+| Item | Result |
+| --- | --- |
+| Gate builds (3) | 0 W / 0 E |
+| Test C# game | 2988/2988 |
+| Coverage | 77 |
+| BundleElements | 194 |
+| WorkerAotGuard | 17 |
+| E2eRunner | 192 (the browser-toolchain cases are deferred through `BrowserDeferral.cs`) |
+| Skipped | 0 in every row |
+
+**Terminal verdict: scoped native and publication Pass at `b88ca4251d8f`.** Browser qualification remains pending until the post-catalogue E2E phase. This is not a browser or release qualification.

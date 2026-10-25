@@ -43,7 +43,7 @@ Families from the [element map row](../general-engine-element-map.md): Aerodynam
 | --- | --- |
 | Buoyancy and atmosphere (declared zero today) | Epic 12 |
 | Lever loading integration | Story 10.3 (CAT-034 Impact lever) |
-| f32 declarations: the package declares f32; the compiled body, collider and material lanes are still binary16 (`Half`) until Story 9A.44 | Remaining f32 migration ([f32 migration status](../../gpu-f32-physics.md#f32-migration-status)) |
+| f32 declarations: the package declares f32; the compiled body, collider and material lanes are f32 (Story 9A.44) | Delivered by Story 9A.44 ([numeric authority](../../gpu-f32-physics.md)) |
 
 Dependencies: none. Shares CAT-001's ball record; differs only by declared material.
 

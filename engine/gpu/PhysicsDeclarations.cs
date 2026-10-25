@@ -12,15 +12,15 @@ public readonly record struct GpuColliderId(ulong Value);
 public readonly record struct GpuMaterialId(ulong Value);
 public readonly record struct GpuSensorId(ulong Value);
 public readonly record struct GpuForceId(ulong Value);
-public readonly record struct FrictionCoefficient(Half Value);
+public readonly record struct FrictionCoefficient(float Value);
 /// <summary>Dimensionless rolling-resistance coefficient Crr: at every sphere contact and every curved-side cylinder contact the solver
 /// opposes the relative rolling with an angular impulse of at most Crr · normal impulse · radius, equal and opposite on both
 /// bodies.</summary>
-public readonly record struct RollingResistance(Half Value);
-public readonly record struct LinearSpeed(Half Value);
-public readonly record struct DurationSeconds(Half Value);
-public readonly record struct MetreVector(Half X, Half Y, Half Z);
-public readonly record struct AccelerationVector(Half X, Half Y, Half Z);
+public readonly record struct RollingResistance(float Value);
+public readonly record struct LinearSpeed(float Value);
+public readonly record struct DurationSeconds(float Value);
+public readonly record struct MetreVector(float X, float Y, float Z);
+public readonly record struct AccelerationVector(float X, float Y, float Z);
 /// <summary>Committed angular velocity in radians per second as IEEE-754 f32, bounded by the game-grade 128 rad/s envelope.</summary>
 public readonly record struct AngularVelocity(float X, float Y, float Z)
 {
@@ -35,7 +35,7 @@ public readonly record struct RigidLocalPose(MetreVector Translation, CanonicalR
     public static RigidLocalPose Identity => new(default, CanonicalRotation.Identity);
     public void Validate()
     {
-        PhysicsDeclarationBounds.Vector(Translation.X, Translation.Y, Translation.Z, (Half)16);
+        PhysicsDeclarationBounds.Vector(Translation.X, Translation.Y, Translation.Z, 16f);
         Rotation.Validate();
     }
 }
@@ -48,10 +48,10 @@ public readonly record struct ContactMaterialDeclaration(
     public void Validate()
     {
         if (Id.Value == 0) throw new ArgumentException("Material identity is required.");
-        PhysicsDeclarationBounds.Range(Restitution.Value, (Half)0, (Half)1);
-        PhysicsDeclarationBounds.Range(BounceThreshold.Value, (Half)0, (Half)64);
-        PhysicsDeclarationBounds.Range(Friction.Value, (Half)0, (Half)1);
-        PhysicsDeclarationBounds.Range(RollingResistance.Value, (Half)0, (Half)0.1);
+        PhysicsDeclarationBounds.Range(Restitution.Value, 0f,1f);
+        PhysicsDeclarationBounds.Range(BounceThreshold.Value, 0f,64f);
+        PhysicsDeclarationBounds.Range(Friction.Value, 0f,1f);
+        PhysicsDeclarationBounds.Range(RollingResistance.Value, 0f,0.1f);
     }
 }
 
@@ -67,8 +67,8 @@ public readonly record struct RigidBodyDeclaration(
         new CanonicalBody(Id, 0, 0, Cell, Local, Velocity).Validate();
         Rotation.Validate();
         AngularVelocity.Validate();
-        PhysicsDeclarationBounds.Vector(Gravity.X, Gravity.Y, Gravity.Z, (Half)16);
-        PhysicsDeclarationBounds.Range(LinearDrag.Value, (Half)0, (Half)0.125);
+        PhysicsDeclarationBounds.Vector(Gravity.X, Gravity.Y, Gravity.Z, 16f);
+        PhysicsDeclarationBounds.Range(LinearDrag.Value, 0f,0.125f);
         if (Motion == RigidMotionKind.Static)
         {
             if (!PhysicsDeclarationBounds.Zero(Mass.Value) || !Velocity.IsPositiveZero || !AngularVelocity.IsPositiveZero ||
@@ -77,13 +77,13 @@ public readonly record struct RigidBodyDeclaration(
                 throw new ArgumentException("Static bodies require zero motion, mass and forces.");
             return;
         }
-        PhysicsDeclarationBounds.Range(Mass.Value, (Half)(1.0 / 1024), (Half)1024);
+        PhysicsDeclarationBounds.Range(Mass.Value, 1f / 1024, 1024f);
         // Wide arithmetic is admission-only: it rejects an out-of-domain declaration, never integrates it.
         if (Squared(Gravity.X, Gravity.Y, Gravity.Z) > 256)
             throw new ArgumentException("Gravity exceeds the admitted vector magnitude.");
     }
 
-    private static double Squared(Half x, Half y, Half z) =>
+    private static double Squared(float x, float y, float z) =>
         (double)x * (double)x + (double)y * (double)y + (double)z * (double)z;
 }
 
@@ -100,15 +100,15 @@ public readonly record struct ColliderDeclaration(
         switch (Shape)
         {
             case ColliderShapeKind.Sphere:
-                PhysicsDeclarationBounds.Range(Radius.Value, (Half)(1.0 / 16), (Half)16);
+                PhysicsDeclarationBounds.Range(Radius.Value, 1f / 16, 16f);
                 if (!PhysicsDeclarationBounds.Zero(HalfExtents.X, HalfExtents.Y, HalfExtents.Z))
                     throw new ArgumentException("Sphere extents must be zero.");
                 break;
             case ColliderShapeKind.Box:
                 if (!PhysicsDeclarationBounds.Zero(Radius.Value)) throw new ArgumentException("Box radius must be zero.");
-                PhysicsDeclarationBounds.Range(HalfExtents.X, (Half)(1.0 / 1024), (Half)16);
-                PhysicsDeclarationBounds.Range(HalfExtents.Y, (Half)(1.0 / 1024), (Half)16);
-                PhysicsDeclarationBounds.Range(HalfExtents.Z, (Half)(1.0 / 1024), (Half)16);
+                PhysicsDeclarationBounds.Range(HalfExtents.X, 1f / 1024, 16f);
+                PhysicsDeclarationBounds.Range(HalfExtents.Y, 1f / 1024, 16f);
+                PhysicsDeclarationBounds.Range(HalfExtents.Z, 1f / 1024, 16f);
                 break;
             case ColliderShapeKind.Plane:
                 if (!PhysicsDeclarationBounds.Zero(Radius.Value) ||
@@ -117,10 +117,10 @@ public readonly record struct ColliderDeclaration(
                 break;
             case ColliderShapeKind.Cylinder:
                 // Radius r in the sphere range, half-width h = w/2 along local +Y in the box range; X and Z are canonical zero.
-                PhysicsDeclarationBounds.Range(Radius.Value, (Half)(1.0 / 16), (Half)16);
+                PhysicsDeclarationBounds.Range(Radius.Value, 1f / 16, 16f);
                 if (!PhysicsDeclarationBounds.Zero(HalfExtents.X) || !PhysicsDeclarationBounds.Zero(HalfExtents.Z))
                     throw new ArgumentException("Cylinder X and Z extents must be zero.");
-                PhysicsDeclarationBounds.Range(HalfExtents.Y, (Half)(1.0 / 1024), (Half)16);
+                PhysicsDeclarationBounds.Range(HalfExtents.Y, 1f / 1024, 16f);
                 break;
             default:
                 throw new ArgumentException("Unsupported shape.");
@@ -140,12 +140,12 @@ public readonly record struct ResidenceSensorDeclaration(
             !Enum.IsDefined(Participation))
             throw new ArgumentException("Invalid residence identity or participation.");
         Pose.Validate();
-        PhysicsDeclarationBounds.Vector(Minimum.X, Minimum.Y, Minimum.Z, (Half)16);
-        PhysicsDeclarationBounds.Vector(Maximum.X, Maximum.Y, Maximum.Z, (Half)16);
+        PhysicsDeclarationBounds.Vector(Minimum.X, Minimum.Y, Minimum.Z, 16f);
+        PhysicsDeclarationBounds.Vector(Maximum.X, Maximum.Y, Maximum.Z, 16f);
         if (Minimum.X >= Maximum.X || Minimum.Y >= Maximum.Y || Minimum.Z >= Maximum.Z)
             throw new ArgumentException("Residence bounds must enclose an open volume.");
-        PhysicsDeclarationBounds.Range(SpeedLimit.Value, (Half)(1.0 / 1024), (Half)64);
-        PhysicsDeclarationBounds.Range(Dwell.Value, (Half)(1.0 / 1024), (Half)30);
+        PhysicsDeclarationBounds.Range(SpeedLimit.Value, 1f / 1024, 64f);
+        PhysicsDeclarationBounds.Range(Dwell.Value, 1f / 1024, 30f);
     }
 }
 
@@ -159,13 +159,13 @@ public readonly record struct PlanarGuideDeclaration(
         if (Id.Value == 0 || Frame.Value == 0 || Target.Value == 0 || Frame == Target)
             throw new ArgumentException("Invalid guide identity.");
         Pose.Validate();
-        PhysicsDeclarationBounds.Vector(Minimum.X, Minimum.Y, Minimum.Z, (Half)16);
-        PhysicsDeclarationBounds.Vector(Maximum.X, Maximum.Y, Maximum.Z, (Half)16);
+        PhysicsDeclarationBounds.Vector(Minimum.X, Minimum.Y, Minimum.Z, 16f);
+        PhysicsDeclarationBounds.Vector(Maximum.X, Maximum.Y, Maximum.Z, 16f);
         if (Minimum.X >= Maximum.X || Minimum.Y >= Maximum.Y || Minimum.Z >= Maximum.Z)
             throw new ArgumentException("Guide bounds must enclose a volume.");
-        PhysicsDeclarationBounds.Range(SupportHeight.Value, (Half)(-16), (Half)16);
-        PhysicsDeclarationBounds.Range(SupportMargin.Value, (Half)0, (Half)1);
-        PhysicsDeclarationBounds.Range(MaximumAcceleration.Value, (Half)0, (Half)12);
+        PhysicsDeclarationBounds.Range(SupportHeight.Value, -16f, 16f);
+        PhysicsDeclarationBounds.Range(SupportMargin.Value, 0f,1f);
+        PhysicsDeclarationBounds.Range(MaximumAcceleration.Value, 0f,12f);
     }
 }
 
@@ -371,16 +371,17 @@ public sealed class PhysicsSceneDeclaration
 
 internal static class PhysicsDeclarationBounds
 {
-    internal static void Range(Half value, Half minimum, Half maximum)
+    /// <summary>Admits a finite f32 value inside the closed declared range, compared at the exact f32 bounds.</summary>
+    internal static void Range(float value, float minimum, float maximum)
     {
-        if (!Half.IsFinite(value) || value < minimum || value > maximum)
+        if (!float.IsFinite(value) || value < minimum || value > maximum)
             throw new ArgumentException("Physical declaration exceeds its admitted domain.");
     }
-    internal static void Vector(Half x, Half y, Half z, Half magnitude)
+    internal static void Vector(float x, float y, float z, float magnitude)
     {
-        Range(x, (Half)(-magnitude), magnitude);
-        Range(y, (Half)(-magnitude), magnitude);
-        Range(z, (Half)(-magnitude), magnitude);
+        Range(x, -magnitude, magnitude);
+        Range(y, -magnitude, magnitude);
+        Range(z, -magnitude, magnitude);
     }
     /// <summary>Rejects a non-finite f32 vector or one whose magnitude exceeds the bound (wide arithmetic, admission only).</summary>
     internal static void Magnitude(float x, float y, float z, double maximum)
@@ -389,6 +390,7 @@ internal static class PhysicsDeclarationBounds
             (double)x * x + (double)y * y + (double)z * z > maximum * maximum)
             throw new ArgumentException("Physical vector is non-finite or exceeds its admitted magnitude.");
     }
-    internal static bool Zero(Half value) => BitConverter.HalfToUInt16Bits(value) == 0;
-    internal static bool Zero(Half x, Half y, Half z) => Zero(x) && Zero(y) && Zero(z);
+    /// <summary>Canonical positive zero: the all-zero f32 bit pattern (−0 is not zero here).</summary>
+    internal static bool Zero(float value) => BitConverter.SingleToUInt32Bits(value) == 0;
+    internal static bool Zero(float x, float y, float z) => Zero(x) && Zero(y) && Zero(z);
 }

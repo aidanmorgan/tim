@@ -30,7 +30,7 @@ public partial class Workshop
             var nextId = new GpuBodyId(_nextId.Value + count);
             var candidate = id.IsAuthored
                 ? PuzzleCatalogue.Create(id, World.Construction.Revision, World.Construction.Settings,
-                    _nextId, new((Half)(_precision.Value / 100)))
+                    _nextId, new((float)(_precision.Value / 100)))
                 : new WorkshopConstruction(World.Construction.Revision, World.Construction.Settings, WorkshopInstances.Empty);
             if (!await SubmitConstruction(candidate)) { PresentMode(); return; }
             _nextId = nextId;
@@ -54,7 +54,7 @@ public partial class Workshop
         if (authored) _precision.SetValueNoSignal((double)World.Construction.Puzzle.Precision.Value * 100);
         _precisionText.Text = _precision.Value < 33 ? "Forgiving" : _precision.Value > 66 ? "Precise" : "Balanced";
         SetBuildUi(); RefreshPalette(); RefreshLayers();
-        _placementHeight = new((Half)3); SetBuildView(authored);
+        _placementHeight = new(3f); SetBuildView(authored);
         if (presentation is not null) _status.Text = presentation.Status;
     }
 
@@ -74,7 +74,7 @@ public partial class Workshop
         if (!CanEdit) { _precision.SetValueNoSignal((double)World.Construction.Puzzle.Precision.Value * 100); return; }
         try
         {
-            var precision = new PuzzlePrecision((Half)(value / 100));
+            var precision = new PuzzlePrecision((float)(value / 100));
             var candidate = PuzzleCatalogue.WithPrecision(World.Construction, precision);
             if (!await SubmitConstruction(candidate)) { _precision.SetValueNoSignal((double)World.Construction.Puzzle.Precision.Value * 100); return; }
             _precisionText.Text = value < 33 ? "Forgiving" : value > 66 ? "Precise" : "Balanced";

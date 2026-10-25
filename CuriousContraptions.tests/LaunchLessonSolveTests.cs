@@ -24,7 +24,7 @@ public sealed class LaunchLessonSolveTests
         // world-Y 180°.
         const double Qz = -.11166252195835114, Qw = .9937461614608765;
         WorkshopConstruction Lesson(string id, double precision) => PuzzleCatalogue.Create(new PuzzleId(id), new(2),
-            WorkshopCadenceSettings.Default(), new(1), new((Half)precision));
+            WorkshopCadenceSettings.Default(), new(1), new((float)precision));
         return route switch
         {
             Route.SpringPassive => Lesson("spring_forward", 1).WithInstance(PlacedParts.Springboard(Player, -3, .8, 0,
@@ -57,7 +57,7 @@ public sealed class LaunchLessonSolveTests
     /// production placement. The orientation is the Basis column-major array the content stores (as JoinedPipeTests reads it).</summary>
     private static readonly string[] WallKeys = ["width", "height", "thickness"];
 
-    internal static WorkshopConstruction AuthoredSolution(string lesson, Half precision)
+    internal static WorkshopConstruction AuthoredSolution(string lesson, float precision)
     {
         using var source = System.Text.Json.JsonDocument.Parse(File.ReadAllText(Path.Combine(twodog.Engine.ResolveProjectDir(), "content/puzzles.json")));
         var level = source.RootElement.EnumerateArray().Single(value => value.GetProperty("id").GetString() == lesson);
@@ -136,13 +136,22 @@ public sealed class LaunchLessonSolveTests
     [MemberData(nameof(AuthoredLessons))]
     public async Task TheAuthoredSolutionSolvesAtEveryPrecision(string lesson)
     {
-        foreach (var precision in new[] { (Half)0, (Half).45, (Half)1 })
+        foreach (var precision in new[] { 0f, .45f, 1f })
         {
             var bench = AuthoredSolution(lesson, precision);
             bench.Validate();
             var (built, run, reset) = await NoFixedCapacityTests.RunAndReset(bench, RunTicks);
-            Assert.True(Solved(bench, run), $"{lesson} at precision {(float)precision}");
+            Assert.True(Solved(bench, run), $"{lesson} at precision {precision}");
             NoFixedCapacityTests.AssertSameState(built, reset, "Reset");
+            // Save/load (Story 9A.44): the lesson's f32 puzzle record and its nine f32 assistance knots round-trip exactly, and the
+            // reloaded bench replays the same run to the same committed state and solves.
+            var saved = new WorkshopSavedConstruction(bench, new(bench.Instances.Max(instance => instance.Id.Value) + 1));
+            var bytes = WorkshopSaveCodec.Encode(saved);
+            var reloaded = WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes);
+            Assert.Equal(saved, reloaded);
+            var (_, replay, _) = await NoFixedCapacityTests.RunAndReset(reloaded.Construction, RunTicks);
+            Assert.True(Solved(reloaded.Construction, replay), $"{lesson} reloaded at precision {precision}");
+            NoFixedCapacityTests.AssertSameState(run[^1], replay[^1], $"{lesson} reloaded at precision {precision}");
         }
     }
 

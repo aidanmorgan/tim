@@ -123,7 +123,7 @@ public sealed class WorkshopWireFlatBuffersTests
         WorkshopInput.Generic(PartId.Ramp, new(1), 1, 2, 0, 0, 0, .258819, .9659258, new([new(new("length"), 4f), new(new("width"), 1.5f)])),
         WorkshopInput.Generic(PartId.Wall, new(1), -1, 4, 0, 0, 0, 0, 1, WallFixture.Values(.4f, 6, 1.5f)),
         WorkshopInput.Generic(PartId.ImpactSwitch, new(1), 0, 1, 0, 0, 0, 0, 1, new([new(new ParameterId("trigger_threshold"), 1.25f)])),
-        WorkshopInput.Generic(PartId.Delay, new(1), 0, 1, 0, 0, 0, 0, 1, new InstanceParameterCollection([new(new ParameterId("delay_seconds"), (float)2.5)])),
+        WorkshopInput.Generic(PartId.Delay, new(1), 0, 1, 0, 0, 0, 0, 1, new InstanceParameterCollection([new(new ParameterId("delay_seconds"), 2.5f)])),
         PlacedParts.Springboard(new(1), 0, .2, 0, 0, 0, 0, 1, compression: .2f),
         PlacedParts.Battery(new(1), 0, 1, 0, 60f, 30f, .5f, ElectricalEnable.Disabled),
         PlacedParts.Bumper(new(1), 0, 1, 0, strength: 6f),
@@ -168,8 +168,8 @@ public sealed class WorkshopWireFlatBuffersTests
     {
         var construction = kind switch
         {
-            WorkshopGoalKind.Captured => PuzzleCatalogue.Create(new PuzzleId("spring_forward"), new(1), WorkshopCadenceSettings.Default(), new(1), new((Half)1)),
-            WorkshopGoalKind.ActivatedAfter => PuzzleCatalogue.Create(new("delayed_signal"), new(1), WorkshopCadenceSettings.Default(), new(1), new((Half).5)),
+            WorkshopGoalKind.Captured => PuzzleCatalogue.Create(new PuzzleId("spring_forward"), new(1), WorkshopCadenceSettings.Default(), new(1), new(1f)),
+            WorkshopGoalKind.ActivatedAfter => PuzzleCatalogue.Create(new("delayed_signal"), new(1), WorkshopCadenceSettings.Default(), new(1), new(.5f)),
             WorkshopGoalKind.None => new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(),
                 new([WorkshopInput.Generic(PartId.Basketball,new(1), 0, 3, 0, 0, 0, 0, 1)])),
             _ => throw new ArgumentOutOfRangeException(nameof(kind))
@@ -247,7 +247,7 @@ public sealed class WorkshopWireFlatBuffersTests
     [Fact]
     public void Construction_CapturedGoal_EncodesDeclaredBodyTargetAndSensor()
     {
-        var lesson = PuzzleCatalogue.Create(new PuzzleId("ready_to_rebound"), new(1), WorkshopCadenceSettings.Default(), new(1), new((Half)1));
+        var lesson = PuzzleCatalogue.Create(new PuzzleId("ready_to_rebound"), new(1), WorkshopCadenceSettings.Default(), new(1), new(1f));
         var replacement = WorkshopInput.Generic(PartId.Receiver, new(4), 2, .55, 0, 0, 0, 0, 1);
         var construction = PuzzleCatalogue.WithInstance(lesson, replacement);
         var goal = construction.Puzzle.Goal;

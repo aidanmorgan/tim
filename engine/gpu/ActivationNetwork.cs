@@ -44,8 +44,7 @@ public readonly record struct ActivationLatch(ActivationNodeId Node, GpuBodyId O
     public void Validate()
     {
         if (Node.Value == 0 || Owner.Value == 0 || !Enum.IsDefined(Phase) ||
-            !float.IsFinite(EventPhase) || EventPhase < -2048f || EventPhase >= 2048f ||
-            (EventOrdinal == 0 && EventPhase < 0f) ||
+            !PhysicalPhase.IsAdmitted(EventOrdinal, EventPhase) ||
             !float.IsFinite(ApproachSpeed.Value) || ApproachSpeed.Value < 0f || ApproachSpeed.Value > 4096f)
             throw new ArgumentException("Invalid activation latch.");
         if (Phase == ActivationPhase.Clear)
@@ -334,7 +333,7 @@ public sealed class ActivationNetwork
             for (var j = 0; j < i; j++) if (events[j].Id == item.Id)
                 throw new ArgumentException("Duplicate contact occurrence batch.");
             if (item.OccurrenceCount == 0) continue;
-            var time = new ActivationTime(item.EventOrdinal, (float)item.EventPhase);
+            var time = new ActivationTime(item.EventOrdinal, item.EventPhase);
             var occurrence = new ActivationOccurrence(ActivationOccurrenceKind.Contact, _nodes[slot].Id, time,
                 new(new(item.Id.Value), item.Target, item.Collider, time, item.ApproachSpeed));
             occurrence.Validate();
@@ -371,7 +370,7 @@ public sealed class ActivationNetwork
                 if (values[slot].Phase == ActivationPhase.Latched) throw new ArgumentException("Orientation sensor regressed.");
                 continue;
             }
-            var time = new ActivationTime(item.EventOrdinal, (float)item.EventPhase);
+            var time = new ActivationTime(item.EventOrdinal, item.EventPhase);
             var occurrence = new ActivationOccurrence(ActivationOccurrenceKind.Orientation, _nodes[slot].Id, time,
                 new(new(item.Id.Value), item.Body, item.Collider, time, new(0f)));
             occurrence.Validate();
@@ -393,9 +392,9 @@ public sealed class ActivationNetwork
             for (var j = 0; j < i; j++) if (passages[j].Id == item.Id)
                 throw new ArgumentException("Duplicate passage occurrence batch.");
             if (item.Phase != PassageSensorPhase.Fired) continue;
-            var time = new ActivationTime(item.EventOrdinal, (float)item.EventPhase);
+            var time = new ActivationTime(item.EventOrdinal, item.EventPhase);
             var occurrence = new ActivationOccurrence(ActivationOccurrenceKind.Passage, _nodes[slot].Id, time,
-                new(new(item.Id.Value), item.Body, item.Collider, time, new((float)item.Speed.Value)));
+                new(new(item.Id.Value), item.Body, item.Collider, time, new(item.Speed.Value)));
             occurrence.Validate();
             if (time.CompareTo(end) > 0) throw new ArgumentException("Future passage occurrence.");
             if (values[slot].Phase == ActivationPhase.Latched)
@@ -915,12 +914,12 @@ public static class WorkshopActivationCompiler
             ? ActivationNodeKind.LevelIndicator : ActivationNodeKind.StickyFirstInput;
     }
 
-    /// <summary>The passage sensor a declared aperture compiles to on its owner's frame. The f32 radius and clearance narrow to the
-    /// sensor's binary16 lanes here (Story 9A.44 widens the lanes).</summary>
+    /// <summary>The passage sensor a declared aperture compiles to on its owner's frame, at the owner's placed pose, with the
+    /// declared f32 radius and rearm clearance exactly.</summary>
     public static PassageSensorDeclaration PassageSensorFor(IWorkshopInstance owner, SignalPassageDescriptor aperture)
     {
         ArgumentNullException.ThrowIfNull(owner);
         return new(WorkshopPhysicsCompiler.PassageSensor(owner.Id), owner.Id, owner.Cell, owner.Local, owner.Rotation,
-            new((Half)aperture.ApertureRadius), new((Half)aperture.RearmClearance));
+            new(aperture.ApertureRadius), new(aperture.RearmClearance));
     }
 }

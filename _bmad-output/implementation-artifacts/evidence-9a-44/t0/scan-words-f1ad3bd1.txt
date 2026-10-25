@@ -1,0 +1,877 @@
+./engine/Workbench.cs:10:    public readonly record struct RenderBox(Vector3 At, Vector3 Half);
+./engine/Workbench.cs:11:    private static float Render(Half value) => (float)value;
+./engine/Workbench.cs:12:    public static readonly RenderBox Base = new(new(0, Render((Half)(-.7)), 0),
+./engine/Workbench.cs:13:        new(Render((Half)8.5), Render((Half).175), Render((Half)5)));
+./engine/Workbench.cs:15:        new(0, Render(WorkshopConstruction.WorkbenchSurface.Value) - Render((Half).03), 0),
+./engine/Workbench.cs:16:        new(Render((Half)8.4), Render((Half).03), Render((Half)4.9)));
+./engine/PlacementPose.cs:41:    private readonly record struct Posed(Shape Kind, Vector3 Centre, Vector3 X, Vector3 Y, Vector3 Z, Vector3 Half, float Radius)
+./engine/PlacementPose.cs:44:        public float HalfAlong(int i) => i switch { 0 => Half.X, 1 => Half.Y, _ => Half.Z };
+./engine/PlacementPose.cs:45:        /// <summary>Half the shape's world vertical extent.</summary>
+./engine/PlacementPose.cs:46:        public float Height => Kind == Shape.Sphere ? Radius : MathF.Abs(X.Y) * Half.X + MathF.Abs(Y.Y) * Half.Y + MathF.Abs(Z.Y) * Half.Z;
+./TODO.md:24:2. **9A.44 f32 everywhere** (owner priority). Remove every binary16 lane and every `double` game value. `double` is allowed only at named external adapters. Game time is integer ticks plus an f32 phase. A guard enforces this. Split into A (solver/wire) and B (presentation/clock) if needed.
+./README.md:5:**Current playable implementation:** Basketball, Bowling ball, Receiver and Ramp use the generic physics engine on the dedicated physics worker (f32 is the contract; today a JavaScript worker committing f32 velocity and binary16 pose — see [f32 migration status](docs/gpu-f32-physics.md#f32-migration-status)) and the shared C# animation worker. First principles supports manual placement of two ramps, the authored Receiver assistance at precision 0/.45/1, named capture and once-only Solved feedback. Actual Chrome controls verify puzzle Save → edit → Load → Run → capture → exact Reset, canonical ramp dimensions, fixed parts and inventory limits. Saves retain typed instances, puzzle settings and stable identities through transactional storage and the same GPU admission path as editing. Physical ramp nudging remains unsupported; its authored data and future requirement are retained. Other named parts and puzzles remain to be admitted. First principles has independent deployed playable verification. Impact switch → Signal lamp has independent deployed verification: accepted contact latches the switch and lamp, and shared Animation presents the button press and light. The current local Wall checkpoint adds a rotated static box with canonical width, height and thickness, real local-axis resizing and exact Save/Load/Reset. Independent actual UI contact, miss, overlap, limits, Cancel and Undo controls pass; Wall publication checks remain pending. The Bowling ball (Story 6.1, terminal scoped Pass by the independent reviewer for the original 0.38 m ball; re-tuned by Story 6.1b, pending its review) is the same ball record with its own declared material (4 kg, 0.28 m, bounce 0.14; smaller and heavier than the Basketball); its implementer Chrome proof compares it with a matched Basketball control on identical Dominoes. Electrical pass-through is unsupported and remains a separate obligation. [TODO.md](TODO.md) owns current review/publication status; playable acceptance is not full engine, device or performance qualification.
+./README.md:11:The simulation worker hosts **canonical IEEE-754 f32 game values and WASM SIMD physics** on a dedicated Web Worker. C# owns typed construction/content/read models (f32 contract; binary16 lanes not yet migrated: [f32 migration status](docs/gpu-f32-physics.md#f32-migration-status)), command admission, integer identities/ticks, discrete controllers and atomic transactions. There is no CPU physical fallback or second numerical authority. A separate C# animation worker owns cosmetics; the browser main thread owns Godot/WebGL rendering, input and final presentation.
+./CuriousContraptions.Simulation/WorkshopCollisionKernels.cs:261:    /// <summary>Half a cylinder's extent along unit <paramref name="axis"/> about its centre, exactly: h |u·a| + r √(1 − (u·a)²).</summary>
+./CuriousContraptions.Simulation/WarmupScene.cs:31:                default, default, new((Half)0), default, new((Half)0)),
+./CuriousContraptions.Simulation/WarmupScene.cs:33:                default, default, new((Half)RiderMass), new((Half)0, (Half)gravity, (Half)0), new((Half)0)),
+./CuriousContraptions.Simulation/WarmupScene.cs:37:            new(new(3), new((Half).25f), new((Half).5f), new((Half).5f), new((Half)0)),
+./CuriousContraptions.Simulation/WarmupScene.cs:38:            new(new(4), new((Half).25f), new((Half).5f), new((Half).5f), new((Half).0625f)),
+./CuriousContraptions.Simulation/WarmupScene.cs:42:            new(new(5), Base, new(3), ColliderShapeKind.Box, RigidLocalPose.Identity, new((Half)0),
+./CuriousContraptions.Simulation/WarmupScene.cs:43:                new((Half)BaseHalf, (Half)BaseHalf, (Half)BaseHalf)),
+./CuriousContraptions.Simulation/WarmupScene.cs:44:            new(new(6), Rider, new(4), ColliderShapeKind.Sphere, RigidLocalPose.Identity, new((Half)RiderRadius), default),
+./CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs:254:        BinaryPrimitives.WriteHalfLittleEndian(span.Slice(offset, 2), (Half)value);
+./engine/gpu/PhysicsGpuAbi.Header.cs:65:    // Trigger record (TriggerBytes): owner body slot, target kind, binary16 threshold, named target slot, then the last
+./engine/gpu/PhysicsGpuAbi.Header.cs:66:    // qualified contact: count, collider, physical-step ordinal, binary16 phase and f32 approach, and the touching body slot.
+./engine/gpu/WorkshopConstruction.cs:11:public readonly record struct Metres(Half Value);
+./engine/gpu/WorkshopConstruction.cs:12:public readonly record struct Kilograms(Half Value);
+./engine/gpu/WorkshopConstruction.cs:13:public readonly record struct Acceleration(Half Value);
+./engine/gpu/WorkshopConstruction.cs:14:public readonly record struct InverseSeconds(Half Value);
+./engine/gpu/WorkshopConstruction.cs:15:public readonly record struct Restitution(Half Value);
+./engine/gpu/WorkshopConstruction.cs:56:    public static Acceleration Gravity => new((Half)9.81);
+./engine/gpu/WorkshopConstruction.cs:57:    public static Metres WorkbenchSurface => new((Half)(-0.46));
+./engine/gpu/WorkshopConstruction.cs:120:/// <summary>Canonical bit identity is stronger than Half numeric equality, including signed zero.</summary>
+./engine/gpu/WorkshopConstruction.cs:121:public static class HalfBits
+./engine/gpu/WorkshopConstruction.cs:123:    public static bool Equal(Half a, Half b) => BitConverter.HalfToUInt16Bits(a) == BitConverter.HalfToUInt16Bits(b);
+./CuriousContraptions.tests/WorkshopSaveRejectionTests.cs:250:        var precision = new PuzzlePrecision((Half)1);
+./CuriousContraptions.tests/DominoEffectTests.cs:11:    private static WorkshopConstruction Lesson(Half precision = default) =>
+./CuriousContraptions.tests/DominoEffectTests.cs:24:        var lesson = Lesson((Half).45);
+./CuriousContraptions.tests/DominoEffectTests.cs:28:        Assert.Equal(new WorkshopGoal(WorkshopGoalKind.ActivatedAfter, default, default, default, new(2), new(3), new((Half)0)), lesson.Puzzle.Goal);
+./CuriousContraptions.tests/DominoEffectTests.cs:71:        EditRefusal.Is(WorkshopEditRejection.PuzzleSettings, () => (lesson with { Puzzle = lesson.Puzzle with { Goal = lesson.Puzzle.Goal with { MinimumDuration = new((Half).5) } } }).Validate());
+./CuriousContraptions.tests/DominoEffectTests.cs:72:        Assert.Equal(new PuzzleId("delayed_signal"), PuzzleCatalogue.WithPrecision(PuzzleCatalogue.Create(new("delayed_signal"), new(1), WorkshopCadenceSettings.Default(), new(1), new((Half)0)), new((Half).5)).Puzzle.Id);
+./CuriousContraptions.tests/DominoEffectTests.cs:73:        Assert.Equal((Half).5, PuzzleCatalogue.WithPrecision(lesson, new((Half).5)).Puzzle.Precision.Value);
+./engine/gpu/WorkshopGoalEvaluator.cs:55:        PhysicsDeclarationBounds.Range(minimum.Value, (Half)0, (Half)120);
+./engine/gpu/ContactWorkDeclaration.cs:73:    GpuBodyId Target, uint Sequence, uint EventOrdinal, Half EventPhase, ContactSpeed ApproachSpeed,
+./engine/gpu/ContactWorkDeclaration.cs:91:        else if (EventOrdinal > 14400 || !Half.IsFinite(EventPhase) ||
+./engine/gpu/ContactWorkDeclaration.cs:92:            EventPhase < (Half)(-2048) || EventPhase >= (Half)2048 || (EventOrdinal == 0 && EventPhase < (Half)0) ||
+./engine/gpu/ContactWorkDeclaration.cs:99:        HalfBits.Equal(EventPhase, other.EventPhase) && ApproachSpeed.HasSameBits(other.ApproachSpeed) &&
+./CuriousContraptions.tests/EventRingConsumerTests.cs:425:        // Half its duration has passed since its own instant: the clip is half way, the pulse at its peak.
+./CuriousContraptions.tests/EventRingConsumerTests.cs:618:            var bench = solved ? LaunchLessonSolveTests.AuthoredSolution(lesson, (Half).45)
+./CuriousContraptions.tests/EventRingConsumerTests.cs:619:                : PuzzleCatalogue.Create(new PuzzleId(lesson), new(2), WorkshopCadenceSettings.Default(), new(1), new((Half).45));
+./CuriousContraptions.tests/OrientationSensorTests.cs:50:                BinaryPrimitives.WriteUInt16LittleEndian(piece[22..], BitConverter.HalfToUInt16Bits((Half)480));
+./CuriousContraptions.tests/OrientationSensorTests.cs:71:        Assert.Equal((Half)Math.Cos(Math.PI / 8), sensor.Threshold.CosineHalfAngle);
+./CuriousContraptions.tests/OrientationSensorTests.cs:87:        Assert.True(OrientationThreshold.Degrees(4).CosineHalfAngle < (Half)1);
+./CuriousContraptions.tests/OrientationSensorTests.cs:89:        Assert.Throws<ArgumentException>(() => new OrientationThreshold((Half)1).Validate());
+./CuriousContraptions.tests/OrientationSensorTests.cs:90:        Assert.Throws<ArgumentException>(() => new OrientationThreshold((Half)0).Validate());
+./CuriousContraptions.tests/OrientationSensorTests.cs:91:        Assert.Throws<ArgumentException>(() => new OrientationThreshold(Half.NaN).Validate());
+./CuriousContraptions.tests/OrientationSensorTests.cs:106:        Assert.Throws<ArgumentException>(() => Replace(sensor with { Threshold = new((Half)1) }));
+./CuriousContraptions.tests/OrientationSensorTests.cs:130:        var armed = new OrientationSensorRead(scene.OrientationSensors[0].Id, new(2), ColliderOf(scene, new(2)), OrientationSensorPhase.Armed, 0, (Half)0);
+./CuriousContraptions.tests/OrientationSensorTests.cs:133:        Assert.Equal(BitConverter.HalfToUInt16Bits((Half)Math.Cos(Math.PI / 8)), BinaryPrimitives.ReadUInt16LittleEndian(Record(bytes, 0)[32..]));
+./CuriousContraptions.tests/OrientationSensorTests.cs:192:        var fired = new OrientationSensorRead(sensor.Id, new(2), collider, OrientationSensorPhase.Fired, 3, (Half)0);
+./CuriousContraptions.tests/OrientationSensorTests.cs:252:        var fired = new OrientationSensorRead(sensor.Id, new(2), ColliderOf(scene, new(2)), OrientationSensorPhase.Fired, 11, (Half)0);
+./engine/gpu/WorkshopWireFlatBuffers.cs:452:                new MetreVector((Half)b.Com.X, (Half)b.Com.Y, (Half)b.Com.Z));
+./engine/gpu/WorkshopWireFlatBuffers.cs:460:            latches[i] = new CaptureLatch(new GpuSensorId(cl.Sensor), (CaptureLatchPhase)cl.Phase, cl.EventOrdinal, (Half)cl.EventPhase);
+./engine/gpu/WorkshopWireFlatBuffers.cs:672:                ? new WorkshopGoal(kind, default, default, sensor, new(p.GoalBody), new(p.GoalTarget), new((Half)p.GoalDelay))
+./engine/gpu/WorkshopWireFlatBuffers.cs:673:                : new WorkshopGoal(kind, new(p.GoalBody), new(p.GoalTarget), sensor, MinimumDuration: new((Half)p.GoalDelay));
+./engine/gpu/WorkshopWireFlatBuffers.cs:677:            puzzle = new WorkshopPuzzle(new PuzzleId(p.Id ?? throw new WireFaultException(WireFaultReason.MissingField, "Missing puzzle identity.")), (WorkshopPlacementMode)p.Placement, new((Half)p.Precision),
+./engine/gpu/WorkshopSavePrevalidation.cs:9:/// binary16 narrowing the decoder applies, so a value the domain would round into range is admitted and one it would round out
+./engine/gpu/WorkshopSavePrevalidation.cs:170:        var precision = (Half)p.Precision;
+./engine/gpu/WorkshopSavePrevalidation.cs:171:        var minimumGoalSeconds = (Half)p.GoalDelay;
+./engine/gpu/WorkshopSavePrevalidation.cs:172:        if (!Half.IsFinite(precision) || precision < (Half)0 || precision > (Half)1 || !Half.IsFinite(minimumGoalSeconds) || minimumGoalSeconds < (Half)0 || minimumGoalSeconds > (Half)120)
+./engine/gpu/WorkshopSavePrevalidation.cs:178:            WorkshopGoalKind.None => p.GoalBody == 0 && p.GoalTarget == 0 && p.GoalEventSource == 0 && minimumGoalSeconds == (Half)0,
+./engine/gpu/WorkshopSavePrevalidation.cs:179:            WorkshopGoalKind.Captured => p.GoalBody != 0 && p.GoalTarget != 0 && p.GoalBody != p.GoalTarget && p.GoalEventSource != 0 && minimumGoalSeconds == (Half)0,
+./CuriousContraptions.tests/WorkshopWallTests.cs:30:            Assert.Equal(new MetreVector((Half)(dimensions[new("width")] * .5f),
+./CuriousContraptions.tests/WorkshopWallTests.cs:31:                (Half)(dimensions[new("height")] * .5f), (Half)(dimensions[new("thickness")] * .5f)), box.HalfExtents);
+./CuriousContraptions.tests/WorkshopWallTests.cs:33:            Assert.Equal(new Restitution((Half)1), material.Restitution);
+./CuriousContraptions.tests/WorkshopWallTests.cs:34:            Assert.Equal(new LinearSpeed((Half).1), material.BounceThreshold);
+./CuriousContraptions.tests/WorkshopWallTests.cs:35:            Assert.Equal(new FrictionCoefficient((Half).3), material.Friction);
+./CuriousContraptions.tests/WorkshopWallTests.cs:45:        (box with { HalfExtents = new((Half)16, (Half)16, (Half)16) }).Validate();
+./CuriousContraptions.tests/WorkshopWallTests.cs:46:        var above = BitConverter.UInt16BitsToHalf((ushort)(BitConverter.HalfToUInt16Bits((Half)16) + 1));
+./CuriousContraptions.tests/WorkshopWallTests.cs:47:        foreach (var extents in new[] { new MetreVector(above, (Half)1, (Half)1),
+./CuriousContraptions.tests/WorkshopWallTests.cs:48:            new MetreVector((Half)1, above, (Half)1), new MetreVector((Half)1, (Half)1, above) })
+./CuriousContraptions.tests/WorkshopWallTests.cs:50:        var sphere = box with { Shape = ColliderShapeKind.Sphere, HalfExtents = default, Radius = new((Half)16) };
+./CuriousContraptions.tests/WorkshopWallTests.cs:150:        var puzzle = PuzzleCatalogue.Create(new("first_principles"), new(1), WorkshopCadenceSettings.Default(), new(4), new((Half)1));
+./engine/gpu/WorkshopRead.cs:38:                !HalfBits.Equal(left.EventPhase, right.EventPhase)) return false;
+./engine/gpu/CaptureLatch.cs:9:    GpuSensorId Sensor, CaptureLatchPhase Phase, uint EventOrdinal, Half EventPhase)
+./engine/gpu/CaptureLatch.cs:14:        return new(sensor, CaptureLatchPhase.Clear, 0, (Half)0);
+./engine/gpu/CaptureLatch.cs:25:        if (!Half.IsFinite(candidate.EventPhase) || candidate.EventPhase < (Half)(-2048) ||
+./engine/gpu/CaptureLatch.cs:26:            candidate.EventPhase >= (Half)2048 ||
+./engine/gpu/CaptureLatch.cs:27:            (candidate.EventOrdinal == 0 && candidate.EventPhase < (Half)0))
+./engine/gpu/CaptureLatch.cs:34:        if (Sensor.Value == 0 || !Enum.IsDefined(Phase) || !Half.IsFinite(EventPhase) ||
+./engine/gpu/CaptureLatch.cs:35:            EventPhase < (Half)(-2048) || EventPhase >= (Half)2048 ||
+./engine/gpu/CaptureLatch.cs:36:            (EventOrdinal == 0 && EventPhase < (Half)0) ||
+./engine/gpu/PassageSensorDeclaration.cs:22:        PhysicsDeclarationBounds.Range(Radius.Value, (Half)0.01, (Half)10);
+./engine/gpu/PassageSensorDeclaration.cs:23:        PhysicsDeclarationBounds.Range(RearmClearance.Value, (Half)0.001, (Half)10);
+./engine/gpu/PassageSensorDeclaration.cs:36:    Half EventPhase,
+./engine/gpu/PassageSensorDeclaration.cs:245:                            (Half)0,
+./engine/gpu/PassageSensorDeclaration.cs:246:                            new LinearSpeed((Half)Math.Clamp(speedVal, 0f, 4096f)));
+./engine/gpu/PhysicsGpuAbi.ContactWork.cs:117:            if (expectedTick.Value==0 || Before(current.EventOrdinal,current.EventPhase,R32(source,HeaderSourceOrdinalOffset),(Half)0) ||
+./engine/gpu/WorkshopPhysicsCompiler.cs:38:            new(0f, height.Local, 0f), CanonicalRotation.Identity, default, default, new((Half)0), default, new((Half)0)));
+./engine/gpu/WorkshopPhysicsCompiler.cs:40:        materials.Add(new(planeMaterial, new((Half)1), new((Half).1), new((Half).3), new((Half)0)));
+./engine/gpu/WorkshopPhysicsCompiler.cs:42:            ColliderShapeKind.Plane, RigidLocalPose.Identity, new((Half)0), default));
+./engine/gpu/WorkshopPhysicsCompiler.cs:65:                new((Half)mass.Mass), new((Half)mass.Gravity.X, (Half)mass.Gravity.Y, (Half)mass.Gravity.Z), new((Half)mass.LinearDrag)));
+./engine/gpu/WorkshopPhysicsCompiler.cs:81:                    instance.Rotation, default, default, new((Half)body.Mass),
+./engine/gpu/WorkshopPhysicsCompiler.cs:82:                    new((Half)body.Gravity.X, (Half)body.Gravity.Y, (Half)body.Gravity.Z), new((Half)body.LinearDrag)));
+./engine/gpu/WorkshopPhysicsCompiler.cs:106:            // Current shared residence/guide ABI is still binary16 (9A.44); authoring remains f32.
+./engine/gpu/WorkshopPhysicsCompiler.cs:107:            var margin = (Half)capture.UpperMargin.Evaluate(parameters);
+./engine/gpu/WorkshopPhysicsCompiler.cs:108:            var speed = new LinearSpeed((Half)capture.SpeedLimit.Evaluate(parameters));
+./engine/gpu/WorkshopPhysicsCompiler.cs:109:            var dwell = new DurationSeconds((Half)capture.Dwell.Evaluate(parameters));
+./engine/gpu/WorkshopPhysicsCompiler.cs:122:                    new((Half)capture.Minimum.X,(Half)capture.Minimum.Y,(Half)capture.Minimum.Z),
+./engine/gpu/WorkshopPhysicsCompiler.cs:123:                    new((Half)capture.Maximum.X,(Half)((Half)capture.Maximum.Y+margin),(Half)capture.Maximum.Z),
+./engine/gpu/WorkshopPhysicsCompiler.cs:127:                    new((Half)guide.Minimum.X,(Half)guide.Minimum.Y,(Half)guide.Minimum.Z),
+./engine/gpu/WorkshopPhysicsCompiler.cs:128:                    new((Half)guide.Maximum.X,(Half)guide.Maximum.Y,(Half)guide.Maximum.Z),
+./engine/gpu/WorkshopPhysicsCompiler.cs:129:                    new((Half)guide.SupportHeight),new((Half)guide.SupportMargin.Evaluate(parameters)),
+./engine/gpu/WorkshopPhysicsCompiler.cs:130:                    new((Half)guide.MaximumAcceleration.Evaluate(parameters))));
+./engine/gpu/WorkshopPhysicsCompiler.cs:167:            materials.Add(new(material, new((Half)surface.Restitution), new((Half)surface.BounceThreshold),
+./engine/gpu/WorkshopPhysicsCompiler.cs:168:                new((Half)surface.Friction), new((Half)surface.RollingResistance)));
+./engine/gpu/WorkshopPhysicsCompiler.cs:223:    /// rotation. The f32 degrees narrow to the sensor's binary16 half-angle cosine lane here (Story 9A.44 widens the lane).</summary>
+./engine/gpu/DeclaredCollider.cs:9:    Half Radius,
+./engine/gpu/PhysicsBodyWire.cs:7:/// <remarks>F32 position at20, rotation32, Half COM48, f32 velocities56/68; bytes54..56 are zero.</remarks>
+./engine/gpu/PhysicsBodyWire.cs:49:    private static Half H(ReadOnlySpan<byte> bytes,int offset) =>
+./engine/gpu/PhysicsBodyWire.cs:51:    private static void H(Span<byte> bytes,int offset,Half value) =>
+./CuriousContraptions.tests/JoinedPipeTests.cs:20:    private static WorkshopConstruction Lesson(Half precision) =>
+./CuriousContraptions.tests/JoinedPipeTests.cs:81:        var construction = Lesson((Half)0);
+./CuriousContraptions.tests/JoinedPipeTests.cs:123:        var pipe = Snapped(Lesson((Half)1), 2);
+./CuriousContraptions.tests/JoinedPipeTests.cs:136:        var lesson = Lesson((Half)1);
+./CuriousContraptions.tests/JoinedPipeTests.cs:156:        var lesson = Lesson((Half)0);
+./CuriousContraptions.tests/JoinedPipeTests.cs:175:        var lesson = Lesson((Half)precision);
+./CuriousContraptions.tests/JoinedPipeTests.cs:177:        Assert.Equal(((float)(Half)margin, (float)(Half)speed, (float)(Half)dwell, (float)(Half)accel),
+./CuriousContraptions.tests/JoinedPipeTests.cs:182:        var updated = PuzzleCatalogue.WithPrecision(placed, new((Half).45));
+./CuriousContraptions.tests/JoinedPipeTests.cs:183:        Assert.Equal((float)(Half).174, ((WorkshopGenericInstance)updated.Instances.Single(instance => instance.PartId == PartId.Receiver)).Parameters[new("capture_margin")]);
+./CuriousContraptions.tests/JoinedPipeTests.cs:192:        var lesson = Lesson((Half)1);
+./CuriousContraptions.tests/JoinedPipeTests.cs:202:        var lesson = Lesson((Half)1);
+./CuriousContraptions.tests/JoinedPipeTests.cs:211:        var lesson = Lesson((Half)1);
+./CuriousContraptions.tests/JoinedPipeTests.cs:265:            Half[] actual = [k.Precision, k.PositionWindow.Value, k.RotationWindowDegrees, k.MaximumPositionCorrection.Value,
+./CuriousContraptions.tests/JoinedPipeTests.cs:269:                Assert.Equal((Half)data[i].GetProperty(names[field]).GetDouble(), actual[field]);
+./engine/gpu/ContactTriggerDeclaration.cs:22:    Half EventPhase, ContactSpeed ApproachSpeed);
+./engine/gpu/AuthoredInstanceTemplate.cs:122:            foreach (var precision in new Half[] { (Half)0, (Half).45, (Half)1 }) result.Create(new(1), new(precision));
+./engine/gpu/AuthoredInstanceTemplate.cs:133:        if (result.Forgiving.Precision != (Half)0 || result.Balanced.Precision != (Half).45 ||
+./engine/gpu/AuthoredInstanceTemplate.cs:134:            result.Precise.Precision != (Half)1)
+./engine/gpu/AuthoredInstanceTemplate.cs:142:        Half N(int index)
+./engine/gpu/AuthoredInstanceTemplate.cs:145:            var admitted = (Half)number;
+./engine/gpu/AuthoredInstanceTemplate.cs:146:            if (!Half.IsFinite(admitted) || admitted < (Half)0)
+./CuriousContraptions.tests/PressurePlateTests.cs:69:            Assert.Equal(new MetreVector((Half)1.1f, (Half)0.1f, (Half)1.1f), baseCol.HalfExtents);
+./CuriousContraptions.tests/PressurePlateTests.cs:70:            Assert.Equal((Half)0, baseCol.LocalPose.Translation.X);
+./CuriousContraptions.tests/PressurePlateTests.cs:71:            Assert.Equal((Half)(-0.12f), baseCol.LocalPose.Translation.Y);
+./CuriousContraptions.tests/PressurePlateTests.cs:72:            Assert.Equal((Half)0, baseCol.LocalPose.Translation.Z);
+./CuriousContraptions.tests/PressurePlateTests.cs:76:            Assert.Equal(new MetreVector((Half)0.9f, (Half)0.05f, (Half)0.9f), topCol.HalfExtents);
+./CuriousContraptions.tests/PressurePlateTests.cs:77:            Assert.Equal((Half)0, topCol.LocalPose.Translation.X);
+./CuriousContraptions.tests/PressurePlateTests.cs:78:            Assert.Equal((Half)0.03f, topCol.LocalPose.Translation.Y);
+./CuriousContraptions.tests/PressurePlateTests.cs:79:            Assert.Equal((Half)0, topCol.LocalPose.Translation.Z);
+./CuriousContraptions.tests/PressurePlateTests.cs:167:        // D1: the f32 row keeps CAT-052's alignment (1 − 10⁻⁶, which binary16 rounds to 1) and a non-dyadic minimum exactly.
+./CuriousContraptions.tests/PressurePlateTests.cs:171:        Assert.Equal((Half)1, (Half)row.MinimumAlignment); // control: the deleted Half field lost the instance value
+./CuriousContraptions.tests/PressurePlateTests.cs:204:        var domino = (float)(Half).4f;
+./CuriousContraptions.tests/PressurePlateTests.cs:282:            Assert.Equal((instance.Id, (Half).03f, new MetreVector((Half).9f, (Half).05f, (Half).9f)), (face.Body, face.Pose.Translation.Y, face.HalfExtents));
+./CuriousContraptions.tests/PressurePlateTests.cs:291:        Assert.Equal((Half)0, scene.Bodies.ToArray().Single(b => b.Id == WorkshopPhysicsCompiler.SliderBody(gate.Id, 0)).LinearDrag.Value);
+./engine/gpu/WorkshopPuzzleWire.cs:7:/// profiles of three knots each, every knot eleven binary16 lanes.</summary>
+./engine/gpu/WorkshopPuzzleWire.cs:29:    private static void H(Span<byte> bytes, int offset, Half value) => BinaryPrimitives.WriteUInt16LittleEndian(bytes[offset..], BitConverter.HalfToUInt16Bits(value));
+./engine/gpu/WorkshopPuzzleWire.cs:30:    private static Half H(ReadOnlySpan<byte> bytes, int offset) => BitConverter.UInt16BitsToHalf(BinaryPrimitives.ReadUInt16LittleEndian(bytes[offset..]));
+./engine/gpu/WorkshopSimulation.cs:551:                !HalfBits.Equal(value.LocalCentreOfMass, source.Bodies[i].LocalCentreOfMass))
+./CuriousContraptions.tests/DominoGuardTests.cs:20:    private static WorkshopConstruction Lesson(Half precision, bool wired = true, int skip = -1)
+./CuriousContraptions.tests/DominoGuardTests.cs:58:        Assert.Equal(new[] { (Half).125, (Half).55, (Half).325 }.Select(BitConverter.HalfToUInt16Bits),
+./CuriousContraptions.tests/DominoGuardTests.cs:59:            new[] { LawTile.HalfExtents.X, LawTile.HalfExtents.Y, LawTile.HalfExtents.Z }.Select(value => BitConverter.HalfToUInt16Bits((Half)value)));
+./CuriousContraptions.tests/DominoGuardTests.cs:60:        Assert.Equal(BitConverter.HalfToUInt16Bits((Half).4), BitConverter.HalfToUInt16Bits((Half)LawTile.Mass));
+./CuriousContraptions.tests/DominoGuardTests.cs:61:        Assert.Equal(new LawMaterial((float)(Half).05, (float)(Half).1, (float)(Half).6, 0f), LawTile.Material);
+./CuriousContraptions.tests/DominoGuardTests.cs:70:        var lesson = Lesson((Half)precision);
+./CuriousContraptions.tests/DominoGuardTests.cs:103:        var gap = Lesson((Half).45, skip: 2);
+./CuriousContraptions.tests/DominoGuardTests.cs:117:        var unwired = Lesson((Half).45, wired: false);
+./CuriousContraptions.tests/DominoGuardTests.cs:192:        var lesson = Lesson((Half).45);
+./CuriousContraptions.tests/DominoGuardTests.cs:223:        var lesson = Lesson((Half).45);
+./engine/gpu/PuzzleCatalogue.cs:72:        PhysicsDeclarationBounds.Range(puzzle.Precision.Value, (Half)0, (Half)1);
+./engine/gpu/WorkshopPuzzle.cs:7:public readonly record struct PuzzlePrecision(Half Value);
+./engine/gpu/WorkshopPuzzle.cs:20:                PhysicsDeclarationBounds.Range(MinimumDuration.Value, (Half)0, (Half)120); return;
+./engine/gpu/WorkshopPuzzle.cs:27:public readonly record struct AssistanceKnot(Half Precision, Metres PositionWindow, Half RotationWindowDegrees,
+./engine/gpu/WorkshopPuzzle.cs:28:    Metres MaximumPositionCorrection, Half MaximumRotationCorrectionDegrees, DurationSeconds Blend,
+./engine/gpu/WorkshopPuzzle.cs:30:    Half TriggerThreshold);
+./engine/gpu/WorkshopPuzzle.cs:35:        PhysicsDeclarationBounds.Range(precision.Value, (Half)0, (Half)1);
+./engine/gpu/WorkshopPuzzle.cs:41:        var t = (Half)((Half)(precision.Value - a.Precision) / (Half)(b.Precision - a.Precision));
+./engine/gpu/WorkshopPuzzle.cs:42:        Half Mix(Half x, Half y) => (Half)(x + (Half)((Half)(y - x) * t));
+./engine/gpu/WorkshopCadence.cs:94:        // PhysicalFrequency's exact binary16 representation is a compile-time fact, asserted by
+./engine/gpu/PhysicsMotionRead.cs:15:    // Piece: f32 COM remainder48, quaternion64, velocity80/angular92; Half drag60, forces104/112/120.
+./engine/gpu/PhysicsMotionRead.cs:64:            if (bodies[i].Body.Id != _bodyIds[i] || !HalfBits.Equal(bodies[i].LocalCentreOfMass, _localCentresOfMass[i]))
+./engine/gpu/PhysicsMotionRead.cs:97:                !HalfBits.Equal(H(piece, 22), (Half)WorkshopCadenceSettings.PhysicalFrequency) ||
+./engine/gpu/PhysicsMotionRead.cs:113:            PhysicsDeclarationBounds.Range(H(piece,DragRateOffset),(Half)0,(Half).125);
+./engine/gpu/PhysicsMotionRead.cs:142:            var polynomial = .5 + x * ((double)(Half)(-1.0/6) + x * ((double)(Half)(1.0/24) +
+./engine/gpu/PhysicsMotionRead.cs:143:                x * ((double)(Half)(-1.0/120) + x * (double)(Half)(1.0/720))));
+./engine/gpu/PhysicsMotionRead.cs:210:    private static double Time(uint ordinal,Half phase)
+./engine/gpu/PhysicsMotionRead.cs:212:        if(!Half.IsFinite(phase)||phase<(Half)(-2048)||phase>=(Half)2048||(ordinal==0&&phase<(Half)0))
+./engine/gpu/PhysicsMotionRead.cs:222:    private static Half H(ReadOnlySpan<byte> p,int offset)=>BitConverter.UInt16BitsToHalf(BinaryPrimitives.ReadUInt16LittleEndian(p[offset..]));
+./engine/gpu/PhysicsDeclarations.cs:15:public readonly record struct FrictionCoefficient(Half Value);
+./engine/gpu/PhysicsDeclarations.cs:19:public readonly record struct RollingResistance(Half Value);
+./engine/gpu/PhysicsDeclarations.cs:20:public readonly record struct LinearSpeed(Half Value);
+./engine/gpu/PhysicsDeclarations.cs:21:public readonly record struct DurationSeconds(Half Value);
+./engine/gpu/PhysicsDeclarations.cs:22:public readonly record struct MetreVector(Half X, Half Y, Half Z);
+./engine/gpu/PhysicsDeclarations.cs:23:public readonly record struct AccelerationVector(Half X, Half Y, Half Z);
+./engine/gpu/PhysicsDeclarations.cs:38:        PhysicsDeclarationBounds.Vector(Translation.X, Translation.Y, Translation.Z, (Half)16);
+./engine/gpu/PhysicsDeclarations.cs:51:        PhysicsDeclarationBounds.Range(Restitution.Value, (Half)0, (Half)1);
+./engine/gpu/PhysicsDeclarations.cs:52:        PhysicsDeclarationBounds.Range(BounceThreshold.Value, (Half)0, (Half)64);
+./engine/gpu/PhysicsDeclarations.cs:53:        PhysicsDeclarationBounds.Range(Friction.Value, (Half)0, (Half)1);
+./engine/gpu/PhysicsDeclarations.cs:54:        PhysicsDeclarationBounds.Range(RollingResistance.Value, (Half)0, (Half)0.1);
+./engine/gpu/PhysicsDeclarations.cs:70:        PhysicsDeclarationBounds.Vector(Gravity.X, Gravity.Y, Gravity.Z, (Half)16);
+./engine/gpu/PhysicsDeclarations.cs:71:        PhysicsDeclarationBounds.Range(LinearDrag.Value, (Half)0, (Half)0.125);
+./engine/gpu/PhysicsDeclarations.cs:80:        PhysicsDeclarationBounds.Range(Mass.Value, (Half)(1.0 / 1024), (Half)1024);
+./engine/gpu/PhysicsDeclarations.cs:86:    private static double Squared(Half x, Half y, Half z) =>
+./engine/gpu/PhysicsDeclarations.cs:103:                PhysicsDeclarationBounds.Range(Radius.Value, (Half)(1.0 / 16), (Half)16);
+./engine/gpu/PhysicsDeclarations.cs:109:                PhysicsDeclarationBounds.Range(HalfExtents.X, (Half)(1.0 / 1024), (Half)16);
+./engine/gpu/PhysicsDeclarations.cs:110:                PhysicsDeclarationBounds.Range(HalfExtents.Y, (Half)(1.0 / 1024), (Half)16);
+./engine/gpu/PhysicsDeclarations.cs:111:                PhysicsDeclarationBounds.Range(HalfExtents.Z, (Half)(1.0 / 1024), (Half)16);
+./engine/gpu/PhysicsDeclarations.cs:120:                PhysicsDeclarationBounds.Range(Radius.Value, (Half)(1.0 / 16), (Half)16);
+./engine/gpu/PhysicsDeclarations.cs:123:                PhysicsDeclarationBounds.Range(HalfExtents.Y, (Half)(1.0 / 1024), (Half)16);
+./engine/gpu/PhysicsDeclarations.cs:143:        PhysicsDeclarationBounds.Vector(Minimum.X, Minimum.Y, Minimum.Z, (Half)16);
+./engine/gpu/PhysicsDeclarations.cs:144:        PhysicsDeclarationBounds.Vector(Maximum.X, Maximum.Y, Maximum.Z, (Half)16);
+./engine/gpu/PhysicsDeclarations.cs:147:        PhysicsDeclarationBounds.Range(SpeedLimit.Value, (Half)(1.0 / 1024), (Half)64);
+./engine/gpu/PhysicsDeclarations.cs:148:        PhysicsDeclarationBounds.Range(Dwell.Value, (Half)(1.0 / 1024), (Half)30);
+./engine/gpu/PhysicsDeclarations.cs:162:        PhysicsDeclarationBounds.Vector(Minimum.X, Minimum.Y, Minimum.Z, (Half)16);
+./engine/gpu/PhysicsDeclarations.cs:163:        PhysicsDeclarationBounds.Vector(Maximum.X, Maximum.Y, Maximum.Z, (Half)16);
+./engine/gpu/PhysicsDeclarations.cs:166:        PhysicsDeclarationBounds.Range(SupportHeight.Value, (Half)(-16), (Half)16);
+./engine/gpu/PhysicsDeclarations.cs:167:        PhysicsDeclarationBounds.Range(SupportMargin.Value, (Half)0, (Half)1);
+./engine/gpu/PhysicsDeclarations.cs:168:        PhysicsDeclarationBounds.Range(MaximumAcceleration.Value, (Half)0, (Half)12);
+./engine/gpu/PhysicsDeclarations.cs:374:    internal static void Range(Half value, Half minimum, Half maximum)
+./engine/gpu/PhysicsDeclarations.cs:376:        if (!Half.IsFinite(value) || value < minimum || value > maximum)
+./engine/gpu/PhysicsDeclarations.cs:379:    internal static void Vector(Half x, Half y, Half z, Half magnitude)
+./engine/gpu/PhysicsDeclarations.cs:381:        Range(x, (Half)(-magnitude), magnitude);
+./engine/gpu/PhysicsDeclarations.cs:382:        Range(y, (Half)(-magnitude), magnitude);
+./engine/gpu/PhysicsDeclarations.cs:383:        Range(z, (Half)(-magnitude), magnitude);
+./engine/gpu/PhysicsDeclarations.cs:392:    internal static bool Zero(Half value) => BitConverter.HalfToUInt16Bits(value) == 0;
+./engine/gpu/PhysicsDeclarations.cs:393:    internal static bool Zero(Half x, Half y, Half z) => Zero(x) && Zero(y) && Zero(z);
+./engine/gpu/ActivationNetwork.cs:919:    /// sensor's binary16 lanes here (Story 9A.44 widens the lanes).</summary>
+./engine/gpu/ActivationNetwork.cs:924:            new((Half)aperture.ApertureRadius), new((Half)aperture.RearmClearance));
+./engine/gpu/WorkshopTraceRecord.cs:56:    private static void H(Span<byte>b,int o,Half v)=>BinaryPrimitives.WriteUInt16LittleEndian(b[o..],BitConverter.HalfToUInt16Bits(v));
+./engine/gpu/OrientationSensorDeclaration.cs:7:/// <summary>Half-angle cosine form of an orientation threshold: a body has turned at least θ from its admitted pose once
+./engine/gpu/OrientationSensorDeclaration.cs:9:public readonly record struct OrientationThreshold(Half CosineHalfAngle)
+./engine/gpu/OrientationSensorDeclaration.cs:11:    // Half rounding of the cosine admits angles from 4° (cos 2° = 0.99939 stays below 1 − 2^-11) to 179°; outside that the value would fail Validate obscurely.
+./engine/gpu/OrientationSensorDeclaration.cs:15:        return new((Half)Math.Cos(angle * Math.PI / 360));
+./engine/gpu/OrientationSensorDeclaration.cs:19:        PhysicsDeclarationBounds.Range(CosineHalfAngle, (Half)(1.0 / 1024), (Half)1);
+./engine/gpu/OrientationSensorDeclaration.cs:20:        if (CosineHalfAngle == (Half)1) throw new ArgumentException("An orientation threshold must admit some rotation.");
+./engine/gpu/OrientationSensorDeclaration.cs:40:    OrientationSensorPhase Phase, uint EventOrdinal, Half EventPhase);
+./CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:11:/// Every expectation is derived analytically from the declared (binary16-rounded) geometry, never from observed output.
+./CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:16:    /// <summary>The gravity a law body is admitted with (its binary16 lane).</summary>
+./CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:17:    private static readonly float G = -(float)(Half)LawScene.Gravity;
+./CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:21:    private static float H(float value) => (float)(Half)value;
+./CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:35:            new((Half)mass), default, default);
+./CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:37:            new((Half)radius), new((Half)0, (Half)(width / 2), (Half)0));
+./CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:39:        double m = (double)(Half)mass, r = (double)(Half)radius, h = (double)(Half)(width / 2);
+./CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:40:        // Six binary16 roundings at most (r², h², the 1/3 constant, its product, the sum, the mass product): 6 x 2^-11 relative.
+./CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:101:        ColliderDeclaration Cylinder(Half x, Half z) => new(new(2), new(1), new(3), ColliderShapeKind.Cylinder, RigidLocalPose.Identity,
+./CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:102:            new((Half).3), new(x, (Half).1, z));
+./CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:103:        Cylinder((Half)0, (Half)0).Validate();
+./CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:104:        Assert.Throws<ArgumentException>(() => Cylinder((Half).3, (Half)0).Validate());
+./CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:105:        Assert.Throws<ArgumentException>(() => Cylinder((Half)0, (Half).3).Validate());
+./CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:106:        Assert.Throws<ArgumentException>(() => Cylinder((Half)(-0.0), (Half)0).Validate());
+./CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:108:        Assert.Throws<ArgumentException>(() => (Cylinder((Half)0, (Half)0) with { Radius = new((Half)(1.0 / 32)) }).Validate());
+./CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:109:        Assert.Throws<ArgumentException>(() => (Cylinder((Half)0, (Half)0) with { Radius = new((Half)17) }).Validate());
+./CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:110:        Assert.Throws<ArgumentException>(() => (Cylinder((Half)0, (Half)0) with { HalfExtents = new((Half)0, (Half)17, (Half)0) }).Validate());
+./CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:115:        Assert.Equal((Half).4f, baked.Radius);
+./CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:116:        Assert.Equal(new MetreVector((Half)0, (Half).085f, (Half)0), baked.HalfExtents);
+./CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:1082:        Assert.Equal((Half).3f, BinaryPrimitives.ReadHalfLittleEndian(record[48..]));
+./CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:1083:        Assert.Equal((Half)0, BinaryPrimitives.ReadHalfLittleEndian(record[50..]));
+./CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:1084:        Assert.Equal((Half).1f, BinaryPrimitives.ReadHalfLittleEndian(record[52..]));
+./CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:1085:        Assert.Equal((Half)0, BinaryPrimitives.ReadHalfLittleEndian(record[54..]));
+./engine/gpu/DeclaredPhysics.cs:58:        return new(shape, new(new((Half)p.X, (Half)p.Y, (Half)p.Z), new(q.X, q.Y, q.Z, q.W)),
+./engine/gpu/DeclaredPhysics.cs:59:            shape is ColliderShapeKind.Sphere or ColliderShapeKind.Cylinder ? (Half)h.X : (Half)0,
+./engine/gpu/DeclaredPhysics.cs:62:                ColliderShapeKind.Box => new((Half)h.X, (Half)h.Y, (Half)h.Z),
+./engine/gpu/DeclaredPhysics.cs:63:                ColliderShapeKind.Cylinder => new((Half)0, (Half)h.Y, (Half)0),
+./engine/gpu/PuzzleDefinition.cs:46:                new(source.Value), new(target.Value), new((Half)Goal.MinimumSeconds)),
+./CuriousContraptions.tests/WorkshopPhysicsLawPrismaticTests.cs:25:    /// <summary>The admitted principal moments (Half mantissa times 2^exponent).</summary>
+./engine/gpu/PhysicsBodyReadSet.cs:11:        PhysicsDeclarationBounds.Vector(LocalCentreOfMass.X, LocalCentreOfMass.Y, LocalCentreOfMass.Z, (Half)16);
+./engine/gpu/PhysicsBodyReadSet.cs:21:        HalfBits.Equal(LocalCentreOfMass.X, other.LocalCentreOfMass.X) &&
+./engine/gpu/PhysicsBodyReadSet.cs:22:        HalfBits.Equal(LocalCentreOfMass.Y, other.LocalCentreOfMass.Y) &&
+./engine/gpu/PhysicsBodyReadSet.cs:23:        HalfBits.Equal(LocalCentreOfMass.Z, other.LocalCentreOfMass.Z);
+./engine/gpu/PhysicsBodyReadSet.cs:92:            if (geometry is not { } shape || !HalfBits.Equal(value.LocalCentreOfMass, shape.Pose.Translation))
+./engine/gpu/PhysicsGpuAbi.cs:12:    uint StartOrdinal, Half StartPhase, uint EventOrdinal, Half EventPhase);
+./engine/gpu/PhysicsGpuAbi.cs:34:    /// <summary>Three principal moments, each a Half mantissa and an Int32 binary exponent in an 8-byte slot.</summary>
+./engine/gpu/PhysicsGpuAbi.cs:52:    /// <summary>Work-occurrence record: the binary16 event phase, the f32 work debited, the effect byte, and the zero padding from 35.</summary>
+./engine/gpu/PhysicsGpuAbi.cs:227:            !Half.IsFinite(result.StartPhase) || result.StartPhase < (Half)(-2048) || result.StartPhase >= (Half)2048 ||
+./engine/gpu/PhysicsGpuAbi.cs:228:            !Half.IsFinite(result.EventPhase) || result.EventPhase < (Half)(-2048) || result.EventPhase >= (Half)2048 ||
+./engine/gpu/PhysicsGpuAbi.cs:361:            if (current.OccurrenceCount != 0 && Before(current.EventOrdinal, current.EventPhase, sourceOrdinal, (Half)0))
+./engine/gpu/PhysicsGpuAbi.cs:366:                Before(current.StartOrdinal, current.StartPhase, sourceOrdinal, (Half)0) && !retainedEpisode)
+./engine/gpu/PhysicsGpuAbi.cs:387:                Before(trigger.EventOrdinal, trigger.EventPhase, R32(source, HeaderSourceOrdinalOffset), (Half)0)))
+./engine/gpu/PhysicsGpuAbi.cs:437:    private static bool AdmittedTime(uint ordinal, Half phase, uint end) =>
+./engine/gpu/PhysicsGpuAbi.cs:438:        Half.IsFinite(phase) && phase >= (Half)(-2048) && phase < (Half)2048 &&
+./engine/gpu/PhysicsGpuAbi.cs:439:        ordinal <= end && (ordinal != 0 || phase >= (Half)0) && (ordinal != end || phase <= (Half)0);
+./engine/gpu/PhysicsGpuAbi.cs:440:    private static bool Before(uint a, Half ap, uint b, Half bp) => a < b || (a == b && ap < bp);
+./engine/gpu/PhysicsGpuAbi.cs:509:    private static void Vector(Span<byte> bytes, int offset, Half x, Half y, Half z)
+./engine/gpu/PhysicsGpuAbi.cs:520:    private static void H(Span<byte> bytes, int offset, Half value) =>
+./engine/gpu/PhysicsGpuAbi.cs:522:    private static Half RH(ReadOnlySpan<byte> bytes, int offset) =>
+./engine/gpu/RigidMassProperties.cs:6:public readonly record struct PrincipalInertia(Half Mantissa, int Exponent)
+./engine/gpu/RigidMassProperties.cs:10:        if (!Half.IsFinite(Mantissa) || Mantissa < (Half).5 || Mantissa >= (Half)1 ||
+./engine/gpu/RigidMassProperties.cs:22:        PhysicsDeclarationBounds.Vector(LocalCentreOfMass.X, LocalCentreOfMass.Y, LocalCentreOfMass.Z, (Half)16);
+./engine/gpu/RigidMassProperties.cs:37:            x = y = z = Product(Product(mass, Product(radius, radius)), Normalize((Half).4, 0));
+./engine/gpu/RigidMassProperties.cs:46:            y = Product(Product(mass, squared), Normalize((Half).5, 0));
+./engine/gpu/RigidMassProperties.cs:47:            x = z = Product(mass, Sum(Product(squared, Normalize((Half).25, 0)),
+./engine/gpu/RigidMassProperties.cs:48:                Product(Product(half, half), Normalize((Half)(1.0 / 3), 0))));
+./engine/gpu/RigidMassProperties.cs:55:            var thirdMass = Product(mass, Normalize((Half)(1.0 / 3), 0));
+./engine/gpu/RigidMassProperties.cs:64:    // Compilation uses canonical Half operations. Integer shifts extend range, not precision.
+./engine/gpu/RigidMassProperties.cs:66:    private static PrincipalInertia Normalize(Half mantissa, int exponent)
+./engine/gpu/RigidMassProperties.cs:68:        if (!Half.IsFinite(mantissa) || mantissa <= (Half)0)
+./engine/gpu/RigidMassProperties.cs:70:        while (mantissa < (Half).5) { mantissa = (Half)(mantissa * (Half)2); exponent--; }
+./engine/gpu/RigidMassProperties.cs:71:        while (mantissa >= (Half)1) { mantissa = (Half)(mantissa * (Half).5); exponent++; }
+./engine/gpu/RigidMassProperties.cs:75:        Normalize((Half)(a.Mantissa * b.Mantissa), checked(a.Exponent + b.Exponent));
+./engine/gpu/RigidMassProperties.cs:82:            small = (Half)(small * (Half).5);
+./engine/gpu/RigidMassProperties.cs:83:        return Normalize((Half)(a.Mantissa + small), a.Exponent);
+./CuriousContraptions.tests/ClockTests.cs:97:            Assert.Equal(new MetreVector((Half)0.7f, (Half)0.85f, (Half)0.3f), housing.HalfExtents);
+./CuriousContraptions.tests/ClockTests.cs:98:            Assert.Equal((Half)0, housing.LocalPose.Translation.X);
+./CuriousContraptions.tests/ClockTests.cs:99:            Assert.Equal((Half)0, housing.LocalPose.Translation.Y);
+./CuriousContraptions.tests/ClockTests.cs:100:            Assert.Equal((Half)0, housing.LocalPose.Translation.Z);
+./CuriousContraptions.tests/ClockTests.cs:104:            Assert.Equal(new MetreVector((Half)0.8f, (Half)0.1f, (Half)0.425f), foot.HalfExtents);
+./CuriousContraptions.tests/ClockTests.cs:105:            Assert.Equal((Half)0, foot.LocalPose.Translation.X);
+./CuriousContraptions.tests/ClockTests.cs:106:            Assert.Equal((Half)(-0.95f), foot.LocalPose.Translation.Y);
+./CuriousContraptions.tests/ClockTests.cs:107:            Assert.Equal((Half)0, foot.LocalPose.Translation.Z);
+./CuriousContraptions.tests/ArchitectureDocsConsistencyTests.cs:23:    /// engine assembly, and the deleted worker binary16 accessors.</summary>
+./CuriousContraptions.tests/DeclaredMemoryTests.cs:200:        var counter = Assert.IsType<WorkshopGenericInstance>(template.Create(new(1), new((Half)1)));
+./docs/committed-tick-presentation-before.json:1303:    "        var half=CollisionVector.From(desired.Half);",
+./docs/committed-tick-presentation-before.json:1305:    "        if(box.Half==half&&shaft.Shape.Pose==pose)return;",
+./docs/committed-tick-presentation-before.json:2226:    "                .OfType<MeshInstance3D>().Single(mesh=>mesh.Mesh is BoxMesh box&&box.Size==bladeBox.Half*2);",
+./docs/committed-tick-presentation-before.json:2332:    "                    child.Geometry is ConvexBox box&&box.Half==CollisionVector.From(half)&&",
+./docs/gpu-f32-physics.md:3:This document defines the numerical authority, compilation model, solver model, and game-grade tolerance envelope for the game engine. It supersedes earlier experimental WebGPU compute shader and Half-precision (`f16`) specifications with an architecture designed for **hundreds of concurrent puzzle elements**, **universal WebGL 2 and WebGPU compatibility**, **standard IEEE-754 `f32` precision with WebAssembly SIMD128 vectorization**, and a **lock-free zero-copy shared memory pipeline**.
+./docs/gpu-f32-physics.md:12:Authoritative continuous mechanics, collision detection, constraint solving, and multi-domain physical fields execute exclusively on a dedicated simulation Web Worker. The target solver is high-performance C# compiled to WebAssembly with 128-bit SIMD (`wasm-simd128`) enabled, delivering deterministic, sub-millisecond execution times across hundreds of bodies while running natively across all modern browser engines on desktop and mobile. All solver arithmetic runs in the C# WASM worker; `CuriousContraptions.Simulation/wwwroot/worker.js` is a host that forwards typed envelopes and copies committed bytes into the shared rings, with no physics. Position, rotation and velocity are committed as f32 through one canonical pose path. The remaining binary16 lanes are listed with their owner in the [f32 migration status](#f32-migration-status); this is not a claim of complete SIMD or whole-engine f32 qualification.
+./docs/gpu-f32-physics.md:117:The f32 contract above is the target; the code does not meet it everywhere yet. The lanes below still store or compute game values as IEEE-754 binary16 (`System.Half` in C#, decoded in the WASM worker by `WorkshopPhysicsEngine.ReadF16`, and by `decodeFloat16` in `CuriousContraptions.web/wwwroot/workshop-client.js` for the Animation output channel value). Each lane is required forward refactoring, not a supported second format. Integers, enums and identity tags keep their types. **Story 9A.44 owns every remaining binary16 lane** (owner decision, 18 Oct 2026; Epic 9A). It deletes each lane with no conversion shim and runs as soon as its preconditions allow, so that no lane is migrated and then deleted. Story9.5a migrates timer duration and activation phase first; integer started/due ticks keep their types.
+./docs/gpu-f32-physics.md:119:| Remaining binary16 lane | Where | Owning story |
+./docs/gpu-f32-physics.md:122:| Physics declarations: mass, gravity, declared linear drag (body record +90), centre of mass and inertia mantissa, collider translations/radii/half-extents, materials including rolling resistance (material record +14, `RollingResistance` is `Half`), physical trigger phase, orientation sensors (the half-angle cosine lane; the Domino package declares its threshold in f32 degrees, narrowed in `WorkshopPhysicsCompiler.OrientationSensorFor`, Story 9A.32), drives and motion windows | `PhysicsDeclarations.cs`, `RigidMassProperties.cs`, `OrientationSensorDeclaration.cs`, `PhysicsGpuAbi.cs`, `WorkshopPhysicsCompiler.cs`, `WorkshopPhysicsEngine.cs` | Story 9A.44 |
+./docs/gpu-f32-physics.md:126:| Animation values, cosmetic durations and the `Half` lanes of the [animation channel ABI](presentation-bindings.md#declared-cosmetic-curves-anim-1b-and-ui-bindings-anim-1c) | `engine/presentation/AnimationValues.cs`, `WorkshopCosmetic.cs`, `WorkshopHint.cs`, `CuriousContraptions.Animation.Worker/Program.cs` (output channel bits), `workshop-client.js` (`decodeFloat16`) | Story 9A.44 |
+./docs/gpu-f32-physics.md:128:**Pipe owner decision (10 Oct 2026):** Story 7.4 removes the twelve parked straight-Pipe files, including their binary16 dimensions/profile/resource lanes. Story 6.6 rebuilds Pipe fresh as canonical f32 declaration data on the generic WASM SIMD physics engine; no legacy adapter, alias or migration is retained. Complete CAT-048 acceptance and Story 6.7 rim/collar controls remain required in roadmap order.
+./docs/gpu-f32-physics.md:130:Until a lane migrates, envelope consequences that depend on its precision are stated against binary16.
+./docs/gpu-f32-physics.md:132:**Current pose/velocity format:** `LocalPosition` and `CanonicalRotation` now store IEEE-754 f32 through construction, compilation, worker state, response, motion and presentation. Normalize authored/computed quaternions at the canonical boundary; external decode validates finite unit rotations and preserves their bits. Collider, sensor, guide and principal-frame rotations use that same type. No second Half pose reader remains. Mass, material, dimensions, frame translations and motion acceleration lanes retain their explicitly listed later migration ownership.
+./docs/gpu-f32-physics.md:350:- **Code Removal:** Superseded systems—including old WebGPU WGSL compute shaders (`physics.wgsl`), Half-precision (`f16`) bitwise manipulation codecs, and Baumgarte position stabilization—are permanently removed from the active codebase upon completion of the forward implementation.
+./CuriousContraptions.tests/WorkshopPhysicsLawSensorWorkTests.cs:82:        Assert.Equal((OrientationSensorPhase.Armed, 0u, (Half)0), (sensor.Phase, sensor.EventOrdinal, sensor.EventPhase));
+./CuriousContraptions.tests/WorkshopPhysicsLawSensorWorkTests.cs:135:        Assert.Equal((OrientationSensorPhase.Fired, fired.Value.Ordinal, (Half)0), (sensorFinal.Phase, sensorFinal.EventOrdinal, sensorFinal.EventPhase));
+./CuriousContraptions.tests/FunnelTests.cs:62:                Assert.Equal((Half)(0.485f * 0.5f), col.HalfExtents.X);
+./CuriousContraptions.tests/FunnelTests.cs:63:                Assert.Equal((Half)(0.05f * 0.5f), col.HalfExtents.Y);
+./CuriousContraptions.tests/FunnelTests.cs:119:        Assert.Equal(new Kilograms((Half)0), body.Mass);
+./CuriousContraptions.tests/FunnelTests.cs:120:        Assert.Equal(new InverseSeconds((Half)0), body.LinearDrag);
+./CuriousContraptions.tests/FunnelTests.cs:127:        Assert.Equal(new Restitution((Half)1), material.Restitution);
+./CuriousContraptions.tests/FunnelTests.cs:128:        Assert.Equal(new LinearSpeed((Half)0.1), material.BounceThreshold);
+./CuriousContraptions.tests/FunnelTests.cs:129:        Assert.Equal(new FrictionCoefficient((Half)0.3), material.Friction);
+./CuriousContraptions.tests/FunnelTests.cs:130:        Assert.Equal(new RollingResistance((Half)0), material.RollingResistance);
+./CuriousContraptions.tests/BasketballResourceTests.cs:15:        Assert.NotEqual((float)(Half)8.000001f, declared.Parameters[new("strength")]);
+./CuriousContraptions.tests/BasketballResourceTests.cs:37:        // The canonical binary16 bits each package's material compiles to (the generic dynamic-body compile).
+./docs/work-orders/P0-004/ownership/part-013.json:1727:        "Value": "P:CuriousContraptions.Physics.ConvexBox.Half"
+./docs/planning/invest/vertical-delivery.md:140:| [CAT-062b](../requirements.md#current-cat-062) | Preload energy store; spring_forward solvable | Declarative InitialCompression (preload) energy store released on Run start | Legacy parts/SpringPart.cs was removed by Story7.4; no LatchedSpringStore exists at baseline a6c914e. Preload is physical declaration data, with obsolete Half pose formats replaced by the current f32 schema | spring_forward solved in Chrome; unloaded board does not launch; board rotated 180° fails; out-of-range preload rejects at compile; exact Reset/Save-Load |
+./docs/planning/invest/vertical-delivery.md:156:**Scheduled follow-ups from CAT-014 (9 Oct 2026):** ENGINE-DRAG — apply the declared LinearDrag in the physics worker so struck balls come to rest; required before CAT-014's "balls rest" acceptance holds; next after CAT-014. Implemented in Story 6.1b (`spec-6-1b-engine-drag-application.md`, pending independent review): declared linear drag per substep plus a declared ball rolling-resistance coefficient (material record +14) applied at every sphere contact (owner decision 9 Oct 2026, with the 0.28 m Bowling ball); legacy deleted: the unread +66 drag lane and the "drag not yet applied" contract text. CAT-023c — Domino offset centre of mass (declared COM offset in the box body, pips follow the mass frame), a CAT-023 follow-up; before the next Domino-dependent level. ENGINE-F32-VELOCITY (Story 6.1c, owner decision 9 Oct 2026) — committed body velocity (and angular velocity) stored as f32 in the body record and motion pieces instead of binary16, so small declared decrements such as ball drag 0.04 survive at 60/120/240 Hz; legacy deleted: the binary16 velocity lanes and their host bounds; after 6.1b, before CAT-015a. Implemented in Story 6.1c (`spec-6-1c-f32-committed-velocity-precision.md`, pending independent review): f32 m/s and rad/s in the body record (+48/+60), motion piece (+64/+76) and the 64-byte `PhysicsBodyWire`; legacy deleted: the binary16 velocity lanes, the ×32 velocity scale, `CellVelocity` and the 1/512 Half clamp headroom. Owner decisions recorded with 6.1b: rolling resistance at every sphere contact; Bowling ball radius 0.28 m, mass 4 kg.
+./docs/planning/invest/campaign-reservations.md:447:## Chapter 13: Half the Battle · slots 121–130
+./docs/work-orders/P0-004/ownership/part-007.json:2585:        "Value": "P:CuriousContraptions.BoxProxy.Half"
+./docs/work-orders/P0-004/ownership/part-023.json:6345:        "Value": "P:CuriousContraptions.Workbench.RenderBox.Half"
+./docs/radiation-component-research.md:32:- **Decay and material memory.** Half-life is a deterministic population envelope ([EPA radionuclides](https://www.epa.gov/radiation/radionuclides)); pausing cannot age a capsule and shielding does not stop decay. A polymer latch weakens irreversibly within a Run ([IAEA TECDOC-1617](https://www-pub.iaea.org/MTCD/Publications/PDF/te_1617_web.pdf)); removing exposure never repairs it; Reset restores both. Radiation never makes unrelated objects emit.
+./docs/radiation-component-research.md:42:| Half-life | s | 1–1800 (scale 2⁴) | Decay presets; steady gamma uses none |
+./docs/radiation-component-research.md:150:| 98 | Half as Bright: decay | Use a decay capsule and rate meter to release a gate after the activity crosses a lower threshold. | A steady capsule never produces the required falling transition. |
+./docs/planning/invest/campaign.md:1342:**Bounded decision inputs:** [Chapter 13, Half the Battle: actual scope, reservation set and decision oracle](campaign-reservations.md#chapter-13). Exact numeric source reservations for this slot: [radiation-15](../requirements.md#radiation-15).
+./docs/planning/invest/campaign.md:1353:**Bounded decision inputs:** [Chapter 13, Half the Battle: actual scope, reservation set and decision oracle](campaign-reservations.md#chapter-13). Exact numeric source reservations for this slot: [radiation-12](../requirements.md#radiation-12).
+./docs/planning/invest/campaign.md:1364:**Bounded decision inputs:** [Chapter 13, Half the Battle: actual scope, reservation set and decision oracle](campaign-reservations.md#chapter-13). Exact numeric source reservations for this slot: [radiation-13](../requirements.md#radiation-13).
+./docs/planning/invest/campaign.md:1375:**Bounded decision inputs:** [Chapter 13, Half the Battle: actual scope, reservation set and decision oracle](campaign-reservations.md#chapter-13). Exact numeric source reservations for this slot: [radiation-13](../requirements.md#radiation-13).
+./docs/planning/invest/campaign.md:1386:**Bounded decision inputs:** [Chapter 13, Half the Battle: actual scope, reservation set and decision oracle](campaign-reservations.md#chapter-13). Exact numeric source reservations for this slot: [radiation-16](../requirements.md#radiation-16).
+./docs/planning/invest/campaign.md:1397:**Bounded decision inputs:** [Chapter 13, Half the Battle: actual scope, reservation set and decision oracle](campaign-reservations.md#chapter-13). Exact numeric source reservations for this slot: [radiation-17](../requirements.md#radiation-17).
+./docs/planning/invest/campaign.md:1408:**Bounded decision inputs:** [Chapter 13, Half the Battle: actual scope, reservation set and decision oracle](campaign-reservations.md#chapter-13). Exact numeric source reservations for this slot: [radiation-18](../requirements.md#radiation-18).
+./docs/planning/invest/campaign.md:1419:**Bounded decision inputs:** [Chapter 13, Half the Battle: actual scope, reservation set and decision oracle](campaign-reservations.md#chapter-13). Exact numeric source reservations for this slot: [radiation-17](../requirements.md#radiation-17).
+./docs/planning/invest/campaign.md:1430:**Bounded decision inputs:** [Chapter 13, Half the Battle: actual scope, reservation set and decision oracle](campaign-reservations.md#chapter-13). This slot participates in the chapter’s stated range reservations; the specific choice is unresolved, with the finite allocation/pilot oracle above and this same LEVEL as the named implementation next.
+./docs/planning/invest/campaign.md:1441:**Bounded decision inputs:** [Chapter 13, Half the Battle: actual scope, reservation set and decision oracle](campaign-reservations.md#chapter-13). Exact numeric source reservations for this slot: [radiation-16](../requirements.md#radiation-16), [radiation-18](../requirements.md#radiation-18).
+./docs/presentation-bindings.md:297:| 56–63 | Target U64 | Value Half (56), Property U16 (58), kind U32 (60) |
+./docs/presentation-bindings.md:299:| 72–79 | From/To/Duration Half (72/74/76), Property U16 (78) | World U64 |
+./docs/presentation-bindings.md:300:| 80–87 | Curve U32 (80), EventOrdinal U32 (84) | EventOrdinal U32 (80), EventPhase Half (84), Version U16 (86) |
+./docs/presentation-bindings.md:301:| 88–95 | EventPhase Half (88), Version U16 (90), ImpulseCurve U16 (92), Overlap U16 (94) | zero padding U64 (88) |
+./docs/presentation-bindings.md:303:| 132–143 | zero padding U16 (132), U16 (134), U64 (136) | PulseDuration Half (132, impulse only), zero padding U16 (134), U64 (136) |
+./docs/presentation-bindings.md:307:The `Half` lanes above record the current binary16 implementation layout, not the numeric contract: these values are f32 game values and the layout changes when they migrate ([f32 migration status](gpu-f32-physics.md#f32-migration-status)).
+./docs/architecture/element-package-isolation.md:163:| B6 | `System.Half` binary16 lanes remain in production code (about 850 tokens) | f32 authority | 9A.44 (9.5a moves the timer lane first) |
+./docs/committed-tick-presentation-proposed.json:1297:    "        var half=CollisionVector.From(desired.Half);",
+./docs/committed-tick-presentation-proposed.json:1299:    "        if(box.Half==half&&shaft.Shape.Pose==pose)return;",
+./docs/committed-tick-presentation-proposed.json:2230:    "                .OfType<MeshInstance3D>().Single(mesh=>mesh.Mesh is BoxMesh box&&box.Size==bladeBox.Half*2);",
+./docs/committed-tick-presentation-proposed.json:2336:    "                    child.Geometry is ConvexBox box&&box.Half==CollisionVector.From(half)&&",
+./docs/planning/elements/CAT-005-battery.md:20:| Mass and material | Static; no mass. Contact material is the legacy static default restitution 1, bounce threshold 0.1 m/s, friction 0.3 (`reference/cpu/MachinePart.cs@a6c914e:L236-L236`), the same values the current compiler declares for static parts (`engine/gpu/WorkshopPhysicsCompiler.cs@a6c914e:L109-L110`). Declare through `ContactMaterialDeclaration` (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L42-L45`) as f32; that record still stores binary16, listed as remaining f32 migration (`docs/gpu-f32-physics.md@a6c914e:L94-L94`). |
+./docs/planning/elements/EL-181-rising-edge-detector.md:90:3. **binary16 activation and cosmetic lanes.** The occurrence timestamps (ordinal and phase) and the flash cosmetic curve this detector emits through still hold binary16 values, listed as remaining f32 migration (`docs/gpu-f32-physics.md@a6c914e:L96-L98`). Whether the edge-node slice migrates them to f32 first or extends them as they are: the same decision as [CAT-020 open question 3](CAT-020-counter.md#6-open-questions), owner decision. EL-182 inherits this question.
+./CuriousContraptions.tests/WireFaultTests.cs:51:            BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(piece + 22), BitConverter.HalfToUInt16Bits((Half)WorkshopCadenceSettings.PhysicalFrequency));
+./docs/coverage/engine/capabilities-01.json:9878:      "ModelBoundary": "Closed sets remain enums and extensible identities remain typed across compiler, runtime, tooling and wire boundaries. Current Workshop subset: canonical Half bodies, colliders, materials, sensors and strict current wire discriminants; repository-wide typed-contract closure remains open.",
+./docs/coverage/engine/capabilities-01.json:12924:      "ModelBoundary": "Shared WGSL f16 rigid-body dynamics integrate typed canonical Half mass, inertia, force and torque independently of render cadence under the current numerical contract; no CPU physical solver. Current Workshop subset: one generic GPU dynamic sphere versus static plane/box path with bounded motion/contact/support; other shape pairs and populations remain unsupported.",
+./CuriousContraptions.tests/WorkshopWireFlatBuffersTests.cs:171:            WorkshopGoalKind.Captured => PuzzleCatalogue.Create(new PuzzleId("spring_forward"), new(1), WorkshopCadenceSettings.Default(), new(1), new((Half)1)),
+./CuriousContraptions.tests/WorkshopWireFlatBuffersTests.cs:172:            WorkshopGoalKind.ActivatedAfter => PuzzleCatalogue.Create(new("delayed_signal"), new(1), WorkshopCadenceSettings.Default(), new(1), new((Half).5)),
+./CuriousContraptions.tests/WorkshopWireFlatBuffersTests.cs:250:        var lesson = PuzzleCatalogue.Create(new PuzzleId("ready_to_rebound"), new(1), WorkshopCadenceSettings.Default(), new(1), new((Half)1));
+./docs/coverage/source-inventory.json:35:{"Source":{"Key":{"Origin":"Task","Id":"sequence-task-033"},"Location":"docs/planning/requirements.md#sequence-task-033","Title":"- [ ] **PERF-25 — compile declarations into efficient execution plans.** Resolve typed capabilities/handles, immutable geometry, graph topology, sparse patterns and dependency closure at load or relevant revision changes. Profile compact/contiguous storage, reusable bounded scratch arenas, local sparse/dense numerical kernels and independent SIMD batches in the actual Wasm build. Forbid per-part physics/evaluator callback dispatch on every execution path; cold authoring interfaces may emit typed declarations only. Avoid repeated reflection, topology discovery and world-wide dense solves in hot paths. Use canonical Half declarations and WGSL f16 numerical kernels, canonical ordering, bounded convergence/stability criteria under the approved error contract, cache invalidation and atomic rollback. Use the audit's research/applicability register to accept or reject each technique from measured browser gains; no unsupported threads, hidden CPU numerical fallback or unapproved changes to the new f16 limits.","Hash":"9c0d7bd45198c164718fee914bae0027661d0a9b49fa3ce5f4896208354690fa"},"Mapping":"Unreviewed","Implementation":"Unreviewed","Correctness":"Missing","RealUi":"Missing","Performance":"Missing","Publication":"Unpublished"},
+./docs/planning/elements/CAT-013-both_gate.md:37:- Declared cosmetic curve record (no electrical source yet): `engine/gpu/WorkshopCosmetic.cs@a6c914e:L16-L48`. It stores its duration as binary16 (`Half`); cosmetic durations are listed as remaining f32 migration (`docs/gpu-f32-physics.md@a6c914e:L96-L98`), so extending it inherits that debt (open question 3).
+./docs/coverage/catalogue-elements.json:6649:      "Title": "- [ ] **PERF-25 — compile declarations into efficient execution plans.** Resolve typed capabilities/handles, immutable geometry, graph topology, sparse patterns and dependency closure at load or relevant revision changes. Profile compact/contiguous storage, reusable bounded scratch arenas, local sparse/dense numerical kernels and independent SIMD batches in the actual Wasm build. Forbid per-part physics/evaluator callback dispatch on every execution path; cold authoring interfaces may emit typed declarations only. Avoid repeated reflection, topology discovery and world-wide dense solves in hot paths. Use canonical Half declarations and WGSL f16 numerical kernels, canonical ordering, bounded convergence/stability criteria under the approved error contract, cache invalidation and atomic rollback. Use the audit's research/applicability register to accept or reject each technique from measured browser gains; no unsupported threads, hidden CPU numerical fallback or unapproved changes to the new f16 limits.",
+./CuriousContraptions.tests/WorkshopSpringboardTests.cs:17:        var lesson = PuzzleCatalogue.Create(new PuzzleId("spring_forward"), new(1), WorkshopCadenceSettings.Default(), new(1), new((Half)0));
+./CuriousContraptions.tests/WorkshopSpringboardTests.cs:29:        Assert.Equal((float)(Half).3, ((WorkshopGenericInstance)construction.Instances.Single(instance => instance.PartId == PartId.Receiver)).Parameters[new("capture_margin")]);
+./CuriousContraptions.tests/WorkshopSpringboardTests.cs:30:        Assert.Equal((float)(Half)12, ((WorkshopGenericInstance)construction.Instances.Single(instance => instance.PartId == PartId.Receiver)).Parameters[new("force_maximum_acceleration")]);
+./CuriousContraptions.tests/WorkshopSpringboardTests.cs:48:        var initial = PuzzleCatalogue.Create(lesson, new(1), WorkshopCadenceSettings.Default(), new(1), new((Half)1));
+./CuriousContraptions.tests/WorkshopSpringboardTests.cs:73:        foreach (var precision in new Half[] { (Half)0, (Half).45, (Half)1 })
+./CuriousContraptions.tests/WorkshopSpringboardTests.cs:77:            Assert.Equal((float)(Half)(precision == (Half)0 ? .3 : precision == (Half)1 ? .02 : .174), receiver.Parameters[new("capture_margin")]);
+./CuriousContraptions.tests/WorkshopSpringboardTests.cs:78:            Assert.Equal((float)(Half)(ready ? 0 : precision == (Half)0 ? 12 : precision == (Half)1 ? 0 : 6.6), receiver.Parameters[new("force_maximum_acceleration")]);
+./CuriousContraptions.tests/WorkshopSpringboardTests.cs:101:                Half[] values = [k.Precision,k.PositionWindow.Value,k.RotationWindowDegrees,k.MaximumPositionCorrection.Value,
+./CuriousContraptions.tests/WorkshopSpringboardTests.cs:104:                for (var j = 0; j < names.Length; j++) Assert.Equal((Half)data[i].GetProperty(names[j]).GetDouble(), values[j]);
+./CuriousContraptions.tests/WorkshopSpringboardTests.cs:197:        Assert.Equal((Half).25, plate.Mass.Value);
+./CuriousContraptions.tests/CounterTests.cs:93:            Assert.Equal(new MetreVector((Half)0.825f, (Half)0.625f, (Half)0.325f), housing.HalfExtents);
+./CuriousContraptions.tests/CounterTests.cs:94:            Assert.Equal((Half)0, housing.LocalPose.Translation.X);
+./CuriousContraptions.tests/CounterTests.cs:95:            Assert.Equal((Half)0, housing.LocalPose.Translation.Y);
+./CuriousContraptions.tests/CounterTests.cs:96:            Assert.Equal((Half)0, housing.LocalPose.Translation.Z);
+./CuriousContraptions.tests/CounterTests.cs:100:            Assert.Equal(new MetreVector((Half)0.9f, (Half)0.08f, (Half)0.425f), foot.HalfExtents);
+./CuriousContraptions.tests/CounterTests.cs:101:            Assert.Equal((Half)0, foot.LocalPose.Translation.X);
+./CuriousContraptions.tests/CounterTests.cs:102:            Assert.Equal((Half)(-0.72f), foot.LocalPose.Translation.Y);
+./CuriousContraptions.tests/CounterTests.cs:103:            Assert.Equal((Half)0, foot.LocalPose.Translation.Z);
+./CuriousContraptions.tests/CounterTests.cs:212:        Assert.Equal((Half)0f, bladeUnpowered.LinearDrag.Value);
+./CuriousContraptions.tests/CounterTests.cs:217:        Assert.Equal(new MetreVector((Half)0.825f, (Half)0.625f, (Half)0.325f), counterColliders[0].HalfExtents);
+./CuriousContraptions.tests/CounterTests.cs:218:        Assert.Equal(new MetreVector((Half)0.9f, (Half)0.08f, (Half)0.425f), counterColliders[1].HalfExtents);
+./CuriousContraptions.tests/CounterTests.cs:231:        Assert.Equal((Half)0f, bladePowered.LinearDrag.Value);
+./CuriousContraptions.tests/CounterTests.cs:266:        var passageRead1 = new PassageSensorRead(sensorId, detector.Id, ballBodyId, ballColliderId, PassageSensorPhase.Fired, 1, (Half)0, new((Half)2f));
+./CuriousContraptions.tests/CounterTests.cs:280:        var passageRead2 = new PassageSensorRead(sensorId, detector.Id, ballBodyId, ballColliderId, PassageSensorPhase.Fired, 2, (Half)0, new((Half)2f));
+./CuriousContraptions.tests/CounterTests.cs:288:        var passageRead3 = new PassageSensorRead(sensorId, detector.Id, ballBodyId, ballColliderId, PassageSensorPhase.Fired, 3, (Half)0, new((Half)2f));
+./CuriousContraptions.tests/CounterTests.cs:302:            var passageReadExtra = new PassageSensorRead(sensorId, detector.Id, ballBodyId, ballColliderId, PassageSensorPhase.Fired, i, (Half)0, new((Half)2f));
+./CuriousContraptions.tests/CounterTests.cs:331:        PassageSensorRead Pass(uint ordinal) => new(sensor, detector.Id, new(10), new(11), PassageSensorPhase.Fired, ordinal, (Half)0, new((Half)2f));
+./CuriousContraptions.tests/ClearPipeLevelTests.cs:12:    private static WorkshopConstruction Lesson(Half precision) =>
+./CuriousContraptions.tests/ClearPipeLevelTests.cs:23:        var construction = Lesson((Half)0);
+./CuriousContraptions.tests/ClearPipeLevelTests.cs:47:        var construction = Lesson((Half)0);
+./CuriousContraptions.tests/ClearPipeLevelTests.cs:80:        var construction = Lesson((Half)precision);
+./CuriousContraptions.tests/ClearPipeLevelTests.cs:83:        Assert.Equal((float)(Half)margin, receiver.Parameters[new("capture_margin")]);
+./CuriousContraptions.tests/ClearPipeLevelTests.cs:84:        Assert.Equal((float)(Half)speed, receiver.Parameters[new("capture_speed_limit")]);
+./CuriousContraptions.tests/ClearPipeLevelTests.cs:85:        Assert.Equal((float)(Half)dwell, receiver.Parameters[new("capture_dwell")]);
+./CuriousContraptions.tests/ClearPipeLevelTests.cs:86:        Assert.Equal((float)(Half)accel, receiver.Parameters[new("force_maximum_acceleration")]);
+./CuriousContraptions.tests/ClearPipeLevelTests.cs:97:        var updated = PuzzleCatalogue.WithPrecision(placed, new((Half)0.45));
+./CuriousContraptions.tests/ClearPipeLevelTests.cs:98:        Assert.Equal((float)(Half)0.174, ((WorkshopGenericInstance)updated.Instances.Single(instance => instance.PartId == PartId.Receiver)).Parameters[new("capture_margin")]);
+./CuriousContraptions.tests/ClearPipeLevelTests.cs:104:        var construction = Lesson((Half)0.45);
+./CuriousContraptions.tests/ClearPipeLevelTests.cs:132:            Half[] actual = [k.Precision, k.PositionWindow.Value, k.RotationWindowDegrees, k.MaximumPositionCorrection.Value,
+./CuriousContraptions.tests/ClearPipeLevelTests.cs:136:                Assert.Equal((Half)data[i].GetProperty(names[field]).GetDouble(), actual[field]);
+./CuriousContraptions.tests/WorkshopPhysicsLawRestitutionTests.cs:18:    private static readonly float G = -(float)(Half)LawScene.Gravity;
+./CuriousContraptions.tests/WorkshopPhysicsLawRestitutionTests.cs:21:    private static float H(float value) => (float)(Half)value;
+./CuriousContraptions.tests/WorkshopPhysicsLawRestitutionTests.cs:32:    /// <summary>Kinetic plus potential energy (J) of the 1 kg dropped body from its admitted (binary16) geometry.</summary>
+./CuriousContraptions.tests/WorkshopPhysicsLawRestitutionTests.cs:91:    /// the impact; ± 2⁻¹⁰ for the binary16 e); a flat landing leaves without spin; e = 0 never leaves the support; and no committed
+./CuriousContraptions.tests/WorkshopPhysicsLawRestitutionTests.cs:115:        var eh = (float)(Half)e;
+./CuriousContraptions.tests/WorkshopPhysicsLawRestitutionTests.cs:170:    /// slip keeps its sign; otherwise it sticks and takes ω r/7. Within 2 % (binary16 μ and e).</summary>
+./CuriousContraptions.tests/OldLayoutSaves.cs:117:        yield return new("domino", "domino", [new(14, Vector: new((float)(Half).125, (float)(Half).55, (float)(Half).325)),
+./CuriousContraptions.tests/OldLayoutSaves.cs:118:            new(6, (float)(Half).4), new(7, (float)(Half).05), new(15, (float)(Half).6)]) { Layout = layout };
+./CuriousContraptions.tests/OldLayoutSaves.cs:144:        yield return new("domino", "domino", [new(20, Vector: new((float)(Half).125, (float)(Half).55, (float)(Half).325)),
+./CuriousContraptions.tests/OldLayoutSaves.cs:145:            new(6, (float)(Half).4), new(7, (float)(Half).05), new(21, (float)(Half).6)]);
+./CuriousContraptions.tests/WorkshopDelayTests.cs:42:        Assert.Equal(new MetreVector((Half)0,(Half)(-.7),(Half)0), box.Pose.Translation);
+./CuriousContraptions.tests/WorkshopDelayTests.cs:43:        Assert.Equal(new MetreVector((Half).675,(Half).075,(Half).4), box.HalfExtents);
+./CuriousContraptions.tests/WorkshopDelayTests.cs:45:        Assert.Equal(new Restitution((Half)1), material.Restitution);
+./CuriousContraptions.tests/WorkshopDelayTests.cs:46:        Assert.Equal(new LinearSpeed((Half).1), material.BounceThreshold);
+./CuriousContraptions.tests/WorkshopDelayTests.cs:47:        Assert.Equal(new FrictionCoefficient((Half).3), material.Friction);
+./CuriousContraptions.tests/WorkshopDelayTests.cs:97:        var puzzle = PuzzleCatalogue.Create(new("first_principles"), new(1), WorkshopCadenceSettings.Default(), new(1), new((Half)0));
+./CuriousContraptions.tests/WorkshopDelayTests.cs:138:        Assert.NotEqual(seconds, (float)(Half)seconds);
+./CuriousContraptions.tests/WorkshopSaveTests.cs:16:        Assert.NotEqual(value, (float)(Half)value);
+./CuriousContraptions.tests/WorkshopSaveTests.cs:44:        var before = PuzzleCatalogue.Create(new("delayed_signal"), new(1), WorkshopCadenceSettings.Default(), new(11), new((Half).45));
+./CuriousContraptions.tests/WorkshopSaveTests.cs:63:        Assert.Equal(before, PuzzleCatalogue.Create(new("delayed_signal"), new(1), WorkshopCadenceSettings.Default(), new(11), new((Half).45)));
+./CuriousContraptions.tests/WorkshopSaveTests.cs:89:        var initial = PuzzleCatalogue.Create(new("ready_to_rebound"), new(1), WorkshopCadenceSettings.Default(), new(1), new((Half).45));
+./CuriousContraptions.tests/WorkshopSaveTests.cs:126:        foreach (var value in new[] { (Half)0, (Half).45, (Half)1 })
+./CuriousContraptions.tests/WorkshopSaveTests.cs:158:                        Half Declared(string field) => (Half)material[field]!["Value"]!.GetValue<float>();
+./CuriousContraptions.tests/WorkshopSaveTests.cs:166:                        Assert.Equal((Half)0, Declared("Buoyancy"));
+./CuriousContraptions.tests/WorkshopSaveTests.cs:195:                        Half Declared(string field) => (Half)material[field]!["Value"]!.GetValue<float>();
+./CuriousContraptions.tests/WorkshopSaveTests.cs:196:                        Half Extent(string axis) => (Half)material["HalfExtents"]![axis]!.GetValue<float>();
+./CuriousContraptions.tests/WorkshopSaveTests.cs:229:                    Half Historical(System.Text.Json.Nodes.JsonNode node) => (Half)node["Value"]!.GetValue<float>();
+./CuriousContraptions.tests/WorkshopSaveTests.cs:235:                    Assert.Equal((Half)((Half).45 + Historical(capture["Margin"]!)), sensor.Maximum.Y);
+./CuriousContraptions.tests/WorkshopSaveTests.cs:236:                    Assert.Equal(new MetreVector((Half)(-.66), (Half)(-.4), (Half)(-.66)), sensor.Minimum);
+./CuriousContraptions.tests/WorkshopSaveTests.cs:237:                    Assert.Equal((Half).66, sensor.Maximum.X);
+./CuriousContraptions.tests/WorkshopSaveTests.cs:238:                    Assert.Equal((Half).66, sensor.Maximum.Z);
+./CuriousContraptions.tests/WorkshopSaveTests.cs:318:        var receiver = ((WorkshopGenericInstance)PuzzleCatalogue.Definition(new("first_principles")).Placements[1].Instance.Create(new(3), new((Half)precision))) with { Locked = false };
+./CuriousContraptions.tests/WorkshopSaveTests.cs:327:            Assert.Equal(new MetreVector((Half)(-1.1), (Half).5, (Half)(-1.1)), guide.Minimum);
+./CuriousContraptions.tests/WorkshopSaveTests.cs:328:            Assert.Equal(new MetreVector((Half)1.1, (Half)1.5, (Half)1.1), guide.Maximum);
+./CuriousContraptions.tests/WorkshopSaveTests.cs:329:            Assert.Equal((Half)receiver.Parameters[new("force_maximum_acceleration")], guide.MaximumAcceleration.Value);
+./CuriousContraptions.tests/WorkshopSaveTests.cs:330:            Assert.Equal((Half).5, guide.SupportHeight.Value);
+./CuriousContraptions.tests/WorkshopSaveTests.cs:331:            Assert.Equal((Half)receiver.Parameters[new("force_support_margin")], guide.SupportMargin.Value);
+./CuriousContraptions.tests/WorkshopSaveTests.cs:333:        Assert.Equal((Half)0, Assert.Single(WorkshopPhysicsCompiler.Compile(Saved().Construction, new(1, 2)).Guides.ToArray()).MaximumAcceleration.Value);
+./CuriousContraptions.tests/WorkshopSaveTests.cs:466:            Assert.Equal((Half)(ramp.Parameters[new("length")] * .5f), box.HalfExtents.X);
+./CuriousContraptions.tests/WorkshopSaveTests.cs:467:            Assert.Equal((Half)(ramp.Parameters[new("width")] * .5f), box.HalfExtents.Z);
+./CuriousContraptions.tests/WorkshopSaveTests.cs:468:            Assert.Equal((Half)(.18f * .5f), box.HalfExtents.Y);
+./CuriousContraptions.tests/WorkshopSaveTests.cs:469:            Assert.Equal((Half)1, Assert.Single(scene.Materials.ToArray(), material => material.Id == box.Material).Restitution.Value);
+./CuriousContraptions.tests/WorkshopSaveTests.cs:498:        foreach (var value in new[] { (Half)0, (Half)(-1), (Half)4.5, Half.NaN, Half.PositiveInfinity })
+./CuriousContraptions.tests/WorkshopSaveTests.cs:513:        var precision = new PuzzlePrecision((Half)value);
+./CuriousContraptions.tests/WorkshopSaveTests.cs:526:        var updated = PuzzleCatalogue.WithPrecision(construction, new((Half).5));
+./CuriousContraptions.tests/WorkshopSaveTests.cs:529:        foreach (var knot in new[] { (Half)0, (Half).45, (Half)1 })
+./CuriousContraptions.tests/WorkshopSaveTests.cs:535:            Assert.Equal((Half)expected.Parameters[new("force_maximum_acceleration")], guide.MaximumAcceleration.Value);
+./CuriousContraptions.tests/WorkshopSaveTests.cs:536:            Assert.Equal((Half)expected.Parameters[new("force_support_margin")], guide.SupportMargin.Value);
+./CuriousContraptions.tests/WorkshopSaveTests.cs:556:        var construction = PuzzleCatalogue.Create(new("first_principles"), new(1), WorkshopCadenceSettings.Default(), new(1), new((Half).45));
+./CuriousContraptions.tests/WorkshopSaveTests.cs:562:            PuzzleDamage.Precision => construction with { Puzzle = puzzle with { Precision = new(Half.NaN) } },
+./CuriousContraptions.tests/WorkshopSaveTests.cs:580:        var construction = PuzzleCatalogue.Create(new("first_principles"), new(1), WorkshopCadenceSettings.Default(), new(1), new((Half)1));
+./CuriousContraptions.tests/WorkshopSaveTests.cs:597:        var construction = PuzzleCatalogue.Create(new("first_principles"), new(1), WorkshopCadenceSettings.Default(), new(1), new((Half)1));
+./CuriousContraptions.tests/WorkshopSaveTests.cs:601:        var read = new WorkshopRead(new(2), new(1), bodies, Captures: new([new(goal.EventSource, CaptureLatchPhase.Latched, 4, (Half)0)]));
+./CuriousContraptions.tests/WorkshopSaveTests.cs:607:        Assert.Equal(WorkshopGoalPhase.Waiting, WorkshopGoalEvaluator.Evaluate(goal, read with { Captures = new([new(new(9), CaptureLatchPhase.Latched, 4, (Half)0)]) }, new(2)));
+./CuriousContraptions.tests/WorkshopSaveTests.cs:627:                Half[] actual = [k.Precision, k.PositionWindow.Value, k.RotationWindowDegrees, k.MaximumPositionCorrection.Value,
+./CuriousContraptions.tests/WorkshopSaveTests.cs:631:                    Assert.Equal(BitConverter.HalfToUInt16Bits((Half)data[i].GetProperty(names[field]).GetDouble()), BitConverter.HalfToUInt16Bits(actual[field]));
+./CuriousContraptions.tests/WorkshopSaveTests.cs:698:        var puzzle = PuzzleCatalogue.Create(new("first_principles"), new(1), WorkshopCadenceSettings.Default(), new(11), new((Half)1));
+./CuriousContraptions.tests/WorkshopSaveTests.cs:769:            Half[] values = [k.Precision, k.PositionWindow.Value, k.RotationWindowDegrees, k.MaximumPositionCorrection.Value,
+./CuriousContraptions.tests/WorkshopSaveTests.cs:773:            for (var j = 0; j < values.Length; j++) Assert.Equal(values[j], (Half)data[i][j].GetSingle());
+./CuriousContraptions.tests/ContactWorkInstanceTests.cs:42:    // Preload = (½·m)·s·s in f32 with the declared 1 kg reference mass, bit for bit, at both ends, the default and a non-binary16
+./CuriousContraptions.tests/LaunchLessonSolveTests.cs:27:            WorkshopCadenceSettings.Default(), new(1), new((Half)precision));
+./CuriousContraptions.tests/LaunchLessonSolveTests.cs:60:    internal static WorkshopConstruction AuthoredSolution(string lesson, Half precision)
+./CuriousContraptions.tests/LaunchLessonSolveTests.cs:139:        foreach (var precision in new[] { (Half)0, (Half).45, (Half)1 })
+./CuriousContraptions.tests/PrismaticConstraintTests.cs:70:                RigidLocalPose.Identity, new((Half)0), new((Half).5, (Half).5, (Half).5))],
+./CuriousContraptions.tests/PrismaticConstraintTests.cs:98:        [new(new(1), RigidMotionKind.Static, default, default, CanonicalRotation.Identity, default, default, new((Half)0), default, new((Half)0)),
+./CuriousContraptions.tests/PrismaticConstraintTests.cs:99:         new(new(2), RigidMotionKind.Dynamic, default, default, CanonicalRotation.Identity, default, default, new((Half).25), default, new((Half)0))],
+./CuriousContraptions.tests/PrismaticConstraintTests.cs:100:        [new(new(4), new(2), new(3), ColliderShapeKind.Box, RigidLocalPose.Identity, new((Half)0), new((Half).65, (Half).075, (Half).6))],
+./CuriousContraptions.tests/PrismaticConstraintTests.cs:101:        [new(new(3), new((Half)0), new((Half).05), new((Half).1), new((Half)0))], [], [], prismatics: [joint]);
+./CuriousContraptions.tests/PrismaticConstraintTests.cs:108:        Assert.NotEqual((float)(Half)Joint.Stiffness, Joint.Stiffness);
+./CuriousContraptions.tests/PrismaticConstraintTests.cs:162:            BinaryPrimitives.WriteUInt16LittleEndian(piece[22..], BitConverter.HalfToUInt16Bits((Half)480));
+./CuriousContraptions.tests/DeclaredIndicatorPassageTests.cs:109:    // A synthetic aperture compiles its own radius and clearance (narrowed to the binary16 lanes), and the tracker obeys them: a crossing
+./CuriousContraptions.tests/DeclaredIndicatorPassageTests.cs:117:        Assert.Equal((WorkshopPhysicsCompiler.PassageSensor(detector.Id), detector.Id, (Half).3f, (Half).5f),
+./CuriousContraptions.tests/PoweredGateTests.cs:69:            var expectedCircHalfExtents = new MetreVector((Half)0.4f, (Half)0.025f, (Half)0.14f);
+./CuriousContraptions.tests/PoweredGateTests.cs:80:            Assert.Equal(new MetreVector((Half)0.4f, (Half)0.325f, (Half)0.9f), housing.HalfExtents);
+./CuriousContraptions.tests/PoweredGateTests.cs:81:            Assert.Equal((Half)0, housing.LocalPose.Translation.X);
+./CuriousContraptions.tests/PoweredGateTests.cs:82:            Assert.Equal((Half)1.65f, housing.LocalPose.Translation.Y);
+./CuriousContraptions.tests/PoweredGateTests.cs:83:            Assert.Equal((Half)0, housing.LocalPose.Translation.Z);
+./CuriousContraptions.tests/PoweredGateTests.cs:87:            Assert.Equal(new MetreVector((Half)0.12f, (Half)0.85f, (Half)0.06f), railStart.HalfExtents);
+./CuriousContraptions.tests/PoweredGateTests.cs:88:            Assert.Equal((Half)(-0.82f), railStart.LocalPose.Translation.Z);
+./CuriousContraptions.tests/PoweredGateTests.cs:92:            Assert.Equal(new MetreVector((Half)0.12f, (Half)0.85f, (Half)0.06f), railEnd.HalfExtents);
+./CuriousContraptions.tests/PoweredGateTests.cs:93:            Assert.Equal((Half)0.82f, railEnd.LocalPose.Translation.Z);
+./CuriousContraptions.tests/PoweredGateTests.cs:173:        Assert.Equal((Half)1f, gateBlade.Mass.Value);
+./CuriousContraptions.tests/PoweredGateTests.cs:174:        Assert.Equal((Half)0f, gateBlade.LinearDrag.Value); // Unwired -> 0 drag
+./CuriousContraptions.tests/PoweredGateTests.cs:180:        Assert.Equal(new MetreVector((Half)0.06f, (Half)0.72f, (Half)0.72f), bladeCollider.HalfExtents);
+./CuriousContraptions.tests/PoweredGateTests.cs:220:        Assert.Equal((Half)0,scene.Bodies.ToArray().Single(body=>body.Id==WorkshopPhysicsCompiler.SliderBody(gate.Id, 0)).LinearDrag.Value);
+./CuriousContraptions.tests/WorkbenchCapacityTests.cs:68:        var first = PuzzleCatalogue.Create(new("first_principles"), new(1), WorkshopCadenceSettings.Default(), new(100001), new((Half).5));
+./CuriousContraptions.tests/WorkbenchCapacityTests.cs:77:        var delayed = PuzzleCatalogue.Create(new("delayed_signal"), new(1), WorkshopCadenceSettings.Default(), new(100001), new((Half).5));
+./CuriousContraptions.tests/WorkbenchCapacityTests.cs:241:        var occurrence = new ContactWorkOccurrence(new(0), new(70_000), new(5), 1, 4, (Half)0, new(3f), new(1.5f), ContactWorkEffect.Paid);
+./CuriousContraptions.tests/PayloadInstanceTests.cs:57:            Assert.Equal(new Kilograms((Half)mass), body.Mass);
+./CuriousContraptions.tests/PayloadInstanceTests.cs:58:            Assert.Equal(new InverseSeconds((Half).04f), body.LinearDrag);
+./CuriousContraptions.tests/PayloadInstanceTests.cs:59:            Assert.Equal(new AccelerationVector((Half)0, (Half)(-9.81f), (Half)0), body.Gravity);
+./CuriousContraptions.tests/PayloadInstanceTests.cs:62:            Assert.Equal(new Metres((Half)radius), collider.Radius);
+./CuriousContraptions.tests/PayloadInstanceTests.cs:64:            Assert.Equal(new Restitution((Half)bounce), material.Restitution);
+./CuriousContraptions.tests/PayloadInstanceTests.cs:65:            Assert.Equal(new FrictionCoefficient((Half).3f), material.Friction);
+./CuriousContraptions.tests/PayloadInstanceTests.cs:66:            Assert.Equal(new LinearSpeed((Half).1f), material.BounceThreshold);
+./CuriousContraptions.tests/PayloadInstanceTests.cs:67:            Assert.Equal(new RollingResistance((Half)rolling), material.RollingResistance);
+./CuriousContraptions.tests/PayloadInstanceTests.cs:138:            var level = PuzzleCatalogue.Create(new(lesson), new(1), WorkshopCadenceSettings.Default(), new(11), new((Half).45));
+./CuriousContraptions.tests/PayloadInstanceTests.cs:289:        PreConversionSave(part, new Dictionary<int, float> { [6] = radius, [7] = mass, [8] = bounce, [9] = (float)(Half).04f });
+./CuriousContraptions.tests/PayloadInstanceTests.cs:291:    /// <summary>The pre-conversion Domino record: the former record's binary16 material (0.4 kg, bounce 0.05, friction 0.6, half
+./CuriousContraptions.tests/PayloadInstanceTests.cs:294:        PreConversionSave("domino", new Dictionary<int, float> { [7] = (float)(Half).4, [8] = (float)(Half).05, [24] = (float)(Half).6 },
+./CuriousContraptions.tests/PayloadInstanceTests.cs:295:            new((float)(Half).125, (float)(Half).55, (float)(Half).325));
+./CuriousContraptions.tests/PayloadInstanceTests.cs:315:            ("ball", PreConversionBall("ball", (float)(Half).34f, 1, (float)(Half).55f), WorkshopSaveRejection.VerifierRejected),
+./CuriousContraptions.tests/PayloadInstanceTests.cs:316:            ("bowling", PreConversionBall("bowling", (float)(Half).28f, 4, (float)(Half).14f), WorkshopSaveRejection.VerifierRejected),
+./CuriousContraptions.tests/ContactActivationTests.cs:29:        Assert.Equal(new MetreVector((Half)0, (Half)(-.15), (Half)0), boxes[0].Pose.Translation);
+./CuriousContraptions.tests/ContactActivationTests.cs:30:        Assert.Equal(new MetreVector((Half).55, (Half).125, (Half).5), boxes[0].HalfExtents);
+./CuriousContraptions.tests/ContactActivationTests.cs:31:        Assert.Equal(new MetreVector((Half)0, (Half).05, (Half)0), boxes[1].Pose.Translation);
+./CuriousContraptions.tests/ContactActivationTests.cs:32:        Assert.Equal(new MetreVector((Half).4, (Half).09, (Half).375), boxes[1].HalfExtents);
+./CuriousContraptions.tests/ContactActivationTests.cs:34:        Assert.Equal(new Restitution((Half)1), material.Restitution);
+./CuriousContraptions.tests/ContactActivationTests.cs:35:        Assert.Equal(new LinearSpeed((Half).1), material.BounceThreshold);
+./CuriousContraptions.tests/ContactActivationTests.cs:36:        Assert.Equal(new FrictionCoefficient((Half).3), material.Friction);
+./CuriousContraptions.tests/ContactActivationTests.cs:89:            1, collider.Id, 10, (Half)0, new((float).8)));
+./CuriousContraptions.tests/ContactActivationTests.cs:116:            EventPhase = (Half)0, ApproachSpeed = new((float)0) };
+./CuriousContraptions.tests/ContactActivationTests.cs:215:        Assert.NotEqual(threshold, (float)(Half)threshold);
+./CuriousContraptions.tests/PipeBend90Tests.cs:15:    private static WorkshopConstruction Lesson(Half precision) =>
+./CuriousContraptions.tests/PipeBend90Tests.cs:63:            var expectedWallHalfExtents = new MetreVector((Half)0.26, (Half)0.025, (Half)0.29);
+./CuriousContraptions.tests/PipeBend90Tests.cs:125:        Assert.Equal(new Kilograms((Half)0), body.Mass);
+./CuriousContraptions.tests/PipeBend90Tests.cs:126:        Assert.Equal(new InverseSeconds((Half)0), body.LinearDrag);
+./CuriousContraptions.tests/PipeBend90Tests.cs:134:        Assert.Equal(new Restitution((Half)1), material.Restitution);
+./CuriousContraptions.tests/PipeBend90Tests.cs:135:        Assert.Equal(new LinearSpeed((Half)0.1), material.BounceThreshold);
+./CuriousContraptions.tests/PipeBend90Tests.cs:136:        Assert.Equal(new FrictionCoefficient((Half)0.3), material.Friction);
+./CuriousContraptions.tests/PipeBend90Tests.cs:137:        Assert.Equal(new RollingResistance((Half)0), material.RollingResistance);
+./CuriousContraptions.tests/PipeBend90Tests.cs:224:        var construction = Lesson((Half)0);
+./CuriousContraptions.tests/PipeBend90Tests.cs:248:        var construction = Lesson((Half)0);
+./CuriousContraptions.tests/PipeBend90Tests.cs:281:        var construction = Lesson((Half)precision);
+./CuriousContraptions.tests/PipeBend90Tests.cs:284:        Assert.Equal((float)(Half)margin, receiver.Parameters[new("capture_margin")]);
+./CuriousContraptions.tests/PipeBend90Tests.cs:285:        Assert.Equal((float)(Half)speed, receiver.Parameters[new("capture_speed_limit")]);
+./CuriousContraptions.tests/PipeBend90Tests.cs:286:        Assert.Equal((float)(Half)dwell, receiver.Parameters[new("capture_dwell")]);
+./CuriousContraptions.tests/PipeBend90Tests.cs:287:        Assert.Equal((float)(Half)accel, receiver.Parameters[new("force_maximum_acceleration")]);
+./CuriousContraptions.tests/PipeBend90Tests.cs:298:        var updated = PuzzleCatalogue.WithPrecision(placed, new((Half)0.45));
+./CuriousContraptions.tests/PipeBend90Tests.cs:299:        Assert.Equal((float)(Half)0.174, ((WorkshopGenericInstance)updated.Instances.Single(instance => instance.PartId == PartId.Receiver)).Parameters[new("capture_margin")]);
+./CuriousContraptions.tests/PipeBend90Tests.cs:305:        var construction = Lesson((Half)0.45);
+./CuriousContraptions.tests/PipeBend90Tests.cs:333:            Half[] actual = [k.Precision, k.PositionWindow.Value, k.RotationWindowDegrees, k.MaximumPositionCorrection.Value,
+./CuriousContraptions.tests/PipeBend90Tests.cs:337:                Assert.Equal((Half)data[i].GetProperty(names[field]).GetDouble(), actual[field]);
+./CuriousContraptions.tests/CanonicalBodyTests.cs:11:    // Velocity is f32 in m/s: 1e-7 m/s (far below a binary16 step at 1 m/s) survives the round trip.
+./CuriousContraptions.tests/DeclaredPresentationTests.cs:103:        Assert.NotEqual(endpoint, (float)(Half)endpoint);
+./CuriousContraptions.tests/PackageRuntimeParityTests.cs:53:        // 9A.32: the declared f32 orientation threshold is the compiled sensor's, narrowed to the binary16 half-angle cosine lane bit-equal
+./CuriousContraptions.tests/PackageRuntimeParityTests.cs:67:        // compiled passage sensor's radius and rearm clearance, narrowed to the binary16 lanes bit-equal to the former record's
+./CuriousContraptions.tests/PackageRuntimeParityTests.cs:68:        // (Half)0.65 and (Half)0.02.
+./CuriousContraptions.tests/PackageRuntimeParityTests.cs:75:        Assert.Equal((BitConverter.HalfToUInt16Bits((Half)0.65), BitConverter.HalfToUInt16Bits((Half)0.02)),
+./CuriousContraptions.tests/PackageRuntimeParityTests.cs:286:    private enum Lane { Half, Single, Whole }
+./CuriousContraptions.tests/PackageRuntimeParityTests.cs:290:        Lane.Half => (float)(Half)value,
+./CuriousContraptions.tests/PackageRuntimeParityTests.cs:297:        Lane.Half => (float)Half.BitDecrement((Half)value),
+./CuriousContraptions.tests/PackageRuntimeParityTests.cs:304:        Lane.Half => (float)Half.BitIncrement((Half)value),
+./CuriousContraptions.tests/PackageRuntimeParityTests.cs:447:        (RuntimeShape Shape, RigidLocalPose Pose, Half Radius, MetreVector HalfExtents)[] runtime)
+./CuriousContraptions.tests/PackageRuntimeParityTests.cs:477:    private static bool Same(float declared, Half runtime) => BitConverter.HalfToInt16Bits((Half)declared) == BitConverter.HalfToInt16Bits(runtime);
+./CuriousContraptions.tests/RigidMassPropertiesTests.cs:36:        var pose = new RigidLocalPose(new((Half)1, (Half)(-2), (Half).5),
+./CuriousContraptions.tests/RigidMassPropertiesTests.cs:66:        default, default, CanonicalRotation.Identity, default, default, new((Half)mass), default, default);
+./CuriousContraptions.tests/RigidMassPropertiesTests.cs:70:            new(shape == ColliderShapeKind.Sphere ? (Half)x : (Half)0),
+./CuriousContraptions.tests/RigidMassPropertiesTests.cs:71:            shape == ColliderShapeKind.Box ? new((Half)x, (Half)y, (Half)z) : default);
+./CuriousContraptions.tests/RigidMassPropertiesTests.cs:118:            b with { LocalCentreOfMass = new(Half.NaN, (Half)0, (Half)0) }]));
+./CuriousContraptions.tests/RigidMassPropertiesTests.cs:125:            CanonicalRotation.Identity, default, new(128f, 0f, 0f), new((Half)1), default, default);
+./CuriousContraptions.tests/RigidMassPropertiesTests.cs:138:            CanonicalRotation.Identity, default, default, new((Half)0), default, default);
+./CuriousContraptions.tests/RigidMassPropertiesTests.cs:149:            default, default, new((Half)LawTile.Mass), default, default);
+./CuriousContraptions.tests/RigidMassPropertiesTests.cs:150:        var collider = new ColliderDeclaration(new(2), new(1), new(3), ColliderShapeKind.Box, RigidLocalPose.Identity, new((Half)0),
+./CuriousContraptions.tests/RigidMassPropertiesTests.cs:151:            new((Half)tile.X, (Half)tile.Y, (Half)tile.Z));
+./CuriousContraptions.tests/WorkshopBowlingTests.cs:32:        Assert.Equal(new Metres((Half).28), new Metres(Assert.Single(ball.DeclaredColliders).Radius));
+./CuriousContraptions.tests/WorkshopBowlingTests.cs:46:        Assert.Equal(new Kilograms((Half)4), body.Mass);
+./CuriousContraptions.tests/WorkshopBowlingTests.cs:47:        Assert.Equal(new InverseSeconds((Half).04), body.LinearDrag);
+./CuriousContraptions.tests/WorkshopBowlingTests.cs:48:        Assert.Equal(new AccelerationVector((Half)0, (Half)(-9.81), (Half)0), body.Gravity);
+./CuriousContraptions.tests/WorkshopBowlingTests.cs:51:        Assert.Equal(new Metres((Half).28), sphere.Radius);
+./CuriousContraptions.tests/WorkshopBowlingTests.cs:53:        Assert.Equal(new Restitution((Half).14), material.Restitution);
+./CuriousContraptions.tests/WorkshopBowlingTests.cs:54:        Assert.Equal(new LinearSpeed((Half).1), material.BounceThreshold);
+./CuriousContraptions.tests/WorkshopBowlingTests.cs:55:        Assert.Equal(new FrictionCoefficient((Half).3), material.Friction);
+./CuriousContraptions.tests/WorkshopBowlingTests.cs:56:        Assert.Equal(new RollingResistance((Half).03), material.RollingResistance);
+./CuriousContraptions.tests/WorkshopBowlingTests.cs:60:        Assert.Equal(new Kilograms((Half)1), basketball.Mass);
+./CuriousContraptions.tests/WorkshopBowlingTests.cs:61:        Assert.Equal(new Restitution((Half).55), basketballMaterial.Restitution);
+./CuriousContraptions.tests/WorkshopBowlingTests.cs:62:        Assert.Equal(new FrictionCoefficient((Half).3), basketballMaterial.Friction);
+./CuriousContraptions.tests/WorkshopBowlingTests.cs:63:        Assert.Equal(new LinearSpeed((Half).1), basketballMaterial.BounceThreshold);
+./CuriousContraptions.tests/WorkshopBowlingTests.cs:64:        Assert.Equal(new RollingResistance((Half).035), basketballMaterial.RollingResistance);
+./CuriousContraptions.tests/WorkshopBowlingTests.cs:119:        foreach (var admitted in new[] { (Half)0, (Half).1 }) (declared with { RollingResistance = new(admitted) }).Validate();
+./CuriousContraptions.tests/WorkshopBowlingTests.cs:120:        foreach (var rejected in new[] { (Half)(-.01), (Half).11, Half.NaN, Half.PositiveInfinity })
+./CuriousContraptions.tests/WorkshopBowlingTests.cs:154:        Assert.All(scene.Sensors.ToArray(), s => Assert.Equal(new LinearSpeed((Half)1.5), s.SpeedLimit));
+./CuriousContraptions.tests/WorkshopBowlingTests.cs:162:        var first = PuzzleCatalogue.Create(new("first_principles"), new(1), WorkshopCadenceSettings.Default(), new(100001), new((Half).5));
+./CuriousContraptions.tests/WorkshopBowlingTests.cs:163:        var delayed = PuzzleCatalogue.Create(new("delayed_signal"), new(1), WorkshopCadenceSettings.Default(), new(100001), new((Half).5));
+./CuriousContraptions.tests/WorkshopBowlingTests.cs:164:        var dominoes = PuzzleCatalogue.Create(new("domino_effect"), new(1), WorkshopCadenceSettings.Default(), new(100001), new((Half).5));
+./CuriousContraptions.tests/WorkshopPipeLengthTests.cs:74:            Assert.Equal((Half)(metres / 2), shell.HalfExtents.X);
+./CuriousContraptions.tests/WorkshopPipeLengthTests.cs:75:            Assert.Equal((Half)0, shell.LocalPose.Translation.X);
+./CuriousContraptions.tests/WorkshopPipeLengthTests.cs:78:        Assert.Equal(4, rims.Count(rim => rim.LocalPose.Translation.X == (Half)(-metres / 2)));
+./CuriousContraptions.tests/WorkshopPipeLengthTests.cs:79:        Assert.Equal(4, rims.Count(rim => rim.LocalPose.Translation.X == (Half)(metres / 2)));
+./CuriousContraptions.tests/WorkshopSimulationTests.cs:631:        var occurrence = new ContactTriggerRead(trigger.Id,trigger.Owner,new GpuBodyId(1),1,collider,1,(Half)0,new((float)1));
+./docs/planning/delivered-slices.md:11:CAT-023a terminal scoped Pass verified via independent reviewer (Murdoch, 9 October 2026, two passes; record in `_bmad-output/implementation-artifacts/spec-5-1-dynamic-box-rigid-body-upright-stability.md`): the physics worker reads mass, centre of mass, principal frame and 3x3 inertia from every dynamic body record and integrates rotation about the COM; Box–Plane and Box–Box produce 4-point area-maximizing manifolds (15-axis SAT, reference-face clipping, geometric feature ids, normal B→A) with a support-point fallback for genuine edge–edge contact; every pair kind shares one TGS Soft point row (lever arms, two-axis Coulomb friction, warm start by pair+feature, speculative margin, relax at integrated positions, joint manifold solve, dissipative restitution once surfaces meet); contact events fire only once surfaces touch; clamps 64 m/s / 128 rad/s with Half margin; deleted the hard-coded sphere inertia terms, the Sphere–Plane resting velocity overwrite, the single-point inverted Box–Box result, the silent material fallbacks and `parts/DominoPart.cs` legacy physics; the Domino is declaration data (`WorkshopDomino`, `DominoMaterial`, box 0.4 kg) plus artwork; angular envelope 128 rad/s aligned across declaration, body read and motion piece. Evidence: Node worker harness 14/14; anvil 0 warnings; 600/600 C# tests; `dotnet publish CuriousContraptions.web` exit 0; `tools/e2e/cat-023a.test.ts` 4/4; cumulative 13 suites / 46 tests pass 100% in one serial Chrome run. Offset centre of mass deferred to CAT-023b/CAT-014; declared LinearDrag application deferred (own slice).
+./docs/planning/delivered-slices.md:19:ENGINE-F32-VELOCITY terminal scoped Pass verified via independent reviewer (Murdoch, 9 October 2026; committed 33f44a8; record in `_bmad-output/implementation-artifacts/spec-6-1c-f32-committed-velocity-precision.md`): committed body velocity and angular velocity stored as f32 in m/s and rad/s, in the body record (+48/+60), the motion piece (+64/+76) and the 64-byte `PhysicsBodyWire`, so drag 0.04 survives at 60/120/240 Hz. Legacy deleted: the binary16 velocity lanes, the ×32 velocity scale, `CellVelocity` and the 1/512 Half clamp headroom. Evidence: harness 38/38 with mutation-sensitive drag and 5 m/s roll facts, C# 632/632, cumulative Chrome 15 suites / 54 tests.
+./CuriousContraptions.tests/PipeBend45Tests.cs:15:    private static WorkshopConstruction Lesson(Half precision) =>
+./CuriousContraptions.tests/PipeBend45Tests.cs:63:            var expectedWallHalfExtents = new MetreVector((Half)0.26, (Half)0.025, (Half)0.29);
+./CuriousContraptions.tests/PipeBend45Tests.cs:125:        Assert.Equal(new Kilograms((Half)0), body.Mass);
+./CuriousContraptions.tests/PipeBend45Tests.cs:126:        Assert.Equal(new InverseSeconds((Half)0), body.LinearDrag);
+./CuriousContraptions.tests/PipeBend45Tests.cs:134:        Assert.Equal(new Restitution((Half)1), material.Restitution);
+./CuriousContraptions.tests/PipeBend45Tests.cs:135:        Assert.Equal(new LinearSpeed((Half)0.1), material.BounceThreshold);
+./CuriousContraptions.tests/PipeBend45Tests.cs:136:        Assert.Equal(new FrictionCoefficient((Half)0.3), material.Friction);
+./CuriousContraptions.tests/PipeBend45Tests.cs:137:        Assert.Equal(new RollingResistance((Half)0), material.RollingResistance);
+./CuriousContraptions.tests/PipeBend45Tests.cs:224:        var construction = Lesson((Half)0);
+./CuriousContraptions.tests/PipeBend45Tests.cs:248:        var construction = Lesson((Half)0);
+./CuriousContraptions.tests/PipeBend45Tests.cs:281:        var construction = Lesson((Half)precision);
+./CuriousContraptions.tests/PipeBend45Tests.cs:284:        Assert.Equal((float)(Half)margin, receiver.Parameters[new("capture_margin")]);
+./CuriousContraptions.tests/PipeBend45Tests.cs:285:        Assert.Equal((float)(Half)speed, receiver.Parameters[new("capture_speed_limit")]);
+./CuriousContraptions.tests/PipeBend45Tests.cs:286:        Assert.Equal((float)(Half)dwell, receiver.Parameters[new("capture_dwell")]);
+./CuriousContraptions.tests/PipeBend45Tests.cs:287:        Assert.Equal((float)(Half)accel, receiver.Parameters[new("force_maximum_acceleration")]);
+./CuriousContraptions.tests/PipeBend45Tests.cs:298:        var updated = PuzzleCatalogue.WithPrecision(placed, new((Half)0.45));
+./CuriousContraptions.tests/PipeBend45Tests.cs:299:        Assert.Equal((float)(Half)0.174, ((WorkshopGenericInstance)updated.Instances.Single(instance => instance.PartId == PartId.Receiver)).Parameters[new("capture_margin")]);
+./CuriousContraptions.tests/PipeBend45Tests.cs:305:        var construction = Lesson((Half)0.45);
+./CuriousContraptions.tests/PipeBend45Tests.cs:333:            Half[] actual = [k.Precision, k.PositionWindow.Value, k.RotationWindowDegrees, k.MaximumPositionCorrection.Value,
+./CuriousContraptions.tests/PipeBend45Tests.cs:337:                Assert.Equal((Half)data[i].GetProperty(names[field]).GetDouble(), actual[field]);
+./docs/planning/elements/CAT-006-beam_combiner.md:42:- Binary16 debt: at a6c914e `MetreVector`, `LinearSpeed` (the contact-trigger threshold type) and `AccelerationVector` are `Half` — `engine/gpu/PhysicsDeclarations.cs@a6c914e:L18-L21`; `RigidLocalPose` translation is a `Half` vector bounded to ±16 — `engine/gpu/PhysicsDeclarations.cs@a6c914e:L31-L38`; `WorkshopCosmeticSample.Blend` is `Half` — `engine/gpu/WorkshopCosmetic.cs@a6c914e:L10-L10`. These are remaining lanes in the [f32 migration status](../../gpu-f32-physics.md#f32-migration-status); this element's new values are declared as f32.
+./CuriousContraptions.tests/WorkshopGpuDeviceTests.cs:45:                    BinaryPrimitives.WriteUInt16LittleEndian(piece[22..], BitConverter.HalfToUInt16Bits((Half)480));
+./CuriousContraptions.tests/BallDetectorTests.cs:59:            var expectedCircHalfExtents = new MetreVector((Half)0.28, (Half)0.025, (Half)0.14);
+./CuriousContraptions.tests/BallDetectorTests.cs:67:                Assert.Equal((Half)0, col.LocalPose.Translation.X);
+./CuriousContraptions.tests/BallDetectorTests.cs:77:            Assert.Equal(new MetreVector((Half)0.25, (Half)0.12, (Half)0.25), housing.HalfExtents);
+./CuriousContraptions.tests/BallDetectorTests.cs:78:            Assert.Equal((Half)0, housing.LocalPose.Translation.X);
+./CuriousContraptions.tests/BallDetectorTests.cs:79:            Assert.Equal((Half)0.93, housing.LocalPose.Translation.Y);
+./CuriousContraptions.tests/BallDetectorTests.cs:80:            Assert.Equal((Half)0, housing.LocalPose.Translation.Z);
+./CuriousContraptions.tests/BallDetectorTests.cs:154:        Assert.Equal((Half)0.65, sensor.Radius.Value);
+./CuriousContraptions.tests/BallDetectorTests.cs:155:        Assert.Equal((Half)0.02, sensor.RearmClearance.Value);
+./CuriousContraptions.tests/DelayedSignalTests.cs:13:        var before = Lesson((Half).45);
+./CuriousContraptions.tests/DelayedSignalTests.cs:20:        Assert.Equal(before, Lesson((Half).45));
+./CuriousContraptions.tests/DelayedSignalTests.cs:30:        Assert.False(WorkshopGoalEvaluator.ElapsedAtLeast(start, at with { Phase = -float.Epsilon }, new((Half)1)));
+./CuriousContraptions.tests/DelayedSignalTests.cs:31:        Assert.True(WorkshopGoalEvaluator.ElapsedAtLeast(start, at, new((Half)1)));
+./CuriousContraptions.tests/DelayedSignalTests.cs:32:        Assert.True(WorkshopGoalEvaluator.ElapsedAtLeast(start, at with { Phase = float.Epsilon }, new((Half)1)));
+./CuriousContraptions.tests/DelayedSignalTests.cs:34:        Assert.True(WorkshopGoalEvaluator.ElapsedAtLeast(borrowed, at with { Phase = -2047f }, new((Half)1)));
+./CuriousContraptions.tests/DelayedSignalTests.cs:36:            new(uint.MaxValue - 1, -2047f), new((Half)1)));
+./CuriousContraptions.tests/DelayedSignalTests.cs:39:    private static WorkshopConstruction Lesson(Half precision) =>
+./CuriousContraptions.tests/DelayedSignalTests.cs:48:        var construction = Lesson((Half)precision);
+./CuriousContraptions.tests/DelayedSignalTests.cs:56:        Assert.Equal((float)(Half)threshold, trigger.Parameters[new ParameterId("trigger_threshold")]);
+./CuriousContraptions.tests/DelayedSignalTests.cs:59:        Assert.Equal((float)(Half)threshold, scene.Triggers[0].Threshold.Value);
+./CuriousContraptions.tests/DelayedSignalTests.cs:68:        EditRefusal.Is(WorkshopEditRejection.PuzzleSettings, () => (construction with { Puzzle=construction.Puzzle with { Goal=construction.Puzzle.Goal with { MinimumDuration=new((Half).5) } } }).Validate());
+./CuriousContraptions.tests/DelayedSignalTests.cs:81:        Assert.True(WorkshopGoalEvaluator.ElapsedAtLeast(start,at,new((Half)1)));
+./CuriousContraptions.tests/DelayedSignalTests.cs:84:            Assert.False(WorkshopGoalEvaluator.ElapsedAtLeast(start,at with { Phase=earlier },new((Half)1)));
+./CuriousContraptions.tests/DelayedSignalTests.cs:85:        Assert.False(WorkshopGoalEvaluator.ElapsedAtLeast(at,start,new((Half)0)));
+./CuriousContraptions.tests/DelayedSignalTests.cs:86:        Assert.True(WorkshopGoalEvaluator.ElapsedAtLeast(new(uint.MaxValue-480,(float)phase),new(uint.MaxValue,(float)phase),new((Half)1)));
+./CuriousContraptions.tests/DelayedSignalTests.cs:87:        Assert.True(WorkshopGoalEvaluator.ElapsedAtLeast(new(1,0f),new(uint.MaxValue,0f),new((Half)120)));
+./CuriousContraptions.tests/DelayedSignalTests.cs:93:        Assert.False(WorkshopGoalEvaluator.ElapsedAtLeast(new(0,0f),new(4290,-1f),new((Half)8.9375)));
+./CuriousContraptions.tests/DelayedSignalTests.cs:94:        Assert.True(WorkshopGoalEvaluator.ElapsedAtLeast(new(0,0f),new(4290,0f),new((Half)8.9375)));
+./CuriousContraptions.tests/DelayedSignalTests.cs:95:        Assert.Throws<ArgumentException>(() => WorkshopGoalEvaluator.ElapsedAtLeast(default,default,new(Half.NaN)));
+./CuriousContraptions.tests/DelayedSignalTests.cs:101:        var goal = Lesson((Half)1).Puzzle.Goal;
+./CuriousContraptions.tests/DelayedSignalTests.cs:144:                Half[] values=[k.Precision,k.PositionWindow.Value,k.RotationWindowDegrees,k.MaximumPositionCorrection.Value,k.MaximumRotationCorrectionDegrees,k.Blend.Value,k.CaptureMargin.Value,k.CaptureSpeed.Value,k.CaptureDwell.Value,k.GuideAcceleration.Value,k.TriggerThreshold];
+./CuriousContraptions.tests/DelayedSignalTests.cs:145:                for(var j=0;j<values.Length;j++) Assert.Equal((Half)data[i].GetProperty(names[j]).GetDouble(),values[j]);
+./CuriousContraptions.tests/DelayedSignalTests.cs:153:        var bytes=WorkshopSaveCodec.Encode(new(Lesson((Half)1),new(4)));
+./CuriousContraptions.tests/DelayedSignalTests.cs:156:        var goal=Lesson((Half)1).Puzzle.Goal;
+./CuriousContraptions.tests/DelayedSignalTests.cs:159:        var command=WorkshopWireFlatBuffers.EncodeCommand(new WorkshopCommand(new(1),WorkshopCommandKind.Construct,new(1),new(1),Lesson((Half)1),Session:new(1,2),Cadence:new(1),Projection:new(1)));
+./docs/planning/requirements.md:682:- [ ] **CAT-038 · light_receiver.** Broadband finite front-facing absorbing disc switches independent supply when received power meets threshold 0.05–2/default 0.25. Trace all emitters before committing all readings and electrical solve. Half-power 0.35 positive and quarter-power 0.175 negative must survive canonical f32 admission; backside/occlusion/no-supply controls and concentric marker/eased indication remain required.
+./docs/planning/requirements.md:2292:| 13 · **121–130: Half the Battle** | Track-segment interpretation, decay-clock capsule; neutron source, Fast/Slow detector modes, water moderator and neutron absorber. | Reinforce earlier scintillation before adding decay; combine a rate window with retained exposure. Reuse conserved water and shielding to satisfy multiple sensor conditions, using 8–11 roles and ordered dependencies. |
+./docs/planning/requirements.md:2323:| 13 | **Half the Battle** | Half-life of the party; Slow and behold; Neutron dance |
+./docs/planning/requirements.md:2350:**Example reward loop:** In **Queue the applause**, release one ball and see its arrival acknowledged; a held-trigger failure reveals why an escapement matters. Finish the queue objective, receive the normal completion and a readable hopper notebook entry, then choose the next available lesson or stop. A later optional “two destinations, one feeder” remix rewards a new solution rather than repeated clicking. In **Half-life of the party**, clearly separate rate and accumulated exposure before offering an optional lower-exposure route.
+./CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:181:    // CAT-004/CAT-054 Run/Reset and Save/Load with non-binary16 authored values: a ball rolls down a resized Ramp while a
+./CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:188:        foreach (var value in new[] { length, width, margin, speed, dwell }) Assert.NotEqual(value, (float)(Half)value);
+./CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:319:    // its available work. Half the minimum payable work of the preload is dust: the contact qualifies and is recorded,
+./CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:559:        var lesson = PuzzleCatalogue.Create(new PuzzleId("spring_forward"), new(1), Settings, new(1), new((Half)0));
+./CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:728:        BinaryPrimitives.WriteHalfLittleEndian(bytes.AsSpan(ball + PhysicsGpuAbi.BodyMassOffset), (Half)mass);
+./CuriousContraptions.tests/HoldTimerTests.cs:145:        var first = new ContactTriggerRead(new(9),new(1),new(99),1,new(100),0,(Half)0,new((float)1));
+./CuriousContraptions.tests/HoldTimerTests.cs:152:        var physical = new ContactTriggerRead(new(10),new(5),new(99),1,new(100),47,(Half)0,new((float)1));
+./CuriousContraptions.tests/HoldTimerTests.cs:284:        Assert.Contains(boxes,row=>row.HalfExtents==new MetreVector((Half).7f,(Half).55f,(Half).325f) && row.Pose.Translation==new MetreVector((Half)0,(Half)0,(Half)0));
+./CuriousContraptions.tests/HoldTimerTests.cs:285:        Assert.Contains(boxes,row=>row.HalfExtents==new MetreVector((Half).8f,(Half).07f,(Half).425f) && row.Pose.Translation==new MetreVector((Half)0,(Half)(-.62f),(Half)0));
+./CuriousContraptions.tests/HoldTimerTests.cs:289:            Assert.Equal(new Restitution((Half)1),material.Restitution);
+./CuriousContraptions.tests/HoldTimerTests.cs:290:            Assert.Equal(new FrictionCoefficient((Half).3f),material.Friction);
+./CuriousContraptions.tests/HoldTimerTests.cs:291:            Assert.Equal(new LinearSpeed((Half).1f),material.BounceThreshold);
+./CuriousContraptions.tests/WorkshopDominoTests.cs:20:        Assert.Equal(new Kilograms((Half).4), body.Mass);
+./CuriousContraptions.tests/WorkshopDominoTests.cs:21:        Assert.Equal(new AccelerationVector((Half)0, (Half)(-9.81), (Half)0), body.Gravity);
+./CuriousContraptions.tests/WorkshopDominoTests.cs:22:        Assert.Equal(new InverseSeconds((Half)0), body.LinearDrag);
+./CuriousContraptions.tests/WorkshopDominoTests.cs:28:        Assert.Equal(new MetreVector((Half).125, (Half).55, (Half).325), box.HalfExtents);
+./CuriousContraptions.tests/WorkshopDominoTests.cs:30:        Assert.Equal(new Restitution((Half).05), material.Restitution);
+./CuriousContraptions.tests/WorkshopDominoTests.cs:31:        Assert.Equal(new LinearSpeed((Half).1), material.BounceThreshold);
+./CuriousContraptions.tests/WorkshopDominoTests.cs:32:        Assert.Equal(new FrictionCoefficient((Half).6), material.Friction);
+./CuriousContraptions.tests/WorkshopDominoTests.cs:33:        Assert.Equal(new RollingResistance((Half)0), material.RollingResistance); // a box declares no rolling resistance
+./CuriousContraptions.tests/WorkshopDominoTests.cs:51:        // The admission record carries exactly these moments (Half mantissa + int32 exponent) for the worker to read.
+./CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:12:/// <summary>Each kind's declared material as the compiler compiles it: the package's f32 declaration narrowed to the binary16 body,
+./CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:25:    public static float Radius(LawBall ball) => (float)(Half)Sphere(ball).HalfExtents.X;
+./CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:26:    public static float Mass(LawBall ball) => (float)(Half)Body(ball).Mass;
+./CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:27:    public static float Drag(LawBall ball) => (float)(Half)Body(ball).LinearDrag;
+./CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:28:    public static float Rolling(LawBall ball) => (float)(Half)Sphere(ball).Material.RollingResistance;
+./CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:29:    public static float Restitution(LawBall ball) => (float)(Half)Sphere(ball).Material.Restitution;
+./CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:30:    public static float Friction(LawBall ball) => (float)(Half)Sphere(ball).Material.Friction;
+./CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:31:    public static float BounceThreshold(LawBall ball) => (float)(Half)Sphere(ball).Material.BounceThreshold;
+./CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:34:/// <summary>The Domino tile as the compiler compiles it: its package's baked box, mass and material narrowed to the binary16 body,
+./CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:39:    public static Vector3 HalfExtents => new((float)(Half)Box.HalfExtents.X, (float)(Half)Box.HalfExtents.Y, (float)(Half)Box.HalfExtents.Z);
+./CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:40:    public static float Mass => (float)(Half)DeclaredPhysics.Of(PartId.Domino).Mechanical!.MassProperties.Mass;
+./CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:41:    public static LawMaterial Material => new((float)(Half)Box.Material.Restitution, (float)(Half)Box.Material.BounceThreshold,
+./CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:42:        (float)(Half)Box.Material.Friction, (float)(Half)Box.Material.RollingResistance);
+./CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:80:            default, default, new((Half)0), default, new((Half)0)));
+./CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:82:        _colliders.Add(new(new(_next++), plane, material, ColliderShapeKind.Plane, RigidLocalPose.Identity, new((Half)0), default));
+./CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:88:        _materials.Add(new(id, new((Half)value.Restitution), new((Half)value.Threshold), new((Half)value.Friction), new((Half)value.Rolling)));
+./CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:101:            new((Half)(dynamic ? mass : 0f)), dynamic ? new((Half)0, (Half)gravity, (Half)0) : default, new((Half)(dynamic ? drag : 0f))));
+./CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:106:            new(new((Half)colliderOffset.X, (Half)colliderOffset.Y, (Half)colliderOffset.Z), CanonicalRotation.Identity),
+./CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:107:            new((Half)(shape is ColliderShapeKind.Sphere or ColliderShapeKind.Cylinder ? radius : 0f)),
+./CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:110:                ColliderShapeKind.Box => new((Half)half.X, (Half)half.Y, (Half)half.Z),
+./CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:111:                ColliderShapeKind.Cylinder => new((Half)0, (Half)half.Y, (Half)0),
+./CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:249:            BinaryPrimitives.WriteHalfLittleEndian(slot, (Half)(value > 0 ? value / MathF.Pow(2, exponent) : 0f));
+./CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:808:        var declared = new Dictionary<ulong, Half> { [ball.Value] = (Half)LawBalls.Drag(LawBall.Basketball), [bowling.Value] = (Half).125f,
+./CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:809:            [free.Value] = (Half)0 };
+./CuriousContraptions.tests/MemoryGuardTests.cs:158:        PassageSensorRead Pass(uint ordinal) => new(sensor, Detector, Balls[0], new(11), PassageSensorPhase.Fired, ordinal, (Half)0, new((Half)2f));
+./CuriousContraptions.tests/WorkshopTraceTests.cs:44:    [InlineData(2u)] // the retired schema whose bodies were 56-byte binary16-velocity records
+./CuriousContraptions.tests/ActivationTimerTests.cs:21:            new(owner),new(1),1,scene.Colliders.ToArray().First(c=>c.Body.Value==owner).Id,ordinal,(Half)0,new((float)1));
+./CuriousContraptions.tests/ActivationTimerTests.cs:128:        Assert.NotEqual(phase, (float)(Half)phase);
+./CuriousContraptions.tests/ActivationTimerTests.cs:148:                BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(offset+22),BitConverter.HalfToUInt16Bits((Half)480));
+./CuriousContraptions.tests/StateLatchTests.cs:108:            Assert.Equal(new MetreVector((Half)0.825f, (Half)0.625f, (Half)0.325f), colliders[0].HalfExtents);
+./CuriousContraptions.tests/StateLatchTests.cs:109:            Assert.Equal(new MetreVector((Half)0.9f, (Half)0.08f, (Half)0.425f), colliders[1].HalfExtents);
+./CuriousContraptions.tests/StateLatchTests.cs:110:            Assert.Equal((Half)(-0.72f), colliders[1].LocalPose.Translation.Y);
+./CuriousContraptions.tests/StateLatchTests.cs:352:        new(source.Trigger, source.Owner, new(99), 1, new(7), (uint)((tick - 1) * 4 + substep), (Half)0, new((float)2));
+./CuriousContraptions.tests/PalettePlacementTests.cs:341:            var bench = (Half)height;
+./CuriousContraptions.tests/PalettePlacementTests.cs:775:            var lesson = PuzzleCatalogue.Create(new PuzzleId("ready_to_rebound"), new(1), WorkshopCadenceSettings.Default(), new(1), new((Half).5));
+./CuriousContraptions.tests/PalettePlacementTests.cs:1654:            Assert.NotEqual(1.234567f, (float)(Half)1.234567f);
+./CuriousContraptions.tests/StraightPipeTests.cs:57:            var expectedCircHalfExtents = new MetreVector((Half)1.8, (Half)0.025, (Half)0.14);
+./CuriousContraptions.tests/StraightPipeTests.cs:66:                Assert.Equal((Half)0, col.LocalPose.Translation.X);
+./CuriousContraptions.tests/StraightPipeTests.cs:120:        Assert.Equal(new Kilograms((Half)0), body.Mass);
+./CuriousContraptions.tests/StraightPipeTests.cs:121:        Assert.Equal(new InverseSeconds((Half)0), body.LinearDrag);
+./CuriousContraptions.tests/StraightPipeTests.cs:129:        Assert.Equal(new Restitution((Half)1), material.Restitution);
+./CuriousContraptions.tests/StraightPipeTests.cs:130:        Assert.Equal(new LinearSpeed((Half)0.1), material.BounceThreshold);
+./CuriousContraptions.tests/StraightPipeTests.cs:131:        Assert.Equal(new FrictionCoefficient((Half)0.3), material.Friction);
+./CuriousContraptions.tests/StraightPipeTests.cs:132:        Assert.Equal(new RollingResistance((Half)0), material.RollingResistance);
+./CuriousContraptions.tests/WorkshopReadTests.cs:64:            Captures: new([new(new(9), CaptureLatchPhase.Latched, 1, (Half)0)]),
+./CuriousContraptions.tests/WorkshopReadTests.cs:72:        H(drag, piece + PhysicsMotionRead.DragRateOffset, (Half).125);
+./CuriousContraptions.tests/WorkshopReadTests.cs:74:        Assert.False(first.HasSameContent(Wire(read with { Captures = new([new(new(9), CaptureLatchPhase.Latched, 2, (Half)0)]) })));
+./CuriousContraptions.tests/WorkshopReadTests.cs:90:        foreach (var invalid in new Half[] { (Half)(1.0 / 480), (Half)240, Half.NaN })
+./CuriousContraptions.tests/WorkshopReadTests.cs:110:        var k = (Half).125; var g = (Half)(-9.81); const float v0 = 8f;
+./CuriousContraptions.tests/WorkshopReadTests.cs:111:        byte[] Pieces(Half drag)
+./CuriousContraptions.tests/WorkshopReadTests.cs:130:        Assert.True(PhysicsMotionRead.Decode(Pieces((Half)0), Bodies(body), new(15)).TrySample(body.Id, 58, out var undamped));
+./CuriousContraptions.tests/WorkshopReadTests.cs:204:        var hit = new ContactWorkOccurrence(new(0),owned,new(1),1,1,(Half)0,
+./CuriousContraptions.tests/WorkshopReadTests.cs:232:        var clear = new ContactWorkOccurrence(new(0), default, target, 0, 0, (Half)0, default, default, ContactWorkEffect.Passive);
+./CuriousContraptions.tests/WorkshopReadTests.cs:233:        var hit = new ContactWorkOccurrence(new(0), new(3), target, 1, 16, (Half)0, new(4f), new(12f), ContactWorkEffect.Paid);
+./CuriousContraptions.tests/WorkshopReadTests.cs:269:            H(bytes, piece + 22, (Half)WorkshopCadenceSettings.PhysicalFrequency);
+./CuriousContraptions.tests/WorkshopReadTests.cs:281:    private static void H(byte[] bytes, int offset, Half value) => BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(offset), BitConverter.HalfToUInt16Bits(value));
+./CuriousContraptions.tests/WorkshopBumperTests.cs:20:        var construction = PuzzleCatalogue.Create(lesson, new(1), WorkshopCadenceSettings.Default(), new(1), new((Half)0));
+./CuriousContraptions.tests/WorkshopBumperTests.cs:60:        foreach (var precision in new Half[] { (Half)0, (Half).45, (Half)1 })
+./CuriousContraptions.tests/WorkshopBumperTests.cs:63:            var expected = precision == (Half)0 ? (.3,3,.15,12) : precision == (Half)1 ? (.02,1.5,.35,0) : (.174,2.325,.24,6.6);
+./CuriousContraptions.tests/WorkshopBumperTests.cs:64:            Assert.Equal((float)(Half)expected.Item1,((WorkshopGenericInstance)next.Instances.Single(instance => instance.PartId == PartId.Receiver)).Parameters[new("capture_margin")]);
+./CuriousContraptions.tests/WorkshopBumperTests.cs:65:            Assert.Equal((float)(Half)expected.Item2,((WorkshopGenericInstance)next.Instances.Single(instance => instance.PartId == PartId.Receiver)).Parameters[new("capture_speed_limit")]);
+./CuriousContraptions.tests/WorkshopBumperTests.cs:66:            Assert.Equal((float)(Half)expected.Item3,((WorkshopGenericInstance)next.Instances.Single(instance => instance.PartId == PartId.Receiver)).Parameters[new("capture_dwell")]);
+./CuriousContraptions.tests/WorkshopBumperTests.cs:67:            Assert.Equal((float)(Half)expected.Item4,((WorkshopGenericInstance)next.Instances.Single(instance => instance.PartId == PartId.Receiver)).Parameters[new("force_maximum_acceleration")]);
+./CuriousContraptions.tests/WorkshopBumperTests.cs:84:        var construction = PuzzleCatalogue.Create(lesson, new(1), WorkshopCadenceSettings.Default(), new(1), new((Half).45));
+./CuriousContraptions.tests/WorkshopBumperTests.cs:94:            construction.Puzzle! with { Precision = new(Half.NaN) },
+./CuriousContraptions.tests/WorkshopBumperTests.cs:105:            if (Half.IsNaN(badPuzzle.Precision.Value)) SaveFixture.Refused(WorkshopSaveRejection.NonFinite, () => WorkshopSaveCodec.Decode(SaveFixture.Elements,badSave));
+./CuriousContraptions.tests/WorkshopBumperTests.cs:112:            Assert.Equal(Half.IsNaN(badPuzzle.Precision.Value) ? typeof(ArgumentException) : typeof(WorkshopEditRejectedException), refused.GetType());
+./CuriousContraptions.tests/WorkshopBumperTests.cs:129:            Half[] actual = [k.Precision, k.PositionWindow.Value, k.RotationWindowDegrees, k.MaximumPositionCorrection.Value,
+./CuriousContraptions.tests/WorkshopBumperTests.cs:133:                Assert.Equal((Half)data[i].GetProperty(names[field]).GetDouble(), actual[field]);
+./CuriousContraptions.tests/WorkshopBumperTests.cs:143:        var construction = PuzzleCatalogue.Create(new("bumper_sidekick"), new(1), WorkshopCadenceSettings.Default(), new(1), new((Half)0));
+./CuriousContraptions.tests/WorkshopBumperTests.cs:159:        foreach (var precision in new Half[] { (Half)0, (Half).45, (Half)1 })
+./CuriousContraptions.tests/WorkshopBumperTests.cs:173:                Half[] actual = [k.Precision, k.PositionWindow.Value, k.RotationWindowDegrees, k.MaximumPositionCorrection.Value,
+./CuriousContraptions.tests/WorkshopBumperTests.cs:177:                    Assert.Equal((Half)data[i].GetProperty(names[field]).GetDouble(), actual[field]);
+./CuriousContraptions.tests/WorkshopBumperTests.cs:362:        var scene = WorkshopPhysicsCompiler.Compile(Construction((Half)8), new(1, 2));
+./CuriousContraptions.tests/WorkshopBumperTests.cs:451:    private static WorkshopConstruction Construction(Half strength) => new(new(1), WorkshopCadenceSettings.Default(),
+./CuriousContraptions.tests/WorkshopBumperTests.cs:458:        var scene = WorkshopPhysicsCompiler.Compile(Construction((Half)8), new(1, 2));
+./CuriousContraptions.tests/WorkshopBumperTests.cs:461:        Assert.Equal(new Metres((Half).65), sphere.Radius);
+./CuriousContraptions.tests/WorkshopBumperTests.cs:464:        Assert.Equal(new Restitution((Half)1), material.Restitution);
+./CuriousContraptions.tests/WorkshopBumperTests.cs:465:        Assert.Equal(new LinearSpeed((Half).1), material.BounceThreshold);
+./CuriousContraptions.tests/WorkshopBumperTests.cs:466:        Assert.Equal(new FrictionCoefficient((Half).3), material.Friction);
+./CuriousContraptions.tests/WorkshopBumperTests.cs:482:        foreach (var strength in new Half[] { (Half)0, (Half)8, (Half)20 })
+./CuriousContraptions.tests/WorkshopBumperTests.cs:510:        var scene = WorkshopPhysicsCompiler.Compile(Construction((Half)8), new(1, 2));
+./CuriousContraptions.tests/WorkshopBumperTests.cs:530:        var construction = Construction((Half)8);
+./CuriousContraptions.tests/WorkshopWireTests.cs:364:        // The motion read carries the physical frequency as a binary16 field; the constant must round-trip exactly.
+./CuriousContraptions.tests/WorkshopWireTests.cs:365:        Assert.Equal(WorkshopCadenceSettings.PhysicalFrequency, (uint)(Half)WorkshopCadenceSettings.PhysicalFrequency);
+./CuriousContraptions.tests/WorkshopWireTests.cs:477:                static void H(Span<byte> target, int offset, Half number) =>
+./CuriousContraptions.tests/WorkshopWireTests.cs:479:                H(piece,22,(Half)WorkshopCadenceSettings.PhysicalFrequency); F(piece,48,body.Local.X); F(piece,52,body.Local.Y); F(piece,56,body.Local.Z);
+./CuriousContraptions.tests/WorkshopWireTests.cs:929:    private static void WriteHalf(byte[] bytes, int offset, Half value) =>
+./CuriousContraptions.tests/WorkshopWireTests.cs:960:        var construction = PuzzleCatalogue.Create(new("first_principles"), new(1), WorkshopCadenceSettings.Default(), new(1), new((Half)precision));
+./CuriousContraptions.tests/WorkshopWireTests.cs:969:        Assert.Equal(new MetreVector((Half)(-1.1), (Half).5, (Half)(-1.1)), guide.Minimum);
+./CuriousContraptions.tests/WorkshopWireTests.cs:970:        Assert.Equal(new MetreVector((Half)1.1, (Half)1.5, (Half)1.1), guide.Maximum);
+./CuriousContraptions.tests/WorkshopWireTests.cs:989:        var scene = WorkshopPhysicsCompiler.Compile(PuzzleCatalogue.Create(new("first_principles"), new(1), WorkshopCadenceSettings.Default(), new(1), new((Half)0)), new(1, 2));
+./CuriousContraptions.tests/WorkshopWireTests.cs:993:        Assert.Throws<ArgumentException>(() => Replace(guide with { MaximumAcceleration = new((Half)13) }));
+./CuriousContraptions.tests/WorkshopWireTests.cs:994:        Assert.Throws<ArgumentException>(() => Replace(guide with { SupportMargin = new(Half.NaN) }));
+./CuriousContraptions.tests/WorkshopWireTests.cs:1141:        WriteHalf(segment, DynamicOffset(source) + 104, (Half)2);
+./CuriousContraptions.tests/WorkshopWireTests.cs:1142:        WriteHalf(segment, DynamicOffset(source) + 106, (Half)2);
+./CuriousContraptions.tests/WorkshopWireTests.cs:1146:    private static byte[] GenericEndpoint(ulong tick, uint origin, Half phase)
+./CuriousContraptions.tests/WorkshopWireTests.cs:1175:        var source = GenericAdmission(); var candidate = GenericEndpoint(tick, origin, (Half)phase);
+./CuriousContraptions.tests/WorkshopWireTests.cs:1183:        var source = GenericAdmission(); var candidate = GenericEndpoint(1, 0, (Half)0);
+./CuriousContraptions.tests/WorkshopWireTests.cs:1205:        var state = GenericEndpoint(1, 0, (Half)0);
+./CuriousContraptions.tests/WorkshopWireTests.cs:1219:            WriteHalf(bytes, offset + PhysicsMotionRead.SupportedAccelerationOffset, (Half)32);
+./CuriousContraptions.tests/WorkshopWireTests.cs:1220:            WriteHalf(bytes, offset + PhysicsMotionRead.AngularAccelerationOffset + 4, (Half).5);
+./CuriousContraptions.tests/WorkshopWireTests.cs:1229:        WriteHalf(spinning, PhysicsMotionRead.HeaderBytes + PhysicsMotionRead.AngularAccelerationOffset, (Half)2048);
+./CuriousContraptions.tests/WorkshopWireTests.cs:1246:        var state = GenericEndpoint(1, 0, (Half)0);
+./CuriousContraptions.tests/WorkshopWireTests.cs:1265:        var candidate = GenericEndpoint(1, 0, (Half)0);
+./CuriousContraptions.tests/WorkshopWireTests.cs:1282:            changed[offset] = value; // 0x80 also exercises a Half negative-zero sign bit in raw-zero storage.
+./docs/planning/elements/CAT-036-laser.md:36:- Binary16 debt: at a6c914e `MetreVector`, `LinearSpeed` (the contact-trigger threshold type) and `AccelerationVector` are `Half` — `engine/gpu/PhysicsDeclarations.cs@a6c914e:L18-L21`; `RigidLocalPose` translation is a `Half` vector bounded to ±16 — `engine/gpu/PhysicsDeclarations.cs@a6c914e:L31-L38`; `WorkshopCosmeticSample.Blend` is `Half` — `engine/gpu/WorkshopCosmetic.cs@a6c914e:L10-L10`. These are remaining lanes in the [f32 migration status](../../gpu-f32-physics.md#f32-migration-status); this element's new values are declared as f32.
+./ui/WorkshopPuzzle.cs:33:                    _nextId, new((Half)(_precision.Value / 100)))
+./ui/WorkshopPuzzle.cs:57:        _placementHeight = new((Half)3); SetBuildView(authored);
+./ui/WorkshopPuzzle.cs:77:            var precision = new PuzzlePrecision((Half)(value / 100));
+./docs/planning/elements/CAT-046-optical_or.md:44:- Binary16 debt: at a6c914e `MetreVector`, `LinearSpeed` (the contact-trigger threshold type) and `AccelerationVector` are `Half` — `engine/gpu/PhysicsDeclarations.cs@a6c914e:L18-L21`; `RigidLocalPose` translation is a `Half` vector bounded to ±16 — `engine/gpu/PhysicsDeclarations.cs@a6c914e:L31-L38`; `WorkshopCosmeticSample.Blend` is `Half` — `engine/gpu/WorkshopCosmetic.cs@a6c914e:L10-L10`. These are remaining lanes in the [f32 migration status](../../gpu-f32-physics.md#f32-migration-status); this element's new values are declared as f32.
+./docs/planning/elements/CAT-038-light_receiver.md:37:- Binary16 debt: at a6c914e `MetreVector`, `LinearSpeed` (the contact-trigger threshold type) and `AccelerationVector` are `Half` — `engine/gpu/PhysicsDeclarations.cs@a6c914e:L18-L21`; `RigidLocalPose` translation is a `Half` vector bounded to ±16 — `engine/gpu/PhysicsDeclarations.cs@a6c914e:L31-L38`; `WorkshopCosmeticSample.Blend` is `Half` — `engine/gpu/WorkshopCosmetic.cs@a6c914e:L10-L10`. These are remaining lanes in the [f32 migration status](../../gpu-f32-physics.md#f32-migration-status); this element's new values are declared as f32.
+./ui/WorkshopGuidance.cs:27:    private Metres _placementHeight = new((Half)3);
+./ui/WorkshopGuidance.cs:175:        _depth = new((Half)(Mathf.Clamp(depth, -4, 4)));
+./ui/WorkshopGuidance.cs:362:        _placementHeight = new((Half)(target.Position.Y));
+./ui/WorkshopGuidance.cs:493:                _placementHeight = new((Half)(target.Position.Y));
+./docs/planning/elements/CAT-072-yellow_receiver.md:37:- Binary16 debt: at a6c914e `MetreVector`, `LinearSpeed` (the contact-trigger threshold type) and `AccelerationVector` are `Half` — `engine/gpu/PhysicsDeclarations.cs@a6c914e:L18-L21`; `RigidLocalPose` translation is a `Half` vector bounded to ±16 — `engine/gpu/PhysicsDeclarations.cs@a6c914e:L31-L38`; `WorkshopCosmeticSample.Blend` is `Half` — `engine/gpu/WorkshopCosmetic.cs@a6c914e:L10-L10`. These are remaining lanes in the [f32 migration status](../../gpu-f32-physics.md#f32-migration-status); this element's new values are declared as f32.
+./docs/planning/elements/EL-071-straight-metal-ball-pipe.md:92:| 3 | Catalogue length stored as binary16 bits (`LengthBits = 17203`, i.e. 3.6). | `parts/catalog/pipe.tres@a6c914e:L8-L10` | do not carry forward the bits | f32 contract: carry the decimal meaning only. |
+./tools/e2e/anim-1c.test.ts:79:        assert.ok(captured, 'Capture target sample must ramp to Half 1.0 once the ball is captured');
+./tools/e2e/anim-1c.test.ts:111:        assert.ok(recaptured, 'Loaded construction must re-animate the capture halo to Half 1.0');
+./tools/e2e/anim-1c.test.ts:139:        assert.ok(revealed, 'Hint target must reveal from 0 to Half 1.0 while the Delay counts');
+./tools/e2e/anim-1c.test.ts:198:        assert.ok(captured, 'Free-workshop Receiver capture target must ramp to Half 1.0 when the dropped ball settles in it');
+./tools/e2e/anim-1a.test.ts:13:// authors ball 1, receiver 2), ColourBlend (property 5) ramping over the declared 0.5 s SmoothStep curve to Half 1.0.
+./tools/e2e/anim-1a.test.ts:104:        assert.ok(brightened, 'Receiver halo capture sample must ramp to Half 1.0 (15360)');
+./tools/e2e/anim-1a.test.ts:109:        assert.equal(haloSample.valBits, HALF_ONE, 'Sample value must reach full blend (Half 1.0 = 15360)');
+./tools/e2e/anim-1b.test.ts:67:        assert.ok(pressed, 'Switch target sample must reach Half 1.0 after the locked ball lands on it');
+./ui/Workshop.cs:109:        WorkshopArtwork.Box(stage, Workbench.Base.Half * 2, new("#b77c42"), Workbench.Base.At);
+./ui/Workshop.cs:110:        WorkshopArtwork.Box(stage, Workbench.Deck.Half * 2, new("#ead39b"), Workbench.Deck.At);
+./ui/Workshop.cs:394:        _placementHeight = new((Half)(3));
+./ui/Workshop.cs:571:                _depth = new((Half)(_selected.Position.Z));
+./ui/Workshop.cs:609:        _depth = new((Half)(Mathf.Clamp((float)_depth.Value + amount, -4, 4)));
+./tools/e2e/cat-005.test.ts:355:        assert.ok(decodeWorkshopResponse(reads.at(-1)!).electrical(0)!.remaining()<60,'Half-full authored source funds actual demand');
+./tools/e2e/cat-014.test.ts:271:        assert.ok(captured, 'The Receiver capture target ramps to Half 1.0 once the Bowling ball settles in it');
+./docs/planning/elements/CAT-045-optical_nor.md:44:- Binary16 debt: at a6c914e `MetreVector`, `LinearSpeed` (the contact-trigger threshold type) and `AccelerationVector` are `Half` — `engine/gpu/PhysicsDeclarations.cs@a6c914e:L18-L21`; `RigidLocalPose` translation is a `Half` vector bounded to ±16 — `engine/gpu/PhysicsDeclarations.cs@a6c914e:L31-L38`; `WorkshopCosmeticSample.Blend` is `Half` — `engine/gpu/WorkshopCosmetic.cs@a6c914e:L10-L10`. These are remaining lanes in the [f32 migration status](../../gpu-f32-physics.md#f32-migration-status); this element's new values are declared as f32.
+./docs/planning/elements/CAT-064-tennis.md:34:  Storage type: the package declares f32; the compiled body, collider and material lanes are still binary16 until Story 9A.44 ([f32 migration status](../../gpu-f32-physics.md#f32-migration-status)). The tennis package follows whatever those lanes are when Story 12.1 lands.
+./docs/planning/elements/CAT-064-tennis.md:58:| 1 | Material: mass 0.35, bounce 0.78, radius 0.25, buoyancy 0, drag 0.04. | `parts/catalog/tennis.tres@a6c914e:L14-L14` | Carry forward, except bounce pending the owner decision. Do not carry forward the legacy float parameter dictionary. The values enter the package declaration (f32); the compiled lanes stay binary16 until Story 9A.44, which is not a precondition of Story 12.1. |
+./docs/planning/elements/CAT-054-ramp.md:44:| f32 declarations: `RampDimensions`, the fixed thickness, pose, the assistance knots and the `RampDimensionsResource` `*Bits` fields are still binary16 (`Half`) | Remaining f32 migration ([f32 migration status](../../gpu-f32-physics.md#f32-migration-status)) |
+./docs/planning/elements/CAT-063-switch.md:59:| 8 | Contact probe fixtures: drop (ball from y 3 above the switch at y 1), miss (x 2), gentle (y 1.481), approach speed just below, equal to and just above the 0.8 m/s threshold, and a base-box-only hit at x 0.85. | `reference/switch-lamp/Program.cs@a6c914e:L20-L55` | carry forward the fixture matrix (threshold is inclusive at equal); do not carry forward the binary16 adjacent-bit construction of below/above speeds (f16 values). |
+./docs/planning/elements/EL-134-electrical-or-gate.md:66:none beyond [EL-133](EL-133-electrical-and-gate.md#6-open-questions) (observable consumer, condition sources, binary16 lanes, finite supply).
+./docs/planning/elements/CAT-020-counter.md:37:- Note: the network's `ActivationTime`/`ActivationLatch` and the cosmetic curve record store times and durations as binary16 (`Half`), listed as remaining f32 migration (`docs/gpu-f32-physics.md@a6c914e:L96-L98`). Extending them for the counter inherits that debt (open question 3).
+./docs/planning/elements/CAT-020-counter.md:105:3. **binary16 activation and cosmetic lanes.** The activation network and cosmetic curves the counter extends still hold binary16 values (`docs/gpu-f32-physics.md@a6c914e:L96-L98`, remaining f32 migration). Whether Story 9.2 migrates those lanes to f32 before extending them, or extends them as they are and leaves migration to the scheduled f32 work: unspecified — owner decision.
+./docs/planning/elements/EL-183-resettable-counter.md:79:3. **binary16 activation and cosmetic lanes.** The activation times, occurrence phases and dot cosmetic curves this counter extends still hold binary16 values, listed as remaining f32 migration (`docs/gpu-f32-physics.md@a6c914e:L96-L98`). Whether the slice migrates them to f32 first or extends them as they are: [CAT-020 open question 3](CAT-020-counter.md#6-open-questions), owner decision.
+./docs/planning/elements/EL-187-basketball.md:57:| 1 | Catalogue stores the material as binary16 bit patterns (RadiusBits 13681 = 0.34, …). | `parts/catalog/ball.tres@a6c914e:L8-L17` | Carry forward the decimal values; do not carry forward binary16 storage (f32 contract, [gpu-f32-physics](../../gpu-f32-physics.md)). |
+./docs/planning/elements/CAT-031-green_filter.md:35:- Binary16 debt: at a6c914e `MetreVector`, `LinearSpeed` (the contact-trigger threshold type) and `AccelerationVector` are `Half` — `engine/gpu/PhysicsDeclarations.cs@a6c914e:L18-L21`; `RigidLocalPose` translation is a `Half` vector bounded to ±16 — `engine/gpu/PhysicsDeclarations.cs@a6c914e:L31-L38`; `WorkshopCosmeticSample.Blend` is `Half` — `engine/gpu/WorkshopCosmetic.cs@a6c914e:L10-L10`. These are remaining lanes in the [f32 migration status](../../gpu-f32-physics.md#f32-migration-status); this element's new values are declared as f32.
+./docs/planning/elements/EL-192-receiving-basket.md:21:  | Box | Centre (m) | Half-extents (m) | Full size (m) |
+./docs/planning/elements/CAT-001-ball.md:47:| f32 declarations: the package declares f32; the compiled body, collider and material lanes (`Metres`, `Kilograms`, `Restitution`, `FrictionCoefficient`, `RollingResistance`) are still binary16 (`Half`) until Story 9A.44 | Remaining f32 migration ([f32 migration status](../../gpu-f32-physics.md#f32-migration-status)) |
+./docs/planning/elements/CAT-023-domino.md:22:| Sensors and activation | Declared orientation threshold (`SignalOrientationDescriptor(ThresholdDegrees: 45)` in f32, `IOrientationSensorElement`; validated: finite, 4–179°, a pulse ActivationOut and a Dynamic body, one node-selecting capability per element). While the tile's ActivationOut is wired, the shared compiler builds its orientation sensor (`WorkshopPhysicsCompiler.OrientationSensorFor`, narrowing to the binary16 half-angle cosine lane bit-equal to the former record's, 0x3b64) and its OrientationSource node (`WorkshopActivationCompiler.Compile`): it fires once per world when the tile has turned 45° in total from its admitted pose (|⟨q, q₀⟩| ≤ cos 22.5°), evaluated at substep endpoints, rearmed only by admission (`engine/gpu/OrientationSensorDeclaration.cs`). An unwired tile compiles neither. There is no Domino record or arm. |
+./docs/planning/elements/CAT-023-domino.md:45:| f32 lanes: the package declares the extents, mass, material and threshold in f32, but the compiled body, collider, material, half-angle cosine and inertia lanes are still binary16 (`Half`) | Remaining f32 migration ([f32 migration status](../../gpu-f32-physics.md#f32-migration-status)) |
+./docs/planning/elements/CAT-066-wall.md:45:| f32 declarations: `WallDimensions` (default, minimum and maximum), pose and the `WallDimensionsResource` `*Bits` fields are still binary16 (`Half`); pointer input is clamped before binary16 conversion | Remaining f32 migration ([f32 migration status](../../gpu-f32-physics.md#f32-migration-status)) |
+./docs/planning/elements/EL-188-bowling-ball.md:57:| 1 | Material bits: RadiusBits 13435 = 0.28, MassBits 17408 = 4, BounceBits 12411 = 0.14, RollingResistanceBits 10158 = 0.03. | `parts/catalog/bowling.tres@a6c914e:L8-L17` | Carry forward decimal values; binary16 storage does not carry forward. |
+./docs/planning/elements/CAT-037-latch.md:37:- Note: the network's `ActivationTime`/`ActivationLatch` and the cosmetic curve record store times and durations as binary16 (`Half`), listed as remaining f32 migration (`docs/gpu-f32-physics.md@a6c914e:L96-L98`). Extending them for the latch inherits that debt (open question 2).
+./docs/planning/elements/CAT-037-latch.md:107:2. **binary16 activation and cosmetic lanes.** The activation network and cosmetic curves the latch extends still hold binary16 values (`docs/gpu-f32-physics.md@a6c914e:L96-L98`, remaining f32 migration). Whether Story 9.4 migrates those lanes to f32 before extending them, or extends them as they are and leaves migration to the scheduled f32 work: unspecified — owner decision. **Decided 18 Oct 2026 (owner): moved to a separate Epic 9A story;** Story 9.4 extends the existing lanes and adds no new binary16 API.
+./docs/planning/elements/CAT-011-blue_filter.md:35:- Binary16 debt: at a6c914e `MetreVector`, `LinearSpeed` (the contact-trigger threshold type) and `AccelerationVector` are `Half` — `engine/gpu/PhysicsDeclarations.cs@a6c914e:L18-L21`; `RigidLocalPose` translation is a `Half` vector bounded to ±16 — `engine/gpu/PhysicsDeclarations.cs@a6c914e:L31-L38`; `WorkshopCosmeticSample.Blend` is `Half` — `engine/gpu/WorkshopCosmetic.cs@a6c914e:L10-L10`. These are remaining lanes in the [f32 migration status](../../gpu-f32-physics.md#f32-migration-status); this element's new values are declared as f32.
+./docs/planning/elements/CAT-014-bowling.md:44:| f32 declarations: the package declares f32; the compiled body, collider and material lanes are still binary16 (`Half`) until Story 9A.44 | Remaining f32 migration ([f32 migration status](../../gpu-f32-physics.md#f32-migration-status)) |
+./docs/planning/elements/CAT-008-beam_splitter.md:25:- **Catalogue and inventory entry:** id `beam_splitter`, title "Beam splitter", category Optics, colour (0.4, 0.72, 0.79), description "Half the beam continues straight; half reflects from the glass. Rotate with the same gizmo as a mirror. Selecting it previews both paths. Further splitting may leave too little power for a receiver." Icon `ui/WorkshopIcons.cs@a6c914e:L81-L81` (current, kept). No legacy level uses it.
+./docs/planning/elements/CAT-008-beam_splitter.md:33:- Binary16 debt: at a6c914e `MetreVector`, `LinearSpeed` (the contact-trigger threshold type) and `AccelerationVector` are `Half` — `engine/gpu/PhysicsDeclarations.cs@a6c914e:L18-L21`; `RigidLocalPose` translation is a `Half` vector bounded to ±16 — `engine/gpu/PhysicsDeclarations.cs@a6c914e:L31-L38`; `WorkshopCosmeticSample.Blend` is `Half` — `engine/gpu/WorkshopCosmetic.cs@a6c914e:L10-L10`. These are remaining lanes in the [f32 migration status](../../gpu-f32-physics.md#f32-migration-status); this element's new values are declared as f32.
+./docs/planning/elements/EL-195-pinball-bumper.md:3:Story 7.0 named-identity spec (Batch J). Baseline commit `a6c914e`; every citation is `path@a6c914e:Lstart-Lend` and resolves with `git show a6c914e:<path> | sed -n 'start,endp'`. **Proposed** marks an unsourced design value with a one-line justification; the owner may revise it. All values are canonical IEEE-754 f32 game values inside the [game-grade envelope](../../gpu-f32-physics.md#game-grade-envelope); current declarations still store them as binary16 ([f32 migration status](../../gpu-f32-physics.md#f32-migration-status)) and they are recorded here by decimal meaning.
+./docs/planning/elements/EL-193-domino.md:3:Story 7.0 named-identity spec (Batch J). Baseline commit `a6c914e`; every citation is `path@a6c914e:Lstart-Lend` and resolves with `git show a6c914e:<path> | sed -n 'start,endp'`. **Proposed** marks an unsourced design value with a one-line justification; the owner may revise it. All values are canonical IEEE-754 f32 game values inside the [game-grade envelope](../../gpu-f32-physics.md#game-grade-envelope); the current declaration still stores them as binary16 ([f32 migration status](../../gpu-f32-physics.md#f32-migration-status)) and they are recorded here by decimal meaning.
+./docs/planning/elements/EL-123-protected-end-state-goal.md:36:  | `tilt_limit` | f32 | 1°–179° | 30° | degrees | **proposed** range and default — under f32 the half-angle cosine resolves small angles, so 1°–179° replaces the binary16 4°–179° bound (fact 4); 30° sits below the Domino's 45° tip threshold, so a toppled piece fails |
+./docs/planning/elements/EL-123-protected-end-state-goal.md:64:| 4 | The orientation threshold admits only 4°–179° because the binary16 rounding of cos(θ/2) cannot represent smaller angles. | `engine/gpu/OrientationSensorDeclaration.cs@a6c914e:L11-L12` | Do not carry forward: a binary16 artefact; the f32 range is proposed above. |
+./docs/planning/elements/CAT-003-balloon.md:34:  Storage type: the target is canonical f32. Today `BallMaterial` and its catalogue resource store binary16 (`engine/gpu/WorkshopConstruction.cs@a6c914e:L41-L53`; `engine/BallMaterialResource.cs@a6c914e:L7-L29`), and the f32 document lists ball materials under the remaining f32 migration (`docs/gpu-f32-physics.md@a6c914e:L94-L95`). The balloon arm follows whichever type `BallMaterial` has when Story 12.1 lands.
+./docs/planning/elements/CAT-003-balloon.md:61:| 1 | Material: mass 0.5, bounce 0.2, radius 0.36, buoyancy 11.5, drag 0.4. | `parts/catalog/balloon.tres@a6c914e:L14-L14` | Carry forward. Do not carry forward the legacy float parameter dictionary. The values enter `BallMaterial`, which is binary16 today and listed under the remaining f32 migration (`docs/gpu-f32-physics.md@a6c914e:L94-L95`); f32 is the target, not a precondition of Story 12.1. |
+./docs/planning/elements/CAT-041-mirror.md:33:- Binary16 debt: at a6c914e `MetreVector`, `LinearSpeed` (the contact-trigger threshold type) and `AccelerationVector` are `Half` — `engine/gpu/PhysicsDeclarations.cs@a6c914e:L18-L21`; `RigidLocalPose` translation is a `Half` vector bounded to ±16 — `engine/gpu/PhysicsDeclarations.cs@a6c914e:L31-L38`; `WorkshopCosmeticSample.Blend` is `Half` — `engine/gpu/WorkshopCosmetic.cs@a6c914e:L10-L10`. These are remaining lanes in the [f32 migration status](../../gpu-f32-physics.md#f32-migration-status); this element's new values are declared as f32.
+./docs/planning/elements/CAT-022-delay.md:24:| Parameters | `delay_seconds`: 0.1–12 s, default 1 s; current canonical f32 tick count is checked `MathF.Ceiling(seconds * cadence)` after f32 product rounding (60,120 or240Hz), finite/range validation first. At120Hz,0.1f→12 and0.2f→24ticks; adjacent f32 values follow the rounded product. Current source: `engine/gpu/ActivationTimers.cs`; the legacy binary16/resource baseline remains `engine/gpu/WorkshopDelay.cs@a6c914e:L6-L34` and `engine/DelayDurationResource.cs@a6c914e:L7-L15`. |
+./docs/planning/elements/CAT-022-delay.md:30:Current9.5a timer duration and activation phase are f32, with generic typed `delay_seconds` parameters and no old-name alias. Goal minimum duration and physical provenance speed/capture lanes retain9A.44 ownership. Legacy harvest below records original behavior and source, not a supported binary16 timer path.
+./docs/planning/elements/CAT-056-red_receiver.md:37:- Binary16 debt: at a6c914e `MetreVector`, `LinearSpeed` (the contact-trigger threshold type) and `AccelerationVector` are `Half` — `engine/gpu/PhysicsDeclarations.cs@a6c914e:L18-L21`; `RigidLocalPose` translation is a `Half` vector bounded to ±16 — `engine/gpu/PhysicsDeclarations.cs@a6c914e:L31-L38`; `WorkshopCosmeticSample.Blend` is `Half` — `engine/gpu/WorkshopCosmetic.cs@a6c914e:L10-L10`. These are remaining lanes in the [f32 migration status](../../gpu-f32-physics.md#f32-migration-status); this element's new values are declared as f32.
+./docs/planning/elements/CAT-004-basket.md:47:| f32 declarations: `ReceiverGeometry` boxes, `ReceiverCaptureSettings`, `ReceiverForceRegion`, residence and guide declarations and the assistance knots are still binary16 (`Half`) | Remaining f32 migration ([f32 migration status](../../gpu-f32-physics.md#f32-migration-status)) |
+./docs/planning/elements/README.md:28:**Values.** Legacy values are recorded as found. The current numeric contract is [canonical IEEE-754 f32](../../gpu-f32-physics.md); a value stored as binary16 in a legacy or current declaration is carried forward as its decimal meaning, never as binary16 bits.
+./docs/planning/elements/EL-073-brick-barrier.md:101:| 3 | Wall catalogue dimensions stored as binary16 bits (`WidthBits = 16896` = 3 m, `HeightBits = 16384` = 2 m, `ThicknessBits = 13312` = 0.25 m). | `parts/catalog/wall.tres@a6c914e:L8-L11` | do not carry forward the bits | f32 contract: carry the decimal meaning only. |
+./docs/planning/elements/CAT-015-bumper.md:47:| Remaining sphere geometry, pose and cosmetic lanes retain inherited binary16 precision. Current integration migrates strength, reference mass, preload, contact speeds/debits and resource authoring to f32; `BumperWorkResource` is retired for generic `ContactWorkResource`. | Remaining shared lanes: Epic16 ([f32 migration status](../../gpu-f32-physics.md#f32-migration-status)); affected contact-work integration proof: Story6.2 |
+./docs/planning/elements/CAT-048-pipe.md:48:| Fresh f32 declarations: do not restore the retired binary16 (`Half`) `PipeDimensions`, `AnnularProfile` or `LengthBits` representation | Story 6.6, using the [canonical f32/WASM SIMD authority](../../gpu-f32-physics.md); rebuild as declaration data and generic shared-engine capabilities, with no legacy adapter or migration |
+./docs/planning/elements/CAT-048-pipe.md:69:| 14 | Parked GPU profile: lengths 1, 3.6, 8 round-trip; one exposed annular profile per pipe; saved lengths 0, 0.5, 9, NaN, +∞ and non-zero padding reject (Story 9R.7: the save and wire carry no format version, so "previous schemas" are structurally invalid input); a pipe in the first_principles puzzle rejects; maximum population (8 instances incl. a length-8 pipe) fits capacity. | `CuriousContraptions.tests/WorkshopPipeTests.cs@a6c914e:L14-L136` | carry forward the behaviour; do not carry forward the binary16 lanes, the fixed collider ABI bytes or the retired `AnnularFeature` enum. |
+./docs/planning/elements/CAT-021-cyan_receiver.md:37:- Binary16 debt: at a6c914e `MetreVector`, `LinearSpeed` (the contact-trigger threshold type) and `AccelerationVector` are `Half` — `engine/gpu/PhysicsDeclarations.cs@a6c914e:L18-L21`; `RigidLocalPose` translation is a `Half` vector bounded to ±16 — `engine/gpu/PhysicsDeclarations.cs@a6c914e:L31-L38`; `WorkshopCosmeticSample.Blend` is `Half` — `engine/gpu/WorkshopCosmetic.cs@a6c914e:L10-L10`. These are remaining lanes in the [f32 migration status](../../gpu-f32-physics.md#f32-migration-status); this element's new values are declared as f32.
+./docs/planning/elements/CAT-040-magenta_receiver.md:37:- Binary16 debt: at a6c914e `MetreVector`, `LinearSpeed` (the contact-trigger threshold type) and `AccelerationVector` are `Half` — `engine/gpu/PhysicsDeclarations.cs@a6c914e:L18-L21`; `RigidLocalPose` translation is a `Half` vector bounded to ±16 — `engine/gpu/PhysicsDeclarations.cs@a6c914e:L31-L38`; `WorkshopCosmeticSample.Blend` is `Half` — `engine/gpu/WorkshopCosmetic.cs@a6c914e:L10-L10`. These are remaining lanes in the [f32 migration status](../../gpu-f32-physics.md#f32-migration-status); this element's new values are declared as f32.
+./docs/planning/elements/EL-154-light-charge-receiver.md:38:  | `reset_level` | f32 | 0–release | 3 | game optical energy | Half the release level gives visible persistence (≈ 14 s of dark from 6) without permanent latching. |
+./docs/planning/elements/EL-190-ramp.md:55:| 3 | Legacy resize took a free float vector and converted to binary16. | `parts/RampPart.cs@a6c914e:L27-L31` | Do not carry forward binary16 conversion (f32 contract). |
+./docs/planning/elements/CAT-029-flashlight.md:36:- Binary16 debt: at a6c914e `MetreVector`, `LinearSpeed` (the contact-trigger threshold type) and `AccelerationVector` are `Half` — `engine/gpu/PhysicsDeclarations.cs@a6c914e:L18-L21`; `RigidLocalPose` translation is a `Half` vector bounded to ±16 — `engine/gpu/PhysicsDeclarations.cs@a6c914e:L31-L38`; `WorkshopCosmeticSample.Blend` is `Half` — `engine/gpu/WorkshopCosmetic.cs@a6c914e:L10-L10`. These are remaining lanes in the [f32 migration status](../../gpu-f32-physics.md#f32-migration-status); this element's new values are declared as f32.
+./docs/planning/elements/EL-008-straight-water-pipe.md:73:| 5 | Ball-pipe catalogue: length bits 17203 (binary16 3.5996 m, i.e. 3.6 m), title "Clear pipe", colour (0.40, 0.72, 0.79). | `parts/catalog/pipe.tres@a6c914e:L8-L20` | Do not carry forward (CAT-048 owns it; binary16 lane). Recorded so the water pipe is not confused with it. |
+./docs/planning/elements/CAT-032-green_receiver.md:37:- Binary16 debt: at a6c914e `MetreVector`, `LinearSpeed` (the contact-trigger threshold type) and `AccelerationVector` are `Half` — `engine/gpu/PhysicsDeclarations.cs@a6c914e:L18-L21`; `RigidLocalPose` translation is a `Half` vector bounded to ±16 — `engine/gpu/PhysicsDeclarations.cs@a6c914e:L31-L38`; `WorkshopCosmeticSample.Blend` is `Half` — `engine/gpu/WorkshopCosmetic.cs@a6c914e:L10-L10`. These are remaining lanes in the [f32 migration status](../../gpu-f32-physics.md#f32-migration-status); this element's new values are declared as f32.
+./docs/planning/elements/CAT-052-pressure_plate.md:20:| Mass and material | Static. Contact material restitution 0.1, bounce threshold 0.1 m/s, friction 0.3 (`parts/PressurePlatePart.cs@a6c914e:L28-L28`; field order restitution, bounce threshold, friction: `engine/physics/PersistentContactPair.cs@a6c914e:L18-L29`), unlike the static default restitution 1. Declare through `ContactMaterialDeclaration` (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L42-L45`) as f32; that record still stores binary16, listed as remaining f32 migration (`docs/gpu-f32-physics.md@a6c914e:L94-L94`). |
+./docs/planning/elements/CAT-012-blue_receiver.md:37:- Binary16 debt: at a6c914e `MetreVector`, `LinearSpeed` (the contact-trigger threshold type) and `AccelerationVector` are `Half` — `engine/gpu/PhysicsDeclarations.cs@a6c914e:L18-L21`; `RigidLocalPose` translation is a `Half` vector bounded to ±16 — `engine/gpu/PhysicsDeclarations.cs@a6c914e:L31-L38`; `WorkshopCosmeticSample.Blend` is `Half` — `engine/gpu/WorkshopCosmetic.cs@a6c914e:L10-L10`. These are remaining lanes in the [f32 migration status](../../gpu-f32-physics.md#f32-migration-status); this element's new values are declared as f32.
+./docs/planning/elements/CAT-033-hold_timer.md:25:| Parameters | `hold_seconds`: float seconds, range 0.1–12 inclusive, default 2.0 (`parts/HoldTimerPart.cs@a6c914e:L45-L50`, `parts/catalog/hold_timer.tres@a6c914e:L14-L14`). Window ticks = checked MathF.Ceiling of rounded f32(seconds × cadence rate) (`engine/SceneTimerDeclaration.cs@a6c914e:L12-L18`). Carry forward as f32 seconds; do not copy the binary16 `DelayDuration` encoding (`engine/gpu/WorkshopDelay.cs@a6c914e:L6-L33`; remaining f32 migration per `docs/gpu-f32-physics.md@a6c914e:L96-L96`). |
+./docs/planning/elements/CAT-059-solar_panel.md:35:- Binary16 debt: at a6c914e `MetreVector`, `LinearSpeed` (the contact-trigger threshold type) and `AccelerationVector` are `Half` — `engine/gpu/PhysicsDeclarations.cs@a6c914e:L18-L21`; `RigidLocalPose` translation is a `Half` vector bounded to ±16 — `engine/gpu/PhysicsDeclarations.cs@a6c914e:L31-L38`; `WorkshopCosmeticSample.Blend` is `Half` — `engine/gpu/WorkshopCosmetic.cs@a6c914e:L10-L10`. These are remaining lanes in the [f32 migration status](../../gpu-f32-physics.md#f32-migration-status); this element's new values are declared as f32.
+./docs/planning/elements/CAT-002-ball_detector.md:22:| Sensors and activation | Declared passage aperture (`SignalPassageDescriptor(ApertureRadius: 0.65 m, RearmClearance: 0.02 m)` in f32, `elements/BallDetector/BallDetectorElementDeclaration.cs`; validated: radius 0.01–10 m, clearance 0.001–10 m, a pulse ActivationOut and a static frame). The shared compiler builds the passage sensor on the owning frame (`WorkshopActivationCompiler.PassageSensorFor`, narrowing to the binary16 sensor lanes bit-equal to the former 0.65/0.02): a forward body-centre crossing of the local YZ plane along +X within the aperture radius fires once; the body rearms only after its whole collider clears the upstream side by the clearance (`engine/gpu/PassageSensorDeclaration.cs`). Each crossing emits one Passage activation. There is no detector record or arm. |
+./docs/planning/elements/CAT-068-white_receiver.md:37:- Binary16 debt: at a6c914e `MetreVector`, `LinearSpeed` (the contact-trigger threshold type) and `AccelerationVector` are `Half` — `engine/gpu/PhysicsDeclarations.cs@a6c914e:L18-L21`; `RigidLocalPose` translation is a `Half` vector bounded to ±16 — `engine/gpu/PhysicsDeclarations.cs@a6c914e:L31-L38`; `WorkshopCosmeticSample.Blend` is `Half` — `engine/gpu/WorkshopCosmetic.cs@a6c914e:L10-L10`. These are remaining lanes in the [f32 migration status](../../gpu-f32-physics.md#f32-migration-status); this element's new values are declared as f32.
+./docs/planning/elements/CAT-047-optical_xor.md:44:- Binary16 debt: at a6c914e `MetreVector`, `LinearSpeed` (the contact-trigger threshold type) and `AccelerationVector` are `Half` — `engine/gpu/PhysicsDeclarations.cs@a6c914e:L18-L21`; `RigidLocalPose` translation is a `Half` vector bounded to ±16 — `engine/gpu/PhysicsDeclarations.cs@a6c914e:L31-L38`; `WorkshopCosmeticSample.Blend` is `Half` — `engine/gpu/WorkshopCosmetic.cs@a6c914e:L10-L10`. These are remaining lanes in the [f32 migration status](../../gpu-f32-physics.md#f32-migration-status); this element's new values are declared as f32.
+./docs/planning/elements/EL-133-electrical-and-gate.md:89:3. **binary16 activation and cosmetic lanes.** The three-lamp binding extends cosmetic lanes and activation times that are still binary16, listed as remaining f32 migration (`docs/gpu-f32-physics.md@a6c914e:L96-L98`). Whether Story 9.6 migrates them to f32 first or extends them as they are: [CAT-013 open question 3](CAT-013-both_gate.md#6-open-questions), owner decision.
+./docs/planning/elements/CAT-055-red_filter.md:35:- Binary16 debt: at a6c914e `MetreVector`, `LinearSpeed` (the contact-trigger threshold type) and `AccelerationVector` are `Half` — `engine/gpu/PhysicsDeclarations.cs@a6c914e:L18-L21`; `RigidLocalPose` translation is a `Half` vector bounded to ±16 — `engine/gpu/PhysicsDeclarations.cs@a6c914e:L31-L38`; `WorkshopCosmeticSample.Blend` is `Half` — `engine/gpu/WorkshopCosmetic.cs@a6c914e:L10-L10`. These are remaining lanes in the [f32 migration status](../../gpu-f32-physics.md#f32-migration-status); this element's new values are declared as f32.
+./docs/planning/elements/EL-191-wall.md:54:| 1 | Catalogue dimensions WidthBits 16896 = 3, HeightBits 16384 = 2, ThicknessBits 13312 = 0.25 (binary16). | `parts/catalog/wall.tres@a6c914e:L7-L11` | Carry forward values; not binary16 storage. |
+./docs/planning/elements/CAT-035-lamp.md:44:| f32 declarations: the base box, pose and the cosmetic duration and colour binding values are still binary16 (`Half`) | Remaining f32 migration ([f32 migration status](../../gpu-f32-physics.md#f32-migration-status)) |
+./docs/planning/elements/CAT-017-clock.md:25:| Parameters | `interval_seconds`: float seconds, range 0.1–12 inclusive, default 1.0 (`parts/ClockPart.cs@a6c914e:L46-L51`, `parts/catalog/clock.tres@a6c914e:L14-L14`). Discrete interval = ceil(seconds / tick) ticks (`parts/ClockPart.cs@a6c914e:L21-L21`, `engine/SceneOscillatorDeclaration.cs@a6c914e:L10-L18`). Carry forward as f32 seconds with a typed parameter id; the current `DelayDuration` stores binary16 (`engine/gpu/WorkshopDelay.cs@a6c914e:L6-L33`), which is listed as remaining f32 migration (`docs/gpu-f32-physics.md@a6c914e:L96-L96`) and must not be copied. **Current (C-Clock):** a declared Real Second parameter (0.1–12, default 1.0), editor policy Clamp (as the former spin box), Build-only; f32 from authoring to compile, where `ActivationTimerDeclaration.Duration` gives ceil(seconds × rate) whole ticks (0.1 s → 6/12/24, 1 s → 60/120/240, 12 s → 720/1440/2880 ticks at 60/120/240 Hz). Saves carry it as the generic instance's parameter; the record path's `threshold` field is deleted, and record-path saves are refused with a typed reason. |
+./docs/planning/elements/CAT-017-clock.md:38:- Note (superseded): at a6c914e `ActivationTime`, `ActivationLatch` and the cosmetic curve record stored times and durations as binary16 (`Half`). Current: `ActivationTime` is (uint ordinal, f32 phase) and timer durations are f32 seconds compiled to whole ticks (Story 9.5a), so the clock path holds no binary16 lane (`IntervalTicks` uint, `DueTick` ulong).
+./docs/planning/elements/CAT-017-clock.md:119:3. **binary16 activation and cosmetic lanes.** The activation network, timers and cosmetic curves the clock extends still hold binary16 values (`docs/gpu-f32-physics.md@a6c914e:L96-L98`, remaining f32 migration). Whether Story 9.3 migrates those lanes to f32 before extending them, or extends them as they are and leaves migration to the scheduled f32 work: unspecified — owner decision.
+./docs/planning/elements/legacy-disposition.md:39:| N-KERNEL | Retired binary16 GPU integration experiment; its only GpuBodyFixture consumer was deleted in Story 7.2. Current runtime does not load these files; no new element contract is inferred from obsolete solver code. |
+./docs/planning/elements/RAD-13-decay-clock-capsule.md:61:- [S605](../invest/decisions.md#s605) decay row (S607); research "Decay and material memory" law and slots 98 "Half as Bright", 99 "Catch the Window".
+./docs/planning/elements/CAT-044-optical_nand.md:44:- Binary16 debt: at a6c914e `MetreVector`, `LinearSpeed` (the contact-trigger threshold type) and `AccelerationVector` are `Half` — `engine/gpu/PhysicsDeclarations.cs@a6c914e:L18-L21`; `RigidLocalPose` translation is a `Half` vector bounded to ±16 — `engine/gpu/PhysicsDeclarations.cs@a6c914e:L31-L38`; `WorkshopCosmeticSample.Blend` is `Half` — `engine/gpu/WorkshopCosmetic.cs@a6c914e:L10-L10`. These are remaining lanes in the [f32 migration status](../../gpu-f32-physics.md#f32-migration-status); this element's new values are declared as f32.
+./docs/planning/elements/CAT-043-optical_and.md:44:- Binary16 debt: at a6c914e `MetreVector`, `LinearSpeed` (the contact-trigger threshold type) and `AccelerationVector` are `Half` — `engine/gpu/PhysicsDeclarations.cs@a6c914e:L18-L21`; `RigidLocalPose` translation is a `Half` vector bounded to ±16 — `engine/gpu/PhysicsDeclarations.cs@a6c914e:L31-L38`; `WorkshopCosmeticSample.Blend` is `Half` — `engine/gpu/WorkshopCosmetic.cs@a6c914e:L10-L10`. These are remaining lanes in the [f32 migration status](../../gpu-f32-physics.md#f32-migration-status); this element's new values are declared as f32.

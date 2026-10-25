@@ -5,9 +5,9 @@ using CuriousContraptions.Wire;
 namespace CuriousContraptions.Gpu;
 
 /// <summary>The structural pre-validation of a stored construction save (Story 9A.2), run on its verified record before any
-/// domain construction: every enum is defined, every number is finite and inside the range its part declares (after the
-/// binary16 narrowing the decoder applies, so a value the domain would round into range is admitted and one it would round out
-/// of range is not), every element id is one of the loaded bundle's elements (Story 9A.15), identities are nonzero and unique,
+/// domain construction: every enum is defined, every number is finite and inside the range its part declares, compared as the exact
+/// f32 the decoder passes on unchanged (Story 9A.44: no value is narrowed, so the first f32 above a declared maximum is refused),
+/// every element id is one of the loaded bundle's elements (Story 9A.15), identities are nonzero and unique,
 /// every reference resolves and every connection joins matching declared
 /// ports. A violation is the player's typed refusal; it admits exactly what domain construction admits
 /// (WorkshopSaveRejectionTests pins the parity lane by lane), so a domain guard that still fires afterwards is a defect.</summary>
@@ -165,18 +165,37 @@ internal static class WorkshopSavePrevalidation
             throw Refuse(WorkshopSaveRejection.UndefinedEnum, "The saved puzzle names an undefined puzzle, placement or goal.");
         if (!float.IsFinite(p.Precision) || !float.IsFinite(p.GoalDelay))
             throw Refuse(WorkshopSaveRejection.NonFinite, "The saved puzzle has a non-finite precision or goal delay.");
-        if (p.RawAssistanceLength != WorkshopPuzzleWire.AssistanceBytes)
-            throw Refuse(WorkshopSaveRejection.MissingField, "The saved puzzle lacks its three assistance profiles.");
-        var precision = (Half)p.Precision;
-        var minimumGoalSeconds = (Half)p.GoalDelay;
-        if (!Half.IsFinite(precision) || precision < (Half)0 || precision > (Half)1 || !Half.IsFinite(minimumGoalSeconds) || minimumGoalSeconds < (Half)0 || minimumGoalSeconds > (Half)120)
+        if (p.AssistanceLength != WorkshopWireFlatBuffers.AssistanceKnotCount)
+            throw Refuse(WorkshopSaveRejection.MissingField,
+                $"The saved puzzle holds {p.AssistanceLength} assistance knots; a puzzle holds exactly nine.");
+        var knots = new AssistanceKnot[WorkshopWireFlatBuffers.AssistanceKnotCount];
+        for (var i = 0; i < knots.Length; i++)
+        {
+            var k = p.Assistance(i)!.Value;
+            if (!float.IsFinite(k.Precision) || !float.IsFinite(k.PositionWindow) || !float.IsFinite(k.RotationWindowDegrees) ||
+                !float.IsFinite(k.MaximumPositionCorrection) || !float.IsFinite(k.MaximumRotationCorrectionDegrees) ||
+                !float.IsFinite(k.Blend) || !float.IsFinite(k.CaptureMargin) || !float.IsFinite(k.CaptureSpeed) ||
+                !float.IsFinite(k.CaptureDwell) || !float.IsFinite(k.GuideAcceleration) || !float.IsFinite(k.TriggerThreshold))
+                throw Refuse(WorkshopSaveRejection.NonFinite, "A saved assistance knot has a non-finite value.");
+            knots[i] = new(k.Precision, new(k.PositionWindow), k.RotationWindowDegrees, new(k.MaximumPositionCorrection),
+                k.MaximumRotationCorrectionDegrees, new(k.Blend), new(k.CaptureMargin), new(k.CaptureSpeed), new(k.CaptureDwell),
+                new(k.GuideAcceleration), k.TriggerThreshold);
+        }
+        // The authored knot rule the content reader applies (AssistanceProfile.HasAuthoredShape), on each of the three profiles.
+        for (var first = 0; first < knots.Length; first += WorkshopWireFlatBuffers.KnotsPerProfile)
+            if (!new AssistanceProfile(knots[first], knots[first + 1], knots[first + 2]).HasAuthoredShape())
+                throw Refuse(WorkshopSaveRejection.OutOfRange,
+                    "A saved assistance profile has a negative value or knots not at precisions 0, 0.45 and 1.");
+        var precision = p.Precision;
+        var minimumGoalSeconds = p.GoalDelay;
+        if (precision < 0f || precision > 1f || minimumGoalSeconds < 0f || minimumGoalSeconds > 120f)
             throw Refuse(WorkshopSaveRejection.OutOfRange, "The saved puzzle precision or goal delay is outside its range.");
         if (p.InventoryPart is { } inventory) Element(inventory, elements, "The saved puzzle's inventory");
         // The named-goal rule (WorkshopGoal), over the fields the decoder maps into each goal kind.
         var admitted = (WorkshopGoalKind)p.GoalKind switch
         {
-            WorkshopGoalKind.None => p.GoalBody == 0 && p.GoalTarget == 0 && p.GoalEventSource == 0 && minimumGoalSeconds == (Half)0,
-            WorkshopGoalKind.Captured => p.GoalBody != 0 && p.GoalTarget != 0 && p.GoalBody != p.GoalTarget && p.GoalEventSource != 0 && minimumGoalSeconds == (Half)0,
+            WorkshopGoalKind.None => p.GoalBody == 0 && p.GoalTarget == 0 && p.GoalEventSource == 0 && minimumGoalSeconds == 0f,
+            WorkshopGoalKind.Captured => p.GoalBody != 0 && p.GoalTarget != 0 && p.GoalBody != p.GoalTarget && p.GoalEventSource != 0 && minimumGoalSeconds == 0f,
             _ => p.GoalEventSource == 0 && p.GoalBody != 0 && p.GoalTarget != 0 && p.GoalBody != p.GoalTarget,
         };
         // A Captured goal may name a part the bench no longer holds: a lesson saved after its receiver was deleted keeps its goal

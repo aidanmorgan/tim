@@ -94,8 +94,8 @@ public static partial class PhysicsGpuAbi
         {
             var joint = ReadPrismatic(bytes, i);
             var record = bytes.Slice(layout.PrismaticOffset(i), PrismaticBytes);
-            var a = bytes.Slice(layout.BodyOffset((int)R32(record, 8)), BodyBytes);
-            var b = bytes.Slice(layout.BodyOffset((int)R32(record, 12)), BodyBytes);
+            var a = bytes.Slice(layout.BodyOffset((int)R32(record, PrismaticBodyAOffset)), BodyBytes);
+            var b = bytes.Slice(layout.BodyOffset((int)R32(record, PrismaticBodyBOffset)), BodyBytes);
             PrismaticRows.Prepare(PresentationFrame(a), PresentationFrame(b), joint.FrameA, joint.FrameB,
                 joint.Lower, joint.Upper, rows);
             var axial = rows[(int)PrismaticRowKind.Spring];

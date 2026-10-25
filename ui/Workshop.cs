@@ -106,8 +106,8 @@ public partial class Workshop : Node3D
         AddChild(new DirectionalLight3D { RotationDegrees = new(-10, 145, 0), LightColor = new("#b7ddea"), LightEnergy = .45f });
         var stage = new Node3D { Name = "Workbench" };
         AddChild(stage);
-        WorkshopArtwork.Box(stage, Workbench.Base.Half * 2, new("#b77c42"), Workbench.Base.At);
-        WorkshopArtwork.Box(stage, Workbench.Deck.Half * 2, new("#ead39b"), Workbench.Deck.At);
+        WorkshopArtwork.Box(stage, Workbench.Base.HalfExtent * 2, new("#b77c42"), Workbench.Base.At);
+        WorkshopArtwork.Box(stage, Workbench.Deck.HalfExtent * 2, new("#ead39b"), Workbench.Deck.At);
         // A toy workbench, not a permanent drafting grid.
         foreach (var x in new[] { -8f, 8f })
             foreach (var z in new[] { -4.5f, 4.5f })
@@ -391,7 +391,7 @@ public partial class Workshop : Node3D
         if (!CanEdit) return;
         ClearPreview();
         _previewOrientation = CanonicalRotation.Identity;
-        _placementHeight = new((Half)(3));
+        _placementHeight = new(3f);
         _tool = id;
         Select(null);
         _detail.Text = World.Registry.Definitions[id].Title;
@@ -568,7 +568,7 @@ public partial class Workshop : Node3D
                 _dragMoved = false;
                 _dragPressScreen = screen;
                 _grabOffset = WorkPoint(screen, _buildView ? _selected.Position.Z : _selected.Position.Y) is { } grabbed ? _selected.Position - grabbed : Vector3.Zero;
-                _depth = new((Half)(_selected.Position.Z));
+                _depth = new(_selected.Position.Z);
                 ChangeDepth(0);
             }
         }
@@ -606,7 +606,7 @@ public partial class Workshop : Node3D
     private void ChangeDepth(float amount)
     {
         if (!CanEdit) return;
-        _depth = new((Half)(Mathf.Clamp((float)_depth.Value + amount, -4, 4)));
+        _depth = new(Mathf.Clamp(_depth.Value + amount, -4f, 4f));
         if (_selected is { Locked: false } && amount != 0)
         {
             PushUndo();

@@ -43,7 +43,7 @@ Families from the [element map row](../general-engine-element-map.md): ContactIm
 | Missing | Story that builds it |
 | --- | --- |
 | ElectricalPower membership: not used by the current activation contract. Any electrically powered light is a separate element (e.g. EL-155, TH-36). | none for CAT-035 |
-| f32 declarations: the base box, pose and the cosmetic duration and colour binding values are still binary16 (`Half`) | Remaining f32 migration ([f32 migration status](../../gpu-f32-physics.md#f32-migration-status)) |
+| f32 declarations: the base box, pose and the cosmetic duration and colour binding values are f32 (Story 9A.44) | Delivered by Story 9A.44 ([numeric authority](../../gpu-f32-physics.md)) |
 
 Dependencies: an activation source (Impact switch, Delay, Domino, Ball detector, Counter and others).
 

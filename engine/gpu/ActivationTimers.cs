@@ -12,8 +12,7 @@ public readonly record struct ActivationTime(uint Ordinal, float Phase) : ICompa
 {
     public void Validate()
     {
-        if (!float.IsFinite(Phase) || Phase < -2048f || Phase >= 2048f ||
-            (Ordinal == 0 && Phase < 0f))
+        if (!PhysicalPhase.IsAdmitted(Ordinal, Phase))
             throw new ArgumentException("Invalid activation occurrence time.");
     }
     public int CompareTo(ActivationTime other) =>

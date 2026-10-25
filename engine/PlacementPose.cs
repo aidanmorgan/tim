@@ -45,7 +45,7 @@ public static class PlacementPose
     /// bench surface (less the contact slop a resting body may touch it by) up to 9 m.</summary>
     private static bool Within(Posed[] shapes)
     {
-        var bench = (float)WorkshopConstruction.WorkbenchSurface.Value - ContactSlop;
+        var bench = WorkshopConstruction.WorkbenchSurface.Value - ContactSlop;
         foreach (var shape in shapes)
         {
             float x = shape.Extent(Vector3.Right), y = shape.Height, z = shape.Extent(Vector3.Back);
@@ -59,18 +59,18 @@ public static class PlacementPose
 
     private enum Shape : byte { Sphere, Box, Cylinder }
     /// <summary>One posed collider. A cylinder's axis is its local Y; its half-extents are (r, h, r).</summary>
-    private readonly record struct Posed(Shape Kind, Vector3 Centre, Vector3 X, Vector3 Y, Vector3 Z, Vector3 Half, float Radius)
+    private readonly record struct Posed(Shape Kind, Vector3 Centre, Vector3 X, Vector3 Y, Vector3 Z, Vector3 HalfExtent, float Radius)
     {
         public Vector3 Axis(int i) => i switch { 0 => X, 1 => Y, _ => Z };
-        public float HalfAlong(int i) => i switch { 0 => Half.X, 1 => Half.Y, _ => Half.Z };
-        /// <summary>Half the shape's world vertical extent.</summary>
+        public float HalfAlong(int i) => i switch { 0 => HalfExtent.X, 1 => HalfExtent.Y, _ => HalfExtent.Z };
+        /// <summary>The shape's world vertical half-extent: its centre to its top.</summary>
         public float Height => Extent(Vector3.Up);
-        /// <summary>Half the shape's extent along a unit direction: a box's projected half-extents, a cylinder's h·|a·n| + r·√(1 − (a·n)²).</summary>
+        /// <summary>The shape's half-extent along a unit direction: a box's projected half-extents, a cylinder's h·|a·n| + r·√(1 − (a·n)²).</summary>
         public float Extent(Vector3 direction) => Kind switch
         {
             Shape.Sphere => Radius,
-            Shape.Box => MathF.Abs(X.Dot(direction)) * Half.X + MathF.Abs(Y.Dot(direction)) * Half.Y + MathF.Abs(Z.Dot(direction)) * Half.Z,
-            Shape.Cylinder => MathF.Abs(Y.Dot(direction)) * Half.Y + Half.X * MathF.Sqrt(MathF.Max(0f, 1f - Y.Dot(direction) * Y.Dot(direction))),
+            Shape.Box => MathF.Abs(X.Dot(direction)) * HalfExtent.X + MathF.Abs(Y.Dot(direction)) * HalfExtent.Y + MathF.Abs(Z.Dot(direction)) * HalfExtent.Z,
+            Shape.Cylinder => MathF.Abs(Y.Dot(direction)) * HalfExtent.Y + HalfExtent.X * MathF.Sqrt(MathF.Max(0f, 1f - Y.Dot(direction) * Y.Dot(direction))),
             _ => throw new InvalidOperationException($"Undefined placement shape {Kind}.")
         };
     }
@@ -173,8 +173,8 @@ public static class PlacementPose
         var along = offset.Dot(cylinder.Y);
         var radial = offset - cylinder.Y * along;
         var distance = radial.Length();
-        if (distance > cylinder.Half.X) radial *= cylinder.Half.X / distance;
-        return cylinder.Y * Math.Clamp(along, -cylinder.Half.Y, cylinder.Half.Y) + radial;
+        if (distance > cylinder.HalfExtent.X) radial *= cylinder.HalfExtent.X / distance;
+        return cylinder.Y * Math.Clamp(along, -cylinder.HalfExtent.Y, cylinder.HalfExtent.Y) + radial;
     }
 
     /// <summary>The box's vertical axis, when its top is horizontal.</summary>

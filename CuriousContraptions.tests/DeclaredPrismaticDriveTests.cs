@@ -26,10 +26,11 @@ public sealed class DeclaredPrismaticDriveTests
         for (var i = 0; i < count; i++)
         {
             var piece = motion.Slice(PhysicsMotionRead.HeaderBytes + i * PhysicsMotionRead.PieceBytes, PhysicsMotionRead.PieceBytes).ToArray();
-            if (BinaryPrimitives.ReadUInt64LittleEndian(piece.AsSpan(24)) != owner) continue;
+            if (BinaryPrimitives.ReadUInt64LittleEndian(piece.AsSpan(PhysicsMotionRead.OwnerOffset)) != owner) continue;
             float F(int at) => BinaryPrimitives.ReadSingleLittleEndian(piece.AsSpan(at));
             int I(int at) => BinaryPrimitives.ReadInt32LittleEndian(piece.AsSpan(at));
-            result.Add(new(new((I(32) + F(48)) / 16f, (I(36) + F(52)) / 16f, (I(40) + F(56)) / 16f),
+            const int cell = PhysicsMotionRead.CellOffset, remainder = PhysicsMotionRead.CentreRemainderOffset;
+            result.Add(new(new((I(cell) + F(remainder)) / 16f, (I(cell + 4) + F(remainder + 4)) / 16f, (I(cell + 8) + F(remainder + 8)) / 16f),
                 new(F(PhysicsMotionRead.VelocityOffset), F(PhysicsMotionRead.VelocityOffset + 4), F(PhysicsMotionRead.VelocityOffset + 8))));
         }
         return result;
@@ -145,6 +146,11 @@ public sealed class DeclaredPrismaticDriveTests
         // Its own target, short of its upper limit, at rest there.
         Assert.Equal(1.2f, final.Position.Y - 5f, 3e-3f);
         Assert.True(MathF.Abs(final.Velocity.Y) < 1e-2f, $"at rest on the target, {final.Velocity.Y}");
+        // Held without chatter: over every substep of its last 240 ticks (the second half of the run) the axial speed stays below
+        // 1 mm/s. The stopping command is capped at |d|/h, the speed that closes the remaining distance in one substep h; without that
+        // cap the infinitely steep √(2a|d|) at the target overshoots each substep and the hold cycles at about 1 cm/s.
+        var held = path.Skip(path.Count / 2).Max(s => MathF.Abs(s.Velocity.Y));
+        Assert.True(held < 1e-3f, $"held on the target: every late substep under 1 mm/s, max {held}");
         Assert.True(path.Max(s => s.Centre.Y - 5f) <= 1.2f + 5e-3f, "the stopping profile does not overshoot");
     }
 

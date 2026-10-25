@@ -100,7 +100,7 @@ Binding: ContactImpulse, EnvironmentState, FiniteLedger, GeometryQuery, JointCon
 | --- | --- | --- | --- | --- |
 | 1 | Legacy static surfaces use restitution 1, bounce threshold 0.1, friction 0.3 (the source `MachinePart.InitialContactMaterial`). | `engine/gpu/WorkshopPhysicsCompiler.cs@a6c914e:L109-L110` | do not carry forward for brick | The row requires the barrier's own declared contact properties. |
 | 2 | Wall: three resizable local dimensions; the common box declaration owns all contact physics. | `parts/WallPart.cs@a6c914e:L6-L12` | carry forward | Same resize model. |
-| 3 | Wall catalogue dimensions stored as binary16 bits (`WidthBits = 16896` = 3 m, `HeightBits = 16384` = 2 m, `ThicknessBits = 13312` = 0.25 m). | `parts/catalog/wall.tres@a6c914e:L8-L11` | do not carry forward the bits | f32 contract: carry the decimal meaning only. |
+| 3 | Wall catalogue dimensions stored as half-precision bits (`WidthBits = 16896` = 3 m, `HeightBits = 16384` = 2 m, `ThicknessBits = 13312` = 0.25 m). | `parts/catalog/wall.tres@a6c914e:L8-L11` | do not carry forward the bits | f32 contract: carry the decimal meaning only. |
 
 **Files harvested:** `parts/WallPart.cs`, `parts/catalog/wall.tres` (both harvested in full by CAT-066), `engine/WallDimensionsResource.cs` (checked). Searched for brick, masonry: no hit.
 

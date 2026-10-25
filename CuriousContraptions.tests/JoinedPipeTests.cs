@@ -17,7 +17,7 @@ public sealed class JoinedPipeTests
     private static readonly GpuBodyId BallId = new(1), BendId = new(2), ReceiverId = new(3), PipeId = new(4);
     private const int RunTicks = 1200;
 
-    private static WorkshopConstruction Lesson(Half precision) =>
+    private static WorkshopConstruction Lesson(float precision) =>
         // Revision 2: the production Simulation admits the first Construct after its initial revision 1.
         PuzzleCatalogue.Create(new("joined_pipe"), new(2), WorkshopCadenceSettings.Default(), BallId, new(precision));
 
@@ -78,7 +78,7 @@ public sealed class JoinedPipeTests
         Assert.Equal(["pipe"], level.GetProperty("inventory").EnumerateArray().Select(entry => entry.GetProperty("part").GetString()!).ToArray());
         Assert.Equal(1, level.GetProperty("inventory").EnumerateArray().Single(row => row.GetProperty("part").GetString() == "pipe").GetProperty("count").GetInt32());
 
-        var construction = Lesson((Half)0);
+        var construction = Lesson(0f);
         var puzzle = construction.Puzzle;
         Assert.Equal((new PuzzleId("joined_pipe"), PartId.Pipe, 1u), (puzzle.Id, puzzle.InventoryPart, puzzle.InventoryCount));
         var goal = level.GetProperty("goal");
@@ -120,7 +120,7 @@ public sealed class JoinedPipeTests
     {
         var level = Content();
         var solution = Assert.Single(level.GetProperty("solution").EnumerateArray());
-        var pipe = Snapped(Lesson((Half)1), 2);
+        var pipe = Snapped(Lesson(1f), 2);
         CheckSourcePose(solution, pipe, .0002);
         // Its upper mouth lies on the ball's drop line.
         var at = new Vector3((float)((pipe.Cell.X + (double)pipe.Local.X) / 16), (float)((pipe.Cell.Y + (double)pipe.Local.Y) / 16), 0);
@@ -133,7 +133,7 @@ public sealed class JoinedPipeTests
     [Fact]
     public void ValidateAdmitsTheGrantedPipeOnly()
     {
-        var lesson = Lesson((Half)1);
+        var lesson = Lesson(1f);
         var placed = lesson.WithInstance(Snapped(lesson, 2));
         placed.Validate();
 
@@ -153,7 +153,7 @@ public sealed class JoinedPipeTests
     [Fact]
     public void ALockedFixedBendIsRequired()
     {
-        var lesson = Lesson((Half)0);
+        var lesson = Lesson(0f);
         var bend = (WorkshopGenericInstance)lesson.Instances.Single(instance => instance.Id == BendId);
         EditRefusal.Is(WorkshopEditRejection.FixedPart, () => (lesson with { Instances = lesson.Instances.Without(BendId) }).Validate());
         EditRefusal.Is(WorkshopEditRejection.FixedPart, () => lesson.WithInstance(bend with { Locked = false }).Validate());
@@ -166,21 +166,57 @@ public sealed class JoinedPipeTests
         EditRefusal.Is(WorkshopEditRejection.PuzzleSettings, () => (lesson with { Puzzle = lesson.Puzzle with { PlacementAssistance = PuzzleCatalogue.Definition(new("first_principles")).Placement } }).Validate());
     }
 
+    // Story 9A.44: between knots the Receiver takes the f32 linear blend of its two bracketing authored knots, each operation rounded
+    // once to f32 (t = (p - a)/(b - a), then x + (y - x)·t), and the blend lies strictly between them.
+    [Theory]
+    [InlineData(.2f)]
+    [InlineData(.7f)]
+    public void AnInterpolatedPrecisionSetsTheReceiverToTheF32BlendOfItsBracketingKnots(float precision)
+    {
+        var template = PuzzleCatalogue.Definition(new("joined_pipe")).Placements.Select(placement => placement.Instance)
+            .Single(instance => instance.Part == PartId.Receiver);
+        var (forgiving, balanced, precise) = (template.Assistance.Forgiving, template.Assistance.Balanced, template.Assistance.Precise);
+        var (a, b) = precision < balanced.Precision ? (forgiving, balanced) : (balanced, precise);
+        var t = (precision - a.Precision) / (b.Precision - a.Precision);
+        float Blend(float x, float y) => x + (y - x) * t;
+        var receiver = (WorkshopGenericInstance)Lesson(precision).Instances.Single(instance => instance.PartId == PartId.Receiver);
+        var lanes = new (string Parameter, AssistanceValue Knot, float A, float B)[]
+        {
+            ("capture_margin", AssistanceValue.CaptureMargin, a.CaptureMargin.Value, b.CaptureMargin.Value),
+            ("capture_speed_limit", AssistanceValue.CaptureSpeed, a.CaptureSpeed.Value, b.CaptureSpeed.Value),
+            ("capture_dwell", AssistanceValue.CaptureDwell, a.CaptureDwell.Value, b.CaptureDwell.Value),
+            ("force_support_margin", AssistanceValue.CaptureMargin, a.CaptureMargin.Value, b.CaptureMargin.Value),
+            ("force_maximum_acceleration", AssistanceValue.GuideAcceleration, a.GuideAcceleration.Value, b.GuideAcceleration.Value),
+        };
+        // Each lane is the template's own binding (parameter ← knot lane, force_support_margin ← CaptureMargin among them), and
+        // every one of its five bindings takes its blend.
+        var bound = template.AssistanceBindings.Select(binding => (binding.Parameter.Value, binding.Value)).ToHashSet();
+        Assert.Equal(template.AssistanceBindings.Length, lanes.Length);
+        Assert.True(bound.SetEquals(lanes.Select(lane => (lane.Parameter, lane.Knot))), "the lanes are the template's own bindings");
+        foreach (var (parameter, _, x, y) in lanes)
+        {
+            var actual = receiver.Parameters[new(parameter)];
+            Assert.Equal(BitConverter.SingleToUInt32Bits(Blend(x, y)), BitConverter.SingleToUInt32Bits(actual));
+            Assert.NotEqual(x, y);
+            Assert.True(actual > MathF.Min(x, y) && actual < MathF.Max(x, y), $"{parameter} {actual} strictly between {x} and {y}");
+        }
+    }
+
     [Theory]
     [InlineData(0, .3, 3.0, .15, 12)]
     [InlineData(.45, .174, 2.325, .24, 6.6)]
     [InlineData(1.0, .02, 1.5, .35, 0)]
     public void PrecisionEvaluatesTheReceiverAndTheLessonRoundTripsTheSaveCodec(double precision, double margin, double speed, double dwell, double accel)
     {
-        var lesson = Lesson((Half)precision);
+        var lesson = Lesson((float)precision);
         var receiver = ((WorkshopGenericInstance)lesson.Instances.Single(instance => instance.PartId == PartId.Receiver));
-        Assert.Equal(((float)(Half)margin, (float)(Half)speed, (float)(Half)dwell, (float)(Half)accel),
+        Assert.Equal(((float)margin, (float)speed, (float)dwell, (float)accel),
             (receiver.Parameters[new("capture_margin")], receiver.Parameters[new("capture_speed_limit")], receiver.Parameters[new("capture_dwell")], receiver.Parameters[new("force_maximum_acceleration")]));
         var placed = lesson.WithInstance(Snapped(lesson, 2));
         var saved = new WorkshopSavedConstruction(placed, new(5));
         Assert.Equal(saved, WorkshopSaveCodec.Decode(SaveFixture.Elements,WorkshopSaveCodec.Encode(saved)));
-        var updated = PuzzleCatalogue.WithPrecision(placed, new((Half).45));
-        Assert.Equal((float)(Half).174, ((WorkshopGenericInstance)updated.Instances.Single(instance => instance.PartId == PartId.Receiver)).Parameters[new("capture_margin")]);
+        var updated = PuzzleCatalogue.WithPrecision(placed, new(.45f));
+        Assert.Equal(.174f, ((WorkshopGenericInstance)updated.Instances.Single(instance => instance.PartId == PartId.Receiver)).Parameters[new("capture_margin")]);
         Assert.Equal(placed.Instances.Single(i => i.Id == PipeId), updated.Instances.Single(i => i.Id == PipeId));
     }
 
@@ -189,7 +225,7 @@ public sealed class JoinedPipeTests
     [Fact]
     public async Task TheSnappedTwoMetrePipeDeliversTheBallAndResetRestoresTheBench()
     {
-        var lesson = Lesson((Half)1);
+        var lesson = Lesson(1f);
         var bench = lesson.WithInstance(Snapped(lesson, 2));
         var (built, run, reset) = await NoFixedCapacityTests.RunAndReset(bench, RunTicks);
         Assert.True(Solved(bench, run), $"the joined route solves (ball last at {Ball(run[^1])})");
@@ -199,7 +235,7 @@ public sealed class JoinedPipeTests
     [Fact]
     public async Task TheDefaultLengthSnappedLeavesTheBallOnTheOuterShell()
     {
-        var lesson = Lesson((Half)1);
+        var lesson = Lesson(1f);
         var bench = lesson.WithInstance(Snapped(lesson, 3.6f));
         var (_, run, _) = await NoFixedCapacityTests.RunAndReset(bench, RunTicks);
         Assert.False(Solved(bench, run), $"a 3.6 m pipe misses the drop line (ball last at {Ball(run[^1])})");
@@ -208,7 +244,7 @@ public sealed class JoinedPipeTests
     [Fact]
     public async Task AnUnsnappedPipeLeavesTheGoalUnsolved()
     {
-        var lesson = Lesson((Half)1);
+        var lesson = Lesson(1f);
         var snapped = Snapped(lesson, 2);
         var unsnapped = PipeAt(UnsnappedPosition(snapped), Rz(-45), 2);
         var definitions = Definitions();
@@ -262,11 +298,11 @@ public sealed class JoinedPipeTests
         for (var i = 0; i < 3; i++)
         {
             var k = values[i];
-            Half[] actual = [k.Precision, k.PositionWindow.Value, k.RotationWindowDegrees, k.MaximumPositionCorrection.Value,
+            float[] actual = [k.Precision, k.PositionWindow.Value, k.RotationWindowDegrees, k.MaximumPositionCorrection.Value,
                 k.MaximumRotationCorrectionDegrees, k.Blend.Value, k.CaptureMargin.Value, k.CaptureSpeed.Value,
                 k.CaptureDwell.Value, k.GuideAcceleration.Value, k.TriggerThreshold];
             for (var field = 0; field < names.Length; field++)
-                Assert.Equal((Half)data[i].GetProperty(names[field]).GetDouble(), actual[field]);
+                Assert.Equal((float)data[i].GetProperty(names[field]).GetDouble(), actual[field]);
         }
     }
 }

@@ -27,8 +27,7 @@ function bodyState(b: BodyRead) {
 // domino_effect authored identities: ball 1, end Domino 2, lamp 3; placed tiles receive 4..7 in placement order.
 const BALL_ID = '1', END_ID = '2';
 const TILE_IDS = ['4', '5', '6', '7'];
-const LAMP_TARGET = '5';                  // activation node 3 + 2
-const HALF_ONE = 15360;
+const LAMP_TARGET = '5';                  // activation node 3 + 2; full glow is the f32 channel value 1
 // Front view of the authored level: screen x = 720 + 65.2 m, tiles stand at y = 0.1 m on screen row 676 (calibrated through the pose ring).
 const TILE_Y = 676;
 const tileScreenX = (x: number) => Math.round(720 + 65.2 * x);
@@ -192,7 +191,7 @@ describe('CAT-023b: Domino cascade mechanics & orientation-threshold sensor', ()
         assert.deepEqual(order, [...TILE_IDS, END_ID], 'The tiles topple in chain order, the end Domino last');
         assert.equal(new Set(passed.values()).size, 5, 'Each body passes the threshold in a distinct committed sample');
 
-        const lit = await waitFor(async () => (await driver.readLastAnimationSample(LAMP_TARGET))?.valBits === HALF_ONE, 3000);
+        const lit = await waitFor(async () => (await driver.readLastAnimationSample(LAMP_TARGET))?.value === 1, 3000);
         assert.ok(lit, 'The lamp lights once the end Domino passes the threshold');
         const solved = await waitFor(async () => (await driver.readCaptured()) === 1, 3000);
         assert.ok(solved, 'CCGOAL_SOLVED prints once');
@@ -276,7 +275,7 @@ describe('CAT-023b: Domino cascade mechanics & orientation-threshold sensor', ()
         TILE_IDS.forEach((id, i) => assertUprightPlacement(loaded.get(id)!, CHAIN_X[i], `loaded tile ${id}`));
         assertEndDominoBeforeImpact(loaded.get(END_ID)!, 'loaded end Domino');
         assert.ok(await waitFor(async () => (await driver.readCaptured()) === 1, 10000), 'The loaded wired chain solves');
-        assert.ok(await waitFor(async () => (await driver.readLastAnimationSample(LAMP_TARGET))?.valBits === HALF_ONE, 3000), 'The loaded lamp lights');
+        assert.ok(await waitFor(async () => (await driver.readLastAnimationSample(LAMP_TARGET))?.value === 1, 3000), 'The loaded lamp lights');
         const litSamples = (await driver.readAnimationSamplesForTarget(LAMP_TARGET)).length;
 
         await driver.reset(800);                                  // Reset; drain the retired world's in-flight lamp pulses
@@ -287,7 +286,7 @@ describe('CAT-023b: Domino cascade mechanics & orientation-threshold sensor', ()
         assertEndDominoBeforeImpact(restored.get(END_ID)!, 'reset end Domino');
         assert.ok(await waitFor(async () => (await driver.readCaptured()) === 2, 10000), 'The second Run solves again: the sensor was rearmed by Reset');
         assert.ok((await driver.readAnimationSamplesForTarget(LAMP_TARGET)).length > litSamples, 'The lamp lights again in the new world');
-        assert.ok(await waitFor(async () => (await driver.readLastAnimationSample(LAMP_TARGET))?.valBits === HALF_ONE, 3000), 'The lamp reaches full glow again');
+        assert.ok(await waitFor(async () => (await driver.readLastAnimationSample(LAMP_TARGET))?.value === 1, 3000), 'The lamp reaches full glow again');
         await driver.reset(500);
         assertCleanSlice();
     });

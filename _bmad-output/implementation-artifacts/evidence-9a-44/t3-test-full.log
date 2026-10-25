@@ -1,0 +1,294 @@
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-44/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:03.04]     CuriousContraptions.Tests.HalfPrecisionGuardTests.GuardNoHalfPrecisionTypeCodecOrLaneRemainsInCodeToolsTestsSchemasContentOrDocs [FAIL]
+  Failed CuriousContraptions.Tests.HalfPrecisionGuardTests.GuardNoHalfPrecisionTypeCodecOrLaneRemainsInCodeToolsTestsSchemasContentOrDocs [648 ms]
+  Error Message:
+   Half-precision names remain:
+docs/planning/elements/EL-181-rising-edge-detector.md:90: 3. **binary16 activation and cosmetic lanes.** The occurrence timestamps (ordinal and phase) and the flash cosmetic curve this detector emits through still hold binary16 values, listed as remaining f32 migration (`docs/gpu-f32-physics.md@a6c914e:L96-L98`). Whether the edge-node slice migrates them to f32 first or extends them as they are: the same decision as [CAT-020 open question 3](CAT-020-counter.md#6-open-questions), owner decision. EL-182 inherits this question.
+docs/planning/elements/EL-192-receiving-basket.md:21: | Box | Centre (m) | Half-extents (m) | Full size (m) |
+docs/planning/elements/EL-195-pinball-bumper.md:3: Story 7.0 named-identity spec (Batch J). Baseline commit `a6c914e`; every citation is `path@a6c914e:Lstart-Lend` and resolves with `git show a6c914e:<path> | sed -n 'start,endp'`. **Proposed** marks an unsourced design value with a one-line justification; the owner may revise it. All values are canonical IEEE-754 f32 game values inside the [game-grade envelope](../../gpu-f32-physics.md#game-grade-envelope); current declarations still store them as binary16 ([f32 migration status](../../gpu-f32-physics.md#f32-migration-status)) and they are recorded here by decimal meaning.
+docs/planning/elements/EL-154-light-charge-receiver.md:38: | `reset_level` | f32 | 0–release | 3 | game optical energy | Half the release level gives visible persistence (≈ 14 s of dark from 6) without permanent latching. |
+docs/planning/elements/EL-133-electrical-and-gate.md:89: 3. **binary16 activation and cosmetic lanes.** The three-lamp binding extends cosmetic lanes and activation times that are still binary16, listed as remaining f32 migration (`docs/gpu-f32-physics.md@a6c914e:L96-L98`). Whether Story 9.6 migrates them to f32 first or extends them as they are: [CAT-013 open question 3](CAT-013-both_gate.md#6-open-questions), owner decision.
+docs/planning/elements/EL-193-domino.md:3: Story 7.0 named-identity spec (Batch J). Baseline commit `a6c914e`; every citation is `path@a6c914e:Lstart-Lend` and resolves with `git show a6c914e:<path> | sed -n 'start,endp'`. **Proposed** marks an unsourced design value with a one-line justification; the owner may revise it. All values are canonical IEEE-754 f32 game values inside the [game-grade envelope](../../gpu-f32-physics.md#game-grade-envelope); the current declaration still stores them as binary16 ([f32 migration status](../../gpu-f32-physics.md#f32-migration-status)) and they are recorded here by decimal meaning.
+docs/planning/elements/EL-183-resettable-counter.md:79: 3. **binary16 activation and cosmetic lanes.** The activation times, occurrence phases and dot cosmetic curves this counter extends still hold binary16 values, listed as remaining f32 migration (`docs/gpu-f32-physics.md@a6c914e:L96-L98`). Whether the slice migrates them to f32 first or extends them as they are: [CAT-020 open question 3](CAT-020-counter.md#6-open-questions), owner decision.
+docs/planning/elements/EL-134-electrical-or-gate.md:66: none beyond [EL-133](EL-133-electrical-and-gate.md#6-open-questions) (observable consumer, condition sources, binary16 lanes, finite supply).
+  Stack Trace:
+     at CuriousContraptions.Tests.HalfPrecisionGuardTests.GuardNoHalfPrecisionTypeCodecOrLaneRemainsInCodeToolsTestsSchemasContentOrDocs() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-44/CuriousContraptions.tests/HalfPrecisionGuardTests.cs:line 79
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Standard Output Messages:
+ 1246 sources scanned
+
+
+[xUnit.net 00:06:31.48]     CuriousContraptions.Tests.ElementIsolationTests.ProductionKnowledgeIsExactlyTheOwnedShrinkingList [FAIL]
+  Failed CuriousContraptions.Tests.ElementIsolationTests.ProductionKnowledgeIsExactlyTheOwnedShrinkingList [2 s]
+  Error Message:
+   CuriousContraptions.web/AppBundle/_framework/dotnet.native.js:520: unowned PackageIdentifier receiver in <module>
+CuriousContraptions.web/AppBundle/_framework/dotnet.native.js:523: unowned PackageIdentifier receiver in <module>
+CuriousContraptions.web/AppBundle/_framework/dotnet.native.js:4942: unowned PackageIdentifier runtimeKeepaliveCounter in <module>
+CuriousContraptions.web/AppBundle/_framework/dotnet.native.js:5091: unowned PackageIdentifier runtimeKeepaliveCounter in <module>
+CuriousContraptions.web/AppBundle/_framework/dotnet.native.js:5093: unowned PackageIdentifier runtimeKeepaliveCounter in <module>
+CuriousContraptions.web/AppBundle/_framework/dotnet.native.js:5261: unowned PackageIdentifier counter in <module>
+CuriousContraptions.web/AppBundle/_framework/dotnet.native.js:5287: unowned PackageIdentifier counter in <module>
+CuriousContraptions.web/AppBundle/_framework/dotnet.native.js:5674: unowned PackageIdentifier runtimeKeepaliveCounter in <module>
+CuriousContraptions.web/AppBundle/_framework/dotnet.native.js:5724: unowned PackageIdentifier runtimeKeepaliveCounter in <module>
+CuriousContraptions.web/AppBundle/_framework/dotnet.native.js:6203: unowned PackageIdentifier delay in <module>
+CuriousContraptions.web/AppBundle/_framework/dotnet.native.js:6204: unowned PackageIdentifier delay in <module>
+CuriousContraptions.web/AppBundle/_framework/dotnet.native.js:7198: unowned PackageIdentifier uniformIdCounter in <module>
+CuriousContraptions.web/AppBundle/_framework/dotnet.native.js:7608: unowned PackageIdentifier counter in <module>
+CuriousContraptions.web/AppBundle/_framework/dotnet.native.js:7780: unowned PackageIdentifier uniformIdCounter in <module>
+CuriousContraptions.web/AppBundle/_framework/dotnet.native.js:7781: unowned PackageIdentifier uniformIdCounter in <module>
+CuriousContraptions.web/AppBundle/_framework/dotnet.native.js:14403: unowned PackageIdentifier enableEventPipe in <module>
+CuriousContraptions.web/AppBundle/_framework/dotnet.native.js:15306: unowned PackageIdentifier _mono_jiterp_get_counter in <module>
+CuriousContraptions.web/AppBundle/_framework/dotnet.native.js:15306: unowned PackageIdentifier _mono_jiterp_get_counter in <module>
+CuriousContraptions.web/AppBundle/_framework/dotnet.native.js:15307: unowned PackageIdentifier _mono_jiterp_modify_counter in <module>
+CuriousContraptions.web/AppBundle/_framework/dotnet.native.js:15307: unowned PackageIdentifier _mono_jiterp_modify_counter in <module>
+CuriousContraptions.web/AppBundle/_framework/dotnet.runtime.js:3: unowned PackageIdentifier enableEventPipe in <module>
+CuriousContraptions.web/AppBundle/_framework/dotnet.runtime.js:3: unowned PackageIdentifier enableEventPipe in <module>
+CuriousContraptions.web/AppBundle/_framework/dotnet.runtime.js:3: unowned PackageIdentifier enableEventPipe in <module>
+CuriousContraptions.web/AppBundle/animation/_framework/dotnet.native.js:704: unowned PackageIdentifier receiver in <module>
+CuriousContraptions.web/AppBundle/animation/_framework/dotnet.native.js:707: unowned PackageIdentifier receiver in <module>
+CuriousContraptions.web/AppBundle/animation/_framework/dotnet.native.js:3982: unowned PackageIdentifier runtimeKeepaliveCounter in <module>
+CuriousContraptions.web/AppBundle/animation/_framework/dotnet.native.js:3983: unowned PackageIdentifier runtimeKeepaliveCounter in <module>
+CuriousContraptions.web/AppBundle/animation/_framework/dotnet.native.js:4008: unowned PackageIdentifier runtimeKeepaliveCounter in <module>
+CuriousContraptions.web/AppBundle/animation/_framework/dotnet.native.js:5052: unowned PackageIdentifier runtimeKeepaliveCounter in <module>
+CuriousContraptions.web/AppBundle/animation/_framework/dotnet.native.js:5056: unowned PackageIdentifier runtimeKeepaliveCounter in <module>
+CuriousContraptions.web/AppBundle/animation/_framework/dotnet.native.js:5076: unowned PackageIdentifier enableEventPipe in <module>
+CuriousContraptions.web/AppBundle/animation/_framework/dotnet.native.js:5377: unowned PackageIdentifier _mono_jiterp_get_counter in <module>
+CuriousContraptions.web/AppBundle/animation/_framework/dotnet.native.js:5377: unowned PackageIdentifier _mono_jiterp_get_counter in <module>
+CuriousContraptions.web/AppBundle/animation/_framework/dotnet.native.js:5378: unowned PackageIdentifier _mono_jiterp_modify_counter in <module>
+CuriousContraptions.web/AppBundle/animation/_framework/dotnet.native.js:5378: unowned PackageIdentifier _mono_jiterp_modify_counter in <module>
+CuriousContraptions.web/AppBundle/animation/_framework/dotnet.runtime.js:3: unowned PackageIdentifier enableEventPipe in <module>
+CuriousContraptions.web/AppBundle/animation/_framework/dotnet.runtime.js:3: unowned PackageIdentifier enableEventPipe in <module>
+CuriousContraptions.web/AppBundle/animation/_framework/dotnet.runtime.js:3: unowned PackageIdentifier enableEventPipe in <module>
+CuriousContraptions.web/AppBundle/animation/worker.js:2: unowned PackageIdentifier admitNativeClock in <module>
+CuriousContraptions.web/AppBundle/animation/worker.js:2: unowned PackageIdentifier nativeClockEvidence in <module>
+CuriousContraptions.web/AppBundle/animation/worker.js:3: unowned PackageIdentifier attachClockRing in <module>
+CuriousContraptions.web/AppBundle/animation/worker.js:3: unowned PackageIdentifier ClockRole in <module>
+CuriousContraptions.web/AppBundle/animation/worker.js:6: unowned PackageIdentifier admitNativeClock in <module>
+CuriousContraptions.web/AppBundle/animation/worker.js:8: unowned PackageIdentifier clock in <module>
+CuriousContraptions.web/AppBundle/animation/worker.js:21: unowned PackageIdentifier clock in <module>
+CuriousContraptions.web/AppBundle/animation/worker.js:33: unowned PackageIdentifier requireClock in <module>
+CuriousContraptions.web/AppBundle/animation/worker.js:34: unowned PackageIdentifier clock in <module>
+CuriousContraptions.web/AppBundle/animation/worker.js:35: unowned PackageIdentifier clock in <module>
+CuriousContraptions.web/AppBundle/animation/worker.js:48: unowned PackageIdentifier requireClock in <module>
+CuriousContraptions.web/AppBundle/animation/worker.js:48: unowned PackageIdentifier ClockRole in <module>
+CuriousContraptions.web/AppBundle/animation/worker.js:84: unowned PackageIdentifier ownedClock in <module>
+CuriousContraptions.web/AppBundle/animation/worker.js:85: unowned PackageIdentifier ownedClock in <module>
+CuriousContraptions.web/AppBundle/animation/worker.js:85: unowned PackageIdentifier attachClockRing in <module>
+CuriousContraptions.web/AppBundle/animation/worker.js:85: unowned PackageIdentifier clockRing in <module>
+CuriousContraptions.web/AppBundle/animation/worker.js:87: unowned PackageIdentifier clock in <module>
+CuriousContraptions.web/AppBundle/animation/worker.js:87: unowned PackageIdentifier ownedClock in <module>
+CuriousContraptions.web/AppBundle/animation/worker.js:114: unowned PackageIdentifier nativeClock in <module>
+CuriousContraptions.web/AppBundle/animation/worker.js:114: unowned PackageIdentifier nativeClockEvidence in <module>
+CuriousContraptions.web/AppBundle/animation/worker.js:115: unowned PackageIdentifier nativeClock in <module>
+CuriousContraptions.web/AppBundle/animation/worker.js:115: unowned PackageIdentifier nativeClock in <module>
+CuriousContraptions.web/AppBundle/clock-ring.js:11: unowned PackageIdentifier ClockRingBytes in <module>
+CuriousContraptions.web/AppBundle/clock-ring.js:18: unowned PackageIdentifier ClockRole in <module>
+CuriousContraptions.web/AppBundle/clock-ring.js:23: unowned PackageIdentifier ClockRole in <module>
+CuriousContraptions.web/AppBundle/clock-ring.js:23: unowned PackageIdentifier ClockRole in <module>
+CuriousContraptions.web/AppBundle/clock-ring.js:23: unowned PackageIdentifier ClockRole in <module>
+CuriousContraptions.web/AppBundle/clock-ring.js:31: unowned PackageIdentifier createClockRing in <module>
+CuriousContraptions.web/AppBundle/clock-ring.js:33: unowned PackageIdentifier ClockRingBytes in <module>
+CuriousContraptions.web/AppBundle/clock-ring.js:36: unowned PackageIdentifier attachClockRing in <module>
+CuriousContraptions.web/AppBundle/clock-ring.js:37: unowned PackageIdentifier ClockRingBytes in <module>
+CuriousContraptions.web/AppBundle/clock-ring.js:50: unowned PackageIdentifier clock in <module>
+CuriousContraptions.web/AppBundle/clock-ring.js:51: unowned PackageIdentifier clock in <module>
+CuriousContraptions.web/AppBundle/clock-ring.js:60: unowned PackageIdentifier clock in <module>
+CuriousContraptions.web/AppBundle/clock-ring.js:62: unowned PackageIdentifier clock in <module>
+CuriousContraptions.web/AppBundle/clock-ring.js:64: unowned PackageIdentifier clock in <module>
+CuriousContraptions.web/AppBundle/clock-ring.js:65: unowned PackageIdentifier clock in <module>
+CuriousContraptions.web/AppBundle/clock-ring.js:66: unowned PackageIdentifier clock in <module>
+CuriousContraptions.web/AppBundle/clock-ring.js:75: unowned PackageIdentifier clock in <module>
+CuriousContraptions.web/AppBundle/clock-ring.js:78: unowned PackageIdentifier clock in <module>
+CuriousContraptions.web/AppBundle/clock-ring.js:80: unowned PackageIdentifier clock in <module>
+CuriousContraptions.web/AppBundle/clock-ring.js:82: unowned PackageIdentifier clock in <module>
+CuriousContraptions.web/AppBundle/clock-ring.js:83: unowned PackageIdentifier clock in <module>
+CuriousContraptions.web/AppBundle/clock-ring.js:84: unowned PackageIdentifier clock in <module>
+CuriousContraptions.web/AppBundle/clock-ring.js:85: unowned PackageIdentifier clock in <module>
+CuriousContraptions.web/AppBundle/clock-ring.js:90: unowned PackageIdentifier clock in <module>
+CuriousContraptions.web/AppBundle/clock-ring.js:90: unowned PackageIdentifier clock in <module>
+CuriousContraptions.web/AppBundle/clock-ring.js:93: unowned PackageIdentifier clock in <module>
+CuriousContraptions.web/AppBundle/clock-ring.js:93: unowned PackageIdentifier clock in <module>
+CuriousContraptions.web/AppBundle/clock-ring.js:103: unowned PackageIdentifier clock in <module>
+CuriousContraptions.web/AppBundle/clock-ring.js:104: unowned PackageIdentifier ClockRole in <module>
+CuriousContraptions.web/AppBundle/clock-ring.js:107: unowned PackageIdentifier clock in <module>
+CuriousContraptions.web/AppBundle/clock-ring.js:110: unowned PackageIdentifier clock in <module>
+CuriousContraptions.web/AppBundle/clock-ring.js:111: unowned PackageIdentifier clock in <module>
+CuriousContraptions.web/AppBundle/clock-ring.js:112: unowned PackageIdentifier clock in <module>
+CuriousContraptions.web/AppBundle/clock-ring.js:115: unowned PackageIdentifier clock in <module>
+CuriousContraptions.web/AppBundle/clock-ring.js:116: unowned PackageIdentifier clock in <module>
+CuriousContraptions.web/AppBundle/clock-ring.js:118: unowned PackageIdentifier clock in <module>
+CuriousContraptions.web/AppBundle/clock-ring.js:119: unowned PackageIdentifier clock in <module>
+CuriousContraptions.web/AppBundle/clock-ring.js:125: unowned PackageIdentifier clock in <module>
+CuriousContraptions.web/AppBundle/clock-ring.js:126: unowned PackageIdentifier clock in <module>
+CuriousContraptions.web/AppBundle/clock-ring.js:179: unowned PackageIdentifier clock in <module>
+CuriousContraptions.web/AppBundle/clock-ring.js:180: unowned PackageIdentifier clock in <module>
+CuriousContraptions.web/AppBundle/clock-ring.js:181: unowned PackageIdentifier ClockRole in <module>
+CuriousContraptions.web/AppBundle/clock-ring.js:181: unowned PackageIdentifier ClockRole in <module>
+CuriousContraptions.web/AppBundle/clock-ring.js:181: unowned PackageIdentifier ClockRole in <module>
+CuriousContraptions.web/AppBundle/clock-ring.js:183: unowned PackageIdentifier clock in <module>
+CuriousContraptions.web/AppBundle/clock-ring.js:184: unowned PackageIdentifier clock in <module>
+CuriousContraptions.web/AppBundle/clock-ring.js:190: unowned PackageIdentifier ClockRole in <module>
+CuriousContraptions.web/AppBundle/clock-ring.js:191: unowned PackageIdentifier clock in <module>
+CuriousContraptions.web/AppBundle/clock-ring.js:192: unowned PackageIdentifier clock in <module>
+CuriousContraptions.web/AppBundle/clock-ring.js:193: unowned PackageIdentifier clock in <module>
+CuriousContraptions.web/AppBundle/clock-ring.js:196: unowned PackageIdentifier clock in <module>
+CuriousContraptions.web/AppBundle/clock-ring.js:198: unowned PackageIdentifier clock in <module>
+CuriousContraptions.web/AppBundle/clock-ring.js:199: unowned PackageIdentifier clock in <module>
+CuriousContraptions.web/AppBundle/clock-ring.js:201: unowned PackageIdentifier clock in <module>
+CuriousContraptions.web/AppBundle/clock-ring.js:207: unowned PackageIdentifier clock in <module>
+CuriousContraptions.web/AppBundle/clock-ring.js:208: unowned PackageIdentifier clock in <module>
+CuriousContraptions.web/AppBundle/clock-ring.js:217: unowned PackageIdentifier clock in <module>
+CuriousContraptions.web/AppBundle/clock-ring.js:218: unowned PackageIdentifier ClockRole in <module>
+CuriousContraptions.web/AppBundle/clock-ring.js:220: unowned PackageIdentifier clock in <module>
+CuriousContraptions.web/AppBundle/clock-ring.js:221: unowned PackageIdentifier clock in <module>
+CuriousContraptions.web/AppBundle/clock-ring.js:224: unowned PackageIdentifier clock in <module>
+CuriousContraptions.web/AppBundle/clock-ring.js:236: unowned PackageIdentifier clock in <module>
+CuriousContraptions.web/AppBundle/clock-ring.js:237: unowned PackageIdentifier ClockRole in <module>
+CuriousContraptions.web/AppBundle/clock-ring.js:237: unowned PackageIdentifier ClockRole in <module>
+CuriousContraptions.web/AppBundle/clock-ring.js:238: unowned PackageIdentifier clock in <module>
+CuriousContraptions.web/AppBundle/clock-ring.js:240: unowned PackageIdentifier clock in <module>
+CuriousContraptions.web/AppBundle/clock-ring.js:240: unowned PackageIdentifier clock in <module>
+CuriousContraptions.web/AppBundle/clock-ring.js:241: unowned PackageIdentifier clock in <module>
+CuriousContraptions.web/AppBundle/clock-ring.js:243: unowned PackageIdentifier clock in <module>
+CuriousContraptions.web/AppBundle/clock-ring.js:244: unowned PackageIdentifier clock in <module>
+CuriousContraptions.web/AppBundle/clock-ring.js:245: unowned PackageIdentifier clock in <module>
+CuriousContraptions.web/AppBundle/clock-ring.js:247: unowned PackageIdentifier clock in <module>
+CuriousContraptions.web/AppBundle/clock-ring.js:248: unowned PackageIdentifier clock in <module>
+CuriousContraptions.web/AppBundle/clock-ring.js:249: unowned PackageIdentifier clock in <module>
+CuriousContraptions.web/AppBundle/clock-ring.js:250: unowned PackageIdentifier clock in <module>
+CuriousContraptions.web/AppBundle/godot.js:45: unowned PackageIdentifier pipeThrough in <module>
+CuriousContraptions.web/AppBundle/godot.js:62: unowned PackageIdentifier pipeThrough in <module>
+CuriousContraptions.web/AppBundle/godot.js:284: unowned PackageIdentifier pipeThrough in <module>
+CuriousContraptions.web/AppBundle/native-clock.js:45: unowned PackageIdentifier admitNativeClock in <module>
+CuriousContraptions.web/AppBundle/native-clock.js:59: unowned PackageIdentifier nativeClockEvidence in <module>
+CuriousContraptions.web/AppBundle/simulation/_framework/dotnet.native.js:704: unowned PackageIdentifier receiver in <module>
+CuriousContraptions.web/AppBundle/simulation/_framework/dotnet.native.js:707: unowned PackageIdentifier receiver in <module>
+CuriousContraptions.web/AppBundle/simulation/_framework/dotnet.native.js:3982: unowned PackageIdentifier runtimeKeepaliveCounter in <module>
+CuriousContraptions.web/AppBundle/simulation/_framework/dotnet.native.js:3983: unowned PackageIdentifier runtimeKeepaliveCounter in <module>
+CuriousContraptions.web/AppBundle/simulation/_framework/dotnet.native.js:4008: unowned PackageIdentifier runtimeKeepaliveCounter in <module>
+CuriousContraptions.web/AppBundle/simulation/_framework/dotnet.native.js:5052: unowned PackageIdentifier runtimeKeepaliveCounter in <module>
+CuriousContraptions.web/AppBundle/simulation/_framework/dotnet.native.js:5056: unowned PackageIdentifier runtimeKeepaliveCounter in <module>
+CuriousContraptions.web/AppBundle/simulation/_framework/dotnet.native.js:5076: unowned PackageIdentifier enableEventPipe in <module>
+CuriousContraptions.web/AppBundle/simulation/_framework/dotnet.native.js:5377: unowned PackageIdentifier _mono_jiterp_get_counter in <module>
+CuriousContraptions.web/AppBundle/simulation/_framework/dotnet.native.js:5377: unowned PackageIdentifier _mono_jiterp_get_counter in <module>
+CuriousContraptions.web/AppBundle/simulation/_framework/dotnet.native.js:5378: unowned PackageIdentifier _mono_jiterp_modify_counter in <module>
+CuriousContraptions.web/AppBundle/simulation/_framework/dotnet.native.js:5378: unowned PackageIdentifier _mono_jiterp_modify_counter in <module>
+CuriousContraptions.web/AppBundle/simulation/_framework/dotnet.runtime.js:3: unowned PackageIdentifier enableEventPipe in <module>
+CuriousContraptions.web/AppBundle/simulation/_framework/dotnet.runtime.js:3: unowned PackageIdentifier enableEventPipe in <module>
+CuriousContraptions.web/AppBundle/simulation/_framework/dotnet.runtime.js:3: unowned PackageIdentifier enableEventPipe in <module>
+CuriousContraptions.web/AppBundle/simulation/clock-master.js:9: unowned PackageIdentifier admitNativeClock in <module>
+CuriousContraptions.web/AppBundle/simulation/clock-master.js:10: unowned PackageIdentifier attachClockRing in <module>
+CuriousContraptions.web/AppBundle/simulation/clock-master.js:10: unowned PackageIdentifier ClockRole in <module>
+CuriousContraptions.web/AppBundle/simulation/clock-master.js:12: unowned PackageIdentifier admitNativeClock in <module>
+CuriousContraptions.web/AppBundle/simulation/clock-master.js:19: unowned PackageIdentifier clock in <module>
+CuriousContraptions.web/AppBundle/simulation/clock-master.js:19: unowned PackageIdentifier attachClockRing in <module>
+CuriousContraptions.web/AppBundle/simulation/clock-master.js:20: unowned PackageIdentifier ClockRole in <module>
+CuriousContraptions.web/AppBundle/simulation/clock-master.js:20: unowned PackageIdentifier ClockRole in <module>
+CuriousContraptions.web/AppBundle/simulation/clock-master.js:26: unowned PackageIdentifier clock in <module>
+CuriousContraptions.web/AppBundle/simulation/clock-master.js:26: unowned PackageIdentifier clock in <module>
+CuriousContraptions.web/AppBundle/simulation/worker.js:2: unowned PackageIdentifier admitNativeClock in <module>
+CuriousContraptions.web/AppBundle/simulation/worker.js:2: unowned PackageIdentifier nativeClockEvidence in <module>
+CuriousContraptions.web/AppBundle/simulation/worker.js:3: unowned PackageIdentifier attachClockRing in <module>
+CuriousContraptions.web/AppBundle/simulation/worker.js:6: unowned PackageIdentifier admitNativeClock in <module>
+CuriousContraptions.web/AppBundle/simulation/worker.js:9: unowned PackageIdentifier clockMaster in <module>
+CuriousContraptions.web/AppBundle/simulation/worker.js:104: unowned PackageIdentifier clockNow in <module>
+CuriousContraptions.web/AppBundle/simulation/worker.js:112: unowned PackageIdentifier clockMaster in <module>
+CuriousContraptions.web/AppBundle/simulation/worker.js:112: unowned PackageIdentifier clockMaster in <module>
+CuriousContraptions.web/AppBundle/simulation/worker.js:112: unowned PackageIdentifier clockMaster in <module>
+CuriousContraptions.web/AppBundle/simulation/worker.js:112: unowned PackageIdentifier clockMaster in <module>
+CuriousContraptions.web/AppBundle/simulation/worker.js:112: unowned PackageIdentifier clockMaster in <module>
+CuriousContraptions.web/AppBundle/simulation/worker.js:131: unowned PackageIdentifier startClockMaster in <module>
+CuriousContraptions.web/AppBundle/simulation/worker.js:132: unowned PackageIdentifier clock in <module>
+CuriousContraptions.web/AppBundle/simulation/worker.js:132: unowned PackageIdentifier attachClockRing in <module>
+CuriousContraptions.web/AppBundle/simulation/worker.js:133: unowned PackageIdentifier ClockDerivationProfile in <module>
+CuriousContraptions.web/AppBundle/simulation/worker.js:135: unowned PackageIdentifier clockMaster in <module>
+CuriousContraptions.web/AppBundle/simulation/worker.js:155: unowned PackageIdentifier clock in <module>
+CuriousContraptions.web/AppBundle/simulation/worker.js:155: unowned PackageIdentifier clockNow in <module>
+CuriousContraptions.web/AppBundle/simulation/worker.js:156: unowned PackageIdentifier ClockDerivationQualified in <module>
+CuriousContraptions.web/AppBundle/simulation/worker.js:157: unowned PackageIdentifier QualifyClockDerivation in <module>
+CuriousContraptions.web/AppBundle/simulation/worker.js:158: unowned PackageIdentifier ClockDerivationQualificationMissed in <module>
+CuriousContraptions.web/AppBundle/simulation/worker.js:162: unowned PackageIdentifier AdoptClockDerivation in <module>
+CuriousContraptions.web/AppBundle/simulation/worker.js:162: unowned PackageIdentifier clock in <module>
+CuriousContraptions.web/AppBundle/simulation/worker.js:162: unowned PackageIdentifier ClockDerivationStartupCorrection in <module>
+CuriousContraptions.web/AppBundle/simulation/worker.js:168: unowned PackageIdentifier clock in <module>
+CuriousContraptions.web/AppBundle/simulation/worker.js:173: unowned PackageIdentifier clockNow in <module>
+CuriousContraptions.web/AppBundle/simulation/worker.js:174: unowned PackageIdentifier clock in <module>
+CuriousContraptions.web/AppBundle/simulation/worker.js:174: unowned PackageIdentifier clockNow in <module>
+CuriousContraptions.web/AppBundle/simulation/worker.js:176: unowned PackageIdentifier ClockDerivationExchangeNarrow in <module>
+CuriousContraptions.web/AppBundle/simulation/worker.js:177: unowned PackageIdentifier clockNow in <module>
+CuriousContraptions.web/AppBundle/simulation/worker.js:179: unowned PackageIdentifier ClockDerivationRetried in <module>
+CuriousContraptions.web/AppBundle/simulation/worker.js:180: unowned PackageIdentifier clock in <module>
+CuriousContraptions.web/AppBundle/simulation/worker.js:180: unowned PackageIdentifier clockNow in <module>
+CuriousContraptions.web/AppBundle/simulation/worker.js:184: unowned PackageIdentifier ClockDerivationMissed in <module>
+CuriousContraptions.web/AppBundle/simulation/worker.js:185: unowned PackageIdentifier CheckClockDerivation in <module>
+CuriousContraptions.web/AppBundle/simulation/worker.js:187: unowned PackageIdentifier AdoptClockDerivation in <module>
+CuriousContraptions.web/AppBundle/simulation/worker.js:187: unowned PackageIdentifier clock in <module>
+CuriousContraptions.web/AppBundle/simulation/worker.js:252: unowned PackageIdentifier clockNow in <module>
+CuriousContraptions.web/AppBundle/simulation/worker.js:253: unowned PackageIdentifier delayMilliseconds in <module>
+CuriousContraptions.web/AppBundle/simulation/worker.js:255: unowned PackageIdentifier delayMilliseconds in <module>
+CuriousContraptions.web/AppBundle/simulation/worker.js:256: unowned PackageIdentifier delayMilliseconds in <module>
+CuriousContraptions.web/AppBundle/simulation/worker.js:295: unowned PackageIdentifier clockNow in <module>
+CuriousContraptions.web/AppBundle/simulation/worker.js:317: unowned PackageIdentifier clockRing in <module>
+CuriousContraptions.web/AppBundle/simulation/worker.js:319: unowned PackageIdentifier startClockMaster in <module>
+CuriousContraptions.web/AppBundle/simulation/worker.js:319: unowned PackageIdentifier clockRing in <module>
+CuriousContraptions.web/AppBundle/simulation/worker.js:320: unowned PackageIdentifier nativeClock in <module>
+CuriousContraptions.web/AppBundle/simulation/worker.js:320: unowned PackageIdentifier nativeClockEvidence in <module>
+CuriousContraptions.web/AppBundle/simulation/worker.js:321: unowned PackageIdentifier nativeClock in <module>
+CuriousContraptions.web/AppBundle/simulation/worker.js:321: unowned PackageIdentifier nativeClock in <module>
+CuriousContraptions.web/AppBundle/workshop-client.js:1: unowned PackageIdentifier admitNativeClock in <module>
+CuriousContraptions.web/AppBundle/workshop-client.js:1: unowned PackageIdentifier nativeClockEvidence in <module>
+CuriousContraptions.web/AppBundle/workshop-client.js:3: unowned PackageIdentifier createClockRing in <module>
+CuriousContraptions.web/AppBundle/workshop-client.js:3: unowned PackageIdentifier attachClockRing in <module>
+CuriousContraptions.web/AppBundle/workshop-client.js:3: unowned PackageIdentifier ClockRole in <module>
+CuriousContraptions.web/AppBundle/workshop-client.js:64: unowned PackageIdentifier clock in <module>
+CuriousContraptions.web/AppBundle/workshop-client.js:64: unowned PackageIdentifier clockRing in <module>
+CuriousContraptions.web/AppBundle/workshop-client.js:103: unowned PackageIdentifier clockAbi in <module>
+CuriousContraptions.web/AppBundle/workshop-client.js:103: unowned PackageIdentifier clockReply in <module>
+CuriousContraptions.web/AppBundle/workshop-client.js:110: unowned PackageIdentifier admitNativeClock in <module>
+CuriousContraptions.web/AppBundle/workshop-client.js:115: unowned PackageIdentifier clockAbi in <module>
+CuriousContraptions.web/AppBundle/workshop-client.js:117: unowned PackageIdentifier clockProfile in <module>
+CuriousContraptions.web/AppBundle/workshop-client.js:117: unowned PackageIdentifier clockAbi in <module>
+CuriousContraptions.web/AppBundle/workshop-client.js:118: unowned PackageIdentifier clockProfile in <module>
+CuriousContraptions.web/AppBundle/workshop-client.js:123: unowned PackageIdentifier clockRing in <module>
+CuriousContraptions.web/AppBundle/workshop-client.js:123: unowned PackageIdentifier createClockRing in <module>
+CuriousContraptions.web/AppBundle/workshop-client.js:126: unowned PackageIdentifier clockReplyCallback in <module>
+CuriousContraptions.web/AppBundle/workshop-client.js:126: unowned PackageIdentifier clockReply in <module>
+CuriousContraptions.web/AppBundle/workshop-client.js:127: unowned PackageIdentifier clockRing in <module>
+CuriousContraptions.web/AppBundle/workshop-client.js:127: unowned PackageIdentifier clock in <module>
+CuriousContraptions.web/AppBundle/workshop-client.js:127: unowned PackageIdentifier attachClockRing in <module>
+CuriousContraptions.web/AppBundle/workshop-client.js:127: unowned PackageIdentifier clockRing in <module>
+CuriousContraptions.web/AppBundle/workshop-client.js:129: unowned PackageIdentifier clockAbi in <module>
+CuriousContraptions.web/AppBundle/workshop-client.js:129: unowned PackageIdentifier clockProfile in <module>
+CuriousContraptions.web/AppBundle/workshop-client.js:150: unowned PackageIdentifier clockRing in <module>
+CuriousContraptions.web/AppBundle/workshop-client.js:150: unowned PackageIdentifier clockRing in <module>
+CuriousContraptions.web/AppBundle/workshop-client.js:163: unowned PackageIdentifier nativeClock in <module>
+CuriousContraptions.web/AppBundle/workshop-client.js:164: unowned PackageIdentifier nativeClock in <module>
+CuriousContraptions.web/AppBundle/workshop-client.js:164: unowned PackageIdentifier nativeClock in <module>
+CuriousContraptions.web/AppBundle/workshop-client.js:165: unowned PackageIdentifier nativeClock in <module>
+CuriousContraptions.web/AppBundle/workshop-client.js:165: unowned PackageIdentifier nativeClock in <module>
+CuriousContraptions.web/AppBundle/workshop-client.js:220: unowned PackageIdentifier nativeClock in <module>
+CuriousContraptions.web/AppBundle/workshop-client.js:230: unowned PackageIdentifier clockProfile in <module>
+CuriousContraptions.web/AppBundle/workshop-client.js:251: unowned PackageIdentifier clockRing in <module>
+CuriousContraptions.web/AppBundle/workshop-client.js:251: unowned PackageIdentifier clockRing in <module>
+CuriousContraptions.web/AppBundle/workshop-client.js:324: unowned PackageIdentifier clock in <module>
+CuriousContraptions.web/AppBundle/workshop-client.js:341: unowned PackageIdentifier clock in <module>
+CuriousContraptions.web/AppBundle/workshop-client.js:379: unowned PackageIdentifier clock in <module>
+CuriousContraptions.web/AppBundle/workshop-client.js:379: unowned PackageIdentifier ClockRole in <module>
+CuriousContraptions.web/AppBundle/workshop-client.js:381: unowned PackageIdentifier clockReplyCallback in <module>
+CuriousContraptions.web/AppBundle/workshop-client.js:388: unowned PackageIdentifier clockObservation in <module>
+CuriousContraptions.web/AppBundle/workshop-client.js:391: unowned PackageIdentifier clockAbi in <module>
+CuriousContraptions.web/AppBundle/workshop-client.js:393: unowned PackageIdentifier clockAbi in <module>
+CuriousContraptions.web/AppBundle/workshop-client.js:419: unowned PackageIdentifier clockEvidence in <module>
+CuriousContraptions.web/AppBundle/workshop-client.js:421: unowned PackageIdentifier clockAbi in <module>
+CuriousContraptions.web/AppBundle/workshop-client.js:441: unowned PackageIdentifier clockProfileEvidence in <module>
+CuriousContraptions.web/AppBundle/workshop-client.js:443: unowned PackageIdentifier nativeClockEvidence in <module>
+  Stack Trace:
+     at CuriousContraptions.Tests.ElementIsolationTests.ProductionKnowledgeIsExactlyTheOwnedShrinkingList() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-9a-44/CuriousContraptions.tests/ElementIsolationTests.cs:line 340
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     2, Passed:  3070, Skipped:     0, Total:  3072, Duration: 8 m 27 s - CuriousContraptions.tests.dll (net10.0)

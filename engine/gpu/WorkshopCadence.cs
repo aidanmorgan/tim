@@ -91,8 +91,6 @@ public readonly record struct WorkshopCadenceSettings(
         if (!Enum.IsDefined(Simulation) || Physical != PhysicalStepProfile.Canonical480Hz ||
             !Enum.IsDefined(Animation) || !Enum.IsDefined(Presentation))
             return "Unsupported cadence selection.";
-        // PhysicalFrequency's exact binary16 representation is a compile-time fact, asserted by
-        // WorkshopWireTests.PhysicalFrequencyIsExactlyRepresentableInTheHalfWireField.
         if ((ulong)SimulationRate.Numerator * PhysicalStepsPerCommit != PhysicalFrequency)
             return "Physical profile rate is not exactly representable.";
         if (!PresentationRate.IsCanonical) return PulseRate.NoncanonicalMessage;

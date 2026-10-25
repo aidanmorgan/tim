@@ -66,7 +66,7 @@ public sealed class PoweredGateTests(NativeSceneFixture godot)
             Assert.Equal(19, colliders.Count);
 
             var circumference = colliders.Take(16).ToArray();
-            var expectedCircHalfExtents = new MetreVector((Half)0.4f, (Half)0.025f, (Half)0.14f);
+            var expectedCircHalfExtents = new MetreVector(0.4f, 0.025f, 0.14f);
             foreach (var col in circumference)
             {
                 Assert.Equal(ColliderShapeKind.Box, col.ShapeKind);
@@ -77,20 +77,20 @@ public sealed class PoweredGateTests(NativeSceneFixture godot)
 
             var housing = colliders[16];
             Assert.Equal(ColliderShapeKind.Box, housing.ShapeKind);
-            Assert.Equal(new MetreVector((Half)0.4f, (Half)0.325f, (Half)0.9f), housing.HalfExtents);
-            Assert.Equal((Half)0, housing.LocalPose.Translation.X);
-            Assert.Equal((Half)1.65f, housing.LocalPose.Translation.Y);
-            Assert.Equal((Half)0, housing.LocalPose.Translation.Z);
+            Assert.Equal(new MetreVector(0.4f, 0.325f, 0.9f), housing.HalfExtents);
+            Assert.Equal(0f, housing.LocalPose.Translation.X);
+            Assert.Equal(1.65f, housing.LocalPose.Translation.Y);
+            Assert.Equal(0f, housing.LocalPose.Translation.Z);
 
             var railStart = colliders[17];
             Assert.Equal(ColliderShapeKind.Box, railStart.ShapeKind);
-            Assert.Equal(new MetreVector((Half)0.12f, (Half)0.85f, (Half)0.06f), railStart.HalfExtents);
-            Assert.Equal((Half)(-0.82f), railStart.LocalPose.Translation.Z);
+            Assert.Equal(new MetreVector(0.12f, 0.85f, 0.06f), railStart.HalfExtents);
+            Assert.Equal(-0.82f, railStart.LocalPose.Translation.Z);
 
             var railEnd = colliders[18];
             Assert.Equal(ColliderShapeKind.Box, railEnd.ShapeKind);
-            Assert.Equal(new MetreVector((Half)0.12f, (Half)0.85f, (Half)0.06f), railEnd.HalfExtents);
-            Assert.Equal((Half)0.82f, railEnd.LocalPose.Translation.Z);
+            Assert.Equal(new MetreVector(0.12f, 0.85f, 0.06f), railEnd.HalfExtents);
+            Assert.Equal(0.82f, railEnd.LocalPose.Translation.Z);
 
             Assert.Equal(3, ports.Count);
             Assert.True(ports.ContainsKey("PowerIn"));
@@ -170,14 +170,14 @@ public sealed class PoweredGateTests(NativeSceneFixture godot)
         var bladeId = WorkshopPhysicsCompiler.SliderBody(gate.Id, 0);
         var gateBlade = scene.Bodies.ToArray().Single(b => b.Id == bladeId);
         Assert.Equal(RigidMotionKind.Dynamic, gateBlade.Motion);
-        Assert.Equal((Half)1f, gateBlade.Mass.Value);
-        Assert.Equal((Half)0f, gateBlade.LinearDrag.Value); // Unwired -> 0 drag
+        Assert.Equal(1f, gateBlade.Mass.Value);
+        Assert.Equal(0f, gateBlade.LinearDrag.Value); // Unwired -> 0 drag
 
         // Colliders: plane (1) + ball (1) + blade (1) + frame (19) = 22 colliders
         Assert.Equal(22, scene.Colliders.Length);
         var bladeCollider = scene.Colliders.ToArray().Single(c => c.Body == bladeId);
         Assert.Equal(ColliderShapeKind.Box, bladeCollider.Shape);
-        Assert.Equal(new MetreVector((Half)0.06f, (Half)0.72f, (Half)0.72f), bladeCollider.HalfExtents);
+        Assert.Equal(new MetreVector(0.06f, 0.72f, 0.72f), bladeCollider.HalfExtents);
 
         // Prismatic joint
         var joint = Assert.Single(scene.Prismatics.ToArray());
@@ -217,7 +217,7 @@ public sealed class PoweredGateTests(NativeSceneFixture godot)
         Assert.True(PhysicsTickInputs.Compose(scene.SupplyGraph,scene.Prismatics.Length,new([ElectricalEnable.Enabled]),NoContact).SupplyClosed[0]);
         Assert.False(PhysicsTickInputs.Compose(scene.SupplyGraph,scene.Prismatics.Length,new([ElectricalEnable.Disabled]),NoContact).SupplyClosed[0]);
         Assert.Empty(scene.Electrical.Bindings.ToArray());
-        Assert.Equal((Half)0,scene.Bodies.ToArray().Single(body=>body.Id==WorkshopPhysicsCompiler.SliderBody(gate.Id, 0)).LinearDrag.Value);
+        Assert.Equal(0f,scene.Bodies.ToArray().Single(body=>body.Id==WorkshopPhysicsCompiler.SliderBody(gate.Id, 0)).LinearDrag.Value);
     }
 
     [Fact]

@@ -324,7 +324,7 @@ development_status:
   # 34 (deletion)
   9a-39-generic-instance-battery: done # scoped native/publication Pass54ffd9; browser pending
   # 35 (element)
-  10-2a-weight: review # native candidate in worktree story-10-2a; browser pending (cat-067 incl. engine-cylinder)
+  10-2a-weight: done # scoped native/publication Passb88ca4; browser pending (cat-067, engine-cylinder)
   # split into 10-2a, 10-2b and 10-2c (24 Oct 2026; one new element per story; 10-2b/10-2c provisional)
   10-2-pulley-wheel-tensile-rope-dynamics: in-progress
   # rope domain and the Weight's Tie socket and Load role (provisional)
@@ -378,15 +378,16 @@ development_status:
   # 47 (element)
   11-3-linear-pusher-telescopic-actuator: backlog
   # 48 (deletion): one slice with 9a-25b; before Epic 14 and any new one-shot cue
-  9a-23-event-ring-consumers: review
+  9a-23-event-ring-consumers: done # scoped native/publication Passf1ad3b; browser pending
   # delivered in one slice with 9a-23 (one-shot part of 9a-25)
-  9a-25b-one-shot-bindings-on-event-ring: review
+  9a-25b-one-shot-bindings-on-event-ring: done # scoped native/publication Passf1ad3b; browser pending
   # 49 (element)
   11-4-wound-spring-motor-toy-cannon-launcher: backlog # split aggregate; use individual children
   epic-11-retrospective: optional
   # 50 (deletion): owner decision 18 Oct 2026, every remaining binary16 lane to f32; Half nowhere in the tree.
   # As soon as its preconditions allow (after 9a-c-memory, 9a-25b and 9a-26).
-  9a-44-f32-lane-completion-half-purge: backlog
+  9a-44-f32-lane-completion-half-purge: done # Part A (Half purge) scoped native Pass; publishing with engine-cylinder-axial-creep; Part B (double → f32, integer-tick clock) is 9a-44b; browser pending
+  9a-44b-f32-double-game-values-and-tick-clock: backlog
   # 51 (element)
   epic-12: backlog
   12-1-lightweight-tennis-ball-floating-balloon: backlog # split aggregate; use individual children
@@ -503,7 +504,8 @@ development_status:
 
 
   #24Oct finite stabilization; current order and detailed AC in epics.md#current-execution-plan.
-  engine-cylinder-axial-creep: backlog
+  engine-cylinder-axial-creep: done # M1 coherent slop band + M2 rolling axes; scoped native Pass; residuals → engine-orientation-levelling-two-point-friction (owner 25 Oct)
+  engine-orientation-levelling-two-point-friction: backlog # follow-up: M3 sub-f32-step levelling, drop-ramp yaw kick, rank-3 cap block
   test-workshop-harness-a: backlog
   test-workshop-harness-b: backlog
   runtime-typescript-conversion: backlog

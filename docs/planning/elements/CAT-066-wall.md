@@ -44,7 +44,7 @@ Families from the [element map row](../general-engine-element-map.md): ContactIm
 | Light occlusion (wall blocks flashlight/laser) | Epic 13 (Story 13.1 introduces optical transport) |
 | Air occlusion (wall blocks fan/bellows jets) | Epic 12 (Stories 12.2, 12.4) |
 | Sound occlusion (wall blocks bell → sound meter) | Epic 14 (Stories 14.2, 14.1) |
-| f32 declarations: `WallDimensions` (default, minimum and maximum), pose and the `WallDimensionsResource` `*Bits` fields are still binary16 (`Half`); pointer input is clamped before binary16 conversion | Remaining f32 migration ([f32 migration status](../../gpu-f32-physics.md#f32-migration-status)) |
+| f32 declarations: the wall dimensions (default, minimum and maximum) and pose are f32 (Story 9A.44); `WallDimensions` and the `WallDimensionsResource` `*Bits` fields are retired, so no pointer input passes through a half-precision conversion | Delivered by Story 9A.44 ([numeric authority](../../gpu-f32-physics.md)) |
 
 Dependencies: none for contact. Occlusion integrations depend on the emitting elements above.
 

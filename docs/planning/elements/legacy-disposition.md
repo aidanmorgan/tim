@@ -36,7 +36,7 @@ The deletion scope was listed with `git ls-tree -r --name-only a6c914e` and the 
 
 | Code | No element knowledge because |
 | --- | --- |
-| N-KERNEL | Retired binary16 GPU integration experiment; its only GpuBodyFixture consumer was deleted in Story 7.2. Current runtime does not load these files; no new element contract is inferred from obsolete solver code. |
+| N-KERNEL | Retired half-precision GPU integration experiment; its only GpuBodyFixture consumer was deleted in Story 7.2. Current runtime does not load these files; no new element contract is inferred from obsolete solver code. |
 | N-SOLVER | Generic legacy CPU solver internals (constraints, impulses, contact, loads, iteration, trajectories). Replaced by the worker TGS Soft solver; do not carry forward (CPU solver path). |
 | N-GEOM | Generic legacy CPU geometry, collision and sweep queries. Replaced by the worker broadphase and narrowphase. |
 | N-TRANSFER | Generic legacy mechanical-transfer and power-port framework (CPU). Element drive behaviour is harvested from the part scripts and element tests (CAT-018, CAT-019, CAT-042, CAT-057, CAT-070, CAT-071). |

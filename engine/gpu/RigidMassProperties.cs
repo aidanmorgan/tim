@@ -2,13 +2,17 @@ using System;
 
 namespace CuriousContraptions.Gpu;
 
-/// <summary>Immutable compiled SI moment: Mantissa * 2^Exponent kg m².</summary>
-public readonly record struct PrincipalInertia(Half Mantissa, int Exponent)
+/// <summary>Immutable compiled SI principal moment in kg m², one IEEE-754 f32.</summary>
+public readonly record struct PrincipalInertia(float Moment)
 {
+    /// <summary>The compiled domain: the smallest admitted box (1/1024 kg, 1/1024 m half-extents) is above 2^-32 kg m², and the
+    /// largest admitted body (1024 kg, 16 m half-extents) is below 2^19 kg m².</summary>
+    public const float Minimum = 1f / 4294967296f;
+    public const float Maximum = 524288f;
+
     public void Validate()
     {
-        if (!Half.IsFinite(Mantissa) || Mantissa < (Half).5 || Mantissa >= (Half)1 ||
-            Exponent is < -31 or > 19)
+        if (!float.IsFinite(Moment) || Moment < Minimum || Moment >= Maximum)
             throw new ArgumentException("Principal inertia exceeds the compiled domain.");
     }
 }
@@ -19,67 +23,48 @@ public readonly record struct RigidMassProperties(MetreVector LocalCentreOfMass,
 {
     public void Validate()
     {
-        PhysicsDeclarationBounds.Vector(LocalCentreOfMass.X, LocalCentreOfMass.Y, LocalCentreOfMass.Z, (Half)16);
+        PhysicsDeclarationBounds.Vector(LocalCentreOfMass.X, LocalCentreOfMass.Y, LocalCentreOfMass.Z, 16f);
         PrincipalFrame.Validate(); X.Validate(); Y.Validate(); Z.Validate();
     }
 
+    /// <summary>The f32 closed forms of a homogeneous primitive's principal moments about its own frame. Each is at most a few f32
+    /// operations, so its relative error is within 6 · 2^-24 of the exact moment of the declared f32 inputs.</summary>
     public static RigidMassProperties Compile(RigidBodyDeclaration body, ColliderDeclaration collider)
     {
         body.Validate(); collider.Validate();
         if (body.Motion != RigidMotionKind.Dynamic || collider.Body != body.Id ||
             collider.Shape is not (ColliderShapeKind.Sphere or ColliderShapeKind.Box or ColliderShapeKind.Cylinder))
             throw new ArgumentException("Mass properties require one dynamic homogeneous primitive.");
-        var mass = Normalize(body.Mass.Value, 0);
-        PrincipalInertia x, y, z;
+        var mass = body.Mass.Value;
+        float x, y, z;
         if (collider.Shape == ColliderShapeKind.Sphere)
         {
-            var radius = Normalize(collider.Radius.Value, 0);
-            x = y = z = Product(Product(mass, Product(radius, radius)), Normalize((Half).4, 0));
+            // Solid sphere: (2/5) m r².
+            var radius = collider.Radius.Value;
+            x = y = z = 0.4f * mass * (radius * radius);
         }
         else if (collider.Shape == ColliderShapeKind.Cylinder)
         {
             // Solid cylinder about its own frame (axis local +Y, half-width h = w/2): axial m r²/2, transverse
             // m (3 r² + w²)/12 = m (r²/4 + h²/3).
-            var radius = Normalize(collider.Radius.Value, 0);
-            var half = Normalize(collider.HalfExtents.Y, 0);
-            var squared = Product(radius, radius);
-            y = Product(Product(mass, squared), Normalize((Half).5, 0));
-            x = z = Product(mass, Sum(Product(squared, Normalize((Half).25, 0)),
-                Product(Product(half, half), Normalize((Half)(1.0 / 3), 0))));
+            var radius = collider.Radius.Value;
+            var half = collider.HalfExtents.Y;
+            var squared = radius * radius;
+            y = 0.5f * mass * squared;
+            x = z = mass * (0.25f * squared + half * half / 3f);
         }
         else
         {
-            var a = Normalize(collider.HalfExtents.X, 0);
-            var b = Normalize(collider.HalfExtents.Y, 0);
-            var c = Normalize(collider.HalfExtents.Z, 0);
-            var thirdMass = Product(mass, Normalize((Half)(1.0 / 3), 0));
-            x = Product(thirdMass, Sum(Product(b, b), Product(c, c)));
-            y = Product(thirdMass, Sum(Product(a, a), Product(c, c)));
-            z = Product(thirdMass, Sum(Product(a, a), Product(b, b)));
+            // Solid box of half-extents (a, b, c): m (b² + c²)/3 about X, and cyclically.
+            var a = collider.HalfExtents.X;
+            var b = collider.HalfExtents.Y;
+            var c = collider.HalfExtents.Z;
+            var thirdMass = mass / 3f;
+            x = thirdMass * (b * b + c * c);
+            y = thirdMass * (a * a + c * c);
+            z = thirdMass * (a * a + b * b);
         }
-        var result = new RigidMassProperties(collider.Pose.Translation, collider.Pose.Rotation, x, y, z);
+        var result = new RigidMassProperties(collider.Pose.Translation, collider.Pose.Rotation, new(x), new(y), new(z));
         result.Validate(); return result;
-    }
-
-    // Compilation uses canonical Half operations. Integer shifts extend range, not precision.
-    // These helpers derive immutable moments only; they are not an evolving physical model.
-    private static PrincipalInertia Normalize(Half mantissa, int exponent)
-    {
-        if (!Half.IsFinite(mantissa) || mantissa <= (Half)0)
-            throw new ArgumentException("Inertia requires a positive finite operand.");
-        while (mantissa < (Half).5) { mantissa = (Half)(mantissa * (Half)2); exponent--; }
-        while (mantissa >= (Half)1) { mantissa = (Half)(mantissa * (Half).5); exponent++; }
-        return new(mantissa, exponent);
-    }
-    private static PrincipalInertia Product(PrincipalInertia a, PrincipalInertia b) =>
-        Normalize((Half)(a.Mantissa * b.Mantissa), checked(a.Exponent + b.Exponent));
-
-    private static PrincipalInertia Sum(PrincipalInertia a, PrincipalInertia b)
-    {
-        if (a.Exponent < b.Exponent) (a, b) = (b, a);
-        var small = b.Mantissa;
-        for (var shift = b.Exponent; shift < a.Exponent; shift++)
-            small = (Half)(small * (Half).5);
-        return Normalize((Half)(a.Mantissa + small), a.Exponent);
     }
 }

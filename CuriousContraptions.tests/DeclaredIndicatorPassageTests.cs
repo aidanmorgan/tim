@@ -70,15 +70,15 @@ public sealed class DeclaredIndicatorPassageTests
 
     /// <summary>Forward crossings of the sensor by one Basketball moving along local +X at height `y` above the bore axis, from `from`
     /// to `to` in 1 cm steps (the detector frame is at (0, 3, 0), unrotated).</summary>
-    private static int Crossings(PassageSensorDeclaration sensor, float from, float to, float y)
+    private static int Crossings(PassageSensorDeclaration sensor, float from, float to, float y, double detectorY = 3)
     {
-        var detector = PlacedParts.Detector(new(10), 0, 3, 0, 0, 0, 0, 1);
+        var detector = PlacedParts.Detector(new(10), 0, detectorY, 0, 0, 0, 0, 1);
         var ball = new GpuBodyId(2);
-        var colliders = WorkshopPhysicsCompiler.Compile(Bench([detector, WorkshopInput.Generic(PartId.Basketball, ball, from, 3 + y, 0, 0, 0, 0, 1)]),
+        var colliders = WorkshopPhysicsCompiler.Compile(Bench([detector, WorkshopInput.Generic(PartId.Basketball, ball, from, detectorY + y, 0, 0, 0, 0, 1)]),
             new(1, 2)).Colliders.ToArray();
         PhysicsBodyReadSet At(float x)
         {
-            var px = WorkshopInput.Position(x); var py = WorkshopInput.Position(3 + y);
+            var px = WorkshopInput.Position(x); var py = WorkshopInput.Position(detectorY + y);
             return new([
                 new PhysicsBodyRead(new CanonicalBody(ball, 0, 0, new(px.Cell, py.Cell, 0), new(px.Local, py.Local, 0f), default), CanonicalRotation.Identity, default, default),
                 new PhysicsBodyRead(new CanonicalBody(detector.Id, 0, 0, detector.Cell, detector.Local, default), CanonicalRotation.Identity, default, default)
@@ -99,6 +99,22 @@ public sealed class DeclaredIndicatorPassageTests
     private static PassageSensorDeclaration Shipped => WorkshopActivationCompiler.PassageSensorFor(PlacedParts.Detector(new(10), 0, 3, 0, 0, 0, 0, 1),
         DeclaredPhysics.Of(PartId.BallDetector).Signal!.Passage!.Value);
 
+    // C-Lamp F3 (Story 9A.44 T12), on the production tracker over ticks: a detector placed off the cell grid at y = 3.03 m (cell 48,
+    // remainder 0.48 cells = 0.03 m) compiles its aperture at that placed pose, so a ball crossing 0.64 m above the placed axis is inside
+    // the 0.65 m bore and counts. Were the remainder dropped (the aperture at the cell origin, 3.0 m), the same path would run 0.67 m
+    // off the axis and count nothing; control: crossing 0.66 m above the placed axis does not count.
+    [Theory]
+    [InlineData(.64f, 1)]
+    [InlineData(.66f, 0)]
+    public void AnOffGridDetectorCountsACrossingAtItsPlacedPose(float above, int expected)
+    {
+        const double y = 3.03;
+        var detector = PlacedParts.Detector(new(10), 0, y, 0, 0, 0, 0, 1);
+        Assert.Equal((48, .48f), (detector.Cell.Y, detector.Local.Y));
+        var sensor = Assert.Single(WorkshopActivationCompiler.Compile(Bench([detector])).PassageSensors.ToArray());
+        Assert.Equal(expected, Crossings(sensor, -1f, 1f, above, y));
+    }
+
     // CAT-002 boundary: a centre crossing just inside the 0.65 m bore counts once, just outside counts nothing.
     [Theory]
     [InlineData(.64f, 1)]
@@ -106,7 +122,7 @@ public sealed class DeclaredIndicatorPassageTests
     public void ACrossingJustInsideTheBoreCountsAndJustOutsideDoesNot(float offset, int expected) =>
         Assert.Equal(expected, Crossings(Shipped, -1f, 1f, offset));
 
-    // A synthetic aperture compiles its own radius and clearance (narrowed to the binary16 lanes), and the tracker obeys them: a crossing
+    // A synthetic aperture compiles its own exact f32 radius and clearance, and the tracker obeys them: a crossing
     // 0.5 m off the axis counts in the 0.65 m bore but not in a 0.3 m one; a ball starting 0.6 m upstream is armed by the 0.02 m
     // clearance (0.36 m line) but not by a 0.5 m one (0.84 m line).
     [Fact]
@@ -114,8 +130,14 @@ public sealed class DeclaredIndicatorPassageTests
     {
         var detector = PlacedParts.Detector(new(10), 0, 3, 0, 0, 0, 0, 1);
         var narrow = WorkshopActivationCompiler.PassageSensorFor(detector, new SignalPassageDescriptor(.3f, .5f));
-        Assert.Equal((WorkshopPhysicsCompiler.PassageSensor(detector.Id), detector.Id, (Half).3f, (Half).5f),
+        Assert.Equal((WorkshopPhysicsCompiler.PassageSensor(detector.Id), detector.Id, .3f, .5f),
             (narrow.Id, narrow.Frame, narrow.Radius.Value, narrow.RearmClearance.Value));
+        // The sensor sits at its owner's placed pose: a detector off the cell grid keeps its exact cell, f32 remainder and rotation
+        // (C-Lamp F3: a compile that dropped the owner's local remainder would put the aperture at the cell origin).
+        var offGrid = PlacedParts.Detector(new(11), .03, 3.01, -.02, 0, 0, .38268343236, .92387953251);
+        var placed = WorkshopActivationCompiler.PassageSensorFor(offGrid, new SignalPassageDescriptor(.3f, .5f));
+        Assert.NotEqual(default, offGrid.Local);
+        Assert.Equal((offGrid.Cell, offGrid.Local, offGrid.Rotation), (placed.Cell, placed.Local, placed.Rotation));
         Assert.Equal(1, Crossings(Shipped, -1f, 1f, .5f));
         Assert.Equal(0, Crossings(Shipped with { Radius = narrow.Radius }, -1f, 1f, .5f));
         Assert.Equal(1, Crossings(Shipped, -.6f, 1f, 0f));

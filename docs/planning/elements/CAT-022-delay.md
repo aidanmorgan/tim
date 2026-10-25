@@ -23,13 +23,13 @@
 | Sockets and ports | ActivationIn at local (−0.72, 0, 0); ActivationOut at (0.72, 0, 0) `engine/gpu/WorkshopConnections.cs@a6c914e:L41-L52`. No electrical supply generated. |
 | Sensors and activation | Ready → Counting → Finished activation-only timer in the shared discrete network (`engine/gpu/ActivationTimers.cs`, `engine/gpu/DelayedSignal.cs`); busy or finished inputs are ignored until Reset. |
 | Work and energy stores | none. |
-| Parameters | `delay_seconds`: 0.1–12 s, default 1 s; current canonical f32 tick count is checked `MathF.Ceiling(seconds * cadence)` after f32 product rounding (60,120 or240Hz), finite/range validation first. At120Hz,0.1f→12 and0.2f→24ticks; adjacent f32 values follow the rounded product. Current source: `engine/gpu/ActivationTimers.cs`; the legacy binary16/resource baseline remains `engine/gpu/WorkshopDelay.cs@a6c914e:L6-L34` and `engine/DelayDurationResource.cs@a6c914e:L7-L15`. |
+| Parameters | `delay_seconds`: 0.1–12 s, default 1 s; current canonical f32 tick count is checked `MathF.Ceiling(seconds * cadence)` after f32 product rounding (60,120 or240Hz), finite/range validation first. At120Hz,0.1f→12 and0.2f→24ticks; adjacent f32 values follow the rounded product. Current source: `engine/gpu/ActivationTimers.cs`; the legacy half-precision/resource baseline remains `engine/gpu/WorkshopDelay.cs@a6c914e:L6-L34` and `engine/DelayDurationResource.cs@a6c914e:L7-L15`. |
 | Cosmetic curves and UI bindings | Timer source, linear, duration from the committed interval `engine/gpu/WorkshopCosmetic.cs@a6c914e:L55-L55`; hand turns one full clockwise revolution (0 → −2π about Z); indicator Ready `#556573`, Counting `#e8b764`, Finished `#f7cb52` `parts/DelayPart.cs@a6c914e:L35-L46`. Design rule `DESIGN.md@a6c914e:L282-L282`. |
 | Art | `parts/DelayPart.cs@a6c914e:L13-L34`: ochre box 1.25 × 1.25 × 0.6 and cylinder housing r 0.65; cream `#fff8e9` face r 0.55; navy base 1.35 × 0.15 × 0.8 at y −0.7; twelve navy marks at r 0.46; navy hand 0.055 × 0.38; gold hub; indicator at (0, −0.35, 0.37); gold sockets at x ±0.72; pick radius 0.9. Scene `parts/scenes/delay.tscn`. Palette Delay box `#d69c47` `DESIGN.md@a6c914e:L182-L182`. Icon `ui/WorkshopIcons.cs@a6c914e:L92-L92`. |
 | Catalogue and inventory | `parts/catalog/delay.tres@a6c914e:L7-L19`: id `delay`, title Delay, category Control, default 1 s. |
 | Goal coupling | ActivatedAfter goal with a minimum delay 0–120 s `engine/gpu/WorkshopPuzzle.cs@a6c914e:L15-L23`. |
 
-Current9.5a timer duration and activation phase are f32, with generic typed `delay_seconds` parameters and no old-name alias. Goal minimum duration and physical provenance speed/capture lanes retain9A.44 ownership. Legacy harvest below records original behavior and source, not a supported binary16 timer path.
+Current9.5a timer duration and activation phase are f32, with generic typed `delay_seconds` parameters and no old-name alias. Story 9A.44 migrated the goal minimum duration and physical provenance speed/capture lanes to f32. Legacy harvest below records original behavior and source, not a supported half-precision timer path.
 
 Current tests: `CuriousContraptions.tests/WorkshopDelayTests.cs` (exact ceiling, round trip, invalid durations, ports), `DelayedSignalTests.cs`, `ActivationTimerTests.cs`, `WorkshopActivationAnimationTests.cs` (timer segments), `BasketballResourceTests.cs` (delay artwork); Chrome `tools/e2e/anim-1b.test.ts` (fill rises monotonically, lamp lights after, Reset neutralises), `anim-1c.test.ts` (hint while counting).
 
@@ -45,7 +45,7 @@ Families from the [element map row](../general-engine-element-map.md): ContactIm
 | Missing | Story that builds it |
 | --- | --- |
 | none for the delay itself; delayed_solar needs Flashlight/Solar panel/Motor | Stories 13.1, 13.7, 11.1 |
-| Remaining goal minimum-duration and shared physical provenance ABI; current timer duration/activation phase are f32 (9.5a), and obsolete duration resource/record paths are deleted | Story9A.44 ([f32 migration status](../../gpu-f32-physics.md#f32-migration-status)) |
+| f32 goal minimum-duration and shared physical provenance ABI (Story 9A.44); current timer duration/activation phase are f32 (9.5a), and obsolete duration resource/record paths are deleted | Delivered by Story 9A.44 ([numeric authority](../../gpu-f32-physics.md)) |
 
 Dependencies: an activation source and target.
 

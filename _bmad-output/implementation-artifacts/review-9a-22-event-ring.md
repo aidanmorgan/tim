@@ -250,3 +250,24 @@ Raw outputs are in `evidence-9a-22-review/terminal/`. The GitHub and system time
 - Browser qualification is pending post-catalogue E2E.
 - This is not a release, global-audit or runtime qualification.
 - F2 (the 9A.23 Impact source and reader fences) is handed off in the spec.
+
+## Addendum (append-only, 24 Oct 2026): the writer's torn-record defect is fixed by 9A.23 + 9A.25b
+
+This addendum is recorded by the independent reviewer of 9A.23 + 9A.25b. It leaves the verdicts above unchanged and adds the later finding and fix.
+
+**Defect.** The 9A.22 Simulation worker `writeEventRing` wrote each slot as follows: `Atomics.store(sequence, 0)`, then a plain `target.set(payload)`, then `Atomics.store(sequence, seq)`. Under the JS memory model the plain payload stores race with the sequence words.
+
+- On arm64 they were observed to be reordered past them, so a reader could accept a torn record.
+- **The reader's role:** the reader that exposed it was 9A.23's first shared reader, which also copied the payload plainly. In round 1, the shipped stress test failed in 7 of 63 runs on the unmodified code (`evidence-9a-23-25b-review/seqlock-probe.txt`, `cursor-run-16.log`).
+- **Why it was missed:** 9A.22's own review could not observe it, because the slice had no concurrent reader, and its F5 accepted the fences by inspection.
+
+**Fix.** It is published at main `f1ad3bd19e27` (merge of `da2de5b3`).
+
+- The ring's shared memory is reached only through `EventRingMemory`, in `event-ring-cursor.js` and its C# reference twin. Its only accessors are per-word `Atomics.load` and `Atomics.store`.
+- The writer's seqlock is sequence 0, then each payload word stored atomically, then the sequence. The reader's is sequence, then each payload word loaded atomically, then the sequence.
+- `EventRingMemory` has no raw buffer accessor. The ring leaves the writer only through `postTo`, and the cursor's ring is private.
+- `EventRingConsumerTests.GuardOnlyTheEventRingMemoryViewsTheRingAndEveryAccessorIsAtomic` checks the encapsulation. The reviewer's one-sided and bypass mutants (G1–G6) are killed.
+
+**Verification.** See `review-9a-23-25b-ring-consumers.md`, rounds 1–5 and the terminal section: CI 40055713865 and deployment 7293319272.
+
+**This closes the 9A.22 hand-off item F2** (reader fences): it is superseded by fully atomic payload access on both sides.

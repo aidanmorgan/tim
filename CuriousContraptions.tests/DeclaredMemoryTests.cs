@@ -197,7 +197,7 @@ public sealed class DeclaredMemoryTests
             AuthoredInstanceReader.Parse(JsonDocument.Parse(CounterContent(withStaleKey: true)).RootElement, "fixture"));
         Assert.Contains("missing or unknown field", refusal.Message, StringComparison.Ordinal);
         var template = AuthoredInstanceReader.Parse(JsonDocument.Parse(CounterContent(withStaleKey: false)).RootElement, "fixture");
-        var counter = Assert.IsType<WorkshopGenericInstance>(template.Create(new(1), new((Half)1)));
+        var counter = Assert.IsType<WorkshopGenericInstance>(template.Create(new(1), new(1f)));
         Assert.Equal((PartId.Counter, 3f), (counter.PartId, counter.Parameters[new ParameterId("target_count")]));
     }
 }

@@ -8,23 +8,22 @@ namespace CuriousContraptions.Tests;
 /// Story 10.2a (CAT-067): the Weight is its package's declaration data only, a dynamic solid cylinder whose <c>mass</c> parameter
 /// (0.25–8 kg, default 4) is its compiled mass and, through four linear collider bindings, its size; the body origin is the base
 /// centre. Every behaviour here runs the real Workshop construction through <see cref="WorkshopPhysicsCompiler"/> and the shipped
-/// C# engine (<see cref="WorkshopSimulation"/> on the worker transport). Expectations are derived from the declared values (binary16
-/// where the ABI narrows them), never from observed output.
+/// C# engine (<see cref="WorkshopSimulation"/> on the worker transport). Expectations are derived from the declared f32 values, which
+/// the ABI carries unchanged, never from observed output.
 /// </summary>
 public sealed class WeightTests
 {
     internal static readonly PartId Weight = new("weight");
     private static readonly ParameterId MassKey = new("mass");
-    private static readonly float BenchY = (float)WorkshopConstruction.WorkbenchSurface.Value;
-    /// <summary>The admitted gravity (the body record's binary16 lane).</summary>
-    private static readonly float G = -(float)(Half)(-9.81f);
+    private static readonly float BenchY = WorkshopConstruction.WorkbenchSurface.Value;
+    /// <summary>The magnitude of the declared f32 gravity (−9.81 m/s² on Y), which the body record's f32 lane carries unchanged.</summary>
+    private const float G = 9.81f;
     private const double DominoUpright = -0.46 + .55;
 
     /// <summary>The declared size law in f32, as the shared evaluator computes it (multiplier·m + offset).</summary>
     private static float Radius(float mass) => .04808397f * mass + .15932827f;
     private static float HalfHeight(float mass) => .03818433f * mass + .12652539f;
     private static float Scale(float mass) => .136734f * mass + .453070f;
-    private static float H(float value) => (float)(Half)value;
 
     internal static WorkshopGenericInstance Placed(ulong id, double x, double y, double z, float mass,
         double qx = 0, double qy = 0, double qz = 0, double qw = 1) =>
@@ -72,7 +71,7 @@ public sealed class WeightTests
         var weight = Placed(1, 0, 1, 0, mass);
         new InstanceParameterCollection([new(MassKey, mass)]).Validate(Weight);
         Bench(weight).Validate();
-        Assert.Equal(new Kilograms((Half)mass), Assert.Single(WorkshopPhysicsCompiler.Compile(Bench(weight), new(1, 2)).Bodies.ToArray(),
+        Assert.Equal(new Kilograms(mass), Assert.Single(WorkshopPhysicsCompiler.Compile(Bench(weight), new(1, 2)).Bodies.ToArray(),
             body => body.Id == weight.Id).Mass);
         var bytes = PayloadInstanceTests.GenericSave("weight", null, [("mass", mass)]);
         var loaded = Assert.IsType<WorkshopGenericInstance>(Assert.Single(WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes).Construction.Instances));
@@ -144,32 +143,33 @@ public sealed class WeightTests
         var scene = WorkshopPhysicsCompiler.Compile(Bench(weight), new(1, 2));
         var body = Assert.Single(scene.Bodies.ToArray(), b => b.Id == weight.Id);
         Assert.Equal(RigidMotionKind.Dynamic, body.Motion);
-        Assert.Equal(new Kilograms((Half)mass), body.Mass);
-        Assert.Equal(new InverseSeconds((Half)0), body.LinearDrag);
-        Assert.Equal(new AccelerationVector((Half)0, (Half)(-9.81), (Half)0), body.Gravity);
+        Assert.Equal(new Kilograms(mass), body.Mass);
+        Assert.Equal(new InverseSeconds(0f), body.LinearDrag);
+        Assert.Equal(new AccelerationVector(0f, -G, 0f), body.Gravity);
         var cylinder = Assert.Single(scene.Colliders.ToArray(), c => c.Body == body.Id);
         float r = Radius(mass), h = HalfHeight(mass);
         Assert.Equal(ColliderShapeKind.Cylinder, cylinder.Shape);
-        Assert.Equal(new Metres((Half)r), cylinder.Radius);
-        Assert.Equal(new MetreVector((Half)0, (Half)h, (Half)0), cylinder.HalfExtents);
+        Assert.Equal(new Metres(r), cylinder.Radius);
+        Assert.Equal(new MetreVector(0f, h, 0f), cylinder.HalfExtents);
         // The base-centre origin: the cylinder's centre, and so the centre of mass, is h above it.
-        Assert.Equal(new MetreVector((Half)0, (Half)h, (Half)0), cylinder.Pose.Translation);
+        Assert.Equal(new MetreVector(0f, h, 0f), cylinder.Pose.Translation);
         Assert.Equal(CanonicalRotation.Identity, cylinder.Pose.Rotation);
         var material = Assert.Single(scene.Materials.ToArray(), m => m.Id == cylinder.Material);
-        Assert.Equal((new Restitution((Half).08), new FrictionCoefficient((Half).3), new RollingResistance((Half).03), new LinearSpeed((Half).1)),
+        Assert.Equal((new Restitution(.08f), new FrictionCoefficient(.3f), new RollingResistance(.03f), new LinearSpeed(.1f)),
             (material.Restitution, material.Friction, material.RollingResistance, material.BounceThreshold));
 
         var properties = RigidMassProperties.Compile(body, cylinder);
-        Assert.Equal(new MetreVector((Half)0, (Half)h, (Half)0), properties.LocalCentreOfMass);
-        double m = (double)(Half)mass, hr = (double)(Half)r, hh = (double)(Half)h;
-        // Six binary16 roundings at most (10.1's bound): 6 x 2^-11 relative.
-        const double bound = 6.0 / 2048;
+        Assert.Equal(new MetreVector(0f, h, 0f), properties.LocalCentreOfMass);
+        double m = mass, hr = r, hh = h;
+        // Six f32 roundings at most (r², h², the division by 3, the sum, the two products; RigidMassProperties' bound): 6 x 2^-24
+        // relative to the exact moments of the declared f32 inputs.
+        const double bound = 6.0 / (1 << 24);
         Near(properties.Y, m * hr * hr / 2);
         Near(properties.X, m * (hr * hr / 4 + hh * hh / 3));
         Near(properties.Z, m * (hr * hr / 4 + hh * hh / 3));
         void Near(PrincipalInertia value, double expected)
         {
-            var actual = Math.ScaleB((double)value.Mantissa, value.Exponent);
+            var actual = (double)value.Moment;
             Assert.True(Math.Abs(actual - expected) / expected <= bound, $"moment {actual} vs analytic {expected}");
         }
         // The art scales uniformly with the radius: scale ÷ r is the 4 kg ratio within 1e-5 relative (f32 coefficients).
@@ -206,7 +206,7 @@ public sealed class WeightTests
     public void TheSizeStrictlyIncreasesWithMass()
     {
         var masses = new[] { .25f, 1f, 4f, 8f };
-        Half[] Compiled(Func<ColliderDeclaration, Half> lane) => masses.Select(mass =>
+        float[] Compiled(Func<ColliderDeclaration, float> lane) => masses.Select(mass =>
             lane(Assert.Single(WorkshopPhysicsCompiler.Compile(Bench(Placed(1, 0, 1, 0, mass)), new(1, 2)).Colliders.ToArray(),
                 c => c.Body == new GpuBodyId(1)))).ToArray();
         foreach (var lanes in new[] { Compiled(c => c.Radius.Value), Compiled(c => c.HalfExtents.Y), Compiled(c => c.Pose.Translation.Y) })
@@ -222,7 +222,7 @@ public sealed class WeightTests
     private static Vector3 Velocity(PhysicsBodyRead body) => new(body.Body.Velocity.X, body.Body.Velocity.Y, body.Body.Velocity.Z);
     private static Vector3 Spin(PhysicsBodyRead body) => new(body.AngularVelocity.X, body.AngularVelocity.Y, body.AngularVelocity.Z);
     private static Vector3 Centre(PhysicsBodyRead body) => Origin(body) + Vector3.Transform(new Vector3(
-        (float)body.LocalCentreOfMass.X, (float)body.LocalCentreOfMass.Y, (float)body.LocalCentreOfMass.Z), Rotation(body));
+        body.LocalCentreOfMass.X, body.LocalCentreOfMass.Y, body.LocalCentreOfMass.Z), Rotation(body));
     private static double Tilt(PhysicsBodyRead body) =>
         Math.Acos(Math.Clamp(1 - 2 * (body.Rotation.X * body.Rotation.X + body.Rotation.Z * body.Rotation.Z), -1, 1)) * 180 / Math.PI;
 
@@ -232,12 +232,12 @@ public sealed class WeightTests
         throw new ArgumentException($"Body {id.Value} is not read.", nameof(id));
     }
 
-    /// <summary>Total mechanical energy of a Weight of this mass, from its compiled (binary16) mass and size: translational and
+    /// <summary>Total mechanical energy of a Weight of this mass, from its declared f32 mass and size: translational and
     /// rotational kinetic energy about the centre of mass (the solid-cylinder moments in its own frame) and gravitational potential of
     /// the centre of mass, whose height is taken through the body's rotation.</summary>
     private static double Energy(PhysicsBodyRead body, float mass)
     {
-        double m = H(mass), r = H(Radius(mass)), h = H(HalfHeight(mass));
+        double m = mass, r = Radius(mass), h = HalfHeight(mass);
         double ix = m * (r * r / 4 + h * h / 3), iy = m * r * r / 2;
         var w = Vector3.Transform(Spin(body), Quaternion.Inverse(Rotation(body)));
         var v = Velocity(body);
@@ -246,7 +246,7 @@ public sealed class WeightTests
     }
 
     /// <summary>The energy a tick may add: lifting the body by the solver's contact slop (m g × 0.2 mm), 10.1's bound.</summary>
-    private static double SlopEnergy(float mass) => H(mass) * G * WorkshopConstraintSolver.ContactSlop;
+    private static double SlopEnergy(float mass) => mass * G * WorkshopConstraintSolver.ContactSlop;
 
     private static double WorstRise(List<WorkshopRead> reads, GpuBodyId id, float mass)
     {
@@ -351,7 +351,7 @@ public sealed class WeightTests
     {
         var weight = OnItsSideOnTheRamp(1, 4f, .5f);
         var (_, reads, _) = await RunAndReset(Bench(Ramp(2), weight), 14 * Rate);
-        var r = H(Radius(4));
+        var r = Radius(4);
         // On the ramp, rolling: ω = v / r within 2% (no slip needs μ ≥ tanθ/3 = 0.09; the material is 0.3).
         foreach (var tick in new[] { Rate / 2, 3 * Rate / 4 })
         {
@@ -380,13 +380,13 @@ public sealed class WeightTests
     public async Task AStackEndDownHoldsWithoutBounceOrCreep(float lower, float upper)
     {
         var bottom = Placed(1, 0, BenchY, 0, lower);
-        var top = Placed(2, 0, BenchY + 2 * H(HalfHeight(lower)) + .002f, 0, upper);
+        var top = Placed(2, 0, BenchY + 2 * HalfHeight(lower) + .002f, 0, upper);
         var (_, reads, _) = await RunAndReset(Bench(bottom, top), 5 * Rate);
         // Each resting contact keeps the 0.5 mm envelope: the lower base on the bench, and the upper base on the lower Weight's top face
         // (its base plus the compiled height 2h).
         var final = (Lower: Height(Find(reads[^1], bottom.Id)), Upper: Height(Find(reads[^1], top.Id)));
         Assert.InRange(final.Lower, BenchY - .0005f, BenchY + .0005f);
-        var face = final.Lower + 2 * H(HalfHeight(lower));
+        var face = final.Lower + 2 * HalfHeight(lower);
         Assert.InRange(final.Upper, face - .0005f, face + .0005f);
         // D8 (restitution D10): after settling no bounce, and the last second moves at most 0.05 mm per tick and at most 0.5 mm in all
         // (its path length, the resting envelope), so no steady drift hides under the per-tick bound.

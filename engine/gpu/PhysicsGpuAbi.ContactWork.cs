@@ -12,7 +12,7 @@ public static partial class PhysicsGpuAbi
         for (var i = 0; i < scene.ContactWorks.Length; i++)
         {
             var work = scene.ContactWorks[i]; var record = data.Slice(scene.Layout.GetContactWorkOffset(work.Id), ContactWorkBytes);
-            U64(record, 0, work.Id.Value); U32(record, ContactWorkOwnerOffset, BodySlot(scene, work.Owner));
+            U64(record, RecordIdentityOffset, work.Id.Value); U32(record, ContactWorkOwnerOffset, BodySlot(scene, work.Owner));
             U32(record, ContactWorkTargetKindOffset, (uint)work.Targets.Kind);
             U32(record, ContactWorkNamedTargetOffset, work.Targets.Kind == BodyTargetKind.NamedBody ? BodySlot(scene, work.Targets.Body) : NoBody);
             BinaryPrimitives.WriteSingleLittleEndian(record[ContactWorkTargetSpeedOffset..], work.TargetSpeed.Value);
@@ -62,7 +62,7 @@ public static partial class PhysicsGpuAbi
             new ContactSpeed(RF(record,ContactWorkAdmissionSpeedOffset)).Validate(64f);
             new Joules(RF(record,ContactWorkAvailableOffset)).Validate();
             if (RF(record,ContactWorkAvailableOffset) > RF(record,ContactWorkPreloadOffset)) throw new ArgumentException("Work store exceeds preload.");
-            stores[i]=new(new(R64(record,0)),new(R64(data,layout.BodyOffset((int)owner))),R32(record,ContactWorkOccurrenceCountOffset),
+            stores[i]=new(new(R64(record,RecordIdentityOffset)),new(R64(data,layout.BodyOffset((int)owner))),R32(record,ContactWorkOccurrenceCountOffset),
                 new(RF(record,ContactWorkAvailableOffset)),new(RF(record,ContactWorkSuppliedOffset)));
             if (stores[i].OccurrenceCount==0 && R32(record,ContactWorkPreloadOffset)!=R32(record,ContactWorkAvailableOffset))
                 throw new ArgumentException("Unused work owner spent its reservoir.");
@@ -73,7 +73,7 @@ public static partial class PhysicsGpuAbi
             if (!AllZero(record[WorkOccurrencePaddingOffset..])) throw new ArgumentException("Nonzero work occurrence padding.");
             var value=new ContactWorkOccurrence(new(R32(record,WorkOccurrenceWorkOffset)),
                 new(R32(record,WorkOccurrenceColliderOffset)),new(R64(record,WorkOccurrenceTargetOffset)),
-                R32(record,WorkOccurrenceSequenceOffset),R32(record,WorkOccurrenceOrdinalOffset),RH(record,WorkOccurrencePhaseOffset),
+                R32(record,WorkOccurrenceSequenceOffset),R32(record,WorkOccurrenceOrdinalOffset),RF(record,WorkOccurrencePhaseOffset),
                 new(RF(record,WorkOccurrenceApproachOffset)),new(RF(record,WorkOccurrenceDebitOffset)),(ContactWorkEffect)record[WorkOccurrenceEffectOffset]);
             value.Validate();
             if (value.Work.Value>=count) throw new ArgumentException("Occurrence has no owner.");
@@ -114,7 +114,7 @@ public static partial class PhysicsGpuAbi
             var previous=before.Occurrence(i); var current=after.Occurrence(i);
             if (current.Sequence==previous.Sequence) continue;
             var cooldown=R32(source,layout.ContactWorkOffset((int)current.Work.Value)+ContactWorkCooldownOffset);
-            if (expectedTick.Value==0 || Before(current.EventOrdinal,current.EventPhase,R32(source,HeaderSourceOrdinalOffset),(Half)0) ||
+            if (expectedTick.Value==0 || Before(current.EventOrdinal,current.EventPhase,R32(source,HeaderSourceOrdinalOffset),0f) ||
                 (previous.Sequence!=0 && Before(current.EventOrdinal,current.EventPhase,
                     checked(previous.EventOrdinal+cooldown),previous.EventPhase)))
                 throw new ArgumentException("Contact work occurred outside this commit or before cooldown.");

@@ -46,7 +46,7 @@ Families from the [element map row](../general-engine-element-map.md): Aerodynam
 | Buoyancy (declared zero today; non-zero needs fluid/gas boundary S416/S470) | Epic 12 (Story 12.1 introduces buoyant bodies) |
 | EnvironmentState beyond fixed gravity (atmosphere/pressure) | Epic 12; EL-125 authored atmosphere preset (Batch M) |
 | Hollow pipe contact for the ramp/pipe/Receiver integration | Stories 6.6, 6.7 |
-| f32 declarations: the package declares f32; the compiled body, collider and material lanes (`Metres`, `Kilograms`, `Restitution`, `FrictionCoefficient`, `RollingResistance`) are still binary16 (`Half`) until Story 9A.44 | Remaining f32 migration ([f32 migration status](../../gpu-f32-physics.md#f32-migration-status)) |
+| f32 declarations: the package declares f32; the compiled body, collider and material lanes (`Metres`, `Kilograms`, `Restitution`, `FrictionCoefficient`, `RollingResistance`) are f32 (Story 9A.44) | Delivered by Story 9A.44 ([numeric authority](../../gpu-f32-physics.md)) |
 
 Dependencies: none. Consumers: Receiver, Impact switch, Bumper, Domino, Ramp, Wall, Pipe family.
 
