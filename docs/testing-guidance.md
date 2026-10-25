@@ -34,7 +34,7 @@ Use the existing test builders (`PlacedParts`, `LawScene`, `SwitchMachine` and s
    Never copy the expectation from observed output.
 4. **Take tolerances from the game-grade envelope** (`docs/gpu-f32-physics.md`), or derive them from the calculation, such as f32 spacing or one tick of gravity. Write down how each tolerance was derived. Never widen a tolerance to make a test pass.
 5. **Cover positive, negative and boundary cases.** Each behaviour has a positive case, a control that differs in exactly one cause, and literal boundary values (e.g. 0.25 and 8 kg admitted, values outside refused). Refusals assert the typed reason and that nothing changed: the construction, revision and Undo stack.
-6. **Prove it can fail.** A new test must fail against a plausible defect. Show this with a mutation (a reverted fix, an off-by-one, a missing guard) and record it in the evidence. A test that passes under every plausible mutation is not useful.
+6. **Make it able to fail.** A new test asserts the changed result directly, so that a plausible defect (a reverted fix, an off-by-one, a missing guard) would make an assertion fail. Reviewers check this by reading the assertions. Building and running mutants is deferred to the post-catalogue E2E phase (owner, 25 October 2026).
 7. **Be deterministic.** Use fixed seeds and fixed tick counts. No wall-clock sleeps, no ordering dependence and no shared mutable state between tests. Randomised sweeps use committed seeds, and a reviewer may add held-back seeds.
 8. **Assert one behaviour per test**, with as few assertions as that behaviour needs. A theory may enumerate cases of the same behaviour.
 
@@ -85,7 +85,7 @@ They never need Chrome, Playwright or a running browser. They run the core syste
 The JS runtime layer (simulation and animation workers, client, rings) is covered through the node harnesses. They drive the shipped modules under Node with SharedArrayBuffer and workers, deterministically, with no browser.
 
 **Rules:**
-- Integration tests follow every rule above: derived expectations, envelope tolerances, controls and boundaries, mutation-proven, deterministic, no hashes, nothing skipped.
+- Integration tests follow every rule above: derived expectations, envelope tolerances, controls and boundaries, assertions that a plausible defect would fail, deterministic, no hashes, nothing skipped.
 - Each test states the behaviour of the *system*, not of one unit. If a scenario fails, the assertion message names the observable that diverged.
 - They run in the routine native suite and in CI. Keep them fast: bounded tick counts, the smallest construction that shows the interaction, and fixed seeds for sweeps.
 - New elements add their integration scenarios in the same slice. A slice that adds or changes an interaction adds or updates the scenario that proves it.
@@ -109,7 +109,7 @@ A few tests protect structural invariants that behaviour tests cannot see:
 These tests may read source or metadata. They must:
 - be named as guards;
 - assert only the structural rule;
-- have a mutation proving they catch a violation.
+- assert the rule so that a violation would fail them (a positive control, not a mutation run).
 
 A source scan does not replace behavioural proof. Prefer encapsulation that makes the violation impossible, with a small guard that the encapsulation is respected.
 
@@ -128,7 +128,7 @@ For each new or changed unit or integration test, confirm:
 - the expected values are derived independently;
 - the tolerances are derived from the envelope or the calculation;
 - the positive, control and boundary cases are present;
-- a mutation shows it can fail;
+- its assertions would fail under a plausible defect (judged by reading, no mutation runs);
 - it is deterministic;
 - it has no hash assertions;
 - nothing is skipped.
