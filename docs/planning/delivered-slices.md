@@ -62,3 +62,7 @@ Evidence:
 | CI | run 40181624977: 3,952 tests, 0 failed, 0 skipped |
 | Deployment | 7311595713 |
 | Browser qualification | pending until the post-catalogue E2E phase |
+
+## True hollow collider shapes (26 October 2026)
+
+Terminal scoped Pass: shared Tube/Frustum/Torus contacts and signed placement, exact static hollow package proxies, physical positive/control/boundary and lifecycle proof, and re-authored lessons. Superseded box shells/collars are deleted. The same-law normal-coupling repair preserves the unchanged Weight no-creep limit. Publication includes the deterministic CI workload pin; the failed attempt remains evidence. [Exact SHA, independent review, CI totals, artifact and deployment receipt](../../_bmad-output/implementation-artifacts/spec-engine-hollow-shapes.md#terminal-publication-receipt--26-october-2026). Browser qualification and the separately owned dynamic multi-collider consumers remain pending.
