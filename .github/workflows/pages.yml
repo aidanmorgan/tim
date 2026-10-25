@@ -20,7 +20,8 @@ jobs:
         with:
           dotnet-version: '10.0.401'
       - name: Install WebAssembly workload
-        run: dotnet workload install wasm-tools
+        # Match the reference-pack analyzer provenance verified by CI 40211261106 (10.0.13).
+        run: dotnet workload install wasm-tools --version 10.0.402.1
       # C# static gate (Story 9R.0): the same builds as .githooks/pre-commit, so a commit that skipped the hook
       # still cannot deploy with a C# warning. Directory.Build.props makes every warning an error.
       # A fresh tree restored in parallel races on shared obj/ files, so each entry point restores once, sequentially.

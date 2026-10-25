@@ -1,5 +1,5 @@
 {
-  "$comment": "Pins a .NET 10 SDK with the wasm-tools workload for the whole project, so the web host publishes from the project root too (global.json applies at or below its own directory).",
+  "$comment": "Selects .NET 10 with feature-band roll-forward for the whole project. CI selects SDK 10.0.401 and pins its wasm-tools workload set in .github/workflows/pages.yml; this file does not pin a workload.",
   "sdk": {
     "version": "10.0.100",
     "rollForward": "latestFeature"
