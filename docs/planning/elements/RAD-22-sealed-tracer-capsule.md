@@ -1,5 +1,7 @@
 # RAD-22 · Sealed tracer capsule — element readiness spec
 
+**Current delivery (24 October 2026):** [RAD-22 delivery slice](../invest/named-elements.md#radiation-22). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 Batch O named-identity spec. Legacy citations are pinned to `a6c914e` and resolve with `git show a6c914e:<path> | sed -n 'start,endp'`. Requirement row: [radiation-22](../requirements.md#radiation-22) (P2 potential). A **marked mobile sealed toy source** tracked as a discrete body — not dissolved radioactive fluid; game units only.
 
 ## 1. Identity
@@ -11,7 +13,7 @@ Story 7.0 Batch O named-identity spec. Legacy citations are pinned to `a6c914e` 
 | Anchor | [requirements.md#radiation-22](../requirements.md#radiation-22); [named-elements.md#radiation-22](../invest/named-elements.md#radiation-22) |
 | Related identities | Receivers [RAD-08](RAD-08-radiation-rate-meter.md); ball transport [CAT-048 Pipe](CAT-048-pipe.md), [CAT-054 Ramp](CAT-054-ramp.md), [CAT-019 Conveyor](CAT-019-conveyor.md); branching via [EL-163 Powered ball diverter](../invest/named-elements.md#element-163); counting via [CAT-020 Counter](CAT-020-counter.md); ball scale from [CAT-064 Tennis](CAT-064-tennis.md). No CAT spec refined. |
 | Proof owner | S633 |
-| Roadmap story | unscheduled; campaign 135 (research slots 110, 125) |
+| Roadmap story | [RAD-22 delivery slice](../invest/named-elements.md#radiation-22); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration
@@ -38,11 +40,11 @@ Families from the [map row](../general-engine-element-map.md) and [binding](../.
 
 | Family | Status | Basis or builder |
 | --- | --- | --- |
-| FiniteLedger | missing | unscheduled (S010-D); emitted-quanta ledger; the only current finite store is bumper contact work, `engine/gpu/ContactWorkDeclaration.cs@a6c914e:L5-L9` |
-| FluidAdvection | missing — and not applicable | unscheduled (S418-D); the map's composition note says this inherited family does not apply to discrete sealed cargo (open question 3) |
-| GeometryQuery | exists now for contact only; missing for radiation paths | BVH `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L74-L204` and narrowphase `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L325-L620` (the coverage JSON's `engine/gpu/physics.wgsl` basis is not in the tree); paths from a moving source: unscheduled (S606-D) |
-| IonizingTransport | missing | unscheduled (S606-D/F); a moving source bound to a body pose |
-| RadioactiveDecay | missing | unscheduled (S607-D/F); steady case |
+| FiniteLedger | missing | required in the linked delivery slice (S010-D); emitted-quanta ledger; the only current finite store is bumper contact work, `engine/gpu/ContactWorkDeclaration.cs@a6c914e:L5-L9` |
+| FluidAdvection | missing — and not applicable | required in the linked delivery slice (S418-D); the map's composition note says this inherited family does not apply to discrete sealed cargo (open question 3) |
+| GeometryQuery | exists now for contact only; missing for radiation paths | BVH `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L74-L204` and narrowphase `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L325-L620` (the coverage JSON's `engine/gpu/physics.wgsl` basis is not in the tree); paths from a moving source: required in the linked delivery slice (S606-D) |
+| IonizingTransport | missing | required in the linked delivery slice (S606-D/F); a moving source bound to a body pose |
+| RadioactiveDecay | missing | required in the linked delivery slice (S607-D/F); steady case |
 | StateTransaction | exists now | `engine/gpu/WorkshopSimulation.cs@a6c914e:L44-L161`; capsule pose and velocity restore with Reset |
 | TopologyTransaction | exists now for construction admission only | `engine/gpu/WorkshopSimulation.cs@a6c914e:L113-L151`; no in-Run topology change needed — branches move the one body |
 

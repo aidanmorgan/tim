@@ -19,7 +19,8 @@ public sealed class PartRegistryTests(NativeSceneFixture godot)
         PartId.Basketball, PartId.Receiver, PartId.ImpactSwitch, PartId.SignalLamp, PartId.Wall, PartId.Delay, PartId.PinballBumper,
         PartId.Ramp, PartId.Domino, PartId.BowlingBall, PartId.Battery, PartId.Springboard, PartId.Pipe, PartId.BallDetector,
         PartId.PipeBend45, PartId.PipeBend90, PartId.Funnel, PartId.PoweredGate, PartId.PressurePlate, PartId.Counter, PartId.Clock,
-        PartId.Latch, new("hold_timer"), new("both_gate"), new("electrical_nand"), new("electrical_nor"), new("electrical_or"), new("electrical_xor")
+        PartId.Latch, new("hold_timer"), new("both_gate"), new("electrical_nand"), new("electrical_nor"), new("electrical_or"), new("electrical_xor"),
+        new("weight")
     ];
 
     private static string Bundle() => Godot.FileAccess.GetFileAsString(PartRegistry.BundlePath);
@@ -36,7 +37,7 @@ public sealed class PartRegistryTests(NativeSceneFixture godot)
     {
         _ = godot;
         var registry = Loaded();
-        Assert.Equal(28, registry.Definitions.Count);
+        Assert.Equal(29, registry.Definitions.Count);
         Assert.Equal(PaletteRows, registry.Free.Keys);
         Assert.All(registry.Free.Values, allowance => Assert.Equal(PartAllowance.Unlimited, allowance));
         var entries = PartRegistry.Read(Bundle()).ToDictionary(entry => new PartId(entry.Metadata.Id));
@@ -128,7 +129,7 @@ public sealed class PartRegistryTests(NativeSceneFixture godot)
         Assert.Contains(expected, error.Message, StringComparison.Ordinal);
         // Nothing is kept from a refused load: the registry still holds the last good bundle.
         Assert.Equal(PaletteRows, registry.Free.Keys);
-        Assert.Equal(28, registry.Definitions.Count);
+        Assert.Equal(29, registry.Definitions.Count);
     }
 
     [Fact]
@@ -259,7 +260,7 @@ public sealed class PartRegistryTests(NativeSceneFixture godot)
         var source = File.ReadAllText(Path.Combine(Root, "ui", "WorkshopIcons.cs"));
         var ids = PartRegistry.Read(Bundle()).Select(entry => entry.Metadata.Id)
             .Concat(UndeliveredParts.All.Select(part => UndeliveredParts.Id(part).Value)).ToArray();
-        Assert.Equal(30, ids.Length);
+        Assert.Equal(31, ids.Length);
         foreach (var id in ids)
         {
             Assert.DoesNotContain($"\"{id}\"", source, StringComparison.Ordinal);

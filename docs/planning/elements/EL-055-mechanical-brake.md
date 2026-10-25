@@ -1,5 +1,7 @@
 # EL-055 · Mechanical brake declaration readiness spec
 
+**Current delivery (24 October 2026):** [EL-055 delivery slice](../invest/named-elements.md#element-055). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec. Baseline commit `a6c914e`. Legacy citations use `path@a6c914e:Lstart-Lend` and stay retrievable from git history after the Epic 7 purge. Values marked **proposed** are design values the owner may revise.
 
 ## 1. Identity
@@ -13,7 +15,7 @@ Story 7.0 named-identity spec. Baseline commit `a6c914e`. Legacy citations use `
 | Named entry | [named-elements.md#element-055](../invest/named-elements.md#element-055); proof owner S341 |
 | CAT spec refined or extended | none. Related: [CAT-018 clutch](CAT-018-clutch.md) (its requirement keeps "slip/brake variants separate"), [CAT-042 motor](CAT-042-motor.md), [CAT-039 linear pusher](CAT-039-linear_pusher.md) (self-locking hold, not a brake element) |
 | Related identities | [EL-056 ratchet](EL-056-ratchet.md), [EL-063 cable winch](EL-063-cable-winch.md), [EL-062 docking ferry](EL-062-docking-ferry.md) (carrier to restrain) |
-| Roadmap story | unscheduled |
+| Roadmap story | [EL-055 delivery slice](../invest/named-elements.md#element-055); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration
@@ -69,7 +71,7 @@ Cream housing `#fff8e9`, navy foot `#293954`, slate shoes `#556573` that turn go
 
 ### Catalogue and inventory entry
 
-Id `mechanical_brake`, title "Brake", category "Motion"; `WorkshopPartKind.MechanicalBrake` appended last to the free inventory (`engine/gpu/WorkshopInventory.cs@a6c914e:L49-L60`). **Proposed**.
+Id `mechanical_brake`, title "Brake", category "Motion"; package-owned metadata discovered into the Free palette from the bundle (`engine/gpu/WorkshopInventory.cs@a6c914e:L49-L60`). **Proposed**.
 
 ### Variants
 
@@ -87,8 +89,8 @@ Binding: EnvironmentState, FiniteLedger, FiniteWorkActuation, JointConstraint, R
 **Missing**
 
 - Hinge (Story 10.3) and slider (Story 6.4) rows.
-- Cylinder collider and inertia (shaft drum): no owning story; owner decision 9 Oct 2026: a new cylinder-collider story comes before the first shaft wheel.
-- Bounded-impulse friction row on a joint coordinate with enum engagement state: no story names it; nearest are Story 11.2 (clutch engagement) and Story 11.3 (self-locking hold). Decision owner S341.
+- Cylinder collider and inertia (shaft drum): Story 10.1 owns the shared solid-cylinder collider and inertia before this consumer.
+- Bounded-impulse friction row on a joint coordinate with enum engagement state: required prerequisite owned by the linked delivery slice; nearest are Story 11.2 (clutch engagement) and Story 11.3 (self-locking hold). Decision owner S341.
 - `Mechanical` domain and shaft pass-through: Story 11.1.
 - Work-loss ledger readout: Story 11.1 (motor work totals).
 

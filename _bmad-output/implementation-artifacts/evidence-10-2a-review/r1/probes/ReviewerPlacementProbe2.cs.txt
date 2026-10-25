@@ -1,0 +1,81 @@
+using System.Reflection;
+using CuriousContraptions.Gpu;
+using Godot;
+
+namespace CuriousContraptions.Tests;
+
+// Reviewer throwaway probe (10.2a R1 re-review). Each case prints the verdict next to the exact geometric answer.
+[Collection<NativeSceneCollectionDefinition>]
+public sealed class ReviewerPlacementProbe2
+{
+    private static readonly float PlateY = (float)((double)WorkshopConstruction.WorkbenchSurface.Value + .22);
+
+    private static IReadOnlyDictionary<PartId, PartDefinition> Definitions()
+    {
+        var registry = new PartRegistry();
+        registry.Load();
+        return registry.Definitions;
+    }
+
+    [Fact]
+    public void Probe()
+    {
+        var definitions = Definitions();
+        var face = PlateY + .08f;
+        var h = TestBundle.Entry(WeightTests.Weight).Colliders[0].HalfExtents.Y;
+        var r = TestBundle.Entry(WeightTests.Weight).Colliders[0].HalfExtents.X;
+        var log = new System.Text.StringBuilder();
+        PlacementRefusal Drop(PartId part, IWorkshopInstance[] placed, Quaternion? turn = null) =>
+            PlacementPose.Compose(definitions, placed, new(part, new(2), false), new(0, PlateY, 0), turn ?? Quaternion.Identity).Refusal;
+        // 1. Bumper reproducer (sphere r 0.65) at 0.9 m (overlap 0.10) and 1.05 m (gap 0.05).
+        foreach (var d in new[] { .9, 1.0, 1.05 })
+        {
+            IWorkshopInstance[] placed = [PlacedParts.Plate(new(1), 0, PlateY, 0, .5f), WorkshopInput.Generic(PartId.PinballBumper, new(3), d, face + h, 0, 0, 0, 0, 1)];
+            log.AppendLine(FormattableString.Invariant($"bumper d={d}: weight {Drop(WeightTests.Weight, placed)} ball {Drop(PartId.Basketball, placed)} exactWeight={(d - .65 < r ? "IntoPart" : "None")}"));
+        }
+        // 2. Cylinder near a box face: default Wall (half 1.5 x 1 x 0.125), its face at wz - 0.125 from the Weight's axis.
+        foreach (var wz in new[] { .45f, .47f, .49f, .52f })
+        {
+            IWorkshopInstance[] placed = [PlacedParts.Plate(new(1), 0, PlateY, 0, .5f), WorkshopInput.Generic(PartId.Wall, new(3), 0, face + 1, wz, 0, 0, 0, 1)];
+            log.AppendLine(FormattableString.Invariant($"wall face gap={wz - .125f - r:F3}: weight {Drop(WeightTests.Weight, placed)} exact={(wz - .125f < r ? "IntoPart" : "None")}"));
+        }
+        // 3. Cylinder near a box corner on the diagonal at distance d from the axis (exact overlap iff d < r).
+        foreach (var d in new[] { .30f, .34f, .37f, .40f, .45f, .50f })
+        {
+            var s = d / MathF.Sqrt(2);
+            IWorkshopInstance[] placed = [PlacedParts.Plate(new(1), 0, PlateY, 0, .5f), WorkshopInput.Generic(PartId.Wall, new(3), s + 1.5, face + 1, s + .125, 0, 0, 0, 1)];
+            log.AppendLine(FormattableString.Invariant($"wall corner d={d:F2} (gap {d - r:F3}): weight {Drop(WeightTests.Weight, placed)} exact={(d < r ? "IntoPart" : "None")}"));
+        }
+        // 4. Lying Weight (axis z) beside a Wall face along x: its curved side reaches r in x.
+        var side = new Quaternion(Vector3.Right, MathF.PI / 2);
+        foreach (var wx in new[] { 1.5f + .33f, 1.5f + .37f })
+        {
+            IWorkshopInstance[] placed = [PlacedParts.Plate(new(1), 0, PlateY, 0, .5f), WorkshopInput.Generic(PartId.Wall, new(3), wx, face + 1, 0, 0, 0, 0, 1)];
+            log.AppendLine(FormattableString.Invariant($"lying weight, wall end at {wx - 1.5f:F2} from axis: {Drop(WeightTests.Weight, placed, side)} exact={(wx - 1.5f < r ? "IntoPart" : "None")}"));
+        }
+        // 5. Cylinder vs cylinder through the private overlap (no static cylinder part exists yet).
+        var t = typeof(PlacementPose);
+        var posed = t.GetNestedType("Posed", BindingFlags.NonPublic)!;
+        var shape = t.GetNestedType("Shape", BindingFlags.NonPublic)!;
+        var overlaps = t.GetMethod("Overlaps", BindingFlags.NonPublic | BindingFlags.Static)!;
+        object Cyl(Vector3 c, Quaternion q, float radius, float half)
+        {
+            return Activator.CreateInstance(posed, Enum.ToObject(shape, 2), c, q * Vector3.Right, q * Vector3.Up, q * Vector3.Back, new Vector3(radius, half, radius), 0f)!;
+        }
+        bool Hit(object a, object b) => (bool)overlaps.Invoke(null, [a, b, 1e-4f])!;
+        var up = Quaternion.Identity;
+        var alongX = new Quaternion(Vector3.Back, MathF.PI / 2);
+        foreach (var (name, a, b, exact) in new (string, object, object, bool)[]
+        {
+            ("side-by-side 0.69", Cyl(Vector3.Zero, up, .35f, .28f), Cyl(new(.69f, 0, 0), up, .35f, .28f), true),
+            ("side-by-side 0.71", Cyl(Vector3.Zero, up, .35f, .28f), Cyl(new(.71f, 0, 0), up, .35f, .28f), false),
+            ("lying on top, 0.01 deep", Cyl(Vector3.Zero, up, .35f, .28f), Cyl(new(0, .62f, 0), alongX, .35f, .28f), true),
+            ("lying on top, 0.01 clear", Cyl(Vector3.Zero, up, .35f, .28f), Cyl(new(0, .64f, 0), alongX, .35f, .28f), false),
+            ("diagonal upright 0.80 apart (gap 0.10)", Cyl(Vector3.Zero, up, .35f, .28f), Cyl(new(.5657f, 0, .5657f), up, .35f, .28f), false),
+            ("diagonal upright 0.68 apart", Cyl(Vector3.Zero, up, .35f, .28f), Cyl(new(.4808f, 0, .4808f), up, .35f, .28f), true),
+            ("rim to rim, vertical offset 0.57", Cyl(Vector3.Zero, up, .35f, .28f), Cyl(new(.5f, .57f, 0), up, .35f, .28f), false),
+        })
+            log.AppendLine(FormattableString.Invariant($"cyl-cyl {name}: overlaps={Hit(a, b)} exact={exact} reversed={Hit(b, a)}"));
+        Assert.Fail(log.ToString());
+    }
+}

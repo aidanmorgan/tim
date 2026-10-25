@@ -1,5 +1,7 @@
 # EL-132 · Slow-neutron detector — element readiness spec
 
+**Current delivery (24 October 2026):** [EL-132 delivery slice](../invest/named-elements.md#element-132). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 Batch O named-identity spec. Legacy citations are pinned to `a6c914e` and resolve with `git show a6c914e:<path> | sed -n 'start,endp'`. Requirement row: [element-132](../requirements.md#element-132). Reads fictional toy sources in game units; never real-world detection guidance.
 
 ## 1. Identity
@@ -11,7 +13,7 @@ Story 7.0 Batch O named-identity spec. Legacy citations are pinned to `a6c914e` 
 | Anchor | [requirements.md#element-132](../requirements.md#element-132); [named-elements.md#element-132](../invest/named-elements.md#element-132); scope source [radiation-19](../requirements.md#radiation-19) (umbrella, index only) |
 | Related identities | Sibling [EL-131 Fast-neutron detector](EL-131-fast-neutron-detector.md); source [RAD-16](RAD-16-neutron-source-module.md); moderator [RAD-17](RAD-17-water-moderator-tank.md); absorber [RAD-18](RAD-18-neutron-absorber-panel.md); shared defaults [RAD-08](RAD-08-radiation-rate-meter.md). No CAT spec. |
 | Proof owner | S630 |
-| Roadmap story | unscheduled; campaign chapter 13 (levels 121–130; research slots 101, 102, 104) |
+| Roadmap story | [EL-132 delivery slice](../invest/named-elements.md#element-132); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration
@@ -37,9 +39,9 @@ Families from the [map row](../general-engine-element-map.md) and [binding](../.
 
 | Family | Status | Basis or builder |
 | --- | --- | --- |
-| FiniteLedger | missing | unscheduled (S010-D); the only current finite store is bumper contact work, `engine/gpu/ContactWorkDeclaration.cs@a6c914e:L5-L9` |
-| GeometryQuery | exists now for contact only; missing for radiation paths | BVH `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L74-L204` and narrowphase `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L325-L620` (the coverage JSON's `engine/gpu/physics.wgsl` basis is not in the tree); sampled path queries: unscheduled (S606-D) |
-| IonizingTransport | missing | unscheduled (S606-D/F); Fast → Slow moderation and slow-group receivers ([S605 neutron row](../invest/decisions.md#s605)) |
+| FiniteLedger | missing | required in the linked delivery slice (S010-D); the only current finite store is bumper contact work, `engine/gpu/ContactWorkDeclaration.cs@a6c914e:L5-L9` |
+| GeometryQuery | exists now for contact only; missing for radiation paths | BVH `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L74-L204` and narrowphase `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L325-L620` (the coverage JSON's `engine/gpu/physics.wgsl` basis is not in the tree); sampled path queries: required in the linked delivery slice (S606-D) |
+| IonizingTransport | missing | required in the linked delivery slice (S606-D/F); Fast → Slow moderation and slow-group receivers ([S605 neutron row](../invest/decisions.md#s605)) |
 | SignalPropagation | missing | Story 8.1 (supplied contacts); the current `engine/gpu/ActivationNetwork.cs@a6c914e:L7-L14` is activation-only |
 | StateTransaction | exists now | `engine/gpu/WorkshopSimulation.cs@a6c914e:L44-L161`; detector state resets with Reset |
 

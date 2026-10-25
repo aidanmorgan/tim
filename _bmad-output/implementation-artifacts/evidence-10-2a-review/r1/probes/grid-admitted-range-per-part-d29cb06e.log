@@ -1,0 +1,41 @@
+Test run for /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/review-10-2a/wt-r1/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:02.07]     CuriousContraptions.Tests.ReviewerPlacementProbe3.Probe [FAIL]
+  Failed CuriousContraptions.Tests.ReviewerPlacementProbe3.Probe [66 ms]
+  Error Message:
+   ball               y [0.0, 8.6] (87/91)  x@4 [-6.6, 6.6] (133/141)
+ball_detector      y [0.3, 7.9] (77/91)  x@4 [-6.7, 6.7] (135/141)
+basket             y [0.1, 8.5] (85/91)  x@4 [-6.1, 6.1] (123/141)
+battery            y [0.1, 8.4] (84/91)  x@4 [-6.5, 6.5] (131/141)
+both_gate          y [0.4, 8.3] (80/91)  x@4 [-6.0, 6.0] (121/141)
+bowling            y [0.0, 8.7] (88/91)  x@4 [-6.7, 6.7] (135/141)
+bumper             y [0.2, 8.3] (82/91)  x@4 [-6.3, 6.3] (127/141)
+clock              y [0.6, 8.1] (76/91)  x@4 [-6.1, 6.1] (123/141)
+counter            y [0.4, 8.3] (80/91)  x@4 [-6.1, 6.1] (123/141)
+delay              y [0.4, 9.0] (87/91)  x@4 [-6.3, 6.3] (127/141)
+domino             y [0.1, 8.4] (84/91)  x@4 [-6.8, 6.8] (137/141)
+electrical_nand    y [0.4, 8.3] (80/91)  x@4 [-6.0, 6.0] (121/141)
+electrical_nor     y [0.4, 8.3] (80/91)  x@4 [-6.0, 6.0] (121/141)
+electrical_or      y [0.4, 8.3] (80/91)  x@4 [-6.0, 6.0] (121/141)
+electrical_xor     y [0.4, 8.3] (80/91)  x@4 [-6.0, 6.0] (121/141)
+funnel             y [1.2, 7.4] (63/91)  x@4 [-6.0, 6.0] (121/141)
+hold_timer         y [0.3, 8.4] (82/91)  x@4 [-6.1, 6.1] (123/141)
+lamp               y [0.0, 9.0] (91/91)  x@4 [-6.5, 6.5] (131/141)
+latch              y [0.4, 8.3] (80/91)  x@4 [-6.1, 6.1] (123/141)
+pipe               y [0.5, 8.0] (76/91)  x@4 [-5.1, 5.1] (103/141)
+pipe_bend_45       y [0.8, 7.8] (71/91)  x@4 [-5.9, 5.5] (115/141)
+pipe_bend_90       y [1.4, 7.3] (60/91)  x@4 [-5.2, 5.3] (106/141)
+powered_gate       y [0.3, 7.0] (68/91)  x@4 [-6.6, 6.6] (133/141)
+pressure_plate     y [0.0, 8.9] (90/91)  x@4 [-5.9, 5.9] (119/141)
+ramp               y [0.0, 8.9] (90/91)  x@4 [-5.5, 5.5] (111/141)
+spring             y [0.0, 9.0] (91/91)  x@4 [-6.3, 6.3] (127/141)
+switch             y [0.0, 8.8] (89/91)  x@4 [-6.4, 6.4] (129/141)
+wall               y [0.6, 8.0] (75/91)  x@4 [-5.5, 5.5] (111/141)
+weight             y [0.0, 8.4] (85/91)  x@4 [-6.6, 6.6] (133/141)
+
+  Stack Trace:
+     at CuriousContraptions.Tests.ReviewerPlacementProbe3.Probe() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/review-10-2a/wt-r1/CuriousContraptions.tests/ReviewerPlacementProbe3.cs:line 25
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 73 ms - CuriousContraptions.tests.dll (net10.0)

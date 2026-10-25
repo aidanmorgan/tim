@@ -5,14 +5,34 @@ Design authorities: [canonical IEEE-754 f32 game values and WASM SIMD physics](.
 Declaration readiness specs, one per element, are indexed in the [element spec index](../elements/README.md).
 Each element is delivered by declaration data (generic capability families, parameters, art, animation bindings) under those authorities; an entry's wording never prescribes a mechanism inside the solver or the animation engine.
 
-216 EL + 37 TH + 22 RAD + 18 GAP remain explicit. Retained umbrellas forward to separate named elements, not combined parts. Potential/adoption status, conditional variants and adjacent optional alternatives stay unchanged. All original source criteria and technical/stage prerequisites remain mandatory. These are scoped labels under existing canonical IDs, not new work orders. A bounded label is not readiness or a Pass. Read the full linked body, including surviving historical checkpoint obligations; old process status, prototypes, schemas and 75-level scene-owned targets are history. At cutover name the sole target owner, update affected callers/content/tests together, delete/reject the obsolete route and prove it unreachable. Choices within the fixed architecture remain negotiable; unknown model/parameter questions end in one bounded decision with the same named implementation next. Positive/control/boundary and all required build/Chrome/Reset/save/performance/publication proof remain at the original stage.
+216 EL + 37 TH + 22 RAD + 18 GAP remain explicit. Retained umbrellas forward to separate named elements, not combined parts. Every actual named element is required by the owner's 24 October 2026 adoption decision below. Conditional behavior remains tied to its stated inputs; unnamed alternative designs remain explicit decisions, not exclusions. All original source criteria and technical/stage prerequisites remain mandatory. These are scoped labels under existing canonical IDs, not new work orders. A bounded label is not readiness or a Pass. Read the full linked body, including surviving historical checkpoint obligations; old process status, prototypes, schemas and 75-level scene-owned targets are history. At cutover name the sole target owner, update affected callers/content/tests together, delete/reject the obsolete route and prove it unreachable. Choices within the fixed architecture remain negotiable; unknown model/parameter questions end in one bounded decision with the same named implementation next. Positive/control/boundary and all required build/Chrome/Reset/save/performance/publication proof remain at the original stage.
 
 [Family model/controls](profiles.md) and [explicit multi-action refinements](refinements.md) apply. Current-part engine migration and future missing behavior are separate stages; no duplicate implementation inferred from similar names.
+
+## Execution contract — complete named catalogue, 24 October 2026
+
+Future slices follow [AGENTS delivery speed rules](../../../AGENTS.md#delivery-speed-rules-owner-24-october-2026-these-take-precedence-over-conflicting-wording-below): bmad-build-auto's four independent review layers, one slice at a time from published main, incremental builds, one full native suite per round, CI-owned Release/publish and light committed-SHA evidence. Do not add a redundant review or manifest workflow.
+
+This ledger supplies the detailed contracts for the `named-*` sprint keys. Canonical S owners and requirement anchors are unchanged. Owner direction adopts all **276 actual named identities**, including formerly potential thermal/radiation elements. The 10 umbrella rows forward to children; seven GAP product features retain separate owners. The 72 CAT specs overlap this inventory: “refines CAT” links source acceptance, not automatic package equivalence. Reuse a verified existing identity and its applicable independent proof; implement missing behavior without duplicating its package. TH-05 adds thermal behavior to EL-055's one brake; EL-173 diverging and TH-06 converging lenses remain distinct.
+
+**Entry/dependencies.** Complete the bounded [stabilization plan](../../../_bmad-output/planning-artifacts/epics.md#current-execution-plan), then select the first ready identity in the family order below. Read that identity's linked Declaration, Engine capabilities, Acceptance outline, Open questions and exact requirement body. Its canonical S owner resolves each finite model/admission question before implementation, recording selected parameters, typed domains, native oracle and first consumer. Questions requiring owner input remain explicit blockers, never exclusions. Missing generic capability work stays in its first consumer's dependency closure under the source decision owner.
+
+**Order.** Finish the existing individually split CAT lane in Epics 10–14, then remaining mechanical/structural/control identities, water, pneumatic, remaining optical/acoustic identities, thermal, radiation and cross-domain elements. Within a family use identity order subject to actual capability prerequisites. Deliver a prerequisite from a later family when needed, recording the edge, without a whole-subsystem queue. Named obligations refining a current CAT slice travel with that slice; a distinct variant gets its own slice.
+
+**Collaborator cycles.** Separate build prerequisites from later integration fixtures in the same slice record. Deliver and independently close a generic capability prerequisite using the real production engine and declared qualification fixtures before selecting the first named consumer. Every named slice must finish its intrinsic and required-now acceptance, review and publication before the next named element starts. Assign genuinely later cross-element criteria explicitly to the later consuming slice below; record their original source owner and exact criterion there, without waiving them or claiming catalogue closure early. Reservoir/tap/basin use a completed generic finite-liquid/advection qualification fixture under S416 → S418, head → S419 and a mouth-topology decision owned by S422; EL-001 proves depletion/empty behavior through committed volume/flow, EL-003 owns reservoir→tap controls and EL-004 owns collection/miss/overflow integration. Original source acceptance remains required at those owners. Gas starts with EL-039 authored initial pressure under completed S470 → S471 proof; EL-037 owns compressor→reservoir integration after EL-038 hose and EL-043 gauge. TH-04 first closes native temperature/store behavior under a completed sensible-heat IX-43 prerequisite; TH-21 owns plate→sensor integration after its temperature-sensing IX-17 entry decision. RAD-01 first closes source emission/occlusion/finite-inventory behavior under completed S605 photon → S606 proof; RAD-08 owns source→meter integration, using committed native emission as the earlier observable. TH-05 follows EL-055; RAD-20 follows TH-30, TH-10 and finite startup supply. These are concrete cycle-breaking proof stages, not waivers.
+
+**Files/deletion.** Each slice changes its existing or new `elements/<declared package>/` package, necessary domain Abstractions/compiler/evaluator callers, authored `content/` and behavior tests in `CuriousContraptions.tests/`. Record the exact package path before editing. Declaration sections supply metadata/typed parameters/ports; art is package-owned .tscn, discovered by the bundle. Delete the superseded path/callers/fixtures in that slice; when none exists, record “none — new declaration” and the scoped search. Never add WorkshopPartKind, manual inventory registration, fixed scene capacities or compatibility routes.
+
+**Given/When/Then acceptance.** Given the linked declaration and every required source mode/variant, when production C# simulation runs its source positive construction through defined interfaces for bounded ticks, then the exact outcome below holds within independently derived game-grade tolerance. Given its source negative/control and literal boundary inputs, when run through the same interface, then the specified absence/refusal is atomic. Given a completed run, when Reset and supported Save/Load into a fresh native harness execute, then authored state and observable behavior are restored field by field. Given each required collaborator, when the native cross-element scenario runs, then its source integration outcome holds. Require deterministic mutation-proven tests, ordinary lifecycle checks, one matching production build, all required native tests with Skipped: 0, independent review and individual publication. No hash assertions or private reach-ins.
+
+**Completion gate.** Every actual named identity and every CAT remainder, mode and supported variant needs implementation plus passing unit AND integration proof before browser tests are re-enabled. Readiness docs, package presence and capability-only progress are not named-element completion; any unresolved later partner criterion blocks full catalogue closure. Retained Chrome recipes are later acceptance only: no browser writing, running or provisioning gates now. Campaign expansion and browser/device/performance qualification follow the complete catalogue; the 150-level target remains.
 
 <a id="element-001"></a>
 ### element-001 · EL-001 · Finite reservoir. Type: Water. Scope/evidence source: [existing record](../requirements.md#todo-334). Stores a bounded liquid inventory with actual head and overflow.
 
 Owner **S422**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Outlet flow depletes inventory; an empty tank supplies none. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-001` under canonical **S422**. [EL-001 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-001-finite-reservoir.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-001).
 
@@ -21,12 +41,16 @@ Owner **S422**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S423**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Lowering it reduces available lift; cycling cannot create energy. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-002` under canonical **S423**. [EL-002 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-002-header-tank.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-002).
 
 <a id="element-003"></a>
 ### element-003 · EL-003 · Tap. Type: Water. Scope/evidence source: [existing record](../requirements.md#todo-334). A bounded aperture regulates flow from a connected supply.
 
 Owner **S424**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Closing stops routed flow; an unconnected tap emits nothing. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-003` under canonical **S424**. [EL-003 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-003-tap.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-003).
 
@@ -35,12 +59,16 @@ Owner **S424**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S425**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** A missed stream remains outside; overflow remains conserved. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-004` under canonical **S425**. [EL-004 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-004-catch-basin.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-004).
 
 <a id="element-005"></a>
 ### element-005 · EL-005 · Liquid funnel. Type: Water. Scope/evidence source: [existing record](../requirements.md#todo-334). A tapered collector guides liquid toward a real outlet.
 
 Owner **S426**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Blocked outlet fills and spills; no remote capture. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-005` under canonical **S426**. [EL-005 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-005-liquid-funnel.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-005).
 
@@ -49,12 +77,16 @@ Owner **S426**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S427**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Only liquid crossing its intake enters the tracked sink. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-006` under canonical **S427**. [EL-006 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-006-drain.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-006).
 
 <a id="element-007"></a>
 ### element-007 · EL-007 · Open gutter. Type: Water. Scope/evidence source: [existing record](../requirements.md#todo-334). Open channel carries liquid under gravity.
 
 Owner **S428**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Adverse slope stalls or spills; no hidden uphill transport. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-007` under canonical **S428**. [EL-007 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-007-open-gutter.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-007).
 
@@ -63,12 +95,16 @@ Owner **S428**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S429**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** A disconnected mouth cannot feed its neighbour. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-008` under canonical **S429**. [EL-008 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-008-straight-water-pipe.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-008).
 
 <a id="element-009"></a>
 ### element-009 · EL-009 · 45-degree water elbow. Type: Water. Scope/evidence source: [existing record](../requirements.md#todo-335). Routes sealed flow through a 45-degree change.
 
 Owner **S430**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Wrong-facing or incompatible joins remain disconnected. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-009` under canonical **S430**. [EL-009 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-009-water-elbow-45.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-009).
 
@@ -77,12 +113,16 @@ Owner **S430**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S431**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Blocking its outlet prevents through-flow. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-010` under canonical **S431**. [EL-010 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-010-water-elbow-90.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-010).
 
 <a id="element-011"></a>
 ### element-011 · EL-011 · Water T junction. Type: Water. Scope/evidence source: [existing record](../requirements.md#todo-335). Divides available flow among connected branches.
 
 Owner **S432**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Branch totals cannot exceed supply. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-011` under canonical **S432**. [EL-011 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-011-water-t-junction.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-011).
 
@@ -91,12 +131,16 @@ Owner **S432**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S433**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Capped flow stops; deleting the cap restores a real opening. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-012` under canonical **S433**. [EL-012 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-012-water-pipe-cap.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-012).
 
 <a id="element-013"></a>
 ### element-013 · EL-013 · Water nozzle. Type: Water. Scope/evidence source: [existing record](../requirements.md#todo-335). Trades supplied pressure for a bounded directed jet.
 
 Owner **S434**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Insufficient head cannot produce the rated reach. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-013` under canonical **S434**. [EL-013 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-013-water-nozzle.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-013).
 
@@ -105,12 +149,16 @@ Owner **S434**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S435**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Filled load changes rope balance; empty control does not. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-014` under canonical **S435**. [EL-014 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-014-water-carrying-bucket.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-014).
 
 <a id="element-015"></a>
 ### element-015 · EL-015 · Leaky bucket. Type: Water. Scope/evidence source: [existing record](../requirements.md#todo-337). Finite aperture discharges actual contents and changes load.
 
 Owner **S436**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Caught leakage equals lost inventory; empty bucket stops leaking. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-015` under canonical **S436**. [EL-015 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-015-leaky-bucket.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-015).
 
@@ -119,12 +167,16 @@ Owner **S436**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S437**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Overloaded float sinks; an empty basin provides no buoyant lift. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-016` under canonical **S437**. [EL-016 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-016-float.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-016).
 
 <a id="element-017"></a>
 ### element-017 · EL-017 · Mechanical float valve. Type: Water. Scope/evidence source: [existing record](../requirements.md#todo-337). Float linkage mechanically changes a real flow aperture.
 
 Owner **S438**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Immobilised linkage prevents closure even at high water. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-017` under canonical **S438**. [EL-017 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-017-mechanical-float-valve.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-017).
 
@@ -133,12 +185,16 @@ Owner **S438**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S439**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Dry and unpowered controls cannot switch the output. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-018` under canonical **S439**. [EL-018 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-018-electronic-level-switch.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-018).
 
 <a id="element-019"></a>
 ### element-019 · EL-019 · Water check valve. Type: Water. Scope/evidence source: [existing record](../requirements.md#todo-338). Pressure difference opens the permitted direction and closes reverse flow.
 
 Owner **S440**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Reverse head cannot flow through a closed seat. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-019` under canonical **S440**. [EL-019 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-019-water-check-valve.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-019).
 
@@ -147,12 +203,16 @@ Owner **S440**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S441**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Unselected route receives only explicitly modelled leakage. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-020` under canonical **S441**. [EL-020 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-020-water-diverter.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-020).
 
 <a id="element-021"></a>
 ### element-021 · EL-021 · Sluice gate. Type: Water. Scope/evidence source: [existing record](../requirements.md#todo-338). A moving gate changes an open channel aperture.
 
 Owner **S442**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Closed gate retains upstream volume without deleting inflow. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-021` under canonical **S442**. [EL-021 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-021-sluice-gate.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-021).
 
@@ -161,12 +221,16 @@ Owner **S442**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S443**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Unpowered pump cannot sustain uphill flow. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-022` under canonical **S443**. [EL-022 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-022-water-pump.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-022).
 
 <a id="element-023"></a>
 ### element-023 · EL-023 · Archimedes screw. Type: Water. Scope/evidence source: [existing record](../requirements.md#todo-338). Rotating bounded screw lifts fluid through its real intake and discharge.
 
 Owner **S444**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Wrong rotation or a dry intake cannot deliver the target volume. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-023` under canonical **S444**. [EL-023 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-023-archimedes-screw.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-023).
 
@@ -175,12 +239,16 @@ Owner **S444**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S445**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Breaking the column stops the siphon; it cannot lift indefinitely above available pressure. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-024` under canonical **S445**. [EL-024 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-024-primed-siphon.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-024).
 
 <a id="element-025"></a>
 ### element-025 · EL-025 · Tipping-bucket water clock. Type: Water. Scope/evidence source: [existing record](../requirements.md#todo-338). Collected liquid shifts a pivoted bucket until it tips and discharges.
 
 Owner **S446**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Subthreshold volume does not emit a tip event. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-025` under canonical **S446**. [EL-025 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-025-tipping-bucket-water-clock.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-025).
 
@@ -189,12 +257,16 @@ Owner **S446**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S447**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Disconnected tank does not equalise remotely. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-026` under canonical **S447**. [EL-026 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-026-communicating-tank.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-026).
 
 <a id="element-027"></a>
 ### element-027 · EL-027 · Canal lock chamber. Type: Water. Scope/evidence source: [existing record](../requirements.md#todo-339). Bounded chamber changes water level through separately controlled openings.
 
 Owner **S448**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Open ends cannot hold a raised level without a balancing supply. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-027` under canonical **S448**. [EL-027 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-027-canal-lock-chamber.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-027).
 
@@ -203,12 +275,16 @@ Owner **S448**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S449**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Overload or lost water removes support. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-028` under canonical **S449**. [EL-028 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-028-buoyant-platform.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-028).
 
 <a id="element-029"></a>
 ### element-029 · EL-029 · Boat. Type: Water. Scope/evidence source: [existing record](../requirements.md#todo-339). Hull displaces liquid and transports its actual cargo.
 
 Owner **S450**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Leak or overload changes flotation; no authored route animation. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-029` under canonical **S450**. [EL-029 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-029-boat.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-029).
 
@@ -217,12 +293,16 @@ Owner **S450**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S451**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Stopped flow reads zero despite upstream stored volume. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-030` under canonical **S451**. [EL-030 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-030-flow-meter.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-030).
 
 <a id="element-031"></a>
 ### element-031 · EL-031 · Volume meter. Type: Water. Scope/evidence source: [existing record](../requirements.md#todo-339). Integrates actual transported liquid volume.
 
 Owner **S452**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Repeated inspection does not count the same volume twice. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-031` under canonical **S452**. [EL-031 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-031-volume-meter.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-031).
 
@@ -231,12 +311,16 @@ Owner **S452**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S453**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Disconnected or depressurised port cannot report supplied pressure. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-032` under canonical **S453**. [EL-032 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-032-pressure-meter.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-032).
 
 <a id="element-033"></a>
 ### element-033 · EL-033 · Fluid accumulator. Type: Water. Scope/evidence source: [existing record](../requirements.md#todo-340). Stores a finite fluid charge against a compliant boundary.
 
 Owner **S454**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Discharging lowers stored energy; no free recharge. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-033` under canonical **S454**. [EL-033 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-033-fluid-accumulator.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-033).
 
@@ -245,12 +329,16 @@ Owner **S454**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S455**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Saturated sponge cannot remove additional volume. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-034` under canonical **S455**. [EL-034 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-034-sponge.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-034).
 
 <a id="element-035"></a>
 ### element-035 · EL-035 · Wick. Type: Water. Scope/evidence source: [existing record](../requirements.md#todo-340). Transports liquid through a declared porous medium under bounded capillary rules.
 
 Owner **S456**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Dry reservoir stops transport; mass remains accounted for. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-035` under canonical **S456**. [EL-035 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-035-wick.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-035).
 
@@ -259,12 +347,16 @@ Owner **S456**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S457**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Blocked supply prevents spray and off-footprint receivers remain dry. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-036` under canonical **S457**. [EL-036 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-036-sprinkler.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-036).
 
 <a id="element-037"></a>
 ### element-037 · EL-037 · Air compressor. Type: Pneumatic. Scope/evidence source: [existing record](../requirements.md#todo-376). External work raises pressure in a connected finite gas volume.
 
 Owner **S472**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Unpowered compressor cannot increase stored gas energy. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-037` under canonical **S472**. [EL-037 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-037-air-compressor.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-037).
 
@@ -273,12 +365,16 @@ Owner **S472**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S473**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Open or disconnected hose vents or isolates according to its boundary declaration. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-038` under canonical **S473**. [EL-038 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-038-pneumatic-hose.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-038).
 
 <a id="element-039"></a>
 ### element-039 · EL-039 · Air reservoir. Type: Pneumatic. Scope/evidence source: [existing record](../requirements.md#todo-376). Stores finite gas mass and internal energy in a declared volume.
 
 Owner **S474**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Repeated strokes deplete pressure. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-039` under canonical **S474**. [EL-039 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-039-air-reservoir.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-039).
 
@@ -287,12 +383,16 @@ Owner **S474**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S475**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Closed valve cannot send a command-shaped free pressure pulse. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-040` under canonical **S475**. [EL-040 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-040-pneumatic-release-valve.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-040).
 
 <a id="element-041"></a>
 ### element-041 · EL-041 · Pneumatic directional valve. Type: Pneumatic. Scope/evidence source: [existing record](../requirements.md#todo-376). Routes supply and exhaust to selected actuator ports.
 
 Owner **S476**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Blocked exhaust changes motion; opposite routes cannot both receive full independent supply. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-041` under canonical **S476**. [EL-041 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-041-pneumatic-directional-valve.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-041).
 
@@ -301,12 +401,16 @@ Owner **S476**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S477**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Insufficient pressure cannot move a distant load. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-042` under canonical **S477**. [EL-042 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-042-air-nozzle.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-042).
 
 <a id="element-043"></a>
 ### element-043 · EL-043 · Pneumatic pressure gauge. Type: Pneumatic. Scope/evidence source: [existing record](../requirements.md#todo-376). Measures local gas pressure independently of electrical controls.
 
 Owner **S478**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Empty reservoir reads ambient rather than a stale charged state. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-043` under canonical **S478**. [EL-043 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-043-pneumatic-pressure-gauge.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-043).
 
@@ -315,12 +419,16 @@ Owner **S478**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S541**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Equal-strength wrong-tone pulse does not close the contact. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-044` under canonical **S541**. [EL-044 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-044-tone-selective-sound-meter.md). Also retains [CAT-060 acceptance](../elements/CAT-060-sound_meter.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-044).
 
 <a id="element-045"></a>
 ### element-045 · EL-045 · Air whistle. Type: Sound. Scope/evidence source: [existing record](../requirements.md#todo-352). Actual gas flow excites an acoustic source.
 
 Owner **S533**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Blocked or absent flow produces no sound event. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-045` under canonical **S533**. [EL-045 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-045-air-whistle.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-045).
 
@@ -329,12 +437,16 @@ Owner **S533**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S540**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Wrong-facing or occluded arrivals lose coupling. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-046` under canonical **S540**. [EL-046 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-046-listening-horn.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-046).
 
 <a id="element-047"></a>
 ### element-047 · EL-047 · Exit horn. Type: Sound. Scope/evidence source: [existing record](../requirements.md#todo-352). Converts incoming duct energy into a directed acoustic field.
 
 Owner **S534**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Disconnected inlet emits nothing. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-047` under canonical **S534**. [EL-047 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-047-exit-horn.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-047).
 
@@ -343,12 +455,16 @@ Owner **S534**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S535**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Disconnected mouths cannot carry a hidden signal. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-048` under canonical **S535**. [EL-048 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-048-acoustic-duct.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-048).
 
 <a id="element-049"></a>
 ### element-049 · EL-049 · Acoustic resonator. Type: Sound. Scope/evidence source: [existing record](../requirements.md#todo-352). Stores and dissipates bounded acoustic excitation around a declared band.
 
 Owner **S536**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Off-band pulses do not accumulate the same response. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-049` under canonical **S536**. [EL-049 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-049-acoustic-resonator.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-049).
 
@@ -357,12 +473,16 @@ Owner **S536**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S537**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** A geometric gap permits transmission; no universal mute field. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-050` under canonical **S537**. [EL-050 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-050-acoustic-screen.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-050).
 
 <a id="element-051"></a>
 ### element-051 · EL-051 · Acoustic dish. Type: Sound. Scope/evidence source: [existing record](../requirements.md#todo-352). Curved surface redirects acoustic energy through real coverage.
 
 Owner **S538**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Misalignment misses the listener and cannot amplify total energy. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-051` under canonical **S538**. [EL-051 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-051-acoustic-dish.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-051).
 
@@ -371,12 +491,16 @@ Owner **S538**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S539**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Changing fill changes supported tone; dry and filled cases remain distinct. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-052` under canonical **S539**. [EL-052 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-052-water-tuned-bottle.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-052).
 
 <a id="element-053"></a>
 ### element-053 · EL-053 · Rotary-to-linear converter. Type: Mechanical. Scope/evidence source: [existing record](../requirements.md#todo-211). Converts shaft work into bounded translation through a declared linkage.
 
 Owner **S339**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Blocked output loads the input; no command-only displacement. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-053` under canonical **S339**. [EL-053 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-053-rotary-to-linear-converter.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-053).
 
@@ -385,12 +509,16 @@ Owner **S339**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S340**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** An unmoving input supplies no rotation energy. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-054` under canonical **S340**. [EL-054 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-054-linear-to-rotary-converter.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-054).
 
 <a id="element-055"></a>
 ### element-055 · EL-055 · Mechanical brake. Type: Mechanical. Scope/evidence source: [existing record](../requirements.md#todo-375). Dissipative contact restrains a supplied shaft or carrier.
 
 Owner **S341**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Released brake permits motion; restraint cannot generate shaft work. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-055` under canonical **S341**. [EL-055 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-055-mechanical-brake.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-055).
 
@@ -399,12 +527,16 @@ Owner **S341**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S342**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Reverse load holds within capacity without inventing forward movement. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-056` under canonical **S342**. [EL-056 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-056-ratchet.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-056).
 
 <a id="element-057"></a>
 ### element-057 · EL-057 · Escapement. Type: Mechanical. Scope/evidence source: [existing record](../requirements.md#todo-375). Intermittently releases a loaded mechanism in discrete physical steps.
 
 Owner **S343**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** No stored drive means no step despite a release trigger. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-057` under canonical **S343**. [EL-057 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-057-escapement.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-057).
 
@@ -413,12 +545,16 @@ Owner **S343**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S367**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Oversized object remains blocked; identity labels do not select passage. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-058` under canonical **S367**. [EL-058 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-058-size-grate.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-058).
 
 <a id="element-059"></a>
 ### element-059 · EL-059 · Weight tray. Type: Mechanical. Scope/evidence source: [existing record](../requirements.md#todo-320). Loaded support exposes measured force or threshold state.
 
 Owner **S368**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** An object beside the tray cannot contribute weight. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-059` under canonical **S368**. [EL-059 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-059-weight-tray.md). Also retains [CAT-052 acceptance](../elements/CAT-052-pressure_plate.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-059).
 
@@ -427,12 +563,16 @@ Owner **S368**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S642**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Nonresponsive material and absent supply do not satisfy pickup. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-060` under canonical **S642**. [EL-060 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-060-electromagnet.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-060).
 
 <a id="element-061"></a>
 ### element-061 · EL-061 · Indexed carousel. Type: Mechanical. Scope/evidence source: [existing record](../requirements.md#todo-320). A finite-work drive advances a carrier through indexed positions.
 
 Owner **S371**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Obstruction or missing power prevents the completed index. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-061` under canonical **S371**. [EL-061 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-061-indexed-carousel.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-061).
 
@@ -441,12 +581,16 @@ Owner **S371**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S372**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Undocked loading interlock does not bypass actual support. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-062` under canonical **S372**. [EL-062 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-062-docking-ferry.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-062).
 
 <a id="element-063"></a>
 ### element-063 · EL-063 · Cable winch. Type: Mechanical. Scope/evidence source: [existing record](../requirements.md#todo-320). Shaft work winds a finite cable path and lifts its attached load.
 
 Owner **S334**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Stall and reverse load debit work; no instantaneous rope shortening. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-063` under canonical **S334**. [EL-063 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-063-cable-winch.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-063).
 
@@ -455,12 +599,16 @@ Owner **S334**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S332**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Disconnected rope carries no anchored tension. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-064` under canonical **S332**. [EL-064 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-064-metal-loop-anchor.md). Also retains [CAT-058 acceptance](../elements/CAT-058-rope_anchor.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-064).
 
 <a id="element-065"></a>
 ### element-065 · EL-065 · Load hook. Type: Mechanical. Scope/evidence source: [existing record](../requirements.md#todo-193). Attachable hook transmits load through actual supported engagement.
 
 Owner **S333**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Unengaged hook cannot carry a remote body. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-065` under canonical **S333**. [EL-065 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-065-load-hook.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-065).
 
@@ -469,12 +617,16 @@ Owner **S333**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S335**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Wrong placement or insufficient cutting work leaves it intact. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-066` under canonical **S335**. [EL-066 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-066-scissors.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-066).
 
 <a id="element-067"></a>
 ### element-067 · EL-067 · Steel cable. Type: Mechanical. Scope/evidence source: [existing record](../requirements.md#todo-210). Tension-only connector declares stiffness and cutting resistance as material properties.
 
 Owner **S336**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Compression cannot push a load. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-067` under canonical **S336**. [EL-067 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-067-steel-cable.md). Also retains [CAT-058 acceptance](../elements/CAT-058-rope_anchor.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-067).
 
@@ -483,12 +635,16 @@ Owner **S336**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S357**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Insufficient work fails on resistant material; no cable-name special case. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-068` under canonical **S357**. [EL-068 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-068-tin-snips.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-068).
 
 <a id="element-069"></a>
 ### element-069 · EL-069 · Moving bucket. Type: Mechanical. Scope/evidence source: [existing record](../requirements.md#todo-192). Rigid open container carries captured physical cargo with its mass.
 
 Owner **S369**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Tipping spills through the real opening; a missed object is not captured. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-069` under canonical **S369**. [EL-069 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-069-moving-bucket.md). Also retains [CAT-004 acceptance](../elements/CAT-004-basket.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-069).
 
@@ -497,12 +653,16 @@ Owner **S369**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S370**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** An open door allows escape through actual geometry. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-070` under canonical **S370**. [EL-070 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-070-moving-cage.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-070).
 
 <a id="element-071"></a>
 ### element-071 · EL-071 · Straight metal ball pipe. Type: Mechanical. Scope/evidence source: [existing record](../requirements.md#todo-199). Hollow rigid conduit routes compatible physical balls.
 
 Owner **S360**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Oversized cargo jams rather than traversing a logical connection. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-071` under canonical **S360**. [EL-071 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-071-straight-metal-ball-pipe.md). Also retains [CAT-048 acceptance](../elements/CAT-048-pipe.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-071).
 
@@ -511,12 +671,16 @@ Owner **S360**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S361**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Fast and queued cargo remain conserved at seams. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-072` under canonical **S361**. [EL-072 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-072-curved-metal-ball-pipe.md). Also retains [CAT-049 acceptance](../elements/CAT-049-pipe_bend_45.md), [CAT-050 acceptance](../elements/CAT-050-pipe_bend_90.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-072).
 
 <a id="element-073"></a>
 ### element-073 · EL-073 · Brick barrier. Type: Mechanical. Scope/evidence source: [existing record](../requirements.md#todo-199). Rigid material obstacle supplies declared contact and strength properties.
 
 Owner **S643**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** No passage through intact geometry. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-073` under canonical **S643**. [EL-073 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-073-brick-barrier.md). Also retains [CAT-066 acceptance](../elements/CAT-066-wall.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-073).
 
@@ -525,12 +689,16 @@ Owner **S643**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S644**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Mechanical contact cannot silently use brick parameters. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-074` under canonical **S644**. [EL-074 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-074-wood-barrier.md). Also retains [CAT-066 acceptance](../elements/CAT-066-wall.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-074).
 
 <a id="element-075"></a>
 ### element-075 · EL-075 · Toy pulse emitter. Type: Specialist. Scope/evidence source: [existing record](../requirements.md#todo-214). Separate supply and control emit an authored bounded number of pulses.
 
 Owner **S645**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Unpowered request emits none; held input follows the explicit retrigger rule. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-075` under canonical **S645**. [EL-075 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-075-toy-pulse-emitter.md). Also retains [CAT-036 acceptance](../elements/CAT-036-laser.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-075).
 
@@ -539,12 +707,16 @@ Owner **S645**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S646**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Unsupported combinations are rejected; no runtime numeric solution editor. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-076` under canonical **S646**. [EL-076 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-076-programmable-ball.md). Also retains [CAT-001 acceptance](../elements/CAT-001-ball.md), [CAT-014 acceptance](../elements/CAT-014-bowling.md), [CAT-064 acceptance](../elements/CAT-064-tennis.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-076).
 
 <a id="element-077"></a>
 ### element-077 · EL-077 · Soccer ball. Type: Specialist. Scope/evidence source: [existing record](../requirements.md#todo-217). Distinct lightweight ball uses measured authored contact properties.
 
 Owner **S647**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Its bounce and load differ reproducibly from a heavy ball. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-077` under canonical **S647**. [EL-077 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-077-soccer-ball.md). Also retains [CAT-001 acceptance](../elements/CAT-001-ball.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-077).
 
@@ -553,12 +725,16 @@ Owner **S647**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S648**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Misalignment and missing supply leave the seal intact. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-078` under canonical **S648**. [EL-078 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-078-can-opener.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-078).
 
 <a id="element-079"></a>
 ### element-079 · EL-079 · Electric mixer. Type: Specialist. Scope/evidence source: [existing record](../requirements.md#todo-218). Supplied rotating tool moves material through actual torque and contact.
 
 Owner **S649**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Stall or missing contents cannot create a processed result. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-079` under canonical **S649**. [EL-079 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-079-electric-mixer.md). Also retains [CAT-042 acceptance](../elements/CAT-042-motor.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-079).
 
@@ -567,12 +743,16 @@ Owner **S649**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S650**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Contents and collisions respond to its actual geometry. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-080` under canonical **S650**. [EL-080 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-080-programmable-box.md). Also retains [CAT-023 acceptance](../elements/CAT-023-domino.md), [CAT-004 acceptance](../elements/CAT-004-basket.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-080).
 
 <a id="element-081"></a>
 ### element-081 · EL-081 · Message display. Type: Specialist. Scope/evidence source: [existing record](../requirements.md#todo-222). Supplied display renders an explicitly received typed state or count.
 
 Owner **S651**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Unconnected inputs cannot display a success event. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-081` under canonical **S651**. [EL-081 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-081-message-display.md). Also retains [CAT-020 acceptance](../elements/CAT-020-counter.md), [CAT-035 acceptance](../elements/CAT-035-lamp.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-081).
 
@@ -581,12 +761,16 @@ Owner **S651**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S652**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Occluded or unsupported stimulus does not trigger pursuit. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-082` under canonical **S652**. [EL-082 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-082-lured-character.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-082).
 
 <a id="element-083"></a>
 ### element-083 · EL-083 · Escaping character. Type: Character. Scope/evidence source: [existing record](../requirements.md#todo-200). Original character chooses a bounded avoidance route from perceived hazards.
 
 Owner **S653**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Absent or blocked perception does not trigger a hidden scripted escape. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-083` under canonical **S653**. [EL-083 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-083-escaping-character.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-083).
 
@@ -595,12 +779,16 @@ Owner **S653**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S654**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Subthreshold impact retains contents. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-084` under canonical **S654**. [EL-084 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-084-fragile-fish-bowl.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-084).
 
 <a id="element-085"></a>
 ### element-085 · EL-085 · Rope-driven character wheel. Type: Character. Scope/evidence source: [existing record](../requirements.md#todo-200). Rope work drives a visible carrier mechanism under load.
 
 Owner **S655**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Slack rope supplies no work. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-085` under canonical **S655**. [EL-085 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-085-rope-driven-character-wheel.md). Also retains [CAT-058 acceptance](../elements/CAT-058-rope_anchor.md), [CAT-053 acceptance](../elements/CAT-053-pulley.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-085).
 
@@ -609,12 +797,16 @@ Owner **S655**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S656**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Distant obstacle does not reverse it early. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-086` under canonical **S656**. [EL-086 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-086-obstacle-reversing-walker.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-086).
 
 <a id="element-087"></a>
 ### element-087 · EL-087 · Predator character. Type: Character. Scope/evidence source: [existing record](../requirements.md#todo-221). Original character responds to declared perceivable stimuli and reachable routes.
 
 Owner **S657**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** A barrier prevents traversal; target names cannot bypass sensing. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-087` under canonical **S657**. [EL-087 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-087-predator-character.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-087).
 
@@ -623,12 +815,16 @@ Owner **S657**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S658**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Occlusion affects perception and intact walls retain contents. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-088` under canonical **S658**. [EL-088 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-088-fish-tank-lure.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-088).
 
 <a id="element-089"></a>
 ### element-089 · EL-089 · Gravity-effect pad. Type: Specialist. Scope/evidence source: [existing record](../requirements.md#todo-216). Bounded authored field changes acceleration inside its declared volume.
 
 Owner **S659**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Outside bodies retain world gravity; label the field as deliberate game fiction. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-089` under canonical **S659**. [EL-089 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-089-gravity-effect-pad.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-089).
 
@@ -637,12 +833,16 @@ Owner **S659**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S660**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Unpowered drive cannot steer against a current. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-090` under canonical **S660**. [EL-090 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-090-steerable-blimp.md). Also retains [CAT-003 acceptance](../elements/CAT-003-balloon.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-090).
 
 <a id="element-091"></a>
 ### element-091 · EL-091 · Cannonball. Type: Specialist. Scope/evidence source: [existing record](../requirements.md#todo-197). Heavy spherical cargo declares material and mass independently of launcher identity.
 
 Owner **S661**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Different launchers move the same body through generic contact and work. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-091` under canonical **S661**. [EL-091 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-091-cannonball.md). Also retains [CAT-014 acceptance](../elements/CAT-014-bowling.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-091).
 
@@ -651,12 +851,16 @@ Owner **S661**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S662**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Spent rocket produces no further thrust; abstract toy parameters only. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-092` under canonical **S662**. [EL-092 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-092-toy-rocket.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-092).
 
 <a id="element-093"></a>
 ### element-093 · EL-093 · Toy dynamite charge. Type: Specialist. Scope/evidence source: [existing record](../requirements.md#todo-197). Finite toy energy store releases one declared pressure impulse when triggered.
 
 Owner **S663**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Spent charge cannot repeat; no real formulation or construction recipe. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-093` under canonical **S663**. [EL-093 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-093-toy-dynamite-charge.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-093).
 
@@ -665,12 +869,16 @@ Owner **S663**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S664**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Command supplies no explosion energy of its own. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-094` under canonical **S664**. [EL-094 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-094-detonation-plunger.md). Also retains [CAT-063 acceptance](../elements/CAT-063-switch.md), [CAT-023 acceptance](../elements/CAT-023-domino.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-094).
 
 <a id="element-095"></a>
 ### element-095 · EL-095 · Toy revolver. Type: Specialist. Scope/evidence source: [existing record](../requirements.md#todo-197). Finite toy launcher supplies bounded work to declared physical payloads.
 
 Owner **S665**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Empty or uncharged state cannot manufacture a projectile. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-095` under canonical **S665**. [EL-095 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-095-toy-revolver.md). Also retains [CAT-016 acceptance](../elements/CAT-016-cannon.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-095).
 
@@ -679,12 +887,16 @@ Owner **S665**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S666**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Balanced or constrained platform does not tip on a timer. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-096` under canonical **S666**. [EL-096 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-096-tipsy-platform.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-096).
 
 <a id="element-097"></a>
 ### element-097 · EL-097 · Pool cue. Type: Specialist. Scope/evidence source: [existing record](../requirements.md#todo-227). Contact actuator delivers bounded work to an actual ball.
 
 Owner **S667**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** A miss cannot move its target. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-097` under canonical **S667**. [EL-097 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-097-pool-cue.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-097).
 
@@ -693,12 +905,16 @@ Owner **S667**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S668**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** No-gravity historical variant, if adopted, requires a separate explicitly fictional field rule. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-098` under canonical **S668**. [EL-098 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-098-pool-ball.md). Also retains [CAT-001 acceptance](../elements/CAT-001-ball.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-098).
 
 <a id="element-099"></a>
 ### element-099 · EL-099 · Pool pocket. Type: Specialist. Scope/evidence source: [existing record](../requirements.md#todo-227). Real opening captures cargo through actual passage.
 
 Owner **S669**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** A ball beside the opening is not pocketed. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-099` under canonical **S669**. [EL-099 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-099-pool-pocket.md). Also retains [CAT-004 acceptance](../elements/CAT-004-basket.md), [CAT-002 acceptance](../elements/CAT-002-ball_detector.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-099).
 
@@ -707,12 +923,16 @@ Owner **S669**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S670**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Blocked inlet or missing supply prevents suction. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-100` under canonical **S670**. [EL-100 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-100-vacuum-nozzle.md). Also retains [CAT-028 acceptance](../elements/CAT-028-fan.md), [CAT-010 acceptance](../elements/CAT-010-bellows.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-100).
 
 <a id="element-101"></a>
 ### element-101 · EL-101 · Thumb tack. Type: Specialist. Scope/evidence source: [existing record](../requirements.md#todo-227). Sharp-contact geometry punctures material through a generic failure threshold.
 
 Owner **S671**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Missed contact or puncture-resistant material remains intact. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-101` under canonical **S671**. [EL-101 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-101-thumb-tack.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-101).
 
@@ -721,12 +941,16 @@ Owner **S671**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S362**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Too-large cargo remains blocked; size is validated rather than guessed from art. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-102` under canonical **S362**. [EL-102 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-102-large-bore-ball-pipe.md). Also retains [CAT-048 acceptance](../elements/CAT-048-pipe.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-102).
 
 <a id="element-103"></a>
 ### element-103 · EL-103 · Accelerator tube. Type: Specialist. Scope/evidence source: [existing record](../requirements.md#todo-227). Explicit supply adds bounded work through a declared coupling field.
 
 Owner **S363**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Unpowered tube cannot increase cargo energy. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-103` under canonical **S363**. [EL-103 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-103-accelerator-tube.md). Also retains [CAT-048 acceptance](../elements/CAT-048-pipe.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-103).
 
@@ -735,12 +959,16 @@ Owner **S363**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S377**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Spent charge does not retrigger; no real pyrotechnic instructions. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-104` under canonical **S377**. [EL-104 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-104-toy-firework.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-104).
 
 <a id="element-105"></a>
 ### element-105 · EL-105 · Toy missile. Type: Specialist. Scope/evidence source: [existing record](../requirements.md#todo-227). Guided toy projectile follows only supported sensing and finite actuation.
 
 Owner **S378**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** No supply or lost guidance cannot yield unlimited corrective thrust. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-105` under canonical **S378**. [EL-105 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-105-toy-missile.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-105).
 
@@ -749,12 +977,16 @@ Owner **S378**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S379**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Subthreshold contact leaves it unspent; historical nitroglycerine is a reference only. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-106` under canonical **S379**. [EL-106 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-106-impact-sensitive-toy-charge.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-106).
 
 <a id="element-107"></a>
 ### element-107 · EL-107 · Spiral gravity-delay tube. Type: Mechanical. Scope/evidence source: [existing record](../requirements.md#todo-248). Long physical descent delays arrival through travel distance and contact.
 
 Owner **S380**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Changing speed changes transit time; no precise hidden timer. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-107` under canonical **S380**. [EL-107 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-107-spiral-delay-tube.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-107).
 
@@ -763,12 +995,16 @@ Owner **S380**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S480**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Insufficient airflow cannot lift the load. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-108` under canonical **S480**. [EL-108 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-108-powered-airlift.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-108).
 
 <a id="element-109"></a>
 ### element-109 · EL-109 · Speed-sensitive trapdoor. Type: Mechanical. Scope/evidence source: [existing record](../requirements.md#todo-248). Physical sensor and supplied latch distinguish taught incoming speed.
 
 Owner **S376**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Equal-size slow control stays on its declared route. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-109` under canonical **S376**. [EL-109 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-109-speed-trapdoor.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-109).
 
@@ -777,12 +1013,16 @@ Owner **S376**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S337**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Stored energy falls as output work is delivered. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-110` under canonical **S337**. [EL-110 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-110-flywheel.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-110).
 
 <a id="element-111"></a>
 ### element-111 · EL-111 · Centrifugal governor. Type: Mechanical. Scope/evidence source: [existing record](../requirements.md#todo-377). Rotating masses displace a linkage according to actual speed.
 
 Owner **S338**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Stationary shaft does not actuate it. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-111` under canonical **S338**. [EL-111 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-111-centrifugal-governor.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-111).
 
@@ -791,12 +1031,16 @@ Owner **S338**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S326**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Unsupported member falls rather than floating at authored endpoints. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-112` under canonical **S326**. [EL-112 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-112-structural-beam.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-112).
 
 <a id="element-113"></a>
 ### element-113 · EL-113 · Structural brace. Type: Construction. Scope/evidence source: [existing record](../requirements.md#gap-01). Diagonal member constrains frame distortion through actual geometry and load.
 
 Owner **S327**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Removing the brace changes stability; no frame-name bonus. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-113` under canonical **S327**. [EL-113 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-113-structural-brace.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-113).
 
@@ -805,12 +1049,16 @@ Owner **S327**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S328**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Off-axis load is solved by the shared joint; no animation path. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-114` under canonical **S328**. [EL-114 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-114-placeable-pivot.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-114).
 
 <a id="element-115"></a>
 ### element-115 · EL-115 · Linkage connector. Type: Construction. Scope/evidence source: [existing record](../requirements.md#gap-02). Finite-length member couples declared body attachment points.
 
 Owner **S329**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Disconnected endpoint cannot transmit motion. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-115` under canonical **S329**. [EL-115 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-115-linkage-connector.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-115).
 
@@ -819,12 +1067,16 @@ Owner **S329**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S330**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** No hidden drive on level ground. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-116` under canonical **S330**. [EL-116 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-116-passive-wheel.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-116).
 
 <a id="element-117"></a>
 ### element-117 · EL-117 · Axle. Type: Construction. Scope/evidence source: [existing record](../requirements.md#gap-03). Rotating support couples a wheel to the chassis with declared freedom.
 
 Owner **S331**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Locked axle prevents the formerly permitted rotation. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-117` under canonical **S331**. [EL-117 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-117-axle.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-117).
 
@@ -833,12 +1085,16 @@ Owner **S331**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S672**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Absent supply or missed contact leaves cargo untreated. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-118` under canonical **S672**. [EL-118 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-118-coating-station.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-118).
 
 <a id="element-119"></a>
 ### element-119 · EL-119 · Dye station. Type: Material. Scope/evidence source: [existing record](../requirements.md#gap-08). Finite pigment transport changes a supported material's colour state.
 
 Owner **S673**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** No pigment means no colour change; optical illumination is not dye. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-119` under canonical **S673**. [EL-119 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-119-dye-station.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-119).
 
@@ -847,12 +1103,16 @@ Owner **S673**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S674**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Repeated sensing of one retained item cannot inflate totals. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-120` under canonical **S674**. [EL-120 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-120-quantity-goal.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-120).
 
 <a id="element-121"></a>
 ### element-121 · EL-121 · Rate-window goal. Type: Goal. Scope/evidence source: [existing record](../requirements.md#gap-16). Measures throughput over an explicit simulation-time interval.
 
 Owner **S675**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** An instantaneous burst outside the window fails. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-121` under canonical **S675**. [EL-121 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-121-rate-window-goal.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-121).
 
@@ -861,12 +1121,16 @@ Owner **S675**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S676**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Wrong order does not satisfy the sequence. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-122` under canonical **S676**. [EL-122 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-122-ordered-events-goal.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-122).
 
 <a id="element-123"></a>
 ### element-123 · EL-123 · Protected-end-state goal. Type: Goal. Scope/evidence source: [existing record](../requirements.md#gap-16). Requires the observed final machine state to remain within declared bounds.
 
 Owner **S677**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Delivery alone cannot bypass an unsafe or unfinished terminal state. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-123` under canonical **S677**. [EL-123 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-123-protected-end-state-goal.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-123).
 
@@ -875,12 +1139,16 @@ Owner **S677**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S678**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Save and replay preserve it independently of difficulty. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-124` under canonical **S678**. [EL-124 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-124-authored-gravity-preset.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-124).
 
 <a id="element-125"></a>
 ### element-125 · EL-125 · Authored atmosphere preset. Type: Environment. Scope/evidence source: [existing record](../requirements.md#gap-18). Supported gas boundary parameters set actual pressure and density.
 
 Owner **S679**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Unsupported presets are rejected; a visual sky change alone cannot affect physics. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-125` under canonical **S679**. [EL-125 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-125-authored-atmosphere-preset.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-125).
 
@@ -889,12 +1157,16 @@ Owner **S679**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S610**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Gaps transmit; supported alpha/beta/photon responses follow shared transport coefficients. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-126` under canonical **S610**. [EL-126 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-126-thin-screen-shield.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-126).
 
 <a id="element-127"></a>
 ### element-127 · EL-127 · Polymer shield. Type: Radiation. Scope/evidence source: [existing record](../requirements.md#radiation-05). Distinct material coefficients and density govern radiation transport.
 
 Owner **S611**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** It cannot inherit dense-shield performance from its category. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-127` under canonical **S611**. [EL-127 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-127-polymer-shield.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-127).
 
@@ -903,12 +1175,16 @@ Owner **S611**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S612**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Increasing thickness cannot increase passive transmitted energy. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-128` under canonical **S612**. [EL-128 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-128-dense-shield.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-128).
 
 <a id="element-129"></a>
 ### element-129 · EL-129 · Sheet-thickness transmission gauge. Type: Radiation. Scope/evidence source: [existing record](../requirements.md#radiation-11). Supplied calibrated detector estimates supported sheet thickness from transmission.
 
 Owner **S618**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Missing source is invalid rather than maximum thickness. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-129` under canonical **S618**. [EL-129 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-129-sheet-thickness-transmission-gauge.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-129).
 
@@ -917,12 +1193,16 @@ Owner **S618**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S619**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Empty and full readings follow the material path; disconnected source is invalid. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-130` under canonical **S619**. [EL-130 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-130-tank-level-transmission-gauge.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-130).
 
 <a id="element-131"></a>
 ### element-131 · EL-131 · Fast-neutron detector. Type: Radiation. Scope/evidence source: [existing record](../requirements.md#radiation-19). Supplied detector applies declared fast-group response.
 
 Owner **S629**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Slow-group and photon controls cannot masquerade as fast flux. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-131` under canonical **S629**. [EL-131 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-131-fast-neutron-detector.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-131).
 
@@ -931,12 +1211,16 @@ Owner **S629**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S630**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Unmoderated fast flux does not silently count as slow. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-132` under canonical **S630**. [EL-132 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-132-slow-neutron-detector.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-132).
 
 <a id="element-133"></a>
 ### element-133 · EL-133 · Electrical AND gate. Type: Electrical. Scope/evidence source: [existing record](../requirements.md#todo-364). Separately supplied electrical output follows both inputs present; A/B inputs carry conditions, not output energy.
 
 Owner **S405**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Prove every input combination plus absent supply; logically true cannot create power. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-133` under canonical **S405**. [EL-133 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-133-electrical-and-gate.md). Also retains [CAT-013 acceptance](../elements/CAT-013-both_gate.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-133).
 
@@ -945,12 +1229,16 @@ Owner **S405**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S406**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Prove every input combination plus absent supply; logically true cannot create power. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-134` under canonical **S406**. [EL-134 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-134-electrical-or-gate.md). Also retains [CAT-026 acceptance](../elements/CAT-026-electrical_or.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-134).
 
 <a id="element-135"></a>
 ### element-135 · EL-135 · Electrical XOR gate. Type: Electrical. Scope/evidence source: [existing record](../requirements.md#todo-364). Separately supplied electrical output follows exactly one input present; A/B inputs carry conditions, not output energy.
 
 Owner **S407**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Prove every input combination plus absent supply; logically true cannot create power. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-135` under canonical **S407**. [EL-135 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-135-electrical-xor-gate.md). Also retains [CAT-027 acceptance](../elements/CAT-027-electrical_xor.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-135).
 
@@ -959,12 +1247,16 @@ Owner **S407**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S408**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Prove every input combination plus absent supply; logically true cannot create power. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-136` under canonical **S408**. [EL-136 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-136-electrical-nor-gate.md). Also retains [CAT-025 acceptance](../elements/CAT-025-electrical_nor.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-136).
 
 <a id="element-137"></a>
 ### element-137 · EL-137 · Electrical NAND gate. Type: Electrical. Scope/evidence source: [existing record](../requirements.md#todo-364). Separately supplied electrical output follows not both inputs present; A/B inputs carry conditions, not output energy.
 
 Owner **S409**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Prove every input combination plus absent supply; logically true cannot create power. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-137` under canonical **S409**. [EL-137 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-137-electrical-nand-gate.md). Also retains [CAT-024 acceptance](../elements/CAT-024-electrical_nand.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-137).
 
@@ -973,12 +1265,16 @@ Owner **S409**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S510**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Prove every input combination plus absent carrier; logically true cannot create power. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-138` under canonical **S510**. [EL-138 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-138-optical-and-gate.md). Also retains [CAT-043 acceptance](../elements/CAT-043-optical_and.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-138).
 
 <a id="element-139"></a>
 ### element-139 · EL-139 · Optical OR gate. Type: Optical. Scope/evidence source: [existing record](../requirements.md#todo-367). Separately supplied carrier output follows at least one input present; A/B inputs carry conditions, not output energy.
 
 Owner **S511**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Prove every input combination plus absent carrier; logically true cannot create power. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-139` under canonical **S511**. [EL-139 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-139-optical-or-gate.md). Also retains [CAT-046 acceptance](../elements/CAT-046-optical_or.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-139).
 
@@ -987,12 +1283,16 @@ Owner **S511**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S512**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Prove every input combination plus absent carrier; logically true cannot create power. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-140` under canonical **S512**. [EL-140 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-140-optical-xor-gate.md). Also retains [CAT-047 acceptance](../elements/CAT-047-optical_xor.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-140).
 
 <a id="element-141"></a>
 ### element-141 · EL-141 · Optical NOR gate. Type: Optical. Scope/evidence source: [existing record](../requirements.md#todo-367). Separately supplied carrier output follows neither input present; A/B inputs carry conditions, not output energy.
 
 Owner **S513**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Prove every input combination plus absent carrier; logically true cannot create power. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-141` under canonical **S513**. [EL-141 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-141-optical-nor-gate.md). Also retains [CAT-045 acceptance](../elements/CAT-045-optical_nor.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-141).
 
@@ -1001,12 +1301,16 @@ Owner **S513**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S514**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Prove every input combination plus absent carrier; logically true cannot create power. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-142` under canonical **S514**. [EL-142 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-142-optical-nand-gate.md). Also retains [CAT-044 acceptance](../elements/CAT-044-optical_nand.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-142).
 
 <a id="element-143"></a>
 ### element-143 · EL-143 · Red optical filter. Type: Optical. Scope/evidence source: [existing record](../requirements.md#todo-297). Passes only the existing red channel through its finite aperture with declared loss.
 
 Owner **S498**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Absent red input cannot be recoloured into red; opaque frame blocks rays. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-143` under canonical **S498**. [EL-143 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-143-red-optical-filter.md). Also retains [CAT-055 acceptance](../elements/CAT-055-red_filter.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-143).
 
@@ -1015,12 +1319,16 @@ Owner **S498**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S499**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Absent green input cannot be recoloured into green; opaque frame blocks rays. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-144` under canonical **S499**. [EL-144 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-144-green-optical-filter.md). Also retains [CAT-031 acceptance](../elements/CAT-031-green_filter.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-144).
 
 <a id="element-145"></a>
 ### element-145 · EL-145 · Blue optical filter. Type: Optical. Scope/evidence source: [existing record](../requirements.md#todo-297). Passes only the existing blue channel through its finite aperture with declared loss.
 
 Owner **S500**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Absent blue input cannot be recoloured into blue; opaque frame blocks rays. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-145` under canonical **S500**. [EL-145 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-145-blue-optical-filter.md). Also retains [CAT-011 acceptance](../elements/CAT-011-blue_filter.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-145).
 
@@ -1029,12 +1337,16 @@ Owner **S500**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S501**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Missing required channel, wrong channel and absent supply remain independent negative controls. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-146` under canonical **S501**. [EL-146 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-146-red-selective-receiver.md). Also retains [CAT-056 acceptance](../elements/CAT-056-red_receiver.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-146).
 
 <a id="element-147"></a>
 ### element-147 · EL-147 · Green selective receiver. Type: Optical. Scope/evidence source: [existing record](../requirements.md#todo-300). Separately supplied output requires green under the declared thresholds and channel-purity contract.
 
 Owner **S502**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Missing required channel, wrong channel and absent supply remain independent negative controls. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-147` under canonical **S502**. [EL-147 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-147-green-selective-receiver.md). Also retains [CAT-032 acceptance](../elements/CAT-032-green_receiver.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-147).
 
@@ -1043,12 +1355,16 @@ Owner **S502**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S503**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Missing required channel, wrong channel and absent supply remain independent negative controls. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-148` under canonical **S503**. [EL-148 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-148-blue-selective-receiver.md). Also retains [CAT-012 acceptance](../elements/CAT-012-blue_receiver.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-148).
 
 <a id="element-149"></a>
 ### element-149 · EL-149 · Yellow selective receiver. Type: Optical. Scope/evidence source: [existing record](../requirements.md#todo-301). Separately supplied output requires red and green under the declared thresholds and channel-purity contract.
 
 Owner **S504**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Missing required channel, wrong channel and absent supply remain independent negative controls. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-149` under canonical **S504**. [EL-149 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-149-yellow-selective-receiver.md). Also retains [CAT-072 acceptance](../elements/CAT-072-yellow_receiver.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-149).
 
@@ -1057,12 +1373,16 @@ Owner **S504**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S505**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Missing required channel, wrong channel and absent supply remain independent negative controls. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-150` under canonical **S505**. [EL-150 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-150-cyan-selective-receiver.md). Also retains [CAT-021 acceptance](../elements/CAT-021-cyan_receiver.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-150).
 
 <a id="element-151"></a>
 ### element-151 · EL-151 · Magenta selective receiver. Type: Optical. Scope/evidence source: [existing record](../requirements.md#todo-301). Separately supplied output requires red and blue under the declared thresholds and channel-purity contract.
 
 Owner **S506**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Missing required channel, wrong channel and absent supply remain independent negative controls. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-151` under canonical **S506**. [EL-151 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-151-magenta-selective-receiver.md). Also retains [CAT-040 acceptance](../elements/CAT-040-magenta_receiver.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-151).
 
@@ -1071,12 +1391,16 @@ Owner **S506**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S507**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Missing required channel, wrong channel and absent supply remain independent negative controls. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-152` under canonical **S507**. [EL-152 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-152-white-selective-receiver.md). Also retains [CAT-068 acceptance](../elements/CAT-068-white_receiver.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-152).
 
 <a id="element-153"></a>
 ### element-153 · EL-153 · General-light receiver. Type: Optical. Scope/evidence source: [existing record](../requirements.md#todo-291). Samples actual finite-width illumination over a declared aperture.
 
 Owner **S515**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Occluded flashlight cone and absent independent supply cannot activate output. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-153` under canonical **S515**. [EL-153 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-153-general-light-receiver.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-153).
 
@@ -1085,12 +1409,16 @@ Owner **S515**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S516**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Two bursts accumulate correctly; dark time cannot create charge. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-154` under canonical **S516**. [EL-154 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-154-light-charge-receiver.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-154).
 
 <a id="element-155"></a>
 ### element-155 · EL-155 · Rope-operated light. Type: Optical. Scope/evidence source: [existing record](../requirements.md#todo-196). Real rope displacement actuates a separately supplied light source.
 
 Owner **S517**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Slack rope or missing supply produces no light. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-155` under canonical **S517**. [EL-155 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-155-rope-operated-light.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-155).
 
@@ -1099,12 +1427,16 @@ Owner **S517**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S344**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Partial rotation yields only its actual profile displacement. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-156` under canonical **S344**. [EL-156 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-156-single-lobe-cam.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-156).
 
 <a id="element-157"></a>
 ### element-157 · EL-157 · Double-lobe cam. Type: Mechanical. Scope/evidence source: [existing record](../requirements.md#todo-424). Two geometric lobes drive two separately observable lifts per revolution.
 
 Owner **S345**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** One revolution cannot be recorded as a single-lobe cycle. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-157` under canonical **S345**. [EL-157 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-157-double-lobe-cam.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-157).
 
@@ -1113,12 +1445,16 @@ Owner **S345**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S346**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Changing shaft speed changes dwell time; no hidden timer. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-158` under canonical **S346**. [EL-158 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-158-rise-hold-fall-cam.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-158).
 
 <a id="element-159"></a>
 ### element-159 · EL-159 · Tension-limited connector. Type: Construction. Scope/evidence source: [existing record](../requirements.md#gap-05). Declared tensile strength governs failure under axial load.
 
 Owner **S680**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Subthreshold tension retains the joint. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-159` under canonical **S680**. [EL-159 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-159-tension-limited-connector.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-159).
 
@@ -1127,12 +1463,16 @@ Owner **S680**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S681**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Pure supported axial load does not silently count as shear. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-160` under canonical **S681**. [EL-160 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-160-shear-limited-connector.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-160).
 
 <a id="element-161"></a>
 ### element-161 · EL-161 · Bending-limited connector. Type: Construction. Scope/evidence source: [existing record](../requirements.md#gap-05). Declared moment capacity governs failure under bending.
 
 Owner **S682**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Subthreshold moment retains the joint regardless of display animation. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-161` under canonical **S682**. [EL-161 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-161-bending-limited-connector.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-161).
 
@@ -1141,12 +1481,16 @@ Owner **S682**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S373**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Wrong branch remains unavailable without physical leakage. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-162` under canonical **S373**. [EL-162 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-162-fixed-ball-diverter.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-162).
 
 <a id="element-163"></a>
 ### element-163 · EL-163 · Powered ball diverter. Type: Mechanical. Scope/evidence source: [existing record](../requirements.md#todo-246). Finite-work actuator changes a routing blade after a command.
 
 Owner **S374**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Missing supply or a jam prevents instant route switching. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-163` under canonical **S374**. [EL-163 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-163-powered-ball-diverter.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-163).
 
@@ -1155,12 +1499,16 @@ Owner **S374**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S375**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Held arrival signal cannot alternate repeatedly without new passages. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-164` under canonical **S375**. [EL-164 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-164-alternating-ball-diverter.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-164).
 
 <a id="element-165"></a>
 ### element-165 · EL-165 · Manual tap. Type: Water. Scope/evidence source: [existing record](../requirements.md#campaign-element-coverage). Player-selected aperture remains fixed during Run.
 
 Owner **S458**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Closed aperture stops flow; opening cannot supply water without a connected reservoir. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-165` under canonical **S458**. [EL-165 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-165-manual-tap.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-165).
 
@@ -1169,12 +1517,16 @@ Owner **S458**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S459**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** A slack or stalled linkage cannot change aperture. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-166` under canonical **S459**. [EL-166 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-166-mechanically-actuated-tap.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-166).
 
 <a id="element-167"></a>
 ### element-167 · EL-167 · Solenoid tap. Type: Water. Scope/evidence source: [existing record](../requirements.md#campaign-element-coverage). Independent supply moves a valve on a control input.
 
 Owner **S460**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** A true command without supply cannot open the valve. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-167` under canonical **S460**. [EL-167 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-167-solenoid-tap.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-167).
 
@@ -1183,12 +1535,16 @@ Owner **S460**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S461**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Insufficient priming leaves the siphon broken; no remote automatic fill. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-168` under canonical **S461**. [EL-168 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-168-siphon-priming-bulb.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-168).
 
 <a id="element-169"></a>
 ### element-169 · EL-169 · Cork float. Type: Water. Scope/evidence source: [existing record](../requirements.md#campaign-element-coverage). Light material body displaces actual liquid under its measured load.
 
 Owner **S462**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Dry or overloaded cork cannot provide unlimited lift. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-169` under canonical **S462**. [EL-169 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-169-cork-float.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-169).
 
@@ -1197,12 +1553,16 @@ Owner **S462**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S463**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Overload or separated members change stability. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-170` under canonical **S463**. [EL-170 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-170-raft.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-170).
 
 <a id="element-171"></a>
 ### element-171 · EL-171 · Squeeze pad. Type: Water. Scope/evidence source: [existing record](../requirements.md#campaign-element-coverage). Mechanical compression expels retained liquid from a porous store.
 
 Owner **S464**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** A dry pad cannot produce water and squeezing consumes work. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-171` under canonical **S464**. [EL-171 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-171-squeeze-pad.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-171).
 
@@ -1211,12 +1571,16 @@ Owner **S464**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S465**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** An occluded or missed stream does not fill it. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-172` under canonical **S465**. [EL-172 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-172-rain-collector.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-172).
 
 <a id="element-173"></a>
 ### element-173 · EL-173 · Diverging lens. Type: Optical. Scope/evidence source: [existing record](../requirements.md#todo-305). Finite-aperture refraction broadens illumination while conserving transmitted power.
 
 Owner **S519**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Two receivers share the beam; each cannot obtain the unsplit full power. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-173` under canonical **S519**. [EL-173 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-173-diverging-lens.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-173).
 
@@ -1225,12 +1589,16 @@ Owner **S519**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S520**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Red-only input creates no green or blue output. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-174` under canonical **S520**. [EL-174 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-174-prism.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-174).
 
 <a id="element-175"></a>
 ### element-175 · EL-175 · Optical fibre. Type: Optical. Scope/evidence source: [existing record](../requirements.md#todo-307). Compatible endpoints carry bounded optical power with coupling loss and finite path length.
 
 Owner **S521**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Disconnected endpoints cannot bridge a gap. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-175` under canonical **S521**. [EL-175 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-175-optical-fibre.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-175).
 
@@ -1239,12 +1607,16 @@ Owner **S521**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S492**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Missing supply or enable prevents output. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-176` under canonical **S492**. [EL-176 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-176-red-laser-emitter.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-176).
 
 <a id="element-177"></a>
 ### element-177 · EL-177 · Green laser emitter. Type: Optical. Scope/evidence source: [existing record](../requirements.md#campaign-element-coverage). Supplied enabled emitter produces a bounded green optical channel.
 
 Owner **S493**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Wrong-channel receiver control remains inactive. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-177` under canonical **S493**. [EL-177 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-177-green-laser-emitter.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-177).
 
@@ -1253,12 +1625,16 @@ Owner **S493**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S494**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Blocked aperture prevents downstream illumination. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-178` under canonical **S494**. [EL-178 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-178-blue-laser-emitter.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-178).
 
 <a id="element-179"></a>
 ### element-179 · EL-179 · Continuous-tone speaker. Type: Sound. Scope/evidence source: [existing record](../requirements.md#campaign-element-coverage). Finite supplied power sustains a declared acoustic tone while enabled.
 
 Owner **S531**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Power loss stops excitation; stored resonance may decay only by its own state. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-179` under canonical **S531**. [EL-179 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-179-continuous-tone-speaker.md). Also retains [CAT-061 acceptance](../elements/CAT-061-speaker.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-179).
 
@@ -1267,12 +1643,16 @@ Owner **S531**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S532**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Held input follows its edge contract and cannot create infinite pulse energy. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-180` under canonical **S532**. [EL-180 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-180-pulse-speaker.md). Also retains [CAT-061 acceptance](../elements/CAT-061-speaker.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-180).
 
 <a id="element-181"></a>
 ### element-181 · EL-181 · Rising-edge detector. Type: Control. Scope/evidence source: [existing record](../requirements.md#campaign-element-coverage). Observes a false-to-true transition and emits one typed event.
 
 Owner **S402**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Held true input produces no repeated transitions. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-181` under canonical **S402**. [EL-181 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-181-rising-edge-detector.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-181).
 
@@ -1281,12 +1661,16 @@ Owner **S402**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S403**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Held false input produces no repeated transitions. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-182` under canonical **S403**. [EL-182 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-182-falling-edge-detector.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-182).
 
 <a id="element-183"></a>
 ### element-183 · EL-183 · Resettable counter. Type: Control. Scope/evidence source: [existing record](../requirements.md#campaign-element-coverage). Counts distinct supported arrivals and accepts a separately addressed reset input.
 
 Owner **S404**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Reset clears the count without manufacturing a new arrival. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-183` under canonical **S404**. [EL-183 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-183-resettable-counter.md). Also retains [CAT-020 acceptance](../elements/CAT-020-counter.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-183).
 
@@ -1295,12 +1679,16 @@ Owner **S404**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S366**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Slack linkage or blocked blade prevents instantaneous release. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-184` under canonical **S366**. [EL-184 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-184-mechanical-ball-gate.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-184).
 
 <a id="element-185"></a>
 ### element-185 · EL-185 · Releasable assembly joint. Type: Mechanical. Scope/evidence source: [existing record](../requirements.md#todo-321). Typed release removes a specific physical attachment with conserved momentum.
 
 Owner **S364**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Unreleased attachment retains load; unsupported command is rejected. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-185` under canonical **S364**. [EL-185 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-185-releasable-assembly-joint.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-185).
 
@@ -1309,12 +1697,16 @@ Owner **S364**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S365**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** A release signal cannot move unrelated structures. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-186` under canonical **S365**. [EL-186 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-186-temporary-bridge.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-186).
 
 <a id="element-187"></a>
 ### element-187 · EL-187 · Basketball. Type: Gravity. Scope/evidence source: [existing record](../requirements.md#campaign-element-coverage). Spherical cargo uses declared mass, radius and compliant contact properties.
 
 Owner **S294**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Equal drop height produces reproducible material-dependent rebound. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-187` under canonical **S294**. [EL-187 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-187-basketball.md). Also retains [CAT-001 acceptance](../elements/CAT-001-ball.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-187).
 
@@ -1323,12 +1715,16 @@ Owner **S294**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S295**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Its visual size alone cannot supply added work. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-188` under canonical **S295**. [EL-188 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-188-bowling-ball.md). Also retains [CAT-014 acceptance](../elements/CAT-014-bowling.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-188).
 
 <a id="element-189"></a>
 ### element-189 · EL-189 · Tennis ball. Type: Gravity. Scope/evidence source: [existing record](../requirements.md#campaign-element-coverage). Light compliant spherical cargo retains distinct calibrated contact properties.
 
 Owner **S297**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Its bounce differs from the bowling ball because of declared material, not IDs. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-189` under canonical **S297**. [EL-189 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-189-tennis-ball.md). Also retains [CAT-064 acceptance](../elements/CAT-064-tennis.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-189).
 
@@ -1337,12 +1733,16 @@ Owner **S297**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S293**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Wrong-facing slope cannot accelerate cargo uphill. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-190` under canonical **S293**. [EL-190 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-190-ramp.md). Also retains [CAT-054 acceptance](../elements/CAT-054-ramp.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-190).
 
 <a id="element-191"></a>
 ### element-191 · EL-191 · Wall. Type: Gravity. Scope/evidence source: [existing record](../requirements.md#campaign-element-coverage). Rigid barrier blocks bodies through actual transformed geometry.
 
 Owner **S298**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** A geometric gap allows passage; invisible silhouette bounds do not block it. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-191` under canonical **S298**. [EL-191 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-191-wall.md). Also retains [CAT-066 acceptance](../elements/CAT-066-wall.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-191).
 
@@ -1351,12 +1751,16 @@ Owner **S298**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S296**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** A ball beside or passing over it does not satisfy capture. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-192` under canonical **S296**. [EL-192 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-192-receiving-basket.md). Also retains [CAT-004 acceptance](../elements/CAT-004-basket.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-192).
 
 <a id="element-193"></a>
 ### element-193 · EL-193 · Domino. Type: Mechanical. Scope/evidence source: [existing record](../requirements.md#campaign-element-coverage). Finite rigid body tips through real contact, mass and centre of gravity.
 
 Owner **S299**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Separated neighbour does not fall from a scripted propagation event. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-193` under canonical **S299**. [EL-193 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-193-domino.md). Also retains [CAT-023 acceptance](../elements/CAT-023-domino.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-193).
 
@@ -1365,12 +1769,16 @@ Owner **S299**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S300**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Uncharged or missed contact cannot impart a free launch. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-194` under canonical **S300**. [EL-194 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-194-springboard.md). Also retains [CAT-062 acceptance](../elements/CAT-062-spring.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-194).
 
 <a id="element-195"></a>
 ### element-195 · EL-195 · Pinball bumper. Type: Mechanical. Scope/evidence source: [existing record](../requirements.md#campaign-element-coverage). Bounded supplied or explicitly charged contact actuator repels touching cargo.
 
 Owner **S301**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** No available energy or missed contact means no powered kick. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-195` under canonical **S301**. [EL-195 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-195-pinball-bumper.md). Also retains [CAT-015 acceptance](../elements/CAT-015-bumper.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-195).
 
@@ -1379,12 +1787,16 @@ Owner **S301**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S302**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Disconnected or depleted source cannot operate a motor. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-196` under canonical **S302**. [EL-196 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-196-battery.md). Also retains [CAT-005 acceptance](../elements/CAT-005-battery.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-196).
 
 <a id="element-197"></a>
 ### element-197 · EL-197 · Electrical wire. Type: Electrical. Scope/evidence source: [existing record](../requirements.md#campaign-element-coverage). Compatible terminals carry power or control according to their distinct typed contracts.
 
 Owner **S303**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Geometric crossing alone cannot connect wires. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-197` under canonical **S303**. [EL-197 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-197-electrical-wire.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-197).
 
@@ -1393,12 +1805,16 @@ Owner **S303**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S304**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Closed contact cannot create supply energy. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-198` under canonical **S304**. [EL-198 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-198-switch.md). Also retains [CAT-063 acceptance](../elements/CAT-063-switch.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-198).
 
 <a id="element-199"></a>
 ### element-199 · EL-199 · Electric motor. Type: Mechanical. Scope/evidence source: [existing record](../requirements.md#campaign-element-coverage). Supplied electrical work becomes bounded shaft torque with declared losses.
 
 Owner **S305**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Stalled shaft consumes only supported work and cannot bypass load limits. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-199` under canonical **S305**. [EL-199 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-199-electric-motor.md). Also retains [CAT-042 acceptance](../elements/CAT-042-motor.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-199).
 
@@ -1407,12 +1823,16 @@ Owner **S305**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S310**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Missing tension or disconnected endpoints prevent full drive transfer. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-200` under canonical **S310**. [EL-200 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-200-drive-belt.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-200).
 
 <a id="element-201"></a>
 ### element-201 · EL-201 · Drive chain. Type: Mechanical. Scope/evidence source: [existing record](../requirements.md#campaign-element-coverage). Compatible sprockets exchange torque through typed toothed engagement.
 
 Owner **S358**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Incompatible attachment fails rather than inheriting belt behaviour. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-201` under canonical **S358**. [EL-201 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-201-drive-chain.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-201).
 
@@ -1421,12 +1841,16 @@ Owner **S358**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S311**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Unpowered or noncontact cargo is not carried along a hidden path. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-202` under canonical **S311**. [EL-202 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-202-conveyor.md). Also retains [CAT-019 acceptance](../elements/CAT-019-conveyor.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-202).
 
 <a id="element-203"></a>
 ### element-203 · EL-203 · Reverse transmission. Type: Mechanical. Scope/evidence source: [existing record](../requirements.md#campaign-element-coverage). Declared gear/belt arrangement reverses signed shaft motion under load.
 
 Owner **S312**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** It cannot reverse by duplicating input work. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-203` under canonical **S312**. [EL-203 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-203-reverse-transmission.md). Also retains [CAT-057 acceptance](../elements/CAT-057-reverse_transmission.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-203).
 
@@ -1435,12 +1859,16 @@ Owner **S312**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S306**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Raising it requires actual work. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-204` under canonical **S306**. [EL-204 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-204-weight.md). Also retains [CAT-067 acceptance](../elements/CAT-067-weight.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-204).
 
 <a id="element-205"></a>
 ### element-205 · EL-205 · Rope. Type: Mechanical. Scope/evidence source: [existing record](../requirements.md#campaign-element-coverage). Finite-length tension-only connector couples actual routed endpoints.
 
 Owner **S307**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Slack rope cannot push or pull until tension develops. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-205` under canonical **S307**. [EL-205 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-205-rope.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-205).
 
@@ -1449,12 +1877,16 @@ Owner **S307**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S308**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Disconnected or misrouted rope receives no invisible coupling. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-206` under canonical **S308**. [EL-206 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-206-fixed-pulley.md). Also retains [CAT-053 acceptance](../elements/CAT-053-pulley.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-206).
 
 <a id="element-207"></a>
 ### element-207 · EL-207 · Moving pulley. Type: Mechanical. Scope/evidence source: [existing record](../requirements.md#campaign-element-coverage). Load-attached sheave moves with the routed rope constraints and shared reaction forces.
 
 Owner **S309**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Its displacement/work ratio follows routing rather than a named pulley bonus. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-207` under canonical **S309**. [EL-207 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-207-moving-pulley.md). Also retains [CAT-053 acceptance](../elements/CAT-053-pulley.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-207).
 
@@ -1463,12 +1895,16 @@ Owner **S309**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S479**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Tether force opposes ascent; lost contents alter buoyancy. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-208` under canonical **S479**. [EL-208 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-208-balloon.md). Also retains [CAT-003 acceptance](../elements/CAT-003-balloon.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-208).
 
 <a id="element-209"></a>
 ### element-209 · EL-209 · Fan. Type: Mechanical. Scope/evidence source: [existing record](../requirements.md#campaign-element-coverage). Explicit electrical or shaft supply drives a bounded air field.
 
 Owner **S313**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Blocked flow or absent supply prevents remote force. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-209` under canonical **S313**. [EL-209 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-209-fan.md). Also retains [CAT-028 acceptance](../elements/CAT-028-fan.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-209).
 
@@ -1477,12 +1913,16 @@ Owner **S313**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S495**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Occluding geometry blocks coverage and no supply means no emission. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
+**Delivery slice:** `named-el-210` under canonical **S495**. [EL-210 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-210-flashlight.md). Also retains [CAT-029 acceptance](../elements/CAT-029-flashlight.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-210).
 
 <a id="element-211"></a>
 ### element-211 · EL-211 · Solar panel. Type: Electrical. Scope/evidence source: [existing record](../requirements.md#campaign-element-coverage). Absorbed illumination converts to bounded electrical work through declared efficiency.
 
 Owner **S508**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Darkness yields no power; output never exceeds absorbed energy. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-211` under canonical **S508**. [EL-211 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-211-solar-panel.md). Also retains [CAT-059 acceptance](../elements/CAT-059-solar_panel.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-211).
 
@@ -1491,12 +1931,16 @@ Owner **S508**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S496**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Rear incidence and occluded paths do not reflect through the housing. Apply the individual register's shared visual, generic-process and per-element proof requirements. **Campaign:** 51–60; practice61–70; reuse111–120,142 as separate objectives in existing slots.
 
+**Delivery slice:** `named-el-212` under canonical **S496**. [EL-212 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-212-flat-mirror.md). Also retains [CAT-041 acceptance](../elements/CAT-041-mirror.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-212).
 
 <a id="element-213"></a>
 ### element-213 · EL-213 · Optical combiner. Type: Optical. Compatible incident optical channels leave an explicit output aperture with conserved combined power and declared coupling loss.
 
 Owner **S509**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** A missing channel is not synthesized, and crossing unrelated beams does not combine by object identity. Apply the individual register's shared visual, generic-process and per-element proof requirements. **Campaign:** 51–60; practice71–80; reuse117,142 as separate objectives in existing slots.
+
+**Delivery slice:** `named-el-213` under canonical **S509**. [EL-213 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-213-optical-combiner.md). Also retains [CAT-006 acceptance](../elements/CAT-006-beam_combiner.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-213).
 
@@ -1505,12 +1949,16 @@ Owner **S509**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S497**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Back-face, insufficient incident power and missing electrical supply are separate negative controls. Apply the individual register's shared visual, generic-process and per-element proof requirements. **Campaign:** 51–60; practice71–80; reuse110,142 as separate objectives in existing slots.
 
+**Delivery slice:** `named-el-214` under canonical **S497**. [EL-214 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-214-broadband-beam-detector.md). Also retains [CAT-038 acceptance](../elements/CAT-038-light_receiver.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-214).
 
 <a id="element-215"></a>
 ### element-215 · EL-215 · Damped cushion. Type: Mechanical. A finite compressible dissipative material surface absorbs impact work through the shared contact/deformation model.
 
 Owner **S381**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Grazing or bottomed-out impact does not guarantee arrest; deformation/heat loss balances work. Apply the individual register's shared visual, generic-process and per-element proof requirements. **Campaign:** 1–10; practice41–50; reuse96,149 as separate objectives in existing slots.
+
+**Delivery slice:** `named-el-215` under canonical **S381**. [EL-215 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-215-damped-cushion.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-215).
 
@@ -1519,12 +1967,16 @@ Owner **S381**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S382**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Oversize or energetic cargo can escape; no invisible capture radius or forced attachment. Apply the individual register's shared visual, generic-process and per-element proof requirements. **Campaign:** 1–10; practice41–50; reuse96,149 as separate objectives in existing slots.
 
+**Delivery slice:** `named-el-216` under canonical **S382**. [EL-216 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-216-capture-cradle.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#element-216).
 
 <a id="gap-01"></a>
 ### gap-01 · Scope index — individual element specifications: [EL-112](../requirements.md#element-112), [EL-113](../requirements.md#element-113). This former umbrella is navigation only; each linked element is independently specified and verified. Retain the original priority/adoption status and campaign reservations; interaction examples are separate proof tasks below.
 
 Owner **S732**. Retained umbrella; execute each child. **Exact source outcome:** **Scope index — individual element specifications:** [EL-112](../requirements.md#element-112), [EL-113](../requirements.md#element-113). This former umbrella is navigation only; each linked element is independently specified and verified. Retain the original priority/adoption status and campaign reservations; interaction examples are separate proof tasks below. **Visual style:** Chamfered cream ceramic beams with warm-wood inset faces, navy joint marks and gold connection collars; sparse sculptural arches rather than exposed industrial trusses.
+
+**Delivery disposition:** umbrella; closes only with `named-el-112`, `named-el-113`. No separate package or representative substitutes for its children.
 
 [Full specification and all variants](../requirements.md#gap-01).
 
@@ -1534,6 +1986,8 @@ Owner **S732**. Retained umbrella; execute each child. **Exact source outcome:**
 
 Owner **S733**. Retained umbrella; execute each child. **Exact source outcome:** **Scope index — individual element specifications:** [EL-114](../requirements.md#element-114), [EL-115](../requirements.md#element-115). This former umbrella is navigation only; each linked element is independently specified and verified. Retain the original priority/adoption status and campaign reservations; interaction examples are separate proof tasks below. **Visual style:** Cream bearing plinth, gold visible pin and navy axis notch; an unobtrusive selected-only arc shows actual limits. Moving artwork follows the solved joint pose.
 
+**Delivery disposition:** umbrella; closes only with `named-el-114`, `named-el-115`. No separate package or representative substitutes for its children.
+
 [Full specification and all variants](../requirements.md#gap-02).
 
 **Distinct coverage children:** [element-114](#element-114), [element-115](#element-115).
@@ -1541,6 +1995,8 @@ Owner **S733**. Retained umbrella; execute each child. **Exact source outcome:**
 ### gap-03 · Scope index — individual element specifications: [EL-116](../requirements.md#element-116), [EL-117](../requirements.md#element-117). This former umbrella is navigation only; each linked element is independently specified and verified. Retain the original priority/adoption status and campaign reservations; interaction examples are separate proof tasks below.
 
 Owner **S734**. Retained umbrella; execute each child. **Exact source outcome:** **Scope index — individual element specifications:** [EL-116](../requirements.md#element-116), [EL-117](../requirements.md#element-117). This former umbrella is navigation only; each linked element is independently specified and verified. Retain the original priority/adoption status and campaign reservations; interaction examples are separate proof tasks below. **Visual style:** Cream disc wheels, warm-wood tread, navy hub recess and one gold spoke reveal spin and slip; rounded chassis members stay visibly separate.
+
+**Delivery disposition:** umbrella; closes only with `named-el-116`, `named-el-117`. No separate package or representative substitutes for its children.
 
 [Full specification and all variants](../requirements.md#gap-03).
 
@@ -1550,12 +2006,16 @@ Owner **S734**. Retained umbrella; execute each child. **Exact source outcome:**
 
 Owner **S638**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Supply drives a loaded vehicle; missing supply produces no new work, an overloaded drive stalls and a low-friction wheel slips. Coasting comes only from stored motion. Verify connected drivetrain and driven-wheel Reset independently of GAP-03. Apply the common completion requirements above.
 
+**Delivery slice:** `named-gap-04` under canonical **S638**. [GAP-04 declaration, prerequisites, controls, boundaries and decisions](../elements/GAP-04-driven-wheel.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#gap-04).
 
 <a id="gap-05"></a>
 ### gap-05 · Scope index — individual element specifications: [EL-159](../requirements.md#element-159), [EL-160](../requirements.md#element-160), [EL-161](../requirements.md#element-161). This former umbrella is navigation only; each linked element is independently specified and verified. Retain the original priority/adoption status and campaign reservations; interaction examples are separate proof tasks below.
 
 Owner **S735**. Retained umbrella; execute each child. **Exact source outcome:** **Scope index — individual element specifications:** [EL-159](../requirements.md#element-159), [EL-160](../requirements.md#element-160), [EL-161](../requirements.md#element-161). This former umbrella is navigation only; each linked element is independently specified and verified. Retain the original priority/adoption status and campaign reservations; interaction examples are separate proof tasks below. **Visual style:** Cream collar with a gold load band and navy segmented witness marks; selected-only stress indication includes shape/scale, not colour alone. A break opens a real visible gap.
+
+**Delivery disposition:** umbrella; closes only with `named-el-159`, `named-el-160`, `named-el-161`. No separate package or representative substitutes for its children.
 
 [Full specification and all variants](../requirements.md#gap-05).
 
@@ -1565,6 +2025,8 @@ Owner **S735**. Retained umbrella; execute each child. **Exact source outcome:**
 
 Owner **S639**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Discharged plus retained material equals initial feed within the explicit representation tolerance. Empty feed stops, a blocked aperture jams, and opening the physical route clears it. Verify interaction with buckets and weighing controls. Apply the common completion requirements above.
 
+**Delivery slice:** `named-gap-06` under canonical **S639**. [GAP-06 declaration, prerequisites, controls, boundaries and decisions](../elements/GAP-06-granular-dispenser.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#gap-06).
 
 <a id="gap-07"></a>
@@ -1572,12 +2034,16 @@ Owner **S639**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S640**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Small grains pass and oversize grains remain; an all-oversize control blocks and finite mixed feed conserves both fractions. Verify either gravity-only operation or every separately adopted powered-shake mode before using it. Apply the common completion requirements above.
 
+**Delivery slice:** `named-gap-07` under canonical **S640**. [GAP-07 declaration, prerequisites, controls, boundaries and decisions](../elements/GAP-07-granular-sieve.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#gap-07).
 
 <a id="gap-08"></a>
 ### gap-08 · Scope index — individual element specifications: [EL-118](../requirements.md#element-118), [EL-119](../requirements.md#element-119). This former umbrella is navigation only; each linked element is independently specified and verified. Retain the original priority/adoption status and campaign reservations; interaction examples are separate proof tasks below.
 
 Owner **S736**. Retained umbrella; execute each child. **Exact source outcome:** **Scope index — individual element specifications:** [EL-118](../requirements.md#element-118), [EL-119](../requirements.md#element-119). This former umbrella is navigation only; each linked element is independently specified and verified. Retain the original priority/adoption status and campaign reservations; interaction examples are separate proof tasks below. **Visual style:** A cream arch over a cyan shallow basin, gold application lip and navy pattern stamp on finished cargo. Patterns distinguish treated/untreated states without introducing a new palette.
+
+**Delivery disposition:** umbrella; closes only with `named-el-118`, `named-el-119`. No separate package or representative substitutes for its children.
 
 [Full specification and all variants](../requirements.md#gap-08).
 
@@ -1587,12 +2053,16 @@ Owner **S736**. Retained umbrella; execute each child. **Exact source outcome:**
 
 Owner **S641**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Insufficient impact leaves cargo intact; adequate supplied work creates finite fragments that can pass a smaller route. Blocked/unsupplied controls fail appropriately; fragments cannot create extra feed or lose inherited state on save/Reset. Apply the common completion requirements above.
 
+**Delivery slice:** `named-gap-09` under canonical **S641**. [GAP-09 declaration, prerequisites, controls, boundaries and decisions](../elements/GAP-09-fragmentation-station.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#gap-09).
 
 <a id="gap-10"></a>
 ### gap-10 · GAP-10 · P2 potential: Multi-selection and reusable assembly blueprints. Type: Construction UI. Select, copy, move, rotate and save a connected group using touch-capable contextual controls. Preserve typed internal links, allocate fresh instance IDs, declare exposed ports and charge inventory per constituent. External links require explicit reconnection; reject dangling references.
 
 Owner **S740**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** One gesture is one Undo. Copies preserve geometry and internal typed configuration without shared identities; reconnect and run both copies independently. Illegal overlap, excess inventory and unsupported boundary links fail visibly. Apply the common completion requirements above.
+
+**Delivery slice:** `feature-gap-10` under **S740**, after the complete element lane and before release. Product feature, not a puzzle element. Given the full linked requirement, when its user operations and failure controls execute, then the exact outcome above holds, retaining all modes, refusal and restoration criteria. Resolve finite design choices before implementation; production unit/integration proof precedes any applicable final-phase browser proof.
 
 [Full specification and all variants](../requirements.md#gap-10).
 
@@ -1601,12 +2071,16 @@ Owner **S740**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S741**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Author a small solvable puzzle, run through actual player controls, revise an invalid goal reference and save/reopen it. Creator privileges cannot leak into play mode. A guided local editor exercise never requires an account or public upload. Apply the common completion requirements above.
 
+**Delivery slice:** `feature-gap-11` under **S741**, after the complete element lane and before release. Product feature, not a puzzle element. Given the full linked requirement, when its user operations and failure controls execute, then the exact outcome above holds, retaining all modes, refusal and restoration criteria. Resolve finite design choices before implementation; production unit/integration proof precedes any applicable final-phase browser proof.
+
 [Full specification and all variants](../requirements.md#gap-11).
 
 <a id="gap-12"></a>
 ### gap-12 · GAP-12 · P2 potential: Portable puzzle and machine exchange. Type: Persistence UI. Export/import machines and player puzzles as separately validated current-schema documents with typed references and bounded sizes. Reject unknown/unsupported values explicitly; no migrations, old-name aliases or executable scripts. Keep solution data separate from a published puzzle.
 
 Owner **S742**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Round-trip both document types in a fresh session with exact parts, connections and supported settings. Corrupt input cannot damage the current construction. Campaign teaches a local save/export preview; network upload or file-picker availability never gates the base win. Apply the common completion requirements above.
+
+**Delivery slice:** `feature-gap-12` under **S742**, after the complete element lane and before release. Product feature, not a puzzle element. Given the full linked requirement, when its user operations and failure controls execute, then the exact outcome above holds, retaining all modes, refusal and restoration criteria. Resolve finite design choices before implementation; production unit/integration proof precedes any applicable final-phase browser proof.
 
 [Full specification and all variants](../requirements.md#gap-12).
 
@@ -1615,12 +2089,16 @@ Owner **S742**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S743**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Two constructions in two profiles survive reload without overwriting or cross-crediting progress. Save the current attempt, reopen it and continue with the exact configuration. Offer profile selection outside the puzzle rather than forcing profile switching to win. Apply the common completion requirements above.
 
+**Delivery slice:** `feature-gap-13` under **S743**, after the complete element lane and before release. Product feature, not a puzzle element. Given the full linked requirement, when its user operations and failure controls execute, then the exact outcome above holds, retaining all modes, refusal and restoration criteria. Resolve finite design choices before implementation; production unit/integration proof precedes any applicable final-phase browser proof.
+
 [Full specification and all variants](../requirements.md#gap-13).
 
 <a id="gap-14"></a>
 ### gap-14 · GAP-14 · P2 potential: Player simulation transport controls. Type: Experiment UI. Expose pause, one simulation step and slow/normal playback through contextual touch controls. Equal simulated time must yield the same supported result at each playback speed. Replay/seek needs its own recording and deterministic-state contract before being offered.
 
 Owner **S744**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Pause really stops state progression; one step advances exactly the defined simulation quantum. Compare slow/normal outcomes, resume and Reset. Treat recorded replay/seek as a separate child specification, with no claim that a captured movie is a reproducible simulation. Apply the common completion requirements above.
+
+**Delivery slice:** `feature-gap-14` under **S744**, after the complete element lane and before release. Product feature, not a puzzle element. Given the full linked requirement, when its user operations and failure controls execute, then the exact outcome above holds, retaining all modes, refusal and restoration criteria. Resolve finite design choices before implementation; production unit/integration proof precedes any applicable final-phase browser proof.
 
 [Full specification and all variants](../requirements.md#gap-14).
 
@@ -1629,12 +2107,16 @@ Owner **S744**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S745**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** An intentionally detached drive shows missing supply, a constrained assembly shows its actual blockage, and live values follow simulation time. Reset clears prior-run traces. Hiding inspection leaves the puzzle readable and does not change rewards. Apply the common completion requirements above.
 
+**Delivery slice:** `feature-gap-15` under **S745**, after the complete element lane and before release. Product feature, not a puzzle element. Given the full linked requirement, when its user operations and failure controls execute, then the exact outcome above holds, retaining all modes, refusal and restoration criteria. Resolve finite design choices before implementation; production unit/integration proof precedes any applicable final-phase browser proof.
+
 [Full specification and all variants](../requirements.md#gap-15).
 
 <a id="gap-16"></a>
 ### gap-16 · Scope index — individual element specifications: [EL-120](../requirements.md#element-120), [EL-121](../requirements.md#element-121), [EL-122](../requirements.md#element-122), [EL-123](../requirements.md#element-123). This former umbrella is navigation only; each linked element is independently specified and verified. Retain the original priority/adoption status and campaign reservations; interaction examples are separate proof tasks below.
 
 Owner **S737**. Retained umbrella; execute each child. **Exact source outcome:** **Scope index — individual element specifications:** [EL-120](../requirements.md#element-120), [EL-121](../requirements.md#element-121), [EL-122](../requirements.md#element-122), [EL-123](../requirements.md#element-123). This former umbrella is navigation only; each linked element is independently specified and verified. Retain the original priority/adoption status and campaign reservations; interaction examples are separate proof tasks below. **Visual style:** Use cream goal cards with navy quantity dots/order marks and gold progress; small on-object gauges complement rather than clutter the scene. Completion feedback remains calm and positive.
+
+**Delivery disposition:** umbrella; closes only with `named-el-120`, `named-el-121`, `named-el-122`, `named-el-123`. No separate package or representative substitutes for its children.
 
 [Full specification and all variants](../requirements.md#gap-16).
 
@@ -1644,12 +2126,16 @@ Owner **S737**. Retained umbrella; execute each child. **Exact source outcome:**
 
 Owner **S746**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Legal construction succeeds and an overhanging rotated piece/assembly fails with a local explanation. Snapping cannot push an accepted pose outside its zone. Save/export preserve author constraints; zones exert no runtime force. Apply the common completion requirements above.
 
+**Delivery slice:** `feature-gap-17` under **S746**, after the complete element lane and before release. Product feature, not a puzzle element. Given the full linked requirement, when its user operations and failure controls execute, then the exact outcome above holds, retaining all modes, refusal and restoration criteria. Resolve finite design choices before implementation; production unit/integration proof precedes any applicable final-phase browser proof.
+
 [Full specification and all variants](../requirements.md#gap-17).
 
 <a id="gap-18"></a>
 ### gap-18 · Scope index — individual element specifications: [EL-124](../requirements.md#element-124), [EL-125](../requirements.md#element-125). This former umbrella is navigation only; each linked element is independently specified and verified. Retain the original priority/adoption status and campaign reservations; interaction examples are separate proof tasks below.
 
 Owner **S738**. Retained umbrella; execute each child. **Exact source outcome:** **Scope index — individual element specifications:** [EL-124](../requirements.md#element-124), [EL-125](../requirements.md#element-125). This former umbrella is navigation only; each linked element is independently specified and verified. Retain the original priority/adoption status and campaign reservations; interaction examples are separate proof tasks below. **Visual style:** Use a quiet cream environment plaque with navy direction/air symbols and gold selection. Reuse the approved sky/wood palette; avoid per-preset recolouring or misleading weather effects.
+
+**Delivery disposition:** umbrella; closes only with `named-el-124`, `named-el-125`. No separate package or representative substitutes for its children.
 
 [Full specification and all variants](../requirements.md#gap-18).
 
@@ -1659,12 +2145,16 @@ Owner **S738**. Retained umbrella; execute each child. **Exact source outcome:**
 
 Owner **S608**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Moving the capsule farther away lowers the meter reading; disconnecting a nearby battery does not stop emission. Source pose and initial state restore exactly.
 
+**Delivery slice:** `named-rad-01` under canonical **S608**. [RAD-01 declaration, prerequisites, controls, boundaries and decisions](../elements/RAD-01-gamma-source-capsule.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#radiation-01).
 
 <a id="radiation-02"></a>
 ### radiation-02 · RAD-02 · P1 potential: Powered X-ray emitter. Supply and enable input produce a bounded directional photon field. This is the controllable source alternative; X-ray and gamma penetration depends on the authored energy band, not a universal type ranking. Proposed campaign teaching: 107, 114.
 
 Owner **S609**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Supply removal stops emission; a disconnected enable input cannot fire. Test every supported energy preset, direction and restart.
+
+**Delivery slice:** `named-rad-02` under canonical **S609**. [RAD-02 declaration, prerequisites, controls, boundaries and decisions](../elements/RAD-02-powered-x-ray-emitter.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#radiation-02).
 
@@ -1673,6 +2163,8 @@ Owner **S609**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S620**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** A close compatible detector responds; extra separation or a thin screen suppresses it. Gamma-only reception rejects it.
 
+**Delivery slice:** `named-rad-03` under canonical **S620**. [RAD-03 declaration, prerequisites, controls, boundaries and decisions](../elements/RAD-03-alpha-source-cartridge.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#radiation-03).
 
 <a id="radiation-04"></a>
@@ -1680,12 +2172,16 @@ Owner **S620**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S621**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** A taught thin screen passes enough beta to detect while a polymer screen suppresses it; opposite bending is proven with the deflector.
 
+**Delivery slice:** `named-rad-04` under canonical **S621**. [RAD-04 declaration, prerequisites, controls, boundaries and decisions](../elements/RAD-04-beta-minus-source-cartridge.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#radiation-04).
 
 <a id="radiation-05"></a>
 ### radiation-05 · Scope index — individual element specifications: [EL-126](../requirements.md#element-126), [EL-127](../requirements.md#element-127), [EL-128](../requirements.md#element-128). This former umbrella is navigation only; each linked element is independently specified and verified. Retain the original priority/adoption status and campaign reservations; interaction examples are separate proof tasks below.
 
 Owner **S713**. Retained umbrella; execute each child. **Exact source outcome:** **Scope index — individual element specifications:** [EL-126](../requirements.md#element-126), [EL-127](../requirements.md#element-127), [EL-128](../requirements.md#element-128). This former umbrella is navigation only; each linked element is independently specified and verified. Retain the original priority/adoption status and campaign reservations; interaction examples are separate proof tasks below.
+
+**Delivery disposition:** umbrella; closes only with `named-el-126`, `named-el-127`, `named-el-128`. No separate package or representative substitutes for its children.
 
 [Full specification and all variants](../requirements.md#radiation-05).
 
@@ -1695,12 +2191,16 @@ Owner **S713**. Retained umbrella; execute each child. **Exact source outcome:**
 
 Owner **S613**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Closed blade reduces exposure below the taught target threshold; an obstructed blade leaks according to geometry. Power loss cannot teleport the blade closed.
 
+**Delivery slice:** `named-rad-06` under canonical **S613**. [RAD-06 declaration, prerequisites, controls, boundaries and decisions](../elements/RAD-06-powered-radiation-shutter.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#radiation-06).
 
 <a id="radiation-07"></a>
 ### radiation-07 · RAD-07 · P1 potential: Collimator block. A dense block with a real aperture selects field directions by absorbing off-axis radiation. Aperture presets trade coverage for throughput; this is not a lens or amplifier. Proposed campaign teaching: 106, 114.
 
 Owner **S614**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** An aligned receiver responds while an off-axis control does not; a narrower opening never increases total transmitted power.
+
+**Delivery slice:** `named-rad-07` under canonical **S614**. [RAD-07 declaration, prerequisites, controls, boundaries and decisions](../elements/RAD-07-collimator-block.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#radiation-07).
 
@@ -1709,12 +2209,16 @@ Owner **S614**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S615**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Correct exposure switches the output; wrong channel, blocked path and missing supply do not. Muting clicks leaves results identical.
 
+**Delivery slice:** `named-rad-08` under canonical **S615**. [RAD-08 declaration, prerequisites, controls, boundaries and decisions](../elements/RAD-08-radiation-rate-meter.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#radiation-08).
 
 <a id="radiation-09"></a>
 ### radiation-09 · RAD-09 · P1 potential: Integrating dosimeter. A supplied instrument accumulates weighted exposure across separate bursts; power loss disables its contact but retains accumulated measurement within a Run. Keep this distinct from a continuous hold timer. Proposed campaign teaching: 109, 110.
 
 Owner **S616**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Two separated exposures add to the same total as one equivalent exposure; darkness does not erase the total. Run/Reset clears it to the authored initial value.
+
+**Delivery slice:** `named-rad-09` under canonical **S616**. [RAD-09 declaration, prerequisites, controls, boundaries and decisions](../elements/RAD-09-integrating-dosimeter.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#radiation-09).
 
@@ -1723,12 +2227,16 @@ Owner **S616**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S617**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** A shielded route delivers within budget; the same endpoint reached by an exposed route fails. Cargo retains its dose through stops and loses it only on Reset.
 
+**Delivery slice:** `named-rad-10` under canonical **S617**. [RAD-10 declaration, prerequisites, controls, boundaries and decisions](../elements/RAD-10-exposure-sensitive-cargo-badge.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#radiation-10).
 
 <a id="radiation-11"></a>
 ### radiation-11 · Scope index — individual element specifications: [EL-129](../requirements.md#element-129), [EL-130](../requirements.md#element-130). This former umbrella is navigation only; each linked element is independently specified and verified. Retain the original priority/adoption status and campaign reservations; interaction examples are separate proof tasks below.
 
 Owner **S714**. Retained umbrella; execute each child. **Exact source outcome:** **Scope index — individual element specifications:** [EL-129](../requirements.md#element-129), [EL-130](../requirements.md#element-130). This former umbrella is navigation only; each linked element is independently specified and verified. Retain the original priority/adoption status and campaign reservations; interaction examples are separate proof tasks below.
+
+**Delivery disposition:** umbrella; closes only with `named-el-129`, `named-el-130`. No separate package or representative substitutes for its children.
 
 [Full specification and all variants](../requirements.md#radiation-11).
 
@@ -1738,12 +2246,16 @@ Owner **S714**. Retained umbrella; execute each child. **Exact source outcome:**
 
 Owner **S622**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Incident radiation produces observable light and a receiver response; shielding prevents both. Conversion loss is explicit and output cannot exceed absorbed energy.
 
+**Delivery slice:** `named-rad-12` under canonical **S622**. [RAD-12 declaration, prerequisites, controls, boundaries and decisions](../elements/RAD-12-scintillator-tile.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#radiation-12).
 
 <a id="radiation-13"></a>
 ### radiation-13 · RAD-13 · P2 potential: Decay clock capsule. A visibly marked fictional short-half-life source weakens according to a deterministic exponential envelope. Use authored half-life presets, not random waits or a renamed linear timer. Proposed campaign teaching: 123, 124.
 
 Owner **S623**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Successive equal half-life intervals halve source strength; a rate contact releases below its threshold, and Reset restores the initial activity and age.
+
+**Delivery slice:** `named-rad-13` under canonical **S623**. [RAD-13 declaration, prerequisites, controls, boundaries and decisions](../elements/RAD-13-decay-clock-capsule.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#radiation-13).
 
@@ -1752,12 +2264,16 @@ Owner **S623**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S624**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Polarity reversal swaps the charged route; gamma/X-ray controls remain straight. Field-off and opposite-charge cases are separately proven.
 
+**Delivery slice:** `named-rad-14` under canonical **S624**. [RAD-14 declaration, prerequisites, controls, boundaries and decisions](../elements/RAD-14-magnetic-deflector.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#radiation-14).
 
 <a id="radiation-15"></a>
 ### radiation-15 · RAD-15 · P3 potential: Track chamber. A readable detector volume displays persistent short trails from the simulated charged trajectories; an explicitly supplied segmented readout can select an exit region. Proposed campaign teaching: 120, 121.
 
 Owner **S625**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** The selected exit segment triggers only for a traversing track; a decorative trail or a miss cannot trigger it. Neutral photons make no direct charged track in the initial abstraction.
+
+**Delivery slice:** `named-rad-15` under canonical **S625**. [RAD-15 declaration, prerequisites, controls, boundaries and decisions](../elements/RAD-15-track-chamber.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#radiation-15).
 
@@ -1766,12 +2282,16 @@ Owner **S625**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S626**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** A fast-sensitive neutron detector responds; a photon-only detector does not. Ordinary magnetic deflection leaves the neutron route unchanged.
 
+**Delivery slice:** `named-rad-16` under canonical **S626**. [RAD-16 declaration, prerequisites, controls, boundaries and decisions](../elements/RAD-16-neutron-source-module.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#radiation-16).
 
 <a id="radiation-17"></a>
 ### radiation-17 · RAD-17 · P3 potential: Water moderator tank. A conserved-water vessel changes a bounded fraction of traversing fast-neutron flux into a slower group with documented losses. Water level affects the interaction path. Proposed campaign teaching: 126, 128.
 
 Owner **S627**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Filling the tank increases the slow-group response in the authored range; a dry tank and a drained tank fail that control. Slowdown is not absorption.
+
+**Delivery slice:** `named-rad-17` under canonical **S627**. [RAD-17 declaration, prerequisites, controls, boundaries and decisions](../elements/RAD-17-water-moderator-tank.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#radiation-17).
 
@@ -1780,12 +2300,16 @@ Owner **S627**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S628**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Adding it after the moderator suppresses the slow detector; removing it restores response. Dense photon shielding does not substitute for its neutron contract.
 
+**Delivery slice:** `named-rad-18` under canonical **S628**. [RAD-18 declaration, prerequisites, controls, boundaries and decisions](../elements/RAD-18-neutron-absorber-panel.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#radiation-18).
 
 <a id="radiation-19"></a>
 ### radiation-19 · Scope index — individual element specifications: [EL-131](../requirements.md#element-131), [EL-132](../requirements.md#element-132). This former umbrella is navigation only; each linked element is independently specified and verified. Retain the original priority/adoption status and campaign reservations; interaction examples are separate proof tasks below.
 
 Owner **S715**. Retained umbrella; execute each child. **Exact source outcome:** **Scope index — individual element specifications:** [EL-131](../requirements.md#element-131), [EL-132](../requirements.md#element-132). This former umbrella is navigation only; each linked element is independently specified and verified. Retain the original priority/adoption status and campaign reservations; interaction examples are separate proof tasks below.
+
+**Delivery disposition:** umbrella; closes only with `named-el-131`, `named-el-132`. No separate package or representative substitutes for its children.
 
 [Full specification and all variants](../requirements.md#radiation-19).
 
@@ -1795,12 +2319,16 @@ Owner **S715**. Retained umbrella; execute each child. **Exact source outcome:**
 
 Owner **S631**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Cooling permits useful output; an equal-temperature control produces no thermoelectric output. Heat, electrical work, load and Reset state are accounted for.
 
+**Delivery slice:** `named-rad-20` under canonical **S631**. [RAD-20 declaration, prerequisites, controls, boundaries and decisions](../elements/RAD-20-radioisotope-thermoelectric-generator.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#radiation-20).
 
 <a id="radiation-21"></a>
 ### radiation-21 · RAD-21 · P3 potential: Radiation-responsive material latch. A fictional polymer insert weakens after accumulated exposure and releases a real loaded latch. The particular threshold-to-release behavior is authored material fiction inspired by radiation processing. Proposed campaign teaching: 133, 134.
 
 Owner **S632**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Enough exposure releases the load; shielding or insufficient accumulated exposure retains it. Reset restores material state, latch pose and stored load.
+
+**Delivery slice:** `named-rad-21` under canonical **S632**. [RAD-21 declaration, prerequisites, controls, boundaries and decisions](../elements/RAD-21-radiation-responsive-material-latch.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#radiation-21).
 
@@ -1809,12 +2337,16 @@ Owner **S632**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S633**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Two detectors observe the capsule in causal order and drive a gate/counter; a stationary capsule cannot repeatedly count as new arrivals. Branches move one capsule without copying it.
 
+**Delivery slice:** `named-rad-22` under canonical **S633**. [RAD-22 declaration, prerequisites, controls, boundaries and decisions](../elements/RAD-22-sealed-tracer-capsule.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#radiation-22).
 
 <a id="thermal-01"></a>
 ### thermal-01 · TH-01 · Potential element: Candle. Finite wax inventory feeds a shared combustion model and emits accounted heat/light; heat and oxygen conditions determine burning. Research basis: [TH-S03](../../thermal-component-research.md#th-s03).
 
 Owner **S598**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** An unlit or exhausted candle produces no sustained output. Prove the positive use, this control, generic connections, finite stores and exact restoration after Run/Reset and save/reload.
+
+**Delivery slice:** `named-th-01` under canonical **S598**. [TH-01 declaration, prerequisites, controls, boundaries and decisions](../elements/TH-01-candle.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#thermal-01).
 
@@ -1823,12 +2355,16 @@ Owner **S598**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S597**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** An empty bowl or inadequate oxidizer cannot sustain flame. Prove the positive use, this control, generic connections, finite stores and exact restoration after Run/Reset and save/reload.
 
+**Delivery slice:** `named-th-02` under canonical **S597**. [TH-02 declaration, prerequisites, controls, boundaries and decisions](../elements/TH-02-fire-bowl.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#thermal-02).
 
 <a id="thermal-03"></a>
 ### thermal-03 · TH-03 · Potential element: Combustible block. Transportable structural material has finite reactants, chemical energy and temperature-dependent strength; consumption updates mass and geometry generically. Research basis: [TH-S03](../../thermal-component-research.md#th-s03).
 
 Owner **S596**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** A noncombustible control absorbs heat but does not burn; spent fuel cannot reignite indefinitely. Prove the positive use, this control, generic connections, finite stores and exact restoration after Run/Reset and save/reload.
+
+**Delivery slice:** `named-th-03` under canonical **S596**. [TH-03 declaration, prerequisites, controls, boundaries and decisions](../elements/TH-03-combustible-block.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#thermal-03).
 
@@ -1837,12 +2373,16 @@ Owner **S596**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S567**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Disconnected or exhausted supply cannot create new heat. Prove the positive use, this control, generic connections, finite stores and exact restoration after Run/Reset and save/reload.
 
+**Delivery slice:** `named-th-04` under canonical **S567**. [TH-04 declaration, prerequisites, controls, boundaries and decisions](../elements/TH-04-electrical-heating-plate.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#thermal-04).
 
 <a id="thermal-05"></a>
 ### thermal-05 · TH-05 · Potential element: Friction brake. Extend the existing brake's generic resistive-contact/shaft model: removed mechanical work enters heat stores, with a visible mechanical cost. This is one brake identity with an added thermal proof. Research basis: [TH-S01](../../thermal-component-research.md#th-s01).
 
 Owner **S574**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** A stationary brake makes no frictional heat; shaft energy loss balances thermal gain and declared losses. Prove the positive use, this control, generic connections, finite stores and exact restoration after Run/Reset and save/reload.
+
+**Delivery slice:** `named-th-05` under canonical **S574**. [TH-05 declaration, prerequisites, controls, boundaries and decisions](../elements/TH-05-friction-brake.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#thermal-05).
 
@@ -1851,12 +2391,16 @@ Owner **S574**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S518**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Defocus, occlusion or inadequate source power fails to reach ignition conditions. Prove the positive use, this control, generic connections, finite stores and exact restoration after Run/Reset and save/reload.
 
+**Delivery slice:** `named-th-06` under canonical **S518**. [TH-06 declaration, prerequisites, controls, boundaries and decisions](../elements/TH-06-converging-lens.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#thermal-06).
 
 <a id="thermal-07"></a>
 ### thermal-07 · TH-07 · Potential element: Solar absorber plate. Absorbed optical flux becomes internal energy according to surface absorptance and illuminated area; a thermal port can carry it onward. Research basis: [TH-S04](../../thermal-component-research.md#th-s04).
 
 Owner **S573**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** A reflective comparison absorbs less; shading removes the input without immediately deleting stored heat. Prove the positive use, this control, generic connections, finite stores and exact restoration after Run/Reset and save/reload.
+
+**Delivery slice:** `named-th-07` under canonical **S573**. [TH-07 declaration, prerequisites, controls, boundaries and decisions](../elements/TH-07-solar-absorber-plate.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#thermal-07).
 
@@ -1865,12 +2409,16 @@ Owner **S573**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S570**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** An air gap removes solid contact conduction; a low-conductivity comparison transfers less under the same conditions. Prove the positive use, this control, generic connections, finite stores and exact restoration after Run/Reset and save/reload.
 
+**Delivery slice:** `named-th-08` under canonical **S570**. [TH-08 declaration, prerequisites, controls, boundaries and decisions](../elements/TH-08-heat-conducting-bar.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#thermal-08).
 
 <a id="thermal-09"></a>
 ### thermal-09 · TH-09 · Potential element: Insulating panel. Thickness and material properties resist heat transfer while retaining explicitly supported radiative/convective paths. Research basis: [TH-S01](../../thermal-component-research.md#th-s01).
 
 Owner **S571**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** A thinner/lower-resistance comparison leaks heat faster; insulation is not a universal heat deletion field. Prove the positive use, this control, generic connections, finite stores and exact restoration after Run/Reset and save/reload.
+
+**Delivery slice:** `named-th-09` under canonical **S571**. [TH-09 declaration, prerequisites, controls, boundaries and decisions](../elements/TH-09-insulating-panel.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#thermal-09).
 
@@ -1879,12 +2427,16 @@ Owner **S571**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S572**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** An equal-temperature environment gives no net cooling; passive convection cannot cool below ambient. Prove the positive use, this control, generic connections, finite stores and exact restoration after Run/Reset and save/reload.
 
+**Delivery slice:** `named-th-10` under canonical **S572**. [TH-10 declaration, prerequisites, controls, boundaries and decisions](../elements/TH-10-finned-heat-sink.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#thermal-10).
 
 <a id="thermal-11"></a>
 ### thermal-11 · TH-11 · Potential element: Heat exchanger. Two separated fluid passages exchange energy through a conductive partition; material remains in its own passage. Research basis: [TH-S01](../../thermal-component-research.md#th-s01).
 
 Owner **S575**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Equal-temperature streams give no net exchange; blocked flow limits delivery and cannot cross-contaminate channels. Prove the positive use, this control, generic connections, finite stores and exact restoration after Run/Reset and save/reload.
+
+**Delivery slice:** `named-th-11` under canonical **S575**. [TH-11 declaration, prerequisites, controls, boundaries and decisions](../elements/TH-11-heat-exchanger.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#thermal-11).
 
@@ -1893,12 +2445,16 @@ Owner **S575**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S576**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Power loss stops pumping; an insulated hot side warms and limits cooling rather than swallowing heat. Prove the positive use, this control, generic connections, finite stores and exact restoration after Run/Reset and save/reload.
 
+**Delivery slice:** `named-th-12` under canonical **S576**. [TH-12 declaration, prerequisites, controls, boundaries and decisions](../elements/TH-12-reversible-heat-pump.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#thermal-12).
 
 <a id="thermal-13"></a>
 ### thermal-13 · TH-13 · Potential element: Freezing mold. A container defines the geometry of solidifying material and provides heat-transfer surfaces; it has no hidden cold source. Research basis: [TH-S02](../../thermal-component-research.md#th-s02).
 
 Owner **S577**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Insufficient energy removal leaves a measured liquid/solid mixture; equal-temperature surroundings cannot freeze it. Prove the positive use, this control, generic connections, finite stores and exact restoration after Run/Reset and save/reload.
+
+**Delivery slice:** `named-th-13` under canonical **S577**. [TH-13 declaration, prerequisites, controls, boundaries and decisions](../elements/TH-13-freezing-mold.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#thermal-13).
 
@@ -1907,12 +2463,16 @@ Owner **S577**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S578**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** A cold control retains support; partially melted material cannot disappear or keep impossible full-block support. Prove the positive use, this control, generic connections, finite stores and exact restoration after Run/Reset and save/reload.
 
+**Delivery slice:** `named-th-14` under canonical **S578**. [TH-14 declaration, prerequisites, controls, boundaries and decisions](../elements/TH-14-ice-block.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#thermal-14).
 
 <a id="thermal-15"></a>
 ### thermal-15 · TH-15 · Potential element: Ice plug. A solid-water insert physically blocks an aperture until generic melting changes the occupied geometry. Separate part placement/shape from the ice-block cargo role. Research basis: [TH-S02](../../thermal-component-research.md#th-s02).
 
 Owner **S579**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Heating an unrelated body does not open it; residual solid continues to obstruct as geometry dictates. Prove the positive use, this control, generic connections, finite stores and exact restoration after Run/Reset and save/reload.
+
+**Delivery slice:** `named-th-15` under canonical **S579**. [TH-15 declaration, prerequisites, controls, boundaries and decisions](../elements/TH-15-ice-plug.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#thermal-15).
 
@@ -1921,12 +2481,16 @@ Owner **S579**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S580**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Subthreshold heating retains support; cooling broken material does not reattach a severed graph. Prove the positive use, this control, generic connections, finite stores and exact restoration after Run/Reset and save/reload.
 
+**Delivery slice:** `named-th-16` under canonical **S580**. [TH-16 declaration, prerequisites, controls, boundaries and decisions](../elements/TH-16-fusible-link.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#thermal-16).
 
 <a id="thermal-17"></a>
 ### thermal-17 · TH-17 · Potential element: Kettle. A finite fluid vessel accepts generic heat and has explicit vapor outlet/pressure boundaries; vapor comes from material enthalpy and phase state. Research basis: [TH-S02](../../thermal-component-research.md#th-s02).
 
 Owner **S581**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** An empty vessel emits no water vapor; warm water requires further sensible/latent input before the specified vapor output. Prove the positive use, this control, generic connections, finite stores and exact restoration after Run/Reset and save/reload.
+
+**Delivery slice:** `named-th-17` under canonical **S581**. [TH-17 declaration, prerequisites, controls, boundaries and decisions](../elements/TH-17-kettle.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#thermal-17).
 
@@ -1935,12 +2499,16 @@ Owner **S581**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S582**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** A warm or exhausted sink cannot condense an unlimited vapor stream. Prove the positive use, this control, generic connections, finite stores and exact restoration after Run/Reset and save/reload.
 
+**Delivery slice:** `named-th-18` under canonical **S582**. [TH-18 declaration, prerequisites, controls, boundaries and decisions](../elements/TH-18-condenser.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#thermal-18).
 
 <a id="thermal-19"></a>
 ### thermal-19 · TH-19 · Potential element: Steam piston. A catalogue assembly configures the same generic pressure actuator used for supported fluids, with vapor-capable seals, inlet and exhaust; no steam-specific force callback. Research basis: [TH-S07](../../thermal-component-research.md#th-s07).
 
 Owner **S583**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** No pressure difference, blocked exhaust or excessive load prevents the predicted stroke. Prove the positive use, this control, generic connections, finite stores and exact restoration after Run/Reset and save/reload.
+
+**Delivery slice:** `named-th-19` under canonical **S583**. [TH-19 declaration, prerequisites, controls, boundaries and decisions](../elements/TH-19-steam-piston.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#thermal-19).
 
@@ -1949,12 +2517,16 @@ Owner **S583**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S584**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** No available pressure/enthalpy drop gives no useful work; stall cannot generate free power. Prove the positive use, this control, generic connections, finite stores and exact restoration after Run/Reset and save/reload.
 
+**Delivery slice:** `named-th-20` under canonical **S584**. [TH-20 declaration, prerequisites, controls, boundaries and decisions](../elements/TH-20-steam-turbine.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#thermal-20).
 
 <a id="thermal-21"></a>
 ### thermal-21 · TH-21 · Potential element: Temperature sensor. Read local thermodynamic state through a probe/contact and emit a supplied typed threshold signal with defined hysteresis/response. Research basis: [TH-S01](../../thermal-component-research.md#th-s01).
 
 Owner **S568**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** An unattached probe or unmet threshold does not assert the goal; sensing supplies no heat or electrical work. Prove the positive use, this control, generic connections, finite stores and exact restoration after Run/Reset and save/reload.
+
+**Delivery slice:** `named-th-21` under canonical **S568**. [TH-21 declaration, prerequisites, controls, boundaries and decisions](../elements/TH-21-temperature-sensor.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#thermal-21).
 
@@ -1963,12 +2535,16 @@ Owner **S568**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S585**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** A uniform-material control lacks the same curvature; verify contact opening/closing and hysteresis from declared geometry/material mechanics. Prove the positive use, this control, generic connections, finite stores and exact restoration after Run/Reset and save/reload.
 
+**Delivery slice:** `named-th-22` under canonical **S585**. [TH-22 declaration, prerequisites, controls, boundaries and decisions](../elements/TH-22-bimetal-thermostat.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#thermal-22).
 
 <a id="thermal-23"></a>
 ### thermal-23 · TH-23 · Potential element: Expansion rod. Thermal strain changes a solid rod's natural length; stiffness, constraints and applied load determine the actual displacement/work. Research basis: [TH-S06](../../thermal-component-research.md#th-s06).
 
 Owner **S586**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Insufficient temperature change cannot bridge the target gap; constrained heating produces accounted stress. Prove the positive use, this control, generic connections, finite stores and exact restoration after Run/Reset and save/reload.
+
+**Delivery slice:** `named-th-23` under canonical **S586**. [TH-23 declaration, prerequisites, controls, boundaries and decisions](../elements/TH-23-expansion-rod.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#thermal-23).
 
@@ -1977,12 +2553,16 @@ Owner **S586**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S587**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** A vented control cannot retain the same pressure; blocked expansion changes pressure rather than prescribing motion. Prove the positive use, this control, generic connections, finite stores and exact restoration after Run/Reset and save/reload.
 
+**Delivery slice:** `named-th-24` under canonical **S587**. [TH-24 declaration, prerequisites, controls, boundaries and decisions](../elements/TH-24-gas-expansion-bladder.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#thermal-24).
 
 <a id="thermal-25"></a>
 ### thermal-25 · TH-25 · Potential element: Hot-air balloon. Envelope geometry, contained gas state and surrounding density produce generic buoyancy against envelope/cargo mass; model exchange through the opening. Research basis: [TH-S06](../../thermal-component-research.md#th-s06).
 
 Owner **S588**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Excess load or cooling prevents ascent; no fixed rising velocity or balloon-specific levitation rule. Prove the positive use, this control, generic connections, finite stores and exact restoration after Run/Reset and save/reload.
+
+**Delivery slice:** `named-th-25` under canonical **S588**. [TH-25 declaration, prerequisites, controls, boundaries and decisions](../elements/TH-25-hot-air-balloon.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#thermal-25).
 
@@ -1991,12 +2571,16 @@ Owner **S588**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S569**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** An equal-temperature block supplies no net heat; repeated deliveries deplete its stored difference. Prove the positive use, this control, generic connections, finite stores and exact restoration after Run/Reset and save/reload.
 
+**Delivery slice:** `named-th-26` under canonical **S569**. [TH-26 declaration, prerequisites, controls, boundaries and decisions](../elements/TH-26-thermal-storage-block.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#thermal-26).
 
 <a id="thermal-27"></a>
 ### thermal-27 · TH-27 · Potential element: Phase-change storage cartridge. An encapsulated material stores latent enthalpy while transitioning; the container retains mass and exposes a thermal interface. Research basis: [TH-S02](../../thermal-component-research.md#th-s02).
 
 Owner **S589**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** A fully transitioned cartridge cannot repeat a charge/discharge without reversing the energy transfer. Prove the positive use, this control, generic connections, finite stores and exact restoration after Run/Reset and save/reload.
+
+**Delivery slice:** `named-th-27` under canonical **S589**. [TH-27 declaration, prerequisites, controls, boundaries and decisions](../elements/TH-27-phase-change-cartridge.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#thermal-27).
 
@@ -2005,12 +2589,16 @@ Owner **S589**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S590**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** A dry pad or saturated surrounding gas prevents equivalent cooling; liquid consumption balances vapor output. Prove the positive use, this control, generic connections, finite stores and exact restoration after Run/Reset and save/reload.
 
+**Delivery slice:** `named-th-28` under canonical **S590**. [TH-28 declaration, prerequisites, controls, boundaries and decisions](../elements/TH-28-evaporative-cooling-pad.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#thermal-28).
 
 <a id="thermal-29"></a>
 ### thermal-29 · TH-29 · Potential element: Cold pack. An authored initially cold finite thermal mass absorbs heat and warms; it is a store, not an active refrigerator. Research basis: [TH-S02](../../thermal-component-research.md#th-s02).
 
 Owner **S591**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** A warmed pack has depleted cooling capacity; no endless subambient boundary is attached secretly. Prove the positive use, this control, generic connections, finite stores and exact restoration after Run/Reset and save/reload.
+
+**Delivery slice:** `named-th-29` under canonical **S591**. [TH-29 declaration, prerequisites, controls, boundaries and decisions](../elements/TH-29-cold-pack.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#thermal-29).
 
@@ -2019,12 +2607,16 @@ Owner **S591**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S592**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Equal temperatures produce no thermoelectric work; load and finite cold-side rejection affect output. Prove the positive use, this control, generic connections, finite stores and exact restoration after Run/Reset and save/reload.
 
+**Delivery slice:** `named-th-30` under canonical **S592**. [TH-30 declaration, prerequisites, controls, boundaries and decisions](../elements/TH-30-thermoelectric-generator.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#thermal-30).
 
 <a id="thermal-31"></a>
 ### thermal-31 · TH-31 · Potential element: Flint striker. Mechanical contact supplies a bounded ignition-energy deposit through the same thermal/reaction interface as other sources; no target lookup or guaranteed flame. Research basis: [TH-S03](../../thermal-component-research.md#th-s03).
 
 Owner **S593**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** A miss, insufficient work or a nonreactive target produces no sustained combustion. Prove the positive use, this control, generic connections, finite stores and exact restoration after Run/Reset and save/reload.
+
+**Delivery slice:** `named-th-31` under canonical **S593**. [TH-31 declaration, prerequisites, controls, boundaries and decisions](../elements/TH-31-flint-striker.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#thermal-31).
 
@@ -2033,12 +2625,16 @@ Owner **S593**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S594**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Defocused/insufficient heating fails; reacted material cannot be reused as fresh fuel. Prove the positive use, this control, generic connections, finite stores and exact restoration after Run/Reset and save/reload.
 
+**Delivery slice:** `named-th-32` under canonical **S594**. [TH-32 declaration, prerequisites, controls, boundaries and decisions](../elements/TH-32-tinder-pad.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#thermal-32).
 
 <a id="thermal-33"></a>
 ### thermal-33 · TH-33 · Potential element: Spring-mounted match. A finite reactive tip on a generic spring/contact assembly receives ignition energy from modeled striking work; its position and stored spring energy remain physical. Research basis: [TH-S03](../../thermal-component-research.md#th-s03).
 
 Owner **S595**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** No contact or spent reactive tip cannot ignite; winding the spring alone supplies no flame. Prove the positive use, this control, generic connections, finite stores and exact restoration after Run/Reset and save/reload.
+
+**Delivery slice:** `named-th-33` under canonical **S595**. [TH-33 declaration, prerequisites, controls, boundaries and decisions](../elements/TH-33-spring-mounted-match.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#thermal-33).
 
@@ -2047,12 +2643,16 @@ Owner **S595**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S599**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** No supply cannot warm; an obstructed carriage cannot teleport the payload; time alone is not proof of temperature. Prove the positive use, this control, generic connections, finite stores and exact restoration after Run/Reset and save/reload.
 
+**Delivery slice:** `named-th-34` under canonical **S599**. [TH-34 declaration, prerequisites, controls, boundaries and decisions](../elements/TH-34-timed-toaster-ejector.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#thermal-34).
 
 <a id="thermal-35"></a>
 ### thermal-35 · TH-35 · Potential element: Coffee-pot steam vessel. A distinct authored vessel geometry combines finite liquid capacity, thermal contacts and a constrained spout; shared phase/flow laws produce its steam output, not a coffee-pot event. Research basis: [TH-S02](../../thermal-component-research.md#th-s02).
 
 Owner **S600**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** An empty or insufficiently heated pot does not emit vapor; a blocked spout uses actual pressure boundaries. Prove the positive use, this control, generic connections, finite stores and exact restoration after Run/Reset and save/reload.
+
+**Delivery slice:** `named-th-35` under canonical **S600**. [TH-35 declaration, prerequisites, controls, boundaries and decisions](../elements/TH-35-coffee-pot-steam-vessel.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#thermal-35).
 
@@ -2061,11 +2661,15 @@ Owner **S600**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S601**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** An unactuated or unsupplied source produces no new output; demonstrate trigger displacement and optical/thermal energy independently. Prove the positive use, this control, generic connections, finite stores and exact restoration after Run/Reset and save/reload.
 
+**Delivery slice:** `named-th-36` under canonical **S601**. [TH-36 declaration, prerequisites, controls, boundaries and decisions](../elements/TH-36-lamp-trigger-apparatus.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+
 [Full specification and all variants](../requirements.md#thermal-36).
 
 <a id="thermal-37"></a>
 ### thermal-37 · TH-37 · Potential element: Heat-sensitive target. A finite thermal body exposes a typed temperature/phase goal observation with explicit threshold and dwell; sensing is separate from the heating source. Research basis: [TH-S01](../../thermal-component-research.md#th-s01).
 
 Owner **S602**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Warm another disconnected target or remain below the target threshold and the goal stays false. Prove the positive use, this control, generic connections, finite stores and exact restoration after Run/Reset and save/reload.
+
+**Delivery slice:** `named-th-37` under canonical **S602**. [TH-37 declaration, prerequisites, controls, boundaries and decisions](../elements/TH-37-heat-sensitive-target.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#thermal-37).

@@ -9,9 +9,11 @@ using ColliderShapeKind = CuriousContraptions.Abstractions.ColliderShapeKind;
 
 namespace CuriousContraptions;
 
-/// <summary>Why a rested placement pose is refused: it would leave the bench volume, or it would interpenetrate a Static part (for
-/// example a part lifted onto a lower top into a higher box).</summary>
-public enum PlacementRefusal : byte { None, OutsideBench, IntoPart }
+/// <summary>Why a composed placement pose is refused, by placement path: the part at its grid pose would reach outside the bench
+/// volume (<see cref="OutsideBench"/>); joined at a tube mouth it would (<see cref="SnapOutsideBench"/>); rested on a top it would be
+/// lifted outside it (<see cref="RestOutsideBench"/>), or into a Static part (<see cref="IntoPart"/>, for example a part lifted onto
+/// a lower top into a higher box).</summary>
+public enum PlacementRefusal : byte { None, OutsideBench, IntoPart, RestOutsideBench, SnapOutsideBench }
 
 /// <summary>A composed placement: the pose, the tube-mouth snap that produced it (if any) and whether the pose is refused.</summary>
 public readonly record struct ComposedPlacement(Vector3 Position, Quaternion Rotation, TubeMouthSnapResult? Snap, PlacementRefusal Refusal);
@@ -20,8 +22,10 @@ public readonly record struct ComposedPlacement(Vector3 Position, Quaternion Rot
 /// and the native tests: the 0.1 m grid, then a typed tube-mouth snap when one exists (Story 9R.6), otherwise rest. Rest lifts a
 /// Dynamic part that truly overlaps a Static part's collider whose top is horizontal, lies within the part's vertical extent and lies
 /// under the part's x–z centre, so its lowest point rests on the highest such top; x, z and the rotation are unchanged. A lifted pose
-/// is admitted only inside the bench volume and clear of every Static part (beyond a 10⁻⁴ m contact slop); otherwise it is refused
-/// (coordinator decision B1, 23 Oct 2026). Every other pose is the snap or the grid. Geometry is the declared f32 colliders of the
+/// is admitted only when it is clear of every Static part (beyond a 10⁻⁴ m contact slop; coordinator decision B1, 23 Oct 2026).
+/// Every final pose (snap, grid or rest) is admitted only when the part's world-space extent lies in the bench volume (x ∈ [−7, 7],
+/// y from the bench surface to 9, z ∈ [−4, 4] m; coordinator decisions on 10.2a F3, 24 Oct 2026: the body, not its origin, on every
+/// placement path); otherwise it is refused. Geometry is the declared f32 colliders of the
 /// bundle (no part identity); it creates no command.</summary>
 public static class PlacementPose
 {
@@ -32,18 +36,43 @@ public static class PlacementPose
     /// <summary>A lifted part touching the top it rests on is not inside it: only a deeper overlap refuses the pose (m).</summary>
     public const float ContactSlop = 1e-4f;
 
-    /// <summary>The bench volume a placement point (and a lifted pose) must lie in: x ∈ [−7, 7], y ∈ [0, 9], z ∈ [−4, 4] m.</summary>
+    /// <summary>The volume a placement point must lie in: x ∈ [−7, 7], y ∈ [0, 9], z ∈ [−4, 4] m.</summary>
     public static bool Inside(Vector3 point) =>
         float.IsFinite(point.X) && float.IsFinite(point.Y) && float.IsFinite(point.Z) &&
         point.Z >= -4 && point.Z <= 4 && point.X >= -7 && point.X <= 7 && point.Y >= 0 && point.Y <= 9;
 
-    private enum Shape : byte { Sphere, Box }
+    /// <summary>Whether every posed collider's world-space extent lies in the bench volume: x ∈ [−7, 7] and z ∈ [−4, 4] m, and from the
+    /// bench surface (less the contact slop a resting body may touch it by) up to 9 m.</summary>
+    private static bool Within(Posed[] shapes)
+    {
+        var bench = WorkshopConstruction.WorkbenchSurface.Value - ContactSlop;
+        foreach (var shape in shapes)
+        {
+            float x = shape.Extent(Vector3.Right), y = shape.Height, z = shape.Extent(Vector3.Back);
+            var c = shape.Centre;
+            if (!float.IsFinite(c.X + c.Y + c.Z + x + y + z) || c.X - x < -7 || c.X + x > 7 || c.Z - z < -4 || c.Z + z > 4 ||
+                c.Y - y < bench || c.Y + y > 9)
+                return false;
+        }
+        return true;
+    }
+
+    private enum Shape : byte { Sphere, Box, Cylinder }
+    /// <summary>One posed collider. A cylinder's axis is its local Y; its half-extents are (r, h, r).</summary>
     private readonly record struct Posed(Shape Kind, Vector3 Centre, Vector3 X, Vector3 Y, Vector3 Z, Vector3 HalfExtent, float Radius)
     {
         public Vector3 Axis(int i) => i switch { 0 => X, 1 => Y, _ => Z };
         public float HalfAlong(int i) => i switch { 0 => HalfExtent.X, 1 => HalfExtent.Y, _ => HalfExtent.Z };
         /// <summary>The shape's world vertical half-extent: its centre to its top.</summary>
-        public float Height => Kind == Shape.Sphere ? Radius : MathF.Abs(X.Y) * HalfExtent.X + MathF.Abs(Y.Y) * HalfExtent.Y + MathF.Abs(Z.Y) * HalfExtent.Z;
+        public float Height => Extent(Vector3.Up);
+        /// <summary>The shape's half-extent along a unit direction: a box's projected half-extents, a cylinder's h·|a·n| + r·√(1 − (a·n)²).</summary>
+        public float Extent(Vector3 direction) => Kind switch
+        {
+            Shape.Sphere => Radius,
+            Shape.Box => MathF.Abs(X.Dot(direction)) * HalfExtent.X + MathF.Abs(Y.Dot(direction)) * HalfExtent.Y + MathF.Abs(Z.Dot(direction)) * HalfExtent.Z,
+            Shape.Cylinder => MathF.Abs(Y.Dot(direction)) * HalfExtent.Y + HalfExtent.X * MathF.Sqrt(MathF.Max(0f, 1f - Y.Dot(direction) * Y.Dot(direction))),
+            _ => throw new InvalidOperationException($"Undefined placement shape {Kind}.")
+        };
     }
 
     public static ComposedPlacement Compose(IReadOnlyDictionary<PartId, PartDefinition> definitions,
@@ -52,10 +81,20 @@ public static class PlacementPose
         ArgumentNullException.ThrowIfNull(placed);
         var grid = at.Snapped(Vector3.One * Grid);
         if (TubeMouthSnap.Find(definitions, placed, candidate, grid, rotation) is { } joined)
-            return new(joined.Position, joined.Rotation, joined, PlacementRefusal.None);
+            return new(joined.Position, joined.Rotation, joined, Bounded(candidate.Part, joined.Position, joined.Rotation, PlacementRefusal.SnapOutsideBench));
         var (position, refusal) = Rest(placed, candidate, grid, rotation.Normalized());
-        return new(position, rotation, null, refusal);
+        return new(position, rotation, null, refusal != PlacementRefusal.None ? refusal
+            : Bounded(candidate.Part, position, rotation.Normalized(), PlacementRefusal.OutsideBench));
     }
+
+    /// <summary>The one bench-volume rule of every placement path (snap, grid and rest): the part's declared colliders at its default
+    /// parameters, posed at the final pose, must lie in the bench volume (<see cref="Within"/>), or the pose is refused with the path's
+    /// <paramref name="outside"/> reason. An undeclared part, or one that declares no collider, has no geometry to bound; capturing an
+    /// undeclared part is the placement's own typed refusal.</summary>
+    private static PlacementRefusal Bounded(PartId part, Vector3 position, Quaternion rotation, PlacementRefusal outside) =>
+        !DeclaredPhysics.Contains(part) || DeclaredPhysics.Of(part).Colliders.Count == 0 ||
+        Within(Pose(BundleGeometry.Colliders(DeclaredPhysics.Of(part)), position, rotation))
+            ? PlacementRefusal.None : outside;
 
     private static (Vector3 Position, PlacementRefusal Refusal) Rest(IReadOnlyList<IWorkshopInstance> placed, TubeMouthMover candidate,
         Vector3 at, Quaternion rotation)
@@ -91,8 +130,8 @@ public static class PlacementPose
         if (rest is not { } y) return (at, PlacementRefusal.None);
         // The lifted pose must stay in the bench volume and clear every Static part (B1).
         var lifted = at with { Y = at.Y + (y - bottom) };
-        if (!Inside(lifted)) return (lifted, PlacementRefusal.OutsideBench);
         var raised = Pose(BundleGeometry.Colliders(entry), lifted, rotation);
+        if (!Within(raised)) return (lifted, PlacementRefusal.RestOutsideBench);
         foreach (var other in statics)
             if (Array.Exists(raised, shape => Overlaps(shape, other, ContactSlop))) return (lifted, PlacementRefusal.IntoPart);
         return (lifted, PlacementRefusal.None);
@@ -108,6 +147,7 @@ public static class PlacementPose
             {
                 ColliderShapeKind.Sphere => Shape.Sphere,
                 ColliderShapeKind.Box => Shape.Box,
+                ColliderShapeKind.Cylinder => Shape.Cylinder,
                 _ => throw new ArgumentException($"Placement rest has no rule for a {c.ShapeKind} collider.")
             };
             var local = (turn * new Quaternion(c.Rotation.X, c.Rotation.Y, c.Rotation.Z, c.Rotation.W)).Normalized();
@@ -115,6 +155,26 @@ public static class PlacementPose
                 local * Vector3.Back, new(c.HalfExtents.X, c.HalfExtents.Y, c.HalfExtents.Z), kind == Shape.Sphere ? c.HalfExtents.X : 0f);
         }
         return result;
+    }
+
+    /// <summary>The point of the box nearest a point, both relative to the box's centre.</summary>
+    private static Vector3 ClosestOnBox(Posed box, Vector3 offset)
+    {
+        var closest = Vector3.Zero;
+        for (var i = 0; i < 3; i++)
+            closest += box.Axis(i) * Math.Clamp(offset.Dot(box.Axis(i)), -box.HalfAlong(i), box.HalfAlong(i));
+        return closest;
+    }
+
+    /// <summary>The point of the solid cylinder (axis its local Y, half-height h, radius r) nearest a point, both relative to its centre:
+    /// the axial coordinate clamped to [−h, h] and the radial part clamped to r.</summary>
+    private static Vector3 ClosestOnCylinder(Posed cylinder, Vector3 offset)
+    {
+        var along = offset.Dot(cylinder.Y);
+        var radial = offset - cylinder.Y * along;
+        var distance = radial.Length();
+        if (distance > cylinder.HalfExtent.X) radial *= cylinder.HalfExtent.X / distance;
+        return cylinder.Y * Math.Clamp(along, -cylinder.HalfExtent.Y, cylinder.HalfExtent.Y) + radial;
     }
 
     /// <summary>The box's vertical axis, when its top is horizontal.</summary>
@@ -133,21 +193,21 @@ public static class PlacementPose
         return true;
     }
 
-    /// <summary>A true overlap: the shapes interpenetrate by more than <paramref name="slop"/>; touching is not overlapping.</summary>
+    /// <summary>A true overlap: the shapes interpenetrate by more than <paramref name="slop"/>; touching is not overlapping. A sphere
+    /// meets a box or a cylinder at its exact closest point; a cylinder and a box are separated on both frames' axes and their cross
+    /// products by the cylinder's exact projection.</summary>
     private static bool Overlaps(Posed shape, Posed box, float slop)
     {
         if (box.Kind == Shape.Sphere)
         {
-            if (shape.Kind == Shape.Box) return Overlaps(box, shape, slop);
+            if (shape.Kind != Shape.Sphere) return Overlaps(box, shape, slop);
             var reach = shape.Radius + box.Radius - slop;
             return (shape.Centre - box.Centre).LengthSquared() < reach * reach;
         }
         var offset = shape.Centre - box.Centre;
         if (shape.Kind == Shape.Sphere)
         {
-            var closest = Vector3.Zero;
-            for (var i = 0; i < 3; i++)
-                closest += box.Axis(i) * Math.Clamp(offset.Dot(box.Axis(i)), -box.HalfAlong(i), box.HalfAlong(i));
+            var closest = box.Kind == Shape.Cylinder ? ClosestOnCylinder(box, offset) : ClosestOnBox(box, offset);
             var radius = shape.Radius - slop;
             return (offset - closest).LengthSquared() < radius * radius;
         }
@@ -164,13 +224,7 @@ public static class PlacementPose
         for (var k = 0; k < count; k++)
         {
             var axis = axes[k];
-            float a = 0, b = 0;
-            for (var i = 0; i < 3; i++)
-            {
-                a += MathF.Abs(shape.Axis(i).Dot(axis)) * shape.HalfAlong(i);
-                b += MathF.Abs(box.Axis(i).Dot(axis)) * box.HalfAlong(i);
-            }
-            if (MathF.Abs(offset.Dot(axis)) >= a + b - slop) return false;
+            if (MathF.Abs(offset.Dot(axis)) >= shape.Extent(axis) + box.Extent(axis) - slop) return false;
         }
         return true;
     }

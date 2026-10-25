@@ -1,5 +1,7 @@
 # EL-033 · Fluid accumulator named-identity spec
 
+**Current delivery (24 October 2026):** [EL-033 delivery slice](../invest/named-elements.md#element-033). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 This is the Story 7.0 full spec for named identity EL-033. The baseline is commit `a6c914e`; every citation uses `path@a6c914e:Lstart-Lend`. Values without a source are marked **proposed**, each with a one-line justification; the owner may revise them.
 
 ## 1. Identity
@@ -13,8 +15,8 @@ This is the Story 7.0 full spec for named identity EL-033. The baseline is commi
 | Proof owner | S454 |
 | CAT spec refined | none. Related: [CAT-062 Spring](CAT-062-spring.md) (Story 6.4 slider and soft spring, Story 6.5 preload store) |
 | Related identities | EL-022 Water pump and EL-002 Header tank (chargers); [EL-032 Pressure meter](EL-032-pressure-meter.md); the hydraulic piston ([todo-428](../requirements.md#todo-428)) as a load; EL-039 Air reservoir is the separate pneumatic store |
-| Roadmap story | unscheduled |
-| Status | not started (no `WorkshopPartKind` member, `engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`) |
+| Roadmap story | [EL-033 delivery slice](../invest/named-elements.md#element-033); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | not started (no `WorkshopPartKind` member, `engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`) |
 
 ## 2. Declaration
 
@@ -48,8 +50,8 @@ Families ([element-map row](../general-engine-element-map.md), [coverage binding
 
 **Missing**
 - Prismatic joint and soft spring (ElasticStorage): Story 6.4; preload store pattern Story 6.5.
-- Pressure acting on a slider face from a liquid chamber (PressureWork): [S416 pressure-work](../invest/decisions.md#s416) → S419 ("the piston moves under head, stalls against a blocked load and stops when the supply is depleted"); unscheduled.
-- Liquid chamber store and port flow (S418): unscheduled.
+- Pressure acting on a slider face from a liquid chamber (PressureWork): [S416 pressure-work](../invest/decisions.md#s416) → S419 ("the piston moves under head, stalls against a blocked load and stops when the supply is depleted"); required in the linked delivery slice.
+- Liquid chamber store and port flow (S418): required in the linked delivery slice.
 
 **Element dependencies.** A charger (EL-002 Header tank or EL-022 Water pump), a load or receiver (hydraulic piston, EL-004 Catch basin), EL-019 Water check valve to hold a charge.
 

@@ -1,5 +1,7 @@
 # EL-016 · Float — named-identity spec
 
+**Current delivery (24 October 2026):** [EL-016 delivery slice](../invest/named-elements.md#element-016). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec ([readiness spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations `path@a6c914e:Lstart-Lend` resolve with `git show a6c914e:<path>` after the Epic 7 purge. A value marked **proposed** has no legacy or requirement source; it carries a one-line justification and the owner may revise it.
 
 ## Identity
@@ -11,8 +13,8 @@ Story 7.0 named-identity spec ([readiness spec](../../../_bmad-output/implementa
 | Named entry | [element-016](../invest/named-elements.md#element-016); per-element proof owner S437 |
 | CAT spec refined | None. The Balloon [CAT-003](../requirements.md#current-cat-003) floats in air (gas buoyancy, Story 12.1); this float displaces liquid. |
 | Related identities | [EL-017 Mechanical float valve](EL-017-mechanical-float-valve.md) and [EL-018 level switch](EL-018-electronic-level-switch.md) (float-based controls), [EL-004](EL-004-catch-basin.md) (its water), EL-028 Buoyant platform, EL-169 Cork float (separate light-material identity) |
-| Roadmap story | Unscheduled; ELEMENT-n row of the [roadmap](../invest/vertical-delivery.md#rolling-playable-roadmap), campaign chapter 7, levels 61–70. |
-| Status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
+| Roadmap story | [EL-016 delivery slice](../invest/named-elements.md#element-016); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
 
 ## Declaration
 
@@ -47,7 +49,7 @@ Story 7.0 named-identity spec ([readiness spec](../../../_bmad-output/implementa
 Families ([element map](../general-engine-element-map.md); binding [`element-01.json`](../../coverage/engine/element-01.json), consumer `element/element-016`): Buoyancy, ContactImpulse, EnvironmentState, FiniteLedger, FluidAdvection, GeometryQuery, JointConstraint, RigidBodyDynamics, StateTransaction, TopologyTransaction.
 
 - **Exists now.** Dynamic spheres, contact impulse, friction, rolling resistance and drag (`engine/gpu/WorkshopPhysicsCompiler.cs@a6c914e:L32-L42`); `BallMaterial.Buoyancy` is carried but not consumed (`engine/gpu/WorkshopConstruction.cs@a6c914e:L41-L44`).
-- **Missing.** Displacement Buoyancy: decision [S416](../invest/decisions.md#s416) buoyancy → S420 ("a lighter-than-water body floats at a visible waterline, a denser one sinks; the water level stays conserved"). Liquid store and waterline (S418). Unscheduled; Story 12.1 builds gas buoyancy for CAT-003, which is a different law.
+- **Missing.** Displacement Buoyancy: decision [S416](../invest/decisions.md#s416) buoyancy → S420 ("a lighter-than-water body floats at a visible waterline, a denser one sinks; the water level stays conserved"). Liquid store and waterline (S418). Required in the linked delivery slice; Story 12.1 builds gas buoyancy for CAT-003, which is a different law.
 - **Element dependencies.** A liquid store with depth (EL-004 or EL-001); a load body (Domino, Bowling ball).
 
 ## Sources and legacy

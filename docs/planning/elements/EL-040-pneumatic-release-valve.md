@@ -1,5 +1,7 @@
 # EL-040 · Pneumatic release valve — element readiness spec
 
+**Current delivery (24 October 2026):** [EL-040 delivery slice](../invest/named-elements.md#element-040). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 Batch H named-identity spec. Legacy citations are pinned to `a6c914e` and resolve with `git show a6c914e:<path> | sed -n 'start,endp'`. Values marked *proposed* have no legacy or requirement source; each carries a one-line justification, stays inside the [game-grade envelope](../../gpu-f32-physics.md#game-grade-envelope) and may be revised by the owner. Box sizes are full extents. Shared sealed-gas facts P1–P20, the `Gas` domain and the "Air" material are in [EL-039](EL-039-air-reservoir.md#shared-sealed-gas-family-facts).
 
 ## 1. Identity
@@ -10,7 +12,7 @@ Story 7.0 Batch H named-identity spec. Legacy citations are pinned to `a6c914e` 
 | Type | Pneumatic |
 | Anchor | [requirements.md#element-040](../requirements.md#element-040); scope index [todo-376](../requirements.md#todo-376); [named-elements entry](../invest/named-elements.md#element-040); owner S475 |
 | Related | Refines no CAT spec. Fed by [EL-039](EL-039-air-reservoir.md) through [EL-038](EL-038-pneumatic-hose.md); feeds a spring-return piston ([todo-426](../requirements.md#todo-426)), [EL-042 Air nozzle](EL-042-air-nozzle.md) or [EL-045 Air whistle](EL-045-air-whistle.md); commanded by any activation source ([CAT-063 Switch](CAT-063-switch.md), [CAT-022 Delay](CAT-022-delay.md), [CAT-017 Clock](CAT-017-clock.md)). |
-| Roadmap story | unscheduled |
+| Roadmap story | [EL-040 delivery slice](../invest/named-elements.md#element-040); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration

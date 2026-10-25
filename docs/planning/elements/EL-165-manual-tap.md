@@ -1,5 +1,7 @@
 # EL-165 · Manual tap named-identity spec
 
+**Current delivery (24 October 2026):** [EL-165 delivery slice](../invest/named-elements.md#element-165). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 This is the Story 7.0 full spec for named identity EL-165. The baseline is commit `a6c914e`; every citation uses `path@a6c914e:Lstart-Lend`. Values without a source are marked **proposed**, each with a one-line justification; the owner may revise them.
 
 ## 1. Identity
@@ -13,8 +15,8 @@ This is the Story 7.0 full spec for named identity EL-165. The baseline is commi
 | Proof owner | S458 |
 | CAT spec refined | none. It refines [EL-003 Tap](EL-003-tap.md) (Batch F) as the manual-aperture variant identity |
 | Related identities | [EL-166 Mechanically actuated tap](EL-166-mechanically-actuated-tap.md) and [EL-167 Solenoid tap](EL-167-solenoid-tap.md) (the other tap variants, each its own identity); EL-001 Finite reservoir (supply); EL-008 Straight water pipe (port standard) |
-| Roadmap story | unscheduled |
-| Status | not started (no `WorkshopPartKind` member, `engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`) |
+| Roadmap story | [EL-165 delivery slice](../invest/named-elements.md#element-165); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | not started (no `WorkshopPartKind` member, `engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`) |
 
 ## 2. Declaration
 
@@ -56,9 +58,9 @@ Families ([element-map row](../general-engine-element-map.md), [coverage binding
 - Pre-Run part parameters held in the construction and saved by the canonical codec: `engine/gpu/WorkshopSaveCodec.cs@a6c914e:L6-L10`.
 
 **Missing**
-- Valve node with an aperture on a water route (FluidAdvection, S418) and head across it (S419): owner [S416](../invest/decisions.md#s416); unscheduled.
-- Water ports and pipe snapping (TopologyTransaction): S416 with [S257](../invest/decisions.md#s257); unscheduled.
-- A parameter control that is editable in build mode and locked during Run: unscheduled.
+- Valve node with an aperture on a water route (FluidAdvection, S418) and head across it (S419): owner [S416](../invest/decisions.md#s416); required in the linked delivery slice.
+- Water ports and pipe snapping (TopologyTransaction): S416 with [S257](../invest/decisions.md#s257); required in the linked delivery slice.
+- A parameter control that is editable in build mode and locked during Run: required in the linked delivery slice.
 
 **Element dependencies.** A supply (EL-001 Finite reservoir, EL-002 Header tank) and a route (EL-008 pipes, EL-007 gutter); the shared tap declaration with EL-003.
 

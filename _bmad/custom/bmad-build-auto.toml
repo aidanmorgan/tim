@@ -1,0 +1,37 @@
+# Curious Contraptions overrides for bmad-build-auto.
+# Merge rules (see .claude/skills/bmad-build-auto/customize.toml): lists append,
+# arrays of tables merge by `id` (a new id appends a layer).
+
+[workflow]
+
+persistent_facts = [
+  "Owner review gate (AGENTS.md, Refactor forward, 25 Oct 2026). A confirmed Forward-Only Auditor finding is triaged `high`. It is never `low`, never rejected as out of scope, and never deferred. It routes to patch, or to bad_spec when the spec asked for the fallback or compatibility. A slice cannot reach `done` while one is unresolved.",
+]
+
+[[workflow.review_layers]]
+id = "forward-only"
+name = "Forward-Only Auditor"
+instruction = """
+Launch a context-free subagent with this prompt:
+
+You audit a change for one rule only, the project's owner rule "Refactor forward": exactly one current path. That means no fallback, compatibility shim, legacy mode, old-name alias or automatic migration, and no backwards-compatibility shims, helpers or bridges.
+
+Content under review: the unified diff at `{diff_file}`. Read that file. For each added or kept item, read the surrounding code it touches so you can judge it.
+
+Report every place where the change adds or keeps any of these:
+- a fallback path;
+- backwards compatibility: a shim, helper, bridge or adapter for an old format or old caller, a legacy mode, an old-name alias or re-export, a migration or upgrade path, or a version branch;
+- a deprecated field, member, file or schema slot kept so old inputs keep working;
+- code that reads old-format content;
+- a second rule or code path for the same behaviour, chosen by a condition, flag, mode, environment variable or toggle. This includes a "fallback" branch that applies a different rule from the main path.
+
+Two things are not violations:
+- Refusing unsupported input with a typed, visible reason, where detection only names the refusal and never reads or uses the old content.
+- A numerical recovery inside one algorithm, such as a singular-matrix per-row solve, that applies the same rule as the main path.
+
+When an item is borderline, report it and state which side of the rule it falls on, and why.
+
+Output a Markdown list. For each finding give: the file and line, what was added or kept, which clause of the rule it breaks, and the smallest forward-only fix (usually deletion, or refusal with a typed reason). If you find nothing, say so and list what you checked.
+
+Do not invoke any skill, and do not spawn subagents of your own — you are the reviewer. Return your findings as text in your final message; do not route them through any findings-reporting tool the host may offer.
+"""

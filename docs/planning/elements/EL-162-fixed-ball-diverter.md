@@ -1,5 +1,7 @@
 # EL-162 · Fixed ball diverter named-identity spec
 
+**Current delivery (24 October 2026):** [EL-162 delivery slice](../invest/named-elements.md#element-162). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec (Batch J). Baseline commit `a6c914e`; every citation is `path@a6c914e:Lstart-Lend` and resolves with `git show a6c914e:<path> | sed -n 'start,endp'`. **Proposed** marks an unsourced design value with a one-line justification; the owner may revise it. All values are canonical IEEE-754 f32 game values inside the [game-grade envelope](../../gpu-f32-physics.md#game-grade-envelope).
 
 ## 1. Identity
@@ -13,7 +15,7 @@ Story 7.0 named-identity spec (Batch J). Baseline commit `a6c914e`; every citati
 | Proof owner | S373 |
 | Refines / extends | No CAT spec. Routes cargo between ramps ([CAT-054 ramp](CAT-054-ramp.md)) and receivers ([CAT-004 basket](CAT-004-basket.md)) |
 | Related | EL-163 Powered ball diverter and EL-164 Alternating ball diverter (separate identities sharing the junction geometry) |
-| Roadmap story | unscheduled |
+| Roadmap story | [EL-162 delivery slice](../invest/named-elements.md#element-162); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration
@@ -54,7 +56,7 @@ No cosmetic curve; the blade pose is the state cue. UI: `branch` through the con
 Channel in the Ramp colour `#c28f52`; blade gold `#f7cb52` like the powered gate shutter (`parts/PoweredGatePart.cs@a6c914e:L47-L47`); navy `#293954` pivot cap; an arrow decal on the inlet in cream `#fff8e9` pointing to the open branch ([DESIGN colour system](../../../DESIGN.md#colour-system)). **Proposed**.
 
 ### Catalogue and inventory entry
-Id `diverter_fixed`, title "Ball diverter", category Motion — **proposed**. Add `WorkshopPartKind.FixedDiverter` with a counted allowance (`engine/gpu/WorkshopInventory.cs@a6c914e:L9-L23`).
+Id `diverter_fixed`, title "Ball diverter", category Motion — **proposed**. Declare the package with a counted allowance keyed by its bundle-issued typed id (`engine/gpu/WorkshopInventory.cs@a6c914e:L9-L23`).
 
 ### Variants
 One outcome in the row. Powered (EL-163) and alternating (EL-164) modes are separate identities and are taught after fixed selection ([todo-246](../requirements.md#todo-246) integration task).
@@ -68,7 +70,7 @@ Families: ContactImpulse, EnvironmentState, FiniteLedger, FiniteWorkActuation, G
 - Rotated static boxes from authored rotation (the wall): `engine/gpu/WorkshopWall.cs@a6c914e:L30-L39`.
 
 **Missing**
-- A `WorkshopPartKind` member, a typed selection field in the construction record and save codec (`engine/gpu/WorkshopSaveCodec.cs@a6c914e:L6-L10`). Owner S373.
+- A package declaration and bundle-issued typed id, a typed selection field in the construction record and save codec (`engine/gpu/WorkshopSaveCodec.cs@a6c914e:L6-L10`). Owner S373.
 
 **Dependencies.** None beyond delivered ramps, walls and balls; it can be built first among the three diverters.
 

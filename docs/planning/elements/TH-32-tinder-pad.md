@@ -1,5 +1,7 @@
 # TH-32 · Tinder pad — named-identity readiness spec
 
+**Current delivery (24 October 2026):** [TH-32 delivery slice](../invest/named-elements.md#thermal-32). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations are `path@a6c914e:Lstart-Lend`. No legacy holds tinder values, so every design value without a cited source is marked "(proposed: …)" with a one-line justification; the owner may revise it.
 
 ## 1. Identity
@@ -12,8 +14,8 @@ Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artif
 | Proof owner / research | S594 · [TH-S03 combustion and suppression](../../thermal-component-research.md#th-s03) |
 | Related identities | No CAT spec. Lit by [TH-31 Flint striker](TH-31-flint-striker.md), [TH-33 Spring-mounted match](TH-33-spring-mounted-match.md) or focused light through [TH-06 Converging lens](TH-06-converging-lens.md) (TX-03); lights the next fuel such as [TH-01](TH-01-candle.md), [TH-02](TH-02-fire-bowl.md), [TH-03](TH-03-combustible-block.md). |
 | Campaign | Intro 58; practice 59; reuse 85, 149 ([thermal allocation](../requirements.md#thermal-campaign-allocation)) |
-| Roadmap story | Unscheduled. No epic in `_bmad-output/planning-artifacts/epics.md` schedules a thermal element. |
-| Status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`); no legacy part. |
+| Roadmap story | [TH-32 delivery slice](../invest/named-elements.md#thermal-32); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`); no legacy part. |
 
 ## 2. Declaration
 
@@ -37,14 +39,14 @@ Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artif
 
 - **Cosmetic curves and UI bindings.** Ember ← committed reaction state ([research per-element table](../../thermal-component-research.md)); the visibly shrinking fuel area follows remaining fuel (row).
 - **Art.** "Warm-wood patterned wafer on a cream tray with a visibly shrinking fuel area" (row). Nearest [DESIGN.md](../../../DESIGN.md) source colours (proposed mapping): warm wood `#b77c42` (`DESIGN.md@a6c914e:L146-L146`), cream `#ead39b` (`DESIGN.md@a6c914e:L146-L146`).
-- **Catalogue and inventory entry.** New `WorkshopPartKind.TinderPad`; id `tinder_pad`, title "Tinder pad", category Heat (proposed: no current category covers thermal parts).
+- **Catalogue and inventory entry.** Package-owned declaration, discovered into the bundle; id `tinder_pad`, title "Tinder pad", category Heat (proposed: no current category covers thermal parts).
 
 ## 3. Engine capabilities
 
 Families (map row TH-32, [general-engine-element-map](../general-engine-element-map.md); binding [thermal-01.json](../../coverage/engine/thermal-01.json)): ChemicalReaction, Extinction, FiniteLedger, GeometryQuery, Ignition, SensibleHeat, TopologyTransaction; JSON adds StateTransaction.
 
 - **Exists now.** Dynamic box body (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L120`); Run/Reset and save (`engine/gpu/ActivationNetwork.cs@a6c914e:L67-L67`, `engine/gpu/WorkshopSaveCodec.cs@a6c914e:L6-L10`).
-- **Missing.** [S543](../invest/decisions.md#s543): reaction → S554, ignition → S555, extinction → S556, phase-topology for shrinking fuel → S565. Light absorption into heat: [S484](../invest/decisions.md#s484) absorption → S489. Unscheduled.
+- **Missing.** [S543](../invest/decisions.md#s543): reaction → S554, ignition → S555, extinction → S556, phase-topology for shrinking fuel → S565. Light absorption into heat: [S484](../invest/decisions.md#s484) absorption → S489. Required in the linked delivery slice.
 - **Dependencies.** An ignition source (TH-31, TH-33, TH-06 with a light source); a next fuel to light.
 
 ## 4. Sources and legacy

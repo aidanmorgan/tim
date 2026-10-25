@@ -1,0 +1,22 @@
+diff --git a/engine/PlacementPose.cs b/engine/PlacementPose.cs
+index 3289cd2b..bc4c6047 100644
+--- a/engine/PlacementPose.cs
++++ b/engine/PlacementPose.cs
+@@ -81,7 +81,7 @@ public static class PlacementPose
+         ArgumentNullException.ThrowIfNull(placed);
+         var grid = at.Snapped(Vector3.One * Grid);
+         if (TubeMouthSnap.Find(definitions, placed, candidate, grid, rotation) is { } joined)
+-            return new(joined.Position, joined.Rotation, joined, Bounded(candidate.Part, joined.Position, joined.Rotation, PlacementRefusal.SnapOutsideBench));
++            return new(joined.Position, joined.Rotation, joined, PlacementRefusal.None /* MX7 */);
+         var (position, refusal) = Rest(placed, candidate, grid, rotation.Normalized());
+         return new(position, rotation, null, refusal != PlacementRefusal.None ? refusal
+             : Bounded(candidate.Part, position, rotation.Normalized(), PlacementRefusal.OutsideBench));
+@@ -131,7 +131,7 @@ public static class PlacementPose
+         // The lifted pose must stay in the bench volume and clear every Static part (B1).
+         var lifted = at with { Y = at.Y + (y - bottom) };
+         var raised = Pose(BundleGeometry.Colliders(entry), lifted, rotation);
+-        if (!Within(raised)) return (lifted, PlacementRefusal.RestOutsideBench);
++        if (!Within(raised)) return (lifted, PlacementRefusal.OutsideBench); // MX8
+         foreach (var other in statics)
+             if (Array.Exists(raised, shape => Overlaps(shape, other, ContactSlop))) return (lifted, PlacementRefusal.IntoPart);
+         return (lifted, PlacementRefusal.None);

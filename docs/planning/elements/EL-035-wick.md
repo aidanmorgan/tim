@@ -1,5 +1,7 @@
 # EL-035 · Wick named-identity spec
 
+**Current delivery (24 October 2026):** [EL-035 delivery slice](../invest/named-elements.md#element-035). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 This is the Story 7.0 full spec for named identity EL-035. The baseline is commit `a6c914e`; every citation uses `path@a6c914e:Lstart-Lend`. Values without a source are marked **proposed**, each with a one-line justification; the owner may revise them.
 
 ## 1. Identity
@@ -13,8 +15,8 @@ This is the Story 7.0 full spec for named identity EL-035. The baseline is commi
 | Proof owner | S456 |
 | CAT spec refined | none |
 | Related identities | [EL-034 Sponge](EL-034-sponge.md), [EL-171 Squeeze pad](EL-171-squeeze-pad.md) (porous siblings); EL-001 Finite reservoir and EL-004 Catch basin (source and receiver); [EL-003 Tap](EL-003-tap.md) (reference flow); TH-28 Evaporative cooling pad (thermal wick body) |
-| Roadmap story | unscheduled |
-| Status | not started (no `WorkshopPartKind` member, `engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`) |
+| Roadmap story | [EL-035 delivery slice](../invest/named-elements.md#element-035); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | not started (no `WorkshopPartKind` member, `engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`) |
 
 ## 2. Declaration
 
@@ -56,8 +58,8 @@ Families ([element-map row](../general-engine-element-map.md), [coverage binding
 - Counted inventory and save codec: `engine/gpu/WorkshopInventory.cs@a6c914e:L9-L23`, `engine/gpu/WorkshopSaveCodec.cs@a6c914e:L6-L10`.
 
 **Missing**
-- Bounded capillary transport (CapillaryTransport): [S416 capillary](../invest/decisions.md#s416) → S421, whose Chrome construction is exactly "one reservoir and porous path: the wick wets up to its limit, a dry reservoir wets nothing, reversed head does not lift"; unscheduled.
-- Liquid stores and immersion queries at the wick ends (S418, GeometryQuery): unscheduled.
+- Bounded capillary transport (CapillaryTransport): [S416 capillary](../invest/decisions.md#s416) → S421, whose Chrome construction is exactly "one reservoir and porous path: the wick wets up to its limit, a dry reservoir wets nothing, reversed head does not lift"; required in the linked delivery slice.
+- Liquid stores and immersion queries at the wick ends (S418, GeometryQuery): required in the linked delivery slice.
 
 **Element dependencies.** A source store (EL-001, EL-004, EL-026) and a receiver (EL-004).
 

@@ -1,5 +1,7 @@
 # TH-36 · Lamp-trigger apparatus — named-identity readiness spec
 
+**Current delivery (24 October 2026):** [TH-36 delivery slice](../invest/named-elements.md#thermal-36). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations are `path@a6c914e:Lstart-Lend`. No legacy holds this apparatus; the delivered Signal lamp art supplies scale (section 4). Every design value without a cited source is marked "(proposed: …)" with a one-line justification; the owner may revise it.
 
 ## 1. Identity
@@ -12,8 +14,8 @@ Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artif
 | Proof owner / research | S601 · [TH-S04 optical heating](../../thermal-component-research.md#th-s04) |
 | Related identities | **Refines the historical lamp** whose trigger must be resolved first (decision S601-D). Distinct from [CAT-035 Signal lamp](CAT-035-lamp.md) (Batch A; activation-latched, not a light/heat source) and [EL-155 Rope-operated light](EL-155-rope-operated-light.md) (Batch K; rope displacement actuating a supplied light), whose actuator pattern and emitter are the closest sibling. Optical neighbour [EL-210 Flashlight](EL-210-flashlight.md). Receivers [TH-07](TH-07-solar-absorber-plate.md), [TH-37](TH-37-heat-sensitive-target.md). |
 | Campaign | Intro 86; practice 87; reuse 100, 142 ([thermal allocation](../requirements.md#thermal-campaign-allocation)) |
-| Roadmap story | Unscheduled, and blocked on S601-D. |
-| Status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`); no legacy part. |
+| Roadmap story | [TH-36 delivery slice](../invest/named-elements.md#thermal-36); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`); no legacy part. |
 
 ## 2. Declaration
 
@@ -39,7 +41,7 @@ Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artif
 
 - **Cosmetic curves and UI bindings.** Aperture glow ← committed delivered optical power; lever pose ← committed hinge angle. The research table's "lamp ← output" binding applies to the glow.
 - **Art.** "Cream sculptural lamp, gold lever and restrained luminous aperture with original icon" (row). Nearest [DESIGN.md](../../../DESIGN.md) source colours (proposed mapping): cream `#ead39b` (`DESIGN.md@a6c914e:L146-L146`), gold `#f7cb52` (`DESIGN.md@a6c914e:L154-L154`); neutral `#556573` and lit `#fff0a5` aperture colours from the Signal lamp art (section 4).
-- **Catalogue and inventory entry.** New `WorkshopPartKind.TriggerLamp`; id `trigger_lamp`, title "Lamp-trigger apparatus", category Optics (proposed: a light source beside the flashlight).
+- **Catalogue and inventory entry.** Package-owned declaration, discovered into the bundle; id `trigger_lamp`, title "Lamp-trigger apparatus", category Optics (proposed: a light source beside the flashlight).
 
 ## 3. Engine capabilities
 

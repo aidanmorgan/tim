@@ -1,5 +1,7 @@
 # TH-22 · Bimetal thermostat — named-identity readiness spec
 
+**Current delivery (24 October 2026):** [TH-22 delivery slice](../invest/named-elements.md#thermal-22). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations are `path@a6c914e:Lstart-Lend`. No legacy holds bimetal values, so every design value without a cited source is marked "(proposed: …)" with a one-line justification; the owner may revise it.
 
 ## 1. Identity
@@ -12,8 +14,8 @@ Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artif
 | Proof owner / research | S585 · [TH-S06 thermal expansion](../../thermal-component-research.md#th-s06) |
 | Related identities | No CAT spec. Shares the expansion law with [TH-23 Expansion rod](TH-23-expansion-rod.md); electrical sibling of [TH-21 Temperature sensor](TH-21-temperature-sensor.md), but switches by physical contact, not by a threshold signal. Circuit parts: [CAT-005 Battery](CAT-005-battery.md), a supplied load such as [CAT-042 Motor](CAT-042-motor.md). |
 | Campaign | Intro 83; practice 84; reuse 90, 145 ([thermal allocation](../requirements.md#thermal-campaign-allocation)) |
-| Roadmap story | Unscheduled. No epic in `_bmad-output/planning-artifacts/epics.md` schedules a thermal element. |
-| Status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`); no legacy part. |
+| Roadmap story | [TH-22 delivery slice](../invest/named-elements.md#thermal-22); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`); no legacy part. |
 
 ## 2. Declaration
 
@@ -36,14 +38,14 @@ Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artif
 
 - **Cosmetic curves and UI bindings.** Strip bend ← committed strain ([research per-element table](../../thermal-component-research.md)); the navy gap is the contact state.
 - **Art.** "Paired gold/cream curved strip with a visible navy contact gap" (row). Nearest [DESIGN.md](../../../DESIGN.md) source colours (proposed mapping): gold `#f7cb52` (`DESIGN.md@a6c914e:L154-L154`), cream `#ead39b` (`DESIGN.md@a6c914e:L146-L146`), navy `#293954` (`DESIGN.md@a6c914e:L147-L147`).
-- **Catalogue and inventory entry.** New `WorkshopPartKind.BimetalThermostat`; id `bimetal_thermostat`, title "Bimetal thermostat", category Power (proposed: a switched electrical pass-through, beside the existing power parts).
+- **Catalogue and inventory entry.** Package-owned declaration, discovered into the bundle; id `bimetal_thermostat`, title "Bimetal thermostat", category Power (proposed: a switched electrical pass-through, beside the existing power parts).
 
 ## 3. Engine capabilities
 
 Families (map row TH-22, [general-engine-element-map](../general-engine-element-map.md); binding [thermal-01.json](../../coverage/engine/thermal-01.json)): EnvironmentState, FiniteLedger, GeometryQuery, JointConstraint, RigidBodyDynamics, SensibleHeat, SignalPropagation, ThermalExpansion, ThermalStress, TopologyTransaction; JSON adds StateTransaction. Decision note S585-D: bonded differential expansion and contact hysteresis, not a temperature switch.
 
 - **Exists now.** Static base, box colliders, contact queries (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L120`); typed electrical sockets (`engine/gpu/WorkshopConnections.cs@a6c914e:L8-L11`); Run/Reset and save (`engine/gpu/ActivationNetwork.cs@a6c914e:L67-L67`, `engine/gpu/WorkshopSaveCodec.cs@a6c914e:L6-L10`).
-- **Missing.** Compliant cantilever joint: Story 6.4 soft constraints. ElectricalPower and contact-switched routing: Story 8.1. [S543](../invest/decisions.md#s543): expansion → S557, thermal-stress → S558. S585-D has no row in `decisions.md`. Unscheduled.
+- **Missing.** Compliant cantilever joint: Story 6.4 soft constraints. ElectricalPower and contact-switched routing: Story 8.1. [S543](../invest/decisions.md#s543): expansion → S557, thermal-stress → S558. S585-D has no row in `decisions.md`. Required in the linked delivery slice.
 - **Dependencies.** A heat source; Battery and a supplied load (Epic 8).
 
 ## 4. Sources and legacy

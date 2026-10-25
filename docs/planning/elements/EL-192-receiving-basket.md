@@ -1,5 +1,7 @@
 # EL-192 · Receiving basket — named-identity readiness spec
 
+**Current delivery (24 October 2026):** [EL-192 delivery slice](../invest/named-elements.md#element-192). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 readiness spec ([spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations are `path@a6c914e:Lstart-Lend`. Every value below is sourced; this identity has no proposed values.
 
 ## 1. Identity
@@ -9,7 +11,7 @@ Story 7.0 readiness spec ([spec](../../../_bmad-output/implementation-artifacts/
 | ID / name / type | EL-192 · Receiving basket · Gravity |
 | Anchor | [requirements.md#element-192](../requirements.md#element-192); [named-elements entry](../invest/named-elements.md#element-192); scope source [campaign element coverage](../requirements.md#campaign-element-coverage) |
 | Refines | [CAT-004 basket](CAT-004-basket.md) ([requirement](../requirements.md#current-cat-004)); catalogue title "Receiver". Goal consumers: `Captured`, and later [EL-120](EL-120-quantity-goal.md)/[EL-121](EL-121-rate-window-goal.md). |
-| Roadmap story | Delivered: CAT-004-I, Story 3.1 "Endpoint-Sampled Sensors & Dwell Tick Counter" ([epics](../../../_bmad-output/planning-artifacts/epics.md)). |
+| Roadmap story | [EL-192 delivery slice](../invest/named-elements.md#element-192); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | Partial: static capture, guide and halo delivered; a moving-frame (non-static) basket and multi-Receiver-with-balls constructions remain open. |
 
 ## 2. Declaration

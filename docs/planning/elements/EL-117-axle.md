@@ -1,5 +1,7 @@
 # EL-117 · Axle — named-identity readiness spec
 
+**Current delivery (24 October 2026):** [EL-117 delivery slice](../invest/named-elements.md#element-117). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 readiness spec ([spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations are `path@a6c914e:Lstart-Lend`. Values marked **proposed** have no legacy or requirement source; each carries a one-line justification and the owner may revise it.
 
 ## 1. Identity
@@ -9,8 +11,8 @@ Story 7.0 readiness spec ([spec](../../../_bmad-output/implementation-artifacts/
 | ID / name / type | EL-117 · Axle · Construction |
 | Anchor | [requirements.md#element-117](../requirements.md#element-117); [named-elements entry](../invest/named-elements.md#element-117); umbrella [gap-03](../requirements.md#gap-03) (index only) |
 | Related identities | [EL-116 Passive wheel](EL-116-passive-wheel.md) (what it carries); [EL-114 Placeable pivot](EL-114-placeable-pivot.md) (same revolute row); [GAP-04 Driven wheel](GAP-04-driven-wheel.md) (supplied torque on the same axle). No CAT refines it. |
-| Roadmap story | Unscheduled. Campaign: introduction 18 "Wheel Meet Again", practice 19, reuse 37, 68, 138 ([gap-03](../requirements.md#gap-03)). |
-| Status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
+| Roadmap story | [EL-117 delivery slice](../invest/named-elements.md#element-117); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
 
 ## 2. Declaration
 
@@ -35,14 +37,14 @@ Two variants: the outcome "Locked axle prevents the formerly permitted rotation"
 
 - **Cosmetic curves and UI bindings.** None; the shaft follows the committed wheel pose. A navy lock collar appears only in `Locked` (shape cue, not colour only).
 - **Art.** Gold shaft collar `#f7cb52`, navy lock collar `#293954`, cream bearing `#fff8e9` ([gap-03 visual style](../requirements.md#gap-03); `DESIGN.md@a6c914e:L147-L154`).
-- **Catalogue and inventory.** **Proposed** id `axle`, title "Axle", category Structure; `WorkshopPartKind.Axle` appended last in the Free palette (`engine/gpu/WorkshopInventory.cs@a6c914e:L47-L60`). Mode toggled by a contextual two-state control on the selected axle.
+- **Catalogue and inventory.** **Proposed** id `axle`, title "Axle", category Structure; package-owned metadata discovered into the Free palette from the bundle (`engine/gpu/WorkshopInventory.cs@a6c914e:L47-L60`). Mode toggled by a contextual two-state control on the selected axle.
 
 ## 3. Engine capabilities
 
 Families ([element map row](../general-engine-element-map.md), [binding](../../coverage/engine/element-02.json)): ContactImpulse, EnvironmentState, FiniteLedger, GeometryQuery, JointConstraint, RigidBodyDynamics, SlidingFriction, StateTransaction.
 
 - **Exists now.** Dynamic bodies, friction and rolling resistance (`CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L701-L765`).
-- **Missing.** Revolute joint row between two dynamic bodies, and a zero-width (locked) range: Story 10.3 builds the hinge with stops for a fixture ([epics](../../../_bmad-output/planning-artifacts/epics.md)); dynamic–dynamic use and the lock are unscheduled, owner S331. The wheel's cylinder collider is missing (see [EL-116](EL-116-passive-wheel.md)).
+- **Missing.** Revolute joint row between two dynamic bodies, and a zero-width (locked) range: Story 10.3 builds the hinge with stops for a fixture ([epics](../../../_bmad-output/planning-artifacts/epics.md)); dynamic–dynamic use and the lock are required in the linked delivery slice, owner S331. The wheel's cylinder collider is missing (see [EL-116](EL-116-passive-wheel.md)).
 - **Dependencies.** EL-116 Passive wheel and a chassis member (EL-112).
 
 ## 4. Sources and legacy

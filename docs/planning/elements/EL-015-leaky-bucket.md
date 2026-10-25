@@ -1,5 +1,7 @@
 # EL-015 · Leaky bucket — named-identity spec
 
+**Current delivery (24 October 2026):** [EL-015 delivery slice](../invest/named-elements.md#element-015). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec ([readiness spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations `path@a6c914e:Lstart-Lend` resolve with `git show a6c914e:<path>` after the Epic 7 purge. A value marked **proposed** has no legacy or requirement source; it carries a one-line justification and the owner may revise it.
 
 ## Identity
@@ -11,8 +13,8 @@ Story 7.0 named-identity spec ([readiness spec](../../../_bmad-output/implementa
 | Named entry | [element-015](../invest/named-elements.md#element-015); per-element proof owner S436 |
 | CAT spec refined | None. Integrates with [CAT-058 rope anchor](CAT-058-rope_anchor.md) and [CAT-053 pulley](CAT-053-pulley.md). |
 | Related identities | [EL-014 Water-carrying bucket](EL-014-water-carrying-bucket.md) (identical body and store; this spec adds the leak), [EL-004](EL-004-catch-basin.md) (catches the leak) |
-| Roadmap story | Unscheduled; ELEMENT-n row of the [roadmap](../invest/vertical-delivery.md#rolling-playable-roadmap), campaign chapter 7, levels 61–70. Rope prerequisites: Story 10.2. |
-| Status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
+| Roadmap story | [EL-015 delivery slice](../invest/named-elements.md#element-015); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
 
 ## Declaration
 
@@ -50,7 +52,7 @@ Story 7.0 named-identity spec ([readiness spec](../../../_bmad-output/implementa
 Families ([element map](../general-engine-element-map.md); binding [`element-01.json`](../../coverage/engine/element-01.json), consumer `element/element-015`): EnvironmentState, FiniteLedger, FluidAdvection, GeometryQuery, JointConstraint, PressureWork, RigidBodyDynamics, StateTransaction, TopologyTransaction.
 
 - **Exists now.** Dynamic boxes (`engine/gpu/RigidMassProperties.cs@a6c914e:L16-L18`); Run/Reset (`engine/gpu/WorkshopSimulation.cs@a6c914e:L238-L245`).
-- **Missing.** Everything listed for EL-014 (compound dynamic body, run-time variable mass, liquid store, rope) plus a moving free-stream emitter whose packets inherit body velocity ([S416](../invest/decisions.md#s416) advection → S418). Unscheduled.
+- **Missing.** Everything listed for EL-014 (compound dynamic body, run-time variable mass, liquid store, rope) plus a moving free-stream emitter whose packets inherit body velocity ([S416](../invest/decisions.md#s416) advection → S418). Required in the linked delivery slice.
 - **Element dependencies.** EL-014's dependencies; a receiver (EL-004) for the leak.
 
 ## Sources and legacy

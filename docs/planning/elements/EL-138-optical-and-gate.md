@@ -1,5 +1,7 @@
 # EL-138 · Optical AND gate — named-identity spec
 
+**Current delivery (24 October 2026):** [EL-138 delivery slice](../invest/named-elements.md#element-138). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 full spec for a named puzzle-element identity. Baseline commit `a6c914e`. Legacy citations use `path@a6c914e:Lstart-Lend` and stay retrievable from git history after the Epic 7 purge. Lengths are legacy scene units, which the current engine treats as metres (`MetreVector`). Local +X is the outlet direction.
 
 The five optical gates (EL-138 to EL-142) share one body, one aperture layout and one control law; they differ only in the Boolean operation, catalogue entry, truth relief and icon. Each is specified in full in its own file.
@@ -15,7 +17,7 @@ The five optical gates (EL-138 to EL-142) share one body, one aperture layout an
 | Owner | S510 (proof owner in the binding shard) |
 | Refines CAT | [CAT-043 optical_and](CAT-043-optical_and.md) (`optical_and`, "Both light gate"). One catalogue part satisfies both identities; this is not a second implementation. |
 | Related | EL-139 to EL-142 (sibling operations); EL-133 electrical AND (separate electrical identity); CAT-036 laser and EL-176 to EL-178 (control and carrier sources) |
-| Roadmap story | 13.8 Optical Logic Gates (AND, NAND, NOR, OR, XOR) (CAT-043 through CAT-047) |
+| Roadmap story | [EL-138 delivery slice](../invest/named-elements.md#element-138); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration
@@ -59,7 +61,7 @@ Binding shard ([element-02.json](../../coverage/engine/element-02.json)): Finite
 - OpticalTransport: narrow-ray emission, finite-disc apertures, Absorb and Route interactions with a directed outlet, shared range and interaction budget. Emission is built by Story 13.1 and routing by Story 13.5; Story 13.8 adds the switched carrier. Decision owner **S484** ([decisions](../invest/decisions.md#s484)): S485 finite-colour allocation, S486 optical-commit snapshot boundary, S488 interval transport law.
 - SignalPropagation and StateTransaction: hysteretic control sampling and next-tick decision commit (S486).
 - FiniteLedger: carrier retention and no-creation accounting (S485).
-- No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`); no optical port enum in `engine/gpu/WorkshopConnections.cs@a6c914e:L8-L13`.
+- No package declaration is established by the cited harvest baseline (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`); no optical port enum in `engine/gpu/WorkshopConnections.cs@a6c914e:L8-L13`.
 - S257 (typed power versus signal connections) confirms that optical control is not an electrical or activation wire.
 
 **Element dependencies:** a supplied, enabled carrier source and up to two control sources (CAT-036 laser or EL-176 to EL-178; Story 13.1, plus CAT-005 battery from Story 8.1); an observer for the outlet (CAT-038 light_receiver or EL-214; Story 13.2); CAT-066 wall as occluder (delivered).

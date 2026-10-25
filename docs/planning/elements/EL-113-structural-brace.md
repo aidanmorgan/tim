@@ -1,5 +1,7 @@
 # EL-113 · Structural brace — named-identity readiness spec
 
+**Current delivery (24 October 2026):** [EL-113 delivery slice](../invest/named-elements.md#element-113). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 readiness spec ([spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations are `path@a6c914e:Lstart-Lend`. Values marked **proposed** have no legacy or requirement source; each carries a one-line justification and the owner may revise it.
 
 ## 1. Identity
@@ -9,8 +11,8 @@ Story 7.0 readiness spec ([spec](../../../_bmad-output/implementation-artifacts/
 | ID / name / type | EL-113 · Structural brace · Construction |
 | Anchor | [requirements.md#element-113](../requirements.md#element-113); [named-elements entry](../invest/named-elements.md#element-113); umbrella [gap-01](../requirements.md#gap-01) (index only) |
 | Related identities | [EL-112 Structural beam](EL-112-structural-beam.md) (the members it triangulates); [EL-114 Placeable pivot](EL-114-placeable-pivot.md) (pinned frame corners). No CAT refines it. |
-| Roadmap story | Unscheduled. Campaign: introduction 4 "Brace Yourself", practice 5, reuse 18, 65, 138 ([gap-01](../requirements.md#gap-01)). |
-| Status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
+| Roadmap story | [EL-113 delivery slice](../invest/named-elements.md#element-113); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
 
 ## 2. Declaration
 
@@ -35,7 +37,7 @@ The requirements row names no variants; there is one mode. The brace differs fro
 
 - **Cosmetic curves and UI bindings.** None; art follows the committed pose. Resize along local X.
 - **Art.** Same family as the beam ([gap-01 visual style](../requirements.md#gap-01)): cream `#fff8e9` body, wood `#c28f52` inset, navy `#293954` joint marks, gold `#f7cb52` collars (`DESIGN.md@a6c914e:L147-L154`, `DESIGN.md@a6c914e:L169-L169`). A diagonal navy chevron on the inset distinguishes it from a beam without relying on colour alone.
-- **Catalogue and inventory.** **Proposed** id `structural_brace`, title "Structural brace", category Structure; `WorkshopPartKind.StructuralBrace` appended last in the Free palette (`engine/gpu/WorkshopInventory.cs@a6c914e:L47-L60`).
+- **Catalogue and inventory.** **Proposed** id `structural_brace`, title "Structural brace", category Structure; package-owned metadata discovered into the Free palette from the bundle (`engine/gpu/WorkshopInventory.cs@a6c914e:L47-L60`).
 
 ## 3. Engine capabilities
 

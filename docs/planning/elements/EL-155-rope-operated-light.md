@@ -1,5 +1,7 @@
 # EL-155 · Rope-operated light — named-identity spec
 
+**Current delivery (24 October 2026):** [EL-155 delivery slice](../invest/named-elements.md#element-155). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 full spec for a named puzzle-element identity. Baseline commit `a6c914e`. Legacy citations use `path@a6c914e:Lstart-Lend` and stay retrievable from git history after the Epic 7 purge. Lengths in metres; local +X is the beam direction, local −Y the pull direction.
 
 No legacy part implements this identity (the campaign calls it the "drawstring source"). Its light reuses the legacy torch cone and its cord reuses the legacy rope connection; every other value is **proposed** with a justification.
@@ -15,7 +17,7 @@ No legacy part implements this identity (the campaign calls it the "drawstring s
 | Owner | S517 |
 | Refines CAT | none. Combines the cone source of [CAT-029 flashlight](CAT-029-flashlight.md) with the rope connection of [CAT-058 rope_anchor](CAT-058-rope_anchor.md) (rope facts R1–R19) and the supply of [CAT-005 battery](CAT-005-battery.md). |
 | Related | EL-210 flashlight (self-triggered torch); EL-205 rope; CAT-067 weight and CAT-053 pulley (pull sources); EL-153 and EL-154 (receivers) |
-| Roadmap story | unscheduled |
+| Roadmap story | [EL-155 delivery slice](../invest/named-elements.md#element-155); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration
@@ -53,7 +55,7 @@ Binding shard ([element-02.json](../../coverage/engine/element-02.json)): Electr
 - JointConstraint prismatic slider with stops and spring — exists for the springboard design ([docs/gpu-f32-physics.md](../../gpu-f32-physics.md#6-unified-compliant-soft-constraints-spring-damper-formulation), CAT-062a) but not yet as a declaration for this part.
 - OpticalTransport cone emission — Story 13.1; S484 ([decisions](../invest/decisions.md#s484)): S486, S488.
 - ElectricalPower supply gating — Story 8.1; S257.
-- `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`).
+- package declaration and bundle-issued typed id (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`).
 
 **Element dependencies:** CAT-058 rope anchor / EL-205 rope and CAT-067 weight or CAT-053 pulley (Epic 10), CAT-005 battery (Story 8.1), EL-153 or CAT-059 as an observer (Epic 13).
 
@@ -84,4 +86,4 @@ Binding shard ([element-02.json](../../coverage/engine/element-02.json)): Electr
 1. Momentary (proposed) or latching pull-cord behaviour? The row says "rope displacement actuates"; owner decision.
 2. All geometry, mass, spring, switch and emitter values are proposed; owner to confirm.
 3. Should the emitter be a cone (proposed) or a narrow beam usable by laser receivers? Owner S484.
-4. Roadmap: unscheduled; it needs Epic 10 ropes and Epic 13 cones, so it fits after Story 13.7.
+4. Roadmap: required in the linked delivery slice; it needs Epic 10 ropes and Epic 13 cones, so it fits after Story 13.7.

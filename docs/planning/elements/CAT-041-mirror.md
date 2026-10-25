@@ -1,5 +1,7 @@
 # CAT-041 · mirror — declaration readiness spec (CAT-041-D)
 
+**Current delivery (24 October 2026):** [CAT-041 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 ## Identity
 
 - **CAT ID / kind:** CAT-041 · `mirror` (catalogue title "Flat mirror", category Optics).
@@ -36,7 +38,7 @@ Families (map row CAT-041): ContactImpulse, EnvironmentState, FiniteLedger, Geom
 - OpticalTransport reflection about the transformed normal with per-bounce retention, shared range budget and interaction cap — Story 13.5 (emission itself from Story 13.1). Decision owner **S484** ([decisions](../invest/decisions.md#s484)): S485, S486, S488.
 - OpticalAbsorption at back/frame and the absorbed 5% heating — S489/S543 heat coupling; applicable only to a heat mode (mode-specific per the map).
 - Construction preview of optical paths — Story 13.5.
-- No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`).
+- No package declaration is established by the cited harvest baseline (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`).
 
 **Element dependencies:** CAT-036 laser (source; Story 13.1), CAT-038 light_receiver (observer; Story 13.2), CAT-005 battery (laser supply; Story 8.1), CAT-066 wall (occluder; delivered).
 

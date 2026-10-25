@@ -1,5 +1,7 @@
 # TH-30 · Thermoelectric generator — named-identity readiness spec
 
+**Current delivery (24 October 2026):** [TH-30 delivery slice](../invest/named-elements.md#thermal-30). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations are `path@a6c914e:Lstart-Lend`. No legacy holds thermoelectric values, so every design value without a cited source is marked "(proposed: …)" with a one-line justification; the owner may revise it.
 
 ## 1. Identity
@@ -12,8 +14,8 @@ Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artif
 | Proof owner / research | S592 · [TH-S09 thermoelectric conversion](../../thermal-component-research.md#th-s09) |
 | Related identities | No CAT spec. **The same converter is reused by [RAD-20 Radioisotope thermoelectric generator](../invest/named-elements.md#radiation-20)** (Batch O) with decay heat on the hot face (row: "RTG assemblies use this same converter"). Hot stores [TH-26](TH-26-thermal-storage-block.md); cold side [TH-10](TH-10-finned-heat-sink.md), [TH-29](TH-29-cold-pack.md); loads such as [CAT-042 Motor](CAT-042-motor.md). |
 | Campaign | Intro 87; practice 88; reuse 131, 145 ([thermal allocation](../requirements.md#thermal-campaign-allocation)) |
-| Roadmap story | Unscheduled. No epic in `_bmad-output/planning-artifacts/epics.md` schedules a thermal element. |
-| Status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`); no legacy part. |
+| Roadmap story | [TH-30 delivery slice](../invest/named-elements.md#thermal-30); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`); no legacy part. |
 
 ## 2. Declaration
 
@@ -36,14 +38,14 @@ Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artif
 
 - **Cosmetic curves and UI bindings.** Meter ← committed delivered electrical power ([research per-element table](../../thermal-component-research.md)).
 - **Art.** "Layered cream/gold faces, a small finned cold face and shaped electrical terminals" (row). Nearest [DESIGN.md](../../../DESIGN.md) source colours (proposed mapping): cream `#ead39b` (`DESIGN.md@a6c914e:L146-L146`), gold `#f7cb52` (`DESIGN.md@a6c914e:L154-L154`).
-- **Catalogue and inventory entry.** New `WorkshopPartKind.ThermoelectricGenerator`; id `thermoelectric_generator`, title "Thermoelectric generator", category Power (proposed: an electrical source beside the Battery).
+- **Catalogue and inventory entry.** Package-owned declaration, discovered into the bundle; id `thermoelectric_generator`, title "Thermoelectric generator", category Power (proposed: an electrical source beside the Battery).
 
 ## 3. Engine capabilities
 
 Families (map row TH-30, [general-engine-element-map](../general-engine-element-map.md); binding [thermal-01.json](../../coverage/engine/thermal-01.json)): ElectricalPower, FiniteLedger, SensibleHeat, ThermoelectricConversion; JSON adds StateTransaction. Composition note: two thermal ports and finite rejected heat constrain ElectricalPower; equal temperature gives none.
 
 - **Exists now.** Static body and box collider (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L120`); typed `Supply` socket (`engine/gpu/WorkshopConnections.cs@a6c914e:L8-L11`); Run/Reset and save (`engine/gpu/ActivationNetwork.cs@a6c914e:L67-L67`, `engine/gpu/WorkshopSaveCodec.cs@a6c914e:L6-L10`).
-- **Missing.** ElectricalPower: Story 8.1 ([S257](../invest/decisions.md#s257) → S270). [S543](../invest/decisions.md#s543): thermoelectric → S560, conduction → S544. SensibleHeat (IX-43) has no S543 row. Unscheduled.
+- **Missing.** ElectricalPower: Story 8.1 ([S257](../invest/decisions.md#s257) → S270). [S543](../invest/decisions.md#s543): thermoelectric → S560, conduction → S544. SensibleHeat (IX-43) is a required entry decision under S543 owned by the linked delivery slice. Required in the linked delivery slice.
 - **Dependencies.** A hot store (TH-26) and a cold sink (TH-10, TH-29); an electrical load (CAT-042 Motor, Story 11.1).
 
 ## 4. Sources and legacy

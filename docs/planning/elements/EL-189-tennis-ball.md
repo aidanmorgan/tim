@@ -1,5 +1,7 @@
 # EL-189 · Tennis ball — named-identity readiness spec
 
+**Current delivery (24 October 2026):** [EL-189 delivery slice](../invest/named-elements.md#element-189). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 readiness spec ([spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations are `path@a6c914e:Lstart-Lend`. Values marked **proposed** have no legacy or requirement source; each carries a one-line justification and the owner may revise it.
 
 ## 1. Identity
@@ -9,8 +11,8 @@ Story 7.0 readiness spec ([spec](../../../_bmad-output/implementation-artifacts/
 | ID / name / type | EL-189 · Tennis ball · Gravity |
 | Anchor | [requirements.md#element-189](../requirements.md#element-189); [named-elements entry](../invest/named-elements.md#element-189); scope source [campaign element coverage](../requirements.md#campaign-element-coverage) |
 | Refines | [CAT-064 tennis](CAT-064-tennis.md) ([requirement](../requirements.md#current-cat-064)); the CAT spec holds the full legacy harvest (lessons, pressure-plate control). Contrasts: [EL-187](EL-187-basketball.md), [EL-188](EL-188-bowling-ball.md). |
-| Roadmap story | Story 12.1 "Lightweight Tennis Ball & Floating Balloon Buoyancy" ([epics](../../../_bmad-output/planning-artifacts/epics.md)); airflow use in Story 12.2. |
-| Status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
+| Roadmap story | [EL-189 delivery slice](../invest/named-elements.md#element-189); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
 
 ## 2. Declaration
 
@@ -38,7 +40,7 @@ No enumerated selector; one mode. The identity's point is that its bounce differ
 - **Parameters.** None exposed; fixed per kind (`engine/gpu/WorkshopConstruction.cs@a6c914e:L54-L62`).
 - **Cosmetic curves and UI bindings.** None.
 - **Art.** Shared ball art (`parts/BallPart.cs@a6c914e:L9-L17`); palette `#b8db59` (`DESIGN.md@a6c914e:L167-L167`).
-- **Catalogue and inventory.** Id `tennis`, title "Tennis ball", category Motion, "Light, small and bouncy. Responds strongly to moving air." (`parts/catalog/tennis.tres@a6c914e:L8-L14`); `WorkshopPartKind.TennisBall` appended last in the Free palette (`engine/gpu/WorkshopInventory.cs@a6c914e:L47-L60`).
+- **Catalogue and inventory.** Id `tennis`, title "Tennis ball", category Motion, "Light, small and bouncy. Responds strongly to moving air." (`parts/catalog/tennis.tres@a6c914e:L8-L14`); package-owned metadata discovered into the Free palette from the bundle (`engine/gpu/WorkshopInventory.cs@a6c914e:L47-L60`).
 
 ## 3. Engine capabilities
 

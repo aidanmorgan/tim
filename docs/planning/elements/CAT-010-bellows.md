@@ -1,5 +1,7 @@
 # CAT-010 · bellows — declaration readiness spec
 
+**Current delivery (24 October 2026):** [CAT-010 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 readiness spec ([spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Legacy citations are `path@a6c914e:Lstart-Lend` and stay retrievable from git history after Epic 7. Current-tree citations also use the a6c914e baseline.
 
 ## Identity
@@ -10,7 +12,7 @@ Story 7.0 readiness spec ([spec](../../../_bmad-output/implementation-artifacts/
 | Requirement anchor | [CAT-010](../requirements.md#current-cat-010) and its [retained behaviour](../requirements.md#sequence-task-312); D/I/V row [CAT-010-I](../invest/current-consumers.md#cat-010-i) |
 | Mapped identities | None. No EL, TH, RAD or GAP identity names the bellows; [EL-042 Air nozzle](../invest/named-elements.md#element-042) is a distinct element. |
 | Capability row | [general-engine-element-map, CAT-010](../general-engine-element-map.md) |
-| Roadmap story | Epic 12, Story 12.4 "Pneumatic Bellows Compression Pulse" (after Windmill, Story 12.3, and Conveyor, Story 11.1; see Open question 5) |
+| Roadmap story | Epic 12, Story 12.4 "Pneumatic Bellows Compression Pulse" (after Windmill, Story 12.3, and Conveyor, Story 11.1; see Open question 5) Current [CAT-010 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). |
 | Status | Not started. |
 
 ## Declaration

@@ -1,0 +1,28 @@
+Test run for /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/review-10-2a/wt-mut/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:01.90]     CuriousContraptions.Tests.ReviewerCreepProbe.Probe(drop: False) [FAIL]
+[xUnit.net 00:00:02.05]     CuriousContraptions.Tests.ReviewerCreepProbe.Probe(drop: True) [FAIL]
+  Failed CuriousContraptions.Tests.ReviewerCreepProbe.Probe(drop: False) [193 ms]
+  Error Message:
+   PROBE drop=False stoppedTick=1137 zAtStop=0.0018mm zEnd=0.0112mm postStopAxialDrift=0.0094mm max|z|=0.0241mm finalSpeed=4.571E-007
+  Stack Trace:
+     at CuriousContraptions.Tests.ReviewerCreepProbe.Probe(Boolean drop) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/review-10-2a/wt-mut/CuriousContraptions.tests/ReviewerCreepProbe.cs:line 36
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.ReviewerCreepProbe.Probe(drop: True) [148 ms]
+  Error Message:
+   PROBE drop=True stoppedTick=1169 zAtStop=-6.2586mm zEnd=-6.0463mm postStopAxialDrift=0.2123mm max|z|=6.2608mm finalSpeed=1.089E-004
+  Stack Trace:
+     at CuriousContraptions.Tests.ReviewerCreepProbe.Probe(Boolean drop) in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/review-10-2a/wt-mut/CuriousContraptions.tests/ReviewerCreepProbe.cs:line 36
+   at InvokeStub_ReviewerCreepProbe.Probe(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+[xUnit.net 00:00:03.47]     CuriousContraptions.Tests.ReviewerPlacementProbe.Probe [FAIL]
+  Failed CuriousContraptions.Tests.ReviewerPlacementProbe.Probe [12 ms]
+  Error Message:
+   PROBE weight None at -0.15996094 (face -0.15996094); basketball IntoPart at 0.1800391
+  Stack Trace:
+     at CuriousContraptions.Tests.ReviewerPlacementProbe.Probe() in /private/tmp/claude-501/-Users-aidan-dev-personal-tim/7e56a042-6670-44d4-ae0f-4efd972de00e/scratchpad/review-10-2a/wt-mut/CuriousContraptions.tests/ReviewerPlacementProbe.cs:line 24
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     3, Passed:     2, Skipped:     0, Total:     5, Duration: 1 s - CuriousContraptions.tests.dll (net10.0)

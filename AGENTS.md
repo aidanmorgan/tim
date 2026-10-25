@@ -8,6 +8,20 @@ Read [TODO.md](TODO.md) for the current outcome, blocker and next check. Read on
 
 Apply the [focused engineering rules and role prompts](docs/delivery-workflow.md#focused-agentic-engineering): state material assumptions, choose the simplest complete design, limit changes to the affected dependency closure, and define observable success before implementation. For an authorised backlog goal, finish and verify the current slice, complete required publication, then continue to the next ready TODO-linked outcome. A request confined to one change does not authorise executing the backlog. Reassess stalled work using the workflow's progress trigger; do not weaken gates or turn supporting administration into a new project.
 
+## Delivery speed rules (owner, 24 October 2026; these take precedence over conflicting wording below)
+
+- **One loop, one review system.** Every slice runs the `bmad-build-auto` workflow. Its step-04 review layers (Blind Hunter, Edge Case Hunter, Verification Gap, Intent Alignment) are the independent adversarial review. No separate reviewer agent repeats them. After publication, a small verifier runs only the terminal checks (CI on the exact SHA, Pages artifact, deployment).
+- **One slice at a time.** Start the next slice from the published main, so a slice merges main at most once. Parallel work is limited to read-only drafting of the next spec.
+- **Builds.** Use incremental builds. Run the full solution suite once per round, at the end. Do not run the local Release worker build or web publish; CI owns them.
+- **Mutations once.** A small set of mutants covers each new test's key behaviour. The review's verification layer checks them; the implementer does not repeat them.
+- **Light evidence.**
+  - Identities are commit SHAs, CI run IDs and test totals.
+  - No staged-tree or diff hashing, and no duplicated manifests.
+  - SnapshotApproval is the review Pass on a committed SHA.
+  - Terminal receipts are a short section in the review record.
+- **Fresh agents.** Each slice gets a fresh implementer, and review fixes go back to it. Do not carry long-lived agents across slices.
+- **Stable rules.** A new rule applies from the next slice unless the owner says otherwise. A slice already in review finishes under the rules it started with.
+
 ## Delivery slices and independent review
 
 Implement one small functional slice: one behavior, defect or invariant plus its necessary callers, content, tests and documentation. Select its bounded [INVEST scope](docs/planning/invest-index.md), then read the exact source acceptance and technical prerequisites; card summaries cannot waive them. Use a dedicated implementation subagent and a different independent adversarial review subagent; the coordinator delegates, reconciles results and reports status. Keep that pair through debugging and forward fixes. Self-review never qualifies.
@@ -43,6 +57,17 @@ For required publication, independent SnapshotApproval first verifies every pre-
 - Every existing/new catalogue part, fixture and supported mode needs identifiable actual Chrome/Playwright UI construction, verified placed configuration and typed connections, intended behavior, a meaningful negative/control, applicable integration and exact Run/Reset restoration plus save/load where supported. Use actual UI controls, never setters, imported solutions or numeric placement menus. Retain recipes, revision/bundle identity, assertions, logs, motion/screenshots and failed attempts. Native/reference/fake-page checks supplement this proof. Accumulate affected cases across the batch, including infrastructure changes, and run necessary affected/integration/regression E2E after all named puzzle elements are implemented. Until then label browser qualification pending; preserve older proof without claiming it covers changed inputs. No element counter is needed. Missing/stale proof remains incomplete at the enforcing batch or release gate.
 - Prove relevant boundaries, production build and ordinary lifecycle/resource ownership; qualify detailed resource stress and affected performance at their named gates. Commit and push each independently reviewed fully implemented element before the next, recording pending post-catalogue browser qualification; preserve individual evidence/publication when administrative stages share a slice.
 - Refactor forward: one current path, no fallback, compatibility shim, legacy mode, old-name alias or automatic migration. Never create backwards compatibility shims, helpers, or bridges. Every slice names the legacy it deletes; the programme ends with zero legacy physics/animation code in the tree (git history is the archive). Update current callers, authored content, tools, tests and active docs together; reject unsupported inputs explicitly and atomically. Puzzle elements must be refactored into the new declarative data schema, never removed. Historical artifacts remain unchanged evidence, not supported current input.
+  - **Review gate (owner, 25 October 2026):** a reviewer treats as a **Fail** any change that adds or keeps any of the following:
+    - a fallback;
+    - backwards compatibility: a compatibility shim, helper, bridge, adapter for an old format or caller, legacy mode, old-name alias or re-export, migration or upgrade path, or version branch;
+    - a retained deprecated field, member or file kept so old inputs keep working;
+    - a second rule or code path for the same behaviour, chosen by condition, flag, mode or environment.
+
+    Two things are not compatibility:
+    - Refusing unsupported input with a typed, visible reason. Detection only names the refusal and never reads or uses the old content.
+    - A numerical recovery inside one algorithm, such as a singular-matrix per-row solve. It applies the same rule as the main path.
+
+    Every bmad-build-auto review runs the Forward-Only Auditor layer (`_bmad/custom/bmad-build-auto.toml`). Triage grades each confirmed finding `high`, never rejects it as low or out of scope, and a slice cannot reach `done` with one unresolved.
 - **Hard rule — no skipped tests (owner, 24 October 2026).**
   - Every test of the game system runs and passes in every required run: local verification, hooks and CI. Every reported result has `Skipped: 0`.
   - The game system's tests are the C# solution's test projects and the node harnesses for game runtime code.

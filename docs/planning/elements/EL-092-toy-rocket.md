@@ -1,6 +1,8 @@
 # EL-092 · Toy rocket — named-identity spec
 
-Story 7.0 named-identity spec ([story spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations are `path@a6c914e:Lstart-Lend`. Values with no legacy or requirement source are **proposed**, each with a one-line justification; the owner may revise them. Game values are canonical f32 ([numeric contract](../../gpu-f32-physics.md)).
+**Current delivery (24 October 2026):** [EL-092 delivery slice](../invest/named-elements.md#element-092). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
+Story 7.0 named-identity spec ([story spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations are `path@a6c914e:Lstart-Lend`. Values with no legacy or requirement source are **proposed**, each with a one-line justification; the owner may revise them. Game values are canonical f32 ([numeric contract](../../gpu-f32-physics.md#precision-status)).
 
 **Safety boundary.** This is an abstract toy. Its charge is a declared impulse and energy budget in SI units only; no real propellant, formulation, quantity or construction is modelled or described (requirement row).
 
@@ -13,8 +15,8 @@ Story 7.0 named-identity spec ([story spec](../../../_bmad-output/implementation
 | Named entry | [element-092](../invest/named-elements.md#element-092); source owner **S662** |
 | CAT spec refined or extended | None. Its exhaust is an airflow like [CAT-028 Fan](CAT-028-fan.md); its finite store follows [CAT-016 Toy cannon](CAT-016-cannon.md). |
 | Related identities | EL-104 Toy firework, EL-105 Toy missile (the same thrust law), EL-094 Detonation plunger (an ignition command source) |
-| Roadmap story | Unscheduled |
-| Status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
+| Roadmap story | [EL-092 delivery slice](../invest/named-elements.md#element-092); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
 
 ## 2. Declaration
 

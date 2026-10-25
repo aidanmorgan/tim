@@ -1,5 +1,7 @@
 # GAP-06 · Granular dispenser — named-identity readiness spec
 
+**Current delivery (24 October 2026):** [GAP-06 delivery slice](../invest/named-elements.md#gap-06). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 readiness spec ([spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations are `path@a6c914e:Lstart-Lend`. Values marked **proposed** have no legacy or requirement source; each carries a one-line justification and the owner may revise it.
 
 ## 1. Identity
@@ -9,7 +11,7 @@ Story 7.0 readiness spec ([spec](../../../_bmad-output/implementation-artifacts/
 | ID / name / type | GAP-06 · Granular dispenser · Gravity / fluid-flow neighbour (P3 potential) |
 | Anchor | [requirements.md#gap-06](../requirements.md#gap-06); [named-elements entry](../invest/named-elements.md#gap-06) |
 | Related identities | [GAP-07 Granular sieve](GAP-07-granular-sieve.md) (depends on it); [EL-120 Quantity goal](EL-120-quantity-goal.md) (mass/count units); containers [EL-192 Receiving basket](EL-192-receiving-basket.md) and [EL-069 Moving bucket](../invest/named-elements.md#element-069); weighing [CAT-052 Pressure plate](CAT-052-pressure_plate.md); the funnel [CAT-030](CAT-030-funnel.md) is a routing neighbour, not a dispenser. No CAT refines it. |
-| Roadmap story | Unscheduled. Campaign: introduction 91 "Against the Grain", practice 92, reuse 96, 136, 141 ([gap-06](../requirements.md#gap-06)). |
+| Roadmap story | [GAP-06 delivery slice](../invest/named-elements.md#gap-06); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | Not started. Disposition potential/conditional ([element map](../general-engine-element-map.md)). |
 
 ## 2. Declaration
@@ -31,7 +33,7 @@ The row requires "grain-size presets, outlet control and performance limits befo
   | Name | Type | Range | Default | Unit | Source |
   | --- | --- | --- | --- | --- | --- |
   | `grain` | enum `GrainSize { Fine, Coarse }` | closed set | `Fine` | — | **proposed** (above) |
-  | `feed` | u32 | 0–12 | 8 | grains | **proposed** — 0 is the authored empty control; 12 grains plus up to 4 other dynamic bodies fit the current 16-body table (section 3); 8 leaves room for a ball and a Weight |
+  | `feed` | u32 | 0–12 | 8 | grains | **proposed** — 0 is the authored empty control; 12 is the retained small example-profile proposal, not an engine capacity; 8 is its default. S639 resolves the authored feed range independently of the retired table limit |
   | `outlet` | enum `OutletState { Closed, Open }` | closed set | `Closed` | — | **proposed** initial state so the player chooses when to release |
 
 - **Cosmetic curves and UI bindings.** Fill line in the cyan window ← committed retained count; quantity legible at mobile size ([gap-06 visual style](../requirements.md#gap-06)).
@@ -43,7 +45,7 @@ The row requires "grain-size presets, outlet control and performance limits befo
 Families ([element map row](../general-engine-element-map.md), [binding](../../coverage/engine/gap-01.json)): ContactImpulse, EnvironmentState, FiniteLedger, GeometryQuery, GranularTransport, RigidBodyDynamics, StateTransaction, TopologyTransaction.
 
 - **Exists now.** Dynamic spheres with friction, rolling resistance and restitution (`CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L622-L765`); dynamic AABB tree broadphase (`CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L74-L203`).
-- **Capacity (named prerequisite).** 16 dynamic bodies and 33 bodies per document (`engine/gpu/PhysicsBodyReadSet.cs@a6c914e:L30-L30`; `engine/gpu/PhysicsDeclarations.cs@a6c914e:L166-L169`) and 32 instances (`engine/gpu/WorkshopInstances.cs@a6c914e:L48-L48`). Grains are bodies of one dispenser instance, so they cost dynamic-body rows, not instance rows; the dispenser's workbench footprint must count `feed` dynamic bodies (`engine/gpu/WorkbenchCapacity.cs@a6c914e:L30-L43`). The proposed 12-grain cap fits today. Any larger feed, or a granular table, is a capacity increase that needs an owner decision before it is adopted (owner S639); the performance budget is measured at its named qualification gate.
+- **Capacity (historical baseline and current replacement).** The harvest recorded 16 dynamic bodies and 33 bodies per document (`engine/gpu/PhysicsBodyReadSet.cs@a6c914e:L30-L30`; `engine/gpu/PhysicsDeclarations.cs@a6c914e:L166-L169`) and 32 instances (`engine/gpu/WorkshopInstances.cs@a6c914e:L48-L48`). Grains are bodies of one dispenser instance, so they cost dynamic-body rows, not instance rows; the dispenser's workbench footprint must count `feed` dynamic bodies (`engine/gpu/WorkbenchCapacity.cs@a6c914e:L30-L43`). The historical limits above are retired: current body, instance and grain tables are sized from the compiled scene at Run. S639 decides the authored feed range and memory admission behavior, not a fixed engine capacity; the performance budget is measured at its named qualification gate.
 - **Missing.**
   - GranularTransport: decision owner LAW-GRANULAR-I ("Finite feed passes a wide opening and jams a narrow one; the count delivered never exceeds the count fed", [S635](../invest/decisions.md#s635)); owner S639.
   - Outlet gate collider removal mid-Run (TopologyTransaction).

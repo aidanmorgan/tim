@@ -1,5 +1,7 @@
 # EL-204 · Weight — named-identity readiness spec
 
+**Current delivery (24 October 2026):** [EL-204 delivery slice](../invest/named-elements.md#element-204). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 readiness spec ([spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations are `path@a6c914e:Lstart-Lend`. Values marked **proposed** have no legacy or requirement source; each carries a one-line justification and the owner may revise it.
 
 ## 1. Identity
@@ -9,8 +11,8 @@ Story 7.0 readiness spec ([spec](../../../_bmad-output/implementation-artifacts/
 | ID / name / type | EL-204 · Weight · Gravity |
 | Anchor | [requirements.md#element-204](../requirements.md#element-204); [named-elements entry](../invest/named-elements.md#element-204); scope source [campaign element coverage](../requirements.md#campaign-element-coverage) |
 | Refines | [CAT-067 weight](CAT-067-weight.md) ([requirement](../requirements.md#current-cat-067)); the CAT spec holds the full rope/pulley harvest. Partners: rope [EL-205](../invest/named-elements.md#element-205), pulleys [EL-206](../invest/named-elements.md#element-206)/[EL-207](../invest/named-elements.md#element-207), [CAT-053 Pulley](CAT-053-pulley.md), [CAT-058 Rope anchor](CAT-058-rope_anchor.md). |
-| Roadmap story | Story 10.4 "Counterweight & Multi-Body Pendulum Lifting" (CAT-067), after Story 10.2 ropes ([epics](../../../_bmad-output/planning-artifacts/epics.md)). Element map disposition: potential/conditional ([element map](../general-engine-element-map.md)). |
-| Status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
+| Roadmap story | [EL-204 delivery slice](../invest/named-elements.md#element-204); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
 
 ## 2. Declaration
 
@@ -34,7 +36,7 @@ Configuration: mass, no enumerated selector ([CAT-067](../requirements.md#curren
   Fixture loads in the counterweight lessons use the fixed fixture mass 1, not the default 4 ([CAT-067](../requirements.md#current-cat-067)).
 - **Cosmetic curves and UI bindings.** None; art follows the committed pose. Countable bands = ⌈mass⌉ communicate heavier loads (`parts/WeightPart.cs@a6c914e:L40-L46`).
 - **Art.** Cylinder radius 0.85 r, height 1.35 r in catalogue navy `#45639c`; cream band `#fff8e9` near the base; gold eye ring `#f7cb52` (radius 0.14 m) at 0.72 r (`parts/WeightPart.cs@a6c914e:L36-L39`; `DESIGN.md@a6c914e:L184-L184`). Pick radius r + 0.22 m (`parts/WeightPart.cs@a6c914e:L35-L35`).
-- **Catalogue and inventory.** Id `weight`, title "Weight", category Ropes, "A rope-linked load. Larger weights have more bands and pull harder. Connect through pulleys to lift a lighter load." (`parts/catalog/weight.tres@a6c914e:L7-L14`). `WorkshopPartKind.Weight` appended last in the Free palette (`engine/gpu/WorkshopInventory.cs@a6c914e:L47-L60`).
+- **Catalogue and inventory.** Id `weight`, title "Weight", category Ropes, "A rope-linked load. Larger weights have more bands and pull harder. Connect through pulleys to lift a lighter load." (`parts/catalog/weight.tres@a6c914e:L7-L14`). package-owned metadata discovered into the Free palette from the bundle (`engine/gpu/WorkshopInventory.cs@a6c914e:L47-L60`).
 
 ## 3. Engine capabilities
 

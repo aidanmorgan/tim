@@ -1,5 +1,7 @@
 # EL-001 · Finite reservoir — named-identity spec
 
+**Current delivery (24 October 2026):** [EL-001 delivery slice](../invest/named-elements.md#element-001). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec ([readiness spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations `path@a6c914e:Lstart-Lend` resolve with `git show a6c914e:<path>` after the Epic 7 purge. A value marked **proposed** has no legacy or requirement source; it carries a one-line justification and the owner may revise it.
 
 ## Identity
@@ -11,8 +13,8 @@ Story 7.0 named-identity spec ([readiness spec](../../../_bmad-output/implementa
 | Named entry | [element-001](../invest/named-elements.md#element-001); per-element proof owner S422 |
 | CAT spec refined | None. No catalogue element stores liquid. |
 | Related identities | EL-002 Header tank (elevated variant of the same store), EL-003 Tap, EL-004 Catch basin, EL-008–EL-013 pipe kit, EL-018 level switch, EL-026 Communicating tank, EL-030–EL-032 meters |
-| Roadmap story | Unscheduled. No epic or story; the roadmap's ELEMENT-n row ([roadmap](../invest/vertical-delivery.md#rolling-playable-roadmap)) places it in campaign chapter 7 "Go with the Flow", levels 61–70. |
-| Status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
+| Roadmap story | [EL-001 delivery slice](../invest/named-elements.md#element-001); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
 
 ## Declaration
 
@@ -50,7 +52,7 @@ Story 7.0 named-identity spec ([readiness spec](../../../_bmad-output/implementa
 Families from the [element map](../general-engine-element-map.md) and the binding [`element-01.json`](../../coverage/engine/element-01.json) (consumer `element/element-001`, kind FutureDeclaration): EnvironmentState, FiniteLedger, FluidAdvection, GeometryQuery, JointConstraint, PressureWork, RigidBodyDynamics, StateTransaction, TopologyTransaction.
 
 - **Exists now.** Static bodies and box colliders (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L120`); constant gravity only (`engine/gpu/WorkshopConstruction.cs@a6c914e:L123-L124`); Run/Reset (`engine/gpu/WorkshopSimulation.cs@a6c914e:L238-L245`) and the save codec (`engine/gpu/WorkshopSaveCodec.cs@a6c914e:L9-L10`); typed connections without a Water domain (`engine/gpu/WorkshopConnections.cs@a6c914e:L8-L12`); a finite ledger only for contact work energy (`engine/gpu/ContactWorkDeclaration.cs@a6c914e:L21-L36`).
-- **Missing.** Liquid FiniteLedger, FluidAdvection and free-stream packets: decision owner [S416](../invest/decisions.md#s416) advection → S418. PressureWork (head): S416 pressure-work → S419. Water TopologyTransaction (mouth joins): no named owner; see Open questions. JointConstraint is listed by the family but unused by this element. No story builds any of these yet.
+- **Missing.** Liquid FiniteLedger, FluidAdvection and free-stream packets: decision owner [S416](../invest/decisions.md#s416) advection → S418. PressureWork (head): S416 pressure-work → S419. Water TopologyTransaction (mouth joins): the linked delivery owner settles the bounded decision; see Open questions. JointConstraint is listed by the family but unused by this element. The linked delivery slice owns prerequisite adoption/reuse and native proof; none is claimed implemented by this plan.
 - **Element dependencies.** EL-003 Tap or the pipe kit to route the outlet; EL-004 Catch basin as the receiver; EL-012 cap as the blocked-outlet control.
 
 ## Sources and legacy
@@ -81,6 +83,6 @@ Point of truth: [element-001](../requirements.md#element-001) and [element accep
 
 1. ρw = 16 kg/m³ is one water-family constant, aligned with Batch G (EL-023–EL-036, EL-165–EL-172); the owner confirms or replaces it once for the whole family (S416 buoyancy row → S420).
 2. Is Capacity fixed per kind, or resizable like the Wall (`engine/gpu/WorkshopWall.cs@a6c914e:L6-L10`)?
-3. Are Water mouth joins typed connection edges (persisted like wires) or geometric adjacency recomputed at admission? No decision row owns this; propose adding one under S416.
+3. Are Water mouth joins typed connection edges (persisted like wires) or geometric adjacency recomputed at admission? The linked delivery owner settles this mouth-topology decision under S416 before implementation.
 4. Free-stream packet volume and per-source budget are unspecified — owner S418.
 5. A new catalogue category "Water" versus the existing "Motion".

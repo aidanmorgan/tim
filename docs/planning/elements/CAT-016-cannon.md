@@ -1,5 +1,7 @@
 # CAT-016 · cannon declaration readiness spec
 
+**Current delivery (24 October 2026):** [CAT-016 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 This is the Story 7.0 CAT-016-D declaration readiness spec for the Toy cannon, written against baseline commit `a6c914e` before Epic 7 deletes the legacy that holds its knowledge. Legacy citations use `path@a6c914e:Lstart-Lend` and resolve with `git show a6c914e:<path> | sed -n 'start,endp'`; current-engine files are cited at the same commit so the line ranges stay stable. The [requirement row](../requirements.md#current-cat-016) remains the acceptance authority; this spec records the concrete declaration knowledge the legacy holds.
 
 ## 1. Identity
@@ -10,8 +12,8 @@ This is the Story 7.0 CAT-016-D declaration readiness spec for the Toy cannon, w
 | Kind | `cannon`, catalogue title "Toy cannon" (`parts/catalog/cannon.tres@a6c914e:L6-L7`) |
 | Requirement anchor | [CAT-016](../requirements.md#current-cat-016); retained behaviour [todo-392](../requirements.md#todo-392); related rows [sequence-task-082](../requirements.md#sequence-task-082) (compound chamber eligibility), [sequence-task-084](../requirements.md#sequence-task-084) (compound swept queries), [sequence-task-100](../requirements.md#sequence-task-100) (physical reload), [sequence-task-102](../requirements.md#sequence-task-102) (coupled finite-work actuation), [sequence-task-154](../requirements.md#sequence-task-154) (owned gameplay impulses), [sequence-task-164](../requirements.md#sequence-task-164) (loading boundaries), [sequence-task-205](../requirements.md#sequence-task-205) (physical cannon energy) |
 | Mapped identities | None found. [EL-095 Toy revolver](../invest/named-elements.md#element-095) and [EL-091 Cannonball](../invest/named-elements.md#element-091) are separate launcher and payload identities, not this part — not mapped; Batch A confirms. |
-| Roadmap story | [11.4 Wound Spring Potential Motor & Toy Cannon Launcher](../../../_bmad-output/planning-artifacts/epics.md) |
-| Status | Not started: `cannon` has no `WorkshopPartKind` (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3`) |
+| Roadmap story | [11.4b Cannon](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership); retain every CAT-016 mode and mapped named-identity obligation. |
+| Harvest-baseline status | Not started: `cannon` has no `WorkshopPartKind` (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3`) |
 
 ## 2. Declaration
 
@@ -95,7 +97,7 @@ The current carrier is `CosmeticCurveDeclaration` (`engine/gpu/WorkshopCosmetic.
 - **Defaults:** `capacity` 45, `charge_power` 30.
 - **Description:** "Load a ball through the open muzzle. A separate electrical supply charges the finite store; an activation fires only a fully charged, seated single ball through a clear muzzle. Empty or obstructed attempts retain charge. It never creates ammunition." (H34)
 
-No level in `content/puzzles.json` places the cannon or stocks it in an inventory (`git grep '"cannon"' a6c914e -- content/puzzles.json` returns nothing). Inventory admission needs a `WorkshopPartKind` and `PartInventoryDictionary` entry (`engine/gpu/WorkshopInventory.cs@a6c914e:L9-L23`).
+No level in `content/puzzles.json` places the cannon or stocks it in an inventory (`git grep '"cannon"' a6c914e -- content/puzzles.json` returns nothing). Inventory admission uses the package declaration, bundle-issued typed element id and authored allowance (`engine/gpu/WorkshopInventory.cs@a6c914e:L9-L23`).
 
 ## 3. Engine capabilities
 

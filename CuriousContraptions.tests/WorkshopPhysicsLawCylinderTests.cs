@@ -294,14 +294,24 @@ public sealed class WorkshopPhysicsLawCylinderTests
 
     // ---- lying rest without axial creep (engine slice "lying cylinder axial creep", 24 Oct 2026) ----
 
-    /// <summary>The 10.2a Weight at its default 4 kg as its package declares it: the size law (multiplier·m + offset, in f32) gives the
-    /// radius and half-width, and its material is restitution 0.08, bounce threshold 0.1, friction 0.3 and Crr 0.03. Source: main
-    /// b88ca425, `elements/Weight/WeightElementDeclaration.cs`, its geometry bindings (HalfExtentX/Z: multiplier .04808397, offset
-    /// .15932827; HalfExtentY: .03818433, .12652539) and its one material. The package is not on this branch, so the values are
-    /// copied here.</summary>
-    private static readonly float WeightRadius = .04808397f * 4f + .15932827f;
-    private static readonly float WeightHalfWidth = .03818433f * 4f + .12652539f;
-    private static readonly LawMaterial WeightMaterial = new(.08f, .1f, .3f, .03f);
+    /// <summary>The 10.2a Weight at its default mass, read from its package's public declaration
+    /// (<see cref="CuriousContraptions.Elements.Weight.WeightElementDeclaration"/>): its size bindings (multiplier·m + offset, in f32) give
+    /// the radius (HalfExtentX) and half-width (HalfExtentY), and its one scene material gives the restitution, bounce threshold, friction
+    /// and Crr.</summary>
+    private static readonly CuriousContraptions.Elements.Weight.WeightElementDeclaration WeightPackage = new();
+    private static readonly float WeightMass = WeightPackage.Metadata.Parameters.Single().Default;
+    private static readonly float WeightRadius = WeightSize(CuriousContraptions.Abstractions.GeometryComponent.HalfExtentX);
+    private static readonly float WeightHalfWidth = WeightSize(CuriousContraptions.Abstractions.GeometryComponent.HalfExtentY);
+    private static readonly LawMaterial WeightMaterial = WeightLawMaterial(WeightPackage.SceneBodies.Single().Material);
+
+    private static float WeightSize(CuriousContraptions.Abstractions.GeometryComponent component)
+    {
+        var binding = WeightPackage.ColliderBindings.Single(binding => binding.Component == component);
+        return binding.Multiplier * WeightMass + binding.Offset;
+    }
+
+    private static LawMaterial WeightLawMaterial(CuriousContraptions.Abstractions.MaterialProperties material) =>
+        new(material.Restitution, material.BounceThreshold, material.Friction, material.RollingResistance);
 
     /// <summary>The body's own axis (its local +Y) in world space.</summary>
     private static Vector3 AxisOf(LawBody b) => Vector3.Transform(Vector3.UnitY, b.Rotation);
@@ -329,7 +339,7 @@ public sealed class WorkshopPhysicsLawCylinderTests
         // The Ramp declares the bench's material.
         scene.StaticBox(centre, At(1.5f, .09f, .65f), AboutZ(-degrees));
         var weight = scene.Cylinder(centre + .09f * normal + .5f * downhill + (WeightRadius + .003f) * normal, WeightRadius, WeightHalfWidth,
-            4f, WeightMaterial, AlongZ);
+            WeightMass, WeightMaterial, AlongZ);
         var world = scene.Admit();
         var tps = world.TicksPerSecond;
         var reads = new List<LawBody>();
@@ -379,7 +389,7 @@ public sealed class WorkshopPhysicsLawCylinderTests
         const double tilt = 2e-6;
         var scene = new LawScene();
         var q = Quaternion.CreateFromAxisAngle(Vector3.UnitX, (float)tilt) * ExactlyLevel;
-        var body = scene.Cylinder(SetDownAt + At(0, BenchY + Lowest(q, WeightRadius, WeightHalfWidth)), WeightRadius, WeightHalfWidth, 4f,
+        var body = scene.Cylinder(SetDownAt + At(0, BenchY + Lowest(q, WeightRadius, WeightHalfWidth)), WeightRadius, WeightHalfWidth, WeightMass,
             WeightMaterial, q);
         var world = scene.Admit();
         var tps = world.TicksPerSecond;
@@ -409,7 +419,7 @@ public sealed class WorkshopPhysicsLawCylinderTests
         // round-off is resolved (a level cylinder reads about 1.3e-11 m/s, as before this slice's laws), and away from it a 1e-6 m/s
         // drift would round away.
         var scene = new LawScene();
-        var drum = scene.Cylinder(SetDownAt + At(0, BenchY + WeightRadius), WeightRadius, WeightHalfWidth, 4f, WeightMaterial, ExactlyLevel);
+        var drum = scene.Cylinder(SetDownAt + At(0, BenchY + WeightRadius), WeightRadius, WeightHalfWidth, WeightMass, WeightMaterial, ExactlyLevel);
         var world = scene.Admit();
         var tps = world.TicksPerSecond;
         LawBody? settled = null;

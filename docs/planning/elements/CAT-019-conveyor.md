@@ -1,5 +1,7 @@
 # CAT-019 · conveyor declaration readiness spec
 
+**Current delivery (24 October 2026):** [CAT-019 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 This is the Story 7.0 CAT-019-D declaration readiness spec for the conveyor belt. The baseline is commit `a6c914e`. Every citation uses the form `path@a6c914e:Lstart-Lend`, which stays retrievable from git history after the Epic 7 purge. Current-engine files are cited at the same commit.
 
 ## 1. Identity
@@ -10,8 +12,8 @@ This is the Story 7.0 CAT-019-D declaration readiness spec for the conveyor belt
 | Kind | `conveyor`, catalogue title "Conveyor belt" |
 | Requirement anchor | [CAT-019](../requirements.md#current-cat-019); retained behaviour [todo-151](../requirements.md#todo-151) |
 | Mapped identities | [EL-202 Conveyor](../invest/named-elements.md#element-202); [EL-200 Drive belt](../invest/named-elements.md#element-200) is a candidate related identity for the authored belt link (candidate — Batch A confirms) |
-| Roadmap story | [Story 11.1](../../../_bmad-output/planning-artifacts/epics.md) Electric Motor & Continuous Tangential Conveyor Belt (CAT-042, CAT-019) |
-| Status | not started (no `WorkshopPartKind` member, `engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`) |
+| Roadmap story | [11.1b Conveyor](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership); retain every CAT-019 mode and mapped named-identity obligation. |
+| Harvest-baseline status | not started (no `WorkshopPartKind` member, `engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`) |
 
 ## 2. Declaration
 
@@ -70,7 +72,7 @@ The keys are a closed enum `ConveyorParameter { Length, Width, SurfacePerRadian 
 
 ### Catalogue and inventory entry
 - Id `conveyor`, title "Conveyor belt", category Motion. The description tells the player to connect a motor, windmill or another conveyor to the input pulley; the output passes rotation onward, and a reverse transmission reverses travel (`parts/catalog/conveyor.tres@a6c914e:L8-L14`).
-- Add `WorkshopPartKind.Conveyor` with a counted allowance (`engine/gpu/WorkshopInventory.cs@a6c914e:L9-L23`). It is in inventory in 9 levels and placed in `belt_relay` and `double_cold_start` ([current consumers](../invest/current-consumers.md#cat-019-i)).
+- Declare the package with a counted allowance keyed by its bundle-issued typed id (`engine/gpu/WorkshopInventory.cs@a6c914e:L9-L23`). It is in inventory in 9 levels and placed in `belt_relay` and `double_cold_start` ([current consumers](../invest/current-consumers.md#cat-019-i)).
 
 ## 3. Engine capabilities
 

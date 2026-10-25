@@ -1,5 +1,7 @@
 # EL-119 · Dye station — named-identity readiness spec
 
+**Current delivery (24 October 2026):** [EL-119 delivery slice](../invest/named-elements.md#element-119). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 readiness spec ([spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations are `path@a6c914e:Lstart-Lend`. Values marked **proposed** have no legacy or requirement source; each carries a one-line justification and the owner may revise it.
 
 ## 1. Identity
@@ -9,8 +11,8 @@ Story 7.0 readiness spec ([spec](../../../_bmad-output/implementation-artifacts/
 | ID / name / type | EL-119 · Dye station · Material |
 | Anchor | [requirements.md#element-119](../requirements.md#element-119); [named-elements entry](../invest/named-elements.md#element-119); umbrella [gap-08](../requirements.md#gap-08) (index only) |
 | Related identities | [EL-118 Coating station](EL-118-coating-station.md) (same arch, surface response instead of colour); the colour filters [CAT-055](CAT-055-red_filter.md)/[CAT-031](CAT-031-green_filter.md)/[CAT-011](CAT-011-blue_filter.md) are optical channels, explicitly not dye. No CAT refines it. |
-| Roadmap story | Unscheduled. Campaign: introduction 94 "Coat of Many Colours", practice 95, reuse 98, 136, 150 ([gap-08](../requirements.md#gap-08)). |
-| Status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
+| Roadmap story | [EL-119 delivery slice](../invest/named-elements.md#element-119); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
 
 ## 2. Declaration
 

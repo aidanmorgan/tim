@@ -1,5 +1,7 @@
 # EL-004 · Catch basin — named-identity spec
 
+**Current delivery (24 October 2026):** [EL-004 delivery slice](../invest/named-elements.md#element-004). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec ([readiness spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations `path@a6c914e:Lstart-Lend` resolve with `git show a6c914e:<path>` after the Epic 7 purge. A value marked **proposed** has no legacy or requirement source; it carries a one-line justification and the owner may revise it.
 
 ## Identity
@@ -11,8 +13,8 @@ Story 7.0 named-identity spec ([readiness spec](../../../_bmad-output/implementa
 | Named entry | [element-004](../invest/named-elements.md#element-004); per-element proof owner S425 |
 | CAT spec refined | None. The ball Receiver ([CAT-004](../requirements.md#current-cat-004)) is a different element; the basin borrows its open-box geometry pattern only. |
 | Related identities | [EL-001](EL-001-finite-reservoir.md), [EL-003](EL-003-tap.md), [EL-005 Liquid funnel](EL-005-liquid-funnel.md), [EL-006 Drain](EL-006-drain.md), [EL-007 Open gutter](EL-007-open-gutter.md), [EL-016 Float](EL-016-float.md) (floats in it), EL-031 Volume meter |
-| Roadmap story | Unscheduled; ELEMENT-n row of the [roadmap](../invest/vertical-delivery.md#rolling-playable-roadmap), campaign chapter 7, levels 61–70. |
-| Status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
+| Roadmap story | [EL-004 delivery slice](../invest/named-elements.md#element-004); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
 
 ## Declaration
 
@@ -50,7 +52,7 @@ Story 7.0 named-identity spec ([readiness spec](../../../_bmad-output/implementa
 Families ([element map](../general-engine-element-map.md); binding [`element-01.json`](../../coverage/engine/element-01.json), consumer `element/element-004`): EnvironmentState, FiniteLedger, FluidAdvection, GeometryQuery, JointConstraint, PressureWork, RigidBodyDynamics, StateTransaction, TopologyTransaction.
 
 - **Exists now.** Static open-box geometry (Receiver pattern, `engine/gpu/WorkshopPhysicsCompiler.cs@a6c914e:L57-L82`); committed-read goal evaluation (`engine/gpu/WorkshopGoalEvaluator.cs@a6c914e:L5-L8`); Run/Reset (`engine/gpu/WorkshopSimulation.cs@a6c914e:L238-L245`).
-- **Missing.** Free-stream packet capture sweep and liquid ledger ([S416](../invest/decisions.md#s416) advection → S418); a volume feedback source for the cosmetic (`engine/gpu/WorkshopCosmetic.cs@a6c914e:L6-L16`); a volume-band goal kind. Unscheduled.
+- **Missing.** Free-stream packet capture sweep and liquid ledger ([S416](../invest/decisions.md#s416) advection → S418); a volume feedback source for the cosmetic (`engine/gpu/WorkshopCosmetic.cs@a6c914e:L6-L16`); a volume-band goal kind. Required in the linked delivery slice.
 - **Element dependencies.** A source: EL-001 + EL-003, EL-005, EL-007 or EL-013.
 
 ## Sources and legacy

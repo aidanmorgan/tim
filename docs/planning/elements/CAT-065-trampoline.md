@@ -1,5 +1,7 @@
 # CAT-065 · trampoline declaration readiness spec
 
+**Current delivery (24 October 2026):** [CAT-065 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 CAT-065-D readiness spec. Baseline commit `a6c914e`. Legacy citations use `path@a6c914e:Lstart-Lend` and stay retrievable after the Epic 7 purge. Current-engine files are cited at the same commit. This page records the declaration knowledge the legacy holds; it does not restate the requirement row. Visual authority is the [Passive trampoline](../../../DESIGN.md#passive-trampoline) section of DESIGN.md.
 
 ## 1. Identity
@@ -10,8 +12,8 @@ Story 7.0 CAT-065-D readiness spec. Baseline commit `a6c914e`. Legacy citations 
 | Kind | `trampoline`, catalogue title "Trampoline", category "Motion" (`parts/catalog/trampoline.tres@a6c914e:L6-L8`) |
 | Requirement anchor | [CAT-065](../requirements.md#current-cat-065); retained behaviour [sequence-task-306](../requirements.md#sequence-task-306) |
 | Mapped identities | None. No EL/TH/RAD/GAP names a trampoline or membrane. [EL-194 Springboard](../invest/named-elements.md#element-194) (CAT-062) and [EL-215 Damped cushion](../invest/named-elements.md#element-215) are separate elements. Batch A confirms. |
-| Roadmap story | [Story 10.5](../../../_bmad-output/planning-artifacts/epics.md) Trampoline Compliant Membrane Dynamics (CAT-065) |
-| Status | Not started. `WorkshopPartKind` has no trampoline member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
+| Roadmap story | [Story 10.5](../../../_bmad-output/planning-artifacts/epics.md) Trampoline Compliant Membrane Dynamics (CAT-065) Current [CAT-065 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). |
+| Harvest-baseline status | Not started. `WorkshopPartKind` has no trampoline member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
 
 ## 2. Declaration
 
@@ -73,7 +75,7 @@ The parameter names are a closed enum `TrampolineParameter { Tension, DampingRat
 
 ### Catalogue and inventory entry
 - Description: "Drop a ball onto the cyan bed. Its spring tension returns part of the impact energy, without a powered launch. Tilt it to redirect the rebound. The cream rim and navy back do not bounce. Uses bounded contact springs, not full cloth physics." (`parts/catalog/trampoline.tres@a6c914e:L9-L9`).
-- Inventory: one trampoline in `a_gentle_rebound` (`content/puzzles.json@a6c914e:L32571-L32573`). Add `WorkshopPartKind.Trampoline` and a counted `PartAllowance` (`engine/gpu/WorkshopInventory.cs@a6c914e:L9-L23`).
+- Inventory: one trampoline in `a_gentle_rebound` (`content/puzzles.json@a6c914e:L32571-L32573`). Declare the package with a counted allowance keyed by its bundle-issued typed id (`engine/gpu/WorkshopInventory.cs@a6c914e:L9-L23`).
 
 ## 3. Engine capabilities
 
@@ -89,7 +91,7 @@ Capability families: the [CAT-065 row](../general-engine-element-map.md) and its
 **Missing**
 - Compliant membrane law: a unilateral spring-damper over a finite rectangular footprint, with per-body engagement history and stroke. The force is applied once per solver step, not per projection iteration. Builds in **Story 10.5**. The generic elastic spring constraint of **Story 6.4** also "serves Trampoline CAT-065" ([springboard contract](../../springboard-elastic-contract.md)), but the trampoline's massless contact patches remain a different declaration.
 - A committed contact-patch read for the skin binding and the impact count: **Story 10.5**, on the Epic 4 animation worker.
-- `WorkshopPartKind.Trampoline`, catalogue entry and inventory: **Story 10.5**.
+- Package-owned Trampoline declaration, bundle catalogue metadata and authored inventory allowance: **Story 10.5**.
 - Tether integration needs ropes: **Story 10.2** (CAT-058 Rope anchor, CAT-067 Weight).
 - Drop→trampoline→pipe teaching needs the pipe: **Stories 6.6/6.7** (CAT-048).
 

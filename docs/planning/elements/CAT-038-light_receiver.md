@@ -1,5 +1,7 @@
 # CAT-038 · light_receiver — declaration readiness spec (CAT-038-D)
 
+**Current delivery (24 October 2026):** [CAT-038 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 ## Identity
 
 - **CAT ID / kind:** CAT-038 · `light_receiver` (catalogue title "Laser receiver", category Optics).
@@ -40,7 +42,7 @@ Families (map row CAT-038): AnimationEvaluation, AnimationLifecycle, ContactImpu
 - OpticalTransport absorption at a finite front disc, per-port summation and joint commit — Story 13.2 (emission from 13.1). Decision owner **S484** ([decisions](../invest/decisions.md#s484)): S485, S486 (commit before electrical solve).
 - ElectricalPower switched contact route — Story 8.1 (battery and network graph); S257 typed power versus signal.
 - Receiver feedback (matched) for the disc animation — Story 13.2 (P0-022/023).
-- No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`).
+- No package declaration is established by the cited harvest baseline (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`).
 
 **Element dependencies:** CAT-036 laser (Story 13.1), CAT-005 battery (Story 8.1), an electrical load (legacy tests used CAT-051 powered_gate, Story 8.2), CAT-008 beam_splitter (half/quarter power; Story 13.5), CAT-066 wall (delivered).
 

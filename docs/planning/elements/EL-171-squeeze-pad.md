@@ -1,5 +1,7 @@
 # EL-171 · Squeeze pad named-identity spec
 
+**Current delivery (24 October 2026):** [EL-171 delivery slice](../invest/named-elements.md#element-171). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 This is the Story 7.0 full spec for named identity EL-171. The baseline is commit `a6c914e`; every citation uses `path@a6c914e:Lstart-Lend`. Values without a source are marked **proposed**, each with a one-line justification; the owner may revise them.
 
 ## 1. Identity
@@ -13,8 +15,8 @@ This is the Story 7.0 full spec for named identity EL-171. The baseline is commi
 | Proof owner | S464 |
 | CAT spec refined | none. Related: [CAT-052 Pressure plate](CAT-052-pressure_plate.md) (load-on-plate precedent), [CAT-062 Spring](CAT-062-spring.md) (slider and spring, Story 6.4) |
 | Related identities | [EL-034 Sponge](EL-034-sponge.md) and [EL-035 Wick](EL-035-wick.md) (porous siblings, separate); [EL-036 Sprinkler](EL-036-sprinkler.md) and EL-013 Water nozzle (wetting sources); EL-004 Catch basin (receiver) |
-| Roadmap story | unscheduled |
-| Status | not started (no `WorkshopPartKind` member, `engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`) |
+| Roadmap story | [EL-171 delivery slice](../invest/named-elements.md#element-171); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | not started (no `WorkshopPartKind` member, `engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`) |
 
 ## 2. Declaration
 
@@ -53,8 +55,8 @@ Families ([element-map row](../general-engine-element-map.md), [coverage binding
 
 **Missing**
 - Prismatic slider with spring: Story 6.4.
-- Porous store with compression-dependent capacity (CapillaryTransport + PressureWork): [S416](../invest/decisions.md#s416) capillary → S421 and pressure-work → S419; map row: "Mechanical compression and pressure/porous store coupling expel conserved liquid; capacity alone is insufficient". Unscheduled.
-- Outlet free stream (S418): unscheduled.
+- Porous store with compression-dependent capacity (CapillaryTransport + PressureWork): [S416](../invest/decisions.md#s416) capillary → S421 and pressure-work → S419; map row: "Mechanical compression and pressure/porous store coupling expel conserved liquid; capacity alone is insufficient". Required in the linked delivery slice.
+- Outlet free stream (S418): required in the linked delivery slice.
 
 **Element dependencies.** A wetting source (EL-036 Sprinkler, EL-013 nozzle, EL-034 Sponge); a presser (CAT-014 Bowling ball, CAT-039 Linear pusher, CAT-067 Weight); a receiver (EL-004).
 

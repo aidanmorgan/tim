@@ -1,5 +1,7 @@
 # EL-174 · Prism — named-identity spec
 
+**Current delivery (24 October 2026):** [EL-174 delivery slice](../invest/named-elements.md#element-174). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 full spec for a named puzzle-element identity. Baseline commit `a6c914e`. Legacy citations use `path@a6c914e:Lstart-Lend` and stay retrievable from git history after the Epic 7 purge. Lengths in metres; light enters along local +X and the three channel paths fan out in the local XY plane.
 
 No legacy part implements a prism. It reuses the legacy routing mechanism (an input aperture routed to a directed outlet, counting internal travel) and the legacy channel masks; every other value is **proposed** with a justification. The dispersion is an explicit simplified spectral rule, not physical refraction.
@@ -15,7 +17,7 @@ No legacy part implements a prism. It reuses the legacy routing mechanism (an in
 | Owner | S520 (refinement S525 prism) |
 | Refines CAT | none. Inverse of [CAT-006 beam_combiner](CAT-006-beam_combiner.md) / EL-213; channel rule shared with the filters ([CAT-055](CAT-055-red_filter.md), EL-143 to EL-145). |
 | Related | EL-213 combiner (merges); EL-143 to EL-145 filters (absorb instead of separate); EL-146 to EL-148 receivers (targets); EL-173 diverging lens |
-| Roadmap story | unscheduled |
+| Roadmap story | [EL-174 delivery slice](../invest/named-elements.md#element-174); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration
@@ -46,10 +48,10 @@ Binding shard ([element-02.json](../../coverage/engine/element-02.json)): Finite
 **Exists now:** static box body and colliders (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L60`, `engine/gpu/PhysicsDeclarations.cs@a6c914e:L89-L91`).
 
 **Missing**
-- OpticalTransport routed aperture with **multiple** directed outlets and per-outlet channel masks — no story (Story 13.5 builds single-outlet routing for the combiner). Decision owner **S484** ([decisions](../invest/decisions.md#s484)): S485 finite-colour allocation, S488 interval law; refinement S525 ([refinements](../invest/refinements.md)).
+- OpticalTransport routed aperture with **multiple** directed outlets and per-outlet channel masks — required prerequisite owned by the linked delivery slice (Story 13.5 builds single-outlet routing for the combiner). Decision owner **S484** ([decisions](../invest/decisions.md#s484)): S485 finite-colour allocation, S488 interval law; refinement S525 ([refinements](../invest/refinements.md)).
 - Light-transparent solid collider — Story 13.4; a wedge collider shape (only Sphere, Box, Plane exist: `engine/gpu/PhysicsDeclarations.cs@a6c914e:L7-L7`).
 - OpticalAbsorption/SensibleHeat for the 10% loss — S489/S543, mode-specific.
-- `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`).
+- package declaration and bundle-issued typed id (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`).
 
 **Element dependencies:** an all-channel source (CAT-036 amber laser; Story 13.1), CAT-005 battery (Story 8.1), primary receivers EL-146 to EL-148 (Story 13.2), CAT-066 wall.
 
@@ -80,4 +82,4 @@ Binding shard ([element-02.json](../../coverage/engine/element-02.json)): Finite
 1. Fan angles, retention, size and the box collision proxy are proposed; owner to confirm, and whether a wedge collider is required.
 2. Does each outlet ray count as one interaction (proposed) or share the incoming ray's count?
 3. Should a prism accept torch cones (white-ish light) as well as narrow rays? Proposed: narrow rays only.
-4. Roadmap: unscheduled; multi-outlet routing is not built by any story.
+4. Roadmap: required in the linked delivery slice; multi-outlet routing is not built by any story.

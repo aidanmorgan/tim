@@ -1,5 +1,7 @@
 # CAT-013 · both_gate — declaration readiness spec
 
+**Current delivery (24 October 2026):** [CAT-013 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 Batch B declaration spec (CAT-013-D). Legacy citations are pinned to `a6c914e` and resolve with `git show a6c914e:<path> | sed -n 'start,endp'`. Requirement row: [CAT-013](../requirements.md#current-cat-013). This spec holds the **facts shared by all five supplied electrical gates** (one declaration, five operations); [CAT-024](CAT-024-electrical_nand.md), [CAT-025](CAT-025-electrical_nor.md), [CAT-026](CAT-026-electrical_or.md) and [CAT-027](CAT-027-electrical_xor.md) add only their operation-specific facts. Network-wide facts (N1–N24) are in [CAT-005](CAT-005-battery.md#4-legacy-harvest).
 
 ## 1. Identity
@@ -9,7 +11,7 @@ Story 7.0 Batch B declaration spec (CAT-013-D). Legacy citations are pinned to `
 | CAT ID / kind | CAT-013 · `both_gate` (operation And) |
 | Requirement anchor | [current-cat-013](../requirements.md#current-cat-013); retained behaviour [todo-362](../requirements.md#todo-362) |
 | Mapped identities | [EL-133 Electrical AND gate](../invest/named-elements.md#element-133). No TH/RAD/GAP identity. |
-| Roadmap story | 9.6 "Dual-Supply Both Gate" (Epic 9) |
+| Roadmap story | 9.6 "Dual-Supply Both Gate" (Epic 9) Current [CAT-013 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). |
 | Status | not started |
 
 ## 2. Declaration

@@ -1,5 +1,7 @@
 # EL-047 · Exit horn — element readiness spec
 
+**Current delivery (24 October 2026):** [EL-047 delivery slice](../invest/named-elements.md#element-047). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 Batch H named-identity spec. Legacy citations are pinned to `a6c914e` and resolve with `git show a6c914e:<path> | sed -n 'start,endp'`. Values marked *proposed* have no legacy or requirement source; each carries a one-line justification, stays inside the [game-grade envelope](../../gpu-f32-physics.md#game-grade-envelope) and may be revised by the owner. Box sizes are full extents. Shared acoustic facts A1–A13 are in [EL-044](EL-044-tone-selective-sound-meter.md#shared-acoustic-family-facts); acoustic route rules R1–R6 in [EL-046](EL-046-listening-horn.md#acoustic-route-rules-shared-by-el-046-el-047-el-048).
 
 ## 1. Identity
@@ -10,7 +12,7 @@ Story 7.0 Batch H named-identity spec. Legacy citations are pinned to `a6c914e` 
 | Type | Sound |
 | Anchor | [requirements.md#element-047](../requirements.md#element-047); scope index [todo-352](../requirements.md#todo-352); [named-elements entry](../invest/named-elements.md#element-047); owner S534 |
 | Related | Refines no CAT spec. End of the route [EL-046](EL-046-listening-horn.md) → [EL-048](EL-048-acoustic-duct.md) → EL-047; its output is heard by [CAT-060](CAT-060-sound_meter.md) / [EL-044](EL-044-tone-selective-sound-meter.md) or caught again by another listening horn. Emission pattern matches [CAT-061 Speaker](CAT-061-speaker.md). |
-| Roadmap story | unscheduled |
+| Roadmap story | [EL-047 delivery slice](../invest/named-elements.md#element-047); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration

@@ -1,5 +1,7 @@
 # CAT-064 · tennis — declaration readiness spec
 
+**Current delivery (24 October 2026):** [CAT-064 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 readiness spec ([spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Legacy citations are `path@a6c914e:Lstart-Lend` and stay retrievable from git history after Epic 7. Current-tree citations also use the a6c914e baseline.
 
 ## Identity
@@ -10,8 +12,8 @@ Story 7.0 readiness spec ([spec](../../../_bmad-output/implementation-artifacts/
 | Requirement anchor | [CAT-064](../requirements.md#current-cat-064); D/I/V row [CAT-064-I](../invest/current-consumers.md#cat-064-i) |
 | Mapped identities | [EL-189 Tennis ball](../invest/named-elements.md#element-189). No TH, RAD or GAP identity. |
 | Capability row | [general-engine-element-map, CAT-064](../general-engine-element-map.md) |
-| Roadmap story | Epic 12, Story 12.1 "Lightweight Tennis Ball & Floating Balloon Buoyancy" (CAT-064, CAT-003); roadmap family "Conserved airflow and buoyancy" ([vertical-delivery](../invest/vertical-delivery.md#existing-element-order)) |
-| Status | Not started. No `WorkshopPartKind` member exists (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
+| Roadmap story | [12.1a Tennis ball](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership); retain every CAT-064 mode and mapped named-identity obligation. |
+| Harvest-baseline status | Not started. No `WorkshopPartKind` member exists (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
 
 ## Declaration
 

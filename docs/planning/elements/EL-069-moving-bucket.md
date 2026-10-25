@@ -1,5 +1,7 @@
 # EL-069 · Moving bucket declaration readiness spec
 
+**Current delivery (24 October 2026):** [EL-069 delivery slice](../invest/named-elements.md#element-069). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec. Baseline commit `a6c914e`. Legacy citations use `path@a6c914e:Lstart-Lend` and stay retrievable from git history after the Epic 7 purge. Values marked **proposed** are design values the owner may revise.
 
 ## 1. Identity
@@ -13,7 +15,7 @@ Story 7.0 named-identity spec. Baseline commit `a6c914e`. Legacy citations use `
 | Named entry | [named-elements.md#element-069](../invest/named-elements.md#element-069); proof owner S369 |
 | CAT spec refined or extended | Extends the static open container of [CAT-004 basket](CAT-004-basket.md) (current `ReceiverGeometry`) into a dynamic, rope-carried container. Related: [CAT-058 rope anchor](CAT-058-rope_anchor.md), [CAT-053 pulley](CAT-053-pulley.md), [CAT-067 weight](CAT-067-weight.md) |
 | Related identities | [EL-070 moving cage](EL-070-moving-cage.md), [EL-065 load hook](EL-065-load-hook.md), [EL-063 cable winch](EL-063-cable-winch.md); [EL-014 water-carrying bucket](EL-014-water-carrying-bucket.md) (separate water identity, not folded in) |
-| Roadmap story | unscheduled |
+| Roadmap story | [EL-069 delivery slice](../invest/named-elements.md#element-069); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration
@@ -63,7 +65,7 @@ Cream body `#fff8e9` with two ochre hoops `#d69c47`, pale grey bail `#ccd9df`, g
 
 ### Catalogue and inventory entry
 
-Id `moving_bucket`, title "Bucket", category "Ropes"; `WorkshopPartKind.MovingBucket` appended last to the free inventory (`engine/gpu/WorkshopInventory.cs@a6c914e:L49-L60`). **Proposed**.
+Id `moving_bucket`, title "Bucket", category "Ropes"; package-owned metadata discovered into the Free palette from the bundle (`engine/gpu/WorkshopInventory.cs@a6c914e:L49-L60`). **Proposed**.
 
 ### Variants
 
@@ -80,9 +82,9 @@ Binding: ContactImpulse, EnvironmentState, FiniteLedger, FiniteWorkActuation, Ge
 
 **Missing**
 
-- Compound dynamic body (floor + 4 walls) with combined mass properties: `engine/gpu/RigidMassProperties.cs@a6c914e:L26-L31` admits one primitive; no story. Decision owner S369.
+- Compound dynamic body (floor + 4 walls) with combined mass properties: `engine/gpu/RigidMassProperties.cs@a6c914e:L26-L31` admits one primitive; required prerequisite owned by the linked delivery slice. Decision owner S369.
 - Rope domain and `Load` attachments: Story 10.2; lifting: Story 10.4.
-- Liquid contents: water family (S416 → S418); no story in this programme.
+- Liquid contents: water family (S416 → S418); required prerequisite owned by the linked delivery slice.
 
 **Dependencies.** A rope lifter (EL-063 Winch or CAT-053 Pulley with CAT-067 Weight); cargo (CAT-001/014 balls).
 

@@ -1,5 +1,7 @@
 # EL-196 · Battery — element readiness spec
 
+**Current delivery (24 October 2026):** [EL-196 delivery slice](../invest/named-elements.md#element-196). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 Batch H named-identity spec. Legacy citations are pinned to `a6c914e` and resolve with `git show a6c914e:<path> | sed -n 'start,endp'`. Values marked *proposed* have no legacy or requirement source; each carries a one-line justification, stays inside the [game-grade envelope](../../gpu-f32-physics.md#game-grade-envelope) and may be revised by the owner. Box sizes are full extents (legacy `AddBox` takes the full size and stores half-extents, `reference/cpu/MachinePart.cs@a6c914e:L352-L356`). The catalogue harvest (B1–B14, network N1–N21, levels L1–L5) is in [CAT-005](CAT-005-battery.md); this spec adds the finite store the named identity requires.
 
 ## 1. Identity
@@ -10,7 +12,7 @@ Story 7.0 Batch H named-identity spec. Legacy citations are pinned to `a6c914e` 
 | Type | Electrical |
 | Anchor | [requirements.md#element-196](../requirements.md#element-196); existing record [campaign-element-coverage](../requirements.md#campaign-element-coverage) ("Battery, wire, switch, motor …", first use 11–20); [named-elements entry](../invest/named-elements.md#element-196); owner S302 |
 | Related | Refines [CAT-005 Battery](CAT-005-battery.md) ([current-cat-005](../requirements.md#current-cat-005), retained behaviour [todo-146](../requirements.md#todo-146)). Connected by [EL-197 wire](EL-197-electrical-wire.md); switched by [EL-198](EL-198-switch.md); first consumer [CAT-042 Motor](CAT-042-motor.md). |
-| Roadmap story | 8.1 "Battery DC Power Source & Network Graph" (Epic 8); finite-store defaults approved 10 Oct 2026; direct Battery→Bumper prerequisite passed in isolation, root integration in Story6.2 pending |
+| Roadmap story | [EL-196 delivery slice](../invest/named-elements.md#element-196); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | direct finite-source prerequisite implemented; full Motor/network/named-element acceptance remains incomplete |
 
 ## 2. Declaration

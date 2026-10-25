@@ -1,5 +1,7 @@
 # RAD-14 · Magnetic deflector — element readiness spec
 
+**Current delivery (24 October 2026):** [RAD-14 delivery slice](../invest/named-elements.md#radiation-14). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 Batch O named-identity spec. Legacy citations are pinned to `a6c914e` and resolve with `git show a6c914e:<path> | sed -n 'start,endp'`. Requirement row: [radiation-14](../requirements.md#radiation-14) (P3 potential). Toy field steering of fictional toy sources in game units.
 
 ## 1. Identity
@@ -11,7 +13,7 @@ Story 7.0 Batch O named-identity spec. Legacy citations are pinned to `a6c914e` 
 | Anchor | [requirements.md#radiation-14](../requirements.md#radiation-14); [named-elements.md#radiation-14](../invest/named-elements.md#radiation-14) |
 | Related identities | Charged sources [RAD-03 Alpha](RAD-03-alpha-source-cartridge.md), [RAD-04 Beta-minus](RAD-04-beta-minus-source-cartridge.md); neutral controls [RAD-01](RAD-01-gamma-source-capsule.md), [RAD-02](RAD-02-powered-x-ray-emitter.md), [RAD-16](RAD-16-neutron-source-module.md); trail display [RAD-15](RAD-15-track-chamber.md); obstacle [EL-128 Dense shield](EL-128-dense-shield.md). FieldForce sibling [EL-060 Electromagnet](EL-060-electromagnet.md). Mirrors ([CAT-041](CAT-041-mirror.md)) cannot redirect these channels. No CAT spec refined. |
 | Proof owner | S624 |
-| Roadmap story | unscheduled; campaign 118, 119 (research slots 93, 94) |
+| Roadmap story | [RAD-14 delivery slice](../invest/named-elements.md#radiation-14); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration
@@ -52,12 +54,12 @@ Families from the [map row](../general-engine-element-map.md) and [binding](../.
 | Family | Status | Basis or builder |
 | --- | --- | --- |
 | EnvironmentState | exists now | gravity lane of `RigidBodyDeclaration`, `engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L86`; a typed field region is part of FieldForce below |
-| FieldForce | missing | unscheduled (LAW-FIELD-D / LAW-FIELD-V) |
-| FiniteLedger | missing | unscheduled (S010-D); the only current finite store is bumper contact work, `engine/gpu/ContactWorkDeclaration.cs@a6c914e:L5-L9` |
-| GeometryQuery | exists now for contact only; missing for radiation paths | BVH `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L74-L204` and narrowphase `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L325-L620` (the coverage JSON's `engine/gpu/physics.wgsl` basis is not in the tree); curved charged-path queries: unscheduled (S606-D) |
-| IonizingTransport | missing | unscheduled (S606-D/F); signed charged trajectories distinct from photons |
+| FieldForce | missing | required in the linked delivery slice (LAW-FIELD-D / LAW-FIELD-V) |
+| FiniteLedger | missing | required in the linked delivery slice (S010-D); the only current finite store is bumper contact work, `engine/gpu/ContactWorkDeclaration.cs@a6c914e:L5-L9` |
+| GeometryQuery | exists now for contact only; missing for radiation paths | BVH `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L74-L204` and narrowphase `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L325-L620` (the coverage JSON's `engine/gpu/physics.wgsl` basis is not in the tree); curved charged-path queries: required in the linked delivery slice (S606-D) |
+| IonizingTransport | missing | required in the linked delivery slice (S606-D/F); signed charged trajectories distinct from photons |
 | RigidBodyDynamics | exists now | bodies `engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L86`; integration `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L216-L285` (the deflector itself is static) |
-| StateTransaction | exists now | `engine/gpu/WorkshopSimulation.cs@a6c914e:L44-L161`; field state joins it with this element (unscheduled) |
+| StateTransaction | exists now | `engine/gpu/WorkshopSimulation.cs@a6c914e:L44-L161`; field state joins it with this element (required in the linked delivery slice) |
 
 Also used: ElectricalPower (missing; Story 8.1) — the map composition asks for a declared finite field supply.
 

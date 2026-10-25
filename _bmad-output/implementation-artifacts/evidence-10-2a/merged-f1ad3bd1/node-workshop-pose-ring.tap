@@ -1,0 +1,42 @@
+TAP version 13
+# (node:23867) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: actual pose reader preserves first secondary and full-width IDs without owner alias
+ok 1 - actual pose reader preserves first secondary and full-width IDs without owner alias
+  ---
+  duration_ms: 0.669416
+  type: 'test'
+  ...
+# Subtest: actual latest reader ignores in-progress slot and uses new aligned stride
+ok 2 - actual latest reader ignores in-progress slot and uses new aligned stride
+  ---
+  duration_ms: 0.116
+  type: 'test'
+  ...
+# Subtest: a ring that is not a whole number of slots and body records is refused
+ok 3 - a ring that is not a whole number of slots and body records is refused
+  ---
+  duration_ms: 0.177041
+  type: 'test'
+  ...
+# Subtest: a grown ring of any capacity reads every body (no fixed body capacity)
+ok 4 - a grown ring of any capacity reads every body (no fixed body capacity)
+  ---
+  duration_ms: 0.079
+  type: 'test'
+  ...
+# Subtest: actual worker writer publishes globally newest frames across wraps and shrinking populations
+ok 5 - actual worker writer publishes globally newest frames across wraps and shrinking populations
+  ---
+  duration_ms: 3.073167
+  type: 'test'
+  ...
+1..5
+# tests 5
+# suites 0
+# pass 5
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 63.041292

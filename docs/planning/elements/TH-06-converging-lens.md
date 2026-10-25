@@ -1,5 +1,7 @@
 # TH-06 · Converging lens — named-identity readiness spec
 
+**Current delivery (24 October 2026):** [TH-06 delivery slice](../invest/named-elements.md#thermal-06). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations are `path@a6c914e:Lstart-Lend`. No legacy holds converging-lens values; the frame and aperture follow the legacy colour filter, as for EL-173. Every design value without a cited source is marked "(proposed: …)" with a one-line justification; the owner may revise it.
 
 ## 1. Identity
@@ -12,8 +14,8 @@ Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artif
 | Proof owner / research | S518 · [TH-S04 optical heating](../../thermal-component-research.md#th-s04) |
 | Related identities | **Refines the existing lens identity**: the optical lens family of [EL-173 Diverging lens](EL-173-diverging-lens.md) (Batch K, owner S519); frame, aperture and retention are aligned with it. Historical records [todo-304](../requirements.md#todo-304) (shared with [TH-37](TH-37-heat-sensitive-target.md), plus the integration task [sequence-task-402](../requirements.md#sequence-task-402)) and [todo-196](../requirements.md#todo-196) (shared with EL-155, EL-210, TH-01, TH-03). Frame family [CAT-055 Red filter](CAT-055-red_filter.md). Sources: [CAT-029 Flashlight](CAT-029-flashlight.md), [CAT-036 Laser](CAT-036-laser.md); targets [TH-07](TH-07-solar-absorber-plate.md), [TH-32](TH-32-tinder-pad.md), TH-37. |
 | Campaign | Intro 59; practice 60; reuse 85, 142 ([thermal allocation](../requirements.md#thermal-campaign-allocation)); optical lens lesson 51–60 retained. |
-| Roadmap story | Unscheduled. Epic 13 builds emitters and mirrors but no lens. |
-| Status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`); no legacy part. |
+| Roadmap story | [TH-06 delivery slice](../invest/named-elements.md#thermal-06); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`); no legacy part. |
 
 ## 2. Declaration
 
@@ -36,14 +38,14 @@ Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artif
 
 - **Cosmetic curves and UI bindings.** None (static), per the [research per-element table](../../thermal-component-research.md). UI: "faint selected-only finite focus footprint" (row), drawn from the same optical solve, never a separate rule.
 - **Art.** "Translucent cyan disc in a cream sculptural frame" (row). Frame cream `#fff8e9` and navy foot `#293954` from the legacy filter (`parts/ColourFilterPart.cs@a6c914e:L25-L28`); cyan `#66b8c9` lens at alpha 0.3 (proposed mapping, as EL-173; `DESIGN.md@a6c914e:L172-L172`), with convex cream rim marks distinguishing it from EL-173's concave marks.
-- **Catalogue and inventory entry.** New `WorkshopPartKind.ConvergingLens`; id `converging_lens`, title "Converging lens", category Optics (proposed: the existing category for optical parts).
+- **Catalogue and inventory entry.** Package-owned declaration, discovered into the bundle; id `converging_lens`, title "Converging lens", category Optics (proposed: the existing category for optical parts).
 
 ## 3. Engine capabilities
 
 Families (map row TH-06, [general-engine-element-map](../general-engine-element-map.md); binding [thermal-01.json](../../coverage/engine/thermal-01.json)): ChemicalReaction, FiniteLedger, GeometryQuery, Ignition, OpticalAbsorption, OpticalTransport, SensibleHeat, TopologyTransaction; JSON adds StateTransaction. The map's composition note: the lens transports and refocuses finite power; ignition and reaction belong to the target, not the lens.
 
 - **Exists now.** Static body and box colliders (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L120`); Run/Reset and save (`engine/gpu/ActivationNetwork.cs@a6c914e:L67-L67`, `engine/gpu/WorkshopSaveCodec.cs@a6c914e:L6-L10`).
-- **Missing.** OpticalTransport: Stories 13.1 and 13.5 ([S484](../invest/decisions.md#s484) finite-colour → S485, optical-commit → S486, optical-law → S488). Finite-width coverage before any lens ([todo-309](../requirements.md#todo-309), as EL-173). OpticalAbsorption → S489. Refraction and focusing: no S484 row covers them (see Open questions). Light-transparent solid collider: Story 13.4. Thermal: [S543](../invest/decisions.md#s543) for the receiving body. Unscheduled.
+- **Missing.** OpticalTransport: Stories 13.1 and 13.5 ([S484](../invest/decisions.md#s484) finite-colour → S485, optical-commit → S486, optical-law → S488). Finite-width coverage before any lens ([todo-309](../requirements.md#todo-309), as EL-173). OpticalAbsorption → S489. Refraction and focusing: no S484 row covers them (see Open questions). Light-transparent solid collider: Story 13.4. Thermal: [S543](../invest/decisions.md#s543) for the receiving body. Required in the linked delivery slice.
 - **Dependencies.** A finite optical source (CAT-029, CAT-036); an absorbing target (TH-07, TH-32, TH-37).
 
 ## 4. Sources and legacy

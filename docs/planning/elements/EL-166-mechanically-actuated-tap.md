@@ -1,5 +1,7 @@
 # EL-166 · Mechanically actuated tap named-identity spec
 
+**Current delivery (24 October 2026):** [EL-166 delivery slice](../invest/named-elements.md#element-166). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 This is the Story 7.0 full spec for named identity EL-166. The baseline is commit `a6c914e`; every citation uses `path@a6c914e:Lstart-Lend`. Values without a source are marked **proposed**, each with a one-line justification; the owner may revise them.
 
 ## 1. Identity
@@ -13,8 +15,8 @@ This is the Story 7.0 full spec for named identity EL-166. The baseline is commi
 | Proof owner | S459 |
 | CAT spec refined | none. It refines [EL-003 Tap](EL-003-tap.md) as the linkage-driven variant. Related: [CAT-034 Impact lever](CAT-034-impact_lever.md) (hinge), [CAT-058 Rope anchor](CAT-058-rope_anchor.md) and [CAT-053 Pulley](CAT-053-pulley.md) (rope linkage), [CAT-039 Linear pusher](CAT-039-linear_pusher.md) |
 | Related identities | [EL-165 Manual tap](EL-165-manual-tap.md), [EL-167 Solenoid tap](EL-167-solenoid-tap.md); EL-017 Mechanical float valve (a float-driven valve, separate) |
-| Roadmap story | unscheduled |
-| Status | not started (no `WorkshopPartKind` member, `engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`) |
+| Roadmap story | [EL-166 delivery slice](../invest/named-elements.md#element-166); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | not started (no `WorkshopPartKind` member, `engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`) |
 
 ## 2. Declaration
 
@@ -55,10 +57,10 @@ Families ([element-map row](../general-engine-element-map.md), [coverage binding
 - Dynamic and static Box bodies, contact impulses: `engine/gpu/PhysicsDeclarations.cs@a6c914e:L42-L120`.
 
 **Missing**
-- Revolute hinge with limits and a holding friction torque: Story 10.3 (friction torque term unscheduled if 10.2 lacks it).
+- Revolute hinge with limits and a holding friction torque: Story 10.3 (friction torque term required in the linked delivery slice if 10.2 lacks it).
 - Rope attachment and tension: Story 10.2 ([S257 rope-port](../invest/decisions.md#s257) → S688).
-- Aperture read from a committed joint coordinate (FiniteWorkActuation): unscheduled.
-- Valve node and head (S418/S419): owner [S416](../invest/decisions.md#s416); unscheduled.
+- Aperture read from a committed joint coordinate (FiniteWorkActuation): required in the linked delivery slice.
+- Valve node and head (S418/S419): owner [S416](../invest/decisions.md#s416); required in the linked delivery slice.
 
 **Element dependencies.** A supply and route as EL-165; an actuator: CAT-058 Rope anchor with CAT-067 Weight over CAT-053 Pulley, CAT-039 Linear pusher, CAT-034 Impact lever or a ball strike.
 

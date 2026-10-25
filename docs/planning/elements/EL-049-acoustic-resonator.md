@@ -1,5 +1,7 @@
 # EL-049 · Acoustic resonator — element readiness spec
 
+**Current delivery (24 October 2026):** [EL-049 delivery slice](../invest/named-elements.md#element-049). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 Batch H named-identity spec. Legacy citations are pinned to `a6c914e` and resolve with `git show a6c914e:<path> | sed -n 'start,endp'`. Values marked *proposed* have no legacy or requirement source; each carries a one-line justification, stays inside the [game-grade envelope](../../gpu-f32-physics.md#game-grade-envelope) and may be revised by the owner. Box sizes are full extents. Shared acoustic facts A1–A13 are in [EL-044](EL-044-tone-selective-sound-meter.md#shared-acoustic-family-facts).
 
 ## 1. Identity
@@ -10,7 +12,7 @@ Story 7.0 Batch H named-identity spec. Legacy citations are pinned to `a6c914e` 
 | Type | Sound |
 | Anchor | [requirements.md#element-049](../requirements.md#element-049); scope index [todo-352](../requirements.md#todo-352); [named-elements entry](../invest/named-elements.md#element-049); owner S536 |
 | Related | Refines no CAT spec. Receiver pattern of [CAT-060 Sound meter](CAT-060-sound_meter.md) and [EL-044](EL-044-tone-selective-sound-meter.md) (band, supplied contact), with a stored excitation; [EL-052 Water-tuned bottle](EL-052-water-tuned-bottle.md) is a resonator whose band follows its fill. |
-| Roadmap story | unscheduled |
+| Roadmap story | [EL-049 delivery slice](../invest/named-elements.md#element-049); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration

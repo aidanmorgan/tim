@@ -1,5 +1,7 @@
 # EL-176 · Red laser emitter — named-identity spec
 
+**Current delivery (24 October 2026):** [EL-176 delivery slice](../invest/named-elements.md#element-176). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 full spec for a named puzzle-element identity. Baseline commit `a6c914e`. Legacy citations use `path@a6c914e:Lstart-Lend` and stay retrievable from git history after the Epic 7 purge. Lengths are legacy scene units, which the current engine treats as metres (`MetreVector`). Local +X is the beam direction.
 
 The three channel lasers (EL-176 red, EL-177 green, EL-178 blue) are separate identities from the amber [CAT-036 laser](CAT-036-laser.md). Legacy had no channel laser as a catalogue part; the body, ports, enable latch, range and lens curve are the legacy amber laser's (sourced), and only the channel power and channel art are **proposed**. Legacy tests did use single-channel laser fixtures with power equal to the channel mask.
@@ -15,7 +17,7 @@ The three channel lasers (EL-176 red, EL-177 green, EL-178 blue) are separate id
 | Owner | S492 |
 | Refines CAT | none one-to-one; extends [CAT-036 laser](CAT-036-laser.md) (same body and control law, different channel). |
 | Related | EL-177, EL-178 (sibling channels); EL-143 red filter; EL-146 red receiver; EL-149, EL-151, EL-152 mixed receivers; EL-213 combiner; EL-174 prism (red-only control) |
-| Roadmap story | unscheduled (Story 13.1 covers only CAT-029 and CAT-036) |
+| Roadmap story | [EL-176 delivery slice](../invest/named-elements.md#element-176); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration
@@ -45,7 +47,7 @@ Binding shard ([element-02.json](../../coverage/engine/element-02.json)): Electr
 **Missing**
 - OpticalTransport narrow-ray emission with per-channel power, occlusion and committed path — Story 13.1 (built for the amber laser; this part reuses it). Decision owner **S484** ([decisions](../invest/decisions.md#s484)): S485, S486, S488.
 - ElectricalPower supply on `PowerIn` — Story 8.1; S257.
-- `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`).
+- package declaration and bundle-issued typed id (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`).
 
 **Element dependencies:** CAT-005 battery (Story 8.1); a trigger (CAT-063 switch or CAT-022 delay, delivered); a red-sensitive observer (EL-146 / CAT-056, Story 13.2).
 

@@ -1,5 +1,7 @@
 # EL-034 · Sponge named-identity spec
 
+**Current delivery (24 October 2026):** [EL-034 delivery slice](../invest/named-elements.md#element-034). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 This is the Story 7.0 full spec for named identity EL-034. The baseline is commit `a6c914e`; every citation uses `path@a6c914e:Lstart-Lend`. Values without a source are marked **proposed**, each with a one-line justification; the owner may revise them.
 
 ## 1. Identity
@@ -13,8 +15,8 @@ This is the Story 7.0 full spec for named identity EL-034. The baseline is commi
 | Proof owner | S455 |
 | CAT spec refined | none |
 | Related identities | [EL-035 Wick](EL-035-wick.md) and [EL-171 Squeeze pad](EL-171-squeeze-pad.md) (porous siblings, separate identities); EL-004 Catch basin and EL-001 Finite reservoir (liquid sources); TH-28 Evaporative cooling pad (thermal porous body) |
-| Roadmap story | unscheduled |
-| Status | not started (no `WorkshopPartKind` member, `engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`) |
+| Roadmap story | [EL-034 delivery slice](../invest/named-elements.md#element-034); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | not started (no `WorkshopPartKind` member, `engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`) |
 
 ## 2. Declaration
 
@@ -48,11 +50,11 @@ Families ([element-map row](../general-engine-element-map.md), [coverage binding
 - Dynamic Box body, contact normal impulses (from which load is measured): `engine/gpu/PhysicsDeclarations.cs@a6c914e:L42-L120`, `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L1271-L1279`.
 
 **Missing**
-- Bounded porous absorption with a capacity limit (CapillaryTransport): [S416 capillary](../invest/decisions.md#s416) → S421 ("the wick wets up to its limit, a dry reservoir wets nothing, reversed head does not lift"); unscheduled.
-- Liquid store carried by a dynamic body with mass coupling: S418; unscheduled.
-- Compression-driven release from contact load (PressureWork): S419; unscheduled.
-- Body mass changing during Run (current `RigidBodyDeclaration.Mass` is fixed per Run, `engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L60`): unscheduled.
-- Displaced-volume buoyancy and immersion damping for a floating sponge: S420; unscheduled.
+- Bounded porous absorption with a capacity limit (CapillaryTransport): [S416 capillary](../invest/decisions.md#s416) → S421 ("the wick wets up to its limit, a dry reservoir wets nothing, reversed head does not lift"); required in the linked delivery slice.
+- Liquid store carried by a dynamic body with mass coupling: S418; required in the linked delivery slice.
+- Compression-driven release from contact load (PressureWork): S419; required in the linked delivery slice.
+- Body mass changing during Run (current `RigidBodyDeclaration.Mass` is fixed per Run, `engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L60`): required in the linked delivery slice.
+- Displaced-volume buoyancy and immersion damping for a floating sponge: S420; required in the linked delivery slice.
 
 **Element dependencies.** A liquid source (EL-001, EL-004, EL-013 Water nozzle); for release, a heavy body (CAT-014 Bowling ball) or EL-171 press.
 

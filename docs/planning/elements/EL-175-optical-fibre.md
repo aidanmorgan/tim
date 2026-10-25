@@ -1,5 +1,7 @@
 # EL-175 · Optical fibre — named-identity spec
 
+**Current delivery (24 October 2026):** [EL-175 delivery slice](../invest/named-elements.md#element-175). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 full spec for a named puzzle-element identity. Baseline commit `a6c914e`. Legacy citations use `path@a6c914e:Lstart-Lend` and stay retrievable from git history after the Epic 7 purge. Lengths in metres.
 
 No legacy part implements a fibre or light pipe. It reuses the legacy routing mechanism (input aperture to directed outlet with internal travel counted against range) and the legacy length-at-connect rule of rope links; every other value is **proposed** with a justification. The source record marks this element **Optional**; that status is retained.
@@ -15,7 +17,7 @@ No legacy part implements a fibre or light pipe. It reuses the legacy routing me
 | Owner | S521 (refinement S526 fiber) |
 | Refines CAT | none. Distinct from the ball tubes [CAT-048 pipe](CAT-048-pipe.md) and bends; routing law shared with [CAT-006 beam_combiner](CAT-006-beam_combiner.md) / EL-213. |
 | Related | EL-212 flat mirror (the routing challenge it must not erase); EL-213 combiner; EL-176 to EL-178 lasers |
-| Roadmap story | unscheduled |
+| Roadmap story | [EL-175 delivery slice](../invest/named-elements.md#element-175); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration
@@ -46,11 +48,11 @@ Binding shard ([element-02.json](../../coverage/engine/element-02.json)): Finite
 **Exists now:** static box bodies and colliders (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L60`, `engine/gpu/PhysicsDeclarations.cs@a6c914e:L89-L91`); typed connection records (`engine/gpu/WorkshopConnections.cs@a6c914e:L8-L13`) without an Optical domain.
 
 **Missing**
-- OpticalTransport routing between two parts over a typed link (cross-part outlet) — no story; Story 13.5 builds same-part routing. Decision owner **S484** ([decisions](../invest/decisions.md#s484)): S485, S486, S488; refinement S526 ([refinements](../invest/refinements.md)).
+- OpticalTransport routing between two parts over a typed link (cross-part outlet) — required prerequisite owned by the linked delivery slice; Story 13.5 builds same-part routing. Decision owner **S484** ([decisions](../invest/decisions.md#s484)): S485, S486, S488; refinement S526 ([refinements](../invest/refinements.md)).
 - An Optical connection domain and `FibreOut`/`FibreIn` sockets (closed enums) — S257-style typed connection decision.
 - Per-level inventory limit — the existing inventory capability (`engine/gpu/WorkshopInventory.cs`) must express it.
 - OpticalAbsorption/SensibleHeat for losses — S489/S543, mode-specific.
-- `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`).
+- package declaration and bundle-issued typed id (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`).
 
 **Element dependencies:** a laser source (CAT-036 or EL-176 to EL-178; Story 13.1), CAT-005 battery (Story 8.1), a receiver (CAT-038 / EL-214; Story 13.2).
 
@@ -81,4 +83,4 @@ Binding shard ([element-02.json](../../coverage/engine/element-02.json)): Finite
 1. Coupling, attenuation, aperture size and the one-per-level limit are proposed; owner to confirm.
 2. Is the fibre reciprocal (either coupler can be the entry)? Proposed: directional entry → exit.
 3. Should the cable obey any minimum bend or route around bodies, or be a straight logical link (proposed)?
-4. Optional status and roadmap: unscheduled; owner to decide whether it is built at all.
+4. Optional status and roadmap: required in the linked delivery slice; owner to decide whether it is built at all.

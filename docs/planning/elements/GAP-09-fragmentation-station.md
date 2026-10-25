@@ -1,5 +1,7 @@
 # GAP-09 · Fragmentation station — named-identity readiness spec
 
+**Current delivery (24 October 2026):** [GAP-09 delivery slice](../invest/named-elements.md#gap-09). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 readiness spec ([spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations are `path@a6c914e:Lstart-Lend`. Values marked **proposed** have no legacy or requirement source; each carries a one-line justification and the owner may revise it.
 
 ## 1. Identity
@@ -9,7 +11,7 @@ Story 7.0 readiness spec ([spec](../../../_bmad-output/implementation-artifacts/
 | ID / name / type | GAP-09 · Fragmentation station · Mechanical (P3 potential) |
 | Anchor | [requirements.md#gap-09](../requirements.md#gap-09); [named-elements entry](../invest/named-elements.md#gap-09) |
 | Related identities | Fragments inherit coating/dye state from [EL-118](EL-118-coating-station.md)/[EL-119](EL-119-dye-station.md); breaking shares the fracture family with [EL-159](EL-159-tension-limited-connector.md)–[EL-161](EL-161-bending-limited-connector.md); "broken" goal predicate ([requirements](../requirements.md#sequence-task-361)); fragile cargo EL-084. No CAT refines it. |
-| Roadmap story | Unscheduled. Campaign: introduction 95 "A Smashing Success", practice 96, reuse 99, 141, 150 ([gap-09](../requirements.md#gap-09)). |
+| Roadmap story | [GAP-09 delivery slice](../invest/named-elements.md#gap-09); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | Not started. Disposition potential/conditional ([element map](../general-engine-element-map.md)). |
 
 ## 2. Declaration
@@ -19,7 +21,7 @@ Variants: "A supplied press or impact station" ([gap-09](../requirements.md#gap-
 - **Bodies and shapes (shared).** A static arch over a navy catch tray, a moving head, and an input cargo block.
   - **Proposed** arch 1.4 m wide × 1.8 m tall × 1.0 m deep; tray 1.2 × 0.1 × 1.0 m — clears a 0.5 m block with room for the head stroke.
   - **Proposed** input cargo: a dynamic `Breakable block`, a 0.5 m cube — the fragments (0.25 m cubes) then pass a 0.4 m route that the intact block cannot, the row's "can pass a smaller route".
-  - **Proposed** fragments: exactly 8 cubes of 0.25 m, each 1/8 of the parent mass, placed in the parent's octants with the parent's velocity — "a bounded, deterministic set"; 8 + the head fits the 16 dynamic-body table (`engine/gpu/PhysicsBodyReadSet.cs@a6c914e:L30-L30`).
+  - **Proposed** fragments: exactly 8 cubes of 0.25 m, each 1/8 of the parent mass, placed in the parent's octants with the parent's velocity — "a bounded, deterministic set"; the compiled scene allocates rows for all fragments and the head; the retired 16 dynamic-body table is historical (`engine/gpu/PhysicsBodyReadSet.cs@a6c914e:L30-L30`).
   - **Proposed** head and block restitution 0.1 each, so the product rule (`CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L642-L642`) gives e = 0.01 and an impact keeps almost all its normal energy in the block.
 - **Head and guide declaration.** **Proposed** shared dynamic head box 0.60 × 0.10 × 0.60 m, mass 3 kg in both variants: wider than the 0.5 m cargo block and small enough for the arch. The tray top is 0.10 m above the base datum; the intact block top is 0.60 m. A vertical prismatic joint to the static arch fixes head orientation and horizontal position, with its underside travelling from 0.10 to 1.60 m; the uppermost head top is 1.70 m, below the arch crossbar's proposed 1.75 m underside. Contact with cargo stops actual motion before the lower joint stop.
 - **Variant constraints.** **Proposed Impact:** a releasable lock on that slider holds the head underside at 0.60 m + drop_height; ActivationIn releases it once, leaving gravity and contact to move the head. **Proposed Press:** the same slider has a downward drive capped at 200 N, drawing finite supply work; an unsupplied static holding lock prevents the head falling, while supplied release admits the driven stroke. Reset restores the initial lock and head pose. These are shared joint/lock/drive declarations, not a station-specific update loop.

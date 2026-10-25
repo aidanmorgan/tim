@@ -1,5 +1,7 @@
 # CAT-069 · wind_chimes — declaration readiness spec
 
+**Current delivery (24 October 2026):** [CAT-069 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 readiness spec ([spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Legacy citations are `path@a6c914e:Lstart-Lend` and stay retrievable from git history after Epic 7. Current-tree citations also use the a6c914e baseline. Legacy tick counts are at 120 Hz (`reference/cpu/MachineWorld.cs@a6c914e:L20-L21`): 24 ticks = 0.2 s.
 
 ## Identity
@@ -11,7 +13,7 @@ Story 7.0 readiness spec ([spec](../../../_bmad-output/implementation-artifacts/
 | Modes | AcousticTone = Low, Mid, High (fixed per tube) |
 | Mapped identities | None. No EL, TH, RAD or GAP identity names the wind chimes; the [acoustic family](../../component-research.md#sound) and the [gas family](../../finite-gas-foundation.md) both list them. |
 | Capability row | [general-engine-element-map, CAT-069](../general-engine-element-map.md) |
-| Roadmap story | Epic 14, Story 14.4 "Resonant Wind Chimes Airflow Percussion" |
+| Roadmap story | Epic 14, Story 14.4 "Resonant Wind Chimes Airflow Percussion" Current [CAT-069 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). |
 | Status | Not started. |
 
 ## Declaration

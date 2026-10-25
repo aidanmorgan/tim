@@ -1,5 +1,7 @@
 # CAT-042 · motor declaration readiness spec
 
+**Current delivery (24 October 2026):** [CAT-042 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 This is the Story 7.0 CAT-042-D declaration readiness spec for the electric motor. The baseline is commit `a6c914e`. Every citation uses the form `path@a6c914e:Lstart-Lend`, which stays retrievable from git history after the Epic 7 purge. Current-engine files are cited at the same commit.
 
 ## 1. Identity
@@ -10,8 +12,8 @@ This is the Story 7.0 CAT-042-D declaration readiness spec for the electric moto
 | Kind | `motor`, catalogue title "Electric motor" |
 | Requirement anchor | [CAT-042](../requirements.md#current-cat-042); retained behaviour [todo-146](../requirements.md#todo-146) |
 | Mapped identities | [EL-199 Electric motor](../invest/named-elements.md#element-199) |
-| Roadmap story | [Story 11.1](../../../_bmad-output/planning-artifacts/epics.md) Electric Motor & Continuous Tangential Conveyor Belt (CAT-042, CAT-019) |
-| Status | not started (no `WorkshopPartKind` member, `engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`) |
+| Roadmap story | [11.1a Motor](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership); retain every CAT-042 mode and mapped named-identity obligation. |
+| Harvest-baseline status | not started (no `WorkshopPartKind` member, `engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`) |
 
 ## 2. Declaration
 
@@ -65,7 +67,7 @@ The parameter keys are a closed enum `MotorParameter { Speed, Torque }` (`parts/
 
 ### Catalogue and inventory entry
 - Id `motor`, title "Electric motor", category Power, description "Electricity turns its shaft. The drive socket is for mechanical connections." (`parts/catalog/motor.tres@a6c914e:L8-L14`).
-- Add `WorkshopPartKind.Motor` and a counted `PartAllowance` (`engine/gpu/WorkshopInventory.cs@a6c914e:L9-L23`). The motor is always placed (locked) in its 17 levels, never in inventory ([current consumers](../invest/current-consumers.md#cat-042-i)).
+- Declare the package with a counted allowance keyed by its bundle-issued typed id (`engine/gpu/WorkshopInventory.cs@a6c914e:L9-L23`). The motor is always placed (locked) in its 17 levels, never in inventory ([current consumers](../invest/current-consumers.md#cat-042-i)).
 
 ## 3. Engine capabilities
 

@@ -1,5 +1,7 @@
 # EL-067 · Steel cable declaration readiness spec
 
+**Current delivery (24 October 2026):** [EL-067 delivery slice](../invest/named-elements.md#element-067). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec. Baseline commit `a6c914e`. Legacy citations use `path@a6c914e:Lstart-Lend` and stay retrievable from git history after the Epic 7 purge. Values marked **proposed** are design values the owner may revise.
 
 ## 1. Identity
@@ -13,7 +15,7 @@ Story 7.0 named-identity spec. Baseline commit `a6c914e`. Legacy citations use `
 | Named entry | [named-elements.md#element-067](../invest/named-elements.md#element-067); proof owner S336 |
 | CAT spec refined or extended | Extends the rope connector law carried in [CAT-058 rope anchor](CAT-058-rope_anchor.md) (EL-205 rope facts R3–R22) with a second connector material. Related: [CAT-053 pulley](CAT-053-pulley.md), [CAT-067 weight](CAT-067-weight.md) |
 | Related identities | EL-205 rope (Batch J), [EL-068 tin snips](EL-068-tin-snips.md) (can cut it), [EL-066 scissors](EL-066-scissors.md) (cannot, at default work), [EL-063 cable winch](EL-063-cable-winch.md), [EL-064 metal loop anchor](EL-064-metal-loop-anchor.md) |
-| Roadmap story | unscheduled |
+| Roadmap story | [EL-067 delivery slice](../invest/named-elements.md#element-067); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration
@@ -79,7 +81,7 @@ Binding: ContactImpulse, EnvironmentState, FiniteLedger, FiniteWorkActuation, Ge
 **Missing**
 
 - Rope domain, `Tie`, tension-only route: Story 10.2.
-- Connector material enum and per-material stiffness: no story; decision owner S336.
+- Connector material enum and per-material stiffness: required prerequisite owned by the linked delivery slice; decision owner S336.
 - Cutting resistance consumed by the fracture criterion: S563 (see EL-066/EL-068).
 
 **Dependencies.** Same as rope: anchors, pulleys and loads (Stories 10.2/10.4).

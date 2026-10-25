@@ -1,5 +1,7 @@
 # TH-23 · Expansion rod — named-identity readiness spec
 
+**Current delivery (24 October 2026):** [TH-23 delivery slice](../invest/named-elements.md#thermal-23). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations are `path@a6c914e:Lstart-Lend`. No legacy holds expansion-rod values, so every design value without a cited source is marked "(proposed: …)" with a one-line justification; the owner may revise it.
 
 ## 1. Identity
@@ -12,8 +14,8 @@ Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artif
 | Proof owner / research | S586 · [TH-S06 thermal expansion](../../thermal-component-research.md#th-s06) |
 | Related identities | No CAT spec. Shares the expansion law with [TH-22 Bimetal thermostat](TH-22-bimetal-thermostat.md); pushes [CAT-034 Impact lever](CAT-034-impact_lever.md) or a [CAT-063 Switch](CAT-063-switch.md); slider guides as in Story 6.4. |
 | Campaign | Intro 82; practice 83; reuse 90, 146 ([thermal allocation](../requirements.md#thermal-campaign-allocation)) |
-| Roadmap story | Unscheduled. No epic in `_bmad-output/planning-artifacts/epics.md` schedules a thermal element. |
-| Status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`); no legacy part. |
+| Roadmap story | [TH-23 delivery slice](../invest/named-elements.md#thermal-23); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`); no legacy part. |
 
 ## 2. Declaration
 
@@ -36,14 +38,14 @@ Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artif
 
 - **Cosmetic curves and UI bindings.** Rod length ← committed strain ([research per-element table](../../thermal-component-research.md)); navy reference marks on the guides make the stroke readable.
 - **Art.** "Slender gold rod with cream guides and navy reference marks" (row). Nearest [DESIGN.md](../../../DESIGN.md) source colours (proposed mapping): gold `#f7cb52` (`DESIGN.md@a6c914e:L154-L154`), cream `#ead39b` (`DESIGN.md@a6c914e:L146-L146`), navy `#293954` (`DESIGN.md@a6c914e:L147-L147`).
-- **Catalogue and inventory entry.** New `WorkshopPartKind.ExpansionRod`; id `expansion_rod`, title "Expansion rod", category Heat (proposed: no current category covers thermal parts).
+- **Catalogue and inventory entry.** Package-owned declaration, discovered into the bundle; id `expansion_rod`, title "Expansion rod", category Heat (proposed: no current category covers thermal parts).
 
 ## 3. Engine capabilities
 
 Families (map row TH-23, [general-engine-element-map](../general-engine-element-map.md); binding [thermal-01.json](../../coverage/engine/thermal-01.json)): EnvironmentState, FiniteLedger, GeometryQuery, JointConstraint, RigidBodyDynamics, SensibleHeat, ThermalExpansion, TopologyTransaction; JSON adds StateTransaction.
 
 - **Exists now.** Rigid bodies and box colliders (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L120`); Run/Reset and save (`engine/gpu/ActivationNetwork.cs@a6c914e:L67-L67`, `engine/gpu/WorkshopSaveCodec.cs@a6c914e:L6-L10`).
-- **Missing.** Slider joint and soft compliance: Story 6.4. [S543](../invest/decisions.md#s543): expansion → S557, thermal-stress → S558 (constrained case, not in the map row), conduction → S544. Collider length changing with temperature: phase-topology → S565. Unscheduled.
+- **Missing.** Slider joint and soft compliance: Story 6.4. [S543](../invest/decisions.md#s543): expansion → S557, thermal-stress → S558 (constrained case, not in the map row), conduction → S544. Collider length changing with temperature: phase-topology → S565. Required in the linked delivery slice.
 - **Dependencies.** A heat source (TH-04, TH-01); a load (CAT-034 Impact lever, CAT-063 Switch).
 
 ## 4. Sources and legacy

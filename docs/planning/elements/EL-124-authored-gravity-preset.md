@@ -1,5 +1,7 @@
 # EL-124 · Authored gravity preset — named-identity readiness spec
 
+**Current delivery (24 October 2026):** [EL-124 delivery slice](../invest/named-elements.md#element-124). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 readiness spec ([spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations are `path@a6c914e:Lstart-Lend`. Values marked **proposed** have no legacy or requirement source; each carries a one-line justification and the owner may revise it.
 
 ## 1. Identity
@@ -9,8 +11,8 @@ Story 7.0 readiness spec ([spec](../../../_bmad-output/implementation-artifacts/
 | ID / name / type | EL-124 · Authored gravity preset · Environment |
 | Anchor | [requirements.md#element-124](../requirements.md#element-124); [named-elements entry](../invest/named-elements.md#element-124); umbrella [gap-18](../requirements.md#gap-18) (index only) |
 | Related identities | [EL-125 Authored atmosphere preset](EL-125-authored-atmosphere-preset.md) (the other environment axis). Every dynamic element consumes it ([CAT-001](CAT-001-ball.md), [CAT-023](CAT-023-domino.md) and so on). No CAT refines it. |
-| Roadmap story | Unscheduled. Campaign: introduction 17 "Down to Earth", practice 18, reuse 97, 139 ([gap-18](../requirements.md#gap-18)). |
-| Status | Not started. Gravity is the constant 9.81 m/s² (`engine/gpu/WorkshopConstruction.cs@a6c914e:L123-L123`). |
+| Roadmap story | [EL-124 delivery slice](../invest/named-elements.md#element-124); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | Not started. Gravity is the constant 9.81 m/s² (`engine/gpu/WorkshopConstruction.cs@a6c914e:L123-L123`). |
 
 ## 2. Declaration
 

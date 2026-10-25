@@ -1,5 +1,7 @@
 # EL-014 · Water-carrying bucket — named-identity spec
 
+**Current delivery (24 October 2026):** [EL-014 delivery slice](../invest/named-elements.md#element-014). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec ([readiness spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations `path@a6c914e:Lstart-Lend` resolve with `git show a6c914e:<path>` after the Epic 7 purge. A value marked **proposed** has no legacy or requirement source; it carries a one-line justification and the owner may revise it.
 
 ## Identity
@@ -11,8 +13,8 @@ Story 7.0 named-identity spec ([readiness spec](../../../_bmad-output/implementa
 | Named entry | [element-014](../invest/named-elements.md#element-014); per-element proof owner S435 |
 | CAT spec refined | None. Integrates with [CAT-058 rope anchor](CAT-058-rope_anchor.md), [CAT-053 pulley](CAT-053-pulley.md) and the Weight [CAT-067](../requirements.md#current-cat-067). |
 | Related identities | [EL-015 Leaky bucket](EL-015-leaky-bucket.md) (same body plus a leak), [EL-004](EL-004-catch-basin.md), [EL-005](EL-005-liquid-funnel.md) ("Catch the Escape"), EL-025 Tipping-bucket water clock; campaign "bucket/cage" rope load ([campaign table](../requirements.md#campaign-element-coverage)) |
-| Roadmap story | Unscheduled; ELEMENT-n row of the [roadmap](../invest/vertical-delivery.md#rolling-playable-roadmap), campaign chapter 7, levels 61–70. Rope prerequisites: Epic 10, Story 10.2 (CAT-053, CAT-058). |
-| Status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
+| Roadmap story | [EL-014 delivery slice](../invest/named-elements.md#element-014); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
 
 ## Declaration
 
@@ -49,7 +51,7 @@ Story 7.0 named-identity spec ([readiness spec](../../../_bmad-output/implementa
 Families ([element map](../general-engine-element-map.md); binding [`element-01.json`](../../coverage/engine/element-01.json), consumer `element/element-014`): EnvironmentState, FiniteLedger, FluidAdvection, GeometryQuery, JointConstraint, PressureWork, RigidBodyDynamics, StateTransaction, TopologyTransaction.
 
 - **Exists now.** Dynamic box bodies with derived inertia (`engine/gpu/RigidMassProperties.cs@a6c914e:L16-L18`; Domino, `engine/gpu/WorkshopDomino.cs@a6c914e:L6-L10`); Run/Reset (`engine/gpu/WorkshopSimulation.cs@a6c914e:L238-L245`).
-- **Missing.** Compound dynamic bodies (five boxes, one body); run-time variable mass and centre of mass driven by the liquid ledger — `RigidMassProperties` is immutable at compile; liquid store, capture and geometric spill ([S416](../invest/decisions.md#s416) advection → S418); JointConstraint rope (Story 10.2, rope-port decision S257 → S688). Unscheduled.
+- **Missing.** Compound dynamic bodies (five boxes, one body); run-time variable mass and centre of mass driven by the liquid ledger — `RigidMassProperties` is immutable at compile; liquid store, capture and geometric spill ([S416](../invest/decisions.md#s416) advection → S418); JointConstraint rope (Story 10.2, rope-port decision S257 → S688). Required in the linked delivery slice.
 - **Element dependencies.** CAT-058 rope anchor and CAT-053 pulley (Story 10.2); a counterweight (CAT-067 Weight or a ball); a source (EL-001 + EL-003).
 
 ## Sources and legacy

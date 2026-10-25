@@ -1,12 +1,24 @@
 # Build the game through thin vertical slices
 
-Current planning decision: VERTICAL-INVEST-PLAN-2026-10-02. **This task changes the plan only and authorizes no code changes.** Separate implementation status and owner authorization are tracked in [TODO](../../../TODO.md) and the owning execution session. This plan review neither grants nor revokes that authorization.
+## Current programme — stabilization, every element, then browsers
+
+The owner's 24 October 2026 instruction adopts every actual named element. [Current execution order](../../../_bmad-output/planning-artifacts/epics.md#current-execution-plan) and [individual CAT children](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership) refine this roadmap. The [named identity contracts](named-elements.md#execution-contract--complete-named-catalogue-24-october-2026) cover all 276 named specifications and explicitly dispose all 293 source identities; the 72 CAT specs overlap them. Every source mode/variant remains required, including thermal/radiation identities formerly called potential.
+
+1. Complete bounded stabilization and the existing merged-candidate publication reconciliation.
+2. Deliver one named element/variant per slice, with only its genuine generic capability prerequisites. Complete and publish each required-now native slice before the next. Explicit later-consumer integration ownership preserves cross-element acceptance without an unfinished named-element queue.
+3. After all named intrinsic implementations, complete [Story 15.0's bounded native assistance](../../../_bmad-output/planning-artifacts/epics.md#story-150-physical-placement-nudging--difficulty-assistance), including CAT-049/CAT-050, and remaining required native mode/collaborator integrations. Then verify every CAT and named native obligation at catalogue-native-closure. Full closure requires passing production unit AND integration proof; exhaustive difficulty/campaign sweeps and browser qualification follow it.
+4. Re-enable the single browser-deferral list only at that gate; run retained Chrome constructions/controls/lifecycle, campaign and release/device/performance qualification afterward. Keep 150 progressively taught levels and unlimited Workshop.
+
+Use the [native-first policy](../../delivery-workflow.md#fast-test-cadence) and [testing guidance](../../testing-guidance.md). Browser test execution, authoring and provisioning are not current gates. Source UI behaviors below remain final-phase acceptance. TODO carries only current result, owner/blocker/retry and next check; the epics and identity contracts carry the complete executable plan.
+
+
+Historical planning decision: VERTICAL-INVEST-PLAN-2026-10-02. **This task changes the plan only and authorizes no code changes.** Separate implementation status and owner authorization are tracked in [TODO](../../../TODO.md) and the owning execution session. This plan review neither grants nor revokes that authorization.
 
 The [canonical IEEE-754 f32 and WASM SIMD design](../../gpu-f32-physics.md), coarse puzzle accuracy, exact discrete/Save/Reset semantics, enum typing and approved palette remain fixed. Algorithms, private layouts and helper factoring are negotiable inside those contracts. ENGINE-CORE-1 and ENGINE-CORE-2 in the [ordered roadmap](#rolling-playable-roadmap) precede new elements; using existing game parts and actual Workshop controls to deliver the engine incrementally is the method, not an exception.
 
 Each playable slice delivers or exercises the [general data-driven physics and animation engines](../../engine-contracts.md#general-data-driven-engines). Basketball/Receiver are consumers of reusable contact, sensor/residence, controller/event and animation capabilities, not permission for ball/basket-specific solvers or cosmetic loops. Add only the missing general capability and typed declarations needed now; prove parameter/instance variation and negative controls without pulling unrelated catalogue work ahead. Domain-specialised capability kernels selected by declared data and element-specific art remain valid; element-selected kernels are not.
 
-**Current phase:** The owner's [4 October playable-first policy](../../delivery-workflow.md#playable-first) controls required-now acceptance and development publication, including performance/lifecycle wording below. Require affected gameplay/build/ordinary Run/Reset and supported Save/Load correctness now; defer detailed profiling, matched baselines, injected fault/cadence/device/retention campaigns and global qualification to their named P0 owners. Source behaviors and final budgets remain required.
+**Current phase:** the owner's [21/24 October native-first policy](../../delivery-workflow.md#fast-test-cadence) controls required-now acceptance: production unit/integration, ordinary Run/Reset and supported Save/Load. Browser proof starts only after every named element passes native acceptance. The [4 October playable-first policy](../../delivery-workflow.md#playable-first) retains detailed performance/device/retention and global qualification at their named later gates; source behaviors and final budgets remain required.
 
 ## What is a task here?
 
@@ -18,7 +30,7 @@ A required-now supporting criterion must have an independently reviewed result f
 
 **Timing and Performance Relaxation:** Fixed-step timing budgets (e.g., 2.5 ms tick p95, <0.5 ms solver execution time, zero clock-debt thresholds over 20 runs, and display-rate 60 FPS pacing) are target recommendations and preferred engineering guidelines. They are tracked as diagnostic telemetry and advisory metrics, but do NOT act as gating pass/fail constraints during functional slice delivery. A development slice is accepted when functional mechanics, visual presentation, non-tunneling, and exact Reset/Save-Load pass. Formal qualification of hardware/timing budgets is deferred to the P0-034 stage gate.
 
-## Current state and first critical path
+## Reference: initial delivery examples (not current dispatch)
 
 The prior first-body spike included engine/gpu/CanonicalBody.cs, engine/gpu/body-integration.wgsl, tools/GpuBodyFixture and CuriousContraptions.tests/CanonicalBodyTests.cs. Story 7.2 retires the obsolete shader-f16 GpuBodyFixture experiment; the current CanonicalBody stays, and Story 7.4 removes the shared legacy WGSL kernels. At this planning task's baseline it was unverified reusable input. Concurrent implementation and its current proof are tracked by the owning execution session and TODO; this planning review does not establish runtime qualification or require those files to remain unchanged. Reuse relevant independently checked portions within the consuming game slice; code presence or plan approval is not delivered functionality and does not justify a separate harness programme.
 
@@ -114,9 +126,9 @@ Method: [Bill Wake's INVEST guidance](https://xp123.com/invest-in-good-stories-a
 
 **Minimum playable loop:** select an existing level whose typed goals, locked parts, inventory, connections and profiles are actually admitted, place/connect through real controls, Run, observe a meaningful unsuccessful route, Reset, change the construction, achieve the authoritative goal and visible Solved result, then Build again/Reset. Exercise save/load where supported. A Workshop mechanism with a glowing lamp is progress but does not by itself prove a level goal or a retry loop.
 
-### Ordered roadmap
+### Reference roadmap and retained behavior
 
-| Slice ID | Player-visible outcome | Generic capability added (data-driven) | Legacy removed in this slice | Done when (Chrome/Playwright observable) |
+| Slice ID | Player-visible outcome | Generic capability added (data-driven) | Legacy removed in this slice | Retained behavior (native proof now; Chrome after complete catalogue) |
 | --- | --- | --- | --- | --- |
 | ENGINE-CORE-1 | Game-grade contact on the existing ball: every playable part behaves as before without tick faults | Contact slop, acceleration clamps and per-substep quaternion normalisation replace residual/band/quaternion fault gates; the First principles guide becomes a declared force region on the Receiver part | Legacy single-body shaders and prototypes; the puzzle-keyed guide branch in WorkshopPhysicsCompiler.cs | first_principles, delayed_signal and the Bumper demo still solvable; no tick fault across 20 Runs; Reset/Save-Load exact; clear_pipe UI route retried once with its result recorded, not gating |
 | ENGINE-CORE-2a1 | Multi-body pose ring and dual-sphere simulation | Expand SharedArrayBuffer triple pose ring to 16 body slots with atomic sequence protocol; WASM SIMD dual-sphere stepping with basic ground/workbench plane impulse | Single-body pose slot assumption, single-body compiler emit | Drop 2 Basketballs in Workshop through UI; independent motion and instanced rendering; empty-construction and single-ball controls pass; exact Reset/Save-Load; tick latency and clock debt recorded as non-gating advisory telemetry |
@@ -167,7 +179,7 @@ The preceding Story6.1c numeric offsets are historical delivery evidence. The [S
 - **Epic 6:** the Ball detector follows the two pipe stories.
 - **Epic 8, supplied electrical power:** 8.1 Battery (CAT-005); 8.2 Powered gate (CAT-051), the first electrical consumer.
 - **Epic 9, activation, timing and electrical logic:** 9.1 Pressure plate; 9.2 Counter; 9.3 Clock; 9.4 Latch; 9.5 Hold timer; 9.6 Both, after the Latch whose supply fixture it uses (CAT-013 §5); 9.7 NAND and NOR; 9.8 OR and XOR.
-- **Epic 10:** 10.1 solid cylinder collider and inertia (ENGINE-CYLINDER, new and roadmap-only, before the first possible cylinder consumer); 10.2 Pulley and Rope anchor; 10.3 Impact lever, after ropes for its rope sockets; 10.4 Weight; 10.5 Trampoline, after ropes and the Weight for its tether controls.
+- **Epic 10:** 10.1 solid cylinder collider and inertia (ENGINE-CYLINDER, new and roadmap-only, before the first possible cylinder consumer); 10.2 split one element per story: 10.2a the Weight body (CAT-067), then the rope (Tie/Load) and the Pulley (10.2b/10.2c, provisional); 10.3 Impact lever, after ropes for its rope sockets; 10.4 Weight pendulum qualification only; 10.5 Trampoline, after ropes and the Weight for its tether controls.
 - **Epic 11:** 11.1 Motor and Conveyor; 11.2 Clutch and Reverse transmission; 11.3 Linear pusher; 11.4 Wound spring and Cannon.
 - **Epic 12:** 12.1 Tennis ball and Balloon; 12.2 Fan; 12.3 Windmill; 12.4 Bellows, after Windmill and Conveyor.
 - **Epic 13:** 13.1 Torch and Laser; 13.2 broadband and pure-channel receivers; 13.3 Beam shutter; 13.4 RGB filters; 13.5 Mirror, Splitter and Combiner; 13.6 secondary receivers; 13.7 Solar panel; 13.8 optical gates.
@@ -186,7 +198,7 @@ The old-to-new story numbers are:
 - 13.2→13.5, 13.3→13.4, 13.4→13.2, 13.5→13.6, 13.6→13.7, 13.7→13.8.
 - 14.1→14.2, 14.2→14.3, 14.3→14.1.
 
-Story 10.1 is new. The numbers of 6.1–6.5, 6.9–6.11, 10.4, 11.1–11.3, 12.1, 12.2, 13.1, 14.4 and Epics 15–16 are unchanged. These owner decisions stay open; they are detailed under "Open scheduling items" in epics.md:
+Story 10.1 is new. The numbers of 6.1–6.5, 6.9–6.11, 10.4, 11.1–11.3, 12.1, 12.2, 13.1, 14.4 and Epics 15–16 are unchanged. The following is the historical question list; all six were resolved in epics.md's "Open scheduling items" on 18 October 2026. Current child stories and their prerequisites above govern; these are not open blockers:
 
 - (a) whether the RGB lasers come before the filters (Story 13.4);
 - (b) the switch electrical mode needed by Story 9.7;
@@ -195,9 +207,9 @@ Story 10.1 is new. The numbers of 6.1–6.5, 6.9–6.11, 10.4, 11.1–11.3, 12.1
 - (e) Story 10.1's placement, which depends on the cylinder-fulcrum and wheel choices;
 - (f) the Pulley story (10.2) using a Lever, now Story 10.3, as its rope load; the Counterweight body (CAT-067) ships with Story 10.2 per CAT-067 §3, so the Pulley acceptance can use it before 10.4.
 
-The Battery acceptance that names the Motor stays an acceptance conflict for case-by-case owner review.
+Battery→Motor integration is owned by Story 11.1a; preserve Battery source acceptance without scheduling Motor before its prerequisites.
 
-**Definition of done for the programme:** 150 progressively taught levels plus unlimited free play; one generic WASM SIMD128 f32 physics solver advancing the compiled initial state and a separate animation engine compiled from the same element data, both driven only by element data plus the player's initial state, in separate workers at independent rates with one-way physics → animation data flow; a renderer on the browser main thread at 30–60 FPS consuming both systems, physics always faster than rendering; new puzzle elements can be added in the future without changes to the physics or animation systems, because an element is defined by its declarative visual and collision meshes in glTF 2.0 (`.glb`) assets plus physics and animation behaviours (declaration data) that the solvers use when the simulation runs; zero legacy physics, procedural mesh generation (`PartArt.cs`), or legacy animation code in the tree.
+**Definition of done for the programme:** 150 progressively taught levels plus unlimited free play; one generic WASM SIMD128 f32 physics solver advancing the compiled initial state and a separate animation engine compiled from the same element data, both driven only by element data plus the player's initial state, in separate workers at independent rates with one-way physics → animation data flow; a renderer on the browser main thread at 30–60 FPS consuming both systems, physics always faster than rendering; new puzzle elements can be added in the future without changes to the physics or animation systems, because an element is defined by its package-owned `.tscn` scene, build-time extracted colliders and physics and animation behaviours (declaration data) that the solvers use when the simulation runs; zero legacy physics, procedural mesh generation (`PartArt.cs`), or legacy animation code in the tree.
 
 ### Per-slice template
 
@@ -205,13 +217,13 @@ The Battery acceptance that names the Motor stays an acceptance conflict for cas
 - **Capability (generic):** the single data-driven capability added, or none.
 - **Declarations touched:** element/level records and bindings.
 - **Legacy deleted:** named files or paths removed in this slice.
-- **Done when:** 3–5 Chrome-observable bullets, always including exact Reset and Save/Load where supported; timing latency and clock debt are recorded as advisory telemetry and do not gate functional slice acceptance.
+- **Done when:** source behavior has production unit/integration positive/control/boundary proof, including exact Reset and supported Save/Load. Keep the corresponding Chrome recipe pending until full catalogue completion; timing telemetry remains advisory.
 - **Controls (negative):** the meaningful unsuccessful route and unsupported-input rejection.
-- **Reviewer checks:** production build, tests, actual Chrome run, and `grep` for element/puzzle identifiers in the physics solver, the WorkshopPhysicsCompiler.cs solver dispatch and the animation evaluator selection (must find nothing).
+- **Reviewer checks:** matching production build, unit/integration tests, lifecycle and `grep` for element/puzzle identifiers in the physics solver, the WorkshopPhysicsCompiler.cs solver dispatch and the animation evaluator selection (must find nothing).
 
 ### Promotion
 
-Execute the table in order. Before promoting a slice, record in its evidence: exact player action/result; source and fixture IDs ([element map](../general-engine-element-map.md), [consumers](current-consumers.md)); the one generic capability or model decision it adds; the legacy it deletes; and its positive/control and Reset/Save-Load checks. Row order is the programme, not a technical dependency; if a slice is blocked, keep its failure/owner/retry condition visible in TODO and take the next row only when it does not depend on the defective capability. Keep the same implementation/review pair through a slice's fixes. P0-025–029 ownership/render criteria travel with these slices; P0-030/031 coverage/cleanup, P0-032 concurrency, P0-033 bottlenecks, P0-034 performance/device and P0-035 engine closure are release-checklist gates enforced at LEGACY-0 and CAMPAIGN, never reasons to postpone actual UI.
+Execute the current programme and dependency-aware individual slices above; the reference table does not restart delivered work. Before promoting a slice, record in its evidence: exact player action/result; source and fixture IDs ([element map](../general-engine-element-map.md), [consumers](current-consumers.md)); the one generic capability or model decision it adds; the legacy it deletes; and its positive/control and Reset/Save-Load checks. Row order is the programme, not a technical dependency; if a slice is blocked, keep its failure/owner/retry condition visible in TODO and take the next row only when it does not depend on the defective capability. Keep the same implementation/review pair through a slice's fixes. P0-025–029 ownership/render criteria travel with these slices; P0-030/031 coverage/cleanup, P0-032 concurrency, P0-033 bottlenecks, P0-034 performance/device and P0-035 engine closure are release-checklist gates enforced at LEGACY-0 and CAMPAIGN, never reasons to postpone actual UI.
 
 <a id="existing-element-order"></a>
 ## Existing-element requirements during engine development

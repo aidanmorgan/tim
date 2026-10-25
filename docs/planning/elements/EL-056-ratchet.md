@@ -1,5 +1,7 @@
 # EL-056 · Ratchet declaration readiness spec
 
+**Current delivery (24 October 2026):** [EL-056 delivery slice](../invest/named-elements.md#element-056). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec. Baseline commit `a6c914e`. Legacy citations use `path@a6c914e:Lstart-Lend` and stay retrievable from git history after the Epic 7 purge. Values marked **proposed** are design values the owner may revise.
 
 ## 1. Identity
@@ -13,7 +15,7 @@ Story 7.0 named-identity spec. Baseline commit `a6c914e`. Legacy citations use `
 | Named entry | [named-elements.md#element-056](../invest/named-elements.md#element-056); proof owner S342 |
 | CAT spec refined or extended | none as a part. The one-way joint law is shared with [CAT-071 wound spring](CAT-071-wound_spring.md) (latched plunger guide). Related: [CAT-042 motor](CAT-042-motor.md), [CAT-019 conveyor](CAT-019-conveyor.md) |
 | Related identities | [EL-057 escapement](EL-057-escapement.md), [EL-055 brake](EL-055-mechanical-brake.md), [EL-063 cable winch](EL-063-cable-winch.md) (hold a lifted load) |
-| Roadmap story | unscheduled |
+| Roadmap story | [EL-056 delivery slice](../invest/named-elements.md#element-056); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration
@@ -69,7 +71,7 @@ Cream housing `#fff8e9`, navy foot `#293954`, pale grey toothed wheel `#ccd9df`,
 
 ### Catalogue and inventory entry
 
-Id `ratchet`, title "Ratchet", category "Motion"; `WorkshopPartKind.Ratchet` appended last to the free inventory (`engine/gpu/WorkshopInventory.cs@a6c914e:L49-L60`). **Proposed**.
+Id `ratchet`, title "Ratchet", category "Motion"; package-owned metadata discovered into the Free palette from the bundle (`engine/gpu/WorkshopInventory.cs@a6c914e:L49-L60`). **Proposed**.
 
 ### Variants
 
@@ -84,10 +86,10 @@ Binding: EnvironmentState, FiniteLedger, FiniteWorkActuation, JointConstraint, R
 **Missing**
 
 - Hinge row: Story 10.3.
-- Cylinder collider and inertia (toothed wheel): no owning story; owner decision 9 Oct 2026: a new cylinder-collider story comes before the first shaft wheel.
+- Cylinder collider and inertia (toothed wheel): Story 10.1 owns the shared solid-cylinder collider and inertia before this consumer.
 - One-sign bounded joint row (directional limit): first built for CAT-071 in Story 11.4 ("paid winding/ratchet/release").
 - `Mechanical` domain and pass-through shaft: Story 11.1.
-- Tooth-pitch quantisation of the catch: no story; decision owner S342.
+- Tooth-pitch quantisation of the catch: required prerequisite owned by the linked delivery slice; decision owner S342.
 
 **Dependencies.** A drive (CAT-042 Motor, 11.1) and a reverse load (EL-063 Winch with a CAT-067 Weight, or a hanging load on a drum).
 

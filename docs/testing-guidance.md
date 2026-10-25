@@ -76,8 +76,8 @@ They never need Chrome, Playwright or a running browser. They run the core syste
 4. **Assert.** Check observable outcomes: which bodies moved where, within envelope tolerances; which events fired, at which ticks; which lamps or gates changed state; whether the goal was met; and what the player would see (presentation values) and read (status or refusal text).
 
 **What integration tests must cover:**
-- **Elements:** every catalogue element in at least one cross-element scenario with the parts it is designed to interact with (e.g. switch → latch → supply → powered gate; ball → bumper → receiver).
-- **Lessons:** every Playable lesson's authored solution solves at all 3 precisions.
+- **Elements:** every catalogue and named element/variant in its source-required cross-element scenarios with the parts it is designed to interact with (e.g. switch → latch → supply → powered gate; ball → bumper → receiver).
+- **Lessons:** every Playable lesson's authored solution solves at all three supported cadence profiles; all game values remain f32.
 - **Reset:** exact after a run.
 - **Save/Load:** reproduces the run.
 - **Unsupported inputs:** refused atomically, end to end.

@@ -1,5 +1,7 @@
 # EL-151 · Magenta selective receiver — named-identity spec
 
+**Current delivery (24 October 2026):** [EL-151 delivery slice](../invest/named-elements.md#element-151). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 full spec for a named puzzle-element identity. Baseline commit `a6c914e`. Legacy citations use `path@a6c914e:Lstart-Lend` and stay retrievable from git history after the Epic 7 purge. Lengths are legacy scene units, which the current engine treats as metres (`MetreVector`). The sensitive face looks along local −X.
 
 The mixed-channel receivers (EL-149 to EL-152) share the primary receivers' body, aperture and switched contact ([EL-146](EL-146-red-selective-receiver.md)); they differ in the required channel set, marks and icon. "Magenta" names the game-channel combination red + blue, not colourimetry.
@@ -15,7 +17,7 @@ The mixed-channel receivers (EL-149 to EL-152) share the primary receivers' body
 | Owner | S506 |
 | Refines CAT | [CAT-040 magenta_receiver](CAT-040-magenta_receiver.md) (`magenta_receiver`, "Magenta receiver"). One catalogue part satisfies both identities; not a second implementation. |
 | Related | EL-149, EL-150, EL-152 (sibling mixed sets); EL-146 to EL-148 (primary); EL-213 combiner; EL-176, EL-178 (red and blue lasers) |
-| Roadmap story | 13.6 Secondary Spectral Receivers (Cyan, Magenta, Yellow, White) (CAT-021, CAT-040, CAT-072, CAT-068) |
+| Roadmap story | [EL-151 delivery slice](../invest/named-elements.md#element-151); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration
@@ -41,7 +43,7 @@ Binding shard ([element-02.json](../../coverage/engine/element-02.json)): Finite
 
 **Exists now:** static body, colliders, material (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L42-L60`, `engine/gpu/PhysicsDeclarations.cs@a6c914e:L89-L91`); `PowerIn`/`Supply` sockets (`engine/gpu/WorkshopConnections.cs@a6c914e:L8-L11`).
 
-**Missing:** OpticalTransport Absorb aperture with multi-emitter aggregation — Story 13.2/13.6 (S484: S485, S486, S488, [decisions](../invest/decisions.md#s484)); combiner routing — Story 13.5; switched contact — Story 8.1 plus 13.2 (S257); OpticalAbsorption/SensibleHeat — S489/S543, mode-specific; `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`).
+**Missing:** OpticalTransport Absorb aperture with multi-emitter aggregation — Story 13.2/13.6 (S484: S485, S486, S488, [decisions](../invest/decisions.md#s484)); combiner routing — Story 13.5; switched contact — Story 8.1 plus 13.2 (S257); OpticalAbsorption/SensibleHeat — S489/S543, mode-specific; package declaration and bundle-issued typed id (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`).
 
 **Element dependencies:** a red+blue source (EL-213 combiner fed by EL-176 and EL-178, or by red- and blue-filtered amber lasers), CAT-005 battery, a load (CAT-035 lamp), CAT-066 wall.
 

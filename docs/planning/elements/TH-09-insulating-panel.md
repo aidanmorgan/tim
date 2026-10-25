@@ -1,5 +1,7 @@
 # TH-09 · Insulating panel — named-identity readiness spec
 
+**Current delivery (24 October 2026):** [TH-09 delivery slice](../invest/named-elements.md#thermal-09). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations are `path@a6c914e:Lstart-Lend`. No legacy holds insulation values, so every design value without a cited source is marked "(proposed: …)" with a one-line justification; the owner may revise it.
 
 ## 1. Identity
@@ -12,8 +14,8 @@ Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artif
 | Proof owner / research | S571 · [TH-S01 heat transfer and finite stores](../../thermal-component-research.md#th-s01) |
 | Related identities | Configurable-dimension precedent: [CAT-066 Wall](CAT-066-wall.md). Used as the control in the first heat slice with [TH-04](TH-04-electrical-heating-plate.md) and [TH-21](TH-21-temperature-sensor.md); the low-conductivity comparison for [TH-08](TH-08-heat-conducting-bar.md). |
 | Campaign | Intro 19; practice 20; reuse 67, 84, 139 ([thermal allocation](../requirements.md#thermal-campaign-allocation)) |
-| Roadmap story | Unscheduled. No epic in `_bmad-output/planning-artifacts/epics.md` schedules a thermal element. |
-| Status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`); no legacy part. |
+| Roadmap story | [TH-09 delivery slice](../invest/named-elements.md#thermal-09); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`); no legacy part. |
 
 ## 2. Declaration
 
@@ -35,14 +37,14 @@ Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artif
 
 - **Cosmetic curves and UI bindings.** None ([research per-element table](../../thermal-component-research.md)). The navy section pattern shows thickness.
 - **Art.** "Layered cream ceramic slab with a visible navy section pattern" (row). Nearest [DESIGN.md](../../../DESIGN.md) source colours (proposed mapping): cream `#ead39b` (`DESIGN.md@a6c914e:L146-L146`), navy `#293954` (`DESIGN.md@a6c914e:L147-L147`).
-- **Catalogue and inventory entry.** New `WorkshopPartKind.InsulatingPanel`; id `insulating_panel`, title "Insulating panel", category Heat (proposed: no current category covers thermal parts).
+- **Catalogue and inventory entry.** Package-owned declaration, discovered into the bundle; id `insulating_panel`, title "Insulating panel", category Heat (proposed: no current category covers thermal parts).
 
 ## 3. Engine capabilities
 
 Families (map row TH-09, [general-engine-element-map](../general-engine-element-map.md); binding [thermal-01.json](../../coverage/engine/thermal-01.json)): FiniteLedger, GeometryQuery, SensibleHeat, ThermalConduction, ThermalRadiation; JSON adds StateTransaction. Composition note: keep explicitly supported convection and radiation paths; insulation never deletes heat.
 
 - **Exists now.** Static body and box collider (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L120`); configurable box dimensions precedent (`engine/gpu/WorkshopWall.cs@a6c914e:L8-L10`); Run/Reset and save (`engine/gpu/ActivationNetwork.cs@a6c914e:L67-L67`, `engine/gpu/WorkshopSaveCodec.cs@a6c914e:L6-L10`).
-- **Missing.** [S543](../invest/decisions.md#s543): conduction → S544, thermal-radiation → S546; face convection → S545 (not in the map row). SensibleHeat (IX-43) has no S543 row. Unscheduled.
+- **Missing.** [S543](../invest/decisions.md#s543): conduction → S544, thermal-radiation → S546; face convection → S545 (not in the map row). SensibleHeat (IX-43) is a required entry decision under S543 owned by the linked delivery slice. Required in the linked delivery slice.
 - **Dependencies.** A heat source and a receiver on opposite sides (TH-04, TH-21, TH-37).
 
 ## 4. Sources and legacy

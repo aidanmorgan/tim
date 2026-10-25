@@ -1,5 +1,7 @@
 # CAT-018 · clutch declaration readiness spec
 
+**Current delivery (24 October 2026):** [CAT-018 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 CAT-018-D readiness spec. Baseline commit `a6c914e`. Legacy citations use `path@a6c914e:Lstart-Lend` and stay retrievable after the Epic 7 purge. Current-engine files are cited at the same commit. Current authority for the shaft model is the [rotary transmission contract](../../rotary-transmission-parts.md). This page records the declaration knowledge the legacy holds; it does not restate the requirement row.
 
 ## 1. Identity
@@ -10,8 +12,8 @@ Story 7.0 CAT-018-D readiness spec. Baseline commit `a6c914e`. Legacy citations 
 | Kind | `clutch`, catalogue title "Clutch", category "Power" (`parts/catalog/clutch.tres@a6c914e:L6-L8`) |
 | Requirement anchor | [CAT-018](../requirements.md#current-cat-018); retained behaviour [sequence-task-310](../requirements.md#sequence-task-310); shared rows [sequence-task-192](../requirements.md#sequence-task-192), [sequence-task-193](../requirements.md#sequence-task-193), [sequence-task-277](../requirements.md#sequence-task-277), [sequence-task-280](../requirements.md#sequence-task-280) |
 | Mapped identities | None. No EL/TH/RAD/GAP names a clutch. [EL-055 Mechanical brake](../invest/named-elements.md#element-055) and [TH-05 Friction brake](../invest/named-elements.md#thermal-05) are separate elements; sequence-task-310 keeps brake and slip/torque-limiting variants separate. Batch A confirms. |
-| Roadmap story | [Story 11.2](../../../_bmad-output/planning-artifacts/epics.md) Mechanical Clutch & Reverse Transmission (CAT-018, CAT-057) |
-| Status | Not started. `WorkshopPartKind` has no clutch member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
+| Roadmap story | [11.2a Clutch](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership); retain every CAT-018 mode and mapped named-identity obligation. |
+| Harvest-baseline status | Not started. `WorkshopPartKind` has no clutch member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
 
 ## 2. Declaration
 
@@ -65,7 +67,7 @@ None. The clutch stores no energy. Its phase/closure state is discrete runtime s
 
 ### Catalogue and inventory entry
 - `Id = "clutch"`, title "Clutch", category "Power", default parameters `{close_seconds: 0.2}` (`parts/catalog/clutch.tres@a6c914e:L6-L12`).
-- No `content/puzzles.json` level places the clutch or lists it in inventory at a6c914e. A `WorkshopPartKind` member and a `PartInventoryDictionary` entry must be added (`engine/gpu/WorkshopInventory.cs@a6c914e:L9-L23`).
+- No `content/puzzles.json` level places the clutch or lists it in inventory at a6c914e. A package declaration and bundle-issued typed id and a `PartInventoryDictionary` entry must be added (`engine/gpu/WorkshopInventory.cs@a6c914e:L9-L23`).
 
 ## 3. Engine capabilities
 
@@ -79,7 +81,7 @@ The capability families are in the [general-engine map row](../general-engine-el
 - Save codec (`engine/gpu/WorkshopSaveCodec.cs@a6c914e:L6-L10`).
 
 **Missing**
-- Cylinder/hull collider and cylinder inertia. No owning story — owner decision (see Open questions). Story 6.6 builds a hollow pipe collider, not a solid wheel.
+- Cylinder/hull collider and cylinder inertia. Story 10.1 owns solid-cylinder collision/inertia; any distinct hull capability remains a bounded decision for this consumer (see Open questions). Story 6.6 builds a hollow pipe collider, not a solid wheel.
 - Hinge joint: Story 10.3.
 - Shaft torque, motor drive and Mechanical socket domain: Story 11.1.
 - Ratio coupling with enum engagement, and coil closure phases: Story 11.2.

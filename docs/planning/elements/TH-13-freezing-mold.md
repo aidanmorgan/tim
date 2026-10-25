@@ -1,5 +1,7 @@
 # TH-13 · Freezing mold — named-identity readiness spec
 
+**Current delivery (24 October 2026):** [TH-13 delivery slice](../invest/named-elements.md#thermal-13). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations are `path@a6c914e:Lstart-Lend`. No legacy holds freezing-mold values, so every design value without a cited source is marked "(proposed: …)" with a one-line justification; the owner may revise it.
 
 ## 1. Identity
@@ -12,8 +14,8 @@ Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artif
 | Proof owner / research | S577 · [TH-S02 phase change](../../thermal-component-research.md#th-s02) |
 | Related identities | No CAT spec. Cold sources [TH-12 Reversible heat pump](TH-12-reversible-heat-pump.md) and [TH-29 Cold pack](TH-29-cold-pack.md) (TX-02); the solid it forms is the same water material as [TH-14 Ice block](TH-14-ice-block.md). Water supply from the water family (Batches F and G). |
 | Campaign | Intro 79; practice 80; reuse 89, 149 ([thermal allocation](../requirements.md#thermal-campaign-allocation)) |
-| Roadmap story | Unscheduled. No epic in `_bmad-output/planning-artifacts/epics.md` schedules a thermal element. |
-| Status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`); no legacy part. |
+| Roadmap story | [TH-13 delivery slice](../invest/named-elements.md#thermal-13); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`); no legacy part. |
 
 ## 2. Declaration
 
@@ -35,14 +37,14 @@ Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artif
 
 - **Cosmetic curves and UI bindings.** Ice fraction ← committed solid fraction f ([research per-element table](../../thermal-component-research.md)); the cyan phase window shows a readable solidification front (row), not colour alone.
 - **Art.** "Open cream geometric tray with a cyan phase window and readable solidification front" (row). Nearest [DESIGN.md](../../../DESIGN.md) source colours (proposed mapping): cream `#ead39b` (`DESIGN.md@a6c914e:L146-L146`), cyan `#66b8c9` (`DESIGN.md@a6c914e:L172-L172`).
-- **Catalogue and inventory entry.** New `WorkshopPartKind.FreezingMold`; id `freezing_mold`, title "Freezing mold", category Heat (proposed: no current category covers thermal parts).
+- **Catalogue and inventory entry.** Package-owned declaration, discovered into the bundle; id `freezing_mold`, title "Freezing mold", category Heat (proposed: no current category covers thermal parts).
 
 ## 3. Engine capabilities
 
 Families (map row TH-13, [general-engine-element-map](../general-engine-element-map.md); binding [thermal-01.json](../../coverage/engine/thermal-01.json)): EnvironmentState, FiniteLedger, GasState, GeometryQuery, LiquidFreezing, PhaseTopology, SensibleHeat, ThermalConduction, TopologyTransaction; JSON adds StateTransaction.
 
 - **Exists now.** Static bodies and box colliders (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L120`); Run/Reset and save (`engine/gpu/ActivationNetwork.cs@a6c914e:L67-L67`, `engine/gpu/WorkshopSaveCodec.cs@a6c914e:L6-L10`).
-- **Missing.** [S543](../invest/decisions.md#s543): freezing → S548, phase-topology → S565, conduction → S544. Liquid water inventory: [S416](../invest/decisions.md#s416) advection → S418. GasState/EnvironmentState: [S470](../invest/decisions.md#s470) → S471, [S635](../invest/decisions.md#s635). All unscheduled.
+- **Missing.** [S543](../invest/decisions.md#s543): freezing → S548, phase-topology → S565, conduction → S544. Liquid water inventory: [S416](../invest/decisions.md#s416) advection → S418. GasState/EnvironmentState: [S470](../invest/decisions.md#s470) → S471, [S635](../invest/decisions.md#s635). All required in the linked delivery slice.
 - **Dependencies.** A colder sink (TH-12, TH-29); water (authored fill or the water family).
 
 ## 4. Sources and legacy

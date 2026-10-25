@@ -66,6 +66,91 @@ Every single story across all epics must formally satisfy the following mandator
 
 ---
 
+## Current execution plan
+
+**Future slice workflow:** follow [AGENTS delivery speed rules](../../AGENTS.md#delivery-speed-rules-owner-24-october-2026-these-take-precedence-over-conflicting-wording-below): one bmad-build-auto loop with Blind Hunter, Edge Case Hunter, Verification Gap and Intent Alignment, no duplicate review system; fresh implementer per slice, fixes to that implementer; incremental builds, full native suite once per round, CI-owned Release/publish; review Pass on committed SHA and short exact-SHA terminal receipts. New rules apply from the next slice; this planning repair was already in review and finishes under its starting rules. These rules refine the proof statements below without weakening native behavior or complete-catalogue coverage.
+
+**Owner direction, 24 October 2026.** Stabilize the existing game, then implement **every named element and variant**, then qualify through browsers. This section supersedes older lane alternation, positional numbers and first-undone dispatch. Source behaviors and named requirement IDs remain intact. The [293-identity ledger](../../docs/planning/invest/named-elements.md#execution-contract--complete-named-catalogue-24-october-2026) supplies 276 actual named-element contracts, 10 umbrella child dispositions and 7 product-feature contracts. The72 CAT specifications overlap those identities; all 104 current mode records and source-required variants remain obligations. “Potential” no longer excludes an actual named element.
+
+**Selection:** use phases below, then source dependencies and the first ready slice in that phase. Sprint file order is a status view, not a dependency oracle. A blocked slice records its concrete missing capability/decision owner and retry condition; select another independent slice within the same phase. Split parent stories are conjunctions, never implementation dispatch. A named CAT refinement shares its source owner's package where semantically identical, but distinct variants have separate delivery and proof. Existing completion evidence may be reused only after independent applicability review.
+
+1. Reconcile terminal publication of already merged 9A.23+9A.25b and 10.2a; their green CI is not by itself terminal review. Do not republish identical candidates.
+2. Stabilize:9A.44 with its minimal TypeScript dependency; axial-creep; integration harness A then B; remaining TypeScript conversion; test hygiene;9A.24;9A.45. Detailed contracts below bound this work.
+3. Continue individual CAT slices 10.2b, 10.2c, supported-impact prerequisite before 10.3, 10.4, 10.5, split 11.x/12.x/13.x, then 14.0, 14.2, 14.1, 14.3, 14.4. Resolve CAT-023 offset-COM and its motion-piece origin/tick obligations before its complete claim; attach all F.16 catalogue remainders and required F.4 collider behavior to their actual first consumer rather than leaving them after catalogue qualification.
+4. Complete every remaining `named-*` slice under the identity ledger's family/dependency order. Its source spec/requirement and canonical S owner are the detailed contract; its native entry decisions stay within the slice. Carry remaining CAT modes/fixtures with their owners. A feature/umbrella cannot stand in for a physical element.
+5. After all named intrinsic element implementations, complete the bounded native stage of [Story 15.0](#story-150-physical-placement-nudging--difficulty-assistance) and all remaining required native mode/collaborator integrations under their existing owners. Story 15.0 owns the CAT-049/CAT-050 assistance clauses retained by Stories 6.9/6.10. This native behavior precedes catalogue closure; exhaustive difficulty/campaign sweeps and browser proof do not.
+6. Verify full catalogue closure: every CAT obligation and all 276 named contracts have actual implementation and passing unit AND integration proof, including Story 15.0 native assistance and later collaborator cases. Only then expand the 150-level campaign, deliver retained product features, re-enable the explicit browser deferral list and run post-catalogue Chrome E2E, exhaustive difficulty/campaign, device/performance and release gates.
+
+**Required-now proof:** production C# unit and shared native integration tests; node harnesses test shipped compiler output at genuine browser/worker boundaries. Given each source construction, when the real production system advances bounded ticks, then independently derived outcomes, controls, boundaries, Reset/save/load and ordinary lifecycle hold. All required native tests run with Skipped: 0. No browser test writing, execution or provisioning is a prerequisite now. Existing story Chrome clauses are retained in the final-phase backlog; they do not govern implementation completion before catalogue closure. One matching build, then `--no-build --no-restore`; no output hashes/private reach-ins. Separate implementer/reviewer and individual publication remain required.
+
+### Stabilization contracts
+
+Each item is one bounded native slice with its current source paths, deletion scope and observable exit. Source acceptance and docs/testing-guidance.md remain mandatory. No additional unrelated profiling, audits or tooling platform may be inserted before element delivery.
+
+| Slice / sprint key | Paths and deletion | Native acceptance and dependencies |
+|---|---|---|
+|9A.44 / `9a-44-f32-lane-completion-half-purge`|Construction/compiler/ABI/schema/codec/solver/presentation/clock and their actual callers; delete every Half lane and double game calculation, conversion shim and obsolete offset reader.|Given every formerly narrowed game field, when authored, encoded, simulated and read, then f32 is retained end-to-end with source behavior/envelope controls. Integer ticks plus f32 phase replace floating game time; finite/range/undefined enum and tick-overflow refusals are explicit and atomic. Name every permitted external double adapter and its conversion. Convert only affected JS modules to strict TS first within this closure, including pinned tsc build/publish/CI and shipped-output tests; remaining modules belong to the conversion slice. Split solver/wire and presentation/clock only with complete callers and no mixed supported formats.|
+|`engine-cylinder-axial-creep`|Cylinder/contact/orientation integration in engine/gpu and real simulation tests; delete frozen small velocity/orientation remainder behavior that causes indefinite creep, no sleep threshold hiding motion.|Given the recorded drop-ramp reproducer in deferred-work, when the cylinder settles on its side, then motion decays within independently derived f32/game envelope over bounded ticks. Controls: side-rest placed directly, flush ramp roll, upright cylinder and sphere/box contacts. Prove the reproducer fails before the fix and supported Reset/save/load; follow9A.44.|
+|`test-workshop-harness-a`|CuriousContraptions.tests shared harness, real bundle/content readers, production command/wire/transport seams; migrate existing integration callers and delete duplicate builders reaching internals.|Given the same authored construction, when native command→wire→solver→read/event/presentation runs at fixed ticks, then positive/control results, Pause/Step/Reset and save/load agree fieldwise. Inject invalid command/enum/connection boundary and prove atomic refusal. No browser, wall-clock sleep or mocked solver.|
+|`test-workshop-harness-b`|Existing lesson and cross-element integration tests in CuriousContraptions.tests, shared A harness and content; remove superseded duplicate cases only with coverage mapping.|Given every currently playable lesson and admitted element interaction, when its positive and one-cause control run at all three supported cadence profiles, then goals/events/positions and restoration match independent expectations. Enumerate actual lesson/element coverage and rejected boundaries; this is current-catalogue coverage, future slices extend it. Depends on A; no new coverage platform.|
+|`runtime-typescript-conversion`|Both worker wwwroot hosts, web client/rings and game node harnesses; pinned compiler config/build/publish/CI; delete handwritten JS/MJS source after callers move.|Given clean checkout/build, when strict pinned tsc compiles, then shipped modules are its output and all game node harnesses exercise that output. No any escape. Public worker/ring lifecycle positive/control/boundaries remain. Replace remaining harness sleeps with deciding events/quiescence; encapsulate pose/shared memory as required. Browser suites stay deferred.|
+|`test-behavioral-hygiene`|Game C# tests and node harnesses, including WorkshopActivationAnimationTests; delete output-hash/byte pins and private reach-ins after equivalent behavior coverage exists.|Given each replaced assertion, when a plausible behavior defect is injected, then its interface-level positive/control/boundary test fails. Preserve legacy input fixture files without hash pins. Inventory every removed assertion and replacement; all required tests pass with zero skips.|
+|9A.24 / `9a-24-typed-observation-port`|Existing story's typed read-only port and console-channel deletions.|Given typed observation requests, when read against committed state, then values/refusals are correct without mutation; validate through native/node tests. Browser consumers stay deferred.|
+|9A.45 / `9a-45-compile-time-isolation-gate`|Existing assembly split/build scan, remaining Pipe generic arms and unused TimerObservation; delete known-violation list only when empty.|Given normal builds and planted source violations, when gate runs, then clean source passes and forbidden element coupling fails at file:line. Pipe geometry/joins/lifecycle pass native behavior tests; no declaration deletion.|
+|`engine-supported-impact-restitution`|Generic island/manifold restitution plus native simulation tests; delete incorrect supported-impact work transfer if replaced.|Before10.3 or another dynamic support consumer: reproduce recorded ball-on-resting-dynamic-box loss; independently bound momentum/work and rebound for light/heavy support, e=0 and nonzero controls, no energy gain. Resolve the supported-impact model before consumer completion; detailed cost profiling remains release work.|
+
+**Stabilization exit:** all first eight rows have terminal scoped native/publication Pass (or independently applicable existing proof), zero unresolved ordinary correctness regressions, no unsupported Half/double game path, strict compiled TS at every changed boundary, current integration matrix passing and isolation list empty. Then select10.2b. Supported-impact restitution is a genuine just-in-time dependency of10.3, not an unrelated global audit. Existing stress/performance follow-ups retain their named later gates.
+
+<a id="catalogue-slice-ownership"></a>
+### Individual catalogue slice ownership
+
+The following children replace grouped implementation dispatch. Parent acceptance remains a conjunction and its original clauses are preserved. Each child reads its exact CAT declaration/requirements, owns all that element's modes and the indicated outcome/control, and follows the native Given/When/Then contract above with boundary, integration and restoration cases. Its files are that CAT's package, necessary generic capability callers, content and native tests; delete its superseded path in the same slice. Parent integration using two children is explicitly owned by the later consuming child; retain its original source criterion there. A first consumer uses an independently completed generic-capability qualification fixture for intrinsic proof when the later named collaborator does not yet exist. No named child starts until the previous named child has completed required-now acceptance and individual publication; all later integration criteria still block full catalogue closure.
+
+|Story / sprint key|Source contract|Prerequisites|Outcome and meaningful control|
+|---|---|---|---|
+|11.1a / `11-1a-motor`|[CAT-042 Motor](../../docs/planning/elements/CAT-042-motor.md)|Battery and declared shaft load|Supplied shaft delivers bounded torque/work; unpowered shaft delivers none; stalled demand never creates work.|
+|11.1b / `11-1b-conveyor`|[CAT-019 Conveyor](../../docs/planning/elements/CAT-019-conveyor.md)|11.1a|A driven belt transports a contacting load; stopped/reversed drive stops/reverses transport; unloaded belt creates no transferable work.|
+|11.2a / `11-2a-clutch`|[CAT-018 Clutch](../../docs/planning/elements/CAT-018-clutch.md)|11.1a|Engagement transfers paid torque; disengagement isolates the load; slip and capacity boundaries obey the source work ledger.|
+|11.2b / `11-2b-reverse-transmission`|[CAT-057 Reverse transmission](../../docs/planning/elements/CAT-057-reverse_transmission.md)|11.1a and 11.2a|Output reverses relative to input with the source ratio; no input supplies no work; reversal preserves bounded transmitted energy.|
+|11.4a / `11-4a-wound-spring`|[CAT-071 Wound spring](../../docs/planning/elements/CAT-071-wound_spring.md)|11.1a shaft contracts|Declared preload releases finite shaft work; an empty store does none; winding cannot exceed capacity.|
+|11.4b / `11-4b-cannon`|[CAT-016 Cannon](../../docs/planning/elements/CAT-016-cannon.md)|11.4a|An admitted load launches from paid stored work; unpaid/empty firing does not launch; recoil and store bounds retain source acceptance.|
+|12.1a / `12-1a-tennis-ball`|[CAT-064 Tennis ball](../../docs/planning/elements/CAT-064-tennis.md)|Existing sphere engine|Declared material produces the source bounce/airflow response; matched bowling control differs; bounds and restoration retain CAT-064.|
+|12.1b / `12-1b-balloon`|[CAT-003 Balloon](../../docs/planning/elements/CAT-003-balloon.md)|12.1a and generic buoyancy/drag first-consumer decision|Buoyancy/drag produce the source rise and deflection; loss/absence controls and envelope bounds hold without a balloon solver branch.|
+|13.1a / `13-1a-torch`|[CAT-029 Torch](../../docs/planning/elements/CAT-029-flashlight.md)|Battery and generic optical emission|Powered divergent cone attenuates and is occluded; no power gives no light; angular/energy boundaries retain CAT-029.|
+|13.1e / `13-1e-amber-laser`|[CAT-036 Amber laser](../../docs/planning/elements/CAT-036-laser.md)|13.1a generic optical path|Powered collimated beam follows declared spectrum and occlusion; no power/blocker gives no downstream light; no infinite energy.|
+|13.2a / `13-2a-broadband-receiver`|[CAT-038 Broadband receiver](../../docs/planning/elements/CAT-038-light_receiver.md)|13.1a/e|Admitted incident power activates; sub-threshold/occluded input does not; exact threshold and saturation follow the source.|
+|13.2b / `13-2b-red-receiver`|[CAT-056 Red receiver](../../docs/planning/elements/CAT-056-red_receiver.md)|13.1b red laser and 13.2a|Red-only qualifies; green/blue controls do not; power threshold and electrical response retain source criteria.|
+|13.2c / `13-2c-green-receiver`|[CAT-032 Green receiver](../../docs/planning/elements/CAT-032-green_receiver.md)|13.1c green laser and 13.2a|Green-only qualifies; red/blue controls do not; source thresholds and electrical response hold.|
+|13.2d / `13-2d-blue-receiver`|[CAT-012 Blue receiver](../../docs/planning/elements/CAT-012-blue_receiver.md)|13.1d blue laser and 13.2a|Blue-only qualifies; red/green controls do not; source thresholds and electrical response hold.|
+|13.4a / `13-4a-red-filter`|[CAT-055 Red filter](../../docs/planning/elements/CAT-055-red_filter.md)|13.2a-d and 13.1b-d|Red passes and other channels are absorbed; mismatched serial filter extinguishes; no energy gain.|
+|13.4b / `13-4b-green-filter`|[CAT-031 Green filter](../../docs/planning/elements/CAT-031-green_filter.md)|13.4a generic filtering|Green passes and red/blue do not; mixed and zero incident bounds retain source criteria.|
+|13.4c / `13-4c-blue-filter`|[CAT-011 Blue filter](../../docs/planning/elements/CAT-011-blue_filter.md)|13.4a generic filtering|Blue passes and red/green do not; mixed and zero incident bounds retain source criteria.|
+|13.5a / `13-5a-mirror`|[CAT-041 Mirror](../../docs/planning/elements/CAT-041-mirror.md)|13.1e and 13.2a|The source45-degree arrangement reflects90 degrees; a miss produces no reflection; normal/grazing incidence follows the source.|
+|13.5b / `13-5b-splitter`|[CAT-008 Splitter](../../docs/planning/elements/CAT-008-beam_splitter.md)|13.5a|Incident power divides into source-required outputs; absence/control routes and sum of outgoing energy remain bounded.|
+|13.5c / `13-5c-combiner`|[CAT-006 Combiner](../../docs/planning/elements/CAT-006-beam_combiner.md)|13.4a-c and 13.5b|Orthogonal source beams combine declared channels; missing-input controls preserve only admitted channels; no invented power.|
+|13.6a / `13-6a-cyan-receiver`|[CAT-021 Cyan receiver](../../docs/planning/elements/CAT-021-cyan_receiver.md)|13.5c|Green+blue qualifies; either alone and wrong mixture do not; thresholds retain source criteria.|
+|13.6b / `13-6b-magenta-receiver`|[CAT-040 Magenta receiver](../../docs/planning/elements/CAT-040-magenta_receiver.md)|13.5c|Red+blue qualifies; either alone and wrong mixture do not; thresholds retain source criteria.|
+|13.6c / `13-6c-yellow-receiver`|[CAT-072 Yellow receiver](../../docs/planning/elements/CAT-072-yellow_receiver.md)|13.5c|Red+green qualifies; either alone and wrong mixture do not; thresholds retain source criteria.|
+|13.6d / `13-6d-white-receiver`|[CAT-068 White receiver](../../docs/planning/elements/CAT-068-white_receiver.md)|13.5c|All three channels qualify; every missing-channel control does not; thresholds retain source criteria.|
+|13.8a / `13-8a-optical-and`|[CAT-043 Optical AND](../../docs/planning/elements/CAT-043-optical_and.md)|13.1e, 13.2a and 13.5a-c|All four binary input combinations match AND; boundary and power conditions follow source criteria.|
+|13.8b / `13-8b-optical-nand`|[CAT-044 Optical NAND](../../docs/planning/elements/CAT-044-optical_nand.md)|13.8a shared logic capability|All four combinations match NAND; missing supply/control and thresholds follow source criteria.|
+|13.8c / `13-8c-optical-nor`|[CAT-045 Optical NOR](../../docs/planning/elements/CAT-045-optical_nor.md)|13.8a shared logic capability|All four combinations match NOR; missing supply/control and thresholds follow source criteria.|
+|13.8d / `13-8d-optical-or`|[CAT-046 Optical OR](../../docs/planning/elements/CAT-046-optical_or.md)|13.8a shared logic capability|All four combinations match OR; missing supply/control and thresholds follow source criteria.|
+|13.8e / `13-8e-optical-xor`|[CAT-047 Optical XOR](../../docs/planning/elements/CAT-047-optical_xor.md)|13.8a shared logic capability|All four combinations match XOR; equal-input control and thresholds follow source criteria.|
+
+The existing13.1b/c/d RGB laser stories now depend on13.1e, not the old grouped13.1 implementation. Each grouped parent11.1, 11.2, 11.4, 12.1, 13.1, 13.2, 13.4, 13.5, 13.6, 13.8 is aggregate-only. Specific child prerequisites above refine its broad parent dependency; other stories requiring the whole parent wait for all relevant children. CAT obligations not in this split table keep their existing individual story, with retained named refinements from the identity ledger.
+
+
+### CAT-023c: Domino offset centre of mass and presentation origin
+*Sprint key: `cat-023c-offset-centre-of-mass`; canonical CAT-023 obligation, before the next Domino-dependent level and before complete catalogue closure. Depends on stabilized f32 body/motion ABI and existing Domino package.*
+
+Given the [CAT-023 source declaration](../../docs/planning/elements/CAT-023-domino.md) with its nonzero centre of mass, when the production solver advances and the presentation samples its motion, then inertia, world centre of mass, body origin and pips follow the declared mass frame within independent analytic/game-grade tolerances. Given a zero-offset control, when run identically, then existing Domino behavior remains; invalid/nonfinite/out-of-range offsets reject atomically. Given an end-of-substep motion sample, when observed at its declared ordinal, then it neither leads physics by a substep nor subtracts the COM twice. Retain cascade, threshold, matched-ball loading, Reset and supported Save/Load source criteria. Files: elements/Domino, generic mass-property/compiler/ABI/motion-read callers and native simulation/presentation tests; delete zero-COM assumptions and stale sample-origin/ordinal paths. Resolve source offset-range/art decisions before runtime implementation; no Domino solver branch. This is a behavior slice, not a completion-only audit.
+
+### Catalogue native closure (aggregate)
+*Sprint key: `catalogue-native-closure`; dispatches no new implementation.*
+
+Given all 72 CAT source contracts, 104 current mode records and all 276 named element contracts, when their independently reviewed implementation/unit/integration evidence is reconciled against exact relevant inputs, then every identity, variant, required collaborator and ordinary lifecycle criterion has a terminal applicable Pass, or closure fails naming its existing owner. Given a missing child or stale proof, when checking an umbrella/shared CAT refinement, then the aggregate remains incomplete. Preserve the 10 umbrella and 7 product-feature dispositions, without counting features as elements. No hash count, package count or readiness-doc count establishes behavior. Required now includes the completed native stage of Story 15.0 (closing the CAT-049/CAT-050 assistance clauses from Stories 6.9/6.10), CAT-023c, assigned F.4/F.16 native remainders and other actual first-consumer obligations; browser cases remain pending until this conjunction passes. The existing reviewer records the result; no new framework or recursive audit story is introduced.
+
 ## Delivery order (coordinator, 21 Oct 2026, owner-authorised re-examination)
 
 **Authority.**
@@ -870,7 +955,7 @@ So that level `gentle_bend` can be solved by turning a falling ball through a ge
 - **When** the ball enters the upper mouth and travels the 1.3-unit bore around the fixed-radius curve,
 - **Then** it exits the lower mouth without added speed and reaches the receiver; straight-to-bend and bend-to-bend rotated passages succeed through typed mouth snapping.
 - **And** rim, oversize, sidewall and missed-connection controls deliver nothing, and an actual valid Precise alternative route is proven.
-- **And** the authored assistance controls depend on physical placement nudging, which is scheduled as Story 15.0 (owner decision, 18 Oct 2026). They are proven there, and CAT-049 stays open until then.
+- **And** the authored assistance controls depend on physical placement nudging, owned by Story 15.0's bounded native stage after all named intrinsic implementations and before catalogue-native-closure. They are proven there, and CAT-049 stays open until that native proof passes; actual UI proof remains post-catalogue.
 - **And** the bend keeps its own icon, rails and collars; no 90-degree proof substitutes for it.
 - **And** the element is built from its declaration spec `docs/planning/elements/CAT-049-pipe_bend_45.md`, with exact Reset and Save/Load.
 - **And** `tools/e2e/cat-049.test.ts` passes 100% in Chrome serially.
@@ -887,7 +972,7 @@ So that levels `quarter_bend` and `joined_pipe` can be solved.
 - **When** the ball falls into the bend's upper mouth, or through a resized straight pipe snapped to the fixed bend,
 - **Then** it follows the continuous turned passage and reaches the receiver.
 - **And** straight/bend joins succeed, and rotated, oversize, rim and missing-connection controls deliver nothing.
-- **And** the declared depth-error result (Forgiving and Balanced succeed where Precise fails) depends on physical placement nudging, which is scheduled as Story 15.0 (owner decision, 18 Oct 2026). It is proven there, and CAT-050 stays open until then.
+- **And** the declared depth-error result (Forgiving and Balanced succeed where Precise fails) depends on physical placement nudging, owned by Story 15.0's bounded native stage after all named intrinsic implementations and before catalogue-native-closure. It is proven there, and CAT-050 stays open until that native proof passes; actual UI proof remains post-catalogue.
 - **And** the bend shares the common bore and typed mouth geometry with matching collars, rails and icon; no 45-degree proof stands in for it.
 - **And** the element is built from its declaration spec `docs/planning/elements/CAT-050-pipe_bend_90.md`, with exact Reset and Save/Load.
 - **And** `tools/e2e/cat-050.test.ts` passes 100% in Chrome serially.
@@ -1775,6 +1860,7 @@ As a developer, I want Chrome to keep each part's required UI proof and drop var
 - F18-6: commit the guard test that kills mutant M9 (re-adding the generic per-id decode list); the implementer reverted it to keep the evidence commit evidence-only.
 
 ### Story F.16: Catalogue Follow-ups
+*Current stage ownership 24 October 2026: category grouping and switch metadata native criteria travel with test-workshop-harness-b and test-behavioral-hygiene; Workshop startup refusal is required in harness A;9A.15 already owns rejected-id evidence. Cosmetic declaration correctness belongs to each affected element; final visual comparison remains post-catalogue. This aggregate must not postpone required native catalogue behavior until after browser eligibility.*
 *Status: Backlog. Filed from the 9A.14+18 review on 21 Oct 2026 ([review](../implementation-artifacts/review-9a-14-bundle-sole-catalogue.md)).*
 
 **Acceptance Criteria:**
@@ -3640,11 +3726,11 @@ I want every game value stored and computed in one precision,
 So that sizes, masses, timings and animations behave identically everywhere.
 
 **Acceptance Criteria:**
-- **Given** the tree, **When** this story lands, **Then** `rg -w "Half|HalfBits|Float16|float16|getF16|setF16"` over the active tree, excluding `archives/` and `node_modules/`, returns 0 hits.
+- **Given** executable production source and current schema inputs, **When** the architecture guard runs, **Then** no binary16 type/API/lane or double game-value path remains. Exclude documentation, historical evidence, third-party code and committed malformed/legacy input fixtures with named reasons; never erase those to satisfy a token scan. Test actual forbidden type/API use and a permitted external adapter as positive/control guard cases.
 - **And** every former lane carries IEEE-754 f32 end to end: authoring, construction, wire, save, solver, read model and animation.
 - **And** there are no format versions (owner, 21 Oct 2026). Structurally invalid saves are rejected explicitly, and there's no migration.
 - **And** the `docs/gpu-f32-physics.md` "f32 Migration Status" table records no remaining lane, and the envelope statements that depended on binary16 are restated for f32.
-- **And** golden tests show every element's outcomes stay inside the [game-grade envelope](../../docs/gpu-f32-physics.md#game-grade-envelope).
+- **And** independently derived behavioral unit/integration tests (no output-hash or byte-identity assertions) show every element's outcomes stay inside the [game-grade envelope](../../docs/gpu-f32-physics.md#game-grade-envelope).
 - **And** every compiled record field touched by the f32 relayout (bodies, colliders, sensors, prismatics, electrical, motion and cache) is read and written only through named `PhysicsGpuAbi` offset constants. `WorkshopAbiLiteralScanTests` is extended from Story 9.4b's header, contact-work, occurrence and trigger records to every record type, and fails on any literal ABI offset in production. Coordinator decision, 19 Oct 2026, Story 9.4b R2-F4: the offsets change in this story anyway, so naming them here migrates each one exactly once.
 - **And** an injected non-finite value is rejected at the boundary (negative control).
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
@@ -3717,6 +3803,8 @@ So that wheeled and pivoted parts move with their real shape and mass.
 
 *Depends on: Story 10.1 (cylinder wheel collider; owner decision 18 Oct 2026, CAT-053 open question 1). Moved from Story 10.3, ahead of the Lever whose end rope sockets need the ropes. The Counterweight body (CAT-067) ships with Story 10.2 per CAT-067 §3 and is the rope load in this acceptance (Open scheduling item f, decided 18 Oct 2026); the Lever's rope-load integration is proven in Story 10.3.*
 
+*Split (24 Oct 2026): 10.2a Weight; 10.2b Rope Anchor, rope domain, Weight Tie/Load and required cutting; 10.2c Pulley. Parent acceptance is aggregate-only and closes with all children. The detailed independent contracts below govern dispatch.*
+
 As a player,  
 I want to route ropes around Pulleys to transmit tensile forces,  
 So that dropping one weight can lift an object in a different part of the workbench.
@@ -3728,10 +3816,21 @@ So that dropping one weight can lift an object in a different part of the workbe
 - **And** slack ropes apply zero force; cutting or releasing tension uncouples the bodies.
 - **And** `tools/e2e/cat-053-058.test.ts` passes 100% in Chrome serially.
 
+
+### Story 10.2b: Rope Anchor, tensile rope and cutting (CAT-058)
+*Sprint key: `10-2b-rope-tie-load`; backlog until the entry decisions in [CAT-058](../../docs/planning/elements/CAT-058-rope_anchor.md) are resolved. Depends on 10.2a and stabilized generic constraint engine; does not depend on Pulley.*
+
+Given two delivered Weight bodies and a fixed Rope Anchor constructed through native authoring, when a declared rope becomes taut, then tensile-only constraint work couples admitted Tie/Load endpoints; slack applies zero force and equal-load controls remain balanced. Given a rope at rest or under tension, when the typed cut/release command succeeds, then its constraint is removed atomically at the committed boundary and subsequent motion is uncoupled; repeat/unknown cuts return a typed refusal without changing other ropes. Given Reset or supported Save/Load, when restoring the authored machine, then original endpoints, length and uncut authored construction are restored and rerunning reproduces behavior. Cut is required, not an open scope question; determine its allowed user phase and exact command/read schema before implementation with the source owner. The source length-authoring, compliance and slack-boundary questions are finite entry decisions, not guessed constants. Native tests cover zero/maximum admitted length, incompatible/missing endpoints, slack/taut crossing, cut before/after load and multiple independent ropes, with derived tolerances and mutations. Files: elements/RopeAnchor, Weight declared ports, mechanical Abstractions, generic constraint compile/solver, command/query, native tests/content; delete superseded rope paths, no element-specific solver.
+
+### Story 10.2c: Pulley wheel and routed rope (CAT-053)
+*Sprint key: `10-2c-pulley-wheel`; depends on 10.1 cylinder and10.2b.*
+
+Given two pulleys routing a rope between unequal delivered Weights, when the heavy load falls, then the light load rises through the source tensile/work law; equal masses balance, slack transmits no force, cutting uncouples and pulley routing obeys length/contact boundaries. Preserve every CAT-053 variant and exact source geometry. Prove all parent10.2 cross-element criteria, native Reset/save/load and atomic rejection, then update10.2b's pending pulley integration proof. Files: elements/Pulley, necessary generic routing/constraint declarations and tests/content; no bespoke loop or capacity.
+
 ### Story 10.3: Balanced Impact Lever & Pivot Fulcrum (CAT-034)
 *Status: Backlog*
 
-*Depends on: Stories 6.2 (Bumper obstacle), 10.1 (solid cylinder fulcrum; owner decision 18 Oct 2026, CAT-034 open question 2) and 10.2 (ropes for its end rope sockets; CAT-034 §3). Moved from Story 10.2 (owner dependency rule, 9 Oct 2026: after ropes). It carries the Lever rope-load integration moved out of Story 10.2 (Open scheduling item f, decided 18 Oct 2026).*
+*Depends on: engine-supported-impact-restitution native acceptance, Stories 6.2 (Bumper obstacle), 10.1 (solid cylinder fulcrum; owner decision 18 Oct 2026, CAT-034 open question 2) and 10.2 (ropes for its end rope sockets; CAT-034 §3). Moved from Story 10.2 (owner dependency rule, 9 Oct 2026: after ropes). It carries the Lever rope-load integration moved out of Story 10.2 (Open scheduling item f, decided 18 Oct 2026).*
 
 As a player,  
 I want an Impact Lever to pivot smoothly when struck on one arm,  
@@ -3750,6 +3849,8 @@ So that see-saw mechanisms can fling objects or lift connected ropes.
 *Status: Backlog*
 
 *Depends on: Story 10.2 (rope anchor and tension-only rope). Number unchanged; the Pulley moved up to Story 10.2 and the Trampoline now follows this story.*
+
+*The Weight body, its mass parameter and its rest, roll, stack, Reset and Save/Load proof ship with Story 10.2a; this story is pendulum qualification only.*
 
 As a player,  
 I want Counterweights to swing as pendulums and balance moving loads,  
@@ -4190,6 +4291,10 @@ So that wind-driven musical contraptions can be solved.
 ### Story 15.0: Physical Placement Nudging & Difficulty Assistance
 *Status: Backlog*
 
+**Native implementation stage (sprint key `15-0-physical-placement-nudging-difficulty-assistance`):** after all named intrinsic element implementations, before `catalogue-native-closure`. This is one bounded authoring-assistance behavior slice, not the exhaustive campaign/difficulty sweep. It owns the remaining CAT-049/CAT-050 native assistance criteria from Stories 6.9/6.10 and preserves their numerical expectations, including the CAT-049 valid Precise alternative route. Through the shared native harness and production placement/Undo/command interfaces, prove the source positive routes, one-cause controls and just-inside/exact/just-outside tolerance boundaries; locked/overlap refusals; no correction during Run; Reset and supported Save/Load. Verify declared presentation feedback through its evaluator. Record matching unit/integration results and individual review/publication before marking this native stage done.
+
+**Post-catalogue qualification stage:** the actual UI/Chrome clauses below, the retained exhaustive difficulty/campaign sweeps and browser-regression suites remain with `post-catalogue-browser-qualification` and campaign owners after native catalogue closure. The same source behaviors are retained; native completion is labelled browser qualification pending. Browser re-enablement depends on native Story 15.0, never the reverse.
+
 *Depends on: Epic 9A (declared element packages and parameters) and Story 9R.6 (typed mouth snapping). New story (owner decision, 18 Oct 2026), replacing the earlier "not scheduled" decision. It closes the open assistance clauses of Stories 6.9 (CAT-049) and 6.10 (CAT-050).*
 
 As a player,  
@@ -4495,6 +4600,7 @@ So that Curious Contraptions is ready for public release.
 - **Scheduling:** cat-051-own-supply is requalified as Parallel only through calibration (F8).
 
 ### Story F.4: Collider Table Follow-ups
+*Current stage ownership24October2026: F1 checked cast, F2 never-fired occurrence bounds and F4 extreme-count refusal belong to 9A.44 ABI/field migration; F3 buffer reuse and F8 pair-order behavior belong to harness A/B; moving-body Reset behavior belongs to harness B. Browser snapshot-helper and performance items remain at their stated later gates. The engine boundary cases are required before declaring stabilization complete.*
 *Status: Backlog. Filed from the Story 9R.2 review on 20 Oct 2026 ([review](../implementation-artifacts/review-9r-2-collider-table-sized-at-run.md)).*
 
 **Acceptance Criteria:**

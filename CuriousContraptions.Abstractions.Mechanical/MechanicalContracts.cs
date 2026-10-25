@@ -31,6 +31,14 @@ public interface IMechanicalElement : IPuzzleElementDeclaration
     IReadOnlyList<AnchorPointDescriptor> AnchorPoints { get; }
 }
 
+/// <summary>A dynamic body whose compiled mass is a declared Real kilogram parameter (the body mass bound to a parameter). The fixed
+/// <see cref="RigidBodyMassProperties.Mass"/> is that parameter's default, so one truth holds at defaults; the compiler evaluates
+/// <see cref="Mass"/> per instance. Inertia follows from the compiled mass and the (possibly parameter-bound) collider.</summary>
+public interface IParameterizedMassElement : IMechanicalElement
+{
+    MechanicalValue Mass { get; }
+}
+
 /// <summary>A joint frame in one body's local space. Local Y is the slide axis.</summary>
 public readonly record struct SliderFrame(
     Vector3 Position,

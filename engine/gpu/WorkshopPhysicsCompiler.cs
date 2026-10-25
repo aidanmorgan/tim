@@ -50,6 +50,9 @@ public static class WorkshopPhysicsCompiler
             var shapes = BundleGeometry.Colliders(entry, parameters);
             var mechanical = entry.Mechanical;
             var mass = mechanical?.MassProperties ?? default;
+            // A declared mass binding is the instance's own f32 parameter, written to the body record's f32 mass lane, so the body mass
+            // and the inertia compiled from it and the bound collider follow the edited value.
+            var bodyMass = mechanical?.MassParameter is { } bound ? bound.Evaluate(parameters) : mass.Mass;
             var mode = (mechanical?.KinematicMode ?? KinematicMode.Static) switch
             {
                 KinematicMode.Static => RigidMotionKind.Static,
@@ -62,7 +65,7 @@ public static class WorkshopPhysicsCompiler
                 entry.Footprint.PrismaticConstraints != sliders.Count)
                 throw new ArgumentException("Physical declaration disagrees with its compiled footprint.");
             bodies.Add(new(instance.Id, mode, instance.Cell, instance.Local, instance.Rotation, default, default,
-                new(mass.Mass), new(mass.Gravity.X, mass.Gravity.Y, mass.Gravity.Z), new(mass.LinearDrag)));
+                new(bodyMass), new(mass.Gravity.X, mass.Gravity.Y, mass.Gravity.Z), new(mass.LinearDrag)));
             AddGeometry(instance.Id, first, first + (sliders.Count != 0 && shapes.Count > 1 ? 6UL : 1UL), shapes);
             for (var i = 0; i < sliders.Count; i++)
             {

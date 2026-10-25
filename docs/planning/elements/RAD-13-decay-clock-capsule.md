@@ -1,5 +1,7 @@
 # RAD-13 · Decay clock capsule — element readiness spec
 
+**Current delivery (24 October 2026):** [RAD-13 delivery slice](../invest/named-elements.md#radiation-13). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 Batch O named-identity spec. Legacy citations are pinned to `a6c914e` and resolve with `git show a6c914e:<path> | sed -n 'start,endp'`. Requirement row: [radiation-13](../requirements.md#radiation-13) (P2 potential). A **visibly marked fictional short-half-life toy source**; half-lives are game presets, not real isotopes.
 
 ## 1. Identity
@@ -11,7 +13,7 @@ Story 7.0 Batch O named-identity spec. Legacy citations are pinned to `a6c914e` 
 | Anchor | [requirements.md#radiation-13](../requirements.md#radiation-13); [named-elements.md#radiation-13](../invest/named-elements.md#radiation-13) |
 | Related identities | Steady control [RAD-01](RAD-01-gamma-source-capsule.md); receiver [RAD-08](RAD-08-radiation-rate-meter.md); memory partner [RAD-09](RAD-09-integrating-dosimeter.md). Not a renamed [CAT-022 delay](CAT-022-delay.md) or [CAT-017 clock](CAT-017-clock.md). No CAT spec refined. |
 | Proof owner | S623 |
-| Roadmap story | unscheduled; campaign 123, 124 (research slots 98, 99) |
+| Roadmap story | [RAD-13 delivery slice](../invest/named-elements.md#radiation-13); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration
@@ -45,12 +47,12 @@ Families from the [map row](../general-engine-element-map.md) and [binding](../.
 
 | Family | Status | Basis or builder |
 | --- | --- | --- |
-| FiniteLedger | missing | unscheduled (S010-D); remaining population; the only current finite store is bumper contact work, `engine/gpu/ContactWorkDeclaration.cs@a6c914e:L5-L9` |
-| RadioactiveDecay | missing | unscheduled (S607-D/F); deterministic population envelope ([S605 decay row](../invest/decisions.md#s605): "at successive declared intervals the detector reads less; Reset restores the initial reading; a steady source does not fade") |
+| FiniteLedger | missing | required in the linked delivery slice (S010-D); remaining population; the only current finite store is bumper contact work, `engine/gpu/ContactWorkDeclaration.cs@a6c914e:L5-L9` |
+| RadioactiveDecay | missing | required in the linked delivery slice (S607-D/F); deterministic population envelope ([S605 decay row](../invest/decisions.md#s605): "at successive declared intervals the detector reads less; Reset restores the initial reading; a steady source does not fade") |
 | SignalPropagation | missing | Story 8.1 (the falling-threshold contact belongs to the meter); the current `engine/gpu/ActivationNetwork.cs@a6c914e:L7-L14` is activation-only |
 | StateTransaction | exists now | `engine/gpu/WorkshopSimulation.cs@a6c914e:L44-L161`; age and activity restore with Reset; Reset-restored timed state already exists for activation timers (`engine/gpu/ActivationTimers.cs`) |
 
-The map row omits IonizingTransport (missing; unscheduled, S606-D/F) and GeometryQuery (exists now for contact only, `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L74-L204`; radiation paths unscheduled), although the capsule emits a spatial field and the meter proof needs both (open question 2).
+The map row omits IonizingTransport (missing; required in the linked delivery slice, S606-D/F) and GeometryQuery (exists now for contact only, `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L74-L204`; radiation paths required in the linked delivery slice), although the capsule emits a spatial field and the meter proof needs both (open question 2).
 
 **Dependencies.** RAD-08 rate meter; CAT-005 Battery; a release that acts on a falling transition (an inverting gate such as [EL-136 NOR](../invest/named-elements.md#element-136) or a latch).
 

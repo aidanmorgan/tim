@@ -1,5 +1,7 @@
 # EL-044 · Tone-selective sound meter — element readiness spec
 
+**Current delivery (24 October 2026):** [EL-044 delivery slice](../invest/named-elements.md#element-044). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 Batch H named-identity spec. Legacy citations are pinned to `a6c914e` and resolve with `git show a6c914e:<path> | sed -n 'start,endp'`. Values marked *proposed* have no legacy or requirement source; each carries a one-line justification, stays inside the [game-grade envelope](../../gpu-f32-physics.md#game-grade-envelope) and may be revised by the owner. This spec also holds the **shared acoustic family facts (A1–A13)** that the other sound identities ([EL-045](EL-045-air-whistle.md)–[EL-052](EL-052-water-tuned-bottle.md), [EL-179](EL-179-continuous-tone-speaker.md), [EL-180](EL-180-pulse-speaker.md)) point to instead of repeating.
 
 ## 1. Identity
@@ -10,7 +12,7 @@ Story 7.0 Batch H named-identity spec. Legacy citations are pinned to `a6c914e` 
 | Type | Sound |
 | Anchor | [requirements.md#element-044](../requirements.md#element-044); scope index [todo-352](../requirements.md#todo-352); [named-elements entry](../invest/named-elements.md#element-044); owner S541 |
 | Related | Extends [CAT-060 Sound meter](CAT-060-sound_meter.md) (same cabinet, ports and threshold law; adds a band filter — CAT-060 already requires "all admitted tone filtering", [current-cat-060](../requirements.md#current-cat-060)). Sources: [CAT-061 Speaker](CAT-061-speaker.md) / [EL-180](EL-180-pulse-speaker.md), [CAT-009 Bell](CAT-009-bell.md), [CAT-069 Wind chimes](CAT-069-wind_chimes.md), [EL-045](EL-045-air-whistle.md). |
-| Roadmap story | unscheduled (CAT-060 is Story 14.1; the band filter has no story) |
+| Roadmap story | [EL-044 delivery slice](../invest/named-elements.md#element-044); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration
@@ -63,7 +65,7 @@ Families ([element map row](../general-engine-element-map.md); [binding](../../c
 
 **Missing**
 - AcousticPropagation (pulse records, propagation, opaque occlusion, strongest arrival) — Story 14.2/14.3/14.1 (CAT-009/061/060); decision owner [S528](../invest/decisions.md#s528) (S530 arrival combination, S529 event routing).
-- Band filter on the receiver — this identity (unscheduled).
+- Band filter on the receiver — this identity (required in the linked delivery slice).
 - Supplied contact and rising-edge activation that may re-arm — Story 8.1 network; repeated emission per run is not supported by the current activation network (`engine/gpu/ActivationNetwork.cs@a6c914e:L206-L208`).
 - Scalar needle cosmetic source — current sources are discrete (`engine/gpu/WorkshopCosmetic.cs@a6c914e:L7-L7`).
 

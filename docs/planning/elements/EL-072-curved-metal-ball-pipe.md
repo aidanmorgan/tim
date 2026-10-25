@@ -1,5 +1,7 @@
 # EL-072 · Curved metal ball pipe declaration readiness spec
 
+**Current delivery (24 October 2026):** [EL-072 delivery slice](../invest/named-elements.md#element-072). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec. Baseline commit `a6c914e`. Legacy citations use `path@a6c914e:Lstart-Lend` and stay retrievable from git history after the Epic 7 purge. Values marked **proposed** are design values the owner may revise.
 
 ## 1. Identity
@@ -13,7 +15,7 @@ Story 7.0 named-identity spec. Baseline commit `a6c914e`. Legacy citations use `
 | Named entry | [named-elements.md#element-072](../invest/named-elements.md#element-072); proof owner S361 |
 | CAT spec refined or extended | [CAT-049 pipe bend 45](CAT-049-pipe_bend_45.md) and [CAT-050 pipe bend 90](CAT-050-pipe_bend_90.md) both list EL-072 as their mapped identity; those bends use the common fixed 1.3 m bore (radius 0.65) and a 2.4 m centreline radius. **Conflict:** this spec proposes the [EL-071](EL-071-straight-metal-ball-pipe.md) 0.62 m metal gauge, which cannot share that bore or join clear mouths. Either EL-072 keeps the 1.3 m bore and refines the clear bends (material and opacity only), or it is a separate part. Owner decision, Open question 3 |
 | Related identities | [EL-071 straight metal ball pipe](EL-071-straight-metal-ball-pipe.md) (seam partner), [CAT-048 pipe](CAT-048-pipe.md) |
-| Roadmap story | unscheduled |
+| Roadmap story | [EL-072 delivery slice](../invest/named-elements.md#element-072); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration
@@ -57,7 +59,7 @@ Pale grey metal shell `#ccd9df`, cream collars `#fff8e9`, thin navy rails `#2939
 
 ### Catalogue and inventory entry
 
-Id `metal_pipe_bend`, title "Metal bend", category "Motion"; `WorkshopPartKind.MetalPipeBend` appended last to the free inventory (`engine/gpu/WorkshopInventory.cs@a6c914e:L49-L60`). **Proposed** (applies if EL-072 is a separate part).
+Id `metal_pipe_bend`, title "Metal bend", category "Motion"; package-owned metadata discovered into the Free palette from the bundle (`engine/gpu/WorkshopInventory.cs@a6c914e:L49-L60`). **Proposed** (applies if EL-072 is a separate part).
 
 ### Variants
 

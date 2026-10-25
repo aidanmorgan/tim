@@ -1,5 +1,7 @@
 # EL-214 · Broadband beam detector — named-identity spec
 
+**Current delivery (24 October 2026):** [EL-214 delivery slice](../invest/named-elements.md#element-214). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 full spec for a named puzzle-element identity. Baseline commit `a6c914e`. Legacy citations use `path@a6c914e:Lstart-Lend` and stay retrievable from git history after the Epic 7 purge. Lengths are legacy scene units, which the current engine treats as metres (`MetreVector`). The sensitive face looks along local −X.
 
 EL-214 refines the catalogue laser receiver [CAT-038 light_receiver](CAT-038-light_receiver.md). It shares the selective receivers' body and contact ([EL-146](EL-146-red-selective-receiver.md)) but integrates all channels by their mean, with no purity test. Appearance (the eased disc) does not establish detection; the numeric reading does.
@@ -15,7 +17,7 @@ EL-214 refines the catalogue laser receiver [CAT-038 light_receiver](CAT-038-lig
 | Owner | S497 |
 | Refines CAT | [CAT-038 light_receiver](CAT-038-light_receiver.md) (`light_receiver`, "Laser receiver", OpticalChannel=Broadband). One catalogue part satisfies both identities; not a second implementation. |
 | Related | EL-146 to EL-152 selective receivers; EL-152 white (each-channel rule, contrast); EL-153 general-light receiver (cone light); CAT-036 laser |
-| Roadmap story | 13.2 Broadband & Pure Channel Optical Receivers (CAT-038, CAT-056, CAT-032, CAT-012) |
+| Roadmap story | [EL-214 delivery slice](../invest/named-elements.md#element-214); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration
@@ -45,7 +47,7 @@ Binding shard ([element-03.json](../../coverage/engine/element-03.json)): Finite
 - OpticalTransport Absorb aperture with snapshot readings — Story 13.2 (emission Story 13.1). Decision owner **S484** ([decisions](../invest/decisions.md#s484)): S485, S486, S488.
 - ElectricalPower switched contact — Story 8.1 plus 13.2; S257.
 - OpticalAbsorption/SensibleHeat — S489/S543, mode-specific.
-- `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`).
+- package declaration and bundle-issued typed id (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`).
 
 **Element dependencies:** CAT-036 laser or EL-176 to EL-178 (Story 13.1), CAT-005 battery (Story 8.1), a load (CAT-035 lamp, delivered, or CAT-051 powered gate), CAT-066 wall.
 

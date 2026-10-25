@@ -1,5 +1,7 @@
 # TH-15 · Ice plug — named-identity readiness spec
 
+**Current delivery (24 October 2026):** [TH-15 delivery slice](../invest/named-elements.md#thermal-15). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations are `path@a6c914e:Lstart-Lend`. No legacy holds ice-plug values, so every design value without a cited source is marked "(proposed: …)" with a one-line justification; the owner may revise it.
 
 ## 1. Identity
@@ -12,8 +14,8 @@ Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artif
 | Proof owner / research | S579 · [TH-S02 phase change](../../thermal-component-research.md#th-s02) |
 | Related identities | No CAT spec. Same water material as [TH-14 Ice block](TH-14-ice-block.md), but a separate placement role and shape (row). Host apertures: [CAT-048 Pipe](CAT-048-pipe.md) bore, water-family outlets such as [EL-001 Finite reservoir](../invest/named-elements.md#element-001), or a gate opening. |
 | Campaign | Intro 68; practice 69; reuse 86, 137 ([thermal allocation](../requirements.md#thermal-campaign-allocation)) |
-| Roadmap story | Unscheduled. No epic in `_bmad-output/planning-artifacts/epics.md` schedules a thermal element. |
-| Status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`); no legacy part. |
+| Roadmap story | [TH-15 delivery slice](../invest/named-elements.md#thermal-15); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`); no legacy part. |
 
 ## 2. Declaration
 
@@ -35,14 +37,14 @@ Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artif
 
 - **Cosmetic curves and UI bindings.** Scale ← committed solid fraction ([research per-element table](../../thermal-component-research.md)); the visible seat inside the cream aperture shows the remaining obstruction.
 - **Art.** "Cyan translucent insert seated visibly inside a cream aperture" (row). Nearest [DESIGN.md](../../../DESIGN.md) source colours (proposed mapping): cyan `#66b8c9` (`DESIGN.md@a6c914e:L172-L172`), cream `#ead39b` (`DESIGN.md@a6c914e:L146-L146`).
-- **Catalogue and inventory entry.** New `WorkshopPartKind.IcePlug`; id `ice_plug`, title "Ice plug", category Heat (proposed: no current category covers thermal parts).
+- **Catalogue and inventory entry.** Package-owned declaration, discovered into the bundle; id `ice_plug`, title "Ice plug", category Heat (proposed: no current category covers thermal parts).
 
 ## 3. Engine capabilities
 
 Families (map row TH-15, [general-engine-element-map](../general-engine-element-map.md); binding [thermal-01.json](../../coverage/engine/thermal-01.json)): EnvironmentState, FiniteLedger, GasState, GeometryQuery, JointConstraint, PhaseTopology, PressureWork, RigidBodyDynamics, SensibleHeat, SolidMelting, TopologyTransaction; JSON adds StateTransaction.
 
 - **Exists now.** Box bodies and contact (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L120`); Run/Reset and save (`engine/gpu/ActivationNetwork.cs@a6c914e:L67-L67`, `engine/gpu/WorkshopSaveCodec.cs@a6c914e:L6-L10`).
-- **Missing.** Fixed joint and joint lifecycle: Story 6.4 constraints ([S257](../invest/decisions.md#s257) is ports only). PressureWork: [S416](../invest/decisions.md#s416) pressure-work → S419. [S543](../invest/decisions.md#s543): melting → S547, phase-topology → S565. Hollow host apertures: Stories 6.6–6.11 (pipe, bends, funnel). All thermal rows unscheduled.
+- **Missing.** Fixed joint and joint lifecycle: Story 6.4 constraints ([S257](../invest/decisions.md#s257) is ports only). PressureWork: [S416](../invest/decisions.md#s416) pressure-work → S419. [S543](../invest/decisions.md#s543): melting → S547, phase-topology → S565. Hollow host apertures: Stories 6.6–6.11 (pipe, bends, funnel). All thermal rows required in the linked delivery slice.
 - **Dependencies.** A host aperture (CAT-048 Pipe, a water-family outlet); a heat source aimed at the plug.
 
 ## 4. Sources and legacy

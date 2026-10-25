@@ -1,5 +1,7 @@
 # EL-185 · Releasable assembly joint named-identity spec
 
+**Current delivery (24 October 2026):** [EL-185 delivery slice](../invest/named-elements.md#element-185). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec (Batch J). Baseline commit `a6c914e`; every citation is `path@a6c914e:Lstart-Lend` and resolves with `git show a6c914e:<path> | sed -n 'start,endp'`. **Proposed** marks an unsourced design value with a one-line justification; the owner may revise it. All values are canonical IEEE-754 f32 game values inside the [game-grade envelope](../../gpu-f32-physics.md#game-grade-envelope).
 
 ## 1. Identity
@@ -13,7 +15,7 @@ Story 7.0 named-identity spec (Batch J). Baseline commit `a6c914e`; every citati
 | Proof owner | S364 |
 | Refines / extends | No CAT spec. Attaches structural members such as EL-112 Structural beam (GAP-01); release command from an activation source such as [CAT-063 switch](CAT-063-switch.md) |
 | Related | EL-186 Temporary bridge (uses this joint), EL-159–EL-161 load-limited connectors (failure by load, not command), EL-205 Rope (Story 10.2 "releasing tension uncouples the bodies") |
-| Roadmap story | unscheduled |
+| Roadmap story | [EL-185 delivery slice](../invest/named-elements.md#element-185); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration
@@ -54,7 +56,7 @@ None. Release adds no impulse and spends no work; any drive work already spent s
 Navy `#293954` clamp body with a gold `#f7cb52` release pin; when released the pin shows slate `#556573` ([DESIGN colour system](../../../DESIGN.md#colour-system)). **Proposed**.
 
 ### Catalogue and inventory entry
-Id `release_joint`, title "Release clamp", category Motion — **proposed**. Add `WorkshopPartKind.ReleaseJoint` with a counted allowance (`engine/gpu/WorkshopInventory.cs@a6c914e:L9-L23`).
+Id `release_joint`, title "Release clamp", category Motion — **proposed**. Declare the package with a counted allowance keyed by its bundle-issued typed id (`engine/gpu/WorkshopInventory.cs@a6c914e:L9-L23`).
 
 ### Variants
 One outcome in the row; no variants. [todo-321](../requirements.md#todo-321) defers it until compound-body and connection lifecycle behaviour is reliable.
@@ -68,8 +70,8 @@ Families: EnvironmentState, FiniteLedger, GeometryQuery, JointConstraint, PhaseT
 - Committed f32 angular velocity record, carried across ticks: `engine/gpu/PhysicsDeclarations.cs@a6c914e:L22-L30`.
 
 **Missing**
-- Any joint row (JointConstraint): first in Story 6.4. A weld kind and a runtime joint-removal transaction (TopologyTransaction): unscheduled. Decision S543 phase-topology, next implementation S565 ([decisions](../invest/decisions.md#s543)). Owner S364.
-- The Structural connection domain and `MountA`/`MountB` sockets: GAP-01 work, unscheduled.
+- Any joint row (JointConstraint): first in Story 6.4. A weld kind and a runtime joint-removal transaction (TopologyTransaction): required in the linked delivery slice. Decision S543 phase-topology, next implementation S565 ([decisions](../invest/decisions.md#s543)). Owner S364.
+- The Structural connection domain and `MountA`/`MountB` sockets: GAP-01 work, required in the linked delivery slice.
 
 **Dependencies.** Joint lifecycle (Stories 6.4, 10.3); EL-112 structural beam or other dynamic parts to attach; an activation source.
 

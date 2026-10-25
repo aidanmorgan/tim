@@ -1,5 +1,7 @@
 # TH-21 · Temperature sensor — named-identity readiness spec
 
+**Current delivery (24 October 2026):** [TH-21 delivery slice](../invest/named-elements.md#thermal-21). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations are `path@a6c914e:Lstart-Lend`. No legacy holds temperature-sensor values, so every design value without a cited source is marked "(proposed: …)" with a one-line justification; the owner may revise it.
 
 ## 1. Identity
@@ -12,8 +14,8 @@ Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artif
 | Proof owner / research | S568 · [TH-S01 heat transfer and finite stores](../../thermal-component-research.md#th-s01) |
 | Related identities | No CAT spec. First heat slice with [TH-04](TH-04-electrical-heating-plate.md) and [CAT-035 Signal lamp](CAT-035-lamp.md). Sibling sensors: [TH-22 Bimetal thermostat](TH-22-bimetal-thermostat.md) (mechanical contact), [TH-37 Heat-sensitive target](TH-37-heat-sensitive-target.md) (goal). Threshold-with-hysteresis pattern shared with the gas family's pressure gauge [EL-043](../invest/named-elements.md#element-043). |
 | Campaign | Intro 15; practice 16; reuse 70, 83, 145 ([thermal allocation](../requirements.md#thermal-campaign-allocation)) |
-| Roadmap story | Unscheduled. The research doc names it in the first heat slice ([first heat slice](../../thermal-component-research.md)); no epic in `_bmad-output/planning-artifacts/epics.md` schedules it. |
-| Status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`); no legacy part. |
+| Roadmap story | [TH-21 delivery slice](../invest/named-elements.md#thermal-21); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`); no legacy part. |
 
 ## 2. Declaration
 
@@ -36,14 +38,14 @@ Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artif
 
 - **Cosmetic curves and UI bindings.** Needle ← committed probe temperature ([research per-element table](../../thermal-component-research.md)); gold indicator ← committed output state. A small dial sets On (proposed: matches the "small dial" control rule for discrete modules).
 - **Art.** "Cream engraved thermometer column with navy ticks and gold indicator" (row). Nearest [DESIGN.md](../../../DESIGN.md) source colours (proposed mapping): cream `#ead39b` (`DESIGN.md@a6c914e:L146-L146`), navy `#293954` (`DESIGN.md@a6c914e:L147-L147`), gold `#f7cb52` (`DESIGN.md@a6c914e:L154-L154`).
-- **Catalogue and inventory entry.** New `WorkshopPartKind.TemperatureSensor`; id `temperature_sensor`, title "Temperature sensor", category Control (proposed: the existing category for sensors and logic).
+- **Catalogue and inventory entry.** Package-owned declaration, discovered into the bundle; id `temperature_sensor`, title "Temperature sensor", category Control (proposed: the existing category for sensors and logic).
 
 ## 3. Engine capabilities
 
 Families (map row TH-21, [general-engine-element-map](../general-engine-element-map.md); binding [thermal-01.json](../../coverage/engine/thermal-01.json)): FiniteLedger, SensibleHeat, SignalPropagation, TemperatureSensing; JSON adds StateTransaction. Composition note: probe binding, response, hysteresis and supplied output are separate from thermal state observation.
 
 - **Exists now.** Activation-domain signal network and typed ports (`engine/gpu/ActivationNetwork.cs@a6c914e:L7-L14`, `engine/gpu/WorkshopConnections.cs@a6c914e:L8-L11`); Signal lamp consumer (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`); Run/Reset and save (`engine/gpu/ActivationNetwork.cs@a6c914e:L67-L67`, `engine/gpu/WorkshopSaveCodec.cs@a6c914e:L6-L10`).
-- **Missing.** TemperatureSensing (IX-17) has no S543 row; this element is its first consumer. Level (assert/clear) activation sources: the current network latches occurrences. [S543](../invest/decisions.md#s543) conduction → S544 for probe contact. SensibleHeat (IX-43) has no S543 row. Unscheduled.
+- **Missing.** TemperatureSensing (IX-17) is a required entry decision under S543 owned by the linked delivery slice; this element is its first consumer. Level (assert/clear) activation sources: the current network latches occurrences. [S543](../invest/decisions.md#s543) conduction → S544 for probe contact. SensibleHeat (IX-43) is a required entry decision under S543 owned by the linked delivery slice. Required in the linked delivery slice.
 - **Dependencies.** A heat source (TH-04); a consumer (CAT-035 Signal lamp, logic gates of Epic 9).
 
 ## 4. Sources and legacy

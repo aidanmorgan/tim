@@ -1,5 +1,7 @@
 # EL-060 · Electromagnet declaration readiness spec
 
+**Current delivery (24 October 2026):** [EL-060 delivery slice](../invest/named-elements.md#element-060). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec. Baseline commit `a6c914e`. Legacy citations use `path@a6c914e:Lstart-Lend` and stay retrievable from git history after the Epic 7 purge. Values marked **proposed** are design values the owner may revise.
 
 ## 1. Identity
@@ -13,7 +15,7 @@ Story 7.0 named-identity spec. Baseline commit `a6c914e`. Legacy citations use `
 | Named entry | [named-elements.md#element-060](../invest/named-elements.md#element-060); proof owner S642 |
 | CAT spec refined or extended | none. Related: [CAT-005 battery](CAT-005-battery.md) (supply, Story 8.1), [CAT-063 switch](CAT-063-switch.md), [CAT-067 weight](CAT-067-weight.md) (proposed ferromagnetic responder), [CAT-014 bowling](CAT-014-bowling.md) and [CAT-001 ball](CAT-001-ball.md) (non-responsive controls) |
 | Related identities | [EL-058 size grate](EL-058-size-grate.md) and [EL-059 weight tray](EL-059-weight-tray.md) (todo-320 sorting by material); [EL-063 cable winch](EL-063-cable-winch.md) (crane pickup) |
-| Roadmap story | unscheduled |
+| Roadmap story | [EL-060 delivery slice](../invest/named-elements.md#element-060); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration
@@ -70,7 +72,7 @@ Navy housing `#293954`, cyan coil `#66b8c9`, pale grey pole face `#ccd9df`, gold
 
 ### Catalogue and inventory entry
 
-Id `electromagnet`, title "Electromagnet", category "Power"; `WorkshopPartKind.Electromagnet` appended last to the free inventory (`engine/gpu/WorkshopInventory.cs@a6c914e:L49-L60`). **Proposed**.
+Id `electromagnet`, title "Electromagnet", category "Power"; package-owned metadata discovered into the Free palette from the bundle (`engine/gpu/WorkshopInventory.cs@a6c914e:L49-L60`). **Proposed**.
 
 ### Variants
 
@@ -84,10 +86,10 @@ Binding: ElectricalPower, EnvironmentState, FieldForce, FiniteLedger, FiniteWork
 
 **Missing**
 
-- FieldForce region acting on a material response: decision row "field-response" → LAW-FIELD-I ([decisions.md#s635](../invest/decisions.md#s635)); no story.
+- FieldForce region acting on a material response: decision row "field-response" → LAW-FIELD-I ([decisions.md#s635](../invest/decisions.md#s635)); required prerequisite owned by the linked delivery slice.
 - `MagneticResponse` material property: same decision.
 - Electrical supply and finite power debit: Story 8.1 (CAT-005).
-- Cylinder collider (housing): no owning story; owner decision 9 Oct 2026: a new cylinder-collider story comes before the first shaft wheel.
+- Cylinder collider (housing): Story 10.1 owns the shared solid-cylinder collider and inertia before this consumer.
 
 **Dependencies.** CAT-005 Battery (8.1); a responsive body (CAT-067 Weight, Story 10.4, if declared Ferromagnetic); optionally CAT-063 Switch for switched supply.
 

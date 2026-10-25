@@ -1,5 +1,7 @@
 # EL-003 · Tap — named-identity spec
 
+**Current delivery (24 October 2026):** [EL-003 delivery slice](../invest/named-elements.md#element-003). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec ([readiness spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations `path@a6c914e:Lstart-Lend` resolve with `git show a6c914e:<path>` after the Epic 7 purge. A value marked **proposed** has no legacy or requirement source; it carries a one-line justification and the owner may revise it.
 
 ## Identity
@@ -11,8 +13,8 @@ Story 7.0 named-identity spec ([readiness spec](../../../_bmad-output/implementa
 | Named entry | [element-003](../invest/named-elements.md#element-003); per-element proof owner S424 |
 | CAT spec refined | None. |
 | Related identities | Actuation refinements, each a separate identity: [EL-165 Manual tap](EL-165-manual-tap.md), [EL-166 Mechanically actuated tap](EL-166-mechanically-actuated-tap.md), [EL-167 Solenoid tap](EL-167-solenoid-tap.md) (campaign "manual/mechanical/solenoid tap variants", [campaign table](../requirements.md#campaign-element-coverage)). Supply: [EL-001](EL-001-finite-reservoir.md), [EL-002](EL-002-header-tank.md). |
-| Roadmap story | Unscheduled; ELEMENT-n row of the [roadmap](../invest/vertical-delivery.md#rolling-playable-roadmap), campaign chapter 7, levels 61–70. |
-| Status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
+| Roadmap story | [EL-003 delivery slice](../invest/named-elements.md#element-003); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
 
 ## Declaration
 
@@ -55,7 +57,7 @@ Story 7.0 named-identity spec ([readiness spec](../../../_bmad-output/implementa
 Families ([element map](../general-engine-element-map.md); binding [`element-01.json`](../../coverage/engine/element-01.json), consumer `element/element-003`): EnvironmentState, FiniteLedger, FluidAdvection, GeometryQuery, JointConstraint, PressureWork, RigidBodyDynamics, StateTransaction, TopologyTransaction.
 
 - **Exists now.** Static body and box collider (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L120`); Run/Reset (`engine/gpu/WorkshopSimulation.cs@a6c914e:L238-L245`); typed port declarations by kind (`engine/gpu/WorkshopConnections.cs@a6c914e:L15-L25`), without a Water domain.
-- **Missing.** Water network valve node and orifice discharge ([S416](../invest/decisions.md#s416) advection → S418); head (S416 pressure-work → S419); Water mouth joins (EL-001 open question 3). Unscheduled.
+- **Missing.** Water network valve node and orifice discharge ([S416](../invest/decisions.md#s416) advection → S418); head (S416 pressure-work → S419); Water mouth joins (EL-001 open question 3). Required in the linked delivery slice.
 - **Element dependencies.** A supply (EL-001 or EL-002) on `WaterInlet`; EL-004 basin or EL-007 gutter as receiver.
 
 ## Sources and legacy

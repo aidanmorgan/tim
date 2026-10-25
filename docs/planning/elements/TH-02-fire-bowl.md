@@ -1,5 +1,7 @@
 # TH-02 · Fire bowl — named-identity readiness spec
 
+**Current delivery (24 October 2026):** [TH-02 delivery slice](../invest/named-elements.md#thermal-02). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations are `path@a6c914e:Lstart-Lend`. No legacy holds fire-bowl values, so every design value without a cited source is marked "(proposed: …)" with a one-line justification; the owner may revise it.
 
 ## 1. Identity
@@ -12,8 +14,8 @@ Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artif
 | Proof owner / research | S597 · [TH-S03 combustion and suppression](../../thermal-component-research.md#th-s03) |
 | Related identities | No CAT spec. Contents may be [TH-03 Combustible block](TH-03-combustible-block.md) or [TH-32 Tinder pad](TH-32-tinder-pad.md); shares the combustion model with [TH-01 Candle](TH-01-candle.md); lit through tinder by [TH-31](TH-31-flint-striker.md) or [TH-33](TH-33-spring-mounted-match.md), or by another flame. |
 | Campaign | Intro 57; practice 58; reuse 85, 140 ([thermal allocation](../requirements.md#thermal-campaign-allocation)) |
-| Roadmap story | Unscheduled. No epic in `_bmad-output/planning-artifacts/epics.md` schedules a thermal element. |
-| Status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`); no legacy part. |
+| Roadmap story | [TH-02 delivery slice](../invest/named-elements.md#thermal-02); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`); no legacy part. |
 
 ## 2. Declaration
 
@@ -35,14 +37,14 @@ Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artif
 
 - **Cosmetic curves and UI bindings.** Flame ← committed reaction power ([research per-element table](../../thermal-component-research.md)); fuel-bed height ← remaining fuel (proposed: the row's "visible fuel bed"). Navy rim marks show fill level without colour alone.
 - **Art.** "Shallow cream stone bowl, visible fuel bed and sparse navy rim marks" (row). Nearest [DESIGN.md](../../../DESIGN.md) source colours (proposed mapping): cream `#ead39b` (`DESIGN.md@a6c914e:L146-L146`), navy `#293954` (`DESIGN.md@a6c914e:L147-L147`), warm wood fuel `#b77c42` (`DESIGN.md@a6c914e:L146-L146`).
-- **Catalogue and inventory entry.** New `WorkshopPartKind.FireBowl`; catalogue id `fire_bowl`, title "Fire bowl", category Heat (proposed: no current category covers thermal parts).
+- **Catalogue and inventory entry.** Package-owned declaration, discovered into the bundle; catalogue id `fire_bowl`, title "Fire bowl", category Heat (proposed: no current category covers thermal parts).
 
 ## 3. Engine capabilities
 
 Families (map row TH-02 in [general-engine-element-map](../general-engine-element-map.md), binding [thermal-01.json](../../coverage/engine/thermal-01.json)): ChemicalReaction, Extinction, FiniteLedger, GeometryQuery, Ignition, SensibleHeat, TopologyTransaction; the JSON also lists StateTransaction.
 
 - **Exists now.** Static bodies and box colliders (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L120`); finite paid work in joules, partial FiniteLedger (`engine/gpu/ContactWorkDeclaration.cs@a6c914e:L5-L38`); Run/Reset checkpoint and save codec (`engine/gpu/ActivationNetwork.cs@a6c914e:L67-L67`, `engine/gpu/WorkshopSaveCodec.cs@a6c914e:L6-L10`).
-- **Missing.** Thermal families under decision owner [S543](../invest/decisions.md#s543): reaction → S554, ignition → S555, extinction → S556, phase-topology for bed consumption → S565, conduction from contents to bowl → S544. SensibleHeat (IX-43) has no S543 row. Unscheduled.
+- **Missing.** Thermal families under decision owner [S543](../invest/decisions.md#s543): reaction → S554, ignition → S555, extinction → S556, phase-topology for bed consumption → S565, conduction from contents to bowl → S544. SensibleHeat (IX-43) is a required entry decision under S543 owned by the linked delivery slice. Required in the linked delivery slice.
 - **Composition gaps.** As for TH-01, the row omits ThermalConvection (S545), ThermalRadiation (S546) and GasState/EnvironmentState for oxidiser ([S470](../invest/decisions.md#s470) → S471; [S635](../invest/decisions.md#s635)).
 - **Dependencies.** Tinder (TH-32) and an igniter (TH-31, TH-33), or a flame; a receiver such as [TH-17 Kettle](TH-17-kettle.md) for TX-01.
 

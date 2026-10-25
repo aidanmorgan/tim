@@ -1,5 +1,7 @@
 # EL-022 · Water pump — named-identity spec
 
+**Current delivery (24 October 2026):** [EL-022 delivery slice](../invest/named-elements.md#element-022). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec ([readiness spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations `path@a6c914e:Lstart-Lend` resolve with `git show a6c914e:<path>` after the Epic 7 purge. A value marked **proposed** has no legacy or requirement source; it carries a one-line justification and the owner may revise it.
 
 ## Identity
@@ -11,8 +13,8 @@ Story 7.0 named-identity spec ([readiness spec](../../../_bmad-output/implementa
 | Named entry | [element-022](../invest/named-elements.md#element-022); per-element proof owner S443 |
 | CAT spec refined | None. Supplied by the Battery ([CAT-005](CAT-005-battery.md), Story 8.1) or driven by a shaft such as the Motor's ([CAT-042](CAT-042-motor.md), Story 11.1). |
 | Related identities | [EL-001 Finite reservoir](EL-001-finite-reservoir.md) (intake store), [EL-002 Header tank](EL-002-header-tank.md) (lifted store), [EL-019 Check valve](EL-019-water-check-valve.md), [EL-018 Level switch](EL-018-electronic-level-switch.md) (controls it), [EL-013](EL-013-water-nozzle.md), EL-023 Archimedes screw (separate mechanical lifter), waterwheel [todo-336](../requirements.md#todo-336) |
-| Roadmap story | Unscheduled; ELEMENT-n row of the [roadmap](../invest/vertical-delivery.md#rolling-playable-roadmap), campaign chapter 7, levels 61–70. Supply prerequisites: Stories 8.1 and 11.1. |
-| Status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
+| Roadmap story | [EL-022 delivery slice](../invest/named-elements.md#element-022); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
 
 ## Declaration
 
@@ -55,7 +57,7 @@ Story 7.0 named-identity spec ([readiness spec](../../../_bmad-output/implementa
 Families ([element map](../general-engine-element-map.md); binding [`element-01.json`](../../coverage/engine/element-01.json), consumer `element/element-022`): ElectricalPower, EnvironmentState, FiniteLedger, FiniteWorkActuation, FluidAdvection, GeometryQuery, JointConstraint, PressureWork, RigidBodyDynamics, ShaftTorque, StateTransaction, TopologyTransaction.
 
 - **Exists now.** Finite work debiting with proportional scaling, for contact work only (`engine/gpu/ContactWorkDeclaration.cs@a6c914e:L21-L36`); Electrical enum members (`engine/gpu/WorkshopConnections.cs@a6c914e:L8-L11`); Run/Reset (`engine/gpu/WorkshopSimulation.cs@a6c914e:L238-L245`).
-- **Missing.** ElectricalPower network (Story 8.1; [S257](../invest/decisions.md#s257) electrical-port → S270); ShaftTorque input (Story 11.1; S257 mechanical-port → S690); FiniteWorkActuation applied to a fluid node; head-raising PressureWork ([S416](../invest/decisions.md#s416) pressure-work → S419) and advection (S418). Unscheduled.
+- **Missing.** ElectricalPower network (Story 8.1; [S257](../invest/decisions.md#s257) electrical-port → S270); ShaftTorque input (Story 11.1; S257 mechanical-port → S690); FiniteWorkActuation applied to a fluid node; head-raising PressureWork ([S416](../invest/decisions.md#s416) pressure-work → S419) and advection (S418). Required in the linked delivery slice.
 - **Element dependencies.** CAT-005 Battery (electric) or CAT-042 Motor shaft; an intake store feeding `WaterInlet` through a pipe (EL-001's `WaterOutlet` + EL-008); pipes and an elevated receiver (EL-002); EL-019 to hold delivered water when stopped (optional, since the unpowered pump is closed).
 
 ## Sources and legacy

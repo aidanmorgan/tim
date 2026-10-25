@@ -1,5 +1,7 @@
 # CAT-057 · reverse_transmission declaration readiness spec
 
+**Current delivery (24 October 2026):** [CAT-057 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 CAT-057-D readiness spec. Baseline commit `a6c914e`. Legacy citations use `path@a6c914e:Lstart-Lend` and stay retrievable after the Epic 7 purge. Current-engine files are cited at the same commit. Current authority for the shaft model is the [rotary transmission contract](../../rotary-transmission-parts.md). This page records the declaration knowledge the legacy holds; it does not restate the requirement row.
 
 ## 1. Identity
@@ -10,8 +12,8 @@ Story 7.0 CAT-057-D readiness spec. Baseline commit `a6c914e`. Legacy citations 
 | Kind | `reverse_transmission`, catalogue title "Reverse gear", category "Motion" (`parts/catalog/reverse_transmission.tres@a6c914e:L8-L10`) |
 | Requirement anchor | [CAT-057](../requirements.md#current-cat-057); retained behaviour [todo-151](../requirements.md#todo-151); shared rows [sequence-task-192](../requirements.md#sequence-task-192), [sequence-task-193](../requirements.md#sequence-task-193), [sequence-task-277](../requirements.md#sequence-task-277) |
 | Mapped identities | [EL-203 Reverse transmission](../invest/named-elements.md#element-203) ([full row](../requirements.md#element-203)). Candidate: [EL-200 Drive belt](../invest/named-elements.md#element-200), because the legacy belt link is the socket-to-socket ratio row the reverser consumes. Batch A confirms. |
-| Roadmap story | [Story 11.2](../../../_bmad-output/planning-artifacts/epics.md) Mechanical Clutch & Reverse Transmission (CAT-018, CAT-057) |
-| Status | Not started. `WorkshopPartKind` has no reverser member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
+| Roadmap story | [11.2b Reverse transmission](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership); retain every CAT-057 mode and mapped named-identity obligation. |
+| Harvest-baseline status | Not started. `WorkshopPartKind` has no reverser member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
 
 ## 2. Declaration
 
@@ -59,7 +61,7 @@ None. The catalogue declares `Parameters = {}` (`parts/catalog/reverse_transmiss
 ### Catalogue and inventory entry
 - `Id = "reverse_transmission"`, title "Reverse gear", category "Motion". Description: reverses rotation; two reversers restore the original direction (`parts/catalog/reverse_transmission.tres@a6c914e:L8-L14`).
 - Level `reverse_belt` ("The other way round", subtitle "18 / Reverse transmission"): inventory reverse_transmission 1 and conveyor 1 (`content/puzzles.json@a6c914e:L4649-L4657`). The reverser is an unlocked solution part `reverse_1` at (−0.3, 1, 0) (`content/puzzles.json@a6c914e:L4983-L5045`).
-- Add a `WorkshopPartKind` member and an inventory entry (`engine/gpu/WorkshopInventory.cs@a6c914e:L9-L23`).
+- Add a package declaration and bundle-issued typed id and an inventory entry (`engine/gpu/WorkshopInventory.cs@a6c914e:L9-L23`).
 
 ## 3. Engine capabilities
 
@@ -72,7 +74,7 @@ The capability families are in the [general-engine map row](../general-engine-el
 - Cosmetic curves (`engine/gpu/WorkshopCosmetic.cs@a6c914e:L7-L20`).
 
 **Missing**
-- Cylinder/hull collider and cylinder inertia. No owning story — owner decision (see Open questions).
+- Cylinder/hull collider and cylinder inertia. Story 10.1 owns solid-cylinder collision/inertia; any distinct hull capability remains a bounded decision for this consumer (see Open questions).
 - Hinge joint: Story 10.3.
 - Mechanical socket domain, belt ratio rows and shaft torque: Story 11.1.
 - Fixed −1 ratio row in the shared solver: Story 11.2.

@@ -1,5 +1,7 @@
 # EL-191 · Wall — named-identity readiness spec
 
+**Current delivery (24 October 2026):** [EL-191 delivery slice](../invest/named-elements.md#element-191). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 readiness spec ([spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations are `path@a6c914e:Lstart-Lend`. Every value below is sourced; this identity has no proposed values.
 
 ## 1. Identity
@@ -9,7 +11,7 @@ Story 7.0 readiness spec ([spec](../../../_bmad-output/implementation-artifacts/
 | ID / name / type | EL-191 · Wall · Gravity |
 | Anchor | [requirements.md#element-191](../requirements.md#element-191); [named-elements entry](../invest/named-elements.md#element-191); scope source [campaign element coverage](../requirements.md#campaign-element-coverage) |
 | Refines | [CAT-066 wall](CAT-066-wall.md) ([requirement](../requirements.md#current-cat-066)). Neighbour: [EL-190 Ramp](EL-190-ramp.md) (same static box path). |
-| Roadmap story | Delivered: Stories 1.4 and 1.5 ([epics](../../../_bmad-output/planning-artifacts/epics.md)). |
+| Roadmap story | [EL-191 delivery slice](../invest/named-elements.md#element-191); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | Partial: body contact, rotation and resize delivered; air/sound/light occlusion and the solar_shadow fixture remain open with their families (Epics 12–14). |
 
 ## 2. Declaration

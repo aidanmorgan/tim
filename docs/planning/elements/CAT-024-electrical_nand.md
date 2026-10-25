@@ -1,5 +1,7 @@
 # CAT-024 · electrical_nand — declaration readiness spec
 
+**Current delivery (24 October 2026):** [CAT-024 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 Batch B declaration spec (CAT-024-D). Legacy citations are pinned to `a6c914e` and resolve with `git show a6c914e:<path> | sed -n 'start,endp'`. Requirement row: [CAT-024](../requirements.md#current-cat-024). All five supplied gates share one declaration: shared gate facts G1–G15 are in [CAT-013](CAT-013-both_gate.md#4-legacy-harvest) and network facts N1–N24 in [CAT-005](CAT-005-battery.md#4-legacy-harvest). This spec adds only what is specific to Nand.
 
 ## 1. Identity
@@ -9,7 +11,7 @@ Story 7.0 Batch B declaration spec (CAT-024-D). Legacy citations are pinned to `
 | CAT ID / kind | CAT-024 · `electrical_nand` (operation Nand) |
 | Requirement anchor | [current-cat-024](../requirements.md#current-cat-024); retained behaviour [todo-362](../requirements.md#todo-362) |
 | Mapped identities | [EL-137 Electrical NAND gate](../invest/named-elements.md#element-137). No TH/RAD/GAP identity. |
-| Roadmap story | 9.7 "Electrical Logic Gates NAND & NOR" (Epic 9), shared with CAT-025 |
+| Roadmap story | 9.7 "Electrical Logic Gates NAND & NOR" (Epic 9), shared with CAT-025 Current [CAT-024 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). |
 | Status | Story 9.7a candidate: package `elements/ElectricalNand`, shared `Nand` law, ordered supply resolve and typed `NonmonotoneFeedback` refusal implemented with native proof ([spec](../../../_bmad-output/implementation-artifacts/spec-9-7a-electrical-nand.md)); independent review and publication pending; browser qualification pending post-catalogue. |
 
 ## 2. Declaration

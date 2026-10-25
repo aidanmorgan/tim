@@ -1,6 +1,8 @@
 # EL-093 · Toy dynamite charge — named-identity spec
 
-Story 7.0 named-identity spec ([story spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations are `path@a6c914e:Lstart-Lend`. Values with no legacy or requirement source are **proposed**, each with a one-line justification; the owner may revise them. Game values are canonical f32 ([numeric contract](../../gpu-f32-physics.md)).
+**Current delivery (24 October 2026):** [EL-093 delivery slice](../invest/named-elements.md#element-093). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
+Story 7.0 named-identity spec ([story spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations are `path@a6c914e:Lstart-Lend`. Values with no legacy or requirement source are **proposed**, each with a one-line justification; the owner may revise them. Game values are canonical f32 ([numeric contract](../../gpu-f32-physics.md#precision-status)).
 
 **Safety boundary.** This is an abstract toy store of energy in joules that releases one declared impulse field. No real composition, formulation, quantity, ignition chemistry or construction recipe is modelled or described (requirement row).
 
@@ -13,8 +15,8 @@ Story 7.0 named-identity spec ([story spec](../../../_bmad-output/implementation
 | Named entry | [element-093](../invest/named-elements.md#element-093); source owner **S663** |
 | CAT spec refined or extended | None. Its finite paid-work release follows the [CAT-015 Bumper](CAT-015-bumper.md) contact-work store. |
 | Related identities | EL-094 Detonation plunger (its trigger), EL-106 Impact-sensitive toy charge (the same release law, different trigger), EL-084 Fish bowl (a fragile target) |
-| Roadmap story | Unscheduled |
-| Status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
+| Roadmap story | [EL-093 delivery slice](../invest/named-elements.md#element-093); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
 
 ## 2. Declaration
 

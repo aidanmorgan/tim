@@ -1,5 +1,7 @@
 # EL-002 · Header tank — named-identity spec
 
+**Current delivery (24 October 2026):** [EL-002 delivery slice](../invest/named-elements.md#element-002). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec ([readiness spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations `path@a6c914e:Lstart-Lend` resolve with `git show a6c914e:<path>` after the Epic 7 purge. A value marked **proposed** has no legacy or requirement source; it carries a one-line justification and the owner may revise it.
 
 ## Identity
@@ -11,8 +13,8 @@ Story 7.0 named-identity spec ([readiness spec](../../../_bmad-output/implementa
 | Named entry | [element-002](../invest/named-elements.md#element-002); per-element proof owner S423 |
 | CAT spec refined | None. |
 | Related identities | [EL-001 Finite reservoir](EL-001-finite-reservoir.md) (same store law at bench level), EL-008–EL-013 pipe kit, EL-022 Water pump and EL-023 Archimedes screw (fill it), EL-032 Pressure meter, hydraulic piston [todo-428](../requirements.md#todo-428) |
-| Roadmap story | Unscheduled; ELEMENT-n row of the [roadmap](../invest/vertical-delivery.md#rolling-playable-roadmap), campaign chapter 7, levels 61–70. |
-| Status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
+| Roadmap story | [EL-002 delivery slice](../invest/named-elements.md#element-002); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
 
 ## Declaration
 
@@ -50,7 +52,7 @@ Story 7.0 named-identity spec ([readiness spec](../../../_bmad-output/implementa
 Families ([element map](../general-engine-element-map.md); binding [`element-01.json`](../../coverage/engine/element-01.json), consumer `element/element-002`): EnvironmentState, FiniteLedger, FluidAdvection, GeometryQuery, JointConstraint, PressureWork, RigidBodyDynamics, StateTransaction, TopologyTransaction.
 
 - **Exists now.** Static bodies and box colliders (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L120`); constant gravity (`engine/gpu/WorkshopConstruction.cs@a6c914e:L123-L124`); Run/Reset (`engine/gpu/WorkshopSimulation.cs@a6c914e:L238-L245`); save codec (`engine/gpu/WorkshopSaveCodec.cs@a6c914e:L9-L10`).
-- **Missing.** Liquid ledger and advection ([S416](../invest/decisions.md#s416) advection → S418); head transmitted through sealed pipes, PressureWork (S416 pressure-work → S419); Water connection domain (see EL-001 open question 3). Unscheduled.
+- **Missing.** Liquid ledger and advection ([S416](../invest/decisions.md#s416) advection → S418); head transmitted through sealed pipes, PressureWork (S416 pressure-work → S419); Water connection domain (see EL-001 open question 3). Required in the linked delivery slice.
 - **Element dependencies.** Sealed pipe kit (EL-008–EL-012) to deliver head; EL-022 pump or EL-023 screw for the "cycling" check; EL-004 basin or a hydraulic piston as the lifted load.
 
 ## Sources and legacy

@@ -1,5 +1,7 @@
 # EL-139 · Optical OR gate — named-identity spec
 
+**Current delivery (24 October 2026):** [EL-139 delivery slice](../invest/named-elements.md#element-139). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 full spec for a named puzzle-element identity. Baseline commit `a6c914e`. Legacy citations use `path@a6c914e:Lstart-Lend` and stay retrievable from git history after the Epic 7 purge. Lengths are legacy scene units, which the current engine treats as metres (`MetreVector`). Local +X is the outlet direction.
 
 The five optical gates (EL-138 to EL-142) share one body, one aperture layout and one control law; they differ only in the Boolean operation, catalogue entry, truth relief and icon.
@@ -15,7 +17,7 @@ The five optical gates (EL-138 to EL-142) share one body, one aperture layout an
 | Owner | S511 |
 | Refines CAT | [CAT-046 optical_or](CAT-046-optical_or.md) (`optical_or`, "Either light gate"). One catalogue part satisfies both identities; not a second implementation. |
 | Related | EL-138, EL-140 to EL-142 (sibling operations); EL-134 electrical OR (separate identity); CAT-036 laser and EL-176 to EL-178 (sources) |
-| Roadmap story | 13.8 Optical Logic Gates (AND, NAND, NOR, OR, XOR) (CAT-043 through CAT-047) |
+| Roadmap story | [EL-139 delivery slice](../invest/named-elements.md#element-139); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration
@@ -51,7 +53,7 @@ Binding shard ([element-02.json](../../coverage/engine/element-02.json)): Finite
 **Missing**
 - OpticalTransport emission (Story 13.1), Route and Absorb apertures (Story 13.5), switched carrier (Story 13.8). Decision owner **S484** ([decisions](../invest/decisions.md#s484)): S485, S486, S488.
 - SignalPropagation and StateTransaction for hysteretic controls and next-tick commit (S486); FiniteLedger for retention (S485).
-- No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`) and no optical port in `engine/gpu/WorkshopConnections.cs@a6c914e:L8-L13`. S257 keeps optical control distinct from electrical or activation wiring.
+- No package declaration is established by the cited harvest baseline (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`) and no optical port in `engine/gpu/WorkshopConnections.cs@a6c914e:L8-L13`. S257 keeps optical control distinct from electrical or activation wiring.
 
 **Element dependencies:** carrier and control sources (CAT-036 or EL-176 to EL-178, Story 13.1; CAT-005 battery, Story 8.1); an outlet observer (CAT-038 or EL-214, Story 13.2); CAT-066 wall (delivered).
 

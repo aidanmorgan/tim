@@ -1,5 +1,7 @@
 # EL-032 · Pressure meter named-identity spec
 
+**Current delivery (24 October 2026):** [EL-032 delivery slice](../invest/named-elements.md#element-032). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 This is the Story 7.0 full spec for named identity EL-032. The baseline is commit `a6c914e`; every citation uses `path@a6c914e:Lstart-Lend`. Values without a source are marked **proposed**, each with a one-line justification; the owner may revise them.
 
 ## 1. Identity
@@ -13,8 +15,8 @@ This is the Story 7.0 full spec for named identity EL-032. The baseline is commi
 | Proof owner | S453 |
 | CAT spec refined | none. Related: [CAT-060 Sound meter](CAT-060-sound_meter.md) (dial and threshold-output precedent) |
 | Related identities | [EL-030 Flow meter](EL-030-flow-meter.md), [EL-031 Volume meter](EL-031-volume-meter.md) (separate readings); [EL-026 Communicating tank](EL-026-communicating-tank.md); [EL-033 Fluid accumulator](EL-033-fluid-accumulator.md); the hydraulic piston ([todo-428](../requirements.md#todo-428)) |
-| Roadmap story | unscheduled |
-| Status | not started (no `WorkshopPartKind` member, `engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`) |
+| Roadmap story | [EL-032 delivery slice](../invest/named-elements.md#element-032); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | not started (no `WorkshopPartKind` member, `engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`) |
 
 ## 2. Declaration
 
@@ -55,9 +57,9 @@ Families ([element-map row](../general-engine-element-map.md), [coverage binding
 - Gravity constant used for hydrostatic head: `engine/gpu/WorkshopConstruction.cs@a6c914e:L123-L123`.
 
 **Missing**
-- Head/pressure model at a water port, open and sealed: [S416 pressure-work](../invest/decisions.md#s416) → S419; unscheduled.
-- Water ports and the `Disconnected` topology state: S416 with [S257](../invest/decisions.md#s257); unscheduled.
-- Threshold-with-dwell evaluation on a fluid reading and a reading feedback source: unscheduled.
+- Head/pressure model at a water port, open and sealed: [S416 pressure-work](../invest/decisions.md#s416) → S419; required in the linked delivery slice.
+- Water ports and the `Disconnected` topology state: S416 with [S257](../invest/decisions.md#s257); required in the linked delivery slice.
+- Threshold-with-dwell evaluation on a fluid reading and a reading feedback source: required in the linked delivery slice.
 
 **Element dependencies.** A store or sealed route with a free port (EL-026 tank, EL-011 T junction, EL-033 accumulator); a signal consumer.
 

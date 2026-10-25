@@ -1,5 +1,7 @@
 # EL-053 · Rotary-to-linear converter declaration readiness spec
 
+**Current delivery (24 October 2026):** [EL-053 delivery slice](../invest/named-elements.md#element-053). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec. Baseline commit `a6c914e`. Legacy citations use `path@a6c914e:Lstart-Lend` and stay retrievable from git history after the Epic 7 purge. Values marked **proposed** are design values the owner may revise.
 
 ## 1. Identity
@@ -13,7 +15,7 @@ Story 7.0 named-identity spec. Baseline commit `a6c914e`. Legacy citations use `
 | Named entry | [named-elements.md#element-053](../invest/named-elements.md#element-053); proof owner S339 |
 | CAT spec refined or extended | none (no catalogue converter). Related: [CAT-042 motor](CAT-042-motor.md) (shaft source), [CAT-039 linear pusher](CAT-039-linear_pusher.md) (electric linear actuator, different law), [CAT-071 wound spring](CAT-071-wound_spring.md) (legacy shaft-to-slider winding lead) |
 | Related identities | [EL-054](EL-054-linear-to-rotary-converter.md) (inverse conversion); EL-156/157/158 cam, crank and rack variants under todo-424 (Batch J) |
-| Roadmap story | unscheduled |
+| Roadmap story | [EL-053 delivery slice](../invest/named-elements.md#element-053); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration
@@ -71,7 +73,7 @@ Cream housing `#fff8e9`, navy foot `#293954`, pale grey metal screw `#ccd9df` (l
 
 ### Catalogue and inventory entry
 
-Id `rotary_linear_converter`, title "Screw slide", category "Motion". New `WorkshopPartKind.RotaryLinearConverter` appended last to `WorkshopInventoryPolicy.Free` (`engine/gpu/WorkshopInventory.cs@a6c914e:L49-L60`). Title and id **proposed**.
+Id `rotary_linear_converter`, title "Screw slide", category "Motion". Package metadata is discovered into the Free palette from the bundle (`engine/gpu/WorkshopInventory.cs@a6c914e:L49-L60`). Title and id **proposed**.
 
 ### Variants
 
@@ -88,7 +90,7 @@ Binding: EnvironmentState, FiniteLedger, FiniteWorkActuation, JointConstraint, R
 
 **Missing**
 
-- Cylinder collider and cylinder inertia: no owning story; owner decision 9 Oct 2026: a new cylinder-collider story comes before the first shaft wheel.
+- Cylinder collider and cylinder inertia: Story 10.1 owns the shared solid-cylinder collider and inertia before this consumer.
 - Slider joint with end stops: Story 6.4. Hinge: Story 10.3.
 - `Mechanical` domain, `DriveIn` socket, shaft torque and finite source work: Story 11.1.
 - Ratio coupling row between two axial coordinates: Story 11.2 (rotary-to-rotary); the hinge-to-slider form is first exercised by Story 11.4 (wound spring winding lead).

@@ -1,5 +1,7 @@
 # EL-201 · Drive chain named-identity spec
 
+**Current delivery (24 October 2026):** [EL-201 delivery slice](../invest/named-elements.md#element-201). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec (Batch J). Baseline commit `a6c914e`; every citation is `path@a6c914e:Lstart-Lend` and resolves with `git show a6c914e:<path> | sed -n 'start,endp'`. **Proposed** marks an unsourced design value with a one-line justification; the owner may revise it. All values are canonical IEEE-754 f32 game values inside the [game-grade envelope](../../gpu-f32-physics.md#game-grade-envelope).
 
 ## 1. Identity
@@ -13,7 +15,7 @@ Story 7.0 named-identity spec (Batch J). Baseline commit `a6c914e`; every citati
 | Proof owner | S358 |
 | Refines / extends | No CAT spec; a connection, not a catalogue part. Shares the mechanical ports of [CAT-042 motor](CAT-042-motor.md) and [CAT-019 conveyor](CAT-019-conveyor.md) |
 | Related | EL-200 Drive belt (must not be interchangeable), EL-199 Electric motor, EL-110 Flywheel |
-| Roadmap story | unscheduled |
+| Roadmap story | [EL-201 delivery slice](../invest/named-elements.md#element-201); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration

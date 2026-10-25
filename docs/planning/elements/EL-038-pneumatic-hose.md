@@ -1,5 +1,7 @@
 # EL-038 · Pneumatic hose — element readiness spec
 
+**Current delivery (24 October 2026):** [EL-038 delivery slice](../invest/named-elements.md#element-038). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 Batch H named-identity spec. Legacy citations are pinned to `a6c914e` and resolve with `git show a6c914e:<path> | sed -n 'start,endp'`. Values marked *proposed* have no legacy or requirement source; each carries a one-line justification, stays inside the [game-grade envelope](../../gpu-f32-physics.md#game-grade-envelope) and may be revised by the owner. Box sizes are full extents. Shared sealed-gas facts P1–P20, the `Gas` domain and the "Air" material are in [EL-039](EL-039-air-reservoir.md#shared-sealed-gas-family-facts).
 
 ## 1. Identity
@@ -10,7 +12,7 @@ Story 7.0 Batch H named-identity spec. Legacy citations are pinned to `a6c914e` 
 | Type | Pneumatic |
 | Anchor | [requirements.md#element-038](../requirements.md#element-038); scope index [todo-376](../requirements.md#todo-376); [named-elements entry](../invest/named-elements.md#element-038); owner S473 |
 | Related | Refines no CAT spec. Connection-kind sibling of [EL-197 Electrical wire](EL-197-electrical-wire.md) and [EL-048 Acoustic duct](EL-048-acoustic-duct.md); joins [EL-037](EL-037-air-compressor.md), [EL-039](EL-039-air-reservoir.md), [EL-040](EL-040-pneumatic-release-valve.md), [EL-041](EL-041-pneumatic-directional-valve.md), [EL-042](EL-042-air-nozzle.md), [EL-043](EL-043-pneumatic-pressure-gauge.md). Not the [CAT-048](../requirements.md#current-cat-048) ball pipe. |
-| Roadmap story | unscheduled |
+| Roadmap story | [EL-038 delivery slice](../invest/named-elements.md#element-038); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration

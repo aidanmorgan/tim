@@ -1,5 +1,7 @@
 # EL-011 · Water T junction — named-identity spec
 
+**Current delivery (24 October 2026):** [EL-011 delivery slice](../invest/named-elements.md#element-011). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec ([readiness spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations `path@a6c914e:Lstart-Lend` resolve with `git show a6c914e:<path>` after the Epic 7 purge. A value marked **proposed** has no legacy or requirement source; it carries a one-line justification and the owner may revise it.
 
 ## Identity
@@ -11,8 +13,8 @@ Story 7.0 named-identity spec ([readiness spec](../../../_bmad-output/implementa
 | Named entry | [element-011](../invest/named-elements.md#element-011); per-element proof owner S432 |
 | CAT spec refined | None. |
 | Related identities | [EL-008](EL-008-straight-water-pipe.md) (shared pipe-kit values), [EL-012](EL-012-water-pipe-cap.md), [EL-020 Water diverter](EL-020-water-diverter.md) (selects one branch instead of sharing), EL-030 Flow meter |
-| Roadmap story | Unscheduled; ELEMENT-n row of the [roadmap](../invest/vertical-delivery.md#rolling-playable-roadmap), campaign chapter 7, levels 61–70. |
-| Status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
+| Roadmap story | [EL-011 delivery slice](../invest/named-elements.md#element-011); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
 
 ## Declaration
 
@@ -46,7 +48,7 @@ Story 7.0 named-identity spec ([readiness spec](../../../_bmad-output/implementa
 Families ([element map](../general-engine-element-map.md); binding [`element-01.json`](../../coverage/engine/element-01.json), consumer `element/element-011`): EnvironmentState, FiniteLedger, FluidAdvection, GeometryQuery, JointConstraint, PressureWork, RigidBodyDynamics, StateTransaction, TopologyTransaction.
 
 - **Exists now.** Static boxes (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L120`); proportional scaling of demand against a finite supply exists for contact work only (`engine/gpu/ContactWorkDeclaration.cs@a6c914e:L21-L36`).
-- **Missing.** Split/merge transport preserving mass at "split/merge boundaries" — the exact question of [S416](../invest/decisions.md#s416) advection → S418; head (S419); mouth joins (EL-001 open question 3). Unscheduled.
+- **Missing.** Split/merge transport preserving mass at "split/merge boundaries" — the exact question of [S416](../invest/decisions.md#s416) advection → S418; head (S419); mouth joins (EL-001 open question 3). Required in the linked delivery slice.
 - **Element dependencies.** EL-008 pipes, a supply, two receivers (EL-004); EL-012 for the capped-branch control.
 
 ## Sources and legacy

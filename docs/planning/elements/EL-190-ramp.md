@@ -1,5 +1,7 @@
 # EL-190 · Ramp — named-identity readiness spec
 
+**Current delivery (24 October 2026):** [EL-190 delivery slice](../invest/named-elements.md#element-190). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 readiness spec ([spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations are `path@a6c914e:Lstart-Lend`. Every value below is sourced; this identity has no proposed values.
 
 ## 1. Identity
@@ -9,7 +11,7 @@ Story 7.0 readiness spec ([spec](../../../_bmad-output/implementation-artifacts/
 | ID / name / type | EL-190 · Ramp · Gravity |
 | Anchor | [requirements.md#element-190](../requirements.md#element-190); [named-elements entry](../invest/named-elements.md#element-190); scope source [campaign element coverage](../requirements.md#campaign-element-coverage) |
 | Refines | [CAT-054 ramp](CAT-054-ramp.md) ([requirement](../requirements.md#current-cat-054)). Neighbours: [EL-191 Wall](EL-191-wall.md) (same static box path), [EL-192 Receiving basket](EL-192-receiving-basket.md) (first_principles target). |
-| Roadmap story | Delivered: CAT-054-I, Story 1.4 ([epics](../../../_bmad-output/planning-artifacts/epics.md)). |
+| Roadmap story | [EL-190 delivery slice](../invest/named-elements.md#element-190); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | Partial: the Workbench mode and first_principles are delivered; remaining CAT-054 fixtures and supported-dimension controls are open. |
 
 ## 2. Declaration

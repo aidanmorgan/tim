@@ -1,0 +1,68 @@
+Story 10.2a probe source (temporary WeightTests members, removed after the run). Output: drop-landing-axial-creep.log.
+At the time of the run RampCentre was (0, BenchY + 0.475, 0): the ramp's bottom corner, not its top face, met the bench, so a roll
+dropped ~0.17 m off the ramp end onto the bench. The final test uses RampCentre.Y = BenchY + 1.5 sin15° - 0.09 cos15° (top face flush).
+
+1) Inside OnItsSideItRollsDownARamp... (replacing the final axial assertion):
+
+        double axial = 0; var stop = -1; var log = new System.Text.StringBuilder();
+        for (var i = 1; i < reads.Count; i++)
+        {
+            var (a, b) = (Find(reads[i - 1], weight.Id), Find(reads[i], weight.Id));
+            var axis = Vector3.Transform(Vector3.UnitY, Rotation(b));
+            axial += Vector3.Dot(Centre(b) - Centre(a), axis);
+            if (stop < 0 && i > 2 * Rate && Velocity(b).Length() < .01f) stop = i;
+            if (i % 60 == 0) log.AppendLine(System.Globalization.CultureInfo.InvariantCulture, $"PROBE t {i} x {Centre(b).X:F3} y {Centre(b).Y - BenchY:F4} z {Centre(b).Z * 1000:F3}mm axial {axial * 1000:F3}mm v {Velocity(b)} axis {axis}");
+        }
+        var axisEnd = Vector3.Transform(Vector3.UnitY, Rotation(final));
+        Assert.Fail(log + $"axial {axial} stop {stop} finalZ {Centre(final).Z} ...");
+
+2) A plain engine cylinder (no Weight package, centred origin) on its side, at rest or rolling at 1.5 m/s, Crr 0 / 0.03:
+
+    [Theory]
+    [InlineData(0f, 0f)] [InlineData(.03f, 0f)] [InlineData(0f, 1.5f)] [InlineData(.03f, 1.5f)]
+    public void ProbeSideCreep(float crr, float speed)
+    {
+        float r = H(Radius(4)), h = H(HalfHeight(4));
+        var scene = new LawScene();
+        var drum = scene.Cylinder(new Vector3(0, BenchY + r + .003f, 0), Radius(4), HalfHeight(4), 4f, new LawMaterial(.08f, .1f, .3f, crr),
+            Quaternion.CreateFromAxisAngle(Vector3.UnitX, MathF.PI / 2), velocity: new Vector3(speed, 0, 0), angular: new Vector3(0, 0, -speed / r));
+        var world = scene.Admit();
+        var log = new System.Text.StringBuilder();
+        world.Step(14 * world.TicksPerSecond, (tick, state) =>
+        {
+            if (tick % 120 == 0) log.AppendLine(System.Globalization.CultureInfo.InvariantCulture,
+                $"t {tick} pos {state[drum].Position} v {state[drum].Velocity} w {state[drum].Angular} axis {Vector3.Transform(Vector3.UnitY, state[drum].Rotation)}");
+        });
+        Assert.Fail(log.ToString());
+    }
+
+3) The Weight (base origin) dropped 3 mm onto the bench on its side, through the Workshop simulation:
+
+    [Fact]
+    public async Task ProbeWorkshopSideRest()
+    {
+        var weight = Placed(1, 0, BenchY + Radius(4) + .003, -HalfHeight(4), 4f, Math.Sin(Math.PI / 4), 0, 0, Math.Cos(Math.PI / 4));
+        var (_, reads, _) = await RunAndReset(Bench(weight), 14 * Rate);
+        ... log every 240 ticks: centre, velocity, spin, axis; Assert.Fail(log)
+    }
+
+4) The same drop-ramp roll with a plain LawScene cylinder (static box ramp, centred origin), to separate the package from the engine:
+
+    [Fact]
+    public void ProbeLawRampRoll()
+    {
+        var scene = new LawScene();
+        var a = (float)(-RampDegrees * Math.PI / 180);
+        scene.StaticBox(RampCentre, new Vector3(1.5f, .09f, .65f), Quaternion.CreateFromAxisAngle(Vector3.UnitZ, a), new LawMaterial(1f, .1f, .3f, 0f));
+        var normal = new Vector3(-MathF.Sin(a), MathF.Cos(a), 0);
+        var downhill = new Vector3(MathF.Cos(a), MathF.Sin(a), 0);
+        var centre = RampCentre + .09f * normal + .5f * downhill + (Radius(4) + .003f) * normal;
+        var drum = scene.Cylinder(centre, Radius(4), HalfHeight(4), 4f, new LawMaterial(.08f, .1f, .3f, .03f), Quaternion.CreateFromAxisAngle(Vector3.UnitX, MathF.PI / 2));
+        ... log every 240 ticks; Assert.Fail(log)
+    }
+
+Results (drop-landing-axial-creep.log, drop ramp): (1) and (4) both land with the axis tilted by -1.47e-4 rad in y and, once
+stopped, creep along the axis at ~5e-5 m/s indefinitely (body velocity read constant, e.g. v_y -1.1e-4, v_z -1.05e-5); the Weight
+moved 0.497 mm along its axis in 14 s. (2) shows no creep at rest or after a bench roll (< 0.02 mm in 14 s); (3) the base-origin
+Weight resting on its side does not move at all. So the creep is the engine's (drop landing onto the side), not the package's
+offset centre of mass. With the flush ramp the same roll moves 0.016 mm along its axis in total and nothing after stopping.

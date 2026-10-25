@@ -1,5 +1,7 @@
 # TH-33 · Spring-mounted match — named-identity readiness spec
 
+**Current delivery (24 October 2026):** [TH-33 delivery slice](../invest/named-elements.md#thermal-33). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations are `path@a6c914e:Lstart-Lend`. No legacy holds match values, so every design value without a cited source is marked "(proposed: …)" with a one-line justification; the owner may revise it.
 
 ## 1. Identity
@@ -12,8 +14,8 @@ Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artif
 | Proof owner / research | S595 · [TH-S03 combustion and suppression](../../thermal-component-research.md#th-s03) |
 | Related identities | No CAT spec. Spring and release follow [CAT-071 Wound spring](CAT-071-wound_spring.md) and the Story 6.4–6.5 preload store; striking law shared with [TH-31 Flint striker](TH-31-flint-striker.md); lights [TH-32](TH-32-tinder-pad.md), [TH-01](TH-01-candle.md). |
 | Campaign | Intro 85; practice 86; reuse 99, 149 ([thermal allocation](../requirements.md#thermal-campaign-allocation)) |
-| Roadmap story | Unscheduled. No epic in `_bmad-output/planning-artifacts/epics.md` schedules a thermal element. |
-| Status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`); no legacy part. |
+| Roadmap story | [TH-33 delivery slice](../invest/named-elements.md#thermal-33); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`); no legacy part. |
 
 ## 2. Declaration
 
@@ -38,14 +40,14 @@ Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artif
 
 - **Cosmetic curves and UI bindings.** Match pose ← committed slider position ([research per-element table](../../thermal-component-research.md) "match pose ← hinge"); visible spring compression ← committed slider; tip flame ← committed reaction power.
 - **Art.** "Cream guide, gold visible spring and warm-wood shaft with a small original tip mark" (row). Nearest [DESIGN.md](../../../DESIGN.md) source colours (proposed mapping): cream `#ead39b` (`DESIGN.md@a6c914e:L146-L146`), gold `#f7cb52` (`DESIGN.md@a6c914e:L154-L154`), warm wood `#b77c42` (`DESIGN.md@a6c914e:L146-L146`).
-- **Catalogue and inventory entry.** New `WorkshopPartKind.SpringMatch`; id `spring_match`, title "Spring-mounted match", category Heat (proposed: no current category covers thermal parts).
+- **Catalogue and inventory entry.** Package-owned declaration, discovered into the bundle; id `spring_match`, title "Spring-mounted match", category Heat (proposed: no current category covers thermal parts).
 
 ## 3. Engine capabilities
 
 Families (map row TH-33, [general-engine-element-map](../general-engine-element-map.md); binding [thermal-01.json](../../coverage/engine/thermal-01.json)): ChemicalReaction, ElasticStorage, EnvironmentState, FiniteLedger, GeometryQuery, Ignition, JointConstraint, RigidBodyDynamics, SensibleHeat, TopologyTransaction; JSON adds StateTransaction.
 
 - **Exists now.** Rigid bodies, contact, friction (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L42-L120`); Run/Reset and save (`engine/gpu/ActivationNetwork.cs@a6c914e:L67-L67`, `engine/gpu/WorkshopSaveCodec.cs@a6c914e:L6-L10`).
-- **Missing.** Slider, spring and preload store: Stories 6.4–6.5. Sprung contact normal load, friction-work deposit and ignition: [S543](../invest/decisions.md#s543) ignition → S555, reaction → S554, phase-topology for the burning shaft → S565. SlidingFriction work debit (IX-02) is needed but absent from the map row. Thermal-only patch nodes (batch scale). Unscheduled.
+- **Missing.** Slider, spring and preload store: Stories 6.4–6.5. Sprung contact normal load, friction-work deposit and ignition: [S543](../invest/decisions.md#s543) ignition → S555, reaction → S554, phase-topology for the burning shaft → S565. SlidingFriction work debit (IX-02) is needed but absent from the map row. Thermal-only patch nodes (batch scale). Required in the linked delivery slice.
 - **Dependencies.** A release trigger (ball, CAT-034 lever); a fuel to light (TH-32, TH-01).
 
 ## 4. Sources and legacy

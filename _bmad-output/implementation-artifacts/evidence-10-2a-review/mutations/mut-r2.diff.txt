@@ -1,0 +1,26 @@
+diff --git a/elements/Weight/WeightElementDeclaration.cs b/elements/Weight/WeightElementDeclaration.cs
+index 7cddf77f..7e88b197 100644
+--- a/elements/Weight/WeightElementDeclaration.cs
++++ b/elements/Weight/WeightElementDeclaration.cs
+@@ -12,7 +12,7 @@ namespace CuriousContraptions.Elements.Weight;
+ public sealed class WeightElementDeclaration : IParameterizedMassElement, ISceneGeometryElement, IParameterizedGeometryElement
+ {
+     public ElementPresentation Presentation => new(
+-        PickRadius: .7f,
++        PickRadius: .6f,
+         ResizeAxes: PresentationAxes.None,
+         Bindings: [],
+         Bodies: [],
+diff --git a/engine/PlacementPose.cs b/engine/PlacementPose.cs
+index ac149334..79ae3421 100644
+--- a/engine/PlacementPose.cs
++++ b/engine/PlacementPose.cs
+@@ -43,7 +43,7 @@ public static class PlacementPose
+     /// bench surface (less the contact slop a resting body may touch it by) up to 9 m.</summary>
+     private static bool Within(Posed[] shapes)
+     {
+-        var bench = (float)WorkshopConstruction.WorkbenchSurface.Value - ContactSlop;
++        var bench = 0f; // MX3
+         foreach (var shape in shapes)
+         {
+             float x = shape.Extent(Vector3.Right), y = shape.Height, z = shape.Extent(Vector3.Back);

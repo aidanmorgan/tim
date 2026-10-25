@@ -1,5 +1,7 @@
 # RAD-10 · Exposure-sensitive cargo badge — element readiness spec
 
+**Current delivery (24 October 2026):** [RAD-10 delivery slice](../invest/named-elements.md#radiation-10). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 Batch O named-identity spec. Legacy citations are pinned to `a6c914e` and resolve with `git show a6c914e:<path> | sed -n 'start,endp'`. Requirement row: [radiation-10](../requirements.md#radiation-10) (P1 potential). Game exposure units for fictional toy sources; never real-world dosimetry.
 
 ## 1. Identity
@@ -11,7 +13,7 @@ Story 7.0 Batch O named-identity spec. Legacy citations are pinned to `a6c914e` 
 | Anchor | [requirements.md#radiation-10](../requirements.md#radiation-10); [named-elements.md#radiation-10](../invest/named-elements.md#radiation-10) |
 | Related identities | Supplied counterpart [RAD-09 Dosimeter](RAD-09-integrating-dosimeter.md); sources [RAD-01](RAD-01-gamma-source-capsule.md); shields [EL-128](EL-128-dense-shield.md); transport [CAT-019 Conveyor](CAT-019-conveyor.md); dock [CAT-004 Basket](CAT-004-basket.md) / Receiver; goal family [EL-123 Protected-end-state goal](../invest/named-elements.md#element-123). No CAT spec refined. |
 | Proof owner | S617 |
-| Roadmap story | unscheduled; campaign 111, 112 (research slots 86, 87) |
+| Roadmap story | [RAD-10 delivery slice](../invest/named-elements.md#radiation-10); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration
@@ -38,12 +40,12 @@ Families from the [map row](../general-engine-element-map.md) and [binding](../.
 
 | Family | Status | Basis or builder |
 | --- | --- | --- |
-| FiniteLedger | missing | unscheduled (S010-D); per-body accumulated store; the only current finite store is bumper contact work, `engine/gpu/ContactWorkDeclaration.cs@a6c914e:L5-L9` |
-| GeometryQuery | exists now for contact only; missing for radiation paths | BVH `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L74-L204` and narrowphase `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L325-L620` (the coverage JSON's `engine/gpu/physics.wgsl` basis is not in the tree); paths to a moving receiver: unscheduled (S606-D) |
-| IonizingTransport | missing | unscheduled (S606-D/F); moving receiver sampled at substep endpoints |
-| ObjectiveEvaluation | exists now for Receiver capture only | `engine/gpu/WorkshopGoalEvaluator.cs@a6c914e:L5-L8`; exposure-window predicate combined with arrival: unscheduled (LAW-GOALS-D) |
+| FiniteLedger | missing | required in the linked delivery slice (S010-D); per-body accumulated store; the only current finite store is bumper contact work, `engine/gpu/ContactWorkDeclaration.cs@a6c914e:L5-L9` |
+| GeometryQuery | exists now for contact only; missing for radiation paths | BVH `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L74-L204` and narrowphase `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L325-L620` (the coverage JSON's `engine/gpu/physics.wgsl` basis is not in the tree); paths to a moving receiver: required in the linked delivery slice (S606-D) |
+| IonizingTransport | missing | required in the linked delivery slice (S606-D/F); moving receiver sampled at substep endpoints |
+| ObjectiveEvaluation | exists now for Receiver capture only | `engine/gpu/WorkshopGoalEvaluator.cs@a6c914e:L5-L8`; exposure-window predicate combined with arrival: required in the linked delivery slice (LAW-GOALS-D) |
 | ReliablePublication | exists now | `engine/gpu/BrowserWorkshopClient.cs@a6c914e:L17-L17`; publishes the goal phase |
-| StateTransaction | exists now | `engine/gpu/WorkshopSimulation.cs@a6c914e:L44-L161`; D commits with the tick and clears on Reset (unscheduled with this element) |
+| StateTransaction | exists now | `engine/gpu/WorkshopSimulation.cs@a6c914e:L44-L161`; D commits with the tick and clears on Reset (required in the linked delivery slice with this element) |
 | TypedContracts | exists now | `engine/gpu/WorkshopMessages.cs` (the command and response kinds; Story 9A.2 moved them out of the deleted binary codec, cited earlier at a6c914e L6-L19); new goal and band enums join it |
 
 The cargo composition also uses RigidBodyDynamics, ContactImpulse and SlidingFriction (exist now: `engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L86`, `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L623-L726`) and the residence sensor (exists, `engine/gpu/PhysicsDeclarations.cs@a6c914e:L123-L141`).

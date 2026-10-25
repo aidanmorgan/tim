@@ -1,5 +1,7 @@
 # EL-023 · Archimedes screw named-identity spec
 
+**Current delivery (24 October 2026):** [EL-023 delivery slice](../invest/named-elements.md#element-023). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 This is the Story 7.0 full spec for named identity EL-023. The baseline is commit `a6c914e`; every citation uses `path@a6c914e:Lstart-Lend`. Values without a source are marked **proposed**, each with a one-line justification; the owner may revise them.
 
 ## 1. Identity
@@ -13,8 +15,8 @@ This is the Story 7.0 full spec for named identity EL-023. The baseline is commi
 | Proof owner | S444 |
 | CAT spec refined | none. Related: [CAT-042 Motor](CAT-042-motor.md) is the drive source; [EL-022 Water pump](EL-022-water-pump.md) is the sibling lifter |
 | Related identities | EL-001 Finite reservoir and EL-004 Catch basin (intake store), EL-002 Header tank, EL-007 Open gutter and [EL-014 Water-carrying bucket](EL-014-water-carrying-bucket.md) (discharge), the waterwheel ([todo-336](../requirements.md#todo-336)) as an alternative drive |
-| Roadmap story | unscheduled |
-| Status | not started (no `WorkshopPartKind` member, `engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`) |
+| Roadmap story | [EL-023 delivery slice](../invest/named-elements.md#element-023); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | not started (no `WorkshopPartKind` member, `engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`) |
 
 ## 2. Declaration
 
@@ -60,8 +62,8 @@ Families from the [element-map row](../general-engine-element-map.md) and [cover
 - Counted inventory and canonical save codec: `engine/gpu/WorkshopInventory.cs@a6c914e:L9-L23`, `engine/gpu/WorkshopSaveCodec.cs@a6c914e:L6-L10`.
 
 **Missing**
-- FluidAdvection, FiniteLedger for liquid, PressureWork: decision owner [S416](../invest/decisions.md#s416) (advection → S418, pressure-work → S419); unscheduled.
-- Water connection domain and typed ports (TopologyTransaction): S416 with [S257](../invest/decisions.md#s257) port rules; unscheduled.
+- FluidAdvection, FiniteLedger for liquid, PressureWork: decision owner [S416](../invest/decisions.md#s416) (advection → S418, pressure-work → S419); required in the linked delivery slice.
+- Water connection domain and typed ports (TopologyTransaction): S416 with [S257](../invest/decisions.md#s257) port rules; required in the linked delivery slice.
 - Revolute hinge (JointConstraint): Story 10.3.
 - Mechanical domain, shaft coupling and ShaftTorque reaction: Story 11.1.
 - Cylinder collider and inertia for the rotor: Story 10.1 (ENGINE-CYLINDER); Motor is its first definite consumer in Story 11.1.

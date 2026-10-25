@@ -694,6 +694,8 @@ public sealed class WorkshopPhysicsLawTests
     [InlineData("orRow", false)]             // "or" is under the three-letter id-word floor (like "color", "order")
     [InlineData("electricalXorRow", true)]   // Exactly one gate (electrical_xor)
     [InlineData("xorRow", true)]             // "xor" clears the floor, so it is an element word of its own
+    [InlineData("weightRow", true)]          // Weight (weight, 10.2a)
+    [InlineData("gravityLoad", false)]       // the prismatic drive's generic gravity term (renamed from "weight" in 10.2a)
     public void TheGeneralScanFindsElementNamesInsideIdentifiersButNotTheReviewedGenericWords(string identifier, bool element) =>
         Assert.Equal(element, GeneralHits($"var x = {identifier};").Count > 0);
 

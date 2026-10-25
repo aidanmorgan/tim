@@ -1,40 +1,23 @@
 # Current delivery
 
-**Goal:** 150 progressively taught levels, unlimited Free Workshop, and the complete catalogue through named qualification gates.
+**Outcome:** stabilize the existing game, then implement every required named puzzle element and variant, then browser qualification; preserve unlimited Workshop and 150 progressively taught levels.
 
-**Verified (terminal scoped native/publication Pass, browser pending):**
-- Electrical logic: 9.6 Both, 9.7a NAND, 9.7b NOR, 9.8a OR, 9.8b XOR.
-- Conversions: C-Ramp+Receiver, C-Balls, C-Bumper+Spring, 9.4c, C-Gate, 9A.39 Battery, C-Lamp+Detector, 9A.32 Domino, C-Plate, C-Clock, C-Memory. All element record conversions are done; the remaining Known rows belong to Pipe (9A.45).
-- 9A.22 event ring producer.
-- 10.1 solid cylinder.
-- Engine restitution energy correctness (main 0cba945b).
-- Review records are in `_bmad-output/implementation-artifacts/review-*.md`.
+**Current check:** 9A.44A (every half-precision lane removed, guarded by `HalfPrecisionGuardTests`), the engine slice "lying cylinder axial creep" (02593110, 60d6a14c) and the 9A.44A save-slot fix (36b383e6: the deprecated `raw_assistance` slot deleted) are publishing now, merged with main on the story-9a-44 branch. Close them on CI for the exact merge SHA and the deployed Pages artifact.
+- 9A.23+9A.25b and 10.2a are merged with green main CI; reconcile their remaining terminal publication criteria against the exact merged candidates before closing review status. Do not republish identical work.
+- Ring: [review](./_bmad-output/implementation-artifacts/review-9a-23-25b-ring-consumers.md), merge `f1ad3bd19e27c32cb05ba34f83ccc1d6cf59fc76`, CI 40055713865.
+- Weight: [review](./_bmad-output/implementation-artifacts/review-10-2a-weight.md), merge `b88ca4251d8ff37272981bdd4654bd950987d04d`, CI 40057791030.
+- The prior red-CI blocker is resolved by [terminal harness review](./_bmad-output/implementation-artifacts/review-ci-harness-determinism.md#terminal-verdict), merge `9536e2ff70bfc0fe157a27bf1f7436727ea05dd0`, CI 40052056113. Recorded fresh coordinator query, 24 October 2026; future publication still checks its exact SHA.
 
-**Blocker:** main CI has been red since 7143a874 (CI no-skip slice). Two game node harnesses were timing-dependent on Linux x64.
-- Owner: forward-fix slice `story-ci-harness-determinism`.
-- Retry condition: CI green on main.
-- No other slice publishes until then.
+**Next implementation:** the engine slice "orientation levelling and two-point friction" ([deferred work](./_bmad-output/implementation-artifacts/deferred-work.md): sub-f32-step levelling, the drop-ramp landing yaw kick and the rank-3 cap block), then [9A.44B](./_bmad-output/planning-artifacts/epics.md#story-9a44-f32-lane-completion--remove-every-binary16-lane): double game values, integer ticks/f32 phase, named external adapters and a `double` guard.
 
-**In flight, waiting for green main:**
-- 9A.23 + 9A.25b ring consumers and one-shot bindings. Review is Pass-pending-main-green. The ring's shared memory is encapsulated behind an atomic word API in JS and C#.
-- 10.2a Weight. Review is Pass-pending-main-green.
+**Programme:** [current execution order and stabilization contracts](./_bmad-output/planning-artifacts/epics.md#current-execution-plan) govern selection, not raw sprint-file order.
+1. Orientation levelling and two-point friction → 9A.44B → shared native integration harness A/B (A: the shared deterministic native harness plus migration; B: the cross-element coverage matrix, every lesson at 3 precisions) → remaining TypeScript conversion (wwwroot runtime and node harnesses, pinned `tsc`) → behavioral test hygiene → 9A.24 → 9A.45.
+2. One element/variant per reviewed and published slice: Rope/cut → Pulley → supported-impact prerequisite → Lever → remaining individually split CAT stories, then every remaining [named identity](./docs/planning/invest/named-elements.md#execution-contract--complete-named-catalogue-24-october-2026).
+3. After all named intrinsic implementations, complete [Story 15.0 native assistance](./_bmad-output/planning-artifacts/epics.md#story-150-physical-placement-nudging--difficulty-assistance) and remaining required native mode/collaborator integrations, then verify catalogue-native-closure.
+4. Only after complete native catalogue closure: campaign expansion, retained product features, browser E2E and named release/device/performance gates.
 
-**Priority order after main is green** (coordinator, 24 Oct 2026, from owner directives):
-1. Publish 9A.23 + 9A.25b, then 10.2a.
-2. **9A.44 f32 everywhere** (owner priority). Part A (solver/wire): every half-precision lane removed, guarded by `HalfPrecisionGuardTests`; implemented, awaiting independent review and publication. Part B (presentation/clock): remove every `double` game value (`double` only at named external adapters), integer-tick game time plus an f32 phase, and a guard; not started.
-3. Engine: lying cylinder axial creep (spec ready; orientation remainder approved).
-4. Workshop integration harness. A is the shared deterministic native harness plus migration; B is the cross-element coverage matrix, with every lesson at 3 precisions.
-5. TypeScript conversion of the wwwroot runtime JS and the node harnesses (pinned `tsc` in build/CI), including the same encapsulation for the pose ring and other shared-memory views.
-6. Test hygiene: replace output-hash pins with behavioural assertions, turn hash-pinned fixtures into fixture files, and remove private-member reach-ins (e.g. WorkshopActivationAnimationTests) per `docs/testing-guidance.md`.
-7. Deletion lane: 9A.24 typed observation port, then 9A.45 final isolation gate (Pipe arms, unused `TimerObservation`).
-8. Element lane: 10.2b Rope anchor (rope law plus the owner-mandated rope cut), 10.2c Pulley, 10.3 Lever, 10.4 pendulum qualification, 10.5 Trampoline, 11.x, 12.x, 13.x, 14.x, in epics delivery order.
+**Coverage:** 72 CAT specs overlap 276 actual named-element specs. All 293 source identities remain accounted for: 276 elements, 10 child-forwarding umbrellas, 7 product features. Specifications are not runtime completion; every required mode, variant and later cross-element criterion needs passing unit/integration proof. No representative-family shortcut or potential-element exclusion.
 
-**Verification (binding):**
-- `docs/testing-guidance.md` applies: behaviour through defined interfaces, browser-free integration through the shared harness, derived oracles, mutation-proven, deterministic.
-- No skipped tests and no output-hash assertions (AGENTS.md).
-- One matching build, then `--no-build --no-restore`.
-- Never `--blame-crash` on the full solution.
+**Verification now:** [testing guidance](./docs/testing-guidance.md), real production C# unit/integration and shipped-output node harnesses, controls/boundaries/mutations, Reset/save/load, zero skipped game tests and no output-hash assertions. One matching build then --no-build --no-restore. Browser suites/toolchain remain disabled through [the single deferral list](./tools/E2eRunner/BrowserDeferral.cs); no browser gate before full catalogue completion.
 
-**Deferred browser phase:** all browser/E2E suites stay disabled through the one explicit list (`tools/E2eRunner/BrowserDeferral.cs`). They run only when every named puzzle element is implemented and passing its unit and integration tests.
-
-**Deferred engine follow-ups (in `deferred-work.md`):** resting-stack settling, supported-impact restitution, test-host SIGSEGV under concurrent load, and the cylinder narrowphase cost (performance gate).
+**Follow-ups:** [deferred work](./_bmad-output/implementation-artifacts/deferred-work.md) retains engine evidence. Ordinary correctness follows its first affected consumer; detailed performance stays at its named release gate. Blocked time/test duration remain unknown unless recorded.

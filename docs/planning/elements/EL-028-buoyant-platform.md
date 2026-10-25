@@ -1,5 +1,7 @@
 # EL-028 · Buoyant platform named-identity spec
 
+**Current delivery (24 October 2026):** [EL-028 delivery slice](../invest/named-elements.md#element-028). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 This is the Story 7.0 full spec for named identity EL-028. The baseline is commit `a6c914e`; every citation uses `path@a6c914e:Lstart-Lend`. Values without a source are marked **proposed**, each with a one-line justification; the owner may revise them.
 
 ## 1. Identity
@@ -13,8 +15,8 @@ This is the Story 7.0 full spec for named identity EL-028. The baseline is commi
 | Proof owner | S449 |
 | CAT spec refined | none. Related: [CAT-003 Balloon](CAT-003-balloon.md) (gas buoyancy, Story 12.1) shares the Buoyancy family but not the displacement law |
 | Related identities | [EL-029 Boat](EL-029-boat.md), [EL-169 Cork float](EL-169-cork-float.md), [EL-170 Raft](EL-170-raft.md) (other flotation identities, each separate); [EL-027 Canal lock chamber](EL-027-canal-lock-chamber.md) (lifts it); [EL-016 Float](EL-016-float.md) |
-| Roadmap story | unscheduled |
-| Status | not started (no `WorkshopPartKind` member, `engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`) |
+| Roadmap story | [EL-028 delivery slice](../invest/named-elements.md#element-028); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | not started (no `WorkshopPartKind` member, `engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`) |
 
 ## 2. Declaration
 
@@ -43,9 +45,9 @@ Families ([element-map row](../general-engine-element-map.md), [coverage binding
 - A force-region pattern evaluated on the worker (descending planar guide): `engine/gpu/PhysicsDeclarations.cs@a6c914e:L144-L161`, `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L1225-L1268`.
 
 **Missing**
-- Displaced-volume buoyancy against a liquid free surface: [S416 buoyancy](../invest/decisions.md#s416) → S420; unscheduled. (Story 12.1 builds gas buoyancy for the Balloon, which is a mass-proportional lift, not displacement.)
-- Liquid stores whose free surface moves (S418): unscheduled.
-- Immersion damping term: S420; unscheduled.
+- Displaced-volume buoyancy against a liquid free surface: [S416 buoyancy](../invest/decisions.md#s416) → S420; required in the linked delivery slice. (Story 12.1 builds gas buoyancy for the Balloon, which is a mass-proportional lift, not displacement.)
+- Liquid stores whose free surface moves (S418): required in the linked delivery slice.
+- Immersion damping term: S420; required in the linked delivery slice.
 
 **Element dependencies.** A liquid store large enough to float it (EL-026 Communicating tank, EL-027 Canal lock chamber, EL-001 Finite reservoir); cargo (CAT-001 Basketball, CAT-014 Bowling ball as overload).
 

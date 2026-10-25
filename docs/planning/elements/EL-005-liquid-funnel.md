@@ -1,5 +1,7 @@
 # EL-005 · Liquid funnel — named-identity spec
 
+**Current delivery (24 October 2026):** [EL-005 delivery slice](../invest/named-elements.md#element-005). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec ([readiness spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations `path@a6c914e:Lstart-Lend` resolve with `git show a6c914e:<path>` after the Epic 7 purge. A value marked **proposed** has no legacy or requirement source; it carries a one-line justification and the owner may revise it.
 
 ## Identity
@@ -11,8 +13,8 @@ Story 7.0 named-identity spec ([readiness spec](../../../_bmad-output/implementa
 | Named entry | [element-005](../invest/named-elements.md#element-005); per-element proof owner S426 |
 | CAT spec refined | None. The ball funnel [CAT-030](../requirements.md#current-cat-030) is a separate catalogue element (Story 6.11); the campaign table lists "water funnel" separately from the ball funnel ([campaign table](../requirements.md#campaign-element-coverage)). |
 | Related identities | [EL-004](EL-004-catch-basin.md), [EL-008 pipe](EL-008-straight-water-pipe.md), [EL-012 cap](EL-012-water-pipe-cap.md), [EL-014 bucket](EL-014-water-carrying-bucket.md) (recipe "Catch the Escape") |
-| Roadmap story | Unscheduled; ELEMENT-n row of the [roadmap](../invest/vertical-delivery.md#rolling-playable-roadmap), campaign chapter 7, levels 61–70. |
-| Status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
+| Roadmap story | [EL-005 delivery slice](../invest/named-elements.md#element-005); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
 
 ## Declaration
 
@@ -44,7 +46,7 @@ Story 7.0 named-identity spec ([readiness spec](../../../_bmad-output/implementa
 Families ([element map](../general-engine-element-map.md); binding [`element-01.json`](../../coverage/engine/element-01.json), consumer `element/element-005`): EnvironmentState, FiniteLedger, FluidAdvection, GeometryQuery, JointConstraint, PressureWork, RigidBodyDynamics, StateTransaction, TopologyTransaction.
 
 - **Exists now.** Static body and box colliders (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L120`); Run/Reset (`engine/gpu/WorkshopSimulation.cs@a6c914e:L238-L245`).
-- **Missing.** Hollow frustum collider (CAT-030's Story 6.11 builds the ball-funnel frustum; reuse it when delivered). Packet capture across the inlet disc, store and orifice outflow ([S416](../invest/decisions.md#s416) advection → S418). Water mouth joins (EL-001 open question 3). Unscheduled.
+- **Missing.** Hollow frustum collider (CAT-030's Story 6.11 builds the ball-funnel frustum; reuse it when delivered). Packet capture across the inlet disc, store and orifice outflow ([S416](../invest/decisions.md#s416) advection → S418). Water mouth joins (EL-001 open question 3). Required in the linked delivery slice.
 - **Element dependencies.** A stream source (EL-003, EL-007, EL-013 or a tipping EL-014); EL-012 cap for the blocked control; EL-004 below the outlet.
 
 ## Sources and legacy

@@ -1,5 +1,7 @@
 # EL-203 · Reverse transmission named-identity spec
 
+**Current delivery (24 October 2026):** [EL-203 delivery slice](../invest/named-elements.md#element-203). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec (Batch J). Baseline commit `a6c914e`; every citation is `path@a6c914e:Lstart-Lend` and resolves with `git show a6c914e:<path> | sed -n 'start,endp'`. **Proposed** marks an unsourced design value with a one-line justification; the owner may revise it. All values are canonical IEEE-754 f32 game values inside the [game-grade envelope](../../gpu-f32-physics.md#game-grade-envelope).
 
 ## 1. Identity
@@ -13,7 +15,7 @@ Story 7.0 named-identity spec (Batch J). Baseline commit `a6c914e`; every citati
 | Proof owner | S312 |
 | Refines / extends | Refines [CAT-057 reverse transmission](CAT-057-reverse_transmission.md) ([requirement](../requirements.md#current-cat-057)); the full legacy harvest is in that spec |
 | Related | EL-199 Electric motor, EL-202 Conveyor, EL-200 Drive belt, CAT-018 Clutch (same ratio row with ratio +1) |
-| Roadmap story | Story 11.2 (CAT-018 with CAT-057) |
+| Roadmap story | [EL-203 delivery slice](../invest/named-elements.md#element-203); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration
@@ -52,7 +54,7 @@ Wheels follow committed hinge poses; readings are clockwise-positive (`parts/Rev
 Reverse transmission colour `#d69c47`; navy `#293954` base and index bars; cream `#fff8e9` housing; gold `#f7cb52` index spheres (`parts/ReverseTransmissionPart.cs@a6c914e:L36-L52`; `parts/catalog/reverse_transmission.tres@a6c914e:L13-L13`; [DESIGN colour system](../../../DESIGN.md#colour-system)).
 
 ### Catalogue and inventory entry
-Id `reverse_transmission`, title "Reverse gear", category Motion; "It reverses rotation at the same speed; two reversers restore the original direction." (`parts/catalog/reverse_transmission.tres@a6c914e:L8-L14`). Add a `WorkshopPartKind` member with a counted allowance (`engine/gpu/WorkshopInventory.cs@a6c914e:L9-L23`).
+Id `reverse_transmission`, title "Reverse gear", category Motion; "It reverses rotation at the same speed; two reversers restore the original direction." (`parts/catalog/reverse_transmission.tres@a6c914e:L8-L14`). Add a package declaration and bundle-issued typed id with a counted allowance (`engine/gpu/WorkshopInventory.cs@a6c914e:L9-L23`).
 
 ### Variants
 The row says "gear/belt arrangement" but names one outcome. The legacy is a gear-pair housing; a crossed-belt arrangement is not separately specified (open question 1).

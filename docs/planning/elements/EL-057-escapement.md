@@ -1,5 +1,7 @@
 # EL-057 · Escapement declaration readiness spec
 
+**Current delivery (24 October 2026):** [EL-057 delivery slice](../invest/named-elements.md#element-057). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec. Baseline commit `a6c914e`. Legacy citations use `path@a6c914e:Lstart-Lend` and stay retrievable from git history after the Epic 7 purge. Values marked **proposed** are design values the owner may revise.
 
 ## 1. Identity
@@ -13,7 +15,7 @@ Story 7.0 named-identity spec. Baseline commit `a6c914e`. Legacy citations use `
 | Named entry | [named-elements.md#element-057](../invest/named-elements.md#element-057); proof owner S343 |
 | CAT spec refined or extended | none. Related: [CAT-017 clock](CAT-017-clock.md) (periodic trigger source, Story 9.3), [CAT-063 switch](CAT-063-switch.md), [CAT-071 wound spring](CAT-071-wound_spring.md) (stored drive) |
 | Related identities | [EL-056 ratchet](EL-056-ratchet.md) (shared tooth wheel), [EL-063 cable winch](EL-063-cable-winch.md) (weight-driven drum as stored drive), [EL-061 indexed carousel](EL-061-indexed-carousel.md) |
-| Roadmap story | unscheduled |
+| Roadmap story | [EL-057 delivery slice](../invest/named-elements.md#element-057); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration
@@ -72,7 +74,7 @@ Cream housing `#fff8e9`, navy foot `#293954`, pale grey wheel `#ccd9df`, gold pa
 
 ### Catalogue and inventory entry
 
-Id `escapement`, title "Escapement", category "Motion"; `WorkshopPartKind.Escapement` appended last to the free inventory (`engine/gpu/WorkshopInventory.cs@a6c914e:L49-L60`). **Proposed**.
+Id `escapement`, title "Escapement", category "Motion"; package-owned metadata discovered into the Free palette from the bundle (`engine/gpu/WorkshopInventory.cs@a6c914e:L49-L60`). **Proposed**.
 
 ### Variants
 
@@ -86,11 +88,11 @@ Binding: EnvironmentState, FiniteLedger, FiniteWorkActuation, JointConstraint, R
 
 **Missing**
 
-- Hinge with movable two-sided limit: Story 10.3 (hinge, end stops); the movable limit has no story (decision owner S343).
-- Cylinder collider and inertia (escape wheel): no owning story; owner decision 9 Oct 2026: a new cylinder-collider story comes before the first shaft wheel.
+- Hinge with movable two-sided limit: Story 10.3 (hinge, end stops); the movable limit has required prerequisite owned by the linked delivery slice (decision owner S343).
+- Cylinder collider and inertia (escape wheel): Story 10.1 owns the shared solid-cylinder collider and inertia before this consumer.
 - `Mechanical` domain and shaft pass-through: Story 11.1.
 - Repeated release occurrences: current activation latches are one-way per run (`engine/gpu/ActivationNetwork.cs@a6c914e:L9-L9`); periodic pulses arrive with CAT-017 Clock (Story 9.3).
-- Step-completed occurrence emitted from committed joint state: no story; decision owner S343.
+- Step-completed occurrence emitted from committed joint state: required prerequisite owned by the linked delivery slice; decision owner S343.
 
 **Dependencies.** A stored drive (EL-063 Winch with CAT-067 Weight, or CAT-071 Wound spring, Story 11.4); a trigger source (CAT-063 Switch delivered; CAT-017 Clock, Story 9.3).
 

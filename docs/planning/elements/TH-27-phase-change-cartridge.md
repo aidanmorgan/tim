@@ -1,5 +1,7 @@
 # TH-27 · Phase-change storage cartridge — named-identity readiness spec
 
+**Current delivery (24 October 2026):** [TH-27 delivery slice](../invest/named-elements.md#thermal-27). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations are `path@a6c914e:Lstart-Lend`. No legacy holds phase-change-store values, so every design value without a cited source is marked "(proposed: …)" with a one-line justification; the owner may revise it.
 
 ## 1. Identity
@@ -12,8 +14,8 @@ Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artif
 | Proof owner / research | S589 · [TH-S02 phase change](../../thermal-component-research.md#th-s02) |
 | Related identities | No CAT spec. Sensible sibling [TH-26 Thermal storage block](TH-26-thermal-storage-block.md); cold store [TH-29](TH-29-cold-pack.md). Charged by [TH-04](TH-04-electrical-heating-plate.md); discharges to [TH-37](TH-37-heat-sensitive-target.md) or any receiver. |
 | Campaign | Intro 84; practice 85; reuse 97, 147 ([thermal allocation](../requirements.md#thermal-campaign-allocation)) |
-| Roadmap story | Unscheduled. No epic in `_bmad-output/planning-artifacts/epics.md` schedules a thermal element. |
-| Status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`); no legacy part. |
+| Roadmap story | [TH-27 delivery slice](../invest/named-elements.md#thermal-27); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`); no legacy part. |
 
 ## 2. Declaration
 
@@ -36,14 +38,14 @@ Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artif
 
 - **Cosmetic curves and UI bindings.** Tint ← temperature ([research per-element table](../../thermal-component-research.md)); the cyan phase-fraction window ← committed f (row), not colour alone.
 - **Art.** "Cream capsule with cyan phase-fraction window and navy endpoint symbols" (row). Nearest [DESIGN.md](../../../DESIGN.md) source colours (proposed mapping): cream `#ead39b` (`DESIGN.md@a6c914e:L146-L146`), cyan `#66b8c9` (`DESIGN.md@a6c914e:L172-L172`), navy `#293954` (`DESIGN.md@a6c914e:L147-L147`).
-- **Catalogue and inventory entry.** New `WorkshopPartKind.PhaseChangeCartridge`; id `phase_cartridge`, title "Phase-change cartridge", category Heat (proposed: no current category covers thermal parts).
+- **Catalogue and inventory entry.** Package-owned declaration, discovered into the bundle; id `phase_cartridge`, title "Phase-change cartridge", category Heat (proposed: no current category covers thermal parts).
 
 ## 3. Engine capabilities
 
 Families (map row TH-27, [general-engine-element-map](../general-engine-element-map.md); binding [thermal-01.json](../../coverage/engine/thermal-01.json)): EnvironmentState, FiniteLedger, GasState, GeometryQuery, LiquidFreezing, PhaseStorage, PhaseTopology, SensibleHeat, SolidMelting, TopologyTransaction; JSON adds StateTransaction.
 
 - **Exists now.** Dynamic box body (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L120`); Run/Reset and save (`engine/gpu/ActivationNetwork.cs@a6c914e:L67-L67`, `engine/gpu/WorkshopSaveCodec.cs@a6c914e:L6-L10`).
-- **Missing.** [S543](../invest/decisions.md#s543): phase-storage → S561, melting → S547, freezing → S548, conduction → S544. SensibleHeat (IX-43) has no S543 row. Unscheduled.
+- **Missing.** [S543](../invest/decisions.md#s543): phase-storage → S561, melting → S547, freezing → S548, conduction → S544. SensibleHeat (IX-43) is a required entry decision under S543 owned by the linked delivery slice. Required in the linked delivery slice.
 - **Dependencies.** A charging source (TH-04) and a receiver.
 
 ## 4. Sources and legacy

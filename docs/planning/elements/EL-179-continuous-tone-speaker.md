@@ -1,5 +1,7 @@
 # EL-179 · Continuous-tone speaker — element readiness spec
 
+**Current delivery (24 October 2026):** [EL-179 delivery slice](../invest/named-elements.md#element-179). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 Batch H named-identity spec. Legacy citations are pinned to `a6c914e` and resolve with `git show a6c914e:<path> | sed -n 'start,endp'`. Values marked *proposed* have no legacy or requirement source; each carries a one-line justification, stays inside the [game-grade envelope](../../gpu-f32-physics.md#game-grade-envelope) and may be revised by the owner. Box sizes are full extents. Shared acoustic facts A1–A13 are in [EL-044](EL-044-tone-selective-sound-meter.md#shared-acoustic-family-facts); speaker facts K1–K10 in [EL-180](EL-180-pulse-speaker.md#speaker-facts-shared-with-el-179); sustained emission S1 in [EL-045](EL-045-air-whistle.md).
 
 ## 1. Identity
@@ -10,7 +12,7 @@ Story 7.0 Batch H named-identity spec. Legacy citations are pinned to `a6c914e` 
 | Type | Sound |
 | Anchor | [requirements.md#element-179](../requirements.md#element-179); existing record [campaign-element-coverage](../requirements.md#campaign-element-coverage) ("Speaker/pulse/continuous modes"); [named-elements entry](../invest/named-elements.md#element-179); owner S531 |
 | Related | Extends [CAT-061 Speaker](CAT-061-speaker.md) with a continuous mode distinct from [EL-180 Pulse speaker](EL-180-pulse-speaker.md) (map: "pulse and continuous speakers stay distinct"). Supply [CAT-005](CAT-005-battery.md)/[EL-196](EL-196-battery.md), switched by [EL-198](EL-198-switch.md); listeners [CAT-060](CAT-060-sound_meter.md), [EL-044](EL-044-tone-selective-sound-meter.md), [EL-049 Resonator](EL-049-acoustic-resonator.md). |
-| Roadmap story | unscheduled (CAT-061 pulse mode is Story 14.3) |
+| Roadmap story | [EL-179 delivery slice](../invest/named-elements.md#element-179); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration

@@ -1,5 +1,7 @@
 # TH-04 · Electrical heating plate — named-identity readiness spec
 
+**Current delivery (24 October 2026):** [TH-04 delivery slice](../invest/named-elements.md#thermal-04). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations are `path@a6c914e:Lstart-Lend`. No legacy holds heating-plate values, so every design value without a cited source is marked "(proposed: …)" with a one-line justification; the owner may revise it.
 
 ## 1. Identity
@@ -12,8 +14,8 @@ Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artif
 | Proof owner / research | S567 · [TH-S01 heat transfer and finite stores](../../thermal-component-research.md#th-s01) |
 | Related identities | Supplied by [CAT-005 Battery](CAT-005-battery.md) through electrical routing; first heat slice partners [TH-21 Temperature sensor](TH-21-temperature-sensor.md) and [CAT-035 Signal lamp](CAT-035-lamp.md); the heater inside [TH-34](TH-34-timed-toaster-ejector.md); heat source for [TH-17 Kettle](TH-17-kettle.md) in TX-01. |
 | Campaign | Intro 14; practice 15; reuse 55, 70, 147 ([thermal allocation](../requirements.md#thermal-campaign-allocation)) |
-| Roadmap story | Unscheduled. The research doc names TH-04 + TH-21 + Signal lamp as the first heat slice ([first heat slice](../../thermal-component-research.md)), but no epic in `_bmad-output/planning-artifacts/epics.md` schedules it. |
-| Status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`); no legacy part. |
+| Roadmap story | [TH-04 delivery slice](../invest/named-elements.md#thermal-04); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`); no legacy part. |
 
 ## 2. Declaration
 
@@ -35,14 +37,14 @@ Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artif
 
 - **Cosmetic curves and UI bindings.** Glow ← committed delivered power ([research per-element table](../../thermal-component-research.md)); navy witness marks give a shaped temperature reading (row). The supply socket follows the existing socket gizmo.
 - **Art.** "Cream plinth, gold inset disc and navy heat witness marks" (row). Nearest [DESIGN.md](../../../DESIGN.md) source colours (proposed mapping): cream `#ead39b` (`DESIGN.md@a6c914e:L146-L146`), gold `#f7cb52` (`DESIGN.md@a6c914e:L154-L154`), navy `#293954` (`DESIGN.md@a6c914e:L147-L147`).
-- **Catalogue and inventory entry.** New `WorkshopPartKind.HeatingPlate`; id `heating_plate`, title "Heating plate", category Heat (proposed: no current category covers thermal parts).
+- **Catalogue and inventory entry.** Package-owned declaration, discovered into the bundle; id `heating_plate`, title "Heating plate", category Heat (proposed: no current category covers thermal parts).
 
 ## 3. Engine capabilities
 
 Families (map row TH-04, [general-engine-element-map](../general-engine-element-map.md); binding [thermal-01.json](../../coverage/engine/thermal-01.json)): ElectricalDissipation, ElectricalPower, FiniteLedger, GeometryQuery, SensibleHeat, ThermalConduction; JSON adds StateTransaction.
 
 - **Exists now.** Static body and box collider (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L120`); typed `Electrical` domain and `PowerIn` socket enums (`engine/gpu/WorkshopConnections.cs@a6c914e:L8-L11`); Run/Reset and save (`engine/gpu/ActivationNetwork.cs@a6c914e:L67-L67`, `engine/gpu/WorkshopSaveCodec.cs@a6c914e:L6-L10`).
-- **Missing.** ElectricalPower: Story 8.1 battery network ([S257](../invest/decisions.md#s257) electrical-port → S270). [S543](../invest/decisions.md#s543): electrical-heat → S564, conduction → S544; SensibleHeat (IX-43) has no S543 row. Thermal rows unscheduled.
+- **Missing.** ElectricalPower: Story 8.1 battery network ([S257](../invest/decisions.md#s257) electrical-port → S270). [S543](../invest/decisions.md#s543): electrical-heat → S564, conduction → S544; SensibleHeat (IX-43) is a required entry decision under S543 owned by the linked delivery slice. Thermal rows required in the linked delivery slice.
 - **Dependencies.** A supply (CAT-005 Battery, Story 8.1); a receiver (TH-21, TH-37, TH-17).
 
 ## 4. Sources and legacy

@@ -1,5 +1,7 @@
 # EL-062 · Docking ferry declaration readiness spec
 
+**Current delivery (24 October 2026):** [EL-062 delivery slice](../invest/named-elements.md#element-062). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec. Baseline commit `a6c914e`. Legacy citations use `path@a6c914e:Lstart-Lend` and stay retrievable from git history after the Epic 7 purge. Values marked **proposed** are design values the owner may revise.
 
 ## 1. Identity
@@ -13,7 +15,7 @@ Story 7.0 named-identity spec. Baseline commit `a6c914e`. Legacy citations use `
 | Named entry | [named-elements.md#element-062](../invest/named-elements.md#element-062); proof owner S372 |
 | CAT spec refined or extended | none. Related: [CAT-058 rope anchor](CAT-058-rope_anchor.md) and [CAT-053 pulley](CAT-053-pulley.md) (rope law, Story 10.2), [CAT-067 weight](CAT-067-weight.md) (pulling load), [CAT-051 powered gate](CAT-051-powered_gate.md) (loader gated by the interlock) |
 | Related identities | [EL-063 cable winch](EL-063-cable-winch.md) (drive), [EL-055 brake](EL-055-mechanical-brake.md) (carrier mode), [EL-061 indexed carousel](EL-061-indexed-carousel.md); todo-429 docking lift (requirements row, separate) |
-| Roadmap story | unscheduled |
+| Roadmap story | [EL-062 delivery slice](../invest/named-elements.md#element-062); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration
@@ -70,7 +72,7 @@ Cream deck `#fff8e9` with ochre lip `#d69c47`, navy rail `#293954`, pale grey wh
 
 ### Catalogue and inventory entry
 
-Id `docking_ferry`, title "Ferry", category "Ropes"; `WorkshopPartKind.DockingFerry` appended last to the free inventory (`engine/gpu/WorkshopInventory.cs@a6c914e:L49-L60`). **Proposed**.
+Id `docking_ferry`, title "Ferry", category "Ropes"; package-owned metadata discovered into the Free palette from the bundle (`engine/gpu/WorkshopInventory.cs@a6c914e:L49-L60`). **Proposed**.
 
 ### Variants
 
@@ -84,10 +86,10 @@ Binding: ContactImpulse, EnvironmentState, FiniteLedger, FiniteWorkActuation, Ge
 
 **Missing**
 
-- Compound dynamic body (deck + lip): one primitive per dynamic body today (`engine/gpu/RigidMassProperties.cs@a6c914e:L26-L31`); no story.
+- Compound dynamic body (deck + lip): one primitive per dynamic body today (`engine/gpu/RigidMassProperties.cs@a6c914e:L26-L31`); required prerequisite owned by the linked delivery slice.
 - Slider with end stops: Story 6.4.
 - Rope domain, `Tie`, tension-only route: Story 10.2; counterweight lifting: Story 10.4.
-- Residence sensor relative to a moving body's travel (dock state from joint coordinate): no story.
+- Residence sensor relative to a moving body's travel (dock state from joint coordinate): required prerequisite owned by the linked delivery slice.
 
 **Dependencies.** A rope drive: EL-063 Winch, or CAT-067 Weight over CAT-053 Pulley (10.2/10.4).
 

@@ -1,0 +1,43 @@
+{
+  "reviewer": "/root/plan_repair_reviewer",
+  "implementer": "/root/plan_repair_owner",
+  "baseline": "b88ca4251d8ff37272981bdd4654bd950987d04d",
+  "authority_head": "686bdfd0bb33cd433054a9e6fbc5e67213899bd3",
+  "scope": "Frozen planning candidate in candidate.json, 359 deliverables + 4 inputs. Static documentation/YAML only. No runtime or browser qualification.",
+  "runs": [
+    {
+      "command": "python3 (independent UniqueLoader, exact named file/ledger/sprint-set comparison, original anchors/outcomes and requirements-preservation comparison, candidate identity comparison, and added Markdown link/path/heading validation)",
+      "implementation": "The script loads candidate.json only for scoped files and baseline; derives expected named IDs from actual filenames; uses a duplicate-rejecting yaml.SafeLoader; derives source anchors/outcomes from git show baseline; validates added links against actual target files and generated/explicit heading IDs.",
+      "chunk_id": "4b644d",
+      "wall_time_seconds": 2.29003525,
+      "exit_code": 0,
+      "original_token_count": 63,
+      "output": "{\n  \"yaml_keys\": 587,\n  \"named_exact_membership\": 276,\n  \"source_anchor_and_outcome_preservation\": 293,\n  \"requirements_source_preservation\": true,\n  \"candidate_identity_mismatches\": [],\n  \"added_link_instances\": 1763,\n  \"added_link_failures\": []\n}\n"
+    },
+    {
+      "command": "python3 (compare each of 348 element spec Acceptance sections between git show b88ca425:<path> and working candidate; git diff --check)",
+      "stdout": "changed_acceptance_sections []\nall_348_acceptance_outlines_preserved True\n",
+      "exit_code": 0
+    },
+    {
+      "command": "python3 (compare all README Refines CAT sets with each new named delivery row; compare umbrella child sets)",
+      "stdout": "multiCAT_mismatches []\nsplit_keys 29 unique 29\nAll 10 umbrella forwarding sets match.\n",
+      "exit_code": 0
+    },
+    {
+      "command": "rg -n 'nudging clauses|15\\.0|Current stage|Catalogue native closure' _bmad-output/planning-artifacts/epics.md; rg -n 'all source|every CAT|every required mode|complete native catalogue' TODO.md docs/planning/invest/named-elements.md docs/planning/invest/vertical-delivery.md; sed -n '4277,4317p' _bmad-output/planning-artifacts/epics.md",
+      "stdout": "epics.md:81: Only after full native catalogue closure expand campaign.\nepics.md:151: Every CAT obligation and named element criterion required for closure.\nepics.md:351: 6.9/6.10 nudging clauses ->15.0.\nepics.md:957: CAT-049 stays open until Story15.0.\nepics.md:974: CAT-050 stays open until Story15.0.\nepics.md:4290: Story15.0 is under Epic15 campaign.\nCAT049/050 source specs still describe nudging as not scheduled.\n",
+      "exit_code": 0
+    }
+  ],
+  "verification_gap_result": "No automated verification gaps: static planning content is screened out by lens step1.",
+  "other_findings": [
+    {
+      "id": "V1",
+      "location": "_bmad-output/planning-artifacts/epics.md:81,151,957,974,4290; docs/planning/elements/CAT-049-pipe_bend_45.md:47,91,96; docs/planning/elements/CAT-050-pipe_bend_90.md:47,95,100",
+      "problem": "The new full-catalogue native closure precedes campaign work, but CAT049/050 remain open until campaign Story15.0 completes their native nudging clauses. No pre-closure slot is assigned, so the gate has a dependency cycle.",
+      "fix": "After all named intrinsic implementations, explicitly execute Story15.0 native assistance and required remaining mode/integration proof before catalogue-native-closure. Keep exhaustive campaign/browser qualification later and update affected stale not-scheduled source ownership. Preserve every source criterion."
+    }
+  ],
+  "verdict": "Fail: V1 requires correction. Initial cycle-staging, multi-CAT correspondence and invalid-YAML findings are fixed."
+}

@@ -1,5 +1,7 @@
 # EL-149 · Yellow selective receiver — named-identity spec
 
+**Current delivery (24 October 2026):** [EL-149 delivery slice](../invest/named-elements.md#element-149). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 full spec for a named puzzle-element identity. Baseline commit `a6c914e`. Legacy citations use `path@a6c914e:Lstart-Lend` and stay retrievable from git history after the Epic 7 purge. Lengths are legacy scene units, which the current engine treats as metres (`MetreVector`). The sensitive face looks along local −X.
 
 The mixed-channel receivers (EL-149 yellow, EL-150 cyan, EL-151 magenta, EL-152 white) share the primary receivers' body, aperture and switched contact ([EL-146](EL-146-red-selective-receiver.md)); they differ in the required channel set, marks and icon. "Yellow" names a game-channel combination (red + green), not colourimetry.
@@ -15,7 +17,7 @@ The mixed-channel receivers (EL-149 yellow, EL-150 cyan, EL-151 magenta, EL-152 
 | Owner | S504 |
 | Refines CAT | [CAT-072 yellow_receiver](CAT-072-yellow_receiver.md) (`yellow_receiver`, "Yellow receiver"). One catalogue part satisfies both identities; not a second implementation. |
 | Related | EL-150 to EL-152 (sibling mixed sets); EL-146 to EL-148 (primary); EL-213 combiner (mixes the input); EL-176, EL-177 (red and green lasers) |
-| Roadmap story | 13.6 Secondary Spectral Receivers (Cyan, Magenta, Yellow, White) (CAT-021, CAT-040, CAT-072, CAT-068) |
+| Roadmap story | [EL-149 delivery slice](../invest/named-elements.md#element-149); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration
@@ -41,7 +43,7 @@ Binding shard ([element-02.json](../../coverage/engine/element-02.json)): Finite
 
 **Exists now:** static body, colliders, material (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L42-L60`, `engine/gpu/PhysicsDeclarations.cs@a6c914e:L89-L91`); `PowerIn`/`Supply` sockets (`engine/gpu/WorkshopConnections.cs@a6c914e:L8-L11`).
 
-**Missing:** OpticalTransport Absorb aperture with multi-emitter aggregation in one snapshot — Story 13.2/13.6 (S484: S485, S486, S488, [decisions](../invest/decisions.md#s484)); combiner routing to produce mixed beams — Story 13.5; switched electrical contact — Story 8.1 plus 13.2 (S257); OpticalAbsorption/SensibleHeat — S489/S543, mode-specific; `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`).
+**Missing:** OpticalTransport Absorb aperture with multi-emitter aggregation in one snapshot — Story 13.2/13.6 (S484: S485, S486, S488, [decisions](../invest/decisions.md#s484)); combiner routing to produce mixed beams — Story 13.5; switched electrical contact — Story 8.1 plus 13.2 (S257); OpticalAbsorption/SensibleHeat — S489/S543, mode-specific; package declaration and bundle-issued typed id (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`).
 
 **Element dependencies:** a red+green source (EL-213 combiner fed by EL-176 and EL-177, or by filtered amber lasers; Stories 13.1, 13.4 and 13.5), CAT-005 battery, a load (CAT-035 lamp), CAT-066 wall.
 

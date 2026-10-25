@@ -1,5 +1,7 @@
 # TH-35 · Coffee-pot steam vessel — named-identity readiness spec
 
+**Current delivery (24 October 2026):** [TH-35 delivery slice](../invest/named-elements.md#thermal-35). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations are `path@a6c914e:Lstart-Lend`. No legacy coffee pot exists; the legacy sealed-gas foundation supplies laws and test oracles (section 4). Every design value without a cited source is marked "(proposed: …)" with a one-line justification; the owner may revise it.
 
 ## 1. Identity
@@ -12,8 +14,8 @@ Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artif
 | Proof owner / research | S600 · [TH-S02 phase change](../../thermal-component-research.md#th-s02), [TH-S07](../../thermal-component-research.md#th-s07) |
 | Related identities | No CAT spec. A distinct vessel geometry beside [TH-17 Kettle](TH-17-kettle.md); the same phase and flow laws, no coffee-pot event. Heat from [TH-04](TH-04-electrical-heating-plate.md) or a stored-hot [TH-26](TH-26-thermal-storage-block.md); vapour to [TH-19](TH-19-steam-piston.md), [TH-18](TH-18-condenser.md) or a receiver. |
 | Campaign | Intro 86; practice 87; reuse 100, 140 ([thermal allocation](../requirements.md#thermal-campaign-allocation)) |
-| Roadmap story | Unscheduled. No epic in `_bmad-output/planning-artifacts/epics.md` schedules a thermal element or the sealed gas store. |
-| Status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`); no legacy part. |
+| Roadmap story | [TH-35 delivery slice](../invest/named-elements.md#thermal-35); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`); no legacy part. |
 
 ## 2. Declaration
 
@@ -36,14 +38,14 @@ Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artif
 
 - **Cosmetic curves and UI bindings.** Lid ← committed head pressure ([research per-element table](../../thermal-component-research.md)); the small cyan fill window ← committed liquid mass (row). No white plume stands in for vapour.
 - **Art.** "Cream rounded pot with a gold handle and small cyan fill window" (row). Nearest [DESIGN.md](../../../DESIGN.md) source colours (proposed mapping): cream `#ead39b` (`DESIGN.md@a6c914e:L146-L146`), gold `#f7cb52` (`DESIGN.md@a6c914e:L154-L154`), cyan `#66b8c9` (`DESIGN.md@a6c914e:L172-L172`).
-- **Catalogue and inventory entry.** New `WorkshopPartKind.CoffeePot`; id `coffee_pot`, title "Coffee-pot steam vessel", category Heat (proposed: no current category covers thermal parts).
+- **Catalogue and inventory entry.** Package-owned declaration, discovered into the bundle; id `coffee_pot`, title "Coffee-pot steam vessel", category Heat (proposed: no current category covers thermal parts).
 
 ## 3. Engine capabilities
 
 Families (map row TH-35, [general-engine-element-map](../general-engine-element-map.md); binding [thermal-01.json](../../coverage/engine/thermal-01.json)): EnvironmentState, FiniteLedger, GasState, GeometryQuery, JointConstraint, LiquidBoiling, PhaseTopology, PressureWork, RigidBodyDynamics, SensibleHeat, TopologyTransaction; JSON adds StateTransaction.
 
 - **Exists now.** Dynamic box bodies (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L120`); Run/Reset and save (`engine/gpu/ActivationNetwork.cs@a6c914e:L67-L67`, `engine/gpu/WorkshopSaveCodec.cs@a6c914e:L6-L10`).
-- **Missing.** Sealed gas store and nozzle: [S470](../invest/decisions.md#s470) → S471. Liquid inventory: [S416](../invest/decisions.md#s416) → S418. [S543](../invest/decisions.md#s543): boiling → S550, conduction → S544, phase-topology → S565. All unscheduled.
+- **Missing.** Sealed gas store and nozzle: [S470](../invest/decisions.md#s470) → S471. Liquid inventory: [S416](../invest/decisions.md#s416) → S418. [S543](../invest/decisions.md#s543): boiling → S550, conduction → S544, phase-topology → S565. All required in the linked delivery slice.
 - **Dependencies.** A heat source (TH-04, TH-26); a vapour consumer or receiver.
 
 ## 4. Sources and legacy
@@ -82,4 +84,4 @@ Point of truth: [thermal-35](../requirements.md#thermal-35) and [ELEMENT accepta
 1. **Batch N game scale.** Adopt or revise the one scale in section 2 (×¼ specific heat, ×1/16 latent heat, gas ×1, reaction energy and O₂ ×1/1024, h 2.5 W/(m²·K), per-pair series contact conductance from per-part face values, 1 intensity unit = 1 W, and which research-table rows the scale multiplies). It carries two consequences: boiling needs a declared saturation curve (S550) because scaled water latent heat is below R·T_sat, and gas-node time constants run about 4× slower than SI (TH-25). Owner decision.
 2. **Distinctness.** Confirm the pot differs from TH-17 only by geometry and declared values, with no separate law. Owner decision.
 3. **Perk behaviour.** Real percolators recirculate liquid; the row asks only for steam output. Owner decision.
-4. **Gas store schedule.** S471 is unscheduled. Owner decision.
+4. **Gas store schedule.** S471 is required in the linked delivery slice. Owner decision.

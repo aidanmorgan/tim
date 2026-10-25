@@ -1,5 +1,7 @@
 # CAT-020 · counter — declaration readiness spec
 
+**Current delivery (24 October 2026):** [CAT-020 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 Batch B declaration spec (CAT-020-D). Legacy citations are pinned to `a6c914e` and resolve with `git show a6c914e:<path> | sed -n 'start,endp'`. Requirement row: [CAT-020](../requirements.md#current-cat-020). Supplied-network facts (N1–N24) are in [CAT-005](CAT-005-battery.md#4-legacy-harvest).
 
 ## 1. Identity
@@ -9,7 +11,7 @@ Story 7.0 Batch B declaration spec (CAT-020-D). Legacy citations are pinned to `
 | CAT ID / kind | CAT-020 · `counter` |
 | Requirement anchor | [current-cat-020](../requirements.md#current-cat-020); retained behaviour [todo-269](../requirements.md#todo-269) |
 | Mapped identities | [EL-183 Resettable counter](../invest/named-elements.md#element-183) — partial match: EL-183 needs a separately addressed reset input, which the legacy counter lacks (open question 2). No TH/RAD/GAP identity. |
-| Roadmap story | 9.2 "Pulse Counter Event Accumulator" (Epic 9) |
+| Roadmap story | 9.2 "Pulse Counter Event Accumulator" (Epic 9) Current [CAT-020 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). |
 | Status | not started |
 
 ## 2. Declaration

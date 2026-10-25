@@ -1,5 +1,7 @@
 # EL-135 · Electrical XOR gate — element readiness spec
 
+**Current delivery (24 October 2026):** [EL-135 delivery slice](../invest/named-elements.md#element-135). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 Batch H named-identity spec. Legacy citations are pinned to `a6c914e` and resolve with `git show a6c914e:<path> | sed -n 'start,endp'`. Values marked *proposed* have no legacy or requirement source; each carries a one-line justification and may be revised by the owner. Box sizes are full extents. Shared gate facts E1–E10 are in [EL-133](EL-133-electrical-and-gate.md#shared-gate-facts-el-133el-137); the catalogue harvest is [CAT-027](CAT-027-electrical_xor.md) with shared facts in [CAT-013](CAT-013-both_gate.md) and the supplied network in [CAT-005](CAT-005-battery.md).
 
 ## 1. Identity
@@ -10,7 +12,7 @@ Story 7.0 Batch H named-identity spec. Legacy citations are pinned to `a6c914e` 
 | Type | Electrical |
 | Anchor | [requirements.md#element-135](../requirements.md#element-135); existing record [todo-364](../requirements.md#todo-364); [named-elements entry](../invest/named-elements.md#element-135); owner S407 |
 | Related | Refines [CAT-027 electrical_xor](CAT-027-electrical_xor.md) ("Exactly one gate", [current-cat-027](../requirements.md#current-cat-027)). Siblings [EL-133](EL-133-electrical-and-gate.md), [EL-134](EL-134-electrical-or-gate.md), [EL-136](EL-136-electrical-nor-gate.md), [EL-137](EL-137-electrical-nand-gate.md). |
-| Roadmap story | 9.8 "Electrical Logic Gates OR & XOR" (Epic 9) |
+| Roadmap story | [EL-135 delivery slice](../invest/named-elements.md#element-135); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration

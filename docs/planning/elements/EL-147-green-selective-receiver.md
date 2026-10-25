@@ -1,5 +1,7 @@
 # EL-147 · Green selective receiver — named-identity spec
 
+**Current delivery (24 October 2026):** [EL-147 delivery slice](../invest/named-elements.md#element-147). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 full spec for a named puzzle-element identity. Baseline commit `a6c914e`. Legacy citations use `path@a6c914e:Lstart-Lend` and stay retrievable from git history after the Epic 7 purge. Lengths are legacy scene units, which the current engine treats as metres (`MetreVector`). The sensitive face looks along local −X.
 
 The selective receivers (EL-146 to EL-152) and the broadband detector (EL-214) share one body, aperture and switched contact; they differ in the acceptance rule, marks and icon.
@@ -15,7 +17,7 @@ The selective receivers (EL-146 to EL-152) and the broadband detector (EL-214) s
 | Owner | S502 |
 | Refines CAT | [CAT-032 green_receiver](CAT-032-green_receiver.md) (`green_receiver`, "Green receiver"). One catalogue part satisfies both identities; not a second implementation. |
 | Related | EL-146, EL-148 (sibling primary channels); EL-149 to EL-152 (mixed); EL-214 broadband; EL-144 green filter and EL-177 green laser |
-| Roadmap story | 13.2 Broadband & Pure Channel Optical Receivers (CAT-038, CAT-056, CAT-032, CAT-012) |
+| Roadmap story | [EL-147 delivery slice](../invest/named-elements.md#element-147); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration
@@ -41,7 +43,7 @@ Binding shard ([element-02.json](../../coverage/engine/element-02.json)): Finite
 
 **Exists now:** static body, colliders, material (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L42-L60`, `engine/gpu/PhysicsDeclarations.cs@a6c914e:L89-L91`); `PowerIn`/`Supply` sockets (`engine/gpu/WorkshopConnections.cs@a6c914e:L8-L11`).
 
-**Missing:** OpticalTransport Absorb aperture with snapshot readings — Story 13.2 (S484: S485, S486, S488, [decisions](../invest/decisions.md#s484)); switched electrical contact — Story 8.1 plus 13.2 (S257); OpticalAbsorption/SensibleHeat — S489/S543, mode-specific; `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`).
+**Missing:** OpticalTransport Absorb aperture with snapshot readings — Story 13.2 (S484: S485, S486, S488, [decisions](../invest/decisions.md#s484)); switched electrical contact — Story 8.1 plus 13.2 (S257); OpticalAbsorption/SensibleHeat — S489/S543, mode-specific; package declaration and bundle-issued typed id (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`).
 
 **Element dependencies:** a green source (EL-177, or amber laser through EL-144), CAT-005 battery, a load (CAT-035 lamp), CAT-066 wall.
 

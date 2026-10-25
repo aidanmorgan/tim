@@ -1,5 +1,7 @@
 # CAT-072 · yellow_receiver — declaration readiness spec (CAT-072-D)
 
+**Current delivery (24 October 2026):** [CAT-072 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 ## Identity
 
 - **CAT ID / kind:** CAT-072 · `yellow_receiver` (catalogue title "Yellow receiver", category Optics).
@@ -40,7 +42,7 @@ Families (map row CAT-072): AnimationEvaluation, AnimationLifecycle, ContactImpu
 - OpticalTransport absorption with multi-channel presence rule and per-port summation of several beams — Story 13.6 (single-channel receivers in 13.2). Decision owner **S484** ([decisions](../invest/decisions.md#s484)): S485 finite-colour, S486 commit boundary.
 - ElectricalPower switched contact — Story 8.1; S257.
 - Matched feedback for the disc — Story 13.2/13.6 (P0-022/023).
-- No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`).
+- No package declaration is established by the cited harvest baseline (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`).
 
 **Element dependencies:** CAT-036 laser ×2 (Story 13.1), CAT-055 red_filter and CAT-031 green_filter (Story 13.4), CAT-006 beam_combiner (optional mixing; Story 13.5), CAT-011 blue_filter (blue-only control), CAT-005 battery (Story 8.1), an electrical load.
 

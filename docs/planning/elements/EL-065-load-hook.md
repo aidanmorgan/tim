@@ -1,5 +1,7 @@
 # EL-065 · Load hook declaration readiness spec
 
+**Current delivery (24 October 2026):** [EL-065 delivery slice](../invest/named-elements.md#element-065). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec. Baseline commit `a6c914e`. Legacy citations use `path@a6c914e:Lstart-Lend` and stay retrievable from git history after the Epic 7 purge. Values marked **proposed** are design values the owner may revise.
 
 ## 1. Identity
@@ -13,7 +15,7 @@ Story 7.0 named-identity spec. Baseline commit `a6c914e`. Legacy citations use `
 | Named entry | [named-elements.md#element-065](../invest/named-elements.md#element-065); proof owner S333 |
 | CAT spec refined or extended | none. Related: [CAT-067 weight](CAT-067-weight.md) (its gold eye is the engagement target), [CAT-058 rope anchor](CAT-058-rope_anchor.md) and [CAT-053 pulley](CAT-053-pulley.md) (rope law) |
 | Related identities | [EL-063 cable winch](EL-063-cable-winch.md) (crane), [EL-067 steel cable](EL-067-steel-cable.md), [EL-069 moving bucket](EL-069-moving-bucket.md) and [EL-070 moving cage](EL-070-moving-cage.md) (bail targets) |
-| Roadmap story | unscheduled |
+| Roadmap story | [EL-065 delivery slice](../invest/named-elements.md#element-065); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration
@@ -62,7 +64,7 @@ Pale grey metal hook `#ccd9df`, gold top eye `#f7cb52` (eye language of the rope
 
 ### Catalogue and inventory entry
 
-Id `load_hook`, title "Hook", category "Ropes"; `WorkshopPartKind.LoadHook` appended last to the free inventory (`engine/gpu/WorkshopInventory.cs@a6c914e:L49-L60`). **Proposed**.
+Id `load_hook`, title "Hook", category "Ropes"; package-owned metadata discovered into the Free palette from the bundle (`engine/gpu/WorkshopInventory.cs@a6c914e:L49-L60`). **Proposed**.
 
 ### Variants
 
@@ -76,7 +78,7 @@ Binding: ContactImpulse, EnvironmentState, FiniteLedger, FiniteWorkActuation, Ge
 
 **Missing**
 
-- Compound dynamic body (three boxes): `engine/gpu/RigidMassProperties.cs@a6c914e:L26-L31` admits one primitive; no story.
+- Compound dynamic body (three boxes): `engine/gpu/RigidMassProperties.cs@a6c914e:L26-L31` admits one primitive; required prerequisite owned by the linked delivery slice.
 - Rope domain, `Tie`, `Load` role: Story 10.2.
 - Engageable bar collider on carried parts (Weight eye): CAT-067 declaration in Story 10.4 or later.
 

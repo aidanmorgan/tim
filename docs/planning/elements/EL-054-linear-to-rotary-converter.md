@@ -1,5 +1,7 @@
 # EL-054 · Linear-to-rotary converter declaration readiness spec
 
+**Current delivery (24 October 2026):** [EL-054 delivery slice](../invest/named-elements.md#element-054). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec. Baseline commit `a6c914e`. Legacy citations use `path@a6c914e:Lstart-Lend` and stay retrievable from git history after the Epic 7 purge. Values marked **proposed** are design values the owner may revise.
 
 ## 1. Identity
@@ -13,7 +15,7 @@ Story 7.0 named-identity spec. Baseline commit `a6c914e`. Legacy citations use `
 | Named entry | [named-elements.md#element-054](../invest/named-elements.md#element-054); proof owner S340 |
 | CAT spec refined or extended | none. Related: [CAT-019 conveyor](CAT-019-conveyor.md) and [CAT-057 reverse transmission](CAT-057-reverse_transmission.md) (shaft consumers), [CAT-067 weight](CAT-067-weight.md) (falling input load), [CAT-053 pulley](CAT-053-pulley.md) (rope pull input) |
 | Related identities | [EL-053](EL-053-rotary-to-linear-converter.md) (inverse conversion); EL-158 rack-and-pinion slide (Batch J) |
-| Roadmap story | unscheduled |
+| Roadmap story | [EL-054 delivery slice](../invest/named-elements.md#element-054); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration
@@ -68,7 +70,7 @@ Cream frame `#fff8e9`, navy foot `#293954`, pale grey metal rack `#ccd9df` (`par
 
 ### Catalogue and inventory entry
 
-Id `linear_rotary_converter`, title "Rack drive", category "Motion"; `WorkshopPartKind.LinearRotaryConverter` appended last to the free inventory (`engine/gpu/WorkshopInventory.cs@a6c914e:L49-L60`). **Proposed**.
+Id `linear_rotary_converter`, title "Rack drive", category "Motion"; package-owned metadata discovered into the Free palette from the bundle (`engine/gpu/WorkshopInventory.cs@a6c914e:L49-L60`). **Proposed**.
 
 ### Variants
 
@@ -83,7 +85,7 @@ Binding: EnvironmentState, FiniteLedger, FiniteWorkActuation, JointConstraint, R
 **Missing**
 
 - Slider with end stops: Story 6.4. Hinge: Story 10.3.
-- Cylinder collider and inertia (pinion): no owning story; owner decision 9 Oct 2026: a new cylinder-collider story comes before the first shaft wheel.
+- Cylinder collider and inertia (pinion): Story 10.1 owns the shared solid-cylinder collider and inertia before this consumer.
 - `Mechanical` domain, `Drive` socket, shaft coupling to consumers: Story 11.1.
 - Ratio row between slider and hinge coordinates: Story 11.2 (ratio row) and Story 11.4 (first hinge-to-slider use).
 - Rope `Tie` input: Story 10.2.

@@ -1,0 +1,15 @@
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:32.13]     CuriousContraptions.Tests.PackageRuntimeParityTests.EveryPackageDeclaresTheCompiledFootprintCollidersAndMaterial [FAIL]
+  Failed CuriousContraptions.Tests.PackageRuntimeParityTests.EveryPackageDeclaresTheCompiledFootprintCollidersAndMaterial [9 ms]
+  Error Message:
+   System.ArgumentException : Weight.Colliders[0]: the runtime has no Cylinder collider.
+  Stack Trace:
+     at CuriousContraptions.Tests.PackageRuntimeParityTests.AssertColliders(String package, IReadOnlyList`1 declared, ValueTuple`4[] runtime) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/CuriousContraptions.tests/PackageRuntimeParityTests.cs:line 465
+   at CuriousContraptions.Tests.PackageRuntimeParityTests.EveryPackageDeclaresTheCompiledFootprintCollidersAndMaterial() in /Users/aidan/dev/personal/tim/.claude/worktrees/story-10-2a/CuriousContraptions.tests/PackageRuntimeParityTests.cs:line 93
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     1, Passed:   424, Skipped:     0, Total:   425, Duration: 29 s - CuriousContraptions.tests.dll (net10.0)

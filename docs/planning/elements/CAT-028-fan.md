@@ -1,5 +1,7 @@
 # CAT-028 · fan — declaration readiness spec
 
+**Current delivery (24 October 2026):** [CAT-028 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 readiness spec ([spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Legacy citations are `path@a6c914e:Lstart-Lend` and stay retrievable from git history after Epic 7. Current-tree citations also use the a6c914e baseline.
 
 ## Identity
@@ -10,8 +12,8 @@ Story 7.0 readiness spec ([spec](../../../_bmad-output/implementation-artifacts/
 | Requirement anchor | [CAT-028](../requirements.md#current-cat-028); D/I/V row [CAT-028-I](../invest/current-consumers.md#cat-028-i) |
 | Mapped identities | [EL-209 Fan](../invest/named-elements.md#element-209). No TH, RAD or GAP identity. |
 | Capability row | [general-engine-element-map, CAT-028](../general-engine-element-map.md) |
-| Roadmap story | Epic 12, Story 12.2 "Electric Fan Aerodynamic Airflow Jet"; the first slice of the [gas and airflow family](../../finite-gas-foundation.md) |
-| Status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
+| Roadmap story | Epic 12, Story 12.2 "Electric Fan Aerodynamic Airflow Jet"; the first slice of the [gas and airflow family](../../finite-gas-foundation.md) Current [CAT-028 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). |
+| Harvest-baseline status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
 
 ## Declaration
 

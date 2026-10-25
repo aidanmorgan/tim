@@ -278,8 +278,8 @@ internal static class PrismaticConstraintSolver
         var deltaV = Math.Clamp(targetSpeed - speed, -maxDeltaV, maxDeltaV);
         var acceleration = mass * (deltaV / dt);
         var holding = stiffness * coordinate;
-        var weight = -mass * gravityAlongAxis;
-        var force = Math.Clamp(acceleration + holding + weight, -drive.MaxEffort, drive.MaxEffort);
+        var gravityLoad = -mass * gravityAlongAxis;
+        var force = Math.Clamp(acceleration + holding + gravityLoad, -drive.MaxEffort, drive.MaxEffort);
         var power = MathF.Abs(force * speed);
         return power > drive.MaxPower ? MathF.CopySign(drive.MaxPower / MathF.Abs(speed), force) : force;
     }

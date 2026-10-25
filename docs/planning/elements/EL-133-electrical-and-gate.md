@@ -1,5 +1,7 @@
 # EL-133 · Electrical AND gate — element readiness spec
 
+**Current delivery (24 October 2026):** [EL-133 delivery slice](../invest/named-elements.md#element-133). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 Batch H named-identity spec. Legacy citations are pinned to `a6c914e` and resolve with `git show a6c914e:<path> | sed -n 'start,endp'`. Values marked *proposed* have no legacy or requirement source; each carries a one-line justification and may be revised by the owner. Box sizes are full extents (legacy `AddBox` takes the full size and stores half-extents, `reference/cpu/MachinePart.cs@a6c914e:L352-L356`). This spec holds the **gate facts shared by EL-133–EL-137 (E1–E10)**; [EL-134](EL-134-electrical-or-gate.md), [EL-135](EL-135-electrical-xor-gate.md), [EL-136](EL-136-electrical-nor-gate.md) and [EL-137](EL-137-electrical-nand-gate.md) add only their operation. The catalogue-level harvest is in [CAT-013](CAT-013-both_gate.md) (G1–G8) and the supplied-network facts in [CAT-005](CAT-005-battery.md) (N1–N20).
 
 ## 1. Identity
@@ -10,7 +12,7 @@ Story 7.0 Batch H named-identity spec. Legacy citations are pinned to `a6c914e` 
 | Type | Electrical |
 | Anchor | [requirements.md#element-133](../requirements.md#element-133); existing record [todo-364](../requirements.md#todo-364); [named-elements entry](../invest/named-elements.md#element-133); owner S405 |
 | Related | Refines [CAT-013 Both gate](CAT-013-both_gate.md) (`both_gate`, operation And; requirement [current-cat-013](../requirements.md#current-cat-013)). Supply from [CAT-005 Battery](CAT-005-battery.md) / [EL-196](EL-196-battery.md) through [EL-197 wires](EL-197-electrical-wire.md); conditions typically from [EL-198 Switch](EL-198-switch.md) contacts. |
-| Roadmap story | 9.6 "Dual-Supply Both Gate" (Epic 9) |
+| Roadmap story | [EL-133 delivery slice](../invest/named-elements.md#element-133); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration

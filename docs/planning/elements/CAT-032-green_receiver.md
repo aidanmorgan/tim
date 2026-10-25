@@ -1,5 +1,7 @@
 # CAT-032 · green_receiver — declaration readiness spec (CAT-032-D)
 
+**Current delivery (24 October 2026):** [CAT-032 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 ## Identity
 
 - **CAT ID / kind:** CAT-032 · `green_receiver` (catalogue title "Green receiver", category Optics).
@@ -41,7 +43,7 @@ Families (map row CAT-032): AnimationEvaluation, AnimationLifecycle, ContactImpu
 - ElectricalPower switched contact — Story 8.1; S257 typed power versus signal.
 - Matched feedback for the disc — Story 13.2 (P0-022/023).
 - Closed `OpticalChannel` enum in the current declaration model — Story 13.4/13.2.
-- No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`).
+- No package declaration is established by the cited harvest baseline (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`).
 
 **Element dependencies:** CAT-036 laser (Story 13.1), CAT-031 green_filter (pure green source; Story 13.4), CAT-055/CAT-011 (wrong-colour controls), CAT-005 battery (Story 8.1), an electrical load (legacy: CAT-051 powered_gate, Story 8.2).
 

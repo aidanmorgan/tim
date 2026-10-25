@@ -1,5 +1,7 @@
 # EL-120 · Quantity goal — named-identity readiness spec
 
+**Current delivery (24 October 2026):** [EL-120 delivery slice](../invest/named-elements.md#element-120). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 readiness spec ([spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations are `path@a6c914e:Lstart-Lend`. Values marked **proposed** have no legacy or requirement source; each carries a one-line justification and the owner may revise it.
 
 ## 1. Identity
@@ -9,8 +11,8 @@ Story 7.0 readiness spec ([spec](../../../_bmad-output/implementation-artifacts/
 | ID / name / type | EL-120 · Quantity goal · Goal |
 | Anchor | [requirements.md#element-120](../requirements.md#element-120); [named-elements entry](../invest/named-elements.md#element-120); umbrella [gap-16](../requirements.md#gap-16) (index only) |
 | Related identities | Siblings [EL-121](EL-121-rate-window-goal.md), [EL-122](EL-122-ordered-events-goal.md), [EL-123](EL-123-protected-end-state-goal.md). Delivery sensing comes from the Receiver ([EL-192](EL-192-receiving-basket.md), [CAT-004 basket](CAT-004-basket.md)); counting generalises the [CAT-020 Counter](CAT-020-counter.md). It extends the current `Captured` goal; no CAT refines it. |
-| Roadmap story | Unscheduled. Campaign: introduction 25 "A Steady Job", practice 26, reuse 96, 136 ([gap-16](../requirements.md#gap-16)). |
-| Status | Not started. Current goal kinds are `None`, `Captured` and `ActivatedAfter` (`engine/gpu/WorkshopPuzzle.cs@a6c914e:L7-L7`). |
+| Roadmap story | [EL-120 delivery slice](../invest/named-elements.md#element-120); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | Not started. Current goal kinds are `None`, `Captured` and `ActivatedAfter` (`engine/gpu/WorkshopPuzzle.cs@a6c914e:L7-L7`). |
 
 ## 2. Declaration
 

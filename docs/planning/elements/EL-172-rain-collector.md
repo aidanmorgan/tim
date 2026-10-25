@@ -1,5 +1,7 @@
 # EL-172 · Rain collector named-identity spec
 
+**Current delivery (24 October 2026):** [EL-172 delivery slice](../invest/named-elements.md#element-172). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 This is the Story 7.0 full spec for named identity EL-172. The baseline is commit `a6c914e`; every citation uses `path@a6c914e:Lstart-Lend`. Values without a source are marked **proposed**, each with a one-line justification; the owner may revise them.
 
 ## 1. Identity
@@ -13,8 +15,8 @@ This is the Story 7.0 full spec for named identity EL-172. The baseline is commi
 | Proof owner | S465 |
 | CAT spec refined | none. Related: [CAT-030 Funnel](CAT-030-funnel.md) (ball funnel geometry, a different domain) |
 | Related identities | [EL-036 Sprinkler](EL-036-sprinkler.md) and EL-013 Water nozzle (droplet sources); EL-004 Catch basin and EL-005 Liquid funnel (stream catchers, separate); EL-008 pipes (outlet route) |
-| Roadmap story | unscheduled |
-| Status | not started (no `WorkshopPartKind` member, `engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`) |
+| Roadmap story | [EL-172 delivery slice](../invest/named-elements.md#element-172); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | not started (no `WorkshopPartKind` member, `engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`) |
 
 ## 2. Declaration
 
@@ -48,8 +50,8 @@ Families ([element-map row](../general-engine-element-map.md), [coverage binding
 - Endpoint-sampled sweep against a planar aperture for bodies, with sub-tick interpolation ([game-grade envelope](../../gpu-f32-physics.md#game-grade-envelope) row "Sensor Crossing"); the same sweep pattern applies to liquid packets.
 
 **Missing**
-- Free-stream packets, sweep capture against an open mouth and occlusion by other colliders (FluidAdvection, GeometryQuery): [S416 advection](../invest/decisions.md#s416) → S418; unscheduled.
-- Liquid store and outlet port (FiniteLedger, TopologyTransaction): S418 with [S257](../invest/decisions.md#s257); unscheduled.
+- Free-stream packets, sweep capture against an open mouth and occlusion by other colliders (FluidAdvection, GeometryQuery): [S416 advection](../invest/decisions.md#s416) → S418; required in the linked delivery slice.
+- Liquid store and outlet port (FiniteLedger, TopologyTransaction): S418 with [S257](../invest/decisions.md#s257); required in the linked delivery slice.
 
 **Element dependencies.** A droplet source (EL-036 Sprinkler, EL-013 nozzle) supplied by a store (EL-001, EL-002); an outlet route (EL-008 pipes) and receiver.
 

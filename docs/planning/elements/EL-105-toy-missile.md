@@ -1,6 +1,8 @@
 # EL-105 · Toy missile — named-identity spec
 
-Story 7.0 named-identity spec ([story spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations are `path@a6c914e:Lstart-Lend`. Values with no legacy or requirement source are **proposed**, each with a one-line justification; the owner may revise them. Game values are canonical f32 ([numeric contract](../../gpu-f32-physics.md)).
+**Current delivery (24 October 2026):** [EL-105 delivery slice](../invest/named-elements.md#element-105). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
+Story 7.0 named-identity spec ([story spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations are `path@a6c914e:Lstart-Lend`. Values with no legacy or requirement source are **proposed**, each with a one-line justification; the owner may revise them. Game values are canonical f32 ([numeric contract](../../gpu-f32-physics.md#precision-status)).
 
 **Safety boundary.** An abstract guided toy: a declared impulse budget, a typed perception query and bounded steering. No real guidance hardware, propellant or construction is modelled or described.
 
@@ -13,8 +15,8 @@ Story 7.0 named-identity spec ([story spec](../../../_bmad-output/implementation
 | Named entry | [element-105](../invest/named-elements.md#element-105); source owner **S378** |
 | CAT spec refined or extended | None. It combines the [EL-092](EL-092-toy-rocket.md) thrust law with the perception query of [EL-082](EL-082-lured-character.md); its beacon is a lit [CAT-035 Lamp](CAT-035-lamp.md). |
 | Related identities | EL-092 Toy rocket, EL-104 Toy firework, EL-082 and EL-087 (the same perception law), CAT-063 Switch |
-| Roadmap story | Unscheduled |
-| Status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
+| Roadmap story | [EL-105 delivery slice](../invest/named-elements.md#element-105); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
 
 ## 2. Declaration
 

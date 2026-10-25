@@ -459,6 +459,11 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
                 ("hold_seconds", ParameterUnit.Second, ParameterKind.Real, Lane.Single, 2f,
                     Admits(value => WorkshopInput.Generic(new("hold_timer"), Owner, 0, 3, 0, 0, 0, 0, 1, new InstanceParameterCollection([new(new ParameterId("hold_seconds"), (float)value)]))), [])
             ],
+            "weight" =>
+            [
+                ("mass", ParameterUnit.Kilogram, ParameterKind.Real, Lane.Single, 4f,
+                    Admits(value => WorkshopInput.Generic(new("weight"), Owner, 0, 3, 0, 0, 0, 0, 1, new([new(new ParameterId("mass"), (float)value)]))), [])
+            ],
             "switch" =>
             [
                 ("trigger_threshold", ParameterUnit.MetrePerSecond, ParameterKind.Real, Lane.Single, .8f,
@@ -481,7 +486,7 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
         "bumper" => WorkshopInput.Generic(PartId.PinballBumper, Owner, 0, 3, 0, 0, 0, 0, 1),
         "domino" => PlacedParts.Domino(Owner, 0, 3, 0, 0, 0, 0, 1),
         "pipe" => WorkshopInput.Pipe(Owner, 0, 3, 0, 0, 0, 0, 1),
-        "lamp" or "ball_detector" or "funnel" or "pipe_bend_45" or "pipe_bend_90" or "powered_gate" or "hold_timer" or "both_gate" or "electrical_nand" or "electrical_nor" or "electrical_or" or "electrical_xor" =>
+        "lamp" or "ball_detector" or "funnel" or "pipe_bend_45" or "pipe_bend_90" or "powered_gate" or "hold_timer" or "both_gate" or "electrical_nand" or "electrical_nor" or "electrical_or" or "electrical_xor" or "weight" =>
             WorkshopInput.Generic(id, Owner, 0, 3, 0, 0, 0, 0, 1),
         "pressure_plate" => PlacedParts.Plate(Owner, 0, 3, 0, .5f),
         "counter" => PlacedParts.Counter(Owner, 0, 3, 0, 0, 0, 0, 1, 3),
@@ -515,6 +520,7 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
                 AbstractShape.Sphere => RuntimeShape.Sphere,
                 AbstractShape.Box => RuntimeShape.Box,
                 AbstractShape.Plane => RuntimeShape.Plane,
+                AbstractShape.Cylinder => RuntimeShape.Cylinder,
                 _ => throw new ArgumentException($"{where}: the runtime has no {collider.ShapeKind} collider.")
             }, $"{where}: shape {collider.ShapeKind} declared, {shape} at runtime.");
             Assert.True(Same(collider.Offset.X, pose.Translation.X) && Same(collider.Offset.Y, pose.Translation.Y) &&
@@ -523,10 +529,15 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
                 Bits(collider.Rotation.Z) == Bits(pose.Rotation.Z) && Bits(collider.Rotation.W) == Bits(pose.Rotation.W),
                 $"{where}: rotation {collider.Rotation} declared, {pose.Rotation} at runtime.");
             var extents = collider.HalfExtents;
-            var matches = shape == RuntimeShape.Sphere
-                ? Same(extents.X, radius) && Bits(extents.Y) == Bits(extents.X) && Bits(extents.Z) == Bits(extents.X) &&
-                    Same(0f, halfExtents.X) && Same(0f, halfExtents.Y) && Same(0f, halfExtents.Z)
-                : Same(extents.X, halfExtents.X) && Same(extents.Y, halfExtents.Y) && Same(extents.Z, halfExtents.Z) && Same(0f, radius);
+            // A sphere is its radius on every lane; a cylinder (r, h, r) is its radius and its half-height lane only (10.1).
+            var matches = shape switch
+            {
+                RuntimeShape.Sphere => Same(extents.X, radius) && Bits(extents.Y) == Bits(extents.X) && Bits(extents.Z) == Bits(extents.X) &&
+                    Same(0f, halfExtents.X) && Same(0f, halfExtents.Y) && Same(0f, halfExtents.Z),
+                RuntimeShape.Cylinder => Same(extents.X, radius) && Bits(extents.Z) == Bits(extents.X) &&
+                    Same(0f, halfExtents.X) && Same(extents.Y, halfExtents.Y) && Same(0f, halfExtents.Z),
+                _ => Same(extents.X, halfExtents.X) && Same(extents.Y, halfExtents.Y) && Same(extents.Z, halfExtents.Z) && Same(0f, radius)
+            };
             Assert.True(matches, $"{where}: half-extents {extents} declared, radius {radius} and {halfExtents} at runtime.");
         }
     }

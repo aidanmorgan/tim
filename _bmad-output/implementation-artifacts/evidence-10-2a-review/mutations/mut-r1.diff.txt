@@ -1,0 +1,39 @@
+diff --git a/CuriousContraptions.Bundle/BundleValidator.cs b/CuriousContraptions.Bundle/BundleValidator.cs
+index 59f921c1..d8e81613 100644
+--- a/CuriousContraptions.Bundle/BundleValidator.cs
++++ b/CuriousContraptions.Bundle/BundleValidator.cs
+@@ -430,7 +430,7 @@ public static class BundleValidator
+             const string path = "MassParameter";
+             Value(path, bound, parameters);
+             if (bound.Source != MechanicalValueSource.Parameter) { OutOfRange(path + ".Source"); return; }
+-            if (mechanical.KinematicMode != KinematicMode.Dynamic) OutOfRange(path + ".Owner");
++            // MX1 removed Dynamic owner check
+             var named = parameters.Where(parameter => parameter.Key == bound.Parameter).ToArray();
+             if (named.Length != 1) { OutOfRange(path + ".Parameter"); return; }
+             var mass = named[0];
+diff --git a/elements/Weight/WeightElementDeclaration.cs b/elements/Weight/WeightElementDeclaration.cs
+index 7cddf77f..930a2de6 100644
+--- a/elements/Weight/WeightElementDeclaration.cs
++++ b/elements/Weight/WeightElementDeclaration.cs
+@@ -44,7 +44,7 @@ public sealed class WeightElementDeclaration : IParameterizedMassElement, IScene
+     /// <summary>One material: bounce 0.08, friction 0.3, rolling resistance 0.03, bounce threshold 0.1 m/s.</summary>
+     public IReadOnlyList<SceneBodyGeometry> SceneBodies =>
+     [
+-        new(Root: ".", Material: new(Restitution: 0.08f, Friction: 0.3f, RollingResistance: 0.03f, BounceThreshold: 0.1f))
++        new(Root: ".", Material: new(Restitution: 0.3f, Friction: 0.3f, RollingResistance: 0.03f, BounceThreshold: 0.1f))
+     ];
+ 
+     /// <summary>The scene's cylinder (r, h, r) and its centre h above the base, linear in mass: identical X and Z radius lanes, and one
+diff --git a/engine/PlacementPose.cs b/engine/PlacementPose.cs
+index ac149334..e218ee68 100644
+--- a/engine/PlacementPose.cs
++++ b/engine/PlacementPose.cs
+@@ -68,7 +68,7 @@ public static class PlacementPose
+         {
+             Shape.Sphere => Radius,
+             Shape.Box => MathF.Abs(X.Dot(direction)) * Half.X + MathF.Abs(Y.Dot(direction)) * Half.Y + MathF.Abs(Z.Dot(direction)) * Half.Z,
+-            Shape.Cylinder => MathF.Abs(Y.Dot(direction)) * Half.Y + Half.X * MathF.Sqrt(MathF.Max(0f, 1f - Y.Dot(direction) * Y.Dot(direction))),
++            Shape.Cylinder => MathF.Abs(Y.Dot(direction)) * Half.Y,
+             _ => throw new InvalidOperationException($"Undefined placement shape {Kind}.")
+         };
+     }

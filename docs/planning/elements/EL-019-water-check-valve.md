@@ -1,5 +1,7 @@
 # EL-019 · Water check valve — named-identity spec
 
+**Current delivery (24 October 2026):** [EL-019 delivery slice](../invest/named-elements.md#element-019). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec ([readiness spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations `path@a6c914e:Lstart-Lend` resolve with `git show a6c914e:<path>` after the Epic 7 purge. A value marked **proposed** has no legacy or requirement source; it carries a one-line justification and the owner may revise it.
 
 ## Identity
@@ -11,8 +13,8 @@ Story 7.0 named-identity spec ([readiness spec](../../../_bmad-output/implementa
 | Named entry | [element-019](../invest/named-elements.md#element-019); per-element proof owner S440 |
 | CAT spec refined | None. |
 | Related identities | Pipe kit [EL-008](EL-008-straight-water-pipe.md)–[EL-012](EL-012-water-pipe-cap.md), [EL-002](EL-002-header-tank.md), [EL-022 Water pump](EL-022-water-pump.md) (prevents back-flow through a stopped pump line), EL-024 Primed siphon |
-| Roadmap story | Unscheduled; ELEMENT-n row of the [roadmap](../invest/vertical-delivery.md#rolling-playable-roadmap), campaign chapter 7, levels 61–70. |
-| Status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
+| Roadmap story | [EL-019 delivery slice](../invest/named-elements.md#element-019); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
 
 ## Declaration
 
@@ -44,7 +46,7 @@ Story 7.0 named-identity spec ([readiness spec](../../../_bmad-output/implementa
 Families ([element map](../general-engine-element-map.md); binding [`element-01.json`](../../coverage/engine/element-01.json), consumer `element/element-019`): EnvironmentState, FiniteLedger, FluidAdvection, GeometryQuery, JointConstraint, PressureWork, RigidBodyDynamics, StateTransaction, TopologyTransaction.
 
 - **Exists now.** Static box (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L120`); Run/Reset (`engine/gpu/WorkshopSimulation.cs@a6c914e:L238-L245`).
-- **Missing.** A directional network node (component research line 34 "direction") and pressure-difference evaluation ([S416](../invest/decisions.md#s416) pressure-work → S419; advection → S418); a committed-state feedback for the flap cosmetic. Unscheduled.
+- **Missing.** A directional network node (component research line 34 "direction") and pressure-difference evaluation ([S416](../invest/decisions.md#s416) pressure-work → S419; advection → S418); a committed-state feedback for the flap cosmetic. Required in the linked delivery slice.
 - **Element dependencies.** Two head sources or a supply and a receiver joined by pipes (EL-001/EL-002, EL-008).
 
 ## Sources and legacy

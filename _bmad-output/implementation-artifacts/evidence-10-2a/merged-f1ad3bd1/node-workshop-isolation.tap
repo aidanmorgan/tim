@@ -1,0 +1,64 @@
+TAP version 13
+# Subtest: established isolation permits delayed runtime loading and records actual usable time
+ok 1 - established isolation permits delayed runtime loading and records actual usable time
+  ---
+  duration_ms: 1.583292
+  type: 'test'
+  ...
+# Subtest: incomplete isolation handshake still fails at the existing deadline
+ok 2 - incomplete isolation handshake still fails at the existing deadline
+  ---
+  duration_ms: 0.476708
+  type: 'test'
+  ...
+# Subtest: controller replacement retires booting ownership
+ok 3 - controller replacement retires booting ownership
+  ---
+  duration_ms: 0.372709
+  type: 'test'
+  ...
+# Subtest: controller replacement retires qualified ownership
+ok 4 - controller replacement retires qualified ownership
+  ---
+  duration_ms: 0.297875
+  type: 'test'
+  ...
+# Subtest: at most one isolation reload remains permitted
+ok 5 - at most one isolation reload remains permitted
+  ---
+  duration_ms: 0.8935
+  type: 'test'
+  ...
+# Subtest: manual navigation after slow runtime loading starts a fresh isolation attempt
+ok 6 - manual navigation after slow runtime loading starts a fresh isolation attempt
+  ---
+  duration_ms: 0.615375
+  type: 'test'
+  ...
+# Subtest: another deploy's changed isolation worker waiting behind the controller is refused
+ok 7 - another deploy's changed isolation worker waiting behind the controller is refused
+  ---
+  duration_ms: 0.291667
+  type: 'test'
+  ...
+# Subtest: a controller answering the handshake in another shape (the retired numbered reply) is refused
+ok 8 - a controller answering the handshake in another shape (the retired numbered reply) is refused
+  ---
+  duration_ms: 0.278208
+  type: 'test'
+  ...
+# Subtest: the isolation worker answers only the structural policy request from an eligible client
+ok 9 - the isolation worker answers only the structural policy request from an eligible client
+  ---
+  duration_ms: 0.639875
+  type: 'test'
+  ...
+1..9
+# tests 9
+# suites 0
+# pass 9
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 65.664917

@@ -1,5 +1,7 @@
 # EL-108 · Powered airlift named-identity spec
 
+**Current delivery (24 October 2026):** [EL-108 delivery slice](../invest/named-elements.md#element-108). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec (Batch J). Baseline commit `a6c914e`; every citation is `path@a6c914e:Lstart-Lend` and resolves with `git show a6c914e:<path> | sed -n 'start,endp'`. **Proposed** marks an unsourced design value with a one-line justification; the owner may revise it. All values are canonical IEEE-754 f32 game values inside the [game-grade envelope](../../gpu-f32-physics.md#game-grade-envelope).
 
 ## 1. Identity
@@ -13,7 +15,7 @@ Story 7.0 named-identity spec (Batch J). Baseline commit `a6c914e`; every citati
 | Proof owner | S480 |
 | Refines / extends | No CAT spec. Combines the open airflow field of [CAT-028 fan](CAT-028-fan.md) with the tube contract of [CAT-048 pipe](CAT-048-pipe.md) |
 | Related | EL-209 Fan (same air field family), EL-107, EL-109 (same scope index), CAT-005 Battery (supply) |
-| Roadmap story | unscheduled |
+| Roadmap story | [EL-108 delivery slice](../invest/named-elements.md#element-108); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration
@@ -62,7 +64,7 @@ Reference flow speed 12 m/s is a sourced field constant (`engine/AirflowNetwork.
 Clear pipe shell `#66b8c9` alpha 0.16 with cream `#fff8e9` collars; blower housing in the Fan colour `#66b8c9` on a dark slate base `#263d4b` (`parts/FanPart.cs@a6c914e:L36-L36`); airflow streak lines `#a9e7e0` (`parts/FanPart.cs@a6c914e:L48-L48`). Palette per [DESIGN colour system](../../../DESIGN.md#colour-system).
 
 ### Catalogue and inventory entry
-Id `airlift`, title "Powered airlift", category Power — **proposed**, matching the fan's category (`parts/catalog/fan.tres@a6c914e:L8-L10`). Add `WorkshopPartKind.Airlift` with a counted allowance (`engine/gpu/WorkshopInventory.cs@a6c914e:L9-L23`).
+Id `airlift`, title "Powered airlift", category Power — **proposed**, matching the fan's category (`parts/catalog/fan.tres@a6c914e:L8-L10`). Declare the package with a counted allowance keyed by its bundle-issued typed id (`engine/gpu/WorkshopInventory.cs@a6c914e:L9-L23`).
 
 ### Variants
 One outcome, no named variants in the row. "Airlift ... variants" in the campaign coverage row are unnamed ([campaign-element-coverage](../requirements.md#campaign-element-coverage)); open question 1.

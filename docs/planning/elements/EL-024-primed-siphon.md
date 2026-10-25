@@ -1,5 +1,7 @@
 # EL-024 · Primed siphon named-identity spec
 
+**Current delivery (24 October 2026):** [EL-024 delivery slice](../invest/named-elements.md#element-024). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 This is the Story 7.0 full spec for named identity EL-024. The baseline is commit `a6c914e`; every citation uses `path@a6c914e:Lstart-Lend`. Values without a source are marked **proposed**, each with a one-line justification; the owner may revise them.
 
 ## 1. Identity
@@ -13,8 +15,8 @@ This is the Story 7.0 full spec for named identity EL-024. The baseline is commi
 | Proof owner | S445 (with the S445-D priming/column decision named in the [element map](../general-engine-element-map.md)) |
 | CAT spec refined | none |
 | Related identities | [EL-168 Siphon priming bulb](EL-168-siphon-priming-bulb.md) (primer); EL-001 Finite reservoir and EL-004 Catch basin (source and receiver); EL-012 Water pipe cap (outlet seal); EL-022 Water pump (alternative primer, recipe "Prime Time") |
-| Roadmap story | unscheduled |
-| Status | not started (no `WorkshopPartKind` member, `engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`) |
+| Roadmap story | [EL-024 delivery slice](../invest/named-elements.md#element-024); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | not started (no `WorkshopPartKind` member, `engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`) |
 
 ## 2. Declaration
 
@@ -59,10 +61,10 @@ Families ([element-map row](../general-engine-element-map.md), [coverage binding
 - Counted inventory and save codec: `engine/gpu/WorkshopInventory.cs@a6c914e:L9-L23`, `engine/gpu/WorkshopSaveCodec.cs@a6c914e:L6-L10`.
 
 **Missing**
-- FluidAdvection and liquid FiniteLedger (S418), PressureWork head relation (S419): owner [S416](../invest/decisions.md#s416); unscheduled.
-- Siphon state machine, end-seal priming rule and column-break rule: S445-D (map row: "priming, continuous column and pressure/height break; not merely a connected flow edge"); unscheduled.
-- EnvironmentState world atmosphere bounding `max_crest_lift`: [S470](../invest/decisions.md#s470) open-versus-sealed; unscheduled.
-- Water ports and connections (TopologyTransaction): S416 with [S257](../invest/decisions.md#s257); unscheduled.
+- FluidAdvection and liquid FiniteLedger (S418), PressureWork head relation (S419): owner [S416](../invest/decisions.md#s416); required in the linked delivery slice.
+- Siphon state machine, end-seal priming rule and column-break rule: S445-D (map row: "priming, continuous column and pressure/height break; not merely a connected flow edge"); required in the linked delivery slice.
+- EnvironmentState world atmosphere bounding `max_crest_lift`: [S470](../invest/decisions.md#s470) open-versus-sealed; required in the linked delivery slice.
+- Water ports and connections (TopologyTransaction): S416 with [S257](../invest/decisions.md#s257); required in the linked delivery slice.
 
 **Element dependencies.** A source store (EL-001 or EL-004) and a lower receiver that covers the outlet, or an outlet seal (EL-012, a closed EL-167 tap); a primer (EL-168 Siphon priming bulb or EL-022 Water pump) unless `initial_prime` = Primed.
 

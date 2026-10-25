@@ -2,7 +2,7 @@
 # Generated and maintained via BMAD Method (bmm module)
 
 generated: 10-08-2026 00:26
-last_updated: 10-21-2026 12:00
+last_updated: 10-24-2026
 project: Curious Contraptions
 project_key: CC
 tracking_system: file-system
@@ -35,10 +35,16 @@ story_location: "_bmad-output/planning-artifacts/epics.md"
 # - Merged stories keep their keys and statuses, and sit directly after the story they merged into, with
 #   a "merged into" comment.
 # - 9r-18 is dropped; each closing story appends the dated addenda (closure table in epics.md).
-# - Selection rule: the next story is the first key in this file order that is not done. That replaces
-#   "first story of the current in-progress epic", because the lanes interleave epics. Skip a key whose
-#   comment says "merged into", "split into" or "dropped". When a merged story goes done, set its merged
-#   originals to done in the same update. A split original goes done when all of its splits are done.
+# - Selection rule (owner24Oct2026): epics.md#current-execution-plan governs phases.
+#   Within the current phase choose the first ready slice by its real capability prerequisites;
+#   file order and first-undone status alone never dispatch work.
+#   Split parents/epic summaries/retrospectives are aggregates, not executable stories.
+#   Every named implementation finishes required-now native review/publication before the next.
+#   After all named intrinsic implementations, dispatch native 15.0 assistance and remaining required
+#   native mode/collaborator integrations before catalogue-native-closure; exhaustive difficulty,
+#   campaign and browser qualification follow closure. Source-later cases keep their existing owners.
+#   Named keys resolve to docs/planning/invest/named-elements.md; canonical S owners remain.
+#   Backlog indicates missing runtime/proof reconciliation, not missing declaration documentation.
 
 development_status:
   epic-1: done
@@ -312,13 +318,19 @@ development_status:
   epic-10: backlog
   10-1-solid-cylinder-collider-and-inertia: done # scoped native/publication Passcf35a0; browser pending (engine-cylinder); restitution gate owned by engine-restitution slice
   # engine slice after 10.1, before 10.2a (coordinator decision, 24 Oct 2026); spec-engine-restitution.md
-  engine-restitution-energy-correctness: review # review Pass-pending-merge; merged with main f5ffdb4e in worktree story-engine-restitution; browser pending
+  engine-restitution-energy-correctness: done # scoped native/publication Pass0cba94; browser pending
   # deferred follow-up (coordinator decision 3, 24 Oct 2026): pre-existing soft-contact limit cycle in some 3-box stacks
   engine-resting-stack-settling: backlog
   # 34 (deletion)
   9a-39-generic-instance-battery: done # scoped native/publication Pass54ffd9; browser pending
   # 35 (element)
-  10-2-pulley-wheel-tensile-rope-dynamics: backlog
+  10-2a-weight: review # native candidate in worktree story-10-2a; browser pending (cat-067 incl. engine-cylinder)
+  # split into 10-2a, 10-2b and 10-2c (24 Oct 2026; one new element per story; 10-2b/10-2c provisional)
+  10-2-pulley-wheel-tensile-rope-dynamics: in-progress
+  # rope domain and the Weight's Tie socket and Load role (provisional)
+  10-2b-rope-tie-load: backlog
+  # Pulley (provisional)
+  10-2c-pulley-wheel: backlog
   # 36 (deletion)
   9a-c-lamp-detector-conversion: done # scoped native/publication Pass2065d3; browser pending
   # merged into 9a-c-lamp-detector (21 Oct 2026)
@@ -352,11 +364,11 @@ development_status:
   9r-10-system-clock-pause-reset-chrome-proof: done # native scoped Pass (C-Clock ae3cac); Chrome qualification post-catalogue
   # 43 (element)
   epic-11: backlog
-  11-1-electric-motor-tangential-conveyor-belt: backlog
+  11-1-electric-motor-tangential-conveyor-belt: backlog # split aggregate; use individual children
   # 44 (deletion): before 9a-c-memory, whose ACs need ThresholdReached and MemoryChanged
   9a-22-event-ring-producer: done # scoped native/publication Passfc7f7c; browser pending
   # 45 (element)
-  11-2-mechanical-clutch-reverse-transmission: backlog
+  11-2-mechanical-clutch-reverse-transmission: backlog # split aggregate; use individual children
   # 46 (deletion): last record conversion
   9a-c-memory-counter-latch-conversion: done # scoped native/publication Passf5ffdb; browser pending
   # merged into 9a-c-memory (21 Oct 2026)
@@ -370,14 +382,14 @@ development_status:
   # delivered in one slice with 9a-23 (one-shot part of 9a-25)
   9a-25b-one-shot-bindings-on-event-ring: review
   # 49 (element)
-  11-4-wound-spring-motor-toy-cannon-launcher: backlog
+  11-4-wound-spring-motor-toy-cannon-launcher: backlog # split aggregate; use individual children
   epic-11-retrospective: optional
   # 50 (deletion): owner decision 18 Oct 2026, every remaining binary16 lane to f32; Half nowhere in the tree.
   # As soon as its preconditions allow (after 9a-c-memory, 9a-25b and 9a-26).
   9a-44-f32-lane-completion-half-purge: backlog
   # 51 (element)
   epic-12: backlog
-  12-1-lightweight-tennis-ball-floating-balloon: backlog
+  12-1-lightweight-tennis-ball-floating-balloon: backlog # split aggregate; use individual children
   # 52 (deletion)
   9a-24-typed-observation-port: backlog
   # 53 (element)
@@ -398,7 +410,7 @@ development_status:
   9r-21-lit-palette-fidelity: backlog
   # 59 (element)
   epic-13: backlog
-  13-1-flashlight-torch-collimated-laser-emitters: backlog
+  13-1-flashlight-torch-collimated-laser-emitters: backlog # split aggregate; use individual children
   # 60 (polish)
   9r-22-element-art-polish: backlog
   # dropped as a separate story (coordinator, 21 Oct 2026): each closing story appends the dated addenda
@@ -410,13 +422,13 @@ development_status:
   13-1b-red-laser-emitter: backlog
   13-1c-green-laser-emitter: backlog
   13-1d-blue-laser-emitter: backlog
-  13-2-broadband-pure-channel-optical-receivers: backlog
+  13-2-broadband-pure-channel-optical-receivers: backlog # split aggregate; use individual children
   13-3-beam-shutter-mechanical-guillotine: backlog
-  13-4-spectral-color-bandpass-filters-rgb: backlog
-  13-5-planar-reflection-mirror-beam-splitter-combiner: backlog
-  13-6-secondary-spectral-receivers-cmyw: backlog
+  13-4-spectral-color-bandpass-filters-rgb: backlog # split aggregate; use individual children
+  13-5-planar-reflection-mirror-beam-splitter-combiner: backlog # split aggregate; use individual children
+  13-6-secondary-spectral-receivers-cmyw: backlog # split aggregate; use individual children
   13-7-photovoltaic-solar-panel-energy-conversion: backlog
-  13-8-optical-logic-gates-boolean-crystals: backlog
+  13-8-optical-logic-gates-boolean-crystals: backlog # split aggregate; use individual children
   epic-13-retrospective: optional
 
   epic-14: backlog
@@ -430,8 +442,9 @@ development_status:
   epic-14-retrospective: optional
 
   epic-15: backlog
-  # Owner decision 18 Oct 2026: physical placement nudging scheduled before the campaign (closes 6.9/6.10 assistance clauses).
-  15-0-physical-placement-nudging-difficulty-assistance: backlog
+  # Native15.0 after all named intrinsic implementations, BEFORE catalogue-native-closure;
+  # closes 6.9/6.10 assistance. Browser/difficulty/campaign sweeps remain after closure.
+  15-0-physical-placement-nudging-difficulty-assistance: backlog # bounded native stage; browser pending later
   15-1-campaign-chapter-1-levels-1-10: backlog
   15-2-campaign-chapter-1-levels-11-20: backlog
   15-3-campaign-chapter-1-levels-21-30: backlog
@@ -487,5 +500,336 @@ development_status:
   f-20-posted-read-receipt-identity: backlog
   f-21-bounded-memory-query-completion: backlog
   f-22-stopped-reliable-read-resource-bound: backlog
+
+
+  #24Oct finite stabilization; current order and detailed AC in epics.md#current-execution-plan.
+  engine-cylinder-axial-creep: backlog
+  test-workshop-harness-a: backlog
+  test-workshop-harness-b: backlog
+  runtime-typescript-conversion: backlog
+  test-behavioral-hygiene: backlog
+  engine-supported-impact-restitution: backlog # before10.3/first dynamic support consumer
+  cat-023c-offset-centre-of-mass: backlog # before next Domino-dependent level and catalogue closure
+  catalogue-native-closure: backlog # requires native 15.0 + all required modes/integrations; conjunction only
+  post-catalogue-browser-qualification: backlog # disabled until every CAT/named criterion passes native proof
+
+  # Individual children of grouped parents; source contracts in epics.md#catalogue-slice-ownership.
+  11-1a-motor: backlog
+  11-1b-conveyor: backlog
+  11-2a-clutch: backlog
+  11-2b-reverse-transmission: backlog
+  11-4a-wound-spring: backlog
+  11-4b-cannon: backlog
+  12-1a-tennis-ball: backlog
+  12-1b-balloon: backlog
+  13-1a-torch: backlog
+  13-1e-amber-laser: backlog
+  13-2a-broadband-receiver: backlog
+  13-2b-red-receiver: backlog
+  13-2c-green-receiver: backlog
+  13-2d-blue-receiver: backlog
+  13-4a-red-filter: backlog
+  13-4b-green-filter: backlog
+  13-4c-blue-filter: backlog
+  13-5a-mirror: backlog
+  13-5b-splitter: backlog
+  13-5c-combiner: backlog
+  13-6a-cyan-receiver: backlog
+  13-6b-magenta-receiver: backlog
+  13-6c-yellow-receiver: backlog
+  13-6d-white-receiver: backlog
+  13-8a-optical-and: backlog
+  13-8b-optical-nand: backlog
+  13-8c-optical-nor: backlog
+  13-8d-optical-or: backlog
+  13-8e-optical-xor: backlog
+
+  # Complete named-element inventory. One behavior/variant slice per source identity.
+  # Equivalent existing package/proof may be reused only after independent semantic/applicability review.
+  named-el-001: backlog # element-001
+  named-el-002: backlog # element-002
+  named-el-003: backlog # element-003
+  named-el-004: backlog # element-004
+  named-el-005: backlog # element-005
+  named-el-006: backlog # element-006
+  named-el-007: backlog # element-007
+  named-el-008: backlog # element-008
+  named-el-009: backlog # element-009
+  named-el-010: backlog # element-010
+  named-el-011: backlog # element-011
+  named-el-012: backlog # element-012
+  named-el-013: backlog # element-013
+  named-el-014: backlog # element-014
+  named-el-015: backlog # element-015
+  named-el-016: backlog # element-016
+  named-el-017: backlog # element-017
+  named-el-018: backlog # element-018
+  named-el-019: backlog # element-019
+  named-el-020: backlog # element-020
+  named-el-021: backlog # element-021
+  named-el-022: backlog # element-022
+  named-el-023: backlog # element-023
+  named-el-024: backlog # element-024
+  named-el-025: backlog # element-025
+  named-el-026: backlog # element-026
+  named-el-027: backlog # element-027
+  named-el-028: backlog # element-028
+  named-el-029: backlog # element-029
+  named-el-030: backlog # element-030
+  named-el-031: backlog # element-031
+  named-el-032: backlog # element-032
+  named-el-033: backlog # element-033
+  named-el-034: backlog # element-034
+  named-el-035: backlog # element-035
+  named-el-036: backlog # element-036
+  named-el-165: backlog # element-165
+  named-el-166: backlog # element-166
+  named-el-167: backlog # element-167
+  named-el-168: backlog # element-168
+  named-el-169: backlog # element-169
+  named-el-170: backlog # element-170
+  named-el-171: backlog # element-171
+  named-el-172: backlog # element-172
+  named-el-037: backlog # element-037
+  named-el-038: backlog # element-038
+  named-el-039: backlog # element-039
+  named-el-040: backlog # element-040
+  named-el-041: backlog # element-041
+  named-el-042: backlog # element-042
+  named-el-043: backlog # element-043
+  named-el-044: backlog # element-044
+  named-el-045: backlog # element-045
+  named-el-046: backlog # element-046
+  named-el-047: backlog # element-047
+  named-el-048: backlog # element-048
+  named-el-049: backlog # element-049
+  named-el-050: backlog # element-050
+  named-el-051: backlog # element-051
+  named-el-052: backlog # element-052
+  named-el-133: backlog # element-133
+  named-el-134: backlog # element-134
+  named-el-135: backlog # element-135
+  named-el-136: backlog # element-136
+  named-el-137: backlog # element-137
+  named-el-179: backlog # element-179
+  named-el-180: backlog # element-180
+  named-el-181: backlog # element-181
+  named-el-182: backlog # element-182
+  named-el-183: backlog # element-183
+  named-el-196: backlog # element-196
+  named-el-197: backlog # element-197
+  named-el-198: backlog # element-198
+  named-el-211: backlog # element-211
+  named-el-053: backlog # element-053
+  named-el-054: backlog # element-054
+  named-el-055: backlog # element-055
+  named-el-056: backlog # element-056
+  named-el-057: backlog # element-057
+  named-el-058: backlog # element-058
+  named-el-059: backlog # element-059
+  named-el-060: backlog # element-060
+  named-el-061: backlog # element-061
+  named-el-062: backlog # element-062
+  named-el-063: backlog # element-063
+  named-el-064: backlog # element-064
+  named-el-065: backlog # element-065
+  named-el-066: backlog # element-066
+  named-el-067: backlog # element-067
+  named-el-068: backlog # element-068
+  named-el-069: backlog # element-069
+  named-el-070: backlog # element-070
+  named-el-071: backlog # element-071
+  named-el-072: backlog # element-072
+  named-el-073: backlog # element-073
+  named-el-074: backlog # element-074
+  named-el-107: backlog # element-107
+  named-el-108: backlog # element-108
+  named-el-109: backlog # element-109
+  named-el-110: backlog # element-110
+  named-el-111: backlog # element-111
+  named-el-156: backlog # element-156
+  named-el-157: backlog # element-157
+  named-el-158: backlog # element-158
+  named-el-162: backlog # element-162
+  named-el-163: backlog # element-163
+  named-el-164: backlog # element-164
+  named-el-184: backlog # element-184
+  named-el-185: backlog # element-185
+  named-el-186: backlog # element-186
+  named-el-193: backlog # element-193
+  named-el-194: backlog # element-194
+  named-el-195: backlog # element-195
+  named-el-199: backlog # element-199
+  named-el-200: backlog # element-200
+  named-el-201: backlog # element-201
+  named-el-202: backlog # element-202
+  named-el-203: backlog # element-203
+  named-el-205: backlog # element-205
+  named-el-206: backlog # element-206
+  named-el-207: backlog # element-207
+  named-el-209: backlog # element-209
+  named-el-215: backlog # element-215
+  named-el-216: backlog # element-216
+  named-el-138: backlog # element-138
+  named-el-139: backlog # element-139
+  named-el-140: backlog # element-140
+  named-el-141: backlog # element-141
+  named-el-142: backlog # element-142
+  named-el-143: backlog # element-143
+  named-el-144: backlog # element-144
+  named-el-145: backlog # element-145
+  named-el-146: backlog # element-146
+  named-el-147: backlog # element-147
+  named-el-148: backlog # element-148
+  named-el-149: backlog # element-149
+  named-el-150: backlog # element-150
+  named-el-151: backlog # element-151
+  named-el-152: backlog # element-152
+  named-el-153: backlog # element-153
+  named-el-154: backlog # element-154
+  named-el-155: backlog # element-155
+  named-el-173: backlog # element-173
+  named-el-174: backlog # element-174
+  named-el-175: backlog # element-175
+  named-el-176: backlog # element-176
+  named-el-177: backlog # element-177
+  named-el-178: backlog # element-178
+  named-el-210: backlog # element-210
+  named-el-212: backlog # element-212
+  named-el-213: backlog # element-213
+  named-el-214: backlog # element-214
+  named-el-075: backlog # element-075
+  named-el-076: backlog # element-076
+  named-el-077: backlog # element-077
+  named-el-078: backlog # element-078
+  named-el-079: backlog # element-079
+  named-el-080: backlog # element-080
+  named-el-081: backlog # element-081
+  named-el-082: backlog # element-082
+  named-el-083: backlog # element-083
+  named-el-084: backlog # element-084
+  named-el-085: backlog # element-085
+  named-el-086: backlog # element-086
+  named-el-087: backlog # element-087
+  named-el-088: backlog # element-088
+  named-el-089: backlog # element-089
+  named-el-090: backlog # element-090
+  named-el-091: backlog # element-091
+  named-el-092: backlog # element-092
+  named-el-093: backlog # element-093
+  named-el-094: backlog # element-094
+  named-el-095: backlog # element-095
+  named-el-096: backlog # element-096
+  named-el-097: backlog # element-097
+  named-el-098: backlog # element-098
+  named-el-099: backlog # element-099
+  named-el-100: backlog # element-100
+  named-el-101: backlog # element-101
+  named-el-102: backlog # element-102
+  named-el-103: backlog # element-103
+  named-el-104: backlog # element-104
+  named-el-105: backlog # element-105
+  named-el-106: backlog # element-106
+  named-el-112: backlog # element-112
+  named-el-113: backlog # element-113
+  named-el-114: backlog # element-114
+  named-el-115: backlog # element-115
+  named-el-116: backlog # element-116
+  named-el-117: backlog # element-117
+  named-el-118: backlog # element-118
+  named-el-119: backlog # element-119
+  named-el-120: backlog # element-120
+  named-el-121: backlog # element-121
+  named-el-122: backlog # element-122
+  named-el-123: backlog # element-123
+  named-el-124: backlog # element-124
+  named-el-125: backlog # element-125
+  named-el-159: backlog # element-159
+  named-el-160: backlog # element-160
+  named-el-161: backlog # element-161
+  named-el-187: backlog # element-187
+  named-el-188: backlog # element-188
+  named-el-189: backlog # element-189
+  named-el-190: backlog # element-190
+  named-el-191: backlog # element-191
+  named-el-192: backlog # element-192
+  named-el-204: backlog # element-204
+  named-el-208: backlog # element-208
+  named-gap-04: backlog # gap-04
+  named-gap-06: backlog # gap-06
+  named-gap-07: backlog # gap-07
+  named-gap-09: backlog # gap-09
+  named-th-01: backlog # thermal-01
+  named-th-02: backlog # thermal-02
+  named-th-03: backlog # thermal-03
+  named-th-04: backlog # thermal-04
+  named-th-05: backlog # thermal-05
+  named-th-06: backlog # thermal-06
+  named-th-07: backlog # thermal-07
+  named-th-08: backlog # thermal-08
+  named-th-09: backlog # thermal-09
+  named-th-10: backlog # thermal-10
+  named-th-11: backlog # thermal-11
+  named-th-12: backlog # thermal-12
+  named-th-13: backlog # thermal-13
+  named-th-14: backlog # thermal-14
+  named-th-15: backlog # thermal-15
+  named-th-16: backlog # thermal-16
+  named-th-17: backlog # thermal-17
+  named-th-18: backlog # thermal-18
+  named-th-19: backlog # thermal-19
+  named-th-20: backlog # thermal-20
+  named-th-21: backlog # thermal-21
+  named-th-22: backlog # thermal-22
+  named-th-23: backlog # thermal-23
+  named-th-24: backlog # thermal-24
+  named-th-25: backlog # thermal-25
+  named-th-26: backlog # thermal-26
+  named-th-27: backlog # thermal-27
+  named-th-28: backlog # thermal-28
+  named-th-29: backlog # thermal-29
+  named-th-30: backlog # thermal-30
+  named-th-31: backlog # thermal-31
+  named-th-32: backlog # thermal-32
+  named-th-33: backlog # thermal-33
+  named-th-34: backlog # thermal-34
+  named-th-35: backlog # thermal-35
+  named-th-36: backlog # thermal-36
+  named-th-37: backlog # thermal-37
+  named-el-126: backlog # element-126
+  named-el-127: backlog # element-127
+  named-el-128: backlog # element-128
+  named-el-129: backlog # element-129
+  named-el-130: backlog # element-130
+  named-el-131: backlog # element-131
+  named-el-132: backlog # element-132
+  named-rad-01: backlog # radiation-01
+  named-rad-02: backlog # radiation-02
+  named-rad-03: backlog # radiation-03
+  named-rad-04: backlog # radiation-04
+  named-rad-06: backlog # radiation-06
+  named-rad-07: backlog # radiation-07
+  named-rad-08: backlog # radiation-08
+  named-rad-09: backlog # radiation-09
+  named-rad-10: backlog # radiation-10
+  named-rad-12: backlog # radiation-12
+  named-rad-13: backlog # radiation-13
+  named-rad-14: backlog # radiation-14
+  named-rad-15: backlog # radiation-15
+  named-rad-16: backlog # radiation-16
+  named-rad-17: backlog # radiation-17
+  named-rad-18: backlog # radiation-18
+  named-rad-20: backlog # radiation-20
+  named-rad-21: backlog # radiation-21
+  named-rad-22: backlog # radiation-22
+
+  # Non-element product features retain their requirements after complete catalogue implementation.
+  feature-gap-10: backlog
+  feature-gap-11: backlog
+  feature-gap-12: backlog
+  feature-gap-13: backlog
+  feature-gap-14: backlog
+  feature-gap-15: backlog
+  feature-gap-17: backlog
 
 action_items: []

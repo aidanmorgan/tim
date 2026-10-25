@@ -1,5 +1,7 @@
 # EL-213 · Optical combiner — named-identity spec
 
+**Current delivery (24 October 2026):** [EL-213 delivery slice](../invest/named-elements.md#element-213). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 full spec for a named puzzle-element identity. Baseline commit `a6c914e`. Legacy citations use `path@a6c914e:Lstart-Lend` and stay retrievable from git history after the Epic 7 purge. Lengths are legacy scene units, which the current engine treats as metres (`MetreVector`). Local +X is the outlet direction.
 
 EL-213 refines the catalogue combiner [CAT-006 beam_combiner](CAT-006-beam_combiner.md), whose spec holds the full legacy harvest. This file restates the declaration and the named identity's acceptance: compatible incident channels leave one explicit output aperture with conserved combined power and declared coupling loss; a missing channel is never synthesised, and crossing unrelated beams never combine by object identity.
@@ -15,7 +17,7 @@ EL-213 refines the catalogue combiner [CAT-006 beam_combiner](CAT-006-beam_combi
 | Owner | S509 |
 | Refines CAT | [CAT-006 beam_combiner](CAT-006-beam_combiner.md) (`beam_combiner`, "Beam combiner"). One catalogue part satisfies both identities; not a second implementation. |
 | Related | EL-174 prism (inverse); EL-149 to EL-152 mixed receivers (consumers); EL-176 to EL-178 lasers and EL-143 to EL-145 filters (inputs); EL-212 mirror |
-| Roadmap story | 13.5 Planar Reflection Mirror, Beam Splitter & Beam Combiner (CAT-041, CAT-008, CAT-006) |
+| Roadmap story | [EL-213 delivery slice](../invest/named-elements.md#element-213); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration
@@ -48,7 +50,7 @@ Binding shard ([element-03.json](../../coverage/engine/element-03.json)): Finite
 - OpticalTransport Route interaction with directed outlet, internal travel, per-ray budgets and outlet accounting at the captured pose — Story 13.5. Decision owner **S484** ([decisions](../invest/decisions.md#s484)): S485 finite-colour allocation, S486 optical-commit, S488.
 - Shared beam renderer merge rule — Story 13.5 (presentation).
 - OpticalAbsorption/SensibleHeat for the 10% loss — S489/S543, mode-specific.
-- `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`).
+- package declaration and bundle-issued typed id (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`).
 
 **Element dependencies:** lasers (CAT-036 or EL-176 to EL-178; Story 13.1) and filters (EL-143 to EL-145; Story 13.4) as inputs; mixed receivers (EL-149 to EL-152; Story 13.6) as consumers; CAT-005 battery; CAT-066 wall.
 

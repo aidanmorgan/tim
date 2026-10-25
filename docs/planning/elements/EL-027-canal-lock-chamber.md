@@ -1,5 +1,7 @@
 # EL-027 · Canal lock chamber named-identity spec
 
+**Current delivery (24 October 2026):** [EL-027 delivery slice](../invest/named-elements.md#element-027). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 This is the Story 7.0 full spec for named identity EL-027. The baseline is commit `a6c914e`; every citation uses `path@a6c914e:Lstart-Lend`. Values without a source are marked **proposed**, each with a one-line justification; the owner may revise them.
 
 ## 1. Identity
@@ -13,8 +15,8 @@ This is the Story 7.0 full spec for named identity EL-027. The baseline is commi
 | Proof owner | S448 |
 | CAT spec refined | none. Related: [CAT-062 Spring](CAT-062-spring.md) is the first prismatic slider (Story 6.4) the gates reuse |
 | Related identities | [EL-026 Communicating tank](EL-026-communicating-tank.md) (store and equalisation), EL-021 Sluice gate (the gate law), [EL-028 Buoyant platform](EL-028-buoyant-platform.md) and [EL-029 Boat](EL-029-boat.md) (the lifted cargo), EL-002 Header tank (upper supply) |
-| Roadmap story | unscheduled |
-| Status | not started (no `WorkshopPartKind` member, `engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`) |
+| Roadmap story | [EL-027 delivery slice](../invest/named-elements.md#element-027); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | not started (no `WorkshopPartKind` member, `engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`) |
 
 ## 2. Declaration
 
@@ -58,8 +60,8 @@ Families ([element-map row](../general-engine-element-map.md), [coverage binding
 
 **Missing**
 - Prismatic slider with travel limits: Story 6.4.
-- Liquid store, culvert advection (S418) and head relation (S419): owner [S416](../invest/decisions.md#s416); unscheduled.
-- Buoyancy for the lifted cargo (S420): unscheduled.
+- Liquid store, culvert advection (S418) and head relation (S419): owner [S416](../invest/decisions.md#s416); required in the linked delivery slice.
+- Buoyancy for the lifted cargo (S420): required in the linked delivery slice.
 - Rope or contact actuation of the gates: Story 10.2 (rope), Story 11.3 (pusher).
 
 **Element dependencies.** An upper supply (EL-002 Header tank or EL-026 tank) and a lower receiver; a gate actuator (CAT-039 Linear pusher, CAT-058 Rope anchor with CAT-053 Pulley); cargo EL-028 or EL-029.

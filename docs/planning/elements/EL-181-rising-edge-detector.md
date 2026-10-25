@@ -1,5 +1,7 @@
 # EL-181 · Rising-edge detector — element readiness spec
 
+**Current delivery (24 October 2026):** [EL-181 delivery slice](../invest/named-elements.md#element-181). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 Batch H named-identity spec. Legacy citations are pinned to `a6c914e` and resolve with `git show a6c914e:<path> | sed -n 'start,endp'`. Values marked *proposed* have no legacy or requirement source; each carries a one-line justification and may be revised by the owner. Box sizes are full extents. This spec holds the **edge-detector rules X1–X7** that [EL-182 Falling-edge detector](EL-182-falling-edge-detector.md) reuses.
 
 ## 1. Identity
@@ -10,7 +12,7 @@ Story 7.0 Batch H named-identity spec. Legacy citations are pinned to `a6c914e` 
 | Type | Control |
 | Anchor | [requirements.md#element-181](../requirements.md#element-181); existing record [campaign-element-coverage](../requirements.md#campaign-element-coverage) ("edge detection"); [named-elements entry](../invest/named-elements.md#element-181); owner S402 |
 | Related | Refines no CAT spec. Reads a supplied condition ([EL-198 Switch](EL-198-switch.md) contact, [EL-133](EL-133-electrical-and-gate.md)–[EL-137](EL-137-electrical-nand-gate.md) gate outputs, [CAT-060](CAT-060-sound_meter.md) meter contact); feeds activation consumers ([CAT-020 Counter](CAT-020-counter.md) / [EL-183](EL-183-resettable-counter.md), [CAT-035 lamp](../requirements.md#current-cat-035), [CAT-022 Delay](CAT-022-delay.md)). Mirror element [EL-182](EL-182-falling-edge-detector.md). |
-| Roadmap story | unscheduled |
+| Roadmap story | [EL-181 delivery slice](../invest/named-elements.md#element-181); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration
@@ -53,7 +55,7 @@ Families ([element map row](../general-engine-element-map.md); [binding](../../c
 
 **Missing**
 - Electrical condition input — supplied network, Story 8.1; condition role [S257](../invest/decisions.md#s257).
-- A re-armable edge source node that emits many occurrences per run: the current network emits each source once ("Every source emits once", `engine/gpu/ActivationNetwork.cs@a6c914e:L199-L208`) — new node kind, unscheduled.
+- A re-armable edge source node that emits many occurrences per run: the current network emits each source once ("Every source emits once", `engine/gpu/ActivationNetwork.cs@a6c914e:L199-L208`) — new node kind, required in the linked delivery slice.
 - Activation network capacity beyond 8 nodes for larger logic (`engine/gpu/ActivationNetwork.cs@a6c914e:L72-L72`).
 
 **Dependencies.** Battery and a switched condition (CAT-005, EL-198) or any supplied contact; an activation consumer to observe (lamp, counter).

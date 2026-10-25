@@ -1,5 +1,7 @@
 # EL-036 · Sprinkler named-identity spec
 
+**Current delivery (24 October 2026):** [EL-036 delivery slice](../invest/named-elements.md#element-036). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 This is the Story 7.0 full spec for named identity EL-036. The baseline is commit `a6c914e`; every citation uses `path@a6c914e:Lstart-Lend`. Values without a source are marked **proposed**, each with a one-line justification; the owner may revise them.
 
 ## 1. Identity
@@ -13,8 +15,8 @@ This is the Story 7.0 full spec for named identity EL-036. The baseline is commi
 | Proof owner | S457 |
 | CAT spec refined | none |
 | Related identities | EL-013 Water nozzle (single jet; the sprinkler divides into a footprint), [EL-172 Rain collector](EL-172-rain-collector.md) (catches its droplets), EL-002 Header tank and EL-022 Water pump (pressure sources); the pneumatic Sprinkler/jet regions in `docs/finite-gas-foundation.md` are a separate air family |
-| Roadmap story | unscheduled |
-| Status | not started (no `WorkshopPartKind` member, `engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`) |
+| Roadmap story | [EL-036 delivery slice](../invest/named-elements.md#element-036); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | not started (no `WorkshopPartKind` member, `engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`) |
 
 ## 2. Declaration
 
@@ -49,9 +51,9 @@ Families ([element-map row](../general-engine-element-map.md), [coverage binding
 - Gravity used for packet ballistics: `engine/gpu/WorkshopConstruction.cs@a6c914e:L123-L123`.
 
 **Missing**
-- Free-stream packets with a capture sweep against moving mouths, and a packet budget (FluidAdvection): [S416 advection](../invest/decisions.md#s416) → S418; unscheduled.
-- Head/pressure at the inlet (PressureWork): S419; unscheduled.
-- Selected-only footprint preview in the Workshop UI: unscheduled.
+- Free-stream packets with a capture sweep against moving mouths, and a packet budget (FluidAdvection): [S416 advection](../invest/decisions.md#s416) → S418; required in the linked delivery slice.
+- Head/pressure at the inlet (PressureWork): S419; required in the linked delivery slice.
+- Selected-only footprint preview in the Workshop UI: required in the linked delivery slice.
 
 **Element dependencies.** A pressurised supply (EL-002 Header tank via pipes, EL-022 Water pump); receivers (EL-004 Catch basin, EL-172 Rain collector, EL-034 Sponge).
 

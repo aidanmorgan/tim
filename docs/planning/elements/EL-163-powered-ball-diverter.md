@@ -1,5 +1,7 @@
 # EL-163 · Powered ball diverter named-identity spec
 
+**Current delivery (24 October 2026):** [EL-163 delivery slice](../invest/named-elements.md#element-163). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec (Batch J). Baseline commit `a6c914e`; every citation is `path@a6c914e:Lstart-Lend` and resolves with `git show a6c914e:<path> | sed -n 'start,endp'`. **Proposed** marks an unsourced design value with a one-line justification; the owner may revise it. All values are canonical IEEE-754 f32 game values inside the [game-grade envelope](../../gpu-f32-physics.md#game-grade-envelope).
 
 ## 1. Identity
@@ -13,7 +15,7 @@ Story 7.0 named-identity spec (Batch J). Baseline commit `a6c914e`; every citati
 | Proof owner | S374 |
 | Refines / extends | No CAT spec. Junction geometry of [EL-162](EL-162-fixed-ball-diverter.md); finite-work actuator of [CAT-051 powered gate](CAT-051-powered_gate.md); supply from [CAT-005 battery](CAT-005-battery.md) |
 | Related | EL-162, EL-164 (same scope index); EL-184 Mechanical ball gate |
-| Roadmap story | unscheduled |
+| Roadmap story | [EL-163 delivery slice](../invest/named-elements.md#element-163); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration
@@ -60,7 +62,7 @@ None internal. All blade work comes from `PowerIn`; kinetic energy of the blade 
 EL-162 palette: Ramp colour `#c28f52` channel, gold `#f7cb52` blade, navy `#293954` actuator housing ([DESIGN colour system](../../../DESIGN.md#colour-system)). **Proposed**.
 
 ### Catalogue and inventory entry
-Id `diverter_powered`, title "Powered diverter", category Motion — **proposed**. Add `WorkshopPartKind.PoweredDiverter` with a counted allowance (`engine/gpu/WorkshopInventory.cs@a6c914e:L9-L23`).
+Id `diverter_powered`, title "Powered diverter", category Motion — **proposed**. Declare the package with a counted allowance keyed by its bundle-issued typed id (`engine/gpu/WorkshopInventory.cs@a6c914e:L9-L23`).
 
 ### Variants
 One outcome in the row; fixed and alternating modes are EL-162 and EL-164.

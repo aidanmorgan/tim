@@ -1,5 +1,7 @@
 # CAT-059 · solar_panel — declaration readiness spec (CAT-059-D)
 
+**Current delivery (24 October 2026):** [CAT-059 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 ## Identity
 
 - **CAT ID / kind:** CAT-059 · `solar_panel` (catalogue title "Solar panel", category Power).
@@ -39,7 +41,7 @@ Families (map row CAT-059): AnimationEvaluation, AnimationLifecycle, ContactImpu
 - ElectricalPower source that a motor can draw — Story 8.1 (network) and Story 11.1 (CAT-042 motor load); S257 typed power versus signal.
 - Scalar (irradiance) feedback for the meter — Story 13.7 (P0-022/023).
 - SensibleHeat — S543, mode-specific only.
-- No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`).
+- No package declaration is established by the cited harvest baseline (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`).
 
 **Element dependencies:** CAT-029 flashlight (Story 13.1; the only legacy light source for the panel), CAT-042 motor (Story 11.1), CAT-001 ball (button strike; delivered), CAT-066 wall (shade; delivered), CAT-063 switch and CAT-022 delay (`delayed_solar`; delivered).
 

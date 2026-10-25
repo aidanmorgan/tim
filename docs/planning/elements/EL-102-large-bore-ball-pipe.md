@@ -1,6 +1,8 @@
 # EL-102 · Large-bore ball pipe — named-identity spec
 
-Story 7.0 named-identity spec ([story spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations are `path@a6c914e:Lstart-Lend`. Values with no legacy or requirement source are **proposed**, each with a one-line justification; the owner may revise them. Game values are canonical f32 ([numeric contract](../../gpu-f32-physics.md)).
+**Current delivery (24 October 2026):** [EL-102 delivery slice](../invest/named-elements.md#element-102). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
+Story 7.0 named-identity spec ([story spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations are `path@a6c914e:Lstart-Lend`. Values with no legacy or requirement source are **proposed**, each with a one-line justification; the owner may revise them. Game values are canonical f32 ([numeric contract](../../gpu-f32-physics.md#precision-status)).
 
 ## 1. Identity
 
@@ -11,8 +13,8 @@ Story 7.0 named-identity spec ([story spec](../../../_bmad-output/implementation
 | Named entry | [element-102](../invest/named-elements.md#element-102); source owner **S362** |
 | CAT spec refined or extended | Extends [CAT-048 Clear pipe](CAT-048-pipe.md): the same annular tube with a scaled bore |
 | Related identities | EL-071 Straight metal ball pipe, EL-072 Curved metal ball pipe, EL-103 Accelerator tube, EL-080 Programmable box (larger cargo) |
-| Roadmap story | Unscheduled |
-| Status | Not started. The standard pipe's declaration is parked and not compiled (`CuriousContraptions.csproj@a6c914e:L29-L29` excludes `WorkshopPipe.cs` and `AnnularProfile.cs`). |
+| Roadmap story | [EL-102 delivery slice](../invest/named-elements.md#element-102); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | Not started. The standard pipe's declaration is parked and not compiled (`CuriousContraptions.csproj@a6c914e:L29-L29` excludes `WorkshopPipe.cs` and `AnnularProfile.cs`). |
 
 ## 2. Declaration
 

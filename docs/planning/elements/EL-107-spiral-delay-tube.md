@@ -1,5 +1,7 @@
 # EL-107 · Spiral gravity-delay tube named-identity spec
 
+**Current delivery (24 October 2026):** [EL-107 delivery slice](../invest/named-elements.md#element-107). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec (Batch J). Baseline commit `a6c914e`; every citation is `path@a6c914e:Lstart-Lend` and resolves with `git show a6c914e:<path> | sed -n 'start,endp'`. **Proposed** marks an unsourced design value with a one-line justification; the owner may revise it. All values are canonical IEEE-754 f32 game values ([numeric authority](../../gpu-f32-physics.md#numeric-representation-and-precision)) inside the [game-grade envelope](../../gpu-f32-physics.md#game-grade-envelope).
 
 ## 1. Identity
@@ -13,7 +15,7 @@ Story 7.0 named-identity spec (Batch J). Baseline commit `a6c914e`; every citati
 | Proof owner | S380 |
 | Refines / extends | No CAT spec. Extends the clear-tube family: [CAT-048 pipe](CAT-048-pipe.md), [CAT-049 45° bend](CAT-049-pipe_bend_45.md), [CAT-050 90° bend](CAT-050-pipe_bend_90.md) |
 | Related | EL-108 Powered airlift, EL-109 Speed-sensitive trapdoor (same scope index) |
-| Roadmap story | unscheduled |
+| Roadmap story | [EL-107 delivery slice](../invest/named-elements.md#element-107); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration
@@ -58,7 +60,7 @@ Height follows: turns × 1.6 m (3.2 m by default), within the 16.8 × 9.8 m benc
 Clear pipe palette `#66b8c9`, shell alpha 0.16, cream `#fff8e9` collars and navy `#293954` rails ([DESIGN colour system](../../../DESIGN.md#colour-system); legacy art `parts/PipePart.cs@a6c914e:L21-L27`). **Proposed**: reuse the pipe identity so players read it as a tube.
 
 ### Catalogue and inventory entry
-Id `spiral_tube`, title "Spiral delay tube", category Motion — **proposed**, following the catalogue fields of `parts/catalog/conveyor.tres@a6c914e:L8-L14`. Add `WorkshopPartKind.SpiralTube` and a counted `PartAllowance` (`engine/gpu/WorkshopInventory.cs@a6c914e:L9-L23`).
+Id `spiral_tube`, title "Spiral delay tube", category Motion — **proposed**, following the catalogue fields of `parts/catalog/conveyor.tres@a6c914e:L8-L14`. Declare the package with a counted allowance keyed by its bundle-issued typed id (`engine/gpu/WorkshopInventory.cs@a6c914e:L9-L23`).
 
 ### Variants
 The requirement row names one outcome and no variants. The campaign coverage row lists "spiral delay ... variants" without naming them ([campaign-element-coverage](../requirements.md#campaign-element-coverage)); `turns` and `handedness` are configuration, not separate variants (open question 1).

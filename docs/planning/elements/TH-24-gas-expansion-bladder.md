@@ -1,5 +1,7 @@
 # TH-24 · Gas expansion bladder — named-identity readiness spec
 
+**Current delivery (24 October 2026):** [TH-24 delivery slice](../invest/named-elements.md#thermal-24). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations are `path@a6c914e:Lstart-Lend`. No legacy bladder exists; the legacy sealed-gas chamber supplies the equation of state, volume work and test oracles (section 4). Every design value without a cited source is marked "(proposed: …)" with a one-line justification; the owner may revise it.
 
 ## 1. Identity
@@ -12,8 +14,8 @@ Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artif
 | Proof owner / research | S587 · [TH-S06 thermal expansion](../../thermal-component-research.md#th-s06) |
 | Related identities | No CAT spec. The [gas family](../../finite-gas-foundation.md) lists it with [TH-25 Hot-air balloon](TH-25-hot-air-balloon.md) as "sealed gas store + heat family". Bellows form echoes [CAT-010 Bellows](CAT-010-bellows.md). Heat from [TH-04](TH-04-electrical-heating-plate.md). |
 | Campaign | Intro 77; practice 78; reuse 90, 143 ([thermal allocation](../requirements.md#thermal-campaign-allocation)) |
-| Roadmap story | Unscheduled. No epic in `_bmad-output/planning-artifacts/epics.md` schedules a thermal element or the sealed gas store. |
-| Status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`); no legacy part. |
+| Roadmap story | [TH-24 delivery slice](../invest/named-elements.md#thermal-24); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`); no legacy part. |
 
 ## 2. Declaration
 
@@ -37,14 +39,14 @@ Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artif
 
 - **Cosmetic curves and UI bindings.** Skin ← committed volume ([research per-element table](../../thermal-component-research.md); [gas family](../../finite-gas-foundation.md) "skin scale ← committed volume"); gold volume marks on the neck.
 - **Art.** "Cyan geometric bellows dome, cream neck and gold volume marks" (row). Nearest [DESIGN.md](../../../DESIGN.md) source colours (proposed mapping): cyan `#66b8c9` (`DESIGN.md@a6c914e:L172-L172`), cream `#ead39b` (`DESIGN.md@a6c914e:L146-L146`), gold `#f7cb52` (`DESIGN.md@a6c914e:L154-L154`).
-- **Catalogue and inventory entry.** New `WorkshopPartKind.GasBladder`; id `gas_bladder`, title "Gas expansion bladder", category Heat (proposed: no current category covers thermal parts).
+- **Catalogue and inventory entry.** Package-owned declaration, discovered into the bundle; id `gas_bladder`, title "Gas expansion bladder", category Heat (proposed: no current category covers thermal parts).
 
 ## 3. Engine capabilities
 
 Families (map row TH-24, [general-engine-element-map](../general-engine-element-map.md); binding [thermal-01.json](../../coverage/engine/thermal-01.json)): ElasticStorage, EnvironmentState, FiniteLedger, GasState, GeometryQuery, JointConstraint, RigidBodyDynamics, SensibleHeat, ThermalExpansion, TopologyTransaction; JSON adds StateTransaction. Composition note: PressureWork and deformable volume/elastic boundary coupling required in addition to gas and temperature data.
 
 - **Exists now.** Rigid bodies and box colliders (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L120`); Run/Reset and save (`engine/gpu/ActivationNetwork.cs@a6c914e:L67-L67`, `engine/gpu/WorkshopSaveCodec.cs@a6c914e:L6-L10`).
-- **Missing.** Slider and elastic store: Stories 6.4–6.5. Sealed gas store: [S470](../invest/decisions.md#s470) gas-state → S471. PressureWork: [S416](../invest/decisions.md#s416) → S419. Heat into gas: [S543](../invest/decisions.md#s543) expansion → S557, conduction → S544. Unscheduled.
+- **Missing.** Slider and elastic store: Stories 6.4–6.5. Sealed gas store: [S470](../invest/decisions.md#s470) gas-state → S471. PressureWork: [S416](../invest/decisions.md#s416) → S419. Heat into gas: [S543](../invest/decisions.md#s543) expansion → S557, conduction → S544. Required in the linked delivery slice.
 - **Dependencies.** A heat source (TH-04); a load (a ball or CAT-067 Weight).
 
 ## 4. Sources and legacy
@@ -81,6 +83,6 @@ Point of truth: [thermal-24](../requirements.md#thermal-24) and [ELEMENT accepta
 ## 6. Open questions
 
 1. **Batch N game scale.** Adopt or revise the one scale in section 2 (×¼ specific heat, ×1/16 latent heat, gas ×1, reaction energy and O₂ ×1/1024, h 2.5 W/(m²·K), per-pair series contact conductance from per-part face values, 1 intensity unit = 1 W, and which research-table rows the scale multiplies). It carries two consequences: boiling needs a declared saturation curve (S550) because scaled water latent heat is below R·T_sat, and gas-node time constants run about 4× slower than SI (TH-25). Owner decision.
-2. **Gas store schedule.** S471 is unscheduled. Owner decision.
+2. **Gas store schedule.** S471 is required in the linked delivery slice. Owner decision.
 3. **Vent preset.** Is `Vented` a declared preset or a separate valve part? Owner decision.
 4. **Map row.** The composition note requires PressureWork, absent from the family list. Owner decision.

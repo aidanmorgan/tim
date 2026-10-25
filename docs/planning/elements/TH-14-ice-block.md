@@ -1,5 +1,7 @@
 # TH-14 · Ice block — named-identity readiness spec
 
+**Current delivery (24 October 2026):** [TH-14 delivery slice](../invest/named-elements.md#thermal-14). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations are `path@a6c914e:Lstart-Lend`. No legacy holds ice values, so every design value without a cited source is marked "(proposed: …)" with a one-line justification; the owner may revise it.
 
 ## 1. Identity
@@ -12,8 +14,8 @@ Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artif
 | Proof owner / research | S578 · [TH-S02 phase change](../../thermal-component-research.md#th-s02) |
 | Related identities | No CAT spec. Same water material as [TH-13 Freezing mold](TH-13-freezing-mold.md) contents and [TH-15 Ice plug](TH-15-ice-plug.md); the row separates the plug's placement role from this cargo role. Box body like [CAT-023 Domino](CAT-023-domino.md). Meltwater joins the water family (Batches F and G). |
 | Campaign | Intro 67; practice 68; reuse 89, 139 ([thermal allocation](../requirements.md#thermal-campaign-allocation)) |
-| Roadmap story | Unscheduled. No epic in `_bmad-output/planning-artifacts/epics.md` schedules a thermal element. |
-| Status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`); no legacy part. |
+| Roadmap story | [TH-14 delivery slice](../invest/named-elements.md#thermal-14); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`); no legacy part. |
 
 ## 2. Declaration
 
@@ -35,14 +37,14 @@ Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artif
 
 - **Cosmetic curves and UI bindings.** Scale ← committed solid fraction ([research per-element table](../../thermal-component-research.md)); a clear melt edge and bounded droplets follow the same committed f (row).
 - **Art.** "Frosted cyan faceted cuboid with a clear melt edge and bounded droplets" (row). Nearest [DESIGN.md](../../../DESIGN.md) source colour (proposed mapping): cyan `#66b8c9` (`DESIGN.md@a6c914e:L172-L172`).
-- **Catalogue and inventory entry.** New `WorkshopPartKind.IceBlock`; id `ice_block`, title "Ice block", category Heat (proposed: no current category covers thermal parts).
+- **Catalogue and inventory entry.** Package-owned declaration, discovered into the bundle; id `ice_block`, title "Ice block", category Heat (proposed: no current category covers thermal parts).
 
 ## 3. Engine capabilities
 
 Families (map row TH-14, [general-engine-element-map](../general-engine-element-map.md); binding [thermal-01.json](../../coverage/engine/thermal-01.json)): ContactImpulse, EnvironmentState, FiniteLedger, GasState, GeometryQuery, PhaseTopology, RigidBodyDynamics, SensibleHeat, SolidMelting, TopologyTransaction; JSON adds StateTransaction.
 
 - **Exists now.** Dynamic box body, contact, friction and derived inertia (Story 5.1; `engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L120`, `engine/gpu/RigidMassProperties.cs@a6c914e:L17-L17`); Run/Reset and save (`engine/gpu/ActivationNetwork.cs@a6c914e:L67-L67`, `engine/gpu/WorkshopSaveCodec.cs@a6c914e:L6-L10`).
-- **Missing.** [S543](../invest/decisions.md#s543): melting → S547, phase-topology (shrinking collider, changing mass and inertia mid-Run) → S565, conduction → S544. Meltwater inventory: [S416](../invest/decisions.md#s416) advection → S418. GasState/EnvironmentState: [S470](../invest/decisions.md#s470), [S635](../invest/decisions.md#s635). All unscheduled.
+- **Missing.** [S543](../invest/decisions.md#s543): melting → S547, phase-topology (shrinking collider, changing mass and inertia mid-Run) → S565, conduction → S544. Meltwater inventory: [S416](../invest/decisions.md#s416) advection → S418. GasState/EnvironmentState: [S470](../invest/decisions.md#s470), [S635](../invest/decisions.md#s635). All required in the linked delivery slice.
 - **Dependencies.** A heat source (TH-04, TH-01); a catch basin from the water family to collect meltwater (TX-07).
 
 ## 4. Sources and legacy

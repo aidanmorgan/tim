@@ -1,5 +1,7 @@
 # EL-066 · Scissors declaration readiness spec
 
+**Current delivery (24 October 2026):** [EL-066 delivery slice](../invest/named-elements.md#element-066). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 Story 7.0 named-identity spec. Baseline commit `a6c914e`. Legacy citations use `path@a6c914e:Lstart-Lend` and stay retrievable from git history after the Epic 7 purge. Values marked **proposed** are design values the owner may revise.
 
 ## 1. Identity
@@ -13,7 +15,7 @@ Story 7.0 named-identity spec. Baseline commit `a6c914e`. Legacy citations use `
 | Named entry | [named-elements.md#element-066](../invest/named-elements.md#element-066); proof owner S335 |
 | CAT spec refined or extended | none. Related: [CAT-058 rope anchor](CAT-058-rope_anchor.md) (rope route and topology), [CAT-067 weight](CAT-067-weight.md) (actuating and released loads), [CAT-034 impact lever](CAT-034-impact_lever.md) (hinged arm pattern) |
 | Related identities | [EL-068 tin snips](EL-068-tin-snips.md) (powered cutter; same criterion), [EL-067 steel cable](EL-067-steel-cable.md) (resistant material), EL-205 rope (Batch J) |
-| Roadmap story | unscheduled |
+| Roadmap story | [EL-066 delivery slice](../invest/named-elements.md#element-066); canonical proof owner and prerequisite decisions are recorded there. |
 | Status | not started |
 
 ## 2. Declaration
@@ -63,7 +65,7 @@ Pale grey blades `#ccd9df`, gold pivot `#f7cb52`, ochre handle `#d69c47`, navy p
 
 ### Catalogue and inventory entry
 
-Id `scissors`, title "Scissors", category "Ropes"; `WorkshopPartKind.Scissors` appended last to the free inventory (`engine/gpu/WorkshopInventory.cs@a6c914e:L49-L60`). **Proposed**.
+Id `scissors`, title "Scissors", category "Ropes"; package-owned metadata discovered into the Free palette from the bundle (`engine/gpu/WorkshopInventory.cs@a6c914e:L49-L60`). **Proposed**.
 
 ### Variants
 
@@ -77,12 +79,12 @@ Binding: EnvironmentState, FiniteLedger, GeometryQuery, JointConstraint, RigidBo
 
 **Missing**
 
-- Compound dynamic body (blade plus handle boxes) with combined mass properties: `RigidMassProperties.Compile` admits one homogeneous sphere or box per dynamic body (`engine/gpu/RigidMassProperties.cs@a6c914e:L26-L31`); no story. Decision owner S335.
+- Compound dynamic body (blade plus handle boxes) with combined mass properties: `RigidMassProperties.Compile` admits one homogeneous sphere or box per dynamic body (`engine/gpu/RigidMassProperties.cs@a6c914e:L26-L31`); required prerequisite owned by the linked delivery slice. Decision owner S335.
 - Hinge with limits and return spring: Story 10.3.
 - Rope domain and route: Story 10.2.
-- Span-in-region geometry query: no story.
-- Structural fracture criterion (work vs resistance): decision row "fracture" → S563 ([decisions.md#s543](../invest/decisions.md#s543)); no story.
-- Topology transaction removing a route span atomically: decision row "phase-topology" → S565 pattern; no story.
+- Span-in-region geometry query: required prerequisite owned by the linked delivery slice.
+- Structural fracture criterion (work vs resistance): decision row "fracture" → S563 ([decisions.md#s543](../invest/decisions.md#s543)); required prerequisite owned by the linked delivery slice.
+- Topology transaction removing a route span atomically: decision row "phase-topology" → S565 pattern; required prerequisite owned by the linked delivery slice.
 
 **Dependencies.** A rope route under tension to cut (CAT-058/CAT-067, Stories 10.2/10.4); a closing input (a falling Weight on the handle rope).
 

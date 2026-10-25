@@ -1,0 +1,78 @@
+TAP version 13
+# (node:23770) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: a served Animation probe reaches the host (control)
+ok 1 - a served Animation probe reaches the host (control)
+  ---
+  duration_ms: 24.335458
+  type: 'test'
+  ...
+# Subtest: a disposed Animation worker holds no clock ring and refuses to probe it
+ok 2 - a disposed Animation worker holds no clock ring and refuses to probe it
+  ---
+  duration_ms: 0.877209
+  type: 'test'
+  ...
+# Subtest: a clock reply landing after the Animation worker was disposed never reaches the host
+ok 3 - a clock reply landing after the Animation worker was disposed never reaches the host
+  ---
+  duration_ms: 21.998208
+  type: 'test'
+  ...
+# Subtest: each Service turn first delivers the new records of the installed epoch, once
+ok 4 - each Service turn first delivers the new records of the installed epoch, once
+  ---
+  duration_ms: 22.728458
+  type: 'test'
+  ...
+# Subtest: a ring older than the installed epoch is ignored: no delivery, no foreign-epoch fault, and the turn still services
+ok 5 - a ring older than the installed epoch is ignored: no delivery, no foreign-epoch fault, and the turn still services
+  ---
+  duration_ms: 22.9655
+  type: 'test'
+  ...
+# Subtest: owned master-port accepts exactly one scheduleControl payload
+ok 6 - owned master-port accepts exactly one scheduleControl payload
+  ---
+  duration_ms: 21.917875
+  type: 'test'
+  ...
+# Subtest: owned master-port accepts exactly one committedRead payload
+ok 7 - owned master-port accepts exactly one committedRead payload
+  ---
+  duration_ms: 22.248084
+  type: 'test'
+  ...
+# Subtest: mixed or unknown master-port envelope calls neither managed entry
+ok 8 - mixed or unknown master-port envelope calls neither managed entry
+  ---
+  duration_ms: 21.903084
+  type: 'test'
+  ...
+# Subtest: mixed or unknown master-port envelope calls neither managed entry
+ok 9 - mixed or unknown master-port envelope calls neither managed entry
+  ---
+  duration_ms: 22.869334
+  type: 'test'
+  ...
+# Subtest: mixed or unknown master-port envelope calls neither managed entry
+ok 10 - mixed or unknown master-port envelope calls neither managed entry
+  ---
+  duration_ms: 22.874625
+  type: 'test'
+  ...
+# Subtest: mixed or unknown master-port envelope calls neither managed entry
+ok 11 - mixed or unknown master-port envelope calls neither managed entry
+  ---
+  duration_ms: 22.737875
+  type: 'test'
+  ...
+1..11
+# tests 11
+# suites 0
+# pass 11
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 288.926958

@@ -1,5 +1,7 @@
 # EL-167 · Solenoid tap named-identity spec
 
+**Current delivery (24 October 2026):** [EL-167 delivery slice](../invest/named-elements.md#element-167). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 This is the Story 7.0 full spec for named identity EL-167. The baseline is commit `a6c914e`; every citation uses `path@a6c914e:Lstart-Lend`. Values without a source are marked **proposed**, each with a one-line justification; the owner may revise them.
 
 ## 1. Identity
@@ -13,8 +15,8 @@ This is the Story 7.0 full spec for named identity EL-167. The baseline is commi
 | Proof owner | S460 |
 | CAT spec refined | none. It refines [EL-003 Tap](EL-003-tap.md) as the supplied, commanded variant. Related: [CAT-005 Battery](CAT-005-battery.md) (supply), [CAT-013 Both gate](CAT-013-both_gate.md) (separate condition and supply sockets precedent) |
 | Related identities | [EL-165 Manual tap](EL-165-manual-tap.md), [EL-166 Mechanically actuated tap](EL-166-mechanically-actuated-tap.md); EL-018 Electronic level switch (a typical command source) |
-| Roadmap story | unscheduled |
-| Status | not started (no `WorkshopPartKind` member, `engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`) |
+| Roadmap story | [EL-167 delivery slice](../invest/named-elements.md#element-167); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | not started (no `WorkshopPartKind` member, `engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`) |
 
 ## 2. Declaration
 
@@ -59,8 +61,8 @@ Families ([element-map row](../general-engine-element-map.md), [coverage binding
 **Missing**
 - ElectricalPower supply network with per-input availability: Story 8.1 ([CAT-005](CAT-005-battery.md)); finite battery capacity is an open owner decision there.
 - Prismatic slider with return spring: Story 6.4.
-- Supplied actuator that moves a joint only when command and supply hold (FiniteWorkActuation): unscheduled (pattern shared with CAT-051 Powered gate, Story 8.2).
-- Valve node and head (S418/S419): owner [S416](../invest/decisions.md#s416); unscheduled.
+- Supplied actuator that moves a joint only when command and supply hold (FiniteWorkActuation): required in the linked delivery slice (pattern shared with CAT-051 Powered gate, Story 8.2).
+- Valve node and head (S418/S419): owner [S416](../invest/decisions.md#s416); required in the linked delivery slice.
 
 **Element dependencies.** CAT-005 Battery (Story 8.1); a command source such as CAT-063 Switch, CAT-002 Ball detector or EL-018 level switch; a supply and route as EL-165.
 

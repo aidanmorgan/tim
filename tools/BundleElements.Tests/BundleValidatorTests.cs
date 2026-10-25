@@ -90,6 +90,61 @@ public sealed class BundleValidatorTests
         }) Assert.True(Check(candidate).Any(error => error.Detail.Contains(".ContactWork.", StringComparison.Ordinal)), name);
     }
 
+    // Story 10.2a (CAT-067 D3): a body mass bound to a parameter names one declared Real kilogram parameter whose whole range lies in
+    // the compiled mass domain [1/1024, 1024] kg, on a dynamic body, and the fixed declared mass is that parameter's default (one truth).
+    // A cylinder's radial lanes are bound together or not at all, so every evaluation keeps X = Z.
+    [Fact]
+    public void AMassBindingNamesOneKilogramParameterOfADynamicBodyAndAgreesWithTheDeclaredMassAtItsDefault()
+    {
+        var mass = new ParameterDescriptor("mass", ParameterUnit.Kilogram, ParameterKind.Real, .25f, 8f, 4f, [], ParameterEditorPolicy.Clamp);
+        var entry = Bundle.BundleSchema.Entry(new Fixture
+        {
+            Parameters = [mass],
+            KinematicMode = Abstractions.Mechanical.KinematicMode.Dynamic,
+            Footprint = new(1, 1, 0),
+            MassProperties = new(4f, new(0f, .28f, 0f), new(.23f, .25f, .23f), 0f, new(0f, -9.81f, 0f)),
+            Colliders = [new(ColliderShapeKind.Cylinder, new(.35f, .28f, .35f), new(0f, .28f, 0f), Quaternion.Identity, new MaterialProperties(.08f, .3f, .03f, .1f))]
+        });
+        var bound = Abstractions.Mechanical.MechanicalValue.FromParameter("mass");
+        Bundle.BundleEntry With(Abstractions.Mechanical.MechanicalValue value, params ParameterDescriptor[] parameters) =>
+            entry with { Metadata = entry.Metadata with { Parameters = parameters }, Mechanical = entry.Mechanical! with { MassParameter = value } };
+        static IReadOnlyList<Bundle.BundleError> Check(Bundle.BundleEntry candidate) => Bundle.BundleValidator.Validate([new("Fixture", candidate)]);
+        Assert.Empty(Check(With(bound, mass)));
+        // Boundaries: the whole compiled mass domain, and a default exactly equal to the fixed mass.
+        Assert.Empty(Check(With(bound, mass with { Minimum = 1f / 1024f, Maximum = 1024f })));
+        foreach (var (name, candidate) in new[]
+        {
+            ("constant source", With(Abstractions.Mechanical.MechanicalValue.Fixed(4f), mass)),
+            ("missing parameter", With(bound)),
+            ("unknown key", With(Abstractions.Mechanical.MechanicalValue.FromParameter("load"), mass)),
+            ("duplicate key", With(bound, mass, mass)),
+            ("not kilograms", With(bound, mass with { Unit = ParameterUnit.Metre })),
+            ("whole number", With(bound, mass with { Kind = ParameterKind.WholeNumber, Minimum = 1f, Maximum = 8f })),
+            ("below the mass domain", With(bound, mass with { Minimum = 1f / 2048f })),
+            ("above the mass domain", With(bound, mass with { Maximum = 1025f })),
+            ("fixed mass is not the default", With(bound, mass with { Default = 5f })),
+            ("fixed mass one ulp from the default", With(bound, mass with { Default = BitConverter.Int32BitsToSingle(BitConverter.SingleToInt32Bits(4f) + 1) })),
+            ("static body", With(bound, mass) with { Mechanical = entry.Mechanical! with
+                { MassParameter = bound, KinematicMode = Abstractions.Mechanical.KinematicMode.Static } })
+        }) Assert.True(Check(candidate).Any(error => error.Detail.Contains(".MassParameter", StringComparison.Ordinal)), name);
+
+        var radial = new ColliderParameterBinding(0, GeometryComponent.HalfExtentX, "mass", .05f, .15f);
+        var paired = radial with { Component = GeometryComponent.HalfExtentZ };
+        Bundle.BundleEntry Bound(params ColliderParameterBinding[] bindings) => With(bound, mass) with { ColliderBindings = bindings };
+        Assert.Empty(Check(Bound()));
+        Assert.Empty(Check(Bound(radial, paired, new(0, GeometryComponent.HalfExtentY, "mass", .04f, .12f))));
+        foreach (var unequal in new ColliderParameterBinding[][]
+        {
+            [radial], [paired], [radial, paired with { Multiplier = .06f }], [radial, paired with { Offset = .16f }],
+            [radial, paired with { Parameter = "size" }]
+        }) Assert.Contains(Check(Bound(unequal) with { Metadata = entry.Metadata with { Parameters =
+            [mass, new("size", ParameterUnit.Metre, ParameterKind.Real, .25f, 8f, 4f, [])] } }),
+            error => error.Detail.Contains("ColliderBindings[0].CylinderRadius", StringComparison.Ordinal));
+        // Control: a box's radial lanes are independent.
+        var box = Bound(radial) with { Colliders = [Fixture.Box(new(.35f, .28f, .35f))] };
+        Assert.DoesNotContain(Check(box), error => error.Detail.Contains("CylinderRadius", StringComparison.Ordinal));
+    }
+
     [Fact]
     public void ContactCapabilityRequiresOneTypedParameterAndPulseOutput()
     {

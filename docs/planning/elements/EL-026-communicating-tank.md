@@ -1,5 +1,7 @@
 # EL-026 · Communicating tank named-identity spec
 
+**Current delivery (24 October 2026):** [EL-026 delivery slice](../invest/named-elements.md#element-026). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+
 This is the Story 7.0 full spec for named identity EL-026. The baseline is commit `a6c914e`; every citation uses `path@a6c914e:Lstart-Lend`. Values without a source are marked **proposed**, each with a one-line justification; the owner may revise them.
 
 ## 1. Identity
@@ -13,8 +15,8 @@ This is the Story 7.0 full spec for named identity EL-026. The baseline is commi
 | Proof owner | S447 |
 | CAT spec refined | none |
 | Related identities | EL-001 Finite reservoir (a single store; this tank adds low connecting ports), EL-008–EL-012 water pipe kit (the connection), [EL-027 Canal lock chamber](EL-027-canal-lock-chamber.md), [EL-032 Pressure meter](EL-032-pressure-meter.md) |
-| Roadmap story | unscheduled |
-| Status | not started (no `WorkshopPartKind` member, `engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`) |
+| Roadmap story | [EL-026 delivery slice](../invest/named-elements.md#element-026); canonical proof owner and prerequisite decisions are recorded there. |
+| Harvest-baseline status | not started (no `WorkshopPartKind` member, `engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`) |
 
 ## 2. Declaration
 
@@ -57,8 +59,8 @@ Families ([element-map row](../general-engine-element-map.md), [coverage binding
 - Counted inventory and save codec: `engine/gpu/WorkshopInventory.cs@a6c914e:L9-L23`, `engine/gpu/WorkshopSaveCodec.cs@a6c914e:L6-L10`.
 
 **Missing**
-- Liquid FiniteLedger and FluidAdvection between stores (S418), head/pressure relation (S419): owner [S416](../invest/decisions.md#s416); unscheduled. S416 advection's Chrome construction is "two containers and one branching route: the receiving levels rise by what the source loses; an empty source sends nothing".
-- Water ports and pipe connections (TopologyTransaction): S416 with [S257](../invest/decisions.md#s257); unscheduled.
+- Liquid FiniteLedger and FluidAdvection between stores (S418), head/pressure relation (S419): owner [S416](../invest/decisions.md#s416); required in the linked delivery slice. S416 advection's Chrome construction is "two containers and one branching route: the receiving levels rise by what the source loses; an empty source sends nothing".
+- Water ports and pipe connections (TopologyTransaction): S416 with [S257](../invest/decisions.md#s257); required in the linked delivery slice.
 
 **Element dependencies.** A second communicating tank or any store with a water port; a pipe route from the EL-008–EL-012 kit.
 
