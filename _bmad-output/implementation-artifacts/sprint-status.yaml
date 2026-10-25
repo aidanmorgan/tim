@@ -506,13 +506,13 @@ development_status:
   #24Oct finite stabilization; current order and detailed AC in epics.md#current-execution-plan.
   engine-cylinder-axial-creep: done # M1 coherent slop band + M2 rolling axes; published d87b6a1e, CI 40181624977; residuals → engine-cap-block, engine-two-point-friction, engine-orientation-levelling (owner 25 Oct)
   # 25 Oct 2026 (coordinator, from owner directives): the creep follow-up is split into three engine slices,
-  # and the collider-fidelity decisions add two slices. Order: engine-cap-block, elements-visible-solid,
-  # engine-hollow-shapes, engine-two-point-friction, engine-orientation-levelling, then 9a-44b.
+  # and the collider-fidelity decisions add two slices. Order (25 Oct, after the cap-block HALT): elements-visible-solid,
+  # engine-hollow-shapes, engine-two-point-friction, engine-cap-block (retry), engine-orientation-levelling, then 9a-44b.
   # Stories and acceptance: epics.md#engine-and-collider-slices.
-  engine-cap-block: in-progress # spec-engine-cap-block.md; fixed-order active-set block solve, per-row recoveries deleted
-  elements-visible-solid: backlog # owner 25 Oct "visible = solid"; lamp, switch, delay, ramp, battery, detector, gate colliders
+  engine-cap-block: blocked # HALT 25 Oct after 3 bounded attempts (spec-engine-cap-block.md, engine-cap-block-attempt.patch): face drift 4/60 > 1e-9 m/s and box-on-box energy gain; retry after engine-two-point-friction (central friction anchor)
+  elements-visible-solid: in-progress # owner 25 Oct "visible = solid"; lamp, switch, delay, ramp, battery, detector, gate colliders
   engine-hollow-shapes: backlog # owner 25 Oct "true hollow shapes"; ring/torus-segment/frustum kinds, surface-error bound, continuous joints
-  engine-two-point-friction: backlog # drop-ramp landing yaw kick (1.25 mm); simultaneous two-point friction
+  engine-two-point-friction: backlog # drop-ramp landing yaw kick (1.25 mm); simultaneous two-point friction; central friction anchor for multi-point manifolds (unblocks engine-cap-block)
   engine-orientation-levelling: backlog # sub-f32-step levelling (axial drift to 2.2e-5 m/s); keeps the energy gates
   test-workshop-harness-a: backlog
   test-workshop-harness-b: backlog

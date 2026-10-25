@@ -162,3 +162,13 @@
   summary: Remaining wall-clock waits in the game-runtime node harnesses (docs/testing-guidance.md rule 7: no wall-clock sleeps). They are `tools/workshop-animation-clock.test.mjs`'s 20 ms `settle`, the 5 ms retry pause inside `tools/workshop-clock-ring.test.mjs`'s bounded exchange loop, and `tools/workshop-observation.test.mjs`'s `until`, which polls a positive condition in 1 ms steps under an attempt deadline. Each should wait on the deciding event or a deterministic quiescence point instead.
   evidence: Not CI failures today. The two that failed (client-lifecycle test 15, observation test 1) and the observation absence checks were made event-driven in this slice.
   destination: the JS-to-TypeScript conversion slice (AGENTS.md TypeScript rule), which rewrites these harnesses.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-engine-cap-block.md` (HALT, 25 Oct 2026)
+  summary: The soft push-out of a deep single-point penetration gains energy. In `FreshSeedDropsGainNoMoreEnergyThanTheBoxControlAndTheSlop`, CylinderOntoBox (Dead) case 179 gains 2.447 mJ in one tick at tick 97. The only contact that tick is a single cylinder-rim-on-box-edge point (feature 0x4042, normal ≈ (0.73, 0.68, −0.09)), 6.5–7.0 mm deep. The solve pass climbs 0.034 → 0.043 N·s per substep (approach −0.12 to −0.15 m/s), and the relax pass falls 0.0087 → 0. This trajectory is only reached when the block solve changes earlier ticks; on main the case stays within its bound.
+  evidence: The cap-block attempts (`engine-cap-block-attempt.patch`, spec Change Log iterations 1–2) show it under every block design, while every contact in the jump tick is single-point. Settle it by bounding the soft push-out velocity for deep single-point penetrations to the envelope (`docs/gpu-f32-physics.md` energy bound) and proving the gate on the trajectory.
+  destination: `engine-two-point-friction` or a dedicated engine slice before the `engine-cap-block` retry. It must pass before cap-block can land.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-engine-cap-block.md` (HALT, 25 Oct 2026)
+  summary: Under the minimum-norm block, box-on-box contacts gain energy over the slop, which raises the gate's own control bound: Dead to 3.156 mJ and Rolling to 6.077 mJ, against about 2.0 mJ before. Resting faces also drift (4 of 60 boxes over 1e-9 m/s), because load distribution moves the per-point friction limits.
+  evidence: Spec Change Log iteration 2; `engine-cap-block-attempt.patch`.
+  destination: `engine-two-point-friction` (a central friction anchor for multi-point manifolds), then the `engine-cap-block` retry.

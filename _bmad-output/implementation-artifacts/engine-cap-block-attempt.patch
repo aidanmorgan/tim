@@ -1,0 +1,1082 @@
+diff --git a/CuriousContraptions.Simulation/WorkshopCollisionKernels.cs b/CuriousContraptions.Simulation/WorkshopCollisionKernels.cs
+index a7489263..57cc0044 100644
+--- a/CuriousContraptions.Simulation/WorkshopCollisionKernels.cs
++++ b/CuriousContraptions.Simulation/WorkshopCollisionKernels.cs
+@@ -117,7 +117,6 @@ internal sealed class ContactPoint
+     public float RBx, RBy, RBz;
+     public Vector3 T1;
+     public Vector3 T2;
+-    public float NormalMass;
+     public float TangentMass1;
+     public float TangentMass2;
+     public float Restitution;
+diff --git a/CuriousContraptions.Simulation/WorkshopConstraintSolver.cs b/CuriousContraptions.Simulation/WorkshopConstraintSolver.cs
+index 7c009828..8989c226 100644
+--- a/CuriousContraptions.Simulation/WorkshopConstraintSolver.cs
++++ b/CuriousContraptions.Simulation/WorkshopConstraintSolver.cs
+@@ -4,7 +4,10 @@ using System.Numerics;
+ 
+ namespace CuriousContraptions.Simulation;
+ 
+-internal readonly record struct SoftCoefficients(float BiasRate, float MassScale, float ImpulseScale)
++/// <summary>Box2D v3 soft-contact coefficients: the bias rate and the mass scale a2/(1 + a2). Box2D's impulse scale 1/(1 + a2) is
++/// 1 − MassScale, so a soft row's new accumulated impulse λold + MassScale·Δ − (1 − MassScale)·λold is MassScale times the rigid
++/// accumulated total λold + Δ: the contact block solves for rigid totals and scales them (<see cref="WorkshopConstraintSolver.SolveNormalBlock"/>).</summary>
++internal readonly record struct SoftCoefficients(float BiasRate, float MassScale)
+ {
+     public static SoftCoefficients MakeSoft(float hertz, float zeta, float h)
+     {
+@@ -12,7 +15,7 @@ internal readonly record struct SoftCoefficients(float BiasRate, float MassScale
+         var a1 = 2f * zeta + h * omega;
+         var a2 = h * omega * a1;
+         var a3 = 1f / (1f + a2);
+-        return new SoftCoefficients(omega / a1, a2 * a3, a3);
++        return new SoftCoefficients(omega / a1, a2 * a3);
+     }
+ }
+ 
+@@ -36,7 +39,37 @@ internal static class WorkshopConstraintSolver
+     public const float MaxPushoutSpeed = 3f;
+     public const int SolverIterations = 4;
+     public const int RelaxIterations = 4;
+-    public const float BlockRegularization = 1e-3f;
++    /// <summary>The structural rank cutoff of the block's pseudo-inverse (<see cref="SolveMinimumNorm"/>): an eigen-direction whose
++    /// eigenvalue is at most this fraction of the largest is dropped, a condition number above 1000, Box2D v2's conditioning limit for its
++    /// two-point block (k11² &lt; 1000 (k11 k22 − k12²)). The rank of coplanar points is fixed by geometry, so the cutoff sits in a wide
++    /// spectral gap: a dependent direction (a fourth coplanar point, a third collinear one, a coincident one) leaves f32 rounding, about
++    /// 1e-7 of the largest eigenvalue, while a genuine direction keeps far more than 1e-3 of it.</summary>
++    public const float RankCutoff = 1e-3f;
++
++    /// <summary>The fixed number of cyclic Jacobi sweeps of <see cref="SolveMinimumNorm"/>. Jacobi converges quadratically: on a matrix of
++    /// at most 4 × 4 the off-diagonal falls below f32 rounding of the diagonal within three or four sweeps, and later rotations find it
++    /// zero and do nothing, so the count is a bound, not a convergence test.</summary>
++    public const int JacobiSweeps = 6;
++
++    /// <summary>The complementarity block's acceptance tolerance, relative to the block's velocity scale V (its largest |q|): an
++    /// active total may be as low as −τ V / K_ii (it is applied as zero) and an inactive point's velocity as low as τ V below its target.
++    /// τ = 2^-16 is 128 f32 ulps of V, so a rounding-level zero (a cap's unloaded corner, a fourth coplanar point exactly at its target)
++    /// is accepted, while any physical pull or approach is not.</summary>
++    public const float ComplementarityTolerance = 1f / 65536f;
++
++    /// <summary>The most points a contact block holds: every narrowphase manifold is reduced to four.</summary>
++    public const int MaxBlockPoints = 4;
++
++    /// <summary>The active sets of an n-point block in the order they are tried, point i being bit i: every point, then each set of
++    /// n − 1 points, n − 2 and so on down to single points, each size in lexicographic order of its point indices, then none.</summary>
++    private static readonly byte[][] ActiveSets =
++    [
++        [0],
++        [1, 0],
++        [3, 1, 2, 0],
++        [7, 3, 5, 6, 1, 2, 4, 0],
++        [15, 7, 11, 13, 14, 3, 5, 9, 6, 10, 12, 1, 2, 4, 8, 0],
++    ];
+ 
+     /// <summary>The factor that brings (x, y, z) within <paramref name="limit"/>: 1 inside it, 0 when a lane is not finite
+     /// (a NaN or infinite vector has no direction to keep).</summary>
+@@ -113,7 +146,6 @@ internal static class WorkshopConstraintSolver
+         c.T1 = l1 > 1e-6f ? t1 / l1 : Vector3.UnitX;
+         c.T2 = Vector3.Cross(n, c.T1);
+ 
+-        c.NormalMass = EffectiveMass(c, n);
+         c.TangentMass1 = EffectiveMass(c, c.T1);
+         c.TangentMass2 = EffectiveMass(c, c.T2);
+ 
+@@ -352,33 +384,15 @@ internal static class WorkshopConstraintSolver
+     /// the solve and the relax pass (Box2D v3). Soft (s ≤ 0) it is soft in the solve pass, its push-out bounded. A deviation from
+     /// Box2D's per-point rule: in a manifold where any point is soft, a point inside the band is soft too in the solve pass (bias
+     /// biasRate·s) and gets no allowance in relax. Otherwise a line contact rests with one end on the rigid ledge and the other in
+-    /// the soft row's static sag, a tilt the friction rows turn into axial walking.</summary>
+-    private static (float Bias, float MassScale, float ImpulseScale) NormalBranch(float separation, ManifoldSoftness softness, ContactPass pass,
++    /// the soft row's static sag, a tilt the friction rows turn into axial walking. The row's target is a normal velocity of at least
++    /// −Bias; MassScale scales its rigid accumulated total (<see cref="SoftCoefficients"/>).</summary>
++    private static (float Bias, float MassScale) NormalBranch(float separation, ManifoldSoftness softness, ContactPass pass,
+         in SoftCoefficients soft, float h)
+     {
+         var s = separation + ContactSlop;
+-        if (s > 0f && !(softness == ManifoldSoftness.SoftPoint && separation <= 0f)) return (s / h, 1f, 0f);
+-        if (pass == ContactPass.Relax) return (0f, 1f, 0f);
+-        return (MathF.Max(soft.BiasRate * s, -MaxPushoutSpeed), soft.MassScale, soft.ImpulseScale);
+-    }
+-
+-    /// <summary>One normal row, solved alone, with its manifold's <paramref name="softness"/> (no soft point for a single-point one).</summary>
+-    private static void SolveNormalRow(ContactPoint c, ManifoldSoftness softness, ContactPass pass, in SoftCoefficients soft, float h)
+-    {
+-        var v = RelativeVelocity(c);
+-        var n = new Vector3(c.Nx, c.Ny, c.Nz);
+-        var vn = Vector3.Dot(v, n);
+-        var (bias, massScale, impulseScale) = NormalBranch(CurrentSeparation(c), softness, pass, soft, h);
+-
+-        var impulse = -c.NormalMass * massScale * (vn + bias) - impulseScale * c.LambdaN;
+-        var total = MathF.Max(c.LambdaN + impulse, 0f);
+-        impulse = total - c.LambdaN;
+-        c.LambdaN = total;
+-        if (total > c.MaxImpulse) c.MaxImpulse = total;
+-
+-        var p = impulse * n;
+-        WorkshopCollisionKernels.ApplyImpulse(c.A, p, new Vector3(c.RAx, c.RAy, c.RAz));
+-        WorkshopCollisionKernels.ApplyImpulse(c.B, -p, new Vector3(c.RBx, c.RBy, c.RBz));
++        if (s > 0f && !(softness == ManifoldSoftness.SoftPoint && separation <= 0f)) return (s / h, 1f);
++        if (pass == ContactPass.Relax) return (0f, 1f);
++        return (MathF.Max(soft.BiasRate * s, -MaxPushoutSpeed), soft.MassScale);
+     }
+ 
+     public static float CouplingMass(ContactPoint ci, ContactPoint cj)
+@@ -407,58 +421,135 @@ internal static class WorkshopConstraintSolver
+         return k;
+     }
+ 
+-    public static bool SolveLinear(ReadOnlySpan<float> matrix, ReadOnlySpan<float> rhs, Span<float> x, int n)
+-    {
+-        Span<float> a = stackalloc float[n * n];
+-        Span<float> b = stackalloc float[n];
+-        matrix.CopyTo(a);
+-        rhs.CopyTo(b);
+-
+-        for (var col = 0; col < n; col++)
++    /// <summary>x = K⁺ · rhs, the minimum-norm least-squares solution for a symmetric positive semi-definite coupling matrix K (n ≤
++    /// <see cref="MaxBlockPoints"/>), from K's symmetric eigen-decomposition by cyclic Jacobi rotations (<see cref="JacobiSweeps"/> fixed
++    /// sweeps): x = Σ vᵢ (vᵢ · rhs) / eᵢ over the eigenpairs whose eigenvalue eᵢ is above <see cref="RankCutoff"/> of the largest. For a
++    /// full-rank K that is K⁻¹ rhs; a right-hand side outside K's range (no impulses can meet it) has that part projected out rather than
++    /// amplified, and a rank-deficient K is solved, not refused.</summary>
++    public static void SolveMinimumNorm(ReadOnlySpan<float> matrix, ReadOnlySpan<float> rhs, Span<float> x, int n)
++    {
++        Span<float> a = stackalloc float[MaxBlockPoints * MaxBlockPoints];
++        Span<float> v = stackalloc float[MaxBlockPoints * MaxBlockPoints];
++        matrix[..(n * n)].CopyTo(a);
++        v.Clear();
++        for (var i = 0; i < n; i++) v[i * n + i] = 1f;
++        for (var sweep = 0; sweep < JacobiSweeps; sweep++)
++            for (var p = 0; p < n - 1; p++)
++                for (var q = p + 1; q < n; q++)
++                    Rotate(a, v, n, p, q);
++
++        var largest = 0f;
++        for (var i = 0; i < n; i++) largest = MathF.Max(largest, a[i * n + i]);
++        var cutoff = RankCutoff * largest;
++        x[..n].Clear();
++        for (var k = 0; k < n; k++)
+         {
+-            var pivot = col;
+-            for (var row = col + 1; row < n; row++)
+-                if (MathF.Abs(a[row * n + col]) > MathF.Abs(a[pivot * n + col])) pivot = row;
+-
+-            if (MathF.Abs(a[pivot * n + col]) < 1e-12f) return false;
++            var e = a[k * n + k];
++            if (!(e > cutoff)) continue;
++            var along = 0f;
++            for (var i = 0; i < n; i++) along += v[i * n + k] * rhs[i];
++            along /= e;
++            for (var i = 0; i < n; i++) x[i] += v[i * n + k] * along;
++        }
++    }
+ 
+-            if (pivot != col)
++    /// <summary>One Jacobi rotation of the symmetric <paramref name="a"/> in the (p, q) plane that zeroes a_pq, accumulated into the
++    /// eigenvector columns of <paramref name="v"/> (Numerical Recipes' stable form). An off-diagonal already below the rounding of both
++    /// diagonals is set to zero instead.</summary>
++    private static void Rotate(Span<float> a, Span<float> v, int n, int p, int q)
++    {
++        var apq = a[p * n + q];
++        if (apq == 0f) return;
++        float app = a[p * n + p], aqq = a[q * n + q];
++        if (MathF.Abs(app) + 100f * MathF.Abs(apq) == MathF.Abs(app) && MathF.Abs(aqq) + 100f * MathF.Abs(apq) == MathF.Abs(aqq))
++        {
++            a[p * n + q] = a[q * n + p] = 0f;
++            return;
++        }
++        var theta = (aqq - app) / (2f * apq);
++        var t = 1f / (MathF.Abs(theta) + MathF.Sqrt(theta * theta + 1f));
++        if (theta < 0f) t = -t;
++        var c = 1f / MathF.Sqrt(t * t + 1f);
++        var s = t * c;
++        a[p * n + p] = app - t * apq;
++        a[q * n + q] = aqq + t * apq;
++        a[p * n + q] = a[q * n + p] = 0f;
++        for (var r = 0; r < n; r++)
++        {
++            if (r != p && r != q)
+             {
+-                for (var k = 0; k < n; k++)
+-                {
+-                    var t = a[col * n + k];
+-                    a[col * n + k] = a[pivot * n + k];
+-                    a[pivot * n + k] = t;
+-                }
+-                var tb = b[col]; b[col] = b[pivot]; b[pivot] = tb;
++                float arp = a[r * n + p], arq = a[r * n + q];
++                a[r * n + p] = a[p * n + r] = c * arp - s * arq;
++                a[r * n + q] = a[q * n + r] = s * arp + c * arq;
+             }
++            float vrp = v[r * n + p], vrq = v[r * n + q];
++            v[r * n + p] = c * vrp - s * vrq;
++            v[r * n + q] = s * vrp + c * vrq;
++        }
++    }
+ 
+-            for (var row = col + 1; row < n; row++)
++    /// <summary>The linear-complementarity solution of a contact block of n ≤ <see cref="MaxBlockPoints"/> rows, by fixed-order active-set
++    /// enumeration (Box2D v2's two-point block solver, extended to four points). The block's rows have coupling <paramref name="matrix"/>
++    /// K (n × n) and q_i = (normal velocity − target)_i − (K λold)_i, the velocity each row would have with every accumulated impulse
++    /// removed, less its target. The solution is accumulated totals x ≥ 0 with w = K x + q ≥ 0 and x_i w_i = 0. The active sets are tried
++    /// in the order of <see cref="ActiveSets"/>. For a set S, x_S = K_SS⁺ (−q_S) is the minimum-norm least-squares solution
++    /// (<see cref="SolveMinimumNorm"/>), so a rank-deficient set (coplanar or collinear points) is solved with its load spread over its
++    /// points, never skipped, and x is zero off S. S is accepted when every active total is non-negative and no inactive point approaches
++    /// past its target, both within <see cref="ComplementarityTolerance"/>; otherwise the next set is tried. An accepted total within the
++    /// tolerance below zero is zero. Returns false, and the block changes nothing, when no set is accepted (Box2D v2 likewise); for a
++    /// single point the sets {0} and {} always accept one of them, which is the clamped row.</summary>
++    private static bool SolveComplementarity(ReadOnlySpan<float> matrix, ReadOnlySpan<float> q, Span<float> total, int n)
++    {
++        if (n > MaxBlockPoints) throw new InvalidOperationException($"a contact block holds at most {MaxBlockPoints} points, not {n}");
++        var scale = 0f;
++        for (var i = 0; i < n; i++) scale = MathF.Max(scale, MathF.Abs(q[i]));
++        var tolerance = ComplementarityTolerance * scale;
++
++        Span<int> active = stackalloc int[MaxBlockPoints];
++        Span<float> reduced = stackalloc float[MaxBlockPoints * MaxBlockPoints];
++        Span<float> rhs = stackalloc float[MaxBlockPoints];
++        Span<float> x = stackalloc float[MaxBlockPoints];
++        foreach (var set in ActiveSets[n])
++        {
++            var m = 0;
++            for (var i = 0; i < n; i++)
++                if ((set & (1 << i)) != 0) active[m++] = i;
++            for (var a = 0; a < m; a++)
+             {
+-                var f = a[row * n + col] / a[col * n + col];
+-                for (var k = col; k < n; k++) a[row * n + k] -= f * a[col * n + k];
+-                b[row] -= f * b[col];
++                rhs[a] = -q[active[a]];
++                for (var b = 0; b < m; b++) reduced[a * m + b] = matrix[active[a] * n + active[b]];
+             }
+-        }
++            if (m > 0) SolveMinimumNorm(reduced[..(m * m)], rhs[..m], x[..m], m);
+ 
+-        for (var row = n - 1; row >= 0; row--)
+-        {
+-            var sum = b[row];
+-            for (var k = row + 1; k < n; k++) sum -= a[row * n + k] * x[k];
+-            x[row] = sum / a[row * n + row];
++            var accepted = true;
++            for (var a = 0; a < m && accepted; a++) accepted = x[a] * matrix[active[a] * n + active[a]] >= -tolerance;
++            if (!accepted) continue;
++
++            total[..n].Clear();
++            for (var a = 0; a < m; a++) total[active[a]] = MathF.Max(x[a], 0f);
++            for (var j = 0; j < n && accepted; j++)
++            {
++                if ((set & (1 << j)) != 0) continue;
++                var w = q[j];
++                for (var a = 0; a < m; a++) w += matrix[j * n + active[a]] * total[active[a]];
++                accepted = w >= -tolerance;
++            }
++            if (accepted) return true;
+         }
+-        return true;
++        return false;
+     }
+ 
++    /// <summary>A manifold's normal rows, solved together as one complementarity block (<see cref="SolveComplementarity"/>), whatever
++    /// the manifold's size. Each row's target and mass scale come from its branch (<see cref="NormalBranch"/>) with the manifold's
++    /// softness; the block decides the active set on rigid accumulated totals and each row's new accumulated impulse is its mass scale
++    /// times its total (<see cref="SoftCoefficients"/>).</summary>
+     public static void SolveNormalBlock(List<ContactPoint> group, ContactPass pass, in SoftCoefficients soft, float h)
+     {
+         var n = group.Count;
+-        if (n == 1) { SolveNormalRow(group[0], ManifoldSoftness.NoSoftPoint, pass, soft, h); return; }
+-
+-        Span<float> rhs = stackalloc float[n];
++        Span<float> q = stackalloc float[n];
+         Span<float> scale = stackalloc float[n];
+-        Span<float> impulseScale = stackalloc float[n];
+         Span<float> matrix = stackalloc float[n * n];
++        Span<float> total = stackalloc float[n];
+         Span<float> separation = stackalloc float[n];
+         var softness = ManifoldSoftness.NoSoftPoint;
+         for (var i = 0; i < n; i++)
+@@ -470,50 +561,28 @@ internal static class WorkshopConstraintSolver
+         for (var i = 0; i < n; i++)
+         {
+             var c = group[i];
+-            var v = RelativeVelocity(c);
+-            var normal = new Vector3(c.Nx, c.Ny, c.Nz);
+-            var vn = Vector3.Dot(v, normal);
+-            var (bias, massScale, rowImpulseScale) = NormalBranch(separation[i], softness, pass, soft, h);
++            var vn = Vector3.Dot(RelativeVelocity(c), new Vector3(c.Nx, c.Ny, c.Nz));
++            var (bias, massScale) = NormalBranch(separation[i], softness, pass, soft, h);
+             scale[i] = massScale;
+-            impulseScale[i] = rowImpulseScale;
+-
+-            rhs[i] = -(vn + bias);
++            q[i] = vn + bias;
+             for (var j = 0; j < n; j++) matrix[i * n + j] = CouplingMass(c, group[j]);
+         }
+-
+-        var trace = 0f;
+-        for (var i = 0; i < n; i++) trace += matrix[i * n + i];
+-        for (var i = 0; i < n; i++) matrix[i * n + i] += BlockRegularization * trace / n;
+-
+-        Span<float> solution = stackalloc float[n];
+-        if (!SolveLinear(matrix, rhs, solution, n))
+-        {
+-            for (var i = 0; i < n; i++) SolveNormalRow(group[i], softness, pass, soft, h);
+-            return;
+-        }
+-
+-        Span<float> deltas = stackalloc float[n];
+         for (var i = 0; i < n; i++)
+-        {
+-            deltas[i] = scale[i] * solution[i] - impulseScale[i] * group[i].LambdaN;
+-            if (group[i].LambdaN + deltas[i] < 0f)
+-            {
+-                for (var j = 0; j < n; j++) SolveNormalRow(group[j], softness, pass, soft, h);
+-                return;
+-            }
+-        }
++            for (var j = 0; j < n; j++) q[i] -= matrix[i * n + j] * group[j].LambdaN;
+ 
+-        for (var i = 0; i < n; i++)
+-        {
+-            var c = group[i];
+-            c.LambdaN += deltas[i];
+-            if (c.LambdaN > c.MaxImpulse) c.MaxImpulse = c.LambdaN;
++        if (!SolveComplementarity(matrix, q, total, n)) return;
++        for (var i = 0; i < n; i++) ApplyNormalTotal(group[i], scale[i] * total[i]);
++    }
+ 
+-            var normal = new Vector3(c.Nx, c.Ny, c.Nz);
+-            var p = deltas[i] * normal;
+-            WorkshopCollisionKernels.ApplyImpulse(c.A, p, new Vector3(c.RAx, c.RAy, c.RAz));
+-            WorkshopCollisionKernels.ApplyImpulse(c.B, -p, new Vector3(c.RBx, c.RBy, c.RBz));
+-        }
++    /// <summary>Sets a point's accumulated normal impulse to <paramref name="total"/> and applies the change to both bodies.</summary>
++    private static void ApplyNormalTotal(ContactPoint c, float total)
++    {
++        var delta = total - c.LambdaN;
++        c.LambdaN = total;
++        if (total > c.MaxImpulse) c.MaxImpulse = total;
++        var p = delta * new Vector3(c.Nx, c.Ny, c.Nz);
++        WorkshopCollisionKernels.ApplyImpulse(c.A, p, new Vector3(c.RAx, c.RAy, c.RAz));
++        WorkshopCollisionKernels.ApplyImpulse(c.B, -p, new Vector3(c.RBx, c.RBy, c.RBz));
+     }
+ 
+     public static void SweepManifolds(List<ContactManifold> manifolds, ContactPass pass, in SoftCoefficients soft, float h)
+@@ -641,9 +710,10 @@ internal static class WorkshopConstraintSolver
+         }
+     }
+ 
+-    /// <summary>Every bouncing point's relative normal velocity is driven to −e·(its own substep-start approach) in one simultaneous
+-    /// solve, so a face landing flat leaves flat; when that solve is singular or would pull a point (accumulated impulse below
+-    /// zero) the points are applied one at a time, each clamped. No soft-contact or penetration bias enters the target.</summary>
++    /// <summary>The manifold's bouncing points as one complementarity block (<see cref="SolveComplementarity"/>), the normal block's rule
++    /// with each point's target a normal velocity of at least −e·(its own substep-start approach) and no mass scale: an active point
++    /// leaves at its target, an inactive one no slower, and no accumulated impulse goes below zero, so a face landing flat leaves flat.
++    /// No soft-contact or penetration bias enters the target.</summary>
+     public static void ApplyRestitution(List<ContactPoint> points)
+     {
+         var count = points.Count;
+@@ -652,54 +722,20 @@ internal static class WorkshopConstraintSolver
+         for (var i = 0; i < count; i++)
+             if (Bounces(points[i])) index[n++] = i;
+         if (n == 0) return;
+-        if (n == 1) { ApplyRestitutionRow(points[index[0]]); return; }
+ 
+         Span<float> matrix = stackalloc float[n * n];
+-        Span<float> rhs = stackalloc float[n];
+-        Span<float> solution = stackalloc float[n];
++        Span<float> q = stackalloc float[n];
++        Span<float> total = stackalloc float[n];
+         for (var i = 0; i < n; i++)
+         {
+             var c = points[index[i]];
+-            var vn = Vector3.Dot(RelativeVelocity(c), new Vector3(c.Nx, c.Ny, c.Nz));
+-            rhs[i] = -(vn + c.Restitution * c.RelVel);
++            q[i] = Vector3.Dot(RelativeVelocity(c), new Vector3(c.Nx, c.Ny, c.Nz)) + c.Restitution * c.RelVel;
+             for (var j = 0; j < n; j++) matrix[i * n + j] = CouplingMass(c, points[index[j]]);
+         }
+-        var trace = 0f;
+-        for (var i = 0; i < n; i++) trace += matrix[i * n + i];
+-        for (var i = 0; i < n; i++) matrix[i * n + i] += BlockRegularization * trace / n;
+-
+-        var solved = SolveLinear(matrix, rhs, solution, n);
+-        for (var i = 0; solved && i < n; i++) solved = points[index[i]].LambdaN + solution[i] >= 0f;
+-        if (!solved)
+-        {
+-            for (var i = 0; i < n; i++) ApplyRestitutionRow(points[index[i]]);
+-            return;
+-        }
+-
+         for (var i = 0; i < n; i++)
+-        {
+-            var c = points[index[i]];
+-            c.LambdaN += solution[i];
+-            if (c.LambdaN > c.MaxImpulse) c.MaxImpulse = c.LambdaN;
+-            var p = solution[i] * new Vector3(c.Nx, c.Ny, c.Nz);
+-            WorkshopCollisionKernels.ApplyImpulse(c.A, p, new Vector3(c.RAx, c.RAy, c.RAz));
+-            WorkshopCollisionKernels.ApplyImpulse(c.B, -p, new Vector3(c.RBx, c.RBy, c.RBz));
+-        }
+-    }
++            for (var j = 0; j < n; j++) q[i] -= matrix[i * n + j] * points[index[j]].LambdaN;
+ 
+-    private static void ApplyRestitutionRow(ContactPoint c)
+-    {
+-        var v = RelativeVelocity(c);
+-        var n = new Vector3(c.Nx, c.Ny, c.Nz);
+-        var vn = Vector3.Dot(v, n);
+-        var impulse = -c.NormalMass * (vn + c.Restitution * c.RelVel);
+-        var total = MathF.Max(c.LambdaN + impulse, 0f);
+-        impulse = total - c.LambdaN;
+-        c.LambdaN = total;
+-        if (total > c.MaxImpulse) c.MaxImpulse = total;
+-
+-        var p = impulse * n;
+-        WorkshopCollisionKernels.ApplyImpulse(c.A, p, new Vector3(c.RAx, c.RAy, c.RAz));
+-        WorkshopCollisionKernels.ApplyImpulse(c.B, -p, new Vector3(c.RBx, c.RBy, c.RBz));
++        if (!SolveComplementarity(matrix, q, total, n)) return;
++        for (var i = 0; i < n; i++) ApplyNormalTotal(points[index[i]], total[i]);
+     }
+ }
+diff --git a/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs b/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs
+index 3b304ec8..f6ed9f49 100644
+--- a/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs
++++ b/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs
+@@ -385,7 +385,7 @@ public sealed class WorkshopPhysicsLawCylinderTests
+         // the quaternion's ½ components (each 2^-24, turning the axis by 2 × 2^-24 = 1.19e-7 rad), 2.4e-7 rad; and from 2 s to 10 s the
+         // centre's horizontal drift stays under 1e-6 m/s (8 µm in the 8 s). A ledge-and-sag rest grows the tilt (to 1.5e-4 rad without
+         // the coherent slop band rule). Whether such a tilt levels, and larger set-down tilts (1e-5, 1e-4 rad) and a box on its end,
+-        // belong to the follow-up slice "orientation levelling and two-point friction".
++        // belong to the follow-up slice "engine-orientation-levelling" (sub-f32 orientation levelling).
+         const double tilt = 2e-6;
+         var scene = new LawScene();
+         var q = Quaternion.CreateFromAxisAngle(Vector3.UnitX, (float)tilt) * ExactlyLevel;
+@@ -1009,29 +1009,22 @@ public sealed class WorkshopPhysicsLawCylinderTests
+ 
+     /// <summary>The time by which a solid rod (radius r, half-height h) released from rest on its rim, tilted <paramref name="degrees"/>
+     /// below the rim angle α = atan(r/h) with its lowest point 0.5 mm up, is upright within 1° for good, from the inelastic rigid rocking
+-    /// model (Housner) with a declared retention margin. Per kg, with d = √(r² + h²):
++    /// model (Housner). Per kg, with d = √(r² + h²):
+     /// <list type="bullet">
+     /// <item>Between impacts it is an inverted pendulum about one rim point: I = r²/4 + h²/3 + d² (0.22583 for r 0.1, h 0.4), rate
+     /// p = √(g d / I) (4.232 /s); from rest at tilt θ it reaches the impact (upright) after acosh(α / (α − θ)) / p.</item>
+-    /// <item>At the impact on the opposite rim point, angular momentum about that point is kept (e = 0, the old pivot released):
+-    /// ω₂/ω₁ = (4h²/3 − 3r²/4) / (4h²/3 + 5r²/4) = 0.91144, so a perfectly inelastic impact keeps 0.8307 of the energy.</item>
+-    /// <item>The solver resolves an impact over at least one substep h_s = 1/480 s, in which the old pivot (carrying at most m g at 2r
+-    /// from the new one) and gravity (at r) add at most m g r h_s = 2.04e-3 of angular momentum: ω₂/ω₁ ≤ 0.91144 + m g r h_s / (I ω₁).</item>
+-    /// <item>Declared retention margin +0.01 on the squared ratio: it covers the worst excess measured over that bound, 0.008 (12.5° at
+-    /// azimuth 45, second impact: 0.8561 against 0.8483; rod diagnosis, 25 Oct 2026).</item>
++    /// <item>Each impact keeps at most <see cref="RimImpactRetention"/> of the rocking energy (no declared margin: the contact block is
++    /// an exact complementarity solve, engine slice "cap block", 25 Oct 2026).</item>
+     /// <item>Each rebound peak follows from the kept energy, cos(α − θ') − cos α = retention × (cos(α − θ) − cos α); a rebound takes twice
+-    /// the fall time. T is the time of the impact after which every peak stays under 1°: 5.09 s from 10.5°, 5.51 s from 12.5° (14
++    /// the fall time. T is the time of the impact after which every peak stays under 1°: 4.72 s from 10.5°, 5.12 s from 12.5° (13
+     /// impacts each; the 0.5 mm lift adds √(2 · 0.0005 / g) = 0.010 s).</item>
+     /// </list></summary>
+     private static double InelasticRockingSettleSeconds(double r, double h, double degrees)
+     {
+-        const double margin = .01;
+         const double lift = .0005;
+         double g = G, d = Math.Sqrt(r * r + h * h), alpha = Math.Atan2(r, h);
+         var pivot = r * r / 4 + h * h / 3 + d * d;
+         var p = Math.Sqrt(g * d / pivot);
+-        var kept = (4 * h * h / 3 - 3 * r * r / 4) / (4 * h * h / 3 + 5 * r * r / 4);
+-        var allowance = g * r * WorkshopConstraintSolver.SubstepSeconds;
+         double Fall(double tilt) => Math.Acosh(alpha / (alpha - tilt)) / p;
+         double Energy(double tilt) => Math.Cos(alpha - tilt) - Math.Cos(alpha);
+         var theta = degrees * Math.PI / 180;
+@@ -1040,8 +1033,7 @@ public sealed class WorkshopPhysicsLawCylinderTests
+         var t = Math.Sqrt(2 * lift / g) + Fall(theta);
+         while (true)
+         {
+-            var omega = Math.Sqrt(2 * g * d * Energy(theta) / pivot);
+-            var retention = Math.Pow(kept + allowance / (pivot * omega), 2) + margin;
++            var retention = RimImpactRetention(r, h, g * d * Energy(theta));
+             if (retention >= 1) throw new InvalidOperationException($"the rocking model keeps all its energy at {theta} rad: no settle time");
+             theta = alpha - Math.Acos(retention * Energy(theta) + Math.Cos(alpha));
+             if (theta < Math.PI / 180) return t;
+@@ -1049,6 +1041,24 @@ public sealed class WorkshopPhysicsLawCylinderTests
+         }
+     }
+ 
++    /// <summary>The most a rod (radius r, half-height h, per kg) rocking on its cap rim keeps of its rocking energy
++    /// <paramref name="energy"/> (J per kg above upright rest) through one impact on the opposite rim point, from the inelastic rigid
++    /// rocking model (Housner), with d = √(r² + h²) and I = r²/4 + h²/3 + d² about a rim point:
++    /// <list type="bullet">
++    /// <item>angular momentum about the new pivot is kept (e = 0, the old pivot released): ω₂/ω₁ = (4h²/3 − 3r²/4) / (4h²/3 + 5r²/4)
++    /// (0.91144 for r 0.1, h 0.4), so a perfectly inelastic impact keeps 0.8307 of the energy;</item>
++    /// <item>the solver resolves an impact over at least one substep h_s = 1/480 s, in which the old pivot (carrying at most m g at 2r from
++    /// the new one) and gravity (at r) add at most m g r h_s = 2.04e-3 of angular momentum: ω₂/ω₁ ≤ 0.91144 + m g r h_s / (I ω₁), with
++    /// ω₁ = √(2E / I) at the impact.</item>
++    /// </list></summary>
++    private static double RimImpactRetention(double r, double h, double energy)
++    {
++        var pivot = r * r / 4 + h * h / 3 + (r * r + h * h);
++        var kept = (4 * h * h / 3 - 3 * r * r / 4) / (4 * h * h / 3 + 5 * r * r / 4);
++        var omega = Math.Sqrt(2 * energy / pivot);
++        return Math.Pow(kept + G * r * WorkshopConstraintSolver.SubstepSeconds / (pivot * omega), 2);
++    }
++
+     /// <summary>Releases the rod as <see cref="Release"/> does and runs it a second past <paramref name="settle"/>: its peak tilt over the
+     /// whole run, and its largest tilt from the settle time on.</summary>
+     private static (float Peak, float AfterSettle) Rock(float radius, float halfWidth, double degrees, double azimuth, double settle)
+@@ -1090,6 +1100,157 @@ public sealed class WorkshopPhysicsLawCylinderTests
+         Assert.InRange(Release(.1f, .4f, 15.5, azimuth).Tilt, 88f, 92f);
+     }
+ 
++    [Theory]
++    [InlineData(10.5, 0.0)]
++    [InlineData(10.5, 22.5)]
++    [InlineData(10.5, 45.0)]
++    [InlineData(12.5, 0.0)]
++    [InlineData(12.5, 22.5)]
++    [InlineData(12.5, 45.0)]
++    public void EveryRimImpactOfARockingRodKeepsNoMoreEnergyThanTheInelasticImpactModel(double degrees, double azimuth)
++    {
++        // The rod (r 0.1, h 0.4, 1 kg, Dead) released at rest on its rim, 0.5 mm up. Its rocking energy is its kinetic energy plus
++        // m g (y − bench − h), its height above upright rest. At each rebound peak (a committed local maximum of tilt above 1°; below it
++        // the settle clause of ARodRightsItself… takes over) that energy is compared with the previous peak's (the release's for the first):
++        // the impact between them keeps at most RimImpactRetention of it. Between impacts the rod only loses energy (contact damping, and
++        // before the first impact the 0.5 mm drop onto the rim), so the measured ratio is bounded by the impact's own. No margin.
++        float r = .1f, h = .4f;
++        var q = Tipped(degrees, azimuth);
++        var scene = new LawScene();
++        var body = scene.Cylinder(At(0, BenchY + Lowest(q, r, h) + .0005f), r, h, 1f, Dead, q);
++        var world = scene.Admit();
++        double Rocking(LawBody b) => Energy(b, 1f, r, h) - G * h;
++        var previous = Rocking(world.Initial(body));
++        LawBody? last = null, beforeLast = null;
++        var impacts = new List<string>();
++        var excess = 0;
++        world.Step(6 * world.TicksPerSecond, (tick, state) =>
++        {
++            var b = state[body];
++            if (last is { } peak && beforeLast is { } rising && peak.Tilt > 1f && peak.Tilt > rising.Tilt && peak.Tilt >= b.Tilt)
++            {
++                var kept = Rocking(peak) / previous;
++                var bound = RimImpactRetention(r, h, previous);
++                if (kept > bound) excess++;
++                impacts.Add(FormattableString.Invariant($"tick {tick - 1} peak {peak.Tilt:F3}° kept {kept:F4} (bound {bound:F4})"));
++                previous = Rocking(peak);
++            }
++            beforeLast = last;
++            last = b;
++        });
++        var report = string.Join(Environment.NewLine, impacts);
++        TestContext.Current.TestOutputHelper?.WriteLine(report);
++        // The model rebounds above 1° twelve times from either release; at least three are measured.
++        Assert.True(impacts.Count >= 3, $"only {impacts.Count} rebounds above 1°:{Environment.NewLine}{report}");
++        Assert.True(excess == 0, $"{excess} of {impacts.Count} impacts keep more than the model:{Environment.NewLine}{report}");
++    }
++
++    /// <summary>A solid cylinder (1 kg, its solid moments, axis local +Y) at <paramref name="rotation"/> with its lowest point
++    /// <paramref name="gap"/> above the static plane, moving at <paramref name="velocity"/> and <paramref name="angular"/>, with its contact
++    /// manifold from the shipped narrowphase prepared as the engine prepares it (substep-start pose and velocity, no warm start).</summary>
++    private static (SimBody Body, ContactManifold Manifold) OnPlane(float radius, float halfWidth, Quaternion rotation, float gap, Vector3 velocity,
++        Vector3 angular = default)
++    {
++        var plane = Collider(ShapeKind.Plane, Vector3.Zero, Quaternion.Identity, index: 1);
++        plane.Body.Motion = 0;
++        plane.Body.InvMass = 0;
++        var cylinder = Collider(ShapeKind.Cylinder, At(0, Lowest(rotation, radius, halfWidth) + gap), rotation, radius, halfWidth);
++        var body = cylinder.Body;
++        float transverse = radius * radius / 4 + halfWidth * halfWidth / 3, axial = radius * radius / 2;
++        body.InvI = new Vector3(1 / transverse, 1 / axial, 1 / transverse);
++        (body.Vx, body.Vy, body.Vz) = (velocity.X, velocity.Y, velocity.Z);
++        body.V0 = velocity;
++        (body.Wx, body.Wy, body.Wz) = (angular.X, angular.Y, angular.Z);
++        body.W0 = angular;
++        WorkshopCollisionKernels.UpdateDynamicFrame(body);
++        body.Cm0 = new Vector3(body.Cmx, body.Cmy, body.Cmz);
++        body.Q0 = body.Rotation;
++        var manifold = new ContactManifold { Points = Contacts(cylinder, plane) };
++        var cache = new Dictionary<ulong, (float LambdaN, float LambdaT1, float LambdaT2)>();
++        foreach (var point in manifold.Points) WorkshopConstraintSolver.PrepareContact(point, cache);
++        WorkshopConstraintSolver.PrepareRolling(manifold);
++        return (body, manifold);
++    }
++
++    [Theory]
++    [InlineData(.1f, .4f)]    // the rod
++    [InlineData(.4f, .085f)]  // the Pulley wheel
++    public void OneRelaxBlockSolveStopsACapStandingOnThePlaneWithEveryImpulseWithinItsWeight(float radius, float halfWidth)
++    {
++        // After one substep of gravity from rest the standing cylinder approaches at g h_s at its four cap points. At separation
++        // −ContactSlop (s = 0) every point is rigid with no allowance in the relax pass, so its target is a zero approach at every point:
++        // one block solve stops the body with a total impulse of its weight for the substep, m g h_s, and no point's impulse is negative
++        // or above m g h_s. The four coplanar points' block is rank 3; its minimum-norm solution spreads the weight evenly over them. Tolerance: the
++        // rule's complementarity tolerance, ComplementarityTolerance × the block's approach g h_s, once for each of the four points whose
++        // rounding-level impulse may be clamped to zero (f32 rounding, not the 1e-3 diagonal regularisation the block once carried).
++        var weight = G * WorkshopConstraintSolver.SubstepSeconds;
++        var (_, manifold) = OnPlane(radius, halfWidth, Quaternion.Identity, -WorkshopConstraintSolver.ContactSlop, At(0, -weight));
++        Assert.Equal(4, manifold.Points.Count);
++        var soft = SoftCoefficients.MakeSoft(WorkshopConstraintSolver.ContactHertz, WorkshopConstraintSolver.ContactDampingRatio,
++            WorkshopConstraintSolver.SubstepSeconds);
++        WorkshopConstraintSolver.SolveNormalBlock(manifold.Points, ContactPass.Relax, soft, WorkshopConstraintSolver.SubstepSeconds);
++        var tolerance = 4 * WorkshopConstraintSolver.ComplementarityTolerance * weight;
++        var report = string.Join(", ", manifold.Points.Select(p => FormattableString.Invariant(
++            $"λ {p.LambdaN:E3} N·s v_n {Vector3.Dot(WorkshopConstraintSolver.RelativeVelocity(p), p.Normal):E3} m/s")));
++        Assert.True(manifold.Points.All(p => p.LambdaN >= 0f && p.LambdaN <= weight + tolerance), $"weight {weight:E3} N·s: {report}");
++        Assert.True(MathF.Abs(manifold.Points.Sum(p => p.LambdaN) - weight) <= tolerance, $"weight {weight:E3} N·s: {report}");
++        Assert.True(manifold.Points.All(p => MathF.Abs(Vector3.Dot(WorkshopConstraintSolver.RelativeVelocity(p), p.Normal)) <= tolerance),
++            $"tolerance {tolerance:E3} m/s: {report}");
++    }
++
++    [Fact]
++    public void OnAFullRankLyingSideTheBlockGivesTheDirectSolvesImpulses()
++    {
++        // A lying cylinder (r 0.3, half-width 0.4, axis along Z) on the plane touches it at its two generator ends: a two-point block of
++        // full rank (its rows differ in the pitch lever ±0.4). Falling at 0.02 m/s and pitching at 0.03 rad/s about X, its ends approach at
++        // 0.02 ± 0.012 m/s, both toward the plane. At separation −ContactSlop both rows are rigid with a zero-approach target in the relax
++        // pass, and the all-points set is accepted, so its impulses must be the exact solution of K λ = −v_n. The reference solves that
++        // 2 × 2 system directly by Cramer's rule in double from the same f32 K and v_n. Tolerance: f32 rounding, 64 × 2^-24 of the largest
++        // impulse (the six Jacobi sweeps' rotations and the reconstruction, a few roundings each) times K's condition number.
++        var (_, manifold) = OnPlane(.3f, .4f, AlongZ, -WorkshopConstraintSolver.ContactSlop, At(0, -.02f), At(.03f, 0, 0));
++        var points = manifold.Points;
++        Assert.Equal(2, points.Count);
++        double k00 = WorkshopConstraintSolver.CouplingMass(points[0], points[0]), k01 = WorkshopConstraintSolver.CouplingMass(points[0], points[1]),
++            k10 = WorkshopConstraintSolver.CouplingMass(points[1], points[0]), k11 = WorkshopConstraintSolver.CouplingMass(points[1], points[1]);
++        double b0 = -Vector3.Dot(WorkshopConstraintSolver.RelativeVelocity(points[0]), points[0].Normal),
++            b1 = -Vector3.Dot(WorkshopConstraintSolver.RelativeVelocity(points[1]), points[1].Normal);
++        var det = k00 * k11 - k01 * k10;
++        double[] direct = [(b0 * k11 - k01 * b1) / det, (k00 * b1 - k10 * b0) / det];
++        Assert.True(direct[0] > 0 && direct[1] > 0, $"both ends push: {direct[0]}, {direct[1]}");
++        var mean = (k00 + k11) / 2;
++        var spread = Math.Sqrt((k00 - k11) * (k00 - k11) / 4 + k01 * k10);
++        var condition = (mean + spread) / (mean - spread);
++        var soft = SoftCoefficients.MakeSoft(WorkshopConstraintSolver.ContactHertz, WorkshopConstraintSolver.ContactDampingRatio,
++            WorkshopConstraintSolver.SubstepSeconds);
++        WorkshopConstraintSolver.SolveNormalBlock(points, ContactPass.Relax, soft, WorkshopConstraintSolver.SubstepSeconds);
++        var tolerance = 64.0 / (1 << 24) * condition * Math.Max(direct[0], direct[1]);
++        for (var i = 0; i < 2; i++)
++            Assert.True(Math.Abs(points[i].LambdaN - direct[i]) <= tolerance,
++                $"point {i}: λ {points[i].LambdaN:E9} N·s, direct {direct[i]:E9} N·s (tolerance {tolerance:E3}, condition {condition:F3})");
++    }
++
++    [Theory]
++    [InlineData(.1f, .4f)]
++    [InlineData(.4f, .085f)]
++    public void ACylinderStandingOnItsCapRestsWithinTheRestingEnvelope(float radius, float halfWidth)
++    {
++        // Set down upright 0.5 mm above the bench: after its first second it rests on its cap within the 0.5 mm resting envelope and
++        // stays upright (the cap's four points carry it level: tilt under 0.01°).
++        var scene = new LawScene();
++        var body = scene.Cylinder(At(0, BenchY + halfWidth + .0005f), radius, halfWidth, 1f, Dead);
++        var world = scene.Admit();
++        double penetration = 0;
++        float tilt = 0;
++        world.Step(3 * world.TicksPerSecond, (tick, state) =>
++        {
++            if (tick < world.TicksPerSecond) return;
++            penetration = Math.Max(penetration, BenchY + halfWidth - state[body].Position.Y);
++            tilt = MathF.Max(tilt, state[body].Tilt);
++        });
++        Assert.True(penetration <= .0005, $"resting penetration {penetration * 1000:F4} mm");
++        Assert.True(tilt < .01f, $"tilt {tilt}°");
++    }
++
+     [Theory]
+     [InlineData(.4f, .085f)]   // the Pulley wheel
+     [InlineData(.22f, .51f)]   // the Lever fulcrum post
+@@ -2108,7 +2269,7 @@ public sealed class WorkshopPhysicsLawCylinderTests
+         // At rest the axis is level within 1e-5 rad, the body rests in contact (its lowest point no more than the 0.2 mm slop above the
+         // bench) with its penetration within the 0.5 mm envelope, and the speed stays under 2 mm/s over the 6 s (a measure, never a
+         // threshold the engine applies). Their residual axial drift (up to 2.2e-5 m/s, sub-ulp
+-        // orientation levelling) is an open defect of the follow-up slice "orientation levelling and two-point friction".
++        // orientation levelling) is an open defect of the follow-up slice "engine-orientation-levelling".
+         float[] rolling = [0f, .03f, .1f];
+         float[] friction = [.1f, .3f, .6f];
+         var rng = new Random(DriftSeed + batch);
+diff --git a/CuriousContraptions.tests/WorkshopPhysicsLawRestitutionTests.cs b/CuriousContraptions.tests/WorkshopPhysicsLawRestitutionTests.cs
+index cbf4539b..259faf81 100644
+--- a/CuriousContraptions.tests/WorkshopPhysicsLawRestitutionTests.cs
++++ b/CuriousContraptions.tests/WorkshopPhysicsLawRestitutionTests.cs
+@@ -352,7 +352,7 @@ public sealed class WorkshopPhysicsLawRestitutionTests
+         Assert.True(worst <= 3 * Slop, $"case {at}: a tick gained {worst * 1000:F3} mJ (bound {3 * Slop * 1000:F3} mJ)");
+     }
+ 
+-    // ---- the block solve's fallback (reviewer F2) ----
++    // ---- the restitution block's active sets (reviewer F2; engine slice "cap block", 25 Oct 2026) ----
+ 
+     /// <summary>A 1 kg box (half 0.25 × 0.1 × 0.15, identity pose) touching a static support with two bottom contact points, normal +Y.</summary>
+     private static (SimBody Box, ContactPoint P, ContactPoint Q) Pair(Vector3 rp, Vector3 rq, Vector3 velocity, Vector3 angular,
+@@ -367,39 +367,34 @@ public sealed class WorkshopPhysicsLawRestitutionTests
+         };
+         box.InvIWorld[0] = 1f / ix; box.InvIWorld[4] = 1f / iy; box.InvIWorld[8] = 1f / iz;
+         var support = new SimBody { Motion = 0, Qw = 1f };
+-        ContactPoint Point(Vector3 r, float approach)
++        ContactPoint Point(Vector3 r, float approach) => new()
+         {
+-            var c = new ContactPoint
+-            {
+-                A = box, B = support, Nx = 0f, Ny = 1f, Nz = 0f, RAx = r.X, RAy = r.Y, RAz = r.Z,
+-                Restitution = .5f, Threshold = .1f, MaxImpulse = 1f, RelVel = approach,
+-            };
+-            c.NormalMass = WorkshopConstraintSolver.EffectiveMass(c, Vector3.UnitY);
+-            return c;
+-        }
++            A = box, B = support, Nx = 0f, Ny = 1f, Nz = 0f, RAx = r.X, RAy = r.Y, RAz = r.Z,
++            Restitution = .5f, Threshold = .1f, MaxImpulse = 1f, RelVel = approach,
++        };
+         return (box, Point(rp, relP), Point(rq, relQ));
+     }
+ 
+     private static float Vn(ContactPoint c) => Vector3.Dot(WorkshopConstraintSolver.RelativeVelocity(c), c.Normal);
+ 
+-    /// <summary>Two bouncing corners of a spinning box. When the simultaneous solve pushes both, each leaves at exactly −e·(its own
+-    /// approach). When it would pull one (that corner already separates far faster than its target), the manifold falls back to one
+-    /// point at a time, each accumulated impulse clamped at zero.
+-    /// The approaching corner leaves at exactly −e·(its approach), the separating corner takes no (and never a negative) impulse,
+-    /// and nothing is NaN. Two coincident points (a rank-deficient block, regularised) share the impulse equally and leave at the
+-    /// target. A block solve carries the normal block's regularisation (10⁻³ of the mean diagonal added to K), so its corners land
+-    /// within 1 % of the larger target; the one-at-a-time rows are exact.</summary>
++    /// <summary>Two bouncing corners of a spinning box, solved as the complementarity solution over the active sets (both, the first,
++    /// the second, then none). When both push, each leaves at exactly −e·(its own approach). When both active would pull one (that
++    /// corner already separates far faster than its target), the approaching corner alone is accepted: it leaves at exactly
++    /// −e·(its approach), the separating corner takes no (and never a negative) impulse, and nothing is NaN. Two coincident points
++    /// make a rank-1 block, solved by its minimum-norm least-squares solution: they share the impulse equally and both leave at the
++    /// target. The block carries no regularisation, so every accepted target is exact to f32 rounding (1e-4 m/s on 1 m/s covers the
++    /// rule's 2^-16 complementarity tolerance on a 3 m/s block).</summary>
+     [Fact]
+-    public void APullingOrRankDeficientBlockFallsBackWithoutNaNAndEachPointBouncesToItsTarget()
++    public void ABlockThatWouldPullOrIsRankDeficientBouncesItsAcceptedSetToTargetWithoutNaN()
+     {
+-        // Simultaneous: spin 6 rad/s about z with vy = −0.5 (corners at −2 and +1 m/s): both impulses push, both corners at target.
++        // Both active: spin 6 rad/s about z with vy = −0.5 (corners at −2 and +1 m/s): both impulses push, both corners at target.
+         var (_, s, t) = Pair(At(-.25f, -.1f), At(.25f, -.1f), At(0, -.5f), At(0, 0, 6), -2f, -.2f);
+         WorkshopConstraintSolver.ApplyRestitution([s, t]);
+         Assert.True(s.LambdaN > 0f && t.LambdaN > 0f, $"block impulses {s.LambdaN}, {t.LambdaN}");
+-        Assert.InRange(Vn(s), .99f, 1.01f);
+-        Assert.InRange(Vn(t), .09f, .11f);
++        Assert.InRange(Vn(s), 1f - 1e-4f, 1f + 1e-4f);
++        Assert.InRange(Vn(t), .1f - 1e-4f, .1f + 1e-4f);
+ 
+-        // Pulling: spin 20 rad/s with vy = 3 (corners at −2 and +8 m/s); the block would pull the second corner (λ < 0).
++        // Pulling: spin 20 rad/s with vy = 3 (corners at −2 and +8 m/s); both active would pull the second corner (λ < 0).
+         var (_, p, q) = Pair(At(-.25f, -.1f), At(.25f, -.1f), At(0, 3f), At(0, 0, 20), -2f, -.2f);
+         WorkshopConstraintSolver.ApplyRestitution([p, q]);
+         Assert.True(float.IsFinite(p.LambdaN) && float.IsFinite(q.LambdaN), $"impulses {p.LambdaN}, {q.LambdaN}");
+@@ -409,10 +404,57 @@ public sealed class WorkshopPhysicsLawRestitutionTests
+ 
+         var (_, a, b) = Pair(At(.25f, -.1f), At(.25f, -.1f), At(0, -2f), default, -2f, -2f);
+         WorkshopConstraintSolver.ApplyRestitution([a, b]);
+-        // Equal shares, to the f32 elimination's rounding.
+-        Assert.True(float.IsFinite(a.LambdaN) && float.IsFinite(b.LambdaN) && MathF.Abs(a.LambdaN - b.LambdaN) <= 1e-4f * a.LambdaN && a.LambdaN > 0f,
++        // Equal shares, the minimum-norm split, to the f32 solve's rounding.
++        Assert.True(float.IsFinite(a.LambdaN) && float.IsFinite(b.LambdaN) && a.LambdaN > 0f && MathF.Abs(a.LambdaN - b.LambdaN) <= 1e-4f * a.LambdaN,
+             $"coincident impulses {a.LambdaN}, {b.LambdaN}");
+-        Assert.InRange(Vn(a), .99f, 1.01f);
++        Assert.InRange(Vn(a), 1f - 1e-4f, 1f + 1e-4f);
++        Assert.InRange(Vn(b), 1f - 1e-4f, 1f + 1e-4f);
++    }
++
++    /// <summary>A 1 kg box face (half 0.25 × 0.1 × 0.15, its four bottom corners) or a cylinder cap (r 0.2, half-height 0.15, its four
++    /// cap points at 90° steps) landing flat on a static support at 2 m/s, every point bouncing (e = 0.5, threshold 0.1 m/s).</summary>
++    private static List<ContactPoint> FlatLanding(bool cap)
++    {
++        Vector3 inertia;
++        Vector3[] arms;
++        if (cap)
++        {
++            float r = CylinderRadius, h = CylinderHalf;
++            inertia = new(r * r / 4 + h * h / 3, r * r / 2, r * r / 4 + h * h / 3);
++            arms = [At(r, -h), At(0, -h, r), At(-r, -h), At(0, -h, -r)];
++        }
++        else
++        {
++            inertia = new((BoxHalf.Y * BoxHalf.Y + BoxHalf.Z * BoxHalf.Z) / 3f, (BoxHalf.X * BoxHalf.X + BoxHalf.Z * BoxHalf.Z) / 3f,
++                (BoxHalf.X * BoxHalf.X + BoxHalf.Y * BoxHalf.Y) / 3f);
++            arms = [At(BoxHalf.X, -BoxHalf.Y, BoxHalf.Z), At(BoxHalf.X, -BoxHalf.Y, -BoxHalf.Z), At(-BoxHalf.X, -BoxHalf.Y, -BoxHalf.Z),
++                At(-BoxHalf.X, -BoxHalf.Y, BoxHalf.Z)];
++        }
++        var body = new SimBody { Motion = 1, Mass = 1f, InvMass = 1f, InvI = Vector3.One / inertia, Principal = Quaternion.Identity, Qw = 1f, Vy = -2f };
++        body.InvIWorld[0] = 1f / inertia.X; body.InvIWorld[4] = 1f / inertia.Y; body.InvIWorld[8] = 1f / inertia.Z;
++        var support = new SimBody { Motion = 0, Qw = 1f };
++        return arms.Select(r => new ContactPoint
++        {
++            A = body, B = support, Ny = 1f, RAx = r.X, RAy = r.Y, RAz = r.Z, Restitution = .5f, Threshold = .1f, MaxImpulse = 1f, RelVel = -2f,
++        }).ToList();
++    }
++
++    [Theory]
++    [InlineData(false)]
++    [InlineData(true)]
++    public void AFaceOrCapLandingFlatLeavesFlatWithEveryPointAtItsBounceTarget(bool cap)
++    {
++        // Four coplanar points: their block is rank 3, solved by its minimum-norm least-squares solution. Every point's target is
++        // −e × (−2) = 1 m/s and the targets are those of one rigid motion (a pure rise), so they lie in the matrix's range and the solution
++        // reaches every point's target: the face leaves flat, every point at 1 m/s and no impulse negative. Tolerance: the rule's
++        // ComplementarityTolerance × the block's largest |approach + e × approach| (3 m/s), once for each of the four points whose
++        // rounding-level impulse may be clamped to zero (the points are symmetric about the centre of mass).
++        var points = FlatLanding(cap);
++        WorkshopConstraintSolver.ApplyRestitution(points);
++        var tolerance = 4 * WorkshopConstraintSolver.ComplementarityTolerance * 3f;
++        var report = string.Join(", ", points.Select(p => FormattableString.Invariant($"λ {p.LambdaN:E4} v_n {Vn(p):F7}")));
++        Assert.True(points.All(p => p.LambdaN >= 0f), $"a point was pulled: {report}");
++        Assert.True(points.All(p => MathF.Abs(Vn(p) - 1f) <= tolerance), $"tolerance {tolerance:E3} m/s: {report}");
+     }
+ 
+     /// <summary>The restitution pass's energy bound is max(kinetic energy before the contact solve, after the relax sweeps) per group
+diff --git a/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs b/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs
+index df63691e..f6c2c3e8 100644
+--- a/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs
++++ b/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs
+@@ -1210,13 +1210,15 @@ public sealed class WorkshopPhysicsLawTests
+     [Theory]
+     [InlineData(true)]
+     [InlineData(false)]
+-    public void InRelaxABandPointWithASoftSiblingGetsNoAllowanceEvenWhenTheBlockFallsBackToRows(bool siblingSoft)
++    public void InRelaxABandPointWithASoftSiblingGetsNoAllowanceWhenOnlyItIsActive(bool siblingSoft)
+     {
+-        // Turning at 0.04 rad/s about Z: the left (band) point approaches at 0.02 m/s and the right one separates at 0.02 m/s. On the
+-        // relax pass the block would pull the right point, so the solve falls back to rows:
+-        // - with a soft right sibling, both rows carry no bias: rhs (−0.02, +0.02), λ_right = 1.25 × −0.02 − 0.75 × 0.02 = −0.04 N·s;
+-        // - without one (right 0.1 mm deep too), both keep the 0.048 m/s allowance: rhs (−0.068, −0.028), λ_right = 1.25 × −0.068
+-        //   − 0.75 × −0.028 = −0.064 N·s.
++        // Turning at 0.04 rad/s about Z: the left (band) point approaches at 0.02 m/s and the right one separates at 0.02 m/s. The
++        // block is the complementarity solution over its active sets ({right, left}, {right}, {left}, then none):
++        // - with a soft right sibling, both rows carry no bias: q = (+0.02, −0.02) (approach plus bias). Both active would pull the
++        //   right point (λ_right = (1.25 × −0.02 − 0.75 × 0.02) / det 1 = −0.04 N·s), the right alone too (−0.016 N·s); the left alone
++        //   takes 0.02 / 1.25 = 0.016 N·s and leaves the right separating at 0.02 + 0.75 × 0.016 = 0.032 m/s, so it is accepted;
++        // - without one (right 0.1 mm deep too), both keep the 0.048 m/s allowance: q = (0.068, 0.028), every set with an active
++        //   point would pull it, and none active is accepted.
+         // With the soft sibling the band row is soft, has no allowance and removes the approach; without one its allowance covers the
+         // 0.02 m/s approach, so nothing is applied. f32: a removed approach is zero within the rounding of the 0.02 m/s it cancels
+         // (2^-24 × 0.02 < 1e-8).
+@@ -1232,8 +1234,8 @@ public sealed class WorkshopPhysicsLawTests
+     public void InTheSolvePassABandPointWithASoftSiblingIsSoftWithBiasRateTimesS(bool siblingSoft)
+     {
+         // The same turning pair on the biased solve pass. The right row (soft, bias max(b·s, −3) = b × −0.0003 with b the soft bias
+-        // rate, about 18.1 /s, so −0.0054 m/s) still separates faster than its bias, so it takes nothing, and the block, which would pull
+-        // it, falls back to rows. With a soft right sibling the left band row is soft with bias b·s = b × 0.0001: one soft row moves its
++        // rate, about 18.1 /s, so −0.0054 m/s) still separates faster than its bias, so it takes nothing: the accepted active set is the
++        // left point alone. With a soft right sibling the left band row is soft with bias b·s = b × 0.0001: one soft row moves its
+         // approach v to v − massScale × (v + b·s), about −0.0029 m/s (that the right row took nothing is part of this expectation). Without
+         // one it keeps the 0.048 m/s allowance and takes nothing.
+         var (right, left, soft) = FloorPair(.04f, 0f, siblingSoft ? -.0005f : -.0001f, -.0001f);
+@@ -1247,21 +1249,89 @@ public sealed class WorkshopPhysicsLawTests
+     [Theory]
+     [InlineData(true)]
+     [InlineData(false)]
+-    public void AMixedBandAndSoftManifoldSolvesAsOneBlockWithItsBandPointSoft(bool siblingSoft)
++    public void AMixedBandAndSoftManifoldSolvesAsOneExactBlockWithItsBandPointSoft(bool siblingSoft)
+     {
+         // Falling at 0.02 m/s without turning, both points approach at 0.02 m/s on the relax pass.
+-        // - With a soft right sibling, the band row is soft too: rhs (0.02, 0.02), the block's solution is non-negative and applied. With
+-        //   the block regularisation ε = 1e-3 × trace / 2 = 1.25e-3 on its diagonal, both approaches end at −0.02 × ε / (2 + ε)
+-        //   (the eigenvalue of (1, 1) is 2), −1.25e-5 m/s.
+-        // - Without one, both keep the 0.048 m/s allowance (rhs −0.028 each), the block would pull, and the rows take nothing.
++        // - With a soft right sibling, the band row is soft too: q = (−0.02, −0.02), both active is accepted (0.01 N·s each, the
++        //   eigenvalue of (1, 1) being 2) and both approaches end at exactly zero: the block carries no diagonal regularisation.
++        // - Without one, both keep the 0.048 m/s allowance (q = 0.028 each): every set with an active point would pull it, and none
++        //   active is accepted.
++        // f32: a removed approach is zero within the rounding of the 0.02 m/s it cancels (2^-24 × 0.02 < 1e-8).
+         var (right, left, soft) = FloorPair(0f, .02f, siblingSoft ? -.0005f : -.0001f, -.0001f);
+         WorkshopConstraintSolver.SolveNormalBlock([right, left], ContactPass.Relax, soft, WorkshopConstraintSolver.SubstepSeconds);
+-        const float epsilon = WorkshopConstraintSolver.BlockRegularization * 2.5f / 2;
+-        var expected = siblingSoft ? -.02f * epsilon / (2 + epsilon) : -.02f;
++        var expected = siblingSoft ? 0f : -.02f;
+         foreach (var point in new[] { right, left })
+             Assert.True(MathF.Abs(Approach(point) - expected) <= 1e-8f, $"approach {Approach(point)} m/s, expected {expected}");
+     }
+ 
++    /// <summary>A body (1 kg, unit inverse inertia, its frame the world's) on a static floor (normal +Y) at the four corners
++    /// (±0.5, −0.1, ±0.5) of a square, at the given gaps (right-front, right-back, left-back, left-front), falling at 0.02 m/s and
++    /// rocking at (0.03, 0, 0.05) rad/s.</summary>
++    private static (List<ContactPoint> Points, SoftCoefficients Soft) FloorSquare(float[] gaps)
++    {
++        var body = new SimBody
++        {
++            Qw = 1, Motion = 1, Mass = 1, InvMass = 1, Principal = Quaternion.Identity, InvI = Vector3.One, Q0 = Quaternion.Identity,
++            Vy = -.02f, Wx = .03f, Wz = .05f
++        };
++        WorkshopCollisionKernels.UpdateDynamicFrame(body);
++        var floor = new SimBody { Qw = 1, Motion = 0, Principal = Quaternion.Identity, Q0 = Quaternion.Identity };
++        var bodyCollider = new SimCollider { Index = 0, Body = body, Shape = ShapeKind.Box, Rq = Quaternion.Identity };
++        var floorCollider = new SimCollider { Index = 1, Body = floor, Shape = ShapeKind.Plane, Rq = Quaternion.Identity };
++        (float X, float Z)[] corners = [(.5f, .5f), (.5f, -.5f), (-.5f, -.5f), (-.5f, .5f)];
++        var cache = new Dictionary<ulong, (float LambdaN, float LambdaT1, float LambdaT2)>();
++        var points = new List<ContactPoint>();
++        for (var i = 0; i < 4; i++)
++        {
++            var point = new ContactPoint
++            {
++                A = body, B = floor, ColA = bodyCollider, ColB = floorCollider, Ny = 1, Px = corners[i].X, Py = -.1f, Pz = corners[i].Z,
++                Gap = gaps[i], Feature = i
++            };
++            WorkshopConstraintSolver.PrepareContact(point, cache);
++            points.Add(point);
++        }
++        return (points, SoftCoefficients.MakeSoft(WorkshopConstraintSolver.ContactHertz, WorkshopConstraintSolver.ContactDampingRatio,
++            WorkshopConstraintSolver.SubstepSeconds));
++    }
++
++    [Fact]
++    public void FourCoplanarPointsWithMixedBranchesGetTheComplementaritySolutionOfTheirRankThreeBlock()
++    {
++        // Four coplanar points share one normal, so r × n ignores their common height and their 4×4 coupling matrix has rank 3: the
++        // all-points set's minimum-norm least-squares solution projects out the part of the targets no impulses can meet, and here it
++        // pulls a point, so a subset is accepted. The gaps are the rocking rod's recorded sweep (−255.4, −55.3, +144.7 and
++        // −55.3 µm, rod diagnosis 25 Oct 2026): three points soft or in the band with a soft sibling (relax target: no approach), one
++        // apart (rigid, allowance s/h = (144.7 + 200) µm × 480 = 0.1655 m/s, so its target is an approach of at most 0.1655 m/s). That
++        // right-hand side is not in the matrix's range, which once gave impulses of ±34 N·s. The relax pass is rigid at every point, so
++        // its targets are exact: the accepted set's impulses are all ≥ 0, every active point (λ > 0) ends at its target and every
++        // inactive one does not approach past it. Tolerance: the rule's ComplementarityTolerance × the block's largest |approach − target|
++        // (V), once for each of the four points whose rounding-level impulse may be clamped to zero (each moves another point's
++        // velocity by at most its own, the points being symmetric about the centre of mass).
++        float[] gaps = [-.0002554f, -.0000553f, .0001447f, -.0000553f];
++        var (points, soft) = FloorSquare(gaps);
++        var h = WorkshopConstraintSolver.SubstepSeconds;
++        var target = new float[4];
++        for (var i = 0; i < 4; i++)
++        {
++            var s = gaps[i] + WorkshopConstraintSolver.ContactSlop;
++            target[i] = gaps[i] > 0f ? -s / h : 0f;
++        }
++        var v = 0f;
++        for (var i = 0; i < 4; i++) v = MathF.Max(v, MathF.Abs(Approach(points[i]) - target[i]));
++        WorkshopConstraintSolver.SolveNormalBlock(points, ContactPass.Relax, soft, h);
++        var tolerance = 4 * WorkshopConstraintSolver.ComplementarityTolerance * v;
++        var report = string.Join(", ", points.Select((p, i) => FormattableString.Invariant(
++            $"λ {p.LambdaN:E3} v_n {Approach(p):E3} target {target[i]:E3}")));
++        Assert.True(points.Count(p => p.LambdaN > 0f) is > 0 and < 4, $"an accepted subset carries the load: {report}");
++        for (var i = 0; i < 4; i++)
++        {
++            Assert.True(points[i].LambdaN >= 0f, $"point {i} pulled: {report}");
++            if (points[i].LambdaN > 0f) Assert.True(MathF.Abs(Approach(points[i]) - target[i]) <= tolerance, $"active point {i} off target: {report}");
++            else Assert.True(Approach(points[i]) >= target[i] - tolerance, $"inactive point {i} approaches past its target: {report}");
++        }
++    }
++
+     [Fact]
+     public void ACurvedSidesRollingRowActsOnlyAboutItsAxisProjectedIntoTheContactsTangentPlane()
+     {
+diff --git a/_bmad-output/implementation-artifacts/spec-9a-44-f32-everywhere.md b/_bmad-output/implementation-artifacts/spec-9a-44-f32-everywhere.md
+index 06970537..20214bd6 100644
+--- a/_bmad-output/implementation-artifacts/spec-9a-44-f32-everywhere.md
++++ b/_bmad-output/implementation-artifacts/spec-9a-44-f32-everywhere.md
+@@ -461,3 +461,10 @@ Decisions:
+   - `anvil_check` on 23 changed code files: 0 findings.
+   - `git diff --check`: clean.
+ - **Browser qualification:** pending post-catalogue.
++
++## Terminal receipt (25 Oct 2026)
++- **Published:** origin/main d87b6a1eff09dd208476bc9c3415c92880a43b31, "Merge 9A.44A f32 half purge and lying-cylinder creep fix".
++- **CI run 40181624977** (push, main): success. CuriousContraptions.tests 3472/3472, Coverage.Tests 77/77, BundleElements.Tests 194/194, WorkerAotGuard.Tests 17/17, E2eRunner.Tests 192/192. Failed 0, Skipped 0.
++- **Pages artifact:** github-pages, id 12595067762, 80,471,269 B.
++- **Deployment:** 7311595713, status success. https://aidanmorgan.github.io/tim/ returns 200.
++- **Verdict:** terminal Pass (independent verifier). Browser qualification is pending post-catalogue.
+diff --git a/_bmad-output/implementation-artifacts/spec-engine-cylinder-creep.md b/_bmad-output/implementation-artifacts/spec-engine-cylinder-creep.md
+index 336360f5..ff4c249a 100644
+--- a/_bmad-output/implementation-artifacts/spec-engine-cylinder-creep.md
++++ b/_bmad-output/implementation-artifacts/spec-engine-cylinder-creep.md
+@@ -122,7 +122,7 @@ Measured on f32 at 9568500d+main: M alone and M+M2 turn the Weight roll test gre
+   1. **M1:** ~~the per-row fallbacks keep the per-point rule~~. Withdrawn the same day on the owner's challenge ("we shouldn't have per-point rules should we?"). There is one normal-branch rule, the manifold-coherent band, in `SolveNormalRow`, the block solve and both per-row fallbacks. The rod-righting regression is resolved under that single rule: either fix a defect in the shared rule, or derive the righting-time bound independently from the soft-band rocking damping. Never loosen it on observation, never use a second rule.
+   2. **Scope (owner, 25 Oct: "Land M1+M2, follow-up"):** this slice commits only tests that pass.
+      - The lying-drop sweep keeps its tilt, penetration and rest clauses, and drops the axial-drift clause.
+-     - Micro-tilt keeps 2e-6. The 1e-5 and 1e-4 cylinder cases, the box on end, and the drop-ramp world-z test move to the follow-up engine slice "orientation levelling and two-point friction". Their exact scenarios and measured residuals are recorded in that slice's draft (`scratchpad/spec-engine-orientation-levelling-draft.md`), never committed red.
++     - Micro-tilt keeps 2e-6. The 1e-5 and 1e-4 cylinder cases and the box on end (sub-f32 levelling) move to the follow-up engine slice "engine-orientation-levelling", and the drop-ramp world-z test (the landing yaw kick) to "engine-two-point-friction". Their exact scenarios and measured residuals are recorded in the follow-ups' common draft (`scratchpad/spec-engine-orientation-levelling-draft.md`), never committed red.
+   3. **Docs:** the "Resting Drift" envelope row states the measured residuals as an open defect owned by the follow-up slice, not as an accepted bound.
+   4. **Rod-righting oracle (owner, 25 Oct: "Re-derive the test oracle"):** under the single rule, `ARodRightsItself…` was red only on timing, settling at 4.09 s (azimuth 22.5) and 4.48 s (azimuth 45) against an undocumented 4 s sample. The test is restated by its named behaviour:
+      - **Below atan(r/h) = 14.04°:** peak tilt stays below the rim angle, so the rod never passes over the rim.
+@@ -209,7 +209,7 @@ Measured on f32 at 9568500d+main: M alone and M+M2 turn the Weight roll test gre
+     - `reject` The "redundant" `Roll1`/`Roll2` reset was requested last pass. It is ordinary pool hygiene.
+   - Edge Case Hunter:
+     - `carried` (defer) The single-point curved-side pitch case.
+-    - `[low]` `patch` `deferred-work.md` is not updated. Fix: at merge, the coordinator closes "Engine: lying cylinder axial creep" and adds the follow-up "orientation levelling and two-point friction" entry.
++    - `[low]` `patch` `deferred-work.md` is not updated. Fix: at merge, the coordinator closes "Engine: lying cylinder axial creep" and adds the follow-up entries "engine-orientation-levelling" and "engine-two-point-friction".
+   - Verification Gap:
+     - `[medium]` `patch` (1) The antiparallel bisector is unverified; mutant M1 passes all tests. Fix: an antiparallel `[InlineData]` (`AboutX(-90)`) on the parallel-pitch test.
+     - `[medium]` `patch` (2) Resistance about a parallel pair's common axis is never asserted; mutant M2 passes. Fix: a parallel log rolling about Z loses spin faster with Crr 0.1 than with Crr 0.
+@@ -324,3 +324,10 @@ Measured on f32 at 9568500d+main: M alone and M+M2 turn the Weight roll test gre
+   - Build: 0 warnings.
+   - Full suite: CuriousContraptions.tests 3472/3472, E2eRunner.Tests 208/208, BundleElements.Tests 194/194, Coverage.Tests 77/77, WorkerAotGuard.Tests 17/17. Skipped 0 in every project.
+   - `git diff --check`: clean.
++
++## Terminal receipt (25 Oct 2026)
++- **Published:** origin/main d87b6a1eff09dd208476bc9c3415c92880a43b31, "Merge 9A.44A f32 half purge and lying-cylinder creep fix".
++- **CI run 40181624977** (push, main): success. CuriousContraptions.tests 3472/3472, Coverage.Tests 77/77, BundleElements.Tests 194/194, WorkerAotGuard.Tests 17/17, E2eRunner.Tests 192/192. Failed 0, Skipped 0.
++- **Pages artifact:** github-pages, id 12595067762, 80,471,269 B.
++- **Deployment:** 7311595713, status success. https://aidanmorgan.github.io/tim/ returns 200.
++- **Verdict:** terminal Pass (independent verifier). Browser qualification is pending post-catalogue.
+diff --git a/_bmad-output/implementation-artifacts/spec-engine-orientation-levelling-draft.md b/_bmad-output/implementation-artifacts/spec-engine-orientation-levelling-draft.md
+index fef61b79..0f9d0160 100644
+--- a/_bmad-output/implementation-artifacts/spec-engine-orientation-levelling-draft.md
++++ b/_bmad-output/implementation-artifacts/spec-engine-orientation-levelling-draft.md
+@@ -293,6 +293,11 @@ Friction-order evidence, as final world z (drop / flush ramp):
+ 
+ ## (c) Pre-existing: an ill-posed normal block for coplanar face and cap manifolds
+ 
++**Taken by the engine slice "cap block" (`spec-engine-cap-block.md`, 25 Oct 2026), candidate 2.** The block is now the exact
++complementarity solution by fixed-order active-set enumeration, and both per-row recovery paths and the regularisation are deleted.
++The rod's per-impact retention is within the one-substep model without the margin (worst 0.8465 against 0.8484), and the margin is
++removed from `InelasticRockingSettleSeconds`. The diagnosis below is the pre-slice record.
++
+ This was found while diagnosing the rod-righting change in the predecessor slice (`scratchpad/creep-slice/rod-diagnosis.log`, probe
+ `CreepSliceProbe.RodDiagnosis`). The rod is r 0.1, h 0.4, 1 kg, Dead material, released at 10.5° or 12.5° on its rim, run for 6 s.
+ 
+diff --git a/docs/gpu-f32-physics.md b/docs/gpu-f32-physics.md
+index 6f4ad4f8..46d2376c 100644
+--- a/docs/gpu-f32-physics.md
++++ b/docs/gpu-f32-physics.md
+@@ -139,7 +139,7 @@ Every puzzle element is an instance of one or more shared physical capabilities
+ | Capability | Declared Data Content | Execution Behavior |
+ | :--- | :--- | :--- |
+ | **Rigid Body** | Mass, 3x3 inertia tensor, world pose (position vector, orientation quaternion), linear and angular velocities, linear drag coefficient, motion type (Dynamic, Static, Kinematic), island index. | Integrated via symplectic Euler at 480 Hz; declared linear drag decays the linear velocity exactly ($e^{-c\,\Delta t}$) after gravity each sub-step, and no angular drag exists; orientation quaternion normalized every sub-step. Scalable to hundreds of dynamic bodies. |
+-| **Colliders & Shapes** | Shape discriminant, a closed enum (Sphere, Box, Plane, Cylinder now; Capsule and Hollow SDF later), local frame transform, half-extents/radii (a cylinder: radius lane $r$, half-width $h = w/2$ in the Y lane, X and Z canonical zero), participation filter masks. Ingest refuses an undefined discriminant as a typed `InvalidDeclaration` before any state is stepped. | Tested in narrowphase via branchless analytic manifold generators and signed distance fields. |
++| **Colliders & Shapes** | Shape discriminant, a closed enum (Sphere, Box, Plane, Cylinder now; Capsule later; hollow ring, torus-segment and frustum kinds planned in the slice "engine-hollow-shapes"), local frame transform, half-extents/radii (a cylinder: radius lane $r$, half-width $h = w/2$ in the Y lane, X and Z canonical zero), participation filter masks. Ingest refuses an undefined discriminant as a typed `InvalidDeclaration` before any state is stepped. | Tested in narrowphase via branchless analytic manifold generators and signed distance fields. |
+ | **Materials** | Restitution coefficient, bounce threshold velocity, static and dynamic friction coefficients, rolling-resistance coefficient $C_{rr}$ (balls declare it; boxes, planes and walls declare zero). | Pair laws: geometric-mean friction, product restitution, maximum bounce threshold; at every contact (static or dynamic partner) the larger $C_{rr}$ times the larger rolling radius (a sphere's radius, or a cylinder's radius when the manifold rolls on its curved side) bounds one rolling-resistance row about the manifold's rolling axes (both tangents for a sphere, the side's own axis for a curved cylinder side). |
+ | **Constraints & Joints** | Connected body pair, local anchor offsets, constraint axes, linear/angular limits, Box2D v3 soft parameters (natural frequency $\omega$, damping ratio $\zeta$). | Solved via Temporal Gauss-Seidel Soft Step (TGS Soft) with 4-wide SIMD vectorization. Unifies hinges, sliders, distance links, and ropes. |
+ | **Force Regions** | Spatial bounds (box, cylinder, cone), bounded acceleration vector or field equation (gravity, directional guide, fan airflow, fluid buoyancy). | Applied during sub-step force accumulation; acceleration clamped to $\le 64\text{ m/s}^2$. |
+@@ -228,20 +228,37 @@ The solver advances physical time at a fixed **120 Hz tick with 480 Hz sub-stepp
+   - **rigid** with the speculative allowance $s/h$, in the solve and the relax pass, when $s > 0$, unless the point is inside the band (separation $\le 0$) and the flag is set;
+   - otherwise **soft** in the solve pass (bias $\max(b\,s, -3\text{ m/s})$ with the contact's soft mass and impulse scales, $b = \omega/(2\zeta + h\omega)$ at 60 Hz, $\zeta = 10$; for a band point $b\,s > 0$), and rigid with no bias in relax.
+ 
+-  A point apart (separation $> 0$) never meets the band condition, and a single-point manifold has no sibling to set the flag, so there the rule reduces to Box2D v3's per-point rule. One helper (`NormalBranch`) applies it in `SolveNormalRow`, the block solve and both of the block's per-row fallbacks (a singular block, or an accumulated impulse that would go negative), each with the manifold's flag, so the rule does not depend on the solve path (owner, 25 Oct 2026). It replaces the per-point branch that `SolveNormalRow` and `SolveNormalBlock` each duplicated inline (deleted).
++  A point apart (separation $> 0$) never meets the band condition, and a single-point manifold has no sibling to set the flag, so there the rule reduces to Box2D v3's per-point rule. One helper (`NormalBranch`) gives every row of the manifold's complementarity block (below) its target, a normal velocity of at least −bias, and its mass scale, with the manifold's flag, whatever the manifold's size (owner, 25 Oct 2026).
+ 
+   **Deviation from Box2D v3:** Box2D branches each point alone. A loaded soft row sags about 70–100 µm under its share of the load while a rigid row in the band does not, so a two-point line contact could rest with one end on that rigid ledge and the other in the sag. The tilt this left (sag over length, about 1.5e-4 rad for the 10.2a Weight) steered a rolling cylinder like a cone and walked a resting one along its axis, because the ledge end was offered its allowance again every substep. The coherent band removes the ledge only where it coexists with a sag.
+ 
+-  **Rocking on a cap rim (qualification, owner 25 Oct 2026):** a slender cylinder released on its rim below the rim angle α = atan(r/h) rocks rim to rim and comes upright, and its peak tilt never reaches α. Under the coherent band its rim impacts keep 0.833–0.856 of their energy (with Box2D's per-point branch before this slice, about 0.76); an instantaneous, perfectly inelastic rigid impact keeps 0.8307 (for r 0.1, h 0.4: ω₂/ω₁ = (4h²/3 − 3r²/4)/(4h²/3 + 5r²/4) = 0.91144). `ARodRightsItself…` bounds the settling with the inelastic rigid rocking model (Housner):
++  **Rocking on a cap rim (qualification, owner 25 Oct 2026):** a slender cylinder released on its rim below the rim angle α = atan(r/h) rocks rim to rim and comes upright, and its peak tilt never reaches α. An instantaneous, perfectly inelastic rigid impact keeps 0.8307 of the energy (for r 0.1, h 0.4: ω₂/ω₁ = (4h²/3 − 3r²/4)/(4h²/3 + 5r²/4) = 0.91144). The solver bounds every impact by the inelastic rigid rocking model (Housner), with no margin:
+   - between impacts the rod is an inverted pendulum about a rim point, with I = r²/4 + h²/3 + d² per kg and p = √(g d / I);
+-  - at each impact its kept energy is the squared momentum ratio (0.91144 + m g r h_s / (I ω₁))², where m g r h_s is one substep of old-pivot support and gravity, plus a **declared retention margin of +0.01**, which covers the worst measured excess over that bound (0.008).
+-
+-  The rod must be upright within 1° from the model's settle time on: 5.09 s from 10.5°, 5.51 s from 12.5°. Separately, the cap's block solve is ill-posed: four coplanar cap points make its coupling matrix rank 3, and it falls back to the per-row solve in 52–73 % of the sweeps of a rocking rod. A well-posed coplanar block solve is part of the follow-up slice "orientation levelling and two-point friction".
+-- **Hollow SDFs:** Pipes, chutes, and funnels evaluate signed distance fields with toroidal rim caps, eliminating snagging and internal face artifacts.
++  - at each impact its kept energy is at most the squared momentum ratio (0.91144 + m g r h_s / (I ω₁))², where m g r h_s is one substep of old-pivot support and gravity.
++
++  `EveryRimImpactOfARockingRodKeepsNoMoreEnergyThanTheInelasticImpactModel` checks every rebound above 1° from 10.5° and 12.5° at azimuths 0, 22.5 and 45 against that bound: they keep 0.68–0.847 (closest 0.8465 against 0.8484). `ARodRightsItself…` requires the rod upright within 1° from the model's settle time on: 4.72 s from 10.5°, 5.12 s from 12.5° (13 impacts each). Before the exact complementarity block (below), the cap's regularised block returned a null-space solution, fell back to a per-row solve in 52–73 % of a rocking rod's sweeps, and its impacts kept 0.833–0.856, up to 0.008 over the bound; the predecessor slice covered that with a declared +0.01 retention margin, now removed.
++- **Normal block: a complementarity solution by active-set enumeration, each set solved by minimum-norm least squares** (engine slice "cap block", 25 Oct 2026; the set solution amended by the coordinator, iteration 1). A manifold's normal rows, at most four (`MaxBlockPoints`; every narrowphase manifold is reduced to four) and including a single point, are one linear complementarity problem on rigid accumulated totals. With the rows' coupling K (`CouplingMass`) and q_i = v_n,i + bias_i − (K λ_old)_i (each row's velocity with every accumulated impulse removed, less its target), it seeks totals x ≥ 0 with w = K x + q ≥ 0 and x_i w_i = 0. It extends Box2D v2's two-point block enumeration to four points:
++  - **Order.** The active sets are tried in a fixed order: all n points; then each set of n − 1, n − 2 and so on down to single points, each size in lexicographic order of the point indices ({0,1,2}, {0,1,3}, {0,2,3}, {1,2,3}, then {0,1}, {0,2}, {0,3}, {1,2}, {1,3}, {2,3}, then {0} … {3}); then none, Box2D v2's "both inactive" case, which a separating or speculative block needs. That is at most 16 candidates for four points, each a 0–4 dimensional solve, with no convergence loop.
++  - **Set solution.** For a set S, x_S = K_SS⁺(−q_S) is the minimum-norm least-squares solution, with x zero off S (`SolveMinimumNorm`). No set is skipped for rank:
++    - The pseudo-inverse comes from K_SS's symmetric eigen-decomposition by cyclic Jacobi rotations (Numerical Recipes' stable rotation). There are `JacobiSweeps` = 6 fixed sweeps: Jacobi converges quadratically, so on at most 4 × 4 the off-diagonal is below f32 rounding of the diagonal within three or four sweeps, and later rotations do nothing. The count is a bound, not a convergence test.
++    - x = Σ vᵢ (vᵢ · b) / eᵢ over the eigenpairs whose eigenvalue eᵢ is above `RankCutoff` = 10⁻³ of the largest. That is a condition number of 1000, Box2D v2's conditioning limit for its two-point block (k11² < 1000 (k11 k22 − k12²)).
++    - One method serves every set. A full-rank set gets K⁻¹b, its exact solution: `OnAFullRankLyingSideTheBlockGivesTheDirectSolvesImpulses` compares a lying cylinder's two-point block with a direct solve. An earlier pivoted-Cholesky form, K⁺ = P L (LᵀL)⁻² Lᵀ Pᵀ, squared the conditioning, and its rounding walked a level lying cylinder at 2.15 × 10⁻⁹ m/s.
++    - A rank-deficient set spreads its load by minimum norm: a resting face's four corners share it evenly, and the split changes continuously with pose. A right-hand side outside K's range is the part no impulses can meet; it is projected out, not amplified, and was the source of the old ±34 N·s null-space impulses.
++  - **Spectral gap.** The cutoff never decides a borderline case, because coplanar rank is set by geometry:
++    - One normal shared by coplanar points makes r × n blind to their common height. Each row of K is then a combination of three patterns: translation along n, and the two tilts.
++    - So a cap's or box face's four-point matrix is rank 3, three collinear generator points are rank 2, and two coincident points are rank 1. A dependent direction leaves an eigenvalue at f32 rounding, about 10⁻⁷ of the largest.
++    - Genuine directions keep far more. For a box face of half-extents a and b on a body of half-height c, K's non-zero eigenvalues are 4/m, 12b²/(m(b² + c²)) and 12a²/(m(a² + c²)), each below 12/m. The drift gate's boxes rest on faces of half-extents a ∈ [0.05, 0.55] m and b ∈ [0.05, 0.35] m with half-height c ∈ [0.03, 0.23] m. There the smallest ratio of the smallest to the largest eigenvalue is at a = 0.55, b = 0.05 and c = 0.23: the narrow tilt 0.54/m against the wide tilt 10.2/m (the lift is 4/m), 0.053, which is 53 times the cutoff.
++    - The 10⁻³ cutoff therefore sits more than an order of magnitude from both rounding and geometry.
++  - **Acceptance.** The first set is accepted whose totals are all ≥ −τV/K_ii and whose inactive points all have w ≥ −τV; a set with a negative total is rejected and the order continues (no inactive point approaches past its target), with V the block's largest |q_i| and `ComplementarityTolerance` τ = 2⁻¹⁶, 128 f32 ulps of V. A rounding-level zero, such as a symmetric resting cap's unloaded corner or a fourth coplanar point exactly at its target, is accepted; a physical pull or approach is not. An accepted total below zero is applied as zero.
++  - **Soft rows.** Each row's new accumulated impulse is its mass scale times its total. Box2D v3's soft impulse scale 1/(1 + a2) is 1 − the mass scale, so this is Box2D's soft row exactly, and a rigid row (mass scale 1) gets its total. The active set is decided in the rigid system.
++  - **No accepted set.** The block changes nothing, as Box2D v2's block solver does. It did not occur in the slice's diagnosis runs (a standing cap, the rocking rod at three azimuths, a box drop and 20 random cylinder and box drops), which were measured with the earlier vertex set solution. For a single point, {0} or {} always qualifies, which is the clamped Box2D row.
++
++  There is no diagonal regularisation and no per-row recovery. The deleted 10⁻³·trace/n regularisation made a cap's rank-3 matrix invertible and returned a huge alternating null-space member (−33.8, +33.7, −33.7 and +33.7 N·s on the 1 kg rod), which the deleted sequential per-row recovery then replaced. The first version of this slice skipped rank-deficient sets, so a resting face took a vertex solution, with one diagonal pair of corners loaded. Micro-rocking flipped that vertex 268–375 times in 6 s, which moved the per-point friction cones and walked boxes up to 2.05 × 10⁻⁸ m/s. The minimum-norm set solution replaced it. `FourCoplanarPointsWithMixedBranchesGetTheComplementaritySolutionOfTheirRankThreeBlock` and `OneRelaxBlockSolveStopsACapStandingOnThePlaneWithEveryImpulseWithinItsWeight` qualify the rule.
++- **Hollow shapes (planned):** pipes and funnels are box-ring approximations today; no hollow signed-distance shape exists yet. True ring, torus-segment and frustum collider kinds are planned in the slice "engine-hollow-shapes".
+ - **4-Point Manifold Reduction:** Contact polygons from face clipping are reduced to the 4 area-maximizing extreme points (deepest point, furthest point, and two points maximizing triangle/quad area).
+ - **Feature ID Warm-Starting:** Each contact point caches a 32-bit packed `FeatureId`. Matching features across sub-steps inherit accumulated normal and friction impulses, reducing solver convergence sweeps by over 50%.
+ - **Speculative Contacts:** Fast-moving objects within predicted closing distance $d \le |\mathbf{v}_{\text{rel}}| h + \mathbf{s}_{\text{slop}}$ allocate speculative constraints that remove excess closing velocity, preventing tunneling without continuous swept root-finding. A sphere's speculative contact that will close within two substeps (the solve stops what this substep reaches, the relax pass what the next would) takes its normal at the predicted touch: its centre is advanced along the pair's relative linear velocity by conservative advancement (at most four probes of the same pair kernel), the contact keeps the distance still to close along that normal as its gap, and its point stays on the advanced sphere's centre line. Two moving spheres keep their generated contact. A speculative point that carries normal impulse in a substep is a contact for restitution, contact events and contact loads.
+-- **Restitution (engine restitution slice, 24 Oct 2026):** one pass per 480 Hz substep, after the relax sweeps and before the second velocity clamp; each substep is a complete Box2D v3 step (collide, prepare, solve, integrate, relax), so this is the faithful mapping of Box2D's once-per-step pass. A point bounces when it carried normal impulse in that substep, touching or speculative, and its approach exceeds the pair's bounce threshold strictly. The approach is the relative normal velocity at the point from the bodies' substep-start velocities (before guides, supplied drives, gravity and drag; Box2D prepares before integrating velocities). A manifold's bouncing points are driven together to $-e\,v_n$ of their own approaches in one regularised block solve (the normal block's coupling and regularisation), or one at a time with each accumulated impulse clamped $\ge 0$ when that solve is singular or would pull; no soft-contact or penetration bias enters the target. Each manifold that bounced is then given one more friction and rolling pass whose cones include the restitution impulse, so an impact keeps its Coulomb share of tangential impulse (a deviation from Box2D's pass, which runs after several frictional substeps). There is no cross-substep approach memory: an impact is resolved in the substep that stops it. The pass is bounded by energy: the dynamic bodies joined by that substep's bouncing manifolds form groups, and a group's kinetic energy after the pass may not exceed the larger of its kinetic energy before the contact solve (after gravity and drag) and after the relax sweeps; a group over the bound has its restitution change scaled back along the line from its relaxed velocities. Independent Newton targets on a body shared by several impacts (a box landing on a box that bounces on the bench in the same substep) would otherwise return more than the impacts removed (reviewer F1, e ≥ 0.95). Known limitation: restitution is solved per manifold, not simultaneously over an island, so an impact through a resting dynamic body (a ball onto a box resting on the bench) loses bounce, because the support contact absorbs the push without returning it (deferred: "Engine: simultaneous/supported-impact restitution", to be checked before any dynamic plank, crate or seesaw element). Contact events report that approach and contact loads count that point, in the substep the impact is resolved.
++- **Restitution (engine restitution slice, 24 Oct 2026):** one pass per 480 Hz substep, after the relax sweeps and before the second velocity clamp; each substep is a complete Box2D v3 step (collide, prepare, solve, integrate, relax), so this is the faithful mapping of Box2D's once-per-step pass. A point bounces when it carried normal impulse in that substep, touching or speculative, and its approach exceeds the pair's bounce threshold strictly. The approach is the relative normal velocity at the point from the bodies' substep-start velocities (before guides, supplied drives, gravity and drag; Box2D prepares before integrating velocities). A manifold's bouncing points are one complementarity block under the normal block's rule (its coupling, enumeration order and tolerances, above), each point's target a normal velocity of at least $-e\,v_n$ of its own approach, with no mass scale: an active point leaves at its target, an inactive one no slower, and no accumulated impulse goes below zero, so a face or cap landing flat leaves flat (`AFaceOrCapLandingFlatLeavesFlatWithEveryPointAtItsBounceTarget`). No soft-contact or penetration bias enters the target. Each manifold that bounced is then given one more friction and rolling pass whose cones include the restitution impulse, so an impact keeps its Coulomb share of tangential impulse (a deviation from Box2D's pass, which runs after several frictional substeps). There is no cross-substep approach memory: an impact is resolved in the substep that stops it. The pass is bounded by energy: the dynamic bodies joined by that substep's bouncing manifolds form groups, and a group's kinetic energy after the pass may not exceed the larger of its kinetic energy before the contact solve (after gravity and drag) and after the relax sweeps; a group over the bound has its restitution change scaled back along the line from its relaxed velocities. Independent Newton targets on a body shared by several impacts (a box landing on a box that bounces on the bench in the same substep) would otherwise return more than the impacts removed (reviewer F1, e ≥ 0.95). Known limitation: restitution is solved per manifold, not simultaneously over an island, so an impact through a resting dynamic body (a ball onto a box resting on the bench) loses bounce, because the support contact absorbs the push without returning it (deferred: "Engine: simultaneous/supported-impact restitution", to be checked before any dynamic plank, crate or seesaw element). Contact events report that approach and contact loads count that point, in the substep the impact is resolved.
+ 
+ ### 3. Constraint Solver: Box2D v3 "TGS Soft" Formulation
+ Every contact, limit, and joint is modeled as an implicit damped spring-damper constraint integrated directly into the effective constraint mass:
+@@ -350,7 +367,7 @@ The engine enforces a strict clamp-or-continue policy. Numerical errors, extreme
+ | **Maximum Velocities** | Linear speed $\le 64\text{ m/s}$; angular speed $\le 128\text{ rad/s}$. | Every substep clamps twice to $(1-2^{-20})$ of each bound: before position integration, and again after the relax sweeps and restitution pass, which can add speed after the first clamp (a 100 kg sphere at 64 m/s would send a resting 1 kg sphere off at about 127 m/s; it commits just under 64 m/s). The $2^{-20}$ headroom covers f32 rounding of the committed components (at most $2^{-24}$ relative), so the committed squared magnitude, summed in double as the host checks it, stays within $64^2$ and $128^2$ in all 16 tested directions; without the headroom 6 of the 16 commit above each bound. A finite velocity of any size clamps (an f64 length overflow is measured at reduced scale); only a non-finite component drops the motion while the finite pose stands. The host rejects non-finite or larger committed values. Prevents numerical divergence. |
+ | **Committed Velocity Resolution** | Each tick commits linear and angular velocity as f32 (about $2^{-24}$ of the value). A per-tick decrement below half that step would round back to the previous value; the declared decelerations are orders of magnitude above it (drag 0.04 1/s removes $1.7\times10^{-4}$ of the speed per 240 Hz tick). | Declared linear drag alone slows a free-flying ball on every committed tick from low speed to the envelope bound: the balls' 0.04 1/s follows $2e^{-0.04t}$ within 1% at 60, 120 and 240 Hz, and $63.9e^{-0.04t}$ within 0.1% on every 240 Hz tick from 63.9 m/s (its relative decrement does not depend on speed). Declared rolling resistance decelerates a rolling ball on every committed tick up to 5 m/s: a Basketball rolling at 5 m/s at 240 Hz decelerates at $(5/7)(C_{rr}g + c\,v)$ (0.367 m/s² measured near 4.5 m/s), its speed and spin fall on every tick, and it rests after about 16 s; one struck to $\le 1\text{ m/s}$ rests at the same time within 10% at all three cadences. Faster rolling still decelerates at that rate over a second (20 m/s within 10%, spin never rising), but on a fast-spinning sphere the contact rows act intermittently, so single ticks skid with only drag acting; this is a solver limit, not precision (an f32 step at 20 m/s is $2\times10^{-6}$ m/s), recorded in deferred-work. No rest threshold zeroes velocity. |
+ | **Orientation Quaternion** | Normalization error $\|\mathbf{q}\| - 1 \le 10^{-4}$. | Renormalized every sub-step via fast inverse square root. |
+-| **Resting Drift** | Tested: a box resting on a face and a lying cylinder resting on its side (dropped, or set down level or tilted $2\times10^{-6}$ rad) keep their place, and the 10.2a Weight's flush-ramp roll runs straight. Displacements are f32 world-coordinate steps (one ulp: about 15 nm at 0.2 m, 1 µm at 8 m), so drift is measured near the origin. Qualified (`WorkshopPhysicsLawCylinderTests`, and the band rule's row-level tests in `WorkshopPhysicsLawTests`, engine slice "lying cylinder axial creep"): 60 random box face drops drift at most $10^{-9}$ m/s (the regression check of the coherent slop band rule on boxes: a face's four points take the band); a lying cylinder set down exactly level drifts under $10^{-9}$ m/s; set down tilted $2\times10^{-6}$ rad it does not walk (under $10^{-6}$ m/s) and its tilt does not grow; its pitch rocking (on the bench, a parallel log or a cap's chord) is untouched by $C_{rr}$; 200 random lying drops rest level within $10^{-5}$ rad, within the 0.5 mm slop and under 2 mm/s; the 10.2a Weight rolls off a flush ramp within 0.5 mm of straight and moves at most 0.05 mm once stopped. **Open defect, not an accepted bound** (owned by the follow-up engine slice "orientation levelling and two-point friction"; measured 25 Oct 2026): (a) sub-ulp orientation levelling: a residual tilt below about $5\times10^{-6}$ rad whose levelling increment per substep is below the ulp of the quaternion's large components is never levelled, and the contact rows keep asking for the levelling rock, so the centre walks along the axis at up to 2.2e-5 m/s (180 of 200 random lying drops at 1.0e-6–2.2e-5 m/s, 126 of them with the rotation bit-frozen for 6 s; 2.5e-6 m/s set down tilted $10^{-5}$ rad, 7.6e-6 m/s at $10^{-4}$ rad, 7.5e-6 m/s for a box standing on its end at $10^{-4}$ rad); (b) a landing yaw kick of about $1.8\times10^{-4}$ rad when the 10.2a Weight (4 kg: r 0.3517, half-width 0.2793, lying along Z) rolls off a 15° drop ramp (the default Ramp's 3 × 0.18 × 1.3 m slab, centred 0.475 m above the bench so that its bottom corner meets the bench) and lands on its side from the top face's lower edge, 0.174 m up, from unequal friction at the two generator ends (dependent on the friction rows' solve order), which steers its roll 1.25 mm off straight over 7 m. | No rest threshold zeroes velocity. |
++| **Resting Drift** | Tested: a box resting on a face and a lying cylinder resting on its side (dropped, or set down level or tilted $2\times10^{-6}$ rad) keep their place, and the 10.2a Weight's flush-ramp roll runs straight. Displacements are f32 world-coordinate steps (one ulp: about 15 nm at 0.2 m, 1 µm at 8 m), so drift is measured near the origin. Qualified (`WorkshopPhysicsLawCylinderTests`, and the band rule's row-level tests in `WorkshopPhysicsLawTests`, engine slice "lying cylinder axial creep"): 60 random box face drops drift at most $10^{-9}$ m/s (the regression check of the coherent slop band rule on boxes: a face's four points take the band); a lying cylinder set down exactly level drifts under $10^{-9}$ m/s; set down tilted $2\times10^{-6}$ rad it does not walk (under $10^{-6}$ m/s) and its tilt does not grow; its pitch rocking (on the bench, a parallel log or a cap's chord) is untouched by $C_{rr}$; 200 random lying drops rest level within $10^{-5}$ rad, within the 0.5 mm slop and under 2 mm/s; the 10.2a Weight rolls off a flush ramp within 0.5 mm of straight and moves at most 0.05 mm once stopped. **Open defect, not an accepted bound** (owned by the follow-up engine slices "engine-orientation-levelling", for (a), and "engine-two-point-friction", for (b); measured 25 Oct 2026): (a) sub-ulp orientation levelling: a residual tilt below about $5\times10^{-6}$ rad whose levelling increment per substep is below the ulp of the quaternion's large components is never levelled, and the contact rows keep asking for the levelling rock, so the centre walks along the axis at up to 2.2e-5 m/s (180 of 200 random lying drops at 1.0e-6–2.2e-5 m/s, 126 of them with the rotation bit-frozen for 6 s; 2.5e-6 m/s set down tilted $10^{-5}$ rad, 7.6e-6 m/s at $10^{-4}$ rad, 7.5e-6 m/s for a box standing on its end at $10^{-4}$ rad); (b) a landing yaw kick of about $1.8\times10^{-4}$ rad when the 10.2a Weight (4 kg: r 0.3517, half-width 0.2793, lying along Z) rolls off a 15° drop ramp (the default Ramp's 3 × 0.18 × 1.3 m slab, centred 0.475 m above the bench so that its bottom corner meets the bench) and lands on its side from the top face's lower edge, 0.174 m up, from unequal friction at the two generator ends (dependent on the friction rows' solve order), which steers its roll 1.25 mm off straight over 7 m. The third finding, an ill-posed normal block for coplanar face and cap manifolds, is closed by the slice "engine-cap-block": the old block had a rank-3 coupling matrix, solved only through its regularisation and then by a per-row recovery, and is now the complementarity block with minimum-norm sets. **Open, blocking that slice (measured 25 Oct 2026):** under the Jacobi minimum-norm block, 4 of the 60 box face drops drift above the $10^{-9}$ m/s face bound (worst $2.26\times10^{-9}$ m/s). The earlier forms were worse: 14 of 60 (worst $2.08\times10^{-9}$ m/s) with pivoted Cholesky, and 25 of 60 (worst $2.05\times10^{-8}$ m/s) with the vertex form. | No rest threshold zeroes velocity. |
+ | **Non-Finite Quantities** | NaN or $\pm\infty$ detected in candidate state. | Candidate discarded; body retains previous committed pose; simulation continues uninterrupted. |
+ | **Tunneling Threshold** | Zero penetration through solid barriers $\ge 1\text{ cm}$ thick at speeds $\le 64\text{ m/s}$. | Prevented by 480 Hz sub-stepping combined with speculative contact margins. |
+ | **Thermodynamic Energy** | No free energy: $\Delta K_{\text{system}} \le E_{\text{store}}$. The restitution pass's energy bound holds per 480 Hz substep (a group of bodies returns at most the kinetic energy its contacts removed in that substep). Per committed tick, contacts and restitution add at most $\sum m\,g\,s_{\text{slop}}$ over the bodies in contact (1.96 mJ per kg), qualified at every restitution $e \le 1$ for single bodies (sphere, box, cylinder) on static supports, a box landing on a resting dynamic box, and the Story 10.1 cylinder classes (`WorkshopPhysicsLawRestitutionTests`, `WorkshopPhysicsLawCylinderTests`); other multi-body configurations rely on the per-substep bound (measured: 3- and 4-box stacks hit from above at e = 1 rise 21–27 mJ in a tick against Σm·g·s_slop of 10.8–13.7 mJ, with genuine gain over the preceding ticks 2.1–7.3 mJ, within bound). | Total power demands exceeding available source power are scaled down proportionally ($\alpha = P_{\text{avail}} / P_{\text{demand}}$). |
