@@ -456,7 +456,16 @@ public sealed class WorkshopBumperTests
     public void SourceSphereAndExplicitPreloadCompileAsGenericDeclarations()
     {
         var scene = WorkshopPhysicsCompiler.Compile(Construction(8f), new(1, 2));
-        var sphere = Assert.Single(scene.Colliders.ToArray(), x => x.Body == new GpuBodyId(2));
+        // The head sphere and (engine-hollow-shapes) the upper ring: the drawn TorusMesh (inner 0.472, outer 0.508) at y 0.43, a
+        // solid tube of radius 0.018 about a 0.49 m centreline.
+        var bumper = scene.Colliders.ToArray().Where(x => x.Body == new GpuBodyId(2)).ToArray();
+        Assert.Equal([ColliderShapeKind.Sphere, ColliderShapeKind.Torus], bumper.Select(x => x.Shape).ToArray());
+        var ring = bumper[1];
+        // Each lane is one f32 sum or difference of two scene numbers: within 1e-6 m of its doc value.
+        Assert.Equal(.49f, ring.Radius.Value, 1e-6f);
+        Assert.Equal(.018f, ring.HalfExtents.Y, 1e-6f);
+        Assert.Equal((0f, ColliderDeclaration.FullSweep, .43f), (ring.HalfExtents.X, ring.HalfExtents.Z, ring.Pose.Translation.Y));
+        var sphere = bumper[0];
         Assert.Equal(ColliderShapeKind.Sphere, sphere.Shape);
         Assert.Equal(new Metres(.65f), sphere.Radius);
         Assert.Equal(RigidLocalPose.Identity, sphere.Pose);

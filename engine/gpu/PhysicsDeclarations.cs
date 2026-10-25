@@ -4,8 +4,10 @@ using System.Collections.Generic;
 namespace CuriousContraptions.Gpu;
 
 public enum RigidMotionKind : uint { Static, Dynamic }
-/// <summary>The closed collider set. A cylinder's axis is its local +Y; it is declared by radius and half-width (Story 10.1).</summary>
-public enum ColliderShapeKind : uint { Sphere, Box, Plane, Cylinder }
+/// <summary>The closed collider set. A cylinder's axis is its local +Y; it is declared by radius and half-width (Story 10.1). Tube,
+/// Torus and Frustum are the true hollow kinds (engine-hollow-shapes), static only, their lanes named on
+/// <see cref="ColliderDeclaration"/>.</summary>
+public enum ColliderShapeKind : uint { Sphere, Box, Plane, Cylinder, Tube, Torus, Frustum }
 public enum SensorParticipation : uint { Disabled, Enabled }
 public readonly record struct PhysicsDocumentId(ulong Low, ulong High);
 public readonly record struct GpuColliderId(ulong Value);
@@ -87,11 +89,26 @@ public readonly record struct RigidBodyDeclaration(
         (double)x * (double)x + (double)y * (double)y + (double)z * (double)z;
 }
 
-/// <summary>Shape parameters are explicit, including canonical zero in unused lanes.</summary>
+/// <summary>Shape parameters are explicit, including canonical zero in unused lanes. The hollow kinds' lanes (engine-hollow-shapes):
+/// <list type="bullet">
+/// <item>Tube about local +Y: <see cref="Radius"/> the outer radius r_o; <see cref="HalfExtents"/> (inner radius r_i, half-length h, 0).</item>
+/// <item>Frustum about local +Y: <see cref="Radius"/> the outer radius r_0 at −h; <see cref="HalfExtents"/> (radial wall t, h, outer
+/// radius r_1 at +h); the inner radii are r_0 − t and r_1 − t.</item>
+/// <item>Torus segment about local +Y, centreline R (cos a, 0, sin a) for a in [0, θ]: <see cref="Radius"/> R; <see cref="HalfExtents"/>
+/// (tube inner radius r_i, zero for a solid tube; tube outer radius r_o; sweep θ).</item>
+/// </list>
+/// Admission refuses a dimension outside its range, a tube or frustum without a bore, a frustum without a taper (a tube), a torus
+/// whose tube reaches its axis (R ≤ r_o, self-intersecting) and a sweep outside (0, π] that is not the full turn
+/// <see cref="FullSweep"/>.</summary>
 public readonly record struct ColliderDeclaration(
     GpuColliderId Id, GpuBodyId Body, GpuMaterialId Material, ColliderShapeKind Shape,
     RigidLocalPose Pose, Metres Radius, MetreVector HalfExtents)
 {
+    /// <summary>The full turn of a whole torus: 2π in f32.</summary>
+    public const float FullSweep = MathF.Tau;
+    /// <summary>The thinnest admitted hollow wall (m).</summary>
+    public const float MinimumThickness = 1f / 1024;
+
     public void Validate()
     {
         if (Id.Value == 0 || Body.Value == 0 || Material.Value == 0 || !Enum.IsDefined(Shape))
@@ -121,6 +138,32 @@ public readonly record struct ColliderDeclaration(
                 if (!PhysicsDeclarationBounds.Zero(HalfExtents.X) || !PhysicsDeclarationBounds.Zero(HalfExtents.Z))
                     throw new ArgumentException("Cylinder X and Z extents must be zero.");
                 PhysicsDeclarationBounds.Range(HalfExtents.Y, 1f / 1024, 16f);
+                break;
+            case ColliderShapeKind.Tube:
+                // A tube with no bore is a cylinder: the inner radius is at least 1/64 m and the wall at least MinimumThickness.
+                PhysicsDeclarationBounds.Range(Radius.Value, 1f / 16, 16f);
+                PhysicsDeclarationBounds.Range(HalfExtents.X, 1f / 64, Radius.Value - MinimumThickness);
+                PhysicsDeclarationBounds.Range(HalfExtents.Y, 1f / 1024, 16f);
+                if (!PhysicsDeclarationBounds.Zero(HalfExtents.Z)) throw new ArgumentException("Tube Z lane must be zero.");
+                break;
+            case ColliderShapeKind.Frustum:
+                // Both outer radii in the tube range, a wall that leaves each end a bore of at least 1/64 m, and a taper (equal end
+                // radii are a tube).
+                PhysicsDeclarationBounds.Range(Radius.Value, 1f / 16, 16f);
+                PhysicsDeclarationBounds.Range(HalfExtents.Z, 1f / 16, 16f);
+                PhysicsDeclarationBounds.Range(HalfExtents.X, MinimumThickness, MathF.Min(Radius.Value, HalfExtents.Z) - 1f / 64);
+                PhysicsDeclarationBounds.Range(HalfExtents.Y, 1f / 1024, 16f);
+                if (Radius.Value == HalfExtents.Z) throw new ArgumentException("A frustum with equal end radii is a tube.");
+                break;
+            case ColliderShapeKind.Torus:
+                // The tube's outer radius at least 1/128 m and inside the centreline radius (no self-intersection); a hollow tube's
+                // wall at least MinimumThickness (a solid tube declares zero); a sweep in (0, π] or the full turn.
+                PhysicsDeclarationBounds.Range(HalfExtents.Y, 1f / 128, 16f);
+                PhysicsDeclarationBounds.Range(Radius.Value, 1f / 16, 16f);
+                if (!(Radius.Value > HalfExtents.Y)) throw new ArgumentException("A torus tube must not reach its axis.");
+                if (!PhysicsDeclarationBounds.Zero(HalfExtents.X))
+                    PhysicsDeclarationBounds.Range(HalfExtents.X, 1f / 256, HalfExtents.Y - MinimumThickness);
+                if (HalfExtents.Z != FullSweep) PhysicsDeclarationBounds.Range(HalfExtents.Z, MinimumThickness, MathF.PI);
                 break;
             default:
                 throw new ArgumentException("Unsupported shape.");

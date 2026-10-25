@@ -492,19 +492,22 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
         AssertGateOpened(reads, plate2, gate2, "bridged P2");
     }
 
-    // Matrix row Size impostor (negative control for size detection): a static box with the plate face's exact half-extents and
+    // Matrix row Size impostor (negative control for size detection): a static box with the plate face's exact footprint and
     // pose but no plate declaration never switches a gate. A real 2.0 kg plate is wired to the gate beside it; the 1 kg ball
     // dropped on the impostor would have loaded the deleted 0.5 kg size-recognised plate.
     [Fact]
     public async Task ASizeImpostorNeverSwitchesAGate()
     {
         var gate = Gate(1, 0); var battery = Battery(2, 0); var plate = Plate(3, -4, 0, 2f);
-        // Story 9R.7: the pipe is a typed instance, so a generic static part (a 45° bend: 0.52 × 0.05 × 0.58 m slats, not the
-        // plate's 1.8 m face) carries the ball. The exact-footprint control is PlateGuardTests' Wall sized to the face.
-        var impostor = WorkshopInput.Generic(PartId.PipeBend45, new(4), -4, PlateY, 3, 0, 0, 0, 1);
+        // The former bend slat no longer exists: its true hollow wall overlaps
+        // that old ball pose. A declared solid panel retains the intended static
+        // support control, with the same 1.8 m footprint and top height as the face.
+        const float height = .4f;
+        var impostor = WorkshopInput.Generic(PartId.Wall, new(4), -4, Face - height / 2, 3, 0, 0, 0, 1,
+            new([new(new("width"), 1.8f), new(new("height"), height), new(new("thickness"), 1.8f)]));
         var reads = await RunBench(Bench([gate, battery, plate, impostor, BallOn(5, -4, 3)], Circuit(battery, plate, gate)));
-        Assert.True(reads[^1].Bodies.TryGet(new(5), out var ball) && (ball.Body.Cell.Y + ball.Body.Local.Y) / 16f > Face - .01,
-            "control: the ball rests on the impostor's face");
+        Assert.True(reads[^1].Bodies.TryGet(new(5), out var ball));
+        Assert.InRange((ball.Body.Cell.Y + ball.Body.Local.Y) / 16f, Face + .34 - .00051, Face + .34 + .00001);
         AssertGateClosedThroughout(reads, plate, gate, "ball on the impostor");
     }
 

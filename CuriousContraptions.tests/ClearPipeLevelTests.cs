@@ -110,8 +110,8 @@ public sealed class ClearPipeLevelTests
         // Plane (1) + Ball (1) + Receiver (1) + Pipe (1) = 4 bodies
         Assert.Equal(4, scene.Bodies.Length);
 
-        // Plane (1) + Ball (1) + Receiver 5 boxes (5) + Pipe 24 compound boxes (24) = 31 colliders
-        Assert.Equal(31, scene.Colliders.Length);
+        // Plane (1) + Ball (1) + Receiver 5 boxes (5) + Pipe shell tube and 2 collar tori (3) = 10 colliders
+        Assert.Equal(10, scene.Colliders.Length);
 
         // Capture sensor and guide present
         Assert.Single(scene.Sensors.ToArray());

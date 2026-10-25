@@ -264,28 +264,23 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
         }
         Assert.True(checkedMoments > 0 && checkedCaptures > 0, "The oracle covered no dynamic body or capture volume.");
 
-        // A parameterised length (the rows the retired golden held at 1, 3.6 and 8 m), against the pipe's physical closed form: its 16
-        // shell boxes span the whole tube (half-length L/2, centred at x = 0) and its 8 rim boxes sit four at each mouth (x = ±L/2);
-        // nothing else depends on L, so every other lane is the baked collider's.
+        // A parameterised length (the rows the retired golden held at 1, 3.6 and 8 m), against the pipe's physical closed form: its shell
+        // Tube spans the whole length and both mouth reaches (half-length L/2 + 0.09, centred at x = 0) and its two collar tori sit at the
+        // length's ends (x = ±L/2); nothing else depends on L, so every other lane is the baked collider's.
         var baked = TestBundle.Entry(PartId.Pipe).Colliders;
-        Assert.Equal(24, baked.Count);
+        Assert.Equal(3, baked.Count);
         foreach (var length in new[] { 1f, 3.6f, 8f })
         {
             var compiled = Compile(WorkshopInput.Pipe(Owner, 0, 3, 0, 0, 0, 0, 1, new PipeLength(length))).Colliders.ToArray()
                 .Where(row => row.Body == Owner).ToArray();
-            Assert.Equal(24, compiled.Length);
-            for (var i = 0; i < 16; i++)
-            {
-                Assert.Equal((Bits(length / 2), Bits(0f)), (Bits(compiled[i].HalfExtents.X), Bits(compiled[i].Pose.Translation.X)));
-                Assert.Equal((Bits(baked[i].HalfExtents.Y), Bits(baked[i].HalfExtents.Z), Bits(baked[i].Offset.Y), Bits(baked[i].Offset.Z)),
-                    (Bits(compiled[i].HalfExtents.Y), Bits(compiled[i].HalfExtents.Z), Bits(compiled[i].Pose.Translation.Y), Bits(compiled[i].Pose.Translation.Z)));
-            }
-            var rims = compiled.Skip(16).ToArray();
-            Assert.Equal(4, rims.Count(rim => Bits(rim.Pose.Translation.X) == Bits(-length / 2)));
-            Assert.Equal(4, rims.Count(rim => Bits(rim.Pose.Translation.X) == Bits(length / 2)));
-            for (var i = 16; i < 24; i++)
-                Assert.Equal((Bits(baked[i].HalfExtents.X), Bits(baked[i].HalfExtents.Y), Bits(baked[i].HalfExtents.Z)),
-                    (Bits(compiled[i].HalfExtents.X), Bits(compiled[i].HalfExtents.Y), Bits(compiled[i].HalfExtents.Z)));
+            Assert.Equal(3, compiled.Length);
+            Assert.Equal(RuntimeShape.Tube, compiled[0].Shape);
+            Assert.Equal((Bits(.5f * length + .09f), Bits(0f)), (Bits(compiled[0].HalfExtents.Y), Bits(compiled[0].Pose.Translation.X)));
+            Assert.Equal((Bits(baked[0].Radius), Bits(baked[0].HalfExtents.X)), (Bits(compiled[0].Radius.Value), Bits(compiled[0].HalfExtents.X)));
+            Assert.Equal((Bits(-.5f * length), Bits(.5f * length)), (Bits(compiled[1].Pose.Translation.X), Bits(compiled[2].Pose.Translation.X)));
+            for (var i = 1; i < 3; i++)
+                Assert.Equal((RuntimeShape.Torus, Bits(baked[i].Radius), Bits(baked[i].HalfExtents.Y), Bits(baked[i].HalfExtents.Z)),
+                    (compiled[i].Shape, Bits(compiled[i].Radius.Value), Bits(compiled[i].HalfExtents.Y), Bits(compiled[i].HalfExtents.Z)));
         }
 
         // Every slider at its default parameters (the rows the retired golden held), against the numbers its package authors:
@@ -521,6 +516,9 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
                 AbstractShape.Box => RuntimeShape.Box,
                 AbstractShape.Plane => RuntimeShape.Plane,
                 AbstractShape.Cylinder => RuntimeShape.Cylinder,
+                AbstractShape.Tube => RuntimeShape.Tube,
+                AbstractShape.Torus => RuntimeShape.Torus,
+                AbstractShape.Frustum => RuntimeShape.Frustum,
                 _ => throw new ArgumentException($"{where}: the runtime has no {collider.ShapeKind} collider.")
             }, $"{where}: shape {collider.ShapeKind} declared, {shape} at runtime.");
             Assert.True(Same(collider.Offset.X, pose.Translation.X) && Same(collider.Offset.Y, pose.Translation.Y) &&
@@ -529,9 +527,12 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
                 Bits(collider.Rotation.Z) == Bits(pose.Rotation.Z) && Bits(collider.Rotation.W) == Bits(pose.Rotation.W),
                 $"{where}: rotation {collider.Rotation} declared, {pose.Rotation} at runtime.");
             var extents = collider.HalfExtents;
-            // A sphere is its radius on every lane; a cylinder (r, h, r) is its radius and its half-height lane only (10.1).
+            // A sphere is its radius on every lane; a cylinder (r, h, r) is its radius and its half-height lane only (10.1); a hollow
+            // kind carries its declared radius and three lanes unchanged (engine-hollow-shapes).
             var matches = shape switch
             {
+                RuntimeShape.Tube or RuntimeShape.Torus or RuntimeShape.Frustum => Same(collider.Radius, radius) &&
+                    Same(extents.X, halfExtents.X) && Same(extents.Y, halfExtents.Y) && Same(extents.Z, halfExtents.Z),
                 RuntimeShape.Sphere => Same(extents.X, radius) && Bits(extents.Y) == Bits(extents.X) && Bits(extents.Z) == Bits(extents.X) &&
                     Same(0f, halfExtents.X) && Same(0f, halfExtents.Y) && Same(0f, halfExtents.Z),
                 RuntimeShape.Cylinder => Same(extents.X, radius) && Bits(extents.Z) == Bits(extents.X) &&

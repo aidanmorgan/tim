@@ -363,6 +363,10 @@ public static class BundleValidator
         {
             Defined(path + ".ShapeKind", collider.ShapeKind);
             Finite(path + ".HalfExtents", collider.HalfExtents);
+            Finite(path + ".Radius", collider.Radius);
+            // A solid kind keeps its radius in its half-extents; only the hollow kinds use the radius lane.
+            if (float.IsFinite(collider.Radius) && !ColliderDescriptor.Hollow(collider.ShapeKind) && collider.Radius != 0f)
+                OutOfRange(path + ".Radius");
             Finite(path + ".Offset", collider.Offset);
             Finite(path + ".Rotation", collider.Rotation);
             Finite(path + ".Material.Restitution", collider.Material.Restitution);

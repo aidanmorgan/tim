@@ -10,9 +10,9 @@
 - **Retry condition:** after `engine-two-point-friction` lands a central friction anchor for multi-point manifolds.
 - **Separate pre-existing defect:** the soft push-out of a deep single-point rim-on-edge penetration (7 mm) gains energy (Dead case 179, 2.447 mJ). See deferred-work.
 
-**In progress:** `engine-hollow-shapes` (ring, torus-segment, torus and frustum colliders; pipe-family restitution 0.15 with re-authored clear_pipe and joined_pipe; gate collars; the torus parts the sweep listed).
+**In progress:** [`engine-hollow-shapes`](./_bmad-output/implementation-artifacts/spec-engine-hollow-shapes.md): corrected static hollow geometry/contact/admission candidate. Coordinator full native verification passed 4,224 tests, 0 failed/skipped (main 8m35s). Subsequently added pressed/resting frustum sphere tests passed a matching 20-test affected run; production is unchanged. Independent Auto review and the final intent/verification re-review pass. Next owner: coordinator for the normal-hook commit, committed-SHA approval and publication. Basketball seam, Weight bands/eye and pressure-plate ring identity remain owned by `engine-multi-collider-dynamic`.
 
-**Next check:** its collider-vs-art and per-element behaviour tests, and the full suite, pass with Skipped 0. Then the bmad-build-auto review (Forward-Only Auditor included), then CI on the merge SHA.
+**Next check:** normal-hook commit and committed-SHA SnapshotApproval, then exact-SHA CI, Pages artifact and deployment. Browser qualification remains pending for post-catalogue E2E.
 
 **Order** ([current execution plan](./_bmad-output/planning-artifacts/epics.md#current-execution-plan) governs, not sprint-file order):
 1. `elements-visible-solid` (done) → `elements-visible-solid-sweep` (done) → `engine-hollow-shapes` (ring, torus-segment and frustum kinds, a stated surface-error bound, continuous joints) → `engine-two-point-friction` (the drop-ramp landing yaw kick, plus a central friction anchor for faces) → `engine-cap-block` (retry on top of the friction anchor) → `engine-orientation-levelling` (sub-f32-step levelling that keeps the energy gates) → `engine-multi-collider-dynamic` → `bumper-cap-solid` → `face-markings-flush` → [9A.44B](./_bmad-output/planning-artifacts/epics.md#story-9a-44b) (`double` game values to f32, integer-tick clock, `double` guard).

@@ -2,7 +2,7 @@
 # Generated and maintained via BMAD Method (bmm module)
 
 generated: 10-08-2026 00:26
-last_updated: 10-25-2026
+last_updated: 10-26-2026
 project: Curious Contraptions
 project_key: CC
 tracking_system: file-system
@@ -515,7 +515,7 @@ development_status:
   engine-multi-collider-dynamic: backlog # moving bodies with several colliders (domino pips, weight base); sphere-radius minimum (clock pivot cap, plate studs); plate five-collider limit
   bumper-cap-solid: backlog # make the bumper cap solid and re-author bumper_sidekick, bumper_depth, wall_and_bumper
   face-markings-flush: backlog # move raised face markings (pictograms, truth dots, latch markers, timer track) flush so they are printed decoration
-  engine-hollow-shapes: backlog # owner 25 Oct "true hollow shapes"; ring/torus-segment/frustum kinds, surface-error bound, continuous joints
+  engine-hollow-shapes: review # native full run 4,224 passed, 0 failed/skipped; independent review passed; exact-SHA publication pending; spec-engine-hollow-shapes.md
   engine-two-point-friction: backlog # drop-ramp landing yaw kick (1.25 mm); simultaneous two-point friction; central friction anchor for multi-point manifolds (unblocks engine-cap-block)
   engine-orientation-levelling: backlog # sub-f32-step levelling (axial drift to 2.2e-5 m/s); keeps the energy gates
   test-workshop-harness-a: backlog

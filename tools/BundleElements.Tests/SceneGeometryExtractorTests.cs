@@ -87,6 +87,11 @@ public sealed class SceneGeometryExtractorTests
             .Replace("CollisionShape3D", "MeshInstance3D").Replace("shape =", "mesh =");
         Assert.Equal(new Vector3(.4f, .085f, .4f), Assert.Single(Bake(mesh).Colliders).HalfExtents);
 
+        var closed = Assert.Single(Bake(mesh.Replace("height = 0.17", "height = 0.17\ncap_top = true\ncap_bottom = true")).Colliders);
+        Assert.Equal(ColliderShapeKind.Cylinder, closed.ShapeKind);
+        Assert.Equal(new Vector3(.4f, .085f, .4f), closed.HalfExtents);
+        Assert.Throws<ArgumentException>(() => Bake(mesh.Replace("height = 0.17", "height = 0.17\ncap_top = invalid")));
+
         // The height scales by scale.Y, the radius by the equal radial scale.
         var scaled = Assert.Single(Bake(CylinderScene.Replace("position = Vector3(0, 0.5, 0)", "scale = Vector3(2, 3, 2)")).Colliders);
         Assert.Equal(new Vector3(.8f, .085f * 3, .8f), scaled.HalfExtents);
@@ -217,5 +222,83 @@ public sealed class SceneGeometryExtractorTests
         Assert.Equal(400f, MechanicalValue.FromParameter("stiffness").Evaluate(new Dictionary<string, float> { ["stiffness"] = 400f }));
         Assert.Throws<ArgumentException>(() => MechanicalValue.FromParameter("missing").Evaluate(new Dictionary<string, float>()));
         Assert.Throws<ArgumentException>(() => new MechanicalValue(MechanicalValueSource.Constant, 14f, "stiffness").Evaluate(new Dictionary<string, float>()));
+    }
+
+    // engine-hollow-shapes: an open cylinder mesh proxy with its wall bakes as a Tube or Frustum, a torus mesh proxy as a Torus.
+    private const string OpenScene = """
+        [gd_scene format=3]
+        [sub_resource type="CylinderMesh" id="Shell"]
+        top_radius = 0.7
+        bottom_radius = 0.7
+        height = 3.6
+        cap_top = false
+        cap_bottom = false
+        [node name="Root" type="Node3D"]
+        [node name="col_shell" type="MeshInstance3D" parent="."]
+        position = Vector3(0, 0.5, 0)
+        mesh = SubResource("Shell")
+        metadata/wall_thickness = 0.05
+        """;
+
+    private const string TorusScene = """
+        [gd_scene format=3]
+        [sub_resource type="TorusMesh" id="Collar"]
+        inner_radius = 0.65
+        outer_radius = 0.78
+        [node name="Root" type="Node3D"]
+        [node name="col_collar" type="MeshInstance3D" parent="."]
+        position = Vector3(1.8, 0, 0)
+        mesh = SubResource("Collar")
+        """;
+
+    [Fact]
+    public void AnOpenCylinderProxyWithItsWallBakesAsATubeAndATaperedOneAsAFrustum()
+    {
+        // Tube: radius lane the outer 0.7, lanes (inner 0.7 − 0.05, half-length 1.8, 0).
+        var tube = Assert.Single(Bake(OpenScene).Colliders);
+        Assert.Equal((ColliderShapeKind.Tube, .7f, new Vector3(.7f - .05f, 1.8f, 0f), new Vector3(0, .5f, 0)),
+            (tube.ShapeKind, tube.Radius, tube.HalfExtents, tube.Offset));
+        // Frustum: radius lane the outer 1.35 at −Y (the bottom), lanes (wall 0.05, half-length 1.8, outer 0.7 at +Y).
+        var frustum = Assert.Single(Bake(OpenScene.Replace("bottom_radius = 0.7", "bottom_radius = 1.35")).Colliders);
+        Assert.Equal((ColliderShapeKind.Frustum, 1.35f, new Vector3(.05f, 1.8f, .7f)), (frustum.ShapeKind, frustum.Radius, frustum.HalfExtents));
+        // A uniform scale scales every lane.
+        var scaled = Assert.Single(Bake(OpenScene.Replace("position = Vector3(0, 0.5, 0)", "scale = Vector3(2, 2, 2)")).Colliders);
+        Assert.Equal((1.4f, new Vector3((.7f - .05f) * 2f, 3.6f, 0f)), (scaled.Radius, scaled.HalfExtents));
+    }
+
+    [Fact]
+    public void ATorusProxyBakesAsAFullSolidTorusOrItsDeclaredSegmentAndWall()
+    {
+        // Centreline (0.65 + 0.78) / 2, tube (0.78 − 0.65) / 2, solid, the full turn.
+        var full = Assert.Single(Bake(TorusScene).Colliders);
+        Assert.Equal((ColliderShapeKind.Torus, (.65f + .78f) * .5f, new Vector3(0f, (.78f - .65f) * .5f, MathF.Tau), new Vector3(1.8f, 0, 0)),
+            (full.ShapeKind, full.Radius, full.HalfExtents, full.Offset));
+        var segment = Assert.Single(Bake(TorusScene.Replace("inner_radius = 0.65\nouter_radius = 0.78", "inner_radius = 1.7\nouter_radius = 3.1")
+            .Replace("mesh = SubResource(\"Collar\")", "mesh = SubResource(\"Collar\")\nmetadata/sweep_degrees = 45.0\nmetadata/wall_thickness = 0.05")).Colliders);
+        Assert.Equal((2.4f, new Vector3((3.1f - 1.7f) * .5f - .05f, (3.1f - 1.7f) * .5f, 45f * (MathF.PI / 180f))),
+            (segment.Radius, segment.HalfExtents));
+    }
+
+    [Theory]
+    [InlineData("cap_top = false\n", "")] // one cap open
+    [InlineData("cap_bottom = false\n", "")]
+    [InlineData("cap_top = false", "cap_top = true")]
+    [InlineData("metadata/wall_thickness = 0.05", "")] // an open cylinder states its wall
+    [InlineData("metadata/wall_thickness = 0.05", "metadata/wall_thickness = NaN")]
+    [InlineData("position = Vector3(0, 0.5, 0)", "scale = Vector3(1, 2, 1)")] // nonuniform scale
+    public void AMalformedOpenCylinderProxyIsRejected(string before, string after)
+    {
+        Assert.Contains(before, OpenScene, StringComparison.Ordinal);
+        Assert.Throws<ArgumentException>(() => Bake(OpenScene.Replace(before, after)));
+    }
+
+    [Theory]
+    [InlineData("inner_radius = 0.65\n", "")] // a torus states both radii
+    [InlineData("outer_radius = 0.78\n", "")]
+    [InlineData("position = Vector3(1.8, 0, 0)", "scale = Vector3(1, 1, 2)")] // nonuniform scale
+    public void AMalformedTorusProxyIsRejected(string before, string after)
+    {
+        Assert.Contains(before, TorusScene, StringComparison.Ordinal);
+        Assert.Throws<ArgumentException>(() => Bake(TorusScene.Replace(before, after)));
     }
 }

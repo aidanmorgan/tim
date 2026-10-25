@@ -65,6 +65,8 @@
         <Compile Include="ElementIsolationTests.cs" />
         <Compile Include="LampDetectorGuardTests.cs" />
         <Compile Include="VisibleSolidColliderTests.cs" />
+        <Compile Include="WorkshopPhysicsLawHollowTests.cs" />
+        <Compile Include="HollowElementTests.cs" />
         <Compile Include="PlateGuardTests.cs" />
         <Compile Include="ClockGuardTests.cs" />
         <Compile Include="DeclaredOscillatorTests.cs" />
@@ -182,6 +184,7 @@
         <Compile Include="../CuriousContraptions.Simulation/BrowserGpuTransport.cs" Link="Simulation/BrowserGpuTransport.cs" />
         <Compile Include="../CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs" Link="Simulation/WorkshopPhysicsEngine.cs" />
         <Compile Include="../CuriousContraptions.Simulation/WorkshopCollisionKernels.cs" Link="Simulation/WorkshopCollisionKernels.cs" />
+        <Compile Include="../CuriousContraptions.Simulation/WorkshopHollowKernels.cs" Link="Simulation/WorkshopHollowKernels.cs" />
         <Compile Include="../CuriousContraptions.Simulation/WorkshopConstraintSolver.cs" Link="Simulation/WorkshopConstraintSolver.cs" />
         <Compile Include="../CuriousContraptions.Simulation/WorkshopDynamicBvh.cs" Link="Simulation/WorkshopDynamicBvh.cs" />
         <Compile Include="../CuriousContraptions.Simulation/PrismaticConstraintSolver.cs" Link="Simulation/PrismaticConstraintSolver.cs" />

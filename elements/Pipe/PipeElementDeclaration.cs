@@ -6,14 +6,20 @@ using CuriousContraptions.Abstractions.Mechanical;
 
 namespace CuriousContraptions.Elements.Pipe;
 
-/// <summary>The Clear pipe (CAT-048): a static hollow tube whose length is a typed parameter (1 to 8 m, default 3.6 m). Its colliders are
-/// declared at the default length: 16 shell boxes around the 0.65 m bore, spanning half the length, and 8 collar rim boxes at each end.</summary>
+/// <summary>The Clear pipe (CAT-048): a static hollow tube whose length is a typed parameter (1 to 8 m, default 3.6 m). Its colliders
+/// are true hollow shapes (engine-hollow-shapes): the shell is a Tube between the 0.65 m bore and the drawn 0.7 m wall, reaching both
+/// mouths (length + 0.18 m), so two snapped pipes' bores meet at the shared mouth plane; each collar is the drawn full torus (centreline
+/// 0.715 m, tube 0.065 m) at its end of the length.</summary>
 public sealed class PipeElementDeclaration : IMechanicalElement, ISceneGeometryElement, IParameterizedGeometryElement
 {
     private const float DefaultLength = 3.6f;
+    /// <summary>Each mouth lies this far beyond its collar: the shell reaches it.</summary>
+    private const float MouthReach = .09f;
+    /// <summary>The drawn shell's height at the default length: the length plus both mouth reaches.</summary>
+    private const float ShellLength = DefaultLength + 2 * MouthReach;
 
     public ElementPresentation Presentation => new(2.2f, PresentationAxes.X,
-        [], [], [], [new("Visual/Visual_Shell", PresentationProperty.ScaleY, "length", 1f / DefaultLength, 0),
+        [], [], [], [new("Visual/Visual_Shell", PresentationProperty.ScaleY, "length", 1f / ShellLength, 2 * MouthReach / ShellLength),
             new("Visual/Visual_Collar_Start", PresentationProperty.LocalX, "length", -.5f, 0),
             new("Visual/Visual_Collar_End", PresentationProperty.LocalX, "length", .5f, 0)],
         new(new(DefaultLength, 1.56f, 1.56f), new(.5f, 0, 0), new(.09f, .78f, 0),
@@ -37,42 +43,23 @@ public sealed class PipeElementDeclaration : IMechanicalElement, ISceneGeometryE
 
     public IReadOnlyList<PortDescriptor> Ports => [];
 
-    public IReadOnlyList<TubeMouthParameterBinding> TubeMouthBindings => [new(TubeEnd.Start, "length", new Vector3(-.5f, 0f, 0f), new Vector3(-.09f, 0f, 0f)),
-        new(TubeEnd.End, "length", new Vector3(.5f, 0f, 0f), new Vector3(.09f, 0f, 0f))];
+    public IReadOnlyList<TubeMouthParameterBinding> TubeMouthBindings => [new(TubeEnd.Start, "length", new Vector3(-.5f, 0f, 0f), new Vector3(-MouthReach, 0f, 0f)),
+        new(TubeEnd.End, "length", new Vector3(.5f, 0f, 0f), new Vector3(MouthReach, 0f, 0f))];
 
+    /// <summary>The shell Tube's half-length (its Y lane) reaches both mouths; the collars follow the length's ends.</summary>
     public IReadOnlyList<ColliderParameterBinding> ColliderBindings =>
     [
-        new(0, GeometryComponent.HalfExtentX, "length", .5f, 0f),
-        new(1, GeometryComponent.HalfExtentX, "length", .5f, 0f),
-        new(2, GeometryComponent.HalfExtentX, "length", .5f, 0f),
-        new(3, GeometryComponent.HalfExtentX, "length", .5f, 0f),
-        new(4, GeometryComponent.HalfExtentX, "length", .5f, 0f),
-        new(5, GeometryComponent.HalfExtentX, "length", .5f, 0f),
-        new(6, GeometryComponent.HalfExtentX, "length", .5f, 0f),
-        new(7, GeometryComponent.HalfExtentX, "length", .5f, 0f),
-        new(8, GeometryComponent.HalfExtentX, "length", .5f, 0f),
-        new(9, GeometryComponent.HalfExtentX, "length", .5f, 0f),
-        new(10, GeometryComponent.HalfExtentX, "length", .5f, 0f),
-        new(11, GeometryComponent.HalfExtentX, "length", .5f, 0f),
-        new(12, GeometryComponent.HalfExtentX, "length", .5f, 0f),
-        new(13, GeometryComponent.HalfExtentX, "length", .5f, 0f),
-        new(14, GeometryComponent.HalfExtentX, "length", .5f, 0f),
-        new(15, GeometryComponent.HalfExtentX, "length", .5f, 0f),
-        new(16, GeometryComponent.OffsetX, "length", -.5f, 0f),
-        new(17, GeometryComponent.OffsetX, "length", -.5f, 0f),
-        new(18, GeometryComponent.OffsetX, "length", -.5f, 0f),
-        new(19, GeometryComponent.OffsetX, "length", -.5f, 0f),
-        new(20, GeometryComponent.OffsetX, "length", .5f, 0f),
-        new(21, GeometryComponent.OffsetX, "length", .5f, 0f),
-        new(22, GeometryComponent.OffsetX, "length", .5f, 0f),
-        new(23, GeometryComponent.OffsetX, "length", .5f, 0f)
+        new(0, GeometryComponent.HalfExtentY, "length", .5f, MouthReach),
+        new(1, GeometryComponent.OffsetX, "length", -.5f, 0f),
+        new(2, GeometryComponent.OffsetX, "length", .5f, 0f)
     ];
 
     public IReadOnlyList<ColliderDescriptor> Colliders => [];
 
+    /// <summary>The pipe family's documented restitution 0.15 (CAT-048).</summary>
     public IReadOnlyList<SceneBodyGeometry> SceneBodies =>
     [
-        new(".", new(1f, 0.3f, 0f, 0.1f))
+        new(".", new(0.15f, 0.3f, 0f, 0.1f))
     ];
 
     public IReadOnlyList<EventDescriptor> Events => [];

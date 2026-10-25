@@ -204,6 +204,12 @@ public sealed class WorkshopSimulation : IAsyncDisposable
             Phase = WorkshopSimulationPhase.Building;
             return Reject(WorkshopRejection.GpuAdmission);
         }
+        catch (HollowOverlapException)
+        {
+            if (!Owns(owner)) return Superseded(owner);
+            Phase = WorkshopSimulationPhase.Building;
+            return Reject(WorkshopRejection.InvalidConstruction);
+        }
         catch (WorkshopInstallationException error) { return InstallationRejected(owner, error); }
         catch (Exception error)
         {

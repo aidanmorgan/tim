@@ -65,28 +65,21 @@ public sealed class WorkshopPipeLengthTests(NativeSceneFixture godot)
     [InlineData(2f)]
     [InlineData(4.2f)]
     [InlineData(8f)]
-    public void CollidersSpanTheLengthWithTheSame24Boxes(float metres)
+    public void TheShellTubeSpansTheLengthToBothMouthsAndTheCollarsFollowItsEnds(float metres)
     {
+        // engine-hollow-shapes: the shell Tube reaches both mouths, L/2 + 0.09 either side of the centre; the collars sit at ±L/2.
         var colliders = Pipe(metres).DeclaredColliders;
-        Assert.Equal(24, colliders.Count);
-        foreach (var shell in colliders.Take(16))
-        {
-            Assert.Equal((float)(metres / 2), shell.HalfExtents.X);
-            Assert.Equal(0f, shell.LocalPose.Translation.X);
-        }
-        var rims = colliders.Skip(16).ToArray();
-        Assert.Equal(4, rims.Count(rim => rim.LocalPose.Translation.X == (float)(-metres / 2)));
-        Assert.Equal(4, rims.Count(rim => rim.LocalPose.Translation.X == (float)(metres / 2)));
+        Assert.Equal(3, colliders.Count);
+        var shell = colliders[0];
+        Assert.Equal(ColliderShapeKind.Tube, shell.ShapeKind);
+        Assert.Equal(.5f * metres + .09f, shell.HalfExtents.Y);
+        Assert.Equal(0f, shell.LocalPose.Translation.X);
+        Assert.Equal((-.5f * metres, .5f * metres), (colliders[1].LocalPose.Translation.X, colliders[2].LocalPose.Translation.X));
         // The bore stays 0.65 m whatever the length.
-        foreach (var shell in colliders.Take(16))
-        {
-            var centre = MathF.Sqrt(MathF.Pow((float)shell.LocalPose.Translation.Y, 2) + MathF.Pow((float)shell.LocalPose.Translation.Z, 2));
-            Assert.InRange(centre - (float)shell.HalfExtents.Y, .648f, .652f);
-        }
+        Assert.InRange(shell.HalfExtents.X, .65f - 1e-6f, .65f + 1e-6f);
     }
 
-    /// <summary>The default length is the scene's 3.6 m tube: the same 24 box centres and extents. Every pipe now compiles the generated
-    /// boxes (a loaded pipe always did); the scene's shell boxes declare the opposite rotation sign about X.</summary>
+    /// <summary>The default length is the scene's 3.6 m tube: the same hollow colliders' lanes and centres.</summary>
     [Fact]
     public void TheDefaultLengthHasTheSceneTubeShape()
     {
@@ -176,7 +169,9 @@ public sealed class WorkshopPipeLengthTests(NativeSceneFixture godot)
             var shell = (Node3D)part.FindChild("Visual_Shell", recursive: true, owned: false);
             var start = (Node3D)part.FindChild("Visual_Collar_Start", recursive: true, owned: false);
             var end = (Node3D)part.FindChild("Visual_Collar_End", recursive: true, owned: false);
-            Assert.Equal(metres / 3.6f, shell.Scale.Y, 1e-5f); // the shell mesh's long axis is its local Y, turned onto X
+            // The shell mesh's long axis is its local Y, turned onto X: drawn 3.78 m at the default, it spans the length and both mouth
+            // reaches (L + 0.18) at every length.
+            Assert.Equal((metres + .18f) / 3.78f, shell.Scale.Y, 1e-5f);
             Assert.Equal(-metres / 2, start.Position.X, 1e-6f);
             Assert.Equal(metres / 2, end.Position.X, 1e-6f);
             Assert.Equal(Vector3.One, start.Scale); // the collars keep their width

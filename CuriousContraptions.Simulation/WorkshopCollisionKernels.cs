@@ -9,7 +9,10 @@ internal enum ShapeKind : uint
     Sphere = 0,
     Box = 1,
     Plane = 2,
-    Cylinder = 3
+    Cylinder = 3,
+    Tube = 4,
+    Torus = 5,
+    Frustum = 6
 }
 
 /// <summary>How one body's side of a contact moves within a substep. A material support is the contact anchor itself; an axis
@@ -152,7 +155,7 @@ internal sealed class ContactManifold
     public float LambdaR2;
 }
 
-internal static class WorkshopCollisionKernels
+internal static partial class WorkshopCollisionKernels
 {
     private const float EdgeFaceAlignment = 0.98f;
 
@@ -253,12 +256,13 @@ internal static class WorkshopCollisionKernels
     }
 
     /// <summary>The farthest surface point from the collider centre (the spin arm of fattening and speculative margins). A plane
-    /// is static and has none; ingest admits no other shape.</summary>
+    /// is static and has none; a hollow collider's is its containing ball's radius.</summary>
     public static float ColliderExtent(SimCollider c) => c.Shape switch
     {
         ShapeKind.Sphere => c.Radius,
         ShapeKind.Box => MathF.Sqrt(c.Hx * c.Hx + c.Hy * c.Hy + c.Hz * c.Hz),
         ShapeKind.Cylinder => MathF.Sqrt(c.Radius * c.Radius + c.Hy * c.Hy),
+        ShapeKind.Tube or ShapeKind.Torus or ShapeKind.Frustum => HollowReach(c),
         ShapeKind.Plane => 0f,
         _ => 0f
     };
@@ -1883,10 +1887,19 @@ internal static class WorkshopCollisionKernels
         contact.Feature = feature;
     }
 
-    /// <summary>The narrowphase is total over the admitted shapes (ingest rejects any other). Planes are static, so two planes never
-    /// form a candidate pair.</summary>
+    /// <summary>The narrowphase is total over the admitted shapes (ingest rejects any other). Planes and hollow colliders are static,
+    /// so neither meets a plane or another hollow collider in a candidate pair. One rule per pair: a hollow collider meets a sphere,
+    /// box or cylinder through its exact signed distance (engine-hollow-shapes).</summary>
     public static void GenerateManifold(SimCollider colA, SimCollider colB, float margin, List<ContactPoint> outList)
     {
+        if (IsHollow(colA.Shape) || IsHollow(colB.Shape))
+        {
+            var hollowIsA = IsHollow(colA.Shape);
+            var hollow = hollowIsA ? colA : colB;
+            var partner = hollowIsA ? colB : colA;
+            CollideHollow(partner, hollow, margin, outList);
+            return;
+        }
         switch (colA.Shape, colB.Shape)
         {
             case (ShapeKind.Sphere, ShapeKind.Sphere): CollideSphereSphere(colA, colB, margin, outList); break;

@@ -385,10 +385,14 @@ internal static class WorkshopConstraintSolver
     {
         var A = ci.A;
         var B = ci.B;
-        var k = (A.Motion == 1 ? A.InvMass : 0f) + (B.Motion == 1 ? B.InvMass : 0f);
-
         var ni = new Vector3(ci.Nx, ci.Ny, ci.Nz);
         var nj = new Vector3(cj.Nx, cj.Ny, cj.Nz);
+        // Contact normals are unit directions. The chord identity evaluates their
+        // dot product without self-dot roundoff for identical normals, keeping the
+        // block diagonal consistent with EffectiveMass while coupling nonparallel
+        // rows by the same rule: n_i dot n_j = 1 - |n_i - n_j|² / 2.
+        var cosine = 1f - .5f * Vector3.DistanceSquared(ni, nj);
+        var k = ((A.Motion == 1 ? A.InvMass : 0f) + (B.Motion == 1 ? B.InvMass : 0f)) * cosine;
 
         if (A.Motion == 1)
         {

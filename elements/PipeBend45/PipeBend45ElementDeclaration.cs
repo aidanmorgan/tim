@@ -5,9 +5,9 @@ using CuriousContraptions.Abstractions.Mechanical;
 
 namespace CuriousContraptions.Elements.PipeBend45;
 
-/// <summary>The 45° pipe bend (CAT-049): a static hollow torus segment, a distinct element from the 90° bend. Its colliders are 4 slices of
-/// 8 wall boxes around the 0.65 m bore, then the start and end collar rims (2 top/bottom and 2 left/right boxes each). Each row is
-/// (offset x, y, z, rotation x, y, z, w); the rotation is normalised as the runtime table normalises it.</summary>
+/// <summary>The 45° pipe bend (CAT-049): a static hollow torus segment, a distinct element from the 90° bend. Its colliders are true
+/// hollow shapes (engine-hollow-shapes): the 45° Torus wall (centreline 2.4 m, bore 0.65 m, wall to 0.7 m) between its collars, a
+/// 9 cm Tube stub from each collar to its mouth, and the two drawn torus collars. Restitution 0.15 (CAT-049).</summary>
 public sealed class PipeBend45ElementDeclaration : IMechanicalElement, ISceneGeometryElement
 {
     public ElementPresentation Presentation => new(2.2f, PresentationAxes.None,
@@ -32,7 +32,7 @@ public sealed class PipeBend45ElementDeclaration : IMechanicalElement, ISceneGeo
 
     public IReadOnlyList<SceneBodyGeometry> SceneBodies =>
     [
-        new(".", new(1f, 0.3f, 0f, 0.1f))
+        new(".", new(0.15f, 0.3f, 0f, 0.1f))
     ];
 
     public IReadOnlyList<EventDescriptor> Events => [];

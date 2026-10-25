@@ -156,6 +156,21 @@ internal sealed class LawScene
         Body(RigidMotionKind.Static, ColliderShapeKind.Sphere, position, rotation, radius, default, 0f, material, default, default, 0f, 0f,
             default);
 
+    /// <summary>A static hollow collider (engine-hollow-shapes): a Tube, Frustum or Torus with its declared radius lane and its three
+    /// half-extent lanes, at the body's origin.</summary>
+    public GpuBodyId StaticHollow(ColliderShapeKind shape, Vector3 position, Quaternion rotation, float radius, Vector3 lanes,
+        LawMaterial material)
+    {
+        var id = new GpuBodyId(_next++);
+        var x = WorkshopInput.Position(position.X); var y = WorkshopInput.Position(position.Y); var z = WorkshopInput.Position(position.Z);
+        _bodies.Add(new(id, RigidMotionKind.Static, new(x.Cell, y.Cell, z.Cell), new(x.Local, y.Local, z.Local),
+            CanonicalRotation.Normalize(rotation.X, rotation.Y, rotation.Z, rotation.W), default, default, new(0f), default, new(0f)));
+        var collider = new GpuColliderId(_next++);
+        _colliderOf[id] = collider;
+        _colliders.Add(new(collider, id, Material(material), shape, RigidLocalPose.Identity, new(radius), new(lanes.X, lanes.Y, lanes.Z)));
+        return id;
+    }
+
     public void OrientationSensor(GpuBodyId body, Quaternion initial, double degrees) =>
         _orientationSensors.Add(new(new(_next++), body, CanonicalRotation.Normalize(initial.X, initial.Y, initial.Z, initial.W),
             OrientationThreshold.Degrees(degrees)));

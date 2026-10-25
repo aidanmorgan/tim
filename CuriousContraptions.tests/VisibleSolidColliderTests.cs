@@ -14,9 +14,8 @@ namespace CuriousContraptions.Tests;
 /// <list type="bullet">
 /// <item>Collider against art, one case per element package: the scene's art is read through Godot (independent of the bundle's
 /// text extractor) and every solid art node must have a collider of its kind, centre, orientation and dimensions, and every collider
-/// must be some solid art node (nothing reaches beyond the art). Ring-shaped parts check their 16 boxes against the drawn outer
-/// radius and the bore; the beyond-art check of their round fit belongs to engine-hollow-shapes. Every art node is classified
-/// (<see cref="ArtSpec"/>).</item>
+/// must be some solid art node (nothing reaches beyond the art). Round hollow parts (engine-hollow-shapes) match their true Tube,
+/// Frustum and Torus colliders, and a bend's drawn chords its torus segment. Every art node is classified (<see cref="ArtSpec"/>).</item>
 /// <item>Ball drops and rolls on the production simulation (<see cref="EventRingProducerTests.Ring"/>), on the features named in
 /// <see cref="Feature"/>, a switch terminal, the delay housing's face, the ramp's rail and a Wall: each stops the ball at its drawn
 /// surface, and the drops return the product restitution of the documented materials. A ball that passes where the old switch box
@@ -40,20 +39,24 @@ public sealed class VisibleSolidColliderTests
     /// <summary>One element's art, every mesh classified (an entry ending "/*" names a node's whole subtree):
     /// <list type="bullet">
     /// <item><paramref name="Solid"/>: matched one to one with the colliders of the body that owns it;</item>
-    /// <item><paramref name="Ring"/>: a hollow collar drawn as a tube, checked as a ring of boxes;</item>
-    /// <item><paramref name="Pending"/>: a round hollow part deferred to engine-hollow-shapes. When <paramref name="Approximated"/>, the
-    /// element's colliders are that slice's box approximation of it and are not matched;</item>
+    /// <item><paramref name="Hollow"/>: a round hollow part (engine-hollow-shapes) matched one to one with its true hollow collider: an
+    /// open <c>CylinderMesh</c> (both caps off) with the Tube (equal radii) or Frustum (tapered) whose outer radii, half-length, centre
+    /// and axis are the drawn ones and whose inner radii are the element's mouth bores; a <c>TorusMesh</c> with the full solid Torus of
+    /// its drawn centreline and tube;</item>
+    /// <item><paramref name="Arc"/>: the straight open cylinders a bend's curved shell is drawn with (Godot has no torus-segment mesh),
+    /// matched together with the one partial Torus collider they draw: each chord's radius is the torus's outer radius, its centre lies
+    /// in the torus's plane within the chord's sagitta inside the centreline, its axis is tangent there, and the chords together span
+    /// the sweep;</item>
     /// <item><paramref name="Decorative"/>: printing flat on a face, a glow, a part inside another solid, or a part a presentation
     /// binding moves, which a static collider cannot follow;</item>
     /// <item><paramref name="Uncollided"/>: a visible part standing proud of the body with no collider, listed so none is hidden. Each
     /// entry names the slice that owns making it solid (coordinator scope amendment, 25 Oct 2026):
     /// <list type="bullet">
-    /// <item>engine-hollow-shapes: a torus (the Basketball seam, the Bumper's upper ring, the Weight's bands and lifting eye, the
-    /// pressure plate's ring) has no collider kind; a filled disc would be a new approximation of a round hollow part, and on the
-    /// pressure plate it would hold a centred ball off the sensing face;</item>
-    /// <item>engine-multi-collider-dynamic: a dynamic body admits one homogeneous collider (the Domino's pips, the Weight's base); a
-    /// sphere below the radius minimum <c>ColliderDeclaration.Validate</c> admits (the Clock's pivot cap, the pressure plate's studs,
-    /// the Domino's pips); and the pressure plate's colliders past its fifth, which would reach its contact-load row's identity
+    /// <item>engine-multi-collider-dynamic: a dynamic body admits one homogeneous collider (the Domino's pips, the Weight's base, and
+    /// the tori engine-hollow-shapes made a kind for but cannot place on a dynamic body: the Basketball's seam and the Weight's bands
+    /// and lifting eye; a hollow collider is also static only); a sphere below the radius minimum <c>ColliderDeclaration.Validate</c>
+    /// admits (the Clock's pivot cap, the pressure plate's studs, the Domino's pips); and the pressure plate's colliders past its
+    /// fifth (its studs and its ring torus), which would reach its contact-load row's identity
     /// (<c>WorkshopPhysicsCompiler.ColliderSlots</c>, refused when the bundle installs);</item>
     /// <item>bumper-cap-solid: the Bumper's cap stands 5 cm proud of the head at its rim (the head is at y √(0.65² − 0.25²) = 0.6
     /// there, the cap's top at 0.65). Solid, it meets a ball falling 0.3 m off the axis at its rim before the head, with a contact
@@ -66,10 +69,14 @@ public sealed class VisibleSolidColliderTests
     /// </list></item>
     /// </list></summary>
     /// <remarks><paramref name="Fit"/> widens the dimension agreement for a stated drawing reason (m).</remarks>
-    private sealed record ArtSpec(string[] Solid, string? Ring, string[] Pending, string[] Decorative, string? MovingRoot,
-        string[]? Uncollided = null, bool Approximated = false, float Fit = 0f);
+    private sealed record ArtSpec(string[] Solid, string[]? Hollow, string[] Arc, string[] Decorative, string? MovingRoot,
+        string[]? Uncollided = null, float Fit = 0f);
 
-    private sealed record Solid(string Path, ColliderShapeKind Kind, NumVector3 Centre, NumQuaternion Rotation, NumVector3 Extents);
+    /// <summary>One drawn primitive in its body's frame. Extents: a box's half sizes, a sphere's radius, a cylinder's (r, h, r); an open
+    /// cylinder's (top radius, half-height, bottom radius) as <see cref="ColliderShapeKind.Tube"/> or
+    /// <see cref="ColliderShapeKind.Frustum"/>; a torus mesh's (centreline radius, tube radius, 0) as
+    /// <see cref="ColliderShapeKind.Torus"/>.</summary>
+    private sealed record Solid(string Path, ColliderShapeKind Kind, NumVector3 Centre, NumQuaternion Rotation, NumVector3 Extents, float MeshError);
 
     private static readonly Dictionary<PartId, ArtSpec> Specs = new()
     {
@@ -85,22 +92,20 @@ public sealed class VisibleSolidColliderTests
             ["Visual/Mark_0", "Visual/Mark_1", "Visual/Mark_2", "Visual/Mark_3", "Visual/Visual_PlusH", "Visual/Visual_PlusV"], null),
         // The chevron is the arrow printed on the housing.
         [PartId.BallDetector] = new(["Visual/Visual_Housing", "Visual/Visual_Socket", "Visual/Visual_Indicator"],
-            "Visual/Visual_Collar", [], ["Visual/Visual_Chevron/Arm_1", "Visual/Visual_Chevron/Arm_2"], null),
-        // The 0.78 m collars need a ring kind: a box ring for them would be a new box approximation of a round hollow part, which
-        // this slice may not add. Deferred to engine-hollow-shapes (coordinator, 25 Oct 2026), which makes them solid.
+            ["Visual/Visual_Collar"], [], ["Visual/Visual_Chevron/Arm_1", "Visual/Visual_Chevron/Arm_2"], null),
         [PartId.PoweredGate] = new(
             ["Visual/Visual_Housing", "Visual/Visual_Rail_Start", "Visual/Visual_Rail_End", "Visual/Blade/Visual_Blade",
                 "Visual/Visual_Socket", "Visual/Visual_Indicator"],
-            "Visual/Visual_Sleeve", ["Visual/Visual_Collar_Start", "Visual/Visual_Collar_End"], [], "Visual/Blade"),
+            ["Visual/Visual_Sleeve", "Visual/Visual_Collar_Start", "Visual/Visual_Collar_End"], [], [], "Visual/Blade"),
 
         // Every other element package, classified the same way.
-        // The seam is a torus: engine-hollow-shapes.
+        // The seam is a torus on a dynamic body: engine-multi-collider-dynamic.
         [PartId.Basketball] = new(["Visual/Visual_Sphere"], null, [], [], null, Uncollided: ["Visual/Visual_Stripe"]),
         [PartId.BowlingBall] = new(["Visual/Visual_Sphere"], null, [], [], null),
-        // The base lies inside the head; the impact ring is scaled by the impact cue. The cap: bumper-cap-solid; the upper ring, a
-        // torus: engine-hollow-shapes.
-        [PartId.PinballBumper] = new(["Visual/BumperHead"], null, [], ["Visual/Visual_Base", "Visual/ImpactRing"], null,
-            Uncollided: ["Visual/Visual_Cap", "Visual/Visual_Ring2"]),
+        // The base lies inside the head; the impact ring is scaled by the impact cue. The cap: bumper-cap-solid. The upper ring is the
+        // drawn full torus (engine-hollow-shapes).
+        [PartId.PinballBumper] = new(["Visual/BumperHead"], ["Visual/Visual_Ring2"], [], ["Visual/Visual_Base", "Visual/ImpactRing"], null,
+            Uncollided: ["Visual/Visual_Cap"]),
         // The pips: engine-multi-collider-dynamic.
         [PartId.Domino] = new(["Visual/Visual_Body"], null, [], [], null, Uncollided: ["Visual/Visual_Pip1", "Visual/Visual_Pip2"]),
         // The stripes are flush with the faces. The body is drawn at 0.998 of the thickness so the stripes do not z-fight with it; the
@@ -109,25 +114,27 @@ public sealed class VisibleSolidColliderTests
         // The body is drawn at mass m by a uniform scale 0.136734·m + 0.453070 of its 0.35166413 m radius, and the collider's radius
         // is 0.04808397·m + 0.15932827: the declared constants differ by 0.35166413·(0.136734·m + 0.453070) − (0.04808397·m +
         // 0.15932827), at most 4.0e-6 m at the 8 kg bound (the half-height by 3.2e-6 m).
-        // The base: engine-multi-collider-dynamic; the bands and eye, tori: engine-hollow-shapes.
+        // The base, and the bands and eye (tori on a dynamic body): engine-multi-collider-dynamic.
         [new PartId("weight")] = new(["Visual/Visual_Body"], null, [], [], null,
             Uncollided: ["Visual/Visual_Base", "Visual/Visual_BandLower", "Visual/Visual_BandUpper", "Visual/Visual_Eye"], Fit: 4e-6f),
         // The halo is a glow.
         [PartId.Receiver] = new(["Visual/Visual_Floor", "Visual/Visual_Left", "Visual/Visual_Right", "Visual/Visual_Back", "Visual/Visual_Front"],
             null, [], ["Visual/Visual_Halo"], null),
-        // The studs: engine-multi-collider-dynamic; the ring, a torus: engine-hollow-shapes.
+        // The studs and the ring torus would be colliders past the fifth, reaching the contact-load row: engine-multi-collider-dynamic.
         [PartId.PressurePlate] = new(["Visual/Visual_Base", "Visual/Visual_Top", "Visual/Visual_Socket_PowerIn", "Visual/Visual_Socket_Supply",
             "Visual/Visual_Socket_ActivationOut"], null, [], [], null, Uncollided: ["Visual/Stud_*", "Visual/Visual_Ring"]),
         // The stripe is printed on the plate; the coil is drawn by the spring's compression.
         [PartId.Springboard] = new(["Visual/Visual_Base", "Visual/Plate/Visual_Plate"], null, [], ["Visual/Plate/Visual_Stripe", "Visual/Coil/*"],
             "Visual/Plate"),
-        [PartId.Pipe] = new([], null, ["Visual/Visual_Shell", "Visual/Visual_Collar_Start", "Visual/Visual_Collar_End"], [], null, Approximated: true),
-        [PartId.PipeBend45] = new([], null, ["Visual/Visual_Shell/*", "Visual/Visual_Collar_Start", "Visual/Visual_Collar_End"], [], null,
-            Approximated: true),
-        [PartId.PipeBend90] = new([], null, ["Visual/Visual_Shell/*", "Visual/Visual_Collar_Start", "Visual/Visual_Collar_End"], [], null,
-            Approximated: true),
-        [PartId.Funnel] = new([], null, ["Visual/Visual_Shell", "Visual/Visual_Collar_Start", "Visual/Visual_Collar_End"], [], null,
-            Approximated: true),
+        // engine-hollow-shapes: the pipe family's shells, stubs and collars are its true hollow colliders; a bend's shell chords draw
+        // its torus segment.
+        [PartId.Pipe] = new([], ["Visual/Visual_Shell", "Visual/Visual_Collar_Start", "Visual/Visual_Collar_End"], [], [], null),
+        [PartId.PipeBend45] = new([], ["Visual/Visual_Shell/Visual_Stub_*", "Visual/Visual_Collar_Start", "Visual/Visual_Collar_End"],
+            ["Visual/Visual_Shell/Visual_Shell_Seg_*"], [], null),
+        [PartId.PipeBend90] = new([], ["Visual/Visual_Shell/Visual_Stub_*", "Visual/Visual_Collar_Start", "Visual/Visual_Collar_End"],
+            ["Visual/Visual_Shell/Visual_Shell_Seg_*"], [], null),
+        [PartId.Funnel] = new([], ["Visual/Visual_Shell", "Visual/Visual_Stub_*", "Visual/Visual_Collar_Start", "Visual/Visual_Collar_End"], [], [],
+            null),
         // The logic parts: the pictogram, truth dots, marks and paths float 1–2 cm off the 0.37 face and stand up to 4.25 cm (the
         // strokes, marks and paths) and 8.5 cm (the truth dots) proud of it: face-markings-flush.
         [new PartId("both_gate")] = Logic(["Visual/UpperPath", "Visual/LowerPath"]),
@@ -182,19 +189,30 @@ public sealed class VisibleSolidColliderTests
         foreach (var parameters in ParameterSets(entry))
         {
             var art = Art(entry, spec.MovingRoot, parameters);
-            string[] entries = [.. spec.Solid, .. spec.Pending, .. spec.Decorative, .. spec.Uncollided ?? [], .. spec.Ring is { } r ? new[] { r } : []];
+            string[] entries = [.. spec.Solid, .. spec.Hollow ?? [], .. spec.Arc, .. spec.Decorative, .. spec.Uncollided ?? []];
             Assert.All(art.Keys, path => Assert.True(entries.Count(e => Names(e, path)) == 1, $"{element}: art '{path}' is not classified once"));
             Assert.All(entries, e => Assert.True(art.Keys.Any(path => Names(e, path)), $"{element}: '{e}' names no art"));
 
             var colliders = BundleGeometry.Colliders(entry, parameters).ToList();
             var moving = entry.Mechanical?.Sliders.SelectMany(s => s.MovingBody.Colliders).ToList() ?? [];
-            if (spec.Ring is { } ring)
-            {
-                var rings = RingBoxes(art[ring]!, colliders);
-                AssertRing(art[ring]!, rings, entry.TubeMouths.Select(m => m.BoreRadius).Distinct().Single());
-                colliders.RemoveAll(rings.Contains);
-            }
+            var bores = entry.TubeMouths.Select(m => m.BoreRadius).Distinct().ToArray();
             var unmatched = new List<string>();
+            foreach (var path in art.Keys.Where(path => (spec.Hollow ?? []).Any(e => Names(e, path))))
+            {
+                var hollow = art[path] ?? throw new InvalidOperationException($"{element}: hollow art '{path}' is not an open cylinder or a torus.");
+                Assert.InRange(hollow.MeshError, 0f, .005f);
+                var match = colliders.FindIndex(collider => MatchesHollow(hollow, collider, bores, Tol + spec.Fit));
+                if (match < 0) unmatched.Add($"'{path}' ({hollow.Kind}, centre {hollow.Centre}, extents {hollow.Extents})");
+                else colliders.RemoveAt(match);
+            }
+            var chords = art.Keys.Where(path => spec.Arc.Any(e => Names(e, path))).Select(path => art[path]!).ToArray();
+            if (chords.Length != 0)
+            {
+                var arc = colliders.FindIndex(collider => collider.ShapeKind == ColliderShapeKind.Torus && collider.HalfExtents.Z != ColliderDeclaration.FullSweep);
+                Assert.True(arc >= 0, $"{element}: no torus segment collider for its drawn arc");
+                AssertArc(chords, colliders[arc], bores);
+                colliders.RemoveAt(arc);
+            }
             foreach (var path in spec.Solid)
             {
                 var solid = art[path] ?? throw new InvalidOperationException($"{element}: solid art '{path}' is not a box, full sphere or straight cylinder.");
@@ -207,7 +225,6 @@ public sealed class VisibleSolidColliderTests
             Assert.True(unmatched.Count == 0, $"{element} at {Describe(parameters)}: solid art without a matching collider: " +
                 string.Join("; ", unmatched) + "; colliders left: " +
                 string.Join("; ", colliders.Concat(moving).Select(c => $"{c.ShapeKind} at {c.Offset} half {c.HalfExtents}")));
-            if (spec.Approximated) continue;
             Assert.True(colliders.Count == 0 && moving.Count == 0, $"{element} at {Describe(parameters)}: collider(s) reach beyond the art: " +
                 string.Join("; ", colliders.Concat(moving).Select(c => $"{c.ShapeKind} at {c.Offset} half {c.HalfExtents}")));
         }
@@ -225,7 +242,8 @@ public sealed class VisibleSolidColliderTests
         try
         {
             var result = new Dictionary<string, Solid?>(StringComparer.Ordinal);
-            foreach (var mesh in Descendants(root).OfType<MeshInstance3D>())
+            // A collider proxy (a col_ node: engine-hollow-shapes' hollow proxies are hidden mesh instances) is no art.
+            foreach (var mesh in Descendants(root).OfType<MeshInstance3D>().Where(mesh => !mesh.Name.ToString().StartsWith("col_", StringComparison.OrdinalIgnoreCase)))
             {
                 var path = root.GetPathTo(mesh).ToString();
                 var transform = Transform3D.Identity;
@@ -260,12 +278,29 @@ public sealed class VisibleSolidColliderTests
                     BoxMesh box => (ColliderShapeKind.Box, new NumVector3(box.Size.X * s.X, box.Size.Y * s.Y, box.Size.Z * s.Z) * .5f),
                     SphereMesh sphere when sphere.Height == 2 * sphere.Radius && s.X == s.Y && s.Y == s.Z =>
                         (ColliderShapeKind.Sphere, new NumVector3(sphere.Radius * s.X)),
+                    // engine-hollow-shapes: an open cylinder (both caps off) is a tube or frustum wall; a torus mesh a full torus.
+                    CylinderMesh open when !open.CapTop && !open.CapBottom =>
+                        (open.TopRadius == open.BottomRadius ? ColliderShapeKind.Tube : ColliderShapeKind.Frustum,
+                            new NumVector3(open.TopRadius * s.X, open.Height * .5f * s.Y, open.BottomRadius * s.X)),
+                    TorusMesh torus when MathF.Abs(s.X - s.Y) <= Tol && MathF.Abs(s.Y - s.Z) <= Tol =>
+                        (ColliderShapeKind.Torus, new NumVector3((torus.InnerRadius + torus.OuterRadius) * .5f * s.X,
+                            (torus.OuterRadius - torus.InnerRadius) * .5f * s.X, 0f)),
                     CylinderMesh cylinder when cylinder.TopRadius == cylinder.BottomRadius =>
                         (ColliderShapeKind.Cylinder, new NumVector3(cylinder.TopRadius * s.X, cylinder.Height * .5f * s.Y, cylinder.TopRadius * s.Z)),
                     _ => null
                 };
+                // Errors from both circular tessellation directions add: using their
+                // maximum alone misses points between both sets of mesh vertices.
+                var meshError = mesh.Mesh switch
+                {
+                    CylinderMesh cylinder => MathF.Max(cylinder.TopRadius, cylinder.BottomRadius) * s.X *
+                        (1f - MathF.Cos(MathF.PI / cylinder.RadialSegments)),
+                    TorusMesh torus => s.X * (torus.OuterRadius * (1f - MathF.Cos(MathF.PI / torus.Rings)) +
+                        (torus.OuterRadius - torus.InnerRadius) * .5f * (1f - MathF.Cos(MathF.PI / torus.RingSegments))),
+                    _ => 0f
+                };
                 result.Add(path, shape is { } primitive ? new(path, primitive.Kind, new(transform.Origin.X, transform.Origin.Y, transform.Origin.Z),
-                    new(q.X, q.Y, q.Z, q.W), primitive.Extents) : null);
+                    new(q.X, q.Y, q.Z, q.W), primitive.Extents, meshError) : null);
             }
             return result;
         }
@@ -304,64 +339,65 @@ public sealed class VisibleSolidColliderTests
         };
     }
 
-    /// <summary>The boxes of a ring: centred on the ring's mid-plane inside its drawn radius, with their local Y radial from the
-    /// ring's axis.</summary>
-    private static List<ColliderDescriptor> RingBoxes(Solid ring, IReadOnlyList<ColliderDescriptor> colliders)
+    /// <summary>A drawn hollow part's true collider (engine-hollow-shapes): the same kind, centre and axis; for an open cylinder its
+    /// drawn outer radii and half-length (a frustum turned the drawn way: its −Y end the drawn bottom) with inner radii that are the
+    /// element's mouth bores; for a torus mesh its drawn centreline and tube, solid, over the full turn.</summary>
+    private static bool MatchesHollow(Solid art, ColliderDescriptor collider, float[] bores, float tolerance)
     {
-        var axis = Axis(ring.Rotation, NumVector3.UnitY);
-        return colliders.Where(c =>
+        if (collider.ShapeKind != art.Kind || !Near(collider.Offset, art.Centre, tolerance)) return false;
+        var axis = Axis(collider.Rotation, NumVector3.UnitY);
+        var drawn = Axis(art.Rotation, NumVector3.UnitY);
+        if (!Parallel(axis, drawn)) return false;
+        bool Same(float a, float b) => MathF.Abs(a - b) <= tolerance;
+        bool Bore(float radius) => bores.Any(bore => Same(radius, bore));
+        var h = collider.HalfExtents;
+        return art.Kind switch
         {
-            if (c.ShapeKind != ColliderShapeKind.Box) return false;
-            var offset = c.Offset - ring.Centre;
-            var along = NumVector3.Dot(offset, axis);
-            var radial = offset - along * axis;
-            var distance = radial.Length();
-            return MathF.Abs(along) <= Tol && distance > ring.Extents.X * .5f && distance < ring.Extents.X &&
-                Parallel(Axis(c.Rotation, NumVector3.UnitY), radial / distance);
-        }).ToList();
+            ColliderShapeKind.Tube => Same(collider.Radius, art.Extents.X) && Same(h.Y, art.Extents.Y) && Bore(h.X) && h.Z == 0f,
+            ColliderShapeKind.Frustum => NumVector3.Dot(axis, drawn) > 0f && Same(collider.Radius, art.Extents.Z) && Same(h.Z, art.Extents.X) &&
+                Same(h.Y, art.Extents.Y) && Bore(collider.Radius - h.X) && Bore(h.Z - h.X),
+            ColliderShapeKind.Torus => Same(collider.Radius, art.Extents.X) && Same(h.Y, art.Extents.Y) && h.X == 0f &&
+                h.Z == ColliderDeclaration.FullSweep,
+            _ => false
+        };
     }
 
-    /// <summary>A ring of n boxes is solid from the bore to the drawn outer radius R: each box's inner face lies at the bore and its
-    /// outer face at R, it spans the drawn length, and its tangential half is R·tan(π/n), so neighbouring outer faces just meet. The
-    /// scenes write that half rounded up to f32; the bounds allow <see cref="Tol"/> either side for the f32 evaluation of R·tan(π/n).
-    /// The n boxes stand at the n equal angles about the first, each angle taken in (−π, π]. A box's corner then reaches R / cos(π/n),
-    /// beyond the drawn surface; that round fit is the beyond-art check engine-hollow-shapes owns.</summary>
-    private static void AssertRing(Solid ring, List<ColliderDescriptor> boxes, float bore)
+    /// <summary>A bend's drawn chords against its torus segment collider (R, bore r_i, wall r_o, sweep θ): each chord is an open
+    /// cylinder of the wall's radius r_o, centred in the torus's plane at a distance from its centre between R less the chord's
+    /// sagitta, R − √(R² − h²) for its drawn half-length h (3.5 mm for the bends' 0.13 m), and R, within the sweep, with its axis
+    /// tangent there; the chords' angular spans (±atan(h / ρ) about each) cover [0, θ] without a gap; and the bore r_i is a mouth's.
+    /// So the collider's round wall lies within the chords' sagitta of the drawn polyline everywhere.</summary>
+    private static void AssertArc(Solid[] chords, ColliderDescriptor arc, float[] bores)
     {
-        const int n = 16;
-        Assert.Equal(n, boxes.Count);
-        var axis = Axis(ring.Rotation, NumVector3.UnitY);
-        var outer = ring.Extents.X;
-        var reference = NumVector3.Normalize(boxes[0].Offset - ring.Centre);
-        var angles = new List<double>();
-        foreach (var box in boxes)
+        var (bend, inner, outer, sweep) = (arc.Radius, arc.HalfExtents.X, arc.HalfExtents.Y, arc.HalfExtents.Z);
+        Assert.True(bores.Any(bore => MathF.Abs(inner - bore) <= Tol), $"the arc's bore {inner} is no mouth's");
+        var axis = Axis(arc.Rotation, NumVector3.UnitY);
+        var (start, quarter) = (Axis(arc.Rotation, NumVector3.UnitX), Axis(arc.Rotation, NumVector3.UnitZ));
+        var spans = new List<(double Angle, double Reach)>();
+        foreach (var chord in chords)
         {
-            var radial = box.Offset - ring.Centre;
-            var distance = radial.Length();
-            Assert.True(MathF.Abs(distance - box.HalfExtents.Y - bore) <= Tol,
-                $"a ring box's inner face is at {distance - box.HalfExtents.Y}, not the bore {bore}");
-            Assert.True(MathF.Abs(distance + box.HalfExtents.Y - outer) <= Tol,
-                $"a ring box's outer face is at {distance + box.HalfExtents.Y}, not the drawn {outer}");
-            Assert.True(Parallel(Axis(box.Rotation, NumVector3.UnitX), axis), "a ring box's length is not along the ring's axis");
-            Assert.True(MathF.Abs(box.HalfExtents.X - ring.Extents.Y) <= Tol,
-                $"a ring box's half-length {box.HalfExtents.X} is not the drawn {ring.Extents.Y}");
-            var closing = outer * MathF.Tan(MathF.PI / n);
-            Assert.True(box.HalfExtents.Z >= closing - Tol,
-                $"a ring box's tangential half {box.HalfExtents.Z} leaves its outer face open (needs {closing})");
-            Assert.True(box.HalfExtents.Z <= closing + Tol,
-                $"a ring box's tangential half {box.HalfExtents.Z} overhangs the closed polygon's {closing} by more than {Tol}");
-            var unit = radial / distance;
-            angles.Add(Math.Atan2(NumVector3.Dot(NumVector3.Cross(reference, unit), axis), NumVector3.Dot(reference, unit)));
+            Assert.Equal(ColliderShapeKind.Tube, chord.Kind);
+            Assert.True(MathF.Abs(chord.Extents.X - outer) <= Tol, $"the chord '{chord.Path}' is drawn at {chord.Extents.X}, not the wall's {outer}");
+            var offset = chord.Centre - arc.Offset;
+            Assert.True(MathF.Abs(NumVector3.Dot(offset, axis)) <= Tol, $"the chord '{chord.Path}' lies off the arc's plane");
+            var rho = offset.Length();
+            var half = chord.Extents.Y;
+            var sagitta = bend - MathF.Sqrt(bend * bend - half * half);
+            Assert.InRange(sagitta + chord.MeshError, 0f, .005f);
+            Assert.True(rho <= bend + Tol && rho >= bend - sagitta - Tol,
+                $"the chord '{chord.Path}' is centred {rho} from the arc's centre, outside [{bend - sagitta}, {bend}]");
+            var tangent = Axis(chord.Rotation, NumVector3.UnitY);
+            Assert.True(MathF.Abs(NumVector3.Dot(tangent, axis)) <= 1e-5f && MathF.Abs(NumVector3.Dot(tangent, offset / rho)) <= 1e-5f,
+                $"the chord '{chord.Path}' is not tangent to the arc");
+            var angle = Math.Atan2(NumVector3.Dot(offset, quarter), NumVector3.Dot(offset, start));
+            Assert.True(angle >= 0 && angle <= sweep, $"the chord '{chord.Path}' stands at {angle} rad, outside the {sweep} rad sweep");
+            spans.Add((angle, Math.Atan(half / rho)));
         }
-        // Atan2 gives each angle in (−π, π]; the nearest of the n steps k·2π/n (k from −n/2 + 1 to n/2) must lie within 1e-5 rad, and
-        // each step must be taken once.
-        var steps = angles.Select(a =>
-        {
-            var k = (int)Math.Round(a * n / (2 * Math.PI));
-            Assert.True(Math.Abs(a - k * 2 * Math.PI / n) <= 1e-5, $"a ring box stands at {a} rad, not on a 2π/{n} step");
-            return k == -n / 2 ? n / 2 : k;
-        }).Order().ToArray();
-        Assert.Equal(Enumerable.Range(-n / 2 + 1, n), steps);
+        spans.Sort();
+        Assert.True(spans[0].Angle - spans[0].Reach <= 1e-6 && spans[^1].Angle + spans[^1].Reach >= sweep - 1e-6,
+            "the chords do not reach both ends of the sweep");
+        for (var i = 1; i < spans.Count; i++)
+            Assert.True(spans[i].Angle - spans[i].Reach <= spans[i - 1].Angle + spans[i - 1].Reach, "the chords leave a gap in the sweep");
     }
 
     // ---------- the production simulation ----------
@@ -398,13 +434,15 @@ public sealed class VisibleSolidColliderTests
         return new(row.Body.Velocity.X, row.Body.Velocity.Y, row.Body.Velocity.Z);
     }
 
-    /// <summary>A flat top of each newly solid feature; for the ring (the detector collar, turned over) its drawn outer surface; for
-    /// the gate, whose collars wait for a ring kind, its housing, which carries the frame's documented restitution; for the logic
-    /// family, a face panel, a lamp or indicator and a socket; for the pressure plate, a socket at the plate's own restitution.</summary>
+    /// <summary>A flat top of each newly solid feature; for the hollow parts (engine-hollow-shapes) their drawn outer surfaces: the
+    /// detector's and the gate's collar tubes (each turned over so its housing hangs below), the pipe's shell top and a pipe collar's
+    /// torus top; the gate's housing, which carries the frame's documented restitution; for the logic family, a face panel, a lamp or
+    /// indicator and a socket; for the pressure plate, a socket at the plate's own restitution.</summary>
     public enum Feature
     {
         LampBulb, SwitchButton, DelayHousing, DelayFace, RampSlab, BatteryTerminal, DetectorCollar, GateHousing, LogicFace, LogicLamp,
-        CounterLamp, LatchIndicator, LatchSocket, ClockFace, HoldTimerFace, PlateSocket, NorFace, OrFace, XorFace
+        CounterLamp, LatchIndicator, LatchSocket, ClockFace, HoldTimerFace, PlateSocket, NorFace, OrFace, XorFace, PipeShell, PipeCollar,
+        GateCollar, Bend45Collar, Bend90Collar, FunnelCollar
     }
 
     /// <summary>On its back: −90° about X, the face up; a part-local point (x, y, z) is then at (x, z, −y) from the origin.</summary>
@@ -455,6 +493,18 @@ public sealed class VisibleSolidColliderTests
         // the socket the ball's centre is √(0.08² + 0.355²) = 0.364 from the base's top edge, beyond its 0.34 radius. The plate's
         // restitution is 0.1 (CAT-052).
         Feature.PlateSocket => (PartId.PressurePlate, NumQuaternion.Identity, -.08 + .075, -1.18f, 0, .1),
+        // CAT-048: the default 3.6 m pipe lying along X; its shell's drawn top is the 0.7 m wall, dropped at the middle of its length.
+        // The pipe family's documented restitution is 0.15.
+        Feature.PipeShell => (PartId.Pipe, NumQuaternion.Identity, .7, 0, 0, .15),
+        // CAT-048: the end collar's drawn TorusMesh (inner 0.65, outer 0.78) at x 1.8 tops out at 0.78; its top is a point apex.
+        // Bend plane laid flat: its start collar is a vertical torus with apex .78.
+        Feature.Bend45Collar => (PartId.PipeBend45, Back, .78, -.91844f, -.182689f, .15),
+        Feature.Bend90Collar => (PartId.PipeBend90, Back, .78, -1.697056f, -.702944f, .15),
+        Feature.FunnelCollar => (PartId.Funnel, NumQuaternion.Identity, .78, .9f, 0, .15),
+        Feature.PipeCollar => (PartId.Pipe, NumQuaternion.Identity, .78, 1.8f, 0, .15),
+        // CAT-051: the Powered gate turned over about X (housing and rails below), onto its end collar's drawn 0.78 m tube at x 0.4.
+        // Clear of the blade (top at 0.72, x within ±0.06: the ball reaches x 0.06 at 0.78) and the rails (|z| 0.82, below 0.2).
+        Feature.GateCollar => (PartId.PoweredGate, new(1, 0, 0, 0), .78, .4f, 0, .1),
         _ => throw new ArgumentOutOfRangeException(nameof(feature), feature, "Unknown feature.")
     };
 
@@ -488,11 +538,49 @@ public sealed class VisibleSolidColliderTests
     [InlineData(Feature.NorFace)]
     [InlineData(Feature.OrFace)]
     [InlineData(Feature.XorFace)]
+    [InlineData(Feature.PipeShell)]
+    [InlineData(Feature.PipeCollar)]
+    [InlineData(Feature.Bend45Collar)]
+    [InlineData(Feature.Bend90Collar)]
+    [InlineData(Feature.FunnelCollar)]
+    [InlineData(Feature.GateCollar)]
     public async Task ABallDroppedOntoEachSolidFeatureStopsAtItsDrawnSurfaceAndReboundsAtTheProductRestitution(Feature feature)
     {
         var (part, rotation, top, x, z, staticRestitution) = Drop(feature);
-        await AssertDropOnto(Place(part, Element, new(0, (float)Y, 0), rotation), x, z, top, staticRestitution, feature.ToString(),
-            OnSphereApex(part, rotation, x, z, top), feature == Feature.PlateSocket ? PlateFall : .5);
+        IWorkshopInstance element = part == PartId.Pipe
+            ? WorkshopInput.Pipe(Element, 0, Y, 0, rotation.X, rotation.Y, rotation.Z, rotation.W)
+            : Place(part, Element, new(0, (float)Y, 0), rotation);
+        // A torus's top is a point apex, like a sphere's: no stable rest.
+        await AssertDropOnto(element, x, z, top, staticRestitution, feature.ToString(),
+            OnSphereApex(part, rotation, x, z, top) || feature is Feature.PipeCollar or Feature.Bend45Collar or Feature.Bend90Collar or Feature.FunnelCollar, feature == Feature.PlateSocket ? PlateFall : .5);
+    }
+
+    /// <summary>The Bumper's upper ring (engine-hollow-shapes): the drawn TorusMesh (inner 0.472, outer 0.508) at y 0.43 is a solid
+    /// tube of radius 0.018 about a 0.49 m centreline, whose outer surface stands √(0.49² + 0.43²) + 0.018 = 0.670 m from the head's
+    /// centre, 2 cm proud of the 0.65 m head. With the bumper turned atan2(0.49, 0.43) about Z so that the ring's highest point is over
+    /// its centre, the Basketball dropped 0.25 m onto it first stops on the ring: its lowest committed centre lies within one tick's
+    /// travel (v_in·T) above the ring contact, 0.670 + 0.34 above the head's centre, and no deeper than the envelope's temporary
+    /// penetration; on the head alone it would stop 0.0199 m lower, below that penetration. The rebound is the bumper's kick (its
+    /// contact work), not a restitution, so only the stop is asserted.</summary>
+    [Fact]
+    public async Task ABallDroppedOntoTheBumpersUpperRingStopsAtItsDrawnTube()
+    {
+        var turn = NumQuaternion.CreateFromAxisAngle(NumVector3.UnitZ, MathF.Atan2(.49f, .43f));
+        var ringTop = MathF.Sqrt(.49f * .49f + .43f * .43f) + .018;
+        var rest = Y + ringTop + BallRadius;
+        await using var ring = await EventRingProducerTests.Ring.Running(Bench([Place(PartId.PinballBumper, Element, new(0, (float)Y, 0), turn),
+            BallAt(new(0, (float)(rest + .25), 0))]));
+        await ring.Advance(60);
+        double lowest = double.PositiveInfinity, fastest = 0;
+        foreach (var read in ring.Reads)
+        {
+            var (y, vy) = (Position(read).Y, Velocity(read).Y);
+            lowest = Math.Min(lowest, y);
+            if (fastest > 1 && vy > 0) break; // the first rebound: the impact is over
+            fastest = Math.Max(fastest, -vy);
+        }
+        Assert.True(lowest >= rest - Penetration && lowest <= rest + fastest * T,
+            $"the ball first stopped at {lowest:F4} m, not on the ring's drawn tube at {rest:F4} m");
     }
 
     /// <summary>The plate's socket returns e = 0.55 · 0.1 = 0.055; the rebound bound's slack is g·T·(1 + e)/v_in, so from 3 m

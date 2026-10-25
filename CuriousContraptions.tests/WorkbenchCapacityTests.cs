@@ -51,11 +51,11 @@ public sealed class WorkbenchCapacityTests
     [Fact]
     public async Task HeavyCompoundConstructionsValidateCompileAndStepWithoutColliderLimits()
     {
-        // 20 pipes = 480 colliders, 10 pipe bends = 400 colliders (total 880 colliders)
+        // 20 pipes (3 hollow colliders each: shell tube and two collar tori) and 10 pipe bends (5 each: arc, two stubs, two collars).
         var heavy = Population((PartId.Pipe, 20), (PartId.PipeBend45, 10));
         Free(heavy).Validate();
         var scene = WorkshopPhysicsCompiler.Compile(Free(heavy), new(1, 2));
-        Assert.Equal(20 * 24 + 10 * 40 + 1, scene.Colliders.Length);
+        Assert.Equal(20 * 3 + 10 * 5 + 1, scene.Colliders.Length);
         // Story 9R.2: the 30-instance mixed bench also steps through the production engine.
         var reads = await WorkshopPhysicsEngineTests.Run(Bench(heavy), SteppedTicks);
         Assert.Equal(new SimulationTick(SteppedTicks), reads[^1].Tick);
@@ -153,8 +153,12 @@ public sealed class WorkbenchCapacityTests
     };
 
     // Eight columns, rows 2.5 m apart, wide enough that no moving part starts inside a neighbour.
+    /// <summary>Eight to a row for the first 64 parts; from the 65th on, sixteen to a row in a second field from x 20, so hundreds of
+    /// parts stay inside the admitted world.</summary>
     private static WorkshopInstances Grid(PartId kind, int count) =>
-        new([.. Enumerable.Range(0, count).Select(i => Place(kind, new((ulong)i + 1), -6 + i % 8 * 1.6, -5 + i / 8 * 2.5))]);
+        new([.. Enumerable.Range(0, count).Select(i => i < 64
+            ? Place(kind, new((ulong)i + 1), -6 + i % 8 * 1.6, -5 + i / 8 * 2.5)
+            : Place(kind, new((ulong)i + 1), 20 + (i - 64) % 16 * 1.6, -5 + (i - 64) / 16 * 2.5))]);
 
     // The Story 9.4b harness admits at revision 2 through the production WorkshopSimulation, WorkshopGpuDevice and BrowserGpuTransport.
     private static WorkshopConstruction Bench(WorkshopInstances instances) => new(new(2), WorkshopCadenceSettings.Default(), instances);
@@ -186,42 +190,44 @@ public sealed class WorkbenchCapacityTests
         }
     }
 
-    // The plane alone, then 28 bends (2,017 colliders) and 29 bends (2,089) straddling the retired 2,048 ceiling, the full 9R.2 bench,
-    // and one past the retired part table.
+    // A 90° bend compiles 5 hollow colliders (engine-hollow-shapes: arc, two stubs, two collars). The plane alone, the full 9R.2 bench
+    // (32 bends), one past the retired part table, then 409 bends (2,046 colliders) and 410 bends (2,051) straddling the retired 2,048
+    // ceiling.
     [Theory]
     [InlineData(0)]
-    [InlineData(28)]
-    [InlineData(29)]
     [InlineData(32)]
     [InlineData(PastThePartTable)]
+    [InlineData(409)]
+    [InlineData(410)]
     public async Task BendBenchesAcrossTheRetiredColliderCeilingCompileAndStep(int bends)
     {
         var bench = Bench(Grid(PartId.PipeBend90, bends));
         bench.Validate();
-        Assert.Equal(1 + bends * 72, WorkshopPhysicsCompiler.Compile(bench, new(1, 2)).Colliders.Length);
+        Assert.Equal(1 + bends * 5, WorkshopPhysicsCompiler.Compile(bench, new(1, 2)).Colliders.Length);
         var reads = await WorkshopPhysicsEngineTests.Run(bench, SteppedTicks);
         Assert.Equal(new SimulationTick(SteppedTicks), reads[^1].Tick);
     }
 
-    // Thirty bends to the left, then (with the last bend) a cradle around the ball: 31 x 72 + plane + ball = 2,234 colliders, and the
-    // ball rests inside the cradle's tube on colliders whose slots lie beyond the retired 2,048 ceiling. The geometry is the
-    // capacity-9r Chrome bench's (placement plane y 3). Control: without that bend the ball falls to the bench.
+    // 410 bends to the left (5 colliders each), then (with the last bend) a cradle around the ball: 411 x 5 + plane + ball = 2,057
+    // colliders, and the ball rests inside the cradle's tube on colliders whose slots lie beyond the retired 2,048 ceiling. The cradle's
+    // geometry is the capacity-9r Chrome bench's (placement plane y 3). Control: without that bend the ball falls to the bench.
     [Theory]
     [InlineData(true)]
     [InlineData(false)]
-    public async Task ABallRestsInTheLastOfThirtyOneBendsAndFallsWithoutIt(bool withLastBend)
+    public async Task ABallRestsInTheLastOfFourHundredElevenBendsAndFallsWithoutIt(bool withLastBend)
     {
-        var parts = Enumerable.Range(0, 30)
-            .Select(i => (IWorkshopInstance)WorkshopInput.PipeBend90(new((ulong)i + 1), -6 + i % 6, 3, -3 + i / 6 * 1.5, 0, 0, 0, 1))
+        var parts = Enumerable.Range(0, 410)
+            .Select(i => (IWorkshopInstance)WorkshopInput.PipeBend90(new((ulong)i + 1), i < 30 ? -6 + i % 6 : 20 + (i - 30) % 16 * 1.6, 3,
+                i < 30 ? -3 + i / 6 * 1.5 : -5 + (i - 30) / 16 * 2.5, 0, 0, 0, 1))
             .ToList();
-        var cradle = new GpuBodyId(31);
+        var cradle = new GpuBodyId(411);
         if (withLastBend) parts.Add(WorkshopInput.PipeBend90(cradle, 6, 3, 0, 0, 0, CradleZ, CradleW));
-        var ball = WorkshopInput.Generic(PartId.Basketball,new(32), 6, 3, 0, 0, 0, 0, 1);
+        var ball = WorkshopInput.Generic(PartId.Basketball,new(412), 6, 3, 0, 0, 0, 0, 1);
         parts.Add(ball);
         var bench = Bench(new([.. parts]));
         bench.Validate();
         var scene = WorkshopPhysicsCompiler.Compile(bench, new(1, 2));
-        Assert.Equal(withLastBend ? 2234 : 2162, scene.Colliders.Length);
+        Assert.Equal(withLastBend ? 2057 : 2052, scene.Colliders.Length);
         if (withLastBend)
             Assert.All(Enumerable.Range(0, scene.Colliders.Length).Where(slot => scene.Colliders[slot].Body == cradle),
                 slot => Assert.True(slot > 2048, $"cradle collider slot {slot} lies beyond the retired ceiling"));

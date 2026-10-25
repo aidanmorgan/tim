@@ -77,3 +77,8 @@ position = Vector3(0, 0, 0)
 quaternion = Quaternion(0, 0, 0, 1)
 visible = false
 shape = SubResource("BakedShape_0_0")
+
+[node name="col_ring2" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.43, 0)
+visible = false
+mesh = SubResource("Mesh_Ring2")

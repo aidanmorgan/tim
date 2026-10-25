@@ -42,7 +42,7 @@ public sealed class BallDetectorTests(NativeSceneFixture godot)
     }
 
     [Fact]
-    public void BallDetectorScene_ExtractsExact19CollidersAndThreePortLocators()
+    public void BallDetectorScene_ExtractsItsCollarTubeHousingSocketIndicatorAndThreePortLocators()
     {
         var packedScene = ResourceLoader.Load<PackedScene>("res://elements/BallDetector/ball_detector.tscn");
         Assert.NotNull(packedScene);
@@ -51,31 +51,16 @@ public sealed class BallDetectorTests(NativeSceneFixture godot)
         {
             var (colliders, ports) = TestBundle.SceneGeometry(instance);
 
-            // Exactly 19 colliders: 16 circumference + 1 housing, and (elements-visible-solid) the activation socket and the
-            // indicator spheres
-            Assert.Equal(19, colliders.Count);
+            // Four colliders: the collar Tube (engine-hollow-shapes), the housing, and (elements-visible-solid) the activation socket
+            // and the indicator spheres.
+            Assert.Equal(4, colliders.Count);
 
-            // 16 circumference colliders, solid from the 0.65 m bore to the drawn 0.82 m collar (elements-visible-solid): radial
-            // half (0.82 − 0.65)/2 = 0.085 about a centre radius 0.735, tangential width 2·0.82·tan(π/16) rounded up to f32
-            // (0.32621631) so the outer faces meet, and the collar's 0.28 m half-length.
-            var circumference = colliders.Take(16).ToArray();
-            var expectedCircHalfExtents = new MetreVector(0.28f, 0.085f, .32621631f * .5f);
-            foreach (var col in circumference)
-            {
-                Assert.Equal(ColliderShapeKind.Box, col.ShapeKind);
-                Assert.Equal(expectedCircHalfExtents.X, col.HalfExtents.X);
-                Assert.Equal(expectedCircHalfExtents.Y, col.HalfExtents.Y);
-                Assert.Equal(expectedCircHalfExtents.Z, col.HalfExtents.Z);
-
-                Assert.Equal(0f, col.LocalPose.Translation.X);
-                var py = (float)col.LocalPose.Translation.Y;
-                var pz = (float)col.LocalPose.Translation.Z;
-                var dist = MathF.Sqrt(py * py + pz * pz);
-                Assert.InRange(dist, 0.734f, 0.736f);
-            }
+            // The collar is solid from the 0.65 m bore to the drawn 0.82 m collar along its 0.28 m half-length, about local X.
+            TestBundle.AssertHollow(colliders[0], ColliderShapeKind.Tube, .82f, new(.65f, .28f, 0f), System.Numerics.Vector3.Zero,
+                System.Numerics.Vector3.UnitX);
 
             // 1 housing collider
-            var housing = colliders[16];
+            var housing = colliders[1];
             Assert.Equal(ColliderShapeKind.Box, housing.ShapeKind);
             Assert.Equal(new MetreVector(0.25f, 0.12f, 0.25f), housing.HalfExtents);
             Assert.Equal(0f, housing.LocalPose.Translation.X);
@@ -137,7 +122,8 @@ public sealed class BallDetectorTests(NativeSceneFixture godot)
         Assert.Equal(RigidMotionKind.Static, detectorBody.Motion);
 
         var colliders = scene.Colliders.ToArray().Where(c => c.Body == detectorBody.Id).ToArray();
-        Assert.Equal(19, colliders.Length); // 16 ring boxes, the housing, the socket and the indicator
+        Assert.Equal([ColliderShapeKind.Tube, ColliderShapeKind.Box, ColliderShapeKind.Sphere, ColliderShapeKind.Sphere],
+            colliders.Select(c => c.Shape).ToArray()); // the collar tube, the housing, the socket and the indicator
 
         // Network checks
         Assert.Equal(2, network.Nodes.Length);
@@ -482,7 +468,7 @@ public sealed class BallDetectorTests(NativeSceneFixture godot)
         // Story 9R.5b: the compiled scene is the footprint authority; the workbench plane adds one static body and collider.
         var world = WorkshopPhysicsCompiler.Compile(new WorkshopConstruction(new ConstructionRevision(1), WorkshopCadenceSettings.Default(),
             new WorkshopInstances(PlacedParts.Detector(new GpuBodyId(1), 0, 3, 0, 0, 0, 0, 1))), new(1, 2)).World;
-        Assert.Equal((1 + 1, 0, 19 + 1, 0, 0), (world.Bodies, world.Dynamic, world.Colliders, world.Triggers, world.ContactWorks));
+        Assert.Equal((1 + 1, 0, 4 + 1, 0, 0), (world.Bodies, world.Dynamic, world.Colliders, world.Triggers, world.ContactWorks));
 
         // 3 detectors = 57 colliders + 1 plane collider = 58
         var threeDetectors = new WorkshopInstances(
@@ -522,11 +508,12 @@ public sealed class BallDetectorTests(NativeSceneFixture godot)
         var decoded = WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes);
 
         Assert.Equal(save, decoded);
-        Assert.Equal(bytes, WorkshopSaveCodec.Encode(decoded));
+        Assert.Equal(save, WorkshopSaveCodec.Decode(SaveFixture.Elements, WorkshopSaveCodec.Encode(decoded)));
 
         var decodedDetector = Assert.IsType<WorkshopGenericInstance>(decoded.Construction.Instances[1]);
         Assert.Equal(PartId.BallDetector, decodedDetector.PartId);
-        Assert.Equal(19, decodedDetector.DeclaredColliders.Count);
+        Assert.Equal(ColliderShapeKind.Tube, decodedDetector.DeclaredColliders[0].ShapeKind);
+        Assert.Equal(4, decodedDetector.DeclaredColliders.Count);
 
         // Verify FlatBuffers schema preserves PartId on saved instance record
         var fbSave = WorkshopSaveCodec.Open(bytes);

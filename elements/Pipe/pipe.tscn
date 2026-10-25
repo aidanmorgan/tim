@@ -1,4 +1,4 @@
-[gd_scene load_steps=30 format=3]
+[gd_scene load_steps=6 format=3]
 
 [ext_resource type="Script" path="res://engine/MachinePart.cs" id="1"]
 
@@ -14,8 +14,8 @@ albedo_color = Color(1, 0.973, 0.914, 1)
 material = SubResource("Mat_Shell")
 top_radius = 0.7
 bottom_radius = 0.7
-height = 3.6
-radial_segments = 32
+height = 3.78
+radial_segments = 64
 rings = 1
 cap_top = false
 cap_bottom = false
@@ -24,80 +24,8 @@ cap_bottom = false
 material = SubResource("Mat_Collar")
 inner_radius = 0.65
 outer_radius = 0.78
-rings = 32
-ring_segments = 8
-
-[sub_resource type="BoxShape3D" id="BakedShape_0_0"]
-size = Vector3(3.5999999046325684, 0.05000000074505806, 0.2800000011920929)
-
-[sub_resource type="BoxShape3D" id="BakedShape_0_1"]
-size = Vector3(3.5999999046325684, 0.05000000074505806, 0.2800000011920929)
-
-[sub_resource type="BoxShape3D" id="BakedShape_0_2"]
-size = Vector3(3.5999999046325684, 0.05000000074505806, 0.2800000011920929)
-
-[sub_resource type="BoxShape3D" id="BakedShape_0_3"]
-size = Vector3(3.5999999046325684, 0.05000000074505806, 0.2800000011920929)
-
-[sub_resource type="BoxShape3D" id="BakedShape_0_4"]
-size = Vector3(3.5999999046325684, 0.05000000074505806, 0.2800000011920929)
-
-[sub_resource type="BoxShape3D" id="BakedShape_0_5"]
-size = Vector3(3.5999999046325684, 0.05000000074505806, 0.2800000011920929)
-
-[sub_resource type="BoxShape3D" id="BakedShape_0_6"]
-size = Vector3(3.5999999046325684, 0.05000000074505806, 0.2800000011920929)
-
-[sub_resource type="BoxShape3D" id="BakedShape_0_7"]
-size = Vector3(3.5999999046325684, 0.05000000074505806, 0.2800000011920929)
-
-[sub_resource type="BoxShape3D" id="BakedShape_0_8"]
-size = Vector3(3.5999999046325684, 0.05000000074505806, 0.2800000011920929)
-
-[sub_resource type="BoxShape3D" id="BakedShape_0_9"]
-size = Vector3(3.5999999046325684, 0.05000000074505806, 0.2800000011920929)
-
-[sub_resource type="BoxShape3D" id="BakedShape_0_10"]
-size = Vector3(3.5999999046325684, 0.05000000074505806, 0.2800000011920929)
-
-[sub_resource type="BoxShape3D" id="BakedShape_0_11"]
-size = Vector3(3.5999999046325684, 0.05000000074505806, 0.2800000011920929)
-
-[sub_resource type="BoxShape3D" id="BakedShape_0_12"]
-size = Vector3(3.5999999046325684, 0.05000000074505806, 0.2800000011920929)
-
-[sub_resource type="BoxShape3D" id="BakedShape_0_13"]
-size = Vector3(3.5999999046325684, 0.05000000074505806, 0.2800000011920929)
-
-[sub_resource type="BoxShape3D" id="BakedShape_0_14"]
-size = Vector3(3.5999999046325684, 0.05000000074505806, 0.2800000011920929)
-
-[sub_resource type="BoxShape3D" id="BakedShape_0_15"]
-size = Vector3(3.5999999046325684, 0.05000000074505806, 0.2800000011920929)
-
-[sub_resource type="BoxShape3D" id="BakedShape_0_16"]
-size = Vector3(0.10000000149011612, 0.30000001192092896, 1.600000023841858)
-
-[sub_resource type="BoxShape3D" id="BakedShape_0_17"]
-size = Vector3(0.10000000149011612, 0.30000001192092896, 1.600000023841858)
-
-[sub_resource type="BoxShape3D" id="BakedShape_0_18"]
-size = Vector3(0.10000000149011612, 1.2999999523162842, 0.30000001192092896)
-
-[sub_resource type="BoxShape3D" id="BakedShape_0_19"]
-size = Vector3(0.10000000149011612, 1.2999999523162842, 0.30000001192092896)
-
-[sub_resource type="BoxShape3D" id="BakedShape_0_20"]
-size = Vector3(0.10000000149011612, 0.30000001192092896, 1.600000023841858)
-
-[sub_resource type="BoxShape3D" id="BakedShape_0_21"]
-size = Vector3(0.10000000149011612, 0.30000001192092896, 1.600000023841858)
-
-[sub_resource type="BoxShape3D" id="BakedShape_0_22"]
-size = Vector3(0.10000000149011612, 1.2999999523162842, 0.30000001192092896)
-
-[sub_resource type="BoxShape3D" id="BakedShape_0_23"]
-size = Vector3(0.10000000149011612, 1.2999999523162842, 0.30000001192092896)
+rings = 64
+ring_segments = 16
 
 [node name="pipe" type="Node3D"]
 script = ExtResource("1")
@@ -124,146 +52,18 @@ metadata/bore_radius = 0.65
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.89, 0, 0)
 metadata/bore_radius = 0.65
 
-[node name="col_0_0" type="CollisionShape3D" parent="."]
-position = Vector3(0, 0.675, 0)
-quaternion = Quaternion(0, 0, 0, 1)
+[node name="col_shell" type="MeshInstance3D" parent="."]
+transform = Transform3D(0, -1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0)
 visible = false
-shape = SubResource("BakedShape_0_0")
+mesh = SubResource("Mesh_Shell")
+metadata/wall_thickness = 0.05
 
-[node name="col_0_1" type="CollisionShape3D" parent="."]
-position = Vector3(0, 0.62361866, 0.25831133)
-quaternion = Quaternion(0.19509034, 0, 0, 0.9807853)
+[node name="col_collar_start" type="MeshInstance3D" parent="."]
+transform = Transform3D(0, -1, 0, 1, 0, 0, 0, 0, 1, -1.8, 0, 0)
 visible = false
-shape = SubResource("BakedShape_0_1")
+mesh = SubResource("Mesh_Collar")
 
-[node name="col_0_2" type="CollisionShape3D" parent="."]
-position = Vector3(0, 0.47729707, 0.47729707)
-quaternion = Quaternion(0.38268346, 0, 0, 0.9238795)
+[node name="col_collar_end" type="MeshInstance3D" parent="."]
+transform = Transform3D(0, -1, 0, 1, 0, 0, 0, 0, 1, 1.8, 0, 0)
 visible = false
-shape = SubResource("BakedShape_0_2")
-
-[node name="col_0_3" type="CollisionShape3D" parent="."]
-position = Vector3(0, 0.25831133, 0.62361866)
-quaternion = Quaternion(0.55557024, 0, 0, 0.8314696)
-visible = false
-shape = SubResource("BakedShape_0_3")
-
-[node name="col_0_4" type="CollisionShape3D" parent="."]
-position = Vector3(0, -2.9505188e-8, 0.675)
-quaternion = Quaternion(0.7071068, 0, 0, 0.7071068)
-visible = false
-shape = SubResource("BakedShape_0_4")
-
-[node name="col_0_5" type="CollisionShape3D" parent="."]
-position = Vector3(0, -0.2583114, 0.62361866)
-quaternion = Quaternion(0.83146966, 0, 0, 0.5555702)
-visible = false
-shape = SubResource("BakedShape_0_5")
-
-[node name="col_0_6" type="CollisionShape3D" parent="."]
-position = Vector3(0, -0.47729707, 0.47729707)
-quaternion = Quaternion(0.92387956, 0, 0, 0.38268346)
-visible = false
-shape = SubResource("BakedShape_0_6")
-
-[node name="col_0_7" type="CollisionShape3D" parent="."]
-position = Vector3(0, -0.6236188, 0.2583112)
-quaternion = Quaternion(0.9807853, 0, 0, 0.19509023)
-visible = false
-shape = SubResource("BakedShape_0_7")
-
-[node name="col_0_8" type="CollisionShape3D" parent="."]
-position = Vector3(0, -0.675, -5.9010375e-8)
-quaternion = Quaternion(1, 0, 0, -4.371139e-8)
-visible = false
-shape = SubResource("BakedShape_0_8")
-
-[node name="col_0_9" type="CollisionShape3D" parent="."]
-position = Vector3(0, -0.62361866, -0.25831133)
-quaternion = Quaternion(0.9807853, 0, 0, -0.19509034)
-visible = false
-shape = SubResource("BakedShape_0_9")
-
-[node name="col_0_10" type="CollisionShape3D" parent="."]
-position = Vector3(0, -0.477297, -0.47729716)
-quaternion = Quaternion(0.9238795, 0, 0, -0.38268352)
-visible = false
-shape = SubResource("BakedShape_0_10")
-
-[node name="col_0_11" type="CollisionShape3D" parent="."]
-position = Vector3(0, -0.25831112, -0.6236188)
-quaternion = Quaternion(0.83146954, 0, 0, -0.55557036)
-visible = false
-shape = SubResource("BakedShape_0_11")
-
-[node name="col_0_12" type="CollisionShape3D" parent="."]
-position = Vector3(0, 8.049295e-9, -0.675)
-quaternion = Quaternion(0.7071068, 0, 0, -0.7071068)
-visible = false
-shape = SubResource("BakedShape_0_12")
-
-[node name="col_0_13" type="CollisionShape3D" parent="."]
-position = Vector3(0, 0.25831145, -0.62361866)
-quaternion = Quaternion(0.5555702, 0, 0, -0.83146966)
-visible = false
-shape = SubResource("BakedShape_0_13")
-
-[node name="col_0_14" type="CollisionShape3D" parent="."]
-position = Vector3(0, 0.47729725, -0.47729692)
-quaternion = Quaternion(0.38268328, 0, 0, -0.9238796)
-visible = false
-shape = SubResource("BakedShape_0_14")
-
-[node name="col_0_15" type="CollisionShape3D" parent="."]
-position = Vector3(0, 0.6236187, -0.25831133)
-quaternion = Quaternion(0.19509031, 0, 0, -0.9807853)
-visible = false
-shape = SubResource("BakedShape_0_15")
-
-[node name="col_0_16" type="CollisionShape3D" parent="."]
-position = Vector3(-1.8, 0.8, 0)
-quaternion = Quaternion(0, 0, 0, 1)
-visible = false
-shape = SubResource("BakedShape_0_16")
-
-[node name="col_0_17" type="CollisionShape3D" parent="."]
-position = Vector3(-1.8, -0.8, 0)
-quaternion = Quaternion(0, 0, 0, 1)
-visible = false
-shape = SubResource("BakedShape_0_17")
-
-[node name="col_0_18" type="CollisionShape3D" parent="."]
-position = Vector3(-1.8, 0, -0.8)
-quaternion = Quaternion(0, 0, 0, 1)
-visible = false
-shape = SubResource("BakedShape_0_18")
-
-[node name="col_0_19" type="CollisionShape3D" parent="."]
-position = Vector3(-1.8, 0, 0.8)
-quaternion = Quaternion(0, 0, 0, 1)
-visible = false
-shape = SubResource("BakedShape_0_19")
-
-[node name="col_0_20" type="CollisionShape3D" parent="."]
-position = Vector3(1.8, 0.8, 0)
-quaternion = Quaternion(0, 0, 0, 1)
-visible = false
-shape = SubResource("BakedShape_0_20")
-
-[node name="col_0_21" type="CollisionShape3D" parent="."]
-position = Vector3(1.8, -0.8, 0)
-quaternion = Quaternion(0, 0, 0, 1)
-visible = false
-shape = SubResource("BakedShape_0_21")
-
-[node name="col_0_22" type="CollisionShape3D" parent="."]
-position = Vector3(1.8, 0, -0.8)
-quaternion = Quaternion(0, 0, 0, 1)
-visible = false
-shape = SubResource("BakedShape_0_22")
-
-[node name="col_0_23" type="CollisionShape3D" parent="."]
-position = Vector3(1.8, 0, 0.8)
-quaternion = Quaternion(0, 0, 0, 1)
-visible = false
-shape = SubResource("BakedShape_0_23")
+mesh = SubResource("Mesh_Collar")

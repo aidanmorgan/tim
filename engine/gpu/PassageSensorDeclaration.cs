@@ -105,6 +105,10 @@ public sealed class PassageSensorTracker
                                 ColliderShapeKind.Sphere => c.Radius.Value,
                                 ColliderShapeKind.Box => Math.Max(c.HalfExtents.X, Math.Max(c.HalfExtents.Y, c.HalfExtents.Z)),
                                 ColliderShapeKind.Cylinder => Math.Max(c.Radius.Value, c.HalfExtents.Y),
+                                // The hollow kinds (static only): their bounding reach.
+                                ColliderShapeKind.Tube => Math.Max(c.Radius.Value, c.HalfExtents.Y),
+                                ColliderShapeKind.Frustum => Math.Max(Math.Max(c.Radius.Value, c.HalfExtents.Z), c.HalfExtents.Y),
+                                ColliderShapeKind.Torus => c.Radius.Value + c.HalfExtents.Y,
                                 ColliderShapeKind.Plane => 0f,
                                 _ => throw new ArgumentOutOfRangeException(nameof(colliders), c.Shape, "Undefined collider shape.")
                             };

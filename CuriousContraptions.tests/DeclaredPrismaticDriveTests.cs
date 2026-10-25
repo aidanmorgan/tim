@@ -341,6 +341,32 @@ public sealed class DeclaredPrismaticDriveTests
         }
         Assert.True(along.Min() >= held - .02f, $"never thrown back toward the entry mouth (min {along.Min()}, held {held})");
         Assert.True(along[^1] > .49f, $"the ball ends downstream of the exit mouth, {along[^1]}");
+        var decoded = WorkshopSaveCodec.Decode(SaveFixture.Elements,
+            WorkshopSaveCodec.Encode(new(construction, new(10))));
+        Assert.Equal(construction.Instances, decoded.Construction.Instances);
+        Assert.Equal(construction.Connections, decoded.Construction.Connections);
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Reset()).Outcome);
+        Assert.Equal(construction.Instances, simulation.Construction.Instances);
+        Assert.InRange(Along(simulation.Committed), -.08f * cos - 1e-5f, -.08f * cos + 1e-5f);
+        await RepeatPhysicalOutcome(simulation);
+        await using var fresh = await EventRingProducerTests.Ring.Building(decoded.Construction);
+        await RepeatPhysicalOutcome(fresh.Simulation);
+
+        async Task RepeatPhysicalOutcome(WorkshopSimulation replay)
+        {
+            Assert.Equal(WorkshopCommandOutcome.Applied, (await replay.Run()).Outcome);
+            if (authoredEnabled)
+                Assert.Equal(WorkshopCommandOutcome.Applied, replay.ConfigureElectrical(new(battery.Id, ElectricalEnable.Disabled)).Outcome);
+            for (var tick = 0; tick < 180; tick++)
+                Assert.Equal(WorkshopCommandOutcome.Applied, (await replay.Advance()).Outcome);
+            Assert.InRange(Along(replay.Committed), -.5f, -.39f);
+            Assert.False(replay.Committed.Presentation.Actuators[0].SupplyClosed);
+            Assert.Equal(WorkshopCommandOutcome.Applied, replay.ConfigureElectrical(new(battery.Id, ElectricalEnable.Enabled)).Outcome);
+            for (var tick = 0; tick < 300; tick++)
+                Assert.Equal(WorkshopCommandOutcome.Applied, (await replay.Advance()).Outcome);
+            Assert.True(Along(replay.Committed) > .49f);
+            Assert.InRange(Along(replay.Committed), along[^1] - 1e-5f, along[^1] + 1e-5f);
+        }
     }
 
     // ---- 9A.21: one synthetic, declaration-free warm-up ----

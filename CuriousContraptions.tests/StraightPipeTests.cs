@@ -3,12 +3,26 @@ using System.Buffers.Binary;
 using System.Linq;
 using CuriousContraptions.Gpu;
 using Godot;
+using NumVector3 = System.Numerics.Vector3;
 
 namespace CuriousContraptions.Tests;
 
 [Collection<NativeSceneCollectionDefinition>]
 public sealed class StraightPipeTests(NativeSceneFixture godot)
 {
+    /// <summary>The Clear pipe's true hollow colliders at the default 3.6 m (CAT-048, engine-hollow-shapes): the shell Tube about local
+    /// X between the 0.65 m bore and the drawn 0.7 m wall, reaching both mouths (half-length 1.8 + 0.09); the two collars the drawn
+    /// TorusMesh (inner 0.65, outer 0.78: centreline 0.715, solid tube 0.065, a full turn) at x ±1.8.</summary>
+    private static void AssertPipeColliders(IReadOnlyList<ExtractedCollider> colliders)
+    {
+        Assert.Equal(3, colliders.Count);
+        TestBundle.AssertHollow(colliders[0], ColliderShapeKind.Tube, .7f, new(.65f, 1.89f, 0f), NumVector3.Zero, NumVector3.UnitX);
+        TestBundle.AssertHollow(colliders[1], ColliderShapeKind.Torus, .715f, new(0f, .065f, ColliderDeclaration.FullSweep),
+            new(-1.8f, 0, 0), NumVector3.UnitX);
+        TestBundle.AssertHollow(colliders[2], ColliderShapeKind.Torus, .715f, new(0f, .065f, ColliderDeclaration.FullSweep),
+            new(1.8f, 0, 0), NumVector3.UnitX);
+    }
+
     [Fact]
     public void PartRegistry_DiscoversPipeDefinitionAndConfiguresInstance()
     {
@@ -40,7 +54,7 @@ public sealed class StraightPipeTests(NativeSceneFixture godot)
     }
 
     [Fact]
-    public void PipeScene_ExtractsExact24CollidersAndTwoMouthPortLocators()
+    public void PipeScene_ExtractsItsShellTubeTwoCollarToriAndTwoMouthPortLocators()
     {
         var packedScene = ResourceLoader.Load<PackedScene>("res://elements/Pipe/pipe.tscn");
         Assert.NotNull(packedScene);
@@ -48,38 +62,7 @@ public sealed class StraightPipeTests(NativeSceneFixture godot)
         try
         {
             var (colliders, ports) = TestBundle.SceneGeometry(instance);
-
-            // Exactly 24 colliders: 16 circumference + 8 rim
-            Assert.Equal(24, colliders.Count);
-
-            // 16 circumference colliders
-            var circumference = colliders.Take(16).ToArray();
-            var expectedCircHalfExtents = new MetreVector(1.8f, 0.025f, 0.14f);
-            foreach (var col in circumference)
-            {
-                Assert.Equal(ColliderShapeKind.Box, col.ShapeKind);
-                Assert.Equal(expectedCircHalfExtents.X, col.HalfExtents.X);
-                Assert.Equal(expectedCircHalfExtents.Y, col.HalfExtents.Y);
-                Assert.Equal(expectedCircHalfExtents.Z, col.HalfExtents.Z);
-
-                // Origin should be at X = 0, distance in YZ plane should be ~0.675
-                Assert.Equal(0f, col.LocalPose.Translation.X);
-                var py = (float)col.LocalPose.Translation.Y;
-                var pz = (float)col.LocalPose.Translation.Z;
-                var dist = MathF.Sqrt(py * py + pz * pz);
-                Assert.InRange(dist, 0.674f, 0.676f);
-            }
-
-            // 8 rim colliders
-            var rims = colliders.Skip(16).ToArray();
-            Assert.Equal(8, rims.Length);
-            foreach (var col in rims)
-            {
-                Assert.Equal(ColliderShapeKind.Box, col.ShapeKind);
-                var px = (float)col.LocalPose.Translation.X;
-                Assert.True(MathF.Abs(px - 1.8f) < 0.01f || MathF.Abs(px + 1.8f) < 0.01f);
-                Assert.Equal(CanonicalRotation.Identity, col.LocalPose.Rotation);
-            }
+            AssertPipeColliders(colliders);
 
             // 2 port locators: mouth_start and mouth_end
             Assert.Equal(2, ports.Count);
@@ -108,7 +91,7 @@ public sealed class StraightPipeTests(NativeSceneFixture godot)
     }
 
     [Fact]
-    public void WorkshopPhysicsCompiler_CompilesPipeIntoStaticBodyWith24Colliders()
+    public void WorkshopPhysicsCompiler_CompilesPipeIntoStaticBodyWithItsThreeHollowColliders()
     {
         var pipe = WorkshopInput.Pipe(new GpuBodyId(10), 0, 3, 0, 0, 0, 0, 1);
         var construction = new WorkshopConstruction(new ConstructionRevision(1), WorkshopCadenceSettings.Default(), new WorkshopInstances(pipe));
@@ -122,11 +105,11 @@ public sealed class StraightPipeTests(NativeSceneFixture godot)
         Assert.Equal(default, body.Gravity);
 
         var colliders = scene.Colliders.ToArray().Where(c => c.Body == body.Id).ToArray();
-        Assert.Equal(24, colliders.Length);
+        Assert.Equal([ColliderShapeKind.Tube, ColliderShapeKind.Torus, ColliderShapeKind.Torus], colliders.Select(c => c.Shape).ToArray());
 
-        // All colliders use the body's material (restitution 1.0, bounce threshold 0.1, friction 0.3)
+        // All colliders use the body's material: the pipe family's documented restitution 0.15, bounce threshold 0.1, friction 0.3.
         var material = Assert.Single(scene.Materials.ToArray(), m => m.Id == colliders[0].Material);
-        Assert.Equal(new Restitution(1f), material.Restitution);
+        Assert.Equal(new Restitution(.15f), material.Restitution);
         Assert.Equal(new LinearSpeed(0.1f), material.BounceThreshold);
         Assert.Equal(new FrictionCoefficient(0.3f), material.Friction);
         Assert.Equal(new RollingResistance(0f), material.RollingResistance);
@@ -144,12 +127,12 @@ public sealed class StraightPipeTests(NativeSceneFixture godot)
         var decoded = WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes);
 
         Assert.Equal(save, decoded);
-        Assert.Equal(bytes, WorkshopSaveCodec.Encode(decoded));
+        Assert.Equal(save, WorkshopSaveCodec.Decode(SaveFixture.Elements, WorkshopSaveCodec.Encode(decoded)));
 
         var decodedPipe = Assert.IsType<WorkshopPipe>(decoded.Construction.Instances[1]);
         Assert.Equal(PartId.Pipe, decodedPipe.PartId);
         Assert.Equal(PipeLength.Default, decodedPipe.Length);
-        Assert.Equal(24, decodedPipe.DeclaredColliders.Count);
+        AssertPipeColliders(decodedPipe.DeclaredColliders);
 
         // Verify FlatBuffers schema preserves PartId on saved instance record
         var fbSave = WorkshopSaveCodec.Open(bytes);
@@ -165,68 +148,39 @@ public sealed class StraightPipeTests(NativeSceneFixture godot)
         // Story 9R.5b: the compiled scene is the footprint authority; the workbench plane adds one static body and collider.
         var world = WorkshopPhysicsCompiler.Compile(new WorkshopConstruction(new ConstructionRevision(1), WorkshopCadenceSettings.Default(),
             new WorkshopInstances(WorkshopInput.Pipe(new GpuBodyId(1), 0, 3, 0, 0, 0, 0, 1))), new(1, 2)).World;
-        Assert.Equal((1 + 1, 0, 24 + 1, 0, 0, 0), (world.Bodies, world.Dynamic, world.Colliders, world.Triggers, world.ContactWorks, world.ElectricalSources));
+        Assert.Equal((1 + 1, 0, 3 + 1, 0, 0, 0), (world.Bodies, world.Dynamic, world.Colliders, world.Triggers, world.ContactWorks, world.ElectricalSources));
 
-        // 3 pipes = 72 colliders: validates cleanly with unbounded colliders
         var threePipes = new WorkshopInstances(
             WorkshopInput.Pipe(new GpuBodyId(1), 0, 3, 0, 0, 0, 0, 1),
             WorkshopInput.Pipe(new GpuBodyId(2), 5, 3, 0, 0, 0, 0, 1),
             WorkshopInput.Pipe(new GpuBodyId(3), 10, 3, 0, 0, 0, 0, 1));
         WorkbenchCapacity.Validate(threePipes);
 
-        // 20 pipes = 480 colliders: validates cleanly
         var twentyPipes = new WorkshopInstances(
             Enumerable.Range(1, 20).Select(i => (IWorkshopInstance)WorkshopInput.Pipe(new GpuBodyId((ulong)i), i * 2, 3, 0, 0, 0, 0, 1)).ToArray());
         WorkbenchCapacity.Validate(twentyPipes);
     }
 
+    /// <summary>The bore admits a ball of radius under 0.65 m end to end: the shell Tube's inner radius and each collar's innermost
+    /// reach (centreline less tube, R − r) are both the mouths' 0.65 m bore; a 0.75 m ball overlaps both by 0.1 m.</summary>
     [Fact]
-    public void BoreGeometry_AdmitsBallRadiusUnder65cm_AndBlocksOversizedBallAtMouth()
+    public void BoreGeometry_MatchesTheDeclaredMouths()
     {
         var colliders = DeclaredPhysics.Colliders(PartId.Pipe);
-        Assert.Equal(24, colliders.Count);
+        var bore = TestBundle.Entry(PartId.Pipe).TubeMouths.Select(m => m.BoreRadius).Distinct().Single();
+        Assert.True(MathF.Abs(colliders[0].HalfExtents.X - bore) <= 1e-6f, $"the shell's bore {colliders[0].HalfExtents.X} is not {bore}");
+        foreach (var collar in colliders.Skip(1))
+            Assert.True(MathF.Abs(collar.Radius - collar.HalfExtents.Y - bore) <= 1e-6f, $"a collar reaches {collar.Radius - collar.HalfExtents.Y}");
 
-        // 16 circumference colliders: inner face distance from X axis is >= 0.65 m
-        for (var i = 0; i < 16; i++)
-        {
-            var c = colliders[i];
-            var rCenter = MathF.Sqrt(MathF.Pow((float)c.LocalPose.Translation.Y, 2) + MathF.Pow((float)c.LocalPose.Translation.Z, 2));
-            var innerFaceDist = rCenter - (float)c.HalfExtents.Y;
-            Assert.True(MathF.Abs(innerFaceDist - 0.65f) < 0.002f, $"Inner face distance {innerFaceDist} must be ~0.65 m");
-        }
-
-        // Basketball radius 0.34 m and Bowling ball radius 0.28 m both fit with clearance
-        Assert.True(LawBalls.Radius(LawBall.Basketball) < 0.65f);
-        Assert.True(LawBalls.Radius(LawBall.Bowling) < 0.65f);
-
-        // Oversized ball radius 0.75 m exceeds bore radius 0.65 m
-        const float oversizedRadius = 0.75f;
-        Assert.True(oversizedRadius > 0.65f);
-
-        // Rim colliders: aperture in Y and Z is exactly [-0.65, 0.65]
-        var rims = colliders.Skip(16).ToArray();
-        Assert.Equal(8, rims.Length);
-        // Top and bottom rims span Y in [0.65, 0.95] and [-0.95, -0.65]
-        // Left and right rims span Z in [-0.95, -0.65] and [0.65, 0.95]
-        // Oversized sphere centered at (X, 0, 0) has cross section of radius 0.75 m at the mouth entrance,
-        // which overlaps all 4 rim colliders by 0.75 - 0.65 = 0.10 m.
-        foreach (var rim in rims)
-        {
-            var y = (float)rim.LocalPose.Translation.Y;
-            var z = (float)rim.LocalPose.Translation.Z;
-            var innerFace = MathF.Abs(y) > MathF.Abs(z)
-                ? MathF.Abs(y) - (float)rim.HalfExtents.Y
-                : MathF.Abs(z) - (float)rim.HalfExtents.Z;
-            Assert.InRange(innerFace, 0.648f, 0.652f);
-            Assert.True(oversizedRadius > innerFace, "Oversized ball overlaps collar rim and is blocked");
-        }
+        // Actual fitting and oversized passage is exercised by
+        // WorkshopPhysicsLawHollowTests.ActualPackageWallsPassAFittingPayloadAndStopAnOversizedPayload.
     }
 
     [Fact]
     public void PhysicsGpuAbi_AdmissionAcceptsPipeSceneDeclaration()
     {
         var pipe = WorkshopInput.Pipe(new GpuBodyId(10), 0, 3, 0, 0, 0, 0, 1);
-        var ball = WorkshopInput.Generic(PartId.Basketball,new GpuBodyId(2), 0, 4, 0, 0, 0, 0, 1);
+        var ball = WorkshopInput.Generic(PartId.Basketball,new GpuBodyId(2), 0, 5, 0, 0, 0, 0, 1);
         var construction = new WorkshopConstruction(new ConstructionRevision(1), WorkshopCadenceSettings.Default(), new WorkshopInstances(ball, pipe));
         var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
 

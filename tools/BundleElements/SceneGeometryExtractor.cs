@@ -66,6 +66,13 @@ public static partial class SceneGeometryExtractor
             var resourceId = Reference(reference);
             if (!resources.TryGetValue(resourceId, out var shape)) throw new ArgumentException("Collider shape is missing: " + node.Path);
             var (position, rotation, scale) = Pose(node, ownership[owner].Root);
+            if (scale.X <= 0 || scale.Y <= 0 || scale.Z <= 0) throw new ArgumentException("Collider scale must be positive.");
+            // engine-hollow-shapes: an open cylinder mesh (both caps off) is a tube or frustum wall, a torus mesh a torus segment.
+            if (Hollow(shape, node, scale) is { } hollow)
+            {
+                bodies[owner].Add(hollow with { Offset = position, Rotation = rotation, Material = ownership[owner].Material });
+                continue;
+            }
             var kind = shape.Attributes["type"] switch
             {
                 "BoxShape3D" or "BoxMesh" => ColliderShapeKind.Box,
@@ -73,7 +80,6 @@ public static partial class SceneGeometryExtractor
                 "CylinderShape3D" or "CylinderMesh" => ColliderShapeKind.Cylinder,
                 _ => throw new ArgumentException("Unsupported collider shape: " + shape.Attributes["type"])
             };
-            if (scale.X <= 0 || scale.Y <= 0 || scale.Z <= 0) throw new ArgumentException("Collider scale must be positive.");
             var half = kind switch
             {
                 ColliderShapeKind.Box => Vector(Required(shape, "size", node)) * .5f,
@@ -88,7 +94,7 @@ public static partial class SceneGeometryExtractor
             // A cylinder's axis is its local +Y: its height scales by scale.Y and its radius needs equal radial scale (X = Z).
             if (kind == ColliderShapeKind.Cylinder && half.X != half.Z)
                 throw new ArgumentException("A cylinder cannot have nonuniform radial scale: " + node.Path);
-            bodies[owner].Add(new(kind, half, position, rotation, ownership[owner].Material));
+            bodies[owner].Add(new(kind, half, position, rotation, ownership[owner].Material, 0f));
         }
         if (bodies.Any(body => body.Count == 0)) throw new ArgumentException("A scene body has no collider.");
         var bakedSliders = sliders.Select((slider, index) => slider with
@@ -141,6 +147,59 @@ public static partial class SceneGeometryExtractor
     private static string Required(Section shape, string key, Node node) =>
         shape.Values.TryGetValue(key, out var value) ? value
             : throw new ArgumentException($"Collider shape has no explicit '{key}': {node.Path}");
+
+    /// <summary>A hollow proxy's descriptor (its pose and material are the caller's), or null for a solid shape (engine-hollow-shapes).
+    /// A hollow proxy is drawn at uniform scale s:
+    /// <list type="bullet">
+    /// <item>a <c>CylinderMesh</c> with both caps off (<c>cap_top = false</c>, <c>cap_bottom = false</c>) and the node's
+    /// <c>metadata/wall_thickness</c> t: equal radii r give the Tube (outer r, inner r − t, half-length height / 2); unequal radii the
+    /// Frustum (outer r_0 = bottom_radius at −Y, r_1 = top_radius at +Y, radial wall t);</item>
+    /// <item>a <c>TorusMesh</c>: the Torus of centreline (inner_radius + outer_radius) / 2 and tube radius (outer_radius − inner_radius)
+    /// / 2, solid unless the node declares <c>metadata/wall_thickness</c>, over the node's <c>metadata/sweep_degrees</c> from local +X
+    /// toward +Z, or the full turn without it.</item>
+    /// </list>
+    /// One open cap, an open cylinder without its wall, or a hollow proxy at nonuniform scale is refused; admission checks the
+    /// dimensions.</summary>
+    private static ColliderDescriptor? Hollow(Section shape, Node node, Vector3 scale)
+    {
+        var type = shape.Attributes["type"];
+        var open = false;
+        if (type == "CylinderMesh")
+        {
+            // Godot defaults both caps to true; explicit defaults remain solid.
+            bool Cap(string key) => !shape.Values.TryGetValue(key, out var value) || value switch
+            {
+                "true" => true,
+                "false" => false,
+                _ => throw new ArgumentException("A cylinder cap must be true or false: " + node.Path)
+            };
+            open = !Cap("cap_top") | !Cap("cap_bottom");
+        }
+        if (type != "TorusMesh" && !open) return null;
+        if (scale.X != scale.Y || scale.X != scale.Z) throw new ArgumentException("A hollow collider needs uniform scale: " + node.Path);
+        var s = scale.X;
+        node.Values.TryGetValue("metadata/wall_thickness", out var wallText);
+        if (type == "TorusMesh")
+        {
+            var inner = Number(Required(shape, "inner_radius", node)) * s;
+            var outer = Number(Required(shape, "outer_radius", node)) * s;
+            var tube = (outer - inner) * .5f;
+            var sweep = node.Values.TryGetValue("metadata/sweep_degrees", out var degrees)
+                ? Number(degrees) * (MathF.PI / 180f) : MathF.Tau;
+            var bore = wallText is null ? 0f : tube - Number(wallText) * s;
+            return new(ColliderShapeKind.Torus, new(bore, tube, sweep), default, Quaternion.Identity, default, (inner + outer) * .5f);
+        }
+        if (Required(shape, "cap_top", node) != "false" || Required(shape, "cap_bottom", node) != "false")
+            throw new ArgumentException("A hollow cylinder proxy opens both caps: " + node.Path);
+        if (wallText is null) throw new ArgumentException("An open cylinder proxy declares metadata/wall_thickness: " + node.Path);
+        var wall = Number(wallText) * s;
+        var top = Number(Required(shape, "top_radius", node)) * s;
+        var bottom = Number(Required(shape, "bottom_radius", node)) * s;
+        var half = Number(Required(shape, "height", node)) * .5f * s;
+        return top == bottom
+            ? new(ColliderShapeKind.Tube, new(top - wall, half, 0f), default, Quaternion.Identity, default, top)
+            : new(ColliderShapeKind.Frustum, new(wall, half, top), default, Quaternion.Identity, default, bottom);
+    }
 
     /// <summary>(r, h, r) of a Godot cylinder (axis local +Y, h = height / 2). A mesh proxy is a cylinder only when its top and
     /// bottom radii are equal; a tapered mesh is rejected.</summary>

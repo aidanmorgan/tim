@@ -143,9 +143,11 @@ Each item is one bounded native slice with its current source paths, deletion sc
 
 <a id="story-engine-hollow-shapes"></a>
 ### Story engine-hollow-shapes: True hollow collider shapes
-*Sprint key: `engine-hollow-shapes`. Status: backlog; after `elements-visible-solid`. Owner decision (b), 25 Oct 2026; design [hollow geometry](../../docs/hollow-geometry-design.md).*
+*Sprint key: `engine-hollow-shapes`. Status: in review; independent review passed; publication pending; after `elements-visible-solid`. Owner decision (b), 25 Oct 2026; design [hollow geometry](../../docs/hollow-geometry-design.md).*
 
-*Current state (collider audit, 25 Oct 2026):* the hollow parts are box approximations. The collars are square frames reaching 0.95–1.24 m against the drawn 0.78 m (the funnel inlet 1.6–2.16 m against 1.43 m); the 45° and 90° bends are octagons with 4–8 cm slots between slices; a snapped pipe joint dips about 1.2 cm. The legacy 5 mm surface-error limit was dropped with the CPU segmentation, and nothing replaced it.
+*Baseline (collider audit, 25 Oct 2026):* the hollow parts are box approximations. The collars are square frames reaching 0.95–1.24 m against the drawn 0.78 m (the funnel inlet 1.6–2.16 m against 1.43 m); the 45° and 90° bends are octagons with 4–8 cm slots between slices; a snapped pipe joint dips about 1.2 cm. The legacy 5 mm surface-error limit was dropped with the CPU segmentation, and nothing replaced it.
+
+*Candidate (26 Oct 2026):* static Tube/Frustum/Torus geometry, shared contact and atomic admission, refined art and re-authored lessons are implemented. Auto review repairs include signed placement bounds, crest/rim support and shared nonparallel normal coupling. The repaired production candidate passes all 4,224 native tests, zero failures/skips; the unchanged Weight no-creep bound passes. Four added resting-frustum cases pass their matching affected run and independent intent/verification review. Normal-hook commit, exact-SHA CI and deployment remain pending. [Spec and criterion evidence](../implementation-artifacts/spec-engine-hollow-shapes.md#full-round-regression-repair--26-october-2026). Basketball seam, Weight bands/lifting eye and pressure-plate ring identity remain required under `engine-multi-collider-dynamic`; browser qualification remains queued for post-catalogue E2E.
 
 *Deletes:* the box approximations in the CAT-048 pipe, the CAT-049 and CAT-050 bends, the CAT-030 funnel, their collars, the CAT-002 ball detector collar and the CAT-051 powered gate collars and sleeve. The open hollow-collider clauses of Stories 6.6, 6.7, 6.9, 6.10 and 6.11, and Story 9R.23's behaviour proofs, run on these kinds.
 

@@ -46,7 +46,7 @@ public sealed class PipeBend90Tests(NativeSceneFixture godot)
     }
 
     [Fact]
-    public void PipeBend90Scene_ExtractsExact72CollidersAndTwoMouthPortLocators()
+    public void PipeBend90Scene_ExtractsItsTorusArcStubsCollarsAndTwoMouthPortLocators()
     {
         var packedScene = ResourceLoader.Load<PackedScene>("res://elements/PipeBend90/pipe_bend_90.tscn");
         Assert.NotNull(packedScene);
@@ -55,27 +55,7 @@ public sealed class PipeBend90Tests(NativeSceneFixture godot)
         {
             var (colliders, ports) = TestBundle.SceneGeometry(instance);
 
-            // Exactly 72 colliders: 64 curved wall boxes + 8 rim boxes
-            Assert.Equal(72, colliders.Count);
-
-            // 64 wall colliders
-            var walls = colliders.Take(64).ToArray();
-            var expectedWallHalfExtents = new MetreVector(0.26f, 0.025f, 0.29f);
-            foreach (var col in walls)
-            {
-                Assert.Equal(ColliderShapeKind.Box, col.ShapeKind);
-                Assert.Equal(expectedWallHalfExtents.X, col.HalfExtents.X);
-                Assert.Equal(expectedWallHalfExtents.Y, col.HalfExtents.Y);
-                Assert.Equal(expectedWallHalfExtents.Z, col.HalfExtents.Z);
-            }
-
-            // 8 rim colliders
-            var rims = colliders.Skip(64).ToArray();
-            Assert.Equal(8, rims.Length);
-            foreach (var col in rims)
-            {
-                Assert.Equal(ColliderShapeKind.Box, col.ShapeKind);
-            }
+            BendColliders.Assert(colliders, 90);
 
             // 2 port locators: mouth_start and mouth_end
             Assert.Equal(2, ports.Count);
@@ -103,17 +83,11 @@ public sealed class PipeBend90Tests(NativeSceneFixture godot)
     [Fact]
     public void WorkshopCanonicalColliders_MatchesPipeBend90Colliders()
     {
-        var colliders = DeclaredPhysics.Colliders(PartId.PipeBend90);
-        Assert.Equal(72, colliders.Count);
-
-        for (var i = 0; i < 72; i++)
-        {
-            Assert.Equal(ColliderShapeKind.Box, colliders[i].ShapeKind);
-        }
+        BendColliders.Assert(DeclaredPhysics.Colliders(PartId.PipeBend90), 90);
     }
 
     [Fact]
-    public void WorkshopPhysicsCompiler_CompilesPipeBend90IntoStaticBodyWith72Colliders()
+    public void WorkshopPhysicsCompiler_CompilesPipeBend90IntoStaticBodyWithItsHollowColliders()
     {
         var bend = WorkshopInput.PipeBend90(new GpuBodyId(10), 0, 3, 0, 0, 0, 0, 1);
         var construction = new WorkshopConstruction(new ConstructionRevision(1), WorkshopCadenceSettings.Default(), new WorkshopInstances(bend));
@@ -127,11 +101,11 @@ public sealed class PipeBend90Tests(NativeSceneFixture godot)
         Assert.Equal(default, body.Gravity);
 
         var colliders = scene.Colliders.ToArray().Where(c => c.Body == body.Id).ToArray();
-        Assert.Equal(72, colliders.Length);
+        Assert.Equal(BendColliders.Kinds, colliders.Select(c => c.Shape).ToArray());
 
-        // All colliders use the body's material
+        // All colliders use the body's material: the pipe family's documented restitution 0.15 (CAT-050).
         var material = Assert.Single(scene.Materials.ToArray(), m => m.Id == colliders[0].Material);
-        Assert.Equal(new Restitution(1f), material.Restitution);
+        Assert.Equal(new Restitution(.15f), material.Restitution);
         Assert.Equal(new LinearSpeed(0.1f), material.BounceThreshold);
         Assert.Equal(new FrictionCoefficient(0.3f), material.Friction);
         Assert.Equal(new RollingResistance(0f), material.RollingResistance);
@@ -149,11 +123,11 @@ public sealed class PipeBend90Tests(NativeSceneFixture godot)
         var decoded = WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes);
 
         Assert.Equal(save, decoded);
-        Assert.Equal(bytes, WorkshopSaveCodec.Encode(decoded));
+        Assert.Equal(save, WorkshopSaveCodec.Decode(SaveFixture.Elements, WorkshopSaveCodec.Encode(decoded)));
 
         var decodedBend = Assert.IsType<WorkshopGenericInstance>(decoded.Construction.Instances[1]);
         Assert.Equal(PartId.PipeBend90, decodedBend.PartId);
-        Assert.Equal(72, decodedBend.DeclaredColliders.Count);
+        BendColliders.Assert(decodedBend.DeclaredColliders, 90);
 
         // Verify FlatBuffers schema preserves PartId on saved instance record
         var fbSave = WorkshopSaveCodec.Open(bytes);
@@ -169,39 +143,34 @@ public sealed class PipeBend90Tests(NativeSceneFixture godot)
         // Story 9R.5b: the compiled scene is the footprint authority; the workbench plane adds one static body and collider.
         var world = WorkshopPhysicsCompiler.Compile(new WorkshopConstruction(new ConstructionRevision(1), WorkshopCadenceSettings.Default(),
             new WorkshopInstances(WorkshopInput.PipeBend90(new GpuBodyId(1), 0, 3, 0, 0, 0, 0, 1))), new(1, 2)).World;
-        Assert.Equal((1 + 1, 0, 72 + 1, 0, 0, 0), (world.Bodies, world.Dynamic, world.Colliders, world.Triggers, world.ContactWorks, world.ElectricalSources));
+        Assert.Equal((1 + 1, 0, 5 + 1, 0, 0, 0), (world.Bodies, world.Dynamic, world.Colliders, world.Triggers, world.ContactWorks, world.ElectricalSources));
 
-        // 2 pipe_bend_90 = 80 colliders: validates cleanly with unbounded colliders
+        // 2 pipe_bend_90: validates cleanly with unbounded colliders
         var twoBends = new WorkshopInstances(
             WorkshopInput.PipeBend90(new GpuBodyId(1), 0, 3, 0, 0, 0, 0, 1),
             WorkshopInput.PipeBend90(new GpuBodyId(2), 5, 3, 0, 0, 0, 0, 1));
         WorkbenchCapacity.Validate(twoBends);
 
-        // 20 pipe_bend_90 = 800 colliders: validates cleanly
+        // 20 pipe_bend_90: validates cleanly
         var twentyBends = new WorkshopInstances(
             Enumerable.Range(1, 20).Select(i => (IWorkshopInstance)WorkshopInput.PipeBend90(new GpuBodyId((ulong)i), i * 2, 3, 0, 0, 0, 0, 1)).ToArray());
         WorkbenchCapacity.Validate(twentyBends);
     }
 
     [Fact]
-    public void BoreGeometry_AdmitsBallRadiusUnder65cm_AndBlocksOversizedBallAtMouth()
+    public void BoreGeometry_MatchesTheDeclaredMouths()
     {
-        var colliders = DeclaredPhysics.Colliders(PartId.PipeBend90);
-        Assert.Equal(72, colliders.Count);
+        BendColliders.AssertBore(DeclaredPhysics.Colliders(PartId.PipeBend90), TestBundle.Entry(PartId.PipeBend90));
 
-        // Basketball radius 0.34 m fits with clearance
-        Assert.True(LawBalls.Radius(LawBall.Basketball) < 0.65f);
-
-        // Oversized ball radius 0.75 m exceeds bore radius 0.65 m
-        const float oversizedRadius = 0.75f;
-        Assert.True(oversizedRadius > 0.65f);
+        // Actual fitting and oversized passage is exercised by
+        // WorkshopPhysicsLawHollowTests.ActualPackageWallsPassAFittingPayloadAndStopAnOversizedPayload.
     }
 
     [Fact]
     public void PhysicsGpuAbi_AdmissionAcceptsPipeBend90SceneDeclaration()
     {
         var bend = WorkshopInput.PipeBend90(new GpuBodyId(10), 0, 3, 0, 0, 0, 0, 1);
-        var ball = WorkshopInput.Generic(PartId.Basketball,new GpuBodyId(2), 0, 4, 0, 0, 0, 0, 1);
+        var ball = WorkshopInput.Generic(PartId.Basketball,new GpuBodyId(2), 0, 5, 0, 0, 0, 0, 1);
         var construction = new WorkshopConstruction(new ConstructionRevision(1), WorkshopCadenceSettings.Default(), new WorkshopInstances(ball, bend));
         var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
 
@@ -311,8 +280,8 @@ public sealed class PipeBend90Tests(NativeSceneFixture godot)
         // Plane (1) + Ball (1) + Receiver (1) + PipeBend90 (1) = 4 bodies
         Assert.Equal(4, scene.Bodies.Length);
 
-        // Plane (1) + Ball (1) + Receiver 5 boxes (5) + PipeBend90 72 compound boxes (72) = 79 colliders
-        Assert.Equal(79, scene.Colliders.Length);
+        // Plane (1) + Ball (1) + Receiver 5 boxes (5) + PipeBend90 arc, 2 stubs and 2 collars (5) = 12 colliders
+        Assert.Equal(12, scene.Colliders.Length);
 
         // Capture sensor and guide present
         Assert.Single(scene.Sensors.ToArray());

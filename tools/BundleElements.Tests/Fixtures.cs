@@ -29,7 +29,7 @@ public sealed class Fixture : ISliderElement
     ];
 
     public static ColliderDescriptor Box(Vector3 halfExtents) =>
-        new(ColliderShapeKind.Box, halfExtents, Vector3.Zero, Quaternion.Identity, new MaterialProperties(1f, .3f, 0f, .1f));
+        new(ColliderShapeKind.Box, halfExtents, Vector3.Zero, Quaternion.Identity, new MaterialProperties(1f, .3f, 0f, .1f), 0f);
 
     public string Id { get; init; } = "fixture";
     public ElementCategory Category { get; init; } = ElementCategory.Structure;

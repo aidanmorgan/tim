@@ -103,7 +103,7 @@ public sealed class BundleValidatorTests
             KinematicMode = Abstractions.Mechanical.KinematicMode.Dynamic,
             Footprint = new(1, 1, 0),
             MassProperties = new(4f, new(0f, .28f, 0f), new(.23f, .25f, .23f), 0f, new(0f, -9.81f, 0f)),
-            Colliders = [new(ColliderShapeKind.Cylinder, new(.35f, .28f, .35f), new(0f, .28f, 0f), Quaternion.Identity, new MaterialProperties(.08f, .3f, .03f, .1f))]
+            Colliders = [new(ColliderShapeKind.Cylinder, new(.35f, .28f, .35f), new(0f, .28f, 0f), Quaternion.Identity, new MaterialProperties(.08f, .3f, .03f, .1f), 0f)]
         });
         var bound = Abstractions.Mechanical.MechanicalValue.FromParameter("mass");
         Bundle.BundleEntry With(Abstractions.Mechanical.MechanicalValue value, params ParameterDescriptor[] parameters) =>
@@ -143,6 +143,22 @@ public sealed class BundleValidatorTests
         // Control: a box's radial lanes are independent.
         var box = Bound(radial) with { Colliders = [Fixture.Box(new(.35f, .28f, .35f))] };
         Assert.DoesNotContain(Check(box), error => error.Detail.Contains("CylinderRadius", StringComparison.Ordinal));
+    }
+
+    /// <summary>engine-hollow-shapes: only a hollow kind uses the radius lane. A solid kind keeps its radius in its half-extents, so a
+    /// solid collider declaring a radius lane is refused, and a hollow one declaring it is admitted (its dimensions are the physics
+    /// admission's).</summary>
+    [Fact]
+    public void OnlyAHollowColliderDeclaresTheRadiusLane()
+    {
+        static IReadOnlyList<Bundle.BundleError> Check(ColliderDescriptor collider) =>
+            Bundle.BundleValidator.Validate([new("Fixture", Bundle.BundleSchema.Entry(new Fixture { Colliders = [collider] }))]);
+        var box = Fixture.Box(new(.35f, .28f, .35f));
+        Assert.DoesNotContain(Check(box), error => error.Detail.Contains("Colliders[0].Radius", StringComparison.Ordinal));
+        Assert.Contains(Check(box with { Radius = .1f }), error => error.Detail.Contains("Colliders[0].Radius", StringComparison.Ordinal));
+        Assert.Contains(Check(box with { Radius = float.NaN }), error => error.Detail.Contains("Colliders[0].Radius", StringComparison.Ordinal));
+        var tube = box with { ShapeKind = ColliderShapeKind.Tube, Radius = .7f, HalfExtents = new(.65f, 1.8f, 0f) };
+        Assert.DoesNotContain(Check(tube), error => error.Detail.Contains("Colliders[0].Radius", StringComparison.Ordinal));
     }
 
     [Fact]

@@ -39,7 +39,7 @@ public sealed class BundleRoundTripTests
         var fixture = new Fixture
         {
             Colliders = [new(ColliderShapeKind.Box, new(-0f, subnormal, .1f), new(float.MaxValue, -subnormal, float.Epsilon),
-                new(-0f, 0f, 0f, 1f), new(-0f, subnormal, 0f, 1e-7f))],
+                new(-0f, 0f, 0f, 1f), new(-0f, subnormal, 0f, 1e-7f), 0f)],
             MassProperties = new(-0f, new(subnormal, -0f, 3.4028235e38f), new(1f / 3f, 0.1f, 16777217f), -subnormal, new(0, -9.81f, 0))
         };
         var json = BundleSchema.Write([fixture]);
@@ -54,7 +54,7 @@ public sealed class BundleRoundTripTests
         // Story 10.1: the bundle's closed shape set carries Cylinder (r, h, r) by name, bit for bit.
         var fixture = new Fixture
         {
-            Colliders = [new(ColliderShapeKind.Cylinder, new(.4f, .085f, .4f), new(0f, .5f, 0f), Quaternion.Identity, new(.1f, .3f, .02f, .1f))]
+            Colliders = [new(ColliderShapeKind.Cylinder, new(.4f, .085f, .4f), new(0f, .5f, 0f), Quaternion.Identity, new(.1f, .3f, .02f, .1f), 0f)]
         };
         var json = BundleSchema.Write([fixture]);
         Assert.Contains("\"ShapeKind\": \"Cylinder\"", json, StringComparison.Ordinal);

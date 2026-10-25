@@ -56,6 +56,9 @@ public static class DeclaredPhysics
             CuriousContraptions.Abstractions.ColliderShapeKind.Box => ColliderShapeKind.Box,
             CuriousContraptions.Abstractions.ColliderShapeKind.Sphere => ColliderShapeKind.Sphere,
             CuriousContraptions.Abstractions.ColliderShapeKind.Cylinder => ColliderShapeKind.Cylinder,
+            CuriousContraptions.Abstractions.ColliderShapeKind.Tube => ColliderShapeKind.Tube,
+            CuriousContraptions.Abstractions.ColliderShapeKind.Torus => ColliderShapeKind.Torus,
+            CuriousContraptions.Abstractions.ColliderShapeKind.Frustum => ColliderShapeKind.Frustum,
             _ => throw new ArgumentException("Unsupported baked collider shape.")
         };
         var p = descriptor.Offset;
@@ -64,12 +67,15 @@ public static class DeclaredPhysics
         // A baked cylinder is (r, h, r) about its local +Y axis; unequal radial lanes are no cylinder (as a sphere is uniform).
         if (shape == ColliderShapeKind.Cylinder && !(h.X == h.Z))
             throw new ArgumentException("A baked cylinder's radial half-extents must be equal.");
+        // The hollow kinds carry their lanes unchanged: the descriptor's radius and half-extents are the declaration's.
+        var hollow = shape is ColliderShapeKind.Tube or ColliderShapeKind.Torus or ColliderShapeKind.Frustum;
         return new(shape, new(new(p.X, p.Y, p.Z), new(q.X, q.Y, q.Z, q.W)),
-            shape is ColliderShapeKind.Sphere or ColliderShapeKind.Cylinder ? h.X : 0f,
+            hollow ? descriptor.Radius : shape is ColliderShapeKind.Sphere or ColliderShapeKind.Cylinder ? h.X : 0f,
             shape switch
             {
                 ColliderShapeKind.Box => new(h.X, h.Y, h.Z),
                 ColliderShapeKind.Cylinder => new(0f, h.Y, 0f),
+                ColliderShapeKind.Tube or ColliderShapeKind.Torus or ColliderShapeKind.Frustum => new(h.X, h.Y, h.Z),
                 _ => default
             });
     }

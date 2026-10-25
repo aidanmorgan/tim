@@ -2,7 +2,7 @@
 
 **Current delivery (24 October 2026):** [CAT-001 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
 
-**Collider target (owner, 25 October 2026, "visible = solid"), open:** the seam torus (inner 0.322, outer 0.35 m) stands 1 cm proud of the 0.34 m sphere and has no collider (`Uncollided` in `VisibleSolidColliderTests`). It is owned by [`engine-hollow-shapes`](../../../TODO.md), which adds the torus kind; as a second collider on a dynamic body it also needs [`engine-multi-collider-dynamic`](../../../TODO.md) (mass and inertia staying as declared).
+**Collider target (owner, 25 October 2026, "visible = solid"), open:** the seam torus (inner 0.322, outer 0.35 m) stands 1 cm proud of the 0.34 m sphere and has no collider (`Uncollided` in `VisibleSolidColliderTests`). [`engine-hollow-shapes`](../../../_bmad-output/planning-artifacts/epics.md#story-engine-hollow-shapes) added the torus kind, static only; as a second collider on a dynamic body the seam is owned by [`engine-multi-collider-dynamic`](../../../TODO.md) (mass and inertia staying as declared, and the payload rule of exactly one sphere collider revisited).
 
 ## 1. Identity
 

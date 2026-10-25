@@ -587,8 +587,8 @@ internal sealed class WorkshopPhysicsEngine
                     ShapeKind.Sphere => radius,
                     ShapeKind.Box => hx * MathF.Abs(collider.U0.Y) + hy * MathF.Abs(collider.U1.Y) + hz * MathF.Abs(collider.U2.Y),
                     ShapeKind.Cylinder => WorkshopCollisionKernels.CylinderProjection(collider, Vector3.UnitY),
-                    // A plane is never dynamic (admission) and ingest admits no other shape.
-                    ShapeKind.Plane => 0f,
+                    // A plane and the hollow kinds are never dynamic (admission).
+                    ShapeKind.Plane or ShapeKind.Tube or ShapeKind.Torus or ShapeKind.Frustum => 0f,
                     _ => 0f
                 };
             }
@@ -672,9 +672,16 @@ internal sealed class WorkshopPhysicsEngine
                 min = new Vector3(c.Px - ex - fatX, c.Py - ey - fatY, c.Pz - ez - fatZ);
                 max = new Vector3(c.Px + ex + fatX, c.Py + ey + fatY, c.Pz + ez + fatZ);
             }
+            else if (WorkshopCollisionKernels.IsHollow(c.Shape))
+            {
+                // A hollow collider (static): its outer cylinder's, or its torus arc's, exact bounds.
+                WorkshopCollisionKernels.HollowBounds(c, out var low, out var high);
+                min = low - new Vector3(fatX, fatY, fatZ);
+                max = high + new Vector3(fatX, fatY, fatZ);
+            }
             else
             {
-                // The cylinder (the only other admitted shape): its exact rotated extents h |a_i| + r √(1 − a_i²).
+                // The cylinder: its exact rotated extents h |a_i| + r √(1 − a_i²).
                 var ex = WorkshopCollisionKernels.CylinderProjection(c, Vector3.UnitX);
                 var ey = WorkshopCollisionKernels.CylinderProjection(c, Vector3.UnitY);
                 var ez = WorkshopCollisionKernels.CylinderProjection(c, Vector3.UnitZ);
@@ -867,6 +874,7 @@ internal sealed class WorkshopPhysicsEngine
                 }
             }
 
+            WorkshopCollisionKernels.RemoveInternalHollowEdges(_manifolds, _contacts);
             foreach (var c in _contacts) WorkshopConstraintSolver.PrepareContact(c, _contactCache);
             foreach (var m in _manifolds) WorkshopConstraintSolver.PrepareRolling(m);
             foreach (var b in _dynamicBodies)

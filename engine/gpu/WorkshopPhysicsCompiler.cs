@@ -21,6 +21,9 @@ public enum PartIdentityRow : byte
 /// <paramref name="FirstCollider"/> to + <paramref name="LastCollider"/>, and reach <paramref name="Row"/> at + <paramref name="Slot"/>.</summary>
 public readonly record struct ColliderSlotConflict(PartIdentityRow Row, int? MovingBody, ulong Slot, ulong FirstCollider, ulong LastCollider);
 
+/// <summary>An independently authored payload intersects a hollow collider at construction.</summary>
+public sealed class HollowOverlapException() : ArgumentException("A dynamic payload initially overlaps a hollow wall.");
+
 /// <summary>Compiles the bundle's declared bodies, geometry and materials; domain bindings remain separate.</summary>
 public static class WorkshopPhysicsCompiler
 {
@@ -188,6 +191,43 @@ public static class WorkshopPhysicsCompiler
                     shape.LocalPose, new(shape.Radius), shape.HalfExtents));
             }
         }
+
+        // Only independently authored dynamic partners are checked. A constrained
+        // child belongs to its parent's mechanism and retains its declared joint.
+        var bodyById = bodies.ToDictionary(body => body.Id);
+        var hollowColliders = colliders.Where(c => HollowSolid.IsHollow(c.Shape)).ToArray();
+        foreach (var partner in colliders.Where(c => bodyById[c.Body].Motion == RigidMotionKind.Dynamic))
+        {
+            var (partnerCentre, partnerTurn) = WorldPose(partner);
+            var convex = new HollowPartner(partner.Shape, partnerCentre,
+                Vector3.Transform(Vector3.UnitX, partnerTurn), Vector3.Transform(Vector3.UnitY, partnerTurn),
+                Vector3.Transform(Vector3.UnitZ, partnerTurn), partner.Radius.Value,
+                partner.HalfExtents.X, partner.HalfExtents.Y, partner.HalfExtents.Z);
+            foreach (var hollowCollider in hollowColliders)
+            {
+                if (hollowCollider.Body == partner.Body || IsSecondaryBodyIdentity(hollowCollider.Body, partner.Body)) continue;
+                var (centre, rotation) = WorldPose(hollowCollider);
+                var solid = new HollowSolid(hollowCollider.Shape, centre,
+                    Vector3.Transform(Vector3.UnitX, rotation), Vector3.Transform(Vector3.UnitY, rotation),
+                    Vector3.Transform(Vector3.UnitZ, rotation), hollowCollider.Radius.Value,
+                    hollowCollider.HalfExtents.X, hollowCollider.HalfExtents.Y, hollowCollider.HalfExtents.Z);
+                if (HollowContactQuery.Overlaps(convex, solid, HollowContactQuery.PlacementSlop))
+                    throw new HollowOverlapException();
+            }
+        }
+
+        (Vector3 Centre, Quaternion Rotation) WorldPose(ColliderDeclaration collider)
+        {
+            var body = bodyById[collider.Body];
+            var bodyRotation = new Quaternion(body.Rotation.X, body.Rotation.Y, body.Rotation.Z, body.Rotation.W);
+            var local = collider.Pose;
+            var localRotation = new Quaternion(local.Rotation.X, local.Rotation.Y, local.Rotation.Z, local.Rotation.W);
+            var centre = new Vector3((body.Cell.X + body.Local.X) / 16f, (body.Cell.Y + body.Local.Y) / 16f,
+                (body.Cell.Z + body.Local.Z) / 16f);
+            centre += Vector3.Transform(new Vector3(local.Translation.X, local.Translation.Y, local.Translation.Z), bodyRotation);
+            return (centre, Quaternion.Normalize(bodyRotation * localRotation));
+        }
+
         return new(document, next, bodies.ToArray(), colliders.ToArray(), materials.ToArray(), sensors.ToArray(), guides.ToArray(), triggers.ToArray(), contactWorks.ToArray(), orientationSensors.ToArray(), electricalSources.OrderBy(source => source.Id.Value).ToArray(),
             construction.Connections.Where(link => link.Domain == WorkshopConnectionDomain.Electrical && contactWorkOwners.Contains(link.Target))
                 .Select(link => new ElectricalStorageBinding(ElectricalSource(link.Source), ContactWork(link.Target))).ToArray(), prismatics.ToArray(),

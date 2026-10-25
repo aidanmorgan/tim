@@ -40,11 +40,26 @@ public static class BundleGeometry
                 GeometryComponent.OffsetZ => collider with { Offset = collider.Offset with { Z = value } },
                 _ => throw new ArgumentException("Undefined geometry component.")
             };
-            if (!float.IsFinite(value) || collider.HalfExtents.X <= 0 || collider.HalfExtents.Y <= 0 || collider.HalfExtents.Z <= 0)
+            if (!float.IsFinite(value) || !Positive(collider))
                 throw new ArgumentException("Evaluated collider has invalid geometry.");
             colliders[binding.Collider] = collider;
         }
         return colliders;
+    }
+
+    /// <summary>Every dimension lane the kind uses is positive: all three half-extents of a solid kind; a tube's radius, inner radius
+    /// and half-length (its third lane is canonical zero); a frustum's four lanes; a torus's centreline and outer radius and its sweep
+    /// (a solid tube's inner radius is zero).</summary>
+    private static bool Positive(ColliderDescriptor collider)
+    {
+        var h = collider.HalfExtents;
+        return collider.ShapeKind switch
+        {
+            ColliderShapeKind.Tube => collider.Radius > 0 && h.X > 0 && h.Y > 0,
+            ColliderShapeKind.Frustum => collider.Radius > 0 && h.X > 0 && h.Y > 0 && h.Z > 0,
+            ColliderShapeKind.Torus => collider.Radius > 0 && h.X >= 0 && h.Y > 0 && h.Z > 0,
+            _ => h.X > 0 && h.Y > 0 && h.Z > 0
+        };
     }
 
     public static IReadOnlyList<TubeMouthDescriptor> Mouths(BundleEntry entry, IReadOnlyDictionary<string, float>? supplied = null)

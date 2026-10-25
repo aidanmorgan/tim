@@ -51,6 +51,27 @@ internal static class TestBundle
         Assert.Equal(centre, collider.LocalPose.Translation);
     }
 
+    /// <summary>The f32 agreement of a hollow lane with its element doc's value: a lane is a single scene number or one f32 difference
+    /// (a wall's r − t), within two roundings at up to 4 m, 2 × 2.4e-7 → 1e-6 m.</summary>
+    private const float HollowLaneTolerance = 1e-6f;
+
+    /// <summary>Asserts one extracted hollow collider's kind, its radius lane and three lanes, its centre and its axis (local +Y),
+    /// against the values its element doc states.</summary>
+    public static void AssertHollow(ExtractedCollider collider, Gpu.ColliderShapeKind kind, float radius, Vector3 lanes, Vector3 centre,
+        Vector3 axis)
+    {
+        Assert.Equal(kind, collider.ShapeKind);
+        var t = collider.LocalPose.Translation;
+        var r = collider.LocalPose.Rotation;
+        var actualAxis = Vector3.Transform(Vector3.UnitY, new System.Numerics.Quaternion(r.X, r.Y, r.Z, r.W));
+        Assert.True(MathF.Abs(collider.Radius - radius) <= HollowLaneTolerance &&
+            MathF.Abs(collider.HalfExtents.X - lanes.X) <= HollowLaneTolerance && MathF.Abs(collider.HalfExtents.Y - lanes.Y) <= HollowLaneTolerance &&
+            MathF.Abs(collider.HalfExtents.Z - lanes.Z) <= HollowLaneTolerance,
+            $"{kind}: radius {collider.Radius} and lanes {collider.HalfExtents}, not {radius} and {lanes}");
+        Assert.True(Vector3.Distance(new(t.X, t.Y, t.Z), centre) <= 1e-5f, $"{kind}: centre {t}, not {centre}");
+        Assert.True(MathF.Abs(Vector3.Dot(actualAxis, Vector3.Normalize(axis))) >= 1f - 1e-6f, $"{kind}: axis {actualAxis}, not along {axis}");
+    }
+
     private static IReadOnlyList<BundlePackage> Discover()
     {
         var discovered = PackageDiscovery.Discover(twodog.Engine.ResolveProjectDir());

@@ -7,7 +7,9 @@ using CuriousContraptions.Abstractions.Mechanical;
 namespace CuriousContraptions.Elements.Funnel;
 
 /// <summary>The Funnel (CAT-030): a static hollow frustum 1.8 m long that gathers balls from a 1.3 m inlet radius into the 0.65 m tube
-/// bore. Its colliders are 4 rings of 16 wall boxes tilted to the taper, then 4 collar rim boxes at the inlet and 4 at the outlet.</summary>
+/// bore. Its colliders are true hollow shapes (engine-hollow-shapes): the Frustum wall (outer 1.35 m at the inlet to 0.7 m at the outlet,
+/// radial wall 0.05 m) between its collars, a 9 cm Tube stub from each collar to its mouth (bores 1.3 and 0.65 m), and the two drawn
+/// torus collars. Restitution 0.15 (CAT-030).</summary>
 public sealed class FunnelElementDeclaration : IMechanicalElement, ISceneGeometryElement
 {
     public ElementPresentation Presentation => new(1.75f, PresentationAxes.None,
@@ -32,7 +34,7 @@ public sealed class FunnelElementDeclaration : IMechanicalElement, ISceneGeometr
 
     public IReadOnlyList<SceneBodyGeometry> SceneBodies =>
     [
-        new(".", new(1f, 0.3f, 0f, 0.1f))
+        new(".", new(0.15f, 0.3f, 0f, 0.1f))
     ];
 
     public IReadOnlyList<EventDescriptor> Events => [];

@@ -110,14 +110,14 @@ public sealed class WorkshopPhysicsLawCylinderTests
         Assert.Throws<ArgumentException>(() => (Cylinder(0f, 0f) with { HalfExtents = new(0f, 17f, 0f) }).Validate());
 
         var baked = DeclaredPhysics.Admit(new(CuriousContraptions.Abstractions.ColliderShapeKind.Cylinder, new(.4f, .085f, .4f),
-            new(0, .5f, 0), Quaternion.Identity, default));
+            new(0, .5f, 0), Quaternion.Identity, default, 0f));
         Assert.Equal(ColliderShapeKind.Cylinder, baked.ShapeKind);
         Assert.Equal(.4f, baked.Radius);
         Assert.Equal(new MetreVector(0f, .085f, 0f), baked.HalfExtents);
         Assert.Throws<ArgumentException>(() => DeclaredPhysics.Admit(new(CuriousContraptions.Abstractions.ColliderShapeKind.Cylinder,
-            new(.4f, .085f, .41f), default, Quaternion.Identity, default)));
+            new(.4f, .085f, .41f), default, Quaternion.Identity, default, 0f)));
         Assert.Throws<ArgumentException>(() => DeclaredPhysics.Admit(new(CuriousContraptions.Abstractions.ColliderShapeKind.Capsule,
-            new(.4f, .085f, .4f), default, Quaternion.Identity, default)));
+            new(.4f, .085f, .4f), default, Quaternion.Identity, default, 0f)));
     }
 
     [Fact]
@@ -131,7 +131,8 @@ public sealed class WorkshopPhysicsLawCylinderTests
 
         var engine = new WorkshopPhysicsEngine();
         var (source, candidate, inputs) = Start(engine, world);
-        BinaryPrimitives.WriteUInt32LittleEndian(source.AsSpan(shapeOffset), 4);
+        // The first discriminant past the closed set (Sphere 0 … Frustum 6, engine-hollow-shapes).
+        BinaryPrimitives.WriteUInt32LittleEndian(source.AsSpan(shapeOffset), (uint)ColliderShapeKind.Frustum + 1);
         var original = (byte[])source.Clone();
         engine.Advance(source, candidate, inputs);
         Assert.Equal(PhysicsFailure.InvalidDeclaration, PhysicsGpuAbi.ReadFailure(candidate));

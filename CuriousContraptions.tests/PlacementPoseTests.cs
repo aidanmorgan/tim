@@ -10,6 +10,89 @@ namespace CuriousContraptions.Tests;
 [Collection<NativeSceneCollectionDefinition>]
 public sealed class PlacementPoseTests
 {
+
+
+    [Theory]
+    [InlineData(1.4f, false)]
+    [InlineData(1.2f, true)]
+    public void BendGridPlacementUsesItsOccupiedArcBounds(float y, bool outside)
+    {
+        // The quarter bend's lowest geometry is its end stub at -1.787056,
+        // not a reflected copy of the arc above its revolution origin. At y=1.4
+        // its bottom is -0.387056, inside the -0.46 bench by less than one grid step.
+        var pose = PlacementPose.Compose(Definitions(), [], new(PartId.PipeBend90, new(1), false),
+            new Vector3(0, y, 0), Quaternion.Identity);
+        Assert.Null(pose.Snap);
+        Assert.Equal(outside ? PlacementRefusal.OutsideBench : PlacementRefusal.None, pose.Refusal);
+    }
+
+    [Theory]
+    [InlineData(1.4f, false)]
+    [InlineData(1.2f, true)]
+    public void SnappedBendUsesItsOccupiedArcBounds(float y, bool outside)
+    {
+        var definitions = Definitions();
+        var start = TubeMouthSnap.LocalMouth(definitions[PartId.PipeBend90], TubeMouthEnd.Start, null);
+        var end = TubeMouthSnap.LocalMouth(definitions[PartId.Pipe], TubeMouthEnd.End, PipeLength.Default);
+        var target = new Vector3(0, y, 0);
+        var pipeAt = target + start - end;
+        IWorkshopInstance[] placed = [WorkshopInput.Pipe(new(1), pipeAt.X, pipeAt.Y, pipeAt.Z, 0, 0, 0, 1)];
+        var pose = PlacementPose.Compose(definitions, placed, new(PartId.PipeBend90, new(2), false), target, Quaternion.Identity);
+        Assert.NotNull(pose.Snap);
+        Assert.InRange((pose.Position - target).Length(), 0, 1e-5f);
+        Assert.Equal(outside ? PlacementRefusal.SnapOutsideBench : PlacementRefusal.None, pose.Refusal);
+    }
+
+    public enum HollowPayload { Sphere, Box, Cylinder }
+
+    [Theory]
+    [InlineData(HollowPayload.Sphere, 0f, false)]
+    [InlineData(HollowPayload.Sphere, .6f, true)]
+    [InlineData(HollowPayload.Sphere, 1.5f, false)]
+    [InlineData(HollowPayload.Box, 0f, false)]
+    [InlineData(HollowPayload.Box, .6f, true)]
+    [InlineData(HollowPayload.Box, 1.5f, false)]
+    [InlineData(HollowPayload.Cylinder, 0f, false)]
+    [InlineData(HollowPayload.Cylinder, .6f, true)]
+    [InlineData(HollowPayload.Cylinder, 1.5f, false)]
+    [InlineData(HollowPayload.Box, .6f, true, true)]
+    [InlineData(HollowPayload.Box, 1.5f, false, true)]
+    [InlineData(HollowPayload.Cylinder, .6f, true, true)]
+    [InlineData(HollowPayload.Cylinder, 1.5f, false, true)]
+    public async Task HollowWallAdmissionAgreesBetweenPlacementAndConstruct(HollowPayload payload, float offset, bool overlaps, bool tilted = false)
+    {
+        var definitions = Definitions();
+        var part = payload switch
+        {
+            HollowPayload.Sphere => PartId.Basketball,
+            HollowPayload.Box => PartId.Domino,
+            HollowPayload.Cylinder => WeightTests.Weight,
+            _ => throw new ArgumentOutOfRangeException(nameof(payload))
+        };
+        var turn = payload == HollowPayload.Cylinder ? new Quaternion(Vector3.Back, -MathF.PI / 2) : Quaternion.Identity;
+        if (tilted) turn = new Quaternion(Vector3.Forward, MathF.PI / 4) * turn;
+        var pipe = WorkshopInput.Pipe(new(1), 0, 3, 0, 0, 0, 0, 1);
+        IWorkshopInstance[] placed = [pipe];
+        var at = new Vector3(0, 3 + offset, 0);
+        var pose = PlacementPose.Compose(definitions, placed, new(part, new(2), false), at, turn);
+        Assert.Equal(overlaps ? PlacementRefusal.IntoPart : PlacementRefusal.None, pose.Refusal);
+        Assert.Equal(at.Snapped(Vector3.One * .1f), pose.Position);
+        Assert.Single(placed); // a rejected preview never changes the authored list
+        var prior = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(pipe));
+        await using var ring = await EventRingProducerTests.Ring.Building(prior);
+        var before = ring.Simulation.Committed;
+        var candidate = prior with { Revision = new(3), Instances = new(pipe, At(part, 2, at, turn)) };
+        var result = await ring.Simulation.Construct(candidate);
+        Assert.Equal(overlaps ? WorkshopCommandOutcome.Rejected : WorkshopCommandOutcome.Applied, result.Outcome);
+        if (overlaps)
+        {
+            Assert.Equal(WorkshopRejection.InvalidConstruction, result.Reason);
+            Assert.Equal(prior, ring.Simulation.Construction);
+            Assert.Equal(before.Revision, ring.Simulation.Committed.Revision);
+            Assert.Equal(before.Bodies, ring.Simulation.Committed.Bodies);
+        }
+    }
+
     private static readonly float PlateY = (float)((double)WorkshopConstruction.WorkbenchSurface.Value + .22);
     /// <summary>The plate face's top: its centre is 0.03 m above the plate origin and it is 0.1 m thick (the plate scene).</summary>
     private static readonly float FaceTop = PlateY + .03f + .05f;
@@ -232,6 +315,28 @@ public sealed class PlacementPoseTests
             {
                 var composed = PlacementPose.Compose(definitions, placed, new(part, new(2), false), new(0, PlateY, 0), Quaternion.Identity);
                 Assert.True(refusal == composed.Refusal, $"{part} with the Bumper {distance} m away: {composed.Refusal}");
+            }
+        }
+    }
+
+    // engine-hollow-shapes: a lifted part is tested against a hollow static's true wall (its exact signed distance), whose bore stays
+    // open. A default Clear pipe lies along X over the bench-standing plate. With its axis at the plate face + 0.34, a Basketball lifted
+    // onto the face sits centred in the 0.65 m bore and a Weight (r 0.35, top 0.56 above the face) reaches √(0.35² + 0.34²) = 0.49 m
+    // from the axis: both admitted. With the axis 0.45 m higher, the ball (centre 0.45 below the axis) reaches 0.79 m from it, through
+    // the 0.65–0.7 m wall, and the Weight stands across the wall (its base 0.79 below the axis, its top 0.23 below it): both refused
+    // IntoPart.
+    [Fact]
+    public void ALiftedPartCuttingAPipeWallIsRefusedAndOneInsideItsBoreIsAdmitted()
+    {
+        var definitions = Definitions();
+        var face = PlateY + .08f;
+        foreach (var (rise, refusal) in new[] { (0f, PlacementRefusal.None), (.45f, PlacementRefusal.IntoPart) })
+        {
+            IWorkshopInstance[] placed = [PlacedParts.Plate(new(1), 0, PlateY, 0, .5f), WorkshopInput.Pipe(new(3), 0, face + .34f + rise, 0, 0, 0, 0, 1)];
+            foreach (var part in new[] { PartId.Basketball, WeightTests.Weight })
+            {
+                var composed = PlacementPose.Compose(definitions, placed, new(part, new(2), false), new(0, PlateY, 0), Quaternion.Identity);
+                Assert.True(refusal == composed.Refusal, $"{part} with the pipe's axis {rise} m above the ball's rest: {composed.Refusal}");
             }
         }
     }

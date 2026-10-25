@@ -34,7 +34,7 @@ public static class PlacementPose
     /// <summary>A box's top is horizontal when one of its axes is vertical to within this cosine.</summary>
     public const float VerticalAxis = 1f - 1e-6f;
     /// <summary>A lifted part touching the top it rests on is not inside it: only a deeper overlap refuses the pose (m).</summary>
-    public const float ContactSlop = 1e-4f;
+    public const float ContactSlop = HollowContactQuery.PlacementSlop;
 
     /// <summary>The volume a placement point must lie in: x ∈ [−7, 7], y ∈ [0, 9], z ∈ [−4, 4] m.</summary>
     public static bool Inside(Vector3 point) =>
@@ -48,29 +48,34 @@ public static class PlacementPose
         var bench = WorkshopConstruction.WorkbenchSurface.Value - ContactSlop;
         foreach (var shape in shapes)
         {
-            float x = shape.Extent(Vector3.Right), y = shape.Height, z = shape.Extent(Vector3.Back);
-            var c = shape.Centre;
-            if (!float.IsFinite(c.X + c.Y + c.Z + x + y + z) || c.X - x < -7 || c.X + x > 7 || c.Z - z < -4 || c.Z + z > 4 ||
-                c.Y - y < bench || c.Y + y > 9)
+            var min = shape.Centre - new Vector3(shape.SupportDistance(Vector3.Left), shape.SupportDistance(Vector3.Down),
+                shape.SupportDistance(Vector3.Forward));
+            var max = shape.Centre + new Vector3(shape.SupportDistance(Vector3.Right), shape.SupportDistance(Vector3.Up),
+                shape.SupportDistance(Vector3.Back));
+            if (!float.IsFinite(min.X + min.Y + min.Z + max.X + max.Y + max.Z) ||
+                min.X < -7 || max.X > 7 || min.Z < -4 || max.Z > 4 || min.Y < bench || max.Y > 9)
                 return false;
         }
         return true;
     }
 
-    private enum Shape : byte { Sphere, Box, Cylinder }
-    /// <summary>One posed collider. A cylinder's axis is its local Y; its half-extents are (r, h, r).</summary>
-    private readonly record struct Posed(Shape Kind, Vector3 Centre, Vector3 X, Vector3 Y, Vector3 Z, Vector3 HalfExtent, float Radius)
+    private enum Shape : byte { Sphere, Box, Cylinder, Hollow }
+    /// <summary>One posed collider. A cylinder's axis is its local Y; its half-extents are (r, h, r). A hollow collider (Tube, Torus,
+    /// Frustum) carries its posed solid, the narrowphase's own signed distance field.</summary>
+    private readonly record struct Posed(Shape Kind, Vector3 Centre, Vector3 X, Vector3 Y, Vector3 Z, Vector3 HalfExtent, float Radius,
+        HollowSolid Solid = default)
     {
         public Vector3 Axis(int i) => i switch { 0 => X, 1 => Y, _ => Z };
         public float HalfAlong(int i) => i switch { 0 => HalfExtent.X, 1 => HalfExtent.Y, _ => HalfExtent.Z };
         /// <summary>The shape's world vertical half-extent: its centre to its top.</summary>
-        public float Height => Extent(Vector3.Up);
-        /// <summary>The shape's half-extent along a unit direction: a box's projected half-extents, a cylinder's h·|a·n| + r·√(1 − (a·n)²).</summary>
-        public float Extent(Vector3 direction) => Kind switch
+        public float Height => SupportDistance(Vector3.Up);
+        /// <summary>The signed support distance from the collider origin along a unit direction: a box's projected half-extents, a cylinder's h·|a·n| + r·√(1 − (a·n)²).</summary>
+        public float SupportDistance(Vector3 direction) => Kind switch
         {
             Shape.Sphere => Radius,
             Shape.Box => MathF.Abs(X.Dot(direction)) * HalfExtent.X + MathF.Abs(Y.Dot(direction)) * HalfExtent.Y + MathF.Abs(Z.Dot(direction)) * HalfExtent.Z,
             Shape.Cylinder => MathF.Abs(Y.Dot(direction)) * HalfExtent.Y + HalfExtent.X * MathF.Sqrt(MathF.Max(0f, 1f - Y.Dot(direction) * Y.Dot(direction))),
+            Shape.Hollow => System.Numerics.Vector3.Dot(Solid.SupportNear(Numeric(direction), Solid.Position) - Solid.Position, Numeric(direction)),
             _ => throw new InvalidOperationException($"Undefined placement shape {Kind}.")
         };
     }
@@ -127,7 +132,13 @@ public static class PlacementPose
             if (surface < bottom || surface > top || !Over(support, up, at) || !Array.Exists(shapes, shape => Overlaps(shape, support, 0f))) continue;
             if (rest is not { } highest || surface > highest) rest = surface;
         }
-        if (rest is not { } y) return (at, PlacementRefusal.None);
+        if (rest is not { } y)
+        {
+            foreach (var hollowCollider in statics)
+                if (hollowCollider.Kind == Shape.Hollow && Array.Exists(shapes, shape => OverlapsHollow(shape, hollowCollider.Solid, ContactSlop)))
+                    return (at, PlacementRefusal.IntoPart);
+            return (at, PlacementRefusal.None);
+        }
         // The lifted pose must stay in the bench volume and clear every Static part (B1).
         var lifted = at with { Y = at.Y + (y - bottom) };
         var raised = Pose(BundleGeometry.Colliders(entry), lifted, rotation);
@@ -148,11 +159,15 @@ public static class PlacementPose
                 ColliderShapeKind.Sphere => Shape.Sphere,
                 ColliderShapeKind.Box => Shape.Box,
                 ColliderShapeKind.Cylinder => Shape.Cylinder,
+                ColliderShapeKind.Tube or ColliderShapeKind.Torus or ColliderShapeKind.Frustum => Shape.Hollow,
                 _ => throw new ArgumentException($"Placement rest has no rule for a {c.ShapeKind} collider.")
             };
             var local = (turn * new Quaternion(c.Rotation.X, c.Rotation.Y, c.Rotation.Z, c.Rotation.W)).Normalized();
-            result[i] = new(kind, position + turn * new Vector3(c.Offset.X, c.Offset.Y, c.Offset.Z), local * Vector3.Right, local * Vector3.Up,
-                local * Vector3.Back, new(c.HalfExtents.X, c.HalfExtents.Y, c.HalfExtents.Z), kind == Shape.Sphere ? c.HalfExtents.X : 0f);
+            var centre = position + turn * new Vector3(c.Offset.X, c.Offset.Y, c.Offset.Z);
+            var (x, y, z) = (local * Vector3.Right, local * Vector3.Up, local * Vector3.Back);
+            result[i] = new(kind, centre, x, y, z, new(c.HalfExtents.X, c.HalfExtents.Y, c.HalfExtents.Z), kind == Shape.Sphere ? c.HalfExtents.X : 0f,
+                kind == Shape.Hollow ? new HollowSolid(DeclaredPhysics.Admit(c).ShapeKind, Numeric(centre), Numeric(x), Numeric(y), Numeric(z),
+                    c.Radius, c.HalfExtents.X, c.HalfExtents.Y, c.HalfExtents.Z) : default);
         }
         return result;
     }
@@ -205,6 +220,8 @@ public static class PlacementPose
     /// overlapping.</summary>
     private static bool Overlaps(Posed shape, Posed box, float slop)
     {
+        if (box.Kind == Shape.Hollow) return OverlapsHollow(shape, box.Solid, slop);
+        if (shape.Kind == Shape.Hollow) return OverlapsHollow(box, shape.Solid, slop);
         if (box.Kind == Shape.Sphere)
         {
             if (shape.Kind != Shape.Sphere) return Overlaps(box, shape, slop);
@@ -233,7 +250,7 @@ public static class PlacementPose
         for (var k = 0; k < count; k++)
         {
             var axis = axes[k];
-            if (MathF.Abs(offset.Dot(axis)) >= shape.Extent(axis) + box.Extent(axis) - slop) return false;
+            if (MathF.Abs(offset.Dot(axis)) >= shape.SupportDistance(axis) + box.SupportDistance(axis) - slop) return false;
         }
         return true;
     }
@@ -255,6 +272,25 @@ public static class PlacementPose
     }
 
     private const int ProjectionSteps = 64;
+
+    private static System.Numerics.Vector3 Numeric(Vector3 v) => new(v.X, v.Y, v.Z);
+    private static Vector3 ToGodot(System.Numerics.Vector3 v) => new(v.X, v.Y, v.Z);
+
+    /// <summary>Uses the production hollow contact measurements for placement admission.</summary>
+    private static bool OverlapsHollow(Posed shape, HollowSolid hollow, float slop)
+    {
+        var kind = shape.Kind switch
+        {
+            Shape.Sphere => Gpu.ColliderShapeKind.Sphere,
+            Shape.Box => Gpu.ColliderShapeKind.Box,
+            Shape.Cylinder => Gpu.ColliderShapeKind.Cylinder,
+            _ => throw new ArgumentException("A placed hollow partner must be convex.")
+        };
+        var partner = new HollowPartner(kind, Numeric(shape.Centre), Numeric(shape.X), Numeric(shape.Y), Numeric(shape.Z),
+            shape.Kind == Shape.Sphere ? shape.Radius : shape.HalfExtent.X,
+            shape.HalfExtent.X, shape.HalfExtent.Y, shape.HalfExtent.Z);
+        return HollowContactQuery.Overlaps(partner, hollow, slop);
+    }
 
     /// <summary>The point of a box or cylinder nearest a world point.</summary>
     private static Vector3 Nearest(Posed shape, Vector3 point) =>
