@@ -140,6 +140,12 @@ internal sealed class ContactManifold
 {
     public List<ContactPoint> Points = new();
     public float Rolling;
+    /// <summary>The rolling-resistance row's directions, set by <see cref="WorkshopConstraintSolver.PrepareRolling"/> from the
+    /// manifold's curved supports (each point's <see cref="ContactPoint.SupportA"/>/<see cref="ContactPoint.SupportB"/> and its
+    /// colliders' shapes): both contact tangents for a sphere or crossed curved sides, or one rolling axis (Roll2 zero, with zero
+    /// mass) for one curved side or two parallel ones.</summary>
+    public Vector3 Roll1;
+    public Vector3 Roll2;
     public float RollingMass1;
     public float RollingMass2;
     public float LambdaR1;
@@ -750,8 +756,8 @@ internal static class WorkshopCollisionKernels
     private const float RimDiagonal = 0.70710677f;
     /// <summary>Two cylinder sides touch along a stretch only when their axes are parallel within 2° (cos 2°). Skewed further, they
     /// touch at one point: a two-point stretch on a skewed pair puts the rows at the rolling body's rim ends and pumps energy into it
-    /// (review F4, measured on the reviewer's drop 17).</summary>
-    private const float LineAlignment = 0.99939083f;
+    /// (review F4, measured on the reviewer's drop 17). The rolling row shares it: parallel curved sides roll about one common axis.</summary>
+    internal const float LineAlignment = 0.99939083f;
 
     /// <summary>Which cylinder feature a contact came from; the feature id is (kind &lt;&lt; 12) | detail, distinct within a manifold,
     /// so a warm start carries over while that feature persists (stability while rolling is not separately qualified).</summary>

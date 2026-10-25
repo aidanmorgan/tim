@@ -856,6 +856,8 @@ internal sealed class WorkshopPhysicsEngine
                     var manifold = _manifoldPool[_manifolds.Count];
                     manifold.Points.Clear();
                     manifold.Rolling = 0;
+                    manifold.Roll1 = default;
+                    manifold.Roll2 = default;
                     manifold.RollingMass1 = 0;
                     manifold.RollingMass2 = 0;
                     manifold.LambdaR1 = 0;
