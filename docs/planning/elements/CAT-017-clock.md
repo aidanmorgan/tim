@@ -4,6 +4,8 @@
 
 Story 7.0 Batch B declaration spec (CAT-017-D). Legacy citations are pinned to `a6c914e` and resolve with `git show a6c914e:<path> | sed -n 'start,endp'`. Requirement row: [CAT-017](../requirements.md#current-cat-017). Supplied-network facts (N1–N24) are in [CAT-005](CAT-005-battery.md#4-legacy-harvest).
 
+**Colliders (owner, 25 October 2026, "visible = solid"):** every part a player sees as solid collides with its true shape. Since [`elements-visible-solid-sweep`](../../../TODO.md) the parts that stand proud of the housing collide with their drawn primitives, after the housing and foot boxes: the cream face panel as a 1.14 × 1.44 × 0.04 box at z 0.32, the indicator as a sphere r 0.065 at (0, 0.63, 0.39), the two sockets as spheres r 0.075 at (∓0.78, 0, 0), and the pendulum recess, 2 cm proud of the face, as a 0.84 × 1.1 × 0.02 box at (0, −0.06, 0.35) (`elements/SystemClock/clock.tscn`; `VisibleSolidColliderTests` checks them against the art and drops a ball onto the face; `ClockTests`). The pendulum swings with the clock and does not collide. Placement bounds every collider (`PlacementPose`), so the sockets now count toward the bench edge: the clock reaches x ±0.855 against the foot's ±0.8. Uncollided, owned by [`engine-multi-collider-dynamic`](../../../TODO.md): the pivot cap (sphere r 0.055 at (0, 0.4, 0.44)) is below the sphere radius minimum in `ColliderDeclaration.Validate` (`engine/gpu/PhysicsDeclarations.cs`), which that slice relaxes.
+
 ## 1. Identity
 
 | Item | Value |
@@ -18,7 +20,7 @@ Story 7.0 Batch B declaration spec (CAT-017-D). Legacy citations are pinned to `
 
 | Item | Declaration (value · source) |
 | --- | --- |
-| Bodies and shapes | Static root box 1.4 × 1.7 × 0.6 m at the origin; foot box 1.6 × 0.2 × 0.85 m centred at y −0.95 (`parts/ClockPart.cs@a6c914e:L59-L60`; legacy `AddBox` = collision box, see [CAT-005 §2](CAT-005-battery.md#2-declaration)). |
+| Bodies and shapes | Static root box 1.4 × 1.7 × 0.6 m at the origin; foot box 1.6 × 0.2 × 0.85 m centred at y −0.95 (`parts/ClockPart.cs@a6c914e:L59-L60`; legacy `AddBox` = collision box, see [CAT-005 §2](CAT-005-battery.md#2-declaration)); the face panel, indicator and sockets (Colliders above). |
 | Mass and material | Static. Legacy static default material restitution 1, bounce threshold 0.1 m/s, friction 0.3 (`reference/cpu/MachinePart.cs@a6c914e:L236-L236`). |
 | Constraints and joints | none (the pendulum is cosmetic, not a joint). |
 | Typed sockets and ports | `PowerIn` Electrical Input at (−0.78, 0, 0); `ActivationOut` Activation Output at (0.78, 0, 0) (`parts/ClockPart.cs@a6c914e:L41-L45`). Current `WorkshopSocket` already has both values (`engine/gpu/WorkshopConnections.cs@a6c914e:L9-L9`). |

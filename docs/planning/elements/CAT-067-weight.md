@@ -4,6 +4,8 @@
 
 This is the Story 7.0 CAT-067-D declaration readiness spec for the weight. Rope route, length, tension and pendulum facts live in [CAT-058 rope_anchor](CAT-058-rope_anchor.md); two-pulley counterbalance facts live in [CAT-053 pulley](CAT-053-pulley.md). This file holds the weight body, its mass parameter and its integrations. Baseline commit is `a6c914e`. Legacy citations use `path@a6c914e:Lstart-Lend` and stay retrievable from git history after the Epic 7 purge; current-engine files are cited at the same commit.
 
+**Collider target (owner, 25 October 2026, "visible = solid"), open:** at the 4 kg default the cream base (cylinder r 0.36, h 0.05 at y 0.0517) stands 8 mm proud of the body radially, the two bands (torus tube r 0.0075 at r 0.3558) 1.2 cm, and the gold lifting eye (torus r 0.14, tube 0.0175, standing at y 0.5771) rises 0.18 m above the top; all scale with the mass. None has a collider (`Uncollided` in `VisibleSolidColliderTests`). The base is owned by [`engine-multi-collider-dynamic`](../../../TODO.md), which admits several colliders on a moving body with mass and inertia from the declaration; the bands and eye, tori, by [`engine-hollow-shapes`](../../../TODO.md), and they need the multi-collider slice too.
+
 ## 1. Identity
 
 | Field | Value |

@@ -4,6 +4,8 @@
 
 Story 7.0 Batch B declaration spec (CAT-020-D). Legacy citations are pinned to `a6c914e` and resolve with `git show a6c914e:<path> | sed -n 'start,endp'`. Requirement row: [CAT-020](../requirements.md#current-cat-020). Supplied-network facts (N1–N24) are in [CAT-005](CAT-005-battery.md#4-legacy-harvest).
 
+**Colliders (owner, 25 October 2026, "visible = solid"):** every part a player sees as solid collides with its true shape. Since [`elements-visible-solid-sweep`](../../../TODO.md) the parts that stand proud of the housing collide with their drawn primitives, after the housing and foot boxes: the cream face panel as a 1.4 × 1.02 × 0.04 box at z 0.35, the nine dot lamps as spheres r 0.1 at x −0.36, 0, 0.36 and y 0.3, 0, −0.3 (z 0.4), and three sockets as spheres r 0.075 at (0, 0.72, 0.1) and (∓0.93, 0, 0), 15 colliders in all (`elements/Counter/counter.tscn`; `VisibleSolidColliderTests` checks them against the art and drops a ball onto a dot lamp; `CounterTests`). The `ActivationOut` socket (0, −0.72, 0.1) lies wholly inside the foot and is decorative. Placement bounds every collider (`PlacementPose`), so the sockets now count toward the bench edge: the counter reaches x ±1.005 against the foot's ±0.9, and one placed at x 6 is refused `OutsideBench` (`PlacementPoseTests.ACounterAtTheOldBenchEdgeIsRefusedBecauseItsProudSocketsCollide`).
+
 ## 1. Identity
 
 | Item | Value |
@@ -18,7 +20,7 @@ Story 7.0 Batch B declaration spec (CAT-020-D). Legacy citations are pinned to `
 
 | Item | Declaration (value · source) |
 | --- | --- |
-| Bodies and shapes | Static root box 1.65 × 1.25 × 0.65 m at the origin; foot box 1.8 × 0.16 × 0.85 m centred at y −0.72 (`parts/CounterPart.cs@a6c914e:L56-L57`; legacy `AddBox` = collision box, [CAT-005 §2](CAT-005-battery.md#2-declaration)). |
+| Bodies and shapes | Static root box 1.65 × 1.25 × 0.65 m at the origin; foot box 1.8 × 0.16 × 0.85 m centred at y −0.72 (`parts/CounterPart.cs@a6c914e:L56-L57`; legacy `AddBox` = collision box, [CAT-005 §2](CAT-005-battery.md#2-declaration)); the face panel, dot lamps and sockets (Colliders above). |
 | Mass and material | Static. Legacy static default material restitution 1, bounce threshold 0.1 m/s, friction 0.3 (`reference/cpu/MachinePart.cs@a6c914e:L236-L236`). |
 | Constraints and joints | none |
 | Typed sockets and ports | `ActivationIn` (0, 0.72, 0.1) and `ActivationOut` (0, −0.72, 0.1), Activation; `PowerIn` Electrical Input (−0.93, 0, 0); `Supply` Electrical Output (0.93, 0, 0) (`parts/CounterPart.cs@a6c914e:L28-L34`). Electrical route `PowerIn`→`Supply` closed while the count is Reached (`parts/CounterPart.cs@a6c914e:L35-L36`). |

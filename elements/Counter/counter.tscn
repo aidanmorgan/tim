@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3]
+[gd_scene load_steps=17 format=3]
 
 [ext_resource type="Script" path="res://engine/MachinePart.cs" id="1"]
 
@@ -44,6 +44,15 @@ size = Vector3(1.649999976158142, 1.25, 0.6499999761581421)
 
 [sub_resource type="BoxShape3D" id="BakedShape_0_1"]
 size = Vector3(1.7999999523162842, 0.1599999964237213, 0.8500000238418579)
+
+[sub_resource type="BoxShape3D" id="Shape_Face"]
+size = Vector3(1.4, 1.02, 0.04)
+
+[sub_resource type="SphereShape3D" id="Shape_DotLamp"]
+radius = 0.1
+
+[sub_resource type="SphereShape3D" id="Shape_Socket"]
+radius = 0.075
 
 [node name="counter" type="Node3D"]
 script = ExtResource("1")
@@ -136,3 +145,81 @@ position = Vector3(0, -0.72, 0)
 quaternion = Quaternion(0, 0, 0, 1)
 visible = false
 shape = SubResource("BakedShape_0_1")
+
+[node name="col_0_2" type="CollisionShape3D" parent="."]
+position = Vector3(0, 0, 0.35)
+quaternion = Quaternion(0, 0, 0, 1)
+visible = false
+shape = SubResource("Shape_Face")
+
+[node name="col_0_3" type="CollisionShape3D" parent="."]
+position = Vector3(-0.36, 0.3, 0.4)
+quaternion = Quaternion(0, 0, 0, 1)
+visible = false
+shape = SubResource("Shape_DotLamp")
+
+[node name="col_0_4" type="CollisionShape3D" parent="."]
+position = Vector3(0, 0.3, 0.4)
+quaternion = Quaternion(0, 0, 0, 1)
+visible = false
+shape = SubResource("Shape_DotLamp")
+
+[node name="col_0_5" type="CollisionShape3D" parent="."]
+position = Vector3(0.36, 0.3, 0.4)
+quaternion = Quaternion(0, 0, 0, 1)
+visible = false
+shape = SubResource("Shape_DotLamp")
+
+[node name="col_0_6" type="CollisionShape3D" parent="."]
+position = Vector3(-0.36, 0, 0.4)
+quaternion = Quaternion(0, 0, 0, 1)
+visible = false
+shape = SubResource("Shape_DotLamp")
+
+[node name="col_0_7" type="CollisionShape3D" parent="."]
+position = Vector3(0, 0, 0.4)
+quaternion = Quaternion(0, 0, 0, 1)
+visible = false
+shape = SubResource("Shape_DotLamp")
+
+[node name="col_0_8" type="CollisionShape3D" parent="."]
+position = Vector3(0.36, 0, 0.4)
+quaternion = Quaternion(0, 0, 0, 1)
+visible = false
+shape = SubResource("Shape_DotLamp")
+
+[node name="col_0_9" type="CollisionShape3D" parent="."]
+position = Vector3(-0.36, -0.3, 0.4)
+quaternion = Quaternion(0, 0, 0, 1)
+visible = false
+shape = SubResource("Shape_DotLamp")
+
+[node name="col_0_10" type="CollisionShape3D" parent="."]
+position = Vector3(0, -0.3, 0.4)
+quaternion = Quaternion(0, 0, 0, 1)
+visible = false
+shape = SubResource("Shape_DotLamp")
+
+[node name="col_0_11" type="CollisionShape3D" parent="."]
+position = Vector3(0.36, -0.3, 0.4)
+quaternion = Quaternion(0, 0, 0, 1)
+visible = false
+shape = SubResource("Shape_DotLamp")
+
+[node name="col_0_12" type="CollisionShape3D" parent="."]
+position = Vector3(0, 0.72, 0.1)
+quaternion = Quaternion(0, 0, 0, 1)
+visible = false
+shape = SubResource("Shape_Socket")
+
+[node name="col_0_13" type="CollisionShape3D" parent="."]
+position = Vector3(-0.93, 0, 0)
+quaternion = Quaternion(0, 0, 0, 1)
+visible = false
+shape = SubResource("Shape_Socket")
+
+[node name="col_0_14" type="CollisionShape3D" parent="."]
+position = Vector3(0.93, 0, 0)
+quaternion = Quaternion(0, 0, 0, 1)
+visible = false
+shape = SubResource("Shape_Socket")

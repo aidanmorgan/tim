@@ -2,6 +2,8 @@
 
 **Current delivery (24 October 2026):** [CAT-015 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
 
+**Collider target (owner, 25 October 2026, "visible = solid"), open:** two parts stand proud of the head without a collider (`Uncollided` in `VisibleSolidColliderTests`). The gold cap (r 0.25, h 0.12 at y 0.59; its rim stands 5 cm above the head, which is at y 0.6 there) is owned by [`bumper-cap-solid`](../../../TODO.md): made a cylinder collider in elements-visible-solid-sweep, it met a ball falling 0.3 m off the axis at its rim before the head, with a contact normal about 8.5° from vertical (atan(0.05 / 0.336)) instead of the head's 17.6° (asin(0.3 / 0.99)), and the authored solutions of bumper_sidekick, bumper_depth and wall_and_bumper stopped solving, so it was withdrawn; that slice makes it solid and re-authors those solutions. The small ring (torus r 0.49, half thickness 0.018 at y 0.43) stands 2.0 cm proud radially (its outer edge at r 0.508 against the head's 0.487 at that height) and is owned by [`engine-hollow-shapes`](../../../TODO.md), which adds the torus kind.
+
 ## 1. Identity
 
 | Field | Value |

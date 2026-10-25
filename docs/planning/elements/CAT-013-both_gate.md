@@ -4,6 +4,10 @@
 
 Story 7.0 Batch B declaration spec (CAT-013-D). Legacy citations are pinned to `a6c914e` and resolve with `git show a6c914e:<path> | sed -n 'start,endp'`. Requirement row: [CAT-013](../requirements.md#current-cat-013). This spec holds the **facts shared by all five supplied electrical gates** (one declaration, five operations); [CAT-024](CAT-024-electrical_nand.md), [CAT-025](CAT-025-electrical_nor.md), [CAT-026](CAT-026-electrical_or.md) and [CAT-027](CAT-027-electrical_xor.md) add only their operation-specific facts. Network-wide facts (N1–N24) are in [CAT-005](CAT-005-battery.md#4-legacy-harvest).
 
+**Colliders (owner, 25 October 2026, "visible = solid"):** every part a player sees as solid collides with its true shape. Since [`elements-visible-solid-sweep`](../../../TODO.md) the parts that stand proud of the body collide with their drawn primitives, after the body and foot boxes, on all five supplied gates: the cream face panel as a 1.45 × 1.05 × 0.04 box at z 0.35 (its top at 0.37, 4.5 cm above the body), the three lamps as spheres r 0.09 at (−0.48, ±0.3, 0.42) and (0.48, 0, 0.42), and the four port sockets as spheres r 0.075 at (−0.94, ±0.35, 0), (0, −0.75, 0.55) and (0.94, 0, 0) (`elements/BothGate/both_gate.tscn`; `VisibleSolidColliderTests` checks them against the art, rolls a ball into an upright Both gate's face panel and drops one onto it). Static restitution stays 1. Placement bounds every collider (`PlacementPose`), so the sockets now count toward the bench edge: a gate reaches x ±1.015 (the side sockets) against the foot's ±0.925, as `PlacementPoseTests` shows for the Counter.
+
+**Uncollided, owned by [`face-markings-flush`](../../../TODO.md):** the path bars and input marks (and the other gates' pictograms and truth dots) float 1–2 cm off the 0.37 face and stand about 4 cm proud of it (the truth dots 8.5 cm). That slice moves the art flush, so they become printing; the truth dots also need `engine-multi-collider-dynamic`'s change to the sphere radius minimum in `ColliderDeclaration.Validate` if they stay spheres.
+
 ## 1. Identity
 
 | Item | Value |
@@ -18,7 +22,7 @@ Story 7.0 Batch B declaration spec (CAT-013-D). Legacy citations are pinned to `
 
 | Item | Declaration (value · source) |
 | --- | --- |
-| Bodies and shapes | Static root box 1.7 × 1.3 × 0.65 m at the origin and a foot box 1.85 × 0.16 × 0.85 m centred at y −0.75 (`parts/ElectricalLogicPart.cs@a6c914e:L45-L46`). Both are collision boxes (legacy `AddBox`, see [CAT-005](CAT-005-battery.md#2-declaration)); all five gates share this geometry. |
+| Bodies and shapes | Static root box 1.7 × 1.3 × 0.65 m at the origin and a foot box 1.85 × 0.16 × 0.85 m centred at y −0.75 (`parts/ElectricalLogicPart.cs@a6c914e:L45-L46`). Both are collision boxes (legacy `AddBox`, see [CAT-005](CAT-005-battery.md#2-declaration)); all five gates share this geometry, with the face panel, lamps and sockets (Colliders above). |
 | Mass and material | Static. Legacy static default material: restitution 1, bounce threshold 0.1 m/s, friction 0.3 (`reference/cpu/MachinePart.cs@a6c914e:L236-L236`). |
 | Constraints and joints | none |
 | Typed sockets and ports | Four electrical ports (`parts/ElectricalLogicPart.cs@a6c914e:L28-L34`): `FirstIn` input (−0.94, 0.35, 0) — one raised mark; `SecondIn` input (−0.94, −0.35, 0) — two raised marks; `PowerIn` input (0, −0.75, 0.55) — the separate lower-front supply, not a third condition; `Supply` output (0.94, 0, 0). Gate rule = (operation, FirstIn, SecondIn, PowerIn, Supply) (`parts/ElectricalLogicPart.cs@a6c914e:L35-L36`). Current `WorkshopSocket` lacks `FirstIn`/`SecondIn` (`engine/gpu/WorkshopConnections.cs@a6c914e:L9-L9`). |

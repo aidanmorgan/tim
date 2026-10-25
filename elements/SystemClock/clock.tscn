@@ -1,4 +1,4 @@
-[gd_scene load_steps=19 format=3]
+[gd_scene load_steps=23 format=3]
 
 [ext_resource type="Script" path="res://engine/MachinePart.cs" id="1"]
 
@@ -66,6 +66,18 @@ size = Vector3(1.399999976158142, 1.7000000476837158, 0.6000000238418579)
 [sub_resource type="BoxShape3D" id="BakedShape_0_1"]
 size = Vector3(1.600000023841858, 0.20000000298023224, 0.8500000238418579)
 
+[sub_resource type="BoxShape3D" id="Shape_Face"]
+size = Vector3(1.14, 1.44, 0.04)
+
+[sub_resource type="SphereShape3D" id="Shape_Indicator"]
+radius = 0.065
+
+[sub_resource type="SphereShape3D" id="Shape_Socket"]
+radius = 0.075
+
+[sub_resource type="BoxShape3D" id="Shape_Recess"]
+size = Vector3(0.84, 1.1, 0.02)
+
 [node name="clock" type="Node3D"]
 script = ExtResource("1")
 
@@ -130,3 +142,33 @@ position = Vector3(0, -0.95, 0)
 quaternion = Quaternion(0, 0, 0, 1)
 visible = false
 shape = SubResource("BakedShape_0_1")
+
+[node name="col_0_2" type="CollisionShape3D" parent="."]
+position = Vector3(0, 0, 0.32)
+quaternion = Quaternion(0, 0, 0, 1)
+visible = false
+shape = SubResource("Shape_Face")
+
+[node name="col_0_3" type="CollisionShape3D" parent="."]
+position = Vector3(0, 0.63, 0.39)
+quaternion = Quaternion(0, 0, 0, 1)
+visible = false
+shape = SubResource("Shape_Indicator")
+
+[node name="col_0_4" type="CollisionShape3D" parent="."]
+position = Vector3(-0.78, 0, 0)
+quaternion = Quaternion(0, 0, 0, 1)
+visible = false
+shape = SubResource("Shape_Socket")
+
+[node name="col_0_5" type="CollisionShape3D" parent="."]
+position = Vector3(0.78, 0, 0)
+quaternion = Quaternion(0, 0, 0, 1)
+visible = false
+shape = SubResource("Shape_Socket")
+
+[node name="col_0_6" type="CollisionShape3D" parent="."]
+position = Vector3(0, -0.06, 0.35)
+quaternion = Quaternion(0, 0, 0, 1)
+visible = false
+shape = SubResource("Shape_Recess")

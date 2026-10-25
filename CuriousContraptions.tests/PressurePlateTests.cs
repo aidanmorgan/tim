@@ -52,7 +52,7 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
     }
 
     [Fact]
-    public void PressurePlateScene_ExtractsExactTwoCollidersAndThreePortLocators()
+    public void PressurePlateScene_ExtractsBaseTopAndSocketCollidersAndThreePortLocators()
     {
         var packedScene = ResourceLoader.Load<PackedScene>("res://elements/PressurePlate/pressure_plate.tscn");
         Assert.NotNull(packedScene);
@@ -61,8 +61,9 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
         {
             var (colliders, ports) = TestBundle.SceneGeometry(instance);
 
-            // Exactly 2 colliders: base + top
-            Assert.Equal(2, colliders.Count);
+            // The base, the sensing top (collider 1, which the contact load names), then the three sockets that stand proud of the
+            // base (visible = solid), each at its port.
+            Assert.Equal(5, colliders.Count);
 
             var baseCol = colliders[0];
             Assert.Equal(ColliderShapeKind.Box, baseCol.ShapeKind);
@@ -77,6 +78,10 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
             Assert.Equal(0f, topCol.LocalPose.Translation.X);
             Assert.Equal(0.03f, topCol.LocalPose.Translation.Y);
             Assert.Equal(0f, topCol.LocalPose.Translation.Z);
+
+            TestBundle.AssertCollider(colliders[2], Gpu.ColliderShapeKind.Sphere, 0.075f, default, new(-1.18f, -0.08f, 0f));
+            TestBundle.AssertCollider(colliders[3], Gpu.ColliderShapeKind.Sphere, 0.075f, default, new(1.18f, -0.08f, 0f));
+            TestBundle.AssertCollider(colliders[4], Gpu.ColliderShapeKind.Sphere, 0.075f, default, new(0f, -0.08f, 1.18f));
 
             Assert.Equal(3, ports.Count);
             Assert.Equal(new Godot.Vector3(-1.18f, -0.08f, 0), ports["PowerIn"].Position);
@@ -95,12 +100,28 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
         }
     }
 
+    // The canonical-collider check that compared the declaration with itself is deleted: the scene test above reads the same
+    // declared colliders and checks each one's kind, size and centre, and VisibleSolidColliderTests checks them against the art
+    // Godot reads from the scene.
+
+    /// <summary>A part's colliders take the identities part base + 1 to + n, and the plate's contact-load row holds part base + 6
+    /// (WorkshopPhysicsCompiler.ContactLoadSensor). Its five colliders are admitted (the boundary); its declaration with a sixth (its
+    /// top repeated) is refused at compile as IdentityExhausted naming the slot it reaches; a Counter's 15 colliders, with no row at
+    /// + 6 or + 8, are admitted (the control).</summary>
     [Fact]
-    public void CanonicalColliders_MatchSceneExtractedColliders()
+    public void APartWhoseCollidersReachItsOwnRowSlotIsRefusedAtCompile()
     {
-        var canonical = DeclaredPhysics.Colliders(PartId.PressurePlate);
-        Assert.Equal(2, canonical.Count);
-        Assert.Equal(canonical, DeclaredPhysics.Colliders(PartId.PressurePlate));
+        var plate = TestBundle.Entry(PartId.PressurePlate);
+        Assert.Equal(5, plate.Colliders.Count);
+        WorkshopPhysicsCompiler.AdmitColliderSlots(PartId.PressurePlate, plate, plate.Colliders.Count);
+        var sixth = plate with { Colliders = [.. plate.Colliders, plate.Colliders[1]] };
+        var refusal = Assert.Throws<WorkshopEditRejectedException>(() =>
+            WorkshopPhysicsCompiler.AdmitColliderSlots(PartId.PressurePlate, sixth, sixth.Colliders.Count));
+        Assert.Equal(WorkshopEditRejection.IdentityExhausted, refusal.Reason);
+        Assert.Equal("The pressure_plate part declares 6 colliders, whose identities (part base + 1 to + 6) reach its contact-load " +
+            "sensor row at part base + 6.", refusal.Message);
+        var counter = TestBundle.Entry(PartId.Counter);
+        WorkshopPhysicsCompiler.AdmitColliderSlots(PartId.Counter, counter, counter.Colliders.Count);
     }
 
     [Fact]
@@ -271,7 +292,7 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
         var scene = WorkshopPhysicsCompiler.Compile(new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(),
             new([battery, plate, gate, heavy]), Connections: new([Supply(battery.Id, plate.Id), Supply(plate.Id, gate.Id)])), new(1, 1));
 
-        Assert.Equal(2, scene.Colliders.ToArray().Count(c => c.Body == plate.Id));
+        Assert.Equal(5, scene.Colliders.ToArray().Count(c => c.Body == plate.Id));
         var rows = scene.ContactLoadSensors.ToArray();
         Assert.Equal(2, rows.Length);
         foreach (var (instance, minimum, row) in new[] { (plate, .5f, rows.Single(r => r.Frame == plate.Id)), (heavy, 2f, rows.Single(r => r.Frame == heavy.Id)) })
@@ -340,7 +361,7 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
             new WorkshopInstances(plate)), new(1, 2)).World;
         Assert.Equal(1 + 1, world.Bodies);
         Assert.Equal(0, world.Dynamic);
-        Assert.Equal(2 + 1, world.Colliders);
+        Assert.Equal(5 + 1, world.Colliders);
         Assert.Equal(0, world.Triggers);
         Assert.Equal(0, world.ContactWorks);
         Assert.Equal(0, world.ElectricalSources);

@@ -32,14 +32,15 @@ public sealed class MemoryGuardTests
         return (row.Body.Cell.Y + (double)row.Body.Local.Y) / 16;
     }
 
-    // Both packages bake their housing and foot from the scene into the bundle, so the declaration alone gives each body its
-    // colliders (the generic decoder admits only an element with colliders).
+    // Both packages bake their housing, foot and proud parts (the Counter's face, nine dot lamps and three sockets; the Latch's face,
+    // indicator lamp and five sockets) from the scene into the bundle, so the declaration alone gives each body its colliders (the
+    // generic decoder admits only an element with colliders).
     [Fact]
     public void TheCounterAndTheLatchDeclareTheirBakedColliders()
     {
-        Assert.Equal(2, DeclaredPhysics.Of(PartId.Counter).Colliders.Count);
-        Assert.Equal(2, DeclaredPhysics.Of(PartId.Latch).Colliders.Count);
-        Assert.Equal([2, 2], new[] { PartId.Counter, PartId.Latch }.Select(part => DeclaredPhysics.Colliders(part).Count));
+        Assert.Equal(15, DeclaredPhysics.Of(PartId.Counter).Colliders.Count);
+        Assert.Equal(9, DeclaredPhysics.Of(PartId.Latch).Colliders.Count);
+        Assert.Equal([15, 9], new[] { PartId.Counter, PartId.Latch }.Select(part => DeclaredPhysics.Colliders(part).Count));
     }
 
     // ---------- Count: three balls through one detector ----------

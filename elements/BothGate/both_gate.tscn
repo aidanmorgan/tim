@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=3]
+[gd_scene load_steps=20 format=3]
 
 [ext_resource type="Script" path="res://engine/MachinePart.cs" id="1"]
 
@@ -52,6 +52,15 @@ size = Vector3(1.7,1.3,0.65)
 
 [sub_resource type="BoxShape3D" id="Shape_Foot"]
 size = Vector3(1.85,0.16,0.85)
+
+[sub_resource type="BoxShape3D" id="Shape_Face"]
+size = Vector3(1.45,1.05,0.04)
+
+[sub_resource type="SphereShape3D" id="Shape_Lamp"]
+radius = 0.09
+
+[sub_resource type="SphereShape3D" id="Shape_Port"]
+radius = 0.075
 
 [node name="both_gate" type="Node3D"]
 script = ExtResource("1")
@@ -139,3 +148,43 @@ shape = SubResource("Shape_Body")
 transform = Transform3D(1,0,0,0,1,0,0,0,1,0,-0.75,0)
 visible = false
 shape = SubResource("Shape_Foot")
+
+[node name="col_Face" type="CollisionShape3D" parent="."]
+transform = Transform3D(1,0,0,0,1,0,0,0,1,0,0,0.35)
+visible = false
+shape = SubResource("Shape_Face")
+
+[node name="col_FirstLamp" type="CollisionShape3D" parent="."]
+transform = Transform3D(1,0,0,0,1,0,0,0,1,-0.48,0.3,0.42)
+visible = false
+shape = SubResource("Shape_Lamp")
+
+[node name="col_SecondLamp" type="CollisionShape3D" parent="."]
+transform = Transform3D(1,0,0,0,1,0,0,0,1,-0.48,-0.3,0.42)
+visible = false
+shape = SubResource("Shape_Lamp")
+
+[node name="col_OutputLamp" type="CollisionShape3D" parent="."]
+transform = Transform3D(1,0,0,0,1,0,0,0,1,0.48,0,0.42)
+visible = false
+shape = SubResource("Shape_Lamp")
+
+[node name="col_PortFirst" type="CollisionShape3D" parent="."]
+transform = Transform3D(1,0,0,0,1,0,0,0,1,-0.94,0.35,0)
+visible = false
+shape = SubResource("Shape_Port")
+
+[node name="col_PortSecond" type="CollisionShape3D" parent="."]
+transform = Transform3D(1,0,0,0,1,0,0,0,1,-0.94,-0.35,0)
+visible = false
+shape = SubResource("Shape_Port")
+
+[node name="col_PortPower" type="CollisionShape3D" parent="."]
+transform = Transform3D(1,0,0,0,1,0,0,0,1,0,-0.75,0.55)
+visible = false
+shape = SubResource("Shape_Port")
+
+[node name="col_PortOutput" type="CollisionShape3D" parent="."]
+transform = Transform3D(1,0,0,0,1,0,0,0,1,0.94,0,0)
+visible = false
+shape = SubResource("Shape_Port")

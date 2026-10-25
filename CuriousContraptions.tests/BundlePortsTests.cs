@@ -43,6 +43,14 @@ internal static class TestBundle
         return (colliders, ports);
     }
 
+    /// <summary>Asserts one extracted collider's kind, radius (zero for a box), half-extents (zero for a sphere) and centre, the values
+    /// a scene test reads from its element doc.</summary>
+    public static void AssertCollider(ExtractedCollider collider, Gpu.ColliderShapeKind kind, float radius, MetreVector half, MetreVector centre)
+    {
+        Assert.Equal((kind, radius, half), (collider.ShapeKind, collider.Radius, collider.HalfExtents));
+        Assert.Equal(centre, collider.LocalPose.Translation);
+    }
+
     private static IReadOnlyList<BundlePackage> Discover()
     {
         var discovered = PackageDiscovery.Discover(twodog.Engine.ResolveProjectDir());

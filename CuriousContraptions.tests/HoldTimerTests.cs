@@ -275,17 +275,22 @@ public sealed class HoldTimerTests
     }
 
     [Fact]
-    public void CompiledHoldGeometryMatchesItsDeclaredHousingAndFoot()
+    public void CompiledHoldGeometryMatchesItsDeclaredHousingFootAndProudParts()
     {
         var scene=WorkshopPhysicsCompiler.Compile(new(new(2),WorkshopCadenceSettings.Default(),new(Part())),new(101,206));
-        var boxes=scene.Colliders.ToArray().Where(row=>row.Body.Value==3).ToArray();
-        Assert.Equal(2,boxes.Length);
-        Assert.All(boxes,row=>Assert.Equal(ColliderShapeKind.Box,row.Shape));
-        Assert.Contains(boxes,row=>row.HalfExtents==new MetreVector(.7f,.55f,.325f) && row.Pose.Translation==new MetreVector(0f,0f,0f));
-        Assert.Contains(boxes,row=>row.HalfExtents==new MetreVector(.8f,.07f,.425f) && row.Pose.Translation==new MetreVector(0f,-.62f,0f));
-        foreach(var box in boxes)
+        // The housing and foot boxes, then the parts that stand proud of the housing (visible = solid): the face panel, the
+        // indicator and the three ports.
+        var shapes=scene.Colliders.ToArray().Where(row=>row.Body.Value==3).ToArray();
+        Assert.Equal(7,shapes.Length);
+        Assert.Contains(shapes,row=>row.Shape==ColliderShapeKind.Box && row.HalfExtents==new MetreVector(.7f,.55f,.325f) && row.Pose.Translation==new MetreVector(0f,0f,0f));
+        Assert.Contains(shapes,row=>row.Shape==ColliderShapeKind.Box && row.HalfExtents==new MetreVector(.8f,.07f,.425f) && row.Pose.Translation==new MetreVector(0f,-.62f,0f));
+        Assert.Contains(shapes,row=>row.Shape==ColliderShapeKind.Box && row.HalfExtents==new MetreVector(.59f,.36f,.0225f) && row.Pose.Translation==new MetreVector(0f,0f,.35f));
+        Assert.Contains(shapes,row=>row.Shape==ColliderShapeKind.Sphere && row.Radius==new Metres(.07f) && row.Pose.Translation==new MetreVector(0f,-.22f,.4f));
+        foreach(var port in new[]{new MetreVector(0f,.65f,.2f),new MetreVector(-.78f,0f,0f),new MetreVector(.78f,0f,0f)})
+            Assert.Contains(shapes,row=>row.Shape==ColliderShapeKind.Sphere && row.Radius==new Metres(.08f) && row.Pose.Translation==port);
+        foreach(var shape in shapes)
         {
-            var material=scene.Materials.ToArray().Single(row=>row.Id==box.Material);
+            var material=scene.Materials.ToArray().Single(row=>row.Id==shape.Material);
             Assert.Equal(new Restitution(1f),material.Restitution);
             Assert.Equal(new FrictionCoefficient(.3f),material.Friction);
             Assert.Equal(new LinearSpeed(.1f),material.BounceThreshold);

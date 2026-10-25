@@ -4,6 +4,8 @@
 
 Story 7.0 Batch B declaration spec (CAT-024-D). Legacy citations are pinned to `a6c914e` and resolve with `git show a6c914e:<path> | sed -n 'start,endp'`. Requirement row: [CAT-024](../requirements.md#current-cat-024). All five supplied gates share one declaration: shared gate facts G1–G15 are in [CAT-013](CAT-013-both_gate.md#4-legacy-harvest) and network facts N1–N24 in [CAT-005](CAT-005-battery.md#4-legacy-harvest). This spec adds only what is specific to Nand.
 
+**Colliders (owner, 25 October 2026, "visible = solid"):** since [`elements-visible-solid-sweep`](../../../TODO.md) the face panel, the three lamps and the four port sockets collide as drawn, as for every supplied gate ([CAT-013](CAT-013-both_gate.md)) (`elements/ElectricalNand/electrical_nand.tscn`; `VisibleSolidColliderTests` checks them against the art and drops a ball onto this gate's output lamp). The sockets count toward the bench edge as for every gate. Uncollided, owned by [`face-markings-flush`](../../../TODO.md): the pictogram and truth dots stand about 4 cm and 8.5 cm proud of the face ([CAT-013](CAT-013-both_gate.md)).
+
 ## 1. Identity
 
 | Item | Value |

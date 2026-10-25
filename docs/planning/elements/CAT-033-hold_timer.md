@@ -4,6 +4,8 @@
 
 Story 7.0 Batch B declaration spec (CAT-033-D). Legacy citations are pinned to `a6c914e` and resolve with `git show a6c914e:<path> | sed -n 'start,endp'`. Requirement row: [CAT-033](../requirements.md#current-cat-033). Supplied-network facts (N1–N24) are in [CAT-005](CAT-005-battery.md#4-legacy-harvest).
 
+**Colliders (owner, 25 October 2026, "visible = solid"):** every part a player sees as solid collides with its true shape. Since [`elements-visible-solid-sweep`](../../../TODO.md) the parts that stand proud of the housing collide with their drawn primitives, after the housing and foot boxes: the cream face panel as a 1.18 × 0.72 × 0.045 box at z 0.35, the indicator as a sphere r 0.07 at (0, −0.22, 0.4), and the three ports as spheres r 0.08 at (0, 0.65, 0.2) and (∓0.78, 0, 0) (`elements/HoldTimer/hold_timer.tscn`; `VisibleSolidColliderTests` checks them against the art and drops a ball onto the face; `HoldTimerTests`). The remaining-time bar is scaled by the timer and does not collide. Placement bounds every collider (`PlacementPose`), so the ports now count toward the bench edge: the timer reaches x ±0.86 against the foot's ±0.8. Uncollided, owned by [`face-markings-flush`](../../../TODO.md): the track stands 3 cm proud of the face. The one lesson that uses the hold timer, `saved_for_later`, is Planned (not Playable), so no authored solution exercises these colliders yet.
+
 ## 1. Identity
 
 | Item | Value |
@@ -18,7 +20,7 @@ Story 7.0 Batch B declaration spec (CAT-033-D). Legacy citations are pinned to `
 
 | Item | Declaration (value · source) |
 | --- | --- |
-| Bodies and shapes | Static root box 1.4 × 1.1 × 0.65 m at the origin; foot box 1.6 × 0.14 × 0.85 m centred at y −0.62 (`parts/HoldTimerPart.cs@a6c914e:L61-L62`; legacy `AddBox` = collision box, [CAT-005 §2](CAT-005-battery.md#2-declaration)). |
+| Bodies and shapes | Static root box 1.4 × 1.1 × 0.65 m at the origin; foot box 1.6 × 0.14 × 0.85 m centred at y −0.62 (`parts/HoldTimerPart.cs@a6c914e:L61-L62`; legacy `AddBox` = collision box, [CAT-005 §2](CAT-005-battery.md#2-declaration)); the face panel, indicator and ports (Colliders above). |
 | Mass and material | Static. Legacy static default material restitution 1, bounce threshold 0.1 m/s, friction 0.3 (`reference/cpu/MachinePart.cs@a6c914e:L236-L236`). |
 | Constraints and joints | none |
 | Typed sockets and ports | `ActivationIn` Activation Input at (0, 0.65, 0.2); `PowerIn` Electrical Input at (−0.78, 0, 0); `Supply` Electrical Output at (0.78, 0, 0) (`parts/HoldTimerPart.cs@a6c914e:L37-L42`). Electrical route `PowerIn`→`Supply` closed while the timer is Counting (`parts/HoldTimerPart.cs@a6c914e:L43-L44`). No activation output. |

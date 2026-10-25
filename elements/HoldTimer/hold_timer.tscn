@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=3]
+[gd_scene load_steps=20 format=3]
 
 [ext_resource type="Script" path="res://engine/MachinePart.cs" id="1"]
 
@@ -55,6 +55,15 @@ size = Vector3(1.4,1.1,0.65)
 
 [sub_resource type="BoxShape3D" id="Shape_Foot"]
 size = Vector3(1.6,0.14,0.85)
+
+[sub_resource type="BoxShape3D" id="Shape_Face"]
+size = Vector3(1.18,0.72,0.045)
+
+[sub_resource type="SphereShape3D" id="Shape_Indicator"]
+radius = 0.07
+
+[sub_resource type="SphereShape3D" id="Shape_Port"]
+radius = 0.08
 
 [node name="hold_timer" type="Node3D"]
 script = ExtResource("1")
@@ -119,3 +128,28 @@ shape = SubResource("Shape_Body")
 transform = Transform3D(1,0,0,0,1,0,0,0,1,0,-0.62,0)
 visible = false
 shape = SubResource("Shape_Foot")
+
+[node name="col_Face" type="CollisionShape3D" parent="."]
+transform = Transform3D(1,0,0,0,1,0,0,0,1,0,0,0.35)
+visible = false
+shape = SubResource("Shape_Face")
+
+[node name="col_Indicator" type="CollisionShape3D" parent="."]
+transform = Transform3D(1,0,0,0,1,0,0,0,1,0,-0.22,0.4)
+visible = false
+shape = SubResource("Shape_Indicator")
+
+[node name="col_PortTrigger" type="CollisionShape3D" parent="."]
+transform = Transform3D(1,0,0,0,1,0,0,0,1,0,0.65,0.2)
+visible = false
+shape = SubResource("Shape_Port")
+
+[node name="col_PortInput" type="CollisionShape3D" parent="."]
+transform = Transform3D(1,0,0,0,1,0,0,0,1,-0.78,0,0)
+visible = false
+shape = SubResource("Shape_Port")
+
+[node name="col_PortOutput" type="CollisionShape3D" parent="."]
+transform = Transform3D(1,0,0,0,1,0,0,0,1,0.78,0,0)
+visible = false
+shape = SubResource("Shape_Port")

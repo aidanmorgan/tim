@@ -172,3 +172,8 @@
   summary: Under the minimum-norm block, box-on-box contacts gain energy over the slop, which raises the gate's own control bound: Dead to 3.156 mJ and Rolling to 6.077 mJ, against about 2.0 mJ before. Resting faces also drift (4 of 60 boxes over 1e-9 m/s), because load distribution moves the per-point friction limits.
   evidence: Spec Change Log iteration 2; `engine-cap-block-attempt.patch`.
   destination: `engine-two-point-friction` (a central friction anchor for multi-point manifolds), then the `engine-cap-block` retry.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-elements-visible-solid-sweep.md`
+  summary: Per-instance collider growth from visible = solid. Static colliders per instance rose from 2 to 15 for the Counter, to 10 for each of the five logic gates, to 9 for the Latch, to 7 for the Hold timer and the Clock, and to 5 for the Pressure plate. Broadphase, narrowphase pair count and compiled table size grow with them.
+  evidence: Not measured. A bench of many logic parts is the worst case.
+  destination: the named performance qualification gate (P0-034), which profiles affected workloads.

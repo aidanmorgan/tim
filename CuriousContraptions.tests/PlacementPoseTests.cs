@@ -264,6 +264,20 @@ public sealed class PlacementPoseTests
         }
     }
 
+    // elements-visible-solid-sweep: the proud parts that now collide count toward the bench edge. The Counter's power and supply
+    // sockets (r 0.075 at x ∓0.93) reach x ±1.005, past the foot's ±0.9. At x = 6 the foot alone (6.9) was inside the edge at 7, but
+    // the supply socket (7.005) is not, so the pose is refused OutsideBench; at 5.9 (6.905) it is admitted.
+    [Fact]
+    public void ACounterAtTheOldBenchEdgeIsRefusedBecauseItsProudSocketsCollide()
+    {
+        var definitions = Definitions();
+        foreach (var (x, refusal) in new[] { (6f, PlacementRefusal.OutsideBench), (5.9f, PlacementRefusal.None) })
+        {
+            var composed = PlacementPose.Compose(definitions, [], new(PartId.Counter, new(2), false), new(x, 2, 0), Quaternion.Identity);
+            Assert.True(refusal == composed.Refusal, $"the Counter at x {x}: {composed.Refusal}");
+        }
+    }
+
     // Review R2 (10.2a F3 on the snap path): a new 3.6 m Pipe joined at a placed Pipe's end mouth continues it along +x, its start
     // mouth on the placed end mouth, so its centre is twice the mouth's offset (2 × 1.89 m) beyond the placed one's and its body reaches
     // 1.8 m further. Joined to a Pipe centred at x = 3 it would reach x ≈ 8.6, past the bench edge at 7: refused SnapOutsideBench.

@@ -80,7 +80,7 @@ public sealed class ClockTests(NativeSceneFixture godot)
     }
 
     [Fact]
-    public void ClockScene_ExtractsExactTwoCollidersAndPortLocators()
+    public void ClockScene_ExtractsItsSolidPartsAsCollidersAndPortLocators()
     {
         var packedScene = ResourceLoader.Load<PackedScene>("res://elements/SystemClock/clock.tscn");
         Assert.NotNull(packedScene);
@@ -89,8 +89,10 @@ public sealed class ClockTests(NativeSceneFixture godot)
         {
             var (colliders, ports) = TestBundle.SceneGeometry(instance);
 
-            // Exactly 2 colliders: Housing + Foot
-            Assert.Equal(2, colliders.Count);
+            // Housing, Foot, then the parts that stand proud of the housing (visible = solid): the face panel, the indicator, the
+            // two sockets and the pendulum recess (2 cm proud of the face). The pivot cap has none (engine-multi-collider-dynamic:
+            // it is below the sphere radius minimum in ColliderDeclaration.Validate).
+            Assert.Equal(7, colliders.Count);
 
             var housing = colliders[0];
             Assert.Equal(ColliderShapeKind.Box, housing.ShapeKind);
@@ -106,6 +108,12 @@ public sealed class ClockTests(NativeSceneFixture godot)
             Assert.Equal(-0.95f, foot.LocalPose.Translation.Y);
             Assert.Equal(0f, foot.LocalPose.Translation.Z);
 
+            TestBundle.AssertCollider(colliders[2], ColliderShapeKind.Box, 0f, new(0.57f, 0.72f, 0.02f), new(0f, 0f, 0.32f));
+            TestBundle.AssertCollider(colliders[3], ColliderShapeKind.Sphere, 0.065f, default, new(0f, 0.63f, 0.39f));
+            TestBundle.AssertCollider(colliders[4], ColliderShapeKind.Sphere, 0.075f, default, new(-0.78f, 0f, 0f));
+            TestBundle.AssertCollider(colliders[5], ColliderShapeKind.Sphere, 0.075f, default, new(0.78f, 0f, 0f));
+            TestBundle.AssertCollider(colliders[6], ColliderShapeKind.Box, 0f, new(0.42f, 0.55f, 0.01f), new(0f, -0.06f, 0.35f));
+
             Assert.True(ports.ContainsKey("PowerIn"));
             Assert.True(ports.ContainsKey("ActivationOut"));
 
@@ -118,13 +126,9 @@ public sealed class ClockTests(NativeSceneFixture godot)
         }
     }
 
-    [Fact]
-    public void CanonicalColliders_MatchSceneExtractedColliders()
-    {
-        var canonical = DeclaredPhysics.Colliders(PartId.Clock);
-        Assert.Equal(2, canonical.Count);
-        Assert.Equal(canonical, DeclaredPhysics.Colliders(PartId.Clock));
-    }
+    // The canonical-collider check that compared the declaration with itself is deleted: the scene test above reads the same
+    // declared colliders and checks each one's kind, size and centre, and VisibleSolidColliderTests checks them against the art
+    // Godot reads from the scene.
 
     [Fact]
     public void Ports_DeclareExactSocketsAndDirections()

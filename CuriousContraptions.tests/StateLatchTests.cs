@@ -98,17 +98,22 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
     }
 
     [Fact]
-    public void LatchScene_ExtractsHousingFootAndFivePortLocators()
+    public void LatchScene_ExtractsHousingFootProudPartsAndFivePortLocators()
     {
         var instance = ResourceLoader.Load<PackedScene>("res://elements/StateLatch/latch.tscn").Instantiate<Node3D>();
         try
         {
             var (colliders, ports) = TestBundle.SceneGeometry(instance);
-            Assert.Equal(2, colliders.Count);
-            Assert.Equal(new MetreVector(0.825f, 0.625f, 0.325f), colliders[0].HalfExtents);
-            Assert.Equal(new MetreVector(0.9f, 0.08f, 0.425f), colliders[1].HalfExtents);
-            Assert.Equal(-0.72f, colliders[1].LocalPose.Translation.Y);
-            Assert.Equal(colliders.Select(c => c.HalfExtents), DeclaredPhysics.Colliders(PartId.Latch).Select(c => c.HalfExtents));
+            // Housing, Foot, then the parts that stand proud of the housing (visible = solid): the face panel, the indicator lamp
+            // and the five sockets, each at its port.
+            Assert.Equal(9, colliders.Count);
+            TestBundle.AssertCollider(colliders[0], Gpu.ColliderShapeKind.Box, 0f, new(0.825f, 0.625f, 0.325f), new(0f, 0f, 0f));
+            TestBundle.AssertCollider(colliders[1], Gpu.ColliderShapeKind.Box, 0f, new(0.9f, 0.08f, 0.425f), new(0f, -0.72f, 0f));
+            TestBundle.AssertCollider(colliders[2], Gpu.ColliderShapeKind.Box, 0f, new(0.7f, 0.51f, 0.02f), new(0f, 0f, 0.35f));
+            TestBundle.AssertCollider(colliders[3], Gpu.ColliderShapeKind.Sphere, 0.09f, default, new(0f, -0.33f, 0.42f));
+            MetreVector[] sockets = [new(-0.45f, 0.72f, 0f), new(0.45f, 0.72f, 0f), new(-0.93f, 0f, 0f), new(0.93f, 0f, 0f), new(0f, -0.56f, 0.38f)];
+            for (var i = 0; i < sockets.Length; i++)
+                TestBundle.AssertCollider(colliders[4 + i], Gpu.ColliderShapeKind.Sphere, 0.075f, default, sockets[i]);
             Assert.Equal(new Godot.Vector3(-0.45f, 0.72f, 0), ports["SetIn"].Position);
             Assert.Equal(new Godot.Vector3(0.45f, 0.72f, 0), ports["ResetIn"].Position);
             Assert.Equal(new Godot.Vector3(-0.93f, 0, 0), ports["PowerIn"].Position);
@@ -487,8 +492,9 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
         var body = Assert.Single(scene.Bodies.ToArray(), b => b.Id == latch.Id);
         Assert.Equal(RigidMotionKind.Static, body.Motion);
         var colliders = scene.Colliders.ToArray().Where(c => c.Body == latch.Id).ToArray();
-        Assert.Equal(DeclaredPhysics.Colliders(PartId.Latch).Select(c => c.HalfExtents), colliders.Select(c => c.HalfExtents));
-        Assert.Equal(2, colliders.Length);
+        Assert.Equal(DeclaredPhysics.Colliders(PartId.Latch).Select(c => (c.ShapeKind, c.Radius, c.HalfExtents, c.LocalPose.Translation)),
+            colliders.Select(c => (c.Shape, c.Radius.Value, c.HalfExtents, c.Pose.Translation)));
+        Assert.Equal(9, colliders.Length);
     }
 
     [Fact]

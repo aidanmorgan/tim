@@ -76,7 +76,7 @@ public sealed class CounterTests(NativeSceneFixture godot)
     }
 
     [Fact]
-    public void CounterScene_ExtractsExactTwoCollidersAndPortLocators()
+    public void CounterScene_ExtractsItsSolidPartsAsCollidersAndPortLocators()
     {
         var packedScene = ResourceLoader.Load<PackedScene>("res://elements/Counter/counter.tscn");
         Assert.NotNull(packedScene);
@@ -85,8 +85,10 @@ public sealed class CounterTests(NativeSceneFixture godot)
         {
             var (colliders, ports) = TestBundle.SceneGeometry(instance);
 
-            // Exactly 2 colliders: Housing + Foot
-            Assert.Equal(2, colliders.Count);
+            // Housing, Foot, then the parts that stand proud of the housing (visible = solid): the face panel, the nine dot lamps in
+            // rows from the top left, and the three sockets outside the foot (the ActivationOut socket lies wholly inside the foot and
+            // has no collider).
+            Assert.Equal(15, colliders.Count);
 
             var housing = colliders[0];
             Assert.Equal(ColliderShapeKind.Box, housing.ShapeKind);
@@ -101,6 +103,14 @@ public sealed class CounterTests(NativeSceneFixture godot)
             Assert.Equal(0f, foot.LocalPose.Translation.X);
             Assert.Equal(-0.72f, foot.LocalPose.Translation.Y);
             Assert.Equal(0f, foot.LocalPose.Translation.Z);
+
+            TestBundle.AssertCollider(colliders[2], ColliderShapeKind.Box, 0f, new(0.7f, 0.51f, 0.02f), new(0f, 0f, 0.35f));
+            for (var lamp = 0; lamp < 9; lamp++)
+                TestBundle.AssertCollider(colliders[3 + lamp], ColliderShapeKind.Sphere, 0.1f, default,
+                    new((lamp % 3 - 1) * 0.36f, (1 - lamp / 3) * 0.3f, 0.4f));
+            TestBundle.AssertCollider(colliders[12], ColliderShapeKind.Sphere, 0.075f, default, new(0f, 0.72f, 0.1f));
+            TestBundle.AssertCollider(colliders[13], ColliderShapeKind.Sphere, 0.075f, default, new(-0.93f, 0f, 0f));
+            TestBundle.AssertCollider(colliders[14], ColliderShapeKind.Sphere, 0.075f, default, new(0.93f, 0f, 0f));
 
             Assert.True(ports.ContainsKey("ActivationIn"));
             Assert.True(ports.ContainsKey("ActivationOut"));
@@ -118,13 +128,9 @@ public sealed class CounterTests(NativeSceneFixture godot)
         }
     }
 
-    [Fact]
-    public void CanonicalColliders_MatchSceneExtractedColliders()
-    {
-        var canonical = DeclaredPhysics.Colliders(PartId.Counter);
-        Assert.Equal(2, canonical.Count);
-        Assert.Equal(canonical, DeclaredPhysics.Colliders(PartId.Counter));
-    }
+    // The canonical-collider check that compared the declaration with itself is deleted: the scene test above reads the same
+    // declared colliders and checks each one's kind, size and centre, and VisibleSolidColliderTests checks them against the art
+    // Godot reads from the scene.
 
     [Fact]
     public void Ports_DeclareExactSocketsAndDirections()
@@ -211,9 +217,9 @@ public sealed class CounterTests(NativeSceneFixture godot)
         var bladeUnpowered = sceneUnpowered.Bodies.ToArray().First(b => b.Id == WorkshopPhysicsCompiler.SliderBody(gate.Id, 0));
         Assert.Equal(0f, bladeUnpowered.LinearDrag.Value);
 
-        // Counter static body has 2 box colliders
+        // The counter's static body has its housing and foot boxes first, then the 13 proud parts (face, dot lamps, sockets)
         var counterColliders = sceneUnpowered.Colliders.ToArray().Where(c => c.Body == counter.Id).ToArray();
-        Assert.Equal(2, counterColliders.Length);
+        Assert.Equal(15, counterColliders.Length);
         Assert.Equal(new MetreVector(0.825f, 0.625f, 0.325f), counterColliders[0].HalfExtents);
         Assert.Equal(new MetreVector(0.9f, 0.08f, 0.425f), counterColliders[1].HalfExtents);
 
@@ -386,7 +392,7 @@ public sealed class CounterTests(NativeSceneFixture godot)
             new WorkshopInstances(counter)), new(1, 2)).World;
         Assert.Equal(1 + 1, world.Bodies);
         Assert.Equal(0, world.Dynamic);
-        Assert.Equal(2 + 1, world.Colliders);
+        Assert.Equal(15 + 1, world.Colliders);
         Assert.Equal(0, world.Triggers);
         Assert.Equal(0, world.ContactWorks);
         Assert.Equal(0, world.ElectricalSources);

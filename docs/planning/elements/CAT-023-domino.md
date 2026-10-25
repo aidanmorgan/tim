@@ -2,6 +2,8 @@
 
 **Current delivery (24 October 2026):** [CAT-023 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
 
+**Collider target (owner, 25 October 2026, "visible = solid"), open:** the two pips (spheres r 0.045 at (0.14, ±0.25, 0)) stand 6 cm proud of the +X face and have no collider (`Uncollided` in `VisibleSolidColliderTests`). They are owned by [`engine-multi-collider-dynamic`](../../../TODO.md): a dynamic body admits one homogeneous collider today, and the pips are below the sphere radius minimum in `ColliderDeclaration.Validate` (`engine/gpu/PhysicsDeclarations.cs`); that slice admits several colliders on a moving body, with mass and inertia from the declaration and colliders as shape only, and relaxes the minimum.
+
 ## 1. Identity
 
 | Field | Value |

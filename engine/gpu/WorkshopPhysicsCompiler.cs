@@ -48,6 +48,7 @@ public static class WorkshopPhysicsCompiler
             next = Math.Max(next, first + PartIdentityStride);
             var parameters = DeclaredPhysics.Parameters(instance);
             var shapes = BundleGeometry.Colliders(entry, parameters);
+            AdmitColliderSlots(instance.PartId, entry, shapes.Count);
             var mechanical = entry.Mechanical;
             var mass = mechanical?.MassProperties ?? default;
             // A declared mass binding is the instance's own f32 parameter, written to the body record's f32 mass lane, so the body mass
@@ -259,6 +260,41 @@ public static class WorkshopPhysicsCompiler
     /// <summary>The lesson's named body: the first payload in instance order.</summary>
     private static IWorkshopInstance? FirstPayload(WorkshopConstruction construction) =>
         construction.Instances.FirstOrDefault(instance => DeclaredPhysics.IsPayload(instance.PartId));
+
+    /// <summary>A part's colliders take the identities part base + 1 to + n (from + 6 when it carries sliders and more than one
+    /// collider). The rows its declaration compiles take fixed slots above the same base: a contact trigger, orientation sensor,
+    /// contact-load sensor, electrical source or authored capture sensor + 6 (its guide + 7), contact work + 8, Workshop capture
+    /// sensors and guides from + 16 up, and slider i's moving body, material, collider and joint + 16i + 2 to + 5. A declaration
+    /// whose colliders would reach one of its own slots is refused with the slot it reaches, before an identity is allocated
+    /// twice.</summary>
+    internal static void AdmitColliderSlots(PartId part, BundleEntry entry, int colliders)
+    {
+        var owner = new GpuBodyId(1);
+        var origin = PartIdentities(owner);
+        var sliders = entry.Mechanical?.Sliders.Count ?? 0;
+        var first = sliders != 0 && colliders > 1 ? 6UL : 1UL;
+        var last = first + (ulong)colliders - 1;
+        var slots = new List<(ulong From, ulong To, string Row)>();
+        void Slot(ulong identity, string row) => slots.Add((identity - origin, identity - origin, row));
+        if (entry.Signal?.Contact is not null) Slot(ContactTrigger(owner).Value, "contact trigger");
+        if (entry.Signal?.Orientation is not null) Slot(OrientationSensor(owner).Value, "orientation sensor");
+        if (entry.Signal?.ContactLoad is not null) Slot(ContactLoadSensor(owner).Value, "contact-load sensor");
+        if (entry.Electrical?.Supply?.Store is not null) Slot(ElectricalSource(owner).Value, "electrical source");
+        if (entry.Mechanical?.ContactWork is not null) Slot(ContactWork(owner).Value, "contact work");
+        if (entry.Mechanical?.Capture is not null)
+        {
+            Slot(CaptureSensor(owner).Value, "capture sensor");
+            Slot(CaptureSensor(owner).Value + 1, "capture guide");
+            slots.Add((16, ulong.MaxValue, "Workshop capture sensor"));
+        }
+        for (var i = 0; i < sliders; i++)
+            slots.Add(((ulong)i * 16 + 2, (ulong)i * 16 + 5, $"slider {i}"));
+        foreach (var (from, to, row) in slots)
+            if (colliders > 0 && from <= last && first <= to)
+                throw new WorkshopEditRejectedException(WorkshopEditRejection.IdentityExhausted,
+                    $"The {part.Value} part declares {colliders} colliders, whose identities (part base + {first} to + {last}) reach " +
+                    $"its {row} row at part base + {Math.Max(from, first)}.");
+    }
 
     internal static ulong PartIdentities(GpuBodyId id)
     {
