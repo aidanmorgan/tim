@@ -23,7 +23,7 @@ Story 7.0 CAT-065-D readiness spec. Baseline commit `a6c914e`. Legacy citations 
   - two cream side rails at (±1.28, 0.1, 0), size 0.16 × 0.2 × 2.12;
   - two cream end rails at (0, 0.1, ±0.98), size 2.4 × 0.2 × 0.16. Rail inner faces sit at x = ±1.2 and z = ±0.9, matching the bed footprint; rail tops sit at the rest height 0.2.
 - **Membrane (no collider).** A finite rectangular compliant footprint, half extents 1.2 × 0.9 m (bed 2.4 × 1.8 m), rest height 0.2 m, maximum stroke 0.65 m along the frame's local +Y normal (`parts/TrampolinePart.cs@a6c914e:L17-L19`, `parts/TrampolinePart.cs@a6c914e:L63-L66`).
-- **Gold corner supports (art only).** Four cylinders, radius 0.055 m, height 0.6 m, at (±1.15, −0.2, ±0.85) (`parts/TrampolinePart.cs@a6c914e:L187-L189`).
+- **Gold corner supports.** Four cylinders, radius 0.055 m, height 0.6 m, at (±1.15, −0.2, ±0.85) (`parts/TrampolinePart.cs@a6c914e:L187-L189`). Art only in the harvest; under the owner's "visible = solid" rule (25 Oct 2026) they collide as cylinders, delivered in the trampoline's own slice.
 - Current types: static `RigidBodyDeclaration` (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L86`) and box `ColliderDeclaration` (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L89-L120`) cover the frame. The membrane footprint needs a new compliant-surface declaration (Story 10.5).
 
 ### Mass and material

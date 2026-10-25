@@ -22,7 +22,7 @@ Story 7.0 named-identity spec (Batch J). Baseline commit `a6c914e`; every citati
 
 ### Bodies and shapes
 - **Sheave (dynamic).** One sphere collider of radius 0.4 m standing in for the wheel, with groove radius 0.4 m and rope plane z = 0.12 m — sourced fixed-pulley geometry (`engine/MachineData.cs@a6c914e:L95-L98`; legacy wheel sphere `parts/PulleyPart.cs@a6c914e:L24-L24`). A dynamic body admits one sphere today (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L226-L229`).
-- **Hook block.** Art only, a cream box 0.3 × 0.2 × 0.2 m (full extents) below the wheel — **proposed**: shows where the load hangs.
+- **Hook block.** A cream box 0.3 × 0.2 × 0.2 m (full extents) below the wheel — **proposed**: shows where the load hangs. It collides as that box on the moving block's body (owner's "visible = solid" rule, 25 Oct 2026).
 
 ### Mass and material
 - Sheave 0.5 kg — **proposed**: light beside the 0.25–8 kg Weights (`parts/WeightPart.cs@a6c914e:L22-L27`) so the 2:1 force ratio stays visible, but finite so the block shares reactions.

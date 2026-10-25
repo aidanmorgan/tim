@@ -2,6 +2,8 @@
 
 **Current delivery (24 October 2026):** [CAT-054 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
 
+**Collider target (owner, 25 October 2026, "visible = solid"):** every part a player sees as solid collides with its true shape. The two rails (length × 0.055 × 0.055 at y 0.11, z ±0.46 × width, §2 Art) collide as drawn, with the slab; today they do not collide with their exact drawn shape. Planned in [`elements-visible-solid`](../../../_bmad-output/planning-artifacts/epics.md#story-elements-visible-solid) with a collider-vs-art test; not delivered yet.
+
 ## 1. Identity
 
 | Field | Value |

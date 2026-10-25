@@ -2,6 +2,8 @@
 
 **Current delivery (24 October 2026):** [CAT-030 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
 
+**Collider target (owner, 25 October 2026, "true hollow shapes"):** the funnel wall collides as a true frustum kind and its collars as ring kinds ([hollow geometry](../../hollow-geometry-design.md)) within a surface-error bound that [`engine-hollow-shapes`](../../../_bmad-output/planning-artifacts/epics.md#story-engine-hollow-shapes) sets, and its joints to pipes and bends are continuous. Current state, not the target: box approximations whose inlet reaches 1.6–2.16 m against the drawn 1.43 m, with square-frame collars. The harvest's 0.005 m CPU segmentation bound (§4 fact 8) is not carried forward. Not delivered yet.
+
 ## 1. Identity
 
 | Field | Value |

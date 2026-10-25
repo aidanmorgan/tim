@@ -2,6 +2,8 @@
 
 **Current delivery (24 October 2026):** [CAT-049 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
 
+**Collider target (owner, 25 October 2026, "true hollow shapes"):** the bend wall collides as a true torus-segment kind and its collars as ring kinds ([hollow geometry](../../hollow-geometry-design.md)) within a surface-error bound that [`engine-hollow-shapes`](../../../_bmad-output/planning-artifacts/epics.md#story-engine-hollow-shapes) sets, and snapped joints are continuous. Current state, not the target: an octagonal box approximation with 4–8 cm slots between slices, and collars that are square frames reaching 0.95–1.24 m against the drawn 0.78 m. The harvest's 0.005 m CPU segmentation bound (§4 fact 8) is not carried forward. Not delivered yet.
+
 ## 1. Identity
 
 | Field | Value |

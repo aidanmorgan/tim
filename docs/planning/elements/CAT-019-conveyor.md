@@ -20,7 +20,7 @@ This is the Story 7.0 CAT-019-D declaration readiness spec for the conveyor belt
 ### Bodies and shapes
 - **Carrier (static, part root).** A box of length × 0.24 m × width, centred at the origin, so the belt top sits at local y = +0.12 m. Source: `parts/ConveyorPart.cs@a6c914e:L84-L90`; payloads are seated at 0.12 m + radius in `CuriousContraptions.tests/ConveyorRuntimeTests.cs@a6c914e:L35-L63`. Use a static `RigidBodyDeclaration` and a `ColliderDeclaration` box (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L120`).
 - **Driven roller (dynamic shaft body).** Radius 0.16 m, axial length width + 0.1 m, centred at (−length/2 + 0.15, −0.07, 0), collider a 24-sided convex prism. Source: `parts/ConveyorPart.cs@a6c914e:L20-L24`, `parts/ConveyorPart.cs@a6c914e:L93-L102`. Cylinders are not an admitted `ColliderShapeKind` (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L7-L7`).
-- **Idle roller.** At (+length/2 − 0.15, −0.07, 0); art only, with no physical body (`parts/ConveyorPart.cs@a6c914e:L103-L110`).
+- **Idle roller.** At (+length/2 − 0.15, −0.07, 0); art only, with no physical body, in the harvest (`parts/ConveyorPart.cs@a6c914e:L103-L110`). Under the owner's "visible = solid" rule (25 Oct 2026) it collides with its true shape, a cylinder, delivered in the conveyor's own slice.
 
 ### Mass and material
 - Roller mass 0.5 kg. Axial inertia m·r²/2. Transverse inertia m·(3r² + (width + 0.1)²)/12. Source: `parts/ConveyorPart.cs@a6c914e:L30-L39`. Cylinder inertia is missing from `RigidMassProperties` (`engine/gpu/RigidMassProperties.cs@a6c914e:L17-L50`).
@@ -172,7 +172,7 @@ Follow the [CAT-019 row](../requirements.md#current-cat-019) and Story 11.1; do 
 
 1. Upper bounds, UI control and f32 admission ranges for `length`, `width` and `surface_per_radian` (legacy has only positivity or nonzero checks): unspecified — owner decision.
 2. Mechanical loop policy: reject a source-free `a→b, b→a` loop, or admit it with zero motion (fact 10): unspecified — owner decision.
-3. Roller collider primitive under the current Sphere/Box/Plane set, and whether the idle roller stays art-only: unspecified — owner decision.
+3. Roller collider primitive under the current Sphere/Box/Plane set, and whether the idle roller stays art-only: **answered** — Story 10.1 delivered the solid `Cylinder` collider, and the owner's "visible = solid" rule (25 Oct 2026) makes the idle roller a colliding cylinder.
 4. Whether the 24-gon roller's own contact with payloads should also be a driven contact or only the declared top face: unspecified — owner decision.
 5. How the worker realises the driven face (shaft-coupled tangent rows versus another TGS formulation), given "no copied-speed work source": Story 11.1 design decision for the owner to approve.
 6. Whether the `Transported` witness event is retained when no goal consumes it: unspecified — owner decision.

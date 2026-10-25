@@ -2,6 +2,8 @@
 
 **Current delivery (24 October 2026):** [CAT-022 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
 
+**Collider target (owner, 25 October 2026, "visible = solid"):** every part a player sees as solid collides with its true shape. The 1.25 m housing (the ochre 1.25 × 1.25 × 0.6 box and the r 0.65 cylinder housing in §2 Art) collides as drawn, with the base box; today it does not collide with its exact drawn shape. Planned in [`elements-visible-solid`](../../../_bmad-output/planning-artifacts/epics.md#story-elements-visible-solid) with a collider-vs-art test; not delivered yet.
+
 ## 1. Identity
 
 | Field | Value |

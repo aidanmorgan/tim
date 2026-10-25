@@ -57,7 +57,7 @@ flowchart LR
   - Independently inspects the git diff against all Acceptance Criteria in `_bmad-output/planning-artifacts/epics.md`.
   - Proves zero legacy remnants via codebase grep: confirms complete deletion of procedural mesh routines (`PartArt.cs`), hardcoded collider tables, closed part enums (`WorkshopPartKind`), bespoke per-part scripts, and backwards-compatibility shims.
   - Independently verifies the matching build and relevant-input applicability, then runs affected checks using `--no-build --no-restore`; do not duplicate an unchanged build or whole test suite. Use affected non-C# Anvil checks where applicable.
-  - Reuses the implementer's Chrome runs after independently verifying they ran on the exact source and bundle identity under review, with per-file results. Independently runs only the probes and mutants for the changed behaviour; never repeats a full run (see [Verification tiers](#verification-tiers)).
+  - Reuses the implementer's Chrome runs after independently verifying they ran on the exact source and bundle identity under review, with per-file results. Independently runs only the probes for the changed behaviour, and no mutants until the post-catalogue E2E phase (owner, 25 Oct 2026); never repeats a full run (see [Verification tiers](#verification-tiers)).
   - Queues and reviews exact authoring Reset and Save/Load browser proof at the post-catalogue E2E phase; native lifecycle controls run during implementation.
   - **Enforces a 100% pass rate on every required tier before granting Pass. Known native regressions block implementation; eventual browser failures block browser qualification.**
   - Issues terminal scoped verdict:
@@ -127,11 +127,11 @@ The speed principle: prove behaviour with the fastest test that runs the product
   - Engine, clock, solver, wire and decision-logic stories get the three BMAD lenses on the first candidate only.
   - Declaration-only, art-only and suite-only stories get the reviewer alone.
   - A design-review agent runs before implementation only for core engine stories (solver, clock, wire). Otherwise the implementer reviews the spec, decides small gaps and records them.
-- **Mutation proof:** required for new decision logic, and for each deletion as a re-add mutant. Not required for declaration data or bindings.
+- **Mutation proof:** deferred to the post-catalogue E2E phase (owner, 25 Oct 2026, AGENTS.md). No implementer or reviewer creates, builds or runs mutants before then; the reviewer judges by reading the assertions whether each new test would fail under a plausible defect.
 - **Pipelining:**
   - The reviewer starts static review while affected native checks run; browser execution waits for post-catalogue E2E.
   - The next story's implementer may start while the current story is in review.
-  - Order follows the epics.md [Delivery order](epics.md#delivery-order-coordinator-21-oct-2026-owner-authorised-re-examination).
+  - Order follows the epics.md [Current execution plan](epics.md#current-execution-plan).
 
 ---
 

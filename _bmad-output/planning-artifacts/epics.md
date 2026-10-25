@@ -68,14 +68,14 @@ Every single story across all epics must formally satisfy the following mandator
 
 ## Current execution plan
 
-**Future slice workflow:** follow [AGENTS delivery speed rules](../../AGENTS.md#delivery-speed-rules-owner-24-october-2026-these-take-precedence-over-conflicting-wording-below): one bmad-build-auto loop with Blind Hunter, Edge Case Hunter, Verification Gap and Intent Alignment, no duplicate review system; fresh implementer per slice, fixes to that implementer; incremental builds, full native suite once per round, CI-owned Release/publish; review Pass on committed SHA and short exact-SHA terminal receipts. New rules apply from the next slice; this planning repair was already in review and finishes under its starting rules. These rules refine the proof statements below without weakening native behavior or complete-catalogue coverage.
+**Future slice workflow:** follow [AGENTS delivery speed rules](../../AGENTS.md#delivery-speed-rules-owner-24-october-2026-these-take-precedence-over-conflicting-wording-below): one bmad-build-auto loop with Blind Hunter, Edge Case Hunter, Verification Gap, Intent Alignment and the Forward-Only Auditor (AGENTS.md "Refactor forward", review gate, owner 25 Oct 2026: any fallback, backwards compatibility, retained deprecated slot or second rule for the same behaviour is a Fail), no duplicate review system; fresh implementer per slice, fixes to that implementer; incremental builds, full native suite once per round, CI-owned Release/publish; no mutation testing until the post-catalogue E2E phase (owner, 25 Oct 2026); review Pass on committed SHA and short exact-SHA terminal receipts. New rules apply from the next slice. These rules refine the proof statements below without weakening native behavior or complete-catalogue coverage.
 
 **Owner direction, 24 October 2026.** Stabilize the existing game, then implement **every named element and variant**, then qualify through browsers. This section supersedes older lane alternation, positional numbers and first-undone dispatch. Source behaviors and named requirement IDs remain intact. The [293-identity ledger](../../docs/planning/invest/named-elements.md#execution-contract--complete-named-catalogue-24-october-2026) supplies 276 actual named-element contracts, 10 umbrella child dispositions and 7 product-feature contracts. The72 CAT specifications overlap those identities; all 104 current mode records and source-required variants remain obligations. “Potential” no longer excludes an actual named element.
 
 **Selection:** use phases below, then source dependencies and the first ready slice in that phase. Sprint file order is a status view, not a dependency oracle. A blocked slice records its concrete missing capability/decision owner and retry condition; select another independent slice within the same phase. Split parent stories are conjunctions, never implementation dispatch. A named CAT refinement shares its source owner's package where semantically identical, but distinct variants have separate delivery and proof. Existing completion evidence may be reused only after independent applicability review.
 
-1. Reconcile terminal publication of already merged 9A.23+9A.25b and 10.2a; their green CI is not by itself terminal review. Do not republish identical candidates.
-2. Stabilize:9A.44 with its minimal TypeScript dependency; axial-creep; integration harness A then B; remaining TypeScript conversion; test hygiene;9A.24;9A.45. Detailed contracts below bound this work.
+1. Delivered at main d87b6a1e (CI 40181624977: 3,952 tests, 0 failed, 0 skipped; deployment 7311595713): 9A.44 Part A, the axial-creep slice `engine-cylinder-axial-creep`, and the 9A.23+9A.25b and 10.2a terminal receipts ([delivered slices](../../docs/planning/delivered-slices.md)).
+2. Stabilize in this order (coordinator, 25 Oct 2026, from the owner directives): `engine-cap-block` (in progress) → `elements-visible-solid` → `engine-hollow-shapes` → `engine-two-point-friction` → `engine-orientation-levelling` → 9A.44B → integration harness A then B → remaining TypeScript conversion → test hygiene → 9A.24 → 9A.45. Detailed contracts and [engine and collider stories](#engine-and-collider-slices) below bound this work.
 3. Continue individual CAT slices 10.2b, 10.2c, supported-impact prerequisite before 10.3, 10.4, 10.5, split 11.x/12.x/13.x, then 14.0, 14.2, 14.1, 14.3, 14.4. Resolve CAT-023 offset-COM and its motion-piece origin/tick obligations before its complete claim; attach all F.16 catalogue remainders and required F.4 collider behavior to their actual first consumer rather than leaving them after catalogue qualification.
 4. Complete every remaining `named-*` slice under the identity ledger's family/dependency order. Its source spec/requirement and canonical S owner are the detailed contract; its native entry decisions stay within the slice. Carry remaining CAT modes/fixtures with their owners. A feature/umbrella cannot stand in for a physical element.
 5. After all named intrinsic element implementations, complete the bounded native stage of [Story 15.0](#story-150-physical-placement-nudging--difficulty-assistance) and all remaining required native mode/collaborator integrations under their existing owners. Story 15.0 owns the CAT-049/CAT-050 assistance clauses retained by Stories 6.9/6.10. This native behavior precedes catalogue closure; exhaustive difficulty/campaign sweeps and browser proof do not.
@@ -89,17 +89,110 @@ Each item is one bounded native slice with its current source paths, deletion sc
 
 | Slice / sprint key | Paths and deletion | Native acceptance and dependencies |
 |---|---|---|
-|9A.44 / `9a-44-f32-lane-completion-half-purge`|Construction/compiler/ABI/schema/codec/solver/presentation/clock and their actual callers; delete every Half lane and double game calculation, conversion shim and obsolete offset reader.|Given every formerly narrowed game field, when authored, encoded, simulated and read, then f32 is retained end-to-end with source behavior/envelope controls. Integer ticks plus f32 phase replace floating game time; finite/range/undefined enum and tick-overflow refusals are explicit and atomic. Name every permitted external double adapter and its conversion. Convert only affected JS modules to strict TS first within this closure, including pinned tsc build/publish/CI and shipped-output tests; remaining modules belong to the conversion slice. Split solver/wire and presentation/clock only with complete callers and no mixed supported formats.|
-|`engine-cylinder-axial-creep`|Cylinder/contact/orientation integration in engine/gpu and real simulation tests; delete frozen small velocity/orientation remainder behavior that causes indefinite creep, no sleep threshold hiding motion.|Given the recorded drop-ramp reproducer in deferred-work, when the cylinder settles on its side, then motion decays within independently derived f32/game envelope over bounded ticks. Controls: side-rest placed directly, flush ramp roll, upright cylinder and sphere/box contacts. Prove the reproducer fails before the fix and supported Reset/save/load; follow9A.44.|
+|`engine-cap-block` (in progress)|`CuriousContraptions.Simulation/WorkshopConstraintSolver.cs` normal block and restitution block; delete both per-row recovery paths.|[Story engine-cap-block](#story-engine-cap-block).|
+|`elements-visible-solid`|The listed element packages' collider declarations and a collider-vs-art test per element; delete each collider approximation that differs from the art.|[Story elements-visible-solid](#story-elements-visible-solid).|
+|`engine-hollow-shapes`|Shared shape-pair table, compiler, the Pipe, PipeBend45, PipeBend90 and Funnel packages, and the BallDetector collar and PoweredGate collars and sleeve; delete their box approximations.|[Story engine-hollow-shapes](#story-engine-hollow-shapes).|
+|`engine-two-point-friction`|Manifold friction rows in the constraint solver; delete the order-dependent per-point friction sequence.|[Story engine-two-point-friction](#story-engine-two-point-friction).|
+|`engine-orientation-levelling`|Orientation integration of resting bodies; delete the dropped sub-ulp levelling path.|[Story engine-orientation-levelling](#story-engine-orientation-levelling).|
+|9A.44B / `9a-44b-f32-double-game-values-and-tick-clock`|Construction/compiler/schema/codec/presentation/clock and their actual callers; delete every double game calculation, floating game time and conversion shim.|[Story 9A.44B](#story-9a-44b).|
 |`test-workshop-harness-a`|CuriousContraptions.tests shared harness, real bundle/content readers, production command/wire/transport seams; migrate existing integration callers and delete duplicate builders reaching internals.|Given the same authored construction, when native command→wire→solver→read/event/presentation runs at fixed ticks, then positive/control results, Pause/Step/Reset and save/load agree fieldwise. Inject invalid command/enum/connection boundary and prove atomic refusal. No browser, wall-clock sleep or mocked solver.|
 |`test-workshop-harness-b`|Existing lesson and cross-element integration tests in CuriousContraptions.tests, shared A harness and content; remove superseded duplicate cases only with coverage mapping.|Given every currently playable lesson and admitted element interaction, when its positive and one-cause control run at all three supported cadence profiles, then goals/events/positions and restoration match independent expectations. Enumerate actual lesson/element coverage and rejected boundaries; this is current-catalogue coverage, future slices extend it. Depends on A; no new coverage platform.|
 |`runtime-typescript-conversion`|Both worker wwwroot hosts, web client/rings and game node harnesses; pinned compiler config/build/publish/CI; delete handwritten JS/MJS source after callers move.|Given clean checkout/build, when strict pinned tsc compiles, then shipped modules are its output and all game node harnesses exercise that output. No any escape. Public worker/ring lifecycle positive/control/boundaries remain. Replace remaining harness sleeps with deciding events/quiescence; encapsulate pose/shared memory as required. Browser suites stay deferred.|
-|`test-behavioral-hygiene`|Game C# tests and node harnesses, including WorkshopActivationAnimationTests; delete output-hash/byte pins and private reach-ins after equivalent behavior coverage exists.|Given each replaced assertion, when a plausible behavior defect is injected, then its interface-level positive/control/boundary test fails. Preserve legacy input fixture files without hash pins. Inventory every removed assertion and replacement; all required tests pass with zero skips.|
+|`test-behavioral-hygiene`|Game C# tests and node harnesses, including WorkshopActivationAnimationTests and the save re-encode asserts at `CuriousContraptions.tests/ContactWorkInstanceTests.cs:102` and `CuriousContraptions.tests/SliderInstanceTests.cs:145` (about 57 test files used hash or byte-identity patterns on 25 Oct 2026); delete output-hash/byte pins and private reach-ins after equivalent behavior coverage exists.|Given each replaced assertion, then an interface-level positive/control/boundary test asserts the behaviour directly, so that a plausible defect would fail it (judged by reading the assertions; no mutation runs before the post-catalogue E2E phase). Preserve legacy input fixture files without hash pins. Inventory every removed assertion and replacement; all required tests pass with zero skips.|
 |9A.24 / `9a-24-typed-observation-port`|Existing story's typed read-only port and console-channel deletions.|Given typed observation requests, when read against committed state, then values/refusals are correct without mutation; validate through native/node tests. Browser consumers stay deferred.|
 |9A.45 / `9a-45-compile-time-isolation-gate`|Existing assembly split/build scan, remaining Pipe generic arms and unused TimerObservation; delete known-violation list only when empty.|Given normal builds and planted source violations, when gate runs, then clean source passes and forbidden element coupling fails at file:line. Pipe geometry/joins/lifecycle pass native behavior tests; no declaration deletion.|
 |`engine-supported-impact-restitution`|Generic island/manifold restitution plus native simulation tests; delete incorrect supported-impact work transfer if replaced.|Before10.3 or another dynamic support consumer: reproduce recorded ball-on-resting-dynamic-box loss; independently bound momentum/work and rebound for light/heavy support, e=0 and nonzero controls, no energy gain. Resolve the supported-impact model before consumer completion; detailed cost profiling remains release work.|
 
-**Stabilization exit:** all first eight rows have terminal scoped native/publication Pass (or independently applicable existing proof), zero unresolved ordinary correctness regressions, no unsupported Half/double game path, strict compiled TS at every changed boundary, current integration matrix passing and isolation list empty. Then select10.2b. Supported-impact restitution is a genuine just-in-time dependency of10.3, not an unrelated global audit. Existing stress/performance follow-ups retain their named later gates.
+**Stabilization exit:** every row above except `engine-supported-impact-restitution` has terminal scoped native/publication Pass (or independently applicable existing proof), zero unresolved ordinary correctness regressions, no unsupported Half/double game path, strict compiled TS at every changed boundary, current integration matrix passing and isolation list empty. Then select 10.2b. Supported-impact restitution is a genuine just-in-time dependency of 10.3, not an unrelated global audit. Existing stress/performance follow-ups retain their named later gates.
+
+<a id="engine-and-collider-slices"></a>
+### Engine and collider slices (owner decisions 24–25 Oct 2026)
+
+**Creep scope (owner, 25 Oct 2026, "Land M1+M2, follow-up").** The residuals measured by the published axial-creep slice are follow-up engine work: sub-f32-step orientation levelling, the drop-ramp landing yaw kick and the rank-3 cap block. They are never committed red and never absorbed by a loosened bound. **One normal-branch rule** (owner: "we shouldn't have per-point rules"): every contact point takes the same branch rule. The draft [`spec-engine-orientation-levelling-draft.md`](../implementation-artifacts/spec-engine-orientation-levelling-draft.md) holds the diagnosis for `engine-cap-block`, `engine-two-point-friction` and `engine-orientation-levelling`; it is split into those three slices.
+
+**Collider fidelity (owner, 25 Oct 2026).** An audit found that only simple solids have exact colliders. (a) "Visible = solid": every part a player sees as solid collides with its true shape; this overrides element docs that called such parts art only. (b) "True hollow shapes": ring, torus-segment and frustum collider kinds replace the box approximations of hollow parts.
+
+<a id="story-engine-cap-block"></a>
+### Story engine-cap-block: Well-posed contact block for coplanar manifolds
+*Sprint key: `engine-cap-block`. Status: in progress; spec `spec-engine-cap-block.md` in the slice worktree. Depends on the published axial-creep slice (d87b6a1e). Diagnosis: draft spec (c).*
+
+*Deletes:* both per-row recovery paths in `SolveNormalBlock` and `ApplyRestitution`, and the diagonal block regularisation unless the enumeration's documented derivation still needs it.
+
+**Acceptance Criteria:**
+- **Given** a cylinder cap or box face resting on a plane (four coplanar points whose normal coupling matrix has rank 3), **When** the normal block solves, **Then** every multi-point normal block and the restitution block use one rule: the linear-complementarity solution found by fixed-order active-set enumeration (all points, then each smaller subset in a documented index order, the empty set last). The first well-conditioned set whose impulses are all ≥ 0 and whose inactive points do not approach is accepted; a rank-deficient set is skipped as a candidate.
+- **And** no per-row recovery, fallback, mode or flag remains. The coherent slop band and the rolling axes per manifold are unchanged.
+- **And** the rod (r 0.1 m, h 0.4 m, 1 kg, Dead material, released at 10.5° and 12.5°): every rim impact keeps at most the energy of the one-substep inelastic model, the rod never passes over its rim, and it is upright (tilt < 1°) by the model's settle time with the declared +0.01 margin removed from `InelasticRockingSettleSeconds`. If the retention still exceeds the model, the slice reports the numbers and does not re-add a margin.
+- **And** the energy gates, `F32BehaviourIdentityTests` (12 ticks, 5.1 mm) and the 60-box face sweep (drift ≤ 1e-9 m/s) keep their bounds and seeds. The enumeration rule, its order and its tolerance are written into `docs/gpu-f32-physics.md`, and the recovery text is deleted.
+- **And** the full solution suite passes with Skipped 0.
+
+<a id="story-elements-visible-solid"></a>
+### Story elements-visible-solid: Every visible solid collides with its true shape
+*Sprint key: `elements-visible-solid`. Status: backlog; after `engine-cap-block`. Owner decision (a), 25 Oct 2026.*
+
+*Current state (collider audit, 25 Oct 2026):* the switch button collides as a box whose corners reach 0.55 m against the drawn 0.38 m button; the ball detector's outer surface stops at 0.70 m against the drawn 0.82 m; the lamp bulb and stem, the delay box's 1.25 m housing, the ramp rails, the battery terminal and the powered gate's collars and outer surfaces do not collide with their drawn shapes.
+
+*Deletes:* each listed element's collider approximation that differs from its art.
+
+**Acceptance Criteria:**
+- **Given** each listed part, **When** its colliders compile, **Then** each visible solid collides with its true shape using the existing collider kinds: the lamp bulb as a sphere and its stem as a cylinder (CAT-035); the switch button as a cylinder of the drawn 0.38 m radius (CAT-063); the delay box's 1.25 m housing (CAT-022); the ramp rails (CAT-054); the battery terminal cylinder (CAT-005).
+- **And** the ring-shaped parts, the ball detector collar (CAT-002) and the powered gate collars and sleeve (CAT-051), are solid out to their drawn outer radius (the detector to 0.82 m, the gate collars to 0.78 m and the sleeve to 0.70 m). True ring kinds only arrive with `engine-hollow-shapes`, which owns their exact fit.
+- **And** one collider-vs-art test per listed element reads its declared art and colliders and fails when a visible solid has no matching collider or a collider reaches beyond its art by more than a stated, derived tolerance. For the ring-shaped parts this slice checks the outer radius; the beyond-art check runs in `engine-hollow-shapes`.
+- **And** a ball dropped onto each newly solid feature contacts it (positive), and a ball passing where an old approximation reached beyond the art (for example outside the switch button's 0.38 m radius, inside the old box corner) passes freely (control).
+- **And** static restitution is checked: static colliders declare restitution 1.0 while the CAT-048 doc states 0.15. The slice decides each listed element's value from its element doc, records it in that doc and tests a bounce against it.
+- **And** existing lessons, Run/Reset and save/load keep their behaviour; the full suite passes with Skipped 0. The box-frame collars of the pipe, bends and funnel take their true hollow shapes in `engine-hollow-shapes`.
+
+<a id="story-engine-hollow-shapes"></a>
+### Story engine-hollow-shapes: True hollow collider shapes
+*Sprint key: `engine-hollow-shapes`. Status: backlog; after `elements-visible-solid`. Owner decision (b), 25 Oct 2026; design [hollow geometry](../../docs/hollow-geometry-design.md).*
+
+*Current state (collider audit, 25 Oct 2026):* the hollow parts are box approximations. The collars are square frames reaching 0.95–1.24 m against the drawn 0.78 m (the funnel inlet 1.6–2.16 m against 1.43 m); the 45° and 90° bends are octagons with 4–8 cm slots between slices; a snapped pipe joint dips about 1.2 cm. The legacy 5 mm surface-error limit was dropped with the CPU segmentation, and nothing replaced it.
+
+*Deletes:* the box approximations in the CAT-048 pipe, the CAT-049 and CAT-050 bends, the CAT-030 funnel, their collars, the CAT-002 ball detector collar and the CAT-051 powered gate collars and sleeve. The open hollow-collider clauses of Stories 6.6, 6.7, 6.9, 6.10 and 6.11, and Story 9R.23's behaviour proofs, run on these kinds.
+
+**Acceptance Criteria:**
+- **Given** the shared shape-pair table, **When** this slice lands, **Then** ring, torus-segment and frustum collider kinds exist as declaration data in the one solver, with no element-specific kernel branch.
+- **And** the slice states a surface-error bound (the largest distance between the collider surface and the drawn surface), derives it and records it in `docs/hollow-geometry-design.md` and `docs/gpu-f32-physics.md`; a test per kind holds it.
+- **And** the pipe, both bends, the funnel, their collars, the ball detector collar and the powered gate collars and sleeve use those kinds, and the collider-vs-art test from `elements-visible-solid` passes for each, including its beyond-art check.
+- **And** snapped joints are continuous: a ball rolling through straight–straight, straight–bend and bend–funnel joins meets no dip or step beyond the stated bound (today about 1.2 cm).
+- **And** controls hold: an oversize payload jams, a ball aimed beside a mouth misses, and an initially overlapping placement rejects at compile. Run/Reset, save/load and the energy gates hold; the full suite passes with Skipped 0.
+
+<a id="story-engine-two-point-friction"></a>
+### Story engine-two-point-friction: Simultaneous two-point friction
+*Sprint key: `engine-two-point-friction`. Status: backlog; after `engine-hollow-shapes`. Diagnosis: draft spec (b) and candidate design B.*
+
+*Deletes:* the order-dependent sequential per-point friction solve on multi-point manifolds.
+
+**Acceptance Criteria:**
+- **Given** the 10.2a Weight rolling off the 15° drop ramp and landing on its side, **When** it rolls about 7 m and stops, **Then** it stays within 0.5 mm of straight (today 1.25 mm, from a 1.77e-4 rad landing yaw kick), and the restored drop-ramp test passes at its unchanged bound.
+- **And** the heading does not depend on the order of the friction rows: the same landing with the contact points in reverse order ends at the same heading within f32 rounding (control).
+- **And** the flush-ramp roll, the energy gates, `F32BehaviourIdentityTests`, `LaunchLessonSolveTests` and the restitution laws pass at unchanged bounds; the full suite passes with Skipped 0.
+
+<a id="story-engine-orientation-levelling"></a>
+### Story engine-orientation-levelling: Sub-f32-step orientation levelling
+*Sprint key: `engine-orientation-levelling`. Status: backlog; after `engine-two-point-friction`. Diagnosis: draft spec (a) and candidate design A.*
+
+*Deletes:* the integration path that drops a sub-ulp levelling rotation while its matching translation is still integrated.
+
+**Acceptance Criteria:**
+- **Given** a lying cylinder set down tilted 1e-5 and 1e-4 rad, a box standing on its end tilted 1e-4 rad, and the 200 random lying drops, **When** they rest from 4 s to 10 s, **Then** axial drift stays under 1e-6 m/s (today up to 2.2e-5 m/s) and the tilt levels; the restored tests pass at their unchanged bounds and seeds.
+- **And** the energy gates keep their bounds and seeds. A design that breaks them fails: the compensated remainder "C" broke the Dead gate (CylinderOntoBox 4.109 mJ against 2.043 mJ).
+- **And** a level control drifts under 1e-9 m/s, and Run/Reset and save/load continuation of a resting tilted body are correct. A change to the body record is refused at every boundary, never migrated, and needs an owner decision before implementation.
+- **And** the deferred single-point curved-side case is settled: a tilted lying cylinder at a single-point side contact is measured with only its own rolling axis resisted and with both tangents resisted. If the two differ in levelling or rocking, the one rolling-axis rule is corrected here; otherwise the finding is recorded as false.
+- **And** the full suite passes with Skipped 0.
+
+<a id="story-9a-44b"></a>
+### Story 9A.44B: `double` game values to f32, the integer-tick clock and a `double` guard
+*Sprint key: `9a-44b-f32-double-game-values-and-tick-clock`. Status: backlog; after `engine-orientation-levelling`. Part B of [Story 9A.44](#story-9a44-f32-lane-completion--remove-every-binary16-lane); Part A was published at d87b6a1e.*
+
+*Deletes:* every `double` game calculation, state and presentation value, floating game time, and their conversion shims.
+
+**Acceptance Criteria:**
+- **Given** every game field, **When** it is authored, encoded, simulated and read, **Then** f32 is retained end to end with source behaviour and envelope controls.
+- **And** integer ticks plus an f32 phase replace floating game time; finite, range, undefined-enum and tick-overflow refusals are explicit and atomic.
+- **And** `double` appears only at named external adapters, each with its conversion and validation at the boundary.
+- **And** an architecture guard fails on a `double` game value in production source (positive) and accepts a named external adapter (control).
+- **And** only the JS modules this closure affects convert to strict TypeScript first, with the pinned `tsc` in build, publish and CI and shipped-output tests; the remaining modules belong to the conversion slice.
+- **And** independently derived behavioural tests keep every element inside the game-grade envelope; the full suite passes with Skipped 0.
 
 <a id="catalogue-slice-ownership"></a>
 ### Individual catalogue slice ownership
@@ -303,6 +396,8 @@ The coordinator adopted the re-examination and decided the items below. This ord
 5. **Test hygiene.** Owner rules: no output-hash assertions, and tests go through defined interfaces.
 
 Then 9A.24, 9A.45 and the element lane continue in their existing order. All browser/E2E tests stay deferred until every named puzzle element is implemented and passing its unit and integration tests (AGENTS.md).
+
+*Status, 25 Oct 2026:* 9A.44 Part A and item 2 were published at d87b6a1e. The [Current execution plan](#current-execution-plan) supersedes this list: the engine and collider slices run next, then 9A.44B and items 3–5.
 
 From position 62, only the element lane remains, in its existing order:
 - 13.1c, 13.1d, then 13.2–13.8;
@@ -2336,7 +2431,7 @@ So that `done` means proven.
 
 **Acceptance Criteria:**
 - **Given** each clause the five PKG-2 addenda list as unproven, **Then** it gets an actual-UI Chrome proof with a negative control, or it is fixed. The addenda list these clauses: the oversized-ball stop, the entry speed and angle bounds, the rim and sidewall controls, and the parity at non-default pipe lengths (F15-9).
-- **And** the scene `col_*` boxes for the pipe and funnel are re-authored in the correct orientation, so they match the canonical colliders (F15-7, ahead of 9A.16).
+- **And** the pipe and funnel colliders match their art (F15-7). Since the owner's "true hollow shapes" decision (25 Oct 2026), [Story engine-hollow-shapes](#story-engine-hollow-shapes) replaces their box approximations with true hollow kinds; this story's behaviour proofs run on those kinds, and no box collider is re-authored.
 - **And** each of Stories 6.6, 6.7, 6.9, 6.10 and 6.11 gets a dated Pass addendum, and `sprint-status.yaml` marks it done.
 - **Excluded:** the art clauses belong to 9R.19, nudging to 15.0, air to 12.2 and light to 13.1.
 
@@ -3707,7 +3802,7 @@ So that the last element record leaves the engine.
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
 
 ### Story 9A.44: f32 Lane Completion — Remove Every binary16 Lane
-*Status: Backlog. Position 50 (Delivery order, 21 Oct 2026): as soon as its preconditions allow, right after C-Memory (the last record conversion, which includes 9A.43), 9A.23 + 9A.25b and 9A.26, so that no lane is migrated and then deleted. Story 9.5a has already moved the timer lane (`ActivationTimers.cs`) to f32.*
+*Status: Part A (every binary16 lane, and the deprecated `raw_assistance` save slot deleted) done, published at main d87b6a1e (CI 40181624977, 3,952 tests, 0 failed, 0 skipped; deployment 7311595713). Part B (`double` game values, the integer-tick clock and a `double` guard) is [Story 9A.44B](#story-9a-44b), which owns those clauses. Originally position 50 (Delivery order, 21 Oct 2026), after C-Memory, 9A.23 + 9A.25b and 9A.26. Story 9.5a had already moved the timer lane (`ActivationTimers.cs`) to f32.*
 
 *Depends on: Story 9A.43. Retro-verification X2 and #17 found 675 `Half` lines added since baseline `9107148` (458 production, 217 test) by Stories 6.6–9.4; all of them are in scope. It is placed after the stories that delete the largest `Half` holdings (`WorkshopCanonicalColliders` in 9A.16, `MachinePart` bindings and `CosmeticCurves` in 9A.25, the puzzle lanes in 9A.26) so that no lane is migrated and then deleted. Owner decision, 18 Oct 2026. Audit: B6. Resolves CAT-037 open question 2.*
 
@@ -3726,7 +3821,7 @@ I want every game value stored and computed in one precision,
 So that sizes, masses, timings and animations behave identically everywhere.
 
 **Acceptance Criteria:**
-- **Given** executable production source and current schema inputs, **When** the architecture guard runs, **Then** no binary16 type/API/lane or double game-value path remains. Exclude documentation, historical evidence, third-party code and committed malformed/legacy input fixtures with named reasons; never erase those to satisfy a token scan. Test actual forbidden type/API use and a permitted external adapter as positive/control guard cases.
+- **Given** executable production source and current schema inputs, **When** the architecture guard runs, **Then** no binary16 type/API/lane remains (the `double` game-value guard is Story 9A.44B's). Exclude documentation, historical evidence, third-party code and committed malformed/legacy input fixtures with named reasons; never erase those to satisfy a token scan. Test actual forbidden type/API use and a permitted external adapter as positive/control guard cases.
 - **And** every former lane carries IEEE-754 f32 end to end: authoring, construction, wire, save, solver, read model and animation.
 - **And** there are no format versions (owner, 21 Oct 2026). Structurally invalid saves are rejected explicitly, and there's no migration.
 - **And** the `docs/gpu-f32-physics.md` "f32 Migration Status" table records no remaining lane, and the envelope statements that depended on binary16 are restated for f32.

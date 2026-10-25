@@ -2,6 +2,8 @@
 
 **Current delivery (24 October 2026):** [CAT-002 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
 
+**Collider target (owner, 25 October 2026, "visible = solid"):** every part a player sees as solid collides with its true shape. The collar collides with its drawn 0.82 m outer surface; today its outer surface stops at 0.70 m, which is current state, not the target. Planned in [`elements-visible-solid`](../../../_bmad-output/planning-artifacts/epics.md#story-elements-visible-solid) with a collider-vs-art test, using the existing collider kinds; the collar becomes a true ring kind in [`engine-hollow-shapes`](../../../_bmad-output/planning-artifacts/epics.md#story-engine-hollow-shapes). Not delivered yet.
+
 ## 1. Identity
 
 | Field | Value |

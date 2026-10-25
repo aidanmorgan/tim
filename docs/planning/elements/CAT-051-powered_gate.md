@@ -2,6 +2,8 @@
 
 **Current delivery (24 October 2026):** [CAT-051 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
 
+**Collider target (owner, 25 October 2026, "visible = solid"):** every part a player sees as solid collides with its true shape. The two collars (outer 0.78 m) and the sleeve's outer surface (0.70 m) collide with their drawn shapes; today they do not collide with their exact drawn shapes. Planned in [`elements-visible-solid`](../../../_bmad-output/planning-artifacts/epics.md#story-elements-visible-solid) with a collider-vs-art test, using the existing collider kinds; the collars and sleeve become true ring kinds in [`engine-hollow-shapes`](../../../_bmad-output/planning-artifacts/epics.md#story-engine-hollow-shapes). Not delivered yet.
+
 Story 7.0 CAT-051-D readiness spec. Baseline commit `a6c914e`. Legacy citations use `path@a6c914e:Lstart-Lend` and stay retrievable from git history after the Epic 7 purge. Current-engine files are cited at the same commit. Values are authored as f32 game values under [the numeric contract](../../gpu-f32-physics.md#numeric-representation-and-precision). The blade law is shared with [CAT-007 beam shutter](CAT-007-beam_shutter.md) through one legacy controller, `engine/SlidingBlade.cs`. The two parts differ only in geometry, material, mouths and integrations.
 
 ## 1. Identity

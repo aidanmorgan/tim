@@ -2,6 +2,8 @@
 
 **Current delivery (24 October 2026):** [CAT-005 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
 
+**Collider target (owner, 25 October 2026, "visible = solid"):** every part a player sees as solid collides with its true shape. The gold terminal (cylinder r 0.16, h 0.14 at y 0.59, §2 Art) collides as a cylinder, with the body box; today it does not collide with its exact drawn shape. Planned in [`elements-visible-solid`](../../../_bmad-output/planning-artifacts/epics.md#story-elements-visible-solid) with a collider-vs-art test; not delivered yet.
+
 Story 7.0 Batch B declaration spec (CAT-005-D). Legacy citations are pinned to `a6c914e` and resolve with `git show a6c914e:<path> | sed -n 'start,endp'`. Requirement row: [CAT-005](../requirements.md#current-cat-005). This spec also records the **shared supplied-electrical network** facts that every supplied contact (CAT-013, 020, 024–027, 033, 037, 052) depends on; those specs point here instead of repeating them.
 
 ## 1. Identity

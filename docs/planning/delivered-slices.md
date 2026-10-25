@@ -41,3 +41,24 @@ Evidence:
 | Cumulative serial Chrome | 15 suites / 45 tests in 368 s; HEAD was 731.5 s |
 
 **Re-proof note:** the stricter waits showed that in earlier passes the second ramp in every two-ramp solve was never tilted. The free-workshop wall in 2a4 and 2b3 was never tilted either. This affected the ENGINE-CORE-2a3, 2b1, 2b2, 2b3, 2b4, 2c and ANIM proofs. This story's runs re-prove those recipes with both ramps and the wall really tilted, asserted by handle angle and sideways ball motion.
+
+## 9A.44 Part A and the lying-cylinder creep fix (published at main d87b6a1e, 25 October 2026)
+
+- **9A.44 Part A** ([spec](../../_bmad-output/implementation-artifacts/spec-9a-44-f32-everywhere.md)): every Half/binary16 game value is f32 end to end, guarded by `HalfPrecisionGuardTests`. The deprecated `raw_assistance` save slot is deleted, not read (36b383e6). Part B, `double` game values and the integer-tick clock, is Story 9A.44B.
+- **Engine slice "lying cylinder axial creep"** ([spec](../../_bmad-output/implementation-artifacts/spec-engine-cylinder-creep.md); 02593110, 60d6a14c, 93299f09): one coherent slop-band normal rule on every solve path, and rolling axes per manifold. A lying cylinder dropped, set down level or set down tilted 2e-6 rad rests without walking, and the 10.2a Weight's flush-ramp roll runs straight.
+  - Owner decision "Land M1+M2, follow-up" (25 Oct 2026): the measured residuals (sub-f32-step levelling, the drop-ramp landing yaw kick and the rank-3 cap block) are the follow-up slices `engine-cap-block`, `engine-two-point-friction` and `engine-orientation-levelling`. They are not accepted bounds.
+  - The rod-righting oracle was re-derived (an inelastic rocking settle time plus a declared +0.01 retention margin); `engine-cap-block` removes the margin.
+- **Receipts:** the 9A.23+9A.25b ([review](../../_bmad-output/implementation-artifacts/review-9a-23-25b-ring-consumers.md)) and 10.2a ([review](../../_bmad-output/implementation-artifacts/review-10-2a-weight.md)) terminal receipts were carried in a8d51860.
+- **Policies published on the way (owner, 25 Oct 2026):**
+  - the forward-only review gate (4a9624c9): any fallback, backwards compatibility, deprecated slot or second rule is a review Fail, and every bmad-build-auto review runs the Forward-Only Auditor layer (AGENTS.md "Refactor forward");
+  - no mutation testing until the post-catalogue E2E phase (9853aea8);
+  - the CI Pages build job's timeout raised from 30 to 50 minutes (7b6bdbdc), after run 40166330805 hit the old limit during the Release publish.
+
+Evidence:
+
+| Check | Result |
+|---|---|
+| Main | d87b6a1e |
+| CI | run 40181624977: 3,952 tests, 0 failed, 0 skipped |
+| Deployment | 7311595713 |
+| Browser qualification | pending until the post-catalogue E2E phase |

@@ -2,6 +2,8 @@
 
 **Current delivery (24 October 2026):** [CAT-048 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
 
+**Collider target (owner, 25 October 2026, "true hollow shapes"):** the tube wall and both collars collide as true ring kinds ([hollow geometry](../../hollow-geometry-design.md)) within a surface-error bound that [`engine-hollow-shapes`](../../../_bmad-output/planning-artifacts/epics.md#story-engine-hollow-shapes) sets, and snapped joints are continuous. Current state, not the target: box approximations whose collars are square frames reaching 0.95–1.24 m against the drawn 0.78 m, and a snapped joint dips about 1.2 cm. The harvest's 0.005 m CPU segmentation bound (§4 fact 15) is not carried forward. The declared restitution 0.15 (§2) differs from the 1.0 that static colliders declare today; [`elements-visible-solid`](../../../_bmad-output/planning-artifacts/epics.md#story-elements-visible-solid) checks it. Not delivered yet.
+
 ## 1. Identity
 
 | Field | Value |

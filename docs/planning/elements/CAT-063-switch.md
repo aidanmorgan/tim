@@ -2,6 +2,8 @@
 
 **Current delivery (24 October 2026):** [CAT-063 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
 
+**Collider target (owner, 25 October 2026, "visible = solid"):** every part a player sees as solid collides with its true shape. The button collides as a cylinder (r 0.38, h 0.18 at y 0.06), with the base box. Today it collides as a box whose corners reach 0.55 m from the axis against the drawn 0.38 m button; that box is current state, not the target. Planned in [`elements-visible-solid`](../../../_bmad-output/planning-artifacts/epics.md#story-elements-visible-solid) with a collider-vs-art test; not delivered yet.
+
 ## 1. Identity
 
 | Field | Value |

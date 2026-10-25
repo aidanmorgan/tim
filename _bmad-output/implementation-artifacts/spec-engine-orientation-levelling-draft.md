@@ -7,6 +7,12 @@ predecessor: 'spec-engine-cylinder-creep.md (M1+M2, landed under owner decision 
 baseline: 'story-9a-44 worktree at 9568500d + the uncommitted M1+M2 change (the single normal-branch rule: the band also in both per-row fallbacks)'
 ---
 
+**Split into three slices (coordinator, 25 Oct 2026, from the owner directives).** This draft is the shared diagnosis, not one slice.
+Section (c) is `engine-cap-block`, section (b) is `engine-two-point-friction` and section (a) is `engine-orientation-levelling`, delivered
+in that order with `elements-visible-solid` and `engine-hollow-shapes` between the first and the second. Each slice restores the
+removed tests it owns at their unchanged bounds. Stories and acceptance:
+[epics.md engine and collider slices](../planning-artifacts/epics.md#engine-and-collider-slices).
+
 # Outcome
 
 A body resting on a line or face contact levels any tilt and stays put, and a lying cylinder landing on its side keeps its heading. Two
