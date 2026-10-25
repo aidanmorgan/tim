@@ -1,0 +1,10 @@
+origin/main=f1ad3bd19e27c32cb05ba34f83ccc1d6cf59fc76
+da2de5b3c43a2784f4a55429d6a8c4d0c1cd3a0f tree=3576e2e1acacbd9cfa42cbff156945fac5615107 parents=f2aff60be773d45f5b26ce25c0fd89bc4bca0c8f
+f1ad3bd19e27c32cb05ba34f83ccc1d6cf59fc76 tree=3576e2e1acacbd9cfa42cbff156945fac5615107 parents=9536e2ff70bfc0fe157a27bf1f7436727ea05dd0 da2de5b3c43a2784f4a55429d6a8c4d0c1cd3a0f
+merge-base check: f1ad3bd1-on-main
+diff 9536e2ff..f1ad3bd1 vs f2aff60b+staged (tree compare):
+files changed by merge vs main 9536e2ff:      556
+f1ad3bd1 vs da2de5b3 file diff count:        0
+worktree status:
+?? _bmad-output/implementation-artifacts/evidence-9a-23-25b-review/terminal/
+da2de5b3c43a2784f4a55429d6a8c4d0c1cd3a0f

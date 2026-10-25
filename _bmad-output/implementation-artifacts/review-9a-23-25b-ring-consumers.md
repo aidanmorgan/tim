@@ -459,3 +459,25 @@ The SnapshotApproval record follows this section. It is computed after the revie
 5. **Browser qualification stays pending.** Production-origin browser cases remain queued for the post-catalogue E2E phase (the spec's pending list and the 13 relay-range suites plus `cat-062b`); they are not run now.
 
 **Final staged tree:** reported to the coordinator after this record was appended and re-staged. That is the tree the commit must carry.
+
+# Terminal publication verification (independent reviewer, 2026-10-24)
+
+Raw outputs are in `evidence-9a-23-25b-review/terminal/`. Each check below is one of the publication-dependent checks in the SnapshotApproval.
+
+| # | Check | Raw output | Result |
+|---|---|---|---|
+| 1 | **Commit identity and tree equivalence.** Slice commit `da2de5b3c43a2784f4a55429d6a8c4d0c1cd3a0f` has tree `3576e2e1acacbd9cfa42cbff156945fac5615107` and parent `f2aff60b`. That tree is exactly the approved final staged tree. Merge `f1ad3bd19e27c32cb05ba34f83ccc1d6cf59fc76` (parents `9536e2ff`, `da2de5b3`) has the same tree. `git diff da2de5b3 f1ad3bd1` is empty. origin/main is `f1ad3bd1`. | `tree-equivalence.txt` | Pass |
+| 2 | **Merge to main changes only the slice.** origin/main did not move between the approval and the merge (`9536e2ff` is the merge's first parent). The merge tree equals the approved snapshot, so its diff against `9536e2ff` is exactly the reviewed slice. | `tree-equivalence.txt` | Pass |
+| 3 | **Hook re-run on the exact tree.** In the idle worktree at `da2de5b3` with the index at `3576e2e1` (`git write-tree` before and after), `sh .githooks/pre-commit` ran the snapshot gate builds (solution, playtest and web: 0 warnings, 0 errors each), `CSharpStaticGateTests` plus `WorkshopUiFailureTests` (124 passed, 0 skipped) and `anvil hook pre-commit`. rc 0. It agrees with the coordinator's publish hook log. | `hook-rerun.log` | Pass |
+| 4 | **Exact-SHA CI.** Run 40055713865, "Build and deploy game", push to main, `headSha` `f1ad3bd1`: completed/success, with every step success (build and deploy jobs). The static gate's three builds had 0 warnings and 0 errors. **Test C# game:** 2950 passed, Skipped 0. The node harnesses run inside it through `NodeHarnessTests`. **Test C# tools:** Coverage 77, BundleElements 191, WorkerAotGuard 17 and E2eRunner 192, each with Skipped 0. | `run.json`, `run.log` | Pass |
+| 5 | **Pages artifact.** Artifact `12546162039` (`github-pages`, 80 291 208 bytes, not expired, digest `sha256:e3672110…f058aaea`); `artifact.tar` SHA-256 `b74be9bc5ac7c669e0b38bd90397d0970b0e8fe63035ffd9829356aa645e4c45`. | `artifacts.json`, `served-vs-artifact.txt` | Pass |
+| 6 | **Deployment and serving.** Deployment `7293319272` (`github-pages`, sha `f1ad3bd1`), with statuses waiting → queued → in_progress → **success** at `https://aidanmorgan.github.io/tim/`. Eleven served files are byte-identical (SHA-256) to the artifact, all HTTP 200: `index.html`, `404.html`, `event-ring-cursor.js`, `workshop-client.js`, `clock-ring.js`, `native-clock.js`, `simulation/worker.js`, `animation/worker.js`, `godot.wasm`, `godot.pck` and `_framework/dotnet.js`. The served `event-ring-cursor.js` and `workshop-client.js` equal the repository at `f1ad3bd1` (`a15d76b5…`, `59d38217…`). The served ring module has `EventRingMemory`, `postTo` and the private `#ring`, and no `buffer` getter. | `latest-deployments.json`, `deployment-7293319272-statuses.json`, `pages.json`, `served-vs-artifact.txt` | Pass |
+| 7 | **Browser qualification.** Still pending, as recorded. | — | Pending (post-catalogue E2E) |
+
+**E2eRunner count.** The 16-test difference between CI and local (192 against 208) is the `deferred-filter` list, the explicit browser deferral from `tools/E2eRunner/BrowserDeferral.cs`. Under the AGENTS.md exception those tests are filtered, not skipped, and are not owned by this slice.
+
+**Terminal verdict: scoped native and publication Pass at `f1ad3bd19e27`.**
+
+- Browser qualification is pending, at the post-catalogue E2E phase.
+- This is not a release, global-audit or runtime qualification.
+- The open items have owners: R4-F2 is accepted debt for the test-hygiene slice, and the CRLF note on `index-headers.txt` belongs to its receipt owner.

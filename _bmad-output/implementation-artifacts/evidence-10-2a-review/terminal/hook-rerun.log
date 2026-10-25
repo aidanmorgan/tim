@@ -1,0 +1,33 @@
+HEAD 56f3e3278447f22ba9e41f48ea45d28581add41d index-tree 55dfb78d882bbf535db4cd1e9dfa7ffe77b25a63
+staged        8 unstaged        0 untracked        0
+start 03:40:50Z
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.RjUtuV/solution.binlog
+
+Time Elapsed 00:00:10.81
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.RjUtuV/playtest.binlog
+
+Time Elapsed 00:00:12.26
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate-logs.RjUtuV/web.binlog
+
+Time Elapsed 00:00:07.73
+Test run for /private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/csharp-gate.xdhfNn/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:   124, Skipped:     0, Total:   124, Duration: 5 s - CuriousContraptions.tests.dll (net10.0)
+hook rc 0
+end 03:41:35Z
