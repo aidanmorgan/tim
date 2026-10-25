@@ -6,7 +6,24 @@
 
 persistent_facts = [
   "Owner review gate (AGENTS.md, Refactor forward, 25 Oct 2026). A confirmed Forward-Only Auditor finding is triaged `high`. It is never `low`, never rejected as out of scope, and never deferred. It routes to patch, or to bad_spec when the spec asked for the fallback or compatibility. A slice cannot reach `done` while one is unresolved.",
+  "No mutation testing until the post-catalogue E2E phase (owner, 25 Oct 2026). Neither the implementer nor any review layer creates, builds or runs mutants or mutated copies of the tree. Verification judges by reading the tests' assertions.",
 ]
+
+[[workflow.review_layers]]
+id = "verification-gap"
+name = "Verification Gap Reviewer"
+instruction = """
+Launch a context-free subagent with this prompt:
+
+Read `{skill-root}/review-prompts/verification-gap.md` completely and follow it as your review instructions.
+
+Owner rule (25 Oct 2026): mutation testing is deferred until the post-catalogue E2E phase. Do NOT create, copy, build or run mutants, mutated trees or probe tests, and do not run the test suite. Judge each Demonstration by reading the relevant tests' assertions and the code they exercise.
+
+Review content: the unified diff at `{diff_file}`. Read that file — it is the content under review.
+
+Do not invoke any skill, and do not spawn subagents of your own — you are the reviewer. If the instruction file is unreadable, report that exact failure and stop. Return your findings as text in your final message; do not route them through any findings-reporting tool the host may offer.
+
+"""
 
 [[workflow.review_layers]]
 id = "forward-only"
