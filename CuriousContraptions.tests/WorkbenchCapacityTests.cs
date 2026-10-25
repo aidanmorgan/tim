@@ -61,6 +61,26 @@ public sealed class WorkbenchCapacityTests
         Assert.Equal(new SimulationTick(SteppedTicks), reads[^1].Tick);
     }
 
+    // elements-visible-solid-sweep: the parts whose proud faces, lamps and sockets now collide carry more colliders per instance
+    // (Counter 15, each logic gate 10, Latch 9, Clock and Hold timer 7, Pressure plate 5). Four of each, 3 m apart, validate and compile
+    // with every collider and the workbench plane: no collider limit applies.
+    [Theory]
+    [InlineData("counter", 15)]
+    [InlineData("both_gate", 10)]
+    [InlineData("electrical_nand", 10)]
+    [InlineData("latch", 9)]
+    [InlineData("clock", 7)]
+    [InlineData("hold_timer", 7)]
+    [InlineData("pressure_plate", 5)]
+    public void WorkbenchCapacity_AdmitsProudPartElementsWithoutColliderLimit(string part, int colliders)
+    {
+        var instances = new WorkshopInstances([.. Enumerable.Range(0, 4).Select(i =>
+            (IWorkshopInstance)WorkshopInput.Generic(new PartId(part), Id(), -4.5 + 3 * i, 3, 0, 0, 0, 0, 1))]);
+        WorkbenchCapacity.Validate(instances);
+        var world = WorkshopPhysicsCompiler.Compile(Free(instances), new(1, 2)).World;
+        Assert.Equal((4 + 1, 4 * colliders + 1), (world.Bodies, world.Colliders));
+    }
+
     [Fact]
     public void CampaignInventoriesAndFixturesAreUnchanged()
     {

@@ -274,6 +274,22 @@ public sealed class HoldTimerTests
         Assert.Equal("Orientation sensor read is missing.",error.Message);
     }
 
+    /// <summary>CAT-033: the declared colliders in order: the body and foot boxes, then the parts that stand proud of the body
+    /// (visible = solid): the face panel, the indicator, and the trigger, input and output port sockets.</summary>
+    [Fact]
+    public void TheHoldTimerDeclaresItsBodyFootAndProudPartsInOrder()
+    {
+        var colliders = DeclaredPhysics.Colliders(new PartId("hold_timer"));
+        Assert.Equal(7, colliders.Count);
+        TestBundle.AssertCollider(colliders[0], ColliderShapeKind.Box, 0f, new(.7f, .55f, .325f), new(0f, 0f, 0f));
+        TestBundle.AssertCollider(colliders[1], ColliderShapeKind.Box, 0f, new(.8f, .07f, .425f), new(0f, -.62f, 0f));
+        TestBundle.AssertCollider(colliders[2], ColliderShapeKind.Box, 0f, new(.59f, .36f, .0225f), new(0f, 0f, .35f));
+        TestBundle.AssertCollider(colliders[3], ColliderShapeKind.Sphere, .07f, default, new(0f, -.22f, .4f));
+        TestBundle.AssertCollider(colliders[4], ColliderShapeKind.Sphere, .08f, default, new(0f, .65f, .2f));
+        TestBundle.AssertCollider(colliders[5], ColliderShapeKind.Sphere, .08f, default, new(-.78f, 0f, 0f));
+        TestBundle.AssertCollider(colliders[6], ColliderShapeKind.Sphere, .08f, default, new(.78f, 0f, 0f));
+    }
+
     [Fact]
     public void CompiledHoldGeometryMatchesItsDeclaredHousingFootAndProudParts()
     {

@@ -100,30 +100,6 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
         }
     }
 
-    // The canonical-collider check that compared the declaration with itself is deleted: the scene test above reads the same
-    // declared colliders and checks each one's kind, size and centre, and VisibleSolidColliderTests checks them against the art
-    // Godot reads from the scene.
-
-    /// <summary>A part's colliders take the identities part base + 1 to + n, and the plate's contact-load row holds part base + 6
-    /// (WorkshopPhysicsCompiler.ContactLoadSensor). Its five colliders are admitted (the boundary); its declaration with a sixth (its
-    /// top repeated) is refused at compile as IdentityExhausted naming the slot it reaches; a Counter's 15 colliders, with no row at
-    /// + 6 or + 8, are admitted (the control).</summary>
-    [Fact]
-    public void APartWhoseCollidersReachItsOwnRowSlotIsRefusedAtCompile()
-    {
-        var plate = TestBundle.Entry(PartId.PressurePlate);
-        Assert.Equal(5, plate.Colliders.Count);
-        WorkshopPhysicsCompiler.AdmitColliderSlots(PartId.PressurePlate, plate, plate.Colliders.Count);
-        var sixth = plate with { Colliders = [.. plate.Colliders, plate.Colliders[1]] };
-        var refusal = Assert.Throws<WorkshopEditRejectedException>(() =>
-            WorkshopPhysicsCompiler.AdmitColliderSlots(PartId.PressurePlate, sixth, sixth.Colliders.Count));
-        Assert.Equal(WorkshopEditRejection.IdentityExhausted, refusal.Reason);
-        Assert.Equal("The pressure_plate part declares 6 colliders, whose identities (part base + 1 to + 6) reach its contact-load " +
-            "sensor row at part base + 6.", refusal.Message);
-        var counter = TestBundle.Entry(PartId.Counter);
-        WorkshopPhysicsCompiler.AdmitColliderSlots(PartId.Counter, counter, counter.Colliders.Count);
-    }
-
     [Fact]
     public void Ports_DeclarePowerInALevelActivationOutAndSupply()
     {
@@ -441,6 +417,22 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
         var reads = await RunBench(bench);
         if (opens) AssertGateOpened(reads, plate, gate, $"{balls} ball(s) at {minimum} kg");
         else AssertGateClosedThroughout(reads, plate, gate, $"{balls} ball(s) at {minimum} kg");
+    }
+
+    /// <summary>elements-visible-solid-sweep: the three socket colliders, appended after the top, leave the plate's activation
+    /// unchanged. The compiled contact-load row's face is still the top (collider 1: a box at y 0.03, half 0.9 × 0.05 × 0.9), the
+    /// plate compiles its three socket spheres, and a 1 kg Basketball on the sensing top of a 0.5 kg plate opens its gate.</summary>
+    [Fact]
+    public async Task TheSocketCollidersLeaveTheSensingTopAndItsActivationUnchanged()
+    {
+        var gate = Gate(1, 0); var battery = Battery(2, 0); var plate = Plate(3, -4, 0, .5f);
+        var bench = Bench([gate, battery, plate, BallOn(4, -4, 0)], Circuit(battery, plate, gate));
+        var scene = WorkshopPhysicsCompiler.Compile(bench, new(1, 2));
+        var face = scene.Colliders.ToArray().Single(collider => collider.Id == Assert.Single(scene.ContactLoadSensors.ToArray()).Face);
+        Assert.Equal((Gpu.ColliderShapeKind.Box, new MetreVector(0f, .03f, 0f), new MetreVector(.9f, .05f, .9f)),
+            (face.Shape, face.Pose.Translation, face.HalfExtents));
+        Assert.Equal(3, scene.Colliders.ToArray().Count(collider => collider.Body == plate.Id && collider.Shape == Gpu.ColliderShapeKind.Sphere));
+        AssertGateOpened(await RunBench(bench), plate, gate, "a 1 kg ball on the sensing top beside the socket colliders");
     }
 
     [Fact]

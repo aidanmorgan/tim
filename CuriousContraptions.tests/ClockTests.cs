@@ -126,10 +126,6 @@ public sealed class ClockTests(NativeSceneFixture godot)
         }
     }
 
-    // The canonical-collider check that compared the declaration with itself is deleted: the scene test above reads the same
-    // declared colliders and checks each one's kind, size and centre, and VisibleSolidColliderTests checks them against the art
-    // Godot reads from the scene.
-
     [Fact]
     public void Ports_DeclareExactSocketsAndDirections()
     {

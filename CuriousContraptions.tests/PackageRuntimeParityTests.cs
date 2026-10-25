@@ -545,4 +545,49 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
     private static int Bits(float value) => BitConverter.SingleToInt32Bits(value);
     /// <summary>9A.4: the runtime holds the declared f32 exactly (bit equality, so −0 differs from +0).</summary>
     private static bool Same(float declared, float runtime) => Bits(declared) == Bits(runtime);
+
+    /// <summary>Every discovered package keeps its colliders clear of its own physics-document rows and below the next part's base,
+    /// in the allocator's layout (<c>WorkshopPhysicsCompiler.ColliderSlots</c>), so the bundle installs.</summary>
+    [Fact]
+    public void EveryPackageKeepsItsCollidersClearOfItsOwnRowSlots()
+    {
+        _ = godot;
+        Assert.All(TestBundle.Entries, entry => Assert.True(WorkshopPhysicsCompiler.ColliderSlots(entry) is null,
+            $"{entry.Metadata.Id}: {WorkshopPhysicsCompiler.ColliderSlots(entry)}"));
+    }
+
+    /// <summary>A package whose colliders reach one of its own rows is refused when the bundle installs, naming the package, the
+    /// colliders and the row. Boundaries, each one collider either side:
+    /// <list type="bullet">
+    /// <item>the Pressure plate's five colliders (part base + 1 to + 5) are clear; a sixth (its top repeated) reaches its contact-load
+    /// row at + 6;</item>
+    /// <item>the Counter, with no row, is clear with 255 colliders (+ 1 to + 255); a 256th reaches the next part's base at + 256;</item>
+    /// <item>the Springboard's moving plate collider takes + 4, below its joint at + 5; a second moving collider reaches the joint.</item>
+    /// </list></summary>
+    [Fact]
+    public void ABundleWhosePackageCollidersReachItsOwnRowsIsRefusedWhenItInstalls()
+    {
+        _ = godot;
+        var plate = TestBundle.Entry(PartId.PressurePlate);
+        Assert.Null(WorkshopPhysicsCompiler.ColliderSlots(plate));
+        var sixth = plate with { Colliders = [.. plate.Colliders, plate.Colliders[1]] };
+        Assert.Equal(new ColliderSlotConflict(PartIdentityRow.ContactLoadSensor, null, 6, 1, 6), WorkshopPhysicsCompiler.ColliderSlots(sixth));
+
+        var counter = TestBundle.Entry(PartId.Counter);
+        Assert.Null(WorkshopPhysicsCompiler.ColliderSlots(counter with { Colliders = [.. Enumerable.Repeat(counter.Colliders[0], 255)] }));
+        Assert.Equal(new ColliderSlotConflict(PartIdentityRow.NextPart, null, 256, 1, 256),
+            WorkshopPhysicsCompiler.ColliderSlots(counter with { Colliders = [.. Enumerable.Repeat(counter.Colliders[0], 256)] }));
+
+        var springboard = TestBundle.Entry(PartId.Springboard);
+        Assert.Null(WorkshopPhysicsCompiler.ColliderSlots(springboard));
+        var slider = springboard.Mechanical!.Sliders.Single();
+        Assert.Single(slider.MovingBody.Colliders);
+        var twoPlates = springboard with { Mechanical = springboard.Mechanical with { Sliders = [slider with { MovingBody = slider.MovingBody with
+            { Colliders = [.. slider.MovingBody.Colliders, slider.MovingBody.Colliders[0]] } }] } };
+        Assert.Equal(new ColliderSlotConflict(PartIdentityRow.SliderJoint, 0, 5, 4, 5), WorkshopPhysicsCompiler.ColliderSlots(twoPlates));
+
+        var refusal = Assert.Throws<ArgumentException>(() =>
+            DeclaredPhysics.Install([.. TestBundle.Entries.Select(entry => entry.Metadata.Id == plate.Metadata.Id ? sixth : entry)]));
+        Assert.Equal("'pressure_plate': colliders at part base + 1 to + 6 reach its ContactLoadSensor row at + 6", refusal.Message);
+    }
 }

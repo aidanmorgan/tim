@@ -19,6 +19,15 @@ public static class DeclaredPhysics
         ArgumentNullException.ThrowIfNull(entries);
         var errors = BundleValidator.Validate(entries.Select(entry => new NamedEntry(entry.Metadata.Id, entry)).ToArray());
         if (errors.Count != 0) throw new ArgumentException(string.Join("; ", errors));
+        // A package whose colliders would take an identity one of its own rows holds is a package defect, refused here, once, when
+        // the bundle loads.
+        var conflicts = entries.Select(entry => (entry.Metadata.Id, Conflict: WorkshopPhysicsCompiler.ColliderSlots(entry)))
+            .Where(item => item.Conflict is not null).Select(item => (item.Id, Conflict: item.Conflict!.Value)).ToArray();
+        if (conflicts.Length != 0)
+            throw new ArgumentException(string.Join("; ", conflicts.Select(item =>
+                $"'{item.Id}': colliders at part base + {item.Conflict.FirstCollider} to + {item.Conflict.LastCollider}" +
+                (item.Conflict.MovingBody is { } slider ? $" (slider {slider}'s moving body)" : "") +
+                $" reach its {item.Conflict.Row} row at + {item.Conflict.Slot}")));
         var identity = BundleSchema.WriteEntries(entries);
         var admitted = entries.ToImmutableDictionary(entry => new PartId(entry.Metadata.Id));
         lock (Gate)

@@ -53,15 +53,16 @@ public sealed class VisibleSolidColliderTests
     /// pressure plate it would hold a centred ball off the sensing face;</item>
     /// <item>engine-multi-collider-dynamic: a dynamic body admits one homogeneous collider (the Domino's pips, the Weight's base); a
     /// sphere below the radius minimum <c>ColliderDeclaration.Validate</c> admits (the Clock's pivot cap, the pressure plate's studs,
-    /// the Domino's pips, the logic parts' truth dots and the latch's reset beads); and the pressure plate's colliders past its fifth,
-    /// which would reach its contact-load row's identity (<c>WorkshopPhysicsCompiler.AdmitColliderSlots</c>);</item>
+    /// the Domino's pips); and the pressure plate's colliders past its fifth, which would reach its contact-load row's identity
+    /// (<c>WorkshopPhysicsCompiler.ColliderSlots</c>, refused when the bundle installs);</item>
     /// <item>bumper-cap-solid: the Bumper's cap stands 5 cm proud of the head at its rim (the head is at y √(0.65² − 0.25²) = 0.6
     /// there, the cap's top at 0.65). Solid, it meets a ball falling 0.3 m off the axis at its rim before the head, with a contact
     /// normal atan(0.05 / 0.336) = 8.5° from vertical instead of the head's asin(0.3 / 0.99) = 17.6°, and the authored solutions of
     /// bumper_sidekick, bumper_depth and wall_and_bumper no longer solve; that slice makes it solid and re-authors them;</item>
     /// <item>face-markings-flush: raised face markings (the logic parts' pictograms, path bars, marks and truth dots, the hold timer's
     /// track, the latch's set, reset and out markers) float 1–2 cm off their face and stand 1.5–8.5 cm proud of it; that slice
-    /// moves the art flush, so they become printing.</item>
+    /// moves the art flush, so they become printing, and owns the sphere radius minimum for the truth dots and the latch's reset
+    /// beads.</item>
     /// </list></item>
     /// </list></summary>
     /// <remarks><paramref name="Fit"/> widens the dimension agreement for a stated drawing reason (m).</remarks>
@@ -403,7 +404,7 @@ public sealed class VisibleSolidColliderTests
     public enum Feature
     {
         LampBulb, SwitchButton, DelayHousing, DelayFace, RampSlab, BatteryTerminal, DetectorCollar, GateHousing, LogicFace, LogicLamp,
-        CounterLamp, LatchIndicator, LatchSocket, ClockFace, HoldTimerFace, PlateSocket
+        CounterLamp, LatchIndicator, LatchSocket, ClockFace, HoldTimerFace, PlateSocket, NorFace, OrFace, XorFace
     }
 
     /// <summary>On its back: −90° about X, the face up; a part-local point (x, y, z) is then at (x, z, −y) from the origin.</summary>
@@ -428,6 +429,10 @@ public sealed class VisibleSolidColliderTests
         // 0.325 face. Dropped 0.1 m off the axis: resting there (centre 0.71) the ball clears the output lamp (r 0.09 at x 0.48,
         // z 0.42) once 0.3175 = √(0.43² − 0.29²) away horizontally; it is 0.38 away.
         Feature.LogicFace => (new PartId("both_gate"), Back, .37, .1f, 0, 1),
+        // CAT-025, CAT-026, CAT-027: the same face panel and drop on the NOR, OR and XOR gates.
+        Feature.NorFace => (new PartId("electrical_nor"), Back, .37, .1f, 0, 1),
+        Feature.OrFace => (new PartId("electrical_or"), Back, .37, .1f, 0, 1),
+        Feature.XorFace => (new PartId("electrical_xor"), Back, .37, .1f, 0, 1),
         // CAT-024: the electrical NAND on its back, the ball dropped onto the top of its output lamp (r 0.09 at x 0.48, z 0.42).
         Feature.LogicLamp => (new PartId("electrical_nand"), Back, .42 + .09, .48f, 0, 1),
         // CAT-020: the Counter on its back, onto its middle dot lamp (r 0.1 at z 0.4). Resting there (centre 0.84) the ball is
@@ -453,11 +458,13 @@ public sealed class VisibleSolidColliderTests
         _ => throw new ArgumentOutOfRangeException(nameof(feature), feature, "Unknown feature.")
     };
 
-    /// <summary>The Basketball dropped 0.5 m onto each feature. It stops at the drawn surface: its centre comes within 5 mm of the top
-    /// plus its radius, and never sinks deeper than the envelope's temporary penetration. On the apex of a small sphere (a lamp,
-    /// indicator or socket), which is no stable rest, only the first impact counts: up to the first rebound its lowest committed
-    /// centre lies at or above that depth and, sampled at the 120 Hz commit, within one tick's travel (v_in · T) above the contact.
-    /// Its rebound is the
+    /// <summary>The Basketball dropped 0.5 m onto each feature (the pressure plate's socket from <see cref="PlateFall"/>). It stops at the
+    /// drawn surface: its centre comes within 5 mm of the top plus its radius, and never sinks deeper than the envelope's temporary
+    /// penetration. When the feature is a sphere collider's apex (<see cref="OnSphereApex"/>), which is no stable rest, only the first
+    /// impact counts, and the 120 Hz commit can miss the turn by up to v_in·T (2.6 cm): the contact height is where the falling arc
+    /// through the last falling read meets the rising arc through the first rising read (both free flight under g). The impact
+    /// resolves within one 480 Hz substep h, so the arcs meet at most e/(1 + e)·v_in·h below the contact (2.3 mm at 3.2 m/s, 0.8 mm
+    /// for the plate's 7.7 m/s), inside the same 5 mm. Its rebound is the
     /// pair's product restitution e = 0.55 · e_static (the solver's pair law, as in the legacy engine): sampled at the 120 Hz commit,
     /// the first rising speed over the last falling speed lies in [e − g·T·(1 + e)/v_in − 2·c·T·e, e·(1 + g·T/v_in)] (gravity acts
     /// for at most one period around the impact, and drag c for at most two), widened by 2⁻²⁰ for the f32 ratio.</summary>
@@ -478,45 +485,73 @@ public sealed class VisibleSolidColliderTests
     [InlineData(Feature.ClockFace)]
     [InlineData(Feature.HoldTimerFace)]
     [InlineData(Feature.PlateSocket)]
+    [InlineData(Feature.NorFace)]
+    [InlineData(Feature.OrFace)]
+    [InlineData(Feature.XorFace)]
     public async Task ABallDroppedOntoEachSolidFeatureStopsAtItsDrawnSurfaceAndReboundsAtTheProductRestitution(Feature feature)
     {
         var (part, rotation, top, x, z, staticRestitution) = Drop(feature);
-        var apex = feature is Feature.LogicLamp or Feature.CounterLamp or Feature.LatchIndicator or Feature.LatchSocket or Feature.PlateSocket;
-        await AssertDropOnto(Place(part, Element, new(0, (float)Y, 0), rotation), x, z, top, staticRestitution, feature.ToString(), apex);
+        await AssertDropOnto(Place(part, Element, new(0, (float)Y, 0), rotation), x, z, top, staticRestitution, feature.ToString(),
+            OnSphereApex(part, rotation, x, z, top), feature == Feature.PlateSocket ? PlateFall : .5);
     }
+
+    /// <summary>The plate's socket returns e = 0.55 · 0.1 = 0.055; the rebound bound's slack is g·T·(1 + e)/v_in, so from 3 m
+    /// (v_in = √(2·g·3) = 7.7 m/s) the ratio is held to [0.044, 0.056], which tells 0.055 from the neighbouring 0.1 or 0.0.</summary>
+    private const double PlateFall = 3;
+
+    /// <summary>Whether the drop lands on a sphere collider's apex: some declared sphere, posed with the element at the origin, has its
+    /// top at the drop point (x, top, z).</summary>
+    private static bool OnSphereApex(PartId part, NumQuaternion rotation, float x, float z, double top) =>
+        DeclaredPhysics.Colliders(part).Any(collider => collider.ShapeKind == Gpu.ColliderShapeKind.Sphere &&
+            (NumVector3.Transform(new(collider.LocalPose.Translation.X, collider.LocalPose.Translation.Y, collider.LocalPose.Translation.Z),
+                rotation) + new NumVector3(0, collider.Radius, 0) - new NumVector3(x, (float)top, z)).Length() < 1e-4f);
 
     /// <summary>The restitution control for every static that keeps the neutral 1.0: the default Wall (3 × 2 × 0.25 m, CAT-066
     /// restitution 1) returns the Basketball at its own 0.55 under the product law, by the same drop and bounds.</summary>
     [Fact]
     public async Task ABallDroppedOntoAStaticWallReboundsAtItsOwnRestitution() =>
         await AssertDropOnto(WorkshopInput.Generic(PartId.Wall, Element, 0, Y, 0, 0, 0, 0, 1, WallFixture.Default), 0, 0,
-            WallFixture.Default[new("height")] * .5, 1, "Wall", apex: false);
+            WallFixture.Default[new("height")] * .5, 1, "Wall", apex: false, fall: .5);
 
     private static async Task AssertDropOnto(IWorkshopInstance element, float x, float z, double top, double staticRestitution, string feature,
-        bool apex)
+        bool apex, double fall)
     {
         var rest = Y + top + BallRadius;
-        await using var ring = await EventRingProducerTests.Ring.Running(Bench([element, BallAt(new(x, (float)(rest + .5), z))]));
-        await ring.Advance(120);
-        double vIn = 0, lowest = double.PositiveInfinity; double? vOut = null; var landed = false;
+        await using var ring = await EventRingProducerTests.Ring.Running(Bench([element, BallAt(new(x, (float)(rest + fall), z))]));
+        await ring.Advance(180);
+        double vIn = 0, lowest = double.PositiveInfinity, contact = double.NaN; double? vOut = null; var landed = false;
+        WorkshopRead? before = null;
         foreach (var read in ring.Reads)
         {
             var (y, vy) = (Position(read).Y, Velocity(read).Y);
             if (!landed && vIn > 1 && y - rest < .05 && vy > -.5 * vIn) landed = true;
             if (!landed && vy < 0) vIn = -vy;
-            if (landed && (!apex || vOut is null)) lowest = Math.Min(lowest, y);
-            if (landed && vOut is null && vy > 0) vOut = vy;
+            if (landed) lowest = Math.Min(lowest, y);
+            if (landed && vOut is null && vy > 0)
+            {
+                vOut = vy;
+                if (before is { } falling) contact = Meet(Position(falling).Y, Velocity(falling).Y, y, vy);
+            }
+            before = read;
         }
         Assert.True(landed, $"the ball never landed on the {feature}");
-        Assert.True(lowest >= rest - Penetration, $"the ball sank to {lowest:F4} m, below the {feature}'s surface contact {rest:F4} m");
-        var above = apex ? vIn * T : .005;
-        Assert.True(lowest <= rest + above, $"the ball stopped at {lowest:F4} m, above the {feature}'s surface contact {rest:F4} m");
+        var stop = apex ? contact : lowest;
+        Assert.True(stop >= rest - Penetration, $"the ball sank to {stop:F4} m, below the {feature}'s surface contact {rest:F4} m");
+        Assert.True(stop <= rest + .005, $"the ball stopped at {stop:F4} m, above the {feature}'s surface contact {rest:F4} m");
         var e = (double)((float)BallRestitution * (float)staticRestitution);
         Assert.True(vOut is not null, $"the ball did not rebound from the {feature}");
         var ratio = vOut!.Value / vIn;
         var low = e - G * T * (1 + e) / vIn - 2 * BallDrag * T * e - Math.Pow(2, -20);
         var high = e * (1 + G * T / vIn) + Math.Pow(2, -20);
         Assert.True(ratio >= low && ratio <= high, $"the {feature} rebound ratio {ratio:F4} lies outside [{low:F4}, {high:F4}] for e {e:F4}");
+    }
+
+    /// <summary>The height where the falling arc through (y_a, v_a) and the rising arc through (y_b, v_b), one commit T later, meet:
+    /// with τ after a, y_a + v_a·τ − g·τ²/2 = y_b + v_b·(τ − T) − g·(τ − T)²/2, so τ = (y_b − y_a − v_b·T − g·T²/2)/(v_a − v_b − g·T).</summary>
+    private static double Meet(double ya, double va, double yb, double vb)
+    {
+        var tau = (yb - ya - vb * T - G * T * T / 2) / (va - vb - G * T);
+        return ya + va * tau - G * tau * tau / 2;
     }
 
     /// <summary>

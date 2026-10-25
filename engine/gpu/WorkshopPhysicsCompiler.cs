@@ -8,6 +8,19 @@ using CuriousContraptions.Bundle;
 
 namespace CuriousContraptions.Gpu;
 
+/// <summary>The rows of one part's physics document, other than its colliders, that hold a fixed identity slot above the part's
+/// base. Only physics-document rows count: passage sensors are activation-network rows and hold no slot here.</summary>
+public enum PartIdentityRow : byte
+{
+    ContactTrigger, OrientationSensor, ContactLoadSensor, ElectricalSource, ContactWork, CaptureSensor, CaptureGuide, WorkshopCaptureSensors,
+    SliderBody, SliderMaterial, SliderColliders, SliderJoint, NextPart
+}
+
+/// <summary>A package whose colliders would take an identity one of its own rows holds: the colliders of the base body
+/// (<paramref name="MovingBody"/> null) or of slider <paramref name="MovingBody"/>'s moving body take part base +
+/// <paramref name="FirstCollider"/> to + <paramref name="LastCollider"/>, and reach <paramref name="Row"/> at + <paramref name="Slot"/>.</summary>
+public readonly record struct ColliderSlotConflict(PartIdentityRow Row, int? MovingBody, ulong Slot, ulong FirstCollider, ulong LastCollider);
+
 /// <summary>Compiles the bundle's declared bodies, geometry and materials; domain bindings remain separate.</summary>
 public static class WorkshopPhysicsCompiler
 {
@@ -48,7 +61,6 @@ public static class WorkshopPhysicsCompiler
             next = Math.Max(next, first + PartIdentityStride);
             var parameters = DeclaredPhysics.Parameters(instance);
             var shapes = BundleGeometry.Colliders(entry, parameters);
-            AdmitColliderSlots(instance.PartId, entry, shapes.Count);
             var mechanical = entry.Mechanical;
             var mass = mechanical?.MassProperties ?? default;
             // A declared mass binding is the instance's own f32 parameter, written to the body record's f32 mass lane, so the body mass
@@ -67,11 +79,10 @@ public static class WorkshopPhysicsCompiler
                 throw new ArgumentException("Physical declaration disagrees with its compiled footprint.");
             bodies.Add(new(instance.Id, mode, instance.Cell, instance.Local, instance.Rotation, default, default,
                 new(bodyMass), new(mass.Gravity.X, mass.Gravity.Y, mass.Gravity.Z), new(mass.LinearDrag)));
-            AddGeometry(instance.Id, first, first + (sliders.Count != 0 && shapes.Count > 1 ? 6UL : 1UL), shapes);
+            AddGeometry(instance.Id, first, first + FirstColliderOffset(sliders.Count, shapes.Count), shapes);
             for (var i = 0; i < sliders.Count; i++)
             {
                 var slider = sliders[i];
-                var identity = first + (ulong)i * 16;
                 var moving = SliderBody(instance.Id, i);
                 var compression = slider.Compression.Evaluate(parameters);
                 var offset = slider.BaseFrame.Position - slider.MovingFrame.Position - Vector3.UnitY * compression;
@@ -84,8 +95,8 @@ public static class WorkshopPhysicsCompiler
                 bodies.Add(new(moving, RigidMotionKind.Dynamic, new(x.Cell, y.Cell, z.Cell), new(x.Local, y.Local, z.Local),
                     instance.Rotation, default, default, new(body.Mass),
                     new(body.Gravity.X, body.Gravity.Y, body.Gravity.Z), new(body.LinearDrag)));
-                AddGeometry(moving, identity + 3, identity + 4, body.Colliders);
-                var joint = new PrismaticConstraintId(identity + 5);
+                AddGeometry(moving, SliderMaterial(instance.Id, i), SliderFirstCollider(instance.Id, i), body.Colliders);
+                var joint = new PrismaticConstraintId(SliderJoint(instance.Id, i));
                 prismatics.Add(new(joint, instance.Id, moving,
                     new(slider.BaseFrame.Position, slider.BaseFrame.Rotation), new(slider.MovingFrame.Position, slider.MovingFrame.Rotation),
                     slider.LowerLimit, slider.UpperLimit, slider.Stiffness.Evaluate(parameters), slider.Damping.Evaluate(parameters),
@@ -121,7 +132,7 @@ public static class WorkshopPhysicsCompiler
             var targetIndex = 0UL;
             foreach (var target in construction.Instances.Where(instance => DeclaredPhysics.IsPayload(instance.PartId)).OrderBy(body => body.Id.Value))
             {
-                var sensorId = !construction.Puzzle.Id.IsAuthored ? first + 16 + targetIndex * 2 : first + 6;
+                var sensorId = !construction.Puzzle.Id.IsAuthored ? WorkshopCaptureSensor(frame.Id, targetIndex) : CaptureSensor(frame.Id).Value;
                 sensors.Add(new(new(sensorId), frame.Id, target.Id, RigidLocalPose.Identity,
                     new(capture.Minimum.X,capture.Minimum.Y,capture.Minimum.Z),
                     new(capture.Maximum.X,capture.Maximum.Y+margin,capture.Maximum.Z),
@@ -189,8 +200,26 @@ public static class WorkshopPhysicsCompiler
 
     /// <summary>The moving body the owner's slider <paramref name="slider"/> carries.</summary>
     public static GpuBodyId SliderBody(GpuBodyId owner, int slider) =>
-        slider is >= 0 and < 16 ? new(checked(PartIdentities(owner) + (ulong)slider * 16 + 2))
+        new(checked(SliderIdentities(owner, slider) + 2));
+
+    /// <summary>Slider i's identities start 16 i above the part's base: its moving body + 2, material + 3, first collider + 4 and
+    /// joint + 5.</summary>
+    private static ulong SliderIdentities(GpuBodyId owner, int slider) =>
+        slider is >= 0 and < 16 ? checked(PartIdentities(owner) + (ulong)slider * 16)
             : throw new ArgumentOutOfRangeException(nameof(slider), "An element declares at most 16 sliders.");
+
+    private static ulong SliderMaterial(GpuBodyId owner, int slider) => checked(SliderIdentities(owner, slider) + 3);
+
+    private static ulong SliderFirstCollider(GpuBodyId owner, int slider) => checked(SliderIdentities(owner, slider) + 4);
+
+    private static ulong SliderJoint(GpuBodyId owner, int slider) => checked(SliderIdentities(owner, slider) + 5);
+
+    /// <summary>The base body's colliders start at part base + 1, or + 6 when the part carries sliders and more than one collider.</summary>
+    internal static ulong FirstColliderOffset(int sliders, int colliders) => sliders != 0 && colliders > 1 ? 6UL : 1UL;
+
+    /// <summary>A Workshop (unauthored) capture frame's sensor for its <paramref name="target"/>th payload, from part base + 16; its
+    /// guide takes the next identity.</summary>
+    private static ulong WorkshopCaptureSensor(GpuBodyId owner, ulong target) => checked(PartIdentities(owner) + 16 + target * 2);
 
     /// <summary>The finite electrical store a declared Source compiles for one owner, from its own store parameters as f32: the
     /// initial energy is capacity × initial charge. The enable state is the Choice index, 0 Disabled and 1 Enabled.</summary>
@@ -261,39 +290,57 @@ public static class WorkshopPhysicsCompiler
     private static IWorkshopInstance? FirstPayload(WorkshopConstruction construction) =>
         construction.Instances.FirstOrDefault(instance => DeclaredPhysics.IsPayload(instance.PartId));
 
-    /// <summary>A part's colliders take the identities part base + 1 to + n (from + 6 when it carries sliders and more than one
-    /// collider). The rows its declaration compiles take fixed slots above the same base: a contact trigger, orientation sensor,
-    /// contact-load sensor, electrical source or authored capture sensor + 6 (its guide + 7), contact work + 8, Workshop capture
-    /// sensors and guides from + 16 up, and slider i's moving body, material, collider and joint + 16i + 2 to + 5. A declaration
-    /// whose colliders would reach one of its own slots is refused with the slot it reaches, before an identity is allocated
-    /// twice.</summary>
-    internal static void AdmitColliderSlots(PartId part, BundleEntry entry, int colliders)
+    /// <summary>The first identity a package's colliders would take that one of its own physics-document rows also holds, or null.
+    /// The layout is the allocator's own, measured above one part's base: the base body's colliders from
+    /// <see cref="FirstColliderOffset"/>, each slider's moving-body colliders from its first-collider identity, and the rows its
+    /// declaration compiles (the contact trigger, orientation sensor, contact-load sensor, electrical source and contact work, the
+    /// authored capture sensor and guide, the Workshop capture sensors from <see cref="WorkshopCaptureSensor"/> up, and each slider's
+    /// body, material, colliders and joint). The next part's base, <see cref="PartIdentityStride"/> above, bounds them all. Only
+    /// physics-document rows count: passage sensors are activation-network rows. <see cref="DeclaredPhysics.Install"/> refuses a bundle
+    /// with any conflict, so a package defect is refused when the bundle loads, never during a player's compile.</summary>
+    public static ColliderSlotConflict? ColliderSlots(BundleEntry entry)
     {
+        ArgumentNullException.ThrowIfNull(entry);
         var owner = new GpuBodyId(1);
         var origin = PartIdentities(owner);
-        var sliders = entry.Mechanical?.Sliders.Count ?? 0;
-        var first = sliders != 0 && colliders > 1 ? 6UL : 1UL;
-        var last = first + (ulong)colliders - 1;
-        var slots = new List<(ulong From, ulong To, string Row)>();
-        void Slot(ulong identity, string row) => slots.Add((identity - origin, identity - origin, row));
-        if (entry.Signal?.Contact is not null) Slot(ContactTrigger(owner).Value, "contact trigger");
-        if (entry.Signal?.Orientation is not null) Slot(OrientationSensor(owner).Value, "orientation sensor");
-        if (entry.Signal?.ContactLoad is not null) Slot(ContactLoadSensor(owner).Value, "contact-load sensor");
-        if (entry.Electrical?.Supply?.Store is not null) Slot(ElectricalSource(owner).Value, "electrical source");
-        if (entry.Mechanical?.ContactWork is not null) Slot(ContactWork(owner).Value, "contact work");
+        var sliders = entry.Mechanical?.Sliders ?? [];
+        var rows = new List<(ulong From, ulong To, PartIdentityRow Row)>();
+        void Row(ulong identity, PartIdentityRow row) => rows.Add((identity - origin, identity - origin, row));
+        if (entry.Signal?.Contact is not null) Row(ContactTrigger(owner).Value, PartIdentityRow.ContactTrigger);
+        if (entry.Signal?.Orientation is not null) Row(OrientationSensor(owner).Value, PartIdentityRow.OrientationSensor);
+        if (entry.Signal?.ContactLoad is not null) Row(ContactLoadSensor(owner).Value, PartIdentityRow.ContactLoadSensor);
+        if (entry.Electrical?.Supply?.Store is not null) Row(ElectricalSource(owner).Value, PartIdentityRow.ElectricalSource);
+        if (entry.Mechanical?.ContactWork is not null) Row(ContactWork(owner).Value, PartIdentityRow.ContactWork);
         if (entry.Mechanical?.Capture is not null)
         {
-            Slot(CaptureSensor(owner).Value, "capture sensor");
-            Slot(CaptureSensor(owner).Value + 1, "capture guide");
-            slots.Add((16, ulong.MaxValue, "Workshop capture sensor"));
+            Row(CaptureSensor(owner).Value, PartIdentityRow.CaptureSensor);
+            Row(CaptureSensor(owner).Value + 1, PartIdentityRow.CaptureGuide);
+            rows.Add((WorkshopCaptureSensor(owner, 0) - origin, ulong.MaxValue, PartIdentityRow.WorkshopCaptureSensors));
         }
-        for (var i = 0; i < sliders; i++)
-            slots.Add(((ulong)i * 16 + 2, (ulong)i * 16 + 5, $"slider {i}"));
-        foreach (var (from, to, row) in slots)
-            if (colliders > 0 && from <= last && first <= to)
-                throw new WorkshopEditRejectedException(WorkshopEditRejection.IdentityExhausted,
-                    $"The {part.Value} part declares {colliders} colliders, whose identities (part base + {first} to + {last}) reach " +
-                    $"its {row} row at part base + {Math.Max(from, first)}.");
+        for (var i = 0; i < sliders.Count; i++)
+        {
+            Row(SliderBody(owner, i).Value, PartIdentityRow.SliderBody);
+            Row(SliderMaterial(owner, i), PartIdentityRow.SliderMaterial);
+            var moving = SliderFirstCollider(owner, i) - origin;
+            rows.Add((moving, moving + (ulong)sliders[i].MovingBody.Colliders.Count - 1, PartIdentityRow.SliderColliders));
+            Row(SliderJoint(owner, i), PartIdentityRow.SliderJoint);
+        }
+        rows.Add((PartIdentityStride, ulong.MaxValue, PartIdentityRow.NextPart));
+        var baseFirst = FirstColliderOffset(sliders.Count, entry.Colliders.Count);
+        if (Reach(baseFirst, entry.Colliders.Count, null) is { } conflict) return conflict;
+        for (var i = 0; i < sliders.Count; i++)
+            if (Reach(SliderFirstCollider(owner, i) - origin, sliders[i].MovingBody.Colliders.Count, i) is { } moving) return moving;
+        return null;
+
+        ColliderSlotConflict? Reach(ulong first, int count, int? movingBody)
+        {
+            if (count == 0) return null;
+            var last = first + (ulong)count - 1;
+            foreach (var (from, to, row) in rows)
+                if (from <= last && first <= to && !(row == PartIdentityRow.SliderColliders && movingBody is not null && from == first))
+                    return new(row, movingBody, Math.Max(from, first), first, last);
+            return null;
+        }
     }
 
     internal static ulong PartIdentities(GpuBodyId id)

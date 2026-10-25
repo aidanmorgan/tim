@@ -7,6 +7,31 @@ namespace CuriousContraptions.Tests;
 
 public sealed class BothGateTests
 {
+    /// <summary>CAT-013 (shared by all five supplied gates): the declared colliders in order: the body and foot boxes, then the parts
+    /// that stand proud of the body (visible = solid): the face panel, the first, second and output lamps, and the first, second,
+    /// power and output port sockets.</summary>
+    [Theory]
+    [InlineData("both_gate")]
+    [InlineData("electrical_nand")]
+    [InlineData("electrical_nor")]
+    [InlineData("electrical_or")]
+    [InlineData("electrical_xor")]
+    public void EverySuppliedGateDeclaresItsBodyFootAndProudPartsInOrder(string gate)
+    {
+        var colliders = DeclaredPhysics.Colliders(new PartId(gate));
+        Assert.Equal(10, colliders.Count);
+        TestBundle.AssertCollider(colliders[0], ColliderShapeKind.Box, 0f, new(.85f, .65f, .325f), new(0f, 0f, 0f));
+        TestBundle.AssertCollider(colliders[1], ColliderShapeKind.Box, 0f, new(.925f, .08f, .425f), new(0f, -.75f, 0f));
+        TestBundle.AssertCollider(colliders[2], ColliderShapeKind.Box, 0f, new(.725f, .525f, .02f), new(0f, 0f, .35f));
+        TestBundle.AssertCollider(colliders[3], ColliderShapeKind.Sphere, .09f, default, new(-.48f, .3f, .42f));
+        TestBundle.AssertCollider(colliders[4], ColliderShapeKind.Sphere, .09f, default, new(-.48f, -.3f, .42f));
+        TestBundle.AssertCollider(colliders[5], ColliderShapeKind.Sphere, .09f, default, new(.48f, 0f, .42f));
+        TestBundle.AssertCollider(colliders[6], ColliderShapeKind.Sphere, .075f, default, new(-.94f, .35f, 0f));
+        TestBundle.AssertCollider(colliders[7], ColliderShapeKind.Sphere, .075f, default, new(-.94f, -.35f, 0f));
+        TestBundle.AssertCollider(colliders[8], ColliderShapeKind.Sphere, .075f, default, new(0f, -.75f, .55f));
+        TestBundle.AssertCollider(colliders[9], ColliderShapeKind.Sphere, .075f, default, new(.94f, 0f, 0f));
+    }
+
     internal static readonly PartId Kind=new("both_gate");
     internal static WorkshopConnection Link(ulong source,ulong target,WorkshopSocket input=WorkshopSocket.PowerIn)=>
         new(new(source),WorkshopSocket.Supply,new(target),input,WorkshopConnectionDomain.Electrical);

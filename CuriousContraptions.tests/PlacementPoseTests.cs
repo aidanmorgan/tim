@@ -264,17 +264,31 @@ public sealed class PlacementPoseTests
         }
     }
 
-    // elements-visible-solid-sweep: the proud parts that now collide count toward the bench edge. The Counter's power and supply
-    // sockets (r 0.075 at x ∓0.93) reach x ±1.005, past the foot's ±0.9. At x = 6 the foot alone (6.9) was inside the edge at 7, but
-    // the supply socket (7.005) is not, so the pose is refused OutsideBench; at 5.9 (6.905) it is admitted.
+    // elements-visible-solid-sweep: the proud parts that now collide count toward the bench edge (x ±7, z ±4).
+    // - The Counter's power and supply sockets (r 0.075 at x ∓0.93) reach ±1.005, past the foot's ±0.9: at x ±6 the foot alone
+    //   (±6.9) was inside, the sockets (±7.005) are not, so both sides refuse OutsideBench; at ±5.9 (±6.905) it is admitted.
+    // - Turned a quarter about the vertical, the sockets reach ±1.005 along z: at z 3 (4.005) it is refused, at 2.9 (3.905) admitted.
+    // - The Pressure plate's sockets stand out on +z only (the ActivationOut socket, r 0.075 at z 1.18, reaches 1.255), while −z ends
+    //   at the base's −1.1: at z 2.8 it reaches 4.055 and is refused, at z −2.8 it reaches −3.9 and is admitted.
     [Fact]
-    public void ACounterAtTheOldBenchEdgeIsRefusedBecauseItsProudSocketsCollide()
+    public void ProudSocketsCountTowardTheBenchEdge()
     {
         var definitions = Definitions();
-        foreach (var (x, refusal) in new[] { (6f, PlacementRefusal.OutsideBench), (5.9f, PlacementRefusal.None) })
+        var quarter = new Quaternion(Vector3.Up, MathF.PI / 2);
+        foreach (var (part, at, rotation, refusal) in new[]
         {
-            var composed = PlacementPose.Compose(definitions, [], new(PartId.Counter, new(2), false), new(x, 2, 0), Quaternion.Identity);
-            Assert.True(refusal == composed.Refusal, $"the Counter at x {x}: {composed.Refusal}");
+            (PartId.Counter, new Vector3(6, 2, 0), Quaternion.Identity, PlacementRefusal.OutsideBench),
+            (PartId.Counter, new Vector3(5.9f, 2, 0), Quaternion.Identity, PlacementRefusal.None),
+            (PartId.Counter, new Vector3(-6, 2, 0), Quaternion.Identity, PlacementRefusal.OutsideBench),
+            (PartId.Counter, new Vector3(-5.9f, 2, 0), Quaternion.Identity, PlacementRefusal.None),
+            (PartId.Counter, new Vector3(0, 2, 3), quarter, PlacementRefusal.OutsideBench),
+            (PartId.Counter, new Vector3(0, 2, 2.9f), quarter, PlacementRefusal.None),
+            (PartId.PressurePlate, new Vector3(0, 2, 2.8f), Quaternion.Identity, PlacementRefusal.OutsideBench),
+            (PartId.PressurePlate, new Vector3(0, 2, -2.8f), Quaternion.Identity, PlacementRefusal.None)
+        })
+        {
+            var composed = PlacementPose.Compose(definitions, [], new(part, new(2), false), at, rotation);
+            Assert.True(refusal == composed.Refusal, $"the {part} at {at}: {composed.Refusal}");
         }
     }
 

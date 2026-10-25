@@ -5,7 +5,7 @@ created: '2026-10-25'
 status: 'done'
 baseline: a8ba8944
 review_loop_iteration: 0
-followup_review_recommended: true
+followup_review_recommended: false
 context:
   - '/Users/aidan/dev/personal/tim/.claude/worktrees/story-elements-visible-solid-sweep/AGENTS.md'
   - '/Users/aidan/dev/personal/tim/.claude/worktrees/story-elements-visible-solid-sweep/docs/testing-guidance.md'
@@ -17,15 +17,15 @@ deferred:
     evidence: |-
       No torus collider kind exists; a filled disc would be a new approximation of a round hollow part and would hold a centred ball off the pressure plate's sensing face. VisibleSolidColliderTests lists each; CAT-001, CAT-015, CAT-052 and CAT-067 name the owner.
   - summary: >-
-      engine-multi-collider-dynamic: several colliders on a moving body (mass and inertia from the declaration, colliders as shape only), a lower sphere radius minimum, and the pressure plate's five-collider limit.
+      engine-multi-collider-dynamic: several colliders on a moving body (mass and inertia from the declaration, colliders as shape only), a lower sphere radius minimum, the pressure plate's five-collider limit, and a compile-path test that a construction with a part whose colliders reach its own row slots is refused before any identity is allocated twice.
     evidence: |-
-      PhysicsDeclarations, PhysicsBodyReadSet and PhysicsGpuAbi admit one collider per dynamic body (the Domino's pips, the Weight's base); ColliderDeclaration.Validate's sphere radius minimum refuses the Clock's pivot cap, the plate's studs, the pips, the truth dots and the latch's beads; a sixth plate collider reaches its contact-load row's identity, which WorkshopPhysicsCompiler.AdmitColliderSlots now refuses.
+      PhysicsDeclarations, PhysicsBodyReadSet and PhysicsGpuAbi admit one collider per dynamic body (the Domino's pips, the Weight's base); ColliderDeclaration.Validate's sphere radius minimum refuses the Clock's pivot cap, the plate's studs and the pips (the truth dots and the latch's beads are face-markings-flush's); a sixth plate collider reaches its contact-load row's identity, which WorkshopPhysicsCompiler.ColliderSlots reports and DeclaredPhysics.Install refuses when the bundle loads (PackageRuntimeParityTests). No shipped package can reach the compile path with a conflict, so its own test waits for the slice that relaxes the limit.
   - summary: >-
       bumper-cap-solid: make the Bumper's cap solid and re-author bumper_sidekick, bumper_depth and wall_and_bumper.
     evidence: |-
       As a cylinder collider the cap met a ball 0.3 m off the axis at its rim (contact normal 8.5° from vertical against the head's 17.6°) and the three lessons' authored solutions stopped solving (LaunchLessonSolveTests, F32BehaviourIdentityTests); the collider was withdrawn.
   - summary: >-
-      face-markings-flush: move the raised face markings flush (the logic parts' pictograms, path bars, marks and truth dots, the hold timer's track, the latch's set, reset and out markers), so they become printing.
+      face-markings-flush: move the raised face markings flush (the logic parts' pictograms, path bars, marks and truth dots, the hold timer's track, the latch's set, reset and out markers), so they become printing; it owns the truth dots and the latch's reset beads whole, including the sphere radius minimum their r 0.035 and 0.025 are below.
     evidence: |-
       They float 1–2 cm off their face and stand 1.5–8.5 cm proud of it; VisibleSolidColliderTests lists them as Uncollided, owned by that slice.
 ---
@@ -132,3 +132,17 @@ deferred:
 - **Verification:**
   - Build: 0 warnings.
   - Full suite: CuriousContraptions.tests 3532/3532, E2eRunner.Tests 208/208, BundleElements.Tests 194/194, Coverage.Tests 77/77, WorkerAotGuard.Tests 17/17. Skipped 0 in every project.
+- **Follow-up pass (26 Oct):** no high; Forward-Only found no violations. Patched:
+  - the collider-slot refusal moved to bundle install, with typed `PartIdentityRow` and the allocator-derived layout (`FirstColliderOffset`, the slider and capture slot functions), the next-part base and the moving-body slots;
+  - the apex bound restored to 5 mm by arc intersection;
+  - drops onto NOR, OR and XOR, and a tighter plate-socket restitution check;
+  - plate activation unchanged;
+  - ordered pins for the gates and hold timer;
+  - workbench capacity;
+  - bench edges on −x, a rotated part and the plate's one-sided z;
+  - docs.
+
+  Rejected: the passage-sensor claim (passage sensors are not in the identity set) and the authored-layout claim (no Playable lesson uses these parts). **followup_review_recommended: false** (converged).
+- **Verification:**
+  - Build: 0 warnings.
+  - Full suite: CuriousContraptions.tests 3550/3550, E2eRunner.Tests 208/208, BundleElements.Tests 194/194, Coverage.Tests 77/77, WorkerAotGuard.Tests 17/17. Skipped 0 in every project.
