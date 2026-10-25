@@ -57,6 +57,17 @@ For required publication, independent SnapshotApproval first verifies every pre-
 - Every existing/new catalogue part, fixture and supported mode needs identifiable actual Chrome/Playwright UI construction, verified placed configuration and typed connections, intended behavior, a meaningful negative/control, applicable integration and exact Run/Reset restoration plus save/load where supported. Use actual UI controls, never setters, imported solutions or numeric placement menus. Retain recipes, revision/bundle identity, assertions, logs, motion/screenshots and failed attempts. Native/reference/fake-page checks supplement this proof. Accumulate affected cases across the batch, including infrastructure changes, and run necessary affected/integration/regression E2E after all named puzzle elements are implemented. Until then label browser qualification pending; preserve older proof without claiming it covers changed inputs. No element counter is needed. Missing/stale proof remains incomplete at the enforcing batch or release gate.
 - Prove relevant boundaries, production build and ordinary lifecycle/resource ownership; qualify detailed resource stress and affected performance at their named gates. Commit and push each independently reviewed fully implemented element before the next, recording pending post-catalogue browser qualification; preserve individual evidence/publication when administrative stages share a slice.
 - Refactor forward: one current path, no fallback, compatibility shim, legacy mode, old-name alias or automatic migration. Never create backwards compatibility shims, helpers, or bridges. Every slice names the legacy it deletes; the programme ends with zero legacy physics/animation code in the tree (git history is the archive). Update current callers, authored content, tools, tests and active docs together; reject unsupported inputs explicitly and atomically. Puzzle elements must be refactored into the new declarative data schema, never removed. Historical artifacts remain unchanged evidence, not supported current input.
+  - **Review gate (owner, 25 October 2026):** a reviewer treats as a **Fail** any change that adds or keeps any of the following:
+    - a fallback;
+    - backwards compatibility: a compatibility shim, helper, bridge, adapter for an old format or caller, legacy mode, old-name alias or re-export, migration or upgrade path, or version branch;
+    - a retained deprecated field, member or file kept so old inputs keep working;
+    - a second rule or code path for the same behaviour, chosen by condition, flag, mode or environment.
+
+    Two things are not compatibility:
+    - Refusing unsupported input with a typed, visible reason. Detection only names the refusal and never reads or uses the old content.
+    - A numerical recovery inside one algorithm, such as a singular-matrix per-row solve. It applies the same rule as the main path.
+
+    Every bmad-build-auto review runs the Forward-Only Auditor layer (`_bmad/custom/bmad-build-auto.toml`). Triage grades each confirmed finding `high`, never rejects it as low or out of scope, and a slice cannot reach `done` with one unresolved.
 - **Hard rule — no skipped tests (owner, 24 October 2026).**
   - Every test of the game system runs and passes in every required run: local verification, hooks and CI. Every reported result has `Skipped: 0`.
   - The game system's tests are the C# solution's test projects and the node harnesses for game runtime code.
