@@ -356,17 +356,80 @@ public sealed class PlacementPoseTests
     // Impact switch (at 1 m) over its button (cylinder r 0.38, h 0.18 at y 0.06) rests on the button's top, 1 + 0.15 + 0.34; dropped
     // into the Battery (at 1 m) over its terminal (cylinder r 0.16, h 0.14 at y 0.59) it rests on the terminal's top, 1 + 0.66 + 0.34,
     // the highest top under its centre (the body's top, 0.525, is lower). Control: held clear above either part it is not moved.
+    public static TheoryData<PartId, float, float> UprightCaps() => new()
+    {
+        { PartId.ImpactSwitch, 1.1f, 1f + .15f + .34f },
+        { PartId.Battery, 1.5f, 1f + .66f + .34f }
+    };
+
     [Theory]
-    [InlineData("switch", 1.1f, 1f + .15f + .34f)]
-    [InlineData("battery", 1.5f, 1f + .66f + .34f)]
-    public void ABallDroppedOverAnUprightCylinderRestsOnItsCap(string part, float dropY, float restY)
+    [MemberData(nameof(UprightCaps))]
+    public void ABallDroppedOverAnUprightCylinderRestsOnItsCap(PartId part, float dropY, float restY)
     {
         var definitions = Definitions();
-        IWorkshopInstance[] placed = [At(new PartId(part), 1, new(0, 1, 0), Quaternion.Identity)];
+        IWorkshopInstance[] placed = [At(part, 1, new(0, 1, 0), Quaternion.Identity)];
         var mover = new TubeMouthMover(PartId.Basketball, new(2), false);
         var rested = Composed(definitions, placed, mover, new(0, dropY, 0), Quaternion.Identity).Position;
         Assert.True(MathF.Abs(rested.Y - restY) < 1e-5f, $"a ball over the {part} rests at {rested.Y}, not {restY}");
         var clear = new Vector3(0, 3, 0);
         Assert.Equal(Base(definitions, placed, mover, clear, Quaternion.Identity), Composed(definitions, placed, mover, clear, Quaternion.Identity));
+    }
+
+    // The cap's disc is the footprint, not its bounding square. Placement points snap to the 0.1 m grid, so the boundary is shown on
+    // the Impact switch's button (r 0.38, top 0.15, at 1 m), whose square holds grid points on both sides of the disc (the Battery's
+    // r 0.16 terminal holds none outside it). A Basketball centred at (0.3, ·, 0.2), 0.361 m from the axis (inside the disc), rests on
+    // the button's top (1 + 0.15 + 0.34) and is admitted. Centred at (0.3, ·, 0.3), 0.424 m from the axis (inside the square, outside
+    // the disc), the highest top under it is the base's (1 − 0.025 + 0.34); there it would reach into the button beside it (0.044 m
+    // out from its side and 0.165 m above its top: 0.171 m, under the 0.34 m radius), so that rest is refused IntoPart.
+    [Fact]
+    public void AnUprightCapIsARestSurfaceOnlyOverItsDisc()
+    {
+        var definitions = Definitions();
+        IWorkshopInstance[] placed = [At(PartId.ImpactSwitch, 1, new(0, 1, 0), Quaternion.Identity)];
+        var mover = new TubeMouthMover(PartId.Basketball, new(2), false);
+        var inside = PlacementPose.Compose(definitions, placed, mover, new(.3f, 1.1f, .2f), Quaternion.Identity);
+        Assert.Equal(PlacementRefusal.None, inside.Refusal);
+        Assert.True(MathF.Abs(inside.Position.Y - (1f + .15f + .34f)) < 1e-5f, $"inside the disc it rests at {inside.Position.Y}");
+        var corner = PlacementPose.Compose(definitions, placed, mover, new(.3f, 1.1f, .3f), Quaternion.Identity);
+        Assert.True(MathF.Abs(corner.Position.Y - (1f - .025f + .34f)) < 1e-5f, $"outside the disc it rests at {corner.Position.Y}");
+        Assert.Equal(PlacementRefusal.IntoPart, corner.Refusal);
+    }
+
+    // A lying or tipped cylinder has no flat top, so it is no shelf: a Basketball over the default Delay's face disc (r 0.55, axis +Z,
+    // at z 0.32; centred at z 0.5, beyond the housing and the base) and over the button of an Impact switch tipped 90° about Z (axis
+    // −X; centred on it, clear of the base's footprint) keeps the base pose.
+    [Fact]
+    public void ALyingCylinderIsNotARestSurface()
+    {
+        var definitions = Definitions();
+        var mover = new TubeMouthMover(PartId.Basketball, new(2), false);
+        var cases = new (IWorkshopInstance[] Placed, Vector3 At)[]
+        {
+            ([At(PartId.Delay, 1, new(0, 1, 0), Quaternion.Identity)], new(0, 1.4f, .5f)),
+            ([At(PartId.ImpactSwitch, 1, new(0, 1, 0), new Quaternion(Vector3.Back, MathF.PI / 2))], new(-.06f, 1.3f, 0)),
+        };
+        foreach (var (placed, at) in cases)
+            Assert.Equal(Base(definitions, placed, mover, at, Quaternion.Identity), Composed(definitions, placed, mover, at, Quaternion.Identity));
+    }
+
+    // A box diagonally beside an upright cylinder, inside its bounding square but outside its round side, does not overlap it: an
+    // upright Weight (radius r) rested on the plate with a small Wall (0.4 × 0.4 × 0.12 m) whose nearest vertical edge is at (0.8 r, 0.8 r)
+    // from the Weight's axis, 0.8·√2·r = 1.13 r away, is admitted. Control: with the edge at (0.6 r, 0.6 r), 0.85 r away, it is
+    // refused IntoPart.
+    [Theory]
+    [InlineData(.8f, PlacementRefusal.None)]
+    [InlineData(.6f, PlacementRefusal.IntoPart)]
+    public void ABoxDiagonallyBesideAnUprightCylinderOverlapsOnlyItsTrueShape(float fraction, PlacementRefusal refusal)
+    {
+        var definitions = Definitions();
+        var weight = CuriousContraptions.Bundle.BundleGeometry.Colliders(TestBundle.Entry(WeightTests.Weight))[0];
+        var (r, h) = (weight.HalfExtents.X, weight.HalfExtents.Y);
+        var face = PlateY + .08f;
+        var edge = fraction * r;
+        IWorkshopInstance[] placed = [PlacedParts.Plate(new(1), 0, PlateY, 0, .5f),
+            At(PartId.Wall, 3, new(edge + .2f, face + h, edge + .06f), Quaternion.Identity, WallFixture.Values(.4f, .4f, .12f))];
+        var composed = PlacementPose.Compose(definitions, placed, new(WeightTests.Weight, new(2), false), new(0, PlateY, 0), Quaternion.Identity);
+        Assert.True(MathF.Abs(composed.Position.Y - face) < 1e-5f, $"the Weight rests at {composed.Position.Y}, not on the face {face}");
+        Assert.Equal(refusal, composed.Refusal);
     }
 }

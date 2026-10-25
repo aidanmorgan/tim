@@ -19,7 +19,7 @@
 
 | Item | Value and source |
 | --- | --- |
-| Body and shape | Harvest baseline: one static body with one static box: centre (0, −0.7, 0), half (0.675, 0.075, 0.4) `engine/gpu/WorkshopPhysicsCompiler.cs@a6c914e:L127-L128`. Current: that base box, the housing box and the face cylinder (Colliders above). |
+| Body and shape | Harvest baseline: one static body with one static box: centre (0, −0.7, 0), half (0.675, 0.075, 0.4) `engine/gpu/WorkshopPhysicsCompiler.cs@a6c914e:L127-L128`. Current (`elements/DelayBox/delay.tscn`): that base box; the housing box 1.25 × 1.25 × 0.6 at the origin; the face cylinder r 0.55, 0.035 thick at z 0.32, axis +Z; and spheres for the hub pip (r 0.075 at z 0.4), the indicator (r 0.065 at (0, −0.35, 0.37)) and the two port sockets (r 0.075 at x ±0.72). The countdown hand does not collide. |
 | Material | restitution 1, bounce threshold 0.1 m/s, friction 0.3 `engine/gpu/WorkshopPhysicsCompiler.cs@a6c914e:L107-L110`. |
 | Constraints and joints | none. |
 | Sockets and ports | ActivationIn at local (−0.72, 0, 0); ActivationOut at (0.72, 0, 0) `engine/gpu/WorkshopConnections.cs@a6c914e:L41-L52`. No electrical supply generated. |

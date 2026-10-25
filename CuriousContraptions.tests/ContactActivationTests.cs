@@ -23,22 +23,22 @@ public sealed class ContactActivationTests
     {
         var construction = Construction();
         var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
-        var boxes = scene.Colliders.ToArray().Where(c => c.Body == new GpuBodyId(2)).ToArray();
+        var colliders = scene.Colliders.ToArray().Where(c => c.Body == new GpuBodyId(2)).ToArray();
         // The base and the button, then (elements-visible-solid) the two terminal spheres and the activation socket sphere.
-        Assert.Equal(5, boxes.Length);
-        Assert.Equal(ColliderShapeKind.Box, boxes[0].Shape);
-        Assert.Equal(new MetreVector(0f, -.15f, 0f), boxes[0].Pose.Translation);
-        Assert.Equal(new MetreVector(.55f, .125f, .5f), boxes[0].HalfExtents);
+        Assert.Equal(5, colliders.Length);
+        Assert.Equal(ColliderShapeKind.Box, colliders[0].Shape);
+        Assert.Equal(new MetreVector(0f, -.15f, 0f), colliders[0].Pose.Translation);
+        Assert.Equal(new MetreVector(.55f, .125f, .5f), colliders[0].HalfExtents);
         // The drawn button (elements-visible-solid): a cylinder of radius 0.38 and height 0.18 at y 0.06, axis local +Y.
-        Assert.Equal(ColliderShapeKind.Cylinder, boxes[1].Shape);
-        Assert.Equal(new MetreVector(0f, .06f, 0f), boxes[1].Pose.Translation);
-        Assert.Equal((.38f, new MetreVector(0f, .09f, 0f)), (boxes[1].Radius.Value, boxes[1].HalfExtents));
+        Assert.Equal(ColliderShapeKind.Cylinder, colliders[1].Shape);
+        Assert.Equal(new MetreVector(0f, .06f, 0f), colliders[1].Pose.Translation);
+        Assert.Equal((.38f, new MetreVector(0f, .09f, 0f)), (colliders[1].Radius.Value, colliders[1].HalfExtents));
         // The terminals (spheres r 0.08 at x ∓0.58) and the ActivationOut socket (sphere r 0.09 at (0.45, 0, 0.4)), as drawn.
         Assert.Equal([(ColliderShapeKind.Sphere, new MetreVector(-.58f, 0f, 0f), .08f), (ColliderShapeKind.Sphere, new MetreVector(.58f, 0f, 0f), .08f),
                 (ColliderShapeKind.Sphere, new MetreVector(.45f, 0f, .4f), .09f)],
-            boxes[2..].Select(c => (c.Shape, c.Pose.Translation, c.Radius.Value)));
+            colliders[2..].Select(c => (c.Shape, c.Pose.Translation, c.Radius.Value)));
         // Every collider of the switch takes the inherited static material.
-        Assert.All(boxes, collider =>
+        Assert.All(colliders, collider =>
         {
             var material = scene.Materials.ToArray().Single(m => m.Id == collider.Material);
             Assert.Equal((new Restitution(1f), new LinearSpeed(.1f), new FrictionCoefficient(.3f)),

@@ -5,7 +5,7 @@ created: '2026-10-25'
 status: 'done'
 baseline: f321b91d
 review_loop_iteration: 0
-followup_review_recommended: true
+followup_review_recommended: false
 context:
   - '/Users/aidan/dev/personal/tim/.claude/worktrees/story-elements-visible-solid/AGENTS.md'
   - '/Users/aidan/dev/personal/tim/.claude/worktrees/story-elements-visible-solid/docs/testing-guidance.md'
@@ -15,6 +15,7 @@ warnings: []
 deferred:
   - 'Powered gate collars (outer 0.78 m) are not solid: the existing kinds need a new box ring around the bore, which this slice may not add. Deferred to engine-hollow-shapes (coordinator, 25 Oct 2026); VisibleSolidColliderTests lists them as pending.'
   - 'Pipe, both bends and funnel declare static restitution 1.0 against their documented 0.15. Setting the pipe to 0.15 was tried: clear_pipe no longer solves at precision 0 (LaunchLessonSolveTests), and joined_pipe event 1 moves from tick 240 to 272 against the 12-tick bound (F32BehaviourIdentityTests, all three precisions; clear_pipe also fails it). Reverted; deferred to engine-hollow-shapes, which sets 0.15 and re-authors the affected lessons (coordinator, 25 Oct 2026).'
+  - 'Open, for a decision: extending the collider-vs-art test to every element package found visible parts standing proud of the body with no collider on elements outside this slice''s list. VisibleSolidColliderTests names each in its Uncollided list: the Basketball seam stripe; the Bumper cap and upper ring; the Domino pips; the Weight base, bands and eye; the Pressure plate studs, sockets and ring; and on the five logic parts, the Hold timer, Counter, Latch and Clock their face panels, lamps or indicators and sockets.'
 ---
 
 <intent-contract>
@@ -142,3 +143,36 @@ deferred:
   - Build: 0 warnings.
   - Full suite: CuriousContraptions.tests 3498/3498, E2eRunner.Tests 208/208, BundleElements.Tests 194/194, Coverage.Tests 77/77, WorkerAotGuard.Tests 17/17. Skipped 0 in every project.
   - `git diff --check`: clean.
+
+### 2026-10-25 — Review pass (follow-up on b02b5fea)
+- verdicts: 28 findings — high 0, medium 4, low 12, false 0, maybe-false 0, plus 12 carried or rejected rows.
+- **patch (medium):**
+  - VG1: lying or tipped static cylinders acting as shelves is untested. Fix: negative cases (a default Delay face disc, and a switch tipped 90° about Z) composing to `Base`.
+  - VG2: the cap-disc boundary is untested. Fix: points just inside the battery terminal's radius, and just outside it but inside its bounding square.
+  - Edge1: the separating-axis `Overlaps` treats a cylinder like a box, so a part diagonally beside a static cylinder falsely overlaps. Fix: an exact cylinder test, for example the rim separating axis or closest point.
+  - Intent R3: the collider-vs-art test covers 7 elements, not "every element package". Fix: extend it to every package.
+- **patch (low):**
+  - The engine-hollow-shapes story in epics has no pipe-restitution or lesson re-authoring acceptance. Fix: add it.
+  - The test summary overclaims drop coverage. Fix: narrow it; the art test covers the remaining parts.
+  - The `AssertRing` angle wrap. Fix: angles in (−π, π] around the reference.
+  - The fast rail test cannot tell "over" from "never reached". Fix: also assert that the lowest point near the rail is below the rail top before it crosses.
+  - The collar-strike check is weak. Fix: the ball stays outside the 0.65 m aperture.
+  - `ParameterSets` lacks mixed cases. Fix: vary each bound parameter alone.
+  - CAT-005, CAT-002, CAT-051 and CAT-022 shape rows are uneven. Fix: bring them current.
+  - Raw string part IDs. Fix: `MemberData` of `PartId`.
+  - A variable named `boxes` holds mixed shapes. Fix: rename it to `colliders`.
+  - Doc comment wrapping. Fix: rewrap.
+- **reject:**
+  - "Ball admitted inside a lamp bulb or sphere" and "no-rest overlap": the existing admitted-overlap placement rule, as triaged last pass.
+  - "Engine changed despite data-only": `PlacementPose` is the main-thread placement rule, not the solver (reading E-a).
+  - The commit message overstatement: the final commit message names the gate-collar and ring-corner exceptions.
+  - Material changes in declarations: required by the spec's restitution clause.
+- **carried:** the gate collars, pipe restitution, the switch reading S-b, and ring corners to engine-hollow-shapes.
+- Follow-up result (25 Oct):
+  - All patches applied. Cylinder overlaps now use the closest-point direction; lying cylinders do not act as shelves; the cap disc is bounded (switch button, because grid snapping hides the battery case); the art test covers all 29 packages; the fast rail test reaches the rail; the collar strike stays outside the aperture.
+  - The extended art test lists 9 elements with proud parts that do not collide (the basketball seam, bumper cap and ring, domino pips, weight base, bands and eye, pressure-plate studs, the logic parts' panels, lamps and sockets) as `Uncollided`. They are owned by the follow-up slice `elements-visible-solid-sweep`.
+  - **followup_review_recommended: false.** This follow-up pass patched no high, so the review has converged.
+  - **Verification:**
+    - Build: 0 warnings.
+    - Full suite: CuriousContraptions.tests 3524/3524, E2eRunner.Tests 208/208, BundleElements.Tests 194/194, Coverage.Tests 77/77, WorkerAotGuard.Tests 17/17. Skipped 0 in every project.
+    - `git diff --check`: clean.

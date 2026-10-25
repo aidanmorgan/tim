@@ -21,13 +21,12 @@ public readonly record struct ComposedPlacement(Vector3 Position, Quaternion Rot
 /// <summary>The pose a new part takes at a bench point (F.6 F-1), one pure main-thread composition shared by the preview, the click
 /// and the native tests: the 0.1 m grid, then a typed tube-mouth snap when one exists (Story 9R.6), otherwise rest. Rest lifts a
 /// Dynamic part that truly overlaps a Static part's collider whose top is flat and horizontal (a box face or an upright cylinder's
-/// cap), lies within the part's vertical extent and lies
-/// under the part's x–z centre, so its lowest point rests on the highest such top; x, z and the rotation are unchanged. A lifted pose
-/// is admitted only when it is clear of every Static part (beyond a 10⁻⁴ m contact slop; coordinator decision B1, 23 Oct 2026).
-/// Every final pose (snap, grid or rest) is admitted only when the part's world-space extent lies in the bench volume (x ∈ [−7, 7],
-/// y from the bench surface to 9, z ∈ [−4, 4] m; coordinator decisions on 10.2a F3, 24 Oct 2026: the body, not its origin, on every
-/// placement path); otherwise it is refused. Geometry is the declared f32 colliders of the
-/// bundle (no part identity); it creates no command.</summary>
+/// cap), lies within the part's vertical extent and lies under the part's x–z centre, so its lowest point rests on the highest such
+/// top; x, z and the rotation are unchanged. A lifted pose is admitted only when it is clear of every Static part (beyond a 10⁻⁴ m
+/// contact slop; coordinator decision B1, 23 Oct 2026). Every final pose (snap, grid or rest) is admitted only when the part's
+/// world-space extent lies in the bench volume (x ∈ [−7, 7], y from the bench surface to 9, z ∈ [−4, 4] m; coordinator decisions on
+/// 10.2a F3, 24 Oct 2026: the body, not its origin, on every placement path); otherwise it is refused. Geometry is the declared f32
+/// colliders of the bundle (no part identity); it creates no command.</summary>
 public static class PlacementPose
 {
     /// <summary>The placement grid (m).</summary>
@@ -200,8 +199,10 @@ public static class PlacementPose
     }
 
     /// <summary>A true overlap: the shapes interpenetrate by more than <paramref name="slop"/>; touching is not overlapping. A sphere
-    /// meets a box or a cylinder at its exact closest point; a cylinder and a box are separated on both frames' axes and their cross
-    /// products by the cylinder's exact projection.</summary>
+    /// meets a box or a cylinder at its exact closest point. Other pairs are tested on separating axes with each shape's exact
+    /// projection: both frames' axes and their cross products and, when a cylinder takes part, the direction between the two
+    /// shapes' closest points, so a part diagonally beside a cylinder (inside its bounding square, outside its round side) is not
+    /// overlapping.</summary>
     private static bool Overlaps(Posed shape, Posed box, float slop)
     {
         if (box.Kind == Shape.Sphere)
@@ -217,8 +218,9 @@ public static class PlacementPose
             var radius = shape.Radius - slop;
             return (offset - closest).LengthSquared() < radius * radius;
         }
-        // Separating axes: the 3 + 3 face normals and the 9 edge cross products; a gap or contact on any one separates them.
-        Span<Vector3> axes = stackalloc Vector3[15];
+        // Separating axes: the 3 + 3 face normals, the 9 edge cross products and, with a cylinder, the closest-point direction; a gap
+        // or contact on any one separates them.
+        Span<Vector3> axes = stackalloc Vector3[16];
         var count = 0;
         for (var i = 0; i < 3; i++) { axes[count++] = shape.Axis(i); axes[count++] = box.Axis(i); }
         for (var i = 0; i < 3; i++)
@@ -227,6 +229,7 @@ public static class PlacementPose
                 var cross = shape.Axis(i).Cross(box.Axis(j));
                 if (cross.LengthSquared() > 1e-12f) axes[count++] = cross.Normalized();
             }
+        if (shape.Kind == Shape.Cylinder || box.Kind == Shape.Cylinder) Closest(shape, box, axes, ref count);
         for (var k = 0; k < count; k++)
         {
             var axis = axes[k];
@@ -234,4 +237,26 @@ public static class PlacementPose
         }
         return true;
     }
+
+    /// <summary>Alternating projection between two convex shapes: from the second's centre, project onto the first, then back onto
+    /// the second, a fixed <see cref="ProjectionSteps"/> times. For disjoint shapes this converges to their closest points, whose
+    /// difference is a separating direction; overlapping shapes meet at a common point and add no axis.</summary>
+    private static void Closest(Posed a, Posed b, Span<Vector3> axes, ref int count)
+    {
+        var q = b.Centre;
+        var p = q;
+        for (var step = 0; step < ProjectionSteps; step++)
+        {
+            p = Nearest(a, q);
+            q = Nearest(b, p);
+        }
+        var direction = p - q;
+        if (direction.LengthSquared() > 1e-12f) axes[count++] = direction.Normalized();
+    }
+
+    private const int ProjectionSteps = 64;
+
+    /// <summary>The point of a box or cylinder nearest a world point.</summary>
+    private static Vector3 Nearest(Posed shape, Vector3 point) =>
+        shape.Centre + (shape.Kind == Shape.Cylinder ? ClosestOnCylinder(shape, point - shape.Centre) : ClosestOnBox(shape, point - shape.Centre));
 }

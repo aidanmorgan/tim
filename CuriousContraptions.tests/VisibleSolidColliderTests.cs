@@ -12,15 +12,15 @@ namespace CuriousContraptions.Tests;
 /// Story elements-visible-solid (owner, 25 Oct 2026, "visible = solid"): every part a player sees as solid collides with its true
 /// shape. Two kinds of proof:
 /// <list type="bullet">
-/// <item>Collider against art, one case per listed element: the scene's art is read through Godot (independent of the bundle's text
-/// extractor) and every solid art node must have a collider of its kind, centre, orientation and dimensions, and every collider must
-/// be some solid art node (nothing reaches beyond the art). Ring-shaped parts check their 16 boxes against the drawn outer radius and
-/// the bore; the beyond-art check of their round fit belongs to engine-hollow-shapes. Sockets, terminals, pips and indicators are
-/// solid like any other part. Flat printed decoration, the animated countdown hand and parts pending a true ring kind are named,
-/// so every art node is classified.</item>
-/// <item>Ball drops and rolls on the production simulation (<see cref="EventRingProducerTests.Ring"/>): each newly solid feature
-/// stops the ball at its drawn surface and returns the product restitution of the documented materials; a ball that passes where the
-/// old switch box reached beyond the button touches nothing and fires nothing.</item>
+/// <item>Collider against art, one case per element package: the scene's art is read through Godot (independent of the bundle's
+/// text extractor) and every solid art node must have a collider of its kind, centre, orientation and dimensions, and every collider
+/// must be some solid art node (nothing reaches beyond the art). Ring-shaped parts check their 16 boxes against the drawn outer
+/// radius and the bore; the beyond-art check of their round fit belongs to engine-hollow-shapes. Every art node is classified
+/// (<see cref="ArtSpec"/>).</item>
+/// <item>Ball drops and rolls on the production simulation (<see cref="EventRingProducerTests.Ring"/>), on the features named in
+/// <see cref="Feature"/>, a switch terminal, the delay housing's face, the ramp's rail and a Wall: each stops the ball at its drawn
+/// surface, and the drops return the product restitution of the documented materials. A ball that passes where the old switch box
+/// reached beyond the button touches nothing and fires nothing, and a fast ball goes over a rail, never through it.</item>
 /// </list>
 /// </summary>
 [Collection<NativeSceneCollectionDefinition>]
@@ -37,7 +37,20 @@ public sealed class VisibleSolidColliderTests
     /// 1 − cos θ ≈ θ² / 2 = 2.9e-7.</summary>
     private const float AxisTol = Tol / .0026f * (Tol / .0026f) / 2;
 
-    private sealed record ArtSpec(string[] Solid, string? Ring, string[] Pending, string[] Decorative, string? MovingRoot);
+    /// <summary>One element's art, every mesh classified (an entry ending "/*" names a node's whole subtree):
+    /// <list type="bullet">
+    /// <item><paramref name="Solid"/>: matched one to one with the colliders of the body that owns it;</item>
+    /// <item><paramref name="Ring"/>: a hollow collar drawn as a tube, checked as a ring of boxes;</item>
+    /// <item><paramref name="Pending"/>: a round hollow part deferred to engine-hollow-shapes. When <paramref name="Approximated"/>, the
+    /// element's colliders are that slice's box approximation of it and are not matched;</item>
+    /// <item><paramref name="Decorative"/>: printing flat on a face, a glow, a part inside another solid, or a part a presentation
+    /// binding moves, which a static collider cannot follow;</item>
+    /// <item><paramref name="Uncollided"/>: a visible part standing proud of the body with no collider, on an element outside the
+    /// elements-visible-solid list. Making these solid is an open item, listed here so none is hidden.</item>
+    /// </list></summary>
+    /// <remarks><paramref name="Fit"/> widens the dimension agreement for a stated drawing reason (m).</remarks>
+    private sealed record ArtSpec(string[] Solid, string? Ring, string[] Pending, string[] Decorative, string? MovingRoot,
+        string[]? Uncollided = null, bool Approximated = false, float Fit = 0f);
 
     private sealed record Solid(string Path, ColliderShapeKind Kind, NumVector3 Centre, NumQuaternion Rotation, NumVector3 Extents);
 
@@ -62,19 +75,74 @@ public sealed class VisibleSolidColliderTests
             ["Visual/Visual_Housing", "Visual/Visual_Rail_Start", "Visual/Visual_Rail_End", "Visual/Blade/Visual_Blade",
                 "Visual/Visual_Socket", "Visual/Visual_Indicator"],
             "Visual/Visual_Sleeve", ["Visual/Visual_Collar_Start", "Visual/Visual_Collar_End"], [], "Visual/Blade"),
+
+        // Every other element package, classified the same way.
+        [PartId.Basketball] = new(["Visual/Visual_Sphere"], null, [], [], null, Uncollided: ["Visual/Visual_Stripe"]),
+        [PartId.BowlingBall] = new(["Visual/Visual_Sphere"], null, [], [], null),
+        // The base lies inside the head; the impact ring is scaled by the impact cue.
+        [PartId.PinballBumper] = new(["Visual/BumperHead"], null, [], ["Visual/Visual_Base", "Visual/ImpactRing"], null,
+            Uncollided: ["Visual/Visual_Cap", "Visual/Visual_Ring2"]),
+        [PartId.Domino] = new(["Visual/Visual_Body"], null, [], [], null, Uncollided: ["Visual/Visual_Pip1", "Visual/Visual_Pip2"]),
+        // The stripes are flush with the faces. The body is drawn at 0.998 of the thickness so the stripes do not z-fight with it; the
+        // collider takes the full thickness, 0.001·t thicker per face, at most 2 mm at the 2 m maximum thickness.
+        [PartId.Wall] = new(["Visual/Visual_Body"], null, [], ["Visual/Visual_StripeLeft", "Visual/Visual_StripeRight"], null, Fit: .002f),
+        // The body is drawn at mass m by a uniform scale 0.136734·m + 0.453070 of its 0.35166413 m radius, and the collider's radius
+        // is 0.04808397·m + 0.15932827: the declared constants differ by 0.35166413·(0.136734·m + 0.453070) − (0.04808397·m +
+        // 0.15932827), at most 4.0e-6 m at the 8 kg bound (the half-height by 3.2e-6 m).
+        [new PartId("weight")] = new(["Visual/Visual_Body"], null, [], [], null,
+            Uncollided: ["Visual/Visual_Base", "Visual/Visual_BandLower", "Visual/Visual_BandUpper", "Visual/Visual_Eye"], Fit: 4e-6f),
+        // The halo is a glow.
+        [PartId.Receiver] = new(["Visual/Visual_Floor", "Visual/Visual_Left", "Visual/Visual_Right", "Visual/Visual_Back", "Visual/Visual_Front"],
+            null, [], ["Visual/Visual_Halo"], null),
+        [PartId.PressurePlate] = new(["Visual/Visual_Base", "Visual/Visual_Top"], null, [], [], null,
+            Uncollided: ["Visual/Stud_*", "Visual/Visual_Socket_*", "Visual/Visual_Ring"]),
+        // The stripe is printed on the plate; the coil is drawn by the spring's compression.
+        [PartId.Springboard] = new(["Visual/Visual_Base", "Visual/Plate/Visual_Plate"], null, [], ["Visual/Plate/Visual_Stripe", "Visual/Coil/*"],
+            "Visual/Plate"),
+        [PartId.Pipe] = new([], null, ["Visual/Visual_Shell", "Visual/Visual_Collar_Start", "Visual/Visual_Collar_End"], [], null, Approximated: true),
+        [PartId.PipeBend45] = new([], null, ["Visual/Visual_Shell/*", "Visual/Visual_Collar_Start", "Visual/Visual_Collar_End"], [], null,
+            Approximated: true),
+        [PartId.PipeBend90] = new([], null, ["Visual/Visual_Shell/*", "Visual/Visual_Collar_Start", "Visual/Visual_Collar_End"], [], null,
+            Approximated: true),
+        [PartId.Funnel] = new([], null, ["Visual/Visual_Shell", "Visual/Visual_Collar_Start", "Visual/Visual_Collar_End"], [], null,
+            Approximated: true),
+        // The logic parts: the pictogram, truth dots, marks and paths are printed on the face.
+        [new PartId("both_gate")] = Logic(["Visual/UpperPath", "Visual/LowerPath"]),
+        [new PartId("electrical_nand")] = Logic(["Visual/Pictogram/*", "Visual/TruthDot*"]),
+        [new PartId("electrical_nor")] = Logic(["Visual/Pictogram/*", "Visual/TruthDot*"]),
+        [new PartId("electrical_or")] = Logic(["Visual/Pictogram/*", "Visual/TruthDot*"]),
+        [new PartId("electrical_xor")] = Logic(["Visual/Pictogram/*", "Visual/TruthDot*"]),
+        // The track is printed on the face; the remaining-time bar is driven by the timer.
+        [new PartId("hold_timer")] = new(["Visual/Body", "Visual/Foot"], null, [], ["Visual/Track", "Visual/Remaining/*"], null,
+            Uncollided: ["Visual/Face", "Visual/Indicator", "Visual/Port*"]),
+        [PartId.Counter] = new(["Visual/Housing", "Visual/Foot"], null, [], [], null,
+            Uncollided: ["Visual/Face", "Visual/DotLamp_*", "Visual/Visual_Socket_*"]),
+        // The rocker turns with the latch's state; the set, reset and out markers are printed on the face.
+        [PartId.Latch] = new(["Visual/Housing", "Visual/Foot"], null, [], ["Visual/Rocker", "Visual/SetMarker", "Visual/ResetMarker/*",
+            "Visual/OutMarker/*"], null, Uncollided: ["Visual/Face", "Visual/IndicatorLamp", "Visual/Visual_Socket_*"]),
+        // The recess is set into the face; the pendulum swings with the clock.
+        [PartId.Clock] = new(["Visual/Housing", "Visual/Foot"], null, [], ["Visual/Recess", "Visual/PendulumPivot/*"], null,
+            Uncollided: ["Visual/Face", "Visual/PivotCap", "Visual/Visual_Indicator", "Visual/Visual_Socket_*"]),
     };
+
+    private static ArtSpec Logic(string[] printed) => new(["Visual/Body", "Visual/Foot"], null, [],
+        [.. printed, "Visual/FirstMark", "Visual/SecondMarkLeft", "Visual/SecondMarkRight"], null,
+        Uncollided: ["Visual/Face", "Visual/FirstLamp", "Visual/SecondLamp", "Visual/OutputLamp", "Visual/Port*"]);
+
+    /// <summary>Whether an art path is named by a classification entry: exactly, or by its prefix when the entry ends with "*".</summary>
+    private static bool Names(string entry, string path) =>
+        entry.EndsWith('*') ? path.StartsWith(entry[..^1], StringComparison.Ordinal) : path == entry;
 
     public static TheoryData<PartId> Listed => new(Specs.Keys);
 
-    /// <summary>The parameter values the art and colliders are compared at: the defaults, and for a sized element both declared
-    /// bounds of every collider-bound parameter together.</summary>
+    /// <summary>The parameter values the art and colliders are compared at: the defaults, then each collider-bound parameter alone at
+    /// its declared minimum and at its maximum (the others at their defaults), so mixed bounds are covered.</summary>
     private static IEnumerable<IReadOnlyDictionary<string, float>> ParameterSets(BundleEntry entry)
     {
         yield return BundleGeometry.Parameters(entry);
-        var sized = entry.Metadata.Parameters.Where(p => entry.ColliderBindings.Any(b => b.Parameter == p.Key)).ToArray();
-        if (sized.Length == 0) yield break;
-        yield return BundleGeometry.Parameters(entry, sized.ToDictionary(p => p.Key, p => p.Minimum));
-        yield return BundleGeometry.Parameters(entry, sized.ToDictionary(p => p.Key, p => p.Maximum));
+        foreach (var parameter in entry.Metadata.Parameters.Where(p => entry.ColliderBindings.Any(b => b.Parameter == p.Key)))
+            foreach (var bound in new[] { parameter.Minimum, parameter.Maximum })
+                yield return BundleGeometry.Parameters(entry, new Dictionary<string, float> { [parameter.Key] = bound });
     }
 
     [Theory]
@@ -86,26 +154,32 @@ public sealed class VisibleSolidColliderTests
         foreach (var parameters in ParameterSets(entry))
         {
             var art = Art(entry, spec.MovingRoot, parameters);
-            var classified = spec.Solid.Concat(spec.Pending).Concat(spec.Decorative).Concat(spec.Ring is { } r ? [r] : []).ToArray();
-            Assert.Equal(classified.Order(StringComparer.Ordinal), art.Keys.Order(StringComparer.Ordinal));
+            string[] entries = [.. spec.Solid, .. spec.Pending, .. spec.Decorative, .. spec.Uncollided ?? [], .. spec.Ring is { } r ? new[] { r } : []];
+            Assert.All(art.Keys, path => Assert.True(entries.Count(e => Names(e, path)) == 1, $"{element}: art '{path}' is not classified once"));
+            Assert.All(entries, e => Assert.True(art.Keys.Any(path => Names(e, path)), $"{element}: '{e}' names no art"));
 
             var colliders = BundleGeometry.Colliders(entry, parameters).ToList();
             var moving = entry.Mechanical?.Sliders.SelectMany(s => s.MovingBody.Colliders).ToList() ?? [];
             if (spec.Ring is { } ring)
             {
-                var rings = RingBoxes(art[ring], colliders);
-                AssertRing(art[ring], rings, entry.TubeMouths.Select(m => m.BoreRadius).Distinct().Single());
+                var rings = RingBoxes(art[ring]!, colliders);
+                AssertRing(art[ring]!, rings, entry.TubeMouths.Select(m => m.BoreRadius).Distinct().Single());
                 colliders.RemoveAll(rings.Contains);
             }
+            var unmatched = new List<string>();
             foreach (var path in spec.Solid)
             {
+                var solid = art[path] ?? throw new InvalidOperationException($"{element}: solid art '{path}' is not a box, full sphere or straight cylinder.");
                 var onMoving = spec.MovingRoot is { } root && path.StartsWith(root + "/", StringComparison.Ordinal);
                 var pool = onMoving ? moving : colliders;
-                var match = pool.FindIndex(collider => Matches(art[path], collider));
-                Assert.True(match >= 0, $"{element} at {Describe(parameters)}: the solid art '{path}' ({art[path].Kind}, centre " +
-                    $"{art[path].Centre}, half {art[path].Extents}) has no matching collider");
-                pool.RemoveAt(match);
+                var match = pool.FindIndex(collider => Matches(solid, collider, Tol + spec.Fit));
+                if (match < 0) unmatched.Add($"'{path}' ({solid.Kind}, centre {solid.Centre}, half {solid.Extents})");
+                else pool.RemoveAt(match);
             }
+            Assert.True(unmatched.Count == 0, $"{element} at {Describe(parameters)}: solid art without a matching collider: " +
+                string.Join("; ", unmatched) + "; colliders left: " +
+                string.Join("; ", colliders.Concat(moving).Select(c => $"{c.ShapeKind} at {c.Offset} half {c.HalfExtents}")));
+            if (spec.Approximated) continue;
             Assert.True(colliders.Count == 0 && moving.Count == 0, $"{element} at {Describe(parameters)}: collider(s) reach beyond the art: " +
                 string.Join("; ", colliders.Concat(moving).Select(c => $"{c.ShapeKind} at {c.Offset} half {c.HalfExtents}")));
         }
@@ -115,13 +189,14 @@ public sealed class VisibleSolidColliderTests
         parameters.Count == 0 ? "no parameters" : string.Join(", ", parameters.Select(p => $"{p.Key} {p.Value}"));
 
     /// <summary>Every mesh of the element's scene in the frame of the body that owns it, with the declared presentation parameter
-    /// scales applied to their nodes (the Ramp's Visual node scales X by length / 3 and Z by width / 1.3).</summary>
-    private static Dictionary<string, Solid> Art(BundleEntry entry, string? movingRoot, IReadOnlyDictionary<string, float> parameters)
+    /// scales and offsets applied to their nodes (for example the Ramp's Visual node scales X by length / 3 and Z by width / 1.3). A
+    /// mesh that is not a box, a full sphere or a straight cylinder has no primitive shape (null).</summary>
+    private static Dictionary<string, Solid?> Art(BundleEntry entry, string? movingRoot, IReadOnlyDictionary<string, float> parameters)
     {
         var root = ResourceLoader.Load<PackedScene>(entry.Metadata.ScenePath).Instantiate<Node3D>();
         try
         {
-            var result = new Dictionary<string, Solid>(StringComparer.Ordinal);
+            var result = new Dictionary<string, Solid?>(StringComparer.Ordinal);
             foreach (var mesh in Descendants(root).OfType<MeshInstance3D>())
             {
                 var path = root.GetPathTo(mesh).ToString();
@@ -131,33 +206,38 @@ public sealed class VisibleSolidColliderTests
                     var nodePath = root.GetPathTo(node).ToString();
                     if (movingRoot == nodePath) break;
                     var local = ((Node3D)node).Transform;
-                    var scale = new Godot.Vector3(1, 1, 1);
+                    var (scale, origin) = (new Godot.Vector3(1, 1, 1), local.Origin);
                     foreach (var binding in entry.Presentation.Parameters.Where(b => b.Node == nodePath))
                     {
                         var value = binding.Multiplier * parameters[binding.Parameter] + binding.Offset;
-                        scale = binding.Property switch
+                        (scale, origin) = binding.Property switch
                         {
-                            PresentationProperty.ScaleX => scale with { X = value },
-                            PresentationProperty.ScaleY => scale with { Y = value },
-                            PresentationProperty.ScaleZ => scale with { Z = value },
+                            PresentationProperty.UniformScale => (new Godot.Vector3(value, value, value), origin),
+                            PresentationProperty.ScaleX => (scale with { X = value }, origin),
+                            PresentationProperty.ScaleY => (scale with { Y = value }, origin),
+                            PresentationProperty.ScaleZ => (scale with { Z = value }, origin),
+                            PresentationProperty.LocalX => (scale, origin with { X = value }),
+                            PresentationProperty.LocalY => (scale, origin with { Y = value }),
+                            PresentationProperty.LocalZ => (scale, origin with { Z = value }),
                             _ => throw new InvalidOperationException($"Unexpected presentation parameter {binding.Property} on {nodePath}.")
                         };
                     }
-                    local = new Transform3D(local.Basis * Basis.FromScale(scale), local.Origin);
+                    local = new Transform3D(local.Basis * Basis.FromScale(scale), origin);
                     transform = local * transform;
                 }
                 var s = transform.Basis.Scale;
                 var q = transform.Basis.GetRotationQuaternion();
-                var (kind, half) = mesh.Mesh switch
+                (ColliderShapeKind Kind, NumVector3 Extents)? shape = mesh.Mesh switch
                 {
                     BoxMesh box => (ColliderShapeKind.Box, new NumVector3(box.Size.X * s.X, box.Size.Y * s.Y, box.Size.Z * s.Z) * .5f),
                     SphereMesh sphere when sphere.Height == 2 * sphere.Radius && s.X == s.Y && s.Y == s.Z =>
                         (ColliderShapeKind.Sphere, new NumVector3(sphere.Radius * s.X)),
                     CylinderMesh cylinder when cylinder.TopRadius == cylinder.BottomRadius =>
                         (ColliderShapeKind.Cylinder, new NumVector3(cylinder.TopRadius * s.X, cylinder.Height * .5f * s.Y, cylinder.TopRadius * s.Z)),
-                    _ => throw new InvalidOperationException($"Art '{path}' is not a box, full sphere or straight cylinder.")
+                    _ => null
                 };
-                result.Add(path, new(path, kind, new(transform.Origin.X, transform.Origin.Y, transform.Origin.Z), new(q.X, q.Y, q.Z, q.W), half));
+                result.Add(path, shape is { } primitive ? new(path, primitive.Kind, new(transform.Origin.X, transform.Origin.Y, transform.Origin.Z),
+                    new(q.X, q.Y, q.Z, q.W), primitive.Extents) : null);
             }
             return result;
         }
@@ -176,16 +256,17 @@ public sealed class VisibleSolidColliderTests
         }
     }
 
-    private static bool Near(NumVector3 a, NumVector3 b) =>
-        MathF.Abs(a.X - b.X) <= Tol && MathF.Abs(a.Y - b.Y) <= Tol && MathF.Abs(a.Z - b.Z) <= Tol;
+    private static bool Near(NumVector3 a, NumVector3 b, float tolerance = Tol) =>
+        MathF.Abs(a.X - b.X) <= tolerance && MathF.Abs(a.Y - b.Y) <= tolerance && MathF.Abs(a.Z - b.Z) <= tolerance;
     private static bool Parallel(NumVector3 a, NumVector3 b) => MathF.Abs(NumVector3.Dot(a, b)) >= 1f - AxisTol;
     private static NumVector3 Axis(NumQuaternion rotation, NumVector3 axis) => NumVector3.Transform(axis, rotation);
 
     /// <summary>Same kind, centre and dimensions, and the same axes: all three for a box, the axis for a cylinder, none for a
     /// sphere.</summary>
-    private static bool Matches(Solid art, ColliderDescriptor collider)
+    private static bool Matches(Solid art, ColliderDescriptor collider, float tolerance)
     {
-        if (collider.ShapeKind != art.Kind || !Near(collider.Offset, art.Centre) || !Near(collider.HalfExtents, art.Extents)) return false;
+        if (collider.ShapeKind != art.Kind || !Near(collider.Offset, art.Centre, tolerance) || !Near(collider.HalfExtents, art.Extents, tolerance))
+            return false;
         return art.Kind switch
         {
             ColliderShapeKind.Sphere => true,
@@ -213,9 +294,10 @@ public sealed class VisibleSolidColliderTests
     }
 
     /// <summary>A ring of n boxes is solid from the bore to the drawn outer radius R: each box's inner face lies at the bore and its
-    /// outer face at R, it spans the drawn length, its tangential half is R·tan(π/n) so neighbouring outer faces just meet (the
-    /// scenes write it rounded up to f32; the bounds allow <see cref="Tol"/> either side for the f32 evaluation of R·tan(π/n)), and the n boxes stand at equal angles. A box's corner then reaches R / cos(π/n) beyond the drawn surface; that round fit is the
-    /// beyond-art check engine-hollow-shapes owns.</summary>
+    /// outer face at R, it spans the drawn length, and its tangential half is R·tan(π/n), so neighbouring outer faces just meet. The
+    /// scenes write that half rounded up to f32; the bounds allow <see cref="Tol"/> either side for the f32 evaluation of R·tan(π/n).
+    /// The n boxes stand at the n equal angles about the first, each angle taken in (−π, π]. A box's corner then reaches R / cos(π/n),
+    /// beyond the drawn surface; that round fit is the beyond-art check engine-hollow-shapes owns.</summary>
     private static void AssertRing(Solid ring, List<ColliderDescriptor> boxes, float bore)
     {
         const int n = 16;
@@ -243,9 +325,15 @@ public sealed class VisibleSolidColliderTests
             var unit = radial / distance;
             angles.Add(Math.Atan2(NumVector3.Dot(NumVector3.Cross(reference, unit), axis), NumVector3.Dot(reference, unit)));
         }
-        var sorted = angles.Select(a => (a + 2 * Math.PI) % (2 * Math.PI)).Order().ToArray();
-        for (var i = 0; i < n; i++)
-            Assert.True(Math.Abs(sorted[i] - i * 2 * Math.PI / n) <= 1e-5, $"ring box {i} stands at {sorted[i]} rad, not {i * 2 * Math.PI / n}");
+        // Atan2 gives each angle in (−π, π]; the nearest of the n steps k·2π/n (k from −n/2 + 1 to n/2) must lie within 1e-5 rad, and
+        // each step must be taken once.
+        var steps = angles.Select(a =>
+        {
+            var k = (int)Math.Round(a * n / (2 * Math.PI));
+            Assert.True(Math.Abs(a - k * 2 * Math.PI / n) <= 1e-5, $"a ring box stands at {a} rad, not on a 2π/{n} step");
+            return k == -n / 2 ? n / 2 : k;
+        }).Order().ToArray();
+        Assert.Equal(Enumerable.Range(-n / 2 + 1, n), steps);
     }
 
     // ---------- the production simulation ----------
@@ -469,11 +557,12 @@ public sealed class VisibleSolidColliderTests
     /// <summary>A fast crossing of a rail at the Ramp's minimum width (0.125 m: the rail is 0.055 × 0.125 / 1.3 = 5.3 mm deep, under
     /// the envelope's 1 cm tunnelling guarantee) and its maximum (4 m: 0.169 m deep). A chute (a default Ramp tilted 30° about z,
     /// downhill +X, so its rails run along the roll) launches the Basketball along +X at about 4 m/s, some 9 mm per 480 Hz substep,
-    /// into a level test Ramp turned so its length runs along z and its near rail's centre is at x 1.6. The test slab's top is set
-    /// 1 cm under the ball's predicted lowest point there (from the chute's exit at (1.514, 2.622) and a launch of (3.64, −2.10) m/s),
-    /// so the ball meets the rail, which stands 4.75 cm above the slab. It may go over or bounce back, but never through: whenever its
+    /// into a level test Ramp turned so its length runs along z and its near rail's centre is at x 1.6. The test slab's top (2.33 m)
+    /// is set so the ball arrives just above it, below the top of the rail, which stands 4.75 cm above the slab; the test checks that
+    /// arrival height rather than assuming it. It may go over or bounce back, but never through: whenever its
     /// centre lies within the rail's depth its lowest point is at or above the rail's top, less the envelope's penetration. It must
-    /// reach the rail: its centre comes within its radius (plus 5 mm) of the rail's outer face.</summary>
+    /// reach the rail (its centre comes within its radius, plus 5 mm, of the rail's outer face) and arrive low enough to meet it (its
+    /// lowest point under the rail's top there, before it crosses).</summary>
     [Theory]
     [InlineData(.125f)]
     [InlineData(4f)]
@@ -481,7 +570,7 @@ public sealed class VisibleSolidColliderTests
     {
         var chute = NumQuaternion.CreateFromAxisAngle(NumVector3.UnitZ, -MathF.PI / 6);
         var chuteAt = new NumVector3(0, (float)Y, 0);
-        const float railX = 1.6f, slabTop = 2.22f;
+        const float railX = 1.6f, slabTop = 2.33f;
         var depth = .0275f * width / 1.3f; // the rail's half-depth, as its binding scales it
         var turn = NumQuaternion.CreateFromAxisAngle(NumVector3.UnitY, MathF.PI / 2); // local z → world +x
         var test = Place(PartId.Ramp, Ramp, new(railX + .46f * width, slabTop - .09f, 0), turn,
@@ -493,6 +582,10 @@ public sealed class VisibleSolidColliderTests
         var path = ring.Reads.Select(Position).ToArray();
         var trace = string.Join(" ", path.Where((_, i) => i % 10 == 0).Select(p => $"({p.X:F3},{p.Y:F3})"));
         Assert.True(path.Max(p => p.X) >= railX - depth - BallRadius - .005, $"the ball never reached the rail: {trace}");
+        // It arrives low enough to meet the rail: before it first crosses the rail's mid-plane, within its radius of the rail's outer
+        // face, its lowest point is under the rail's top (it cannot simply fly over).
+        Assert.True(path.TakeWhile(p => p.X < railX).Any(p => p.X >= railX - depth - BallRadius && p.Y - BallRadius < railTop),
+            $"the ball arrived above the {railTop:F4} rail top: {trace}");
         // Each crossing of the rail's mid-plane between two committed ticks, at the height interpolated between them (a ballistic
         // arc departs from its chord by at most g·T²/8 = 0.85 mm over one tick).
         for (var i = 0; i + 1 < path.Length; i++)

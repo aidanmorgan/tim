@@ -177,14 +177,21 @@ public sealed class LampDetectorGuardTests
 
     // The outer collar is solid out to its drawn 0.82 m (elements-visible-solid): a ball dropped 0.9 m out lands on the edge of the
     // collar's upper end face (0.65–0.82 m from the axis), outside the 0.65 m aperture, and is turned aside (its x moves more than 5 cm
-    // from its drop line). No Passage fires and the lamp stays dark.
+    // from its drop line). Its centre stays outside the aperture on every tick, no Passage fires and the lamp stays dark.
     [Fact]
     public async Task ABallStrikingTheOuterCollarFiresNothing()
     {
-        const double ballX = -.9;
+        const double ballX = -.9, aperture = .65;
         var (bench, detector, lamp, ball) = DropBench(forwardDown: true, ballX: ballX);
         var reads = await WorkshopPhysicsEngineTests.Run(bench, Ticks);
         Assert.Contains(reads, read => Math.Abs(X(read, ball) - ballX) > .05);
+        Assert.All(reads, read =>
+        {
+            Assert.True(read.Bodies.TryGet(ball, out var row));
+            var z = (row.Body.Cell.Z + (double)row.Body.Local.Z) / 16;
+            var x = X(read, ball);
+            Assert.True(x * x + z * z > aperture * aperture, $"the ball's centre entered the aperture at tick {read.Tick.Value}");
+        });
         Assert.Empty(Passages(reads, detector));
         Assert.All(reads, read => Assert.False(Lit(read, lamp), $"the lamp stays dark at tick {read.Tick.Value}"));
     }
