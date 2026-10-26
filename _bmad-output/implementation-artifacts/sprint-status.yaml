@@ -516,13 +516,14 @@ development_status:
   bumper-cap-solid: backlog # make the bumper cap solid and re-author bumper_sidekick, bumper_depth, wall_and_bumper
   face-markings-flush: backlog # move raised face markings (pictograms, truth dots, latch markers, timer track) flush so they are printed decoration
   engine-hollow-shapes: done # published eacf561d6833438c9aeaf71c85e52c2626ea33e5; CI 40239119353: 4,212 passed, 0 failed/skipped; deployment 7320169548; browser pending
-  engine-two-point-friction: backlog # drop-ramp landing yaw kick (1.25 mm); simultaneous two-point friction; central friction anchor for multi-point manifolds (unblocks engine-cap-block)
+  engine-single-point-penetration: review # implementation Pass, 4276/0/0 final native; generic .012 m/s recovery and exact friction integration; committed-SHA publication pending; spec-engine-single-point-penetration.md
+  engine-two-point-friction: blocked # retained candidate: deep single-point case 179; resume after recovery prerequisite, full native proof and Auto review
   engine-orientation-levelling: backlog # sub-f32-step levelling (axial drift to 2.2e-5 m/s); keeps the energy gates
   test-workshop-harness-a: backlog
   test-workshop-harness-b: backlog
   runtime-typescript-conversion: backlog
   test-behavioral-hygiene: in-progress # first bounded child: test-semantic-digests; broader inventory remains open
-  test-semantic-digests: in-progress # spec-test-semantic-digests.md; 57 literal cases preserved; scoped native checks pass; full round/review/publication pending
+  test-semantic-digests: done # b3905fcda3df89b38140c9610b8ff2034e4078a8; terminal Pass CI40249169834:4212/0/0; artifact12620546696 deployment7321697410; broader hygiene remains open
   engine-supported-impact-restitution: backlog # before10.3/first dynamic support consumer
   cat-023c-offset-centre-of-mass: backlog # before next Domino-dependent level and catalogue closure
   catalogue-native-closure: backlog # requires native 15.0 + all required modes/integrations; conjunction only

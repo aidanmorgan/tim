@@ -1246,7 +1246,7 @@ public sealed class WorkshopPhysicsLawTests
     [InlineData(false)]
     public void InTheSolvePassABandPointWithASoftSiblingIsSoftWithBiasRateTimesS(bool siblingSoft)
     {
-        // The same turning pair on the biased solve pass. The right row (soft, bias max(b·s, −3) = b × −0.0003 with b the soft bias
+        // The same turning pair on the biased solve pass. The right row (soft, bias max(b·s, −.012) = b × −0.0003 with b the soft bias
         // rate, about 18.1 /s, so −0.0054 m/s) still separates faster than its bias, so it takes nothing, and the block, which would pull
         // it, falls back to rows. With a soft right sibling the left band row is soft with bias b·s = b × 0.0001: one soft row moves its
         // approach v to v − massScale × (v + b·s), about −0.0029 m/s (that the right row took nothing is part of this expectation). Without

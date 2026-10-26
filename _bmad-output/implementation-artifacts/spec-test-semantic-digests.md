@@ -175,3 +175,14 @@ Independent review identities and every finding/disposition are in the two triag
 Final frozen-source verification (session 59612): `dotnet test CuriousContraptions.slnx -c Debug --no-build --no-restore --nologo -v minimal -m:1`, exit 0: **4, 228 passed, 0 failed, 0 skipped**. Main 3720/8 m 59 s; Coverage 77/657 ms; E 2 eRunner tooling and non-browser node harnesses 208/23 s; WorkerAotGuard 17/45 ms; Bundle 206/347 ms. Matching repaired build:0 warnings/errors/10.07 s; affected replay 3/0/0. `git diff --check` passes. Previous failed build and all prior round results remain recorded. No local Release worker build or web publish ran.
 
 Commit with normal hooks next, then bind independent review to that exact SHA. Required publication-only checks: exact-SHA CI (including production Release publish), Pages artifact and deployment identity, deployed static artifact response. Browser/device/performance qualification and the separate friction/penetration candidate remain pending at their named gates. Terminal publication receipt will be appended after those checks, without claiming this local Pass publishes anything.
+
+
+## Terminal publication receipt — 26 October 2026
+
+**Terminal scoped Pass** for commit `b3905fcda3df89b38140c9610b8ff2034e4078a8`. Independent Auto review covered the unchanged committed source/fixture candidate; all 52 source/fixture diff entries matched the reviewed candidate. Normal pre-commit protections passed: normal, playtest and web builds with zero warnings/errors, 124 guard/UI tests with zero failures/skips, and Anvil checks.
+
+Independent terminal verifier `/root/hash_terminal_verifier` verified [CI 40249169834](https://github.com/aidanmorgan/tim/actions/runs/40249169834): **4,212 passed, 0 failed, 0 skipped** (game 3,720; Coverage 77; BundleElements 206; WorkerAotGuard 17; E2eRunner 192). Game duration 18m12s. CI owns the production Release/publish proof. Earlier local totals of 4,228 included 16 deferred browser-toolchain cases; those are historical results, not browser qualification. Subsequent required local full runs use the existing `E2eRunner deferred-filter`, matching CI's explicit BrowserDeferral list while retaining every game test.
+
+Pages artifact **12620546696** (`github-pages`, 80,779,740 bytes) belongs to that exact run and SHA. Deployment **7321697410** succeeded at **2026-10-26T00:56:00Z** for the same SHA. The verifier fetched production `/`, `index.html`, `404.html`, `godot.wasm`, `godot.pck` and `_framework/dotnet.js`; all returned HTTP 200 and matched artifact bytes in memory. No browser qualification is claimed.
+
+This receipt is carried by the following penetration publication to avoid a separate receipt-only deployment. It does not alter the reviewed hash-test implementation. Broader behavioral-test hygiene, friction/penetration implementation and post-catalogue browser qualification retain their separate owners.

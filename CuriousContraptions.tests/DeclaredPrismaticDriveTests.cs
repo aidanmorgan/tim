@@ -309,7 +309,14 @@ public sealed class DeclaredPrismaticDriveTests
         const double tilt = -15;
         var half = tilt * Math.PI / 360;
         var gate = WorkshopInput.Generic(PartId.PoweredGate, new(1), 0, 3, 0, 0, 0, Math.Sin(half), Math.Cos(half));
-        var ball = WorkshopInput.Generic(PartId.Basketball, new(2), -.08, 3, 0, 0, 0, 0, 1);
+        // Declared geometry: ball radius .34, blade thickness .12, sleeve bore .70-.05=.65 m
+        // (the collar bore is .78-.13=.65 too). D6 requires a resting ball, so place its center
+        // tangent to both the upstream blade and lower bore, not inside the closed blade.
+        const float radius = .34f, bladeHalfThickness = .06f, boreRadius = .65f;
+        const float initialAlong = -(bladeHalfThickness + radius), initialUp = -(boreRadius - radius);
+        var (sin, cos) = MathF.SinCos((float)(tilt * Math.PI / 180));
+        var ball = WorkshopInput.Generic(PartId.Basketball, new(2),
+            cos * initialAlong - sin * initialUp, 3f + sin * initialAlong + cos * initialUp, 0, 0, 0, 0, 1);
         var battery = PlacedParts.Battery(new(3), 3, 3, 0, enabled: authoredEnabled ? ElectricalEnable.Enabled : ElectricalEnable.Disabled);
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(gate, ball, battery))
             { Connections = new(Power(battery.Id, gate.Id)) };
@@ -321,16 +328,33 @@ public sealed class DeclaredPrismaticDriveTests
         Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Run()).Outcome);
         if (authoredEnabled)
             Assert.Equal(WorkshopCommandOutcome.Applied, simulation.ConfigureElectrical(new(battery.Id, ElectricalEnable.Disabled)).Outcome);
-        var (sin, cos) = MathF.SinCos((float)(tilt * Math.PI / 180));
-        float Along(WorkshopRead read)
+        CanonicalBody Ball(WorkshopRead read) =>
+            Enumerable.Range(0, read.Bodies.Count).Select(i => read.Bodies[i].Body).Single(row => row.Id == ball.Id);
+        Vector3 LocalCentre(WorkshopRead read)
         {
-            var body = Enumerable.Range(0, read.Bodies.Count).Select(i => read.Bodies[i].Body).Single(row => row.Id == ball.Id);
+            var body = Ball(read);
             var (dx, dy) = ((body.Cell.X + (float)body.Local.X) / 16f, (body.Cell.Y + (float)body.Local.Y) / 16f - 3f);
-            return cos * dx + sin * dy;
+            return new(cos * dx + sin * dy, -sin * dx + cos * dy, (body.Cell.Z + (float)body.Local.Z) / 16f);
         }
+        float Along(WorkshopRead read) => LocalCentre(read).X;
+        void Resting(WorkshopRead read)
+        {
+            var velocity = Ball(read).Velocity;
+            Assert.True(new Vector3(velocity.X, velocity.Y, velocity.Z).Length() < .01f,
+                "The pre-enable ball must be resting (the 0.01 m/s game-grade rest envelope).");
+            var angular = Enumerable.Range(0, read.Bodies.Count).Select(i => read.Bodies[i])
+                .Single(row => row.Body.Id == ball.Id).AngularVelocity;
+            Assert.True(new Vector3(angular.X, angular.Y, angular.Z).Length() < .02f,
+                "The pre-enable ball must also remain within the 0.02 rad/s angular rest envelope.");
+        }
+        var initial = LocalCentre(simulation.Committed);
+        // 1 um covers f32 authoring/transform roundoff at the 3 m mount, below the .1 mm placement slop.
+        Assert.InRange(-initial.X - bladeHalfThickness - radius, -1e-6f, 1e-6f);
+        Assert.InRange(boreRadius - MathF.Sqrt(initial.Y * initial.Y + initial.Z * initial.Z) - radius, -1e-6f, 1e-6f);
         for (var tick = 0; tick < 180; tick++) Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Advance()).Outcome);
         var held = Along(simulation.Committed);
         Assert.InRange(held, -.5f, -.39f); // guard: resting upstream against the closed blade, inside the entry mouth
+        Resting(simulation.Committed);
         Assert.False(simulation.Committed.Presentation.Actuators[0].SupplyClosed);
         Assert.Equal(WorkshopCommandOutcome.Applied, simulation.ConfigureElectrical(new(battery.Id, ElectricalEnable.Enabled)).Outcome);
         var along = new List<float>();
@@ -347,7 +371,7 @@ public sealed class DeclaredPrismaticDriveTests
         Assert.Equal(construction.Connections, decoded.Construction.Connections);
         Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Reset()).Outcome);
         Assert.Equal(construction.Instances, simulation.Construction.Instances);
-        Assert.InRange(Along(simulation.Committed), -.08f * cos - 1e-5f, -.08f * cos + 1e-5f);
+        Assert.InRange(Along(simulation.Committed), initialAlong - 1e-5f, initialAlong + 1e-5f);
         await RepeatPhysicalOutcome(simulation);
         await using var fresh = await EventRingProducerTests.Ring.Building(decoded.Construction);
         await RepeatPhysicalOutcome(fresh.Simulation);
@@ -360,6 +384,7 @@ public sealed class DeclaredPrismaticDriveTests
             for (var tick = 0; tick < 180; tick++)
                 Assert.Equal(WorkshopCommandOutcome.Applied, (await replay.Advance()).Outcome);
             Assert.InRange(Along(replay.Committed), -.5f, -.39f);
+            Resting(replay.Committed);
             Assert.False(replay.Committed.Presentation.Actuators[0].SupplyClosed);
             Assert.Equal(WorkshopCommandOutcome.Applied, replay.ConfigureElectrical(new(battery.Id, ElectricalEnable.Enabled)).Outcome);
             for (var tick = 0; tick < 300; tick++)

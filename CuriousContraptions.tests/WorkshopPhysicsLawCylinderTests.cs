@@ -1112,6 +1112,57 @@ public sealed class WorkshopPhysicsLawCylinderTests
             }
     }
 
+    [Theory]
+    [InlineData(SimulationCadence.Hz60, 0f)]
+    [InlineData(SimulationCadence.Hz60, .5f)]
+    [InlineData(SimulationCadence.Hz120, 0f)]
+    [InlineData(SimulationCadence.Hz120, .5f)]
+    [InlineData(SimulationCadence.Hz240, 0f)]
+    [InlineData(SimulationCadence.Hz240, .5f)]
+    public void ADeepOffCentreRimRecoversWithinTheEnergyEnvelopeAtEveryCadence(SimulationCadence cadence, float friction)
+    {
+        const float r = .25f, h = .25f, depth = .007f;
+        const double degrees = 5;
+        var rotation = AboutZ(degrees);
+        var scene = new LawScene();
+        var body = scene.Cylinder(At(0f, BenchY + Lowest(rotation, r, h) - depth),
+            r, h, 1f, Dead with { Friction = friction }, rotation);
+        var world = scene.Admit(cadence);
+        // Initially the lowest rim has horizontal lever r*cos(5)-h*sin(5)=.22726 m;
+        // the opposite rim is 2*r*sin(5)=43.58 mm higher, beyond the 4 mm margin.
+        // Budget .007/v seconds for capped recovery, then the existing independent
+        // inelastic rocking settle model, then one second holding the resting envelope.
+        const double substep = 1.0 / 480;
+        var omega = 2 * Math.PI * 60;
+        var a2 = substep * omega * (20 + substep * omega);
+        var recoverySpeed = a2 / (1 + a2) * (.012 - G / (omega * (20 + substep * omega)));
+        var settle = depth / recoverySpeed + InelasticRockingSettleSeconds(r, h, degrees);
+        var settleTick = (int)Math.Ceiling(settle * world.TicksPerSecond);
+        var initial = world.Initial(body);
+        var previous = Energy(initial, 1f, r, h);
+        var quarterPenetration = (double)depth;
+        var final = world.Step(settleTick + world.TicksPerSecond, (tick, state) =>
+        {
+            var current = state[body];
+            var penetration = BenchY - (current.Position.Y - Lowest(current.Rotation, r, h));
+            var energy = Energy(current, 1f, r, h);
+            Assert.True(energy - previous <= SlopEnergy(1f),
+                $"tick {tick}: off-centre rim gained {(energy - previous) * 1000} mJ");
+            previous = energy;
+            Assert.True(penetration <= .05f * (2 * MathF.Min(r, h)),
+                $"tick {tick}: transient penetration {penetration}");
+            if (tick == world.TicksPerSecond / 4) quarterPenetration = penetration;
+            if (tick >= settleTick)
+            {
+                Assert.InRange(penetration, -.0002f, .0005f);
+                Assert.True(current.Tilt < 1f, $"tick {tick}: tilt {current.Tilt}");
+                Assert.True(current.Speed < .002 && current.Spin < .01, $"tick {tick}: the recovered rim must remain at rest.");
+            }
+        })[body];
+        Assert.True(quarterPenetration <= depth - .001f, "The off-centre contact must recover at least 1 mm in .25 s.");
+        Assert.True(final.Speed < .002 && final.Spin < .01, "The recovered rim must settle.");
+    }
+
     [Fact]
     public void ANearUprightCapWithinTheMarginAlwaysHasItsDeepestContact()
     {

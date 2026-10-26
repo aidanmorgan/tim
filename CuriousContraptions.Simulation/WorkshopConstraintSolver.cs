@@ -33,7 +33,9 @@ internal static class WorkshopConstraintSolver
     public const float SpinClamp = 128f * (1f - (1f / 1048576f));
     public const float ContactHertz = 60f;
     public const float ContactDampingRatio = 10f;
-    public const float MaxPushoutSpeed = 3f;
+    // One slop of requested correction over the longest supported committed interval (60 Hz).
+    // The same physical rate applies at 120/240 Hz; this is not a whole-island energy bound.
+    public const float MaxPushoutSpeed = ContactSlop / (1f / 60f);
     public const int SolverIterations = 4;
     public const int RelaxIterations = 4;
     public const float BlockRegularization = 1e-3f;
