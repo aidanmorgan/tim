@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using CuriousContraptions.Gpu;
+using CuriousContraptions.Abstractions;
 using Godot;
 
 namespace CuriousContraptions;
@@ -22,8 +23,6 @@ public static class TubeMouthSnap
     /// <summary>DESIGN.md and CAT-048 facts 9–11: a mouth within 0.45 m and 20° of a free compatible mouth snaps.</summary>
     public const float CaptureDistance = .45f;
     public static readonly float CaptureAngle = Mathf.DegToRad(20);
-    /// <summary>Bores are compatible when equal within 1e-6 m.</summary>
-    public const float BoreTolerance = 1e-6f;
     /// <summary>A mouth is occupied when another placed mouth coincides with it within 1e-4 m and faces opposite.</summary>
     public const float JoinedDistance = 1e-4f;
     public const float JoinedDot = -.9999f;
@@ -62,7 +61,7 @@ public static class TubeMouthSnap
             if (Occupied(others, body, target)) continue;
             foreach (var mouth in moverMouths)
             {
-                if (MathF.Abs(mouth.BoreRadius!.Value - target.Bore) > BoreTolerance) continue;
+                if (!PhysicalTolerance.CompatibleBoreRadii(mouth.BoreRadius!.Value, target.Bore)) continue;
                 var moverLocal = mouth.Position;
                 var moverAt = position + rotation * moverLocal;
                 var moverOutward = Outward(rotation * mouth.Rotation);

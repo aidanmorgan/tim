@@ -38,6 +38,14 @@ Use the existing test builders (`PlacedParts`, `LawScene`, `SwitchMachine` and s
 7. **Be deterministic.** Use fixed seeds and fixed tick counts. No wall-clock sleeps, no ordering dependence and no shared mutable state between tests. Randomised sweeps use committed seeds, and a reviewer may add held-back seeds.
 8. **Assert one behaviour per test**, with as few assertions as that behaviour needs. A theory may enumerate cases of the same behaviour.
 
+## Physical comparisons (owner, 26 October 2026)
+
+The owner's 26 October direction is game-grade accuracy balanced against churn. Choose accuracy by quantity and units before observing outputs. The precise 5 µm floor, 1e-4 size fraction and 50 µm cap below are implementation choices selected before new outputs, not digits personally specified by the owner. `PhysicalTolerance` is the first bounded adoption: finite bore radii compare inclusively within 1 µm (zero relative allowance); resting horizontal excursion uses `min(50 µm, max(5 µm, 1e-4 × s))`, with finite positive nominal local horizontal size `s` in metres. For boxes use `min(2hx, 2hz)`; for lying cylinders use `min(2radius, 2halfWidth)`. The 5 µm floor is 1/100 of contact slop; 0.01% of size covers useful scales; the 50 µm cap is the existing stopped-displacement budget, 1/10 of slop. These are practical accuracy choices, not certified f32 error bounds.
+
+Measure peak horizontal excursion from the original settled reference on every tick, preserving each scene's settling and observation windows. Every observed horizontal coordinate must have f32 spacing no larger than allowance/8. A final endpoint alone misses excursions that return. Near-origin observations do not qualify arbitrary world coordinates. NaN/infinity never compare approximately equal; invalid scales reject explicitly. No rest tolerance snaps velocity or suppresses slow motion.
+
+Preserve exact identities, ordering, canonical Reset/same-input replay, intentional zero semantics, hard admission/gameplay thresholds and independently budgeted energy. Do not substitute a universal epsilon. Remaining bounded adoption work includes visible-solid/joined-pose geometry; hollow observations (separate distance, speed and axis units); normalization admission; authored-anchor agreement; and operation-specific numerical conditioning. Sensor/stop thresholds, integer deadlines, energy ULP budgets and worker-ring identities retain their contracts. There is no repository-wide comparison-compliance claim. Original nanometre observations remain historical evidence, not current resting acceptance.
+
 ## Not allowed
 
 - **Hashes as assertions.** No hashes, digests or byte-identity of simulation, trace, event, render or save output, including golden-hash pins (AGENTS.md hard rule).

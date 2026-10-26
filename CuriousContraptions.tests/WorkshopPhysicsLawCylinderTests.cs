@@ -372,21 +372,14 @@ public sealed class WorkshopPhysicsLawCylinderTests
     /// A cylinder in it lies along world Z.</summary>
     private static readonly Quaternion ExactlyLevel = new(.5f, .5f, .5f, .5f);
 
-    /// <summary>The set-down cases stand at the horizontal origin. The integrator moves a body by f32 world-coordinate steps, one ulp of
-    /// the coordinate (15 nm at 0.2 m), so away from the origin a drift under about 3.6e-6 m/s (half an ulp per 480 Hz substep) reads as
-    /// none and anything above it as at least 7.15e-6 m/s: the 1e-6 m/s bound could not be resolved there. Near the origin the step is
-    /// far finer than any bound below.</summary>
+    /// <summary>Near-origin observation keeps f32 spacing below one eighth of the physical allowance.</summary>
     private static readonly Vector3 SetDownAt = Vector3.Zero;
 
     [Fact]
     public void ALyingCylinderSetDownWithAMicroTiltDoesNotWalkAndItsTiltDoesNotGrow()
     {
-        // The exact level pose tilted 2e-6 rad about the transverse X (one end low), set down touching at its lowest point: tilt is the
-        // only difference from the level control. Over the whole 10 s run its tilt never exceeds the admitted tilt plus two f32 steps of
-        // the quaternion's ½ components (each 2^-24, turning the axis by 2 × 2^-24 = 1.19e-7 rad), 2.4e-7 rad; and from 2 s to 10 s the
-        // centre's horizontal drift stays under 1e-6 m/s (8 µm in the 8 s). A ledge-and-sag rest grows the tilt (to 1.5e-4 rad without
-        // the coherent slop band rule). Whether such a tilt levels, and larger set-down tilts (1e-5, 1e-4 rad) and a box on its end,
-        // belong to the follow-up slice "orientation levelling and two-point friction".
+        // Keep the admitted 2e-6 rad tilt and angular nongrowth bound (two f32 quaternion steps).
+        // Observe every tick from 2 s to 10 s against the original settled reference.
         const double tilt = 2e-6;
         var scene = new LawScene();
         var q = Quaternion.CreateFromAxisAngle(Vector3.UnitX, (float)tilt) * ExactlyLevel;
@@ -397,38 +390,34 @@ public sealed class WorkshopPhysicsLawCylinderTests
         // The admitted tilt (f32 rotation) is the requested one.
         var initial = FromHorizontal(AxisOf(world.Initial(body)));
         Assert.InRange(initial, .5 * tilt, 1.5 * tilt);
-        LawBody? settled = null;
+        RestingObservation? observation = null;
         double peak = initial;
-        var final = world.Step(10 * tps, (tick, state) =>
+        world.Step(10 * tps, (tick, state) =>
         {
             peak = Math.Max(peak, FromHorizontal(AxisOf(state[body])));
-            if (tick == 2 * tps) settled = state[body];
-        })[body];
-        var drift = final.Position - settled!.Value.Position;
-        drift.Y = 0;
-        var speed = drift.Length() / 8;
-        Assert.True(speed < 1e-6 && peak <= initial + 2.4e-7,
-            $"tilted {initial:E2} rad: drift {speed:E2} m/s over 8 s (bound 1e-6), peak tilt {peak:E2} rad (bound {initial + 2.4e-7:E2})");
+            if (tick == 2 * tps) observation = new(MathF.Min(2 * WeightRadius, 2 * WeightHalfWidth), state[body].Position);
+            if (tick >= 2 * tps) observation!.Observe(state[body].Position);
+        });
+        Assert.True(observation!.IsResting && peak <= initial + 2.4e-7,
+            $"tilted {initial:E2} rad: peak displacement {observation.PeakMetres:E2} m (bound {observation.AllowanceMetres:E2}, resolved {observation.Resolved}), peak tilt {peak:E2} rad (bound {initial + 2.4e-7:E2})");
     }
 
     [Fact]
     public void ACylinderSetDownExactlyLevelOnItsSideDoesNotDrift()
     {
-        // The control for the micro-tilt, at the same place and in the same pose with no tilt: there is nothing to level, so once set down
-        // (its first second, as it takes up its slop) the centre stays put for 9 s within the face bound of the box control, 1e-9 m/s
-        // (9 nm), three orders below the tilted cases' 1e-6 m/s. Bit-stillness is not the measure: at the origin the solver's own
-        // round-off is resolved (a level cylinder reads about 1.3e-11 m/s, as before this slice's laws), and away from it a 1e-6 m/s
-        // drift would round away.
+        // Same scene as the micro-tilt control, retaining 1 s settling and the full 9 s measurement window.
         var scene = new LawScene();
         var drum = scene.Cylinder(SetDownAt + At(0, BenchY + WeightRadius), WeightRadius, WeightHalfWidth, WeightMass, WeightMaterial, ExactlyLevel);
         var world = scene.Admit();
         var tps = world.TicksPerSecond;
-        LawBody? settled = null;
-        var final = world.Step(10 * tps, (tick, state) => { if (tick == tps) settled = state[drum]; })[drum];
-        var drift = final.Position - settled!.Value.Position;
-        drift.Y = 0;
-        var speed = drift.Length() / 9;
-        Assert.True(speed <= 1e-9, $"drift {speed:E2} m/s over 9 s (bound 1e-9)");
+        RestingObservation? observation = null;
+        world.Step(10 * tps, (tick, state) =>
+        {
+            if (tick == tps) observation = new(MathF.Min(2 * WeightRadius, 2 * WeightHalfWidth), state[drum].Position);
+            if (tick >= tps) observation!.Observe(state[drum].Position);
+        });
+        Assert.True(observation!.IsResting,
+            $"peak displacement {observation.PeakMetres:E2} m (bound {observation.AllowanceMetres:E2}, resolved {observation.Resolved})");
     }
 
     /// <summary>The peak tilt from the horizontal (radians) of <paramref name="rocker"/>'s axis over <paramref name="seconds"/>.</summary>
@@ -2343,16 +2332,73 @@ public sealed class WorkshopPhysicsLawCylinderTests
             Environment.NewLine + string.Join(Environment.NewLine, failures));
     }
 
+
+    [Theory]
+    [InlineData(.05f, .03f, .08f, .5f, .1f, 0f)]
+    [InlineData(.1f, .07f, .15f, 1f, .3f, .1f)]
+    [InlineData(.5f, .2f, .6f, 2f, .6f, .3f)]
+    public void HeldBackBoxesStayWithinThePhysicalRestingAllowance(float hx, float hy, float hz, float mass, float friction, float restitution)
+    {
+        // Fixed before observing outputs: yaw 45°, horizontal tilts +.03/-.02 rad, drop 1 cm.
+        var half = new Vector3(hx, hy, hz);
+        var q = Quaternion.Normalize(Quaternion.CreateFromAxisAngle(Vector3.UnitY, MathF.PI / 4f) *
+            Quaternion.CreateFromAxisAngle(Vector3.UnitX, .03f) * Quaternion.CreateFromAxisAngle(Vector3.UnitZ, -.02f));
+        var lowest = half.X * MathF.Abs(Vector3.Transform(Vector3.UnitX, q).Y) +
+            half.Y * MathF.Abs(Vector3.Transform(Vector3.UnitY, q).Y) + half.Z * MathF.Abs(Vector3.Transform(Vector3.UnitZ, q).Y);
+        var scene = new LawScene();
+        var body = scene.Box(At(0f, BenchY + lowest + .01f), half, mass, new(restitution, .1f, friction, 0f), q);
+        var world = scene.Admit();
+        var tps = world.TicksPerSecond;
+        RestingObservation? observation = null;
+        world.Step(10 * tps, (tick, state) =>
+        {
+            if (tick == 4 * tps) observation = new(MathF.Min(2 * hx, 2 * hz), state[body].Position);
+            if (tick >= 4 * tps) observation!.Observe(state[body].Position);
+        });
+        Assert.True(observation!.IsResting,
+            $"peak displacement {observation.PeakMetres:E2} m (bound {observation.AllowanceMetres:E2}, resolved {observation.Resolved})");
+    }
+
+    public enum HorizontalMotionAxis { X, Z }
+
+    [Theory]
+    [InlineData(HorizontalMotionAxis.X, .0001f, .000595f, .000605f, false)]
+    [InlineData(HorizontalMotionAxis.Z, .0001f, .000595f, .000605f, false)]
+    [InlineData(HorizontalMotionAxis.X, .000001f, .000001f, .000011f, true)]
+    [InlineData(HorizontalMotionAxis.Z, .000001f, .000001f, .000011f, true)]
+    public void GenuineSlowMotionRemainsMotionAcrossTheRestCriterion(
+        HorizontalMotionAxis axis, float speed, float minimumDisplacement, float maximumDisplacement, bool withinRestAllowance)
+    {
+        var direction = axis switch
+        {
+            HorizontalMotionAxis.X => Vector3.UnitX,
+            HorizontalMotionAxis.Z => Vector3.UnitZ,
+            _ => throw new ArgumentOutOfRangeException(nameof(axis))
+        };
+        var scene = new LawScene(bench: false);
+        var body = scene.Box(Vector3.Zero, new(.1f, .05f, .15f), 1f, new(0f, 0f, 0f, 0f),
+            velocity: direction * speed, gravity: 0f);
+        var world = scene.Admit();
+        var reference = world.Initial(body).Position;
+        var observation = new RestingObservation(.2f, reference);
+        var final = world.Step(6 * world.TicksPerSecond, (_, state) =>
+        {
+            observation.Observe(state[body].Position);
+            Assert.True(Vector3.Dot(state[body].Velocity, direction) > 0f);
+        })[body];
+        // v*t is 600 µm or 6 µm; each literal interval uses the independent 5 µm physical floor.
+        var displacement = Vector3.Dot(final.Position - reference, direction);
+        Assert.True(displacement > 0f);
+        Assert.InRange(displacement, minimumDisplacement, maximumDisplacement);
+        Assert.True(observation.Resolved);
+        Assert.Equal(withinRestAllowance, observation.IsResting);
+    }
+
     [Fact]
     public void BoxesDroppedOntoAFaceStayPutAtRest()
     {
-        // The four-point face control for the lying drops: 60 random boxes (half-extents 0.05–0.55 × 0.03–0.23 × 0.05–0.35 m, 0.5–5 kg),
-        // tilted ±0.05 rad about two horizontal axes with a random heading, dropped 0.5–150 mm, μ {0.1, 0.3, 0.6}, restitution 0–0.3. A
-        // face has no rolling axis, but its four points do take the coherent slop band rule, so this is that rule's box regression check: over
-        // 6 s at rest the centre's horizontal drift stays at most 1e-9 m/s (6 nm), the slice's face bound, three orders below the
-        // micro-tilt's 1e-6 m/s. A drift is resolved only where one f32 position step, the ulp of the world coordinate, is well under
-        // the 6 nm the bound allows: within 2^-5 m = 31 mm of the origin it is at most 2^-6 × 2^-23 = 2^-29 m = 1.9 nm, under a third.
-        // The boxes fall at the horizontal origin, and each must rest within that radius.
+        // Retain all 60 scenes, random draws and the 4 s settling + 6 s observation window.
+        // The allowance uses nominal local min(width, depth), independent of yaw and world position.
         float[] friction = [.1f, .3f, .6f];
         var rng = new Random(DriftSeed + 10);
         var failures = new List<string>();
@@ -2372,20 +2418,18 @@ public sealed class WorkshopPhysicsLawCylinderTests
             var body = scene.Box(At(0, BenchY + lowest + height), half, m, material, q);
             var world = scene.Admit();
             var tps = world.TicksPerSecond;
-            LawBody? settled = null;
-            var final = world.Step(10 * tps, (tick, state) => { if (tick == 4 * tps) settled = state[body]; })[body];
-            var drift = final.Position - settled!.Value.Position;
-            drift.Y = 0;
-            var creep = drift.Length() / 6;
-            worst = Math.Max(worst, creep);
-            if (MathF.Abs(final.Position.X) >= 1f / 32 || MathF.Abs(final.Position.Z) >= 1f / 32)
+            RestingObservation? observation = null;
+            world.Step(10 * tps, (tick, state) =>
+            {
+                if (tick == 4 * tps) observation = new(MathF.Min(2 * half.X, 2 * half.Z), state[body].Position);
+                if (tick >= 4 * tps) observation!.Observe(state[body].Position);
+            });
+            worst = Math.Max(worst, observation!.PeakMetres);
+            if (!observation.IsResting)
                 failures.Add(FormattableString.Invariant(
-                    $"#{drop} rests at ({final.Position.X:F4}, {final.Position.Z:F4}) m, outside the 31 mm where a 1e-9 m/s drift is resolved"));
-            if (creep > 1e-9)
-                failures.Add(FormattableString.Invariant(
-                    $"#{drop} half ({half.X:F3}, {half.Y:F3}, {half.Z:F3}) m {m:F2} drop {height * 1000:F1} mm e {material.Restitution:F2} μ {material.Friction}: drift {creep:E2} m/s"));
+                    $"#{drop} half ({half.X:F3}, {half.Y:F3}, {half.Z:F3}) m {m:F2} drop {height * 1000:F1} mm e {material.Restitution:F2} μ {material.Friction}: peak displacement {observation.PeakMetres:E2} m (bound {observation.AllowanceMetres:E2}, resolved {observation.Resolved})"));
         }
-        Assert.True(failures.Count == 0, FormattableString.Invariant($"{failures.Count}/60 failed (worst {worst:E2} m/s):") +
+        Assert.True(failures.Count == 0, FormattableString.Invariant($"{failures.Count}/60 failed (worst displacement {worst:E2} m):") +
             Environment.NewLine + string.Join(Environment.NewLine, failures));
     }
 }

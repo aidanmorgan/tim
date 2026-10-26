@@ -123,6 +123,7 @@
         <Compile Include="WorkshopSaveRejectionTests.cs" />
         <Compile Include="SaveFixture.cs" />
         <Compile Include="TestPrecision.cs" />
+        <Compile Include="PhysicalToleranceTests.cs" />
         <Compile Include="F32SaveBoundaryTests.cs" />
         <Compile Include="HalfPrecisionGuardTests.cs" />
         <Compile Include="F32LaneRoundTripTests.cs" />

@@ -275,6 +275,34 @@ public sealed class TubeMouthSnapTests
         Assert.Equal(snaps, snap is not null);
     }
 
+    [Theory]
+    [InlineData(16, true)]
+    [InlineData(17, false)]
+    [InlineData(-16, true)]
+    [InlineData(-17, false)]
+    public void FindUsesTheNearestRepresentableBoreBoundary(float steps, bool snaps)
+    {
+        // At .65 m one f32 step is 2^-24 m: 16 steps = .953674 µm, 17 = 1.013279 µm.
+        // Exact 1 µm separation is not representable here.
+        var target = TestTube("boundary_target", StandardBore);
+        var mover = TestTube("boundary_mover", StandardBore + steps * MathF.Pow(2f, -24));
+        var definitions = new Dictionary<PartId, PartDefinition> { [target.PartId] = target, [mover.PartId] = mover };
+        IReadOnlyList<IWorkshopInstance> placed = [Tube(definitions, target.PartId, 1, new(0, 3, 0), Quaternion.Identity)];
+        Assert.Equal(snaps, Find(definitions, placed, mover.PartId, 2, new(2.1f, 3, 0), Quaternion.Identity) is not null);
+    }
+
+    [Theory]
+    [InlineData(float.NaN)]
+    [InlineData(float.PositiveInfinity)]
+    [InlineData(float.NegativeInfinity)]
+    public void NonFiniteBoresAreRefusedBeforeTheyCanReachFind(float bore)
+    {
+        // PartDefinition admission is the public boundary; do not bypass it to construct an impossible query input.
+        var refusal = Assert.Throws<ArgumentException>(() => TestTube("invalid_bore", bore));
+        Assert.Contains("BUNDLE002", refusal.Message);
+        Assert.Contains("TubeMouths.BoreRadius: not finite", refusal.Message);
+    }
+
     [Fact]
     public void EqualCandidatesBreakTiesByLowerPartIdThenStartBeforeEnd()
     {

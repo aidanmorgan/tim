@@ -402,3 +402,11 @@ Status: **done for source implementation and independent review; terminal public
 Coordinator's final full native run **session66252 exited0: 4,365 passed,0failed,0skipped**. Main game project3,873/9m5s; Coverage77/631ms; E2eRunner192/12s (including non-browser runtime node harnesses); WorkerAotGuard17/39ms; Bundle206/318ms. It used the recorded generated BrowserDeferral filter, deferring only the named16 browser-toolchain cases. Historical4,337/0/0 and4,354/0/0 rounds remain preserved; this final result covers the last physical-test repairs.
 
 The coordinator authorized a local commit through the installed normal hook, which delegates to the repository .githooks/pre-commit. Independent exact-SHA approval must precede push; exact-SHA CI/artifact/deployment verification remains pending. No push or terminal publication Pass is claimed. No second merge, runtime/test edit or extra verification run was performed during this finalization. Browser qualification remains pending for the named post-catalogue phase.
+
+## Terminal publication receipt — 26 October 2026
+
+**Terminal scoped Pass** for `3462ad836dccffc1e1328b1ed99de490b4336786`. Independent SnapshotApproval by `/root/friction_blind_r1` covered the committed candidate; the coordinator verified its full diff exactly matched the frozen reviewed diff. Normal hooks passed124/0/0 and zero-warning solution/playtest/web static builds.
+
+Independent terminal verifier `/root/friction_terminal_verifier` verified [CI40297421010](https://github.com/aidanmorgan/tim/actions/runs/40297421010): **4,365 passed,0failed,0skipped** (game3,873; Coverage77,Bundle206,WorkerAotGuard17,E2eRunner192), including production publish. Pages artifact **12639894754**,80,826,139bytes, matches the exact run/SHA. Deployment **7328603563** succeeded at **2026-10-26T09:43:28Z**. Production `/`, `index.html`, `404.html`, `godot.wasm`, `godot.pck` and `_framework/dotnet.js` returned HTTP200 and matched artifact bytes in memory. Remote main matched the approved SHA.
+
+Required-now friction implementation/publication is complete. Two explicitly unverified numerical qualification risks remain in frontmatter; no global, browser, performance or device qualification is claimed. This short receipt travels in the next float-policy publication, without a separate receipt-only deployment.
