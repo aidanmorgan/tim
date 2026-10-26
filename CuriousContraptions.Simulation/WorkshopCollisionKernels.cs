@@ -1085,34 +1085,55 @@ internal static partial class WorkshopCollisionKernels
     }
 
     /// <summary>Side manifolds keep the manifold capacity of four (review F4 round 4). With more points, the rule is deterministic: keep
-    /// the deepest point (lowest gap, first on a tie), then the two ends of the farthest-apart pair, then the deepest of the rest
-    /// until four, in their emitted order.</summary>
+    /// the deepest point (lowest gap, first on a tie), then the farthest point from it, then maximize summed triangle
+    /// areas to retained pairs until four. Area ties maximize squared-distance sum (preserving collinear extent), then depth/order. Emit in original order.</summary>
     public static void ReduceSideManifold(List<ContactPoint> points, int first)
     {
         var count = points.Count - first;
         if (count <= 4) return;
         Span<bool> keep = stackalloc bool[count];
+        keep.Clear();
         var deepest = 0;
         for (var i = 1; i < count; i++)
             if (points[first + i].Gap < points[first + deepest].Gap) deepest = i;
         keep[deepest] = true;
-        int endA = 0, endB = 1;
+        var opposite = deepest;
         var farthest = -1f;
         for (var i = 0; i < count; i++)
-            for (var j = i + 1; j < count; j++)
-            {
-                var d = (points[first + i].Point - points[first + j].Point).LengthSquared();
-                if (d > farthest) { farthest = d; endA = i; endB = j; }
-            }
-        keep[endA] = true;
-        keep[endB] = true;
+        {
+            if (i == deepest) continue;
+            var distance = (points[first + i].Point - points[first + deepest].Point).LengthSquared();
+            if (distance > farthest) { farthest = distance; opposite = i; }
+        }
+        keep[opposite] = true;
         var kept = 0;
         foreach (var k in keep) if (k) kept++;
         while (kept < 4)
         {
             var next = -1;
+            var widest = -1f;
+            var longest = -1f;
             for (var i = 0; i < count; i++)
-                if (!keep[i] && (next < 0 || points[first + i].Gap < points[first + next].Gap)) next = i;
+            {
+                if (keep[i]) continue;
+                var area = 0f;
+                var span = 0f;
+                for (var j = 0; j < count; j++)
+                {
+                    if (!keep[j]) continue;
+                    span += (points[first + j].Point - points[first + i].Point).LengthSquared();
+                    for (var k = j + 1; k < count; k++)
+                        if (keep[k]) area += Vector3.Cross(points[first + j].Point - points[first + i].Point,
+                            points[first + k].Point - points[first + i].Point).Length();
+                }
+                if (area > widest || (area == widest && (span > longest ||
+                    (span == longest && (next < 0 || points[first + i].Gap < points[first + next].Gap)))))
+                {
+                    widest = area;
+                    longest = span;
+                    next = i;
+                }
+            }
             keep[next] = true;
             kept++;
         }

@@ -36,7 +36,11 @@ public sealed class WorkshopPhysicsLawHollowTests
     [InlineData(true, false, true)]
     [InlineData(false, true, true)]
     [InlineData(true, true, true)]
-    public void ASolidPartnerMeetsTheFlatTorusEndWithoutInventedCap(bool cylinder, bool beside, bool reverseOrder = false)
+    [InlineData(true, false, false, 17f)]
+    [InlineData(true, true, false, 17f)]
+    [InlineData(true, false, true, 17f)]
+    [InlineData(true, true, true, 17f)]
+    public void ASolidPartnerMeetsTheFlatTorusEndWithoutInventedCap(bool cylinder, bool beside, bool reverseOrder = false, float yawDegrees = 0f)
     {
         var scene = new LawScene();
         var c = new Vector3(0, BenchY + 3, 0);
@@ -46,7 +50,7 @@ public sealed class WorkshopPhysicsLawHollowTests
         var start = c + new Vector3(beside ? 1.6f : 1f, .15f, 0);
         var material = new LawMaterial(0f, .1f, .3f, 0f);
         var body = cylinder
-            ? scene.Cylinder(start, .1f, .1f, 1f, material)
+            ? scene.Cylinder(start, .1f, .1f, 1f, material, About(Vector3.UnitY, yawDegrees))
             : scene.Box(start, new(.1f), 1f, material);
         if (reverseOrder) Wall();
         var world = scene.Admit();
@@ -63,6 +67,120 @@ public sealed class WorkshopPhysicsLawHollowTests
         }
     }
 
+
+    [Theory]
+    [InlineData(SimulationCadence.Hz60, false)]
+    [InlineData(SimulationCadence.Hz120, false)]
+    [InlineData(SimulationCadence.Hz240, false)]
+    [InlineData(SimulationCadence.Hz60, true)]
+    [InlineData(SimulationCadence.Hz120, true)]
+    [InlineData(SimulationCadence.Hz240, true)]
+    [InlineData(SimulationCadence.Hz60, false, 17f)]
+    [InlineData(SimulationCadence.Hz240, false, 17f)]
+    [InlineData(SimulationCadence.Hz60, true, 17f)]
+    [InlineData(SimulationCadence.Hz240, true, 17f)]
+    [InlineData(SimulationCadence.Hz120, false, 17f)]
+    [InlineData(SimulationCadence.Hz120, true, 17f)]
+    public void ACylinderRemainsAtRestOnTheFlatTorusEnd(SimulationCadence cadence, bool reverseOrder, float yawDegrees = 0f)
+    {
+        var scene = new LawScene();
+        var centre = new Vector3(0, BenchY + 3, 0);
+        void Wall() => scene.StaticHollow(ColliderShapeKind.Torus, centre, About(Vector3.UnitX, 90),
+            1f, new(0f, .3f, MathF.PI / 2), Pipe);
+        if (!reverseOrder) Wall();
+        var body = scene.Cylinder(centre + new Vector3(1f, .15f, 0f), .1f, .1f, 1f, new(0f, .1f, .3f, 0f),
+            About(Vector3.UnitY, yawDegrees));
+        if (reverseOrder) Wall();
+        var world = scene.Admit(cadence);
+        var landing = new RestingObservation(.2f, world.Initial(body).Position);
+        RestingObservation? resting = null;
+        var settledRotation = Quaternion.Identity;
+        // Eight actual cap-rim directions isolate rotation from centre translation.
+        Vector3[] surfaceDirections =
+        [
+            new(.1f, .1f, 0), new(-.1f, .1f, 0), new(0, .1f, .1f), new(0, .1f, -.1f),
+            new(.1f, -.1f, 0), new(-.1f, -.1f, 0), new(0, -.1f, .1f), new(0, -.1f, -.1f),
+        ];
+        var circumscribedRadius = MathF.Sqrt(.1f * .1f + .1f * .1f);
+        world.Step(10 * world.TicksPerSecond, (tick, state) =>
+        {
+            PhysicsGpuAbi.ValidateCandidate(state.World, world.Admitted, new SimulationTick((ulong)tick));
+            var observed = state[body];
+            // A purely vertical symmetric drop must not acquire a hidden lateral landing offset.
+            landing.Observe(observed.Position);
+            Assert.True(landing.IsResting,
+                $"{cadence}, yaw {yawDegrees}, tick {tick}: initial-placement offset {landing.PeakMetres} m");
+            if (tick < world.TicksPerSecond) return;
+            if (tick == world.TicksPerSecond)
+            {
+                // Diameter 0.2 m gives the preselected 20 micrometre allowance.
+                resting = new RestingObservation(.2f, observed.Position);
+                settledRotation = observed.Rotation;
+            }
+            Assert.NotNull(resting);
+            Assert.True(observed.Speed < 1e-3,
+                $"{cadence}, yaw {yawDegrees}, tick {tick}: linear speed {observed.Speed} m/s");
+            Assert.True(observed.Spin * circumscribedRadius < 1e-3,
+                $"{cadence}, yaw {yawDegrees}, tick {tick}: rotational surface speed {observed.Spin * circumscribedRadius} m/s");
+            foreach (var direction in surfaceDirections)
+            {
+                var displacement = Vector3.Distance(Vector3.Transform(direction, observed.Rotation),
+                    Vector3.Transform(direction, settledRotation));
+                Assert.True(displacement <= resting.AllowanceMetres,
+                    $"{cadence}, yaw {yawDegrees}, tick {tick}: rotational surface displacement {displacement} m");
+            }
+            resting.Observe(observed.Position);
+            Assert.True(resting.IsResting,
+                $"{cadence}, reverse {reverseOrder}, tick {tick}: excursion {resting.PeakMetres} m, allowance {resting.AllowanceMetres} m, resolved {resting.Resolved}");
+            Assert.InRange(observed.Position.Y, centre.Y + .1f - Resting - SurfaceError, centre.Y + .1f + SurfaceError);
+        });
+    }
+
+    [Fact]
+    public void ARotatedCapRepeatsItsTypedTrajectoryAfterEngineResetAndOnAFreshEngine()
+    {
+        var scene = new LawScene();
+        var centre = new Vector3(0, BenchY + 3, 0);
+        scene.StaticHollow(ColliderShapeKind.Torus, centre, About(Vector3.UnitX, 90),
+            1f, new(0f, .3f, MathF.PI / 2), Pipe);
+        var body = scene.Cylinder(centre + new Vector3(1f, .15f, 0), .1f, .1f, 1f,
+            new(0f, .1f, .3f, 0f), About(Vector3.UnitY, 17));
+        var world = scene.Admit();
+        var engine = new CuriousContraptions.Simulation.WorkshopPhysicsEngine();
+        var original = Observe(engine);
+        // Step resets the existing engine and starts from the admitted construction.
+        var reset = Observe(engine);
+        var fresh = Observe(new CuriousContraptions.Simulation.WorkshopPhysicsEngine());
+        foreach (var replay in new[] { reset, fresh })
+            for (var tick = 0; tick < original.Length; tick++)
+            {
+                var expected = original[tick];
+                var actual = replay[tick];
+                Assert.Equal(expected.Body.Id, actual.Body.Id);
+                Assert.Equal(expected.Body.Epoch, actual.Body.Epoch);
+                Assert.Equal(expected.Body.Tick, actual.Body.Tick);
+                Assert.Equal(expected.Body.Cell, actual.Body.Cell);
+                Assert.Equal(expected.Body.Local, actual.Body.Local);
+                Assert.Equal(expected.Rotation, actual.Rotation);
+                Assert.Equal(expected.Body.Velocity, actual.Body.Velocity);
+                Assert.Equal(expected.AngularVelocity, actual.AngularVelocity);
+            }
+
+        PhysicsBodyRead[] Observe(CuriousContraptions.Simulation.WorkshopPhysicsEngine target)
+        {
+            var trajectory = new PhysicsBodyRead[10 * world.TicksPerSecond];
+            world.Step(trajectory.Length, (tick, state) =>
+            {
+                var expectedTick = new SimulationTick((ulong)tick);
+                var committed = PhysicsGpuAbi.ValidateCandidate(state.World, world.Admitted, expectedTick);
+                Assert.True(committed.Bodies.TryGet(body, out var observed));
+                Assert.Equal(body, observed.Body.Id);
+                Assert.Equal(expectedTick, new SimulationTick(observed.Body.Tick));
+                trajectory[tick - 1] = observed;
+            }, engine: target);
+            return trajectory;
+        }
+    }
 
     [Theory]
     [InlineData(false)]

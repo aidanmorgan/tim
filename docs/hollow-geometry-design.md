@@ -74,7 +74,14 @@ inside the wall the nearest of the profile and the end faces' half-spaces):
   A partial torus also measures four stable points on each end rim, completing the contact set for a centred oversized sphere at a bare opening.
 - **Box and cylinder:** candidates measured exactly — the partner's vertices, edge minima, rim minima and axis interior minimum
   (a side contact) against the solid's distance, and the solid's support, generator and rim points toward each partner face against
-  the partner's distance — kept within the margin, merged within 1 mm and reduced to four (deepest, farthest pair, deepest rest).
+  the partner's distance — kept within the margin, merged within 1 mm and reduced to four: retain the deepest point and the point farthest from it,
+  then repeatedly maximize the summed triangle areas formed with retained point pairs. Area ties maximize the summed squared distances
+  to retained points, then prefer depth and emitted order; the distance tie preserves both collinear extremes. Emit original
+  points in original order, preserving their normals, gaps and features; this spreads support without inventing contact geometry.
+  Flat-end cap proof covers both orders and 60/120/240 Hz at 0° and 17° yaw: horizontal landing offset and settled excursion
+  independently stay within 20 µm. Rotational surface displacement from the one-second orientation has its own 20 µm bound;
+  linear and circumscribed rotational surface speeds each stay below 1 mm/s throughout 1–10 s. Reset/reused/fresh-engine
+  replay compares decoded identities, ticks and numeric physical state.
   Every count is fixed. Tilted torus crest directions are projected into the sampled meridian before constructing a surface point. A fully represented cylinder cap omits its redundant moving rim minimum; partial rims and side generators retain their minimum.
 - Shared normal-block translation couples rows by inverse mass times the dot product of their normals; nonparallel hollow rim normals obey the same impulse rule as parallel face contacts.
 - Placement volume bounds use signed directional support distances, preserving the unoccupied side of a partial torus instead of reflecting its arc about the revolution origin.

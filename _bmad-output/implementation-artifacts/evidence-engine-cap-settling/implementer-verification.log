@@ -1,0 +1,68 @@
+Implementer verification; baseline822317c99a08ec64ce2d7406090036d51c1c8fa2.
+
+Initial max-min distance fill (obsolete): build19601 succeeded0 warnings/errors,6.14s; original8 +new6 cap tests session96633 passed14/0/0 in3.9832s. Build16801 succeeded0warnings/errors,5.69s after obsolete synthetic assertion update. Eight-class run11552:
+Command: dotnet test CuriousContraptions.tests/CuriousContraptions.tests.csproj -c Debug -f net10.0 --no-build --no-restore -noAutoResponse --filter 'FullyQualifiedName~WorkshopPhysicsLawHollowTests|FullyQualifiedName~WorkshopPhysicsLawCylinderTests|FullyQualifiedName~WorkshopPhysicsLawFrictionTests|FullyQualifiedName~WorkshopPhysicsLawRestitutionTests|FullyQualifiedName~HollowElementTests|FullyQualifiedName~F32BehaviourIdentityTests|FullyQualifiedName~WeightTests|FullyQualifiedName~WorkshopPhysicsLawTests' --logger 'console;verbosity=minimal'
+[xUnit.net 00:01:27.44] CuriousContraptions.Tests.WorkshopPhysicsLawHollowTests.ThinWallSupportsAdvancingTiltedPartnersBetweenTheirVertices(kind: Tube, cylinder: False, clear: False) [FAIL]
+Assert.True() Failure at WorkshopPhysicsLawHollowTests.cs:line274 (end.Speed < .001)
+Failed! - Failed:1, Passed:595, Skipped:0, Total:596, Duration:8m.
+
+Independent-diameter area fill (obsolete): build52902 succeeded0warnings/errors,8.00s. Focused session4207 passed33/failed3/skipped0,total36,4.9821s. Same thin-wall speed failure at line282. Rotated sustained cases both orders fail:
+Hz120, reverse False, tick729: excursion2.0331598E-05m, allowance2E-05m, resolvedTrue
+Hz120, reverse True, tick729: excursion2.0331598E-05m, allowance2E-05m, resolvedTrue
+Corrected test-side production geometry observation is area-failure-geometry.log. First diagnostic used nonidentical f32 angle/start expressions; its outputs are not evidence for the exact fixtures. Initial diagnostic integration exposed explicit compile membership then xUnit3 namespace; corrected before observation. No mutation tests or production diagnostic code.
+
+Final deepest-seeded area/span rule: build86392:
+Command: dotnet build CuriousContraptions.tests/CuriousContraptions.tests.csproj -c Debug -f net10.0 --no-restore -noAutoResponse -v:q
+Build succeeded. 0Warning(s),0Error(s). Time Elapsed00:00:05.74.
+Session77979:
+Command: dotnet test CuriousContraptions.tests/CuriousContraptions.tests.csproj -c Debug -f net10.0 --no-build --no-restore -noAutoResponse --filter 'FullyQualifiedName~ACylinderRemainsAtRestOnTheFlatTorusEnd|FullyQualifiedName~ASolidPartnerMeetsTheFlatTorusEndWithoutInventedCap|FullyQualifiedName~ThinWallSupportsAdvancingTiltedPartnersBetweenTheirVertices|FullyQualifiedName~ABoxOverlappingAcrossTheCylinderCoreBoundaryReceivesARecoveryReaction|FullyQualifiedName~CrossedSkewedSidesKeepTheirClosestDepthWithinFourContacts' --logger 'console;verbosity=normal' -- RunConfiguration.TreatNoTestsAsError=true
+[xUnit.net 00:00:01.41]   Discovered:  CuriousContraptions.tests
+[xUnit.net 00:00:01.52]   Starting:    CuriousContraptions.tests
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawHollowTests.ACylinderRemainsAtRestOnTheFlatTorusEnd(cadence: Hz60, reverseOrder: True, yawDegrees: 0) [340 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawHollowTests.ACylinderRemainsAtRestOnTheFlatTorusEnd(cadence: Hz120, reverseOrder: True, yawDegrees: 0) [271 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawHollowTests.ACylinderRemainsAtRestOnTheFlatTorusEnd(cadence: Hz120, reverseOrder: False, yawDegrees: 17) [264 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawHollowTests.ACylinderRemainsAtRestOnTheFlatTorusEnd(cadence: Hz240, reverseOrder: False, yawDegrees: 0) [279 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawHollowTests.ACylinderRemainsAtRestOnTheFlatTorusEnd(cadence: Hz240, reverseOrder: True, yawDegrees: 0) [278 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawHollowTests.ACylinderRemainsAtRestOnTheFlatTorusEnd(cadence: Hz120, reverseOrder: True, yawDegrees: 17) [265 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawHollowTests.ACylinderRemainsAtRestOnTheFlatTorusEnd(cadence: Hz60, reverseOrder: False, yawDegrees: 0) [260 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawHollowTests.ACylinderRemainsAtRestOnTheFlatTorusEnd(cadence: Hz120, reverseOrder: False, yawDegrees: 0) [263 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawHollowTests.ASolidPartnerMeetsTheFlatTorusEndWithoutInventedCap(cylinder: True, beside: False, reverseOrder: False, yawDegrees: 17) [23 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawHollowTests.ASolidPartnerMeetsTheFlatTorusEndWithoutInventedCap(cylinder: True, beside: True, reverseOrder: True, yawDegrees: 17) [4 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawHollowTests.ASolidPartnerMeetsTheFlatTorusEndWithoutInventedCap(cylinder: True, beside: True, reverseOrder: False, yawDegrees: 17) [3 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawHollowTests.ASolidPartnerMeetsTheFlatTorusEndWithoutInventedCap(cylinder: True, beside: True, reverseOrder: False, yawDegrees: 0) [2 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawHollowTests.ASolidPartnerMeetsTheFlatTorusEndWithoutInventedCap(cylinder: True, beside: False, reverseOrder: False, yawDegrees: 0) [24 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawHollowTests.ASolidPartnerMeetsTheFlatTorusEndWithoutInventedCap(cylinder: True, beside: True, reverseOrder: True, yawDegrees: 0) [2 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawHollowTests.ASolidPartnerMeetsTheFlatTorusEndWithoutInventedCap(cylinder: True, beside: False, reverseOrder: True, yawDegrees: 0) [23 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawHollowTests.ASolidPartnerMeetsTheFlatTorusEndWithoutInventedCap(cylinder: True, beside: False, reverseOrder: True, yawDegrees: 17) [23 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawHollowTests.ASolidPartnerMeetsTheFlatTorusEndWithoutInventedCap(cylinder: False, beside: True, reverseOrder: True, yawDegrees: 0) [3 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawHollowTests.ASolidPartnerMeetsTheFlatTorusEndWithoutInventedCap(cylinder: False, beside: False, reverseOrder: False, yawDegrees: 0) [35 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawHollowTests.ASolidPartnerMeetsTheFlatTorusEndWithoutInventedCap(cylinder: False, beside: False, reverseOrder: True, yawDegrees: 0) [33 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawHollowTests.ASolidPartnerMeetsTheFlatTorusEndWithoutInventedCap(cylinder: False, beside: True, reverseOrder: False, yawDegrees: 0) [2 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawHollowTests.ThinWallSupportsAdvancingTiltedPartnersBetweenTheirVertices(kind: Tube, cylinder: False, clear: False) [53 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawHollowTests.ThinWallSupportsAdvancingTiltedPartnersBetweenTheirVertices(kind: Frustum, cylinder: True, clear: False) [22 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawHollowTests.ThinWallSupportsAdvancingTiltedPartnersBetweenTheirVertices(kind: Frustum, cylinder: True, clear: True) [1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawHollowTests.ThinWallSupportsAdvancingTiltedPartnersBetweenTheirVertices(kind: Tube, cylinder: False, clear: True) [2 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawHollowTests.ThinWallSupportsAdvancingTiltedPartnersBetweenTheirVertices(kind: Tube, cylinder: True, clear: True) [1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawHollowTests.ThinWallSupportsAdvancingTiltedPartnersBetweenTheirVertices(kind: Frustum, cylinder: False, clear: False) [52 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawHollowTests.ThinWallSupportsAdvancingTiltedPartnersBetweenTheirVertices(kind: Tube, cylinder: True, clear: False) [22 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawHollowTests.ThinWallSupportsAdvancingTiltedPartnersBetweenTheirVertices(kind: Frustum, cylinder: False, clear: True) [2 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ABoxOverlappingAcrossTheCylinderCoreBoundaryReceivesARecoveryReaction(step: 23) [30 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ABoxOverlappingAcrossTheCylinderCoreBoundaryReceivesARecoveryReaction(step: 25) [26 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ABoxOverlappingAcrossTheCylinderCoreBoundaryReceivesARecoveryReaction(step: 22) [25 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ABoxOverlappingAcrossTheCylinderCoreBoundaryReceivesARecoveryReaction(step: 27) [26 ms]
+[xUnit.net 00:00:04.67]   Finished:    CuriousContraptions.tests (ID = '8b9bffb303de3ff6bfb38cd12920339378b0067d4ccd2fa66c60b181aec4c1c4')
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ABoxOverlappingAcrossTheCylinderCoreBoundaryReceivesARecoveryReaction(step: 24) [25 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ABoxOverlappingAcrossTheCylinderCoreBoundaryReceivesARecoveryReaction(step: 26) [25 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.ABoxOverlappingAcrossTheCylinderCoreBoundaryReceivesARecoveryReaction(step: 28) [26 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.CrossedSkewedSidesKeepTheirClosestDepthWithinFourContacts [3 ms]
+
+Test Run Successful.
+Total tests: 36
+     Passed: 36
+ Total time: 4.8579 Seconds
+
+Session47089, samebuild:
+Command: dotnet test CuriousContraptions.tests/CuriousContraptions.tests.csproj -c Debug -f net10.0 --no-build --no-restore -noAutoResponse --filter 'FullyQualifiedName~HollowElementTests|FullyQualifiedName~AReusedEnginePreservesEveryBodyTrajectoryAndStaticSupportInTheNextScene' --logger 'console;verbosity=minimal' -- RunConfiguration.TreatNoTestsAsError=true
+Passed! - Failed:0, Passed:28, Skipped:0, Total:28, Duration:1s.
+
+Final full local suite, independent review, normal hooks, committed-SHA approval and publication remain coordinator work. Previousmetric595/1/0 is NOT proof of finalalgorithm energy/lifecycle behavior. Browser/performance pending at namedgates.

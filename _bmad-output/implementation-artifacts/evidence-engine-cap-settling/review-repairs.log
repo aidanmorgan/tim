@@ -1,0 +1,53 @@
+Review repair verification, runtime selection buffer clear + cap behavior assertions only.
+Build22714:
+dotnet build CuriousContraptions.tests/CuriousContraptions.tests.csproj -c Debug -f net10.0 --no-restore -noAutoResponse -v:q
+Build succeeded. 0 Warning(s), 0 Error(s). Time Elapsed 00:00:08.39.
+Initial build54879 caught SimulationTick/ulong test assertion mismatch, corrected before successful build. No failed runtime test.
+
+Session70761:
+dotnet test CuriousContraptions.tests/CuriousContraptions.tests.csproj -c Debug -f net10.0 --no-build --no-restore -noAutoResponse --filter 'FullyQualifiedName~ACylinderRemainsAtRestOnTheFlatTorusEnd|FullyQualifiedName~ARotatedCapRepeatsItsTypedTrajectoryAfterEngineResetAndOnAFreshEngine|FullyQualifiedName~ASolidPartnerMeetsTheFlatTorusEndWithoutInventedCap|FullyQualifiedName~ThinWallSupportsAdvancingTiltedPartnersBetweenTheirVertices|FullyQualifiedName~CrossedSkewedSidesKeepTheirClosestDepthWithinFourContacts' --logger 'console;verbosity=normal' -- RunConfiguration.TreatNoTestsAsError=true
+[xUnit.net 00:00:00.67]   Discovering: CuriousContraptions.tests
+[xUnit.net 00:00:01.54]   Discovered:  CuriousContraptions.tests
+[xUnit.net 00:00:01.65]   Starting:    CuriousContraptions.tests
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawHollowTests.ACylinderRemainsAtRestOnTheFlatTorusEnd(cadence: Hz60, reverseOrder: True, yawDegrees: 0) [339 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawHollowTests.ACylinderRemainsAtRestOnTheFlatTorusEnd(cadence: Hz60, reverseOrder: False, yawDegrees: 17) [274 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawHollowTests.ACylinderRemainsAtRestOnTheFlatTorusEnd(cadence: Hz240, reverseOrder: False, yawDegrees: 17) [293 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawHollowTests.ACylinderRemainsAtRestOnTheFlatTorusEnd(cadence: Hz120, reverseOrder: True, yawDegrees: 0) [271 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawHollowTests.ACylinderRemainsAtRestOnTheFlatTorusEnd(cadence: Hz60, reverseOrder: True, yawDegrees: 17) [255 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawHollowTests.ACylinderRemainsAtRestOnTheFlatTorusEnd(cadence: Hz120, reverseOrder: False, yawDegrees: 17) [265 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawHollowTests.ACylinderRemainsAtRestOnTheFlatTorusEnd(cadence: Hz240, reverseOrder: False, yawDegrees: 0) [280 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawHollowTests.ACylinderRemainsAtRestOnTheFlatTorusEnd(cadence: Hz240, reverseOrder: True, yawDegrees: 0) [279 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawHollowTests.ACylinderRemainsAtRestOnTheFlatTorusEnd(cadence: Hz120, reverseOrder: True, yawDegrees: 17) [261 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawHollowTests.ACylinderRemainsAtRestOnTheFlatTorusEnd(cadence: Hz240, reverseOrder: True, yawDegrees: 17) [277 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawHollowTests.ACylinderRemainsAtRestOnTheFlatTorusEnd(cadence: Hz60, reverseOrder: False, yawDegrees: 0) [256 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawHollowTests.ACylinderRemainsAtRestOnTheFlatTorusEnd(cadence: Hz120, reverseOrder: False, yawDegrees: 0) [265 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawHollowTests.ASolidPartnerMeetsTheFlatTorusEndWithoutInventedCap(cylinder: True, beside: False, reverseOrder: False, yawDegrees: 17) [24 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawHollowTests.ASolidPartnerMeetsTheFlatTorusEndWithoutInventedCap(cylinder: True, beside: True, reverseOrder: True, yawDegrees: 17) [3 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawHollowTests.ASolidPartnerMeetsTheFlatTorusEndWithoutInventedCap(cylinder: True, beside: True, reverseOrder: False, yawDegrees: 17) [2 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawHollowTests.ASolidPartnerMeetsTheFlatTorusEndWithoutInventedCap(cylinder: True, beside: True, reverseOrder: False, yawDegrees: 0) [3 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawHollowTests.ASolidPartnerMeetsTheFlatTorusEndWithoutInventedCap(cylinder: True, beside: False, reverseOrder: False, yawDegrees: 0) [24 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawHollowTests.ASolidPartnerMeetsTheFlatTorusEndWithoutInventedCap(cylinder: True, beside: True, reverseOrder: True, yawDegrees: 0) [3 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawHollowTests.ASolidPartnerMeetsTheFlatTorusEndWithoutInventedCap(cylinder: True, beside: False, reverseOrder: True, yawDegrees: 0) [24 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawHollowTests.ASolidPartnerMeetsTheFlatTorusEndWithoutInventedCap(cylinder: True, beside: False, reverseOrder: True, yawDegrees: 17) [24 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawHollowTests.ASolidPartnerMeetsTheFlatTorusEndWithoutInventedCap(cylinder: False, beside: True, reverseOrder: True, yawDegrees: 0) [3 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawHollowTests.ASolidPartnerMeetsTheFlatTorusEndWithoutInventedCap(cylinder: False, beside: False, reverseOrder: False, yawDegrees: 0) [34 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawHollowTests.ASolidPartnerMeetsTheFlatTorusEndWithoutInventedCap(cylinder: False, beside: False, reverseOrder: True, yawDegrees: 0) [33 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawHollowTests.ASolidPartnerMeetsTheFlatTorusEndWithoutInventedCap(cylinder: False, beside: True, reverseOrder: False, yawDegrees: 0) [2 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawHollowTests.ThinWallSupportsAdvancingTiltedPartnersBetweenTheirVertices(kind: Tube, cylinder: False, clear: False) [54 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawHollowTests.ThinWallSupportsAdvancingTiltedPartnersBetweenTheirVertices(kind: Frustum, cylinder: True, clear: False) [23 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawHollowTests.ThinWallSupportsAdvancingTiltedPartnersBetweenTheirVertices(kind: Frustum, cylinder: True, clear: True) [1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawHollowTests.ThinWallSupportsAdvancingTiltedPartnersBetweenTheirVertices(kind: Tube, cylinder: False, clear: True) [2 ms]
+[xUnit.net 00:00:06.51]   Finished:    CuriousContraptions.tests (ID = '8b9bffb303de3ff6bfb38cd12920339378b0067d4ccd2fa66c60b181aec4c1c4')
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawHollowTests.ThinWallSupportsAdvancingTiltedPartnersBetweenTheirVertices(kind: Tube, cylinder: True, clear: True) [1 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawHollowTests.ThinWallSupportsAdvancingTiltedPartnersBetweenTheirVertices(kind: Frustum, cylinder: False, clear: False) [52 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawHollowTests.ThinWallSupportsAdvancingTiltedPartnersBetweenTheirVertices(kind: Tube, cylinder: True, clear: False) [22 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawHollowTests.ThinWallSupportsAdvancingTiltedPartnersBetweenTheirVertices(kind: Frustum, cylinder: False, clear: True) [2 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawHollowTests.ARotatedCapRepeatsItsTypedTrajectoryAfterEngineResetAndOnAFreshEngine [793 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.CrossedSkewedSidesKeepTheirClosestDepthWithinFourContacts [5 ms]
+
+Test Run Successful.
+Total tests: 34
+     Passed: 34
+ Total time: 6.6985 Seconds
+
+Total: 34 passed, 0 failed, 0 skipped. Full verification remains coordinator-owned.

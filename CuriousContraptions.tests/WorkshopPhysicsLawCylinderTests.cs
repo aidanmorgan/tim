@@ -1970,23 +1970,10 @@ public sealed class WorkshopPhysicsLawCylinderTests
     }
 
     [Fact]
-    public void SideManifoldsKeepTheDeepestPointAndTheExtremeEndsWithinFour()
+    public void CrossedSkewedSidesKeepTheirClosestDepthWithinFourContacts()
     {
-        // Requirement (a): six points on a line, the deepest in the interior; the reduction keeps four: the deepest, both extreme ends
-        // and the next deepest, in emitted order, deterministically.
-        var a = Collider(ShapeKind.Cylinder, Vector3.Zero, Quaternion.Identity, .3f, .2f);
-        var b = Collider(ShapeKind.Box, At(0, 1), Quaternion.Identity, 0f, At(.1f, .1f, .1f), 1);
-        List<ContactPoint> Points() =>
-        [
-            .. new[] { (0f, .002f), (1f, .001f), (2.5f, -.003f), (3f, .0005f), (4f, .004f), (5f, .003f) }
-                .Select((p, i) => WorkshopCollisionKernels.MakeContact(a.Body, b.Body, a, b, Vector3.UnitY, At(p.Item1, 0), p.Item2, i)),
-        ];
-        var points = Points();
-        WorkshopCollisionKernels.ReduceSideManifold(points, 0);
-        Assert.Equal([0, 2, 3, 5], points.Select(p => p.Feature));
-        var again = Points();
-        WorkshopCollisionKernels.ReduceSideManifold(again, 0);
-        Assert.Equal(points.Select(p => p.Feature), again.Select(p => p.Feature));
+        // Production line-span support is covered by ThinWallSupportsAdvancingTiltedPartnersBetweenTheirVertices;
+        // deepest recovery by ABoxOverlappingAcrossTheCylinderCoreBoundaryReceivesARecoveryReaction.
 
         // Skewed crossed sides emit the closest point and the generator ends within the margin, never more than four, and always the
         // pair's closest point at the exact gap.

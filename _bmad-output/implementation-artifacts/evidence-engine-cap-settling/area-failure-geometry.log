@@ -1,0 +1,194 @@
+Area candidate exact-fixture diagnostic. Build80367:0 warnings/errors,6.30s. Session1719, test-side read-only reflection into actual engine contacts plus public query at committed pose; not acceptance. No production diagnostic code. Diagnostic removed afterward; rebuild required.
+Command: dotnet test CuriousContraptions.tests/CuriousContraptions.tests.csproj -c Debug -f net10.0 --no-build --no-restore -noAutoResponse --filter 'FullyQualifiedName~CapGeometryDiagnostic' --logger 'console;verbosity=detailed' -- RunConfiguration.TreatNoTestsAsError=true
+
+[xUnit.net 00:00:01.23]   Discovered:  CuriousContraptions.tests
+[xUnit.net 00:00:01.33]   Starting:    CuriousContraptions.tests
+[xUnit.net 00:00:01.99]   Finished:    CuriousContraptions.tests (ID = '8b9bffb303de3ff6bfb38cd12920339378b0067d4ccd2fa66c60b181aec4c1c4')
+  Passed CuriousContraptions.Tests.CapGeometryDiagnostic.ObserveActualRetainedSupport(tube: True) [108 ms]
+  Standard Output Messages:
+ tube=True tick=9 body=<0, 3.5066428, 0> speed=0.7357499003410339 velocity=<0, -0.7357499, 0> angular=<0, 0, 0> q={X:0 Y:0.31730464 Z:0 W:0.94832367}
+ retained point=<0.55532795, 3.5015879, -0.42473018> gap=0.003175497 normal=<0, 1, 0> feature=77824
+ retained point=<-0.5556207, 3.5015879, 0.42495084> gap=0.003175497 normal=<0, 1, 0> feature=77832
+ retained point=<-0.5590449, 3.5015879, 0.4212705> gap=0.003175497 normal=<-0, 1, -0> feature=90112
+ retained point=<0.5590449, 3.5015879, -0.4212705> gap=0.003175497 normal=<-0, 1, -0> feature=90116
+ tube=True tick=117 body=<0.00037146403, 3.504734, 0.00048852764> speed=0.0014339627290383197 velocity=<0.00087032054, -1.1802126E-07, 0.0011396452> angular=<-1.01792466E-07, -0.0016388335, -1.345611E-07> q={X:4.1495146E-05 Y:0.31697977 Z:-1.5082994E-05 W:0.9484323}
+ retained point=<-0.56155366, 3.499868, 0.41706735> gap=-0.00026392937 normal=<0, 1, 0> feature=77824
+ retained point=<-0.555541, 3.4998674, 0.42505783> gap=-0.00026488304 normal=<0, 1, 0> feature=77832
+ retained point=<0.55933195, 3.4998662, -0.42088932> gap=-0.0002675755 normal=<5.69061E-05, 1, 7.165468E-05> feature=98376
+ retained point=<0.5572239, 3.4998665, -0.42367607> gap=-0.0002672556 normal=<5.69061E-05, 1, 7.165468E-05> feature=98505
+ candidate 0: point=<-0.56155324, 3.499868, 0.41706777> gap=-0.00026392937 normal=<0, 1, 0> feature=77824
+ candidate 1: point=<-0.55554056, 3.4998674, 0.42505825> gap=-0.00026488304 normal=<0, 1, 0> feature=77832
+ candidate 2: point=<-0.55855304, 3.499868, 0.4203002> gap=-0.00026429584 normal=<5.4916647E-05, 1, 6.9148664E-05> feature=98316
+ candidate 3: point=<0.5593334, 3.4998662, -0.4208874> gap=-0.00026751962 normal=<5.4916647E-05, 1, 6.9148664E-05> feature=98376
+ candidate 4: point=<0.5572193, 3.4998665, -0.42368215> gap=-0.00026721042 normal=<5.4916647E-05, 1, 6.9148664E-05> feature=98505
+ candidate 5: point=<-0.5564292, 3.4998677, 0.42310798> gap=-0.00026460644 normal=<5.4916647E-05, 1, 6.9148664E-05> feature=98447
+ tube=True tick=118 body=<0.00037872797, 3.504734, 0.0004980389> speed=0.0014373749763302052 velocity=<0.0008724434, -1.0193317E-07, 0.0011423175> angular=<-8.792358E-08, -0.0016459979, -1.16213414E-07> q={X:3.552986E-05 Y:0.31697327 Z:-1.2933066E-05 W:0.9484345}
+ retained point=<-0.5615519, 3.499868, 0.41706923> gap=-0.0002641678 normal=<0, 1, 0> feature=77824
+ retained point=<-0.55553937, 3.4998674, 0.4250597> gap=-0.00026512146 normal=<0, 1, 0> feature=77832
+ retained point=<0.5593377, 3.4998665, -0.42088163> gap=-0.0002673664 normal=<4.900707E-05, 1, 6.1671846E-05> feature=98376
+ retained point=<0.5572058, 3.4998665, -0.4237001> gap=-0.0002670884 normal=<4.900707E-05, 1, 6.1671846E-05> feature=98505
+ candidate 0: point=<-0.5615516, 3.499868, 0.41706967> gap=-0.0002641678 normal=<0, 1, 0> feature=77824
+ candidate 1: point=<-0.555539, 3.4998674, 0.42506027> gap=-0.00026512146 normal=<0, 1, 0> feature=77832
+ candidate 2: point=<-0.55855876, 3.499868, 0.42029256> gap=-0.00026450958 normal=<4.705637E-05, 1, 5.9196624E-05> feature=98316
+ candidate 3: point=<0.5593391, 3.4998665, -0.42087978> gap=-0.00026731892 normal=<4.705637E-05, 1, 5.9196624E-05> feature=98376
+ candidate 4: point=<0.55720127, 3.4998665, -0.42370594> gap=-0.00026705116 normal=<4.705637E-05, 1, 5.9196624E-05> feature=98505
+ candidate 5: point=<-0.556413, 3.4998674, 0.42312926> gap=-0.00026477827 normal=<4.705637E-05, 1, 5.9196624E-05> feature=98447
+ tube=True tick=119 body=<0.00038600795, 3.504734, 0.0005075703> speed=0.001440288179624787 velocity=<0.0008742568, -8.793813E-08, 0.0011445982> angular=<-7.58605E-08, -0.001652114, -1.0024996E-07> q={X:3.109292E-05 Y:0.31696674 Z:-1.130893E-05 W:0.9484367}
+ retained point=<-0.5615504, 3.499868, 0.4170711> gap=-0.0002644062 normal=<0, 1, 0> feature=77824
+ retained point=<-0.55553794, 3.4998674, 0.4250617> gap=-0.00026488304 normal=<0, 1, 0> feature=77832
+ retained point=<0.55934346, 3.4998665, -0.42087394> gap=-0.00026718015 normal=<4.2173553E-05, 1.0000001, 5.3047876E-05> feature=98376
+ retained point=<0.5571879, 3.4998665, -0.4237235> gap=-0.000266938 normal=<4.2173553E-05, 1.0000001, 5.3047876E-05> feature=98505
+ candidate 0: point=<-0.56155, 3.4998677, 0.41707158> gap=-0.00026464462 normal=<0, 1, 0> feature=77824
+ candidate 1: point=<-0.5555376, 3.4998674, 0.42506218> gap=-0.00026512146 normal=<0, 1, 0> feature=77832
+ candidate 2: point=<-0.5585646, 3.4998677, 0.42028487> gap=-0.00026470143 normal=<4.116245E-05, 1, 5.181022E-05> feature=98316
+ candidate 3: point=<0.55934495, 3.4998665, -0.42087203> gap=-0.0002671373 normal=<4.116245E-05, 1, 5.181022E-05> feature=98376
+ candidate 4: point=<0.55718356, 3.4998665, -0.42372924> gap=-0.0002669003 normal=<4.116245E-05, 1, 5.181022E-05> feature=98505
+ candidate 5: point=<-0.5563969, 3.4998674, 0.42315033> gap=-0.0002649394 normal=<4.116245E-05, 1, 5.181022E-05> feature=98447
+ tube=True tick=120 body=<0.00039330198, 3.504734, 0.00051711936> speed=0.001442894466626007 velocity=<0.00087587745, -7.989474E-08, 0.0011466399> angular=<-6.8917416E-08, -0.0016575854, -9.108817E-08> q={X:2.813227E-05 Y:0.31696022 Z:-1.0202225E-05 W:0.9484389}
+ retained point=<-0.56154877, 3.4998677, 0.4170729> gap=-0.00026464462 normal=<0, 1, 0> feature=77824
+ retained point=<-0.55553645, 3.4998674, 0.42506358> gap=-0.00026512146 normal=<0, 1, 0> feature=77832
+ retained point=<0.5593493, 3.4998665, -0.42086628> gap=-0.00026702136 normal=<3.8170554E-05, 1, 4.8115216E-05> feature=98376
+ retained point=<0.5571705, 3.4998665, -0.42374635> gap=-0.00026680017 normal=<3.8170554E-05, 1, 4.8115216E-05> feature=98505
+ candidate 0: point=<-0.5615485, 3.4998674, 0.41707337> gap=-0.00026488304 normal=<0, 1, 0> feature=77824
+ candidate 1: point=<-0.55553615, 3.4998674, 0.4250641> gap=-0.00026535988 normal=<0, 1, 0> feature=77832
+ candidate 2: point=<-0.5585704, 3.4998674, 0.42027715> gap=-0.0002648593 normal=<3.7185993E-05, 1.0000001, 4.6896086E-05> feature=98316
+ candidate 3: point=<0.5593507, 3.4998665, -0.4208643> gap=-0.0002669841 normal=<3.7185993E-05, 1.0000001, 4.6896086E-05> feature=98376
+ candidate 4: point=<0.5571663, 3.4998665, -0.42375198> gap=-0.00026676757 normal=<3.7185993E-05, 1.0000001, 4.6896086E-05> feature=98505
+ candidate 5: point=<-0.55638105, 3.4998674, 0.42317116> gap=-0.00026507676 normal=<3.7185993E-05, 1.0000001, 4.6896086E-05> feature=98447
+
+
+  Passed CuriousContraptions.Tests.CapGeometryDiagnostic.ObserveActualRetainedSupport(tube: False) [177 ms]
+  Standard Output Messages:
+ tube=False tick=12 body=<1, 2.639928, 0> speed=0.0615533762061145 velocity=<1.2560481E-05, -0.06155331, 8.898555E-05> angular=<1.4211109E-06, 5.0931703E-11, -4.6040077E-07> q={X:0 Y:0.1478094 Z:0 W:0.9890159}
+ retained point=<1.0956306, 2.540986, -0.029237173> gap=0.00197196 normal=<0, 1, 0> feature=81938
+ retained point=<0.9228376, 2.540986, 0.06360782> gap=0.00197196 normal=<0, 1, 0> feature=81945
+ retained point=<0.9363923, 2.540986, -0.0771625> gap=0.00197196 normal=<0, 1, 0> feature=81949
+ retained point=<1.0771626, 2.540986, -0.063607834> gap=0.00197196 normal=<0, 1, 0> feature=81953
+ candidate 0: point=<1.0956304, 2.5399642, -0.029237168> gap=-7.1763985E-05 normal=<-0, 0.99999994, -0> feature=81938
+ candidate 1: point=<1.0995395, 2.5399642, 0.0095845815> gap=-7.1763985E-05 normal=<-0, 0.99999994, -0> feature=81939
+ candidate 2: point=<1.0882946, 2.5399642, 0.046947155> gap=-7.1763985E-05 normal=<-0, 0.99999994, -0> feature=81940
+ candidate 3: point=<1.0636077, 2.5399642, 0.07716246> gap=-7.1763985E-05 normal=<-0, 0.99999994, -0> feature=81941
+ candidate 4: point=<1.029237, 2.5399642, 0.095630474> gap=-7.1763985E-05 normal=<-0, 0.99999994, -0> feature=81942
+ candidate 5: point=<0.99041533, 2.5399642, 0.09953962> gap=-7.1763985E-05 normal=<-0, 0.99999994, -0> feature=81943
+ candidate 6: point=<0.95305276, 2.5399642, 0.08829475> gap=-7.1763985E-05 normal=<-0, 0.99999994, -0> feature=81944
+ candidate 7: point=<0.92283744, 2.5399642, 0.063607804> gap=-7.1763985E-05 normal=<-0, 0.99999994, -0> feature=81945
+ candidate 8: point=<0.9043695, 2.5399642, 0.029237159> gap=-7.1763985E-05 normal=<-0, 0.99999994, -0> feature=81946
+ candidate 9: point=<0.9004603, 2.5399642, -0.0095845815> gap=-7.1763985E-05 normal=<-0, 0.99999994, -0> feature=81947
+ candidate 10: point=<0.9117052, 2.5399642, -0.04694717> gap=-7.1763985E-05 normal=<-0, 0.99999994, -0> feature=81948
+ candidate 11: point=<0.9363921, 2.5399642, -0.07716248> gap=-7.1763985E-05 normal=<-0, 0.99999994, -0> feature=81949
+ candidate 12: point=<0.9707628, 2.5399642, -0.095630474> gap=-7.1763985E-05 normal=<-0, 0.99999994, -0> feature=81950
+ candidate 13: point=<1.0095844, 2.5399642, -0.099539615> gap=-7.1763985E-05 normal=<-0, 0.99999994, -0> feature=81951
+ candidate 14: point=<1.0469471, 2.5399642, -0.08829474> gap=-7.1763985E-05 normal=<-0, 0.99999994, -0> feature=81952
+ candidate 15: point=<1.0771624, 2.5399642, -0.06360782> gap=-7.1763985E-05 normal=<-0, 0.99999994, -0> feature=81953
+ tube=False tick=120 body=<0.99998015, 2.639734, -4.0522054E-06> speed=0.00011211870007679456 velocity=<7.136958E-05, -3.6624044E-08, 8.646956E-05> angular=<1.650616E-06, -3.5629426E-11, -9.102141E-07> q={X:-8.4056416E-07 Y:0.1478094 Z:4.391119E-07 W:0.9890159}
+ retained point=<1.0956098, 2.539867, -0.0292424> gap=-0.00026583674 normal=<-0, 1.0000001, -0> feature=81938
+ retained point=<0.92281675, 2.539867, 0.06360258> gap=-0.00026583674 normal=<-0, 1.0000001, -0> feature=81945
+ retained point=<0.93637145, 2.539867, -0.07716772> gap=-0.00026583674 normal=<-0, 1.0000001, -0> feature=81949
+ retained point=<1.0771418, 2.539867, -0.06361306> gap=-0.00026583674 normal=<-0, 1.0000001, -0> feature=81953
+ candidate 0: point=<1.0956106, 2.539867, -0.029241063> gap=-0.0002658367 normal=<-0, 0.99999994, -0> feature=81938
+ candidate 1: point=<1.0995197, 2.5398672, 0.009580686> gap=-0.00026559827 normal=<-0, 0.99999994, -0> feature=81939
+ candidate 2: point=<1.088275, 2.5398672, 0.046943255> gap=-0.00026559827 normal=<-0, 0.99999994, -0> feature=81940
+ candidate 3: point=<1.063588, 2.5398672, 0.07715856> gap=-0.00026559827 normal=<-0, 0.99999994, -0> feature=81941
+ candidate 4: point=<1.0292174, 2.5398672, 0.09562658> gap=-0.00026559827 normal=<-0, 0.99999994, -0> feature=81942
+ candidate 5: point=<0.9903956, 2.5398672, 0.099535726> gap=-0.00026559827 normal=<-0, 0.99999994, -0> feature=81943
+ candidate 6: point=<0.95303303, 2.539867, 0.088290855> gap=-0.0002658367 normal=<-0, 0.99999994, -0> feature=81944
+ candidate 7: point=<0.9228177, 2.539867, 0.0636039> gap=-0.0002658367 normal=<-0, 0.99999994, -0> feature=81945
+ candidate 8: point=<0.90434974, 2.539867, 0.029233256> gap=-0.0002658367 normal=<-0, 0.99999994, -0> feature=81946
+ candidate 9: point=<0.9004406, 2.539867, -0.009588483> gap=-0.0002660751 normal=<-0, 0.99999994, -0> feature=81947
+ candidate 10: point=<0.91168547, 2.539867, -0.046951074> gap=-0.0002660751 normal=<-0, 0.99999994, -0> feature=81948
+ candidate 11: point=<0.9363724, 2.539867, -0.07716638> gap=-0.0002660751 normal=<-0, 0.99999994, -0> feature=81949
+ candidate 12: point=<0.97074306, 2.539867, -0.09563437> gap=-0.0002660751 normal=<-0, 0.99999994, -0> feature=81950
+ candidate 13: point=<1.0095648, 2.539867, -0.09954351> gap=-0.0002660751 normal=<-0, 0.99999994, -0> feature=81951
+ candidate 14: point=<1.0469273, 2.539867, -0.08829863> gap=-0.0002658367 normal=<-0, 0.99999994, -0> feature=81952
+ candidate 15: point=<1.0771426, 2.539867, -0.063611716> gap=-0.0002658367 normal=<-0, 0.99999994, -0> feature=81953
+ tube=False tick=726 body=<0.9999653, 2.6397347, 1.3244043E-06> speed=3.145627517576549E-05 velocity=<1.5831924E-05, 4.5533852E-09, 2.7181748E-05> angular=<1.3762019E-07, 5.640614E-10, -1.2971395E-07> q={X:7.345035E-06 Y:0.1478094 Z:1.0865493E-06 W:0.9890159}
+ retained point=<1.063573, 2.539867, 0.07716184> gap=-0.00026607516 normal=<-0, 1.0000001, -0> feature=81941
+ retained point=<1.0292023, 2.539867, 0.09562986> gap=-0.00026631358 normal=<-0, 1.0000001, -0> feature=81942
+ retained point=<0.9363573, 2.539868, -0.07716313> gap=-0.00026369098 normal=<-0, 1.0000001, -0> feature=81949
+ retained point=<1.0771276, 2.5398679, -0.06360847> gap=-0.0002639294 normal=<-0, 1.0000001, -0> feature=81953
+ candidate 0: point=<1.0955957, 2.5398676, -0.029237328> gap=-0.0002646446 normal=<-0, 0.99999994, -0> feature=81938
+ candidate 1: point=<1.0995048, 2.5398674, 0.009584421> gap=-0.00026535985 normal=<-0, 0.99999994, -0> feature=81939
+ candidate 2: point=<1.0882599, 2.539867, 0.046946995> gap=-0.0002658367 normal=<-0, 0.99999994, -0> feature=81940
+ candidate 3: point=<1.063573, 2.539867, 0.077162296> gap=-0.00026631352 normal=<-0, 0.99999994, -0> feature=81941
+ candidate 4: point=<1.0292023, 2.5398667, 0.09563031> gap=-0.00026655194 normal=<-0, 0.99999994, -0> feature=81942
+ candidate 5: point=<0.99038064, 2.5398667, 0.09953946> gap=-0.00026655194 normal=<-0, 0.99999994, -0> feature=81943
+ candidate 6: point=<0.95301807, 2.539867, 0.08829459> gap=-0.00026631352 normal=<-0, 0.99999994, -0> feature=81944
+ candidate 7: point=<0.92280275, 2.539867, 0.06360764> gap=-0.0002660751 normal=<-0, 0.99999994, -0> feature=81945
+ candidate 8: point=<0.9043348, 2.5398672, 0.029236998> gap=-0.00026559827 normal=<-0, 0.99999994, -0> feature=81946
+ candidate 9: point=<0.9004256, 2.5398674, -0.009584742> gap=-0.000264883 normal=<-0, 0.99999994, -0> feature=81947
+ candidate 10: point=<0.9116705, 2.5398679, -0.04694733> gap=-0.00026440618 normal=<-0, 0.99999994, -0> feature=81948
+ candidate 11: point=<0.93635744, 2.5398679, -0.077162646> gap=-0.00026392934 normal=<-0, 0.99999994, -0> feature=81949
+ candidate 12: point=<0.9707281, 2.539868, -0.09563064> gap=-0.00026369092 normal=<-0, 0.99999994, -0> feature=81950
+ candidate 13: point=<1.0095497, 2.539868, -0.09953978> gap=-0.00026369092 normal=<-0, 0.99999994, -0> feature=81951
+ candidate 14: point=<1.0469124, 2.5398679, -0.0882949> gap=-0.00026392934 normal=<-0, 0.99999994, -0> feature=81952
+ candidate 15: point=<1.0771277, 2.5398679, -0.06360798> gap=-0.00026416776 normal=<-0, 0.99999994, -0> feature=81953
+ tube=False tick=727 body=<0.99996704, 2.639734, 6.3781763E-06> speed=9.351783430085918E-05 velocity=<5.839534E-05, -2.822162E-09, 7.304498E-05> angular=<5.5379496E-07, 1.0340417E-09, -6.2560866E-07> q={X:4.2049337E-06 Y:0.1478094 Z:1.3432652E-06 W:0.9890159}
+ retained point=<1.0292035, 2.5398664, 0.09563486> gap=-0.00026679042 normal=<-0, 1.0000001, -0> feature=81942
+ retained point=<0.9228039, 2.5398667, 0.063612185> gap=-0.000266552 normal=<-0, 1.0000001, -0> feature=81945
+ retained point=<0.9363586, 2.5398674, -0.07715813> gap=-0.0002651215 normal=<-0, 1.0000001, -0> feature=81949
+ retained point=<1.0771289, 2.5398674, -0.06360347> gap=-0.0002651215 normal=<-0, 1.0000001, -0> feature=81953
+ candidate 0: point=<1.0955975, 2.5398674, -0.029231658> gap=-0.00026535985 normal=<-0, 0.99999994, -0> feature=81938
+ candidate 1: point=<1.0995066, 2.539867, 0.009590088> gap=-0.0002658367 normal=<-0, 0.99999994, -0> feature=81939
+ candidate 2: point=<1.0882618, 2.539867, 0.04695266> gap=-0.0002660751 normal=<-0, 0.99999994, -0> feature=81940
+ candidate 3: point=<1.0635749, 2.539867, 0.07716796> gap=-0.00026631352 normal=<-0, 0.99999994, -0> feature=81941
+ candidate 4: point=<1.0292042, 2.5398667, 0.09563597> gap=-0.00026655194 normal=<-0, 0.99999994, -0> feature=81942
+ candidate 5: point=<0.9903825, 2.5398664, 0.099545114> gap=-0.00026679036 normal=<-0, 0.99999994, -0> feature=81943
+ candidate 6: point=<0.9530199, 2.5398664, 0.08830026> gap=-0.00026679036 normal=<-0, 0.99999994, -0> feature=81944
+ candidate 7: point=<0.92280465, 2.5398667, 0.0636133> gap=-0.00026655194 normal=<-0, 0.99999994, -0> feature=81945
+ candidate 8: point=<0.90433663, 2.539867, 0.02924266> gap=-0.00026631352 normal=<-0, 0.99999994, -0> feature=81946
+ candidate 9: point=<0.90042746, 2.539867, -0.009579075> gap=-0.0002658367 normal=<-0, 0.99999994, -0> feature=81947
+ candidate 10: point=<0.91167235, 2.5398672, -0.046941668> gap=-0.00026559827 normal=<-0, 0.99999994, -0> feature=81948
+ candidate 11: point=<0.9363593, 2.5398674, -0.07715697> gap=-0.00026535985 normal=<-0, 0.99999994, -0> feature=81949
+ candidate 12: point=<0.97072995, 2.5398674, -0.09562496> gap=-0.00026512143 normal=<-0, 0.99999994, -0> feature=81950
+ candidate 13: point=<1.0095516, 2.5398674, -0.0995341> gap=-0.000264883 normal=<-0, 0.99999994, -0> feature=81951
+ candidate 14: point=<1.0469142, 2.5398674, -0.08828922> gap=-0.000264883 normal=<-0, 0.99999994, -0> feature=81952
+ candidate 15: point=<1.0771295, 2.5398674, -0.063602306> gap=-0.00026512143 normal=<-0, 0.99999994, -0> feature=81953
+ tube=False tick=728 body=<0.99996704, 2.639734, 1.0016049E-05> speed=6.751398741852493E-06 velocity=<3.8712888E-06, -1.7013235E-10, 5.5312303E-06> angular=<4.1480916E-08, 2.760676E-11, -4.2035936E-08> q={X:2.3407001E-06 Y:0.1478094 Z:8.7767546E-07 W:0.9890159}
+ retained point=<1.0292044, 2.539867, 0.09563992> gap=-0.00026631358 normal=<-0, 1.0000001, -0> feature=81942
+ retained point=<0.9228047, 2.539867, 0.06361724> gap=-0.00026631358 normal=<-0, 1.0000001, -0> feature=81945
+ retained point=<0.9363594, 2.5398672, -0.07715307> gap=-0.00026559833 normal=<-0, 1.0000001, -0> feature=81949
+ retained point=<1.0771297, 2.5398674, -0.06359841> gap=-0.0002653599 normal=<-0, 1.0000001, -0> feature=81953
+ candidate 0: point=<1.0955975, 2.5398672, -0.02922764> gap=-0.00026559827 normal=<-0, 0.99999994, -0> feature=81938
+ candidate 1: point=<1.0995066, 2.539867, 0.009594109> gap=-0.0002658367 normal=<-0, 0.99999994, -0> feature=81939
+ candidate 2: point=<1.0882618, 2.539867, 0.04695668> gap=-0.0002660751 normal=<-0, 0.99999994, -0> feature=81940
+ candidate 3: point=<1.0635749, 2.539867, 0.07717199> gap=-0.0002660751 normal=<-0, 0.99999994, -0> feature=81941
+ candidate 4: point=<1.0292042, 2.539867, 0.09564> gap=-0.00026631352 normal=<-0, 0.99999994, -0> feature=81942
+ candidate 5: point=<0.9903825, 2.539867, 0.09954915> gap=-0.00026631352 normal=<-0, 0.99999994, -0> feature=81943
+ candidate 6: point=<0.9530199, 2.539867, 0.08830428> gap=-0.00026631352 normal=<-0, 0.99999994, -0> feature=81944
+ candidate 7: point=<0.9228046, 2.539867, 0.063617334> gap=-0.00026631352 normal=<-0, 0.99999994, -0> feature=81945
+ candidate 8: point=<0.90433663, 2.539867, 0.029246686> gap=-0.0002660751 normal=<-0, 0.99999994, -0> feature=81946
+ candidate 9: point=<0.90042746, 2.539867, -0.009575054> gap=-0.0002658367 normal=<-0, 0.99999994, -0> feature=81947
+ candidate 10: point=<0.91167235, 2.5398672, -0.046937644> gap=-0.00026559827 normal=<-0, 0.99999994, -0> feature=81948
+ candidate 11: point=<0.9363593, 2.5398672, -0.07715295> gap=-0.00026559827 normal=<-0, 0.99999994, -0> feature=81949
+ candidate 12: point=<0.97072995, 2.5398674, -0.095620945> gap=-0.00026535985 normal=<-0, 0.99999994, -0> feature=81950
+ candidate 13: point=<1.0095516, 2.5398674, -0.099530086> gap=-0.00026535985 normal=<-0, 0.99999994, -0> feature=81951
+ candidate 14: point=<1.0469142, 2.5398674, -0.08828521> gap=-0.00026535985 normal=<-0, 0.99999994, -0> feature=81952
+ candidate 15: point=<1.0771295, 2.5398674, -0.06359829> gap=-0.00026535985 normal=<-0, 0.99999994, -0> feature=81953
+ tube=False tick=729 body=<0.9999661, 2.639734, 1.0627778E-05> speed=7.66738238824529E-05 velocity=<-6.566082E-05, -2.7030183E-08, 3.9592065E-05> angular=<5.8073783E-07, -4.217997E-10, 1.1906377E-06> q={X:4.2539414E-06 Y:0.1478094 Z:6.0235966E-06 W:0.9890159}
+ retained point=<1.0635743, 2.539867, 0.077172555> gap=-0.00026607516 normal=<-0, 1.0000001, -0> feature=81941
+ retained point=<1.0292037, 2.539867, 0.09564058> gap=-0.00026631358 normal=<-0, 1.0000001, -0> feature=81942
+ retained point=<0.93635863, 2.5398672, -0.077152416> gap=-0.00026559833 normal=<-0, 1.0000001, -0> feature=81949
+ retained point=<1.0771289, 2.5398672, -0.06359775> gap=-0.00026559833 normal=<-0, 1.0000001, -0> feature=81953
+ candidate 0: point=<1.0955975, 2.5398679, -0.02922756> gap=-0.00026440618 normal=<-0, 0.99999994, -0> feature=81938
+ candidate 1: point=<1.0995066, 2.5398674, 0.009594186> gap=-0.000264883 normal=<-0, 0.99999994, -0> feature=81939
+ candidate 2: point=<1.0882618, 2.5398674, 0.046956763> gap=-0.00026535985 normal=<-0, 0.99999994, -0> feature=81940
+ candidate 3: point=<1.0635749, 2.539867, 0.07717206> gap=-0.0002658367 normal=<-0, 0.99999994, -0> feature=81941
+ candidate 4: point=<1.0292042, 2.5398667, 0.09564008> gap=-0.00026655194 normal=<-0, 0.99999994, -0> feature=81942
+ candidate 5: point=<0.9903825, 2.5398664, 0.09954923> gap=-0.00026702878 normal=<-0, 0.99999994, -0> feature=81943
+ candidate 6: point=<0.9530199, 2.5398664, 0.08830436> gap=-0.0002672672 normal=<-0, 0.99999994, -0> feature=81944
+ candidate 7: point=<0.9228046, 2.5398664, 0.06361741> gap=-0.0002672672 normal=<-0, 0.99999994, -0> feature=81945
+ candidate 8: point=<0.90433663, 2.5398664, 0.029246766> gap=-0.0002672672 normal=<-0, 0.99999994, -0> feature=81946
+ candidate 9: point=<0.90042746, 2.5398664, -0.009574969> gap=-0.00026679036 normal=<-0, 0.99999994, -0> feature=81947
+ candidate 10: point=<0.91167235, 2.539867, -0.046937563> gap=-0.00026631352 normal=<-0, 0.99999994, -0> feature=81948
+ candidate 11: point=<0.9363593, 2.539867, -0.07715286> gap=-0.0002658367 normal=<-0, 0.99999994, -0> feature=81949
+ candidate 12: point=<0.97072995, 2.5398674, -0.095620856> gap=-0.00026512143 normal=<-0, 0.99999994, -0> feature=81950
+ candidate 13: point=<1.0095516, 2.5398676, -0.09953> gap=-0.0002646446 normal=<-0, 0.99999994, -0> feature=81951
+ candidate 14: point=<1.0469142, 2.5398679, -0.08828512> gap=-0.00026440618 normal=<-0, 0.99999994, -0> feature=81952
+ candidate 15: point=<1.0771295, 2.5398679, -0.06359821> gap=-0.00026440618 normal=<-0, 0.99999994, -0> feature=81953
+
+
+
+Test Run Successful.
+Total tests: 2
+     Passed: 2
+ Total time: 2.1855 Seconds

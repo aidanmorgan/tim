@@ -505,9 +505,10 @@ development_status:
 
   #24Oct finite stabilization; current order and detailed AC in epics.md#current-execution-plan.
   engine-cylinder-axial-creep: done # M1 coherent slop band + M2 rolling axes; published d87b6a1e, CI 40181624977; residuals → engine-cap-block, engine-two-point-friction, engine-orientation-levelling (owner 25 Oct)
-  # 25 Oct 2026 (coordinator, from owner directives): the creep follow-up is split into three engine slices,
-  # and the collider-fidelity decisions add two slices. Order (25 Oct, after the cap-block HALT): elements-visible-solid,
-  # engine-hollow-shapes, engine-single-point-penetration, engine-two-point-friction, engine-cap-block (retry), engine-orientation-levelling, then 9a-44b.
+  # Current order (26 Oct 2026): epics.md#current-execution-plan governs; sprint row order does not.
+  # Delivered visible-solid/sweep, hollow-shapes, single-point-penetration and two-point-friction -> engine-cap-settling ->
+  # retained engine-orientation-levelling retry -> separate blocked engine-cap-block -> engine-multi-collider-dynamic ->
+  # bumper-cap-solid -> face-markings-flush -> 9a-44b -> harness A then B -> TypeScript conversion -> test hygiene -> 9a-24 -> 9a-45.
   # Stories and acceptance: epics.md#engine-and-collider-slices.
   engine-cap-block: blocked # HALT 25 Oct after 3 bounded attempts (spec-engine-cap-block.md, engine-cap-block-attempt.patch): face drift 4/60 > 1e-9 m/s and box-on-box energy gain; retry after engine-two-point-friction (central friction anchor) and engine-single-point-penetration (deep rim/edge energy)
   elements-visible-solid: done # lamp, switch, delay, ramp, battery, detector, gate colliders as drawn; cylinder-cap placement rest; collider-vs-art test over all 29 packages
@@ -520,8 +521,9 @@ development_status:
   engine-two-point-friction: done # terminal Pass 3462ad836dccffc1e1328b1ed99de490b4336786; CI 40297421010 4365/0/0; artifact 12639894754; deployment 7328603563; risks retained in spec
   game-grade-float-comparisons: done # unchanged133859b4 published through b39b893d; build40318527487/artifact12647774040/deployment7331335202 verified; browser pending, not a global audit
   local-test-authority: done # b39b893d; full4411/0/0 hooks126/0/0; build40318527487/artifact12647774040/deployment7331335202 verified; terminal receipt in spec
-  engine-remove-core-warmup: in-progress # local Auto done; full39307 4411/0/0; repairs independently confirmed; hooks/exact-SHA approval/publication pending; browser pending
-  engine-orientation-levelling: backlog # sub-f32-step levelling (axial drift to 2.2e-5 m/s); keeps the energy gates
+  engine-remove-core-warmup: done # published822317c; build40324744448/artifact12650828689/deployment7332347579; full4411/0/0 hooks126/0/0; browser/performance pending
+  engine-cap-settling: in-progress # local Auto done; final full83621 4428/0/0; repairs independently confirmed; normal hooks/exact-SHA approval/publication pending
+  engine-orientation-levelling: blocked # unpublished candidate retained in story-engine-orientation-levelling; retry after engine-cap-settling is reviewed/published; original energy and lifecycle gates remain
   test-workshop-harness-a: backlog
   test-workshop-harness-b: backlog
   runtime-typescript-conversion: backlog
