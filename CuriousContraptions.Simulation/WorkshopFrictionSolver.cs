@@ -5,23 +5,23 @@ using CuriousContraptions.Gpu;
 
 namespace CuriousContraptions.Simulation;
 
-internal readonly record struct FrictionColliderPair(int A, int B);
+internal readonly record struct ContactColliderPair(int A, int B);
 
-/// <summary>Exact feature membership, independent of contact enumeration and normal rotation.</summary>
-internal sealed class FrictionPatchKey : IEquatable<FrictionPatchKey>
+/// <summary>Exact collider-pair feature membership, independent of enumeration and normal rotation, for contact warm starts.</summary>
+internal sealed class ContactFeatureSetKey : IEquatable<ContactFeatureSetKey>
 {
-    private readonly FrictionColliderPair _pair;
+    private readonly ContactColliderPair _pair;
     private readonly int[] _features;
-    public FrictionPatchKey(List<ContactPoint> points)
+    public ContactFeatureSetKey(List<ContactPoint> points)
     {
         _pair = new(points[0].ColA.Index, points[0].ColB.Index);
         _features = new int[points.Count];
         for (var i = 0; i < points.Count; i++) _features[i] = points[i].Feature;
         Array.Sort(_features);
     }
-    public bool Equals(FrictionPatchKey? other) => other is not null && _pair == other._pair &&
+    public bool Equals(ContactFeatureSetKey? other) => other is not null && _pair == other._pair &&
         _features.AsSpan().SequenceEqual(other._features);
-    public override bool Equals(object? other) => other is FrictionPatchKey key && Equals(key);
+    public override bool Equals(object? other) => other is ContactFeatureSetKey key && Equals(key);
     public override int GetHashCode()
     {
         var hash = new HashCode();
@@ -36,7 +36,7 @@ internal readonly record struct FrictionWarmStart(Vector3 ForceImpulse, Vector3 
 internal sealed class FrictionPatch
 {
     public readonly List<ContactPoint> Points = new();
-    public FrictionPatchKey Key = null!;
+    public ContactFeatureSetKey Key = null!;
     public Vector3 AnchorA, AnchorB, Normal, T1, T2;
     public float Radius;
     public Vector3 Lambda;
@@ -59,7 +59,7 @@ internal static class WorkshopFrictionSolver
         return y != 0 ? y : a.Z.CompareTo(b.Z);
     }
 
-    public static void Prepare(ContactManifold manifold, Dictionary<FrictionPatchKey, FrictionWarmStart> cache)
+    public static void Prepare(ContactManifold manifold, Dictionary<ContactFeatureSetKey, FrictionWarmStart> cache)
     {
         manifold.FrictionPatches.Clear();
         var ordered = new List<ContactPoint>(manifold.Points);
@@ -106,9 +106,9 @@ internal static class WorkshopFrictionSolver
                 {
                     var k = 0f;
                     if (c.A.Motion == RigidMotionKind.Dynamic) k += c.A.InvMass * Vector3.Dot(p.Linear[i], p.Linear[j]) +
-                        Vector3.Dot(p.AngularA[i], WorkshopCollisionKernels.ApplyInvInertia(c.A, p.AngularA[j]));
+                        WorkshopCollisionKernels.InverseInertiaCoupling(c.A, p.AngularA[i], p.AngularA[j]);
                     if (c.B.Motion == RigidMotionKind.Dynamic) k += c.B.InvMass * Vector3.Dot(p.Linear[i], p.Linear[j]) +
-                        Vector3.Dot(p.AngularB[i], WorkshopCollisionKernels.ApplyInvInertia(c.B, p.AngularB[j]));
+                        WorkshopCollisionKernels.InverseInertiaCoupling(c.B, p.AngularB[i], p.AngularB[j]);
                     p.Mass[i * 3 + j] = p.Mass[j * 3 + i] = k;
                 }
             Diagonalize(p);
@@ -136,7 +136,7 @@ internal static class WorkshopFrictionSolver
         foreach (var p in manifold.FrictionPatches) Apply(p, p.Lambda);
     }
 
-    public static void Store(ContactManifold manifold, Dictionary<FrictionPatchKey, FrictionWarmStart> cache)
+    public static void Store(ContactManifold manifold, Dictionary<ContactFeatureSetKey, FrictionWarmStart> cache)
     {
         foreach (var p in manifold.FrictionPatches)
             cache[p.Key] = new(p.Lambda.X * p.T1 + p.Lambda.Y * p.T2, p.Lambda.Z * p.Radius * p.Normal);

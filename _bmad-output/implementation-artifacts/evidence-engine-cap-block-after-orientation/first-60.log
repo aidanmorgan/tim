@@ -1,0 +1,299 @@
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-cap-block-after-orientation/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.5+1b188a7b0a (64-bit .NET 10.0.13)
+[xUnit.net 00:00:00.70]   Discovering: CuriousContraptions.tests
+[xUnit.net 00:00:01.63]   Discovered:  CuriousContraptions.tests
+[xUnit.net 00:00:01.74]   Starting:    CuriousContraptions.tests
+  Passed CuriousContraptions.Tests.WorkshopContactBlockTests.FlatSupportedBodiesCarryTheirWeightAcrossScales(shape: Point, radius: 0.400000006, mass: 0.25, drop: 0) [104 ms]
+  Passed CuriousContraptions.Tests.WorkshopContactBlockTests.FlatSupportedBodiesCarryTheirWeightAcrossScales(shape: Point, radius: 0.100000001, mass: 8, drop: 0.00200000009) [57 ms]
+  Passed CuriousContraptions.Tests.WorkshopContactBlockTests.FlatSupportedBodiesCarryTheirWeightAcrossScales(shape: Line, radius: 0.100000001, mass: 0.25, drop: 0) [105 ms]
+  Passed CuriousContraptions.Tests.WorkshopContactBlockTests.FlatSupportedBodiesCarryTheirWeightAcrossScales(shape: Line, radius: 0.100000001, mass: 8, drop: 0) [85 ms]
+  Passed CuriousContraptions.Tests.WorkshopContactBlockTests.FlatSupportedBodiesCarryTheirWeightAcrossScales(shape: Face, radius: 0.100000001, mass: 8, drop: 0.00200000009) [157 ms]
+  Passed CuriousContraptions.Tests.WorkshopContactBlockTests.FlatSupportedBodiesCarryTheirWeightAcrossScales(shape: Line, radius: 0.400000006, mass: 0.25, drop: 0) [74 ms]
+  Passed CuriousContraptions.Tests.WorkshopContactBlockTests.FlatSupportedBodiesCarryTheirWeightAcrossScales(shape: Face, radius: 0.100000001, mass: 8, drop: 0) [151 ms]
+  Passed CuriousContraptions.Tests.WorkshopContactBlockTests.FlatSupportedBodiesCarryTheirWeightAcrossScales(shape: Face, radius: 0.100000001, mass: 0.25, drop: 0) [144 ms]
+  Passed CuriousContraptions.Tests.WorkshopContactBlockTests.FlatSupportedBodiesCarryTheirWeightAcrossScales(shape: Face, radius: 0.400000006, mass: 0.25, drop: 0) [141 ms]
+  Passed CuriousContraptions.Tests.WorkshopContactBlockTests.FlatSupportedBodiesCarryTheirWeightAcrossScales(shape: Point, radius: 0.100000001, mass: 0.25, drop: 0) [41 ms]
+  Passed CuriousContraptions.Tests.WorkshopContactBlockTests.FlatSupportedBodiesCarryTheirWeightAcrossScales(shape: Line, radius: 0.400000006, mass: 8, drop: 0) [69 ms]
+  Passed CuriousContraptions.Tests.WorkshopContactBlockTests.FlatSupportedBodiesCarryTheirWeightAcrossScales(shape: Point, radius: 0.400000006, mass: 8, drop: 0.00200000009) [41 ms]
+  Passed CuriousContraptions.Tests.WorkshopContactBlockTests.FlatSupportedBodiesCarryTheirWeightAcrossScales(shape: Face, radius: 0.400000006, mass: 0.25, drop: 0.00200000009) [143 ms]
+  Passed CuriousContraptions.Tests.WorkshopContactBlockTests.FlatSupportedBodiesCarryTheirWeightAcrossScales(shape: Point, radius: 0.100000001, mass: 8, drop: 0) [42 ms]
+  Passed CuriousContraptions.Tests.WorkshopContactBlockTests.FlatSupportedBodiesCarryTheirWeightAcrossScales(shape: Point, radius: 0.400000006, mass: 8, drop: 0) [41 ms]
+  Passed CuriousContraptions.Tests.WorkshopContactBlockTests.FlatSupportedBodiesCarryTheirWeightAcrossScales(shape: Cap, radius: 0.100000001, mass: 0.25, drop: 0.00200000009) [141 ms]
+  Passed CuriousContraptions.Tests.WorkshopContactBlockTests.FlatSupportedBodiesCarryTheirWeightAcrossScales(shape: Line, radius: 0.400000006, mass: 0.25, drop: 0.00200000009) [69 ms]
+  Passed CuriousContraptions.Tests.WorkshopContactBlockTests.FlatSupportedBodiesCarryTheirWeightAcrossScales(shape: Cap, radius: 0.100000001, mass: 8, drop: 0) [145 ms]
+  Passed CuriousContraptions.Tests.WorkshopContactBlockTests.FlatSupportedBodiesCarryTheirWeightAcrossScales(shape: Cap, radius: 0.400000006, mass: 8, drop: 0.00200000009) [170 ms]
+  Passed CuriousContraptions.Tests.WorkshopContactBlockTests.FlatSupportedBodiesCarryTheirWeightAcrossScales(shape: Face, radius: 0.400000006, mass: 8, drop: 0) [142 ms]
+  Passed CuriousContraptions.Tests.WorkshopContactBlockTests.FlatSupportedBodiesCarryTheirWeightAcrossScales(shape: NarrowFace, radius: 0.100000001, mass: 0.25, drop: 0.00200000009) [151 ms]
+  Passed CuriousContraptions.Tests.WorkshopContactBlockTests.FlatSupportedBodiesCarryTheirWeightAcrossScales(shape: NarrowFace, radius: 0.400000006, mass: 0.25, drop: 0.00200000009) [148 ms]
+  Passed CuriousContraptions.Tests.WorkshopContactBlockTests.FlatSupportedBodiesCarryTheirWeightAcrossScales(shape: NarrowFace, radius: 0.100000001, mass: 8, drop: 0) [150 ms]
+  Passed CuriousContraptions.Tests.WorkshopContactBlockTests.FlatSupportedBodiesCarryTheirWeightAcrossScales(shape: NarrowFace, radius: 0.100000001, mass: 0.25, drop: 0) [150 ms]
+  Passed CuriousContraptions.Tests.WorkshopContactBlockTests.FlatSupportedBodiesCarryTheirWeightAcrossScales(shape: Line, radius: 0.100000001, mass: 0.25, drop: 0.00200000009) [70 ms]
+  Passed CuriousContraptions.Tests.WorkshopContactBlockTests.FlatSupportedBodiesCarryTheirWeightAcrossScales(shape: Cap, radius: 0.400000006, mass: 8, drop: 0) [169 ms]
+  Passed CuriousContraptions.Tests.WorkshopContactBlockTests.FlatSupportedBodiesCarryTheirWeightAcrossScales(shape: Line, radius: 0.400000006, mass: 8, drop: 0.00200000009) [68 ms]
+  Passed CuriousContraptions.Tests.WorkshopContactBlockTests.FlatSupportedBodiesCarryTheirWeightAcrossScales(shape: NarrowFace, radius: 0.400000006, mass: 8, drop: 0) [140 ms]
+  Passed CuriousContraptions.Tests.WorkshopContactBlockTests.FlatSupportedBodiesCarryTheirWeightAcrossScales(shape: NarrowFace, radius: 0.400000006, mass: 0.25, drop: 0) [149 ms]
+  Passed CuriousContraptions.Tests.WorkshopContactBlockTests.FlatSupportedBodiesCarryTheirWeightAcrossScales(shape: Cap, radius: 0.100000001, mass: 8, drop: 0.00200000009) [141 ms]
+  Passed CuriousContraptions.Tests.WorkshopContactBlockTests.FlatSupportedBodiesCarryTheirWeightAcrossScales(shape: Point, radius: 0.100000001, mass: 0.25, drop: 0.00200000009) [41 ms]
+  Passed CuriousContraptions.Tests.WorkshopContactBlockTests.FlatSupportedBodiesCarryTheirWeightAcrossScales(shape: Cap, radius: 0.400000006, mass: 0.25, drop: 0) [149 ms]
+  Passed CuriousContraptions.Tests.WorkshopContactBlockTests.FlatSupportedBodiesCarryTheirWeightAcrossScales(shape: Line, radius: 0.100000001, mass: 8, drop: 0.00200000009) [69 ms]
+  Passed CuriousContraptions.Tests.WorkshopContactBlockTests.FlatSupportedBodiesCarryTheirWeightAcrossScales(shape: NarrowFace, radius: 0.100000001, mass: 8, drop: 0.00200000009) [149 ms]
+  Passed CuriousContraptions.Tests.WorkshopContactBlockTests.FlatSupportedBodiesCarryTheirWeightAcrossScales(shape: NarrowFace, radius: 0.400000006, mass: 8, drop: 0.00200000009) [140 ms]
+  Passed CuriousContraptions.Tests.WorkshopContactBlockTests.FlatSupportedBodiesCarryTheirWeightAcrossScales(shape: Face, radius: 0.400000006, mass: 8, drop: 0.00200000009) [141 ms]
+[xUnit.net 00:00:07.05]     CuriousContraptions.Tests.WeightTests.AStackEndDownHoldsWithoutBounceOrCreep(lower: 4, upper: 4) [FAIL]
+[xUnit.net 00:00:07.05]       body 2 moved 0.54066837 mm in the last second
+[xUnit.net 00:00:07.05]       Stack Trace:
+[xUnit.net 00:00:07.05]         /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-cap-block-after-orientation/CuriousContraptions.tests/WeightTests.cs(471,0): at CuriousContraptions.Tests.WeightTests.AStackEndDownHoldsWithoutBounceOrCreep(Single lower, Single upper)
+[xUnit.net 00:00:07.05]         --- End of stack trace from previous location ---
+[xUnit.net 00:00:07.27]     CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.EveryRodRimImpactObeysTheInelasticOneSubstepRetention(degrees: 12.5, azimuth: 0, cadence: Hz60) [FAIL]
+[xUnit.net 00:00:07.27]       tick 105, impact 2: retained 0.8526424394291052, one-substep bound 0.8484001510075476
+[xUnit.net 00:00:07.27]       Stack Trace:
+[xUnit.net 00:00:07.27]         /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-cap-block-after-orientation/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs(1365,0): at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.<>c__DisplayClass81_0.<EveryRodRimImpactObeysTheInelasticOneSubstepRetention>b__2(Int32 tick, LawState state)
+[xUnit.net 00:00:07.27]         /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-cap-block-after-orientation/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs(312,0): at CuriousContraptions.Tests.LawWorld.Step(Int32 ticks, Action`2 observe, Boolean supplied, WorkshopPhysicsEngine engine)
+[xUnit.net 00:00:07.27]         /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-cap-block-after-orientation/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs(1349,0): at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.EveryRodRimImpactObeysTheInelasticOneSubstepRetention(Double degrees, Double azimuth, SimulationCadence cadence)
+[xUnit.net 00:00:07.27]            at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+[xUnit.net 00:00:07.27]            at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+[xUnit.net 00:00:07.27]       Output:
+[xUnit.net 00:00:07.27]         impact 1, tick 64: retained 0.7999171894255329, bound 0.846524131327136
+[xUnit.net 00:00:07.27]         impact 2, tick 104: retained 0.8526424394291052, bound 0.8484001510075476
+[xUnit.net 00:00:07.28]       tick 421, impact 2: retained 0.8570483314325438, one-substep bound 0.8483291037505862
+[xUnit.net 00:00:07.28]       Stack Trace:
+[xUnit.net 00:00:07.28]     CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.EveryRodRimImpactObeysTheInelasticOneSubstepRetention(degrees: 12.5, azimuth: 45, cadence: Hz240) [FAIL]
+[xUnit.net 00:00:07.28]         /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-cap-block-after-orientation/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs(1365,0): at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.<>c__DisplayClass81_0.<EveryRodRimImpactObeysTheInelasticOneSubstepRetention>b__2(Int32 tick, LawState state)
+[xUnit.net 00:00:07.28]         /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-cap-block-after-orientation/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs(312,0): at CuriousContraptions.Tests.LawWorld.Step(Int32 ticks, Action`2 observe, Boolean supplied, WorkshopPhysicsEngine engine)
+[xUnit.net 00:00:07.28]         /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-cap-block-after-orientation/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs(1349,0): at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.EveryRodRimImpactObeysTheInelasticOneSubstepRetention(Double degrees, Double azimuth, SimulationCadence cadence)
+[xUnit.net 00:00:07.28]            at InvokeStub_WorkshopPhysicsLawCylinderTests.EveryRodRimImpactObeysTheInelasticOneSubstepRetention(Object, Span`1)
+[xUnit.net 00:00:07.28]            at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+[xUnit.net 00:00:07.28]       Output:
+[xUnit.net 00:00:07.28]         impact 1, tick 256: retained 0.8063515687419612, bound 0.846524131327136
+[xUnit.net 00:00:07.28]         impact 2, tick 420: retained 0.8570483314325438, bound 0.8483291037505862
+[xUnit.net 00:00:07.29]       tick 88, impact 2: retained 0.8515224532682106, one-substep bound 0.8488750092562638
+[xUnit.net 00:00:07.29]       Stack Trace:
+[xUnit.net 00:00:07.29]     CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.EveryRodRimImpactObeysTheInelasticOneSubstepRetention(degrees: 10.5, azimuth: 22.5, cadence: Hz60) [FAIL]
+[xUnit.net 00:00:07.29]         /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-cap-block-after-orientation/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs(1365,0): at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.<>c__DisplayClass81_0.<EveryRodRimImpactObeysTheInelasticOneSubstepRetention>b__2(Int32 tick, LawState state)
+[xUnit.net 00:00:07.29]         /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-cap-block-after-orientation/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs(312,0): at CuriousContraptions.Tests.LawWorld.Step(Int32 ticks, Action`2 observe, Boolean supplied, WorkshopPhysicsEngine engine)
+[xUnit.net 00:00:07.29]         /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-cap-block-after-orientation/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs(1349,0): at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.EveryRodRimImpactObeysTheInelasticOneSubstepRetention(Double degrees, Double azimuth, SimulationCadence cadence)
+[xUnit.net 00:00:07.29]            at InvokeStub_WorkshopPhysicsLawCylinderTests.EveryRodRimImpactObeysTheInelasticOneSubstepRetention(Object, Span`1)
+[xUnit.net 00:00:07.29]            at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+[xUnit.net 00:00:07.29]       Output:
+[xUnit.net 00:00:07.29]         impact 1, tick 50: retained 0.7990166420935685, bound 0.8469391784700673
+[xUnit.net 00:00:07.29]         impact 2, tick 87: retained 0.8515224532682106, bound 0.8488750092562638
+  Passed CuriousContraptions.Tests.WorkshopContactBlockTests.FlatSupportedBodiesCarryTheirWeightAcrossScales(shape: Point, radius: 0.400000006, mass: 0.25, drop: 0.00200000009) [42 ms]
+  Passed CuriousContraptions.Tests.WorkshopContactBlockTests.FlatSupportedBodiesCarryTheirWeightAcrossScales(shape: Cap, radius: 0.400000006, mass: 0.25, drop: 0.00200000009) [149 ms]
+  Passed CuriousContraptions.Tests.WorkshopContactBlockTests.FlatSupportedBodiesCarryTheirWeightAcrossScales(shape: Face, radius: 0.100000001, mass: 0.25, drop: 0.00200000009) [144 ms]
+  Passed CuriousContraptions.Tests.WorkshopContactBlockTests.FlatSupportedBodiesCarryTheirWeightAcrossScales(shape: Cap, radius: 0.100000001, mass: 0.25, drop: 0) [144 ms]
+  Failed CuriousContraptions.Tests.WeightTests.AStackEndDownHoldsWithoutBounceOrCreep(lower: 4, upper: 4) [272 ms]
+  Error Message:
+   body 2 moved 0.54066837 mm in the last second
+  Stack Trace:
+     at CuriousContraptions.Tests.WeightTests.AStackEndDownHoldsWithoutBounceOrCreep(Single lower, Single upper) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-cap-block-after-orientation/CuriousContraptions.tests/WeightTests.cs:line 471
+--- End of stack trace from previous location ---
+  Passed CuriousContraptions.Tests.WeightTests.AStackEndDownHoldsWithoutBounceOrCreep(lower: 8, upper: 1) [202 ms]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.EveryRodRimImpactObeysTheInelasticOneSubstepRetention(degrees: 12.5, azimuth: 0, cadence: Hz60) [14 ms]
+  Error Message:
+   tick 105, impact 2: retained 0.8526424394291052, one-substep bound 0.8484001510075476
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.<>c__DisplayClass81_0.<EveryRodRimImpactObeysTheInelasticOneSubstepRetention>b__2(Int32 tick, LawState state) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-cap-block-after-orientation/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 1365
+   at CuriousContraptions.Tests.LawWorld.Step(Int32 ticks, Action`2 observe, Boolean supplied, WorkshopPhysicsEngine engine) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-cap-block-after-orientation/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 312
+   at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.EveryRodRimImpactObeysTheInelasticOneSubstepRetention(Double degrees, Double azimuth, SimulationCadence cadence) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-cap-block-after-orientation/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 1349
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+  Standard Output Messages:
+ impact 1, tick 64: retained 0.7999171894255329, bound 0.846524131327136
+ impact 2, tick 104: retained 0.8526424394291052, bound 0.8484001510075476
+
+
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.EveryRodRimImpactObeysTheInelasticOneSubstepRetention(degrees: 12.5, azimuth: 45, cadence: Hz240) [11 ms]
+  Error Message:
+   tick 421, impact 2: retained 0.8570483314325438, one-substep bound 0.8483291037505862
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.<>c__DisplayClass81_0.<EveryRodRimImpactObeysTheInelasticOneSubstepRetention>b__2(Int32 tick, LawState state) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-cap-block-after-orientation/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 1365
+   at CuriousContraptions.Tests.LawWorld.Step(Int32 ticks, Action`2 observe, Boolean supplied, WorkshopPhysicsEngine engine) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-cap-block-after-orientation/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 312
+   at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.EveryRodRimImpactObeysTheInelasticOneSubstepRetention(Double degrees, Double azimuth, SimulationCadence cadence) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-cap-block-after-orientation/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 1349
+   at InvokeStub_WorkshopPhysicsLawCylinderTests.EveryRodRimImpactObeysTheInelasticOneSubstepRetention(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Standard Output Messages:
+ impact 1, tick 256: retained 0.8063515687419612, bound 0.846524131327136
+ impact 2, tick 420: retained 0.8570483314325438, bound 0.8483291037505862
+
+
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.EveryRodRimImpactObeysTheInelasticOneSubstepRetention(degrees: 10.5, azimuth: 22.5, cadence: Hz60) [9 ms]
+  Error Message:
+   tick 88, impact 2: retained 0.8515224532682106, one-substep bound 0.8488750092562638
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.<>c__DisplayClass81_0.<EveryRodRimImpactObeysTheInelasticOneSubstepRetention>b__2(Int32 tick, LawState state) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-cap-block-after-orientation/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 1365
+   at CuriousContraptions.Tests.LawWorld.Step(Int32 ticks, Action`2 observe, Boolean supplied, WorkshopPhysicsEngine engine) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-cap-block-after-orientation/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 312
+   at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.EveryRodRimImpactObeysTheInelasticOneSubstepRetention(Double degrees, Double azimuth, SimulationCadence cadence) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-cap-block-after-orientation/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 1349
+   at InvokeStub_WorkshopPhysicsLawCylinderTests.EveryRodRimImpactObeysTheInelasticOneSubstepRetention(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Standard Output Messages:
+ impact 1, tick 50: retained 0.7990166420935685, bound 0.8469391784700673
+ impact 2, tick 87: retained 0.8515224532682106, bound 0.8488750092562638
+
+
+[xUnit.net 00:00:07.30]     CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.EveryRodRimImpactObeysTheInelasticOneSubstepRetention(degrees: 12.5, azimuth: 45, cadence: Hz60) [FAIL]
+[xUnit.net 00:00:07.30]       tick 106, impact 2: retained 0.8571108856060619, one-substep bound 0.8483290616326249
+[xUnit.net 00:00:07.30]       Stack Trace:
+[xUnit.net 00:00:07.30]         /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-cap-block-after-orientation/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs(1365,0): at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.<>c__DisplayClass81_0.<EveryRodRimImpactObeysTheInelasticOneSubstepRetention>b__2(Int32 tick, LawState state)
+[xUnit.net 00:00:07.30]         /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-cap-block-after-orientation/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs(312,0): at CuriousContraptions.Tests.LawWorld.Step(Int32 ticks, Action`2 observe, Boolean supplied, WorkshopPhysicsEngine engine)
+[xUnit.net 00:00:07.30]         /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-cap-block-after-orientation/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs(1349,0): at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.EveryRodRimImpactObeysTheInelasticOneSubstepRetention(Double degrees, Double azimuth, SimulationCadence cadence)
+[xUnit.net 00:00:07.30]            at InvokeStub_WorkshopPhysicsLawCylinderTests.EveryRodRimImpactObeysTheInelasticOneSubstepRetention(Object, Span`1)
+[xUnit.net 00:00:07.30]            at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+[xUnit.net 00:00:07.30]       Output:
+[xUnit.net 00:00:07.30]         impact 1, tick 64: retained 0.8063554062210166, bound 0.846524131327136
+[xUnit.net 00:00:07.30]         impact 2, tick 105: retained 0.8571108856060619, bound 0.8483290616326249
+[xUnit.net 00:00:07.31]       tick 417, impact 2: retained 0.852753940560761, one-substep bound 0.8483997641977488
+[xUnit.net 00:00:07.31]       Stack Trace:
+[xUnit.net 00:00:07.31]     CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.EveryRodRimImpactObeysTheInelasticOneSubstepRetention(degrees: 12.5, azimuth: 0, cadence: Hz240) [FAIL]
+[xUnit.net 00:00:07.31]         /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-cap-block-after-orientation/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs(1365,0): at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.<>c__DisplayClass81_0.<EveryRodRimImpactObeysTheInelasticOneSubstepRetention>b__2(Int32 tick, LawState state)
+[xUnit.net 00:00:07.31]         /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-cap-block-after-orientation/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs(312,0): at CuriousContraptions.Tests.LawWorld.Step(Int32 ticks, Action`2 observe, Boolean supplied, WorkshopPhysicsEngine engine)
+[xUnit.net 00:00:07.31]         /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-cap-block-after-orientation/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs(1349,0): at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.EveryRodRimImpactObeysTheInelasticOneSubstepRetention(Double degrees, Double azimuth, SimulationCadence cadence)
+[xUnit.net 00:00:07.31]            at InvokeStub_WorkshopPhysicsLawCylinderTests.EveryRodRimImpactObeysTheInelasticOneSubstepRetention(Object, Span`1)
+[xUnit.net 00:00:07.31]            at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+[xUnit.net 00:00:07.31]       Output:
+[xUnit.net 00:00:07.31]         impact 1, tick 254: retained 0.7999520112500345, bound 0.846524131327136
+[xUnit.net 00:00:07.31]         impact 2, tick 416: retained 0.852753940560761, bound 0.8483997641977488
+[xUnit.net 00:00:07.71]       tick 175, impact 2: retained 0.8514612648429721, one-substep bound 0.8488742427373507
+[xUnit.net 00:00:07.71]       Stack Trace:
+[xUnit.net 00:00:07.71]     CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.EveryRodRimImpactObeysTheInelasticOneSubstepRetention(degrees: 10.5, azimuth: 22.5, cadence: Hz120) [FAIL]
+[xUnit.net 00:00:07.71]         /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-cap-block-after-orientation/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs(1365,0): at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.<>c__DisplayClass81_0.<EveryRodRimImpactObeysTheInelasticOneSubstepRetention>b__2(Int32 tick, LawState state)
+[xUnit.net 00:00:07.71]         /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-cap-block-after-orientation/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs(312,0): at CuriousContraptions.Tests.LawWorld.Step(Int32 ticks, Action`2 observe, Boolean supplied, WorkshopPhysicsEngine engine)
+[xUnit.net 00:00:07.71]         /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-cap-block-after-orientation/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs(1349,0): at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.EveryRodRimImpactObeysTheInelasticOneSubstepRetention(Double degrees, Double azimuth, SimulationCadence cadence)
+[xUnit.net 00:00:07.71]            at InvokeStub_WorkshopPhysicsLawCylinderTests.EveryRodRimImpactObeysTheInelasticOneSubstepRetention(Object, Span`1)
+[xUnit.net 00:00:07.71]            at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+[xUnit.net 00:00:07.71]       Output:
+[xUnit.net 00:00:07.71]         impact 1, tick 99: retained 0.7990837585791573, bound 0.8469391784700673
+[xUnit.net 00:00:07.71]         impact 2, tick 174: retained 0.8514612648429721, bound 0.8488742427373507
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.EveryRodRimImpactObeysTheInelasticOneSubstepRetention(degrees: 12.5, azimuth: 45, cadence: Hz60) [10 ms]
+  Error Message:
+   tick 106, impact 2: retained 0.8571108856060619, one-substep bound 0.8483290616326249
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.<>c__DisplayClass81_0.<EveryRodRimImpactObeysTheInelasticOneSubstepRetention>b__2(Int32 tick, LawState state) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-cap-block-after-orientation/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 1365
+   at CuriousContraptions.Tests.LawWorld.Step(Int32 ticks, Action`2 observe, Boolean supplied, WorkshopPhysicsEngine engine) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-cap-block-after-orientation/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 312
+   at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.EveryRodRimImpactObeysTheInelasticOneSubstepRetention(Double degrees, Double azimuth, SimulationCadence cadence) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-cap-block-after-orientation/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 1349
+   at InvokeStub_WorkshopPhysicsLawCylinderTests.EveryRodRimImpactObeysTheInelasticOneSubstepRetention(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Standard Output Messages:
+ impact 1, tick 64: retained 0.8063554062210166, bound 0.846524131327136
+ impact 2, tick 105: retained 0.8571108856060619, bound 0.8483290616326249
+
+
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.EveryRodRimImpactObeysTheInelasticOneSubstepRetention(degrees: 12.5, azimuth: 0, cadence: Hz240) [11 ms]
+  Error Message:
+   tick 417, impact 2: retained 0.852753940560761, one-substep bound 0.8483997641977488
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.<>c__DisplayClass81_0.<EveryRodRimImpactObeysTheInelasticOneSubstepRetention>b__2(Int32 tick, LawState state) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-cap-block-after-orientation/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 1365
+   at CuriousContraptions.Tests.LawWorld.Step(Int32 ticks, Action`2 observe, Boolean supplied, WorkshopPhysicsEngine engine) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-cap-block-after-orientation/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 312
+   at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.EveryRodRimImpactObeysTheInelasticOneSubstepRetention(Double degrees, Double azimuth, SimulationCadence cadence) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-cap-block-after-orientation/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 1349
+   at InvokeStub_WorkshopPhysicsLawCylinderTests.EveryRodRimImpactObeysTheInelasticOneSubstepRetention(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Standard Output Messages:
+ impact 1, tick 254: retained 0.7999520112500345, bound 0.846524131327136
+ impact 2, tick 416: retained 0.852753940560761, bound 0.8483997641977488
+
+
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.EveryRodRimImpactObeysTheInelasticOneSubstepRetention(degrees: 10.5, azimuth: 45, cadence: Hz120) [70 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.EveryRodRimImpactObeysTheInelasticOneSubstepRetention(degrees: 10.5, azimuth: 0, cadence: Hz240) [75 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.EveryRodRimImpactObeysTheInelasticOneSubstepRetention(degrees: 12.5, azimuth: 22.5, cadence: Hz240) [78 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.EveryRodRimImpactObeysTheInelasticOneSubstepRetention(degrees: 12.5, azimuth: 22.5, cadence: Hz60) [74 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.EveryRodRimImpactObeysTheInelasticOneSubstepRetention(degrees: 10.5, azimuth: 0, cadence: Hz120) [76 ms]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.EveryRodRimImpactObeysTheInelasticOneSubstepRetention(degrees: 10.5, azimuth: 22.5, cadence: Hz120) [9 ms]
+  Error Message:
+   tick 175, impact 2: retained 0.8514612648429721, one-substep bound 0.8488742427373507
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.<>c__DisplayClass81_0.<EveryRodRimImpactObeysTheInelasticOneSubstepRetention>b__2(Int32 tick, LawState state) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-cap-block-after-orientation/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 1365
+   at CuriousContraptions.Tests.LawWorld.Step(Int32 ticks, Action`2 observe, Boolean supplied, WorkshopPhysicsEngine engine) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-cap-block-after-orientation/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 312
+   at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.EveryRodRimImpactObeysTheInelasticOneSubstepRetention(Double degrees, Double azimuth, SimulationCadence cadence) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-cap-block-after-orientation/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 1349
+   at InvokeStub_WorkshopPhysicsLawCylinderTests.EveryRodRimImpactObeysTheInelasticOneSubstepRetention(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Standard Output Messages:
+ impact 1, tick 99: retained 0.7990837585791573, bound 0.8469391784700673
+ impact 2, tick 174: retained 0.8514612648429721, bound 0.8488742427373507
+
+
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.EveryRodRimImpactObeysTheInelasticOneSubstepRetention(degrees: 10.5, azimuth: 45, cadence: Hz60) [72 ms]
+[xUnit.net 00:00:07.79]       tick 209, impact 2: retained 0.8522747211431686, one-substep bound 0.8483999762024038
+[xUnit.net 00:00:07.79]       Stack Trace:
+[xUnit.net 00:00:07.79]     CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.EveryRodRimImpactObeysTheInelasticOneSubstepRetention(degrees: 12.5, azimuth: 0, cadence: Hz120) [FAIL]
+[xUnit.net 00:00:07.79]         /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-cap-block-after-orientation/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs(1365,0): at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.<>c__DisplayClass81_0.<EveryRodRimImpactObeysTheInelasticOneSubstepRetention>b__2(Int32 tick, LawState state)
+[xUnit.net 00:00:07.79]         /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-cap-block-after-orientation/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs(312,0): at CuriousContraptions.Tests.LawWorld.Step(Int32 ticks, Action`2 observe, Boolean supplied, WorkshopPhysicsEngine engine)
+[xUnit.net 00:00:07.79]         /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-cap-block-after-orientation/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs(1349,0): at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.EveryRodRimImpactObeysTheInelasticOneSubstepRetention(Double degrees, Double azimuth, SimulationCadence cadence)
+[xUnit.net 00:00:07.79]            at InvokeStub_WorkshopPhysicsLawCylinderTests.EveryRodRimImpactObeysTheInelasticOneSubstepRetention(Object, Span`1)
+[xUnit.net 00:00:07.79]            at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+[xUnit.net 00:00:07.79]       Output:
+[xUnit.net 00:00:07.79]         impact 1, tick 127: retained 0.799932925647207, bound 0.846524131327136
+[xUnit.net 00:00:07.79]         impact 2, tick 208: retained 0.8522747211431686, bound 0.8483999762024038
+[xUnit.net 00:00:07.96]       tick 350, impact 2: retained 0.8514398750529911, one-substep bound 0.8488746498580148
+[xUnit.net 00:00:07.96]       Stack Trace:
+[xUnit.net 00:00:07.96]     CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.EveryRodRimImpactObeysTheInelasticOneSubstepRetention(degrees: 10.5, azimuth: 22.5, cadence: Hz240) [FAIL]
+[xUnit.net 00:00:07.96]         /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-cap-block-after-orientation/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs(1365,0): at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.<>c__DisplayClass81_0.<EveryRodRimImpactObeysTheInelasticOneSubstepRetention>b__2(Int32 tick, LawState state)
+[xUnit.net 00:00:07.96]         /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-cap-block-after-orientation/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs(312,0): at CuriousContraptions.Tests.LawWorld.Step(Int32 ticks, Action`2 observe, Boolean supplied, WorkshopPhysicsEngine engine)
+[xUnit.net 00:00:07.96]         /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-cap-block-after-orientation/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs(1349,0): at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.EveryRodRimImpactObeysTheInelasticOneSubstepRetention(Double degrees, Double azimuth, SimulationCadence cadence)
+[xUnit.net 00:00:07.96]            at InvokeStub_WorkshopPhysicsLawCylinderTests.EveryRodRimImpactObeysTheInelasticOneSubstepRetention(Object, Span`1)
+[xUnit.net 00:00:07.96]            at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+[xUnit.net 00:00:07.96]       Output:
+[xUnit.net 00:00:07.96]         impact 1, tick 199: retained 0.799048109989543, bound 0.8469391784700673
+[xUnit.net 00:00:07.96]         impact 2, tick 349: retained 0.8514398750529911, bound 0.8488746498580148
+[xUnit.net 00:00:07.97]       tick 211, impact 2: retained 0.8570966053410064, one-substep bound 0.8483290616311155
+[xUnit.net 00:00:07.97]       Stack Trace:
+[xUnit.net 00:00:07.97]     CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.EveryRodRimImpactObeysTheInelasticOneSubstepRetention(degrees: 12.5, azimuth: 45, cadence: Hz120) [FAIL]
+[xUnit.net 00:00:07.97]         /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-cap-block-after-orientation/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs(1365,0): at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.<>c__DisplayClass81_0.<EveryRodRimImpactObeysTheInelasticOneSubstepRetention>b__2(Int32 tick, LawState state)
+[xUnit.net 00:00:07.97]         /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-cap-block-after-orientation/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs(312,0): at CuriousContraptions.Tests.LawWorld.Step(Int32 ticks, Action`2 observe, Boolean supplied, WorkshopPhysicsEngine engine)
+[xUnit.net 00:00:07.97]         /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-cap-block-after-orientation/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs(1349,0): at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.EveryRodRimImpactObeysTheInelasticOneSubstepRetention(Double degrees, Double azimuth, SimulationCadence cadence)
+[xUnit.net 00:00:07.97]            at InvokeStub_WorkshopPhysicsLawCylinderTests.EveryRodRimImpactObeysTheInelasticOneSubstepRetention(Object, Span`1)
+[xUnit.net 00:00:07.97]            at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+[xUnit.net 00:00:07.97]       Output:
+[xUnit.net 00:00:07.97]         impact 1, tick 128: retained 0.8063554063585362, bound 0.846524131327136
+[xUnit.net 00:00:07.97]         impact 2, tick 210: retained 0.8570966053410064, bound 0.8483290616311155
+[xUnit.net 00:00:08.05]   Finished:    CuriousContraptions.tests (ID = '156adbe0e399fcf64c6a5a2abe7493323975123a8b0091b28a08e7b96fe40a87')
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.EveryRodRimImpactObeysTheInelasticOneSubstepRetention(degrees: 12.5, azimuth: 0, cadence: Hz120) [11 ms]
+  Error Message:
+   tick 209, impact 2: retained 0.8522747211431686, one-substep bound 0.8483999762024038
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.<>c__DisplayClass81_0.<EveryRodRimImpactObeysTheInelasticOneSubstepRetention>b__2(Int32 tick, LawState state) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-cap-block-after-orientation/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 1365
+   at CuriousContraptions.Tests.LawWorld.Step(Int32 ticks, Action`2 observe, Boolean supplied, WorkshopPhysicsEngine engine) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-cap-block-after-orientation/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 312
+   at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.EveryRodRimImpactObeysTheInelasticOneSubstepRetention(Double degrees, Double azimuth, SimulationCadence cadence) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-cap-block-after-orientation/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 1349
+   at InvokeStub_WorkshopPhysicsLawCylinderTests.EveryRodRimImpactObeysTheInelasticOneSubstepRetention(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Standard Output Messages:
+ impact 1, tick 127: retained 0.799932925647207, bound 0.846524131327136
+ impact 2, tick 208: retained 0.8522747211431686, bound 0.8483999762024038
+
+
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.EveryRodRimImpactObeysTheInelasticOneSubstepRetention(degrees: 12.5, azimuth: 22.5, cadence: Hz120) [77 ms]
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.EveryRodRimImpactObeysTheInelasticOneSubstepRetention(degrees: 10.5, azimuth: 45, cadence: Hz240) [76 ms]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.EveryRodRimImpactObeysTheInelasticOneSubstepRetention(degrees: 10.5, azimuth: 22.5, cadence: Hz240) [10 ms]
+  Error Message:
+   tick 350, impact 2: retained 0.8514398750529911, one-substep bound 0.8488746498580148
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.<>c__DisplayClass81_0.<EveryRodRimImpactObeysTheInelasticOneSubstepRetention>b__2(Int32 tick, LawState state) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-cap-block-after-orientation/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 1365
+   at CuriousContraptions.Tests.LawWorld.Step(Int32 ticks, Action`2 observe, Boolean supplied, WorkshopPhysicsEngine engine) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-cap-block-after-orientation/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 312
+   at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.EveryRodRimImpactObeysTheInelasticOneSubstepRetention(Double degrees, Double azimuth, SimulationCadence cadence) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-cap-block-after-orientation/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 1349
+   at InvokeStub_WorkshopPhysicsLawCylinderTests.EveryRodRimImpactObeysTheInelasticOneSubstepRetention(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Standard Output Messages:
+ impact 1, tick 199: retained 0.799048109989543, bound 0.8469391784700673
+ impact 2, tick 349: retained 0.8514398750529911, bound 0.8488746498580148
+
+
+  Failed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.EveryRodRimImpactObeysTheInelasticOneSubstepRetention(degrees: 12.5, azimuth: 45, cadence: Hz120) [11 ms]
+  Error Message:
+   tick 211, impact 2: retained 0.8570966053410064, one-substep bound 0.8483290616311155
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.<>c__DisplayClass81_0.<EveryRodRimImpactObeysTheInelasticOneSubstepRetention>b__2(Int32 tick, LawState state) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-cap-block-after-orientation/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 1365
+   at CuriousContraptions.Tests.LawWorld.Step(Int32 ticks, Action`2 observe, Boolean supplied, WorkshopPhysicsEngine engine) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-cap-block-after-orientation/CuriousContraptions.tests/WorkshopPhysicsLawTests.cs:line 312
+   at CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.EveryRodRimImpactObeysTheInelasticOneSubstepRetention(Double degrees, Double azimuth, SimulationCadence cadence) in /Users/aidan/dev/personal/tim/.claude/worktrees/story-engine-cap-block-after-orientation/CuriousContraptions.tests/WorkshopPhysicsLawCylinderTests.cs:line 1349
+   at InvokeStub_WorkshopPhysicsLawCylinderTests.EveryRodRimImpactObeysTheInelasticOneSubstepRetention(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Standard Output Messages:
+ impact 1, tick 128: retained 0.8063554063585362, bound 0.846524131327136
+ impact 2, tick 210: retained 0.8570966053410064, bound 0.8483290616311155
+
+
+  Passed CuriousContraptions.Tests.WorkshopPhysicsLawCylinderTests.EveryRodRimImpactObeysTheInelasticOneSubstepRetention(degrees: 10.5, azimuth: 0, cadence: Hz60) [74 ms]
+
+Total tests: 60
+Test Run Failed.
+     Passed: 50
+     Failed: 10
+ Total time: 8.2422 Seconds

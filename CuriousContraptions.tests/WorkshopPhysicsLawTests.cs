@@ -1248,118 +1248,113 @@ public sealed class WorkshopPhysicsLawTests
         Assert.Equal((4f, -5f, 6f), (body.Wx, body.Wy, body.Wz));
     }
 
-    [Fact]
-    public void ThePaidContactFrameUsesTheBodysCurrentAnisotropicInertia()
+    [Theory]
+    [InlineData(0f, 0f)]
+    [InlineData(0f, 12f)]
+    [InlineData(37f, 0f)]
+    [InlineData(37f, 12f)]
+    [InlineData(90f, 0f)]
+    [InlineData(90f, 12f)]
+    public void AReorientingAnisotropicBoxReceivesNoMoreKineticEnergyThanItsContactWorkDebit(float yawDegrees, float preload)
     {
-        // A body rotated 0.2 rad about X with principal inverse moments (1, 4, 1): its current world inverse inertia couples Y and Z.
-        // The deleted kernel also recomputed the contact arm after pose integration; the shipped engine pays with the arm prepared
-        // before integration (Story 9.4b finding), so only the current-inertia half of that fact is asserted here.
-        const float angle = .2f;
-        var s = MathF.Sin(angle); var c = MathF.Cos(angle);
-        var izz = 4 * s * s + c * c; var iyz = 3 * s * c;
-        var dynamic = new SimBody { Motion = RigidMotionKind.Dynamic, InvMass = 1, Vy = 4, Wx = 96 };
-        float[] current = [1, 0, 0, 0, 4 * c * c + s * s, iyz, 0, iyz, izz];
-        current.CopyTo(dynamic.InvIWorld, 0);
-        var contact = new ContactPoint { A = dynamic, B = new SimBody { Motion = RigidMotionKind.Static }, Px = 1, Ny = 1, RAx = 1, RBx = 1 };
-        var inverseMass = 1 / WorkshopConstraintSolver.EffectiveMass(contact, contact.Normal);
-        Assert.InRange(inverseMass, 1 + izz - 1e-5f, 1 + izz + 1e-5f);
-        Assert.InRange(inverseMass, 2.118f, 2.119f);
-        var speed = Vector3.Dot(WorkshopConstraintSolver.RelativeVelocity(contact), contact.Normal);
-        Assert.Equal(4f, speed);
-        var impulse = (8 - speed) / inverseMass;
-        Assert.True(speed * impulse + .5f * inverseMass * impulse * impulse < 12, "current inertia lowers the work needed for the target");
-        Assert.True(speed * 2 + .5f * inverseMass * 2 * 2 > 12.23f, "the stale 2-unit impulse would spend undeclared work");
-        // Control: a stale isotropic inertia (identity) gives a different, larger effective mass.
-        float[] stale = [1, 0, 0, 0, 1, 0, 0, 0, 1];
-        stale.CopyTo(dynamic.InvIWorld, 0);
-        Assert.InRange(1 / WorkshopConstraintSolver.EffectiveMass(contact, contact.Normal), 2 - 1e-6f, 2 + 1e-6f);
-    }
-
-    // ---- the normal-branch rule: a coherent slop band (engine slice "lying cylinder axial creep", 24–25 Oct 2026) ----
-    // A body (1 kg, unit inverse inertia, its frame the world's) touches a static floor (normal +Y) at x = +0.5 and x = −0.5, 0.1 m below
-    // its centre. Each point's effective mass is 1 / (1 + 0.5²) = 0.8 and the two couple by 1 − 0.5² = 0.75. The slop is 0.2 mm, so a
-    // point 0.1 mm deep is in the band (s = +0.1 mm, Box2D's allowance s/h = 0.0001 × 480 = 0.048 m/s) and one 0.5 mm deep is soft
-    // (s = −0.3 mm).
-
-    private static (ContactPoint Right, ContactPoint Left, SoftCoefficients Soft) FloorPair(float spin, float fall, float rightGap, float leftGap)
-    {
-        var body = new SimBody
+        var half = new Vector3(.5f, 1f, .25f);
+        var yaw = Quaternion.CreateFromAxisAngle(Vector3.UnitY, yawDegrees * MathF.PI / 180);
+        var rotation = Quaternion.Normalize(yaw * Quaternion.CreateFromAxisAngle(Vector3.UnitX, .2f));
+        var lowest = half.X * MathF.Abs(Vector3.Transform(Vector3.UnitX, rotation).Y) +
+            half.Y * MathF.Abs(Vector3.Transform(Vector3.UnitY, rotation).Y) +
+            half.Z * MathF.Abs(Vector3.Transform(Vector3.UnitZ, rotation).Y);
+        var scene = new LawScene(bench: false);
+        // An elastic rebound has positive outgoing speed, so the paid-work rule
+        // admits the powered control after ordinary contact response.
+        var floor = scene.StaticBox(new(0, 3f, 0), new(2f, .1f, 2f), material: new(1f, .1f, 0f, 0f));
+        var box = scene.Box(new(0, 3.1f + lowest, 0), half, 1f, new(1f, .1f, 0f, 0f), rotation,
+            // The lowest corner has positive world Z at this tilt; +X spin approaches the floor.
+            angular: Vector3.Transform(new Vector3(12f, 0, 0), yaw), gravity: 0f);
+        scene.ContactWork(floor, new(BodyTargetKind.NamedBody, box), 8f, preload, .05f, 72);
+        var world = scene.Admit(SimulationCadence.Hz240);
+        double Energy(LawBody body)
         {
-            Qw = 1, Motion = RigidMotionKind.Dynamic, Mass = 1, InvMass = 1, Principal = Quaternion.Identity, InvI = Vector3.One, Q0 = Quaternion.Identity,
-            Vy = -fall, Wz = spin
-        };
-        WorkshopCollisionKernels.UpdateDynamicFrame(body);
-        var floor = new SimBody { Qw = 1, Motion = RigidMotionKind.Static, Principal = Quaternion.Identity, Q0 = Quaternion.Identity };
-        var bodyCollider = new SimCollider { Index = 0, Body = body, Shape = ShapeKind.Box, Rq = Quaternion.Identity };
-        var floorCollider = new SimCollider { Index = 1, Body = floor, Shape = ShapeKind.Plane, Rq = Quaternion.Identity };
-        ContactPoint Point(float x, float gap, int feature) => new()
+            var spin = Vector3.Transform(body.Angular, Quaternion.Conjugate(body.Rotation));
+            return .5 * body.Speed * body.Speed +
+                ((double)half.Y * half.Y + (double)half.Z * half.Z) / 6 * spin.X * spin.X +
+                ((double)half.X * half.X + (double)half.Z * half.Z) / 6 * spin.Y * spin.Y +
+                ((double)half.X * half.X + (double)half.Y * half.Y) / 6 * spin.Z * spin.Z;
+        }
+        var initial = world.Initial(box);
+        var initialEnergy = Energy(initial);
+        // Existing one-slop energy envelope plus sixteen f32 unit roundings of
+        // the declared energy covers the frame/velocity/inertia observation.
+        var allowance = 9.81 * .0002 + 16.0 / 16777216 * (initialEnergy + preload);
+        var end = world.Step(1, (_, state) =>
         {
-            A = body, B = floor, ColA = bodyCollider, ColB = floorCollider, Ny = 1, Px = x, Py = -.1f, Gap = gap, Feature = feature
-        };
-        var right = Point(.5f, rightGap, 0);
-        var left = Point(-.5f, leftGap, 1);
-        var cache = new Dictionary<ulong, float>();
-        WorkshopConstraintSolver.PrepareContact(right, cache);
-        WorkshopConstraintSolver.PrepareContact(left, cache);
-        return (right, left, SoftCoefficients.MakeSoft(WorkshopConstraintSolver.ContactHertz, WorkshopConstraintSolver.ContactDampingRatio,
-            WorkshopConstraintSolver.SubstepSeconds));
+            var body = state[box];
+            var work = PhysicsGpuAbi.ReadContactWorks(state.World)[0];
+            Assert.True(body.Finite);
+            Assert.InRange(work.RemainingEnergy.Value, 0f, preload);
+            var debit = preload - work.RemainingEnergy.Value;
+            Assert.True(Energy(body) <= initialEnergy + debit + allowance,
+                $"kinetic {Energy(body):R} J, initial {initialEnergy:R}, debit {debit:R}, allowance {allowance:R}");
+        });
+        var paid = PhysicsGpuAbi.ReadContactWorks(end.World)[0];
+        Assert.True(paid.OccurrenceCount > 0, "The rotating box must actually reach the paid surface.");
+        if (preload > 0f) Assert.True(paid.RemainingEnergy.Value < preload, "Powered control must receive real work.");
+        else Assert.Equal(0f, paid.RemainingEnergy.Value);
+        Assert.True(Quaternion.Dot(initial.Rotation, end[box].Rotation) < .99999f, "The current inertia frame must change during the tick.");
     }
 
-    private static float Approach(ContactPoint c) => Vector3.Dot(WorkshopConstraintSolver.RelativeVelocity(c), Vector3.UnitY);
-
+    // A 1 m wide face starts either wholly 0.1 mm inside the 0.2 mm slop band,
+    // or tilted so its left/right edges penetrate 0.1/0.5 mm. With zero gravity and
+    // friction, a band-only face retains some approach during the first 1/240 s:
+    // it travels at most 0.0834 mm, so neither edge reaches the deep branch. The
+    // remaining slop limits its subsequent approach as the gap closes. A mixed
+    // face must arrest the incoming edge coherently, including when its deep edge
+    // is separating. Observe full committed motion, not an internal solver pass.
     [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
-    public void InRelaxABandPointWithASoftSiblingGetsNoAllowanceEvenWhenTheBlockFallsBackToRows(bool siblingSoft)
+    [InlineData(false, .04f, 0f)]
+    [InlineData(true, .04f, 0f)]
+    [InlineData(false, 0f, .02f)]
+    [InlineData(true, 0f, .02f)]
+    [InlineData(false, -.04f, 0f)]
+    [InlineData(true, -.04f, 0f)]
+    public void MixedDepthSupportArrestsApproachWhileAnEntirelyBandFaceKeepsItsAllowance(bool mixed, float spin, float fall)
     {
-        // Turning at 0.04 rad/s about Z: the left (band) point approaches at 0.02 m/s and the right one separates at 0.02 m/s. On the
-        // relax pass the block would pull the right point, so the solve falls back to rows:
-        // - with a soft right sibling, both rows carry no bias: rhs (−0.02, +0.02), λ_right = 1.25 × −0.02 − 0.75 × 0.02 = −0.04 N·s;
-        // - without one (right 0.1 mm deep too), both keep the 0.048 m/s allowance: rhs (−0.068, −0.028), λ_right = 1.25 × −0.068
-        //   − 0.75 × −0.028 = −0.064 N·s.
-        // With the soft sibling the band row is soft, has no allowance and removes the approach; without one its allowance covers the
-        // 0.02 m/s approach, so nothing is applied. f32: a removed approach is zero within the rounding of the 0.02 m/s it cancels
-        // (2^-24 × 0.02 < 1e-8).
-        var (right, left, soft) = FloorPair(.04f, 0f, siblingSoft ? -.0005f : -.0001f, -.0001f);
-        WorkshopConstraintSolver.SolveNormalBlock([right, left], ContactPass.Relax, soft, WorkshopConstraintSolver.SubstepSeconds);
-        var expected = siblingSoft ? 0f : -.02f;
-        Assert.True(MathF.Abs(Approach(left) - expected) <= 1e-8f, $"band point approaches at {Approach(left)} m/s, expected {expected}");
-    }
-
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
-    public void InTheSolvePassABandPointWithASoftSiblingIsSoftWithBiasRateTimesS(bool siblingSoft)
-    {
-        // The same turning pair on the biased solve pass. The right row (soft, bias max(b·s, −.012) = b × −0.0003 with b the soft bias
-        // rate, about 18.1 /s, so −0.0054 m/s) still separates faster than its bias, so it takes nothing, and the block, which would pull
-        // it, falls back to rows. With a soft right sibling the left band row is soft with bias b·s = b × 0.0001: one soft row moves its
-        // approach v to v − massScale × (v + b·s), about −0.0029 m/s (that the right row took nothing is part of this expectation). Without
-        // one it keeps the 0.048 m/s allowance and takes nothing.
-        var (right, left, soft) = FloorPair(.04f, 0f, siblingSoft ? -.0005f : -.0001f, -.0001f);
-        var before = Approach(left);
-        WorkshopConstraintSolver.SolveNormalBlock([right, left], ContactPass.Solve, soft, WorkshopConstraintSolver.SubstepSeconds);
-        var s = -.0001f + WorkshopConstraintSolver.ContactSlop;
-        var expected = siblingSoft ? before - soft.MassScale * (before + soft.BiasRate * s) : before;
-        Assert.True(MathF.Abs(Approach(left) - expected) <= 1e-8f, $"band point approaches at {Approach(left)} m/s, expected {expected}");
-    }
-
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
-    public void AMixedBandAndSoftManifoldSolvesAsOneBlockWithItsBandPointSoft(bool siblingSoft)
-    {
-        // Falling at 0.02 m/s without turning, both points approach at 0.02 m/s on the relax pass.
-        // - With a soft right sibling, the band row is soft too: rhs (0.02, 0.02), the block's solution is non-negative and applied. With
-        //   the block regularisation ε = 1e-3 × trace / 2 = 1.25e-3 on its diagonal, both approaches end at −0.02 × ε / (2 + ε)
-        //   (the eigenvalue of (1, 1) is 2), −1.25e-5 m/s.
-        // - Without one, both keep the 0.048 m/s allowance (rhs −0.028 each), the block would pull, and the rows take nothing.
-        var (right, left, soft) = FloorPair(0f, .02f, siblingSoft ? -.0005f : -.0001f, -.0001f);
-        WorkshopConstraintSolver.SolveNormalBlock([right, left], ContactPass.Relax, soft, WorkshopConstraintSolver.SubstepSeconds);
-        const float epsilon = WorkshopConstraintSolver.BlockRegularization * 2.5f / 2;
-        var expected = siblingSoft ? -.02f * epsilon / (2 + epsilon) : -.02f;
-        foreach (var point in new[] { right, left })
-            Assert.True(MathF.Abs(Approach(point) - expected) <= 1e-8f, $"approach {Approach(point)} m/s, expected {expected}");
+        const float halfWidth = .5f, halfHeight = .1f;
+        var angle = mixed ? -MathF.Asin(.0004f / (2 * halfWidth)) : 0f;
+        var rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, angle);
+        var scene = new LawScene();
+        var id = scene.Box(new(0, LawScene.BenchY + halfHeight * MathF.Cos(angle) - (mixed ? .0003f : .0001f), 0),
+            new(halfWidth, halfHeight, .1f), 1f, new(0f, .1f, 0f, 0f), rotation,
+            velocity: new(0, -fall, 0), angular: new(0, 0, spin), gravity: 0f);
+        var world = scene.Admit(SimulationCadence.Hz240);
+        var initial = world.Initial(id);
+        var incomingX = spin > 0 ? -halfWidth : halfWidth;
+        static float EdgeSpeed(LawBody body, float x) =>
+            (body.Velocity + Vector3.Cross(body.Angular, Vector3.Transform(new Vector3(x, -halfHeight, 0), body.Rotation))).Y;
+        var before = EdgeSpeed(initial, incomingX);
+        // Resolve a velocity from one f32 world-position ULP over the observation
+        // interval. This is selected from representation and cadence, not output.
+        var resolution = (MathF.BitIncrement(initial.Position.Y) - initial.Position.Y) * world.TicksPerSecond;
+        Assert.True(resolution < .001f);
+        var observations = 0;
+        world.Step(1, (_, state) =>
+        {
+            observations++;
+            var body = state[id];
+            Assert.True(body.Finite);
+            var after = EdgeSpeed(body, incomingX);
+            if (mixed)
+                Assert.InRange(after, -resolution, .012f + resolution);
+            else
+            {
+                Assert.InRange(after, before - resolution, -resolution);
+                var edge = body.Position + Vector3.Transform(new Vector3(incomingX, -halfHeight, 0), body.Rotation);
+                Assert.InRange(edge.Y - LawScene.BenchY, -.0002f, 0f);
+            }
+            // With gravity and friction absent, unilateral floor contact cannot pull
+            // the centre of mass downward (rotation may lower the opposite edge).
+            Assert.True(body.Velocity.Y >= initial.Velocity.Y - resolution);
+        });
+        Assert.Equal(1, observations);
     }
 
     [Fact]

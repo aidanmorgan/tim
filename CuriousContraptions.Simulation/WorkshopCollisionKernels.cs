@@ -49,7 +49,7 @@ internal sealed class SimBody
     public Vector3 ComLocal;
     public Quaternion Principal;
     public Vector3 InvI;
-    public float[] InvIWorld = new float[9];
+    public Vector3 PrincipalX, PrincipalY, PrincipalZ;
     public float Cmx, Cmy, Cmz;
     public float SupportExtent;
     public int DynamicIndex;
@@ -124,7 +124,6 @@ internal sealed class ContactPoint
     public float RBx, RBy, RBz;
     public Vector3 T1;
     public Vector3 T2;
-    public float NormalMass;
     public float Restitution;
     public float Threshold;
     public float Friction;
@@ -142,6 +141,7 @@ internal sealed class ContactPoint
 internal sealed class ContactManifold
 {
     public List<ContactPoint> Points = new();
+    public ContactFeatureSetKey NormalWarmStartKey = null!;
     public readonly List<FrictionPatch> FrictionPatches = new();
     public float Rolling;
     /// <summary>The rolling-resistance row's directions, set by <see cref="WorkshopConstraintSolver.PrepareRolling"/> from the
@@ -166,26 +166,9 @@ internal static partial class WorkshopCollisionKernels
     public static void UpdateDynamicFrame(SimBody b)
     {
         var q = Quaternion.Multiply(new Quaternion(b.Qx, b.Qy, b.Qz, b.Qw), b.Principal);
-        var e0 = Vector3.Transform(Vector3.UnitX, q);
-        var e1 = Vector3.Transform(Vector3.UnitY, q);
-        var e2 = Vector3.Transform(Vector3.UnitZ, q);
-
-        var m = b.InvIWorld;
-        for (var i = 0; i < 3; i++)
-        {
-            var e0_i = i == 0 ? e0.X : (i == 1 ? e0.Y : e0.Z);
-            var e1_i = i == 0 ? e1.X : (i == 1 ? e1.Y : e1.Z);
-            var e2_i = i == 0 ? e2.X : (i == 1 ? e2.Y : e2.Z);
-
-            for (var j = 0; j < 3; j++)
-            {
-                var e0_j = j == 0 ? e0.X : (j == 1 ? e0.Y : e0.Z);
-                var e1_j = j == 0 ? e1.X : (j == 1 ? e1.Y : e1.Z);
-                var e2_j = j == 0 ? e2.X : (j == 1 ? e2.Y : e2.Z);
-
-                m[i * 3 + j] = b.InvI.X * e0_i * e0_j + b.InvI.Y * e1_i * e1_j + b.InvI.Z * e2_i * e2_j;
-            }
-        }
+        b.PrincipalX = Vector3.Transform(Vector3.UnitX, q);
+        b.PrincipalY = Vector3.Transform(Vector3.UnitY, q);
+        b.PrincipalZ = Vector3.Transform(Vector3.UnitZ, q);
 
         var c = Vector3.Transform(b.ComLocal, new Quaternion(b.Qx, b.Qy, b.Qz, b.Qw));
         b.Cmx = b.Px + c.X;
@@ -193,14 +176,19 @@ internal static partial class WorkshopCollisionKernels
         b.Cmz = b.Pz + c.Z;
     }
 
-    public static Vector3 ApplyInvInertia(SimBody b, Vector3 t)
-    {
-        var m = b.InvIWorld;
-        return new Vector3(
-            m[0] * t.X + m[1] * t.Y + m[2] * t.Z,
-            m[3] * t.X + m[4] * t.Y + m[5] * t.Z,
-            m[6] * t.X + m[7] * t.Y + m[8] * t.Z);
-    }
+    /// <summary>Apply the principal-axis factorization directly. Expanding a highly
+    /// anisotropic tensor first loses its small transverse response to cancellation.</summary>
+    public static Vector3 ApplyInvInertia(SimBody b, Vector3 t) =>
+        b.PrincipalX * (b.InvI.X * Vector3.Dot(b.PrincipalX, t)) +
+        b.PrincipalY * (b.InvI.Y * Vector3.Dot(b.PrincipalY, t)) +
+        b.PrincipalZ * (b.InvI.Z * Vector3.Dot(b.PrincipalZ, t));
+
+    /// <summary>The symmetric Gram bilinear form a·I^-1·b, without an expanded
+    /// tensor or an intermediate world torque that can cancel its small modes.</summary>
+    public static float InverseInertiaCoupling(SimBody body, Vector3 a, Vector3 b) =>
+        body.InvI.X * (Vector3.Dot(a, body.PrincipalX) * Vector3.Dot(b, body.PrincipalX)) +
+        body.InvI.Y * (Vector3.Dot(a, body.PrincipalY) * Vector3.Dot(b, body.PrincipalY)) +
+        body.InvI.Z * (Vector3.Dot(a, body.PrincipalZ) * Vector3.Dot(b, body.PrincipalZ));
 
     public static void ApplyImpulse(SimBody b, Vector3 p, Vector3 r)
     {

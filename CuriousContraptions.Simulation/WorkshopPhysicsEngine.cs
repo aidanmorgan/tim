@@ -10,7 +10,8 @@ namespace CuriousContraptions.Simulation;
 internal sealed class WorkshopPhysicsEngine
 {
     private readonly Dictionary<ulong, float> _contactCache = new();
-    private readonly Dictionary<FrictionPatchKey, FrictionWarmStart> _frictionCache = new();
+    private readonly HashSet<ContactFeatureSetKey> _normalContactSets = new();
+    private readonly Dictionary<ContactFeatureSetKey, FrictionWarmStart> _frictionCache = new();
     private readonly WorkshopDynamicBvh _bvh = new();
     // Story 9R.4: one substep's static-side contact records and the bodies a contact-load row already counted (caller-owned
     // scratch, so ContactLoadSensorTracker allocates nothing per substep).
@@ -57,6 +58,7 @@ internal sealed class WorkshopPhysicsEngine
     public void Reset()
     {
         _contactCache.Clear();
+        _normalContactSets.Clear();
         _frictionCache.Clear();
         _loadContacts.Clear();
         _bvh.Clear();
@@ -714,6 +716,11 @@ internal sealed class WorkshopPhysicsEngine
             foreach (var c in _contacts) WorkshopConstraintSolver.PrepareContact(c, _contactCache);
             foreach (var m in _manifolds)
             {
+                m.NormalWarmStartKey = new(m.Points);
+                // A partial old load distribution can torque a newly selected support set.
+                // Invalidate the entire initial guess before applying any warm impulse.
+                if (!_normalContactSets.Contains(m.NormalWarmStartKey))
+                    foreach (var c in m.Points) c.LambdaN = 0f;
                 WorkshopConstraintSolver.PrepareRolling(m);
                 WorkshopFrictionSolver.Prepare(m, _frictionCache);
             }
@@ -822,9 +829,14 @@ internal sealed class WorkshopPhysicsEngine
             foreach (var b in _dynamicBodies) WorkshopConstraintSolver.SettleVelocity(b);
 
             _contactCache.Clear();
+            _normalContactSets.Clear();
             _frictionCache.Clear();
             foreach (var c in _contacts) _contactCache[c.Key] = c.LambdaN;
-            foreach (var m in _manifolds) WorkshopFrictionSolver.Store(m, _frictionCache);
+            foreach (var m in _manifolds)
+            {
+                _normalContactSets.Add(m.NormalWarmStartKey);
+                WorkshopFrictionSolver.Store(m, _frictionCache);
+            }
 
             // A point that carried normal impulse this substep, touching or speculative, is a contact (Box2D v3 hit events).
             foreach (var c in _contacts)

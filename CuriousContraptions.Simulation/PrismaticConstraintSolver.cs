@@ -79,19 +79,10 @@ internal static class PrismaticConstraintSolver
         }
     }
 
-    public static Vector3 ConstraintInverseInertia(SimBody body, Vector3 angular)
-    {
-        var m = body.InvIWorld;
-        return new Vector3(
-            m[0] * angular.X + m[1] * angular.Y + m[2] * angular.Z,
-            m[3] * angular.X + m[4] * angular.Y + m[5] * angular.Z,
-            m[6] * angular.X + m[7] * angular.Y + m[8] * angular.Z);
-    }
-
     public static float ConstraintMass(SimBody body, Vector3 linear, Vector3 angular)
     {
         if (body.Motion != RigidMotionKind.Dynamic) return 0f;
-        return body.InvMass * Vector3.Dot(linear, linear) + Vector3.Dot(angular, ConstraintInverseInertia(body, angular));
+        return body.InvMass * Vector3.Dot(linear, linear) + WorkshopCollisionKernels.InverseInertiaCoupling(body, angular, angular);
     }
 
     public static float ConstraintVelocity(SimBody body, Vector3 linear, Vector3 angular) =>
@@ -103,7 +94,7 @@ internal static class PrismaticConstraintSolver
         body.Vx += linear.X * impulse * body.InvMass;
         body.Vy += linear.Y * impulse * body.InvMass;
         body.Vz += linear.Z * impulse * body.InvMass;
-        var dw = ConstraintInverseInertia(body, angular * impulse);
+        var dw = WorkshopCollisionKernels.ApplyInvInertia(body, angular * impulse);
         body.Wx += dw.X;
         body.Wy += dw.Y;
         body.Wz += dw.Z;

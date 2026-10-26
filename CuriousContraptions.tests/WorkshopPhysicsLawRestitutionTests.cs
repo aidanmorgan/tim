@@ -1,3 +1,4 @@
+using System.Buffers.Binary;
 using System.Numerics;
 using CuriousContraptions.Gpu;
 using CuriousContraptions.Simulation;
@@ -351,88 +352,107 @@ public sealed class WorkshopPhysicsLawRestitutionTests
         Assert.True(worst <= 3 * Slop, $"case {at}: a tick gained {worst * 1000:F3} mJ (bound {3 * Slop * 1000:F3} mJ)");
     }
 
-    // ---- the block solve's fallback (reviewer F2) ----
-
-    /// <summary>A 1 kg box (half 0.25 × 0.1 × 0.15, identity pose) touching a static support with two bottom contact points, normal +Y.</summary>
-    private static (SimBody Box, ContactPoint P, ContactPoint Q) Pair(Vector3 rp, Vector3 rq, Vector3 velocity, Vector3 angular,
-        float relP, float relQ)
+    /// <summary>A spinning face has one approaching edge and one separating edge. Net support
+    /// cannot attract its centre downwards; the contacting edge responds, while energy remains
+    /// bounded by the initial energy plus one slop of work. The lifted control sees gravity only.</summary>
+    [Theory]
+    [InlineData(0f)]
+    [InlineData(.5f)]
+    public void APartiallyUnloadingFaceRespondsWithoutTensileAttraction(float restitution)
     {
-        float ix = (.1f * .1f + .15f * .15f) / 3f, iy = (.25f * .25f + .15f * .15f) / 3f,
-            iz = (.25f * .25f + .1f * .1f) / 3f;
-        var box = new SimBody
+        var material = new LawMaterial(restitution, .1f, 0f, 0f);
+        foreach (var gap in new[] { 0f, .1f })
         {
-            Motion = RigidMotionKind.Dynamic, Mass = 1f, InvMass = 1f, InvI = new(1f / ix, 1f / iy, 1f / iz), Principal = Quaternion.Identity, Qw = 1f,
-            Vx = velocity.X, Vy = velocity.Y, Vz = velocity.Z, Wx = angular.X, Wy = angular.Y, Wz = angular.Z,
-        };
-        box.InvIWorld[0] = 1f / ix; box.InvIWorld[4] = 1f / iy; box.InvIWorld[8] = 1f / iz;
-        var support = new SimBody { Motion = RigidMotionKind.Static, Qw = 1f };
-        ContactPoint Point(Vector3 r, float approach)
-        {
-            var c = new ContactPoint
+            var scene = new LawScene();
+            var id = scene.Box(At(0, BenchY + BoxHalf.Y + gap), BoxHalf, 1f, material,
+                velocity: At(0, 3f), angular: At(0, 0, 20f));
+            var world = scene.Admit(SimulationCadence.Hz240);
+            var initial = world.Initial(id);
+            var final = world.Step(1)[id];
+            var gravityStep = G / world.TicksPerSecond;
+            // Eight f32 ulps at 3 m/s, selected from the declared speed before observing output.
+            const float rounding = 8f * (1f / 4194304f);
+            Assert.True(final.Velocity.Y >= initial.Velocity.Y - gravityStep - rounding);
+            Assert.True(Energy(Body.BoxOnBench, final) <= Energy(Body.BoxOnBench, initial) + Slop);
+            if (gap == 0f)
+                Assert.True(final.Velocity.Y > initial.Velocity.Y - gravityStep + .01f,
+                    "The approaching edge must deliver real support.");
+            else
             {
-                A = box, B = support, Nx = 0f, Ny = 1f, Nz = 0f, RAx = r.X, RAy = r.Y, RAz = r.Z,
-                Restitution = .5f, Threshold = .1f, MaxImpulse = 1f, RelVel = approach,
-            };
-            c.NormalMass = WorkshopConstraintSolver.EffectiveMass(c, Vector3.UnitY);
-            return c;
+                Assert.InRange(final.Velocity.Y, initial.Velocity.Y - gravityStep - rounding,
+                    initial.Velocity.Y - gravityStep + rounding);
+                Assert.InRange(final.Angular.Z, 20f - rounding, 20f + rounding);
+            }
         }
-        return (box, Point(rp, relP), Point(rq, relQ));
     }
 
-    private static float Vn(ContactPoint c) => Vector3.Dot(WorkshopConstraintSolver.RelativeVelocity(c), c.Normal);
-
-    /// <summary>Two bouncing corners of a spinning box. When the simultaneous solve pushes both, each leaves at exactly −e·(its own
-    /// approach). When it would pull one (that corner already separates far faster than its target), the manifold falls back to one
-    /// point at a time, each accumulated impulse clamped at zero.
-    /// The approaching corner leaves at exactly −e·(its approach), the separating corner takes no (and never a negative) impulse,
-    /// and nothing is NaN. Two coincident points (a rank-deficient block, regularised) share the impulse equally and leave at the
-    /// target. A block solve carries the normal block's regularisation (10⁻³ of the mean diagonal added to K), so its corners land
-    /// within 1 % of the larger target; the one-at-a-time rows are exact.</summary>
-    [Fact]
-    public void APullingOrRankDeficientBlockFallsBackWithoutNaNAndEachPointBouncesToItsTarget()
+    /// <summary>The lower sphere's initial approach is canceled by declared upward
+    /// gravity before contact solving. A heavy, nonbouncing upper sphere transfers
+    /// motion to it during the solve, so restitution must retain that relaxed energy.
+    /// The first published motion segment records post-restitution velocity before
+    /// the next substep; no private solver state or observer is read.</summary>
+    [Theory]
+    [InlineData(.25f, false)]
+    [InlineData(1f, false)]
+    [InlineData(.25f, true)]
+    [InlineData(1f, true)]
+    public void ABounceRetainsEnergyTransferredByANonBouncingContactWithoutExceedingIt(float restitution, bool incoming)
     {
-        // Simultaneous: spin 6 rad/s about z with vy = −0.5 (corners at −2 and +1 m/s): both impulses push, both corners at target.
-        var (_, s, t) = Pair(At(-.25f, -.1f), At(.25f, -.1f), At(0, -.5f), At(0, 0, 6), -2f, -.2f);
-        WorkshopConstraintSolver.ApplyRestitution([s, t]);
-        Assert.True(s.LambdaN > 0f && t.LambdaN > 0f, $"block impulses {s.LambdaN}, {t.LambdaN}");
-        Assert.InRange(Vn(s), .99f, 1.01f);
-        Assert.InRange(Vn(t), .09f, .11f);
+        const float radius = .1f, lowerApproach = .02f, upperApproach = .01f, upperMass = 100f;
+        var scene = new LawScene(bench: false);
+        scene.StaticBox(new(0, 3f, 0), new(1f, .1f, 1f), material: new(1f, .001f, 0f, 0f));
+        var lowerY = 3.1f + radius - .0005f;
+        var lower = scene.Sphere(new(0, lowerY, 0), radius, 1f, new(restitution, .001f, 0f, 0f),
+            new(0, -lowerApproach, 0), default, 0f, 9.6f);
+        var upper = incoming
+            ? scene.Sphere(new(0, lowerY + 2 * radius - .0005f, 0), radius, upperMass, new(0f, .001f, 0f, 0f),
+                new(0, -upperApproach, 0), default, 0f, 0f)
+            : default;
+        var world = scene.Admit(SimulationCadence.Hz240);
+        var end = world.Step(1);
+        // PhysicsMotionRead's owner/start-ordinal/velocity lanes are the published
+        // coefficient ABI. Advance writes each segment after restitution and
+        // velocity settling; this scene has no later contact-work payment.
+        var motion = end.World.AsSpan(PhysicsGpuAbi.Layout(end.World).MotionOffset);
+        var count = (int)BinaryPrimitives.ReadUInt32LittleEndian(motion);
+        var velocities = new Dictionary<GpuBodyId, float>();
+        for (var i = 0; i < count; i++)
+        {
+            var piece = motion.Slice(PhysicsMotionRead.HeaderBytes + i * PhysicsMotionRead.PieceBytes, PhysicsMotionRead.PieceBytes);
+            if (BinaryPrimitives.ReadUInt32LittleEndian(piece[PhysicsMotionRead.StartOrdinalOffset..]) != 0) continue;
+            var owner = new GpuBodyId(BinaryPrimitives.ReadUInt64LittleEndian(piece[PhysicsMotionRead.OwnerOffset..]));
+            var velocity = BinaryPrimitives.ReadSingleLittleEndian(piece[(PhysicsMotionRead.VelocityOffset + sizeof(float))..]);
+            Assert.True(float.IsFinite(velocity));
+            Assert.True(velocities.TryAdd(owner, velocity));
+        }
+        Assert.Equal(incoming ? 2 : 1, velocities.Count);
+        // 128 f32 roundings at the declared approach and slop/substep scales,
+        // independent of observed output (m/s).
+        const float allowance = 128f / 16777216f * (.0002f * 480f + lowerApproach + upperApproach);
+        var rebound = velocities[lower];
+        if (!incoming)
+        {
+            Assert.InRange(rebound, -allowance, allowance);
+            return;
+        }
 
-        // Pulling: spin 20 rad/s with vy = 3 (corners at −2 and +8 m/s); the block would pull the second corner (λ < 0).
-        var (_, p, q) = Pair(At(-.25f, -.1f), At(.25f, -.1f), At(0, 3f), At(0, 0, 20), -2f, -.2f);
-        WorkshopConstraintSolver.ApplyRestitution([p, q]);
-        Assert.True(float.IsFinite(p.LambdaN) && float.IsFinite(q.LambdaN), $"impulses {p.LambdaN}, {q.LambdaN}");
-        Assert.True(p.LambdaN > 0f && q.LambdaN == 0f, $"the separating corner was pulled ({q.LambdaN})");
-        Assert.InRange(Vn(p), 1f - 1e-4f, 1f + 1e-4f);
-        Assert.True(Vn(q) >= .1f, $"the separating corner fell below its own target ({Vn(q)})");
-
-        var (_, a, b) = Pair(At(.25f, -.1f), At(.25f, -.1f), At(0, -2f), default, -2f, -2f);
-        WorkshopConstraintSolver.ApplyRestitution([a, b]);
-        // Equal shares, to the f32 elimination's rounding.
-        Assert.True(float.IsFinite(a.LambdaN) && float.IsFinite(b.LambdaN) && MathF.Abs(a.LambdaN - b.LambdaN) <= 1e-4f * a.LambdaN && a.LambdaN > 0f,
-            $"coincident impulses {a.LambdaN}, {b.LambdaN}");
-        Assert.InRange(Vn(a), .99f, 1.01f);
-    }
-
-    /// <summary>The restitution pass's energy bound is max(kinetic energy before the contact solve, after the relax sweeps) per group
-    /// (review R2-3; mutant MB2, pre-solve only, survived without this). A 1 kg box whose solve added kinetic energy this substep
-    /// (pre-solve 0 J, relaxed 0.5 J at v_y = −1 m/s): a bounce that stays within the relaxed energy (e = 0.25 on a 2 m/s approach,
-    /// v_y → +0.5 m/s, 0.125 J) is kept whole; one beyond it (e = 1, v_y → +2 m/s, 2 J) is scaled back along the line from −1 m/s to
-    /// +2 m/s to the relaxed 0.5 J, which is v_y = +1 m/s.</summary>
-    [Fact]
-    public void TheEnergyBoundKeepsABounceWithinTheRelaxedEnergyAndScalesOneBeyondIt()
-    {
-        var (kept, p, _) = Pair(At(0, -.1f), At(0, -.1f), At(0, -1f), default, -2f, -2f);
-        p.Restitution = .25f;
-        kept.PreSolveKinetic = 0f;
-        WorkshopConstraintSolver.RestitutionPass([new ContactManifold { Points = [p] }], [], 1);
-        Assert.InRange(kept.Vy, .5f - 1e-5f, .5f + 1e-5f);
-
-        var (scaled, q, _) = Pair(At(0, -.1f), At(0, -.1f), At(0, -1f), default, -2f, -2f);
-        q.Restitution = 1f;
-        scaled.PreSolveKinetic = 0f;
-        WorkshopConstraintSolver.RestitutionPass([new ContactManifold { Points = [q] }], [], 1);
-        Assert.InRange(scaled.Vy, 1f - 1e-4f, 1f + 1e-4f);
+        // Central, frictionless contacts have no torque. The ground contact is
+        // visited before the upper pair; the last zero-bias relax therefore gives
+        // both spheres the same downward speed before the floor's restitution.
+        // q is the inelastic momentum share. During four biased sweeps the lower
+        // speed cannot exceed .012; the pair's recovery target adds at most .012.
+        // Four relax sweeps multiply the upper speed by q four more times.
+        // Both initial .5 mm penetrations remain deep: one substep can recover at
+        // most .025 mm. Thus these independent bounds apply to the relaxed speed.
+        var q4 = Math.Pow(upperMass / (upperMass + 1.0), 4);
+        var minimumRelaxedSpeed = ((upperApproach + .024) * q4 - .024) * q4;
+        var transferred = -velocities[upper];
+        Assert.InRange(transferred, minimumRelaxedSpeed - allowance, upperApproach + allowance);
+        var target = restitution * lowerApproach;
+        var expected = restitution < 1f ? target : transferred;
+        Assert.True(target < minimumRelaxedSpeed || target > upperApproach);
+        Assert.InRange(rebound, expected - allowance, expected + allowance);
+        Assert.True(rebound > .004f, "A genuine transferred-energy rebound must survive the limiter.");
     }
 
     /// <summary>A Basketball set down 2 mm above the bench comes to rest within the resting envelope (0.5 mm) and never rises above

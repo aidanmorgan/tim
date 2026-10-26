@@ -255,7 +255,7 @@ public sealed class WorkshopPhysicsLawHollowTests
         var world = scene.Admit();
         var end = Canonical(world.Step(world.TicksPerSecond / 2, (_, state) =>
         {
-            if (friction <= 0f || radius <= .65f) return;
+            if (radius <= .65f) return;
             var body = Canonical(state[ball]);
             // Exact distance to the circular mouth, not axial displacement:
             // a grazing normal amplifies the permitted axial slop.
@@ -277,9 +277,10 @@ public sealed class WorkshopPhysicsLawHollowTests
                 Assert.InRange(end.Position.Z - c.Z, tangent - 1.0 / 120 - SurfaceError, 0);
                 return;
             }
-            // Speculative contact can stop up to one 120 Hz tick of approach
-            // early; penetration still uses the unchanged resting envelope.
-            Assert.InRange(end.Position.Z, tangent - 1.0 / 120 - SurfaceError, tangent + Resting + SurfaceError);
+            // A grazing rim converts normal slop into a larger axial displacement.
+            // Normal penetration and no-crossing are checked above at every tick;
+            // retain the one-tick speculative progress lower bound independently.
+            Assert.InRange(end.Position.Z, tangent - 1.0 / 120 - SurfaceError, 0);
             Assert.True(Vector3.Distance(new(end.Position.X, end.Position.Y, 0), new(start.X, start.Y, 0)) <= Resting + SurfaceError,
                 $"transverse drift at {end.Position}, velocity {end.Velocity}");
             Assert.True(end.Speed < .003, $"jam speed {end.Speed}, at {end.Position}");

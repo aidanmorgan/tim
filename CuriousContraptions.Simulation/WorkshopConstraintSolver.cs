@@ -39,7 +39,6 @@ internal static class WorkshopConstraintSolver
     public const float MaxPushoutSpeed = ContactSlop / (1f / 60f);
     public const int SolverIterations = 4;
     public const int RelaxIterations = 4;
-    public const float BlockRegularization = 1e-3f;
 
     /// <summary>The factor that brings (x, y, z) within <paramref name="limit"/>: 1 inside it, 0 when a lane is not finite
     /// (a NaN or infinite vector has no direction to keep).</summary>
@@ -86,14 +85,12 @@ internal static class WorkshopConstraintSolver
         if (A.Motion == RigidMotionKind.Dynamic)
         {
             var r = Vector3.Cross(new Vector3(c.RAx, c.RAy, c.RAz), d);
-            var w = WorkshopCollisionKernels.ApplyInvInertia(A, r);
-            k += Vector3.Dot(r, w);
+            k += WorkshopCollisionKernels.InverseInertiaCoupling(A, r, r);
         }
         if (B.Motion == RigidMotionKind.Dynamic)
         {
             var r = Vector3.Cross(new Vector3(c.RBx, c.RBy, c.RBz), d);
-            var w = WorkshopCollisionKernels.ApplyInvInertia(B, r);
-            k += Vector3.Dot(r, w);
+            k += WorkshopCollisionKernels.InverseInertiaCoupling(B, r, r);
         }
         return k > 0f ? 1f / k : 0f;
     }
@@ -116,7 +113,6 @@ internal static class WorkshopConstraintSolver
         c.T1 = l1 > 1e-6f ? t1 / l1 : Vector3.UnitX;
         c.T2 = Vector3.Cross(n, c.T1);
 
-        c.NormalMass = EffectiveMass(c, n);
 
         // The approach before this substep's external velocity changes (guides, supplied drives, gravity, drag).
         var vA = StartVelocity(A, new Vector3(c.RAx, c.RAy, c.RAz));
@@ -260,13 +256,11 @@ internal static class WorkshopConstraintSolver
         var k = 0f;
         if (c.A.Motion == RigidMotionKind.Dynamic)
         {
-            var w = WorkshopCollisionKernels.ApplyInvInertia(c.A, t);
-            k += Vector3.Dot(t, w);
+            k += WorkshopCollisionKernels.InverseInertiaCoupling(c.A, t, t);
         }
         if (c.B.Motion == RigidMotionKind.Dynamic)
         {
-            var w = WorkshopCollisionKernels.ApplyInvInertia(c.B, t);
-            k += Vector3.Dot(t, w);
+            k += WorkshopCollisionKernels.InverseInertiaCoupling(c.B, t, t);
         }
         return k > 0f ? 1f / k : 0f;
     }
@@ -325,25 +319,6 @@ internal static class WorkshopConstraintSolver
         return (MathF.Max(soft.BiasRate * s, -MaxPushoutSpeed), soft.MassScale, soft.ImpulseScale);
     }
 
-    /// <summary>One normal row, solved alone, with its manifold's <paramref name="softness"/> (no soft point for a single-point one).</summary>
-    private static void SolveNormalRow(ContactPoint c, ManifoldSoftness softness, ContactPass pass, in SoftCoefficients soft, float h)
-    {
-        var v = RelativeVelocity(c);
-        var n = new Vector3(c.Nx, c.Ny, c.Nz);
-        var vn = Vector3.Dot(v, n);
-        var (bias, massScale, impulseScale) = NormalBranch(CurrentSeparation(c), softness, pass, soft, h);
-
-        var impulse = -c.NormalMass * massScale * (vn + bias) - impulseScale * c.LambdaN;
-        var total = MathF.Max(c.LambdaN + impulse, 0f);
-        impulse = total - c.LambdaN;
-        c.LambdaN = total;
-        if (total > c.MaxImpulse) c.MaxImpulse = total;
-
-        var p = impulse * n;
-        WorkshopCollisionKernels.ApplyImpulse(c.A, p, new Vector3(c.RAx, c.RAy, c.RAz));
-        WorkshopCollisionKernels.ApplyImpulse(c.B, -p, new Vector3(c.RBx, c.RBy, c.RBz));
-    }
-
     public static float CouplingMass(ContactPoint ci, ContactPoint cj)
     {
         var A = ci.A;
@@ -361,45 +336,54 @@ internal static class WorkshopConstraintSolver
         {
             var ri = Vector3.Cross(new Vector3(ci.RAx, ci.RAy, ci.RAz), ni);
             var rj = Vector3.Cross(new Vector3(cj.RAx, cj.RAy, cj.RAz), nj);
-            var w = WorkshopCollisionKernels.ApplyInvInertia(A, rj);
-            k += Vector3.Dot(ri, w);
+            k += WorkshopCollisionKernels.InverseInertiaCoupling(A, ri, rj);
         }
         if (B.Motion == RigidMotionKind.Dynamic)
         {
             var ri = Vector3.Cross(new Vector3(ci.RBx, ci.RBy, ci.RBz), ni);
             var rj = Vector3.Cross(new Vector3(cj.RBx, cj.RBy, cj.RBz), nj);
-            var w = WorkshopCollisionKernels.ApplyInvInertia(B, rj);
-            k += Vector3.Dot(ri, w);
+            k += WorkshopCollisionKernels.InverseInertiaCoupling(B, ri, rj);
         }
         return k;
     }
 
-    public static bool SolveLinear(ReadOnlySpan<float> matrix, ReadOnlySpan<float> rhs, Span<float> x, int n)
+    /// <summary>Equilibrated principal solve. The pivot cutoff is dimensionless, relative to the
+    /// normalized matrix scale, and rejects structural dependence without adding stiffness.</summary>
+    private static bool SolvePrincipal(ReadOnlySpan<float> matrix, ReadOnlySpan<float> rhs,
+        Span<float> x, int n)
     {
         Span<float> a = stackalloc float[n * n];
         Span<float> b = stackalloc float[n];
-        matrix.CopyTo(a);
-        rhs.CopyTo(b);
-
+        Span<float> diagonal = stackalloc float[n];
+        var magnitude = 0f;
+        for (var i = 0; i < n; i++)
+        {
+            diagonal[i] = MathF.Sqrt(matrix[i * n + i]);
+            if (!(diagonal[i] > 0f) || !float.IsFinite(diagonal[i])) return false;
+        }
+        for (var i = 0; i < n; i++)
+        {
+            b[i] = rhs[i] / diagonal[i];
+            for (var j = 0; j < n; j++)
+            {
+                var value = matrix[i * n + j] / diagonal[i] / diagonal[j];
+                if (!float.IsFinite(value)) return false;
+                a[i * n + j] = value;
+                magnitude = MathF.Max(magnitude, MathF.Abs(value));
+            }
+        }
         for (var col = 0; col < n; col++)
         {
             var pivot = col;
             for (var row = col + 1; row < n; row++)
                 if (MathF.Abs(a[row * n + col]) > MathF.Abs(a[pivot * n + col])) pivot = row;
-
-            if (MathF.Abs(a[pivot * n + col]) < 1e-12f) return false;
-
+            if (MathF.Abs(a[pivot * n + col]) < (64f / 16777216f) * magnitude) return false;
             if (pivot != col)
             {
                 for (var k = 0; k < n; k++)
-                {
-                    var t = a[col * n + k];
-                    a[col * n + k] = a[pivot * n + k];
-                    a[pivot * n + k] = t;
-                }
-                var tb = b[col]; b[col] = b[pivot]; b[pivot] = tb;
+                    (a[col * n + k], a[pivot * n + k]) = (a[pivot * n + k], a[col * n + k]);
+                (b[col], b[pivot]) = (b[pivot], b[col]);
             }
-
             for (var row = col + 1; row < n; row++)
             {
                 var f = a[row * n + col] / a[col * n + col];
@@ -407,24 +391,99 @@ internal static class WorkshopConstraintSolver
                 b[row] -= f * b[col];
             }
         }
-
         for (var row = n - 1; row >= 0; row--)
         {
             var sum = b[row];
             for (var k = row + 1; k < n; k++) sum -= a[row * n + k] * x[k];
             x[row] = sum / a[row * n + row];
+            if (!float.IsFinite(x[row])) return false;
         }
+        for (var i = 0; i < n; i++) x[i] /= diagonal[i];
         return true;
+    }
+
+    /// <summary>First admissible accumulated impulse, decreasing cardinality then lexicographic
+    /// contact indices, empty last. All candidates are private until fully validated.
+    /// z = lambdaNew / massScale; b = K * ((1 - impulseScale) / massScale * lambdaOld) - vn - bias.
+    /// Thus K*z-b is the transformed soft/speculative residual, in m/s.
+    /// The 64-u allowance bounds ordinary four-row rounding, not conditioning error or stopping speed.
+    /// Failure discards this correction and continues; it does not choose another contact law.</summary>
+    private static bool SolveActiveSet(ReadOnlySpan<float> matrix, ReadOnlySpan<float> rhs,
+        Span<float> result, int n, float h)
+    {
+        Span<int> indices = stackalloc int[n];
+        Span<float> principal = stackalloc float[n * n];
+        Span<float> selectedRhs = stackalloc float[n];
+        Span<float> selected = stackalloc float[n];
+        Span<float> candidate = stackalloc float[n];
+        for (var size = n; size >= 0; size--)
+        {
+            for (var i = 0; i < size; i++) indices[i] = i;
+            while (true)
+            {
+                candidate.Clear();
+                for (var i = 0; i < size; i++)
+                {
+                    selectedRhs[i] = rhs[indices[i]];
+                    for (var j = 0; j < size; j++)
+                        principal[i * size + j] = matrix[indices[i] * n + indices[j]];
+                }
+                var valid = SolvePrincipal(principal, selectedRhs, selected, size);
+                for (var i = 0; valid && i < size; i++)
+                {
+                    valid = selected[i] >= 0f && float.IsFinite(selected[i]);
+                    candidate[indices[i]] = selected[i];
+                }
+                var velocityScale = ContactSlop / h;
+                for (var i = 0; valid && i < n; i++)
+                {
+                    var rowMagnitude = 0f;
+                    for (var j = 0; j < n; j++)
+                        rowMagnitude += MathF.Abs(matrix[i * n + j] * candidate[j]);
+                    valid = float.IsFinite(rhs[i]) && float.IsFinite(rowMagnitude);
+                    velocityScale = MathF.Max(velocityScale, MathF.Max(MathF.Abs(rhs[i]), rowMagnitude));
+                }
+                var tolerance = (64f / 16777216f) * velocityScale;
+                for (var i = 0; valid && i < n; i++)
+                {
+                    var residual = -rhs[i];
+                    for (var j = 0; j < n; j++) residual += matrix[i * n + j] * candidate[j];
+                    var active = false;
+                    for (var j = 0; j < size; j++) active |= indices[j] == i;
+                    valid = float.IsFinite(residual) &&
+                        (active ? MathF.Abs(residual) <= tolerance : residual >= -tolerance);
+                }
+                if (valid)
+                {
+                    candidate.CopyTo(result);
+                    return true;
+                }
+                var next = size - 1;
+                while (next >= 0 && indices[next] == n - size + next) next--;
+                if (next < 0) break;
+                indices[next]++;
+                for (var i = next + 1; i < size; i++) indices[i] = indices[i - 1] + 1;
+            }
+        }
+        return false;
+    }
+
+    private static void ApplyNormalImpulse(ContactPoint c, float total)
+    {
+        var delta = total - c.LambdaN;
+        c.LambdaN = total;
+        if (total > c.MaxImpulse) c.MaxImpulse = total;
+        var p = delta * new Vector3(c.Nx, c.Ny, c.Nz);
+        WorkshopCollisionKernels.ApplyImpulse(c.A, p, new Vector3(c.RAx, c.RAy, c.RAz));
+        WorkshopCollisionKernels.ApplyImpulse(c.B, -p, new Vector3(c.RBx, c.RBy, c.RBz));
     }
 
     public static void SolveNormalBlock(List<ContactPoint> group, ContactPass pass, in SoftCoefficients soft, float h)
     {
         var n = group.Count;
-        if (n == 1) { SolveNormalRow(group[0], ManifoldSoftness.NoSoftPoint, pass, soft, h); return; }
-
         Span<float> rhs = stackalloc float[n];
         Span<float> scale = stackalloc float[n];
-        Span<float> impulseScale = stackalloc float[n];
+        Span<float> retained = stackalloc float[n];
         Span<float> matrix = stackalloc float[n * n];
         Span<float> separation = stackalloc float[n];
         var softness = ManifoldSoftness.NoSoftPoint;
@@ -433,54 +492,27 @@ internal static class WorkshopConstraintSolver
             separation[i] = CurrentSeparation(group[i]);
             if (separation[i] + ContactSlop <= 0f) softness = ManifoldSoftness.SoftPoint;
         }
-
         for (var i = 0; i < n; i++)
         {
             var c = group[i];
-            var v = RelativeVelocity(c);
-            var normal = new Vector3(c.Nx, c.Ny, c.Nz);
-            var vn = Vector3.Dot(v, normal);
-            var (bias, massScale, rowImpulseScale) = NormalBranch(separation[i], softness, pass, soft, h);
+            var vn = Vector3.Dot(RelativeVelocity(c), new Vector3(c.Nx, c.Ny, c.Nz));
+            var (bias, massScale, impulseScale) = NormalBranch(separation[i], softness, pass, soft, h);
+            if (!(massScale > 0f) || !float.IsFinite(massScale)) return;
             scale[i] = massScale;
-            impulseScale[i] = rowImpulseScale;
-
+            retained[i] = (1f - impulseScale) / massScale * c.LambdaN;
             rhs[i] = -(vn + bias);
             for (var j = 0; j < n; j++) matrix[i * n + j] = CouplingMass(c, group[j]);
         }
-
-        var trace = 0f;
-        for (var i = 0; i < n; i++) trace += matrix[i * n + i];
-        for (var i = 0; i < n; i++) matrix[i * n + i] += BlockRegularization * trace / n;
-
+        for (var i = 0; i < n; i++)
+            for (var j = 0; j < n; j++) rhs[i] += matrix[i * n + j] * retained[j];
         Span<float> solution = stackalloc float[n];
-        if (!SolveLinear(matrix, rhs, solution, n))
-        {
-            for (var i = 0; i < n; i++) SolveNormalRow(group[i], softness, pass, soft, h);
-            return;
-        }
-
-        Span<float> deltas = stackalloc float[n];
+        if (!SolveActiveSet(matrix, rhs, solution, n, h)) return;
         for (var i = 0; i < n; i++)
         {
-            deltas[i] = scale[i] * solution[i] - impulseScale[i] * group[i].LambdaN;
-            if (group[i].LambdaN + deltas[i] < 0f)
-            {
-                for (var j = 0; j < n; j++) SolveNormalRow(group[j], softness, pass, soft, h);
-                return;
-            }
+            solution[i] *= scale[i];
+            if (!float.IsFinite(solution[i]) || !float.IsFinite(solution[i] - group[i].LambdaN)) return;
         }
-
-        for (var i = 0; i < n; i++)
-        {
-            var c = group[i];
-            c.LambdaN += deltas[i];
-            if (c.LambdaN > c.MaxImpulse) c.MaxImpulse = c.LambdaN;
-
-            var normal = new Vector3(c.Nx, c.Ny, c.Nz);
-            var p = deltas[i] * normal;
-            WorkshopCollisionKernels.ApplyImpulse(c.A, p, new Vector3(c.RAx, c.RAy, c.RAz));
-            WorkshopCollisionKernels.ApplyImpulse(c.B, -p, new Vector3(c.RBx, c.RBy, c.RBz));
-        }
+        for (var i = 0; i < n; i++) ApplyNormalImpulse(group[i], solution[i]);
     }
 
     public static void SweepManifolds(List<ContactManifold> manifolds, ContactPass pass, in SoftCoefficients soft, float h)
@@ -608,9 +640,9 @@ internal static class WorkshopConstraintSolver
         }
     }
 
-    /// <summary>Every bouncing point's relative normal velocity is driven to −e·(its own substep-start approach) in one simultaneous
-    /// solve, so a face landing flat leaves flat; when that solve is singular or would pull a point (accumulated impulse below
-    /// zero) the points are applied one at a time, each clamped. No soft-contact or penetration bias enters the target.</summary>
+    /// <summary>The bouncing points use the same accumulated active-set rule with massScale 1,
+    /// impulseScale 0, and target -e*RelVel. Existing support is included in b; the substep
+    /// energy limiter remains authoritative after this correction.</summary>
     public static void ApplyRestitution(List<ContactPoint> points)
     {
         var count = points.Count;
@@ -619,8 +651,6 @@ internal static class WorkshopConstraintSolver
         for (var i = 0; i < count; i++)
             if (Bounces(points[i])) index[n++] = i;
         if (n == 0) return;
-        if (n == 1) { ApplyRestitutionRow(points[index[0]]); return; }
-
         Span<float> matrix = stackalloc float[n * n];
         Span<float> rhs = stackalloc float[n];
         Span<float> solution = stackalloc float[n];
@@ -629,44 +659,15 @@ internal static class WorkshopConstraintSolver
             var c = points[index[i]];
             var vn = Vector3.Dot(RelativeVelocity(c), new Vector3(c.Nx, c.Ny, c.Nz));
             rhs[i] = -(vn + c.Restitution * c.RelVel);
-            for (var j = 0; j < n; j++) matrix[i * n + j] = CouplingMass(c, points[index[j]]);
+            for (var j = 0; j < n; j++)
+            {
+                matrix[i * n + j] = CouplingMass(c, points[index[j]]);
+                rhs[i] += matrix[i * n + j] * points[index[j]].LambdaN;
+            }
         }
-        var trace = 0f;
-        for (var i = 0; i < n; i++) trace += matrix[i * n + i];
-        for (var i = 0; i < n; i++) matrix[i * n + i] += BlockRegularization * trace / n;
-
-        var solved = SolveLinear(matrix, rhs, solution, n);
-        for (var i = 0; solved && i < n; i++) solved = points[index[i]].LambdaN + solution[i] >= 0f;
-        if (!solved)
-        {
-            for (var i = 0; i < n; i++) ApplyRestitutionRow(points[index[i]]);
-            return;
-        }
-
+        if (!SolveActiveSet(matrix, rhs, solution, n, SubstepSeconds)) return;
         for (var i = 0; i < n; i++)
-        {
-            var c = points[index[i]];
-            c.LambdaN += solution[i];
-            if (c.LambdaN > c.MaxImpulse) c.MaxImpulse = c.LambdaN;
-            var p = solution[i] * new Vector3(c.Nx, c.Ny, c.Nz);
-            WorkshopCollisionKernels.ApplyImpulse(c.A, p, new Vector3(c.RAx, c.RAy, c.RAz));
-            WorkshopCollisionKernels.ApplyImpulse(c.B, -p, new Vector3(c.RBx, c.RBy, c.RBz));
-        }
-    }
-
-    private static void ApplyRestitutionRow(ContactPoint c)
-    {
-        var v = RelativeVelocity(c);
-        var n = new Vector3(c.Nx, c.Ny, c.Nz);
-        var vn = Vector3.Dot(v, n);
-        var impulse = -c.NormalMass * (vn + c.Restitution * c.RelVel);
-        var total = MathF.Max(c.LambdaN + impulse, 0f);
-        impulse = total - c.LambdaN;
-        c.LambdaN = total;
-        if (total > c.MaxImpulse) c.MaxImpulse = total;
-
-        var p = impulse * n;
-        WorkshopCollisionKernels.ApplyImpulse(c.A, p, new Vector3(c.RAx, c.RAy, c.RAz));
-        WorkshopCollisionKernels.ApplyImpulse(c.B, -p, new Vector3(c.RBx, c.RBy, c.RBz));
+            if (!float.IsFinite(solution[i] - points[index[i]].LambdaN)) return;
+        for (var i = 0; i < n; i++) ApplyNormalImpulse(points[index[i]], solution[i]);
     }
 }

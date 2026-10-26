@@ -1217,13 +1217,13 @@ public sealed class WorkshopPhysicsLawCylinderTests
     private static double SlopEnergy(float m) => m * G * WorkshopConstraintSolver.ContactSlop;
 
     private static (float Tilt, double Transient, double Resting, double Rise) Release(float radius, float halfWidth, double degrees,
-        double azimuth, int seconds = 4)
+        double azimuth, int seconds = 4, SimulationCadence cadence = SimulationCadence.Hz120)
     {
         var q = Tipped(degrees, azimuth);
         float r = radius, h = halfWidth;
         var scene = new LawScene();
         var body = scene.Cylinder(At(0, BenchY + Lowest(q, r, h) + .0005f), radius, halfWidth, 1f, Dead, q);
-        var world = scene.Admit();
+        var world = scene.Admit(cadence);
         double transient = 0, rise = 0;
         double? previous = null;
         var final = world.Step(seconds * world.TicksPerSecond, (_, state) =>
@@ -1238,24 +1238,21 @@ public sealed class WorkshopPhysicsLawCylinderTests
     }
 
     /// <summary>The time by which a solid rod (radius r, half-height h) released from rest on its rim, tilted <paramref name="degrees"/>
-    /// below the rim angle α = atan(r/h) with its lowest point 0.5 mm up, is upright within 1° for good, from the inelastic rigid rocking
-    /// model (Housner) with a declared retention margin. Per kg, with d = √(r² + h²):
+    /// below the rim angle α = atan(r/h) with its lowest point 0.5 mm up, must be upright within 1° for good: the retained deadline
+    /// from the inelastic rigid rocking model (Housner). This idealization does not bound individual finite soft-contact impacts. Per kg, with d = √(r² + h²):
     /// <list type="bullet">
     /// <item>Between impacts it is an inverted pendulum about one rim point: I = r²/4 + h²/3 + d² (0.22583 for r 0.1, h 0.4), rate
     /// p = √(g d / I) (4.232 /s); from rest at tilt θ it reaches the impact (upright) after acosh(α / (α − θ)) / p.</item>
     /// <item>At the impact on the opposite rim point, angular momentum about that point is kept (e = 0, the old pivot released):
     /// ω₂/ω₁ = (4h²/3 − 3r²/4) / (4h²/3 + 5r²/4) = 0.91144, so a perfectly inelastic impact keeps 0.8307 of the energy.</item>
-    /// <item>The solver resolves an impact over at least one substep h_s = 1/480 s, in which the old pivot (carrying at most m g at 2r
-    /// from the new one) and gravity (at r) add at most m g r h_s = 2.04e-3 of angular momentum: ω₂/ω₁ ≤ 0.91144 + m g r h_s / (I ω₁).</item>
-    /// <item>Declared retention margin +0.01 on the squared ratio: it covers the worst excess measured over that bound, 0.008 (12.5° at
-    /// azimuth 45, second impact: 0.8561 against 0.8483; rod diagnosis, 25 Oct 2026).</item>
+    /// <item>The deadline model includes one substep h_s = 1/480 s of ideal old-pivot support and gravity, m g r h_s = 2.04e-3
+    /// of angular momentum. Actual soft-contact transitions can span several substeps; their energy is checked separately.</item>
     /// <item>Each rebound peak follows from the kept energy, cos(α − θ') − cos α = retention × (cos(α − θ) − cos α); a rebound takes twice
-    /// the fall time. T is the time of the impact after which every peak stays under 1°: 5.09 s from 10.5°, 5.51 s from 12.5° (14
-    /// impacts each; the 0.5 mm lift adds √(2 · 0.0005 / g) = 0.010 s).</item>
+    /// the fall time. T is the time of the impact after which every peak stays under 1°; the 0.5 mm lift adds
+    /// √(2 · 0.0005 / g) before the first impact. No extra time margin is added.</item>
     /// </list></summary>
     private static double InelasticRockingSettleSeconds(double r, double h, double degrees)
     {
-        const double margin = .01;
         const double lift = .0005;
         double g = G, d = Math.Sqrt(r * r + h * h), alpha = Math.Atan2(r, h);
         var pivot = r * r / 4 + h * h / 3 + d * d;
@@ -1271,7 +1268,7 @@ public sealed class WorkshopPhysicsLawCylinderTests
         while (true)
         {
             var omega = Math.Sqrt(2 * g * d * Energy(theta) / pivot);
-            var retention = Math.Pow(kept + allowance / (pivot * omega), 2) + margin;
+            var retention = Math.Pow(kept + allowance / (pivot * omega), 2);
             if (retention >= 1) throw new InvalidOperationException($"the rocking model keeps all its energy at {theta} rad: no settle time");
             theta = alpha - Math.Acos(retention * Energy(theta) + Math.Cos(alpha));
             if (theta < Math.PI / 180) return t;
@@ -1281,12 +1278,13 @@ public sealed class WorkshopPhysicsLawCylinderTests
 
     /// <summary>Releases the rod as <see cref="Release"/> does and runs it a second past <paramref name="settle"/>: its peak tilt over the
     /// whole run, and its largest tilt from the settle time on.</summary>
-    private static (float Peak, float AfterSettle) Rock(float radius, float halfWidth, double degrees, double azimuth, double settle)
+    private static (float Peak, float AfterSettle) Rock(float radius, float halfWidth, double degrees, double azimuth, double settle,
+        SimulationCadence cadence)
     {
         var q = Tipped(degrees, azimuth);
         var scene = new LawScene();
         var body = scene.Cylinder(At(0, BenchY + Lowest(q, radius, halfWidth) + .0005f), radius, halfWidth, 1f, Dead, q);
-        var world = scene.Admit();
+        var world = scene.Admit(cadence);
         var tps = world.TicksPerSecond;
         var from = (int)Math.Ceiling(settle * tps);
         float peak = world.Initial(body).Tilt, after = 0f;
@@ -1299,11 +1297,163 @@ public sealed class WorkshopPhysicsLawCylinderTests
         return (peak, after);
     }
 
+    /// <summary>Each signed-axis crossing is bracketed by release/rebound turning observations.
+    /// Compare full kinetic plus gravitational energy, so finite sampling retains its kinetic remainder.
+    /// Exact-zero samples retain the previous nonzero side. Every crossing is checked, including
+    /// sub-degree rebounds and the terminal segment; no energy ratio or amplitude exclusion is used.</summary>
     [Theory]
-    [InlineData(0.0)]
-    [InlineData(22.5)]
-    [InlineData(45.0)]
-    public void ARodRightsItselfBelowAtanROverHAndTopplesAboveItAtEveryAzimuth(double azimuth)
+    [InlineData(10.5, 0.0, SimulationCadence.Hz60)]
+    [InlineData(10.5, 0.0, SimulationCadence.Hz120)]
+    [InlineData(10.5, 0.0, SimulationCadence.Hz240)]
+    [InlineData(10.5, 22.5, SimulationCadence.Hz60)]
+    [InlineData(10.5, 22.5, SimulationCadence.Hz120)]
+    [InlineData(10.5, 22.5, SimulationCadence.Hz240)]
+    [InlineData(10.5, 45.0, SimulationCadence.Hz60)]
+    [InlineData(10.5, 45.0, SimulationCadence.Hz120)]
+    [InlineData(10.5, 45.0, SimulationCadence.Hz240)]
+    [InlineData(12.5, 0.0, SimulationCadence.Hz60)]
+    [InlineData(12.5, 0.0, SimulationCadence.Hz120)]
+    [InlineData(12.5, 0.0, SimulationCadence.Hz240)]
+    [InlineData(12.5, 22.5, SimulationCadence.Hz60)]
+    [InlineData(12.5, 22.5, SimulationCadence.Hz120)]
+    [InlineData(12.5, 22.5, SimulationCadence.Hz240)]
+    [InlineData(12.5, 45.0, SimulationCadence.Hz60)]
+    [InlineData(12.5, 45.0, SimulationCadence.Hz120)]
+    [InlineData(12.5, 45.0, SimulationCadence.Hz240)]
+    public void EveryRodRimImpactDoesNotIncreaseMechanicalEnergy(double degrees, double azimuth, SimulationCadence cadence)
+    {
+        const float r = .1f, h = .4f;
+        var q = Tipped(degrees, azimuth);
+        var direction = new Vector3((float)Math.Cos(azimuth * Math.PI / 180), 0f,
+            (float)Math.Sin(azimuth * Math.PI / 180));
+        var scene = new LawScene();
+        var id = scene.Cylinder(At(0, BenchY + Lowest(q, r, h) + .0005f), r, h, 1f, Dead, q);
+        var world = scene.Admit(cadence);
+        double SignedTilt(LawBody body)
+        {
+            var axis = MeasuredRodAxis(body);
+            return Math.Atan2(axis.X * direction.X + axis.Z * direction.Z, axis.Y);
+        }
+        var previousBody = world.Initial(id);
+        var previousTilt = SignedTilt(previousBody);
+        var side = Math.Sign(previousTilt);
+        var incoming = MeasuredRodEnergy(previousBody, r, h);
+        var rising = false;
+        var crossed = false;
+        var impacts = 0;
+        var largeImpacts = 0;
+        var smallImpacts = 0;
+        var settle = InelasticRockingSettleSeconds(r, h, degrees);
+        var deadlineTick = (int)Math.Ceiling(settle * world.TicksPerSecond);
+        var rim = Math.Atan2(r, h);
+
+        void CheckEnergy(LawBody body, int tick)
+        {
+            var outgoing = MeasuredRodEnergy(body, r, h);
+            var allowance = incoming.Uncertainty + outgoing.Uncertainty;
+            Assert.True(outgoing.Value <= incoming.Value + allowance,
+                $"tick {tick}, impact {impacts + 1}: energy {incoming.Value:R} -> {outgoing.Value:R} J, measurement allowance {allowance:R} J");
+            incoming = outgoing;
+        }
+        void CompleteImpact(LawBody body, double tilt, int tick)
+        {
+            CheckEnergy(body, tick);
+            impacts++;
+            if (Math.Abs(tilt) < Math.PI / 180) smallImpacts++; else largeImpacts++;
+            crossed = false;
+        }
+
+        world.Step(deadlineTick + world.TicksPerSecond, (tick, state) =>
+        {
+            var body = state[id];
+            Assert.True(body.Finite, $"tick {tick}: finite rod state");
+            var axis = MeasuredRodAxis(body);
+            var fullTilt = Math.Atan2(Math.Sqrt(axis.X * axis.X + axis.Z * axis.Z), axis.Y);
+            Assert.True(fullTilt < rim, $"tick {tick}: rod crossed its rim at {fullTilt:R} rad");
+            if (tick >= deadlineTick)
+                Assert.True(fullTilt < Math.PI / 180, $"tick {tick}: tilt {fullTilt:R} rad after deadline {settle:R} s");
+
+            var tilt = SignedTilt(body);
+            var nextSide = Math.Sign(tilt);
+            if (nextSide != 0 && nextSide != side)
+            {
+                // If sampled crossings are closer than a resolved turning observation,
+                // close the previous crossing at the last sample instead of dropping it.
+                if (crossed) CompleteImpact(previousBody, previousTilt, tick - 1);
+                crossed = true;
+                side = nextSide;
+            }
+            var nowRising = Math.Abs(tilt) > Math.Abs(previousTilt);
+            if (rising && !nowRising && crossed)
+                CompleteImpact(previousBody, previousTilt, tick - 1);
+            rising = nowRising;
+            previousTilt = tilt;
+            previousBody = body;
+        });
+        // Includes a final impact with no later resolved rebound and the final resting segment.
+        if (crossed) CompleteImpact(previousBody, previousTilt, deadlineTick + world.TicksPerSecond);
+        else CheckEnergy(previousBody, deadlineTick + world.TicksPerSecond);
+        Assert.True(largeImpacts >= 3, "The release must produce successive resolved opposite-rim impacts.");
+        Assert.True(smallImpacts > 0, "The observed sequence must include a sub-degree impact, not stop at the rest target.");
+        TestContext.Current.TestOutputHelper?.WriteLine($"impacts {impacts}, below one degree {smallImpacts}; deadline {settle:R} s");
+    }
+
+    private static (double X, double Y, double Z) MeasuredRodAxis(LawBody body)
+    {
+        double x = body.Rotation.X, y = body.Rotation.Y, z = body.Rotation.Z, w = body.Rotation.W;
+        var norm = Math.Sqrt(x * x + y * y + z * z + w * w);
+        const double u = 1.0 / 16777216;
+        Assert.InRange(norm, 1 - 4 * u, 1 + 4 * u);
+        x /= norm; y /= norm; z /= norm; w /= norm;
+        return (2 * (x * y - w * z), 1 - 2 * (x * x + z * z), 2 * (y * z + w * x));
+    }
+
+    /// <summary>Joules per declared 1 kg, relative to an upright COM on the bench.
+    /// One ULP per stored position/velocity lane bounds its representation uncertainty.
+    /// For q components in [-1,1], errors <=u give ||dq||<=2u; normalizing at ||q||>=1-4u
+    /// and rotating a unit vector gives axis error <=8u/(1-4u) <9u.
+    /// Quadratic kinetic errors use |v|*dv+dv²/2 and Imax*(|w|*dw+dw²/2).
+    /// Six f32 relative roundings bound declared inertia compilation (the existing inertia oracle).
+    /// All analysis is double; no additional simulation tolerance or fitted joule floor is used.</summary>
+    private static (double Value, double Uncertainty) MeasuredRodEnergy(LawBody body, float radius, float halfHeight)
+    {
+        const double u = 1.0 / 16777216;
+        double r = radius, h = halfHeight;
+        var ix = r * r / 4 + h * h / 3;
+        var iy = r * r / 2;
+        var axis = MeasuredRodAxis(body);
+        var speed = Math.Sqrt(Squared(body.Velocity));
+        var spin = Math.Sqrt(Squared(body.Angular));
+        var axialSpin = axis.X * body.Angular.X + axis.Y * body.Angular.Y + axis.Z * body.Angular.Z;
+        var kinetic = .5 * Squared(body.Velocity) + .5 * ix * Squared(body.Angular) +
+            .5 * (iy - ix) * axialSpin * axialSpin;
+        double Spacing(float value) => Math.Max((double)MathF.BitIncrement(value) - value,
+            (double)value - MathF.BitDecrement(value));
+        double VectorError(Vector3 v) => Math.Sqrt(Math.Pow(Spacing(v.X), 2) +
+            Math.Pow(Spacing(v.Y), 2) + Math.Pow(Spacing(v.Z), 2));
+        var dv = VectorError(body.Velocity);
+        var dw = VectorError(body.Angular);
+        var axisSpinError = 9 * u * spin;
+        var uncertainty = G * Spacing(body.Position.Y) + speed * dv + .5 * dv * dv +
+            Math.Max(ix, iy) * (spin * dw + .5 * dw * dw) +
+            Math.Abs(iy - ix) * (Math.Abs(axialSpin) * axisSpinError + .5 * axisSpinError * axisSpinError) +
+            .5 * (6 * u * Math.Max(ix, iy)) * spin * spin;
+        var energy = kinetic + G * ((double)body.Position.Y - BenchY - h);
+        Assert.True(double.IsFinite(energy) && double.IsFinite(uncertainty));
+        return (energy, uncertainty);
+    }
+
+    [Theory]
+    [InlineData(0.0, SimulationCadence.Hz60)]
+    [InlineData(0.0, SimulationCadence.Hz120)]
+    [InlineData(0.0, SimulationCadence.Hz240)]
+    [InlineData(22.5, SimulationCadence.Hz60)]
+    [InlineData(22.5, SimulationCadence.Hz120)]
+    [InlineData(22.5, SimulationCadence.Hz240)]
+    [InlineData(45.0, SimulationCadence.Hz60)]
+    [InlineData(45.0, SimulationCadence.Hz120)]
+    [InlineData(45.0, SimulationCadence.Hz240)]
+    public void ARodRightsItselfBelowAtanROverHAndTopplesAboveItAtEveryAzimuth(double azimuth, SimulationCadence cadence)
     {
         // r 0.1, h 0.4: the centre passes over the rim at atan(r/h) = 14.04°, whatever the tilt's direction. Below it the rod rocks rim to
         // rim but never passes over the rim (its peak tilt over the run stays below 14.04°), and it is upright within 1° from the
@@ -1313,11 +1463,11 @@ public sealed class WorkshopPhysicsLawCylinderTests
         foreach (var degrees in new[] { 10.5, 12.5 })
         {
             var settle = InelasticRockingSettleSeconds(r, h, degrees);
-            var (peak, after) = Rock(r, h, degrees, azimuth, settle);
+            var (peak, after) = Rock(r, h, degrees, azimuth, settle, cadence);
             Assert.True(peak < rim, $"{degrees}°: peak tilt {peak}° reaches the rim at {rim}°");
             Assert.True(after < 1f, $"{degrees}°: tilt {after}° after the {settle:F2} s settle time");
         }
-        Assert.InRange(Release(.1f, .4f, 15.5, azimuth).Tilt, 88f, 92f);
+        Assert.InRange(Release(.1f, .4f, 15.5, azimuth, cadence: cadence).Tilt, 88f, 92f);
     }
 
     [Theory]
