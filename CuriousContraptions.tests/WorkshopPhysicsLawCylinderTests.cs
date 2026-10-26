@@ -402,6 +402,169 @@ public sealed class WorkshopPhysicsLawCylinderTests
             $"tilted {initial:E2} rad: peak displacement {observation.PeakMetres:E2} m (bound {observation.AllowanceMetres:E2}, resolved {observation.Resolved}), peak tilt {peak:E2} rad (bound {initial + 2.4e-7:E2})");
     }
 
+    [Theory]
+    [InlineData(.001f, SimulationCadence.Hz60)]
+    [InlineData(.001f, SimulationCadence.Hz120)]
+    [InlineData(.001f, SimulationCadence.Hz240)]
+    [InlineData(.2f, SimulationCadence.Hz120)]
+    public void FreeAngularMotionComposesInWorldSpaceAndReusedEnginesReplay(float speed, SimulationCadence cadence)
+    {
+        // A sphere has isotropic inertia: without forces or drag its world angular velocity is constant.
+        // Rodrigues' formula is an independent vector oracle for the rotation, including its composition order.
+        var axis = Vector3.Normalize(new Vector3(1, 2, -3));
+        var start = ExactlyLevel;
+        var scene = new LawScene(bench: false);
+        var body = scene.Sphere(Vector3.Zero, .25f, 1f, Dead, Vector3.Zero, axis * speed, 0f, 0f, rotation: start);
+        var world = scene.Admit(cadence);
+        var observations = new List<LawBody>();
+        world.Step(world.TicksPerSecond, (_, state) => observations.Add(state[body]));
+        var reused = new WorkshopPhysicsEngine();
+        var previous = new LawScene(bench: false);
+        previous.Sphere(Vector3.Zero, .1f, 1f, Dead, Vector3.Zero, new(2, -1, 3), 0f, 0f);
+        previous.Admit().Step(7, engine: reused);
+        var initialVector = Vector3.Transform(Vector3.UnitX, start);
+        world.Step(world.TicksPerSecond, (tick, state) =>
+        {
+            var actual = state[body];
+            Assert.Equal(observations[tick - 1], actual);
+            var angle = speed * tick / world.TicksPerSecond;
+            foreach (var basis in new[] { Vector3.UnitX, Vector3.UnitY })
+            {
+                var initialBasis = Vector3.Transform(basis, start);
+                var expected = initialBasis * MathF.Cos(angle) + Vector3.Cross(axis, initialBasis) * MathF.Sin(angle) +
+                    axis * Vector3.Dot(axis, initialBasis) * (1f - MathF.Cos(angle));
+                // Two independent directions constrain the entire orientation. At the declared .25 m radius,
+                // a 2e-5 unit-direction chord error is 5 µm of surface displacement: the existing physical floor.
+                Assert.InRange(Vector3.Distance(expected, Vector3.Transform(basis, actual.Rotation)), 0f, 2e-5f);
+            }
+            Assert.InRange(MathF.Abs(actual.Rotation.LengthSquared() - 1f), 0f, 8 * 1.1920929e-7f);
+            Assert.InRange(Vector3.Distance(actual.Angular, axis * speed), 0f, 1e-6f);
+        }, engine: reused);
+        Assert.True(Vector3.Distance(initialVector, Vector3.Transform(Vector3.UnitX, observations[^1].Rotation)) > .8f * speed);
+    }
+
+    [Theory]
+    [InlineData(0f, SimulationCadence.Hz60)]
+    [InlineData(0f, SimulationCadence.Hz120)]
+    [InlineData(0f, SimulationCadence.Hz240)]
+    [InlineData(1e-10f, SimulationCadence.Hz60)]
+    [InlineData(1e-10f, SimulationCadence.Hz120)]
+    [InlineData(1e-10f, SimulationCadence.Hz240)]
+    [InlineData(1e-30f, SimulationCadence.Hz120)]
+    public void RepresentableTinyFreeSpinAdvancesFromIdentityWithoutASpeedCutoff(float speed, SimulationCadence cadence)
+    {
+        var scene = new LawScene(bench: false);
+        var body = scene.Sphere(Vector3.Zero, .25f, 1f, Dead, Vector3.Zero, new(speed, 0, 0), 0f, 0f);
+        var world = scene.Admit(cadence);
+        world.Step(world.TicksPerSecond, (tick, state) =>
+        {
+            // Closed-form rotation about X. At 1e-30 the squared length underflows, but q.X remains representable.
+            var expected = Math.Sin((double)speed * tick / world.TicksPerSecond / 2);
+            // 480 steps times eight rounded scalar operations, rounded up to 4096 f32 epsilons.
+            // This relative error budget is under 0.05%, so a frozen nonzero rotation cannot pass.
+            var allowance = Math.Abs(expected) * 4096 * 1.1920928955078125e-7;
+            Assert.InRange(Math.Abs(state[body].Rotation.X - expected), 0, allowance);
+            Assert.Equal(0f, state[body].Rotation.Y);
+            Assert.Equal(0f, state[body].Rotation.Z);
+            Assert.Equal(1f, state[body].Rotation.W);
+            Assert.Equal(new Vector3(speed, 0, 0), state[body].Angular);
+        });
+    }
+
+    [Theory]
+    [InlineData(SimulationCadence.Hz60)]
+    [InlineData(SimulationCadence.Hz120)]
+    [InlineData(SimulationCadence.Hz240)]
+    public void AStationaryRotatedFreeBodyWithOffsetCentreKeepsItsInitialPose(SimulationCadence cadence)
+    {
+        var scene = new LawScene(bench: false);
+        var rotation = Quaternion.CreateFromYawPitchRoll(.37f, -.61f, .23f);
+        var body = scene.Sphere(new(.2f, .3f, -.1f), .25f, 1f, Dead,
+            Vector3.Zero, Vector3.Zero, 0f, 0f, colliderOffset: new(.12f, -.08f, .04f), rotation: rotation);
+        var world = scene.Admit(cadence);
+        var initial = world.Initial(body);
+        // The existing physical floor is 5 µm. A 2e-5 direction chord at radius .25 m
+        // is the same 5 µm surface allowance, fixed before observing this trajectory.
+        world.Step(10 * world.TicksPerSecond, (_, state) =>
+        {
+            var actual = state[body];
+            Assert.InRange(Vector3.Distance(initial.Position, actual.Position), 0f, 5e-6f);
+            foreach (var basis in new[] { Vector3.UnitX, Vector3.UnitY })
+                Assert.InRange(Vector3.Distance(Vector3.Transform(basis, initial.Rotation),
+                    Vector3.Transform(basis, actual.Rotation)), 0f, 2e-5f);
+            Assert.Equal(Vector3.Zero, actual.Velocity);
+            Assert.Equal(Vector3.Zero, actual.Angular);
+        });
+    }
+
+    public enum TiltedRest { LyingCylinder, BoxOnEnd }
+
+    [Theory]
+    [InlineData(TiltedRest.LyingCylinder, 1e-5f, SimulationCadence.Hz60)]
+    [InlineData(TiltedRest.LyingCylinder, 1e-5f, SimulationCadence.Hz120)]
+    [InlineData(TiltedRest.LyingCylinder, 1e-5f, SimulationCadence.Hz240)]
+    [InlineData(TiltedRest.LyingCylinder, 1e-4f, SimulationCadence.Hz60)]
+    [InlineData(TiltedRest.LyingCylinder, 1e-4f, SimulationCadence.Hz120)]
+    [InlineData(TiltedRest.LyingCylinder, 1e-4f, SimulationCadence.Hz240)]
+    [InlineData(TiltedRest.BoxOnEnd, 1e-4f, SimulationCadence.Hz60)]
+    [InlineData(TiltedRest.BoxOnEnd, 1e-4f, SimulationCadence.Hz120)]
+    [InlineData(TiltedRest.BoxOnEnd, 1e-4f, SimulationCadence.Hz240)]
+    public void ATiltedBodyLevelsWithinTheRestingAllowance(TiltedRest shape, float tilt, SimulationCadence cadence)
+    {
+        var scene = new LawScene();
+        GpuBodyId body;
+        float size;
+        var half = At(.3f, .1f, .15f);
+        if (shape == TiltedRest.LyingCylinder)
+        {
+            var q = Quaternion.CreateFromAxisAngle(Vector3.UnitX, tilt) * ExactlyLevel;
+            body = scene.Cylinder(At(0, BenchY + Lowest(q, WeightRadius, WeightHalfWidth)),
+                WeightRadius, WeightHalfWidth, 4f, WeightMaterial, q);
+            size = MathF.Min(2 * WeightRadius, 2 * WeightHalfWidth);
+        }
+        else
+        {
+            var q = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, tilt) * ExactlyLevel;
+            var lowest = half.X * MathF.Abs(Vector3.Transform(Vector3.UnitX, q).Y) +
+                half.Y * MathF.Abs(Vector3.Transform(Vector3.UnitY, q).Y) +
+                half.Z * MathF.Abs(Vector3.Transform(Vector3.UnitZ, q).Y);
+            body = scene.Box(At(0, BenchY + lowest), half, 2f, WeightMaterial, q);
+            size = MathF.Min(2 * half.X, 2 * half.Z);
+        }
+        double Tilt(LawBody b)
+        {
+            if (shape == TiltedRest.LyingCylinder) return FromHorizontal(AxisOf(b));
+            var axis = Vector3.Transform(Vector3.UnitX, b.Rotation);
+            return Math.Asin(Math.Min(1, Math.Sqrt((double)axis.X * axis.X + (double)axis.Z * axis.Z) / Math.Sqrt(Squared(axis))));
+        }
+        var world = scene.Admit(cadence);
+        var initial = Tilt(world.Initial(body));
+        Assert.InRange(initial, .5 * tilt, 1.5 * tilt);
+        RestingObservation? rest = null;
+        double peakTilt = 0;
+        var tps = world.TicksPerSecond;
+        world.Step(10 * tps, (tick, state) =>
+        {
+            if (tick == 4 * tps) rest = new(size, state[body].Position);
+            if (tick >= 4 * tps)
+            {
+                rest!.Observe(state[body].Position);
+                peakTilt = Math.Max(peakTilt, Tilt(state[body]));
+                var actual = state[body];
+                var support = shape == TiltedRest.LyingCylinder
+                    ? Lowest(actual.Rotation, WeightRadius, WeightHalfWidth)
+                    : half.X * MathF.Abs(Vector3.Transform(Vector3.UnitX, actual.Rotation).Y) +
+                      half.Y * MathF.Abs(Vector3.Transform(Vector3.UnitY, actual.Rotation).Y) +
+                      half.Z * MathF.Abs(Vector3.Transform(Vector3.UnitZ, actual.Rotation).Y);
+                var penetration = BenchY - (actual.Position.Y - support);
+                Assert.InRange(penetration, -WorkshopConstraintSolver.ContactSlop, .0005f);
+                Assert.True(actual.Speed < .002, $"{shape} {cadence} tick {tick}: speed {actual.Speed:R} m/s");
+            }
+        });
+        Assert.True(rest!.IsResting && peakTilt < 1e-5,
+            $"{shape} {cadence}: excursion {rest.PeakMetres:R}/{rest.AllowanceMetres:R} m, resolved {rest.Resolved}, tilt {peakTilt:R} rad");
+    }
+
     [Fact]
     public void ACylinderSetDownExactlyLevelOnItsSideDoesNotDrift()
     {
@@ -428,23 +591,44 @@ public sealed class WorkshopPhysicsLawCylinderTests
         return peak;
     }
 
-    [Fact]
-    public void ARockingLyingCylinderIsDampedByItsNormalRowsAndNotByRollingResistance()
+    [Theory]
+    [InlineData(0f)]
+    [InlineData(.01f)]
+    public void ARockingLyingCylinderIsDampedByItsNormalRowsAndNotByRollingResistance(float pitch)
     {
         // Pitching a lying cylinder about the transverse axis rocks it on its contact line; it is no roll, so rolling resistance (a torque
-        // about the rolling axis) must not act on it: the rocking peaks at the same tilt with Crr 0.1 as with Crr 0. A row that resisted
-        // pitch would take Crr r m g = 0.25 N·m of the 3.9 N·m gravity torque m g h (Crr r / h = 0.1 × 0.25 / 0.4 = 6.25 %), lowering
-        // the peak by about that much; the two peaks must agree within 0.5 %, an order of magnitude under that effect.
-        double Peak(float rolling)
+        // about the rolling axis) must not act on pitch. Retain the 0.5% peak control, and observe the first committed
+        // angular pitch directly while the tilted scene has singleton support. The maximum axial rolling torque
+        // Crr r m g is 6.25% of m g h; this torque ratio is not a predicted peak-angle reduction.
+        (double Peak, float EarlyPitch) Observe(float rolling)
         {
             var scene = new LawScene();
-            var drum = scene.Cylinder(At(0, BenchY + .25f), .25f, .4f, 1f, new LawMaterial(0f, .1f, .6f, rolling), AlongZ, angular: At(4f, 0, 0));
-            return PeakPitch(scene.Admit(), drum, 1);
+            // Endpoint separation 2h sin(.01)=.00799987 m exceeds the initial speculative margin:
+            // .004 + 4 sqrt(.25²+.4²)/480 + 9.81/480² = .0079734 m (26 µm clearance).
+            // The same axial rolling rule must apply to the single low-end curved-side support.
+            var rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitX, pitch) * AlongZ;
+            var support = .4f * MathF.Sin(pitch) + .25f * MathF.Cos(pitch);
+            var drum = scene.Cylinder(At(0, BenchY + support), .25f, .4f, 1f, new LawMaterial(0f, .1f, .6f, rolling), rotation, angular: At(4f, 0, 0));
+            var world = scene.Admit();
+            double peak = 0;
+            float earlyPitch = 0;
+            world.Step(world.TicksPerSecond, (tick, state) =>
+            {
+                if (tick == 1) earlyPitch = state[drum].Angular.X;
+                peak = Math.Max(peak, FromHorizontal(AxisOf(state[drum])));
+            });
+            return (peak, earlyPitch);
         }
-        var free = Peak(0f);
-        var resisted = Peak(.1f);
-        Assert.True(free > .01, $"the rocking lifts an end ({free} rad; {resisted} rad with Crr 0.1)");
-        Assert.True(Math.Abs(resisted - free) <= .005 * free, $"peak tilt {resisted} rad with Crr 0.1 vs {free} rad with Crr 0 (within 0.5 %)");
+        var free = Observe(0f);
+        var resisted = Observe(.1f);
+        Assert.True(free.Peak > .01, $"the rocking lifts an end ({free.Peak} rad; {resisted.Peak} rad with Crr 0.1)");
+        Assert.True(Math.Abs(resisted.Peak - free.Peak) <= .005 * free.Peak,
+            $"peak tilt {resisted.Peak} rad with Crr 0.1 vs {free.Peak} rad with Crr 0 (within 0.5 %)");
+        // At 120 Hz the first commit spans four substeps. Budget 16 rounding ULPs per each of
+        // eight solve/relax sweeps per substep, at the declared 4 rad/s scale: 512 * 2^-21 rad/s.
+        const float earlyAllowance = 512f / 2097152f;
+        Assert.True(free.EarlyPitch > 0, "pitch is still advancing in the initial singleton interval");
+        Assert.InRange(MathF.Abs(resisted.EarlyPitch - free.EarlyPitch), 0f, earlyAllowance);
     }
 
     [Theory]
@@ -2287,8 +2471,7 @@ public sealed class WorkshopPhysicsLawCylinderTests
         // random heading and turn about the axis, lowest point 0.5–150 mm up, Crr {0, 0.03, 0.1}, μ {0.1, 0.3, 0.6}, restitution 0–0.3.
         // At rest the axis is level within 1e-5 rad, the body rests in contact (its lowest point no more than the 0.2 mm slop above the
         // bench) with its penetration within the 0.5 mm envelope, and the speed stays under 2 mm/s over the 6 s (a measure, never a
-        // threshold the engine applies). Their residual axial drift (up to 2.2e-5 m/s, sub-ulp
-        // orientation levelling) is an open defect of the follow-up slice "orientation levelling and two-point friction".
+        // threshold the engine applies). Every tick from 4–10 s stays within the declared horizontal displacement allowance.
         float[] rolling = [0f, .03f, .1f];
         float[] friction = [.1f, .3f, .6f];
         var rng = new Random(DriftSeed + batch);
@@ -2306,14 +2489,27 @@ public sealed class WorkshopPhysicsLawCylinderTests
             var body = scene.Cylinder(At(0, BenchY + Lowest(q, r, h) + height), r, h, m, material, q);
             var world = scene.Admit();
             var tps = world.TicksPerSecond;
-            double fastest = 0;
-            var final = world.Step(10 * tps, (tick, state) => { if (tick > 4 * tps) fastest = Math.Max(fastest, state[body].Speed); })[body];
+            double fastest = 0, level = 0;
+            float minimumPenetration = float.PositiveInfinity, maximumPenetration = float.NegativeInfinity;
+            RestingObservation? resting = null;
+            world.Step(10 * tps, (tick, state) =>
+            {
+                if (tick == 4 * tps) resting = new(MathF.Min(2 * r, 2 * h), state[body].Position);
+                if (tick >= 4 * tps)
+                {
+                    var actual = state[body];
+                    resting!.Observe(actual.Position);
+                    level = Math.Max(level, FromHorizontal(AxisOf(actual)));
+                    var penetration = BenchY - (actual.Position.Y - Lowest(actual.Rotation, r, h));
+                    minimumPenetration = MathF.Min(minimumPenetration, penetration);
+                    maximumPenetration = MathF.Max(maximumPenetration, penetration);
+                    fastest = Math.Max(fastest, actual.Speed);
+                }
+            });
             fastestOfAll = Math.Max(fastestOfAll, fastest);
-            var level = FromHorizontal(AxisOf(final));
-            var penetration = BenchY - (final.Position.Y - Lowest(final.Rotation, r, h));
-            if (level >= 1e-5 || penetration < -WorkshopConstraintSolver.ContactSlop || penetration > .0005 || fastest >= .002)
+            if (!resting!.IsResting || level >= 1e-5 || minimumPenetration < -WorkshopConstraintSolver.ContactSlop || maximumPenetration > .0005 || fastest >= .002)
                 failures.Add(FormattableString.Invariant(
-                    $"#{drop} r {r:F3} h {h:F3} m {m:F2} tilt {tilt:F4} drop {height * 1000:F1} mm e {material.Restitution:F2} μ {material.Friction} Crr {material.Rolling}: level {level:E2} rad, penetration {penetration * 1000:F3} mm, speed {fastest:E2} m/s"));
+                    $"#{drop} r {r:F3} h {h:F3} m {m:F2} tilt {tilt:F4} drop {height * 1000:F1} mm e {material.Restitution:F2} μ {material.Friction} Crr {material.Rolling}: peak tilt {level:E2} rad, penetration [{minimumPenetration * 1000:F3}, {maximumPenetration * 1000:F3}] mm, speed {fastest:E2} m/s, excursion {resting.PeakMetres:R} m / {resting.AllowanceMetres:R} m, resolved {resting.Resolved}"));
         }
         Assert.True(failures.Count == 0, FormattableString.Invariant($"{failures.Count}/50 failed (fastest {fastestOfAll:E2} m/s):") +
             Environment.NewLine + string.Join(Environment.NewLine, failures));

@@ -522,8 +522,8 @@ development_status:
   game-grade-float-comparisons: done # unchanged133859b4 published through b39b893d; build40318527487/artifact12647774040/deployment7331335202 verified; browser pending, not a global audit
   local-test-authority: done # b39b893d; full4411/0/0 hooks126/0/0; build40318527487/artifact12647774040/deployment7331335202 verified; terminal receipt in spec
   engine-remove-core-warmup: done # published822317c; build40324744448/artifact12650828689/deployment7332347579; full4411/0/0 hooks126/0/0; browser/performance pending
-  engine-cap-settling: in-progress # local Auto done; final full83621 4428/0/0; repairs independently confirmed; normal hooks/exact-SHA approval/publication pending
-  engine-orientation-levelling: blocked # unpublished candidate retained in story-engine-orientation-levelling; retry after engine-cap-settling is reviewed/published; original energy and lifecycle gates remain
+  engine-cap-settling: done # published a98ef86c; build 40356741495/artifact 12666996791/deployment 7337266683; local 4428/0/0 hooks 126/0/0; browser/performance pending
+  engine-orientation-levelling: in-progress # local Auto done; full 99807 4453/0/0; repairs independently confirmed; normal hooks/exact-SHA approval/publication pending
   test-workshop-harness-a: backlog
   test-workshop-harness-b: backlog
   runtime-typescript-conversion: backlog

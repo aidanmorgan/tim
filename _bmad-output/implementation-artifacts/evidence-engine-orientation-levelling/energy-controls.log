@@ -1,0 +1,42 @@
+Baseline session5871 before runtime rebuild, SDK10.0.402/runtime10.0.13:
+dotnet test CuriousContraptions.tests/CuriousContraptions.tests.csproj -c Debug -f net10.0 --no-build --no-restore --nologo -noAutoResponse --filter 'FullyQualifiedName~FreshSeedDrops|FullyQualifiedName~DeadCylinderBoxRimRegression' --logger 'console;verbosity=detailed' -- RunConfiguration.TreatNoTestsAsError=true
+
+Baseline output excerpts (original report precision retained):
+CylinderOntoPlane (Dead): 0/200 over 2.191 mJ (worst 0.807 mJ)
+CylinderOntoBox (Dead): 0/200 over 2.191 mJ (worst 0.725 mJ)
+BoxOntoCylinder (Dead): 0/200 over 2.191 mJ (worst 0.748 mJ)
+CylinderOntoLyingCylinder (Dead): 0/200 over 2.191 mJ (worst 0.828 mJ)
+CylinderOntoStandingCylinder (Dead): 0/200 over 2.191 mJ (worst 0.829 mJ)
+SkewedRollOffEdge (Dead): 0/200 over 2.191 mJ (worst 0.027 mJ)
+CylinderOntoPlane (Rolling): 0/200 over 2.114 mJ (worst 0.828 mJ)
+CylinderOntoBox (Rolling): 0/200 over 2.114 mJ (worst 0.711 mJ)
+BoxOntoCylinder (Rolling): 0/200 over 2.114 mJ (worst 0.370 mJ)
+CylinderOntoLyingCylinder (Rolling): 0/200 over 2.114 mJ (worst 0.781 mJ)
+CylinderOntoStandingCylinder (Rolling): 0/200 over 2.114 mJ (worst 0.794 mJ)
+SkewedRollOffEdge (Rolling): 0/200 over 2.114 mJ (worst 0.085 mJ)
+CylinderOntoPlane (Lively): 0/200 over 2.151 mJ (worst 0.826 mJ)
+CylinderOntoBox (Lively): 0/200 over 2.151 mJ (worst 0.610 mJ)
+BoxOntoCylinder (Lively): 0/200 over 2.151 mJ (worst 0.425 mJ)
+CylinderOntoLyingCylinder (Lively): 0/200 over 2.151 mJ (worst 0.827 mJ)
+CylinderOntoStandingCylinder (Lively): 0/200 over 2.151 mJ (worst 0.793 mJ)
+SkewedRollOffEdge (Lively): 0/200 over 2.151 mJ (worst 0.000 mJ)
+Test Run Successful.
+Total tests: 3
+Passed: 3
+Total time: 2.5119 Minutes
+
+Current candidate control-only diagnostic session48064 after build76756:
+dotnet test CuriousContraptions.tests/CuriousContraptions.tests.csproj -c Debug -f net10.0 --no-build --no-restore --nologo -noAutoResponse --filter 'FullyQualifiedName~MeasureCurrentOrientationEnergyControls' --logger 'console;verbosity=detailed' -- RunConfiguration.TreatNoTestsAsError=true
+
+Temporary measurement used the unchanged GateCase boxControl=true and 200 original control RNG draws per GateMaterials, seed GateSeed+100*(int)material. Removed before review; this diagnostic is not acceptance. The full actual energy gates pass in affected-native.log.
+
+Dead: control 0.0002286608506398835; bound 0.0021906608891146817
+Rolling: control 0.00015222360462185947; bound 0.0021142236430966577
+Lively: control 2.8610393822070534E-05; bound 0.0019906104322968687
+
+Test Run Successful.
+Total tests: 1
+Passed: 1
+Total time: 19.1885 Seconds
+
+Comparison: Dead/Rolling current bounds equal the captured baseline at its original0.001mJ reporting precision; Lively decreases from2.151mJ to1.990610432mJ. No displayed control budget increased. No expectation or energy bound was changed.

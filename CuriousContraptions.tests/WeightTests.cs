@@ -485,6 +485,96 @@ public sealed class WeightTests
         Assert.All(quiet, read => Assert.True(Tilt(Find(read, domino.Id)) < 1, $"tilt {Tilt(Find(read, domino.Id))}"));
     }
 
+    [Fact]
+    public async Task TiltedWeightResetAndSavedConstructionReplayEveryCommittedTickExactly()
+    {
+        var rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitX, 1e-4f) * new Quaternion(.5f, .5f, .5f, .5f);
+        var axis = Vector3.Transform(Vector3.UnitY, rotation);
+        var support = HalfHeight(4) * MathF.Abs(axis.Y) + Radius(4) * MathF.Sqrt(1f - axis.Y * axis.Y);
+        // The package origin is its base, half a height behind the centre along local Y.
+        var origin = new Vector3(0, BenchY + support, 0) - axis * HalfHeight(4);
+        var construction = Bench(Placed(1, origin.X, origin.Y, origin.Z, 4, rotation.X, rotation.Y, rotation.Z, rotation.W));
+        await using var device = new WorkshopGpuDevice(new BrowserGpuTransport(), new(101, 206));
+        await using var simulation = new WorkshopSimulation(device, new WorkshopPhysicsEngineTests.StepClock(),
+            WorkshopCadenceSettings.Default(), new(1), new WorkshopPhysicsEngineTests.NoInstallation(), GpuDeviceOwnership.Borrowed);
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Initialize()).Outcome);
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Construct(construction)).Outcome);
+        var built = simulation.Committed;
+        async Task<List<WorkshopRead>> Run()
+        {
+            Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Run()).Outcome);
+            var reads = new List<WorkshopRead>();
+            for (var tick = 0; tick < 1200; tick++)
+            {
+                Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Advance()).Outcome);
+                reads.Add(simulation.Committed);
+            }
+            return reads;
+        }
+        static void SameState(WorkshopRead expected, WorkshopRead actual)
+        {
+            Assert.Equal(expected.Tick, actual.Tick);
+            Assert.Equal(expected.Bodies.Count, actual.Bodies.Count);
+            for (var i = 0; i < expected.Bodies.Count; i++)
+            {
+                var e = expected.Bodies[i];
+                var a = actual.Bodies[i];
+                Assert.Equal(e.Body.Id, a.Body.Id);
+                Assert.Equal(e.Body.Tick, a.Body.Tick);
+                Assert.Equal(e.Body.Cell, a.Body.Cell);
+                Assert.Equal(e.Body.Local.X, a.Body.Local.X);
+                Assert.Equal(e.Body.Local.Y, a.Body.Local.Y);
+                Assert.Equal(e.Body.Local.Z, a.Body.Local.Z);
+                Assert.Equal(Rotation(e), Rotation(a));
+                Assert.Equal(Velocity(e), Velocity(a));
+                Assert.Equal(Spin(e), Spin(a));
+                Assert.Equal(e.LocalCentreOfMass.X, a.LocalCentreOfMass.X);
+                Assert.Equal(e.LocalCentreOfMass.Y, a.LocalCentreOfMass.Y);
+                Assert.Equal(e.LocalCentreOfMass.Z, a.LocalCentreOfMass.Z);
+            }
+            // A lone passive Weight has no sensors, activations, timers, work stores or circuits.
+            foreach (var read in new[] { expected, actual })
+            {
+                Assert.Equal(0, read.Captures.Count);
+                Assert.Equal(0, read.Activations.Count);
+                Assert.Equal(0, read.Timers.Count);
+                Assert.Equal(0, read.ContactWorks.Count);
+                Assert.Equal(0, read.Memory.Count);
+                Assert.Equal(0, read.Electrical.Count);
+            }
+        }
+        var first = await Run();
+        var rest = new RestingObservation(MathF.Min(2 * Radius(4), 2 * HalfHeight(4)),
+            Centre(Find(first[479], new(1))));
+        for (var tick = 479; tick < first.Count; tick++)
+        {
+            var body = Find(first[tick], new(1));
+            var centre = Centre(body);
+            rest.Observe(centre);
+            var verticalAxis = MathF.Abs(Vector3.Transform(Vector3.UnitY, Rotation(body)).Y);
+            Assert.InRange(MathF.Asin(MathF.Min(1f, verticalAxis)), 0f, 1e-5f);
+            var lowest = centre.Y - HalfHeight(4) * verticalAxis -
+                Radius(4) * MathF.Sqrt(MathF.Max(0f, 1f - verticalAxis * verticalAxis));
+            Assert.InRange(BenchY - lowest, -WorkshopConstraintSolver.ContactSlop, .0005f);
+            Assert.InRange(Velocity(body).Length(), 0f, .002f);
+        }
+        Assert.True(rest.IsResting,
+            $"tilted package excursion {rest.PeakMetres:R}/{rest.AllowanceMetres:R} m; resolved {rest.Resolved}");
+        Assert.NotEqual(Rotation(Find(built, new(1))), Rotation(Find(first[^1], new(1))));
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Reset()).Outcome);
+        SameState(built, simulation.Committed);
+        Assert.Equal(WorkshopCommandOutcome.Applied, simulation.Save().Outcome);
+        var loaded = WorkshopSaveCodec.Decode(SaveFixture.Elements,
+            WorkshopSaveCodec.Encode(new WorkshopSavedConstruction(simulation.Construction, new(2))));
+        var replay = await Run();
+        var (_, fresh, _) = await RunAndReset(loaded.Construction, 1200);
+        for (var tick = 0; tick < first.Count; tick++)
+        {
+            SameState(first[tick], replay[tick]);
+            SameState(first[tick], fresh[tick + 1]);
+        }
+    }
+
     // ---------------- Reset and save ----------------
 
     /// <summary>A tipped 4 kg Weight dropping 1.3 m onto the bench beside a bench-resting one edited from 0.25 to 8 kg.</summary>

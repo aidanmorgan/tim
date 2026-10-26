@@ -1,0 +1,233 @@
+Baseline 822317c99a08ec64ce2d7406090036d51c1c8fa2; Darwin arm64; SDK10.0.402; runtime10.0.13.
+Matching command: dotnet build CuriousContraptions.tests/CuriousContraptions.tests.csproj -c Debug --no-restore --nologo -v:q
+Build succeeded:0 warnings,0 errors,6.53s.
+Test command: dotnet test CuriousContraptions.tests/CuriousContraptions.tests.csproj -c Debug --no-build --no-restore --filter FullyQualifiedName~OrientationInvestigation --logger 'console;verbosity=detailed'
+Measurement-only diagnostic, not acceptance test:4 passed,0 failed,0 skipped;73 measured resting-envelope failures.
+[xUnit.net 00:00:01.43]   Discovered:  CuriousContraptions.tests
+[xUnit.net 00:00:01.54]   Starting:    CuriousContraptions.tests
+  Passed CuriousContraptions.Tests.OrientationInvestigation.MeasureDrops(batch: 1) [3 s]
+  Standard Output Messages:
+ batch=1 drop=0 peak=3.1807085E-05 allowance=4.2654443E-05 resolved=True tilt=1.5795231415738693E-06 penetration=0.0002696216 speed=3.545057792216726E-07 frozen=True otherFailure=False
+ batch=1 drop=1 peak=3.649816E-05 allowance=3.4232446E-05 resolved=True tilt=2.1457673644200738E-06 penetration=0.00027003884 speed=4.401710554886154E-08 frozen=True otherFailure=False
+ batch=1 drop=2 peak=1.4244304E-05 allowance=2.2357694E-05 resolved=True tilt=1.6316769981803085E-06 penetration=0.00026896596 speed=4.894007535307663E-07 frozen=True otherFailure=False
+ batch=1 drop=3 peak=5.8646267E-05 allowance=3.4436856E-05 resolved=True tilt=2.3841854188878606E-06 penetration=0.000269413 speed=4.680560771001499E-06 frozen=True otherFailure=False
+ batch=1 drop=4 peak=1.1275237E-06 allowance=3.798911E-05 resolved=True tilt=5.960464177006611E-08 penetration=0.00026878715 speed=4.456682285406009E-09 frozen=True otherFailure=False
+ batch=1 drop=5 peak=2.098592E-05 allowance=2.1679067E-05 resolved=True tilt=1.940876158627042E-06 penetration=0.000269562 speed=1.69957278471352E-08 frozen=True otherFailure=False
+ batch=1 drop=6 peak=2.6622218E-05 allowance=5E-05 resolved=True tilt=1.0132788667154698E-06 penetration=0.00026929379 speed=1.990243073029354E-06 frozen=True otherFailure=False
+ batch=1 drop=7 peak=2.6823013E-06 allowance=5E-05 resolved=True tilt=1.69500687387303E-07 penetration=0.00026896596 speed=1.255674012598074E-07 frozen=True otherFailure=False
+ batch=1 drop=8 peak=4.197888E-05 allowance=5E-05 resolved=True tilt=1.430511379392589E-06 penetration=0.0002694428 speed=2.4104696636126634E-06 frozen=True otherFailure=False
+ batch=1 drop=9 peak=6.527323E-05 allowance=5E-05 resolved=True tilt=2.026557515356973E-06 penetration=0.00027006865 speed=1.6879410387545424E-06 frozen=True otherFailure=False
+ batch=1 drop=10 peak=5.3169035E-05 allowance=5E-05 resolved=True tilt=1.9669532019070807E-06 penetration=0.00026986003 speed=1.1002908633392929E-06 frozen=True otherFailure=False
+ batch=1 drop=11 peak=3.4657332E-05 allowance=4.5549576E-05 resolved=True tilt=1.5795229379800647E-06 penetration=0.00026980042 speed=2.1101631757539366E-07 frozen=True otherFailure=False
+ batch=1 drop=12 peak=3.447969E-05 allowance=5E-05 resolved=True tilt=1.2516974542068032E-06 penetration=0.0002693236 speed=2.2947582262512485E-06 frozen=True otherFailure=False
+ batch=1 drop=13 peak=1.3763178E-05 allowance=5E-05 resolved=True tilt=4.172325163808843E-07 penetration=0.00026923418 speed=6.089299571831291E-07 frozen=True otherFailure=False
+ batch=1 drop=14 peak=3.6117075E-05 allowance=5E-05 resolved=True tilt=1.4305112106549988E-06 penetration=0.00026971102 speed=1.3294451334213314E-06 frozen=True otherFailure=False
+ batch=1 drop=15 peak=6.8241665E-05 allowance=4.8937254E-05 resolved=True tilt=2.7418138077124898E-06 penetration=0.00026968122 speed=4.353697724355816E-06 frozen=True otherFailure=False
+ batch=1 drop=16 peak=2.5682305E-06 allowance=2.3435217E-05 resolved=True tilt=2.3841858419156845E-07 penetration=0.00026881695 speed=5.082573927959861E-07 frozen=False otherFailure=False
+ batch=1 drop=17 peak=6.868143E-05 allowance=5E-05 resolved=True tilt=2.4735927265734633E-06 penetration=0.00027024746 speed=1.0579903596031778E-06 frozen=True otherFailure=False
+ batch=1 drop=18 peak=2.1172893E-05 allowance=2.070884E-05 resolved=True tilt=2.1755694308899816E-06 penetration=0.00026926398 speed=1.3422472089264352E-07 frozen=True otherFailure=False
+ batch=1 drop=19 peak=3.298042E-05 allowance=5E-05 resolved=True tilt=1.0579823968201703E-06 penetration=0.00026968122 speed=7.765377076128879E-07 frozen=True otherFailure=False
+ batch=1 drop=20 peak=4.86705E-05 allowance=5E-05 resolved=True tilt=1.8477437038284106E-06 penetration=0.00026971102 speed=1.341298754190669E-06 frozen=True otherFailure=False
+ batch=1 drop=21 peak=2.5712094E-05 allowance=3.347561E-05 resolved=True tilt=1.549720617689528E-06 penetration=0.0002695322 speed=5.504840826068807E-08 frozen=True otherFailure=False
+ batch=1 drop=22 peak=8.761286E-05 allowance=5E-05 resolved=True tilt=2.68220858676071E-06 penetration=0.00027054548 speed=1.7669433826094495E-06 frozen=True otherFailure=False
+ batch=1 drop=23 peak=5.5295154E-06 allowance=4.1465857E-05 resolved=True tilt=2.3841856293234945E-07 penetration=0.00026887655 speed=1.814971469301897E-08 frozen=True otherFailure=False
+ batch=1 drop=24 peak=2.6005522E-05 allowance=3.5268175E-05 resolved=True tilt=1.490116140747157E-06 penetration=0.0002693832 speed=1.443105464932103E-07 frozen=True otherFailure=False
+ batch=1 drop=25 peak=2.7388181E-05 allowance=5E-05 resolved=True tilt=1.043081223324296E-06 penetration=0.0002694726 speed=3.4760935099163534E-07 frozen=True otherFailure=False
+ batch=1 drop=26 peak=3.4093853E-05 allowance=2.5808671E-05 resolved=True tilt=1.4584509739816127E-06 penetration=0.00026914477 speed=2.855827521548053E-06 frozen=True otherFailure=False
+ batch=1 drop=27 peak=2.4728744E-05 allowance=2.0398455E-05 resolved=True tilt=1.661479358307644E-06 penetration=0.00026905537 speed=2.0663594073330047E-06 frozen=True otherFailure=False
+ batch=1 drop=28 peak=2.596226E-05 allowance=3.1888478E-05 resolved=True tilt=1.6093255363719384E-06 penetration=0.000269562 speed=4.980937709116709E-08 frozen=True otherFailure=False
+ batch=1 drop=29 peak=7.921036E-05 allowance=5E-05 resolved=True tilt=2.5033948741572676E-06 penetration=0.00027030706 speed=1.9784371984017672E-06 frozen=True otherFailure=False
+ batch=1 drop=30 peak=4.439466E-05 allowance=3.80491E-05 resolved=True tilt=2.6971097721906767E-06 penetration=0.000269413 speed=2.422965458003579E-06 frozen=True otherFailure=False
+ batch=1 drop=31 peak=1.8431414E-05 allowance=2.6462245E-05 resolved=True tilt=1.4901160537291584E-06 penetration=0.00026920438 speed=1.4479129087610874E-07 frozen=True otherFailure=False
+ batch=1 drop=32 peak=5.8025053E-05 allowance=3.4858E-05 resolved=True tilt=2.2053716185410993E-06 penetration=0.0002693832 speed=4.778090543411059E-06 frozen=True otherFailure=False
+ batch=1 drop=33 peak=1.4878291E-05 allowance=2.7529566E-05 resolved=True tilt=1.0877848113858464E-06 penetration=0.0002693236 speed=1.3862690531184971E-08 frozen=True otherFailure=False
+ batch=1 drop=34 peak=5.068772E-05 allowance=5E-05 resolved=True tilt=1.601874752595693E-06 penetration=0.00026977062 speed=1.7233444646314218E-06 frozen=True otherFailure=False
+ batch=1 drop=35 peak=1.9833117E-06 allowance=5E-05 resolved=True tilt=9.499489497228314E-08 penetration=0.00026899576 speed=1.7228830477426713E-07 frozen=False otherFailure=False
+ batch=1 drop=36 peak=3.2260203E-05 allowance=3.5695455E-05 resolved=True tilt=1.460313627710908E-06 penetration=0.00026926398 speed=2.4722654941845524E-06 frozen=True otherFailure=False
+ batch=1 drop=37 peak=2.45554E-05 allowance=5E-05 resolved=True tilt=8.344649589934052E-07 penetration=0.000269413 speed=4.2189844990822967E-07 frozen=True otherFailure=False
+ batch=1 drop=38 peak=3.1713735E-05 allowance=3.495661E-05 resolved=True tilt=1.8030401552000472E-06 penetration=0.00026968122 speed=6.979852091315112E-08 frozen=True otherFailure=False
+ batch=1 drop=39 peak=2.271233E-05 allowance=2.4080717E-05 resolved=True tilt=1.9073485273077767E-06 penetration=0.0002696216 speed=1.8057962489826166E-08 frozen=True otherFailure=False
+ batch=1 drop=40 peak=1.1841655E-05 allowance=5E-05 resolved=True tilt=3.4831459677740226E-07 penetration=0.00026911497 speed=1.6059746085701865E-06 frozen=True otherFailure=False
+ batch=1 drop=41 peak=2.207792E-05 allowance=3.2526863E-05 resolved=True tilt=1.3560056414065695E-06 penetration=0.0002695024 speed=2.819695571063962E-08 frozen=True otherFailure=False
+ batch=1 drop=42 peak=6.1359126E-05 allowance=5E-05 resolved=True tilt=2.0861623196898146E-06 penetration=0.00026974082 speed=3.188056958247952E-06 frozen=True otherFailure=False
+ batch=1 drop=43 peak=5.729201E-05 allowance=3.0410849E-05 resolved=True tilt=2.5629996505937456E-06 penetration=0.00026926398 speed=4.488491197405053E-06 frozen=True otherFailure=False
+ batch=1 drop=44 peak=6.64561E-05 allowance=5E-05 resolved=True tilt=2.7790663351328768E-06 penetration=0.00027033687 speed=7.488626780688123E-07 frozen=True otherFailure=False
+ batch=1 drop=45 peak=1.094665E-05 allowance=5E-05 resolved=True tilt=3.5762780907265166E-07 penetration=0.00026914477 speed=1.6839541889809959E-07 frozen=True otherFailure=False
+ batch=1 drop=46 peak=0 allowance=2.5946003E-05 resolved=True tilt=0 penetration=0.00026875734 speed=1.589639247302531E-10 frozen=True otherFailure=False
+ batch=1 drop=47 peak=2.1494182E-06 allowance=5E-05 resolved=True tilt=5.9604637889541134E-08 penetration=0.00026896596 speed=2.3714392804149058E-07 frozen=True otherFailure=False
+ batch=1 drop=48 peak=4.980889E-06 allowance=5E-05 resolved=True tilt=2.384185537255184E-07 penetration=0.00026905537 speed=7.661889654277927E-08 frozen=True otherFailure=False
+ batch=1 drop=49 peak=3.5138473E-05 allowance=3.414001E-05 resolved=True tilt=1.870095535321448E-06 penetration=0.00026923418 speed=2.541470284961927E-06 frozen=True otherFailure=False
+ SUMMARY batch=1 outside=18/50 unresolved=0 otherFailures=0 frozen=48 peak=8.761286153458059E-05 ratio=1.8839333057403564 tilt=2.7790663351328768E-06 speed=4.778090543411059E-06
+
+
+  Passed CuriousContraptions.Tests.OrientationInvestigation.MeasureDrops(batch: 2) [3 s]
+  Standard Output Messages:
+ batch=2 drop=0 peak=4.042323E-05 allowance=5E-05 resolved=True tilt=1.1920929305905107E-06 penetration=0.00026971102 speed=3.0247429904133787E-06 frozen=False otherFailure=False
+ batch=2 drop=1 peak=7.382492E-05 allowance=5E-05 resolved=True tilt=2.264976522087769E-06 penetration=0.00027009845 speed=2.4806220010929374E-06 frozen=True otherFailure=False
+ batch=2 drop=2 peak=3.671283E-05 allowance=3.0329924E-05 resolved=True tilt=2.6822091348698603E-06 penetration=0.000269413 speed=5.920212585360691E-07 frozen=True otherFailure=False
+ batch=2 drop=3 peak=3.087307E-05 allowance=3.6662637E-05 resolved=True tilt=1.9073486512086373E-06 penetration=0.0002693236 speed=5.30647858893249E-07 frozen=True otherFailure=False
+ batch=2 drop=4 peak=6.7340457E-06 allowance=2.4050863E-05 resolved=True tilt=7.785856553952352E-07 penetration=0.00026887655 speed=3.8154608130912737E-07 frozen=True otherFailure=False
+ batch=2 drop=5 peak=2.2290189E-05 allowance=2.6191028E-05 resolved=True tilt=2.1532176266461025E-06 penetration=0.00026896596 speed=1.1480761365247377E-06 frozen=True otherFailure=False
+ batch=2 drop=6 peak=2.2540931E-05 allowance=3.5919027E-05 resolved=True tilt=9.462235846909144E-07 penetration=0.00026914477 speed=1.7737026032424546E-06 frozen=True otherFailure=False
+ batch=2 drop=7 peak=2.086269E-05 allowance=3.0228777E-05 resolved=True tilt=1.5199183573852569E-06 penetration=0.00026914477 speed=1.3637816672079297E-06 frozen=True otherFailure=False
+ batch=2 drop=8 peak=2.8579709E-05 allowance=3.6154663E-05 resolved=True tilt=1.877546185179002E-06 penetration=0.00026917458 speed=8.230526535067567E-07 frozen=True otherFailure=False
+ batch=2 drop=9 peak=5.0696588E-05 allowance=5E-05 resolved=True tilt=2.0340084271735546E-06 penetration=0.0002695322 speed=3.1656594585401844E-06 frozen=True otherFailure=False
+ batch=2 drop=10 peak=1.5548234E-05 allowance=3.0728785E-05 resolved=True tilt=1.072883475616168E-06 penetration=0.00026908517 speed=1.5740526390781325E-07 frozen=True otherFailure=False
+ batch=2 drop=11 peak=1.8972009E-05 allowance=2.1783497E-05 resolved=True tilt=1.7210840467674236E-06 penetration=0.00026974082 speed=3.125155456459946E-09 frozen=True otherFailure=False
+ batch=2 drop=12 peak=6.996078E-05 allowance=5E-05 resolved=True tilt=2.4288890513175246E-06 penetration=0.00026988983 speed=3.4213512486745353E-06 frozen=True otherFailure=False
+ batch=2 drop=13 peak=4.6321526E-05 allowance=3.830961E-05 resolved=True tilt=2.1383166341303845E-06 penetration=0.0002693534 speed=3.2865762514908344E-06 frozen=True otherFailure=False
+ batch=2 drop=14 peak=3.8683367E-05 allowance=3.0639636E-05 resolved=True tilt=2.3674219314651782E-06 penetration=0.00026929379 speed=2.7189860639110615E-06 frozen=True otherFailure=False
+ batch=2 drop=15 peak=4.4702505E-05 allowance=4.6029723E-05 resolved=True tilt=2.5033947143157672E-06 penetration=0.0002695024 speed=2.078331682855483E-06 frozen=True otherFailure=False
+ batch=2 drop=16 peak=2.8083254E-05 allowance=3.5139943E-05 resolved=True tilt=1.974403700349147E-06 penetration=0.00026908517 speed=1.3863479903016026E-06 frozen=True otherFailure=False
+ batch=2 drop=17 peak=4.4833276E-05 allowance=2.847481E-05 resolved=True tilt=1.9520518002969714E-06 penetration=0.00026926398 speed=4.883249309816919E-06 frozen=True otherFailure=False
+ batch=2 drop=18 peak=2.7643535E-05 allowance=4.2686206E-05 resolved=True tilt=1.383945411078386E-06 penetration=0.0002696216 speed=3.66428020773796E-07 frozen=True otherFailure=False
+ batch=2 drop=19 peak=4.833438E-05 allowance=4.4940694E-05 resolved=True tilt=2.1867453727269093E-06 penetration=0.0002693832 speed=3.0885201751058437E-06 frozen=False otherFailure=False
+ batch=2 drop=20 peak=4.687755E-05 allowance=4.5470493E-05 resolved=True tilt=2.1457669189565203E-06 penetration=0.00027009845 speed=3.046997585288277E-07 frozen=True otherFailure=False
+ batch=2 drop=21 peak=5.0971896E-05 allowance=4.9172693E-05 resolved=True tilt=1.8179413227583964E-06 penetration=0.0002694428 speed=3.51696526075195E-06 frozen=True otherFailure=False
+ batch=2 drop=22 peak=3.5597735E-05 allowance=3.5848556E-05 resolved=True tilt=2.562999444775807E-06 penetration=0.00026920438 speed=1.6719826665291523E-06 frozen=True otherFailure=False
+ batch=2 drop=23 peak=1.8264638E-05 allowance=2.7080821E-05 resolved=True tilt=1.2591479656521868E-06 penetration=0.000269413 speed=2.15892819108644E-06 frozen=True otherFailure=False
+ batch=2 drop=24 peak=5.406165E-06 allowance=3.221145E-05 resolved=True tilt=4.1723247076011635E-07 penetration=0.00026896596 speed=3.450085416559948E-07 frozen=True otherFailure=False
+ batch=2 drop=25 peak=5.0574632E-05 allowance=5E-05 resolved=True tilt=1.5199183627562039E-06 penetration=0.00026986003 speed=1.166329049680358E-06 frozen=True otherFailure=False
+ batch=2 drop=26 peak=2.7506063E-05 allowance=4.1762516E-05 resolved=True tilt=1.6763806671038772E-06 penetration=0.00026914477 speed=1.0610963271940224E-06 frozen=True otherFailure=False
+ batch=2 drop=27 peak=3.340773E-05 allowance=3.1646294E-05 resolved=True tilt=2.2649759732698646E-06 penetration=0.0002695024 speed=3.372742184597189E-07 frozen=True otherFailure=False
+ batch=2 drop=28 peak=2.3990407E-05 allowance=2.7374628E-05 resolved=True tilt=8.940695455932507E-07 penetration=0.00026911497 speed=1.928641549484454E-06 frozen=True otherFailure=False
+ batch=2 drop=29 peak=3.0581887E-05 allowance=3.5553156E-05 resolved=True tilt=1.1920928963929456E-06 penetration=0.00026920438 speed=2.475818859255903E-06 frozen=True otherFailure=False
+ batch=2 drop=30 peak=4.0019266E-05 allowance=5E-05 resolved=True tilt=1.63167701961054E-06 penetration=0.000269562 speed=1.2371734714523247E-06 frozen=True otherFailure=False
+ batch=2 drop=31 peak=1.3971362E-05 allowance=4.6426034E-05 resolved=True tilt=6.258486940561881E-07 penetration=0.00026917458 speed=1.2195217676076568E-06 frozen=True otherFailure=False
+ batch=2 drop=32 peak=4.3171276E-05 allowance=2.1602584E-05 resolved=True tilt=1.7881393144714568E-06 penetration=0.00026914477 speed=3.7578463791571352E-06 frozen=True otherFailure=False
+ batch=2 drop=33 peak=6.310677E-05 allowance=5E-05 resolved=True tilt=2.5071201665790815E-06 penetration=0.00026997924 speed=1.533467889196823E-06 frozen=True otherFailure=False
+ batch=2 drop=34 peak=2.548681E-05 allowance=2.6393425E-05 resolved=True tilt=2.4437903784794887E-06 penetration=0.00026908517 speed=9.750165186336471E-07 frozen=True otherFailure=False
+ batch=2 drop=35 peak=6.00734E-05 allowance=5E-05 resolved=True tilt=2.2351739134240907E-06 penetration=0.00027021766 speed=6.457975920564464E-07 frozen=True otherFailure=False
+ batch=2 drop=36 peak=3.2239288E-05 allowance=3.7447142E-05 resolved=True tilt=1.6987321932379524E-06 penetration=0.00026923418 speed=2.0970878831046323E-06 frozen=True otherFailure=False
+ batch=2 drop=37 peak=2.9512461E-05 allowance=2.925843E-05 resolved=True tilt=1.4826653484495798E-06 penetration=0.00026908517 speed=2.4716409468064794E-06 frozen=True otherFailure=False
+ batch=2 drop=38 peak=3.540173E-05 allowance=5E-05 resolved=True tilt=1.2516973351013515E-06 penetration=0.000269562 speed=1.41213185113302E-06 frozen=False otherFailure=False
+ batch=2 drop=39 peak=1.5928263E-05 allowance=3.7177855E-05 resolved=True tilt=1.043081293885997E-06 penetration=0.00026908517 speed=9.117392067479518E-07 frozen=True otherFailure=False
+ batch=2 drop=40 peak=4.4691187E-05 allowance=5E-05 resolved=True tilt=1.5795230592261042E-06 penetration=0.000269562 speed=2.2934571319173343E-06 frozen=True otherFailure=False
+ batch=2 drop=41 peak=2.3365072E-05 allowance=3.0715593E-05 resolved=True tilt=1.8179417598086329E-06 penetration=0.00026896596 speed=1.2612680524434843E-06 frozen=True otherFailure=False
+ batch=2 drop=42 peak=2.213389E-05 allowance=2.7412252E-05 resolved=True tilt=1.6689297063473153E-06 penetration=0.00026926398 speed=1.6273066103193448E-07 frozen=True otherFailure=False
+ batch=2 drop=43 peak=3.4404624E-05 allowance=4.5784604E-05 resolved=True tilt=1.5571713106725547E-06 penetration=0.00026971102 speed=1.978832631522588E-07 frozen=True otherFailure=False
+ batch=2 drop=44 peak=1.6346215E-05 allowance=2.3901257E-05 resolved=True tilt=1.4035028158470676E-06 penetration=0.00026929379 speed=3.397781786334137E-08 frozen=True otherFailure=False
+ batch=2 drop=45 peak=4.1687646E-05 allowance=5E-05 resolved=True tilt=1.4901159821367726E-06 penetration=0.0002695918 speed=1.7303537331442889E-06 frozen=True otherFailure=False
+ batch=2 drop=46 peak=2.2290189E-05 allowance=3.242945E-05 resolved=True tilt=1.8179416542417876E-06 penetration=0.00026902556 speed=9.67676442467152E-07 frozen=True otherFailure=False
+ batch=2 drop=47 peak=4.4962017E-05 allowance=3.0860647E-05 resolved=True tilt=2.2649760998837E-06 penetration=0.00026923418 speed=3.649843866872569E-06 frozen=True otherFailure=False
+ batch=2 drop=48 peak=5.572043E-05 allowance=5E-05 resolved=True tilt=1.8961724084434607E-06 penetration=0.00026994944 speed=9.820712307734088E-07 frozen=True otherFailure=False
+ batch=2 drop=49 peak=5.3018437E-05 allowance=4.8080157E-05 resolved=True tilt=2.32458096403352E-06 penetration=0.00027012825 speed=4.6543553873987034E-07 frozen=True otherFailure=False
+ SUMMARY batch=2 outside=19/50 unresolved=0 otherFailures=0 frozen=47 peak=7.3824921855703E-05 ratio=1.9984310865402222 tilt=2.6822091348698603E-06 speed=4.883249309816919E-06
+
+
+  Passed CuriousContraptions.Tests.OrientationInvestigation.MeasureDrops(batch: 0) [3 s]
+  Standard Output Messages:
+ batch=0 drop=0 peak=4.0639006E-05 allowance=5E-05 resolved=True tilt=1.6093253686912461E-06 penetration=0.0002694428 speed=2.5280347836659867E-06 frozen=True otherFailure=False
+ batch=0 drop=1 peak=3.571596E-05 allowance=3.962712E-05 resolved=True tilt=2.056360365303413E-06 penetration=0.0002693534 speed=2.124372157822666E-06 frozen=True otherFailure=False
+ batch=0 drop=2 peak=4.7099657E-05 allowance=5E-05 resolved=True tilt=1.4901158537765254E-06 penetration=0.00026983023 speed=2.0198073456098586E-06 frozen=False otherFailure=False
+ batch=0 drop=3 peak=2.5379595E-05 allowance=5E-05 resolved=True tilt=1.0244547314434473E-06 penetration=0.0002695024 speed=2.2872873836823726E-07 frozen=True otherFailure=False
+ batch=0 drop=4 peak=3.5363286E-05 allowance=5E-05 resolved=True tilt=1.6242264018079782E-06 penetration=0.0002695024 speed=9.563989961955954E-07 frozen=True otherFailure=False
+ batch=0 drop=5 peak=3.598561E-05 allowance=3.605094E-05 resolved=True tilt=1.5869738243714489E-06 penetration=0.00026929379 speed=2.958897399565131E-06 frozen=True otherFailure=False
+ batch=0 drop=6 peak=6.704516E-05 allowance=5E-05 resolved=True tilt=2.447515368651034E-06 penetration=0.00026988983 speed=3.1175318499223266E-06 frozen=True otherFailure=False
+ batch=0 drop=7 peak=4.7339574E-05 allowance=5E-05 resolved=True tilt=1.6875562857359489E-06 penetration=0.00026974082 speed=1.5759692155477665E-06 frozen=True otherFailure=False
+ batch=0 drop=8 peak=6.680969E-05 allowance=5E-05 resolved=True tilt=2.6524064434549185E-06 penetration=0.00026997924 speed=2.532364911237805E-06 frozen=True otherFailure=False
+ batch=0 drop=9 peak=4.1116E-05 allowance=5E-05 resolved=True tilt=1.4044345123928178E-06 penetration=0.000269413 speed=3.1410225419650445E-06 frozen=False otherFailure=False
+ batch=0 drop=10 peak=2.1585638E-05 allowance=2.557586E-05 resolved=True tilt=1.9669531279172057E-06 penetration=0.00026896596 speed=1.1810799124047174E-06 frozen=True otherFailure=False
+ batch=0 drop=11 peak=2.8512273E-05 allowance=5E-05 resolved=True tilt=1.0132789149720144E-06 penetration=0.000269562 speed=7.117468936176681E-07 frozen=True otherFailure=False
+ batch=0 drop=12 peak=2.2212518E-05 allowance=2.3060886E-05 resolved=True tilt=2.2575256903371265E-06 penetration=0.00026914477 speed=4.5708389844369107E-07 frozen=True otherFailure=False
+ batch=0 drop=13 peak=2.43237E-05 allowance=2.9188977E-05 resolved=True tilt=1.7881392478100841E-06 penetration=0.00026920438 speed=3.0067675581240454E-07 frozen=True otherFailure=False
+ batch=0 drop=14 peak=1.224339E-05 allowance=5E-05 resolved=True tilt=4.6938656125499897E-07 penetration=0.00026911497 speed=3.510144039962779E-07 frozen=True otherFailure=False
+ batch=0 drop=15 peak=7.848613E-06 allowance=3.076247E-05 resolved=True tilt=5.215406256200249E-07 penetration=0.00026884675 speed=1.3197531046714262E-07 frozen=True otherFailure=False
+ batch=0 drop=16 peak=3.995918E-05 allowance=5E-05 resolved=True tilt=1.5199182972853568E-06 penetration=0.0002693832 speed=2.511842775155706E-06 frozen=True otherFailure=False
+ batch=0 drop=17 peak=3.413015E-05 allowance=5E-05 resolved=True tilt=1.4901157838918873E-06 penetration=0.000269562 speed=5.890577141828057E-07 frozen=True otherFailure=False
+ batch=0 drop=18 peak=7.00672E-05 allowance=5E-05 resolved=True tilt=2.6822086888849238E-06 penetration=0.00027024746 speed=1.2175916797419545E-06 frozen=True otherFailure=False
+ batch=0 drop=19 peak=0 allowance=2.2038608E-05 resolved=True tilt=2.9802321145850372E-08 penetration=0.00026878715 speed=1.0842163220912709E-10 frozen=True otherFailure=False
+ batch=0 drop=20 peak=5.4608616E-05 allowance=5E-05 resolved=True tilt=1.9073486275288772E-06 penetration=0.0002696216 speed=3.109680599020012E-06 frozen=True otherFailure=False
+ batch=0 drop=21 peak=4.903702E-05 allowance=4.812511E-05 resolved=True tilt=2.562999400002E-06 penetration=0.0002695918 speed=1.9734165892528694E-06 frozen=True otherFailure=False
+ batch=0 drop=22 peak=1.0183581E-05 allowance=4.9949216E-05 resolved=True tilt=4.17232504928457E-07 penetration=0.00026914477 speed=1.3198164954313494E-07 frozen=True otherFailure=False
+ batch=0 drop=23 peak=3.2298074E-05 allowance=2.7440046E-05 resolved=True tilt=1.765787558141064E-06 penetration=0.00026911497 speed=2.5404495085872677E-06 frozen=True otherFailure=False
+ batch=0 drop=24 peak=1.2549788E-05 allowance=2.7214559E-05 resolved=True tilt=9.387730101692326E-07 penetration=0.00026890635 speed=1.689606826028024E-06 frozen=False otherFailure=False
+ batch=0 drop=25 peak=4.157674E-05 allowance=3.8070735E-05 resolved=True tilt=2.2118907589330353E-06 penetration=0.00026986003 speed=1.7786914937459786E-07 frozen=False otherFailure=False
+ batch=0 drop=26 peak=2.0186296E-06 allowance=3.4699737E-05 resolved=True tilt=8.940694853492023E-08 penetration=0.00026878715 speed=4.272810804460215E-09 frozen=True otherFailure=False
+ batch=0 drop=27 peak=7.6528195E-05 allowance=5E-05 resolved=True tilt=2.6822085237984116E-06 penetration=0.00026986003 speed=3.0702523182428906E-06 frozen=True otherFailure=False
+ batch=0 drop=28 peak=4.5356526E-05 allowance=4.5237462E-05 resolved=True tilt=2.2053715597788997E-06 penetration=0.00026971102 speed=9.901501172979498E-07 frozen=False otherFailure=False
+ batch=0 drop=29 peak=2.7517164E-05 allowance=5E-05 resolved=True tilt=1.0281801043627023E-06 penetration=0.0002693832 speed=1.1467332537527419E-06 frozen=True otherFailure=False
+ batch=0 drop=30 peak=2.6410311E-05 allowance=2.9887824E-05 resolved=True tilt=1.7881390927679057E-06 penetration=0.00026968122 speed=3.471684254832176E-08 frozen=True otherFailure=False
+ batch=0 drop=31 peak=3.5139434E-05 allowance=3.9508603E-05 resolved=True tilt=1.6018745274690622E-06 penetration=0.00026923418 speed=2.9877980295359245E-06 frozen=False otherFailure=False
+ batch=0 drop=32 peak=0 allowance=2.5254887E-05 resolved=True tilt=5.960464097365961E-08 penetration=0.00026872754 speed=1.8448520161739126E-11 frozen=True otherFailure=False
+ batch=0 drop=33 peak=4.493767E-05 allowance=5E-05 resolved=True tilt=1.7285344887882364E-06 penetration=0.00026997924 speed=4.158967971249758E-07 frozen=True otherFailure=False
+ batch=0 drop=34 peak=3.9834416E-05 allowance=5E-05 resolved=True tilt=1.4901162443002753E-06 penetration=0.000269413 speed=2.18795539836219E-06 frozen=True otherFailure=False
+ batch=0 drop=35 peak=5.4252865E-05 allowance=5E-05 resolved=True tilt=2.3245809406795098E-06 penetration=0.00027000904 speed=7.157519883306706E-07 frozen=True otherFailure=False
+ batch=0 drop=36 peak=6.562168E-05 allowance=3.3943772E-05 resolved=True tilt=2.4735923732252E-06 penetration=0.000269413 speed=5.279554558141119E-06 frozen=True otherFailure=False
+ batch=0 drop=37 peak=3.9306382E-05 allowance=5E-05 resolved=True tilt=1.2516975707269763E-06 penetration=0.0002696514 speed=1.595480637414003E-06 frozen=False otherFailure=False
+ batch=0 drop=38 peak=2.7420996E-05 allowance=2.5945088E-05 resolved=True tilt=1.4007089923630934E-06 penetration=0.00026905537 speed=2.2686229941253426E-06 frozen=True otherFailure=False
+ batch=0 drop=39 peak=5.836619E-05 allowance=4.4023473E-05 resolved=True tilt=2.5928018535474406E-06 penetration=0.0002694726 speed=3.785965811727834E-06 frozen=True otherFailure=False
+ batch=0 drop=40 peak=3.755551E-05 allowance=3.8429658E-05 resolved=True tilt=1.8551946182393391E-06 penetration=0.00026926398 speed=2.636302673018137E-06 frozen=True otherFailure=False
+ batch=0 drop=41 peak=2.8190403E-05 allowance=2.9520634E-05 resolved=True tilt=1.9259750986103494E-06 penetration=0.0002696216 speed=5.791484913375012E-08 frozen=True otherFailure=False
+ batch=0 drop=42 peak=4.4432705E-05 allowance=5E-05 resolved=True tilt=1.5869737552801737E-06 penetration=0.00026968122 speed=1.6385337279478529E-06 frozen=True otherFailure=False
+ batch=0 drop=43 peak=1.36517365E-05 allowance=2.4944717E-05 resolved=True tilt=1.044943797320875E-06 penetration=0.00026902556 speed=1.5249005460687872E-06 frozen=True otherFailure=False
+ batch=0 drop=44 peak=4.0344737E-05 allowance=2.4918698E-05 resolved=True tilt=1.6093255127212458E-06 penetration=0.00026923418 speed=3.497191719501236E-06 frozen=True otherFailure=False
+ batch=0 drop=45 peak=2.7817818E-05 allowance=4.115793E-05 resolved=True tilt=1.5497206211339093E-06 penetration=0.00026923418 speed=1.749776983360713E-06 frozen=True otherFailure=False
+ batch=0 drop=46 peak=4.8512033E-05 allowance=5E-05 resolved=True tilt=1.6689297882333558E-06 penetration=0.0002695024 speed=2.878531724272779E-06 frozen=True otherFailure=False
+ batch=0 drop=47 peak=4.0942145E-05 allowance=5E-05 resolved=True tilt=1.6093254194874539E-06 penetration=0.0002695322 speed=2.1198018016298915E-06 frozen=True otherFailure=False
+ batch=0 drop=48 peak=2.3934113E-05 allowance=4.0644947E-05 resolved=True tilt=1.259148147936845E-06 penetration=0.00026920438 speed=2.9025877763844575E-07 frozen=True otherFailure=False
+ batch=0 drop=49 peak=5.3864016E-05 allowance=5E-05 resolved=True tilt=2.026557999504073E-06 penetration=0.00026971102 speed=2.4323988140579675E-06 frozen=True otherFailure=False
+ SUMMARY batch=0 outside=15/50 unresolved=0 otherFailures=0 frozen=43 peak=7.652819476788864E-05 ratio=1.9332464933395386 tilt=2.6822086888849238E-06 speed=5.279554558141119E-06
+
+
+[xUnit.net 00:00:14.35]   Finished:    CuriousContraptions.tests (ID = '27d47b2353507a71bd559fdde8e55842e773e7fa5dccd025fcfbc24550228064')
+  Passed CuriousContraptions.Tests.OrientationInvestigation.MeasureDrops(batch: 3) [3 s]
+  Standard Output Messages:
+ batch=3 drop=0 peak=2.7493792E-05 allowance=4.1039948E-05 resolved=True tilt=1.6093252050318294E-06 penetration=0.00026923418 speed=1.4188676471279544E-06 frozen=True otherFailure=False
+ batch=3 drop=1 peak=5.7873156E-05 allowance=5E-05 resolved=True tilt=2.264976220615324E-06 penetration=0.00026977062 speed=2.076632467449463E-06 frozen=True otherFailure=False
+ batch=3 drop=2 peak=3.3788532E-05 allowance=3.8302158E-05 resolved=True tilt=1.877546022292136E-06 penetration=0.0002694726 speed=3.4710981778791747E-07 frozen=True otherFailure=False
+ batch=3 drop=3 peak=2.4686413E-05 allowance=5E-05 resolved=True tilt=9.685754288764717E-07 penetration=0.0002693832 speed=5.603566231074212E-07 frozen=True otherFailure=False
+ batch=3 drop=4 peak=4.6608882E-05 allowance=5E-05 resolved=True tilt=1.832842827705864E-06 penetration=0.0002695322 speed=2.825217890587563E-06 frozen=True otherFailure=False
+ batch=3 drop=5 peak=4.5132947E-05 allowance=3.5620593E-05 resolved=True tilt=2.689659804978711E-06 penetration=0.00026971102 speed=4.4848419502295266E-07 frozen=True otherFailure=False
+ batch=3 drop=6 peak=5.048773E-05 allowance=5E-05 resolved=True tilt=1.5199183918687553E-06 penetration=0.00026991963 speed=9.217522697556566E-07 frozen=True otherFailure=False
+ batch=3 drop=7 peak=1.7065775E-05 allowance=3.048674E-05 resolved=True tilt=9.536742152433441E-07 penetration=0.00026926398 speed=1.0685206388543053E-07 frozen=False otherFailure=False
+ batch=3 drop=8 peak=5.04378E-05 allowance=3.2344968E-05 resolved=True tilt=2.6226039783062358E-06 penetration=0.0002693534 speed=3.7880746204566838E-06 frozen=False otherFailure=False
+ batch=3 drop=9 peak=6.1840474E-05 allowance=5E-05 resolved=True tilt=2.1457669238509338E-06 penetration=0.00027000904 speed=1.282706392748834E-06 frozen=False otherFailure=False
+ batch=3 drop=10 peak=4.894572E-05 allowance=2.892813E-05 resolved=True tilt=2.4437902608965188E-06 penetration=0.00026923418 speed=4.018281987258274E-06 frozen=True otherFailure=False
+ batch=3 drop=11 peak=1.4224562E-06 allowance=5E-05 resolved=True tilt=5.960464647743283E-08 penetration=0.00026899576 speed=1.2626475784776582E-08 frozen=True otherFailure=False
+ batch=3 drop=12 peak=7.973587E-05 allowance=5E-05 resolved=True tilt=2.712011218684571E-06 penetration=0.00027024746 speed=2.564013136368471E-06 frozen=True otherFailure=False
+ batch=3 drop=13 peak=4.0335497E-05 allowance=5E-05 resolved=True tilt=1.7583367849905766E-06 penetration=0.0002696514 speed=8.948765750122732E-07 frozen=True otherFailure=False
+ batch=3 drop=14 peak=3.414224E-05 allowance=4.295476E-05 resolved=True tilt=1.8775459312491478E-06 penetration=0.0002694726 speed=9.599817244298935E-07 frozen=True otherFailure=False
+ batch=3 drop=15 peak=1.7230877E-05 allowance=2.4650759E-05 resolved=True tilt=1.5124676934563438E-06 penetration=0.00026908517 speed=2.548192322522875E-07 frozen=True otherFailure=False
+ batch=3 drop=16 peak=3.2740532E-05 allowance=2.6755422E-05 resolved=True tilt=2.1606683213455324E-06 penetration=0.00026920438 speed=2.457354619534094E-06 frozen=True otherFailure=False
+ batch=3 drop=17 peak=1.5574335E-05 allowance=2.101977E-05 resolved=True tilt=1.549720615720443E-06 penetration=0.00026914477 speed=8.067578307493634E-08 frozen=True otherFailure=False
+ batch=3 drop=18 peak=6.6454275E-05 allowance=4.843801E-05 resolved=True tilt=2.829357823466576E-06 penetration=0.0002695918 speed=4.103432312246579E-06 frozen=True otherFailure=False
+ batch=3 drop=19 peak=1.8742505E-06 allowance=4.3306092E-05 resolved=True tilt=2.2351741034503782E-08 penetration=0.00026896596 speed=3.418888744838505E-08 frozen=True otherFailure=False
+ batch=3 drop=20 peak=7.5864327E-06 allowance=2.2514998E-05 resolved=True tilt=9.015202729266369E-07 penetration=0.00026878715 speed=4.886179558037686E-07 frozen=True otherFailure=False
+ batch=3 drop=21 peak=2.5957388E-05 allowance=5E-05 resolved=True tilt=9.536741516446698E-07 penetration=0.000269413 speed=5.581539821567942E-07 frozen=True otherFailure=False
+ batch=3 drop=22 peak=4.3059492E-05 allowance=5E-05 resolved=True tilt=1.8880236074766783E-06 penetration=0.0002694726 speed=2.08995294085045E-06 frozen=True otherFailure=False
+ batch=3 drop=23 peak=5.7218385E-05 allowance=5E-05 resolved=True tilt=1.9297002574269714E-06 penetration=0.00026983023 speed=2.1031704287937473E-06 frozen=True otherFailure=False
+ batch=3 drop=24 peak=1.5361404E-05 allowance=5E-05 resolved=True tilt=1.4677642537594857E-06 penetration=0.0002695322 speed=3.378408060703322E-06 frozen=False otherFailure=False
+ batch=3 drop=25 peak=2.5716465E-05 allowance=3.4303594E-05 resolved=True tilt=1.5050172155418835E-06 penetration=0.0002696514 speed=3.058316141711684E-08 frozen=True otherFailure=False
+ batch=3 drop=26 peak=7.846149E-05 allowance=5E-05 resolved=True tilt=2.7120110698187394E-06 penetration=0.00026991963 speed=4.022784038826835E-06 frozen=True otherFailure=False
+ batch=3 drop=27 peak=6.590809E-05 allowance=5E-05 resolved=True tilt=2.056360043776423E-06 penetration=0.00027012825 speed=1.4803017212972044E-06 frozen=True otherFailure=False
+ batch=3 drop=28 peak=6.496497E-05 allowance=5E-05 resolved=True tilt=2.682208610277335E-06 penetration=0.0002696514 speed=4.281580060647452E-06 frozen=True otherFailure=False
+ batch=3 drop=29 peak=2.0626976E-05 allowance=2.3655932E-05 resolved=True tilt=1.758336784963781E-06 penetration=0.0002693534 speed=5.433496862202184E-08 frozen=True otherFailure=False
+ batch=3 drop=30 peak=5.406165E-05 allowance=5E-05 resolved=True tilt=1.6782433172359001E-06 penetration=0.00026980042 speed=1.1235571492789684E-06 frozen=True otherFailure=False
+ batch=3 drop=31 peak=4.9743794E-05 allowance=5E-05 resolved=True tilt=1.7583367044972531E-06 penetration=0.00026974082 speed=1.303178135500987E-06 frozen=True otherFailure=False
+ batch=3 drop=32 peak=5.3138887E-05 allowance=5E-05 resolved=True tilt=1.7881393230408328E-06 penetration=0.00026991963 speed=9.853857139394246E-07 frozen=True otherFailure=False
+ batch=3 drop=33 peak=3.100371E-05 allowance=2.8975654E-05 resolved=True tilt=2.2426243958166283E-06 penetration=0.0002695024 speed=1.8597779911732236E-07 frozen=True otherFailure=False
+ batch=3 drop=34 peak=3.2910436E-06 allowance=3.579345E-05 resolved=True tilt=1.4342365513338047E-07 penetration=0.00026878715 speed=5.020424502740722E-07 frozen=True otherFailure=False
+ batch=3 drop=35 peak=2.8123752E-05 allowance=2.0949636E-05 resolved=True tilt=1.6093254102413862E-06 penetration=0.00026905537 speed=2.415484770891165E-06 frozen=True otherFailure=False
+ batch=3 drop=36 peak=3.2072912E-05 allowance=3.9198825E-05 resolved=True tilt=1.966953385837756E-06 penetration=0.0002693236 speed=1.6737632001623964E-06 frozen=True otherFailure=False
+ batch=3 drop=37 peak=5.429507E-06 allowance=4.7252903E-05 resolved=True tilt=3.2782555862394975E-07 penetration=0.00026899576 speed=2.775835476321144E-07 frozen=True otherFailure=False
+ batch=3 drop=38 peak=3.9574195E-05 allowance=4.421293E-05 resolved=True tilt=2.026557779340401E-06 penetration=0.0002695918 speed=1.1494349315862657E-06 frozen=False otherFailure=False
+ batch=3 drop=39 peak=2.7504095E-05 allowance=5E-05 resolved=True tilt=1.0132788496840352E-06 penetration=0.0002693534 speed=8.630716803849059E-07 frozen=True otherFailure=False
+ batch=3 drop=40 peak=2.5087129E-05 allowance=2.2934499E-05 resolved=True tilt=2.562999473031112E-06 penetration=0.00026914477 speed=5.989076146029909E-07 frozen=True otherFailure=False
+ batch=3 drop=41 peak=2.096498E-05 allowance=3.8539318E-05 resolved=True tilt=1.3113022500741761E-06 penetration=0.00026908517 speed=6.042733447747403E-07 frozen=True otherFailure=False
+ batch=3 drop=42 peak=2.0151996E-05 allowance=3.615293E-05 resolved=True tilt=1.32620313895281E-06 penetration=0.00026908517 speed=5.0711194164177E-07 frozen=True otherFailure=False
+ batch=3 drop=43 peak=2.8491073E-05 allowance=2.6204543E-05 resolved=True tilt=2.205371720541848E-06 penetration=0.00026968122 speed=4.4594378195501276E-08 frozen=True otherFailure=False
+ batch=3 drop=44 peak=3.0793773E-05 allowance=4.68013E-05 resolved=True tilt=1.4891847985756751E-06 penetration=0.00026926398 speed=1.7622348687838982E-06 frozen=True otherFailure=False
+ batch=3 drop=45 peak=1.9765694E-05 allowance=2.0743337E-05 resolved=True tilt=1.987442351888523E-06 penetration=0.00026923418 speed=1.627814220828607E-07 frozen=False otherFailure=False
+ batch=3 drop=46 peak=1.5613561E-05 allowance=3.89129E-05 resolved=True tilt=8.344649647781777E-07 penetration=0.00026902556 speed=8.100668761916482E-07 frozen=True otherFailure=False
+ batch=3 drop=47 peak=6.054891E-05 allowance=5E-05 resolved=True tilt=2.4512406520578956E-06 penetration=0.00026974082 speed=2.624937189758377E-06 frozen=True otherFailure=False
+ batch=3 drop=48 peak=5.156281E-05 allowance=2.1523938E-05 resolved=True tilt=2.175569226846522E-06 penetration=0.00026920438 speed=4.571313893450554E-06 frozen=True otherFailure=False
+ batch=3 drop=49 peak=2.4823343E-05 allowance=3.8135295E-05 resolved=True tilt=1.4733524623000679E-06 penetration=0.00026926398 speed=4.195609737095479E-07 frozen=True otherFailure=False
+ SUMMARY batch=3 outside=21/50 unresolved=0 otherFailures=0 frozen=44 peak=7.973587344167754E-05 ratio=2.3956029415130615 tilt=2.829357823466576E-06 speed=4.571313893450554E-06
+
+
+
+Test Run Successful.
+Total tests: 4
+     Passed: 4
+ Total time: 14.5445 Seconds

@@ -1,0 +1,9 @@
+SDK 10.0.402; runtime 10.0.13; wasm-tools 10.0.112/10.0.100 installed by SDK 10.0.400; Node v26.12.1.
+Command: dotnet build CuriousContraptions.tests/CuriousContraptions.tests.csproj -c Debug --nologo -noAutoResponse -v:q
+Session: 23603
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:19.60

@@ -998,7 +998,12 @@ public sealed class WorkshopPhysicsLawTests
         var ball = scene.Ball(LawBall.Basketball, At(0, BenchY + radius), velocity: At(0, 0, .7f), angular: At(.7f / radius, 0, 0));
         var (states, rest) = Settle(scene, ball);
         Assert.InRange(rest, 0, 5 * 120 - 1);
-        Assert.True(states.Min(b => b.Velocity.Z) >= 0 && Spread(states[^120..]) < .001f);
+        // Match the +X non-reversal contract: 1e-6 m/s is about 16 f32 ULPs at the declared .7 m/s.
+        // Finite arithmetic residuals must not count as physical reversal; resting displacement is separate.
+        var minimum = states.Min(b => b.Velocity.Z);
+        Assert.True(minimum >= -1e-6f, $"the +Z roll reversed: minimum {minimum:R} m/s");
+        var restingSpread = Spread(states[^120..]);
+        Assert.True(restingSpread < .001f, $"the stopped +Z roll moved {restingSpread:R} m");
         // Control: resistance-free, the same roll keeps its speed.
         var control = new LawScene();
         var free = control.Ball(LawBall.Basketball, At(0, BenchY + radius), velocity: At(0, 0, .7f), angular: At(.7f / radius, 0, 0),

@@ -315,6 +315,8 @@ internal sealed class WorkshopPhysicsEngine
             b.Px = px; b.Py = py; b.Pz = pz;
             b.Cmx = px; b.Cmy = py; b.Cmz = pz;
             b.Qx = qx; b.Qy = qy; b.Qz = qz; b.Qw = qw;
+            b.TickStartRotation = b.Rotation;
+            b.TickRelativeRotation = Quaternion.Identity;
             b.Motion = motion;
             b.Collider = null;
 
@@ -742,17 +744,15 @@ internal sealed class WorkshopPhysicsEngine
                 var prevCellX = b.CellX; var prevCellY = b.CellY; var prevCellZ = b.CellZ;
                 var prevLocX = b.LocalX; var prevLocY = b.LocalY; var prevLocZ = b.LocalZ;
                 var prevQ = b.Rotation; var prevV = b.LinearVelocity; var prevW = b.AngularVelocity;
+                var prevRelativeRotation = b.TickRelativeRotation;
 
-                var nq = b.Rotation;
                 var wLen = b.AngularVelocity.Length();
-                if (wLen > 1e-9f)
-                {
-                    var angle = wLen * dt;
-                    var sAngle = MathF.Sin(angle * 0.5f) / wLen;
-                    var cAngle = MathF.Cos(angle * 0.5f);
-                    var dq = new Quaternion(b.Wx * sAngle, b.Wy * sAngle, b.Wz * sAngle, cAngle);
-                    nq = Quaternion.Normalize(Quaternion.Multiply(dq, b.Rotation));
-                }
+                var halfAngle = wLen * dt * 0.5f;
+                // The analytic sin(w dt/2)/w limit also handles underflow in the length calculation.
+                var sAngle = wLen == 0f ? dt * 0.5f : MathF.Sin(halfAngle) / wLen;
+                var dq = new Quaternion(b.Wx * sAngle, b.Wy * sAngle, b.Wz * sAngle, MathF.Cos(halfAngle));
+                b.TickRelativeRotation = Quaternion.Normalize(Quaternion.Multiply(dq, b.TickRelativeRotation));
+                var nq = Quaternion.Normalize(Quaternion.Multiply(b.TickRelativeRotation, b.TickStartRotation));
 
                 var cm = b.CentreOfMass + b.LinearVelocity * dt;
                 var offset = Vector3.Transform(b.ComLocal, nq);
@@ -782,6 +782,7 @@ internal sealed class WorkshopPhysicsEngine
                     b.Py = (b.CellY + b.LocalY) / 16.0f;
                     b.Pz = (b.CellZ + b.LocalZ) / 16.0f;
                     b.Qx = prevQ.X; b.Qy = prevQ.Y; b.Qz = prevQ.Z; b.Qw = prevQ.W;
+                    b.TickRelativeRotation = prevRelativeRotation;
                     b.Vx = b.Vy = b.Vz = b.Wx = b.Wy = b.Wz = 0f;
                 }
                 WorkshopCollisionKernels.UpdateDynamicFrame(b);

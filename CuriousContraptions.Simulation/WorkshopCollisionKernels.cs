@@ -67,6 +67,9 @@ internal sealed class SimBody
 
     public Vector3 Cm0;
     public Quaternion Q0;
+    // Advance-local integration scratch, reset from committed input for every pooled body.
+    public Quaternion TickStartRotation;
+    public Quaternion TickRelativeRotation;
 
     public SimCollider? Collider;
 
