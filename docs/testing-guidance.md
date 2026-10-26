@@ -2,6 +2,10 @@
 
 Binding for every slice (owner, 24 October 2026). AGENTS.md links here. Implementers write tests to this guidance, and independent reviewers fail tests that break it.
 
+## Required local verification
+
+Use the [complete local verification contract](delivery-workflow.md#local-test-authority): provision the declared .NET SDK/WASM workload and exact Node 26.12.1, capture the five matching compiler logs, then run the complete solution with `CSHARP_STATIC_GATE_BINLOGS` and only the generated browser deferral filter. All required game/tool tests pass with zero failures and zero skipped game tests. The full local round and supplemental normal hook checks are both required; scoped hooks do not replace the full suite. Reuse unchanged matching logs and test binaries; relevant source, generated-input, dependency or configuration changes invalidate affected evidence. Missing compiler logs are a failure, never an alternate test mode.
+
 ## What a unit test is for
 
 A unit test proves one behaviour of the game through a **defined interface**, in terms a player, an author or a consuming component would recognise. It fails when that behaviour breaks, and only then. It must not fail when a correct refactor changes internals.
@@ -95,7 +99,7 @@ The JS runtime layer (simulation and animation workers, client, rings) is covere
 **Rules:**
 - Integration tests follow every rule above: derived expectations, envelope tolerances, controls and boundaries, assertions that a plausible defect would fail, deterministic, no hashes, nothing skipped.
 - Each test states the behaviour of the *system*, not of one unit. If a scenario fails, the assertion message names the observable that diverged.
-- They run in the routine native suite and in CI. Keep them fast: bounded tick counts, the smallest construction that shows the interaction, and fixed seeds for sweeps.
+- They run in the required local native suite; GitHub builds and deploys without repeating tests (owner, 26 October 2026). Keep them fast: bounded tick counts, the smallest construction that shows the interaction, and fixed seeds for sweeps.
 - New elements add their integration scenarios in the same slice. A slice that adds or changes an interaction adds or updates the scenario that proves it.
 - Browser E2E tests are a separate, later layer (see AGENTS.md). They are not a substitute for, or a prerequisite of, integration proof.
 

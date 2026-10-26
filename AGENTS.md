@@ -10,8 +10,9 @@ Apply the [focused engineering rules and role prompts](docs/delivery-workflow.md
 
 ## Delivery speed rules (owner, 24 October 2026; these take precedence over conflicting wording below)
 
-- **One loop, one review system.** Every slice runs the `bmad-build-auto` workflow. Its step-04 review layers (Blind Hunter, Edge Case Hunter, Verification Gap, Intent Alignment) are the independent adversarial review. No separate reviewer agent repeats them. After publication, a small verifier runs only the terminal checks (CI on the exact SHA, Pages artifact, deployment).
+- **One loop, one review system.** Every slice runs the `bmad-build-auto` workflow. Its step-04 review layers (Blind Hunter, Edge Case Hunter, Verification Gap, Intent Alignment) are the independent adversarial review. No separate reviewer agent repeats them. After publication, a small verifier runs only the terminal checks (CI production build on the exact SHA, Pages artifact, deployment).
 - **One slice at a time.** Start the next slice from the published main, so a slice merges main at most once. Parallel work is limited to read-only drafting of the next spec.
+- **Local test authority (owner, 26 October 2026; effective immediately, including pending publication).** The full local solution test round is authoritative: zero failures and zero skipped game tests, with only the explicit browser deferral. Supplemental normal hook checks are separately required; their scoped test selection does not replace the full round. Follow the [local verification commands](docs/delivery-workflow.md#local-test-authority), including matching compiler logs. GitHub performs production compilation/publish, artifact checks and deployment, without game/tool test execution or test-only provisioning. Terminal verification records the exact SHA, build run, Pages artifact and deployment; remote test totals are not required. Independent Auto review and compiler warnings-as-errors remain required.
 - **Builds.** Use incremental builds. Run the full solution suite once per round, at the end. Do not run the local Release worker build or web publish; CI owns them.
 - **No mutation testing until the E2E phase (owner, 25 October 2026).** No implementer or reviewer creates, builds or runs mutants or mutated copies of the tree. Reviewers judge whether a test would catch a plausible defect by reading its assertions. Mutation testing returns with the post-catalogue browser/E2E phase.
 - **Light evidence.**
@@ -69,7 +70,7 @@ For required publication, independent SnapshotApproval first verifies every pre-
 
     Every bmad-build-auto review runs the Forward-Only Auditor layer (`_bmad/custom/bmad-build-auto.toml`). Triage grades each confirmed finding `high`, never rejects it as low or out of scope, and a slice cannot reach `done` with one unresolved.
 - **Hard rule — no skipped tests (owner, 24 October 2026).**
-  - Every test of the game system runs and passes in every required run: local verification, hooks and CI. Every reported result has `Skipped: 0`.
+  - Every test of the game system runs and passes in the required full local solution round. Normal hooks additionally run their scoped checks; they do not run or replace the full suite. GitHub builds and deploys; it does not repeat the tests. Every reported result has `Skipped: 0`.
   - The game system's tests are the C# solution's test projects and the node harnesses for game runtime code.
   - **Scope (owner, 24 October 2026):** browser/E2E suites and the vendored BMAD tooling tests are not part of proving the system works. Required runs do not include them, and they are not provisioned or gated.
   - The following are forbidden: `Skip`, `[Fact(Explicit = true)]`, conditional/ignored tests, `.skip`/`.todo`, and test-runner filters or categories that exclude tests from a required run.

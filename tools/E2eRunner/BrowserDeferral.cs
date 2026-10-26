@@ -9,7 +9,7 @@ internal enum DeferredRunner { E2eRunnerTests = 1, NodeTest, ChromeSuites }
 /// <summary>One deferred test: an E2eRunner.Tests method (`Class.Method`), a node test file or a suite glob (repository paths).</summary>
 internal sealed record DeferredTest(DeferredRunner Runner, string Test, string Reason, ReEnableGate Gate, string Owner);
 
-/// <summary>The one list of browser/E2E tests disabled until the post-catalogue browser phase (AGENTS.md browser exception). CI builds
+/// <summary>The one list of browser/E2E tests disabled until the post-catalogue browser phase (AGENTS.md browser exception). Local verification builds
 /// its E2eRunner.Tests filter from this list (`deferred-filter`), and BrowserDeferralTests checks the list, the filter and that every
 /// other test file runs.</summary>
 internal static class BrowserDeferral
@@ -54,6 +54,6 @@ internal static class BrowserDeferral
     ];
 
     /// <summary>The E2eRunner.Tests filter that excludes exactly the deferred E2eRunner.Tests methods.</summary>
-    public static string CiFilter() => string.Join('&', Tests.Where(test => test.Runner == DeferredRunner.E2eRunnerTests)
+    public static string LocalFilter() => string.Join('&', Tests.Where(test => test.Runner == DeferredRunner.E2eRunnerTests)
         .Select(test => $"FullyQualifiedName!=CuriousContraptions.E2eRunner.Tests.{test.Test}"));
 }

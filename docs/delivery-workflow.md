@@ -4,6 +4,43 @@
 
 Current implementation brief: [TODO](../TODO.md). This document is the standing authority; read only affected sections. Detailed requirement descriptions and historical records remain in [requirements](planning/requirements.md); the [invest index](planning/invest-index.md) preserves the roadmap and named elements.
 
+<a id="local-test-authority"></a>
+
+## Local tests are authoritative; GitHub builds and deploys — owner decision, 26 October 2026
+
+Effective immediately, including pending publication, required local game/tool suites and normal hooks provide the test authority. Every required local run passes with zero failures and zero skipped game tests; only the existing explicit browser deferral applies. This supersedes earlier wording requiring remote tests or remote test totals, without changing gameplay requirements, independent Auto review, normal hooks or compiler warnings-as-errors.
+
+GitHub retains production compilation and publish, static artifact checks, main-only Pages artifact upload and deployment. It does not execute game/tool tests or provision dependencies used only by those tests. Terminal verification checks CI production build success on the exact committed SHA, the Pages artifact and the deployment; no remote test totals are required. Preserve original local proof and historical remote receipts, and never report a cancelled run as a Pass. Local Release worker builds and web publish remain prohibited; CI owns production publishing.
+
+
+### Reproducible local verification
+
+Run from the repository root with the .NET 10 SDK selected by `global.json` (the recorded local SDK is 10.0.402; GitHub uses 10.0.401), `wasm-tools`, and Node **26.12.1** installed. For a fresh supported setup, install the production workload set with `dotnet workload install wasm-tools --version 10.0.402.1`. Record `dotnet --version` and `dotnet workload list`; compiler/analyzer provenance is checked from the actual logs against the existing pins. Verify Node exactly with `test "$(node --version)" = v26.12.1`; a mismatch fails provisioning. Do not provision deferred browser tools.
+
+Ordinary development builds stay incremental. The following is a **compiler-proof capture**, requiring every expected Csc invocation, including both solution configurations, the web host and both file-based tools. Its nonincremental compiles populate the five named logs; an incremental no-op log cannot replace that evidence. The web command only compiles Debug host sources; it does not publish a bundle or build the Release worker. Keep logs outside the checkout, on a physical absolute path:
+
+```sh
+set -eu
+dotnet --version
+dotnet workload list
+test "$(node --version)" = v26.12.1
+local_gate_logs=$(cd "$(mktemp -d "${TMPDIR:-/tmp}/tim-local-gate.XXXXXX")" && pwd -P)
+export CSHARP_STATIC_GATE_BINLOGS="$local_gate_logs"
+dotnet restore CuriousContraptions.slnx --nologo --disable-parallel -noAutoResponse
+dotnet build CuriousContraptions.slnx -c Debug --nologo --no-restore --no-incremental -p:PlaytestDiagnostics=true -noAutoResponse "-bl:$local_gate_logs/playtest.binlog"
+dotnet build CuriousContraptions.slnx -c Debug --nologo --no-restore --no-incremental -noAutoResponse "-bl:$local_gate_logs/solution.binlog"
+dotnet restore CuriousContraptions.web/CuriousContraptions.web.csproj --nologo --disable-parallel -noAutoResponse
+dotnet build CuriousContraptions.web/CuriousContraptions.web.csproj -c Debug --nologo --no-restore --no-incremental -p:WasmBuildOnlyAfterPublish=true -p:TwoDogAutoImport=false -noAutoResponse "-bl:$local_gate_logs/web.binlog"
+dotnet build tools/anvil/CheckStagedTests.cs --nologo --no-incremental "-bl:$local_gate_logs/check-staged-tests.binlog"
+dotnet build tools/anvil/VerifyPolicy.cs --nologo --no-incremental "-bl:$local_gate_logs/verify-policy.binlog"
+local_deferred_filter=$(dotnet run --project tools/E2eRunner --no-build -c Debug -- deferred-filter)
+dotnet test CuriousContraptions.slnx -c Debug -f net10.0 --no-build --no-restore --nologo -noAutoResponse --filter "$local_deferred_filter" -- RunConfiguration.TreatNoTestsAsError=true
+```
+
+The solution command runs all five test projects, including the shipped-output Node harnesses, and excludes only named browser methods from the single deferral list. Require zero failures and **Skipped: 0** for every project. Keep the matching logs for subsequent affected checks and the final full round; reuse them while relevant source, generated inputs, dependencies, configuration and compiler environment remain unchanged. When inputs change, recapture only affected named compiler logs (with complete expected Csc runs for each replaced log) and rebuild affected test binaries. Run the full solution suite once per round at the end; scoped local checks may select affected tests but still supply matching logs when running static-gate tests.
+
+Normal commits must also run the unmodified `.githooks/pre-commit` protections against their staged snapshot, including their own five matching compiler-log builds and scoped supplemental tests. Do not bypass hooks. Their test totals are separate from the full local solution round, and neither result substitutes for the other. Record both results plus independent Auto review before publication; GitHub owns production publish and terminal artifact/deployment checks.
+
 <a id="fast-test-cadence"></a>
 
 ## Native C# simulation first; E2E after the complete catalogue — latest owner decision, 21 October 2026

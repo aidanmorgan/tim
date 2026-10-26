@@ -88,7 +88,7 @@ internal static class Program
     {
         if (command.Verb == Verb.DeferredFilter)
         {
-            Console.WriteLine(BrowserDeferral.CiFilter());
+            Console.WriteLine(BrowserDeferral.LocalFilter());
             return 0;
         }
         var root = Processes.Git(Directory.GetCurrentDirectory(), "rev-parse", "--show-toplevel").Trim();

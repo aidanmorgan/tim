@@ -518,7 +518,8 @@ development_status:
   engine-hollow-shapes: done # published eacf561d6833438c9aeaf71c85e52c2626ea33e5; CI 40239119353: 4,212 passed, 0 failed/skipped; deployment 7320169548; browser pending
   engine-single-point-penetration: done # terminal Pass at 3a633495da8868cb2536f81edecadba629da6c2d; CI 40252950208 4276/0/0; artifact 12621889117; deployment 7322234061; receipt in spec-engine-single-point-penetration.md
   engine-two-point-friction: done # terminal Pass 3462ad836dccffc1e1328b1ed99de490b4336786; CI 40297421010 4365/0/0; artifact 12639894754; deployment 7328603563; risks retained in spec
-  game-grade-float-comparisons: in-progress # implementation/local review complete; final native4409/0/0; normal hooks/exact-SHA approval/publication pending, not a global audit
+  game-grade-float-comparisons: in-progress # 133859b4; native4409/0/0, hooks124/0/0, SnapshotApproval; run40311722182 cancelled for owner policy; publication pending via local-test-authority, not a global audit
+  local-test-authority: in-progress # local Auto done; full5326 4411/0/0, final log-backed92/0/0; matching13911/28748; pre-repair94/0/0 and intermediate89/0/0 historical; hooks/commit/exact-SHA approval/publication pending
   engine-remove-core-warmup: backlog # owner 26 Oct; next after float policy; preserve solver warm-starting; deferred-work owns scope
   engine-orientation-levelling: backlog # sub-f32-step levelling (axial drift to 2.2e-5 m/s); keeps the energy gates
   test-workshop-harness-a: backlog

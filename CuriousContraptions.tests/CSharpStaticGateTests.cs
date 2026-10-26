@@ -1,7 +1,6 @@
 using System.Diagnostics;
 using System.Security.Cryptography;
 using System.Text;
-using System.Text.Json;
 using System.Text.RegularExpressions;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -10,7 +9,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 namespace CuriousContraptions.Tests;
 
 /// <summary>
-/// Story 9R.0 guard. The hook and CI build everything with binary logs and set CSHARP_STATIC_GATE_BINLOGS; this test
+/// Story 9R.0 guard. The local hook builds everything with binary logs and sets CSHARP_STATIC_GATE_BINLOGS; this test
 /// then reads what every Csc task actually received (its command line and Sources), so the compiler's real inputs are
 /// checked, whatever a repository file, target or property did on the way: the warning, nullable and analyzer
 /// switches, the analyzers and analyzer configuration, and every expected compile present. It also checks that the
@@ -18,7 +17,7 @@ namespace CuriousContraptions.Tests;
 /// catch and no unpinned catch-all; that every C# file in the repository is compiled; and that no repository file adds
 /// build logic, analyzer configuration, a response file, an MSBuild switch or a diff-hiding attribute outside the pinned
 /// set. Every exemption is pinned below, so changing one fails this test until the pin changes in the same diff.
-/// Without binary logs (an ordinary dotnet test), the compiled sources come from MSBuild evaluation.
+/// Matching binary logs are mandatory for every local static-gate run.
 /// </summary>
 public sealed class CSharpStaticGateTests
 {
@@ -268,12 +267,30 @@ public sealed class CSharpStaticGateTests
         "CuriousContraptions.Animation.Worker/CuriousContraptions.Animation.Worker.csproj",
     ];
 
-    /// <summary>The gate builds' binary logs (the hook and CI set this to the directory their -bl logs are in). When set,
-    /// what Csc actually received is the authority: every compile's switches, analyzers, analyzer configuration and
-    /// sources come from its logged task run. When unset (an ordinary dotnet test), the compiled sources come from MSBuild
-    /// evaluation and the compiler-input facts have no build to check.</summary>
-    private static readonly string? BinlogDirectory =
-        Environment.GetEnvironmentVariable("CSHARP_STATIC_GATE_BINLOGS") is { Length: > 0 } directory ? directory : null;
+    /// <summary>Matching local compiler-proof logs are required; missing evidence must fail visibly.</summary>
+    private static string BinlogDirectory =>
+        RequireBinlogDirectory(Environment.GetEnvironmentVariable("CSHARP_STATIC_GATE_BINLOGS"));
+
+    private static string RequireBinlogDirectory(string? directory) =>
+        directory is { Length: > 0 }
+            ? directory
+            : throw new InvalidOperationException("CSHARP_STATIC_GATE_BINLOGS is required. Capture the five matching compiler-proof logs described in docs/delivery-workflow.md#local-test-authority.");
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    public void MissingCompilerLogConfigurationIsRefused(string? directory)
+    {
+        var error = Assert.Throws<InvalidOperationException>(() => RequireBinlogDirectory(directory));
+        Assert.Contains("CSHARP_STATIC_GATE_BINLOGS is required", error.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void ConfiguredCompilerLogDirectoryIsPreserved()
+    {
+        const string directory = "/compiler-proof/local-candidate";
+        Assert.Equal(directory, RequireBinlogDirectory(directory));
+    }
 
     /// <summary>One Csc task run in a gate build's binary log: the project, the compiler command line (as tokens) and
     /// the Sources items the task received.</summary>
@@ -297,7 +314,7 @@ public sealed class CSharpStaticGateTests
         public string Resolve(string path) => Path.GetFullPath(Path.Combine(ProjectDirectory, path));
     }
 
-    private static readonly Lazy<List<CscRun>> CscRuns = new(() => BinlogDirectory is null ? [] :
+    private static readonly Lazy<List<CscRun>> CscRuns = new(() =>
         Directory.EnumerateFiles(BinlogDirectory, "*.binlog").Order(StringComparer.Ordinal).SelectMany(ReplayCscRuns).ToList());
 
     private static string[] CommandLineTokens(string commandLine)
@@ -351,51 +368,34 @@ public sealed class CSharpStaticGateTests
 
     /// <summary>Each compile's sources (full paths), keyed by repository-relative project. In the gate, the union of the
     /// Sources every logged Csc run of that project received; every expected compile must have run and every run must be
-    /// an expected compile. Otherwise, MSBuild evaluation of each project's Compile items.</summary>
+    /// an expected compile. No evaluated-source alternative is accepted.</summary>
     private static CompileInputs ReadCompileInputs()
     {
         var byProject = new Dictionary<string, HashSet<string>>(StringComparer.Ordinal);
         var problems = new List<string>();
-        if (BinlogDirectory is not null)
+        foreach (var run in CscRuns.Value)
         {
-            foreach (var run in CscRuns.Value)
-            {
-                var project = InRepository(run.Project) ? Relative(run.Project) : run.Project;
-                if (!ExpectedCompiles.Contains(project, StringComparer.Ordinal) && project != VendoredProject)
-                    problems.Add($"{Path.GetFileName(run.Binlog)}: Csc compiled {project}, which is no expected compile");
-                if (!byProject.TryGetValue(project, out var sources)) byProject[project] = sources = new(StringComparer.Ordinal);
-                sources.UnionWith(run.Sources);
-            }
-            foreach (var expected in ExpectedCompiles.Where(expected => !byProject.ContainsKey(expected)))
-                problems.Add($"{expected}: no Csc run in the gate builds' binary logs (every compile must be logged)");
-            // Every gate build's log, each with its own compiles (the PLAYTEST build with its define).
-            foreach (var (log, compiles) in ExpectedLogCompiles)
-            {
-                var runs = CscRuns.Value.Where(run => Path.GetFileName(run.Binlog) == log).ToArray();
-                if (runs.Length == 0) problems.Add($"{log}: missing (every gate build's binary log is required)");
-                foreach (var expected in compiles.Where(expected => !runs.Any(run => Relative(run.Project) == expected)))
-                    problems.Add($"{log}: no Csc run of {expected}");
-            }
-            foreach (var run in CscRuns.Value.Where(run => Path.GetFileName(run.Binlog) == "playtest.binlog" &&
-                         PlaytestProjects.Contains(Relative(run.Project), StringComparer.Ordinal) &&
-                         !run.Values("define").Any(value => value.Split(';').Contains("PLAYTEST", StringComparer.Ordinal))))
-                problems.Add($"playtest.binlog: {Relative(run.Project)} compiled without the PLAYTEST define");
-            return new(byProject, problems);
+            var project = InRepository(run.Project) ? Relative(run.Project) : run.Project;
+            if (!ExpectedCompiles.Contains(project, StringComparer.Ordinal) && project != VendoredProject)
+                problems.Add($"{Path.GetFileName(run.Binlog)}: Csc compiled {project}, which is no expected compile");
+            if (!byProject.TryGetValue(project, out var sources)) byProject[project] = sources = new(StringComparer.Ordinal);
+            sources.UnionWith(run.Sources);
         }
-        foreach (var (project, sources) in Projects.AsParallel().Select(project => (project, EvaluatedCompileItems(project).ToHashSet(StringComparer.Ordinal))).ToArray())
-            byProject[project] = sources;
-        foreach (var app in FileBasedApps) byProject[app + ".csproj"] = [Path.GetFullPath(Path.Combine(Root, app))];
+        foreach (var expected in ExpectedCompiles.Where(expected => !byProject.ContainsKey(expected)))
+            problems.Add($"{expected}: no Csc run in the gate builds' binary logs (every compile must be logged)");
+        // Every gate build's log, each with its own compiles (the PLAYTEST build with its define).
+        foreach (var (log, compiles) in ExpectedLogCompiles)
+        {
+            var runs = CscRuns.Value.Where(run => Path.GetFileName(run.Binlog) == log).ToArray();
+            if (runs.Length == 0) problems.Add($"{log}: missing (every gate build's binary log is required)");
+            foreach (var expected in compiles.Where(expected => !runs.Any(run => Relative(run.Project) == expected)))
+                problems.Add($"{log}: no Csc run of {expected}");
+        }
+        foreach (var run in CscRuns.Value.Where(run => Path.GetFileName(run.Binlog) == "playtest.binlog" &&
+                     PlaytestProjects.Contains(Relative(run.Project), StringComparer.Ordinal) &&
+                     !run.Values("define").Any(value => value.Split(';').Contains("PLAYTEST", StringComparer.Ordinal))))
+            problems.Add($"playtest.binlog: {Relative(run.Project)} compiled without the PLAYTEST define");
         return new(byProject, problems);
-    }
-
-    // MSBuild evaluation of a project's Compile items (no build).
-    private static IEnumerable<string> EvaluatedCompileItems(string project)
-    {
-        var dotnet = Environment.GetEnvironmentVariable("DOTNET_HOST_PATH") is { Length: > 0 } host ? host : "dotnet";
-        var json = Run(dotnet, ["msbuild", Path.Combine(Root, project), "-getItem:Compile", "-nologo", "-noAutoResponse"]);
-        using var document = JsonDocument.Parse(json);
-        foreach (var item in document.RootElement.GetProperty("Items").GetProperty("Compile").EnumerateArray())
-            yield return Path.GetFullPath(item.GetProperty("FullPath").GetString()!);
     }
 
     private static readonly string NuGetRoot = Path.GetFullPath(Environment.GetEnvironmentVariable("NUGET_PACKAGES") is { Length: > 0 } packages
@@ -1235,7 +1235,7 @@ public sealed class CSharpStaticGateTests
     // The hook's protections, each closing a bypass a review proved: the staged index (not the working tree), a
     // physical path outside every checkout, a sequential restore, no response files, from-scratch builds of every
     // configuration including the web host's sources and the file-based apps, each with its binary log, and this guard
-    // reading those logs (failing if it matches no test). CI keeps the same.
+    // reading those logs (failing if it matches no test). CI retains compilation; test execution stays local.
     [Theory]
     [InlineData("git checkout-index --all --prefix=\"$snapshot/\"")]
     [InlineData("git show :.githooks/pre-commit > \"$staged_hook\"")]
@@ -1267,8 +1267,7 @@ public sealed class CSharpStaticGateTests
     [InlineData("CuriousContraptions.web/CuriousContraptions.web.csproj --nologo --no-restore --no-incremental -p:WasmBuildOnlyAfterPublish=true -p:TwoDogAutoImport=false $GATE -bl:$GATE_LOGS/web.binlog")]
     [InlineData("dotnet build tools/anvil/CheckStagedTests.cs --nologo -bl:$GATE_LOGS/check-staged-tests.binlog")]
     [InlineData("dotnet build tools/anvil/VerifyPolicy.cs --nologo -bl:$GATE_LOGS/verify-policy.binlog")]
-    [InlineData("CSHARP_STATIC_GATE_BINLOGS: ${{ runner.temp }}/csharp-gate-binlogs")]
-    // CI backstops a bypassed hook only if it runs on every branch push and every pull request, not only on main.
+    // CI compiles on every branch push and every pull request, not only on main.
     [InlineData("on:\n  push:\n    branches: ['**']\n  pull_request:\n")]
     public void CiKeepsTheSameRestoreAndBuilds(string fragment) =>
         Assert.Contains(fragment, Read(".github/workflows/pages.yml"), StringComparison.Ordinal);

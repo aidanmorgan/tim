@@ -1,6 +1,6 @@
 name: Build and deploy game
-# Every branch push and every pull request runs the build and the C# static gate: CI is the backstop for a commit whose
-# pre-commit hook did not run (for example a hook edited in the working tree but not staged). Only main deploys.
+# Every branch push and every pull request compiles with warnings as errors and publishes the production bundle.
+# Required tests and compiler-input inspection run locally through verification and normal hooks. Only main deploys.
 on:
   push:
     branches: ['**']
@@ -25,8 +25,8 @@ jobs:
       # C# static gate (Story 9R.0): the same builds as .githooks/pre-commit, so a commit that skipped the hook
       # still cannot deploy with a C# warning. Directory.Build.props makes every warning an error.
       # A fresh tree restored in parallel races on shared obj/ files, so each entry point restores once, sequentially.
-      # GATE: no auto-response files. Every build writes a binary log to GATE_LOGS; CSharpStaticGateTests then checks
-      # what each Csc task actually received there against the pins.
+      # GATE: no auto-response files. Every build writes a runner-temporary binary log to GATE_LOGS; these logs are not uploaded.
+      # The local hook runs CSharpStaticGateTests against its own matching build logs.
       - name: C# static gate
         env:
           GATE: -noAutoResponse
@@ -39,27 +39,6 @@ jobs:
           dotnet build CuriousContraptions.web/CuriousContraptions.web.csproj --nologo --no-restore --no-incremental -p:WasmBuildOnlyAfterPublish=true -p:TwoDogAutoImport=false $GATE -bl:$GATE_LOGS/web.binlog
           dotnet build tools/anvil/CheckStagedTests.cs --nologo -bl:$GATE_LOGS/check-staged-tests.binlog
           dotnet build tools/anvil/VerifyPolicy.cs --nologo -bl:$GATE_LOGS/verify-policy.binlog
-      # Reproducible Node for the tests that start it (EventRingProducerTests; NodeHarnessTests runs the game runtime harnesses):
-      # the latest stable release, pinned exactly (owner directive).
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '26.12.1'
-      # Runs CSharpStaticGateTests against the gate builds' binary logs (every compile must be logged and pinned).
-      - name: Test C# game
-        env:
-          CSHARP_STATIC_GATE_BINLOGS: ${{ runner.temp }}/csharp-gate-binlogs
-        run: dotnet test CuriousContraptions.tests --nologo --no-build --no-restore -c Debug -f net10.0 -noAutoResponse
-      # The solution's tool test projects, from the same Debug solution build. E2eRunner.Tests runs every test except the
-      # browser/E2E toolchain tests on the one deferral list, tools/E2eRunner/BrowserDeferral.cs (each with its reason, the
-      # post-catalogue browser phase re-enable gate and owner). The filter is generated from that list, never written here;
-      # BrowserDeferralTests checks this step against the list.
-      - name: Test C# tools
-        run: |
-          dotnet test tools/Coverage.Tests --nologo --no-build --no-restore -c Debug -f net10.0 -noAutoResponse
-          dotnet test tools/BundleElements.Tests --nologo --no-build --no-restore -c Debug -f net10.0 -noAutoResponse
-          dotnet test tools/WorkerAotGuard.Tests --nologo --no-build --no-restore -c Debug -f net10.0 -noAutoResponse
-          deferred=$(dotnet run --project tools/E2eRunner --no-build -c Debug -- deferred-filter)
-          dotnet test tools/E2eRunner.Tests --nologo --no-build --no-restore -c Debug -f net10.0 -noAutoResponse --filter "$deferred"
       - name: Publish production browser bundle
         run: dotnet publish CuriousContraptions.web -c Release --nologo -p:PlaytestDiagnostics=false
       - name: Check static deployment

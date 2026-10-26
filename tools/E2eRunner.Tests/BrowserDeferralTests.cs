@@ -4,14 +4,11 @@ using Xunit;
 namespace CuriousContraptions.E2eRunner.Tests;
 
 /// <summary>AGENTS.md browser exception: <see cref="BrowserDeferral"/> is the one place a test is disabled. Each entry is complete
-/// and names real tests, CI's only test filter is generated from the list and excludes exactly its E2eRunner.Tests methods, and every
+/// and names real tests, the local test filter is generated from the list and excludes exactly its E2eRunner.Tests methods, and every
 /// other test file of the game system runs in a required run.</summary>
 public sealed class BrowserDeferralTests
 {
-    private const string Workflow = ".github/workflows/pages.yml";
     private const string Generator = "dotnet run --project tools/E2eRunner --no-build -c Debug -- deferred-filter";
-    private const string FilteredRun =
-        "dotnet test tools/E2eRunner.Tests --nologo --no-build --no-restore -c Debug -f net10.0 -noAutoResponse --filter \"$deferred\"";
 
     private static IEnumerable<DeferredTest> RunnerTests => BrowserDeferral.Tests.Where(test => test.Runner == DeferredRunner.E2eRunnerTests);
 
@@ -52,19 +49,14 @@ public sealed class BrowserDeferralTests
     }
 
     [Fact]
-    public void CiFilterIsGeneratedFromTheListAndExcludesExactlyItsMethods()
+    public void LocalFilterIsGeneratedFromTheListAndExcludesExactlyItsMethods()
     {
-        var workflow = TestRepository.Read(Workflow);
-        Assert.Contains($"deferred=$({Generator})\n", workflow, StringComparison.Ordinal);
-        Assert.Contains(FilteredRun + "\n", workflow, StringComparison.Ordinal);
-        Assert.Equal(2, workflow.Split("--filter").Length); // the workflow's one filter is the generated one
-        Assert.DoesNotContain("FullyQualifiedName", workflow, StringComparison.Ordinal);
         Assert.Equal(RunnerTests.Select(test => $"FullyQualifiedName!=CuriousContraptions.E2eRunner.Tests.{test.Test}"),
-            BrowserDeferral.CiFilter().Split('&'));
-        // The workflow's generator, run as CI runs it, prints exactly that filter.
+            BrowserDeferral.LocalFilter().Split('&'));
+        // The real local CLI prints exactly the independently enumerated exclusions.
         var run = Processes.Run("bash", ["-c", Generator], TestRepository.Root);
         Assert.True(run.ExitCode == 0, $"{Generator} exited {run.ExitCode}: {run.Output}{run.Error}");
-        Assert.Equal(BrowserDeferral.CiFilter() + "\n", run.Output);
+        Assert.Equal(BrowserDeferral.LocalFilter() + "\n", run.Output);
     }
 
     /// <summary>The owner's scope rule (AGENTS.md, 24 October 2026): the system proof is the C# solution's test projects and the node

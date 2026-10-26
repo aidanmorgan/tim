@@ -22,7 +22,7 @@ binlogs=$(cd "$(mktemp -d "${TMPDIR:-/tmp}/csharp-gate-logs.XXXXXX")" && pwd -P)
 trap 'rm -rf "$snapshot" "$binlogs"' EXIT
 git checkout-index --all --prefix="$snapshot/"
 # No committed file may sit in a build output directory: the snapshot's file walk skips them, and the guard exempts
-# the SDK's generated sources there (CSharpStaticGateTests refuses them in a git checkout, as CI runs it).
+# the SDK's generated sources there (CSharpStaticGateTests refuses them in a local git checkout).
 if git ls-files --cached | grep -E '(^|/)(bin|obj|\.godot)/'; then
     echo "pre-commit: committed files in a bin/, obj/ or .godot/ directory (listed above) are not allowed" >&2
     exit 1
