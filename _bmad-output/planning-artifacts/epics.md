@@ -89,7 +89,7 @@ Each item is one bounded native slice with its current source paths, deletion sc
 
 | Slice / sprint key | Paths and deletion | Native acceptance and dependencies |
 |---|---|---|
-|`engine-cap-block` (blocked: HALT 25 Oct; retry after `engine-two-point-friction`)|`CuriousContraptions.Simulation/WorkshopConstraintSolver.cs` normal block and restitution block; delete both per-row recovery paths.|[Story engine-cap-block](#story-engine-cap-block).|
+|`engine-cap-block` (blocked: HALT 25 Oct; retry after `engine-two-point-friction` and `engine-single-point-penetration`)|`CuriousContraptions.Simulation/WorkshopConstraintSolver.cs` normal block and restitution block; delete both per-row recovery paths.|[Story engine-cap-block](#story-engine-cap-block).|
 |`elements-visible-solid`|The listed element packages' collider declarations and a collider-vs-art test per element; delete each collider approximation that differs from the art.|[Story elements-visible-solid](#story-elements-visible-solid).|
 |`engine-hollow-shapes`|Shared shape-pair table, compiler, the Pipe, PipeBend45, PipeBend90 and Funnel packages, and the BallDetector collar and PoweredGate collars and sleeve; delete their box approximations.|[Story engine-hollow-shapes](#story-engine-hollow-shapes).|
 |`engine-two-point-friction`|Manifold friction rows in the constraint solver; delete the order-dependent per-point friction sequence.|[Story engine-two-point-friction](#story-engine-two-point-friction).|
@@ -116,7 +116,7 @@ Each item is one bounded native slice with its current source paths, deletion sc
 
 <a id="story-engine-cap-block"></a>
 ### Story engine-cap-block: Well-posed contact block for coplanar manifolds
-*Sprint key: `engine-cap-block`. Status: **blocked** (HALT 25 Oct 2026 after three bounded designs; spec [`spec-engine-cap-block.md`](../implementation-artifacts/spec-engine-cap-block.md), patch [`engine-cap-block-attempt.patch`](../implementation-artifacts/engine-cap-block-attempt.patch); resting faces drift because face load distribution moves the per-point friction limits, and box-on-box contacts gain energy). Retry after `engine-two-point-friction` lands a central friction anchor. Depends on the published axial-creep slice (d87b6a1e). Diagnosis: draft spec (c).*
+*Sprint key: `engine-cap-block`. Status: **blocked** (HALT 25 Oct 2026 after three bounded designs; spec [`spec-engine-cap-block.md`](../implementation-artifacts/spec-engine-cap-block.md), patch [`engine-cap-block-attempt.patch`](../implementation-artifacts/engine-cap-block-attempt.patch); resting faces drift because face load distribution moves the per-point friction limits, and box-on-box contacts gain energy). Retry after `engine-two-point-friction` lands a central friction anchor and `engine-single-point-penetration` passes the deep-rim energy gate. Depends on the published axial-creep slice (d87b6a1e). Diagnosis: draft spec (c).*
 
 *Deletes:* both per-row recovery paths in `SolveNormalBlock` and `ApplyRestitution`, and the diagonal block regularisation unless the enumeration's documented derivation still needs it.
 
@@ -163,7 +163,7 @@ Each item is one bounded native slice with its current source paths, deletion sc
 
 <a id="story-engine-single-point-penetration"></a>
 ### Story engine-single-point-penetration: Bound deep contact recovery
-*Sprint key: `engine-single-point-penetration`. Status: implementation review Pass, final native 4,276 passed/0 failed/0 skipped; exact-SHA publication pending. Prerequisite to final integration of retained friction and cap-block retry. [Bounded spec and evidence](../implementation-artifacts/spec-engine-single-point-penetration.md).*
+*Sprint key: `engine-single-point-penetration`. Status: terminal Pass at 3a633495da8868cb2536f81edecadba629da6c2d; CI 40252950208 passed 4,276/0/0, artifact 12621889117, deployment 7322234061. Prerequisite integrated once into retained friction. [Bounded spec and terminal receipt](../implementation-artifacts/spec-engine-single-point-penetration.md).*
 
 *Deletes:* the arbitrary 3 m/s push-out cap; replaces it with one generic rate derived from contact slop over the longest committed interval (0.012 m/s).
 
@@ -171,7 +171,7 @@ Each item is one bounded native slice with its current source paths, deletion sc
 
 <a id="story-engine-two-point-friction"></a>
 ### Story engine-two-point-friction: Simultaneous two-point friction
-*Sprint key: `engine-two-point-friction`. Status: retained candidate blocked by deep single-point recovery; resume after `engine-single-point-penetration` and unchanged integration/native gates. Diagnosis: draft spec (b), candidate design B and the retained friction spec.*
+*Sprint key: `engine-two-point-friction`. Status: source implementation and independent review complete; final native4,365/0/0 and matching solution build0warnings/errors. Normal-hook local commit authorized; exact-SHA approval, push and terminal publication remain pending. One prerequisite integration at3a633495da8868cb2536f81edecadba629da6c2d. [Current contract, review, historical failures and two unverified numerical risks](../implementation-artifacts/spec-engine-two-point-friction.md). Original gameplay bounds, full3D heading32u and semantic saved replay remain.*
 
 *Deletes:* the order-dependent sequential per-point friction solve on multi-point manifolds.
 

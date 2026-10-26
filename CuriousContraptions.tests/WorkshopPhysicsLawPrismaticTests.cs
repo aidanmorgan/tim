@@ -109,7 +109,7 @@ public sealed class WorkshopPhysicsLawPrismaticTests
         var q = Quaternion.CreateFromAxisAngle(Vector3.UnitY, angle);
         var body = new SimBody
         {
-            BodySlot = slot, Motion = 1, Px = position.X, Py = position.Y, Pz = position.Z, Qx = q.X, Qy = q.Y, Qz = q.Z, Qw = q.W,
+            BodySlot = slot, Motion = RigidMotionKind.Dynamic, Px = position.X, Py = position.Y, Pz = position.Z, Qx = q.X, Qy = q.Y, Qz = q.Z, Qw = q.W,
             Principal = Quaternion.Identity, ComLocal = new(.1f, 0, -.2f), InvMass = 1 / mass, Mass = mass,
             InvI = new(1 / moments.X, 1 / moments.Y, 1 / moments.Z), Vx = .3f, Vy = -.2f, Vz = .1f, Wx = angular.X, Wy = angular.Y, Wz = angular.Z,
         };
@@ -224,7 +224,7 @@ public sealed class WorkshopPhysicsLawPrismaticTests
     {
         var body = new SimBody
         {
-            BodySlot = slot, Motion = 1, Px = seed * .1f, Py = 4 + seed * .03f, Pz = -seed * .02f,
+            BodySlot = slot, Motion = RigidMotionKind.Dynamic, Px = seed * .1f, Py = 4 + seed * .03f, Pz = -seed * .02f,
             Qy = MathF.Sin(seed * .03f), Qw = MathF.Cos(seed * .03f), Principal = Quaternion.Identity,
             InvMass = 1 / (1 + seed * .125f), InvI = new(1 + seed * .1f, .5f + seed * .05f, .8f + seed * .025f),
             Vx = seed * .07f, Vy = -seed * .03f, Vz = seed * .02f, Wx = seed * .01f, Wy = -seed * .015f, Wz = seed * .02f,

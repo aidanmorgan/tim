@@ -62,7 +62,7 @@ Implementation handoff for this already-running Auto workflow: implement only in
 2. [x] Add defined-interface deep/shallow, centered/oblique, zero/nonzero friction, static/dynamic support, cadence and recovery/energy/lifecycle tests. Derive expected progress/settle intervals and tolerances before observing output. Keep single-contact envelope distinct from multi-body qualification limits.
 3. [x] Run matching affected checks; return exact runtime delta for coordinator-owned integration into the retained friction candidate and test exact case 179, drop/reversal and affected contacts. Integration evidence is required before unblocking claim.
 4. [x] Update numeric/current tracking docs with derivation, limits, exact results and pending browser scope. Keep hash replacements independently owned.
-5. [ ] Freeze; coordinator runs full required native round once, Auto review/fixes, hooks, committed-SHA approval and CI/artifact/deployment. Full friction review/publication remains its own resumed outcome.
+5. [x] Freeze; coordinator runs full required native round once, Auto review/fixes, hooks, committed-SHA approval and CI/artifact/deployment. Full friction review/publication remains its own resumed outcome.
 
 **Acceptance Criteria:**
 - P1: Given admitted deep contacts, when real simulation advances bounded ticks, then recovery progresses and reaches unchanged 0.5 mm resting penetration without launch/stall, while committed energy respects the existing applicable envelope. Include positive/control/boundary geometry and zero/nonzero friction.
@@ -304,3 +304,15 @@ Final matching incremental Debug solution build (session74852): **0 warnings/err
 No local Release worker build/web publish, browser qualification or mutation testing was performed. Ordinary native correctness is scoped to the verified closure; this does not claim universal island energy, gross-overlap admission, performance/device or browser qualification. Friction's full review/publication and cap-block retry remain distinct outcomes.
 
 Remaining finalization: normal commit protections and review Pass bound to the committed SHA. Publication-only checks: exact-SHA CI including production build/publish, Pages artifact/deployment identities and deployed static artifact comparison. A short terminal receipt follows those checks; native Pass alone does not establish publication.
+
+## Terminal publication receipt — 26 October 2026
+
+**Terminal scoped Pass** for commit `3a633495da8868cb2536f81edecadba629da6c2d`. The coordinator verified all six committed runtime/test/project diff entries exactly match the independently reviewed candidate, including the final affected-fix Pass. Normal hooks passed: normal/playtest/web builds with zero warnings/errors (24.12/17.02/8.81s), Anvil checks and124 guard/UI tests with zero failures/skips (session68320).
+
+Independent terminal verifier `/root/penetration_terminal_verifier` verified [CI 40252950208](https://github.com/aidanmorgan/tim/actions/runs/40252950208): **4,276 passed, 0 failed, 0 skipped**, including game3,784 (18m52s) and tools492 (77 Coverage,206 BundleElements,17 WorkerAotGuard,192 E2eRunner with required runtime node harnesses). Production build/publish succeeded.
+
+Pages artifact **12621889117** (`github-pages`,80,772,629 bytes) matches that run and SHA. Deployment **7322234061** succeeded at **2026-10-26T01:44:12Z** for the same SHA. Production `/`, `index.html`, `404.html`, `godot.wasm`, `godot.pck` and `_framework/dotnet.js` all returned HTTP200 and matched artifact bytes in memory. No browser qualification is claimed.
+
+The immutable P3 input patch remains bound to this commit and its original `8ac611ffe81a74af7d36328bf69cc6403065b6d9` baseline. Friction's integrated4337-test pass and subsequent review repairs remain its own outcome; this receipt completes the recovery prerequisite, not friction or cap-block. Browser/device/performance qualification remains pending at the named gates.
+
+This short receipt is carried by the following friction publication, avoiding a separate receipt-only deployment. No reviewed recovery source changed.

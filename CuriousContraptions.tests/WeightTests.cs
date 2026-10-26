@@ -328,29 +328,44 @@ public sealed class WeightTests
     private static readonly Vector3 RampCentre = new(0, (float)(BenchY + 1.5 * Math.Sin(RampDegrees * Math.PI / 180) -
         .09 * Math.Cos(RampDegrees * Math.PI / 180)), 0);
     /// <summary>The default Ramp tilted so its +X end runs down to the bench.</summary>
-    private static WorkshopGenericInstance Ramp(ulong id)
+    private static WorkshopGenericInstance Ramp(ulong id, float lift = 0f)
     {
         var half = -RampDegrees * Math.PI / 360;
-        return WorkshopInput.Generic(PartId.Ramp, new(id), RampCentre.X, RampCentre.Y, RampCentre.Z, 0, 0, Math.Sin(half), Math.Cos(half));
+        return WorkshopInput.Generic(PartId.Ramp, new(id), RampCentre.X, RampCentre.Y + lift, RampCentre.Z, 0, 0, Math.Sin(half), Math.Cos(half));
     }
 
     /// <summary>A Weight lying on its side (axis along world Z, centred at z = 0) on the Ramp's top face, `along` metres from its
     /// centre (positive downhill), clear of the face by 3 mm.</summary>
-    private static WorkshopGenericInstance OnItsSideOnTheRamp(ulong id, float mass, float along)
+    private static WorkshopGenericInstance OnItsSideOnTheRamp(ulong id, float mass, float along, float lift = 0f,
+        CylinderAxisDirection direction = CylinderAxisDirection.Authored)
     {
         var a = (float)(-RampDegrees * Math.PI / 180);
         var normal = new Vector3(-MathF.Sin(a), MathF.Cos(a), 0);
         var downhill = new Vector3(MathF.Cos(a), MathF.Sin(a), 0);
-        var centre = RampCentre + .09f * normal + along * downhill + (Radius(mass) + .003f) * normal;
+        var centre = RampCentre + new Vector3(0, lift, 0) + .09f * normal + along * downhill + (Radius(mass) + .003f) * normal;
+        if (direction != CylinderAxisDirection.Authored)
+        {
+            var sign = direction == CylinderAxisDirection.Positive ? 1f : -1f;
+            var directedOrigin = centre - new Vector3(0, 0, sign * HalfHeight(mass));
+            return Placed(id, directedOrigin.X, directedOrigin.Y, directedOrigin.Z, mass, .5, sign * .5, .5, sign * .5);
+        }
         var origin = centre - new Vector3(0, 0, HalfHeight(mass));
         return Placed(id, origin.X, origin.Y, origin.Z, mass, Math.Sin(Math.PI / 4), 0, 0, Math.Cos(Math.PI / 4));
     }
 
-    [Fact]
-    public async Task OnItsSideItRollsDownARampWithoutSlippingAndComesToRestOnTheBenchWithoutAxialCreep()
+    public enum CylinderAxisDirection { Authored, Positive, Negative }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    [InlineData(true, CylinderAxisDirection.Positive)]
+    [InlineData(true, CylinderAxisDirection.Negative)]
+    public async Task OnItsSideItRollsDownARampWithoutSlippingAndComesToRestOnTheBenchWithoutAxialCreep(bool drop, CylinderAxisDirection direction = CylinderAxisDirection.Authored)
     {
-        var weight = OnItsSideOnTheRamp(1, 4f, .5f);
-        var (_, reads, _) = await RunAndReset(Bench(Ramp(2), weight), 14 * Rate);
+        // Moving from the top lower edge to the bottom lower corner raises the slab by its vertical thickness.
+        var lift = drop ? .18f * MathF.Cos((float)(RampDegrees * Math.PI / 180)) : 0f;
+        var weight = OnItsSideOnTheRamp(1, 4f, .5f, lift, direction);
+        var (_, reads, _) = await RunAndReset(Bench(Ramp(2, lift), weight), 14 * Rate);
         var r = Radius(4);
         // On the ramp, rolling: ω = v / r within 2% (no slip needs μ ≥ tanθ/3 = 0.09; the material is 0.3).
         foreach (var tick in new[] { Rate / 2, 3 * Rate / 4 })
@@ -367,11 +382,64 @@ public sealed class WeightTests
         // No axial creep: the centre never moves 0.5 mm along the cylinder's axis (world Z) while rolling or at rest, and once stopped it
         // stays put: within 0.05 mm (a tenth of the 0.5 mm resting envelope, restitution D10) from the tick it is at rest (below 1 mm/s,
         // which leaves under 3 µm of Crr deceleration) to the end.
-        Assert.All(reads, read => Assert.InRange(Centre(Find(read, weight.Id)).Z, -.0005f, .0005f));
+        var axialMaximum = reads.Max(read => MathF.Abs(Centre(Find(read, weight.Id)).Z));
+        Assert.True(axialMaximum <= .0005f, $"axial max {axialMaximum}; " +
+            string.Join("; ", Enumerable.Range(6, 12).Select(i => i * 20).Append(1680).Select(t =>
+            {
+                var observed = Find(reads[t], weight.Id);
+                return $"tick {t}: centre {Centre(observed)}, v {Velocity(observed)}, w {Spin(observed)}";
+            })));
         var stopped = reads.FindIndex(2 * Rate, read => Velocity(Find(read, weight.Id)).Length() < .001f);
         Assert.True(stopped > 0 && stopped < reads.Count - 2 * Rate, $"stopped at tick {stopped}");
         var creep = Vector3.Distance(Centre(final), Centre(Find(reads[stopped], weight.Id)));
         Assert.True(creep <= .00005f, $"moved {creep * 1000} mm after stopping");
+    }
+
+    [Fact]
+    public async Task ReversingTheGeneratorAxisAndSavingTheDropPreserveTheHeadingAndTrajectory()
+    {
+        var lift = .18f * MathF.Cos((float)(RampDegrees * Math.PI / 180));
+        var forward = OnItsSideOnTheRamp(1, 4f, .5f, lift, CylinderAxisDirection.Positive);
+        var reverse = OnItsSideOnTheRamp(1, 4f, .5f, lift, CylinderAxisDirection.Negative);
+        var construction = Bench(Ramp(2, lift), forward);
+        var decoded = WorkshopSaveCodec.Decode(SaveFixture.Elements,
+            WorkshopSaveCodec.Encode(new WorkshopSavedConstruction(construction, new(4)))).Construction;
+        Assert.Equal(construction, decoded);
+        var (_, first, _) = await RunAndReset(construction, 14 * Rate);
+        var (_, reversed, _) = await RunAndReset(Bench(reverse, Ramp(2, lift)), 14 * Rate);
+        var (_, saved, _) = await RunAndReset(decoded, 14 * Rate);
+        // This is a representation-resolution acceptance threshold for the
+        // complete heading histories, not a bound on propagated solver roundoff.
+        // For |q_i|<=M=1.0001 and component uncertainty <=u=2^-24, each component
+        // of the polynomial quaternion transform of UnitY (written below) has
+        // uncertainty <=8M*u+4u². Two reads therefore
+        // differ by <27.72u in norm; 32u includes double evaluation roundoff.
+        const double u = 1.0 / 16777216;
+        (double X, double Y, double Z) Axis(PhysicsBodyRead body)
+        {
+            var q = body.Rotation;
+            foreach (var component in new[] { q.X, q.Y, q.Z, q.W })
+                Assert.InRange(Math.Abs(component), 0, 1.0001);
+            double x = q.X, y = q.Y, z = q.Z, w = q.W;
+            return (2 * (x * y - w * z), 1 - 2 * (x * x + z * z), 2 * (y * z + w * x));
+        }
+        static double Length((double X, double Y, double Z) value) =>
+            Math.Sqrt(value.X * value.X + value.Y * value.Y + value.Z * value.Z);
+        double maxAxisError = 0, endAxisError = 0;
+        var maxAxisTick = 0;
+        for (var tick = 0; tick < first.Count; tick++)
+        {
+            var a = Find(first[tick], forward.Id);
+            var b = Find(reversed[tick], reverse.Id);
+            Assert.Equal(a.LocalCentreOfMass, b.LocalCentreOfMass);
+            var headingA = Axis(a); var headingB = Axis(b);
+            var axisError = Length((headingA.X + headingB.X, headingA.Y + headingB.Y, headingA.Z + headingB.Z));
+            if (axisError > maxAxisError) { maxAxisError = axisError; maxAxisTick = tick; }
+            endAxisError = axisError;
+            Assert.Equal(a, Find(saved[tick], forward.Id));
+        }
+        var diagnostics = $"reversal max full-axis error {maxAxisError} at tick {maxAxisTick}, end {endAxisError} (limit {32 * u})";
+        Assert.True(maxAxisError <= 32 * u, diagnostics);
     }
 
     [Theory]

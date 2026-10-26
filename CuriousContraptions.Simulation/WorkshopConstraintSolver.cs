@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using CuriousContraptions.Gpu;
 
 namespace CuriousContraptions.Simulation;
 
@@ -81,14 +82,14 @@ internal static class WorkshopConstraintSolver
     {
         var A = c.A;
         var B = c.B;
-        var k = (A.Motion == 1 ? A.InvMass : 0f) + (B.Motion == 1 ? B.InvMass : 0f);
-        if (A.Motion == 1)
+        var k = (A.Motion == RigidMotionKind.Dynamic ? A.InvMass : 0f) + (B.Motion == RigidMotionKind.Dynamic ? B.InvMass : 0f);
+        if (A.Motion == RigidMotionKind.Dynamic)
         {
             var r = Vector3.Cross(new Vector3(c.RAx, c.RAy, c.RAz), d);
             var w = WorkshopCollisionKernels.ApplyInvInertia(A, r);
             k += Vector3.Dot(r, w);
         }
-        if (B.Motion == 1)
+        if (B.Motion == RigidMotionKind.Dynamic)
         {
             var r = Vector3.Cross(new Vector3(c.RBx, c.RBy, c.RBz), d);
             var w = WorkshopCollisionKernels.ApplyInvInertia(B, r);
@@ -97,7 +98,7 @@ internal static class WorkshopConstraintSolver
         return k > 0f ? 1f / k : 0f;
     }
 
-    public static void PrepareContact(ContactPoint c, Dictionary<ulong, (float LambdaN, float LambdaT1, float LambdaT2)> cache)
+    public static void PrepareContact(ContactPoint c, Dictionary<ulong, float> cache)
     {
         var A = c.A;
         var B = c.B;
@@ -116,8 +117,6 @@ internal static class WorkshopConstraintSolver
         c.T2 = Vector3.Cross(n, c.T1);
 
         c.NormalMass = EffectiveMass(c, n);
-        c.TangentMass1 = EffectiveMass(c, c.T1);
-        c.TangentMass2 = EffectiveMass(c, c.T2);
 
         // The approach before this substep's external velocity changes (guides, supplied drives, gravity, drag).
         var vA = StartVelocity(A, new Vector3(c.RAx, c.RAy, c.RAz));
@@ -132,28 +131,17 @@ internal static class WorkshopConstraintSolver
         var hi = Math.Max(c.ColA.Index, c.ColB.Index);
         c.Key = ((ulong)(uint)lo << 40) | ((ulong)(uint)hi << 20) | (ulong)(uint)c.Feature;
 
-        if (cache.TryGetValue(c.Key, out var warm))
-        {
-            c.LambdaN = warm.LambdaN;
-            c.LambdaT1 = warm.LambdaT1;
-            c.LambdaT2 = warm.LambdaT2;
-        }
-        else
-        {
-            c.LambdaN = 0f;
-            c.LambdaT1 = 0f;
-            c.LambdaT2 = 0f;
-        }
+        c.LambdaN = cache.TryGetValue(c.Key, out var warm) ? warm : 0f;
 
         c.MaxImpulse = 0f;
     }
 
-    private static Vector3 StartVelocity(SimBody b, Vector3 r) => b.Motion == 1 ? b.V0 + Vector3.Cross(b.W0, r) : Vector3.Zero;
+    private static Vector3 StartVelocity(SimBody b, Vector3 r) => b.Motion == RigidMotionKind.Dynamic ? b.V0 + Vector3.Cross(b.W0, r) : Vector3.Zero;
 
     public static void WarmStartContact(ContactPoint c)
     {
         var n = new Vector3(c.Nx, c.Ny, c.Nz);
-        var p = c.LambdaN * n + c.LambdaT1 * c.T1 + c.LambdaT2 * c.T2;
+        var p = c.LambdaN * n;
         WorkshopCollisionKernels.ApplyImpulse(c.A, p, new Vector3(c.RAx, c.RAy, c.RAz));
         WorkshopCollisionKernels.ApplyImpulse(c.B, -p, new Vector3(c.RBx, c.RBy, c.RBz));
     }
@@ -167,7 +155,7 @@ internal static class WorkshopConstraintSolver
 
     public static Vector3 AnchorDisplacement(SimBody b, Vector3 r)
     {
-        if (b.Motion != 1) return Vector3.Zero;
+        if (b.Motion != RigidMotionKind.Dynamic) return Vector3.Zero;
         var bq = new Quaternion(b.Qx, b.Qy, b.Qz, b.Qw);
         var dq = Quaternion.Multiply(bq, Quaternion.Conjugate(b.Q0));
         var rRot = Vector3.Transform(r, dq);
@@ -184,7 +172,7 @@ internal static class WorkshopConstraintSolver
     {
         if (collider.Shape == ShapeKind.Sphere)
             return AnchorDisplacement(b, new Vector3(collider.Px, collider.Py, collider.Pz) - b.Cm0);
-        if (support == ContactSupport.Axis && b.Motion == 1)
+        if (support == ContactSupport.Axis && b.Motion == RigidMotionKind.Dynamic)
         {
             var centre = new Vector3(collider.Px, collider.Py, collider.Pz);
             var axis = collider.U1;
@@ -212,33 +200,6 @@ internal static class WorkshopConstraintSolver
         var dA = SupportDisplacement(c.A, c.ColA, c.SupportA, new Vector3(c.RAx, c.RAy, c.RAz), -n);
         var dB = SupportDisplacement(c.B, c.ColB, c.SupportB, new Vector3(c.RBx, c.RBy, c.RBz), n);
         return c.Gap + Vector3.Dot(dA - dB, n);
-    }
-
-    public static void SolveFriction(ContactPoint c)
-    {
-        var v = RelativeVelocity(c);
-        var vt1 = Vector3.Dot(v, c.T1);
-        var vt2 = Vector3.Dot(v, c.T2);
-
-        var n1 = c.LambdaT1 - c.TangentMass1 * vt1;
-        var n2 = c.LambdaT2 - c.TangentMass2 * vt2;
-        var maxFriction = c.Friction * c.LambdaN;
-        var length = MathF.Sqrt(n1 * n1 + n2 * n2);
-        if (length > maxFriction)
-        {
-            var scale = length > 0f ? maxFriction / length : 0f;
-            n1 *= scale;
-            n2 *= scale;
-        }
-
-        var d1 = n1 - c.LambdaT1;
-        var d2 = n2 - c.LambdaT2;
-        c.LambdaT1 = n1;
-        c.LambdaT2 = n2;
-
-        var p = d1 * c.T1 + d2 * c.T2;
-        WorkshopCollisionKernels.ApplyImpulse(c.A, p, new Vector3(c.RAx, c.RAy, c.RAz));
-        WorkshopCollisionKernels.ApplyImpulse(c.B, -p, new Vector3(c.RBx, c.RBy, c.RBz));
     }
 
     public static void PrepareRolling(ContactManifold m)
@@ -297,12 +258,12 @@ internal static class WorkshopConstraintSolver
     private static float AngularMass(ContactPoint c, Vector3 t)
     {
         var k = 0f;
-        if (c.A.Motion == 1)
+        if (c.A.Motion == RigidMotionKind.Dynamic)
         {
             var w = WorkshopCollisionKernels.ApplyInvInertia(c.A, t);
             k += Vector3.Dot(t, w);
         }
-        if (c.B.Motion == 1)
+        if (c.B.Motion == RigidMotionKind.Dynamic)
         {
             var w = WorkshopCollisionKernels.ApplyInvInertia(c.B, t);
             k += Vector3.Dot(t, w);
@@ -342,7 +303,7 @@ internal static class WorkshopConstraintSolver
 
     private static void ApplyAngularImpulse(SimBody b, Vector3 t)
     {
-        if (b.Motion != 1) return;
+        if (b.Motion != RigidMotionKind.Dynamic) return;
         var dw = WorkshopCollisionKernels.ApplyInvInertia(b, t);
         b.Wx += dw.X;
         b.Wy += dw.Y;
@@ -394,16 +355,16 @@ internal static class WorkshopConstraintSolver
         // block diagonal consistent with EffectiveMass while coupling nonparallel
         // rows by the same rule: n_i dot n_j = 1 - |n_i - n_j|² / 2.
         var cosine = 1f - .5f * Vector3.DistanceSquared(ni, nj);
-        var k = ((A.Motion == 1 ? A.InvMass : 0f) + (B.Motion == 1 ? B.InvMass : 0f)) * cosine;
+        var k = ((A.Motion == RigidMotionKind.Dynamic ? A.InvMass : 0f) + (B.Motion == RigidMotionKind.Dynamic ? B.InvMass : 0f)) * cosine;
 
-        if (A.Motion == 1)
+        if (A.Motion == RigidMotionKind.Dynamic)
         {
             var ri = Vector3.Cross(new Vector3(ci.RAx, ci.RAy, ci.RAz), ni);
             var rj = Vector3.Cross(new Vector3(cj.RAx, cj.RAy, cj.RAz), nj);
             var w = WorkshopCollisionKernels.ApplyInvInertia(A, rj);
             k += Vector3.Dot(ri, w);
         }
-        if (B.Motion == 1)
+        if (B.Motion == RigidMotionKind.Dynamic)
         {
             var ri = Vector3.Cross(new Vector3(ci.RBx, ci.RBy, ci.RBz), ni);
             var rj = Vector3.Cross(new Vector3(cj.RBx, cj.RBy, cj.RBz), nj);
@@ -526,7 +487,7 @@ internal static class WorkshopConstraintSolver
     {
         foreach (var m in manifolds)
         {
-            foreach (var c in m.Points) SolveFriction(c);
+            WorkshopFrictionSolver.Solve(m);
             SolveNormalBlock(m.Points, pass, soft, h);
             SolveRolling(m);
         }
@@ -546,7 +507,7 @@ internal static class WorkshopConstraintSolver
         foreach (var c in m.Points) any |= Bounces(c);
         if (!any) return;
         ApplyRestitution(m.Points);
-        foreach (var c in m.Points) SolveFriction(c);
+        WorkshopFrictionSolver.Solve(m);
         SolveRolling(m);
     }
 
@@ -579,7 +540,7 @@ internal static class WorkshopConstraintSolver
 
     private static void Join(SimBody b, List<SimBody> touched, int stamp)
     {
-        if (b.Motion != 1 || b.RestitutionStamp == stamp) return;
+        if (b.Motion != RigidMotionKind.Dynamic || b.RestitutionStamp == stamp) return;
         b.RestitutionStamp = stamp;
         b.RestitutionRoot = b;
         b.RelaxedV = b.LinearVelocity;
@@ -604,7 +565,7 @@ internal static class WorkshopConstraintSolver
             var c0 = m.Points[0];
             Join(c0.A, touched, stamp);
             Join(c0.B, touched, stamp);
-            if (c0.A.Motion == 1 && c0.B.Motion == 1)
+            if (c0.A.Motion == RigidMotionKind.Dynamic && c0.B.Motion == RigidMotionKind.Dynamic)
             {
                 var ra = Root(c0.A);
                 var rb = Root(c0.B);

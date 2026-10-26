@@ -361,11 +361,11 @@ public sealed class WorkshopPhysicsLawRestitutionTests
             iz = (.25f * .25f + .1f * .1f) / 3f;
         var box = new SimBody
         {
-            Motion = 1, Mass = 1f, InvMass = 1f, InvI = new(1f / ix, 1f / iy, 1f / iz), Principal = Quaternion.Identity, Qw = 1f,
+            Motion = RigidMotionKind.Dynamic, Mass = 1f, InvMass = 1f, InvI = new(1f / ix, 1f / iy, 1f / iz), Principal = Quaternion.Identity, Qw = 1f,
             Vx = velocity.X, Vy = velocity.Y, Vz = velocity.Z, Wx = angular.X, Wy = angular.Y, Wz = angular.Z,
         };
         box.InvIWorld[0] = 1f / ix; box.InvIWorld[4] = 1f / iy; box.InvIWorld[8] = 1f / iz;
-        var support = new SimBody { Motion = 0, Qw = 1f };
+        var support = new SimBody { Motion = RigidMotionKind.Static, Qw = 1f };
         ContactPoint Point(Vector3 r, float approach)
         {
             var c = new ContactPoint

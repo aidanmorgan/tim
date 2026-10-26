@@ -331,6 +331,86 @@ public sealed class WorkshopPhysicsLawTests
     // ---- rigid body ----
 
     [Fact]
+    public void AdmittedStaticBodiesStayFixedWhileDynamicBodiesAdvanceUnderTheirDeclaredMotion()
+    {
+        var scene = new LawScene(bench: false);
+        var support = scene.StaticBox(At(-2, 1), new Vector3(.2f));
+        var moving = scene.Sphere(At(0, 1), .2f, 1f, new(0, .1f, 0, 0),
+            Vector3.UnitX, Vector3.Zero, 0, LawScene.Gravity);
+        var world = scene.Admit();
+        var after = world.Step(1);
+        Assert.Equal(world.Initial(support), after[support]);
+        var body = after[moving];
+        // One 120 Hz committed interval contains four 480 Hz semi-implicit steps:
+        // x = v*t, vy = g*t, y = y0 + g*h²*(1+2+3+4).
+        // Sixteen f32 roundings at the 1 m scale fit below 2 micrometres.
+        const float h = 1f / 480f, time = 1f / 120f, positionError = .000002f;
+        Assert.InRange(body.Position.X, time - positionError, time + positionError);
+        var expectedY = 1f + LawScene.Gravity * h * h * 10f;
+        Assert.InRange(body.Position.Y, expectedY - positionError, expectedY + positionError);
+        Assert.Equal(0f, body.Position.Z);
+        Assert.Equal(1f, body.Velocity.X);
+        Assert.InRange(body.Velocity.Y, LawScene.Gravity * time - 1e-6f, LawScene.Gravity * time + 1e-6f);
+        Assert.Equal(0f, body.Velocity.Z);
+        Assert.Equal(Quaternion.Identity, body.Rotation);
+        Assert.Equal(Vector3.Zero, body.Angular);
+    }
+
+    [Theory]
+    [InlineData(2u, RigidMotionKind.Static)]
+    [InlineData(2u, RigidMotionKind.Dynamic)]
+    [InlineData(uint.MaxValue, RigidMotionKind.Static)]
+    [InlineData(uint.MaxValue, RigidMotionKind.Dynamic)]
+    public void AnUndefinedMotionDiscriminantRefusesTheWholeTickWithoutChangingBodiesOrClocks(
+        uint undefinedMotion, RigidMotionKind corruptedBody)
+    {
+        var scene = new LawScene(bench: false);
+        var support = scene.StaticBox(At(-2, 1), new Vector3(.2f));
+        var moving = scene.Sphere(At(0, 1), .2f, 1f, new(0, .1f, 0, 0),
+            Vector3.UnitX, Vector3.Zero, 0, LawScene.Gravity);
+        var world = scene.Admit();
+        var engine = new WorkshopPhysicsEngine();
+        var inputs = new PhysicsTickInputs([], []);
+        var committed = new byte[world.Admitted.Length];
+        engine.Advance(world.Admitted, committed, inputs);
+        Assert.Equal(PhysicsFailure.None, PhysicsGpuAbi.ReadFailure(committed));
+        var fixedBefore = LawState.Read(world.Scene, committed, support);
+        var movingBefore = LawState.Read(world.Scene, committed, moving);
+        var source = (byte[])committed.Clone();
+        var body = corruptedBody == RigidMotionKind.Static ? support : moving;
+        var offset = world.Scene.Layout.GetBodyOffset(body) + PhysicsGpuAbi.BodyMotionOffset;
+        // These are malformed external ABI inputs: the first undefined value and the uint endpoint.
+        BinaryPrimitives.WriteUInt32LittleEndian(source.AsSpan(offset), undefinedMotion);
+        var candidate = new byte[source.Length];
+        engine.Advance(source, candidate, inputs);
+        Assert.Equal(PhysicsFailure.InvalidDeclaration, PhysicsGpuAbi.ReadFailure(candidate));
+        Assert.Equal(PhysicsFailure.None, PhysicsGpuAbi.ReadFailure(source));
+        AssertUnadvanced(source);
+        AssertUnadvanced(candidate);
+        Assert.Equal(undefinedMotion, BinaryPrimitives.ReadUInt32LittleEndian(source.AsSpan(offset)));
+        Assert.Equal(undefinedMotion, BinaryPrimitives.ReadUInt32LittleEndian(candidate.AsSpan(offset)));
+
+        // The refusal must leave the same engine able to advance its valid committed world.
+        engine.Advance(committed, candidate, inputs);
+        Assert.Equal(PhysicsFailure.None, PhysicsGpuAbi.ReadFailure(candidate));
+        Assert.Equal(2ul, BinaryPrimitives.ReadUInt64LittleEndian(candidate.AsSpan(PhysicsGpuAbi.HeaderTickOffset)));
+        Assert.Equal(8u, BinaryPrimitives.ReadUInt32LittleEndian(candidate.AsSpan(PhysicsGpuAbi.HeaderSourceOrdinalOffset)));
+        Assert.Equal(fixedBefore, LawState.Read(world.Scene, candidate, support));
+        var next = LawState.Read(world.Scene, candidate, moving);
+        Assert.True(next.Position.X > movingBefore.Position.X && next.Position.Y < movingBefore.Position.Y);
+        Assert.Equal(Quaternion.Identity, next.Rotation);
+        Assert.Equal(Vector3.Zero, next.Angular);
+
+        void AssertUnadvanced(byte[] value)
+        {
+            Assert.Equal(1ul, BinaryPrimitives.ReadUInt64LittleEndian(value.AsSpan(PhysicsGpuAbi.HeaderTickOffset)));
+            Assert.Equal(4u, BinaryPrimitives.ReadUInt32LittleEndian(value.AsSpan(PhysicsGpuAbi.HeaderSourceOrdinalOffset)));
+            Assert.Equal(fixedBefore, LawState.Read(world.Scene, value, support));
+            Assert.Equal(movingBefore, LawState.Read(world.Scene, value, moving));
+        }
+    }
+
+    [Fact]
     public void AnUprightBoxSetAboveTheBenchSettlesOnItsFaceWithinTheRestTolerances()
     {
         var scene = new LawScene();
@@ -1110,7 +1190,7 @@ public sealed class WorkshopPhysicsLawTests
     }
 
     private static SimBody GuardBody(float vx, float vy, float vz, float wx, float wy, float wz) =>
-        new() { Motion = 1, Vx = vx, Vy = vy, Vz = vz, Wx = wx, Wy = wy, Wz = wz };
+        new() { Motion = RigidMotionKind.Dynamic, Vx = vx, Vy = vy, Vz = vz, Wx = wx, Wy = wy, Wz = wz };
 
     [Fact]
     public void TheEndOfSubstepGuardClampsAFiniteVelocityOfAnySize()
@@ -1172,10 +1252,10 @@ public sealed class WorkshopPhysicsLawTests
         const float angle = .2f;
         var s = MathF.Sin(angle); var c = MathF.Cos(angle);
         var izz = 4 * s * s + c * c; var iyz = 3 * s * c;
-        var dynamic = new SimBody { Motion = 1, InvMass = 1, Vy = 4, Wx = 96 };
+        var dynamic = new SimBody { Motion = RigidMotionKind.Dynamic, InvMass = 1, Vy = 4, Wx = 96 };
         float[] current = [1, 0, 0, 0, 4 * c * c + s * s, iyz, 0, iyz, izz];
         current.CopyTo(dynamic.InvIWorld, 0);
-        var contact = new ContactPoint { A = dynamic, B = new SimBody { Motion = 0 }, Px = 1, Ny = 1, RAx = 1, RBx = 1 };
+        var contact = new ContactPoint { A = dynamic, B = new SimBody { Motion = RigidMotionKind.Static }, Px = 1, Ny = 1, RAx = 1, RBx = 1 };
         var inverseMass = 1 / WorkshopConstraintSolver.EffectiveMass(contact, contact.Normal);
         Assert.InRange(inverseMass, 1 + izz - 1e-5f, 1 + izz + 1e-5f);
         Assert.InRange(inverseMass, 2.118f, 2.119f);
@@ -1200,11 +1280,11 @@ public sealed class WorkshopPhysicsLawTests
     {
         var body = new SimBody
         {
-            Qw = 1, Motion = 1, Mass = 1, InvMass = 1, Principal = Quaternion.Identity, InvI = Vector3.One, Q0 = Quaternion.Identity,
+            Qw = 1, Motion = RigidMotionKind.Dynamic, Mass = 1, InvMass = 1, Principal = Quaternion.Identity, InvI = Vector3.One, Q0 = Quaternion.Identity,
             Vy = -fall, Wz = spin
         };
         WorkshopCollisionKernels.UpdateDynamicFrame(body);
-        var floor = new SimBody { Qw = 1, Motion = 0, Principal = Quaternion.Identity, Q0 = Quaternion.Identity };
+        var floor = new SimBody { Qw = 1, Motion = RigidMotionKind.Static, Principal = Quaternion.Identity, Q0 = Quaternion.Identity };
         var bodyCollider = new SimCollider { Index = 0, Body = body, Shape = ShapeKind.Box, Rq = Quaternion.Identity };
         var floorCollider = new SimCollider { Index = 1, Body = floor, Shape = ShapeKind.Plane, Rq = Quaternion.Identity };
         ContactPoint Point(float x, float gap, int feature) => new()
@@ -1213,7 +1293,7 @@ public sealed class WorkshopPhysicsLawTests
         };
         var right = Point(.5f, rightGap, 0);
         var left = Point(-.5f, leftGap, 1);
-        var cache = new Dictionary<ulong, (float LambdaN, float LambdaT1, float LambdaT2)>();
+        var cache = new Dictionary<ulong, float>();
         WorkshopConstraintSolver.PrepareContact(right, cache);
         WorkshopConstraintSolver.PrepareContact(left, cache);
         return (right, left, SoftCoefficients.MakeSoft(WorkshopConstraintSolver.ContactHertz, WorkshopConstraintSolver.ContactDampingRatio,
@@ -1288,11 +1368,11 @@ public sealed class WorkshopPhysicsLawTests
         // above the w·p = 0.4 × −0.15 + 1 × 0.989 ≈ 0.93 it takes. An unprojected axis would also turn the spin about n, by 0.15 × w·U1.
         var body = new SimBody
         {
-            Qw = 1, Motion = 1, Mass = 1, InvMass = 1, Principal = Quaternion.Identity, InvI = Vector3.One, Q0 = Quaternion.Identity,
+            Qw = 1, Motion = RigidMotionKind.Dynamic, Mass = 1, InvMass = 1, Principal = Quaternion.Identity, InvI = Vector3.One, Q0 = Quaternion.Identity,
             Wx = .3f, Wy = .4f, Wz = 1f
         };
         WorkshopCollisionKernels.UpdateDynamicFrame(body);
-        var floor = new SimBody { Qw = 1, Motion = 0, Principal = Quaternion.Identity, Q0 = Quaternion.Identity };
+        var floor = new SimBody { Qw = 1, Motion = RigidMotionKind.Static, Principal = Quaternion.Identity, Q0 = Quaternion.Identity };
         var cylinder = new SimCollider
         {
             Index = 0, Body = body, Shape = ShapeKind.Cylinder, Radius = .3f, Hy = .4f, U1 = Vector3.UnitZ, Rq = Quaternion.Identity,
@@ -1305,7 +1385,7 @@ public sealed class WorkshopPhysicsLawTests
             A = body, B = floor, ColA = cylinder, ColB = floorCollider, Nx = n.X, Ny = n.Y, Nz = n.Z, Py = -.3f,
             SupportA = ContactSupport.Axis, SupportB = ContactSupport.Material
         };
-        WorkshopConstraintSolver.PrepareContact(point, new Dictionary<ulong, (float LambdaN, float LambdaT1, float LambdaT2)>());
+        WorkshopConstraintSolver.PrepareContact(point, new Dictionary<ulong, float>());
         point.LambdaN = 100f;
         var manifold = new ContactManifold();
         manifold.Points.Add(point);

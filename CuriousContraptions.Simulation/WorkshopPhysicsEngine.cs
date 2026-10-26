@@ -9,7 +9,8 @@ namespace CuriousContraptions.Simulation;
 
 internal sealed class WorkshopPhysicsEngine
 {
-    private readonly Dictionary<ulong, (float LambdaN, float LambdaT1, float LambdaT2)> _contactCache = new();
+    private readonly Dictionary<ulong, float> _contactCache = new();
+    private readonly Dictionary<FrictionPatchKey, FrictionWarmStart> _frictionCache = new();
     private readonly WorkshopDynamicBvh _bvh = new();
     // Story 9R.4: one substep's static-side contact records and the bodies a contact-load row already counted (caller-owned
     // scratch, so ContactLoadSensorTracker allocates nothing per substep).
@@ -56,6 +57,7 @@ internal sealed class WorkshopPhysicsEngine
     public void Reset()
     {
         _contactCache.Clear();
+        _frictionCache.Clear();
         _loadContacts.Clear();
         _bvh.Clear();
         _staticBodies.Clear();
@@ -70,7 +72,7 @@ internal sealed class WorkshopPhysicsEngine
 
     public void Warmup()
     {
-        var dummyBodyA = new SimBody { Mass = 1f, InvMass = 1f, Motion = 1 };
+        var dummyBodyA = new SimBody { Mass = 1f, InvMass = 1f, Motion = RigidMotionKind.Dynamic };
         dummyBodyA.InvI = new Vector3(1f, 1f, 1f);
         dummyBodyA.Principal = Quaternion.Identity;
         dummyBodyA.Qx = 0f; dummyBodyA.Qy = 0f; dummyBodyA.Qz = 0f; dummyBodyA.Qw = 1f;
@@ -79,7 +81,7 @@ internal sealed class WorkshopPhysicsEngine
         dummyBodyA.Wx = 0.5f; dummyBodyA.Wy = 0.5f; dummyBodyA.Wz = 0.5f;
         WorkshopCollisionKernels.UpdateDynamicFrame(dummyBodyA);
 
-        var dummyBodyB = new SimBody { Mass = 1f, InvMass = 1f, Motion = 0 };
+        var dummyBodyB = new SimBody { Mass = 1f, InvMass = 1f, Motion = RigidMotionKind.Static };
         dummyBodyB.Principal = Quaternion.Identity;
         dummyBodyB.Q0 = Quaternion.Identity;
         dummyBodyB.Qw = 1f;
@@ -198,6 +200,7 @@ internal sealed class WorkshopPhysicsEngine
             {
                 WorkshopConstraintSolver.PrepareContact(warmupContacts[0], _contactCache);
                 WorkshopConstraintSolver.PrepareRolling(m);
+                WorkshopFrictionSolver.Prepare(m, _frictionCache);
                 WorkshopConstraintSolver.WarmStartContact(warmupContacts[0]);
                 WorkshopConstraintSolver.SweepManifolds(warmupManifolds, ContactPass.Solve, soft, WorkshopConstraintSolver.SubstepSeconds);
                 WorkshopConstraintSolver.SweepManifolds(warmupManifolds, ContactPass.Relax, soft, WorkshopConstraintSolver.SubstepSeconds);
@@ -206,7 +209,7 @@ internal sealed class WorkshopPhysicsEngine
                 WorkshopConstraintSolver.Restitute(m);
                 WorkshopConstraintSolver.CurrentSeparation(warmupContacts[0]);
                 WorkshopConstraintSolver.SettleVelocity(dummyBodyA);
-                _contactCache[warmupContacts[0].Key] = (warmupContacts[0].LambdaN, warmupContacts[0].LambdaT1, warmupContacts[0].LambdaT2);
+                _contactCache[warmupContacts[0].Key] = warmupContacts[0].LambdaN;
                 WorkshopConstraintSolver.PrepareContact(warmupContacts[0], _contactCache);
             }
         }
@@ -221,6 +224,7 @@ internal sealed class WorkshopPhysicsEngine
             for (var i = 0; i < 20; i++)
             {
                 foreach (var cp in boxContacts) WorkshopConstraintSolver.PrepareContact(cp, _contactCache);
+                WorkshopFrictionSolver.Prepare(boxManifold, _frictionCache);
                 WorkshopConstraintSolver.SweepManifolds(boxManifolds, ContactPass.Solve, soft, WorkshopConstraintSolver.SubstepSeconds);
                 WorkshopConstraintSolver.SweepManifolds(boxManifolds, ContactPass.Relax, soft, WorkshopConstraintSolver.SubstepSeconds);
                 foreach (var cp in boxContacts) { cp.RelVel = -2f; cp.MaxImpulse = 1f; }
@@ -366,9 +370,9 @@ internal sealed class WorkshopPhysicsEngine
         foreach (var c in _contacts)
         {
             // ContactPoint.Normal points from B toward A.
-            if (c.A.Motion == 0 && c.B.Motion == 1)
+            if (c.A.Motion == RigidMotionKind.Static && c.B.Motion == RigidMotionKind.Dynamic)
                 _loadContacts.Add(new(new(c.A.Id), new(c.ColA.Id), new(c.B.Id), c.B.Mass, c.Point, -c.Normal, c.Gap, c.MaxImpulse > 0f));
-            else if (c.B.Motion == 0 && c.A.Motion == 1)
+            else if (c.B.Motion == RigidMotionKind.Static && c.A.Motion == RigidMotionKind.Dynamic)
                 _loadContacts.Add(new(new(c.B.Id), new(c.ColB.Id), new(c.A.Id), c.A.Mass, c.Point, c.Normal, c.Gap, c.MaxImpulse > 0f));
         }
         if (_loadCounted.Length < _loadContacts.Count) _loadCounted = new GpuBodyId[_loadContacts.Count * 2];
@@ -393,6 +397,17 @@ internal sealed class WorkshopPhysicsEngine
         var span = candidate.AsSpan();
         // Story 9R.5b: every table offset is this world's own (its header's populations); no table has a fixed capacity.
         var layout = PhysicsGpuAbi.Layout(span);
+
+        // Motion is a closed ABI discriminant. Refuse the entire candidate before clocks,
+        // bodies or solver state advance; every downstream motion value is typed.
+        for (var slot = 0; slot < layout.Bodies; slot++)
+        {
+            var motion = (RigidMotionKind)ReadU32(span, layout.BodyOffset(slot) + PhysicsGpuAbi.BodyMotionOffset);
+            if (Enum.IsDefined(motion)) continue;
+            BinaryPrimitives.WriteUInt32LittleEndian(span.Slice(PhysicsGpuAbi.HeaderStatusOffset, 4), (uint)PhysicsCandidateStatus.Invalid);
+            BinaryPrimitives.WriteUInt32LittleEndian(span.Slice(PhysicsGpuAbi.HeaderFailureOffset, 4), (uint)PhysicsFailure.InvalidDeclaration);
+            return;
+        }
 
         // Story 10.1: the collider shape is a closed set. A world carrying an undefined shape is an invalid declaration, refused
         // before anything is stepped (the candidate is the source with only its status and failure set); the tick path below is
@@ -451,7 +466,7 @@ internal sealed class WorkshopPhysicsEngine
         for (var slot = 0; slot < bodyCount; slot++)
         {
             var bodyOffset = layout.BodyOffset(slot);
-            var motion = ReadU32(span, bodyOffset + PhysicsGpuAbi.BodyMotionOffset);
+            var motion = (RigidMotionKind)ReadU32(span, bodyOffset + PhysicsGpuAbi.BodyMotionOffset);
             var bodyIdLow = ReadU32(span, bodyOffset + PhysicsGpuAbi.RecordIdentityOffset);
             var bodyIdHigh = ReadU32(span, bodyOffset + PhysicsGpuAbi.RecordIdentityOffset + sizeof(uint));
             var id = ((ulong)bodyIdHigh << 32) | bodyIdLow;
@@ -484,7 +499,7 @@ internal sealed class WorkshopPhysicsEngine
             b.Motion = motion;
             b.Collider = null;
 
-            if (motion == 0)
+            if (motion == RigidMotionKind.Static)
             {
                 // A pooled body may last have been dynamic (another world, or the warm-up): a static body has no motion, and the
                 // contact rows (rolling, prismatic frames) read its velocities directly.
@@ -579,7 +594,7 @@ internal sealed class WorkshopPhysicsEngine
             WorkshopCollisionKernels.RefreshCollider(collider);
             _colliders.Add(collider);
 
-            if (body.Motion == 1)
+            if (body.Motion == RigidMotionKind.Dynamic)
             {
                 body.Collider = collider;
                 body.SupportExtent = shapeKind switch
@@ -646,7 +661,7 @@ internal sealed class WorkshopPhysicsEngine
         foreach (var c in _colliders)
         {
             var b = c.Body;
-            var isDyn = b.Motion == 1;
+            var isDyn = b.Motion == RigidMotionKind.Dynamic;
             var spin = isDyn ? MathF.Sqrt(b.Wx * b.Wx + b.Wy * b.Wy + b.Wz * b.Wz) * WorkshopCollisionKernels.ColliderExtent(c) * tickTime : 0f;
             var fatX = isDyn ? (MathF.Abs(b.Vx) + MathF.Abs(b.Gx) * tickTime) * tickTime + spin + velocitySlop : velocitySlop;
             var fatY = isDyn ? (MathF.Abs(b.Vy) + MathF.Abs(b.Gy) * tickTime) * tickTime + spin + velocitySlop : velocitySlop;
@@ -690,7 +705,7 @@ internal sealed class WorkshopPhysicsEngine
             }
 
             // Exactly the complement of the overlap callback's static-static rejection below.
-            _bvh.InsertLeaf(c.Index, min, max, b.Motion != 0);
+            _bvh.InsertLeaf(c.Index, min, max, b.Motion != RigidMotionKind.Static);
         }
 
         _candidatePairs.Clear();
@@ -700,7 +715,7 @@ internal sealed class WorkshopPhysicsEngine
             var colA = _colliders[idxA];
             var colB = _colliders[idxB];
             if (colA.BodySlot == colB.BodySlot) return;
-            if (colA.Body.Motion == 0 && colB.Body.Motion == 0) return;
+            if (colA.Body.Motion == RigidMotionKind.Static && colB.Body.Motion == RigidMotionKind.Static) return;
             foreach (var j in _joints)
             {
                 if (j.Collision == 0 && ((j.A == colA.Body && j.B == colB.Body) || (j.B == colA.Body && j.A == colB.Body)))
@@ -837,7 +852,7 @@ internal sealed class WorkshopPhysicsEngine
             }
 
             foreach (var c in _colliders)
-                if (c.Body.Motion == 1) WorkshopCollisionKernels.RefreshCollider(c);
+                if (c.Body.Motion == RigidMotionKind.Dynamic) WorkshopCollisionKernels.RefreshCollider(c);
 
             _contacts.Clear();
             _manifolds.Clear();
@@ -876,7 +891,11 @@ internal sealed class WorkshopPhysicsEngine
 
             WorkshopCollisionKernels.RemoveInternalHollowEdges(_manifolds, _contacts);
             foreach (var c in _contacts) WorkshopConstraintSolver.PrepareContact(c, _contactCache);
-            foreach (var m in _manifolds) WorkshopConstraintSolver.PrepareRolling(m);
+            foreach (var m in _manifolds)
+            {
+                WorkshopConstraintSolver.PrepareRolling(m);
+                WorkshopFrictionSolver.Prepare(m, _frictionCache);
+            }
             foreach (var b in _dynamicBodies)
             {
                 b.Cm0 = b.CentreOfMass;
@@ -890,6 +909,7 @@ internal sealed class WorkshopPhysicsEngine
                     PrismaticConstraintSolver.ApplyConstraintImpulse(joint, joint.Rows[row], joint.Impulses[row]);
             }
             foreach (var c in _contacts) WorkshopConstraintSolver.WarmStartContact(c);
+            foreach (var m in _manifolds) WorkshopFrictionSolver.WarmStart(m);
 
             for (var iteration = 0; iteration < WorkshopConstraintSolver.SolverIterations; iteration++)
             {
@@ -982,14 +1002,16 @@ internal sealed class WorkshopPhysicsEngine
             foreach (var b in _dynamicBodies) WorkshopConstraintSolver.SettleVelocity(b);
 
             _contactCache.Clear();
-            foreach (var c in _contacts) _contactCache[c.Key] = (c.LambdaN, c.LambdaT1, c.LambdaT2);
+            _frictionCache.Clear();
+            foreach (var c in _contacts) _contactCache[c.Key] = c.LambdaN;
+            foreach (var m in _manifolds) WorkshopFrictionSolver.Store(m, _frictionCache);
 
             // A point that carried normal impulse this substep, touching or speculative, is a contact (Box2D v3 hit events).
             foreach (var c in _contacts)
             {
                 if (c.MaxImpulse <= 0f) continue;
-                if (c.A.Motion == 1 && c.B.Motion == 0) EmitContactEvents(span, layout, c.ColB, c.A, -c.RelVel, c.Normal, c, s, sourceOrdinal);
-                else if (c.B.Motion == 1 && c.A.Motion == 0) EmitContactEvents(span, layout, c.ColA, c.B, -c.RelVel, -c.Normal, c, s, sourceOrdinal);
+                if (c.A.Motion == RigidMotionKind.Dynamic && c.B.Motion == RigidMotionKind.Static) EmitContactEvents(span, layout, c.ColB, c.A, -c.RelVel, c.Normal, c, s, sourceOrdinal);
+                else if (c.B.Motion == RigidMotionKind.Dynamic && c.A.Motion == RigidMotionKind.Static) EmitContactEvents(span, layout, c.ColA, c.B, -c.RelVel, -c.Normal, c, s, sourceOrdinal);
             }
 
             var orientationCount = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(PhysicsGpuAbi.HeaderOrientationSensorCountOffset, 4));

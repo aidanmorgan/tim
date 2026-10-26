@@ -507,17 +507,17 @@ development_status:
   engine-cylinder-axial-creep: done # M1 coherent slop band + M2 rolling axes; published d87b6a1e, CI 40181624977; residuals → engine-cap-block, engine-two-point-friction, engine-orientation-levelling (owner 25 Oct)
   # 25 Oct 2026 (coordinator, from owner directives): the creep follow-up is split into three engine slices,
   # and the collider-fidelity decisions add two slices. Order (25 Oct, after the cap-block HALT): elements-visible-solid,
-  # engine-hollow-shapes, engine-two-point-friction, engine-cap-block (retry), engine-orientation-levelling, then 9a-44b.
+  # engine-hollow-shapes, engine-single-point-penetration, engine-two-point-friction, engine-cap-block (retry), engine-orientation-levelling, then 9a-44b.
   # Stories and acceptance: epics.md#engine-and-collider-slices.
-  engine-cap-block: blocked # HALT 25 Oct after 3 bounded attempts (spec-engine-cap-block.md, engine-cap-block-attempt.patch): face drift 4/60 > 1e-9 m/s and box-on-box energy gain; retry after engine-two-point-friction (central friction anchor)
+  engine-cap-block: blocked # HALT 25 Oct after 3 bounded attempts (spec-engine-cap-block.md, engine-cap-block-attempt.patch): face drift 4/60 > 1e-9 m/s and box-on-box energy gain; retry after engine-two-point-friction (central friction anchor) and engine-single-point-penetration (deep rim/edge energy)
   elements-visible-solid: done # lamp, switch, delay, ramp, battery, detector, gate colliders as drawn; cylinder-cap placement rest; collider-vs-art test over all 29 packages
   elements-visible-solid-sweep: done # faces, lamps, indicators and sockets of logic parts, hold timer, counter, latch, clock; plate sockets; collider-slot refusal at bundle install
   engine-multi-collider-dynamic: backlog # moving bodies with several colliders (domino pips, weight base); sphere-radius minimum (clock pivot cap, plate studs); plate five-collider limit
   bumper-cap-solid: backlog # make the bumper cap solid and re-author bumper_sidekick, bumper_depth, wall_and_bumper
   face-markings-flush: backlog # move raised face markings (pictograms, truth dots, latch markers, timer track) flush so they are printed decoration
   engine-hollow-shapes: done # published eacf561d6833438c9aeaf71c85e52c2626ea33e5; CI 40239119353: 4,212 passed, 0 failed/skipped; deployment 7320169548; browser pending
-  engine-single-point-penetration: review # implementation Pass, 4276/0/0 final native; generic .012 m/s recovery and exact friction integration; committed-SHA publication pending; spec-engine-single-point-penetration.md
-  engine-two-point-friction: blocked # retained candidate: deep single-point case 179; resume after recovery prerequisite, full native proof and Auto review
+  engine-single-point-penetration: done # terminal Pass at 3a633495da8868cb2536f81edecadba629da6c2d; CI 40252950208 4276/0/0; artifact 12621889117; deployment 7322234061; receipt in spec-engine-single-point-penetration.md
+  engine-two-point-friction: done # source implementation/review complete; final native 4365/0/0; normal-hook local commit authorized; exact-SHA approval/push/terminal publication pending; two unverified numerical risks retained in spec
   engine-orientation-levelling: backlog # sub-f32-step levelling (axial drift to 2.2e-5 m/s); keeps the energy gates
   test-workshop-harness-a: backlog
   test-workshop-harness-b: backlog

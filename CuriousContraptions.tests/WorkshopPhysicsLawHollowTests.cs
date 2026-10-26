@@ -92,20 +92,73 @@ public sealed class WorkshopPhysicsLawHollowTests
     [InlineData(.75f, 0f)]
     [InlineData(.34f, 0f)]
     [InlineData(.34f, .4f)]
-    public void BareSegmentMouthSupportsASymmetricJamWithoutTransverseImpulse(float radius, float offset)
+    [InlineData(.66f, 0f, .3f, false)]
+    [InlineData(.66f, 0f, .3f, true)]
+    [InlineData(.75f, 0f, .3f, false)]
+    [InlineData(.75f, 0f, .3f, true)]
+    [InlineData(.34f, 0f, .3f, false)]
+    [InlineData(.34f, 0f, .3f, true)]
+    [InlineData(.34f, .4f, .3f, false)]
+    [InlineData(.34f, .4f, .3f, true)]
+    [InlineData(.66f, 0f, 0f, false, true)]
+    [InlineData(.75f, 0f, 0f, false, true)]
+    [InlineData(.34f, 0f, 0f, false, true)]
+    [InlineData(.34f, .4f, 0f, false, true)]
+    [InlineData(.66f, 0f, .3f, false, true)]
+    [InlineData(.66f, 0f, .3f, true, true)]
+    [InlineData(.75f, 0f, .3f, false, true)]
+    [InlineData(.75f, 0f, .3f, true, true)]
+    [InlineData(.34f, 0f, .3f, false, true)]
+    [InlineData(.34f, 0f, .3f, true, true)]
+    [InlineData(.34f, .4f, .3f, false, true)]
+    [InlineData(.34f, .4f, .3f, true, true)]
+    public void BareSegmentMouthSupportsOversizePayloadsAndPassesFittingPayloads(float radius, float offset,
+        float friction = 0f, bool reverseOrder = false, bool mirrored = false)
     {
         var c = new Vector3(0, 4, 0);
+        var sign = mirrored ? -1f : 1f;
+        // Reflect the mouth across Z=0. Its circular section is symmetric in Y,
+        // so a half-turn about X represents the reflected quarter torus exactly.
+        var turn = mirrored ? new Quaternion(1, 0, 0, 0) : Quaternion.Identity;
+        LawBody Canonical(LawBody body) => body with
+        {
+            Position = new(body.Position.X, body.Position.Y, sign * body.Position.Z),
+            Velocity = new(body.Velocity.X, body.Velocity.Y, sign * body.Velocity.Z),
+            Angular = new(sign * body.Angular.X, sign * body.Angular.Y, body.Angular.Z)
+        };
         var scene = new LawScene();
-        scene.StaticHollow(ColliderShapeKind.Torus, c, Quaternion.Identity, 2.4f,
-            new(.65f, .7f, MathF.PI / 2), new(0, .1f, 0, 0));
+        void Mouth() => scene.StaticHollow(ColliderShapeKind.Torus, c, turn, 2.4f,
+            new(.65f, .7f, MathF.PI / 2), new(0, .1f, friction, 0));
+        if (!reverseOrder) Mouth();
         var start = c + new Vector3(2.4f, offset, -.5f);
-        var ball = scene.Sphere(start, radius, 1, new(0, .1f, 0, 0),
-            Vector3.UnitZ, default, 0, 0);
+        var ball = scene.Sphere(new(start.X, start.Y, sign * start.Z), radius, 1, new(0, .1f, friction, 0),
+            sign * Vector3.UnitZ, default, 0, 0);
+        if (reverseOrder) Mouth();
         var world = scene.Admit();
-        var end = world.Step(world.TicksPerSecond / 2)[ball];
+        var end = Canonical(world.Step(world.TicksPerSecond / 2, (_, state) =>
+        {
+            if (friction <= 0f || radius <= .65f) return;
+            var body = Canonical(state[ball]);
+            // Exact distance to the circular mouth, not axial displacement:
+            // a grazing normal amplifies the permitted axial slop.
+            var relative = body.Position - (c + new Vector3(2.4f, 0, 0));
+            var radial = Math.Sqrt((double)relative.X * relative.X + (double)relative.Y * relative.Y);
+            var rimDistance = Math.Sqrt((radial - .65) * (radial - .65) + (double)relative.Z * relative.Z);
+            Assert.True(radius - rimDistance <= Resting + SurfaceError, $"rim penetration {radius - rimDistance}");
+            Assert.True(relative.Z < 0, "oversize sphere crossed the mouth");
+            var energy = .5 * body.Speed * body.Speed + .5 * (.4 * radius * radius) * body.Spin * body.Spin;
+            Assert.InRange(energy, 0, .5 + 9.81 * .0002);
+        })[ball]);
         if (radius > .65f)
         {
             var tangent = -Math.Sqrt((double)radius * radius - .65 * .65);
+            if (friction > 0f)
+            {
+                // Same axial progress lower bound as the zero-friction control:
+                // normal-space slop/energy/no-crossing were checked at every tick.
+                Assert.InRange(end.Position.Z - c.Z, tangent - 1.0 / 120 - SurfaceError, 0);
+                return;
+            }
             // Speculative contact can stop up to one 120 Hz tick of approach
             // early; penetration still uses the unchanged resting envelope.
             Assert.InRange(end.Position.Z, tangent - 1.0 / 120 - SurfaceError, tangent + Resting + SurfaceError);

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using CuriousContraptions.Gpu;
 
 namespace CuriousContraptions.Simulation;
 
@@ -52,7 +53,7 @@ internal sealed class SimBody
     public float Cmx, Cmy, Cmz;
     public float SupportExtent;
     public int DynamicIndex;
-    public uint Motion;
+    public RigidMotionKind Motion;
     /// <summary>The body's velocities at the start of the substep, before guides, supplied drives, gravity and drag: the
     /// approach a restitution target reflects (Box2D v3 prepares contacts before integrating velocities).</summary>
     public Vector3 V0, W0;
@@ -121,15 +122,11 @@ internal sealed class ContactPoint
     public Vector3 T1;
     public Vector3 T2;
     public float NormalMass;
-    public float TangentMass1;
-    public float TangentMass2;
     public float Restitution;
     public float Threshold;
     public float Friction;
     public ulong Key;
     public float LambdaN;
-    public float LambdaT1;
-    public float LambdaT2;
     /// <summary>The substep-start relative normal velocity at this point (negative approaching): the restitution target's and the
     /// contact events' approach.</summary>
     public float RelVel;
@@ -142,6 +139,7 @@ internal sealed class ContactPoint
 internal sealed class ContactManifold
 {
     public List<ContactPoint> Points = new();
+    public readonly List<FrictionPatch> FrictionPatches = new();
     public float Rolling;
     /// <summary>The rolling-resistance row's directions, set by <see cref="WorkshopConstraintSolver.PrepareRolling"/> from the
     /// manifold's curved supports (each point's <see cref="ContactPoint.SupportA"/>/<see cref="ContactPoint.SupportB"/> and its
@@ -203,7 +201,7 @@ internal static partial class WorkshopCollisionKernels
 
     public static void ApplyImpulse(SimBody b, Vector3 p, Vector3 r)
     {
-        if (b.Motion != 1) return;
+        if (b.Motion != RigidMotionKind.Dynamic) return;
         b.Vx += p.X * b.InvMass;
         b.Vy += p.Y * b.InvMass;
         b.Vz += p.Z * b.InvMass;
@@ -216,7 +214,7 @@ internal static partial class WorkshopCollisionKernels
 
     public static Vector3 PointVelocity(SimBody b, Vector3 r)
     {
-        if (b.Motion != 1) return Vector3.Zero;
+        if (b.Motion != RigidMotionKind.Dynamic) return Vector3.Zero;
         return new Vector3(
             b.Vx + (b.Wy * r.Z - b.Wz * r.Y),
             b.Vy + (b.Wz * r.X - b.Wx * r.Z),
@@ -1064,37 +1062,24 @@ internal static partial class WorkshopCollisionKernels
                 Feature(CylinderFeature.Rim, Vector3.Dot(rim - ca, a) >= 0f ? 0 : 1), ContactSupport.Material, ContactSupport.Material));
         }
 
-        if (outList.Count == first)
-        {
-            // Nothing survived the clip: one point between the closest features (or, overlapping, the SAT support features).
-            var side = t <= SideAlignment;
-            Vector3 point;
-            if (exact) point = (closest.OnA + closest.OnB) * 0.5f;
-            else
-            {
-                var (start, length) = side ? Generator(cyl, -n) : (CylinderSupport(cyl, -n), Vector3.Zero);
-                var edge = SupportEdge(box, n);
-                var (pa, pb) = ClosestPoints(start, length, edge.P, edge.D);
-                point = (pa + pb) * 0.5f;
-            }
-            outList.Add(CylinderContact(cyl, box, n, point, separation, Feature(CylinderFeature.Support, 0),
-                side ? ContactSupport.Axis : ContactSupport.Material, ContactSupport.Material));
-        }
-        else if (exact) KeepClosest(outList, first, closest, separation, t <= SideAlignment ? ContactSupport.Axis : ContactSupport.Material,
+        // Every manifold is checked for depth coverage within 0.1 mm of the pair
+        // gap, including when the shallow core crosses zero. If needed, the closest
+        // witness joins with its own normal, surface points and gap as one tuple.
+        KeepClosest(cyl, box, outList, first, closest, separation,
+            MathF.Abs(Vector3.Dot(closest.Normal, a)) <= SideAlignment ? ContactSupport.Axis : ContactSupport.Material,
             ContactSupport.Material);
         NoDeeperThan(outList, first, separation);
     }
 
-    /// <summary>Every manifold holds its pair's closest point (review F4 round 4): when no emitted point lies within 0.1 mm of the
-    /// pair's gap, the closest features' midpoint joins at that gap, and the side reduction keeps the capacity of four.</summary>
-    private static void KeepClosest(List<ContactPoint> points, int first, in Closest closest, float separation, ContactSupport supportA,
+    /// <summary>Ensure depth coverage within 0.1 mm of the pair's gap: when existing points do not cover that depth, include the
+    /// closest features' midpoint with its own normal and signed gap. Exact witness membership is not required when another point
+    /// already covers the depth. The common pair-depth bound applies afterward; side reduction keeps the capacity of four.</summary>
+    private static void KeepClosest(SimCollider a, SimCollider b, List<ContactPoint> points, int first, in Closest closest, float separation, ContactSupport supportA,
         ContactSupport supportB)
     {
         for (var i = first; i < points.Count; i++)
             if (points[i].Gap <= separation + 1e-4f) return;
-        var a = points[first].ColA;
-        var b = points[first].ColB;
-        points.Add(CylinderContact(a, b, closest.Normal, (closest.OnA + closest.OnB) * 0.5f, separation, Feature(CylinderFeature.Support, 1),
+        points.Add(CylinderContact(a, b, closest.Normal, (closest.OnA + closest.OnB) * 0.5f, closest.Gap, Feature(CylinderFeature.Support, 1),
             supportA, supportB));
         ReduceSideManifold(points, first);
     }
@@ -1220,7 +1205,10 @@ internal static partial class WorkshopCollisionKernels
         if (dy > 0f || dr > 0f)
         {
             surface = c.Position + Math.Clamp(y, -c.Hy, c.Hy) * a + MathF.Min(rho, c.Radius) * radial;
-            var diff = p - surface;
+            // Form the outside displacement in feature coordinates. Subtracting
+            // nearly coincident world points loses its small radial component
+            // near a face/edge boundary and can select the wrong support edge.
+            var diff = MathF.Max(dy, 0f) * cap + MathF.Max(dr, 0f) * radial;
             var dist = diff.Length();
             outward = dist > 1e-9f ? diff / dist : dr > dy ? radial : cap;
             return dist;
@@ -1531,10 +1519,10 @@ internal static partial class WorkshopCollisionKernels
         List<ContactPoint> outList)
     {
         var (start, length) = Generator(cyl, -n);
-        void Add(Vector3 p, float gap, int detail)
+        void Add(Vector3 p, float gap, int detail, Vector3 normal)
         {
             if (gap <= margin)
-                outList.Add(CylinderContact(cyl, box, n, p, gap, Feature(CylinderFeature.Side, detail), ContactSupport.Axis,
+                outList.Add(CylinderContact(cyl, box, normal, p, gap, Feature(CylinderFeature.Side, detail), ContactSupport.Axis,
                     ContactSupport.Material));
         }
 
@@ -1548,25 +1536,31 @@ internal static partial class WorkshopCollisionKernels
             if (d > faceDot) { faceDot = d; face = i; }
         }
 
-        if (faceDot >= EdgeFaceAlignment)
+        // Classify the finite support before emitting constraints. A normal near a face
+        // normal can still belong to its edge. The face-facing generator's projection
+        // decides whether the finite face exists under the cylinder; using the pair
+        // normal here moves an edge support onto the clipping border and makes ulps
+        // alternate a line with an arbitrary closest endpoint.
+        var faceN = (Vector3.Dot(axes[face], n) >= 0f ? 1f : -1f) * axes[face];
+        var fc = box.Position + extents[face] * faceN;
+        var j = (face + 1) % 3;
+        var k = (face + 2) % 3;
+        var (faceStart, faceLength) = Generator(cyl, -faceN);
+        var rel = faceStart - fc;
+        float t0 = 0f, t1 = 1f;
+        ClipSlab(Vector3.Dot(rel, axes[j]), Vector3.Dot(faceLength, axes[j]), extents[j], ref t0, ref t1);
+        ClipSlab(Vector3.Dot(rel, axes[k]), Vector3.Dot(faceLength, axes[k]), extents[k], ref t0, ref t1);
+
+        if (faceDot >= EdgeFaceAlignment && t0 <= t1)
         {
-            var faceN = (Vector3.Dot(axes[face], n) >= 0f ? 1f : -1f) * axes[face];
-            var fc = box.Position + extents[face] * faceN;
-            var j = (face + 1) % 3;
-            var k = (face + 2) % 3;
-            var rel = start - fc;
-            float t0 = 0f, t1 = 1f;
-            ClipSlab(Vector3.Dot(rel, axes[j]), Vector3.Dot(length, axes[j]), extents[j], ref t0, ref t1);
-            ClipSlab(Vector3.Dot(rel, axes[k]), Vector3.Dot(length, axes[k]), extents[k], ref t0, ref t1);
-            if (t0 > t1) return;
-            var p0 = start + t0 * length;
+            var p0 = faceStart + t0 * faceLength;
             var g0 = Vector3.Dot(p0 - fc, faceN);
-            Add(p0 - g0 * 0.5f * faceN, g0, 0);
+            Add(p0 - g0 * 0.5f * faceN, g0, 0, faceN);
             if (t1 - t0 > 1e-6f)
             {
-                var p1 = start + t1 * length;
+                var p1 = faceStart + t1 * faceLength;
                 var g1 = Vector3.Dot(p1 - fc, faceN);
-                Add(p1 - g1 * 0.5f * faceN, g1, 1);
+                Add(p1 - g1 * 0.5f * faceN, g1, 1, faceN);
             }
             return;
         }
@@ -1595,7 +1589,7 @@ internal static partial class WorkshopCollisionKernels
         }
 
         var (pa, pb) = ClosestPoints(start, length, edge.P, edge.D);
-        Add((pa + pb) * 0.5f, separation, 4);
+        Add((pa + pb) * 0.5f, separation, 4, n);
 
         // A box point against the curved side: its radial signed gap and its own radial normal (from the box toward the cylinder).
         void RadialPoint(Vector3 q, int detail)
@@ -1718,17 +1712,11 @@ internal static partial class WorkshopCollisionKernels
             ReduceSideManifold(outList, first);
         }
 
-        if (outList.Count == first)
-        {
-            var sideA = tA <= SideAlignment;
-            var sideB = tB <= SideAlignment;
-            var (sa, la) = sideA ? Generator(colA, -n) : (CylinderSupport(colA, -n), Vector3.Zero);
-            var (sb, lb) = sideB ? Generator(colB, n) : (CylinderSupport(colB, n), Vector3.Zero);
-            var (qa, qb) = ClosestPoints(sa, la, sb, lb);
-            outList.Add(CylinderContact(colA, colB, n, exact ? (closest.OnA + closest.OnB) * 0.5f : (qa + qb) * 0.5f, separation,
-                Feature(CylinderFeature.Support, 0), supportA, supportB));
-        }
-        else if (exact) KeepClosest(outList, first, closest, separation, supportA, supportB);
+        // The same actual closest witness is considered for empty and populated
+        // emissions; its normal, support points and signed gap stay together.
+        KeepClosest(colA, colB, outList, first, closest, separation,
+            MathF.Abs(Vector3.Dot(closest.Normal, aa)) <= SideAlignment ? ContactSupport.Axis : ContactSupport.Material,
+            MathF.Abs(Vector3.Dot(closest.Normal, ab)) <= SideAlignment ? ContactSupport.Axis : ContactSupport.Material);
         NoDeeperThan(outList, first, separation);
 
         // A generator end x of one cylinder against the other's curved side (within its half-width and the margin, and not the closest
@@ -1830,7 +1818,7 @@ internal static partial class WorkshopCollisionKernels
         int first, SimCollider probe, List<ContactPoint> probeContacts)
     {
         if (contacts.Count - first != 1) return;
-        static bool Moving(SimCollider c) => c.Shape == ShapeKind.Sphere && c.Body.Motion == 1;
+        static bool Moving(SimCollider c) => c.Shape == ShapeKind.Sphere && c.Body.Motion == RigidMotionKind.Dynamic;
         // Two moving spheres: no single contact point keeps both lever arms on the normal, so the pair keeps its contact.
         if (Moving(colA) && Moving(colB)) return;
         // Advance the moving sphere when there is one: the contact point is placed on its centre line, so its arm stays normal.
@@ -1844,8 +1832,8 @@ internal static partial class WorkshopCollisionKernels
 
         // A contact's normal points from its B toward its A (the pair kernels choose the order); read it toward the sphere.
         var sign = contact.ColA == sphere ? 1f : -1f;
-        var velocity = (sphere.Body.Motion == 1 ? sphere.Body.LinearVelocity : Vector3.Zero) -
-            (other.Body.Motion == 1 ? other.Body.LinearVelocity : Vector3.Zero);
+        var velocity = (sphere.Body.Motion == RigidMotionKind.Dynamic ? sphere.Body.LinearVelocity : Vector3.Zero) -
+            (other.Body.Motion == RigidMotionKind.Dynamic ? other.Body.LinearVelocity : Vector3.Zero);
         var normal = sign * contact.Normal;
         var closing = -Vector3.Dot(velocity, normal);
         if (!(closing > 0f)) return;

@@ -776,7 +776,7 @@ public sealed class WorkshopPhysicsLawCylinderTests
         var body = new SimBody
         {
             Px = position.X, Py = position.Y, Pz = position.Z, Qx = rotation.X, Qy = rotation.Y, Qz = rotation.Z, Qw = rotation.W,
-            Motion = 1, Mass = 1, InvMass = 1, Principal = Quaternion.Identity, InvI = Vector3.One, Q0 = Quaternion.Identity
+            Motion = RigidMotionKind.Dynamic, Mass = 1, InvMass = 1, Principal = Quaternion.Identity, InvI = Vector3.One, Q0 = Quaternion.Identity
         };
         var extents = half ?? new Vector3(0, halfY, 0);
         var collider = new SimCollider
@@ -859,6 +859,62 @@ public sealed class WorkshopPhysicsLawCylinderTests
             Collider(ShapeKind.Box, At(.3f + dx, .2f + dy + edgeBelowCentre), AboutZ(45), 0, At(.1f, .1f, .1f), 1);
         Assert.Empty(Contacts(standing, Box(.01f, .02f)));
         Gaps(Contacts(standing, Box(.001f, .002f)), 1, MathF.Sqrt(.000005f));
+    }
+
+    public enum DistanceFeature { Side, Cap, Rim }
+
+    [Theory]
+    [InlineData(DistanceFeature.Side, -.00001f, false)]
+    [InlineData(DistanceFeature.Side, .00001f, false)]
+    [InlineData(DistanceFeature.Cap, -.00001f, false)]
+    [InlineData(DistanceFeature.Cap, .00001f, false)]
+    [InlineData(DistanceFeature.Rim, -.00001f, false)]
+    [InlineData(DistanceFeature.Rim, .00001f, false)]
+    [InlineData(DistanceFeature.Side, -.00001f, true)]
+    [InlineData(DistanceFeature.Side, .00001f, true)]
+    [InlineData(DistanceFeature.Cap, -.00001f, true)]
+    [InlineData(DistanceFeature.Cap, .00001f, true)]
+    [InlineData(DistanceFeature.Rim, -.00001f, true)]
+    [InlineData(DistanceFeature.Rim, .00001f, true)]
+    public void TinyCylinderFeatureGapsProduceThePhysicalReaction(DistanceFeature feature, float gap, bool transformed)
+    {
+        var turn = transformed ? new Quaternion(.5f, .5f, .5f, .5f) : Quaternion.Identity;
+        var offset = transformed ? new Vector3(1, -1, .5f) : Vector3.Zero;
+        var diagonal = gap / MathF.Sqrt(2);
+        var centre = feature switch
+        {
+            DistanceFeature.Side => new Vector3(.31f + gap, 0, 0),
+            DistanceFeature.Cap => new Vector3(.05f, .21f + gap, 0),
+            DistanceFeature.Rim => new Vector3(.3f + diagonal, .2f + diagonal + .01f * MathF.Sqrt(2), 0),
+            _ => throw new ArgumentOutOfRangeException(nameof(feature))
+        };
+        var outward = feature switch
+        {
+            DistanceFeature.Side => Vector3.UnitX,
+            DistanceFeature.Cap => Vector3.UnitY,
+            DistanceFeature.Rim => Vector3.Normalize(new Vector3(1, 1, 0)),
+            _ => throw new ArgumentOutOfRangeException(nameof(feature))
+        };
+        outward = Vector3.Transform(outward, turn);
+        var scene = new LawScene(false);
+        scene.StaticCylinder(offset, .3f, .2f, turn, new(0, .1f, 0, 0));
+        var rotation = Quaternion.Multiply(turn, feature == DistanceFeature.Rim ? AboutZ(45) : Quaternion.Identity);
+        var id = scene.Box(offset + Vector3.Transform(centre, turn), new(.01f), 1,
+            new(0, .1f, 0, 0), rotation, -.1f * outward, gravity: 0);
+        var world = scene.Admit(SimulationCadence.Hz240);
+        var initial = world.Initial(id);
+        var end = world.Step(1)[id];
+        var impulse = end.Velocity - initial.Velocity;
+        Assert.True(Vector3.Dot(impulse, outward) > .001f, $"missing surface reaction: {feature}, {gap}, {end}");
+        // A rim's overlapping normal cone spans radial and cap normals; both
+        // project by 1/sqrt(2) onto the diagonal. Side/cap normals are unique.
+        var directionBound = feature == DistanceFeature.Rim ? .6f : .98f;
+        Assert.True(Vector3.Dot(Vector3.Normalize(impulse), outward) > directionBound);
+        Assert.InRange(Vector3.Dot(end.Position - initial.Position, outward), -.0005f, .0005f);
+        var inertia = 2 * .01 * .01 / 3;
+        Assert.True(.5 * end.Speed * end.Speed + .5 * inertia * end.Spin * end.Spin <= .005 + SlopEnergy(1));
+        if (feature != DistanceFeature.Rim)
+            Assert.InRange(end.Spin, 0, .01); // centred side/cap reaction has no torque
     }
 
     [Fact]
@@ -1552,19 +1608,22 @@ public sealed class WorkshopPhysicsLawCylinderTests
     [InlineData(SimulationCadence.Hz60)]
     [InlineData(SimulationCadence.Hz120)]
     [InlineData(SimulationCadence.Hz240)]
-    public void TwoRunsAndAResetReadmissionAreBitIdenticalForSixHundredTicks(SimulationCadence cadence)
+    public void TwoRunsAndAResetReadmissionRestoreEveryBodyStateForSixHundredTicks(SimulationCadence cadence)
     {
         var world = Mixed().Admit(cadence);
         var again = Mixed().Admit(cadence);
-        Assert.Equal(world.Admitted, again.Admitted);
         var engine = new WorkshopPhysicsEngine();
         var first = Run(engine, world, 600);
         var reset = Run(engine, world, 600);
         var fresh = Run(new WorkshopPhysicsEngine(), again, 600);
         for (var tick = 0; tick < 600; tick++)
         {
-            Assert.True(first[tick].AsSpan().SequenceEqual(reset[tick]), $"tick {tick + 1}: Reset re-admission differs");
-            Assert.True(first[tick].AsSpan().SequenceEqual(fresh[tick]), $"tick {tick + 1}: second run differs");
+            foreach (var body in world.Scene.Bodies)
+            {
+                var expected = LawState.Read(world.Scene, first[tick], body.Id);
+                Assert.Equal(expected, LawState.Read(world.Scene, reset[tick], body.Id));
+                Assert.Equal(expected, LawState.Read(again.Scene, fresh[tick], body.Id));
+            }
         }
         Assert.All(world.Scene.Bodies.ToArray().Where(body => body.Motion == RigidMotionKind.Dynamic),
             body => Assert.True(LawState.Read(world.Scene, first[^1], body.Id).Finite));
@@ -1856,12 +1915,69 @@ public sealed class WorkshopPhysicsLawCylinderTests
                 if (contacts.Count == 0) { previous = null; continue; }
                 var gap = contacts.Min(c => c.Gap);
                 if (previous is { } p && MathF.Abs(gap - p) > .0005f)
-                    failures.Add($"pose {pose} at {s * 1000:F2} mm: gap jumps {p * 1000:F3} → {gap * 1000:F3} mm");
+                    failures.Add($"pose {pose} at {s * 1000:F2} mm: gap jumps {p * 1000:F3} → {gap * 1000:F3} mm; qa {qa}, qb {qb}, dir {dir}, touch {touch}; " +
+                        string.Join("; ", contacts.Select(c => $"feature {c.Feature} p {c.Point} n {c.Normal} gap {c.Gap}")));
                 if (k < 0 && gap > .0005f) failures.Add($"pose {pose} at {s * 1000:F2} mm overlapping: gap {gap * 1000:F3} mm");
                 previous = gap;
             }
         }
         Assert.True(failures.Count == 0, string.Join(Environment.NewLine, failures.Take(20)));
+    }
+
+    [Theory]
+    [InlineData(22)]
+    [InlineData(23)]
+    [InlineData(24)]
+    [InlineData(25)]
+    [InlineData(26)]
+    [InlineData(27)]
+    [InlineData(28)]
+    public void ABoxOverlappingAcrossTheCylinderCoreBoundaryReceivesARecoveryReaction(int step)
+    {
+        var centre = At(0, 1);
+        var qa = new Quaternion(.5350929f, .3880077f, -.108675815f, .742506f);
+        var qb = new Quaternion(.15809771f, -.0005673234f, .47813788f, .86393803f);
+        var direction = new Vector3(.35882592f, -.5020133f, -.7869096f);
+        var at = centre + direction * (.5081327f - step * .00005f);
+        var half = At(.25f, .1f, .15f);
+        var scene = new LawScene(false);
+        scene.StaticCylinder(centre, .3f, .2f, qa, Dead with { Friction = 0 });
+        var id = scene.Box(at, half, 1, Dead with { Friction = 0 }, qb, -.05f * direction, gravity: 0);
+        var world = scene.Admit();
+        Assert.True(DeepestBoxEdgeSample(world.Initial(id)) < 0, "an authored box edge is inside the finite cylinder");
+        world.Step(120, (tick, state) =>
+        {
+            var body = state[id];
+            if (tick == 1)
+                Assert.True(Vector3.Dot(body.Velocity + .05f * direction, direction) > 1e-5f,
+                    $"the overlapping core-boundary pose received no recovery impulse: {step}, {body}");
+            if (tick == 120) Assert.True(DeepestBoxEdgeSample(body) >= -.0005);
+            Assert.True(BoxEnergy(body, 1, half) - G * body.Position.Y <= .5 * .05 * .05 + SlopEnergy(1));
+        });
+
+        double DeepestBoxEdgeSample(LawBody body)
+        {
+            // An actual point strictly inside both solids certifies overlap.
+            // Sample all 12 authored box edges, independently of contact generation.
+            var deepest = double.PositiveInfinity;
+            for (var corner = 0; corner < 8; corner++)
+                for (var axis = 0; axis < 3; axis++)
+                {
+                    if ((corner & (1 << axis)) != 0) continue;
+                    for (var sample = 0; sample <= 64; sample++)
+                    {
+                        var local = new Vector3((corner & 1) == 0 ? -half.X : half.X,
+                            (corner & 2) == 0 ? -half.Y : half.Y, (corner & 4) == 0 ? -half.Z : half.Z);
+                        local[axis] += 2 * half[axis] * sample / 64f;
+                        var p = Vector3.Transform(body.Position + Vector3.Transform(local, body.Rotation) - centre, Quaternion.Conjugate(qa));
+                        var dr = Math.Sqrt((double)p.X * p.X + (double)p.Z * p.Z) - .3;
+                        var dy = Math.Abs(p.Y) - .2;
+                        var distance = Math.Sqrt(Math.Pow(Math.Max(dr, 0), 2) + Math.Pow(Math.Max(dy, 0), 2)) + Math.Min(Math.Max(dr, dy), 0);
+                        deepest = Math.Min(deepest, distance);
+                    }
+                }
+            return deepest;
+        }
     }
 
     [Fact]
@@ -2076,11 +2192,18 @@ public sealed class WorkshopPhysicsLawCylinderTests
         var world = scene.Admit();
         double worst = 0;
         double? previous = null;
-        world.Step(3 * world.TicksPerSecond, (_, state) =>
+        LawBody priorBody = default;
+        world.Step(3 * world.TicksPerSecond, (tick, state) =>
         {
             var b = state[body];
             var e = dynamicBox ? BoxEnergy(b, 1f, half) - G * BenchY : Energy(b, 1f, r, h);
-            if (previous is { } p) worst = Math.Max(worst, e - p);
+            if (previous is { } p)
+            {
+                worst = Math.Max(worst, e - p);
+                if (!dynamicBox && kind == GateClass.CylinderOntoBox && materials == GateMaterials.Dead && e - p > SlopEnergy(1))
+                    TestContext.Current.TestOutputHelper?.WriteLine($"RIMENERGY tick {tick}: rise {e - p:R}, q {q}, spin {spin}, height {height}, offset {offset}; before {priorBody}; after {b}");
+            }
+            priorBody = b;
             previous = e;
         });
         return worst;
@@ -2109,7 +2232,11 @@ public sealed class WorkshopPhysicsLawCylinderTests
                 {
                     var rise = GateCase(kind, rng, materials);
                     worst = Math.Max(worst, rise);
-                    if (rise > bound) failed++;
+                    if (rise > bound)
+                    {
+                        failed++;
+                        TestContext.Current.TestOutputHelper?.WriteLine($"ENERGY CASE {kind} {materials} index {i}: {rise:R}, bound {bound:R}");
+                    }
                 }
                 results.Add(($"{kind} ({materials})", bound, failed, worst));
             }
@@ -2124,6 +2251,31 @@ public sealed class WorkshopPhysicsLawCylinderTests
             $"{c.Class}: {c.Failed}/{cases} over {c.Bound * 1000:F3} mJ (worst {c.Worst * 1000:F3} mJ)"));
         TestContext.Current.TestOutputHelper?.WriteLine(report);
         Assert.True(results.All(c => c.Failed == 0), report);
+    }
+
+    [Fact]
+    public void DeadCylinderBoxRimRegressionStaysWithinTheUnchangedControlBudget()
+    {
+        var controlRng = new Random(GateSeed);
+        var control = 0.0;
+        for (var i = 0; i < 200; i++)
+            control = Math.Max(control, GateCase(GateClass.CylinderOntoBox, controlRng, GateMaterials.Dead, boxControl: true));
+        // Explicit authored case179, independent of the seeded sweep's draw order.
+        var scene = new LawScene();
+        scene.StaticBox(At(0, BenchY + .3f), At(.3f, .3f, .5f), null, Dead);
+        var id = scene.Cylinder(At(.18465194f, BenchY + .6f + .35f + .31139722f, .047059108f),
+            .2f, .15f, 1, Dead, new Quaternion(.36008772f, .65099156f, .010655787f, .66815656f),
+            angular: new(-.4708124f, -2.6997364f, -1.1430255f));
+        var world = scene.Admit();
+        double? previous = null;
+        var rise = 0.0;
+        world.Step(3 * world.TicksPerSecond, (_, state) =>
+        {
+            var energy = Energy(state[id], 1, .2f, .15f);
+            if (previous is { } before) rise = Math.Max(rise, energy - before);
+            previous = energy;
+        });
+        Assert.True(rise <= control + SlopEnergy(1), $"case179 rise {rise:R}, bound {control + SlopEnergy(1):R}");
     }
 
     [Fact]

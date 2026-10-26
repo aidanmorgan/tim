@@ -90,7 +90,7 @@ internal static class PrismaticConstraintSolver
 
     public static float ConstraintMass(SimBody body, Vector3 linear, Vector3 angular)
     {
-        if (body.Motion != 1) return 0f;
+        if (body.Motion != RigidMotionKind.Dynamic) return 0f;
         return body.InvMass * Vector3.Dot(linear, linear) + Vector3.Dot(angular, ConstraintInverseInertia(body, angular));
     }
 
@@ -99,7 +99,7 @@ internal static class PrismaticConstraintSolver
 
     private static void ApplyBodyImpulse(SimBody body, Vector3 linear, Vector3 angular, float impulse)
     {
-        if (body.Motion != 1) return;
+        if (body.Motion != RigidMotionKind.Dynamic) return;
         body.Vx += linear.X * impulse * body.InvMass;
         body.Vy += linear.Y * impulse * body.InvMass;
         body.Vz += linear.Z * impulse * body.InvMass;
