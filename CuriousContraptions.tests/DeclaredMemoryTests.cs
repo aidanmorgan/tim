@@ -1,4 +1,3 @@
-using System.Security.Cryptography;
 using System.Text.Json;
 using CuriousContraptions.Gpu;
 
@@ -124,28 +123,27 @@ public sealed class DeclaredMemoryTests
             "HAEAACQAAABDQ1dDHABEADgANAAoACAAHAAYABAACAAAAAAAAAAEABwAAABMAAAAAQAAAAAAAAABAAAAAAAAAMwAAAACAAAAAQAAAAAAAAABAAAAAAAAAAAAAAABAAAAAQAAAAAAAAAAAAAADAAoACAACAAAAAQADAAAACQAAAACAAAAAQAAAAIAAAACAAAAPAAAAAEAAAACAAAAAAAAAAEAAAAcAAAAAAAWADwAMAAsAAAAIAAUAAQAAAAAADgAFgAAAAAAAAAAAAAAAAAAAAAAgD8AAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAUAAAAAQAAAAAAAAAEAAAAAAAAAAQAAABsYW1wAAAAABAAAAABAAAAAAAAAAIAAAAAAAAA"),
     };
 
-    private static (byte[] Save, byte[] Command) Bytes(string name, string saveSha256, string commandSha256)
+    private static (byte[] Save, byte[] Command) Bytes(string name)
     {
         var (save, command) = (Convert.FromBase64String(OldSaves[name].Save), Convert.FromBase64String(OldSaves[name].Command));
-        Assert.Equal((saveSha256, commandSha256), (Convert.ToHexStringLower(SHA256.HashData(save)), Convert.ToHexStringLower(SHA256.HashData(command))));
         return (save, command);
     }
 
     // Every admitted target 1–9 of a base-encoder counter (and a locked, rotated target 7) is refused typed at both boundaries.
     [Theory]
-    [InlineData("counter_1", "61fd8fead4932586e395af9702180493b3f1ced9ac20d31416e8fa24d6ddb9a6", "6b0be4c9a56d4eb1ae53c31316efb9f0680e1dbb54b6ad84ac678c91d102edd8", false)]
-    [InlineData("counter_2", "5a997b5cda7b07c296c78cf1f3093cab2b0ebf28be08b6b0c1cc7625d24544bb", "7c39c4d979d3885d7a66374bea7ea02ea53cdec026fc105413cbafdb5f2cf9b7", false)]
-    [InlineData("counter_3", "edbb6c5ca29cade0a16c7751ef2f54da3517543ac22ae5e52123f6a1eab769f9", "c75db7474d0ac6775cab092ea8c7ea8bef903291897752d535d81dded3ab406c", false)]
-    [InlineData("counter_4", "ea449b6badd993c7c77f88dfeae0f82a095e85511d91532a4c070fc43451223b", "afd8942d219d9f01703d2bf325c7766ea33096217b4d572a9f1ecf32399cd855", true)]
-    [InlineData("counter_5", "10ef8c98a0efbea4a5681339926516f47b07799098741d7c75745253af3b84c7", "cc04ec59c16118f96d6e4506096ff2b3b1106337c7b0944d13572e3afb474b60", false)]
-    [InlineData("counter_6", "d1cddb3ea5485ed3c2a8ac15ff2f33b2900c1ab1f781276150b3b7a82c0ea40f", "aab595a16af1654432b39de0eab11f4d901f7cd9104645920d39281ce79aaf09", false)]
-    [InlineData("counter_7", "6533a7d8a3505e114f02b01bc6a4ba8a6d1396c715f4edae44c1d07d46206f8c", "6cc1300e79dd58c867a5949ba92ccac88e67dc995c9f29a068125f30216f6d50", false)]
-    [InlineData("counter_8", "d27048b433938dbe74909859483aa809a63bf13c1a8648523f60f65ab28490c0", "f702aaba71df7ece7c5d91dea0e367fddf959ee03f20c4ced8e0a19b2005e732", true)]
-    [InlineData("counter_9", "a73a8c915e6215ff74763b85dfb80d70f8395ca52e506035822d672d6074b1c2", "8a37d20ccc01e00ad9863c9513a6c09ea02dd217339d99022483e7d92bb30d63", false)]
-    [InlineData("counter_7_locked_rotated", "d94121ef02806024b21d7730b78bfdacb4fcbbde63e2c10d79e5a719f4e3b580", "8781f673f77a5d34e22db5067fad366a4484b0b3d71cb612f43255e27ad43736", false)]
-    public void ARecordPathCounterSaveIsRefusedTypedAtBothBoundaries(string name, string saveSha256, string commandSha256, bool emptyVector)
+    [InlineData("counter_1", false)]
+    [InlineData("counter_2", false)]
+    [InlineData("counter_3", false)]
+    [InlineData("counter_4", true)]
+    [InlineData("counter_5", false)]
+    [InlineData("counter_6", false)]
+    [InlineData("counter_7", false)]
+    [InlineData("counter_8", true)]
+    [InlineData("counter_9", false)]
+    [InlineData("counter_7_locked_rotated", false)]
+    public void ARecordPathCounterSaveIsRefusedTypedAtBothBoundaries(string name, bool emptyVector)
     {
-        var (save, command) = Bytes(name, saveSha256, commandSha256);
+        var (save, command) = Bytes(name);
         var (saveReason, saveMessage, commandReason, commandMessage) = emptyVector
             ? (WorkshopSaveRejection.OutOfRange, TargetSave, WireFaultReason.OutOfRange, TargetCommand)
             : (WorkshopSaveRejection.VerifierRejected, VerifierSave, WireFaultReason.VerifierRejected, VerifierCommand);
@@ -158,8 +156,7 @@ public sealed class DeclaredMemoryTests
     [Fact]
     public void ARecordPathParameterlessGenericSaveIsRefusedForItsFieldBeyondTheTable()
     {
-        var (save, command) = Bytes("generic_lamp", "95850a10c873bbf004fae7a0d490f9e998fe30ed67c77ca23674e0f1df4e83f0",
-            "0cbe4a33bd61fdba53d62b98dae22efa17dab1ef78f129e4b3950990587b4b89");
+        var (save, command) = Bytes("generic_lamp");
         Assert.Equal(BeyondSave, SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(SaveFixture.Elements, save)).Message);
         var fault = Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeCommand(command));
         Assert.Equal((WireFaultReason.OutOfRange, BeyondCommand), (fault.Reason, fault.Message));
@@ -167,12 +164,12 @@ public sealed class DeclaredMemoryTests
 
     // A base-encoder latch record (pose and lock only) loads at both boundaries as the generic latch with that same pose and lock.
     [Theory]
-    [InlineData("latch", "88348792cff74171441ba57ee6c561fb5857be8411cf0856110c33daff382967", "ef4399659620fdb7dee585449a8f00f59dd4164ee6c4b78c5490a81755fd6ac5", false)]
-    [InlineData("latch_locked_rotated", "1701f6e50eea2ed2c60dc6bda81df2c92097c50ff18b230866860702e912a934", "b5c959b089ad8443bad2994ee2c9e4ac8406b2ccb8fb8097d7ac51d44ff14463", true)]
-    public void ARecordPathLatchSaveLoadsAsTheGenericLatchWithItsPoseAtBothBoundaries(string name, string saveSha256, string commandSha256,
+    [InlineData("latch", false)]
+    [InlineData("latch_locked_rotated", true)]
+    public void ARecordPathLatchSaveLoadsAsTheGenericLatchWithItsPoseAtBothBoundaries(string name,
         bool lockedRotated)
     {
-        var (save, command) = Bytes(name, saveSha256, commandSha256);
+        var (save, command) = Bytes(name);
         var expected = lockedRotated
             ? PlacedParts.Latch(new(1), 2.5, 3, -1.25, 0, Math.Sqrt(.5), 0, Math.Sqrt(.5), locked: true)
             : PlacedParts.Latch(new(1), 0, 3, 0, 0, 0, 0, 1);

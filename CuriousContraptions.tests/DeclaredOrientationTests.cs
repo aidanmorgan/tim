@@ -77,10 +77,10 @@ public sealed class DeclaredOrientationTests
     private const string PipeCommand = "jAEAACQAAABDQ1dDHABEADgANAAoACAAHAAYABAACAAAAAAAAAAEABwAAABMAAAAAQAAAAAAAAABAAAAAAAAADwBAAACAAAAAQAAAAAAAAABAAAAAAAAAAAAAAABAAAAAQAAAAAAAAAAAAAADAAsACAACAAAAAQADAAAACgAAAACAAAAAQAAAAIAAAACAAAAPAAAAAEAAAACAAAAAAAAAAAAAAACAAAAjAAAACQAAAAgAEAAMAAsAAAAIAAUAAQAAAAAAAAAAAAAAAAAAAA8ACAAAAAAAAAAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAAMAAAACAAAAAAAAAAGAAAAAIAAAAAAAAAAAAAAAQAAAAAAAAABAAAAGJhbGwAABYAPAA0ADAAAAAkABgACAAAAAAABAAWAAAAAAAwQAAAAAAAAAAAAAAAAAAAgD8AAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAMAAAAAQAAAAAAAAAEAAAAcGlwZQAAAAAQAAAAAQAAAAAAAAACAAAAAAAAAA==";
 
     [Theory]
-    [InlineData("domino", "c837090c5184533686b7e165fa753b9f9ded17c2c2a95562380582ad2f692fd6", "19536ebaedd02a18fef548613e09f4ab6e315e567f4d663573c6039756d0d17f", WorkshopSaveRejection.VerifierRejected, WireFaultReason.VerifierRejected)]
-    [InlineData("plate", "0b0a704d05e5420e29869d5fd95d372f4a18a9f595c56efae40018bf6cfa718b", "a5393bcc3517b35a16bd7b4de41877e969c8bb361b6dcf526f4f367d1beb8ce3", WorkshopSaveRejection.OutOfRange, WireFaultReason.OutOfRange)]
-    [InlineData("clock", "dc2c6e3ba6401c924a1a4c4e88ddaaa9b38b7f112de0f6f713665c7440811f83", "e71d957bd68b5c8706d1f52dcc93f0ad7909bc380ac51a831ad1e99aec56d231", WorkshopSaveRejection.OutOfRange, WireFaultReason.OutOfRange)]
-    public void ABaseEncoderSaveWhoseSlotsMovedIsRefusedTypedAtBothBoundaries(string name, string saveSha256, string commandSha256,
+    [InlineData("domino", WorkshopSaveRejection.VerifierRejected, WireFaultReason.VerifierRejected)]
+    [InlineData("plate", WorkshopSaveRejection.OutOfRange, WireFaultReason.OutOfRange)]
+    [InlineData("clock", WorkshopSaveRejection.OutOfRange, WireFaultReason.OutOfRange)]
+    public void ABaseEncoderSaveWhoseSlotsMovedIsRefusedTypedAtBothBoundaries(string name,
         WorkshopSaveRejection save, WireFaultReason command)
     {
         var (saveBytes, commandBytes) = name switch
@@ -90,8 +90,6 @@ public sealed class DeclaredOrientationTests
             "clock" => (Convert.FromBase64String(ClockSave), Convert.FromBase64String(ClockCommand)),
             _ => throw new ArgumentOutOfRangeException(nameof(name))
         };
-        Assert.Equal((saveSha256, commandSha256), (Convert.ToHexStringLower(System.Security.Cryptography.SHA256.HashData(saveBytes)),
-            Convert.ToHexStringLower(System.Security.Cryptography.SHA256.HashData(commandBytes))));
         SaveFixture.Refused(save, () => WorkshopSaveCodec.Decode(SaveFixture.Elements, saveBytes));
         Assert.Equal(command, Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeCommand(commandBytes)).Reason);
     }
@@ -101,8 +99,6 @@ public sealed class DeclaredOrientationTests
     {
         var saveBytes = Convert.FromBase64String(PipeSave);
         var commandBytes = Convert.FromBase64String(PipeCommand);
-        Assert.Equal(("e011925730a9729676d9530eb932f84a64eba8e2caff5bac9e619cb903bc57f6", "9635d17d38ed20c430b222cd09ef089a96532a1eda606be75a7281030927a7d5"),
-            (Convert.ToHexStringLower(System.Security.Cryptography.SHA256.HashData(saveBytes)), Convert.ToHexStringLower(System.Security.Cryptography.SHA256.HashData(commandBytes))));
         // The old length (2.75 m, slot 8) now lies beyond the 8-field table, and the current length slot (the old mass, absent) reads 0.
         Assert.Equal("This save cannot be loaded: Part 1 length 0 is outside [1, 8].",
             SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(SaveFixture.Elements, saveBytes)).Message);

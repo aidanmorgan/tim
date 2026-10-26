@@ -1,5 +1,4 @@
 using System.Numerics;
-using System.Security.Cryptography;
 using CuriousContraptions.Gpu;
 using CuriousContraptions.Simulation;
 
@@ -523,28 +522,114 @@ public sealed class WorkshopPhysicsLawRestitutionTests
     // ---- determinism and Reset ----
 
     /// <summary>A bouncing Basketball, a tumbling box and a cylinder (e = 0.3) on the bench: two runs, and a re-run on the same
-    /// engine after Reset, commit bit-identical worlds on every tick for 600 ticks at 60, 120 and 240 Hz.</summary>
+    /// engine after reset and re-admission, commit the same identified body states on every tick for 600 ticks at 60, 120 and 240 Hz.</summary>
     [Theory]
     [InlineData(SimulationCadence.Hz60)]
     [InlineData(SimulationCadence.Hz120)]
     [InlineData(SimulationCadence.Hz240)]
-    public void BouncingRunsAndAResetReplayAreBitIdentical(SimulationCadence cadence)
+    public void BouncingRunsAndAReusedEngineReplayPreserveBodyMotion(SimulationCadence cadence)
     {
         var lively = new LawMaterial(.3f, .1f, .5f, .05f);
         var scene = new LawScene();
-        scene.Ball(LawBall.Basketball, At(-1, BenchY + 1.2f));
-        scene.Box(At(0, BenchY + .8f), At(.25f, .1f, .15f), 1f, lively, Quaternion.CreateFromYawPitchRoll(.3f, .5f, .2f), angular: At(1, -2, .5f));
-        scene.Cylinder(At(1, BenchY + .9f), .2f, .15f, 1f, lively, Quaternion.CreateFromYawPitchRoll(.1f, .7f, -.4f));
+        var ball = scene.Ball(LawBall.Basketball, At(-1, BenchY + 1.2f));
+        var boxRotation = Quaternion.CreateFromYawPitchRoll(.3f, .5f, .2f);
+        var boxAngular = At(1, -2, .5f);
+        var box = scene.Box(At(0, BenchY + .8f), At(.25f, .1f, .15f), 1f, lively, boxRotation, angular: boxAngular);
+        var cylinder = scene.Cylinder(At(1, BenchY + .9f), .2f, .15f, 1f, lively, Quaternion.CreateFromYawPitchRoll(.1f, .7f, -.4f));
         var world = scene.Admit(cadence);
-        List<string> Run(WorkshopPhysicsEngine engine)
+        var bench = Assert.Single(world.Scene.Bodies.ToArray(), body => body.Motion == RigidMotionKind.Static);
+        var authoredBench = new LawBody(At(0, BenchY), Quaternion.Identity, Vector3.Zero, Vector3.Zero, bench.Cell, bench.Local);
+        GpuBodyId[] dynamicIds = [ball, box, cylinder];
+        GpuBodyId[] ids = [bench.Id, .. dynamicIds];
+
+        void SameState(LawBody expected, LawBody actual, string context)
         {
-            var hashes = new List<string>();
-            world.Step(600, (_, state) => hashes.Add(Convert.ToHexString(SHA256.HashData(state.World))), engine: engine);
-            return hashes;
+            Assert.True(expected.Cell == actual.Cell, $"{context}: cell {actual.Cell}, expected {expected.Cell}");
+            Assert.True(expected.Local == actual.Local, $"{context}: local {actual.Local}, expected {expected.Local}");
+            Assert.True(expected.Position == actual.Position, $"{context}: position {actual.Position}, expected {expected.Position}");
+            Assert.True(expected.Rotation == actual.Rotation, $"{context}: rotation {actual.Rotation}, expected {expected.Rotation}");
+            Assert.True(expected.Velocity == actual.Velocity, $"{context}: velocity {actual.Velocity}, expected {expected.Velocity}");
+            Assert.True(expected.Angular == actual.Angular, $"{context}: angular velocity {actual.Angular}, expected {expected.Angular}");
+        }
+
+        List<(int Tick, Dictionary<GpuBodyId, LawBody> Bodies)> Run(WorkshopPhysicsEngine engine, int run)
+        {
+            var samples = new List<(int Tick, Dictionary<GpuBodyId, LawBody> Bodies)>();
+            // Read the committed public ABI before its buffer is reused; retain only typed value snapshots.
+            world.Step(600, (tick, state) =>
+            {
+                var committed = PhysicsGpuAbi.ReadDynamicBodies(state.World);
+                Assert.True(committed.Count == dynamicIds.Length, $"run {run}, tick {tick}: dynamic count {committed.Count}, expected 3");
+                var bodies = new Dictionary<GpuBodyId, LawBody>();
+                foreach (var id in dynamicIds)
+                {
+                    var context = $"run {run}, tick {tick}, body {id.Value}";
+                    Assert.True(committed.TryGet(id, out var read), $"{context}: missing committed body");
+                    Assert.True(read.Body.Tick == (ulong)tick, $"{context}: committed tick {read.Body.Tick}");
+                    bodies.Add(read.Body.Id, state[read.Body.Id]);
+                }
+                bodies.Add(bench.Id, state[bench.Id]);
+                SameState(authoredBench, bodies[bench.Id], $"run {run}, tick {tick}, static body {bench.Id.Value}");
+                samples.Add((tick, bodies));
+            }, engine: engine);
+            Assert.True(samples.Count == 600, $"run {run}: sample count {samples.Count}, expected 600");
+            for (var index = 0; index < samples.Count; index++)
+            {
+                Assert.True(samples[index].Tick == index + 1, $"run {run}, sample {index}: tick {samples[index].Tick}");
+                foreach (var (id, body) in samples[index].Bodies)
+                {
+                    var context = $"run {run}, tick {samples[index].Tick}, body {id.Value}";
+                    Assert.True(body.Finite, $"{context}: non-finite state");
+                    // Declared game-grade envelope; these bounds are independent of replay equality.
+                    Assert.True(body.Speed <= 64d, $"{context}: speed {body.Speed} exceeds 64 m/s");
+                    Assert.True(body.Spin <= 128d, $"{context}: spin {body.Spin} exceeds 128 rad/s");
+                    Assert.True(MathF.Abs(body.Rotation.Length() - 1f) <= 1e-4f, $"{context}: non-unit quaternion {body.Rotation}");
+                }
+            }
+            return samples;
         }
         var engine = new WorkshopPhysicsEngine();
-        var first = Run(engine);
-        Assert.Equal(first, Run(new WorkshopPhysicsEngine()));
-        Assert.Equal(first, Run(engine));
+        var first = Run(engine, 1);
+        var replays = new[] { Run(new WorkshopPhysicsEngine(), 2), Run(engine, 3) };
+        for (var run = 0; run < replays.Length; run++)
+            for (var index = 0; index < first.Count; index++)
+            {
+                Assert.True(first[index].Tick == replays[run][index].Tick, $"run {run + 2}, sample {index}: replay tick mismatch");
+                foreach (var id in ids)
+                    SameState(first[index].Bodies[id], replays[run][index].Bodies[id],
+                        $"run {run + 2}, tick {first[index].Tick}, body {id.Value}");
+            }
+
+        // Gravity must lower both elevated bodies; nonzero ball restitution must reverse descent at the bench.
+        var falling = first.FindIndex(sample => sample.Bodies[ball].Velocity.Y < 0f
+            && sample.Bodies[ball].Position.Y < world.Initial(ball).Position.Y);
+        Assert.InRange(falling, 0, 598);
+        var rebound = first.FindIndex(falling + 1, sample => sample.Bodies[ball].Velocity.Y > 0f);
+        Assert.InRange(rebound, falling + 1, 598);
+        Assert.True(first[rebound + 1].Bodies[ball].Position.Y > first[rebound].Bodies[ball].Position.Y,
+            $"run 1, tick {first[rebound].Tick}, body {ball.Value}: rebound must rise on the following tick");
+        var interval = 1f / world.TicksPerSecond;
+        var radius = LawBalls.Radius(LawBall.Basketball);
+        var drop = 1.2f - radius;
+        // Free-fall impact speed bounds this dissipative drop. One committed interval spans the contact
+        // and upward travel; g*T² covers discrete gravity, with the declared 0.5 mm contact slop.
+        var contactWindow = MathF.Sqrt(2f * G * drop) * interval + G * interval * interval + .0005f;
+        var reboundHeight = first[rebound].Bodies[ball].Position.Y;
+        Assert.True(MathF.Abs(reboundHeight - (BenchY + radius)) <= contactWindow,
+            $"run 1, tick {first[rebound].Tick}, body {ball.Value}: rebound height {reboundHeight}, expected {BenchY + radius} ± {contactWindow}");
+        Assert.Contains(first, sample => sample.Bodies[cylinder].Position.Y < world.Initial(cylinder).Position.Y
+            && sample.Bodies[cylinder].Velocity.Y < 0f);
+
+        // The first tick is free flight: the box begins 0.8 m above the bench and its half-diagonal
+        // is under 0.31 m. A unit axis initially moves at |ω × axis|. This box's principal inertia
+        // ratio is under 3, so 4|ω|²*T² conservatively bounds gyro/axis-curvature remainder over T≤1/60.
+        // Subtract 32 f32 unit roundoffs for the normalized axis transforms; q and -q give the same axis.
+        var initialAxis = Vector3.Normalize(Vector3.Transform(Vector3.UnitX, boxRotation));
+        var firstAxis = Vector3.Normalize(Vector3.Transform(Vector3.UnitX, first[0].Bodies[box].Rotation));
+        var minimumAxisMotion = Vector3.Cross(boxAngular, initialAxis).Length() * interval
+            - 4f * boxAngular.LengthSquared() * interval * interval - 32f * MathF.Pow(2f, -24f);
+        Assert.True(minimumAxisMotion > 0f, "authored first-tick angular motion must exceed its derived f32/remainder bound");
+        Assert.True(Vector3.Distance(initialAxis, firstAxis) >= minimumAxisMotion,
+            $"run 1, tick 1, body {box.Value}: axis motion {Vector3.Distance(initialAxis, firstAxis)}, minimum {minimumAxisMotion}");
     }
 }

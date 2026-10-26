@@ -521,7 +521,8 @@ development_status:
   test-workshop-harness-a: backlog
   test-workshop-harness-b: backlog
   runtime-typescript-conversion: backlog
-  test-behavioral-hygiene: backlog
+  test-behavioral-hygiene: in-progress # first bounded child: test-semantic-digests; broader inventory remains open
+  test-semantic-digests: in-progress # spec-test-semantic-digests.md; 57 literal cases preserved; scoped native checks pass; full round/review/publication pending
   engine-supported-impact-restitution: backlog # before10.3/first dynamic support consumer
   cat-023c-offset-centre-of-mass: backlog # before next Domino-dependent level and catalogue closure
   catalogue-native-closure: backlog # requires native 15.0 + all required modes/integrations; conjunction only

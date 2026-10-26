@@ -1,4 +1,3 @@
-using System.Security.Cryptography;
 using CuriousContraptions.Gpu;
 
 namespace CuriousContraptions.Tests;
@@ -180,24 +179,24 @@ public sealed class DeclaredOscillatorTests
     private const string TargetCommand = "Invalid declared parameters.";
 
     [Theory]
-    [InlineData("clock_0_1", "f4a493b3f39b89b7d352351fe35196fb2d8c4e46f702faeb91e47f60965e25ab", "18b9590666b4e313ac344a33cbc8254b204e5ca59342877f67065a19e872ca23",
+    [InlineData("clock_0_1",
         WorkshopSaveRejection.VerifierRejected, VerifierSave, WireFaultReason.VerifierRejected, VerifierCommand)]
-    [InlineData("clock_12", "12856819067e26c572257f4a7275eca6f9cd1d14f3e208d3c03c81f6c67d3aea", "af10719172fcd7c6093c85c2b6e37f252b18fec2d78d177c04d64a9e3a2412be",
+    [InlineData("clock_12",
         WorkshopSaveRejection.VerifierRejected, VerifierSave, WireFaultReason.VerifierRejected, VerifierCommand)]
-    [InlineData("clock_locked_rotated", "7bb2f9594727e48b3ba1311426f9f28e40dc073fc5135ea5f9ee42d6aabeb18f", "e8342cef097e3697db486e9b2d7d6b3c37f64c395f792888a98ddfc7e4e64b73",
+    [InlineData("clock_locked_rotated",
         WorkshopSaveRejection.VerifierRejected, VerifierSave, WireFaultReason.VerifierRejected, VerifierCommand)]
-    [InlineData("bench_counter_gate", "630b8bb7cc81c7c4440f8a1d5fa957b244d8af0fe5ceb29393777e345f64b5d7", "3fb5d595fd7512ca9b4581b8b69bea6a32268670c06718c8369f5e62b4be86f1",
+    [InlineData("bench_counter_gate",
         WorkshopSaveRejection.VerifierRejected, VerifierSave, WireFaultReason.VerifierRejected, VerifierCommand)]
-    [InlineData("counter_4", "30c31d97d4a74f46b892b5779087340c9e592e5b0d32b8c388e5071c67c72567", "86d189336724a5add8c234c923ed7237f25ee6e5ac9862ab3c1aa3814add3565",
+    [InlineData("counter_4",
         WorkshopSaveRejection.OutOfRange, TargetSave, WireFaultReason.OutOfRange, TargetCommand)]
-    [InlineData("counter_3", "45882e833efb5593a8e096ce357a15fce05035ccb9f225f302682104c1b854c9", "278a2ce8210b739eab41c4e0d2221fc1d8c118d4e2e90af4ba8b1c1773864d20",
+    [InlineData("counter_3",
         WorkshopSaveRejection.OutOfRange, TargetSave, WireFaultReason.OutOfRange, TargetCommand)]
-    [InlineData("counter_8", "51bbb19ef3ee46e76a38b879698d6a24c2228d644630ea508be95936d4d67d74", "63a28e4c28d67dbb920a15476294f97413f0138fcf358ac66fce5e02a4c6367d",
+    [InlineData("counter_8",
         WorkshopSaveRejection.OutOfRange, TargetSave, WireFaultReason.OutOfRange, TargetCommand)]
-    [InlineData("generic_ball", "8d819cef4f1f3ab907a728e0b8874e07e3df7d3ab2c37e35c4c56d578ae8c90c", "56c55e27701c6ed85e7d288e39a55f9710ca6f50f256534b894fef0bb50e897c",
+    [InlineData("generic_ball",
         WorkshopSaveRejection.OutOfRange, "This save cannot be loaded: an instance record holds a field the current record does not define.",
         WireFaultReason.OutOfRange, "An instance record holds a field the current record does not define.")]
-    public void ARecordPathSaveIsRefusedTypedAtBothBoundaries(string name, string saveSha256, string commandSha256,
+    public void ARecordPathSaveIsRefusedTypedAtBothBoundaries(string name,
         WorkshopSaveRejection saveReason, string saveMessage, WireFaultReason commandReason, string commandMessage)
     {
         var (save, command) = name switch
@@ -213,7 +212,6 @@ public sealed class DeclaredOscillatorTests
             _ => throw new ArgumentOutOfRangeException(nameof(name))
         };
         var (saveBytes, commandBytes) = (Convert.FromBase64String(save), Convert.FromBase64String(command));
-        Assert.Equal((saveSha256, commandSha256), (Convert.ToHexStringLower(SHA256.HashData(saveBytes)), Convert.ToHexStringLower(SHA256.HashData(commandBytes))));
         Assert.Equal(saveMessage, SaveFixture.Refused(saveReason, () => WorkshopSaveCodec.Decode(SaveFixture.Elements, saveBytes)).Message);
         var fault = Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeCommand(commandBytes));
         Assert.Equal((commandReason, commandMessage), (fault.Reason, fault.Message));

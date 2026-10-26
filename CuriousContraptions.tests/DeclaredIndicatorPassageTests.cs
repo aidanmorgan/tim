@@ -1,4 +1,3 @@
-using System.Security.Cryptography;
 using CuriousContraptions.Abstractions;
 using CuriousContraptions.Abstractions.Signal;
 using CuriousContraptions.Gpu;
@@ -148,7 +147,7 @@ public sealed class DeclaredIndicatorPassageTests
     // ---------- D6: record-path saves load as the generic instances; forged records are refused at both boundaries ----------
 
     // Written by the production save encoder at 54ffd9f0 on the record path (evidence-c-lamp-detector/baseline/capture/old-saves; the
-    // sha256 below are that directory's old-saves.sha256): a lamp, a locked rotated detector, and a detector wired to a lamp and to a
+    // provenance is that directory's old-saves.sha256): a lamp, a locked rotated detector, and a detector wired to a lamp and to a
     // counter that lights a second lamp, beside one Basketball.
     private const string LampSave = "vAAAABQAAABDQ1dTAAAAAAgAFAAIAAQACAAAABwAAAAJAAAAAAAAAAAAAAAMACgAIAAIAAAABAAMAAAAJAAAAAIAAAABAAAAAgAAAAIAAAA8AAAAAQAAAAIAAAAAAAAAAQAAABQAAAAQADwAMAAsAAAAIAAUAAQAEAAAAAAAAAAAAAAAAAAAAAAAgD8AAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAQAAAAAQAAAAAAAAAAAAAABAAAAGxhbXAAAAAA";
     private const string DetectorSave = "zAAAABQAAABDQ1dTAAAAAAgAFAAIAAQACAAAABwAAAAJAAAAAAAAAAAAAAAMACwAIAAIAAAABAAMAAAAKAAAAAIAAAABAAAAAgAAAAIAAAA8AAAAAQAAAAIAAAAAAAAAAAAAAAEAAAAUAAAAEABAADQAMAAvACAAFAAEABAAAAAAAAAAAAAAAPQENb/0BDU/AAAAAAAAAAAAAAAAKAAAABAAAADs////AAAAARAAAAABAAAAAAAAAAAAAAANAAAAYmFsbF9kZXRlY3RvcgAAAA==";
@@ -164,10 +163,10 @@ public sealed class DeclaredIndicatorPassageTests
             Signal(detector.Id, new(2)), Signal(detector.Id, counter.Id), Signal(counter.Id, new(5)));
     }
 
-    public static TheoryData<string, string, string> RecordPathSaves() => new()
+    public static TheoryData<string, string> RecordPathSaves() => new()
     {
-        { "lamp", LampSave, "3b45959bcf734fed9ead0993ee4fb6ceab90fc0ad09f81ac2934a954decd45d0" },
-        { "detector", DetectorSave, "bec0bf607746462b4cdeeaeaa16132c7f8c29ab52d2193072e8547f7db722cf9" }
+        { "lamp", LampSave },
+        { "detector", DetectorSave }
     };
 
     // 9A.32 removed four InstanceRecord fields and renumbered the later slots, so the wired save's counter target count (slot 12 at
@@ -178,7 +177,6 @@ public sealed class DeclaredIndicatorPassageTests
     public void TheWiredRecordPathSaveIsRefusedAfterTheSlotRenumbering()
     {
         var bytes = Convert.FromBase64String(WiredSave);
-        Assert.Equal("d3f44efad3fd9ad2855109333bc5b7caa2806ac7c7215b38001f79f95e81c2fe", Convert.ToHexStringLower(SHA256.HashData(bytes)));
         Assert.Equal("This save cannot be loaded: Invalid declared parameters.",
             SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes)).Message);
         var counter = WorkshopSaveCodec.Open(bytes).Construction!.Value.Instances(3)!.Value;
@@ -188,10 +186,9 @@ public sealed class DeclaredIndicatorPassageTests
 
     [Theory]
     [MemberData(nameof(RecordPathSaves))]
-    public void ARecordPathSaveLoadsAsTheGenericInstancesAtBothBoundaries(string name, string base64, string sha256)
+    public void ARecordPathSaveLoadsAsTheGenericInstancesAtBothBoundaries(string name, string base64)
     {
         var bytes = Convert.FromBase64String(base64);
-        Assert.Equal(sha256, Convert.ToHexStringLower(SHA256.HashData(bytes)));
         var expected = name switch
         {
             "lamp" => Bench([PlacedParts.Lamp(new(1), 0, 1, 0, 0, 0, 0, 1)]),
