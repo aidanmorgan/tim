@@ -68,62 +68,10 @@ public static partial class Program
         return ElementPortCatalogue.FromBundle(document.Elements);
     }
 
-    private sealed class WarmupInstallation : IWorkshopInstallation
-    {
-        public void Abort(CommandSequence owner) { }
-        public void Retire() { }
-        public ValueTask Prepare(CommandSequence owner, WorkshopRead read, WorkshopConstruction construction, WorkshopGpuProfile profile, WorkshopSimulationPhase phase) => ValueTask.CompletedTask;
-    }
-
     [JSExport]
     public static async Task PrepareGpu()
     {
         await Device.Prepare();
-        await WarmupSimulation();
-    }
-
-    /// <summary>Story 9A.21: warms the command lifecycle (Initialize, Construct, Run, Advance, Reset) on an empty bench, so it names
-    /// no element. The solver's contact, prismatic and drive paths were already warmed by the transport's synthetic scene
-    /// (<see cref="WarmupScene"/>); the per-element compile path is not warmed.</summary>
-    private static async Task WarmupSimulation()
-    {
-        try
-        {
-            var settings = WorkshopCadenceSettings.Default();
-            var construction = new WorkshopConstruction(new(2), settings, new([]));
-
-            // The warm-up borrows the worker's device: disposing it retires the warm-up only, never the device.
-            await using var sim = new WorkshopSimulation(Device, new CaptureClock(), settings, new(1), new WarmupInstallation(),
-                GpuDeviceOwnership.Borrowed);
-            var initResult = await sim.Initialize();
-            Console.WriteLine($"WARMUP: init={initResult.Outcome} {initResult.Reason}");
-            if (initResult.Outcome == WorkshopCommandOutcome.Applied)
-            {
-                var constructResult = await sim.Construct(construction);
-                Console.WriteLine($"WARMUP: construct={constructResult.Outcome} {constructResult.Reason}");
-                if (constructResult.Outcome == WorkshopCommandOutcome.Applied)
-                {
-                    var runResult = await sim.Run();
-                    Console.WriteLine($"WARMUP: run={runResult.Outcome} {runResult.Reason}");
-                    if (runResult.Outcome == WorkshopCommandOutcome.Applied)
-                    {
-                        for (var step = 0; step < 5; step++)
-                        {
-                            var t0 = NativeMilliseconds();
-                            var adv = await sim.Advance();
-                            var dt = NativeMilliseconds() - t0;
-                            Console.WriteLine($"WARMUP: step {step} {adv.Outcome} {adv.Reason} in {dt:F2}ms");
-                        }
-                    }
-                    await sim.Reset();
-                }
-            }
-        }
-        catch (Exception error)
-        {
-            // Non-fatal: the worker's own Initialize admits a fresh world on the same device afterwards.
-            WorkshopDiagnostics.Fault(FaultSite.Warmup, error);
-        }
     }
 
     /// <summary>Publishes one committed read with its 24-byte receipt identity and its composed pose-ring slot: the worker copies

@@ -55,7 +55,7 @@ public interface IWorkshopInstallation
 }
 
 /// <summary>Whether disposing a simulation also disposes its GPU device. The worker's simulation owns the device;
-/// the bootstrap warm-up borrows the same device and must leave it to that owner.</summary>
+/// a borrowed simulation must leave the shared device to that owner.</summary>
 public enum GpuDeviceOwnership { Owned = 1, Borrowed = 2 }
 
 public sealed class WorkshopSimulation : IAsyncDisposable

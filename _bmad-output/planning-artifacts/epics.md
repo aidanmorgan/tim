@@ -72,7 +72,7 @@ Every single story across all epics must formally satisfy the following mandator
 
 **Owner direction, 24 October 2026.** Stabilize the existing game, then implement **every named element and variant**, then qualify through browsers. This section supersedes older lane alternation, positional numbers and first-undone dispatch. Source behaviors and named requirement IDs remain intact. The [293-identity ledger](../../docs/planning/invest/named-elements.md#execution-contract--complete-named-catalogue-24-october-2026) supplies 276 actual named-element contracts, 10 umbrella child dispositions and 7 product-feature contracts. The72 CAT specifications overlap those identities; all 104 current mode records and source-required variants remain obligations. “Potential” no longer excludes an actual named element.
 
-**Current owner follow-ups (26 October):** after published friction main, [game-grade float comparisons](../implementation-artifacts/spec-game-grade-float-comparisons.md) implements the first bounded comparison adoption and resting observations. It replaces obsolete nanometre resting acceptance with the owner's physical floor/relative/cap policy; energy, heading, penetration and Weight gates are unchanged. Next, [remove synthetic warm-up](../implementation-artifacts/deferred-work.md#owner-requested-subtask--remove-core-warm-up-26-october-2026), preserving solver warm-starting; this supersedes older synthetic-warm-up retention wording when that removal slice executes. The catalogue order below remains required.
+**Current owner follow-ups (26 October):** after published friction main, [game-grade float comparisons](../implementation-artifacts/spec-game-grade-float-comparisons.md) implements the first bounded comparison adoption and resting observations. It replaces obsolete nanometre resting acceptance with the owner's physical floor/relative/cap policy; energy, heading, penetration and Weight gates are unchanged. Next, [remove synthetic warm-up](../implementation-artifacts/deferred-work.md#owner-requested-subtask--remove-core-warm-up-26-october-2026), preserving solver warm-starting; the owner removal now supersedes older synthetic-warm-up retention wording. The catalogue order below remains required.
 
 **Selection:** use phases below, then source dependencies and the first ready slice in that phase. Sprint file order is a status view, not a dependency oracle. A blocked slice records its concrete missing capability/decision owner and retry condition; select another independent slice within the same phase. Split parent stories are conjunctions, never implementation dispatch. A named CAT refinement shares its source owner's package where semantically identical, but distinct variants have separate delivery and proof. Existing completion evidence may be reused only after independent applicability review.
 
@@ -524,7 +524,7 @@ All items are decided and applied below. The owner decided items (b), (c), (e), 
   - **CAT-005 Q6.** Wires are not edited during Run; supply loss is a switched contact (Story 9.4c). Rationale: Run is for watching, the bench is for building.
   - **Tennis Ball and Balloon** leave the palette until Story 12.1 ships their packages (Story 9A.14). Rationale: a part that throws when placed is unplayable.
   - **Palette categories stay** as the player sees them today (Story 9A.4). Rationale: a refactor must not reshuffle the toolbox.
-  - **A synthetic worker warm-up is kept** (Story 9A.21). Rationale: avoids a visible first-Run hitch.
+  - **Synthetic startup warm-up is removed** (owner, 26 Oct 2026; Story 9A.21 / `engine-remove-core-warmup`), superseding the coordinator retention choice. Keep real preparation, solver warm-starting and later first-use/performance qualification.
   - **The e2e observation port** is typed, read-only and part of the single production build (Story 9A.24). Rationale: Chrome proof must exercise the build players get.
   - **Pressure Plate threshold.** The CAT-052 §2 parameter governs: `minimum_mass` f32 kg, range 0.1–16, default 0.5. Story 9.1's "> 0.2 kg" wording is superseded (Story 9A.20). Rationale: as shipped, one light ball is too light and a heavy ball triggers it, which is a clear lesson.
   - **Collider source (Story 9A.16).** `BundleElements` extracts each package's colliders from that package's own scene or glTF at build time, using the Story 6.5c extraction, and bakes them into the bundle. The runtime loads only the bundle. A package with both data-declared and scene colliders fails the build. Rationale: colliders always match the art the player sees.
@@ -2721,8 +2721,8 @@ So that every new element from Story 9.5 on is declaration-only and every conver
 *Coordinator decision (22 Oct 2026, from Story 9.4c review F1):* C-Gate also fixes ActuatorDriveRead.Blocked residual (blade resting on ball reads −1.083e-5 m/s vs 1e-5 threshold, indicator shows unpowered); native proof required; see spec-9-4c D-notes. The threshold itself is CAT-051 open question 3 (owner).
 
 **Acceptance Criteria:**
-- **Given** the Powered Gate package, **When** it is compiled, **Then** every Story 9A.19 and 9A.21 AC holds. That includes the empty Story 9.4b element-scan known-violations list and the synthetic warm-up.
-- **And** `rg -w "ActuatorSliderDrive|SwitchedSupplyClosed"` and `rg "PartId\.PoweredGate"` return 0 production hits, and the warm-up names no element.
+- **Given** the Powered Gate package, **When** it is compiled, **Then** every Story 9A.19 and 9A.21 AC holds. That includes the empty Story 9.4b element-scan known-violations list and the owner-directed removal of synthetic startup work.
+- **And** `rg -w "ActuatorSliderDrive|SwitchedSupplyClosed"` and `rg "PartId\.PoweredGate"` return 0 production hits, and no synthetic startup workload remains.
 - **And** the review appends the addendum that re-verifies Story 8.2.
 
 ### Story C-Lamp+Detector: Signal Lamp and Ball Detector Generic Instances (9A.36 + 9A.37 + 9R.9 + 9R.16)
@@ -3326,23 +3326,23 @@ So that any element can declare a load sensor and the compiler never recognises 
 - **And** `cat-052`, `cat-052-two-plates` and `cat-052-lamp` pass.
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
 
-### Story 9A.21: Declaration-Free Worker Warm-Up
-*Status: Backlog. Merged into C-Gate (21 Oct 2026). These ACs stay here and apply there.*
+### Story 9A.21: Remove Synthetic Worker Startup Work
+*Status: historical declaration-free replacement delivered in C-Gate (21 Oct 2026); owner-directed removal is implemented and under independent review in `engine-remove-core-warmup` (26 Oct 2026). That slice owns the current ACs, verification and publication; Story 9A.21 and audit A9 retain their identities.*
 
 *Depends on: Story 9A.19. Audit: A9.*
 
-*Deletes: the element warm-up scene in `CuriousContraptions.Simulation/Program.cs:65-72` (Battery, PressurePlate, PoweredGate, Basketball, Ramp) and the dummy joint in `WorkshopPhysicsEngine.cs` (around lines 180–195: `Upper = 1.55`, spring 14).*
+*Deletes: the synthetic `WorkshopPhysicsEngine.Warmup` API and transport caller, `WarmupScene`, `Program.WarmupSimulation` / `WarmupInstallation`, and their diagnostic, compile and guard closure. This supersedes the older element-scene replacement under the same story and A9 identities.*
 
 As a player,  
-I want the first Run to start without a hitch,  
-So that the warm-up never depends on which elements exist.
+I want real device preparation and the first Run to work without synthetic startup workloads,
+So that core startup performs only the work the real session needs.
 
 **Acceptance Criteria:**
-- **Given** worker start-up, **When** it warms up, **Then** it compiles and steps a synthetic, declaration-free scene: one dynamic sphere body, one static box collider and one prismatic row with arbitrary declared parameters. No element id or element value appears.
-- **And** time to the first committed tick after the first Run is recorded before and after the change and has not regressed beyond run-to-run noise (advisory; detailed performance stays at the Epic 16 gate).
-- **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
+- **Given** worker start-up, **When** actual device resources prepare, **Then** no synthetic scene, dummy kernel/solver workload or dummy command lifecycle executes. Explicit and implicit preparation both support the first real construction and tick, exact Reset/replay and ordinary engine reuse. Preserve bootstrap, the real clock, resource ownership and solver warm-starting.
+- **And** first-use responsiveness and time to the first committed tick retain their advisory measurement and non-regression contract at the named Epic 16 performance gate. No synthetic runtime workload is introduced to satisfy a measurement warm-up.
+- **And** matching Debug compiler proof reports 0 warnings/errors and required local native tests pass with zero skips. Normal hooks and exact-SHA production publication remain required. Serial production-origin Chrome proof remains at post-catalogue E2E.
 
-*Design choice (coordinator, under owner delegation; playability).* A synthetic warm-up is kept rather than deleted, because a first-Run stall is visible to the player.
+*Superseding owner decision (26 Oct 2026).* Remove all synthetic core startup work; the older coordinator retention choice is obsolete. [Removal contract](../implementation-artifacts/spec-engine-remove-core-warmup.md) C1–C5 governs. First-use measurements and performance warm-up remain at Epic 16; browser proof remains deferred until post-catalogue E2E.
 
 ### Story 9A.22: Event Ring Producer
 *Status: Backlog. Position 44, immediately before C-Memory, whose ACs need `ThresholdReached` and `MemoryChanged`.*

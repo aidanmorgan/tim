@@ -17,7 +17,7 @@ public sealed class ElementIsolationTests
     public enum Rule { ElementLiteral, NamedPart, PackageIdentifier, SolverPin }
     public enum Owner
     {
-        FinalIsolation, Lessons, Warmup, Events, GateDrive, Ramp, Receiver, Basketball, Bowling,
+        FinalIsolation, Lessons, Events, GateDrive, Ramp, Receiver, Basketball, Bowling,
         Bumper, Springboard, Switch, Lamp, Detector, Delay, Battery, Domino, Plate, Counter, Clock, Latch
     }
 
@@ -36,7 +36,7 @@ public sealed class ElementIsolationTests
     private static readonly Dictionary<Owner, string> SprintKeys = new Dictionary<Owner, string>
     {
         [Owner.FinalIsolation] = "9a-45-compile-time-isolation-gate", [Owner.Lessons] = "9a-26-lessons-as-content-data",
-        [Owner.Warmup] = "9a-c-gate-declared-drive-warmup", [Owner.Events] = "9a-22-event-ring-producer",
+        [Owner.Events] = "9a-22-event-ring-producer",
         [Owner.GateDrive] = "9a-c-gate-declared-drive-warmup", [Owner.Ramp] = "9a-c-ramp-receiver-conversion",
         [Owner.Receiver] = "9a-c-ramp-receiver-conversion", [Owner.Basketball] = "9a-c-balls-conversion",
         [Owner.Bowling] = "9a-c-balls-conversion", [Owner.Bumper] = "9a-c-bumper-spring-conversion",

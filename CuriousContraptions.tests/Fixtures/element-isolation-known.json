@@ -178,7 +178,6 @@
     {"File":"CuriousContraptions.Simulation/Program.cs","Symbol":"Program.NextTurn","Token":"delayMilliseconds","Count":2,"Meaning":"Duration"},
     {"File":"CuriousContraptions.Simulation/Program.cs","Symbol":"Program.Peer","Token":"WorkshopClockPeer","Count":1,"Meaning":"ClockProtocol"},
     {"File":"CuriousContraptions.Simulation/Program.cs","Symbol":"Program.ScheduleTurn","Token":"delayMilliseconds","Count":1,"Meaning":"Duration"},
-    {"File":"CuriousContraptions.Simulation/Program.cs","Symbol":"Program.WarmupSimulation","Token":"CaptureClock","Count":1,"Meaning":"ClockProtocol"},
     {"File":"CuriousContraptions.Simulation/Program.cs","Symbol":"Program._peer","Token":"WorkshopClockPeer","Count":1,"Meaning":"ClockProtocol"},
     {"File":"CuriousContraptions.Simulation/WorkshopGpuDevice.cs","Symbol":"WorkshopGpuDevice.Stage","Token":"CaptureLatch","Count":2,"Meaning":"CaptureProtocol"},
     {"File":"CuriousContraptions.Simulation/WorkshopGpuDevice.cs","Symbol":"WorkshopGpuDevice._captureScratch","Token":"CaptureLatch","Count":1,"Meaning":"CaptureProtocol"},

@@ -56,9 +56,9 @@ dotnet_code_quality.CA1031.excluded_symbol_names = M:CuriousContraptions.Gpu.Wor
 [engine/MachineWorld.Gpu.cs]
 dotnet_code_quality.CA1031.excluded_symbol_names = M:CuriousContraptions.MachineWorld.PresentWorkshopRead|M:CuriousContraptions.MachineWorld.DisposeWorkshop
 
-# Simulation worker: warm-up is non-fatal and logged; the run loop retires the worker with the logged fault.
+# Simulation worker: the run loop retires the worker with the logged fault.
 [CuriousContraptions.Simulation/Program.cs]
-dotnet_code_quality.CA1031.excluded_symbol_names = M:CuriousContraptions.Simulation.Program.WarmupSimulation|M:CuriousContraptions.Simulation.Program.RunLoop(System.UInt64)
+dotnet_code_quality.CA1031.excluded_symbol_names = M:CuriousContraptions.Simulation.Program.RunLoop(System.UInt64)
 
 # Godot async-void UI handlers (Story 9R.0c). Each async void X is exactly one catch-all that passes the exception to
 # HandlerFailed, the logged and shown boundary: in the browser an exception escaping an async void handler terminates

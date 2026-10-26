@@ -5,7 +5,7 @@ namespace CuriousContraptions.Gpu;
 /// <summary>A fault boundary that caught an exception it cannot handle more specifically.</summary>
 public enum FaultSite
 {
-    Initialize = 1, Construct, Advance, Reset, Startup, LateDispose, RunLoop, StaleRunLoop, Warmup, Presentation,
+    Initialize = 1, Construct, Advance, Reset, Startup, LateDispose, RunLoop, StaleRunLoop, Presentation,
     Disposal, TraceFlush, Installation, UiHandler, WorkerEnvelope
 }
 
@@ -50,7 +50,6 @@ public static class WorkshopDiagnostics
         FaultSite.LateDispose => "LATE_DISPOSE",
         FaultSite.RunLoop => "RUN_LOOP",
         FaultSite.StaleRunLoop => "STALE_RUN_LOOP",
-        FaultSite.Warmup => "WARMUP",
         FaultSite.Presentation => "PRESENTATION",
         FaultSite.Disposal => "DISPOSAL",
         FaultSite.TraceFlush => "TRACE_FLUSH",

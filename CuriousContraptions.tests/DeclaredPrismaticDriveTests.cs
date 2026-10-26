@@ -7,7 +7,7 @@ using CuriousContraptions.Simulation;
 namespace CuriousContraptions.Tests;
 
 /// <summary>C-Gate (Stories 9A.19 + 9A.21): the supplied prismatic drive is declaration data the generic engine law executes, the
-/// Blocked reading needs something in the way, and the worker warm-up is one synthetic declaration-free scene. Every case steps the
+/// Blocked reading needs something in the way, and cold startup and ordinary engine reuse preserve lifecycle state. Every case steps the
 /// production engine; gate cases go through the production compiler and WorkshopSimulation.</summary>
 public sealed class DeclaredPrismaticDriveTests
 {
@@ -394,111 +394,280 @@ public sealed class DeclaredPrismaticDriveTests
         }
     }
 
-    // ---- 9A.21: one synthetic, declaration-free warm-up ----
 
     [Fact]
-    public void TheWarmupSceneCarriesNoDeclaredSliderOrDriveValue()
+    public void AReusedEnginePreservesEveryBodyTrajectoryAndStaticSupportInTheNextScene()
     {
-        var declared = new HashSet<float>();
-        foreach (var entry in TestBundle.Entries)
-            foreach (var slider in entry.Mechanical?.Sliders ?? [])
-            {
-                declared.UnionWith([slider.LowerLimit, slider.UpperLimit, slider.MovingBody.Mass]);
-                var values = new List<MechanicalValue> { slider.Stiffness, slider.Damping, slider.Compression };
-                if (slider.Drive is { } declaredDrive)
-                    values.AddRange([declaredDrive.Target, declaredDrive.MaxSpeed, declaredDrive.StoppingAcceleration, declaredDrive.MaxEffort,
-                        declaredDrive.MaxPower]);
-                foreach (var value in values)
-                    if (value.Source == MechanicalValueSource.Constant) declared.Add(value.Constant);
-                    else
-                        foreach (var parameter in entry.Metadata.Parameters.Where(parameter => parameter.Key == value.Parameter))
-                            declared.UnionWith([parameter.Minimum, parameter.Maximum, parameter.Default]);
-            }
-        Assert.Contains(1.55f, declared); // control: the gate's stroke is among them
-        var scene = WarmupScene.Declaration();
-        var joint = Assert.Single(scene.Prismatics.ToArray());
-        var drive = Assert.Single(scene.PrismaticDrives.ToArray());
-        float[] warm = [joint.Lower, joint.Upper, joint.Stiffness, joint.Damping, drive.Target, drive.MaxSpeed, drive.StoppingAcceleration,
-            drive.MaxEffort, drive.MaxPower];
-        Assert.All(warm, value => Assert.DoesNotContain(value, declared));
-        // One dynamic sphere, one static box collider, one prismatic with its drive; no element identity anywhere.
-        Assert.Equal(new[] { RigidMotionKind.Static, RigidMotionKind.Dynamic }, scene.Bodies.ToArray().Select(body => body.Motion));
-        Assert.Equal(new[] { ColliderShapeKind.Box, ColliderShapeKind.Sphere }, scene.Colliders.ToArray().Select(collider => collider.Shape));
-        var source = File.ReadAllText(Path.Combine(twodog.Engine.ResolveProjectDir(), "CuriousContraptions.Simulation/WarmupScene.cs"));
-        Assert.DoesNotContain("PartId", source, StringComparison.Ordinal);
-    }
-
-    [Fact]
-    public void TheWarmupAdmitsAndStepsItsSceneWithTheDriveSuppliedThenUnsupplied()
-    {
-        var scene = WarmupScene.Declaration();
-        var world = PhysicsGpuAbi.Admission(scene, new(1), WarmupScene.Profile);
-        var next = new byte[world.Length];
-        var engine = new WorkshopPhysicsEngine();
-        var heights = new List<float>();
-        var start = LawState.Read(scene, world, WarmupScene.Rider).Position.Y;
-        // The trigger record is per tick: keep the fastest strike any step recorded (the strike's tick depends on the bounce).
-        var trigger = PhysicsGpuAbi.Layout(world).TriggerOffset(0);
-        var fastest = 0f;
-        for (var step = 0; step < WarmupScene.Steps; step++)
-        {
-            engine.Advance(world, next, WarmupScene.Inputs(step));
-            _ = PhysicsGpuAbi.ValidateCandidate(next, world, new((ulong)step + 1));
-            (world, next) = (next, world);
-            if (BinaryPrimitives.ReadUInt32LittleEndian(world.AsSpan(trigger + PhysicsGpuAbi.TriggerCountOffset)) > 0)
-                fastest = MathF.Max(fastest, BinaryPrimitives.ReadSingleLittleEndian(world.AsSpan(trigger + PhysicsGpuAbi.TriggerApproachOffset)));
-            heights.Add(LawState.Read(scene, world, WarmupScene.Rider).Position.Y - start);
-            // The rider's only contact is its own base, which is never "something in the way".
-            Assert.False(PhysicsGpuAbi.ReadPrismaticMovingContact(world, 0));
-        }
-        Assert.True(heights[WarmupScene.SuppliedSteps - 1] > .05f, $"the supplied drive lifts the rider ({heights[WarmupScene.SuppliedSteps - 1]})");
-        Assert.True(heights[^1] < heights[WarmupScene.SuppliedSteps - 1], "unsupplied, it falls back");
-        // It strikes the base above the trigger threshold, so the contact-event path ran too.
-        Assert.True(fastest >= .5f, $"the trigger fired on a strike above its threshold ({fastest})");
-        // And the contact-work payment path (Story 9.4b): the strike was paid from the store.
-        var store = world.AsSpan(PhysicsGpuAbi.Layout(world).ContactWorkOffset(0), PhysicsGpuAbi.ContactWorkBytes);
-        Assert.True(BinaryPrimitives.ReadSingleLittleEndian(store[PhysicsGpuAbi.ContactWorkAvailableOffset..]) <
-            BinaryPrimitives.ReadSingleLittleEndian(store[PhysicsGpuAbi.ContactWorkPreloadOffset..]), "the store paid for the strike");
-    }
-
-    [Fact]
-    public void AWarmedEngineStepsAWorldExactlyLikeAFreshOne()
-    {
-        // A static body occupies the pooled slot the warm-up's dynamic rider used; a passive slider rides on it and a ball rolls.
+        // Ordinary scene reuse must clear previous motion before static supports and passive dynamics are admitted.
         var scene = new LawScene();
         var frame = scene.StaticBox(new(0, 1, 0), new(1f, .1f, 1f));
         var plate = scene.Box(new(0, 1.3f, 0), new(.3f, .1f, .3f), .5f, LawMaterial.Domino);
         scene.Prismatic(frame, plate, new(new(0, .3f, 0), Quaternion.Identity), ConstraintFrame.Identity, -.15f, .1f, 50f, .5f, ConnectedCollision.Enabled);
-        scene.Ball(LawBall.Basketball, new(-.6f, 1.5f, 0), velocity: new(1f, 0, 0));
+        var ball = scene.Ball(LawBall.Basketball, new(-.6f, 1.5f, 0), velocity: new(1f, 0, 0));
         var world = scene.Admit();
-        var fresh = world.Step(120).World;
-        var warmed = new WorkshopPhysicsEngine();
-        warmed.Warmup();
-        Assert.Equal(fresh, world.Step(120, engine: warmed).World);
+        var admitted = PhysicsGpuAbi.ReadDynamicBodies(world.Admitted);
+        Assert.True(admitted.TryGet(plate, out var admittedPlate));
+        var staticDeclarations = world.Scene.Bodies.ToArray().Where(body => body.Motion == RigidMotionKind.Static).ToArray();
+        Assert.Equal(2, staticDeclarations.Length);
+        var fresh = Observe(new WorkshopPhysicsEngine(), "fresh");
+        var reused = new WorkshopPhysicsEngine();
+        var previousScene = new LawScene(bench: false);
+        var first = previousScene.Sphere(new(-3, 3, 0), .2f, 1f, LawMaterial.Domino,
+            new(1, 2, 0), new(0, 0, 3), drag: 0, gravity: 0);
+        var second = previousScene.Sphere(new(3, 3, 0), .2f, 1f, LawMaterial.Domino,
+            new(-2, 1, 0), new(1, 2, 0), drag: 0, gravity: 0);
+        var previousWorld = previousScene.Admit();
+        var moved = previousWorld.Step(1, engine: reused);
+        foreach (var id in new[] { first, second })
+        {
+            Assert.NotEqual(previousWorld.Initial(id).Position, moved[id].Position);
+            Assert.NotEqual(previousWorld.Initial(id).Rotation, moved[id].Rotation);
+            Assert.True(moved[id].Speed > 0);
+            Assert.True(moved[id].Spin > 0);
+        }
+        var replay = Observe(reused, "reused");
+        for (var tick = 0; tick < 120; tick++)
+        {
+            foreach (var id in new[] { plate, ball })
+            {
+                var expected = fresh[tick].Dynamic[id];
+                var actual = replay[tick].Dynamic[id];
+                var at = $"tick {tick + 1}, body {id.Value}";
+                Same(expected.Body.Id, actual.Body.Id, $"{at}: identity");
+                Same(expected.Body.Epoch, actual.Body.Epoch, $"{at}: epoch");
+                Same(expected.Body.Tick, actual.Body.Tick, $"{at}: tick");
+                Same(expected.Body.Cell, actual.Body.Cell, $"{at}: canonical cell");
+                Same(expected.Body.Local, actual.Body.Local, $"{at}: canonical local position");
+                Same(expected.Rotation, actual.Rotation, $"{at}: rotation");
+                Same(expected.Body.Velocity, actual.Body.Velocity, $"{at}: velocity");
+                Same(expected.AngularVelocity, actual.AngularVelocity, $"{at}: angular velocity");
+                Same(expected.LocalCentreOfMass, actual.LocalCentreOfMass, $"{at}: centre of mass");
+            }
+            foreach (var id in new[] { plate, ball })
+                for (var sample = 0; sample < 17; sample++)
+                {
+                    var expected = fresh[tick].Presentation[id][sample];
+                    var actual = replay[tick].Presentation[id][sample];
+                    var at = $"tick {tick + 1}, body {id.Value}, physical ordinal {tick * 4 + sample * .25f}: presentation";
+                    Same(expected.Id, actual.Id, $"{at} identity");
+                    Same(expected.Cell, actual.Cell, $"{at} cell");
+                    Same(expected.Local, actual.Local, $"{at} local position");
+                    Same(expected.Rotation, actual.Rotation, $"{at} rotation");
+                }
+            Same(fresh[tick].MovingContact, replay[tick].MovingContact,
+                $"tick {tick + 1}, joint {world.Scene.Prismatics[0].Id.Value}: moving contact");
+            foreach (var declared in staticDeclarations)
+                Same(fresh[tick].Static[declared.Id], replay[tick].Static[declared.Id],
+                    $"tick {tick + 1}, static body {declared.Id.Value}: state");
+        }
+
+        List<(Dictionary<GpuBodyId, PhysicsBodyRead> Dynamic, Dictionary<GpuBodyId, LawBody> Static, Dictionary<GpuBodyId, PresentedBody[]> Presentation, bool MovingContact)> Observe(
+            WorkshopPhysicsEngine engine, string history)
+        {
+            var observations = new List<(Dictionary<GpuBodyId, PhysicsBodyRead> Dynamic, Dictionary<GpuBodyId, LawBody> Static, Dictionary<GpuBodyId, PresentedBody[]> Presentation, bool MovingContact)>();
+            var plateDescended = false;
+            var ballMovedHorizontally = false;
+            world.Step(120, (tick, state) =>
+            {
+                Assert.Equal(observations.Count + 1, tick);
+                // The production reader validates committed time, finite values and the 64 m/s / 128 rad/s envelope.
+                // Copy typed values now: the callback's World buffers are reused on subsequent ticks.
+                var reads = PhysicsGpuAbi.ReadDynamicBodies(state.World);
+                Assert.Equal(2, reads.Count);
+                var dynamicBodies = new Dictionary<GpuBodyId, PhysicsBodyRead>();
+                foreach (var id in new[] { plate, ball })
+                {
+                    Assert.True(reads.TryGet(id, out var body), $"{history}, tick {tick}: missing body {id.Value}");
+                    Assert.Equal(admittedPlate.Body.Epoch, body.Body.Epoch);
+                    Assert.Equal((ulong)tick, body.Body.Tick);
+                    var physical = state[id];
+                    Assert.True(physical.Finite, $"{history}, tick {tick}, body {id.Value}: finite state");
+                    Assert.InRange(physical.Speed, 0, 64);
+                    Assert.InRange(physical.Spin, 0, 128);
+                    // The game-grade quaternion norm error is at most 1e-4; replay itself is exact numeric equality.
+                    Assert.InRange(MathF.Abs(physical.Rotation.Length() - 1f), 0f, 1e-4f);
+                    dynamicBodies.Add(id, body);
+                }
+                var layout = PhysicsGpuAbi.Layout(state.World);
+                var motion = PhysicsMotionRead.Decode(state.World.AsSpan(layout.MotionOffset, layout.MotionBytes), reads, new((ulong)tick));
+                Assert.Equal(8, motion.Count); // Two declared dynamic owners, four pieces each.
+                Assert.Equal(4u, motion.Substeps);
+                Assert.Equal((uint)((tick - 1) * 4), motion.FirstOrdinal);
+                Assert.Equal((uint)(tick * 4), motion.LastOrdinal);
+                var presentation = new Dictionary<GpuBodyId, PresentedBody[]>();
+                foreach (var id in new[] { plate, ball })
+                {
+                    var poses = new PresentedBody[17];
+                    // Sample each substep's boundary and three interior phases through the real presentation seam.
+                    for (var sample = 0; sample < 16; sample++)
+                    {
+                        var ordinal = motion.FirstOrdinal + sample * .25f;
+                        Assert.True(motion.TrySample(id, ordinal, out poses[sample]),
+                            $"{history}, tick {tick}, body {id.Value}: missing presentation at {ordinal}");
+                        Same(id, poses[sample].Id, $"{history}, tick {tick}: presented owner");
+                    }
+                    // The interval is right-open: its final exact endpoint is the committed body pose.
+                    Assert.False(motion.TrySample(id, motion.LastOrdinal, out _));
+                    var committed = dynamicBodies[id];
+                    poses[16] = new(id, committed.Body.Cell, committed.Body.Local, committed.Rotation);
+                    presentation.Add(id, poses);
+                }
+                var staticBodies = new Dictionary<GpuBodyId, LawBody>();
+                foreach (var declared in staticDeclarations)
+                {
+                    var identityOffset = world.Scene.Layout.GetBodyOffset(declared.Id) + PhysicsGpuAbi.RecordIdentityOffset;
+                    var committedId = new GpuBodyId(BinaryPrimitives.ReadUInt64LittleEndian(state.World.AsSpan(identityOffset)));
+                    Same(declared.Id, committedId, $"{history}, tick {tick}: static committed identity");
+                    var body = state[declared.Id];
+                    Assert.Equal(declared.Cell, body.Cell);
+                    Assert.Equal(declared.Local, body.Local);
+                    Assert.Equal(declared.Id == frame ? new Vector3(0, 1, 0) : new Vector3(0, LawScene.BenchY, 0), body.Position);
+                    Assert.Equal(Quaternion.Identity, body.Rotation);
+                    Assert.Equal(Vector3.Zero, body.Velocity);
+                    Assert.Equal(Vector3.Zero, body.Angular);
+                    staticBodies.Add(declared.Id, body);
+                }
+                plateDescended |= state[plate].Position.Y < world.Initial(plate).Position.Y;
+                ballMovedHorizontally |= state[ball].Position.X > world.Initial(ball).Position.X;
+                Same(world.Scene.Prismatics[0], PhysicsGpuAbi.ReadPrismatic(state.World, 0),
+                    $"{history}, tick {tick}, joint {world.Scene.Prismatics[0].Id.Value}: declaration");
+                Assert.Null(PhysicsGpuAbi.ReadPrismaticDrive(state.World, 0));
+                var movingContact = PhysicsGpuAbi.ReadPrismaticMovingContact(state.World, 0);
+                observations.Add((dynamicBodies, staticBodies, presentation, movingContact));
+            }, engine: engine);
+            Assert.Equal(120, observations.Count);
+            // Gravity loads the passive plate below its rest anchor; the ball starts with positive horizontal velocity.
+            Assert.True(plateDescended, $"{history}: the gravity-loaded plate descends");
+            Assert.True(ballMovedHorizontally, $"{history}: the moving basketball advances horizontally");
+            return observations;
+        }
+
+        static void Same<T>(T expected, T actual, string at) =>
+            Assert.True(EqualityComparer<T>.Default.Equals(expected, actual), $"{at}: expected {expected}, actual {actual}");
     }
 
-    [Fact]
-    public async Task AfterTheWarmupTheFirstRunIsAppliedAndEveryCommandOfTheEmptyBenchLifecycleIsApplied()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task AColdDeviceStartsTheFirstRealBallAndResetReplaysItsFirstTick(bool prepareExplicitly)
     {
         await using var device = new WorkshopGpuDevice(new BrowserGpuTransport(), new(101, 206));
-        await device.Prepare(); // the transport's Initialize runs the engine warm-up
+        if (prepareExplicitly) await device.Prepare();
         var settings = WorkshopCadenceSettings.Default();
-        await using (var warmup = new WorkshopSimulation(device, new WorkshopPhysicsEngineTests.StepClock(), settings, new(1),
-            new WorkshopPhysicsEngineTests.NoInstallation(), GpuDeviceOwnership.Borrowed))
-        {
-            // Program.WarmupSimulation's sequence on its empty bench.
-            Assert.Equal(WorkshopCommandOutcome.Applied, (await warmup.Initialize()).Outcome);
-            Assert.Equal(WorkshopCommandOutcome.Applied, (await warmup.Construct(new(new(2), settings, new([])))).Outcome);
-            Assert.Equal(WorkshopCommandOutcome.Applied, (await warmup.Run()).Outcome);
-            for (var step = 0; step < 5; step++) Assert.Equal(WorkshopCommandOutcome.Applied, (await warmup.Advance()).Outcome);
-            Assert.Equal(WorkshopCommandOutcome.Applied, (await warmup.Reset()).Outcome);
-        }
         await using var simulation = new WorkshopSimulation(device, new WorkshopPhysicsEngineTests.StepClock(), settings, new(1),
             new WorkshopPhysicsEngineTests.NoInstallation(), GpuDeviceOwnership.Borrowed);
         Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Initialize()).Outcome);
-        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Construct(LatchSupplyFixtureTests.Machine(null, payload: true))).Outcome);
+        NoEmittedEvents(device);
+        Assert.Empty(simulation.Construction.Instances);
+        Assert.Equal(0UL, simulation.Committed.Tick.Value);
+        Assert.Equal(0, simulation.Committed.Bodies.Count);
+        NoSyntheticActivity(simulation.Committed);
+        var construction = new WorkshopConstruction(new(2), settings,
+            new(WorkshopInput.Generic(PartId.Basketball, new(1), 0, 4, 0, 0, 0, 0, 1)));
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Construct(construction)).Outcome);
+        NoEmittedEvents(device);
+        var authored = Ball(simulation.Committed);
+        Assert.Equal(new GpuBodyId(1), authored.Body.Id);
+        Assert.Equal(0f, authored.Body.Velocity.X);
+        Assert.Equal(0f, authored.Body.Velocity.Y);
+        Assert.Equal(0f, authored.Body.Velocity.Z);
+        Assert.Equal(4f, (authored.Body.Cell.Y + authored.Body.Local.Y) / 16f);
         Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Run()).Outcome);
+        NoEmittedEvents(device);
         Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Advance()).Outcome);
+        NoEmittedEvents(device);
+        var first = Ball(simulation.Committed);
         Assert.Equal(1UL, simulation.Committed.Tick.Value);
+        Assert.Equal(1UL, first.Body.Tick);
+        Assert.Equal(simulation.Committed.Epoch.Value, first.Body.Epoch);
+        Assert.True((first.Body.Cell.Y + first.Body.Local.Y) / 16f < 4f);
+        Assert.True(first.Body.Velocity.Y < 0f);
+        NoSyntheticActivity(simulation.Committed);
+        var firstEpoch = simulation.Committed.Epoch;
+        var firstRevision = simulation.Committed.Revision;
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Reset()).Outcome);
+        NoEmittedEvents(device);
+        Assert.Equal(firstEpoch.Value + 1, simulation.Committed.Epoch.Value);
+        Assert.Equal(firstRevision.Value + 1, simulation.Committed.Revision.Value);
+        Assert.Equal(0UL, simulation.Committed.Tick.Value);
+        SamePhysicalBody(authored, Ball(simulation.Committed));
+        Assert.Equal(construction.Revision, simulation.Construction.Revision);
+        var originalInstance = Assert.IsType<WorkshopGenericInstance>(Assert.Single(construction.Instances));
+        var restoredInstance = Assert.IsType<WorkshopGenericInstance>(Assert.Single(simulation.Construction.Instances));
+        Assert.Equal(originalInstance, restoredInstance); // Typed part, identity, pose, lock and parameter values.
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Run()).Outcome);
+        NoEmittedEvents(device);
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Advance()).Outcome);
+        NoEmittedEvents(device);
+        Assert.Equal(1UL, simulation.Committed.Tick.Value);
+        Assert.Equal(firstEpoch.Value + 1, simulation.Committed.Epoch.Value);
+        Assert.Equal(firstRevision.Value + 3, simulation.Committed.Revision.Value);
+        var replay = Ball(simulation.Committed);
+        Assert.Equal(simulation.Committed.Epoch.Value, replay.Body.Epoch);
+        Assert.Equal(1UL, replay.Body.Tick);
+        SamePhysicalBody(first, replay);
+        NoSyntheticActivity(simulation.Committed);
+    }
+
+    [Fact]
+    public async Task AnEmptyBenchAppliesItsOrdinaryLifecycleWithoutProducingDynamicBodiesOrEvents()
+    {
+        await using var device = new WorkshopGpuDevice(new BrowserGpuTransport(), new(102, 207));
+        var settings = WorkshopCadenceSettings.Default();
+        await using var simulation = new WorkshopSimulation(device, new WorkshopPhysicsEngineTests.StepClock(), settings, new(1),
+            new WorkshopPhysicsEngineTests.NoInstallation(), GpuDeviceOwnership.Borrowed);
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Initialize()).Outcome);
+        NoEmittedEvents(device);
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Construct(new(new(2), settings, new([])))).Outcome);
+        NoEmittedEvents(device);
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Run()).Outcome);
+        NoEmittedEvents(device);
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Advance()).Outcome);
+        NoEmittedEvents(device);
+        Assert.Equal(1UL, simulation.Committed.Tick.Value);
+        Assert.Empty(simulation.Construction.Instances);
+        Assert.Equal(0, simulation.Committed.Bodies.Count);
+        NoSyntheticActivity(simulation.Committed);
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Reset()).Outcome);
+        NoEmittedEvents(device);
+        Assert.Equal(0UL, simulation.Committed.Tick.Value);
+        Assert.Equal(WorkshopSimulationPhase.Building, simulation.Phase);
+        Assert.Equal(0, simulation.Committed.Bodies.Count);
+        NoSyntheticActivity(simulation.Committed);
+    }
+
+    private static void NoEmittedEvents(WorkshopGpuDevice device)
+    {
+        var publication = device.DrainEvents();
+        // An empty publication means there was nothing to publish; otherwise decode the public event records.
+        if (publication.Length > 0) Assert.Empty(EventRingProducerTests.Decode(publication));
+    }
+
+    private static PhysicsBodyRead Ball(WorkshopRead read)
+    {
+        Assert.Equal(1, read.Bodies.Count);
+        Assert.True(read.Bodies.TryGet(new(1), out var ball));
+        return ball;
+    }
+
+    private static void SamePhysicalBody(PhysicsBodyRead expected, PhysicsBodyRead actual)
+    {
+        Assert.Equal(expected.Body.Id, actual.Body.Id);
+        Assert.Equal(expected.Body.Cell, actual.Body.Cell);
+        Assert.Equal(expected.Body.Local, actual.Body.Local);
+        Assert.Equal(expected.Body.Velocity, actual.Body.Velocity);
+        Assert.Equal(expected.Rotation, actual.Rotation);
+        Assert.Equal(expected.AngularVelocity, actual.AngularVelocity);
+        Assert.Equal(expected.LocalCentreOfMass, actual.LocalCentreOfMass);
+    }
+
+    private static void NoSyntheticActivity(WorkshopRead read)
+    {
+        Assert.Equal(0, read.Captures.Count);
+        Assert.Equal(0, read.Activations.Count);
+        Assert.Equal(0, read.Timers.Count);
+        Assert.Equal(0, read.ContactWorks.Count);
+        Assert.Equal(0, read.Electrical.Count);
+        Assert.Equal(0, read.Memory.Count);
     }
 }

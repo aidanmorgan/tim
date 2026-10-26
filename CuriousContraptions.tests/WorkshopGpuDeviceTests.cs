@@ -342,20 +342,19 @@ public sealed class WorkshopGpuDeviceTests
     }
 
     [Fact]
-    public async Task ABorrowedWarmupLeavesTheDeviceToItsOwnerWhichThenInitialisesAFreshSimulation()
+    public async Task ABorrowedSimulationLeavesTheDeviceUsableUntilItsOwnerDisposesIt()
     {
         var transport = new HeldTransport(false); transport.Held.SetResult();
         await using var device = new WorkshopGpuDevice(transport, Document);
-        await using (var warmup = new WorkshopSimulation(device, new ResetClock(), Settings, new(1), new ResetInstallation(), GpuDeviceOwnership.Borrowed))
+        await using (var borrower = new WorkshopSimulation(device, new ResetClock(), Settings, new(1), new ResetInstallation(), GpuDeviceOwnership.Borrowed))
         {
-            Assert.Equal(WorkshopCommandOutcome.Applied, (await warmup.Initialize()).Outcome);
+            Assert.Equal(WorkshopCommandOutcome.Applied, (await borrower.Initialize()).Outcome);
             var construction = new WorkshopConstruction(new(2), Settings, new(WorkshopInput.Generic(PartId.Basketball,new(1), 0, 4, 0, 0, 0, 0, 1)));
-            Assert.Equal(WorkshopCommandOutcome.Applied, (await warmup.Construct(construction)).Outcome);
-            Assert.Equal(WorkshopCommandOutcome.Applied, (await warmup.Run()).Outcome);
-            Assert.Equal(WorkshopCommandOutcome.Applied, (await warmup.Reset()).Outcome);
+            Assert.Equal(WorkshopCommandOutcome.Applied, (await borrower.Construct(construction)).Outcome);
+            Assert.Equal(WorkshopCommandOutcome.Applied, (await borrower.Run()).Outcome);
+            Assert.Equal(WorkshopCommandOutcome.Applied, (await borrower.Reset()).Outcome);
         }
         Assert.Equal(0, transport.Disposals);
-        Assert.False(GateDisposed(device));
         await using (var owner = new WorkshopSimulation(device, new ResetClock(), Settings, new(1), new ResetInstallation(), GpuDeviceOwnership.Owned))
         {
             Assert.Equal(WorkshopCommandOutcome.Applied, (await owner.Initialize()).Outcome);

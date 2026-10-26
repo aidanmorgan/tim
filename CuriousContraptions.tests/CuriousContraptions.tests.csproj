@@ -192,7 +192,6 @@
         <Compile Include="../CuriousContraptions.Simulation/WorkshopFrictionSolver.cs" Link="Simulation/WorkshopFrictionSolver.cs" />
         <Compile Include="../CuriousContraptions.Simulation/WorkshopDynamicBvh.cs" Link="Simulation/WorkshopDynamicBvh.cs" />
         <Compile Include="../CuriousContraptions.Simulation/PrismaticConstraintSolver.cs" Link="Simulation/PrismaticConstraintSolver.cs" />
-        <Compile Include="../CuriousContraptions.Simulation/WarmupScene.cs" Link="Simulation/WarmupScene.cs" />
     </ItemGroup>
 
     <!-- Godot project location: the parent directory (hosts are nested inside
