@@ -22,7 +22,7 @@ public sealed class SourceStoreInstanceTests
 
     /// <summary>A heavy ball that empties a Bumper's contact-work store, the store recharged by the source wired to its PowerIn.</summary>
     private static WorkshopConstruction RechargeBench(WorkshopGenericInstance source, float strength = 8f) =>
-        new(new(2), Settings, new(WorkshopInput.Generic(PartId.BowlingBall, Ball, 0, 6, 0, 0, 0, 0, 1), PlacedParts.Bumper(Bumper, 0, 3, 0, strength), source),
+        new(new(2), Settings, new(WorkshopInput.Generic(PartId.BowlingBall, Ball, 0, 6, 0, 0, 0, 0, 1), PlacedParts.Bumper(Bumper, 0, 3, 0, (float)(strength)), source),
             Connections: new(Power(source.Id, Bumper)));
 
     private sealed class Harness : IAsyncDisposable

@@ -65,11 +65,11 @@ public readonly record struct WorkshopConstruction(ConstructionRevision Revision
     }
 }
 
-/// <summary>Only UI/resource boundary code may convert wider external numbers into game values.</summary>
+/// <summary>Canonical f32 authoring helpers; external adapters validate and narrow before calling.</summary>
 public static class WorkshopInput
 {
-    public static WorkshopGenericInstance Generic(PartId partId, GpuBodyId id, double x, double y, double z,
-        double qx, double qy, double qz, double qw, InstanceParameterCollection? parameters = null)
+    public static WorkshopGenericInstance Generic(PartId partId, GpuBodyId id, float x, float y, float z,
+        float qx, float qy, float qz, float qw, InstanceParameterCollection? parameters = null)
     {
         var px = Position(x); var py = Position(y); var pz = Position(z);
         var result = new WorkshopGenericInstance(partId, id, new(px.Cell, py.Cell, pz.Cell), new(px.Local, py.Local, pz.Local),
@@ -78,39 +78,39 @@ public static class WorkshopInput
         result.Validate(); return result;
     }
     /// <summary>A straight pipe of the CAT-048 default length (3.6 m), the length a newly placed pipe starts from.</summary>
-    public static WorkshopPipe Pipe(GpuBodyId id, double x, double y, double z,
-        double qx, double qy, double qz, double qw) => Pipe(id, x, y, z, qx, qy, qz, qw, PipeLength.Default);
-    public static WorkshopPipe Pipe(GpuBodyId id, double x, double y, double z,
-        double qx, double qy, double qz, double qw, PipeLength length)
+    public static WorkshopPipe Pipe(GpuBodyId id, float x, float y, float z,
+        float qx, float qy, float qz, float qw) => Pipe(id, x, y, z, qx, qy, qz, qw, PipeLength.Default);
+    public static WorkshopPipe Pipe(GpuBodyId id, float x, float y, float z,
+        float qx, float qy, float qz, float qw, PipeLength length)
     {
         var px = Position(x); var py = Position(y); var pz = Position(z);
         var result = new WorkshopPipe(id, new(px.Cell, py.Cell, pz.Cell), new(px.Local, py.Local, pz.Local),
             CanonicalRotation.Normalize(Rotation(qx), Rotation(qy), Rotation(qz), Rotation(qw)), length);
         result.Validate(); return result;
     }
-    public static WorkshopGenericInstance PipeBend45(GpuBodyId id, double x, double y, double z,
-        double qx, double qy, double qz, double qw) =>
+    public static WorkshopGenericInstance PipeBend45(GpuBodyId id, float x, float y, float z,
+        float qx, float qy, float qz, float qw) =>
         Generic(PartId.PipeBend45, id, x, y, z, qx, qy, qz, qw);
-    public static WorkshopGenericInstance PipeBend90(GpuBodyId id, double x, double y, double z,
-        double qx, double qy, double qz, double qw) =>
+    public static WorkshopGenericInstance PipeBend90(GpuBodyId id, float x, float y, float z,
+        float qx, float qy, float qz, float qw) =>
         Generic(PartId.PipeBend90, id, x, y, z, qx, qy, qz, qw);
-    public static WorkshopGenericInstance Funnel(GpuBodyId id, double x, double y, double z,
-        double qx, double qy, double qz, double qw) =>
+    public static WorkshopGenericInstance Funnel(GpuBodyId id, float x, float y, float z,
+        float qx, float qy, float qz, float qw) =>
         Generic(PartId.Funnel, id, x, y, z, qx, qy, qz, qw);
-    internal static (int Cell, float Local) Position(double metres)
+    internal static (int Cell, float Local) Position(float metres)
     {
-        if (!double.IsFinite(metres) || metres < -64 || metres > 64)
+        if (!float.IsFinite(metres) || metres < -64 || metres > 64)
             throw new ArgumentOutOfRangeException(nameof(metres));
         var cells = metres * 16;
-        var cell = checked((int)Math.Floor(cells + 0.5));
+        var cell = checked((int)MathF.Floor(cells + 0.5f));
         var local = (float)(cells - cell);
         if (local == .5f) { cell++; local = -.5f; }
         return (cell, local);
     }
 
-    private static float Rotation(double value)
+    private static float Rotation(float value)
     {
-        if (!double.IsFinite(value) || value < -1 || value > 1)
+        if (!float.IsFinite(value) || value < -1 || value > 1)
             throw new ArgumentOutOfRangeException(nameof(value));
         return (float)value;
     }

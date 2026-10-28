@@ -1,3 +1,4 @@
+using CuriousContraptions.Abstractions;
 using System;
 using CuriousContraptions.Presentation;
 
@@ -30,10 +31,9 @@ public sealed class WorkshopAnimationTracks
             throw new ArgumentException("Visibility requires its registered target.");
     }
 
-    public AnimationControlApplication Apply(WorkshopAnimationControl control, PulseRate simulationRate, double masterSeconds)
+    public AnimationControlApplication Apply(WorkshopAnimationControl control, PulseRate simulationRate, PhysicalTime masterTime)
     {
         Validate(control); simulationRate.Validate();
-        if (!double.IsFinite(masterSeconds)) throw new ArgumentOutOfRangeException(nameof(masterSeconds));
         var slot = -1; var vacant = -1; var occupied = 0;
         for (var i = 0; i < Instances.Length; i++)
         {
@@ -88,7 +88,7 @@ public sealed class WorkshopAnimationTracks
                 start = control.Kind == AnimationControlKind.Reveal;
             }
             var duration = control.Kind == AnimationControlKind.TimerObservation && control.Timer.Phase == AnimationTimerPhase.Counting
-                ? (float)Math.Max(0.01, (control.Timer.Due - control.Timer.Observed) * (double)simulationRate.Denominator / simulationRate.Numerator)
+                ? MathF.Max(0.01f, (control.Timer.Due - control.Timer.Observed) * (float)simulationRate.Denominator / simulationRate.Numerator)
                 : control.Duration;
             var definition = new AnimationDefinition(WorkshopAnimationWire.Value(control.Property, from),
                 WorkshopAnimationWire.Value(control.Property, to), new AnimationDurationSeconds(duration),
@@ -97,7 +97,7 @@ public sealed class WorkshopAnimationTracks
             var handle = Tracks.Register(new(control.Target, control.Property), definition);
             if (start)
             {
-                Tracks.StartAt(handle, masterSeconds);
+                Tracks.StartAt(handle, masterTime);
                 started = true;
             }
             Tracks.SetVisible(handle, control.Visible);
@@ -111,7 +111,7 @@ public sealed class WorkshopAnimationTracks
         return new(BitConverter.UInt32BitsToSingle(Tracks.Read(Instances[slot].Handle!.Value).Value.CanonicalBits), started);
     }
 
-    public void Advance(ulong sequence, double presentationSeconds) => Tracks.Advance(sequence, presentationSeconds, 0);
+    public void Advance(ulong sequence, PhysicalTime presentationTime) => Tracks.Advance(sequence, presentationTime, default);
 
     public bool TryRead(int slot, out WorkshopAnimationControl control, out float value)
     {

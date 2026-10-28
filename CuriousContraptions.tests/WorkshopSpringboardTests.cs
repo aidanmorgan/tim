@@ -15,12 +15,12 @@ public sealed class WorkshopSpringboardTests(NativeSceneFixture godot)
     public void ForgivingSpringForwardReceiverBoundaryUsesCompiledSourceScene(double offset)
     {
         var lesson = PuzzleCatalogue.Create(new PuzzleId("spring_forward"), new(1), WorkshopCadenceSettings.Default(), new(1), new(0f));
-        var construction = lesson.WithInstance(WorkshopInput.Generic(PartId.Springboard, new(3), -3, .8, 0,
-            0, 0, -Math.Sin(Math.PI / 18), Math.Cos(Math.PI / 18)));
+        var construction = lesson.WithInstance(WorkshopInput.Generic(PartId.Springboard, new(3), -3, .8f, 0,
+            0, 0, (float)(-Math.Sin(Math.PI / 18)), (float)(Math.Cos(Math.PI / 18))));
         var original = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
         var bodies = original.Bodies.ToArray();
         var receiverIndex = Array.FindIndex(bodies, b => b.Id == ((WorkshopGenericInstance)construction.Instances.Single(instance => instance.PartId == PartId.Receiver)).Id);
-        var shifted = WorkshopInput.Generic(PartId.Receiver, new(2), -.7 + offset, .55, 0, 0, 0, 0, 1);
+        var shifted = WorkshopInput.Generic(PartId.Receiver, new(2), (float)(-.7 + offset), .55f, 0, 0, 0, 0, 1);
         bodies[receiverIndex] = bodies[receiverIndex] with { Cell = shifted.Cell, Local = shifted.Local };
         var scene = new PhysicsSceneDeclaration(original.Document, original.NextIdentity, bodies,
             original.Colliders, original.Materials, original.Sensors, original.Guides,
@@ -65,8 +65,8 @@ public sealed class WorkshopSpringboardTests(NativeSceneFixture godot)
         var inventory = WorkshopInventoryPolicy.Authored(initial.Puzzle);
         Assert.Single(inventory);
         Assert.Equal(PartAllowance.Counted(1), inventory[ready ? PartId.Receiver : PartId.Springboard]);
-        IWorkshopInstance placed = ready ? WorkshopInput.Generic(PartId.Receiver, new(3), 1.8, 1.3, 0, 0, 0, 0, 1)
-            : WorkshopInput.Generic(PartId.Springboard, new(3), -3, .8, 0, 0, 0, -Math.Sin(Math.PI / 18), Math.Cos(Math.PI / 18));
+        IWorkshopInstance placed = ready ? WorkshopInput.Generic(PartId.Receiver, new(3), 1.8f, 1.3f, 0, 0, 0, 0, 1)
+            : WorkshopInput.Generic(PartId.Springboard, new(3), -3, .8f, 0, 0, 0, (float)(-Math.Sin(Math.PI / 18)), (float)(Math.Cos(Math.PI / 18)));
         var construction = initial.WithInstance(placed); construction.Validate();
         Assert.Equal(WorkshopGoalKind.Captured, construction.Puzzle.Goal.Kind);
         Assert.Equal(construction.Instances.Single(instance => instance.PartId == PartId.Receiver).Id, construction.Puzzle.Goal.Target);
@@ -85,7 +85,7 @@ public sealed class WorkshopSpringboardTests(NativeSceneFixture godot)
         if (ready)
         {
             var removed = construction.WithoutInstance(new(3)); removed.Validate();
-            var replaced = removed.WithInstance(WorkshopInput.Generic(PartId.Receiver, new(4), 1.8, 1.3, 0, 0, 0, 0, 1)); replaced.Validate();
+            var replaced = removed.WithInstance(WorkshopInput.Generic(PartId.Receiver, new(4), 1.8f, 1.3f, 0, 0, 0, 0, 1)); replaced.Validate();
             Assert.Equal(new GpuBodyId(4), replaced.Puzzle.Goal.Target);
             EditRefusal.Is(WorkshopEditRejection.InventoryExceeded, () => replaced.WithInstance(WorkshopInput.Generic(PartId.Receiver, new(5), 2, 1, 0, 0, 0, 0, 1)).Validate());
         }
@@ -160,7 +160,7 @@ public sealed class WorkshopSpringboardTests(NativeSceneFixture godot)
     public void CompiledPreloadUsesActualF32PoseAndEightJoules(float height, float angle)
     {
         var q = System.Numerics.Quaternion.CreateFromAxisAngle(System.Numerics.Vector3.UnitZ, angle * MathF.PI / 180);
-        var board = PlacedParts.Springboard(new(2), 0, height, 0, q.X, q.Y, q.Z, q.W, .2f);
+        var board = PlacedParts.Springboard(new(2), 0, (float)(height), 0, (float)(q.X), (float)(q.Y), (float)(q.Z), (float)(q.W), .2f);
         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(board));
         var scene = WorkshopPhysicsCompiler.Compile(construction, new(1,2));
         var joint = Assert.Single(scene.Prismatics.ToArray());
@@ -266,7 +266,7 @@ public sealed class WorkshopSpringboardTests(NativeSceneFixture godot)
     public void CompiledPopulationsCountBaseAndPlateAndAdmitTheNextPart()
     {
         var parts = Enumerable.Range(1, 16).Select(i => (IWorkshopInstance)WorkshopInput.Generic(PartId.Springboard, new((ulong)i),
-            i, 1, 0, 0, 0, 0, 1)).ToArray();
+            (float)(i), 1, 0, 0, 0, 0, 1)).ToArray();
         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(parts));
         var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
         Assert.Equal(33, scene.Bodies.Length); Assert.Equal(16, scene.Prismatics.Length);

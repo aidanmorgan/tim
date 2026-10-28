@@ -27,7 +27,7 @@ public readonly record struct AccelerationVector(float X, float Y, float Z);
 /// <summary>Committed angular velocity in radians per second as IEEE-754 f32, bounded by the game-grade 128 rad/s envelope.</summary>
 public readonly record struct AngularVelocity(float X, float Y, float Z)
 {
-    public const double MaximumSpeed = 128;
+    public const float MaximumSpeed = 128;
     public void Validate() => PhysicsDeclarationBounds.Magnitude(X, Y, Z, MaximumSpeed);
     public bool IsPositiveZero => F32Bits.IsPositiveZero(X, Y, Z);
     public bool HasSameBits(AngularVelocity other) =>
@@ -83,13 +83,13 @@ public readonly record struct RigidBodyDeclaration(
         }
         PhysicsDeclarationBounds.Range(Mass.Value, 1f / 1024, 1024f);
         MassProperties.Validate();
-        // Wide arithmetic is admission-only: it rejects an out-of-domain declaration, never integrates it.
+        // Admission uses the same f32 arithmetic as the declared game values.
         if (Squared(Gravity.X, Gravity.Y, Gravity.Z) > 256)
             throw new ArgumentException("Gravity exceeds the admitted vector magnitude.");
     }
 
-    private static double Squared(float x, float y, float z) =>
-        (double)x * (double)x + (double)y * (double)y + (double)z * (double)z;
+    private static float Squared(float x, float y, float z) =>
+        x * x + y * y + z * z;
 }
 
 /// <summary>Shape parameters are explicit, including canonical zero in unused lanes. The hollow kinds' lanes (engine-hollow-shapes):
@@ -434,10 +434,10 @@ internal static class PhysicsDeclarationBounds
         Range(z, -magnitude, magnitude);
     }
     /// <summary>Rejects a non-finite f32 vector or one whose magnitude exceeds the bound (wide arithmetic, admission only).</summary>
-    internal static void Magnitude(float x, float y, float z, double maximum)
+    internal static void Magnitude(float x, float y, float z, float maximum)
     {
         if (!float.IsFinite(x) || !float.IsFinite(y) || !float.IsFinite(z) ||
-            (double)x * x + (double)y * y + (double)z * z > maximum * maximum)
+            x * x + y * y + z * z > maximum * maximum)
             throw new ArgumentException("Physical vector is non-finite or exceeds its admitted magnitude.");
     }
     /// <summary>Canonical positive zero: the all-zero f32 bit pattern (−0 is not zero here).</summary>

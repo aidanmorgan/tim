@@ -50,7 +50,7 @@ public sealed class WorkshopFormatTests
             ["CuriousContraptions.Simulation/Program.cs"] = ["Versioning"],
             ["CuriousContraptions.Animation.Worker/Program.cs"] = ["Versioning"],
             ["engine/gpu/WorkshopWireGenerated.cs"] = ["ValidateVersion"],
-            ["CuriousContraptions.web/wwwroot/native-clock.js"] = ["fullVersionList", "version"],
+            ["CuriousContraptions.web/wwwroot/native-clock.ts"] = ["fullVersionList", "version"],
             // A handle's slot generation, so a stale handle cannot address a reused slot.
             ["engine/presentation/AnimationBatch.cs"] = ["Version", "version", "_versions"],
             // Commit stamps: a prepared commit applies only if nothing committed since it was prepared.
@@ -84,7 +84,8 @@ public sealed class WorkshopFormatTests
             Directory.EnumerateFiles(Path.Combine(root, directory), pattern, option).Where(path => !Built(path.Replace('\\', '/')));
         return SourceTrees.SelectMany(directory => Files(directory, "*.cs", SearchOption.AllDirectories))
             .Concat(SourceProjects.SelectMany(directory => Files(directory, "*.cs", SearchOption.TopDirectoryOnly)))
-            .Concat(ScriptDirectories.SelectMany(directory => Files(directory, "*.js", SearchOption.TopDirectoryOnly)))
+            .Concat(ScriptDirectories.SelectMany(directory => Files(directory, "*.ts", SearchOption.TopDirectoryOnly)))
+            .Concat(ScriptDirectories.SelectMany(directory => Files(directory, "*.js", SearchOption.TopDirectoryOnly)).Where(path => !File.Exists(Path.ChangeExtension(path, ".ts"))))
             .Concat(Files("schemas", "*.fbs", SearchOption.TopDirectoryOnly));
     }
 

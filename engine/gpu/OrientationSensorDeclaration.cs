@@ -9,21 +9,21 @@ public readonly record struct GpuOrientationSensorId(ulong Value);
 public readonly record struct OrientationThreshold(float CosineHalfAngle)
 {
     /// <summary>The declared threshold angle range in degrees (Domino: 45°).</summary>
-    public const double MinimumDegrees = 4;
-    public const double MaximumDegrees = 179;
+    public const float MinimumDegrees = 4;
+    public const float MaximumDegrees = 179;
     /// <summary>The f32 cosines of the bounding half-angles: the admitted range of the compiled lane.</summary>
     public static float MinimumCosine => Cosine(MaximumDegrees);
     public static float MaximumCosine => Cosine(MinimumDegrees);
-    public static OrientationThreshold Degrees(double angle)
+    public static OrientationThreshold Degrees(float angle)
     {
-        if (!double.IsFinite(angle) || angle < MinimumDegrees || angle > MaximumDegrees) throw new ArgumentOutOfRangeException(nameof(angle));
+        if (!float.IsFinite(angle) || angle < MinimumDegrees || angle > MaximumDegrees) throw new ArgumentOutOfRangeException(nameof(angle));
         return new(Cosine(angle));
     }
     public void Validate()
     {
         PhysicsDeclarationBounds.Range(CosineHalfAngle, MinimumCosine, MaximumCosine);
     }
-    private static float Cosine(double angle) => (float)Math.Cos(angle * Math.PI / 360);
+    private static float Cosine(float angle) => (float)MathF.Cos(angle * MathF.PI / 360);
 }
 
 /// <summary>Sticky orientation-threshold sensor on one dynamic body: it fires once per world when the body's rotation from its

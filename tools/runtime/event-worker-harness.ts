@@ -1,3 +1,4 @@
+import * as clockRing from '../../CuriousContraptions.web/wwwroot/clock-ring.js';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import vm from 'node:vm';
@@ -49,9 +50,10 @@ export async function eventWorker() {
     await worker.link(async name => {
         if (name === '../event-ring-cursor.js')
             return new vm.SyntheticModule(['EventRingMemory'], function () { this.setExport('EventRingMemory', EventRingMemory); }, { context });
-        const names = name.includes('dotnet') ? ['dotnet'] : name.includes('clock-ring')
-            ? ['attachClockRing', 'deriveExchange', 'qualifyDerivation', 'writeDerivation', 'beat']
-            : ['admitNativeClock', 'nativeNow', 'nativeClockEvidence'];
+        if (name === '../clock-ring.js') return new vm.SyntheticModule(Object.keys(clockRing), function () {
+            for (const [key, value] of Object.entries(clockRing)) this.setExport(key, value);
+        }, { context });
+        const names = name.includes('dotnet') ? ['dotnet'] : ['admitNativeClock', 'nativeNow', 'nativeClockEvidence'];
         return new vm.SyntheticModule(names, function () {
             for (const name of names) this.setExport(name,
                 name === 'dotnet' ? { create: async () => runtime } :

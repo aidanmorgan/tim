@@ -1,3 +1,4 @@
+using CuriousContraptions.Abstractions;
 using System.Buffers.Binary;
 using CuriousContraptions.Gpu;
 
@@ -83,9 +84,12 @@ public sealed class WorkshopReadTests
         for (var i = 0; i < 4; i++)
             BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(piece + i * PhysicsMotionRead.PieceBytes + PhysicsMotionRead.VelocityOffset), 1f);
         var motion = PhysicsMotionRead.Decode(bytes, Bodies(body), new(15));
-        Assert.True(motion.TrySample(body.Id, 58, out var pose));
+        Assert.True(motion.TrySample(body.Id, new(58), out var pose));
         Assert.Equal(2, pose.Cell.X);
-        Assert.Equal((float)(58.0 / WorkshopCadenceSettings.PhysicalFrequency * 16 - 2), pose.Local.X);
+        // Bounded linear evaluator: division, scale and cell subtraction at magnitude below two cells.
+        var expected = 58.0 / 480 * 16 - 2;
+        var arithmeticAllowance = 4 * Math.ScaleB(1, -24) * 2;
+        Assert.InRange(pose.Local.X - expected, -arithmeticAllowance, arithmeticAllowance);
         // The piece frequency is the U32 physical rate: every other rate is retired timing.
         foreach (var invalid in new uint[] { 0, 240, WorkshopCadenceSettings.PhysicalFrequency + 1 })
         {
@@ -124,10 +128,10 @@ public sealed class WorkshopReadTests
             ? (pose.Cell.X + (double)pose.Local.X) / 16 : (pose.Cell.Y + (double)pose.Local.Y) / 16;
         var t = 58.0 / WorkshopCadenceSettings.PhysicalFrequency; var rate = (double)k; var gravity = (double)g;
         var decay = (1 - Math.Exp(-rate * t)) / rate;
-        Assert.True(PhysicsMotionRead.Decode(Pieces(k), Bodies(body), new(15)).TrySample(body.Id, 58, out var dragged));
+        Assert.True(PhysicsMotionRead.Decode(Pieces(k), Bodies(body), new(15)).TrySample(body.Id, new(58), out var dragged));
         Assert.InRange(Metres(dragged, 0) - v0 * decay, -1e-4, 1e-4);
         Assert.InRange(Metres(dragged, 1) - gravity / rate * (t - decay), -1e-4, 1e-4);
-        Assert.True(PhysicsMotionRead.Decode(Pieces(0f), Bodies(body), new(15)).TrySample(body.Id, 58, out var undamped));
+        Assert.True(PhysicsMotionRead.Decode(Pieces(0f), Bodies(body), new(15)).TrySample(body.Id, new(58), out var undamped));
         Assert.True(Metres(undamped, 0) - Metres(dragged, 0) > 5e-3);
     }
 
@@ -161,17 +165,17 @@ public sealed class WorkshopReadTests
             Assert.Equal(4u, snapshot.LastOrdinal);
             foreach (var ordinal in new[] { .5, 1.5, 2.5, 3.5 })
             {
-                Assert.True(snapshot.TrySample(body.Id, ordinal, out var pose));
+                Assert.True(snapshot.TrySample(body.Id, new((ulong)(ordinal + .5), -2048), out var pose));
                 Assert.Equal(body.Id, pose.Id);
                 Assert.Equal(CanonicalRotation.Identity, pose.Rotation);
                 Assert.Equal(0, pose.Cell.Y); Assert.Equal(0f, pose.Local.Y);
                 Assert.Equal(0, pose.Cell.Z); Assert.Equal(0f, pose.Local.Z);
                 // This codec/interpolation check allows f32 rounding of x=v*t; it is not a scene-drift acceptance bound.
                 Assert.InRange((pose.Cell.X + (double)pose.Local.X) / 16 - 8 * ordinal / 480, -1e-7, 1e-7);
-                Assert.True(changed.TrySample(body.Id, ordinal, out var faster));
+                Assert.True(changed.TrySample(body.Id, new((ulong)(ordinal + .5), -2048), out var faster));
                 Assert.True((faster.Cell.X + (double)faster.Local.X) / 16 > (pose.Cell.X + (double)pose.Local.X) / 16);
             }
-            Assert.False(snapshot.TrySample(new(2), 1, out _));
+            Assert.False(snapshot.TrySample(new(2), new(1), out _));
         }
     }
 
@@ -220,7 +224,7 @@ public sealed class WorkshopReadTests
         Assert.Equal(0u, decoded.Motion.Substeps);
         Assert.Equal(0u, decoded.Motion.FirstOrdinal);
         Assert.Equal(0u, decoded.Motion.LastOrdinal);
-        Assert.False(decoded.Motion.TrySample(body.Id, 0, out _));
+        Assert.False(decoded.Motion.TrySample(body.Id, default, out _));
     }
 
     [Theory]

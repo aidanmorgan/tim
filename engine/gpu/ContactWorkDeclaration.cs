@@ -1,3 +1,4 @@
+using CuriousContraptions.Abstractions;
 using System;
 using CuriousContraptions.Abstractions.Mechanical;
 

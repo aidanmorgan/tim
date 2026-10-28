@@ -216,19 +216,19 @@ public sealed class WorkshopActivationAnimationTests
             new(new AnimationColourBlend((float)0)), new(new AnimationColourBlend((float)1)));
         float Value() => BitConverter.UInt32BitsToSingle(batch.Read(handle).Value.CanonicalBits);
         var period = (double)declaration.Duration;
-        batch.EnqueueImpulse(handle, new(1), new((float)1), 1);
-        batch.Advance(1, 1 + period / 8, 0);
+        batch.EnqueueImpulse(handle, new(1), new((float)1), AnimationTestTime.Seconds(1));
+        batch.Advance(1, AnimationTestTime.Seconds(1 + period / 8), AnimationTestTime.Seconds(0));
         var single = (double)Value();
         Assert.InRange(single, .14, .16); // sin²(π/8) of the declared SineSquaredPulse
-        batch.EnqueueImpulse(handle, new(2), new((float)1), 1 + period / 8);
-        batch.Advance(2, 1 + period / 4, 0);
+        batch.EnqueueImpulse(handle, new(2), new((float)1), AnimationTestTime.Seconds(1 + period / 8));
+        batch.Advance(2, AnimationTestTime.Seconds(1 + period / 4), AnimationTestTime.Seconds(0));
         Assert.InRange((double)Value(), .5 + single - .01, .5 + single + .01); // saturating sum exceeds either contribution
-        batch.Advance(3, 1 + period / 2, 0);
+        batch.Advance(3, AnimationTestTime.Seconds(1 + period / 2), AnimationTestTime.Seconds(0));
         Assert.Equal(1f, Value()); // peak + partner is clamped to the admitted unit range
-        batch.Advance(4, 1 + period * 1.5, 0);
+        batch.Advance(4, AnimationTestTime.Seconds(1 + period * 1.5), AnimationTestTime.Seconds(0));
         Assert.Equal(0f, Value());
         Assert.Equal(0, batch.ReadImpulses(handle).Playing);
-        Assert.Throws<ArgumentException>(() => batch.EnqueueImpulse(handle, new(2), new((float)1), 3));
+        Assert.Throws<ArgumentException>(() => batch.EnqueueImpulse(handle, new(2), new((float)1), AnimationTestTime.Seconds(3)));
     }
 
     private static void AdmitFrame(BrowserWorkshopClient client, ulong frame)

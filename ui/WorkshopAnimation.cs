@@ -66,9 +66,8 @@ public partial class Workshop
         ClearGoalFeedback();
         HideHint();
     }
-    private void ApplyUiBindings(double delta)
+    private void ApplyUiBindings()
     {
-        if (!double.IsFinite(delta) || delta < 0) throw new ArgumentOutOfRangeException(nameof(delta));
         var hintInTree = _hint.IsInsideTree();
         if (hintInTree)
         {

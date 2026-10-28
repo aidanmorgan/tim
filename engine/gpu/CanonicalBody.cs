@@ -13,7 +13,7 @@ public readonly record struct LocalPosition(float X, float Y, float Z);
 /// <summary>Committed linear velocity in metres per second as IEEE-754 f32, bounded by the game-grade 64 m/s envelope.</summary>
 public readonly record struct LinearVelocity(float X, float Y, float Z)
 {
-    public const double MaximumSpeed = 64;
+    public const float MaximumSpeed = 64;
     public void Validate() => PhysicsDeclarationBounds.Magnitude(X, Y, Z, MaximumSpeed);
     public bool IsPositiveZero => F32Bits.IsPositiveZero(X, Y, Z);
     public bool HasSameBits(LinearVelocity other) =>
@@ -86,7 +86,7 @@ public readonly record struct CanonicalBody(
     private static void ValidateAxis(int cell, float local)
     {
         if (!float.IsFinite(local) ||
-            local < (float)(-0.5) || local >= (float)0.5 ||
+            local < -.5f || local >= .5f ||
             cell < -MaximumCell || cell > MaximumCell ||
             (cell == MaximumCell && local > (float)0) ||
             (cell == -MaximumCell && local < (float)0))

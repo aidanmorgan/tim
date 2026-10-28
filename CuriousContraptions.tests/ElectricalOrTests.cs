@@ -14,7 +14,7 @@ public sealed class ElectricalOrTests
     private const ulong Supply=7, Gate=8, Consumer=9;
     private static readonly bool[] OrTruth=[false,true,true,true]; // rows 00, 01, 10, 11 (CAT-026 O1)
     private static WorkshopConnection Link(ulong source,ulong target,WorkshopSocket input=WorkshopSocket.PowerIn)=>BothGateTests.Link(source,target,input);
-    private static WorkshopGenericInstance Battery(ulong id,float x,bool enabled)=>PlacedParts.Battery(new(id), x, 3, 0, enabled: enabled?ElectricalEnable.Enabled:ElectricalEnable.Disabled);
+    private static WorkshopGenericInstance Battery(ulong id,float x,bool enabled)=>PlacedParts.Battery(new(id), (float)(x), 3, 0, enabled: enabled?ElectricalEnable.Enabled:ElectricalEnable.Disabled);
     private static ElectricalLogicRead Logic(WorkshopRead read,ulong owner=Gate)=>BothGateTests.Logic(read,owner);
     private static bool Powered(WorkshopRead read)=>read.Presentation.Actuators.ToArray().Single(row=>row.Owner.Value==Consumer).SupplyClosed;
     private static float BladeY(WorkshopRead read) =>
@@ -211,10 +211,10 @@ public sealed class ElectricalOrTests
     /// the loop is monotone and admitted).</summary>
     internal static (WorkshopConstruction Open, WorkshopConnection Closing, string? Ids) LoopCase(FeedbackLoop loop)
     {
-        IWorkshopInstance Either(ulong id,float x)=>WorkshopInput.Generic(Kind,new(id),x,3,0,0,0,0,1);
-        IWorkshopInstance Nand(ulong id,float x)=>WorkshopInput.Generic(ElectricalNandTests.Kind,new(id),x,3,-3,0,0,0,1);
-        IWorkshopInstance Nor(ulong id,float x)=>WorkshopInput.Generic(ElectricalNorTests.Kind,new(id),x,3,-3,0,0,0,1);
-        IWorkshopInstance Xor(ulong id,float x)=>WorkshopInput.Generic(ElectricalXorTests.Kind,new(id),x,3,-3,0,0,0,1);
+        IWorkshopInstance Either(ulong id,float x)=>WorkshopInput.Generic(Kind,new(id),(float)(x),3,0,0,0,0,1);
+        IWorkshopInstance Nand(ulong id,float x)=>WorkshopInput.Generic(ElectricalNandTests.Kind,new(id),(float)(x),3,-3,0,0,0,1);
+        IWorkshopInstance Nor(ulong id,float x)=>WorkshopInput.Generic(ElectricalNorTests.Kind,new(id),(float)(x),3,-3,0,0,0,1);
+        IWorkshopInstance Xor(ulong id,float x)=>WorkshopInput.Generic(ElectricalXorTests.Kind,new(id),(float)(x),3,-3,0,0,0,1);
         var supply=Battery(1,-8,true);
         var (parts,links,closing,ids)=loop switch
         {
@@ -392,14 +392,14 @@ public sealed class ElectricalOrPresentationTests(NativeSceneFixture godot)
                 if(evaluator is null){evaluator=new WorkshopDeclaredPresentation(construction,response);time=read.Capture!.Value.Time.Value/1_000_000_000d;}
                 else evaluator.Accept(response);
                 time+=.2;
-                foreach(var sample in evaluator.Advance(time)) if(sample.Owner.Value==4) part.ApplyDeclaredProperty(sample.Binding,sample.Value);
+                foreach(var sample in evaluator.Advance(AnimationTestTime.Seconds(time))) if(sample.Owner.Value==4) part.ApplyDeclaredProperty(sample.Binding,sample.Value);
                 Assert.Equal(Lit((rows[i].Inputs & ElectricalInputState.FirstOnly)!=0),Colour("FirstLamp"));
                 Assert.Equal(Lit((rows[i].Inputs & ElectricalInputState.SecondOnly)!=0),Colour("SecondLamp"));
                 Assert.Equal(Lit(rows[i].Active),Colour("OutputLamp"));
             }
             var (built,_,reset)=await NoFixedCapacityTests.RunAndReset(construction,2);
             evaluator=new WorkshopDeclaredPresentation(construction,BothGatePresentationTests.Response(reset,1));
-            foreach(var sample in evaluator.Advance(time+1)) if(sample.Owner.Value==4) part.ApplyDeclaredProperty(sample.Binding,sample.Value);
+            foreach(var sample in evaluator.Advance(AnimationTestTime.Seconds(time+1))) if(sample.Owner.Value==4) part.ApplyDeclaredProperty(sample.Binding,sample.Value);
             Assert.True(built.Presentation.HasSameBits(reset.Presentation));
             foreach(var node in new[]{"FirstLamp","SecondLamp","OutputLamp"}) Assert.Equal(slate,Colour(node));
         }

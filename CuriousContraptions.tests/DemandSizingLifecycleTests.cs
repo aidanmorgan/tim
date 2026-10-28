@@ -11,7 +11,7 @@ public sealed class DemandSizingLifecycleTests
 
     private static WorkshopConstruction Scene(int count, ulong revision) => new(new(revision), Settings,
         new(Enumerable.Range(0, count).Select(i => (IWorkshopInstance)WorkshopInput.Generic(
-            PartId.Basketball, new((ulong)i + 1), -7 + (i % 8) * 2, 4, -5 + (i / 8) * 2, 0, 0, 0, 1)).ToArray()));
+            PartId.Basketball, new((ulong)i + 1), (float)(-7 + (i % 8) * 2), 4, (float)(-5 + (i / 8) * 2), 0, 0, 0, 1)).ToArray()));
 
     [Fact]
     public async Task SmallerLargerSmallerWorldsRunAndResetWithoutRetiredBodyOrContactState()

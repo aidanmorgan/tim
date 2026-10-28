@@ -2,7 +2,7 @@ import { PosePublicationPreparation, EventPublicationPreparation, type ManagedHo
 declare const self: { postMessage(message: unknown, transfer?: Transferable[]): void; close(): void; onmessage: ((event: MessageEvent<unknown>) => void) | null; };
 import { dotnet } from './_framework/dotnet.js';
 import { admitNativeClock, nativeNow, nativeClockEvidence } from '../native-clock.js';
-import { attachClockRing, deriveExchange, qualifyDerivation, writeDerivation, beat } from '../clock-ring.js';
+import { attachClockRing, deriveExchange, qualifyDerivation, writeDerivation, beat, encodeDerivationExchange, decodeDerivationCorrection, ClockDerivationOutcome, nanoseconds } from '../clock-ring.js';
 import { EventRingMemory } from '../event-ring-cursor.js';
 
 await admitNativeClock();
@@ -244,12 +244,12 @@ async function startClockMaster(ringBuffer: SharedArrayBuffer, browserPeer: Uint
     // once it is exhausted; each attempt blocks this loop for at most one exchange timeout.
     qualifyDerivation(clock, clockNow, exchangeTimeout, {
         qualified: () => host.ClockDerivationQualified(),
-        qualify: exchange => host.QualifyClockDerivation(exchange.before, exchange.master, exchange.after, exchange.epoch),
+        qualify: exchange => host.QualifyClockDerivation(encodeDerivationExchange(exchange)),
         missed: () => host.ClockDerivationQualificationMissed(),
     });
     // The derived offset between the contexts' time origins is installed under the initial epoch before any requester
     // qualifies its mapping (this worker reports ready only after this returns).
-    host.AdoptClockDerivation(writeDerivation(clock, host.ClockDerivationStartupCorrection(), false));
+    host.AdoptClockDerivation(writeDerivation(clock, decodeDerivationCorrection(host.ClockDerivationStartupCorrection()).correction, false));
     derivationCheck = setInterval(() => {
         if (disposed) return;
         try {
@@ -260,11 +260,12 @@ async function startClockMaster(ringBuffer: SharedArrayBuffer, browserPeer: Uint
             // retried back to back, so the check rests on a narrow exchange when the attempts allow. All exchanges of
             // one check share a single exchange timeout, so a check blocks this loop for at most that long; the check
             // uses the narrow exchange, or else the last one answered.
-            const started = clockNow();
+            const started = nanoseconds(clockNow());
             let exchange = deriveExchange(clock, clockNow, exchangeTimeout);
             for (let attempt = 1; exchange && attempt < checkExchanges &&
-                !host.ClockDerivationExchangeNarrow(exchange.before, exchange.master, exchange.after, exchange.epoch); attempt++) {
-                const remaining = exchangeTimeout - (clockNow() - started);
+                !host.ClockDerivationExchangeNarrow(encodeDerivationExchange(exchange)); attempt++) {
+                const remainingNanoseconds = BigInt(exchangeTimeout * 1_000_000) - (nanoseconds(clockNow()) - started);
+                const remaining = Number(remainingNanoseconds) / 1_000_000;
                 if (remaining <= 0) break;
                 host.ClockDerivationRetried();
                 const next = deriveExchange(clock, clockNow, remaining);
@@ -272,9 +273,11 @@ async function startClockMaster(ringBuffer: SharedArrayBuffer, browserPeer: Uint
                 exchange = next;
             }
             if (!exchange) { host.ClockDerivationMissed(); return; }
-            const installation = Array.from(host.CheckClockDerivation(exchange.before, exchange.master, exchange.after, exchange.epoch));
-            if (installation.length === 2)
-                host.AdoptClockDerivation(writeDerivation(clock, installation[0], installation[1] === 1));
+            const installation = host.CheckClockDerivation(encodeDerivationExchange(exchange));
+            if (installation.length !== 0) {
+                const candidate = decodeDerivationCorrection(installation);
+                host.AdoptClockDerivation(writeDerivation(clock, candidate.correction, candidate.outcome === ClockDerivationOutcome.Rederived));
+            }
         } catch (error) {
             disposeOwned();
             self.postMessage({ failure: true, detail: 'Clock derivation check failed: ' + String(error) });

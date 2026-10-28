@@ -1,3 +1,4 @@
+using CuriousContraptions.Abstractions;
 using System;
 using System.Buffers.Binary;
 
@@ -8,14 +9,14 @@ public enum PresentationEvidenceBits : byte { None = 0, Selected = 1, DisplayTim
 [Flags]
 public enum PresentationEndpointBits : uint { None = 0, Present = 1, Mapped = 2 }
 /// <summary>Story 9R.5b: the write and part counts are u32 (a machine has no part limit).</summary>
-public readonly record struct PresentationScene(ulong Frame, uint PositionWrites, uint PartCount, double SimulationTime,
+public readonly record struct PresentationScene(ulong Frame, uint PositionWrites, uint PartCount, PhysicalTime SimulationTime,
     float X, float Y, float Z, float Qx, float Qy, float Qz, float Qw);
 
 /// <summary>Read-only fixed diagnostic encoding; none of these values can enter physics or history.</summary>
 public static class WorkshopPresentationWire
 {
-    /// <summary>Story 9R.5b: 360 bytes; the u32 position-write and part counts sit at 352 and 356.</summary>
-    public const int Bytes = 360;
+    /// <summary>Story 9R.5b: 364 bytes; the u32 position-write and part counts sit at 352 and 356.</summary>
+    public const int Bytes = 364;
     public const int PositionWritesOffset = 352;
     public const int PartCountOffset = 356;
     public const int Capacity = 32;
@@ -33,7 +34,8 @@ public static class WorkshopPresentationWire
         BinaryPrimitives.WriteInt64LittleEndian(data[8..], evidence.SelectedAt.Value);
         BinaryPrimitives.WriteInt64LittleEndian(data[16..], appliedAt.Value);
         BinaryPrimitives.WriteInt64LittleEndian(data[24..], sample.DisplayWall?.Value ?? 0);
-        BinaryPrimitives.WriteDoubleLittleEndian(data[32..], scene.SimulationTime);
+        BinaryPrimitives.WriteUInt64LittleEndian(data[32..], scene.SimulationTime.Ordinal);
+        BinaryPrimitives.WriteSingleLittleEndian(data[360..], scene.SimulationTime.Phase);
         BinaryPrimitives.WriteUInt64LittleEndian(data[40..], evidence.WorldEpoch.Value);
         BinaryPrimitives.WriteUInt64LittleEndian(data[48..], evidence.DisplayEpoch);
         data[56] = checked((byte)sample.Quality);

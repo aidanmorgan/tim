@@ -140,9 +140,9 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
     [Fact]
     public void TheMinimumMassIsAdmittedInclusivelyFromATenthToSixteenKilograms()
     {
-        foreach (var admitted in new[] { .1f, .5f, 16f }) PlacedParts.Plate(new(1), 0, 1, 0, admitted);
+        foreach (var admitted in new[] { .1f, .5f, 16f }) PlacedParts.Plate(new(1), 0, 1, 0, (float)(admitted));
         foreach (var refused in new[] { MathF.BitDecrement(.1f), .05f, MathF.BitIncrement(16f), 16.1f, -1f, float.NaN, float.PositiveInfinity })
-            Assert.Throws<ArgumentException>(() => PlacedParts.Plate(new(1), 0, 1, 0, refused));
+            Assert.Throws<ArgumentException>(() => PlacedParts.Plate(new(1), 0, 1, 0, (float)(refused)));
     }
 
     // ---- Story 9R.4: the compiled contact-load row and ContactLoadSensorTracker (D1, D4) ----
@@ -319,7 +319,7 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
     [InlineData(4.25f, true)]
     public void TheCommandWireRoundTripsAPlateAsItsGenericInstance(float minimumMass, bool locked)
     {
-        var plate = PlacedParts.Plate(new(10), .1, .2, -.3, minimumMass, locked: locked);
+        var plate = PlacedParts.Plate(new(10), .1f, .2f, -.3f, (float)(minimumMass), locked: locked);
         var construction = new WorkshopConstruction(new ConstructionRevision(1), WorkshopCadenceSettings.Default(), new([plate]));
         var cmd = new WorkshopCommand(new(1), WorkshopCommandKind.Construct, new(0), new(1), construction, Session: new(1, 2), Cadence: new(1), Projection: new(1));
         var decoded = Assert.IsType<WorkshopGenericInstance>(Assert.Single(WorkshopWireFlatBuffers.DecodeCommand(WorkshopWireFlatBuffers.EncodeCommand(cmd)).Construction!.Value.Instances));
@@ -360,16 +360,16 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
     private static readonly double Face = PlateY + .08;
 
     private static WorkshopGenericInstance Gate(ulong id, double z) =>
-        WorkshopInput.Generic(PartId.PoweredGate, new(id), 0, GateHeight, z, 0, 0, 0, 1);
+        WorkshopInput.Generic(PartId.PoweredGate, new(id), 0, (float)(GateHeight), (float)(z), 0, 0, 0, 1);
     private static WorkshopGenericInstance Battery(ulong id, double z) =>
-        PlacedParts.Battery(new(id), 3, GateHeight, z, enabled: ElectricalEnable.Enabled);
+        PlacedParts.Battery(new(id), 3, (float)(GateHeight), (float)(z), enabled: ElectricalEnable.Enabled);
     private static IWorkshopInstance Plate(ulong id, double x, double z, float minimum) =>
-        PlacedParts.Plate(new(id), x, PlateY, z, minimum);
-    private static WorkshopGenericInstance BallOn(ulong id, double x, double z) => WorkshopInput.Generic(PartId.Basketball,new(id), x, Face + .35, z, 0, 0, 0, 1);
-    private static IWorkshopInstance StandingOn(ulong id, double x, double z) => PlacedParts.Domino(new(id), x, Face + .574, z, 0, 0, 0, 1);
+        PlacedParts.Plate(new(id), (float)(x), (float)(PlateY), (float)(z), (float)(minimum));
+    private static WorkshopGenericInstance BallOn(ulong id, double x, double z) => WorkshopInput.Generic(PartId.Basketball,new(id), (float)(x), (float)(Face + .35), (float)(z), 0, 0, 0, 1);
+    private static IWorkshopInstance StandingOn(ulong id, double x, double z) => PlacedParts.Domino(new(id), (float)(x), (float)(Face + .574), (float)(z), 0, 0, 0, 1);
     /// <summary>A Domino lying on its broad face (1.1 m along x, 0.65 m along z, 0.25 m tall) with its underside at <paramref name="under"/>.</summary>
     private static IWorkshopInstance FlatOn(ulong id, double x, double under, double z) =>
-        PlacedParts.Domino(new(id), x, under + .15, z, 0, 0, Math.Sqrt(.5), Math.Sqrt(.5));
+        PlacedParts.Domino(new(id), (float)(x), (float)(under + .15), (float)(z), 0, 0, (float)(Math.Sqrt(.5)), (float)(Math.Sqrt(.5)));
     private static WorkshopConnection[] Circuit(WorkshopGenericInstance battery, IWorkshopInstance plate, WorkshopGenericInstance gate) =>
         [Supply(battery.Id, plate.Id), Supply(plate.Id, gate.Id)];
     private static WorkshopConstruction Bench(IWorkshopInstance[] instances, params WorkshopConnection[] connections) =>
@@ -505,7 +505,7 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
         // that old ball pose. A declared solid panel retains the intended static
         // support control, with the same 1.8 m footprint and top height as the face.
         const float height = .4f;
-        var impostor = WorkshopInput.Generic(PartId.Wall, new(4), -4, Face - height / 2, 3, 0, 0, 0, 1,
+        var impostor = WorkshopInput.Generic(PartId.Wall, new(4), -4, (float)(Face - height / 2), 3, 0, 0, 0, 1,
             new([new(new("width"), 1.8f), new(new("height"), height), new(new("thickness"), 1.8f)]));
         var reads = await RunBench(Bench([gate, battery, plate, impostor, BallOn(5, -4, 3)], Circuit(battery, plate, gate)));
         Assert.True(reads[^1].Bodies.TryGet(new(5), out var ball));
@@ -522,13 +522,13 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
         var gate = Gate(1, 0); var battery = Battery(2, 0);
         var half = Math.PI / 12; // 30° about z
         const double plateHeight = 2;
-        var plate = PlacedParts.Plate(new(3), -4, plateHeight, 0, .5f, 0, 0, Math.Sin(half), Math.Cos(half));
+        var plate = PlacedParts.Plate(new(3), -4, (float)(plateHeight), 0, .5f, 0, 0, (float)(Math.Sin(half)), (float)(Math.Cos(half)));
         var rotation = new System.Numerics.Quaternion(0, 0, (float)Math.Sin(half), (float)Math.Cos(half));
         // At local x=-.2 the ring centreline is .1 m away. Its y=.084,
         // tube .018 and ball union reach .35 give the conservative contact
         // height .084+sqrt((.35+.018)^2-.1^2)=.4382 m; .448 m clears it.
         var drop = System.Numerics.Vector3.Transform(new System.Numerics.Vector3(-.2f, .08f + .368f, 0), rotation);
-        var ball = WorkshopInput.Generic(PartId.Basketball,new(4), -4 + drop.X, plateHeight + drop.Y, drop.Z, 0, 0, 0, 1);
+        var ball = WorkshopInput.Generic(PartId.Basketball,new(4), (float)(-4 + drop.X), (float)(plateHeight + drop.Y), (float)(drop.Z), 0, 0, 0, 1);
         var lamp = LampAt(5);
         var reads = await RunBench(Bench([gate, battery, plate, ball, lamp], [.. Circuit(battery, plate, gate), Signal(plate.Id, lamp.Id)]), 4 * 120);
         int resting = 0, off = 0, held = 0, released = 0; ulong? lastQualifying = null;
@@ -626,13 +626,13 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
         var instances = new List<IWorkshopInstance>();
         ulong id = 0;
         for (var i = 0; i < 13; i++) instances.Add(Plate(++id, -16 + 3 * (i % 7), -6 + 3 * (i / 7), .5f));
-        for (var i = 0; i < 5; i++) instances.Add(PlacedParts.Counter(new(++id), -16 + 3 * i, 3, 6, 0, 0, 0, 1, 3));
-        for (var i = 0; i < 5; i++) instances.Add(PlacedParts.Clock(new(++id), -16 + 3 * i, 3, 9, 0, 0, 0, 1, 1f));
-        for (var i = 0; i < 5; i++) instances.Add(PlacedParts.Latch(new(++id), -16 + 3 * i, 3, 12, 0, 0, 0, 1));
+        for (var i = 0; i < 5; i++) instances.Add(PlacedParts.Counter(new(++id), (float)(-16 + 3 * i), 3, 6, 0, 0, 0, 1, 3));
+        for (var i = 0; i < 5; i++) instances.Add(PlacedParts.Clock(new(++id), (float)(-16 + 3 * i), 3, 9, 0, 0, 0, 1, 1f));
+        for (var i = 0; i < 5; i++) instances.Add(PlacedParts.Latch(new(++id), (float)(-16 + 3 * i), 3, 12, 0, 0, 0, 1));
         var last = instances[12];
         var gate = Gate(++id, -6); var battery = Battery(++id, -6);
-        var ball = WorkshopInput.Generic(PartId.Basketball,new(++id), (last.Cell.X + (double)last.Local.X) / 16, Face + .35,
-            (last.Cell.Z + (double)last.Local.Z) / 16, 0, 0, 0, 1);
+        var ball = WorkshopInput.Generic(PartId.Basketball,new(++id), (float)((last.Cell.X + (double)last.Local.X) / 16), (float)(Face + .35),
+            (float)((last.Cell.Z + (double)last.Local.Z) / 16), 0, 0, 0, 1);
         instances.AddRange([gate, battery, ball]);
         return Bench([.. instances], Circuit(battery, last, gate));
     }
@@ -729,7 +729,7 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
     // ---- Story 9R.5: the plate's level ActivationOut and its committed 0.1 s (12-tick) release hold ----
     private const int HoldTicks = 12; // ticks(0.1 s, 120 Hz); stated by the spec, not read back from the declaration under test
     private const string LevelRefusal = "A level output can only light a Signal lamp.";
-    private static IWorkshopInstance LampAt(ulong id, double z = 0) => PlacedParts.Lamp(new(id), 6, GateHeight, z, 0, 0, 0, 1);
+    private static IWorkshopInstance LampAt(ulong id, double z = 0) => PlacedParts.Lamp(new(id), 6, (float)(GateHeight), (float)(z), 0, 0, 0, 1);
     private static WorkshopConnection Signal(GpuBodyId source, GpuBodyId target, WorkshopSocket input = WorkshopSocket.ActivationIn) =>
         new(source, WorkshopSocket.ActivationOut, target, input, WorkshopConnectionDomain.Activation);
     private static bool Latched(PhysicsActivationRead values, GpuBodyId owner)
@@ -750,10 +750,10 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
     public void APlateActivationOutLightsOnlyASignalLamp()
     {
         var plate = Plate(1, -4, 0, .5f); var lamp = LampAt(2);
-        var counter = PlacedParts.Counter(new(3), 0, GateHeight, -3, 0, 0, 0, 1, 3);
-        var delay = WorkshopInput.Generic(PartId.Delay, new(4), 0, GateHeight, 3, 0, 0, 0, 1);
-        var latch = PlacedParts.Latch(new(5), 3, GateHeight, -3, 0, 0, 0, 1);
-        var hit = WorkshopInput.Generic(PartId.ImpactSwitch, new(6), 3, GateHeight, 3, 0, 0, 0, 1);
+        var counter = PlacedParts.Counter(new(3), 0, (float)(GateHeight), -3, 0, 0, 0, 1, 3);
+        var delay = WorkshopInput.Generic(PartId.Delay, new(4), 0, (float)(GateHeight), 3, 0, 0, 0, 1);
+        var latch = PlacedParts.Latch(new(5), 3, (float)(GateHeight), -3, 0, 0, 0, 1);
+        var hit = WorkshopInput.Generic(PartId.ImpactSwitch, new(6), 3, (float)(GateHeight), 3, 0, 0, 0, 1);
         var instances = new WorkshopInstances(plate, lamp, counter, delay, latch, hit);
         new WorkshopConnections(Signal(plate.Id, lamp.Id)).Validate(instances);
         foreach (var (target, input) in new[] { (counter.Id, WorkshopSocket.ActivationIn), (delay.Id, WorkshopSocket.ActivationIn),
@@ -788,7 +788,7 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
     public void ThePlateCompilesItsLampAsALevelIndicatorWithATwelveTickReleaseHold()
     {
         var plate = Plate(1, -4, 0, .5f); var lamp = LampAt(2); var sticky = LampAt(3, 3);
-        var hit = WorkshopInput.Generic(PartId.ImpactSwitch, new(4), 3, GateHeight, 3, 0, 0, 0, 1);
+        var hit = WorkshopInput.Generic(PartId.ImpactSwitch, new(4), 3, (float)(GateHeight), 3, 0, 0, 0, 1);
         var nodes = WorkshopActivationCompiler.Compile(Bench([plate, lamp, sticky, hit], Signal(plate.Id, lamp.Id), Signal(hit.Id, sticky.Id)))
             .Nodes.ToArray();
         Assert.Equal(ActivationNodeKind.LevelIndicator, nodes.Single(node => node.Owner == lamp.Id).Kind);
@@ -929,7 +929,7 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
     public async Task ABasketballBouncingOnThePlateKeepsItsLampSteadilyLit()
     {
         var plate = Plate(3, -4, 0, .5f); var lamp = LampAt(5);
-        var ball = WorkshopInput.Generic(PartId.Basketball,new(4), -4, Face + .34 + 2, 0, 0, 0, 0, 1);
+        var ball = WorkshopInput.Generic(PartId.Basketball,new(4), -4, (float)(Face + .34 + 2), 0, 0, 0, 0, 1);
         var reads = await RunBench(Bench([plate, ball, lamp], Signal(plate.Id, lamp.Id)), 240);
         var first = reads.FindIndex(read => Qualifying(read, plate));
         Assert.True(first > 0, "the ball lands on the plate");

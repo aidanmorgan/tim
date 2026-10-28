@@ -30,65 +30,65 @@ public sealed class NoFixedCapacityTests
         GpuBodyId Next() => new(++id);
         var parts = new List<IWorkshopInstance>();
         var links = new List<WorkshopConnection>();
-        void Balls(int count, double z) { for (var i = 0; i < count; i++) parts.Add(WorkshopInput.Generic(PartId.Basketball,Next(), X(i), 4, z, 0, 0, 0, 1)); }
+        void Balls(int count, double z) { for (var i = 0; i < count; i++) parts.Add(WorkshopInput.Generic(PartId.Basketball,Next(), (float)(X(i)), 4, (float)(z), 0, 0, 0, 1)); }
         switch (table)
         {
             case PopulationKind.Instances:
-                for (var i = 0; i < 33; i++) parts.Add(WorkshopInput.Generic(PartId.Wall, Next(), X(i), 2, 4, 0, 0, 0, 1, WallFixture.Default));
+                for (var i = 0; i < 33; i++) parts.Add(WorkshopInput.Generic(PartId.Wall, Next(), (float)(X(i)), 2, 4, 0, 0, 0, 1, WallFixture.Default));
                 return (Bench(parts), scene => Assert.Equal(34, scene.Bodies.Length));
             case PopulationKind.Bodies:
                 // Seventeen Powered Gates: 35 bodies from 17 parts, below the retired part table.
                 for (var i = 0; i < 17; i++)
-                    parts.Add(WorkshopInput.Generic(PartId.PoweredGate, Next(), X(i), 0, 0, 0, 0, 0, 1));
+                    parts.Add(WorkshopInput.Generic(PartId.PoweredGate, Next(), (float)(X(i)), 0, 0, 0, 0, 0, 1));
                 return (Bench(parts), scene => Assert.Equal(35, scene.Bodies.Length));
             case PopulationKind.DynamicBodies:
                 Balls(17, 0);
                 return (Bench(parts), scene => Assert.Equal(17, Dynamic(scene)));
             case PopulationKind.CapturePolicies:
                 Balls(17, 0);
-                for (var i = 0; i < 17; i++) parts.Add(WorkshopInput.Generic(PartId.Receiver, Next(), X(i), 1, 4, 0, 0, 0, 1));
+                for (var i = 0; i < 17; i++) parts.Add(WorkshopInput.Generic(PartId.Receiver, Next(), (float)(X(i)), 1, 4, 0, 0, 0, 1));
                 return (Bench(parts), scene => { Assert.Equal(17, scene.Sensors.Length); Assert.Equal(17, scene.Guides.Length); });
             case PopulationKind.Triggers:
-                for (var i = 0; i < 9; i++) parts.Add(WorkshopInput.Generic(PartId.ImpactSwitch, Next(), X(i), 1, 0, 0, 0, 0, 1));
+                for (var i = 0; i < 9; i++) parts.Add(WorkshopInput.Generic(PartId.ImpactSwitch, Next(), (float)(X(i)), 1, 0, 0, 0, 0, 1));
                 return (Bench(parts), scene => Assert.Equal(9, scene.Triggers.Length));
             case PopulationKind.ContactWork:
                 // Nine owner policies and seventeen potential payloads; no Cartesian occurrence reservation.
-                for (var i = 0; i < 9; i++) parts.Add(WorkshopInput.Generic(PartId.PinballBumper, Next(), X(i), 1, 0, 0, 0, 0, 1));
+                for (var i = 0; i < 9; i++) parts.Add(WorkshopInput.Generic(PartId.PinballBumper, Next(), (float)(X(i)), 1, 0, 0, 0, 0, 1));
                 Balls(17, 0);
                 return (Bench(parts), scene => Assert.Equal(9, scene.ContactWorks.Length));
             case PopulationKind.Electrical:
                 // Nine Batteries, each wired to its own Powered Gate: nine sources, nine routes and nine connections.
                 for (var i = 0; i < 9; i++)
                 {
-                    var gate = WorkshopInput.Generic(PartId.PoweredGate, Next(), X(2 * i), 0, 0, 0, 0, 0, 1);
-                    var battery = PlacedParts.Battery(Next(), X(2 * i) + 1.6, 0, 0, enabled: ElectricalEnable.Enabled);
+                    var gate = WorkshopInput.Generic(PartId.PoweredGate, Next(), (float)(X(2 * i)), 0, 0, 0, 0, 0, 1);
+                    var battery = PlacedParts.Battery(Next(), (float)(X(2 * i) + 1.6), 0, 0, enabled: ElectricalEnable.Enabled);
                     parts.AddRange([gate, battery]); links.Add(Supply(battery.Id, gate.Id));
                 }
                 return (Bench(parts, [.. links]), scene => { Assert.Equal(9, scene.Electrical.Sources.Length); Assert.Equal(9, scene.SupplyGraph.Nodes.ToArray().Count(node=>node.Kind==SupplyNodeKind.Consumer && !node.Consumers.IsDefaultOrEmpty)); });
             case PopulationKind.Prismatics:
-                for (var i = 0; i < 17; i++) parts.Add(WorkshopInput.Generic(PartId.Springboard, Next(), X(i), 1, 0, 0, 0, 0, 1));
+                for (var i = 0; i < 17; i++) parts.Add(WorkshopInput.Generic(PartId.Springboard, Next(), (float)(X(i)), 1, 0, 0, 0, 0, 1));
                 return (Bench(parts), scene => Assert.Equal(17, scene.Prismatics.Length));
             case PopulationKind.Orientations:
                 // A Domino declares its orientation sensor only while wired: each of seventeen drives its own lamp.
                 for (var i = 0; i < 17; i++)
                 {
-                    var tile = PlacedParts.Domino(Next(), X(i), -0.46 + .56, 0, 0, 0, 0, 1);
-                    var lamp = PlacedParts.Lamp(Next(), X(i), 1, 3, 0, 0, 0, 1);
+                    var tile = PlacedParts.Domino(Next(), (float)(X(i)), (float)(-0.46 + .56), 0, 0, 0, 0, 1);
+                    var lamp = PlacedParts.Lamp(Next(), (float)(X(i)), 1, 3, 0, 0, 0, 1);
                     parts.AddRange([tile, lamp]); links.Add(Signal(tile.Id, lamp.Id));
                 }
                 return (Bench(parts, [.. links]), scene => Assert.Equal(17, scene.OrientationSensors.Length));
             case PopulationKind.ContactLoad:
                 for (var i = 0; i < 33; i++)
-                    parts.Add(PlacedParts.Plate(Next(), X(i), 1, 0, .5f));
+                    parts.Add(PlacedParts.Plate(Next(), (float)(X(i)), 1, 0, .5f));
                 return (Bench(parts), scene => Assert.Equal(33, scene.ContactLoadSensors.Length));
             case PopulationKind.ActivationTimers:
-                for (var i = 0; i < 33; i++) parts.Add(PlacedParts.Clock(Next(), X(i), 1, 0, 0, 0, 0, 1, 1f));
+                for (var i = 0; i < 33; i++) parts.Add(PlacedParts.Clock(Next(), (float)(X(i)), 1, 0, 0, 0, 0, 1, 1f));
                 return (Bench(parts), _ => Assert.Equal(33, WorkshopActivationCompiler.Compile(Bench(parts)).Nodes.Length));
             case PopulationKind.Connections:
                 for (var i = 0; i < 9; i++)
                 {
-                    var hit = WorkshopInput.Generic(PartId.ImpactSwitch, Next(), X(2 * i), 1, 0, 0, 0, 0, 1);
-                    var lamp = PlacedParts.Lamp(Next(), X(2 * i) + 1.6, 1, 0, 0, 0, 0, 1);
+                    var hit = WorkshopInput.Generic(PartId.ImpactSwitch, Next(), (float)(X(2 * i)), 1, 0, 0, 0, 0, 1);
+                    var lamp = PlacedParts.Lamp(Next(), (float)(X(2 * i) + 1.6), 1, 0, 0, 0, 0, 1);
                     parts.AddRange([hit, lamp]); links.Add(Signal(hit.Id, lamp.Id));
                 }
                 return (Bench(parts, [.. links]), _ => Assert.Equal(9, links.Count));
@@ -137,12 +137,12 @@ public sealed class NoFixedCapacityTests
     /// <summary>Forty switches in an eight-by-five grid, a lamp wired to the last one, and a ball dropped on <paramref name="struck"/>.</summary>
     private static (WorkshopConstruction Bench, IWorkshopInstance Lamp, WorkshopGenericInstance[] Switches) SwitchBench(int struck)
     {
-        var switches = Enumerable.Range(0, Switches).Select(i => WorkshopInput.Generic(PartId.ImpactSwitch, new((ulong)i + 1), -6 + i % 8 * 1.6, SwitchY,
-            -5 + i / 8 * 2.5, 0, 0, 0, 1)).ToArray();
-        var lamp = PlacedParts.Lamp(new(Switches + 1), 8, SwitchY, 0, 0, 0, 0, 1);
+        var switches = Enumerable.Range(0, Switches).Select(i => WorkshopInput.Generic(PartId.ImpactSwitch, new((ulong)i + 1), (float)(-6 + i % 8 * 1.6), (float)(SwitchY),
+            (float)(-5 + i / 8 * 2.5), 0, 0, 0, 1)).ToArray();
+        var lamp = PlacedParts.Lamp(new(Switches + 1), 8, (float)(SwitchY), 0, 0, 0, 0, 1);
         var target = switches[struck];
-        var ball = WorkshopInput.Generic(PartId.Basketball,new(Switches + 2), (target.Cell.X + (double)target.Local.X) / 16, DropY,
-            (target.Cell.Z + (double)target.Local.Z) / 16, 0, 0, 0, 1);
+        var ball = WorkshopInput.Generic(PartId.Basketball,new(Switches + 2), (float)((target.Cell.X + (double)target.Local.X) / 16), (float)(DropY),
+            (float)((target.Cell.Z + (double)target.Local.Z) / 16), 0, 0, 0, 1);
         return (Bench([.. switches, lamp, ball], Signal(switches[^1].Id, lamp.Id)), lamp, switches);
     }
 
@@ -199,31 +199,31 @@ public sealed class NoFixedCapacityTests
         GpuBodyId Next() => new(++id);
         var parts = new List<IWorkshopInstance>();
         var links = new List<WorkshopConnection>();
-        for (var i = 0; i < 17; i++) parts.Add(WorkshopInput.Generic(PartId.Basketball,Next(), X(i), 4, -20, 0, 0, 0, 1));
-        for (var i = 0; i < 17; i++) parts.Add(WorkshopInput.Generic(PartId.Receiver, Next(), X(i), 1, -24, 0, 0, 0, 1));
+        for (var i = 0; i < 17; i++) parts.Add(WorkshopInput.Generic(PartId.Basketball,Next(), (float)(X(i)), 4, -20, 0, 0, 0, 1));
+        for (var i = 0; i < 17; i++) parts.Add(WorkshopInput.Generic(PartId.Receiver, Next(), (float)(X(i)), 1, -24, 0, 0, 0, 1));
         for (var i = 0; i < 9; i++)
         {
-            var hit = WorkshopInput.Generic(PartId.ImpactSwitch, Next(), X(2 * i), 1, -16, 0, 0, 0, 1);
-            var lamp = PlacedParts.Lamp(Next(), X(2 * i) + 1.6, 1, -16, 0, 0, 0, 1);
+            var hit = WorkshopInput.Generic(PartId.ImpactSwitch, Next(), (float)(X(2 * i)), 1, -16, 0, 0, 0, 1);
+            var lamp = PlacedParts.Lamp(Next(), (float)(X(2 * i) + 1.6), 1, -16, 0, 0, 0, 1);
             parts.AddRange([hit, lamp]); links.Add(Signal(hit.Id, lamp.Id));
         }
-        for (var i = 0; i < 9; i++) parts.Add(WorkshopInput.Generic(PartId.PinballBumper, Next(), X(i), 1, -12, 0, 0, 0, 1));
+        for (var i = 0; i < 9; i++) parts.Add(WorkshopInput.Generic(PartId.PinballBumper, Next(), (float)(X(i)), 1, -12, 0, 0, 0, 1));
         for (var i = 0; i < 9; i++)
         {
-            var gate = WorkshopInput.Generic(PartId.PoweredGate, Next(), X(2 * i), 0, -8, 0, 0, 0, 1);
-            var battery = PlacedParts.Battery(Next(), X(2 * i) + 1.6, 0, -8, enabled: ElectricalEnable.Enabled);
+            var gate = WorkshopInput.Generic(PartId.PoweredGate, Next(), (float)(X(2 * i)), 0, -8, 0, 0, 0, 1);
+            var battery = PlacedParts.Battery(Next(), (float)(X(2 * i) + 1.6), 0, -8, enabled: ElectricalEnable.Enabled);
             parts.AddRange([gate, battery]); links.Add(Supply(battery.Id, gate.Id));
         }
-        for (var i = 0; i < 17; i++) parts.Add(WorkshopInput.Generic(PartId.Springboard, Next(), X(i), 1, -4, 0, 0, 0, 1));
+        for (var i = 0; i < 17; i++) parts.Add(WorkshopInput.Generic(PartId.Springboard, Next(), (float)(X(i)), 1, -4, 0, 0, 0, 1));
         for (var i = 0; i < 17; i++)
         {
-            var tile = PlacedParts.Domino(Next(), X(i), -0.46 + .56, 0, 0, 0, 0, 1);
-            var lamp = PlacedParts.Lamp(Next(), X(i), 1, 2, 0, 0, 0, 1);
+            var tile = PlacedParts.Domino(Next(), (float)(X(i)), (float)(-0.46 + .56), 0, 0, 0, 0, 1);
+            var lamp = PlacedParts.Lamp(Next(), (float)(X(i)), 1, 2, 0, 0, 0, 1);
             parts.AddRange([tile, lamp]); links.Add(Signal(tile.Id, lamp.Id));
         }
         for (var i = 0; i < 33; i++)
-            parts.Add(PlacedParts.Plate(Next(), X(i), 1, 4, .5f));
-        for (var i = 0; i < 33; i++) parts.Add(PlacedParts.Clock(Next(), X(i), 1, 8, 0, 0, 0, 1, 1f));
+            parts.Add(PlacedParts.Plate(Next(), (float)(X(i)), 1, 4, .5f));
+        for (var i = 0; i < 33; i++) parts.Add(PlacedParts.Clock(Next(), (float)(X(i)), 1, 8, 0, 0, 0, 1, 1f));
         return Bench(parts, [.. links]);
     }
 

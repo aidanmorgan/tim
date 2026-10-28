@@ -241,7 +241,7 @@ public sealed class ContactActivationTests
             var trigger = WorkshopInput.Generic(PartId.ImpactSwitch, new(2), 0, 1, 0, 0, 0, 0, 1,
                 new([new(new ParameterId("trigger_threshold"), threshold)]));
             var construction = Construction() with { Instances = new(
-                WorkshopInput.Generic(PartId.Basketball,new(1), -.88, .85, 0, 0, 0, 0, 1), trigger,
+                WorkshopInput.Generic(PartId.Basketball,new(1), -.88f, .85f, 0, 0, 0, 0, 1), trigger,
                 PlacedParts.Lamp(new(3), 3, 1, 0, 0, 0, 0, 1)),
                 Connections = new(new WorkshopConnection(new(2), WorkshopSocket.ActivationOut, new(3), WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation)) };
             var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));

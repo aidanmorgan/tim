@@ -409,7 +409,7 @@ public sealed class HoldTimerPresentationTests(NativeSceneFixture godot)
             var indicator=part.GetNode<MeshInstance3D>("Visual/Indicator");
             var material=Assert.IsType<StandardMaterial3D>(indicator.MaterialOverride);
             var time=first.Capture!.Value.Time.Value/1_000_000_000d+.11;
-            foreach(var sample in evaluator.Advance(time)) if(sample.Owner.Value==3) part.ApplyDeclaredProperty(sample.Binding,sample.Value);
+            foreach(var sample in evaluator.Advance(AnimationTestTime.Seconds(time))) if(sample.Owner.Value==3) part.ApplyDeclaredProperty(sample.Binding,sample.Value);
             Assert.True(bar.Visible); Assert.Equal(-.5f,bar.Position.X); Assert.Equal(1f,bar.Scale.X);
             Assert.Equal(.5f,bar.GetNode<Node3D>("Bar").Position.X);
             Assert.Equal(new Color("#f7cb52"),material.AlbedoColor);
@@ -417,9 +417,9 @@ public sealed class HoldTimerPresentationTests(NativeSceneFixture godot)
             var target=WorkshopDeclaredPresentation.Targets(construction).First(row=>row.Owner.Value==3).Target;
             evaluator.SetVisible(target,AnimationProperty.UniformScale,false);
             evaluator.Accept(Response(expired,2));
-            Assert.DoesNotContain(evaluator.Advance(time+.2),sample=>sample.Owner.Value==3);
+            Assert.DoesNotContain(evaluator.Advance(AnimationTestTime.Seconds(time+.2)),sample=>sample.Owner.Value==3);
             evaluator.SetVisible(target,AnimationProperty.UniformScale,true);
-            foreach(var sample in evaluator.Advance(time+.21)) if(sample.Owner.Value==3) part.ApplyDeclaredProperty(sample.Binding,sample.Value);
+            foreach(var sample in evaluator.Advance(AnimationTestTime.Seconds(time+.21))) if(sample.Owner.Value==3) part.ApplyDeclaredProperty(sample.Binding,sample.Value);
             Assert.False(bar.Visible); Assert.Equal(.001f,bar.Scale.X); Assert.Equal(-.5f,bar.Position.X);
             Assert.Equal(new Color("#556573"),material.AlbedoColor);
             Assert.Throws<ArgumentException>(()=>evaluator.Accept(Response(first,3)));

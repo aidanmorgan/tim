@@ -153,7 +153,7 @@ public sealed class PipeBend90Tests(NativeSceneFixture godot)
 
         // 20 pipe_bend_90: validates cleanly
         var twentyBends = new WorkshopInstances(
-            Enumerable.Range(1, 20).Select(i => (IWorkshopInstance)WorkshopInput.PipeBend90(new GpuBodyId((ulong)i), i * 2, 3, 0, 0, 0, 0, 1)).ToArray());
+            Enumerable.Range(1, 20).Select(i => (IWorkshopInstance)WorkshopInput.PipeBend90(new GpuBodyId((ulong)i), (float)(i * 2), 3, 0, 0, 0, 0, 1)).ToArray());
         new WorkshopInstances([.. twentyBends]).Validate();
     }
 
@@ -217,7 +217,7 @@ public sealed class PipeBend90Tests(NativeSceneFixture godot)
         var construction = Lesson(0f);
         construction.Validate();
 
-        var bend = WorkshopInput.PipeBend90(new(3), 0, 4, 0, 0, 0, -0.7071068, 0.7071068);
+        var bend = WorkshopInput.PipeBend90(new(3), 0, 4, 0, 0, 0, -0.7071068f, 0.7071068f);
         var placed = construction.WithInstance(bend);
         placed.Validate();
 
@@ -255,7 +255,7 @@ public sealed class PipeBend90Tests(NativeSceneFixture godot)
         Assert.Equal((float)dwell, receiver.Parameters[new("capture_dwell")]);
         Assert.Equal((float)accel, receiver.Parameters[new("force_maximum_acceleration")]);
 
-        var bend = WorkshopInput.PipeBend90(new(3), 0, 4, 0, 0, 0, -0.7071068, 0.7071068);
+        var bend = WorkshopInput.PipeBend90(new(3), 0, 4, 0, 0, 0, -0.7071068f, 0.7071068f);
         var placed = construction.WithInstance(bend);
         placed.Validate();
 
@@ -272,7 +272,7 @@ public sealed class PipeBend90Tests(NativeSceneFixture godot)
     public void QuarterBend_CompilerEmitsCompoundCollidersAndSensors()
     {
         var construction = Lesson(0.45f);
-        var bend = WorkshopInput.PipeBend90(new(3), 0, 4, 0, 0, 0, -0.7071068, 0.7071068);
+        var bend = WorkshopInput.PipeBend90(new(3), 0, 4, 0, 0, 0, -0.7071068f, 0.7071068f);
         var placed = construction.WithInstance(bend);
 
         var scene = WorkshopPhysicsCompiler.Compile(placed, new(1, 2));

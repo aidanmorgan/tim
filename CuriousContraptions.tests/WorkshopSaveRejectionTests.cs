@@ -269,7 +269,7 @@ public sealed class WorkshopSaveRejectionTests
             var saved = new WorkshopSavedConstruction(lesson, new(100));
             Assert.Equal(saved, WorkshopSaveCodec.Decode(SaveFixture.Elements,WorkshopSaveCodec.Encode(saved)));
         }
-        var ready = PuzzleCatalogue.WithInstance(lessons[2], WorkshopInput.Generic(PartId.Receiver, new(4), 2, .55, 0, 0, 0, 0, 1));
+        var ready = PuzzleCatalogue.WithInstance(lessons[2], WorkshopInput.Generic(PartId.Receiver, new(4), 2, .55f, 0, 0, 0, 0, 1));
         var missing = ready.WithoutInstance(new(4));
         missing.Validate(); // control: the domain admits the lesson without its receiver
         var withoutReceiver = new WorkshopSavedConstruction(missing, new(100));

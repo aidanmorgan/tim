@@ -1,3 +1,4 @@
+using CuriousContraptions.Abstractions;
 using Godot;
 using System.Collections.Generic;
 
@@ -14,7 +15,7 @@ public partial class MachineWorld : Node3D
     public IReadOnlyList<MachinePart> Bodies { get; }
     public bool Running { get; private set; }
     public int Ticks { get; private set; }
-    public double DisplaySimulationTime { get; private set; }
+    public PhysicalTime DisplaySimulationTime { get; private set; }
     public MachineWorld()
     {
         Parts = _parts.AsReadOnly();

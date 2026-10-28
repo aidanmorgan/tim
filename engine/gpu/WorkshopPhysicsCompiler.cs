@@ -41,7 +41,7 @@ public static class WorkshopPhysicsCompiler
         var contactLoads = new List<ContactLoadSensorDeclaration>(4);
         var plane = identities.Plane;
         var planeMaterial = identities.PlaneMaterial;
-        var height = WorkshopInput.Position((double)WorkshopConstruction.WorkbenchSurface.Value);
+        var height = WorkshopInput.Position(WorkshopConstruction.WorkbenchSurface.Value);
         bodies.Add(new(plane, RigidMotionKind.Static, new(0, height.Cell, 0),
             new(0f, height.Local, 0f), CanonicalRotation.Identity, default, default, new(0f), default, new(0f), default));
         // Static surfaces and boxes declare zero rolling resistance; only a ball material carries a coefficient.

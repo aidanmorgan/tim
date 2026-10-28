@@ -6,7 +6,7 @@ namespace CuriousContraptions.Tests;
 
 public sealed class WorkshopDelayTests
 {
-    private static WorkshopGenericInstance Delay(float seconds) => WorkshopInput.Generic(PartId.Delay, new(3), 1, 2, -.5, 0, 0, 0, 1, new InstanceParameterCollection([new(new ParameterId("delay_seconds"), seconds)]));
+    private static WorkshopGenericInstance Delay(float seconds) => WorkshopInput.Generic(PartId.Delay, new(3), 1, 2, -.5f, 0, 0, 0, 1, new InstanceParameterCollection([new(new ParameterId("delay_seconds"), seconds)]));
     [Fact]
     public void CanonicalF32ProductCeilingPreservesDeadlineBoundaries()
     {

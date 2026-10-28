@@ -56,13 +56,13 @@ public sealed class MemoryGuardTests
     {
         var tilt = Math.PI / 180 * -20 / 2;
         return Bench([
-                PlacedParts.Detector(Detector, 0, Floor + Plane, 0, 0, 0, -Half45, Half45),
+                PlacedParts.Detector(Detector, 0, (float)(Floor + Plane), 0, 0, 0, (float)(-Half45), (float)(Half45)),
                 PlacedParts.Counter(Counter, -4, 1, 0, 0, 0, 0, 1, target),
                 PlacedParts.Lamp(CounterLamp, -4, 1, 3, 0, 0, 0, 1),
-                WorkshopInput.Generic(PartId.Ramp, Ramp, 1, Floor + .6, 0, 0, 0, Math.Sin(tilt), Math.Cos(tilt)),
-                WorkshopInput.Generic(PartId.Basketball, Balls[0], 0, Floor + Plane + .5, 0, 0, 0, 0, 1),
-                WorkshopInput.Generic(PartId.Basketball, Balls[1], 0, Floor + Plane + 2.5, 0, 0, 0, 0, 1),
-                WorkshopInput.Generic(PartId.Basketball, Balls[2], 0, Floor + Plane + 4.5, 0, 0, 0, 0, 1),
+                WorkshopInput.Generic(PartId.Ramp, Ramp, 1, (float)(Floor + .6), 0, 0, 0, (float)(Math.Sin(tilt)), (float)(Math.Cos(tilt))),
+                WorkshopInput.Generic(PartId.Basketball, Balls[0], 0, (float)(Floor + Plane + .5), 0, 0, 0, 0, 1),
+                WorkshopInput.Generic(PartId.Basketball, Balls[1], 0, (float)(Floor + Plane + 2.5), 0, 0, 0, 0, 1),
+                WorkshopInput.Generic(PartId.Basketball, Balls[2], 0, (float)(Floor + Plane + 4.5), 0, 0, 0, 0, 1),
                 PlacedParts.Battery(Battery, -7, 1, 0)],
             Signal(Detector, Counter), Signal(Counter, CounterLamp), Supply(Battery, Counter));
     }
@@ -316,13 +316,13 @@ public sealed class MemoryGuardTests
                 PlacedParts.Counter(new(4), -4, 1, 0, 0, 0, 0, 1, 1),
                 PlacedParts.Latch(new(5), -4, 1, 3, 0, 0, 0, 1),
                 PlacedParts.Lamp(new(6), -4, 1, 6, 0, 0, 0, 1),
-                PlacedParts.Plate(new(7), -12, plateY, 0, .5f),
-                PlacedParts.Detector(new(8), 12, Floor + .62, 0, 0, 0, -Half45, Half45),
+                PlacedParts.Plate(new(7), -12, (float)(plateY), 0, .5f),
+                PlacedParts.Detector(new(8), 12, (float)(Floor + .62), 0, 0, 0, (float)(-Half45), (float)(Half45)),
                 PlacedParts.Clock(new(9), 0, 3, 8, 0, 0, 0, 1, 1f),
                 PlacedParts.Battery(new(10), -3, 3, 8),
                 WorkshopInput.Generic(PartId.Basketball, new(20), 0, 3, 0, 0, 0, 0, 1),
-                WorkshopInput.Generic(PartId.Basketball, new(21), -12, plateY + .08 + .345 + 2, 0, 0, 0, 0, 1),
-                WorkshopInput.Generic(PartId.Basketball, new(22), 12, Floor + .34 + 3, 0, 0, 0, 0, 1)],
+                WorkshopInput.Generic(PartId.Basketball, new(21), -12, (float)(plateY + .08 + .345 + 2), 0, 0, 0, 0, 1),
+                WorkshopInput.Generic(PartId.Basketball, new(22), 12, (float)(Floor + .34 + 3), 0, 0, 0, 0, 1)],
             Signal(new(1), new(2)), Signal(new(1), new(3)), Signal(new(1), new(4)), Signal(new(1), new(5), WorkshopSocket.SetIn),
             Signal(new(5), new(6)), Supply(new(10), new(9)));
     }

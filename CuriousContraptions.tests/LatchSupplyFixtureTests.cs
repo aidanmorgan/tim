@@ -36,18 +36,18 @@ public sealed class LatchSupplyFixtureTests
         {
             PlacedParts.Battery(new(Battery), -8, 3, 4, enabled: battery),
             PlacedParts.Latch(new(Latch), -4, 3, 4, 0, 0, 0, 1),
-            WorkshopInput.Generic(PartId.PoweredGate, new(Gate), GateX, GateY, 0, 0, 0, Math.Sin(half), Math.Cos(half)),
+            WorkshopInput.Generic(PartId.PoweredGate, new(Gate), (float)(GateX), (float)(GateY), 0, 0, 0, (float)(Math.Sin(half)), (float)(Math.Cos(half))),
             WorkshopInput.Generic(PartId.ImpactSwitch, new(SwitchA), 0, 1, 0, 0, 0, 0, 1),
             WorkshopInput.Generic(PartId.Basketball, new(BallA), 0, 3, 0, 0, 0, 0, 1),
             WorkshopInput.Generic(PartId.ImpactSwitch, new(SwitchB), 0, 1, -6, 0, 0, 0, 1),
             PlacedParts.Lamp(new(Lamp), -4, 6, 4, 0, 0, 0, 1),
         };
-        if (ballBHeight is { } height) parts.Add(WorkshopInput.Generic(PartId.Basketball, new(BallB), 0, height, -6, 0, 0, 0, 1));
+        if (ballBHeight is { } height) parts.Add(WorkshopInput.Generic(PartId.Basketball, new(BallB), 0, (float)(height), -6, 0, 0, 0, 1));
         if (payload)
         {
             const double lx = -.45, ly = -.27;
             parts.Add(WorkshopInput.Generic(PartId.Basketball, new(Payload),
-                GateX + Tilt.Cos * lx - Tilt.Sin * ly, GateY + Tilt.Sin * lx + Tilt.Cos * ly, 0, 0, 0, 0, 1));
+                (float)(GateX + Tilt.Cos * lx - Tilt.Sin * ly), (float)(GateY + Tilt.Sin * lx + Tilt.Cos * ly), 0, 0, 0, 0, 1));
         }
         return new(new(2), WorkshopCadenceSettings.Default(), new(parts.ToArray()), Connections: new(FiveConnections));
     }

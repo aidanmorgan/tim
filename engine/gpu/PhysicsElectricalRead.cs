@@ -53,11 +53,11 @@ public readonly struct PhysicsElectricalRead
         {
             var before = previous[i]; var after = this[i];
             if (before.Id != after.Id || before.Owner != after.Owner || after.Remaining.Value > before.Remaining.Value ||
-                Math.Abs((double)before.Remaining.Value - after.Remaining.Value - after.Debit.Value) >
+                MathF.Abs(before.Remaining.Value - after.Remaining.Value - after.Debit.Value) >
                     Residual(before.Remaining.Value) + Residual(after.Debit.Value))
                 throw new ArgumentException("Electrical source debit changed identity or balance.");
         }
     }
     // Boundary validation only: two ULPs cover a rounded sum/subtraction; ordinary residuals do not fault valid ticks.
-    public static double Residual(float balance) => 2d * Math.Max(float.Epsilon, MathF.BitIncrement(balance) - balance);
+    public static float Residual(float balance) => 2f * MathF.Max(float.Epsilon, MathF.BitIncrement(balance) - balance);
 }

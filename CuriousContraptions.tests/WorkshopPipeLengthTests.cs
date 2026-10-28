@@ -12,7 +12,7 @@ namespace CuriousContraptions.Tests;
 public sealed class WorkshopPipeLengthTests(NativeSceneFixture godot)
 {
     private static WorkshopPipe Pipe(float length, ulong id = 1, double x = 0, double y = 3) =>
-        WorkshopInput.Pipe(new(id), x, y, 0, 0, 0, 0, 1, new(length));
+        WorkshopInput.Pipe(new(id), (float)(x), (float)(y), 0, 0, 0, 0, 1, new(length));
 
     // ---------- The declared parameter ----------
 

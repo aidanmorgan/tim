@@ -761,10 +761,12 @@ public partial class Workshop : Node3D
         _friction.Disabled = true;
         _status.Text = "Choose a part. Arrows move; rings rotate.";
     }
-    public override void _PhysicsProcess(double delta)
+    public override void _PhysicsProcess(double delta) => RefreshPhysicsObservation();
+
+    private void RefreshPhysicsObservation()
     {
         RefreshRunControlObservation();
-        _time.Text = $"{World.Ticks / (double)World.Construction.Settings.SimulationRate.Numerator:00.00} s";
+        _time.Text = $"{World.Ticks / (float)World.Construction.Settings.SimulationRate.Numerator:00.00} s";
         var transport = World.TransportState;
         var transportChanged = transport != _displayedTransportState;
         _displayedTransportState = transport;

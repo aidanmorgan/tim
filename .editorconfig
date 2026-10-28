@@ -73,7 +73,7 @@ dotnet_code_quality.CA1031.excluded_symbol_names = M:CuriousContraptions.Worksho
 [ui/WorkshopGpu.cs]
 dotnet_code_quality.CA1031.excluded_symbol_names = M:CuriousContraptions.Workshop.Playback(CuriousContraptions.Gpu.WorkshopCommandKind)|M:CuriousContraptions.Workshop.PlaybackAsync(CuriousContraptions.Gpu.WorkshopCommandKind)|M:CuriousContraptions.Workshop.CommitSelected|M:CuriousContraptions.Workshop.CommitSelectedAsync|M:CuriousContraptions.Workshop.SubmitConstruction(CuriousContraptions.Gpu.WorkshopConstruction)|M:CuriousContraptions.Workshop.HandlerFailed(System.String,System.Exception)
 [ui/WorkshopPuzzle.cs]
-dotnet_code_quality.CA1031.excluded_symbol_names = M:CuriousContraptions.Workshop.SelectModeFromPicker(System.Int32)|M:CuriousContraptions.Workshop.SelectModeFromPickerAsync(System.Int32)|M:CuriousContraptions.Workshop.ChangePrecision(System.Double)|M:CuriousContraptions.Workshop.ChangePrecisionAsync(System.Double)
+dotnet_code_quality.CA1031.excluded_symbol_names = M:CuriousContraptions.Workshop.SelectModeFromPicker(System.Int32)|M:CuriousContraptions.Workshop.SelectModeFromPickerAsync(System.Int32)|M:CuriousContraptions.Workshop.ChangePrecision(System.Double)|M:CuriousContraptions.Workshop.ChangePrecisionAsync(System.Single)
 
 # Test synchronization context that records every exception escaping an async void handler under test, so a test can
 # assert none escaped (an escape terminates the browser runtime). Recording all of them is its only purpose.

@@ -10,7 +10,7 @@ public sealed class SwitchElectricalTests
     private static WorkshopConstruction Machine(float x=0f,float threshold=.8f)
     {
         return new(new(2),WorkshopCadenceSettings.Default(),new(
-            WorkshopInput.Generic(PartId.Basketball,new(1),x,3,0,0,0,0,1),
+            WorkshopInput.Generic(PartId.Basketball,new(1),(float)(x),3,0,0,0,0,1),
             WorkshopInput.Generic(PartId.ImpactSwitch,new(2),0,1,0,0,0,0,1,new([new(new ParameterId("trigger_threshold"),threshold)])),
             PlacedParts.Battery(new(3), -4, 3, 0),
             WorkshopInput.Generic(PartId.PoweredGate,new(4),9,3,0,0,0,0,1),

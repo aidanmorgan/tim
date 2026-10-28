@@ -32,7 +32,7 @@ public sealed class WorkshopBumperTests
             construction.Puzzle.PlacementAssistance);
         var inventory = WorkshopInventoryPolicy.Authored(construction.Puzzle);
         Assert.Equal(PartAllowance.Counted(1), inventory[PartId.PinballBumper]);
-        var bumper = WorkshopInput.Generic(PartId.PinballBumper, new(3), 0, 1.5, 0, 0, 0, 0, 1);
+        var bumper = WorkshopInput.Generic(PartId.PinballBumper, new(3), 0, 1.5f, 0, 0, 0, 0, 1);
         var placed = construction.WithInstance(bumper);
         var wall = WorkshopInput.Generic(PartId.Wall, new(4), -1, 4, 0, 0, 0, 0, 1, WallFixture.Values(.4f, 6, 1.5f));
         if (lesson == new PuzzleId("wall_and_bumper"))
@@ -145,8 +145,6 @@ public sealed class WorkshopBumperTests
         Check(level.GetProperty("solution")[0].GetProperty("difficulty"), construction.Puzzle.PlacementAssistance);
         Assert.Equal(WorkshopInput.Generic(PartId.Basketball,new(1), -3, 5, 0, 0, 0, 0, 1) with { Locked = true }, Payloads.Find(construction));
         AuthoredContentAssertions.Placement(level.GetProperty("placements")[1].GetProperty("instance"), ((WorkshopGenericInstance)construction.Instances.Single(instance => instance.PartId == PartId.Receiver)));
-        Assert.Equal(WorkshopInput.Position(2).Cell, ((WorkshopGenericInstance)construction.Instances.Single(instance => instance.PartId == PartId.Receiver)).Cell.X);
-        Assert.Equal(WorkshopInput.Position(.9).Local, ((WorkshopGenericInstance)construction.Instances.Single(instance => instance.PartId == PartId.Receiver)).Local.Y);
         var bumper = new WorkshopGenericInstance(PartId.PinballBumper, new(3), new(-51, 24, 0), default, CanonicalRotation.Identity)
             { Parameters = InstanceParameterCollection.Defaults(PartId.PinballBumper) };
         var placed = construction.WithInstance(bumper); placed.Validate();

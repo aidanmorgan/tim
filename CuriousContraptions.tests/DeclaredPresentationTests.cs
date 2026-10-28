@@ -1,4 +1,5 @@
 using CuriousContraptions.Abstractions;
+using CuriousContraptions.Simulation;
 using CuriousContraptions.Gpu;
 using CuriousContraptions.Presentation;
 using Godot;
@@ -44,7 +45,7 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
             var controlMaterial = Assert.IsType<StandardMaterial3D>(controlIndicator.MaterialOverride);
             var authoredMaterial = Assert.IsType<StandardMaterial3D>(controlIndicator.Mesh.SurfaceGetMaterial(0));
             var authoredColour = authoredMaterial.AlbedoColor;
-            foreach (var sample in evaluator.Advance(read.Capture!.Value.Time.Value / 1_000_000_000d))
+            foreach (var sample in evaluator.Advance(AnimationTestTime.Seconds(read.Tick.Value / 120.0)))
                 if (sample.Owner == gate.Id) part.ApplyDeclaredProperty(sample.Binding, sample.Value);
             var indicator = part.GetNode<MeshInstance3D>("Visual/Visual_Indicator");
             var material = Assert.IsType<StandardMaterial3D>(indicator.MaterialOverride);
@@ -84,7 +85,7 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
             try
             {
                 godot.Tree.Root.AddChild(part);
-                foreach (var sample in evaluator.Advance(read.Capture!.Value.Time.Value / 1_000_000_000d))
+                foreach (var sample in evaluator.Advance(AnimationTestTime.Seconds(read.Tick.Value / 120.0)))
                     if (sample.Owner == gate) part.ApplyDeclaredProperty(sample.Binding, sample.Value);
                 return Assert.IsType<StandardMaterial3D>(part.GetNode<MeshInstance3D>("Visual/Visual_Indicator").MaterialOverride).AlbedoColor;
             }
@@ -106,7 +107,7 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
         var handle = batch.Register(new(new(1), AnimationProperty.LocalRotationAngle),
             new(new(new AnimationRadians(-endpoint)), new(new AnimationRadians(endpoint)), new(.125f),
                 AnimationCurve.Linear, AnimationRepeat.Once, AnimationClock.Presentation));
-        batch.Start(handle); batch.Advance(1, 0, 0); batch.Advance(2, .125, 0);
+        batch.Start(handle); batch.Advance(1, AnimationTestTime.Seconds(0), AnimationTestTime.Seconds(0)); batch.Advance(2, AnimationTestTime.Seconds(.125), AnimationTestTime.Seconds(0));
         Assert.Equal(endpoint, BitConverter.UInt32BitsToSingle(batch.Read(handle).Value.CanonicalBits));
         var control = new WorkshopAnimationControl(new(WorkshopDeclaredPresentation.TargetBase), new(1), 1, 1,
             AnimationControlKind.Endpoint, true, endpoint, endpoint, .125f, AnimationCurve.Linear,
@@ -140,13 +141,13 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
         {
             godot.Tree.Root.AddChild(clockPart); godot.Tree.Root.AddChild(counterPart);
             var pivot = clockPart.GetNode<Node3D>("Visual/PendulumPivot");
-            Apply(evaluator.Advance(Time(reads[1])));
+            Apply(evaluator.Advance(AnimationTestTime.Seconds(Time(reads[1]))));
             Assert.Equal(0f, pivot.Rotation.Z); // installation at a nonzero master origin does not finish the follow
             var maximumSwing = 0f; var pulseSeen = false;
             for (var i = 2; i < reads.Count; i++)
             {
                 evaluator.Accept(Response(reads[i], (ulong)i));
-                Apply(evaluator.Advance(Time(reads[i])));
+                Apply(evaluator.Advance(AnimationTestTime.Seconds(Time(reads[i]))));
                 maximumSwing = MathF.Max(maximumSwing, MathF.Abs(pivot.Rotation.Z));
                 pulseSeen |= Material(clockPart, "Visual/Visual_Indicator").AlbedoColor.R > .9f;
             }
@@ -157,7 +158,7 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
             Assert.Equal(new Color(powered ? "#f7cb52" : "#556573"), Material(counterPart, "Visual/DotLamp_0").AlbedoColor);
             Assert.Equal(new Color("#556573"), Material(counterPart, "Visual/DotLamp_1").AlbedoColor);
             // Nanosecond capture stamps truncate each tick; settle beyond the exact .25 second duration.
-            Apply(evaluator.Advance(Time(reads[^1]) + .001));
+            Apply(evaluator.Advance(AnimationTestTime.Seconds(Time(reads[^1]) + .001)));
             Assert.Equal(new Color("#556573"), Material(clockPart, "Visual/Visual_Indicator").AlbedoColor);
             void Apply(IReadOnlyList<DeclaredPresentationSample> samples)
             {
@@ -176,8 +177,8 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
     public async Task PlateNativeColourFollowsActualContactLoad(bool occupied, float minimum, ContactLoadPhase expected)
     {
         var y = (double)WorkshopConstruction.WorkbenchSurface.Value + .22;
-        var plate = PlacedParts.Plate(new(1), 0, y, 0, minimum);
-        var ball = WorkshopInput.Generic(PartId.Basketball,new(2), 0, y + .08 + .35, 0, 0, 0, 0, 1);
+        var plate = PlacedParts.Plate(new(1), 0, (float)(y), 0, (float)(minimum));
+        var ball = WorkshopInput.Generic(PartId.Basketball,new(2), 0, (float)(y + .08 + .35), 0, 0, 0, 0, 1);
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(),
             occupied ? new(plate, ball) : new(plate));
         var reads = await WorkshopPhysicsEngineTests.Run(construction, 120);
@@ -191,7 +192,7 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
             for (var i = 1; i < reads.Count; i++)
             {
                 if (i > 1) evaluator.Accept(Response(reads[i], (ulong)i));
-                foreach (var sample in evaluator.Advance(Time(reads[i])))
+                foreach (var sample in evaluator.Advance(AnimationTestTime.Seconds(Time(reads[i]))))
                     if (sample.Owner == plate.Id) part.ApplyDeclaredProperty(sample.Binding, sample.Value);
             }
             var colour = new Color(expected switch
@@ -220,47 +221,47 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
         var reads = await WorkshopPhysicsEngineTests.Run(construction, 120);
         var follow = new WorkshopDeclaredPresentation(construction, Response(reads[30], 1));
         var start = Time(reads[30]);
-        Assert.Equal(0f, Scalar(follow.Advance(start), clock.Id, 0));
-        Assert.Equal((float)(.42f * (1 - Math.Exp(-1))), Scalar(follow.Advance(start + 1d / 30), clock.Id, 0));
+        Assert.Equal(0f, Scalar(follow.Advance(AnimationTestTime.Seconds(start)), clock.Id, 0));
+        Assert.Equal((float)(.42f * (1 - Math.Exp(-1))), Scalar(follow.Advance(AnimationTestTime.Seconds(start + 1d / 30)), clock.Id, 0));
         var pulse = new WorkshopDeclaredPresentation(construction, Response(reads[120], 1));
         start = Time(reads[120]);
-        Assert.Equal(247f / 255f, Scalar(pulse.Advance(start), clock.Id, 1));
-        var atQuarterCounter = pulse.Advance(start + (double).1f / 4);
+        Assert.Equal(247f / 255f, Scalar(pulse.Advance(AnimationTestTime.Seconds(start)), clock.Id, 1));
+        var atQuarterCounter = pulse.Advance(AnimationTestTime.Seconds(start + (double).1f / 4));
         Assert.Equal(float.Lerp(85f / 255f, 247f / 255f, .103515625f), Scalar(atQuarterCounter, counter.Id, 0));
-        var atHalfCounter = pulse.Advance(start + (double).1f / 2);
+        var atHalfCounter = pulse.Advance(AnimationTestTime.Seconds(start + (double).1f / 2));
         Assert.Equal(float.Lerp(85f / 255f, 247f / 255f, .5f), Scalar(atHalfCounter, counter.Id, 0));
-        Assert.Equal(247f / 255f, Scalar(pulse.Advance(start + (double).1f), counter.Id, 0));
-        Assert.Equal(float.Lerp(85f / 255f, 247f / 255f, .5f), Scalar(pulse.Advance(start + .125), clock.Id, 1));
-        Assert.Equal(85f / 255f, Scalar(pulse.Advance(start + .25), clock.Id, 1));
+        Assert.Equal(247f / 255f, Scalar(pulse.Advance(AnimationTestTime.Seconds(start + (double).1f)), counter.Id, 0));
+        Assert.Equal(float.Lerp(85f / 255f, 247f / 255f, .5f), Scalar(pulse.Advance(AnimationTestTime.Seconds(start + .125)), clock.Id, 1));
+        Assert.Equal(85f / 255f, Scalar(pulse.Advance(AnimationTestTime.Seconds(start + .25)), clock.Id, 1));
 
         var saved = new WorkshopSavedConstruction(construction, new(4));
         var restored = WorkshopSaveCodec.Decode(SaveFixture.Elements, WorkshopSaveCodec.Encode(saved));
         var replay = await WorkshopPhysicsEngineTests.Run(restored.Construction, 120);
         var replayPresentation = new WorkshopDeclaredPresentation(restored.Construction, Response(replay[120], 1));
-        Assert.Equal(247f / 255f, Scalar(replayPresentation.Advance(Time(replay[120]) + .1), counter.Id, 0));
+        Assert.Equal(247f / 255f, Scalar(replayPresentation.Advance(AnimationTestTime.Seconds(Time(replay[120]) + .1)), counter.Id, 0));
     }
 
     [Fact]
     public async Task PlateCubicRateEightAndResetUseCommittedSimulation()
     {
         var y = (double)WorkshopConstruction.WorkbenchSurface.Value + .22;
-        var plate = PlacedParts.Plate(new(1), 0, y, 0, .5f);
-        var ball = WorkshopInput.Generic(PartId.Basketball,new(2), 0, y + .43, 0, 0, 0, 0, 1);
+        var plate = PlacedParts.Plate(new(1), 0, (float)(y), 0, .5f);
+        var ball = WorkshopInput.Generic(PartId.Basketball,new(2), 0, (float)(y + .43), 0, 0, 0, 0, 1);
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(plate, ball));
         var (_, reads, reset) = await PressurePlateTests.RunAndReset(construction, 120);
         var loaded = reads.Last(read => read.Presentation.Loads[0].Phase == ContactLoadPhase.Loaded);
         var presentation = new WorkshopDeclaredPresentation(construction, Response(loaded, 1));
         var start = Time(loaded);
-        Assert.Equal(85f / 255f, Scalar(presentation.Advance(start), plate.Id, 0));
+        Assert.Equal(85f / 255f, Scalar(presentation.Advance(AnimationTestTime.Seconds(start)), plate.Id, 0));
         Assert.Equal(float.Lerp(85f / 255f, 247f / 255f, .15625f),
-            Scalar(presentation.Advance(start + .03125), plate.Id, 0));
+            Scalar(presentation.Advance(AnimationTestTime.Seconds(start + .03125)), plate.Id, 0));
         Assert.Equal(float.Lerp(85f / 255f, 247f / 255f, .5f),
-            Scalar(presentation.Advance(start + .0625), plate.Id, 0));
-        Assert.Equal(247f / 255f, Scalar(presentation.Advance(start + .125), plate.Id, 0));
+            Scalar(presentation.Advance(AnimationTestTime.Seconds(start + .0625)), plate.Id, 0));
+        Assert.Equal(247f / 255f, Scalar(presentation.Advance(AnimationTestTime.Seconds(start + .125)), plate.Id, 0));
         var resetPresentation = new WorkshopDeclaredPresentation(construction, Response(reset, 2) with { Projection = new(2) });
-        Assert.Equal(85f / 255f, Scalar(resetPresentation.Advance(Time(reset)), plate.Id, 0));
+        Assert.Equal(85f / 255f, Scalar(resetPresentation.Advance(AnimationTestTime.Seconds(Time(reset))), plate.Id, 0));
         Assert.Throws<ArgumentException>(() => resetPresentation.Accept(Response(loaded, 3) with { Projection = new(2) }));
-        Assert.Equal(85f / 255f, Scalar(resetPresentation.Advance(Time(reset) + 1), plate.Id, 0));
+        Assert.Equal(85f / 255f, Scalar(resetPresentation.Advance(AnimationTestTime.Seconds(Time(reset) + 1)), plate.Id, 0));
     }
 
     private static float Scalar(IReadOnlyList<DeclaredPresentationSample> samples, GpuBodyId owner, int binding) =>
@@ -277,26 +278,26 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
         var pulseRead = reads[15];
         var start = Time(pulseRead);
         var skipped = new WorkshopDeclaredPresentation(construction, Response(pulseRead, 1));
-        Assert.Equal(247f / 255f, Scalar(skipped.Advance(start + 1), clock.Id, 1));
-        Assert.Equal(85f / 255f, Scalar(skipped.Advance(start + 1.01), clock.Id, 1));
+        Assert.Equal(247f / 255f, Scalar(skipped.Advance(AnimationTestTime.Seconds(start + 1)), clock.Id, 1));
+        Assert.Equal(85f / 255f, Scalar(skipped.Advance(AnimationTestTime.Seconds(start + 1.01)), clock.Id, 1));
         var hidden = new WorkshopDeclaredPresentation(construction, Response(reads[1], 1));
         var target = WorkshopDeclaredPresentation.Targets(construction).Single(t => t.Owner == clock.Id && t.Binding == 1).Target;
         hidden.SetVisible(target, AnimationProperty.ColourRed, false);
         hidden.Accept(Response(pulseRead, 2));
-        Assert.DoesNotContain(hidden.Advance(start + 1), sample => sample.Owner == clock.Id);
+        Assert.DoesNotContain(hidden.Advance(AnimationTestTime.Seconds(start + 1)), sample => sample.Owner == clock.Id);
         hidden.SetVisible(target, AnimationProperty.ColourRed, true);
-        Assert.Equal(247f / 255f, Scalar(hidden.Advance(start + 1.01), clock.Id, 1));
-        Assert.Equal(85f / 255f, Scalar(hidden.Advance(start + 1.02), clock.Id, 1));
+        Assert.Equal(247f / 255f, Scalar(hidden.Advance(AnimationTestTime.Seconds(start + 1.01)), clock.Id, 1));
+        Assert.Equal(85f / 255f, Scalar(hidden.Advance(AnimationTestTime.Seconds(start + 1.02)), clock.Id, 1));
 
         var overlap = new WorkshopDeclaredPresentation(construction, Response(pulseRead, 1));
-        overlap.Advance(start);
+        overlap.Advance(AnimationTestTime.Seconds(start));
         overlap.Accept(Response(reads[30], 2));
-        Assert.Equal(247f / 255f, Scalar(overlap.Advance(Time(reads[30])), clock.Id, 1));
+        Assert.Equal(247f / 255f, Scalar(overlap.Advance(AnimationTestTime.Seconds(Time(reads[30]))), clock.Id, 1));
         Assert.Equal(float.Lerp(85f / 255f, 247f / 255f, .5f),
-            Scalar(overlap.Advance(Time(reads[30]) + .125), clock.Id, 1));
+            Scalar(overlap.Advance(AnimationTestTime.Seconds(Time(reads[30]) + .125)), clock.Id, 1));
 
         var reset = new WorkshopDeclaredPresentation(construction, Response(reads[0], 1) with { Projection = new(2) });
-        Assert.Equal(85f / 255f, Scalar(reset.Advance(start + 2), clock.Id, 1));
+        Assert.Equal(85f / 255f, Scalar(reset.Advance(AnimationTestTime.Seconds(start + 2)), clock.Id, 1));
         Assert.Throws<ArgumentException>(() => reset.Accept(Response(pulseRead, 2)));
         Assert.Throws<ArgumentException>(() => hidden.SetVisible(target, AnimationProperty.ColourBlue, false));
     }
@@ -329,26 +330,26 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
             godot.Tree.Root.AddChild(latchPart); godot.Tree.Root.AddChild(lampPart); godot.Tree.Root.AddChild(delayPart);
             var evaluator = new WorkshopDeclaredPresentation(construction, Response(reads[120], 1));
             var origin = Time(reads[120]);
-            var quarter = evaluator.Advance(origin + .125 / 4);
+            var quarter = evaluator.Advance(AnimationTestTime.Seconds(origin + .125 / 4));
             Assert.Equal(-.1982421875f, Scalar(quarter, latch.Id, 0));
             Apply(quarter);
             Assert.Equal(-.1982421875f, latchPart.GetNode<Node3D>("Visual/Rocker").Rotation.Z, 6);
-            Apply(evaluator.Advance(origin + .16));
+            Apply(evaluator.Advance(AnimationTestTime.Seconds(origin + .16)));
             Assert.Equal(new Color("#f7cb52"), Material(latchPart, "Visual/IndicatorLamp").AlbedoColor);
             Assert.Equal(new Color("#fff0a5"), Material(lampPart, "Visual/Bulb").AlbedoColor);
             Assert.Equal(new Color("#e9b24c"), Material(lampPart, "Visual/Bulb").Emission);
-            evaluator.Advance(Time(reads[180]));
+            evaluator.Advance(AnimationTestTime.Seconds(Time(reads[180])));
             evaluator.Accept(Response(reads[180], 2));
-            var falling = evaluator.Advance(Time(reads[180]) + .125 / 4);
+            var falling = evaluator.Advance(AnimationTestTime.Seconds(Time(reads[180]) + .125 / 4));
             Assert.Equal(.1982421875f, Scalar(falling, latch.Id, 0));
-            Apply(evaluator.Advance(Time(reads[180]) + .16));
+            Apply(evaluator.Advance(AnimationTestTime.Seconds(Time(reads[180]) + .16)));
             Assert.Equal(new Color("#556573"), Material(latchPart, "Visual/IndicatorLamp").AlbedoColor);
             Assert.Equal(new Color("#556573"), Material(lampPart, "Visual/Bulb").AlbedoColor);
             Assert.Equal(Colors.Black, Material(lampPart, "Visual/Bulb").Emission);
             foreach (var (tick, expected, progress) in new[] { (0, "#556573", 0f), (150, "#e8b764", .5f), (180, "#f7cb52", 1f) })
             {
                 var at = new WorkshopDeclaredPresentation(construction, Response(reads[tick], 1));
-                var samples = at.Advance(Time(reads[tick]));
+                var samples = at.Advance(AnimationTestTime.Seconds(Time(reads[tick])));
                 Assert.Equal(-MathF.Tau * progress, Scalar(samples, delay.Id, 0));
                 Apply(samples);
                 Assert.Equal(new Color(expected), Material(delayPart, "Visual/Indicator").AlbedoColor);
@@ -393,7 +394,7 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
             {
                 var read = phases[phase][0];
                 var presentation = new WorkshopDeclaredPresentation(construction, Response(read, 1));
-                foreach (var sample in presentation.Advance(Time(read)))
+                foreach (var sample in presentation.Advance(AnimationTestTime.Seconds(Time(read))))
                     part.ApplyDeclaredProperty(sample.Binding, sample.Value);
                 Assert.Equal(new Color(available && phase == 0 ? "#f7cb52" : "#556573"), Material(part, "Visual/Terminal").AlbedoColor);
                 for (var mark = 0; mark < 4; mark++)
@@ -416,42 +417,141 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
         var endpoint = Response(reads[15], 1) with { Construction = construction };
         var start = Time(reads[15]);
         var consumed = new WorkshopDeclaredPresentation(construction, endpoint);
-        consumed.Advance(start); consumed.Advance(start + .3);
+        consumed.Advance(AnimationTestTime.Seconds(start)); consumed.Advance(AnimationTestTime.Seconds(start + .3));
         var rebound = WorkshopWireFlatBuffers.DecodeResponse(WorkshopWireFlatBuffers.EncodeResponse(endpoint with
         {
             Sequence = new(1), Kind = WorkshopResponseKind.Acknowledgement, Projection = new(2), Publication = default
         }));
         consumed.ValidateRebind(construction, rebound);
         // An aborted Prepare has not changed accepted identity or resurrected a consumed occurrence.
-        Assert.Equal(85f / 255f, Scalar(consumed.Advance(start + .4), clock.Id, 1));
+        Assert.Equal(85f / 255f, Scalar(consumed.Advance(AnimationTestTime.Seconds(start + .4)), clock.Id, 1));
         Assert.Throws<ArgumentException>(() => consumed.Accept(rebound));
         consumed.Rebind(construction, rebound);
-        Assert.Equal(85f / 255f, Scalar(consumed.Advance(start + .5), clock.Id, 1));
+        Assert.Equal(85f / 255f, Scalar(consumed.Advance(AnimationTestTime.Seconds(start + .5)), clock.Id, 1));
         consumed.Rebind(construction, rebound with { Projection = new(3) });
-        Assert.Equal(85f / 255f, Scalar(consumed.Advance(start + .6), clock.Id, 1));
+        Assert.Equal(85f / 255f, Scalar(consumed.Advance(AnimationTestTime.Seconds(start + .6)), clock.Id, 1));
 
         var hidden = new WorkshopDeclaredPresentation(construction, endpoint);
         var target = WorkshopDeclaredPresentation.Targets(construction).Single(t => t.Owner == clock.Id && t.Binding == 1).Target;
         hidden.SetVisible(target, AnimationProperty.ColourRed, false);
         hidden.ValidateRebind(construction, rebound);
         hidden.Rebind(construction, rebound);
-        Assert.DoesNotContain(hidden.Advance(start + 1), sample => sample.Owner == clock.Id);
+        Assert.DoesNotContain(hidden.Advance(AnimationTestTime.Seconds(start + 1)), sample => sample.Owner == clock.Id);
         hidden.SetVisible(target, AnimationProperty.ColourRed, true);
-        Assert.Equal(247f / 255f, Scalar(hidden.Advance(start + 1.01), clock.Id, 1));
+        Assert.Equal(247f / 255f, Scalar(hidden.Advance(AnimationTestTime.Seconds(start + 1.01)), clock.Id, 1));
 
         var progressing = new WorkshopDeclaredPresentation(construction, endpoint);
-        progressing.Advance(start);
-        progressing.Advance(start + .0625);
+        progressing.Advance(AnimationTestTime.Seconds(start));
+        progressing.Advance(AnimationTestTime.Seconds(start + .0625));
         progressing.Rebind(construction, rebound);
-        Assert.Equal(float.Lerp(85f / 255f, 247f / 255f, .5f), Scalar(progressing.Advance(start + .125), clock.Id, 1));
+        Assert.Equal(float.Lerp(85f / 255f, 247f / 255f, .5f), Scalar(progressing.Advance(AnimationTestTime.Seconds(start + .125)), clock.Id, 1));
         Assert.Throws<ArgumentException>(() => progressing.ValidateRebind(construction,
             rebound with { Projection = new(3), Read = rebound.Read with { Epoch = new(99) } }));
         Assert.Throws<ArgumentException>(() => progressing.ValidateRebind(construction,
             rebound with { Projection = new(3), Session = new(7, 8) }));
-        Assert.Equal(float.Lerp(85f / 255f, 247f / 255f, .25f), Scalar(progressing.Advance(start + .1875), clock.Id, 1));
+        Assert.Equal(float.Lerp(85f / 255f, 247f / 255f, .25f), Scalar(progressing.Advance(AnimationTestTime.Seconds(start + .1875)), clock.Id, 1));
     }
 
-    private static double Time(WorkshopRead read) => read.Capture!.Value.Time.Value / 1_000_000_000d;
+
+    public static TheoryData<SimulationCadence, AnimationCadence> ProjectionCadences
+    {
+        get
+        {
+            var cases = new TheoryData<SimulationCadence, AnimationCadence>();
+            foreach (var simulation in Enum.GetValues<SimulationCadence>())
+                foreach (var animation in Enum.GetValues<AnimationCadence>()) cases.Add(simulation, animation);
+            return cases;
+        }
+    }
+
+    [Theory]
+    [MemberData(nameof(ProjectionCadences))]
+    public async Task WorkerProjectionBoundsDelayedReadsAndRetainsChannelsThroughTransitions(
+        SimulationCadence simulationCadence, AnimationCadence animationCadence)
+    {
+        var settings = WorkshopCadenceSettings.Default() with { Simulation = simulationCadence, Animation = animationCadence };
+        var owner = new GpuBodyId(1);
+        var construction = new WorkshopConstruction(new(2), settings,
+            new(WorkshopInput.Generic(PartId.ImpactSwitch, owner, 0, 3, 0, 0, 0, 0, 1)));
+        await using var device = new WorkshopGpuDevice(new BrowserGpuTransport(new EventRingPublication()), new(101, 206));
+        await using var simulation = new WorkshopSimulation(device, new WorkshopPhysicsEngineTests.StepClock(),
+            settings, new(1), new WorkshopPhysicsEngineTests.NoInstallation(), GpuDeviceOwnership.Borrowed);
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Initialize()).Outcome);
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Construct(construction)).Outcome);
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Run()).Outcome);
+        var reads = new List<WorkshopRead> { simulation.Committed };
+        for (var i = 0; i < 12; i++)
+        {
+            Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Advance()).Outcome);
+            reads.Add(simulation.Committed);
+        }
+        var endpoint = Response(reads[3], 1);
+        var evaluator = new WorkshopDeclaredPresentation(construction, endpoint);
+        var control = new WorkshopDeclaredPresentation(construction, endpoint);
+        const long origin = 10_123_456_789; // Neither zero nor an animation/physical pulse boundary.
+        var schedule = Schedule(1, 3, origin, WorldPlayback.Running);
+        evaluator.AcceptEvents(new(reads[3].Epoch.Value, 0,
+            [new(1, reads[3].Tick.Value, SimulationEventKind.TriggerActivated, owner.Value, 9,
+                checked((uint)(reads[3].Tick.Value * settings.PhysicalStepsPerCommit)), 512, 1, 1, 0)]), schedule.World);
+        float Sample(long master) => Scalar(evaluator.Advance(schedule, PhysicalTime.FromNanoseconds(master)), owner, 0);
+        Assert.Equal(.06f, Sample(origin));
+        // Master can run far ahead, but an undelivered commit cannot age a declared cue.
+        Assert.Equal(.06f, Sample(origin + 1_000_000));
+        Assert.Throws<ArgumentException>(() => evaluator.Advance(schedule with
+            { World = schedule.World with { WorldGeneration = new(99) } }, PhysicalTime.FromNanoseconds(origin)));
+        evaluator.Accept(Response(reads[5], 2)); control.Accept(Response(reads[5], 2));
+        var fractional = Sample(origin + 2_000_000);
+        Assert.InRange(fractional, .059f, .05999999f); // Two milliseconds beyond an off-lattice anchor.
+        var moving = Sample(origin + 1_000_000_000);
+        Assert.True(moving < fractional);
+        Assert.InRange(moving, -.019f, .05999f);
+        Assert.Equal(.06f, Scalar(control.Advance(schedule, PhysicalTime.FromNanoseconds(origin + 1_000_000_000)), owner, 0));
+        Assert.Equal(moving, Sample(origin + 2_000_000_000)); // Delayed next read freezes exactly.
+
+        Rebind(2, 5, origin + 2_000_000_000, WorldPlayback.Paused, WorkshopSimulationPhase.Paused);
+        Assert.Equal(moving, Sample(origin + 3_000_000_000));
+        // The worker's autonomous UI registry still advances on master time while the declared world is frozen.
+        var ui = new WorkshopAnimationTracks();
+        ui.Apply(new(new(1), new(0), 1, 1, AnimationControlKind.Reveal, true, 0, 1, 1, AnimationCurve.Linear),
+            settings.AnimationRate, PhysicalTime.FromNanoseconds(origin + 2_000_000_000));
+        ui.Advance(1, PhysicalTime.FromNanoseconds(origin + 2_500_000_000));
+        var uiSamples = new List<float>();
+        for (var slot = 0; slot < ui.Capacity; slot++)
+            if (ui.TryRead(slot, out _, out var opacity)) uiSamples.Add(opacity);
+        Assert.InRange(Assert.Single(uiSamples), .49999f, .50001f);
+        Rebind(3, 6, origin + 3_000_000_000, WorldPlayback.Paused, WorkshopSimulationPhase.Paused); // Step
+        var stepped = Sample(origin + 4_000_000_000);
+        Assert.True(stepped < moving);
+        Assert.Equal(stepped, Sample(origin + 5_000_000_000));
+        Rebind(4, 6, origin + 5_000_000_000, WorldPlayback.Running, WorkshopSimulationPhase.Running);
+        Assert.Equal(stepped, Sample(origin + 6_000_000_000));
+        evaluator.Accept(Response(reads[9], 3) with { Projection = new(4) });
+        var resumed = Sample(origin + 6_000_000_000);
+        Assert.True(resumed < stepped);
+        Rebind(5, 9, origin + 6_000_000_000, WorldPlayback.Completed, WorkshopSimulationPhase.Completed);
+        Assert.Equal(resumed, Sample(origin + 7_000_000_000));
+        Assert.Equal(resumed, Sample(origin + 8_000_000_000));
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Reset()).Outcome);
+        var reset = simulation.Committed;
+        evaluator = new WorkshopDeclaredPresentation(construction, Response(reset, 1) with { Projection = new(6) });
+        schedule = Schedule(6, 0, origin + 8_000_000_000, WorldPlayback.Building) with
+            { World = new(reset.Epoch, new(6), reset.Tick, new(origin + 8_000_000_000), WorldPlayback.Building) };
+        Assert.Equal(.06f, Sample(origin + 9_000_000_000));
+
+        WorkshopSchedule Schedule(ulong projection, ulong tick, long master, WorldPlayback playback) =>
+            new(settings, new(1), new(1), new(0), new(master),
+                WorkshopPulse.FirstAfter(settings.AnimationRate, new(master), default),
+                WorkshopPulse.FirstAfter(settings.PresentationRate, new(master), default), default, default,
+                new(reads[3].Epoch, new(projection), new(tick), new(master), playback));
+        void Rebind(ulong projection, int tick, long master, WorldPlayback playback, WorkshopSimulationPhase phase)
+        {
+            evaluator.Rebind(construction, Response(reads[tick], 0) with
+                { Projection = new(projection), Phase = phase, Kind = WorkshopResponseKind.Acknowledgement });
+            schedule = Schedule(projection, (ulong)tick, master, playback);
+        }
+    }
+
+    private static double Time(WorkshopRead read) => read.Tick.Value / 120.0;
     private static StandardMaterial3D Material(MachinePart part, string path) =>
         Assert.IsType<StandardMaterial3D>(part.GetNode<MeshInstance3D>(path).MaterialOverride);
 

@@ -341,7 +341,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
         {
             var bench = (float)height;
             SetField(scene, "_placementHeight", new Metres(bench));
-            var plate = PlacedParts.Plate(new(1), 0, (double)bench, 0, .5f);
+            var plate = PlacedParts.Plate(new(1), 0, (float)((double)bench), 0, .5f);
             var before = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(plate));
             typeof(MachineWorld).GetProperty(nameof(MachineWorld.Construction))!.SetValue(scene.World, before);
             SetField(scene, "_nextId", new GpuBodyId(2));
@@ -1181,7 +1181,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
         try
         {
             var height = Mathf.Snapped((float)Field<Metres>(scene, "_placementHeight").Value, .1f);
-            var pipe = WorkshopInput.Pipe(new(1), -2.22, height, 0, 0, 0, 0, 1);
+            var pipe = WorkshopInput.Pipe(new(1), -2.22f, (float)(height), 0, 0, 0, 0, 1);
             await scene.World.ReplaceConstruction(new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(pipe)));
             SetField<PartId?>(scene, "_tool", PartId.BallDetector);
             SetField(scene, "_nextId", new GpuBodyId(2));

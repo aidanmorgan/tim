@@ -104,7 +104,7 @@ public sealed class WorkshopSimulationTests
     private static WorkshopConstruction PopulationConstruction(int count) =>
         new(new(2), Settings, new(Enumerable.Range(0, count).Select(i =>
             (IWorkshopInstance)WorkshopInput.Generic(PartId.Basketball,new((ulong)i + 1),
-                (i % 4) * 2, 4, (i / 4) * 2, 0, 0, 0, 1)).ToArray()));
+                (float)((i % 4) * 2), 4, (float)((i / 4) * 2), 0, 0, 0, 1)).ToArray()));
 
     [Fact]
     public async Task SaveChangesRevisionOnceWithoutChangingWorldOrDispatchingGpu()

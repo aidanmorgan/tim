@@ -172,7 +172,7 @@ public sealed class DeclaredMemoryTests
     {
         var (save, command) = Bytes(name);
         var expected = lockedRotated
-            ? PlacedParts.Latch(new(1), 2.5, 3, -1.25, 0, Math.Sqrt(.5), 0, Math.Sqrt(.5), locked: true)
+            ? PlacedParts.Latch(new(1), 2.5f, 3, -1.25f, 0, (float)(Math.Sqrt(.5)), 0, (float)(Math.Sqrt(.5)), locked: true)
             : PlacedParts.Latch(new(1), 0, 3, 0, 0, 0, 0, 1);
         Assert.Equal(expected, Assert.Single(WorkshopSaveCodec.Decode(SaveFixture.Elements, save).Construction.Instances));
         Assert.Equal(expected, Assert.Single(WorkshopWireFlatBuffers.DecodeCommand(command).Construction!.Value.Instances));

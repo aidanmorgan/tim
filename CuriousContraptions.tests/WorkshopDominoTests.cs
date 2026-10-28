@@ -8,8 +8,8 @@ public sealed class WorkshopDominoTests
 {
     private const double Upright = -0.46 + .55;
     private static WorkshopConstruction Construction() => new(new(1), WorkshopCadenceSettings.Default(),
-        new(WorkshopInput.Generic(PartId.Basketball,new(1), .4, 3, 0, 0, 0, 0, 1),
-            PlacedParts.Domino(new(2), 0, Upright, 0, 0, 0, 0, 1)));
+        new(WorkshopInput.Generic(PartId.Basketball,new(1), .4f, 3, 0, 0, 0, 0, 1),
+            PlacedParts.Domino(new(2), 0, (float)(Upright), 0, 0, 0, 0, 1)));
 
     [Fact]
     public void DominoCompilesAsOneDynamicBoxWithDeclaredMassMaterialAndGravity()
@@ -93,7 +93,7 @@ public sealed class WorkshopDominoTests
     [Fact]
     public void TheDominoHasNoAuthorableParameterAndDeclaresActivationOutOnly()
     {
-        var domino = Assert.IsType<WorkshopGenericInstance>(PlacedParts.Domino(new(2), 0, Upright, 0, 0, 0, 0, 1));
+        var domino = Assert.IsType<WorkshopGenericInstance>(PlacedParts.Domino(new(2), 0, (float)(Upright), 0, 0, 0, 0, 1));
         domino.Validate();
         Assert.Empty(DeclaredPhysics.Of(PartId.Domino).Metadata.Parameters);
         foreach (var forged in new[] { "mass", "bounce", "friction", "half_extents", "threshold_degrees" })
@@ -107,7 +107,7 @@ public sealed class WorkshopDominoTests
         Assert.Equal(new System.Numerics.Vector3(0f, .55f, 0f), DeclaredPorts.Current.LocalPosition(PartId.Domino, WorkshopSocket.ActivationOut));
         // Story 9R.5b: the compiled scene is the footprint authority; the workbench plane adds one static body and collider.
         var world = WorkshopPhysicsCompiler.Compile(new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(),
-            new WorkshopInstances(PlacedParts.Domino(new(1), 0, Upright, 0, 0, 0, 0, 1))), new(1, 2)).World;
+            new WorkshopInstances(PlacedParts.Domino(new(1), 0, (float)(Upright), 0, 0, 0, 0, 1))), new(1, 2)).World;
         Assert.Equal((1 + 1, 1, 3 + 1, 0, 0, 0), (world.Bodies, world.Dynamic, world.Colliders, world.Triggers, world.ContactWorks, world.ElectricalSources));
         Assert.Equal(PartAllowance.Unlimited, WorkbenchCapacityTests.FreePalette[PartId.Domino]);
     }
@@ -116,7 +116,7 @@ public sealed class WorkshopDominoTests
     public void SeventeenDynamicBodiesBuildAndCompileWithoutAMovingBodyLimit()
     {
         var items = new List<IWorkshopInstance>();
-        for (var i = 0; i < 16; i++) items.Add(PlacedParts.Domino(new((ulong)(i + 1)), -6 + i * .8, Upright, 0, 0, 0, 0, 1));
+        for (var i = 0; i < 16; i++) items.Add(PlacedParts.Domino(new((ulong)(i + 1)), (float)(-6 + i * .8), (float)(Upright), 0, 0, 0, 0, 1));
         var sixteen = new WorkshopInstances([.. items]);
         sixteen.Validate();
         // Story 9R.5b: the retired 16-row moving-body table no longer refuses the seventeenth moving body.

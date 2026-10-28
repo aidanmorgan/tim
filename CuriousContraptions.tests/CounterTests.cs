@@ -365,7 +365,7 @@ public sealed class CounterTests(NativeSceneFixture godot)
     [InlineData(5)]
     public void WorkshopWireFlatBuffers_SerializesAndDeserializesCounter(int target)
     {
-        var counter = PlacedParts.Counter(new(10), 0.1, 3.2, -0.3, 0, 0, 0, 1, target);
+        var counter = PlacedParts.Counter(new(10), 0.1f, 3.2f, -0.3f, 0, 0, 0, 1, target);
         var construction = new WorkshopConstruction(new ConstructionRevision(1), WorkshopCadenceSettings.Default(), new([counter]));
         var cmd = new WorkshopCommand(new(1), WorkshopCommandKind.Construct, new(0), new(1), construction, Session: new(1, 2), Cadence: new(1), Projection: new(1));
         var bytes = WorkshopWireFlatBuffers.EncodeCommand(cmd);

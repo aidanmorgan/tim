@@ -37,7 +37,7 @@ public sealed class SliderInstanceTests(NativeSceneFixture godot)
     {
         var start = 1 + .14 - compression + .075 + .34 + .005;
         var reads = await WorkshopPhysicsEngineTests.Run(Free(
-            WorkshopInput.Generic(PartId.Basketball, Ball, 0, start, 0, 0, 0, 0, 1),
+            WorkshopInput.Generic(PartId.Basketball, Ball, 0, (float)(start), 0, 0, 0, 0, 1),
             PlacedParts.Springboard(Board, 0, 1, 0, 0, 0, 0, 1, compression)), 2 * TicksPerSecond);
         var rise = reads.Max(read => Y(Body(read, Ball))) - (float)start;
         if (launches) Assert.True(rise > .2f, $"charged rise {rise} m");
@@ -133,7 +133,7 @@ public sealed class SliderInstanceTests(NativeSceneFixture godot)
     [Fact]
     public async Task RunResetAndSaveLoadAreExact()
     {
-        var bench = Free(WorkshopInput.Generic(PartId.Basketball, Ball, 0, 1 + .14 - .2 + .075 + .34 + .005, 0, 0, 0, 0, 1),
+        var bench = Free(WorkshopInput.Generic(PartId.Basketball, Ball, 0, (float)(1 + .14 - .2 + .075 + .34 + .005), 0, 0, 0, 0, 1),
             PlacedParts.Springboard(Board, 0, 1, 0, 0, 0, 0, 1, .2f));
         var (built, run, reset) = await NoFixedCapacityTests.RunAndReset(bench, 2 * TicksPerSecond);
         Assert.True(run.Max(read => Y(Body(read, Ball))) > Y(Body(built, Ball)) + .2f, "the charged board launches the ball");

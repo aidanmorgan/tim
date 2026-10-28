@@ -256,8 +256,7 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
     {
         if (_disposed) return;
         var bytes = EventBytes(_id.Value);
-        var milliseconds = EventMilliseconds(_id.Value);
-        var received = WorkshopNativeClock.FromMilliseconds(milliseconds);
+        var received = WorkshopNativeClock.FromMilliseconds(EventMilliseconds(_id.Value));
         // The requesters' one reply path: a malformed reply is one counted, typed rejection, never applied or dropped.
         if (Clock.ReceiveEncoded(bytes, received) is not { } observation)
         {
@@ -275,7 +274,7 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
     {
         if (_disposed) return;
         var bytes = EventBytes(_id.Value);
-        var milliseconds = EventMilliseconds(_id.Value);
+        var received = WorkshopNativeClock.FromMilliseconds(EventMilliseconds(_id.Value));
         // One decode: a refused read is its WireFaultException, a transport fault, never retried through another codec.
         var response = WorkshopWireFlatBuffers.DecodeResponse(bytes);
         if (_schedule is not { } active || response.Cadence.Value < active.Revision.Value ||
@@ -285,7 +284,7 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
         var prepared = _cursor.PrepareRead(response);
         if (!prepared.Applicable) return;
         var boundary = response.Phase == WorkshopSimulationPhase.Completed ? PresentationBoundary.Completed : PresentationBoundary.Continuous;
-        var history = PrepareHistory(response, boundary, WorkshopNativeClock.FromMilliseconds(milliseconds));
+        var history = PrepareHistory(response, boundary, received);
         EnsureInstalledScene(_construction);
         _cursor.Commit(prepared);
         _history.Commit(history);

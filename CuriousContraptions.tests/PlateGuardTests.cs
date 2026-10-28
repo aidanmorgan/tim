@@ -22,7 +22,7 @@ public sealed class PlateGuardTests
         Load.Basketball => [Ball(first, x, z)],
         // The .325m half-depth covers the .3m ring: crown .084+.018 above the owner,
         // plus .55m tile half-height and independent 1mm initial clearance.
-        Load.StandingDomino => [PlacedParts.Domino(new(first), x, PlateY + .084 + .018 + .55 + .001, z, 0, 0, 0, 1)],
+        Load.StandingDomino => [PlacedParts.Domino(new(first), (float)(x), (float)(PlateY + .084 + .018 + .55 + .001), (float)(z), 0, 0, 0, 1)],
         Load.BowlingBall => [Bowling(first, x, z)],
         Load.FourBowlingBalls => [Bowling(first, x - .45, z - .45), Bowling(first + 1, x + .45, z - .45),
             Bowling(first + 2, x - .45, z + .45), Bowling(first + 3, x + .45, z + .45)],
@@ -31,13 +31,13 @@ public sealed class PlateGuardTests
         _ => throw new ArgumentOutOfRangeException(nameof(load))
     };
     private static WorkshopGenericInstance Ball(ulong id, double x, double z) =>
-        WorkshopInput.Generic(PartId.Basketball, new(id), x, Face + .345, z, 0, 0, 0, 1);
+        WorkshopInput.Generic(PartId.Basketball, new(id), (float)(x), (float)(Face + .345), (float)(z), 0, 0, 0, 1);
     private static WorkshopGenericInstance Bowling(ulong id, double x, double z) =>
-        WorkshopInput.Generic(PartId.BowlingBall, new(id), x, Face + .285, z, 0, 0, 0, 1);
+        WorkshopInput.Generic(PartId.BowlingBall, new(id), (float)(x), (float)(Face + .285), (float)(z), 0, 0, 0, 1);
     private static WorkshopGenericInstance Gate(ulong id, double z) =>
-        WorkshopInput.Generic(PartId.PoweredGate, new(id), 0, GateHeight, z, 0, 0, 0, 1);
-    private static WorkshopGenericInstance Battery(ulong id, double z) => PlacedParts.Battery(new(id), 3, GateHeight, z);
-    private static IWorkshopInstance Lamp(ulong id, double z) => PlacedParts.Lamp(new(id), 6, GateHeight, z, 0, 0, 0, 1);
+        WorkshopInput.Generic(PartId.PoweredGate, new(id), 0, (float)(GateHeight), (float)(z), 0, 0, 0, 1);
+    private static WorkshopGenericInstance Battery(ulong id, double z) => PlacedParts.Battery(new(id), 3, (float)(GateHeight), (float)(z));
+    private static IWorkshopInstance Lamp(ulong id, double z) => PlacedParts.Lamp(new(id), 6, (float)(GateHeight), (float)(z), 0, 0, 0, 1);
     private static WorkshopConnection Supply(GpuBodyId source, GpuBodyId target) =>
         new(source, WorkshopSocket.Supply, target, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical);
     private static WorkshopConnection Signal(GpuBodyId source, GpuBodyId target) =>
@@ -50,7 +50,7 @@ public sealed class PlateGuardTests
         float minimumMass, IWorkshopInstance[] load, double z = 0, ulong first = 1)
     {
         var gate = Gate(first, z); var battery = Battery(first + 1, z);
-        var plate = PlacedParts.Plate(new(first + 2), -4, PlateY, z, minimumMass); var lamp = Lamp(first + 3, z);
+        var plate = PlacedParts.Plate(new(first + 2), -4, (float)(PlateY), (float)(z), (float)(minimumMass)); var lamp = Lamp(first + 3, z);
         return (Bench([gate, battery, plate, lamp, .. load], Supply(battery.Id, plate.Id), Supply(plate.Id, gate.Id), Signal(plate.Id, lamp.Id)),
             plate, gate, lamp);
     }
@@ -116,7 +116,7 @@ public sealed class PlateGuardTests
     [InlineData(8.0, true)]
     public async Task ABouncingLoadIsHeldElevenTicksAndReleasedOnTheTwelfth(double drop, bool released)
     {
-        var ball = WorkshopInput.Generic(PartId.Basketball, new(5), -4, Face + .345 + drop, 0, 0, 0, 0, 1);
+        var ball = WorkshopInput.Generic(PartId.Basketball, new(5), -4, (float)(Face + .345 + drop), 0, 0, 0, 0, 1);
         var (bench, plate, _, lamp) = Circuit(.5f, [ball]);
         var reads = await Run(bench, 6 * 120);
         ulong? last = null;
@@ -170,7 +170,7 @@ public sealed class PlateGuardTests
     public async Task AStaticBoxWithThePlateFaceButNoSensorNeverActivates()
     {
         const float height = .4f;
-        var wall = WorkshopInput.Generic(PartId.Wall, new(9), -4, Face - height / 2, 4, 0, 0, 0, 1,
+        var wall = WorkshopInput.Generic(PartId.Wall, new(9), -4, (float)(Face - height / 2), 4, 0, 0, 0, 1,
             new([new(new("width"), 1.8f), new(new("height"), height), new(new("thickness"), 1.8f)]));
         var (bench, plate, gate, lamp) = Circuit(.5f, [wall, Ball(10, -4, 4)]);
         var scene = WorkshopPhysicsCompiler.Compile(bench, new(1, 2));

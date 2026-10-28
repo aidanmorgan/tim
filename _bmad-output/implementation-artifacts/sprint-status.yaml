@@ -387,7 +387,7 @@ development_status:
   # 50 (deletion): owner decision 18 Oct 2026, every remaining binary16 lane to f32; Half nowhere in the tree.
   # As soon as its preconditions allow (after 9a-c-memory, 9a-25b and 9a-26).
   9a-44-f32-lane-completion-half-purge: done # Part A (Half purge, raw_assistance slot deleted) published d87b6a1e, CI 40181624977 (3952 tests, 0 skipped), deploy 7311595713; Part B is 9a-44b; browser pending
-  9a-44b-f32-double-game-values-and-tick-clock: backlog # after engine-orientation-levelling (epics.md#story-9a-44b); double → f32, integer-tick clock, double guard
+  9a-44b-f32-double-game-values-and-tick-clock: in-review # local4884/0/0; five Auto layers and affected re-review Pass; hooks/publication pending
   # 51 (element)
   epic-12: backlog
   12-1-lightweight-tennis-ball-floating-balloon: backlog # split aggregate; use individual children
@@ -515,7 +515,7 @@ development_status:
   elements-visible-solid-sweep: done # faces, lamps, indicators and sockets of logic parts, hold timer, counter, latch, clock; plate sockets; collider-slot refusal at bundle install
   engine-multi-collider-dynamic: done # published28a2d302e6c0e1a0e361bfe62beea9b332d6b9f9; local4822/0/0, hooks126/0/0; terminal receipt in spec-engine-multi-collider-dynamic.md
   bumper-cap-solid: done # published057df5ae99cc8e620ee88cc161bd1497a5e1b980; local4831/0/0, hooks126/0/0; terminal receipt in spec-bumper-cap-solid.md
-  face-markings-flush: in-progress # move raised face markings (pictograms, truth dots, latch markers, timer track) flush so they are printed decoration
+  face-markings-flush: done # published6125040efa3becf31c6a5957f35571735f04972c; local4845/0/0, hooks126/0/0, terminal Pass; browser pending
   engine-hollow-shapes: done # published eacf561d6833438c9aeaf71c85e52c2626ea33e5; CI 40239119353: 4,212 passed, 0 failed/skipped; deployment 7320169548; browser pending
   engine-single-point-penetration: done # terminal Pass at 3a633495da8868cb2536f81edecadba629da6c2d; CI 40252950208 4276/0/0; artifact 12621889117; deployment 7322234061; receipt in spec-engine-single-point-penetration.md
   engine-two-point-friction: done # terminal Pass 3462ad836dccffc1e1328b1ed99de490b4336786; CI 40297421010 4365/0/0; artifact 12639894754; deployment 7328603563; risks retained in spec

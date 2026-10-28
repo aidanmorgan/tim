@@ -116,6 +116,9 @@ public static partial class Program
         catch (JSException) { return double.NaN; } // Incomplete observation never replaces the physical result.
     }
 
+    private static void RecordObservedTickDuration(SimulationTick tick, double started) =>
+        Trace.RecordTickDuration(tick, ObservationMilliseconds() - started);
+
     /// <summary>Matches the browser's receipt of a posted read (its 24-byte identity, echoed unread) and retires every read up to it.
     /// A mismatch throws its typed <see cref="ReadReceiptRejectedException"/>; the worker reports it as a transport failure.</summary>
     [JSExport]
@@ -358,7 +361,7 @@ public static partial class Program
             }
             EmitRead(result);
             if (result.Outcome != WorkshopCommandOutcome.Applied) return TickAttempt.Stopped;
-            Trace.RecordTickDuration(Simulation.Committed.Tick, ObservationMilliseconds() - tickStarted);
+            RecordObservedTickDuration(Simulation.Committed.Tick, tickStarted);
             return TickAttempt.Committed;
         }
 

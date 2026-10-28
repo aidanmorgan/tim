@@ -27,7 +27,7 @@ public sealed class PayloadInstanceTests
 
     /// <summary>The one placement seam of this suite.</summary>
     internal static IWorkshopInstance Place(PartId kind, ulong id, double x, double y, double z) =>
-        WorkshopInput.Generic(kind, new(id), x, y, z, 0, 0, 0, 1);
+        WorkshopInput.Generic(kind, new(id), (float)(x), (float)(y), (float)(z), 0, 0, 0, 1);
 
     private static WorkshopConstruction Free(params IWorkshopInstance[] instances) =>
         new(new(2), WorkshopCadenceSettings.Default(), new(instances));
@@ -90,7 +90,7 @@ public sealed class PayloadInstanceTests
     [Fact]
     public void TelemetryFollowsTheLowestIdentityPayloadOrNone()
     {
-        var domino = PlacedParts.Domino(new(2), 3, .1, 0, 0, 0, 0, 1);
+        var domino = PlacedParts.Domino(new(2), 3, .1f, 0, 0, 0, 0, 1);
         Assert.Equal(new GpuBodyId(3), MachineWorld.TelemetryBody(new(Place(PartId.BowlingBall, 7, -2, 3, 0), domino, Place(PartId.Basketball, 3, 2, 3, 0))));
         Assert.Equal(new GpuBodyId(7), MachineWorld.TelemetryBody(new(domino, Place(PartId.BowlingBall, 7, -2, 3, 0))));
         Assert.Equal(default, MachineWorld.TelemetryBody(new(domino)));
@@ -102,7 +102,7 @@ public sealed class PayloadInstanceTests
     public void AReceiverPolicyExcludesNonPayloadBodiesWithoutAllocatingPairState()
     {
         var receiver = WorkshopInput.Generic(PartId.Receiver, new(5), 0, 1, 0, 0, 0, 0, 1);
-        var domino = PlacedParts.Domino(new(2), 3, .1, 0, 0, 0, 0, 1);
+        var domino = PlacedParts.Domino(new(2), 3, .1f, 0, 0, 0, 0, 1);
         var alone = WorkshopPhysicsCompiler.Compile(Free(domino, receiver), new(1, 2));
         Assert.Equal(BodyTargetKind.AllPayloads, Assert.Single(alone.Sensors.ToArray()).Targets.Kind);
         Assert.Equal(BodyTargetKind.AllPayloads, Assert.Single(alone.Guides.ToArray()).Targets.Kind);
@@ -120,7 +120,7 @@ public sealed class PayloadInstanceTests
     {
         var first = WorkshopInput.Generic(PartId.Receiver, new(5), 0, 1, 0, 0, 0, 0, 1);
         var second = WorkshopInput.Generic(PartId.Receiver, new(6), 4, 1, 0, 0, 0, 0, 1);
-        var domino = PlacedParts.Domino(new(2), 3, .1, 0, 0, 0, 0, 1);
+        var domino = PlacedParts.Domino(new(2), 3, .1f, 0, 0, 0, 0, 1);
         new WorkshopInstances(first, second, domino).Validate();
         foreach (var kind in new[] { PartId.Basketball, PartId.BowlingBall })
         {

@@ -1,3 +1,4 @@
+using CuriousContraptions.Abstractions;
 using System;
 
 namespace CuriousContraptions.Presentation;
@@ -46,8 +47,8 @@ public sealed record AnimationImpulseDefinition
         if(curve switch
         {
             AnimationImpulseCurve.LinearDecay or AnimationImpulseCurve.SmoothDecay=>peakPhase.Value!=(float)0,
-            AnimationImpulseCurve.SineSquaredPulse=>peakPhase.Value!=(float).5,
-            AnimationImpulseCurve.SmoothRiseFall=>(double)peakPhase.Value<1e-6||(double)peakPhase.Value>1-1e-6,
+            AnimationImpulseCurve.SineSquaredPulse=>peakPhase.Value!=(float).5f,
+            AnimationImpulseCurve.SmoothRiseFall=>peakPhase.Value<1e-6f||peakPhase.Value>1-1e-6f,
             _=>true
         })throw new ArgumentOutOfRangeException(nameof(peakPhase));
         PeakPhase=peakPhase;
@@ -57,32 +58,32 @@ public sealed record AnimationImpulseDefinition
     public static AnimationPeakPhase CanonicalPeak(AnimationImpulseCurve curve)=>curve switch
     {
         AnimationImpulseCurve.LinearDecay or AnimationImpulseCurve.SmoothDecay=>new((float)0),
-        AnimationImpulseCurve.SineSquaredPulse or AnimationImpulseCurve.SmoothRiseFall=>new((float).5),
+        AnimationImpulseCurve.SineSquaredPulse or AnimationImpulseCurve.SmoothRiseFall=>new((float).5f),
         _=>throw new ArgumentOutOfRangeException(nameof(curve))
     };
-    internal double Envelope(double elapsed)
+    internal float Envelope(float elapsed)
     {
         if(elapsed<=0)return PeakPhase.Value==(float)0?1:0;
-        if(elapsed>=(double)Duration.Value)return 0;
-        var phase=elapsed/(double)Duration.Value;
+        if(elapsed>=Duration.Value)return 0;
+        var phase=elapsed/Duration.Value;
         return Curve switch
         {
             AnimationImpulseCurve.LinearDecay=>1-phase,
             AnimationImpulseCurve.SmoothDecay=>Smooth(1-phase),
             AnimationImpulseCurve.SineSquaredPulse=>SquaredSine(phase),
-            AnimationImpulseCurve.SmoothRiseFall=>phase<=(double)PeakPhase.Value?Smooth(phase/(double)PeakPhase.Value):Smooth((1-phase)/(1-(double)PeakPhase.Value)),
+            AnimationImpulseCurve.SmoothRiseFall=>phase<=PeakPhase.Value?Smooth(phase/PeakPhase.Value):Smooth((1-phase)/(1-PeakPhase.Value)),
             _=>throw new InvalidOperationException("Unsupported impulse curve.")
         };
     }
-    internal static double SquaredSine(double phase)
+    internal static float SquaredSine(float phase)
     {
-        var sine=Math.Sin(Math.PI*phase);return sine*sine;
+        var sine=MathF.Sin(MathF.PI*phase);return sine*sine;
     }
-    private static double Smooth(double phase)
+    private static float Smooth(float phase)
     {
         var p=Math.Min(phase,1-phase);
         var smooth=p*p*p*(p*(p*6-15)+10);
-        return phase<=.5?smooth:1-smooth;
+        return phase<=.5f?smooth:1-smooth;
     }
 }
 
@@ -93,7 +94,7 @@ internal sealed class AnimationImpulseState
     private struct Occurrence
     {
         public AnimationOccurrenceId Id;
-        public double OccurredAt,Started; // External clock timestamps.
+        public PhysicalTime OccurredAt,Started;
         public AnimationStrength Strength;
         public bool HasPresented;
         public OccurrencePhase Phase;
@@ -110,13 +111,12 @@ internal sealed class AnimationImpulseState
         _definition=definition;
     }
     public AnimationImpulseRead Read()=>new(_pending,_count-_pending,_accepted,_completed,_cancelled,_highWaterMark,_evaluated,_occurrences.Length);
-    public void ValidateAdmission(AnimationOccurrenceId id,AnimationStrength strength,double occurredAt)
+    public void ValidateAdmission(AnimationOccurrenceId id,AnimationStrength strength)
     {
         if(id.Value==0||id.Value<=_lastOccurrence.Value)throw new ArgumentException("Impulse identities must increase within their binding.");
         AnimationNumbers.Unit(strength.Value);
         if(strength.Value<=(float)0)throw new ArgumentOutOfRangeException(nameof(strength));
         if(_accepted==ulong.MaxValue)throw new InvalidOperationException("Impulse occurrence counter exhausted.");
-        if(!double.IsFinite(occurredAt))throw new ArgumentOutOfRangeException(nameof(occurredAt));
     }
     public void Reserve(int additional)
     {
@@ -135,16 +135,15 @@ internal sealed class AnimationImpulseState
         }
         catch (OutOfMemoryException) { throw new AnimationStorageException(); }
     }
-    public void Enqueue(AnimationOccurrenceId id,AnimationStrength strength,double occurredAt)
+    public void Enqueue(AnimationOccurrenceId id,AnimationStrength strength,PhysicalTime occurredAt)
     {
-        ValidateAdmission(id,strength,occurredAt);
+        ValidateAdmission(id,strength);
         Reserve(1);
         _occurrences[_count++]=new(){Id=id,Strength=strength,OccurredAt=occurredAt,Phase=OccurrencePhase.Pending};
         _lastOccurrence=id;_pending++;_accepted++;_highWaterMark=Math.Max(_highWaterMark,_count);
     }
-    public void ValidateAdvance(double time,bool visible)
+    public void ValidateAdvance(PhysicalTime time,bool visible)
     {
-        if(!double.IsFinite(time))throw new ArgumentOutOfRangeException(nameof(time));
         for(var i=0;i<_count;i++)
         {
             ref var occurrence=ref _occurrences[i];
@@ -155,9 +154,9 @@ internal sealed class AnimationImpulseState
             _=AnimationNumbers.Elapsed(time,started);
         }
     }
-    public AnimationStrength Advance(double time,bool visible)
+    public AnimationStrength Advance(PhysicalTime time,bool visible)
     {
-        var retained=0;var pending=0;var value=0.0;_evaluated=0;
+        var retained=0;var pending=0;var value=0.0f;_evaluated=0;
         for(var i=0;i<_count;i++)
         {
             var occurrence=_occurrences[i];
@@ -176,15 +175,15 @@ internal sealed class AnimationImpulseState
                 };
             }
             var elapsed=AnimationNumbers.Elapsed(time,occurrence.Started);
-            var retainedFirstFrame=elapsed>=(double)_definition.Duration.Value&&visible&&!occurrence.HasPresented&&
+            var retainedFirstFrame=elapsed>=_definition.Duration.Value&&visible&&!occurrence.HasPresented&&
                 _definition.Timing==AnimationImpulseTiming.EventTimeRetainFirstFrame;
             var retainedUnseen= !occurrence.HasPresented&&
                 _definition.Timing==AnimationImpulseTiming.EventTimeRetainFirstFrame&&
                 _definition.Visibility==AnimationImpulseVisibility.DeferUntilVisible;
-            if(elapsed>=(double)_definition.Duration.Value&&!retainedFirstFrame&&!retainedUnseen){_completed++;continue;}
+            if(elapsed>=_definition.Duration.Value&&!retainedFirstFrame&&!retainedUnseen){_completed++;continue;}
             if(visible)
             {
-                var contribution=(double)occurrence.Strength.Value*(retainedFirstFrame?1:_definition.Envelope(elapsed));
+                var contribution=occurrence.Strength.Value*(retainedFirstFrame?1:_definition.Envelope(elapsed));
                 // Logical canonical envelope observation, not a renderer-delta acknowledgement.
                 if((float)contribution>(float)0)occurrence.HasPresented=true;
                 value=_definition.Overlap switch
@@ -200,7 +199,7 @@ internal sealed class AnimationImpulseState
         }
         Array.Clear(_occurrences,retained,_count-retained);
         _count=retained;_pending=pending;
-        if(_definition.Overlap==AnimationImpulseOverlap.HyperbolicTangentSum)value=Math.Tanh(value);
+        if(_definition.Overlap==AnimationImpulseOverlap.HyperbolicTangentSum)value=MathF.Tanh(value);
         if(visible||_count==0)Value=new((float)value);
         return Value;
     }

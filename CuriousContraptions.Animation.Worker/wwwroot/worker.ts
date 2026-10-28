@@ -1,3 +1,4 @@
+declare const self: { postMessage(message: unknown, transfer?: Transferable[]): void; close(): void; onmessage: ((event: MessageEvent<unknown>) => void) | null; };
 import { dotnet } from './_framework/dotnet.js';
 import { admitNativeClock, nativeNow, nativeClockEvidence } from '../native-clock.js';
 import { attachClockRing, requestReply, ClockRole } from '../clock-ring.js';
@@ -5,12 +6,28 @@ import { EventRingCursor, eventDelivery } from '../event-ring-cursor.js';
 
 await admitNativeClock();
 const runtime = await dotnet.create();
-let host, port, clock, service, disposed = false, bootstrapped = false, qualified = false;
+interface AnimationHost {
+    Reply(bytes: Uint8Array, now: number): void;
+    OutputKinds(): number[];
+    Bootstrap(bytes: Uint8Array): void;
+    ScheduleControl(bytes: Uint8Array): void;
+    CommittedRead(bytes: Uint8Array): void;
+    EventEpoch(): string;
+    EventRecords(bytes: Uint8Array): void;
+    Service(): void;
+    AnimationControl(bytes: Uint8Array): void;
+}
+interface AnimationExports { CuriousContraptions: { Animation: { Worker: { Program: AnimationHost } } } }
+interface AnimationImports { now(): number; probe(bytes: Uint8Array): void; control(bytes: Uint8Array): void; output(bytes: Uint8Array): void; qualified(): void; }
+let host: AnimationHost;
+let port: MessagePort | undefined, clock: ReturnType<typeof attachClockRing> | undefined;
+let service: ReturnType<typeof setInterval> | undefined;
+let disposed = false, bootstrapped = false, qualified = false;
 // Story 9A.23: this worker's own cursor over the session event ring (the Simulation worker posts each ring on the master port).
-let events = new EventRingCursor();
+let events: EventRingCursor | undefined = new EventRingCursor();
 // The latest sample per target: one entry per animated target of the machine, with no fixed target capacity (Story 9R.5b).
-let outputKinds, pendingSample;
-const latestSamples = new Map();
+let outputKinds: number[], pendingSample: Uint8Array | undefined;
+const latestSamples = new Map<bigint, Uint8Array<ArrayBuffer>>();
 function closeOwned() {
     if (disposed) return;
     disposed = true;
@@ -20,7 +37,7 @@ function closeOwned() {
     if (port) { port.onmessage = null; port.close(); port = undefined; }
     clock = undefined;
 }
-function fail(error) {
+function fail(error: unknown) {
     closeOwned();
     try { self.postMessage({ failure: true, detail: String(error) }); }
     finally { self.close(); }
@@ -36,12 +53,12 @@ function requireClock() {
 }
 function flushSample() {
     if (pendingSample || latestSamples.size === 0) return;
-    const [target, value] = latestSamples.entries().next().value;
+    const [target, value] = latestSamples.entries().next().value!;
     latestSamples.delete(target);
     pendingSample = value.slice();
     self.postMessage({ animationOutput: value }, [value.buffer]);
 }
-runtime.setModuleImports('workshopAnimation', {
+runtime.setModuleImports<AnimationImports>('workshopAnimation', {
     now: nativeNow,
     probe(bytes) {
         // The Simulation-owned clock master answers through the clock ring; the reply is received when the wait resolves.
@@ -70,13 +87,13 @@ runtime.setModuleImports('workshopAnimation', {
         if (!qualified) { qualified = true; self.postMessage({ qualified: true }); }
     }
 });
-const exports = await runtime.getAssemblyExports(runtime.getConfig().mainAssemblyName);
+const exports = await runtime.getAssemblyExports<AnimationExports>(runtime.getConfig().mainAssemblyName);
 host = exports.CuriousContraptions.Animation.Worker.Program;
 outputKinds = Array.from(host.OutputKinds());
 self.onmessage = event => {
     if (disposed) return;
     try {
-        const message = event.data;
+        const message = event.data as Record<string, unknown>;
         if (message.bootstrap instanceof Uint8Array) {
             const incomingPort = message.masterPort;
             if (!(incomingPort instanceof MessagePort)) throw new Error('Animation bootstrap requires its owned master port.');
@@ -88,7 +105,7 @@ self.onmessage = event => {
             port.onmessage = incoming => {
                 if (disposed) return;
                 try {
-                    const envelope = incoming.data;
+                    const envelope = incoming.data as Record<string, unknown>;
                     if (!envelope || typeof envelope !== 'object' || Object.keys(envelope).length !== 1)
                         throw new Error('Unsupported Animation master-port envelope.');
                     if (envelope.scheduleControl instanceof Uint8Array)
@@ -96,7 +113,7 @@ self.onmessage = event => {
                     else if (envelope.committedRead instanceof Uint8Array)
                         host.CommittedRead(envelope.committedRead);
                     else if (envelope.eventRing instanceof SharedArrayBuffer)
-                        events.attach(envelope.eventRing);
+                        events!.attach(envelope.eventRing);
                     else throw new Error('Unsupported Animation master-port envelope.');
                 } catch (error) { fail(error); }
             };
@@ -106,7 +123,7 @@ self.onmessage = event => {
             service = setInterval(() => {
                 try {
                     // Each turn first takes the records committed since this worker's cursor, for the installed world only.
-                    const read = events.read(BigInt(host.EventEpoch()));
+                    const read = events!.read(BigInt(host.EventEpoch()));
                     if (read.records.length !== 0 || read.skipped !== 0n) host.EventRecords(eventDelivery(read));
                     host.Service();
                 } catch (error) { fail(error); }
@@ -116,7 +133,7 @@ self.onmessage = event => {
         } else if (message.animationAcknowledged instanceof Uint8Array) {
             const receipt = message.animationAcknowledged;
             if (!pendingSample || receipt.length !== pendingSample.length ||
-                !receipt.every((value, index) => value === pendingSample[index]))
+                !receipt.every((value, index) => value === pendingSample![index]))
                 throw new Error('Foreign Animation publication receipt.');
             pendingSample = undefined; flushSample();
         } else if (message.animationControl instanceof Uint8Array && bootstrapped) {

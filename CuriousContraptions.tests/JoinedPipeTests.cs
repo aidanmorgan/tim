@@ -39,7 +39,7 @@ public sealed class JoinedPipeTests
     private static WorkshopPipe PipeAt(Vector3 position, Quaternion rotation, float length, bool locked = false)
     {
         var q = rotation.Normalized();
-        return WorkshopInput.Pipe(PipeId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W, new(length)) with { Locked = locked };
+        return WorkshopInput.Pipe(PipeId, (float)(position.X), (float)(position.Y), (float)(position.Z), (float)(q.X), (float)(q.Y), (float)(q.Z), (float)(q.W), new(length)) with { Locked = locked };
     }
 
     /// <summary>The granted pipe tilted downhill (−45° about Z), offered 0.1 m off the bend's upper mouth and snapped by the query.</summary>

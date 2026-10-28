@@ -28,7 +28,7 @@ public sealed class F32LaneRoundTripTests
             WorkshopInput.Generic(PartId.Basketball, Ball, 0, 3, 0, 0, 0, 0, 1),
             WorkshopInput.Generic(PartId.Receiver, Receiver, 3, 1, 0, 0, 0, 0, 1, new(capture)),
             WorkshopInput.Generic(PartId.ImpactSwitch, Switch, -3, 1, 0, 0, 0, 0, 1, new([new(new ParameterId("trigger_threshold"), Threshold)])),
-            PlacedParts.Domino(Tile, -6, -.46 + .55, 0, 0, 0, 0, 1),
+            PlacedParts.Domino(Tile, -6, (float)(-.46 + .55), 0, 0, 0, 0, 1),
             PlacedParts.Lamp(Lamp, -6, 1, 2, 0, 0, 0, 1),
             PlacedParts.Bumper(Bumper, 6, 1, 0, strength: Strength)),
             Connections: new([new(Tile, WorkshopSocket.ActivationOut, Lamp, WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation)]));
@@ -147,7 +147,7 @@ public sealed class F32LaneRoundTripTests
     }
 
     // Every f32 lane the worker writes for a moving body. Value lanes take any finite value, so moving one by an f32 step still commits
-    // (a rotation's w steps down, keeping the quaternion unit); structural lanes (an interval's start and anchor phases, the zero
+    // (a rotation's w steps down, keeping the quaternion unit); structural lanes (an interval's start, end and anchor phases, the zero
     // supported and angular accelerations and flagged vector of a free piece) are pinned by the decode, so a finite change is refused
     // too. A NaN or infinity is refused in both.
     [Theory]
@@ -157,7 +157,7 @@ public sealed class F32LaneRoundTripTests
     [InlineData(CandidateLane.BodyRotation, float.NaN, true)]
     [InlineData(CandidateLane.MotionAngularVelocity, float.NegativeInfinity, true)]
     [InlineData(CandidateLane.MotionVelocity, float.NaN, true)]
-    [InlineData(CandidateLane.MotionEndPhase, float.PositiveInfinity, true)]
+    [InlineData(CandidateLane.MotionEndPhase, float.PositiveInfinity, false)]
     [InlineData(CandidateLane.MotionCentreRemainder, float.NaN, true)]
     [InlineData(CandidateLane.MotionDragRate, float.NaN, true)]
     [InlineData(CandidateLane.MotionRotation, float.NegativeInfinity, true)]

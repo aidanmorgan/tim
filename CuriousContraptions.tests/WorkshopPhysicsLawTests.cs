@@ -74,7 +74,7 @@ internal sealed class LawScene
     public LawScene(bool bench = true)
     {
         if (!bench) return;
-        var height = WorkshopInput.Position(BenchY);
+        var height = WorkshopInput.Position((float)(BenchY));
         var plane = new GpuBodyId(_next++);
         _bodies.Add(new(plane, RigidMotionKind.Static, new(0, height.Cell, 0), new(0f, height.Local, 0f), CanonicalRotation.Identity,
             default, default, new(0f), default, new(0f), default));
@@ -93,7 +93,7 @@ internal sealed class LawScene
         Vector3 half, float mass, LawMaterial material, Vector3 velocity, Vector3 angular, float drag, float gravity, Vector3 colliderOffset)
     {
         var id = new GpuBodyId(_next++);
-        var x = WorkshopInput.Position(position.X); var y = WorkshopInput.Position(position.Y); var z = WorkshopInput.Position(position.Z);
+        var x = WorkshopInput.Position((float)(position.X)); var y = WorkshopInput.Position((float)(position.Y)); var z = WorkshopInput.Position((float)(position.Z));
         var dynamic = motion == RigidMotionKind.Dynamic;
         _bodies.Add(new(id, motion, new(x.Cell, y.Cell, z.Cell), new(x.Local, y.Local, z.Local),
             CanonicalRotation.Normalize(rotation.X, rotation.Y, rotation.Z, rotation.W),
@@ -177,7 +177,7 @@ internal sealed class LawScene
         LawMaterial material)
     {
         var id = new GpuBodyId(_next++);
-        var x = WorkshopInput.Position(position.X); var y = WorkshopInput.Position(position.Y); var z = WorkshopInput.Position(position.Z);
+        var x = WorkshopInput.Position((float)(position.X)); var y = WorkshopInput.Position((float)(position.Y)); var z = WorkshopInput.Position((float)(position.Z));
         _bodies.Add(new(id, RigidMotionKind.Static, new(x.Cell, y.Cell, z.Cell), new(x.Local, y.Local, z.Local),
             CanonicalRotation.Normalize(rotation.X, rotation.Y, rotation.Z, rotation.W), default, default, new(0f), default, new(0f), default));
         var collider = new GpuColliderId(_next++);
@@ -200,7 +200,7 @@ internal sealed class LawScene
 
     public void OrientationSensor(GpuBodyId body, Quaternion initial, double degrees) =>
         _orientationSensors.Add(new(new(_next++), body, CanonicalRotation.Normalize(initial.X, initial.Y, initial.Z, initial.W),
-            OrientationThreshold.Degrees(degrees)));
+            OrientationThreshold.Degrees((float)(degrees))));
 
     public GpuContactWorkId ContactWork(GpuBodyId owner, BodyTargetSet targets, float targetSpeed, float preload, float threshold,
         uint cooldown)

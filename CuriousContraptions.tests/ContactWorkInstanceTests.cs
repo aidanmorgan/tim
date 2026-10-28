@@ -14,7 +14,7 @@ public sealed class ContactWorkInstanceTests
         new(new(2), WorkshopCadenceSettings.Default(), new(instances));
 
     private static WorkshopConstruction Drop(PartId payload, double height, float strength, double z = 0) => Free(
-        WorkshopInput.Generic(payload, Ball, 0, height, z, 0, 0, 0, 1), PlacedParts.Bumper(Owner, 0, 3, 0, strength));
+        WorkshopInput.Generic(payload, Ball, 0, (float)(height), (float)(z), 0, 0, 0, 1), PlacedParts.Bumper(Owner, 0, 3, 0, (float)(strength)));
 
     /// <summary>Each new occurrence row of the device-private ledgers (Story 9A.23 D9), once.</summary>
     private static IEnumerable<ContactWorkOccurrence> Occurrences(IEnumerable<ContactWorkLedger> ledgers)
@@ -76,7 +76,7 @@ public sealed class ContactWorkInstanceTests
     [Fact]
     public void OnlyTheDeclaringPartCompilesAStore()
     {
-        var scene = WorkshopPhysicsCompiler.Compile(Free(WorkshopInput.Generic(PartId.Basketball, Ball, 0, 4.5, 0, 0, 0, 0, 1),
+        var scene = WorkshopPhysicsCompiler.Compile(Free(WorkshopInput.Generic(PartId.Basketball, Ball, 0, 4.5f, 0, 0, 0, 0, 1),
             WorkshopInput.Generic(PartId.Wall, new(3), 4, 1, 0, 0, 0, 0, 1, WallFixture.Default),
             WorkshopInput.Generic(PartId.Receiver, new(4), -4, 1, 0, 0, 0, 0, 1),
             WorkshopInput.Generic(PartId.ImpactSwitch, new(5), 8, 1, 0, 0, 0, 0, 1),
@@ -177,8 +177,8 @@ public sealed class ContactWorkInstanceTests
         // The face at x=.2 is exposed above the sphere. Starting .2 m above the cap
         // gives a slow incoming bounce: a 4 kg payload needs more than 32 J to reach 8 m/s.
         var radius = heavy ? .28 : .34;
-        var bench = Free(WorkshopInput.Generic(payload, Ball, .2, 3 + .65 + radius + .2, 0, 0, 0, 0, 1),
-            PlacedParts.Bumper(Owner, 0, 3, 0, strength));
+        var bench = Free(WorkshopInput.Generic(payload, Ball, .2f, (float)(3 + .65 + radius + .2), 0, 0, 0, 0, 1),
+            PlacedParts.Bumper(Owner, 0, 3, 0, (float)(strength)));
         await using var ring = await EventRingProducerTests.Ring.Running(bench);
         await ring.Advance(480);
         var hits = Occurrences(ring.Ledgers).ToArray();
@@ -250,8 +250,8 @@ public sealed class ContactWorkInstanceTests
         var angle = degrees * MathF.PI / 180;
         var rotation = System.Numerics.Quaternion.CreateFromAxisAngle(System.Numerics.Vector3.UnitZ, angle);
         WorkshopConstruction Bench(double x) => Free(
-            WorkshopInput.Generic(PartId.BowlingBall, Ball, x, 5.5, 0, 0, 0, 0, 1),
-            PlacedParts.Bumper(Owner, 0, 3, 0, strength, qz: rotation.Z, qw: rotation.W),
+            WorkshopInput.Generic(PartId.BowlingBall, Ball, (float)(x), 5.5f, 0, 0, 0, 0, 1),
+            PlacedParts.Bumper(Owner, 0, 3, 0, (float)(strength), qz: rotation.Z, qw: rotation.W),
             PlacedParts.Battery(Source, 3, 1, 0)) with
         {
             Connections = new(new WorkshopConnection(Source, WorkshopSocket.Supply, Owner,

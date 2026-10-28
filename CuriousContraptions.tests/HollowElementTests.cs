@@ -32,16 +32,16 @@ public sealed class HollowElementTests
         var axis = NumVector3.Transform(NumVector3.UnitX, turn);
         var down = NumVector3.Transform(-NumVector3.UnitY, turn);
         IWorkshopInstance first = funnel
-            ? WorkshopInput.Generic(PartId.Funnel, First, origin.X, origin.Y, origin.Z, turn.X, turn.Y, turn.Z, turn.W)
-            : WorkshopInput.Pipe(First, origin.X, origin.Y, origin.Z, turn.X, turn.Y, turn.Z, turn.W);
+            ? WorkshopInput.Generic(PartId.Funnel, First, (float)(origin.X), (float)(origin.Y), (float)(origin.Z), (float)(turn.X), (float)(turn.Y), (float)(turn.Z), (float)(turn.W))
+            : WorkshopInput.Pipe(First, (float)(origin.X), (float)(origin.Y), (float)(origin.Z), (float)(turn.X), (float)(turn.Y), (float)(turn.Z), (float)(turn.W));
         var joint = origin + (funnel ? .99f : 1.89f) * axis;
         var near = joint - NumVector3.Transform(new NumVector3(-1.00844f, .182689f, 0), turn);
         var snap = TubeMouthSnap.Find(registry.Definitions, [first], new(PartId.PipeBend45, Second, false),
             new(near.X, near.Y, near.Z), new(turn.X, turn.Y, turn.Z, turn.W));
         Assert.NotNull(snap);
         var pose = snap.Value;
-        var bend = WorkshopInput.Generic(PartId.PipeBend45, Second, pose.Position.X, pose.Position.Y, pose.Position.Z,
-            pose.Rotation.X, pose.Rotation.Y, pose.Rotation.Z, pose.Rotation.W);
+        var bend = WorkshopInput.Generic(PartId.PipeBend45, Second, (float)(pose.Position.X), (float)(pose.Position.Y), (float)(pose.Position.Z),
+            (float)(pose.Rotation.X), (float)(pose.Rotation.Y), (float)(pose.Rotation.Z), (float)(pose.Rotation.W));
         var start = funnel ? origin + .4f * axis + .35f * down : joint - 1.5f * axis + .31f * down;
         var construction = Bench(first, bend, BallAt(start));
         await using var ring = await EventRingProducerTests.Ring.Running(construction);
@@ -86,8 +86,8 @@ public sealed class HollowElementTests
     public async Task AConnectedHollowPassageRestoresConstructionAndRepeatsAfterResetAndSaveLoad()
     {
         var turn = AboutZ(-90);
-        var pipe = WorkshopInput.Pipe(First, 0, 6, 0, turn.X, turn.Y, turn.Z, turn.W, new(1f));
-        var detector = WorkshopInput.Generic(PartId.BallDetector, Second, 0, 5.13, 0, turn.X, turn.Y, turn.Z, turn.W);
+        var pipe = WorkshopInput.Pipe(First, 0, 6, 0, (float)(turn.X), (float)(turn.Y), (float)(turn.Z), (float)(turn.W), new(1f));
+        var detector = WorkshopInput.Generic(PartId.BallDetector, Second, 0, 5.13f, 0, (float)(turn.X), (float)(turn.Y), (float)(turn.Z), (float)(turn.W));
         var lamp = WorkshopInput.Generic(PartId.SignalLamp, new(3), 3, 2, 0, 0, 0, 0, 1);
         var construction = Bench(pipe, detector, lamp, BallAt(new(0, 7.2f, 0))) with
         {
@@ -196,7 +196,7 @@ public sealed class HollowElementTests
         new(new(2), WorkshopCadenceSettings.Default(), new(instances));
 
     private static WorkshopGenericInstance BallAt(NumVector3 at) =>
-        WorkshopInput.Generic(PartId.Basketball, Ball, at.X, at.Y, at.Z, 0, 0, 0, 1);
+        WorkshopInput.Generic(PartId.Basketball, Ball, (float)(at.X), (float)(at.Y), (float)(at.Z), 0, 0, 0, 1);
 
     private static NumQuaternion AboutZ(double degrees) => NumQuaternion.CreateFromAxisAngle(NumVector3.UnitZ, (float)(degrees * Math.PI / 180));
 
@@ -306,7 +306,7 @@ public sealed class HollowElementTests
         var down = NumVector3.Transform(-NumVector3.UnitY, tilt);
         var reach = length / 2 + .09f;
         var start = centre + (.4f - reach) * axis + (float)OnWall * down;
-        var construction = Bench(WorkshopInput.Pipe(First, centre.X, centre.Y, centre.Z, tilt.X, tilt.Y, tilt.Z, tilt.W, new(length)), BallAt(start));
+        var construction = Bench(WorkshopInput.Pipe(First, (float)(centre.X), (float)(centre.Y), (float)(centre.Z), (float)(tilt.X), (float)(tilt.Y), (float)(tilt.Z), (float)(tilt.W), new(length)), BallAt(start));
         await using var ring = await EventRingProducerTests.Ring.Running(construction);
         await ring.Advance(600);
         AssertStraightTraversal(ring.Reads.Select(Body), centre, axis, reach, reach, true);
@@ -324,7 +324,7 @@ public sealed class HollowElementTests
         registry.Load();
         var tilt = AboutZ(-10);
         var centre = new NumVector3(-2f, Y + .5f, 0);
-        var first = WorkshopInput.Pipe(First, centre.X, centre.Y, centre.Z, tilt.X, tilt.Y, tilt.Z, tilt.W);
+        var first = WorkshopInput.Pipe(First, (float)(centre.X), (float)(centre.Y), (float)(centre.Z), (float)(tilt.X), (float)(tilt.Y), (float)(tilt.Z), (float)(tilt.W));
         var axis = NumVector3.Transform(NumVector3.UnitX, tilt);
         var godotTilt = new Godot.Quaternion(tilt.X, tilt.Y, tilt.Z, tilt.W);
         var near = centre + 3.9f * axis;
@@ -332,8 +332,8 @@ public sealed class HollowElementTests
             new Godot.Vector3(near.X, near.Y, near.Z), godotTilt);
         Assert.NotNull(snap);
         var pose = snap.Value;
-        var second = WorkshopInput.Pipe(Second, pose.Position.X, pose.Position.Y, pose.Position.Z, pose.Rotation.X, pose.Rotation.Y,
-            pose.Rotation.Z, pose.Rotation.W);
+        var second = WorkshopInput.Pipe(Second, (float)(pose.Position.X), (float)(pose.Position.Y), (float)(pose.Position.Z), (float)(pose.Rotation.X), (float)(pose.Rotation.Y),
+            (float)(pose.Rotation.Z), (float)(pose.Rotation.W));
         var joint = new NumVector3(pose.Joint.X, pose.Joint.Y, pose.Joint.Z);
         var down = NumVector3.Transform(-NumVector3.UnitY, tilt);
         var construction = Bench(first, second, BallAt(joint - 1.5f * axis + (float)OnWall * down));
@@ -369,7 +369,7 @@ public sealed class HollowElementTests
         var endMouth = endCollar + .09f * endTangent;
         var startMouth = World(startCollar.X - .09f, startCollar.Y);
         var release = startMouth + new NumVector3(0, .5f, 0);
-        var construction = Bench(WorkshopInput.Generic(part, First, origin.X, origin.Y, origin.Z, turn.X, turn.Y, turn.Z, turn.W), BallAt(release));
+        var construction = Bench(WorkshopInput.Generic(part, First, (float)(origin.X), (float)(origin.Y), (float)(origin.Z), (float)(turn.X), (float)(turn.Y), (float)(turn.Z), (float)(turn.W)), BallAt(release));
         await using var ring = await EventRingProducerTests.Ring.Running(construction);
         await ring.Advance(240);
 
@@ -440,7 +440,7 @@ public sealed class HollowElementTests
     {
         var turn = AboutZ(-90);
         var centre = new NumVector3(0, Y + 1, 0);
-        var construction = Bench(WorkshopInput.Generic(PartId.Funnel, First, centre.X, centre.Y, centre.Z, turn.X, turn.Y, turn.Z, turn.W),
+        var construction = Bench(WorkshopInput.Generic(PartId.Funnel, First, (float)(centre.X), (float)(centre.Y), (float)(centre.Z), (float)(turn.X), (float)(turn.Y), (float)(turn.Z), (float)(turn.W)),
             BallAt(centre + new NumVector3(.6f, 1.2f, 0)));
         await using var ring = await EventRingProducerTests.Ring.Running(construction);
         await ring.Advance(360);

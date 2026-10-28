@@ -84,13 +84,12 @@ public sealed class EventRingConsumerTests
 
         /// <summary>The record's physical instant on the presentation clock, derived here (not by the evaluator): its ordinal plus phase
         /// (1/4096 of a 480 Hz step) since the anchored tick's first step, after the anchor's master time.</summary>
-        public double At(SimulationEventRecord record) => World.AnchorMaster.Value / 1e9 +
-            (record.Ordinal + record.Phase / 4096.0 - World.AnchorTick.Value * (double)Substeps) / 480.0;
+        public static double At(SimulationEventRecord record) => (record.Ordinal + record.Phase / 4096.0) / 480.0;
 
-        public double Origin => World.AnchorMaster.Value / 1_000_000_000d;
+        public double Origin => World.AnchorTick.Value / 120.0;
 
         public float[] Sample(double at, GpuBodyId owner) =>
-            Presentation.Advance(at).Where(sample => sample.Owner == owner).OrderBy(sample => sample.Binding).Select(sample => F(sample.Value)).ToArray();
+            Presentation.Advance(AnimationTestTime.Seconds(at)).Where(sample => sample.Owner == owner).OrderBy(sample => sample.Binding).Select(sample => F(sample.Value)).ToArray();
     }
 
     /// <summary>The declared one-shot values of <paramref name="part"/> at <paramref name="amount"/> of its envelope.</summary>
@@ -110,7 +109,7 @@ public sealed class EventRingConsumerTests
     /// committed tick's ledger holds its stores' latest rows; a sequence-0 row is the admission's empty slot), once each by sequence.</summary>
     private static async Task<(List<SimulationEventRecord> Records, ContactWorkOccurrence[] Hits)> BumperRun()
     {
-        await using var ring = await Ring.Running(Bench([WorkshopInput.Generic(PartId.Basketball, new(1), 0, 4.5, 0, 0, 0, 0, 1),
+        await using var ring = await Ring.Running(Bench([WorkshopInput.Generic(PartId.Basketball, new(1), 0, 4.5f, 0, 0, 0, 0, 1),
             PlacedParts.Bumper(new(2), 0, 3, 0)], []));
         await ring.Advance(360);
         return (ring.Records, ring.Ledgers.SelectMany(ledger => Enumerable.Range(0, ledger.OccurrenceCount).Select(ledger.Occurrence))
@@ -217,8 +216,8 @@ public sealed class EventRingConsumerTests
     public async Task EachPaidBumperImpactCuesExactlyOnePulseAtItsOwnPhysicalTime(string payload, double height, float strength, int ticks)
     {
         GpuBodyId ball = new(1), bumper = new(2);
-        var bench = Bench([WorkshopInput.Generic(new PartId(payload), ball, 0, height, 0, 0, 0, 0, 1),
-            PlacedParts.Bumper(bumper, 0, 3, 0, strength)], []);
+        var bench = Bench([WorkshopInput.Generic(new PartId(payload), ball, 0, (float)(height), 0, 0, 0, 0, 1),
+            PlacedParts.Bumper(bumper, 0, 3, 0, (float)(strength))], []);
         await using var ring = await Ring.Running(bench);
         var run = new Animation(ring, bench);
         await run.Advance(ticks);
@@ -235,12 +234,12 @@ public sealed class EventRingConsumerTests
             var sum = 0.0;
             foreach (var record in paid)
             {
-                var elapsed = at - run.At(record);
+                var elapsed = at - Animation.At(record);
                 if (elapsed > 0 && elapsed < duration) { var sine = Math.Sin(Math.PI * elapsed / duration); sum = Math.Min(1, sum + sine * sine); }
             }
             return sum;
         }
-        var times = impacts.SelectMany(record => Enumerable.Range(0, 5).Select(k => run.At(record) + duration * k / 4)).Order().ToArray();
+        var times = impacts.SelectMany(record => Enumerable.Range(0, 5).Select(k => Animation.At(record) + duration * k / 4)).Order().ToArray();
         foreach (var at in times.Where(at => at >= run.Origin))
         {
             var sampled = run.Sample(at, bumper);
@@ -261,8 +260,8 @@ public sealed class EventRingConsumerTests
                 new([new(new ParameterId("trigger_threshold"), fires ? .8f : 64f)])),
             PlacedParts.Lamp(new(2), 4, 1, 0, 0, 0, 0, 1), WorkshopInput.Generic(PartId.Basketball, new(4), 0, 3, 0, 0, 0, 0, 1)],
             [Signal(new(1), new(2))]), new(1), PartId.ImpactSwitch, SimulationEventKind.TriggerActivated, 480),
-        "detector" => (Bench([PlacedParts.Detector(new(1), 0, Floor + .62, 0, 0, 0, (fires ? -1 : 1) * Half45, Half45),
-            PlacedParts.Lamp(new(2), 4, 1, 0, 0, 0, 0, 1), WorkshopInput.Generic(PartId.Basketball, new(3), 0, Floor + .34 + 3, 0, 0, 0, 0, 1)],
+        "detector" => (Bench([PlacedParts.Detector(new(1), 0, (float)(Floor + .62), 0, 0, 0, (fires ? -1 : 1) * (float)Half45, (float)(Half45)),
+            PlacedParts.Lamp(new(2), 4, 1, 0, 0, 0, 0, 1), WorkshopInput.Generic(PartId.Basketball, new(3), 0, (float)(Floor + .34 + 3), 0, 0, 0, 0, 1)],
             [Signal(new(1), new(2))]), new(1), PartId.BallDetector, SimulationEventKind.Passage, 480),
         _ => throw new ArgumentOutOfRangeException(nameof(name))
     };
@@ -284,10 +283,10 @@ public sealed class EventRingConsumerTests
         Assert.Equal(Cue(part, 0), run.Sample(run.Origin, owner)); // at rest before the first record
         foreach (var record in cues)
         {
-            Assert.True(run.At(record) - run.Origin > duration, "each cue starts after the previous one completed");
-            for (var k = 0; k <= 4; k++) Assert.Equal(Cue(part, Quarter[k]), run.Sample(run.At(record) + duration * k / 4, owner));
+            Assert.True(Animation.At(record) - run.Origin > duration, "each cue starts after the previous one completed");
+            for (var k = 0; k <= 4; k++) Assert.Equal(Cue(part, Quarter[k]), run.Sample(Animation.At(record) + duration * k / 4, owner));
         }
-        Assert.Equal(Cue(part, 1), run.Sample(run.At(cues[^1]) + 3 * duration, owner));
+        Assert.Equal(Cue(part, 1), run.Sample(Animation.At(cues[^1]) + 3 * duration, owner));
     }
 
     // Controls: a miss, a sub-threshold contact, a glancing or a reverse crossing publish nothing, so nothing is cued.
@@ -333,12 +332,14 @@ public sealed class EventRingConsumerTests
         var tick = run.Ring.Simulation.Committed.Tick.Value + 2;
         var record = new SimulationEventRecord(1, tick, kind, owner.Value, 4, checked((uint)(tick * Substeps + 3)), 1024f, 1f, 0, 0);
         Assert.Equal(3.25 / WorkshopCadenceSettings.PhysicalFrequency,
-            run.At(record) - run.At(record with { Ordinal = checked((uint)(tick * Substeps)), Phase = 0f }), 12);
-        Assert.Equal(run.At(record), WorkshopDeclaredPresentation.EventSeconds(record, run.World, 1 / 120.0), 9); // the evaluator's clock
+            Animation.At(record) - Animation.At(record with { Ordinal = checked((uint)(tick * Substeps)), Phase = 0f }), 12);
+        var timestamp = WorkshopDeclaredPresentation.EventTime(record);
+        Assert.Equal((ulong)record.Ordinal, timestamp.Ordinal);
+        Assert.Equal(1024f, timestamp.Phase);
         run.Presentation.AcceptEvents(new(run.World.WorldGeneration.Value, 0, [record]), run.World);
         var duration = (double)Duration(part);
-        Assert.Equal(Cue(part, 0), run.Sample(run.At(record) - .001, owner));
-        Assert.Equal(Cue(part, Quarter[2]), run.Sample(run.At(record) + duration / 2, owner));
+        Assert.Equal(Cue(part, 0), run.Sample(Animation.At(record) - .001, owner));
+        Assert.Equal(Cue(part, Quarter[2]), run.Sample(Animation.At(record) + duration / 2, owner));
     }
 
     // Pause, Resume and Step are retained rebinds: the cursor and the cues are kept, nothing is published by a Pause, and no record is
@@ -364,7 +365,7 @@ public sealed class EventRingConsumerTests
         run.Ring.Publish(); run.Drain();
         Assert.Single(run.Delivered, record => record.Kind == kind);
         Assert.Throws<ArgumentException>(() => run.Presentation.AcceptEvents(new(run.World.WorldGeneration.Value, 0, [press]), run.World));
-        Assert.Equal(Cue(part, 1), run.Sample(run.At(press) + 1, owner)); // the retained cue holds its end value
+        Assert.Equal(Cue(part, 1), run.Sample(Animation.At(press) + 1, owner)); // the retained cue holds its end value
     }
 
     // A hidden part's cue keeps time (D7): shown again, a cue that ended while hidden is at its end value and one still running is at its
@@ -396,10 +397,19 @@ public sealed class EventRingConsumerTests
         run.Presentation.SetVisible(target.Target, property, false);
         var late = At(2, run.Origin + 3);
         run.Presentation.AcceptEvents(new(run.World.WorldGeneration.Value, 0, [late]), run.World);
-        Assert.Empty(run.Sample(run.At(late) + duration / 8, owner));
+        Assert.Empty(run.Sample(Animation.At(late) + duration / 8, owner));
         run.Presentation.SetVisible(target.Target, property, true);
         // Still running: exactly the phase it reached while hidden (a quarter of the clip, or the pulse's half-height).
-        Assert.Equal(name == "bumper" ? Cue(part, .5) : Cue(part, Quarter[1]), run.Sample(run.At(late) + duration / 4, owner));
+        var expected = name == "bumper" ? Cue(part, .5) : Cue(part, Quarter[1]);
+        var actual = run.Sample(Animation.At(late) + duration / 4, owner);
+        Assert.Equal(expected.Length, actual.Length);
+        // This bounded envelope evaluation includes phase normalization, elapsed/duration, sine-square and blending:
+        // fewer than sixteen rounded f32 operations at the authored scalar magnitude. Terminal values above remain exact.
+        for (var i = 0; i < expected.Length; i++)
+        {
+            var allowance = 16 * Math.ScaleB(1, -24) * Math.Max(1, Math.Abs(expected[i]));
+            Assert.InRange(actual[i] - expected[i], -allowance, allowance);
+        }
     }
 
     // A record observed after the presentation clock passed its instant (a stalled worker, a late turn) starts its cue at its own time:
@@ -420,10 +430,10 @@ public sealed class EventRingConsumerTests
         // Its instant is a quarter of the cue's duration before the clock (to the nearest physical step).
         var late = new SimulationEventRecord(1, tick, DeclaredPhysics.Of(part).Presentation.Bindings[0].Event, owner.Value, 0,
             checked((uint)Math.Round((.2 - duration / 4) * WorkshopCadenceSettings.PhysicalFrequency + run.World.AnchorTick.Value * Substeps)), 0f, 1f, 0, 0);
-        Assert.True(run.At(late) < run.Origin + .2);
+        Assert.True(Animation.At(late) < run.Origin + .2);
         run.Presentation.AcceptEvents(new(run.World.WorldGeneration.Value, 0, [late]), run.World);
         // A half of its duration has passed since its own instant: the clip is half way, the pulse at its peak.
-        Assert.Equal(Cue(part, name == "bumper" ? 1 : Quarter[2]), run.Sample(run.At(late) + duration / 2, owner));
+        Assert.Equal(Cue(part, name == "bumper" ? 1 : Quarter[2]), run.Sample(Animation.At(late) + duration / 2, owner));
     }
 
     // Reset (a non-retained installation of a new epoch) puts every one-shot target at rest and restarts the cursor at sequence 1; Run →
@@ -439,9 +449,9 @@ public sealed class EventRingConsumerTests
             await run.Advance(ticks);
             var cue = Assert.Single(run.Delivered, record => record.Kind == kind);
             Assert.Equal((1UL, owner.Value), (run.Delivered[0].Sequence, cue.Source));
-            Assert.Equal(Cue(part, 0), run.Sample(run.At(cue) - duration / 4, owner)); // at rest before the capture
-            for (var k = 0; k <= 4; k++) Assert.Equal(Cue(part, Quarter[k]), run.Sample(run.At(cue) + duration * k / 4, owner));
-            Assert.Equal(Cue(part, 1), run.Sample(run.At(cue) + duration * 5 / 4, owner)); // the end value holds
+            Assert.Equal(Cue(part, 0), run.Sample(Animation.At(cue) - duration / 4, owner)); // at rest before the capture
+            for (var k = 0; k <= 4; k++) Assert.Equal(Cue(part, Quarter[k]), run.Sample(Animation.At(cue) + duration * k / 4, owner));
+            Assert.Equal(Cue(part, 1), run.Sample(Animation.At(cue) + duration * 5 / 4, owner)); // the end value holds
             return cue;
         }
         await using var ring = await Ring.Running(bench);
@@ -480,7 +490,7 @@ public sealed class EventRingConsumerTests
         run.Presentation.AcceptEvents(new(epoch, cursor.Lapped, records.ToArray()), run.World);
         Assert.Equal(2UL, run.Presentation.Lapped);
         var duration = (double)Duration(part);
-        Assert.Equal(Cue(part, Quarter[2]), run.Sample(run.At(records[^1]) + duration / 2, owner)); // the newest cue, exactly
+        Assert.Equal(Cue(part, Quarter[2]), run.Sample(Animation.At(records[^1]) + duration / 2, owner)); // the newest cue, exactly
         run.Presentation.AcceptEvents(new(epoch, 3, []), run.World);
         Assert.Equal(5UL, run.Presentation.Lapped);
     }
@@ -693,11 +703,11 @@ public sealed class EventRingConsumerTests
             return new SimulationEventRecord((ulong)i, (ordinal + 3u) / 4u, SimulationEventKind.Impact, 2, 1, ordinal, 0, 1, (uint)i, 0);
         }).ToArray();
         run.Presentation.AcceptEvents(new(run.World.WorldGeneration.Value, 0, records), run.World);
-        var peak = run.At(records[^1]) + duration / 2;
+        var peak = Animation.At(records[^1]) + duration / 2;
         // The first64 have expired here. Dropping the later32 would incorrectly leave the target at rest.
-        Assert.True(peak > run.At(records[63]) + duration);
+        Assert.True(peak > Animation.At(records[63]) + duration);
         Assert.Equal(Cue(PartId.PinballBumper, 1), run.Sample(peak, new(2)));
-        Assert.Equal(Cue(PartId.PinballBumper, 0), run.Sample(run.At(records[^1]) + duration + 1, new(2)));
+        Assert.Equal(Cue(PartId.PinballBumper, 0), run.Sample(Animation.At(records[^1]) + duration + 1, new(2)));
     }
 
     [Fact]
@@ -711,10 +721,10 @@ public sealed class EventRingConsumerTests
         Assert.ThrowsAny<ArgumentException>(() => run.Presentation.AcceptEvents(
             new(run.World.WorldGeneration.Value, 3, [first, second with { Source = 0 }]), run.World));
         Assert.Equal(0UL, run.Presentation.Lapped);
-        Assert.Equal(Cue(PartId.PinballBumper, 0), run.Sample(run.At(first) + Duration(PartId.PinballBumper) / 4, new(2)));
+        Assert.Equal(Cue(PartId.PinballBumper, 0), run.Sample(Animation.At(first) + Duration(PartId.PinballBumper) / 4, new(2)));
         run.Presentation.AcceptEvents(new(run.World.WorldGeneration.Value, 3, [first, second]), run.World);
         Assert.Equal(3UL, run.Presentation.Lapped);
-        Assert.Equal(Cue(PartId.PinballBumper, 1), run.Sample(run.At(first) + Duration(PartId.PinballBumper) / 2, new(2)));
+        Assert.Equal(Cue(PartId.PinballBumper, 1), run.Sample(Animation.At(first) + Duration(PartId.PinballBumper) / 2, new(2)));
     }
 
     // ---------- 9A.23 D2: the shared JS reader equals the reference consumer over the same bytes ----------
@@ -785,10 +795,10 @@ public sealed class EventRingConsumerTests
         .Select(match => match.Groups[1].Value).ToArray();
 
     // The ring's JS files: the module that owns its memory, and every production script that imports it.
-    private const string RingModule = "CuriousContraptions.web/wwwroot/event-ring-cursor.js";
-    private const string SimulationWorker = "CuriousContraptions.Simulation/wwwroot/worker.js";
-    private const string AnimationWorker = "CuriousContraptions.Animation.Worker/wwwroot/worker.js";
-    private const string WorkshopClient = "CuriousContraptions.web/wwwroot/workshop-client.js";
+    private const string RingModule = "CuriousContraptions.web/wwwroot/event-ring-cursor.ts";
+    private const string SimulationWorker = "CuriousContraptions.Simulation/wwwroot/worker.ts";
+    private const string AnimationWorker = "CuriousContraptions.Animation.Worker/wwwroot/worker.ts";
+    private const string WorkshopClient = "CuriousContraptions.web/wwwroot/workshop-client.ts";
 
     // Each file's complete list of views and `.buffer` accesses (pose ring, clock ring, wire and sample buffers); none is over the event
     // ring, whose one view is the wrapper's `BigUint64Array(buffer` in the module. A new view or `.buffer` access anywhere in these files
@@ -831,12 +841,12 @@ public sealed class EventRingConsumerTests
         // JS: the files that touch the ring are the module and exactly the production scripts that import it.
         var root = twodog.Engine.ResolveProjectDir();
         string[] scripts = ["CuriousContraptions.Simulation/wwwroot", "CuriousContraptions.Animation.Worker/wwwroot", "CuriousContraptions.web/wwwroot"];
-        var importers = scripts.SelectMany(folder => Directory.EnumerateFiles(Path.Combine(root, folder), "*.js", SearchOption.TopDirectoryOnly))
+        var importers = scripts.SelectMany(folder => Directory.EnumerateFiles(Path.Combine(root, folder), "*.ts", SearchOption.TopDirectoryOnly))
             .Where(path => File.ReadAllText(path).Contains("event-ring-cursor.js", StringComparison.Ordinal))
             .Select(path => Path.GetRelativePath(root, path).Replace('\\', '/')).Order().ToArray();
         Assert.Equal(new[] { AnimationWorker, SimulationWorker, WorkshopClient }.Order(), importers);
         // Every receiver of the posted buffer is one of the declared ring owners.
-        var receivers = scripts.SelectMany(folder => Directory.EnumerateFiles(Path.Combine(root, folder), "*.js", SearchOption.TopDirectoryOnly))
+        var receivers = scripts.SelectMany(folder => Directory.EnumerateFiles(Path.Combine(root, folder), "*.ts", SearchOption.TopDirectoryOnly))
             .Where(path => System.Text.RegularExpressions.Regex.IsMatch(File.ReadAllText(path), @"\beventRing\b"))
             .Select(path => Path.GetRelativePath(root, path).Replace('\\', '/')).Order().ToArray();
         Assert.Equal(new[] { RingModule, AnimationWorker, SimulationWorker, WorkshopClient }.Order(), receivers);
@@ -854,7 +864,7 @@ public sealed class EventRingConsumerTests
         Assert.Equal(2 + Count(memory, @"Atomics\.(load|store)\((this|ring)\.#words, "), Count(memory, "#words"));
         // The preallocated private message is the only path that exposes the shared buffer.
         Assert.Contains("this.#message = { eventRing: buffer };", memory);
-        Assert.Contains("postTo(target) { target.postMessage(this.#message); }", memory);
+        Assert.Contains("postTo(target: EventRingRecipient) { target.postMessage(this.#message); }", memory);
         Assert.Equal(3, Count(memory, "#message"));
 
         // C#: the reference ring's memory.

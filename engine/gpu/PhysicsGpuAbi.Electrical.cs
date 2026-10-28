@@ -109,16 +109,17 @@ public static partial class PhysicsGpuAbi
             var limit = RF(candidate, offset + ElectricalSourceMaximumPowerOffset) * ElectricalSupply.PhaseSeconds * phaseCount;
             if (after[i].Debit.Value > limit + PhysicsElectricalRead.Residual(limit))
                 throw new ArgumentException("Electrical source exceeded its phase power allowance.");
-            double credit = 0, tolerance = PhysicsElectricalRead.Residual(before[i].Remaining.Value);
+            float credit = 0, tolerance = PhysicsElectricalRead.Residual(before[i].Remaining.Value);
             for (var route = 0; route < layout.ElectricalBindings; route++)
             {
                 var binding = layout.ElectricalBindingOffset(route);
                 if (R32(candidate, binding + ElectricalBindingSourceOffset) != i) continue;
                 var slot = (int)R32(candidate, binding + ElectricalBindingStorageOffset);
                 supplied[slot] = true; credit += works[slot].SuppliedEnergy.Value;
+                tolerance += PhysicsElectricalRead.Residual(credit);
                 tolerance += PhysicsElectricalRead.Residual(works[slot].RemainingEnergy.Value);
             }
-            if ((after[i].Debit.Value == 0 && credit != 0) || Math.Abs(after[i].Debit.Value - credit) > tolerance)
+            if ((after[i].Debit.Value == 0 && credit != 0) || MathF.Abs(after[i].Debit.Value - credit) > tolerance)
                 throw new ArgumentException("Electrical debit does not fund its connected storage credits.");
         }
         for (var i = 0; i < works.Count; i++)

@@ -12,15 +12,15 @@ public sealed class WorkbenchCapacityTests
     private static double X(int i) => -6 + i * .4;
     private static IWorkshopInstance Make(PartId kind, int i)
     {
-        if (kind == PartId.Basketball) return WorkshopInput.Generic(PartId.Basketball,Id(), X(i), 5, 0, 0, 0, 0, 1);
-        if (kind == PartId.Receiver) return WorkshopInput.Generic(PartId.Receiver, Id(), X(i), 1, 2, 0, 0, 0, 1);
-        if (kind == PartId.Ramp) return WorkshopInput.Generic(PartId.Ramp, Id(), X(i), 2, -2, 0, 0, 0, 1);
-        if (kind == PartId.Wall) return WorkshopInput.Generic(PartId.Wall, Id(), X(i), 2, 4, 0, 0, 0, 1, WallFixture.Default);
-        if (kind == PartId.ImpactSwitch) return WorkshopInput.Generic(PartId.ImpactSwitch, Id(), X(i), 1, -4, 0, 0, 0, 1);
-        if (kind == PartId.SignalLamp) return PlacedParts.Lamp(Id(), X(i), 1, 6, 0, 0, 0, 1);
-        if (kind == PartId.Delay) return WorkshopInput.Generic(PartId.Delay, Id(), X(i), 1, -6, 0, 0, 0, 1);
-        if (kind == PartId.Pipe) return WorkshopInput.Pipe(Id(), X(i), 3, 0, 0, 0, 0, 1);
-        if (kind == PartId.PipeBend45) return WorkshopInput.PipeBend45(Id(), X(i), 3, 0, 0, 0, 0, 1);
+        if (kind == PartId.Basketball) return WorkshopInput.Generic(PartId.Basketball,Id(), (float)(X(i)), 5, 0, 0, 0, 0, 1);
+        if (kind == PartId.Receiver) return WorkshopInput.Generic(PartId.Receiver, Id(), (float)(X(i)), 1, 2, 0, 0, 0, 1);
+        if (kind == PartId.Ramp) return WorkshopInput.Generic(PartId.Ramp, Id(), (float)(X(i)), 2, -2, 0, 0, 0, 1);
+        if (kind == PartId.Wall) return WorkshopInput.Generic(PartId.Wall, Id(), (float)(X(i)), 2, 4, 0, 0, 0, 1, WallFixture.Default);
+        if (kind == PartId.ImpactSwitch) return WorkshopInput.Generic(PartId.ImpactSwitch, Id(), (float)(X(i)), 1, -4, 0, 0, 0, 1);
+        if (kind == PartId.SignalLamp) return PlacedParts.Lamp(Id(), (float)(X(i)), 1, 6, 0, 0, 0, 1);
+        if (kind == PartId.Delay) return WorkshopInput.Generic(PartId.Delay, Id(), (float)(X(i)), 1, -6, 0, 0, 0, 1);
+        if (kind == PartId.Pipe) return WorkshopInput.Pipe(Id(), (float)(X(i)), 3, 0, 0, 0, 0, 1);
+        if (kind == PartId.PipeBend45) return WorkshopInput.PipeBend45(Id(), (float)(X(i)), 3, 0, 0, 0, 0, 1);
         throw new ArgumentException($"Unsupported test part id '{kind}'.");
     }
     private static WorkshopInstances Population(params (PartId Kind, int Count)[] groups)
@@ -37,7 +37,7 @@ public sealed class WorkbenchCapacityTests
         var owners = Population((PartId.Receiver, 3));
         // Unit-spaced centres clear each ball's .35 m seam-inclusive reach.
         var instances = new WorkshopInstances([.. owners, .. Enumerable.Range(0, 17).Select(i =>
-            (IWorkshopInstance)WorkshopInput.Generic(PartId.Basketball, Id(), i - 8, 5, 0, 0, 0, 0, 1))]);
+            (IWorkshopInstance)WorkshopInput.Generic(PartId.Basketball, Id(), (float)(i - 8), 5, 0, 0, 0, 0, 1))]);
         Free(instances).Validate();
         var scene = WorkshopPhysicsCompiler.Compile(Free(instances), new(1, 2));
         Assert.Equal(3, scene.Sensors.Length);
@@ -73,7 +73,7 @@ public sealed class WorkbenchCapacityTests
     public void WorkbenchCapacity_AdmitsProudPartElementsWithoutColliderLimit(string part, int colliders)
     {
         var instances = new WorkshopInstances([.. Enumerable.Range(0, 4).Select(i =>
-            (IWorkshopInstance)WorkshopInput.Generic(new PartId(part), Id(), -4.5 + 3 * i, 3, 0, 0, 0, 0, 1))]);
+            (IWorkshopInstance)WorkshopInput.Generic(new PartId(part), Id(), (float)(-4.5 + 3 * i), 3, 0, 0, 0, 0, 1))]);
         new WorkshopInstances([.. instances]).Validate();
         var world = WorkshopPhysicsCompiler.Compile(Free(instances), new(1, 2)).World;
         Assert.Equal((4 + 1, 4 * colliders + 1), (world.Bodies, world.Colliders));
@@ -125,28 +125,28 @@ public sealed class WorkbenchCapacityTests
 
     private static IWorkshopInstance Place(PartId kind, GpuBodyId id, double x, double z) => kind.Value switch
     {
-        "ball" or "bowling" => WorkshopInput.Generic(kind, id, x, 4, z, 0, 0, 0, 1),
-        "domino" => PlacedParts.Domino(id, x, DominoUpright + .01, z, 0, 0, 0, 1),
-        "weight" => WorkshopInput.Generic(kind, id, x, 4, z, 0, 0, 0, 1),
-        "basket" => WorkshopInput.Generic(PartId.Receiver, id, x, 1, z, 0, 0, 0, 1),
-        "ramp" => WorkshopInput.Generic(PartId.Ramp, id, x, 2, z, 0, 0, 0, 1),
-        "wall" => WorkshopInput.Generic(PartId.Wall, id, x, 2, z, 0, 0, 0, 1, WallFixture.Default),
-        "switch" => WorkshopInput.Generic(PartId.ImpactSwitch, id, x, 1, z, 0, 0, 0, 1),
-        "lamp" => PlacedParts.Lamp(id, x, 1, z, 0, 0, 0, 1),
-        "delay" or "hold_timer" or "both_gate" or "electrical_nand" or "electrical_nor" or "electrical_or" or "electrical_xor" => WorkshopInput.Generic(kind, id, x, 1, z, 0, 0, 0, 1),
-        "bumper" => WorkshopInput.Generic(PartId.PinballBumper, id, x, 1, z, 0, 0, 0, 1),
-        "battery" => PlacedParts.Battery(id, x, 1, z),
-        "spring" => WorkshopInput.Generic(PartId.Springboard, id, x, 1, z, 0, 0, 0, 1),
-        "pipe" => WorkshopInput.Pipe(id, x, 3, z, 0, 0, 0, 1),
-        "ball_detector" => PlacedParts.Detector(id, x, 3, z, 0, 0, 0, 1),
-        "pipe_bend_45" => WorkshopInput.PipeBend45(id, x, 3, z, 0, 0, 0, 1),
-        "pipe_bend_90" => WorkshopInput.PipeBend90(id, x, 3, z, 0, 0, 0, 1),
-        "funnel" => WorkshopInput.Funnel(id, x, 3, z, 0, 0, 0, 1),
-        "powered_gate" => WorkshopInput.Generic(PartId.PoweredGate, id, x, 0, z, 0, 0, 0, 1),
-        "pressure_plate" => PlacedParts.Plate(id, x, 1, z, .5f),
-        "counter" => PlacedParts.Counter(id, x, 1, z, 0, 0, 0, 1, 3),
-        "clock" => PlacedParts.Clock(id, x, 1, z, 0, 0, 0, 1, 1f),
-        "latch" => PlacedParts.Latch(id, x, 1, z, 0, 0, 0, 1),
+        "ball" or "bowling" => WorkshopInput.Generic(kind, id, (float)(x), 4, (float)(z), 0, 0, 0, 1),
+        "domino" => PlacedParts.Domino(id, (float)(x), (float)(DominoUpright + .01), (float)(z), 0, 0, 0, 1),
+        "weight" => WorkshopInput.Generic(kind, id, (float)(x), 4, (float)(z), 0, 0, 0, 1),
+        "basket" => WorkshopInput.Generic(PartId.Receiver, id, (float)(x), 1, (float)(z), 0, 0, 0, 1),
+        "ramp" => WorkshopInput.Generic(PartId.Ramp, id, (float)(x), 2, (float)(z), 0, 0, 0, 1),
+        "wall" => WorkshopInput.Generic(PartId.Wall, id, (float)(x), 2, (float)(z), 0, 0, 0, 1, WallFixture.Default),
+        "switch" => WorkshopInput.Generic(PartId.ImpactSwitch, id, (float)(x), 1, (float)(z), 0, 0, 0, 1),
+        "lamp" => PlacedParts.Lamp(id, (float)(x), 1, (float)(z), 0, 0, 0, 1),
+        "delay" or "hold_timer" or "both_gate" or "electrical_nand" or "electrical_nor" or "electrical_or" or "electrical_xor" => WorkshopInput.Generic(kind, id, (float)(x), 1, (float)(z), 0, 0, 0, 1),
+        "bumper" => WorkshopInput.Generic(PartId.PinballBumper, id, (float)(x), 1, (float)(z), 0, 0, 0, 1),
+        "battery" => PlacedParts.Battery(id, (float)(x), 1, (float)(z)),
+        "spring" => WorkshopInput.Generic(PartId.Springboard, id, (float)(x), 1, (float)(z), 0, 0, 0, 1),
+        "pipe" => WorkshopInput.Pipe(id, (float)(x), 3, (float)(z), 0, 0, 0, 1),
+        "ball_detector" => PlacedParts.Detector(id, (float)(x), 3, (float)(z), 0, 0, 0, 1),
+        "pipe_bend_45" => WorkshopInput.PipeBend45(id, (float)(x), 3, (float)(z), 0, 0, 0, 1),
+        "pipe_bend_90" => WorkshopInput.PipeBend90(id, (float)(x), 3, (float)(z), 0, 0, 0, 1),
+        "funnel" => WorkshopInput.Funnel(id, (float)(x), 3, (float)(z), 0, 0, 0, 1),
+        "powered_gate" => WorkshopInput.Generic(PartId.PoweredGate, id, (float)(x), 0, (float)(z), 0, 0, 0, 1),
+        "pressure_plate" => PlacedParts.Plate(id, (float)(x), 1, (float)(z), .5f),
+        "counter" => PlacedParts.Counter(id, (float)(x), 1, (float)(z), 0, 0, 0, 1, 3),
+        "clock" => PlacedParts.Clock(id, (float)(x), 1, (float)(z), 0, 0, 0, 1, 1f),
+        "latch" => PlacedParts.Latch(id, (float)(x), 1, (float)(z), 0, 0, 0, 1),
         _ => throw new ArgumentException($"Unsupported palette part '{kind}'.", nameof(kind)),
     };
 
@@ -156,7 +156,7 @@ public sealed class WorkbenchCapacityTests
     private static WorkshopInstances Grid(PartId kind, int count) =>
         new([.. Enumerable.Range(0, count).Select(i => i < 64
             ? Place(kind, new((ulong)i + 1), -6 + i % 8 * 1.6, -5 + i / 8 * 2.5)
-            : Place(kind, new((ulong)i + 1), 20 + (i - 64) % 16 * 1.6, -5 + (i - 64) / 16 * 2.5))]);
+            : Place(kind, new((ulong)i + 1), 20 + (i - 64) % 16 * 1.6f, -5 + (i - 64) / 16 * 2.5))]);
 
     // The Story 9.4b harness admits at revision 2 through the production WorkshopSimulation, WorkshopGpuDevice and BrowserGpuTransport.
     private static WorkshopConstruction Bench(WorkshopInstances instances) => new(new(2), WorkshopCadenceSettings.Default(), instances);
@@ -215,11 +215,11 @@ public sealed class WorkbenchCapacityTests
     public async Task ABallRestsInTheLastOfFourHundredElevenBendsAndFallsWithoutIt(bool withLastBend)
     {
         var parts = Enumerable.Range(0, 410)
-            .Select(i => (IWorkshopInstance)WorkshopInput.PipeBend90(new((ulong)i + 1), i < 30 ? -6 + i % 6 : 20 + (i - 30) % 16 * 1.6, 3,
-                i < 30 ? -3 + i / 6 * 1.5 : -5 + (i - 30) / 16 * 2.5, 0, 0, 0, 1))
+            .Select(i => (IWorkshopInstance)WorkshopInput.PipeBend90(new((ulong)i + 1), i < 30 ? -6 + i % 6 : 20 + (i - 30) % 16 * 1.6f, 3,
+                i < 30 ? -3 + i / 6 * 1.5f : -5 + (i - 30) / 16 * 2.5f, 0, 0, 0, 1))
             .ToList();
         var cradle = new GpuBodyId(411);
-        if (withLastBend) parts.Add(WorkshopInput.PipeBend90(cradle, 6, 3, 0, 0, 0, CradleZ, CradleW));
+        if (withLastBend) parts.Add(WorkshopInput.PipeBend90(cradle, 6, 3, 0, 0, 0, (float)(CradleZ), (float)(CradleW)));
         var ball = WorkshopInput.Generic(PartId.Basketball,new(412), 6, 3, 0, 0, 0, 0, 1);
         parts.Add(ball);
         var bench = Bench(new([.. parts]));

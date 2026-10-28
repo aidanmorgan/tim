@@ -1,3 +1,4 @@
+using CuriousContraptions.Abstractions;
 using System;
 using System.Collections.Generic;
 
@@ -45,7 +46,7 @@ public readonly record struct AnimationSample(AnimationBinding Binding, Animatio
 public readonly record struct AnimationRead(AnimationPlayback Playback, AnimationValue Value, bool Visible);
 public readonly record struct AnimationFrameWork(int Evaluated, int DirtyWrites, int Scheduled, int Registered);
 
-/// <summary>Canonical property-specific clip; widened arithmetic is temporary cosmetic evaluation.</summary>
+/// <summary>Canonical property-specific clip with f32 local evaluation.</summary>
 public sealed record AnimationDefinition
 {
     public AnimationValue From { get; }
@@ -66,7 +67,7 @@ public sealed record AnimationDefinition
         From = from; To = to; Duration = duration; Curve = curve; Repeat = repeat; Clock = clock;
     }
 
-    internal AnimationValue Evaluate(double position, bool completed)
+    internal AnimationValue Evaluate(float position, bool completed)
     {
         var phase = completed ? 1 : Repeat switch
         {
@@ -83,11 +84,11 @@ public sealed record AnimationDefinition
         {
             AnimationCurve.Linear => phase,
             AnimationCurve.CubicSmoothStep => phase * phase * (3 - 2 * phase),
-            AnimationCurve.SmoothStep => phase <= .5 ? smooth : 1 - smooth,
-            AnimationCurve.SinePulse => Math.Sin(Math.PI * phase),
+            AnimationCurve.SmoothStep => phase <= .5f ? smooth : 1 - smooth,
+            AnimationCurve.SinePulse => MathF.Sin(MathF.PI * phase),
             _ => throw new InvalidOperationException("Unsupported animation curve.")
         };
-        return AnimationValue.Narrow(From.Property, Math.FusedMultiplyAdd(To.Number - From.Number, amount, From.Number));
+        return AnimationValue.FromScalar(From.Property, AnimationNumbers.Interpolate(From.Number, To.Number, amount));
     }
 }
 
@@ -107,7 +108,7 @@ public sealed class AnimationBatch
         public AnimationDefinition? Definition;
         public AnimationBinding Binding;
         public AnimationPlayback Playback;
-        public double Started, Admitted; // External clock timestamps, never game-value phase.
+        public PhysicalTime Started, Admitted;
         public AnimationValue Value, Published;
         public AnimationPhase Offset;
         public AnimationPlaybackRate Rate;
@@ -122,7 +123,7 @@ public sealed class AnimationBatch
     private Dictionary<AnimationBinding, int> _writers = new(16);
     private int _activeCount, _freeCount, _sampleCount;
     private ulong _frame;
-    private double _presentationTime, _simulationTime;
+    private PhysicalTime _presentationTime, _simulationTime;
     public AnimationGeneration Generation { get; private set; } = new(1);
     public int RegisteredCount => _slots.Length - _freeCount;
     public int ScheduledCount => _activeCount;
@@ -176,18 +177,18 @@ public sealed class AnimationBatch
             binding.Property != definition.VelocityPerStrength.Property)
             throw new ArgumentException("Oscillation requires a signed motion property.");
         return RegisterSlot(binding,new(){Kind=AnimationKind.Oscillation,Clock=definition.Clock,
-            Oscillation=new(definition),Initial=AnimationValue.Narrow(binding.Property,0)},
-            AnimationValue.Narrow(binding.Property,0),AnimationValue.Narrow(binding.Property,0));
+            Oscillation=new(definition),Initial=AnimationValue.FromScalar(binding.Property,0)},
+            AnimationValue.FromScalar(binding.Property,0),AnimationValue.FromScalar(binding.Property,0));
     }
-    public void ValidateOscillationKick(AnimationHandle handle,AnimationOccurrenceId occurrence,AnimationSignedStrength strength,double clockTime)
+    public void ValidateOscillationKick(AnimationHandle handle,AnimationOccurrenceId occurrence,AnimationSignedStrength strength,PhysicalTime clockTime)
     {
         var index=Resolve(handle);ref var slot=ref _slots[index];
         if(slot.Kind!=AnimationKind.Oscillation)throw new InvalidOperationException("Kick requires an oscillation binding.");
-        if(!double.IsFinite(clockTime)||clockTime<Clock(slot.Clock)||clockTime<slot.Admitted)
+        if(clockTime<Clock(slot.Clock)||clockTime<slot.Admitted)
             throw new ArgumentOutOfRangeException(nameof(clockTime));
         slot.Oscillation!.ValidateKick(occurrence,strength,clockTime);
     }
-    public void KickOscillation(AnimationHandle handle,AnimationOccurrenceId occurrence,AnimationSignedStrength strength,double clockTime)
+    public void KickOscillation(AnimationHandle handle,AnimationOccurrenceId occurrence,AnimationSignedStrength strength,PhysicalTime clockTime)
     {
         ValidateOscillationKick(handle,occurrence,strength,clockTime);
         var index=Resolve(handle);ref var slot=ref _slots[index];
@@ -209,11 +210,11 @@ public sealed class AnimationBatch
             Impulses=new(definition),Initial=from,ImpulsePeak=to},from,to);
     }
 
-    public void ValidateImpulseAdmission(AnimationHandle handle,AnimationOccurrenceId occurrence,AnimationStrength strength,double occurredAt)
+    public void ValidateImpulseAdmission(AnimationHandle handle,AnimationOccurrenceId occurrence,AnimationStrength strength)
     {
         var index=Resolve(handle);ref var slot=ref _slots[index];
         if(slot.Kind!=AnimationKind.Impulses)throw new InvalidOperationException("Impulse admission requires an impulse definition.");
-        slot.Impulses!.ValidateAdmission(occurrence,strength,occurredAt);
+        slot.Impulses!.ValidateAdmission(occurrence,strength);
     }
 
     public void ReserveImpulses(AnimationHandle handle, int additional)
@@ -223,7 +224,7 @@ public sealed class AnimationBatch
         slot.Impulses!.Reserve(additional);
     }
 
-    public void EnqueueImpulse(AnimationHandle handle,AnimationOccurrenceId occurrence,AnimationStrength strength,double occurredAt)
+    public void EnqueueImpulse(AnimationHandle handle,AnimationOccurrenceId occurrence,AnimationStrength strength,PhysicalTime occurredAt)
     {
         var index=Resolve(handle);ref var slot=ref _slots[index];
         if(slot.Kind!=AnimationKind.Impulses)throw new InvalidOperationException("Impulse admission requires an impulse definition.");
@@ -271,7 +272,7 @@ public sealed class AnimationBatch
     }
 
     /// <summary>Retarget at an admitted clock boundary, including elapsed invisible/skipped frames.</summary>
-    public void ValidateFollowValue(AnimationHandle handle,AnimationValue target,double clockTime)
+    public void ValidateFollowValue(AnimationHandle handle,AnimationValue target,PhysicalTime clockTime)
     {
         var index=Resolve(handle);ref var slot=ref _slots[index];
         if(slot.Kind!=AnimationKind.ExponentialFollow)throw new InvalidOperationException("Value following requires a follow definition.");
@@ -279,11 +280,11 @@ public sealed class AnimationBatch
         AnimationValue.SameProperty(definition.From,target);
         if(target.Number<Math.Min(definition.From.Number,definition.To.Number)||target.Number>Math.Max(definition.From.Number,definition.To.Number))
             throw new ArgumentOutOfRangeException(nameof(target));
-        if(!double.IsFinite(clockTime)||clockTime<Clock(slot.Clock)||clockTime<slot.Admitted)
+        if(clockTime<Clock(slot.Clock)||clockTime<slot.Admitted)
             throw new ArgumentOutOfRangeException(nameof(clockTime));
     }
 
-    public void FollowValue(AnimationHandle handle,AnimationValue target,double clockTime)
+    public void FollowValue(AnimationHandle handle,AnimationValue target,PhysicalTime clockTime)
     {
         ValidateFollowValue(handle,target,clockTime);
         var index=Resolve(handle);ref var slot=ref _slots[index];
@@ -294,23 +295,23 @@ public sealed class AnimationBatch
         Schedule(index);
     }
 
-    private static AnimationValue FollowAt(in Slot slot,double clockTime)
+    private static AnimationValue FollowAt(in Slot slot,PhysicalTime clockTime)
     {
         if(slot.Playback!=AnimationPlayback.Playing)return slot.Value;
         var elapsed=AnimationNumbers.Elapsed(clockTime,slot.Started);
-        var decay=Math.Exp(-(double)slot.Follow!.Response.Value*elapsed);
-        return AnimationValue.Narrow(slot.TargetValue.Property,
-            Math.FusedMultiplyAdd(slot.AnchorValue.Number-slot.TargetValue.Number,decay,slot.TargetValue.Number));
+        var decay=MathF.Exp(-slot.Follow!.Response.Value*elapsed);
+        return AnimationValue.FromScalar(slot.TargetValue.Property,
+            AnimationNumbers.Interpolate(slot.TargetValue.Number,slot.AnchorValue.Number,decay));
     }
 
     public void Start(AnimationHandle handle) => StartAt(handle, Clock(_slots[Resolve(handle)].Clock));
 
     /// <summary>Start at an admitted clock boundary, even between rendered frames.</summary>
-    public void StartAt(AnimationHandle handle, double clockTime)
+    public void StartAt(AnimationHandle handle, PhysicalTime clockTime)
     {
         var index = Resolve(handle);
         if(_slots[index].Kind!=AnimationKind.Clip)throw new InvalidOperationException("Start requires a clip definition.");
-        if (!double.IsFinite(clockTime) || clockTime < Clock(_slots[index].Clock) || clockTime < _slots[index].Admitted)
+        if (clockTime < Clock(_slots[index].Clock) || clockTime < _slots[index].Admitted)
             throw new ArgumentOutOfRangeException(nameof(clockTime));
         ref var slot = ref _slots[index];
         _sampleCount = 0;
@@ -324,16 +325,15 @@ public sealed class AnimationBatch
     /// <summary>Restart a once-clip from its From value at an occurrence's clock time, which may already have passed (an
     /// occurrence observed late): the clip is at the phase it would have reached had it started then, and at To once
     /// that time plus its duration has passed. A future occurrence is admitted at its own time, as <see cref="StartAt"/>.</summary>
-    public void StartAtOccurrence(AnimationHandle handle, double occurredAt)
+    public void StartAtOccurrence(AnimationHandle handle, PhysicalTime occurredAt)
     {
         var index = Resolve(handle);
         ref var slot = ref _slots[index];
         if (slot.Kind != AnimationKind.Clip) throw new InvalidOperationException("Start requires a clip definition.");
         if (slot.Definition!.Repeat != AnimationRepeat.Once) throw new InvalidOperationException("An occurrence starts a once-clip.");
-        if (!double.IsFinite(occurredAt)) throw new ArgumentOutOfRangeException(nameof(occurredAt));
         _sampleCount = 0;
         slot.Started = occurredAt;
-        slot.Admitted = Math.Max(Math.Max(slot.Admitted, Clock(slot.Clock)), occurredAt);
+        slot.Admitted = PhysicalTime.Max(PhysicalTime.Max(slot.Admitted, Clock(slot.Clock)), occurredAt);
         slot.Offset = default; slot.Rate = new((float)1); slot.Endpoint = AnimationEndpoint.To;
         slot.Value = slot.Definition.From;
         slot.Playback = AnimationPlayback.Playing;
@@ -342,7 +342,7 @@ public sealed class AnimationBatch
 
     /// <summary>Drive a once-clip toward either endpoint without resetting its phase.
     /// A reversal evaluates the control boundary even if no frame was rendered.</summary>
-    public void DriveTo(AnimationHandle handle, AnimationEndpoint endpoint, double clockTime)
+    public void DriveTo(AnimationHandle handle, AnimationEndpoint endpoint, PhysicalTime clockTime)
     {
         var index = Resolve(handle);
         ref var slot = ref _slots[index];
@@ -351,22 +351,22 @@ public sealed class AnimationBatch
         if (!Enum.IsDefined(endpoint)) throw new ArgumentOutOfRangeException(nameof(endpoint));
         if (definition.Repeat != AnimationRepeat.Once)
             throw new InvalidOperationException("Endpoint drive requires a once-clip.");
-        if (!double.IsFinite(clockTime) || clockTime < Clock(definition.Clock) || clockTime < slot.Admitted)
+        if (clockTime < Clock(definition.Clock) || clockTime < slot.Admitted)
             throw new ArgumentOutOfRangeException(nameof(clockTime));
         var position = AnimationPhase.Capture(Position(slot, clockTime),definition.Repeat);
-        var value = definition.Evaluate((double)position.Value, (double)position.Value >= 1);
+        var value = definition.Evaluate(position.Value, position.Value >= 1);
         _sampleCount = 0;
         slot.Offset = position;
         slot.Started = slot.Admitted = clockTime;
         slot.Endpoint = endpoint;
         slot.Value = value;
-        slot.Playback = AtEndpoint(slot, (double)position.Value) ? AnimationPlayback.Completed : AnimationPlayback.Playing;
+        slot.Playback = AtEndpoint(slot, position.Value) ? AnimationPlayback.Completed : AnimationPlayback.Playing;
         Schedule(index);
     }
 
     /// <summary>Signed clip-seconds per clock-second for a Loop. Zero holds phase.
     /// Changes integrate the old rate to the admitted boundary, including skipped frames.</summary>
-    public void SetLoopRate(AnimationHandle handle, AnimationPlaybackRate rate, double clockTime)
+    public void SetLoopRate(AnimationHandle handle, AnimationPlaybackRate rate, PhysicalTime clockTime)
     {
         var index = Resolve(handle);
         ref var slot = ref _slots[index];
@@ -375,10 +375,10 @@ public sealed class AnimationBatch
         if (definition.Repeat != AnimationRepeat.Loop)
             throw new InvalidOperationException("Rate control requires a loop.");
         AnimationNumbers.Finite(rate.Value);
-        if (!double.IsFinite(clockTime) || clockTime < Clock(definition.Clock) || clockTime < slot.Admitted)
+        if (clockTime < Clock(definition.Clock) || clockTime < slot.Admitted)
             throw new ArgumentOutOfRangeException(nameof(clockTime));
         var position = AnimationPhase.Capture(Position(slot, clockTime),definition.Repeat);
-        var value = definition.Evaluate((double)position.Value,false);
+        var value = definition.Evaluate(position.Value,false);
         _sampleCount = 0;
         slot.Offset = position; slot.Rate = rate;
         slot.Started = slot.Admitted = clockTime;
@@ -387,39 +387,35 @@ public sealed class AnimationBatch
         Schedule(index);
     }
 
-    private static double Position(in Slot slot, double clockTime)
+    private static float Position(in Slot slot, PhysicalTime clockTime)
     {
-        var offset = (double)slot.Offset.Value;
+        var offset = slot.Offset.Value;
         if (slot.Playback != AnimationPlayback.Playing) return offset;
         var elapsed = AnimationNumbers.Elapsed(clockTime, slot.Started);
-        var duration = (double)slot.Definition!.Duration.Value;
+        var duration = slot.Definition!.Duration.Value;
         if (slot.Definition.Repeat == AnimationRepeat.Loop)
         {
-            var travel = elapsed * (double)slot.Rate.Value;
-            if (!double.IsFinite(travel))
-                throw new ArgumentOutOfRangeException(nameof(clockTime), "Loop travel exceeds the supported finite external-clock range.");
-            // Modulo BEFORE division preserves huge finite clocks and minimum float duration.
-            var phase = (offset + (travel % duration) / duration) % 1;
+            var phase = (offset + clockTime.PeriodicPhaseSince(slot.Started, duration, slot.Rate.Value)) % 1;
             return phase < 0 ? phase + 1 : phase;
         }
         if (slot.Definition.Repeat == AnimationRepeat.PingPong)
-            return (offset + (elapsed % (2 * duration)) / duration) % 2;
+            return (offset + clockTime.PeriodicPhaseSince(slot.Started, duration, 1, 2)) % 2;
         var remaining = slot.Endpoint == AnimationEndpoint.To ? 1 - offset : offset;
         if (elapsed >= remaining * duration) return slot.Endpoint == AnimationEndpoint.To ? 1 : 0;
         return slot.Endpoint == AnimationEndpoint.To ? offset + elapsed / duration : offset - elapsed / duration;
     }
 
-    private static bool AtEndpoint(in Slot slot, double position) =>
+    private static bool AtEndpoint(in Slot slot, float position) =>
         slot.Definition!.Repeat == AnimationRepeat.Once &&
         (slot.Endpoint == AnimationEndpoint.To ? position >= 1 : position <= 0);
 
-    public void Stop(AnimationHandle handle, AnimationStop policy, double clockTime)
+    public void Stop(AnimationHandle handle, AnimationStop policy, PhysicalTime clockTime)
     {
         var index = Resolve(handle);
         if (!Enum.IsDefined(policy)) throw new ArgumentOutOfRangeException(nameof(policy));
         ref var slot = ref _slots[index];
         var definition = slot.Definition!;
-        if (!double.IsFinite(clockTime) || clockTime < Clock(slot.Clock) || clockTime < slot.Admitted)
+        if (clockTime < Clock(slot.Clock) || clockTime < slot.Admitted)
             throw new ArgumentOutOfRangeException(nameof(clockTime));
         if(slot.Kind==AnimationKind.Oscillation)
         {
@@ -436,7 +432,7 @@ public sealed class AnimationBatch
             throw new InvalidOperationException("Impulse occurrences require explicit cancellation or removal.");
         var held = policy == AnimationStop.Hold && slot.Playback == AnimationPlayback.Playing
             ? AnimationPhase.Capture(Position(slot, clockTime),definition.Repeat) : slot.Offset;
-        var heldValue = definition.Evaluate((double)held.Value,
+        var heldValue = definition.Evaluate(held.Value,
             definition.Repeat == AnimationRepeat.Once && held.Value >= (float)1);
         _sampleCount = 0;
         if (policy == AnimationStop.RestoreInitial)
@@ -486,11 +482,11 @@ public sealed class AnimationBatch
         _free[_freeCount++] = index;
     }
 
-    public AnimationFrameWork Advance(ulong frame, double presentationTime, double simulationTime)
+    public AnimationFrameWork Advance(ulong frame, PhysicalTime presentationTime, PhysicalTime simulationTime)
     {
         ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(frame, _frame);
-        if (!double.IsFinite(presentationTime) || presentationTime < _presentationTime ||
-            !double.IsFinite(simulationTime) || simulationTime < _simulationTime)
+        if (presentationTime < _presentationTime ||
+            simulationTime < _simulationTime)
             throw new ArgumentOutOfRangeException(nameof(presentationTime), "Animation clocks must be finite and monotone.");
         // Validate the whole active operation before changing clocks, output, slots or occurrences.
         for (var i = 0; i < _activeCount; i++)
@@ -522,10 +518,10 @@ public sealed class AnimationBatch
             if(slot.Playback==AnimationPlayback.Playing&&slot.Kind==AnimationKind.Impulses)
             {
                 var envelope=slot.Impulses!.Advance(Clock(slot.Clock),slot.Visible);
-                var amount=(double)envelope.Value;
+                var amount=envelope.Value;
                 slot.Value=amount==0?slot.Initial:amount==1?slot.ImpulsePeak:
-                    AnimationValue.Narrow(slot.Initial.Property,
-                        Math.FusedMultiplyAdd(slot.ImpulsePeak.Number-slot.Initial.Number,amount,slot.Initial.Number));
+                    AnimationValue.FromScalar(slot.Initial.Property,
+                        AnimationNumbers.Interpolate(slot.Initial.Number,slot.ImpulsePeak.Number,amount));
                 if(slot.Visible)evaluated++;
                 if(slot.Impulses.Count==0)slot.Playback=AnimationPlayback.Completed;
             }
@@ -595,11 +591,11 @@ public sealed class AnimationBatch
         _samples = samples; _sampleCount = count;
         _slots = slots; _versions = slotGenerations; _active = active; _free = free; _writers = writers;
         _activeCount = 0; _freeCount = 16;
-        _frame = 0; _presentationTime = _simulationTime = 0;
+        _frame = 0; _presentationTime = _simulationTime = default;
         Generation = generation;
     }
 
-    private double Clock(AnimationClock clock) => clock switch
+    private PhysicalTime Clock(AnimationClock clock) => clock switch
     {
         AnimationClock.Presentation => _presentationTime,
         AnimationClock.Simulation => _simulationTime,

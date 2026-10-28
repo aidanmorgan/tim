@@ -123,7 +123,7 @@ public readonly struct ContactWorkLedger
         for (var owner=0; owner<Count; owner++)
         {
             var before=previous[owner]; var after=this[owner];
-            uint changed=0; double debit=0;
+            uint changed=0; float debit=0, sumRounding=0;
             for (var i=0; i<OccurrenceCount; i++)
             {
                 var last=Occurrence(i);
@@ -138,18 +138,19 @@ public readonly struct ContactWorkLedger
                     last.EventOrdinal < first.EventOrdinal ||
                     (last.EventOrdinal == first.EventOrdinal && last.EventPhase < first.EventPhase))
                     throw new ArgumentException("Contact occurrence was skipped or reversed.");
-                changed++; debit+=(double)last.Debit.Value;
+                changed++; debit+=last.Debit.Value;
+                sumRounding += PhysicsElectricalRead.Residual(debit);
             }
             // Unique event sequences plus this cardinality prove the complete contiguous owner interval.
             if (after.OccurrenceCount-before.OccurrenceCount != changed)
                 throw new ArgumentException("Committed contact occurrences were lost.");
-            var removed=(double)before.RemainingEnergy.Value + after.SuppliedEnergy.Value - (double)after.RemainingEnergy.Value;
+            var removed=before.RemainingEnergy.Value + after.SuppliedEnergy.Value - after.RemainingEnergy.Value;
             // Recharge and impacts are separate finite transfers in the same commit.
             var tolerance = after.SuppliedEnergy.Value > 0
                 ? PhysicsElectricalRead.Residual(before.RemainingEnergy.Value) + PhysicsElectricalRead.Residual(after.RemainingEnergy.Value) +
                     PhysicsElectricalRead.Residual(after.SuppliedEnergy.Value) + debit / 8388608
-                : debit / 8388608 + changed * Math.ScaleB(1, -149);
-            if (Math.Abs(removed-debit)>tolerance ||
+                : debit / 8388608 + changed * float.Epsilon;
+            if (MathF.Abs(removed-debit)>tolerance + sumRounding + PhysicsElectricalRead.Residual(removed) ||
                 (debit==0 && after.SuppliedEnergy.Value==0 && !before.RemainingEnergy.HasSameBits(after.RemainingEnergy)))
                 throw new ArgumentException("Shared reservoir does not account for every emitted debit.");
         }

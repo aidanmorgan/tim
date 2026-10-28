@@ -45,7 +45,7 @@ public sealed class WorkshopHandlerBoundaryTests
 
     // A Godot override such as _Ready awaits ReadyAsync.
     private static bool IsBoundary(string name, string body) => Regex.IsMatch(Regex.Replace(body, @"\s+", " "),
-        $@"^\{{ try \{{ await {name.TrimStart('_')}Async\([^)]*\); \}} catch \(Exception error\) \{{ HandlerFailed\(nameof\({name}\), error\); \}} \}}$",
+        $@"^\{{ try \{{ await {name.TrimStart('_')}Async\((?>[^()]|\((?<depth>)|\)(?<-depth>))*(?(depth)(?!))\); \}} catch \(Exception error\) \{{ HandlerFailed\(nameof\({name}\), error\); \}} \}}$",
         RegexOptions.CultureInvariant);
 
     [Fact]
@@ -56,6 +56,9 @@ public sealed class WorkshopHandlerBoundaryTests
         Assert.True(handlers.Length >= 15,$"Expected the Workshop's async void handlers; found {handlers.Length}.");
         Assert.All(handlers, handler => Assert.True(IsBoundary(handler.Name, handler.Body),
             $"{handler.File}: async void {handler.Name} must only await {handler.Name.TrimStart('_')}Async inside a catch that calls HandlerFailed."));
+        // Balanced arguments allow boundary validation inside the catch, including nested conversions.
+        Assert.True(IsBoundary("Click", "{ try { await ClickAsync(Validate(screen)); } catch (Exception error) { HandlerFailed(nameof(Click), error); } }"));
+        Assert.False(IsBoundary("Click", "{ var value = Validate(screen); try { await ClickAsync(value); } catch (Exception error) { HandlerFailed(nameof(Click), error); } }"));
         // Control: the shape check rejects a handler that awaits work without the boundary.
         Assert.False(IsBoundary("Click", "{ if (_tool is null) return; await SubmitConstruction(proposed); }"));
         Assert.False(IsBoundary("Click", "{ try { await ClickAsync(screen); } catch (ArgumentException error) { HandlerFailed(nameof(Click), error); } }"));

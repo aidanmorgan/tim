@@ -1,3 +1,4 @@
+using CuriousContraptions.Abstractions;
 using System.Buffers.Binary;
 using System.Numerics;
 using CuriousContraptions.Abstractions.Mechanical;
@@ -331,7 +332,7 @@ public sealed class DeclaredPrismaticDriveTests
     public async Task AnUnpoweredInvertedOrTiltedMountRestingInItsInteriorWithNothingInTheWayIsNotBlocked(double degrees, float equilibrium)
     {
         var half = degrees * Math.PI / 360;
-        var gate = WorkshopInput.Generic(PartId.PoweredGate, new(1), 0, 8, 0, 0, 0, Math.Sin(half), Math.Cos(half));
+        var gate = WorkshopInput.Generic(PartId.PoweredGate, new(1), 0, 8, 0, 0, 0, (float)(Math.Sin(half)), (float)(Math.Cos(half)));
         var reads = await WorkshopPhysicsEngineTests.Run(new(new(2), WorkshopCadenceSettings.Default(), new(gate)), 720);
         var drives = reads.Select(read => read.Presentation.Actuators[0]).ToArray();
         var rest = drives[^1];
@@ -392,7 +393,7 @@ public sealed class DeclaredPrismaticDriveTests
     {
         const double tilt = -15;
         var half = tilt * Math.PI / 360;
-        var gate = WorkshopInput.Generic(PartId.PoweredGate, new(1), 0, 3, 0, 0, 0, Math.Sin(half), Math.Cos(half));
+        var gate = WorkshopInput.Generic(PartId.PoweredGate, new(1), 0, 3, 0, 0, 0, (float)(Math.Sin(half)), (float)(Math.Cos(half)));
         // Declared geometry: ball radius .34, blade thickness .12, sleeve bore .70-.05=.65 m
         // (the collar bore is .78-.13=.65 too). D6 requires a resting ball, so place its center
         // tangent to both the upstream blade and lower bore, not inside the closed blade.
@@ -400,7 +401,7 @@ public sealed class DeclaredPrismaticDriveTests
         const float initialAlong = -(bladeHalfThickness + radius), initialUp = -(boreRadius - radius);
         var (sin, cos) = MathF.SinCos((float)(tilt * Math.PI / 180));
         var ball = WorkshopInput.Generic(PartId.Basketball, new(2),
-            cos * initialAlong - sin * initialUp, 3f + sin * initialAlong + cos * initialUp, 0, 0, 0, 0, 1);
+            (float)(cos * initialAlong - sin * initialUp), (float)(3f + sin * initialAlong + cos * initialUp), 0, 0, 0, 0, 1);
         var battery = PlacedParts.Battery(new(3), 3, 3, 0, enabled: authoredEnabled ? ElectricalEnable.Enabled : ElectricalEnable.Disabled);
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(gate, ball, battery))
             { Connections = new(Power(battery.Id, gate.Id)) };
@@ -585,13 +586,13 @@ public sealed class DeclaredPrismaticDriveTests
                     // Sample each substep's boundary and three interior phases through the real presentation seam.
                     for (var sample = 0; sample < 16; sample++)
                     {
-                        var ordinal = motion.FirstOrdinal + sample * .25f;
+                        var ordinal = new PhysicalTime(motion.FirstOrdinal + (uint)((sample + 2) / 4), ((sample + 2) % 4 - 2) * 1024f);
                         Assert.True(motion.TrySample(id, ordinal, out poses[sample]),
                             $"{history}, tick {tick}, body {id.Value}: missing presentation at {ordinal}");
                         Same(id, poses[sample].Id, $"{history}, tick {tick}: presented owner");
                     }
                     // The interval is right-open: its final exact endpoint is the committed body pose.
-                    Assert.False(motion.TrySample(id, motion.LastOrdinal, out _));
+                    Assert.False(motion.TrySample(id, new(motion.LastOrdinal), out _));
                     var committed = dynamicBodies[id];
                     poses[16] = new(id, committed.Body.Cell, committed.Body.Local, committed.Rotation);
                     presentation.Add(id, poses);

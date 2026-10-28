@@ -28,24 +28,24 @@ public sealed class LaunchLessonSolveTests
             WorkshopCadenceSettings.Default(), new(1), new((float)precision));
         return route switch
         {
-            Route.SpringPassive => Lesson("spring_forward", 1).WithInstance(PlacedParts.Springboard(Player, -3, .8, 0,
-                0, 0, -Math.Sin(Math.PI / 18), Math.Cos(Math.PI / 18))),
+            Route.SpringPassive => Lesson("spring_forward", 1).WithInstance(PlacedParts.Springboard(Player, -3, .8f, 0,
+                0, 0, (float)(-Math.Sin(Math.PI / 18)), (float)(Math.Cos(Math.PI / 18)))),
             Route.SpringCharged => Lesson("spring_forward", 1).WithInstance(PlacedParts.Springboard(Player,
-                -3.315333366394043, 3.1000001430511475, 0, 0, 0, Qz, Qw, compression: .2f)),
+                -3.315333366394043f, 3.1000001430511475f, 0, 0, 0, (float)(Qz), (float)(Qw), compression: .2f)),
             Route.SpringZero => Lesson("spring_forward", 1).WithInstance(PlacedParts.Springboard(Player,
-                -3.315333366394043, 3.1000001430511475, 0, 0, 0, Qz, Qw, compression: 0f)),
+                -3.315333366394043f, 3.1000001430511475f, 0, 0, 0, (float)(Qz), (float)(Qw), compression: 0f)),
             Route.SpringAway => Lesson("spring_forward", 1).WithInstance(PlacedParts.Springboard(Player,
-                -3.315333366394043, 3.1000001430511475, 0, -.11166255176067352, .9937461614608765, 7.4505797087454084e-9,
-                2.980232594040899e-8, compression: .2f)),
-            Route.SidekickPaid => Lesson("bumper_sidekick", .45).WithInstance(PlacedParts.Bumper(Player, -3.35, 1.5, 0)),
-            Route.SidekickUnpaid => Lesson("bumper_sidekick", .45).WithInstance(PlacedParts.Bumper(Player, -3.35, 1.5, 0, strength: 0f)),
-            Route.DepthPaid => Lesson("bumper_depth", .45).WithInstance(PlacedParts.Bumper(Player, 0, 1.5, 3.35)),
-            Route.DepthMiss => Lesson("bumper_depth", .45).WithInstance(PlacedParts.Bumper(Player, 0, 1.5, 0)),
-            Route.WallPaid => Lesson("wall_and_bumper", .45).WithInstance(PlacedParts.Bumper(Player, -3.35, 1.5, 0))
-                .WithInstance(WorkshopInput.Generic(PartId.Wall, new(4), -1.75, 4, 0, 0, 0, 0, 1,
+                -3.315333366394043f, 3.1000001430511475f, 0, -.11166255176067352f, .9937461614608765f, 7.4505797087454084e-9f,
+                2.980232594040899e-8f, compression: .2f)),
+            Route.SidekickPaid => Lesson("bumper_sidekick", .45).WithInstance(PlacedParts.Bumper(Player, -3.35f, 1.5f, 0)),
+            Route.SidekickUnpaid => Lesson("bumper_sidekick", .45).WithInstance(PlacedParts.Bumper(Player, -3.35f, 1.5f, 0, strength: 0f)),
+            Route.DepthPaid => Lesson("bumper_depth", .45).WithInstance(PlacedParts.Bumper(Player, 0, 1.5f, 3.35f)),
+            Route.DepthMiss => Lesson("bumper_depth", .45).WithInstance(PlacedParts.Bumper(Player, 0, 1.5f, 0)),
+            Route.WallPaid => Lesson("wall_and_bumper", .45).WithInstance(PlacedParts.Bumper(Player, -3.35f, 1.5f, 0))
+                .WithInstance(WorkshopInput.Generic(PartId.Wall, new(4), -1.75f, 4, 0, 0, 0, 0, 1,
                     new([new(new("width"), .4f), new(new("height"), 6f), new(new("thickness"), 1.5f)]))),
-            Route.WallMiss => Lesson("wall_and_bumper", .45).WithInstance(PlacedParts.Bumper(Player, -3.35, 1.5, 0)),
-            Route.ReadyReceiver => Lesson("ready_to_rebound", .45).WithInstance(WorkshopInput.Generic(PartId.Receiver, Player, 1.8, 1.3, 0, 0, 0, 0, 1)),
+            Route.WallMiss => Lesson("wall_and_bumper", .45).WithInstance(PlacedParts.Bumper(Player, -3.35f, 1.5f, 0)),
+            Route.ReadyReceiver => Lesson("ready_to_rebound", .45).WithInstance(WorkshopInput.Generic(PartId.Receiver, Player, 1.8f, 1.3f, 0, 0, 0, 0, 1)),
             Route.ReadyMissingReceiver => Lesson("ready_to_rebound", .45),
             _ => throw new ArgumentOutOfRangeException(nameof(route))
         };
@@ -84,17 +84,17 @@ public sealed class LaunchLessonSolveTests
             var properties = row.GetProperty("properties");
             IWorkshopInstance part = row.GetProperty("kind").GetString() switch
             {
-                "bumper" => PlacedParts.Bumper(id, p[0], p[1], p[2], qx: q.X, qy: q.Y, qz: q.Z, qw: q.W),
-                "spring" => PlacedParts.Springboard(id, p[0], p[1], p[2], q.X, q.Y, q.Z, q.W),
-                "wall" => WorkshopInput.Generic(PartId.Wall, id, p[0], p[1], p[2], q.X, q.Y, q.Z, q.W, new(
+                "bumper" => PlacedParts.Bumper(id, (float)(p[0]), (float)(p[1]), (float)(p[2]), qx: q.X, qy: q.Y, qz: q.Z, qw: q.W),
+                "spring" => PlacedParts.Springboard(id, (float)(p[0]), (float)(p[1]), (float)(p[2]), (float)(q.X), (float)(q.Y), (float)(q.Z), (float)(q.W)),
+                "wall" => WorkshopInput.Generic(PartId.Wall, id, (float)(p[0]), (float)(p[1]), (float)(p[2]), (float)(q.X), (float)(q.Y), (float)(q.Z), (float)(q.W), new(
                     WallKeys.Select(key => KeyValuePair.Create(new ParameterId(key), (float)properties.GetProperty(key).GetDouble())))),
-                "domino" => PlacedParts.Domino(id, p[0], p[1], p[2], q.X, q.Y, q.Z, q.W),
-                "ramp" => WorkshopInput.Generic(PartId.Ramp, id, p[0], p[1], p[2], q.X, q.Y, q.Z, q.W),
-                "delay" => WorkshopInput.Generic(PartId.Delay, id, p[0], p[1], p[2], q.X, q.Y, q.Z, q.W),
-                "basket" => WorkshopInput.Generic(PartId.Receiver, id, p[0], p[1], p[2], q.X, q.Y, q.Z, q.W),
-                "pipe_bend_45" => WorkshopInput.Generic(PartId.PipeBend45, id, p[0], p[1], p[2], q.X, q.Y, q.Z, q.W),
-                "pipe_bend_90" => WorkshopInput.Generic(PartId.PipeBend90, id, p[0], p[1], p[2], q.X, q.Y, q.Z, q.W),
-                "pipe" => WorkshopInput.Pipe(id, p[0], p[1], p[2], q.X, q.Y, q.Z, q.W, new((float)properties.GetProperty("length").GetDouble())),
+                "domino" => PlacedParts.Domino(id, (float)(p[0]), (float)(p[1]), (float)(p[2]), (float)(q.X), (float)(q.Y), (float)(q.Z), (float)(q.W)),
+                "ramp" => WorkshopInput.Generic(PartId.Ramp, id, (float)(p[0]), (float)(p[1]), (float)(p[2]), (float)(q.X), (float)(q.Y), (float)(q.Z), (float)(q.W)),
+                "delay" => WorkshopInput.Generic(PartId.Delay, id, (float)(p[0]), (float)(p[1]), (float)(p[2]), (float)(q.X), (float)(q.Y), (float)(q.Z), (float)(q.W)),
+                "basket" => WorkshopInput.Generic(PartId.Receiver, id, (float)(p[0]), (float)(p[1]), (float)(p[2]), (float)(q.X), (float)(q.Y), (float)(q.Z), (float)(q.W)),
+                "pipe_bend_45" => WorkshopInput.Generic(PartId.PipeBend45, id, (float)(p[0]), (float)(p[1]), (float)(p[2]), (float)(q.X), (float)(q.Y), (float)(q.Z), (float)(q.W)),
+                "pipe_bend_90" => WorkshopInput.Generic(PartId.PipeBend90, id, (float)(p[0]), (float)(p[1]), (float)(p[2]), (float)(q.X), (float)(q.Y), (float)(q.Z), (float)(q.W)),
+                "pipe" => WorkshopInput.Pipe(id, (float)(p[0]), (float)(p[1]), (float)(p[2]), (float)(q.X), (float)(q.Y), (float)(q.Z), (float)(q.W), new((float)properties.GetProperty("length").GetDouble())),
                 var kind => throw new ArgumentException($"No authored-solution placement for '{kind}'.")
             };
             slots.Add(row.GetProperty("id").GetString()!, id);

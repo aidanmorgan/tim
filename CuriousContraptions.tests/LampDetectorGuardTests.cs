@@ -78,9 +78,9 @@ public sealed class LampDetectorGuardTests
         bool counted = false)
     {
         var sign = forwardDown ? -1 : 1;
-        var detector = PlacedParts.Detector(new(1), 0, Plane, 0, 0, 0, sign * Half45, Half45);
+        var detector = PlacedParts.Detector(new(1), 0, (float)(Plane), 0, 0, 0, (float)(sign * Half45), (float)(Half45));
         var lamp = PlacedParts.Lamp(new(2), 4, 1, 0, 0, 0, 0, 1);
-        var ball = WorkshopInput.Generic(PartId.Basketball, new(3), ballX, DropY, 0, 0, 0, 0, 1);
+        var ball = WorkshopInput.Generic(PartId.Basketball, new(3), (float)(ballX), (float)(DropY), 0, 0, 0, 0, 1);
         if (!counted) return (Bench([detector, lamp, ball], Signal(detector.Id, lamp.Id)), detector.Id, lamp.Id, ball.Id);
         var counter = PlacedParts.Counter(new(4), -4, 1, 0, 0, 0, 0, 1, 2);
         var second = PlacedParts.Lamp(new(5), 4, 1, 3, 0, 0, 0, 1);
@@ -258,13 +258,13 @@ public sealed class LampDetectorGuardTests
         // A Basketball rests on a plate tilted 30° and then rolls off (the PressurePlateTests removal bench).
         var half = Math.PI / 12;
         const double plateHeight = 2;
-        var plate = PlacedParts.Plate(new(3), -4, plateHeight, 0, .5f, 0, 0, Math.Sin(half), Math.Cos(half));
+        var plate = PlacedParts.Plate(new(3), -4, (float)(plateHeight), 0, .5f, 0, 0, (float)(Math.Sin(half)), (float)(Math.Cos(half)));
         var rotation = new System.Numerics.Quaternion(0, 0, (float)Math.Sin(half), (float)Math.Cos(half));
         // At local x=-.2 the ring centreline is .1 m away. Its y=.084,
         // tube .018 and ball union reach .35 give the conservative contact
         // height .084+sqrt((.35+.018)^2-.1^2)=.4382 m; .448 m clears it.
         var drop = System.Numerics.Vector3.Transform(new System.Numerics.Vector3(-.2f, .08f + .368f, 0), rotation);
-        var ball = WorkshopInput.Generic(PartId.Basketball, new(4), -4 + drop.X, plateHeight + drop.Y, drop.Z, 0, 0, 0, 1);
+        var ball = WorkshopInput.Generic(PartId.Basketball, new(4), (float)(-4 + drop.X), (float)(plateHeight + drop.Y), (float)(drop.Z), 0, 0, 0, 1);
         var lamp = PlacedParts.Lamp(new(5), 6, 3, 0, 0, 0, 0, 1);
         var reads = await WorkshopPhysicsEngineTests.Run(Bench([plate, ball, lamp], Signal(plate.Id, lamp.Id)), Ticks);
         Assert.All(reads, read => Assert.Equal(Lit(read, plate.Id), Lit(read, lamp.Id)));

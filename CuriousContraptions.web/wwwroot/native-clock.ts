@@ -2,9 +2,9 @@
 // isolation: no browser identity pin. UA-CH identity, where available, is logged as evidence only.
 // Conservative error 84.1255us; declaration stays 100us. A small increment alone never qualifies.
 export const nativeProfile = 2;
-const Phase = Object.freeze({ fresh: 0, admitting: 1, ready: 2, retired: 3 });
-let phase = Phase.fresh, last = 0, qualifiedAt = 0, witnessDelta = 0, renewals = 0;
-function reject(message) {
+enum Phase { fresh, admitting, ready, retired }
+let phase: Phase = Phase.fresh, last = 0, qualifiedAt = 0, witnessDelta = 0, renewals = 0;
+function reject(message: string): never {
     phase = Phase.retired;
     throw new Error('Unsupported native clock: ' + message);
 }
@@ -16,7 +16,7 @@ function read() {
     last = value;
     return value;
 }
-function qualify(start) {
+function qualify(start: number): number {
     let previous = start;
     // Including the caller's anchor, at most 4096 native reads. Scheduling gaps do not
     // prove coarse precision; only a fresh adjacent pair can qualify after any gap.
@@ -36,8 +36,9 @@ function qualify(start) {
 async function describeSource() {
     // Evidence only; a browser without UA-CH (Safari, Firefox) or one that refuses the lookup proceeds straight to the witness.
     try {
-        if (!navigator.userAgentData?.getHighEntropyValues) return 'identity unavailable';
-        const identity = await navigator.userAgentData.getHighEntropyValues(['fullVersionList', 'platform']);
+        const source = navigator as Navigator & { userAgentData?: { getHighEntropyValues(keys: string[]): Promise<{ fullVersionList?: { brand: string; version: string }[]; platform?: string }> } };
+        if (!source.userAgentData?.getHighEntropyValues) return 'identity unavailable';
+        const identity = await source.userAgentData.getHighEntropyValues(['fullVersionList', 'platform']);
         const brands = (identity.fullVersionList ?? []).map(value => value.brand + ' ' + value.version).join(', ');
         return (identity.platform ?? 'unknown platform') + ': ' + (brands || 'no brands');
     } catch { return 'identity unavailable'; }

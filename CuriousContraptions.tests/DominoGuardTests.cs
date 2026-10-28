@@ -21,7 +21,7 @@ public sealed class DominoGuardTests
     {
         var result = PuzzleCatalogue.Create(new("domino_effect"), new(2), WorkshopCadenceSettings.Default(), new(1), new(precision));
         for (var i = 0; i < 4; i++)
-            if (i != skip) result = result.WithInstance(PlacedParts.Domino(new((ulong)(4 + i)), -4 + i, Upright + .01, 0, 0, 0, 0, 1));
+            if (i != skip) result = result.WithInstance(PlacedParts.Domino(new((ulong)(4 + i)), (float)(-4 + i), (float)(Upright + .01), 0, 0, 0, 0, 1));
         return wired ? result with { Connections = new(Signal(End, Lamp)) } : result;
     }
 
@@ -128,7 +128,7 @@ public sealed class DominoGuardTests
     [Fact]
     public async Task AnUprightWiredTileStandsAndNeverFires()
     {
-        var bench = Bench([PlacedParts.Domino(new(1), 0, Upright, 0, 0, 0, 0, 1), PlacedParts.Lamp(new(2), 3, 1, 0, 0, 0, 0, 1)], Signal(new(1), new(2)));
+        var bench = Bench([PlacedParts.Domino(new(1), 0, (float)(Upright), 0, 0, 0, 0, 1), PlacedParts.Lamp(new(2), 3, 1, 0, 0, 0, 0, 1)], Signal(new(1), new(2)));
         Assert.Single(WorkshopPhysicsCompiler.Compile(bench, new(1, 2)).OrientationSensors.ToArray());
         var (_, run, _) = await NoFixedCapacityTests.RunAndReset(bench, 480);
         Assert.All(run, read => Assert.Equal(ActivationPhase.Clear, LatchOf(read, new(1)).Phase));
@@ -141,8 +141,8 @@ public sealed class DominoGuardTests
     public async Task ATileTenDegreesOffUprightRocksBackSilentlyAndThirtyDegreesTopplesAndFires(int degrees, bool topples)
     {
         var radians = degrees * Math.PI / 180;
-        var bench = Bench([PlacedParts.Domino(new(1), 0, Floor + .55 * Math.Cos(radians) + .125 * Math.Sin(radians) + .005, 0,
-            0, 0, Math.Sin(radians / 2), Math.Cos(radians / 2)), PlacedParts.Lamp(new(2), 3, 1, 0, 0, 0, 0, 1)], Signal(new(1), new(2)));
+        var bench = Bench([PlacedParts.Domino(new(1), 0, (float)(Floor + .55 * Math.Cos(radians) + .125 * Math.Sin(radians) + .005), 0,
+            0, 0, (float)(Math.Sin(radians / 2)), (float)(Math.Cos(radians / 2))), PlacedParts.Lamp(new(2), 3, 1, 0, 0, 0, 0, 1)], Signal(new(1), new(2)));
         var (_, run, _) = await NoFixedCapacityTests.RunAndReset(bench, 480);
         if (topples)
         {
@@ -161,7 +161,7 @@ public sealed class DominoGuardTests
     [Fact]
     public void AnActivationInputIntoADominoIsRefusedAtTheEditAndSaveBoundaries()
     {
-        var into = Bench([PlacedParts.Lamp(new(1), 3, 1, 0, 0, 0, 0, 1), PlacedParts.Domino(new(2), 0, Upright, 0, 0, 0, 0, 1)], Signal(new(1), new(2)));
+        var into = Bench([PlacedParts.Lamp(new(1), 3, 1, 0, 0, 0, 0, 1), PlacedParts.Domino(new(2), 0, (float)(Upright), 0, 0, 0, 0, 1)], Signal(new(1), new(2)));
         EditRefusal.Is(WorkshopEditRejection.InvalidConnection, into.Validate);
         var builder = new Google.FlatBuffers.FlatBufferBuilder(512);
         var bytes = SaveFixture.Finish(builder, WorkshopWireFlatBuffers.EncodeConstructionRecord(builder, into, validate: false), 3);
@@ -173,12 +173,12 @@ public sealed class DominoGuardTests
     {
         foreach (var y in new[] { 64d, -64d })
         {
-            var bench = Bench([PlacedParts.Domino(new(1), 0, y, 0, 0, 0, 0, 1)]);
+            var bench = Bench([PlacedParts.Domino(new(1), 0, (float)(y), 0, 0, 0, 0, 1)]);
             bench.Validate();
             Assert.Single(WorkshopPhysicsCompiler.Compile(bench, new(1, 2)).Bodies.ToArray(), body => body.Motion == RigidMotionKind.Dynamic);
         }
-        Assert.Throws<ArgumentOutOfRangeException>(() => PlacedParts.Domino(new(1), 0, 64.0001, 0, 0, 0, 0, 1));
-        Assert.Throws<ArgumentOutOfRangeException>(() => PlacedParts.Domino(new(1), 0, -64.0001, 0, 0, 0, 0, 1));
+        Assert.Throws<ArgumentOutOfRangeException>(() => PlacedParts.Domino(new(1), 0, 64.0001f, 0, 0, 0, 0, 1));
+        Assert.Throws<ArgumentOutOfRangeException>(() => PlacedParts.Domino(new(1), 0, -64.0001f, 0, 0, 0, 0, 1));
         // The highest tile is a free dynamic body: it falls.
         var (_, run, _) = await NoFixedCapacityTests.RunAndReset(Bench([PlacedParts.Domino(new(1), 0, 64, 0, 0, 0, 0, 1)]), 60);
         var top = Find(run[^1], new(1));

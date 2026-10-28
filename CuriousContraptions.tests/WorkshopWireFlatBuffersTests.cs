@@ -160,18 +160,18 @@ public sealed class WorkshopWireFlatBuffersTests
     /// <summary>One instance of every encodable kind, each with non-default declared settings where it has any.</summary>
     public static TheoryData<IWorkshopInstance> EveryInstanceKind() => new()
     {
-        WorkshopInput.Generic(PartId.Basketball,new(1), -1.25, 3.5, .5, 0, 0, 0, 1) with { Locked = true },
-        WorkshopInput.Generic(PartId.BowlingBall, new(1), 2, 1, -.5, 0, .7071068, 0, .7071068),
-        WorkshopInput.Generic(PartId.Receiver, new(1), -.7, .55, 0, 0, 0, 0, 1) with
+        WorkshopInput.Generic(PartId.Basketball,new(1), -1.25f, 3.5f, .5f, 0, 0, 0, 1) with { Locked = true },
+        WorkshopInput.Generic(PartId.BowlingBall, new(1), 2, 1, -.5f, 0, .7071068f, 0, .7071068f),
+        WorkshopInput.Generic(PartId.Receiver, new(1), -.7f, .55f, 0, 0, 0, 0, 1) with
             { Parameters = new([new(new("capture_margin"), .05f), new(new("capture_speed_limit"), 2.25f), new(new("capture_dwell"), .24f), new(new("capture_participation"), 1f), new(new("force_support_margin"), 0f), new(new("force_maximum_acceleration"), 0f)]) },
-        WorkshopInput.Generic(PartId.Ramp, new(1), 1, 2, 0, 0, 0, .258819, .9659258, new([new(new("length"), 4f), new(new("width"), 1.5f)])),
+        WorkshopInput.Generic(PartId.Ramp, new(1), 1, 2, 0, 0, 0, .258819f, .9659258f, new([new(new("length"), 4f), new(new("width"), 1.5f)])),
         WorkshopInput.Generic(PartId.Wall, new(1), -1, 4, 0, 0, 0, 0, 1, WallFixture.Values(.4f, 6, 1.5f)),
         WorkshopInput.Generic(PartId.ImpactSwitch, new(1), 0, 1, 0, 0, 0, 0, 1, new([new(new ParameterId("trigger_threshold"), 1.25f)])),
         WorkshopInput.Generic(PartId.Delay, new(1), 0, 1, 0, 0, 0, 0, 1, new InstanceParameterCollection([new(new ParameterId("delay_seconds"), 2.5f)])),
-        PlacedParts.Springboard(new(1), 0, .2, 0, 0, 0, 0, 1, compression: .2f),
+        PlacedParts.Springboard(new(1), 0, .2f, 0, 0, 0, 0, 1, compression: .2f),
         PlacedParts.Battery(new(1), 0, 1, 0, 60f, 30f, .5f, ElectricalEnable.Disabled),
         PlacedParts.Bumper(new(1), 0, 1, 0, strength: 6f),
-        PlacedParts.Domino(new(1), .1, .09, 0, 0, 0, 0, 1),
+        PlacedParts.Domino(new(1), .1f, .09f, 0, 0, 0, 0, 1),
         PlacedParts.Lamp(new(1), 3, 1, 0, 0, 0, 0, 1),
         PlacedParts.Latch(new(1), 0, 1, 0, 0, 0, 0, 1, locked: true),
         WorkshopInput.Pipe(new(1), 0, 1, 0, 0, 0, 0, 1),
@@ -291,7 +291,7 @@ public sealed class WorkshopWireFlatBuffersTests
     public void Construction_CapturedGoal_EncodesDeclaredBodyTargetAndSensor()
     {
         var lesson = PuzzleCatalogue.Create(new PuzzleId("ready_to_rebound"), new(1), WorkshopCadenceSettings.Default(), new(1), new(1f));
-        var replacement = WorkshopInput.Generic(PartId.Receiver, new(4), 2, .55, 0, 0, 0, 0, 1);
+        var replacement = WorkshopInput.Generic(PartId.Receiver, new(4), 2, .55f, 0, 0, 0, 0, 1);
         var construction = PuzzleCatalogue.WithInstance(lesson, replacement);
         var goal = construction.Puzzle.Goal;
         Assert.Equal(new GpuBodyId(1), goal.Body);

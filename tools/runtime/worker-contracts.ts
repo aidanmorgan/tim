@@ -4,14 +4,14 @@ export interface ManagedHost {
     ScheduleRoles(): number[];
     ClockDerivationProfile(): number[];
     ClockDerivationQualified(): boolean;
-    QualifyClockDerivation(before: number, master: number, after: number, epoch: number): void;
+    QualifyClockDerivation(exchange: Uint8Array): void;
     ClockDerivationQualificationMissed(): void;
     AdoptClockDerivation(epoch: number): void;
-    ClockDerivationStartupCorrection(): number;
-    ClockDerivationExchangeNarrow(before: number, master: number, after: number, epoch: number): boolean;
+    ClockDerivationStartupCorrection(): Uint8Array;
+    ClockDerivationExchangeNarrow(exchange: Uint8Array): boolean;
     ClockDerivationRetried(): void;
     ClockDerivationMissed(): void;
-    CheckClockDerivation(before: number, master: number, after: number, epoch: number): number[];
+    CheckClockDerivation(exchange: Uint8Array): Uint8Array;
     FlushObservation(): void;
     AcknowledgeRead(receipt: Uint8Array): void;
     ResumeTurn(turn: number): void;
@@ -42,8 +42,8 @@ export interface ManagedImports {
     dispose(): void;
 }
 export interface ManagedRuntime {
-    setModuleImports(name: string, imports: ManagedImports): void;
-    getAssemblyExports(name: string): Promise<{ CuriousContraptions: { Simulation: { Program: ManagedHost } } }>;
+    setModuleImports<T = ManagedImports>(name: string, imports: T): void;
+    getAssemblyExports<T = { CuriousContraptions: { Simulation: { Program: ManagedHost } } }>(name: string): Promise<T>;
     getConfig(): { mainAssemblyName: string };
 }
 export interface ClockRing {
@@ -53,4 +53,4 @@ export interface ClockRing {
     wide: BigInt64Array<SharedArrayBuffer>;
     view: DataView<SharedArrayBuffer>;
 }
-export interface ClockExchange { before: number; master: number; after: number; epoch: number; }
+export interface ClockExchange { before: bigint; master: bigint; after: bigint; epoch: number; }

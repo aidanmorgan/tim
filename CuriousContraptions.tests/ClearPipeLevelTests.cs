@@ -47,7 +47,7 @@ public sealed class ClearPipeLevelTests
         var construction = Lesson(0f);
         construction.Validate();
 
-        var pipe = WorkshopInput.Pipe(new(3), 0, 3, 0, 0.7071068, 0, 0, 0.7071068);
+        var pipe = WorkshopInput.Pipe(new(3), 0, 3, 0, 0.7071068f, 0, 0, 0.7071068f);
         var placed = construction.WithInstance(pipe);
         placed.Validate();
 
@@ -102,7 +102,7 @@ public sealed class ClearPipeLevelTests
     public void CompilerEmitsCompoundCollidersAndSensors()
     {
         var construction = Lesson(0.45f);
-        var pipe = WorkshopInput.Pipe(new(3), 0, 3, 0, 0.7071068, 0, 0, 0.7071068);
+        var pipe = WorkshopInput.Pipe(new(3), 0, 3, 0, 0.7071068f, 0, 0, 0.7071068f);
         var placed = construction.WithInstance(pipe);
 
         var scene = WorkshopPhysicsCompiler.Compile(placed, new(1, 2));

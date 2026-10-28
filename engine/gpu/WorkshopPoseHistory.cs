@@ -1,10 +1,11 @@
+using CuriousContraptions.Abstractions;
 using System;
 
 namespace CuriousContraptions.Gpu;
 
 public enum PresentationBoundary { Continuous, Seed, Run, Completed }
 public enum PresentationQuality { AwaitingHistory, Interpolated, ClockInvalid, Stale, Terminal, Faulted, Retired }
-public readonly record struct PresentationSimulationTime(double Seconds);
+public readonly record struct PresentationSimulationTime(PhysicalTime Time);
 public readonly record struct PresentedBody(GpuBodyId Id, CellOrigin Cell, LocalPosition Local, CanonicalRotation Rotation);
 public readonly record struct WorkshopPresentationSample(PresentedBodySet Bodies, MonotonicNanoseconds? DisplayWall,
     PresentationSimulationTime SimulationTime, PresentationQuality Quality, WorkshopPresentationEvidence Evidence = default, PhysicsCaptureRead Captures = default, WorkshopClockStamp? FeedbackCapture = null, PhysicsActivationRead Activations = default, PhysicsTimerRead Timers = default);
@@ -26,7 +27,7 @@ public sealed class WorkshopPoseHistory
     private sbyte _latest = -1, _terminal = -1;
     private ulong _version, _clockEpoch, _displayEpoch;
     private long _displayWall;
-    private double _simulationTime;
+    private PhysicalTime _simulationTime;
     private bool _dirty, _retired, _displayTimingValid;
     private WorkshopSimulationPhase _phase;
     private WorkshopSchedule? _schedule;
@@ -60,7 +61,8 @@ public sealed class WorkshopPoseHistory
     };
 
     private WorkshopSchedule Schedule => _schedule ?? throw new InvalidOperationException("Presentation schedule is not installed.");
-    private double SimulationFrequency => Schedule.Settings.SimulationRate.Numerator;
+    private uint Substeps => Schedule.Settings.PhysicalStepsPerCommit;
+    private PhysicalTime TickTime(SimulationTick tick) => new(checked(tick.Value * Substeps));
 
     public readonly struct Prepared
     {
@@ -151,7 +153,7 @@ public sealed class WorkshopPoseHistory
         if (prepared.Reseed)
         {
             Array.Clear(_entries); _count = _next = 0; _latest = _terminal = -1;
-            _simulationTime = prepared.Response.Read.Tick.Value / SimulationFrequency;
+            _simulationTime = TickTime(prepared.Response.Read.Tick);
         }
         int index = prepared.ReplaceLatest && _latest >= 0 ? _latest : _next;
         if (_terminal == index) _terminal = -1;
@@ -207,7 +209,7 @@ public sealed class WorkshopPoseHistory
             selectedBefore = selectedAfter = entry;
             _displayTimingValid = wall is not null;
             _displayEpoch = _displayTimingValid ? _clockEpoch : 0;
-            _simulationTime = endpoint.Tick.Value / SimulationFrequency;
+            _simulationTime = TickTime(endpoint.Tick);
             Quality = PresentationQuality.Terminal;
             if (wall is { } mappedWall) _displayWall = mappedWall.Value;
             sample = new(Pose(endpoint), wall, new(_simulationTime), Quality, Captures: endpoint.Captures, FeedbackCapture: endpoint.Capture, Activations: endpoint.Activations, Timers: endpoint.Timers);
@@ -220,16 +222,16 @@ public sealed class WorkshopPoseHistory
         var requestedMaster = selectedMaster.Value - DelayNanoseconds;
         if (requestedMaster < Schedule.World.AnchorMaster.Value)
         { Quality = PresentationQuality.AwaitingHistory; return false; }
-        var requestedTick = Schedule.World.AnchorTick.Value +
-            (double)(requestedMaster - Schedule.World.AnchorMaster.Value) * SimulationFrequency / WorkshopPulse.NanosecondsPerSecond;
+        var requestedTime = TickTime(Schedule.World.AnchorTick).AddElapsed(default,
+            PhysicalTime.FromNanoseconds(requestedMaster - Schedule.World.AnchorMaster.Value));
         Entry? before = null, after = null;
         for (var i = 0; i < _count; i++)
         {
             var item = _entries[i];
             if (item.Mapped is null) continue;
             var tick = item.Response.Read.Tick.Value;
-            if (tick <= requestedTick && (before is null || tick > before.Value.Response.Read.Tick.Value)) before = item;
-            if (tick >= requestedTick && (after is null || tick < after.Value.Response.Read.Tick.Value)) after = item;
+            if (TickTime(new(tick)) <= requestedTime && (before is null || tick > before.Value.Response.Read.Tick.Value)) before = item;
+            if (TickTime(new(tick)) >= requestedTime && (after is null || tick < after.Value.Response.Read.Tick.Value)) after = item;
         }
         if (before is not { } first || after is not { } last)
         {
@@ -241,19 +243,19 @@ public sealed class WorkshopPoseHistory
         if (b < a || last.Response.Read.Tick.Value < first.Response.Read.Tick.Value ||
             (a == b && last.Response.Read.Tick != first.Response.Read.Tick))
         { Quality = PresentationQuality.AwaitingHistory; return false; }
-        var fraction = first.Response.Read.Tick == last.Response.Read.Tick ? 0 :
-            (requestedTick - first.Response.Read.Tick.Value) / (last.Response.Read.Tick.Value - first.Response.Read.Tick.Value);
-        var timeSeconds = requestedTick / SimulationFrequency;
+        var fraction = first.Response.Read.Tick == last.Response.Read.Tick ? 0f :
+            requestedTime.SecondsSince(TickTime(first.Response.Read.Tick)) /
+            TickTime(last.Response.Read.Tick).SecondsSince(TickTime(first.Response.Read.Tick));
         var requested = checked(a + (long)((b - a) * fraction));
-        if (!double.IsFinite(timeSeconds) || timeSeconds < _simulationTime || requested < _displayWall)
+        if (requestedTime < _simulationTime || requested < _displayWall)
         { Quality = PresentationQuality.AwaitingHistory; return false; }
-        if (!TrySampleWorld(first.Response.Read, last.Response.Read, requestedTick, out var body))
+        if (!TrySampleWorld(first.Response.Read, last.Response.Read, requestedTime, Substeps, out var body))
         { Quality = PresentationQuality.AwaitingHistory; return false; }
         selectedBefore = first; selectedAfter = last;
         _displayTimingValid = true; _displayEpoch = _clockEpoch;
-        _displayWall = requested; _simulationTime = timeSeconds;
+        _displayWall = requested; _simulationTime = requestedTime;
         Quality = LatestAge(now) > StaleNanoseconds ? PresentationQuality.Stale : PresentationQuality.Interpolated;
-        sample = new(body, new(requested), new(timeSeconds), Quality, Captures: first.Response.Read.Captures,
+        sample = new(body, new(requested), new(requestedTime), Quality, Captures: first.Response.Read.Captures,
             FeedbackCapture: first.Response.Read.Capture, Activations: first.Response.Read.Activations, Timers: first.Response.Read.Timers);
         return true;
     }
@@ -277,23 +279,25 @@ public sealed class WorkshopPoseHistory
         return new(poses);
     }
 
-    public static bool TrySampleWorld(WorkshopRead from, WorkshopRead to, double requestedTick, out PresentedBodySet poses)
+    public static bool TrySampleWorld(WorkshopRead from, WorkshopRead to, PhysicalTime requestedTime, uint substeps, out PresentedBodySet poses)
     {
-        if (!double.IsFinite(requestedTick) || requestedTick < from.Tick.Value || requestedTick > to.Tick.Value ||
+        if (substeps is not (2 or 4 or 8) ||
+            requestedTime < new PhysicalTime(checked(from.Tick.Value * substeps)) ||
+            requestedTime > new PhysicalTime(checked(to.Tick.Value * substeps)) ||
             from.Epoch != to.Epoch || from.Bodies.Count != to.Bodies.Count)
             throw new ArgumentException("Invalid committed motion selection.");
         for (var i = 0; i < from.Bodies.Count; i++)
             if (from.Bodies[i].Body.Id != to.Bodies[i].Body.Id)
                 throw new ArgumentException("Motion body identity changed.");
-        if (requestedTick == from.Tick.Value) { poses = Pose(from); return true; }
-        if (requestedTick == to.Tick.Value) { poses = Pose(to); return true; }
+        if (requestedTime == new PhysicalTime(checked(from.Tick.Value * substeps))) { poses = Pose(from); return true; }
+        if (requestedTime == new PhysicalTime(checked(to.Tick.Value * substeps))) { poses = Pose(to); return true; }
         poses = default;
         if (to.Tick.Value != from.Tick.Value + 1) return false;
         if (from.Bodies.Count == 0) return true;
         if (to.Motion is not { } motion) return false;
         var values = new PresentedBody[to.Bodies.Count];
         for (var i = 0; i < to.Bodies.Count; i++)
-            if (!motion.TrySample(to.Bodies[i].Body.Id, requestedTick * motion.Substeps, out values[i]))
+            if (!motion.TrySample(to.Bodies[i].Body.Id, requestedTime, out values[i]))
                 return false;
         poses = new(values); return true;
     }

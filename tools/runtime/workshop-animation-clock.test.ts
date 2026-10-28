@@ -1,3 +1,6 @@
+interface AnimationImports { probe(bytes: Uint8Array): void; output(bytes: Uint8Array): void; qualified(): void; }
+interface Posted { failure?: boolean; animationOutput: Uint8Array; }
+interface WorkerSelf { postMessage(value: Posted, transfer?: ArrayBuffer[]): void; close(): void; onmessage(event: { data: unknown }): void; }
 // Murdoch-2 R2-F2 (Story 9.4b): the Animation worker's clock-ring cleanup, run against the shipped worker.js. A disposed
 // worker holds no clock ring (it refuses to probe it), and a reply the master writes after disposal (the probe was already
 // waiting) never reaches the managed host.
@@ -6,48 +9,48 @@ import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 import vm from 'node:vm';
 import { MessageChannel, MessagePort } from 'node:worker_threads';
-import * as clockRing from '../CuriousContraptions.web/wwwroot/clock-ring.js';
-import * as eventRingCursor from '../CuriousContraptions.web/wwwroot/event-ring-cursor.js';
+import * as clockRing from '../../CuriousContraptions.web/wwwroot/clock-ring.js';
+import * as eventRingCursor from '../../CuriousContraptions.web/wwwroot/event-ring-cursor.js';
 
-const source = await readFile(new URL('../CuriousContraptions.Animation.Worker/wwwroot/worker.js', import.meta.url), 'utf8');
+const source = await readFile('CuriousContraptions.Animation.Worker/wwwroot/worker.js', 'utf8');
 const settle = () => new Promise(resolve => setTimeout(resolve, 20));
 
 // The Animation peer as the master expects it: requester role Animation (3) at 56, master role Simulation (2) at 60.
 const peer = new Uint8Array(clockRing.PeerBytes);
 new DataView(peer.buffer).setUint32(56, clockRing.ClockRole.Animation, true);
 new DataView(peer.buffer).setUint32(60, clockRing.ClockRole.Simulation, true);
-function probe(sequence) {
+function probe(sequence: number) {
     const bytes = new Uint8Array(clockRing.ProbeBytes), view = new DataView(bytes.buffer);
     bytes.set(peer, 0); view.setBigUint64(64, BigInt(sequence), true); view.setBigInt64(72, 0n, true);
     return bytes;
 }
 
 async function animationWorker() {
-    let imports, service;
-    const replies = [], controls = [], reads = [], messages = [], turns = [], channel = new MessageChannel(), ring = clockRing.createClockRing();
+    let imports!: AnimationImports, service!: () => void;
+    const replies: Uint8Array[] = [], controls: Uint8Array[] = [], reads: Uint8Array[] = [], messages: Posted[] = [], turns: (string | Uint8Array)[] = [], channel = new MessageChannel(), ring = clockRing.createClockRing();
     // Story 9A.23: the installed epoch the reader may consume, and each turn's managed calls in order. EventRecords refuses a delivery of
     // another epoch exactly as WorkshopDeclaredPresentation.AcceptEvents does ("Foreign event ring epoch."), so a leak faults the worker.
     const installed = { epoch: 0 };
     const host = {
         OutputKinds: () => [1, 2, 3], Bootstrap: () => {}, AnimationControl: () => {}, Service: () => turns.push('Service'),
-        Reply: bytes => replies.push(bytes),
-        ScheduleControl: bytes => controls.push(bytes), CommittedRead: bytes => reads.push(bytes),
-        EventEpoch: () => installed.epoch, EventRecords: bytes => {
+        Reply: (bytes: Uint8Array) => replies.push(bytes),
+        ScheduleControl: (bytes: Uint8Array) => controls.push(bytes), CommittedRead: (bytes: Uint8Array) => reads.push(bytes),
+        EventEpoch: () => installed.epoch.toString(), EventRecords: (bytes: Uint8Array) => {
             if (new DataView(bytes.buffer, bytes.byteOffset, 8).getBigUint64(0, true) !== BigInt(installed.epoch))
                 throw new Error('Foreign event ring epoch.');
             turns.push(bytes);
         }
     };
     const runtime = {
-        setModuleImports: (_, value) => { imports = value; },
+        setModuleImports: (_: string, value: AnimationImports) => { imports = value; },
         getAssemblyExports: async () => ({ CuriousContraptions: { Animation: { Worker: { Program: host } } } }),
         getConfig: () => ({ mainAssemblyName: 'AnimationClockControl' })
     };
-    const self = { postMessage: (value, transfer = []) => messages.push(structuredClone(value, { transfer })), close: () => {} };
+    const self: WorkerSelf = { onmessage: () => {}, postMessage: (value, transfer = []) => messages.push(structuredClone(value, { transfer })), close: () => {} };
     const context = vm.createContext({ self, Uint8Array, Float64Array, DataView, ArrayBuffer, MessagePort, SharedArrayBuffer,
-        Number, Error, Map, BigInt, console, setInterval: callback => { service = callback; return 1; }, clearInterval: () => {} });
+        Number, Error, Map, BigInt, console, setInterval: (callback: () => void) => { service = callback; return 1; }, clearInterval: () => {} });
     const module = new vm.SourceTextModule(source, { context });
-    const synthetic = (names, values) => new vm.SyntheticModule(names, function () { for (const name of names) this.setExport(name, values[name]); }, { context });
+    const synthetic = (names: string[], values: Record<string, unknown>) => new vm.SyntheticModule(names, function () { for (const name of names) this.setExport(name, values[name]); }, { context });
     await module.link(name => {
         if (name === './_framework/dotnet.js') return synthetic(['dotnet'], { dotnet: { create: async () => runtime } });
         if (name === '../native-clock.js') return synthetic(['admitNativeClock', 'nativeNow', 'nativeClockEvidence'],
@@ -61,8 +64,8 @@ async function animationWorker() {
     const master = clockRing.attachClockRing(ring);
     return {
         imports, replies, controls, reads, messages, self, turns, installed, turn: () => service(),
-        send: message => channel.port2.postMessage(message),
-        serve: () => clockRing.serveRequests(master, { [clockRing.ClockRole.Animation]: peer }, () => 1),
+        send: (message: unknown) => channel.port2.postMessage(message),
+        serve: () => clockRing.serveRequests(master, { [clockRing.ClockRole.Animation]: peer }, () => 1_000_000n),
         close: () => channel.port2.close()
     };
 }
@@ -94,7 +97,7 @@ test('a clock reply landing after the Animation worker was disposed never reache
 
 // Story 9A.23 D1/D5: the Simulation worker posts each event ring on the master port; every Service turn first takes the whole records
 // committed since this worker's own cursor (the shared reader), only while the ring's epoch is the installed one, then services.
-function eventRing(epoch, sequences) {
+function eventRing(epoch: bigint, sequences: bigint[]) {
     const buffer = new SharedArrayBuffer(64 + 4 * 64), view = new DataView(buffer);
     view.setUint32(0, 4, true); view.setUint32(4, 64, true); view.setBigUint64(8, epoch, true);
     for (const sequence of sequences) view.setBigUint64(64 + Number((sequence - 1n) % 4n) * 64, sequence, true);
@@ -110,8 +113,9 @@ test('each Service turn first delivers the new records of the installed epoch, o
     worker.installed.epoch = 5; worker.turns.length = 0;
     worker.turn();
     assert.equal(worker.turns.length, 2); assert.equal(worker.turns[1], 'Service', 'the records precede the turn\'s evaluation');
-    const delivery = new DataView(worker.turns[0].buffer, worker.turns[0].byteOffset, worker.turns[0].byteLength);
-    assert.deepEqual([delivery.getBigUint64(0, true), delivery.getBigUint64(8, true), worker.turns[0].length,
+    const records: unknown = worker.turns[0]; assert.ok(records instanceof Uint8Array);
+    const delivery = new DataView(records.buffer, records.byteOffset, records.byteLength);
+    assert.deepEqual([delivery.getBigUint64(0, true), delivery.getBigUint64(8, true), records.length,
         delivery.getBigUint64(16, true), delivery.getBigUint64(80, true)], [5n, 0n, 16 + 128, 1n, 2n]);
     worker.turns.length = 0; worker.turn();
     assert.deepEqual(worker.turns, ['Service'], 'nothing new: no delivery, and no record twice');

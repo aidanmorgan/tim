@@ -4,16 +4,20 @@
   </PropertyGroup>
   <ItemGroup>
     <RuntimeTypeScriptHarness Include="$(RuntimeTypeScriptRoot)tools/runtime/**/*.ts" Exclude="$(RuntimeTypeScriptRoot)tools/runtime/**/*.d.ts" />
-    <RuntimeTypeScriptSource Include="$(RuntimeTypeScriptRoot)CuriousContraptions.Simulation/wwwroot/worker.ts;$(RuntimeTypeScriptRoot)CuriousContraptions.web/wwwroot/event-ring-cursor.ts;$(RuntimeTypeScriptRoot)CuriousContraptions.web/wwwroot/workshop-client.ts;$(RuntimeTypeScriptRoot)tools/runtime/**/*.ts" />
+    <RuntimeTypeScriptSource Include="$(RuntimeTypeScriptRoot)CuriousContraptions.Animation.Worker/wwwroot/worker.ts;$(RuntimeTypeScriptRoot)CuriousContraptions.Simulation/wwwroot/clock-master.ts;$(RuntimeTypeScriptRoot)CuriousContraptions.web/wwwroot/clock-ring.ts;$(RuntimeTypeScriptRoot)CuriousContraptions.web/wwwroot/native-clock.ts;$(RuntimeTypeScriptRoot)CuriousContraptions.Simulation/wwwroot/worker.ts;$(RuntimeTypeScriptRoot)CuriousContraptions.web/wwwroot/event-ring-cursor.ts;$(RuntimeTypeScriptRoot)CuriousContraptions.web/wwwroot/workshop-client.ts;$(RuntimeTypeScriptRoot)tools/runtime/**/*.ts" />
   </ItemGroup>
   <!-- Explicit entries exist at evaluation even when generated JS does not yet exist. -->
   <ItemGroup Condition="'$(MSBuildProjectName)' == 'CuriousContraptions.Simulation'">
-    <WasmExtraFilesToDeploy Remove="wwwroot/worker.js" />
-    <WasmExtraFilesToDeploy Include="wwwroot/worker.js" />
+    <WasmExtraFilesToDeploy Remove="wwwroot/worker.js;wwwroot/clock-master.js" />
+    <WasmExtraFilesToDeploy Include="wwwroot/worker.js;wwwroot/clock-master.js" />
   </ItemGroup>
   <ItemGroup Condition="'$(MSBuildProjectName)' == 'CuriousContraptions.web'">
-    <WasmExtraFilesToDeploy Remove="wwwroot/event-ring-cursor.js;wwwroot/workshop-client.js" />
-    <WasmExtraFilesToDeploy Include="wwwroot/event-ring-cursor.js;wwwroot/workshop-client.js" />
+    <WasmExtraFilesToDeploy Remove="wwwroot/event-ring-cursor.js;wwwroot/workshop-client.js;wwwroot/clock-ring.js;wwwroot/native-clock.js" />
+    <WasmExtraFilesToDeploy Include="wwwroot/event-ring-cursor.js;wwwroot/workshop-client.js;wwwroot/clock-ring.js;wwwroot/native-clock.js" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(MSBuildProjectName)' == 'CuriousContraptions.Animation.Worker'">
+    <WasmExtraFilesToDeploy Remove="wwwroot/worker.js" />
+    <WasmExtraFilesToDeploy Include="wwwroot/worker.js" />
   </ItemGroup>
   <Target Name="RestoreRuntimeTypeScript" Condition="'$(MSBuildProjectName)' == 'CuriousContraptions.Abstractions'"
           Inputs="$(RuntimeTypeScriptRoot)package.json;$(RuntimeTypeScriptRoot)package-lock.json"
@@ -24,7 +28,7 @@
   <Target Name="BuildRuntimeTypeScript" BeforeTargets="BeforeBuild" DependsOnTargets="RestoreRuntimeTypeScript"
           Condition="'$(MSBuildProjectName)' == 'CuriousContraptions.Abstractions'"
           Inputs="@(RuntimeTypeScriptSource);$(RuntimeTypeScriptRoot)tsconfig.runtime.json;$(RuntimeTypeScriptRoot)package-lock.json;$(MSBuildThisFileFullPath)"
-          Outputs="$(RuntimeTypeScriptRoot)CuriousContraptions.Simulation/wwwroot/worker.js;$(RuntimeTypeScriptRoot)CuriousContraptions.web/wwwroot/event-ring-cursor.js;$(RuntimeTypeScriptRoot)CuriousContraptions.web/wwwroot/workshop-client.js;@(RuntimeTypeScriptHarness->'$(RuntimeTypeScriptRoot).runtime-build/tools/runtime/%(RecursiveDir)%(Filename).js')">
+          Outputs="$(RuntimeTypeScriptRoot)CuriousContraptions.Animation.Worker/wwwroot/worker.js;$(RuntimeTypeScriptRoot)CuriousContraptions.Simulation/wwwroot/clock-master.js;$(RuntimeTypeScriptRoot)CuriousContraptions.web/wwwroot/clock-ring.js;$(RuntimeTypeScriptRoot)CuriousContraptions.web/wwwroot/native-clock.js;$(RuntimeTypeScriptRoot)CuriousContraptions.Simulation/wwwroot/worker.js;$(RuntimeTypeScriptRoot)CuriousContraptions.web/wwwroot/event-ring-cursor.js;$(RuntimeTypeScriptRoot)CuriousContraptions.web/wwwroot/workshop-client.js;@(RuntimeTypeScriptHarness->'$(RuntimeTypeScriptRoot).runtime-build/tools/runtime/%(RecursiveDir)%(Filename).js')">
     <Exec WorkingDirectory="$(RuntimeTypeScriptRoot)" Command="npm run build:runtime" />
     <Copy SourceFiles="$(RuntimeTypeScriptRoot).runtime-build/CuriousContraptions.Simulation/wwwroot/worker.js"
           DestinationFiles="$(RuntimeTypeScriptRoot)CuriousContraptions.Simulation/wwwroot/worker.js" />
@@ -32,8 +36,12 @@
           DestinationFiles="$(RuntimeTypeScriptRoot)CuriousContraptions.web/wwwroot/event-ring-cursor.js" />
     <Copy SourceFiles="$(RuntimeTypeScriptRoot).runtime-build/CuriousContraptions.web/wwwroot/workshop-client.js"
           DestinationFiles="$(RuntimeTypeScriptRoot)CuriousContraptions.web/wwwroot/workshop-client.js" />
+    <Copy SourceFiles="$(RuntimeTypeScriptRoot).runtime-build/CuriousContraptions.Animation.Worker/wwwroot/worker.js" DestinationFiles="$(RuntimeTypeScriptRoot)CuriousContraptions.Animation.Worker/wwwroot/worker.js" />
+    <Copy SourceFiles="$(RuntimeTypeScriptRoot).runtime-build/CuriousContraptions.Simulation/wwwroot/clock-master.js" DestinationFiles="$(RuntimeTypeScriptRoot)CuriousContraptions.Simulation/wwwroot/clock-master.js" />
+    <Copy SourceFiles="$(RuntimeTypeScriptRoot).runtime-build/CuriousContraptions.web/wwwroot/clock-ring.js" DestinationFiles="$(RuntimeTypeScriptRoot)CuriousContraptions.web/wwwroot/clock-ring.js" />
+    <Copy SourceFiles="$(RuntimeTypeScriptRoot).runtime-build/CuriousContraptions.web/wwwroot/native-clock.js" DestinationFiles="$(RuntimeTypeScriptRoot)CuriousContraptions.web/wwwroot/native-clock.js" />
     <ItemGroup>
-      <FileWrites Include="$(RuntimeTypeScriptRoot).runtime-build/**/*.js;$(RuntimeTypeScriptRoot)CuriousContraptions.Simulation/wwwroot/worker.js;$(RuntimeTypeScriptRoot)CuriousContraptions.web/wwwroot/event-ring-cursor.js;$(RuntimeTypeScriptRoot)CuriousContraptions.web/wwwroot/workshop-client.js" />
+      <FileWrites Include="$(RuntimeTypeScriptRoot)CuriousContraptions.Animation.Worker/wwwroot/worker.js;$(RuntimeTypeScriptRoot)CuriousContraptions.Simulation/wwwroot/clock-master.js;$(RuntimeTypeScriptRoot)CuriousContraptions.web/wwwroot/clock-ring.js;$(RuntimeTypeScriptRoot)CuriousContraptions.web/wwwroot/native-clock.js;$(RuntimeTypeScriptRoot).runtime-build/**/*.js;$(RuntimeTypeScriptRoot)CuriousContraptions.Simulation/wwwroot/worker.js;$(RuntimeTypeScriptRoot)CuriousContraptions.web/wwwroot/event-ring-cursor.js;$(RuntimeTypeScriptRoot)CuriousContraptions.web/wwwroot/workshop-client.js" />
     </ItemGroup>
   </Target>
 </Project>

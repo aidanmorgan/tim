@@ -7,7 +7,7 @@ namespace CuriousContraptions.Tests;
 public sealed class WorkshopWallTests
 {
     private static WorkshopGenericInstance Wall(InstanceParameterCollection dimensions) =>
-        WorkshopInput.Generic(PartId.Wall, new(2), .125, 2, -.25, 0, 0, .382683432365, .923879532511, dimensions);
+        WorkshopInput.Generic(PartId.Wall, new(2), .125f, 2, -.25f, 0, 0, .382683432365f, .923879532511f, dimensions);
     private static WorkshopSavedConstruction Saved(InstanceParameterCollection dimensions) =>
         new(new(new(1), WorkshopCadenceSettings.Default(), new(Wall(dimensions))), new(3));
 
@@ -89,9 +89,9 @@ public sealed class WorkshopWallTests
     public void RealSimulationRotatedWallBlocksMovingBallWhileAbsentWallDoesNot(float yaw, float speed)
     {
         var normal = new System.Numerics.Vector3(MathF.Sin(yaw), 0, MathF.Cos(yaw));
-        var wall = WorkshopInput.Generic(PartId.Wall, new(2), 0, 3, 0, 0, MathF.Sin(yaw / 2), 0, MathF.Cos(yaw / 2),
+        var wall = WorkshopInput.Generic(PartId.Wall, new(2), 0, 3, 0, 0, (float)(MathF.Sin(yaw / 2)), 0, (float)(MathF.Cos(yaw / 2)),
             WallFixture.Values(3, 6, .25f));
-        var ball = WorkshopInput.Generic(PartId.Basketball,new(1), -2 * normal.X, 3, -2 * normal.Z, 0, 0, 0, 1);
+        var ball = WorkshopInput.Generic(PartId.Basketball,new(1), (float)(-2 * normal.X), 3, (float)(-2 * normal.Z), 0, 0, 0, 1);
         float Probe(bool includeWall)
         {
             var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(),

@@ -235,7 +235,7 @@ public partial class MachineWorld
             {
                 var writes = _physicalPresentation.Apply(_parts, GlobalTransform, presentation.Bodies);
                 _workshopPresentation = presentation;
-                DisplaySimulationTime = presentation.SimulationTime.Seconds;
+                DisplaySimulationTime = presentation.SimulationTime.Time;
                 var writeFrame = Engine.GetProcessFrames();
                 if (writeFrame != _workshopWriteFrame) { _workshopWriteFrame = writeFrame; _workshopPositionWrites = 0; }
                 _workshopPositionWrites = checked(_workshopPositionWrites + writes);

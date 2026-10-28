@@ -1,3 +1,4 @@
+using CuriousContraptions.Abstractions;
 using System;
 
 namespace CuriousContraptions.Presentation;
@@ -28,45 +29,45 @@ internal sealed class AnimationOscillationState
     private readonly AnimationOscillationDefinition _definition;
     private AnimationValue _position;
     private AnimationVelocity _velocity;
-    private double _at; // External clock timestamp of the canonical anchor.
+    private PhysicalTime _at;
     private bool _frozen;
     private ulong _accepted;
     private AnimationOccurrenceId _last;
     public AnimationOscillationState(AnimationOscillationDefinition definition)
     {
         _definition=definition;
-        _position=AnimationValue.Narrow(definition.VelocityPerStrength.Property,0);
-        _velocity=AnimationVelocity.Narrow(definition.VelocityPerStrength.Property,0);
+        _position=AnimationValue.FromScalar(definition.VelocityPerStrength.Property,0);
+        _velocity=AnimationVelocity.FromScalar(definition.VelocityPerStrength.Property,0);
     }
-    public void ValidateTime(double time)
+    public void ValidateTime(PhysicalTime time)
     {
-        if(!double.IsFinite(time)||time<_at)throw new ArgumentOutOfRangeException(nameof(time));
+        ArgumentOutOfRangeException.ThrowIfLessThan(time,_at);
         _=AnimationNumbers.Elapsed(time,_at);
     }
-    public AnimationOscillationRead Read(double time) => Evaluate(time,out _);
-    public AnimationOscillationRead Evaluate(double time,out bool completed)
+    public AnimationOscillationRead Read(PhysicalTime time) => Evaluate(time,out _);
+    public AnimationOscillationRead Evaluate(PhysicalTime time,out bool completed)
     {
         ValidateTime(time);
         completed=_frozen||(_position.Number==0&&_velocity.Number==0);
-        if(_frozen)return new(_position,AnimationVelocity.Narrow(_velocity.Property,0),_accepted,_last);
+        if(_frozen)return new(_position,AnimationVelocity.FromScalar(_velocity.Property,0),_accepted,_last);
         var elapsed=AnimationNumbers.Elapsed(time,_at);
-        var decayRate=(double)_definition.Decay.Value;
-        var frequency=(double)_definition.Frequency.Value;
-        var decay=Math.Exp(-decayRate*elapsed);
+        var decayRate=_definition.Decay.Value;
+        var frequency=_definition.Frequency.Value;
+        var decay=MathF.Exp(-decayRate*elapsed);
         if(decay==0)
         {
             completed=true;
-            return new(AnimationValue.Narrow(_position.Property,0),
-                AnimationVelocity.Narrow(_velocity.Property,0),_accepted,_last);
+            return new(AnimationValue.FromScalar(_position.Property,0),
+                AnimationVelocity.FromScalar(_velocity.Property,0),_accepted,_last);
         }
-        var phase=(elapsed%(Math.Tau/frequency))*frequency;
-        var cosine=Math.Cos(phase);var sine=Math.Sin(phase);
+        var phase=time.PeriodicPhaseSince(_at,MathF.Tau/frequency,1)*MathF.Tau;
+        var cosine=MathF.Cos(phase);var sine=MathF.Sin(phase);
         var a=_position.Number;var b=(_velocity.Number+decayRate*a)/frequency;
-        return new(AnimationValue.Narrow(_position.Property,decay*(a*cosine+b*sine)),
-            AnimationVelocity.Narrow(_velocity.Property,decay*((frequency*b-decayRate*a)*cosine+
+        return new(AnimationValue.FromScalar(_position.Property,decay*(a*cosine+b*sine)),
+            AnimationVelocity.FromScalar(_velocity.Property,decay*((frequency*b-decayRate*a)*cosine+
                 (-frequency*a-decayRate*b)*sine)),_accepted,_last);
     }
-    private AnimationOscillationRead Candidate(AnimationOccurrenceId occurrence,AnimationSignedStrength strength,double time)
+    private AnimationOscillationRead Candidate(AnimationOccurrenceId occurrence,AnimationSignedStrength strength,PhysicalTime time)
     {
         if(occurrence.Value==0||occurrence.Value<=_last.Value)
             throw new ArgumentException("Oscillation occurrences must increase within their binding.");
@@ -76,32 +77,32 @@ internal sealed class AnimationOscillationState
         var state=Read(time);
         // Round BOTH new anchors first. The future envelope belongs to these exact stored bits.
         var position=state.Position;
-        var velocity=AnimationVelocity.Narrow(_velocity.Property,
-            state.Velocity.Number+_definition.VelocityPerStrength.Number*(double)strength.Value);
+        var velocity=AnimationVelocity.FromScalar(_velocity.Property,
+            state.Velocity.Number+_definition.VelocityPerStrength.Number*strength.Value);
         ValidateEnvelope(position,velocity);
         return new(position,velocity,_accepted+1,occurrence);
     }
     private void ValidateEnvelope(AnimationValue position,AnimationVelocity velocity)
     {
-        var decay=(double)_definition.Decay.Value;var frequency=(double)_definition.Frequency.Value;
+        var decay=_definition.Decay.Value;var frequency=_definition.Frequency.Value;
         var a=position.Number;var b=(velocity.Number+decay*a)/frequency;
         var c=frequency*b-decay*a;var d=-frequency*a-decay*b;
         // Finite float displacement/velocity profile; no amplitude clipping or wider retained anchor.
-        if(Math.Sqrt(a*a+b*b)>(double)float.MaxValue||Math.Sqrt(c*c+d*d)>(double)float.MaxValue)
+        if(!float.IsFinite(float.Hypot(a,b))||!float.IsFinite(float.Hypot(c,d)))
             throw new ArgumentOutOfRangeException(nameof(velocity),"Canonical oscillation anchors exceed the supported envelope.");
     }
-    public void ValidateKick(AnimationOccurrenceId occurrence,AnimationSignedStrength strength,double time)
+    public void ValidateKick(AnimationOccurrenceId occurrence,AnimationSignedStrength strength,PhysicalTime time)
         => _=Candidate(occurrence,strength,time);
-    public void Kick(AnimationOccurrenceId occurrence,AnimationSignedStrength strength,double time)
+    public void Kick(AnimationOccurrenceId occurrence,AnimationSignedStrength strength,PhysicalTime time)
     {
         var candidate=Candidate(occurrence,strength,time);
         _position=candidate.Position;_velocity=candidate.Velocity;
         _at=time;_frozen=false;_last=occurrence;_accepted=candidate.Accepted;
     }
-    public void Stop(AnimationStop policy,double time)
+    public void Stop(AnimationStop policy,PhysicalTime time)
     {
         var state=Read(time);
-        _position=policy==AnimationStop.Hold?state.Position:AnimationValue.Narrow(_position.Property,0);
-        _velocity=AnimationVelocity.Narrow(_velocity.Property,0);_at=time;_frozen=true;
+        _position=policy==AnimationStop.Hold?state.Position:AnimationValue.FromScalar(_position.Property,0);
+        _velocity=AnimationVelocity.FromScalar(_velocity.Property,0);_at=time;_frozen=true;
     }
 }

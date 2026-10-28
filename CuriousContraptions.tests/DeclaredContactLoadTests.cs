@@ -25,7 +25,7 @@ public sealed class DeclaredContactLoadTests
         var face = CuriousContraptions.Bundle.BundleGeometry.Colliders(DeclaredPhysics.Of(PartId.PressurePlate))[1];
         Assert.Equal((CuriousContraptions.Abstractions.ColliderShapeKind.Box, .9f, .05f, .9f), (face.ShapeKind, face.HalfExtents.X, face.HalfExtents.Y, face.HalfExtents.Z));
 
-        var plate = Assert.IsType<WorkshopGenericInstance>(PlacedParts.Plate(new(3), -4, PlateY, 0, 2f));
+        var plate = Assert.IsType<WorkshopGenericInstance>(PlacedParts.Plate(new(3), -4, (float)(PlateY), 0, 2f));
         var row = Assert.Single(WorkshopPhysicsCompiler.Compile(Bench([plate]), new(1, 2)).ContactLoadSensors.ToArray());
         var identities = Bench([plate]).Instances.Identities[plate.Id];
         Assert.Equal(new[] { identities.Colliders[1], identities.Colliders[7] }, row.SupportingColliders.ToArray());
@@ -43,7 +43,7 @@ public sealed class DeclaredContactLoadTests
     [Fact]
     public void EachPlateCompilesItsOwnMinimumMassInInstanceOrder()
     {
-        var plates = Masses.Select((mass, i) => PlacedParts.Plate(new((ulong)i + 1), 3 * i, PlateY, 0, mass)).ToArray();
+        var plates = Masses.Select((mass, i) => PlacedParts.Plate(new((ulong)i + 1), (float)(3 * i), (float)(PlateY), 0, (float)(mass))).ToArray();
         var rows = WorkshopPhysicsCompiler.Compile(Bench(plates), new(1, 2)).ContactLoadSensors.ToArray();
         Assert.Equal(plates.Select(plate => plate.Id), rows.Select(row => row.Frame));
         Assert.Equal(Masses, rows.Select(row => row.MinimumMass));
@@ -57,7 +57,7 @@ public sealed class DeclaredContactLoadTests
     public void TheHoldIsATenthOfASecondAtEachCadence(SimulationCadence cadence, uint ticks)
     {
         Assert.Equal(ticks, ActivationTimerDeclaration.Duration(.1f, cadence));
-        var bench = Bench([PlacedParts.Plate(new(1), 0, PlateY, 0, .5f)]) with { Settings = WorkshopCadenceSettings.Default() with { Simulation = cadence } };
+        var bench = Bench([PlacedParts.Plate(new(1), 0, (float)(PlateY), 0, .5f)]) with { Settings = WorkshopCadenceSettings.Default() with { Simulation = cadence } };
         Assert.Equal(ticks, Assert.Single(WorkshopActivationCompiler.Compile(bench).Nodes.ToArray()).ReleaseHoldTicks);
     }
 
@@ -65,7 +65,7 @@ public sealed class DeclaredContactLoadTests
     [Fact]
     public void AStaticBoxWithoutTheDeclarationCompilesNoRowAndNoNode()
     {
-        var wall = WorkshopInput.Generic(PartId.Wall, new(1), 0, PlateY, 0, 0, 0, 0, 1,
+        var wall = WorkshopInput.Generic(PartId.Wall, new(1), 0, (float)(PlateY), 0, 0, 0, 0, 1,
             new([new(new("width"), 1.8f), new(new("height"), .4f), new(new("thickness"), 1.8f)]));
         Assert.Null(DeclaredPhysics.Of(PartId.Wall).Signal?.ContactLoad);
         Assert.Empty(WorkshopPhysicsCompiler.Compile(Bench([wall]), new(1, 2)).ContactLoadSensors.ToArray());
@@ -82,7 +82,7 @@ public sealed class DeclaredContactLoadTests
     [InlineData(16f)]
     public void AdmittedMinimumMassesRoundTripAtBothBoundaries(float minimumMass)
     {
-        var bench = Bench([PlacedParts.Plate(new(1), 0, PlateY, 0, minimumMass)]);
+        var bench = Bench([PlacedParts.Plate(new(1), 0, (float)(PlateY), 0, (float)(minimumMass))]);
         var saved = WorkshopSaveCodec.Decode(SaveFixture.Elements, WorkshopSaveCodec.Encode(new WorkshopSavedConstruction(bench, new(2)))).Construction;
         var command = WorkshopWireFlatBuffers.DecodeCommand(WorkshopWireFlatBuffers.EncodeCommand(new WorkshopCommand(new(1),
             WorkshopCommandKind.Construct, new(1), new(1), bench, Session: new(1, 2), Cadence: new(1), Projection: new(1)))).Construction!.Value;

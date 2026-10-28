@@ -1,3 +1,4 @@
+using CuriousContraptions.Abstractions;
 using System;
 using System.Runtime.CompilerServices;
 using CuriousContraptions.Abstractions.Signal;

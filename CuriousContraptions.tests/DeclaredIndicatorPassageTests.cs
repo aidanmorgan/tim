@@ -31,7 +31,7 @@ public sealed class DeclaredIndicatorPassageTests
         var lamp = PlacedParts.Lamp(new(1), 3, 1, 0, 0, 0, 0, 1);
         var fed = PlacedParts.Lamp(new(2), 3, 4, 0, 0, 0, 0, 1);
         var level = PlacedParts.Lamp(new(3), 3, 7, 0, 0, 0, 0, 1);
-        var detector = PlacedParts.Detector(new(4), -3, 1, 0, 0, 0, -H, H);
+        var detector = PlacedParts.Detector(new(4), -3, 1, 0, 0, 0, (float)(-H), (float)(H));
         var latch = PlacedParts.Latch(new(5), -6, 1, 0, 0, 0, 0, 1);
         var wall = WorkshopInput.Generic(PartId.Wall, new(6), 9, 1, 0, 0, 0, 0, 1);
         foreach (var part in new[] { lamp, fed, level, detector })
@@ -71,13 +71,13 @@ public sealed class DeclaredIndicatorPassageTests
     /// to `to` in 1 cm steps (the detector frame is at (0, 3, 0), unrotated).</summary>
     private static int Crossings(PassageSensorDeclaration sensor, float from, float to, float y, double detectorY = 3)
     {
-        var detector = PlacedParts.Detector(new(10), 0, detectorY, 0, 0, 0, 0, 1);
+        var detector = PlacedParts.Detector(new(10), 0, (float)(detectorY), 0, 0, 0, 0, 1);
         var ball = new GpuBodyId(2);
-        var scene = WorkshopPhysicsCompiler.Compile(Bench([detector, WorkshopInput.Generic(PartId.Basketball, ball, from, detectorY + y, 0, 0, 0, 0, 1)]),
+        var scene = WorkshopPhysicsCompiler.Compile(Bench([detector, WorkshopInput.Generic(PartId.Basketball, ball, (float)(from), (float)(detectorY + y), 0, 0, 0, 0, 1)]),
             new(1, 2));
         PhysicsBodyReadSet At(float x)
         {
-            var px = WorkshopInput.Position(x); var py = WorkshopInput.Position(detectorY + y);
+            var px = WorkshopInput.Position((float)(x)); var py = WorkshopInput.Position((float)(detectorY + y));
             return new([
                 new PhysicsBodyRead(new CanonicalBody(ball, 0, 0, new(px.Cell, py.Cell, 0), new(px.Local, py.Local, 0f), default), CanonicalRotation.Identity, default, default),
                 new PhysicsBodyRead(new CanonicalBody(detector.Id, 0, 0, detector.Cell, detector.Local, default), CanonicalRotation.Identity, default, default)
@@ -109,8 +109,10 @@ public sealed class DeclaredIndicatorPassageTests
     public void AnOffGridDetectorCountsACrossingAtItsPlacedPose(float above, int expected)
     {
         const double y = 3.03;
-        var detector = PlacedParts.Detector(new(10), 0, y, 0, 0, 0, 0, 1);
-        Assert.Equal((48, .48f), (detector.Cell.Y, detector.Local.Y));
+        var detector = PlacedParts.Detector(new(10), 0, (float)(y), 0, 0, 0, 0, 1);
+        Assert.Equal(48, detector.Cell.Y);
+        // 0.1 mm preserves the authored pose, well below the 1 cm aperture controls.
+        Assert.InRange((detector.Cell.Y + (double)detector.Local.Y) / 16, y - .0001, y + .0001);
         var sensor = Assert.Single(WorkshopActivationCompiler.Compile(Bench([detector])).PassageSensors.ToArray());
         Assert.Equal(expected, Crossings(sensor, -1f, 1f, above, y));
     }
@@ -134,7 +136,7 @@ public sealed class DeclaredIndicatorPassageTests
             (narrow.Id, narrow.Frame, narrow.Radius.Value, narrow.RearmClearance.Value));
         // The sensor sits at its owner's placed pose: a detector off the cell grid keeps its exact cell, f32 remainder and rotation
         // (C-Lamp F3: a compile that dropped the owner's local remainder would put the aperture at the cell origin).
-        var offGrid = PlacedParts.Detector(new(11), .03, 3.01, -.02, 0, 0, .38268343236, .92387953251);
+        var offGrid = PlacedParts.Detector(new(11), .03f, 3.01f, -.02f, 0, 0, .38268343236f, .92387953251f);
         var placed = WorkshopActivationCompiler.PassageSensorFor(offGrid, new SignalPassageDescriptor(.3f, .5f), new WorkshopInstances(offGrid).Identities);
         Assert.NotEqual(default, offGrid.Local);
         Assert.Equal((offGrid.Cell, offGrid.Local, offGrid.Rotation), (placed.Cell, placed.Local, placed.Rotation));
@@ -157,10 +159,10 @@ public sealed class DeclaredIndicatorPassageTests
     private static WorkshopConstruction WiredBench()
     {
         var floor = (double)WorkshopConstruction.WorkbenchSurface.Value;
-        var detector = PlacedParts.Detector(new(1), 0, floor + .62, 0, 0, 0, -H, H);
+        var detector = PlacedParts.Detector(new(1), 0, (float)(floor + .62), 0, 0, 0, (float)(-H), (float)(H));
         var counter = PlacedParts.Counter(new(4), -4, 1, 0, 0, 0, 0, 1, 2);
         return Bench([detector, PlacedParts.Lamp(new(2), 4, 1, 0, 0, 0, 0, 1),
-                WorkshopInput.Generic(PartId.Basketball, new(3), 0, floor + .34 + 3, 0, 0, 0, 0, 1), counter, PlacedParts.Lamp(new(5), 4, 1, 3, 0, 0, 0, 1)],
+                WorkshopInput.Generic(PartId.Basketball, new(3), 0, (float)(floor + .34 + 3), 0, 0, 0, 0, 1), counter, PlacedParts.Lamp(new(5), 4, 1, 3, 0, 0, 0, 1)],
             Signal(detector.Id, new(2)), Signal(detector.Id, counter.Id), Signal(counter.Id, new(5)));
     }
 
@@ -193,7 +195,7 @@ public sealed class DeclaredIndicatorPassageTests
         var expected = name switch
         {
             "lamp" => Bench([PlacedParts.Lamp(new(1), 0, 1, 0, 0, 0, 0, 1)]),
-            "detector" => Bench([PlacedParts.Detector(new(1), 2.5, 1, -1.25, 0, 0, -H, H, locked: true)]),
+            "detector" => Bench([PlacedParts.Detector(new(1), 2.5f, 1, -1.25f, 0, 0, (float)(-H), (float)(H), locked: true)]),
             _ => throw new ArgumentOutOfRangeException(nameof(name))
         };
         var loaded = WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes);
@@ -332,7 +334,7 @@ internal sealed class PassageMotionFixture(PhysicsBodyReadSet previous)
                 U(at + PhysicsMotionRead.FrequencyOffset, 480);
                 System.Buffers.Binary.BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(at + PhysicsMotionRead.OwnerOffset), body.Body.Id.Value);
                 var point = start + (end - start) * (step / 8f);
-                var x = WorkshopInput.Position(point.X); var y = WorkshopInput.Position(point.Y); var z = WorkshopInput.Position(point.Z);
+                var x = WorkshopInput.Position((float)(point.X)); var y = WorkshopInput.Position((float)(point.Y)); var z = WorkshopInput.Position((float)(point.Z));
                 I(at + PhysicsMotionRead.CellOffset, x.Cell); I(at + PhysicsMotionRead.CellOffset + 4, y.Cell); I(at + PhysicsMotionRead.CellOffset + 8, z.Cell);
                 F(at + PhysicsMotionRead.CentreRemainderOffset, x.Local); F(at + PhysicsMotionRead.CentreRemainderOffset + 4, y.Local); F(at + PhysicsMotionRead.CentreRemainderOffset + 8, z.Local);
                 F(at + PhysicsMotionRead.RotationOffset + 12, 1);

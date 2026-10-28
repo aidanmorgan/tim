@@ -65,7 +65,7 @@ public sealed class PresentationBindingGoldenTests(NativeSceneFixture godot)
                 Assert.Equal((PresentationDriver.Event, kind, duration), (declarations[i].Driver, declarations[i].Event, declarations[i].Duration));
             }
             // The production evaluator over a real admitted read of the part alone, and one record of its kind from it at that read's
-            // physical instant (the projection anchors that tick at its capture time).
+            // physical instant; the evaluator advances in world time.
             var owner = new GpuBodyId(1);
             var bench = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(WorkshopInput.Generic(id, owner, 0, 2, 0, 0, 0, 0, 1),
                 WorkshopInput.Generic(PartId.Basketball, new(2), 6, 3, 0, 0, 0, 0, 1)));
@@ -83,14 +83,15 @@ public sealed class PresentationBindingGoldenTests(NativeSceneFixture godot)
             float[] amounts = id == PartId.PinballBumper ? [0, .5f, 1, .5f, 0] : [0, .103515625f, .5f, .896484375f, 1];
             for (var step = 0; step <= 4; step++)
             {
-                var samples = presentation.Advance(start.Value / 1_000_000_000d + (double)duration * step / 4);
+                var samples = presentation.Advance(AnimationTestTime.Seconds(read.Tick.Value * substeps / 480d + (double)duration * step / 4));
                 Assert.Equal(golden.Length, samples.Count);
                 foreach (var sample in samples) part.ApplyDeclaredProperty(sample.Binding, sample.Value);
                 foreach (var expected in golden)
                 {
                     var value = amounts[step] == 0 ? expected.From : amounts[step] == 1 ? expected.To :
                         (float)((double)expected.From + ((double)expected.To - expected.From) * amounts[step]);
-                    Assert.Equal(value, Read(part, expected));
+                    // A 0.00001 property-unit bound is visually negligible for colour, scale and metre offsets.
+                    Assert.InRange(Read(part, expected), value - .00001f, value + .00001f);
                 }
             }
             // MachineWorld Restore puts every declared binding, one-shot cues included, back at rest.

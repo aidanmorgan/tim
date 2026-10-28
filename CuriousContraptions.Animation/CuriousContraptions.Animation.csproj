@@ -6,6 +6,7 @@
     <IsTrimmable>true</IsTrimmable>
   </PropertyGroup>
   <ItemGroup>
+    <ProjectReference Include="../CuriousContraptions.Abstractions/CuriousContraptions.Abstractions.csproj" />
     <Compile Include="../engine/presentation/AnimationValues.cs" Link="AnimationValues.cs" />
     <Compile Include="../engine/presentation/AnimationBatch.cs" Link="AnimationBatch.cs" />
     <Compile Include="../engine/presentation/AnimationFollowDefinition.cs" Link="AnimationFollowDefinition.cs" />

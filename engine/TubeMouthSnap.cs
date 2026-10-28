@@ -121,7 +121,7 @@ public static class TubeMouthSnap
 
     /// <summary>The committed pose of a placed part: (cell + local) / 16 and its canonical f32 rotation.</summary>
     internal static (Vector3 Position, Quaternion Rotation) Pose(IWorkshopInstance instance) =>
-        (new((float)((instance.Cell.X + (double)instance.Local.X) / 16), (float)((instance.Cell.Y + (double)instance.Local.Y) / 16),
-            (float)((instance.Cell.Z + (double)instance.Local.Z) / 16)),
+        (new((float)((instance.Cell.X + instance.Local.X) / 16), (float)((instance.Cell.Y + instance.Local.Y) / 16),
+            (float)((instance.Cell.Z + instance.Local.Z) / 16)),
          new Quaternion(instance.Rotation.X, instance.Rotation.Y, instance.Rotation.Z, instance.Rotation.W).Normalized());
 }

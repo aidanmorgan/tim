@@ -36,7 +36,7 @@ public sealed class PlacementPoseTests
         var end = TubeMouthSnap.LocalMouth(definitions[PartId.Pipe], TubeMouthEnd.End, PipeLength.Default);
         var target = new Vector3(0, y, 0);
         var pipeAt = target + start - end;
-        IWorkshopInstance[] placed = [WorkshopInput.Pipe(new(1), pipeAt.X, pipeAt.Y, pipeAt.Z, 0, 0, 0, 1)];
+        IWorkshopInstance[] placed = [WorkshopInput.Pipe(new(1), (float)(pipeAt.X), (float)(pipeAt.Y), (float)(pipeAt.Z), 0, 0, 0, 1)];
         var pose = PlacementPose.Compose(definitions, placed, new(PartId.PipeBend90, new(2), false), target, Quaternion.Identity);
         Assert.NotNull(pose.Snap);
         Assert.InRange((pose.Position - target).Length(), 0, 1e-5f);
@@ -125,7 +125,7 @@ public sealed class PlacementPoseTests
     private static WorkshopGenericInstance At(PartId part, ulong id, Vector3 position, Quaternion rotation, InstanceParameterCollection? parameters = null)
     {
         var q = rotation.Normalized();
-        return WorkshopInput.Generic(part, new(id), position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W, parameters);
+        return WorkshopInput.Generic(part, new(id), (float)(position.X), (float)(position.Y), (float)(position.Z), (float)(q.X), (float)(q.Y), (float)(q.Z), (float)(q.W), parameters);
     }
 
     // A Domino dropped into the plate (its centre at the plate origin height, straddling the face) rests with its foot on the face:
@@ -138,7 +138,7 @@ public sealed class PlacementPoseTests
     public void ADynamicPartDroppedIntoAPlateRestsOnItsFace(PartId part, float halfHeight)
     {
         var definitions = Definitions();
-        IWorkshopInstance[] placed = [PlacedParts.Plate(new(1), -4, PlateY, 0, .5f)];
+        IWorkshopInstance[] placed = [PlacedParts.Plate(new(1), -4, (float)(PlateY), 0, .5f)];
         var at = new Vector3(-3.6f, PlateY, .2f);
         var (position, rotation) = Composed(definitions, placed, new(part, new(2), false), at, Quaternion.Identity);
         var grid = at.Snapped(Vector3.One * .1f);
@@ -184,7 +184,7 @@ public sealed class PlacementPoseTests
         var definitions = Definitions();
         var gate = WorkshopInput.Generic(PartId.PoweredGate, new(1), 0, 3, 0, 0, 0, 0, 1);
         var battery = PlacedParts.Battery(new(2), 3, 3, 0);
-        var plate = PlacedParts.Plate(new(3), -4, PlateY, 0, .5f);
+        var plate = PlacedParts.Plate(new(3), -4, (float)(PlateY), 0, .5f);
         var placed = new List<IWorkshopInstance> { gate, battery, plate };
         // Centres±.6 keep the .125m half-width outside the ring's .318m outer reach;
         // the .325m half-depth is clear of studs at z±.62. The single centre control rests on the ring.
@@ -193,7 +193,7 @@ public sealed class PlacementPoseTests
             var id = (ulong)placed.Count + 1;
             var (position, rotation) = Composed(definitions, placed, new(PartId.Domino, new(id), false), new(x, PlateY, 0), Quaternion.Identity);
             Assert.True(MathF.Abs(position.Y - ((dominoes == 2 ? FaceTop : RingTop) + .55f)) < 1e-5f, $"domino {id} rests at {position.Y}");
-            placed.Add(PlacedParts.Domino(new(id), position.X, position.Y, position.Z, rotation.X, rotation.Y, rotation.Z, rotation.W));
+            placed.Add(PlacedParts.Domino(new(id), (float)(position.X), (float)(position.Y), (float)(position.Z), (float)(rotation.X), (float)(rotation.Y), (float)(rotation.Z), (float)(rotation.W)));
         }
         var bench = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new([.. placed]), Connections: new(
             new WorkshopConnection(battery.Id, WorkshopSocket.Supply, plate.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical),
@@ -237,7 +237,7 @@ public sealed class PlacementPoseTests
             ("ball inside a tall wall", [At(PartId.Wall, 1, new(0, 1, 0), Quaternion.Identity)], new(PartId.Basketball, new(2), false), new(0, .5f, 0), Quaternion.Identity),
             // The 2 m Wall's centre 1 m above the plate, so its body reaches into the plate face but not into the bench (10.2a F3: every
             // placement is bounded by the body; centred on the plate it would reach 0.78 m below the bench and be refused).
-            ("wall into a plate", [PlacedParts.Plate(new(1), 0, PlateY, 0, .5f)], new(PartId.Wall, new(2), false), new(0, PlateY + 1, 0), Quaternion.Identity),
+            ("wall into a plate", [PlacedParts.Plate(new(1), 0, (float)(PlateY), 0, .5f)], new(PartId.Wall, new(2), false), new(0, PlateY + 1, 0), Quaternion.Identity),
             // The recipes' commonest pattern (cat-017, cat-020, cat-051, cat-052): a Basketball placed inside a Powered gate tilted −15°.
             ("ball inside a gate tilted -15°", [At(PartId.PoweredGate, 1, new(0, 3, 0), new Quaternion(Vector3.Back, Mathf.DegToRad(-15)))],
                 new(PartId.Basketball, new(2), false), new(-.08f, 3, 0), Quaternion.Identity),
@@ -271,7 +271,7 @@ public sealed class PlacementPoseTests
         var definitions = Definitions();
         foreach (var (height, refusal) in new[] { (8.9f, PlacementRefusal.RestOutsideBench), (7.5f, PlacementRefusal.None) })
         {
-            IWorkshopInstance[] placed = [PlacedParts.Plate(new(1), 0, height, 0, .5f)];
+            IWorkshopInstance[] placed = [PlacedParts.Plate(new(1), 0, (float)(height), 0, .5f)];
             var composed = PlacementPose.Compose(definitions, placed, new(part, new(2), false), new(0, height, 0), Quaternion.Identity);
             Assert.Equal(refusal, composed.Refusal);
             Assert.True(MathF.Abs(composed.Position.Y - (height + (part == PartId.Domino ? .084f + .018f : .08f) + halfHeight)) < 1e-4f, $"{part} at {height}: {composed.Position.Y}");
@@ -290,7 +290,7 @@ public sealed class PlacementPoseTests
         foreach (var (plate, refusal) in new[] { (PlateY, PlacementRefusal.None), (8.9f - .08f, PlacementRefusal.RestOutsideBench) })
         {
             var face = plate + .08f;
-            IWorkshopInstance[] placed = [PlacedParts.Plate(new(1), 0, plate, 0, .5f)];
+            IWorkshopInstance[] placed = [PlacedParts.Plate(new(1), 0, (float)(plate), 0, .5f)];
             foreach (var (part, origin, top) in new[] { (WeightTests.Weight, plate + .084f + .018f, plate + .084f + .018f + 2 * h), (PartId.Basketball, face + .34f, face + .68f),
                          (PartId.Domino, plate + .084f + .018f + .55f, plate + .084f + .018f + 1.1f) })
             {
@@ -316,8 +316,8 @@ public sealed class PlacementPoseTests
         var h = TestBundle.Entry(WeightTests.Weight).Colliders[0].HalfExtents.Y;
         foreach (var (distance, refusal) in new[] { (.9, PlacementRefusal.IntoPart), (1.05, PlacementRefusal.None) })
         {
-            IWorkshopInstance[] placed = [PlacedParts.Plate(new(1), 0, PlateY, 0, .5f),
-                WorkshopInput.Generic(PartId.PinballBumper, new(3), distance, face + h, 0, 0, 0, 0, 1)];
+            IWorkshopInstance[] placed = [PlacedParts.Plate(new(1), 0, (float)(PlateY), 0, .5f),
+                WorkshopInput.Generic(PartId.PinballBumper, new(3), (float)(distance), (float)(face + h), 0, 0, 0, 0, 1)];
             foreach (var part in new[] { WeightTests.Weight, PartId.Basketball })
             {
                 var composed = PlacementPose.Compose(definitions, placed, new(part, new(2), false), new(0, PlateY, 0), Quaternion.Identity);
@@ -339,7 +339,7 @@ public sealed class PlacementPoseTests
         var face = PlateY + .08f;
         foreach (var (rise, refusal) in new[] { (0f, PlacementRefusal.None), (.45f, PlacementRefusal.IntoPart) })
         {
-            IWorkshopInstance[] placed = [PlacedParts.Plate(new(1), 0, PlateY, 0, .5f), WorkshopInput.Pipe(new(3), 0, face + .34f + rise, 0, 0, 0, 0, 1)];
+            IWorkshopInstance[] placed = [PlacedParts.Plate(new(1), 0, (float)(PlateY), 0, .5f), WorkshopInput.Pipe(new(3), 0, (float)(face + .34f + rise), 0, 0, 0, 0, 1)];
             foreach (var part in new[] { PartId.Basketball, WeightTests.Weight })
             {
                 var composed = PlacementPose.Compose(definitions, placed, new(part, new(2), false), new(0, PlateY, 0), Quaternion.Identity);
@@ -417,7 +417,7 @@ public sealed class PlacementPoseTests
         var mover = new TubeMouthMover(PartId.Pipe, new(2), false, PipeLength.Default);
         foreach (var (x, refusal) in new[] { (3f, PlacementRefusal.SnapOutsideBench), (-3f, PlacementRefusal.None) })
         {
-            IWorkshopInstance[] placed = [WorkshopInput.Pipe(new(1), x, 1, 0, 0, 0, 0, 1)];
+            IWorkshopInstance[] placed = [WorkshopInput.Pipe(new(1), (float)(x), 1, 0, 0, 0, 0, 1)];
             var at = new Vector3(x, 1, 0) + mouth + new Vector3(1.9f, .05f, 0);
             Assert.True(PlacementPose.Inside(at), $"the drop point {at} is inside the point volume");
             var composed = PlacementPose.Compose(definitions, placed, mover, at, Quaternion.Identity);
@@ -586,7 +586,7 @@ public sealed class PlacementPoseTests
         var (r, h) = (weight.HalfExtents.X, weight.HalfExtents.Y);
         var face = PlateY + .08f;
         var edge = fraction * r;
-        IWorkshopInstance[] placed = [PlacedParts.Plate(new(1), 0, PlateY, 0, .5f),
+        IWorkshopInstance[] placed = [PlacedParts.Plate(new(1), 0, (float)(PlateY), 0, .5f),
             At(PartId.Wall, 3, new(edge + .2f, face + h, edge + .06f), Quaternion.Identity, WallFixture.Values(.4f, .4f, .12f))];
         var composed = PlacementPose.Compose(definitions, placed, new(WeightTests.Weight, new(2), false), new(0, PlateY, 0), Quaternion.Identity);
         Assert.True(MathF.Abs(composed.Position.Y - RingTop) < 1e-5f, $"the Weight rests at {composed.Position.Y}, not on the face {face}");

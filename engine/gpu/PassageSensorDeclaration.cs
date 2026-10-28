@@ -167,7 +167,7 @@ public sealed class PassageSensorTracker
                     var bodyPos=participants[b].Previous;
                     if(s!=substeps-1)
                     {
-                        if (!motion.TrySample(participant.Body,ordinal,out var sampled))
+                        if (!motion.TrySample(participant.Body,new(ordinal),out var sampled))
                             throw new ArgumentException("Passage motion is missing a required participant sample.", nameof(motion));
                         bodyPos=RenderPosition(sampled.Cell,sampled.Local);
                     }

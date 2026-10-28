@@ -1,3 +1,4 @@
+using CuriousContraptions.Abstractions;
 using System;
 using System.Buffers.Binary;
 
@@ -104,11 +105,11 @@ public sealed class PhysicsMotionRead
         if (steps is not (2 or 4 or 8) || tick.Value > uint.MaxValue || last != tick.Value * steps ||
             (ulong)first + steps != last || count != (ulong)steps * (ulong)bodies.Count)
             throw new ArgumentException("Motion does not cover its owning commit.");
-        double previous = first * 4096.0;
+        var previous = new PhysicalTime(first);
         for (var i = 0; i < count; i++)
         {
             var owner = bodies[checked((int)(i / steps))].Body;
-            if (i % steps == 0) previous = first * 4096.0;
+            if (i % steps == 0) previous = new(first);
             var piece = bytes.Slice(HeaderBytes + checked((int)i) * PieceBytes, PieceBytes);
             var kind = (PhysicsMotionKind)U32(piece, KindOffset);
             var start = Time(U32(piece, StartOrdinalOffset), F(piece, StartPhaseOffset));
@@ -116,8 +117,8 @@ public sealed class PhysicsMotionRead
             var anchor = Time(U32(piece, AnchorOrdinalOffset), F(piece, AnchorPhaseOffset));
             var flag = U32(piece, VectorFlagOffset);
             if (!Enum.IsDefined(kind) || U64(piece, OwnerOffset) != owner.Id.Value || start != previous ||
-                end - start != 4096 || end > last * 4096.0 || anchor > start ||
-                end - anchor > (kind != PhysicsMotionKind.FreePolynomial ? 4096 : PhysicsGpuAbi.PrimarySegmentSteps * 4096) ||
+                end.Ordinal != start.Ordinal + 1 || end.Phase != start.Phase || end > new PhysicalTime(last) || anchor > start ||
+                end > new PhysicalTime(anchor.Ordinal + (kind != PhysicsMotionKind.FreePolynomial ? 1u : PhysicsGpuAbi.PrimarySegmentSteps), anchor.Phase) ||
                 U32(piece, FrequencyOffset) != WorkshopCadenceSettings.PhysicalFrequency ||
                 flag > 1 || (flag == 0 && !Zero(piece.Slice(FlaggedVectorOffset, PhysicsGpuAbi.VectorBytes))))
                 throw new ArgumentException("Invalid motion piece identity, interval or padding.");
@@ -139,54 +140,52 @@ public sealed class PhysicsMotionRead
                 throw new ArgumentException("Free motion carries constrained acceleration.");
             Norm(piece,FlaggedVectorOffset,64);
             previous = end;
-            if (i % steps == steps - 1 && previous != last * 4096.0)
+            if (i % steps == steps - 1 && previous != new PhysicalTime(last))
                 throw new ArgumentException("Motion contains a missing body tail.");
         }
     }
 
     /// <summary>Render-only sampling of the committed coefficient record; never a physical state update.</summary>
-    public bool TrySample(GpuBodyId body, double physicalOrdinal, out PresentedBody pose)
+    public bool TrySample(GpuBodyId body, PhysicalTime physicalTime, out PresentedBody pose)
     {
-        if (!double.IsFinite(physicalOrdinal)) throw new ArgumentException("Invalid render sample time.");
         var bodyIndex = Array.IndexOf(_bodyIds, body);
         if (bodyIndex < 0) { pose = default; return false; }
-        var units = physicalOrdinal * 4096;
         for (var i = 0; i < Count; i++)
         {
             var p = _bytes.AsSpan(HeaderBytes + i * PieceBytes, PieceBytes);
             if (U64(p,OwnerOffset) != body.Value) continue;
             var begin = Time(U32(p,StartOrdinalOffset),F(p,StartPhaseOffset)); var end = Time(U32(p,EndOrdinalOffset),F(p,EndPhaseOffset));
             // Right-continuous impact selection. The last exact endpoint comes from its committed read.
-            if (units < begin || units >= end) continue;
-            var elapsed = (physicalOrdinal - U32(p,AnchorOrdinalOffset) - (double)F(p,AnchorPhaseOffset) / 4096) / U32(p,FrequencyOffset);
+            if (physicalTime < begin || physicalTime >= end) continue;
+            var elapsed = physicalTime.SecondsSince(new(U32(p,AnchorOrdinalOffset), F(p,AnchorPhaseOffset)));
             var supported = (PhysicsMotionKind)U32(p,KindOffset) != PhysicsMotionKind.FreePolynomial;
-            var k = (double)F(p,DragRateOffset); var x = supported ? 0 : k * elapsed;
-            var polynomial = .5 + x * ((double)(-1f/6) + x * ((double)(1f/24) +
-                x * ((double)(-1f/120) + x * (double)(1f/720))));
+            var k = F(p,DragRateOffset); var x = supported ? 0 : k * elapsed;
+            var polynomial = .5f + x * ((-1f/6) + x * ((1f/24) +
+                x * ((-1f/120) + x * (1f/720))));
             var cell = Cell(p);
             var px = Position(p,0,cell.X,elapsed,k,polynomial,supported);
             var py = Position(p,1,cell.Y,elapsed,k,polynomial,supported);
             var pz = Position(p,2,cell.Z,elapsed,k,polynomial,supported);
             var q = Rotation(p);
-            var wx = (double)F(p,AngularVelocityOffset) + (double)F(p,AngularAccelerationOffset) * elapsed * .5;
-            var wy = (double)F(p,AngularVelocityOffset+4) + (double)F(p,AngularAccelerationOffset+4) * elapsed * .5;
-            var wz = (double)F(p,AngularVelocityOffset+8) + (double)F(p,AngularAccelerationOffset+8) * elapsed * .5;
-            var speed = Math.Sqrt(wx*wx+wy*wy+wz*wz);
+            var wx = F(p,AngularVelocityOffset) + F(p,AngularAccelerationOffset) * elapsed * .5f;
+            var wy = F(p,AngularVelocityOffset+4) + F(p,AngularAccelerationOffset+4) * elapsed * .5f;
+            var wz = F(p,AngularVelocityOffset+8) + F(p,AngularAccelerationOffset+8) * elapsed * .5f;
+            var speed = MathF.Sqrt(wx*wx+wy*wy+wz*wz);
             var rotation = q;
             if (speed != 0 && elapsed != 0)
             {
-                var halfAngle = speed * elapsed * .5;
-                var scale = Math.Sin(halfAngle)/speed;
-                var ax=wx*scale; var ay=wy*scale; var az=wz*scale; var aw=Math.Cos(halfAngle);
-                var qx=(double)q.X;var qy=(double)q.Y;var qz=(double)q.Z;var qw=(double)q.W;
+                var halfAngle = speed * elapsed * .5f;
+                var scale = MathF.Sin(halfAngle)/speed;
+                var ax=wx*scale; var ay=wy*scale; var az=wz*scale; var aw=MathF.Cos(halfAngle);
+                var qx=q.X;var qy=q.Y;var qz=q.Z;var qw=q.W;
                 var rx=aw*qx+qw*ax+ay*qz-az*qy; var ry=aw*qy+qw*ay+az*qx-ax*qz;
                 var rz=aw*qz+qw*az+ax*qy-ay*qx; var rw=aw*qw-ax*qx-ay*qy-az*qz;
-                var inverse=1/Math.Sqrt(rx*rx+ry*ry+rz*rz+rw*rw);
+                var inverse=1/MathF.Sqrt(rx*rx+ry*ry+rz*rz+rw*rw);
                 rotation=CanonicalRotation.Normalize((float)(rx*inverse),(float)(ry*inverse),(float)(rz*inverse),(float)(rw*inverse));
             }
             var centre = _localCentresOfMass[bodyIndex];
-            var qx2 = (double)rotation.X; var qy2 = (double)rotation.Y; var qz2 = (double)rotation.Z; var qw2 = (double)rotation.W;
-            var cx = (double)centre.X; var cy = (double)centre.Y; var cz = (double)centre.Z;
+            var qx2 = rotation.X; var qy2 = rotation.Y; var qz2 = rotation.Z; var qw2 = rotation.W;
+            var cx = centre.X; var cy = centre.Y; var cz = centre.Z;
             var factor = 2 / (qx2*qx2 + qy2*qy2 + qz2*qz2 + qw2*qw2);
             var tx = factor * (qy2 * cz - qz2 * cy); var ty = factor * (qz2 * cx - qx2 * cz); var tz = factor * (qx2 * cy - qy2 * cx);
             px = Origin(px, cx + qw2 * tx + qy2 * tz - qz2 * ty);
@@ -197,36 +196,36 @@ public sealed class PhysicsMotionRead
         }
         pose=default;return false;
     }
-    private static (int Cell, float Local) Origin((int Cell, float Local) centre, double offset)
+    private static (int Cell, float Local) Origin((int Cell, float Local) centre, float offset)
     {
-        var local = (double)centre.Local - offset * 16;
-        var carry = checked((int)Math.Floor(local + .5)); var remainder = (float)(local - carry);
+        var local = centre.Local - offset * 16;
+        var carry = checked((int)MathF.Floor(local + .5f)); var remainder = (float)(local - carry);
         if (remainder >= .5f) { carry++; remainder -= 1f; }
         if (remainder < -.5f) { carry--; remainder += 1f; }
         return (checked(centre.Cell + carry), remainder);
     }
-    private static (int Cell, float Local) Position(ReadOnlySpan<byte> p,int axis,int cell,double elapsed,double k,double polynomial,bool supported)
+    private static (int Cell, float Local) Position(ReadOnlySpan<byte> p,int axis,int cell,float elapsed,float k,float polynomial,bool supported)
     {
-        var velocity=(double)F(p,VelocityOffset+axis*4);
-        var acceleration=supported?(double)F(p,SupportedAccelerationOffset+axis*4):(double)F(p,GravityOffset+axis*4)-k*velocity;
-        var local=(double)F(p,CentreRemainderOffset+axis*4)+(velocity*elapsed+acceleration*elapsed*elapsed*polynomial)*16;
-        var carry=checked((int)Math.Floor(local+.5));var remainder=(float)(local-carry);
+        var velocity=F(p,VelocityOffset+axis*4);
+        var acceleration=supported?F(p,SupportedAccelerationOffset+axis*4):F(p,GravityOffset+axis*4)-k*velocity;
+        var local=F(p,CentreRemainderOffset+axis*4)+(velocity*elapsed+acceleration*elapsed*elapsed*polynomial)*16;
+        var carry=checked((int)MathF.Floor(local+.5f));var remainder=(float)(local-carry);
         if(remainder >= .5f){carry++;remainder-=1f;}
         if(remainder < -.5f){carry--;remainder+=1f;}
         return(checked(cell+carry),remainder);
     }
-    private static void Norm(ReadOnlySpan<byte> p,int offset,double maximum)
+    private static void Norm(ReadOnlySpan<byte> p,int offset,float maximum)
     {
         if (Zero(p.Slice(offset,PhysicsGpuAbi.VectorBytes))) return;
-        var x=(double)F(p,offset);var y=(double)F(p,offset+4);var z=(double)F(p,offset+8);
-        if(!double.IsFinite(x)||!double.IsFinite(y)||!double.IsFinite(z)||x*x+y*y+z*z>maximum*maximum)
+        var x=F(p,offset);var y=F(p,offset+4);var z=F(p,offset+8);
+        if(!float.IsFinite(x)||!float.IsFinite(y)||!float.IsFinite(z)||x*x+y*y+z*z>maximum*maximum)
             throw new ArgumentException("Motion vector exceeds its declared domain.");
     }
-    private static double Time(uint ordinal,float phase)
+    private static PhysicalTime Time(uint ordinal,float phase)
     {
         if(!PhysicalPhase.IsAdmitted(ordinal,phase))
             throw new ArgumentException("Invalid motion time.");
-        return ordinal*4096.0+phase;
+        return new(ordinal, phase);
     }
     private static CellOrigin Cell(ReadOnlySpan<byte> p)=>new(BinaryPrimitives.ReadInt32LittleEndian(p[CellOffset..]),BinaryPrimitives.ReadInt32LittleEndian(p[(CellOffset+4)..]),BinaryPrimitives.ReadInt32LittleEndian(p[(CellOffset+8)..]));
     private static CanonicalRotation Rotation(ReadOnlySpan<byte> p)=>new(F(p,RotationOffset),F(p,RotationOffset+PhysicsGpuAbi.RotationYOffset),

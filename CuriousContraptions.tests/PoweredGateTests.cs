@@ -197,9 +197,9 @@ public sealed class PoweredGateTests(NativeSceneFixture godot)
     private static WorkshopConnection Supply(GpuBodyId source, GpuBodyId target) =>
         new(source, WorkshopSocket.Supply, target, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical);
     private static WorkshopGenericInstance Gate(ulong id, double z = 0) =>
-        WorkshopInput.Generic(PartId.PoweredGate, new(id), 0, 0, z, 0, 0, 0, 1);
+        WorkshopInput.Generic(PartId.PoweredGate, new(id), 0, 0, (float)(z), 0, 0, 0, 1);
     private static WorkshopGenericInstance Battery(ulong id, ElectricalEnable enabled, double z = 0) =>
-        PlacedParts.Battery(new(id), 2, 0, z, enabled: enabled);
+        PlacedParts.Battery(new(id), 2, 0, (float)(z), enabled: enabled);
 
     // Story 9R.3: a battery wired straight to the gate compiles one Direct route row whatever its authored enable; the blade
     // carries no mode-encoding drag and the gate (an actuator, not a contact work store) has no electrical binding.

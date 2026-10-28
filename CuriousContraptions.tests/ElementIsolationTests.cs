@@ -206,7 +206,9 @@ public sealed class ElementIsolationTests
     private static bool Included(string file)
     {
         // Exact outputs of the pinned RuntimeTypeScript target; their .ts sources remain scanned.
-        if (file is "CuriousContraptions.Simulation/wwwroot/worker.js" or
+        if (file is "CuriousContraptions.Animation.Worker/wwwroot/worker.js" or "CuriousContraptions.Simulation/wwwroot/clock-master.js" or
+            "CuriousContraptions.web/wwwroot/clock-ring.js" or "CuriousContraptions.web/wwwroot/native-clock.js" or
+            "CuriousContraptions.Simulation/wwwroot/worker.js" or
             "CuriousContraptions.web/wwwroot/event-ring-cursor.js" or "CuriousContraptions.web/wwwroot/workshop-client.js") return false;
         var parts = file.Replace('\\', '/').Split('/');
         if (parts.Any(part => Outputs.Contains(part, StringComparer.Ordinal))) return false;

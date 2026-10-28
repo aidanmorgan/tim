@@ -28,7 +28,7 @@ public sealed class WeightTests(ITestOutputHelper output)
 
     internal static WorkshopGenericInstance Placed(ulong id, double x, double y, double z, float mass,
         double qx = 0, double qy = 0, double qz = 0, double qw = 1) =>
-        WorkshopInput.Generic(Weight, new(id), x, y, z, qx, qy, qz, qw, new([new(MassKey, mass)]));
+        WorkshopInput.Generic(Weight, new(id), (float)(x), (float)(y), (float)(z), (float)(qx), (float)(qy), (float)(qz), (float)(qw), new([new(MassKey, mass)]));
 
     private static WorkshopConstruction Bench(params IWorkshopInstance[] parts) =>
         new(new(2), WorkshopCadenceSettings.Default(), new(parts));
@@ -332,7 +332,7 @@ public sealed class WeightTests(ITestOutputHelper output)
     private static WorkshopGenericInstance Ramp(ulong id, float lift = 0f)
     {
         var half = -RampDegrees * Math.PI / 360;
-        return WorkshopInput.Generic(PartId.Ramp, new(id), RampCentre.X, RampCentre.Y + lift, RampCentre.Z, 0, 0, Math.Sin(half), Math.Cos(half));
+        return WorkshopInput.Generic(PartId.Ramp, new(id), (float)(RampCentre.X), (float)(RampCentre.Y + lift), (float)(RampCentre.Z), 0, 0, (float)(Math.Sin(half)), (float)(Math.Cos(half)));
     }
 
     /// <summary>A Weight lying on its side (axis along world Z, centred at z = 0) on the Ramp's top face, `along` metres from its
@@ -505,14 +505,14 @@ public sealed class WeightTests(ITestOutputHelper output)
             {
                 var initial = body.Id == weight.Id ? new Vector3(0, BenchY + RollingRadius(4) + .003f, -HalfHeight(4)) :
                     new Vector3(0, body.Id.Value == 2 ? BenchY - .09f : BenchY, 0);
-                var px = WorkshopInput.Position(initial.X); var py = WorkshopInput.Position(initial.Y); var pz = WorkshopInput.Position(initial.Z);
+                var px = WorkshopInput.Position((float)(initial.X)); var py = WorkshopInput.Position((float)(initial.Y)); var pz = WorkshopInput.Position((float)(initial.Z));
                 body = body with { Cell = new(px.Cell, py.Cell, pz.Cell), Local = new(px.Local, py.Local, pz.Local) };
                 body = body.Id == weight.Id ? body with { Velocity = new(1.5f, 0, 0), AngularVelocity = new(0, 0, -1.5f / RollingRadius(4)) } :
                     body with { Rotation = CanonicalRotation.Identity };
             }
             var position = Vector3.Transform(new Vector3((body.Cell.X + body.Local.X) / 16f,
                 (body.Cell.Y + body.Local.Y) / 16f, (body.Cell.Z + body.Local.Z) / 16f), yaw);
-            var x = WorkshopInput.Position(position.X); var y = WorkshopInput.Position(position.Y); var z = WorkshopInput.Position(position.Z);
+            var x = WorkshopInput.Position((float)(position.X)); var y = WorkshopInput.Position((float)(position.Y)); var z = WorkshopInput.Position((float)(position.Z));
             var rotation = Quaternion.Multiply(yaw, new Quaternion(body.Rotation.X, body.Rotation.Y, body.Rotation.Z, body.Rotation.W));
             return body with { Cell = new(x.Cell, y.Cell, z.Cell), Local = new(x.Local, y.Local, z.Local),
                 Rotation = CanonicalRotation.Normalize(rotation.X, rotation.Y, rotation.Z, rotation.W) };
@@ -628,7 +628,7 @@ public sealed class WeightTests(ITestOutputHelper output)
     [Fact]
     public async Task AWeightRollingOffARampTopplesADominoAndARestingWeightBesideOneLeavesItStanding()
     {
-        var domino = PlacedParts.Domino(new(3), 3.2, DominoUpright, 0, 0, 0, 0, 1);
+        var domino = PlacedParts.Domino(new(3), 3.2f, (float)(DominoUpright), 0, 0, 0, 0, 1);
         var (_, struck, _) = await RunAndReset(Bench(Ramp(2), OnItsSideOnTheRamp(1, 4f, .5f), domino), 6 * Rate);
         Assert.Contains(struck, read => Tilt(Find(read, domino.Id)) > 45);
         // Control: a Weight resting end-down 0.1 m from the tile's face never moves it.

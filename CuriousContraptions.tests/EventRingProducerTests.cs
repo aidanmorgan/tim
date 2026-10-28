@@ -173,7 +173,7 @@ public sealed class EventRingProducerTests
     public async Task EachBumperHitPublishesExactlyOneImpactAtItsOwnTimeAndNoTrigger()
     {
         GpuBodyId ball = new(1), bumper = new(2);
-        await using var ring = await Ring.Running(Bench([WorkshopInput.Generic(PartId.Basketball, ball, 0, 4.5, 0, 0, 0, 0, 1),
+        await using var ring = await Ring.Running(Bench([WorkshopInput.Generic(PartId.Basketball, ball, 0, 4.5f, 0, 0, 0, 0, 1),
             PlacedParts.Bumper(bumper, 0, 3, 0)], []));
         await ring.Advance(360);
         var impacts = ring.Of(SimulationEventKind.Impact).ToList();
@@ -212,9 +212,9 @@ public sealed class EventRingProducerTests
     private static (WorkshopConstruction Bench, GpuBodyId Detector, GpuBodyId Lamp, GpuBodyId Ball) DropBench(bool forwardDown, double ballX)
     {
         var sign = forwardDown ? -1 : 1;
-        var detector = PlacedParts.Detector(new(1), 0, Floor + .62, 0, 0, 0, sign * Half45, Half45);
+        var detector = PlacedParts.Detector(new(1), 0, (float)(Floor + .62), 0, 0, 0, (float)(sign * Half45), (float)(Half45));
         var lamp = PlacedParts.Lamp(new(2), 4, 1, 0, 0, 0, 0, 1);
-        var ball = WorkshopInput.Generic(PartId.Basketball, new(3), ballX, Floor + .34 + 3, 0, 0, 0, 0, 1);
+        var ball = WorkshopInput.Generic(PartId.Basketball, new(3), (float)(ballX), (float)(Floor + .34 + 3), 0, 0, 0, 0, 1);
         return (Bench([detector, lamp, ball], [Signal(detector.Id, lamp.Id)]), detector.Id, lamp.Id, ball.Id);
     }
 
@@ -288,8 +288,8 @@ public sealed class EventRingProducerTests
     public async Task APlatePublishesItsLevelEdgesAndNeverItsRowJitter(double drop, bool released)
     {
         var plateY = Floor + .22;
-        var plate = PlacedParts.Plate(new(1), -4, plateY, 0, .5f);
-        var ball = WorkshopInput.Generic(PartId.Basketball, new(2), -4, plateY + .08 + .345 + drop, 0, 0, 0, 0, 1);
+        var plate = PlacedParts.Plate(new(1), -4, (float)(plateY), 0, .5f);
+        var ball = WorkshopInput.Generic(PartId.Basketball, new(2), -4, (float)(plateY + .08 + .345 + drop), 0, 0, 0, 0, 1);
         await using var ring = await Ring.Running(Bench([plate, ball], []));
         await ring.Advance(720);
         var edges = Edges(ring.Reads, read => Node(read, plate.Id).Phase == ActivationPhase.Latched);
@@ -338,8 +338,8 @@ public sealed class EventRingProducerTests
     public async Task AWiredDominoTopplingPublishesOneTriggerAndARockingTileNothing(int degrees, bool topples)
     {
         var radians = degrees * Math.PI / 180;
-        var tile = PlacedParts.Domino(new(1), 0, Floor + .55 * Math.Cos(radians) + .125 * Math.Sin(radians) + .005, 0,
-            0, 0, Math.Sin(radians / 2), Math.Cos(radians / 2));
+        var tile = PlacedParts.Domino(new(1), 0, (float)(Floor + .55 * Math.Cos(radians) + .125 * Math.Sin(radians) + .005), 0,
+            0, 0, (float)(Math.Sin(radians / 2)), (float)(Math.Cos(radians / 2)));
         await using var ring = await Ring.Running(Bench([tile, PlacedParts.Lamp(new(2), 3, 1, 0, 0, 0, 0, 1)], [Signal(new(1), new(2))]));
         await ring.Advance(480);
         if (!topples) { Assert.Empty(ring.Records); return; }
@@ -613,8 +613,8 @@ public sealed class EventRingProducerTests
         var parts = new List<IWorkshopInstance>();
         for (var i = 0; i < n; i++)
         {
-            parts.Add(PlacedParts.Bumper(new((ulong)(2 * i + 1)), -60 + 3 * i, 3, 0));
-            parts.Add(WorkshopInput.Generic(PartId.Basketball, new((ulong)(2 * i + 2)), -60 + 3 * i, 6, 0, 0, 0, 0, 1));
+            parts.Add(PlacedParts.Bumper(new((ulong)(2 * i + 1)), (float)(-60 + 3 * i), 3, 0));
+            parts.Add(WorkshopInput.Generic(PartId.Basketball, new((ulong)(2 * i + 2)), (float)(-60 + 3 * i), 6, 0, 0, 0, 0, 1));
         }
         await using var ring = await Ring.Building(Bench([.. parts], []));
         Assert.Equal(n, ring.Device.CommittedContactWork.Count);
@@ -667,7 +667,7 @@ public sealed class EventRingProducerTests
     public async Task FormerProducerLimitAdmitsWithoutAllocatingHypotheticalEvents(int producers)
     {
         var sources = Enumerable.Range(0, producers)
-            .Select(i => (IWorkshopInstance)PlacedParts.Battery(new((ulong)i + 1), -63 + i % 127, 3, -63 + i / 127)).ToArray();
+            .Select(i => (IWorkshopInstance)PlacedParts.Battery(new((ulong)i + 1), (float)(-63 + i % 127), 3, (float)(-63 + i / 127))).ToArray();
         await using var ring = await Ring.Initialized(WorkshopCadenceSettings.Default());
         Assert.Equal(WorkshopCommandOutcome.Applied, (await ring.Simulation.Construct(Bench(sources, []))).Outcome);
         ring.Publish();
@@ -909,7 +909,7 @@ public sealed class EventRingProducerTests
             "AnimationControlKind.Impulse", "AnimationControlKind.Transition", "ActivationPulse", "ContactImpulse", "CapturePulse" })
             Assert.Empty(Hits(retired));
         // One shared event ring reader, imported by both consumers (the C# reference reader names it as its twin).
-        Assert.Equal(["CuriousContraptions.Abstractions/EventRingBuffer.cs", "CuriousContraptions.Animation.Worker/wwwroot/worker.js",
+        Assert.Equal(["CuriousContraptions.Abstractions/EventRingBuffer.cs", "CuriousContraptions.Animation.Worker/wwwroot/worker.ts",
             "CuriousContraptions.web/wwwroot/event-ring-cursor.ts",
             "CuriousContraptions.web/wwwroot/workshop-client.ts"], Hits("EventRingCursor"));
     }

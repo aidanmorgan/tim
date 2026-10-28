@@ -43,7 +43,7 @@ public sealed class BothGateTests
             WorkshopInput.Generic(Kind,new(4),3,3,0,0,0,0,1),
             WorkshopInput.Generic(PartId.PoweredGate,new(5),9,3,0,0,0,0,1)),
             Connections:new(Link(1,4,WorkshopSocket.FirstIn),Link(2,4,WorkshopSocket.SecondIn),Link(3,4),Link(4,5)));
-    private static WorkshopGenericInstance Battery(ulong id,float x,bool enabled)=>PlacedParts.Battery(new(id), x, 3, 0, enabled: enabled?ElectricalEnable.Enabled:ElectricalEnable.Disabled);
+    private static WorkshopGenericInstance Battery(ulong id,float x,bool enabled)=>PlacedParts.Battery(new(id), (float)(x), 3, 0, enabled: enabled?ElectricalEnable.Enabled:ElectricalEnable.Disabled);
     internal static ElectricalLogicRead Logic(WorkshopRead read,ulong owner=4)=>read.Presentation.Logic.ToArray().Single(row=>row.Owner.Value==owner);
     private static ActuatorDriveRead Drive(WorkshopRead read)=>read.Presentation.Actuators.ToArray().Single(row=>row.Owner.Value==5);
     private static float BladeY(WorkshopRead read) =>
@@ -256,8 +256,8 @@ public sealed class BothGatePresentationTests(NativeSceneFixture godot)
             godot.Tree.Root.AddChild(part);godot.Tree.Root.AddChild(control);
             Color Colour(MachinePart owner,string node)=>Assert.IsType<StandardMaterial3D>(owner.GetNode<MeshInstance3D>("Visual/"+node).MaterialOverride).AlbedoColor;
             void Apply(double time)
-            { foreach(var sample in evaluator.Advance(time)) if(sample.Owner.Value==4) part.ApplyDeclaredProperty(sample.Binding,sample.Value); }
-            var start=first.Capture!.Value.Time.Value/1_000_000_000d;
+            { foreach(var sample in evaluator.Advance(AnimationTestTime.Seconds(time))) if(sample.Owner.Value==4) part.ApplyDeclaredProperty(sample.Binding,sample.Value); }
+            var start=first.Tick.Value / 120d;
             Apply(start);Apply(start+.025);
             var quarter=Colour(part,"OutputLamp");
             Assert.InRange(quarter.R, float.Lerp(85f/255f,247f/255f,.103515625f)-.00001f,float.Lerp(85f/255f,247f/255f,.103515625f)+.00001f);
@@ -269,7 +269,7 @@ public sealed class BothGatePresentationTests(NativeSceneFixture godot)
             Assert.Equal(new Color("#556573"),Colour(control,"OutputLamp")); // No property delivery cannot fake a powered lamp.
             var target=WorkshopDeclaredPresentation.Targets(construction).First(row=>row.Owner.Value==4).Target;
             evaluator.SetVisible(target,AnimationProperty.ColourRed,false);evaluator.Accept(Response(noSupply,2));
-            Assert.DoesNotContain(evaluator.Advance(time+.2),sample=>sample.Owner.Value==4);
+            Assert.DoesNotContain(evaluator.Advance(AnimationTestTime.Seconds(time+.2)),sample=>sample.Owner.Value==4);
             evaluator.SetVisible(target,AnimationProperty.ColourRed,true);Apply(time+.31);
             Assert.Equal(new Color("#f7cb52"),Colour(part,"FirstLamp"));Assert.Equal(new Color("#f7cb52"),Colour(part,"SecondLamp"));Assert.Equal(new Color("#556573"),Colour(part,"OutputLamp"));
             evaluator.Accept(Response(secondOnly,3));Apply(time+.5);

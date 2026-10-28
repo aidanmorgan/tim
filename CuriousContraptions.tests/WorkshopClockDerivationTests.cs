@@ -12,8 +12,8 @@ namespace CuriousContraptions.Tests;
 /// </summary>
 public sealed class WorkshopClockDerivationTests
 {
-    private const double Bound = WorkshopClockDerivation.BoundMilliseconds;
-    private const double Step = WorkshopClockDerivation.SlewStepMilliseconds;
+    private const long Bound = WorkshopClockDerivation.BoundNanoseconds;
+    private const long Step = WorkshopClockDerivation.SlewStepNanoseconds;
     private static readonly ClockDerivationEpoch Initial = new(0);
 
     private static (string Output, T Result) Capture<T>(Func<T> action)
@@ -29,9 +29,9 @@ public sealed class WorkshopClockDerivationTests
         var derivation = new WorkshopClockDerivation();
         Capture(() =>
         {
-            // Binary-exact offsets (1/128 and 1/64 ms), so the derived offset of a master at the bracket midpoint is exactly 0.
+            // Integral offsets (7812 and 15624 ns), so the derived offset of a master at the bracket midpoint is exactly 0.
             for (var i = 0; i < WorkshopClockDerivation.StartupExchanges; i++)
-                derivation.Qualify(new(100 + i, 100 + i + .0078125, 100 + i + .015625, Initial));
+                derivation.Qualify(new(100000000 + i, 100000000 + i + 7812, 100000000 + i + 15624, Initial));
             return 0;
         });
         Assert.True(derivation.IsQualified);
@@ -44,28 +44,28 @@ public sealed class WorkshopClockDerivationTests
     public void StartupCountsOnlyNarrowConsistentExchangesAtTheBoundAndRetriesWideOrMissingOnes()
     {
         var derivation = new WorkshopClockDerivation();
-        Assert.Equal(ClockDerivationOutcome.Consistent, derivation.Qualify(new(100, 100 - Bound, 100.01, Initial))); // lower edge
-        Assert.Equal(ClockDerivationOutcome.Consistent, derivation.Qualify(new(100, 100.01 + Bound, 100.01, Initial))); // upper edge
+        Assert.Equal(ClockDerivationOutcome.Consistent, derivation.Qualify(new(100000000, 100000000 - Bound, 100010000, Initial))); // lower edge
+        Assert.Equal(ClockDerivationOutcome.Consistent, derivation.Qualify(new(100000000, 100010000 + Bound, 100010000, Initial))); // upper edge
         // Murdoch-2 H2: a bracket wider than 2 x bound proves nothing, even with the master inside it; it is retried.
-        Assert.Equal(ClockDerivationOutcome.Inconclusive, derivation.Qualify(new(100, 100.5, 102, Initial)));
+        Assert.Equal(ClockDerivationOutcome.Inconclusive, derivation.Qualify(new(100000000, 100500000, 102000000, Initial)));
         Assert.Equal(ClockDerivationOutcome.Consistent,
-            derivation.Qualify(new(0, .01, WorkshopClockDerivation.MaximumBracketMilliseconds, Initial))); // widest narrow bracket
+            derivation.Qualify(new(0, 10000, WorkshopClockDerivation.MaximumBracketNanoseconds, Initial))); // widest narrow bracket
         derivation.QualificationMissed();
         Assert.Equal((3, 5, 1, 1), (derivation.Qualified, derivation.StartupAttempts, derivation.StartupInconclusive, derivation.StartupUnanswered));
         // Blind hunter 9: a narrow exchange admitting no correction in common with the others (scheduling jitter) is an
         // outlier, set aside within a bounded allowance instead of refusing the session.
-        Assert.Equal(ClockDerivationOutcome.Consistent, derivation.Qualify(new(100, Math.BitDecrement(100 - Bound), 100.01, Initial)));
+        Assert.Equal(ClockDerivationOutcome.Consistent, derivation.Qualify(new(100000000, 100000000 - Bound - 1, 100010000, Initial)));
         Assert.Equal((3, 1), (derivation.Qualified, derivation.StartupOutliers));
         Assert.False(derivation.IsQualified);
         var (output, _) = Capture(() =>
         {
-            for (var i = 3; i < WorkshopClockDerivation.StartupExchanges; i++) derivation.Qualify(new(100, 100.005, 100.01, Initial));
+            for (var i = 3; i < WorkshopClockDerivation.StartupExchanges; i++) derivation.Qualify(new(100000000, 100005000, 100010000, Initial));
             return 0;
         });
         Assert.True(derivation.IsQualified);
         Assert.Contains("\"reportName\":\"Startup\"", output); // the startup counters are typed telemetry
         Assert.Contains("\"startupInconclusive\":1", output);
-        Assert.Throws<InvalidOperationException>(() => derivation.Qualify(new(100, 100.005, 100.01, Initial)));
+        Assert.Throws<InvalidOperationException>(() => derivation.Qualify(new(100000000, 100005000, 100010000, Initial)));
     }
 
     // D14 amended (coordinator, 19 Oct 2026; Murdoch-2 R2-F3): each worker's time origin carries its own host-clock
@@ -78,30 +78,30 @@ public sealed class WorkshopClockDerivationTests
         var ahead = new WorkshopClockDerivation();
         var (output, _) = Capture(() =>
         {
-            for (var i = 0; i < WorkshopClockDerivation.StartupExchanges; i++) ahead.Qualify(new(200 + i, 201.005 + i, 200.01 + i, Initial));
+            for (var i = 0; i < WorkshopClockDerivation.StartupExchanges; i++) ahead.Qualify(new(200000000 + i, 201005000 + i, 200010000 + i, Initial));
             return 0;
         });
         Assert.True(ahead.IsQualified);
         var wide = Assert.Single(output.Split('\n', StringSplitOptions.RemoveEmptyEntries), line => line.StartsWith("CCGPU_CLOCK_OFFSET_WIDE ", StringComparison.Ordinal));
         using var json = System.Text.Json.JsonDocument.Parse(wide["CCGPU_CLOCK_OFFSET_WIDE ".Length..]);
-        var offset = json.RootElement.GetProperty("offset").GetDouble();
-        Assert.InRange(offset, -1 - Bound, -1 + Bound);
-        Assert.True(json.RootElement.GetProperty("admittedLower").GetDouble() <= offset && offset <= json.RootElement.GetProperty("admittedUpper").GetDouble());
-        Assert.Equal(WorkshopClockDerivation.WideStartupOffsetMilliseconds, json.RootElement.GetProperty("declaredUncertainty").GetDouble());
+        var offset = json.RootElement.GetProperty("offset").GetInt64();
+        Assert.InRange(offset, -1_000_000L - Bound, -1_000_000L + Bound);
+        Assert.True(json.RootElement.GetProperty("admittedLower").GetInt64() <= offset && offset <= json.RootElement.GetProperty("admittedUpper").GetInt64());
+        Assert.Equal(WorkshopClockDerivation.WideStartupOffsetNanoseconds, json.RootElement.GetProperty("declaredUncertainty").GetInt64());
         Assert.Equal("1", json.RootElement.GetProperty("count").GetString());
         Assert.Equal(1UL, ahead.WideStartupOffsets);
         // Applied: the master installs the derived correction, and its corrected readings are consistent.
         Assert.Equal(offset, ahead.StartupCorrection);
         ahead.Adopt(Initial);
         Assert.Equal(offset, ahead.Correction);
-        Assert.Equal(ClockDerivationOutcome.Consistent, ahead.Check(new(400, 400.005, 400.01, Initial), out var correction));
+        Assert.Equal(ClockDerivationOutcome.Consistent, ahead.Check(new(400000000, 400005000, 400010000, Initial), out var correction));
         Assert.Equal(offset, correction);
         Assert.Equal(1UL, ahead.WideStartupOffsets); // recorded once, at startup
         // Control: an offset within the declared uncertainty qualifies with its Startup record and no wide record.
         var narrow = new WorkshopClockDerivation();
         var (narrowOutput, _) = Capture(() =>
         {
-            for (var i = 0; i < WorkshopClockDerivation.StartupExchanges; i++) narrow.Qualify(new(100 + i, 100 + i + .0078125, 100 + i + .015625, Initial));
+            for (var i = 0; i < WorkshopClockDerivation.StartupExchanges; i++) narrow.Qualify(new(100000000 + i, 100000000 + i + 7812, 100000000 + i + 15624, Initial));
             return 0;
         });
         Assert.Contains("\"reportName\":\"Startup\"", narrowOutput);
@@ -119,23 +119,23 @@ public sealed class WorkshopClockDerivationTests
         var (startup, _) = Capture(() =>
         {
             for (var i = 0; i < WorkshopClockDerivation.StartupExchanges; i++)
-                derivation.Qualify(new(79.7950000166893 + i, 79.77001953125 + i, 79.80000001192093 + i, Initial));
+                derivation.Qualify(new(79795000 + i, 79770020 + i, 79800000 + i, Initial));
             return 0;
         });
         var correction = derivation.StartupCorrection;
-        Assert.InRange(correction, .027, .028);
+        Assert.InRange(correction, 27000L, 28000L);
         // Typed per-session telemetry of the derived offset and how tightly the exchanges pinned it.
         using (var json = System.Text.Json.JsonDocument.Parse(startup[(startup.IndexOf('{'))..]))
         {
-            Assert.Equal(correction, json.RootElement.GetProperty("startupOffset").GetDouble());
+            Assert.Equal(correction, json.RootElement.GetProperty("startupOffset").GetInt64());
             // Identical exchanges admit their own bracket width plus the bound on both sides: 0.005 + 2 x 0.0158 ms.
-            Assert.Equal(.005 + 2 * Bound, json.RootElement.GetProperty("admittedWidth").GetDouble(), 1e-6);
+            Assert.Equal(5000L + 2 * Bound, json.RootElement.GetProperty("admittedWidth").GetInt64());
         }
-        Assert.Throws<InvalidOperationException>(() => derivation.Check(new(500, 500.004, 500.008, Initial), out _));
+        Assert.Throws<InvalidOperationException>(() => derivation.Check(new(500000000, 500004000, 500008000, Initial), out _));
         derivation.Adopt(Initial);
         Assert.Equal((Initial, correction), (derivation.Epoch, derivation.Correction));
-        var stamped = 500.004 - .0275 + correction;
-        Assert.Equal(ClockDerivationOutcome.Consistent, derivation.Check(new(500, stamped, 500.008, Initial), out _));
+        var stamped = 500004000L - 27500 + correction;
+        Assert.Equal(ClockDerivationOutcome.Consistent, derivation.Check(new(500000000, stamped, 500008000, Initial), out _));
         Assert.Throws<InvalidOperationException>(() => derivation.StartupCorrection);
     }
 
@@ -143,28 +143,28 @@ public sealed class WorkshopClockDerivationTests
     // offset that keeps drifting is still followed: slower than the 50 ppm slew it is slewed under the same epoch and every
     // check stays within the bound; faster, the error grows past 0.1 ms and is re-derived under the next epoch.
     [Theory]
-    [InlineData(.002, false)] // 20 ppm: within the slew rate
-    [InlineData(.012, true)]  // 120 ppm: outruns the slew, re-derived
-    public void ADriftingTimeOriginOffsetIsFollowedAfterTheDerivedStartupOffset(double driftPerCheck, bool rederives)
+    [InlineData(2000L, false)] // 20 ppm: within the slew rate
+    [InlineData(12000L, true)]  // 120 ppm: outruns the slew, re-derived
+    public void ADriftingTimeOriginOffsetIsFollowedAfterTheDerivedStartupOffset(long driftPerCheck, bool rederives)
     {
-        const double origin = .0275; // the master reads this much early at startup (the observed Chrome case)
-        const double half = .0078125; // half the binary-exact 1/64 ms bracket
+        const long origin = 27500; // the master reads this much early at startup (the observed Chrome case)
+        const long half = 7812; // half the integral 15624 ns bracket
         var derivation = new WorkshopClockDerivation();
         Capture(() =>
         {
             for (var i = 0; i < WorkshopClockDerivation.StartupExchanges; i++)
-                derivation.Qualify(new(100 + i, 100 + i + half - origin, 100 + i + 2 * half, Initial));
+                derivation.Qualify(new(100000000 + i, 100000000 + i + half - origin, 100000000 + i + 2 * half, Initial));
             return 0;
         });
-        Assert.InRange(derivation.StartupCorrection, origin - 1e-9, origin + 1e-9);
+        Assert.InRange(derivation.StartupCorrection, origin, origin);
         derivation.Adopt(Initial);
         var outcomes = new List<ClockDerivationOutcome>();
-        var worst = 0.0;
+        var worst = 0L;
         Capture(() =>
         {
             for (var check = 1; check <= 60; check++)
             {
-                var before = 200 + check;
+                var before = 200_000_000L + check * 1_000_000L;
                 var offset = origin + driftPerCheck * check; // the master's true lag behind the Simulation now
                 var stamped = before + half - offset + derivation.Correction;
                 var outcome = derivation.Check(new(before, stamped, before + 2 * half, derivation.Epoch), out _);
@@ -188,7 +188,7 @@ public sealed class WorkshopClockDerivationTests
         else
         {
             Assert.True(derivation.Epoch.Value >= 1);
-            Assert.InRange(derivation.Correction, final - WorkshopClockDerivation.RederiveThresholdMilliseconds - driftPerCheck - lag, final + Bound);
+            Assert.InRange(derivation.Correction, final - WorkshopClockDerivation.RederiveThresholdNanoseconds - driftPerCheck - lag, final + Bound);
         }
     }
 
@@ -198,9 +198,9 @@ public sealed class WorkshopClockDerivationTests
         // Two masters 1 ms apart in turn: no correction is admitted by all but at most StartupOutlierLimit exchanges.
         var derivation = new WorkshopClockDerivation();
         for (var i = 0; i < 2 * WorkshopClockDerivation.StartupOutlierLimit + 1; i++)
-            derivation.Qualify(new(100 + i, 100 + i + .005 + (i % 2), 100 + i + .01, Initial));
-        var error = Assert.Throws<InvalidOperationException>(() => derivation.Qualify(new(200, 201.005, 200.01, Initial)));
-        Assert.Contains("not a stable offset within the 0.0158 ms bound", error.Message);
+            derivation.Qualify(new(100000000 + i, 100000000 + i + 5000 + (i % 2) * 1_000_000, 100000000 + i + 10000, Initial));
+        var error = Assert.Throws<InvalidOperationException>(() => derivation.Qualify(new(200000000, 201005000, 200010000, Initial)));
+        Assert.Contains("not a stable offset within the nanosecond bound", error.Message);
     }
 
     [Fact]
@@ -209,9 +209,9 @@ public sealed class WorkshopClockDerivationTests
         var derivation = new WorkshopClockDerivation();
         Capture(() =>
         {
-            derivation.Qualify(new(99, 99.5, 99.01, Initial)); // 0.49 ms late: no correction in common with the others
+            derivation.Qualify(new(99000000, 99500000, 99010000, Initial)); // 0.49 ms late: no correction in common with the others
             for (var i = 0; i < WorkshopClockDerivation.StartupExchanges; i++)
-                derivation.Qualify(new(100 + i, 100 + i + .0078125, 100 + i + .015625, Initial));
+                derivation.Qualify(new(100000000 + i, 100000000 + i + 7812, 100000000 + i + 15624, Initial));
             return 0;
         });
         Assert.True(derivation.IsQualified);
@@ -224,18 +224,15 @@ public sealed class WorkshopClockDerivationTests
     {
         var derivation = new WorkshopClockDerivation();
         for (var i = 0; i < WorkshopClockDerivation.StartupAttemptLimit; i++)
-            if (i % 2 == 0) derivation.QualificationMissed(); else derivation.Qualify(new(100, 100.5, 102, Initial));
+            if (i % 2 == 0) derivation.QualificationMissed(); else derivation.Qualify(new(100000000, 100500000, 102000000, Initial));
         var error = Assert.Throws<InvalidOperationException>(() => derivation.QualificationMissed());
-        Assert.Contains("0 of 16 narrow consistent exchanges in 500 attempts (250 wider than 0.0316 ms, 250 unanswered)", error.Message);
+        Assert.Contains("0 of 16 narrow consistent exchanges in 500 attempts (250 wider than 31600 ns, 250 unanswered)", error.Message);
     }
 
     [Theory]
-    [InlineData(double.NaN, 1, 2)]
-    [InlineData(1, double.PositiveInfinity, 2)]
-    [InlineData(1, 1, double.NegativeInfinity)]
     [InlineData(-1, -1, 0)]
-    [InlineData(2, 1.5, 1)] // reversed bracket
-    public void AMalformedExchangeRejects(double before, double master, double after)
+    [InlineData(2, 1, 1)] // reversed bracket
+    public void AMalformedExchangeRejects(long before, long master, long after)
     {
         Assert.Throws<ArgumentException>(() => new WorkshopClockDerivation().Qualify(new(before, master, after, Initial)));
         Assert.Throws<ArgumentException>(() => Qualified().Check(new(before, master, after, Initial), out _));
@@ -245,7 +242,7 @@ public sealed class WorkshopClockDerivationTests
     public void AConsistentCheckChangesNothingAndReportsNothing()
     {
         var derivation = Qualified();
-        var (output, outcome) = Capture(() => derivation.Check(new(500, 500.004, 500.008, Initial), out var correction)
+        var (output, outcome) = Capture(() => derivation.Check(new(500000000, 500004000, 500008000, Initial), out var correction)
             == ClockDerivationOutcome.Consistent && correction == 0);
         Assert.True(outcome);
         Assert.Equal("", output);
@@ -256,8 +253,8 @@ public sealed class WorkshopClockDerivationTests
     public void AWideBracketWithTheMasterInsideIsInconclusiveNotConsistent()
     {
         var derivation = Qualified();
-        Assert.Equal(ClockDerivationOutcome.Inconclusive, derivation.Check(new(500, 500.5, 502, Initial), out var correction));
-        Assert.Equal((0.0, 1UL), (correction, derivation.Inconclusive));
+        Assert.Equal(ClockDerivationOutcome.Inconclusive, derivation.Check(new(500000000, 500500000, 502000000, Initial), out var correction));
+        Assert.Equal((0L, 1UL), (correction, derivation.Inconclusive));
     }
 
     // Murdoch-2 M1: a small drift is slewed by at most one step per check under the same epoch, so no requester mapping
@@ -266,17 +263,17 @@ public sealed class WorkshopClockDerivationTests
     public void ASmallDriftSlewsUnderTheSameEpochByAtMostOneStepPerCheckUntilConsistent()
     {
         var derivation = Qualified();
-        const double drift = .03; // the master reads 30 us late: beyond the bound, within the re-derivation threshold
+        const long drift = 30000; // the master reads 30 us late: beyond the bound, within the re-derivation threshold
         var outcomes = new List<ClockDerivationOutcome>();
         for (var check = 0; check < 10; check++)
         {
-            var before = 500 + check;
-            var master = before + .004 + drift + derivation.Correction;
-            var outcome = derivation.Check(new(before, master, before + .008, derivation.Epoch), out var correction);
+            var before = 500_000_000L + check * 1_000_000L;
+            var master = before + 4000 + drift + derivation.Correction;
+            var outcome = derivation.Check(new(before, master, before + 8000, derivation.Epoch), out var correction);
             outcomes.Add(outcome);
             if (outcome == ClockDerivationOutcome.Slewed)
             {
-                Assert.InRange(derivation.Correction - correction, Step - 1e-12, Step + 1e-12);
+                Assert.InRange(derivation.Correction - correction, Step, Step);
                 derivation.Adopt(derivation.Epoch);
             }
         }
@@ -292,25 +289,25 @@ public sealed class WorkshopClockDerivationTests
     public void ALargeDriftRederivesToTheBracketMidpointUnderTheNextEpoch()
     {
         var derivation = Qualified();
-        var (output, result) = Capture(() => (derivation.Check(new(500, 501.004, 500.008, Initial), out var correction), correction));
+        var (output, result) = Capture(() => (derivation.Check(new(500000000, 501004000, 500008000, Initial), out var correction), correction));
         Assert.Equal(ClockDerivationOutcome.Rederived, result.Item1);
-        Assert.Equal(500.004 - 501.004, result.Item2, 1e-9);
+        Assert.Equal(-1_000_000L, result.Item2);
         var line = Assert.Single(output.Split('\n', StringSplitOptions.RemoveEmptyEntries));
         Assert.StartsWith("CCGPU_CLOCK_DERIVATION ", line);
         using (var json = System.Text.Json.JsonDocument.Parse(line["CCGPU_CLOCK_DERIVATION ".Length..]))
         {
             Assert.Equal("Rederived", json.RootElement.GetProperty("outcomeName").GetString());
             Assert.Equal(1UL, json.RootElement.GetProperty("rederivations").GetUInt64());
-            Assert.Equal(result.Item2, json.RootElement.GetProperty("pendingCorrection").GetDouble());
+            Assert.Equal(result.Item2, json.RootElement.GetProperty("pendingCorrection").GetInt64());
         }
         // The correction takes effect only when the ring installed it under the next epoch.
-        Assert.Throws<InvalidOperationException>(() => derivation.Check(new(600, 600.004, 600.008, Initial), out _));
+        Assert.Throws<InvalidOperationException>(() => derivation.Check(new(600000000, 600004000, 600008000, Initial), out _));
         Assert.Throws<InvalidOperationException>(() => derivation.Adopt(Initial));
         derivation.Adopt(new(1));
         Assert.Equal((new ClockDerivationEpoch(1), result.Item2), (derivation.Epoch, derivation.Correction));
         // An exchange still stamped under the old epoch is a protocol violation, not a drift.
-        Assert.Throws<InvalidOperationException>(() => derivation.Check(new(600, 600.004, 600.008, Initial), out _));
-        Assert.Equal(ClockDerivationOutcome.Consistent, derivation.Check(new(600, 600.004, 600.008, new(1)), out _));
+        Assert.Throws<InvalidOperationException>(() => derivation.Check(new(600000000, 600004000, 600008000, Initial), out _));
+        Assert.Equal(ClockDerivationOutcome.Consistent, derivation.Check(new(600000000, 600004000, 600008000, new(1)), out _));
         Assert.Throws<InvalidOperationException>(() => derivation.Adopt(new(2)));
     }
 
@@ -320,12 +317,12 @@ public sealed class WorkshopClockDerivationTests
         var derivation = Qualified();
         var (output, outcomes) = Capture(() => new[]
         {
-            derivation.Check(new(500, 503, 501, Initial), out _),
-            derivation.Check(new(510, 513, 511, Initial), out _),
+            derivation.Check(new(500000000, 503000000, 501000000, Initial), out _),
+            derivation.Check(new(510000000, 513000000, 511000000, Initial), out _),
         });
         Assert.Equal(new[] { ClockDerivationOutcome.Inconclusive, ClockDerivationOutcome.Inconclusive }, outcomes);
         Assert.Single(output.Split('\n', StringSplitOptions.RemoveEmptyEntries));
-        Assert.Equal((2UL, 0UL, 0.0), (derivation.Inconclusive, derivation.Rederivations, derivation.Correction));
+        Assert.Equal((2UL, 0UL, 0L), (derivation.Inconclusive, derivation.Rederivations, derivation.Correction));
         var (missed, _) = Capture(() => { derivation.Missed(); derivation.Missed(); return 0; });
         Assert.Equal(2UL, derivation.Unanswered);
         Assert.Single(missed.Split('\n', StringSplitOptions.RemoveEmptyEntries)); // the first unanswered check of the run
@@ -333,7 +330,7 @@ public sealed class WorkshopClockDerivationTests
         Assert.Equal((1UL, 4UL), (derivation.CheckRetries, derivation.Checks));
         var (summary, _) = Capture(() =>
         {
-            while (derivation.Checks < WorkshopClockDerivation.SummaryInterval) derivation.Check(new(520, 520.004, 520.008, Initial), out _);
+            while (derivation.Checks < WorkshopClockDerivation.SummaryInterval) derivation.Check(new(520000000, 520004000, 520008000, Initial), out _);
             return 0;
         });
         Assert.Contains("\"reportName\":\"Summary\"", summary);
@@ -346,9 +343,50 @@ public sealed class WorkshopClockDerivationTests
     public void ChecksRequireAQualifiedDerivation()
     {
         var derivation = new WorkshopClockDerivation();
-        Assert.Throws<InvalidOperationException>(() => derivation.Check(new(1, 1, 1, Initial), out _));
+        Assert.Throws<InvalidOperationException>(() => derivation.Check(new(1000000, 1000000, 1000000, Initial), out _));
         Assert.Throws<InvalidOperationException>(() => derivation.Missed());
         Assert.Throws<InvalidOperationException>(() => derivation.Retried());
+    }
+
+    [Fact]
+    public void OverflowingDerivationCandidatesLeaveCountersAndPendingCorrectionUntouched()
+    {
+        var startup = new WorkshopClockDerivation();
+        Assert.Throws<OverflowException>(() => startup.Qualify(new(long.MaxValue, 0, long.MaxValue, Initial)));
+        Assert.Equal((0, 0, false), (startup.StartupAttempts, startup.Qualified, startup.IsQualified));
+        var running = new WorkshopClockDerivation();
+        Capture(() => {
+            for (var i = 0; i < WorkshopClockDerivation.StartupExchanges; i++)
+                running.Qualify(new(1_000_000, long.MaxValue - 1_000_000, 1_000_000, Initial));
+            return 0;
+        });
+        running.Adopt(Initial);
+        var correction = running.Correction;
+        Assert.Throws<OverflowException>(() => running.Check(new(0, 10_000_000, 0, Initial), out _));
+        Assert.Equal((0ul, 0ul, correction, Initial), (running.Checks, running.Rederivations, running.Correction, running.Epoch));
+        // No hidden pending installation was retained by the rejected candidate.
+        Assert.Equal(ClockDerivationOutcome.Consistent, running.Check(new(0, 0, 0, Initial), out _));
+    }
+
+    [Fact]
+    public void IntegralInteropCarriesAdjacentLargeStampsAndRefusesMalformedEnvelopes()
+    {
+        var bytes = new byte[ClockDerivationWire.ExchangeBytes];
+        System.Buffers.Binary.BinaryPrimitives.WriteInt64LittleEndian(bytes, long.MaxValue - 2);
+        System.Buffers.Binary.BinaryPrimitives.WriteInt64LittleEndian(bytes.AsSpan(8), long.MaxValue - 1);
+        System.Buffers.Binary.BinaryPrimitives.WriteInt64LittleEndian(bytes.AsSpan(16), long.MaxValue);
+        System.Buffers.Binary.BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(24), uint.MaxValue);
+        Assert.Equal(new ClockDerivationExchange(long.MaxValue - 2, long.MaxValue - 1, long.MaxValue, new(uint.MaxValue)),
+            ClockDerivationWire.DecodeExchange(bytes));
+        Assert.Throws<ArgumentException>(() => ClockDerivationWire.DecodeExchange(bytes.AsSpan(1)));
+        bytes[28] = 1;
+        Assert.Throws<ArgumentException>(() => ClockDerivationWire.DecodeExchange(bytes));
+        var correction = ClockDerivationWire.EncodeCorrection(long.MinValue, ClockDerivationOutcome.Rederived);
+        Assert.Equal(16, correction.Length);
+        Assert.Equal(long.MinValue, System.Buffers.Binary.BinaryPrimitives.ReadInt64LittleEndian(correction));
+        Assert.Equal((uint)ClockDerivationOutcome.Rederived, System.Buffers.Binary.BinaryPrimitives.ReadUInt32LittleEndian(correction.AsSpan(8)));
+        Assert.Equal(0u, System.Buffers.Binary.BinaryPrimitives.ReadUInt32LittleEndian(correction.AsSpan(12)));
+        Assert.Throws<ArgumentOutOfRangeException>(() => ClockDerivationWire.EncodeCorrection(0, ClockDerivationOutcome.Inconclusive));
     }
 
     // ---- requester mappings ----

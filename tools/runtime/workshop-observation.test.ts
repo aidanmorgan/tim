@@ -34,7 +34,7 @@ function clockMaster() {
     const master = {
         answering: () => true, waits: [] as number[],
         /** The master serves every request now posted in the ring (a slow master's late answer). */
-        serve() { clockRing.serveRequests(ring!, {}, () => MasterReading); },
+        serve() { clockRing.serveRequests(ring!, {}, () => BigInt(MasterReading * 1_000_000)); },
         atomics: Object.create(Atomics, { wait: { value(words: Int32Array<SharedArrayBuffer>, index: number, value: number, timeout: number) {
             if (ring && words.buffer === ring.buffer) { master.waits.push(timeout); if (master.answering()) master.serve(); }
             return Atomics.wait(words, index, value, timeout);
@@ -70,15 +70,17 @@ function derivationHost() {
         // [exchange timeout ms, check interval ms, exchanges per check]: production's profile.
         ClockDerivationProfile: () => [ExchangeTimeoutMilliseconds, CheckIntervalMilliseconds, CheckExchanges],
         ClockDerivationQualified: () => record.qualified === 16,
-        QualifyClockDerivation: (before: number, master: number, after: number, epoch: number) => {
-            assert.ok(after >= before && master === MasterReading && epoch === 0, 'a consistent startup exchange');
+        QualifyClockDerivation: (exchange: Uint8Array) => {
+            const view = new DataView(exchange.buffer, exchange.byteOffset, exchange.byteLength);
+            const before = view.getBigInt64(0, true), master = view.getBigInt64(8, true), after = view.getBigInt64(16, true), epoch = view.getUint32(24, true);
+            assert.ok(after >= before && master === BigInt(MasterReading * 1_000_000) && epoch === 0, 'a consistent startup exchange');
             record.qualified++;
         },
         ClockDerivationQualificationMissed: () => { record.startupMissed++; },
         // The derived startup offset is zero.
-        ClockDerivationStartupCorrection: () => 0,
+        ClockDerivationStartupCorrection: () => new Uint8Array(16),
         // An empty installation: the check was consistent, so nothing is written to the ring.
-        CheckClockDerivation: () => { record.checks++; return []; },
+        CheckClockDerivation: () => { record.checks++; return new Uint8Array(); },
         AdoptClockDerivation: () => { record.adopted++; },
         ClockDerivationMissed: () => { record.missed++; },
         // The first exchange of every check reads as wide, so each check retries exactly once before its narrow one.

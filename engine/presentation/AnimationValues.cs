@@ -1,11 +1,16 @@
+using CuriousContraptions.Abstractions;
 using System;
 
 namespace CuriousContraptions.Presentation;
 
-// Authored and retained cosmetic values. Only external clock timestamps and temporary
-// evaluation arithmetic may be wider. Constructors also define the supported f32 profile.
+// Authored, retained and evaluated cosmetic values use f32. Integer timestamps retain clock identity.
 internal static class AnimationNumbers
 {
+    // Convex f32 interpolation never forms an overflowing endpoint difference. Clamp the
+    // rounded result to the authored interval (also preserves positive subnormal scales).
+    public static float Interpolate(float from, float to, float amount) =>
+        Math.Clamp(MathF.FusedMultiplyAdd(from, 1 - amount, to * amount), Math.Min(from, to), Math.Max(from, to));
+
     public static float Finite(float value)
     {
         if (!float.IsFinite(value)) throw new ArgumentOutOfRangeException(nameof(value));
@@ -35,10 +40,10 @@ internal static class AnimationNumbers
         ArgumentOutOfRangeException.ThrowIfLessThan(value, 1e-6f);
         return value;
     }
-    public static double Elapsed(double time, double started)
+    public static float Elapsed(PhysicalTime time, PhysicalTime started)
     {
-        var elapsed = time - started;
-        if (!double.IsFinite(elapsed)) throw new ArgumentOutOfRangeException(nameof(time));
+        var elapsed = time.SecondsSince(started);
+        if (!float.IsFinite(elapsed)) throw new ArgumentOutOfRangeException(nameof(time));
         return elapsed;
     }
 }
@@ -143,7 +148,7 @@ public readonly record struct AnimationValue
 {
     public AnimationProperty Property { get; }
     private readonly float _value;
-    internal double Number => (double)_value;
+    internal float Number => _value;
     public uint CanonicalBits => BitConverter.SingleToUInt32Bits(_value);
     private AnimationValue(AnimationProperty property, float value)
     {
@@ -194,11 +199,11 @@ public readonly record struct AnimationValue
         AnimationNumbers.Unit(progress.Value);
         if (progress.Value == (float)0) return from;
         if (progress.Value == (float)1) return to;
-        return Narrow(from.Property, Math.FusedMultiplyAdd(to.Number - from.Number, (double)progress.Value, from.Number));
+        return FromScalar(from.Property, AnimationNumbers.Interpolate(from.Number, to.Number, progress.Value));
     }
-    internal static AnimationValue Narrow(AnimationProperty property, double value)
+    internal static AnimationValue FromScalar(AnimationProperty property, float value)
     {
-        if (!double.IsFinite(value)) throw new ArgumentOutOfRangeException(nameof(value));
+        if (!float.IsFinite(value)) throw new ArgumentOutOfRangeException(nameof(value));
         return new(property, (float)value);
     }
     internal static void SameProperty(AnimationValue first, AnimationValue second)
@@ -212,7 +217,7 @@ public readonly record struct AnimationVelocity
 {
     public AnimationProperty Property { get; }
     private readonly float _value;
-    internal double Number => (double)_value;
+    internal float Number => _value;
     public AnimationVelocity(AnimationRadiansPerSecond value)
     {
         Property = AnimationProperty.LocalRotationAngle; _value = AnimationNumbers.Finite(value.Value);
@@ -231,7 +236,7 @@ public readonly record struct AnimationVelocity
             throw new ArgumentException("Velocity requires a signed motion dimension.");
         AnimationNumbers.Finite(_value);
     }
-    internal static AnimationVelocity Narrow(AnimationProperty property, double value) => property switch
+    internal static AnimationVelocity FromScalar(AnimationProperty property, float value) => property switch
     {
         AnimationProperty.LocalRotationAngle => new(new AnimationRadiansPerSecond((float)value)),
         AnimationProperty.LocalTranslation => new(new AnimationMetresPerSecond((float)value)),
@@ -245,15 +250,15 @@ internal readonly record struct AnimationPhase
 {
     public float Value { get; }
     private AnimationPhase(float value) => Value = value;
-    public static AnimationPhase Capture(double phase, AnimationRepeat repeat)
+    public static AnimationPhase Capture(float phase, AnimationRepeat repeat)
     {
-        if (!double.IsFinite(phase)) throw new ArgumentOutOfRangeException(nameof(phase));
-        var period = repeat == AnimationRepeat.PingPong ? 2.0 : 1.0;
+        if (!float.IsFinite(phase)) throw new ArgumentOutOfRangeException(nameof(phase));
+        var period = repeat == AnimationRepeat.PingPong ? 2.0f : 1.0f;
         if (repeat == AnimationRepeat.Once) return new((float)Math.Clamp(phase, 0, 1));
         if (!Enum.IsDefined(repeat)) throw new ArgumentOutOfRangeException(nameof(repeat));
         var reduced = phase % period;
         if (reduced < 0) reduced += period;
         var canonical = (float)reduced;
-        return new((double)canonical == period ? (float)0 : canonical);
+        return new(canonical == period ? (float)0 : canonical);
     }
 }

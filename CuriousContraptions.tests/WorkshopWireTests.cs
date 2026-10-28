@@ -1,3 +1,4 @@
+using CuriousContraptions.Abstractions;
 using System.Buffers.Binary;
 using CuriousContraptions.Gpu;
 
@@ -171,18 +172,20 @@ public sealed class WorkshopWireTests
     [Fact]
     public void PresentationDiagnosticBindsCadenceAndPulseWithinItsFixedRingBudget()
     {
-        var sample = new WorkshopPresentationSample(default, null, new(0), PresentationQuality.AwaitingHistory,
+        var sample = new WorkshopPresentationSample(default, null, new(default), PresentationQuality.AwaitingHistory,
             new(new(100), 1, 1, new(2), null, null, null));
         // Story 9R.5b: the position-write and part counts are u32 (past the former u16/byte ranges) at 352 and 356.
-        var scene = new PresentationScene(3, 70_000, 300, 0, 0, 0, 0, 0, 0, 0, 1);
+        var scene = new PresentationScene(3, 70_000, 300, new(1_728_000, 1024), 0, 0, 0, 0, 0, 0, 1);
         var bytes = WorkshopPresentationWire.Encode(sample, false, scene, new(101), new(7), new(17));
-        Assert.Equal(360, bytes.Length);
+        Assert.Equal(364, bytes.Length);
+        Assert.Equal(1_728_000ul, BinaryPrimitives.ReadUInt64LittleEndian(bytes.AsSpan(32)));
+        Assert.Equal(1024f, BinaryPrimitives.ReadSingleLittleEndian(bytes.AsSpan(360)));
         Assert.Equal(7UL, BinaryPrimitives.ReadUInt64LittleEndian(bytes.AsSpan(336)));
         Assert.Equal(17UL, BinaryPrimitives.ReadUInt64LittleEndian(bytes.AsSpan(344)));
         Assert.Equal(70_000u, BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(WorkshopPresentationWire.PositionWritesOffset)));
         Assert.Equal(300u, BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(WorkshopPresentationWire.PartCountOffset)));
         Assert.Equal((0, 0), (bytes[58], bytes[59]));
-        Assert.Equal(29_952, WorkshopPresentationWire.RetainedBytes + 128 * 144);
+        Assert.Equal(30_080, WorkshopPresentationWire.RetainedBytes + 128 * 144);
         Assert.True(WorkshopPresentationWire.RetainedBytes + 128 * 144 <= 32 * 1024);
         Assert.Throws<ArgumentOutOfRangeException>(() =>
             WorkshopPresentationWire.Encode(sample, false, scene, new(101), default, new(17)));
@@ -315,14 +318,18 @@ public sealed class WorkshopWireTests
     }
 
     [Theory]
-    [InlineData(90U, 11_111_111L, 11_111_112L)]
-    [InlineData(144U, 6_944_444L, 6_944_445L)]
-    public void SharedPulseUsesAbsoluteRationalDeadlines(uint frequency, long before, long first)
+    [InlineData(90U, 11_111_111L, 11_111_112L, 0L)]
+    [InlineData(144U, 6_944_444L, 6_944_445L, 0L)]
+    [InlineData(90U, 11_111_111L, 11_111_112L, 3600L)]
+    [InlineData(144U, 6_944_444L, 6_944_445L, 3600L)]
+    public void SharedPulseUsesAbsoluteRationalDeadlines(uint frequency, long before, long first, long originSeconds)
     {
         var rate = new PulseRate(frequency, 1);
-        Assert.Equal(new PulseOrdinal(0), WorkshopPulse.Due(rate, new(before)));
-        Assert.Equal(new PulseOrdinal(1), WorkshopPulse.Due(rate, new(first)));
-        Assert.Equal(new MasterTimeNanoseconds(first), WorkshopPulse.Deadline(rate, new(1)));
+        var origin = originSeconds * 1_000_000_000;
+        var pulse = (ulong)originSeconds * frequency;
+        Assert.Equal(new PulseOrdinal(pulse), WorkshopPulse.Due(rate, new(origin + before)));
+        Assert.Equal(new PulseOrdinal(pulse + 1), WorkshopPulse.Due(rate, new(origin + first)));
+        Assert.Equal(new MasterTimeNanoseconds(origin + first), WorkshopPulse.Deadline(rate, new(pulse + 1)));
         Assert.Equal(new PulseOrdinal(frequency), WorkshopPulse.Due(rate, new(1_000_000_000)));
         Assert.Equal(new MasterTimeNanoseconds(1_000_000_000), WorkshopPulse.Deadline(rate, new(frequency)));
         Assert.NotEqual(first * frequency, WorkshopPulse.Deadline(rate, new(frequency)).Value);
@@ -683,7 +690,7 @@ public sealed class WorkshopWireTests
             Assert.Equal(PresentationQuality.Terminal, held.Quality);
             Assert.Equal(0UL, held.Evidence.Before!.Value.Tick.Value);
             Assert.Equal(100_000_000, held.Evidence.Before.Value.Capture.Time.Value);
-            Assert.Equal(0, held.SimulationTime.Seconds);
+            Assert.Equal(default, held.SimulationTime.Time);
             Assert.False(history.TryPresent(new(316_000_000), new(316_000_000), clock, out _));
         }
         if (faultBeforeTick)
@@ -1233,9 +1240,12 @@ public sealed class WorkshopWireTests
             WriteSingle(bytes, offset + PhysicsMotionRead.AngularAccelerationOffset + 4, .5f);
         }
         var motion = PhysicsMotionRead.Decode(bytes, Bodies(body), new(1));
-        Assert.True(motion.TrySample(body.Id, .5, out var pose));
+        Assert.True(motion.TrySample(body.Id, new(1, -2048), out var pose));
         Assert.Equal(0, pose.Cell.X);
-        Assert.Equal((float)(16 * .5 * 32 * Math.Pow(.5 / 480, 2)), pose.Local.X);
+        // Bounded quadratic evaluator: at most five rounded products/divisions, independently derived x = a*t²/2.
+        var expected = 16 * .5 * 32 * Math.Pow(.5 / 480, 2);
+        var arithmeticAllowance = expected * 5 * Math.ScaleB(1, -24);
+        Assert.InRange(pose.Local.X - expected, -arithmeticAllowance, arithmeticAllowance);
         var unknown = (byte[])bytes.Clone(); BinaryPrimitives.WriteUInt32LittleEndian(unknown.AsSpan(PhysicsMotionRead.HeaderBytes), 4);
         Assert.Throws<ArgumentException>(() => PhysicsMotionRead.Decode(unknown, Bodies(body), new(1)));
         var spinning = (byte[])bytes.Clone();
@@ -1302,8 +1312,8 @@ public sealed class WorkshopWireTests
         Assert.Equal(originalMotion.Motion.LastOrdinal, repeated.Motion.LastOrdinal);
         for (var ordinal = 0; ordinal < 4; ordinal++)
         {
-            Assert.True(originalMotion.Motion.TrySample(new(1), ordinal, out var expected));
-            Assert.True(repeated.Motion.TrySample(new(1), ordinal, out var actual));
+            Assert.True(originalMotion.Motion.TrySample(new(1), new((ulong)ordinal), out var expected));
+            Assert.True(repeated.Motion.TrySample(new(1), new((ulong)ordinal), out var actual));
             Assert.Equal(expected, actual);
         }
     }

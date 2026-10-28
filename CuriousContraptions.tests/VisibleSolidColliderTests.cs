@@ -396,7 +396,7 @@ public sealed class VisibleSolidColliderTests
 
     private static WorkshopGenericInstance Place(PartId part, GpuBodyId id, NumVector3 at, NumQuaternion rotation,
         InstanceParameterCollection? parameters = null) =>
-        WorkshopInput.Generic(part, id, at.X, at.Y, at.Z, rotation.X, rotation.Y, rotation.Z, rotation.W, parameters);
+        WorkshopInput.Generic(part, id, (float)(at.X), (float)(at.Y), (float)(at.Z), (float)(rotation.X), (float)(rotation.Y), (float)(rotation.Z), (float)(rotation.W), parameters);
     private static WorkshopGenericInstance BallAt(NumVector3 at) => Place(PartId.Basketball, Ball, at, NumQuaternion.Identity);
 
     private static NumVector3 Position(WorkshopRead read)
@@ -525,7 +525,7 @@ public sealed class VisibleSolidColliderTests
     {
         var (part, rotation, top, x, z, staticRestitution) = Drop(feature);
         IWorkshopInstance element = part == PartId.Pipe
-            ? WorkshopInput.Pipe(Element, 0, Y, 0, rotation.X, rotation.Y, rotation.Z, rotation.W)
+            ? WorkshopInput.Pipe(Element, 0, (float)(Y), 0, (float)(rotation.X), (float)(rotation.Y), (float)(rotation.Z), (float)(rotation.W))
             : Place(part, Element, new(0, (float)Y, 0), rotation);
         // A torus's top is a point apex, like a sphere's: no stable rest.
         await AssertDropOnto(element, x, z, top, staticRestitution, feature.ToString(),
@@ -615,7 +615,7 @@ public sealed class VisibleSolidColliderTests
     /// restitution 1) returns the Basketball at its own 0.55 under the product law, by the same drop and bounds.</summary>
     [Fact]
     public async Task ABallDroppedOntoAStaticWallReboundsAtItsOwnRestitution() =>
-        await AssertDropOnto(WorkshopInput.Generic(PartId.Wall, Element, 0, Y, 0, 0, 0, 0, 1, WallFixture.Default), 0, 0,
+        await AssertDropOnto(WorkshopInput.Generic(PartId.Wall, Element, 0, (float)(Y), 0, 0, 0, 0, 1, WallFixture.Default), 0, 0,
             WallFixture.Default[new("height")] * .5, 1, "Wall", apex: false, fall: .5);
 
     private static async Task AssertDropOnto(IWorkshopInstance element, float x, float z, double top, double staticRestitution, string feature,

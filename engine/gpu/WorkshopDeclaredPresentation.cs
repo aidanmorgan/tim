@@ -16,7 +16,7 @@ public sealed class WorkshopDeclaredPresentation
     private sealed class Track
     {
         /// <summary>A Replace event clip's cue times not yet reached by the presentation clock, oldest first.</summary>
-        public List<double> Cues = new(8);
+        public List<PhysicalTime> Cues = new(8);
         public required GpuBodyId Owner;
         public required int Index;
         public required PresentationBinding Declaration;
@@ -41,8 +41,8 @@ public sealed class WorkshopDeclaredPresentation
     private WorkshopResponse _latest;
     private readonly List<DeclaredPresentationSample> _samples = new(16);
     private ulong _frame;
-    private double _time;
-    private readonly double _tickSeconds;
+    private PhysicalTime _time;
+    private readonly uint _substeps;
     private readonly WorkshopConstruction _construction;
 
     public WorkshopDeclaredPresentation(WorkshopConstruction construction, WorkshopResponse endpoint)
@@ -51,8 +51,8 @@ public sealed class WorkshopDeclaredPresentation
         _construction = construction;
         WorkshopMessages.ValidatePresentationOwners(endpoint.Read, construction);
         _latest = endpoint;
-        _time = endpoint.Read.Capture is { } capture ? capture.Time.Value / 1_000_000_000d : 0;
-        _tickSeconds = (double)construction.Settings.SimulationRate.Denominator / construction.Settings.SimulationRate.Numerator;
+        _time = new(checked(endpoint.Read.Tick.Value * construction.Settings.PhysicalStepsPerCommit));
+        _substeps = construction.Settings.PhysicalStepsPerCommit;
         var nodes = WorkshopActivationCompiler.Compile(construction).Nodes;
         var tracks = new List<Track>(16);
         foreach (var instance in construction.Instances)
@@ -81,19 +81,19 @@ public sealed class WorkshopDeclaredPresentation
             {
                 track.Value = 0;
                 track.Handle = _batch.RegisterFollow(binding, new(Value(d.Property, d.From), Value(d.Property, d.To),
-                    Value(d.Property, 0), new(d.Response), AnimationClock.Presentation));
+                    Value(d.Property, 0), new(d.Response), AnimationClock.Simulation));
             }
             else if (d.Driver == PresentationDriver.Event && d.Curve == PresentationCurve.SineSquaredPulse)
                 // Each record adds one pulse at its own physical time; overlapping pulses combine (the bundle admits SaturatingSum).
                 track.Handle = _batch.RegisterImpulses(new(track.Target, AnimationProperty.ColourBlend),
                     new(new(d.Duration), AnimationImpulseCurve.SineSquaredPulse, AnimationImpulseOverlap.SaturatingSum,
-                        AnimationImpulseVisibility.AdvanceWhileHidden, AnimationClock.Presentation,
+                        AnimationImpulseVisibility.AdvanceWhileHidden, AnimationClock.Simulation,
                         AnimationImpulseTiming.EventTime, AnimationImpulseDefinition.CanonicalPeak(AnimationImpulseCurve.SineSquaredPulse)),
                     new(new AnimationColourBlend(0)), new(new AnimationColourBlend(1)));
             else if (d.Curve == PresentationCurve.LinearDecay)
                 track.Handle = _batch.RegisterImpulses(new(track.Target, AnimationProperty.ColourBlend),
                     new(new(d.Duration), AnimationImpulseCurve.LinearDecay, AnimationImpulseOverlap.Maximum,
-                        AnimationImpulseVisibility.DeferUntilVisible, AnimationClock.Presentation,
+                        AnimationImpulseVisibility.DeferUntilVisible, AnimationClock.Simulation,
                         AnimationImpulseTiming.EventTimeRetainFirstFrame, new(0)),
                     new(new AnimationColourBlend(0)), new(new AnimationColourBlend(1)));
             else if (d.Duration > 0)
@@ -101,9 +101,9 @@ public sealed class WorkshopDeclaredPresentation
                     new(new(new AnimationColourBlend(0)), new(new AnimationColourBlend(1)), new(d.Duration),
                         d.Curve == PresentationCurve.SmoothStep ? AnimationCurve.SmoothStep :
                         d.Curve == PresentationCurve.CubicSmoothStep ? AnimationCurve.CubicSmoothStep : AnimationCurve.Linear,
-                        AnimationRepeat.Once, AnimationClock.Presentation));
+                        AnimationRepeat.Once, AnimationClock.Simulation));
         }
-        _batch.Advance(++_frame, _time, endpoint.Read.Tick.Value * _tickSeconds);
+        _batch.Advance(++_frame, default, _time);
         // Installation begins with the current occurrence, not an unobserved historical backlog.
         foreach (var track in _tracks)
             if (track.Declaration.Driver == PresentationDriver.CommittedOscillatorPulse)
@@ -126,12 +126,9 @@ public sealed class WorkshopDeclaredPresentation
         return result;
     }
 
-    /// <summary>The presentation-clock time (master seconds) of a record's physical instant: its ordinal and phase (1/4096 of a
-    /// physical step) on the 480 Hz physical clock, placed through the installed projection's anchor (the tick it maps to master time).
+    /// <summary>The world-clock timestamp of a record's physical instant: its ordinal and phase on the 480 Hz physical clock.
     /// It is the existing <see cref="AnimationImpulseTiming.EventTime"/> clock, so a cue starts at the event, never the tick boundary.</summary>
-    public static double EventSeconds(SimulationEventRecord record, WorkshopWorldProjection world, double tickSeconds) =>
-        world.AnchorMaster.Value / 1_000_000_000d +
-        ((record.Ordinal + (double)record.Phase / 4096d) / WorkshopCadenceSettings.PhysicalFrequency - world.AnchorTick.Value * tickSeconds);
+    public static PhysicalTime EventTime(SimulationEventRecord record) => new(record.Ordinal, record.Phase);
 
     /// <summary>Story 9A.23/9A.25b: one delivery of the Animation worker's event ring cursor, for the installed world. Each record starts
     /// exactly one cue on every event binding of its owner (record Source) that names its kind; any other record (a foreign owner, an
@@ -151,15 +148,14 @@ public sealed class WorkshopDeclaredPresentation
             record.Validate();
             if (record.Sequence <= last) throw new ArgumentException("An event record was delivered twice.");
             last = record.Sequence;
-            var at = EventSeconds(record, world, _tickSeconds);
-            if (!double.IsFinite(at)) throw new ArgumentException("Nonfinite event presentation time.");
+            _ = EventTime(record);
             for (var i = 0; i < _tracks.Length; i++)
             {
                 var track = _tracks[i];
                 if (!Matches(track, record)) continue;
                 counts[i] = checked(counts[i] + 1);
                 if (track.Declaration.Curve == PresentationCurve.SineSquaredPulse)
-                    _batch.ValidateImpulseAdmission(track.Handle!.Value, new(record.Sequence), new(1), at);
+                    _batch.ValidateImpulseAdmission(track.Handle!.Value, new(record.Sequence), new(1));
             }
         }
         // Prepare only the actual matching occurrences. No cue, sequence or level changes before all reservations succeed.
@@ -183,7 +179,7 @@ public sealed class WorkshopDeclaredPresentation
         }
         foreach (var record in delivery.Records)
         {
-            var at = EventSeconds(record, world, _tickSeconds);
+            var at = EventTime(record);
             foreach (var track in _tracks)
             {
                 if (!Matches(track, record)) continue;
@@ -251,8 +247,7 @@ public sealed class WorkshopDeclaredPresentation
                 if (count > Array.MaxLength) throw new AnimationStorageException();
                 if (count > 0)
                 {
-                    _batch.ValidateImpulseAdmission(previous.Handle!.Value, new(staged[i].Count), new(1),
-                        read.Capture!.Value.Time.Value / 1_000_000_000d);
+                    _batch.ValidateImpulseAdmission(previous.Handle!.Value, new(staged[i].Count), new(1));
                     _batch.ReserveImpulses(previous.Handle.Value, (int)count);
                 }
             }
@@ -281,7 +276,7 @@ public sealed class WorkshopDeclaredPresentation
             {
                 for (ulong occurrence = (ulong)track.Count + 1; occurrence <= next.Count; occurrence++)
                     _batch.EnqueueImpulse(track.Handle!.Value, new(occurrence), new(1),
-                        read.Capture!.Value.Time.Value / 1_000_000_000d);
+                        new PhysicalTime(checked(read.Tick.Value * _substeps)));
             }
             else if (track.Handle is { } handle && input != track.Input)
                 _batch.DriveTo(handle, input >= 1 ? AnimationEndpoint.To : AnimationEndpoint.From, _time);
@@ -377,11 +372,27 @@ public sealed class WorkshopDeclaredPresentation
         throw new ArgumentException("Declared presentation query is absent from the committed read.");
     }
 
-    public IReadOnlyList<DeclaredPresentationSample> Advance(double presentationSeconds)
+    /// <summary>Worker schedule evaluation cannot outrun its admitted committed read. A stopped projection holds its anchor;
+    /// running interpolation is bounded by that same committed world, so Pause/Step/Completed never rewind retained channels.</summary>
+    internal IReadOnlyList<DeclaredPresentationSample> Advance(WorkshopSchedule schedule, PhysicalTime master)
     {
-        if (!double.IsFinite(presentationSeconds) || presentationSeconds < _time)
+        if (schedule.World.WorldGeneration != _latest.Read.Epoch || schedule.World.Epoch != _latest.Projection ||
+            schedule.Settings != _construction.Settings)
+            throw new ArgumentException("Foreign declared presentation schedule.");
+        var anchor = new PhysicalTime(checked(schedule.World.AnchorTick.Value * _substeps));
+        var committed = new PhysicalTime(checked(_latest.Read.Tick.Value * _substeps));
+        if (anchor > committed) throw new ArgumentException("Projection exceeds admitted committed time.");
+        var world = schedule.World.Playback == WorldPlayback.Running
+            ? anchor.AddElapsed(PhysicalTime.FromNanoseconds(schedule.World.AnchorMaster.Value), master)
+            : anchor;
+        return Advance(world > committed ? committed : world);
+    }
+
+    public IReadOnlyList<DeclaredPresentationSample> Advance(PhysicalTime worldTime)
+    {
+        if (worldTime < _time)
             throw new ArgumentException("Presentation clock reversed.");
-        _time = presentationSeconds;
+        _time = worldTime;
         // A Replace cue the clock has reached restarts its clip at the cue's own time (already past when observed late, so the clip is
         // at the exact phase, or at To once expired); of several reached cues only the newest matters, since each restarts from From.
         foreach (var track in _tracks)
@@ -392,7 +403,7 @@ public sealed class WorkshopDeclaredPresentation
             _batch.StartAtOccurrence(track.Handle!.Value, track.Cues[reached]);
             track.Cues.RemoveRange(0, reached + 1);
         }
-        _batch.Advance(++_frame, _time, _latest.Read.Tick.Value * _tickSeconds);
+        _batch.Advance(++_frame, default, _time);
         _samples.Clear();
         foreach (var track in _tracks)
         {

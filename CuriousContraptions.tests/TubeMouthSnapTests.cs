@@ -52,10 +52,10 @@ public sealed class TubeMouthSnapTests
         var q = rotation.Normalized();
         if (part == PartId.Pipe)
         {
-            IWorkshopInstance pipe = WorkshopInput.Pipe(new(id), position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W) with { Locked = locked };
+            IWorkshopInstance pipe = WorkshopInput.Pipe(new(id), (float)(position.X), (float)(position.Y), (float)(position.Z), (float)(q.X), (float)(q.Y), (float)(q.Z), (float)(q.W)) with { Locked = locked };
             return pipe;
         }
-        var x = WorkshopInput.Position(position.X); var y = WorkshopInput.Position(position.Y); var z = WorkshopInput.Position(position.Z);
+        var x = WorkshopInput.Position((float)(position.X)); var y = WorkshopInput.Position((float)(position.Y)); var z = WorkshopInput.Position((float)(position.Z));
         return new WorkshopGenericInstance(part, new(id), new(x.Cell, y.Cell, z.Cell), new(x.Local, y.Local, z.Local),
             CanonicalRotation.Normalize(q.X, q.Y, q.Z, q.W), locked);
     }
@@ -378,7 +378,7 @@ public sealed class TubeMouthSnapTests
         var (entry, _) = World(definitions, upstream, TubeMouthEnd.Start);
         var (exit, exitOutward) = World(definitions, downstream, TubeMouthEnd.End);
         var drop = entry + new Vector3(joint == Joint.FunnelOutletToPipe ? .3f : 0, .6f, 0);
-        var ball = WorkshopInput.Generic(PartId.Basketball,new(1), drop.X, drop.Y, drop.Z, 0, 0, 0, 1);
+        var ball = WorkshopInput.Generic(PartId.Basketball,new(1), (float)(drop.X), (float)(drop.Y), (float)(drop.Z), 0, 0, 0, 1);
         return (new(new(2), WorkshopCadenceSettings.Default(), new(ball, upstream, downstream)), entry, exit, exitOutward);
     }
 

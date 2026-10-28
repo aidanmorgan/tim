@@ -168,7 +168,7 @@ export async function create(states: number[], bootstrapBytes: Uint8Array, clock
             state: ready,
             identity: undefined, clockAbi: { clockProfile, peerBytes, probeBytes, replyBytes, diagnosticBytes, browserRole, masterRole }, captureMode,
             observations: captureMode === 2 ? new Uint8Array(128 * diagnosticBytes) : undefined, observationNext: 0, observationCount: 0, observationSequence: 0n,
-            presentations: captureMode === 2 ? new Uint8Array(32 * 360) : undefined, presentationSequence: 0n,
+            presentations: captureMode === 2 ? new Uint8Array(32 * 364) : undefined, presentationSequence: 0n,
             events: new EventRingCursor() };
         attachPoseRing(client, poseRing);
         client.worker = worker;
@@ -435,8 +435,8 @@ export function clockObservation(id: number, bytes: Uint8Array) {
     client.observationCount = Math.min(128, client.observationCount + 1);
 
 }
-// Both fixed diagnostic rings total 29,952 retained payload bytes. Extraction visits at most 8 records and does
-// not copy the ring; its largest Number payload is 8*360*8=23,040 scratch bytes.
+// Both fixed diagnostic rings total 30,080 retained payload bytes. Extraction visits at most 8 records and does
+// not copy the ring; its largest Number payload is 8*364*8=23,296 scratch bytes.
 function evidence(client: Client, ring: Uint8Array | undefined, total: bigint, recordBytes: number, capacity: number, afterSequence: string) {
     if (typeof afterSequence !== 'string' || !/^(0|[1-9][0-9]{0,19})$/.test(afterSequence))
         throw new Error('Evidence cursor must be an exact unsigned decimal sequence.');
@@ -462,15 +462,15 @@ export function clockEvidence(id: number, afterSequence = '0') {
 export function presentationObservation(id: number, bytes: Uint8Array) {
     const client = owner(id);
     if (!client.presentations) throw new Error('Presentation capture is unavailable in Production.');
-    if (!(bytes instanceof Uint8Array) || bytes.length !== 360)
+    if (!(bytes instanceof Uint8Array) || bytes.length !== 364)
         throw new Error('Invalid fixed presentation diagnostic record.');
     if (client.presentationSequence === 0xffffffffffffffffn) throw new Error('Presentation evidence sequence exhausted.');
-    client.presentations.set(bytes, Number(client.presentationSequence % 32n) * 360);
+    client.presentations.set(bytes, Number(client.presentationSequence % 32n) * 364);
     client.presentationSequence++;
 }
 export function presentationEvidence(id: number, afterSequence = '0') {
     const client = owner(id);
-    return evidence(client, client.presentations, client.presentationSequence, 360, 32, afterSequence);
+    return evidence(client, client.presentations, client.presentationSequence, 364, 32, afterSequence);
 }
 export function qualified(id: number) {
     const client = owner(id);

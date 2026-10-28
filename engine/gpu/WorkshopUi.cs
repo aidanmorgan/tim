@@ -45,6 +45,6 @@ public readonly record struct UiCurveDeclaration(WorkshopUiTarget Target, Worksh
 /// <summary>The declared UI curves; the hint reveals from transparent, the goal label rests transparent until solved.</summary>
 public static class UiCurves
 {
-    public static UiCurveDeclaration Hint => new(WorkshopUiTarget.Hint, WorkshopUiFeedback.Control, AnimationCurve.SmoothStep, (float).16, (float)1);
+    public static UiCurveDeclaration Hint => new(WorkshopUiTarget.Hint, WorkshopUiFeedback.Control, AnimationCurve.SmoothStep, .16f, (float)1);
     public static UiCurveDeclaration Goal => new(WorkshopUiTarget.Goal, WorkshopUiFeedback.Goal, AnimationCurve.Linear, (float)1, (float)0);
 }

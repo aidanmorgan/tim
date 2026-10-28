@@ -30,7 +30,7 @@ public partial class Workshop
             var nextId = new GpuBodyId(_nextId.Value + count);
             var candidate = id.IsAuthored
                 ? PuzzleCatalogue.Create(id, World.Construction.Revision, World.Construction.Settings,
-                    _nextId, new((float)(_precision.Value / 100)))
+                    _nextId, new(PrecisionInput(_precision.Value) / 100f))
                 : new WorkshopConstruction(World.Construction.Revision, World.Construction.Settings, WorkshopInstances.Empty);
             if (!await SubmitConstruction(candidate)) { PresentMode(); return; }
             _nextId = nextId;
@@ -51,35 +51,43 @@ public partial class Workshop
         _task.Text = presentation?.Task ?? "Place parts and connect activation sockets. Run tries the machine; Reset restores its starting arrangement.";
         _hint.Visible = false; _task.Visible = _hintButton.Visible = authored;
         _optionsPanel.Visible = false; _objectivePanel.Visible = authored;
-        if (authored) _precision.SetValueNoSignal((double)World.Construction.Puzzle.Precision.Value * 100);
-        _precisionText.Text = _precision.Value < 33 ? "Forgiving" : _precision.Value > 66 ? "Precise" : "Balanced";
+        if (authored) _precision.SetValueNoSignal(World.Construction.Puzzle.Precision.Value * 100f);
+        var precision = PrecisionInput(_precision.Value);
+        _precisionText.Text = precision < 33 ? "Forgiving" : precision > 66 ? "Precise" : "Balanced";
         SetBuildUi(); RefreshPalette(); RefreshLayers();
         _placementHeight = new(3f); SetBuildView(authored);
         if (presentation is not null) _status.Text = presentation.Status;
     }
 
+    private static float PrecisionInput(double value)
+    {
+        if (!double.IsFinite(value) || value < 0 || value > 100)
+            throw new ArgumentOutOfRangeException(nameof(value));
+        return (float)value;
+    }
+
     private async void ChangePrecision(double value)
     {
-        try { await ChangePrecisionAsync(value); }
+        try { await ChangePrecisionAsync(PrecisionInput(value)); }
         catch (Exception error) { HandlerFailed(nameof(ChangePrecision), error); }
     }
 
-    private async Task ChangePrecisionAsync(double value)
+    private async Task ChangePrecisionAsync(float value)
     {
         if (!World.Construction.Puzzle.Id.IsAuthored)
         {
             _precisionText.Text = value < 33 ? "Forgiving" : value > 66 ? "Precise" : "Balanced";
             _status.Text = "Free Workshop keeps the Receiver’s capture settings unchanged."; return;
         }
-        if (!CanEdit) { _precision.SetValueNoSignal((double)World.Construction.Puzzle.Precision.Value * 100); return; }
+        if (!CanEdit) { _precision.SetValueNoSignal(World.Construction.Puzzle.Precision.Value * 100f); return; }
         try
         {
-            var precision = new PuzzlePrecision((float)(value / 100));
+            var precision = new PuzzlePrecision(value / 100f);
             var candidate = PuzzleCatalogue.WithPrecision(World.Construction, precision);
-            if (!await SubmitConstruction(candidate)) { _precision.SetValueNoSignal((double)World.Construction.Puzzle.Precision.Value * 100); return; }
+            if (!await SubmitConstruction(candidate)) { _precision.SetValueNoSignal(World.Construction.Puzzle.Precision.Value * 100f); return; }
             _precisionText.Text = value < 33 ? "Forgiving" : value > 66 ? "Precise" : "Balanced";
             _status.Text = PuzzleCatalogue.Presentation(World.Construction.Puzzle.Id).PrecisionStatus;
         }
-        catch (Exception error) { var failure = WorkshopUiFailure.Report(error); _precision.SetValueNoSignal((double)World.Construction.Puzzle.Precision.Value * 100); _status.Text = failure; }
+        catch (Exception error) { var failure = WorkshopUiFailure.Report(error); _precision.SetValueNoSignal(World.Construction.Puzzle.Precision.Value * 100f); _status.Text = failure; }
     }
 }

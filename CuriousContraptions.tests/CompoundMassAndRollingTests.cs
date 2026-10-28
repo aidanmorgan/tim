@@ -535,8 +535,8 @@ public sealed class CompoundCaptureOwnershipTests
             var centre = Vector3.Transform(new Vector3(x, 1, 0), rotation);
             var parameters = InstanceParameterCollection.Defaults(PartId.Receiver).ToDictionary();
             parameters[new("force_maximum_acceleration")] = 12f;
-            return WorkshopInput.Generic(PartId.Receiver, new(id), centre.X, centre.Y, centre.Z,
-                rotation.X, rotation.Y, rotation.Z, rotation.W,
+            return WorkshopInput.Generic(PartId.Receiver, new(id), (float)(centre.X), (float)(centre.Y), (float)(centre.Z),
+                (float)(rotation.X), (float)(rotation.Y), (float)(rotation.Z), (float)(rotation.W),
                 new(parameters));
         }
         var left = Receiver(5, -.2f); var right = Receiver(6, .2f);
@@ -649,7 +649,7 @@ public sealed class CompoundCaptureOwnershipTests
             PayloadInstanceTests.Place(PartId.BowlingBall, 2, namedCaptures ? 4 : 0, 1.1, 0)
         };
         if (growth)
-            for (var i = 0; i < 32; i++) parts.Add(PlacedParts.Plate(new((ulong)(100 + i)), 8 + 2.5 * (i % 4), 3, -10 + 2.5 * (i / 4), .5f));
+            for (var i = 0; i < 32; i++) parts.Add(PlacedParts.Plate(new((ulong)(100 + i)), (float)(8 + 2.5 * (i % 4)), 3, (float)(-10 + 2.5 * (i / 4)), .5f));
         var withoutReceiver = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(parts.ToArray()));
         var absentRead = (await WorkshopPhysicsEngineTests.Run(withoutReceiver, 1))[^1];
         Assert.Equal(WorkshopGoalPhase.Waiting, WorkshopGoalEvaluator.Evaluate(goal, absentRead, absentRead.Epoch, withoutReceiver.Instances.Identities));
@@ -717,7 +717,7 @@ public sealed class CompoundPassageBoundaryTests
         var layout = PhysicsGpuAbi.Layout(final.World);
         var motion = PhysicsMotionRead.Decode(final.World.AsSpan(layout.MotionOffset, layout.MotionBytes), bodies, new(1));
         Assert.True(final[body].Position.X < 0, "the committed endpoint has returned upstream");
-        Assert.True(Enumerable.Range(1,7).Any(i => motion.TrySample(body, i - .0001, out var pose) &&
+        Assert.True(Enumerable.Range(1,7).Any(i => motion.TrySample(body, new((ulong)i, -.4096f), out var pose) &&
             (pose.Cell.X + pose.Local.X) / 16 > 0), "the real trajectory crossed within the tick");
         var outputs = new PassageSensorRead[1];
         var candidate = tracker.Advance(new(1), bodies, motion, outputs, out var count);
@@ -788,7 +788,7 @@ public sealed class CompoundPassageBoundaryTests
     public void SparsePassageRetainsUpstreamArmingAcrossLateralEntryButNeverInventsInitialBandArming(float degrees, bool initiallyUpstream)
     {
         var q=Quaternion.CreateFromAxisAngle(Vector3.UnitY,degrees*MathF.PI/180);
-        var detector=PlacedParts.Detector(new(10),0,3,0,q.X,q.Y,q.Z,q.W);
+        var detector=PlacedParts.Detector(new(10),0,3,0,(float)(q.X),(float)(q.Y),(float)(q.Z),(float)(q.W));
         var ball=PayloadInstanceTests.Place(PartId.Basketball,2,-1,3,2);
         var construction=new WorkshopConstruction(new(2),WorkshopCadenceSettings.Default(),new([detector,ball]));
         var scene=WorkshopPhysicsCompiler.Compile(construction,new(1,2));
@@ -796,7 +796,7 @@ public sealed class CompoundPassageBoundaryTests
         PhysicsBodyReadSet At(float x,float z)
         {
             var world=new Vector3(0,3,0)+Vector3.Transform(new Vector3(x,0,z),q);
-            var px=WorkshopInput.Position(world.X); var py=WorkshopInput.Position(world.Y); var pz=WorkshopInput.Position(world.Z);
+            var px=WorkshopInput.Position((float)(world.X)); var py=WorkshopInput.Position((float)(world.Y)); var pz=WorkshopInput.Position((float)(world.Z));
             return new([new(new CanonicalBody(ball.Id,0,0,new(px.Cell,py.Cell,pz.Cell),new(px.Local,py.Local,pz.Local),default),
                 CanonicalRotation.Identity,default,default)]);
         }
@@ -831,7 +831,7 @@ public sealed class CompoundPassageBoundaryTests
         var sensors = WorkshopActivationCompiler.Compile(construction).PassageSensors.ToArray();
         PhysicsBodyReadSet At(float x)
         {
-            var position = WorkshopInput.Position(x);
+            var position = WorkshopInput.Position((float)(x));
             return new(scene.Bodies.ToArray().Select(body => new PhysicsBodyRead(
                 new CanonicalBody(body.Id, 0, 0,
                     body.Id == ball.Id ? new(position.Cell, body.Cell.Y, body.Cell.Z) : body.Cell,
@@ -1005,7 +1005,7 @@ public sealed class MultiBodyPresentationTests(NativeSceneFixture godot)
     public async Task CommittedVisualTargetsReuseCommonStorageAndGrowAtTheWatermark()
     {
         var instances = Enumerable.Range(0, 25).Select(index => WorkshopInput.Generic(PartId.Basketball,
-            new GpuBodyId((ulong)index + 1), index % 5 - 2, 3, index / 5 - 2, 0, 0, 0, 1)).ToArray();
+            new GpuBodyId((ulong)index + 1), (float)(index % 5 - 2), 3, (float)(index / 5 - 2), 0, 0, 0, 1)).ToArray();
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(instances.Cast<IWorkshopInstance>().ToArray()));
         var read = (await WorkshopPhysicsEngineTests.Run(construction, 1))[^1];
         var registry = new PartRegistry(); registry.Load();
@@ -1095,8 +1095,8 @@ public sealed class MultiBodyPresentationTests(NativeSceneFixture godot)
         for (var index = 0; index < sliders.Length; index++)
         {
             var slider = sliders[index]; var ids = rows.Sliders[index];
-            var x = WorkshopInput.Position(slider.BaseFrame.Position.X);
-            var y = WorkshopInput.Position(3 - slider.Compression.Constant);
+            var x = WorkshopInput.Position((float)(slider.BaseFrame.Position.X));
+            var y = WorkshopInput.Position((float)(3 - slider.Compression.Constant));
             bodies.Add(new(ids.Body, RigidMotionKind.Dynamic, new(x.Cell, y.Cell, 0), new(x.Local, y.Local, 0),
                 CanonicalRotation.Identity, new(0, index == 0 ? .2f : -.3f, 0), default, new(1), default, default,
                 new(default, CanonicalRotation.Identity, new(1), new(1), new(1))));

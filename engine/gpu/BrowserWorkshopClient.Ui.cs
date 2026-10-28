@@ -69,7 +69,7 @@ public sealed partial class BrowserWorkshopClient
     }
     /// <summary>Story 9A.23 D8: the main thread's own event ring read (the shared reader), for the installed world's epoch.</summary>
     [JSImport("readEvents", "workshopClient")]
-    private static partial byte[] ReadEvents(int client, double epoch);
+    private static partial byte[] ReadEvents(int client, string epoch);
     private WorkshopGoalWake? _goalWake;
     private void RetireGoalFeedback()
     { _goalRequested = null; _goalSample = null; _goalOrdinal = 0; _goalRetry = false; _goalWake = null; }
@@ -86,7 +86,7 @@ public sealed partial class BrowserWorkshopClient
         if (_preparation is not null || _schedule is not { } schedule || _readScene is not { } scene ||
             _history.Latest is not { } latest || latest.Read.Epoch != schedule.World.WorldGeneration) return;
         _goalWake ??= new WorkshopGoalWake(_construction.Puzzle.Goal, scene);
-        _goalWake.Observe(Abstractions.EventRingDelivery.Read(ReadEvents(_id.Value, schedule.World.WorldGeneration.Value)), latest.Read.Tick);
+        _goalWake.Observe(Abstractions.EventRingDelivery.Read(ReadEvents(_id.Value, schedule.World.WorldGeneration.Value.ToString(System.Globalization.CultureInfo.InvariantCulture))), latest.Read.Tick);
         if (_animationPending is not null || (_goalRequested is not null && !_goalRetry) ||
             (!_goalRetry && !_goalWake.Due(latest.Read.Tick))) return;
         var solved = WorkshopGoalEvaluator.Occurrence(_construction.Puzzle.Goal, latest.Read, Epoch, _construction.Instances.Identities);

@@ -88,7 +88,7 @@ public sealed class WorkshopSaveTests
     {
         _ = SaveFixture.Elements;
         var initial = PuzzleCatalogue.Create(new("ready_to_rebound"), new(1), WorkshopCadenceSettings.Default(), new(1), new(.45f));
-        var input = WorkshopInput.Generic(PartId.Receiver, new(8), 2.25, 1.75, .5, 0, 0, 0, 1);
+        var input = WorkshopInput.Generic(PartId.Receiver, new(8), 2.25f, 1.75f, .5f, 0, 0, 0, 1);
         var valid = initial.WithInstance(input); valid.Validate();
         var receiver = ((WorkshopGenericInstance)valid.Instances.Single(instance => instance.PartId == PartId.Receiver));
         Assert.Equal(input.Cell, receiver.Cell); Assert.Equal(input.Local, receiver.Local); Assert.Equal(input.Rotation, receiver.Rotation);
@@ -287,8 +287,8 @@ public sealed class WorkshopSaveTests
 
     private static WorkshopSavedConstruction Saved()
     {
-        var ball = WorkshopInput.Generic(PartId.Basketball,new(2), .125, 3, -.25, 0, 0, 0, 1);
-        var receiver = WorkshopInput.Generic(PartId.Receiver, new(3), .5, 1, -.5, 0, 0, 0, 1);
+        var ball = WorkshopInput.Generic(PartId.Basketball,new(2), .125f, 3, -.25f, 0, 0, 0, 1);
+        var receiver = WorkshopInput.Generic(PartId.Receiver, new(3), .5f, 1, -.5f, 0, 0, 0, 1);
         return new(new(new(9), WorkshopCadenceSettings.Default(), new(ball, receiver)), new(7));
     }
 
@@ -377,8 +377,8 @@ public sealed class WorkshopSaveTests
     public void TwoRampInstancesKeepDistinctCanonicalDimensionsThroughSaveAndCompile()
     {
         var saved = Saved();
-        var a = WorkshopInput.Generic(PartId.Ramp, new(4), -3.4, 4.3, 0, 0, 0, 0, 1);
-        var b = WorkshopInput.Generic(PartId.Ramp, new(5), -.7, 2.7, 0, 0, 0, 0, 1, new([new(new("length"), 2.5f), new(new("width"), .75f)])) with { Locked = true };
+        var a = WorkshopInput.Generic(PartId.Ramp, new(4), -3.4f, 4.3f, 0, 0, 0, 0, 1);
+        var b = WorkshopInput.Generic(PartId.Ramp, new(5), -.7f, 2.7f, 0, 0, 0, 0, 1, new([new(new("length"), 2.5f), new(new("width"), .75f)])) with { Locked = true };
         saved = saved with { Construction = saved.Construction.WithInstance(a).WithInstance(b) };
         var bytes = WorkshopSaveCodec.Encode(saved);
         var decoded = WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes);
@@ -453,8 +453,8 @@ public sealed class WorkshopSaveTests
     {
         var precision = new PuzzlePrecision((float)value);
         var construction = PuzzleCatalogue.Create(new("first_principles"), new(1), WorkshopCadenceSettings.Default(), new(11), precision);
-        var a = WorkshopInput.Generic(PartId.Ramp, new(13), -3.4, 4.3, 0, 0, 0, 0, 1);
-        var b = WorkshopInput.Generic(PartId.Ramp, new(14), -.7, 2.7, 0, 0, 0, 0, 1, new([new(new("length"), 2.5f), new(new("width"), 1f)]));
+        var a = WorkshopInput.Generic(PartId.Ramp, new(13), -3.4f, 4.3f, 0, 0, 0, 0, 1);
+        var b = WorkshopInput.Generic(PartId.Ramp, new(14), -.7f, 2.7f, 0, 0, 0, 0, 1, new([new(new("length"), 2.5f), new(new("width"), 1f)]));
         construction = construction.WithInstance(a).WithInstance(b);
         var saved = new WorkshopSavedConstruction(construction, new(15));
         var bytes = WorkshopSaveCodec.Encode(saved);

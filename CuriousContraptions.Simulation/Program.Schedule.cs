@@ -42,30 +42,32 @@ public static partial class Program
     [JSExport] public static bool ClockDerivationQualified() => ClockDerivation.IsQualified;
 
     [JSExport]
-    public static void QualifyClockDerivation(double before, double master, double after, int epoch) =>
-        ClockDerivation.Qualify(new(before, master, after, DerivationEpoch(epoch)));
+    public static void QualifyClockDerivation(byte[] exchange) =>
+        ClockDerivation.Qualify(ClockDerivationWire.DecodeExchange(exchange));
 
     [JSExport] public static void ClockDerivationQualificationMissed() => ClockDerivation.QualificationMissed();
     /// <summary>The derived startup correction the ring installs under the initial epoch before the session is admitted.</summary>
-    [JSExport] public static double ClockDerivationStartupCorrection() => ClockDerivation.StartupCorrection;
+    [JSExport] public static byte[] ClockDerivationStartupCorrection() => ClockDerivationWire.EncodeCorrection(ClockDerivation.StartupCorrection, ClockDerivationOutcome.Consistent);
 
-    /// <summary>Returns nothing when the derivation stands, or [correction, 1 to re-derive under a new epoch / 0 to slew].</summary>
+    /// <summary>An integral correction envelope, or no installation when the current mapping stands.</summary>
     [JSExport]
-    public static double[] CheckClockDerivation(double before, double master, double after, int epoch) =>
-        ClockDerivation.Check(new(before, master, after, DerivationEpoch(epoch)), out var correction) switch
+    public static byte[] CheckClockDerivation(byte[] exchange)
+    {
+        var outcome = ClockDerivation.Check(ClockDerivationWire.DecodeExchange(exchange), out var correction);
+        return outcome switch
         {
-            ClockDerivationOutcome.Rederived => [correction, 1],
-            ClockDerivationOutcome.Slewed => [correction, 0],
+            ClockDerivationOutcome.Rederived or ClockDerivationOutcome.Slewed => ClockDerivationWire.EncodeCorrection(correction, outcome),
             ClockDerivationOutcome.Consistent or ClockDerivationOutcome.Inconclusive => [],
-            var outcome => throw new InvalidOperationException($"Unexpected clock derivation check outcome {outcome}."),
+            _ => throw new InvalidOperationException("Unexpected clock derivation check outcome."),
         };
+    }
 
     [JSExport] public static void AdoptClockDerivation(int epoch) => ClockDerivation.Adopt(DerivationEpoch(epoch));
     [JSExport] public static void ClockDerivationMissed() => ClockDerivation.Missed();
     /// <summary>Whether a running check's exchange is narrow enough to be evidence; a wide one is retried within the check.</summary>
     [JSExport]
-    public static bool ClockDerivationExchangeNarrow(double before, double master, double after, int epoch) =>
-        WorkshopClockDerivation.IsNarrow(new(before, master, after, DerivationEpoch(epoch)));
+    public static bool ClockDerivationExchangeNarrow(byte[] exchange) =>
+        WorkshopClockDerivation.IsNarrow(ClockDerivationWire.DecodeExchange(exchange));
     [JSExport] public static void ClockDerivationRetried() => ClockDerivation.Retried();
 
     private static ClockDerivationEpoch DerivationEpoch(int epoch) => epoch >= 0 ? new((uint)epoch)

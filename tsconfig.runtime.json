@@ -9,20 +9,26 @@
     "outDir": ".runtime-build",
     "lib": [
       "ES2022",
-      "DOM"
+      "DOM",
+      "ES2024.SharedMemory"
     ],
     "types": [
       "node"
     ],
     "rootDirs": [
       "CuriousContraptions.Simulation",
-      "CuriousContraptions.web/wwwroot"
+      "CuriousContraptions.web/wwwroot",
+      "CuriousContraptions.Animation.Worker"
     ]
   },
   "include": [
     "CuriousContraptions.Simulation/wwwroot/worker.ts",
     "CuriousContraptions.web/wwwroot/event-ring-cursor.ts",
     "CuriousContraptions.web/wwwroot/workshop-client.ts",
-    "tools/runtime/**/*.ts"
+    "tools/runtime/**/*.ts",
+    "CuriousContraptions.Simulation/wwwroot/clock-master.ts",
+    "CuriousContraptions.Animation.Worker/wwwroot/worker.ts",
+    "CuriousContraptions.web/wwwroot/clock-ring.ts",
+    "CuriousContraptions.web/wwwroot/native-clock.ts"
   ]
 }

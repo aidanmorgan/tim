@@ -1,3 +1,4 @@
+using CuriousContraptions.Abstractions;
 using System;
 namespace CuriousContraptions.Presentation;
 
@@ -32,8 +33,8 @@ public readonly record struct AnimationTimerSegment(AnimationTimerObservation Ob
     {
         observation.Validate();
         if (observation.Phase == AnimationTimerPhase.None) throw new ArgumentException("Missing timer observation.");
-        var progress = observation.Phase == AnimationTimerPhase.Ready ? 0d :
-            (double)(Math.Min(observation.Observed, observation.Due) - observation.Started) /
+        var progress = observation.Phase == AnimationTimerPhase.Ready ? 0f :
+            (float)(Math.Min(observation.Observed, observation.Due) - observation.Started) /
             (observation.Due - observation.Started);
         return new(observation, new((float)progress));
     }

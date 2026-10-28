@@ -167,7 +167,7 @@ public sealed class CSharpStaticGateTests
         "[ui/WorkshopGpu.cs]",
         "dotnet_code_quality.CA1031.excluded_symbol_names = M:CuriousContraptions.Workshop.Playback(CuriousContraptions.Gpu.WorkshopCommandKind)|M:CuriousContraptions.Workshop.PlaybackAsync(CuriousContraptions.Gpu.WorkshopCommandKind)|M:CuriousContraptions.Workshop.CommitSelected|M:CuriousContraptions.Workshop.CommitSelectedAsync|M:CuriousContraptions.Workshop.SubmitConstruction(CuriousContraptions.Gpu.WorkshopConstruction)|M:CuriousContraptions.Workshop.HandlerFailed(System.String,System.Exception)",
         "[ui/WorkshopPuzzle.cs]",
-        "dotnet_code_quality.CA1031.excluded_symbol_names = M:CuriousContraptions.Workshop.SelectModeFromPicker(System.Int32)|M:CuriousContraptions.Workshop.SelectModeFromPickerAsync(System.Int32)|M:CuriousContraptions.Workshop.ChangePrecision(System.Double)|M:CuriousContraptions.Workshop.ChangePrecisionAsync(System.Double)",
+        "dotnet_code_quality.CA1031.excluded_symbol_names = M:CuriousContraptions.Workshop.SelectModeFromPicker(System.Int32)|M:CuriousContraptions.Workshop.SelectModeFromPickerAsync(System.Int32)|M:CuriousContraptions.Workshop.ChangePrecision(System.Double)|M:CuriousContraptions.Workshop.ChangePrecisionAsync(System.Single)",
         "[CuriousContraptions.tests/PalettePlacementTests.cs]",
         "dotnet_code_quality.CA1031.excluded_symbol_names = M:CuriousContraptions.Tests.PalettePlacementTests.EscapeRecorder.Post(System.Threading.SendOrPostCallback,System.Object)",
         "[CuriousContraptions.tests/**.cs]",
@@ -315,6 +315,20 @@ public sealed class CSharpStaticGateTests
 
     private static readonly Lazy<List<CscRun>> CscRuns = new(() =>
         Directory.EnumerateFiles(BinlogDirectory, "*.binlog").Order(StringComparer.Ordinal).SelectMany(ReplayCscRuns).ToList());
+
+    // Shared semantic seam: use the same real Csc sources, references, defines and options as the static gate.
+    internal static IEnumerable<CSharpCompilation> MatchingCompilations()
+    {
+        foreach (var run in CscRuns.Value)
+        {
+            var arguments = CSharpCommandLineParser.Default.Parse(run.Arguments, run.ProjectDirectory, sdkDirectory: null);
+            var trees = run.Sources.Select(path => run.Resolve(path)).Distinct(StringComparer.Ordinal)
+                .Select(path => CSharpSyntaxTree.ParseText(File.ReadAllText(path), arguments.ParseOptions, path));
+            var references = arguments.MetadataReferences.Select(reference =>
+                MetadataReference.CreateFromFile(run.Resolve(reference.Reference), reference.Properties));
+            yield return CSharpCompilation.Create(run.ProjectName, trees, references, arguments.CompilationOptions);
+        }
+    }
 
     private static string[] CommandLineTokens(string commandLine)
     {
@@ -1099,7 +1113,7 @@ public sealed class CSharpStaticGateTests
     {
         // Pinned strict TypeScript build: restore and generated runtime output; no Csc changes.
         ["tools/runtime/RuntimeTypeScript.targets:RestoreRuntimeTypeScript"] = "31c65cfd3d114862701641af1a1379edd6e09d5d0f8037e19340902c182befed",
-        ["tools/runtime/RuntimeTypeScript.targets:BuildRuntimeTypeScript"] = "9af3029ab69a89e710fffaa755b4b6e6568dc10a66de695744f7cf7ea9f945e1",
+        ["tools/runtime/RuntimeTypeScript.targets:BuildRuntimeTypeScript"] = "8df9140e17e7d781bd15ceed0af1cc22a3c12d64790c328a099359cdcffbc4ad",
         // The 2dog.xunit package-source analyzer exclusion (CA1711, CA1001).
         ["Directory.Build.targets:ExcludePackageCompileSourcesFromAnalyzers"] = "add02e050a6440638d100c9ae07e742391968e2d16e8c6bb8c6c120f58b12425",
         // The worker publish bundles and the web host's bundle assembly (no compile settings).

@@ -133,6 +133,9 @@
         <Compile Include="PhysicalToleranceTests.cs" />
         <Compile Include="F32SaveBoundaryTests.cs" />
         <Compile Include="HalfPrecisionGuardTests.cs" />
+        <Compile Include="GameFloatGuardTests.cs" />
+        <Compile Include="AnimationTestTime.cs" />
+        <Compile Include="PhysicalTimeTests.cs" />
         <Compile Include="F32LaneRoundTripTests.cs" />
         <Compile Include="F32BehaviourIdentityTests.cs" />
         <Compile Include="BundleElementIdTests.cs" />

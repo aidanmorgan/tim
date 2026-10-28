@@ -2,7 +2,7 @@
 title: 'face-markings-flush: print existing control markings on their faces'
 type: 'bugfix'
 created: '2026-10-29'
-status: 'in-review'
+status: 'done'
 baseline_revision: '057df5ae99cc8e620ee88cc161bd1497a5e1b980'
 review_loop_iteration: 0
 followup_review_recommended: false
@@ -130,3 +130,9 @@ Implemented flat printed markings for seven existing packages, preserving meanin
 Review: five layers, zero findings, zero patches, zero deferrals, no rejected findings. Patched entry counts high0/medium0/low0; followup_review_recommended:false. Local verification:4,845/0/0, with matrix membership above. Source/asset/link checks pass. No browser, mutation testing, local Release worker build or web publish was run.
 
 Publication is pending normal hooks, exact committed-SHA SnapshotApproval, remote production build and artifact/deployment checks. Status remains in-review until the required terminal receipt is known. Residual risk: camera-dependent rasterized readability and full browser/release qualification remain at the named later gates; native proof does not replace them.
+
+## Terminal publication receipt — 29 October 2026
+
+Implementation Pass at6125040efa3becf31c6a5957f35571735f04972c. All five Auto layers returned no findings; /root/face_verification approved the frozen candidate and exact committed SHA. Full local round4,845/0/0; normal hook session37171 exited0 with126/0/0, zero compiler warnings/errors and no Anvil findings. Push session24014 exited0.
+
+Fresh /root/face_terminal verified remote main, successful [run40740327945](https://github.com/aidanmorgan/tim/actions/runs/40740327945), build122999861328, deploy123004984076, Pages artifact12838579740, deployment7393438074 and success status20844117445. Deployment logs bind that artifact to the exact SHA. Live root, index.html,404.html,godot.wasm,godot.pck and _framework/dotnet.js returnedHTTP200 and matched artifact contents using in-memory archive reads. No terminal files or extra tests/builds were created. Browser/rasterized readability and broader release qualification remain pending at their named gates.

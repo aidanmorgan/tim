@@ -55,7 +55,7 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
         var orientation = ((Abstractions.Signal.IOrientationSensorElement)packages["domino"]).Orientation;
         Assert.Equal(45f, orientation.ThresholdDegrees);
         var compiledThreshold = Assert.Single(wiredTile.OrientationSensors.ToArray()).Threshold;
-        Assert.Equal(OrientationThreshold.Degrees(orientation.ThresholdDegrees), compiledThreshold);
+        Assert.Equal(OrientationThreshold.Degrees((float)(orientation.ThresholdDegrees)), compiledThreshold);
         Assert.Equal(((float)Math.Cos(Math.PI / 8)), (compiledThreshold.CosineHalfAngle));
         // C-Memory: the counter's target is its declared parameter, and the latch's memory reads the two inputs the shared law reads.
         Assert.Equal("target_count", ((Abstractions.Signal.IPulseCountElement)packages["counter"]).PulseCount.TargetParameter);
@@ -408,7 +408,7 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
             "pressure_plate" =>
             [
                 ("minimum_mass", ParameterUnit.Kilogram, ParameterKind.Real, Lane.Single, .5f,
-                    Admits(value => PlacedParts.Plate(Owner, 0, 3, 0, value)), [])
+                    Admits(value => PlacedParts.Plate(Owner, 0, 3, 0, (float)(value))), [])
             ],
             "counter" =>
             [
@@ -570,7 +570,7 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
     {
         _ = godot;
         var parts = Enumerable.Range(1, 40).Select(index => (IWorkshopInstance)WorkshopInput.Generic(
-            PartId.PoweredGate, new((ulong)index), (index - 1) % 8 * 3 - 12, 3, (index - 1) / 8 * 3 - 6, 0, 0, 0, 1)).ToArray();
+            PartId.PoweredGate, new((ulong)index), (float)((index - 1) % 8 * 3 - 12), 3, (float)((index - 1) / 8 * 3 - 6), 0, 0, 0, 1)).ToArray();
         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(parts));
         var identities = construction.Instances.Identities;
         var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));

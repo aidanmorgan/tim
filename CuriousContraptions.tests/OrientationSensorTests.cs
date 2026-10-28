@@ -10,8 +10,8 @@ public sealed class OrientationSensorTests
     private static readonly WorkshopGpuProfile Profile = new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1));
     private static readonly WorkshopConnection Wire = new(new(2), WorkshopSocket.ActivationOut, new(3), WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation);
     private static WorkshopConstruction Construction(bool wired = true) => new(new(1), WorkshopCadenceSettings.Default(),
-        new(WorkshopInput.Generic(PartId.Basketball,new(1), -.4, 3, 0, 0, 0, 0, 1),
-            PlacedParts.Domino(new(2), 0, Upright, 0, 0, 0, 0, 1),
+        new(WorkshopInput.Generic(PartId.Basketball,new(1), -.4f, 3, 0, 0, 0, 0, 1),
+            PlacedParts.Domino(new(2), 0, (float)(Upright), 0, 0, 0, 0, 1),
             PlacedParts.Lamp(new(3), 3, 1, 0, 0, 0, 0, 1)),
         Connections: wired ? new(Wire) : WorkshopConnections.Empty);
     private static GpuColliderId ColliderOf(WorkshopConstruction construction, PhysicsSceneDeclaration scene, GpuBodyId body)
@@ -97,12 +97,12 @@ public sealed class OrientationSensorTests
     public void ThresholdDeclarationAndNodeRulesReject()
     {
         Assert.Throws<ArgumentOutOfRangeException>(() => OrientationThreshold.Degrees(0));
-        Assert.Throws<ArgumentOutOfRangeException>(() => OrientationThreshold.Degrees(3.9));
-        Assert.Throws<ArgumentOutOfRangeException>(() => OrientationThreshold.Degrees(179.5));
+        Assert.Throws<ArgumentOutOfRangeException>(() => OrientationThreshold.Degrees(3.9f));
+        Assert.Throws<ArgumentOutOfRangeException>(() => OrientationThreshold.Degrees(179.5f));
         Assert.Throws<ArgumentOutOfRangeException>(() => OrientationThreshold.Degrees(180));
         OrientationThreshold.Degrees(4).Validate(); OrientationThreshold.Degrees(179).Validate();
         Assert.True(OrientationThreshold.Degrees(4).CosineHalfAngle < 1f);
-        Assert.Throws<ArgumentOutOfRangeException>(() => OrientationThreshold.Degrees(double.NaN));
+        Assert.Throws<ArgumentOutOfRangeException>(() => OrientationThreshold.Degrees((float)(double.NaN)));
         Assert.Throws<ArgumentException>(() => new OrientationThreshold(1f).Validate());
         Assert.Throws<ArgumentException>(() => new OrientationThreshold(0f).Validate());
         Assert.Throws<ArgumentException>(() => new OrientationThreshold(float.NaN).Validate());
@@ -244,8 +244,8 @@ public sealed class OrientationSensorTests
     [Fact]
     public void ARotatedDominoCompilesItsAdmittedRotationAsTheSensorInitialPose()
     {
-        var turned = PlacedParts.Domino(new(2), 0, Upright, 0, 0, Math.Sqrt(.5), 0, Math.Sqrt(.5));
-        var construction = Construction() with { Instances = new(WorkshopInput.Generic(PartId.Basketball,new(1), -.4, 3, 0, 0, 0, 0, 1), turned, PlacedParts.Lamp(new(3), 3, 1, 0, 0, 0, 0, 1)) };
+        var turned = PlacedParts.Domino(new(2), 0, (float)(Upright), 0, 0, (float)(Math.Sqrt(.5)), 0, (float)(Math.Sqrt(.5)));
+        var construction = Construction() with { Instances = new(WorkshopInput.Generic(PartId.Basketball,new(1), -.4f, 3, 0, 0, 0, 0, 1), turned, PlacedParts.Lamp(new(3), 3, 1, 0, 0, 0, 0, 1)) };
         var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
         var sensor = Assert.Single(scene.OrientationSensors.ToArray());
         Assert.Equal(turned.Rotation, sensor.Initial);
@@ -260,7 +260,7 @@ public sealed class OrientationSensorTests
     public void OrientationCauseCarriesThroughADelayToTheLamp()
     {
         var delayed = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(),
-            new(WorkshopInput.Generic(PartId.Basketball,new(1), -.4, 3, 0, 0, 0, 0, 1), PlacedParts.Domino(new(2), 0, Upright, 0, 0, 0, 0, 1),
+            new(WorkshopInput.Generic(PartId.Basketball,new(1), -.4f, 3, 0, 0, 0, 0, 1), PlacedParts.Domino(new(2), 0, (float)(Upright), 0, 0, 0, 0, 1),
                 PlacedParts.Lamp(new(3), 3, 1, 0, 0, 0, 0, 1), WorkshopInput.Generic(PartId.Delay, new(4), 0, 1, 0, 0, 0, 0, 1)),
             Connections: new(new WorkshopConnection(new(2), WorkshopSocket.ActivationOut, new(4), WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation),
                 new WorkshopConnection(new(4), WorkshopSocket.ActivationOut, new(3), WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation)));
@@ -290,7 +290,7 @@ public sealed class OrientationSensorTests
         var intoDomino = new WorkshopConnection(new(3), WorkshopSocket.ActivationOut, new(2), WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation);
         EditRefusal.Is(WorkshopEditRejection.InvalidConnection, () => (Construction(false) with { Connections = new(intoDomino) }).Validate());
         var items = new List<IWorkshopInstance>();
-        for (var i = 1; i <= 8; i++) items.Add(PlacedParts.Domino(new((ulong)i), -6 + i, Upright, 0, 0, 0, 0, 1));
+        for (var i = 1; i <= 8; i++) items.Add(PlacedParts.Domino(new((ulong)i), (float)(-6 + i), (float)(Upright), 0, 0, 0, 0, 1));
         items.Add(PlacedParts.Lamp(new(9), 4, 1, 0, 0, 0, 0, 1));
         var instances = new WorkshopInstances([.. items]);
         instances.Validate();

@@ -1,3 +1,4 @@
+using CuriousContraptions.Abstractions;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices.JavaScript;
 using System.Runtime.Versioning;
@@ -79,14 +80,15 @@ public static partial class Program
         var due = WorkshopPulse.Due(schedule.Settings.AnimationRate, new(checked((long)interval.Lower)));
         if (due.Value < schedule.FirstAnimation.Value || due.Value <= _lastOrdinal) return;
         // Coalesce cosmetic evaluation opportunities, never create a Task for an individual pulse.
-        Controls.Advance(checked(++_evaluationSequence), (double)due.Value * schedule.Settings.AnimationRate.Denominator /
+        var presentationTime = PhysicalTime.FromRatio((UInt128)due.Value * schedule.Settings.AnimationRate.Denominator,
             schedule.Settings.AnimationRate.Numerator);
+        Controls.Advance(checked(++_evaluationSequence), presentationTime);
         _lastApplied = WorkshopPulse.Deadline(schedule.Settings.AnimationRate, due);
         for (var i = 0; i < Controls.Capacity; i++)
             if (Controls.TryRead(i, out var control, out var value))
                 Emit(AnimationOutputKind.Sample, due.Value, control, value);
         if (_declared is { } declared)
-            foreach (var sample in declared.Advance((double)due.Value * schedule.Settings.AnimationRate.Denominator / schedule.Settings.AnimationRate.Numerator))
+            foreach (var sample in declared.Advance(schedule, presentationTime))
                 Emit(AnimationOutputKind.Sample, due.Value,
                     new(sample.Target, schedule.World.WorldGeneration, 1, schedule.World.Epoch.Value,
                         AnimationControlKind.Endpoint, true, 0, 0, .01f, AnimationCurve.Linear, Property: sample.Value.Property),
@@ -160,8 +162,9 @@ public static partial class Program
     /// <summary>Story 9A.23 D5: the epoch whose event ring this worker reads, the installed world's (0 while none is installed or an
     /// installation is being prepared). The shared reader holds a newer ring unread and ignores an older one.</summary>
     [JSExport]
-    public static double EventEpoch() =>
-        _schedule is { } schedule && _prepared is null && _declared is not null ? schedule.World.WorldGeneration.Value : 0;
+    public static string EventEpoch() =>
+        (_schedule is { } schedule && _prepared is null && _declared is not null ? schedule.World.WorldGeneration.Value : 0)
+            .ToString(System.Globalization.CultureInfo.InvariantCulture);
 
     /// <summary>Story 9A.23 D1: the records the shared reader copied at the start of this Service turn, for the declared one-shot cues.</summary>
     [JSExport]
@@ -255,7 +258,7 @@ public static partial class Program
             return;
         }
         var applied = Controls.Apply(control, schedule.Settings.SimulationRate,
-            (double)now.Lower / WorkshopPulse.NanosecondsPerSecond);
+            PhysicalTime.FromNanoseconds(checked((long)now.Lower)));
         if (applied.Started)
             _lastOrdinal = Math.Max(_lastOrdinal, WorkshopPulse.Due(schedule.Settings.AnimationRate,
                 new(checked((long)now.Lower))).Value);

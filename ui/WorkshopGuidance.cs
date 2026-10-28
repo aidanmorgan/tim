@@ -74,12 +74,12 @@ public partial class Workshop
         modes.AddChild(Button("3D view", () => SetBuildView(false)));
         advanced.AddChild(modes);
         _layers = new OptionButton { Name = "LayerPicker", CustomMinimumSize = new(190, 36) };
-        _layers.ItemSelected += index => SetLayer((float)_layers.GetItemMetadata((int)index).AsDouble());
+        _layers.ItemSelected += index => SetLayer(_layers.GetItemMetadata((int)index).AsSingle());
         advanced.AddChild(_layers);
         var row = new HBoxContainer();
         row.AddChild(Text("Depth", 14));
-        _layerDepth = new SpinBox { Name = "LayerDepth", MinValue = -4, MaxValue = 4, Step = .1, CustomMinimumSize = new(100, 36) };
-        _layerDepth.ValueChanged += value => { if (!_updatingLayers) SetLayer((float)value); };
+        _layerDepth = new SpinBox { Name = "LayerDepth", MinValue = -4, MaxValue = 4, Step = .1f, CustomMinimumSize = new(100, 36) };
+        _layerDepth.ValueChanged += OnLayerDepthChanged;
         row.AddChild(_layerDepth);
         advanced.AddChild(row);
         advanced.AddChild(Button("Move selected here", MoveSelectedToLayer));
@@ -169,6 +169,18 @@ public partial class Workshop
     }
 
     // Selecting a layer never silently moves the selected part.
+    private void OnLayerDepthChanged(double value)
+    {
+        if (!_updatingLayers) SetLayer(LayerDepthInput(value));
+    }
+
+    private static float LayerDepthInput(double value)
+    {
+        if (!double.IsFinite(value) || value < -float.MaxValue || value > float.MaxValue)
+            throw new ArgumentOutOfRangeException(nameof(value));
+        return (float)value;
+    }
+
     private void SetLayer(float depth)
     {
         if (!CanEdit) return;
@@ -298,10 +310,20 @@ public partial class Workshop
         if (_status != null) _status.Text = "Choose a part, or click a placed part to adjust it.";
     }
 
-    public override void _Process(double delta)
+    public override void _Process(double delta) => ProcessFrame(FrameDelta(delta));
+
+    private static float FrameDelta(double delta)
     {
-        ApplyUiBindings(delta);
-        PanCamera((float)delta);
+        if (!double.IsFinite(delta) || delta < 0)
+            throw new ArgumentOutOfRangeException(nameof(delta));
+        // Camera motion already limits a frame to 0.1 seconds; clamp before narrowing.
+        return (float)Math.Min(delta, .1);
+    }
+
+    private void ProcessFrame(float delta)
+    {
+        ApplyUiBindings();
+        PanCamera(delta);
         var target = _preview ?? _selected;
         _cancelButton.Visible = !_inRun && (_tool is not null || _linkSource is not null);
         _connectionChoices.Visible = (CanEdit && (_selected is not null || _linkSource is not null)) ||

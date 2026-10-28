@@ -293,7 +293,7 @@ public sealed class ClockGuardTests
 
     // ---------- presentation (9R.10 AC6, coordinator decision 18 Oct 2026; CAT-017 C20, C23) ----------
 
-    private static double Time(WorkshopRead read) => read.Capture!.Value.Time.Value / 1_000_000_000d;
+    private static double Time(WorkshopRead read) => read.Tick.Value / 120.0;
     private static WorkshopResponse Response(WorkshopRead read, ulong publication) =>
         new(default, WorkshopResponseKind.Read, new(WorkshopCommandOutcome.Applied, WorkshopRejection.None),
             WorkshopSimulationPhase.Running, read, new(101, 206), new(publication), new(1), new(1), new(1), new(read.Tick.Value));
@@ -318,13 +318,13 @@ public sealed class ClockGuardTests
         var phase = 1f - (float)(row.DueTick - (ulong)tick) / 120;
         var input = .5f + .5f * MathF.Sin(MathF.Tau * phase);
         var presentation = new WorkshopDeclaredPresentation(bench, Response(reads[tick], 1));
-        Assert.Equal(-.42f + .84f * input, Sample(presentation.Advance(Time(reads[tick]) + 10), 0), 1e-5f);
+        Assert.Equal(-.42f + .84f * input, Sample(presentation.Advance(AnimationTestTime.Seconds(Time(reads[tick]) + 10)), 0), 1e-5f);
         // Paused (no further committed read): the follow target is unchanged and the sample stays converged on it.
-        Assert.Equal(-.42f + .84f * input, Sample(presentation.Advance(Time(reads[tick]) + 12), 0), 1e-5f);
+        Assert.Equal(-.42f + .84f * input, Sample(presentation.Advance(AnimationTestTime.Seconds(Time(reads[tick]) + 12)), 0), 1e-5f);
 
         var stopped = await WorkshopPhysicsEngineTests.Run(Bench(1f, wired: false), 1);
         var rest = new WorkshopDeclaredPresentation(Bench(1f, wired: false), Response(stopped[1], 1));
-        Assert.Equal(0f, Sample(rest.Advance(Time(stopped[1]) + 10), 0), 1e-6f);
+        Assert.Equal(0f, Sample(rest.Advance(AnimationTestTime.Seconds(Time(stopped[1]) + 10)), 0), 1e-6f);
     }
 
     // The face flashes once per committed pulse: following every committed read of a 5.0 s run tick by tick, the indicator's red channel
@@ -336,15 +336,15 @@ public sealed class ClockGuardTests
         var bench = Bench(1f);
         var reads = await WorkshopPhysicsEngineTests.Run(bench, 600);
         var presentation = new WorkshopDeclaredPresentation(bench, Response(reads[1], 1));
-        presentation.Advance(Time(reads[1]));
+        presentation.Advance(AnimationTestTime.Seconds(Time(reads[1])));
         var lit = new List<ulong>();
         for (var i = 2; i < reads.Count; i++)
         {
             presentation.Accept(Response(reads[i], (ulong)i));
-            if (Sample(presentation.Advance(Time(reads[i])), 1) == 247f / 255f) lit.Add(reads[i].Tick.Value);
+            if (Sample(presentation.Advance(AnimationTestTime.Seconds(Time(reads[i]))), 1) == 247f / 255f) lit.Add(reads[i].Tick.Value);
         }
         Assert.Equal([120UL, 240UL, 360UL, 480UL, 600UL], lit);
-        Assert.Equal(85f / 255f, Sample(presentation.Advance(Time(reads[^1]) + 2), 1));
+        Assert.Equal(85f / 255f, Sample(presentation.Advance(AnimationTestTime.Seconds(Time(reads[^1]) + 2)), 1));
     }
 
     // Reset returns the presentation to rest: from the reset read the pendulum settles at 0 rad and the face is idle, with no flash.
@@ -354,7 +354,7 @@ public sealed class ClockGuardTests
         var bench = Bench(1f);
         var (_, run, reset) = await NoFixedCapacityTests.RunAndReset(bench, 300);
         var presentation = new WorkshopDeclaredPresentation(bench, Response(reset, 1) with { Projection = new(2) });
-        var settled = presentation.Advance(Time(run[^1]) + 10);
+        var settled = presentation.Advance(AnimationTestTime.Seconds(Time(run[^1]) + 10));
         Assert.Equal(0f, Sample(settled, 0), 1e-6f);
         Assert.Equal(85f / 255f, Sample(settled, 1));
         Assert.Throws<ArgumentException>(() => presentation.Accept(Response(run[119], 2) with { Projection = new(2) }));

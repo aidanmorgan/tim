@@ -152,7 +152,7 @@ public sealed class BallDetectorTests(NativeSceneFixture godot)
     public void PassageSensorTracker_PositiveForwardPass_RotatedAndVariousSpeeds(float speed, float angleDegrees)
     {
         var rad = angleDegrees * MathF.PI / 180f;
-        var detector = PlacedParts.Detector(new GpuBodyId(10), 0, 3, 0, 0, 0, MathF.Sin(rad / 2f), MathF.Cos(rad / 2f));
+        var detector = PlacedParts.Detector(new GpuBodyId(10), 0, 3, 0, 0, 0, (float)(MathF.Sin(rad / 2f)), (float)(MathF.Cos(rad / 2f)));
         var rotation = detector.Rotation;
         var q = new NumQuaternion((float)rotation.X, (float)rotation.Y, (float)rotation.Z, (float)rotation.W);
 
@@ -172,7 +172,7 @@ public sealed class BallDetectorTests(NativeSceneFixture godot)
 
         var ballInitial = WorkshopInput.Generic(PartId.Basketball,
             ballId,
-            startPos.X, startPos.Y, startPos.Z,
+            (float)(startPos.X), (float)(startPos.Y), (float)(startPos.Z),
             0, 0, 0, 1);
 
         var construction = new WorkshopConstruction(
@@ -216,9 +216,9 @@ public sealed class BallDetectorTests(NativeSceneFixture godot)
             var localPos = NumVector3.Transform(currentPos - detectorPos, NumQuaternion.Conjugate(q));
             finalLocalX = localPos.X;
 
-            var px = WorkshopInput.Position(currentPos.X);
-            var py = WorkshopInput.Position(currentPos.Y);
-            var pz = WorkshopInput.Position(currentPos.Z);
+            var px = WorkshopInput.Position((float)(currentPos.X));
+            var py = WorkshopInput.Position((float)(currentPos.Y));
+            var pz = WorkshopInput.Position((float)(currentPos.Z));
 
             var bodies = new PhysicsBodyReadSet([
                 new PhysicsBodyRead(new CanonicalBody(ballId, 0, 0, new(px.Cell, py.Cell, pz.Cell), new((float)px.Local, (float)py.Local, (float)pz.Local), default), CanonicalRotation.Identity, default, default),
@@ -281,7 +281,7 @@ public sealed class BallDetectorTests(NativeSceneFixture godot)
         for (var step = 1; step <= reverseSteps; step++)
         {
             var posX = 2.0f - 4f * (step * dt);
-            var px = WorkshopInput.Position(posX);
+            var px = WorkshopInput.Position((float)(posX));
             var bodies = new PhysicsBodyReadSet([
                 new PhysicsBodyRead(new CanonicalBody(ballId, 0, 0, new(px.Cell, 48, 0), new((float)px.Local, 0f, 0f), default), CanonicalRotation.Identity, default, default),
                 new PhysicsBodyRead(new CanonicalBody(detector.Id, 0, 0, detector.Cell, detector.Local, default), CanonicalRotation.Identity, default, default)
@@ -305,7 +305,7 @@ public sealed class BallDetectorTests(NativeSceneFixture godot)
         for (var step = 1; step <= outsideSteps; step++)
         {
             var posX = -1.0f + 4f * (step * dt);
-            var px = WorkshopInput.Position(posX);
+            var px = WorkshopInput.Position((float)(posX));
             var bodies = new PhysicsBodyReadSet([
                 new PhysicsBodyRead(new CanonicalBody(ballId, 0, 0, new(px.Cell, outsideY.Cell, 0), new((float)px.Local, (float)outsideY.Local, 0f), default), CanonicalRotation.Identity, default, default),
                 new PhysicsBodyRead(new CanonicalBody(detector.Id, 0, 0, detector.Cell, detector.Local, default), CanonicalRotation.Identity, default, default)

@@ -10,10 +10,10 @@ public sealed class WorkshopBowlingTests
 {
     private const double Upright = -0.46 + .55;
     private static WorkshopGenericInstance Bowling(ulong id, double x, double y = 3, double z = 0) =>
-        WorkshopInput.Generic(PartId.BowlingBall, new(id), x, y, z, 0, 0, 0, 1);
+        WorkshopInput.Generic(PartId.BowlingBall, new(id), (float)(x), (float)(y), (float)(z), 0, 0, 0, 1);
     private static WorkshopConstruction TwoLanes() => new(new(1), WorkshopCadenceSettings.Default(),
-        new(PlacedParts.Domino(new(1), 0, Upright, -1.5, 0, 0, 0, 1), PlacedParts.Domino(new(2), 0, Upright, 1.5, 0, 0, 0, 1),
-        WorkshopInput.Generic(PartId.Basketball,new(3), .3, 1.05, -1.5, 0, 0, 0, 1), Bowling(4, .3, 1.05, 1.5)));
+        new(PlacedParts.Domino(new(1), 0, (float)(Upright), -1.5f, 0, 0, 0, 1), PlacedParts.Domino(new(2), 0, (float)(Upright), 1.5f, 0, 0, 0, 1),
+        WorkshopInput.Generic(PartId.Basketball,new(3), .3f, 1.05f, -1.5f, 0, 0, 0, 1), Bowling(4, .3, 1.05, 1.5)));
 
     // C-Balls: each kind is a zero-parameter generic instance of its own package; its material is the package's and no authored value
     // can change it. The owner-decided literals are pinned in PayloadInstanceTests.BothKindsCompileTheOwnerDeclaredMaterialsOnOneBench.
@@ -135,7 +135,7 @@ public sealed class WorkshopBowlingTests
     public void CapacityCountsEveryBallKindAndTheReceiverGuidesBothBalls()
     {
         var items = new List<IWorkshopInstance>();
-        for (var i = 0; i < 8; i++) items.Add(WorkshopInput.Generic(PartId.Basketball,new((ulong)(i + 1)), -6 + i * .8, 3, -2, 0, 0, 0, 1));
+        for (var i = 0; i < 8; i++) items.Add(WorkshopInput.Generic(PartId.Basketball,new((ulong)(i + 1)), (float)(-6 + i * .8), 3, -2, 0, 0, 0, 1));
         for (var i = 0; i < 8; i++) items.Add(Bowling((ulong)(i + 9), -6 + i * .8, 3, 2));
         new WorkshopInstances([.. items]).Validate();
         // Story 9R.5b: the retired 16-row moving-body table no longer refuses; a seventeenth ball of either kind builds and
