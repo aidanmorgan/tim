@@ -188,7 +188,7 @@ public sealed class PayloadInstanceTests
         var kind = new PartId(part);
         var radius = (float)Assert.Single(WorkshopPhysicsCompiler.Compile(Free(Place(kind, 1, 0, 2, 0)), new(1, 2)).Colliders.ToArray(),
             c => c.Body == new GpuBodyId(1) && c.Shape == ColliderShapeKind.Sphere).Radius.Value;
-        var reads = await WorkshopPhysicsEngineTests.Run(Free(Place(kind, 1, 0, BenchY + radius, 0)), 3 * TicksPerSecond);
+        var reads = await WorkshopIntegrationHarness.Observe(Free(Place(kind, 1, 0, BenchY + radius, 0)), 3 * TicksPerSecond);
         var start = Find(reads[0].Bodies, new(1));
         foreach (var read in reads)
         {
@@ -232,7 +232,7 @@ public sealed class PayloadInstanceTests
     public async Task AReceiverCapturesEitherKindAndAShiftedMissNever(string part, double shift, bool captures)
     {
         var construction = Free(Place(new PartId(part), 1, shift, 1.1, 0), WorkshopInput.Generic(PartId.Receiver, new(2), 0, 1, 0, 0, 0, 0, 1));
-        var reads = await WorkshopPhysicsEngineTests.Run(construction, 2 * TicksPerSecond);
+        var reads = await WorkshopIntegrationHarness.Observe(construction, 2 * TicksPerSecond);
         static bool Latched(WorkshopRead read) =>
             Enumerable.Range(0, read.Captures.Count).Any(i => read.Captures[i].Phase == CaptureLatchPhase.Latched);
         Assert.False(Latched(reads[0]));
@@ -250,10 +250,10 @@ public sealed class PayloadInstanceTests
         var loaded = WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes);
         Assert.Equal(saved, loaded);
         Assert.Equal([PartId.Basketball, PartId.BowlingBall], loaded.Construction.Instances.Select(i => i.PartId).ToArray());
-        var (built, run, reset) = await NoFixedCapacityTests.RunAndReset(construction, 2 * TicksPerSecond);
+        var (built, run, reset) = await WorkshopIntegrationHarness.ObserveReset(construction, 2 * TicksPerSecond);
         Assert.True(Height(Find(run[^1].Bodies, new(1))) < 2.5f && Height(Find(run[^1].Bodies, new(2))) < 2.5f, "both payloads fell");
         NoFixedCapacityTests.AssertSameState(built, reset, "Reset");
-        var (_, replay, _) = await NoFixedCapacityTests.RunAndReset(loaded.Construction, 2 * TicksPerSecond);
+        var (_, replay, _) = await WorkshopIntegrationHarness.ObserveReset(loaded.Construction, 2 * TicksPerSecond);
         NoFixedCapacityTests.AssertSameState(run[^1], replay[^1], "the reloaded construction's run");
     }
 

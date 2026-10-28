@@ -46,36 +46,7 @@ public sealed class ClockGuardTests
     }
 
     /// <summary>A Workshop simulation on the production engine (Hz120) that a test can pause, resume and reset.</summary>
-    private sealed class Harness : IAsyncDisposable
-    {
-        private readonly WorkshopGpuDevice _device = new(new CuriousContraptions.Simulation.BrowserGpuTransport(new CuriousContraptions.Abstractions.EventRingPublication()), new(101, 206));
-        public WorkshopSimulation Simulation { get; }
-        private Harness() => Simulation = new(_device, new WorkshopPhysicsEngineTests.StepClock(), WorkshopCadenceSettings.Default(), new(1),
-            new WorkshopPhysicsEngineTests.NoInstallation(), GpuDeviceOwnership.Borrowed);
-        public static async Task<Harness> Running(WorkshopConstruction construction)
-        {
-            var harness = new Harness();
-            Assert.Equal(WorkshopCommandOutcome.Applied, (await harness.Simulation.Initialize()).Outcome);
-            Assert.Equal(WorkshopCommandOutcome.Applied, (await harness.Simulation.Construct(construction)).Outcome);
-            Assert.Equal(WorkshopCommandOutcome.Applied, (await harness.Simulation.Run()).Outcome);
-            return harness;
-        }
-        public async Task<List<WorkshopRead>> Advance(int ticks)
-        {
-            var reads = new List<WorkshopRead>(ticks + 1) { Simulation.Committed };
-            for (var tick = 0; tick < ticks; tick++)
-            {
-                Assert.Equal(WorkshopCommandOutcome.Applied, (await Simulation.Advance()).Outcome);
-                reads.Add(Simulation.Committed);
-            }
-            return reads;
-        }
-        public async ValueTask DisposeAsync()
-        {
-            await Simulation.DisposeAsync();
-            await _device.DisposeAsync();
-        }
-    }
+
 
     // ---------- period (9.3 / 9A.42 / 9R.10 AC1; CAT-017 C11, C12) ----------
 
@@ -86,7 +57,7 @@ public sealed class ClockGuardTests
     [Fact]
     public async Task AOneSecondClockPulsesFiveTimesInFiveSecondsAtEachWholeSecondAndTheCounterCountsEach()
     {
-        var reads = await WorkshopPhysicsEngineTests.Run(Bench(1f), 600);
+        var reads = await WorkshopIntegrationHarness.Observe(Bench(1f), 600);
         Assert.Equal([120UL, 240UL, 360UL, 480UL, 600UL], PulseTicks(reads));
         Assert.Equal((OscillatorPhase.Running, 5U, 720UL), (Row(reads[^1], Owner).Phase, Row(reads[^1], Owner).Count, Row(reads[^1], Owner).DueTick));
         Assert.Equal(5U, Row(reads[^1], Counter).Count);
@@ -187,22 +158,22 @@ public sealed class ClockGuardTests
     public async Task APauseAddsNoPulseAndNoPhaseAndResumeContinuesTheSpacing()
     {
         var bench = Bench(1f);
-        var plain = await WorkshopPhysicsEngineTests.Run(bench, 400);
-        await using var harness = await Harness.Running(bench);
-        var first = await harness.Advance(180);
+        var plain = await WorkshopIntegrationHarness.Observe(bench, 400);
+        await using var harness = await WorkshopIntegrationHarness.Running(bench);
+        var first = await harness.AdvanceIncludingCurrent(180);
         Assert.Equal((OscillatorPhase.Running, 1U, 240UL), (Row(first[^1], Owner).Phase, Row(first[^1], Owner).Count, Row(first[^1], Owner).DueTick));
-        Assert.Equal(WorkshopCommandOutcome.Applied, (await harness.Simulation.Pause()).Outcome);
-        var held = harness.Simulation.Committed;
+        Assert.Equal(WorkshopCommandOutcome.Applied, ((await harness.Execute(WorkshopCommandKind.Pause)).Result).Outcome);
+        var held = harness.Committed;
         for (var i = 0; i < 240; i++)
         {
-            var refused = await harness.Simulation.Advance();
+            var refused = await harness.AdvanceOne();
             Assert.Equal((WorkshopCommandOutcome.Rejected, WorkshopRejection.WrongPhase), (refused.Outcome, refused.Reason));
         }
-        Assert.Equal(held.Revision, harness.Simulation.Committed.Revision);
-        NoFixedCapacityTests.AssertSameState(held, harness.Simulation.Committed, "held while paused");
-        Assert.Equal(Row(first[^1], Owner), Row(harness.Simulation.Committed, Owner));
-        Assert.Equal(WorkshopCommandOutcome.Applied, (await harness.Simulation.Resume()).Outcome);
-        var resumed = first.Concat((await harness.Advance(220)).Skip(1)).ToList();
+        Assert.Equal(held.Revision, harness.Committed.Revision);
+        NoFixedCapacityTests.AssertSameState(held, harness.Committed, "held while paused");
+        Assert.Equal(Row(first[^1], Owner), Row(harness.Committed, Owner));
+        Assert.Equal(WorkshopCommandOutcome.Applied, ((await harness.Execute(WorkshopCommandKind.Resume)).Result).Outcome);
+        var resumed = first.Concat((await harness.AdvanceIncludingCurrent(220)).Skip(1)).ToList();
         Assert.Equal([120UL, 240UL, 360UL], PulseTicks(resumed));
         for (var i = 0; i < plain.Count; i++) NoFixedCapacityTests.AssertSameState(plain[i], resumed[i], $"tick {i}");
     }
@@ -212,17 +183,17 @@ public sealed class ClockGuardTests
     [Fact]
     public async Task ResetStopsTheClockAndTheNextRunPulsesFirstAtOneSecondIdentically()
     {
-        var (built, run, reset) = await NoFixedCapacityTests.RunAndReset(Bench(1f), 300);
+        var (built, run, reset) = await WorkshopIntegrationHarness.ObserveReset(Bench(1f), 300);
         Assert.Equal([120UL, 240UL], PulseTicks([built, .. run]));
         Assert.Equal((OscillatorPhase.Stopped, 0UL, 0U, default(ActivationTime)),
             (Row(reset, Owner).Phase, Row(reset, Owner).DueTick, Row(reset, Owner).Count, Row(reset, Owner).Last));
         NoFixedCapacityTests.AssertSameState(built, reset, "reset");
-        await using var harness = await Harness.Running(Bench(1f));
-        var first = await harness.Advance(150);
-        Assert.Equal(WorkshopCommandOutcome.Applied, (await harness.Simulation.Reset()).Outcome);
-        NoFixedCapacityTests.AssertSameState(first[0], harness.Simulation.Committed, "reset after 150 ticks");
-        Assert.Equal(WorkshopCommandOutcome.Applied, (await harness.Simulation.Run()).Outcome);
-        var second = await harness.Advance(150);
+        await using var harness = await WorkshopIntegrationHarness.Running(Bench(1f));
+        var first = await harness.AdvanceIncludingCurrent(150);
+        Assert.Equal(WorkshopCommandOutcome.Applied, ((await harness.Execute(WorkshopCommandKind.Reset)).Result).Outcome);
+        NoFixedCapacityTests.AssertSameState(first[0], harness.Committed, "reset after 150 ticks");
+        Assert.Equal(WorkshopCommandOutcome.Applied, ((await harness.Execute(WorkshopCommandKind.Run)).Result).Outcome);
+        var second = await harness.AdvanceIncludingCurrent(150);
         Assert.Equal([120UL], PulseTicks(second));
         for (var i = 0; i < first.Count; i++) NoFixedCapacityTests.AssertSameState(first[i], second[i], $"replay tick {i}");
     }
@@ -235,7 +206,7 @@ public sealed class ClockGuardTests
     [InlineData(true, ElectricalEnable.Disabled)]
     public async Task AnUnsuppliedClockStaysStoppedAndEmitsNothing(bool wired, ElectricalEnable enabled)
     {
-        var reads = await WorkshopPhysicsEngineTests.Run(Bench(1f, wired, enabled), 600);
+        var reads = await WorkshopIntegrationHarness.Observe(Bench(1f, wired, enabled), 600);
         Assert.Empty(PulseTicks(reads));
         Assert.All(reads, read => Assert.Equal((OscillatorPhase.Stopped, 0UL, 0U), (Row(read, Owner).Phase, Row(read, Owner).DueTick, Row(read, Owner).Count)));
         Assert.Equal(0U, Row(reads[^1], Counter).Count);
@@ -246,7 +217,7 @@ public sealed class ClockGuardTests
     [Fact]
     public async Task SupplyLostAtTheDeadlineSuppressesThePulseAndRestoreStartsAFreshInterval()
     {
-        var phases = await WorkshopPhysicsEngineTests.RunPhases(Bench(1f), ([], 119), ([new(Source, ElectricalEnable.Disabled)], 31),
+        var phases = await WorkshopIntegrationHarness.ObservePhases(Bench(1f), ([], 119), ([new(Source, ElectricalEnable.Disabled)], 31),
             ([new(Source, ElectricalEnable.Enabled)], 300));
         Assert.Equal((OscillatorPhase.Running, 120UL, 0U), (Row(phases[0][^1], Owner).Phase, Row(phases[0][^1], Owner).DueTick, Row(phases[0][^1], Owner).Count));
         Assert.All(phases[1], read => Assert.Equal((OscillatorPhase.Stopped, 0U), (Row(read, Owner).Phase, Row(read, Owner).Count)));
@@ -285,8 +256,8 @@ public sealed class ClockGuardTests
         var command = WorkshopWireFlatBuffers.DecodeCommand(WorkshopWireFlatBuffers.EncodeCommand(new WorkshopCommand(new(1),
             WorkshopCommandKind.Construct, new(1), new(1), bench, Session: new(1, 2), Cadence: new(1), Projection: new(1))));
         Assert.Equal(bench, command.Construction);
-        var run = await WorkshopPhysicsEngineTests.Run(bench, 240);
-        var replay = await WorkshopPhysicsEngineTests.Run(restored, 240);
+        var run = await WorkshopIntegrationHarness.Observe(bench, 240);
+        var replay = await WorkshopIntegrationHarness.Observe(restored, 240);
         Assert.Equal((OscillatorPhase.Stopped, 0U), (Row(replay[0], Owner).Phase, Row(replay[0], Owner).Count));
         for (var i = 0; i < run.Count; i++) NoFixedCapacityTests.AssertSameState(run[i], replay[i], $"replay tick {i}");
     }
@@ -313,7 +284,7 @@ public sealed class ClockGuardTests
     public async Task ThePendulumFollowsTheCommittedPhase(int tick)
     {
         var bench = Bench(1f);
-        var reads = await WorkshopPhysicsEngineTests.Run(bench, 150);
+        var reads = await WorkshopIntegrationHarness.Observe(bench, 150);
         var row = Row(reads[tick], Owner);
         var phase = 1f - (float)(row.DueTick - (ulong)tick) / 120;
         var input = .5f + .5f * MathF.Sin(MathF.Tau * phase);
@@ -322,7 +293,7 @@ public sealed class ClockGuardTests
         // Paused (no further committed read): the follow target is unchanged and the sample stays converged on it.
         Assert.Equal(-.42f + .84f * input, Sample(presentation.Advance(AnimationTestTime.Seconds(Time(reads[tick]) + 12)), 0), 1e-5f);
 
-        var stopped = await WorkshopPhysicsEngineTests.Run(Bench(1f, wired: false), 1);
+        var stopped = await WorkshopIntegrationHarness.Observe(Bench(1f, wired: false), 1);
         var rest = new WorkshopDeclaredPresentation(Bench(1f, wired: false), Response(stopped[1], 1));
         Assert.Equal(0f, Sample(rest.Advance(AnimationTestTime.Seconds(Time(stopped[1]) + 10)), 0), 1e-6f);
     }
@@ -334,7 +305,7 @@ public sealed class ClockGuardTests
     public async Task TheFaceFlashesOncePerCommittedPulse()
     {
         var bench = Bench(1f);
-        var reads = await WorkshopPhysicsEngineTests.Run(bench, 600);
+        var reads = await WorkshopIntegrationHarness.Observe(bench, 600);
         var presentation = new WorkshopDeclaredPresentation(bench, Response(reads[1], 1));
         presentation.Advance(AnimationTestTime.Seconds(Time(reads[1])));
         var lit = new List<ulong>();
@@ -352,7 +323,7 @@ public sealed class ClockGuardTests
     public async Task ResetReturnsThePendulumToRestAndTheFaceToIdle()
     {
         var bench = Bench(1f);
-        var (_, run, reset) = await NoFixedCapacityTests.RunAndReset(bench, 300);
+        var (_, run, reset) = await WorkshopIntegrationHarness.ObserveReset(bench, 300);
         var presentation = new WorkshopDeclaredPresentation(bench, Response(reset, 1) with { Projection = new(2) });
         var settled = presentation.Advance(AnimationTestTime.Seconds(Time(run[^1]) + 10));
         Assert.Equal(0f, Sample(settled, 0), 1e-6f);

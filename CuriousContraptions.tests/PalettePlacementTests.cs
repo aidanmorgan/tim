@@ -1264,10 +1264,10 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
     // Story 10.2a (D4): the Weight placed through the drawer is a generic instance at its declared 4 kg, and the generic editor names
     // mass in kg with its declared range. A finite out-of-range entry clamps into 0.25–8 kg (the Clamp policy) and applies as one Undo,
     // and the compiled body takes the mass; NaN, ±Infinity and text are refused with no change, no command and no Undo. Behind the
-    // field, the declared-parameter handler refuses an out-of-range, non-finite, missing or unknown mass atomically: nothing is clamped,
-    // defaulted or migrated there.
+    // field, the same editor operation applies the declared Clamp policy; non-finite, missing and unknown mass values refuse
+    // atomically. Serialization and domain admission remain strict (WeightTests covers those separate boundaries).
     [Fact]
-    public void TheWeightMassEditorClampsFiniteEntriesAndEverySeamBehindItRefusesAnInvalidMass()
+    public async Task TheWeightMassEditorClampsFiniteEntriesAndRefusesMalformedParameters()
     {
         var key = new ParameterId("mass");
         var (scene, client) = BenchScene(WeightTests.Weight, PlacementAnswer.Applied);
@@ -1299,6 +1299,14 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
                 Assert.Equal(new Kilograms(expected),Assert.Single(WorkshopPhysicsCompiler.Compile(scene.World.Construction, new(1, 2))
                     .Bodies.ToArray(), body => body.Id == Current().Id).Mass);
             }
+            foreach (var (value, expected) in new[] { (.249f, .25f), (8.01f, 8f), (0f, .25f), (-1f, .25f) })
+            {
+                var previous = Current().Parameters[key];
+                await scene.ApplyDeclaredParametersAsync(Current().Id, new([new(key, value)]));
+                Assert.Equal(expected, Current().Parameters[key]);
+                if (previous != expected) undo++;
+                Assert.Equal(undo, Undos());
+            }
             var accepted = scene.World.Construction;
             var commands = client.Commands.Count;
             foreach (var text in new[] { "NaN", "Infinity", "-Infinity", "two" })
@@ -1312,7 +1320,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
             var unknown = new ParameterId("radius");
             foreach (var values in new InstanceParameterCollection[]
             {
-                new([new(key, .249f)]), new([new(key, 8.01f)]), new([new(key, 0f)]), new([new(key, -1f)]), new([new(key, float.NaN)]),
+                new([new(key, float.NaN)]),
                 new([new(key, float.PositiveInfinity)]), new([new(key, float.NegativeInfinity)]), new([]), new([new(unknown, 4f)]),
                 new([new(key, 4f), new(unknown, .3f)])
             })
@@ -1583,9 +1591,9 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
             // A fresh simulation admits its first construction at revision 2 (the Workshop advanced its own to 3); the content is as edited.
             var charged = edited with { Revision = zero.Revision };
             Assert.Empty(godot.Errors.Drain());
-            var (_, run, _) = await NoFixedCapacityTests.RunAndReset(charged, 1200);
+            var (_, run, _) = await WorkshopIntegrationHarness.ObserveReset(charged, 1200);
             Assert.True(LaunchLessonSolveTests.Solved(charged, run), "the editor-charged board solves Spring Forward");
-            var (_, control, _) = await NoFixedCapacityTests.RunAndReset(zero, 1200);
+            var (_, control, _) = await WorkshopIntegrationHarness.ObserveReset(zero, 1200);
             Assert.False(LaunchLessonSolveTests.Solved(zero, control), "the same board at zero preload does not");
         }
         finally { Release(scene); }

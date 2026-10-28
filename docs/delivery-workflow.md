@@ -14,6 +14,8 @@ Before a second attempt at a numerical-only failure, name the gameplay or define
 
 Reviewers challenge over-specified tests as well as missing coverage. A blocking precision finding must explain the broken gameplay, interface or deliberate timing feature. Lesson completion limits catch stalls and may be increased for intended progression; exact incidental arrival ticks and total contact sequences are not gameplay requirements. Tight formula/normalization tests can protect narrow numerical functions without imposing those tolerances on whole scenes. No output hashes, byte-identity traces or one-off identity comparisons may become simulation acceptance. Repository/artifact identities still identify what was tested; they do not prove behaviour.
 
+The [float comparison and effort rules](testing-guidance.md#float-comparison-and-effort-rules) govern all agent handoffs and review layers. Use quantity-specific allowances and generous finite game-time windows. Do not request tighter bounds, more seeds or another run without a concrete uncovered gameplay/interface failure or changed relevant inputs. A short test rationale suffices; this policy must reduce precision churn, not create another audit deliverable.
+
 <a id="local-test-authority"></a>
 
 ## Local tests are authoritative; GitHub builds and deploys — owner decision, 26 October 2026

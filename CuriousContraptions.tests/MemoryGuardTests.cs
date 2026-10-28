@@ -6,7 +6,7 @@ namespace CuriousContraptions.Tests;
 /// <summary>The C-Memory suite-first guards (Stories 9A.41 and 9A.43), recorded on the record path at fc7f7cac and unchanged after the
 /// conversion: only <see cref="PlacedParts"/> builds the counter and the latch. Every case runs the production compile, the worker
 /// engine and tick progression; ring records are drained after every command and tick exactly as the worker does
-/// (<see cref="EventRingProducerTests.Ring"/>), and every expectation is derived from the same run's committed reads or from the
+/// (<see cref="WorkshopIntegrationHarness"/>), and every expectation is derived from the same run's committed reads or from the
 /// declared pulse schedule, never from the records themselves.</summary>
 public sealed class MemoryGuardTests
 {
@@ -93,7 +93,7 @@ public sealed class MemoryGuardTests
     {
         var bench = ThreeBalls(target);
         var network = WorkshopActivationCompiler.Compile(bench);
-        await using var ring = await EventRingProducerTests.Ring.Running(bench);
+        await using var ring = await WorkshopIntegrationHarness.Running(bench);
         await ring.Advance(600);
         var reads = ring.Reads;
 
@@ -140,7 +140,7 @@ public sealed class MemoryGuardTests
         var bench = Bench([PlacedParts.Battery(battery, -3, 3, 0), PlacedParts.Clock(clock, 0, 3, 0, 0, 0, 0, 1, 1f),
             PlacedParts.Counter(tally, 3, 3, 0, 0, 0, 0, 1, target)], Supply(battery, clock), Signal(clock, tally));
         var network = WorkshopActivationCompiler.Compile(bench);
-        await using var ring = await EventRingProducerTests.Ring.Running(bench);
+        await using var ring = await WorkshopIntegrationHarness.Running(bench);
         await ring.Advance(1500);
         Assert.Equal(Enumerable.Range(1, 12).Select(pulse => 120UL * (ulong)pulse), Increments(network, ring.Reads, tally));
         Assert.Equal(12u, network.Memory(ring.Reads[^1].Memory, tally).Count);
@@ -170,19 +170,19 @@ public sealed class MemoryGuardTests
 
     // Run/Reset and Save/Load: Reset restores the built state exactly (count 0, nothing latched, contact open) and restarts the ring
     // (nothing pending, sequence 0, a new epoch); the next run publishes identical records from sequence 1. The save holds no count:
-    // the run leaves its bytes unchanged, and the loaded construction replays the same records.
+    // the run preserves the decoded authored construction and allocator, and loading replays the same records.
     [Fact]
     public async Task ResetIsExactAndASavedCounterReplaysIdentically()
     {
         var bench = ThreeBalls(3);
         var network = WorkshopActivationCompiler.Compile(bench);
-        var (built, reads, reset) = await NoFixedCapacityTests.RunAndReset(bench, 600);
+        var (built, reads, reset) = await WorkshopIntegrationHarness.ObserveReset(bench, 600);
         Assert.Equal(3u, network.Memory(reads[^1].Memory, Counter).Count);
         NoFixedCapacityTests.AssertSameState(built, reset, "Reset");
         Assert.Equal(0u, network.Memory(reset.Memory, Counter).Count);
         Assert.False(network.ContactClosed(reset.Activations, reset.Timers, Counter));
 
-        await using var ring = await EventRingProducerTests.Ring.Running(bench);
+        await using var ring = await WorkshopIntegrationHarness.Running(bench);
         await ring.Advance(600);
         var once = ring.Records.ToArray();
         Assert.Single(once, record => record.Kind == SimulationEventKind.ThresholdReached);
@@ -198,10 +198,12 @@ public sealed class MemoryGuardTests
 
         var saved = new WorkshopSavedConstruction(bench, new(9));
         var bytes = WorkshopSaveCodec.Encode(saved);
-        Assert.Equal(bytes, WorkshopSaveCodec.Encode(new WorkshopSavedConstruction(ring.Simulation.Construction, new(9))));
+        var afterRun = WorkshopSaveCodec.Decode(SaveFixture.Elements,
+            WorkshopSaveCodec.Encode(new WorkshopSavedConstruction(ring.Construction, new(9))));
+        Assert.Equal(saved, afterRun);
         var loaded = WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes);
         Assert.Equal(saved, loaded);
-        await using var replay = await EventRingProducerTests.Ring.Running(loaded.Construction);
+        await using var replay = await WorkshopIntegrationHarness.Running(loaded.Construction);
         await replay.Advance(600);
         Assert.Equal(once, replay.Records);
     }
@@ -221,7 +223,7 @@ public sealed class MemoryGuardTests
             Supply(LatchBattery, SetClock), Supply(LatchBattery, ResetClock), Signal(SetClock, Latch, WorkshopSocket.SetIn),
             Signal(ResetClock, Latch, WorkshopSocket.ResetIn), Signal(Latch, LevelLamp));
         var network = WorkshopActivationCompiler.Compile(bench);
-        await using var ring = await EventRingProducerTests.Ring.Running(bench);
+        await using var ring = await WorkshopIntegrationHarness.Running(bench);
         await ring.Advance(720);
         var on = false;
         var edges = new List<(ulong Tick, uint Level)>();
@@ -251,7 +253,7 @@ public sealed class MemoryGuardTests
             Supply(LatchBattery, SetClock), Signal(SetClock, Latch, WorkshopSocket.SetIn), Signal(SetClock, Latch, WorkshopSocket.ResetIn),
             Signal(Latch, LevelLamp));
         var network = WorkshopActivationCompiler.Compile(bench);
-        await using var ring = await EventRingProducerTests.Ring.Running(bench);
+        await using var ring = await WorkshopIntegrationHarness.Running(bench);
         await ring.Advance(600);
         Assert.Equal([120UL, 240UL, 360UL, 480UL, 600UL], ring.Of(SimulationEventKind.TriggerActivated).Select(record => record.Tick));
         Assert.Empty(ring.Of(SimulationEventKind.MemoryChanged));

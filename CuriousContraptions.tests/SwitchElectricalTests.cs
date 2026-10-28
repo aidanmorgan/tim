@@ -28,8 +28,8 @@ public sealed class SwitchElectricalTests
     {
         var construction=Machine();var saved=new WorkshopSavedConstruction(construction,new(6));
         var bytes=WorkshopSaveCodec.Encode(saved);var loaded=WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes);
-        Assert.Equal(saved,loaded);Assert.Equal(bytes,WorkshopSaveCodec.Encode(loaded));
-        var (built,reads,reset)=await NoFixedCapacityTests.RunAndReset(loaded.Construction,180);
+        Assert.Equal(saved,loaded);
+        var (built,reads,reset)=await WorkshopIntegrationHarness.ObserveReset(loaded.Construction,180);
         var hit=reads.First(read=>Activation(read,2).Phase==ActivationPhase.Latched);
         Assert.False(Powered(hit)); // contact observed after this physical integration
         Assert.All(reads.Where(read=>read.Tick.Value>hit.Tick.Value),read=>Assert.True(Powered(read)));
@@ -37,7 +37,7 @@ public sealed class SwitchElectricalTests
         Assert.True(BladeY(reads[^1])>BladeY(built)+.2f);
         Assert.Single(reads.Where(read=>Activation(read,2).Phase==ActivationPhase.Latched).Select(read=>Activation(read,2).Occurrence).Distinct());
         NoFixedCapacityTests.AssertSameState(built,reset,"electrical contact Reset");
-        var (_,replay,_)=await NoFixedCapacityTests.RunAndReset(loaded.Construction,180);
+        var (_,replay,_)=await WorkshopIntegrationHarness.ObserveReset(loaded.Construction,180);
         for(var i=0;i<reads.Count;i++) NoFixedCapacityTests.AssertSameState(reads[i],replay[i],"saved electrical replay");
     }
 
@@ -55,7 +55,7 @@ public sealed class SwitchElectricalTests
         if(control==Control.MissingConsumerWire) construction=construction with {Connections=construction.Connections.Without(Power(2,4))};
         if(control==Control.DisabledSource) construction=construction with {Instances=new(construction.Instances.Select(instance=>instance.PartId==PartId.Battery
             ? (IWorkshopInstance)PlacedParts.Battery(instance.Id,-4,3,0,enabled:ElectricalEnable.Disabled):instance).ToArray())};
-        var (built,reads,reset)=await NoFixedCapacityTests.RunAndReset(construction,180);
+        var (built,reads,reset)=await WorkshopIntegrationHarness.ObserveReset(construction,180);
         Assert.All(reads,read=>Assert.False(Powered(read)));
         Assert.True(MathF.Abs(BladeY(reads[^1])-BladeY(built))<.01f);
         if(control is Control.MissingSourceWire or Control.MissingConsumerWire or Control.DisabledSource) Assert.Contains(reads,read=>Activation(read,2).Phase==ActivationPhase.Latched && Activation(read,5).Phase==ActivationPhase.Latched);
@@ -66,7 +66,7 @@ public sealed class SwitchElectricalTests
     [Fact]
     public async Task SupplyLossAndRestorationDoNotEraseOrReplayImpactMemory()
     {
-        var phases=await WorkshopPhysicsEngineTests.RunPhases(Machine(),([],100),([new(new(3),ElectricalEnable.Disabled)],30),
+        var phases=await WorkshopIntegrationHarness.ObservePhases(Machine(),([],100),([new(new(3),ElectricalEnable.Disabled)],30),
             ([new(new(3),ElectricalEnable.Enabled)],30));
         Assert.Contains(phases[0],Powered);Assert.All(phases[1],read=>Assert.False(Powered(read)));
         Assert.All(phases[2],read=>Assert.True(Powered(read)));
@@ -98,7 +98,7 @@ public sealed class SwitchElectricalTests
             Array.Reverse(parts);links.Reverse();
         }
         construction=construction with {Instances=new(parts),Connections=new(links.ToArray())};
-        var (built,reads,reset)=await NoFixedCapacityTests.RunAndReset(construction,180);
+        var (built,reads,reset)=await WorkshopIntegrationHarness.ObserveReset(construction,180);
         Assert.Contains(reads,read=>Activation(read,2).Phase==ActivationPhase.Latched && Activation(read,6).Phase==ActivationPhase.Latched);
         if(noSource) {Assert.All(reads,read=>Assert.False(Powered(read)));Assert.True(MathF.Abs(BladeY(reads[^1])-BladeY(built))<.01f);}
         else {Assert.True(Powered(reads[^1]));Assert.True(BladeY(reads[^1])>BladeY(built)+.2f);}
@@ -114,7 +114,7 @@ public sealed class SwitchElectricalTests
             WorkshopInput.Generic(PartId.ImpactSwitch,new(6),-8,1,0,0,0,0,1),
             WorkshopInput.Generic(PartId.Basketball,new(7),-8,3,0,0,0,0,1)}).ToArray()),
             Connections=new(Power(3,2),Power(2,6),Power(6,2),Power(6,4),Signal(2,5))};
-        var phases=await WorkshopPhysicsEngineTests.RunPhases(construction,([],100),([new(new(3),ElectricalEnable.Disabled)],30),
+        var phases=await WorkshopIntegrationHarness.ObservePhases(construction,([],100),([new(new(3),ElectricalEnable.Disabled)],30),
             ([new(new(3),ElectricalEnable.Enabled)],30));
         Assert.True(Powered(phases[0][^1]));Assert.All(phases[1],read=>Assert.False(Powered(read)));Assert.All(phases[2],read=>Assert.True(Powered(read)));
         foreach(var owner in new ulong[]{2,6})

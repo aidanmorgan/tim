@@ -7,7 +7,7 @@ namespace CuriousContraptions.Simulation;
 public static partial class Program
 {
     private static WorkshopSchedule? _schedule;
-    private static ulong _nextProjection, _nextCadence = 1;
+    private static ulong _nextProjection;
     private static bool _earlyPresented;
     private static WorkshopResponse? _preparedEndpoint;
     private static CommandSequence _installationOwner;

@@ -12,19 +12,19 @@ public static partial class Program
 {
     private static WorkshopGpuDevice? _device;
     private static WorkshopGpuDevice Device => _device ?? throw new InvalidOperationException("Worker document has not bootstrapped.");
-    private static WorkshopSimulation? _simulation;
     private static WorkshopClockPeer? _peer;
-    private static WorkshopSimulation Simulation => _simulation ?? throw new InvalidOperationException("Worker clock has not bootstrapped.");
+    private static WorkshopSimulation Simulation => Executor.Simulation;
     private static WorkshopClockPeer Peer => _peer ?? throw new InvalidOperationException("Worker clock has not bootstrapped.");
     private static ulong _publication;
     // The worker's own reliable-read accounting (Story 9A.3): every publication, and every browser receipt matched against it.
     private static WorkshopReliableReadLedger? _reads;
     private static WorkshopReliableReadLedger Reads => _reads ?? throw new InvalidOperationException("Worker session has not bootstrapped.");
-    private static readonly WorkshopCommandRouter Commands = new(Execute);
+    private static WorkshopCommandExecutor? _executor;
+    private static WorkshopCommandExecutor Executor => _executor ?? throw new InvalidOperationException("Worker has not bootstrapped.");
+    private static readonly WorkshopCommandRouter Commands = new(command => Executor.Execute(command));
     // One builder for every physical read this worker publishes: the per-tick encode reuses its storage.
     private static readonly Google.FlatBuffers.FlatBufferBuilder ReadBuilder = new(4096);
     private static ulong _loopOwner;
-    private static WorkshopCommandIdentity? _pendingCommand;
     private static readonly CuriousContraptions.Simulation.WorkshopTrace Trace = new();
     public static void Main() { }
 
@@ -50,6 +50,7 @@ public static partial class Program
         _device = new(new BrowserGpuTransport(new WorkerEventPublication()), new(session.Low, session.High));
         _reads = new(session);
         _peer = peer;
+        _executor = new(Device, new CommandHost());
         return WorkshopClockWire.EncodePeer(peer);
     }
 
@@ -152,120 +153,57 @@ public static partial class Program
     }
 
 
-    private static async Task<byte[]> Execute(WorkshopCommand command)
+    private sealed class CommandHost : IWorkshopCommandHost
     {
-        if (!WorkshopMessages.Matches(command, _simulation?.Epoch ?? new(1), _simulation?.Revision ?? default, Peer.Session,
-            _schedule?.Revision ?? default, _schedule?.World.Epoch ?? default))
-            return EncodeResponse(new WorkshopResponse(command.Sequence, WorkshopResponseKind.Acknowledgement,
-                new(WorkshopCommandOutcome.Rejected, WorkshopRejection.StaleGeneration), Simulation.Phase, Simulation.Committed));
-        var identity = new WorkshopCommandIdentity(command.Sequence, command.Epoch, command.Revision, command.Cadence, command.Projection);
-        if (command.Kind == WorkshopCommandKind.Cancel)
-        {
-            var result = command.Target == _pendingCommand
-                ? Simulation.CancelPending()
-                : new WorkshopCommandResult(WorkshopCommandOutcome.Rejected, WorkshopRejection.AlreadyCommitted);
-            return EncodeResponse(new WorkshopResponse(command.Sequence, WorkshopResponseKind.Acknowledgement,
-                result, Simulation.Phase, Simulation.Committed));
-        }
-        if ((_pendingCommand is not null || _preparedEndpoint is not null) && command.Kind != WorkshopCommandKind.Dispose)
-            return EncodeResponse(new WorkshopResponse(command.Sequence, WorkshopResponseKind.Acknowledgement,
-                new(WorkshopCommandOutcome.Rejected, WorkshopRejection.Busy), Simulation.Phase, Simulation.Committed));
-        if (command.Kind == WorkshopCommandKind.ObserveMemory)
-        {
-            // A query: answered by this acknowledgement, never queued behind a tick or a pending GPU operation.
-            var admitted = WorkshopMemoryQuery.Admit(Simulation.Phase, Simulation.HasPendingGpuOperation, Reads.Idle);
-            return EncodeResponse(new WorkshopResponse(command.Sequence, WorkshopResponseKind.Acknowledgement, admitted,
-                Simulation.Phase, Simulation.Committed,
-                Memory: admitted.Outcome == WorkshopCommandOutcome.Applied ? WorkshopMemoryMeasurement.Capture() : null));
-        }
-        _pendingCommand = identity;
-        try { return await Apply(command); }
-        finally { if (_pendingCommand == identity) _pendingCommand = null; }
-    }
+        public RuntimeSessionId Session => Peer.Session;
+        public WorkshopSchedule? Schedule => _schedule;
+        public ClockGeneration Generation => Peer.Generation;
+        public bool InstallationPending => _preparedEndpoint is not null;
+        public bool ReadsIdle => Reads.Idle;
+        public IWorkshopCaptureClock Clock { get; } = new CaptureClock();
+        public IWorkshopInstallation Installation { get; } = new Installation();
+        public WorkshopMemoryMeasurement CaptureMemory() => WorkshopMemoryMeasurement.Capture();
 
-    private static async Task<byte[]> Apply(WorkshopCommand command)
-    {
-        WorkshopCommandResult result;
-        _transition = command.Kind switch
+        public async ValueTask Before(WorkshopCommandKind kind, WorkshopSimulation? simulation)
         {
-            WorkshopCommandKind.Run => ScheduleTransition.Run, WorkshopCommandKind.Pause => ScheduleTransition.Pause,
-            WorkshopCommandKind.Resume => ScheduleTransition.Resume, WorkshopCommandKind.Step => ScheduleTransition.Step,
-            WorkshopCommandKind.Reset => ScheduleTransition.Reset, _ => ScheduleTransition.Configure
-        };
-        if (!WorkshopMessages.Matches(command, _simulation?.Epoch ?? new(1), _simulation?.Revision ?? default, Peer.Session,
-            _schedule?.Revision ?? default, _schedule?.World.Epoch ?? default))
-            return EncodeResponse(new WorkshopResponse(command.Sequence, WorkshopResponseKind.Acknowledgement,
-                new(WorkshopCommandOutcome.Rejected, WorkshopRejection.StaleGeneration), Simulation.Phase, Simulation.Committed));
-        switch (command.Kind)
-        {
-            case WorkshopCommandKind.Initialize:
-                if (_simulation is not null) throw new InvalidOperationException("Already initialized.");
-                _simulation = new(Device, new CaptureClock(), command.Settings!.Value, new(1), new Installation(), GpuDeviceOwnership.Owned);
-                result = await Simulation.Initialize(); break;
-            case WorkshopCommandKind.ConfigureCadence:
-                result = await Simulation.Configure(command.Settings!.Value, new(checked(++_nextCadence))); break;
-            case WorkshopCommandKind.Pause:
-                _loopOwner++;
+            _transition = kind switch
+            {
+                WorkshopCommandKind.Run => ScheduleTransition.Run, WorkshopCommandKind.Pause => ScheduleTransition.Pause,
+                WorkshopCommandKind.Resume => ScheduleTransition.Resume, WorkshopCommandKind.Step => ScheduleTransition.Step,
+                WorkshopCommandKind.Reset => ScheduleTransition.Reset, _ => ScheduleTransition.Configure
+            };
+            if (kind == WorkshopCommandKind.Pause) _loopOwner++;
+            if (kind is WorkshopCommandKind.Pause or WorkshopCommandKind.ConfigureElectrical)
                 while (Simulation.HasPendingGpuOperation) await Task.Delay(1);
-                result = await Simulation.Pause();
-                if (result.Outcome != WorkshopCommandOutcome.Applied && Simulation.Phase == WorkshopSimulationPhase.Running)
-                    _ = RunLoop(++_loopOwner);
-                break;
-            case WorkshopCommandKind.Resume: result = await Simulation.Resume(); break;
-            case WorkshopCommandKind.Step: result = await Simulation.Step(); break;
-            case WorkshopCommandKind.ConfigureElectrical:
-                while (Simulation.HasPendingGpuOperation) await Task.Delay(1);
-                result = Simulation.ConfigureElectrical(command.Electrical!.Value); break;
-            case WorkshopCommandKind.Save: result = Simulation.Save(); break;
-            case WorkshopCommandKind.Construct:
-                GC.Collect(2, GCCollectionMode.Aggressive, true, true);
-                result = await Simulation.Construct(command.Construction!.Value); break;
-            case WorkshopCommandKind.Run:
-                GC.Collect(2, GCCollectionMode.Aggressive, true, true);
-                result = await Simulation.Run();
-                break;
-            case WorkshopCommandKind.Reset:
-                Trace.End(CuriousContraptions.Simulation.TraceEnd.Reset);
-                GC.Collect(2, GCCollectionMode.Aggressive, true, true);
-                var resetting = Simulation.Reset();
-                result = await resetting;
-                if (result.Outcome == WorkshopCommandOutcome.Applied) _loopOwner++;
-                break;
-            case WorkshopCommandKind.Dispose:
+            if (kind == WorkshopCommandKind.Reset) Trace.End(CuriousContraptions.Simulation.TraceEnd.Reset);
+            if (kind == WorkshopCommandKind.Dispose)
+            {
                 Trace.End(CuriousContraptions.Simulation.TraceEnd.Disposed);
                 _loopOwner++;
-                await Simulation.DisposeAsync();
-                result = new(WorkshopCommandOutcome.Applied, WorkshopRejection.None);
-                break;
-            // Cancel and the memory query are answered in Execute; the decoder refuses every undefined kind.
-            default: throw new WireFaultException(WireFaultReason.UnknownCommand, $"Command kind {(uint)command.Kind} has no executor.");
+            }
+            if (kind is WorkshopCommandKind.Construct or WorkshopCommandKind.Run or WorkshopCommandKind.Reset)
+                GC.Collect(2, GCCollectionMode.Aggressive, true, true);
         }
-        if (result.Outcome == WorkshopCommandOutcome.Applied && _preparedEndpoint is not null)
+
+        public async ValueTask After(WorkshopCommandKind kind, WorkshopCommandResult result, WorkshopSimulation simulation)
         {
+            if (kind == WorkshopCommandKind.Pause && result.Outcome != WorkshopCommandOutcome.Applied &&
+                simulation.Phase == WorkshopSimulationPhase.Running) _ = RunLoop(++_loopOwner);
+            if (kind == WorkshopCommandKind.Reset && result.Outcome == WorkshopCommandOutcome.Applied) _loopOwner++;
+            if (result.Outcome != WorkshopCommandOutcome.Applied || _preparedEndpoint is null) return;
             await CommitInstallation();
-            if (command.Kind == WorkshopCommandKind.Run)
+            if (kind == WorkshopCommandKind.Run)
             {
-                Trace.Begin(Peer.Session, Simulation.Construction, Simulation.Epoch, _schedule!.Value.World.Epoch, Simulation.Profile);
+                Trace.Begin(Peer.Session, simulation.Construction, simulation.Epoch, _schedule!.Value.World.Epoch, simulation.Profile);
 #if PLAYTEST
                 Trace.Append(Device.DiagnosticCommitted);
 #endif
             }
 #if PLAYTEST
-            if (command.Kind == WorkshopCommandKind.Step) Trace.Append(Device.DiagnosticCommitted);
+            if (kind == WorkshopCommandKind.Step) Trace.Append(Device.DiagnosticCommitted);
 #endif
-            if (command.Kind is WorkshopCommandKind.Run or WorkshopCommandKind.Resume)
-                _ = RunLoop(++_loopOwner);
+            if (kind is WorkshopCommandKind.Run or WorkshopCommandKind.Resume) _ = RunLoop(++_loopOwner);
         }
-        return EncodeResponse(new WorkshopResponse(command.Sequence, WorkshopResponseKind.Acknowledgement,
-            result, Simulation.Phase, Simulation.Committed));
-    }
-
-    private static byte[] EncodeResponse(WorkshopResponse response)
-    {
-        var populated = response with { Session = Peer.Session, Cadence = _schedule?.Revision ?? default,
-            MasterGeneration = _schedule is null ? default : Peer.Generation,
-            Projection = _schedule?.World.Epoch ?? default, SourcePulse = new(response.Read.Tick.Value) };
-        return WorkshopWireFlatBuffers.EncodeResponse(populated);
     }
 
     private static async Task RunLoop(ulong owner)
@@ -310,7 +248,7 @@ public static partial class Program
     {
         private static WorkshopSchedule Schedule => _schedule ?? throw new InvalidOperationException("Missing physical schedule.");
         public bool Owns => owner == _loopOwner && Simulation.Phase == WorkshopSimulationPhase.Running;
-        public bool Blocked => Simulation.HasPendingGpuOperation || _preparedEndpoint is not null || _pendingCommand is not null;
+        public bool Blocked => Simulation.HasPendingGpuOperation || _preparedEndpoint is not null || Executor.Pending is not null;
         public bool DebtExceeded
         {
             get
@@ -375,12 +313,8 @@ public static partial class Program
     {
         if (_publication == ulong.MaxValue) throw new InvalidOperationException("Physical publication identity exhausted.");
         var sequence = new PublicationSequence(_publication + 1);
-        var readResponse = new WorkshopResponse(default, WorkshopResponseKind.Read, result,
-            Simulation.Phase, Simulation.Committed, Peer.Session, sequence,
-            Cadence: _schedule?.Revision ?? default,
-            MasterGeneration: _schedule is null ? default : Peer.Generation,
-            Projection: _schedule?.World.Epoch ?? default,
-            SourcePulse: new(Simulation.Committed.Tick.Value));
+        var readResponse = Executor.Populate(new WorkshopResponse(default, WorkshopResponseKind.Read, result,
+            Simulation.Phase, Simulation.Committed, Publication: sequence));
         var encoded = WorkshopWireFlatBuffers.EncodeResponse(readResponse, ReadBuilder);
         Reads.Publish(sequence, MasterNow());
         _publication++;

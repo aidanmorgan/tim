@@ -1,5 +1,7 @@
 # All 293 named source identities
 
+**Acceptance policy:** apply the owner's [game-fidelity policy](../../delivery-workflow.md#game-fidelity) and [float comparison and effort rules](../../testing-guidance.md#float-comparison-and-effort-rules) to all linked element criteria. Historical ticks, trajectories and micrometre observations do not create new precision gates. Preserve each intended behavior and requirement identity; exact timing needs a deliberate gameplay contract.
+
 Navigation and preservation ledger only: every EL/TH/RAD/GAP identity and element behaviour fact is kept; the entries do not define the system.
 Design authorities: [canonical IEEE-754 f32 game values and WASM SIMD physics](../../gpu-f32-physics.md), [engine contracts](../../engine-contracts.md), [delivery workflow](../../delivery-workflow.md) and the [ordered roadmap](vertical-delivery.md#rolling-playable-roadmap).
 Declaration readiness specs, one per element, are indexed in the [element spec index](../elements/README.md).

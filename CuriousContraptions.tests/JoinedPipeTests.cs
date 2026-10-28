@@ -227,7 +227,7 @@ public sealed class JoinedPipeTests
     {
         var lesson = Lesson(1f);
         var bench = lesson.WithInstance(Snapped(lesson, 2));
-        var (built, run, reset) = await NoFixedCapacityTests.RunAndReset(bench, RunTicks);
+        var (built, run, reset) = await WorkshopIntegrationHarness.ObserveReset(bench, RunTicks);
         Assert.True(Solved(bench, run), $"the joined route solves (ball last at {Ball(run[^1])})");
         NoFixedCapacityTests.AssertSameState(built, reset, "Reset");
     }
@@ -237,7 +237,7 @@ public sealed class JoinedPipeTests
     {
         var lesson = Lesson(1f);
         var bench = lesson.WithInstance(Snapped(lesson, 3.6f));
-        var (_, run, _) = await NoFixedCapacityTests.RunAndReset(bench, RunTicks);
+        var (_, run, _) = await WorkshopIntegrationHarness.ObserveReset(bench, RunTicks);
         Assert.False(Solved(bench, run), $"a 3.6 m pipe misses the drop line (ball last at {Ball(run[^1])})");
     }
 
@@ -251,7 +251,7 @@ public sealed class JoinedPipeTests
         Assert.Null(TubeMouthSnap.Find(definitions, lesson.Instances, new(PartId.Pipe, PipeId, false, unsnapped.Length),
             UnsnappedPosition(snapped), Rz(-45)));
         var bench = lesson.WithInstance(unsnapped);
-        var (_, run, _) = await NoFixedCapacityTests.RunAndReset(bench, RunTicks);
+        var (_, run, _) = await WorkshopIntegrationHarness.ObserveReset(bench, RunTicks);
         Assert.False(Solved(bench, run), $"the unsnapped route does not solve (ball last at {Ball(run[^1])})");
         // The ball lands on the shifted pipe's outer shell: it never enters the bore and leaves the route between the mouths.
         var centre = new Vector3((float)((unsnapped.Cell.X + (double)unsnapped.Local.X) / 16), (float)((unsnapped.Cell.Y + (double)unsnapped.Local.Y) / 16), 0);

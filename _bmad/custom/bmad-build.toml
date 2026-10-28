@@ -5,7 +5,7 @@ Launch a context-free subagent with this prompt:
 
 Read {spec_file} fully and implement it. Load every file in its context frontmatter. Also read AGENTS.md and docs/testing-guidance.md; the owner's 28 October game-fidelity policy supersedes obsolete numerical acceptance in older specs. Resolve any conflict before implementation. Report what changed, verification and remaining risks.
 """
-persistent_facts = ["Owner policy, 28 October 2026: read AGENTS.md and docs/testing-guidance.md. Game outcomes, meaningful causal order and stability govern acceptance. Historical numerical traces, output hashes and unnecessarily tight scene tolerances are not requirements. Apply this policy to specifications, implementation handoffs and every review layer."]
+persistent_facts = ["Owner clarification, 29 October 2026: apply docs/testing-guidance.md#float-comparison-and-effort-rules. Use quantity-specific tolerances and generous game-time stall guards; no universal epsilon, fixed lesson ceiling or extra precision work without a concrete gameplay/interface defect. Reuse applicable passing evidence. A short rationale suffices; do not create a new precision audit.","Owner policy, 28 October 2026: read AGENTS.md and docs/testing-guidance.md. Game outcomes, meaningful causal order and stability govern acceptance. Historical numerical traces, output hashes and unnecessarily tight scene tolerances are not requirements. Apply this policy to specifications, implementation handoffs and every review layer."]
 
 [[workflow.review_layers]]
 id = "blind-hunter"

@@ -105,7 +105,7 @@ public partial class Workshop
         try { await ChangeConnectionAsync(link, add); }
         catch (Exception error) { HandlerFailed(nameof(ChangeConnection), error); }
     }
-    private async Task ChangeConnectionAsync(WorkshopConnection link, bool add)
+    internal async Task ChangeConnectionAsync(WorkshopConnection link, bool add)
     {
         if (!CanEdit) return;
         try

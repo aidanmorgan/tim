@@ -49,7 +49,7 @@ public sealed class HoldTimerTests
     public async Task PhysicalTriggerHoldsExactWindowWithoutGeneratingSupply(float seconds, int ticks)
     {
         var construction = Construction(seconds);
-        var (built,reads,reset) = await NoFixedCapacityTests.RunAndReset(construction,ticks+110);
+        var (built,reads,reset) = await WorkshopIntegrationHarness.ObserveReset(construction,ticks+110);
         var first = reads.First(read => State(read).Phase == ActivationTimerPhase.Counting);
         var state = State(first);
         Assert.Equal((ulong)ticks,state.DueTick-state.StartedTick);
@@ -62,7 +62,7 @@ public sealed class HoldTimerTests
             Enumerable.Range(0,read.Activations.Count).Select(i=>read.Activations[i]).Single(row=>row.Owner.Value==3).Phase));
         NoFixedCapacityTests.AssertSameState(built,reset,"rearming timed contact Reset");
 
-        var (_,control,_) = await NoFixedCapacityTests.RunAndReset(Construction(seconds,supply:false),ticks+110);
+        var (_,control,_) = await WorkshopIntegrationHarness.ObserveReset(Construction(seconds,supply:false),ticks+110);
         Assert.Contains(control,read=>State(read).Phase==ActivationTimerPhase.Counting);
         Assert.All(control,read=>Assert.False(Powered(read)));
     }
@@ -77,7 +77,7 @@ public sealed class HoldTimerTests
         Assert.Equal(saved,loaded);
         var part=Assert.IsType<WorkshopGenericInstance>(loaded.Construction.Instances.Single(row=>row.Id.Value==3));
         Assert.True(F32Bits.Equal(seconds,part.Parameters[new("hold_seconds")]));
-        var (built,reads,reset)=await NoFixedCapacityTests.RunAndReset(loaded.Construction,180);
+        var (built,reads,reset)=await WorkshopIntegrationHarness.ObserveReset(loaded.Construction,180);
         var first=reads.First(read=>State(read).Phase==ActivationTimerPhase.Counting);
         var delay=Enumerable.Range(0,first.Timers.Count).Select(i=>first.Timers[i]).Single(row=>row.Node.Value==6);
         Assert.Equal(delay.DueTick,first.Tick.Value);
@@ -85,7 +85,7 @@ public sealed class HoldTimerTests
         var before=reads.Single(read=>read.Tick.Value+1==first.Tick.Value);
         Assert.True(Blade(first).Speed>0f, "gate accelerates on the due boundary");
         Assert.True(Travel(first)>Travel(before), "gate blade starts moving on the due boundary");
-        var (_,control,_)=await NoFixedCapacityTests.RunAndReset(Construction(seconds,supply:false,delayed:true),180);
+        var (_,control,_)=await WorkshopIntegrationHarness.ObserveReset(Construction(seconds,supply:false,delayed:true),180);
         Assert.True(Travel(first)>Travel(control.Single(read=>read.Tick.Value==first.Tick.Value)), "same timer without supply cannot move the blade");
         Assert.False(Powered(reads.Single(read=>read.Tick.Value==State(first).DueTick)));
         NoFixedCapacityTests.AssertSameState(built,reset,"saved timed contact Reset");
@@ -163,7 +163,7 @@ public sealed class HoldTimerTests
     [Fact]
     public async Task SupplyLossNeverPausesAndRestorationAfterExpiryNeverReplays()
     {
-        var phases=await WorkshopPhysicsEngineTests.RunPhases(Construction(2f),
+        var phases=await WorkshopIntegrationHarness.ObservePhases(Construction(2f),
             ([],80),([new(new(4),ElectricalEnable.Disabled)],40),
             ([new(new(4),ElectricalEnable.Enabled)],40),([new(new(4),ElectricalEnable.Disabled)],200),
             ([new(new(4),ElectricalEnable.Enabled)],20));
@@ -185,7 +185,7 @@ public sealed class HoldTimerTests
             ? (IWorkshopInstance)WorkshopInput.Generic(PartId.Delay,new(6),-3,2,0,0,0,0,1,new([new(new ParameterId("delay_seconds"),.2f)]))
             : instance).ToArray();
         construction=construction with {Instances=new(parts),Connections=construction.Connections.With(Signal(2,6)).With(Signal(6,3))};
-        var (_,reads,_)=await NoFixedCapacityTests.RunAndReset(construction,180);
+        var (_,reads,_)=await WorkshopIntegrationHarness.ObserveReset(construction,180);
         var windows=reads.Where(read=>State(read).Phase==ActivationTimerPhase.Counting).Select(read=>State(read).StartedTick).Distinct().ToArray();
         Assert.Equal(2,windows.Length); Assert.Equal(windows[0]+24,windows[1]);
         Assert.All(reads.Where(read=>read.Tick.Value>=windows[0]+12&&read.Tick.Value<windows[1]),read=>Assert.False(Powered(read)));
@@ -196,7 +196,7 @@ public sealed class HoldTimerTests
     public async Task ActualCoordinatorRejectsForgedEarlyRearmBusyRestartAndForeignIdentity()
     {
         var construction=Construction(.2f);
-        var (_,reads,_)=await NoFixedCapacityTests.RunAndReset(construction,180);
+        var (_,reads,_)=await WorkshopIntegrationHarness.ObserveReset(construction,180);
         var first=reads.First(read=>State(read).Phase==ActivationTimerPhase.Counting);
         var next=reads.Single(read=>read.Tick.Value==first.Tick.Value+1);
         await using var device=new WorkshopGpuDevice(new CuriousContraptions.Simulation.BrowserGpuTransport(new CuriousContraptions.Abstractions.EventRingPublication()),new(101,206));
@@ -246,7 +246,7 @@ public sealed class HoldTimerTests
         static ActivationLatch Node(WorkshopRead read,ulong id)=>
             Enumerable.Range(0,read.Activations.Count).Select(i=>read.Activations[i]).Single(row=>row.Owner.Value==id);
         // Unchanged physical geometry determines the two real contact boundaries.
-        var (_,observed,_)=await NoFixedCapacityTests.RunAndReset(baseline,180);
+        var (_,observed,_)=await WorkshopIntegrationHarness.ObserveReset(baseline,180);
         var first=observed.First(read=>Node(read,2).Phase==ActivationPhase.Latched);
         var second=observed.First(read=>Node(read,8).Phase==ActivationPhase.Latched);
         Assert.True(Node(second,8).EventOrdinal<second.Tick.Value*4, "fixture contact must precede the publication boundary");
@@ -257,7 +257,7 @@ public sealed class HoldTimerTests
         parts=parts.Select(part=>part.Id.Value==6
             ? WorkshopInput.Generic(PartId.Delay,new(6),-3,2,0,0,0,0,1,
                 new([new(new ParameterId("delay_seconds"),seconds)])) : part).ToArray();
-        var (_,reads,_)=await NoFixedCapacityTests.RunAndReset(baseline with {Instances=new(parts)},180);
+        var (_,reads,_)=await WorkshopIntegrationHarness.ObserveReset(baseline with {Instances=new(parts)},180);
         var due=reads.Single(read=>read.Tick.Value==second.Tick.Value);
         Assert.Equal(due.Tick.Value,Enumerable.Range(0,due.Timers.Count).Select(i=>due.Timers[i]).Single(row=>row.Node.Value==6).DueTick);
         Assert.Equal(ActivationPhase.Clear,Node(reads.Single(read=>read.Tick.Value+1==due.Tick.Value),9).Phase);
@@ -395,7 +395,7 @@ public sealed class HoldTimerPresentationTests(NativeSceneFixture godot)
     public async Task ActualCommittedWindowDrivesAnchoredBarAndIndependentLampAndHiddenCatchUp()
     {
         var construction=HoldTimerTests.Construction(.2f,supply:false);
-        var (_,reads,_)=await NoFixedCapacityTests.RunAndReset(construction,180);
+        var (_,reads,_)=await WorkshopIntegrationHarness.ObserveReset(construction,180);
         var first=reads.First(read=>HoldTimerTests.State(read).Phase==ActivationTimerPhase.Counting);
         var due=HoldTimerTests.State(first).DueTick;
         var expired=reads.Single(read=>read.Tick.Value==due);

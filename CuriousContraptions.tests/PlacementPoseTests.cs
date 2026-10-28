@@ -79,17 +79,17 @@ public sealed class PlacementPoseTests
         Assert.Equal(at.Snapped(Vector3.One * .1f), pose.Position);
         Assert.Single(placed); // a rejected preview never changes the authored list
         var prior = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(pipe));
-        await using var ring = await EventRingProducerTests.Ring.Building(prior);
-        var before = ring.Simulation.Committed;
+        await using var ring = await WorkshopIntegrationHarness.Building(prior);
+        var before = ring.Committed;
         var candidate = prior with { Revision = new(3), Instances = new(pipe, At(part, 2, at, turn)) };
-        var result = await ring.Simulation.Construct(candidate);
+        var result = (await ring.Execute(WorkshopCommandKind.Construct, candidate)).Result;
         Assert.Equal(overlaps ? WorkshopCommandOutcome.Rejected : WorkshopCommandOutcome.Applied, result.Outcome);
         if (overlaps)
         {
             Assert.Equal(WorkshopRejection.InvalidConstruction, result.Reason);
-            Assert.Equal(prior, ring.Simulation.Construction);
-            Assert.Equal(before.Revision, ring.Simulation.Committed.Revision);
-            Assert.Equal(before.Bodies, ring.Simulation.Committed.Bodies);
+            Assert.Equal(prior, ring.Construction);
+            Assert.Equal(before.Revision, ring.Committed.Revision);
+            Assert.Equal(before.Bodies, ring.Committed.Bodies);
         }
     }
 
@@ -198,7 +198,7 @@ public sealed class PlacementPoseTests
         var bench = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new([.. placed]), Connections: new(
             new WorkshopConnection(battery.Id, WorkshopSocket.Supply, plate.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical),
             new WorkshopConnection(plate.Id, WorkshopSocket.Supply, gate.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical)));
-        var reads = (await WorkshopPhysicsEngineTests.RunPhases(bench, ([], 2 * 120)))[0];
+        var reads = (await WorkshopIntegrationHarness.ObservePhases(bench, ([], 2 * 120)))[0];
         var load = reads[^1].Presentation.Loads[0];
         Assert.True(reads[^1].Bodies.TryGet(bench.Instances.Identities[gate.Id].Sliders[0].Body, out var blade));
         var travel = (blade.Body.Cell.Y + blade.Body.Local.Y) / 16f - 3f;

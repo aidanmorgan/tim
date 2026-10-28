@@ -22,7 +22,7 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
                 ? new(new WorkshopConnection(battery.Id, WorkshopSocket.Supply, gate.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical))
                 : new()
         };
-        var reads = await WorkshopPhysicsEngineTests.Run(construction, 2);
+        var reads = await WorkshopIntegrationHarness.Observe(construction, 2);
         var read = reads[1];
         var drive = Assert.Single(read.Presentation.Actuators.ToArray());
         Assert.Equal(connected, drive.SupplyClosed);
@@ -73,7 +73,7 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
     public async Task TheGateCueIsOchreWhileABallHoldsTheBladeAtRest()
     {
         var construction = LatchSupplyFixtureTests.Machine(9, payload: true);
-        var reads = await WorkshopPhysicsEngineTests.Run(construction, 360);
+        var reads = await WorkshopIntegrationHarness.Observe(construction, 360);
         var gate = construction.Instances.Single(instance => instance.PartId == PartId.PoweredGate).Id;
         Color Cue(WorkshopRead read)
         {
@@ -132,7 +132,7 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
             Connections: new(
                 new WorkshopConnection(battery.Id, WorkshopSocket.Supply, clock.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical),
                 new WorkshopConnection(clock.Id, WorkshopSocket.ActivationOut, counter.Id, WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation)));
-        var reads = await WorkshopPhysicsEngineTests.Run(construction, 150);
+        var reads = await WorkshopIntegrationHarness.Observe(construction, 150);
         var evaluator = new WorkshopDeclaredPresentation(construction, Response(reads[1], 1));
         var network = WorkshopActivationCompiler.Compile(construction);
         var registry = new PartRegistry(); registry.Load();
@@ -181,7 +181,7 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
         var ball = WorkshopInput.Generic(PartId.Basketball,new(2), 0, (float)(y + .08 + .35), 0, 0, 0, 0, 1);
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(),
             occupied ? new(plate, ball) : new(plate));
-        var reads = await WorkshopPhysicsEngineTests.Run(construction, 120);
+        var reads = await WorkshopIntegrationHarness.Observe(construction, 120);
         Assert.Equal(expected, Assert.Single(reads[^1].Presentation.Loads.ToArray()).Phase);
         var evaluator = new WorkshopDeclaredPresentation(construction, Response(reads[1], 1));
         var registry = new PartRegistry(); registry.Load();
@@ -218,7 +218,7 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(battery, clock, counter),
             Connections: new(new WorkshopConnection(battery.Id, WorkshopSocket.Supply, clock.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical),
                 new WorkshopConnection(clock.Id, WorkshopSocket.ActivationOut, counter.Id, WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation)));
-        var reads = await WorkshopPhysicsEngineTests.Run(construction, 120);
+        var reads = await WorkshopIntegrationHarness.Observe(construction, 120);
         var follow = new WorkshopDeclaredPresentation(construction, Response(reads[30], 1));
         var start = Time(reads[30]);
         Assert.Equal(0f, Scalar(follow.Advance(AnimationTestTime.Seconds(start)), clock.Id, 0));
@@ -236,7 +236,7 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
 
         var saved = new WorkshopSavedConstruction(construction, new(4));
         var restored = WorkshopSaveCodec.Decode(SaveFixture.Elements, WorkshopSaveCodec.Encode(saved));
-        var replay = await WorkshopPhysicsEngineTests.Run(restored.Construction, 120);
+        var replay = await WorkshopIntegrationHarness.Observe(restored.Construction, 120);
         var replayPresentation = new WorkshopDeclaredPresentation(restored.Construction, Response(replay[120], 1));
         Assert.Equal(247f / 255f, Scalar(replayPresentation.Advance(AnimationTestTime.Seconds(Time(replay[120]) + .1)), counter.Id, 0));
     }
@@ -248,7 +248,7 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
         var plate = PlacedParts.Plate(new(1), 0, (float)(y), 0, .5f);
         var ball = WorkshopInput.Generic(PartId.Basketball,new(2), 0, (float)(y + .43), 0, 0, 0, 0, 1);
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(plate, ball));
-        var (_, reads, reset) = await PressurePlateTests.RunAndReset(construction, 120);
+        var (_, reads, reset) = await WorkshopIntegrationHarness.ObserveReset(construction, 120);
         var loaded = reads.Last(read => read.Presentation.Loads[0].Phase == ContactLoadPhase.Loaded);
         var presentation = new WorkshopDeclaredPresentation(construction, Response(loaded, 1));
         var start = Time(loaded);
@@ -274,7 +274,7 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
         var clock = PlacedParts.Clock(new(2), 0, 3, 0, 0, 0, 0, 1, .125f);
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(battery, clock),
             Connections: new(new WorkshopConnection(battery.Id, WorkshopSocket.Supply, clock.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical)));
-        var reads = await WorkshopPhysicsEngineTests.Run(construction, 30);
+        var reads = await WorkshopIntegrationHarness.Observe(construction, 30);
         var pulseRead = reads[15];
         var start = Time(pulseRead);
         var skipped = new WorkshopDeclaredPresentation(construction, Response(pulseRead, 1));
@@ -320,7 +320,7 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
                 new(resetClock.Id, WorkshopSocket.ActivationOut, latch.Id, WorkshopSocket.ResetIn, WorkshopConnectionDomain.Activation),
                 new(latch.Id, WorkshopSocket.ActivationOut, lamp.Id, WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation),
                 new(setClock.Id, WorkshopSocket.ActivationOut, delay.Id, WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation)));
-        var reads = await WorkshopPhysicsEngineTests.Run(construction, 180);
+        var reads = await WorkshopIntegrationHarness.Observe(construction, 180);
         var registry = new PartRegistry(); registry.Load();
         var latchPart = registry.Create(PartId.Latch);
         var lampPart = registry.Create(PartId.SignalLamp);
@@ -383,7 +383,7 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
     {
         var battery = PlacedParts.Battery(new(1), 0, 3, 0, capacity, power, fraction);
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(battery));
-        var phases = await WorkshopPhysicsEngineTests.RunPhases(construction, ([], 1),
+        var phases = await WorkshopIntegrationHarness.ObservePhases(construction, ([], 1),
             ([new(battery.Id, ElectricalEnable.Disabled)], 1));
         var registry = new PartRegistry(); registry.Load();
         var part = registry.Create(PartId.Battery);
@@ -413,7 +413,7 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
         var clock = PlacedParts.Clock(new(2), 0, 3, 0, 0, 0, 0, 1, .125f);
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(battery, clock),
             Connections: new(new WorkshopConnection(battery.Id, WorkshopSocket.Supply, clock.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical)));
-        var reads = await WorkshopPhysicsEngineTests.Run(construction, 15);
+        var reads = await WorkshopIntegrationHarness.Observe(construction, 15);
         var endpoint = Response(reads[15], 1) with { Construction = construction };
         var start = Time(reads[15]);
         var consumed = new WorkshopDeclaredPresentation(construction, endpoint);

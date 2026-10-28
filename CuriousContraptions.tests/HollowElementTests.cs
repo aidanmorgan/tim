@@ -6,7 +6,7 @@ using NumVector3 = System.Numerics.Vector3;
 namespace CuriousContraptions.Tests;
 
 /// <summary>
-/// engine-hollow-shapes on the production simulation (<see cref="EventRingProducerTests.Ring"/>): the Basketball through the pipe
+/// engine-hollow-shapes on the production simulation (<see cref="WorkshopIntegrationHarness"/>): the Basketball through the pipe
 /// family's true hollow colliders. Bounds as in <see cref="WorkshopPhysicsLawHollowTests"/>: the surface-error bound 1e-5 m and the
 /// envelope's 0.5 mm resting penetration. Actual Basketball checks use its sphere-plus-seam union;
 /// equivalent primitive controls preserve the 0.34 m sphere's 0.31 m wall offset.
@@ -44,7 +44,7 @@ public sealed class HollowElementTests
             (float)(pose.Rotation.X), (float)(pose.Rotation.Y), (float)(pose.Rotation.Z), (float)(pose.Rotation.W));
         var start = funnel ? origin + .4f * axis + .35f * down : joint - 1.5f * axis + .31f * down;
         var construction = Bench(first, bend, BallAt(start));
-        await using var ring = await EventRingProducerTests.Ring.Running(construction);
+        await using var ring = await WorkshopIntegrationHarness.Running(construction);
         await ring.Advance(480);
         var before = false;
         var after = false;
@@ -94,42 +94,40 @@ public sealed class HollowElementTests
             Connections = new([new(Second, WorkshopSocket.ActivationOut, lamp.Id, WorkshopSocket.ActivationIn,
                 WorkshopConnectionDomain.Activation)])
         };
-        await using var ring = await EventRingProducerTests.Ring.Building(construction);
-        Assert.Equal(WorkshopCommandOutcome.Applied, ring.Simulation.Save().Outcome);
+        await using var ring = await WorkshopIntegrationHarness.Building(construction);
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await ring.Execute(WorkshopCommandKind.Save)).Result.Outcome);
         var encoded = WorkshopSaveCodec.Encode(new(construction, new(10)));
         var decoded = WorkshopSaveCodec.Decode(SaveFixture.Elements, encoded);
         Assert.Equal(construction.Instances, decoded.Construction.Instances);
         Assert.Equal(construction.Connections, decoded.Construction.Connections);
         await ring.Run();
         await ring.Advance(20);
-        Assert.Equal(WorkshopCommandOutcome.Applied, (await ring.Simulation.Pause()).Outcome);
-        var pausedTick = ring.Simulation.Committed.Tick;
-        Assert.Equal(WorkshopCommandOutcome.Applied, (await ring.Simulation.Step()).Outcome);
+        Assert.Equal(WorkshopCommandOutcome.Applied, ((await ring.Execute(WorkshopCommandKind.Pause)).Result).Outcome);
+        var pausedTick = ring.Committed.Tick;
+        Assert.Equal(WorkshopCommandOutcome.Applied, ((await ring.Execute(WorkshopCommandKind.Step)).Result).Outcome);
         ring.Publish();
-        Assert.Equal(pausedTick.Value + 1, ring.Simulation.Committed.Tick.Value);
-        Assert.Equal(WorkshopCommandOutcome.Applied, (await ring.Simulation.Resume()).Outcome);
+        Assert.Equal(pausedTick.Value + 1, ring.Committed.Tick.Value);
+        Assert.Equal(WorkshopCommandOutcome.Applied, ((await ring.Execute(WorkshopCommandKind.Resume)).Result).Outcome);
         await ring.Advance(159);
         var firstPassage = Assert.Single(ring.Of(SimulationEventKind.Passage));
-        Assert.Equal(Second.Value, firstPassage.Source);
-        var finish = Read(ring.Simulation.Committed).Position;
+        Assert.Equal((Second.Value, Ball.Value), (firstPassage.Source, firstPassage.Other));
+        var finish = Read(ring.Committed).Position;
         Assert.True(finish.Y < 4, "the ball did not pass through both hollow packages");
         await ring.Reset();
-        Assert.Equal(construction.Instances, ring.Simulation.Construction.Instances);
-        Assert.Equal(construction.Connections, ring.Simulation.Construction.Connections);
-        Assert.InRange(Read(ring.Simulation.Committed).Position.Y, 7.2f - 1e-6f, 7.2f + 1e-6f);
+        Assert.Equal(construction.Instances, ring.Construction.Instances);
+        Assert.Equal(construction.Connections, ring.Construction.Connections);
+        Assert.InRange(Read(ring.Committed).Position.Y, 7.2f - 1e-6f, 7.2f + 1e-6f);
         ring.Records.Clear();
         await ring.Run();
         await ring.Advance(180);
         var repeated = Assert.Single(ring.Of(SimulationEventKind.Passage));
-        Assert.Equal(firstPassage.Source, repeated.Source);
-        Assert.Equal(firstPassage.Tick, repeated.Tick);
-        Assert.Equal(finish, Read(ring.Simulation.Committed).Position);
-        await using var loaded = await EventRingProducerTests.Ring.Running(decoded.Construction);
+        Assert.Equal((Second.Value, Ball.Value), (repeated.Source, repeated.Other));
+        Assert.True(Read(ring.Committed).Position.Y < 4, "Reset replay passes through both hollow packages.");
+        await using var loaded = await WorkshopIntegrationHarness.Running(decoded.Construction);
         await loaded.Advance(180);
         var restored = Assert.Single(loaded.Of(SimulationEventKind.Passage));
-        Assert.Equal(firstPassage.Source, restored.Source);
-        Assert.Equal(firstPassage.Tick, restored.Tick);
-        Assert.Equal(finish, Read(loaded.Simulation.Committed).Position);
+        Assert.Equal((Second.Value, Ball.Value), (restored.Source, restored.Other));
+        Assert.True(Read(loaded.Committed).Position.Y < 4, "Loaded replay passes through both hollow packages.");
     }
 
 
@@ -142,19 +140,17 @@ public sealed class HollowElementTests
     {
         var pipe = WorkshopInput.Pipe(First, 0, 3, 0, 0, 0, 0, 1);
         var construction = Bench(pipe, BallAt(new(0, 4.5f, 0)));
-        await using var ring = await EventRingProducerTests.Ring.Building(construction);
-        var before = ring.Simulation.Committed;
+        await using var ring = await WorkshopIntegrationHarness.Building(construction);
+        var before = ring.Committed;
         var malformed = construction with { Instances = new(pipe with { Length = new(length) }) };
-        var refusal = await ring.Simulation.Construct(malformed);
-        Assert.Equal(WorkshopCommandOutcome.Rejected, refusal.Outcome);
-        Assert.Equal(WorkshopRejection.InvalidConstruction, refusal.Reason);
-        Assert.Equal(construction, ring.Simulation.Construction);
-        Assert.Equal(before.Revision, ring.Simulation.Committed.Revision);
-        Assert.Equal(before.Tick, ring.Simulation.Committed.Tick);
-        Assert.Equal(Read(before), Read(ring.Simulation.Committed));
+        await Assert.ThrowsAnyAsync<ArgumentException>(() => ring.Execute(WorkshopCommandKind.Construct, malformed));
+        Assert.Equal(construction, ring.Construction);
+        Assert.Equal(before.Revision, ring.Committed.Revision);
+        Assert.Equal(before.Tick, ring.Committed.Tick);
+        Assert.Equal(Read(before), Read(ring.Committed));
         await ring.Run();
         await ring.Advance(60);
-        Assert.True(Read(ring.Simulation.Committed).Position.Y < 4.5f);
+        Assert.True(Read(ring.Committed).Position.Y < 4.5f);
     }
 
 
@@ -169,20 +165,20 @@ public sealed class HollowElementTests
     {
         var pipe = WorkshopInput.Pipe(First, 0, 3, 0, 0, 0, 0, 1);
         var prior = Bench(pipe);
-        await using var ring = await EventRingProducerTests.Ring.Building(prior);
-        var before = ring.Simulation.Committed;
+        await using var ring = await WorkshopIntegrationHarness.Building(prior);
+        var before = ring.Committed;
         var candidate = Bench(pipe, BallAt(new(0, 3 + offset, 0))) with { Revision = new(3) };
-        var result = await ring.Simulation.Construct(candidate);
+        var result = (await ring.Execute(WorkshopCommandKind.Construct, candidate)).Result;
         Assert.Equal(admitted ? WorkshopCommandOutcome.Applied : WorkshopCommandOutcome.Rejected, result.Outcome);
         if (admitted)
-            Assert.Equal(candidate.Instances, ring.Simulation.Construction.Instances);
+            Assert.Equal(candidate.Instances, ring.Construction.Instances);
         else
         {
             Assert.Equal(WorkshopRejection.InvalidConstruction, result.Reason);
-            Assert.Equal(prior, ring.Simulation.Construction);
-            Assert.Equal(before.Revision, ring.Simulation.Committed.Revision);
-            Assert.Equal(before.Tick, ring.Simulation.Committed.Tick);
-            Assert.Equal(before.Bodies, ring.Simulation.Committed.Bodies);
+            Assert.Equal(prior, ring.Construction);
+            Assert.Equal(before.Revision, ring.Committed.Revision);
+            Assert.Equal(before.Tick, ring.Committed.Tick);
+            Assert.Equal(before.Bodies, ring.Committed.Bodies);
         }
     }
 
@@ -307,7 +303,7 @@ public sealed class HollowElementTests
         var reach = length / 2 + .09f;
         var start = centre + (.4f - reach) * axis + (float)OnWall * down;
         var construction = Bench(WorkshopInput.Pipe(First, (float)(centre.X), (float)(centre.Y), (float)(centre.Z), (float)(tilt.X), (float)(tilt.Y), (float)(tilt.Z), (float)(tilt.W), new(length)), BallAt(start));
-        await using var ring = await EventRingProducerTests.Ring.Running(construction);
+        await using var ring = await WorkshopIntegrationHarness.Running(construction);
         await ring.Advance(600);
         AssertStraightTraversal(ring.Reads.Select(Body), centre, axis, reach, reach, true);
         AssertStraightTraversal(SphereHistory(construction, 600), centre, axis, reach, reach, false);
@@ -337,7 +333,7 @@ public sealed class HollowElementTests
         var joint = new NumVector3(pose.Joint.X, pose.Joint.Y, pose.Joint.Z);
         var down = NumVector3.Transform(-NumVector3.UnitY, tilt);
         var construction = Bench(first, second, BallAt(joint - 1.5f * axis + (float)OnWall * down));
-        await using var ring = await EventRingProducerTests.Ring.Running(construction);
+        await using var ring = await WorkshopIntegrationHarness.Running(construction);
         await ring.Advance(240);
         AssertStraightTraversal(ring.Reads.Select(Body), joint, axis, 1.5f, .3f, true);
         AssertStraightTraversal(SphereHistory(construction, 240), joint, axis, 1.5f, .3f, false);
@@ -370,7 +366,7 @@ public sealed class HollowElementTests
         var startMouth = World(startCollar.X - .09f, startCollar.Y);
         var release = startMouth + new NumVector3(0, .5f, 0);
         var construction = Bench(WorkshopInput.Generic(part, First, (float)(origin.X), (float)(origin.Y), (float)(origin.Z), (float)(turn.X), (float)(turn.Y), (float)(turn.Z), (float)(turn.W)), BallAt(release));
-        await using var ring = await EventRingProducerTests.Ring.Running(construction);
+        await using var ring = await WorkshopIntegrationHarness.Running(construction);
         await ring.Advance(240);
 
         // The centreline: the arc's circle within its sweep, or a stub's axis.
@@ -428,7 +424,7 @@ public sealed class HollowElementTests
             Assert.True(exitSpeed <= free && exitSpeed >= 5.0 / 7 * free - loss,
                 $"{degrees}°: the ball left at {exitSpeed:F3} m/s, outside [{5.0 / 7 * free - loss:F3}, {free:F3}]");
         }
-        await AssertPhysicalReplay(construction, ring, 240);
+        await AssertPhysicalReplay(construction, ring, 240, replay => Verify(replay.Reads.Select(Body), true));
     }
 
     /// <summary>The Funnel (CAT-030) stood on its outlet (turned −90° about Z: its inlet, local −X, up). The Basketball dropped 0.6 m
@@ -442,45 +438,50 @@ public sealed class HollowElementTests
         var centre = new NumVector3(0, Y + 1, 0);
         var construction = Bench(WorkshopInput.Generic(PartId.Funnel, First, (float)(centre.X), (float)(centre.Y), (float)(centre.Z), (float)(turn.X), (float)(turn.Y), (float)(turn.Z), (float)(turn.W)),
             BallAt(centre + new NumVector3(.6f, 1.2f, 0)));
-        await using var ring = await EventRingProducerTests.Ring.Running(construction);
+        await using var ring = await WorkshopIntegrationHarness.Running(construction);
         await ring.Advance(360);
-        var left = false;
-        foreach (var read in ring.Reads)
+        Verify(ring.Reads);
+        await AssertPhysicalReplay(construction, ring, 360, replay => Verify(replay.Reads));
+        void Verify(IEnumerable<WorkshopRead> history)
         {
-            var (p, _) = Read(read);
-            var height = p.Y - centre.Y; // local −X: +0.9 at the inlet collar, −0.9 at the outlet collar
-            if (height < -.99f) { left = true; break; }
-            if (height > .9f) continue;
-            // The wall's inner radius at this height: 1.3 at the inlet (+0.9) narrowing linearly to 0.65 at the outlet (−0.9).
-            var inner = .65 + (1.3 - .65) * (height + .9) / 1.8;
-            var off = Math.Sqrt((double)p.X * p.X + (double)p.Z * p.Z);
-            Assert.True(off <= inner + WorkshopPhysicsLawHollowTests.Resting, $"the ball's centre is {off:F4} m off the axis at height {height:F3}, " +
-                $"beyond the wall's inner radius {inner:F4}");
+            var left = false;
+            foreach (var read in history)
+            {
+                var (p, _) = Read(read);
+                var height = p.Y - centre.Y; // local −X: +0.9 at the inlet collar, −0.9 at the outlet collar
+                if (height < -.99f) { left = true; break; }
+                if (height > .9f) continue;
+                // The wall's inner radius at this height: 1.3 at the inlet (+0.9) narrowing linearly to 0.65 at the outlet (−0.9).
+                var inner = .65 + (1.3 - .65) * (height + .9) / 1.8;
+                var off = Math.Sqrt((double)p.X * p.X + (double)p.Z * p.Z);
+                Assert.True(off <= inner + WorkshopPhysicsLawHollowTests.Resting, $"the ball's centre is {off:F4} m off the axis at height {height:F3}, " +
+                    $"beyond the wall's inner radius {inner:F4}");
+            }
+            Assert.True(left, "the ball never left through the throat");
+
         }
-        Assert.True(left, "the ball never left through the throat");
-        await AssertPhysicalReplay(construction, ring, 360);
     }
 
-    private static async Task AssertPhysicalReplay(WorkshopConstruction construction, EventRingProducerTests.Ring ring, int ticks)
+    private static async Task AssertPhysicalReplay(WorkshopConstruction construction, WorkshopIntegrationHarness ring, int ticks,
+        Action<WorkshopIntegrationHarness> verify)
     {
-        var finish = Read(ring.Simulation.Committed);
         var save = new WorkshopSavedConstruction(construction, new(10));
         var decoded = WorkshopSaveCodec.Decode(SaveFixture.Elements, WorkshopSaveCodec.Encode(save));
         Assert.Equal(save, decoded);
         await ring.Reset();
-        Assert.Equal(construction.Instances, ring.Simulation.Construction.Instances);
-        Assert.Equal(construction.Connections, ring.Simulation.Construction.Connections);
+        Assert.Equal(construction.Instances, ring.Construction.Instances);
+        Assert.Equal(construction.Connections, ring.Construction.Connections);
         var (authored, _) = TubeMouthSnap.Pose(construction.Instances.Single(instance => instance.Id == Ball));
-        var restored = Read(ring.Simulation.Committed);
+        var restored = Read(ring.Committed);
         Assert.InRange(NumVector3.Distance(restored.Position, new(authored.X, authored.Y, authored.Z)), 0, 1e-6f);
         Assert.Equal(0, restored.Speed);
-        Assert.Equal(0UL, ring.Simulation.Committed.Tick.Value);
+        Assert.Equal(0UL, ring.Committed.Tick.Value);
         await ring.Run();
         await ring.Advance(ticks);
-        Assert.Equal(finish, Read(ring.Simulation.Committed));
-        await using var fresh = await EventRingProducerTests.Ring.Running(decoded.Construction);
+        verify(ring);
+        await using var fresh = await WorkshopIntegrationHarness.Running(decoded.Construction);
         await fresh.Advance(ticks);
-        Assert.Equal(finish, Read(fresh.Simulation.Committed));
+        verify(fresh);
     }
 
     [Fact]

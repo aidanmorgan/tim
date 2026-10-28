@@ -96,7 +96,7 @@ public sealed class LampDetectorGuardTests
     public async Task OneBallFiresForwardNotInReverseAndFiresAgainAfterClearingUpstream()
     {
         var (bench, detector, lamp, ball) = DropBench(forwardDown: true, ballX: 0, counted: true);
-        var (built, reads, reset) = await NoFixedCapacityTests.RunAndReset(bench, Ticks);
+        var (built, reads, reset) = await WorkshopIntegrationHarness.ObserveReset(bench, Ticks);
         var trace = string.Join(" ", reads.Where(read => read.Tick.Value % 10 == 0).Select(read => $"{read.Tick.Value}:{Height(read, ball):F3}"));
 
         // Every committed passage is one input to the tally counter (target 9): its committed count and last input time.
@@ -149,7 +149,7 @@ public sealed class LampDetectorGuardTests
         var loaded = WorkshopSaveCodec.Decode(SaveFixture.Elements, WorkshopSaveCodec.Encode(saved));
         Assert.Equal(saved, loaded);
         Assert.Equal(bench.Connections.ToArray(), loaded.Construction.Connections.ToArray());
-        var (_, replay, _) = await NoFixedCapacityTests.RunAndReset(loaded.Construction, Ticks);
+        var (_, replay, _) = await WorkshopIntegrationHarness.ObserveReset(loaded.Construction, Ticks);
         Assert.All(Enumerable.Range(0, reads.Count), i =>
         {
             NoFixedCapacityTests.AssertSameState(reads[i], replay[i], $"replay tick {i}");
@@ -167,7 +167,7 @@ public sealed class LampDetectorGuardTests
         // 0.82 m collar, elements-visible-solid), so a ball of radius 0.34 centred 1.2 m out falls past them by 2.4 cm.
         const double ballX = -1.2;
         var (bench, detector, lamp, ball) = DropBench(forwardDown: true, ballX: ballX);
-        var reads = await WorkshopPhysicsEngineTests.Run(bench, Ticks);
+        var reads = await WorkshopIntegrationHarness.Observe(bench, Ticks);
         Assert.Contains(reads, read => Height(read, ball) > Rearm);
         Assert.Contains(reads, read => Height(read, ball) < Plane);
         Assert.All(reads, read => Assert.True(Math.Abs(X(read, ball) - ballX) < .05, $"a vertical drop at tick {read.Tick.Value}"));
@@ -183,7 +183,7 @@ public sealed class LampDetectorGuardTests
     {
         const double ballX = -.9, aperture = .65;
         var (bench, detector, lamp, ball) = DropBench(forwardDown: true, ballX: ballX);
-        var reads = await WorkshopPhysicsEngineTests.Run(bench, Ticks);
+        var reads = await WorkshopIntegrationHarness.Observe(bench, Ticks);
         Assert.Contains(reads, read => Math.Abs(X(read, ball) - ballX) > .05);
         Assert.All(reads, read =>
         {
@@ -200,7 +200,7 @@ public sealed class LampDetectorGuardTests
     public async Task AReverseCrossingThroughTheBoreFiresNothing()
     {
         var (bench, detector, lamp, ball) = DropBench(forwardDown: false, ballX: 0);
-        var reads = await WorkshopPhysicsEngineTests.Run(bench, Ticks);
+        var reads = await WorkshopIntegrationHarness.Observe(bench, Ticks);
         var below = reads.FindIndex(read => Height(read, ball) < Plane);
         Assert.True(below > 0 && Height(reads[0], ball) > Plane, "the ball fell through the bore against its arrow");
         Assert.Empty(Passages(reads, detector));
@@ -217,7 +217,7 @@ public sealed class LampDetectorGuardTests
         var dark = PlacedParts.Lamp(new(3), 4, 1, 3, 0, 0, 0, 1);
         var ball = WorkshopInput.Generic(PartId.Basketball, new(4), 0, 3, 0, 0, 0, 0, 1);
         var bench = Bench([hit, lamp, dark, ball], Signal(hit.Id, lamp.Id));
-        var (built, reads, reset) = await NoFixedCapacityTests.RunAndReset(bench, Ticks);
+        var (built, reads, reset) = await WorkshopIntegrationHarness.ObserveReset(bench, Ticks);
         var first = reads.FindIndex(read => Lit(read, lamp.Id));
         Assert.True(first > 0, "the switch lit its lamp");
         var occurrence = Node(reads[first], lamp.Id);
@@ -241,7 +241,7 @@ public sealed class LampDetectorGuardTests
             Signal(setClock.Id, latch.Id, WorkshopSocket.SetIn), Signal(resetClock.Id, latch.Id, WorkshopSocket.ResetIn),
             Signal(latch.Id, lamp.Id), Signal(setClock.Id, sticky.Id));
         var network = WorkshopActivationCompiler.Compile(bench);
-        var (built, reads, reset) = await NoFixedCapacityTests.RunAndReset(bench, 300);
+        var (built, reads, reset) = await WorkshopIntegrationHarness.ObserveReset(bench, 300);
         Assert.All(reads, read => Assert.Equal(network.StateLatchPhase(read.Activations, latch.Id) == SimulationLatchPhase.On, Lit(read, lamp.Id)));
         Assert.Contains(reads, read => Lit(read, lamp.Id));
         var lit = reads.FindIndex(read => Lit(read, lamp.Id));
@@ -266,7 +266,7 @@ public sealed class LampDetectorGuardTests
         var drop = System.Numerics.Vector3.Transform(new System.Numerics.Vector3(-.2f, .08f + .368f, 0), rotation);
         var ball = WorkshopInput.Generic(PartId.Basketball, new(4), (float)(-4 + drop.X), (float)(plateHeight + drop.Y), (float)(drop.Z), 0, 0, 0, 1);
         var lamp = PlacedParts.Lamp(new(5), 6, 3, 0, 0, 0, 0, 1);
-        var reads = await WorkshopPhysicsEngineTests.Run(Bench([plate, ball, lamp], Signal(plate.Id, lamp.Id)), Ticks);
+        var reads = await WorkshopIntegrationHarness.Observe(Bench([plate, ball, lamp], Signal(plate.Id, lamp.Id)), Ticks);
         Assert.All(reads, read => Assert.Equal(Lit(read, plate.Id), Lit(read, lamp.Id)));
         var lit = reads.FindIndex(read => Lit(read, lamp.Id));
         Assert.True(lit > 0, "the plate's load lit the lamp");

@@ -141,7 +141,7 @@ public sealed class LaunchLessonSolveTests
         {
             var bench = AuthoredSolution(lesson, precision);
             bench.Validate();
-            var (built, run, reset) = await NoFixedCapacityTests.RunAndReset(bench, RunTicks);
+            var (built, run, reset) = await WorkshopIntegrationHarness.ObserveReset(bench, RunTicks);
             Assert.True(Solved(bench, run), $"{lesson} at precision {precision}");
             NoFixedCapacityTests.AssertSameState(built, reset, "Reset");
             // Save/load (Story 9A.44): the lesson's f32 puzzle record and its nine f32 assistance knots round-trip exactly, and the
@@ -150,7 +150,7 @@ public sealed class LaunchLessonSolveTests
             var bytes = WorkshopSaveCodec.Encode(saved);
             var reloaded = WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes);
             Assert.Equal(saved, reloaded);
-            var (_, replay, _) = await NoFixedCapacityTests.RunAndReset(reloaded.Construction, RunTicks);
+            var (_, replay, _) = await WorkshopIntegrationHarness.ObserveReset(reloaded.Construction, RunTicks);
             Assert.True(Solved(reloaded.Construction, replay), $"{lesson} reloaded at precision {precision}");
             // Both runs reach the authored goal; incidental trajectories are not a save/load contract.
         }
@@ -178,7 +178,7 @@ public sealed class LaunchLessonSolveTests
         {
             var bench = PuzzleCatalogue.WithPrecision(initial, new(precision));
             bench.Validate();
-            var (built, run, reset) = await NoFixedCapacityTests.RunAndReset(bench, RunTicks);
+            var (built, run, reset) = await WorkshopIntegrationHarness.ObserveReset(bench, RunTicks);
             Assert.True(solves == Solved(bench, run), $"{route} at precision {precision}: expected solved={solves}");
             NoFixedCapacityTests.AssertSameState(built, reset, "Reset");
         }

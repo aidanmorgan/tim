@@ -214,7 +214,7 @@ public sealed class DeclaredIndicatorPassageTests
         var loaded = WorkshopSaveCodec.Decode(SaveFixture.Elements,
             WorkshopSaveCodec.Encode(new WorkshopSavedConstruction(WiredBench(), new(9)))).Construction;
         Assert.Equal(WiredBench(), loaded);
-        var (_, reads, _) = await NoFixedCapacityTests.RunAndReset(loaded, 4 * 120);
+        var (_, reads, _) = await WorkshopIntegrationHarness.ObserveReset(loaded, 4 * 120);
         bool Lit(GpuBodyId owner) => Enumerable.Range(0, reads[^1].Activations.Count)
             .Any(i => reads[^1].Activations[i].Owner == owner && reads[^1].Activations[i].Phase == ActivationPhase.Latched);
         Assert.True(Lit(new(2)) && Lit(new(5)));

@@ -56,7 +56,7 @@ public sealed class PlateGuardTests
     }
 
     private static async Task<List<WorkshopRead>> Run(WorkshopConstruction construction, int ticks) =>
-        (await WorkshopPhysicsEngineTests.RunPhases(construction, ([], ticks)))[0];
+        (await WorkshopIntegrationHarness.ObservePhases(construction, ([], ticks)))[0];
 
     private static bool Latched(WorkshopRead read, GpuBodyId owner)
     {
@@ -204,13 +204,13 @@ public sealed class PlateGuardTests
     public async Task RunResetReplayAndSaveLoadAreExact()
     {
         var (bench, plate, gate, lamp) = Circuit(2f, [Bowling(5, -4, 0)]);
-        var (built, reads, reset) = await PressurePlateTests.RunAndReset(bench, 2 * 120);
+        var (built, reads, reset) = await WorkshopIntegrationHarness.ObserveReset(bench, 2 * 120);
         Assert.True(Latched(reads[^1], lamp.Id) && Travel(reads[^1], gate) > OpenTravel, "control: the run loads the plate");
         NoFixedCapacityTests.AssertSameState(built, reset, "Reset");
         Assert.True(LoadOf(reset, plate.Id).Phase == ContactLoadPhase.Empty && !Latched(reset, plate.Id) && !Latched(reset, lamp.Id) &&
             Travel(reset, gate) < ClosedTravel, "Reset: Empty, dark and shut");
         for (var i = 0; i < reset.Memory.Count; i++) Assert.Equal(0ul, reset.Memory[i].DueTick);
-        var (_, replay, _) = await PressurePlateTests.RunAndReset(bench, 2 * 120);
+        var (_, replay, _) = await WorkshopIntegrationHarness.ObserveReset(bench, 2 * 120);
         Assert.Equal(reads.Select(Row), replay.Select(Row));
 
         var saved = new WorkshopSavedConstruction(bench, new(9));
@@ -218,7 +218,7 @@ public sealed class PlateGuardTests
         Assert.Equal(saved, loaded);
         Assert.Equal(BitConverter.SingleToUInt32Bits(2f), BitConverter.SingleToUInt32Bits(
             Assert.Single(WorkshopPhysicsCompiler.Compile(loaded.Construction, new(1, 2)).ContactLoadSensors.ToArray()).MinimumMass));
-        var (_, reloaded, _) = await PressurePlateTests.RunAndReset(loaded.Construction, 2 * 120);
+        var (_, reloaded, _) = await WorkshopIntegrationHarness.ObserveReset(loaded.Construction, 2 * 120);
         Assert.Equal(reads.Select(Row), reloaded.Select(Row));
     }
 }

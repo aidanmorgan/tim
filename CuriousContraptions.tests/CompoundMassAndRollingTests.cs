@@ -573,10 +573,10 @@ public sealed class CompoundCaptureOwnershipTests
             WorkshopInput.Generic(PartId.Receiver, new(6), 4, 1, 0, 0, 0, 0, 1)];
         if (reverse) Array.Reverse(parts);
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(parts));
-        await using var ring = await EventRingProducerTests.Ring.Running(construction);
-        Assert.Equal(0, ring.Simulation.Committed.Captures.Count);
+        await using var ring = await WorkshopIntegrationHarness.Running(construction);
+        Assert.Equal(0, ring.Committed.Captures.Count);
         await ring.Advance(120);
-        var read = ring.Simulation.Committed;
+        var read = ring.Committed;
         Assert.Equal(2, read.Captures.Count); // six potential pairs, two actual interactions
         AssertCaptureCodec(read);
         Assert.Equal(new GpuBodyId(1), read.Captures[0].Target);
@@ -591,9 +591,9 @@ public sealed class CompoundCaptureOwnershipTests
                 read, read.Epoch, construction.Instances.Identities));
         }
         await ring.Reset();
-        Assert.Equal(0, ring.Simulation.Committed.Captures.Count);
+        Assert.Equal(0, ring.Committed.Captures.Count);
         var saved = WorkshopSaveCodec.Decode(SaveFixture.Elements, WorkshopSaveCodec.Encode(new WorkshopSavedConstruction(construction, new(7))));
-        var replay = await WorkshopPhysicsEngineTests.Run(saved.Construction, 120);
+        var replay = await WorkshopIntegrationHarness.Observe(saved.Construction, 120);
         Assert.Equal(read.Captures.Count, replay[^1].Captures.Count);
         for (var i = 0; i < read.Captures.Count; i++) Assert.Equal(read.Captures[i], replay[^1].Captures[i]);
     }
@@ -606,9 +606,9 @@ public sealed class CompoundCaptureOwnershipTests
             PayloadInstanceTests.Place(PartId.BowlingBall, 2, .3, 1.1, 0),
             WorkshopInput.Generic(PartId.Receiver, new(3), 0, 1, 0, 0, 0, 0, 1)];
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(parts));
-        await using var ring = await EventRingProducerTests.Ring.Running(construction);
+        await using var ring = await WorkshopIntegrationHarness.Running(construction);
         await ring.Advance(120);
-        var read = ring.Simulation.Committed;
+        var read = ring.Committed;
         Assert.Equal(2, read.Captures.Count);
         Assert.Equal(read.Captures[0].Sensor, read.Captures[1].Sensor);
         Assert.Equal(new GpuBodyId(1), read.Captures[0].Target);
@@ -651,14 +651,14 @@ public sealed class CompoundCaptureOwnershipTests
         if (growth)
             for (var i = 0; i < 32; i++) parts.Add(PlacedParts.Plate(new((ulong)(100 + i)), (float)(8 + 2.5 * (i % 4)), 3, (float)(-10 + 2.5 * (i / 4)), .5f));
         var withoutReceiver = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(parts.ToArray()));
-        var absentRead = (await WorkshopPhysicsEngineTests.Run(withoutReceiver, 1))[^1];
+        var absentRead = (await WorkshopIntegrationHarness.Observe(withoutReceiver, 1))[^1];
         Assert.Equal(WorkshopGoalPhase.Waiting, WorkshopGoalEvaluator.Evaluate(goal, absentRead, absentRead.Epoch, withoutReceiver.Instances.Identities));
         var absentWake = new WorkshopGoalWake(goal, WorkshopPhysicsCompiler.Compile(withoutReceiver, new(1, 2)));
         var construction = withoutReceiver.WithInstance(WorkshopInput.Generic(PartId.Receiver, new(3), 0, 1, 0, 0, 0, 0, 1));
-        await using var ring = await EventRingProducerTests.Ring.Running(construction);
-        var initial = ring.Simulation.Committed;
+        await using var ring = await WorkshopIntegrationHarness.Running(construction);
+        var initial = ring.Committed;
         await ring.Advance(240);
-        var read = ring.Simulation.Committed;
+        var read = ring.Committed;
         var captured = Assert.Single(ring.Of(SimulationEventKind.Captured));
         Assert.Equal(3UL, captured.Source);
         Assert.Equal(namedCaptures ? 1UL : 2UL, captured.Other);
@@ -673,7 +673,7 @@ public sealed class CompoundCaptureOwnershipTests
         absentWake.Observe(delivery, read.Tick);
         Assert.False(absentWake.Due(read.Tick));
         await ring.Reset();
-        var reset = ring.Simulation.Committed;
+        var reset = ring.Committed;
         Assert.Equal(WorkshopGoalPhase.Waiting, WorkshopGoalEvaluator.Evaluate(goal, reset, reset.Epoch, construction.Instances.Identities));
         Assert.Equal(WorkshopGoalPhase.Waiting, WorkshopGoalEvaluator.Evaluate(goal, read, reset.Epoch, construction.Instances.Identities));
         foreach (var id in new[] { new GpuBodyId(1), new GpuBodyId(2) })
@@ -686,7 +686,7 @@ public sealed class CompoundCaptureOwnershipTests
         }
         var loaded = WorkshopSaveCodec.Decode(SaveFixture.Elements,
             WorkshopSaveCodec.Encode(new WorkshopSavedConstruction(construction, new(132)))).Construction;
-        var replay = await WorkshopPhysicsEngineTests.Run(loaded, 240);
+        var replay = await WorkshopIntegrationHarness.Observe(loaded, 240);
         Assert.Equal(expected, WorkshopGoalEvaluator.Evaluate(goal, replay[^1], replay[^1].Epoch, loaded.Instances.Identities));
         Assert.Equal(WorkshopGoalEvaluator.Occurrence(goal, read, read.Epoch, construction.Instances.Identities),
             WorkshopGoalEvaluator.Occurrence(goal, replay[^1], replay[^1].Epoch, loaded.Instances.Identities));
@@ -989,7 +989,7 @@ public sealed class CompoundIdentityRefusalTests
         var loaded = WorkshopSaveCodec.Decode(SaveFixture.Elements,
             WorkshopSaveCodec.Encode(new WorkshopSavedConstruction(simulation.Construction, new(10))));
         Assert.Equal(valid, loaded.Construction);
-        var replay = (await WorkshopPhysicsEngineTests.Run(loaded.Construction, 12))[^1];
+        var replay = (await WorkshopIntegrationHarness.Observe(loaded.Construction, 12))[^1];
         Assert.True(replay.Bodies.TryGet(tile.Id, out var repeated));
         Assert.Equal(fallen.Body.Local, repeated.Body.Local);
         Assert.Equal(fallen.Body.Velocity, repeated.Body.Velocity);
@@ -1007,7 +1007,7 @@ public sealed class MultiBodyPresentationTests(NativeSceneFixture godot)
         var instances = Enumerable.Range(0, 25).Select(index => WorkshopInput.Generic(PartId.Basketball,
             new GpuBodyId((ulong)index + 1), (float)(index % 5 - 2), 3, (float)(index / 5 - 2), 0, 0, 0, 1)).ToArray();
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(instances.Cast<IWorkshopInstance>().ToArray()));
-        var read = (await WorkshopPhysicsEngineTests.Run(construction, 1))[^1];
+        var read = (await WorkshopIntegrationHarness.Observe(construction, 1))[^1];
         var registry = new PartRegistry(); registry.Load();
         var root = new Godot.Node3D();
         var parts = instances.Select(instance =>

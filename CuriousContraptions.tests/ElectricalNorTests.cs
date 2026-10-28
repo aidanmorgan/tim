@@ -43,7 +43,7 @@ public sealed class ElectricalNorTests
 
     /// <summary>The balls latch their switches with the bottom supply Disabled; only then is the supply offered (or kept off).</summary>
     private static Task<List<List<WorkshopRead>>> LatchThenSupply(WorkshopConstruction construction,bool supply)=>
-        WorkshopPhysicsEngineTests.RunPhases(construction,([],120),
+        WorkshopIntegrationHarness.ObservePhases(construction,([],120),
             ([new(new(Supply),supply?ElectricalEnable.Enabled:ElectricalEnable.Disabled)],90));
 
     [Theory]
@@ -76,7 +76,7 @@ public sealed class ElectricalNorTests
     {
         var construction=SwitchMachine(ElectricalInputState.Neither,supplyEnabled:true);
         construction=construction with {Connections=construction.Connections.Without(Link(Supply,Gate))};
-        var (built,reads,_)=await NoFixedCapacityTests.RunAndReset(construction,150);
+        var (built,reads,_)=await WorkshopIntegrationHarness.ObserveReset(construction,150);
         Assert.All(reads,read=>{Assert.Equal(ElectricalInputState.Neither,Logic(read).Inputs);Assert.False(Logic(read).Supplied);
             Assert.False(Logic(read).Active);Assert.False(Powered(read));AssertBladeStill(read,BladeY(built));});
     }
@@ -90,7 +90,7 @@ public sealed class ElectricalNorTests
         Assert.Equal(saved,loaded);
         Assert.Equal(construction.Connections,loaded.Construction.Connections);
         Assert.Contains(loaded.Construction.Instances,instance=>instance.PartId==Kind && instance.Id==new GpuBodyId(Gate));
-        var (built,reads,reset)=await NoFixedCapacityTests.RunAndReset(loaded.Construction,240);
+        var (built,reads,reset)=await WorkshopIntegrationHarness.ObserveReset(loaded.Construction,240);
         Assert.Equal(new(new(Gate),ElectricalInputState.Neither,false,false),Logic(built));
         Assert.All(reads,read=>
         {
@@ -104,7 +104,7 @@ public sealed class ElectricalNorTests
         Assert.True(BladeY(reads[^1])<BladeY(reads[closedAt-1])-.02f); // and one condition really closes it again
         NoFixedCapacityTests.AssertSameState(built,reset,"Neither gate Reset");
         Assert.True(built.Presentation.HasSameBits(reset.Presentation));
-        var (_,replay,_)=await NoFixedCapacityTests.RunAndReset(loaded.Construction,240);
+        var (_,replay,_)=await WorkshopIntegrationHarness.ObserveReset(loaded.Construction,240);
         for(var i=0;i<reads.Count;i++) NoFixedCapacityTests.AssertSameState(reads[i],replay[i],"saved Neither gate replay");
     }
 
@@ -154,7 +154,7 @@ public sealed class ElectricalNorTests
         var construction=new WorkshopConstruction(new(2),WorkshopCadenceSettings.Default(),new(parts.ToArray()),Connections:new(
             Link(1,nor,WorkshopSocket.FirstIn),Link(1,either,WorkshopSocket.FirstIn),Link(2,either),
             Link(either,nor,WorkshopSocket.SecondIn),Link(2,nor),Link(nor,Consumer)));
-        var (built,reads,reset)=await NoFixedCapacityTests.RunAndReset(construction,60);
+        var (built,reads,reset)=await WorkshopIntegrationHarness.ObserveReset(construction,60);
         Assert.All(reads,read=>
         {
             Assert.Equal(ElectricalInputState.FirstOnly,Logic(read,either).Inputs);Assert.True(Logic(read,either).Active);
@@ -162,7 +162,7 @@ public sealed class ElectricalNorTests
             Assert.False(Logic(read,nor).Active);Assert.False(Powered(read));AssertBladeStill(read,BladeY(built));
         });
         NoFixedCapacityTests.AssertSameState(built,reset,"reconvergent Neither gate Reset");
-        var phases=await WorkshopPhysicsEngineTests.RunPhases(construction,([new(new(1),ElectricalEnable.Disabled)],90),
+        var phases=await WorkshopIntegrationHarness.ObservePhases(construction,([new(new(1),ElectricalEnable.Disabled)],90),
             ([new(new(1),ElectricalEnable.Enabled)],40));
         Assert.All(phases[0],read=>{Assert.Equal(ElectricalInputState.Neither,Logic(read,nor).Inputs);Assert.True(Logic(read,nor).Active);Assert.True(Powered(read));});
         Assert.True(BladeY(phases[0][^1])>BladeY(built)+.2f); // the control: the same consumer really opens on the 00 row
@@ -189,7 +189,7 @@ public sealed class ElectricalNorTests
                 Link(6,4,WorkshopSocket.FirstIn),Link(6,4,WorkshopSocket.SecondIn),Link(6,4),
                 Link(4,Gate,WorkshopSocket.FirstIn),Link(6,Gate,WorkshopSocket.SecondIn),Link(Supply,Gate),Link(Gate,Consumer)));
         construction.Validate();
-        var (built,reads,reset)=await NoFixedCapacityTests.RunAndReset(construction,60);
+        var (built,reads,reset)=await WorkshopIntegrationHarness.ObserveReset(construction,60);
         Assert.All(reads,read=>
         {
             Assert.False(Logic(read,4).Active);Assert.False(Logic(read,6).Active);
@@ -316,10 +316,10 @@ public sealed class ElectricalNorTests
     public async Task CommittedReadsFollowEveryRowAndAdmissionIsNeutral()
     {
         var construction=BatteryMachine();
-        var phases=await WorkshopPhysicsEngineTests.RunPhases(construction,Rows.Select(row=>(row.Controls,3)).ToArray());
+        var phases=await WorkshopIntegrationHarness.ObservePhases(construction,Rows.Select(row=>(row.Controls,3)).ToArray());
         for(var i=0;i<phases.Count;i++)
             Assert.All(phases[i],read=>Assert.Equal(new(new(4),Rows[i].Inputs,Rows[i].Supplied,Rows[i].Active),Logic(read,4)));
-        var (built,_,_)=await NoFixedCapacityTests.RunAndReset(construction,1);
+        var (built,_,_)=await WorkshopIntegrationHarness.ObserveReset(construction,1);
         Assert.Equal(new(new(4),ElectricalInputState.Neither,false,false),Logic(built,4));
         WorkshopMessages.ValidatePresentationOwners(built,construction);
         foreach(var read in phases.SelectMany(rows=>rows)) WorkshopMessages.ValidatePresentationOwners(read,construction);
@@ -339,7 +339,7 @@ public sealed class ElectricalNorPresentationTests(NativeSceneFixture godot)
     {
         var construction=ElectricalNorTests.BatteryMachine();
         var rows=ElectricalNorTests.Rows;
-        var phases=await WorkshopPhysicsEngineTests.RunPhases(construction,rows.Select(row=>(row.Controls,2)).ToArray());
+        var phases=await WorkshopIntegrationHarness.ObservePhases(construction,rows.Select(row=>(row.Controls,2)).ToArray());
         var registry=new PartRegistry();registry.Load();
         var part=registry.Create(ElectricalNorTests.Kind);
         try
@@ -376,7 +376,7 @@ public sealed class ElectricalNorPresentationTests(NativeSceneFixture godot)
                 Assert.Equal(Lit((rows[i].Inputs & ElectricalInputState.SecondOnly)!=0),Colour("SecondLamp"));
                 Assert.Equal(Lit(rows[i].Active),Colour("OutputLamp"));
             }
-            var (built,_,reset)=await NoFixedCapacityTests.RunAndReset(construction,2);
+            var (built,_,reset)=await WorkshopIntegrationHarness.ObserveReset(construction,2);
             evaluator=new WorkshopDeclaredPresentation(construction,BothGatePresentationTests.Response(reset,1));
             foreach(var sample in evaluator.Advance(AnimationTestTime.Seconds(time+1))) if(sample.Owner.Value==4) part.ApplyDeclaredProperty(sample.Binding,sample.Value);
             Assert.True(built.Presentation.HasSameBits(reset.Presentation));

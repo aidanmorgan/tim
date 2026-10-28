@@ -70,7 +70,7 @@ public sealed class DominoGuardTests
     {
         var lesson = Lesson((float)precision);
         lesson.Validate();
-        var (built, run, reset) = await NoFixedCapacityTests.RunAndReset(lesson, Ticks);
+        var (built, run, reset) = await WorkshopIntegrationHarness.ObserveReset(lesson, Ticks);
         // The chain topples in order, each tile starting to turn only after the one before it: real contact, not a shared push.
         var order = new GpuBodyId[] { new(4), new(5), new(6), new(7), End };
         var starts = order.Select(tile => FirstTick(run, read => Tilt(Find(read, tile)) > 1)).ToArray();
@@ -102,7 +102,7 @@ public sealed class DominoGuardTests
     public async Task AGapBreaksTheChainSoTheEndStandsAndTheLampStaysDark()
     {
         var gap = Lesson(.45f, skip: 2);
-        var (_, run, _) = await NoFixedCapacityTests.RunAndReset(gap, Ticks);
+        var (_, run, _) = await WorkshopIntegrationHarness.ObserveReset(gap, Ticks);
         // Control: the chain runs up to the gap.
         Assert.True(run.Max(read => Tilt(Find(read, new(4)))) > 60 && run.Max(read => Tilt(Find(read, new(5)))) > 60, "the chain runs to the gap");
         Assert.True(run.Max(read => Tilt(Find(read, new(7)))) < 5, "the tile beyond the gap stands");
@@ -118,7 +118,7 @@ public sealed class DominoGuardTests
         var unwired = Lesson(.45f, wired: false);
         Assert.Empty(WorkshopPhysicsCompiler.Compile(unwired, new(1, 2)).OrientationSensors.ToArray());
         Assert.Equal([Lamp], WorkshopActivationCompiler.Compile(unwired).Nodes.ToArray().Select(node => node.Owner));
-        var (_, run, _) = await NoFixedCapacityTests.RunAndReset(unwired, Ticks);
+        var (_, run, _) = await WorkshopIntegrationHarness.ObserveReset(unwired, Ticks);
         Assert.True(run.Max(read => Tilt(Find(read, End))) > 60, "the end tile still falls");
         Assert.All(run, read => Assert.False(HasNode(read, End)));
         Assert.All(run, read => Assert.Equal(ActivationPhase.Clear, LatchOf(read, Lamp).Phase));
@@ -130,7 +130,7 @@ public sealed class DominoGuardTests
     {
         var bench = Bench([PlacedParts.Domino(new(1), 0, (float)(Upright), 0, 0, 0, 0, 1), PlacedParts.Lamp(new(2), 3, 1, 0, 0, 0, 0, 1)], Signal(new(1), new(2)));
         Assert.Single(WorkshopPhysicsCompiler.Compile(bench, new(1, 2)).OrientationSensors.ToArray());
-        var (_, run, _) = await NoFixedCapacityTests.RunAndReset(bench, 480);
+        var (_, run, _) = await WorkshopIntegrationHarness.ObserveReset(bench, 480);
         Assert.All(run, read => Assert.Equal(ActivationPhase.Clear, LatchOf(read, new(1)).Phase));
         Assert.True(run.Max(read => Tilt(Find(read, new(1)))) < 1, "the tile stands");
     }
@@ -143,7 +143,7 @@ public sealed class DominoGuardTests
         var radians = degrees * Math.PI / 180;
         var bench = Bench([PlacedParts.Domino(new(1), 0, (float)(Floor + .55 * Math.Cos(radians) + .125 * Math.Sin(radians) + .005), 0,
             0, 0, (float)(Math.Sin(radians / 2)), (float)(Math.Cos(radians / 2))), PlacedParts.Lamp(new(2), 3, 1, 0, 0, 0, 0, 1)], Signal(new(1), new(2)));
-        var (_, run, _) = await NoFixedCapacityTests.RunAndReset(bench, 480);
+        var (_, run, _) = await WorkshopIntegrationHarness.ObserveReset(bench, 480);
         if (topples)
         {
             Assert.True(run.Max(read => Tilt(Find(read, new(1)))) > 60, "the tile topples");
@@ -180,7 +180,7 @@ public sealed class DominoGuardTests
         Assert.Throws<ArgumentOutOfRangeException>(() => PlacedParts.Domino(new(1), 0, 64.0001f, 0, 0, 0, 0, 1));
         Assert.Throws<ArgumentOutOfRangeException>(() => PlacedParts.Domino(new(1), 0, -64.0001f, 0, 0, 0, 0, 1));
         // The highest tile is a free dynamic body: it falls.
-        var (_, run, _) = await NoFixedCapacityTests.RunAndReset(Bench([PlacedParts.Domino(new(1), 0, 64, 0, 0, 0, 0, 1)]), 60);
+        var (_, run, _) = await WorkshopIntegrationHarness.ObserveReset(Bench([PlacedParts.Domino(new(1), 0, 64, 0, 0, 0, 0, 1)]), 60);
         var top = Find(run[^1], new(1));
         Assert.True((top.Body.Cell.Y + top.Body.Local.Y) / 16f < 63.5f && top.Body.Velocity.Y < 0, "the highest tile falls");
     }
@@ -225,8 +225,8 @@ public sealed class DominoGuardTests
         var save = new WorkshopSavedConstruction(lesson, new(8));
         var loaded = WorkshopSaveCodec.Decode(SaveFixture.Elements, WorkshopSaveCodec.Encode(save));
         Assert.Equal(save, loaded);
-        var (_, run, _) = await NoFixedCapacityTests.RunAndReset(lesson, 900);
-        var (_, replay, _) = await NoFixedCapacityTests.RunAndReset(loaded.Construction, 900);
+        var (_, run, _) = await WorkshopIntegrationHarness.ObserveReset(lesson, 900);
+        var (_, replay, _) = await WorkshopIntegrationHarness.ObserveReset(loaded.Construction, 900);
         for (var tick = 0; tick < run.Count; tick++) NoFixedCapacityTests.AssertSameState(run[tick], replay[tick], $"reloaded tick {tick + 1}");
         Assert.True(LaunchLessonSolveTests.Solved(loaded.Construction, replay));
     }

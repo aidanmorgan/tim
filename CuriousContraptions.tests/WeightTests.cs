@@ -259,28 +259,7 @@ public sealed class WeightTests(ITestOutputHelper output)
 
     /// <summary>The production simulation on the worker transport at a cadence: Construct, Run, `ticks` Advances (the reads include
     /// the built state first), then Reset.</summary>
-    internal static async Task<(WorkshopRead Built, List<WorkshopRead> Run, WorkshopRead Reset)> RunAndReset(WorkshopConstruction construction,
-        int ticks, SimulationCadence cadence = SimulationCadence.Hz120)
-    {
-        var settings = WorkshopCadenceSettings.Default() with { Simulation = cadence };
-        await using var device = new WorkshopGpuDevice(new BrowserGpuTransport(new CuriousContraptions.Abstractions.EventRingPublication()), new(101, 206));
-        await using var simulation = new WorkshopSimulation(device, new WorkshopPhysicsEngineTests.StepClock(), settings, new(1),
-            new WorkshopPhysicsEngineTests.NoInstallation(), GpuDeviceOwnership.Borrowed);
-        static void Applied(WorkshopCommandResult result, string command) =>
-            Assert.True(result.Outcome == WorkshopCommandOutcome.Applied, $"{command}: {result.Outcome} ({result.Reason})");
-        Applied(await simulation.Initialize(), "Initialize");
-        Applied(await simulation.Construct(construction with { Settings = settings }), "Construct");
-        var built = simulation.Committed;
-        Applied(await simulation.Run(), "Run");
-        var reads = new List<WorkshopRead>(ticks + 1) { built };
-        for (var tick = 0; tick < ticks; tick++)
-        {
-            Applied(await simulation.Advance(), $"Advance {tick + 1}");
-            reads.Add(simulation.Committed);
-        }
-        Applied(await simulation.Reset(), "Reset");
-        return (built, reads, simulation.Committed);
-    }
+
 
     private const int Rate = 120;
 
@@ -291,7 +270,7 @@ public sealed class WeightTests(ITestOutputHelper output)
     public async Task DroppedEndDownItRestsOnItsBaseWithoutSinkingDriftOrEnergyGain(float mass)
     {
         var weight = Placed(1, .3, BenchY + .05, -.2, mass);
-        var (_, reads, _) = await RunAndReset(Bench(weight), 10 * Rate);
+        var (_, reads, _) = await WorkshopIntegrationHarness.ObserveReset(Bench(weight), 10 * Rate, includeBuilt: true);
         var settled = Find(reads[2 * Rate], weight.Id);
         var final = Find(reads[^1], weight.Id);
         Assert.InRange(Height(final), BenchY - .0005f, BenchY + .0005f);
@@ -316,7 +295,7 @@ public sealed class WeightTests(ITestOutputHelper output)
         var cylinder = Assert.Single(WorkshopPhysicsCompiler.Compile(edited, new(1, 2)).Colliders.ToArray(), c => c.Id == edited.Instances.Identities[light.Id].Colliders[0]);
         // Its lowest point is the base, at the origin: the centre is exactly the half-height above it.
         Assert.Equal(cylinder.HalfExtents.Y, cylinder.Pose.Translation.Y);
-        var (_, reads, _) = await RunAndReset(edited, 3 * Rate);
+        var (_, reads, _) = await WorkshopIntegrationHarness.ObserveReset(edited, 3 * Rate, includeBuilt: true);
         Assert.All(reads, read => Assert.InRange(Height(Find(read, light.Id)), BenchY - .0005f, BenchY + .0005f));
         var rise = WorstRise(reads, light.Id, 8f);
         Assert.True(rise <= SlopEnergy(8f), $"a tick gained {rise * 1000} mJ (slop {SlopEnergy(8f) * 1000} mJ)");
@@ -386,7 +365,7 @@ public sealed class WeightTests(ITestOutputHelper output)
         // Moving from the top lower edge to the bottom lower corner raises the slab by its vertical thickness.
         var lift = drop ? .18f * MathF.Cos((float)(RampDegrees * Math.PI / 180)) : 0f;
         var weight = OnItsSideOnTheRamp(1, 4f, .5f, lift, direction);
-        var (_, reads, _) = await RunAndReset(Bench(Ramp(2, lift), weight), 14 * Rate);
+        var (_, reads, _) = await WorkshopIntegrationHarness.ObserveReset(Bench(Ramp(2, lift), weight), 14 * Rate, includeBuilt: true);
         var r = RollingRadius(4);
         // On the ramp, rolling: ω = v / r within 2% (no slip needs μ ≥ tanθ/3 = 0.09; the material is 0.3).
         foreach (var tick in new[] { Rate / 2, 3 * Rate / 4 })
@@ -543,8 +522,8 @@ public sealed class WeightTests(ITestOutputHelper output)
         var decoded = WorkshopSaveCodec.Decode(SaveFixture.Elements,
             WorkshopSaveCodec.Encode(new WorkshopSavedConstruction(construction, new(4)))).Construction;
         Assert.Equal(construction, decoded);
-        var (_, first, _) = await RunAndReset(construction, 14 * Rate);
-        var (_, saved, _) = await RunAndReset(decoded, 14 * Rate);
+        var (_, first, _) = await WorkshopIntegrationHarness.ObserveReset(construction, 14 * Rate, includeBuilt: true);
+        var (_, saved, _) = await WorkshopIntegrationHarness.ObserveReset(decoded, 14 * Rate, includeBuilt: true);
         Assert.Equal(first.Count, saved.Count);
         for (var tick = 0; tick < first.Count; tick++)
             Assert.Equal(Find(first[tick], weight.Id), Find(saved[tick], weight.Id));
@@ -601,7 +580,7 @@ public sealed class WeightTests(ITestOutputHelper output)
     {
         var bottom = Placed(1, 0, BenchY, 0, lower);
         var top = Placed(2, 0, BenchY + EyeCrest(lower) + .002f, 0, upper);
-        var (_, reads, _) = await RunAndReset(Bench(bottom, top), 5 * Rate);
+        var (_, reads, _) = await WorkshopIntegrationHarness.ObserveReset(Bench(bottom, top), 5 * Rate, includeBuilt: true);
         // Each resting contact keeps the 0.5 mm envelope: the lower base on the bench, and the upper base on the lower Weight's top face
         // (its base plus the compiled height 2h).
         var final = (Lower: Height(Find(reads[^1], bottom.Id)), Upper: Height(Find(reads[^1], top.Id)));
@@ -629,11 +608,11 @@ public sealed class WeightTests(ITestOutputHelper output)
     public async Task AWeightRollingOffARampTopplesADominoAndARestingWeightBesideOneLeavesItStanding()
     {
         var domino = PlacedParts.Domino(new(3), 3.2f, (float)(DominoUpright), 0, 0, 0, 0, 1);
-        var (_, struck, _) = await RunAndReset(Bench(Ramp(2), OnItsSideOnTheRamp(1, 4f, .5f), domino), 6 * Rate);
+        var (_, struck, _) = await WorkshopIntegrationHarness.ObserveReset(Bench(Ramp(2), OnItsSideOnTheRamp(1, 4f, .5f), domino), 6 * Rate, includeBuilt: true);
         Assert.Contains(struck, read => Tilt(Find(read, domino.Id)) > 45);
         // Control: a Weight resting end-down 0.1 m from the tile's face never moves it.
         var beside = Placed(1, 3.2 - .125 - .1 - Radius(4), BenchY, 0, 4f);
-        var (_, quiet, _) = await RunAndReset(Bench(beside, domino), 5 * Rate);
+        var (_, quiet, _) = await WorkshopIntegrationHarness.ObserveReset(Bench(beside, domino), 5 * Rate, includeBuilt: true);
         Assert.All(quiet, read => Assert.True(Tilt(Find(read, domino.Id)) < 1, $"tilt {Tilt(Find(read, domino.Id))}"));
     }
 
@@ -744,7 +723,7 @@ public sealed class WeightTests(ITestOutputHelper output)
         var loaded = WorkshopSaveCodec.Decode(SaveFixture.Elements,
             WorkshopSaveCodec.Encode(new WorkshopSavedConstruction(simulation.Construction, new(2))));
         var replay = await Run();
-        var (_, fresh, _) = await RunAndReset(loaded.Construction, 1200);
+        var (_, fresh, _) = await WorkshopIntegrationHarness.ObserveReset(loaded.Construction, 1200, includeBuilt: true);
         for (var tick = 0; tick < first.Count; tick++)
         {
             SameState(first[tick], replay[tick]);
@@ -789,7 +768,7 @@ public sealed class WeightTests(ITestOutputHelper output)
     {
         var construction = EditedPair();
         construction.Validate();
-        var (built, run, reset) = await RunAndReset(construction, 600, cadence);
+        var (built, run, reset) = await WorkshopIntegrationHarness.ObserveReset(construction, 600, cadence, includeBuilt: true);
         // Reset restores every authored pose at rest: within a micrometre and a microradian, with no motion.
         AssertSamePoses(built, reset, 1e-6f, 1e-6f, 1e-6f, "Reset");
         Assert.All(Enumerable.Range(0, reset.Bodies.Count), i =>
@@ -802,7 +781,7 @@ public sealed class WeightTests(ITestOutputHelper output)
         var fallen = Centre(Find(built, new(2))).Y - Centre(Find(run[rate / 4], new(2))).Y;
         var free = .5 * G * .25 * .25;
         Assert.True(Math.Abs(fallen - free) <= .02 * free, $"{cadence}: fell {fallen} m in {rate / 4} ticks, free fall {free} m");
-        var (_, replay, _) = await RunAndReset(construction, 600, cadence);
+        var (_, replay, _) = await WorkshopIntegrationHarness.ObserveReset(construction, 600, cadence, includeBuilt: true);
         // The replay repeats the run's motion on every tick, within the 0.05 mm late-motion bound (restitution D10).
         for (var i = 0; i < run.Count; i++) AssertSamePoses(run[i], replay[i], .00005f, 1e-4f, 1e-3f, $"replay tick {i}");
     }
@@ -827,8 +806,8 @@ public sealed class WeightTests(ITestOutputHelper output)
             Assert.Equal(("weight", false, 1), (record.PartId, WorkshopWireFlatBuffers.CarriesTypedField(record), record.ParametersLength));
         }
         // The reloaded construction runs as the saved one: the same bodies, poses and motion within the 0.05 mm late-motion bound.
-        var (_, run, _) = await RunAndReset(construction, Rate);
-        var (_, replay, _) = await RunAndReset(decoded.Construction, Rate);
+        var (_, run, _) = await WorkshopIntegrationHarness.ObserveReset(construction, Rate, includeBuilt: true);
+        var (_, replay, _) = await WorkshopIntegrationHarness.ObserveReset(decoded.Construction, Rate, includeBuilt: true);
         AssertSamePoses(run[^1], replay[^1], .00005f, 1e-4f, 1e-3f, "the reloaded run");
     }
 }

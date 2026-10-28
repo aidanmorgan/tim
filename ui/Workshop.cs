@@ -45,9 +45,13 @@ public partial class Workshop : Node3D
     private bool _workshopUiRemoved;
     private bool CanEdit => !_gpuPending && !_inRun && World.WorkshopPhase == WorkshopSimulationPhase.Building;
 
+    internal string BundleResourcePath { get; set; } = PartRegistry.BundlePath;
+    internal Func<Task<IWorkshopClient>> ClientFactory { get; set; } = async () => await BrowserWorkshopClient.Create();
+    internal Task Startup { get; private set; } = Task.CompletedTask;
+
     public override async void _Ready()
     {
-        try { await ReadyAsync(); }
+        try { Startup = ReadyAsync(); await Startup; }
         catch (Exception error) { HandlerFailed(nameof(_Ready), error); }
     }
     private async Task ReadyAsync()
@@ -66,7 +70,7 @@ public partial class Workshop : Node3D
             _picker.AddItem(choice.IsAuthored ? PuzzleCatalogue.Presentation(choice).Title : "Free workshop");
         // Story 9A.14: the catalogue is the generated element bundle alone; a missing or invalid bundle stops start-up here.
         // Story 9A.17: its declared ports are the only port source; construction validation reads them once installed.
-        try { World.Registry.Load(); DeclaredPorts.Install(World.Registry.Ports); DeclaredPhysics.Install(World.Registry.Physics); }
+        try { World.Registry.LoadFile(BundleResourcePath); DeclaredPorts.Install(World.Registry.Ports); DeclaredPhysics.Install(World.Registry.Physics); }
         catch (System.IO.InvalidDataException error)
         {
             WorkshopDiagnostics.Fault(FaultSite.Startup, error);
@@ -75,7 +79,7 @@ public partial class Workshop : Node3D
         }
         PresentMode();
         _picker.Select(Array.IndexOf(_puzzleChoices, default(PuzzleId)));
-        try { await World.InitializeWorkshop(); if (_workshopUiRemoved) return; _gpuPending = false; SetBuildUi(); RefreshPalette(); }
+        try { await World.InitializeWorkshop(ClientFactory); if (_workshopUiRemoved) return; _gpuPending = false; SetBuildUi(); RefreshPalette(); }
         catch (Exception error)
         {
             // A Workshop that cannot start is a fault, not a refused edit.
@@ -520,15 +524,32 @@ public partial class Workshop : Node3D
         if (_tool is not null)
         {
             if (Remaining(_tool.Value).Exhausted || WorkPoint(screen, _buildView ? (float)_depth.Value : (float)_placementHeight.Value) is not { } at || !PlacementInside(at)) return;
+            await PlaceAsync(_tool.Value, PlacementPose(_tool.Value, at), _preview?.Dimensions);
+        }
+        else
+        {
+            Select(Pick(screen));
+            if (_selected is { Locked: false })
+            {
+                _dragging = true;
+                _dragMoved = false;
+                _dragPressScreen = screen;
+                _grabOffset = WorkPoint(screen, _buildView ? _selected.Position.Z : _selected.Position.Y) is { } grabbed ? _selected.Position - grabbed : Vector3.Zero;
+                _depth = new(_selected.Position.Z);
+                ChangeDepth(0);
+            }
+        }
+    }
+    internal async Task PlaceAsync(PartId chosen, ComposedPlacement composed, Vector3? dimensions = null)
+    {
+        if (!CanEdit || Remaining(chosen).Exhausted) return;
             if (_nextId.Value == ulong.MaxValue) { _status.Text = "Part identity is exhausted."; return; }
-            var chosen = _tool.Value;
             // The same composed pose the preview shows (grid, typed mouth snap, or rest), refused here exactly when the preview hides.
-            var composed = PlacementPose(chosen, at);
             var placedId = _nextId;
             // The proposal is the typed rejection path: a refused pose, or a part that cannot be captured or composed, leaves no undo entry.
             var placement = composed.Refusal != PlacementRefusal.None
                 ? WorkshopBenchPlacement.Refuse(World, composed.Refusal)
-                : WorkshopBenchPlacement.Propose(World, chosen, placedId, composed.Position, composed.Rotation, _preview?.Dimensions, PushUndo);
+                : WorkshopBenchPlacement.Propose(World, chosen, placedId, composed.Position, composed.Rotation, dimensions, PushUndo);
             if (placement.Rejection != BenchPlacementRejection.None) { _status.Text = placement.Message; return; }
             var accepted = false;
             try { accepted = await SubmitConstruction(placement.Construction); }
@@ -558,20 +579,6 @@ public partial class Workshop : Node3D
                 catch (Exception recovery) { GD.PushError($"Leaving placement mode after body {placedId.Value} failed to present also failed: {recovery}"); }
                 _status.Text = "The part was placed, but it could not be shown. Choose a part to continue.";
             }
-        }
-        else
-        {
-            Select(Pick(screen));
-            if (_selected is { Locked: false })
-            {
-                _dragging = true;
-                _dragMoved = false;
-                _dragPressScreen = screen;
-                _grabOffset = WorkPoint(screen, _buildView ? _selected.Position.Z : _selected.Position.Y) is { } grabbed ? _selected.Position - grabbed : Vector3.Zero;
-                _depth = new(_selected.Position.Z);
-                ChangeDepth(0);
-            }
-        }
     }
     private void Rotate(Vector3 angles)
     {
@@ -643,7 +650,7 @@ public partial class Workshop : Node3D
         try { await UndoAsync(); }
         catch (Exception error) { HandlerFailed(nameof(Undo), error); }
     }
-    private async Task UndoAsync()
+    internal async Task UndoAsync()
     {
         if (!CanEdit || _undo.Count == 0) return;
         Select(null);

@@ -595,7 +595,7 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
         Assert.All(allocated, id => Assert.True(id > 40 && id < scene.NextIdentity));
         var reversed = new WorkshopInstances(parts.Reverse().ToArray()).Identities;
         Assert.All(parts, part => Assert.Equal(identities[part.Id].Sliders[0].Body, reversed[part.Id].Sliders[0].Body));
-        var reads = await WorkshopPhysicsEngineTests.Run(construction with { Revision = new(2) }, 12);
+        var reads = await WorkshopIntegrationHarness.Observe(construction with { Revision = new(2) }, 12);
         foreach (var part in parts)
         {
             var moving = identities[part.Id].Sliders[0].Body;

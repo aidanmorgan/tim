@@ -64,6 +64,9 @@
     <!-- Explicit current test and native-boundary inputs; obsolete uncompiled tests were removed by Story 7.3. -->
     <ItemGroup>
         <Compile Include="ElementIsolationTests.cs" />
+        <Compile Include="WorkshopIntegrationHarness.cs" />
+        <Compile Include="WorkshopIntegrationClient.cs" />
+        <Compile Include="WorkshopIntegrationHarnessTests.cs" />
         <Compile Include="LampDetectorGuardTests.cs" />
         <Compile Include="VisibleSolidColliderTests.cs" />
         <Compile Include="FaceMarkingTests.cs" />

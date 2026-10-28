@@ -25,35 +25,7 @@ public sealed class SourceStoreInstanceTests
         new(new(2), Settings, new(WorkshopInput.Generic(PartId.BowlingBall, Ball, 0, 6, 0, 0, 0, 0, 1), PlacedParts.Bumper(Bumper, 0, 3, 0, (float)(strength)), source),
             Connections: new(Power(source.Id, Bumper)));
 
-    private sealed class Harness : IAsyncDisposable
-    {
-        private readonly WorkshopGpuDevice _device = new(new CuriousContraptions.Simulation.BrowserGpuTransport(new CuriousContraptions.Abstractions.EventRingPublication()), new(101, 206));
-        public WorkshopSimulation Simulation { get; }
-        private Harness() => Simulation = new(_device, new WorkshopPhysicsEngineTests.StepClock(), Settings, new(1),
-            new WorkshopPhysicsEngineTests.NoInstallation(), GpuDeviceOwnership.Borrowed);
-        public static async Task<Harness> Built(WorkshopConstruction construction)
-        {
-            var harness = new Harness();
-            Assert.Equal(WorkshopCommandOutcome.Applied, (await harness.Simulation.Initialize()).Outcome);
-            Assert.Equal(WorkshopCommandOutcome.Applied, (await harness.Simulation.Construct(construction)).Outcome);
-            return harness;
-        }
-        public async Task<List<WorkshopRead>> Advance(int ticks)
-        {
-            var reads = new List<WorkshopRead>(ticks);
-            for (var tick = 0; tick < ticks; tick++)
-            {
-                Assert.Equal(WorkshopCommandOutcome.Applied, (await Simulation.Advance()).Outcome);
-                reads.Add(Simulation.Committed);
-            }
-            return reads;
-        }
-        public async ValueTask DisposeAsync()
-        {
-            await Simulation.DisposeAsync();
-            await _device.DisposeAsync();
-        }
-    }
+
 
     private static ElectricalSourceRead SourceRead(WorkshopRead read) =>
         Enumerable.Range(0, read.Electrical.Count).Select(i => read.Electrical[i]).Single(row => row.Owner == Source);
@@ -69,8 +41,8 @@ public sealed class SourceStoreInstanceTests
     [InlineData(ElectricalEnable.Disabled)]
     public async Task AnEnabledStoreSuppliesTheGateFromTheFirstCommittedTickAndADisabledOneNeverDoes(ElectricalEnable enabled)
     {
-        await using var harness = await Harness.Built(GateBench(PlacedParts.Battery(Source, 3, 3, 0, enabled: enabled)));
-        Assert.Equal(WorkshopCommandOutcome.Applied, (await harness.Simulation.Run()).Outcome);
+        await using var harness = await WorkshopIntegrationHarness.Building(GateBench(PlacedParts.Battery(Source, 3, 3, 0, enabled: enabled)));
+        Assert.Equal(WorkshopCommandOutcome.Applied, ((await harness.Execute(WorkshopCommandKind.Run)).Result).Outcome);
         var reads = await harness.Advance(240);
         Assert.All(reads, read => Assert.Equal((3600f, 0f, enabled),
             (SourceRead(read).Remaining.Value, SourceRead(read).Debit.Value, SourceRead(read).Enabled)));
@@ -91,9 +63,9 @@ public sealed class SourceStoreInstanceTests
     [Fact]
     public async Task NoWireAReversedWireOrAnActivationLinkGivesNoSupply()
     {
-        await using (var harness = await Harness.Built(GateBench(PlacedParts.Battery(Source, 3, 3, 0), wired: false)))
+        await using (var harness = await WorkshopIntegrationHarness.Building(GateBench(PlacedParts.Battery(Source, 3, 3, 0), wired: false)))
         {
-            Assert.Equal(WorkshopCommandOutcome.Applied, (await harness.Simulation.Run()).Outcome);
+            Assert.Equal(WorkshopCommandOutcome.Applied, ((await harness.Execute(WorkshopCommandKind.Run)).Result).Outcome);
             var reads = await harness.Advance(120);
             Assert.All(reads, read => Assert.False(Blade(read).SupplyClosed));
             Assert.All(reads, read => Assert.InRange(Blade(read).Coordinate, -1e-3f, 1e-3f));
@@ -120,13 +92,13 @@ public sealed class SourceStoreInstanceTests
     [InlineData(600f, 10f, 0f, 8f)]
     public async Task TheStorePaysWithinItsPowerLimitAndNeverMoreThanItsInitialCharge(float capacity, float power, float charge, float strength)
     {
-        await using var harness = await Harness.Built(RechargeBench(PlacedParts.Battery(Source, 3, 1, 0, capacity, power, charge), strength));
-        var scene = WorkshopPhysicsCompiler.Compile(harness.Simulation.Construction, new(1, 2));
+        await using var harness = await WorkshopIntegrationHarness.Building(RechargeBench(PlacedParts.Battery(Source, 3, 1, 0, capacity, power, charge), strength));
+        var scene = WorkshopPhysicsCompiler.Compile(harness.Construction, new(1, 2));
         var declared = Assert.Single(scene.Electrical.Sources.ToArray());
         Assert.Equal((capacity, power, charge, ElectricalEnable.Enabled), (declared.Capacity.Value, declared.MaximumPower.Value, declared.InitialFraction, declared.Enabled));
         var initial = capacity * charge;
-        Assert.Equal(initial, SourceRead(harness.Simulation.Committed).Remaining.Value);
-        Assert.Equal(WorkshopCommandOutcome.Applied, (await harness.Simulation.Run()).Outcome);
+        Assert.Equal(initial, SourceRead(harness.Committed).Remaining.Value);
+        Assert.Equal(WorkshopCommandOutcome.Applied, ((await harness.Execute(WorkshopCommandKind.Run)).Result).Outcome);
         var reads = await harness.Advance(960);
         var limit = power * ElectricalSupply.PhaseSeconds;
         double delivered = 0;
@@ -198,26 +170,26 @@ public sealed class SourceStoreInstanceTests
     [Fact]
     public async Task ARunningControlIsAppliedOnTheNextTickAndLeavesTheAuthoredConstructionAlone()
     {
-        await using var harness = await Harness.Built(GateBench(PlacedParts.Battery(Source, 3, 3, 0)));
-        var authored = harness.Simulation.Construction;
-        Assert.Equal(WorkshopCommandOutcome.Applied, (await harness.Simulation.Run()).Outcome);
+        await using var harness = await WorkshopIntegrationHarness.Building(GateBench(PlacedParts.Battery(Source, 3, 3, 0)));
+        var authored = harness.Construction;
+        Assert.Equal(WorkshopCommandOutcome.Applied, ((await harness.Execute(WorkshopCommandKind.Run)).Result).Outcome);
         var open = await harness.Advance(120);
         Assert.True(Blade(open[^1]).SupplyClosed);
-        var receipt = harness.Simulation.ConfigureElectrical(new(Source, ElectricalEnable.Disabled));
+        var receipt = (await harness.Execute(WorkshopCommandKind.ConfigureElectrical, electrical: new(Source, ElectricalEnable.Disabled))).Result;
         Assert.Equal((WorkshopCommandOutcome.Applied, WorkshopRejection.None), (receipt.Outcome, receipt.Reason));
-        Assert.Equal(authored, harness.Simulation.Construction);
+        Assert.Equal(authored, harness.Construction);
         var next = await harness.Advance(1);
         Assert.Equal(ElectricalEnable.Disabled, SourceRead(next[0]).Enabled);
         Assert.False(Blade(next[0]).SupplyClosed);
         var closing = await harness.Advance(360);
         Assert.All(closing, read => Assert.False(Blade(read).SupplyClosed));
         Assert.InRange(Blade(closing[^1]).Coordinate, -1e-2f, 1e-2f);
-        Assert.Equal(WorkshopCommandOutcome.Applied, harness.Simulation.ConfigureElectrical(new(Source, ElectricalEnable.Enabled)).Outcome);
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await harness.Execute(WorkshopCommandKind.ConfigureElectrical, electrical: new(Source, ElectricalEnable.Enabled))).Result.Outcome);
         var again = await harness.Advance(1);
         Assert.Equal(ElectricalEnable.Enabled, SourceRead(again[0]).Enabled);
         Assert.True(Blade(again[0]).SupplyClosed);
-        Assert.Equal(authored, harness.Simulation.Construction);
-        Assert.Equal(authored.Revision, harness.Simulation.Construction.Revision);
+        Assert.Equal(authored, harness.Construction);
+        Assert.Equal(authored.Revision, harness.Construction.Revision);
     }
 
     // A Paused control is held until Resume; a second control while paused reverses it (the run is then bit-identical to one never
@@ -227,24 +199,24 @@ public sealed class SourceStoreInstanceTests
     {
         var bench = GateBench(PlacedParts.Battery(Source, 3, 3, 0));
         List<WorkshopRead> plain;
-        await using (var control = await Harness.Built(bench))
+        await using (var control = await WorkshopIntegrationHarness.Building(bench))
         {
-            Assert.Equal(WorkshopCommandOutcome.Applied, (await control.Simulation.Run()).Outcome);
+            Assert.Equal(WorkshopCommandOutcome.Applied, ((await control.Execute(WorkshopCommandKind.Run)).Result).Outcome);
             plain = await control.Advance(120);
         }
-        await using var harness = await Harness.Built(bench);
-        Assert.Equal(WorkshopCommandOutcome.Applied, (await harness.Simulation.Run()).Outcome);
+        await using var harness = await WorkshopIntegrationHarness.Building(bench);
+        Assert.Equal(WorkshopCommandOutcome.Applied, ((await harness.Execute(WorkshopCommandKind.Run)).Result).Outcome);
         var first = await harness.Advance(30);
-        Assert.Equal(WorkshopCommandOutcome.Applied, (await harness.Simulation.Pause()).Outcome);
-        Assert.Equal(WorkshopCommandOutcome.Applied, harness.Simulation.ConfigureElectrical(new(Source, ElectricalEnable.Disabled)).Outcome);
-        Assert.Equal(WorkshopCommandOutcome.Applied, harness.Simulation.ConfigureElectrical(new(Source, ElectricalEnable.Enabled)).Outcome);
-        Assert.Equal(WorkshopCommandOutcome.Applied, (await harness.Simulation.Resume()).Outcome);
+        Assert.Equal(WorkshopCommandOutcome.Applied, ((await harness.Execute(WorkshopCommandKind.Pause)).Result).Outcome);
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await harness.Execute(WorkshopCommandKind.ConfigureElectrical, electrical: new(Source, ElectricalEnable.Disabled))).Result.Outcome);
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await harness.Execute(WorkshopCommandKind.ConfigureElectrical, electrical: new(Source, ElectricalEnable.Enabled))).Result.Outcome);
+        Assert.Equal(WorkshopCommandOutcome.Applied, ((await harness.Execute(WorkshopCommandKind.Resume)).Result).Outcome);
         var reversed = first.Concat(await harness.Advance(90)).ToList();
         for (var i = 0; i < plain.Count; i++) NoFixedCapacityTests.AssertSameState(plain[i], reversed[i], $"reversed tick {i}");
-        Assert.Equal(WorkshopCommandOutcome.Applied, (await harness.Simulation.Pause()).Outcome);
-        Assert.Equal(WorkshopCommandOutcome.Applied, harness.Simulation.ConfigureElectrical(new(Source, ElectricalEnable.Disabled)).Outcome);
-        Assert.Equal(ElectricalEnable.Enabled, SourceRead(harness.Simulation.Committed).Enabled);
-        Assert.Equal(WorkshopCommandOutcome.Applied, (await harness.Simulation.Resume()).Outcome);
+        Assert.Equal(WorkshopCommandOutcome.Applied, ((await harness.Execute(WorkshopCommandKind.Pause)).Result).Outcome);
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await harness.Execute(WorkshopCommandKind.ConfigureElectrical, electrical: new(Source, ElectricalEnable.Disabled))).Result.Outcome);
+        Assert.Equal(ElectricalEnable.Enabled, SourceRead(harness.Committed).Enabled);
+        Assert.Equal(WorkshopCommandOutcome.Applied, ((await harness.Execute(WorkshopCommandKind.Resume)).Result).Outcome);
         var resumed = await harness.Advance(1);
         Assert.Equal(ElectricalEnable.Disabled, SourceRead(resumed[0]).Enabled);
         Assert.False(Blade(resumed[0]).SupplyClosed);
@@ -258,13 +230,13 @@ public sealed class SourceStoreInstanceTests
         var bench = GateBench(PlacedParts.Battery(Source, 3, 3, 0));
         bench = bench with { Instances = bench.Instances.With(WorkshopInput.Generic(PartId.Basketball, Ball, -3, 3, 0, 0, 0, 0, 1))
             .With(PlacedParts.Battery(new(8), 6, 3, 0) with { Locked = true }) };
-        await using var harness = await Harness.Built(bench);
-        var build = harness.Simulation.ConfigureElectrical(new(Source, ElectricalEnable.Disabled));
+        await using var harness = await WorkshopIntegrationHarness.Building(bench);
+        var build = (await harness.Execute(WorkshopCommandKind.ConfigureElectrical, electrical: new(Source, ElectricalEnable.Disabled))).Result;
         Assert.Equal((WorkshopCommandOutcome.Rejected, WorkshopRejection.WrongPhase), (build.Outcome, build.Reason));
-        Assert.Equal(WorkshopCommandOutcome.Applied, (await harness.Simulation.Run()).Outcome);
+        Assert.Equal(WorkshopCommandOutcome.Applied, ((await harness.Execute(WorkshopCommandKind.Run)).Result).Outcome);
         foreach (var owner in new GpuBodyId[] { new(8), Gate, Ball, new(99) })
         {
-            var refused = harness.Simulation.ConfigureElectrical(new(owner, ElectricalEnable.Disabled));
+            var refused = (await harness.Execute(WorkshopCommandKind.ConfigureElectrical, electrical: new(owner, ElectricalEnable.Disabled))).Result;
             Assert.Equal((WorkshopCommandOutcome.Rejected, WorkshopRejection.InvalidConstruction), (refused.Outcome, refused.Reason));
         }
         var reads = await harness.Advance(2);
@@ -280,30 +252,30 @@ public sealed class SourceStoreInstanceTests
     {
         var bench = GateBench(PlacedParts.Battery(Source, 3, 3, 0, 1800f, 60f, .75f));
         List<WorkshopRead> plain;
-        await using (var control = await Harness.Built(bench))
+        await using (var control = await WorkshopIntegrationHarness.Building(bench))
         {
-            Assert.Equal(WorkshopCommandOutcome.Applied, (await control.Simulation.Run()).Outcome);
+            Assert.Equal(WorkshopCommandOutcome.Applied, ((await control.Execute(WorkshopCommandKind.Run)).Result).Outcome);
             plain = await control.Advance(180);
         }
-        await using var harness = await Harness.Built(bench);
-        var built = harness.Simulation.Committed;
-        Assert.Equal(WorkshopCommandOutcome.Applied, (await harness.Simulation.Run()).Outcome);
+        await using var harness = await WorkshopIntegrationHarness.Building(bench);
+        var built = harness.Committed;
+        Assert.Equal(WorkshopCommandOutcome.Applied, ((await harness.Execute(WorkshopCommandKind.Run)).Result).Outcome);
         await harness.Advance(60);
-        Assert.Equal(WorkshopCommandOutcome.Applied, harness.Simulation.ConfigureElectrical(new(Source, ElectricalEnable.Disabled)).Outcome);
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await harness.Execute(WorkshopCommandKind.ConfigureElectrical, electrical: new(Source, ElectricalEnable.Disabled))).Result.Outcome);
         var disabled = await harness.Advance(60);
         Assert.All(disabled, read => Assert.Equal(ElectricalEnable.Disabled, SourceRead(read).Enabled));
-        var saved = WorkshopSaveCodec.Encode(new(harness.Simulation.Construction, new(9)));
+        var saved = WorkshopSaveCodec.Encode(new(harness.Construction, new(9)));
         var loaded = WorkshopSaveCodec.Decode(SaveFixture.Elements, saved).Construction;
         Assert.Equal(bench, loaded);
         Assert.Equal(1f, Assert.IsType<WorkshopGenericInstance>(loaded.Instances[1]).Parameters[new("enabled")]);
-        Assert.Equal(WorkshopCommandOutcome.Applied, (await harness.Simulation.Reset()).Outcome);
-        NoFixedCapacityTests.AssertSameState(built, harness.Simulation.Committed, "Reset");
+        Assert.Equal(WorkshopCommandOutcome.Applied, ((await harness.Execute(WorkshopCommandKind.Reset)).Result).Outcome);
+        NoFixedCapacityTests.AssertSameState(built, harness.Committed, "Reset");
         Assert.Equal(ElectricalEnable.Enabled, harness.Simulation.ElectricalState(Source, ElectricalEnable.Enabled));
-        Assert.Equal(WorkshopCommandOutcome.Applied, (await harness.Simulation.Run()).Outcome);
+        Assert.Equal(WorkshopCommandOutcome.Applied, ((await harness.Execute(WorkshopCommandKind.Run)).Result).Outcome);
         var replay = await harness.Advance(180);
         for (var i = 0; i < plain.Count; i++) NoFixedCapacityTests.AssertSameState(plain[i], replay[i], $"replay tick {i}");
-        await using var reloaded = await Harness.Built(loaded);
-        Assert.Equal(WorkshopCommandOutcome.Applied, (await reloaded.Simulation.Run()).Outcome);
+        await using var reloaded = await WorkshopIntegrationHarness.Building(loaded);
+        Assert.Equal(WorkshopCommandOutcome.Applied, ((await reloaded.Execute(WorkshopCommandKind.Run)).Result).Outcome);
         var fromSave = await reloaded.Advance(180);
         for (var i = 0; i < plain.Count; i++) NoFixedCapacityTests.AssertSameState(plain[i], fromSave[i], $"loaded tick {i}");
     }

@@ -44,7 +44,10 @@ public sealed class WorkshopHandlerBoundaryTests
     }
 
     // A Godot override such as _Ready awaits ReadyAsync.
-    private static bool IsBoundary(string name, string body) => Regex.IsMatch(Regex.Replace(body, @"\s+", " "),
+    private static bool IsBoundary(string name, string body) =>
+        (name == "_Ready" && Regex.Replace(body, @"\s+", " ") ==
+            "{ try { Startup = ReadyAsync(); await Startup; } catch (Exception error) { HandlerFailed(nameof(_Ready), error); } }") ||
+        Regex.IsMatch(Regex.Replace(body, @"\s+", " "),
         $@"^\{{ try \{{ await {name.TrimStart('_')}Async\((?>[^()]|\((?<depth>)|\)(?<-depth>))*(?(depth)(?!))\); \}} catch \(Exception error\) \{{ HandlerFailed\(nameof\({name}\), error\); \}} \}}$",
         RegexOptions.CultureInvariant);
 
@@ -59,6 +62,11 @@ public sealed class WorkshopHandlerBoundaryTests
         // Balanced arguments allow boundary validation inside the catch, including nested conversions.
         Assert.True(IsBoundary("Click", "{ try { await ClickAsync(Validate(screen)); } catch (Exception error) { HandlerFailed(nameof(Click), error); } }"));
         Assert.False(IsBoundary("Click", "{ var value = Validate(screen); try { await ClickAsync(value); } catch (Exception error) { HandlerFailed(nameof(Click), error); } }"));
+        // Publishing the real startup task is allowed only inside the startup catching boundary.
+        Assert.True(IsBoundary("_Ready", "{ try { Startup = ReadyAsync(); await Startup; } catch (Exception error) { HandlerFailed(nameof(_Ready), error); } }"));
+        Assert.False(IsBoundary("_Ready", "{ Startup = ReadyAsync(); try { await Startup; } catch (Exception error) { HandlerFailed(nameof(_Ready), error); } }"));
+        Assert.False(IsBoundary("_Ready", "{ try { Startup = ReadyAsync(); await Other; } catch (Exception error) { HandlerFailed(nameof(_Ready), error); } }"));
+        Assert.False(IsBoundary("Click", "{ try { Startup = ClickAsync(); await Startup; } catch (Exception error) { HandlerFailed(nameof(Click), error); } }"));
         // Control: the shape check rejects a handler that awaits work without the boundary.
         Assert.False(IsBoundary("Click", "{ if (_tool is null) return; await SubmitConstruction(proposed); }"));
         Assert.False(IsBoundary("Click", "{ try { await ClickAsync(screen); } catch (ArgumentException error) { HandlerFailed(nameof(Click), error); } }"));

@@ -22,116 +22,6 @@ public sealed class EventRingProducerTests
     private static WorkshopConstruction Bench(IWorkshopInstance[] instances, WorkshopConnection[] links, SimulationCadence cadence = SimulationCadence.Hz120) =>
         new(new(2), WorkshopCadenceSettings.Default() with { Simulation = cadence }, new(instances), Connections: new(links));
 
-    /// <summary>An installation that refuses the next paused Prepare when armed (a failed Step).</summary>
-    private sealed class Installation : IWorkshopInstallation
-    {
-        public bool Fail { get; set; }
-        public void Abort(CommandSequence owner) { }
-        public void Retire() { }
-        public ValueTask Prepare(CommandSequence owner, WorkshopRead read, WorkshopConstruction construction, WorkshopGpuProfile profile,
-            WorkshopSimulationPhase phase) =>
-            Fail && phase == WorkshopSimulationPhase.Paused ? throw new WorkshopInstallationException(new InvalidOperationException("refused")) : ValueTask.CompletedTask;
-    }
-
-    /// <summary>The production simulation with the worker's publication path: every command and tick is followed by one drain.</summary>
-    internal sealed class Ring : IAsyncDisposable
-    {
-        public EventRingPublication Publication { get; } = new();
-        public WorkshopGpuDevice Device { get; }
-        public WorkshopSimulation Simulation { get; }
-        public EventRingMemory? Shared => Publication.Memory;
-        public List<SimulationEventRecord> Records { get; } = [];
-        public List<byte[]> Publications { get; } = [];
-        public List<WorkshopRead> Reads { get; } = [];
-        /// <summary>The device-private contact-work ledger beside each committed read (Story 9A.23 D9).</summary>
-        public List<ContactWorkLedger> Ledgers { get; } = [];
-        private readonly Installation _installation;
-        public bool FailNextStep { set => _installation.Fail = value; }
-
-        private Ring(WorkshopCadenceSettings settings)
-        {
-            Device = new(new CuriousContraptions.Simulation.BrowserGpuTransport(Publication), new(101, 206));
-            _installation = new();
-            Simulation = new(Device, new WorkshopPhysicsEngineTests.StepClock(), settings, new(1), _installation, GpuDeviceOwnership.Borrowed);
-        }
-
-        public static async Task<Ring> Initialized(WorkshopCadenceSettings settings)
-        {
-            var ring = new Ring(settings);
-            Assert.Equal(WorkshopCommandOutcome.Applied, (await ring.Simulation.Initialize()).Outcome);
-            ring.Publish();
-            return ring;
-        }
-
-        public static async Task<Ring> Building(WorkshopConstruction construction)
-        {
-            var ring = await Initialized(construction.Settings);
-            Assert.Equal(WorkshopCommandOutcome.Applied, (await ring.Simulation.Construct(construction)).Outcome);
-            ring.Publish();
-            return ring;
-        }
-
-        public static async Task<Ring> Running(WorkshopConstruction construction)
-        {
-            var ring = await Building(construction);
-            await ring.Run();
-            return ring;
-        }
-
-        public async Task Run()
-        {
-            Assert.Equal(WorkshopCommandOutcome.Applied, (await Simulation.Run()).Outcome);
-            Publish();
-            Reads.Clear(); Ledgers.Clear();
-            Reads.Add(Simulation.Committed); Ledgers.Add(Device.CommittedContactWork);
-        }
-
-        /// <summary>The worker's drain: one publication, appended to the reference ring; its records are kept in publication order.</summary>
-        public byte[] Publish()
-        {
-            var batch = Device.DrainEvents();
-            if (batch.Length == 0) return batch;
-            Publications.Add(batch);
-            Records.AddRange(Decode(batch));
-            return batch;
-        }
-
-        public async Task Advance(int ticks)
-        {
-            for (var tick = 0; tick < ticks; tick++)
-            {
-                Assert.Equal(WorkshopCommandOutcome.Applied, (await Simulation.Advance()).Outcome);
-                Publish();
-                Reads.Add(Simulation.Committed); Ledgers.Add(Device.CommittedContactWork);
-            }
-        }
-
-        /// <summary>Commits ticks without publishing (as when no read or acknowledgement follows them), then publishes once.</summary>
-        public async Task<byte[]> AdvanceUndrained(int ticks)
-        {
-            for (var tick = 0; tick < ticks; tick++)
-            {
-                Assert.Equal(WorkshopCommandOutcome.Applied, (await Simulation.Advance()).Outcome);
-                Reads.Add(Simulation.Committed); Ledgers.Add(Device.CommittedContactWork);
-            }
-            return Publish();
-        }
-
-        public async Task Reset()
-        {
-            Assert.Equal(WorkshopCommandOutcome.Applied, (await Simulation.Reset()).Outcome);
-            Publish();
-        }
-
-        public IEnumerable<SimulationEventRecord> Of(SimulationEventKind kind) => Records.Where(record => record.Kind == kind);
-
-        public async ValueTask DisposeAsync()
-        {
-            await Simulation.DisposeAsync();
-            await Device.DisposeAsync();
-        }
-    }
-
     internal static SimulationEventRecord[] Decode(byte[] batch) =>
         Enumerable.Range(0, (batch.Length - EventRingBuffer.HeaderBytes) / EventRingBuffer.SlotBytes)
             .Select(i => SimulationEventRecord.Read(batch.AsSpan(EventRingBuffer.HeaderBytes + i * EventRingBuffer.SlotBytes, EventRingBuffer.SlotBytes)))
@@ -173,7 +63,7 @@ public sealed class EventRingProducerTests
     public async Task EachBumperHitPublishesExactlyOneImpactAtItsOwnTimeAndNoTrigger()
     {
         GpuBodyId ball = new(1), bumper = new(2);
-        await using var ring = await Ring.Running(Bench([WorkshopInput.Generic(PartId.Basketball, ball, 0, 4.5f, 0, 0, 0, 0, 1),
+        await using var ring = await WorkshopIntegrationHarness.Running(Bench([WorkshopInput.Generic(PartId.Basketball, ball, 0, 4.5f, 0, 0, 0, 0, 1),
             PlacedParts.Bumper(bumper, 0, 3, 0)], []));
         await ring.Advance(360);
         var impacts = ring.Of(SimulationEventKind.Impact).ToList();
@@ -222,7 +112,7 @@ public sealed class EventRingProducerTests
     public async Task TwoInRunPassesAfterClearancePublishPassageCountOneThenTwoWhileTheFirstInputLampStaysAtOne()
     {
         var (bench, detector, lamp, ball) = DropBench(forwardDown: true, ballX: 0);
-        await using var ring = await Ring.Running(bench);
+        await using var ring = await WorkshopIntegrationHarness.Running(bench);
         await ring.Advance(480);
         // The production passage tracker replayed over the committed bodies gives the expected passes (its sensor law is unchanged).
         var network = WorkshopActivationCompiler.Compile(bench);
@@ -255,7 +145,7 @@ public sealed class EventRingProducerTests
     public async Task AGlancingOrReverseCrossingPublishesNoPassage(bool forwardDown, double ballX)
     {
         var (bench, _, _, ball) = DropBench(forwardDown, ballX);
-        await using var ring = await Ring.Running(bench);
+        await using var ring = await WorkshopIntegrationHarness.Running(bench);
         await ring.Advance(480);
         Assert.Contains(ring.Reads, read => read.Bodies.TryGet(ball, out var row) && (row.Body.Cell.Y + (double)row.Body.Local.Y) / 16 < Floor + .62);
         Assert.Empty(ring.Records);
@@ -269,7 +159,7 @@ public sealed class EventRingProducerTests
     public async Task AReceiverCapturePublishesOneCapturedAndAMissNothing(double shift, bool captures)
     {
         GpuBodyId ball = new(1), receiver = new(2);
-        await using var ring = await Ring.Running(Bench([PayloadInstanceTests.Place(PartId.Basketball, 1, shift, 1.1, 0),
+        await using var ring = await WorkshopIntegrationHarness.Running(Bench([PayloadInstanceTests.Place(PartId.Basketball, 1, shift, 1.1, 0),
             WorkshopInput.Generic(PartId.Receiver, receiver, 0, 1, 0, 0, 0, 0, 1)], []));
         await ring.Advance(240);
         if (!captures) { Assert.Empty(ring.Records); return; }
@@ -290,7 +180,7 @@ public sealed class EventRingProducerTests
         var plateY = Floor + .22;
         var plate = PlacedParts.Plate(new(1), -4, (float)(plateY), 0, .5f);
         var ball = WorkshopInput.Generic(PartId.Basketball, new(2), -4, (float)(plateY + .08 + .345 + drop), 0, 0, 0, 0, 1);
-        await using var ring = await Ring.Running(Bench([plate, ball], []));
+        await using var ring = await WorkshopIntegrationHarness.Running(Bench([plate, ball], []));
         await ring.Advance(720);
         var edges = Edges(ring.Reads, read => Node(read, plate.Id).Phase == ActivationPhase.Latched);
         var records = ring.Of(SimulationEventKind.ContactLoad).ToArray();
@@ -320,7 +210,7 @@ public sealed class EventRingProducerTests
         var hit = WorkshopInput.Generic(PartId.ImpactSwitch, new(1), 0, 1, 0, 0, 0, 0, 1, new([new(new ParameterId("trigger_threshold"), threshold)]));
         var lamp = PlacedParts.Lamp(new(2), 4, 1, 0, 0, 0, 0, 1);
         var ball = WorkshopInput.Generic(PartId.Basketball, new(4), 0, 3, 0, 0, 0, 0, 1);
-        await using var ring = await Ring.Running(Bench([hit, lamp, ball], [Signal(hit.Id, lamp.Id)]));
+        await using var ring = await WorkshopIntegrationHarness.Running(Bench([hit, lamp, ball], [Signal(hit.Id, lamp.Id)]));
         await ring.Advance(480);
         Assert.Contains(ring.Reads, read => read.Bodies.TryGet(ball.Id, out var row) && row.Body.Velocity.Y > 0); // the ball struck and rebounded
         if (!fires) { Assert.Empty(ring.Records); return; }
@@ -340,7 +230,7 @@ public sealed class EventRingProducerTests
         var radians = degrees * Math.PI / 180;
         var tile = PlacedParts.Domino(new(1), 0, (float)(Floor + .55 * Math.Cos(radians) + .125 * Math.Sin(radians) + .005), 0,
             0, 0, (float)(Math.Sin(radians / 2)), (float)(Math.Cos(radians / 2)));
-        await using var ring = await Ring.Running(Bench([tile, PlacedParts.Lamp(new(2), 3, 1, 0, 0, 0, 0, 1)], [Signal(new(1), new(2))]));
+        await using var ring = await WorkshopIntegrationHarness.Running(Bench([tile, PlacedParts.Lamp(new(2), 3, 1, 0, 0, 0, 0, 1)], [Signal(new(1), new(2))]));
         await ring.Advance(480);
         if (!topples) { Assert.Empty(ring.Records); return; }
         var latched = ring.Reads.First(read => Node(read, tile.Id).Phase == ActivationPhase.Latched);
@@ -356,7 +246,7 @@ public sealed class EventRingProducerTests
     public async Task ADelayFeedingABeforeNetworksTimerPublishesExactlyOneTriggerAndTheHoldExpiryNothing()
     {
         var construction = HoldTimerTests.Construction(.5f, delayed: true);
-        await using var ring = await Ring.Running(construction);
+        await using var ring = await WorkshopIntegrationHarness.Running(construction);
         await ring.Advance(360);
         var hold = ring.Reads.Select(HoldTimerTests.State).ToArray();
         Assert.Contains(hold, state => state.Phase == ActivationTimerPhase.Counting);
@@ -389,7 +279,7 @@ public sealed class EventRingProducerTests
     [InlineData(SimulationCadence.Hz240, 240u, 2u)]
     public async Task ASuppliedOscillatorPublishesOneTriggerPerPulseAtEveryCadence(SimulationCadence cadence, uint rate, uint substeps)
     {
-        await using var ring = await Ring.Running(Periodic(1f, 9, cadence: cadence));
+        await using var ring = await WorkshopIntegrationHarness.Running(Periodic(1f, 9, cadence: cadence));
         await ring.Advance((int)(rate * 5 / 2));
         var pulses = ring.Of(SimulationEventKind.TriggerActivated).ToArray();
         Assert.Equal([(ulong)rate, 2UL * rate], pulses.Select(record => record.Tick));
@@ -402,7 +292,7 @@ public sealed class EventRingProducerTests
     [Fact]
     public async Task AnUnsuppliedOscillatorPublishesNothing()
     {
-        await using var ring = await Ring.Running(Periodic(1f, 9, supplied: false));
+        await using var ring = await WorkshopIntegrationHarness.Running(Periodic(1f, 9, supplied: false));
         await ring.Advance(600);
         Assert.Empty(ring.Records);
     }
@@ -414,7 +304,7 @@ public sealed class EventRingProducerTests
     [InlineData(300, false)]
     public async Task ATallyOfThreePublishesThresholdReachedOnTheThirdInputOnly(int ticks, bool reached)
     {
-        await using var ring = await Ring.Running(Periodic(1f, 3));
+        await using var ring = await WorkshopIntegrationHarness.Running(Periodic(1f, 3));
         await ring.Advance(ticks);
         var thresholds = ring.Of(SimulationEventKind.ThresholdReached).ToArray();
         if (!reached) { Assert.Empty(thresholds); Assert.Equal(2, ring.Records.Count); return; }
@@ -441,7 +331,7 @@ public sealed class EventRingProducerTests
     [Fact]
     public async Task AMemoryPublishesOneRecordPerChangeAndNoneForARedundantSet()
     {
-        await using var ring = await Ring.Running(Memory());
+        await using var ring = await WorkshopIntegrationHarness.Running(Memory());
         await ring.Advance(600);
         var memory = ring.Of(SimulationEventKind.MemoryChanged).ToArray();
         // On@120, Off@180, On@240, Off@360 (Set and Reset together: Reset dominates), On@480, Off@540, On@600.
@@ -460,7 +350,7 @@ public sealed class EventRingProducerTests
         var set = PlacedParts.Clock(new(1), -3, 3, 0, 0, 0, 0, 1, 1f);
         var latch = PlacedParts.Latch(new(3), 0, 3, 0, 0, 0, 0, 1);
         var battery = PlacedParts.Battery(new(4), -6, 3, 0);
-        await using var ring = await Ring.Running(Bench([set, latch, battery], [Supply(battery.Id, set.Id), Signal(set.Id, latch.Id, WorkshopSocket.SetIn)]));
+        await using var ring = await WorkshopIntegrationHarness.Running(Bench([set, latch, battery], [Supply(battery.Id, set.Id), Signal(set.Id, latch.Id, WorkshopSocket.SetIn)]));
         await ring.Advance(600);
         var memory = Assert.Single(ring.Of(SimulationEventKind.MemoryChanged));
         Assert.Equal((120UL, 1u, 3UL), (memory.Tick, memory.Level, memory.Source));
@@ -473,11 +363,11 @@ public sealed class EventRingProducerTests
     [Fact]
     public async Task ASupplySourceSwitchedOffAndOnPublishesOneRecordPerEdge()
     {
-        await using var ring = await Ring.Running(Periodic(1f, 9));
+        await using var ring = await WorkshopIntegrationHarness.Running(Periodic(1f, 9));
         await ring.Advance(10);
-        Assert.Equal(WorkshopCommandOutcome.Applied, ring.Simulation.ConfigureElectrical(new(new(1), ElectricalEnable.Disabled)).Outcome);
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await ring.Execute(WorkshopCommandKind.ConfigureElectrical, electrical: new(new(1), ElectricalEnable.Disabled))).Result.Outcome);
         await ring.Advance(10);
-        Assert.Equal(WorkshopCommandOutcome.Applied, ring.Simulation.ConfigureElectrical(new(new(1), ElectricalEnable.Enabled)).Outcome);
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await ring.Execute(WorkshopCommandKind.ConfigureElectrical, electrical: new(new(1), ElectricalEnable.Enabled))).Result.Outcome);
         await ring.Advance(10);
         var powered = ring.Of(SimulationEventKind.ElectricalPowered).ToArray();
         Assert.Equal(Edges(ring.Reads, read => read.Electrical[0].Available), powered.Select(record => (record.Tick, record.Level)));
@@ -493,11 +383,11 @@ public sealed class EventRingProducerTests
     [Fact]
     public async Task PauseADiscardedCandidateAndAFailedStepPublishNothingAndConsumeNoSequence()
     {
-        await using var ring = await Ring.Running(Periodic(1f, 9));
+        await using var ring = await WorkshopIntegrationHarness.Running(Periodic(1f, 9));
         await ring.Advance(119);
         Assert.Empty(ring.Records);
         // A candidate for tick 120 (the first pulse), staged and then discarded.
-        var committed = ring.Simulation.Committed;
+        var committed = ring.Committed;
         var candidate = await ring.Device.Advance(committed, new(999_999), WorkshopTickControls.For(committed.Electrical, ring.Simulation.ElectricalState));
         Assert.Equal(120UL, candidate.Read.Tick.Value);
         ring.Device.Discard(new(999_999));
@@ -505,14 +395,14 @@ public sealed class EventRingProducerTests
         Assert.Equal(0UL, ring.Device.Events.WriteSequence);
         Assert.Empty(ring.Publish());
         // Paused: no tick commits, so nothing is published.
-        Assert.Equal(WorkshopCommandOutcome.Applied, (await ring.Simulation.Pause()).Outcome);
+        Assert.Equal(WorkshopCommandOutcome.Applied, ((await ring.Execute(WorkshopCommandKind.Pause)).Result).Outcome);
         Assert.Empty(ring.Publish());
-        Assert.NotEqual(WorkshopCommandOutcome.Applied, (await ring.Simulation.Advance()).Outcome);
+        Assert.NotEqual(WorkshopCommandOutcome.Applied, (await ring.AdvanceOne()).Outcome);
         Assert.Empty(ring.Publish());
         // A Step whose installation fails is discarded: tick 120's pulse is not published and no sequence is consumed.
         ring.FailNextStep = true;
-        Assert.NotEqual(WorkshopCommandOutcome.Applied, (await ring.Simulation.Step()).Outcome);
-        Assert.Equal(119UL, ring.Simulation.Committed.Tick.Value);
+        Assert.NotEqual(WorkshopCommandOutcome.Applied, ((await ring.Execute(WorkshopCommandKind.Step)).Result).Outcome);
+        Assert.Equal(119UL, ring.Committed.Tick.Value);
         Assert.Equal((0, 0UL), (ring.Device.Events.Pending.Count, ring.Device.Events.WriteSequence));
         Assert.Empty(ring.Publish());
         Assert.Empty(ring.Records);
@@ -521,9 +411,9 @@ public sealed class EventRingProducerTests
     [Fact]
     public async Task AfterADiscardTheCommittedPulseIsSequenceOne()
     {
-        await using var ring = await Ring.Running(Periodic(1f, 9));
+        await using var ring = await WorkshopIntegrationHarness.Running(Periodic(1f, 9));
         await ring.Advance(119);
-        var committed = ring.Simulation.Committed;
+        var committed = ring.Committed;
         _ = await ring.Device.Advance(committed, new(999_999), WorkshopTickControls.For(committed.Electrical, ring.Simulation.ElectricalState));
         ring.Device.Discard(new(999_999));
         await ring.Advance(1);
@@ -537,12 +427,13 @@ public sealed class EventRingProducerTests
     [Fact]
     public async Task TwoRunsAndRunResetRunPublishIdenticalRecordsUnderAnAdvancingEpoch()
     {
-        await using var first = await Ring.Running(Memory());
+        await using var first = await WorkshopIntegrationHarness.Running(Memory());
         await first.Advance(600);
-        await using var second = await Ring.Running(Memory());
+        await using var second = await WorkshopIntegrationHarness.Running(Memory());
         await second.Advance(600);
         Assert.Equal(first.Records, second.Records);
-        Assert.Equal(first.Shared!.Snapshot(), second.Shared!.Snapshot());
+        Assert.Equal(first.Shared!.Header, second.Shared!.Header);
+        Assert.Equal((ulong)first.Records.Count, first.Shared.Header.WriteSequence);
         Assert.NotEmpty(first.Records);
 
         var epoch = first.Shared!.Header.Epoch;
@@ -573,11 +464,11 @@ public sealed class EventRingProducerTests
         var bench = Memory();
         var saved = new WorkshopSavedConstruction(bench, new(7));
         var before = WorkshopSaveCodec.Encode(saved);
-        await using var original = await Ring.Running(bench);
+        await using var original = await WorkshopIntegrationHarness.Running(bench);
         await original.Advance(600);
         var loaded = WorkshopSaveCodec.Decode(SaveFixture.Elements, before);
-        Assert.Equal(saved, WorkshopSaveCodec.Decode(SaveFixture.Elements, WorkshopSaveCodec.Encode(new WorkshopSavedConstruction(original.Simulation.Construction, new(7)))));
-        await using var replay = await Ring.Running(loaded.Construction);
+        Assert.Equal(saved, WorkshopSaveCodec.Decode(SaveFixture.Elements, WorkshopSaveCodec.Encode(new WorkshopSavedConstruction(original.Construction, new(7)))));
+        await using var replay = await WorkshopIntegrationHarness.Running(loaded.Construction);
         await replay.Advance(600);
         Assert.Equal(original.Records, replay.Records);
     }
@@ -590,7 +481,7 @@ public sealed class EventRingProducerTests
     [InlineData(SimulationCadence.Hz240)]
     public async Task IdleProducerRowsDoNotReserveEventCapacity(SimulationCadence cadence)
     {
-        await using var ring = await Ring.Building(Periodic(1f, 9, cadence: cadence));
+        await using var ring = await WorkshopIntegrationHarness.Building(Periodic(1f, 9, cadence: cadence));
         Assert.Equal(32u, ring.Device.Events.Capacity);
         Assert.Equal(32u, ring.Shared!.Capacity);
         Assert.Equal(0UL, ring.Shared.LoadWriteSequence());
@@ -600,7 +491,7 @@ public sealed class EventRingProducerTests
     [Fact]
     public async Task AnEmptyBenchHasTheCommonThirtyTwoSlotReserve()
     {
-        await using var ring = await Ring.Building(Bench([], []));
+        await using var ring = await WorkshopIntegrationHarness.Building(Bench([], []));
         Assert.Equal(32u, ring.Shared!.Capacity);
     }
 
@@ -616,7 +507,7 @@ public sealed class EventRingProducerTests
             parts.Add(PlacedParts.Bumper(new((ulong)(2 * i + 1)), (float)(-60 + 3 * i), 3, 0));
             parts.Add(WorkshopInput.Generic(PartId.Basketball, new((ulong)(2 * i + 2)), (float)(-60 + 3 * i), 6, 0, 0, 0, 0, 1));
         }
-        await using var ring = await Ring.Building(Bench([.. parts], []));
+        await using var ring = await WorkshopIntegrationHarness.Building(Bench([.. parts], []));
         Assert.Equal(n, ring.Device.CommittedContactWork.Count);
         Assert.Equal(0, ring.Device.CommittedContactWork.OccurrenceCount);
         Assert.Equal(32u, ring.Device.Events.Capacity);
@@ -668,13 +559,13 @@ public sealed class EventRingProducerTests
     {
         var sources = Enumerable.Range(0, producers)
             .Select(i => (IWorkshopInstance)PlacedParts.Battery(new((ulong)i + 1), (float)(-63 + i % 127), 3, (float)(-63 + i / 127))).ToArray();
-        await using var ring = await Ring.Initialized(WorkshopCadenceSettings.Default());
-        Assert.Equal(WorkshopCommandOutcome.Applied, (await ring.Simulation.Construct(Bench(sources, []))).Outcome);
+        await using var ring = await WorkshopIntegrationHarness.Initialized(WorkshopCadenceSettings.Default());
+        Assert.Equal(WorkshopCommandOutcome.Applied, ((await ring.Execute(WorkshopCommandKind.Construct, Bench(sources, []))).Result).Outcome);
         ring.Publish();
-        Assert.Equal(producers, ring.Simulation.Committed.Electrical.Count);
+        Assert.Equal(producers, ring.Committed.Electrical.Count);
         Assert.Equal(32u, ring.Device.Events.Capacity);
         Assert.Equal(0UL, ring.Shared!.LoadWriteSequence());
-        Assert.Equal(WorkshopCommandOutcome.Applied, (await ring.Simulation.Construct(Periodic(1f, 9) with { Revision = new(3) })).Outcome);
+        Assert.Equal(WorkshopCommandOutcome.Applied, ((await ring.Execute(WorkshopCommandKind.Construct, Periodic(1f, 9) with { Revision = new(3) })).Result).Outcome);
         ring.Publish();
         Assert.Equal(32u, ring.Device.Events.Capacity);
     }
@@ -682,11 +573,11 @@ public sealed class EventRingProducerTests
     [Fact]
     public async Task AnUndrainedBurstGrowsBeforeCommitAndPublishesEveryRecord()
     {
-        await using var control = await Ring.Running(Periodic(.1f, 9));
+        await using var control = await WorkshopIntegrationHarness.Running(Periodic(.1f, 9));
         await control.Advance(3588);
-        await using var burst = await Ring.Running(Periodic(.1f, 9));
+        await using var burst = await WorkshopIntegrationHarness.Running(Periodic(.1f, 9));
         var publication = await burst.AdvanceUndrained(3588);
-        Assert.Equal(3588UL, burst.Simulation.Committed.Tick.Value);
+        Assert.Equal(3588UL, burst.Committed.Tick.Value);
         var all = control.Records;
         Assert.True(all.Count > 256);
         var header = EventRingHeader.Read(publication);
@@ -805,7 +696,7 @@ public sealed class EventRingProducerTests
     [Fact]
     public async Task TheShippedWorkerPreservesRecordsAcrossRealRunAndDemandGrowth()
     {
-        await using var ring = await Ring.Running(Memory());
+        await using var ring = await WorkshopIntegrationHarness.Running(Memory());
         await ring.Advance(600);
         await ring.Reset();
         await ring.Run();
@@ -852,7 +743,7 @@ public sealed class EventRingProducerTests
                 parts = [.. parts, PlacedParts.Lamp(new(3), -6, 3, 0, 0, 0, 0, 1)];
                 links = [Signal(part.Id, new(3))];
             }
-            await using var ring = await Ring.Building(Bench(parts, links));
+            await using var ring = await WorkshopIntegrationHarness.Building(Bench(parts, links));
             var scene = WorkshopPhysicsCompiler.Compile(Bench(parts, links), new(1, 2));
             var network = WorkshopActivationCompiler.Compile(Bench(parts, links));
             SimulationEventKind[] Produced(GpuBodyId owner) =>

@@ -349,7 +349,7 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
     }
 
     // ---- Story 9R.4: the live path ----
-    // These benches run the production WorkshopSimulation over the worker's own transport (WorkshopPhysicsEngineTests.RunPhases):
+    // These benches run the production WorkshopSimulation over the worker's own transport (WorkshopIntegrationHarness.ObservePhases):
     // compiler → WorkshopPhysicsEngine (ContactLoadSensorTracker on each plate's own compiled row) → WorkshopGpuDevice →
     // ActivationNetwork (the plate's committed ContactLoadSource level) → that gate's own switched supply route. No tick input is
     // set by hand: the only player input is the authored construction.
@@ -375,7 +375,7 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
     private static WorkshopConstruction Bench(IWorkshopInstance[] instances, params WorkshopConnection[] connections) =>
         new(new(2), WorkshopCadenceSettings.Default(), new(instances), Connections: new(connections));
     private static async Task<List<WorkshopRead>> RunBench(WorkshopConstruction construction, int ticks = Ticks) =>
-        (await WorkshopPhysicsEngineTests.RunPhases(construction, ([], ticks)))[0];
+        (await WorkshopIntegrationHarness.ObservePhases(construction, ([], ticks)))[0];
 
     private static float Travel(WorkshopRead read, WorkshopGenericInstance gate)
     {
@@ -637,24 +637,7 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
         return Bench([.. instances], Circuit(battery, last, gate));
     }
 
-    internal static async Task<(WorkshopRead Built, List<WorkshopRead> Run, WorkshopRead Reset)> RunAndReset(WorkshopConstruction construction, int ticks)
-    {
-        await using var device = new WorkshopGpuDevice(new CuriousContraptions.Simulation.BrowserGpuTransport(new CuriousContraptions.Abstractions.EventRingPublication()), new(101, 206));
-        await using var simulation = new WorkshopSimulation(device, new WorkshopPhysicsEngineTests.StepClock(), WorkshopCadenceSettings.Default(),
-            new(1), new WorkshopPhysicsEngineTests.NoInstallation(), GpuDeviceOwnership.Borrowed);
-        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Initialize()).Outcome);
-        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Construct(construction)).Outcome);
-        var built = simulation.Committed;
-        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Run()).Outcome);
-        var reads = new List<WorkshopRead>(ticks);
-        for (var tick = 0; tick < ticks; tick++)
-        {
-            Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Advance()).Outcome);
-            reads.Add(simulation.Committed);
-        }
-        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Reset()).Outcome);
-        return (built, reads, simulation.Committed);
-    }
+
 
     [Fact]
     public async Task ABenchOfManyActivationPartsRunsResetsAndSavesWithNoActivationLimit()
@@ -668,7 +651,7 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
         var plates = bench.Instances.Where(instance => instance.PartId == PartId.PressurePlate).ToArray();
         var gate = bench.Instances.OfType<WorkshopGenericInstance>().Single(instance => instance.PartId == PartId.PoweredGate);
 
-        var (built, reads, reset) = await RunAndReset(bench, Ticks);
+        var (built, reads, reset) = await WorkshopIntegrationHarness.ObserveReset(bench, Ticks);
         AssertGateOpened(reads, plates[^1], gate, "the 13th plate under its own load");
         foreach (var plate in plates[..^1]) Assert.All(reads, read => Assert.False(ContactClosed(read, plate), $"plate {plate.Id.Value} stays Clear"));
         Assert.Equal(28, reads[^1].Activations.Count);
@@ -682,7 +665,7 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
         var saved = new WorkshopSavedConstruction(bench, new((ulong)bench.Instances.Count + 1));
         var reloaded = WorkshopSaveCodec.Decode(SaveFixture.Elements,WorkshopSaveCodec.Encode(saved));
         Assert.Equal(saved, reloaded);
-        var (_, replay, _) = await RunAndReset(reloaded.Construction, Ticks);
+        var (_, replay, _) = await WorkshopIntegrationHarness.ObserveReset(reloaded.Construction, Ticks);
         AssertSameState(reads[^1], replay[^1], "the reloaded bench's run");
     }
 

@@ -387,7 +387,7 @@ development_status:
   # 50 (deletion): owner decision 18 Oct 2026, every remaining binary16 lane to f32; Half nowhere in the tree.
   # As soon as its preconditions allow (after 9a-c-memory, 9a-25b and 9a-26).
   9a-44-f32-lane-completion-half-purge: done # Part A (Half purge, raw_assistance slot deleted) published d87b6a1e, CI 40181624977 (3952 tests, 0 skipped), deploy 7311595713; Part B is 9a-44b; browser pending
-  9a-44b-f32-double-game-values-and-tick-clock: in-review # local4884/0/0; five Auto layers and affected re-review Pass; hooks/publication pending
+  9a-44b-f32-double-game-values-and-tick-clock: done # published6e0e0ee1799d31211e1769b8883f6bedb3fae396; local4884/0/0, hooks126/0/0, CI40765810580 and terminal artifact/deployment Pass
   # 51 (element)
   epic-12: backlog
   12-1-lightweight-tennis-ball-floating-balloon: backlog # split aggregate; use individual children
@@ -524,7 +524,7 @@ development_status:
   engine-remove-core-warmup: done # published822317c; build40324744448/artifact12650828689/deployment7332347579; full4411/0/0 hooks126/0/0; browser/performance pending
   engine-cap-settling: done # published a98ef86c; build 40356741495/artifact 12666996791/deployment 7337266683; local 4428/0/0 hooks 126/0/0; browser/performance pending
   engine-orientation-levelling: done # published bb35e8c4; full local 4453/0/0, hooks 126/0/0; run40365292840, artifact12670871781, deployment7338621740
-  test-workshop-harness-a: backlog
+  test-workshop-harness-a: in-progress # local4901/0/0 and five-layer re-review passed; normal hooks/publication pending; spec-test-workshop-harness-a.md
   test-workshop-harness-b: backlog
   runtime-typescript-conversion: backlog
   test-behavioral-hygiene: in-progress # first bounded child: test-semantic-digests; broader inventory remains open

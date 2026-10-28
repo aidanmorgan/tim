@@ -69,7 +69,7 @@ public sealed class PresentationBindingGoldenTests(NativeSceneFixture godot)
             var owner = new GpuBodyId(1);
             var bench = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(WorkshopInput.Generic(id, owner, 0, 2, 0, 0, 0, 0, 1),
                 WorkshopInput.Generic(PartId.Basketball, new(2), 6, 3, 0, 0, 0, 0, 1)));
-            var read = (await WorkshopPhysicsEngineTests.Run(bench, 1))[1];
+            var read = (await WorkshopIntegrationHarness.Observe(bench, 1))[1];
             var start = read.Capture!.Value.Time;
             var presentation = new WorkshopDeclaredPresentation(bench, new(default, WorkshopResponseKind.Read,
                 new(WorkshopCommandOutcome.Applied, WorkshopRejection.None), WorkshopSimulationPhase.Running, read, new(101, 206), new(1),

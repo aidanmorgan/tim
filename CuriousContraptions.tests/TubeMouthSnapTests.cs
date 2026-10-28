@@ -405,7 +405,7 @@ public sealed class TubeMouthSnapTests
     {
         var (bench, entry, exit, exitOutward) = Route(joint);
         bench.Validate();
-        var (built, run, reset) = await NoFixedCapacityTests.RunAndReset(bench, 3 * 120);
+        var (built, run, reset) = await WorkshopIntegrationHarness.ObserveReset(bench, 3 * 120);
         NoFixedCapacityTests.AssertSameState(built, reset, $"{joint} Reset");
 
         var chord = (exit - entry).Normalized();

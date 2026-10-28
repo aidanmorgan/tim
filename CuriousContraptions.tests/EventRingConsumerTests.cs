@@ -4,7 +4,6 @@ using CuriousContraptions.Abstractions;
 using CuriousContraptions.Bundle;
 using CuriousContraptions.Gpu;
 using CuriousContraptions.Presentation;
-using Ring = CuriousContraptions.Tests.EventRingProducerTests.Ring;
 
 namespace CuriousContraptions.Tests;
 
@@ -31,7 +30,7 @@ public sealed class EventRingConsumerTests
     /// <summary>The Animation worker's consumer loop over a real run.</summary>
     private sealed class Animation
     {
-        public Ring Ring { get; }
+        public WorkshopIntegrationHarness Harness { get; }
         public WorkshopConstruction Construction { get; }
         public WorkshopDeclaredPresentation Presentation { get; private set; } = null!;
         public WorkshopWorldProjection World { get; private set; }
@@ -40,12 +39,12 @@ public sealed class EventRingConsumerTests
         private ulong _publication, _lapped;
 
         /// <summary>Installs on a running ring the caller owns.</summary>
-        public Animation(Ring ring, WorkshopConstruction construction) { Ring = ring; Construction = construction; Install(); }
+        public Animation(WorkshopIntegrationHarness ring, WorkshopConstruction construction) { Harness = ring; Construction = construction; Install(); }
 
         /// <summary>A non-retained installation (Run or Reset): a fresh evaluator at rest, anchored at the admitted read.</summary>
         private void Install()
         {
-            var read = Ring.Simulation.Committed;
+            var read = Harness.Committed;
             _publication = 1;
             Presentation = new(Construction, Response(read, _publication));
             World = new(read.Epoch, new(1), read.Tick, new(read.Capture!.Value.Time.Value), WorldPlayback.Running);
@@ -56,7 +55,7 @@ public sealed class EventRingConsumerTests
         public void Drain()
         {
             var records = new List<SimulationEventRecord>();
-            while (_cursor.TryRead(Ring.Shared!, SimulationDomain.None, out var record)) records.Add(record);
+            while (_cursor.TryRead(Harness.Shared!, SimulationDomain.None, out var record)) records.Add(record);
             var skipped = _cursor.Lapped - _lapped; _lapped = _cursor.Lapped;
             if (records.Count == 0 && skipped == 0) return;
             Presentation.AcceptEvents(new(_cursor.Epoch, skipped, records.ToArray()), World);
@@ -68,16 +67,16 @@ public sealed class EventRingConsumerTests
         {
             for (var tick = 0; tick < ticks; tick++)
             {
-                await Ring.Advance(1);
+                await Harness.Advance(1);
                 Drain();
-                Presentation.Accept(Response(Ring.Simulation.Committed, ++_publication));
+                Presentation.Accept(Response(Harness.Committed, ++_publication));
             }
         }
 
         public async Task ResetAndRun()
         {
-            await Ring.Reset();
-            await Ring.Run();
+            await Harness.Reset();
+            await Harness.Run();
             Install();
             Drain();
         }
@@ -109,7 +108,7 @@ public sealed class EventRingConsumerTests
     /// committed tick's ledger holds its stores' latest rows; a sequence-0 row is the admission's empty slot), once each by sequence.</summary>
     private static async Task<(List<SimulationEventRecord> Records, ContactWorkOccurrence[] Hits)> BumperRun()
     {
-        await using var ring = await Ring.Running(Bench([WorkshopInput.Generic(PartId.Basketball, new(1), 0, 4.5f, 0, 0, 0, 0, 1),
+        await using var ring = await WorkshopIntegrationHarness.Running(Bench([WorkshopInput.Generic(PartId.Basketball, new(1), 0, 4.5f, 0, 0, 0, 0, 1),
             PlacedParts.Bumper(new(2), 0, 3, 0)], []));
         await ring.Advance(360);
         return (ring.Records, ring.Ledgers.SelectMany(ledger => Enumerable.Range(0, ledger.OccurrenceCount).Select(ledger.Occurrence))
@@ -218,12 +217,12 @@ public sealed class EventRingConsumerTests
         GpuBodyId ball = new(1), bumper = new(2);
         var bench = Bench([WorkshopInput.Generic(new PartId(payload), ball, 0, (float)(height), 0, 0, 0, 0, 1),
             PlacedParts.Bumper(bumper, 0, 3, 0, (float)(strength))], []);
-        await using var ring = await Ring.Running(bench);
+        await using var ring = await WorkshopIntegrationHarness.Running(bench);
         var run = new Animation(ring, bench);
         await run.Advance(ticks);
         var impacts = run.Delivered.Where(record => record.Kind == SimulationEventKind.Impact).ToArray();
         Assert.NotEmpty(impacts);
-        Assert.Equal(run.Ring.Of(SimulationEventKind.Impact).Count(), impacts.Length);
+        Assert.Equal(run.Harness.Of(SimulationEventKind.Impact).Count(), impacts.Length);
         var paid = impacts.Where(record => record.Magnitude > 0f).ToArray();
         Assert.Contains(impacts, record => record.Magnitude == 0f); // the control: an unpaid hit in every run
         Assert.Equal(strength > 0, paid.Length > 0);
@@ -273,12 +272,12 @@ public sealed class EventRingConsumerTests
     public async Task EachRecordRestartsItsOwnersClipAtItsPhysicalTime(string name)
     {
         var (bench, owner, part, kind, ticks) = Scenario(name);
-        await using var ring = await Ring.Running(bench);
+        await using var ring = await WorkshopIntegrationHarness.Running(bench);
         var run = new Animation(ring, bench);
         await run.Advance(ticks);
         var cues = run.Delivered.Where(record => record.Source == owner.Value && record.Kind == kind).ToArray();
         Assert.Equal(name == "detector" ? 2 : 1, cues.Length);
-        Assert.Equal(run.Ring.Records.Count, run.Delivered.Count); // the cursor delivered every committed record exactly once
+        Assert.Equal(run.Harness.Records.Count, run.Delivered.Count); // the cursor delivered every committed record exactly once
         var duration = (double)Duration(part);
         Assert.Equal(Cue(part, 0), run.Sample(run.Origin, owner)); // at rest before the first record
         foreach (var record in cues)
@@ -295,7 +294,7 @@ public sealed class EventRingConsumerTests
     public async Task WithoutItsRecordTheClipNeverLeavesRest(string name)
     {
         var (bench, owner, part, kind, ticks) = Scenario(name, fires: false);
-        await using var ring = await Ring.Running(bench);
+        await using var ring = await WorkshopIntegrationHarness.Running(bench);
         var run = new Animation(ring, bench);
         await run.Advance(ticks);
         Assert.DoesNotContain(run.Delivered, record => record.Source == owner.Value && record.Kind == kind);
@@ -307,9 +306,9 @@ public sealed class EventRingConsumerTests
     public async Task AForeignOwnerAnUndeclaredKindOrALevelCuesNothing()
     {
         var (bench, owner, part, _, _) = Scenario("switch");
-        await using var ring = await Ring.Running(bench);
+        await using var ring = await WorkshopIntegrationHarness.Running(bench);
         var run = new Animation(ring, bench);
-        var tick = run.Ring.Simulation.Committed.Tick.Value + 1;
+        var tick = run.Harness.Committed.Tick.Value + 1;
         SimulationEventRecord Record(ulong sequence, SimulationEventKind kind, ulong source, uint level = 0) =>
             new(sequence, tick, kind, source, 0, checked((uint)(tick * Substeps + 1)), 0f, 0f, 0, level);
         run.Presentation.AcceptEvents(new(run.World.WorldGeneration.Value, 0, [
@@ -327,9 +326,9 @@ public sealed class EventRingConsumerTests
     public async Task TheCueStartsAtTheRecordsOwnOrdinalAndPhase()
     {
         var (bench, owner, part, kind, _) = Scenario("switch");
-        await using var ring = await Ring.Running(bench);
+        await using var ring = await WorkshopIntegrationHarness.Running(bench);
         var run = new Animation(ring, bench);
-        var tick = run.Ring.Simulation.Committed.Tick.Value + 2;
+        var tick = run.Harness.Committed.Tick.Value + 2;
         var record = new SimulationEventRecord(1, tick, kind, owner.Value, 4, checked((uint)(tick * Substeps + 3)), 1024f, 1f, 0, 0);
         Assert.Equal(3.25 / WorkshopCadenceSettings.PhysicalFrequency,
             Animation.At(record) - Animation.At(record with { Ordinal = checked((uint)(tick * Substeps)), Phase = 0f }), 12);
@@ -348,21 +347,21 @@ public sealed class EventRingConsumerTests
     public async Task PauseResumeAndStepRetainTheCursorAndTheCuesWithNoDuplicate()
     {
         var (bench, owner, part, kind, _) = Scenario("switch");
-        await using var ring = await Ring.Running(bench);
+        await using var ring = await WorkshopIntegrationHarness.Running(bench);
         var run = new Animation(ring, bench);
         await run.Advance(480);
         var press = Assert.Single(run.Delivered, record => record.Kind == kind);
-        Assert.Equal(WorkshopCommandOutcome.Applied, (await run.Ring.Simulation.Pause()).Outcome);
-        Assert.Empty(run.Ring.Publish());
-        var paused = run.Ring.Simulation.Committed;
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await run.Harness.Execute(WorkshopCommandKind.Pause)).Result.Outcome);
+        Assert.Empty(run.Harness.Publish());
+        var paused = run.Harness.Committed;
         var endpoint = Response(paused, 0, projection: 2);
         Assert.True(run.Presentation.CanRetain(bench, endpoint));
         run.Presentation.Rebind(bench, endpoint);
         run.Drain();
-        Assert.Equal(WorkshopCommandOutcome.Applied, (await run.Ring.Simulation.Step()).Outcome);
-        run.Ring.Publish(); run.Drain();
-        Assert.Equal(WorkshopCommandOutcome.Applied, (await run.Ring.Simulation.Resume()).Outcome);
-        run.Ring.Publish(); run.Drain();
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await run.Harness.Execute(WorkshopCommandKind.Step)).Result.Outcome);
+        run.Harness.Publish(); run.Drain();
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await run.Harness.Execute(WorkshopCommandKind.Resume)).Result.Outcome);
+        run.Harness.Publish(); run.Drain();
         Assert.Single(run.Delivered, record => record.Kind == kind);
         Assert.Throws<ArgumentException>(() => run.Presentation.AcceptEvents(new(run.World.WorldGeneration.Value, 0, [press]), run.World));
         Assert.Equal(Cue(part, 1), run.Sample(Animation.At(press) + 1, owner)); // the retained cue holds its end value
@@ -379,12 +378,12 @@ public sealed class EventRingConsumerTests
             ? (Bench([PlacedParts.Bumper(new(1), 0, 1, 0)], []), new GpuBodyId(1), PartId.PinballBumper)
             : (Scenario("switch").Bench, Scenario("switch").Owner, PartId.ImpactSwitch);
         var kind = DeclaredPhysics.Of(part).Presentation.Bindings[0].Event;
-        await using var ring = await Ring.Running(bench);
+        await using var ring = await WorkshopIntegrationHarness.Running(bench);
         var run = new Animation(ring, bench);
         var duration = (double)Duration(part);
         var target = WorkshopDeclaredPresentation.Targets(bench).First(entry => entry.Owner == owner);
         var property = WorkshopDeclaredPresentation.Property(DeclaredPhysics.Of(part).Presentation.Bindings[0].Property);
-        var tick = run.Ring.Simulation.Committed.Tick.Value + 1;
+        var tick = run.Harness.Committed.Tick.Value + 1;
         SimulationEventRecord At(ulong sequence, double seconds) => new(sequence, tick, kind, owner.Value, 0,
             checked((uint)Math.Round((seconds - run.Origin) * WorkshopCadenceSettings.PhysicalFrequency + run.World.AnchorTick.Value * Substeps)), 0f, 1f, 0, 0);
         run.Presentation.SetVisible(target.Target, property, false);
@@ -422,11 +421,11 @@ public sealed class EventRingConsumerTests
         var (bench, owner, part) = name == "bumper"
             ? (Bench([PlacedParts.Bumper(new(1), 0, 1, 0)], []), new GpuBodyId(1), PartId.PinballBumper)
             : (Scenario("switch").Bench, Scenario("switch").Owner, PartId.ImpactSwitch);
-        await using var ring = await Ring.Running(bench);
+        await using var ring = await WorkshopIntegrationHarness.Running(bench);
         var run = new Animation(ring, bench);
         var duration = (double)Duration(part);
         Assert.Equal(Cue(part, 0), run.Sample(run.Origin + .2, owner)); // the clock has reached origin + 0.2 s
-        var tick = run.Ring.Simulation.Committed.Tick.Value + 1;
+        var tick = run.Harness.Committed.Tick.Value + 1;
         // Its instant is a quarter of the cue's duration before the clock (to the nearest physical step).
         var late = new SimulationEventRecord(1, tick, DeclaredPhysics.Of(part).Presentation.Bindings[0].Event, owner.Value, 0,
             checked((uint)Math.Round((.2 - duration / 4) * WorkshopCadenceSettings.PhysicalFrequency + run.World.AnchorTick.Value * Substeps)), 0f, 1f, 0, 0);
@@ -454,7 +453,7 @@ public sealed class EventRingConsumerTests
             Assert.Equal(Cue(part, 1), run.Sample(Animation.At(cue) + duration * 5 / 4, owner)); // the end value holds
             return cue;
         }
-        await using var ring = await Ring.Running(bench);
+        await using var ring = await WorkshopIntegrationHarness.Running(bench);
         var run = new Animation(ring, bench);
         var first = await Replay(run);
         var epoch = run.World.WorldGeneration;
@@ -463,7 +462,7 @@ public sealed class EventRingConsumerTests
         Assert.Equal(Cue(part, 0), run.Sample(run.Origin, owner)); // at rest after Reset
         Assert.Equal(first.Tick, (await Replay(run)).Tick);
         var restored = WorkshopSaveCodec.Decode(SaveFixture.Elements, WorkshopSaveCodec.Encode(new WorkshopSavedConstruction(bench, new(9)))).Construction;
-        await using var loadedRing = await Ring.Running(restored);
+        await using var loadedRing = await WorkshopIntegrationHarness.Running(restored);
         var loaded = new Animation(loadedRing, restored);
         Assert.Equal(first.Tick, (await Replay(loaded)).Tick);
     }
@@ -473,9 +472,9 @@ public sealed class EventRingConsumerTests
     public async Task ALappedRingCountsItsSkipLosesOnlyThoseCuesAndKeepsTheRestExact()
     {
         var (bench, owner, part, kind, _) = Scenario("capture");
-        await using var ring = await Ring.Running(bench);
+        await using var ring = await WorkshopIntegrationHarness.Running(bench);
         var run = new Animation(ring, bench);
-        var tick = run.Ring.Simulation.Committed.Tick.Value + 1;
+        var tick = run.Harness.Committed.Tick.Value + 1;
         var epoch = run.World.WorldGeneration.Value;
         // Through the reference ring: six records into a ring of four; the reader skips the two the writer lapped.
         var published = Enumerable.Range(0, 6).Select(i => new SimulationEventRecord((ulong)i + 1, tick, kind, owner.Value, 1,
@@ -499,9 +498,9 @@ public sealed class EventRingConsumerTests
     public async Task ADeliveryOfAnotherEpochOrARecordAlreadyAppliedIsRefused()
     {
         var (bench, owner, _, kind, _) = Scenario("switch");
-        await using var ring = await Ring.Running(bench);
+        await using var ring = await WorkshopIntegrationHarness.Running(bench);
         var run = new Animation(ring, bench);
-        var tick = run.Ring.Simulation.Committed.Tick.Value + 1;
+        var tick = run.Harness.Committed.Tick.Value + 1;
         var record = new SimulationEventRecord(3, tick, kind, owner.Value, 0, checked((uint)(tick * Substeps)), 0f, 0f, 0, 0);
         var epoch = run.World.WorldGeneration.Value;
         Assert.Throws<ArgumentException>(() => run.Presentation.AcceptEvents(new(epoch + 1, 0, [record]), run.World));
@@ -530,10 +529,10 @@ public sealed class EventRingConsumerTests
         var (bench, receiver, _, _, ticks) = Scenario("capture", captures);
         GpuBodyId ball = new(1);
         var goal = CaptureGoal(ball, receiver);
-        await using var ring = await Ring.Running(bench);
+        await using var ring = await WorkshopIntegrationHarness.Running(bench);
         var wake = new WorkshopGoalWake(goal, WorkshopPhysicsCompiler.Compile(bench, new(1, 2)));
         var cursor = new EventRingConsumer();
-        var installed = ring.Simulation.Committed;
+        var installed = ring.Committed;
         var evaluations = new List<(ulong Tick, ActivationTime? Occurrence)>();
         SimulationEventRecord? captured = null;
         for (var tick = 0; tick < ticks; tick++)
@@ -547,7 +546,7 @@ public sealed class EventRingConsumerTests
                 captured = records.Single(record => record.Kind == SimulationEventKind.Captured);
                 Assert.False(wake.Due(installed.Tick)); // its read is not installed yet: held
             }
-            installed = ring.Simulation.Committed;
+            installed = ring.Committed;
             if (!wake.Due(installed.Tick)) continue;
             var occurrence = WorkshopGoalEvaluator.Occurrence(goal, installed, installed.Epoch, bench.Instances.Identities);
             evaluations.Add((installed.Tick.Value, occurrence));
@@ -627,10 +626,10 @@ public sealed class EventRingConsumerTests
             var bench = solved ? LaunchLessonSolveTests.AuthoredSolution(lesson, .45f)
                 : PuzzleCatalogue.Create(new PuzzleId(lesson), new(2), WorkshopCadenceSettings.Default(), new(1), new(.45f));
             var goal = bench.Puzzle.Goal;
-            await using var ring = await Ring.Running(bench);
+            await using var ring = await WorkshopIntegrationHarness.Running(bench);
             var wake = new WorkshopGoalWake(goal, WorkshopPhysicsCompiler.Compile(bench, new(1, 2)));
             var cursor = new EventRingConsumer();
-            var installed = ring.Simulation.Committed;
+            var installed = ring.Committed;
             var polled = new List<(ulong Tick, ActivationTime Occurrence)>();
             var woken = new List<(ulong Tick, ActivationTime Occurrence)>();
             var evaluations = 0;
@@ -640,7 +639,7 @@ public sealed class EventRingConsumerTests
                 var records = new List<SimulationEventRecord>();
                 while (cursor.TryRead(ring.Shared!, SimulationDomain.None, out var record)) records.Add(record);
                 wake.Observe(new(cursor.Epoch, 0, records.ToArray()), installed.Tick);
-                installed = ring.Simulation.Committed;
+                installed = ring.Committed;
                 if (WorkshopGoalEvaluator.Occurrence(goal, installed, installed.Epoch, bench.Instances.Identities) is { } truth) polled.Add((installed.Tick.Value, truth));
                 if (!wake.Due(installed.Tick)) continue;
                 evaluations++;
@@ -694,7 +693,7 @@ public sealed class EventRingConsumerTests
     public async Task DeclaredPulseDeliveryRetainsMoreThanSixtyFourOccurrencesAtTheirPhysicalTimes()
     {
         var bench = Bench([PlacedParts.Bumper(new(2), 0, 1, 0)], []);
-        await using var ring = await Ring.Running(bench);
+        await using var ring = await WorkshopIntegrationHarness.Running(bench);
         var run = new Animation(ring, bench);
         var duration = Duration(PartId.PinballBumper);
         var later = checked((uint)Math.Ceiling((duration + 1) * 480));
@@ -714,7 +713,7 @@ public sealed class EventRingConsumerTests
     public async Task InvalidLaterCueLeavesEarlierCueAndSequenceUnconsumedThenValidRetrySucceeds()
     {
         var bench = Bench([PlacedParts.Bumper(new(2), 0, 1, 0)], []);
-        await using var ring = await Ring.Running(bench);
+        await using var ring = await WorkshopIntegrationHarness.Running(bench);
         var run = new Animation(ring, bench);
         var first = new SimulationEventRecord(1, 120, SimulationEventKind.Impact, 2, 1, 480, 0, 1, 1, 0);
         var second = first with { Sequence = 2, Count = 2 };
@@ -748,7 +747,7 @@ public sealed class EventRingConsumerTests
     [Fact]
     public async Task TheSharedJsReaderDeliversExactlyWhatTheReferenceConsumerReads()
     {
-        await using var ring = await Ring.Running(Scenario("detector").Bench);
+        await using var ring = await WorkshopIntegrationHarness.Running(Scenario("detector").Bench);
         await ring.Advance(480);
         var published = ring.Records.Take(2).Concat(ring.Records.Take(2)).Concat(ring.Records.Take(2))
             .Select((record, i) => record with { Sequence = (ulong)i + 1 }).ToArray();

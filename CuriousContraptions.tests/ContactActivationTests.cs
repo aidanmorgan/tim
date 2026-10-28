@@ -188,7 +188,7 @@ public sealed class ContactActivationTests
         var loaded = WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes);
         Assert.Equal(saved, loaded);
         Assert.Equal(loaded, WorkshopSaveCodec.Decode(SaveFixture.Elements, WorkshopSaveCodec.Encode(loaded)));
-        var (built, reads, reset) = await NoFixedCapacityTests.RunAndReset(loaded.Construction, 120);
+        var (built, reads, reset) = await WorkshopIntegrationHarness.ObserveReset(loaded.Construction, 120);
         Assert.Equal(lampOn, reads.Any(read => read.Activations[1].Phase == ActivationPhase.Latched));
         Assert.Equal(!miss, reads.Any(read => read.Activations[0].Phase == ActivationPhase.Latched));
         var latched = reads.Where(read => read.Activations[0].Phase == ActivationPhase.Latched).ToArray();

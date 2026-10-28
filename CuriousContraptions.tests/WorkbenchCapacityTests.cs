@@ -55,7 +55,7 @@ public sealed class WorkbenchCapacityTests
         var scene = WorkshopPhysicsCompiler.Compile(Free(heavy), new(1, 2));
         Assert.Equal(20 * 3 + 10 * 5 + 1, scene.Colliders.Length);
         // Story 9R.2: the 30-instance mixed bench also steps through the production engine.
-        var reads = await WorkshopPhysicsEngineTests.Run(Bench(heavy), SteppedTicks);
+        var reads = await WorkshopIntegrationHarness.Observe(Bench(heavy), SteppedTicks);
         Assert.Equal(new SimulationTick(SteppedTicks), reads[^1].Tick);
     }
 
@@ -173,7 +173,7 @@ public sealed class WorkbenchCapacityTests
         bench.Validate();
         var scene = WorkshopPhysicsCompiler.Compile(bench, new(1, 2));
         Assert.Equal(1 + PastThePartTable * perPart, scene.Colliders.Length);
-        var reads = await WorkshopPhysicsEngineTests.Run(bench, SteppedTicks);
+        var reads = await WorkshopIntegrationHarness.Observe(bench, SteppedTicks);
         Assert.Equal(new SimulationTick(SteppedTicks), reads[^1].Tick);
     }
 
@@ -202,7 +202,7 @@ public sealed class WorkbenchCapacityTests
         var bench = Bench(Grid(PartId.PipeBend90, bends));
         bench.Validate();
         Assert.Equal(1 + bends * 5, WorkshopPhysicsCompiler.Compile(bench, new(1, 2)).Colliders.Length);
-        var reads = await WorkshopPhysicsEngineTests.Run(bench, SteppedTicks);
+        var reads = await WorkshopIntegrationHarness.Observe(bench, SteppedTicks);
         Assert.Equal(new SimulationTick(SteppedTicks), reads[^1].Tick);
     }
 
@@ -229,7 +229,7 @@ public sealed class WorkbenchCapacityTests
         if (withLastBend)
             Assert.All(Enumerable.Range(0, scene.Colliders.Length).Where(slot => scene.Colliders[slot].Body == cradle),
                 slot => Assert.True(slot > 2048, $"cradle collider slot {slot} lies beyond the retired ceiling"));
-        var reads = await WorkshopPhysicsEngineTests.Run(bench, 3 * 120);
+        var reads = await WorkshopIntegrationHarness.Observe(bench, 3 * 120);
         var rest = reads[^1].Bodies[0];
         Assert.Equal(ball.Id, rest.Body.Id);
         var height = (rest.Body.Cell.Y + rest.Body.Local.Y) / 16f;

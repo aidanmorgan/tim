@@ -132,7 +132,7 @@ public sealed class WorkshopDelayTests
         if (reverse) Array.Reverse(parts);
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(parts),
             Connections: new(Signal(2, 3), Signal(3, 5), Signal(5, 4)));
-        var (built, reads, reset) = await NoFixedCapacityTests.RunAndReset(construction, 180);
+        var (built, reads, reset) = await WorkshopIntegrationHarness.ObserveReset(construction, 180);
         var started = reads.First(read => read.Timers[0].Phase == ActivationTimerPhase.Counting).Timers[0].StartedTick;
         var lit = reads.First(read => Lamp(read).Phase == ActivationPhase.Latched);
         Assert.Equal(started + 36, lit.Tick.Value);
@@ -141,7 +141,7 @@ public sealed class WorkshopDelayTests
         Assert.Equal((uint)((started + 36) * 4), Lamp(lit).EventOrdinal);
         NoFixedCapacityTests.AssertSameState(built, reset, "chained timer Reset");
         var disconnected = construction with { Connections = new(Signal(3, 5), Signal(5, 4)) };
-        var (_, control, _) = await NoFixedCapacityTests.RunAndReset(disconnected, 180);
+        var (_, control, _) = await WorkshopIntegrationHarness.ObserveReset(disconnected, 180);
         Assert.All(control, read => Assert.Equal(ActivationPhase.Clear, Lamp(read).Phase));
     }
 
@@ -160,12 +160,12 @@ public sealed class WorkshopDelayTests
         Assert.Equal(saved, loaded);
         var restored = Assert.IsType<WorkshopGenericInstance>(loaded.Construction.Instances.Single(part => part.Id.Value == 3));
         Assert.True(F32Bits.Equal(seconds, restored.Parameters[new("delay_seconds")]));
-        var (built, run, reset) = await NoFixedCapacityTests.RunAndReset(construction, 180);
+        var (built, run, reset) = await WorkshopIntegrationHarness.ObserveReset(construction, 180);
         var counting = run.First(read => read.Timers[0].Phase == ActivationTimerPhase.Counting).Timers[0];
         Assert.Equal(15UL, counting.DueTick - counting.StartedTick);
         Assert.Equal(counting.DueTick, run.First(read => Lamp(read).Phase == ActivationPhase.Latched).Tick.Value);
         NoFixedCapacityTests.AssertSameState(built, reset, "timer Reset");
-        var (_, replay, _) = await NoFixedCapacityTests.RunAndReset(loaded.Construction, 180);
+        var (_, replay, _) = await WorkshopIntegrationHarness.ObserveReset(loaded.Construction, 180);
         NoFixedCapacityTests.AssertSameState(run[^1], replay[^1], "saved timer replay");
     }
 

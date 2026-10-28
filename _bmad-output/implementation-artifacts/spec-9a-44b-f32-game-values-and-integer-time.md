@@ -2,7 +2,7 @@
 title: '9A.44B: f32 game values and integer game time'
 type: 'refactor'
 created: '2026-10-29'
-status: 'in-review'
+status: 'done'
 baseline_revision: '6125040efa3becf31c6a5957f35571735f04972c'
 review_loop_iteration: 0
 followup_review_recommended: false
@@ -137,4 +137,10 @@ Final verification: five `TestResults/f32-full-round3.trx` files report **4,884 
 
 Final full command: `CSHARP_STATIC_GATE_BINLOGS=/private/tmp/tim-f32-round3.5GOnjZ dotnet test CuriousContraptions.slnx -c Debug -f net10.0 --no-build --no-restore --nologo -noAutoResponse --filter "$local_deferred_filter" --logger 'trx;LogFileName=f32-full-round3.trx' -- RunConfiguration.TreatNoTestsAsError=true`, with the filter from `dotnet run --project tools/E2eRunner --no-build -c Debug -- deferred-filter`. Only the single explicit browser deferral applies. Refreshed playtest/solution/web captures passed0 warnings/errors in22.46s/13.18s/8.55s; unchanged file-tool captures reused. Original round1/round2 results and captures remain preserved. Diff whitespace checks passed.
 
-Publication is pending normal hooks, exact committed-SHA SnapshotApproval and production artifact/deployment checks. Per the repository publication gate, status remains in-review until its terminal receipt; no browser/device/performance qualification is claimed. Remaining risk is deferred browser integration qualification, not an unresolved required-now native finding.
+Required publication is complete; see the terminal receipt below. No browser/device/performance qualification is claimed. Remaining risk is deferred browser integration qualification, not an unresolved required-now native finding.
+
+## Terminal publication receipt — 29 October 2026
+
+Published `6e0e0ee1799d31211e1769b8883f6bedb3fae396` (parent `6125040efa3becf31c6a5957f35571735f04972c`). Full local round3 **4,884/0/0**, normal hooks **126/0/0**; five Auto layers plus same-owner repairs and independent affected re-review complete. f32_edge granted exact committed-SHA SnapshotApproval Pass.
+
+Fresh f32_terminal independently verified remote main, successful [run40765810580](https://github.com/aidanmorgan/tim/actions/runs/40765810580), build123089527183, deploy123095028037, Pages artifact12850781402, deployment7397067882 and success status20856214431 on that exact SHA. Live root, index.html,404.html,godot.wasm,godot.pck and _framework/dotnet.js each returnedHTTP200 and matched the artifact bytes using in-memory archive reads. No extra tests/builds/browser checks or terminal files were created. Required publication is Pass; browser/device/performance qualification remains at its named later gates.

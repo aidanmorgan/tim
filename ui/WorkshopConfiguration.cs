@@ -61,9 +61,6 @@ public partial class Workshop
                 {
                     if (!float.TryParse(field.Text, NumberStyles.Float, CultureInfo.InvariantCulture, out var value))
                     { _status.Text = "Enter valid parameter values."; return; }
-                    var descriptor = part.Definition.Parameters.Single(parameter => new ParameterId(parameter.Key) == key);
-                    if (float.IsFinite(value) && descriptor.EditorPolicy == CuriousContraptions.Abstractions.ParameterEditorPolicy.Clamp)
-                        value = Math.Clamp(value, descriptor.Minimum, descriptor.Maximum);
                     values.Add(new(key, value));
                 }
                 foreach (var (key, options) in choices) values.Add(new(key, options.GetSelectedId()));
@@ -184,13 +181,22 @@ public partial class Workshop
         catch (Exception error) { HandlerFailed(nameof(ApplyDeclaredParameters), error); }
     }
 
-    private async Task ApplyDeclaredParametersAsync(GpuBodyId owner, InstanceParameterCollection parameters)
+    internal async Task ApplyDeclaredParametersAsync(GpuBodyId owner, InstanceParameterCollection parameters)
     {
         if (!CanEdit) return;
         try
         {
             if (World.Construction.Instances.Single(instance => instance.Id == owner) is not WorkshopGenericInstance current || current.Locked)
                 throw new WorkshopEditRejectedException(WorkshopEditRejection.NotConfigurable, "This part has no editable parameters.");
+            var values = parameters.ToDictionary();
+            foreach (var descriptor in World.Registry.Definitions[current.PartId].Parameters)
+            {
+                var key = new ParameterId(descriptor.Key);
+                if (values.TryGetValue(key, out var value) && float.IsFinite(value) &&
+                    descriptor.EditorPolicy == CuriousContraptions.Abstractions.ParameterEditorPolicy.Clamp)
+                    values[key] = Math.Clamp(value, descriptor.Minimum, descriptor.Maximum);
+            }
+            parameters = new(values);
             try { parameters.Validate(current.PartId); }
             catch (ArgumentException error)
             {

@@ -16,7 +16,7 @@ public sealed class WorkshopPhysicsEngineTests
     [Fact]
     public async Task DeclaredRampLengthChangesRealDownhillRunoutWhileSideAndDepthMissesDoNotDeflect()
     {
-        async Task<List<WorkshopRead>> Roll(float length, double x, double z) => await Run(Free(
+        async Task<List<WorkshopRead>> Roll(float length, double x, double z) => await WorkshopIntegrationHarness.Observe(Free(
             WorkshopInput.Generic(PartId.Basketball,new(1), (float)(x), 4, (float)(z), 0, 0, 0, 1),
             WorkshopInput.Generic(PartId.Ramp, new(2), 0, 2.5f, 0, 0, 0, (float)(-Math.Sin(Math.PI / 18)), (float)(Math.Cos(Math.PI / 18)),
                 new([new(new("length"), length), new(new("width"), 1.3f)]))), 3 * TicksPerSecond);
@@ -209,43 +209,19 @@ public sealed class WorkshopPhysicsEngineTests
         Assert.Equal(length, ((WorkshopGenericInstance)loaded.Construction.Instances[1]).Parameters[new("length")]);
         Assert.Equal(dwell, ((WorkshopGenericInstance)loaded.Construction.Instances[3]).Parameters[new("capture_dwell")]);
 
-        var (built, run, reset) = await NoFixedCapacityTests.RunAndReset(construction, 2 * TicksPerSecond);
+        var (built, run, reset) = await WorkshopIntegrationHarness.ObserveReset(construction, 2 * TicksPerSecond);
         static bool Latched(WorkshopRead read) =>
             Enumerable.Range(0, read.Captures.Count).Any(i => read.Captures[i].Phase == CaptureLatchPhase.Latched);
         Assert.False(Latched(built));
         Assert.Contains(run, Latched);
         Assert.True(Horizontal(Find(run[^1].Bodies, new(1))) - Horizontal(Find(built.Bodies, new(1))) > 1f, "ball rolls down the Ramp");
         NoFixedCapacityTests.AssertSameState(built, reset, "Reset");
-        var (_, replay, _) = await NoFixedCapacityTests.RunAndReset(loaded.Construction, 2 * TicksPerSecond);
+        var (_, replay, _) = await WorkshopIntegrationHarness.ObserveReset(loaded.Construction, 2 * TicksPerSecond);
         NoFixedCapacityTests.AssertSameState(run[^1], replay[^1], "the reloaded construction's run");
     }
     private const int TicksPerSecond = 120;
     private static readonly WorkshopCadenceSettings Settings = WorkshopCadenceSettings.Default();
     private static readonly float BenchY = (float)WorkshopConstruction.WorkbenchSurface.Value;
-
-    internal static async Task<List<WorkshopRead>> Run(WorkshopConstruction construction, int ticks) =>
-        (await RunWithLedgers(construction, ticks)).Reads;
-
-    /// <summary>The committed reads and, beside each, the device-private contact-work ledger the read's stores come from (Story 9A.23
-    /// D9: the occurrence rows never leave the device; tests read them where the producer and the accounting do).</summary>
-    internal static async Task<(List<WorkshopRead> Reads, List<ContactWorkLedger> Ledgers)> RunWithLedgers(WorkshopConstruction construction, int ticks)
-    {
-        await using var device = new WorkshopGpuDevice(new BrowserGpuTransport(new CuriousContraptions.Abstractions.EventRingPublication()), new(101, 206));
-        await using var simulation = new WorkshopSimulation(device, new StepClock(), Settings, new(1), new NoInstallation(),
-            GpuDeviceOwnership.Borrowed);
-        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Initialize()).Outcome);
-        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Construct(construction)).Outcome);
-        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Run()).Outcome);
-        var reads = new List<WorkshopRead>(ticks + 1) { simulation.Committed };
-        var ledgers = new List<ContactWorkLedger>(ticks + 1) { device.CommittedContactWork };
-        for (var tick = 0; tick < ticks; tick++)
-        {
-            Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Advance()).Outcome);
-            reads.Add(simulation.Committed);
-            ledgers.Add(device.CommittedContactWork);
-        }
-        return (reads, ledgers);
-    }
 
     private static WorkshopConstruction Free(params IWorkshopInstance[] instances) =>
         new(new(2), Settings, new(instances));
@@ -270,7 +246,7 @@ public sealed class WorkshopPhysicsEngineTests
     [InlineData(5.75)] [InlineData(6)] [InlineData(6.375)] [InlineData(6.75)] [InlineData(7.125)] [InlineData(7.5)]
     public async Task HeavyPayloadSpendsTheWholeStoreOnceAndEveryLaterBumperContactIsUnpaid(double dropHeight)
     {
-        var (reads, ledgers) = await RunWithLedgers(Free(
+        var (reads, ledgers) = await WorkshopIntegrationHarness.ObserveAccounting(Free(
             WorkshopInput.Generic(PartId.BowlingBall, new(1), 0, (float)(dropHeight), 0, 0, 0, 0, 1),
             WorkshopInput.Generic(PartId.PinballBumper, new(2), 0, 3, 0, 0, 0, 0, 1)), 4 * TicksPerSecond);
         var seen = new HashSet<uint>();
@@ -300,7 +276,7 @@ public sealed class WorkshopPhysicsEngineTests
     [Fact]
     public async Task TargetLimitedPayoutLeavesTheExactRemainder()
     {
-        var (reads, ledgers) = await RunWithLedgers(Free(
+        var (reads, ledgers) = await WorkshopIntegrationHarness.ObserveAccounting(Free(
             WorkshopInput.Generic(PartId.Basketball,new(1), 0, 4.5f, 0, 0, 0, 0, 1),
             WorkshopInput.Generic(PartId.PinballBumper, new(2), 0, 3, 0, 0, 0, 0, 1)), 2 * TicksPerSecond);
         var first = ledgers.FindIndex(ledger => ledger.OccurrenceCount > 0 && ledger.Occurrence(0).Sequence == 1);
@@ -375,7 +351,7 @@ public sealed class WorkshopPhysicsEngineTests
     [Fact]
     public async Task AStrengthZeroBumpersEmptyStoreIsPassiveAndNeverFaults()
     {
-        var (reads, ledgers) = await RunWithLedgers(Free(
+        var (reads, ledgers) = await WorkshopIntegrationHarness.ObserveAccounting(Free(
             WorkshopInput.Generic(PartId.Basketball,new(1), 0, 4.5f, 0, 0, 0, 0, 1),
             PlacedParts.Bumper(new(2), 0, 3, 0, strength: 0f)), 2 * TicksPerSecond);
         var occurrences = ledgers.SelectMany(ledger => Enumerable.Range(0, ledger.OccurrenceCount).Select(ledger.Occurrence))
@@ -390,7 +366,7 @@ public sealed class WorkshopPhysicsEngineTests
     [Fact]
     public async Task DroppedBasketballBouncesLowerEachTimeAndRestsOnTheBench()
     {
-        var reads = await Run(Free(WorkshopInput.Generic(PartId.Basketball,new(1), 0, 3, 0, 0, 0, 0, 1)), 6 * TicksPerSecond);
+        var reads = await WorkshopIntegrationHarness.Observe(Free(WorkshopInput.Generic(PartId.Basketball,new(1), 0, 3, 0, 0, 0, 0, 1)), 6 * TicksPerSecond);
         var heights = reads.Select(read => Height(read.Bodies[0])).ToArray();
         var peaks = new List<float>();
         for (var i = 1; i + 1 < heights.Length; i++)
@@ -412,7 +388,7 @@ public sealed class WorkshopPhysicsEngineTests
     [Fact]
     public async Task DroppedBowlingBallBarelyReboundsAndRestsAtItsOwnRadius()
     {
-        var reads = await Run(Free(WorkshopInput.Generic(LawBalls.Part(LawBall.Bowling), new(1), 0, 3, 0, 0, 0, 0, 1)), 4 * TicksPerSecond);
+        var reads = await WorkshopIntegrationHarness.Observe(Free(WorkshopInput.Generic(LawBalls.Part(LawBall.Bowling), new(1), 0, 3, 0, 0, 0, 0, 1)), 4 * TicksPerSecond);
         var maximumRise = reads.Max(read => read.Bodies[0].Body.Velocity.Y);
         Assert.InRange(maximumRise, 0f, 1.5f);
         var radius = LawBalls.Radius(LawBall.Bowling);
@@ -428,7 +404,7 @@ public sealed class WorkshopPhysicsEngineTests
     public async Task DroppedFromThreeMetresEachBallReboundsToESquaredHOfItsDeclaredBounce(LawBall kind)
     {
         var radius = LawBalls.Radius(kind); var restitution = LawBalls.Restitution(kind); var rest = BenchY + radius;
-        var reads = await Run(Free(WorkshopInput.Generic(LawBalls.Part(kind), new(1), 0, 3, 0, 0, 0, 0, 1)), 6 * TicksPerSecond);
+        var reads = await WorkshopIntegrationHarness.Observe(Free(WorkshopInput.Generic(LawBalls.Part(kind), new(1), 0, 3, 0, 0, 0, 0, 1)), 6 * TicksPerSecond);
         var landed = false; var rising = false; var peak = float.MinValue; float? apex = null;
         foreach (var read in reads.Skip(1)) // the initial read is the admitted pose, not a rebound
         {
@@ -459,7 +435,7 @@ public sealed class WorkshopPhysicsEngineTests
     {
         GpuBodyId tileA = new(1), tileB = new(2), ballA = new(3), ballB = new(4);
         var tileY = BenchY + LawTile.HalfExtents.Y + .01f;
-        var reads = await Run(Free(
+        var reads = await WorkshopIntegrationHarness.Observe(Free(
             PlacedParts.Domino(tileA, 0, (float)(tileY), -1.5f, 0, 0, 0, 1), PlacedParts.Domino(tileB, 0, (float)(tileY), 1.5f, 0, 0, 0, 1),
             WorkshopInput.Generic(LawBalls.Part(LawBall.Basketball), ballA, .3f, 1.05f, -1.5f, 0, 0, 0, 1),
             WorkshopInput.Generic(LawBalls.Part(LawBall.Bowling), ballB, .3f, 1.05f, 1.5f, 0, 0, 0, 1)), 7 * TicksPerSecond);
@@ -707,7 +683,7 @@ public sealed class WorkshopPhysicsEngineTests
     [Fact]
     public async Task UprightDominoAloneStandsStill()
     {
-        var reads = await Run(Free(PlacedParts.Domino(new(1), 0, .1f, 0, 0, 0, 0, 1)), 3 * TicksPerSecond);
+        var reads = await WorkshopIntegrationHarness.Observe(Free(PlacedParts.Domino(new(1), 0, .1f, 0, 0, 0, 0, 1)), 3 * TicksPerSecond);
         var end = reads[^1].Bodies[0];
         var upY = 1 - 2 * (end.Rotation.X * end.Rotation.X + end.Rotation.Z * end.Rotation.Z);
         Assert.InRange(upY, .9999f, 1.0001f);
@@ -767,35 +743,11 @@ public sealed class WorkshopPhysicsEngineTests
 
     /// <summary>Runs the construction through the production simulation in phases: each phase first applies its in-run supply
     /// controls through ConfigureElectrical, then advances its ticks. Returns every phase's committed reads.</summary>
-    internal static async Task<List<List<WorkshopRead>>> RunPhases(WorkshopConstruction construction,
-        params (WorkshopElectricalControl[] Controls, int Ticks)[] phases)
-    {
-        await using var device = new WorkshopGpuDevice(new BrowserGpuTransport(new CuriousContraptions.Abstractions.EventRingPublication()), new(101, 206));
-        await using var simulation = new WorkshopSimulation(device, new StepClock(), Settings, new(1), new NoInstallation(),
-            GpuDeviceOwnership.Borrowed);
-        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Initialize()).Outcome);
-        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Construct(construction)).Outcome);
-        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Run()).Outcome);
-        var result = new List<List<WorkshopRead>>();
-        foreach (var (controls, ticks) in phases)
-        {
-            foreach (var control in controls) Assert.Equal(WorkshopCommandOutcome.Applied, simulation.ConfigureElectrical(control).Outcome);
-            var reads = new List<WorkshopRead>(ticks);
-            for (var tick = 0; tick < ticks; tick++)
-            {
-                Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Advance()).Outcome);
-                reads.Add(simulation.Committed);
-            }
-            result.Add(reads);
-        }
-        return result;
-    }
-
     [Fact]
     public async Task AnAuthoredDisabledBatteryOpensItsGateWhenEnabledInRun()
     {
         var gate = Gate(1, 0); var battery = Battery(2, 0, ElectricalEnable.Disabled);
-        var phases = await RunPhases(Free(gate, battery) with { Connections = new(Wire(battery.Id, gate.Id)) },
+        var phases = await WorkshopIntegrationHarness.ObservePhases(Free(gate, battery) with { Connections = new(Wire(battery.Id, gate.Id)) },
             ([], TicksPerSecond), ([new(battery.Id, ElectricalEnable.Enabled)], 2 * TicksPerSecond));
         Assert.All(phases[0], read => Assert.True(Travel(read, gate) < ClosedTravel, $"closed before Enable, travel {Travel(read, gate)}"));
         Assert.True(Travel(phases[1][^1], gate) > OpenTravel, $"open after in-run Enable, travel {Travel(phases[1][^1], gate)}");
@@ -805,7 +757,7 @@ public sealed class WorkshopPhysicsEngineTests
     public async Task AnEnabledBatteryClosesItsGateWhenDisabledInRun()
     {
         var gate = Gate(1, 0); var battery = Battery(2, 0, ElectricalEnable.Enabled);
-        var phases = await RunPhases(Free(gate, battery) with { Connections = new(Wire(battery.Id, gate.Id)) },
+        var phases = await WorkshopIntegrationHarness.ObservePhases(Free(gate, battery) with { Connections = new(Wire(battery.Id, gate.Id)) },
             ([], 2 * TicksPerSecond), ([new(battery.Id, ElectricalEnable.Disabled)], 2 * TicksPerSecond));
         Assert.True(Travel(phases[0][^1], gate) > OpenTravel, $"open before Disable, travel {Travel(phases[0][^1], gate)}");
         Assert.True(Travel(phases[1][^1], gate) < ClosedTravel, $"closed after in-run Disable, travel {Travel(phases[1][^1], gate)}");
@@ -817,7 +769,7 @@ public sealed class WorkshopPhysicsEngineTests
     {
         var gate1 = Gate(1, -3); var gate2 = Gate(2, 3);
         var battery1 = Battery(3, -3, ElectricalEnable.Enabled); var battery2 = Battery(4, 3, ElectricalEnable.Enabled);
-        var phases = await RunPhases(Free(gate1, gate2, battery1, battery2) with
+        var phases = await WorkshopIntegrationHarness.ObservePhases(Free(gate1, gate2, battery1, battery2) with
             { Connections = new(Wire(battery1.Id, gate1.Id), Wire(battery2.Id, gate2.Id)) },
             ([], 2 * TicksPerSecond), ([new(battery1.Id, ElectricalEnable.Disabled)], 2 * TicksPerSecond));
         Assert.True(Travel(phases[0][^1], gate1) > OpenTravel && Travel(phases[0][^1], gate2) > OpenTravel, "both gates open before B1 is disabled");
@@ -830,7 +782,7 @@ public sealed class WorkshopPhysicsEngineTests
     public async Task AnUnpoweredGateStaysClosed()
     {
         var gate = Gate(1, 0); var battery = Battery(2, 0, ElectricalEnable.Disabled);
-        var phases = await RunPhases(Free(gate, battery),
+        var phases = await WorkshopIntegrationHarness.ObservePhases(Free(gate, battery),
             ([], TicksPerSecond), ([new(battery.Id, ElectricalEnable.Enabled)], 2 * TicksPerSecond));
         Assert.All(phases.SelectMany(reads => reads), read => Assert.True(Travel(read, gate) < ClosedTravel, $"travel {Travel(read, gate)}"));
     }

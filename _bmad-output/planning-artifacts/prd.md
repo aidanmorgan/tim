@@ -1,5 +1,7 @@
 # Product Requirements Document (PRD) — Curious Contraptions
 
+**Acceptance policy — owner, 29 October 2026:** the [game-fidelity policy](../../docs/delivery-workflow.md#game-fidelity) and [float comparison and effort rules](../../docs/testing-guidance.md#float-comparison-and-effort-rules) govern every requirement below. Prove puzzle outcomes, causal event order, plausible motion, stability and lifecycle. Historical trajectories, incidental exact ticks and output hashes/byte identity are not acceptance. Quantity-specific accuracy and finite completion windows serve gameplay; strict timing requires a deliberate feature contract. Exact authored state and typed refusals remain protected.
+
 **Document Version:** 1.0.0  
 **Status:** Approved / Authoritative  
 **Method:** BMAD Product Specification Standard  
@@ -29,7 +31,7 @@ flowchart TD
     ASSEMBLE --> RUN["4. Press 'Run' (Compile Machine Graph to Physics Graph)"]
     RUN --> SIMULATE{"Simulation Advances (120 Hz WASM SIMD)"}
     SIMULATE -->|"Unsuccessful Route"| OBSERVE["5. Observe Failure Point & Motion Dynamics"]
-    OBSERVE --> RESET["6. Press 'Reset' (Exact Bitwise Authoring Restoration)"]
+    OBSERVE --> RESET["6. Press 'Reset' (Restore Exact Authored State)"]
     RESET --> ADJUST["7. Adjust Placements, Angles, or Connections"]
     ADJUST --> RUN
     SIMULATE -->|"Goal Achieved"| SOLVE["8. Solved Celebration Feedback & Chapter Unlock"]

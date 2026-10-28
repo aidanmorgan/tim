@@ -64,7 +64,7 @@ public sealed class BothGateTests
         var saved=new WorkshopSavedConstruction(construction,new(6));
         var bytes=WorkshopSaveCodec.Encode(saved);var loaded=WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes);
         Assert.Equal(saved,loaded);
-        var (built,reads,reset)=await NoFixedCapacityTests.RunAndReset(loaded.Construction,120);
+        var (built,reads,reset)=await WorkshopIntegrationHarness.ObserveReset(loaded.Construction,120);
         Assert.Equal(new(new(4),ElectricalInputState.Neither,false,false),Logic(built));
         Assert.All(reads,read=>
         {
@@ -81,7 +81,7 @@ public sealed class BothGateTests
     public async Task MissingBottomWireNeverConvertsConditionsIntoEnergy()
     {
         var construction=Machine();construction=construction with {Connections=construction.Connections.Without(Link(3,4))};
-        var (built,reads,_)=await NoFixedCapacityTests.RunAndReset(construction,120);
+        var (built,reads,_)=await WorkshopIntegrationHarness.ObserveReset(construction,120);
         Assert.All(reads,read=>{Assert.Equal(ElectricalInputState.Both,Logic(read).Inputs);Assert.False(Logic(read).Supplied);Assert.False(Drive(read).SupplyClosed);});
         Assert.True(MathF.Abs(BladeY(reads[^1])-BladeY(built))<.01f);
     }
@@ -107,7 +107,7 @@ public sealed class BothGateTests
             Array.Reverse(parts);
         }
         construction=construction with {Instances=new(parts),Connections=new(links.ToArray())};
-        var phases=await WorkshopPhysicsEngineTests.RunPhases(construction,([],90),
+        var phases=await WorkshopIntegrationHarness.ObservePhases(construction,([],90),
             ([new(new(1),ElectricalEnable.Disabled),new(new(2),ElectricalEnable.Disabled),new(new(3),ElectricalEnable.Disabled)],10),
             ([new(new(1),ElectricalEnable.Enabled),new(new(2),ElectricalEnable.Enabled),new(new(3),ElectricalEnable.Enabled)],30));
         Assert.All(phases[0],read=>Assert.True(Drive(read).SupplyClosed));
@@ -119,7 +119,7 @@ public sealed class BothGateTests
         Assert.All(phases[2],read=>Assert.True(Drive(read).SupplyClosed));
         Assert.True(BladeY(phases[0][^1])>BladeY(phases[0][0])+.2f);
         var noSource=construction with {Connections=new(construction.Connections.Where(link=>link.Source.Value is not (1 or 2 or 3)).ToArray())};
-        var (_,unseeded,_)=await NoFixedCapacityTests.RunAndReset(noSource,10);
+        var (_,unseeded,_)=await WorkshopIntegrationHarness.ObserveReset(noSource,10);
         Assert.All(unseeded,read=>Assert.False(Drive(read).SupplyClosed));
     }
 
@@ -135,7 +135,7 @@ public sealed class BothGateTests
             Link(3,7),Link(7,8,WorkshopSocket.FirstIn),Link(7,8,WorkshopSocket.SecondIn),Link(3,8),
             Link(8,7),Link(8,5)]);
         construction=construction with {Instances=new(parts),Connections=new(links.ToArray())};
-        var (built,reads,reset)=await NoFixedCapacityTests.RunAndReset(construction,180);
+        var (built,reads,reset)=await WorkshopIntegrationHarness.ObserveReset(construction,180);
         var active=reads.First(read=>HoldTimerTests.State(read).Phase==ActivationTimerPhase.Counting);
         var due=HoldTimerTests.State(active).DueTick;
         Assert.Contains(reads,read=>Drive(read).SupplyClosed);
@@ -163,7 +163,7 @@ public sealed class BothGateTests
                 .With(Link(1,7)).With(Link(1,8))
                 .With(new(new(7),WorkshopSocket.ActivationOut,new(6),WorkshopSocket.SetIn,WorkshopConnectionDomain.Activation))
                 .With(new(new(8),WorkshopSocket.ActivationOut,new(6),WorkshopSocket.ResetIn,WorkshopConnectionDomain.Activation))};
-        var phases=await WorkshopPhysicsEngineTests.RunPhases(construction,([],140),
+        var phases=await WorkshopIntegrationHarness.ObservePhases(construction,([],140),
             ([new(new(3),ElectricalEnable.Disabled)],10),([new(new(3),ElectricalEnable.Enabled)],40));
         var reads=phases.SelectMany(rows=>rows).ToArray();
         WorkshopRead At(ulong tick)=>reads.Single(read=>read.Tick.Value==tick);
@@ -194,7 +194,7 @@ public sealed class BothGateTests
     [Fact]
     public async Task DeclaredReadAdmissionRejectsMissingForeignAndInconsistentRows()
     {
-        var construction=Machine();var (built,reads,_)=await NoFixedCapacityTests.RunAndReset(construction,2);
+        var construction=Machine();var (built,reads,_)=await WorkshopIntegrationHarness.ObserveReset(construction,2);
         WorkshopMessages.ValidatePresentationOwners(built,construction);
         var read=reads[^1];var row=Logic(read);
         WorkshopMessages.ValidatePresentationOwners(read,construction);
@@ -245,7 +245,7 @@ public sealed class BothGatePresentationTests(NativeSceneFixture godot)
     public async Task ThreeNativeLampsFollowCommittedInputsAndSupplyThroughHideAndReset()
     {
         var construction=BothGateTests.Machine();
-        var phases=await WorkshopPhysicsEngineTests.RunPhases(construction,([],2),
+        var phases=await WorkshopIntegrationHarness.ObservePhases(construction,([],2),
             ([new(new(3),ElectricalEnable.Disabled)],2),([new(new(1),ElectricalEnable.Disabled)],2));
         var first=phases[0][^1];var noSupply=phases[1][^1];var secondOnly=phases[2][^1];
         var evaluator=new WorkshopDeclaredPresentation(construction,Response(first,1));
@@ -281,7 +281,7 @@ public sealed class BothGatePresentationTests(NativeSceneFixture godot)
             evaluator.ValidateRebind(construction,paused);evaluator.Rebind(construction,paused);Apply(time+.6);
             Assert.Equal(new Color("#556573"),Colour(part,"FirstLamp"));Assert.Equal(new Color("#f7cb52"),Colour(part,"SecondLamp"));
             var loaded=WorkshopSaveCodec.Decode(SaveFixture.Elements,WorkshopSaveCodec.Encode(new(construction,new(6))));
-            var (built,_,reset)=await NoFixedCapacityTests.RunAndReset(loaded.Construction,2);
+            var (built,_,reset)=await WorkshopIntegrationHarness.ObserveReset(loaded.Construction,2);
             evaluator=new WorkshopDeclaredPresentation(loaded.Construction,Response(reset,1));Apply(time+1);
             Assert.Equal(ElectricalInputState.Neither,BothGateTests.Logic(built).Inputs);
             foreach(var node in new[]{"FirstLamp","SecondLamp","OutputLamp"}) Assert.Equal(new Color("#556573"),Colour(part,node));

@@ -16,7 +16,7 @@ namespace CuriousContraptions.Tests;
 /// text extractor) and every solid art node must have a collider of its kind, centre, orientation and dimensions, and every collider
 /// must be some solid art node (nothing reaches beyond the art). Round hollow parts (engine-hollow-shapes) match their true Tube,
 /// Frustum and Torus colliders, and a bend's drawn chords its torus segment. Every art node is classified (<see cref="ArtSpec"/>).</item>
-/// <item>Ball drops and rolls on the production simulation (<see cref="EventRingProducerTests.Ring"/>), on the features named in
+/// <item>Ball drops and rolls on the production simulation (<see cref="WorkshopIntegrationHarness"/>), on the features named in
 /// <see cref="Feature"/>, a switch terminal, the delay housing's face, the ramp's rail and a Wall: each stops the ball at its drawn
 /// surface, and the drops return the product restitution of the documented materials. A ball that passes where the old switch box
 /// reached beyond the button touches nothing and fires nothing, and a fast ball goes over a rail, never through it.</item>
@@ -546,7 +546,7 @@ public sealed class VisibleSolidColliderTests
         var corner = NumVector3.Transform(new(x, .65f, 0), turn);
         var surface = degrees == 0 ? .65 + Math.Sqrt(BallRadius * BallRadius - Math.Pow(Math.Max(0, x - .25), 2))
             : corner.Y + BallRadius;
-        await using var ring = await EventRingProducerTests.Ring.Running(Bench([
+        await using var ring = await WorkshopIntegrationHarness.Running(Bench([
             Place(PartId.PinballBumper, Element, new(0, (float)Y, 0), turn),
             BallAt(new(corner.X, (float)(Y + surface + .2), 0))]));
         await ring.Advance(60);
@@ -563,7 +563,7 @@ public sealed class VisibleSolidColliderTests
     public async Task ABallOutsideTheBumperSolidsFallsPastWithoutWorkOrPulse()
     {
         // Head .65 + outermost basketball seam .35 = 1 m: 5 cm clear of all solids.
-        await using var ring = await EventRingProducerTests.Ring.Running(Bench([
+        await using var ring = await WorkshopIntegrationHarness.Running(Bench([
             Place(PartId.PinballBumper, Element, new(0, (float)Y, 0), NumQuaternion.Identity),
             BallAt(new(1.05f, (float)Y + 1.2f, 0))]));
         await ring.Advance(60);
@@ -585,7 +585,7 @@ public sealed class VisibleSolidColliderTests
         var turn = NumQuaternion.CreateFromAxisAngle(NumVector3.UnitZ, MathF.Atan2(.49f, .43f));
         var ringTop = MathF.Sqrt(.49f * .49f + .43f * .43f) + .018;
         var rest = Y + ringTop + BallRadius;
-        await using var ring = await EventRingProducerTests.Ring.Running(Bench([Place(PartId.PinballBumper, Element, new(0, (float)Y, 0), turn),
+        await using var ring = await WorkshopIntegrationHarness.Running(Bench([Place(PartId.PinballBumper, Element, new(0, (float)Y, 0), turn),
             BallAt(new(0, (float)(rest + .25), 0))]));
         await ring.Advance(60);
         double lowest = double.PositiveInfinity, fastest = 0;
@@ -622,7 +622,7 @@ public sealed class VisibleSolidColliderTests
         bool apex, double fall)
     {
         var rest = Y + top + BallRadius;
-        await using var ring = await EventRingProducerTests.Ring.Running(Bench([element, BallAt(new(x, (float)(rest + fall), z))]));
+        await using var ring = await WorkshopIntegrationHarness.Running(Bench([element, BallAt(new(x, (float)(rest + fall), z))]));
         await ring.Advance(180);
         double vIn = 0, lowest = double.PositiveInfinity, contact = double.NaN; double? vOut = null; var landed = false;
         WorkshopRead? before = null;
@@ -680,7 +680,7 @@ public sealed class VisibleSolidColliderTests
     {
         var tip = NumQuaternion.CreateFromAxisAngle(NumVector3.UnitZ, -MathF.PI / 2) * NumQuaternion.CreateFromAxisAngle(NumVector3.UnitY, MathF.PI / 4);
         Assert.True((NumVector3.Transform(NumVector3.UnitY, tip) - NumVector3.UnitX).Length() < 1e-6f, "the tipped button's axis is world +X");
-        await using var ring = await EventRingProducerTests.Ring.Running(Bench([
+        await using var ring = await WorkshopIntegrationHarness.Running(Bench([
                 Place(PartId.ImpactSwitch, Element, new(0, (float)Y, 0), tip),
                 Place(PartId.SignalLamp, Lamp, new(6, (float)Y, 0), NumQuaternion.Identity), BallAt(new(.33f, (float)Y + 1, z))],
             new WorkshopConnection(Element, WorkshopSocket.ActivationOut, Lamp, WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation)));
@@ -703,7 +703,7 @@ public sealed class VisibleSolidColliderTests
     public async Task AnImpactOnASwitchTerminalFiresTheSwitch()
     {
         var rest = Y + .08 + BallRadius;
-        await using var ring = await EventRingProducerTests.Ring.Running(Bench([
+        await using var ring = await WorkshopIntegrationHarness.Running(Bench([
                 Place(PartId.ImpactSwitch, Element, new(0, (float)Y, 0), NumQuaternion.Identity),
                 Place(PartId.SignalLamp, Lamp, new(6, (float)Y, 0), NumQuaternion.Identity), BallAt(new(.58f, (float)(rest + .5), 0))],
             new WorkshopConnection(Element, WorkshopSocket.ActivationOut, Lamp, WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation)));
@@ -736,7 +736,7 @@ public sealed class VisibleSolidColliderTests
         var ramp = new NumVector3(0, (float)Y, 0);
         NumVector3 World(float x, float y) => ramp + NumVector3.Transform(new(x, y, 0), slope);
         var delay = Place(PartId.Delay, Element, World(.7f, .09f + .72f + .075f + .002f), slope * NumQuaternion.CreateFromAxisAngle(NumVector3.UnitZ, MathF.PI / 2));
-        await using var ring = await EventRingProducerTests.Ring.Running(Bench([
+        await using var ring = await WorkshopIntegrationHarness.Running(Bench([
             Place(PartId.Ramp, Ramp, ramp, slope), delay, BallAt(World(-1.2f, .09f + (float)BallRadius + .002f))]));
         await ring.Advance(480);
         var face = .7 - .625;
@@ -762,7 +762,7 @@ public sealed class VisibleSolidColliderTests
         var facing = NumQuaternion.CreateFromAxisAngle(NumVector3.UnitY, -MathF.PI / 2);
         Assert.True((NumVector3.Transform(NumVector3.UnitZ, facing) + NumVector3.UnitX).Length() < 1e-6f, "the gate's face looks along −X");
         var gate = Place(new PartId("both_gate"), Element, contact + new NumVector3(.37f + (float)BallRadius, 0, 0), facing);
-        await using var ring = await EventRingProducerTests.Ring.Running(Bench([Place(PartId.Ramp, Ramp, ramp, slope), gate,
+        await using var ring = await WorkshopIntegrationHarness.Running(Bench([Place(PartId.Ramp, Ramp, ramp, slope), gate,
             BallAt(ramp + NumVector3.Transform(new(-1.2f, .09f + (float)BallRadius + .002f, 0), slope))]));
         await ring.Advance(480);
         var farthest = ring.Reads.Max(read =>
@@ -788,7 +788,7 @@ public sealed class VisibleSolidColliderTests
     {
         var slope = NumQuaternion.CreateFromAxisAngle(NumVector3.UnitX, 5f * MathF.PI / 180);
         var ramp = new NumVector3(0, (float)Y, 0);
-        await using var ring = await EventRingProducerTests.Ring.Running(Bench([Place(PartId.Ramp, Ramp, ramp, slope),
+        await using var ring = await WorkshopIntegrationHarness.Running(Bench([Place(PartId.Ramp, Ramp, ramp, slope),
             BallAt(ramp + NumVector3.Transform(new(0, .09f + (float)BallRadius + .002f, 0), slope))]));
         await ring.Advance(480);
         var local = ring.Reads.Select(read => NumVector3.Transform(Position(read) - ramp, NumQuaternion.Inverse(slope))).ToArray();
@@ -852,7 +852,7 @@ public sealed class VisibleSolidColliderTests
         var turn = NumQuaternion.CreateFromAxisAngle(NumVector3.UnitY, MathF.PI / 2); // local z → world +x
         var test = Place(PartId.Ramp, Ramp, new(railX + .46f * width, slabTop - .09f, 0), turn,
             new([new(new("length"), 3f), new(new("width"), width)]));
-        await using var ring = await EventRingProducerTests.Ring.Running(Bench([Place(PartId.Ramp, new(4), chuteAt, chute), test,
+        await using var ring = await WorkshopIntegrationHarness.Running(Bench([Place(PartId.Ramp, new(4), chuteAt, chute), test,
             BallAt(chuteAt + NumVector3.Transform(new(-1.2f, .09f + (float)BallRadius + .002f, 0), chute))]));
         await ring.Advance(240);
         var railTop = slabTop + .0475;

@@ -299,7 +299,7 @@ public partial class Workshop
         _preview = null;
     }
 
-    private void CancelTool()
+    internal void CancelTool()
     {
         _linkSource = null;
         _tool = null;

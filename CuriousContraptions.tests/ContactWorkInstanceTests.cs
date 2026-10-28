@@ -89,7 +89,7 @@ public sealed class ContactWorkInstanceTests
     public async Task RunResetAndSaveLoadAreExact()
     {
         var bench = Drop(PartId.Basketball, 4.5, 12.5f);
-        var (built, run, reset) = await NoFixedCapacityTests.RunAndReset(bench, 2 * TicksPerSecond);
+        var (built, run, reset) = await WorkshopIntegrationHarness.ObserveReset(bench, 2 * TicksPerSecond);
         // A paid hit during the run: the store counted it and spent energy (its occurrence row is device-private, Story 9A.23 D9).
         Assert.Contains(run, read => read.ContactWorks[0].OccurrenceCount > 0 &&
             read.ContactWorks[0].RemainingEnergy.Value < built.ContactWorks[0].RemainingEnergy.Value);
@@ -99,7 +99,7 @@ public sealed class ContactWorkInstanceTests
         var bytes = WorkshopSaveCodec.Encode(saved);
         var reloaded = WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes);
         Assert.Equal(saved, reloaded);
-        var (_, replay, _) = await NoFixedCapacityTests.RunAndReset(reloaded.Construction, 2 * TicksPerSecond);
+        var (_, replay, _) = await WorkshopIntegrationHarness.ObserveReset(reloaded.Construction, 2 * TicksPerSecond);
         NoFixedCapacityTests.AssertSameState(run[^1], replay[^1], "the reloaded Bumper's run");
         Assert.Equal(run[^1].ContactWorks[0], replay[^1].ContactWorks[0]);
     }
@@ -117,7 +117,7 @@ public sealed class ContactWorkInstanceTests
     [Fact]
     public async Task StrengthEightLaunchesTheBallPaidAtTheTargetSpeedAndTheLedgerCloses()
     {
-        var (reads, ledgers) = await WorkshopPhysicsEngineTests.RunWithLedgers(Drop(PartId.Basketball, 4.5, 8f), 2 * TicksPerSecond);
+        var (reads, ledgers) = await WorkshopIntegrationHarness.ObserveAccounting(Drop(PartId.Basketball, 4.5, 8f), 2 * TicksPerSecond);
         Assert.Equal(32f, reads[0].ContactWorks[0].RemainingEnergy.Value);
         var index = ledgers.FindIndex(ledger => ledger.OccurrenceCount > 0 && ledger.Occurrence(0).Sequence == 1);
         Assert.True(index > 0, "the ball reaches the Bumper");
@@ -135,7 +135,7 @@ public sealed class ContactWorkInstanceTests
     [Fact]
     public async Task APartiallyAffordableBoostEmptiesTheStoreAndALaterContactIsAnOrdinaryUnpaidBounce()
     {
-        var (reads, ledgers) = await WorkshopPhysicsEngineTests.RunWithLedgers(Drop(PartId.BowlingBall, 6, 8f), 4 * TicksPerSecond);
+        var (reads, ledgers) = await WorkshopIntegrationHarness.ObserveAccounting(Drop(PartId.BowlingBall, 6, 8f), 4 * TicksPerSecond);
         var occurrences = Occurrences(ledgers).ToArray();
         Assert.True(occurrences.Length >= 2, "the ball returns to the empty Bumper");
         Assert.Equal((32f, ContactWorkEffect.Paid), (occurrences[0].Debit.Value, occurrences[0].Effect));
@@ -150,7 +150,7 @@ public sealed class ContactWorkInstanceTests
     [Fact]
     public async Task StrengthZeroIsAnEmptyStoreWhoseContactsAreUnpaid()
     {
-        var (reads, ledgers) = await WorkshopPhysicsEngineTests.RunWithLedgers(Drop(PartId.Basketball, 4.5, 0f), 2 * TicksPerSecond);
+        var (reads, ledgers) = await WorkshopIntegrationHarness.ObserveAccounting(Drop(PartId.Basketball, 4.5, 0f), 2 * TicksPerSecond);
         var occurrences = Occurrences(ledgers).ToArray();
         Assert.NotEmpty(occurrences);
         Assert.All(occurrences, occurrence => Assert.Equal((0f, ContactWorkEffect.Passive), (occurrence.Debit.Value, occurrence.Effect)));
@@ -161,7 +161,7 @@ public sealed class ContactWorkInstanceTests
     [Fact]
     public async Task ABallInAnotherDepthPlaneNeverPays()
     {
-        var (reads, ledgers) = await WorkshopPhysicsEngineTests.RunWithLedgers(Drop(PartId.Basketball, 4.5, 8f, z: 2), 2 * TicksPerSecond);
+        var (reads, ledgers) = await WorkshopIntegrationHarness.ObserveAccounting(Drop(PartId.Basketball, 4.5, 8f, z: 2), 2 * TicksPerSecond);
         Assert.Empty(Occurrences(ledgers));
         Assert.All(reads, read => Assert.Equal(32f, read.ContactWorks[0].RemainingEnergy.Value));
     }
@@ -179,7 +179,7 @@ public sealed class ContactWorkInstanceTests
         var radius = heavy ? .28 : .34;
         var bench = Free(WorkshopInput.Generic(payload, Ball, .2f, (float)(3 + .65 + radius + .2), 0, 0, 0, 0, 1),
             PlacedParts.Bumper(Owner, 0, 3, 0, (float)(strength)));
-        await using var ring = await EventRingProducerTests.Ring.Running(bench);
+        await using var ring = await WorkshopIntegrationHarness.Running(bench);
         await ring.Advance(480);
         var hits = Occurrences(ring.Ledgers).ToArray();
         Assert.NotEmpty(hits);
@@ -223,7 +223,7 @@ public sealed class ContactWorkInstanceTests
             WorkshopConnectionDomain.Electrical)) };
         var scene = WorkshopPhysicsCompiler.Compile(bench, new(1, 2));
         Assert.Equal(wired ? 1 : 0, scene.Electrical.Bindings.Length);
-        var reads = await WorkshopPhysicsEngineTests.Run(bench, 4 * TicksPerSecond);
+        var reads = await WorkshopIntegrationHarness.Observe(bench, 4 * TicksPerSecond);
         var emptied = reads.FindIndex(read => read.ContactWorks[0].RemainingEnergy.Value == 0f);
         Assert.True(emptied > 0, "the heavy ball empties the store");
         var later = reads[^1].ContactWorks[0];
@@ -260,7 +260,7 @@ public sealed class ContactWorkInstanceTests
         var bench = Bench(.1);
         var scene = WorkshopPhysicsCompiler.Compile(bench, new(1, 2));
         ColliderShapeKind Shape(ContactWorkOccurrence hit) => scene.Colliders[(int)hit.Collider.Value].Shape;
-        await using var ring = await EventRingProducerTests.Ring.Running(bench);
+        await using var ring = await WorkshopIntegrationHarness.Running(bench);
         await ring.Advance(120); // one second suffices for a drop and adjacent-child contact
         var first = Occurrences(ring.Ledgers).First();
         Assert.Equal((Ball, ColliderShapeKind.Cylinder, ContactWorkEffect.Paid), (first.Target, Shape(first), first.Effect));
@@ -298,7 +298,7 @@ public sealed class ContactWorkInstanceTests
         // Matched control: only the drop x changes, to directly above the ring's
         // centreline. It bypasses the cap, so this owner's first ring hit must pay.
         var ringX = .49f * MathF.Cos(angle) - .43f * MathF.Sin(angle);
-        await using var direct = await EventRingProducerTests.Ring.Running(Bench(ringX));
+        await using var direct = await WorkshopIntegrationHarness.Running(Bench(ringX));
         await direct.Advance(120);
         var directHit = Occurrences(direct.Ledgers).First();
         Assert.Equal((Ball, ColliderShapeKind.Torus, ContactWorkEffect.Paid),

@@ -19,7 +19,6 @@ public sealed class WorkshopWallTests
             var saved = Saved(dimensions);
             var bytes = WorkshopSaveCodec.Encode(saved);
             Assert.Equal(saved, WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes));
-            Assert.Equal(bytes, WorkshopSaveCodec.Encode(WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes)));
             var scene = WorkshopPhysicsCompiler.Compile(saved.Construction, new(1, 2));
             var body = Assert.Single(scene.Bodies.ToArray(), b => b.Id == new GpuBodyId(2));
             Assert.Equal(Wall(dimensions).Rotation, body.Rotation);
@@ -74,7 +73,7 @@ public sealed class WorkshopWallTests
                 saved.Construction with { Instances = new(invalid) }, validate: false);
             Assert.Throws<WorkshopSaveRejectedException>(() =>
                 WorkshopSaveCodec.Decode(SaveFixture.Elements, SaveFixture.Finish(builder, record, saved.NextBodyId.Value)));
-            Assert.Equal(bytes, WorkshopSaveCodec.Encode(saved));
+            Assert.Equal(saved, WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes));
         }
         Assert.Throws<ArgumentException>(() => new InstanceParameterCollection([new(new("width"), 1f), new(new("width"), 2f)]));
         Assert.Throws<ArgumentException>(() => (wall with { Parameters = InstanceParameterCollection.Empty }).Validate());
@@ -127,13 +126,12 @@ public sealed class WorkshopWallTests
             new(WorkshopInput.Generic(PartId.Basketball,new(1), 0, 4, 0, 0, 0, 0, 1), wall));
         var saved = new WorkshopSavedConstruction(construction, new(3));
         var bytes = WorkshopSaveCodec.Encode(saved);
-        var (built, reads, reset) = await NoFixedCapacityTests.RunAndReset(construction, 120);
+        var (built, reads, reset) = await WorkshopIntegrationHarness.ObserveReset(construction, 120);
         NoFixedCapacityTests.AssertSameState(built, reset, "Wall Reset");
-        Assert.Equal(bytes, WorkshopSaveCodec.Encode(saved));
         Assert.True(reads.All(read => (read.Bodies[0].Body.Cell.Y + read.Bodies[0].Body.Local.Y) / 16f > 2.2f));
         var loaded = WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes);
         Assert.Equal(saved, loaded);
-        var (_, replay, _) = await NoFixedCapacityTests.RunAndReset(loaded.Construction, 120);
+        var (_, replay, _) = await WorkshopIntegrationHarness.ObserveReset(loaded.Construction, 120);
         for (var tick = 0; tick < reads.Count; tick++)
             NoFixedCapacityTests.AssertSameState(reads[tick], replay[tick], "Wall replay");
     }

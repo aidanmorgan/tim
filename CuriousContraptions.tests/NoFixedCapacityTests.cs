@@ -107,7 +107,7 @@ public sealed class NoFixedCapacityTests
         var (bench, check) = Population(table);
         bench.Validate();
         check(WorkshopPhysicsCompiler.Compile(bench, new(1, 2)));
-        var reads = await WorkshopPhysicsEngineTests.Run(bench, SteppedTicks);
+        var reads = await WorkshopIntegrationHarness.Observe(bench, SteppedTicks);
         Assert.Equal(new SimulationTick(SteppedTicks), reads[^1].Tick);
         AssertCrossesResponseCodec(reads[^1]);
     }
@@ -168,7 +168,7 @@ public sealed class NoFixedCapacityTests
     public async Task TheLastOfFortySwitchesFiresItsOwnLampAndAnUnwiredSwitchDoesNot(int struck, bool lit)
     {
         var (bench, lamp, _) = SwitchBench(struck);
-        var reads = await WorkshopPhysicsEngineTests.Run(bench, LampTicks);
+        var reads = await WorkshopIntegrationHarness.Observe(bench, LampTicks);
         Assert.False(Latched(reads[0], lamp.Id), "the lamp starts dark");
         Assert.Equal(lit, Latched(reads[^1], lamp.Id));
     }
@@ -177,7 +177,7 @@ public sealed class NoFixedCapacityTests
     public async Task TheFortySwitchBenchResetsExactlyAndSurvivesSaveAndLoad()
     {
         var (bench, lamp, _) = SwitchBench(Switches - 1);
-        var (built, run, reset) = await RunAndReset(bench, LampTicks);
+        var (built, run, reset) = await WorkshopIntegrationHarness.ObserveReset(bench, LampTicks);
         Assert.True(Latched(run[^1], lamp.Id), "the last switch lit its lamp");
         AssertSameState(built, reset, "Reset");
         AssertCrossesResponseCodec(run[^1]);
@@ -185,7 +185,7 @@ public sealed class NoFixedCapacityTests
         var saved = new WorkshopSavedConstruction(bench, new(Switches + 3));
         var reloaded = WorkshopSaveCodec.Decode(SaveFixture.Elements,WorkshopSaveCodec.Encode(saved));
         Assert.Equal(saved, reloaded);
-        var (_, replay, _) = await RunAndReset(reloaded.Construction, LampTicks);
+        var (_, replay, _) = await WorkshopIntegrationHarness.ObserveReset(reloaded.Construction, LampTicks);
         AssertSameState(run[^1], replay[^1], "the reloaded bench's run");
     }
 
@@ -239,36 +239,17 @@ public sealed class NoFixedCapacityTests
             scene.OrientationSensors.Length > 16 && scene.ContactLoadSensors.Length > 32 && scene.Electrical.Sources.Length > 8,
             "every retired ceiling is exceeded");
 
-        var (built, run, reset) = await RunAndReset(bench, SteppedTicks);
+        var (built, run, reset) = await WorkshopIntegrationHarness.ObserveReset(bench, SteppedTicks);
         AssertSameState(built, reset, "Reset");
         AssertCrossesResponseCodec(run[^1]);
         var saved = new WorkshopSavedConstruction(bench, new((ulong)bench.Instances.Count + 1));
         var reloaded = WorkshopSaveCodec.Decode(SaveFixture.Elements,WorkshopSaveCodec.Encode(saved));
         Assert.Equal(saved, reloaded);
-        var (_, replay, _) = await RunAndReset(reloaded.Construction, SteppedTicks);
+        var (_, replay, _) = await WorkshopIntegrationHarness.ObserveReset(reloaded.Construction, SteppedTicks);
         AssertSameState(run[^1], replay[^1], "the reloaded machine's run");
     }
 
     /// <summary>The production Simulation on the worker's transport: Construct, Run, `ticks` Advances, Reset (Story 9R.6 reuses it).</summary>
-    internal static async Task<(WorkshopRead Built, List<WorkshopRead> Run, WorkshopRead Reset)> RunAndReset(WorkshopConstruction construction, int ticks)
-    {
-        await using var device = new WorkshopGpuDevice(new CuriousContraptions.Simulation.BrowserGpuTransport(new CuriousContraptions.Abstractions.EventRingPublication()), new(101, 206));
-        await using var simulation = new WorkshopSimulation(device, new WorkshopPhysicsEngineTests.StepClock(), WorkshopCadenceSettings.Default(),
-            new(1), new WorkshopPhysicsEngineTests.NoInstallation(), GpuDeviceOwnership.Borrowed);
-        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Initialize()).Outcome);
-        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Construct(construction)).Outcome);
-        var built = simulation.Committed;
-        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Run()).Outcome);
-        var reads = new List<WorkshopRead>(ticks);
-        for (var tick = 0; tick < ticks; tick++)
-        {
-            Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Advance()).Outcome);
-            reads.Add(simulation.Committed);
-        }
-        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Reset()).Outcome);
-        return (built, reads, simulation.Committed);
-    }
-
     /// <summary>Equal observable committed fields, the world epoch aside (the Story 9R.1 snapshot fields).</summary>
     internal static void AssertSameState(WorkshopRead expected, WorkshopRead actual, string label)
     {
