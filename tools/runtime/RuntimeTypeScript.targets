@@ -1,0 +1,39 @@
+<Project>
+  <PropertyGroup>
+    <RuntimeTypeScriptRoot>$([MSBuild]::NormalizeDirectory('$(MSBuildThisFileDirectory)', '../..'))</RuntimeTypeScriptRoot>
+  </PropertyGroup>
+  <ItemGroup>
+    <RuntimeTypeScriptHarness Include="$(RuntimeTypeScriptRoot)tools/runtime/**/*.ts" Exclude="$(RuntimeTypeScriptRoot)tools/runtime/**/*.d.ts" />
+    <RuntimeTypeScriptSource Include="$(RuntimeTypeScriptRoot)CuriousContraptions.Simulation/wwwroot/worker.ts;$(RuntimeTypeScriptRoot)CuriousContraptions.web/wwwroot/event-ring-cursor.ts;$(RuntimeTypeScriptRoot)CuriousContraptions.web/wwwroot/workshop-client.ts;$(RuntimeTypeScriptRoot)tools/runtime/**/*.ts" />
+  </ItemGroup>
+  <!-- Explicit entries exist at evaluation even when generated JS does not yet exist. -->
+  <ItemGroup Condition="'$(MSBuildProjectName)' == 'CuriousContraptions.Simulation'">
+    <WasmExtraFilesToDeploy Remove="wwwroot/worker.js" />
+    <WasmExtraFilesToDeploy Include="wwwroot/worker.js" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(MSBuildProjectName)' == 'CuriousContraptions.web'">
+    <WasmExtraFilesToDeploy Remove="wwwroot/event-ring-cursor.js;wwwroot/workshop-client.js" />
+    <WasmExtraFilesToDeploy Include="wwwroot/event-ring-cursor.js;wwwroot/workshop-client.js" />
+  </ItemGroup>
+  <Target Name="RestoreRuntimeTypeScript" Condition="'$(MSBuildProjectName)' == 'CuriousContraptions.Abstractions'"
+          Inputs="$(RuntimeTypeScriptRoot)package.json;$(RuntimeTypeScriptRoot)package-lock.json"
+          Outputs="$(RuntimeTypeScriptRoot)node_modules/.package-lock.json">
+    <Exec WorkingDirectory="$(RuntimeTypeScriptRoot)" Command="npm ci --ignore-scripts --no-audit --no-fund" />
+  </Target>
+  <!-- Abstractions is shared by native tests and both shipped hosts: one compiler invocation per build graph. -->
+  <Target Name="BuildRuntimeTypeScript" BeforeTargets="BeforeBuild" DependsOnTargets="RestoreRuntimeTypeScript"
+          Condition="'$(MSBuildProjectName)' == 'CuriousContraptions.Abstractions'"
+          Inputs="@(RuntimeTypeScriptSource);$(RuntimeTypeScriptRoot)tsconfig.runtime.json;$(RuntimeTypeScriptRoot)package-lock.json;$(MSBuildThisFileFullPath)"
+          Outputs="$(RuntimeTypeScriptRoot)CuriousContraptions.Simulation/wwwroot/worker.js;$(RuntimeTypeScriptRoot)CuriousContraptions.web/wwwroot/event-ring-cursor.js;$(RuntimeTypeScriptRoot)CuriousContraptions.web/wwwroot/workshop-client.js;@(RuntimeTypeScriptHarness->'$(RuntimeTypeScriptRoot).runtime-build/tools/runtime/%(RecursiveDir)%(Filename).js')">
+    <Exec WorkingDirectory="$(RuntimeTypeScriptRoot)" Command="npm run build:runtime" />
+    <Copy SourceFiles="$(RuntimeTypeScriptRoot).runtime-build/CuriousContraptions.Simulation/wwwroot/worker.js"
+          DestinationFiles="$(RuntimeTypeScriptRoot)CuriousContraptions.Simulation/wwwroot/worker.js" />
+    <Copy SourceFiles="$(RuntimeTypeScriptRoot).runtime-build/CuriousContraptions.web/wwwroot/event-ring-cursor.js"
+          DestinationFiles="$(RuntimeTypeScriptRoot)CuriousContraptions.web/wwwroot/event-ring-cursor.js" />
+    <Copy SourceFiles="$(RuntimeTypeScriptRoot).runtime-build/CuriousContraptions.web/wwwroot/workshop-client.js"
+          DestinationFiles="$(RuntimeTypeScriptRoot)CuriousContraptions.web/wwwroot/workshop-client.js" />
+    <ItemGroup>
+      <FileWrites Include="$(RuntimeTypeScriptRoot).runtime-build/**/*.js;$(RuntimeTypeScriptRoot)CuriousContraptions.Simulation/wwwroot/worker.js;$(RuntimeTypeScriptRoot)CuriousContraptions.web/wwwroot/event-ring-cursor.js;$(RuntimeTypeScriptRoot)CuriousContraptions.web/wwwroot/workshop-client.js" />
+    </ItemGroup>
+  </Target>
+</Project>

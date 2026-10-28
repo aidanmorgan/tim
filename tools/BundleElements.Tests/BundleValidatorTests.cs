@@ -1,3 +1,4 @@
+using CuriousContraptions.Abstractions.Mechanical;
 using System.Numerics;
 using CuriousContraptions.Abstractions;
 using CuriousContraptions.Abstractions.Signal;
@@ -94,7 +95,7 @@ public sealed class BundleValidatorTests
     // the compiled mass domain [1/1024, 1024] kg, on a dynamic body, and the fixed declared mass is that parameter's default (one truth).
     // A cylinder's radial lanes are bound together or not at all, so every evaluation keeps X = Z.
     [Fact]
-    public void AMassBindingNamesOneKilogramParameterOfADynamicBodyAndAgreesWithTheDeclaredMassAtItsDefault()
+    public void AMassPolynomialNamesARealParameterAndRejectsInvalidEvaluatedFrames()
     {
         var mass = new ParameterDescriptor("mass", ParameterUnit.Kilogram, ParameterKind.Real, .25f, 8f, 4f, [], ParameterEditorPolicy.Clamp);
         var entry = Bundle.BundleSchema.Entry(new Fixture
@@ -102,31 +103,46 @@ public sealed class BundleValidatorTests
             Parameters = [mass],
             KinematicMode = Abstractions.Mechanical.KinematicMode.Dynamic,
             Footprint = new(1, 1, 0),
-            MassProperties = new(4f, new(0f, .28f, 0f), new(.23f, .25f, .23f), 0f, new(0f, -9.81f, 0f)),
+            MassFrame = MassFrameDeclaration.Constant(4f, new(0f, .28f, 0f), new(.23f, .25f, .23f), Quaternion.Identity, 0f, new(0f, -9.81f, 0f)),
             Colliders = [new(ColliderShapeKind.Cylinder, new(.35f, .28f, .35f), new(0f, .28f, 0f), Quaternion.Identity, new MaterialProperties(.08f, .3f, .03f, .1f), 0f)]
         });
-        var bound = Abstractions.Mechanical.MechanicalValue.FromParameter("mass");
-        Bundle.BundleEntry With(Abstractions.Mechanical.MechanicalValue value, params ParameterDescriptor[] parameters) =>
-            entry with { Metadata = entry.Metadata with { Parameters = parameters }, Mechanical = entry.Mechanical! with { MassParameter = value } };
+        var bound = new MassScalar(new ParameterId("mass"), 0f, 1f, 0f, 0f);
+        Bundle.BundleEntry With(MassScalar value, params ParameterDescriptor[] parameters) =>
+            entry with { Metadata = entry.Metadata with { Parameters = parameters }, Mechanical = entry.Mechanical! with
+                { MassFrame = entry.Mechanical.MassFrame with { Mass = value } } };
         static IReadOnlyList<Bundle.BundleError> Check(Bundle.BundleEntry candidate) => Bundle.BundleValidator.Validate([new("Fixture", candidate)]);
         Assert.Empty(Check(With(bound, mass)));
-        // Boundaries: the whole compiled mass domain, and a default exactly equal to the fixed mass.
+        Assert.Empty(Check(With(MassScalar.Constant(4f), mass)));
         Assert.Empty(Check(With(bound, mass with { Minimum = 1f / 1024f, Maximum = 1024f })));
         foreach (var (name, candidate) in new[]
         {
-            ("constant source", With(Abstractions.Mechanical.MechanicalValue.Fixed(4f), mass)),
             ("missing parameter", With(bound)),
-            ("unknown key", With(Abstractions.Mechanical.MechanicalValue.FromParameter("load"), mass)),
-            ("duplicate key", With(bound, mass, mass)),
-            ("not kilograms", With(bound, mass with { Unit = ParameterUnit.Metre })),
-            ("whole number", With(bound, mass with { Kind = ParameterKind.WholeNumber, Minimum = 1f, Maximum = 8f })),
-            ("below the mass domain", With(bound, mass with { Minimum = 1f / 2048f })),
-            ("above the mass domain", With(bound, mass with { Maximum = 1025f })),
-            ("fixed mass is not the default", With(bound, mass with { Default = 5f })),
-            ("fixed mass one ulp from the default", With(bound, mass with { Default = BitConverter.Int32BitsToSingle(BitConverter.SingleToInt32Bits(4f) + 1) })),
+            ("unknown key", With(bound with { Parameter = new ParameterId("load") }, mass)),
+            ("nonfinite coefficient", With(bound with { C2 = float.NaN }, mass)),
+            ("constant with variable coefficients", With(bound with { Parameter = null }, mass)),
+            ("whole number", With(bound, mass with { Kind = ParameterKind.WholeNumber, Minimum = 1f })),
+            ("below mass domain", With(bound, mass with { Minimum = 1f / 2048f })),
+            ("above mass domain", With(bound, mass with { Maximum = 1025f })),
             ("static body", With(bound, mass) with { Mechanical = entry.Mechanical! with
-                { MassParameter = bound, KinematicMode = Abstractions.Mechanical.KinematicMode.Static } })
-        }) Assert.True(Check(candidate).Any(error => error.Detail.Contains(".MassParameter", StringComparison.Ordinal)), name);
+                { MassFrame = entry.Mechanical.MassFrame with { Mass = bound }, KinematicMode = KinematicMode.Static } })
+        }) Assert.Contains(Check(candidate), error => error.Detail.Contains(".MassFrame", StringComparison.Ordinal));
+
+        // Endpoints .25/8 and default4 are valid; x=1 is the interior minimum.
+        Assert.Contains(Check(With(new(new("mass"), .75f, -2, 1, 0), mass)), e => e.Detail.Contains(".MassFrame", StringComparison.Ordinal));
+        Assert.Empty(Check(With(new(new("mass"), 1.25f, -2, 1, 0), mass)));
+        // Each individual moment stays positive, but Ix+Iy-Iz has a negative interior minimum.
+        var coupled = entry.Mechanical!.MassFrame with { PrincipalMoments = new(
+            new(new("mass"), 1.25f, -1, .5f, 0), new(new("mass"), 1.25f, -1, .5f, 0), MassScalar.Constant(2)) };
+        Assert.Contains(Check(entry with { Mechanical = entry.Mechanical with { MassFrame = coupled } }),
+            e => e.Detail.Contains(".MassFrame", StringComparison.Ordinal));
+        Assert.Empty(Check(entry with { Mechanical = entry.Mechanical with { MassFrame = coupled with
+            { PrincipalMoments = coupled.PrincipalMoments with { Z = MassScalar.Constant(1) } } } }));
+        // Different parameters must be considered together, not one at a time at the other's default.
+        var second = mass with { Key = "second", Minimum = 1, Maximum = 2, Default = 2 };
+        var first = mass with { Minimum = 1, Maximum = 2, Default = 2 };
+        var independent = coupled with { PrincipalMoments = new(bound, bound with { Parameter = new("second") }, MassScalar.Constant(2.5f)) };
+        Assert.Contains(Check(entry with { Metadata = entry.Metadata with { Parameters = [first, second] },
+            Mechanical = entry.Mechanical with { MassFrame = independent } }), e => e.Detail.Contains(".MassFrame", StringComparison.Ordinal));
 
         var radial = new ColliderParameterBinding(0, GeometryComponent.HalfExtentX, "mass", .05f, .15f);
         var paired = radial with { Component = GeometryComponent.HalfExtentZ };
@@ -432,8 +448,8 @@ public sealed class BundleValidatorTests
 
     [Fact]
     public void AnInfiniteMassIsNonFinite() =>
-        Assert.Equal(["BUNDLE002 FixtureMass.MassProperties.Mass: not finite"],
-            Errors(("FixtureMass", new Fixture { MassProperties = new(float.PositiveInfinity, Vector3.Zero, Vector3.Zero, 0f, Vector3.Zero) })));
+        Assert.Equal(["BUNDLE006 FixtureMass.MassFrame: outside its declared range"],
+            Errors(("FixtureMass", new Fixture { MassFrame = MassFrameDeclaration.Constant(float.PositiveInfinity, Vector3.Zero, Vector3.Zero, Quaternion.Identity, 0f, Vector3.Zero) })));
 
     [Fact]
     public void AnUnknownEnumNamesThePackageAndTheField() =>
@@ -512,11 +528,11 @@ public sealed class BundleValidatorTests
 
     [Fact]
     public void ASliderWithANonFiniteMovingMassIsRefused() =>
-        Assert.Equal(["BUNDLE002 FixtureSlider.Sliders[0].MovingBody.Mass: not finite"],
+        Assert.Equal(["BUNDLE006 FixtureSlider.Sliders[0].MovingBody.MassFrame: outside its declared range"],
             Errors(("FixtureSlider", new Fixture
             {
                 Parameters = Fixture.SpringParameters,
-                Sliders = [Fixture.Slider() with { MovingBody = Fixture.Slider().MovingBody with { Mass = float.NaN } }]
+                Sliders = [Fixture.Slider() with { MovingBody = Fixture.Slider().MovingBody with { MassFrame = Fixture.Slider().MovingBody.MassFrame with { Mass = MassScalar.Constant(float.NaN) } } }]
             })));
 
     // C-Gate (9A.19): a supplied drive is declaration data; the bundle refuses one the runtime could not admit.
@@ -537,8 +553,8 @@ public sealed class BundleValidatorTests
             DriveErrors(Fixture.Drive(), powerIn: false));
 
     [Fact]
-    public void OnePowerInDrivesOneSlider() =>
-        Assert.Equal(["BUNDLE006 FixtureDrive.Sliders[1].Drive: outside its declared range"], DriveErrors(Fixture.Drive(), sliders: 2));
+    public void OnePowerInEnablesEveryDeclaredSlider() =>
+        Assert.Empty(DriveErrors(Fixture.Drive(), sliders: 2));
 
     [Theory]
     [InlineData("Target", .1f)]                     // above the slider's 0 upper limit
@@ -615,7 +631,7 @@ public sealed class BundleValidatorTests
         // The aperture needs its pulse ActivationOut and a static frame.
         Refused(detector with { Ports = [] }, "Passage.Ports");
         Refused(detector with { Ports = [detector.Ports[0] with { Signal = PortSignalKind.Level }] }, "Passage.Ports");
-        Refused(detector with { Mechanical = detector.Mechanical! with { KinematicMode = Abstractions.Mechanical.KinematicMode.Dynamic } }, "Passage.Frame");
+        Refused(detector with { Mechanical = detector.Mechanical! with { KinematicMode = Abstractions.Mechanical.KinematicMode.Dynamic, MassFrame = MassFrameDeclaration.Constant(1f, Vector3.Zero, Vector3.One, Quaternion.Identity, 0f, Vector3.Zero) } }, "Passage.Frame");
 
         // One node-selecting capability: a valid indicator beside the aperture is refused, and only for that.
         var both = detector with
@@ -663,7 +679,7 @@ public sealed class BundleValidatorTests
         Refused(domino with { Ports = [] }, "Orientation.Ports");
         Refused(domino with { Ports = [domino.Ports[0] with { Signal = PortSignalKind.Level }] }, "Orientation.Ports");
         Refused(domino with { Ports = [domino.Ports[0] with { Direction = PortDirection.Input }] }, "Orientation.Ports");
-        Refused(domino with { Mechanical = domino.Mechanical! with { KinematicMode = Abstractions.Mechanical.KinematicMode.Static } }, "Orientation.Body");
+        Refused(domino with { Mechanical = domino.Mechanical! with { KinematicMode = Abstractions.Mechanical.KinematicMode.Static, MassFrame = MassFrameDeclaration.Constant(0f, Vector3.Zero, Vector3.Zero, Quaternion.Identity, 0f, Vector3.Zero) } }, "Orientation.Body");
         Refused(domino with { Mechanical = null }, "Orientation.Body");
 
         // One node-selecting capability: a valid indicator beside the threshold is refused, and only for that.
@@ -694,7 +710,8 @@ public sealed class BundleValidatorTests
         }
         Assert.Empty(Check(plate));
         var declared = plate.Signal!.ContactLoad!.Value;
-        Assert.Equal(new SignalContactLoadDescriptor("minimum_mass", 1, Vector3.UnitY, 1f - 1e-6f, 1e-4f, 1e-6f, .1f), declared);
+        Assert.Equal(new SignalContactLoadDescriptor("minimum_mass", 1, Vector3.UnitY, 1f - 1e-6f, 1e-4f, 1e-6f, .1f, declared.SupportingColliders), declared);
+        Assert.Equal([1, 7], declared.SupportingColliders);
         Bundle.BundleEntry With(SignalContactLoadDescriptor load) => plate with { Signal = plate.Signal with { ContactLoad = load } };
 
         // Range ends admitted.
@@ -710,10 +727,10 @@ public sealed class BundleValidatorTests
         Refused(Parameter(parameter with { Minimum = 0f }), "ContactLoad.MinimumMassParameter");
         Refused(Parameter(parameter with { Kind = ParameterKind.WholeNumber, Minimum = 1f, Maximum = 16f, Default = 1f }), "ContactLoad.MinimumMassParameter");
         // The face: out of range either side, or not a Box.
-        Refused(With(declared with { FaceCollider = -1 }), "ContactLoad.FaceCollider");
-        Refused(With(declared with { FaceCollider = plate.Colliders.Count }), "ContactLoad.FaceCollider");
-        Refused(plate with { Colliders = [plate.Colliders[0], plate.Colliders[1] with { ShapeKind = ColliderShapeKind.Sphere }] }, "ContactLoad.FaceCollider");
-        Refused(plate with { Colliders = [plate.Colliders[0], plate.Colliders[1] with { Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, .1f) }] }, "ContactLoad.FaceCollider");
+        Refused(With(declared with { RegionCollider = -1 }), "ContactLoad.RegionCollider");
+        Refused(With(declared with { RegionCollider = plate.Colliders.Count }), "ContactLoad.RegionCollider");
+        Refused(plate with { Colliders = plate.Colliders.Select((shape,index) => index == 1 ? shape with { ShapeKind = ColliderShapeKind.Sphere } : shape).ToArray() }, "ContactLoad.RegionCollider");
+        Refused(plate with { Colliders = plate.Colliders.Select((shape,index) => index == 1 ? shape with { Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, .1f) } : shape).ToArray() }, "ContactLoad.RegionCollider");
         // The normal, alignment, gap, margin and hold, each one f32 beyond its range, and non-finite.
         Refused(With(declared with { LocalNormal = new(0, 1.001f, 0) }), "ContactLoad.LocalNormal");
         Refused(With(declared with { LocalNormal = new(float.NaN, 1, 0) }), "ContactLoad.LocalNormal.x", Bundle.BundleErrorCode.NonFinite);
@@ -727,11 +744,12 @@ public sealed class BundleValidatorTests
         Refused(With(declared with { ReleaseHoldSeconds = MathF.BitIncrement(1f) }), "ContactLoad.ReleaseHoldSeconds");
         Refused(With(declared with { ReleaseHoldSeconds = float.NaN }), "ContactLoad.ReleaseHoldSeconds", Bundle.BundleErrorCode.NonFinite);
         // A Static frame (no Dynamic body, no slider) and a level ActivationOut.
-        Refused(plate with { Mechanical = plate.Mechanical! with { KinematicMode = Abstractions.Mechanical.KinematicMode.Dynamic } }, "ContactLoad.Body");
+        Refused(plate with { Mechanical = plate.Mechanical! with { KinematicMode = Abstractions.Mechanical.KinematicMode.Dynamic, MassFrame = MassFrameDeclaration.Constant(1f, Vector3.Zero, Vector3.One, Quaternion.Identity, 0f, Vector3.Zero) } }, "ContactLoad.Body");
         Refused(plate with { Mechanical = null }, "ContactLoad.Body");
-        // A Static frame that carries a slider (the face would no longer be PartIdentities + 1 + FaceCollider): the gate's own slider.
+        // A contact-load source requires a static frame without moving children; use the gate's valid slider.
         var slider = bundle.Single(entry => entry.Metadata.Id == "powered_gate").Mechanical!.Sliders[0];
-        Refused(plate with { Mechanical = plate.Mechanical! with { Sliders = [slider] } }, "ContactLoad.Body");
+        Refused(plate with { Mechanical = plate.Mechanical! with { Sliders = [slider] },
+            Presentation = plate.Presentation with { Bodies = [new("Visual/Moving", new(1), Vector3.Zero)] } }, "ContactLoad.Body");
         var activation = plate.Ports.Single(port => port.Socket == PortSocket.ActivationOut);
         Refused(plate with { Ports = [.. plate.Ports.Where(port => port != activation), activation with { Signal = PortSignalKind.Pulse }] }, "ContactLoad.Ports");
         Refused(plate with { Ports = [.. plate.Ports.Where(port => port != activation)] }, "ContactLoad.Ports");
@@ -791,7 +809,8 @@ public sealed class BundleValidatorTests
         var wall = bundle.Single(entry => entry.Metadata.Id == "wall").Mechanical!;
         Assert.Empty(Check(clock with { Mechanical = wall }));
         Refused(clock with { Mechanical = bundle.Single(entry => entry.Metadata.Id == "ball").Mechanical }, "Oscillator.Body");
-        Refused(clock with { Mechanical = bundle.Single(entry => entry.Metadata.Id == "powered_gate").Mechanical }, "Oscillator.Body");
+        Refused(clock with { Mechanical = bundle.Single(entry => entry.Metadata.Id == "powered_gate").Mechanical,
+            Presentation = clock.Presentation with { Bodies = bundle.Single(entry => entry.Metadata.Id == "powered_gate").Presentation.Bodies } }, "Oscillator.Body");
         Assert.Contains(Check(clock with { Colliders = [] }), error => error.Detail.StartsWith("Candidate.Oscillator.Body:", StringComparison.Ordinal));
 
         // One node-selecting capability: a valid passage aperture on the same Static frame is refused, and only for that (the control
@@ -855,7 +874,8 @@ public sealed class BundleValidatorTests
         // Not Dynamic, no slider: another package's Static frame is admitted.
         Assert.Empty(Check(counter with { Mechanical = bundle.Single(entry => entry.Metadata.Id == "wall").Mechanical }));
         Refused(counter with { Mechanical = bundle.Single(entry => entry.Metadata.Id == "ball").Mechanical }, "PulseCount.Body");
-        Refused(counter with { Mechanical = bundle.Single(entry => entry.Metadata.Id == "powered_gate").Mechanical }, "PulseCount.Body");
+        Refused(counter with { Mechanical = bundle.Single(entry => entry.Metadata.Id == "powered_gate").Mechanical,
+            Presentation = counter.Presentation with { Bodies = bundle.Single(entry => entry.Metadata.Id == "powered_gate").Presentation.Bodies } }, "PulseCount.Body");
         Assert.Contains(Check(counter with { Colliders = [] }), error => error.Detail.StartsWith("Candidate.PulseCount.Body:", StringComparison.Ordinal));
         // One node-selecting capability: a valid passage aperture on a Static frame beside it is refused, and only for that.
         var wall = bundle.Single(entry => entry.Metadata.Id == "wall").Mechanical;
@@ -894,7 +914,8 @@ public sealed class BundleValidatorTests
         Refused(latch with { Electrical = latch.Electrical! with { Supply = null } }, "Memory.Supply");
         // Not Dynamic, no slider.
         Refused(latch with { Mechanical = bundle.Single(entry => entry.Metadata.Id == "ball").Mechanical }, "Memory.Body");
-        Refused(latch with { Mechanical = bundle.Single(entry => entry.Metadata.Id == "powered_gate").Mechanical }, "Memory.Body");
+        Refused(latch with { Mechanical = bundle.Single(entry => entry.Metadata.Id == "powered_gate").Mechanical,
+            Presentation = latch.Presentation with { Bodies = bundle.Single(entry => entry.Metadata.Id == "powered_gate").Presentation.Bodies } }, "Memory.Body");
         Assert.Empty(Check(latch with { Mechanical = bundle.Single(entry => entry.Metadata.Id == "wall").Mechanical }));
         // One node-selecting capability: a valid indicator on a declared Level input beside it is refused, and only for that.
         Refused(latch with

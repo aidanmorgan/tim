@@ -10,7 +10,7 @@ public sealed partial class BrowserWorkshopClient
 {
     private readonly record struct UiRequest(WorkshopUiTarget Target, AnimationControlKind Kind, bool Visible);
     /// <summary>Bounded by construction: at most one Reveal/Hide and one Visibility per Control-fed target.</summary>
-    private readonly List<UiRequest> _uiQueue = new();
+    private readonly List<UiRequest> _uiQueue = new(16);
     private ulong _hintGeneration, _hintOrdinal;
     private WorkshopAnimationSample? _hintSample;
     private bool _frameHintTaken;
@@ -89,7 +89,7 @@ public sealed partial class BrowserWorkshopClient
         _goalWake.Observe(Abstractions.EventRingDelivery.Read(ReadEvents(_id.Value, schedule.World.WorldGeneration.Value)), latest.Read.Tick);
         if (_animationPending is not null || (_goalRequested is not null && !_goalRetry) ||
             (!_goalRetry && !_goalWake.Due(latest.Read.Tick))) return;
-        var solved = WorkshopGoalEvaluator.Occurrence(_construction.Puzzle.Goal, latest.Read, Epoch);
+        var solved = WorkshopGoalEvaluator.Occurrence(_construction.Puzzle.Goal, latest.Read, Epoch, _construction.Instances.Identities);
         _goalWake.Evaluated(latest.Read.Tick, solved is not null);
         if (solved is not { } occurrence) return;
         var declaration = UiCurves.Goal;
@@ -140,7 +140,7 @@ public sealed partial class BrowserWorkshopClient
         if (_frameGoalTaken || physical.Evidence.WorldEpoch != Epoch || physical.FeedbackCapture is null ||
             _goalSample is not { } sample || sample.World != Epoch || sample.AppliedAt.Value > _frameMaster.Value ||
             _goalRequested is not { } occurrence ||
-            WorkshopGoalEvaluator.Occurrence(_construction.Puzzle.Goal, physical.Captures, physical.Activations) != occurrence)
+            WorkshopGoalEvaluator.Occurrence(_construction.Puzzle.Goal, physical.Captures, physical.Activations, _construction.Instances.Identities) != occurrence)
             return false;
         _frameGoalTaken = true; _goalSample = null; _lastPresentationApplied = _frameMaster;
         opacity = new(sample.Value); return true;

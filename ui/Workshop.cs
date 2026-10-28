@@ -22,7 +22,7 @@ public partial class Workshop : Node3D
     private Control _optionsPanel = null!, _objectivePanel = null!;
     private Button _hintButton = null!;
     private Vector3 _cameraPan;
-    private readonly HashSet<Key> _cameraKeys = new();
+    private readonly HashSet<Key> _cameraKeys = new(4);
     private VBoxContainer _optionsContents = null!, _partDockContents = null!;
     private Button _menuButton = null!, _goalButton = null!;
     private HBoxContainer _mainActions = null!;
@@ -39,8 +39,8 @@ public partial class Workshop : Node3D
     private Metres _depth;
     private float _azimuth, _elevation, _zoom = 13.8f;
     private GpuBodyId _nextId = new(1);
-    private IReadOnlyDictionary<PartId, PartAllowance> _inventory = new Dictionary<PartId, PartAllowance>();
-    private readonly List<WorkshopConstruction> _undo = new();
+    private IReadOnlyDictionary<PartId, PartAllowance> _inventory = new Dictionary<PartId, PartAllowance>(16);
+    private readonly List<WorkshopConstruction> _undo = new(16);
     private bool _gpuPending = true;
     private bool _workshopUiRemoved;
     private bool CanEdit => !_gpuPending && !_inRun && World.WorkshopPhase == WorkshopSimulationPhase.Building;

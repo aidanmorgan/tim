@@ -19,9 +19,9 @@ internal static class LawBalls
         LawBall.Bowling => PartId.BowlingBall,
         _ => throw new ArgumentOutOfRangeException(nameof(ball), ball, "Unknown law ball."),
     };
-    private static CuriousContraptions.Abstractions.ColliderDescriptor Sphere(LawBall ball) => Assert.Single(DeclaredPhysics.Of(Part(ball)).Colliders);
+    private static CuriousContraptions.Abstractions.ColliderDescriptor Sphere(LawBall ball) => Assert.Single(DeclaredPhysics.Of(Part(ball)).Colliders, collider => collider.ShapeKind == CuriousContraptions.Abstractions.ColliderShapeKind.Sphere);
     private static CuriousContraptions.Abstractions.Mechanical.RigidBodyMassProperties Body(LawBall ball) =>
-        DeclaredPhysics.Of(Part(ball)).Mechanical!.MassProperties;
+        MassFixtures.Evaluate(DeclaredPhysics.Of(Part(ball)).Mechanical!.MassFrame, DeclaredPhysics.Of(Part(ball)).Metadata.Parameters);
     public static float Radius(LawBall ball) => Sphere(ball).HalfExtents.X;
     public static float Mass(LawBall ball) => Body(ball).Mass;
     public static float Drag(LawBall ball) => Body(ball).LinearDrag;
@@ -35,9 +35,9 @@ internal static class LawBalls
 /// collider and material lanes (WorkshopPhysicsCompiler), so a law test feeds the engine exactly the compiled tile.</summary>
 internal static class LawTile
 {
-    private static CuriousContraptions.Abstractions.ColliderDescriptor Box => Assert.Single(DeclaredPhysics.Of(PartId.Domino).Colliders);
+    private static CuriousContraptions.Abstractions.ColliderDescriptor Box => Assert.Single(DeclaredPhysics.Of(PartId.Domino).Colliders, collider => collider.ShapeKind == CuriousContraptions.Abstractions.ColliderShapeKind.Box);
     public static Vector3 HalfExtents => new((float)Box.HalfExtents.X, (float)Box.HalfExtents.Y, (float)Box.HalfExtents.Z);
-    public static float Mass => (float)DeclaredPhysics.Of(PartId.Domino).Mechanical!.MassProperties.Mass;
+    public static float Mass => MassFixtures.Evaluate(DeclaredPhysics.Of(PartId.Domino).Mechanical!.MassFrame, []).Mass;
     public static LawMaterial Material => new((float)Box.Material.Restitution, (float)Box.Material.BounceThreshold,
         (float)Box.Material.Friction, (float)Box.Material.RollingResistance);
 }
@@ -77,7 +77,7 @@ internal sealed class LawScene
         var height = WorkshopInput.Position(BenchY);
         var plane = new GpuBodyId(_next++);
         _bodies.Add(new(plane, RigidMotionKind.Static, new(0, height.Cell, 0), new(0f, height.Local, 0f), CanonicalRotation.Identity,
-            default, default, new(0f), default, new(0f)));
+            default, default, new(0f), default, new(0f), default));
         var material = Material(LawMaterial.Bench);
         _colliders.Add(new(new(_next++), plane, material, ColliderShapeKind.Plane, RigidLocalPose.Identity, new(0f), default));
     }
@@ -98,7 +98,8 @@ internal sealed class LawScene
         _bodies.Add(new(id, motion, new(x.Cell, y.Cell, z.Cell), new(x.Local, y.Local, z.Local),
             CanonicalRotation.Normalize(rotation.X, rotation.Y, rotation.Z, rotation.W),
             dynamic ? new(velocity.X, velocity.Y, velocity.Z) : default, dynamic ? new(angular.X, angular.Y, angular.Z) : default,
-            new((float)(dynamic ? mass : 0f)), dynamic ? new(0f, (float)gravity, 0f) : default, new((float)(dynamic ? drag : 0f))));
+            new((float)(dynamic ? mass : 0f)), dynamic ? new(0f, (float)gravity, 0f) : default, new((float)(dynamic ? drag : 0f)),
+            dynamic ? MassFixtures.Primitive(shape, mass, radius, half, colliderOffset) : default));
         var materialId = Material(material);
         var collider = new GpuColliderId(_next++);
         _colliderOf[id] = collider;
@@ -125,6 +126,20 @@ internal sealed class LawScene
             0f, material ?? LawMaterial.Bench, default, default, 0f, 0f, default);
 
     public GpuColliderId ColliderOf(GpuBodyId body) => _colliderOf[body];
+
+    /// <summary>Adds collision geometry without changing the owner's declared mass frame.</summary>
+    public GpuColliderId ChildCollider(GpuBodyId body, ColliderShapeKind shape, Vector3 offset, float radius,
+        Vector3 lanes = default, Quaternion? rotation = null, LawMaterial? material = null)
+    {
+        var primary = _colliders.Single(collider => collider.Id == _colliderOf[body]);
+        var id = new GpuColliderId(_next++);
+        var q = rotation ?? Quaternion.Identity;
+        _colliders.Add(new(id, body, material is { } declared ? Material(declared) : primary.Material, shape,
+            new(new(offset.X, offset.Y, offset.Z), new(q.X, q.Y, q.Z, q.W)),
+            new(radius), new(lanes.X, lanes.Y, lanes.Z)));
+        return id;
+    }
+
 
     public GpuBodyId Sphere(Vector3 position, float radius, float mass, LawMaterial material, Vector3 velocity, Vector3 angular,
         float drag, float gravity, Vector3 colliderOffset = default, Quaternion? rotation = null) =>
@@ -164,10 +179,22 @@ internal sealed class LawScene
         var id = new GpuBodyId(_next++);
         var x = WorkshopInput.Position(position.X); var y = WorkshopInput.Position(position.Y); var z = WorkshopInput.Position(position.Z);
         _bodies.Add(new(id, RigidMotionKind.Static, new(x.Cell, y.Cell, z.Cell), new(x.Local, y.Local, z.Local),
-            CanonicalRotation.Normalize(rotation.X, rotation.Y, rotation.Z, rotation.W), default, default, new(0f), default, new(0f)));
+            CanonicalRotation.Normalize(rotation.X, rotation.Y, rotation.Z, rotation.W), default, default, new(0f), default, new(0f), default));
         var collider = new GpuColliderId(_next++);
         _colliderOf[id] = collider;
         _colliders.Add(new(collider, id, Material(material), shape, RigidLocalPose.Identity, new(radius), new(lanes.X, lanes.Y, lanes.Z)));
+        return id;
+    }
+
+    public GpuBodyId DynamicHollow(ColliderShapeKind shape, Vector3 position, Quaternion rotation, float radius, Vector3 lanes,
+        LawMaterial material, float mass, Vector3 moments, Vector3 velocity = default, float gravity = 0f, Vector3 angular = default)
+    {
+        var id = StaticHollow(shape, position, rotation, radius, lanes, material);
+        var index = _bodies.FindIndex(body => body.Id == id);
+        _bodies[index] = _bodies[index] with { Motion = RigidMotionKind.Dynamic, Mass = new(mass),
+            Gravity = new(0, gravity, 0), Velocity = new(velocity.X, velocity.Y, velocity.Z),
+            AngularVelocity = new(angular.X, angular.Y, angular.Z) };
+        DeclareMassFrame(id, moments);
         return id;
     }
 
@@ -196,6 +223,15 @@ internal sealed class LawScene
         _drives.Add(new(joint, target, maxSpeed, stoppingAcceleration, maxEffort, maxPower));
     private readonly List<PrismaticDriveDeclaration> _drives = [];
 
+    public void DeclareMassFrame(GpuBodyId body, Vector3 moments, Vector3 centre = default, Quaternion? principalFrame = null)
+    {
+        var index = _bodies.FindIndex(value => value.Id == body);
+        if (index < 0) throw new ArgumentException("Mass frame owner is absent.");
+        var q = principalFrame ?? Quaternion.Identity;
+        _bodies[index] = _bodies[index] with { MassProperties = new(new(centre.X, centre.Y, centre.Z),
+            new(q.X, q.Y, q.Z, q.W), new(moments.X), new(moments.Y), new(moments.Z)) };
+    }
+
     public LawWorld Admit(SimulationCadence cadence = SimulationCadence.Hz120)
     {
         var scene = new PhysicsSceneDeclaration(new(1, 2), _next, [.. _bodies], [.. _colliders], [.. _materials], [], [],
@@ -218,9 +254,10 @@ internal readonly record struct LawBody(Vector3 Position, Quaternion Rotation, V
         Velocity.X + Velocity.Y + Velocity.Z + Angular.X + Angular.Y + Angular.Z);
 }
 
-internal sealed class LawState(PhysicsSceneDeclaration scene, byte[] world)
+internal sealed class LawState(PhysicsSceneDeclaration scene, byte[] world, PhysicsInteractionSnapshot interactions)
 {
     public byte[] World => world;
+    public PhysicsInteractionSnapshot Interactions => interactions;
     public LawBody this[GpuBodyId id] => Read(scene, world, id);
 
     public static LawBody Read(PhysicsSceneDeclaration scene, byte[] world, GpuBodyId id)
@@ -244,6 +281,7 @@ internal sealed class LawWorld(PhysicsSceneDeclaration scene, byte[] admitted, S
 {
     public PhysicsSceneDeclaration Scene => scene;
     public byte[] Admitted => admitted;
+    public PhysicsInteractionSnapshot InitialInteractions { get; set; } = PhysicsInteractionSnapshot.Empty;
     public int TicksPerSecond => cadence switch
     {
         SimulationCadence.Hz60 => 60, SimulationCadence.Hz120 => 120, SimulationCadence.Hz240 => 240,
@@ -252,17 +290,6 @@ internal sealed class LawWorld(PhysicsSceneDeclaration scene, byte[] admitted, S
     public LawBody Initial(GpuBodyId id) => LawState.Read(scene, admitted, id);
 
     private int Body(GpuBodyId id) => scene.Layout.GetBodyOffset(id);
-
-    /// <summary>Overrides a body's admitted principal moments (one f32 each; zero stays zero).</summary>
-    public void SetPrincipalMoments(GpuBodyId id, Vector3 moments)
-    {
-        for (var axis = 0; axis < 3; axis++)
-        {
-            var value = axis == 0 ? moments.X : axis == 1 ? moments.Y : moments.Z;
-            var slot = admitted.AsSpan(Body(id) + PhysicsGpuAbi.BodyPrincipalInertiaOffset + axis * PhysicsGpuAbi.PrincipalInertiaBytes);
-            BinaryPrimitives.WriteSingleLittleEndian(slot, value);
-        }
-    }
 
     /// <summary>Sets an admitted velocity beyond the declaration bound (the envelope facts start outside it).</summary>
     public void SetVelocity(GpuBodyId id, Vector3 velocity, Vector3 angular)
@@ -296,11 +323,12 @@ internal sealed class LawWorld(PhysicsSceneDeclaration scene, byte[] admitted, S
         engine.Reset();
         var source = (byte[])admitted.Clone();
         var candidate = new byte[source.Length];
+        var interactions = InitialInteractions;
         // Every prismatic's route is closed when supplied (C-Gate), as the compiled supply graph would close it.
         var inputs = new PhysicsTickInputs([], Enumerable.Repeat(supplied, scene.Prismatics.Length).ToArray());
         for (var tick = 1; tick <= ticks; tick++)
         {
-            engine.Advance(source, candidate, inputs);
+            interactions = engine.Advance(source, candidate, inputs, interactions);
             (source, candidate) = (candidate, source);
             foreach (var body in scene.Bodies)
             {
@@ -309,9 +337,9 @@ internal sealed class LawWorld(PhysicsSceneDeclaration scene, byte[] admitted, S
                 Assert.True(local.X is >= -.5f and < .5f && local.Y is >= -.5f and < .5f && local.Z is >= -.5f and < .5f,
                     $"tick {tick}: body {body.Id.Value} remainder {local} is not canonical");
             }
-            observe?.Invoke(tick, new(scene, source));
+            observe?.Invoke(tick, new(scene, source, interactions));
         }
-        return new(scene, (byte[])source.Clone());
+        return new(scene, (byte[])source.Clone(), interactions);
     }
 }
 
@@ -372,7 +400,7 @@ public sealed class WorkshopPhysicsLawTests
         var engine = new WorkshopPhysicsEngine();
         var inputs = new PhysicsTickInputs([], []);
         var committed = new byte[world.Admitted.Length];
-        engine.Advance(world.Admitted, committed, inputs);
+        var committedInteractions = engine.Advance(world.Admitted, committed, inputs, PhysicsInteractionSnapshot.Empty);
         Assert.Equal(PhysicsFailure.None, PhysicsGpuAbi.ReadFailure(committed));
         var fixedBefore = LawState.Read(world.Scene, committed, support);
         var movingBefore = LawState.Read(world.Scene, committed, moving);
@@ -382,7 +410,7 @@ public sealed class WorkshopPhysicsLawTests
         // These are malformed external ABI inputs: the first undefined value and the uint endpoint.
         BinaryPrimitives.WriteUInt32LittleEndian(source.AsSpan(offset), undefinedMotion);
         var candidate = new byte[source.Length];
-        engine.Advance(source, candidate, inputs);
+        engine.Advance(source, candidate, inputs, committedInteractions);
         Assert.Equal(PhysicsFailure.InvalidDeclaration, PhysicsGpuAbi.ReadFailure(candidate));
         Assert.Equal(PhysicsFailure.None, PhysicsGpuAbi.ReadFailure(source));
         AssertUnadvanced(source);
@@ -391,7 +419,7 @@ public sealed class WorkshopPhysicsLawTests
         Assert.Equal(undefinedMotion, BinaryPrimitives.ReadUInt32LittleEndian(candidate.AsSpan(offset)));
 
         // The refusal must leave the same engine able to advance its valid committed world.
-        engine.Advance(committed, candidate, inputs);
+        engine.Advance(committed, candidate, inputs, committedInteractions);
         Assert.Equal(PhysicsFailure.None, PhysicsGpuAbi.ReadFailure(candidate));
         Assert.Equal(2ul, BinaryPrimitives.ReadUInt64LittleEndian(candidate.AsSpan(PhysicsGpuAbi.HeaderTickOffset)));
         Assert.Equal(8u, BinaryPrimitives.ReadUInt32LittleEndian(candidate.AsSpan(PhysicsGpuAbi.HeaderSourceOrdinalOffset)));
@@ -569,8 +597,8 @@ public sealed class WorkshopPhysicsLawTests
         {
             var scene = new LawScene();
             var ball = scene.Ball(LawBall.Basketball, At(0, BenchY + radius), velocity: At(3, 0, 0), resistanceFree: true);
+            if (moment is { } i) scene.DeclareMassFrame(ball, new(i, i, i));
             var world = scene.Admit();
-            if (moment is { } i) world.SetPrincipalMoments(ball, new(i, i, i));
             return world.Step(world.TicksPerSecond)[ball].Velocity.X;
         }
         Assert.InRange(Roll(null), 2.143f - .08f, 2.143f + .08f);
@@ -601,22 +629,16 @@ public sealed class WorkshopPhysicsLawTests
     }
 
     [Fact]
-    public void AZeroDeclaredMomentReadsAsInfiniteInertiaAndTheBodyStaysFinite()
+    public void AZeroDeclaredMomentIsRejectedBeforeTheWorldCanRun()
     {
-        var radius = LawBalls.Radius(LawBall.Basketball);
         var scene = new LawScene();
         var ball = scene.Ball(LawBall.Basketball, At(0, 1), velocity: At(2, 0, 0));
-        var world = scene.Admit();
-        world.SetPrincipalMoments(ball, Vector3.Zero);
-        var final = world.Step(2 * world.TicksPerSecond)[ball];
-        Assert.True(final.Finite);
-        Assert.Equal(0f, final.Spin);
-        Assert.InRange(final.Position.Y, BenchY + radius - .002f, BenchY + radius + .002f);
-        // Control: the declared solid moment lets the same contact spin the ball.
+        scene.DeclareMassFrame(ball, Vector3.Zero);
+        Assert.Throws<ArgumentException>(() => scene.Admit());
         var control = new LawScene();
         var spun = control.Ball(LawBall.Basketball, At(0, 1), velocity: At(2, 0, 0));
-        var controlWorld = control.Admit();
-        Assert.True(controlWorld.Step(2 * controlWorld.TicksPerSecond)[spun].Spin > 1);
+        var world = control.Admit();
+        Assert.True(world.Step(2 * world.TicksPerSecond)[spun].Spin > 1);
     }
 
     // ---- element-free solver ratchet (Story 9.4b coordinator decision, 18 Oct 2026; hardened for Murdoch-2 F2) ----
@@ -666,7 +688,7 @@ public sealed class WorkshopPhysicsLawTests
     // Reviewed qualified names: the prismatic constraint's soft spring row is the generic declared stiffness/damping law of
     // every prismatic, not the Springboard part. Only these exact qualified forms are set aside, so a bare "Spring" token
     // (a future Springboard-specific name) is still found.
-    private const string GenericQualifiedNames = @"\b(?:PrismaticRowKind\.Spring|SoftConstraintCoefficients\.FromSpring)\b";
+    private const string GenericQualifiedNames = @"\b(?:PrismaticRowKind\.Spring|SoftConstraintCoefficients\.FromSpring|CaptureLatch\.Clear|CaptureLatchPhase\.Clear|retained\.Latch)\b";
 
     /// <summary>Murdoch-2 R2-F5: the scanned element names are the catalogue's, never a hand list. Every word of every element
     /// package Id in <c>elements/</c> and of every undelivered part (letters only, three or more), so a new element is scanned the
@@ -777,6 +799,11 @@ public sealed class WorkshopPhysicsLawTests
     [InlineData("Conjugate", false)]
     [InlineData("contactNormal", false)]
     [InlineData("PrismaticRowKind.Spring", false)] // the reviewed generic soft row, qualified
+    [InlineData("CaptureLatch.Clear", false)] // shared capture protocol, not a State Latch element
+    [InlineData("CaptureLatchPhase.Clear", false)]
+    [InlineData("retained.Latch", false)] // retained CapturePairState member
+    [InlineData("Latch", true)]
+    [InlineData("latchSpecificForce", true)]
     [InlineData("Spring", true)]                  // a bare Spring token is still the spring family
     [InlineData("softRowError", false)]
     [InlineData("holdWindow", true)]
@@ -1288,14 +1315,14 @@ public sealed class WorkshopPhysicsLawTests
         var end = world.Step(1, (_, state) =>
         {
             var body = state[box];
-            var work = PhysicsGpuAbi.ReadContactWorks(state.World)[0];
+            var work = PhysicsGpuAbi.ReadContactWorks(state.World, state.Interactions)[0];
             Assert.True(body.Finite);
             Assert.InRange(work.RemainingEnergy.Value, 0f, preload);
             var debit = preload - work.RemainingEnergy.Value;
             Assert.True(Energy(body) <= initialEnergy + debit + allowance,
                 $"kinetic {Energy(body):R} J, initial {initialEnergy:R}, debit {debit:R}, allowance {allowance:R}");
         });
-        var paid = PhysicsGpuAbi.ReadContactWorks(end.World)[0];
+        var paid = PhysicsGpuAbi.ReadContactWorks(end.World, end.Interactions)[0];
         Assert.True(paid.OccurrenceCount > 0, "The rotating box must actually reach the paid surface.");
         if (preload > 0f) Assert.True(paid.RemainingEnergy.Value < preload, "Powered control must receive real work.");
         else Assert.Equal(0f, paid.RemainingEnergy.Value);
@@ -1360,42 +1387,29 @@ public sealed class WorkshopPhysicsLawTests
     [Fact]
     public void ACurvedSidesRollingRowActsOnlyAboutItsAxisProjectedIntoTheContactsTangentPlane()
     {
-        // A dynamic lying cylinder (r 0.3, unit inverse inertia, axis U1 = +Z, Crr 0.1) touches a static floor at one curved-side point
-        // whose normal leans toward the axis, n = (0, √(1 − 0.15²), 0.15): n·U1 = 0.15, inside the side tolerance. Its rolling row
-        // resists only the axis projected into the contact's tangent plane, p = (U1 − 0.15 n) / |U1 − 0.15 n|. With an isotropic inverse
-        // inertia the row turns the spin only along p, so the spin about n is unchanged (within the f32 rounding of the 1 rad/s
-        // components, 1e-6) and the spin about p is taken out. The point's normal load, 100 N·s, bounds the row at Crr × r × 100 = 3 N·m·s,
-        // above the w·p = 0.4 × −0.15 + 1 × 0.989 ≈ 0.93 it takes. An unprojected axis would also turn the spin about n, by 0.15 × w·U1.
-        var body = new SimBody
+        // A declared isotropic inertia isolates angular impulse directions. The
+        // plane normal is+Y, while the curved cylinder axis has a .15 Y component.
+        // With zero ordinary friction, normal contact cannot change Y spin;
+        // rolling must project the cylinder axis into the tangent plane as well.
+        LawBody Observe(float rolling)
         {
-            Qw = 1, Motion = RigidMotionKind.Dynamic, Mass = 1, InvMass = 1, Principal = Quaternion.Identity, InvI = Vector3.One, Q0 = Quaternion.Identity,
-            Wx = .3f, Wy = .4f, Wz = 1f
-        };
-        WorkshopCollisionKernels.UpdateDynamicFrame(body);
-        var floor = new SimBody { Qw = 1, Motion = RigidMotionKind.Static, Principal = Quaternion.Identity, Q0 = Quaternion.Identity };
-        var cylinder = new SimCollider
-        {
-            Index = 0, Body = body, Shape = ShapeKind.Cylinder, Radius = .3f, Hy = .4f, U1 = Vector3.UnitZ, Rq = Quaternion.Identity,
-            RollingResistance = .1f
-        };
-        var floorCollider = new SimCollider { Index = 1, Body = floor, Shape = ShapeKind.Plane, Rq = Quaternion.Identity };
-        var n = new Vector3(0, MathF.Sqrt(1 - .15f * .15f), .15f);
-        var point = new ContactPoint
-        {
-            A = body, B = floor, ColA = cylinder, ColB = floorCollider, Nx = n.X, Ny = n.Y, Nz = n.Z, Py = -.3f,
-            SupportA = ContactSupport.Axis, SupportB = ContactSupport.Material
-        };
-        WorkshopConstraintSolver.PrepareContact(point, new Dictionary<ulong, float>());
-        point.LambdaN = 100f;
-        var manifold = new ContactManifold();
-        manifold.Points.Add(point);
-        WorkshopConstraintSolver.PrepareRolling(manifold);
-        var p = Vector3.Normalize(Vector3.UnitZ - Vector3.Dot(Vector3.UnitZ, n) * n);
-        var aboutNormal = Vector3.Dot(body.AngularVelocity, n);
-        Assert.True(MathF.Abs(Vector3.Dot(body.AngularVelocity, p)) > .9f, "the spin about p is there to take out");
-        WorkshopConstraintSolver.SolveRolling(manifold);
-        Assert.True(MathF.Abs(Vector3.Dot(body.AngularVelocity, n) - aboutNormal) <= 1e-6f,
-            $"spin about n {Vector3.Dot(body.AngularVelocity, n)} rad/s, was {aboutNormal}");
-        Assert.True(MathF.Abs(Vector3.Dot(body.AngularVelocity, p)) <= 1e-6f, $"spin about p {Vector3.Dot(body.AngularVelocity, p)} rad/s");
+            var scene = new LawScene();
+            var tilt = MathF.Asin(.15f);
+            var rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitX, -tilt) * new Quaternion(.5f, .5f, .5f, .5f);
+            var support = .4f * .15f + .3f * MathF.Cos(tilt);
+            var body = scene.Cylinder(new(0, LawScene.BenchY + support, 0), .3f, .4f, 1,
+                new(0, .1f, 0, rolling), rotation, velocity: new(0, -1, 0), angular: new(0, .4f, 1), gravity: 0);
+            scene.DeclareMassFrame(body, Vector3.One);
+            return scene.Admit(SimulationCadence.Hz240).Step(1)[body];
+        }
+        var free = Observe(0);
+        var resisted = Observe(.1f);
+        Assert.InRange(MathF.Abs(free.Angular.Y - .4f), 0, 1e-6f);
+        Assert.InRange(MathF.Abs(resisted.Angular.Y - .4f), 0, 1e-6f);
+        // Unit mass/inertia and reach .5 give effective inverse mass<=1.25;
+        // the1m/s impact supplies order.8N·s, hence .024N·m·s rolling capacity.
+        // A1mrad/s response is a conservative positive control, not a fitted result.
+        Assert.True(free.Angular.Z - resisted.Angular.Z > .001f,
+            $"rolling spin {resisted.Angular.Z:R}, zero-Crr control {free.Angular.Z:R}");
     }
 }

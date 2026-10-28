@@ -103,7 +103,7 @@ public sealed class WorkshopWallTests
             BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(offset + PhysicsGpuAbi.BodyVelocityOffset), normal.X * speed);
             BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(offset + PhysicsGpuAbi.BodyVelocityOffset + 8), normal.Z * speed);
             var furthest = -2f;
-            WorkshopPhysicsEngineTests.StepWorld(bytes, 90, (_, state) =>
+            WorkshopPhysicsEngineTests.StepWorld(bytes, 90, (_, state, interactions) =>
             {
                 var bodies = PhysicsGpuAbi.ReadDynamicBodies(state);
                 Assert.Equal(1, bodies.Count);
@@ -172,11 +172,11 @@ public sealed class WorkshopWallTests
         var scene = WorkshopPhysicsCompiler.Compile(new(new(1), WorkshopCadenceSettings.Default(), instances), new(1, 2));
         Assert.Equal(8, scene.Bodies.Length);
         // The 13 colliders of the harvest shapes plus, since elements-visible-solid, two rails on each of the two ramps, the lamp's
-        // bulb and stem, and the switch's two terminals and socket: 22.
-        Assert.Equal(22, scene.Colliders.Length);
+        // bulb and stem, and the switch's two terminals and socket, plus the Basketball seam: 23.
+        Assert.Equal(23, scene.Colliders.Length);
         Assert.Equal(8, scene.Materials.Length);
         // Story 9R.5b: no fixed capacity; the world tables are exactly the compiled populations.
-        Assert.Equal((8, 22, 8), (scene.World.Bodies, scene.World.Colliders, scene.World.Materials));
+        Assert.Equal((8, 23, 8), (scene.World.Bodies, scene.World.Colliders, scene.World.Materials));
     }
 }
 

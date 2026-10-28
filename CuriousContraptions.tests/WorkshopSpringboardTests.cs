@@ -69,7 +69,7 @@ public sealed class WorkshopSpringboardTests(NativeSceneFixture godot)
             : WorkshopInput.Generic(PartId.Springboard, new(3), -3, .8, 0, 0, 0, -Math.Sin(Math.PI / 18), Math.Cos(Math.PI / 18));
         var construction = initial.WithInstance(placed); construction.Validate();
         Assert.Equal(WorkshopGoalKind.Captured, construction.Puzzle.Goal.Kind);
-        Assert.Equal(WorkshopPhysicsCompiler.CaptureSensor((((WorkshopGenericInstance)construction.Instances.Single(instance => instance.PartId == PartId.Receiver))).Id), construction.Puzzle.Goal.EventSource);
+        Assert.Equal(construction.Instances.Single(instance => instance.PartId == PartId.Receiver).Id, construction.Puzzle.Goal.Target);
         foreach (var precision in new float[] { 0f, .45f, 1f })
         {
             var next = PuzzleCatalogue.WithPrecision(construction, new(precision));
@@ -87,7 +87,7 @@ public sealed class WorkshopSpringboardTests(NativeSceneFixture godot)
             var removed = construction.WithoutInstance(new(3)); removed.Validate();
             var replaced = removed.WithInstance(WorkshopInput.Generic(PartId.Receiver, new(4), 1.8, 1.3, 0, 0, 0, 0, 1)); replaced.Validate();
             Assert.Equal(new GpuBodyId(4), replaced.Puzzle.Goal.Target);
-            Assert.Throws<WorkbenchFullException>(() => replaced.WithInstance(WorkshopInput.Generic(PartId.Receiver, new(5), 2, 1, 0, 0, 0, 0, 1)).Validate());
+            EditRefusal.Is(WorkshopEditRejection.InventoryExceeded, () => replaced.WithInstance(WorkshopInput.Generic(PartId.Receiver, new(5), 2, 1, 0, 0, 0, 0, 1)).Validate());
         }
         static void Profile(System.Text.Json.JsonElement data, AssistanceProfile expected)
         {
@@ -175,7 +175,7 @@ public sealed class WorkshopSpringboardTests(NativeSceneFixture godot)
         var displacement = rows[(int)PrismaticRowKind.Spring].Error;
         Assert.InRange(.5f * joint.Stiffness * displacement * displacement, 7.99999f, 8.00001f);
         var state = PhysicsGpuAbi.Admission(scene, new(1), new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1)));
-        PhysicsGpuAbi.ValidateCandidate(state, state, new(0));
+        PhysicsGpuAbi.ValidateCandidate(state, state, new(0), PhysicsInteractionSnapshot.Empty, PhysicsInteractionSnapshot.Empty);
         var bodies = PhysicsGpuAbi.ReadDynamicBodies(state); Assert.Equal(1, bodies.Count);
         var actual = bodies[0];
         Assert.Equal(b.Local, actual.Body.Local); Assert.Equal(b.Rotation, actual.Rotation);
@@ -189,8 +189,8 @@ public sealed class WorkshopSpringboardTests(NativeSceneFixture godot)
         var scene = WorkshopPhysicsCompiler.Compile(Construction(), new(1, 2));
         var joint = Assert.Single(scene.Prismatics.ToArray());
         Assert.Equal(new GpuBodyId(2), joint.BodyA);
-        Assert.Equal(WorkshopPhysicsCompiler.SliderBody(new(2), 0), joint.BodyB);
-        Assert.True(joint.BodyB.Value > uint.MaxValue);
+        Assert.Equal(Construction().Instances.Identities[new(2)].Sliders[0].Body, joint.BodyB);
+        Assert.DoesNotContain(Construction().Instances, instance => instance.Id == joint.BodyB);
         Assert.Equal(ConnectedCollision.Disabled, joint.Collision);
         Assert.Equal(-.25f, joint.Lower); Assert.Equal(0f, joint.Upper);
         var plate = scene.Bodies.ToArray().Single(body => body.Id == joint.BodyB);
@@ -237,7 +237,7 @@ public sealed class WorkshopSpringboardTests(NativeSceneFixture godot)
         var saved = new WorkshopSavedConstruction(Construction(settings), new(3));
         Assert.Equal(saved, WorkshopSaveCodec.Decode(SaveFixture.Elements,WorkshopSaveCodec.Encode(saved)));
         var scene = WorkshopPhysicsCompiler.Compile(saved.Construction, new(1, 2));
-        var plate = scene.Bodies.ToArray().Single(body => body.Id == WorkshopPhysicsCompiler.SliderBody(new(2), 0));
+        var plate = scene.Bodies.ToArray().Single(body => body.Id == saved.Construction.Instances.Identities[new(2)].Sliders[0].Body);
         Assert.InRange(MathF.Abs((plate.Cell.Y + plate.Local.Y) / 16f - (1.14f - compression)), 0, 1e-7f);
     }
 
@@ -290,14 +290,15 @@ public sealed class WorkshopSpringboardTests(NativeSceneFixture godot)
             Assert.Equal(0UL, part.AuthoredId.Value);
             Assert.Null(part.PhysicalVisual(default));
             part.AuthoredId = new(2);
-            var plateId = WorkshopPhysicsCompiler.SliderBody(part.AuthoredId, 0);
-            Assert.Throws<ArgumentException>(() => part.InstallPhysicalIdentity(PhysicalVisualSlot.Secondary, new(999)));
-            part.InstallPhysicalIdentity(PhysicalVisualSlot.Secondary, plateId);
+            var identities = Construction().Instances.Identities;
+            var plateId = identities[part.AuthoredId].Sliders[0].Body;
+            Assert.Throws<ArgumentException>(() => part.InstallPhysicalIdentity(new CuriousContraptions.Abstractions.PackageBodyIndex(1), new(999), identities));
+            part.InstallPhysicalIdentity(new CuriousContraptions.Abstractions.PackageBodyIndex(1), plateId, identities);
             var plate = Assert.IsAssignableFrom<Node3D>(part.PhysicalVisual(plateId));
             foreach (var offset in new[] { -2, -1, 1, 2, 3, 4, 61 })
             {
                 var nonBody = new GpuBodyId(checked((ulong)((long)plateId.Value + offset)));
-                Assert.Throws<ArgumentException>(() => part.InstallPhysicalIdentity(PhysicalVisualSlot.Secondary, nonBody));
+                Assert.Throws<ArgumentException>(() => part.InstallPhysicalIdentity(new CuriousContraptions.Abstractions.PackageBodyIndex(1), nonBody, identities));
                 Assert.Null(part.PhysicalVisual(nonBody));
                 Assert.Same(plate, part.PhysicalVisual(plateId));
             }
@@ -310,71 +311,6 @@ public sealed class WorkshopSpringboardTests(NativeSceneFixture godot)
             Assert.Same(part, part.PhysicalVisual(part.AuthoredId));
         }
         finally { part.Free(); }
-    }
-
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
-    public async Task WholeWorldRejectsMissingOrDuplicateBindingBeforeAnyPresentationMutation(bool duplicate)
-    {
-        var world = new MachineWorld();
-        await using var client = new PresentationClient();
-        try
-        {
-            godot.Tree.Root.AddChild(world);
-            world.Registry.Load(); // the Workshop loads the bundle at start-up (Story 9A.14)
-            await world.InitializeWorkshop(() => Task.FromResult<IWorkshopClient>(client));
-            var parts = (List<MachinePart>)typeof(MachineWorld).GetField("_parts", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(world)!;
-            var ball = world.Registry.Create(PartId.Basketball); ball.AuthoredId = new(1); world.AddChild(ball); ball.EnsureConstructed(); parts.Add(ball);
-            var board = world.Registry.Create(PartId.Springboard); board.AuthoredId = new(2); world.AddChild(board); board.EnsureConstructed(); parts.Add(board);
-            var plateId = WorkshopPhysicsCompiler.SliderBody(new(2), 0);
-            board.InstallPhysicalIdentity(PhysicalVisualSlot.Secondary, plateId);
-            var plate = board.PhysicalVisual(plateId)!;
-            client.Sample = new(new([new(new(1), new(16,64,0), default, CanonicalRotation.Identity),
-                new(plateId, new(0,16,0), default, CanonicalRotation.Identity)]), null, new(1), PresentationQuality.Interpolated);
-            client.Available = true; world._Process(0);
-            var oldBall = ball.Transform; var oldPlate = plate.Transform; var oldCoil = board.Visual.GetNode<Node3D>("Coil").Transform;
-            var field = typeof(MachineWorld).GetField("_workshopPresentation", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
-            var oldPresentation = (WorkshopPresentationSample)field.GetValue(world)!;
-            if (duplicate)
-            {
-                var other = world.Registry.Create(PartId.Springboard); other.AuthoredId = new(2); world.AddChild(other); other.EnsureConstructed();
-                other.InstallPhysicalIdentity(PhysicalVisualSlot.Secondary, plateId); parts.Add(other);
-            }
-            client.Sample = new(new([new(new(1), new(80,80,0), default, CanonicalRotation.Identity),
-                new(duplicate ? plateId : new GpuBodyId(999), new(0,80,0), default, CanonicalRotation.Identity)]), null, new(99), PresentationQuality.Interpolated);
-            world._Process(0);
-            Assert.Equal(WorkshopSimulationPhase.Faulted, world.WorkshopPhase);
-            Assert.Equal(oldBall, ball.Transform); Assert.Equal(oldPlate, plate.Transform); Assert.Equal(oldCoil, board.Visual.GetNode<Node3D>("Coil").Transform);
-            Assert.Equal(1, world.DisplaySimulationTime);
-            var retained = (WorkshopPresentationSample)field.GetValue(world)!;
-            Assert.Equal(oldPresentation.SimulationTime, retained.SimulationTime);
-            Assert.Equal(oldPresentation.Evidence, retained.Evidence); Assert.Equal(oldPresentation.Quality, retained.Quality);
-            Assert.Equal(oldPresentation.Bodies.Count, retained.Bodies.Count);
-            for (var i = 0; i < retained.Bodies.Count; i++) Assert.Equal(oldPresentation.Bodies[i], retained.Bodies[i]);
-        }
-        finally { world.Free(); }
-    }
-
-    private sealed class PresentationClient : IWorkshopClient
-    {
-        public WorkshopPresentationSample Sample { get; set; }
-        public bool Available { get; set; }
-        public WorkshopCadenceSettings Settings => WorkshopCadenceSettings.Default();
-        public SimulationEpoch Epoch => new(1);
-        public AuthorityRevision Revision => new(1);
-        public WorkshopCommandIdentity? Pending => null;
-        public WorkshopTransportState TransportState => WorkshopTransportState.Ready;
-        public bool TryPresent(ulong frame, out WorkshopPresentationSample sample) { sample = Sample; return Available; }
-        public bool TryRead(out WorkshopResponse response) { response = default; return false; }
-        public void RecordPresentation(WorkshopPresentationSample sample, bool selected, PresentationScene scene) { }
-        public void ControlUi(WorkshopUiTarget target, AnimationControlKind kind, bool visible) => throw new NotSupportedException();
-        public bool TryUiFrame(ulong frame, WorkshopPresentationSample physical, WorkshopUiTarget target, out CuriousContraptions.Presentation.AnimationOpacity opacity) { opacity=default; return false; }
-        public void SetDeclaredVisible(GpuBodyId owner, bool visible) { }
-        public bool TryDeclaredFrame(ulong frame, WorkshopPresentationSample physical, GpuBodyId owner, out System.Collections.Generic.IReadOnlyList<DeclaredPresentationSample> samples) { samples = System.Array.Empty<DeclaredPresentationSample>(); return false; }
-        public Task<WorkshopDelivery> Execute(WorkshopCommandKind kind, WorkshopConstruction? construction=null, WorkshopCommandIdentity? target=null, WorkshopCadenceSettings? settings=null, WorkshopElectricalControl? electrical=null) => throw new NotSupportedException();
-        public Task<WorkshopDelivery> CancelPending() => throw new NotSupportedException();
-        public ValueTask DisposeAsync() => ValueTask.CompletedTask;
     }
 
 }

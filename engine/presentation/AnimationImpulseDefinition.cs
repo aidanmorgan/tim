@@ -6,7 +6,10 @@ public enum AnimationImpulseCurve { LinearDecay, SmoothDecay, SineSquaredPulse, 
 public enum AnimationImpulseOverlap { Maximum, SaturatingSum, HyperbolicTangentSum }
 public enum AnimationImpulseVisibility { DeferUntilVisible, AdvanceWhileHidden }
 public enum AnimationImpulseTiming { EventTime, FirstPresentation, EventTimeRetainFirstFrame }
-public enum AnimationImpulseAdmission { Accepted, CapacityExhausted }
+public sealed class AnimationStorageException : Exception
+{
+    public AnimationStorageException() : base("Animation storage cannot represent or allocate current demand.") { }
+}
 public readonly record struct AnimationOccurrenceId
 {
     public ulong Value { get; }
@@ -17,13 +20,12 @@ public readonly record struct AnimationOccurrenceId
     }
 }
 public readonly record struct AnimationImpulseRead(int Pending,int Playing,ulong Accepted,
-    ulong Completed,ulong Cancelled,int HighWaterMark,int EvaluatedLastFrame);
+    ulong Completed,ulong Cancelled,int HighWaterMark,int EvaluatedLastFrame,int Capacity);
 
 /// <summary>Normalized independent impulse envelopes. Each accepted occurrence owns a slot until
 /// completion or explicit cancellation. Overlap combines values, never occurrence identities.</summary>
 public sealed record AnimationImpulseDefinition
 {
-    public const int MaximumCapacity=65536;
     public AnimationDurationSeconds Duration { get; }
     public AnimationPeakPhase PeakPhase { get; }
     public AnimationImpulseCurve Curve { get; }
@@ -31,9 +33,8 @@ public sealed record AnimationImpulseDefinition
     public AnimationImpulseVisibility Visibility { get; }
     public AnimationImpulseTiming Timing { get; }
     public AnimationClock Clock { get; }
-    public int Capacity { get; }
     public AnimationImpulseDefinition(AnimationDurationSeconds duration,AnimationImpulseCurve curve,AnimationImpulseOverlap overlap,
-        AnimationImpulseVisibility visibility,AnimationClock clock,int capacity,AnimationImpulseTiming timing,AnimationPeakPhase peakPhase)
+        AnimationImpulseVisibility visibility,AnimationClock clock,AnimationImpulseTiming timing,AnimationPeakPhase peakPhase)
     {
         AnimationNumbers.Positive(duration.Value);
         if(!Enum.IsDefined(curve))throw new ArgumentOutOfRangeException(nameof(curve));
@@ -41,7 +42,6 @@ public sealed record AnimationImpulseDefinition
         if(!Enum.IsDefined(visibility))throw new ArgumentOutOfRangeException(nameof(visibility));
         if(!Enum.IsDefined(timing))throw new ArgumentOutOfRangeException(nameof(timing));
         if(!Enum.IsDefined(clock))throw new ArgumentOutOfRangeException(nameof(clock));
-        if(capacity<1||capacity>MaximumCapacity)throw new ArgumentOutOfRangeException(nameof(capacity));
         AnimationNumbers.Unit(peakPhase.Value);
         if(curve switch
         {
@@ -51,7 +51,7 @@ public sealed record AnimationImpulseDefinition
             _=>true
         })throw new ArgumentOutOfRangeException(nameof(peakPhase));
         PeakPhase=peakPhase;
-        Duration=duration;Curve=curve;Overlap=overlap;Visibility=visibility;Clock=clock;Capacity=capacity;Timing=timing;
+        Duration=duration;Curve=curve;Overlap=overlap;Visibility=visibility;Clock=clock;Timing=timing;
     }
     /// <summary>The one peak phase each curve admits; declarations and the worker share this table.</summary>
     public static AnimationPeakPhase CanonicalPeak(AnimationImpulseCurve curve)=>curve switch
@@ -99,7 +99,7 @@ internal sealed class AnimationImpulseState
         public OccurrencePhase Phase;
     }
     private readonly AnimationImpulseDefinition _definition;
-    private readonly Occurrence[] _occurrences;
+    private Occurrence[] _occurrences = new Occurrence[8];
     private int _count,_pending,_highWaterMark,_evaluated;
     private ulong _accepted,_completed,_cancelled;
     private AnimationOccurrenceId _lastOccurrence;
@@ -107,26 +107,40 @@ internal sealed class AnimationImpulseState
     public AnimationStrength Value { get; private set; }
     public AnimationImpulseState(AnimationImpulseDefinition definition)
     {
-        _definition=definition;_occurrences=new Occurrence[definition.Capacity];
+        _definition=definition;
     }
-    public AnimationImpulseRead Read()=>new(_pending,_count-_pending,_accepted,_completed,_cancelled,_highWaterMark,_evaluated);
-    public AnimationImpulseAdmission ValidateAdmission(AnimationOccurrenceId id,AnimationStrength strength,double occurredAt)
+    public AnimationImpulseRead Read()=>new(_pending,_count-_pending,_accepted,_completed,_cancelled,_highWaterMark,_evaluated,_occurrences.Length);
+    public void ValidateAdmission(AnimationOccurrenceId id,AnimationStrength strength,double occurredAt)
     {
         if(id.Value==0||id.Value<=_lastOccurrence.Value)throw new ArgumentException("Impulse identities must increase within their binding.");
         AnimationNumbers.Unit(strength.Value);
         if(strength.Value<=(float)0)throw new ArgumentOutOfRangeException(nameof(strength));
         if(_accepted==ulong.MaxValue)throw new InvalidOperationException("Impulse occurrence counter exhausted.");
         if(!double.IsFinite(occurredAt))throw new ArgumentOutOfRangeException(nameof(occurredAt));
-        if(_count==_occurrences.Length)return AnimationImpulseAdmission.CapacityExhausted;
-        return AnimationImpulseAdmission.Accepted;
     }
-    public AnimationImpulseAdmission Enqueue(AnimationOccurrenceId id,AnimationStrength strength,double occurredAt)
+    public void Reserve(int additional)
     {
-        var admission=ValidateAdmission(id,strength,occurredAt);
-        if(admission!=AnimationImpulseAdmission.Accepted)return admission;
+        ArgumentOutOfRangeException.ThrowIfNegative(additional);
+        if ((ulong)additional > ulong.MaxValue - _accepted) throw new OverflowException("Impulse occurrence counter exhausted.");
+        var required = (long)_count + additional;
+        if (required > Array.MaxLength) throw new AnimationStorageException();
+        if (required <= 3L * _occurrences.Length / 4) return;
+        var capacity = (int)Math.Min(Array.MaxLength, Math.Max((4L * required + 2) / 3, (long)_occurrences.Length * 2));
+        if (capacity == _occurrences.Length) return;
+        try
+        {
+            var candidate = new Occurrence[capacity];
+            Array.Copy(_occurrences, candidate, _count);
+            _occurrences = candidate;
+        }
+        catch (OutOfMemoryException) { throw new AnimationStorageException(); }
+    }
+    public void Enqueue(AnimationOccurrenceId id,AnimationStrength strength,double occurredAt)
+    {
+        ValidateAdmission(id,strength,occurredAt);
+        Reserve(1);
         _occurrences[_count++]=new(){Id=id,Strength=strength,OccurredAt=occurredAt,Phase=OccurrencePhase.Pending};
         _lastOccurrence=id;_pending++;_accepted++;_highWaterMark=Math.Max(_highWaterMark,_count);
-        return AnimationImpulseAdmission.Accepted;
     }
     public void ValidateAdvance(double time,bool visible)
     {

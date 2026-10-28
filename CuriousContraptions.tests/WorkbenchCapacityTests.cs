@@ -4,7 +4,7 @@ using CuriousContraptions.Simulation;
 namespace CuriousContraptions.Tests;
 
 /// <summary>Free play has no population rule (Story 9R.5b, owner decision 20 Oct 2026: an unlimited Free Workshop; memory is the
-/// only bound). Every compiled table is sized at Run; the only Build refusal left is the guide document invariant.</summary>
+/// only bound). Every declared table is sized at Run; actual interaction state grows only on demand.</summary>
 public sealed class WorkbenchCapacityTests
 {
     private static ulong _next = 1;
@@ -31,21 +31,19 @@ public sealed class WorkbenchCapacityTests
     }
     private static WorkshopConstruction Free(WorkshopInstances instances) => new(new(1), WorkshopCadenceSettings.Default(), instances);
 
-    // The one Build refusal left is a document invariant, not a capacity: every Receiver declares a planar guide for each ball and
-    // the physics document admits one guide per moving body.
     [Fact]
-    public void OnlyTheGuideInvariantRefusesAtBuild()
+    public void ReceiverPoliciesScaleWithOwnersRatherThanPotentialPayloadPairs()
     {
-        var error = Assert.Throws<WorkbenchFullException>(() => Population((PartId.Receiver, 2), (PartId.Basketball, 1)).Validate());
-        Assert.Equal(WorkbenchTable.Guides, error.Table);
-        Assert.Equal("Workbench is full: ball guide table (one declared guide per moving body)", error.Message);
-        // Controls: several Receivers with no ball, and one Receiver guiding seventeen balls (the retired 16-row tables), both build.
-        Free(Population((PartId.Receiver, 3), (PartId.Ramp, 2))).Validate();
-        var guided = Population((PartId.Receiver, 1), (PartId.Basketball, 17));
-        Free(guided).Validate();
-        var scene = WorkshopPhysicsCompiler.Compile(Free(guided), new(1, 2));
-        Assert.Equal(17, scene.Sensors.Length);
-        Assert.Equal(17, scene.Guides.Length);
+        var owners = Population((PartId.Receiver, 3));
+        // Unit-spaced centres clear each ball's .35 m seam-inclusive reach.
+        var instances = new WorkshopInstances([.. owners, .. Enumerable.Range(0, 17).Select(i =>
+            (IWorkshopInstance)WorkshopInput.Generic(PartId.Basketball, Id(), i - 8, 5, 0, 0, 0, 0, 1))]);
+        Free(instances).Validate();
+        var scene = WorkshopPhysicsCompiler.Compile(Free(instances), new(1, 2));
+        Assert.Equal(3, scene.Sensors.Length);
+        Assert.Equal(3, scene.Guides.Length);
+        Assert.Equal(17, scene.World.Dynamic);
+        Assert.All(scene.Sensors.ToArray(), policy => Assert.Equal(BodyTargetKind.AllPayloads, policy.Targets.Kind));
     }
 
     [Fact]
@@ -69,14 +67,14 @@ public sealed class WorkbenchCapacityTests
     [InlineData("both_gate", 10)]
     [InlineData("electrical_nand", 10)]
     [InlineData("latch", 9)]
-    [InlineData("clock", 7)]
+    [InlineData("clock", 8)]
     [InlineData("hold_timer", 7)]
-    [InlineData("pressure_plate", 5)]
+    [InlineData("pressure_plate", 10)]
     public void WorkbenchCapacity_AdmitsProudPartElementsWithoutColliderLimit(string part, int colliders)
     {
         var instances = new WorkshopInstances([.. Enumerable.Range(0, 4).Select(i =>
             (IWorkshopInstance)WorkshopInput.Generic(new PartId(part), Id(), -4.5 + 3 * i, 3, 0, 0, 0, 0, 1))]);
-        WorkbenchCapacity.Validate(instances);
+        new WorkshopInstances([.. instances]).Validate();
         var world = WorkshopPhysicsCompiler.Compile(Free(instances), new(1, 2)).World;
         Assert.Equal((4 + 1, 4 * colliders + 1), (world.Bodies, world.Colliders));
     }
@@ -227,7 +225,7 @@ public sealed class WorkbenchCapacityTests
         var bench = Bench(new([.. parts]));
         bench.Validate();
         var scene = WorkshopPhysicsCompiler.Compile(bench, new(1, 2));
-        Assert.Equal(withLastBend ? 2057 : 2052, scene.Colliders.Length);
+        Assert.Equal((withLastBend ? 411 : 410) * 5 + 2 + 1, scene.Colliders.Length); // five per bend, sphere + seam, plane
         if (withLastBend)
             Assert.All(Enumerable.Range(0, scene.Colliders.Length).Where(slot => scene.Colliders[slot].Body == cradle),
                 slot => Assert.True(slot > 2048, $"cradle collider slot {slot} lies beyond the retired ceiling"));
@@ -243,7 +241,7 @@ public sealed class WorkbenchCapacityTests
     [Fact]
     public async Task OneTransportAdmitsBenchesOfChangingColliderCount()
     {
-        await using var device = new WorkshopGpuDevice(new BrowserGpuTransport(), new(101, 206));
+        await using var device = new WorkshopGpuDevice(new BrowserGpuTransport(new CuriousContraptions.Abstractions.EventRingPublication()), new(101, 206));
         await using var simulation = new WorkshopSimulation(device, new WorkshopPhysicsEngineTests.StepClock(), WorkshopCadenceSettings.Default(),
             new(1), new WorkshopPhysicsEngineTests.NoInstallation(), GpuDeviceOwnership.Borrowed);
         Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Initialize()).Outcome);

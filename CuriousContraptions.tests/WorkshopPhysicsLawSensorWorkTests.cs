@@ -80,10 +80,8 @@ public sealed class WorkshopPhysicsLawSensorWorkTests
         Assert.False(everFired);
         var sensor = Sensor(final);
         Assert.Equal((OrientationSensorPhase.Armed, 0u, 0f), (sensor.Phase, sensor.EventOrdinal, sensor.EventPhase));
-        const int DeclarationBytes = 34; // id, body slot, padding, initial rotation and threshold precede the event lanes
-        var sensorRecord = PhysicsGpuAbi.Layout(world.Admitted).OrientationSensorOffset(0);
-        Assert.Equal(world.Admitted.AsSpan(sensorRecord, DeclarationBytes).ToArray(),
-            final.World.AsSpan(sensorRecord, DeclarationBytes).ToArray());
+        Assert.Equal(world.Scene.OrientationSensors[0].Id, sensor.Id);
+        Assert.Equal(tile, sensor.Body);
         Assert.True(final[tile].Tilt < 2, $"settles upright (tilt {final[tile].Tilt})");
         // Control: tipped to 30 deg, past its support edge, the same tile topples and the same sensor fires.
         var (tipped, _) = TiltedTile(30);
@@ -193,17 +191,10 @@ public sealed class WorkshopPhysicsLawSensorWorkTests
         return new(scene.Admit(), ball, other, scene.ColliderOf(bumper));
     }
 
-    private static int OccurrenceSlot(byte[] world, GpuBodyId target)
-    {
-        var read = PhysicsGpuAbi.ReadContactWorks(world);
-        for (var i = 0; i < read.OccurrenceCount; i++) if (read.Occurrence(i).Target == target) return i;
-        throw new InvalidOperationException($"No occurrence slot for body {target.Value}.");
-    }
+    private static ContactWorkOccurrence Occurrence(LawState state, GpuBodyId target) =>
+        Assert.Single(state.Interactions.Works.Values, occurrence => occurrence.Target == target);
 
-    private static ContactWorkOccurrence Occurrence(byte[] world, GpuBodyId target) =>
-        PhysicsGpuAbi.ReadContactWorks(world).Occurrence(OccurrenceSlot(world, target));
-
-    private static uint Recorded(byte[] world) => PhysicsGpuAbi.ReadContactWorks(world)[0].OccurrenceCount;
+    private static uint Recorded(LawState state) => PhysicsGpuAbi.ReadContactWorks(state.World, state.Interactions)[0].OccurrenceCount;
 
     [Fact]
     public void AllSixRadialDirectionsQualifyAndArePaidIndependentOfTheOwnerRotation()
@@ -212,8 +203,8 @@ public sealed class WorkshopPhysicsLawSensorWorkTests
         {
             var s = ContactScene(normal, -4 * normal);
             var after = s.World.Step(1);
-            Assert.Equal(1u, Recorded(after.World));
-            var occurrence = Occurrence(after.World, s.Ball);
+            Assert.Equal(1u, Recorded(after));
+            var occurrence = Occurrence(after, s.Ball);
             Assert.True(occurrence.Effect == ContactWorkEffect.Paid && occurrence.ApproachSpeed.Value > 3.9f,
                 $"{normal}: {occurrence.Effect} at {occurrence.ApproachSpeed.Value}");
             var v = after[s.Ball].Velocity; var outward = Vector3.Dot(v, normal);
@@ -227,21 +218,21 @@ public sealed class WorkshopPhysicsLawSensorWorkTests
     {
         var s = ContactScene(Vector3.UnitY, new(2, -4, 0));
         var after = s.World.Step(1);
-        Assert.Equal(1u, Recorded(after.World));
+        Assert.Equal(1u, Recorded(after));
         var body = after[s.Ball];
         Assert.True(body.Spin > 1 && body.Velocity.X is > 0 and < 2, $"spin {body.Spin}, tangent {body.Velocity.X}");
         // Solid-sphere tangential momentum about the contact is unchanged by friction and by the radial payment.
         Assert.True(MathF.Abs(body.Velocity.X - .4f * LawBalls.Radius(LawBall.Basketball) * body.Angular.Z - 2) < .03f);
         var missed = ContactScene(Vector3.UnitY, new(0, -4, 0), missZ: 2);
-        Assert.Equal(0u, Recorded(missed.World.Step(1).World));
+        Assert.Equal(0u, Recorded(missed.World.Step(1)));
     }
 
     [Fact]
     public void RestingSeparatingBelowThresholdAndGrazingGapContactsRecordNoOccurrence()
     {
         foreach (var velocity in new Vector3[] { default, new(0, 2, 0), new(0, -.01f, 0) })
-            Assert.Equal(0u, Recorded(ContactScene(Vector3.UnitY, velocity).World.Step(1).World));
-        Assert.Equal(0u, Recorded(ContactScene(Vector3.UnitY, new(2, 0, 0), gap: .02f).World.Step(1).World));
+            Assert.Equal(0u, Recorded(ContactScene(Vector3.UnitY, velocity).World.Step(1)));
+        Assert.Equal(0u, Recorded(ContactScene(Vector3.UnitY, new(2, 0, 0), gap: .02f).World.Step(1)));
     }
 
     /// <summary>Records one earlier qualified occurrence for the ball at ordinal 1 and starts the next tick at
@@ -252,12 +243,10 @@ public sealed class WorkshopPhysicsLawSensorWorkTests
         BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(PhysicsGpuAbi.HeaderSourceOrdinalOffset), sourceOrdinal);
         var layout = PhysicsGpuAbi.Layout(bytes);
         BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(layout.ContactWorkOffset(0) + PhysicsGpuAbi.ContactWorkOccurrenceCountOffset), 1);
-        var at = layout.WorkOccurrenceOffset(OccurrenceSlot(bytes, s.Ball));
-        BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(at + PhysicsGpuAbi.WorkOccurrenceColliderOffset),
-            checked((uint)s.World.Scene.Layout.GetColliderSlot(s.Bumper)));
-        BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(at + PhysicsGpuAbi.WorkOccurrenceSequenceOffset), 1);
-        BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(at + PhysicsGpuAbi.WorkOccurrenceOrdinalOffset), 1);
-        BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(at + PhysicsGpuAbi.WorkOccurrenceApproachOffset), 4);
+        var occurrence = new ContactWorkOccurrence(new(0), new(checked((uint)s.World.Scene.Layout.GetColliderSlot(s.Bumper))),
+            s.Ball, 1, 1, 0, new(4), new(0), ContactWorkEffect.Passive);
+        s.World.InitialInteractions = new(PhysicsInteractionSnapshot.Empty.Captures,
+            PhysicsInteractionSnapshot.Empty.Works.Add(new(s.World.Scene.ContactWorks[0].Id, s.Ball), occurrence));
     }
 
     [Fact]
@@ -265,18 +254,18 @@ public sealed class WorkshopPhysicsLawSensorWorkTests
     {
         var before = ContactScene(Vector3.UnitY, new(0, -4, 0));
         PreviousOccurrence(before, 68);
-        var held = before.World.Step(1).World;
+        var held = before.World.Step(1);
         Assert.Equal(1u, Recorded(held));
         Assert.Equal((1u, 1u), (Occurrence(held, before.Ball).Sequence, Occurrence(held, before.Ball).EventOrdinal));
         var pair = ContactScene(Vector3.UnitY, new(0, -4, 0), second: true);
         PreviousOccurrence(pair, 68);
-        var other = pair.World.Step(1).World;
+        var other = pair.World.Step(1);
         Assert.Equal(2u, Recorded(other)); // the second body has no earlier occurrence, so its own cooldown is open
         Assert.Equal(2u, Occurrence(other, pair.Second).Sequence);
         Assert.Equal(1u, Occurrence(other, pair.Ball).Sequence);
         var open = ContactScene(Vector3.UnitY, new(0, -4, 0));
         PreviousOccurrence(open, 72);
-        var eligible = open.World.Step(1).World;
+        var eligible = open.World.Step(1);
         Assert.Equal((2u, 73u), (Occurrence(eligible, open.Ball).Sequence, Occurrence(eligible, open.Ball).EventOrdinal));
     }
 }

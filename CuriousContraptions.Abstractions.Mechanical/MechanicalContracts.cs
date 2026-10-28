@@ -14,9 +14,41 @@ public enum KinematicMode : byte
 public readonly record struct RigidBodyMassProperties(
     float Mass,
     Vector3 CentreOfMass,
-    Vector3 InertiaTensor,
+    Vector3 PrincipalMoments,
+    Quaternion PrincipalFrame,
     float LinearDrag,
-    Vector3 Gravity);
+    Vector3 Gravity)
+{
+
+    public void Validate(KinematicMode mode)
+    {
+        if (!Enum.IsDefined(mode) || mode == KinematicMode.Kinematic)
+            throw new ArgumentException("Unsupported mass-frame motion.");
+        if (!Finite(CentreOfMass) || !Finite(PrincipalMoments) || !Finite(Gravity) ||
+            !float.IsFinite(Mass) || !float.IsFinite(LinearDrag) ||
+            !float.IsFinite(PrincipalFrame.X) || !float.IsFinite(PrincipalFrame.Y) ||
+            !float.IsFinite(PrincipalFrame.Z) || !float.IsFinite(PrincipalFrame.W) ||
+            MathF.Abs(PrincipalFrame.LengthSquared() - 1f) > 1e-4f ||
+            Vector3.Abs(CentreOfMass).X > 16f || Vector3.Abs(CentreOfMass).Y > 16f || Vector3.Abs(CentreOfMass).Z > 16f)
+            throw new ArgumentException("Invalid mass frame.");
+        if (mode == KinematicMode.Static)
+        {
+            if (Mass != 0f || CentreOfMass != Vector3.Zero || PrincipalMoments != Vector3.Zero ||
+                PrincipalFrame != Quaternion.Identity || Gravity != Vector3.Zero || LinearDrag != 0f)
+                throw new ArgumentException("Static mass frames must be canonical zero.");
+            return;
+        }
+        if (Mass < 1f / 1024f || Mass > 1024f || LinearDrag < 0f || LinearDrag > .125f || Gravity.LengthSquared() > 256f)
+            throw new ArgumentException("Mass or forces outside the physical domain.");
+        var p = PrincipalMoments;
+        const float minimum = 1f / 4294967296f;
+        if (p.X < minimum || p.Y < minimum || p.Z < minimum || p.X >= 524288f || p.Y >= 524288f || p.Z >= 524288f ||
+            p.X > p.Y + p.Z || p.Y > p.X + p.Z || p.Z > p.X + p.Y)
+            throw new ArgumentException("Principal moments must describe a physical mass distribution.");
+    }
+
+    private static bool Finite(Vector3 value) => float.IsFinite(value.X) && float.IsFinite(value.Y) && float.IsFinite(value.Z);
+}
 
 public readonly record struct AnchorPointDescriptor(
     string Name,
@@ -27,16 +59,9 @@ public readonly record struct AnchorPointDescriptor(
 public interface IMechanicalElement : IPuzzleElementDeclaration
 {
     KinematicMode KinematicMode { get; }
-    RigidBodyMassProperties MassProperties { get; }
+    MassFrameDeclaration MassFrame { get; }
+    PayloadPolicy Payload { get; }
     IReadOnlyList<AnchorPointDescriptor> AnchorPoints { get; }
-}
-
-/// <summary>A dynamic body whose compiled mass is a declared Real kilogram parameter (the body mass bound to a parameter). The fixed
-/// <see cref="RigidBodyMassProperties.Mass"/> is that parameter's default, so one truth holds at defaults; the compiler evaluates
-/// <see cref="Mass"/> per instance. Inertia follows from the compiled mass and the (possibly parameter-bound) collider.</summary>
-public interface IParameterizedMassElement : IMechanicalElement
-{
-    MechanicalValue Mass { get; }
 }
 
 /// <summary>A joint frame in one body's local space. Local Y is the slide axis.</summary>
@@ -46,9 +71,7 @@ public readonly record struct SliderFrame(
 
 /// <summary>The moving body a slider carries, in its own local frame: its mass, gravity, linear drag and colliders.</summary>
 public readonly record struct SliderBodyDescriptor(
-    float Mass,
-    Vector3 Gravity,
-    float LinearDrag,
+    MassFrameDeclaration MassFrame,
     IReadOnlyList<ColliderDescriptor> Colliders);
 
 /// <summary>A bounded drive on one slider, enabled while the element's PowerIn supply route is closed. It moves the slider toward

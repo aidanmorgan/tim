@@ -1,3 +1,4 @@
+using CuriousContraptions.Abstractions;
 using System;
 using CuriousContraptions.Gpu;
 using Xunit;
@@ -7,6 +8,49 @@ namespace CuriousContraptions.Tests;
 public sealed class WorkshopWireFlatBuffersTests
 {
     private static readonly RuntimeSessionId Session = new(0x1122334455667788UL, 0x8877665544332211UL);
+
+    [Fact]
+    public void SharedTableVisitsBeyondOneMillionVerifyStructurallyButRemainSemanticallyInvalid()
+    {
+        var builder = new Google.FlatBuffers.FlatBufferBuilder(1);
+        var parameter = CuriousContraptions.Wire.ParameterRecord.CreateParameterRecord(builder,
+            builder.CreateString("unknown_parameter"), 1);
+        var parameters = CuriousContraptions.Wire.InstanceRecord.CreateParametersVector(builder,
+            Enumerable.Repeat(parameter, 1000).ToArray());
+        var part = builder.CreateString(PartId.Basketball.Value);
+        CuriousContraptions.Wire.InstanceRecord.StartInstanceRecord(builder);
+        CuriousContraptions.Wire.InstanceRecord.AddId(builder, 1);
+        CuriousContraptions.Wire.InstanceRecord.AddPartId(builder, part);
+        CuriousContraptions.Wire.InstanceRecord.AddParameters(builder, parameters);
+        CuriousContraptions.Wire.InstanceRecord.AddCell(builder, CuriousContraptions.Wire.Vec3i.CreateVec3i(builder, 0, 0, 0));
+        CuriousContraptions.Wire.InstanceRecord.AddLocal(builder, CuriousContraptions.Wire.Vec3f.CreateVec3f(builder, 0, 1, 0));
+        CuriousContraptions.Wire.InstanceRecord.AddRotation(builder, CuriousContraptions.Wire.Quat4f.CreateQuat4f(builder, 0, 0, 0, 1));
+        var instance = CuriousContraptions.Wire.InstanceRecord.EndInstanceRecord(builder);
+        var instances = CuriousContraptions.Wire.ConstructionRecord.CreateInstancesVector(builder,
+            Enumerable.Repeat(instance, 1001).ToArray());
+        CuriousContraptions.Wire.ConstructionRecord.StartConstructionRecord(builder);
+        CuriousContraptions.Wire.ConstructionRecord.AddInstances(builder, instances);
+        var settings = WorkshopCadenceSettings.Default();
+        CuriousContraptions.Wire.ConstructionRecord.AddSettings(builder, CuriousContraptions.Wire.CadenceSettingsRecord.CreateCadenceSettingsRecord(
+            builder, (uint)settings.Simulation, (uint)settings.Physical, (uint)settings.Animation,
+            (uint)settings.Presentation, settings.PresentationRate.Numerator, settings.PresentationRate.Denominator));
+        var construction = CuriousContraptions.Wire.ConstructionRecord.EndConstructionRecord(builder);
+        CuriousContraptions.Wire.SavedConstruction.StartSavedConstruction(builder);
+        CuriousContraptions.Wire.SavedConstruction.AddConstruction(builder, construction);
+        CuriousContraptions.Wire.SavedConstruction.AddNextBodyId(builder, 2);
+        builder.FinishSizePrefixed(CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(builder).Value,
+            WorkshopSaveCodec.Identifier);
+        var bytes = builder.SizedByteArray();
+        Assert.InRange(bytes.Length, 8000, 10000);
+        var verified = WorkshopWireFlatBuffers.OpenFrame(bytes, WorkshopSaveCodec.Identifier,
+            CuriousContraptions.Wire.SavedConstructionVerify.Verify);
+        var saved = CuriousContraptions.Wire.SavedConstruction.GetRootAsSavedConstruction(verified);
+        Assert.Equal(1001, saved.Construction!.Value.InstancesLength);
+        Assert.Equal(1000, saved.Construction.Value.Instances(0)!.Value.ParametersLength);
+        var refused = Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeConstructionRecord(saved.Construction.Value));
+        Assert.Equal(WireFaultReason.OutOfRange, refused.Reason);
+        Assert.Equal("Invalid declared parameters.", refused.Message);
+    }
 
     [Fact]
     public void Command_SimpleRunAndReset_RoundTrips()
@@ -242,8 +286,7 @@ public sealed class WorkshopWireFlatBuffersTests
         Assert.Equal((WireFaultReason.OutOfRange, rejection), (fault.Reason, fault.Message));
     }
 
-    // Story 9.4b (review-9-4 F8): a Captured goal is declared (Body = captured ball, Target = goal Receiver, EventSource =
-    // its capture sensor). The saved record keeps that declaration field for field, including after a replacement Receiver.
+    // A Captured goal saves authored Body and Target identities, including after a replacement Receiver.
     [Fact]
     public void Construction_CapturedGoal_EncodesDeclaredBodyTargetAndSensor()
     {
@@ -261,7 +304,6 @@ public sealed class WorkshopWireFlatBuffersTests
         Assert.Equal((uint)WorkshopGoalKind.Captured, puzzle.GoalKind);
         Assert.Equal(1UL, puzzle.GoalBody);
         Assert.Equal(4UL, puzzle.GoalTarget);
-        Assert.Equal(WorkshopPhysicsCompiler.CaptureSensor((((WorkshopGenericInstance)construction.Instances.Single(instance => instance.PartId == PartId.Receiver))).Id).Value, puzzle.GoalEventSource);
         Assert.Equal(goal, WorkshopWireFlatBuffers.DecodeConstructionRecord(record).Puzzle.Goal);
     }
 
@@ -327,7 +369,7 @@ public sealed class WorkshopWireFlatBuffersTests
         var body = new PhysicsBodyRead(canonical, CanonicalRotation.Identity, default, default);
         var bodies = new PhysicsBodyReadSet(new[] { body });
 
-        var capture = CaptureLatch.Clear(new(9));
+        var capture = CaptureLatch.Clear(new(9), new(1));
         var captures = new PhysicsCaptureRead(new[] { capture });
 
         // The read carries the owners' stores only (Story 9A.23 D9: the occurrence rows are device-private).

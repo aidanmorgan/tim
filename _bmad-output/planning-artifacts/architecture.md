@@ -27,6 +27,8 @@ companions:
 
 # Architecture Spine — Curious Contraptions Engine
 
+**Acceptance policy — owner, 28 October 2026:** apply the [game-fidelity policy](../../docs/delivery-workflow.md#game-fidelity) and [testing guidance](../../docs/testing-guidance.md) to every criterion below. Preserve gameplay outcomes, meaningful causal order, stability and lifecycle. Historical tick/ordinal/trajectory or migration-era pose matching is not acceptance; numerical precision needs a gameplay or defined-interface justification. Exact authored data, typed ownership and deliberate timing features retain their contracts. Replay is checked through decoded semantic behaviour, never simulation-output hashes or whole-buffer identity. This supersedes conflicting older acceptance wording without removing requirement identities or intended element behaviour.
+
 ## Design Paradigm
 
 The engine decouples authoring, simulation, and presentation into three independent graphs with strictly one-way data flow:

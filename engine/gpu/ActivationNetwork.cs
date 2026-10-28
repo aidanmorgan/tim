@@ -1,3 +1,4 @@
+using CuriousContraptions.Abstractions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -130,7 +131,7 @@ public sealed class ActivationNetwork
     private readonly ActivationOccurrence[] _latchSetBy;
     private ActivationOccurrence[] _pending;
     // Story 9A.22: the Physical stage's transitions, cleared at each Consume and copied into its checkpoint.
-    private readonly List<ActivationTransition> _transitions = new();
+    private readonly List<ActivationTransition> _transitions = new(32);
     public ReadOnlySpan<ActivationNodeDeclaration> Nodes => _nodes;
     public ReadOnlySpan<ActivationEdge> Edges => _edges;
     public ReadOnlySpan<PassageSensorDeclaration> PassageSensors => _passageSensors;
@@ -148,18 +149,18 @@ public sealed class ActivationNetwork
         _passageSensors = passageSensors.ToArray();
         Array.Sort(_nodes, (a,b) => a.Id.Value.CompareTo(b.Id.Value));
         _memorySlots = new int[_nodes.Length];
-        var memoryNodes = new List<ActivationNodeDeclaration>();
+        var memoryNodes = new List<ActivationNodeDeclaration>(16);
         for (var i = 0; i < _nodes.Length; i++)
         {
             _memorySlots[i] = ActivationMemory.Holds(_nodes[i].Kind) ? memoryNodes.Count : -1;
             if (_memorySlots[i] >= 0) memoryNodes.Add(_nodes[i]);
         }
         _memoryNodes = memoryNodes.ToArray();
-        var owners = new HashSet<GpuBodyId>(); var triggers = new HashSet<GpuContactTriggerId>();
-        var sensors = new HashSet<GpuOrientationSensorId>();
-        var passages = new HashSet<GpuPassageSensorId>();
-        var loads = new HashSet<GpuContactLoadSensorId>();
-        var timers = new List<ActivationTimerDeclaration>();
+        var owners = new HashSet<GpuBodyId>(16); var triggers = new HashSet<GpuContactTriggerId>(4);
+        var sensors = new HashSet<GpuOrientationSensorId>(4);
+        var passages = new HashSet<GpuPassageSensorId>(4);
+        var loads = new HashSet<GpuContactLoadSensorId>(4);
+        var timers = new List<ActivationTimerDeclaration>(4);
         for (var i = 0; i < _nodes.Length; i++)
         {
             var node = _nodes[i];
@@ -192,8 +193,8 @@ public sealed class ActivationNetwork
         _scratchRows = new ActivationMemory[_memoryNodes.Length];
         _latchRequests = new StateLatchRequest[_nodes.Length];
         _latchSetBy = new ActivationOccurrence[_nodes.Length];
-        _pending = new ActivationOccurrence[Math.Max(16, _nodes.Length * 4)];
-        var links = new HashSet<ActivationEdge>();
+        _pending = new ActivationOccurrence[32];
+        var links = new HashSet<ActivationEdge>(16);
         foreach (var edge in _edges)
             if (edge.Source == edge.Target || !links.Add(edge) || Slot(edge.Source) < 0 || Slot(edge.Target) < 0 ||
                 _nodes[Slot(edge.Source)].Kind is ActivationNodeKind.StickyFirstInput or ActivationNodeKind.LevelIndicator ||
@@ -233,7 +234,13 @@ public sealed class ActivationNetwork
     /// <summary>Queues one pending occurrence, growing the queue when a tick's fanout exceeds it (no fanout capacity).</summary>
     private void Push(ref int count, ActivationOccurrence occurrence)
     {
-        if (count == _pending.Length) Array.Resize(ref _pending, _pending.Length * 2);
+        var required = (long)count + 1;
+        if (required > Array.MaxLength) throw new WorkshopStorageException("Activation queue storage is not representable.");
+        if (required > 3L * _pending.Length / 4)
+        {
+            var capacity = (int)Math.Min(Array.MaxLength, Math.Max(2L * _pending.Length, (4L * required + 2) / 3));
+            if (capacity != _pending.Length) Array.Resize(ref _pending, capacity);
+        }
         _pending[count++] = occurrence;
     }
     /// <summary>The committed Counter or oscillator memory row of one owner (a query over the checkpoint; the network holds none).</summary>
@@ -321,7 +328,7 @@ public sealed class ActivationNetwork
         Span<StateLatchRequest> latchRequests = _latchRequests; latchRequests.Clear();
         Span<ActivationOccurrence> latchSetBy = _latchSetBy; latchSetBy.Clear();
         var count = 0;
-        var deferred = stage == EvaluationStage.Scheduled ? new List<ActivationOccurrence>() : null;
+        var deferred = stage == EvaluationStage.Scheduled ? new List<ActivationOccurrence>(32) : null;
         foreach (var occurrence in scheduledOccurrences) Push(ref count, occurrence);
         for (var i = 0; i < events.Length; i++)
         {
@@ -602,7 +609,7 @@ public sealed class ActivationNetwork
             rows[memory] = rows[memory] with { DueTick = checked(boundary.Value + hold) };
             if (values[slot].Phase == ActivationPhase.Latched) continue;
             var occurrence = new ActivationOccurrence(ActivationOccurrenceKind.ContactLoad, _nodes[slot].Id, end,
-                new(new(item.Sensor.Value), item.Frame, item.Face, end, new(0f)));
+                new(new(item.Sensor.Value), item.Frame, item.Region, end, new(0f)));
             occurrence.Validate();
             values[slot] = ActivationLatch.From(_nodes[slot], occurrence);
             _transitions.Add(new(ActivationTransitionKind.LevelChanged, _nodes[slot].Id, occurrence, 0, ActivationPhase.Latched));
@@ -758,7 +765,10 @@ public sealed class ActivationNetwork
         GpuBodyId colliderOwner;
         if (trigger is { } contact)
         {
-            if (occurrence.Kind == ActivationOccurrenceKind.Orientation || occurrence.Kind == ActivationOccurrenceKind.Passage || !contact.Targets.Contains(occurrence.Cause.Body) ||
+            var admittedTarget=false;
+            foreach(var body in scene.Bodies)
+                if(body.Id==occurrence.Cause.Body && body.Motion==RigidMotionKind.Dynamic && contact.Targets.Contains(body.Id,body.Payload)) admittedTarget=true;
+            if (occurrence.Kind == ActivationOccurrenceKind.Orientation || occurrence.Kind == ActivationOccurrenceKind.Passage || !admittedTarget ||
                 occurrence.Cause.ApproachSpeed.Value < contact.Threshold.Value ||
                 (occurrence.Kind == ActivationOccurrenceKind.Contact && contact.Owner != _nodes[emitter].Owner))
                 throw new ArgumentException("Activation cause differs from the declared contact.");
@@ -789,7 +799,7 @@ public sealed class ActivationNetwork
         {
             // A contact-load level is its owner's own state, so its cause names the static frame and its sensing face.
             if (occurrence.Kind != ActivationOccurrenceKind.ContactLoad || row.Frame != _nodes[emitter].Owner ||
-                occurrence.Cause.Body != row.Frame || occurrence.Cause.Collider != row.Face)
+                occurrence.Cause.Body != row.Frame || occurrence.Cause.Collider != row.Region)
                 throw new ArgumentException("Activation cause differs from the declared contact-load row.");
             colliderOwner = row.Frame;
         }
@@ -838,12 +848,12 @@ public static class WorkshopActivationCompiler
     public static ActivationNetwork Compile(WorkshopConstruction construction)
     {
         construction.Validate();
-        var nodes = new List<ActivationNodeDeclaration>(); var edges = new List<ActivationEdge>();
-        var passageSensors = new List<PassageSensorDeclaration>();
+        var nodes = new List<ActivationNodeDeclaration>(16); var edges = new List<ActivationEdge>(16);
+        var passageSensors = new List<PassageSensorDeclaration>(4);
         foreach (var instance in construction.Instances)
         {
             if (instance is WorkshopGenericInstance && DeclaredPhysics.Of(instance.PartId).Signal?.Contact is not null)
-                nodes.Add(new(new(instance.Id.Value), instance.Id, ActivationNodeKind.ContactSource, WorkshopPhysicsCompiler.ContactTrigger(instance.Id)));
+                nodes.Add(new(new(instance.Id.Value), instance.Id, ActivationNodeKind.ContactSource, construction.Instances.Identities[instance.Id].Trigger));
             else if (instance is WorkshopGenericInstance && DeclaredPhysics.Of(instance.PartId).Signal?.Indicator is { } indicator)
                 nodes.Add(new(new(instance.Id.Value), instance.Id, IndicatorKind(instance.Id, indicator, construction), default));
             else if (instance is WorkshopGenericInstance generic && DeclaredPhysics.Of(instance.PartId).Signal?.Timer is { } timer)
@@ -853,10 +863,10 @@ public static class WorkshopActivationCompiler
             // A declared orientation threshold owns a node only while wired: its sensor compiles under the same condition.
             else if (instance is WorkshopGenericInstance && DeclaredPhysics.Of(instance.PartId).Signal?.Orientation is not null &&
                      construction.Connections.HasSource(instance.Id))
-                nodes.Add(new(new(instance.Id.Value), instance.Id, ActivationNodeKind.OrientationSource, default, 0, WorkshopPhysicsCompiler.OrientationSensor(instance.Id)));
+                nodes.Add(new(new(instance.Id.Value), instance.Id, ActivationNodeKind.OrientationSource, default, 0, construction.Instances.Identities[instance.Id].Orientation));
             else if (instance is WorkshopGenericInstance && DeclaredPhysics.Of(instance.PartId).Signal?.Passage is { } aperture)
             {
-                var sensor = PassageSensorFor(instance, aperture);
+                var sensor = PassageSensorFor(instance, aperture, construction.Instances.Identities);
                 nodes.Add(new(new(instance.Id.Value), instance.Id, ActivationNodeKind.PassageSource, default, 0, default, sensor.Id));
                 passageSensors.Add(sensor);
             }
@@ -868,7 +878,7 @@ public static class WorkshopActivationCompiler
             // release hold (Story 9R.5) is compiled to ticks of this construction's cadence.
             else if (instance is WorkshopGenericInstance && DeclaredPhysics.Of(instance.PartId).Signal?.ContactLoad is { } load)
                 nodes.Add(new(new(instance.Id.Value), instance.Id, ActivationNodeKind.ContactLoadSource, default,
-                    ContactLoad: WorkshopPhysicsCompiler.ContactLoadSensor(instance.Id),
+                    ContactLoad: construction.Instances.Identities[instance.Id].ContactLoad,
                     ReleaseHoldTicks: ActivationTimerDeclaration.Duration(load.ReleaseHoldSeconds, construction.Settings.Simulation)));
             // A declared oscillator pulses while its PowerIn route has one upstream source: its interval compiles to whole ticks of this
             // construction's cadence, and each pulse names the frame's first collider.
@@ -881,7 +891,7 @@ public static class WorkshopActivationCompiler
                 var intervalTicks = ActivationTimerDeclaration.Duration(periodic.Parameters[new ParameterId(oscillator.IntervalParameter)],
                     construction.Settings.Simulation);
                 nodes.Add(new(new(periodic.Id.Value), periodic.Id, ActivationNodeKind.Oscillator, default, 0, default, default, 0, intervalTicks,
-                    powerSource, new GpuColliderId(WorkshopPhysicsCompiler.PartIdentities(periodic.Id) + 1)));
+                    powerSource, construction.Instances.Identities[periodic.Id].Colliders[0]));
             }
         }
         foreach (var link in construction.Connections)
@@ -916,10 +926,10 @@ public static class WorkshopActivationCompiler
 
     /// <summary>The passage sensor a declared aperture compiles to on its owner's frame, at the owner's placed pose, with the
     /// declared f32 radius and rearm clearance exactly.</summary>
-    public static PassageSensorDeclaration PassageSensorFor(IWorkshopInstance owner, SignalPassageDescriptor aperture)
+    public static PassageSensorDeclaration PassageSensorFor(IWorkshopInstance owner, SignalPassageDescriptor aperture, CompiledIdentityMap identities)
     {
         ArgumentNullException.ThrowIfNull(owner);
-        return new(WorkshopPhysicsCompiler.PassageSensor(owner.Id), owner.Id, owner.Cell, owner.Local, owner.Rotation,
+        return new(identities[owner.Id].Passage, owner.Id, owner.Cell, owner.Local, owner.Rotation,
             new(aperture.ApertureRadius), new(aperture.RearmClearance));
     }
 }

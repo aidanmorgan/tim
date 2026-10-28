@@ -29,7 +29,7 @@ function response(overrides: Partial<MockResponseParams> = {}): Uint8Array {
             { id: BALL, cell: { x: 0, y: 1, z: 0 }, local: { x: 0.25, y: 3, z: 0 }, rotation: { w: 1 }, velocity: { x: 0, y: 0, z: 0 } },
             { id: RECEIVER, cell: { x: -2, y: 0, z: 0 }, local: { x: 0, y: 0.6, z: 0 }, rotation: { w: 1 } },
         ],
-        captures: [{ sensor: 9n, phase: 0, eventOrdinal: 0, eventPhase: 0 }],
+        captures: [{ sensor: 9n, target: BALL, phase: 0, eventOrdinal: 0, eventPhase: 0 }],
         contactWorks: [{ id: 1n, owner: RECEIVER, occurrenceCount: 0, remainingEnergy: 32 }],
         ...overrides,
     }));

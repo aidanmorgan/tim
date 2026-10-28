@@ -812,7 +812,6 @@ public sealed class CSharpStaticGateTests
         // The bench placement proposal refuses with the typed rejection only (a plain ArgumentException is a defect there).
         // CaptureInstance is not listed: its ball capture's registry guards are defects, not refusals.
         ("ui/WorkshopBenchPlacement.cs", "WorkshopBenchPlacement.Propose"),
-        ("engine/gpu/WorkshopPhysicsCompiler.cs", "WorkshopPhysicsCompiler.PartIdentities"),
         ("engine/gpu/WorkshopConnections.cs", "WorkshopConnections.Validate"),
         ("engine/gpu/WorkshopPuzzle.cs", "WorkshopPuzzle.Validate"),
         ("engine/gpu/WorkshopSaveCodec.cs", "WorkshopSaveCodec.Decode"),
@@ -1098,6 +1097,9 @@ public sealed class CSharpStaticGateTests
     /// target, or adding one, fails until its pin changes in the same diff.</summary>
     private static readonly Dictionary<string, string> PinnedTargets = new(StringComparer.Ordinal)
     {
+        // Pinned strict TypeScript build: restore and generated runtime output; no Csc changes.
+        ["tools/runtime/RuntimeTypeScript.targets:RestoreRuntimeTypeScript"] = "31c65cfd3d114862701641af1a1379edd6e09d5d0f8037e19340902c182befed",
+        ["tools/runtime/RuntimeTypeScript.targets:BuildRuntimeTypeScript"] = "9af3029ab69a89e710fffaa755b4b6e6568dc10a66de695744f7cf7ea9f945e1",
         // The 2dog.xunit package-source analyzer exclusion (CA1711, CA1001).
         ["Directory.Build.targets:ExcludePackageCompileSourcesFromAnalyzers"] = "add02e050a6440638d100c9ae07e742391968e2d16e8c6bb8c6c120f58b12425",
         // The worker publish bundles and the web host's bundle assembly (no compile settings).
@@ -1128,6 +1130,7 @@ public sealed class CSharpStaticGateTests
     /// Directory.Build file's import of the root one (GetPathOfFileAbove) is also allowed.</summary>
     private static readonly Dictionary<string, string[]> PinnedImports = new(StringComparer.Ordinal)
     {
+        ["Directory.Build.targets"] = ["tools/runtime/RuntimeTypeScript.targets"],
         ["CuriousContraptions.web/Directory.Build.props"] = ["$(_TwoDogParentProps)"],
         ["CuriousContraptions.Simulation/CuriousContraptions.Simulation.csproj"] = ["../CuriousContraptions.web/WorkerAot.targets"],
         ["CuriousContraptions.Animation.Worker/CuriousContraptions.Animation.Worker.csproj"] = ["../CuriousContraptions.web/WorkerAot.targets"],

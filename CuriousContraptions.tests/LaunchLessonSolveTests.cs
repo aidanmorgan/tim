@@ -1,3 +1,4 @@
+using CuriousContraptions.Abstractions;
 using CuriousContraptions.Gpu;
 
 namespace CuriousContraptions.Tests;
@@ -51,7 +52,7 @@ public sealed class LaunchLessonSolveTests
     }
 
     internal static bool Solved(WorkshopConstruction construction, IEnumerable<WorkshopRead> run) =>
-        run.Any(read => WorkshopGoalEvaluator.Occurrence(construction.Puzzle.Goal, read.Captures, read.Activations) is not null);
+        run.Any(read => WorkshopGoalEvaluator.Occurrence(construction.Puzzle.Goal, read.Captures, read.Activations, construction.Instances.Identities) is not null);
 
     /// <summary>The lesson's authored `solution` rows (content/puzzles.json), each part placed at its authored pose through the lesson's
     /// production placement. The orientation is the Basis column-major array the content stores (as JoinedPipeTests reads it).</summary>

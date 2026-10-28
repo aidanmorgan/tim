@@ -44,7 +44,13 @@ public sealed class WorkshopInstances : IReadOnlyList<IWorkshopInstance>, IEquat
 {
     private readonly IWorkshopInstance[] _items;
     public static WorkshopInstances Empty { get; } = new();
-    public WorkshopInstances(params IWorkshopInstance[] items) => _items = (IWorkshopInstance[])items.Clone();
+    private readonly Lazy<CompiledIdentityMap> _identities;
+    public CompiledIdentityMap Identities => _identities.Value;
+    public WorkshopInstances(params IWorkshopInstance[] items)
+    {
+        _items = (IWorkshopInstance[])items.Clone();
+        _identities = new(() => new CompiledIdentityMap(this, DeclaredPhysics.Entries));
+    }
     public int Count => _items.Length;
     public IWorkshopInstance this[int index] => _items[index];
     public IEnumerator<IWorkshopInstance> GetEnumerator() => ((IEnumerable<IWorkshopInstance>)_items).GetEnumerator();
@@ -65,14 +71,19 @@ public sealed class WorkshopInstances : IReadOnlyList<IWorkshopInstance>, IEquat
     public WorkshopInstances Without(GpuBodyId id) => new(_items.Where(item => item.Id != id).ToArray());
     public void Validate()
     {
-        var ids = new HashSet<GpuBodyId>();
+        var ids = new HashSet<GpuBodyId>(16);
         foreach (var item in _items)
         {
             item.Validate();
             if (!ids.Add(item.Id)) throw new ArgumentException("Authored body identities must be unique.");
         }
-        // No population rule: only the compiled tables' document invariants apply.
-        WorkbenchCapacity.Validate(this);
+        // Allocate the one immutable map before a candidate can replace a world.
+        try { _ = Identities; }
+        catch (OverflowException error)
+        {
+            throw new WorkshopEditRejectedException(WorkshopEditRejection.IdentityExhausted,
+                "The authored identities leave no space for the compiled scene.", error);
+        }
     }
     public bool Equals(WorkshopInstances? other) => other is not null && _items.SequenceEqual(other._items);
     public override bool Equals(object? obj) => obj is WorkshopInstances other && Equals(other);

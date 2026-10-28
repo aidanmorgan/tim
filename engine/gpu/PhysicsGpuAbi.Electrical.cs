@@ -91,7 +91,7 @@ public static partial class PhysicsGpuAbi
         return PhysicsElectricalRead.Adopt(values);
     }
 
-    private static void ValidateElectricalCandidate(ReadOnlySpan<byte> candidate, ReadOnlySpan<byte> previous)
+    private static void ValidateElectricalCandidate(ReadOnlySpan<byte> candidate, ReadOnlySpan<byte> previous, PhysicsInteractionSnapshot interactions)
     {
         var before = ReadElectrical(previous); var after = ReadElectrical(candidate);
         after.ValidateAdvance(before);
@@ -99,7 +99,7 @@ public static partial class PhysicsGpuAbi
         if (!candidate[layout.ElectricalBindingsOffset..layout.PrismaticsOffset].SequenceEqual(previous[layout.ElectricalBindingsOffset..layout.PrismaticsOffset]))
             throw new ArgumentException("Electrical routes changed during a Run.");
         var phaseCount = (R32(candidate,HeaderSourceOrdinalOffset) + 3) / 4 - (R32(previous,HeaderSourceOrdinalOffset) + 3) / 4;
-        var works = ReadContactWorks(candidate);
+        var works = ReadContactWorks(candidate,interactions);
         var supplied = new bool[works.Count];
         for (var i = 0; i < after.Count; i++)
         {

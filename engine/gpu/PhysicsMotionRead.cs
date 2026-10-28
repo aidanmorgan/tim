@@ -45,10 +45,10 @@ public sealed class PhysicsMotionRead
     /// <summary>The payload for a world with this many dynamic bodies (Story 9R.5b: no fixed body capacity).</summary>
     public static int ByteLength(int dynamicBodies)
     {
-        // An unaddressable payload (a corrupt or hostile count) is an input rejection, never an arithmetic fault.
+        ArgumentOutOfRangeException.ThrowIfNegative(dynamicBodies);
         var bytes = HeaderBytes + (long)dynamicBodies * PiecesPerBody * PieceBytes;
-        return dynamicBodies >= 0 && bytes <= int.MaxValue ? (int)bytes
-            : throw new ArgumentException("Unsupported motion population.", nameof(dynamicBodies));
+        return bytes <= Array.MaxLength ? (int)bytes
+            : throw new WorkshopStorageException("Motion storage is not representable.");
     }
     private readonly byte[] _bytes;
     private readonly SimulationTick _tick;

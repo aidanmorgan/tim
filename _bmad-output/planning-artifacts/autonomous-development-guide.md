@@ -1,5 +1,8 @@
 # Autonomous BMAD Development Workflow Guide
 
+
+**Current owner policy, 28 October 2026:** [delivery rules](../../docs/delivery-workflow.md#game-fidelity) and [testing guidance](../../docs/testing-guidance.md) govern every implementation and review handoff below. Prove gameplay outcomes, causal event order, plausible motion, stability and lifecycle. Historical arrival ticks, trajectory proximity and output hashes/byte identity are not acceptance requirements. Scene tolerances need a functional gameplay justification, units and observation window; exact timing applies only to deliberate timing features. Before a second numerical-only repair, establish the gameplay defect or correct the over-specified test. Reviewers must flag unjustified precision. The [local-test authority](../../docs/delivery-workflow.md#local-test-authority) and current AGENTS.md supersede older review, build and publication wording below.
+
 ## Executive Summary
 
 This guide defines the operational loop for 100% autonomous software delivery in **Curious Contraptions** using the **BMAD Method (Breakthrough Method for Agile AI-Driven Development)** combined with Antigravity agentic orchestration.

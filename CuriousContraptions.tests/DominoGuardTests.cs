@@ -93,7 +93,7 @@ public sealed class DominoGuardTests
         // The lamp carries that one occurrence, and the ActivatedAfter goal is first met at that tick.
         Assert.Equal(latch.EventOrdinal, LatchOf(run[fired], Lamp).EventOrdinal);
         Assert.Equal(ActivationPhase.Latched, LatchOf(run[^1], Lamp).Phase);
-        Assert.Equal(fired, FirstTick(run, read => WorkshopGoalEvaluator.Occurrence(lesson.Puzzle.Goal, read.Captures, read.Activations) is not null));
+        Assert.Equal(fired, FirstTick(run, read => WorkshopGoalEvaluator.Occurrence(lesson.Puzzle.Goal, read.Captures, read.Activations, lesson.Instances.Identities) is not null));
         Assert.True(LaunchLessonSolveTests.Solved(lesson, run));
         NoFixedCapacityTests.AssertSameState(built, reset, "Reset");
     }
@@ -191,7 +191,7 @@ public sealed class DominoGuardTests
     public async Task ResetRestoresUprightTilesAndRearmsTheSensorSoTheSecondRunReplaysTheFirst()
     {
         var lesson = Lesson(.45f);
-        await using var device = new WorkshopGpuDevice(new CuriousContraptions.Simulation.BrowserGpuTransport(), new(101, 206));
+        await using var device = new WorkshopGpuDevice(new CuriousContraptions.Simulation.BrowserGpuTransport(new CuriousContraptions.Abstractions.EventRingPublication()), new(101, 206));
         await using var simulation = new WorkshopSimulation(device, new WorkshopPhysicsEngineTests.StepClock(), WorkshopCadenceSettings.Default(),
             new(1), new WorkshopPhysicsEngineTests.NoInstallation(), GpuDeviceOwnership.Borrowed);
         Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Initialize()).Outcome);

@@ -48,7 +48,7 @@ public sealed class ClockGuardTests
     /// <summary>A Workshop simulation on the production engine (Hz120) that a test can pause, resume and reset.</summary>
     private sealed class Harness : IAsyncDisposable
     {
-        private readonly WorkshopGpuDevice _device = new(new CuriousContraptions.Simulation.BrowserGpuTransport(), new(101, 206));
+        private readonly WorkshopGpuDevice _device = new(new CuriousContraptions.Simulation.BrowserGpuTransport(new CuriousContraptions.Abstractions.EventRingPublication()), new(101, 206));
         public WorkshopSimulation Simulation { get; }
         private Harness() => Simulation = new(_device, new WorkshopPhysicsEngineTests.StepClock(), WorkshopCadenceSettings.Default(), new(1),
             new WorkshopPhysicsEngineTests.NoInstallation(), GpuDeviceOwnership.Borrowed);
@@ -95,7 +95,7 @@ public sealed class ClockGuardTests
         Assert.Equal(ActivationPhase.Clear, Latch(reads[119]).Phase);
         var first = Latch(reads[120]);
         Assert.Equal((ActivationPhase.Latched, ActivationOccurrenceKind.OscillatorTick, new ActivationNodeId(Owner.Value), Owner,
-                new GpuColliderId(WorkshopPhysicsCompiler.PartIdentities(Owner) + 1), 480U),
+                Bench(1f).Instances.Identities[Owner].Colliders[0], 480U),
             (first.Phase, first.Kind, first.Emitter, first.Body, first.Collider, first.EventOrdinal));
         Assert.All(reads.Skip(120), read => Assert.Equal(first, Latch(read)));
         foreach (var tick in new[] { 120, 240, 360, 480, 600 })

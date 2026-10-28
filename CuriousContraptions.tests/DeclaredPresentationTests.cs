@@ -1,3 +1,4 @@
+using CuriousContraptions.Abstractions;
 using CuriousContraptions.Gpu;
 using CuriousContraptions.Presentation;
 using Godot;
@@ -101,12 +102,12 @@ public sealed class DeclaredPresentationTests(NativeSceneFixture godot)
     {
         const float endpoint = .42000002f;
         Assert.True(TestPrecision.NeedsMoreThanElevenSignificantBits(endpoint));
-        var batch = new AnimationBatch(1);
+        var batch = new AnimationBatch();
         var handle = batch.Register(new(new(1), AnimationProperty.LocalRotationAngle),
             new(new(new AnimationRadians(-endpoint)), new(new AnimationRadians(endpoint)), new(.125f),
                 AnimationCurve.Linear, AnimationRepeat.Once, AnimationClock.Presentation));
         batch.Start(handle); batch.Advance(1, 0, 0); batch.Advance(2, .125, 0);
-        Assert.Equal(BitConverter.SingleToUInt32Bits(endpoint), batch.Read(handle).Value.CanonicalBits);
+        Assert.Equal(endpoint, BitConverter.UInt32BitsToSingle(batch.Read(handle).Value.CanonicalBits));
         var control = new WorkshopAnimationControl(new(WorkshopDeclaredPresentation.TargetBase), new(1), 1, 1,
             AnimationControlKind.Endpoint, true, endpoint, endpoint, .125f, AnimationCurve.Linear,
             Property: AnimationProperty.LocalRotationAngle);

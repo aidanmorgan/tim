@@ -352,7 +352,7 @@ public sealed class EventRingConsumerTests
         await run.Advance(480);
         var press = Assert.Single(run.Delivered, record => record.Kind == kind);
         Assert.Equal(WorkshopCommandOutcome.Applied, (await run.Ring.Simulation.Pause()).Outcome);
-        Assert.Empty(EventRingProducerTests.Decode(run.Ring.Publish()));
+        Assert.Empty(run.Ring.Publish());
         var paused = run.Ring.Simulation.Committed;
         var endpoint = Response(paused, 0, projection: 2);
         Assert.True(run.Presentation.CanRetain(bench, endpoint));
@@ -468,11 +468,10 @@ public sealed class EventRingConsumerTests
         var tick = run.Ring.Simulation.Committed.Tick.Value + 1;
         var epoch = run.World.WorldGeneration.Value;
         // Through the reference ring: six records into a ring of four; the reader skips the two the writer lapped.
-        var outbox = new EventRingOutbox();
-        outbox.Restart(new(epoch), 4);
-        outbox.Commit(Enumerable.Range(0, 6).Select(i => new SimulationEventRecord(0, tick, kind, owner.Value, 1,
-            checked((uint)(tick * Substeps + (ulong)i)), 0f, 0f, 0, 0)).ToArray());
-        var lapped = EventRingBuffer.Append(null, outbox.Drain());
+        var published = Enumerable.Range(0, 6).Select(i => new SimulationEventRecord((ulong)i + 1, tick, kind, owner.Value, 1,
+            checked((uint)(tick * Substeps + (ulong)i)), 0f, 0f, 0, 0)).ToArray();
+        var lapped = EventRingBuffer.Append(null, EventRingBuffer.Batch(new(4, 64, epoch, 4), published.AsSpan(0, 4)));
+        lapped = EventRingBuffer.Append(lapped, EventRingBuffer.Batch(new(4, 64, epoch, 6), published.AsSpan(4)));
         var cursor = new EventRingConsumer();
         var records = new List<SimulationEventRecord>();
         while (cursor.TryRead(lapped, SimulationDomain.None, out var record)) records.Add(record);
@@ -508,9 +507,8 @@ public sealed class EventRingConsumerTests
 
     // ---------- 9A.23 D8: the main-thread cursor's goal wake ----------
 
-    private static WorkshopGoal CaptureGoal(WorkshopConstruction bench, GpuBodyId ball, GpuBodyId receiver) =>
-        new(WorkshopGoalKind.Captured, ball, receiver, Assert.Single(WorkshopPhysicsCompiler.Compile(bench, new(1, 2)).Sensors.ToArray(),
-            sensor => sensor.Frame == receiver && sensor.Target == ball).Id);
+    private static WorkshopGoal CaptureGoal(GpuBodyId ball, GpuBodyId receiver) =>
+        new(WorkshopGoalKind.Captured, ball, receiver);
 
     // The goal's Captured record usually arrives before its read: the wake is held until a committed read of its tick is installed,
     // then the goal is evaluated once and its cue time is the record's own occurrence. A miss never wakes and never solves.
@@ -521,7 +519,7 @@ public sealed class EventRingConsumerTests
     {
         var (bench, receiver, _, _, ticks) = Scenario("capture", captures);
         GpuBodyId ball = new(1);
-        var goal = CaptureGoal(bench, ball, receiver);
+        var goal = CaptureGoal(ball, receiver);
         await using var ring = await Ring.Running(bench);
         var wake = new WorkshopGoalWake(goal, WorkshopPhysicsCompiler.Compile(bench, new(1, 2)));
         var cursor = new EventRingConsumer();
@@ -541,7 +539,7 @@ public sealed class EventRingConsumerTests
             }
             installed = ring.Simulation.Committed;
             if (!wake.Due(installed.Tick)) continue;
-            var occurrence = WorkshopGoalEvaluator.Occurrence(goal, installed, installed.Epoch);
+            var occurrence = WorkshopGoalEvaluator.Occurrence(goal, installed, installed.Epoch, bench.Instances.Identities);
             evaluations.Add((installed.Tick.Value, occurrence));
             wake.Evaluated(installed.Tick, occurrence is not null);
         }
@@ -556,7 +554,7 @@ public sealed class EventRingConsumerTests
     public void TheGoalWakeIgnoresOtherOwnersAndALapMakesItDueAtOnceAndAfterTheNewestRecord()
     {
         var bench = Scenario("capture").Bench;
-        var goal = CaptureGoal(bench, new(1), new(2));
+        var goal = CaptureGoal(new(1), new(2));
         var wake = new WorkshopGoalWake(goal, WorkshopPhysicsCompiler.Compile(bench, new(1, 2)));
         SimulationEventRecord Record(ulong sequence, ulong tick, ulong source) =>
             new(sequence, tick, SimulationEventKind.Impact, source, 1, checked((uint)(tick * Substeps)), 0f, 0f, 1, 0);
@@ -572,7 +570,7 @@ public sealed class EventRingConsumerTests
         wake.Observe(new(1, 1, []), new(20));
         Assert.Equal(21UL, wake.WakeTick); // nothing delivered: the next read
         // A goal whose sensor is not in the installed scene has nothing to wake it, and never faults the pump.
-        var orphan = new WorkshopGoalWake(goal with { EventSource = new(999_999) }, WorkshopPhysicsCompiler.Compile(bench, new(1, 2)));
+        var orphan = new WorkshopGoalWake(goal with { Target = new(999_999) }, WorkshopPhysicsCompiler.Compile(bench, new(1, 2)));
         orphan.Observe(new(1, 4, [Record(1, 10, 2)]), new(9));
         Assert.False(orphan.Due(new(50)));
     }
@@ -585,12 +583,13 @@ public sealed class EventRingConsumerTests
     {
         var bench = Scenario("capture").Bench;
         var scene = WorkshopPhysicsCompiler.Compile(bench, new(1, 2));
-        var goal = CaptureGoal(bench, new(1), new(2));
-        Assert.NotEqual(WorkshopPhysicsCompiler.CaptureSensor(new(2)), goal.EventSource);
+        var goal = CaptureGoal(new(1), new(2));
+        Assert.True(bench.Instances.Identities.TryCapture(goal.Target, goal.Body, out var capture));
+        Assert.Contains(scene.Sensors.ToArray(), sensor => sensor.Id == capture.Sensor && sensor.Frame == goal.Target && sensor.Targets.Contains(goal.Body, scene.Bodies.ToArray().Single(body => body.Id == goal.Body).Payload));
         var wake = new WorkshopGoalWake(goal, scene);
         wake.Observe(new(1, 0, [new(1, 7, SimulationEventKind.Captured, 2, 1, 28, 0f, 0f, 0, 0)]), new(6));
         Assert.Equal(7UL, wake.WakeTick);
-        var after = new WorkshopGoalWake(new(WorkshopGoalKind.ActivatedAfter, default, default, default, new(3), new(5)), scene);
+        var after = new WorkshopGoalWake(new(WorkshopGoalKind.ActivatedAfter, default, default, new(3), new(5)), scene);
         after.Observe(new(1, 0, [new(1, 4, SimulationEventKind.TriggerActivated, 3, 1, 16, 0f, 0f, 0, 0)]), new(3));
         Assert.Equal(4UL, after.WakeTick);
         after.Evaluated(new(4), solved: false);
@@ -632,10 +631,10 @@ public sealed class EventRingConsumerTests
                 while (cursor.TryRead(ring.Shared!, SimulationDomain.None, out var record)) records.Add(record);
                 wake.Observe(new(cursor.Epoch, 0, records.ToArray()), installed.Tick);
                 installed = ring.Simulation.Committed;
-                if (WorkshopGoalEvaluator.Occurrence(goal, installed, installed.Epoch) is { } truth) polled.Add((installed.Tick.Value, truth));
+                if (WorkshopGoalEvaluator.Occurrence(goal, installed, installed.Epoch, bench.Instances.Identities) is { } truth) polled.Add((installed.Tick.Value, truth));
                 if (!wake.Due(installed.Tick)) continue;
                 evaluations++;
-                var occurrence = WorkshopGoalEvaluator.Occurrence(goal, installed, installed.Epoch);
+                var occurrence = WorkshopGoalEvaluator.Occurrence(goal, installed, installed.Epoch, bench.Instances.Identities);
                 wake.Evaluated(installed.Tick, occurrence is not null);
                 if (occurrence is { } found) woken.Add((installed.Tick.Value, found));
             }
@@ -681,31 +680,52 @@ public sealed class EventRingConsumerTests
             binding => Assert.Contains(e.Events, declared => declared.Kind == binding.Event)));
     }
 
+    [Fact]
+    public async Task DeclaredPulseDeliveryRetainsMoreThanSixtyFourOccurrencesAtTheirPhysicalTimes()
+    {
+        var bench = Bench([PlacedParts.Bumper(new(2), 0, 1, 0)], []);
+        await using var ring = await Ring.Running(bench);
+        var run = new Animation(ring, bench);
+        var duration = Duration(PartId.PinballBumper);
+        var later = checked((uint)Math.Ceiling((duration + 1) * 480));
+        var records = Enumerable.Range(1, 96).Select(i => {
+            var ordinal = i <= 64 ? 4u : later;
+            return new SimulationEventRecord((ulong)i, (ordinal + 3u) / 4u, SimulationEventKind.Impact, 2, 1, ordinal, 0, 1, (uint)i, 0);
+        }).ToArray();
+        run.Presentation.AcceptEvents(new(run.World.WorldGeneration.Value, 0, records), run.World);
+        var peak = run.At(records[^1]) + duration / 2;
+        // The first64 have expired here. Dropping the later32 would incorrectly leave the target at rest.
+        Assert.True(peak > run.At(records[63]) + duration);
+        Assert.Equal(Cue(PartId.PinballBumper, 1), run.Sample(peak, new(2)));
+        Assert.Equal(Cue(PartId.PinballBumper, 0), run.Sample(run.At(records[^1]) + duration + 1, new(2)));
+    }
+
+    [Fact]
+    public async Task InvalidLaterCueLeavesEarlierCueAndSequenceUnconsumedThenValidRetrySucceeds()
+    {
+        var bench = Bench([PlacedParts.Bumper(new(2), 0, 1, 0)], []);
+        await using var ring = await Ring.Running(bench);
+        var run = new Animation(ring, bench);
+        var first = new SimulationEventRecord(1, 120, SimulationEventKind.Impact, 2, 1, 480, 0, 1, 1, 0);
+        var second = first with { Sequence = 2, Count = 2 };
+        Assert.ThrowsAny<ArgumentException>(() => run.Presentation.AcceptEvents(
+            new(run.World.WorldGeneration.Value, 3, [first, second with { Source = 0 }]), run.World));
+        Assert.Equal(0UL, run.Presentation.Lapped);
+        Assert.Equal(Cue(PartId.PinballBumper, 0), run.Sample(run.At(first) + Duration(PartId.PinballBumper) / 4, new(2)));
+        run.Presentation.AcceptEvents(new(run.World.WorldGeneration.Value, 3, [first, second]), run.World);
+        Assert.Equal(3UL, run.Presentation.Lapped);
+        Assert.Equal(Cue(PartId.PinballBumper, 1), run.Sample(run.At(first) + Duration(PartId.PinballBumper) / 2, new(2)));
+    }
+
     // ---------- 9A.23 D2: the shared JS reader equals the reference consumer over the same bytes ----------
 
-    private const string ReaderScript = """
-        import fs from 'node:fs';
-        let text = ''; for await (const chunk of process.stdin) text += chunk;
-        const request = JSON.parse(text);
-        const { EventRingCursor } = await import(process.env.CURSOR_URL);
-        const results = [];
-        for (const hex of request.rings) {
-            const bytes = Buffer.from(hex, 'hex');
-            const shared = new SharedArrayBuffer(bytes.length); new Uint8Array(shared).set(bytes);
-            const cursor = new EventRingCursor(); cursor.attach(shared);
-            const read = cursor.read(cursor.epoch);
-            results.push({ records: Buffer.from(read.records).toString('hex'), skipped: read.skipped.toString(), epoch: read.epoch.toString() });
-        }
-        process.stdout.write(JSON.stringify(results));
-        """;
 
     /// <summary>Each ring copied into a SharedArrayBuffer and read once by the shipped reader, for its own epoch.</summary>
     private static JsonElement[] RunReader(byte[][] rings)
     {
-        var path = Path.Combine(twodog.Engine.ResolveProjectDir(), "CuriousContraptions.web/wwwroot/event-ring-cursor.js");
-        var start = new ProcessStartInfo("node") { RedirectStandardInput = true, RedirectStandardOutput = true, RedirectStandardError = true, UseShellExecute = false };
-        start.ArgumentList.Add("--no-warnings"); start.ArgumentList.Add("--input-type=module"); start.ArgumentList.Add("-e"); start.ArgumentList.Add(ReaderScript);
-        start.Environment["CURSOR_URL"] = new Uri(path).AbsoluteUri;
+        var path = Path.Combine(twodog.Engine.ResolveProjectDir(), ".runtime-build/tools/runtime/event-roundtrip.js");
+        var start = new ProcessStartInfo("node") { RedirectStandardInput = true, RedirectStandardOutput = true, RedirectStandardError = true, UseShellExecute = false, WorkingDirectory = twodog.Engine.ResolveProjectDir() };
+        start.ArgumentList.Add("--experimental-vm-modules"); start.ArgumentList.Add("--no-warnings"); start.ArgumentList.Add(path);
         using var node = Process.Start(start) ?? throw new InvalidOperationException("Node could not be started; the reader comparison needs it.");
         node.StandardInput.Write(JsonSerializer.Serialize(new { rings = rings.Select(Convert.ToHexString) }));
         node.StandardInput.Close();
@@ -720,10 +740,11 @@ public sealed class EventRingConsumerTests
     {
         await using var ring = await Ring.Running(Scenario("detector").Bench);
         await ring.Advance(480);
-        var outbox = new EventRingOutbox();
-        outbox.Restart(new(77), 4);
-        outbox.Commit(ring.Records.Take(2).Concat(ring.Records.Take(2)).Concat(ring.Records.Take(2)).ToArray());
-        EventRingMemory[] rings = [ring.Shared!, EventRingBuffer.Append(null, outbox.Drain())];
+        var published = ring.Records.Take(2).Concat(ring.Records.Take(2)).Concat(ring.Records.Take(2))
+            .Select((record, i) => record with { Sequence = (ulong)i + 1 }).ToArray();
+        var lapped = EventRingBuffer.Append(null, EventRingBuffer.Batch(new(4, 64, 77, 4), published.AsSpan(0, 4)));
+        lapped = EventRingBuffer.Append(lapped, EventRingBuffer.Batch(new(4, 64, 77, 6), published.AsSpan(4)));
+        EventRingMemory[] rings = [ring.Shared!, lapped];
         var results = RunReader(rings.Select(shared => shared.Snapshot()).ToArray());
         for (var i = 0; i < rings.Length; i++)
         {
@@ -780,10 +801,10 @@ public sealed class EventRingConsumerTests
                 "Uint8Array(EVENT_DELIVERY_BYTES", "DataView(delivery.buffer"],
             ["words", "delivery"]),
         (SimulationWorker,
-            ["BigInt64Array(buffer", "Uint8Array(poseRing", "DataView(batch.buffer", "BigUint64Array(aligned", "Uint8Array(bytes", "Uint8Array(bytes",
-                "Uint8Array(sequenceBytes", "Uint8Array(batch", "Uint8Array(bytes", "Uint8Array(identity", "Uint8Array(poseSlot",
+            ["BigInt64Array(buffer", "Uint8Array(buffer", "DataView(identity.buffer", "DataView(batch.buffer", "Uint8Array(batch", "BigUint64Array(copy.buffer", "Uint8Array(bytes", "Uint8Array(bytes",
+                "Uint8Array(sequenceBytes", "Uint8Array(bytes", "Uint8Array(identity", "Uint8Array(poseSlot",
                 "Uint8Array(host.Bootstrap", "Uint8Array(host.AnimationPeer", "Float64Array(nativeClockEvidence", "Uint8Array(host.AnimationPeer"],
-            ["batch", "batch", "batch.slice()", "bytes", "bytes", "read.bytes", "read.identity", "res", "sequence", "committed", "nativeClock",
+            ["identity", "batch", "copy", "bytes", "bytes", "read.bytes", "read.identity", "res", "sequence", "committed", "nativeClock",
                 "masterPeer", "animationPeer"]),
         (AnimationWorker,
             ["Uint8Array(bytes", "Uint8Array(bytes", "Uint8Array(bytes", "DataView(value.buffer", "DataView(value.buffer", "Float64Array(nativeClockEvidence"],
@@ -796,30 +817,6 @@ public sealed class EventRingConsumerTests
                 "Uint8Array(bytes"],
             ["bytes", "bootstrap", "item.animationOutput", "animationAcknowledged", "masterPeer", "bootstrap", "message.readIdentity",
                 "scheduleControl", "animationControl", "owned"]),
-    ];
-
-    // Every line of every production script or page that names `eventRing`. A new receiver (a script that never imports the module but
-    // takes the posted message's ring) or any new use of the posted buffer adds a line and fails until it is reviewed.
-    private static readonly string[] RingMentions =
-    [
-        $"{RingModule}: // Posts the ring to one of its readers (the main thread, or the Animation worker's master port) as `{{ eventRing }}`: the",
-        $"{RingModule}: postTo(target) {{ target.postMessage({{ eventRing: this.#buffer }}); }}",
-        $"{SimulationWorker}: let eventRing; // the EventRingMemory of the current epoch and capacity: this worker never touches the ring's memory directly",
-        $"{SimulationWorker}: if (!eventRing || capacity !== eventRing.capacity || epoch !== eventRing.epoch) {{",
-        $"{SimulationWorker}: eventRing = EventRingMemory.allocate(capacity, epoch);",
-        $"{SimulationWorker}: eventRing.postTo(self);",
-        $"{SimulationWorker}: if (animationPort) eventRing.postTo(animationPort);",
-        $"{SimulationWorker}: eventRing.publishSequence(sequence, 0n);",
-        $"{SimulationWorker}: for (let word = 1; word < EVENT_SLOT_BYTES / 8; word++) eventRing.storePayload(sequence, word, source[offset / 8 + word]);",
-        $"{SimulationWorker}: eventRing.publishSequence(sequence, sequence);",
-        $"{SimulationWorker}: eventRing.storeLapped(view.getBigUint64(EVENT_LAPPED_OFFSET, true));",
-        $"{SimulationWorker}: eventRing.storeWriteSequence(view.getBigUint64(EVENT_WRITE_SEQUENCE_OFFSET, true));",
-        $"{SimulationWorker}: eventRing = undefined;",
-        $"{SimulationWorker}: if (eventRing) eventRing.postTo(animationPort);",
-        $"{AnimationWorker}: else if (envelope.eventRing instanceof SharedArrayBuffer)",
-        $"{AnimationWorker}: events.attach(envelope.eventRing);",
-        $"{WorkshopClient}: }} else if (message.eventRing instanceof SharedArrayBuffer) {{",
-        $"{WorkshopClient}: client.events.attach(message.eventRing);",
     ];
 
     // Architecture guard (docs/testing-guidance.md): a plain (non-atomic) access on either side of the ring behaves identically under any
@@ -838,16 +835,11 @@ public sealed class EventRingConsumerTests
             .Where(path => File.ReadAllText(path).Contains("event-ring-cursor.js", StringComparison.Ordinal))
             .Select(path => Path.GetRelativePath(root, path).Replace('\\', '/')).Order().ToArray();
         Assert.Equal(new[] { AnimationWorker, SimulationWorker, WorkshopClient }.Order(), importers);
-        // Review R4-F1: a script that never imports the module could still take the posted `{ eventRing }` and view it. So every mention
-        // of `eventRing` in every production script and page is pinned line by line: the writer's own EventRingMemory variable, the
-        // module's postTo, and in each reader exactly the `instanceof SharedArrayBuffer` check followed by EventRingCursor.attach.
-        var mentions = scripts.SelectMany(folder => Directory.EnumerateFiles(Path.Combine(root, folder), "*.*", SearchOption.TopDirectoryOnly))
-            .Where(path => path.EndsWith(".js", StringComparison.Ordinal) || path.EndsWith(".html", StringComparison.Ordinal))
-            .SelectMany(path => File.ReadAllLines(path)
-                .Where(line => System.Text.RegularExpressions.Regex.IsMatch(line, @"\beventRing\b"))
-                .Select(line => $"{Path.GetRelativePath(root, path).Replace('\\', '/')}: {line.Trim()}"))
-            .Order(StringComparer.Ordinal).ToArray();
-        Assert.Equal(RingMentions.Order(StringComparer.Ordinal), mentions);
+        // Every receiver of the posted buffer is one of the declared ring owners.
+        var receivers = scripts.SelectMany(folder => Directory.EnumerateFiles(Path.Combine(root, folder), "*.js", SearchOption.TopDirectoryOnly))
+            .Where(path => System.Text.RegularExpressions.Regex.IsMatch(File.ReadAllText(path), @"\beventRing\b"))
+            .Select(path => Path.GetRelativePath(root, path).Replace('\\', '/')).Order().ToArray();
+        Assert.Equal(new[] { RingModule, AnimationWorker, SimulationWorker, WorkshopClient }.Order(), receivers);
         foreach (var (path, views, buffers) in RingFiles)
         {
             var text = Source(path);
@@ -860,9 +852,10 @@ public sealed class EventRingConsumerTests
         var memory = Declaration(module, "export class EventRingMemory {");
         Assert.Contains("this.#words = new BigUint64Array(buffer);", memory);
         Assert.Equal(2 + Count(memory, @"Atomics\.(load|store)\((this|ring)\.#words, "), Count(memory, "#words"));
-        // The SharedArrayBuffer is declared, kept, and read only to post it.
-        Assert.Equal(3, Count(memory, "#buffer"));
-        Assert.Contains("postTo(target) { target.postMessage({ eventRing: this.#buffer }); }", memory);
+        // The preallocated private message is the only path that exposes the shared buffer.
+        Assert.Contains("this.#message = { eventRing: buffer };", memory);
+        Assert.Contains("postTo(target) { target.postMessage(this.#message); }", memory);
+        Assert.Equal(3, Count(memory, "#message"));
 
         // C#: the reference ring's memory.
         var reference = Source("CuriousContraptions.Abstractions/EventRingBuffer.cs");

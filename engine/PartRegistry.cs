@@ -24,7 +24,7 @@ public sealed class PartRegistry
     /// <summary>The generated bundle (tools/BundleElements writes it on every build and before every export).</summary>
     public const string BundlePath = "res://elements/elements.bundle.json";
 
-    private readonly Dictionary<PartId, PartDefinition> _definitions = new();
+    private readonly Dictionary<PartId, PartDefinition> _definitions = new(32);
     private IReadOnlyDictionary<PartId, PartAllowance>? _free;
     private IReadOnlySet<PartId>? _elements;
     public IReadOnlyDictionary<PartId, PartDefinition> Definitions => _definitions;
@@ -57,7 +57,7 @@ public sealed class PartRegistry
     /// <summary>Loads the bundle these bytes hold, or refuses them whole.</summary>
     public void Load(string json)
     {
-        var definitions = new List<PartDefinition>();
+        var definitions = new List<PartDefinition>(32);
         var entries = Read(json);
         foreach (var entry in entries)
         {

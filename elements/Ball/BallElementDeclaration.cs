@@ -40,12 +40,15 @@ public sealed class BallElementDeclaration : IMechanicalElement, ISceneGeometryE
 
     public KinematicMode KinematicMode => KinematicMode.Dynamic;
 
-    public RigidBodyMassProperties MassProperties => new(
-        Mass: 1f,
-        CentreOfMass: Vector3.Zero,
-        InertiaTensor: new Vector3(0.04624f, 0.04624f, 0.04624f),
-        LinearDrag: 0.04f,
-        Gravity: new Vector3(0, -9.81f, 0));
+    public PayloadPolicy Payload => PayloadPolicy.CaptureTarget;
+
+    public MassFrameDeclaration MassFrame => MassFrameDeclaration.Constant(
+        mass: 1f,
+        centreOfMass: Vector3.Zero,
+        principalMoments: new Vector3(0.04624f, 0.04624f, 0.04624f),
+        principalFrame: Quaternion.Identity,
+        linearDrag: 0.04f,
+        gravity: new Vector3(0, -9.81f, 0));
 
     public IReadOnlyList<AnchorPointDescriptor> AnchorPoints => [];
 }

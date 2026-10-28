@@ -11,6 +11,7 @@ namespace CuriousContraptions;
 /// <summary>Current admitted game path. Scene nodes are render/input adapters; the worker owns physics.</summary>
 public partial class MachineWorld
 {
+    private readonly WorkshopPhysicalPresentation _physicalPresentation = new();
     private IWorkshopClient? _workshopClient;
     private bool _workshopPending;
     private bool _workshopRemoved;
@@ -39,7 +40,7 @@ public partial class MachineWorld
         return new(response.Result, delivery.Applicable);
     }
     public WorkshopGoalPhase GoalPhase => _workshopClient is null ? WorkshopGoalPhase.NotApplicable :
-        WorkshopGoalEvaluator.Evaluate(Construction.Puzzle.Goal, WorkshopRead, _workshopClient.Epoch);
+        WorkshopGoalEvaluator.Evaluate(Construction.Puzzle.Goal, WorkshopRead, _workshopClient.Epoch, Construction.Instances.Identities);
 
     // A retired worker session (Indeterminate or RecoveryBlocked) is already an explicit, player-visible fault: its
     // failure overlay and Workshop state are shown and the presentation path stops (PresentWorkshopRead). UI animation
@@ -232,27 +233,12 @@ public partial class MachineWorld
             var selected = _workshopClient.TryPresent(Engine.GetProcessFrames(), out var presentation);
             if (selected)
             {
-                // Resolve the complete validated set before mutating any rendered body.
-                var targets = new Node3D[presentation.Bodies.Count];
-                for (var index = 0; index < targets.Length; index++)
-                {
-                    var id = presentation.Bodies[index].Id;
-                    targets[index] = _parts.Select(part => part.PhysicalVisual(id)).SingleOrDefault(target => target is not null)
-                        ?? throw new ArgumentException("Presented body has no unique owned visual binding.");
-                }
+                var writes = _physicalPresentation.Apply(_parts, GlobalTransform, presentation.Bodies);
                 _workshopPresentation = presentation;
                 DisplaySimulationTime = presentation.SimulationTime.Seconds;
-                for (var index = 0; index < targets.Length; index++)
-                {
-                    var pose = presentation.Bodies[index]; var target = targets[index];
-                    var q = pose.Rotation;
-                    var worldPose = GlobalTransform * new Transform3D(new Basis(new Quaternion((float)q.X, (float)q.Y, (float)q.Z, (float)q.W)),
-                        RenderPosition(pose.Cell, pose.Local));
-                    var localPose = ((Node3D)target.GetParent()).GlobalTransform.AffineInverse() * worldPose;
-                    ApplyWorkshopPosition(target, localPose.Origin);
-                    target.Basis = localPose.Basis;
-                }
-                foreach (var part in _parts) part.ApplyPhysicalSpans();
+                var writeFrame = Engine.GetProcessFrames();
+                if (writeFrame != _workshopWriteFrame) { _workshopWriteFrame = writeFrame; _workshopPositionWrites = 0; }
+                _workshopPositionWrites = checked(_workshopPositionWrites + writes);
             }
             var frame = Engine.GetProcessFrames();
             foreach (var part in _parts)
@@ -309,27 +295,17 @@ public partial class MachineWorld
             if (part.Definition.PartId != instance.PartId) throw new ArgumentException("Authored identity changed part kind.");
             var parameters = DeclaredPhysics.Parameters(instance);
             part.ApplyPresentationParameters(parameters);
-            // Every declared slider body presents through the part's one secondary visual, at its declared starting compression.
+            // Every declared child presents its own compiled identity and starting compression.
             var sliders = DeclaredPhysics.Of(instance.PartId).Mechanical?.Sliders ?? [];
-            if (sliders.Count > 1) throw new ArgumentException("A part presents at most one slider body.");
-            if (sliders.Count == 1)
-                part.InstallSliderPresentation(WorkshopPhysicsCompiler.SliderBody(instance.Id, 0), sliders[0].Compression.Evaluate(parameters));
+            for (var index = 0; index < sliders.Count; index++)
+                part.InstallSliderPresentation(new(index + 1), Construction.Instances.Identities[instance.Id].Sliders[index].Body,
+                    sliders[index].Compression.Evaluate(parameters), Construction.Instances.Identities);
             part.Locked = instance.Locked;
             part.Position = RenderPosition(instance.Cell, instance.Local);
             var q = instance.Rotation;
             part.Quaternion = new((float)q.X, (float)q.Y, (float)q.Z, (float)q.W);
             part.ResetPhysicalVisuals();
         }
-    }
-
-    private void ApplyWorkshopPosition(Node3D part, Vector3 position)
-    {
-        // One final physical position writer. Repeated unchanged endpoint application is clean.
-        if (part.Position == position) return;
-        var frame = Engine.GetProcessFrames();
-        if (frame != _workshopWriteFrame) { _workshopWriteFrame = frame; _workshopPositionWrites = 0; }
-        part.Position = position;
-        _workshopPositionWrites = checked(_workshopPositionWrites + 1);
     }
 
     private static Vector3 RenderPosition(CellOrigin cell, LocalPosition local) =>

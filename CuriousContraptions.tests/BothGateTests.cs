@@ -46,12 +46,8 @@ public sealed class BothGateTests
     private static WorkshopGenericInstance Battery(ulong id,float x,bool enabled)=>PlacedParts.Battery(new(id), x, 3, 0, enabled: enabled?ElectricalEnable.Enabled:ElectricalEnable.Disabled);
     internal static ElectricalLogicRead Logic(WorkshopRead read,ulong owner=4)=>read.Presentation.Logic.ToArray().Single(row=>row.Owner.Value==owner);
     private static ActuatorDriveRead Drive(WorkshopRead read)=>read.Presentation.Actuators.ToArray().Single(row=>row.Owner.Value==5);
-    private static float BladeY(WorkshopRead read)
-    {
-        var body=Enumerable.Range(0,read.Bodies.Count).Select(i=>read.Bodies[i].Body)
-            .Single(row=>row.Id==WorkshopPhysicsCompiler.SliderBody(new(5), 0));
-        return (body.Cell.Y+body.Local.Y)/16f;
-    }
+    private static float BladeY(WorkshopRead read) =>
+        3f + read.Presentation.Actuators.ToArray().Single(row => row.Owner.Value == 5).Coordinate;
 
     [Theory]
     [InlineData(ElectricalInputState.Neither,false)]

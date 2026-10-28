@@ -1,3 +1,4 @@
+using CuriousContraptions.Abstractions;
 using CuriousContraptions.Gpu;
 using CuriousContraptions.Abstractions.Signal;
 using Godot;
@@ -17,9 +18,9 @@ public sealed class HoldTimerTests
         new(new(from), WorkshopSocket.Supply, new(to), WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical);
     internal static ActivationTimerState State(WorkshopRead read) =>
         Enumerable.Range(0, read.Timers.Count).Select(i => read.Timers[i]).Single(row => row.Node.Value == 3);
-    private static PhysicsBodyRead Blade(WorkshopRead read) =>
-        Enumerable.Range(0,read.Bodies.Count).Select(i=>read.Bodies[i]).Single(row=>row.Body.Id==WorkshopPhysicsCompiler.SliderBody(new(5), 0));
-    private static float Travel(WorkshopRead read) => (Blade(read).Body.Cell.Y+Blade(read).Body.Local.Y)/16f-3f;
+    private static ActuatorDriveRead Blade(WorkshopRead read) =>
+        read.Presentation.Actuators.ToArray().Single(row => row.Owner.Value == 5);
+    private static float Travel(WorkshopRead read) => Blade(read).Coordinate;
     private static bool Powered(WorkshopRead read) => read.Presentation.Actuators.ToArray().Single(row => row.Owner.Value == 5).SupplyClosed;
 
     internal static WorkshopConstruction Construction(float seconds, bool supply = true, bool delayed = false)
@@ -82,7 +83,7 @@ public sealed class HoldTimerTests
         Assert.Equal(delay.DueTick,first.Tick.Value);
         Assert.True(Powered(first));
         var before=reads.Single(read=>read.Tick.Value+1==first.Tick.Value);
-        Assert.True(Blade(first).Body.Velocity.Y>0f, "gate accelerates on the due boundary");
+        Assert.True(Blade(first).Speed>0f, "gate accelerates on the due boundary");
         Assert.True(Travel(first)>Travel(before), "gate blade starts moving on the due boundary");
         var (_,control,_)=await NoFixedCapacityTests.RunAndReset(Construction(seconds,supply:false,delayed:true),180);
         Assert.True(Travel(first)>Travel(control.Single(read=>read.Tick.Value==first.Tick.Value)), "same timer without supply cannot move the blade");
@@ -198,7 +199,7 @@ public sealed class HoldTimerTests
         var (_,reads,_)=await NoFixedCapacityTests.RunAndReset(construction,180);
         var first=reads.First(read=>State(read).Phase==ActivationTimerPhase.Counting);
         var next=reads.Single(read=>read.Tick.Value==first.Tick.Value+1);
-        await using var device=new WorkshopGpuDevice(new CuriousContraptions.Simulation.BrowserGpuTransport(),new(101,206));
+        await using var device=new WorkshopGpuDevice(new CuriousContraptions.Simulation.BrowserGpuTransport(new CuriousContraptions.Abstractions.EventRingPublication()),new(101,206));
         await using var simulation=new WorkshopSimulation(device,new WorkshopPhysicsEngineTests.StepClock(),WorkshopCadenceSettings.Default(),
             new(1),new WorkshopPhysicsEngineTests.NoInstallation(),GpuDeviceOwnership.Borrowed);
         Assert.Equal(WorkshopCommandOutcome.Applied,(await simulation.Initialize()).Outcome);
@@ -281,13 +282,13 @@ public sealed class HoldTimerTests
     {
         var colliders = DeclaredPhysics.Colliders(new PartId("hold_timer"));
         Assert.Equal(7, colliders.Count);
-        TestBundle.AssertCollider(colliders[0], ColliderShapeKind.Box, 0f, new(.7f, .55f, .325f), new(0f, 0f, 0f));
-        TestBundle.AssertCollider(colliders[1], ColliderShapeKind.Box, 0f, new(.8f, .07f, .425f), new(0f, -.62f, 0f));
-        TestBundle.AssertCollider(colliders[2], ColliderShapeKind.Box, 0f, new(.59f, .36f, .0225f), new(0f, 0f, .35f));
-        TestBundle.AssertCollider(colliders[3], ColliderShapeKind.Sphere, .07f, default, new(0f, -.22f, .4f));
-        TestBundle.AssertCollider(colliders[4], ColliderShapeKind.Sphere, .08f, default, new(0f, .65f, .2f));
-        TestBundle.AssertCollider(colliders[5], ColliderShapeKind.Sphere, .08f, default, new(-.78f, 0f, 0f));
-        TestBundle.AssertCollider(colliders[6], ColliderShapeKind.Sphere, .08f, default, new(.78f, 0f, 0f));
+        TestBundle.AssertCollider(colliders[0], CuriousContraptions.Gpu.ColliderShapeKind.Box, 0f, new(.7f, .55f, .325f), new(0f, 0f, 0f));
+        TestBundle.AssertCollider(colliders[1], CuriousContraptions.Gpu.ColliderShapeKind.Box, 0f, new(.8f, .07f, .425f), new(0f, -.62f, 0f));
+        TestBundle.AssertCollider(colliders[2], CuriousContraptions.Gpu.ColliderShapeKind.Box, 0f, new(.59f, .36f, .0225f), new(0f, 0f, .35f));
+        TestBundle.AssertCollider(colliders[3], CuriousContraptions.Gpu.ColliderShapeKind.Sphere, .07f, default, new(0f, -.22f, .4f));
+        TestBundle.AssertCollider(colliders[4], CuriousContraptions.Gpu.ColliderShapeKind.Sphere, .08f, default, new(0f, .65f, .2f));
+        TestBundle.AssertCollider(colliders[5], CuriousContraptions.Gpu.ColliderShapeKind.Sphere, .08f, default, new(-.78f, 0f, 0f));
+        TestBundle.AssertCollider(colliders[6], CuriousContraptions.Gpu.ColliderShapeKind.Sphere, .08f, default, new(.78f, 0f, 0f));
     }
 
     [Fact]
@@ -298,12 +299,12 @@ public sealed class HoldTimerTests
         // indicator and the three ports.
         var shapes=scene.Colliders.ToArray().Where(row=>row.Body.Value==3).ToArray();
         Assert.Equal(7,shapes.Length);
-        Assert.Contains(shapes,row=>row.Shape==ColliderShapeKind.Box && row.HalfExtents==new MetreVector(.7f,.55f,.325f) && row.Pose.Translation==new MetreVector(0f,0f,0f));
-        Assert.Contains(shapes,row=>row.Shape==ColliderShapeKind.Box && row.HalfExtents==new MetreVector(.8f,.07f,.425f) && row.Pose.Translation==new MetreVector(0f,-.62f,0f));
-        Assert.Contains(shapes,row=>row.Shape==ColliderShapeKind.Box && row.HalfExtents==new MetreVector(.59f,.36f,.0225f) && row.Pose.Translation==new MetreVector(0f,0f,.35f));
-        Assert.Contains(shapes,row=>row.Shape==ColliderShapeKind.Sphere && row.Radius==new Metres(.07f) && row.Pose.Translation==new MetreVector(0f,-.22f,.4f));
+        Assert.Contains(shapes,row=>row.Shape==CuriousContraptions.Gpu.ColliderShapeKind.Box && row.HalfExtents==new MetreVector(.7f,.55f,.325f) && row.Pose.Translation==new MetreVector(0f,0f,0f));
+        Assert.Contains(shapes,row=>row.Shape==CuriousContraptions.Gpu.ColliderShapeKind.Box && row.HalfExtents==new MetreVector(.8f,.07f,.425f) && row.Pose.Translation==new MetreVector(0f,-.62f,0f));
+        Assert.Contains(shapes,row=>row.Shape==CuriousContraptions.Gpu.ColliderShapeKind.Box && row.HalfExtents==new MetreVector(.59f,.36f,.0225f) && row.Pose.Translation==new MetreVector(0f,0f,.35f));
+        Assert.Contains(shapes,row=>row.Shape==CuriousContraptions.Gpu.ColliderShapeKind.Sphere && row.Radius==new Metres(.07f) && row.Pose.Translation==new MetreVector(0f,-.22f,.4f));
         foreach(var port in new[]{new MetreVector(0f,.65f,.2f),new MetreVector(-.78f,0f,0f),new MetreVector(.78f,0f,0f)})
-            Assert.Contains(shapes,row=>row.Shape==ColliderShapeKind.Sphere && row.Radius==new Metres(.08f) && row.Pose.Translation==port);
+            Assert.Contains(shapes,row=>row.Shape==CuriousContraptions.Gpu.ColliderShapeKind.Sphere && row.Radius==new Metres(.08f) && row.Pose.Translation==port);
         foreach(var shape in shapes)
         {
             var material=scene.Materials.ToArray().Single(row=>row.Id==shape.Material);
@@ -315,21 +316,23 @@ public sealed class HoldTimerTests
 
     internal sealed class GatedRealTransport : IWorkshopGpuTransport
     {
-        private readonly CuriousContraptions.Simulation.BrowserGpuTransport _real=new();
+        private readonly CuriousContraptions.Simulation.BrowserGpuTransport _real=new(new CuriousContraptions.Abstractions.EventRingPublication());
         public TaskCompletionSource? Entered, Release;
         public bool FailRead;
         public Task Initialize()=>_real.Initialize();
-        public async Task Stage(byte[] input,WorkshopGpuOperation operation,PhysicsTickInputs inputs)
+        public async Task Stage(ReadOnlyMemory<byte> input,WorkshopGpuOperation operation,PhysicsTickInputs inputs)
         {
             if(Release is { } gate && operation==WorkshopGpuOperation.Advance)
             { Entered!.TrySetResult(); await gate.Task; }
             await _real.Stage(input,operation,inputs);
         }
-        public byte[] Read()
+        public WorkshopTransportCandidate Read()
         {
             if(FailRead) { FailRead=false; throw new InvalidOperationException("Test-owned read refusal."); }
             return _real.Read();
         }
+        public void PrepareEvents(byte[] batch)=>_real.PrepareEvents(batch);
+        public void PublishEvents()=>_real.PublishEvents();
         public void Commit()=>_real.Commit();
         public void Discard()=>_real.Discard();
         public bool DeviceReady()=>_real.DeviceReady();

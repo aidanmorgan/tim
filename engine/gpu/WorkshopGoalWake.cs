@@ -18,7 +18,7 @@ namespace CuriousContraptions.Gpu;
 /// installed. A goal whose capture sensor is not in the installed scene has nothing to wake it (and nothing can capture it).</summary>
 public sealed class WorkshopGoalWake
 {
-    private readonly HashSet<GpuBodyId> _owners = new();
+    private readonly HashSet<GpuBodyId> _owners = new(16);
     private readonly bool _anyRecord;
     private ulong? _wakeTick;
     private bool _now;
@@ -32,7 +32,8 @@ public sealed class WorkshopGoalWake
             case WorkshopGoalKind.None: break;
             case WorkshopGoalKind.Captured:
                 foreach (var sensor in scene.Sensors)
-                    if (sensor.Id == goal.EventSource) _owners.Add(sensor.Frame);
+                    if (sensor.Frame == goal.Target) foreach(var body in scene.Bodies)
+                        if(body.Id==goal.Body && body.Motion==RigidMotionKind.Dynamic && sensor.Targets.Contains(body.Id,body.Payload)) _owners.Add(sensor.Frame);
                 break;
             case WorkshopGoalKind.ActivatedAfter: _anyRecord = true; break;
             default: throw new ArgumentException("Unknown goal kind.");

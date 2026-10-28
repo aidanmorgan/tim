@@ -59,7 +59,7 @@ public sealed class LatchSupplyFixtureTests
     /// Run of `replay` ticks — all on the production WorkshopSimulation. Records the authored construction after every tick.</summary>
     private static async Task<Trace> Run(WorkshopConstruction construction, int replay, params (WorkshopElectricalControl[] Controls, int Ticks)[] phases)
     {
-        await using var device = new WorkshopGpuDevice(new CuriousContraptions.Simulation.BrowserGpuTransport(), new(101, 206));
+        await using var device = new WorkshopGpuDevice(new CuriousContraptions.Simulation.BrowserGpuTransport(new CuriousContraptions.Abstractions.EventRingPublication()), new(101, 206));
         await using var simulation = new WorkshopSimulation(device, new WorkshopPhysicsEngineTests.StepClock(), WorkshopCadenceSettings.Default(),
             new(1), new WorkshopPhysicsEngineTests.NoInstallation(), GpuDeviceOwnership.Borrowed);
         Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Initialize()).Outcome);

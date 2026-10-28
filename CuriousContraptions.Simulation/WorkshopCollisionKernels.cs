@@ -51,7 +51,6 @@ internal sealed class SimBody
     public Vector3 InvI;
     public Vector3 PrincipalX, PrincipalY, PrincipalZ;
     public float Cmx, Cmy, Cmz;
-    public float SupportExtent;
     public int DynamicIndex;
     public RigidMotionKind Motion;
     /// <summary>The body's velocities at the start of the substep, before guides, supplied drives, gravity and drag: the
@@ -71,7 +70,6 @@ internal sealed class SimBody
     public Quaternion TickStartRotation;
     public Quaternion TickRelativeRotation;
 
-    public SimCollider? Collider;
 
     public Vector3 Position => new(Px, Py, Pz);
     public Quaternion Rotation => new(Qx, Qy, Qz, Qw);
@@ -127,7 +125,7 @@ internal sealed class ContactPoint
     public float Restitution;
     public float Threshold;
     public float Friction;
-    public ulong Key;
+    public ContactFeatureIdentity Key;
     public float LambdaN;
     /// <summary>The substep-start relative normal velocity at this point (negative approaching): the restitution target's and the
     /// contact events' approach.</summary>
@@ -138,22 +136,22 @@ internal sealed class ContactPoint
     public Vector3 Point => new(Px, Py, Pz);
 }
 
+internal sealed class NormalContactBlock
+{
+    public readonly List<ContactPoint> Points = new(4);
+    public ContactFeatureSetKey Key = null!;
+}
+
 internal sealed class ContactManifold
 {
-    public List<ContactPoint> Points = new();
+    public List<ContactPoint> Points = new(64);
     public ContactFeatureSetKey NormalWarmStartKey = null!;
-    public readonly List<FrictionPatch> FrictionPatches = new();
-    public float Rolling;
-    /// <summary>The rolling-resistance row's directions, set by <see cref="WorkshopConstraintSolver.PrepareRolling"/> from the
-    /// manifold's curved supports (each point's <see cref="ContactPoint.SupportA"/>/<see cref="ContactPoint.SupportB"/> and its
-    /// colliders' shapes): both contact tangents for a sphere or crossed curved sides, or one rolling axis (Roll2 zero, with zero
-    /// mass) for one curved side or two parallel ones.</summary>
-    public Vector3 Roll1;
-    public Vector3 Roll2;
-    public float RollingMass1;
-    public float RollingMass2;
-    public float LambdaR1;
-    public float LambdaR2;
+    public readonly List<NormalContactBlock> NormalBlocks = new(16);
+    public int NormalBlockCount;
+    public readonly List<ContactPatch> Patches = new(16);
+    public readonly List<ContactPatch> PatchPool = new(16);
+    public readonly List<ContactPoint> OrderedScratch = new(64), ClosedScratch = new(64),
+        SpeculativeScratch = new(64), SelectionScratch = new(64);
 }
 
 internal static partial class WorkshopCollisionKernels
@@ -244,7 +242,7 @@ internal static partial class WorkshopCollisionKernels
         c.U2 = Vector3.Transform(Vector3.UnitZ, cq);
     }
 
-    /// <summary>The farthest surface point from the collider centre (the spin arm of fattening and speculative margins). A plane
+    /// <summary>The farthest surface point from the collider centre. A plane
     /// is static and has none; a hollow collider's is its containing ball's radius.</summary>
     public static float ColliderExtent(SimCollider c) => c.Shape switch
     {
@@ -255,6 +253,11 @@ internal static partial class WorkshopCollisionKernels
         ShapeKind.Plane => 0f,
         _ => 0f
     };
+
+    /// <summary>Conservative rotation reach about the declared body COM, including the child's local translation.
+    /// Rotation preserves this local distance; use the same reach for broadphase and speculative angular motion.</summary>
+    public static float SweepReach(SimCollider c) =>
+        (new Vector3(c.Tx, c.Ty, c.Tz) - c.Body.ComLocal).Length() + ColliderExtent(c);
 
     /// <summary>The half-extent of a cylinder along unit <paramref name="axis"/> about its centre, exactly: h |u·a| + r √(1 − (u·a)²).</summary>
     public static float CylinderProjection(SimCollider c, Vector3 axis)
@@ -792,6 +795,18 @@ internal static partial class WorkshopCollisionKernels
         return length > 1e-6f ? p / length : fallback;
     }
 
+    internal static Vector3 SupportPoint(SimCollider c, Vector3 direction) => c.Shape switch
+    {
+        ShapeKind.Sphere => c.Position + c.Radius * direction,
+        ShapeKind.Box => c.Position +
+            (Vector3.Dot(direction, c.U0) >= 0f ? c.Hx : -c.Hx) * c.U0 +
+            (Vector3.Dot(direction, c.U1) >= 0f ? c.Hy : -c.Hy) * c.U1 +
+            (Vector3.Dot(direction, c.U2) >= 0f ? c.Hz : -c.Hz) * c.U2,
+        ShapeKind.Cylinder => CylinderSupport(c, direction),
+        ShapeKind.Tube or ShapeKind.Frustum or ShapeKind.Torus => Hollow(c).SupportNear(direction, c.Position),
+        _ => throw new ArgumentException("A finite body requires finite support geometry.")
+    };
+
     /// <summary>The cylinder's support point in direction d: the rim point of the cap facing d.</summary>
     private static Vector3 CylinderSupport(SimCollider c, Vector3 d)
     {
@@ -1082,12 +1097,11 @@ internal static partial class WorkshopCollisionKernels
     {
         var count = points.Count - first;
         if (count <= 4) return;
-        Span<bool> keep = stackalloc bool[count];
-        keep.Clear();
+        Span<int> keep = stackalloc int[4];
         var deepest = 0;
         for (var i = 1; i < count; i++)
             if (points[first + i].Gap < points[first + deepest].Gap) deepest = i;
-        keep[deepest] = true;
+        keep[0] = deepest;
         var opposite = deepest;
         var farthest = -1f;
         for (var i = 0; i < count; i++)
@@ -1096,9 +1110,8 @@ internal static partial class WorkshopCollisionKernels
             var distance = (points[first + i].Point - points[first + deepest].Point).LengthSquared();
             if (distance > farthest) { farthest = distance; opposite = i; }
         }
-        keep[opposite] = true;
-        var kept = 0;
-        foreach (var k in keep) if (k) kept++;
+        keep[1] = opposite;
+        var kept = 2;
         while (kept < 4)
         {
             var next = -1;
@@ -1106,15 +1119,15 @@ internal static partial class WorkshopCollisionKernels
             var longest = -1f;
             for (var i = 0; i < count; i++)
             {
-                if (keep[i]) continue;
+                if (keep[..kept].Contains(i)) continue;
                 var area = 0f;
                 var span = 0f;
                 for (var j = 0; j < count; j++)
                 {
-                    if (!keep[j]) continue;
+                    if (!keep[..kept].Contains(j)) continue;
                     span += (points[first + j].Point - points[first + i].Point).LengthSquared();
                     for (var k = j + 1; k < count; k++)
-                        if (keep[k]) area += Vector3.Cross(points[first + j].Point - points[first + i].Point,
+                        if (keep[..kept].Contains(k)) area += Vector3.Cross(points[first + j].Point - points[first + i].Point,
                             points[first + k].Point - points[first + i].Point).Length();
                 }
                 if (area > widest || (area == widest && (span > longest ||
@@ -1125,12 +1138,11 @@ internal static partial class WorkshopCollisionKernels
                     next = i;
                 }
             }
-            keep[next] = true;
-            kept++;
+            keep[kept++] = next;
         }
         var write = first;
         for (var i = 0; i < count; i++)
-            if (keep[i]) points[write++] = points[first + i];
+            if (keep[..kept].Contains(i)) points[write++] = points[first + i];
         points.RemoveRange(write, points.Count - write);
     }
 

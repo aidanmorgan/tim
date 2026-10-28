@@ -163,11 +163,11 @@ public sealed class FunnelTests(NativeSceneFixture godot)
         var twoFunnels = new WorkshopInstances(
             WorkshopInput.Funnel(new GpuBodyId(1), 0, 3, 0, 0, 0, 0, 1),
             WorkshopInput.Funnel(new GpuBodyId(2), 5, 3, 0, 0, 0, 0, 1));
-        WorkbenchCapacity.Validate(twoFunnels);
+        new WorkshopInstances([.. twoFunnels]).Validate();
 
         var twentyFunnels = new WorkshopInstances(
             Enumerable.Range(1, 20).Select(i => (IWorkshopInstance)WorkshopInput.Funnel(new GpuBodyId((ulong)i), i * 2, 3, 0, 0, 0, 0, 1)).ToArray());
-        WorkbenchCapacity.Validate(twentyFunnels);
+        new WorkshopInstances([.. twentyFunnels]).Validate();
     }
 
     [Fact]

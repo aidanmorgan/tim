@@ -80,14 +80,7 @@ public readonly struct PhysicsBodyReadSet
             if (index >= Count || _values![index].Body.Id != declared.Id)
                 throw new ArgumentException("Complete body set differs from the installed scene.");
             var value = _values![index++]; value.Validate();
-            ColliderDeclaration? geometry = null;
-            foreach (var collider in scene.Colliders)
-                if (collider.Body == declared.Id)
-                {
-                    if (geometry.HasValue) throw new ArgumentException("Dynamic compound is not admitted.");
-                    geometry = collider;
-                }
-            if (geometry is not { } shape || !F32Bits.Equal(value.LocalCentreOfMass, shape.Pose.Translation))
+            if (!F32Bits.Equal(value.LocalCentreOfMass, declared.MassProperties.LocalCentreOfMass))
                 throw new ArgumentException("Committed centre of mass differs from declaration.");
             if (tick.Value == 0 && (value.Body.Cell != declared.Cell ||
                 !F32Bits.Equal(value.Body.Local, declared.Local) ||

@@ -12,7 +12,7 @@ namespace CuriousContraptions;
 public static class WorkshopUiFailure
 {
     /// <summary>The declared refusals, each a sealed type: a rule refusing the edit (WorkshopEditRejectedException, with
-    /// its WorkshopEditRejection reason), a full workbench (WorkbenchFullException, with its WorkbenchTable) and an
+    /// its WorkshopEditRejection reason), an
     /// indeterminate transport, and a stored save its pre-validation refused (WorkshopSaveRejectedException, with its
     /// WorkshopSaveRejection reason). Every other exception is a defect, ArgumentException included: a programmer's
     /// argument guard, a framework failure such as a duplicate dictionary key, ArgumentOutOfRangeException,
@@ -20,7 +20,7 @@ public static class WorkshopUiFailure
     public static bool IsRejection(Exception error)
     {
         ArgumentNullException.ThrowIfNull(error);
-        return error is WorkshopEditRejectedException or WorkbenchFullException or WorkshopTransportException or WorkshopSaveRejectedException;
+        return error is WorkshopEditRejectedException or WorkshopTransportException or WorkshopSaveRejectedException;
     }
 
     /// <summary>Records the failure on its channel and returns the status-line text to show the player.</summary>

@@ -1,3 +1,4 @@
+using CuriousContraptions.Abstractions;
 using System;
 using System.Buffers.Binary;
 using System.Collections.Generic;
@@ -57,12 +58,57 @@ public static class WorkshopWireFlatBuffers
         bool verified;
         // The vendored verifier's own offset arithmetic (Convert.ToUInt32 of a hostile signed offset) overflows on some corrupt
         // buffers instead of answering false: that is its refusal too, and only here.
-        try { verified = new Verifier(buffer).VerifyBuffer(identifier, true, verify); }
+        try { verified = new Verifier(buffer).SetMaxTables(TableVisitBudget(bytes.Length)).VerifyBuffer(identifier, true, verify) && CurrentPuzzleTable(buffer, identifier); }
         catch (OverflowException failure)
         { throw new WireFaultException(WireFaultReason.VerifierRejected, $"The FlatBuffers verifier refused a {identifier} buffer.", failure); }
         if (!verified)
             throw new WireFaultException(WireFaultReason.VerifierRejected, $"The FlatBuffers verifier refused a {identifier} buffer.");
         return ByteBufferUtil.RemoveSizePrefix(buffer);
+    }
+
+
+    /// <summary>Current authored puzzle tables have ten fields and require their final assistance vector.
+    /// Reject unknown table fields before decoding; never reinterpret a superseded table layout.</summary>
+    private static bool CurrentPuzzleTable(ByteBuffer buffer, string identifier)
+    {
+        const int commandConstructionField = 11, responseConstructionField = 26, savedConstructionField = 1, constructionPuzzleField = 2;
+        const int puzzleVtableBytes = 4 + 2 * 10;
+        var constructionField = identifier switch
+        {
+            CommandIdentifier => commandConstructionField,
+            ResponseIdentifier => responseConstructionField,
+            WorkshopSaveCodec.Identifier => savedConstructionField,
+            _ => -1
+        };
+        if (constructionField < 0) return true;
+        var root = checked(FlatBufferConstants.SizePrefixLength + buffer.GetInt(FlatBufferConstants.SizePrefixLength));
+        var construction = Reference(root, constructionField);
+        if (construction == 0) return true;
+        var puzzle = Reference(construction, constructionPuzzleField);
+        if (puzzle == 0) return true;
+        var vtable = checked(puzzle - buffer.GetInt(puzzle));
+        return buffer.GetUshort(vtable) == puzzleVtableBytes;
+
+        int Reference(int table, int field)
+        {
+            var vtable = checked(table - buffer.GetInt(table));
+            var slot = 4 + 2 * field;
+            if (slot >= buffer.GetUshort(vtable)) return 0;
+            var offset = buffer.GetUshort(vtable + slot);
+            if (offset == 0) return 0;
+            var reference = checked(table + offset);
+            return checked(reference + buffer.GetInt(reference));
+        }
+    }
+
+    // Current schema has at most root -> construction -> instance -> parameter table vectors.
+    // Shared vectors are visited repeatedly: bounding unique tables by bytes would be incorrect.
+    // Each offset vector has at most w four-byte entries, so 3+w+w*w bounds visits.
+    // Leave one representable rejecting visit for the vendored increment-before-check counter.
+    private static int TableVisitBudget(int bytes)
+    {
+        var words = (long)bytes / sizeof(int);
+        return (int)Math.Min(int.MaxValue - 1L, checked(3L + words + words * words));
     }
 
     private static bool IsIdentifier(ReadOnlySpan<byte> bytes, string identifier)
@@ -102,7 +148,7 @@ public static class WorkshopWireFlatBuffers
             (command.Target is { } target && (target.Sequence.Value == 0 || target.Epoch.Value == 0 || target.Cadence.Value == 0 || target.Projection.Value == 0)))
             throw new ArgumentException("Unsupported Workshop command.");
 
-        var builder = new FlatBufferBuilder(1024);
+        var builder = new FlatBufferBuilder(512);
         var session = Session(builder, command.Session);
         Offset<ConstructionRecord>? construction = command.Construction is { } built ? EncodeConstructionRecord(builder, built) : null;
 
@@ -277,7 +323,7 @@ public static class WorkshopWireFlatBuffers
             for (var i = read.Presentation.Loads.Length - 1; i >= 0; i--)
             {
                 var l = read.Presentation.Loads[i];
-                ContactLoadRecord.CreateContactLoadRecord(builder, l.Sensor.Value, l.Frame.Value, l.Face.Value, l.MeasuredMass, (uint)l.Phase);
+                ContactLoadRecord.CreateContactLoadRecord(builder, l.Sensor.Value, l.Frame.Value, l.Region.Value, l.MeasuredMass, (uint)l.Phase);
             }
             loadOffset = builder.EndVector();
         }
@@ -333,7 +379,7 @@ public static class WorkshopWireFlatBuffers
             for (var i = read.Captures.Count - 1; i >= 0; i--)
             {
                 var c = read.Captures[i];
-                CaptureLatchRead.CreateCaptureLatchRead(builder, c.Sensor.Value, (uint)c.Phase, c.EventOrdinal, c.EventPhase);
+                CaptureLatchRead.CreateCaptureLatchRead(builder, c.Sensor.Value, c.Target.Value, (uint)c.Phase, c.EventOrdinal, c.EventPhase);
             }
             capturesOffset = builder.EndVector();
         }
@@ -457,7 +503,7 @@ public static class WorkshopWireFlatBuffers
         for (var i = 0; i < latches.Length; i++)
         {
             var cl = fb.Captures(i)!.Value;
-            latches[i] = new CaptureLatch(new GpuSensorId(cl.Sensor), (CaptureLatchPhase)cl.Phase, cl.EventOrdinal, cl.EventPhase);
+            latches[i] = new CaptureLatch(new GpuSensorId(cl.Sensor), new GpuBodyId(cl.Target), (CaptureLatchPhase)cl.Phase, cl.EventOrdinal, cl.EventPhase);
         }
 
         var actValues = new ActivationLatch[fb.ActivationsLength];
@@ -515,7 +561,7 @@ public static class WorkshopWireFlatBuffers
         for (var i = 0; i < loadValues.Length; i++)
         {
             var l = fb.ContactLoads(i)!.Value;
-            loadValues[i] = new(new(l.Sensor), new(l.Frame), new(l.Face), l.MeasuredMass, (ContactLoadPhase)l.Phase);
+            loadValues[i] = new(new(l.Sensor), new(l.Frame), new(l.Region), l.MeasuredMass, (ContactLoadPhase)l.Phase);
         }
         var memoryValues = new ActivationMemory[fb.ActivationMemoryLength];
         for (var i = 0; i < memoryValues.Length; i++)
@@ -583,7 +629,6 @@ public static class WorkshopWireFlatBuffers
             PuzzleRecord.AddGoalKind(builder, (uint)puzzle.Goal.Kind);
             PuzzleRecord.AddGoalBody(builder, goalBody);
             PuzzleRecord.AddGoalTarget(builder, goalTarget);
-            PuzzleRecord.AddGoalEventSource(builder, puzzle.Goal.EventSource.Value);
             PuzzleRecord.AddGoalDelay(builder, puzzle.Goal.MinimumDuration.Value);
             PuzzleRecord.AddAssistance(builder, assistVec);
             puzzleOffset = PuzzleRecord.EndPuzzleRecord(builder);
@@ -697,10 +742,9 @@ public static class WorkshopWireFlatBuffers
         if (cr.Puzzle is { } p)
         {
             var kind = (WorkshopGoalKind)p.GoalKind;
-            var sensor = new GpuSensorId(p.GoalEventSource);
             var goal = kind == WorkshopGoalKind.ActivatedAfter
-                ? new WorkshopGoal(kind, default, default, sensor, new(p.GoalBody), new(p.GoalTarget), new(p.GoalDelay))
-                : new WorkshopGoal(kind, new(p.GoalBody), new(p.GoalTarget), sensor, MinimumDuration: new(p.GoalDelay));
+                ? new WorkshopGoal(kind, default, default, new(p.GoalBody), new(p.GoalTarget), new(p.GoalDelay))
+                : new WorkshopGoal(kind, new(p.GoalBody), new(p.GoalTarget), MinimumDuration: new(p.GoalDelay));
             if (p.AssistanceLength != AssistanceKnotCount)
                 throw new WireFaultException(WireFaultReason.MissingField, "An authored puzzle requires its nine assistance knots.");
             AssistanceProfile[] profiles = [Profile(p, 0), Profile(p, KnotsPerProfile), Profile(p, 2 * KnotsPerProfile)];
@@ -776,7 +820,7 @@ public static class WorkshopWireFlatBuffers
     {
         try
         {
-            var values = new List<KeyValuePair<ParameterId, float>>();
+            var values = new List<KeyValuePair<ParameterId, float>>(4);
             for (var i = 0; i < record.ParametersLength; i++)
             {
                 var parameter = record.Parameters(i) ?? throw new WireFaultException(WireFaultReason.MissingField, "Missing parameter.");

@@ -57,7 +57,7 @@ public sealed class WorkshopConnections : IReadOnlyList<WorkshopConnection>, IEq
         ArgumentNullException.ThrowIfNull(partOf);
         if (_items.Length == 0) return;
         var ports = DeclaredPorts.Current;
-        var seen = new HashSet<WorkshopConnection>();
+        var seen = new HashSet<WorkshopConnection>(16);
         foreach (var link in _items)
         {
             if (link.Source.Value == 0 || link.Target.Value == 0 || link.Source == link.Target ||

@@ -31,7 +31,7 @@ public sealed class WireFaultTests
         var body = new CanonicalBody(new(1), 1, tick, new(2, 3, 4), new(.25f, -.125f, 0), new(1.5f, 0, -2));
         var bodies = new PhysicsBodyReadSet([new PhysicsBodyRead(body, CanonicalRotation.Identity, default, default)]);
         var motion = PhysicsMotionRead.Decode(tick == 0 ? new byte[PhysicsMotionRead.ByteLength(1)] : MotionBytes(body), bodies, new(tick));
-        var read = new WorkshopRead(new(1), new(tick), bodies, new(1), stamp, new PhysicsCaptureRead([CaptureLatch.Clear(new(9))]), motion);
+        var read = new WorkshopRead(new(1), new(tick), bodies, new(1), stamp, new PhysicsCaptureRead([CaptureLatch.Clear(new(9), new(1))]), motion);
         return new(default, WorkshopResponseKind.Read, new(WorkshopCommandOutcome.Applied, WorkshopRejection.None),
             WorkshopSimulationPhase.Running, read, Session: Session, Publication: new(1), Cadence: new(1),
             MasterGeneration: master, Projection: new(1), SourcePulse: new(tick));

@@ -14,7 +14,7 @@ public sealed class WorkshopTraceTests(ITestOutputHelper testOutput)
     private static readonly WorkshopConstruction Construction = new(new(7), Settings, new(WorkshopInput.Generic(PartId.Basketball,new(3), 0, 8.875, 0, 0, 0, 0, 1)));
 
     [Fact]
-    public void RoundedCommittedRotationPreservesTraceBits()
+    public void RoundedCommittedRotationPreservesDeclaredNumericValues()
     {
         var state = PhysicsGpuAbi.Admission(WorkshopPhysicsCompiler.Compile(Construction, new(101, 207)), new(9), Profile);
         var physical = PhysicsGpuAbi.ReadDynamicBodies(state)[0];
@@ -22,8 +22,7 @@ public sealed class WorkshopTraceTests(ITestOutputHelper testOutput)
         var record = WorkshopTraceRecord.Encode(new(new(9), new(0), new([physical with { Rotation = rotation }])), Profile);
         var values = new[] { rotation.X, rotation.Y, rotation.Z, rotation.W };
         for (var index = 0; index < values.Length; index++)
-            Assert.Equal(BitConverter.SingleToUInt32Bits(values[index]),
-                BinaryPrimitives.ReadUInt32LittleEndian(record.AsSpan(WorkshopTraceRecord.HeaderBytes + 32 + index * 4)));
+            Assert.Equal(values[index], BinaryPrimitives.ReadSingleLittleEndian(record.AsSpan(WorkshopTraceRecord.HeaderBytes + 32 + index * 4)));
     }
 
     // Blind hunter 4 (Story 9.4b final round): the retired DeviceLost end (3) is undefined, and a trace refuses to seal
@@ -100,12 +99,9 @@ public sealed class WorkshopTraceTests(ITestOutputHelper testOutput)
 
     private static void Append(WorkshopTrace trace, byte[] record)
     {
-#if PLAYTEST
         trace.Append(record);
-#endif
     }
 
-#if PLAYTEST
     [Theory]
     [InlineData(SimulationCadence.Hz60, 1800UL, 15)]
     [InlineData(SimulationCadence.Hz120, 3600UL, 29)]
@@ -137,10 +133,10 @@ public sealed class WorkshopTraceTests(ITestOutputHelper testOutput)
         var header = lines[0].Split(' ');
         Assert.Equal("CCGPU_TRACE_BEGIN", header[0]);
         Assert.Equal(9UL, Number(header[2]));
-        Assert.Equal((ulong)count, Number(header[4]));
-        Assert.Equal((ulong)chunks, Number(header[5]));
-        Assert.Equal(TraceEnd.Complete, Reason(header[6]));
-        var construction = WorkshopWireFlatBuffers.DecodeCommand(Convert.FromBase64String(header[7]));
+        Assert.Equal((ulong)count, Number(header[3]));
+        Assert.Equal((ulong)chunks, Number(header[4]));
+        Assert.Equal(TraceEnd.Complete, Reason(header[5]));
+        var construction = WorkshopWireFlatBuffers.DecodeCommand(Convert.FromBase64String(header[6]));
         Assert.Equal(Session, construction.Session);
         Assert.Equal(configured, construction.Construction);
         Assert.Equal(profile.Revision, construction.Cadence);
@@ -161,8 +157,8 @@ public sealed class WorkshopTraceTests(ITestOutputHelper testOutput)
             Assert.Equal(chunkCount * record.Length, bytes.Length);
             observed.AddRange(bytes);
         }
-        Assert.Equal(expected, observed.ToArray());
-        Assert.Equal(finalRecord, record);
+        AssertRecordValues(expected, observed.ToArray());
+        AssertRecordValues(finalRecord, record);
         Assert.Equal($"CCGPU_TRACE_END {header[1]} {count} {chunks} 0", lines[^1]);
         Append(trace, record);
         trace.End(TraceEnd.Reset);
@@ -194,10 +190,10 @@ public sealed class WorkshopTraceTests(ITestOutputHelper testOutput)
         trace.End(TraceEnd.Complete);
         trace.Flush(WorkshopSimulationPhase.Completed);
         var header = output.TraceLines[0].Split(' ');
-        Assert.Equal((ulong)record.Length, Number(header[3]));
-        Assert.Equal(ticks + 1, Number(header[4]));
-        Assert.Equal(TraceEnd.Complete, Reason(header[6]));
-        Assert.Equal($"CCGPU_TRACE_END {header[1]} {ticks + 1} {Number(header[5])} 0", output.TraceLines[^1]);
+        Assert.Equal(WorkshopTraceRecord.HeaderBytes + 20 * PhysicsBodyWire.ByteLength, record.Length);
+        Assert.Equal(ticks + 1, Number(header[3]));
+        Assert.Equal(TraceEnd.Complete, Reason(header[5]));
+        Assert.Equal($"CCGPU_TRACE_END {header[1]} {ticks + 1} {Number(header[4])} 0", output.TraceLines[^1]);
     }
 
     [Fact]
@@ -216,8 +212,8 @@ public sealed class WorkshopTraceTests(ITestOutputHelper testOutput)
         trace.Flush(WorkshopSimulationPhase.Building);
         Assert.Equal(3, output.TraceLines.Length);
         var header = output.TraceLines[0].Split(' ');
-        Assert.Equal(TraceEnd.Reset, Reason(header[6]));
-        Assert.Equal(Session, WorkshopWireFlatBuffers.DecodeCommand(Convert.FromBase64String(header[7])).Session);
+        Assert.Equal(TraceEnd.Reset, Reason(header[5]));
+        Assert.Equal(Session, WorkshopWireFlatBuffers.DecodeCommand(Convert.FromBase64String(header[6])).Session);
     }
 
     [Fact]
@@ -236,15 +232,15 @@ public sealed class WorkshopTraceTests(ITestOutputHelper testOutput)
         Assert.Equal(6, lines.Length);
         var previous = lines[0].Split(' ');
         var next = lines[3].Split(' ');
-        Assert.Equal(TraceEnd.Reset, Reason(previous[6]));
-        Assert.Equal(TraceEnd.Reset, Reason(next[6]));
+        Assert.Equal(TraceEnd.Reset, Reason(previous[5]));
+        Assert.Equal(TraceEnd.Reset, Reason(next[5]));
         Assert.True(Number(next[1]) > Number(previous[1]));
         Assert.Equal(9UL, Number(previous[2]));
         Assert.Equal(10UL, Number(next[2]));
-        Assert.Equal(previousRecord, Convert.FromBase64String(lines[1].Split(' ')[6]));
-        Assert.Equal(nextRecord, Convert.FromBase64String(lines[4].Split(' ')[6]));
-        Assert.Equal(Session, WorkshopWireFlatBuffers.DecodeCommand(Convert.FromBase64String(previous[7])).Session);
-        Assert.Equal(nextSession, WorkshopWireFlatBuffers.DecodeCommand(Convert.FromBase64String(next[7])).Session);
+        AssertRecordValues(previousRecord, Convert.FromBase64String(lines[1].Split(' ')[6]));
+        AssertRecordValues(nextRecord, Convert.FromBase64String(lines[4].Split(' ')[6]));
+        Assert.Equal(Session, WorkshopWireFlatBuffers.DecodeCommand(Convert.FromBase64String(previous[6])).Session);
+        Assert.Equal(nextSession, WorkshopWireFlatBuffers.DecodeCommand(Convert.FromBase64String(next[6])).Session);
     }
 
     [Fact]
@@ -260,14 +256,14 @@ public sealed class WorkshopTraceTests(ITestOutputHelper testOutput)
         trace.Flush(WorkshopSimulationPhase.Completed);
         Assert.Equal(3, output.TraceLines.Length);
         var header = output.TraceLines[0].Split(' ');
-        Assert.Equal(1UL, Number(header[4]));
-        Assert.Equal(TraceEnd.InvalidRecord, Reason(header[6]));
+        Assert.Equal(1UL, Number(header[3]));
+        Assert.Equal(TraceEnd.InvalidRecord, Reason(header[5]));
         var before = output.TraceLines.Length;
         Begin(trace, Session, Construction, new(10), new(3), Record(Construction, new(10), Profile));
         trace.End(TraceEnd.Complete);
         trace.Flush(WorkshopSimulationPhase.Completed);
         Assert.Equal(before + 3, output.TraceLines.Length);
-        Assert.Equal(TraceEnd.InvalidRecord, Reason(output.TraceLines[before].Split(' ')[6]));
+        Assert.Equal(TraceEnd.InvalidRecord, Reason(output.TraceLines[before].Split(' ')[5]));
     }
 
     [Theory]
@@ -295,7 +291,7 @@ public sealed class WorkshopTraceTests(ITestOutputHelper testOutput)
             trace.End(TraceEnd.Fault);
             trace.Flush(WorkshopSimulationPhase.Faulted);
             Assert.Equal(reason == TraceEnd.Overflow ? 31 : 3, output.TraceLines.Length);
-            Assert.Equal(reason, Reason(output.TraceLines[0].Split(' ')[6]));
+            Assert.Equal(reason, Reason(output.TraceLines[0].Split(' ')[5]));
         }
     }
 
@@ -303,7 +299,7 @@ public sealed class WorkshopTraceTests(ITestOutputHelper testOutput)
     [InlineData(WorkshopSimulationPhase.Building)]
     [InlineData(WorkshopSimulationPhase.Disposed)]
     [InlineData(WorkshopSimulationPhase.Faulted)]
-    public void TerminalSealingPreservesBytesUntilOneFlush(WorkshopSimulationPhase phase)
+    public void TerminalSealingPreservesDecodedStateUntilOneFlush(WorkshopSimulationPhase phase)
     {
         var reason = phase switch
         {
@@ -322,8 +318,8 @@ public sealed class WorkshopTraceTests(ITestOutputHelper testOutput)
         Append(trace, record);
         Assert.Empty(output.TraceLines);
         trace.Flush(phase);
-        Assert.Equal(expected, Convert.FromBase64String(output.TraceLines[1].Split(' ')[6]));
-        Assert.Equal(reason, Reason(output.TraceLines[0].Split(' ')[6]));
+        AssertRecordValues(expected, Convert.FromBase64String(output.TraceLines[1].Split(' ')[6]));
+        Assert.Equal(reason, Reason(output.TraceLines[0].Split(' ')[5]));
         trace.Flush(phase);
         Assert.Equal(3, output.TraceLines.Length);
     }
@@ -369,8 +365,8 @@ public sealed class WorkshopTraceTests(ITestOutputHelper testOutput)
         trace.Flush(WorkshopSimulationPhase.Completed);
         var pose = output.TraceLines[0].Split(' ');
         // Story 9R.5b (R1-B1): the pose trace is sized from the record width, so the whole run is retained (it overflowed before).
-        Assert.Equal(TraceEnd.Complete, Reason(pose[6]));
-        Assert.Equal(Profile.RunTickLimit + 1, Number(pose[4]));
+        Assert.Equal(TraceEnd.Complete, Reason(pose[5]));
+        Assert.Equal(Profile.RunTickLimit + 1, Number(pose[3]));
         var timing = output.TimingLines[0].Split(' ');
         Assert.Equal(Profile.RunTickLimit, Number(timing[8]));
         Assert.Equal(0UL, Number(timing[10]));
@@ -388,7 +384,6 @@ public sealed class WorkshopTraceTests(ITestOutputHelper testOutput)
         Assert.Equal(Profile.RunTickLimit + 1, nextTick);
     }
 
-#endif
     [Theory]
     [InlineData(SimulationCadence.Hz60)]
     [InlineData(SimulationCadence.Hz120)]
@@ -431,9 +426,6 @@ public sealed class WorkshopTraceTests(ITestOutputHelper testOutput)
         Assert.Equal(new ProjectionEpoch(3), command.Projection);
         Assert.Equal(new SimulationEpoch(9), command.Epoch);
         Assert.Equal(TraceEnd.Complete, Reason(header[12]));
-#if !PLAYTEST
-        Assert.Empty(output.TraceLines);
-#endif
         var observed = new List<double>();
         var chunks = checked((int)Number(header[9]));
         for (var ordinal = 0; ordinal < chunks; ordinal++)
@@ -581,6 +573,7 @@ public sealed class WorkshopTraceTests(ITestOutputHelper testOutput)
         var profile = Profile with { Cadence = SimulationCadence.Hz240 };
         var construction = Construction with { Settings = Settings with { Simulation = SimulationCadence.Hz240 } };
         long allocated = 0, elapsed = 0;
+        var growths = 0;
         var allocatingCalls = new List<string>(4); // diagnosis: which call allocated, and whether a GC ran inside it
         for (ulong epoch = 9; epoch <= 10; epoch++)
         {
@@ -593,6 +586,7 @@ public sealed class WorkshopTraceTests(ITestOutputHelper testOutput)
                 // Only the call itself is inside the allocation window; the timestamps are outside it. This narrows what
                 // the window measures; it does not prove the cause of Story 9.4b's rare failure, which is open (Story 9.4b
                 // spec §12, P0-034 / Story 16.1).
+                var capacityBefore = trace.DurationCapacity;
                 var beforeTime = System.Diagnostics.Stopwatch.GetTimestamp();
                 var beforeCollections = GC.CollectionCount(0);
                 var beforeJit = System.Runtime.JitInfo.GetCompiledMethodCount(currentThread: true);
@@ -602,6 +596,12 @@ public sealed class WorkshopTraceTests(ITestOutputHelper testOutput)
                 var afterJit = System.Runtime.JitInfo.GetCompiledMethodCount(currentThread: true);
                 var afterTime = System.Diagnostics.Stopwatch.GetTimestamp();
                 if (epoch != 10) continue;
+                if (trace.DurationCapacity != capacityBefore)
+                {
+                    growths++;
+                    Assert.True(afterBytes > beforeBytes);
+                    continue;
+                }
                 allocated += afterBytes - beforeBytes; elapsed += afterTime - beforeTime;
                 if (afterBytes != beforeBytes && allocatingCalls.Count < 4)
                     allocatingCalls.Add($"tick {tick}: {afterBytes - beforeBytes} B, gen0 collections {GC.CollectionCount(0) - beforeCollections}, methods jitted on this thread {afterJit - beforeJit}");
@@ -609,8 +609,99 @@ public sealed class WorkshopTraceTests(ITestOutputHelper testOutput)
             trace.End(TraceEnd.Complete);
             trace.Flush(WorkshopSimulationPhase.Completed);
         }
+        Assert.True(growths > 0, "the full duration history crosses actual storage watermarks");
         Assert.True(allocated == 0, $"{allocated} B allocated by RecordTickDuration: {string.Join("; ", allocatingCalls)}");
         testOutput.WriteLine($"Native retention: {profile.RunTickLimit} calls, {allocated} allocated bytes, {elapsed * 1000d / System.Diagnostics.Stopwatch.Frequency:R} total observed milliseconds including timestamp overhead. Not a WASM timing bound.");
+    }
+
+    [Fact]
+    public void TraceDurationsGrowAtTheirCommonWatermarkAndResetWithTheOwningRun()
+    {
+        using var output = new CapturedConsole();
+        var trace = new WorkshopTrace();
+        Assert.Equal(32, trace.DurationCapacity);
+        Begin(trace, Session, Construction, new(9), new(3), Record(Construction, new(9), Profile));
+        for (ulong tick = 1; tick <= 24; tick++) trace.RecordTickDuration(new(tick), tick * .25);
+        Assert.Equal(32, trace.DurationCapacity);
+        trace.RecordTickDuration(new(25), 6.25);
+        Assert.Equal(64, trace.DurationCapacity);
+        trace.End(TraceEnd.Reset);
+        Begin(trace, Session, Construction, new(10), new(3), Record(Construction, new(10), Profile));
+        Assert.Equal(32, trace.DurationCapacity);
+        var chunk = Convert.FromBase64String(output.TimingLines[1].Split(' ')[6]);
+        for (var i = 0; i < 25; i++) Assert.Equal((i + 1) * .25, BinaryPrimitives.ReadDoubleLittleEndian(chunk.AsSpan(i * 8)));
+    }
+
+    [Fact]
+    public void TraceRetainsChangingSparseCaptureWidthsAcrossWatermarkGrowth()
+    {
+        using var output = new CapturedConsole();
+        var trace = new WorkshopTrace();
+        Assert.Equal(16384, trace.RecordCapacityBytes);
+        Assert.Equal(32, trace.RecordOffsetCapacity);
+        var physical = PhysicsGpuAbi.ReadDynamicBodies(PhysicsGpuAbi.Admission(WorkshopPhysicsCompiler.Compile(Construction, new(101, 207)), new(9), Profile))[0];
+        var expected = new List<byte>();
+        trace.Begin(Session, Construction, new(9), new(3), Profile);
+        for (ulong tick = 0; tick < 100; tick++)
+        {
+            var captures = tick == 0 ? new PhysicsCaptureRead([]) : new PhysicsCaptureRead([new(new(17), new(3), CaptureLatchPhase.Latched, 1, 0)]);
+            var body = physical with { Body = physical.Body with { Tick = tick } };
+            var record = WorkshopTraceRecord.Encode(new(new(9), new(tick), new([body]), Captures: captures), Profile);
+            expected.AddRange(record);
+            trace.Append(record);
+            if (tick == 23) Assert.Equal(32, trace.RecordOffsetCapacity);
+            if (tick == 24) Assert.Equal(64, trace.RecordOffsetCapacity);
+        }
+        Assert.True(trace.RecordCapacityBytes > 16384);
+        trace.End(TraceEnd.Reset); trace.Flush(WorkshopSimulationPhase.Building);
+        var observed = output.TraceLines.Skip(1).SkipLast(1).SelectMany(line => Convert.FromBase64String(line.Split(' ')[6])).ToArray();
+        AssertRecordValues(expected.ToArray(), observed);
+        trace.Begin(Session, Construction, new(10), new(3), Profile);
+        Assert.Equal(16384, trace.RecordCapacityBytes); Assert.Equal(32, trace.RecordOffsetCapacity);
+    }
+
+    private static void AssertRecordValues(byte[] expected, byte[] actual)
+    {
+        var expectedAt = 0; var actualAt = 0;
+        while (expectedAt < expected.Length)
+        {
+            var a = expected.AsSpan(expectedAt); var b = actual.AsSpan(actualAt);
+            var bodies = (int)BinaryPrimitives.ReadUInt32LittleEndian(a[36..]);
+            var captures = (int)BinaryPrimitives.ReadUInt32LittleEndian(a[40..]);
+            Assert.Equal(bodies, (int)BinaryPrimitives.ReadUInt32LittleEndian(b[36..]));
+            Assert.Equal(captures, (int)BinaryPrimitives.ReadUInt32LittleEndian(b[40..]));
+            var length = WorkshopTraceRecord.ByteLength(bodies, captures);
+            a = a[..length]; b = b[..length];
+            Assert.Equal(WorkshopTraceRecord.ReadProfile(a), WorkshopTraceRecord.ReadProfile(b));
+            var epoch = new SimulationEpoch(BinaryPrimitives.ReadUInt64LittleEndian(a[16..]));
+            var tick = new SimulationTick(BinaryPrimitives.ReadUInt64LittleEndian(a[24..]));
+            Assert.Equal(epoch.Value, BinaryPrimitives.ReadUInt64LittleEndian(b[16..]));
+            Assert.Equal(tick.Value, BinaryPrimitives.ReadUInt64LittleEndian(b[24..]));
+            for (var i = 0; i < bodies; i++)
+            {
+                var offset = WorkshopTraceRecord.HeaderBytes + i * PhysicsBodyWire.ByteLength;
+                var first = PhysicsBodyWire.Read(a.Slice(offset, PhysicsBodyWire.ByteLength), epoch, tick);
+                var second = PhysicsBodyWire.Read(b.Slice(offset, PhysicsBodyWire.ByteLength), epoch, tick);
+                Assert.Equal((first.Body.Id, first.Body.Cell, first.Body.Local, first.Body.Velocity, first.Rotation, first.AngularVelocity, first.LocalCentreOfMass),
+                    (second.Body.Id, second.Body.Cell, second.Body.Local, second.Body.Velocity, second.Rotation, second.AngularVelocity, second.LocalCentreOfMass));
+            }
+            for (var i = 0; i < captures; i++)
+            {
+                var offset = WorkshopTraceRecord.HeaderBytes + bodies * PhysicsBodyWire.ByteLength + i * WorkshopTraceRecord.CaptureBytes;
+                var first = Capture(a[offset..]); var second = Capture(b[offset..]);
+                Assert.Equal(first, second);
+            }
+            expectedAt += length; actualAt += length;
+        }
+        Assert.Equal(actual.Length, actualAt);
+
+        static CaptureLatch Capture(ReadOnlySpan<byte> bytes)
+        {
+            var value = new CaptureLatch(new(BinaryPrimitives.ReadUInt64LittleEndian(bytes)), new(BinaryPrimitives.ReadUInt64LittleEndian(bytes[8..])),
+                (CaptureLatchPhase)BinaryPrimitives.ReadUInt32LittleEndian(bytes[16..]), BinaryPrimitives.ReadUInt32LittleEndian(bytes[20..]),
+                BinaryPrimitives.ReadSingleLittleEndian(bytes[24..]));
+            value.Validate(); return value;
+        }
     }
 
     private sealed class FailingOutput : StringWriter

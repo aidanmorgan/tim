@@ -80,6 +80,7 @@ struct BodyRead {
 
 struct CaptureLatchRead {
     sensor: uint64;
+    target: uint64;
     phase: uint32;
     event_ordinal: uint32;
     event_phase: float;
@@ -170,7 +171,7 @@ struct ActuatorDriveRecord {
 struct ContactLoadRecord {
     sensor: uint64;
     frame: uint64;
-    face: uint64;
+    region: uint64;
     measured_mass: float;
     phase: uint32;
 }
@@ -268,9 +269,8 @@ table PuzzleRecord {
     goal_kind: uint32;
     goal_body: uint64;
     goal_target: uint64;
-    goal_event_source: uint64;
     goal_delay: float;
-    assistance: [AssistanceKnotRecord];
+    assistance: [AssistanceKnotRecord] (required);
 }
 
 table ConstructionRecord {

@@ -13,14 +13,18 @@ public sealed class NodeHarnessTests
     public static TheoryData<string> Harnesses => new(TestRepository.ListFiles("tools").Where(IsHarness));
 
     internal static bool IsHarness(string path) =>
-        Path.GetDirectoryName(path) == "tools" && path.EndsWith(".test.mjs", StringComparison.Ordinal)
+        ((Path.GetDirectoryName(path) == "tools" && path.EndsWith(".test.mjs", StringComparison.Ordinal))
+        || (path.StartsWith("tools/runtime/", StringComparison.Ordinal) && path.EndsWith(".test.ts", StringComparison.Ordinal)))
         && !BrowserDeferral.Tests.Any(test => test.Runner == DeferredRunner.NodeTest && test.Test == path);
 
     [Theory]
     [MemberData(nameof(Harnesses))]
     public void HarnessPasses(string harness)
     {
-        var run = Processes.Run("node", ["--experimental-vm-modules", "--test", "--test-reporter=tap", "--test-timeout=120000", harness],
+        var executable = harness.EndsWith(".ts", StringComparison.Ordinal)
+            ? Path.Combine(".runtime-build", Path.ChangeExtension(harness, ".js")) : harness;
+        Assert.True(File.Exists(Path.Combine(TestRepository.Root, executable)), $"Missing compiled runtime harness: {executable}");
+        var run = Processes.Run("node", ["--experimental-vm-modules", "--test", "--test-reporter=tap", "--test-timeout=120000", executable],
             TestRepository.Root, WallLimit);
         var failures = TapResult.Failures(run.ExitCode, TapResult.Parse(run.Output, Path.GetFileName(harness)));
         Assert.True(failures.Count == 0, $"{harness}: {string.Join(", ", failures)} (exit {run.ExitCode})\n{run.Output}{run.Error}");

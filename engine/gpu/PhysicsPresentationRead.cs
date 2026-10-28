@@ -65,7 +65,7 @@ public readonly struct PhysicsPresentationRead
         for (var i = 0; i < loads.Length; i++)
         {
             var load = loads[i];
-            if (load.Sensor.Value == 0 || load.Frame.Value == 0 || load.Face.Value == 0 ||
+            if (load.Sensor.Value == 0 || load.Frame.Value == 0 || load.Region.Value == 0 ||
                 !float.IsFinite(load.MeasuredMass) || load.MeasuredMass < 0 || !Enum.IsDefined(load.Phase) ||
                 (i > 0 && loads[i - 1].Sensor.Value >= load.Sensor.Value))
                 throw new ArgumentException("Invalid committed contact-load observation.");

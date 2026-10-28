@@ -227,16 +227,18 @@ public struct CaptureLatchRead : IFlatbufferObject
   public CaptureLatchRead __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
   public ulong Sensor { get { return __p.bb.GetUlong(__p.bb_pos + 0); } }
-  public uint Phase { get { return __p.bb.GetUint(__p.bb_pos + 8); } }
-  public uint EventOrdinal { get { return __p.bb.GetUint(__p.bb_pos + 12); } }
-  public float EventPhase { get { return __p.bb.GetFloat(__p.bb_pos + 16); } }
+  public ulong Target { get { return __p.bb.GetUlong(__p.bb_pos + 8); } }
+  public uint Phase { get { return __p.bb.GetUint(__p.bb_pos + 16); } }
+  public uint EventOrdinal { get { return __p.bb.GetUint(__p.bb_pos + 20); } }
+  public float EventPhase { get { return __p.bb.GetFloat(__p.bb_pos + 24); } }
 
-  public static Offset<CuriousContraptions.Wire.CaptureLatchRead> CreateCaptureLatchRead(FlatBufferBuilder builder, ulong Sensor, uint Phase, uint EventOrdinal, float EventPhase) {
-    builder.Prep(8, 24);
+  public static Offset<CuriousContraptions.Wire.CaptureLatchRead> CreateCaptureLatchRead(FlatBufferBuilder builder, ulong Sensor, ulong Target, uint Phase, uint EventOrdinal, float EventPhase) {
+    builder.Prep(8, 32);
     builder.Pad(4);
     builder.PutFloat(EventPhase);
     builder.PutUint(EventOrdinal);
     builder.PutUint(Phase);
+    builder.PutUlong(Target);
     builder.PutUlong(Sensor);
     return new Offset<CuriousContraptions.Wire.CaptureLatchRead>(builder.Offset);
   }
@@ -398,15 +400,15 @@ public struct ContactLoadRecord : IFlatbufferObject
 
   public ulong Sensor { get { return __p.bb.GetUlong(__p.bb_pos + 0); } }
   public ulong Frame { get { return __p.bb.GetUlong(__p.bb_pos + 8); } }
-  public ulong Face { get { return __p.bb.GetUlong(__p.bb_pos + 16); } }
+  public ulong Region { get { return __p.bb.GetUlong(__p.bb_pos + 16); } }
   public float MeasuredMass { get { return __p.bb.GetFloat(__p.bb_pos + 24); } }
   public uint Phase { get { return __p.bb.GetUint(__p.bb_pos + 28); } }
 
-  public static Offset<CuriousContraptions.Wire.ContactLoadRecord> CreateContactLoadRecord(FlatBufferBuilder builder, ulong Sensor, ulong Frame, ulong Face, float MeasuredMass, uint Phase) {
+  public static Offset<CuriousContraptions.Wire.ContactLoadRecord> CreateContactLoadRecord(FlatBufferBuilder builder, ulong Sensor, ulong Frame, ulong Region, float MeasuredMass, uint Phase) {
     builder.Prep(8, 32);
     builder.PutUint(Phase);
     builder.PutFloat(MeasuredMass);
-    builder.PutUlong(Face);
+    builder.PutUlong(Region);
     builder.PutUlong(Frame);
     builder.PutUlong(Sensor);
     return new Offset<CuriousContraptions.Wire.ContactLoadRecord>(builder.Offset);
@@ -687,10 +689,9 @@ public struct PuzzleRecord : IFlatbufferObject
   public uint GoalKind { get { int o = __p.__offset(14); return o != 0 ? __p.bb.GetUint(o + __p.bb_pos) : (uint)0; } }
   public ulong GoalBody { get { int o = __p.__offset(16); return o != 0 ? __p.bb.GetUlong(o + __p.bb_pos) : (ulong)0; } }
   public ulong GoalTarget { get { int o = __p.__offset(18); return o != 0 ? __p.bb.GetUlong(o + __p.bb_pos) : (ulong)0; } }
-  public ulong GoalEventSource { get { int o = __p.__offset(20); return o != 0 ? __p.bb.GetUlong(o + __p.bb_pos) : (ulong)0; } }
-  public float GoalDelay { get { int o = __p.__offset(22); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
-  public CuriousContraptions.Wire.AssistanceKnotRecord? Assistance(int j) { int o = __p.__offset(24); return o != 0 ? (CuriousContraptions.Wire.AssistanceKnotRecord?)(new CuriousContraptions.Wire.AssistanceKnotRecord()).__assign(__p.__vector(o) + j * 44, __p.bb) : null; }
-  public int AssistanceLength { get { int o = __p.__offset(24); return o != 0 ? __p.__vector_len(o) : 0; } }
+  public float GoalDelay { get { int o = __p.__offset(20); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
+  public CuriousContraptions.Wire.AssistanceKnotRecord? Assistance(int j) { int o = __p.__offset(22); return o != 0 ? (CuriousContraptions.Wire.AssistanceKnotRecord?)(new CuriousContraptions.Wire.AssistanceKnotRecord()).__assign(__p.__vector(o) + j * 44, __p.bb) : null; }
+  public int AssistanceLength { get { int o = __p.__offset(22); return o != 0 ? __p.__vector_len(o) : 0; } }
 
   public static Offset<CuriousContraptions.Wire.PuzzleRecord> CreatePuzzleRecord(FlatBufferBuilder builder,
       StringOffset idOffset = default(StringOffset),
@@ -701,11 +702,9 @@ public struct PuzzleRecord : IFlatbufferObject
       uint goal_kind = 0,
       ulong goal_body = 0,
       ulong goal_target = 0,
-      ulong goal_event_source = 0,
       float goal_delay = 0.0f,
       VectorOffset assistanceOffset = default(VectorOffset)) {
-    builder.StartTable(11);
-    PuzzleRecord.AddGoalEventSource(builder, goal_event_source);
+    builder.StartTable(10);
     PuzzleRecord.AddGoalTarget(builder, goal_target);
     PuzzleRecord.AddGoalBody(builder, goal_body);
     PuzzleRecord.AddAssistance(builder, assistanceOffset);
@@ -719,7 +718,7 @@ public struct PuzzleRecord : IFlatbufferObject
     return PuzzleRecord.EndPuzzleRecord(builder);
   }
 
-  public static void StartPuzzleRecord(FlatBufferBuilder builder) { builder.StartTable(11); }
+  public static void StartPuzzleRecord(FlatBufferBuilder builder) { builder.StartTable(10); }
   public static void AddId(FlatBufferBuilder builder, StringOffset idOffset) { builder.AddOffset(0, idOffset.Value, 0); }
   public static void AddPlacement(FlatBufferBuilder builder, uint placement) { builder.AddUint(1, placement, 0); }
   public static void AddPrecision(FlatBufferBuilder builder, float precision) { builder.AddFloat(2, precision, 0.0f); }
@@ -728,13 +727,13 @@ public struct PuzzleRecord : IFlatbufferObject
   public static void AddGoalKind(FlatBufferBuilder builder, uint goalKind) { builder.AddUint(5, goalKind, 0); }
   public static void AddGoalBody(FlatBufferBuilder builder, ulong goalBody) { builder.AddUlong(6, goalBody, 0); }
   public static void AddGoalTarget(FlatBufferBuilder builder, ulong goalTarget) { builder.AddUlong(7, goalTarget, 0); }
-  public static void AddGoalEventSource(FlatBufferBuilder builder, ulong goalEventSource) { builder.AddUlong(8, goalEventSource, 0); }
-  public static void AddGoalDelay(FlatBufferBuilder builder, float goalDelay) { builder.AddFloat(9, goalDelay, 0.0f); }
-  public static void AddAssistance(FlatBufferBuilder builder, VectorOffset assistanceOffset) { builder.AddOffset(10, assistanceOffset.Value, 0); }
+  public static void AddGoalDelay(FlatBufferBuilder builder, float goalDelay) { builder.AddFloat(8, goalDelay, 0.0f); }
+  public static void AddAssistance(FlatBufferBuilder builder, VectorOffset assistanceOffset) { builder.AddOffset(9, assistanceOffset.Value, 0); }
   public static void StartAssistanceVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(44, numElems, 4); }
   public static Offset<CuriousContraptions.Wire.PuzzleRecord> EndPuzzleRecord(FlatBufferBuilder builder) {
     int o = builder.EndTable();
     builder.Required(o, 4);  // id
+    builder.Required(o, 22);  // assistance
     return new Offset<CuriousContraptions.Wire.PuzzleRecord>(o);
   }
 }
@@ -753,12 +752,12 @@ static public class PuzzleRecordVerify
       && verifier.VerifyField(tablePos, 14 /*GoalKind*/, 4 /*uint*/, 4, false)
       && verifier.VerifyField(tablePos, 16 /*GoalBody*/, 8 /*ulong*/, 8, false)
       && verifier.VerifyField(tablePos, 18 /*GoalTarget*/, 8 /*ulong*/, 8, false)
-      && verifier.VerifyField(tablePos, 20 /*GoalEventSource*/, 8 /*ulong*/, 8, false)
-      && verifier.VerifyField(tablePos, 22 /*GoalDelay*/, 4 /*float*/, 4, false)
-      && verifier.VerifyVectorOfData(tablePos, 24 /*Assistance*/, 44 /*CuriousContraptions.Wire.AssistanceKnotRecord*/, false)
+      && verifier.VerifyField(tablePos, 20 /*GoalDelay*/, 4 /*float*/, 4, false)
+      && verifier.VerifyVectorOfData(tablePos, 22 /*Assistance*/, 44 /*CuriousContraptions.Wire.AssistanceKnotRecord*/, true)
       && verifier.VerifyTableEnd(tablePos);
   }
 }
+
 
 public struct Quat4f : IFlatbufferObject
 {
@@ -1039,7 +1038,7 @@ public struct WorkshopResponse : IFlatbufferObject
   public CuriousContraptions.Wire.ClockStamp? Capture { get { int o = __p.__offset(30); return o != 0 ? (CuriousContraptions.Wire.ClockStamp?)(new CuriousContraptions.Wire.ClockStamp()).__assign(o + __p.bb_pos, __p.bb) : null; } }
   public CuriousContraptions.Wire.BodyRead? Bodies(int j) { int o = __p.__offset(32); return o != 0 ? (CuriousContraptions.Wire.BodyRead?)(new CuriousContraptions.Wire.BodyRead()).__assign(__p.__vector(o) + j * 88, __p.bb) : null; }
   public int BodiesLength { get { int o = __p.__offset(32); return o != 0 ? __p.__vector_len(o) : 0; } }
-  public CuriousContraptions.Wire.CaptureLatchRead? Captures(int j) { int o = __p.__offset(34); return o != 0 ? (CuriousContraptions.Wire.CaptureLatchRead?)(new CuriousContraptions.Wire.CaptureLatchRead()).__assign(__p.__vector(o) + j * 24, __p.bb) : null; }
+  public CuriousContraptions.Wire.CaptureLatchRead? Captures(int j) { int o = __p.__offset(34); return o != 0 ? (CuriousContraptions.Wire.CaptureLatchRead?)(new CuriousContraptions.Wire.CaptureLatchRead()).__assign(__p.__vector(o) + j * 32, __p.bb) : null; }
   public int CapturesLength { get { int o = __p.__offset(34); return o != 0 ? __p.__vector_len(o) : 0; } }
   public CuriousContraptions.Wire.ActivationRecord? Activations(int j) { int o = __p.__offset(36); return o != 0 ? (CuriousContraptions.Wire.ActivationRecord?)(new CuriousContraptions.Wire.ActivationRecord()).__assign(__p.__vector(o) + j * 80, __p.bb) : null; }
   public int ActivationsLength { get { int o = __p.__offset(36); return o != 0 ? __p.__vector_len(o) : 0; } }
@@ -1091,7 +1090,7 @@ public struct WorkshopResponse : IFlatbufferObject
   public static void AddBodies(FlatBufferBuilder builder, VectorOffset bodiesOffset) { builder.AddOffset(14, bodiesOffset.Value, 0); }
   public static void StartBodiesVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(88, numElems, 8); }
   public static void AddCaptures(FlatBufferBuilder builder, VectorOffset capturesOffset) { builder.AddOffset(15, capturesOffset.Value, 0); }
-  public static void StartCapturesVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(24, numElems, 8); }
+  public static void StartCapturesVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(32, numElems, 8); }
   public static void AddActivations(FlatBufferBuilder builder, VectorOffset activationsOffset) { builder.AddOffset(16, activationsOffset.Value, 0); }
   public static void StartActivationsVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(80, numElems, 8); }
   public static void AddTimers(FlatBufferBuilder builder, VectorOffset timersOffset) { builder.AddOffset(17, timersOffset.Value, 0); }
@@ -1145,7 +1144,7 @@ static public class WorkshopResponseVerify
       && verifier.VerifyVectorOfData(tablePos, 28 /*Session*/, 1 /*byte*/, false)
       && verifier.VerifyField(tablePos, 30 /*Capture*/, 24 /*CuriousContraptions.Wire.ClockStamp*/, 8, false)
       && verifier.VerifyVectorOfData(tablePos, 32 /*Bodies*/, 88 /*CuriousContraptions.Wire.BodyRead*/, false)
-      && verifier.VerifyVectorOfData(tablePos, 34 /*Captures*/, 24 /*CuriousContraptions.Wire.CaptureLatchRead*/, false)
+      && verifier.VerifyVectorOfData(tablePos, 34 /*Captures*/, 32 /*CuriousContraptions.Wire.CaptureLatchRead*/, false)
       && verifier.VerifyVectorOfData(tablePos, 36 /*Activations*/, 80 /*CuriousContraptions.Wire.ActivationRecord*/, false)
       && verifier.VerifyVectorOfData(tablePos, 38 /*Timers*/, 88 /*CuriousContraptions.Wire.TimerRecord*/, false)
       && verifier.VerifyVectorOfData(tablePos, 40 /*ContactWorks*/, 32 /*CuriousContraptions.Wire.ContactWorkStoreRecord*/, false)

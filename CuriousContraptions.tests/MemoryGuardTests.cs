@@ -155,7 +155,7 @@ public sealed class MemoryGuardTests
     {
         var bench = ThreeBalls(3);
         var network = WorkshopActivationCompiler.Compile(bench);
-        var sensor = WorkshopPhysicsCompiler.PassageSensor(Detector);
+        var sensor = bench.Instances.Identities[Detector].Passage;
         PassageSensorRead Pass(uint ordinal) => new(sensor, Detector, Balls[0], new(11), PassageSensorPhase.Fired, ordinal, 0f, new(2f));
         var committed = network.Consume(network.Clear(), network.ClearTimers(), [], new(1), [], [Pass(4)], memory: network.ClearMemory());
         committed = network.Consume(committed.Activations, committed.Timers, [], new(2), [], [Pass(8)], memory: committed.Memory);
@@ -285,7 +285,7 @@ public sealed class MemoryGuardTests
     /// <summary>The production device with one armed read change on the next Advance (the change is applied to the real candidate).</summary>
     private sealed class FlipDevice : IWorkshopGpuDevice
     {
-        private readonly WorkshopGpuDevice _inner = new(new CuriousContraptions.Simulation.BrowserGpuTransport(), new(101, 206));
+        private readonly WorkshopGpuDevice _inner = new(new CuriousContraptions.Simulation.BrowserGpuTransport(new CuriousContraptions.Abstractions.EventRingPublication()), new(101, 206));
         public Func<WorkshopRead, WorkshopRead>? Next { get; set; }
         public ValueTask<WorkshopGpuCandidate> Admit(WorkshopConstruction construction, SimulationEpoch epoch, WorkshopGpuProfile profile, CommandSequence sequence) =>
             _inner.Admit(construction, epoch, profile, sequence);

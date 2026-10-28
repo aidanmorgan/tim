@@ -1,5 +1,7 @@
 # Current engine boundaries and protocol requirements
 
+**Acceptance policy — owner, 28 October 2026:** apply the [game-fidelity policy](delivery-workflow.md#game-fidelity) and [testing guidance](testing-guidance.md) to every criterion below. Preserve gameplay outcomes, meaningful causal order, stability and lifecycle. Historical tick/ordinal/trajectory or migration-era pose matching is not acceptance; numerical precision needs a gameplay or defined-interface justification. Exact authored data, typed ownership and deliberate timing features retain their contracts. Replay is checked through decoded semantic behaviour, never simulation-output hashes or whole-buffer identity. This supersedes conflicting older acceptance wording without removing requirement identities or intended element behaviour.
+
 This contract is used with [canonical IEEE-754 f32 game values and WASM SIMD physics](gpu-f32-physics.md), the [simulation–presentation bridge](simulation-presentation-bridge.md), [performance budgets](browser-physics-performance.md) and [current source acceptance](planning/requirements.md). It states the current target directly under the [sole design authority](architecture/element-package-isolation.md), whose Current status is the only list of where the tree falls short. [TODO](../TODO.md) owns delivery status. A frozen work-order approval or design fixture does not qualify the current runtime.
 
 ## Ownership and assemblies

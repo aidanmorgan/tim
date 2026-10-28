@@ -7,13 +7,13 @@ namespace CuriousContraptions.tests;
 public class WorkshopPoseRingTests
 {
     /// <summary>The Simulation worker's publication of one C#-composed slot (worker.js writePoseRing): the ring must already hold
-    /// the read's bodies (the worker grows it first), the slot is copied verbatim after its sequence word, and the records past
+    /// the read's bodies (installation prepares reserved demand first), the slot is copied verbatim after its sequence word, and the records past
     /// the read are cleared.</summary>
     private static void Publish(byte[] ring, int slot, ulong sequence, long timestamp, PhysicsBodyReadSet bodies)
     {
         var capacity = WorkshopPoseRing.BodyCapacity(ring.Length);
         var composed = WorkshopPoseRing.ComposeSlot(timestamp, bodies);
-        if (composed.Length > WorkshopPoseRing.SlotBytes(capacity)) throw new ArgumentException("The worker grows the ring before this read.");
+        if (composed.Length > WorkshopPoseRing.SlotBytes(capacity)) throw new ArgumentException("The read exceeds admitted pose storage.");
         var target = ring.AsSpan(WorkshopPoseRing.SlotOffset(slot, capacity), WorkshopPoseRing.SlotBytes(capacity));
         target.Clear();
         composed.AsSpan(sizeof(ulong)).CopyTo(target[sizeof(ulong)..]);
@@ -21,14 +21,31 @@ public class WorkshopPoseRingTests
     }
 
     [Theory]
+    [InlineData(0, 16)]
+    [InlineData(12, 16)]
+    [InlineData(13, 32)]
+    [InlineData(40, 54)]
+    public void PoseReserveUsesCommonDefaultWatermarkAndBulkHeadroom(int bodies, int capacity) =>
+        Assert.Equal(capacity, WorkshopPoseRing.Capacity(bodies));
+
+    [Fact]
+    public void PoseReserveSaturatesAtRepresentableStorageAndRefusesExcessWithoutAllocation()
+    {
+        var limit = (Array.MaxLength / 3 - 16) / 64;
+        Assert.Equal(limit, WorkshopPoseRing.Capacity(limit - 1));
+        Assert.Equal(limit, WorkshopPoseRing.Capacity(limit));
+        Assert.Throws<WorkshopStorageException>(() => WorkshopPoseRing.Capacity(limit + 1));
+        Assert.Throws<ArgumentOutOfRangeException>(() => WorkshopPoseRing.Capacity(-1));
+    }
+
+    [Theory]
     [InlineData(0)]
-    [InlineData(WorkshopPoseRing.InitialBodyCapacity)]
+    [InlineData(1)]
     [InlineData(17)]
     [InlineData(200)]
     public void PoseRingLayout_MatchesSpecificationAndSimdAlignment(int capacity)
     {
         Assert.Equal(3, WorkshopPoseRing.SlotCount);
-        Assert.Equal(16, WorkshopPoseRing.InitialBodyCapacity);
         Assert.Equal(16, WorkshopPoseRing.HeaderBytes);
         Assert.Equal(64, WorkshopPoseRing.BodyBytes);
         Assert.Equal(16 + capacity * 64, WorkshopPoseRing.SlotBytes(capacity));
@@ -64,7 +81,7 @@ public class WorkshopPoseRingTests
     [InlineData(18446744073709551615UL)]
     public void PoseRing_WriteAndReadSlot_SingleAndDualBodies(ulong secondaryId)
     {
-        var ring = new byte[WorkshopPoseRing.TotalBytes(WorkshopPoseRing.InitialBodyCapacity)];
+        var ring = new byte[WorkshopPoseRing.TotalBytes(2)];
 
         var body1 = new CanonicalBody(new GpuBodyId(101), 1, 10, new CellOrigin(16, 32, 0),
             new LocalPosition((float)0.25, (float)(-0.125), (float)0.0),
@@ -132,13 +149,13 @@ public class WorkshopPoseRingTests
         Assert.Equal(17, count);
         Assert.Equal(new GpuBodyId(17), read[16].Id);
         Assert.Throws<ArgumentException>(() =>
-            Publish(new byte[WorkshopPoseRing.TotalBytes(WorkshopPoseRing.InitialBodyCapacity)], 0, 8UL, 5L, set));
+            Publish(new byte[WorkshopPoseRing.TotalBytes(16)], 0, 8UL, 5L, set));
     }
 
     [Fact]
     public void PoseRing_RejectsOddSequence_IndicatingWriteInProgress()
     {
-        var ring = new byte[WorkshopPoseRing.TotalBytes(WorkshopPoseRing.InitialBodyCapacity)];
+        var ring = new byte[WorkshopPoseRing.TotalBytes(0)];
         var bodySet = new PhysicsBodyReadSet([]);
         // Odd sequence means write in progress (Writer Protocol: 2k + 1)
         Publish(ring, 0, 7UL, 1000L, bodySet);

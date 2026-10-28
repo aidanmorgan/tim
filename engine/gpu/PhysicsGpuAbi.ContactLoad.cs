@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Immutable;
 using System.Numerics;
 
 namespace CuriousContraptions.Gpu;
@@ -11,7 +12,7 @@ public static partial class PhysicsGpuAbi
     // Row: identity U64 at 0, frame body slot, sensing-face collider slot, f32 footprint (min x, max x, min z, max z), f32 local
     // normal, f32 minimum alignment, f32 maximum gap, f32 minimum mass; then the state: phase U32 and measured f32 mass.
     public const int ContactLoadFrameOffset = 8;
-    public const int ContactLoadFaceOffset = 12;
+    public const int ContactLoadRegionOffset = 12;
     public const int ContactLoadFootprintOffset = 16;
     public const int ContactLoadMinimumXOffset = ContactLoadFootprintOffset;
     public const int ContactLoadMaximumXOffset = 20;
@@ -33,13 +34,15 @@ public static partial class PhysicsGpuAbi
             var record = data.Slice(scene.World.ContactLoadOffset(i), ContactLoadSensorBytes);
             U64(record, RecordIdentityOffset, sensor.Id.Value);
             U32(record, ContactLoadFrameOffset, BodySlot(scene, sensor.Frame));
-            U32(record, ContactLoadFaceOffset, (uint)scene.Layout.GetColliderSlot(sensor.Face));
+            U32(record, ContactLoadRegionOffset, (uint)scene.Layout.GetColliderSlot(sensor.Region));
             WriteEnergy(record, ContactLoadMinimumXOffset, sensor.MinimumX); WriteEnergy(record, ContactLoadMaximumXOffset, sensor.MaximumX);
             WriteEnergy(record, ContactLoadMinimumZOffset, sensor.MinimumZ); WriteEnergy(record, ContactLoadMaximumZOffset, sensor.MaximumZ);
             F32Vector(record, ContactLoadNormalOffset, sensor.LocalNormal.X, sensor.LocalNormal.Y, sensor.LocalNormal.Z);
             WriteEnergy(record, ContactLoadAlignmentOffset, sensor.MinimumAlignment);
             WriteEnergy(record, ContactLoadGapOffset, sensor.MaximumGap);
             WriteEnergy(record, ContactLoadMinimumMassOffset, sensor.MinimumMass);
+            foreach (var member in sensor.SupportingColliders)
+                U32(data, scene.Layout.GetColliderOffset(member) + ColliderContactLoadOffset, checked((uint)i + 1));
             // Admitted state: Empty with no measured mass (both zero bytes).
         }
     }
@@ -58,17 +61,25 @@ public static partial class PhysicsGpuAbi
         var layout = Layout(data);
         if (index < 0 || index >= layout.ContactLoads) throw new ArgumentException("Invalid contact-load row.");
         var record = data.Slice(layout.ContactLoadOffset(index), ContactLoadSensorBytes);
-        var frame = R32(record, ContactLoadFrameOffset); var face = R32(record, ContactLoadFaceOffset);
+        var frame = R32(record, ContactLoadFrameOffset); var face = R32(record, ContactLoadRegionOffset);
         if (frame >= R32(data, HeaderBodyCountOffset) || BodyMotion(data, frame) != RigidMotionKind.Static ||
             face >= R32(data, HeaderColliderCountOffset) ||
             R32(data, layout.ColliderOffset(checked((int)face)) + ColliderBodyOffset) != frame)
             throw new ArgumentException("Contact-load row names an unowned frame or face.");
+        var members = ImmutableArray.CreateBuilder<GpuColliderId>(32);
+        for (var collider = 0; collider < layout.Colliders; collider++)
+        {
+            var offset = layout.ColliderOffset(collider);
+            if (R32(data, offset + ColliderContactLoadOffset) != (uint)index + 1) continue;
+            if (R32(data, offset + ColliderBodyOffset) != frame) throw new ArgumentException("Unowned contact-load member.");
+            members.Add(new(R64(data, offset)));
+        }
         var result = new ContactLoadSensorDeclaration(new(R64(record, RecordIdentityOffset)), new(R64(data, layout.BodyOffset(checked((int)frame)))),
             new(R64(data, layout.ColliderOffset(checked((int)face)))),
             RF(record, ContactLoadMinimumXOffset), RF(record, ContactLoadMaximumXOffset),
             RF(record, ContactLoadMinimumZOffset), RF(record, ContactLoadMaximumZOffset),
             new Vector3(RF(record, ContactLoadNormalOffset), RF(record, ContactLoadNormalOffset + 4), RF(record, ContactLoadNormalOffset + 8)),
-            RF(record, ContactLoadAlignmentOffset), RF(record, ContactLoadGapOffset), RF(record, ContactLoadMinimumMassOffset));
+            RF(record, ContactLoadAlignmentOffset), RF(record, ContactLoadGapOffset), RF(record, ContactLoadMinimumMassOffset), members.ToImmutable());
         result.Validate();
         return result;
     }
@@ -82,7 +93,7 @@ public static partial class PhysicsGpuAbi
         var phase = (ContactLoadPhase)R32(record, ContactLoadPhaseOffset); var mass = RF(record, ContactLoadMassOffset);
         if (!Enum.IsDefined(phase) || !float.IsFinite(mass) || mass < 0 || mass > 4096 || declaration.PhaseOf(mass) != phase)
             throw new ArgumentException("Invalid committed contact-load phase or mass.");
-        return new(declaration.Id, declaration.Frame, declaration.Face, mass, phase);
+        return new(declaration.Id, declaration.Frame, declaration.Region, mass, phase);
     }
 
     private static void ValidateContactLoadCandidate(ReadOnlySpan<byte> candidate, ReadOnlySpan<byte> source)

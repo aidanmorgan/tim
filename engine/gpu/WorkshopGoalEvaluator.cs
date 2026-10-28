@@ -7,30 +7,31 @@ public enum WorkshopGoalPhase { NotApplicable, Waiting, Solved }
 /// <summary>Goal truth and its occurrence derive only from the committed named-event read.</summary>
 public static class WorkshopGoalEvaluator
 {
-    public static WorkshopGoalPhase Evaluate(WorkshopGoal goal, WorkshopRead read, SimulationEpoch epoch)
+    public static WorkshopGoalPhase Evaluate(WorkshopGoal goal, WorkshopRead read, SimulationEpoch epoch, CompiledIdentityMap identities)
     {
         goal.Validate();
         if (goal.Kind == WorkshopGoalKind.None) return WorkshopGoalPhase.NotApplicable;
-        return Occurrence(goal, read, epoch) is not null ? WorkshopGoalPhase.Solved : WorkshopGoalPhase.Waiting;
+        return Occurrence(goal, read, epoch, identities) is not null ? WorkshopGoalPhase.Solved : WorkshopGoalPhase.Waiting;
     }
-    public static ActivationTime? Occurrence(WorkshopGoal goal, WorkshopRead read, SimulationEpoch epoch)
+    public static ActivationTime? Occurrence(WorkshopGoal goal, WorkshopRead read, SimulationEpoch epoch, CompiledIdentityMap identities)
     {
         goal.Validate();
         if (epoch.Value == 0 || read.Epoch != epoch) return null;
         if (goal.Kind == WorkshopGoalKind.Captured)
         {
             if (!read.Bodies.TryGet(goal.Body, out var body) || body.Body.Epoch != epoch.Value) return null;
-            return Occurrence(goal, read.Captures, read.Activations);
+            return Occurrence(goal, read.Captures, read.Activations, identities);
         }
-        return Occurrence(goal, read.Captures, read.Activations);
+        return Occurrence(goal, read.Captures, read.Activations, identities);
     }
-    public static ActivationTime? Occurrence(WorkshopGoal goal, PhysicsCaptureRead captures, PhysicsActivationRead activations)
+    public static ActivationTime? Occurrence(WorkshopGoal goal, PhysicsCaptureRead captures, PhysicsActivationRead activations, CompiledIdentityMap identities)
     {
         goal.Validate();
         if (goal.Kind == WorkshopGoalKind.Captured)
         {
+            if (!identities.TryCapture(goal.Target, goal.Body, out var rows)) return null;
             for (var i = 0; i < captures.Count; i++)
-                if (captures[i].Sensor == goal.EventSource && captures[i].Phase == CaptureLatchPhase.Latched)
+                if (captures[i].Sensor == rows.Sensor && captures[i].Target == goal.Body && captures[i].Phase == CaptureLatchPhase.Latched)
                     return new(captures[i].EventOrdinal, (float)captures[i].EventPhase);
         }
         else if (goal.Kind == WorkshopGoalKind.ActivatedAfter)

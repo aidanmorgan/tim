@@ -45,7 +45,7 @@ public static class TubeMouthSnap
         rotation = rotation.Normalized();
 
         // Every other placed part's mouths in world space; the mover's own committed pose takes no part.
-        var others = new List<(GpuBodyId Body, WorldMouth Mouth)>();
+        var others = new List<(GpuBodyId Body, WorldMouth Mouth)>(16);
         foreach (var instance in placed)
         {
             if (instance.Id == mover.Body || !definitions.TryGetValue(instance.PartId, out var definition)) continue;

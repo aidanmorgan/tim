@@ -154,11 +154,11 @@ public sealed class StraightPipeTests(NativeSceneFixture godot)
             WorkshopInput.Pipe(new GpuBodyId(1), 0, 3, 0, 0, 0, 0, 1),
             WorkshopInput.Pipe(new GpuBodyId(2), 5, 3, 0, 0, 0, 0, 1),
             WorkshopInput.Pipe(new GpuBodyId(3), 10, 3, 0, 0, 0, 0, 1));
-        WorkbenchCapacity.Validate(threePipes);
+        new WorkshopInstances([.. threePipes]).Validate();
 
         var twentyPipes = new WorkshopInstances(
             Enumerable.Range(1, 20).Select(i => (IWorkshopInstance)WorkshopInput.Pipe(new GpuBodyId((ulong)i), i * 2, 3, 0, 0, 0, 0, 1)).ToArray());
-        WorkbenchCapacity.Validate(twentyPipes);
+        new WorkshopInstances([.. twentyPipes]).Validate();
     }
 
     /// <summary>The bore admits a ball of radius under 0.65 m end to end: the shell Tube's inner radius and each collar's innermost

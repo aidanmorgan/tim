@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using CuriousContraptions.Abstractions.Mechanical;
 
 namespace CuriousContraptions.Gpu;
 
@@ -61,11 +62,12 @@ public readonly record struct ContactMaterialDeclaration(
 public readonly record struct RigidBodyDeclaration(
     GpuBodyId Id, RigidMotionKind Motion, CellOrigin Cell, LocalPosition Local,
     CanonicalRotation Rotation, LinearVelocity Velocity, AngularVelocity AngularVelocity,
-    Kilograms Mass, AccelerationVector Gravity, InverseSeconds LinearDrag)
+    Kilograms Mass, AccelerationVector Gravity, InverseSeconds LinearDrag, RigidMassProperties MassProperties, PayloadPolicy Payload = PayloadPolicy.None)
 {
     public void Validate()
     {
-        if (!Enum.IsDefined(Motion)) throw new ArgumentException("Undefined rigid motion.");
+        if (!Enum.IsDefined(Motion) || !Enum.IsDefined(Payload) || (Motion==RigidMotionKind.Static && Payload!=PayloadPolicy.None))
+            throw new ArgumentException("Undefined rigid motion or payload policy.");
         new CanonicalBody(Id, 0, 0, Cell, Local, Velocity).Validate();
         Rotation.Validate();
         AngularVelocity.Validate();
@@ -73,13 +75,14 @@ public readonly record struct RigidBodyDeclaration(
         PhysicsDeclarationBounds.Range(LinearDrag.Value, 0f,0.125f);
         if (Motion == RigidMotionKind.Static)
         {
-            if (!PhysicsDeclarationBounds.Zero(Mass.Value) || !Velocity.IsPositiveZero || !AngularVelocity.IsPositiveZero ||
+            if (MassProperties != default || !PhysicsDeclarationBounds.Zero(Mass.Value) || !Velocity.IsPositiveZero || !AngularVelocity.IsPositiveZero ||
                 !PhysicsDeclarationBounds.Zero(Gravity.X, Gravity.Y, Gravity.Z) ||
                 !PhysicsDeclarationBounds.Zero(LinearDrag.Value))
                 throw new ArgumentException("Static bodies require zero motion, mass and forces.");
             return;
         }
         PhysicsDeclarationBounds.Range(Mass.Value, 1f / 1024, 1024f);
+        MassProperties.Validate();
         // Wide arithmetic is admission-only: it rejects an out-of-domain declaration, never integrates it.
         if (Squared(Gravity.X, Gravity.Y, Gravity.Z) > 256)
             throw new ArgumentException("Gravity exceeds the admitted vector magnitude.");
@@ -117,7 +120,7 @@ public readonly record struct ColliderDeclaration(
         switch (Shape)
         {
             case ColliderShapeKind.Sphere:
-                PhysicsDeclarationBounds.Range(Radius.Value, 1f / 16, 16f);
+                PhysicsDeclarationBounds.Range(Radius.Value, 1f / 32, 16f);
                 if (!PhysicsDeclarationBounds.Zero(HalfExtents.X, HalfExtents.Y, HalfExtents.Z))
                     throw new ArgumentException("Sphere extents must be zero.");
                 break;
@@ -156,9 +159,9 @@ public readonly record struct ColliderDeclaration(
                 if (Radius.Value == HalfExtents.Z) throw new ArgumentException("A frustum with equal end radii is a tube.");
                 break;
             case ColliderShapeKind.Torus:
-                // The tube's outer radius at least 1/128 m and inside the centreline radius (no self-intersection); a hollow tube's
+                // The tube's outer radius at least 1/512 m and inside the centreline radius (no self-intersection); a hollow tube's
                 // wall at least MinimumThickness (a solid tube declares zero); a sweep in (0, π] or the full turn.
-                PhysicsDeclarationBounds.Range(HalfExtents.Y, 1f / 128, 16f);
+                PhysicsDeclarationBounds.Range(HalfExtents.Y, 1f / 512, 16f);
                 PhysicsDeclarationBounds.Range(Radius.Value, 1f / 16, 16f);
                 if (!(Radius.Value > HalfExtents.Y)) throw new ArgumentException("A torus tube must not reach its axis.");
                 if (!PhysicsDeclarationBounds.Zero(HalfExtents.X))
@@ -173,13 +176,14 @@ public readonly record struct ColliderDeclaration(
 
 /// <summary>Open-box residence against one named body in an explicit frame; no scene overlap authority.</summary>
 public readonly record struct ResidenceSensorDeclaration(
-    GpuSensorId Id, GpuBodyId Frame, GpuBodyId Target, RigidLocalPose Pose,
+    GpuSensorId Id, GpuBodyId Frame, BodyTargetSet Targets, RigidLocalPose Pose,
     MetreVector Minimum, MetreVector Maximum, LinearSpeed SpeedLimit, DurationSeconds Dwell,
     SensorParticipation Participation)
 {
     public void Validate()
     {
-        if (Id.Value == 0 || Frame.Value == 0 || Target.Value == 0 || Frame == Target ||
+        Targets.Validate();
+        if (Id.Value == 0 || Frame.Value == 0 || Frame == Targets.Body ||
             !Enum.IsDefined(Participation))
             throw new ArgumentException("Invalid residence identity or participation.");
         Pose.Validate();
@@ -194,12 +198,13 @@ public readonly record struct ResidenceSensorDeclaration(
 
 /// <summary>Bounded descending-only planar centring in a declared static frame; the GPU evaluates the force.</summary>
 public readonly record struct PlanarGuideDeclaration(
-    GpuForceId Id, GpuBodyId Frame, GpuBodyId Target, RigidLocalPose Pose,
+    GpuForceId Id, GpuBodyId Frame, BodyTargetSet Targets, RigidLocalPose Pose,
     MetreVector Minimum, MetreVector Maximum, Metres SupportHeight, Metres SupportMargin, Acceleration MaximumAcceleration)
 {
     public void Validate()
     {
-        if (Id.Value == 0 || Frame.Value == 0 || Target.Value == 0 || Frame == Target)
+        Targets.Validate();
+        if (Id.Value == 0 || Frame.Value == 0 || Frame == Targets.Body)
             throw new ArgumentException("Invalid guide identity.");
         Pose.Validate();
         PhysicsDeclarationBounds.Vector(Minimum.X, Minimum.Y, Minimum.Z, 16f);
@@ -262,9 +267,9 @@ public sealed class PhysicsSceneDeclaration
     {
         if ((document.Low == 0 && document.High == 0) || nextIdentity == 0)
             throw new ArgumentException("Invalid physics document.");
-        var ids = new HashSet<ulong>();
-        var bodyMap = new Dictionary<GpuBodyId, RigidBodyDeclaration>();
-        var materialIds = new HashSet<GpuMaterialId>();
+        var ids = new HashSet<ulong>(64);
+        var bodyMap = new Dictionary<GpuBodyId, RigidBodyDeclaration>(16);
+        var materialIds = new HashSet<GpuMaterialId>(32);
         var dynamicCount = 0;
         foreach (var body in bodies)
         {
@@ -277,7 +282,7 @@ public sealed class PhysicsSceneDeclaration
             material.Validate(); Identity(material.Id.Value, nextIdentity, ids);
             materialIds.Add(material.Id);
         }
-        var dynamicColliders = new HashSet<GpuBodyId>();
+        var dynamicColliders = new HashSet<GpuBodyId>(16);
         foreach (var collider in colliders)
         {
             collider.Validate(); Identity(collider.Id.Value, nextIdentity, ids);
@@ -285,31 +290,32 @@ public sealed class PhysicsSceneDeclaration
                 throw new ArgumentException("Collider refers to an absent body or material.");
             if (body.Motion == RigidMotionKind.Dynamic)
             {
-                if (collider.Shape is not (ColliderShapeKind.Sphere or ColliderShapeKind.Box or ColliderShapeKind.Cylinder) ||
-                    !dynamicColliders.Add(body.Id))
-                    throw new ArgumentException("Dynamic bodies require one homogeneous sphere, box or cylinder.");
-                RigidMassProperties.Compile(body, collider).Validate();
+                if (collider.Shape == ColliderShapeKind.Plane)
+                    throw new ArgumentException("A dynamic body cannot own an infinite plane.");
+                dynamicColliders.Add(body.Id);
             }
         }
         if (dynamicColliders.Count != dynamicCount)
-            throw new ArgumentException("Every dynamic body requires its homogeneous collider.");
+            throw new ArgumentException("Every dynamic body requires collision geometry.");
+        var sensorOwners = new HashSet<(GpuBodyId,BodyTargetSet)>(4);
         foreach (var sensor in sensors)
         {
             sensor.Validate(); Identity(sensor.Id.Value, nextIdentity, ids);
             if (!bodyMap.TryGetValue(sensor.Frame, out var frame) || frame.Motion != RigidMotionKind.Static ||
-                !bodyMap.TryGetValue(sensor.Target, out var target) || target.Motion != RigidMotionKind.Dynamic)
+                !sensorOwners.Add((sensor.Frame,sensor.Targets)) || (sensor.Targets.Kind==BodyTargetKind.NamedBody &&
+                    (!bodyMap.TryGetValue(sensor.Targets.Body,out var target) || target.Motion!=RigidMotionKind.Dynamic)))
                 throw new ArgumentException("Residence requires an admitted static frame and dynamic target.");
         }
-        var guidedBodies = new HashSet<GpuBodyId>();
+        var guidedBodies = new HashSet<(GpuBodyId,BodyTargetSet)>(4);
         foreach (var guide in guides)
         {
             guide.Validate(); Identity(guide.Id.Value, nextIdentity, ids);
             if (!bodyMap.TryGetValue(guide.Frame, out var frame) || frame.Motion != RigidMotionKind.Static ||
-                !bodyMap.TryGetValue(guide.Target, out var target) || target.Motion != RigidMotionKind.Dynamic ||
-                !dynamicColliders.Contains(guide.Target) || !guidedBodies.Add(guide.Target))
-                throw new ArgumentException("Guide requires a static frame and one uniquely guided dynamic body.");
+                !guidedBodies.Add((guide.Frame,guide.Targets)) || (guide.Targets.Kind==BodyTargetKind.NamedBody &&
+                    (!bodyMap.TryGetValue(guide.Targets.Body,out var target) || target.Motion!=RigidMotionKind.Dynamic)))
+                throw new ArgumentException("Guide requires a static frame and unique admitted target policy.");
         }
-        var owners = new HashSet<GpuBodyId>();
+        var owners = new HashSet<GpuBodyId>(4);
         foreach (var trigger in triggers)
         {
             trigger.Validate(); Identity(trigger.Id.Value, nextIdentity, ids);
@@ -322,7 +328,7 @@ public sealed class PhysicsSceneDeclaration
             foreach (var collider in colliders) if (collider.Body == trigger.Owner) colliderFound = true;
             if (!colliderFound) throw new ArgumentException("Contact trigger owner has no physical collider.");
         }
-        var workOwners = new HashSet<GpuBodyId>();
+        var workOwners = new HashSet<GpuBodyId>(4);
         foreach (var work in contactWorks)
         {
             work.Validate(); Identity(work.Id.Value, nextIdentity, ids);
@@ -335,7 +341,7 @@ public sealed class PhysicsSceneDeclaration
             foreach (var collider in colliders) if (collider.Body == work.Owner) colliderFound = true;
             if (!colliderFound) throw new ArgumentException("Contact work owner has no physical collider.");
         }
-        var sensed = new HashSet<GpuBodyId>();
+        var sensed = new HashSet<GpuBodyId>(4);
         foreach (var sensor in orientationSensors)
         {
             sensor.Validate(); Identity(sensor.Id.Value, nextIdentity, ids);
@@ -345,17 +351,23 @@ public sealed class PhysicsSceneDeclaration
             // "Angle from the admitted pose" is a document invariant, not a compiler courtesy.
             if (body.Rotation != sensor.Initial) throw new ArgumentException("Orientation sensor initial pose differs from its body's admitted rotation.");
         }
-        var loadFrames = new HashSet<GpuBodyId>();
+        var loadFrames = new HashSet<GpuBodyId>(4);
         foreach (var sensor in contactLoadSensors)
         {
             sensor.Validate(); Identity(sensor.Id.Value, nextIdentity, ids);
+            foreach (var member in sensor.SupportingColliders)
+            {
+                var owned = false;
+                foreach (var collider in colliders) if (collider.Id == member && collider.Body == sensor.Frame) owned = true;
+                if (!owned) throw new ArgumentException("Contact-load member is absent or owned by another body.");
+            }
             var faceOwned = false;
-            foreach (var collider in colliders) if (collider.Id == sensor.Face && collider.Body == sensor.Frame) faceOwned = true;
+            foreach (var collider in colliders) if (collider.Id == sensor.Region && collider.Body == sensor.Frame) faceOwned = true;
             if (!bodyMap.TryGetValue(sensor.Frame, out var frame) || frame.Motion != RigidMotionKind.Static || !faceOwned ||
                 !loadFrames.Add(sensor.Frame))
                 throw new ArgumentException("A contact-load row requires one row per static frame and a sensing face that frame owns.");
         }
-        var pairs = new HashSet<(GpuBodyId, GpuBodyId)>();
+        var pairs = new HashSet<(GpuBodyId, GpuBodyId)>(16);
         foreach (var joint in prismatics)
         {
             joint.Validate(); Identity(joint.Id.Value, nextIdentity, ids);
@@ -366,7 +378,7 @@ public sealed class PhysicsSceneDeclaration
         }
         _prismatics = prismatics.ToArray();
         Array.Sort(_prismatics, (a, b) => a.Id.Value.CompareTo(b.Id.Value));
-        var driven = new HashSet<PrismaticConstraintId>();
+        var driven = new HashSet<PrismaticConstraintId>(4);
         foreach (var drive in prismaticDrives)
         {
             var joint = Array.Find(_prismatics, candidate => candidate.Id == drive.Joint);
@@ -393,13 +405,8 @@ public sealed class PhysicsSceneDeclaration
         Array.Sort(_guides, (a, b) => a.Id.Value.CompareTo(b.Id.Value));
         Array.Sort(_triggers, (a, b) => a.Id.Value.CompareTo(b.Id.Value));
         Array.Sort(_contactWorks, (a, b) => a.Id.Value.CompareTo(b.Id.Value));
-        // One occurrence row per (work, eligible dynamic target), as AdmitContactWorks writes them.
-        var occurrences = 0;
-        foreach (var work in _contactWorks)
-            foreach (var body in _bodies)
-                if (body.Motion == RigidMotionKind.Dynamic && work.Targets.Contains(body.Id)) occurrences++;
         World = new(_bodies.Length, _colliders.Length, _materials.Length, _sensors.Length, dynamicCount, _guides.Length,
-            _triggers.Length, _contactWorks.Length, occurrences, _orientationSensors.Length, Electrical.Sources.Length,
+            _triggers.Length, _contactWorks.Length, _orientationSensors.Length, Electrical.Sources.Length,
             Electrical.Bindings.Length, _prismatics.Length, _contactLoadSensors.Length);
         _ = World.ByteLength;
         Layout = CompiledMemoryLayout.Build(World, _bodies, _colliders, _materials, _sensors, _guides, _triggers, _contactWorks, _orientationSensors, Electrical.Sources, _prismatics);

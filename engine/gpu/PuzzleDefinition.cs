@@ -40,9 +40,8 @@ internal sealed record PuzzleDefinition(PuzzleContentEntry Entry,
             throw PuzzleContentReader.Invalid(Entry.Id.Value, "goal", "missing or overlapping owner identities");
         var goal = Goal.Kind switch
         {
-            WorkshopGoalKind.Captured => new WorkshopGoal(Goal.Kind, source, target,
-                WorkshopPhysicsCompiler.CaptureSensor(target)),
-            WorkshopGoalKind.ActivatedAfter => new WorkshopGoal(Goal.Kind, default, default, default,
+            WorkshopGoalKind.Captured => new WorkshopGoal(Goal.Kind, source, target),
+            WorkshopGoalKind.ActivatedAfter => new WorkshopGoal(Goal.Kind, default, default,
                 new(source.Value), new(target.Value), new(Goal.MinimumSeconds)),
             _ => throw PuzzleContentReader.Invalid(Entry.Id.Value, "goal.kind", "unsupported authored goal")
         };
@@ -65,7 +64,7 @@ internal static class PuzzleDefinitionReader
         AuthoredInstanceReader.Require(fields, where, "id", "availability", "title", "subtitle", "description", "hint",
             "inventory", "solution", "solution_connections", "placements", "goal", "connections_allowed", "profiles", "presentation");
         var placements = ImmutableArray.CreateBuilder<AuthoredPlacement>();
-        var slots = new HashSet<AuthoredSlot>();
+        var slots = new HashSet<AuthoredSlot>(16);
         foreach (var row in AuthoredInstanceReader.Rows(fields["placements"], where + ".placements"))
         {
             var values = PuzzleContentReader.Fields(row, where);
@@ -76,7 +75,7 @@ internal static class PuzzleDefinitionReader
         }
         if (placements.Count == 0) throw PuzzleContentReader.Invalid(where, "placements", "empty fixed layout");
         var inventory = ImmutableArray.CreateBuilder<AuthoredInventory>();
-        var parts = new HashSet<PartId>();
+        var parts = new HashSet<PartId>(16);
         foreach (var row in AuthoredInstanceReader.Rows(fields["inventory"], where + ".inventory"))
         {
             var values = PuzzleContentReader.Fields(row, where);

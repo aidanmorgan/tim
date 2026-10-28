@@ -63,12 +63,11 @@ public readonly record struct SimulationEventRecord(ulong Sequence, ulong Tick, 
     }
 }
 
-/// <summary>The 64-byte ring header (Story 9A.22 D6): Capacity u32 at 0 (a power of two), SlotBytes u32 at 4, Epoch u64 at 8 (the
-/// admitted world's simulation epoch), WriteSequence u64 at 16 (the last published sequence, stored after its slots) and Lapped u64
-/// at 24 (records the producer published past the ring's capacity in one batch, so never written); the rest is zero.</summary>
-public readonly record struct EventRingHeader(uint Capacity, uint SlotBytes, ulong Epoch, ulong WriteSequence, ulong Lapped)
+/// <summary>The 64-byte ring header (Story 9A.22 D6): Capacity u32 at 0 (actual demand plus bounded growth spare), SlotBytes u32 at 4, Epoch u64 at 8 (the
+/// admitted world's simulation epoch), WriteSequence u64 at 16 (the last published sequence, stored after its slots) ; bytes 24 through 63 are reserved zero.</summary>
+public readonly record struct EventRingHeader(uint Capacity, uint SlotBytes, ulong Epoch, ulong WriteSequence)
 {
-    public const int CapacityOffset = 0, SlotBytesOffset = 4, EpochOffset = 8, WriteSequenceOffset = 16, LappedOffset = 24;
+    public const int CapacityOffset = 0, SlotBytesOffset = 4, EpochOffset = 8, WriteSequenceOffset = 16;
 
     public void Write(Span<byte> header)
     {
@@ -78,7 +77,6 @@ public readonly record struct EventRingHeader(uint Capacity, uint SlotBytes, ulo
         BinaryPrimitives.WriteUInt32LittleEndian(header[SlotBytesOffset..], SlotBytes);
         BinaryPrimitives.WriteUInt64LittleEndian(header[EpochOffset..], Epoch);
         BinaryPrimitives.WriteUInt64LittleEndian(header[WriteSequenceOffset..], WriteSequence);
-        BinaryPrimitives.WriteUInt64LittleEndian(header[LappedOffset..], Lapped);
     }
 
     public static EventRingHeader Read(ReadOnlySpan<byte> header)
@@ -86,9 +84,9 @@ public readonly record struct EventRingHeader(uint Capacity, uint SlotBytes, ulo
         if (header.Length < EventRingBuffer.HeaderBytes) throw new ArgumentException("An event ring header is 64 bytes.");
         var value = new EventRingHeader(BinaryPrimitives.ReadUInt32LittleEndian(header[CapacityOffset..]),
             BinaryPrimitives.ReadUInt32LittleEndian(header[SlotBytesOffset..]), BinaryPrimitives.ReadUInt64LittleEndian(header[EpochOffset..]),
-            BinaryPrimitives.ReadUInt64LittleEndian(header[WriteSequenceOffset..]), BinaryPrimitives.ReadUInt64LittleEndian(header[LappedOffset..]));
-        if (value.Capacity == 0 || (value.Capacity & (value.Capacity - 1)) != 0 || value.SlotBytes != EventRingBuffer.SlotBytes ||
-            value.Epoch == 0 || header[32..EventRingBuffer.HeaderBytes].IndexOfAnyExcept((byte)0) >= 0)
+            BinaryPrimitives.ReadUInt64LittleEndian(header[WriteSequenceOffset..]));
+        if (value.Capacity == 0 || value.Capacity > (Array.MaxLength - EventRingBuffer.HeaderBytes) / EventRingBuffer.SlotBytes || value.SlotBytes != EventRingBuffer.SlotBytes ||
+            value.Epoch == 0 || header[24..EventRingBuffer.HeaderBytes].IndexOfAnyExcept((byte)0) >= 0)
             throw new ArgumentException("Invalid event ring header.");
         return value;
     }
@@ -101,52 +99,168 @@ public static class EventRingBuffer
 {
     public const int HeaderBytes = 64;
     public const int SlotBytes = 64;
-    /// <summary>The largest ring (coordinator decision, 24 Oct 2026): 2^20 slots, 64 MiB of records, a byte length every reader and
-    /// writer represents. A construction whose producers would need more is refused at admission (typed, the session stays Building);
-    /// overflow within a run is counted in Lapped, so the ring never has to hold a worst case.</summary>
-    public const uint MaximumCapacity = 1u << 20;
-
-    public static int ByteLength(uint capacity) => checked(HeaderBytes + (int)capacity * SlotBytes);
-
-    /// <summary>The power-of-two capacity holding at least <paramref name="slots"/> records (at least one slot).</summary>
-    public static uint Capacity(ulong slots)
+    public static int ByteLength(uint capacity)
     {
-        if (slots > MaximumCapacity) throw new ArgumentOutOfRangeException(nameof(slots), slots, "The scene's event ring exceeds memory.");
-        return System.Numerics.BitOperations.RoundUpToPowerOf2((uint)Math.Max(1UL, slots));
+        ArgumentOutOfRangeException.ThrowIfZero(capacity);
+        if (capacity > (Array.MaxLength - HeaderBytes) / SlotBytes)
+            throw new EventPreparationException(EventPublicationPreparation.StorageUnavailable);
+        return checked(HeaderBytes + (int)capacity * SlotBytes);
+    }
+
+    public const uint DefaultCapacity = 32;
+
+    /// <summary>Reserve once at the prospective 75% watermark, doubling current capacity
+    /// or satisfying bulk headroom. Saturate only on demand at the actual storage bound.</summary>
+    public static uint Capacity(uint current, ulong required)
+    {
+        var limit = (ulong)(Array.MaxLength - HeaderBytes) / SlotBytes;
+        if (required > limit || current > limit)
+            throw new EventPreparationException(EventPublicationPreparation.StorageUnavailable);
+        if (required <= 3UL * current / 4) return current;
+        return (uint)Math.Min(limit, Math.Max(2UL * current, (4UL * required + 2) / 3));
+    }
+
+    /// <summary>Reserves an exact contiguous sequence interval before any publication allocation.</summary>
+    public static ulong LastSequence(ulong previous, int count)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegative(count);
+        if ((ulong)count > ulong.MaxValue - previous)
+            throw new EventPreparationException(EventPublicationPreparation.SequenceExhausted);
+        return previous + (ulong)count;
     }
 
     /// <summary>Composes one publication: the header the ring will hold after it, then each sequenced record.</summary>
     public static byte[] Batch(EventRingHeader header, ReadOnlySpan<SimulationEventRecord> records)
     {
         if (records.Length > header.Capacity) throw new ArgumentException("A publication never holds more records than its ring.");
-        var bytes = new byte[HeaderBytes + records.Length * SlotBytes];
+        var bytes = new byte[checked(HeaderBytes + records.Length * SlotBytes)];
         header.Write(bytes);
         for (var i = 0; i < records.Length; i++) records[i].Write(bytes.AsSpan(HeaderBytes + i * SlotBytes, SlotBytes));
         return bytes;
     }
 
-    /// <summary>Copies one publication into the ring under each slot's seqlock (the slot's sequence is zero while it is written and
-    /// published last), then stores Lapped and WriteSequence, all through <see cref="EventRingMemory"/>'s word accessors. A different
-    /// epoch or capacity replaces the ring with a fresh one first, as the worker does. Returns the ring that holds the publication.</summary>
-    public static EventRingMemory Append(EventRingMemory? ring, ReadOnlySpan<byte> batch)
+    /// <summary>Prepares all publication storage and validates it without changing an advertised ring.</summary>
+    public static PreparedEventRing Prepare(EventRingMemory? ring, ReadOnlySpan<byte> batch)
     {
         var header = EventRingHeader.Read(batch);
-        if ((batch.Length - HeaderBytes) % SlotBytes != 0 || (batch.Length - HeaderBytes) / SlotBytes > header.Capacity)
+        _ = ByteLength(header.Capacity);
+        var count = (batch.Length - HeaderBytes) / SlotBytes;
+        if ((batch.Length - HeaderBytes) % SlotBytes != 0 || count > header.Capacity || (ulong)count > header.WriteSequence)
             throw new ArgumentException("A publication is whole records within its ring.");
-        if (ring is null || ring.Capacity != header.Capacity || ring.Epoch != header.Epoch) ring = new EventRingMemory(header.Capacity, header.Epoch);
-        for (var offset = HeaderBytes; offset < batch.Length; offset += SlotBytes)
+        var sameEpoch = ring is not null && ring.Epoch == header.Epoch;
+        var priorSequence = sameEpoch ? ring!.LoadWriteSequence() : 0;
+        if (sameEpoch && (header.Capacity < ring!.Capacity || header.WriteSequence < priorSequence))
+            throw new ArgumentException("A publication cannot shrink or rewind its current epoch.");
+        if (header.WriteSequence - priorSequence != (ulong)count)
+            throw new ArgumentException("A publication must include every new sequence.");
+        for (var i = 0; i < count; i++)
         {
-            // The writer's seqlock, as the shipped worker's: the sequence word is 0 while every payload word is stored, then published.
-            var sequence = BinaryPrimitives.ReadUInt64LittleEndian(batch[offset..]);
-            ring.PublishSequence(sequence, 0);
-            for (var word = 1; word < SlotBytes / 8; word++)
-                ring.StorePayload(sequence, word, BinaryPrimitives.ReadUInt64LittleEndian(batch[(offset + word * 8)..]));
-            ring.PublishSequence(sequence, sequence);
+            var record = SimulationEventRecord.Read(batch.Slice(HeaderBytes + i * SlotBytes, SlotBytes));
+            if (record.Sequence != priorSequence + (ulong)i + 1)
+                throw new ArgumentException("Publication records must have contiguous sequences.");
         }
-        ring.StoreLapped(header.Lapped);
-        ring.StoreWriteSequence(header.WriteSequence);
-        return ring;
+        var copy = batch.ToArray();
+        var replacement = !sameEpoch || ring!.Capacity != header.Capacity;
+        var target = replacement ? new EventRingMemory(header.Capacity, header.Epoch) : ring!;
+        if (sameEpoch && replacement)
+        {
+            var first = priorSequence > ring!.Capacity ? priorSequence - ring.Capacity + 1 : 1;
+            for (var sequence = first; sequence <= priorSequence && sequence != 0; sequence++)
+            {
+                if (ring!.LoadSequence(sequence) != sequence) throw new ArgumentException("Retained ring history is incomplete.");
+                for (var word = 1; word < SlotBytes / 8; word++)
+                    target.StorePayload(sequence, word, ring.LoadPayload(sequence, word));
+                if (ring.LoadSequence(sequence) != sequence) throw new ArgumentException("Ring history changed during preparation.");
+                target.PublishSequence(sequence, sequence);
+            }
+            target.StoreWriteSequence(priorSequence);
+        }
+        return new(target, header, copy, replacement);
     }
+
+    /// <summary>The native reference uses the same prepare/publish lifecycle as the shipped host.</summary>
+    public static EventRingMemory Append(EventRingMemory? ring, ReadOnlySpan<byte> batch) => Prepare(ring, batch).Publish();
+
+}
+
+/// <summary>Validated private publication; Publish performs no allocation or validation.</summary>
+public sealed class PreparedEventRing
+{
+    private readonly EventRingMemory _ring;
+    private readonly EventRingHeader _header;
+    private readonly byte[] _batch;
+    public bool ReplacesRing { get; }
+    internal PreparedEventRing(EventRingMemory ring, EventRingHeader header, byte[] batch, bool replacement)
+    { _ring = ring; _header = header; _batch = batch; ReplacesRing = replacement; }
+    public EventRingMemory Publish()
+    {
+        for (var offset = EventRingBuffer.HeaderBytes; offset < _batch.Length; offset += EventRingBuffer.SlotBytes)
+        {
+            var sequence = BinaryPrimitives.ReadUInt64LittleEndian(_batch.AsSpan(offset));
+            _ring.PublishSequence(sequence, 0);
+            for (var word = 1; word < EventRingBuffer.SlotBytes / 8; word++)
+                _ring.StorePayload(sequence, word, BinaryPrimitives.ReadUInt64LittleEndian(_batch.AsSpan(offset + word * 8)));
+            _ring.PublishSequence(sequence, sequence);
+        }
+        _ring.StoreWriteSequence(_header.WriteSequence);
+        return _ring;
+    }
+}
+
+public enum EventPublicationPreparation { Ready = 0, StorageUnavailable = 1, SequenceExhausted = 2 }
+
+/// <summary>A checked precommit resource refusal, distinct from malformed event data.</summary>
+public sealed class EventPreparationException : Exception
+{
+    public EventPublicationPreparation Reason { get; }
+    public EventPreparationException(EventPublicationPreparation reason) : base("Event preparation could not reserve its required storage or sequence.")
+    {
+        if (reason is not (EventPublicationPreparation.StorageUnavailable or EventPublicationPreparation.SequenceExhausted))
+            throw new ArgumentOutOfRangeException(nameof(reason));
+        Reason = reason;
+    }
+}
+
+/// <summary>The existing worker host boundary, explicitly bound by native and WASM callers.</summary>
+public interface IEventRingPublication
+{
+    EventPublicationPreparation Prepare(byte[] batch);
+    void Commit();
+    void Discard();
+    void Publish();
+    void Dispose();
+}
+
+/// <summary>Native shared-memory publication owner. Preparation never modifies Memory;
+/// discarded storage cannot be published and committed storage needs no further allocation.</summary>
+public sealed class EventRingPublication : IEventRingPublication
+{
+    public EventRingMemory? Memory { get; private set; }
+    private PreparedEventRing? _candidate;
+    private PreparedEventRing? _committed;
+    private bool _disposed;
+    public EventPublicationPreparation Prepare(byte[] batch)
+    {
+        ObjectDisposedException.ThrowIf(_disposed, this);
+        if (_candidate is not null) throw new InvalidOperationException("Event publication is already prepared.");
+        try { _candidate = EventRingBuffer.Prepare(Memory, batch); }
+        catch (OutOfMemoryException) { return EventPublicationPreparation.StorageUnavailable; }
+        return EventPublicationPreparation.Ready;
+    }
+    public void Commit()
+    {
+        ObjectDisposedException.ThrowIf(_disposed, this);
+        _committed = _candidate ?? throw new InvalidOperationException("No prepared event candidate.");
+        _candidate = null;
+    }
+    public void Publish()
+    {
+        if (_committed is null) return;
+        Memory = _committed.Publish();
+        _committed = null;
+    }
+    public void Discard() => _candidate = null;
+    public void Dispose() { _disposed = true; _candidate = null; _committed = null; Memory = null; }
 }
 
 /// <summary>The C# reference ring's memory (owner request, review R2-F2), the twin of <c>event-ring-cursor.js</c>'s
@@ -160,7 +274,7 @@ public sealed class EventRingMemory
     /// <summary>A fresh ring: its fixed header words (capacity and slot size, then epoch) are stored before any slot.</summary>
     public EventRingMemory(uint capacity, ulong epoch)
     {
-        if (capacity == 0 || (capacity & (capacity - 1)) != 0 || epoch == 0) throw new ArgumentException("Unsupported event ring layout.");
+        if (capacity == 0 || epoch == 0) throw new ArgumentException("Unsupported event ring layout.");
         _memory = new byte[EventRingBuffer.ByteLength(capacity)];
         Capacity = capacity; Epoch = epoch;
         Volatile.Write(ref Word(EventRingHeader.CapacityOffset), capacity | (ulong)EventRingBuffer.SlotBytes << (8 * EventRingHeader.SlotBytesOffset));
@@ -183,7 +297,6 @@ public sealed class EventRingMemory
 
     public ulong LoadWriteSequence() => Volatile.Read(ref Word(EventRingHeader.WriteSequenceOffset));
     public void StoreWriteSequence(ulong value) => Volatile.Write(ref Word(EventRingHeader.WriteSequenceOffset), value);
-    public void StoreLapped(ulong value) => Volatile.Write(ref Word(EventRingHeader.LappedOffset), value);
     /// <summary>The seqlock word of the slot that holds record <paramref name="sequence"/>.</summary>
     public ulong LoadSequence(ulong sequence) => Volatile.Read(ref Word(Slot(sequence)));
     public void PublishSequence(ulong sequence, ulong value) => Volatile.Write(ref Word(Slot(sequence)), value);
@@ -204,7 +317,7 @@ public sealed class EventRingMemory
         return copy;
     }
 
-    private int Slot(ulong sequence) => EventRingBuffer.HeaderBytes + (int)((sequence - 1) & (Capacity - 1)) * EventRingBuffer.SlotBytes;
+    private int Slot(ulong sequence) => EventRingBuffer.HeaderBytes + (int)((sequence - 1) % Capacity) * EventRingBuffer.SlotBytes;
     private static int Payload(int word) => word is >= 1 and < EventRingBuffer.SlotBytes / 8
         ? word * 8 : throw new ArgumentOutOfRangeException(nameof(word), word, "A payload word is 1 to 7.");
     private ref ulong Word(int offset) => ref Unsafe.As<byte, ulong>(ref _memory[offset]);

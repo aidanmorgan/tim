@@ -26,8 +26,8 @@ public sealed class DeclaredOrientationTests
         var tile = Assert.IsType<WorkshopGenericInstance>(PlacedParts.Domino(new(1), 0, Upright, 0, 0, Math.Sin(half), 0, Math.Cos(half)));
         var bench = Bench([tile, PlacedParts.Lamp(new(2), 3, 1, 0, 0, 0, 0, 1)], Signal(tile.Id, new(2)));
         var sensor = Assert.Single(WorkshopPhysicsCompiler.Compile(bench, new(1, 2)).OrientationSensors.ToArray());
-        Assert.Equal(WorkshopPhysicsCompiler.OrientationSensorFor(tile, declared), sensor);
-        Assert.Equal((WorkshopPhysicsCompiler.OrientationSensor(tile.Id), tile.Id, tile.Rotation), (sensor.Id, sensor.Body, sensor.Initial));
+        Assert.Equal(WorkshopPhysicsCompiler.OrientationSensorFor(tile, declared, bench.Instances.Identities), sensor);
+        Assert.Equal((bench.Instances.Identities[tile.Id].Orientation, tile.Id, tile.Rotation), (sensor.Id, sensor.Body, sensor.Initial));
         Assert.NotEqual(CanonicalRotation.Identity, sensor.Initial);
         // The Domino's declared 45° compiles to the f32 cosine of 22.5°, rounded once from its exact value.
         Assert.Equal(BitConverter.SingleToUInt32Bits((float)Math.Cos(Math.PI / 8)), BitConverter.SingleToUInt32Bits(sensor.Threshold.CosineHalfAngle));
@@ -47,12 +47,12 @@ public sealed class DeclaredOrientationTests
     {
         var tile = PlacedParts.Domino(new(1), 0, Upright, 0, 0, 0, 0, 1);
         Assert.Equal(BitConverter.SingleToUInt32Bits((float)Math.Cos(Math.PI / 12)),
-            BitConverter.SingleToUInt32Bits(WorkshopPhysicsCompiler.OrientationSensorFor(tile, new(30f)).Threshold.CosineHalfAngle));
+            BitConverter.SingleToUInt32Bits(WorkshopPhysicsCompiler.OrientationSensorFor(tile, new(30f), new WorkshopInstances(tile).Identities).Threshold.CosineHalfAngle));
         foreach (var degrees in new[] { 4f, 30f, 45f, 179f })
-            Assert.Equal(OrientationThreshold.Degrees(degrees), WorkshopPhysicsCompiler.OrientationSensorFor(tile, new(degrees)).Threshold);
-        Assert.NotEqual(WorkshopPhysicsCompiler.OrientationSensorFor(tile, new(30f)).Threshold, WorkshopPhysicsCompiler.OrientationSensorFor(tile, new(45f)).Threshold);
-        Assert.Throws<ArgumentOutOfRangeException>(() => WorkshopPhysicsCompiler.OrientationSensorFor(tile, new(MathF.BitDecrement(4f))));
-        Assert.Throws<ArgumentOutOfRangeException>(() => WorkshopPhysicsCompiler.OrientationSensorFor(tile, new(float.NaN)));
+            Assert.Equal(OrientationThreshold.Degrees(degrees), WorkshopPhysicsCompiler.OrientationSensorFor(tile, new(degrees), new WorkshopInstances(tile).Identities).Threshold);
+        Assert.NotEqual(WorkshopPhysicsCompiler.OrientationSensorFor(tile, new(30f), new WorkshopInstances(tile).Identities).Threshold, WorkshopPhysicsCompiler.OrientationSensorFor(tile, new(45f), new WorkshopInstances(tile).Identities).Threshold);
+        Assert.Throws<ArgumentOutOfRangeException>(() => WorkshopPhysicsCompiler.OrientationSensorFor(tile, new(MathF.BitDecrement(4f)), new WorkshopInstances(tile).Identities));
+        Assert.Throws<ArgumentOutOfRangeException>(() => WorkshopPhysicsCompiler.OrientationSensorFor(tile, new(float.NaN), new WorkshopInstances(tile).Identities));
     }
 
     // ---------- D6: saves written by the base encoder (2065d3c5) whose decoded meaning moved are refused, never misread ----------

@@ -25,7 +25,7 @@ public sealed class DominoEffectTests
         Assert.Equal(new PuzzleId("domino_effect"), lesson.Puzzle.Id);
         Assert.Equal(PartId.Domino, lesson.Puzzle.InventoryPart);
         Assert.Equal(4u, lesson.Puzzle.InventoryCount);
-        Assert.Equal(new WorkshopGoal(WorkshopGoalKind.ActivatedAfter, default, default, default, new(2), new(3), new(0f)), lesson.Puzzle.Goal);
+        Assert.Equal(new WorkshopGoal(WorkshopGoalKind.ActivatedAfter, default, default, new(2), new(3), new(0f)), lesson.Puzzle.Goal);
         Assert.All(lesson.Instances, instance => Assert.True(instance.Locked));
         var ball = Payloads.First(lesson); var end = lesson.Instances.Single(instance => instance.PartId == PartId.Domino); var lamp = lesson.Instances.Single(instance => instance.PartId == PartId.SignalLamp);
         Assert.Equal(WorkshopInput.Position(-4.4), (ball.Cell.X, ball.Local.X)); Assert.Equal(WorkshopInput.Position(3), (ball.Cell.Y, ball.Local.Y));
@@ -86,11 +86,11 @@ public sealed class DominoEffectTests
         var lamp = new ActivationNodeDeclaration(new(3), new(3), ActivationNodeKind.StickyFirstInput, default);
         var occurrence = new ActivationOccurrence(ActivationOccurrenceKind.Orientation, new(2), time, cause);
         var read = new WorkshopRead(new(2), new(75), default, Activations: new([ActivationLatch.From(end, occurrence), ActivationLatch.From(lamp, occurrence)]));
-        Assert.Equal(WorkshopGoalPhase.Solved, WorkshopGoalEvaluator.Evaluate(goal, read, new(2)));
-        Assert.Equal(time, WorkshopGoalEvaluator.Occurrence(goal, read, new(2)));
+        Assert.Equal(WorkshopGoalPhase.Solved, WorkshopGoalEvaluator.Evaluate(goal, read, new(2), Lesson().Instances.Identities));
+        Assert.Equal(time, WorkshopGoalEvaluator.Occurrence(goal, read, new(2), Lesson().Instances.Identities));
         var dark = read with { Activations = new([ActivationLatch.From(end, occurrence), ActivationLatch.Clear(lamp)]) };
-        Assert.Equal(WorkshopGoalPhase.Waiting, WorkshopGoalEvaluator.Evaluate(goal, dark, new(2)));
-        Assert.Equal(WorkshopGoalPhase.Waiting, WorkshopGoalEvaluator.Evaluate(goal, read, new(3)));
+        Assert.Equal(WorkshopGoalPhase.Waiting, WorkshopGoalEvaluator.Evaluate(goal, dark, new(2), Lesson().Instances.Identities));
+        Assert.Equal(WorkshopGoalPhase.Waiting, WorkshopGoalEvaluator.Evaluate(goal, read, new(3), Lesson().Instances.Identities));
     }
 
     [Fact]

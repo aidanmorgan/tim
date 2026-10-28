@@ -120,7 +120,7 @@ public sealed class SliderInstanceTests(NativeSceneFixture godot)
             typeof(MachineWorld).GetProperty(nameof(MachineWorld.Construction))!.SetValue(world, bench);
             world.RestoreConstructionPresentation();
             var part = Assert.Single((List<MachinePart>)typeof(MachineWorld).GetField("_parts", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(world)!);
-            var blade = Assert.IsAssignableFrom<Node3D>(part.PhysicalVisual(WorkshopPhysicsCompiler.SliderBody(gate, 0)));
+            var blade = Assert.IsAssignableFrom<Node3D>(part.PhysicalVisual(bench.Instances.Identities[gate].Sliders[0].Body));
             Assert.Same(part.GetNode<Node3D>("Visual/Blade"), blade);
             Assert.Equal(scenePose, blade.Transform);
             Assert.Empty(godot.Errors.Drain());

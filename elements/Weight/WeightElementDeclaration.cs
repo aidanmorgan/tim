@@ -9,7 +9,7 @@ namespace CuriousContraptions.Elements.Weight;
 /// default 4) is both its compiled mass and its size. The body origin is the base centre, so the collider sits h above it and a mass
 /// edit grows the Weight upward. Radius and half-height are linear in mass, exact at 0.25 and 8 kg against the legacy
 /// r = 0.85·0.32∛m and h = 0.675·0.32∛m; the art scales uniformly with the radius. It has no rope socket until Story 10.2b.</summary>
-public sealed class WeightElementDeclaration : IParameterizedMassElement, ISceneGeometryElement, IParameterizedGeometryElement
+public sealed class WeightElementDeclaration : IMechanicalElement, ISceneGeometryElement, IParameterizedGeometryElement
 {
     public ElementPresentation Presentation => new(
         PickRadius: .7f,
@@ -54,7 +54,20 @@ public sealed class WeightElementDeclaration : IParameterizedMassElement, IScene
         new(Collider: 0, Component: GeometryComponent.HalfExtentX, Parameter: "mass", Multiplier: .04808397f, Offset: .15932827f),
         new(Collider: 0, Component: GeometryComponent.HalfExtentY, Parameter: "mass", Multiplier: .03818433f, Offset: .12652539f),
         new(Collider: 0, Component: GeometryComponent.HalfExtentZ, Parameter: "mass", Multiplier: .04808397f, Offset: .15932827f),
-        new(Collider: 0, Component: GeometryComponent.OffsetY, Parameter: "mass", Multiplier: .03818433f, Offset: .12652539f)
+        new(Collider: 0, Component: GeometryComponent.OffsetY, Parameter: "mass", Multiplier: .03818433f, Offset: .12652539f),
+        new(Collider: 1, Component: GeometryComponent.HalfExtentX, Parameter: "mass", Multiplier: 0.36f * .136734f, Offset: 0.36f * .453070f),
+        new(Collider: 1, Component: GeometryComponent.HalfExtentY, Parameter: "mass", Multiplier: 0.025f * .136734f, Offset: 0.025f * .453070f),
+        new(Collider: 1, Component: GeometryComponent.HalfExtentZ, Parameter: "mass", Multiplier: 0.36f * .136734f, Offset: 0.36f * .453070f),
+        new(Collider: 1, Component: GeometryComponent.OffsetY, Parameter: "mass", Multiplier: 0.0517f * .136734f, Offset: 0.0517f * .453070f),
+        new(Collider: 2, Component: GeometryComponent.Radius, Parameter: "mass", Multiplier: 0.3558f * .136734f, Offset: 0.3558f * .453070f),
+        new(Collider: 2, Component: GeometryComponent.HalfExtentY, Parameter: "mass", Multiplier: 0.0075f * .136734f, Offset: 0.0075f * .453070f),
+        new(Collider: 2, Component: GeometryComponent.OffsetY, Parameter: "mass", Multiplier: 0.1862f * .136734f, Offset: 0.1862f * .453070f),
+        new(Collider: 3, Component: GeometryComponent.Radius, Parameter: "mass", Multiplier: 0.3558f * .136734f, Offset: 0.3558f * .453070f),
+        new(Collider: 3, Component: GeometryComponent.HalfExtentY, Parameter: "mass", Multiplier: 0.0075f * .136734f, Offset: 0.0075f * .453070f),
+        new(Collider: 3, Component: GeometryComponent.OffsetY, Parameter: "mass", Multiplier: 0.3724f * .136734f, Offset: 0.3724f * .453070f),
+        new(Collider: 4, Component: GeometryComponent.Radius, Parameter: "mass", Multiplier: 0.14f * .136734f, Offset: 0.14f * .453070f),
+        new(Collider: 4, Component: GeometryComponent.HalfExtentY, Parameter: "mass", Multiplier: 0.0175f * .136734f, Offset: 0.0175f * .453070f),
+        new(Collider: 4, Component: GeometryComponent.OffsetY, Parameter: "mass", Multiplier: 0.5771f * .136734f, Offset: 0.5771f * .453070f)
     ];
 
     public IReadOnlyList<TubeMouthParameterBinding> TubeMouthBindings => [];
@@ -66,17 +79,26 @@ public sealed class WeightElementDeclaration : IParameterizedMassElement, IScene
 
     public KinematicMode KinematicMode => KinematicMode.Dynamic;
 
-    /// <summary>The compiled mass is the <c>mass</c> parameter.</summary>
-    public MechanicalValue Mass => MechanicalValue.FromParameter("mass");
+    private const float RadiusSlope = .04808397f;
+    private const float RadiusOffset = .15932827f;
+    private const float HalfHeightSlope = .03818433f;
+    private const float HalfHeightOffset = .12652539f;
+    private static readonly ParameterId MassParameter = new("mass");
 
-    /// <summary>At the 4 kg default (one truth with <see cref="Mass"/>): the centre of mass at the cylinder's centre, h above the base,
-    /// and the solid-cylinder moments m(r²/4 + h²/3), m r²/2. The compiler derives both from the bound collider per instance.</summary>
-    public RigidBodyMassProperties MassProperties => new(
-        Mass: 4f,
-        CentreOfMass: new Vector3(0f, 0.27926272f, 0f),
-        InertiaTensor: new Vector3(0.22765f, 0.24733f, 0.22765f),
-        LinearDrag: 0f,
-        Gravity: new Vector3(0, -9.81f, 0));
+    public PayloadPolicy Payload => PayloadPolicy.None;
+
+    // Expand the documented cylinder law once in package data; collision geometry contributes no mass.
+    public MassFrameDeclaration MassFrame => new(
+        new(MassParameter, 0f, 1f, 0f, 0f),
+        new(MassScalar.Constant(0f), new(MassParameter, HalfHeightOffset, HalfHeightSlope, 0f, 0f), MassScalar.Constant(0f)),
+        new(TransverseMoment, AxialMoment, TransverseMoment), Quaternion.Identity, 0f, new(0f, -9.81f, 0f));
+
+    private static MassScalar AxialMoment => new(MassParameter, 0f,
+        .5f * RadiusOffset * RadiusOffset, RadiusSlope * RadiusOffset, .5f * RadiusSlope * RadiusSlope);
+    private static MassScalar TransverseMoment => new(MassParameter, 0f,
+        RadiusOffset * RadiusOffset / 4f + HalfHeightOffset * HalfHeightOffset / 3f,
+        RadiusSlope * RadiusOffset / 2f + 2f * HalfHeightSlope * HalfHeightOffset / 3f,
+        RadiusSlope * RadiusSlope / 4f + HalfHeightSlope * HalfHeightSlope / 3f);
 
     public IReadOnlyList<AnchorPointDescriptor> AnchorPoints => [];
 }

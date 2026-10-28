@@ -209,18 +209,18 @@ public sealed class WorkshopActivationAnimationTests
         Assert.Equal((CuriousContraptions.Abstractions.PresentationCurve.SineSquaredPulse, CuriousContraptions.Abstractions.PresentationOverlap.SaturatingSum),
             (declaration.Curve, declaration.Overlap));
         var envelope = new AnimationImpulseDefinition(new(declaration.Duration), AnimationImpulseCurve.SineSquaredPulse, AnimationImpulseOverlap.SaturatingSum,
-            AnimationImpulseVisibility.AdvanceWhileHidden, AnimationClock.Presentation, WorkshopAnimationWire.ImpulseCapacity,
+            AnimationImpulseVisibility.AdvanceWhileHidden, AnimationClock.Presentation,
             AnimationImpulseTiming.EventTime, AnimationImpulseDefinition.CanonicalPeak(AnimationImpulseCurve.SineSquaredPulse));
-        var batch = new AnimationBatch(4);
+        var batch = new AnimationBatch();
         var handle = batch.RegisterImpulses(new(new(3), AnimationProperty.ColourBlend), envelope,
             new(new AnimationColourBlend((float)0)), new(new AnimationColourBlend((float)1)));
         float Value() => BitConverter.UInt32BitsToSingle(batch.Read(handle).Value.CanonicalBits);
         var period = (double)declaration.Duration;
-        Assert.Equal(AnimationImpulseAdmission.Accepted, batch.EnqueueImpulse(handle, new(1), new((float)1), 1));
+        batch.EnqueueImpulse(handle, new(1), new((float)1), 1);
         batch.Advance(1, 1 + period / 8, 0);
         var single = (double)Value();
         Assert.InRange(single, .14, .16); // sin²(π/8) of the declared SineSquaredPulse
-        Assert.Equal(AnimationImpulseAdmission.Accepted, batch.EnqueueImpulse(handle, new(2), new((float)1), 1 + period / 8));
+        batch.EnqueueImpulse(handle, new(2), new((float)1), 1 + period / 8);
         batch.Advance(2, 1 + period / 4, 0);
         Assert.InRange((double)Value(), .5 + single - .01, .5 + single + .01); // saturating sum exceeds either contribution
         batch.Advance(3, 1 + period / 2, 0);

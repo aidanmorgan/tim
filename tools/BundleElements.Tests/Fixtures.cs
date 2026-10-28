@@ -11,7 +11,7 @@ public sealed class Fixture : ISliderElement
     /// <summary>A valid slider: a 0.25 kg plate that may travel 0.25 m below rest, on the fixture's three spring parameters.</summary>
     public static PrismaticSliderDescriptor Slider(IReadOnlyList<ColliderDescriptor>? moving = null, string stiffness = "stiffness") =>
         new(new(new(0f, .14f, 0f), Quaternion.Identity), new(Vector3.Zero, Quaternion.Identity), -.25f, 0f, MechanicalValue.FromParameter(stiffness), MechanicalValue.FromParameter("damping"),
-            MechanicalValue.FromParameter("initial_compression"), false, new(.25f, new(0f, -9.81f, 0f), 0f, moving ?? [Box(new(.65f, .075f, .6f))]), null);
+            MechanicalValue.FromParameter("initial_compression"), false, new(MassFrameDeclaration.Constant(.25f, Vector3.Zero, new(.03f, .06f, .04f), Quaternion.Identity, 0f, new(0f, -9.81f, 0f)), moving ?? [Box(new(.65f, .075f, .6f))]), null);
 
     /// <summary>A valid supplied drive for <see cref="Slider"/>: target 0.1 m below rest, inside its [-0.25, 0] travel.</summary>
     public static PrismaticDriveDescriptor Drive() =>
@@ -40,7 +40,8 @@ public sealed class Fixture : ISliderElement
     public int PaletteOrder { get; init; } = 1;
     public string IconPath { get; init; } = "res://elements/Fixture/icon.svg";
     public string ScenePath { get; init; } = "res://elements/Fixture/fixture.tscn";
-    public ElementPresentation Presentation => new(1f, PresentationAxes.None, [], [], [], []);
+    public ElementPresentation Presentation => new(1f, PresentationAxes.None, [],
+        Sliders.Select((_, index) => new PresentationBodyBinding($"Visual/Body{index + 1}", new(index + 1), Vector3.Zero)).ToArray(), [], []);
     public ElementMetadata Metadata => new(Id, Category, DisplayName, Description, Color, PaletteOrder, IconPath, ScenePath, Parameters);
     public ElementFootprint Footprint { get; init; } = new(1, 0, 0);
     public IReadOnlyList<PortDescriptor> Ports { get; init; } = [];
@@ -48,7 +49,8 @@ public sealed class Fixture : ISliderElement
     public IReadOnlyList<EventDescriptor> Events { get; init; } = [];
     public SimulationDomain SupportedDomains { get; init; } = SimulationDomain.Mechanical;
     public KinematicMode KinematicMode { get; init; } = KinematicMode.Static;
-    public RigidBodyMassProperties MassProperties { get; init; } = new(0f, Vector3.Zero, Vector3.Zero, 0f, Vector3.Zero);
+    public MassFrameDeclaration MassFrame { get; init; } = MassFrameDeclaration.Constant(0f, Vector3.Zero, Vector3.Zero, Quaternion.Identity, 0f, Vector3.Zero);
+    public PayloadPolicy Payload { get; init; } = PayloadPolicy.None;
     public IReadOnlyList<AnchorPointDescriptor> AnchorPoints { get; init; } = [];
     public IReadOnlyList<PrismaticSliderDescriptor> Sliders { get; init; } = [];
 }

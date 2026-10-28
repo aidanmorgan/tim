@@ -32,6 +32,7 @@ public static class BundleGeometry
             var collider = colliders[binding.Collider];
             collider = binding.Component switch
             {
+                GeometryComponent.Radius => collider with { Radius = value },
                 GeometryComponent.HalfExtentX => collider with { HalfExtents = collider.HalfExtents with { X = value } },
                 GeometryComponent.HalfExtentY => collider with { HalfExtents = collider.HalfExtents with { Y = value } },
                 GeometryComponent.HalfExtentZ => collider with { HalfExtents = collider.HalfExtents with { Z = value } },

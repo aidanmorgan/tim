@@ -1,3 +1,4 @@
+using CuriousContraptions.Abstractions;
 using System;
 using System.Globalization;
 using System.Linq;
@@ -81,7 +82,7 @@ public partial class Workshop
     private Button? _runControlToggle;
     private GpuBodyId _runControlObservedOwner;
     private ElectricalEnable _runControlObservedState;
-    private readonly System.Collections.Generic.Dictionary<GpuBodyId, (ulong Epoch, ulong Tick, ElectricalEnable Enabled)> _runControlQueued = new();
+    private readonly System.Collections.Generic.Dictionary<GpuBodyId, (ulong Epoch, ulong Tick, ElectricalEnable Enabled)> _runControlQueued = new(16);
     private bool _runControlSending;
 
     private ElectricalEnable RunControlIntent(GpuBodyId owner, ElectricalEnable committed)
@@ -119,7 +120,7 @@ public partial class Workshop
         var owner = instance.Id;
         var store = DeclaredPhysics.SourceStore(instance.PartId) ??
             throw new System.Diagnostics.UnreachableException("A run-time control requires a declared Source store.");
-        var state = WorkshopPhysicsCompiler.ElectricalSourceFor(owner, store, instance.Parameters).Enabled;
+        var state = WorkshopPhysicsCompiler.ElectricalSourceFor(World.Construction.Instances.Identities[owner].Source, owner, store, instance.Parameters).Enabled;
         for (var i = 0; i < World.WorkshopRead.Electrical.Count; i++)
             if (World.WorkshopRead.Electrical[i].Owner == owner) state = World.WorkshopRead.Electrical[i].Enabled;
         _runControlObservedOwner = owner;

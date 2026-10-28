@@ -8,12 +8,13 @@ namespace CuriousContraptions.Gpu;
 public static class WorkshopTraceRecord
 {
     public const int HeaderBytes = 48;
-    public const int CaptureBytes = 24;
-    /// <summary>Capture record: sensor identity U64, latch phase U32, event ordinal U32, f32 event phase, zero tail.</summary>
+    public const int CaptureBytes = 32;
+    /// <summary>Capture record: sensor identity U64 at0, target identity U64 at8, latch phase U32 at16, event ordinal U32 at20, f32 event phase at24, zero tail.</summary>
     public const int CaptureSensorOffset = 0;
-    public const int CapturePhaseOffset = 8;
-    public const int CaptureOrdinalOffset = 12;
-    public const int CaptureEventPhaseOffset = 16;
+    public const int CaptureTargetOffset = 8;
+    public const int CapturePhaseOffset = 16;
+    public const int CaptureOrdinalOffset = 20;
+    public const int CaptureEventPhaseOffset = 24;
     public static int ByteLength(int bodies, int captures)
     {
         // No population bound (Story 9R.5b): the record is exactly its committed bodies and captures.
@@ -37,7 +38,7 @@ public static class WorkshopTraceRecord
         for (var i=0; i<read.Captures.Count; i++)
         {
             var c=read.Captures[i]; c.Validate();
-            U64(b,offset+CaptureSensorOffset,c.Sensor.Value); U32(b,offset+CapturePhaseOffset,(uint)c.Phase);
+            U64(b,offset+CaptureSensorOffset,c.Sensor.Value); U64(b,offset+CaptureTargetOffset,c.Target.Value); U32(b,offset+CapturePhaseOffset,(uint)c.Phase);
             U32(b,offset+CaptureOrdinalOffset,c.EventOrdinal); BinaryPrimitives.WriteSingleLittleEndian(b.AsSpan(offset+CaptureEventPhaseOffset),c.EventPhase);
             offset+=CaptureBytes;
         }

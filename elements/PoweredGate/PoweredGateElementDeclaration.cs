@@ -18,7 +18,7 @@ public sealed class PoweredGateElementDeclaration : ISliderElement, IElectricalE
             new("Visual/Visual_Indicator", PresentationProperty.AlbedoRed, PresentationDriver.CommittedActuatorState, 85f / 255f, 247f / 255f, PresentationCurve.Linear, 0f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None, 0f, 232f / 255f),
             new("Visual/Visual_Indicator", PresentationProperty.AlbedoGreen, PresentationDriver.CommittedActuatorState, 101f / 255f, 203f / 255f, PresentationCurve.Linear, 0f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None, 0f, 183f / 255f),
             new("Visual/Visual_Indicator", PresentationProperty.AlbedoBlue, PresentationDriver.CommittedActuatorState, 115f / 255f, 82f / 255f, PresentationCurve.Linear, 0f, PresentationOverlap.Replace, 0f, PresentationTimerPhase.None, 0f, 100f / 255f)
-        ], [new("Visual/Blade", PresentationBody.Secondary, Vector3.Zero)], [], []);
+        ], [new("Visual/Blade", new PackageBodyIndex(1), Vector3.Zero)], [], []);
 
     public ElementMetadata Metadata => new(
         Id: "powered_gate",
@@ -55,12 +55,15 @@ public sealed class PoweredGateElementDeclaration : ISliderElement, IElectricalE
 
     public KinematicMode KinematicMode => KinematicMode.Static;
 
-    public RigidBodyMassProperties MassProperties => new(
-        Mass: 0f,
-        CentreOfMass: Vector3.Zero,
-        InertiaTensor: Vector3.Zero,
-        LinearDrag: 0f,
-        Gravity: Vector3.Zero);
+    public PayloadPolicy Payload => PayloadPolicy.None;
+
+    public MassFrameDeclaration MassFrame => MassFrameDeclaration.Constant(
+        mass: 0f,
+        centreOfMass: Vector3.Zero,
+        principalMoments: Vector3.Zero,
+        principalFrame: Quaternion.Identity,
+        linearDrag: 0f,
+        gravity: Vector3.Zero);
 
     /// <summary>The blade slides along the frame's +Y.</summary>
     public IReadOnlyList<AnchorPointDescriptor> AnchorPoints =>
@@ -74,8 +77,10 @@ public sealed class PoweredGateElementDeclaration : ISliderElement, IElectricalE
     [
         new(new(Vector3.Zero, Quaternion.Identity), new(Vector3.Zero, Quaternion.Identity),
             0f, 1.55f, MechanicalValue.Fixed(14f), MechanicalValue.Fixed(4f), MechanicalValue.Fixed(0f), false,
-            new(1f, new Vector3(0f, -9.81f, 0f), 0f,
-                []),
+            new(MassFrameDeclaration.Constant(1f, Vector3.Zero,
+                new Vector3((.72f * .72f + .72f * .72f) / 3f,
+                    (.06f * .06f + .72f * .72f) / 3f, (.06f * .06f + .72f * .72f) / 3f),
+                Quaternion.Identity, 0f, new Vector3(0f, -9.81f, 0f)), []),
             new(Target: MechanicalValue.Fixed(1.55f), MaxSpeed: MechanicalValue.Fixed(2.8f), StoppingAcceleration: MechanicalValue.Fixed(14f),
                 MaxEffort: MechanicalValue.Fixed(60f), MaxPower: MechanicalValue.Fixed(120f)))
     ];

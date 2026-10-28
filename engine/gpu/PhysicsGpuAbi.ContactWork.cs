@@ -1,5 +1,6 @@
 using System;
 using System.Buffers.Binary;
+using System.Linq;
 
 namespace CuriousContraptions.Gpu;
 
@@ -21,38 +22,25 @@ public static partial class PhysicsGpuAbi
             BinaryPrimitives.WriteSingleLittleEndian(record[ContactWorkPreloadOffset..], work.InitialEnergy.Value);
             BinaryPrimitives.WriteSingleLittleEndian(record[ContactWorkAvailableOffset..], work.InitialEnergy.Value);
         }
-        // One occurrence row per (work, eligible dynamic target): the population PhysicsWorldLayout.Of counted.
-        var occurrence = 0;
-        for (var work = 0; work < scene.ContactWorks.Length; work++)
-            foreach (var body in scene.Bodies)
-                if (body.Motion == RigidMotionKind.Dynamic && scene.ContactWorks[work].Targets.Contains(body.Id))
-                {
-                    var slot = data.Slice(scene.World.WorkOccurrenceOffset(occurrence++), WorkOccurrenceBytes);
-                    WriteWorkSlot(slot, work);
-                    U64(slot, WorkOccurrenceTargetOffset, body.Id.Value);
-                }
-        if (occurrence != scene.World.WorkOccurrences) throw new InvalidOperationException("The occurrence table differs from its layout.");
     }
 
-    /// <summary>The occurrence row's owning work slot (u32: no work-table bound).</summary>
-    private static void WriteWorkSlot(Span<byte> slot, int work) => U32(slot, WorkOccurrenceWorkOffset, checked((uint)work));
-
     /// <summary>The device-private contact-work ledger of a world: its owners' stores and occurrence rows (Story 9A.23 D9).</summary>
-    public static ContactWorkLedger ReadContactWorks(ReadOnlySpan<byte> data)
+    public static ContactWorkLedger ReadContactWorks(ReadOnlySpan<byte> data, PhysicsInteractionSnapshot interactions)
     {
         if (ReadFailure(data)!=PhysicsFailure.None) throw new ArgumentException("Invalid contact-work read.");
         var layout=Layout(data);
-        var count=layout.ContactWorks; var eventCount=layout.WorkOccurrences;
+        var count=layout.ContactWorks;
         // Exactly the world's populations; the read owns these arrays (no fixed work or occurrence table, Story 9R.5b).
         var stores=new ContactWorkRead[count];
-        var events=new ContactWorkOccurrence[eventCount];
+        var pairs=interactions.Works.OrderBy(pair=>pair.Value.Work.Value).ThenBy(pair=>pair.Key.Target.Value).ToArray();
+        var events=new ContactWorkOccurrence[pairs.Length];
         for (var i=0; i<count; i++)
         {
             var record=data.Slice(layout.ContactWorkOffset(i),ContactWorkBytes);
             var owner=R32(record,ContactWorkOwnerOffset); var policy=(BodyTargetKind)R32(record,ContactWorkTargetKindOffset);
             var target=R32(record,ContactWorkNamedTargetOffset);
             if (owner>=R32(data,HeaderBodyCountOffset) || BodyMotion(data,owner)!=RigidMotionKind.Static ||
-                !Enum.IsDefined(policy) || (policy==BodyTargetKind.AllDynamic ? target!=NoBody :
+                !Enum.IsDefined(policy) || (policy!=BodyTargetKind.NamedBody ? target!=NoBody :
                     target>=R32(data,HeaderBodyCountOffset) || BodyMotion(data,target)!=RigidMotionKind.Dynamic) ||
                 R32(record,ContactWorkCooldownOffset) is <9 or >14400 ||
                 !AllZero(record[ContactWorkReservedOffset..ContactWorkAvailableOffset]) || !AllZero(record[ContactWorkPaddingOffset..]))
@@ -67,21 +55,17 @@ public static partial class PhysicsGpuAbi
             if (stores[i].OccurrenceCount==0 && R32(record,ContactWorkPreloadOffset)!=R32(record,ContactWorkAvailableOffset))
                 throw new ArgumentException("Unused work owner spent its reservoir.");
         }
-        for (var i=0; i<eventCount; i++)
+        for (var i=0; i<pairs.Length; i++)
         {
-            var record=data.Slice(layout.WorkOccurrenceOffset(i),WorkOccurrenceBytes);
-            if (!AllZero(record[WorkOccurrencePaddingOffset..])) throw new ArgumentException("Nonzero work occurrence padding.");
-            var value=new ContactWorkOccurrence(new(R32(record,WorkOccurrenceWorkOffset)),
-                new(R32(record,WorkOccurrenceColliderOffset)),new(R64(record,WorkOccurrenceTargetOffset)),
-                R32(record,WorkOccurrenceSequenceOffset),R32(record,WorkOccurrenceOrdinalOffset),RF(record,WorkOccurrencePhaseOffset),
-                new(RF(record,WorkOccurrenceApproachOffset)),new(RF(record,WorkOccurrenceDebitOffset)),(ContactWorkEffect)record[WorkOccurrenceEffectOffset]);
+            var value=pairs[i].Value;
             value.Validate();
-            if (value.Work.Value>=count) throw new ArgumentException("Occurrence has no owner.");
+            if (value.Work.Value>=count || pairs[i].Key.Policy!=stores[(int)value.Work.Value].Id)
+                throw new ArgumentException("Occurrence has no owner.");
             var declaration=data.Slice(layout.ContactWorkOffset((int)value.Work.Value),ContactWorkBytes);
             var found=false;
             for (var body=0u; body<(uint)layout.Bodies; body++)
                 if (R64(data,layout.BodyOffset((int)body))==value.Target.Value && BodyMotion(data,body)==RigidMotionKind.Dynamic &&
-                    ((BodyTargetKind)R32(declaration,ContactWorkTargetKindOffset)==BodyTargetKind.AllDynamic || R32(declaration,ContactWorkNamedTargetOffset)==body))
+                    MatchesTarget(data,(BodyTargetKind)R32(declaration,ContactWorkTargetKindOffset),R32(declaration,ContactWorkNamedTargetOffset),body))
                     found=true;
             if (!found || (value.Sequence!=0 && (value.Collider.Value>=R32(data,HeaderColliderCountOffset) ||
                 R32(data,layout.ColliderOffset((int)value.Collider.Value)+ColliderBodyOffset)!=R32(declaration,ContactWorkOwnerOffset) ||
@@ -97,9 +81,10 @@ public static partial class PhysicsGpuAbi
         ? (RigidMotionKind)R32(data, HeaderBytes + checked((int)slot * BodyBytes) + BodyMotionOffset)
         : throw new ArgumentException("A body slot exceeds the world's body table.");
 
-    private static void ValidateContactWorkCandidate(ReadOnlySpan<byte> candidate,ReadOnlySpan<byte> source,SimulationTick expectedTick)
+    private static void ValidateContactWorkCandidate(ReadOnlySpan<byte> candidate,ReadOnlySpan<byte> source,SimulationTick expectedTick,
+        PhysicsInteractionSnapshot candidateInteractions, PhysicsInteractionSnapshot sourceInteractions)
     {
-        var before=ReadContactWorks(source); var after=ReadContactWorks(candidate);
+        var before=ReadContactWorks(source,sourceInteractions); var after=ReadContactWorks(candidate,candidateInteractions);
         after.ValidateAdvance(before);
         var layout=Layout(source);
         for (var i=0; i<before.Count; i++)
@@ -111,7 +96,8 @@ public static partial class PhysicsGpuAbi
         }
         for (var i=0; i<after.OccurrenceCount; i++)
         {
-            var previous=before.Occurrence(i); var current=after.Occurrence(i);
+            var current=after.Occurrence(i);
+            before.TryOccurrence(current.Work,current.Target,out var previous);
             if (current.Sequence==previous.Sequence) continue;
             var cooldown=R32(source,layout.ContactWorkOffset((int)current.Work.Value)+ContactWorkCooldownOffset);
             if (expectedTick.Value==0 || Before(current.EventOrdinal,current.EventPhase,R32(source,HeaderSourceOrdinalOffset),0f) ||

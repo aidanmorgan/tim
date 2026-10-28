@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ES2022",
+    "moduleResolution": "Bundler",
+    "strict": true,
+    "noEmitOnError": true,
+    "rootDir": ".",
+    "outDir": ".runtime-build",
+    "lib": [
+      "ES2022",
+      "DOM"
+    ],
+    "types": [
+      "node"
+    ],
+    "rootDirs": [
+      "CuriousContraptions.Simulation",
+      "CuriousContraptions.web/wwwroot"
+    ]
+  },
+  "include": [
+    "CuriousContraptions.Simulation/wwwroot/worker.ts",
+    "CuriousContraptions.web/wwwroot/event-ring-cursor.ts",
+    "CuriousContraptions.web/wwwroot/workshop-client.ts",
+    "tools/runtime/**/*.ts"
+  ]
+}

@@ -28,7 +28,7 @@ public static class WorkshopUiControlBoundary
 public partial class Workshop
 {
     private bool _hintAnimationVisible;
-    private readonly List<WorkshopUiBinding> _uiBindings = new();
+    private readonly List<WorkshopUiBinding> _uiBindings = new(16);
     private SimulationEpoch _solvedPresentationEpoch;
     private void InitializeUiAnimations()
     {

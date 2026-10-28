@@ -90,9 +90,8 @@ public sealed class ClockTests(NativeSceneFixture godot)
             var (colliders, ports) = TestBundle.SceneGeometry(instance);
 
             // Housing, Foot, then the parts that stand proud of the housing (visible = solid): the face panel, the indicator, the
-            // two sockets and the pendulum recess (2 cm proud of the face). The pivot cap has none (engine-multi-collider-dynamic:
-            // it is below the sphere radius minimum in ColliderDeclaration.Validate).
-            Assert.Equal(7, colliders.Count);
+            // two sockets, the pendulum recess (2 cm proud of the face), and the pivot cap.
+            Assert.Equal(8, colliders.Count);
 
             var housing = colliders[0];
             Assert.Equal(ColliderShapeKind.Box, housing.ShapeKind);

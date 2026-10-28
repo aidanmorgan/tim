@@ -23,7 +23,7 @@ public sealed class DeclaredOscillatorTests
     {
         var node = Assert.Single(WorkshopActivationCompiler.Compile(Bench(2.5f, supplied)).Nodes.ToArray());
         Assert.Equal(new ActivationNodeDeclaration(new(2), Owner, ActivationNodeKind.Oscillator, default, 0, default, default, 0, 300,
-            supplied ? Source : default, new GpuColliderId(WorkshopPhysicsCompiler.PartIdentities(Owner) + 1)), node);
+            supplied ? Source : default, Bench(2.5f, supplied).Instances.Identities[Owner].Colliders[0]), node);
     }
 
     // D2 (review B1): more than one upstream source on the clock's PowerIn is refused by the oscillator arm itself, with its own message.

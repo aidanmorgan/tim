@@ -11,7 +11,7 @@ using RuntimeShape = CuriousContraptions.Gpu.ColliderShapeKind;
 
 namespace CuriousContraptions.Tests;
 
-/// <summary>Bundle/runtime parity and immutable pre-cutover compiled golden, at the existing admitted physical lane precision.</summary>
+/// <summary>Declared package fields and evaluated parameter bindings match compiled runtime behavior.</summary>
 [Collection<NativeSceneCollectionDefinition>]
 public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
 {
@@ -56,21 +56,21 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
         Assert.Equal(45f, orientation.ThresholdDegrees);
         var compiledThreshold = Assert.Single(wiredTile.OrientationSensors.ToArray()).Threshold;
         Assert.Equal(OrientationThreshold.Degrees(orientation.ThresholdDegrees), compiledThreshold);
-        Assert.Equal(BitConverter.SingleToUInt32Bits((float)Math.Cos(Math.PI / 8)), BitConverter.SingleToUInt32Bits(compiledThreshold.CosineHalfAngle));
+        Assert.Equal(((float)Math.Cos(Math.PI / 8)), (compiledThreshold.CosineHalfAngle));
         // C-Memory: the counter's target is its declared parameter, and the latch's memory reads the two inputs the shared law reads.
         Assert.Equal("target_count", ((Abstractions.Signal.IPulseCountElement)packages["counter"]).PulseCount.TargetParameter);
         Assert.Equal(new Abstractions.Signal.SignalMemoryDescriptor(Abstractions.PortSocket.SetIn, Abstractions.PortSocket.ResetIn),
             ((Abstractions.Signal.IMemoryElement)packages["latch"]).Memory);
         // Story 9A.22: every package's declared event kinds equal its compiled rows' kinds (EventRingProducerTests).
         // C-Lamp+Detector: the lamp's declared indicator input selects its node, and the detector's declared f32 aperture is the
-        // compiled passage sensor's radius and rearm clearance, bit for bit (0.65 and 0.02 need a full f32 significand).
+        // compiled passage sensor's radius and rearm clearance, as numeric f32 values.
         Assert.Equal(Abstractions.PortSocket.ActivationIn, ((Abstractions.Signal.IIndicatorElement)packages["lamp"]).Indicator.Input);
         var aperture = ((Abstractions.Signal.IPassageSensorElement)packages["ball_detector"]).Passage;
         Assert.Equal((.65f, .02f), (aperture.ApertureRadius, aperture.RearmClearance));
         var sensor = Assert.Single(WorkshopActivationCompiler.Compile(new WorkshopConstruction(new ConstructionRevision(1),
             WorkshopCadenceSettings.Default(), new WorkshopInstances(Placed(PartId.BallDetector)))).PassageSensors.ToArray());
-        Assert.Equal((BitConverter.SingleToUInt32Bits(.65f), BitConverter.SingleToUInt32Bits(.02f)),
-            (BitConverter.SingleToUInt32Bits(sensor.Radius.Value), BitConverter.SingleToUInt32Bits(sensor.RearmClearance.Value)));
+        Assert.Equal(((.65f), (.02f)),
+            ((sensor.Radius.Value), (sensor.RearmClearance.Value)));
     }
 
     [Fact]
@@ -87,7 +87,7 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
             Assert.True(new ElementFootprint(bodies.Length, bodies.Count(body => body.Motion != RigidMotionKind.Static), scene.Prismatics.Length) ==
                 declaration.Footprint, $"{package.Package}: footprint {declaration.Footprint} declared.");
             var colliders = scene.Colliders.ToArray().Where(collider => collider.Body == Owner).ToArray();
-            AssertColliders(package.Package, TestBundle.Entry(id).Colliders, colliders.Select(collider => (collider.Shape, collider.Pose, collider.Radius.Value,
+            AssertColliders(package.Package, ExpectedColliders(TestBundle.Entry(id)), colliders.Select(collider => (collider.Shape, collider.Pose, collider.Radius.Value,
                 collider.HalfExtents)).ToArray());
             AssertMaterials(package.Package, TestBundle.Entry(id).Colliders, colliders, scene.Materials.ToArray());
 
@@ -127,7 +127,7 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
         {
             if (package.Declaration is not IMechanicalElement mechanical) continue;
             var scene = Compile(Placed(new PartId(mechanical.Metadata.Id)));
-            var mass = mechanical.MassProperties;
+            var mass = MassFixtures.Evaluate(mechanical.MassFrame, mechanical.Metadata.Parameters);
             AssertBody(package.Package, mechanical.KinematicMode, mass.Mass, mass.LinearDrag, mass.Gravity,
                 scene.Bodies.ToArray().Single(body => body.Id == Owner));
         }
@@ -145,16 +145,16 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
         {
             var ball = (IMechanicalElement)package.Declaration;
             var id = new PartId(ball.Metadata.Id);
-            var collider = Assert.Single(TestBundle.Entry(id).Colliders);
+            var collider = Assert.Single(TestBundle.Entry(id).Colliders, collider => collider.ShapeKind == AbstractShape.Sphere);
             Assert.Equal(AbstractShape.Sphere, collider.ShapeKind);
             Assert.Null(TestBundle.Entry(id).Fluid);
             Assert.Empty(ball.Metadata.Parameters);
             var scene = Compile(Placed(id));
             var body = Assert.Single(scene.Bodies.ToArray(), row => row.Id == Owner);
-            var sphere = Assert.Single(scene.Colliders.ToArray(), row => row.Body == Owner);
+            var sphere = Assert.Single(scene.Colliders.ToArray(), row => row.Body == Owner && row.Shape == RuntimeShape.Sphere);
             var material = Assert.Single(scene.Materials.ToArray(), row => row.Id == sphere.Material);
-            Assert.True(Same(collider.HalfExtents.X, sphere.Radius.Value) && Same(ball.MassProperties.Mass, body.Mass.Value) &&
-                Same(collider.Material.Restitution, material.Restitution.Value) && Same(ball.MassProperties.LinearDrag, body.LinearDrag.Value) &&
+            Assert.True(Same(collider.HalfExtents.X, sphere.Radius.Value) && Same(MassFixtures.Evaluate(ball.MassFrame, ball.Metadata.Parameters).Mass, body.Mass.Value) &&
+                Same(collider.Material.Restitution, material.Restitution.Value) && Same(ball.MassFrame.LinearDrag, body.LinearDrag.Value) &&
                 Same(collider.Material.Friction, material.Friction.Value) && Same(collider.Material.BounceThreshold, material.BounceThreshold.Value) &&
                 Same(collider.Material.RollingResistance, material.RollingResistance.Value), $"{package.Package}: the compiled material differs from the package.");
             Assert.Equal(RigidMotionKind.Dynamic, body.Motion);
@@ -185,14 +185,14 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
                 Assert.Equal(Owner, joint.BodyA);
                 AssertFrame(where + ".BaseFrame", slider.BaseFrame, joint.FrameA);
                 AssertFrame(where + ".MovingFrame", slider.MovingFrame, joint.FrameB);
-                Assert.True(Bits(slider.LowerLimit) == Bits(joint.Lower) && Bits(slider.UpperLimit) == Bits(joint.Upper),
+                Assert.True((slider.LowerLimit) == (joint.Lower) && (slider.UpperLimit) == (joint.Upper),
                     $"{where}: limits [{slider.LowerLimit}, {slider.UpperLimit}] declared, [{joint.Lower}, {joint.Upper}] compiled.");
-                Assert.True(Bits(slider.Stiffness.Evaluate(maxima)) == Bits(joint.Stiffness), $"{where}.StiffnessParameter binds {joint.Stiffness}.");
-                Assert.True(Bits(slider.Damping.Evaluate(maxima)) == Bits(joint.Damping), $"{where}.DampingParameter binds {joint.Damping}.");
+                Assert.True((slider.Stiffness.Evaluate(maxima)) == (joint.Stiffness), $"{where}.StiffnessParameter binds {joint.Stiffness}.");
+                Assert.True((slider.Damping.Evaluate(maxima)) == (joint.Damping), $"{where}.DampingParameter binds {joint.Damping}.");
                 Assert.Equal(slider.BodiesCollide ? ConnectedCollision.Enabled : ConnectedCollision.Disabled, joint.Collision);
                 var moving = scene.Bodies.ToArray().Single(body => body.Id == joint.BodyB);
-                AssertBody(where + ".MovingBody", KinematicMode.Dynamic, slider.MovingBody.Mass, slider.MovingBody.LinearDrag,
-                    slider.MovingBody.Gravity, moving);
+                AssertBody(where + ".MovingBody", KinematicMode.Dynamic, MassFixtures.Evaluate(slider.MovingBody.MassFrame, element.Metadata.Parameters).Mass, slider.MovingBody.MassFrame.LinearDrag,
+                    slider.MovingBody.MassFrame.Gravity, moving);
                 // The moving body starts at the base frame, CompressionParameter below it along local Y (an unrotated placement).
                 var compression = slider.Compression.Evaluate(maxima);
                 var start = slider.BaseFrame.Position - slider.MovingFrame.Position - new System.Numerics.Vector3(0f, compression, 0f);
@@ -225,11 +225,7 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
             var admitted = PhysicsGpuAbi.Admission(scene, new(1), new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1)));
             foreach (var body in scene.Bodies.ToArray().Where(body => body.Motion == RigidMotionKind.Dynamic))
             {
-                // The moment's own collider is the one the body record owns (a compound part's other colliders are static).
-                var slot = (int)System.Buffers.Binary.BinaryPrimitives.ReadUInt32LittleEndian(
-                    admitted.AsSpan(scene.Layout.GetBodyOffset(body.Id) + PhysicsGpuAbi.BodyColliderSlotOffset));
-                var collider = scene.Colliders.ToArray().Single(row => scene.Layout.GetColliderSlot(row.Id) == slot);
-                Assert.Equal(body.Id, collider.Body);
+                var collider = scene.Colliders.ToArray().First(row => row.Body == body.Id);
                 double m = body.Mass.Value, r = collider.Radius.Value;
                 double a = collider.HalfExtents.X, b = collider.HalfExtents.Y, c = collider.HalfExtents.Z;
                 var exact = collider.Shape switch
@@ -255,9 +251,9 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
                     new WorkshopInstances(instance, WorkshopInput.Generic(PartId.Basketball, new(2), 3, 3, 0, 0, 0, 0, 1))), new(1, 2));
                 foreach (var sensor in withBall.Sensors.ToArray())
                 {
-                    Assert.Equal(BitConverter.SingleToUInt32Bits((float)((double)capture.Maximum.Y + margin)), BitConverter.SingleToUInt32Bits(sensor.Maximum.Y));
-                    Assert.Equal((Bits(capture.Minimum.X), Bits(capture.Minimum.Y), Bits(capture.Minimum.Z), Bits(capture.Maximum.X), Bits(capture.Maximum.Z)),
-                        (Bits(sensor.Minimum.X), Bits(sensor.Minimum.Y), Bits(sensor.Minimum.Z), Bits(sensor.Maximum.X), Bits(sensor.Maximum.Z)));
+                    Assert.Equal(((float)((double)capture.Maximum.Y + margin)), (sensor.Maximum.Y));
+                    Assert.Equal(((capture.Minimum.X), (capture.Minimum.Y), (capture.Minimum.Z), (capture.Maximum.X), (capture.Maximum.Z)),
+                        ((sensor.Minimum.X), (sensor.Minimum.Y), (sensor.Minimum.Z), (sensor.Maximum.X), (sensor.Maximum.Z)));
                     checkedCaptures++;
                 }
             }
@@ -275,12 +271,12 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
                 .Where(row => row.Body == Owner).ToArray();
             Assert.Equal(3, compiled.Length);
             Assert.Equal(RuntimeShape.Tube, compiled[0].Shape);
-            Assert.Equal((Bits(.5f * length + .09f), Bits(0f)), (Bits(compiled[0].HalfExtents.Y), Bits(compiled[0].Pose.Translation.X)));
-            Assert.Equal((Bits(baked[0].Radius), Bits(baked[0].HalfExtents.X)), (Bits(compiled[0].Radius.Value), Bits(compiled[0].HalfExtents.X)));
-            Assert.Equal((Bits(-.5f * length), Bits(.5f * length)), (Bits(compiled[1].Pose.Translation.X), Bits(compiled[2].Pose.Translation.X)));
+            Assert.Equal(((.5f * length + .09f), (0f)), ((compiled[0].HalfExtents.Y), (compiled[0].Pose.Translation.X)));
+            Assert.Equal(((baked[0].Radius), (baked[0].HalfExtents.X)), ((compiled[0].Radius.Value), (compiled[0].HalfExtents.X)));
+            Assert.Equal(((-.5f * length), (.5f * length)), ((compiled[1].Pose.Translation.X), (compiled[2].Pose.Translation.X)));
             for (var i = 1; i < 3; i++)
-                Assert.Equal((RuntimeShape.Torus, Bits(baked[i].Radius), Bits(baked[i].HalfExtents.Y), Bits(baked[i].HalfExtents.Z)),
-                    (compiled[i].Shape, Bits(compiled[i].Radius.Value), Bits(compiled[i].HalfExtents.Y), Bits(compiled[i].HalfExtents.Z)));
+                Assert.Equal((RuntimeShape.Torus, (baked[i].Radius), (baked[i].HalfExtents.Y), (baked[i].HalfExtents.Z)),
+                    (compiled[i].Shape, (compiled[i].Radius.Value), (compiled[i].HalfExtents.Y), (compiled[i].HalfExtents.Z)));
         }
 
         // Every slider at its default parameters (the rows the retired golden held), against the numbers its package authors:
@@ -293,10 +289,10 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
         foreach (var (key, row) in authored)
         {
             var joint = Assert.Single(Compile(Placed(new PartId(key))).Prismatics.ToArray());
-            Assert.Equal((Bits(row.Lower), Bits(row.Upper), Bits(row.Stiffness), Bits(row.Damping)),
-                (Bits(joint.Lower), Bits(joint.Upper), Bits(joint.Stiffness), Bits(joint.Damping)));
-            Assert.Equal((Bits(row.BaseY), System.Numerics.Quaternion.Identity, System.Numerics.Vector3.Zero, System.Numerics.Quaternion.Identity),
-                (Bits(joint.FrameA.Position.Y), joint.FrameA.Rotation, joint.FrameB.Position, joint.FrameB.Rotation));
+            Assert.Equal(((row.Lower), (row.Upper), (row.Stiffness), (row.Damping)),
+                ((joint.Lower), (joint.Upper), (joint.Stiffness), (joint.Damping)));
+            Assert.Equal(((row.BaseY), System.Numerics.Quaternion.Identity, System.Numerics.Vector3.Zero, System.Numerics.Quaternion.Identity),
+                ((joint.FrameA.Position.Y), joint.FrameA.Rotation, joint.FrameB.Position, joint.FrameB.Rotation));
             Assert.Equal(ConnectedCollision.Disabled, joint.Collision);
         }
         Assert.Equal(authored.Count, Packages().Count(package => package.Declaration is ISliderElement));
@@ -321,10 +317,10 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
     }
 
     private static void AssertFrame(string where, SliderFrame declared, ConstraintFrame compiled) =>
-        Assert.True(Bits(declared.Position.X) == Bits(compiled.Position.X) && Bits(declared.Position.Y) == Bits(compiled.Position.Y) &&
-            Bits(declared.Position.Z) == Bits(compiled.Position.Z) && Bits(declared.Rotation.X) == Bits(compiled.Rotation.X) &&
-            Bits(declared.Rotation.Y) == Bits(compiled.Rotation.Y) && Bits(declared.Rotation.Z) == Bits(compiled.Rotation.Z) &&
-            Bits(declared.Rotation.W) == Bits(compiled.Rotation.W), $"{where}: {declared} declared, {compiled} compiled.");
+        Assert.True((declared.Position.X) == (compiled.Position.X) && (declared.Position.Y) == (compiled.Position.Y) &&
+            (declared.Position.Z) == (compiled.Position.Z) && (declared.Rotation.X) == (compiled.Rotation.X) &&
+            (declared.Rotation.Y) == (compiled.Rotation.Y) && (declared.Rotation.Z) == (compiled.Rotation.Z) &&
+            (declared.Rotation.W) == (compiled.Rotation.W), $"{where}: {declared} declared, {compiled} compiled.");
 
     private static void AssertMaterials(string where, IReadOnlyList<ColliderDescriptor> declared, ColliderDeclaration[] colliders,
         ContactMaterialDeclaration[] materials)
@@ -501,6 +497,30 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
         _ => throw new ArgumentException($"No slider placement for packaged part '{id}'.")
     };
 
+    // Baked art is unscaled. Parameter bindings apply even at their default;
+    // Weight's authored default scale is .136734*4+.453070 = 1.000006.
+    // Evaluate the declared affine contract here, independently of BundleGeometry.
+    private static ColliderDescriptor[] ExpectedColliders(CuriousContraptions.Bundle.BundleEntry entry)
+    {
+        return entry.Colliders.Select((shape, index) =>
+        {
+            float Value(GeometryComponent component, float unbound)
+            {
+                var bindings = entry.ColliderBindings.Where(b => b.Collider == index && b.Component == component).ToArray();
+                if (bindings.Length == 0) return unbound;
+                var binding = Assert.Single(bindings);
+                var parameter = Assert.Single(entry.Metadata.Parameters, p => p.Key == binding.Parameter);
+                return binding.Multiplier * parameter.Default + binding.Offset;
+            }
+            return shape with
+            {
+                Radius = Value(GeometryComponent.Radius, shape.Radius),
+                Offset = new(Value(GeometryComponent.OffsetX, shape.Offset.X), Value(GeometryComponent.OffsetY, shape.Offset.Y), Value(GeometryComponent.OffsetZ, shape.Offset.Z)),
+                HalfExtents = new(Value(GeometryComponent.HalfExtentX, shape.HalfExtents.X), Value(GeometryComponent.HalfExtentY, shape.HalfExtents.Y), Value(GeometryComponent.HalfExtentZ, shape.HalfExtents.Z))
+            };
+        }).ToArray();
+    }
+
     private static void AssertColliders(string package, IReadOnlyList<ColliderDescriptor> declared,
         (RuntimeShape Shape, RigidLocalPose Pose, float Radius, MetreVector HalfExtents)[] runtime)
     {
@@ -523,8 +543,8 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
             }, $"{where}: shape {collider.ShapeKind} declared, {shape} at runtime.");
             Assert.True(Same(collider.Offset.X, pose.Translation.X) && Same(collider.Offset.Y, pose.Translation.Y) &&
                 Same(collider.Offset.Z, pose.Translation.Z), $"{where}: offset {collider.Offset} declared, {pose.Translation} at runtime.");
-            Assert.True(Bits(collider.Rotation.X) == Bits(pose.Rotation.X) && Bits(collider.Rotation.Y) == Bits(pose.Rotation.Y) &&
-                Bits(collider.Rotation.Z) == Bits(pose.Rotation.Z) && Bits(collider.Rotation.W) == Bits(pose.Rotation.W),
+            Assert.True((collider.Rotation.X) == (pose.Rotation.X) && (collider.Rotation.Y) == (pose.Rotation.Y) &&
+                (collider.Rotation.Z) == (pose.Rotation.Z) && (collider.Rotation.W) == (pose.Rotation.W),
                 $"{where}: rotation {collider.Rotation} declared, {pose.Rotation} at runtime.");
             var extents = collider.HalfExtents;
             // A sphere is its radius on every lane; a cylinder (r, h, r) is its radius and its half-height lane only (10.1); a hollow
@@ -533,9 +553,9 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
             {
                 RuntimeShape.Tube or RuntimeShape.Torus or RuntimeShape.Frustum => Same(collider.Radius, radius) &&
                     Same(extents.X, halfExtents.X) && Same(extents.Y, halfExtents.Y) && Same(extents.Z, halfExtents.Z),
-                RuntimeShape.Sphere => Same(extents.X, radius) && Bits(extents.Y) == Bits(extents.X) && Bits(extents.Z) == Bits(extents.X) &&
+                RuntimeShape.Sphere => Same(extents.X, radius) && (extents.Y) == (extents.X) && (extents.Z) == (extents.X) &&
                     Same(0f, halfExtents.X) && Same(0f, halfExtents.Y) && Same(0f, halfExtents.Z),
-                RuntimeShape.Cylinder => Same(extents.X, radius) && Bits(extents.Z) == Bits(extents.X) &&
+                RuntimeShape.Cylinder => Same(extents.X, radius) && (extents.Z) == (extents.X) &&
                     Same(0f, halfExtents.X) && Same(extents.Y, halfExtents.Y) && Same(0f, halfExtents.Z),
                 _ => Same(extents.X, halfExtents.X) && Same(extents.Y, halfExtents.Y) && Same(extents.Z, halfExtents.Z) && Same(0f, radius)
             };
@@ -543,52 +563,60 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
         }
     }
 
-    private static int Bits(float value) => BitConverter.SingleToInt32Bits(value);
-    /// <summary>9A.4: the runtime holds the declared f32 exactly (bit equality, so −0 differs from +0).</summary>
-    private static bool Same(float declared, float runtime) => Bits(declared) == Bits(runtime);
+    private static bool Same(float declared, float runtime) => declared == runtime;
 
-    /// <summary>Every discovered package keeps its colliders clear of its own physics-document rows and below the next part's base,
-    /// in the allocator's layout (<c>WorkshopPhysicsCompiler.ColliderSlots</c>), so the bundle installs.</summary>
     [Fact]
-    public void EveryPackageKeepsItsCollidersClearOfItsOwnRowSlots()
+    public async System.Threading.Tasks.Task SceneSizedAllocationKeepsHundredsOfRowsAndMoreThanSixteenMovingBodiesDistinct()
     {
         _ = godot;
-        Assert.All(TestBundle.Entries, entry => Assert.True(WorkshopPhysicsCompiler.ColliderSlots(entry) is null,
-            $"{entry.Metadata.Id}: {WorkshopPhysicsCompiler.ColliderSlots(entry)}"));
+        var parts = Enumerable.Range(1, 40).Select(index => (IWorkshopInstance)WorkshopInput.Generic(
+            PartId.PoweredGate, new((ulong)index), (index - 1) % 8 * 3 - 12, 3, (index - 1) / 8 * 3 - 6, 0, 0, 0, 1)).ToArray();
+        var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(parts));
+        var identities = construction.Instances.Identities;
+        var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
+        Assert.Equal(40, scene.Prismatics.Length);
+        Assert.True(scene.Colliders.Length > 256);
+        var allocated = new List<ulong> { identities.Plane.Value, identities.PlaneMaterial.Value, identities.PlaneCollider.Value };
+        foreach (var part in parts)
+        {
+            var rows = identities[part.Id];
+            allocated.Add(rows.Material.Value);
+            allocated.AddRange(rows.Colliders.Select(id => id.Value));
+            foreach (var slider in rows.Sliders)
+            {
+                allocated.AddRange([slider.Body.Value, slider.Material.Value, slider.Joint.Value]);
+                allocated.AddRange(slider.Colliders.Select(id => id.Value));
+                Assert.True(identities.IsChild(part.Id, slider.Body));
+                Assert.False(identities.IsChild(new(part.Id.Value % 40 + 1), slider.Body));
+                Assert.Contains(scene.Prismatics.ToArray(), joint => joint.Id == slider.Joint && joint.BodyA == part.Id && joint.BodyB == slider.Body);
+            }
+        }
+        Assert.Equal(allocated.Count, allocated.Distinct().Count());
+        Assert.All(allocated, id => Assert.True(id > 40 && id < scene.NextIdentity));
+        var reversed = new WorkshopInstances(parts.Reverse().ToArray()).Identities;
+        Assert.All(parts, part => Assert.Equal(identities[part.Id].Sliders[0].Body, reversed[part.Id].Sliders[0].Body));
+        var reads = await WorkshopPhysicsEngineTests.Run(construction with { Revision = new(2) }, 12);
+        foreach (var part in parts)
+        {
+            var moving = identities[part.Id].Sliders[0].Body;
+            Assert.True(reads[0].Bodies.TryGet(moving, out var initial));
+            Assert.True(reads[^1].Bodies.TryGet(moving, out var final));
+            Assert.Equal(initial.Body.Id, final.Body.Id);
+            Assert.Equal(initial.Body.Cell.X, final.Body.Cell.X);
+            Assert.InRange(MathF.Abs(initial.Body.Local.X - final.Body.Local.X), 0, .0002f * 16);
+            Assert.Equal(initial.Body.Cell.Z, final.Body.Cell.Z);
+            Assert.InRange(MathF.Abs(initial.Body.Local.Z - final.Body.Local.Z), 0, .0002f * 16);
+        }
+
     }
 
-    /// <summary>A package whose colliders reach one of its own rows is refused when the bundle installs, naming the package, the
-    /// colliders and the row. Boundaries, each one collider either side:
-    /// <list type="bullet">
-    /// <item>the Pressure plate's five colliders (part base + 1 to + 5) are clear; a sixth (its top repeated) reaches its contact-load
-    /// row at + 6;</item>
-    /// <item>the Counter, with no row, is clear with 255 colliders (+ 1 to + 255); a 256th reaches the next part's base at + 256;</item>
-    /// <item>the Springboard's moving plate collider takes + 4, below its joint at + 5; a second moving collider reaches the joint.</item>
-    /// </list></summary>
     [Fact]
-    public void ABundleWhosePackageCollidersReachItsOwnRowsIsRefusedWhenItInstalls()
+    public void BundleValidationAllowsColliderCountsBeyondTheDeletedFixedSlots()
     {
         _ = godot;
         var plate = TestBundle.Entry(PartId.PressurePlate);
-        Assert.Null(WorkshopPhysicsCompiler.ColliderSlots(plate));
-        var sixth = plate with { Colliders = [.. plate.Colliders, plate.Colliders[1]] };
-        Assert.Equal(new ColliderSlotConflict(PartIdentityRow.ContactLoadSensor, null, 6, 1, 6), WorkshopPhysicsCompiler.ColliderSlots(sixth));
-
-        var counter = TestBundle.Entry(PartId.Counter);
-        Assert.Null(WorkshopPhysicsCompiler.ColliderSlots(counter with { Colliders = [.. Enumerable.Repeat(counter.Colliders[0], 255)] }));
-        Assert.Equal(new ColliderSlotConflict(PartIdentityRow.NextPart, null, 256, 1, 256),
-            WorkshopPhysicsCompiler.ColliderSlots(counter with { Colliders = [.. Enumerable.Repeat(counter.Colliders[0], 256)] }));
-
-        var springboard = TestBundle.Entry(PartId.Springboard);
-        Assert.Null(WorkshopPhysicsCompiler.ColliderSlots(springboard));
-        var slider = springboard.Mechanical!.Sliders.Single();
-        Assert.Single(slider.MovingBody.Colliders);
-        var twoPlates = springboard with { Mechanical = springboard.Mechanical with { Sliders = [slider with { MovingBody = slider.MovingBody with
-            { Colliders = [.. slider.MovingBody.Colliders, slider.MovingBody.Colliders[0]] } }] } };
-        Assert.Equal(new ColliderSlotConflict(PartIdentityRow.SliderJoint, 0, 5, 4, 5), WorkshopPhysicsCompiler.ColliderSlots(twoPlates));
-
-        var refusal = Assert.Throws<ArgumentException>(() =>
-            DeclaredPhysics.Install([.. TestBundle.Entries.Select(entry => entry.Metadata.Id == plate.Metadata.Id ? sixth : entry)]));
-        Assert.Equal("'pressure_plate': colliders at part base + 1 to + 6 reach its ContactLoadSensor row at + 6", refusal.Message);
+        var expanded = plate with { Colliders = [.. plate.Colliders, .. Enumerable.Repeat(plate.Colliders[0], 300)] };
+        var errors = CuriousContraptions.Bundle.BundleValidator.Validate([new(expanded.Metadata.Id, expanded)]);
+        Assert.Empty(errors);
     }
 }

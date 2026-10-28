@@ -42,12 +42,15 @@ public sealed class DominoElementDeclaration : IMechanicalElement, IOrientationS
 
     public KinematicMode KinematicMode => KinematicMode.Dynamic;
 
-    public RigidBodyMassProperties MassProperties => new(
-        Mass: 0.4f,
-        CentreOfMass: Vector3.Zero,
-        InertiaTensor: new Vector3(0.007f, 0.007f, 0.001f),
-        LinearDrag: 0f,
-        Gravity: new Vector3(0, -9.81f, 0));
+    public PayloadPolicy Payload => PayloadPolicy.None;
+
+    public MassFrameDeclaration MassFrame => MassFrameDeclaration.Constant(
+        mass: 0.4f,
+        centreOfMass: Vector3.Zero,
+        principalMoments: new Vector3((.4f / 3f) * (.55f * .55f + .325f * .325f), (.4f / 3f) * (.125f * .125f + .325f * .325f), (.4f / 3f) * (.125f * .125f + .55f * .55f)),
+        principalFrame: Quaternion.Identity,
+        linearDrag: 0f,
+        gravity: new Vector3(0, -9.81f, 0));
 
     public IReadOnlyList<AnchorPointDescriptor> AnchorPoints => [];
 

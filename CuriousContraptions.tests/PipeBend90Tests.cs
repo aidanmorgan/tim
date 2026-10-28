@@ -149,12 +149,12 @@ public sealed class PipeBend90Tests(NativeSceneFixture godot)
         var twoBends = new WorkshopInstances(
             WorkshopInput.PipeBend90(new GpuBodyId(1), 0, 3, 0, 0, 0, 0, 1),
             WorkshopInput.PipeBend90(new GpuBodyId(2), 5, 3, 0, 0, 0, 0, 1));
-        WorkbenchCapacity.Validate(twoBends);
+        new WorkshopInstances([.. twoBends]).Validate();
 
         // 20 pipe_bend_90: validates cleanly
         var twentyBends = new WorkshopInstances(
             Enumerable.Range(1, 20).Select(i => (IWorkshopInstance)WorkshopInput.PipeBend90(new GpuBodyId((ulong)i), i * 2, 3, 0, 0, 0, 0, 1)).ToArray());
-        WorkbenchCapacity.Validate(twentyBends);
+        new WorkshopInstances([.. twentyBends]).Validate();
     }
 
     [Fact]
@@ -280,13 +280,17 @@ public sealed class PipeBend90Tests(NativeSceneFixture godot)
         // Plane (1) + Ball (1) + Receiver (1) + PipeBend90 (1) = 4 bodies
         Assert.Equal(4, scene.Bodies.Length);
 
-        // Plane (1) + Ball (1) + Receiver 5 boxes (5) + PipeBend90 arc, 2 stubs and 2 collars (5) = 12 colliders
-        Assert.Equal(12, scene.Colliders.Length);
+        // Plane (1) + Ball sphere and seam (2) + Receiver 5 boxes (5) + PipeBend90 arc, 2 stubs and 2 collars (5) = 13 colliders
+        Assert.Equal(13, scene.Colliders.Length);
+        Assert.Equal(new[] { ColliderShapeKind.Sphere, ColliderShapeKind.Torus },
+            scene.Colliders.ToArray().Where(c => c.Body == new GpuBodyId(1)).Select(c => c.Shape));
 
         // Capture sensor and guide present
         Assert.Single(scene.Sensors.ToArray());
         Assert.Single(scene.Guides.ToArray());
-        Assert.Equal(scene.Sensors[0].Id, placed.Puzzle.Goal.EventSource);
+        Assert.Equal(placed.Puzzle.Goal.Target, scene.Sensors[0].Frame);
+        var payload = scene.Bodies.ToArray().Single(body => body.Id == placed.Puzzle.Goal.Body);
+        Assert.True(scene.Sensors[0].Targets.Contains(payload.Id, payload.Payload));
     }
 
 

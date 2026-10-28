@@ -31,11 +31,10 @@ public sealed record BundleEntry(
     IReadOnlyList<TubeMouthParameterBinding> TubeMouthBindings,
     ElementPresentation Presentation);
 
-/// <summary>The mechanical payload. <see cref="Sliders"/> is empty unless the element is an <see cref="ISliderElement"/>;
-/// <see cref="MassParameter"/> is present exactly when it is an <see cref="IParameterizedMassElement"/>.</summary>
-public sealed record MechanicalPayload(KinematicMode KinematicMode, RigidBodyMassProperties MassProperties,
+/// <summary>Package-owned physical state and explicit payload participation.</summary>
+public sealed record MechanicalPayload(KinematicMode KinematicMode, MassFrameDeclaration MassFrame, PayloadPolicy Payload,
     IReadOnlyList<AnchorPointDescriptor> AnchorPoints, IReadOnlyList<PrismaticSliderDescriptor> Sliders,
-    ResidenceCaptureDescriptor? Capture = null, ContactWorkDescriptor? ContactWork = null, MechanicalValue? MassParameter = null);
+    ResidenceCaptureDescriptor? Capture = null, ContactWorkDescriptor? ContactWork = null);
 
 public sealed record ElectricalPayload(IReadOnlyList<ElectricalNodeDescriptor> Nodes, SupplyCapabilityDescriptor? Supply);
 
@@ -61,11 +60,10 @@ public static class BundleSchema
         return new(declaration.Metadata, Domains(declaration.SupportedDomains), declaration.Footprint, declaration.Ports,
             declaration.Colliders, declaration.Events,
             declaration is IMechanicalElement mechanical
-                ? new MechanicalPayload(mechanical.KinematicMode, mechanical.MassProperties, mechanical.AnchorPoints,
+                ? new MechanicalPayload(mechanical.KinematicMode, mechanical.MassFrame, mechanical.Payload, mechanical.AnchorPoints,
                     mechanical is ISliderElement slider ? slider.Sliders : [],
                     mechanical is IResidenceCaptureElement capture ? capture.Capture : null,
-                    mechanical is IContactWorkElement work ? work.ContactWork : null,
-                    mechanical is IParameterizedMassElement bound ? bound.Mass : null) : null,
+                    mechanical is IContactWorkElement work ? work.ContactWork : null) : null,
             declaration is IElectricalElement electrical ? new ElectricalPayload(electrical.ElectricalNodes, electrical is ISupplyElement supply ? supply.Supply : null) : null,
             declaration is ISignalElement signal ? new SignalPayload(signal.Triggers,
                 signal is ITimerElement timer ? timer.Timer : null, signal is IContactTriggerElement contact ? contact.Contact : null,
@@ -125,17 +123,17 @@ public static class BundleSchema
     RespectRequiredConstructorParameters = true,
     Converters =
     [
-        typeof(Vector3Converter), typeof(QuaternionConverter),
+        typeof(Vector3Converter), typeof(QuaternionConverter), typeof(ParameterIdConverter), typeof(PackageBodyIndexConverter),
         typeof(ExactEnumConverter<ElementCategory>), typeof(ExactEnumConverter<ParameterUnit>), typeof(ExactEnumConverter<ParameterKind>), typeof(ExactEnumConverter<ParameterEditorPolicy>), typeof(ExactEnumConverter<ParameterRunEdit>),
         typeof(ExactEnumConverter<SimulationDomain>), typeof(ExactEnumConverter<PortDirection>), typeof(ExactEnumConverter<PortSignalKind>),
-        typeof(ExactEnumConverter<PortSocket>),        typeof(ExactEnumConverter<ColliderShapeKind>), typeof(ExactEnumConverter<SimulationEventKind>), typeof(ExactEnumConverter<KinematicMode>),
+        typeof(ExactEnumConverter<PortSocket>),        typeof(ExactEnumConverter<ColliderShapeKind>), typeof(ExactEnumConverter<SimulationEventKind>), typeof(ExactEnumConverter<KinematicMode>), typeof(ExactEnumConverter<PayloadPolicy>),
         typeof(ExactEnumConverter<SupplyCapabilityKind>), typeof(ExactEnumConverter<LogicGateOperation>), typeof(ExactEnumConverter<ElectricalRole>), typeof(ExactEnumConverter<SignalTriggerMode>),typeof(ExactEnumConverter<TimerCompletionPolicy>),
         typeof(ExactEnumConverter<TimerBoundary>), typeof(ExactEnumConverter<TimerElapsedSignal>),
         typeof(ExactEnumConverter<FluidPortRole>), typeof(ExactEnumConverter<MechanicalValueSource>),
         typeof(ExactEnumConverter<GeometryComponent>), typeof(ExactEnumConverter<TubeEnd>),
         typeof(ExactEnumConverter<PresentationAxes>), typeof(ExactEnumConverter<PresentationProperty>),
         typeof(ExactEnumConverter<PresentationDriver>), typeof(ExactEnumConverter<PresentationCurve>),
-        typeof(ExactEnumConverter<PresentationOverlap>), typeof(ExactEnumConverter<PresentationBody>),
+        typeof(ExactEnumConverter<PresentationOverlap>),
         typeof(ExactEnumConverter<PresentationTimerPhase>), typeof(ExactEnumConverter<PresentationEventMagnitude>)
     ])]
 [JsonSerializable(typeof(BundleDocument))]
@@ -156,6 +154,35 @@ internal sealed class ExactEnumConverter<TEnum> : JsonConverter<TEnum> where TEn
 
     public override void Write(Utf8JsonWriter writer, TEnum value, JsonSerializerOptions options) =>
         writer.WriteStringValue(Enum.GetName(value) ?? throw new JsonException($"{typeof(TEnum).Name} {value} has no member name."));
+}
+
+/// <summary>The bundle boundary represents an extensible parameter identity as one required nonempty string.</summary>
+internal sealed class PackageBodyIndexConverter : JsonConverter<PackageBodyIndex>
+{
+    public override PackageBodyIndex Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    {
+        if (reader.TokenType != JsonTokenType.Number || !reader.TryGetInt32(out var value) || value < 0)
+            throw new JsonException("A package body index is a nonnegative integer.");
+        return new(value);
+    }
+    public override void Write(Utf8JsonWriter writer, PackageBodyIndex value, JsonSerializerOptions options) =>
+        writer.WriteNumberValue(value.Value);
+}
+
+internal sealed class ParameterIdConverter : JsonConverter<ParameterId>
+{
+    public override ParameterId Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    {
+        if (reader.TokenType != JsonTokenType.String || string.IsNullOrWhiteSpace(reader.GetString()))
+            throw new JsonException("A mass binding requires a parameter identity.");
+        return new(reader.GetString()!);
+    }
+
+    public override void Write(Utf8JsonWriter writer, ParameterId value, JsonSerializerOptions options)
+    {
+        if (value == default) throw new JsonException("A mass binding requires a parameter identity.");
+        writer.WriteStringValue(value.Value);
+    }
 }
 
 internal sealed class Vector3Converter : JsonConverter<Vector3>

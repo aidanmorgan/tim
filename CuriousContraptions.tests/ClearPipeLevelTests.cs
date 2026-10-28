@@ -110,13 +110,17 @@ public sealed class ClearPipeLevelTests
         // Plane (1) + Ball (1) + Receiver (1) + Pipe (1) = 4 bodies
         Assert.Equal(4, scene.Bodies.Length);
 
-        // Plane (1) + Ball (1) + Receiver 5 boxes (5) + Pipe shell tube and 2 collar tori (3) = 10 colliders
-        Assert.Equal(10, scene.Colliders.Length);
+        // Plane (1) + Ball sphere and seam (2) + Receiver 5 boxes (5) + Pipe shell tube and 2 collar tori (3) = 11 colliders
+        Assert.Equal(11, scene.Colliders.Length);
+        Assert.Equal(new[] { ColliderShapeKind.Sphere, ColliderShapeKind.Torus },
+            scene.Colliders.ToArray().Where(c => c.Body == new GpuBodyId(1)).Select(c => c.Shape));
 
         // Capture sensor and guide present
         Assert.Single(scene.Sensors.ToArray());
         Assert.Single(scene.Guides.ToArray());
-        Assert.Equal(scene.Sensors[0].Id, placed.Puzzle.Goal.EventSource);
+        Assert.Equal(placed.Puzzle.Goal.Target, scene.Sensors[0].Frame);
+        var payload = scene.Bodies.ToArray().Single(body => body.Id == placed.Puzzle.Goal.Body);
+        Assert.True(scene.Sensors[0].Targets.Contains(payload.Id, payload.Payload));
     }
 
 

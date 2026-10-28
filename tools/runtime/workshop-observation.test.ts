@@ -1,3 +1,4 @@
+import type { ManagedHost, ManagedImports, ClockRing } from './worker-contracts.js';
 // Supplemental control of the actual shipped worker module; no gameplay outcomes are fabricated.
 import assert from 'node:assert/strict';
 import test from 'node:test';
@@ -5,8 +6,13 @@ import vm from 'node:vm';
 import { readFile } from 'node:fs/promises';
 import { MessagePort, MessageChannel } from 'node:worker_threads';
 import { pathToFileURL } from 'node:url';
-import * as clockRing from '../CuriousContraptions.web/wwwroot/clock-ring.js';
-import { EventRingMemory } from '../CuriousContraptions.web/wwwroot/event-ring-cursor.js';
+const clockRing = await import(pathToFileURL('CuriousContraptions.web/wwwroot/clock-ring.js').href) as typeof import('../../CuriousContraptions.web/wwwroot/clock-ring.js');
+import { EventRingMemory } from '../../CuriousContraptions.web/wwwroot/event-ring-cursor.js';
+
+interface Posted {
+    ready?: boolean; read?: Uint8Array; readIdentity?: Uint8Array; acknowledgement?: Uint8Array; sequence?: Uint8Array;
+    failure?: boolean; rejected?: boolean; detail?: string; clockReply?: Uint8Array; scheduleControl?: Uint8Array;
+}
 
 const source = await readFile('CuriousContraptions.Simulation/wwwroot/worker.js', 'utf8');
 const workerUrl = pathToFileURL('CuriousContraptions.Simulation/wwwroot/worker.js').href;
@@ -24,19 +30,21 @@ const ClockStepMilliseconds = 0.25;
 // without blocking. A slow master (`answering` returns false) serves nothing, so the shipped wait runs its whole timeout and
 // the exchange is missed. Every ring wait's timeout is recorded, so a test can derive the budget each exchange was given.
 function clockMaster() {
-    let ring;
+    let ring: ClockRing | undefined;
     const master = {
-        answering: () => true, waits: [],
+        answering: () => true, waits: [] as number[],
         /** The master serves every request now posted in the ring (a slow master's late answer). */
-        serve() { clockRing.serveRequests(ring, {}, () => MasterReading); },
-        atomics: Object.create(Atomics, { wait: { value(words, index, value, timeout) {
+        serve() { clockRing.serveRequests(ring!, {}, () => MasterReading); },
+        atomics: Object.create(Atomics, { wait: { value(words: Int32Array<SharedArrayBuffer>, index: number, value: number, timeout: number) {
             if (ring && words.buffer === ring.buffer) { master.waits.push(timeout); if (master.answering()) master.serve(); }
             return Atomics.wait(words, index, value, timeout);
         } } }),
         // The context the worker starts; its bootstrap handshake as clock-master.js answers it.
         Worker: class {
+            onmessage?: (event: { data: unknown }) => void;
+            onerror?: (event: unknown) => void;
             constructor() { queueMicrotask(() => this.onmessage?.({ data: { awaitingBootstrap: true } })); }
-            postMessage(bootstrap) {
+            postMessage(bootstrap: { ring: SharedArrayBuffer }) {
                 ring = clockRing.attachClockRing(bootstrap.ring);
                 queueMicrotask(() => this.onmessage?.({ data: { ready: true } }));
             }
@@ -49,8 +57,8 @@ function clockMaster() {
 // stretch; it always outlasts ten check intervals with their whole exchange budgets.
 const UntilAttempts = 2000;
 assert.ok(UntilAttempts >= 10 * (CheckIntervalMilliseconds + ExchangeTimeoutMilliseconds));
-async function until(predicate, label) {
-    for (let attempt = 0; attempt < UntilAttempts && !predicate(); attempt++) await new Promise(resolve => setTimeout(resolve, 1));
+async function until(predicate: () => boolean, label: string) {
+    for (let attempt = 0; attempt < UntilAttempts && !predicate(); attempt++) await new Promise<void>(resolve => setTimeout(resolve, 1));
     assert.ok(predicate(), label);
 }
 // The worker's managed derivation check (WorkshopClockDerivation), recorded. Every check's installation is empty, so no
@@ -62,7 +70,7 @@ function derivationHost() {
         // [exchange timeout ms, check interval ms, exchanges per check]: production's profile.
         ClockDerivationProfile: () => [ExchangeTimeoutMilliseconds, CheckIntervalMilliseconds, CheckExchanges],
         ClockDerivationQualified: () => record.qualified === 16,
-        QualifyClockDerivation: (before, master, after, epoch) => {
+        QualifyClockDerivation: (before: number, master: number, after: number, epoch: number) => {
             assert.ok(after >= before && master === MasterReading && epoch === 0, 'a consistent startup exchange');
             record.qualified++;
         },
@@ -80,33 +88,38 @@ function derivationHost() {
 }
 // The worker's run-loop yield channel, unreferenced so the harness process can exit once its checks complete.
 class HarnessMessageChannel {
+    port1: { onmessage: ((event: { data: unknown }) => void) | null; close(): void };
+    port2: MessagePort;
     constructor() {
         const channel = new MessageChannel();
         channel.port2.unref();
         this.port2 = channel.port2;
-        this.port1 = { set onmessage(handler) { channel.port1.onmessage = handler; channel.port1.unref(); },
-            get onmessage() { return channel.port1.onmessage; }, close: () => channel.port1.close() };
+        let handler: ((event: { data: unknown }) => void) | null = null;
+        channel.port1.on('message', (data: unknown) => handler?.({ data }));
+        channel.port1.unref();
+        this.port1 = { set onmessage(value) { handler = value; },
+            get onmessage() { return handler; }, close: () => channel.port1.close() };
     }
 }
 // `nativeNow` is the stub native clock the worker reads (a fixed 1 ms unless a test advances it).
-async function loadWorker(host, additionalGlobals = {}, { nativeNow = () => 1 } = {}) {
-    let imports;
+async function loadWorker(host: Partial<ManagedHost>, additionalGlobals: Record<string, unknown> = {}, { nativeNow = () => 1 }: { nativeNow?: () => number } = {}) {
+    let imports: ManagedImports | undefined;
     const master = clockMaster();
-    const messages = [];
+    const messages: Posted[] = [];
     const runtime = {
-        setModuleImports: (_, methods) => { imports = methods; },
+        setModuleImports: (_: string, methods: ManagedImports) => { imports = methods; },
         getAssemblyExports: async () => ({ CuriousContraptions: { Simulation: { Program: host } } }),
         getConfig: () => ({ mainAssemblyName: 'BoundaryControl' })
     };
-    const self = {
-        onmessage: undefined,
+    const self: { onmessage: (event: { data: unknown }) => Promise<void>; postMessage(message: Posted, transfer?: Transferable[]): void; close(): void } = {
+        onmessage: async () => { throw new Error('Worker has not installed its message handler.'); },
         postMessage: (message, transfer = []) => messages.push(structuredClone(message, { transfer })),
         close: () => {}
     };
     const context = vm.createContext({ self, Uint8Array, Float64Array, ArrayBuffer, DataView,
         MessagePort, MessageChannel: HarnessMessageChannel, console, setTimeout, clearTimeout, Promise, Error, URL, SharedArrayBuffer, Atomics: master.atomics, performance,
         // The derivation check interval, unreferenced so the harness process can exit.
-        setInterval: (callback, milliseconds) => setInterval(callback, milliseconds).unref(), clearInterval,
+        setInterval: (callback: () => void, milliseconds: number) => setInterval(callback, milliseconds).unref(), clearInterval,
         Worker: master.Worker, ...additionalGlobals });
     const dotnet = new vm.SyntheticModule(['dotnet'], function () {
         this.setExport('dotnet', { create: async () => runtime });
@@ -128,21 +141,25 @@ async function loadWorker(host, additionalGlobals = {}, { nativeNow = () => 1 } 
         throw Error('Unexpected worker import');
     });
     await module.evaluate();
-    return { self, messages, master, get imports() { return imports; } };
+    return { self, messages, master, get imports() { assert.ok(imports); return imports; } };
 }
 
 // Story 9A.3: the worker refuses every envelope no handler owns through the managed typed rejection, which names its keys
 // (WorkerEnvelopeRejectedException); these stand-ins return the same detail the managed one does.
-const envelopeRejections = record => ({
-    RejectUnknownEnvelope: keys => { record.push(Array.from(keys)); return 'Unsupported worker envelope: ' + (keys.length ? Array.from(keys).join(', ') : '(no keys)'); },
+const envelopeRejections = (record: (string[] | string)[]) => ({
+    RejectUnknownEnvelope: (keys: string[]) => { record.push(Array.from(keys)); return 'Unsupported worker envelope: ' + (keys.length ? Array.from(keys).join(', ') : '(no keys)'); },
     RejectSaturatedCommand: () => { record.push('saturated'); return 'The Workshop command transport already holds its two outstanding commands.'; }
 });
-const hex = bytes => Array.from(bytes, value => value.toString(16).padStart(2, '0')).join('');
+const receiptIdentity = (bytes: Uint8Array) => {
+    const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+    return { sessionHigh: view.getBigUint64(0, true), sessionLow: view.getBigUint64(8, true), publication: view.getBigUint64(16, true) };
+};
 
 for (const captureMode of [1, 2]) test(`capture mode ${captureMode}: preparation, receipts, queued terminal, output failure, retired envelopes and disposal`,
     async () => {
-    let flushes = 0, release, releasePreparation, preparations = 0, throwOutput = false;
-    const receipts = [], rejectedEnvelopes = [], logged = [];
+    let flushes = 0, preparations = 0, throwOutput = false;
+    let release!: () => void, releasePreparation!: () => void;
+    const receipts: ReturnType<typeof receiptIdentity>[] = [], rejectedEnvelopes: (string[] | string)[] = [], logged: string[] = [];
     const derivation = derivationHost();
     const host = {
         ...derivation,
@@ -150,13 +167,13 @@ for (const captureMode of [1, 2]) test(`capture mode ${captureMode}: preparation
         ScheduleRoles: () => [1, 2],
         CaptureMode: () => captureMode, Bootstrap: () => new Uint8Array(16),
         AnimationPeer: () => new Uint8Array(64),
-        PrepareGpu: () => { preparations++; return new Promise(resolve => { releasePreparation = resolve; }); },
-        Dispatch: async () => { await new Promise(resolve => { release = resolve; }); },
+        PrepareGpu: () => { preparations++; return new Promise<void>(resolve => { releasePreparation = resolve; }); },
+        Dispatch: async () => { await new Promise<void>(resolve => { release = resolve; }); },
         FlushObservation: () => { flushes++; if (throwOutput) throw Error('Output unavailable'); },
         // The managed reliable-read ledger: every receipt reaches it, unparsed (it accepts all here; refusals are below).
-        AcknowledgeRead: receipt => { receipts.push(hex(receipt)); }
+        AcknowledgeRead: (receipt: Uint8Array) => { receipts.push(receiptIdentity(receipt)); }
     };
-    const recordingConsole = { ...console, error: (...items) => { logged.push(items.map(String).join(' ')); } };
+    const recordingConsole = { ...console, error: (...items: unknown[]) => { logged.push(items.map(String).join(' ')); } };
     // The stub native clock advances a quarter millisecond per read, so a check's retry is given only what is left of the
     // check's shared budget.
     let nativeReading = 0;
@@ -164,7 +181,7 @@ for (const captureMode of [1, 2]) test(`capture mode ${captureMode}: preparation
     const { self, messages, imports } = boundary;
     const sessionClock = clockRing.createClockRing();
     const preparing = self.onmessage({ data: { bootstrap: new Uint8Array(16), captureMode, clockRing: sessionClock,
-        poseRing: new SharedArrayBuffer(3120) } });
+        poseRing: new SharedArrayBuffer(3 * (16 + 16 * 64)) } });
     await until(() => messages.some(message => message.ready === true), 'the worker is ready once its clock master qualified');
     assert.equal(derivation.record.qualified, 16, 'every startup exchange qualified the derivation before ready');
     await until(() => derivation.record.checks > 0, 'the running derivation check runs between turns of the worker loop');
@@ -183,23 +200,23 @@ for (const captureMode of [1, 2]) test(`capture mode ${captureMode}: preparation
     // The Simulation worker no longer answers clock probes itself (Story 9.4b): the deleted raw probe envelope is
     // now an unknown envelope, refused by name without dispatch.
     await self.onmessage({ data: { clockProbe: new Uint8Array(80) } });
-    assert.equal(messages.at(-1).rejected, true, 'a raw clock probe envelope has no handler in the Simulation worker');
-    assert.equal(messages.at(-1).detail, 'Unsupported worker envelope: clockProbe');
+    assert.equal(messages.at(-1)!.rejected, true, 'a raw clock probe envelope has no handler in the Simulation worker');
+    assert.equal(messages.at(-1)!.detail, 'Unsupported worker envelope: clockProbe');
     assert.equal(messages.filter(item => item.clockReply).length, 0, 'the Simulation worker never posts a clock reply');
     assert.equal(messages.filter(item => item.read || item.acknowledgement).length, 0, 'preparation cannot publish a world');
     releasePreparation();
     await preparing;
     // A published read as C# hands it to the worker (Story 9A.2): its bytes, its 24-byte receipt identity (session, then
     // publication) and its composed pose slot. The worker never parses the bytes.
-    function publication(identity) {
+    function publication(identity: bigint) {
         const bytes = new Uint8Array(64); new DataView(bytes.buffer).setBigUint64(0, identity, true);
         const receipt = new Uint8Array(24); receipt.fill(7, 0, 16);
         new DataView(receipt.buffer).setBigUint64(16, identity, true);
         return { bytes, identity: receipt };
     }
-    const receipt = read => read.identity.slice();
-    const publish = (read, pending) => imports.publish(read.bytes, read.identity, new Uint8Array(16), pending);
-    const posted = () => messages.filter(item => item.read).at(-1);
+    const receipt = (read: { identity: Uint8Array }) => read.identity.slice();
+    const publish = (read: { bytes: Uint8Array; identity: Uint8Array }, pending: boolean) => imports.publish(read.bytes, read.identity, new Uint8Array(16), pending);
+    const posted = () => messages.filter(item => item.read).at(-1)!;
     const first = publication(1n), final = publication(2n);
     for (let index = 0; index < 8; index++) {
         const running = publication(BigInt(index + 10));
@@ -207,7 +224,7 @@ for (const captureMode of [1, 2]) test(`capture mode ${captureMode}: preparation
         await self.onmessage({ data: { readAcknowledged: receipt(running) } });
     }
     assert.equal(flushes, 0, 'ordinary Running reads never call the observation export');
-    assert.deepEqual(receipts, Array.from({ length: 8 }, (_, index) => hex(publication(BigInt(index + 10)).identity)),
+    assert.deepEqual(receipts, Array.from({ length: 8 }, (_, index) => receiptIdentity(publication(BigInt(index + 10)).identity)),
         'every receipt reaches the managed ledger unparsed, in order');
     publish(first, false);
     publish(final, true);
@@ -235,16 +252,16 @@ for (const captureMode of [1, 2]) test(`capture mode ${captureMode}: preparation
     const reset = self.onmessage({ data: { bytes: new Uint8Array(72) } });
     await Promise.resolve();
     imports.acknowledge(new Uint8Array(64), new Uint8Array(8), true);
-    assert.equal(messages.at(-1).sequence.length, 8, 'an acknowledgement carries the 8-byte sequence C# handed over');
+    assert.equal(messages.at(-1)!.sequence!.length, 8, 'an acknowledgement carries the 8-byte sequence C# handed over');
     assert.equal(flushes, 2);
     release();
     await reset;
     assert.equal(flushes, 2, 'Reset cannot flush while its earlier read remains in flight');
     publish(afterReset, true);
-    assert.deepEqual(posted().readIdentity, beforeReset.identity, 'Reset keeps the in-flight publication');
+    assert.deepEqual(receiptIdentity(posted().readIdentity!), receiptIdentity(beforeReset.identity), 'Reset keeps the in-flight publication');
     await self.onmessage({ data: { readAcknowledged: receipt(beforeReset) } });
-    assert.equal(receipts.at(-1), hex(beforeReset.identity), 'the delayed pre-Reset receipt reaches managed accounting');
-    assert.deepEqual(posted().readIdentity, afterReset.identity, 'the post-Reset publication drains afterwards');
+    assert.deepEqual(receipts.at(-1), receiptIdentity(beforeReset.identity), 'the delayed pre-Reset receipt reaches managed accounting');
+    assert.deepEqual(receiptIdentity(posted().readIdentity!), receiptIdentity(afterReset.identity), 'the post-Reset publication drains afterwards');
     await self.onmessage({ data: { readAcknowledged: receipt(afterReset) } });
     assert.equal(flushes, 3, 'Reset observation flushes once both reads retire');
     const nextRun = self.onmessage({ data: { bytes: new Uint8Array(72) } });
@@ -259,15 +276,15 @@ for (const captureMode of [1, 2]) test(`capture mode ${captureMode}: preparation
     for (const [data, detail] of [[{ reliableStalled: true }, 'reliableStalled'], [{ reliableStalled: false }, 'reliableStalled'],
         [{ memoryRequest: new Uint8Array(64) }, 'memoryRequest'], [{ memoryResult: new Uint8Array(128) }, 'memoryResult']]) {
         await self.onmessage({ data });
-        assert.equal(messages.at(-1).rejected, true);
-        assert.equal(messages.at(-1).detail, 'Unsupported worker envelope: ' + detail);
+        assert.equal(messages.at(-1)!.rejected, true);
+        assert.equal(messages.at(-1)!.detail, 'Unsupported worker envelope: ' + detail);
     }
     assert.equal(receipts.length, receiptsBefore);
-    assert.equal(host.SetReliableStall, undefined, 'no stall setter exists to forward to');
+    assert.equal('SetReliableStall' in host, false, 'no stall setter exists to forward to');
     // Story 9A.23 D9: no read is reliable or retained (every one-shot occurrence is an event ring record), so the occurrence-read
     // reservation is gone and the reads behind the one in flight coalesce to the latest; an installation still waits behind it.
-    assert.equal(imports.reserveOccurrenceRead, undefined, 'the occurrence-read reservation is deleted');
-    assert.equal(imports.releaseOccurrenceRead, undefined, 'the occurrence-read release is deleted');
+    assert.equal('reserveOccurrenceRead' in imports, false, 'the occurrence-read reservation is deleted');
+    assert.equal('releaseOccurrenceRead' in imports, false, 'the occurrence-read release is deleted');
     const held = publication(100n), latest = publication(105n);
     publish(held, false);
     for (const skipped of [101n, 102n, 103n, 104n]) publish(publication(skipped), false);
@@ -275,9 +292,9 @@ for (const captureMode of [1, 2]) test(`capture mode ${captureMode}: preparation
     const controlsBefore = messages.filter(item => item.scheduleControl).length;
     imports.scheduleControl(new Uint8Array([7]), 1);
     assert.equal(messages.filter(item => item.scheduleControl).length, controlsBefore);
-    assert.equal(posted().readIdentity.length, 24, 'the worker posts the C# receipt identity with its read');
+    assert.equal(posted().readIdentity!.length, 24, 'the worker posts the C# receipt identity with its read');
     await self.onmessage({ data: { readAcknowledged: posted().readIdentity } });
-    assert.deepEqual(posted().read, latest.bytes, 'the reads behind the one in flight coalesce to the latest');
+    assert.equal(new DataView(posted().read!.buffer).getBigUint64(0, true), 105n, 'the reads behind the one in flight coalesce to the latest');
     assert.equal(messages.filter(item => item.scheduleControl).length, controlsBefore,
         'installation cannot overtake the final endpoint');
     await self.onmessage({ data: { readAcknowledged: receipt(latest) } });
@@ -298,13 +315,13 @@ for (const captureMode of [1, 2]) test(`capture mode ${captureMode}: preparation
 test('a slow clock master costs counted missed checks, never a failure, and the session continues', async () => {
     const derivation = derivationHost();
     const host = { ...derivation, ScheduleRoles: () => [1, 2], CaptureMode: () => 1, Bootstrap: () => new Uint8Array(16),
-        AnimationPeer: () => new Uint8Array(64), PrepareGpu: () => new Promise(() => {}) };
+        AnimationPeer: () => new Uint8Array(64), PrepareGpu: () => new Promise<void>(() => {}) };
     const boundary = await loadWorker(host);
     const { self, messages, master } = boundary;
     // The master answers every startup exchange, then no running one.
     master.answering = () => derivation.record.qualified < 16;
     const sessionClock = clockRing.createClockRing(), beats = () => clockRing.heartbeat(clockRing.attachClockRing(sessionClock));
-    self.onmessage({ data: { bootstrap: new Uint8Array(16), captureMode: 1, clockRing: sessionClock, poseRing: new SharedArrayBuffer(3120) } });
+    self.onmessage({ data: { bootstrap: new Uint8Array(16), captureMode: 1, clockRing: sessionClock, poseRing: new SharedArrayBuffer(3 * (16 + 16 * 64)) } });
     await until(() => messages.some(message => message.ready === true), 'ready: the master answered every startup exchange');
     await until(() => derivation.record.missed >= 2, 'running checks the master does not answer are counted as missed');
     assert.ok(derivation.record.missed > 0);
@@ -324,16 +341,18 @@ test('a slow clock master costs counted missed checks, never a failure, and the 
 // Story 9A.3: a receipt the managed ledger refuses (a mismatched, duplicate or unpublished one) is a typed rejection reported
 // through the failure envelope, never a silent return; the session is retired, so no later read or receipt is handled.
 test('a receipt the managed ledger refuses is a failure and retires the session', async () => {
-    const forwarded = [];
+    const forwarded: ReturnType<typeof receiptIdentity>[] = [];
     const host = {
         ScheduleRoles: () => [1, 2], ...envelopeRejections([]),
-        AcknowledgeRead: receipt => {
-            forwarded.push(hex(receipt));
+        AcknowledgeRead: (receipt: Uint8Array) => {
+            forwarded.push(receiptIdentity(receipt));
             if (forwarded.length === 2) throw new Error('ReadReceiptRejectedException: Publication 1 is receipted, but publication 1 is already retired.');
         }
     };
     const { self, messages, imports } = await loadWorker(host);
     const identity = new Uint8Array(24); identity.fill(7, 0, 16); identity[16] = 1;
+    const poseOwner = new Uint8Array(16); new DataView(poseOwner.buffer).setBigUint64(0, 1n, true); new DataView(poseOwner.buffer).setBigUint64(8, 1n, true);
+    imports.preparePose(poseOwner, 0, 16); imports.commitPose(poseOwner);
     imports.publish(new Uint8Array(8), identity, new Uint8Array(16), false);
     assert.equal(messages.filter(item => item.read).length, 1);
     await self.onmessage({ data: { readAcknowledged: identity.slice() } });
@@ -349,22 +368,22 @@ test('a receipt the managed ledger refuses is a failure and retires the session'
 // Story 9A.3: the memory query travels the command transport like every command (one typed buffer for the managed decoder, its
 // acknowledgement keyed by its sequence); a third outstanding command is refused with its typed reason, never dispatched.
 test('the memory query travels the command transport and a third outstanding command is refused', async () => {
-    const dispatched = [], rejected = [], releases = [];
+    const dispatched: { length: number; first: number }[] = [], rejected: (string[] | string)[] = [], releases: (() => void)[] = [];
     const host = {
         ScheduleRoles: () => [1, 2], ...envelopeRejections(rejected),
-        Dispatch: async bytes => { dispatched.push(hex(bytes)); await new Promise(resolve => { releases.push(resolve); }); }
+        Dispatch: async (bytes: Uint8Array) => { dispatched.push({ length: bytes.length, first: bytes[0] }); await new Promise<void>(resolve => { releases.push(resolve); }); }
     };
     const { self, messages, imports } = await loadWorker(host);
     const query = new Uint8Array([0x51, 0x4d, 0x0c, 0x00]), other = new Uint8Array([1, 2, 3]);
     const first = self.onmessage({ data: { bytes: query } });
     const second = self.onmessage({ data: { bytes: other } });
     await self.onmessage({ data: { bytes: new Uint8Array([9]) } });
-    assert.deepEqual(dispatched, ['514d0c00', '010203'], 'the query buffer reaches the managed decoder unchanged');
-    assert.equal(messages.at(-1).detail, 'The Workshop command transport already holds its two outstanding commands.');
+    assert.deepEqual(dispatched, [{ length: 4, first: 0x51 }, { length: 3, first: 1 }], 'the query buffer reaches the managed decoder unchanged');
+    assert.equal(messages.at(-1)!.detail, 'The Workshop command transport already holds its two outstanding commands.');
     assert.deepEqual(rejected, ['saturated']);
     const sequence = new Uint8Array(8); sequence[0] = 1;
     imports.acknowledge(new Uint8Array(16), sequence, false);
-    assert.deepEqual(Array.from(messages.at(-1).sequence), Array.from(sequence), 'its acknowledgement carries its sequence');
+    assert.equal(new DataView(messages.at(-1)!.sequence!.buffer).getBigUint64(0, true), 1n, 'its acknowledgement carries its sequence');
     for (const release of releases) release();
     await first; await second;
     console.log(JSON.stringify({ memoryQueryOnCommandTransport: true }));
@@ -372,19 +391,19 @@ test('the memory query travels the command transport and a third outstanding com
 
 // The worker owns no WebGPU device since the pure C# WASM engine (Story 9.2b), so startup has only preparation
 // rejection to control; the former device-loss control was deleted with that device path (Story 9.4b).
-const StartupControl = Object.freeze({ Reject: 1, DisposeThenReject: 2 });
-for (const control of Object.values(StartupControl)) test(`startup control ${control}: a rejected preparation`, async () => {
-    let rejectPreparation;
+enum StartupControl { Reject, DisposeThenReject }
+for (const control of [StartupControl.Reject, StartupControl.DisposeThenReject]) test(`startup control ${control}: a rejected preparation`, async () => {
+    let rejectPreparation!: (error: Error) => void;
     const host = {
         ...derivationHost(),
         ScheduleRoles: () => [1, 2],
         CaptureMode: () => 1, Bootstrap: () => new Uint8Array(16),
         AnimationPeer: () => new Uint8Array(64),
-        PrepareGpu: () => new Promise((_, reject) => { rejectPreparation = reject; })
+        PrepareGpu: () => new Promise<void>((_, reject) => { rejectPreparation = reject; })
     };
     const boundary = await loadWorker(host);
     const pending = boundary.self.onmessage({ data: { bootstrap: new Uint8Array(16), captureMode: 1, clockRing: clockRing.createClockRing(),
-        poseRing: new SharedArrayBuffer(3120) } });
+        poseRing: new SharedArrayBuffer(3 * (16 + 16 * 64)) } });
     await until(() => boundary.messages.some(item => item.ready), 'ready after clock qualification');
     assert.equal(boundary.messages.filter(item => item.ready).length, 1);
     if (control === StartupControl.DisposeThenReject) boundary.imports.dispose();
@@ -417,27 +436,30 @@ test('every byte buffer reaches the one managed decoder', async () => {
 // QuiescenceLimit steps instead of hanging.
 const QuiescenceLimit = 1000;
 function manualTurns() {
-    const deliveries = [], timers = new Map(), cleared = new Set(), closed = [];
-    let handler, receiving = true, sending = true, nextTimer = 0, now = 0;
+    const deliveries: number[] = [], timers = new Map<number, { callback(): void; due: number }>(), cleared = new Set<number>(), closed: string[] = [];
+    let handler: ((event: { data: number }) => void) | null = null;
+    let receiving = true, sending = true, nextTimer = 0, now = 0;
     class ManualTurnChannel {
+        port1: { onmessage: ((event: { data: number }) => void) | null; close(): void };
+        port2: { postMessage(data: number): void; close(): void };
         constructor() {
             this.port1 = { set onmessage(value) { handler = value; }, get onmessage() { return handler; },
                 close: () => { receiving = false; closed.push('port1'); } };
-            this.port2 = { postMessage: data => { if (sending) deliveries.push(data); }, close: () => { sending = false; closed.push('port2'); } };
+            this.port2 = { postMessage: (data: number) => { if (sending) deliveries.push(data); }, close: () => { sending = false; closed.push('port2'); } };
         }
     }
     return {
         cleared, closed, timers,
         globals: {
             MessageChannel: ManualTurnChannel,
-            setTimeout: (callback, milliseconds) => { const id = ++nextTimer; timers.set(id, { callback, due: now + milliseconds }); return id; },
-            clearTimeout: id => { cleared.add(id); timers.delete(id); }
+            setTimeout: (callback: () => void, milliseconds: number) => { const id = ++nextTimer; timers.set(id, { callback, due: now + milliseconds }); return id; },
+            clearTimeout: (id: number) => { cleared.add(id); timers.delete(id); }
         },
         /** Every turn message posted so far is delivered in order, including any a delivery posts. */
         pump() {
             for (let delivered = 0; deliveries.length; delivered++) {
                 assert.ok(delivered < QuiescenceLimit, 'the turn channel quiesces: deliveries keep posting turns');
-                const data = deliveries.shift();
+                const data = deliveries.shift()!;
                 if (receiving && handler) handler({ data });
             }
         },
@@ -457,10 +479,10 @@ function manualTurns() {
 // Blind hunter 10 (Story 9.4b final round): a scheduler turn that cannot resume is reported through the failure envelope,
 // never as an uncaught worker error; a disposed session resumes no queued or timed turn.
 test('a scheduler turn that cannot resume is a failure envelope', async () => {
-    const resumed = [];
+    const resumed: number[] = [];
     const host = {
         ScheduleRoles: () => [1, 2],
-        ResumeTurn: turn => { resumed.push(turn); if (turn === 7) throw new Error('Scheduler turn 7 was never requested.'); }
+        ResumeTurn: (turn: number) => { resumed.push(turn); if (turn === 7) throw new Error('Scheduler turn 7 was never requested.'); }
     };
     const turns = manualTurns();
     const { messages, imports } = await loadWorker(host, turns.globals);
@@ -473,8 +495,8 @@ test('a scheduler turn that cannot resume is a failure envelope', async () => {
     console.log(JSON.stringify({ schedulerTurnFailureEnvelope: true }));
 });
 test('disposal cancels the timed and the queued scheduler turn', async () => {
-    const resumed = [];
-    const host = { ScheduleRoles: () => [1, 2], ResumeTurn: turn => resumed.push(turn) };
+    const resumed: number[] = [];
+    const host = { ScheduleRoles: () => [1, 2], ResumeTurn: (turn: number) => resumed.push(turn) };
     // Manual timers and turn channel: disposal must cancel the timed turn and close the channel, not merely rely on the
     // disposed guard (reviewer mutation: delete the cleanup and only the guard remains).
     const turns = manualTurns();
@@ -509,8 +531,8 @@ test('a mixed envelope is rejected atomically', async () => {
         { scheduleControl: new Uint8Array(8), unexpected: true }
     ]) {
         await self.onmessage({ data });
-        assert.equal(messages.at(-1).rejected, true);
-        assert.match(messages.at(-1).detail, /Unsupported worker envelope: (memoryRequest|reliableStalled|unexpected)/);
+        assert.equal(messages.at(-1)!.rejected, true);
+        assert.match(messages.at(-1)!.detail!, /Unsupported worker envelope: (memoryRequest|reliableStalled|unexpected)/);
     }
     assert.deepEqual([dispatches, receipts, schedules], [0, 0, 0], 'mixed envelopes mutate no managed state');
     console.log(JSON.stringify({ mixedEnvelopesRejectedAtomically: true }));

@@ -77,8 +77,8 @@ public sealed class WorkshopPhysicsLawPrismaticTests
         var a = scene.Box(new(0, 5, 0), TileHalf, 1, LawMaterial.Domino, rotation, new(1, .3f, 0), new(.2f, .3f, .5f), 0);
         var b = scene.Box(new(0, 5, 0), TileHalf, PlateMass, LawMaterial.Domino, rotation, new(-.5f, -.4f, 0), new(-.2f, .1f, -.3f), 0);
         scene.Prismatic(a, b, Frame(.3f, 0, .2f), Frame(.3f, 0, .2f), Lower, 0, Stiffness, Damping, ConnectedCollision.Disabled);
+        scene.DeclareMassFrame(a, Vector3.One); scene.DeclareMassFrame(b, Vector3.One);
         var world = scene.Admit();
-        world.SetPrincipalMoments(a, Vector3.One); world.SetPrincipalMoments(b, Vector3.One);
         (double Energy, Vector3 Momentum, Vector3 Angular, float Travel) Quantities(LawBody p, LawBody q)
         {
             var axis = Rotate(p.Rotation, Vector3.UnitY);
@@ -197,9 +197,9 @@ public sealed class WorkshopPhysicsLawPrismaticTests
         var ball = scene.Sphere(At(1), LawBalls.Radius(LawBall.Basketball), LawBalls.Mass(LawBall.Basketball), LawMaterial.Ball(LawBall.Basketball),
             -2 * n, default, 0, 0);
         scene.Prismatic(frame, plate, Frame(y: .5f), Frame(), Lower, 0, Stiffness, 0, ConnectedCollision.Disabled);
-        var world = scene.Admit();
-        world.SetPrincipalMoments(plate, new(PlateMass * (.15f * .15f + 1.2f * 1.2f) / 12, PlateMass * (1.3f * 1.3f + 1.2f * 1.2f) / 12,
+        scene.DeclareMassFrame(plate, new(PlateMass * (.15f * .15f + 1.2f * 1.2f) / 12, PlateMass * (1.3f * 1.3f + 1.2f * 1.2f) / 12,
             PlateMass * (1.3f * 1.3f + .15f * .15f) / 12));
+        var world = scene.Admit();
         var baseBody = world.Initial(frame); var axis = Rotate(baseBody.Rotation, Vector3.UnitY);
         var inertia = (Plate: Moments(world, plate), Ball: Moments(world, ball));
         (double Energy, float Compression, float Returned) Measure(LawBody p, LawBody b)
@@ -318,8 +318,8 @@ public sealed class WorkshopPhysicsLawPrismaticTests
             var frame = scene.StaticBox(new(0, 5, 0), TileHalf, qa);
             var body = scene.Box(new(0, 5, 0), TileHalf, PlateMass, LawMaterial.Domino, qb, gravity: 0);
             scene.Prismatic(frame, body, Frame(rotation: la), Frame(rotation: lb), Lower, 0, Stiffness, 0, ConnectedCollision.Disabled);
+            scene.DeclareMassFrame(body, new(.5f, .75f, 1));
             var world = scene.Admit();
-            world.SetPrincipalMoments(body, new(.5f, .75f, 1));
             var maximumSpin = 0.0;
             var final = world.Step(120, (tick, state) =>
             {

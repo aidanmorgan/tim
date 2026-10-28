@@ -40,7 +40,7 @@ public enum WorkshopEditRejection : uint
 /// <summary>
 /// A declared rule refused a proposed Workshop edit: a construction, a part's settings, a connection or a puzzle change
 /// (a stored save is refused by WorkshopSaveRejectedException). It is the only edit refusal a UI handler shows as one (with
-/// WorkbenchFullException, an indeterminate transport and a save refusal); any other exception, ArgumentException included,
+/// an indeterminate transport and a save refusal); any other exception, ArgumentException included,
 /// is a defect. It is an ArgumentException
 /// so the decode and admission boundaries that reject invalid input by that type keep rejecting it.
 /// </summary>

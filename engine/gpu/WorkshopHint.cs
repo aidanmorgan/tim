@@ -14,9 +14,6 @@ public readonly record struct WorkshopAnimationSample(AnimationTargetId Target, 
     ulong Generation, PulseOrdinal Pulse, MasterTimeNanoseconds AppliedAt, float Value, uint EventOrdinal, float EventPhase, AnimationProperty Property, AnimationTimerObservation Timer = default);
 public static class WorkshopAnimationWire
 {
-    /// <summary>Concurrent occurrences one declared pulse target retains; a declared cooldown keeps real overlap far below it (time,
-    /// not a machine population).</summary>
-    public const int ImpulseCapacity = 64;
     public const int ControlBytes = 144;
     public const int OutputBytes = 144;
     // Both records: the session (RuntimeSessionId.ByteLength) at 0, the master generation at 16 and the cadence revision at 24, then
@@ -108,7 +105,7 @@ public static class WorkshopAnimationWire
             (AnimationProperty)BinaryPrimitives.ReadUInt16LittleEndian(bytes[ControlPropertyOffset..]), ReadTimer(bytes));
         Validate(value); return value;
     }
-    private static void Validate(WorkshopAnimationControl value)
+    public static void Validate(WorkshopAnimationControl value)
     {
         value.Timer.Validate();
         _ = Value(value.Property, value.From); _ = Value(value.Property, value.To);

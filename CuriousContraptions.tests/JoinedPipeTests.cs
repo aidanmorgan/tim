@@ -60,7 +60,7 @@ public sealed class JoinedPipeTests
     }
 
     private static bool Solved(WorkshopConstruction construction, IEnumerable<WorkshopRead> run) =>
-        run.Any(read => WorkshopGoalEvaluator.Occurrence(construction.Puzzle.Goal, read.Captures, read.Activations) is not null);
+        run.Any(read => WorkshopGoalEvaluator.Occurrence(construction.Puzzle.Goal, read.Captures, read.Activations, construction.Instances.Identities) is not null);
 
     private static Vector3 Ball(WorkshopRead read)
     {

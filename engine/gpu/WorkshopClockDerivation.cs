@@ -61,7 +61,7 @@ public sealed class WorkshopClockDerivation
     // Startup: the corrections every narrow exchange so far admits, [before - master - bound, after - master + bound]
     // intersected over the exchanges.
     private double _admittedLower = double.NegativeInfinity, _admittedUpper = double.PositiveInfinity;
-    private readonly List<(double Lower, double Upper)> _narrow = [];
+    private readonly List<(double Lower, double Upper)> _narrow = new(16);
     /// <summary>Narrow startup exchanges the qualifying correction may set aside as outliers (one jittered sample must not
     /// refuse the session; a master that is no stable offset of the Simulation clock still does).</summary>
     public const int StartupOutlierLimit = 4;

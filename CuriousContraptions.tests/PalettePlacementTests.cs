@@ -1,3 +1,4 @@
+using CuriousContraptions.Abstractions;
 using CuriousContraptions.Gpu;
 using CuriousContraptions.Presentation;
 using Godot;
@@ -651,7 +652,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
                 Assert.Equal(id, instance.PartId);
                 // A payload is placed as a zero-parameter generic instance; its material is its package's alone.
                 if (DeclaredPhysics.IsPayload(id)) Assert.Empty(Assert.IsType<WorkshopGenericInstance>(instance).Parameters);
-                WorkbenchCapacity.Validate([instance]);
+                new WorkshopInstances(instance).Validate();
                 var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(instance));
                 var saved = new WorkshopSavedConstruction(construction, new(body));
                 var bytes = WorkshopSaveCodec.Encode(saved);
@@ -767,7 +768,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
     }
 
     [Fact]
-    public void AProposalWhoseLessonRefusesTheCapturedPartIsATypedRejectionWithoutUndo()
+    public void IdentityExhaustionRefusesTheProposalWithoutUndoAndWideIdentitySucceeds()
     {
         var world = DiscoveredWorld();
         try
@@ -775,21 +776,21 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
             var lesson = PuzzleCatalogue.Create(new PuzzleId("ready_to_rebound"), new(1), WorkshopCadenceSettings.Default(), new(1), new(.5f));
             typeof(MachineWorld).GetProperty(nameof(MachineWorld.Construction))!.SetValue(world, lesson);
             var undo = 0;
-            // The Receiver captures, but the lesson's Receiver composition refuses an identity outside the authored domain.
-            var refused = WorkshopBenchPlacement.Propose(world, PartId.Receiver, new(1UL << 32), BenchPoint, Quaternion.Identity,
+            // A representationally exhausted identity refuses the complete proposed scene atomically.
+            var refused = WorkshopBenchPlacement.Propose(world, PartId.Receiver, new(ulong.MaxValue), BenchPoint, Quaternion.Identity,
                 null, () => undo++);
             Assert.Equal(BenchPlacementRejection.UnsupportedPart, refused.Rejection);
             Assert.StartsWith("Placement rejected: ", refused.Message);
-            Assert.Equal("Placement rejected: Authored body identity exceeds its domain.", refused.Message);
+            Assert.Equal("Placement rejected: The authored identities leave no space for the compiled scene.", refused.Message);
             Assert.Empty(godot.Errors.Drain());
             Assert.Equal(0, undo);
             Assert.Equal(lesson, refused.Construction);
-            // Control: the same lesson composes its Receiver at an authored identity and records one undo.
-            var composed = WorkshopBenchPlacement.Propose(world, PartId.Receiver, new(4), BenchPoint, Quaternion.Identity,
+            // Control: a wide representable identity is admitted, with one undo and the precise authored goal.
+            var composed = WorkshopBenchPlacement.Propose(world, PartId.Receiver, new(1UL << 32), BenchPoint, Quaternion.Identity,
                 null, () => undo++);
             Assert.Equal(BenchPlacementRejection.None, composed.Rejection);
             Assert.Equal(1, undo);
-            Assert.Equal(new GpuBodyId(4), composed.Construction.Puzzle.Goal.Target);
+            Assert.Equal(new GpuBodyId(1UL << 32), composed.Construction.Puzzle.Goal.Target);
         }
         finally { world.Free(); }
     }

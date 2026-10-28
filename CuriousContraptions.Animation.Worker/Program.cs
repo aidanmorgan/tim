@@ -17,16 +17,7 @@ public static partial class Program
     private static Preparation? _prepared;
     private static WorkshopDeclaredPresentation? _declared;
     private static readonly AnimationControlDeferral Deferred = new();
-    // Story 9R.5b: one track per animated target of the machine; both tables grow when a new target finds no vacancy, so the
-    // machine's target population is the only bound (the initial size is only a starting allocation).
-    private const int InitialTracks = 64;
-    private static readonly AnimationBatch Tracks = new(InitialTracks);
-    private static Track[] Instances = new Track[InitialTracks];
-    private struct Track
-    {
-        public AnimationHandle? Handle;
-        public WorkshopAnimationControl Control;
-    }
+    private static readonly WorkshopAnimationTracks Controls = new();
     private static ulong _commandSequence, _lastOrdinal, _evaluationSequence;
     private static MasterTimeNanoseconds _lastApplied;
     private static readonly byte[] Output = new byte[WorkshopAnimationWire.OutputBytes];
@@ -88,12 +79,12 @@ public static partial class Program
         var due = WorkshopPulse.Due(schedule.Settings.AnimationRate, new(checked((long)interval.Lower)));
         if (due.Value < schedule.FirstAnimation.Value || due.Value <= _lastOrdinal) return;
         // Coalesce cosmetic evaluation opportunities, never create a Task for an individual pulse.
-        Tracks.Advance(checked(++_evaluationSequence), (double)due.Value * schedule.Settings.AnimationRate.Denominator /
-            schedule.Settings.AnimationRate.Numerator, 0);
+        Controls.Advance(checked(++_evaluationSequence), (double)due.Value * schedule.Settings.AnimationRate.Denominator /
+            schedule.Settings.AnimationRate.Numerator);
         _lastApplied = WorkshopPulse.Deadline(schedule.Settings.AnimationRate, due);
-        for (var i = 0; i < Instances.Length; i++)
-            if (Instances[i].Handle is { } handle)
-                Emit(AnimationOutputKind.Sample, due.Value, Instances[i].Control, BitConverter.UInt32BitsToSingle(Tracks.Read(handle).Value.CanonicalBits));
+        for (var i = 0; i < Controls.Capacity; i++)
+            if (Controls.TryRead(i, out var control, out var value))
+                Emit(AnimationOutputKind.Sample, due.Value, control, value);
         if (_declared is { } declared)
             foreach (var sample in declared.Advance((double)due.Value * schedule.Settings.AnimationRate.Denominator / schedule.Settings.AnimationRate.Numerator))
                 Emit(AnimationOutputKind.Sample, due.Value,
@@ -144,10 +135,7 @@ public static partial class Program
                     candidate.Tick != schedule.World.AnchorTick || !MatchesPlayback(candidate.Phase, schedule.World.Playback) ||
                     schedule.MasterNativeOrigin != Peer.MasterOrigin)
                     throw new ArgumentException("Animation Commit lacks its matching prepared endpoint.");
-                for (var i = 0; i < Instances.Length; i++)
-                    if (Instances[i].Handle is { } retiring && Instances[i].Control.World.Value != 0 &&
-                        Instances[i].Control.World != schedule.World.WorldGeneration)
-                    { Tracks.Remove(retiring); Instances[i] = default; }
+                Controls.RetireWorld(schedule.World.WorldGeneration);
                 if (candidate.Retained) candidate.Presentation.Rebind(candidate.Endpoint.Construction!.Value, candidate.Endpoint);
                 _declared = candidate.Presentation;
                 _schedule = schedule; _prepared = null; _lastOrdinal = schedule.FirstAnimation.Value - 1;
@@ -258,31 +246,7 @@ public static partial class Program
             Emit(AnimationOutputKind.Acknowledgement, control.Sequence, control, control.From);
             return;
         }
-        // This admission supports autonomous timed clips and world-bound constant endpoint drives.
-        // Timed world feedback awaits its committed-history capability; it cannot borrow UI time.
-        if (control.World.Value != 0 && control.Kind == AnimationControlKind.Reveal)
-            throw new ArgumentException("Timed world channel requires a committed-world history.");
-        var slot = -1; var vacant = -1;
-        for (var i = 0; i < Instances.Length; i++)
-        {
-            if (Instances[i].Handle is null) vacant = i;
-            else if (Instances[i].Control.Target == control.Target) slot = i;
-        }
-        if (slot < 0) slot = vacant;
-        if (slot < 0)
-        {
-            // A new target with every track in use: grow both tables (no target capacity).
-            slot = Instances.Length;
-            Array.Resize(ref Instances, Instances.Length * 2);
-            Tracks.EnsureCapacity(Instances.Length);
-        }
-        var previous = Instances[slot];
-        if (previous.Handle is not null && (control.Property != previous.Control.Property || control.World != previous.Control.World ||
-            control.Generation < previous.Control.Generation ||
-            (control.Kind == AnimationControlKind.Visibility && control.Generation != previous.Control.Generation)))
-            throw new ArgumentException("Stale animation target generation.");
-        if (control.Kind == AnimationControlKind.Visibility && previous.Handle is null)
-            throw new ArgumentException("Visibility requires its registered target.");
+        Controls.Validate(control);
         if (!Clock.TryMasterNow(WorkshopNativeClock.FromMilliseconds(NativeMilliseconds()), out var now))
         {
             // A recalibrating mapping (counted CCGPU_CLOCK_RECALIBRATED telemetry) has no master time yet: the control
@@ -290,60 +254,13 @@ public static partial class Program
             Deferred.Hold(bytes, AnimationDeferralCause.Recalibrating);
             return;
         }
-        if (control.Kind != AnimationControlKind.Visibility)
-        {
-            float from, to;
-            bool start;
-            if (control.Kind == AnimationControlKind.TimerObservation)
-            {
-                if (control.Timer.Phase == AnimationTimerPhase.Counting)
-                {
-                    from = AnimationTimerSegment.Create(control.Timer).Endpoint.Value;
-                    to = 1f;
-                    start = true;
-                }
-                else if (control.Timer.Phase == AnimationTimerPhase.Finished)
-                {
-                    from = to = 1f;
-                    start = false;
-                }
-                else
-                {
-                    from = to = 0f;
-                    start = false;
-                }
-            }
-            else
-            {
-                from = control.From;
-                to = control.To;
-                start = control.Kind == AnimationControlKind.Reveal;
-            }
-            var duration = control.Kind == AnimationControlKind.TimerObservation && control.Timer.Phase == AnimationTimerPhase.Counting
-                ? (float)Math.Max(0.01, (control.Timer.Due - control.Timer.Observed) * (double)schedule.Settings.SimulationRate.Denominator / schedule.Settings.SimulationRate.Numerator)
-                : control.Duration;
-            var definition = new AnimationDefinition(WorkshopAnimationWire.Value(control.Property, from),
-                WorkshopAnimationWire.Value(control.Property, to), new AnimationDurationSeconds(duration),
-                control.Curve, AnimationRepeat.Once, AnimationClock.Presentation);
-            if (previous.Handle is { } old) Tracks.Remove(old);
-            var handle = Tracks.Register(new(control.Target, control.Property), definition);
-            if (start)
-            {
-                Tracks.StartAt(handle, (double)now.Lower / WorkshopPulse.NanosecondsPerSecond);
-                _lastOrdinal = Math.Max(_lastOrdinal, WorkshopPulse.Due(schedule.Settings.AnimationRate,
-                    new(checked((long)now.Lower))).Value);
-            }
-            Tracks.SetVisible(handle, control.Visible);
-            Instances[slot] = new() { Handle = handle, Control = control };
-        }
-        else
-        {
-            Tracks.SetVisible(previous.Handle!.Value, control.Visible);
-            Instances[slot].Control = control;
-        }
+        var applied = Controls.Apply(control, schedule.Settings.SimulationRate,
+            (double)now.Lower / WorkshopPulse.NanosecondsPerSecond);
+        if (applied.Started)
+            _lastOrdinal = Math.Max(_lastOrdinal, WorkshopPulse.Due(schedule.Settings.AnimationRate,
+                new(checked((long)now.Lower))).Value);
         _commandSequence = control.Sequence;
-        Emit(AnimationOutputKind.Acknowledgement, control.Sequence, control,
-            BitConverter.UInt32BitsToSingle(Tracks.Read(Instances[slot].Handle!.Value).Value.CanonicalBits));
+        Emit(AnimationOutputKind.Acknowledgement, control.Sequence, control, applied.Value);
     }
 
     private static void Emit(AnimationOutputKind kind, ulong ordinal, WorkshopAnimationControl control, float channel, CadenceRevision? cadence = null)

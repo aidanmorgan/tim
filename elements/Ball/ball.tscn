@@ -30,7 +30,7 @@ script = ExtResource("1")
 mesh = SubResource("Mesh_Ball")
 
 [node name="Visual_Stripe" type="MeshInstance3D" parent="Visual"]
-transform = Transform3D(0.819152, -0.573576, 0, 0.573576, 0.819152, 0, 0, 0, 1, 0, 0, 0)
+quaternion = Quaternion(0, 0, -0.3007058, 0.95371695)
 mesh = SubResource("Mesh_Stripe")
 
 [node name="col_0_0" type="CollisionShape3D" parent="."]
@@ -38,3 +38,8 @@ position = Vector3(0, 0, 0)
 quaternion = Quaternion(0, 0, 0, 1)
 visible = false
 shape = SubResource("BakedShape_0_0")
+
+[node name="col_visual_stripe" type="MeshInstance3D" parent="."]
+visible = false
+quaternion = Quaternion(0, 0, -0.3007058, 0.95371695)
+mesh = SubResource("Mesh_Stripe")

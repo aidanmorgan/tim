@@ -10,55 +10,31 @@ public sealed class WorkshopGpuDeviceTests
     [Theory]
     [InlineData(0f)]
     [InlineData(.2f)]
-    public async Task RealResetLifecycleRebuildsAllEightPrismaticImpulseBytes(float compression)
+    public async Task RealResetLifecycleRestoresSpringAndReplaysItsMotion(float compression)
     {
-        var transport = new HeldTransport(false); transport.Held.SetResult();
-        // The test owns the device; the simulation borrows it (disposed first, it leaves the device to the test).
-        await using var device = new WorkshopGpuDevice(transport, Document);
+        await using var device = new WorkshopGpuDevice(new CuriousContraptions.Simulation.BrowserGpuTransport(
+            new CuriousContraptions.Abstractions.EventRingPublication()), Document);
         await using var simulation = new WorkshopSimulation(device, new ResetClock(), Settings, new(1),
             new ResetInstallation(), GpuDeviceOwnership.Borrowed);
         await simulation.Initialize();
         var construction = new WorkshopConstruction(new(2), Settings, new(
             PlacedParts.Springboard(new(1), 0, 3, 0, 0, 0, 0, 1, compression)));
         Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Construct(construction)).Outcome);
-        var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
-        byte[] Committed() => ((byte[])typeof(WorkshopGpuDevice).GetField("_committedWorld", flags)!.GetValue(device)!).ToArray();
-        var original = Committed();
-        var layout = PhysicsGpuAbi.Layout(original);
-        var offset = layout.PrismaticOffset(0) + PhysicsGpuAbi.PrismaticImpulseOffset;
+        var original = simulation.Committed;
+        var trajectory = new List<WorkshopRead>();
         for (var run = 0; run < 2; run++)
         {
             Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Run()).Outcome);
-            transport.ReadMutation = bytes =>
+            for (var tick = 0; tick < 60; tick++)
             {
-                var motion = bytes.AsSpan(layout.MotionOffset, layout.MotionBytes);
-                var first = BinaryPrimitives.ReadUInt32LittleEndian(motion[8..]);
-                BinaryPrimitives.WriteUInt32LittleEndian(motion, 4);
-                var body = bytes.AsSpan(layout.BodyOffset(2), PhysicsGpuAbi.BodyBytes);
-                for (var step = 0; step < 4; step++)
-                {
-                    var piece = motion.Slice(PhysicsMotionRead.HeaderBytes + step * PhysicsMotionRead.PieceBytes, PhysicsMotionRead.PieceBytes);
-                    BinaryPrimitives.WriteUInt32LittleEndian(piece, (uint)PhysicsMotionKind.FreePolynomial);
-                    BinaryPrimitives.WriteUInt32LittleEndian(piece[4..], first + (uint)step);
-                    BinaryPrimitives.WriteUInt32LittleEndian(piece[8..], first + (uint)step + 1);
-                    BinaryPrimitives.WriteUInt32LittleEndian(piece[12..], first + (uint)step);
-                    BinaryPrimitives.WriteUInt32LittleEndian(piece[PhysicsMotionRead.FrequencyOffset..], WorkshopCadenceSettings.PhysicalFrequency);
-                    body[..8].CopyTo(piece[PhysicsMotionRead.OwnerOffset..]); body[16..28].CopyTo(piece[PhysicsMotionRead.CellOffset..]);
-                    body[32..44].CopyTo(piece[PhysicsMotionRead.CentreRemainderOffset..]); body[48..64].CopyTo(piece[PhysicsMotionRead.RotationOffset..]);
-                }
-                for (var lane = 0; lane < 8; lane++)
-                    BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(offset + lane * 4), lane < 6 ? -.125f * (lane + 1) : .125f);
-            };
-            Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Advance()).Outcome);
-            Assert.Contains(Committed().AsSpan(offset, 32).ToArray(), value => value != 0);
-            transport.ReadMutation = null;
+                Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Advance()).Outcome);
+                Assert.Equal((ulong)tick + 1, simulation.Committed.Tick.Value);
+                if (run == 0) trajectory.Add(simulation.Committed);
+                else NoFixedCapacityTests.AssertSameState(trajectory[tick], simulation.Committed, "spring full-history replay");
+            }
             Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Reset()).Outcome);
-            var reset = Committed();
             Assert.Equal(0UL, simulation.Committed.Tick.Value);
-            Assert.All(reset.AsSpan(offset, 32).ToArray(), value => Assert.Equal(0, value));
-            Assert.Equal(original.AsSpan(layout.PrismaticsOffset).ToArray(), reset.AsSpan(layout.PrismaticsOffset).ToArray());
-            Assert.Equal(original.AsSpan(PhysicsWorldLayout.BodiesOffset, 3 * PhysicsGpuAbi.BodyBytes).ToArray(),
-                reset.AsSpan(PhysicsWorldLayout.BodiesOffset, 3 * PhysicsGpuAbi.BodyBytes).ToArray());
+            NoFixedCapacityTests.AssertSameState(original, simulation.Committed, "spring Reset");
         }
     }
 
@@ -258,8 +234,8 @@ public sealed class WorkshopGpuDeviceTests
     [Fact]
     public async Task InvalidActivationAdmissionPreservesCommittedPhysicsAndLogicalCheckpoint()
     {
-        var transport = new HeldTransport(false); transport.Held.SetResult();
-        var device = new WorkshopGpuDevice(transport, Document);
+        var transport = new InvalidReadTransport();
+        await using var device = new WorkshopGpuDevice(transport, Document);
         var construction = new WorkshopConstruction(new(1), Settings, new(
             WorkshopInput.Generic(PartId.Basketball,new(1), 0, 3, 0, 0, 0, 0, 1),
             WorkshopInput.Generic(PartId.ImpactSwitch, new(2), 0, 1, 0, 0, 0, 0, 1),
@@ -268,24 +244,44 @@ public sealed class WorkshopGpuDeviceTests
                 new(2), WorkshopSocket.ActivationOut, new(3), WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation)));
         var first = await device.Admit(construction, new(1), Profile, new(1));
         device.Commit(first.Sequence); device.Discard(first.Sequence);
-        var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
-        var physical = (byte[])typeof(WorkshopGpuDevice).GetField("_committedWorld", flags)!.GetValue(device)!;
-        var expected = (byte[])physical.Clone();
-        var timers = first.Read.Timers;
-        Assert.Equal(ActivationTimerPhase.Ready, timers[0].Phase);
-        var logical = (PhysicsActivationRead)typeof(WorkshopGpuDevice).GetField("_committedActivations", flags)!.GetValue(device)!;
-        transport.ReadMutation = bytes => BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(PhysicsGpuAbi.Layout(bytes).TriggerOffset(0) + 32), 1);
+        Assert.Equal(ActivationTimerPhase.Ready, first.Read.Timers[0].Phase);
+        transport.CorruptNextRead = true;
         await Assert.ThrowsAsync<ArgumentException>(() => device.Admit(construction, new(2), Profile, new(2)).AsTask());
-        Assert.Equal(1, transport.Commits);
-        Assert.Equal(expected, (byte[])typeof(WorkshopGpuDevice).GetField("_committedWorld", flags)!.GetValue(device)!);
-        var after = (PhysicsActivationRead)typeof(WorkshopGpuDevice).GetField("_committedActivations", flags)!.GetValue(device)!;
-        Assert.Equal(logical[0], after[0]); Assert.Equal(logical[1], after[1]);
-        Assert.Equal(timers[0], ((PhysicsTimerRead)typeof(WorkshopGpuDevice).GetField("_committedTimers", flags)!.GetValue(device)!)[0]);
-        transport.ReadMutation = null;
-        var reset = await device.Admit(construction, new(2), Profile, new(3));
-        Assert.Equal(ActivationPhase.Clear, reset.Read.Activations[0].Phase);
-        Assert.Equal(timers[0], reset.Read.Timers[0]);
-        device.Commit(reset.Sequence); device.Discard(reset.Sequence); await device.DisposeAsync();
+        var continued = await device.Advance(first.Read, new(3), new WorkshopTickControls([]));
+        Assert.Equal(first.Read.Epoch, continued.Read.Epoch);
+        Assert.Equal(1UL, continued.Read.Tick.Value);
+        Assert.Equal(first.Read.Activations[0], continued.Read.Activations[0]);
+        Assert.Equal(first.Read.Activations[1], continued.Read.Activations[1]);
+        Assert.Equal(first.Read.Timers[0], continued.Read.Timers[0]);
+        Assert.Equal(first.Read.Bodies[0].Body.Id, continued.Read.Bodies[0].Body.Id);
+        Assert.True(continued.Read.Bodies[0].Body.Velocity.Y < first.Read.Bodies[0].Body.Velocity.Y);
+        device.Commit(continued.Sequence); device.Discard(continued.Sequence);
+        var reset = await device.Admit(construction, new(2), Profile, new(4));
+        NoFixedCapacityTests.AssertSameState(first.Read, reset.Read, "valid retry after malformed candidate");
+        device.Commit(reset.Sequence); device.Discard(reset.Sequence);
+    }
+
+    private sealed class InvalidReadTransport : IWorkshopGpuTransport
+    {
+        private readonly CuriousContraptions.Simulation.BrowserGpuTransport _real = new(new CuriousContraptions.Abstractions.EventRingPublication());
+        public bool CorruptNextRead;
+        public Task Initialize() => _real.Initialize();
+        public Task Stage(ReadOnlyMemory<byte> input, WorkshopGpuOperation operation, PhysicsTickInputs inputs) => _real.Stage(input, operation, inputs);
+        public WorkshopTransportCandidate Read()
+        {
+            var candidate = _real.Read();
+            if (!CorruptNextRead) return candidate;
+            CorruptNextRead = false;
+            var malformed = candidate.World.ToArray();
+            BinaryPrimitives.WriteUInt32LittleEndian(malformed.AsSpan(PhysicsGpuAbi.Layout(malformed).TriggerOffset(0) + 32), 1);
+            return new(malformed, candidate.Interactions);
+        }
+        public void PrepareEvents(byte[] batch) => _real.PrepareEvents(batch);
+        public void PublishEvents() => _real.PublishEvents();
+        public void Commit() => _real.Commit();
+        public void Discard() => _real.Discard();
+        public bool DeviceReady() => _real.DeviceReady();
+        public void Dispose() => _real.Dispose();
     }
 
     // Story 9R.1 D3: the committed read publishes the Counter and System Clock rows; a discarded (superseded) Advance candidate
@@ -407,17 +403,17 @@ public sealed class WorkshopGpuDeviceTests
 
     private sealed class HeldTransport(bool holdInitialization) : IWorkshopGpuTransport
     {
+        private readonly CuriousContraptions.Abstractions.EventRingPublication _events = new();
         public TaskCompletionSource Held { get; } = new();
         public byte[] Record { get; set; } = [];
         public int Initializations, Stages, Reads, Commits, Disposals, Discards;
-        public Action<byte[]>? ReadMutation;
         public Task Initialize()
         { Initializations++; return holdInitialization ? Held.Task : Task.CompletedTask; }
         public PhysicsTickInputs? LastInputs { get; private set; }
-        public Task Stage(byte[] input, WorkshopGpuOperation operation, PhysicsTickInputs inputs)
+        public Task Stage(ReadOnlyMemory<byte> input, WorkshopGpuOperation operation, PhysicsTickInputs inputs)
         {
             Stages++; LastInputs = inputs;
-            if (operation == WorkshopGpuOperation.Admit) Record = (byte[])input.Clone();
+            if (operation == WorkshopGpuOperation.Admit) Record = input.ToArray();
             else
             {
                 var source = BinaryPrimitives.ReadUInt32LittleEndian(Record.AsSpan(88));
@@ -433,10 +429,12 @@ public sealed class WorkshopGpuDeviceTests
             }
             return Held.Task;
         }
-        public byte[] Read() { Reads++; var bytes = (byte[])Record.Clone(); ReadMutation?.Invoke(bytes); return bytes; }
-        public void Commit() => Commits++;
-        public void Discard() => Discards++;
+        public WorkshopTransportCandidate Read() { Reads++; var bytes = (byte[])Record.Clone(); return new(bytes, PhysicsInteractionSnapshot.Empty); }
+        public void PrepareEvents(byte[] batch) => _events.Prepare(batch);
+        public void PublishEvents() => _events.Publish();
+        public void Commit() { _events.Commit(); Commits++; }
+        public void Discard() { _events.Discard(); Discards++; }
         public bool DeviceReady() => Disposals == 0;
-        public void Dispose() => Disposals++;
+        public void Dispose() { _events.Dispose(); Disposals++; }
     }
 }

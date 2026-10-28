@@ -16,7 +16,7 @@ public partial class PlacementShadows : Node3D
         public bool Highlighted;
         public bool Initialized;
     }
-    private readonly Dictionary<MachinePart, Projection> _projections = new();
+    private readonly Dictionary<MachinePart, Projection> _projections = new(16);
     private static readonly Color[] Colors = [new("#a5823b"), new("#527c98"), new("#a96f5c")];
     public static Vector3 Project(Vector3 point, int axis) => axis switch
     {

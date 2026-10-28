@@ -1,0 +1,2 @@
+[workflow]
+persistent_facts = ["Owner policy, 28 October 2026: read AGENTS.md and docs/testing-guidance.md. Game outcomes, meaningful causal order and stability govern acceptance. Historical numerical traces, output hashes and unnecessarily tight scene tolerances are not requirements. Apply this policy to specifications, implementation handoffs and every review layer."]

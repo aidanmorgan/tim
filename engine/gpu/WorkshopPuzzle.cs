@@ -6,7 +6,7 @@ namespace CuriousContraptions.Gpu;
 public enum WorkshopPlacementMode : uint { Manual }
 public enum WorkshopGoalKind : uint { None, Captured, ActivatedAfter }
 public readonly record struct PuzzlePrecision(float Value);
-public readonly record struct WorkshopGoal(WorkshopGoalKind Kind, GpuBodyId Body, GpuBodyId Target, GpuSensorId EventSource,
+public readonly record struct WorkshopGoal(WorkshopGoalKind Kind, GpuBodyId Body, GpuBodyId Target,
     ActivationNodeId SourceNode = default, ActivationNodeId TargetNode = default, DurationSeconds MinimumDuration = default)
 {
     public void Validate()
@@ -15,8 +15,8 @@ public readonly record struct WorkshopGoal(WorkshopGoalKind Kind, GpuBodyId Body
         {
             case WorkshopGoalKind.None when this == default: return;
             case WorkshopGoalKind.Captured when Body.Value != 0 && Target.Value != 0 && Body != Target &&
-                EventSource.Value != 0 && SourceNode == default && TargetNode == default && MinimumDuration == default: return;
-            case WorkshopGoalKind.ActivatedAfter when Body == default && Target == default && EventSource == default &&
+                SourceNode == default && TargetNode == default && MinimumDuration == default: return;
+            case WorkshopGoalKind.ActivatedAfter when Body == default && Target == default &&
                 SourceNode.Value != 0 && TargetNode.Value != 0 && SourceNode != TargetNode:
                 PhysicsDeclarationBounds.Range(MinimumDuration.Value, 0f, 120f); return;
             default: throw new ArgumentException("Unsupported named goal.");

@@ -1,0 +1,12 @@
+{
+  "name": "curious-contraptions-runtime",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build:runtime": "tsc -p tsconfig.runtime.json"
+  },
+  "devDependencies": {
+    "@types/node": "22.18.6",
+    "typescript": "5.9.3"
+  }
+}

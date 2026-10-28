@@ -1,6 +1,7 @@
 using System;
 using System.Buffers.Binary;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Numerics;
 using System.Runtime.Intrinsics;
 using CuriousContraptions.Gpu;
@@ -9,67 +10,70 @@ namespace CuriousContraptions.Simulation;
 
 internal sealed class WorkshopPhysicsEngine
 {
-    private readonly Dictionary<ulong, float> _contactCache = new();
-    private readonly HashSet<ContactFeatureSetKey> _normalContactSets = new();
-    private readonly Dictionary<ContactFeatureSetKey, FrictionWarmStart> _frictionCache = new();
+    private Dictionary<ContactFeatureIdentity, float> _contactCache = new(64);
+    private HashSet<ContactFeatureSetKey> _normalContactSets = new(16);
+    private Dictionary<ContactFeatureSetKey, FrictionWarmStart> _frictionCache = new(16);
     private readonly WorkshopDynamicBvh _bvh = new();
     // Story 9R.4: one substep's static-side contact records and the bodies a contact-load row already counted (caller-owned
     // scratch, so ContactLoadSensorTracker allocates nothing per substep).
-    private readonly List<ContactPointRecord> _loadContacts = new(128);
-    private GpuBodyId[] _loadCounted = new GpuBodyId[128];
+    private List<ContactPointRecord> _loadContacts = new(64);
+    private GpuBodyId[] _loadCounted = new GpuBodyId[64];
 
-    private readonly List<SimBody> _staticBodies = new(64);
-    private readonly List<SimBody> _dynamicBodies = new(64);
+    private List<SimBody> _staticBodies = new(16);
+    private List<SimBody> _dynamicBodies = new(16);
     // The restitution pass's touched bodies and its per-substep stamp (WorkshopConstraintSolver.RestitutionPass).
-    private readonly List<SimBody> _restitutionBodies = new(64);
+    private List<SimBody> _restitutionBodies = new(16);
     private int _restitutionStamp;
-    private readonly Dictionary<int, SimBody> _allBodies = new(64);
-    private readonly List<SimCollider> _colliders = new(64);
-    private readonly List<SimJoint> _joints = new(32);
-    private readonly List<(SimCollider ColA, SimCollider ColB)> _candidatePairs = new(64);
-    private readonly List<ContactPoint> _contacts = new(128);
+    private Dictionary<int, SimBody> _allBodies = new(16);
+    private List<SimCollider> _colliders = new(32);
+    private List<SimJoint> _joints = new(4);
+    private List<(SimCollider ColA, SimCollider ColB)> _candidatePairs = new(64);
+    private List<ContactPoint> _contacts = new(64);
     // Scratch for the speculative sphere-contact touch probe (WorkshopCollisionKernels.AdvanceSpeculativeSphereContact).
-    private readonly SimCollider _probeCollider = new();
+    private SimCollider _probeCollider = new();
     private readonly List<ContactPoint> _probeContacts = new(4);
-    private readonly List<ContactManifold> _manifolds = new(32);
-    private readonly List<int> _storeIndices = new(8);
-    private readonly List<float> _balances = new(8);
-    private readonly List<float> _capacities = new(8);
-    private readonly List<float> _credits = new(8);
+    private List<ContactManifold> _manifolds = new(16);
+    private List<int> _storeIndices = new(4);
+    private List<float> _balances = new(4);
+    private List<float> _capacities = new(4);
+    private List<float> _credits = new(4);
     // Story 9R.5b: per-tick working rows sized from the world's own populations, grown only when a world needs more (per Run).
-    private ContactLoadSensorDeclaration[] _loadDeclarations = [];
-    private int[] _loadFrames = [];
-    private float[] _loadMass = [];
-    private float[] _elecBefore = [], _elecLimits = [], _elecAfter = [];
+    private ContactLoadSensorDeclaration[] _loadDeclarations = new ContactLoadSensorDeclaration[4];
+    private int[] _loadFrames = new int[4];
+    private float[] _loadMass = new float[4];
+    private float[] _elecBefore = new float[4], _elecLimits = new float[4], _elecAfter = new float[4];
 
     /// <summary>A cleared span of exactly <paramref name="count"/> rows, growing the owned array only when it is too short.</summary>
     private static Span<T> Scratch<T>(ref T[] array, int count)
     {
-        if (array.Length < count) array = new T[count];
+        if (count > Array.MaxLength) throw new WorkshopStorageException("Scratch storage is not representable.");
+        if (count > 3L * array.Length / 4)
+        {
+            var capacity = (int)Math.Min(Array.MaxLength, Math.Max(2L * array.Length, (4L * count + 2) / 3));
+            if (capacity != array.Length) array = new T[capacity];
+        }
         var span = array.AsSpan(0, count); span.Clear();
         return span;
     }
 
-    private readonly List<SimBody> _bodyPool = new(64);
-    private readonly List<SimCollider> _colliderPool = new(64);
-    private readonly List<SimJoint> _jointPool = new(32);
-    private readonly List<ContactManifold> _manifoldPool = new(32);
+    private List<SimBody> _bodyPool = new(16);
+    private List<SimCollider> _colliderPool = new(32);
+    private List<SimJoint> _jointPool = new(4);
+    private List<ContactManifold> _manifoldPool = new(16);
 
+    /// <summary>Retire an epoch's scratch and warm state. Substep Clear calls retain ordinary within-world reuse.</summary>
     public void Reset()
     {
-        _contactCache.Clear();
-        _normalContactSets.Clear();
-        _frictionCache.Clear();
-        _loadContacts.Clear();
-        _bvh.Clear();
-        _staticBodies.Clear();
-        _dynamicBodies.Clear();
-        _allBodies.Clear();
-        _colliders.Clear();
-        _joints.Clear();
-        _candidatePairs.Clear();
-        _contacts.Clear();
-        _manifolds.Clear();
+        _contactCache = new(64); _normalContactSets = new(16); _frictionCache = new(16); _allBodies = new(16);
+        _loadContacts = new(64); _staticBodies = new(16); _dynamicBodies = new(16); _restitutionBodies = new(16);
+        _colliders = new(32); _joints = new(4); _candidatePairs = new(64); _contacts = new(64); _manifolds = new(16);
+        _storeIndices = new(4); _balances = new(4); _capacities = new(4); _credits = new(4);
+        _bodyPool = new(16); _colliderPool = new(32); _jointPool = new(4); _manifoldPool = new(16);
+        _loadCounted = new GpuBodyId[64]; _loadDeclarations = new ContactLoadSensorDeclaration[4]; _loadFrames = new int[4]; _loadMass = new float[4];
+        _elecBefore = new float[4]; _elecLimits = new float[4]; _elecAfter = new float[4];
+        _restitutionStamp = 0;
+        _probeContacts.Clear(); _probeCollider = new();
+        _bvh.Reset();
     }
 
     /// <summary>One f32 lane of a world record at its named offset (Story 9A.44: every game value in the world is f32).</summary>
@@ -91,7 +95,7 @@ internal sealed class WorkshopPhysicsEngine
             ReadF32(span, rotation + PhysicsGpuAbi.RotationZOffset), ReadF32(span, rotation + PhysicsGpuAbi.RotationWOffset)));
     }
 
-    private static void EmitContactEvents(Span<byte> span, PhysicsWorldLayout layout, SimCollider colStatic, SimBody bDyn, float approach, Vector3 normalTowardDyn, ContactPoint contact, int substep, uint sourceOrdinal)
+    private static void EmitContactEvents(Span<byte> span, PhysicsWorldLayout layout, SimCollider colStatic, SimBody bDyn, float approach, Vector3 normalTowardDyn, ContactPoint contact, int substep, uint sourceOrdinal, ImmutableDictionary<WorkPairKey,ContactWorkOccurrence>.Builder workStates)
     {
         var bStatic = colStatic.Body;
         for (var t = 0; t < layout.Triggers; t++)
@@ -101,7 +105,7 @@ internal sealed class WorkshopPhysicsEngine
             if (owner != bStatic.BodySlot) continue;
             var kind = (BodyTargetKind)BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(tOffset + PhysicsGpuAbi.TriggerTargetKindOffset, 4));
             var named = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(tOffset + PhysicsGpuAbi.TriggerNamedTargetOffset, 4));
-            if (kind == BodyTargetKind.NamedBody && named != bDyn.BodySlot) continue;
+            if (!PhysicsGpuAbi.MatchesTarget(span,kind,named,(uint)bDyn.BodySlot)) continue;
             var threshold = BinaryPrimitives.ReadSingleLittleEndian(span.Slice(tOffset + PhysicsGpuAbi.TriggerThresholdOffset, 4));
             if (approach >= threshold)
             {
@@ -125,19 +129,15 @@ internal sealed class WorkshopPhysicsEngine
             if (owner != bStatic.BodySlot) continue;
             var kind = (BodyTargetKind)BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(wOffset + PhysicsGpuAbi.ContactWorkTargetKindOffset, 4));
             var named = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(wOffset + PhysicsGpuAbi.ContactWorkNamedTargetOffset, 4));
-            if (kind == BodyTargetKind.NamedBody && named != bDyn.BodySlot) continue;
+            if (!PhysicsGpuAbi.MatchesTarget(span,kind,named,(uint)bDyn.BodySlot)) continue;
             var threshold = BinaryPrimitives.ReadSingleLittleEndian(span.Slice(wOffset + PhysicsGpuAbi.ContactWorkAdmissionSpeedOffset, 4));
             if (approach < threshold) continue;
 
-            for (var o = 0; o < layout.WorkOccurrences; o++)
-            {
-                var oOffset = layout.WorkOccurrenceOffset(o);
-                var occWork = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(oOffset + PhysicsGpuAbi.WorkOccurrenceWorkOffset, 4));
-                var target = BinaryPrimitives.ReadUInt64LittleEndian(span.Slice(oOffset + PhysicsGpuAbi.WorkOccurrenceTargetOffset, 8));
-                if (occWork != w || target != ((ulong)bDyn.BodyIdHigh << 32 | bDyn.BodyIdLow)) continue;
-
-                var prevSeq = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(oOffset + PhysicsGpuAbi.WorkOccurrenceSequenceOffset, 4));
-                var prevOrd = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(oOffset + PhysicsGpuAbi.WorkOccurrenceOrdinalOffset, 4));
+            var key=new WorkPairKey(new(BinaryPrimitives.ReadUInt64LittleEndian(span.Slice(wOffset+PhysicsGpuAbi.RecordIdentityOffset,8))),
+                new((ulong)bDyn.BodyIdHigh<<32 | bDyn.BodyIdLow));
+            workStates.TryGetValue(key,out var previous);
+            var prevSeq=previous.Sequence;
+            var prevOrd=previous.EventOrdinal;
                 var cooldown = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(wOffset + PhysicsGpuAbi.ContactWorkCooldownOffset, 4));
                 var curOrd = sourceOrdinal + (uint)substep + 1;
                 var curCount = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(wOffset + PhysicsGpuAbi.ContactWorkOccurrenceCountOffset, 4));
@@ -147,12 +147,6 @@ internal sealed class WorkshopPhysicsEngine
                 {
                     var newCount = curCount + 1;
                     BinaryPrimitives.WriteUInt32LittleEndian(span.Slice(wOffset + PhysicsGpuAbi.ContactWorkOccurrenceCountOffset, 4), newCount);
-                    BinaryPrimitives.WriteUInt32LittleEndian(span.Slice(oOffset + PhysicsGpuAbi.WorkOccurrenceColliderOffset, 4), checked((uint)colStatic.Index));
-                    BinaryPrimitives.WriteUInt32LittleEndian(span.Slice(oOffset + PhysicsGpuAbi.WorkOccurrenceSequenceOffset, 4), newCount);
-                    BinaryPrimitives.WriteUInt32LittleEndian(span.Slice(oOffset + PhysicsGpuAbi.WorkOccurrenceOrdinalOffset, 4), curOrd);
-                    WriteF32(span, oOffset + PhysicsGpuAbi.WorkOccurrencePhaseOffset, 0f);
-                    BinaryPrimitives.WriteSingleLittleEndian(span.Slice(oOffset + PhysicsGpuAbi.WorkOccurrenceApproachOffset, 4), approach);
-
                     var invEffectiveMass = 1f / WorkshopConstraintSolver.EffectiveMass(contact, contact.Normal);
                     var relVel = WorkshopConstraintSolver.RelativeVelocity(contact);
                     var speed = Vector3.Dot(relVel, contact.Normal);
@@ -168,9 +162,8 @@ internal sealed class WorkshopPhysicsEngine
                             $"Contact work {w} holds an impossible store: {avail:R} J available of a {capacity:R} J preload.");
 
                     BinaryPrimitives.WriteSingleLittleEndian(span.Slice(wOffset + PhysicsGpuAbi.ContactWorkAvailableOffset, 4), response.Remaining);
-                    BinaryPrimitives.WriteSingleLittleEndian(span.Slice(oOffset + PhysicsGpuAbi.WorkOccurrenceDebitOffset, 4), response.Debit);
-                    span[oOffset + PhysicsGpuAbi.WorkOccurrenceEffectOffset] = response.Debit > 0 ? (byte)1 : (byte)0;
-                    span.Slice(oOffset + PhysicsGpuAbi.WorkOccurrencePaddingOffset, PhysicsGpuAbi.WorkOccurrenceBytes - PhysicsGpuAbi.WorkOccurrencePaddingOffset).Clear();
+                    workStates[key]=new(new((uint)w),new((uint)colStatic.Index),key.Target,newCount,curOrd,0,
+                        new(approach),new(response.Debit),response.Debit>0 ? ContactWorkEffect.Paid : ContactWorkEffect.Passive);
 
                     var isA = contact.A == bDyn;
                     var r = isA ? new Vector3(contact.RAx, contact.RAy, contact.RAz) : new Vector3(contact.RBx, contact.RBy, contact.RBz);
@@ -178,8 +171,6 @@ internal sealed class WorkshopPhysicsEngine
                     WorkshopCollisionKernels.ApplyImpulse(bDyn, imp, r);
                     WorkshopConstraintSolver.SettleVelocity(bDyn);
                 }
-                break;
-            }
         }
     }
 
@@ -196,7 +187,7 @@ internal sealed class WorkshopPhysicsEngine
             else if (c.B.Motion == RigidMotionKind.Static && c.A.Motion == RigidMotionKind.Dynamic)
                 _loadContacts.Add(new(new(c.B.Id), new(c.ColB.Id), new(c.A.Id), c.A.Mass, c.Point, c.Normal, c.Gap, c.MaxImpulse > 0f));
         }
-        if (_loadCounted.Length < _loadContacts.Count) _loadCounted = new GpuBodyId[_loadContacts.Count * 2];
+        _ = Scratch(ref _loadCounted, _loadContacts.Count);
         var records = System.Runtime.InteropServices.CollectionsMarshal.AsSpan(_loadContacts);
         for (var row = 0; row < rows.Length; row++)
         {
@@ -208,14 +199,17 @@ internal sealed class WorkshopPhysicsEngine
 
     /// <summary>One step from the committed world. Besides the world bytes it reads only the explicit tick inputs: per-source enables
     /// and per-prismatic switched-supply state (compiled routes × committed switch contacts). No authoring or host state is read.</summary>
-    public void Advance(byte[] source, byte[] candidate, PhysicsTickInputs inputs)
+    public PhysicsInteractionSnapshot Advance(ReadOnlyMemory<byte> source, Memory<byte> candidate, PhysicsTickInputs inputs, PhysicsInteractionSnapshot committedInteractions)
     {
         ArgumentNullException.ThrowIfNull(inputs);
-        _ = PhysicsGpuAbi.ReadFailure(source);
-        if (source.Length != PhysicsGpuAbi.ByteLength(source) || candidate.Length != source.Length)
+        ArgumentNullException.ThrowIfNull(committedInteractions);
+        var captureStates=committedInteractions.Captures.ToBuilder();
+        var workStates=committedInteractions.Works.ToBuilder();
+        _ = PhysicsGpuAbi.ReadFailure(source.Span);
+        if (source.Length != PhysicsGpuAbi.ByteLength(source.Span) || candidate.Length != source.Length)
             throw new ArgumentException("The candidate world must have its committed world's exact length.");
-        Array.Copy(source, candidate, source.Length);
-        var span = candidate.AsSpan();
+        source.CopyTo(candidate);
+        var span = candidate.Span;
         // Story 9R.5b: every table offset is this world's own (its header's populations); no table has a fixed capacity.
         var layout = PhysicsGpuAbi.Layout(span);
 
@@ -227,7 +221,7 @@ internal sealed class WorkshopPhysicsEngine
             if (Enum.IsDefined(motion)) continue;
             BinaryPrimitives.WriteUInt32LittleEndian(span.Slice(PhysicsGpuAbi.HeaderStatusOffset, 4), (uint)PhysicsCandidateStatus.Invalid);
             BinaryPrimitives.WriteUInt32LittleEndian(span.Slice(PhysicsGpuAbi.HeaderFailureOffset, 4), (uint)PhysicsFailure.InvalidDeclaration);
-            return;
+            return committedInteractions;
         }
 
         // Story 10.1: the collider shape is a closed set. A world carrying an undefined shape is an invalid declaration, refused
@@ -239,7 +233,7 @@ internal sealed class WorkshopPhysicsEngine
             if (Enum.IsDefined(shape)) continue;
             BinaryPrimitives.WriteUInt32LittleEndian(span.Slice(PhysicsGpuAbi.HeaderStatusOffset, 4), (uint)PhysicsCandidateStatus.Invalid);
             BinaryPrimitives.WriteUInt32LittleEndian(span.Slice(PhysicsGpuAbi.HeaderFailureOffset, 4), (uint)PhysicsFailure.InvalidDeclaration);
-            return;
+            return committedInteractions;
         }
 
         BinaryPrimitives.WriteUInt32LittleEndian(span.Slice(PhysicsGpuAbi.HeaderStatusOffset, 4), 0);
@@ -320,7 +314,6 @@ internal sealed class WorkshopPhysicsEngine
             b.TickStartRotation = b.Rotation;
             b.TickRelativeRotation = Quaternion.Identity;
             b.Motion = motion;
-            b.Collider = null;
 
             if (motion == RigidMotionKind.Static)
             {
@@ -417,19 +410,7 @@ internal sealed class WorkshopPhysicsEngine
             WorkshopCollisionKernels.RefreshCollider(collider);
             _colliders.Add(collider);
 
-            if (body.Motion == RigidMotionKind.Dynamic)
-            {
-                body.Collider = collider;
-                body.SupportExtent = shapeKind switch
-                {
-                    ShapeKind.Sphere => radius,
-                    ShapeKind.Box => hx * MathF.Abs(collider.U0.Y) + hy * MathF.Abs(collider.U1.Y) + hz * MathF.Abs(collider.U2.Y),
-                    ShapeKind.Cylinder => WorkshopCollisionKernels.CylinderProjection(collider, Vector3.UnitY),
-                    // A plane and the hollow kinds are never dynamic (admission).
-                    ShapeKind.Plane or ShapeKind.Tube or ShapeKind.Torus or ShapeKind.Frustum => 0f,
-                    _ => 0f
-                };
-            }
+
         }
 
         _joints.Clear();
@@ -485,7 +466,7 @@ internal sealed class WorkshopPhysicsEngine
         {
             var b = c.Body;
             var isDyn = b.Motion == RigidMotionKind.Dynamic;
-            var spin = isDyn ? MathF.Sqrt(b.Wx * b.Wx + b.Wy * b.Wy + b.Wz * b.Wz) * WorkshopCollisionKernels.ColliderExtent(c) * tickTime : 0f;
+            var spin = isDyn ? MathF.Sqrt(b.Wx * b.Wx + b.Wy * b.Wy + b.Wz * b.Wz) * WorkshopCollisionKernels.SweepReach(c) * tickTime : 0f;
             var fatX = isDyn ? (MathF.Abs(b.Vx) + MathF.Abs(b.Gx) * tickTime) * tickTime + spin + velocitySlop : velocitySlop;
             var fatY = isDyn ? (MathF.Abs(b.Vy) + MathF.Abs(b.Gy) * tickTime) * tickTime + spin + velocitySlop : velocitySlop;
             var fatZ = isDyn ? (MathF.Abs(b.Vz) + MathF.Abs(b.Gz) * tickTime) * tickTime + spin + velocitySlop : velocitySlop;
@@ -622,11 +603,18 @@ internal sealed class WorkshopPhysicsEngine
             }
 
             var guideCount = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(PhysicsGpuAbi.HeaderGuideCountOffset, 4));
+            foreach(var targetBody in _dynamicBodies)
+            {
+                var bestDistance=float.PositiveInfinity;
+                var bestOwner=ulong.MaxValue; var bestGuide=ulong.MaxValue;
+                var bestAcceleration=Vector3.Zero;
             for (var g = 0; g < guideCount; g++)
             {
                 var guideOffset = layout.GuideOffset(g);
                 var frameSlot = (int)ReadU32(span, guideOffset + PhysicsGpuAbi.GuideFrameOffset);
-                var targetSlot = (int)ReadU32(span, guideOffset + PhysicsGpuAbi.GuideTargetOffset);
+                var named=ReadU32(span,guideOffset+PhysicsGpuAbi.GuideTargetOffset);
+                var kind=(BodyTargetKind)ReadU32(span,guideOffset+PhysicsGpuAbi.GuideTargetKindOffset);
+                if(!PhysicsGpuAbi.MatchesTarget(span,kind,named,(uint)targetBody.BodySlot)) continue;
                 var minimum = ReadVector(span, guideOffset + PhysicsGpuAbi.GuideMinimumOffset);
                 var maximum = ReadVector(span, guideOffset + PhysicsGpuAbi.GuideMaximumOffset);
                 var (minX, minY, minZ) = (minimum.X, minimum.Y, minimum.Z);
@@ -636,8 +624,17 @@ internal sealed class WorkshopPhysicsEngine
                 var supportMargin = ReadF32(span, guideOffset + PhysicsGpuAbi.GuideSupportMarginOffset);
 
                 if (maxAcc <= 0f) continue;
-                if (!_allBodies.TryGetValue(targetSlot, out var targetBody) || !_allBodies.TryGetValue(frameSlot, out var frameBody)) continue;
+                if (!_allBodies.TryGetValue(frameSlot, out var frameBody)) continue;
 
+                var up = WorkshopCollisionKernels.RotateVector(frameBody.Rotation, Vector3.UnitY);
+                var lowest = float.PositiveInfinity;
+                foreach (var child in _colliders)
+                {
+                    if (child.Body != targetBody) continue;
+                    WorkshopCollisionKernels.RefreshCollider(child);
+                    var point = WorkshopCollisionKernels.SupportPoint(child, -up);
+                    lowest = MathF.Min(lowest, Vector3.Dot(point - frameBody.Position, up));
+                }
                 var rel = targetBody.Position - frameBody.Position;
                 var loc = WorkshopCollisionKernels.InvRotateVector(frameBody.Rotation, rel);
                 var locV = WorkshopCollisionKernels.InvRotateVector(frameBody.Rotation, targetBody.LinearVelocity);
@@ -645,7 +642,7 @@ internal sealed class WorkshopPhysicsEngine
                 var inside = loc.X >= minX && loc.X <= maxX &&
                              loc.Y >= minY && loc.Y <= maxY &&
                              loc.Z >= minZ && loc.Z <= maxZ &&
-                             loc.Y - targetBody.SupportExtent >= supportHeight - supportMargin &&
+                             lowest >= supportHeight - supportMargin &&
                              locV.Y <= 0f;
 
                 if (inside)
@@ -654,9 +651,15 @@ internal sealed class WorkshopPhysicsEngine
                     var accScale = -maxAcc / MathF.Max(1.0f, flatLen);
                     var aloc = new Vector3(loc.X * accScale, 0f, loc.Z * accScale);
                     var aWorld = WorkshopCollisionKernels.RotateVector(frameBody.Rotation, aloc);
-                    targetBody.Vx += aWorld.X * dt;
-                    targetBody.Vz += aWorld.Z * dt;
+                    var distance=loc.X*loc.X+loc.Z*loc.Z;
+                    var owner=(ulong)frameBody.BodyIdHigh<<32 | frameBody.BodyIdLow;
+                    var guide=BinaryPrimitives.ReadUInt64LittleEndian(span.Slice(guideOffset+PhysicsGpuAbi.RecordIdentityOffset,8));
+                    if(distance<bestDistance || (distance==bestDistance && (owner<bestOwner || (owner==bestOwner && guide<bestGuide))))
+                    { bestDistance=distance; bestOwner=owner; bestGuide=guide; bestAcceleration=aWorld; }
                 }
+            }
+                targetBody.Vx+=bestAcceleration.X*dt;
+                targetBody.Vz+=bestAcceleration.Z*dt;
             }
 
             // Each declared drive follows its own compiled route (SimJoint.SupplyClosed), closed from committed state, never a timer.
@@ -688,8 +691,8 @@ internal sealed class WorkshopPhysicsEngine
                 var bA = colA.Body;
                 var bB = colB.Body;
                 var relSpeed = (bA.LinearVelocity - bB.LinearVelocity).Length() +
-                    bA.AngularVelocity.Length() * WorkshopCollisionKernels.ColliderExtent(colA) +
-                    bB.AngularVelocity.Length() * WorkshopCollisionKernels.ColliderExtent(colB);
+                    bA.AngularVelocity.Length() * WorkshopCollisionKernels.SweepReach(colA) +
+                    bB.AngularVelocity.Length() * WorkshopCollisionKernels.SweepReach(colB);
 
                 var first = _contacts.Count;
                 var margin = WorkshopConstraintSolver.SpeculativeSlop + relSpeed * dt;
@@ -700,34 +703,24 @@ internal sealed class WorkshopPhysicsEngine
                     while (_manifoldPool.Count <= _manifolds.Count) _manifoldPool.Add(new ContactManifold());
                     var manifold = _manifoldPool[_manifolds.Count];
                     manifold.Points.Clear();
-                    manifold.Rolling = 0;
-                    manifold.Roll1 = default;
-                    manifold.Roll2 = default;
-                    manifold.RollingMass1 = 0;
-                    manifold.RollingMass2 = 0;
-                    manifold.LambdaR1 = 0;
-                    manifold.LambdaR2 = 0;
                     for (var i = first; i < _contacts.Count; i++) manifold.Points.Add(_contacts[i]);
                     _manifolds.Add(manifold);
                 }
             }
 
-            WorkshopCollisionKernels.RemoveInternalHollowEdges(_manifolds, _contacts);
-            foreach (var c in _contacts) WorkshopConstraintSolver.PrepareContact(c, _contactCache);
-            foreach (var m in _manifolds)
-            {
-                m.NormalWarmStartKey = new(m.Points);
-                // A partial old load distribution can torque a newly selected support set.
-                // Invalidate the entire initial guess before applying any warm impulse.
-                if (!_normalContactSets.Contains(m.NormalWarmStartKey))
-                    foreach (var c in m.Points) c.LambdaN = 0f;
-                WorkshopConstraintSolver.PrepareRolling(m);
-                WorkshopFrictionSolver.Prepare(m, _frictionCache);
-            }
+            WorkshopCollisionKernels.RemoveInternalFeatures(_manifolds, _contacts);
+            WorkshopCollisionKernels.GroupRigidSupports(_manifolds, _contacts, _manifoldPool);
             foreach (var b in _dynamicBodies)
             {
                 b.Cm0 = b.CentreOfMass;
                 b.Q0 = b.Rotation;
+            }
+            foreach (var c in _contacts) WorkshopConstraintSolver.PrepareContact(c, _contactCache);
+            foreach (var m in _manifolds)
+            {
+                WorkshopConstraintSolver.PrepareNormalBlocks(m, dt, _normalContactSets);
+                WorkshopFrictionSolver.Prepare(m, _frictionCache);
+                WorkshopConstraintSolver.PrepareRolling(m, dt);
             }
 
             foreach (var joint in _joints)
@@ -835,6 +828,8 @@ internal sealed class WorkshopPhysicsEngine
             foreach (var m in _manifolds)
             {
                 _normalContactSets.Add(m.NormalWarmStartKey);
+                for (var block = 0; block < m.NormalBlockCount; block++)
+                    _normalContactSets.Add(m.NormalBlocks[block].Key);
                 WorkshopFrictionSolver.Store(m, _frictionCache);
             }
 
@@ -842,8 +837,8 @@ internal sealed class WorkshopPhysicsEngine
             foreach (var c in _contacts)
             {
                 if (c.MaxImpulse <= 0f) continue;
-                if (c.A.Motion == RigidMotionKind.Dynamic && c.B.Motion == RigidMotionKind.Static) EmitContactEvents(span, layout, c.ColB, c.A, -c.RelVel, c.Normal, c, s, sourceOrdinal);
-                else if (c.B.Motion == RigidMotionKind.Dynamic && c.A.Motion == RigidMotionKind.Static) EmitContactEvents(span, layout, c.ColA, c.B, -c.RelVel, -c.Normal, c, s, sourceOrdinal);
+                if (c.A.Motion == RigidMotionKind.Dynamic && c.B.Motion == RigidMotionKind.Static) EmitContactEvents(span, layout, c.ColB, c.A, -c.RelVel, c.Normal, c, s, sourceOrdinal, workStates);
+                else if (c.B.Motion == RigidMotionKind.Dynamic && c.A.Motion == RigidMotionKind.Static) EmitContactEvents(span, layout, c.ColA, c.B, -c.RelVel, -c.Normal, c, s, sourceOrdinal, workStates);
             }
 
             var orientationCount = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(PhysicsGpuAbi.HeaderOrientationSensorCountOffset, 4));
@@ -909,7 +904,9 @@ internal sealed class WorkshopPhysicsEngine
         {
             var sensorOffset = layout.SensorOffset(i);
             var frameSlot = (int)ReadU32(span, sensorOffset + PhysicsGpuAbi.SensorFrameOffset);
-            var targetSlot = (int)ReadU32(span, sensorOffset + PhysicsGpuAbi.SensorTargetOffset);
+            var named=ReadU32(span,sensorOffset+PhysicsGpuAbi.SensorTargetOffset);
+            var kind=(BodyTargetKind)ReadU32(span,sensorOffset+PhysicsGpuAbi.SensorTargetKindOffset);
+            var sensorId=new GpuSensorId(BinaryPrimitives.ReadUInt64LittleEndian(span.Slice(sensorOffset+PhysicsGpuAbi.RecordIdentityOffset,8)));
             var participation = ReadU32(span, sensorOffset + PhysicsGpuAbi.SensorParticipationOffset);
             var minimum = ReadVector(span, sensorOffset + PhysicsGpuAbi.SensorMinimumOffset);
             var maximum = ReadVector(span, sensorOffset + PhysicsGpuAbi.SensorMaximumOffset);
@@ -918,13 +915,16 @@ internal sealed class WorkshopPhysicsEngine
             var speedLimit = ReadF32(span, sensorOffset + PhysicsGpuAbi.SensorSpeedLimitOffset);
             var dwell = ReadF32(span, sensorOffset + PhysicsGpuAbi.SensorDwellOffset);
 
-            var prevPhase = ReadU32(span, sensorOffset + PhysicsGpuAbi.SensorPhaseOffset);
-            var prevStartOrdinal = ReadU32(span, sensorOffset + PhysicsGpuAbi.SensorStartOrdinalOffset);
-            var prevStartPhase = ReadF32(span, sensorOffset + PhysicsGpuAbi.SensorStartPhaseOffset);
-
-            _allBodies.TryGetValue(targetSlot, out var targetBody);
-            _allBodies.TryGetValue(frameSlot, out var frameBody);
-
+            _allBodies.TryGetValue(frameSlot,out var frameBody);
+            foreach(var targetBody in _dynamicBodies)
+            {
+            if(!PhysicsGpuAbi.MatchesTarget(span,kind,named,(uint)targetBody.BodySlot)) continue;
+            var targetId=new GpuBodyId((ulong)targetBody.BodyIdHigh<<32 | targetBody.BodyIdLow);
+            var key=new CapturePairKey(sensorId,targetId);
+            var previous=committedInteractions.Residence(key);
+            var prevPhase=(uint)previous.Phase;
+            var prevStartOrdinal=previous.StartOrdinal;
+            var prevStartPhase=previous.StartPhase;
             uint phase = 0;
             uint startOrdinal = 0;
             float startPhase = 0f;
@@ -975,15 +975,13 @@ internal sealed class WorkshopPhysicsEngine
                 }
             }
 
-            WriteU32(span, sensorOffset + PhysicsGpuAbi.SensorPhaseOffset, phase);
-            WriteU32(span, sensorOffset + PhysicsGpuAbi.SensorStartOrdinalOffset, startOrdinal);
-            WriteF32(span, sensorOffset + PhysicsGpuAbi.SensorStartPhaseOffset, startPhase);
-            WriteU32(span, sensorOffset + PhysicsGpuAbi.SensorOccurrenceCountOffset, occurrenceCount);
-            WriteU32(span, sensorOffset + PhysicsGpuAbi.SensorEventOrdinalOffset, eventOrdinal);
-            WriteF32(span, sensorOffset + PhysicsGpuAbi.SensorEventPhaseOffset, eventPhase);
-            span.Slice(sensorOffset + PhysicsGpuAbi.SensorPaddingOffset, PhysicsGpuAbi.SensorBytes - PhysicsGpuAbi.SensorPaddingOffset).Clear();
-
-            totalCaptured += occurrenceCount;
+            var residence=new ResidenceRead(sensorId,targetId,(ResidencePhase)phase,occurrenceCount,startOrdinal,startPhase,eventOrdinal,eventPhase);
+            var captureState=committedInteractions.Captures.TryGetValue(key,out var retained) ? retained.Latch : CaptureLatch.Clear(sensorId,targetId);
+            captureState=captureState.Consume(residence);
+            if(phase==0 && captureState.Phase==CaptureLatchPhase.Clear) captureStates.Remove(key);
+            else captureStates[key]=new(residence,captureState);
+            totalCaptured = checked(totalCaptured+occurrenceCount);
+            }
         }
 
         BinaryPrimitives.WriteUInt32LittleEndian(span.Slice(PhysicsGpuAbi.HeaderCapturedCountOffset, 4), totalCaptured);
@@ -999,5 +997,6 @@ internal sealed class WorkshopPhysicsEngine
             WriteVector(span, b.BodyOffset + PhysicsGpuAbi.BodyVelocityOffset, b.Vx, b.Vy, b.Vz);
             WriteVector(span, b.BodyOffset + PhysicsGpuAbi.BodyAngularVelocityOffset, b.Wx, b.Wy, b.Wz);
         }
+        return new(captureStates.ToImmutable(),workStates.ToImmutable());
     }
 }

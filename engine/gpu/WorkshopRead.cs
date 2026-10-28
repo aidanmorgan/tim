@@ -34,7 +34,7 @@ public readonly partial record struct WorkshopRead
         for (var i = 0; i < first.Captures.Count; i++)
         {
             var left = first.Captures[i]; var right = second.Captures[i];
-            if (left.Sensor != right.Sensor || left.Phase != right.Phase || left.EventOrdinal != right.EventOrdinal ||
+            if (left.Sensor != right.Sensor || left.Target != right.Target || left.Phase != right.Phase || left.EventOrdinal != right.EventOrdinal ||
                 !F32Bits.Equal(left.EventPhase, right.EventPhase)) return false;
         }
         for (var i = 0; i < first.Activations.Count; i++)

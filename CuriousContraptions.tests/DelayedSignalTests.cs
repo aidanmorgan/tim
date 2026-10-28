@@ -1,3 +1,4 @@
+using CuriousContraptions.Abstractions;
 using System.Buffers.Binary;
 using System.Text.Json;
 using CuriousContraptions.Gpu;
@@ -106,14 +107,14 @@ public sealed class DelayedSignalTests
         var trigger = ActivationLatch.From(sourceNode,new(ActivationOccurrenceKind.Contact,new(2),source,cause));
         var delayed = ActivationLatch.From(targetNode,new(ActivationOccurrenceKind.TimerElapsed,new(4),new(584,0f),cause));
         var read = new WorkshopRead(new(2),new(146),default,Activations:new([trigger,delayed]));
-        Assert.Equal(WorkshopGoalPhase.Solved,WorkshopGoalEvaluator.Evaluate(goal,read,new(2)));
-        Assert.Equal(new ActivationTime(584,0f),WorkshopGoalEvaluator.Occurrence(goal,read,new(2)));
-        Assert.Equal(WorkshopGoalPhase.Waiting,WorkshopGoalEvaluator.Evaluate(goal,read,new(3)));
+        Assert.Equal(WorkshopGoalPhase.Solved,WorkshopGoalEvaluator.Evaluate(goal,read,new(2), Lesson(1f).Instances.Identities));
+        Assert.Equal(new ActivationTime(584,0f),WorkshopGoalEvaluator.Occurrence(goal,read,new(2), Lesson(1f).Instances.Identities));
+        Assert.Equal(WorkshopGoalPhase.Waiting,WorkshopGoalEvaluator.Evaluate(goal,read,new(3), Lesson(1f).Instances.Identities));
         var early = ActivationLatch.From(targetNode,trigger.Occurrence);
-        Assert.Equal(WorkshopGoalPhase.Waiting,WorkshopGoalEvaluator.Evaluate(goal,read with { Activations=new([trigger,early]) },new(2)));
-        Assert.Equal(WorkshopGoalPhase.Waiting,WorkshopGoalEvaluator.Evaluate(goal,read with { Activations=new([ActivationLatch.Clear(sourceNode),delayed]) },new(2)));
-        Assert.Equal(WorkshopGoalPhase.Waiting,WorkshopGoalEvaluator.Evaluate(goal,read with { Activations=new([trigger,delayed with { Owner=new(99) }]) },new(2)));
-        Assert.Equal(WorkshopGoalPhase.Waiting,WorkshopGoalEvaluator.Evaluate(goal,new(new(3),new(0),default),new(3)));
+        Assert.Equal(WorkshopGoalPhase.Waiting,WorkshopGoalEvaluator.Evaluate(goal,read with { Activations=new([trigger,early]) },new(2), Lesson(1f).Instances.Identities));
+        Assert.Equal(WorkshopGoalPhase.Waiting,WorkshopGoalEvaluator.Evaluate(goal,read with { Activations=new([ActivationLatch.Clear(sourceNode),delayed]) },new(2), Lesson(1f).Instances.Identities));
+        Assert.Equal(WorkshopGoalPhase.Waiting,WorkshopGoalEvaluator.Evaluate(goal,read with { Activations=new([trigger,delayed with { Owner=new(99) }]) },new(2), Lesson(1f).Instances.Identities));
+        Assert.Equal(WorkshopGoalPhase.Waiting,WorkshopGoalEvaluator.Evaluate(goal,new(new(3),new(0),default),new(3), Lesson(1f).Instances.Identities));
     }
 
     [Fact]

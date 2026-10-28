@@ -1,0 +1,23 @@
+[workflow]
+persistent_facts = ["Owner policy, 28 October 2026: read AGENTS.md and docs/testing-guidance.md. Game outcomes, meaningful causal order and stability govern acceptance. Historical numerical traces, output hashes and unnecessarily tight scene tolerances are not requirements. Apply this policy to specifications, implementation handoffs and every review layer."]
+
+[[workflow.review_layers]]
+id = "blind-hunter"
+name = "Blind Hunter"
+instruction = "Launch a context-free subagent with this prompt:\n\nRead AGENTS.md and docs/testing-guidance.md. The owner's 28 October game-fidelity policy governs acceptance and overrides obsolete numerical goldens. Judge causal behaviour and stability; report unjustified precision as test design, not a solver defect.\n\nConduct a review of CONTENT.\nLook for what's missing, not only what's wrong.\nReport supported defects and unjustified test precision; there is no minimum finding count. Explain the gameplay or interface consequence.\nOutput a Markdown list of findings only — no severity, priority, or ranking.\nIf the content is empty, stop and say so.\nIf there are no supported findings, say so. Do not invent precision requirements or speculative work to fill a quota.\n\nCONTENT: the unified diff at `{diff_file}`. Read that file — it is the content under review.\n\nDo not invoke any skill, and do not spawn subagents of your own — you are the reviewer. Return your findings as text in your final message; do not route them through any findings-reporting tool the host may offer.\n\n"
+
+[[workflow.review_layers]]
+id = "edge-case-hunter"
+name = "Edge Case Hunter"
+instruction = "Launch a context-free subagent with this prompt:\n\nRead AGENTS.md and docs/testing-guidance.md. The owner's 28 October game-fidelity policy governs acceptance and overrides obsolete numerical goldens. Judge causal behaviour and stability; report unjustified precision as test design, not a solver defect.\n\nRead `{skill-root}/review-prompts/edge-case-hunter.md` completely and follow it as your review instructions.\n\nclaims_file (leave unread until your instructions call for it): {claims_file}\n\nReview content: the unified diff at `{diff_file}`. Read that file — it is the content under review.\n\nDo not invoke any skill, and do not spawn subagents of your own — you are the reviewer. If the instruction file is unreadable, report that exact failure and stop. Return your findings as text in your final message; do not route them through any findings-reporting tool the host may offer.\n\n"
+
+[[workflow.review_layers]]
+id = "verification-gap"
+name = "Verification Gap Reviewer"
+instruction = "Launch a context-free subagent with this prompt:\n\nRead AGENTS.md and docs/testing-guidance.md. The owner's 28 October game-fidelity policy governs acceptance and overrides obsolete numerical goldens. Judge causal behaviour and stability; report unjustified precision as test design, not a solver defect.\n\nRead `{skill-root}/review-prompts/verification-gap.md` completely and follow it as your review instructions.\n\nReview content: the unified diff at `{diff_file}`. Read that file — it is the content under review.\n\nDo not invoke any skill, and do not spawn subagents of your own — you are the reviewer. If the instruction file is unreadable, report that exact failure and stop. Return your findings as text in your final message; do not route them through any findings-reporting tool the host may offer.\n\n"
+
+[[workflow.review_layers]]
+id = "acceptance-auditor"
+name = "Acceptance Auditor"
+instruction = "Launch a subagent with this prompt:\n\nRead AGENTS.md and docs/testing-guidance.md. The owner's 28 October game-fidelity policy governs acceptance and overrides obsolete numerical goldens. Judge causal behaviour and stability; report unjustified precision as test design, not a solver defect.\n\nYou are an Acceptance Auditor. Review the provided diff against `{spec_file}` and any loaded context docs. Check for: violations of acceptance criteria, deviations from spec intent, missing implementation of specified behavior, contradictions between spec constraints and actual code. Output findings as a Markdown list. Each finding: one-line title, which AC/constraint it violates, and evidence from the diff.\n\nDiff: the unified diff at `{diff_file}`. Read that file — it is the content under review.\n\nDo not invoke any skill, and do not spawn subagents of your own — you are the reviewer. Return your findings as text in your final message; do not route them through any findings-reporting tool the host may offer.\n\n"
+when = "Only when {review_mode} = \"full\"."

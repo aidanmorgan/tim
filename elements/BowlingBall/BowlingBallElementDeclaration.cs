@@ -43,12 +43,15 @@ public sealed class BowlingBallElementDeclaration : IMechanicalElement, ISceneGe
     public KinematicMode KinematicMode => KinematicMode.Dynamic;
 
     /// <summary>A solid sphere's inertia, 2/5 m r².</summary>
-    public RigidBodyMassProperties MassProperties => new(
-        Mass: 4f,
-        CentreOfMass: Vector3.Zero,
-        InertiaTensor: new Vector3(0.12544f, 0.12544f, 0.12544f),
-        LinearDrag: 0.04f,
-        Gravity: new Vector3(0, -9.81f, 0));
+    public PayloadPolicy Payload => PayloadPolicy.CaptureTarget;
+
+    public MassFrameDeclaration MassFrame => MassFrameDeclaration.Constant(
+        mass: 4f,
+        centreOfMass: Vector3.Zero,
+        principalMoments: new Vector3(0.12544f, 0.12544f, 0.12544f),
+        principalFrame: Quaternion.Identity,
+        linearDrag: 0.04f,
+        gravity: new Vector3(0, -9.81f, 0));
 
     public IReadOnlyList<AnchorPointDescriptor> AnchorPoints => [];
 }

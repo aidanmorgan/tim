@@ -59,7 +59,7 @@ public sealed class WorkshopPhysicsEngineTests
         var world = AdmitMoving(construction, 1, 0f, verticalSpeed);
         var frameOffset = BodyRecord(world, 2);
         var frameBefore = world.AsSpan(frameOffset, PhysicsGpuAbi.BodyBytes).ToArray();
-        StepWorld(world, 4, (_, state) =>
+        StepWorld(world, 4, (_, state, interactions) =>
         {
             var body = Find(PhysicsGpuAbi.ReadDynamicBodies(state), new(1));
             var lateralSpeed = MathF.Sqrt(body.Body.Velocity.X * body.Body.Velocity.X + body.Body.Velocity.Z * body.Body.Velocity.Z);
@@ -86,9 +86,9 @@ public sealed class WorkshopPhysicsEngineTests
             WorkshopInput.Generic(PartId.Receiver, new(2), 0, 1, 0, 0, 0, 0, 1, new(parameters)));
         var world = AdmitMoving(construction, 1, 0f);
         var first = 0;
-        StepWorld(world, 240, (tick, state) =>
+        StepWorld(world, 240, (tick, state, interactions) =>
         {
-            var sensor = PhysicsGpuAbi.ReadSensor(state, 0);
+            var sensor = interactions.Residence(new(new(BinaryPrimitives.ReadUInt64LittleEndian(state.AsSpan(PhysicsGpuAbi.Layout(state).SensorsOffset))), new(1)));
             if (sensor.OccurrenceCount > 0 && first == 0) first = tick;
             Assert.InRange(sensor.OccurrenceCount, 0u, 1u);
         });
@@ -106,9 +106,9 @@ public sealed class WorkshopPhysicsEngineTests
         var world = AdmitMoving(Free(
             WorkshopInput.Generic(PartId.Basketball,new(1), 0, 1.1, 0, 0, 0, 0, 1),
             WorkshopInput.Generic(PartId.Receiver, new(2), 0, 1, 0, 0, 0, 0, 1, new(values))), 1, speed);
-        StepWorld(world, 1, (_, state) =>
+        StepWorld(world, 1, (_, state, interactions) =>
         {
-            var read = PhysicsGpuAbi.ReadSensor(state, 0);
+            var read = interactions.Residence(new(new(BinaryPrimitives.ReadUInt64LittleEndian(state.AsSpan(PhysicsGpuAbi.Layout(state).SensorsOffset))), new(1)));
             Assert.Equal(enters ? ResidencePhase.Dwelling : ResidencePhase.Outside, read.Phase);
             Assert.Equal(0u, read.OccurrenceCount);
         });
@@ -125,9 +125,9 @@ public sealed class WorkshopPhysicsEngineTests
         var body = BodyRecord(world, 1);
         var initial = world.AsSpan(body, PhysicsGpuAbi.BodyBytes).ToArray();
         var firstCapture = 0;
-        StepWorld(world, 36, (tick, state) =>
+        StepWorld(world, 36, (tick, state, interactions) =>
         {
-            var read = PhysicsGpuAbi.ReadSensor(state, 0);
+            var read = interactions.Residence(new(new(BinaryPrimitives.ReadUInt64LittleEndian(state.AsSpan(PhysicsGpuAbi.Layout(state).SensorsOffset))), new(1)));
             if (tick == 5) Assert.Equal(ResidencePhase.Dwelling, read.Phase);
             if (tick == 6)
             {
@@ -170,12 +170,12 @@ public sealed class WorkshopPhysicsEngineTests
             world.AsSpan(body + PhysicsGpuAbi.BodyGravityOffset, 6).Clear();
             world.AsSpan(body + PhysicsGpuAbi.BodyDragOffset, 2).Clear();
         }
-        StepWorld(world, 1, (_, state) =>
+        StepWorld(world, 1, (_, state, interactions) =>
         {
-            for (var slot = 0; slot < scene.Sensors.Length; slot++)
+            var policy = Assert.Single(scene.Sensors.ToArray()).Id;
+            foreach (var target in new GpuBodyId[] { new(1), new(3) })
             {
-                var read = PhysicsGpuAbi.ReadSensor(state, slot);
-                var target = Assert.Single(scene.Sensors.ToArray(), sensor => sensor.Id == read.Id).Target;
+                var read = interactions.Residence(new(policy, target));
                 var expected = target == new GpuBodyId(1) && enters ? ResidencePhase.Dwelling : ResidencePhase.Outside;
                 Assert.Equal(expected, read.Phase);
                 Assert.Equal(0u, read.OccurrenceCount);
@@ -230,7 +230,7 @@ public sealed class WorkshopPhysicsEngineTests
     /// D9: the occurrence rows never leave the device; tests read them where the producer and the accounting do).</summary>
     internal static async Task<(List<WorkshopRead> Reads, List<ContactWorkLedger> Ledgers)> RunWithLedgers(WorkshopConstruction construction, int ticks)
     {
-        await using var device = new WorkshopGpuDevice(new BrowserGpuTransport(), new(101, 206));
+        await using var device = new WorkshopGpuDevice(new BrowserGpuTransport(new CuriousContraptions.Abstractions.EventRingPublication()), new(101, 206));
         await using var simulation = new WorkshopSimulation(device, new StepClock(), Settings, new(1), new NoInstallation(),
             GpuDeviceOwnership.Borrowed);
         Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Initialize()).Outcome);
@@ -332,27 +332,28 @@ public sealed class WorkshopPhysicsEngineTests
         var admitted = BasketballOverBumperWithStore(seeded);
         var layout = PhysicsGpuAbi.Layout(admitted);
         var store = layout.ContactWorkOffset(0);
-        var occurrence = layout.WorkOccurrenceOffset(0);
         uint occurrences = 0;
-        var debits = new List<(float Debit, byte Effect)>();
+        var debits = new List<(float Debit, ContactWorkEffect Effect)>();
         var available = new List<float>();
-        StepWorld(admitted, 2 * TicksPerSecond, (tick, world) =>
+        StepWorld(admitted, 2 * TicksPerSecond, (tick, world, interactions) =>
         {
             var count = BinaryPrimitives.ReadUInt32LittleEndian(world.AsSpan(store + PhysicsGpuAbi.ContactWorkOccurrenceCountOffset));
             if (count > occurrences)
-                debits.Add((BinaryPrimitives.ReadSingleLittleEndian(world.AsSpan(occurrence + PhysicsGpuAbi.WorkOccurrenceDebitOffset)),
-                    world[occurrence + PhysicsGpuAbi.WorkOccurrenceEffectOffset]));
+            {
+                var occurrence = Assert.Single(interactions.Works.Values);
+                debits.Add((occurrence.Debit.Value, occurrence.Effect));
+            }
             occurrences = count;
             available.Add(BinaryPrimitives.ReadSingleLittleEndian(world.AsSpan(store + PhysicsGpuAbi.ContactWorkAvailableOffset)));
         });
         Assert.NotEmpty(debits); // the ball reached the Bumper with a qualifying approach
         if (pays)
         {
-            Assert.Equal((seeded, (byte)ContactWorkEffect.Paid), debits[0]);
+            Assert.Equal((seeded, ContactWorkEffect.Paid), debits[0]);
             Assert.Equal(0f, available[^1]);
             return;
         }
-        Assert.All(debits, paid => Assert.Equal((0f, (byte)ContactWorkEffect.Passive), paid));
+        Assert.All(debits, paid => Assert.Equal((0f, ContactWorkEffect.Passive), paid));
         Assert.All(available, value => Assert.Equal(seeded, value));
     }
 
@@ -365,7 +366,7 @@ public sealed class WorkshopPhysicsEngineTests
     [InlineData(-1f)]
     public void AnImpossibleStoreIsReportedNotTreatedAsAnEmptyOne(float available)
     {
-        var error = Assert.Throws<InvalidOperationException>(() => StepWorld(BasketballOverBumperWithStore(available), 2 * TicksPerSecond, (_, _) => { }));
+        var error = Assert.Throws<InvalidOperationException>(() => StepWorld(BasketballOverBumperWithStore(available), 2 * TicksPerSecond, (_, _, interactions) => { }));
         Assert.Contains("impossible store", error.Message);
     }
 
@@ -524,7 +525,7 @@ public sealed class WorkshopPhysicsEngineTests
     }
 
     private static void Step(byte[] admitted, int ticks, Action<int, PhysicsBodyReadSet> observe) =>
-        StepWorld(admitted, ticks, (tick, world) => observe(tick, PhysicsGpuAbi.ReadDynamicBodies(world)));
+        StepWorld(admitted, ticks, (tick, world, interactions) => observe(tick, PhysicsGpuAbi.ReadDynamicBodies(world)));
 
     private static int Rate(SimulationCadence cadence) => cadence switch
     {
@@ -534,18 +535,19 @@ public sealed class WorkshopPhysicsEngineTests
 
     /// <summary>Steps the admitted world with the production tick inputs of an unswitched, battery-free scene: no source
     /// enables and every prismatic's switched supply open, as PhysicsTickInputs.Compose yields without routes.</summary>
-    internal static void StepWorld(byte[] admitted, int ticks, Action<int, byte[]> observe, int prismatics = 0, int enabledSources = 0)
+    internal static void StepWorld(byte[] admitted, int ticks, Action<int, byte[], PhysicsInteractionSnapshot> observe, int prismatics = 0, int enabledSources = 0)
     {
         var engine = new WorkshopPhysicsEngine();
         engine.Reset();
         var source = admitted;
         var candidate = new byte[admitted.Length];
+        var interactions = PhysicsInteractionSnapshot.Empty;
         var inputs = new PhysicsTickInputs(Enumerable.Repeat(ElectricalEnable.Enabled, enabledSources).ToArray(), new bool[prismatics]);
         for (var tick = 1; tick <= ticks; tick++)
         {
-            engine.Advance(source, candidate, inputs);
+            interactions = engine.Advance(source, candidate, inputs, interactions);
             (source, candidate) = (candidate, source);
-            observe(tick, source);
+            observe(tick, source, interactions);
         }
     }
 
@@ -595,9 +597,9 @@ public sealed class WorkshopPhysicsEngineTests
             Assert.Equal((receiver.Id, original.Guides[i].Pose), (scene.Guides[i].Frame, scene.Guides[i].Pose));
         var admitted = PhysicsGpuAbi.Admission(scene, new(1), new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1)));
         var capturedAt = 0;
-        StepWorld(admitted, 10 * TicksPerSecond, (tick, world) =>
+        StepWorld(admitted, 10 * TicksPerSecond, (tick, world, interactions) =>
         {
-            if (capturedAt == 0 && PhysicsGpuAbi.ReadSensor(world, 0).OccurrenceCount > 0) capturedAt = tick;
+            if (capturedAt == 0 && interactions.Captures.Values.Any(value => value.Residence.OccurrenceCount > 0)) capturedAt = tick;
         }, scene.Prismatics.Length);
         Assert.True(captures == capturedAt > 0, $"offset {offset} m capture expected {captures}, first capture tick {capturedAt}");
     }
@@ -672,7 +674,7 @@ public sealed class WorkshopPhysicsEngineTests
         BinaryPrimitives.WriteSingleLittleEndian(admitted.AsSpan(PhysicsGpuAbi.Layout(admitted).ContactWorkOffset(0) + PhysicsGpuAbi.ContactWorkAvailableOffset), 0f);
         var rate = Rate(cadence);
         var debits = new List<double>();
-        StepWorld(admitted, rate, (tick, world) =>
+        StepWorld(admitted, rate, (tick, world, interactions) =>
         {
             if (tick % (rate / 2) == 0) debits.Add(3600.0 - PhysicsGpuAbi.ReadElectrical(world)[0].Remaining.Value);
         }, enabledSources: 1);
@@ -760,7 +762,7 @@ public sealed class WorkshopPhysicsEngineTests
         new(battery, WorkshopSocket.Supply, gate, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical);
     /// <summary>The blade's travel along its prismatic above the gate frame (closed ≈ 0, fully open ≈ 1.55 m).</summary>
     private static float Travel(WorkshopRead read, WorkshopGenericInstance gate) =>
-        Height(Find(read.Bodies, WorkshopPhysicsCompiler.SliderBody(gate.Id, 0))) - GateHeight;
+        read.Presentation.Actuators.ToArray().Single(row => row.Owner == gate.Id).Coordinate;
     private const float ClosedTravel = .2f, OpenTravel = 1.3f;
 
     /// <summary>Runs the construction through the production simulation in phases: each phase first applies its in-run supply
@@ -768,7 +770,7 @@ public sealed class WorkshopPhysicsEngineTests
     internal static async Task<List<List<WorkshopRead>>> RunPhases(WorkshopConstruction construction,
         params (WorkshopElectricalControl[] Controls, int Ticks)[] phases)
     {
-        await using var device = new WorkshopGpuDevice(new BrowserGpuTransport(), new(101, 206));
+        await using var device = new WorkshopGpuDevice(new BrowserGpuTransport(new CuriousContraptions.Abstractions.EventRingPublication()), new(101, 206));
         await using var simulation = new WorkshopSimulation(device, new StepClock(), Settings, new(1), new NoInstallation(),
             GpuDeviceOwnership.Borrowed);
         Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Initialize()).Outcome);

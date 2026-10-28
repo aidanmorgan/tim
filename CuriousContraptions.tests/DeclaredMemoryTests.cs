@@ -1,3 +1,4 @@
+using CuriousContraptions.Abstractions;
 using System.Text.Json;
 using CuriousContraptions.Gpu;
 

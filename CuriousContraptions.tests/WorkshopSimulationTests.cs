@@ -781,7 +781,7 @@ public sealed class WorkshopSimulationTests
             var network = WorkshopActivationCompiler.Compile(construction);
             return new(epoch, new(0), PhysicsGpuAbi.ReadDynamicBodies(bytes),
                 Activations: network.Clear(), Timers: network.ClearTimers(),
-                ContactWorks: PhysicsGpuAbi.ReadContactWorks(bytes).Stores, Electrical: PhysicsGpuAbi.ReadElectrical(bytes));
+                ContactWorks: PhysicsGpuAbi.ReadContactWorks(bytes, PhysicsInteractionSnapshot.Empty).Stores, Electrical: PhysicsGpuAbi.ReadElectrical(bytes));
         }
         public void FailAdvance(int index) => _advances[index].Completion.SetException(new InvalidOperationException("Injected old transport failure."));
         public void CompleteAdvance(int index, Func<WorkshopRead, WorkshopRead>? transform = null)

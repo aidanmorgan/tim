@@ -57,12 +57,15 @@ public sealed class WallElementDeclaration : IMechanicalElement, ISceneGeometryE
 
     public KinematicMode KinematicMode => KinematicMode.Static;
 
-    public RigidBodyMassProperties MassProperties => new(
-        Mass: 0f,
-        CentreOfMass: Vector3.Zero,
-        InertiaTensor: Vector3.Zero,
-        LinearDrag: 0f,
-        Gravity: Vector3.Zero);
+    public PayloadPolicy Payload => PayloadPolicy.None;
+
+    public MassFrameDeclaration MassFrame => MassFrameDeclaration.Constant(
+        mass: 0f,
+        centreOfMass: Vector3.Zero,
+        principalMoments: Vector3.Zero,
+        principalFrame: Quaternion.Identity,
+        linearDrag: 0f,
+        gravity: Vector3.Zero);
 
     public IReadOnlyList<AnchorPointDescriptor> AnchorPoints => [];
 }

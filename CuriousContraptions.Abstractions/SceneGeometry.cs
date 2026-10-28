@@ -12,7 +12,7 @@ public interface ISceneGeometryElement : IPuzzleElementDeclaration
     IReadOnlyList<SceneBodyGeometry> SceneBodies { get; }
 }
 
-public enum GeometryComponent : byte { HalfExtentX, HalfExtentY, HalfExtentZ, OffsetX, OffsetY, OffsetZ }
+public enum GeometryComponent : byte { HalfExtentX, HalfExtentY, HalfExtentZ, OffsetX, OffsetY, OffsetZ, Radius }
 
 /// <summary>A bounded declared real parameter drives one collider component: multiplier * value + offset.</summary>
 public readonly record struct ColliderParameterBinding(int Collider, GeometryComponent Component, string Parameter, float Multiplier, float Offset);

@@ -13,14 +13,15 @@ internal sealed class WorkshopTrace
     private const int Capacity = 7201;
     private const int ChunkRecords = 128;
     #if PLAYTEST
-    // Story 9R.5b (R1-B1): sized per Run from the first record's width (every committed body) times the run's tick count, never
-    // a fixed byte budget; reallocated only when a run needs more.
-    private byte[] _records = [];
-    private int _recordBytes;
+    private byte[] _records = new byte[16 * 1024];
+    private int[] _recordEnds = new int[32];
+    internal int RecordCapacityBytes => _records.Length;
+    internal int RecordOffsetCapacity => _recordEnds.Length;
     private TraceEnd? _poseEnd;
     private int _count;
     #endif
-    private readonly double[] _durations = new double[Capacity - 1];
+    private double[] _durations = new double[32];
+    internal int DurationCapacity => _durations.Length;
     private readonly byte[] _durationBytes = new byte[ChunkRecords * sizeof(double)];
     private int _durationCount;
     private bool _timingValid;
@@ -44,6 +45,11 @@ internal sealed class WorkshopTrace
                 epoch, default, construction, Session: session, Cadence: profile.Revision, Projection: projection));
             var expectedCount = checked((int)profile.RunTickLimit + 1);
             if (expectedCount > Capacity) throw new ArgumentException("Trace profile exceeds its reservation.");
+            #if PLAYTEST
+            var records = new byte[16 * 1024];
+            var recordEnds = new int[32];
+            #endif
+            var durations = new double[32];
             if (_active) End(TraceEnd.Reset);
             // Preserve the preceding capture before this one buffer is reused. No new RunLoop exists yet.
             FlushSealed();
@@ -52,9 +58,11 @@ internal sealed class WorkshopTrace
             _epoch = epoch;
             #if PLAYTEST
             _count = 0;
-            _recordBytes = 0;
+            _records = records;
+            _recordEnds = recordEnds;
             _poseEnd = null;
             #endif
+            _durations = durations;
             _durationCount = 0;
             _timingValid = true;
             _construction = encoded;
@@ -62,6 +70,7 @@ internal sealed class WorkshopTrace
             _expectedCount = expectedCount;
             _active = true;
         }
+        catch (OutOfMemoryException) { End(TraceEnd.Overflow); }
         catch (Exception error) when (error is ArgumentException or InvalidOperationException or OverflowException)
         { End(TraceEnd.InvalidRecord); }
     }
@@ -73,20 +82,20 @@ internal sealed class WorkshopTrace
         {
             if (_count == _expectedCount) { _poseEnd = TraceEnd.Overflow; return; }
             if (WorkshopTraceRecord.ReadProfile(record) != _profile ||
-                (_recordBytes != 0 && _recordBytes != record.Length) ||
                 BinaryPrimitives.ReadUInt64LittleEndian(record.AsSpan(16)) != _epoch.Value ||
                 BinaryPrimitives.ReadUInt64LittleEndian(record.AsSpan(24)) != (ulong)_count)
             { _poseEnd = TraceEnd.InvalidRecord; return; }
-            if (_recordBytes == 0)
-            {
-                _recordBytes = record.Length;
-                var needed = (long)_expectedCount * _recordBytes;
-                if (needed > int.MaxValue) { _poseEnd = TraceEnd.Overflow; return; }
-                if (_records.Length < needed) _records = new byte[needed];
-            }
-            record.CopyTo(_records, _count * _recordBytes);
+            var first = _count == 0 ? 0 : _recordEnds[_count - 1];
+            var end = checked(first + record.Length);
+            var records = Expanded(_records, end, Array.MaxLength);
+            var ends = Expanded(_recordEnds, _count + 1, Capacity);
+            record.CopyTo(records, first);
+            ends[_count] = end;
+            _records = records; _recordEnds = ends;
             _count++;
         }
+        catch (Exception error) when (error is OverflowException or OutOfMemoryException)
+        { _poseEnd = TraceEnd.Overflow; }
         catch (Exception error) when (error is ArgumentException or InvalidOperationException or IndexOutOfRangeException)
         { _poseEnd = TraceEnd.InvalidRecord; }
     }
@@ -102,10 +111,28 @@ internal sealed class WorkshopTrace
         if (!_active) return;
         // The guard bounds the index, so the store cannot throw.
         if (!_timingValid || !double.IsFinite(milliseconds) || milliseconds < 0 ||
-            _durationCount >= _durations.Length || tick.Value != (ulong)_durationCount + 1 ||
+            tick.Value != (ulong)_durationCount + 1 ||
             tick.Value >= (ulong)_expectedCount)
         { _timingValid = false; return; }
-        _durations[_durationCount++] = milliseconds;
+        try
+        {
+            _durations = Expanded(_durations, _durationCount + 1, Capacity - 1);
+            _durations[_durationCount++] = milliseconds;
+        }
+        catch (Exception error) when (error is OverflowException or OutOfMemoryException)
+        { _timingValid = false; }
+    }
+
+    private static T[] Expanded<T>(T[] current, int required, int maximum)
+    {
+        if (required > maximum) throw new OverflowException("Trace storage exceeds its representable or temporal extent.");
+        if ((long)required * 4 <= (long)current.Length * 3 || current.Length == maximum) return current;
+        var headroom = ((long)required * 4 + 2) / 3;
+        var capacity = (int)Math.Min(maximum, Math.Max((long)current.Length * 2, headroom));
+        if (capacity <= current.Length) return current;
+        var next = new T[capacity];
+        current.CopyTo(next, 0);
+        return next;
     }
 
     internal void End(TraceEnd reason)
@@ -142,13 +169,13 @@ internal sealed class WorkshopTrace
             var chunks = (_count + ChunkRecords - 1) / ChunkRecords;
             var poseReason = _poseEnd ?? reason;
             // Closed discriminants are serialized numerically at this console boundary.
-            Console.WriteLine($"CCGPU_TRACE_BEGIN {_identity} {_epoch.Value} {_recordBytes} {_count} {chunks} {(int)poseReason} {Convert.ToBase64String(_construction)}");
+            Console.WriteLine($"CCGPU_TRACE_BEGIN {_identity} {_epoch.Value} {_count} {chunks} {(int)poseReason} {Convert.ToBase64String(_construction)}");
             for (var ordinal = 0; ordinal < chunks; ordinal++)
             {
                 var first = ordinal * ChunkRecords;
                 var count = Math.Min(ChunkRecords, _count - first);
-                var encoded = Convert.ToBase64String(_records, first * _recordBytes,
-                    count * _recordBytes);
+                var start = first == 0 ? 0 : _recordEnds[first - 1];
+                var encoded = Convert.ToBase64String(_records, start, _recordEnds[first + count - 1] - start);
                 Console.WriteLine($"CCGPU_TRACE_CHUNK {_identity} {ordinal} {chunks} {first} {count} {encoded}");
             }
             Console.WriteLine($"CCGPU_TRACE_END {_identity} {_count} {chunks} {(int)poseReason}");

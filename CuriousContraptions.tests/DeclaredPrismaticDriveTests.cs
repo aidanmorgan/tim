@@ -75,7 +75,7 @@ public sealed class DeclaredPrismaticDriveTests
             MechanicalValue.Fixed(60f), MechanicalValue.Fixed(120f)), declared);
         var joint = Assert.Single(scene.Prismatics.ToArray());
         Assert.Equal(new PrismaticDriveDeclaration(joint.Id, 1.55f, 2.8f, 14f, 60f, 120f), Assert.Single(scene.PrismaticDrives.ToArray()));
-        Assert.Equal(joint.Id, scene.SupplyGraph.Nodes.ToArray().Single(node => node.Owner == gate.Id).Consumer);
+        Assert.Equal(joint.Id, Assert.Single(scene.SupplyGraph.Nodes.ToArray().Single(node => node.Owner == gate.Id).Consumers));
         // The admitted world carries the same drive; a slider without one (the springboard) carries none.
         var world = PhysicsGpuAbi.Admission(scene, new(1), new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1)));
         Assert.Equal(scene.PrismaticDrives[0], PhysicsGpuAbi.ReadPrismaticDrive(world, 0));
@@ -94,7 +94,7 @@ public sealed class DeclaredPrismaticDriveTests
         var battery = PlacedParts.Battery(new(2), 3, 3, 0);
         var reads = await WorkshopPhysicsEngineTests.Run(new(new(2), WorkshopCadenceSettings.Default(), new(gate, battery))
             { Connections = new(Power(battery.Id, gate.Id)) }, 240);
-        var blade = WorkshopPhysicsCompiler.SliderBody(gate.Id, 0);
+        var blade = new WorkshopInstances(gate, battery).Identities[gate.Id].Sliders[0].Body;
         var path = reads.SelectMany(read => Pieces(read.Motion!.Bytes, blade.Value)).ToList();
         var forces = Inferred(path, new(0, 3, 0), Vector3.UnitY, 1f, 14f, 4f, -9.81f, 0f, 1.55f);
         Assert.True(forces.Count > 60, $"the stroke is observed on {forces.Count} substeps");
@@ -154,6 +154,90 @@ public sealed class DeclaredPrismaticDriveTests
         Assert.True(path.Max(s => s.Centre.Y - 5f) <= 1.2f + 5e-3f, "the stopping profile does not overshoot");
     }
 
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void OneOwnerRouteDrivesBothChildrenWithinTheirOwnPhysicalBounds(bool enabled)
+    {
+        var fixture = new LawScene(bench: false);
+        var frame = fixture.StaticBox(new(0,5,0), new(.1f));
+        var battery = fixture.StaticBox(new(4,5,0), new(.1f));
+        var moving = new GpuBodyId[2];
+        var joints = new PrismaticConstraintId[2];
+        float[] targets = [1.2f,.6f], speeds = [1.6f,.8f], efforts = [16f,20f], powers = [12f,8f];
+        for (var i=0;i<2;i++)
+        {
+            var x = i==0 ? -2f : 2f;
+            moving[i] = fixture.Box(new(x,5,0),new(.1f),1,LawMaterial.Domino);
+            joints[i] = fixture.Prismatic(frame,moving[i],new(new(x,0,0),Quaternion.Identity),
+                ConstraintFrame.Identity,-.2f,2,3,.5f,ConnectedCollision.Disabled);
+            fixture.Drive(joints[i],targets[i],speeds[i],8,efforts[i],powers[i]);
+        }
+        var baseScene = fixture.Admit().Scene;
+        var source = new ElectricalSourceDeclaration(new(1000),battery,new(1000),new(100),1,
+            enabled ? ElectricalEnable.Enabled : ElectricalEnable.Disabled);
+        SupplyNodeDeclaration[] nodes = [new(battery,SupplyNodeKind.Source,source.Id),
+            new(frame,SupplyNodeKind.Consumer,Consumers:[..joints])];
+        SupplyEdge[] edges = [new(battery,frame,WorkshopSocket.PowerIn)];
+        var graph = new CompiledSupplyGraph(nodes,edges,[source],baseScene.Prismatics,baseScene.PrismaticDrives,baseScene.Bodies);
+        Assert.Throws<ArgumentException>(() => new CompiledSupplyGraph(
+            [nodes[0],nodes[1] with { Consumers=[joints[0],joints[0]] }],edges,[source],baseScene.Prismatics,baseScene.PrismaticDrives,baseScene.Bodies));
+        var scene = new PhysicsSceneDeclaration(baseScene.Document,1001,baseScene.Bodies,baseScene.Colliders,
+            baseScene.Materials,[],[],prismatics:baseScene.Prismatics,prismaticDrives:baseScene.PrismaticDrives,
+            electricalSources:[source],supplyNodes:nodes,supplyEdges:edges);
+        var current = PhysicsGpuAbi.Admission(scene,new(1),new(SimulationCadence.Hz120,PhysicalStepProfile.Canonical480Hz,new(1)));
+        var candidate = new byte[current.Length];
+        var engine = new WorkshopPhysicsEngine();
+        var interactions = PhysicsInteractionSnapshot.Empty;
+        var paths = new[] { new List<Substep>(),new List<Substep>() };
+        for (var tick=0;tick<480;tick++)
+        {
+            var input = PhysicsTickInputs.Compose(graph,2,new([source.Enabled]),_=>false);
+            interactions = engine.Advance(current,candidate,input,interactions);
+            (current,candidate)=(candidate,current);
+            for(var i=0;i<2;i++) paths[i].AddRange(Pieces(Motion(current),moving[i].Value));
+        }
+        for(var i=0;i<2;i++)
+        {
+            var final = LawState.Read(scene,current,moving[i]);
+            Assert.Equal(enabled ? targets[i] : -.2f,final.Position.Y-5,3e-3f);
+            if (!enabled) { Assert.True(paths[i].Max(point=>point.Centre.Y)<=5.001f); continue; }
+            Assert.True(paths[i].Max(point=>point.Velocity.Y)<=speeds[i]+1e-3f);
+            var forces = Inferred(paths[i],new(i==0 ? -2 : 2,5,0),Vector3.UnitY,1,3,.5f,LawScene.Gravity,-.2f,2);
+            Assert.True(forces.Count>60);
+            Assert.All(forces,force=>Assert.True(MathF.Abs(force.Force)<=efforts[i]+.5f));
+            Assert.All(forces,force=>Assert.True(MathF.Abs(force.Force*force.Speed)<=powers[i]+.5f));
+        }
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void AValidatedPackageCompilesBothDrivenChildrenAndBothFollowTheirOwnTargets(bool enabled)
+    {
+        // Fresh process-like assembly statics preserve production's one-bundle lifetime. No runtime
+        // registry replacement or solver hook; the public scenario installs through the real boundary.
+        var assemblyPath = typeof(DeclaredPrismaticDriveTests).Assembly.Location;
+        var context = new NativeBundleContext(Path.GetDirectoryName(assemblyPath)!);
+        try
+        {
+            var assembly = context.LoadFromAssemblyPath(assemblyPath);
+            var scenario = assembly.GetType(typeof(NativeTwoDriveScenario).FullName!)!
+                .GetMethod(nameof(NativeTwoDriveScenario.Run))!;
+            scenario.Invoke(null, [TestBundle.Json, enabled]);
+        }
+        finally { context.Unload(); }
+    }
+
+    private sealed class NativeBundleContext(string directory) : System.Runtime.Loader.AssemblyLoadContext(isCollectible: true)
+    {
+        protected override System.Reflection.Assembly? Load(System.Reflection.AssemblyName name)
+        {
+            if (name.Name is not { } simple || !simple.StartsWith("CuriousContraptions", StringComparison.Ordinal)) return null;
+            return LoadFromAssemblyPath(Path.Combine(directory, simple + ".dll"));
+        }
+    }
+
     [Fact]
     public void ASuppliedBoxWithTheGatesBladeAndLimitsButNoDeclaredDriveNeverActuates()
     {
@@ -208,7 +292,7 @@ public sealed class DeclaredPrismaticDriveTests
         // A route may drive only a slider that declares a drive: the springboard's passive slider is never a consumer.
         var spring = WorkshopInput.Generic(PartId.Springboard, new(1), 0, 3, 0, 0, 0, 0, 1);
         var passive = WorkshopPhysicsCompiler.Compile(new(new(2), WorkshopCadenceSettings.Default(), new(spring)), new(1, 2));
-        Assert.Throws<ArgumentException>(() => new CompiledSupplyGraph([new(spring.Id, SupplyNodeKind.Consumer, Consumer: passive.Prismatics[0].Id)],
+        Assert.Throws<ArgumentException>(() => new CompiledSupplyGraph([new(spring.Id, SupplyNodeKind.Consumer, Consumers: [passive.Prismatics[0].Id])],
             [], [], passive.Prismatics, passive.PrismaticDrives, passive.Bodies));
     }
 
@@ -320,7 +404,7 @@ public sealed class DeclaredPrismaticDriveTests
         var battery = PlacedParts.Battery(new(3), 3, 3, 0, enabled: authoredEnabled ? ElectricalEnable.Enabled : ElectricalEnable.Disabled);
         var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(gate, ball, battery))
             { Connections = new(Power(battery.Id, gate.Id)) };
-        await using var device = new WorkshopGpuDevice(new BrowserGpuTransport(), new(101, 206));
+        await using var device = new WorkshopGpuDevice(new BrowserGpuTransport(new CuriousContraptions.Abstractions.EventRingPublication()), new(101, 206));
         await using var simulation = new WorkshopSimulation(device, new WorkshopPhysicsEngineTests.StepClock(), WorkshopCadenceSettings.Default(),
             new(1), new WorkshopPhysicsEngineTests.NoInstallation(), GpuDeviceOwnership.Borrowed);
         Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Initialize()).Outcome);
@@ -551,7 +635,7 @@ public sealed class DeclaredPrismaticDriveTests
     [InlineData(true)]
     public async Task AColdDeviceStartsTheFirstRealBallAndResetReplaysItsFirstTick(bool prepareExplicitly)
     {
-        await using var device = new WorkshopGpuDevice(new BrowserGpuTransport(), new(101, 206));
+        await using var device = new WorkshopGpuDevice(new BrowserGpuTransport(new CuriousContraptions.Abstractions.EventRingPublication()), new(101, 206));
         if (prepareExplicitly) await device.Prepare();
         var settings = WorkshopCadenceSettings.Default();
         await using var simulation = new WorkshopSimulation(device, new WorkshopPhysicsEngineTests.StepClock(), settings, new(1),
@@ -612,7 +696,7 @@ public sealed class DeclaredPrismaticDriveTests
     [Fact]
     public async Task AnEmptyBenchAppliesItsOrdinaryLifecycleWithoutProducingDynamicBodiesOrEvents()
     {
-        await using var device = new WorkshopGpuDevice(new BrowserGpuTransport(), new(102, 207));
+        await using var device = new WorkshopGpuDevice(new BrowserGpuTransport(new CuriousContraptions.Abstractions.EventRingPublication()), new(102, 207));
         var settings = WorkshopCadenceSettings.Default();
         await using var simulation = new WorkshopSimulation(device, new WorkshopPhysicsEngineTests.StepClock(), settings, new(1),
             new WorkshopPhysicsEngineTests.NoInstallation(), GpuDeviceOwnership.Borrowed);
@@ -670,4 +754,65 @@ public sealed class DeclaredPrismaticDriveTests
         Assert.Equal(0, read.Electrical.Count);
         Assert.Equal(0, read.Memory.Count);
     }
+}
+
+public static class NativeTwoDriveScenario
+{
+    public static void Run(string bundleJson, bool enabled)
+    {
+        var entries = CuriousContraptions.Bundle.BundleSchema.Read(bundleJson).Elements;
+        var template = entries.Single(entry => entry.Metadata.Id == "powered_gate");
+        var shape = new CuriousContraptions.Abstractions.ColliderDescriptor(
+            CuriousContraptions.Abstractions.ColliderShapeKind.Box, new(.1f), Vector3.Zero, Quaternion.Identity, new(0, 0, 0, .1f), 0);
+        float[] targets = [1.2f, .6f];
+        var sliders = targets.Select((target, index) => new PrismaticSliderDescriptor(
+            new(new(index == 0 ? -2 : 2, 0, 0), Quaternion.Identity), new(Vector3.Zero, Quaternion.Identity),
+            -.2f, 2, MechanicalValue.Fixed(3), MechanicalValue.Fixed(.5f), MechanicalValue.Fixed(0), false,
+            new(MassFrameDeclaration.Constant(1, Vector3.Zero, Vector3.One, Quaternion.Identity, 0, new(0, -9.81f, 0)), [shape]),
+            new(MechanicalValue.Fixed(target), MechanicalValue.Fixed(1.6f), MechanicalValue.Fixed(8),
+                MechanicalValue.Fixed(20), MechanicalValue.Fixed(20)))).ToArray();
+        var entry = template with
+        {
+            Metadata = template.Metadata with { Id = "native_two_drives", PaletteOrder = entries.Max(e => e.Metadata.PaletteOrder) + 1 },
+            Footprint = new(3, 2, 2), Colliders = [shape], ColliderBindings = [], TubeMouths = [], TubeMouthBindings = [],
+            Mechanical = template.Mechanical! with { Sliders = sliders },
+            Presentation = new(1, CuriousContraptions.Abstractions.PresentationAxes.None, [],
+                [new("Visual/First", new(1), Vector3.Zero), new("Visual/Second", new(2), Vector3.Zero)], [], [])
+        };
+        var native = CuriousContraptions.Bundle.BundleSchema.Read(CuriousContraptions.Bundle.BundleSchema.WriteEntries(
+            [entry, entries.Single(e => e.Metadata.Id == "battery")])).Elements;
+        Assert.Empty(CuriousContraptions.Bundle.BundleValidator.Validate(native.Select(e => new CuriousContraptions.Bundle.NamedEntry(e.Metadata.Id, e)).ToArray()));
+        DeclaredPhysics.Install(native);
+        DeclaredPorts.Install(ElementPortCatalogue.FromBundle(native));
+        var owner = WorkshopInput.Generic(new(entry.Metadata.Id), new(1), 0, 5, 0, 0, 0, 0, 1);
+        var battery = PlacedParts.Battery(new(2), 4, 5, 0, enabled: enabled ? ElectricalEnable.Enabled : ElectricalEnable.Disabled);
+        var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new(owner, battery))
+            { Connections = new(new WorkshopConnection(battery.Id, WorkshopSocket.Supply, owner.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical)) };
+        var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
+        var owned = scene.Prismatics.ToArray().Where(joint => joint.BodyA == owner.Id).ToArray();
+        Assert.Equal(2, owned.Length);
+        Assert.Equal(2, owned.Select(joint => joint.BodyB).Distinct().Count());
+        var route = Assert.Single(scene.SupplyGraph.Nodes.ToArray(), node => node.Owner == owner.Id);
+        Assert.Equal(owned.Select(joint => joint.Id).OrderBy(id => id.Value), route.Consumers.OrderBy(id => id.Value));
+        var current = PhysicsGpuAbi.Admission(scene, new(1), new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1)));
+        var candidate = new byte[current.Length];
+        var engine = new WorkshopPhysicsEngine();
+        var interactions = PhysicsInteractionSnapshot.Empty;
+        for (var tick = 0; tick < 480; tick++)
+        {
+            var sources = PhysicsGpuAbi.ReadElectrical(current);
+            var input = PhysicsTickInputs.Compose(scene.SupplyGraph, owned.Length, WorkshopTickControls.For(sources, (_, value) => value), _ => false);
+            interactions = engine.Advance(current, candidate, input, interactions);
+            (current, candidate) = (candidate, current);
+        }
+        for (var index = 0; index < 2; index++)
+        {
+            var state = LawState.Read(scene, current, owned[index].BodyB);
+            // Millimetre target neighborhood is the existing drive-position acceptance.
+            Assert.InRange(state.Position.Y - 5, (enabled ? targets[index] : -.2f) - .003f,
+                (enabled ? targets[index] : -.2f) + .003f);
+            Assert.InRange(MathF.Abs(state.Velocity.Y), 0, .02f);
+        }
+    }
+
 }

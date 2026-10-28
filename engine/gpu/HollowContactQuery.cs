@@ -3,10 +3,10 @@ using System.Numerics;
 
 namespace CuriousContraptions.Gpu;
 
-/// <summary>A posed convex partner for the shared hollow contact query.</summary>
+/// <summary>A posed finite or plane partner for the shared hollow contact query.</summary>
 public readonly record struct HollowPartner(ColliderShapeKind Shape, Vector3 Position, Vector3 U0, Vector3 U1, Vector3 U2,
     float Radius, float Hx, float Hy, float Hz);
-public enum HollowContactSupport : byte { Material, Axis }
+public enum HollowContactSupport : byte { Material, Axis, DistanceOnly }
 public readonly record struct HollowContact(Vector3 Normal, Vector3 Point, float Gap, int Feature, HollowContactSupport Support);
 
 /// <summary>Scene-independent f32 hollow feature measurements. Simulation, placement
@@ -19,9 +19,21 @@ public static class HollowContactQuery
     public const int Capacity = 152;
     public const float PlacementSlop = 1e-4f;
     private const float EdgeFaceAlignment = .98f, SideAlignment = .19899749f;
-    private const int RimSamples = 16, RimSteps = 16;
-    private const float GoldenSection = .618034f;
-    private interface IDistanceCurve { float Distance(float s); }
+    private const int RimSamples = 16, RimSteps = 36;
+    private readonly record struct CurveSample(float Distance, float Derivative, bool HasTangent);
+    private interface IDistanceCurve
+    {
+        float Distance(float s);
+        CurveSample Sample(float s);
+        float EvaluationScale { get; }
+    }
+    private static float CoordinateScale(Vector3 value) => MathF.Abs(value.X) + MathF.Abs(value.Y) + MathF.Abs(value.Z);
+    private static CurveSample SampleCurve(HollowSolid solid, Vector3 point, Vector3 tangent)
+    {
+        var distance = solid.Distance(point, out _, out var gradient, out _);
+        var length = tangent.Length();
+        return length > 0f ? new(distance, Vector3.Dot(gradient, tangent / length), true) : new(distance, 0f, false);
+    }
     private ref struct CandidateBuffer
     {
         private readonly Span<HollowContact> data;
@@ -40,7 +52,11 @@ public static class HollowContactQuery
             case ColliderShapeKind.Sphere: Sphere(partner, hollow, margin, ref points); break;
             case ColliderShapeKind.Box: CollideBoxHollow(partner, hollow, margin, ref points); break;
             case ColliderShapeKind.Cylinder: CollideCylinderHollow(partner, hollow, margin, ref points); break;
-            default: throw new ArgumentException("A hollow partner must be a sphere, box or cylinder.", nameof(partner));
+            case ColliderShapeKind.Plane: CollidePlaneHollow(partner, hollow, margin, ref points); break;
+            case ColliderShapeKind.Tube:
+            case ColliderShapeKind.Frustum:
+            case ColliderShapeKind.Torus: CollideHollowPair(AsSolid(partner), hollow, margin, ref points); break;
+            default: throw new ArgumentException("Unsupported hollow partner.", nameof(partner));
         }
         return points.Count;
     }
@@ -49,7 +65,9 @@ public static class HollowContactQuery
     {
         Span<HollowContact> contacts = stackalloc HollowContact[Capacity];
         var count = Measure(partner, hollow, 0f, contacts);
-        for (var i = 0; i < count; i++) if (contacts[i].Gap < -slop) return true;
+        for (var i = 0; i < count; i++)
+            if ((!HollowSolid.IsHollow(partner.Shape) || contacts[i].Support == HollowContactSupport.DistanceOnly) && contacts[i].Gap < -slop)
+                return true;
         return false;
     }
 
@@ -139,11 +157,16 @@ public static class HollowContactQuery
     private readonly struct HollowCurve(HollowSolid hollow, Vector3 start, Vector3 length) : IDistanceCurve
     {
         public float Distance(float s) => hollow.Distance(start + s * length);
+        public CurveSample Sample(float s) => SampleCurve(hollow, start + s * length, length);
+        public float EvaluationScale => hollow.Reach + CoordinateScale(hollow.Position) + CoordinateScale(start) + CoordinateScale(length);
     }
 
     private readonly struct HollowRimCurve(HollowSolid hollow, Vector3 centre, Vector3 u, Vector3 v, float radius) : IDistanceCurve
     {
         public float Distance(float s) => hollow.Distance(centre + radius * (MathF.Cos(s) * u + MathF.Sin(s) * v));
+        public CurveSample Sample(float s) => SampleCurve(hollow,
+            centre + radius * (MathF.Cos(s) * u + MathF.Sin(s) * v), radius * (-MathF.Sin(s) * u + MathF.Cos(s) * v));
+        public float EvaluationScale => hollow.Reach + CoordinateScale(hollow.Position) + CoordinateScale(centre) + radius;
     }
 
     private static float CylinderDistance(HollowPartner c, Vector3 p, out Vector3 surface, out Vector3 outward)
@@ -176,28 +199,41 @@ public static class HollowContactQuery
         return dy;
     }
 
-    private static float GoldenMinimum<T>(in T curve, float lo, float hi, int steps) where T : struct, IDistanceCurve
+    private static float RefineMinimum<T>(in T curve, float lo, float hi, int steps) where T : struct, IDistanceCurve
     {
-        var x1 = hi - GoldenSection * (hi - lo);
-        var x2 = lo + GoldenSection * (hi - lo);
-        var f1 = curve.Distance(x1);
-        var f2 = curve.Distance(x2);
+        // Four unit roundoffs times the finite geometry/arithmetic scale is a practical
+        // distance-plateau tie window, independent of contact slop or acceptance bounds.
+        var window = (4f / 16777216f) * curve.EvaluationScale;
+        var best = lo;
+        var first = curve.Sample(lo);
+        var minimum = first.Distance;
+        var bestDistance = first.Distance;
+        var bestDerivative = first.HasTangent ? MathF.Abs(first.Derivative) : float.PositiveInfinity;
+        Consider(hi, curve.Sample(hi));
         for (var step = 0; step < steps; step++)
         {
-            if (f1 <= f2)
+            var middle = lo + .5f * (hi - lo);
+            if (!(lo < middle && middle < hi)) break;
+            var sample = curve.Sample(middle);
+            Consider(middle, sample);
+            if (!sample.HasTangent || sample.Derivative == 0f) break;
+            if (sample.Derivative < 0f) lo = middle;
+            else hi = middle;
+        }
+        Consider(lo, curve.Sample(lo));
+        Consider(hi, curve.Sample(hi));
+        return best;
+
+        void Consider(float parameter, CurveSample sample)
+        {
+            minimum = MathF.Min(minimum, sample.Distance);
+            var derivative = sample.HasTangent ? MathF.Abs(sample.Derivative) : float.PositiveInfinity;
+            if (bestDistance > minimum + window || sample.Distance <= minimum + window &&
+                (derivative < bestDerivative || derivative == bestDerivative && parameter < best))
             {
-                hi = x2; x2 = x1; f2 = f1;
-                x1 = hi - GoldenSection * (hi - lo);
-                f1 = curve.Distance(x1);
-            }
-            else
-            {
-                lo = x1; x1 = x2; f1 = f2;
-                x2 = lo + GoldenSection * (hi - lo);
-                f2 = curve.Distance(x2);
+                best = parameter; bestDistance = sample.Distance; bestDerivative = derivative;
             }
         }
-        return f1 <= f2 ? x1 : x2;
     }
 
     // ---- a box or cylinder (A) against a hollow collider (B) ----
@@ -212,11 +248,11 @@ public static class HollowContactQuery
     // deepest, the farthest-apart pair, then the deepest of the rest. Every count is fixed: no convergence test.
 
     private const int HollowSegmentSamples = 8;
-    private const int HollowSegmentSteps = 12;
+    private const int HollowSegmentSteps = 36;
     private const float HollowMerge = 1e-3f;
 
     /// <summary>The parameter in [lo, hi] minimising a curve that need not be unimodal (a segment may cross a bore): the best of fixed
-    /// samples, refined in its bracket by golden-section steps.</summary>
+    /// samples, refined in its bracket by bounded analytic stationarity steps.</summary>
     private static float BracketedMinimum<T>(in T curve, int samples, int steps, float lo, float hi) where T : struct, IDistanceCurve
     {
         var step = (hi - lo) / samples;
@@ -228,7 +264,7 @@ public static class HollowContactQuery
             var distance = curve.Distance(s);
             if (distance < bestDistance) { bestDistance = distance; best = s; }
         }
-        return GoldenMinimum(in curve, MathF.Max(lo, best - step), MathF.Min(hi, best + step), steps);
+        return RefineMinimum(in curve, MathF.Max(lo, best - step), MathF.Min(hi, best + step), steps);
     }
 
     private static void AddHollowCandidate(ref CandidateBuffer points, int first, Vector3 n,
@@ -237,7 +273,8 @@ public static class HollowContactQuery
         if (!(gap <= margin) || !float.IsFinite(gap)) return;
         for (var i = first; i < points.Count; i++)
         {
-            if ((points[i].Point - p).LengthSquared() > HollowMerge * HollowMerge) continue;
+            if ((points[i].Support == HollowContactSupport.DistanceOnly) != (supportA == HollowContactSupport.DistanceOnly) ||
+                (points[i].Point - p).LengthSquared() > HollowMerge * HollowMerge) continue;
             if (gap < points[i].Gap) points[i] = new HollowContact(n, p, gap, feature, supportA);
             return;
         }
@@ -253,21 +290,27 @@ public static class HollowContactQuery
         var clamped = box.Position;
         var deepest = float.NegativeInfinity;
         var exit = box.U0;
-        var outside = false;
+        var outside = 0;
+        var excess = Vector3.Zero;
+        var squared = 0f;
         for (var i = 0; i < 3; i++)
         {
             var l = Vector3.Dot(d, axes[i]);
             clamped += Math.Clamp(l, -extents[i], extents[i]) * axes[i];
             var q = MathF.Abs(l) - extents[i];
-            if (q > 0f) outside = true;
+            if (q > 0f)
+            {
+                outside++;
+                squared += q * q;
+                excess += (l >= 0f ? q : -q) * axes[i];
+            }
             if (q > deepest) { deepest = q; exit = l >= 0f ? axes[i] : -axes[i]; }
         }
-        if (outside)
+        if (outside > 0)
         {
             surface = clamped;
-            var diff = p - clamped;
-            var distance = diff.Length();
-            outward = distance > 1e-9f ? diff / distance : exit;
+            var distance = MathF.Sqrt(squared);
+            outward = outside == 1 ? exit : excess / distance;
             return distance;
         }
         outward = exit;
@@ -369,8 +412,24 @@ public static class HollowContactQuery
                 var length = vertices[v | bit] - start;
                 var s = BracketedMinimum(new HollowCurve(hollow, start, length), HollowSegmentSamples, HollowSegmentSteps, 0f, 1f);
                 if (s > 1e-3f && s < 1f - 1e-3f)
-                    AddHollowMeasured(ref outList, first, hollow, start + s * length, 0f,
-                        Feature(HollowFeature.PartnerEdge, edge), HollowContactSupport.Material, margin);
+                {
+                    var point = start + s * length;
+                    var gap = hollow.Distance(point, out var surface, out var outward, out var on);
+                    var emit = true;
+                    if (hollow.SmoothClosestWall(point, surface, on))
+                    {
+                        // Smooth interior edge stationarity: the normal is orthogonal
+                        // to the admitted edge axis. Junctions retain their feature cone.
+                        var tangent = bit == 1 ? box.U0 : bit == 2 ? box.U1 : box.U2;
+                        var perpendicular = outward - Vector3.Dot(outward, tangent) * tangent;
+                        var magnitude = perpendicular.Length();
+                        emit = magnitude > 0f;
+                        if (emit) outward = perpendicular / magnitude;
+                    }
+                    if (emit)
+                        AddHollowCandidate(ref outList, first, outward, (point + surface) * .5f,
+                            gap, Feature(HollowFeature.PartnerEdge, edge), HollowContactSupport.Material, margin);
+                }
                 edge++;
             }
 
@@ -427,7 +486,7 @@ public static class HollowContactQuery
                 var distance = curve.Distance(k * step);
                 if (distance < bestDistance) { bestDistance = distance; bestAngle = k * step; }
             }
-            var angle = GoldenMinimum(in curve, bestAngle - step, bestAngle + step, RimSteps);
+            var angle = RefineMinimum(in curve, bestAngle - step, bestAngle + step, RimSteps);
             var onRim = centre + cyl.Radius * (MathF.Cos(angle) * cyl.U0 + MathF.Sin(angle) * cyl.U2);
             rimGap[s] = hollow.Distance(onRim, out _, out var normal, out _);
             // A rim point whose normal lies within the side tolerance of the axis's perpendicular plane is an end of the side's
@@ -477,5 +536,312 @@ public static class HollowContactQuery
                 rims[..rimCount], margin);
         }
 
+    }
+
+
+    /// <summary>Signed distance to an actual collider surface, shared by contact and rigid-union feature ownership.</summary>
+    public static float SurfaceDistance(HollowPartner shape, Vector3 point, out Vector3 surface, out Vector3 outward)
+    {
+        switch (shape.Shape)
+        {
+            case ColliderShapeKind.Sphere:
+                var delta = point - shape.Position;
+                var length = delta.Length();
+                outward = length > 1e-9f ? delta / length : shape.U0;
+                surface = shape.Position + shape.Radius * outward;
+                return length - shape.Radius;
+            case ColliderShapeKind.Box: return BoxDistance(shape, point, out surface, out outward);
+            case ColliderShapeKind.Cylinder: return CylinderDistance(shape, point, out surface, out outward);
+            case ColliderShapeKind.Tube:
+            case ColliderShapeKind.Frustum:
+            case ColliderShapeKind.Torus: return AsSolid(shape).Distance(point, out surface, out outward, out _);
+            default: throw new ArgumentException("A rigid union requires finite collider surfaces.", nameof(shape));
+        }
+    }
+
+    private const int SurfacePartitions = 32, CoordinatePasses = 4, SurfaceSteps = 36;
+
+    private static HollowSolid AsSolid(HollowPartner p) =>
+        new(p.Shape, p.Position, p.U0, p.U1, p.U2, p.Radius, p.Hx, p.Hy, p.Hz);
+
+    private readonly struct SurfaceCurve(HollowSolid source, HollowSolid target, int face, float fixedValue, bool alongU) : IDistanceCurve
+    {
+        public float Distance(float s) => target.Distance(SurfacePoint(source, face,
+            alongU ? s : fixedValue, alongU ? fixedValue : s));
+        public CurveSample Sample(float s)
+        {
+            var u = alongU ? s : fixedValue; var v = alongU ? fixedValue : s;
+            return SampleCurve(target, SurfacePoint(source, face, u, v), SurfaceTangent(source, face, u, v, alongU));
+        }
+        public float EvaluationScale => source.Reach + target.Reach + CoordinateScale(source.Position) + CoordinateScale(target.Position);
+    }
+
+    // Normalized surface patches retain the actual analytic solid: no triangulated collision hull.
+    private static Vector3 SurfacePoint(HollowSolid s, int face, float u, float v)
+    {
+        if (s.Kind != ColliderShapeKind.Torus)
+        {
+            var bottom = s.Radius;
+            var top = s.Kind == ColliderShapeKind.Frustum ? s.LaneZ : s.Radius;
+            var innerBottom = s.Kind == ColliderShapeKind.Frustum ? bottom - s.LaneX : s.LaneX;
+            var innerTop = s.Kind == ColliderShapeKind.Frustum ? top - s.LaneX : s.LaneX;
+            float radius, height;
+            if (face < 2)
+            {
+                radius = face == 0 ? bottom + v * (top - bottom) : innerBottom + v * (innerTop - innerBottom);
+                height = (2f * v - 1f) * s.LaneY;
+            }
+            else
+            {
+                var outer = face == 2 ? bottom : top;
+                var inner = face == 2 ? innerBottom : innerTop;
+                radius = inner + v * (outer - inner);
+                height = face == 2 ? -s.LaneY : s.LaneY;
+            }
+            var angle = MathF.Tau * u;
+            return s.Position + radius * (MathF.Cos(angle) * s.X + MathF.Sin(angle) * s.Z) + height * s.Y;
+        }
+        var sweep = s.Full ? MathF.Tau : s.LaneZ;
+        var azimuth = face < 2 ? sweep * u : face == 2 ? 0f : sweep;
+        var profile = MathF.Tau * (face < 2 ? v : u);
+        var tubeRadius = face < 2 ? face == 0 ? s.LaneY : s.LaneX : s.LaneX + v * (s.LaneY - s.LaneX);
+        var radial = MathF.Cos(azimuth) * s.X + MathF.Sin(azimuth) * s.Z;
+        return s.Position + (s.Radius + tubeRadius * MathF.Cos(profile)) * radial + tubeRadius * MathF.Sin(profile) * s.Y;
+    }
+
+    private static Vector3 SurfaceTangent(HollowSolid s, int face, float u, float v, bool alongU)
+    {
+        if (s.Kind != ColliderShapeKind.Torus)
+        {
+            var top = s.Kind == ColliderShapeKind.Frustum ? s.LaneZ : s.Radius;
+            var innerBottom = s.Kind == ColliderShapeKind.Frustum ? s.Radius - s.LaneX : s.LaneX;
+            var innerTop = s.Kind == ColliderShapeKind.Frustum ? top - s.LaneX : s.LaneX;
+            var radial = MathF.Cos(MathF.Tau * u) * s.X + MathF.Sin(MathF.Tau * u) * s.Z;
+            if (!alongU)
+                return face < 2 ? (face == 0 ? top - s.Radius : innerTop - innerBottom) * radial + 2f * s.LaneY * s.Y :
+                    ((face == 2 ? s.Radius : top) - (face == 2 ? innerBottom : innerTop)) * radial;
+            var radius = face < 2 ? face == 0 ? s.Radius + v * (top - s.Radius) : innerBottom + v * (innerTop - innerBottom) :
+                (face == 2 ? innerBottom : innerTop) + v * ((face == 2 ? s.Radius : top) - (face == 2 ? innerBottom : innerTop));
+            return MathF.Tau * radius * (-MathF.Sin(MathF.Tau * u) * s.X + MathF.Cos(MathF.Tau * u) * s.Z);
+        }
+        var sweep = s.Full ? MathF.Tau : s.LaneZ;
+        var azimuth = face < 2 ? sweep * u : face == 2 ? 0f : sweep;
+        var profile = MathF.Tau * (face < 2 ? v : u);
+        var tube = face < 2 ? face == 0 ? s.LaneY : s.LaneX : s.LaneX + v * (s.LaneY - s.LaneX);
+        var direction = MathF.Cos(azimuth) * s.X + MathF.Sin(azimuth) * s.Z;
+        if (face < 2 && alongU)
+            return sweep * (s.Radius + tube * MathF.Cos(profile)) * (-MathF.Sin(azimuth) * s.X + MathF.Cos(azimuth) * s.Z);
+        if (face < 2 || alongU) return MathF.Tau * tube * (-MathF.Sin(profile) * direction + MathF.Cos(profile) * s.Y);
+        return (s.LaneY - s.LaneX) * (MathF.Cos(profile) * direction + MathF.Sin(profile) * s.Y);
+    }
+
+    private static void CollideHollowPair(HollowSolid partner, HollowSolid hollow, float margin, ref CandidateBuffer points)
+    {
+        var reach = partner.Reach + hollow.Reach + margin;
+        if (Vector3.DistanceSquared(partner.Position, hollow.Position) > reach * reach) return;
+        SurfaceWitnesses(partner, hollow, false, margin, ref points);
+        SurfaceWitnesses(hollow, partner, true, margin, ref points);
+    }
+
+    private static bool InIncidentCone(Vector3 direction, ReadOnlySpan<Vector3> generators, ReadOnlySpan<float> allowances)
+    {
+        for (var i = 0; i < generators.Length; i++)
+        {
+            var ray = MathF.Max(0f, Vector3.Dot(direction, generators[i])) * generators[i];
+            if (Within(ray, direction, allowances[i])) return true;
+            for (var j = i + 1; j < generators.Length; j++)
+            {
+                var cosine = Vector3.Dot(generators[i], generators[j]);
+                var perpendicular = generators[j] - cosine * generators[i];
+                var sine = perpendicular.Length();
+                if (!(sine > 0f)) continue;
+                perpendicular /= sine;
+                var x = Vector3.Dot(direction, generators[i]);
+                var y = Vector3.Dot(direction, perpendicular);
+                var beta = y / sine;
+                var alpha = x - beta * cosine;
+                if (!(alpha >= 0f && beta >= 0f) || !float.IsFinite(alpha + beta)) continue;
+                var projection = x * generators[i] + y * perpendicular;
+                if (Within(projection, direction, MathF.Max(allowances[i], allowances[j]))) return true;
+            }
+        }
+        return false;
+
+        static bool Within(Vector3 projected, Vector3 direction, float allowance)
+        {
+            var length = projected.Length();
+            if (!(length > 0f) || !float.IsFinite(length)) return false;
+            var difference = Vector3.Abs(direction - projected / length);
+            return difference.LengthSquared() <= allowance * allowance;
+        }
+    }
+
+    private static void ConsiderConeDirection(Vector3 candidate, Vector3 original, ReadOnlySpan<Vector3> source,
+        ReadOnlySpan<Vector3> target, ReadOnlySpan<float> sourceAllowances, ReadOnlySpan<float> targetAllowances, Vector3 separation, float gap, float window, ref Vector3 chosen, ref float score)
+    {
+        var length = candidate.Length();
+        if (!(length > 0f) || !float.IsFinite(length)) return;
+        candidate /= length;
+        if (!InIncidentCone(-candidate, source, sourceAllowances) || !InIncidentCone(candidate, target, targetAllowances) ||
+            MathF.Abs(Vector3.Dot(separation, candidate) - gap) > window) return;
+        var alignment = Vector3.Dot(candidate, original);
+        var earlier = candidate.X < chosen.X || (candidate.X == chosen.X &&
+            (candidate.Y < chosen.Y || (candidate.Y == chosen.Y && candidate.Z < chosen.Z)));
+        if (alignment > score || (alignment == score && earlier)) { chosen = candidate; score = alignment; }
+    }
+
+    /// <summary>A supporting direction belongs to both incident normal cones. Co-oriented
+    /// flat planes do not provide an opposing constraint, including at coincident ends.</summary>
+    private static bool IncidentContactNormal(HollowSolid source, HollowSolid target, Vector3 witness,
+        Vector3 onTarget, float gap, ref Vector3 normal)
+    {
+        var scale = MathF.Max(MathF.Max(CoordinateScale(source.Position) + source.Reach,
+            CoordinateScale(target.Position) + target.Reach), MathF.Max(CoordinateScale(witness), CoordinateScale(onTarget)));
+        var window = (4f / 16777216f) * scale;
+        Span<Vector3> a = stackalloc Vector3[4];
+        Span<Vector3> b = stackalloc Vector3[4];
+        Span<float> sourceAllowances = stackalloc float[4];
+        Span<float> targetAllowances = stackalloc float[4];
+        var na = source.IncidentNormals(witness, window, a, sourceAllowances);
+        var nb = target.IncidentNormals(onTarget, window, b, targetAllowances);
+        var ga = a[..na]; var gb = b[..nb];
+        var separation = witness - onTarget;
+        var chosen = Vector3.Zero;
+        var score = float.NegativeInfinity;
+        ConsiderConeDirection(normal, normal, ga, gb, sourceAllowances[..na], targetAllowances[..nb], separation, gap, window, ref chosen, ref score);
+        for (var i = 0; i < na; i++)
+        {
+            ConsiderConeDirection(-a[i], normal, ga, gb, sourceAllowances[..na], targetAllowances[..nb], separation, gap, window, ref chosen, ref score);
+            for (var j = 0; j < nb; j++)
+                ConsiderConeDirection(b[j] - a[i], normal, ga, gb, sourceAllowances[..na], targetAllowances[..nb], separation, gap, window, ref chosen, ref score);
+        }
+        for (var j = 0; j < nb; j++)
+            ConsiderConeDirection(b[j], normal, ga, gb, sourceAllowances[..na], targetAllowances[..nb], separation, gap, window, ref chosen, ref score);
+        for (var i = 0; i < na; i++)
+            for (var j = i + 1; j < na; j++)
+                for (var k = 0; k < nb; k++)
+                    for (var l = k + 1; l < nb; l++)
+                    {
+                        var line = Vector3.Cross(Vector3.Cross(a[i], a[j]), Vector3.Cross(b[k], b[l]));
+                        ConsiderConeDirection(line, normal, ga, gb, sourceAllowances[..na], targetAllowances[..nb], separation, gap, window, ref chosen, ref score);
+                        ConsiderConeDirection(-line, normal, ga, gb, sourceAllowances[..na], targetAllowances[..nb], separation, gap, window, ref chosen, ref score);
+                    }
+        if (!float.IsFinite(score)) return false;
+        normal = chosen;
+        return true;
+    }
+
+    private static void SupportingFeaturePairs(HollowSolid source, HollowSolid target, Vector3 witness, float margin,
+        ref Vector3 chosenNormal, ref Vector3 chosenPoint, ref float chosenGap)
+    {
+        var distance = target.Distance(witness);
+        Span<float> distances = stackalloc float[4];
+        Span<Vector3> normals = stackalloc Vector3[4];
+        Span<Vector3> surfaces = stackalloc Vector3[4];
+        target.FeatureProjections(witness, distances, normals, surfaces);
+        for (var feature = 0; feature < 4; feature++)
+        {
+            if (!(distances[feature] <= margin + MathF.Abs(distance))) continue;
+            var normal = normals[feature];
+            var gap = Vector3.Dot(witness - surfaces[feature], normal) < 0f ? -distances[feature] : distances[feature];
+            if (gap > margin || !IncidentContactNormal(source, target, witness, surfaces[feature], gap, ref normal)) continue;
+            var point = (witness + surfaces[feature]) * .5f;
+            var earlier = point.X < chosenPoint.X || (point.X == chosenPoint.X &&
+                (point.Y < chosenPoint.Y || (point.Y == chosenPoint.Y && point.Z < chosenPoint.Z)));
+            if (gap < chosenGap || (gap == chosenGap && earlier))
+            { chosenNormal = normal; chosenPoint = point; chosenGap = gap; }
+        }
+    }
+
+    private static void SurfaceWitnesses(HollowSolid source, HollowSolid target, bool reverse, float margin, ref CandidateBuffer points)
+    {
+        const int width = SurfacePartitions + 1;
+        Span<float> grid = stackalloc float[width * width];
+        Span<Vector2> best = stackalloc Vector2[4];
+        Span<float> distances = stackalloc float[4];
+        Span<float> supportGaps = stackalloc float[4];
+        Span<Vector3> supportNormals = stackalloc Vector3[4];
+        Span<Vector3> supportPoints = stackalloc Vector3[4];
+        var faces = source.Kind == ColliderShapeKind.Torus && source.Full ? 2 : 4;
+        for (var face = 0; face < faces; face++)
+        {
+            if (source.Kind == ColliderShapeKind.Torus && face == 1 && source.LaneX == 0f) continue;
+            distances.Fill(float.PositiveInfinity);
+            supportGaps.Fill(float.PositiveInfinity);
+            supportNormals.Clear(); supportPoints.Clear();
+            for (var i = 0; i <= SurfacePartitions; i++)
+                for (var j = 0; j <= SurfacePartitions; j++)
+                    grid[i * width + j] = target.Distance(SurfacePoint(source, face,
+                        (float)i / SurfacePartitions, (float)j / SurfacePartitions));
+            for (var i = 0; i <= SurfacePartitions; i++)
+                for (var j = 0; j <= SurfacePartitions; j++)
+                {
+                    var value = grid[i * width + j];
+                    var minimum = true;
+                    var strict = false;
+                    for (var di = -1; di <= 1; di++)
+                        for (var dj = -1; dj <= 1; dj++)
+                        {
+                            var ni = i + di; var nj = j + dj;
+                            if (ni < 0 || ni > SurfacePartitions || nj < 0 || nj > SurfacePartitions) continue;
+                            var neighbour = grid[ni * width + nj];
+                            minimum &= value <= neighbour;
+                            strict |= value < neighbour;
+                        }
+                    // Flat/coincident regions retain deterministic quarter-turn witnesses.
+                    if (!minimum || (!strict && (i % 8 != 0 || j % 8 != 0))) continue;
+                    var u = (float)i / SurfacePartitions; var v = (float)j / SurfacePartitions;
+                    var loU = (float)Math.Max(0, i - 1) / SurfacePartitions;
+                    var hiU = (float)Math.Min(SurfacePartitions, i + 1) / SurfacePartitions;
+                    var loV = (float)Math.Max(0, j - 1) / SurfacePartitions;
+                    var hiV = (float)Math.Min(SurfacePartitions, j + 1) / SurfacePartitions;
+                    for (var pass = 0; pass < CoordinatePasses; pass++)
+                    {
+                        u = RefineMinimum(new SurfaceCurve(source, target, face, v, true), loU, hiU, SurfaceSteps);
+                        v = RefineMinimum(new SurfaceCurve(source, target, face, u, false), loV, hiV, SurfaceSteps);
+                    }
+                    var distance = target.Distance(SurfacePoint(source, face, u, v));
+                    var sector = Math.Min(3, i / 8);
+                    if (distance < distances[sector]) { distances[sector] = distance; best[sector] = new(u, v); }
+                    SupportingFeaturePairs(source, target, SurfacePoint(source, face, u, v), margin,
+                        ref supportNormals[sector], ref supportPoints[sector], ref supportGaps[sector]);
+                    if (loU == 0f) SupportingFeaturePairs(source, target, SurfacePoint(source, face, 0f, v), margin,
+                        ref supportNormals[sector], ref supportPoints[sector], ref supportGaps[sector]);
+                    if (hiU == 1f) SupportingFeaturePairs(source, target, SurfacePoint(source, face, 1f, v), margin,
+                        ref supportNormals[sector], ref supportPoints[sector], ref supportGaps[sector]);
+                    if (loV == 0f) SupportingFeaturePairs(source, target, SurfacePoint(source, face, u, 0f), margin,
+                        ref supportNormals[sector], ref supportPoints[sector], ref supportGaps[sector]);
+                    if (hiV == 1f) SupportingFeaturePairs(source, target, SurfacePoint(source, face, u, 1f), margin,
+                        ref supportNormals[sector], ref supportPoints[sector], ref supportGaps[sector]);
+                }
+            for (var sector = 0; sector < 4; sector++)
+            {
+                if (!(distances[sector] <= margin)) continue;
+                var witness = SurfacePoint(source, face, best[sector].X, best[sector].Y);
+                var gap = target.Distance(witness, out var onTarget, out var normal, out _);
+                AddHollowCandidate(ref points, 0, reverse ? -normal : normal, (witness + onTarget) * .5f, gap,
+                    Feature(HollowFeature.Surface, 32 + (reverse ? 16 : 0) + face * 4 + sector),
+                    HollowContactSupport.DistanceOnly, margin);
+                if (supportGaps[sector] <= margin)
+                    AddHollowCandidate(ref points, 0, reverse ? -supportNormals[sector] : supportNormals[sector], supportPoints[sector],
+                        supportGaps[sector], Feature(HollowFeature.Surface, 64 + (reverse ? 16 : 0) + face * 4 + sector),
+                        HollowContactSupport.Material, margin);
+            }
+        }
+    }
+
+
+    private static void CollidePlaneHollow(HollowPartner plane, HollowSolid hollow, float margin, ref CandidateBuffer points)
+    {
+        var normal = plane.U1;
+        for (var k = 0; k < 5; k++)
+        {
+            var radial = k switch { 1 => hollow.X, 2 => hollow.Z, 3 => -hollow.X, 4 => -hollow.Z, _ => Vector3.Zero };
+            var reference = k == 0 ? plane.Position : hollow.Position + hollow.Reach * radial;
+            var witness = hollow.SupportNear(-normal, reference);
+            var gap = Vector3.Dot(witness - plane.Position, normal);
+            AddHollowCandidate(ref points, 0, -normal, witness - .5f * gap * normal, gap,
+                Feature(HollowFeature.Support, k), HollowContactSupport.Material, margin);
+        }
     }
 }

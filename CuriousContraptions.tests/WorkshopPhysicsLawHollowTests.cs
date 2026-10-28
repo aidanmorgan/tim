@@ -104,7 +104,7 @@ public sealed class WorkshopPhysicsLawHollowTests
         var circumscribedRadius = MathF.Sqrt(.1f * .1f + .1f * .1f);
         world.Step(10 * world.TicksPerSecond, (tick, state) =>
         {
-            PhysicsGpuAbi.ValidateCandidate(state.World, world.Admitted, new SimulationTick((ulong)tick));
+            PhysicsGpuAbi.ValidateCandidate(state.World, world.Admitted, new SimulationTick((ulong)tick), state.Interactions, PhysicsInteractionSnapshot.Empty);
             var observed = state[body];
             // A purely vertical symmetric drop must not acquire a hidden lateral landing offset.
             landing.Observe(observed.Position);
@@ -172,7 +172,7 @@ public sealed class WorkshopPhysicsLawHollowTests
             world.Step(trajectory.Length, (tick, state) =>
             {
                 var expectedTick = new SimulationTick((ulong)tick);
-                var committed = PhysicsGpuAbi.ValidateCandidate(state.World, world.Admitted, expectedTick);
+                var committed = PhysicsGpuAbi.ValidateCandidate(state.World, world.Admitted, expectedTick, state.Interactions, PhysicsInteractionSnapshot.Empty);
                 Assert.True(committed.Bodies.TryGet(body, out var observed));
                 Assert.Equal(body, observed.Body.Id);
                 Assert.Equal(expectedTick, new SimulationTick(observed.Body.Tick));
@@ -903,13 +903,17 @@ public sealed class WorkshopPhysicsLawHollowTests
     public void AnUnrepresentableHollowColliderIsRefusedAtAdmission(string _, ColliderShapeKind shape, float radius, float x, float y, float z) =>
         Assert.Throws<ArgumentException>(() => Hollow(shape, radius, x, y, z).Validate());
 
-    /// <summary>A hollow collider is static only: a dynamic body declaring one is refused before anything is stepped.</summary>
-    [Fact]
-    public void ADynamicHollowBodyIsRefusedAtAdmission()
+    [Theory]
+    [InlineData(ColliderShapeKind.Tube)]
+    [InlineData(ColliderShapeKind.Frustum)]
+    [InlineData(ColliderShapeKind.Torus)]
+    public void MovingHollowRequiresAnExplicitValidMassFrame(ColliderShapeKind kind)
     {
-        var body = new RigidBodyDeclaration(new(1), RigidMotionKind.Dynamic, default, default, CanonicalRotation.Identity, default, default,
-            new(1f), default, default);
-        Assert.Throws<ArgumentException>(() => RigidMassProperties.Compile(body, Hollow(ColliderShapeKind.Tube, .7f, .65f, 1.8f, 0f)));
+        var geometry = UnitHollow(kind);
+        var scene = new LawScene(false);
+        scene.DynamicHollow(kind, Vector3.Zero, Quaternion.Identity, geometry.Radius,
+            geometry.Lanes, new(0, .1f, 0, 0), 1, Vector3.Zero);
+        Assert.Throws<ArgumentException>(() => scene.Admit());
     }
 
     // ---- a ball at rest on every surface ----
@@ -1260,4 +1264,264 @@ public sealed class WorkshopPhysicsLawHollowTests
         Assert.True(MathF.Abs(final.Position.Z - c.Z) <= 1e-3f, $"the cylinder rests off the bore's bottom line at z {final.Position.Z}");
         Assert.True(final.Speed < 1e-3, $"the cylinder still moves at {final.Velocity} m/s, spin {final.Angular}, at {final.Position}");
     }
+
+    [Theory]
+    [InlineData(0f)]
+    [InlineData(16f)]
+    [InlineData(32f)]
+    public void TranslatedSmallTorusKeepsRealBoreSupportWithoutFalseSeparatedContact(float shift)
+    {
+        const float tubeRadius = 1f / 512f;
+        const float ringRadius = .336f;
+        var centre = new Vector3(shift, 3, shift);
+        var turn = Quaternion.CreateFromYawPitchRoll(.137f, 0f, MathF.PI * .5f);
+        var scene = new LawScene(false);
+        scene.StaticHollow(ColliderShapeKind.Tube, centre, turn, .75f, new(.65f, .5f, 0), new(0, .1f, 0, 0));
+        var rest = centre - Vector3.UnitY * (.65f - ringRadius - tubeRadius);
+        var ring = scene.DynamicHollow(ColliderShapeKind.Torus, rest, turn, ringRadius,
+            new(0, tubeRadius, ColliderDeclaration.FullSweep), new(0, .1f, 0, 0), 1f, new(.1f), gravity: -9.81f);
+        var world = scene.Admit();
+        world.Step(world.TicksPerSecond, (_, state) =>
+        {
+            Assert.InRange(state[ring].Position.Y, rest.Y - .0005f, rest.Y + .0005f);
+            Assert.True(state[ring].Speed < .01f);
+        });
+        var control = new LawScene(false);
+        control.StaticHollow(ColliderShapeKind.Tube, centre, turn, .75f, new(.65f, .5f, 0), new(0, .1f, 0, 0));
+        var free = control.DynamicHollow(ColliderShapeKind.Torus, rest + Vector3.UnitY * .02f, turn, ringRadius,
+            new(0, tubeRadius, ColliderDeclaration.FullSweep), new(0, .1f, 0, 0), 1f, new(.1f), velocity: new(0, -.1f, 0));
+        var freeWorld = control.Admit();
+        var first = freeWorld.Step(1)[free];
+        Assert.InRange(first.Velocity.Y, -.100001f, -.099999f);
+    }
+
+    private static (float Radius, Vector3 Lanes) UnitHollow(ColliderShapeKind kind) => kind switch
+    {
+        ColliderShapeKind.Tube => (1f, new(.7f, .5f, 0)),
+        ColliderShapeKind.Frustum => (1f, new(.3f, .5f, .8f)),
+        ColliderShapeKind.Torus => (.75f, new(0, .25f, ColliderDeclaration.FullSweep)),
+        _ => throw new ArgumentOutOfRangeException(nameof(kind))
+    };
+
+    [Theory]
+    [InlineData(ColliderShapeKind.Tube, ColliderShapeKind.Tube)]
+    [InlineData(ColliderShapeKind.Tube, ColliderShapeKind.Frustum)]
+    [InlineData(ColliderShapeKind.Tube, ColliderShapeKind.Torus)]
+    [InlineData(ColliderShapeKind.Frustum, ColliderShapeKind.Tube)]
+    [InlineData(ColliderShapeKind.Frustum, ColliderShapeKind.Frustum)]
+    [InlineData(ColliderShapeKind.Frustum, ColliderShapeKind.Torus)]
+    [InlineData(ColliderShapeKind.Torus, ColliderShapeKind.Tube)]
+    [InlineData(ColliderShapeKind.Torus, ColliderShapeKind.Frustum)]
+    [InlineData(ColliderShapeKind.Torus, ColliderShapeKind.Torus)]
+    public void HollowPairsMeasureOffGridGrazingAndSeparatedSurfaces(ColliderShapeKind a, ColliderShapeKind b)
+    {
+        var sa = UnitHollow(a); var sb = UnitHollow(b);
+        // Every outer radial silhouette has radius 1 m. At this non-grid azimuth the
+        // independent separation is centre distance minus 2 m, including a 20 µm gap.
+        var angle = .137f;
+        var direction = new Vector3(MathF.Cos(angle), 0, MathF.Sin(angle));
+        Span<HollowContact> contacts = stackalloc HollowContact[HollowContactQuery.Capacity];
+        foreach (var separation in new[] { -.0002f, 0f, .00002f })
+        {
+            var partner = new HollowPartner(a, direction * (2f + separation) + (a == ColliderShapeKind.Torus ? new Vector3(0, -.5f, 0) : Vector3.Zero), Vector3.UnitX, Vector3.UnitY, Vector3.UnitZ,
+                sa.Radius, sa.Lanes.X, sa.Lanes.Y, sa.Lanes.Z);
+            var hollow = new HollowSolid(b, b == ColliderShapeKind.Torus ? new Vector3(0, -.5f, 0) : Vector3.Zero, Vector3.UnitX, Vector3.UnitY, Vector3.UnitZ,
+                sb.Radius, sb.Lanes.X, sb.Lanes.Y, sb.Lanes.Z);
+            var count = HollowContactQuery.Measure(partner, hollow, .001f, contacts);
+            Assert.True(count > 0, $"{a}/{b}: no grazing witness");
+            var measured = float.PositiveInfinity;
+            for (var i = 0; i < count; i++)
+            {
+                if (contacts[i].Support == HollowContactSupport.DistanceOnly) measured = MathF.Min(measured, contacts[i].Gap);
+                Assert.InRange(contacts[i].Normal.Length(), .99999f, 1.00001f);
+            }
+            // The frustum radius decreases by 0.2 per metre above its bottom rim.
+            // For two tapered profiles, equate the end distance t to the sloping-wall
+            // distance (penetration - 0.4t)/sqrt(1 + 0.2²). Against a straight tube,
+            // the deepest symmetric witness equates t to penetration - 0.2t.
+            var expected = (double)separation;
+            if (separation < 0 && a != ColliderShapeKind.Torus && b != ColliderShapeKind.Torus)
+                expected /= a == ColliderShapeKind.Frustum && b == ColliderShapeKind.Frustum ? .4 + Math.Sqrt(1.04)
+                    : a == ColliderShapeKind.Frustum || b == ColliderShapeKind.Frustum ? 1.2 : 1;
+            Assert.InRange(measured, expected - SurfaceError, expected + SurfaceError);
+            Assert.Equal(separation < 0, HollowContactQuery.Overlaps(partner, hollow, .00005f));
+        }
+    }
+
+    [Theory]
+    [InlineData(ColliderShapeKind.Tube)]
+    [InlineData(ColliderShapeKind.Frustum)]
+    [InlineData(ColliderShapeKind.Torus)]
+    public void MovingHollowRestsOnThePlaneAtItsAnalyticHeight(ColliderShapeKind kind)
+    {
+        var geometry = UnitHollow(kind);
+        var scene = new LawScene();
+        var body = scene.DynamicHollow(kind, new(0, 1.5f, 0), Quaternion.Identity, geometry.Radius, geometry.Lanes,
+            new(0, .1f, .3f, 0), 1f, Vector3.One, gravity: LawScene.Gravity);
+        var world = scene.Admit();
+        var result = world.Step(240)[body];
+        var halfHeight = kind == ColliderShapeKind.Torus ? .25f : .5f;
+        Assert.True(result.Finite);
+        Assert.InRange(result.Position.Y, BenchY + halfHeight - Resting - SurfaceError, BenchY + halfHeight + SurfaceError);
+        Assert.InRange(result.Speed, 0, .01f);
+    }
+
+    [Theory]
+    [InlineData(ColliderShapeKind.Tube, ColliderShapeKind.Sphere)]
+    [InlineData(ColliderShapeKind.Tube, ColliderShapeKind.Box)]
+    [InlineData(ColliderShapeKind.Tube, ColliderShapeKind.Cylinder)]
+    [InlineData(ColliderShapeKind.Tube, ColliderShapeKind.Tube)]
+    [InlineData(ColliderShapeKind.Tube, ColliderShapeKind.Frustum)]
+    [InlineData(ColliderShapeKind.Tube, ColliderShapeKind.Torus)]
+    [InlineData(ColliderShapeKind.Frustum, ColliderShapeKind.Sphere)]
+    [InlineData(ColliderShapeKind.Frustum, ColliderShapeKind.Box)]
+    [InlineData(ColliderShapeKind.Frustum, ColliderShapeKind.Cylinder)]
+    [InlineData(ColliderShapeKind.Frustum, ColliderShapeKind.Tube)]
+    [InlineData(ColliderShapeKind.Frustum, ColliderShapeKind.Frustum)]
+    [InlineData(ColliderShapeKind.Frustum, ColliderShapeKind.Torus)]
+    [InlineData(ColliderShapeKind.Torus, ColliderShapeKind.Sphere)]
+    [InlineData(ColliderShapeKind.Torus, ColliderShapeKind.Box)]
+    [InlineData(ColliderShapeKind.Torus, ColliderShapeKind.Cylinder)]
+    [InlineData(ColliderShapeKind.Torus, ColliderShapeKind.Tube)]
+    [InlineData(ColliderShapeKind.Torus, ColliderShapeKind.Frustum)]
+    [InlineData(ColliderShapeKind.Torus, ColliderShapeKind.Torus)]
+    public void MovingHollowPairsTransferImpulseAndTheSeparatedControlPasses(ColliderShapeKind moving, ColliderShapeKind obstacle)
+    {
+        foreach (var reverse in new[] { false, true })
+            foreach (var clear in new[] { false, true })
+            {
+                var scene = new LawScene(bench: false);
+                var material = new LawMaterial(0, .1f, 0, 0);
+                var geometry = UnitHollow(moving);
+                GpuBodyId body = default;
+                void Moving() => body = scene.DynamicHollow(moving, new(2.02f, 4, clear ? 4 : 0), Quaternion.Identity,
+                    geometry.Radius, geometry.Lanes, material, 1, Vector3.One, new(-.5f, 0, 0));
+                void Obstacle()
+                {
+                    var position = new Vector3(0, 4, 0);
+                    switch (obstacle)
+                    {
+                        case ColliderShapeKind.Sphere: scene.StaticSphere(position, 1, Quaternion.Identity, material); break;
+                        case ColliderShapeKind.Box: scene.StaticBox(position, new(1, 1, 1), material: material); break;
+                        case ColliderShapeKind.Cylinder: scene.StaticCylinder(position, 1, 1, material: material); break;
+                        default:
+                            var shape = UnitHollow(obstacle);
+                            scene.StaticHollow(obstacle, position, Quaternion.Identity, shape.Radius, shape.Lanes, material);
+                            break;
+                    }
+                }
+                if (reverse) { Moving(); Obstacle(); } else { Obstacle(); Moving(); }
+                var world = scene.Admit();
+                var final = world.Step(60)[body];
+                Assert.True(final.Finite);
+                if (clear)
+                {
+                    Assert.InRange(final.Velocity.X, -.50001f, -.49999f);
+                    Assert.InRange(final.Position.X, 1.77f - (float)SurfaceError, 1.77f + (float)SurfaceError);
+                }
+                else Assert.True(final.Velocity.X > -.45f, $"{moving}/{obstacle}, reversed={reverse}: no contact impulse");
+            }
+    }
+
+    [Theory]
+    [InlineData(ColliderShapeKind.Tube)]
+    [InlineData(ColliderShapeKind.Frustum)]
+    [InlineData(ColliderShapeKind.Torus)]
+    public void IdenticalHollowSolidsDoNotInventOpposingSurfaceNormals(ColliderShapeKind kind)
+    {
+        var shape = UnitHollow(kind);
+        var partner = new HollowPartner(kind, Vector3.Zero, Vector3.UnitX, Vector3.UnitY, Vector3.UnitZ,
+            shape.Radius, shape.Lanes.X, shape.Lanes.Y, shape.Lanes.Z);
+        var solid = new HollowSolid(kind, Vector3.Zero, Vector3.UnitX, Vector3.UnitY, Vector3.UnitZ,
+            shape.Radius, shape.Lanes.X, shape.Lanes.Y, shape.Lanes.Z);
+        var contacts = new HollowContact[HollowContactQuery.Capacity];
+        // Corresponding normals are co-oriented on every identical feature.
+        // There is no opposing surface pair from which to invent a support row.
+        var count = HollowContactQuery.Measure(partner, solid, .001f, contacts);
+        Assert.All(contacts.Take(count), contact =>
+        {
+            Assert.Equal(HollowContactSupport.DistanceOnly, contact.Support);
+            Assert.True(float.IsFinite(contact.Gap));
+            Assert.InRange(contact.Normal.Length(), .99999f, 1.00001f);
+        });
+        Assert.Equal(count, HollowContactQuery.Measure(partner, solid, .001f, contacts));
+    }
+
+    [Theory]
+    [InlineData(ColliderShapeKind.Tube)]
+    [InlineData(ColliderShapeKind.Frustum)]
+    [InlineData(ColliderShapeKind.Torus)]
+    public void CoincidentOpposedCapsAndRimsRetainDistinctSupportingWitnesses(ColliderShapeKind kind)
+    {
+        var shape = UnitHollow(kind);
+        var height = kind == ColliderShapeKind.Torus ? .5f : 1f;
+        // Flip the upper frustum so its touching end radius equals the lower
+        // top radius. The two end outward normals then oppose each other.
+        var upper = new HollowPartner(kind, new(0, height, 0), -Vector3.UnitX, -Vector3.UnitY, Vector3.UnitZ,
+            shape.Radius, shape.Lanes.X, shape.Lanes.Y, shape.Lanes.Z);
+        var lower = new HollowSolid(kind, Vector3.Zero, Vector3.UnitX, Vector3.UnitY, Vector3.UnitZ,
+            shape.Radius, shape.Lanes.X, shape.Lanes.Y, shape.Lanes.Z);
+        var contacts = new HollowContact[HollowContactQuery.Capacity];
+        var count = HollowContactQuery.Measure(upper, lower, .001f, contacts);
+        Assert.InRange(count, 4, HollowContactQuery.Capacity);
+        var distinct = new List<Vector3>();
+        foreach (var contact in contacts.Take(count).Where(contact => contact.Support != HollowContactSupport.DistanceOnly))
+        {
+            Assert.InRange(contact.Normal.Length(), .99999f, 1.00001f);
+            Assert.InRange(contact.Gap, -SurfaceError, SurfaceError);
+            Assert.True(contact.Normal.Y > .9999f);
+            if (distinct.All(point => Vector3.Distance(point, contact.Point) > .01f)) distinct.Add(contact.Point);
+        }
+        Assert.True(distinct.Count >= 4, $"{kind}: opposed support collapsed to {distinct.Count} points");
+    }
+
+    [Theory]
+    [InlineData(ColliderShapeKind.Tube, ColliderShapeKind.Tube)]
+    [InlineData(ColliderShapeKind.Tube, ColliderShapeKind.Frustum)]
+    [InlineData(ColliderShapeKind.Tube, ColliderShapeKind.Torus)]
+    [InlineData(ColliderShapeKind.Frustum, ColliderShapeKind.Tube)]
+    [InlineData(ColliderShapeKind.Frustum, ColliderShapeKind.Frustum)]
+    [InlineData(ColliderShapeKind.Frustum, ColliderShapeKind.Torus)]
+    [InlineData(ColliderShapeKind.Torus, ColliderShapeKind.Tube)]
+    [InlineData(ColliderShapeKind.Torus, ColliderShapeKind.Frustum)]
+    [InlineData(ColliderShapeKind.Torus, ColliderShapeKind.Torus)]
+    [InlineData(ColliderShapeKind.Tube, ColliderShapeKind.Frustum, true)]
+    [InlineData(ColliderShapeKind.Frustum, ColliderShapeKind.Tube, true)]
+    [InlineData(ColliderShapeKind.Frustum, ColliderShapeKind.Frustum, true)]
+    public void TwoMovingHollowPartnersExchangeMomentumWithoutCreatingEnergy(ColliderShapeKind first, ColliderShapeKind second, bool penetrated = false)
+    {
+        var yaw = Quaternion.CreateFromAxisAngle(Vector3.UnitY, .137f);
+        var direction = Vector3.Transform(Vector3.UnitX, yaw);
+        foreach (var reverse in new[] { false, true })
+        {
+            var scene = new LawScene(false);
+            var separation = penetrated ? 1.9998f : 2.02f;
+            GpuBodyId a = default, b = default;
+            GpuBodyId Add(ColliderShapeKind kind, Vector3 position, Vector3 velocity)
+            {
+                var geometry = UnitHollow(kind);
+                return scene.DynamicHollow(kind, position, yaw, geometry.Radius, geometry.Lanes,
+                    new(0, .1f, 0, 0), 1, Vector3.One, velocity);
+            }
+            if (reverse) { b = Add(second, new(0, 4, 0), default); a = Add(first, new Vector3(0, 4, 0) + separation * direction, -.5f * direction); }
+            else { a = Add(first, new Vector3(0, 4, 0) + separation * direction, -.5f * direction); b = Add(second, new(0, 4, 0), default); }
+            var final = scene.Admit().Step(60, (tick, state) =>
+            {
+                var kinetic = .5 * (state[a].Velocity.LengthSquared() + state[b].Velocity.LengthSquared() +
+                    state[a].Angular.LengthSquared() + state[b].Angular.LengthSquared());
+                Assert.True(kinetic <= .1251,
+                    $"{first}/{second}, reversed={reverse}, tick={tick}, kinetic={kinetic:R}; A p={state[a].Position}, v={state[a].Velocity}, w={state[a].Angular}; B p={state[b].Position}, v={state[b].Velocity}, w={state[b].Angular}");
+                var residual = Vector3.Distance(state[a].Velocity + state[b].Velocity, -.5f * direction);
+                Assert.True(residual <= .0001f,
+                    $"{first}/{second}, reversed={reverse}, tick={tick}, momentum residual={residual:R}; A v={state[a].Velocity}, w={state[a].Angular}; B v={state[b].Velocity}, w={state[b].Angular}");
+            });
+            Assert.True(Vector3.Dot(final[b].Velocity, -direction) > .01f, $"{first}/{second}: partner received no impulse");
+            // Both declared masses and isotropic principal moments are1; initial
+            // translational energy is .125 J. 1e-4 J covers f32 accumulation.
+            var energy = .5 * (final[a].Velocity.LengthSquared() + final[b].Velocity.LengthSquared() +
+                final[a].Angular.LengthSquared() + final[b].Angular.LengthSquared());
+            Assert.InRange(energy, 0, .1251);
+        }
+    }
+
 }

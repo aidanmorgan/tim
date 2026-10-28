@@ -21,7 +21,7 @@ public sealed class ElementIsolationTests
         Bumper, Springboard, Switch, Lamp, Detector, Delay, Battery, Domino, Plate, Counter, Clock, Latch
     }
 
-    public enum GenericMeaning { ClockProtocol, CaptureProtocol, SoftSpringLaw, Duration, DeclaredCapability }
+    public enum GenericMeaning { ClockProtocol, CaptureProtocol, SoftSpringLaw, Duration, DeclaredCapability, AnalyticSurface }
     public sealed record SemanticContext(string File, string Symbol, string Token, int Count, GenericMeaning Meaning);
     public sealed record IsolationSnapshot(Entry[] Known, SemanticContext[] Generic);
     public sealed record Entry(string File, string Symbol, Rule Rule, string Token, int Count, Owner Owner);
@@ -205,6 +205,9 @@ public sealed class ElementIsolationTests
 
     private static bool Included(string file)
     {
+        // Exact outputs of the pinned RuntimeTypeScript target; their .ts sources remain scanned.
+        if (file is "CuriousContraptions.Simulation/wwwroot/worker.js" or
+            "CuriousContraptions.web/wwwroot/event-ring-cursor.js" or "CuriousContraptions.web/wwwroot/workshop-client.js") return false;
         var parts = file.Replace('\\', '/').Split('/');
         if (parts.Any(part => Outputs.Contains(part, StringComparer.Ordinal))) return false;
         if (!(file.EndsWith(".cs", StringComparison.Ordinal) || file.EndsWith(".js", StringComparison.Ordinal) ||
@@ -367,6 +370,12 @@ public sealed class ElementIsolationTests
     }
 
     [Theory]
+    [InlineData("CuriousContraptions.Simulation/wwwroot/worker.js", false)]
+    [InlineData("CuriousContraptions.Simulation/wwwroot/worker.ts", true)]
+    [InlineData("CuriousContraptions.web/wwwroot/event-ring-cursor.js", false)]
+    [InlineData("CuriousContraptions.web/wwwroot/event-ring-cursor.ts", true)]
+    [InlineData("CuriousContraptions.web/wwwroot/workshop-client.js", false)]
+    [InlineData("CuriousContraptions.web/wwwroot/workshop-client.ts", true)]
     [InlineData("engine/planted.cs", true)] [InlineData("ui/planted.cs", true)]
     [InlineData("CuriousContraptions.web/wwwroot/planted.js", true)]
     [InlineData("CuriousContraptions.Simulation/wwwroot/planted.js", true)]

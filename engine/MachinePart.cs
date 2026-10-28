@@ -9,8 +9,6 @@ using CuriousContraptions.Abstractions;
 namespace CuriousContraptions;
 
 /// <summary>Render/input node only. Durable construction and motion are canonical worker values.</summary>
-public enum PhysicalVisualSlot : byte { Primary, Secondary }
-
 public sealed partial class MachinePart : Node3D, IResizablePart
 {
     public PartDefinition Definition { get; private set; } = null!;
@@ -80,7 +78,7 @@ public sealed partial class MachinePart : Node3D, IResizablePart
                     default: throw new ArgumentException("Undefined resize axis.");
                 }
             }
-        var staged = new List<(WorkshopVisualBinding Binding, AnimationValue Value)>();
+        var staged = new List<(WorkshopVisualBinding Binding, AnimationValue Value)>(16);
         foreach (var parameter in presentation.Parameters)
         {
             var target = GetNodeOrNull<Node3D>(parameter.Node) ?? throw new ArgumentException("Parameter target is absent.");
@@ -119,25 +117,25 @@ public sealed partial class MachinePart : Node3D, IResizablePart
         _highlight.Visible = false;
         _built = true;
     }
-    private readonly Dictionary<PhysicalVisualSlot, (GpuBodyId Id, Node3D Target, Transform3D RestPose)> _physicalBodies = new();
-    private readonly List<(Node3D Moving, Vector3 MovingAnchor, Node3D Target, Vector3 FixedAnchor, float RestLength)> _physicalSpans = new();
+    private readonly Dictionary<PackageBodyIndex, (GpuBodyId Id, Node3D Target, Transform3D RestPose)> _physicalBodies = new(4);
+    private readonly List<(Node3D Moving, Vector3 MovingAnchor, Node3D Target, Vector3 FixedAnchor, float RestLength)> _physicalSpans = new(4);
     /// <summary>Each bound visual's scene rest pose (after its declared rest offset): the frame a slider compression displaces.</summary>
-    private readonly Dictionary<PhysicalVisualSlot, Transform3D> _sceneRestPoses = new();
-    private void BindPhysicalBody(PhysicalVisualSlot slot, Node3D target)
+    private readonly Dictionary<PackageBodyIndex, Transform3D> _sceneRestPoses = new(4);
+    private void BindPhysicalBody(PackageBodyIndex slot, Node3D target)
     {
-        if (slot != PhysicalVisualSlot.Secondary || !IsAncestorOf(target) ||
+        if (slot.Value < 1 || !IsAncestorOf(target) ||
             !_physicalBodies.TryAdd(slot, (default, target, target.Transform)))
             throw new ArgumentException("Invalid owned physical visual binding.");
         _sceneRestPoses.Add(slot, target.Transform);
     }
     /// <summary>The slider body's visual: its admitted identity, resting at its scene pose displaced along the owner's local Y by the
     /// declared starting compression (the compiled moving body's pose; never compounded across edits).</summary>
-    internal void InstallSliderPresentation(GpuBodyId id, float compression)
+    internal void InstallSliderPresentation(PackageBodyIndex slot, GpuBodyId id, float compression, CompiledIdentityMap identities)
     {
         if (!float.IsFinite(compression)) throw new ArgumentException("Slider compression must be finite.");
-        InstallPhysicalIdentity(PhysicalVisualSlot.Secondary, id);
-        var scene = _sceneRestPoses[PhysicalVisualSlot.Secondary];
-        SetPhysicalRestPose(PhysicalVisualSlot.Secondary, new Transform3D(scene.Basis, scene.Origin - Vector3.Up * compression));
+        InstallPhysicalIdentity(slot, id, identities);
+        var scene = _sceneRestPoses[slot];
+        SetPhysicalRestPose(slot, new Transform3D(scene.Basis, scene.Origin - Vector3.Up * compression));
     }
     private void BindPhysicalSpan(Node3D moving, Vector3 movingAnchor, Node3D target, Vector3 fixedAnchor, float restLength)
     {
@@ -147,9 +145,10 @@ public sealed partial class MachinePart : Node3D, IResizablePart
         _physicalSpans.Add((moving, movingAnchor, target, fixedAnchor, restLength));
         ApplyPhysicalSpans();
     }
-    internal void InstallPhysicalIdentity(PhysicalVisualSlot slot, GpuBodyId id)
+    internal void InstallPhysicalIdentity(PackageBodyIndex slot, GpuBodyId id, CompiledIdentityMap identities)
     {
-        if (AuthoredId.Value == 0 || !WorkshopPhysicsCompiler.IsSecondaryBodyIdentity(AuthoredId, id) ||
+        if (AuthoredId.Value == 0 || slot.Value < 1 || slot.Value > identities[AuthoredId].Sliders.Length ||
+            identities[AuthoredId].Sliders[slot.Value - 1].Body != id ||
             !_physicalBodies.TryGetValue(slot, out var binding))
             throw new ArgumentException("Invalid admitted physical visual identity.");
         _physicalBodies[slot] = (id, binding.Target, binding.RestPose);
@@ -161,7 +160,7 @@ public sealed partial class MachinePart : Node3D, IResizablePart
         foreach (var binding in _physicalBodies.Values) if (id == binding.Id) return binding.Target;
         return null;
     }
-    private void SetPhysicalRestPose(PhysicalVisualSlot slot, Transform3D pose)
+    private void SetPhysicalRestPose(PackageBodyIndex slot, Transform3D pose)
     {
         if (!_physicalBodies.TryGetValue(slot, out var binding))
             throw new ArgumentException("Absent physical visual binding.");
@@ -193,7 +192,7 @@ public sealed partial class MachinePart : Node3D, IResizablePart
             binding.Target.Scale = new(1, length / binding.RestLength, 1);
         }
     }
-    private readonly Dictionary<int, WorkshopVisualBinding> _declaredBindings = new();
+    private readonly Dictionary<int, WorkshopVisualBinding> _declaredBindings = new(16);
     internal void ApplyDeclaredProperty(int index, AnimationValue value)
     {
         if (!_declaredBindings.TryGetValue(index, out var binding))
@@ -205,7 +204,7 @@ public sealed partial class MachinePart : Node3D, IResizablePart
         var presentation = Definition.Presentation;
         ApplyPresentationParameters(Definition.Parameters.ToDictionary(p => p.Key, p => p.Default, StringComparer.Ordinal));
         if (presentation.Sizing is null) PickRadius = presentation.PickRadius;
-        var ownedMaterials = new HashSet<Node3D>();
+        var ownedMaterials = new HashSet<Node3D>(16);
         for (var i = 0; i < presentation.Bindings.Count; i++)
         {
             var declaration = presentation.Bindings[i];
@@ -230,11 +229,7 @@ public sealed partial class MachinePart : Node3D, IResizablePart
         foreach (var binding in presentation.Bodies)
         {
             var target = GetNodeOrNull<Node3D>(binding.Node) ?? throw new ArgumentException("Physical visual target is absent.");
-            var slot = binding.Body switch
-            {
-                PresentationBody.Secondary => PhysicalVisualSlot.Secondary,
-                _ => throw new ArgumentException("Only secondary bodies need a child visual binding.")
-            };
+            var slot = binding.Body;
             target.Position += new Vector3(binding.RestOffset.X, binding.RestOffset.Y, binding.RestOffset.Z);
             BindPhysicalBody(slot, target);
         }
@@ -267,5 +262,56 @@ public sealed partial class MachinePart : Node3D, IResizablePart
     public void SetSelected(bool selected)
     {
         if (_highlight is not null) _highlight.Visible = selected;
+    }
+}
+
+
+/// <summary>The complete committed-pose visual application used by the Workshop.
+/// Resolve ownership and parents for the whole set before any visual is written.</summary>
+public sealed class WorkshopPhysicalPresentation
+{
+    private Node3D[] _targets = new Node3D[16];
+    public int Capacity => _targets.Length;
+
+    public uint Apply(IReadOnlyList<MachinePart> parts, Transform3D worldTransform, PresentedBodySet poses)
+    {
+        if (poses.Count > Array.MaxLength) throw new WorkshopStorageException("Presentation target storage is not representable.");
+        if (poses.Count > 3L * _targets.Length / 4)
+        {
+            var capacity = (int)Math.Min(Array.MaxLength, Math.Max(2L * _targets.Length, (4L * poses.Count + 2) / 3));
+            if (capacity != _targets.Length) _targets = new Node3D[capacity];
+        }
+        try
+        {
+            for (var index = 0; index < poses.Count; index++)
+            {
+                var id = poses[index].Id;
+                Node3D? owned = null;
+                foreach (var part in parts)
+                {
+                    var target = part.PhysicalVisual(id);
+                    if (target is null) continue;
+                    if (owned is not null) throw new ArgumentException("Presented body has multiple owned visual bindings.");
+                    owned = target;
+                }
+                if (owned is null || owned.GetParent() is not Node3D)
+                    throw new ArgumentException("Presented body has no unique owned visual binding and parent.");
+                _targets[index] = owned;
+            }
+            uint writes = 0;
+            for (var index = 0; index < poses.Count; index++)
+            {
+                var pose = poses[index]; var target = _targets[index]; var q = pose.Rotation;
+                var position = new Vector3((pose.Cell.X + pose.Local.X) / 16f,
+                    (pose.Cell.Y + pose.Local.Y) / 16f, (pose.Cell.Z + pose.Local.Z) / 16f);
+                var worldPose = worldTransform * new Transform3D(new Basis(new Quaternion(q.X, q.Y, q.Z, q.W)), position);
+                var localPose = ((Node3D)target.GetParent()).GlobalTransform.AffineInverse() * worldPose;
+                if (target.Position != localPose.Origin) { target.Position = localPose.Origin; writes++; }
+                target.Basis = localPose.Basis;
+            }
+            foreach (var part in parts) part.ApplyPhysicalSpans();
+            return writes;
+        }
+        finally { Array.Clear(_targets, 0, poses.Count); }
     }
 }

@@ -20,7 +20,9 @@ public sealed class PlateGuardTests
     private static IWorkshopInstance[] Bodies(Load load, double x, double z, ulong first) => load switch
     {
         Load.Basketball => [Ball(first, x, z)],
-        Load.StandingDomino => [PlacedParts.Domino(new(first), x, Face + .551, z, 0, 0, 0, 1)],
+        // The .325m half-depth covers the .3m ring: crown .084+.018 above the owner,
+        // plus .55m tile half-height and independent 1mm initial clearance.
+        Load.StandingDomino => [PlacedParts.Domino(new(first), x, PlateY + .084 + .018 + .55 + .001, z, 0, 0, 0, 1)],
         Load.BowlingBall => [Bowling(first, x, z)],
         Load.FourBowlingBalls => [Bowling(first, x - .45, z - .45), Bowling(first + 1, x + .45, z - .45),
             Bowling(first + 2, x - .45, z + .45), Bowling(first + 3, x + .45, z + .45)],
@@ -68,8 +70,7 @@ public sealed class PlateGuardTests
     }
     private static float Travel(WorkshopRead read, WorkshopGenericInstance gate)
     {
-        Assert.True(read.Bodies.TryGet(WorkshopPhysicsCompiler.SliderBody(gate.Id, 0), out var blade));
-        return (blade.Body.Cell.Y + blade.Body.Local.Y) / 16f - (float)GateHeight;
+        return read.Presentation.Actuators.ToArray().Single(row => row.Owner == gate.Id).Coordinate;
     }
 
     // The threshold matrix through the real path: the instance's minimum mass, compared inclusively in f32, decides the plate. A

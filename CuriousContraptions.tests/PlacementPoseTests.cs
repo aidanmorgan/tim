@@ -96,6 +96,8 @@ public sealed class PlacementPoseTests
     private static readonly float PlateY = (float)((double)WorkshopConstruction.WorkbenchSurface.Value + .22);
     /// <summary>The plate face's top: its centre is 0.03 m above the plate origin and it is 0.1 m thick (the plate scene).</summary>
     private static readonly float FaceTop = PlateY + .03f + .05f;
+    // Literal plate artwork: ring centre y=.084, outer tube radius=.018.
+    private static readonly float RingTop = PlateY + .084f + .018f;
 
     private static IReadOnlyDictionary<PartId, PartDefinition> Definitions()
     {
@@ -141,7 +143,7 @@ public sealed class PlacementPoseTests
         var (position, rotation) = Composed(definitions, placed, new(part, new(2), false), at, Quaternion.Identity);
         var grid = at.Snapped(Vector3.One * .1f);
         Assert.Equal((grid.X, grid.Z, Quaternion.Identity), (position.X, position.Z, rotation));
-        Assert.True(MathF.Abs(position.Y - (FaceTop + halfHeight)) < 1e-5f, $"{part} rests at {position.Y}, face top {FaceTop}");
+        Assert.True(MathF.Abs(position.Y - ((part == PartId.Domino ? RingTop : FaceTop) + halfHeight)) < 1e-5f, $"{part} rests at {position.Y}, face top {FaceTop}");
     }
 
     // Story 10.2a: the Weight is the first dynamic cylinder in the palette. Its origin is its base centre, so dropped upright into a
@@ -159,10 +161,13 @@ public sealed class PlacementPoseTests
         var grid = at.Snapped(Vector3.One * .1f);
         var (upright, turn) = Composed(definitions, placed, weight, at, Quaternion.Identity);
         Assert.Equal((grid.X, grid.Z, Quaternion.Identity), (upright.X, upright.Z, turn));
-        Assert.True(MathF.Abs(upright.Y - face) < 1e-5f, $"upright Weight rests at {upright.Y}, face top {face}");
+        Assert.True(MathF.Abs(upright.Y - (1f + .084f + .018f)) < 1e-5f, $"upright Weight rests at {upright.Y}, face top {face}");
         var side = new Quaternion(Vector3.Right, MathF.PI / 2);
-        var radius = TestBundle.Entry(WeightTests.Weight).Colliders[0].HalfExtents.X;
-        var (lying, _) = Composed(definitions, placed, weight, at, side);
+        // At x=.7 the nearest ring material is .382m away horizontally, beyond the
+        // literal band reach (.3558+.0075)*scale. The band rests directly on the flat face.
+        var scale = .136734f * 4f + .453070f;
+        var radius = (.3558f + .0075f) * scale;
+        var (lying, _) = Composed(definitions, placed, weight, new(-3.3f, 1f, .2f), side);
         Assert.True(MathF.Abs(lying.Y - (face + radius)) < 1e-5f, $"lying Weight rests at {lying.Y}, face top + r {face + radius}");
         // Control: held clear above the face it is not moved.
         var above = new Vector3(-3.6f, face + .5f, .2f);
@@ -181,11 +186,13 @@ public sealed class PlacementPoseTests
         var battery = PlacedParts.Battery(new(2), 3, 3, 0);
         var plate = PlacedParts.Plate(new(3), -4, PlateY, 0, .5f);
         var placed = new List<IWorkshopInstance> { gate, battery, plate };
-        foreach (var x in dominoes == 2 ? new[] { -4.4f, -3.6f } : [-4f])
+        // Centres±.6 keep the .125m half-width outside the ring's .318m outer reach;
+        // the .325m half-depth is clear of studs at z±.62. The single centre control rests on the ring.
+        foreach (var x in dominoes == 2 ? new[] { -4.6f, -3.4f } : [-4f])
         {
             var id = (ulong)placed.Count + 1;
             var (position, rotation) = Composed(definitions, placed, new(PartId.Domino, new(id), false), new(x, PlateY, 0), Quaternion.Identity);
-            Assert.True(MathF.Abs(position.Y - (FaceTop + .55f)) < 1e-5f, $"domino {id} rests at {position.Y}");
+            Assert.True(MathF.Abs(position.Y - ((dominoes == 2 ? FaceTop : RingTop) + .55f)) < 1e-5f, $"domino {id} rests at {position.Y}");
             placed.Add(PlacedParts.Domino(new(id), position.X, position.Y, position.Z, rotation.X, rotation.Y, rotation.Z, rotation.W));
         }
         var bench = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new([.. placed]), Connections: new(
@@ -193,14 +200,14 @@ public sealed class PlacementPoseTests
             new WorkshopConnection(plate.Id, WorkshopSocket.Supply, gate.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical)));
         var reads = (await WorkshopPhysicsEngineTests.RunPhases(bench, ([], 2 * 120)))[0];
         var load = reads[^1].Presentation.Loads[0];
-        Assert.True(reads[^1].Bodies.TryGet(WorkshopPhysicsCompiler.SliderBody(gate.Id, 0), out var blade));
+        Assert.True(reads[^1].Bodies.TryGet(bench.Instances.Identities[gate.Id].Sliders[0].Body, out var blade));
         var travel = (blade.Body.Cell.Y + blade.Body.Local.Y) / 16f - 3f;
         Assert.Equal(opens ? ContactLoadPhase.Loaded : ContactLoadPhase.Underweight, load.Phase);
         Assert.True(opens ? travel > 1.3f : travel < .2f, $"{dominoes} domino(es): gate travel {travel}");
         foreach (var domino in placed.Skip(3))
         {
             Assert.True(reads[^1].Bodies.TryGet(domino.Id, out var standing));
-            Assert.True(MathF.Abs((standing.Body.Cell.Y + standing.Body.Local.Y) / 16f - (FaceTop + .55f)) < .01f, "the domino stands on the face");
+            Assert.True(MathF.Abs((standing.Body.Cell.Y + standing.Body.Local.Y) / 16f - ((dominoes == 2 ? FaceTop : RingTop) + .55f)) < .01f, "the domino stands on the face");
         }
     }
 
@@ -267,7 +274,7 @@ public sealed class PlacementPoseTests
             IWorkshopInstance[] placed = [PlacedParts.Plate(new(1), 0, height, 0, .5f)];
             var composed = PlacementPose.Compose(definitions, placed, new(part, new(2), false), new(0, height, 0), Quaternion.Identity);
             Assert.Equal(refusal, composed.Refusal);
-            Assert.True(MathF.Abs(composed.Position.Y - (height + .08f + halfHeight)) < 1e-4f, $"{part} at {height}: {composed.Position.Y}");
+            Assert.True(MathF.Abs(composed.Position.Y - (height + (part == PartId.Domino ? .084f + .018f : .08f) + halfHeight)) < 1e-4f, $"{part} at {height}: {composed.Position.Y}");
         }
     }
 
@@ -284,8 +291,8 @@ public sealed class PlacementPoseTests
         {
             var face = plate + .08f;
             IWorkshopInstance[] placed = [PlacedParts.Plate(new(1), 0, plate, 0, .5f)];
-            foreach (var (part, origin, top) in new[] { (WeightTests.Weight, face, face + 2 * h), (PartId.Basketball, face + .34f, face + .68f),
-                         (PartId.Domino, face + .55f, face + 1.1f) })
+            foreach (var (part, origin, top) in new[] { (WeightTests.Weight, plate + .084f + .018f, plate + .084f + .018f + 2 * h), (PartId.Basketball, face + .34f, face + .68f),
+                         (PartId.Domino, plate + .084f + .018f + .55f, plate + .084f + .018f + 1.1f) })
             {
                 var composed = PlacementPose.Compose(definitions, placed, new(part, new(2), false), new(0, plate, 0), Quaternion.Identity);
                 Assert.True(refusal == composed.Refusal, $"{part} on the plate at {plate} m (top {top} m): {composed.Refusal}");
@@ -447,21 +454,39 @@ public sealed class PlacementPoseTests
         finally { world.Free(); }
     }
 
-    // B1: a part lifted onto a lower top into a higher box is refused (IntoPart). A Basketball at 0.7 m in a plate at 1 m overlaps only
-    // the base slab's top (0.98 m; the face's 1.08 m top is above the ball), so rest lifts it to 1.32 m, inside the face (0.98–1.08 m).
-    // Control: a ball dropped where both tops lie within its height rests on the face, touching it, and is admitted.
+    // Same-owner upper features compose into the union; a distinct owner's overhead remains a refusal.
     [Fact]
     public void ALiftIntoAHigherBoxIsRefused()
     {
         var definitions = Definitions();
-        IWorkshopInstance[] placed = [PlacedParts.Plate(new(1), 0, 1, 0, .5f)];
+        var plate = PlacedParts.Plate(new(1), 0, 1, 0, .5f);
+        var overhead = At(PartId.Wall, 3, new(0, 1.8f, 0), Quaternion.Identity, WallFixture.Values(1f, .4f, 1f));
         var mover = new TubeMouthMover(PartId.Basketball, new(2), false);
-        var refused = PlacementPose.Compose(definitions, placed, mover, new(0, .7f, 0), Quaternion.Identity);
+        // The .7m initial centre overlaps only the plate base. Its owner's upper face is resolved,
+        // raising the sphere to1.08+.34; the wall begins at1.6 and blocks that final pose.
+        var refused = PlacementPose.Compose(definitions, [plate, overhead], mover, new(0, .7f, 0), Quaternion.Identity);
         Assert.Equal(PlacementRefusal.IntoPart, refused.Refusal);
-        Assert.True(MathF.Abs(refused.Position.Y - (.98f + .34f)) < 1e-4f, $"lifted to {refused.Position.Y}");
-        var admitted = PlacementPose.Compose(definitions, placed, mover, new(0, 1f, 0), Quaternion.Identity);
+        Assert.True(MathF.Abs(refused.Position.Y - (1.08f + .34f)) < 1e-4f);
+        var admitted = PlacementPose.Compose(definitions, [plate], mover, new(0, .7f, 0), Quaternion.Identity);
         Assert.Equal(PlacementRefusal.None, admitted.Refusal);
-        Assert.True(MathF.Abs(admitted.Position.Y - (1.08f + .34f)) < 1e-4f, $"rests at {admitted.Position.Y}");
+        Assert.True(MathF.Abs(admitted.Position.Y - (1.08f + .34f)) < 1e-4f);
+    }
+
+    [Theory]
+    [InlineData(0f, false)]
+    [InlineData(37f, false)]
+    [InlineData(37f, true)]
+    public void CompoundOwnerRestPreservesShiftRotationAndOtherOwnerOrder(float degrees, bool reverse)
+    {
+        var q = new Quaternion(Vector3.Up, degrees * MathF.PI / 180);
+        var plate = At(PartId.PressurePlate, 1, new(2, 1, -1), q);
+        var distant = At(PartId.Wall, 3, new(-4, 5, 0), Quaternion.Identity, WallFixture.Values(1, 2, 1));
+        IWorkshopInstance[] placed = reverse ? [distant, plate] : [plate, distant];
+        var result = PlacementPose.Compose(Definitions(), placed, new(PartId.Domino, new(2), false), new(2, 1, -1), q);
+        Assert.Equal(PlacementRefusal.None, result.Refusal);
+        Assert.Equal((2f, -1f), (result.Position.X, result.Position.Z));
+        Assert.InRange(MathF.Abs(result.Position.Y - (1f + .084f + .018f + .55f)), 0, 1e-5f);
+        Assert.Equal(q, result.Rotation);
     }
 
     // The rest rule's own boundaries: a Basketball whose centre lies just outside the ramp's footprint is not lifted, and one held
@@ -512,8 +537,8 @@ public sealed class PlacementPoseTests
     // the Impact switch's button (r 0.38, top 0.15, at 1 m), whose square holds grid points on both sides of the disc (the Battery's
     // r 0.16 terminal holds none outside it). A Basketball centred at (0.3, ·, 0.2), 0.361 m from the axis (inside the disc), rests on
     // the button's top (1 + 0.15 + 0.34) and is admitted. Centred at (0.3, ·, 0.3), 0.424 m from the axis (inside the square, outside
-    // the disc), the highest top under it is the base's (1 − 0.025 + 0.34); there it would reach into the button beside it (0.044 m
-    // out from its side and 0.165 m above its top: 0.171 m, under the 0.34 m radius), so that rest is refused IntoPart.
+    // the disc), the eligible base selects its owner, whose button rim supplies the curved support. Its height is derived
+    // from the sphere/rim right triangle; the bounding square is never used as the disc footprint.
     [Fact]
     public void AnUprightCapIsARestSurfaceOnlyOverItsDisc()
     {
@@ -524,8 +549,10 @@ public sealed class PlacementPoseTests
         Assert.Equal(PlacementRefusal.None, inside.Refusal);
         Assert.True(MathF.Abs(inside.Position.Y - (1f + .15f + .34f)) < 1e-5f, $"inside the disc it rests at {inside.Position.Y}");
         var corner = PlacementPose.Compose(definitions, placed, mover, new(.3f, 1.1f, .3f), Quaternion.Identity);
-        Assert.True(MathF.Abs(corner.Position.Y - (1f - .025f + .34f)) < 1e-5f, $"outside the disc it rests at {corner.Position.Y}");
-        Assert.Equal(PlacementRefusal.IntoPart, corner.Refusal);
+        var radialGap = MathF.Sqrt(.3f * .3f + .3f * .3f) - .38f;
+        var cornerHeight = 1f + .15f + MathF.Sqrt(.34f * .34f - radialGap * radialGap);
+        Assert.True(MathF.Abs(corner.Position.Y - cornerHeight) < 1e-5f, $"outside the disc it rests at {corner.Position.Y}");
+        Assert.Equal(PlacementRefusal.None, corner.Refusal); // the eligible base selects the same owner union
     }
 
     // A lying or tipped cylinder has no flat top, so it is no shelf: a Basketball over the default Delay's face disc (r 0.55, axis +Z,
@@ -562,7 +589,7 @@ public sealed class PlacementPoseTests
         IWorkshopInstance[] placed = [PlacedParts.Plate(new(1), 0, PlateY, 0, .5f),
             At(PartId.Wall, 3, new(edge + .2f, face + h, edge + .06f), Quaternion.Identity, WallFixture.Values(.4f, .4f, .12f))];
         var composed = PlacementPose.Compose(definitions, placed, new(WeightTests.Weight, new(2), false), new(0, PlateY, 0), Quaternion.Identity);
-        Assert.True(MathF.Abs(composed.Position.Y - face) < 1e-5f, $"the Weight rests at {composed.Position.Y}, not on the face {face}");
+        Assert.True(MathF.Abs(composed.Position.Y - RingTop) < 1e-5f, $"the Weight rests at {composed.Position.Y}, not on the face {face}");
         Assert.Equal(refusal, composed.Refusal);
     }
 }

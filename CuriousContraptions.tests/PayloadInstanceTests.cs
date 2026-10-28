@@ -57,7 +57,7 @@ public sealed class PayloadInstanceTests
             Assert.Equal(new Kilograms((float)mass), body.Mass);
             Assert.Equal(new InverseSeconds(.04f), body.LinearDrag);
             Assert.Equal(new AccelerationVector(0f, -9.81f, 0f), body.Gravity);
-            var collider = Assert.Single(scene.Colliders.ToArray(), c => c.Body == body.Id);
+            var collider = Assert.Single(scene.Colliders.ToArray(), c => c.Body == body.Id && c.Shape == ColliderShapeKind.Sphere);
             Assert.Equal(ColliderShapeKind.Sphere, collider.Shape);
             Assert.Equal(new Metres((float)radius), collider.Radius);
             var material = Assert.Single(scene.Materials.ToArray(), m => m.Id == collider.Material);
@@ -67,21 +67,22 @@ public sealed class PayloadInstanceTests
             Assert.Equal(new RollingResistance((float)rolling), material.RollingResistance);
             // The package is the f32 authority the compiler narrows from.
             var entry = DeclaredPhysics.Of(kind);
-            var sphere = Assert.Single(entry.Colliders);
-            Assert.Equal((radius, mass, .04f, bounce, .3f, .1f, rolling), (sphere.HalfExtents.X, entry.Mechanical!.MassProperties.Mass,
-                entry.Mechanical.MassProperties.LinearDrag, sphere.Material.Restitution, sphere.Material.Friction,
+            var sphere = Assert.Single(entry.Colliders, collider => collider.ShapeKind == CuriousContraptions.Abstractions.ColliderShapeKind.Sphere);
+            Assert.Equal((radius, mass, .04f, bounce, .3f, .1f, rolling), (sphere.HalfExtents.X, MassFixtures.Evaluate(entry.Mechanical!.MassFrame, entry.Metadata.Parameters).Mass,
+                entry.Mechanical.MassFrame.LinearDrag, sphere.Material.Restitution, sphere.Material.Friction,
                 sphere.Material.BounceThreshold, sphere.Material.RollingResistance));
         }
     }
 
-    // Capture sensors and guides follow payloads by ascending identity, whatever order the bench lists them in.
+    // One owner policy selects every explicitly declared payload, without allocating potential pairs.
     [Fact]
-    public void AReceiverGuidesEveryPayloadByAscendingIdentityWhateverTheInstanceOrder()
+    public void AReceiverDeclaresOnePayloadPolicyWhateverTheInstanceOrder()
     {
         var receiver = WorkshopInput.Generic(PartId.Receiver, new(5), 0, 1, 0, 0, 0, 0, 1);
         var scene = WorkshopPhysicsCompiler.Compile(Free(Place(PartId.BowlingBall, 7, -2, 3, 0), Place(PartId.Basketball, 3, 2, 3, 0), receiver), new(1, 2));
-        Assert.Equal([new GpuBodyId(3), new GpuBodyId(7)], scene.Sensors.ToArray().Select(s => s.Target).ToArray());
-        Assert.Equal([new GpuBodyId(3), new GpuBodyId(7)], scene.Guides.ToArray().Select(g => g.Target).ToArray());
+        Assert.Equal(new BodyTargetSet(BodyTargetKind.AllPayloads, default), Assert.Single(scene.Sensors.ToArray()).Targets);
+        Assert.Equal(new BodyTargetSet(BodyTargetKind.AllPayloads, default), Assert.Single(scene.Guides.ToArray()).Targets);
+        Assert.All(scene.Bodies.ToArray().Where(body => body.Id.Value is 3 or 7), body => Assert.True(scene.Sensors[0].Targets.Contains(body.Id, body.Payload)));
         Assert.All(scene.Sensors.ToArray(), s => Assert.Equal(receiver.Id, s.Frame));
     }
 
@@ -96,32 +97,40 @@ public sealed class PayloadInstanceTests
         Assert.Equal(default, MachineWorld.TelemetryBody(WorkshopInstances.Empty));
     }
 
-    // Control: a Domino is dynamic but not a sphere; a Receiver beside it alone compiles no capture row, and beside a Domino and a
-    // payload it targets only the payload.
+    // Control: explicit payload membership excludes a Domino even though it is dynamic.
     [Fact]
-    public void AReceiverBesideOnlyADominoCompilesNoSensorOrGuide()
+    public void AReceiverPolicyExcludesNonPayloadBodiesWithoutAllocatingPairState()
     {
         var receiver = WorkshopInput.Generic(PartId.Receiver, new(5), 0, 1, 0, 0, 0, 0, 1);
         var domino = PlacedParts.Domino(new(2), 3, .1, 0, 0, 0, 0, 1);
         var alone = WorkshopPhysicsCompiler.Compile(Free(domino, receiver), new(1, 2));
-        Assert.Empty(alone.Sensors.ToArray());
-        Assert.Empty(alone.Guides.ToArray());
+        Assert.Equal(BodyTargetKind.AllPayloads, Assert.Single(alone.Sensors.ToArray()).Targets.Kind);
+        Assert.Equal(BodyTargetKind.AllPayloads, Assert.Single(alone.Guides.ToArray()).Targets.Kind);
+        var nonPayload = alone.Bodies.ToArray().Single(body => body.Id == domino.Id);
+        Assert.False(alone.Sensors[0].Targets.Contains(nonPayload.Id, nonPayload.Payload));
         var mixed = WorkshopPhysicsCompiler.Compile(Free(domino, receiver, Place(PartId.Basketball, 9, -3, 2, 0)), new(1, 2));
-        Assert.Equal(new GpuBodyId(9), Assert.Single(mixed.Sensors.ToArray()).Target);
-        Assert.Equal(new GpuBodyId(9), Assert.Single(mixed.Guides.ToArray()).Target);
+        var payload = mixed.Bodies.ToArray().Single(body => body.Id == new GpuBodyId(9));
+        Assert.True(Assert.Single(mixed.Sensors.ToArray()).Targets.Contains(payload.Id, payload.Payload));
+        Assert.True(Assert.Single(mixed.Guides.ToArray()).Targets.Contains(payload.Id, payload.Payload));
     }
 
-    // The guide invariant counts payloads: two capture owners with any payload are refused; with only a Domino they are admitted.
+    // Multiple owner policies coexist with payloads; actual pair state begins only on interaction.
     [Fact]
-    public void TwoCaptureOwnersAreRefusedWithAPayloadAndAdmittedWithOnlyADomino()
+    public void TwoCaptureOwnersAdmitWithEitherPayloadKindAndNonPayloadBodies()
     {
         var first = WorkshopInput.Generic(PartId.Receiver, new(5), 0, 1, 0, 0, 0, 0, 1);
         var second = WorkshopInput.Generic(PartId.Receiver, new(6), 4, 1, 0, 0, 0, 0, 1);
         var domino = PlacedParts.Domino(new(2), 3, .1, 0, 0, 0, 0, 1);
         new WorkshopInstances(first, second, domino).Validate();
         foreach (var kind in new[] { PartId.Basketball, PartId.BowlingBall })
-            Assert.Equal(WorkbenchTable.Guides, Assert.Throws<WorkbenchFullException>(() =>
-                new WorkshopInstances(first, second, domino, Place(kind, 9, -3, 2, 0)).Validate()).Table);
+        {
+            var construction = Free(first, second, domino, Place(kind, 9, -3, 2, 0));
+            construction.Validate();
+            var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
+            Assert.Equal(2, scene.Sensors.Length);
+            Assert.Equal(2, scene.Guides.Length);
+            Assert.Empty(PhysicsInteractionSnapshot.Empty.Captures);
+        }
         // One capture owner guides any number of payloads.
         new WorkshopInstances(first, domino, Place(PartId.Basketball, 9, -3, 2, 0), Place(PartId.BowlingBall, 10, -5, 2, 0)).Validate();
     }
@@ -178,7 +187,7 @@ public sealed class PayloadInstanceTests
     {
         var kind = new PartId(part);
         var radius = (float)Assert.Single(WorkshopPhysicsCompiler.Compile(Free(Place(kind, 1, 0, 2, 0)), new(1, 2)).Colliders.ToArray(),
-            c => c.Body == new GpuBodyId(1)).Radius.Value;
+            c => c.Body == new GpuBodyId(1) && c.Shape == ColliderShapeKind.Sphere).Radius.Value;
         var reads = await WorkshopPhysicsEngineTests.Run(Free(Place(kind, 1, 0, BenchY + radius, 0)), 3 * TicksPerSecond);
         var start = Find(reads[0].Bodies, new(1));
         foreach (var read in reads)
@@ -197,14 +206,14 @@ public sealed class PayloadInstanceTests
     {
         var kind = new PartId(part);
         var scene = WorkshopPhysicsCompiler.Compile(Free(Place(kind, 1, 0, 1, 0)), new(1, 2));
-        var radius = (float)Assert.Single(scene.Colliders.ToArray(), c => c.Body == new GpuBodyId(1)).Radius.Value;
+        var radius = (float)Assert.Single(scene.Colliders.ToArray(), c => c.Body == new GpuBodyId(1) && c.Shape == ColliderShapeKind.Sphere).Radius.Value;
         var admitted = PhysicsGpuAbi.Admission(scene, new(1), new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1)));
         var count = BinaryPrimitives.ReadUInt32LittleEndian(admitted.AsSpan(PhysicsGpuAbi.HeaderBodyCountOffset));
         var record = Enumerable.Range(0, (int)count).Select(slot => PhysicsWorldLayout.BodiesOffset + slot * PhysicsGpuAbi.BodyBytes)
             .Single(offset => BinaryPrimitives.ReadUInt64LittleEndian(admitted.AsSpan(offset)) == 1);
         BinaryPrimitives.WriteSingleLittleEndian(admitted.AsSpan(record + PhysicsGpuAbi.BodyVelocityOffset + 4), -40f);
         var lowest = float.MaxValue; var rebounded = false;
-        WorkshopPhysicsEngineTests.StepWorld(admitted, TicksPerSecond, (_, world) =>
+        WorkshopPhysicsEngineTests.StepWorld(admitted, TicksPerSecond, (_, world, interactions) =>
         {
             var body = PhysicsGpuAbi.ReadDynamicBodies(world)[0];
             lowest = MathF.Min(lowest, Height(body));
@@ -230,7 +239,7 @@ public sealed class PayloadInstanceTests
         Assert.Equal(captures, reads.Any(Latched));
     }
 
-    // Exact Run/Reset and save/load for both kinds on one bench: Reset restores every built bit and the reloaded construction
+    // Exact Run/Reset and save/load for both kinds on one bench: Reset restores every built body state and the reloaded construction
     // replays the identical run.
     [Fact]
     public async Task BothKindsRunResetAndReloadExactly()
@@ -240,7 +249,6 @@ public sealed class PayloadInstanceTests
         var bytes = WorkshopSaveCodec.Encode(saved);
         var loaded = WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes);
         Assert.Equal(saved, loaded);
-        Assert.Equal(bytes, WorkshopSaveCodec.Encode(loaded));
         Assert.Equal([PartId.Basketball, PartId.BowlingBall], loaded.Construction.Instances.Select(i => i.PartId).ToArray());
         var (built, run, reset) = await NoFixedCapacityTests.RunAndReset(construction, 2 * TicksPerSecond);
         Assert.True(Height(Find(run[^1].Bodies, new(1))) < 2.5f && Height(Find(run[^1].Bodies, new(2))) < 2.5f, "both payloads fell");

@@ -17,7 +17,7 @@ public sealed class RigidMassPropertiesTests
     [InlineData(ColliderShapeKind.Box, 1024, 16)]
     public void ExtremeMomentsStayInsideTheCompiledF32Domain(ColliderShapeKind shape, double mass, double size)
     {
-        var properties = RigidMassProperties.Compile(Body(mass), Collider(shape, size, size, size));
+        var properties = MassFixtures.AdmitPrimitive(Body(mass), Collider(shape, size, size, size));
         double m = (float)mass, s = (float)size;
         var expected = shape == ColliderShapeKind.Sphere ? .4 * m * s * s : m * 2 * s * s / 3;
         AssertMoment(properties.X, expected);
@@ -41,7 +41,7 @@ public sealed class RigidMassPropertiesTests
     public void ThinBoxDoesNotLoseItsSmallPrincipalMoment()
     {
         const double small = 1.0 / 1024;
-        var properties = RigidMassProperties.Compile(Body(1), Collider(ColliderShapeKind.Box, small, 16, small));
+        var properties = MassFixtures.AdmitPrimitive(Body(1), Collider(ColliderShapeKind.Box, small, 16, small));
         AssertMoment(properties.X, (256 + small * small) / 3);
         AssertMoment(properties.Y, 2 * small * small / 3);
         AssertMoment(properties.Z, (256 + small * small) / 3);
@@ -54,7 +54,7 @@ public sealed class RigidMassPropertiesTests
         var pose = new RigidLocalPose(new(1f, -2f, .5f),
             new(0f, 0f, (float).7071067811865476, (float).7071067811865476));
         var collider = Collider(ColliderShapeKind.Box, 1, 2, 3) with { Pose = pose };
-        var properties = RigidMassProperties.Compile(Body(2), collider);
+        var properties = MassFixtures.AdmitPrimitive(Body(2), collider);
         Assert.Equal(pose.Translation, properties.LocalCentreOfMass);
         Assert.Equal(pose.Rotation, properties.PrincipalFrame);
         AssertMoment(properties.X, 2.0 * (4 + 9) / 3);
@@ -67,9 +67,9 @@ public sealed class RigidMassPropertiesTests
     [Fact]
     public void NonBinary16InputsCompileFromTheirExactF32Values()
     {
-        var sphere = RigidMassProperties.Compile(Body(1), Collider(ColliderShapeKind.Sphere, .34, .34, .34));
+        var sphere = MassFixtures.AdmitPrimitive(Body(1), Collider(ColliderShapeKind.Sphere, .34, .34, .34));
         AssertMoment(sphere.X, .4 * (double).34f * (double).34f);
-        var box = RigidMassProperties.Compile(Body(.45), Collider(ColliderShapeKind.Box, .1, .34, 9.81));
+        var box = MassFixtures.AdmitPrimitive(Body(.45), Collider(ColliderShapeKind.Box, .1, .34, 9.81));
         AssertMoment(box.Y, (double).45f * ((double).1f * .1f + (double)9.81f * 9.81f) / 3);
     }
 
@@ -85,14 +85,14 @@ public sealed class RigidMassPropertiesTests
     [Fact]
     public void DynamicPlaneAndForeignBodyHaveNoMassCompilation()
     {
-        Assert.Throws<ArgumentException>(() => RigidMassProperties.Compile(Body(1),
+        Assert.Throws<ArgumentException>(() => MassFixtures.AdmitPrimitive(Body(1),
             new(new(2), new(1), new(3), ColliderShapeKind.Plane, RigidLocalPose.Identity, default, default)));
-        Assert.Throws<ArgumentException>(() => RigidMassProperties.Compile(Body(1),
+        Assert.Throws<ArgumentException>(() => MassFixtures.AdmitPrimitive(Body(1),
             Collider(ColliderShapeKind.Sphere, 1, 1, 1) with { Body = new(9) }));
     }
 
     private static RigidBodyDeclaration Body(double mass) => new(new(1), RigidMotionKind.Dynamic,
-        default, default, CanonicalRotation.Identity, default, default, new((float)mass), default, default);
+        default, default, CanonicalRotation.Identity, default, default, new((float)mass), default, default, new(default, CanonicalRotation.Identity, new(1f), new(1f), new(1f)));
 
     private static ColliderDeclaration Collider(ColliderShapeKind shape, double x, double y, double z) =>
         new(new(2), new(1), new(3), shape, RigidLocalPose.Identity,
@@ -152,7 +152,7 @@ public sealed class PhysicsBodyReadSetTests
     public void AngularMagnitudeRejectsComponentValidButVectorInvalidInput()
     {
         var body = new RigidBodyDeclaration(new(1), RigidMotionKind.Dynamic, default, default,
-            CanonicalRotation.Identity, default, new(128f, 0f, 0f), new(1f), default, default);
+            CanonicalRotation.Identity, default, new(128f, 0f, 0f), new(1f), default, default, new(default, CanonicalRotation.Identity, new(1f), new(1f), new(1f)));
         body.Validate();
         Assert.Throws<ArgumentException>(() => (body with { AngularVelocity = new(128f, 128f, 0f) }).Validate());
         (Read(1) with { AngularVelocity = body.AngularVelocity }).Validate();
@@ -165,7 +165,7 @@ public sealed class PhysicsBodyReadSetTests
     public void StaticDeclarationsRequireAllZeroF32VelocityBits()
     {
         var body = new RigidBodyDeclaration(new(1), RigidMotionKind.Static, default, default,
-            CanonicalRotation.Identity, default, default, new(0f), default, default);
+            CanonicalRotation.Identity, default, default, new(0f), default, default, default);
         body.Validate();
         Assert.Throws<ArgumentException>(() => (body with { Velocity = new(0f, -0f, 0f) }).Validate());
         Assert.Throws<ArgumentException>(() => (body with { AngularVelocity = new(0f, 0f, -0f) }).Validate());
@@ -176,10 +176,10 @@ public sealed class PhysicsBodyReadSetTests
     {
         var tile = LawTile.HalfExtents;
         var body = new RigidBodyDeclaration(new(1), RigidMotionKind.Dynamic, default, default, CanonicalRotation.Identity,
-            default, default, new(LawTile.Mass), default, default);
+            default, default, new(LawTile.Mass), default, default, new(default, CanonicalRotation.Identity, new(1f), new(1f), new(1f)));
         var collider = new ColliderDeclaration(new(2), new(1), new(3), ColliderShapeKind.Box, RigidLocalPose.Identity, new(0f),
             new(tile.X, tile.Y, tile.Z));
-        var properties = RigidMassProperties.Compile(body, collider);
+        var properties = MassFixtures.AdmitPrimitive(body, collider);
         double mass = .4f, hx = .125f, hy = .55f, hz = .325f;
         Near(properties.X, mass * (hy * hy + hz * hz) / 3);
         Near(properties.Y, mass * (hx * hx + hz * hz) / 3);

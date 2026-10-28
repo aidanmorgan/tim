@@ -52,12 +52,8 @@ public sealed class VisibleSolidColliderTests
     /// <item><paramref name="Uncollided"/>: a visible part standing proud of the body with no collider, listed so none is hidden. Each
     /// entry names the slice that owns making it solid (coordinator scope amendment, 25 Oct 2026):
     /// <list type="bullet">
-    /// <item>engine-multi-collider-dynamic: a dynamic body admits one homogeneous collider (the Domino's pips, the Weight's base, and
-    /// the tori engine-hollow-shapes made a kind for but cannot place on a dynamic body: the Basketball's seam and the Weight's bands
-    /// and lifting eye; a hollow collider is also static only); a sphere below the radius minimum <c>ColliderDeclaration.Validate</c>
-    /// admits (the Clock's pivot cap, the pressure plate's studs, the Domino's pips); and the pressure plate's colliders past its
-    /// fifth (its studs and its ring torus), which would reach its contact-load row's identity
-    /// (<c>WorkshopPhysicsCompiler.ColliderSlots</c>, refused when the bundle installs);</item>
+    /// <item>engine-multi-collider-dynamic now supplies the seam, pips, Weight base/bands/eye, Plate studs/ring and Clock cap.
+    /// These features appear in Solid/Hollow below and have real contact/empty controls in AssignedCompoundFeatureTests.</item>
     /// <item>bumper-cap-solid: the Bumper's cap stands 5 cm proud of the head at its rim (the head is at y √(0.65² − 0.25²) = 0.6
     /// there, the cap's top at 0.65). Solid, it meets a ball falling 0.3 m off the axis at its rim before the head, with a contact
     /// normal atan(0.05 / 0.336) = 8.5° from vertical instead of the head's asin(0.3 / 0.99) = 17.6°, and the authored solutions of
@@ -100,14 +96,14 @@ public sealed class VisibleSolidColliderTests
 
         // Every other element package, classified the same way.
         // The seam is a torus on a dynamic body: engine-multi-collider-dynamic.
-        [PartId.Basketball] = new(["Visual/Visual_Sphere"], null, [], [], null, Uncollided: ["Visual/Visual_Stripe"]),
+        [PartId.Basketball] = new(["Visual/Visual_Sphere"], ["Visual/Visual_Stripe"], [], [], null),
         [PartId.BowlingBall] = new(["Visual/Visual_Sphere"], null, [], [], null),
         // The base lies inside the head; the impact ring is scaled by the impact cue. The cap: bumper-cap-solid. The upper ring is the
         // drawn full torus (engine-hollow-shapes).
         [PartId.PinballBumper] = new(["Visual/BumperHead"], ["Visual/Visual_Ring2"], [], ["Visual/Visual_Base", "Visual/ImpactRing"], null,
             Uncollided: ["Visual/Visual_Cap"]),
         // The pips: engine-multi-collider-dynamic.
-        [PartId.Domino] = new(["Visual/Visual_Body"], null, [], [], null, Uncollided: ["Visual/Visual_Pip1", "Visual/Visual_Pip2"]),
+        [PartId.Domino] = new(["Visual/Visual_Body", "Visual/Visual_Pip1", "Visual/Visual_Pip2"], null, [], [], null),
         // The stripes are flush with the faces. The body is drawn at 0.998 of the thickness so the stripes do not z-fight with it; the
         // collider takes the full thickness, 0.001·t thicker per face, at most 2 mm at the 2 m maximum thickness.
         [PartId.Wall] = new(["Visual/Visual_Body"], null, [], ["Visual/Visual_StripeLeft", "Visual/Visual_StripeRight"], null, Fit: .002f),
@@ -115,14 +111,13 @@ public sealed class VisibleSolidColliderTests
         // is 0.04808397·m + 0.15932827: the declared constants differ by 0.35166413·(0.136734·m + 0.453070) − (0.04808397·m +
         // 0.15932827), at most 4.0e-6 m at the 8 kg bound (the half-height by 3.2e-6 m).
         // The base, and the bands and eye (tori on a dynamic body): engine-multi-collider-dynamic.
-        [new PartId("weight")] = new(["Visual/Visual_Body"], null, [], [], null,
-            Uncollided: ["Visual/Visual_Base", "Visual/Visual_BandLower", "Visual/Visual_BandUpper", "Visual/Visual_Eye"], Fit: 4e-6f),
+        [new PartId("weight")] = new(["Visual/Visual_Body", "Visual/Visual_Base"], ["Visual/Visual_BandLower", "Visual/Visual_BandUpper", "Visual/Visual_Eye"], [], [], null, Fit: 4e-6f),
         // The halo is a glow.
         [PartId.Receiver] = new(["Visual/Visual_Floor", "Visual/Visual_Left", "Visual/Visual_Right", "Visual/Visual_Back", "Visual/Visual_Front"],
             null, [], ["Visual/Visual_Halo"], null),
         // The studs and the ring torus would be colliders past the fifth, reaching the contact-load row: engine-multi-collider-dynamic.
         [PartId.PressurePlate] = new(["Visual/Visual_Base", "Visual/Visual_Top", "Visual/Visual_Socket_PowerIn", "Visual/Visual_Socket_Supply",
-            "Visual/Visual_Socket_ActivationOut"], null, [], [], null, Uncollided: ["Visual/Stud_*", "Visual/Visual_Ring"]),
+            "Visual/Visual_Socket_ActivationOut", "Visual/Stud_0", "Visual/Stud_1", "Visual/Stud_2", "Visual/Stud_3"], ["Visual/Visual_Ring"], [], [], null),
         // The stripe is printed on the plate; the coil is drawn by the spring's compression.
         [PartId.Springboard] = new(["Visual/Visual_Base", "Visual/Plate/Visual_Plate"], null, [], ["Visual/Plate/Visual_Stripe", "Visual/Coil/*"],
             "Visual/Plate"),
@@ -155,9 +150,8 @@ public sealed class VisibleSolidColliderTests
             "Visual/Visual_Socket_ResetIn", "Visual/Visual_Socket_PowerIn", "Visual/Visual_Socket_Supply", "Visual/Visual_Socket_ActivationOut"],
             null, [], ["Visual/Rocker"], null, Uncollided: ["Visual/SetMarker", "Visual/ResetMarker/*", "Visual/OutMarker/*"]),
         // The pendulum swings with the clock. The recess stands 2 cm proud of the face. The pivot cap: engine-multi-collider-dynamic.
-        [PartId.Clock] = new(["Visual/Housing", "Visual/Foot", "Visual/Face", "Visual/Visual_Indicator", "Visual/Visual_Socket_PowerIn",
-            "Visual/Visual_Socket_ActivationOut", "Visual/Recess"], null, [], ["Visual/PendulumPivot/*"], null,
-            Uncollided: ["Visual/PivotCap"]),
+        [PartId.Clock] = new(["Visual/Housing", "Visual/Foot", "Visual/Face", "Visual/PivotCap", "Visual/Visual_Indicator", "Visual/Visual_Socket_PowerIn",
+            "Visual/Visual_Socket_ActivationOut", "Visual/Recess"], null, [], ["Visual/PendulumPivot/*"], null),
     };
 
     private static ArtSpec Logic(string[] raised) => new(["Visual/Body", "Visual/Foot", "Visual/Face", "Visual/FirstLamp", "Visual/SecondLamp",
@@ -748,17 +742,24 @@ public sealed class VisibleSolidColliderTests
         await using var ring = await EventRingProducerTests.Ring.Running(Bench([Place(PartId.Ramp, Ramp, ramp, slope), gate,
             BallAt(ramp + NumVector3.Transform(new(-1.2f, .09f + (float)BallRadius + .002f, 0), slope))]));
         await ring.Advance(480);
-        var farthest = ring.Reads.Max(read => (double)Position(read).X);
-        Assert.True(farthest <= contact.X + Penetration, $"the ball reached x {farthest:F4}, past the face panel's contact {contact.X:F4}");
-        Assert.True(farthest >= contact.X - .005, $"the ball stopped at x {farthest:F4}, short of the face panel's contact {contact.X:F4}");
+        var farthest = ring.Reads.Max(read =>
+        {
+            Assert.True(read.Bodies.TryGet(Ball, out var body));
+            var q = body.Rotation;
+            var rotation = new NumQuaternion(q.X, q.Y, q.Z, q.W);
+            // Literal stripe mesh: centreline(.322+.35)/2=.336, tube(.35-.322)/2=.014,
+            // axis tilted -35 degrees about local Z. A torus supports R sqrt(1-a_x²)+r along X.
+            var axis = NumVector3.Transform(new NumVector3(MathF.Sin(35f * MathF.PI / 180), MathF.Cos(35f * MathF.PI / 180), 0), rotation);
+            var support = Math.Max(BallRadius, .336 * Math.Sqrt(Math.Max(0, 1 - (double)axis.X * axis.X)) + .014);
+            return Position(read).X + support;
+        });
+        var panel = contact.X + BallRadius;
+        Assert.True(farthest <= panel + Penetration, $"ball surface reached x {farthest:F4}, past panel {panel:F4}");
+        Assert.True(farthest >= panel - .005, $"ball surface stopped at x {farthest:F4}, short of panel {panel:F4}");
     }
 
-    /// <summary>The Ramp (default 3 × 1.3 m) tilted 5° about its length so its +Z rail is downhill. The Basketball released on the
-    /// centre line rolls across at (5/7)·g·(sin 5° − 0.035) and meets the rail's top inner edge (0.0475 m above the slab, inner face
-    /// at z 0.598 − 0.0275 = 0.5705) at about 0.54 m/s. Climbing over the rail needs (7/10)·v² ≥ g·0.0475, v ≥ 0.82 m/s, so it may
-    /// rock up against the edge but never crosses it: its centre stays inside the rail's inner face throughout. It comes to rest
-    /// against that edge on the slab, its centre at y 0.09 + 0.34 and z 0.5705 − √(0.34² − 0.2925²) = 0.397, within the envelope's
-    /// 0.5 mm resting penetration. Without the rail it would roll off the slab's edge at z 0.65.</summary>
+    /// <summary>The Basketball rolls across a5-degree ramp into its downhill rail. Its real sphere/seam union
+    /// remains inside the rail and rests against the drawn slab/rail surfaces within the original0.5mm envelope.</summary>
     [Fact]
     public async Task ABallRollingAcrossTheRampIsContainedByItsRail()
     {
@@ -769,12 +770,42 @@ public sealed class VisibleSolidColliderTests
         await ring.Advance(480);
         var local = ring.Reads.Select(read => NumVector3.Transform(Position(read) - ramp, NumQuaternion.Inverse(slope))).ToArray();
         const double innerFace = .598 - .0275, resting = .0005;
-        var edge = innerFace - Math.Sqrt(BallRadius * BallRadius - .2925 * .2925);
+        Assert.True(ring.Reads[^1].Bodies.TryGet(Ball, out var body));
+        var q = body.Rotation;
+        var rotation = new NumQuaternion(q.X, q.Y, q.Z, q.W);
+        var axis = NumVector3.Normalize(NumVector3.Transform(NumVector3.Transform(
+            new NumVector3(MathF.Sin(35f * MathF.PI / 180), MathF.Cos(35f * MathF.PI / 180), 0), rotation), NumQuaternion.Inverse(slope)));
+        // Literal art: sphere .34; seam centreline .336, tube .014.
+        var support = Math.Max(.34, .336 * Math.Sqrt(Math.Max(0, 1 - (double)axis.Y * axis.Y)) + .014);
+        var expectedY = .09 + support;
+        var dy = .1375 - expectedY;
+        double Gap(double separation)
+        {
+            var minimum = Math.Sqrt(dy * dy + separation * separation) - .34;
+            // Independent dense line-distance oracle: all possible seam witnesses
+            // lie within±.35 of the centre. Sampling±.36 with65536 intervals has
+            // <=5.5µm distance error by the signed distance's unit Lipschitz bound.
+            for (var i = 0; i <= 65536; i++)
+            {
+                var x = -.36 + .72 * i / 65536;
+                var axial = x * axis.X + dy * axis.Y + separation * axis.Z;
+                var radial = Math.Sqrt(Math.Max(0, x * x + dy * dy + separation * separation - axial * axial));
+                minimum = Math.Min(minimum, Math.Sqrt((radial - .336) * (radial - .336) + axial * axial) - .014);
+            }
+            return minimum;
+        }
+        var low = 0.0; var high = .36;
+        for (var i = 0; i < 32; i++)
+        {
+            var middle = (low + high) / 2;
+            if (Gap(middle) < 0) low = middle; else high = middle;
+        }
+        var edge = innerFace - (low + high) / 2;
         var farthest = local.Max(p => (double)p.Z);
         Assert.True(farthest < innerFace, $"the ball's centre reached ramp-local z {farthest:F4}, over the rail's inner face {innerFace:F4}");
         var (y, z) = ((double)local[^1].Y, (double)local[^1].Z);
-        Assert.True(Math.Abs(z - edge) <= resting && Math.Abs(y - (.09 + BallRadius)) <= resting,
-            $"the ball rests at ramp-local (y {y:F4}, z {z:F4}), not against the rail's edge at (y {.09 + BallRadius:F4}, z {edge:F4})");
+        Assert.True(Math.Abs(z - edge) <= resting && Math.Abs(y - expectedY) <= resting,
+            $"the ball rests at ramp-local (y {y:F4}, z {z:F4}), not against the rail's edge at (y {expectedY:F4}, z {edge:F4})");
     }
 
     /// <summary>A fast crossing of a rail at the Ramp's minimum width (0.125 m: the rail is 0.055 × 0.125 / 1.3 = 5.3 mm deep, under

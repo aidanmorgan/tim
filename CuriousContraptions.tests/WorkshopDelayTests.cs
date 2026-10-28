@@ -1,3 +1,4 @@
+using CuriousContraptions.Abstractions;
 using System.Buffers.Binary;
 using CuriousContraptions.Gpu;
 
@@ -42,14 +43,14 @@ public sealed class WorkshopDelayTests
         // (elements-visible-solid; the collider-vs-art test checks them against the art).
         Assert.Equal(7, colliders.Length);
         var box = colliders[0];
-        Assert.Equal(ColliderShapeKind.Box, box.Shape);
+        Assert.Equal(CuriousContraptions.Gpu.ColliderShapeKind.Box, box.Shape);
         Assert.Equal(new MetreVector(0f,-.7f,0f), box.Pose.Translation);
         Assert.Equal(new MetreVector(.675f,.075f,.4f), box.HalfExtents);
         // elements-visible-solid: the drawn 1.25 × 1.25 × 0.6 housing at the origin, and the r 0.55, 0.035 m face disc at z 0.32
         // with its axis along +Z.
-        Assert.Equal((ColliderShapeKind.Box, new MetreVector(0f, 0f, 0f), new MetreVector(.625f, .625f, .3f)),
+        Assert.Equal((CuriousContraptions.Gpu.ColliderShapeKind.Box, new MetreVector(0f, 0f, 0f), new MetreVector(.625f, .625f, .3f)),
             (colliders[1].Shape, colliders[1].Pose.Translation, colliders[1].HalfExtents));
-        Assert.Equal((ColliderShapeKind.Cylinder, .55f, .035f * .5f), (colliders[2].Shape, colliders[2].Radius.Value, colliders[2].HalfExtents.Y));
+        Assert.Equal((CuriousContraptions.Gpu.ColliderShapeKind.Cylinder, .55f, .035f * .5f), (colliders[2].Shape, colliders[2].Radius.Value, colliders[2].HalfExtents.Y));
         Assert.Equal(new MetreVector(0f, 0f, .32f), colliders[2].Pose.Translation);
         var face = colliders[2].Pose.Rotation;
         var axis = System.Numerics.Vector3.Transform(System.Numerics.Vector3.UnitY, new System.Numerics.Quaternion(face.X, face.Y, face.Z, face.W));

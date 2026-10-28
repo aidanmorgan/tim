@@ -5,7 +5,8 @@
         <Nullable>enable</Nullable>
         <IsPackable>false</IsPackable>
         <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
-        <DefineConstants Condition="'$(PlaytestDiagnostics)' == 'true'">$(DefineConstants);PLAYTEST</DefineConstants>
+        <!-- Native tests always compile the real diagnostic recorder; no trace tests are conditionally omitted. -->
+        <DefineConstants>$(DefineConstants);PLAYTEST</DefineConstants>
         <!-- Keep host namespaces uniform with the desktop host (whose
              '.2dog' assembly name is not a valid namespace). -->
         <RootNamespace>CuriousContraptions.Tests</RootNamespace>
@@ -79,6 +80,10 @@
         <Compile Include="DeclaredPrismaticDriveTests.cs" />
         <Compile Include="CanonicalBodyTests.cs" />
         <Compile Include="RigidMassPropertiesTests.cs" />
+        <Compile Include="MassFixtures.cs" />
+        <Compile Include="CompoundMassAndRollingTests.cs" />
+        <Compile Include="DemandSizingLifecycleTests.cs" />
+        <Compile Include="WorkshopAnimationTracksTests.cs" />
         <Compile Include="WorkshopSimulationTests.cs" />
         <Compile Include="EventRingBufferTests.cs" />
         <Compile Include="EventRingProducerTests.cs" />

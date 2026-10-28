@@ -1,3 +1,4 @@
+using CuriousContraptions.Abstractions;
 using System.Buffers.Binary;
 using CuriousContraptions.Gpu;
 
@@ -391,7 +392,7 @@ public sealed class WorkshopSaveTests
             var colliders = scene.Colliders.ToArray().Where(collider => collider.Body == ramp.Id).ToArray();
             Assert.Equal(3, colliders.Length);
             var box = colliders[0];
-            Assert.Equal(ColliderShapeKind.Box, box.Shape);
+            Assert.Equal(CuriousContraptions.Gpu.ColliderShapeKind.Box, box.Shape);
             Assert.Equal((float)(ramp.Parameters[new("length")] * .5f), box.HalfExtents.X);
             Assert.Equal((float)(ramp.Parameters[new("width")] * .5f), box.HalfExtents.Z);
             Assert.Equal(.18f * .5f, box.HalfExtents.Y);
@@ -401,7 +402,7 @@ public sealed class WorkshopSaveTests
             var (length, width) = ((float)ramp.Parameters[new("length")], (float)ramp.Parameters[new("width")]);
             foreach (var (rail, side) in new[] { (colliders[1], -1f), (colliders[2], 1f) })
             {
-                Assert.Equal(ColliderShapeKind.Box, rail.Shape);
+                Assert.Equal(CuriousContraptions.Gpu.ColliderShapeKind.Box, rail.Shape);
                 Assert.Equal((length * .5f, .055f * .5f), (rail.HalfExtents.X, rail.HalfExtents.Y));
                 Assert.Equal(.0275f * width / 1.3f, rail.HalfExtents.Z, 1e-6f);
                 Assert.Equal((0f, .11f), (rail.Pose.Translation.X, rail.Pose.Translation.Y));
@@ -480,7 +481,7 @@ public sealed class WorkshopSaveTests
         }
     }
 
-    public enum PuzzleDamage { Id, Mode, Precision, Inventory, Body, Target, EventSource, Profile, Lock }
+    public enum PuzzleDamage { Id, Mode, Precision, Inventory, Body, Target, Profile, Lock }
     [Theory]
     [InlineData(PuzzleDamage.Id)]
     [InlineData(PuzzleDamage.Mode)]
@@ -488,7 +489,6 @@ public sealed class WorkshopSaveTests
     [InlineData(PuzzleDamage.Inventory)]
     [InlineData(PuzzleDamage.Body)]
     [InlineData(PuzzleDamage.Target)]
-    [InlineData(PuzzleDamage.EventSource)]
     [InlineData(PuzzleDamage.Profile)]
     [InlineData(PuzzleDamage.Lock)]
     public void InvalidPuzzleContextRejectsBeforeAdmission(PuzzleDamage damage)
@@ -503,7 +503,6 @@ public sealed class WorkshopSaveTests
             PuzzleDamage.Inventory => construction with { Puzzle = puzzle with { InventoryCount = 3 } },
             PuzzleDamage.Body => construction with { Puzzle = puzzle with { Goal = puzzle.Goal with { Body = new(9) } } },
             PuzzleDamage.Target => construction with { Puzzle = puzzle with { Goal = puzzle.Goal with { Target = new(9) } } },
-            PuzzleDamage.EventSource => construction with { Puzzle = puzzle with { Goal = puzzle.Goal with { EventSource = new(9) } } },
             PuzzleDamage.Profile => construction with { Puzzle = puzzle with { TargetAssistance = default } },
             PuzzleDamage.Lock => construction.WithInstance(Payloads.First(construction) with { Locked = false }),
             _ => throw new ArgumentOutOfRangeException(nameof(damage))
@@ -531,15 +530,16 @@ public sealed class WorkshopSaveTests
     {
         var construction = PuzzleCatalogue.Create(new("first_principles"), new(1), WorkshopCadenceSettings.Default(), new(1), new(1f));
         var goal = construction.Puzzle.Goal; var ball = Payloads.First(construction);
+        Assert.True(construction.Instances.Identities.TryCapture(goal.Target, goal.Body, out var capture));
         var body = new CanonicalBody(ball.Id, 2, 1, ball.Cell, ball.Local, default);
         var bodies = new PhysicsBodyReadSet(new[] { new PhysicsBodyRead(body, ball.Rotation, default, default) });
-        var read = new WorkshopRead(new(2), new(1), bodies, Captures: new([new(goal.EventSource, CaptureLatchPhase.Latched, 4, 0f)]));
-        Assert.Equal(WorkshopGoalPhase.Solved, WorkshopGoalEvaluator.Evaluate(goal, read, new(2)));
-        Assert.Equal(WorkshopGoalPhase.Solved, WorkshopGoalEvaluator.Evaluate(goal, read, new(2)));
-        Assert.Equal(WorkshopGoalPhase.Waiting, WorkshopGoalEvaluator.Evaluate(goal, read, new(3)));
-        Assert.Equal(WorkshopGoalPhase.Waiting, WorkshopGoalEvaluator.Evaluate(goal, read with { Bodies = new(new[] { bodies[0] with { Body = body with { Id = new(9) } } }) }, new(2)));
-        Assert.Equal(WorkshopGoalPhase.Waiting, WorkshopGoalEvaluator.Evaluate(goal, read with { Captures = new([CaptureLatch.Clear(goal.EventSource)]) }, new(2)));
-        Assert.Equal(WorkshopGoalPhase.Waiting, WorkshopGoalEvaluator.Evaluate(goal, read with { Captures = new([new(new(9), CaptureLatchPhase.Latched, 4, 0f)]) }, new(2)));
+        var read = new WorkshopRead(new(2), new(1), bodies, Captures: new([new(capture.Sensor, ball.Id, CaptureLatchPhase.Latched, 4, 0f)]));
+        Assert.Equal(WorkshopGoalPhase.Solved, WorkshopGoalEvaluator.Evaluate(goal, read, new(2), construction.Instances.Identities));
+        Assert.Equal(WorkshopGoalPhase.Solved, WorkshopGoalEvaluator.Evaluate(goal, read, new(2), construction.Instances.Identities));
+        Assert.Equal(WorkshopGoalPhase.Waiting, WorkshopGoalEvaluator.Evaluate(goal, read, new(3), construction.Instances.Identities));
+        Assert.Equal(WorkshopGoalPhase.Waiting, WorkshopGoalEvaluator.Evaluate(goal, read with { Bodies = new(new[] { bodies[0] with { Body = body with { Id = new(9) } } }) }, new(2), construction.Instances.Identities));
+        Assert.Equal(WorkshopGoalPhase.Waiting, WorkshopGoalEvaluator.Evaluate(goal, read with { Captures = new([CaptureLatch.Clear(capture.Sensor, ball.Id)]) }, new(2), construction.Instances.Identities));
+        Assert.Equal(WorkshopGoalPhase.Waiting, WorkshopGoalEvaluator.Evaluate(goal, read with { Captures = new([new(new(9), ball.Id, CaptureLatchPhase.Latched, 4, 0f)]) }, new(2), construction.Instances.Identities));
     }
 
     [Fact]

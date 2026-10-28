@@ -29,6 +29,9 @@ public interface IWorkshopGpuDevice : IAsyncDisposable
     void Commit(CommandSequence sequence);
     void Discard(CommandSequence sequence);
 }
+/// <summary>Current scene demand cannot be represented by the available storage type.</summary>
+public sealed class WorkshopStorageException(string message) : Exception(message);
+
 public sealed class GpuAdmissionException : Exception
 {
     public GpuAdmissionException(string message) : base(message) { }
@@ -43,8 +46,15 @@ public sealed class GpuAdmissionException : Exception
 /// <summary>The presentation installation did not complete: superseded (no cause) or failed (the cause is inner).</summary>
 public sealed class WorkshopInstallationException : Exception
 {
+    public WorkshopRejection Reason { get; } = WorkshopRejection.Transport;
     public WorkshopInstallationException() { }
     public WorkshopInstallationException(Exception cause) : base(null, cause) { }
+    public WorkshopInstallationException(WorkshopRejection reason)
+    {
+        if (reason is not (WorkshopRejection.Transport or WorkshopRejection.Capacity))
+            throw new ArgumentOutOfRangeException(nameof(reason));
+        Reason = reason;
+    }
 }
 
 public interface IWorkshopInstallation
@@ -60,7 +70,7 @@ public enum GpuDeviceOwnership { Owned = 1, Borrowed = 2 }
 
 public sealed class WorkshopSimulation : IAsyncDisposable
 {
-    private readonly Dictionary<GpuBodyId, ElectricalEnable> _electricalControls = new();
+    private readonly Dictionary<GpuBodyId, ElectricalEnable> _electricalControls = new(16);
     public ElectricalEnable ElectricalState(GpuBodyId owner, ElectricalEnable previous) =>
         _electricalControls.TryGetValue(owner, out var state) ? state : previous;
     public WorkshopCommandResult ConfigureElectrical(WorkshopElectricalControl control)
@@ -97,8 +107,8 @@ public sealed class WorkshopSimulation : IAsyncDisposable
     {
         if (_bistable.Nodes is null || _bistable.Revision != Construction.Revision)
         {
-            var nodes = new HashSet<ActivationNodeId>();
-            var timers = new Dictionary<ActivationNodeId, ActivationNodeDeclaration>();
+            var nodes = new HashSet<ActivationNodeId>(16);
+            var timers = new Dictionary<ActivationNodeId, ActivationNodeDeclaration>(16);
             foreach (var node in WorkshopActivationCompiler.Compile(Construction).Nodes)
             {
                 if (node.Kind is ActivationNodeKind.StateLatch or ActivationNodeKind.LevelIndicator or ActivationNodeKind.ContactLoadSource) nodes.Add(node.Id);
@@ -158,6 +168,8 @@ public sealed class WorkshopSimulation : IAsyncDisposable
             Phase = WorkshopSimulationPhase.Building;
             return Applied();
         }
+        catch (Exception error) when (error is WorkshopStorageException or OutOfMemoryException) { return StorageRejected(owner); }
+        catch (CuriousContraptions.Abstractions.EventPreparationException error) { return EventPreparationRejected(owner, error.Reason); }
         catch (WorkshopInstallationException error) { return InstallationRejected(owner, error); }
         catch (Exception error)
         {
@@ -175,6 +187,7 @@ public sealed class WorkshopSimulation : IAsyncDisposable
         if (_pending != 0) return Reject(WorkshopRejection.Busy);
         try { candidate.Validate(); }
         catch (ArgumentException) { return Reject(WorkshopRejection.InvalidConstruction); }
+        catch (Exception error) when (error is WorkshopStorageException or OutOfMemoryException) { return Reject(WorkshopRejection.Capacity); }
         if (Construction.Revision.Value == ulong.MaxValue ||
             candidate.Revision.Value != Construction.Revision.Value + 1)
             return Reject(WorkshopRejection.WrongRevision);
@@ -210,6 +223,8 @@ public sealed class WorkshopSimulation : IAsyncDisposable
             Phase = WorkshopSimulationPhase.Building;
             return Reject(WorkshopRejection.InvalidConstruction);
         }
+        catch (Exception error) when (error is WorkshopStorageException or OutOfMemoryException) { return StorageRejected(owner); }
+        catch (CuriousContraptions.Abstractions.EventPreparationException error) { return EventPreparationRejected(owner, error.Reason); }
         catch (WorkshopInstallationException error) { return InstallationRejected(owner, error); }
         catch (Exception error)
         {
@@ -246,6 +261,8 @@ public sealed class WorkshopSimulation : IAsyncDisposable
             Committed = read; Phase = target;
             return Applied();
         }
+        catch (Exception error) when (error is WorkshopStorageException or OutOfMemoryException) { return StorageRejected(owner); }
+        catch (CuriousContraptions.Abstractions.EventPreparationException error) { return EventPreparationRejected(owner, error.Reason); }
         catch (WorkshopInstallationException error) { return InstallationRejected(owner, error); }
         finally { _pending--; }
     }
@@ -274,6 +291,9 @@ public sealed class WorkshopSimulation : IAsyncDisposable
             Construction = construction; Profile = profile; Committed = read; Phase = WorkshopSimulationPhase.Building;
             return Applied();
         }
+        catch (Exception error) when (error is WorkshopStorageException or OutOfMemoryException) { return StorageRejected(owner); }
+        catch (CuriousContraptions.Abstractions.EventPreparationException error) { return EventPreparationRejected(owner, error.Reason); }
+        catch (WorkshopInstallationException error) { return InstallationRejected(owner, error); }
         catch { if (Owns(owner)) Phase = _priorPhase; throw; }
         finally { _device.Discard(new(owner)); _pending--; }
     }
@@ -302,6 +322,8 @@ public sealed class WorkshopSimulation : IAsyncDisposable
             Committed = read;
             return Applied();
         }
+        catch (Exception error) when (error is WorkshopStorageException or OutOfMemoryException) { return StorageRejected(owner); }
+        catch (CuriousContraptions.Abstractions.EventPreparationException error) { return EventPreparationRejected(owner, error.Reason); }
         catch (WorkshopInstallationException error) { return InstallationRejected(owner, error); }
         catch (Exception error)
         {
@@ -340,6 +362,8 @@ public sealed class WorkshopSimulation : IAsyncDisposable
             Fault = WorkshopRejection.None;
             return Applied();
         }
+        catch (Exception error) when (error is WorkshopStorageException or OutOfMemoryException) { return StorageRejected(owner); }
+        catch (CuriousContraptions.Abstractions.EventPreparationException error) { return EventPreparationRejected(owner, error.Reason); }
         catch (WorkshopInstallationException error) { return InstallationRejected(owner, error); }
         catch (Exception error)
         {
@@ -421,11 +445,30 @@ public sealed class WorkshopSimulation : IAsyncDisposable
     private bool Owns(ulong operation) => !_disposed && _operation == operation &&
         Phase != WorkshopSimulationPhase.Faulted;
     // A superseded installation carries no cause and is an ordinary transport rejection; a failed one is also a fault.
+    private WorkshopCommandResult EventPreparationRejected(ulong owner, CuriousContraptions.Abstractions.EventPublicationPreparation reason)
+    {
+        if (!Owns(owner)) return Superseded(owner);
+        Phase = _priorPhase;
+        return Reject(reason switch
+        {
+            CuriousContraptions.Abstractions.EventPublicationPreparation.StorageUnavailable => WorkshopRejection.Capacity,
+            CuriousContraptions.Abstractions.EventPublicationPreparation.SequenceExhausted => WorkshopRejection.IdentityExhausted,
+            _ => throw new ArgumentOutOfRangeException(nameof(reason))
+        });
+    }
+
+    private WorkshopCommandResult StorageRejected(ulong owner)
+    {
+        if (!Owns(owner)) return Superseded(owner);
+        Phase = _priorPhase;
+        return Reject(WorkshopRejection.Capacity);
+    }
+
     private WorkshopCommandResult InstallationRejected(ulong owner, WorkshopInstallationException error)
     {
         if (Owns(owner)) Phase = _priorPhase;
         if (error.InnerException is { } cause) WorkshopDiagnostics.Fault(FaultSite.Installation, cause);
-        return Reject(WorkshopRejection.Transport);
+        return Reject(error.Reason);
     }
 
     private WorkshopCommandResult Failure(ulong owner, WorkshopRejection reason)
@@ -484,9 +527,7 @@ public sealed class WorkshopSimulation : IAsyncDisposable
             if (read.Activations[i] != initial[i]) throw new ArgumentException("Admission retained activation state.");
         if (read.Epoch != epoch || read.Tick.Value != 0)
             throw new ArgumentException("GPU admission read does not match the construction transaction.");
-        for (var index = 0; index < read.Captures.Count; index++)
-            if (read.Captures[index].Phase != CaptureLatchPhase.Clear)
-                throw new ArgumentException("Fresh admission contains a capture latch.");
+        if(read.Captures.Count!=0) throw new ArgumentException("Fresh admission contains interaction state.");
         read.Bodies.ValidateScene(physics, epoch, read.Tick);
     }
 
@@ -496,8 +537,7 @@ public sealed class WorkshopSimulation : IAsyncDisposable
         if (source.Tick.Value == ulong.MaxValue || read.Epoch != source.Epoch ||
             read.Tick.Value != source.Tick.Value + 1 || read.Bodies.Count != source.Bodies.Count)
             throw new ArgumentException("GPU tick read does not match the active transaction.");
-        if (read.Captures.Count != source.Captures.Count ||
-            read.Activations.Count != source.Activations.Count || read.Timers.Count != source.Timers.Count || read.ContactWorks.Count != source.ContactWorks.Count ||
+        if (read.Activations.Count != source.Activations.Count || read.Timers.Count != source.Timers.Count || read.ContactWorks.Count != source.ContactWorks.Count ||
             read.Memory.Count != source.Memory.Count)
             throw new ArgumentException("Physical read population changed.");
         for (var i = 0; i < read.Memory.Count; i++)
@@ -515,10 +555,7 @@ public sealed class WorkshopSimulation : IAsyncDisposable
             }
         }
         read.Bodies.ValidateTime(read.Epoch, read.Tick);
-        for (var i = 0; i < read.Captures.Count; i++)
-            if (read.Captures[i].Sensor != source.Captures[i].Sensor ||
-                (source.Captures[i].Phase == CaptureLatchPhase.Latched && read.Captures[i] != source.Captures[i]))
-                throw new ArgumentException("Committed capture identity or latch changed.");
+        read.Captures.ValidateAdvance(source.Captures);
         var bistable = BistableNodes();
         for (var i = 0; i < read.Activations.Count; i++)
         {

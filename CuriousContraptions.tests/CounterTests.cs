@@ -1,3 +1,4 @@
+using CuriousContraptions.Abstractions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -91,26 +92,26 @@ public sealed class CounterTests(NativeSceneFixture godot)
             Assert.Equal(15, colliders.Count);
 
             var housing = colliders[0];
-            Assert.Equal(ColliderShapeKind.Box, housing.ShapeKind);
+            Assert.Equal(CuriousContraptions.Gpu.ColliderShapeKind.Box, housing.ShapeKind);
             Assert.Equal(new MetreVector(0.825f, 0.625f, 0.325f), housing.HalfExtents);
             Assert.Equal(0f, housing.LocalPose.Translation.X);
             Assert.Equal(0f, housing.LocalPose.Translation.Y);
             Assert.Equal(0f, housing.LocalPose.Translation.Z);
 
             var foot = colliders[1];
-            Assert.Equal(ColliderShapeKind.Box, foot.ShapeKind);
+            Assert.Equal(CuriousContraptions.Gpu.ColliderShapeKind.Box, foot.ShapeKind);
             Assert.Equal(new MetreVector(0.9f, 0.08f, 0.425f), foot.HalfExtents);
             Assert.Equal(0f, foot.LocalPose.Translation.X);
             Assert.Equal(-0.72f, foot.LocalPose.Translation.Y);
             Assert.Equal(0f, foot.LocalPose.Translation.Z);
 
-            TestBundle.AssertCollider(colliders[2], ColliderShapeKind.Box, 0f, new(0.7f, 0.51f, 0.02f), new(0f, 0f, 0.35f));
+            TestBundle.AssertCollider(colliders[2], CuriousContraptions.Gpu.ColliderShapeKind.Box, 0f, new(0.7f, 0.51f, 0.02f), new(0f, 0f, 0.35f));
             for (var lamp = 0; lamp < 9; lamp++)
-                TestBundle.AssertCollider(colliders[3 + lamp], ColliderShapeKind.Sphere, 0.1f, default,
+                TestBundle.AssertCollider(colliders[3 + lamp], CuriousContraptions.Gpu.ColliderShapeKind.Sphere, 0.1f, default,
                     new((lamp % 3 - 1) * 0.36f, (1 - lamp / 3) * 0.3f, 0.4f));
-            TestBundle.AssertCollider(colliders[12], ColliderShapeKind.Sphere, 0.075f, default, new(0f, 0.72f, 0.1f));
-            TestBundle.AssertCollider(colliders[13], ColliderShapeKind.Sphere, 0.075f, default, new(-0.93f, 0f, 0f));
-            TestBundle.AssertCollider(colliders[14], ColliderShapeKind.Sphere, 0.075f, default, new(0.93f, 0f, 0f));
+            TestBundle.AssertCollider(colliders[12], CuriousContraptions.Gpu.ColliderShapeKind.Sphere, 0.075f, default, new(0f, 0.72f, 0.1f));
+            TestBundle.AssertCollider(colliders[13], CuriousContraptions.Gpu.ColliderShapeKind.Sphere, 0.075f, default, new(-0.93f, 0f, 0f));
+            TestBundle.AssertCollider(colliders[14], CuriousContraptions.Gpu.ColliderShapeKind.Sphere, 0.075f, default, new(0.93f, 0f, 0f));
 
             Assert.True(ports.ContainsKey("ActivationIn"));
             Assert.True(ports.ContainsKey("ActivationOut"));
@@ -210,7 +211,7 @@ public sealed class CounterTests(NativeSceneFixture godot)
             Connections: new([connNoBattery]));
 
         var sceneUnpowered = WorkshopPhysicsCompiler.Compile(constructionUnpowered, new(1, 1));
-        var bladeUnpowered = sceneUnpowered.Bodies.ToArray().First(b => b.Id == WorkshopPhysicsCompiler.SliderBody(gate.Id, 0));
+        var bladeUnpowered = sceneUnpowered.Bodies.ToArray().First(b => b.Id == constructionUnpowered.Instances.Identities[gate.Id].Sliders[0].Body);
         Assert.Equal(0f, bladeUnpowered.LinearDrag.Value);
 
         // The counter's static body has its housing and foot boxes first, then the 13 proud parts (face, dot lamps, sockets)
@@ -229,7 +230,7 @@ public sealed class CounterTests(NativeSceneFixture godot)
             Connections: new([connBattery, connNoBattery]));
 
         var scenePowered = WorkshopPhysicsCompiler.Compile(constructionPowered, new(1, 1));
-        var bladePowered = scenePowered.Bodies.ToArray().First(b => b.Id == WorkshopPhysicsCompiler.SliderBody(gate.Id, 0));
+        var bladePowered = scenePowered.Bodies.ToArray().First(b => b.Id == constructionPowered.Instances.Identities[gate.Id].Sliders[0].Body);
         Assert.Equal(0f, bladePowered.LinearDrag.Value);
         Assert.Contains(scenePowered.SupplyGraph.Nodes.ToArray(),node=>node.Owner==counter.Id && node.Kind==SupplyNodeKind.Contact);
         Assert.Equal(battery.Id,scenePowered.Electrical.Sources[0].Owner);
@@ -260,7 +261,7 @@ public sealed class CounterTests(NativeSceneFixture godot)
         Assert.Equal(3, network.GetCounterTarget(counter.Id));
         Assert.False(network.ContactClosed(activations, network.ClearTimers(), counter.Id));
 
-        var sensorId = WorkshopPhysicsCompiler.PassageSensor(detector.Id);
+        var sensorId = construction.Instances.Identities[detector.Id].Passage;
         var ballBodyId = new GpuBodyId(10);
         var ballColliderId = new GpuColliderId(11);
 
@@ -329,7 +330,7 @@ public sealed class CounterTests(NativeSceneFixture godot)
             Connections: new([new WorkshopConnection(detector.Id, WorkshopSocket.ActivationOut, counter.Id, WorkshopSocket.ActivationIn,
                 WorkshopConnectionDomain.Activation)]));
         var network = WorkshopActivationCompiler.Compile(construction);
-        var sensor = WorkshopPhysicsCompiler.PassageSensor(detector.Id);
+        var sensor = construction.Instances.Identities[detector.Id].Passage;
         PassageSensorRead Pass(uint ordinal) => new(sensor, detector.Id, new(10), new(11), PassageSensorPhase.Fired, ordinal, 0f, new(2f));
 
         var committed = network.Consume(network.Clear(), network.ClearTimers(), [], new(1), [], [Pass(4)], memory: network.ClearMemory());
@@ -381,7 +382,7 @@ public sealed class CounterTests(NativeSceneFixture godot)
     {
         var counter = PlacedParts.Counter(new(1), 0, 0, 0, 0, 0, 0, 1, 3);
         IWorkshopInstance[] instances = [counter];
-        WorkbenchCapacity.Validate(instances);
+        new WorkshopInstances([.. instances]).Validate();
 
         // Story 9R.5b: the compiled scene is the footprint authority; the workbench plane adds one static body and collider.
         var world = WorkshopPhysicsCompiler.Compile(new WorkshopConstruction(new ConstructionRevision(1), WorkshopCadenceSettings.Default(),

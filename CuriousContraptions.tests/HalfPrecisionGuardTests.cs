@@ -51,9 +51,9 @@ public sealed class HalfPrecisionGuardTests(ITestOutputHelper output)
         var sources = Sources().ToList();
         Assert.Contains("engine/gpu/PhysicsGpuAbi.cs", sources);
         Assert.Contains("schemas/workshop_wire.fbs", sources);
-        Assert.Contains("CuriousContraptions.web/wwwroot/workshop-client.js", sources);
+        Assert.Contains("CuriousContraptions.web/wwwroot/workshop-client.ts", sources);
         Assert.Contains("CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs", sources);
-        Assert.Contains("CuriousContraptions.Simulation/wwwroot/worker.js", sources);
+        Assert.Contains("CuriousContraptions.Simulation/wwwroot/worker.ts", sources);
         Assert.Contains("tools/e2e/cat-062b.test.ts", sources);
         Assert.Contains("elements/Springboard/springboard.tscn", sources);
         Assert.Contains("CuriousContraptions.web/wwwroot/index.html", sources);

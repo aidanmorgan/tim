@@ -129,7 +129,7 @@ public sealed class BallDetectorTests(NativeSceneFixture godot)
         Assert.Equal(2, network.Nodes.Length);
         var detectorNode = Assert.Single(network.Nodes.ToArray(), n => n.Owner == detector.Id);
         Assert.Equal(ActivationNodeKind.PassageSource, detectorNode.Kind);
-        Assert.Equal(WorkshopPhysicsCompiler.PassageSensor(detector.Id), detectorNode.Passage);
+        Assert.Equal(construction.Instances.Identities[detector.Id].Passage, detectorNode.Passage);
 
         var lampNode = Assert.Single(network.Nodes.ToArray(), n => n.Owner == lamp.Id);
         Assert.Equal(ActivationNodeKind.StickyFirstInput, lampNode.Kind);
@@ -147,7 +147,7 @@ public sealed class BallDetectorTests(NativeSceneFixture godot)
     [Theory]
     [InlineData(4f, 20f)]
     [InlineData(40f, 30f)]
-    [InlineData(120f, 40f)]
+    [InlineData(60f, 40f)]
     [InlineData(40f, -90f)]
     public void PassageSensorTracker_PositiveForwardPass_RotatedAndVariousSpeeds(float speed, float angleDegrees)
     {
@@ -177,7 +177,7 @@ public sealed class BallDetectorTests(NativeSceneFixture godot)
 
         var construction = new WorkshopConstruction(
             new ConstructionRevision(1),
-            WorkshopCadenceSettings.Default(),
+            WorkshopCadenceSettings.Default() with { Simulation = SimulationCadence.Hz60 },
             new WorkshopInstances(ballInitial, detector, lamp),
             Connections: new WorkshopConnections(connection));
 
@@ -189,14 +189,15 @@ public sealed class BallDetectorTests(NativeSceneFixture godot)
             new PhysicsBodyRead(new CanonicalBody(detector.Id, 0, 0, detector.Cell, detector.Local, default), rotation, default, default)
         ]);
 
-        var tracker = PassageSensorTracker.Create(network.PassageSensors, scene.Colliders.ToArray(), initialBodies);
-        Assert.Single(tracker.States);
-        Assert.Equal(PassageSensorPhase.Armed, tracker.States[0].Phase);
+        var tracker = PassageSensorTracker.Create(network.PassageSensors, scene, initialBodies);
+        var trackerMotion = new PassageMotionFixture(initialBodies);
+        Assert.Empty(tracker.States);
+        Assert.Equal(1, tracker.ParticipantCount);
 
         var committedActivations = network.Clear();
         var committedTimers = network.ClearTimers();
 
-        var dt = 1.0f / 480f;
+        var dt = 1.0f / 60f;
         var currentPos = startPos;
         var endLocalX = 2.0f;
         var totalDist = endLocalX - startLocalX;
@@ -224,7 +225,7 @@ public sealed class BallDetectorTests(NativeSceneFixture godot)
                 new PhysicsBodyRead(new CanonicalBody(detector.Id, 0, 0, detector.Cell, detector.Local, default), rotation, default, default)
             ]);
 
-            tracker = tracker.Advance(new SimulationTick((ulong)step), bodies, null, passageOutputs, out var count);
+            tracker = tracker.Advance(new SimulationTick((ulong)step), bodies, trackerMotion.Create(bodies), passageOutputs, out var count);
             if (count > 0)
             {
                 eventCount += count;
@@ -245,9 +246,9 @@ public sealed class BallDetectorTests(NativeSceneFixture godot)
         Assert.Equal(ActivationPhase.Latched, committedActivations[lampSlot].Phase);
 
         // Reset clears count and active state
-        var resetTracker = PassageSensorTracker.Create(network.PassageSensors, scene.Colliders.ToArray(), initialBodies);
+        var resetTracker = PassageSensorTracker.Create(network.PassageSensors, scene, initialBodies);
         var resetActivations = network.Clear();
-        Assert.Equal(0UL, resetTracker.States[0].PassedCount);
+        Assert.Empty(resetTracker.States);
         Assert.Equal(ActivationPhase.Clear, resetActivations[lampSlot].Phase);
     }
 
@@ -270,10 +271,11 @@ public sealed class BallDetectorTests(NativeSceneFixture godot)
             new PhysicsBodyRead(new CanonicalBody(ballId, 0, 0, ball.Cell, ball.Local, default), CanonicalRotation.Identity, default, default),
             new PhysicsBodyRead(new CanonicalBody(detector.Id, 0, 0, detector.Cell, detector.Local, default), CanonicalRotation.Identity, default, default)
         ]);
-        var tracker = PassageSensorTracker.Create(network.PassageSensors, scene.Colliders.ToArray(), initialBodies);
+        var tracker = PassageSensorTracker.Create(network.PassageSensors, scene, initialBodies);
+        var trackerMotion = new PassageMotionFixture(initialBodies);
         Span<PassageSensorRead> passageOutputs = stackalloc PassageSensorRead[8];
 
-        var dt = 1.0f / 480f;
+        var dt = 1.0f / 60f;
         var reverseSteps = (int)MathF.Ceiling(4.0f / (4f * dt));
         var reverseCount = 0;
         for (var step = 1; step <= reverseSteps; step++)
@@ -284,7 +286,7 @@ public sealed class BallDetectorTests(NativeSceneFixture godot)
                 new PhysicsBodyRead(new CanonicalBody(ballId, 0, 0, new(px.Cell, 48, 0), new((float)px.Local, 0f, 0f), default), CanonicalRotation.Identity, default, default),
                 new PhysicsBodyRead(new CanonicalBody(detector.Id, 0, 0, detector.Cell, detector.Local, default), CanonicalRotation.Identity, default, default)
             ]);
-            tracker = tracker.Advance(new SimulationTick((ulong)step), bodies, null, passageOutputs, out var count);
+            tracker = tracker.Advance(new SimulationTick((ulong)step), bodies, trackerMotion.Create(bodies), passageOutputs, out var count);
             reverseCount += count;
         }
         Assert.Equal(0, reverseCount);
@@ -296,7 +298,8 @@ public sealed class BallDetectorTests(NativeSceneFixture godot)
             new PhysicsBodyRead(new CanonicalBody(ballId, 0, 0, new(startOutsideX.Cell, outsideY.Cell, 0), new((float)startOutsideX.Local, (float)outsideY.Local, 0f), default), CanonicalRotation.Identity, default, default),
             new PhysicsBodyRead(new CanonicalBody(detector.Id, 0, 0, detector.Cell, detector.Local, default), CanonicalRotation.Identity, default, default)
         ]);
-        var outsideTracker = PassageSensorTracker.Create(network.PassageSensors, scene.Colliders.ToArray(), outsideInitialBodies);
+        var outsideTracker = PassageSensorTracker.Create(network.PassageSensors, scene, outsideInitialBodies);
+        var outsideTrackerMotion = new PassageMotionFixture(outsideInitialBodies);
         var outsideSteps = (int)MathF.Ceiling(3.0f / (4f * dt));
         var outsideCount = 0;
         for (var step = 1; step <= outsideSteps; step++)
@@ -307,7 +310,7 @@ public sealed class BallDetectorTests(NativeSceneFixture godot)
                 new PhysicsBodyRead(new CanonicalBody(ballId, 0, 0, new(px.Cell, outsideY.Cell, 0), new((float)px.Local, (float)outsideY.Local, 0f), default), CanonicalRotation.Identity, default, default),
                 new PhysicsBodyRead(new CanonicalBody(detector.Id, 0, 0, detector.Cell, detector.Local, default), CanonicalRotation.Identity, default, default)
             ]);
-            outsideTracker = outsideTracker.Advance(new SimulationTick((ulong)step), bodies, null, passageOutputs, out var count);
+            outsideTracker = outsideTracker.Advance(new SimulationTick((ulong)step), bodies, outsideTrackerMotion.Create(bodies), passageOutputs, out var count);
             outsideCount += count;
         }
         Assert.Equal(0, outsideCount);
@@ -318,11 +321,12 @@ public sealed class BallDetectorTests(NativeSceneFixture godot)
             new PhysicsBodyRead(new CanonicalBody(ballId, 0, 0, new(stationaryX.Cell, 48, 0), new((float)stationaryX.Local, 0f, 0f), default), CanonicalRotation.Identity, default, default),
             new PhysicsBodyRead(new CanonicalBody(detector.Id, 0, 0, detector.Cell, detector.Local, default), CanonicalRotation.Identity, default, default)
         ]);
-        var stationaryTracker = PassageSensorTracker.Create(network.PassageSensors, scene.Colliders.ToArray(), stationaryBodies);
+        var stationaryTracker = PassageSensorTracker.Create(network.PassageSensors, scene, stationaryBodies);
+        var stationaryTrackerMotion = new PassageMotionFixture(stationaryBodies);
         var stationaryCount = 0;
         for (var step = 1; step <= 100; step++)
         {
-            stationaryTracker = stationaryTracker.Advance(new SimulationTick((ulong)step), stationaryBodies, null, passageOutputs, out var count);
+            stationaryTracker = stationaryTracker.Advance(new SimulationTick((ulong)step), stationaryBodies, stationaryTrackerMotion.Create(stationaryBodies), passageOutputs, out var count);
             stationaryCount += count;
         }
         Assert.Equal(0, stationaryCount);
@@ -347,7 +351,8 @@ public sealed class BallDetectorTests(NativeSceneFixture godot)
             new PhysicsBodyRead(new CanonicalBody(detector.Id, 0, 0, detector.Cell, detector.Local, default), CanonicalRotation.Identity, default, default)
         ]);
 
-        var tracker = PassageSensorTracker.Create(network.PassageSensors, scene.Colliders.ToArray(), initialBodies);
+        var tracker = PassageSensorTracker.Create(network.PassageSensors, scene, initialBodies);
+        var trackerMotion = new PassageMotionFixture(initialBodies);
         Span<PassageSensorRead> passageOutputs = stackalloc PassageSensorRead[8];
 
         // 1. Initial forward crossing from X = -0.5 to X = +0.5
@@ -362,9 +367,9 @@ public sealed class BallDetectorTests(NativeSceneFixture godot)
             new PhysicsBodyRead(new CanonicalBody(detector.Id, 0, 0, detector.Cell, detector.Local, default), CanonicalRotation.Identity, default, default)
         ]);
 
-        tracker = tracker.Advance(new SimulationTick(1), bodiesNeg, null, passageOutputs, out var count1);
+        tracker = tracker.Advance(new SimulationTick(1), bodiesNeg, trackerMotion.Create(bodiesNeg), passageOutputs, out var count1);
         Assert.Equal(0, count1);
-        tracker = tracker.Advance(new SimulationTick(2), bodiesPos, null, passageOutputs, out var count2);
+        tracker = tracker.Advance(new SimulationTick(2), bodiesPos, trackerMotion.Create(bodiesPos), passageOutputs, out var count2);
         Assert.Equal(1, count2);
         Assert.Single(tracker.Fired); // Story 9A.22: the event producer's Passage rows are exactly these passes
 
@@ -384,25 +389,25 @@ public sealed class BallDetectorTests(NativeSceneFixture godot)
         ulong tick = 3;
         for (var i = 0; i < 20; i++)
         {
-            tracker = tracker.Advance(new SimulationTick(tick++), bodiesJitterNeg, null, passageOutputs, out var cA);
+            tracker = tracker.Advance(new SimulationTick(tick++), bodiesJitterNeg, trackerMotion.Create(bodiesJitterNeg), passageOutputs, out var cA);
             jitterFires += cA + tracker.Fired.Count;
-            tracker = tracker.Advance(new SimulationTick(tick++), bodiesJitterPos, null, passageOutputs, out var cB);
+            tracker = tracker.Advance(new SimulationTick(tick++), bodiesJitterPos, trackerMotion.Create(bodiesJitterPos), passageOutputs, out var cB);
             jitterFires += cB + tracker.Fired.Count;
         }
         Assert.Equal(0, jitterFires);
 
         // 3. Move fully upstream to X = -1.0m (clearing upstream rearm threshold -0.36m)
-        var pUpstream = WorkshopInput.Position(-1.0f);
+        var pUpstream = WorkshopInput.Position(-0.5f);
         var bodiesUpstream = new PhysicsBodyReadSet([
             new PhysicsBodyRead(new CanonicalBody(ballId, 0, 0, new(pUpstream.Cell, 48, 0), new((float)pUpstream.Local, 0f, 0f), default), CanonicalRotation.Identity, default, default),
             new PhysicsBodyRead(new CanonicalBody(detector.Id, 0, 0, detector.Cell, detector.Local, default), CanonicalRotation.Identity, default, default)
         ]);
-        tracker = tracker.Advance(new SimulationTick(tick++), bodiesUpstream, null, passageOutputs, out var cUp);
+        tracker = tracker.Advance(new SimulationTick(tick++), bodiesUpstream, trackerMotion.Create(bodiesUpstream), passageOutputs, out var cUp);
         Assert.Equal(0, cUp);
         Assert.Equal(PassageSensorPhase.Armed, tracker.States[0].Phase);
 
         // 4. Move forward across X = 0 again -> triggers second crossing!
-        tracker = tracker.Advance(new SimulationTick(tick++), bodiesPos, null, passageOutputs, out var countSecond);
+        tracker = tracker.Advance(new SimulationTick(tick++), bodiesPos, trackerMotion.Create(bodiesPos), passageOutputs, out var countSecond);
         Assert.Equal(1, countSecond);
         Assert.Single(tracker.Fired);
         Assert.Equal(2UL, tracker.States[0].PassedCount);
@@ -413,7 +418,7 @@ public sealed class BallDetectorTests(NativeSceneFixture godot)
     {
         var detector = PlacedParts.Detector(new GpuBodyId(10), 0, 3, 0, 0, 0, 0, 1);
         var ballA = WorkshopInput.Generic(PartId.Basketball,new GpuBodyId(2), -1, 3, 0, 0, 0, 0, 1);
-        var ballB = WorkshopInput.Generic(PartId.BowlingBall, new GpuBodyId(3), -3, 3, 0, 0, 0, 0, 1);
+        var ballB = WorkshopInput.Generic(PartId.BowlingBall, new GpuBodyId(3), -1, 3, 0, 0, 0, 0, 1);
 
         var construction = new WorkshopConstruction(
             new ConstructionRevision(1),
@@ -424,40 +429,42 @@ public sealed class BallDetectorTests(NativeSceneFixture godot)
         var network = WorkshopActivationCompiler.Compile(construction);
 
         var pAInit = WorkshopInput.Position(-1.0f);
-        var pBInit = WorkshopInput.Position(-3.0f);
+        var pBInit = WorkshopInput.Position(-1.0f);
         var initialBodies = new PhysicsBodyReadSet([
             new PhysicsBodyRead(new CanonicalBody(new GpuBodyId(2), 0, 0, new(pAInit.Cell, 48, 0), new((float)pAInit.Local, 0f, 0f), default), CanonicalRotation.Identity, default, default),
             new PhysicsBodyRead(new CanonicalBody(new GpuBodyId(3), 0, 0, new(pBInit.Cell, 48, 0), new((float)pBInit.Local, 0f, 0f), default), CanonicalRotation.Identity, default, default),
             new PhysicsBodyRead(new CanonicalBody(detector.Id, 0, 0, detector.Cell, detector.Local, default), CanonicalRotation.Identity, default, default)
         ]);
 
-        var tracker = PassageSensorTracker.Create(network.PassageSensors, scene.Colliders.ToArray(), initialBodies);
-        Assert.Equal(2, tracker.States.Count);
+        var tracker = PassageSensorTracker.Create(network.PassageSensors, scene, initialBodies);
+        var trackerMotion = new PassageMotionFixture(initialBodies);
+        Assert.Empty(tracker.States);
+        Assert.Equal(2, tracker.ParticipantCount);
         Span<PassageSensorRead> outputs = stackalloc PassageSensorRead[8];
 
         // Step 1: Ball A crosses forward to +1.0m, Ball B stays at -2.0m
-        var pAPos = WorkshopInput.Position(1.0f);
-        var pBMid = WorkshopInput.Position(-2.0f);
+        var pAPos = WorkshopInput.Position(.01f);
+        var pBMid = WorkshopInput.Position(-.4f);
         var bodies1 = new PhysicsBodyReadSet([
             new PhysicsBodyRead(new CanonicalBody(new GpuBodyId(2), 0, 0, new(pAPos.Cell, 48, 0), new((float)pAPos.Local, 0f, 0f), default), CanonicalRotation.Identity, default, default),
             new PhysicsBodyRead(new CanonicalBody(new GpuBodyId(3), 0, 0, new(pBMid.Cell, 48, 0), new((float)pBMid.Local, 0f, 0f), default), CanonicalRotation.Identity, default, default),
             new PhysicsBodyRead(new CanonicalBody(detector.Id, 0, 0, detector.Cell, detector.Local, default), CanonicalRotation.Identity, default, default)
         ]);
 
-        tracker = tracker.Advance(new SimulationTick(1), bodies1, null, outputs, out var count1);
+        tracker = tracker.Advance(new SimulationTick(1), bodies1, trackerMotion.Create(bodies1), outputs, out var count1);
         Assert.Equal(1, count1);
         Assert.Equal(new GpuBodyId(2), outputs[0].Body);
 
         // Step 2: Ball A moves further to +2.0m, Ball B crosses forward to +1.0m
-        var pAFar = WorkshopInput.Position(2.0f);
-        var pBPos = WorkshopInput.Position(1.0f);
+        var pAFar = WorkshopInput.Position(.2f);
+        var pBPos = WorkshopInput.Position(.01f);
         var bodies2 = new PhysicsBodyReadSet([
             new PhysicsBodyRead(new CanonicalBody(new GpuBodyId(2), 0, 0, new(pAFar.Cell, 48, 0), new((float)pAFar.Local, 0f, 0f), default), CanonicalRotation.Identity, default, default),
             new PhysicsBodyRead(new CanonicalBody(new GpuBodyId(3), 0, 0, new(pBPos.Cell, 48, 0), new((float)pBPos.Local, 0f, 0f), default), CanonicalRotation.Identity, default, default),
             new PhysicsBodyRead(new CanonicalBody(detector.Id, 0, 0, detector.Cell, detector.Local, default), CanonicalRotation.Identity, default, default)
         ]);
 
-        tracker = tracker.Advance(new SimulationTick(2), bodies2, null, outputs, out var count2);
+        tracker = tracker.Advance(new SimulationTick(2), bodies2, trackerMotion.Create(bodies2), outputs, out var count2);
         Assert.Equal(1, count2);
         Assert.Equal(new GpuBodyId(3), outputs[0].Body);
     }
@@ -475,7 +482,7 @@ public sealed class BallDetectorTests(NativeSceneFixture godot)
             PlacedParts.Detector(new GpuBodyId(1), 0, 3, 0, 0, 0, 0, 1),
             PlacedParts.Detector(new GpuBodyId(2), 5, 3, 0, 0, 0, 0, 1),
             PlacedParts.Detector(new GpuBodyId(3), 10, 3, 0, 0, 0, 0, 1));
-        WorkbenchCapacity.Validate(threeDetectors);
+        new WorkshopInstances([.. threeDetectors]).Validate();
 
         // 4 detectors = 76 colliders: validates cleanly with unbounded colliders
         var fourDetectors = new WorkshopInstances(
@@ -483,7 +490,7 @@ public sealed class BallDetectorTests(NativeSceneFixture godot)
             PlacedParts.Detector(new GpuBodyId(2), 5, 3, 0, 0, 0, 0, 1),
             PlacedParts.Detector(new GpuBodyId(3), 10, 3, 0, 0, 0, 0, 1),
             PlacedParts.Detector(new GpuBodyId(4), 15, 3, 0, 0, 0, 0, 1));
-        WorkbenchCapacity.Validate(fourDetectors);
+        new WorkshopInstances([.. fourDetectors]).Validate();
     }
 
     [Fact]

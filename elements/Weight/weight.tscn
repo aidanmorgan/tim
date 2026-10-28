@@ -71,3 +71,23 @@ position = Vector3(0, 0.27926272, 0)
 quaternion = Quaternion(0, 0, 0, 1)
 visible = false
 shape = SubResource("Shape_Body")
+
+[node name="col_visual_base" type="MeshInstance3D" parent="."]
+visible = false
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.0517, 0)
+mesh = SubResource("Mesh_Base")
+
+[node name="col_visual_bandlower" type="MeshInstance3D" parent="."]
+visible = false
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1862, 0)
+mesh = SubResource("Mesh_Band")
+
+[node name="col_visual_bandupper" type="MeshInstance3D" parent="."]
+visible = false
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.3724, 0)
+mesh = SubResource("Mesh_Band")
+
+[node name="col_visual_eye" type="MeshInstance3D" parent="."]
+visible = false
+transform = Transform3D(1, 0, 0, 0, 0, -1, 0, 1, 0, 0, 0.5771, 0)
+mesh = SubResource("Mesh_Eye")

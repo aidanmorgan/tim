@@ -1,3 +1,4 @@
+using CuriousContraptions.Abstractions;
 using CuriousContraptions.Gpu;
 
 namespace CuriousContraptions.Tests;
@@ -19,11 +20,8 @@ public sealed class SwitchElectricalTests
     private static ActivationLatch Activation(WorkshopRead read,ulong owner)=>
         Enumerable.Range(0,read.Activations.Count).Select(i=>read.Activations[i]).Single(row=>row.Owner.Value==owner);
     private static bool Powered(WorkshopRead read)=>read.Presentation.Actuators.ToArray().Single(row=>row.Owner.Value==4).SupplyClosed;
-    private static float BladeY(WorkshopRead read)
-    {
-        var body=Enumerable.Range(0,read.Bodies.Count).Select(i=>read.Bodies[i].Body).Single(row=>row.Id==WorkshopPhysicsCompiler.SliderBody(new(4), 0));
-        return (body.Cell.Y+body.Local.Y)/16f;
-    }
+    private static float BladeY(WorkshopRead read) =>
+        3f + read.Presentation.Actuators.ToArray().Single(row => row.Owner.Value == 4).Coordinate;
 
     [Fact]
     public async Task PhysicalImpactDrivesBothDomainsAndExactSaveReset()

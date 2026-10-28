@@ -6,11 +6,8 @@ namespace CuriousContraptions.Gpu;
 /// </summary>
 public static partial class PhysicsGpuAbi
 {
-    /// <summary>One current layout identity; every other value is unsupported.</summary>
-    public const int HeaderLayoutTagOffset = 0;
-    /// <summary>"CTF4" (Story 9A.44): every declared and committed game value in every record is IEEE-754 f32. An in-memory layout
-    /// identity; no save carries it.</summary>
-    public const uint CurrentLayoutTag = 0x43544634;
+    /// <summary>Zero reserved header word; the current layout is validated structurally.</summary>
+    public const int HeaderReservedOffset = 0;
     public const int HeaderStatusOffset = 4;
     public const int HeaderFailureOffset = 8;
     /// <summary>Header word holding the admitted body count.</summary>
@@ -34,16 +31,15 @@ public static partial class PhysicsGpuAbi
     public const int HeaderGuideCountOffset = 96;
     public const int HeaderTriggerCountOffset = 100;
     public const int HeaderContactWorkCountOffset = 104;
-    public const int HeaderWorkOccurrenceCountOffset = 108;
     /// <summary>Header word holding the prismatic joint count (Story 9R.5b; its table no longer carries an in-band header).</summary>
-    public const int HeaderPrismaticCountOffset = 112;
-    public const int HeaderOrientationSensorCountOffset = 116;
-    public const int HeaderElectricalSourceCountOffset = 120;
-    public const int HeaderElectricalBindingCountOffset = 124;
+    public const int HeaderPrismaticCountOffset = 108;
+    public const int HeaderOrientationSensorCountOffset = 112;
+    public const int HeaderElectricalSourceCountOffset = 116;
+    public const int HeaderElectricalBindingCountOffset = 120;
     /// <summary>Header word holding the contact-load row count (Story 9R.5b).</summary>
-    public const int HeaderContactLoadCountOffset = 128;
+    public const int HeaderContactLoadCountOffset = 124;
     /// <summary>The header's zero tail.</summary>
-    public const int HeaderPaddingOffset = 132;
+    public const int HeaderPaddingOffset = 128;
 
     // Contact-work record (ContactWorkBytes): identity U64 at 0, owner body slot U32, target kind, the f32 target and
     // admission speeds, cooldown, named target slot, occurrence count, preload, padding 40..47, available work, the work
@@ -55,9 +51,6 @@ public static partial class PhysicsGpuAbi
     public const int ContactWorkReservedOffset = 40;
     public const int ContactWorkSuppliedOffset = 52;
     public const int ContactWorkPaddingOffset = 56;
-    // Work-occurrence record (WorkOccurrenceBytes): the owning contact-work index U32 at 0 and the target body id U64 at 8.
-    public const int WorkOccurrenceWorkOffset = 0;
-    public const int WorkOccurrenceTargetOffset = 8;
     /// <summary>The body record's motion kind U32 (static or dynamic).</summary>
     public const int BodyMotionOffset = 8;
     /// <summary>The collider record's owning body slot U32.</summary>
@@ -92,17 +85,17 @@ public static partial class PhysicsGpuAbi
     public const int PoseBytes = VectorBytes + RotationBytes;
 
     // Body record (BodyBytes): motion, cell, f32 local remainder, f32 rotation and velocities, then the immutable declared lanes
-    // from BodyMassOffset: mass, drag, gravity, centre of mass, principal frame and moments, and the owned collider slot.
+    // from BodyMassOffset: mass, drag, gravity, centre of mass, principal frame and moments, with zero padding after the moments.
     public const int BodyMotionPaddingOffset = 12;
     public const int BodyCellPaddingOffset = 28;
     public const int BodyLocalPaddingOffset = 44;
-    public const int BodyColliderSlotOffset = 148;
+    public const int BodyPayloadOffset = 148;
     public const int BodyPaddingOffset = 152;
 
     // Collider record (ColliderBytes): owning body slot, material slot, shape, f32 pose, radius and half-extents.
     public const int ColliderMaterialOffset = 12;
     public const int ColliderShapeOffset = 16;
-    public const int ColliderShapePaddingOffset = 20;
+    public const int ColliderContactLoadOffset = 20;
     public const int ColliderPoseOffset = 24;
     public const int ColliderRadiusOffset = 52;
     public const int ColliderHalfExtentsOffset = 56;
@@ -126,14 +119,9 @@ public static partial class PhysicsGpuAbi
     public const int SensorMaximumOffset = 64;
     public const int SensorSpeedLimitOffset = 76;
     public const int SensorDwellOffset = 80;
-    public const int SensorDeclarationBytes = 84;
-    public const int SensorPhaseOffset = 84;
-    public const int SensorStartOrdinalOffset = 88;
-    public const int SensorStartPhaseOffset = 92;
-    public const int SensorOccurrenceCountOffset = 96;
-    public const int SensorEventOrdinalOffset = 100;
-    public const int SensorEventPhaseOffset = 104;
-    public const int SensorPaddingOffset = 108;
+    public const int SensorTargetKindOffset = 84;
+    public const int SensorDeclarationBytes = 88;
+    public const int SensorPaddingOffset = 88;
 
     // Planar guide record (GuideBytes): frame and target slots, f32 pose, bounds, maximum acceleration, support height and margin.
     public const int GuideFrameOffset = 8;
@@ -144,6 +132,8 @@ public static partial class PhysicsGpuAbi
     public const int GuideMaximumAccelerationOffset = 68;
     public const int GuideSupportHeightOffset = 72;
     public const int GuideSupportMarginOffset = 76;
+    public const int GuideTargetKindOffset = 80;
+    public const int GuidePaddingOffset = 84;
 
     // Orientation sensor record (OrientationSensorBytes): the immutable declaration (body slot, initial rotation and the f32
     // cosine of the half threshold angle) in its first OrientationSensorDeclarationBytes, then the sticky fired state.

@@ -38,4 +38,5 @@
             <FileWrites Include="$(_PackageCompileSourcesConfig)" />
         </ItemGroup>
     </Target>
+    <Import Project="tools/runtime/RuntimeTypeScript.targets" />
 </Project>

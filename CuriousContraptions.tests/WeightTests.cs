@@ -1,3 +1,4 @@
+using CuriousContraptions.Abstractions;
 using System.Numerics;
 using CuriousContraptions.Gpu;
 using CuriousContraptions.Simulation;
@@ -11,7 +12,7 @@ namespace CuriousContraptions.Tests;
 /// C# engine (<see cref="WorkshopSimulation"/> on the worker transport). Expectations are derived from the declared f32 values, which
 /// the ABI carries unchanged, never from observed output.
 /// </summary>
-public sealed class WeightTests
+public sealed class WeightTests(ITestOutputHelper output)
 {
     internal static readonly PartId Weight = new("weight");
     private static readonly ParameterId MassKey = new("mass");
@@ -43,10 +44,10 @@ public sealed class WeightTests
             CuriousContraptions.Abstractions.ParameterKind.Real, .25f, 8f, 4f, mass.Options,
             CuriousContraptions.Abstractions.ParameterEditorPolicy.Clamp, CuriousContraptions.Abstractions.ParameterRunEdit.BuildOnly), mass);
         Assert.Empty(mass.Options);
-        Assert.Equal(CuriousContraptions.Abstractions.Mechanical.MechanicalValue.FromParameter("mass"), entry.Mechanical!.MassParameter);
+        Assert.Equal(new ParameterId("mass"), entry.Mechanical!.MassFrame.Mass.Parameter);
         Assert.Equal(CuriousContraptions.Abstractions.Mechanical.KinematicMode.Dynamic, entry.Mechanical.KinematicMode);
-        Assert.Equal(4f, entry.Mechanical.MassProperties.Mass);
-        Assert.Equal(CuriousContraptions.Abstractions.ColliderShapeKind.Cylinder, Assert.Single(entry.Colliders).ShapeKind);
+        Assert.Equal(4f, MassFixtures.Evaluate(entry.Mechanical.MassFrame, entry.Metadata.Parameters).Mass);
+        Assert.Equal(CuriousContraptions.Abstractions.ColliderShapeKind.Cylinder, entry.Colliders[0].ShapeKind);
         Assert.Empty(entry.Ports);
         Assert.Empty(DeclaredPorts.Current.Of(Weight).ToArray());
         Assert.Empty(entry.Events);
@@ -146,9 +147,9 @@ public sealed class WeightTests
         Assert.Equal(new Kilograms(mass), body.Mass);
         Assert.Equal(new InverseSeconds(0f), body.LinearDrag);
         Assert.Equal(new AccelerationVector(0f, -G, 0f), body.Gravity);
-        var cylinder = Assert.Single(scene.Colliders.ToArray(), c => c.Body == body.Id);
+        var cylinder = Assert.Single(scene.Colliders.ToArray(), c => c.Id == Bench(weight).Instances.Identities[weight.Id].Colliders[0]);
         float r = Radius(mass), h = HalfHeight(mass);
-        Assert.Equal(ColliderShapeKind.Cylinder, cylinder.Shape);
+        Assert.Equal(CuriousContraptions.Gpu.ColliderShapeKind.Cylinder, cylinder.Shape);
         Assert.Equal(new Metres(r), cylinder.Radius);
         Assert.Equal(new MetreVector(0f, h, 0f), cylinder.HalfExtents);
         // The base-centre origin: the cylinder's centre, and so the centre of mass, is h above it.
@@ -158,7 +159,7 @@ public sealed class WeightTests
         Assert.Equal((new Restitution(.08f), new FrictionCoefficient(.3f), new RollingResistance(.03f), new LinearSpeed(.1f)),
             (material.Restitution, material.Friction, material.RollingResistance, material.BounceThreshold));
 
-        var properties = RigidMassProperties.Compile(body, cylinder);
+        var properties = body.MassProperties;
         Assert.Equal(new MetreVector(0f, h, 0f), properties.LocalCentreOfMass);
         double m = mass, hr = r, hh = h;
         // Six f32 roundings at most (r², h², the division by 3, the sum, the two products; RigidMassProperties' bound): 6 x 2^-24
@@ -190,16 +191,16 @@ public sealed class WeightTests
         }
         // The binding at the 4 kg default is the authored scene collider, bit for bit (one truth with the extracted geometry).
         var entry = TestBundle.Entry(Weight);
-        var scene = Assert.Single(entry.Colliders);
-        var bound = Assert.Single(CuriousContraptions.Bundle.BundleGeometry.Colliders(entry, new Dictionary<string, float> { ["mass"] = 4f }));
+        var scene = entry.Colliders[0];
+        var bound = CuriousContraptions.Bundle.BundleGeometry.Colliders(entry, new Dictionary<string, float> { ["mass"] = 4f })[0];
         Assert.Equal(scene, bound);
         Assert.Equal(new Vector3(Radius(4), HalfHeight(4), Radius(4)), scene.HalfExtents);
         Assert.Equal(new Vector3(0, HalfHeight(4), 0), scene.Offset);
-        // The declared fixed mass properties are the 4 kg values (the compiler derives them per instance from the bound collider).
-        var declared = entry.Mechanical!.MassProperties;
+        // The declared fixed mass properties are the 4 kg values (the package evaluates them per instance independently of collision geometry).
+        var declared = MassFixtures.Evaluate(entry.Mechanical!.MassFrame, entry.Metadata.Parameters);
         Assert.Equal(new Vector3(0, HalfHeight(4), 0), declared.CentreOfMass);
-        Assert.InRange(Math.Abs(declared.InertiaTensor.Y - 4 * Radius(4) * Radius(4) / 2), 0, 1e-5);
-        Assert.InRange(Math.Abs(declared.InertiaTensor.X - 4 * (Radius(4) * Radius(4) / 4 + HalfHeight(4) * HalfHeight(4) / 3)), 0, 1e-5);
+        Assert.InRange(Math.Abs(declared.PrincipalMoments.Y - 4 * Radius(4) * Radius(4) / 2), 0, 1e-5);
+        Assert.InRange(Math.Abs(declared.PrincipalMoments.X - 4 * (Radius(4) * Radius(4) / 4 + HalfHeight(4) * HalfHeight(4) / 3)), 0, 1e-5);
     }
 
     [Fact]
@@ -208,7 +209,7 @@ public sealed class WeightTests
         var masses = new[] { .25f, 1f, 4f, 8f };
         float[] Compiled(Func<ColliderDeclaration, float> lane) => masses.Select(mass =>
             lane(Assert.Single(WorkshopPhysicsCompiler.Compile(Bench(Placed(1, 0, 1, 0, mass)), new(1, 2)).Colliders.ToArray(),
-                c => c.Body == new GpuBodyId(1)))).ToArray();
+                c => c.Id == Bench(Placed(1, 0, 1, 0, mass)).Instances.Identities[new(1)].Colliders[0]))).ToArray();
         foreach (var lanes in new[] { Compiled(c => c.Radius.Value), Compiled(c => c.HalfExtents.Y), Compiled(c => c.Pose.Translation.Y) })
             for (var i = 1; i < lanes.Length; i++) Assert.True(lanes[i] > lanes[i - 1], $"{lanes[i]} after {lanes[i - 1]}");
     }
@@ -262,7 +263,7 @@ public sealed class WeightTests
         int ticks, SimulationCadence cadence = SimulationCadence.Hz120)
     {
         var settings = WorkshopCadenceSettings.Default() with { Simulation = cadence };
-        await using var device = new WorkshopGpuDevice(new BrowserGpuTransport(), new(101, 206));
+        await using var device = new WorkshopGpuDevice(new BrowserGpuTransport(new CuriousContraptions.Abstractions.EventRingPublication()), new(101, 206));
         await using var simulation = new WorkshopSimulation(device, new WorkshopPhysicsEngineTests.StepClock(), settings, new(1),
             new WorkshopPhysicsEngineTests.NoInstallation(), GpuDeviceOwnership.Borrowed);
         static void Applied(WorkshopCommandResult result, string command) =>
@@ -312,7 +313,7 @@ public sealed class WeightTests
         bench.Validate();
         var edited = bench.WithInstance(light with { Parameters = new([new(MassKey, 8f)]) });
         edited.Validate();
-        var cylinder = Assert.Single(WorkshopPhysicsCompiler.Compile(edited, new(1, 2)).Colliders.ToArray(), c => c.Body == light.Id);
+        var cylinder = Assert.Single(WorkshopPhysicsCompiler.Compile(edited, new(1, 2)).Colliders.ToArray(), c => c.Id == edited.Instances.Identities[light.Id].Colliders[0]);
         // Its lowest point is the base, at the origin: the centre is exactly the half-height above it.
         Assert.Equal(cylinder.HalfExtents.Y, cylinder.Pose.Translation.Y);
         var (_, reads, _) = await RunAndReset(edited, 3 * Rate);
@@ -342,7 +343,7 @@ public sealed class WeightTests
         var a = (float)(-RampDegrees * Math.PI / 180);
         var normal = new Vector3(-MathF.Sin(a), MathF.Cos(a), 0);
         var downhill = new Vector3(MathF.Cos(a), MathF.Sin(a), 0);
-        var centre = RampCentre + new Vector3(0, lift, 0) + .09f * normal + along * downhill + (Radius(mass) + .003f) * normal;
+        var centre = RampCentre + new Vector3(0, lift, 0) + .09f * normal + along * downhill + (RollingRadius(mass) + .003f) * normal;
         if (direction != CylinderAxisDirection.Authored)
         {
             var sign = direction == CylinderAxisDirection.Positive ? 1f : -1f;
@@ -351,6 +352,26 @@ public sealed class WeightTests
         }
         var origin = centre - new Vector3(0, 0, HalfHeight(mass));
         return Placed(id, origin.X, origin.Y, origin.Z, mass, Math.Sin(Math.PI / 4), 0, 0, Math.Cos(Math.PI / 4));
+    }
+
+    private static double ArtScale(float mass) => .136734 * mass + .453070;
+    private static float RollingRadius(float mass) => (float)(.3633 * ArtScale(mass));
+    private static double EyeCrest(float mass) => (.5771 + .1575) * ArtScale(mass);
+
+    // Independent support of the literal art cylinders and thickened circles at the observed pose.
+    private static double LowestArtPoint(PhysicsBodyRead body, float mass) => Origin(body).Y + LowestArtOffset(Rotation(body), mass);
+
+    private static double LowestArtOffset(Quaternion rotation, float mass)
+    {
+        var normal = Vector3.Transform(Vector3.UnitY, Quaternion.Conjugate(rotation));
+        double x = normal.X, y = normal.Y, z = normal.Z, scale = ArtScale(mass);
+        var radial = Math.Sqrt(x * x + z * z);
+        var primary = HalfHeight(mass) * y - HalfHeight(mass) * Math.Abs(y) - Radius(mass) * radial;
+        var foot = scale * (.0517 * y - .025 * Math.Abs(y) - .36 * radial);
+        var lower = scale * (.1862 * y - .3558 * radial - .0075);
+        var upper = scale * (.3724 * y - .3558 * radial - .0075);
+        var eye = scale * (.5771 * y - .14 * Math.Sqrt(x * x + y * y) - .0175);
+        return Math.Min(primary, Math.Min(foot, Math.Min(lower, Math.Min(upper, eye))));
     }
 
     public enum CylinderAxisDirection { Authored, Positive, Negative }
@@ -366,7 +387,7 @@ public sealed class WeightTests
         var lift = drop ? .18f * MathF.Cos((float)(RampDegrees * Math.PI / 180)) : 0f;
         var weight = OnItsSideOnTheRamp(1, 4f, .5f, lift, direction);
         var (_, reads, _) = await RunAndReset(Bench(Ramp(2, lift), weight), 14 * Rate);
-        var r = Radius(4);
+        var r = RollingRadius(4);
         // On the ramp, rolling: ω = v / r within 2% (no slip needs μ ≥ tanθ/3 = 0.09; the material is 0.3).
         foreach (var tick in new[] { Rate / 2, 3 * Rate / 4 })
         {
@@ -395,51 +416,182 @@ public sealed class WeightTests
         Assert.True(creep <= .00005f, $"moved {creep * 1000} mm after stopping");
     }
 
-    [Fact]
-    public async Task ReversingTheGeneratorAxisAndSavingTheDropPreserveTheHeadingAndTrajectory()
+    [Theory]
+    [InlineData(0f, 0f)]
+    [InlineData(.37f, 0f)]
+    [InlineData(2.1f, 0f)]
+    [InlineData(0f, .03f)]
+    [InlineData(.37f, .03f)]
+    [InlineData(2.1f, .03f)]
+    public void AFullTorusRollOnAPlaneIsInvariantToItsInitialAxialPhase(float phase, float resistance)
+    {
+        const float major = .3558f, tube = .0075f, radius = major + tube, speed = 1.5f;
+        var scene = new LawScene();
+        var rotation = Quaternion.Multiply(new Quaternion(.5f, .5f, .5f, .5f),
+            Quaternion.CreateFromAxisAngle(Vector3.UnitY, phase));
+        var r = Radius(4); var h = HalfHeight(4);
+        var moments = new Vector3(4 * (r * r / 4 + h * h / 3), 2 * r * r, 4 * (r * r / 4 + h * h / 3));
+        var body = scene.DynamicHollow(Gpu.ColliderShapeKind.Torus, new(0, BenchY + radius, 0), rotation,
+            major, new(0, tube, ColliderDeclaration.FullSweep), new(0, .1f, .3f, resistance), 4, moments,
+            new(speed, 0, 0), LawScene.Gravity, new(0, 0, -speed / radius));
+        var axial = 0f; var height = 0f;
+        var final = scene.Admit().Step(14 * Rate, (_, state) =>
+        {
+            axial = MathF.Max(axial, MathF.Abs(state[body].Position.Z));
+            height = MathF.Max(height, MathF.Abs(state[body].Position.Y - (BenchY + radius)));
+        })[body];
+        output.WriteLine($"phase={phase}, Crr={resistance}: axial={axial}, height={height}, speed={final.Speed}, spin={final.Spin}");
+        Assert.InRange(axial, 0, .0005f);
+        Assert.InRange(height, 0, .0005f);
+        if (resistance > 0) Assert.True(final.Speed < .01 && final.Spin < .05);
+        else Assert.True(final.Speed > 1.4);
+    }
+
+    public enum RollingGeometrySet { BareCylinder, SymmetricBands, FullWeight }
+    public enum RollingTerrain { Ramp, Plane, Box }
+
+    [Theory]
+    [InlineData(RollingGeometrySet.BareCylinder, false, 0)]
+    [InlineData(RollingGeometrySet.BareCylinder, true, 90)]
+    [InlineData(RollingGeometrySet.BareCylinder, false, 180)]
+    [InlineData(RollingGeometrySet.SymmetricBands, false, 0)]
+    [InlineData(RollingGeometrySet.SymmetricBands, true, 0)]
+    [InlineData(RollingGeometrySet.SymmetricBands, false, 37)]
+    [InlineData(RollingGeometrySet.SymmetricBands, false, 90)]
+    [InlineData(RollingGeometrySet.SymmetricBands, true, 180)]
+    [InlineData(RollingGeometrySet.FullWeight, false, 0)]
+    [InlineData(RollingGeometrySet.FullWeight, true, 0)]
+    [InlineData(RollingGeometrySet.FullWeight, false, 37)]
+    [InlineData(RollingGeometrySet.FullWeight, false, 90)]
+    [InlineData(RollingGeometrySet.FullWeight, true, 180)]
+    [InlineData(RollingGeometrySet.SymmetricBands, false, 0, RollingTerrain.Plane)]
+    [InlineData(RollingGeometrySet.SymmetricBands, true, 0, RollingTerrain.Plane)]
+    [InlineData(RollingGeometrySet.SymmetricBands, false, 0, RollingTerrain.Box)]
+    [InlineData(RollingGeometrySet.SymmetricBands, true, 0, RollingTerrain.Box)]
+    public void CompoundRollingRetainsItsHeadingAcrossTheRampEdge(RollingGeometrySet geometry, bool reverseChildren, int yawDegrees,
+        RollingTerrain terrain = RollingTerrain.Ramp)
     {
         var lift = .18f * MathF.Cos((float)(RampDegrees * Math.PI / 180));
-        var forward = OnItsSideOnTheRamp(1, 4f, .5f, lift, CylinderAxisDirection.Positive);
-        var reverse = OnItsSideOnTheRamp(1, 4f, .5f, lift, CylinderAxisDirection.Negative);
-        var construction = Bench(Ramp(2, lift), forward);
+        var weight = OnItsSideOnTheRamp(1, 4f, .5f, lift);
+        var compiled = WorkshopPhysicsCompiler.Compile(Bench(Ramp(2, lift), weight), new(1, 2));
+        var children = compiled.Colliders.ToArray().Where(c => c.Body == weight.Id).ToArray();
+        var colliders = compiled.Colliders.ToArray().Where(c => c.Body != weight.Id).ToList();
+        var selected = geometry switch
+        {
+            RollingGeometrySet.BareCylinder => new[] { children[0] },
+            RollingGeometrySet.SymmetricBands => new[] { children[0], children[2] with
+                { Pose = children[2].Pose with { Translation = new(0, HalfHeight(4) - .0931f * (float)ArtScale(4), 0) } },
+                children[3] with { Pose = children[3].Pose with { Translation = new(0, HalfHeight(4) + .0931f * (float)ArtScale(4), 0) } } },
+            _ => children
+        };
+        if (reverseChildren)
+        {
+            var ids = selected.Select(c => c.Id).Reverse().ToArray();
+            for (var i = 0; i < selected.Length; i++) selected[i] = selected[i] with { Id = ids[i] };
+        }
+        if (terrain == RollingTerrain.Plane) colliders.RemoveAll(c => c.Shape != Gpu.ColliderShapeKind.Plane);
+        if (terrain == RollingTerrain.Box)
+        {
+            var primary = Bench(Ramp(2, lift), weight).Instances.Identities[new(2)].Colliders[0];
+            var box = colliders.Single(c => c.Id == primary) with { HalfExtents = new(16, .09f, 16), Pose = RigidLocalPose.Identity };
+            colliders.Clear();
+            colliders.Add(box);
+        }
+        colliders.AddRange(selected);
+        var yaw = Quaternion.CreateFromAxisAngle(Vector3.UnitY, yawDegrees * MathF.PI / 180);
+        var bodies = compiled.Bodies.ToArray().Select(body =>
+        {
+            if (terrain != RollingTerrain.Ramp)
+            {
+                var initial = body.Id == weight.Id ? new Vector3(0, BenchY + RollingRadius(4) + .003f, -HalfHeight(4)) :
+                    new Vector3(0, body.Id.Value == 2 ? BenchY - .09f : BenchY, 0);
+                var px = WorkshopInput.Position(initial.X); var py = WorkshopInput.Position(initial.Y); var pz = WorkshopInput.Position(initial.Z);
+                body = body with { Cell = new(px.Cell, py.Cell, pz.Cell), Local = new(px.Local, py.Local, pz.Local) };
+                body = body.Id == weight.Id ? body with { Velocity = new(1.5f, 0, 0), AngularVelocity = new(0, 0, -1.5f / RollingRadius(4)) } :
+                    body with { Rotation = CanonicalRotation.Identity };
+            }
+            var position = Vector3.Transform(new Vector3((body.Cell.X + body.Local.X) / 16f,
+                (body.Cell.Y + body.Local.Y) / 16f, (body.Cell.Z + body.Local.Z) / 16f), yaw);
+            var x = WorkshopInput.Position(position.X); var y = WorkshopInput.Position(position.Y); var z = WorkshopInput.Position(position.Z);
+            var rotation = Quaternion.Multiply(yaw, new Quaternion(body.Rotation.X, body.Rotation.Y, body.Rotation.Z, body.Rotation.W));
+            return body with { Cell = new(x.Cell, y.Cell, z.Cell), Local = new(x.Local, y.Local, z.Local),
+                Rotation = CanonicalRotation.Normalize(rotation.X, rotation.Y, rotation.Z, rotation.W) };
+        }).ToArray();
+        var scene = new PhysicsSceneDeclaration(new(1, 2), compiled.NextIdentity, bodies, [.. colliders], compiled.Materials.ToArray(), [], []);
+        var world = new LawWorld(scene, PhysicsGpuAbi.Admission(scene, new(1),
+            new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1))), SimulationCadence.Hz120);
+        var before = 0f; var after = 0f; var heading = 0f;
+        var final = world.Step(14 * Rate, (tick, state) =>
+        {
+            var body = state[weight.Id];
+            var centre = Vector3.Transform(body.Position + Vector3.Transform(new Vector3(0, HalfHeight(4), 0), body.Rotation), Quaternion.Conjugate(yaw));
+            var axis = Vector3.Transform(Vector3.Transform(Vector3.UnitY, body.Rotation), Quaternion.Conjugate(yaw));
+            heading = MathF.Max(heading, MathF.Abs(axis.X));
+            if (tick <= Rate) before = MathF.Max(before, MathF.Abs(centre.Z));
+            else after = MathF.Max(after, MathF.Abs(centre.Z));
+        })[weight.Id];
+        output.WriteLine($"{geometry}, terrain={terrain}, reversedIDs={reverseChildren}, yaw={yawDegrees}: before={before:R}, after={after:R}, axisX={heading:R}, final v={final.Velocity}, spin={final.Angular}");
+        Assert.True(MathF.Max(before, after) <= .0005f, $"before={before:R}, after={after:R}, axisX={heading:R}");
+    }
+
+    [Fact]
+    public async Task SavingTheCompoundDropPreservesEveryCommittedPoseAndVelocity()
+    {
+        var lift = .18f * MathF.Cos((float)(RampDegrees * Math.PI / 180));
+        var weight = OnItsSideOnTheRamp(1, 4f, .5f, lift, CylinderAxisDirection.Positive);
+        var construction = Bench(Ramp(2, lift), weight);
         var decoded = WorkshopSaveCodec.Decode(SaveFixture.Elements,
             WorkshopSaveCodec.Encode(new WorkshopSavedConstruction(construction, new(4)))).Construction;
         Assert.Equal(construction, decoded);
         var (_, first, _) = await RunAndReset(construction, 14 * Rate);
-        var (_, reversed, _) = await RunAndReset(Bench(reverse, Ramp(2, lift)), 14 * Rate);
         var (_, saved, _) = await RunAndReset(decoded, 14 * Rate);
-        // This is a representation-resolution acceptance threshold for the
-        // complete heading histories, not a bound on propagated solver roundoff.
-        // For |q_i|<=M=1.0001 and component uncertainty <=u=2^-24, each component
-        // of the polynomial quaternion transform of UnitY (written below) has
-        // uncertainty <=8M*u+4u². Two reads therefore
-        // differ by <27.72u in norm; 32u includes double evaluation roundoff.
-        const double u = 1.0 / 16777216;
-        (double X, double Y, double Z) Axis(PhysicsBodyRead body)
+        Assert.Equal(first.Count, saved.Count);
+        for (var tick = 0; tick < first.Count; tick++)
+            Assert.Equal(Find(first[tick], weight.Id), Find(saved[tick], weight.Id));
+    }
+
+    [Fact]
+    public void PrimitiveCylinderAxisReversalPreservesTheCompleteHeadingHistory()
+    {
+        var lift = .18f * MathF.Cos((float)(RampDegrees * Math.PI / 180));
+        var angle = (float)(-RampDegrees * Math.PI / 180);
+        var normal = new Vector3(-MathF.Sin(angle), MathF.Cos(angle), 0);
+        var downhill = new Vector3(MathF.Cos(angle), MathF.Sin(angle), 0);
+        var centre = RampCentre + new Vector3(0, lift, 0) + .09f * normal + .5f * downhill + (Radius(4) + .003f) * normal;
+        (LawWorld World, GpuBodyId Body) Build(float sign)
         {
-            var q = body.Rotation;
-            foreach (var component in new[] { q.X, q.Y, q.Z, q.W })
-                Assert.InRange(Math.Abs(component), 0, 1.0001);
+            var scene = new LawScene();
+            scene.StaticBox(RampCentre + new Vector3(0, lift, 0), new(1.5f, .09f, .65f),
+                Quaternion.CreateFromAxisAngle(Vector3.UnitZ, angle), new(.15f, .1f, .3f, 0));
+            var body = scene.Cylinder(centre, Radius(4), HalfHeight(4), 4, new(.08f, .1f, .3f, .03f),
+                new Quaternion(.5f, sign * .5f, .5f, sign * .5f));
+            return (scene.Admit(), body);
+        }
+        Quaternion[] History(float sign)
+        {
+            var run = Build(sign);
+            var rotations = new Quaternion[14 * Rate + 1];
+            rotations[0] = run.World.Initial(run.Body).Rotation;
+            run.World.Step(14 * Rate, (tick, state) => rotations[tick] = state[run.Body].Rotation);
+            return rotations;
+        }
+        var forward = History(1); var reverse = History(-1);
+        // With |q_i| <= 1.0001 and component uncertainty u=2^-24, the polynomial
+        // UnitY transform differs by <27.72u across two reads; 32u includes double evaluation.
+        const double u = 1.0 / 16777216;
+        static (double X, double Y, double Z) Axis(Quaternion q)
+        {
+            foreach (var component in new[] { q.X, q.Y, q.Z, q.W }) Assert.InRange(Math.Abs(component), 0, 1.0001);
             double x = q.X, y = q.Y, z = q.Z, w = q.W;
             return (2 * (x * y - w * z), 1 - 2 * (x * x + z * z), 2 * (y * z + w * x));
         }
-        static double Length((double X, double Y, double Z) value) =>
-            Math.Sqrt(value.X * value.X + value.Y * value.Y + value.Z * value.Z);
-        double maxAxisError = 0, endAxisError = 0;
-        var maxAxisTick = 0;
-        for (var tick = 0; tick < first.Count; tick++)
+        for (var tick = 0; tick <= 14 * Rate; tick++)
         {
-            var a = Find(first[tick], forward.Id);
-            var b = Find(reversed[tick], reverse.Id);
-            Assert.Equal(a.LocalCentreOfMass, b.LocalCentreOfMass);
-            var headingA = Axis(a); var headingB = Axis(b);
-            var axisError = Length((headingA.X + headingB.X, headingA.Y + headingB.Y, headingA.Z + headingB.Z));
-            if (axisError > maxAxisError) { maxAxisError = axisError; maxAxisTick = tick; }
-            endAxisError = axisError;
-            Assert.Equal(a, Find(saved[tick], forward.Id));
+            var a = Axis(forward[tick]);
+            var b = Axis(reverse[tick]);
+            var error = Math.Sqrt((a.X + b.X) * (a.X + b.X) + (a.Y + b.Y) * (a.Y + b.Y) + (a.Z + b.Z) * (a.Z + b.Z));
+            Assert.True(error <= 32 * u, $"axis reversal error {error} at tick {tick}, limit {32 * u}");
         }
-        var diagnostics = $"reversal max full-axis error {maxAxisError} at tick {maxAxisTick}, end {endAxisError} (limit {32 * u})";
-        Assert.True(maxAxisError <= 32 * u, diagnostics);
     }
 
     [Theory]
@@ -448,13 +600,13 @@ public sealed class WeightTests
     public async Task AStackEndDownHoldsWithoutBounceOrCreep(float lower, float upper)
     {
         var bottom = Placed(1, 0, BenchY, 0, lower);
-        var top = Placed(2, 0, BenchY + 2 * HalfHeight(lower) + .002f, 0, upper);
+        var top = Placed(2, 0, BenchY + EyeCrest(lower) + .002f, 0, upper);
         var (_, reads, _) = await RunAndReset(Bench(bottom, top), 5 * Rate);
         // Each resting contact keeps the 0.5 mm envelope: the lower base on the bench, and the upper base on the lower Weight's top face
         // (its base plus the compiled height 2h).
         var final = (Lower: Height(Find(reads[^1], bottom.Id)), Upper: Height(Find(reads[^1], top.Id)));
         Assert.InRange(final.Lower, BenchY - .0005f, BenchY + .0005f);
-        var face = final.Lower + 2 * HalfHeight(lower);
+        var face = final.Lower + EyeCrest(lower);
         Assert.InRange(final.Upper, face - .0005f, face + .0005f);
         // D8 (restitution D10): after settling no bounce, and the last second moves at most 0.05 mm per tick and at most 0.5 mm in all
         // (its path length, the resting envelope), so no steady drift hides under the per-tick bound.
@@ -485,16 +637,42 @@ public sealed class WeightTests
         Assert.All(quiet, read => Assert.True(Tilt(Find(read, domino.Id)) < 1, $"tilt {Tilt(Find(read, domino.Id))}"));
     }
 
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void ACompoundWeightLevelsItsSupportAxisWithAndWithoutRollingResistance(bool resistance)
+    {
+        var rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitX, 1e-4f) * new Quaternion(.5f, .5f, .5f, .5f);
+        var axis = Vector3.Transform(Vector3.UnitY, rotation);
+        var origin = -axis * HalfHeight(4);
+        origin.Y = BenchY - (float)LowestArtOffset(rotation, 4);
+        var authored = Bench(Placed(1, origin.X, origin.Y, origin.Z, 4, rotation.X, rotation.Y, rotation.Z, rotation.W));
+        var compiled = WorkshopPhysicsCompiler.Compile(authored, new(1, 2));
+        var materials = compiled.Materials.ToArray().Select(material => resistance ? material : material with { RollingResistance = new(0f) }).ToArray();
+        var scene = new PhysicsSceneDeclaration(new(1, 2), compiled.NextIdentity, compiled.Bodies.ToArray(), compiled.Colliders.ToArray(), materials, [], []);
+        var world = new LawWorld(scene, PhysicsGpuAbi.Admission(scene, new(1),
+            new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1))), SimulationCadence.Hz120);
+        var lateTilt = 0f;
+        var final = world.Step(1200, (tick, state) =>
+        {
+            if (tick >= 480)
+                lateTilt = MathF.Max(lateTilt, MathF.Asin(MathF.Min(1f, MathF.Abs(Vector3.Transform(Vector3.UnitY, state[new(1)].Rotation).Y))));
+        })[new(1)];
+        output.WriteLine($"resistance={resistance}: lateTilt={lateTilt:R}, v={final.Velocity}, w={final.Angular}");
+        Assert.InRange(lateTilt, 0f, 1e-5f);
+    }
+
     [Fact]
     public async Task TiltedWeightResetAndSavedConstructionReplayEveryCommittedTickExactly()
     {
         var rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitX, 1e-4f) * new Quaternion(.5f, .5f, .5f, .5f);
         var axis = Vector3.Transform(Vector3.UnitY, rotation);
-        var support = HalfHeight(4) * MathF.Abs(axis.Y) + Radius(4) * MathF.Sqrt(1f - axis.Y * axis.Y);
-        // The package origin is its base, half a height behind the centre along local Y.
-        var origin = new Vector3(0, BenchY + support, 0) - axis * HalfHeight(4);
+        // Place the actual union tangent to the bench; a bare-cylinder radius
+        // would bury the two drawn bands by about11.6mm before the first tick.
+        var origin = -axis * HalfHeight(4);
+        origin.Y = BenchY - (float)LowestArtOffset(rotation, 4);
         var construction = Bench(Placed(1, origin.X, origin.Y, origin.Z, 4, rotation.X, rotation.Y, rotation.Z, rotation.W));
-        await using var device = new WorkshopGpuDevice(new BrowserGpuTransport(), new(101, 206));
+        await using var device = new WorkshopGpuDevice(new BrowserGpuTransport(new CuriousContraptions.Abstractions.EventRingPublication()), new(101, 206));
         await using var simulation = new WorkshopSimulation(device, new WorkshopPhysicsEngineTests.StepClock(),
             WorkshopCadenceSettings.Default(), new(1), new WorkshopPhysicsEngineTests.NoInstallation(), GpuDeviceOwnership.Borrowed);
         Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Initialize()).Outcome);
@@ -553,8 +731,7 @@ public sealed class WeightTests
             rest.Observe(centre);
             var verticalAxis = MathF.Abs(Vector3.Transform(Vector3.UnitY, Rotation(body)).Y);
             Assert.InRange(MathF.Asin(MathF.Min(1f, verticalAxis)), 0f, 1e-5f);
-            var lowest = centre.Y - HalfHeight(4) * verticalAxis -
-                Radius(4) * MathF.Sqrt(MathF.Max(0f, 1f - verticalAxis * verticalAxis));
+            var lowest = LowestArtPoint(body, 4);
             Assert.InRange(BenchY - lowest, -WorkshopConstraintSolver.ContactSlop, .0005f);
             Assert.InRange(Velocity(body).Length(), 0f, .002f);
         }

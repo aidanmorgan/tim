@@ -91,7 +91,7 @@ public sealed record AnimationDefinition
     }
 }
 
-/// <summary>Single-thread animation owner with a declared capacity its owner may grow (<see cref="EnsureCapacity"/>). Output is
+/// <summary>Single-thread animation owner with demand-grown storage its owner may reserve (<see cref="EnsureCapacity"/>). Output is
 /// borrowed until the next mutation. Registration allocates; stable-topology frame evaluation does not.</summary>
 public sealed class AnimationBatch
 {
@@ -115,11 +115,11 @@ public sealed class AnimationBatch
         public bool Visible, HasPublished;
         public int ActiveIndex;
     }
-    private Slot[] _slots;
-    private ulong[] _versions;
-    private int[] _active, _free;
-    private AnimationSample[] _samples;
-    private readonly Dictionary<AnimationBinding, int> _writers;
+    private Slot[] _slots = [];
+    private ulong[] _versions = [];
+    private int[] _active = [], _free = [];
+    private AnimationSample[] _samples = [];
+    private Dictionary<AnimationBinding, int> _writers = new(16);
     private int _activeCount, _freeCount, _sampleCount;
     private ulong _frame;
     private double _presentationTime, _simulationTime;
@@ -128,27 +128,31 @@ public sealed class AnimationBatch
     public int ScheduledCount => _activeCount;
     public ReadOnlySpan<AnimationSample> Samples => _samples.AsSpan(0, _sampleCount);
 
-    public AnimationBatch(int capacity)
-    {
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(capacity);
-        _slots = new Slot[capacity]; _versions = new ulong[capacity];
-        _active = new int[capacity]; _free = new int[capacity]; _samples = new AnimationSample[capacity];
-        _writers = new(capacity);
-        FillFree();
-    }
-
     public int Capacity => _slots.Length;
+    public AnimationBatch() => EnsureCapacity(12);
 
     /// <summary>Story 9R.5b: grows the registry to at least <paramref name="capacity"/> slots, keeping every registered binding,
     /// its handle and its schedule. An owner whose target population is the machine's (unbounded) grows it as targets arrive.</summary>
     public void EnsureCapacity(int capacity)
     {
-        if (capacity <= _slots.Length) return;
+        ArgumentOutOfRangeException.ThrowIfNegative(capacity);
+        if (capacity > Array.MaxLength) throw new AnimationStorageException();
+        if (capacity <= 3L * _slots.Length / 4) return;
         var previous = _slots.Length;
-        Array.Resize(ref _slots, capacity); Array.Resize(ref _versions, capacity);
-        Array.Resize(ref _active, capacity); Array.Resize(ref _free, capacity); Array.Resize(ref _samples, capacity);
-        // The new slots join the free stack so the lowest new index is taken first.
-        for (var index = capacity - 1; index >= previous; index--) _free[_freeCount++] = index;
+        capacity = (int)Math.Min(Array.MaxLength, Math.Max(16L, Math.Max((4L * capacity + 2) / 3, (long)previous * 2)));
+        if (capacity == previous) return;
+        try
+        {
+            var slots = new Slot[capacity]; var slotGenerations = new ulong[capacity];
+            var active = new int[capacity]; var free = new int[capacity]; var samples = new AnimationSample[capacity];
+            Array.Copy(_slots, slots, previous); Array.Copy(_versions, slotGenerations, previous);
+            Array.Copy(_active, active, _activeCount); Array.Copy(_free, free, _freeCount);
+            var freeCount = _freeCount;
+            for (var index = capacity - 1; index >= previous; index--) free[freeCount++] = index;
+            _slots = slots; _versions = slotGenerations; _active = active; _free = free; _samples = samples;
+            _freeCount = freeCount; _sampleCount = 0;
+        }
+        catch (OutOfMemoryException) { throw new AnimationStorageException(); }
     }
 
     public AnimationHandle Register(AnimationBinding binding,AnimationDefinition definition)
@@ -205,23 +209,26 @@ public sealed class AnimationBatch
             Impulses=new(definition),Initial=from,ImpulsePeak=to},from,to);
     }
 
-    public AnimationImpulseAdmission ValidateImpulseAdmission(AnimationHandle handle,AnimationOccurrenceId occurrence,AnimationStrength strength,double occurredAt)
+    public void ValidateImpulseAdmission(AnimationHandle handle,AnimationOccurrenceId occurrence,AnimationStrength strength,double occurredAt)
     {
         var index=Resolve(handle);ref var slot=ref _slots[index];
         if(slot.Kind!=AnimationKind.Impulses)throw new InvalidOperationException("Impulse admission requires an impulse definition.");
-        return slot.Impulses!.ValidateAdmission(occurrence,strength,occurredAt);
+        slot.Impulses!.ValidateAdmission(occurrence,strength,occurredAt);
     }
 
-    public AnimationImpulseAdmission EnqueueImpulse(AnimationHandle handle,AnimationOccurrenceId occurrence,AnimationStrength strength,double occurredAt)
+    public void ReserveImpulses(AnimationHandle handle, int additional)
+    {
+        ref var slot = ref _slots[Resolve(handle)];
+        if (slot.Kind != AnimationKind.Impulses) throw new InvalidOperationException("Impulse reservation requires an impulse definition.");
+        slot.Impulses!.Reserve(additional);
+    }
+
+    public void EnqueueImpulse(AnimationHandle handle,AnimationOccurrenceId occurrence,AnimationStrength strength,double occurredAt)
     {
         var index=Resolve(handle);ref var slot=ref _slots[index];
         if(slot.Kind!=AnimationKind.Impulses)throw new InvalidOperationException("Impulse admission requires an impulse definition.");
-        var admission=slot.Impulses!.Enqueue(occurrence,strength,occurredAt);
-        if(admission==AnimationImpulseAdmission.Accepted)
-        {
-            _sampleCount=0;slot.Playback=AnimationPlayback.Playing;Schedule(index);
-        }
-        return admission;
+        slot.Impulses!.Enqueue(occurrence,strength,occurredAt);
+        _sampleCount=0;slot.Playback=AnimationPlayback.Playing;Schedule(index);
     }
 
     public AnimationImpulseRead ReadImpulses(AnimationHandle handle)
@@ -245,7 +252,16 @@ public sealed class AnimationBatch
         if(binding.Target.Value==0 || !Enum.IsDefined(binding.Property) || binding.Property!=from.Property)
             throw new ArgumentException("Animation target/property is invalid or differs from the quantity.");
         if(_writers.ContainsKey(binding))throw new InvalidOperationException("Visual property already has an animation writer.");
-        if(_freeCount==0)throw new InvalidOperationException("Animation registry capacity exceeded.");
+        try
+        {
+            var writerCapacity = _writers.EnsureCapacity(0);
+            var required = checked(_writers.Count + 1);
+            if (required > writerCapacity)
+                _writers.EnsureCapacity((int)Math.Min(Array.MaxLength, Math.Max(required, 2L * writerCapacity)));
+            EnsureCapacity(checked(RegisteredCount + 1));
+        }
+        catch (OutOfMemoryException) { throw new AnimationStorageException(); }
+        catch (OverflowException) { throw new AnimationStorageException(); }
         var index=_free[_freeCount-1];var version=checked(_versions[index]+1);
         _sampleCount=0;_freeCount--;_versions[index]=version;
         slot.Binding=binding;slot.Playback=AnimationPlayback.Stopped;slot.Value=slot.Initial;
@@ -562,15 +578,23 @@ public sealed class AnimationBatch
     public void Reset()
     {
         var generation = new AnimationGeneration(checked(Generation.Value + 1));
-        _sampleCount = 0;
+        AnimationSample[] samples;
+        Dictionary<AnimationBinding, int> writers;
+        Slot[] slots; ulong[] slotGenerations; int[] active, free;
+        try
+        {
+            samples = new AnimationSample[Math.Max(16, RegisteredCount)]; writers = new(16);
+            slots = new Slot[16]; slotGenerations = new ulong[16]; active = new int[16]; free = new int[16];
+            for (var index = 0; index < 16; index++) free[index] = 15 - index;
+        }
+        catch (OutOfMemoryException) { throw new AnimationStorageException(); }
+        var count = 0;
         for (var i = 0; i < _slots.Length; i++)
             if (_slots[i].Definition is not null||_slots[i].Follow is not null||_slots[i].Impulses is not null||_slots[i].Oscillation is not null)
-                _samples[_sampleCount++] = new(_slots[i].Binding, _slots[i].Initial);
-        Array.Clear(_slots);
-        Array.Clear(_versions);
-        _writers.Clear();
-        _activeCount = 0;
-        FillFree();
+                samples[count++] = new(_slots[i].Binding, _slots[i].Initial);
+        _samples = samples; _sampleCount = count;
+        _slots = slots; _versions = slotGenerations; _active = active; _free = free; _writers = writers;
+        _activeCount = 0; _freeCount = 16;
         _frame = 0; _presentationTime = _simulationTime = 0;
         Generation = generation;
     }
@@ -604,9 +628,5 @@ public sealed class AnimationBatch
         _slots[last].ActiveIndex = slot.ActiveIndex;
         slot.ActiveIndex = -1;
     }
-    private void FillFree()
-    {
-        _freeCount = _slots.Length;
-        for (var i = 0; i < _free.Length; i++) _free[i] = _free.Length - 1 - i;
-    }
+
 }

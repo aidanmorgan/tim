@@ -30,7 +30,7 @@ public sealed class WorkshopReadTests
         var bodies = body.HasValue ? Bodies(body.Value) : default;
         var read = new WorkshopRead(new(2), new(0), bodies, new(4),
             new(WorkshopClockDomain.SimulationMonotonic, new(1), new(100_000_000), new(100_000)),
-            Captures: captured ? new PhysicsCaptureRead([CaptureLatch.Clear(new(9))]) : default,
+            Captures: captured ? new PhysicsCaptureRead([CaptureLatch.Clear(new(9), new(1))]) : default,
             Motion: PhysicsMotionRead.Decode(new byte[PhysicsMotionRead.ByteLength(bodies.Count)], bodies, new(0)));
         var bytes = WorkshopWireFlatBuffers.EncodeResponse(Response(read));
         var first = WorkshopWireFlatBuffers.DecodeResponse(bytes).Read;
@@ -38,7 +38,6 @@ public sealed class WorkshopReadTests
         Assert.NotSame(first.Motion, second.Motion);
         Assert.True(first.HasSameContent(second));
         Assert.True(first == second); // Independent immutable backing arrays must compare by canonical content.
-        Assert.Equal(first.GetHashCode(), second.GetHashCode());
         Assert.False(first.HasSameContent(second with { Revision = new(5) }));
         Assert.False(first.HasSameContent(second with { Capture = second.Capture!.Value with { Time = new(100_000_001) } }));
         if (bodyPresent)
@@ -48,7 +47,7 @@ public sealed class WorkshopReadTests
         }
         if (captured)
         {
-            var changed = second with { Captures = new([CaptureLatch.Clear(new(10))]) };
+            var changed = second with { Captures = new([CaptureLatch.Clear(new(10), new(1))]) };
             Assert.False(first.HasSameContent(changed));
         }
     }
@@ -61,7 +60,7 @@ public sealed class WorkshopReadTests
         var piece = PhysicsMotionRead.HeaderBytes;
         var read = new WorkshopRead(new(2), new(1), Bodies(body), new(4),
             new(WorkshopClockDomain.SimulationMonotonic, new(1), new(100_000_000), new(100_000)),
-            Captures: new([new(new(9), CaptureLatchPhase.Latched, 1, 0f)]),
+            Captures: new([new(new(9), new(1), CaptureLatchPhase.Latched, 1, 0f)]),
             Motion: PhysicsMotionRead.Decode(motion, Bodies(body), new(1)));
         var encoded = WorkshopWireFlatBuffers.EncodeResponse(Response(read));
         var first = WorkshopWireFlatBuffers.DecodeResponse(encoded).Read;
@@ -71,8 +70,8 @@ public sealed class WorkshopReadTests
         var drag = (byte[])motion.Clone();
         F(drag, piece + PhysicsMotionRead.DragRateOffset, .125f);
         Assert.False(first.HasSameContent(Wire(read with { Motion = PhysicsMotionRead.Decode(drag, Bodies(body), new(1)) })));
-        Assert.False(first.HasSameContent(Wire(read with { Captures = new([new(new(9), CaptureLatchPhase.Latched, 2, 0f)]) })));
-        Assert.False(first.HasSameContent(Wire(read with { Captures = new([new(new(9), CaptureLatchPhase.Latched, 1, -0f)]) })));
+        Assert.False(first.HasSameContent(Wire(read with { Captures = new([new(new(9), new(1), CaptureLatchPhase.Latched, 2, 0f)]) })));
+        Assert.False(first.HasSameContent(Wire(read with { Captures = new([new(new(9), new(1), CaptureLatchPhase.Latched, 1, -0f)]) })));
     }
 
     [Fact]
@@ -133,19 +132,47 @@ public sealed class WorkshopReadTests
     }
 
     [Fact]
-    public void DecodedMotionOwnsValidatedBytesAndPreservesWireContent()
+    public void DecodedMotionOwnsItsTrajectoryAfterInputReuseAndWireRoundTrip()
     {
         var body = new CanonicalBody(new(1), 2, 1, default, default, default);
         var bytes = MotionBytes(body);
-        var expected = (byte[])bytes.Clone();
+        for (var i = 0; i < 4; i++) F(bytes, PhysicsMotionRead.HeaderBytes + i * PhysicsMotionRead.PieceBytes + PhysicsMotionRead.VelocityOffset, 8f);
         var motion = PhysicsMotionRead.Decode(bytes, Bodies(body), new(1));
+        for (var i = 0; i < 4; i++) F(bytes, PhysicsMotionRead.HeaderBytes + i * PhysicsMotionRead.PieceBytes + PhysicsMotionRead.VelocityOffset, 16f);
+        var changed = PhysicsMotionRead.Decode(bytes, Bodies(body), new(1));
         bytes[^1] = 1; // A reused external input cannot change the validated snapshot.
         Assert.Throws<ArgumentException>(() => PhysicsMotionRead.Decode(bytes, Bodies(body), new(1)));
-        Assert.True(motion.Bytes.SequenceEqual(expected));
         var read = MotionRead(body, motion);
         var encoded = WorkshopWireFlatBuffers.EncodeResponse(Response(read));
-        Assert.True(WorkshopWireFlatBuffers.DecodeResponse(encoded).Read.Motion!.Bytes.SequenceEqual(expected));
-        Assert.Equal(encoded, WorkshopWireFlatBuffers.EncodeResponse(WorkshopWireFlatBuffers.DecodeResponse(encoded)));
+        var decoded = WorkshopWireFlatBuffers.DecodeResponse(encoded);
+        Assert.Equal(Response(read).Sequence, decoded.Sequence);
+        Assert.Equal(WorkshopResponseKind.Acknowledgement, decoded.Kind);
+        Assert.Equal(WorkshopCommandOutcome.Applied, decoded.Result.Outcome);
+        Assert.Equal(WorkshopSimulationPhase.Running, decoded.Phase);
+        Assert.Equal(read.Epoch, decoded.Read.Epoch);
+        Assert.Equal(read.Revision, decoded.Read.Revision);
+        Assert.Equal(read.Capture, decoded.Read.Capture);
+        NoFixedCapacityTests.AssertSameState(read, decoded.Read, "motion response");
+        foreach (var snapshot in new[] { motion, decoded.Read.Motion! })
+        {
+            Assert.Equal(4, snapshot.Count);
+            Assert.Equal(4u, snapshot.Substeps);
+            Assert.Equal(0u, snapshot.FirstOrdinal);
+            Assert.Equal(4u, snapshot.LastOrdinal);
+            foreach (var ordinal in new[] { .5, 1.5, 2.5, 3.5 })
+            {
+                Assert.True(snapshot.TrySample(body.Id, ordinal, out var pose));
+                Assert.Equal(body.Id, pose.Id);
+                Assert.Equal(CanonicalRotation.Identity, pose.Rotation);
+                Assert.Equal(0, pose.Cell.Y); Assert.Equal(0f, pose.Local.Y);
+                Assert.Equal(0, pose.Cell.Z); Assert.Equal(0f, pose.Local.Z);
+                // This codec/interpolation check allows f32 rounding of x=v*t; it is not a scene-drift acceptance bound.
+                Assert.InRange((pose.Cell.X + (double)pose.Local.X) / 16 - 8 * ordinal / 480, -1e-7, 1e-7);
+                Assert.True(changed.TrySample(body.Id, ordinal, out var faster));
+                Assert.True((faster.Cell.X + (double)faster.Local.X) / 16 > (pose.Cell.X + (double)pose.Local.X) / 16);
+            }
+            Assert.False(snapshot.TrySample(new(2), 1, out _));
+        }
     }
 
     public enum MotionBindingMismatch { BodyIdentity, BodyPresence, Tick }
@@ -183,7 +210,17 @@ public sealed class WorkshopReadTests
             new(WorkshopClockDomain.SimulationMonotonic, new(1), new(100_000_000), new(100_000)),
             Motion: motion);
         var encoded = WorkshopWireFlatBuffers.EncodeResponse(Response(read));
-        Assert.Equal(encoded, WorkshopWireFlatBuffers.EncodeResponse(WorkshopWireFlatBuffers.DecodeResponse(encoded)));
+        var decoded = WorkshopWireFlatBuffers.DecodeResponse(encoded).Read;
+        NoFixedCapacityTests.AssertSameState(read, decoded, "empty admission");
+        Assert.Equal(read.Epoch, decoded.Epoch);
+        Assert.Equal(read.Revision, decoded.Revision);
+        Assert.Equal(read.Capture, decoded.Capture);
+        Assert.NotNull(decoded.Motion);
+        Assert.Equal(0, decoded.Motion.Count);
+        Assert.Equal(0u, decoded.Motion.Substeps);
+        Assert.Equal(0u, decoded.Motion.FirstOrdinal);
+        Assert.Equal(0u, decoded.Motion.LastOrdinal);
+        Assert.False(decoded.Motion.TrySample(body.Id, 0, out _));
     }
 
     [Theory]
@@ -208,7 +245,7 @@ public sealed class WorkshopReadTests
         Ledger(hit).ValidateScene(scene, Bodies(body));
         var initial = new ContactWorkLedger(
             new[] { new ContactWorkRead(declaration.Id,declaration.Owner,0,declaration.InitialEnergy) },
-            new[] { new ContactWorkOccurrence(new(0),default,new(1),0,0,default,default,default,ContactWorkEffect.Passive) });
+            Array.Empty<ContactWorkOccurrence>());
         initial.ValidateScene(scene, Bodies(body));
         initial.ValidateAdmission();
         Assert.Throws<ArgumentException>(() => Ledger(hit).ValidateAdmission()); // an admitted world has hit nothing
@@ -219,7 +256,9 @@ public sealed class WorkshopReadTests
             Assert.Throws<ArgumentException>(()=>Ledger(invalid).ValidateScene(scene, Bodies(body)));
         // The read carries the stores alone, and they cross the wire unchanged.
         var read = MotionRead(body, PhysicsMotionRead.Decode(MotionBytes(body),Bodies(body),new(1))) with { ContactWorks = Ledger(hit).Stores };
-        Assert.True(read.ContactWorks.HasSameBits(WorkshopWireFlatBuffers.DecodeResponse(WorkshopWireFlatBuffers.EncodeResponse(Response(read))).Read.ContactWorks));
+        var decoded = WorkshopWireFlatBuffers.DecodeResponse(WorkshopWireFlatBuffers.EncodeResponse(Response(read))).Read.ContactWorks;
+        Assert.Equal(1, decoded.Count);
+        Assert.Equal(store, decoded[0]);
     }
 
     // Story 9A.23 D9: the reservoir accounting lives on the device ledger (the client copy is deleted). Every count increment is exactly

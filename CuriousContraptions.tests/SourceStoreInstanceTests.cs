@@ -27,7 +27,7 @@ public sealed class SourceStoreInstanceTests
 
     private sealed class Harness : IAsyncDisposable
     {
-        private readonly WorkshopGpuDevice _device = new(new CuriousContraptions.Simulation.BrowserGpuTransport(), new(101, 206));
+        private readonly WorkshopGpuDevice _device = new(new CuriousContraptions.Simulation.BrowserGpuTransport(new CuriousContraptions.Abstractions.EventRingPublication()), new(101, 206));
         public WorkshopSimulation Simulation { get; }
         private Harness() => Simulation = new(_device, new WorkshopPhysicsEngineTests.StepClock(), Settings, new(1),
             new WorkshopPhysicsEngineTests.NoInstallation(), GpuDeviceOwnership.Borrowed);
@@ -160,17 +160,17 @@ public sealed class SourceStoreInstanceTests
     {
         var store = new SupplySourceStoreDescriptor("q", "p", "f", "on");
         InstanceParameterCollection Values(float on) => new([new(new("q"), 777.5f), new(new("p"), 33.25f), new(new("f"), .375f), new(new("on"), on)]);
-        var off = WorkshopPhysicsCompiler.ElectricalSourceFor(new(9), store, Values(0f));
+        var off = WorkshopPhysicsCompiler.ElectricalSourceFor(new(10), new(9), store, Values(0f));
         Assert.Equal((new GpuBodyId(9), 777.5f, 33.25f, .375f, ElectricalEnable.Disabled),
             (off.Owner, off.Capacity.Value, off.MaximumPower.Value, off.InitialFraction, off.Enabled));
         Assert.Equal(BitConverter.SingleToInt32Bits(777.5f * .375f), BitConverter.SingleToInt32Bits(off.InitialEnergy.Value));
-        Assert.Equal(ElectricalEnable.Enabled, WorkshopPhysicsCompiler.ElectricalSourceFor(new(9), store, Values(1f)).Enabled);
+        Assert.Equal(ElectricalEnable.Enabled, WorkshopPhysicsCompiler.ElectricalSourceFor(new(10), new(9), store, Values(1f)).Enabled);
         foreach (var undefined in new[] { .5f, 2f, -1f, float.NaN })
-            Assert.Throws<ArgumentException>(() => WorkshopPhysicsCompiler.ElectricalSourceFor(new(9), store, Values(undefined)));
+            Assert.Throws<ArgumentException>(() => WorkshopPhysicsCompiler.ElectricalSourceFor(new(10), new(9), store, Values(undefined)));
         // The Battery's compiled store is exactly its package's store over its own parameters.
         var battery = PlacedParts.Battery(Source, 3, 1, 0, 1234.5f, 77.25f, .625f, ElectricalEnable.Disabled);
         var compiled = Assert.Single(WorkshopPhysicsCompiler.Compile(GateBench(battery), new(1, 2)).Electrical.Sources.ToArray());
-        Assert.Equal(WorkshopPhysicsCompiler.ElectricalSourceFor(Source, DeclaredPhysics.SourceStore(PartId.Battery)!.Value, battery.Parameters), compiled);
+        Assert.Equal(WorkshopPhysicsCompiler.ElectricalSourceFor(GateBench(battery).Instances.Identities[Source].Source, Source, DeclaredPhysics.SourceStore(PartId.Battery)!.Value, battery.Parameters), compiled);
         // Only a declared Source compiles a store: no other part does.
         Assert.All(TestBundle.Entries.Where(entry => entry.Metadata.Id != "battery"), entry => Assert.Null(entry.Electrical?.Supply?.Store));
     }

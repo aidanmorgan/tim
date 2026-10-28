@@ -4,6 +4,16 @@
 
 Current implementation brief: [TODO](../TODO.md). This document is the standing authority; read only affected sections. Detailed requirement descriptions and historical records remain in [requirements](planning/requirements.md); the [invest index](planning/invest-index.md) preserves the roadmap and named elements.
 
+<a id="game-fidelity"></a>
+
+## Game fidelity and test effort — owner decision, 28 October 2026
+
+Apply the [game-fidelity testing policy](testing-guidance.md) to implementation, specifications, reviews and failure triage immediately, including the current slice. Correct puzzle outcomes, causal interactions, plausible motion, resting stability and reliable Reset/save/load matter more than historical timing or numerical traces. Older migration-era tick/ordinal/pose comparisons do not create acceptance requirements. Existing feature timing, typed ownership, atomic refusal and authored-state restoration retain their actual contracts.
+
+Before a second attempt at a numerical-only failure, name the gameplay or defined-interface defect being repaired. If the failure only reflects harmless floating-point or geometry-dependent variation, redesign the assertion against an independently stated behavioural expectation; do not build solver machinery or additional historical controls to satisfy it. A revised tolerance needs a functional clearance, meaningful displacement/speed/energy bound, or local mathematical contract, with units and observation duration. ULP counts or slop fractions alone do not prove scene-level relevance. Never fit a margin to observed failing output.
+
+Reviewers challenge over-specified tests as well as missing coverage. A blocking precision finding must explain the broken gameplay, interface or deliberate timing feature. Lesson completion limits catch stalls and may be increased for intended progression; exact incidental arrival ticks and total contact sequences are not gameplay requirements. Tight formula/normalization tests can protect narrow numerical functions without imposing those tolerances on whole scenes. No output hashes, byte-identity traces or one-off identity comparisons may become simulation acceptance. Repository/artifact identities still identify what was tested; they do not prove behaviour.
+
 <a id="local-test-authority"></a>
 
 ## Local tests are authoritative; GitHub builds and deploys — owner decision, 26 October 2026
@@ -169,7 +179,7 @@ Use one work-order/verification record per slice where needed, retaining every s
 These rules adapt the four principles in the [Karpathy-inspired community guidance](https://github.com/multica-ai/andrej-karpathy-skills) and its [agent instructions](https://github.com/multica-ai/andrej-karpathy-skills/blob/main/CLAUDE.md). This is a community synthesis, not an official specification authored by Karpathy. The cited original post was inaccessible during this review; no direct verification of that post is claimed. The delivery cadence, retained review pair and progress triggers below are project-specific rules.
 
 - **Make uncertainty explicit.** State assumptions that could change behavior or acceptance, inspect the current owner and callers, and identify material alternatives before coding. Resolve routine choices from current contracts. Ask the user only for a consequential unresolved decision; continue independent authorised work.
-- **Choose the simplest complete design.** Implement the required behavior with existing patterns. Add abstractions, configurability or infrastructure only for a current requirement or demonstrated dependency. Simplicity cannot remove required cadence controls, rejection, rollback, lifecycle safety or numerical precision.
+- **Choose the simplest complete design.** Implement the required behavior with existing patterns. Add abstractions, configurability or infrastructure only for a current requirement or demonstrated dependency. Simplicity cannot remove required cadence controls, rejection, rollback, lifecycle safety or gameplay-justified numerical accuracy.
 - **Keep changes surgical.** Every changed line must serve the selected outcome, its necessary caller/content cutover, verification or documentation. Avoid adjacent cleanup and speculative optimisation. Surgical scope includes the entire affected dependency closure: it cannot leave a retired path, incompatible caller or partial forward migration behind.
 - **Define observable success first.** Translate the outcome into independent expected results and named positive/control/boundary checks before implementation. Use a short sequence of action → discriminating check. Investigate a failure with a concrete hypothesis; do not tune the oracle to the observed output. Reuse applicable proof under the existing identity policy.
 
@@ -189,7 +199,7 @@ Use these short role prompts with the slice's existing record and exact source c
 
 ### Evidence identity and hashing
 
-Capture identities once for the scoped frozen candidate, including relevant additions, deletions and generated/untracked inputs. Reuse existing immutable Git/blob or build-manifest identities when they establish the exact bytes; hash only relevant uncommitted inputs, scoped diffs and new artifacts whose identity is not already established. A path or timestamp alone is not byte identity. Reference original evidence instead of copying manifests or hashing reports into their own approval.
+Capture identities once for the scoped frozen candidate, including relevant additions, deletions and generated/untracked inputs. Use commit SHAs, CI run IDs and existing artifact identities. Do not hash staged trees or diffs, create duplicate manifests, or hash simulation outputs to establish correctness. A path or timestamp alone is not byte identity. Reference original evidence instead of copying manifests or hashing reports into their own approval.
 
 The independent reviewer validates identity and applicability when accepting or reusing proof. Recompute only changed or unknown relevant identities, a concrete mutation/mismatch concern, or an applicable acceptance/publication boundary that requires a fresh comparison. An unchanged trusted identity need not be recomputed for every read, turn, status edit or before/after every test. Do not routinely hash the whole bundle, workspace or evidence history, or reconstruct old reports merely to hash them; inspect the scoped changes and retain the original evidence. Unknown relevant identity remains Incomplete; unrelated missing identities and unrelated HEAD changes do not block scoped acceptance. Relevant contract, tool and environment changes still invalidate affected proof.
 

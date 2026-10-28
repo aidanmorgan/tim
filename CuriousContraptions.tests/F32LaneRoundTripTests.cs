@@ -1,3 +1,4 @@
+using CuriousContraptions.Abstractions;
 using System.Buffers.Binary;
 using CuriousContraptions.Gpu;
 
@@ -47,7 +48,7 @@ public sealed class F32LaneRoundTripTests
 
         // Basketball: radius 0.34 m, 1 kg, drag 0.04 1/s, gravity −9.81 m/s², restitution 0.55, rolling 0.035 (its package).
         var ball = scene.Bodies.ToArray().Single(body => body.Id == Ball);
-        var sphere = scene.Colliders.ToArray().Single(collider => collider.Body == Ball);
+        var sphere = scene.Colliders.ToArray().Single(collider => collider.Body == Ball && collider.Shape == CuriousContraptions.Gpu.ColliderShapeKind.Sphere);
         var surface = scene.Materials.ToArray().Single(material => material.Id == sphere.Material);
         Assert.Equal((Bits(.34f), Bits(1f), Bits(.04f), Bits(-9.81f), Bits(.55f), Bits(.035f)),
             (Bits(sphere.Radius.Value), Bits(ball.Mass.Value), Bits(ball.LinearDrag.Value), Bits(ball.Gravity.Y), Bits(surface.Restitution.Value),
@@ -81,8 +82,8 @@ public sealed class F32LaneRoundTripTests
         // The worker steps one tick: every immutable lane is unchanged (the candidate validates) and its motion pieces carry the
         // declared drag and gravity bits.
         var candidate = new byte[admitted.Length];
-        new CuriousContraptions.Simulation.WorkshopPhysicsEngine().Advance(admitted, candidate, new(new ElectricalEnable[scene.World.ElectricalSources], new bool[scene.World.Prismatics]));
-        var read = PhysicsGpuAbi.ValidateCandidate(candidate, admitted, new(1));
+        var interactions = new CuriousContraptions.Simulation.WorkshopPhysicsEngine().Advance(admitted, candidate, new(new ElectricalEnable[scene.World.ElectricalSources], new bool[scene.World.Prismatics]), PhysicsInteractionSnapshot.Empty);
+        var read = PhysicsGpuAbi.ValidateCandidate(candidate, admitted, new(1), interactions, PhysicsInteractionSnapshot.Empty);
         Assert.Equal((Bits(1f), Bits(.04f)), (Lane(candidate, body + PhysicsGpuAbi.BodyMassOffset), Lane(candidate, body + PhysicsGpuAbi.BodyDragOffset)));
         var motion = scene.World.MotionOffset;
         var pieces = Enumerable.Range(0, (int)Lane(candidate, motion + PhysicsMotionRead.CountOffset))
@@ -170,25 +171,28 @@ public sealed class F32LaneRoundTripTests
     {
         var scene = WorkshopPhysicsCompiler.Compile(Bench(), new(1, 2));
         var admitted = PhysicsGpuAbi.Admission(scene, new(1), Profile);
-        byte[] Stepped()
+        (byte[] World, PhysicsInteractionSnapshot Interactions) Stepped()
         {
             var candidate = new byte[admitted.Length];
-            new CuriousContraptions.Simulation.WorkshopPhysicsEngine().Advance(admitted, candidate,
-                new(new ElectricalEnable[scene.World.ElectricalSources], new bool[scene.World.Prismatics]));
-            return candidate;
+            var interactions = new CuriousContraptions.Simulation.WorkshopPhysicsEngine().Advance(admitted, candidate,
+                new(new ElectricalEnable[scene.World.ElectricalSources], new bool[scene.World.Prismatics]), PhysicsInteractionSnapshot.Empty);
+            return (candidate, interactions);
         }
         var offset = LaneOffset(scene, lane);
         // Finite control: a value lane moved by one f32 step still commits, so the refusal below is the value's, not the change's.
-        var changed = Stepped();
+        var changedState = Stepped();
+        var changed = changedState.World;
         var finite = BinaryPrimitives.ReadSingleLittleEndian(changed.AsSpan(offset));
         BinaryPrimitives.WriteSingleLittleEndian(changed.AsSpan(offset), finite == 1f ? MathF.BitDecrement(finite) : MathF.BitIncrement(finite));
-        if (valueLane) PhysicsGpuAbi.ValidateCandidate(changed, admitted, new(1));
-        else Assert.ThrowsAny<ArgumentException>(() => PhysicsGpuAbi.ValidateCandidate(changed, admitted, new(1)));
-        var poisoned = Stepped();
+        if (valueLane) PhysicsGpuAbi.ValidateCandidate(changed, admitted, new(1), changedState.Interactions, PhysicsInteractionSnapshot.Empty);
+        else Assert.ThrowsAny<ArgumentException>(() => PhysicsGpuAbi.ValidateCandidate(changed, admitted, new(1), changedState.Interactions, PhysicsInteractionSnapshot.Empty));
+        var poisonedState = Stepped();
+        var poisoned = poisonedState.World;
         BinaryPrimitives.WriteSingleLittleEndian(poisoned.AsSpan(offset), value);
-        Assert.ThrowsAny<ArgumentException>(() => PhysicsGpuAbi.ValidateCandidate(poisoned, admitted, new(1)));
+        Assert.ThrowsAny<ArgumentException>(() => PhysicsGpuAbi.ValidateCandidate(poisoned, admitted, new(1), poisonedState.Interactions, PhysicsInteractionSnapshot.Empty));
         // The refused candidate is discarded: the committed world's next tick steps and commits.
-        var next = PhysicsGpuAbi.ValidateCandidate(Stepped(), admitted, new(1));
+        var nextState = Stepped();
+        var next = PhysicsGpuAbi.ValidateCandidate(nextState.World, admitted, new(1), nextState.Interactions, PhysicsInteractionSnapshot.Empty);
         Assert.True(next.Bodies.TryGet(Ball, out var ball) && float.IsFinite(ball.Body.Velocity.Y));
     }
 
@@ -246,13 +250,13 @@ public sealed class F32LaneRoundTripTests
     {
         var scene = WorkshopPhysicsCompiler.Compile(Bench(), new(1, 2));
         var admitted = PhysicsGpuAbi.Admission(scene, new(1), Profile);
-        PhysicsGpuAbi.ValidateCandidate(admitted, admitted, new(0));
+        PhysicsGpuAbi.ValidateCandidate(admitted, admitted, new(0), PhysicsInteractionSnapshot.Empty, PhysicsInteractionSnapshot.Empty);
         var gap = scene.Layout.GetSensorOffset(scene.Sensors[0].Id) + PhysicsGpuAbi.SensorParticipationPaddingOffset;
         foreach (var offset in new[] { gap, gap + PhysicsGpuAbi.SensorPoseOffset - PhysicsGpuAbi.SensorParticipationPaddingOffset - 1 })
         {
             var padded = (byte[])admitted.Clone();
             padded[offset] = 1;
-            Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ValidateCandidate(padded, padded, new(0)));
+            Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ValidateCandidate(padded, padded, new(0), PhysicsInteractionSnapshot.Empty, PhysicsInteractionSnapshot.Empty));
         }
     }
 }

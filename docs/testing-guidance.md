@@ -36,19 +36,21 @@ Use the existing test builders (`PlacedParts`, `LawScene`, `SwitchMachine` and s
    - a declared range limit written as a literal.
 
    Never copy the expectation from observed output.
-4. **Take tolerances from the game-grade envelope** (`docs/gpu-f32-physics.md`), or derive them from the calculation, such as f32 spacing or one tick of gravity. Write down how each tolerance was derived. Never widen a tolerance to make a test pass.
+4. **Choose fidelity from the gameplay requirement before observing outputs.** Name the consequence a defect would cause: missed clearance, wrong contact/load, visible instability, cumulative drift over a play window, incorrect routing or created energy. Use the game-grade envelope (`docs/gpu-f32-physics.md`) where it covers that consequence. ULP counts, a fraction of contact slop, historical outputs or analytic digits alone do not justify a scene-level tolerance. Tight numeric allowances remain appropriate for bounded arithmetic/codec helpers. Never fit a margin to a failing observation; if an old oracle protects no intended behavior, replace it with a direct behavioral assertion and document the coverage mapping.
 5. **Cover positive, negative and boundary cases.** Each behaviour has a positive case, a control that differs in exactly one cause, and literal boundary values (e.g. 0.25 and 8 kg admitted, values outside refused). Refusals assert the typed reason and that nothing changed: the construction, revision and Undo stack.
 6. **Make it able to fail.** A new test asserts the changed result directly, so that a plausible defect (a reverted fix, an off-by-one, a missing guard) would make an assertion fail. Reviewers check this by reading the assertions. Building and running mutants is deferred to the post-catalogue E2E phase (owner, 25 October 2026).
-7. **Be deterministic.** Use fixed seeds and fixed tick counts. No wall-clock sleeps, no ordering dependence and no shared mutable state between tests. Randomised sweeps use committed seeds, and a reviewer may add held-back seeds.
+7. **Be deterministic.** Use fixed seeds and bounded simulation windows; assert exact tick counts only where timing defines the feature. No wall-clock sleeps, no ordering dependence and no shared mutable state between tests. Randomised sweeps use committed seeds, and a reviewer may add held-back seeds.
 8. **Assert one behaviour per test**, with as few assertions as that behaviour needs. A theory may enumerate cases of the same behaviour.
 
 ## Physical comparisons (owner, 26 October 2026)
 
-The owner's 26 October direction is game-grade accuracy balanced against churn. Choose accuracy by quantity and units before observing outputs. The precise 5 µm floor, 1e-4 size fraction and 50 µm cap below are implementation choices selected before new outputs, not digits personally specified by the owner. `PhysicalTolerance` is the first bounded adoption: finite bore radii compare inclusively within 1 µm (zero relative allowance); resting horizontal excursion uses `min(50 µm, max(5 µm, 1e-4 × s))`, with finite positive nominal local horizontal size `s` in metres. For boxes use `min(2hx, 2hz)`; for lying cylinders use `min(2radius, 2halfWidth)`. The 5 µm floor is 1/100 of contact slop; 0.01% of size covers useful scales; the 50 µm cap is the existing stopped-displacement budget, 1/10 of slop. These are practical accuracy choices, not certified f32 error bounds.
+The owner’s 28 October direction takes precedence: choose scene-level acceptance from functional clearance, intended contact/load and routing, visible resting stability, cumulative drift over a play window and independently justified energy limits. First identify the gameplay failure a bound would catch. A fraction of slop, a count of ULPs or proximity to archived output is not enough. A tight numerical allowance can still be appropriate for a bounded arithmetic helper, a canonical codec field or an explicit admission boundary.
 
-Measure peak horizontal excursion from the original settled reference on every tick, preserving each scene's settling and observation windows. Every observed horizontal coordinate must have f32 spacing no larger than allowance/8. A final endpoint alone misses excursions that return. Near-origin observations do not qualify arbitrary world coordinates. NaN/infinity never compare approximately equal; invalid scales reject explicitly. No rest tolerance snaps velocity or suppresses slow motion.
+`PhysicalTolerance` currently uses a 1 µm bore-radius allowance and resting excursion `min(50 µm, max(5 µm, 1e-4 × s))`, with nominal horizontal size `s`. Existing tests use box `min(2hx, 2hz)` and lying-cylinder `min(2radius, 2halfWidth)`, near-origin observations and f32 spacing no larger than allowance/8. These are existing implementation/test values, not mandatory default gameplay acceptance or proof of player relevance. Existing microradian levelling bounds have the same limitation. When one blocks a slice, identify its functional consequence before more solver work. Replace an unjustified oracle with direct behavioral coverage and record the mapping; do not fit a margin to a failing result or apply a blanket multiplier. Assess cumulative motion throughout the relevant play window: a final endpoint alone misses an excursion that returns. Invalid scales and NaN/infinity still reject, and no rest tolerance may snap velocity or suppress intended slow motion.
 
-Preserve exact identities, ordering, canonical Reset/same-input replay, intentional zero semantics, hard admission/gameplay thresholds and independently budgeted energy. Do not substitute a universal epsilon. Remaining bounded adoption work includes visible-solid/joined-pose geometry; hollow observations (separate distance, speed and axis units); normalization admission; authored-anchor agreement; and operation-specific numerical conditioning. Sensor/stop thresholds, integer deadlines, energy ULP budgets and worker-ring identities retain their contracts. There is no repository-wide comparison-compliance claim. Original nanometre observations remain historical evidence, not current resting acceptance.
+Preserve exact identities, ordering, authored Reset, intentional zero semantics and hard admission/gameplay thresholds. Same-input replay compares meaningful decoded fields; never hashes or whole output byte arrays. Historical lesson tick/ordinal matching and migration-only endpoint proximity are not gameplay acceptance, including on primitive controls. Keep goals, typed event ownership/kinds/causal order and semantic replay. Lesson deadlines are finite stall guards chosen for intended progression; the current ten-second guard is sufficient and remains. Timing is strict where elapsed time defines the feature: timers, delays, cadence and declared holds.
+
+No repository-wide comparison-compliance claim is made. Remaining physical comparisons must be judged by quantity, units and the behavior they protect. Original nanometre and historical migration observations remain evidence of past implementations, not new task prerequisites.
 
 ## Not allowed
 
@@ -85,7 +87,7 @@ They never need Chrome, Playwright or a running browser. They run the core syste
 1. **Build.** Place parts, set parameters and wire them through authoring operations.
 2. **Run.** Run for N ticks, or until a named committed condition, with a bounded tick limit.
 3. **Interact.** Pause, Step, Reset, Save, then Load into a fresh harness, where the behaviour applies.
-4. **Assert.** Check observable outcomes: which bodies moved where, within envelope tolerances; which events fired, at which ticks; which lamps or gates changed state; whether the goal was met; and what the player would see (presentation values) and read (status or refusal text).
+4. **Assert.** Check observable outcomes: which bodies moved where, within envelope tolerances; which events fired, with what ownership and causal order (and feature-defined timing where applicable); which lamps or gates changed state; whether the goal was met; and what the player would see (presentation values) and read (status or refusal text).
 
 **What integration tests must cover:**
 - **Elements:** every catalogue and named element/variant in its source-required cross-element scenarios with the parts it is designed to interact with (e.g. switch → latch → supply → powered gate; ball → bumper → receiver).
@@ -138,9 +140,9 @@ Legacy inputs are committed fixture files. They are not pinned by hash.
 For each new or changed unit or integration test, confirm:
 - it goes through a defined interface;
 - the expected values are derived independently;
-- the tolerances are derived from the envelope or the calculation;
+- scene tolerances have a gameplay justification, units and observation window; local mathematical tolerances follow their defined calculation;
 - the positive, control and boundary cases are present;
-- its assertions would fail under a plausible defect (judged by reading, no mutation runs);
+- its assertions would fail under a plausible gameplay/contract defect (judged by reading, no mutation runs), and scene-level precision has a functional justification rather than only ULP/slop/history arithmetic;
 - it is deterministic;
 - it has no hash assertions;
 - nothing is skipped.

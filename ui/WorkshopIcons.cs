@@ -6,7 +6,7 @@ namespace CuriousContraptions;
 
 public static class WorkshopIcons
 {
-    private static readonly Dictionary<string, Texture2D> Cache = new();
+    private static readonly Dictionary<string, Texture2D> Cache = new(16);
     public static Texture2D Load(string name)
     {
         if (!Cache.TryGetValue(name, out var texture))

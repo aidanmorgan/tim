@@ -16,6 +16,7 @@ public sealed class WorkerAbiTests(ITestOutputHelper output)
     private static readonly IReadOnlyDictionary<string, int> PoseRing = new Dictionary<string, int>
     {
         ["POSE_SLOT_COUNT"] = WorkshopPoseRing.SlotCount,
+        ["POSE_DEFAULT_BODY_CAPACITY"] = WorkshopPoseRing.DefaultBodyCapacity,
         ["POSE_HEADER_BYTES"] = WorkshopPoseRing.HeaderBytes,
         ["POSE_BODY_BYTES"] = WorkshopPoseRing.BodyBytes,
     };
@@ -29,7 +30,6 @@ public sealed class WorkerAbiTests(ITestOutputHelper output)
         ["EVENT_CAPACITY_OFFSET"] = Abstractions.EventRingHeader.CapacityOffset,
         ["EVENT_EPOCH_OFFSET"] = Abstractions.EventRingHeader.EpochOffset,
         ["EVENT_WRITE_SEQUENCE_OFFSET"] = Abstractions.EventRingHeader.WriteSequenceOffset,
-        ["EVENT_LAPPED_OFFSET"] = Abstractions.EventRingHeader.LappedOffset,
     };
 
     private static Dictionary<string, int> Owned(Script script) => script switch
@@ -38,7 +38,6 @@ public sealed class WorkerAbiTests(ITestOutputHelper output)
         Script.SimulationWorker => new Dictionary<string, int>(PoseRing.Concat(EventRing)),
         Script.WorkshopClient => new Dictionary<string, int>(PoseRing)
         {
-            ["POSE_INITIAL_BODIES"] = WorkshopPoseRing.InitialBodyCapacity,
             // Story 9A.44 D7: the Animation output fields the client decodes (the f32 value at 56, the u16 property at 136).
             ["ANIMATION_OUTPUT_BYTES"] = WorkshopAnimationWire.OutputBytes,
             ["ANIMATION_OUTPUT_PULSE_OFFSET"] = WorkshopAnimationWire.OutputPulseOffset,
@@ -54,7 +53,6 @@ public sealed class WorkerAbiTests(ITestOutputHelper output)
             ["EVENT_HEADER_BYTES"] = Abstractions.EventRingBuffer.HeaderBytes, ["EVENT_SLOT_BYTES"] = Abstractions.EventRingBuffer.SlotBytes,
             ["EVENT_CAPACITY_OFFSET"] = Abstractions.EventRingHeader.CapacityOffset, ["EVENT_SLOT_BYTES_OFFSET"] = Abstractions.EventRingHeader.SlotBytesOffset,
             ["EVENT_EPOCH_OFFSET"] = Abstractions.EventRingHeader.EpochOffset, ["EVENT_WRITE_SEQUENCE_OFFSET"] = Abstractions.EventRingHeader.WriteSequenceOffset,
-            ["EVENT_LAPPED_OFFSET"] = Abstractions.EventRingHeader.LappedOffset,
             ["EVENT_DELIVERY_BYTES"] = Abstractions.EventRingDelivery.HeaderBytes,
         },
         _ => throw new ArgumentOutOfRangeException(nameof(script), script, "Unknown browser script."),

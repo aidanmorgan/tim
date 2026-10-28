@@ -60,13 +60,13 @@ public sealed class LampDetectorGuardTests
     private static (ulong Passed, List<ulong> Fired) Replay(WorkshopConstruction construction, WorkshopRead built, IReadOnlyList<WorkshopRead> reads)
     {
         var network = WorkshopActivationCompiler.Compile(construction);
-        var colliders = WorkshopPhysicsCompiler.Compile(construction, new(1, 2)).Colliders.ToArray();
-        var tracker = PassageSensorTracker.Create(network.PassageSensors, colliders, built.Bodies);
+        var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
+        var tracker = PassageSensorTracker.Create(network.PassageSensors, scene, built.Bodies);
         var outputs = new PassageSensorRead[8];
         var fired = new List<ulong>();
         foreach (var read in reads)
         {
-            tracker = tracker.Advance(read.Tick, read.Bodies, read.Motion, outputs, out var count);
+            tracker = tracker.Advance(read.Tick, read.Bodies, Assert.IsType<PhysicsMotionRead>(read.Motion), outputs, out var count);
             for (var i = 0; i < count; i++) fired.Add(read.Tick.Value);
         }
         return ((ulong)tracker.States.Sum(state => (long)state.PassedCount), fired);
@@ -260,7 +260,10 @@ public sealed class LampDetectorGuardTests
         const double plateHeight = 2;
         var plate = PlacedParts.Plate(new(3), -4, plateHeight, 0, .5f, 0, 0, Math.Sin(half), Math.Cos(half));
         var rotation = new System.Numerics.Quaternion(0, 0, (float)Math.Sin(half), (float)Math.Cos(half));
-        var drop = System.Numerics.Vector3.Transform(new System.Numerics.Vector3(-.2f, .08f + .345f, 0), rotation);
+        // At local x=-.2 the ring centreline is .1 m away. Its y=.084,
+        // tube .018 and ball union reach .35 give the conservative contact
+        // height .084+sqrt((.35+.018)^2-.1^2)=.4382 m; .448 m clears it.
+        var drop = System.Numerics.Vector3.Transform(new System.Numerics.Vector3(-.2f, .08f + .368f, 0), rotation);
         var ball = WorkshopInput.Generic(PartId.Basketball, new(4), -4 + drop.X, plateHeight + drop.Y, drop.Z, 0, 0, 0, 1);
         var lamp = PlacedParts.Lamp(new(5), 6, 3, 0, 0, 0, 0, 1);
         var reads = await WorkshopPhysicsEngineTests.Run(Bench([plate, ball, lamp], Signal(plate.Id, lamp.Id)), Ticks);

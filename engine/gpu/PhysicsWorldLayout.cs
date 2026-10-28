@@ -7,11 +7,11 @@ namespace CuriousContraptions.Gpu;
 /// Story 9R.5b: the one layout authority for a physical world. Every table is exactly as long as its compiled population, and
 /// every population is a count in the world header, so the offsets and the world's length derive from the header alone. There
 /// is no fixed table capacity: memory is the only bound (owner decision, 20 Oct 2026).
-/// Table order: bodies, materials, residence sensors, guides, triggers, contact works, work occurrences, orientation sensors,
+/// Table order: bodies, materials, residence sensors, guides, triggers, contact works, orientation sensors,
 /// the motion payload, electrical sources, electrical bindings, prismatic joints, contact-load rows, colliders.
 /// </summary>
 public readonly record struct PhysicsWorldLayout(int Bodies, int Colliders, int Materials, int Sensors, int Dynamic, int Guides,
-    int Triggers, int ContactWorks, int WorkOccurrences, int OrientationSensors, int ElectricalSources, int ElectricalBindings,
+    int Triggers, int ContactWorks, int OrientationSensors, int ElectricalSources, int ElectricalBindings,
     int Prismatics, int ContactLoads)
 {
     /// <summary>The body table directly follows the header in every world.</summary>
@@ -21,8 +21,7 @@ public readonly record struct PhysicsWorldLayout(int Bodies, int Colliders, int 
     public int GuidesOffset => After(SensorsOffset, Sensors, PhysicsGpuAbi.SensorBytes);
     public int TriggersOffset => After(GuidesOffset, Guides, PhysicsGpuAbi.GuideBytes);
     public int ContactWorksOffset => After(TriggersOffset, Triggers, PhysicsGpuAbi.TriggerBytes);
-    public int WorkOccurrencesOffset => After(ContactWorksOffset, ContactWorks, PhysicsGpuAbi.ContactWorkBytes);
-    public int OrientationSensorsOffset => After(WorkOccurrencesOffset, WorkOccurrences, PhysicsGpuAbi.WorkOccurrenceBytes);
+    public int OrientationSensorsOffset => After(ContactWorksOffset, ContactWorks, PhysicsGpuAbi.ContactWorkBytes);
     public int MotionOffset => After(OrientationSensorsOffset, OrientationSensors, PhysicsGpuAbi.OrientationSensorBytes);
     /// <summary>The motion payload: room for every dynamic body's pieces at the largest admitted substep count.</summary>
     public int MotionBytes => PhysicsMotionRead.ByteLength(Dynamic);
@@ -40,7 +39,6 @@ public readonly record struct PhysicsWorldLayout(int Bodies, int Colliders, int 
     public int GuideOffset(int slot) => Row(GuidesOffset, slot, Guides, PhysicsGpuAbi.GuideBytes);
     public int TriggerOffset(int slot) => Row(TriggersOffset, slot, Triggers, PhysicsGpuAbi.TriggerBytes);
     public int ContactWorkOffset(int slot) => Row(ContactWorksOffset, slot, ContactWorks, PhysicsGpuAbi.ContactWorkBytes);
-    public int WorkOccurrenceOffset(int slot) => Row(WorkOccurrencesOffset, slot, WorkOccurrences, PhysicsGpuAbi.WorkOccurrenceBytes);
     public int OrientationSensorOffset(int slot) => Row(OrientationSensorsOffset, slot, OrientationSensors, PhysicsGpuAbi.OrientationSensorBytes);
     public int ElectricalSourceOffset(int slot) => Row(ElectricalSourcesOffset, slot, ElectricalSources, PhysicsGpuAbi.ElectricalSourceBytes);
     public int ElectricalBindingOffset(int slot) => Row(ElectricalBindingsOffset, slot, ElectricalBindings, PhysicsGpuAbi.ElectricalBindingBytes);
@@ -57,7 +55,7 @@ public readonly record struct PhysicsWorldLayout(int Bodies, int Colliders, int 
             Count(header, PhysicsGpuAbi.HeaderMaterialCountOffset), Count(header, PhysicsGpuAbi.HeaderSensorCountOffset),
             Count(header, PhysicsGpuAbi.HeaderDynamicCountOffset), Count(header, PhysicsGpuAbi.HeaderGuideCountOffset),
             Count(header, PhysicsGpuAbi.HeaderTriggerCountOffset), Count(header, PhysicsGpuAbi.HeaderContactWorkCountOffset),
-            Count(header, PhysicsGpuAbi.HeaderWorkOccurrenceCountOffset), Count(header, PhysicsGpuAbi.HeaderOrientationSensorCountOffset),
+            Count(header, PhysicsGpuAbi.HeaderOrientationSensorCountOffset),
             Count(header, PhysicsGpuAbi.HeaderElectricalSourceCountOffset), Count(header, PhysicsGpuAbi.HeaderElectricalBindingCountOffset),
             Count(header, PhysicsGpuAbi.HeaderPrismaticCountOffset), Count(header, PhysicsGpuAbi.HeaderContactLoadCountOffset));
         _ = layout.ByteLength;
@@ -71,7 +69,6 @@ public readonly record struct PhysicsWorldLayout(int Bodies, int Colliders, int 
         Write(header, PhysicsGpuAbi.HeaderMaterialCountOffset, Materials); Write(header, PhysicsGpuAbi.HeaderSensorCountOffset, Sensors);
         Write(header, PhysicsGpuAbi.HeaderDynamicCountOffset, Dynamic); Write(header, PhysicsGpuAbi.HeaderGuideCountOffset, Guides);
         Write(header, PhysicsGpuAbi.HeaderTriggerCountOffset, Triggers); Write(header, PhysicsGpuAbi.HeaderContactWorkCountOffset, ContactWorks);
-        Write(header, PhysicsGpuAbi.HeaderWorkOccurrenceCountOffset, WorkOccurrences);
         Write(header, PhysicsGpuAbi.HeaderOrientationSensorCountOffset, OrientationSensors);
         Write(header, PhysicsGpuAbi.HeaderElectricalSourceCountOffset, ElectricalSources);
         Write(header, PhysicsGpuAbi.HeaderElectricalBindingCountOffset, ElectricalBindings);
@@ -81,7 +78,7 @@ public readonly record struct PhysicsWorldLayout(int Bodies, int Colliders, int 
     private static int Count(ReadOnlySpan<byte> header, int offset)
     {
         var value = BinaryPrimitives.ReadUInt32LittleEndian(header[offset..]);
-        if (value > int.MaxValue) throw new ArgumentException("Unsupported generic physics record.");
+        if (value > int.MaxValue) throw new WorkshopStorageException("Physical world storage is not representable.");
         return (int)value;
     }
     private static void Write(Span<byte> header, int offset, int value) =>
@@ -90,7 +87,7 @@ public readonly record struct PhysicsWorldLayout(int Bodies, int Colliders, int 
     {
         if (count < 0) throw new ArgumentException("A table population cannot be negative.");
         var end = offset + (long)count * bytes;
-        if (end > int.MaxValue) throw new ArgumentException("Unsupported generic physics record.");
+        if (end > Array.MaxLength) throw new WorkshopStorageException("Physical world storage is not representable.");
         return (int)end;
     }
     private static int Row(int offset, int slot, int count, int bytes)

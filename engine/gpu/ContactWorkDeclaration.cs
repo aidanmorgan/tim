@@ -1,4 +1,5 @@
 using System;
+using CuriousContraptions.Abstractions.Mechanical;
 
 namespace CuriousContraptions.Gpu;
 
@@ -26,7 +27,7 @@ public readonly record struct GpuContactWorkId(ulong Value);
 /// <summary>Table slots are u32: no work or collider table has a fixed bound (Story 9R.5b).</summary>
 public readonly record struct ContactWorkSlot(uint Value);
 public readonly record struct ColliderSlot(uint Value);
-public enum BodyTargetKind : byte { NamedBody = 1, AllDynamic = 2 }
+public enum BodyTargetKind : byte { NamedBody = 1, AllDynamic = 2, AllPayloads = 3 }
 public readonly record struct BodyTargetSet(BodyTargetKind Kind, GpuBodyId Body)
 {
     public void Validate()
@@ -34,7 +35,13 @@ public readonly record struct BodyTargetSet(BodyTargetKind Kind, GpuBodyId Body)
         if (!Enum.IsDefined(Kind) || (Kind == BodyTargetKind.NamedBody ? Body.Value == 0 : Body.Value != 0))
             throw new ArgumentException("Invalid declared body target set.");
     }
-    public bool Contains(GpuBodyId body) => body.Value != 0 && (Kind == BodyTargetKind.AllDynamic || Body == body);
+    public bool Contains(GpuBodyId body, PayloadPolicy payload) => body.Value != 0 && Kind switch
+    {
+        BodyTargetKind.NamedBody => Body==body,
+        BodyTargetKind.AllDynamic => true,
+        BodyTargetKind.AllPayloads => payload==PayloadPolicy.CaptureTarget,
+        _ => throw new ArgumentException("Undefined target policy.")
+    };
 }
 public enum ContactWorkEffect : byte { Passive = 0, Paid = 1 }
 

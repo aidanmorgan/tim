@@ -362,27 +362,24 @@ public sealed class WorkshopBumperTests
         var scene = WorkshopPhysicsCompiler.Compile(Construction(8f), new(1, 2));
         var bytes = PhysicsGpuAbi.Admission(scene, new(1),
             new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1)));
-        var before = PhysicsGpuAbi.ReadContactWorks(bytes);
+        var before = PhysicsGpuAbi.ReadContactWorks(bytes, PhysicsInteractionSnapshot.Empty);
         var owner = scene.World.ContactWorkOffset(0);
-        var occurrence = scene.World.WorkOccurrenceOffset(0);
         var collider = Array.FindIndex(scene.Colliders.ToArray(), value => value.Body == new GpuBodyId(2));
         BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(88), 1);
         BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(owner + 32), 1);
         BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(owner + 48), 20f);
-        BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(occurrence + PhysicsGpuAbi.WorkOccurrenceColliderOffset), checked((uint)collider));
-        BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(occurrence + PhysicsGpuAbi.WorkOccurrenceSequenceOffset), 1);
-        BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(occurrence + PhysicsGpuAbi.WorkOccurrenceOrdinalOffset), 1);
-        BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(occurrence + PhysicsGpuAbi.WorkOccurrenceApproachOffset), 4.000001f);
-        BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(occurrence + PhysicsGpuAbi.WorkOccurrenceDebitOffset), 12f);
-        bytes[occurrence + PhysicsGpuAbi.WorkOccurrenceEffectOffset] = (byte)ContactWorkEffect.Paid;
-        var paid = PhysicsGpuAbi.ReadContactWorks(bytes);
+        var occurrence = new ContactWorkOccurrence(new(0), new(checked((uint)collider)), new(1), 1, 1, 0,
+            new(4.000001f), new(12f), ContactWorkEffect.Paid);
+        var interactions = new PhysicsInteractionSnapshot(PhysicsInteractionSnapshot.Empty.Captures,
+            PhysicsInteractionSnapshot.Empty.Works.Add(new(scene.ContactWorks[0].Id, new(1)), occurrence));
+        var paid = PhysicsGpuAbi.ReadContactWorks(bytes, interactions);
         paid.ValidateAdvance(before);
         Assert.Equal(20f, paid[0].RemainingEnergy.Value);
         Assert.Equal(12f, paid.Occurrence(0).Debit.Value);
         Assert.Equal(4.000001f, paid.Occurrence(0).ApproachSpeed.Value);
         Assert.Equal(ContactWorkEffect.Paid, paid.Occurrence(0).Effect);
-        bytes[occurrence + PhysicsGpuAbi.WorkOccurrencePaddingOffset] = 1;
-        Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ReadContactWorks(bytes));
+        bytes[owner + PhysicsGpuAbi.ContactWorkPaddingOffset] = 1;
+        Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ReadContactWorks(bytes, interactions));
     }
 
     [Theory]
@@ -476,7 +473,7 @@ public sealed class WorkshopBumperTests
         var work = Assert.Single(scene.ContactWorks.ToArray());
         Assert.Equal(new GpuBodyId(2), work.Owner);
         Assert.Equal(new BodyTargetSet(BodyTargetKind.AllDynamic, default), work.Targets);
-        Assert.True(work.Targets.Contains(new(1)));
+        Assert.True(work.Targets.Contains(new(1), scene.Bodies.ToArray().Single(body => body.Id == new GpuBodyId(1)).Payload));
         Assert.Equal(new ContactSpeed(8f), work.TargetSpeed);
         Assert.Equal(new Joules(32), work.InitialEnergy);
         Assert.Equal(new ContactSpeed(.05f), work.Threshold);

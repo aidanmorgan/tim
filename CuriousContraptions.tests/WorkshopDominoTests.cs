@@ -22,7 +22,7 @@ public sealed class WorkshopDominoTests
         Assert.Equal(new InverseSeconds(0f), body.LinearDrag);
         Assert.True(body.Velocity.IsPositiveZero);
         Assert.True(body.AngularVelocity.IsPositiveZero);
-        var box = Assert.Single(scene.Colliders.ToArray(), c => c.Body == body.Id);
+        var box = Assert.Single(scene.Colliders.ToArray(), c => c.Body == body.Id && c.Shape == ColliderShapeKind.Box);
         Assert.Equal(ColliderShapeKind.Box, box.Shape);
         Assert.Equal(RigidLocalPose.Identity, box.Pose);
         Assert.Equal(new MetreVector(.125f, .55f, .325f), box.HalfExtents);
@@ -40,8 +40,8 @@ public sealed class WorkshopDominoTests
     {
         var scene = WorkshopPhysicsCompiler.Compile(Construction(), new(1, 2));
         var body = Assert.Single(scene.Bodies.ToArray(), b => b.Id == new GpuBodyId(2));
-        var box = Assert.Single(scene.Colliders.ToArray(), c => c.Body == body.Id);
-        var properties = RigidMassProperties.Compile(body, box);
+        var box = Assert.Single(scene.Colliders.ToArray(), c => c.Body == body.Id && c.Shape == ColliderShapeKind.Box);
+        var properties = body.MassProperties;
         Assert.Equal(default, properties.LocalCentreOfMass);
         Assert.Equal(CanonicalRotation.Identity, properties.PrincipalFrame);
         // The exact moments of the declared f32 inputs, within the five f32 roundings of the closed form (6 · 2^-24 relative).
@@ -108,7 +108,7 @@ public sealed class WorkshopDominoTests
         // Story 9R.5b: the compiled scene is the footprint authority; the workbench plane adds one static body and collider.
         var world = WorkshopPhysicsCompiler.Compile(new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(),
             new WorkshopInstances(PlacedParts.Domino(new(1), 0, Upright, 0, 0, 0, 0, 1))), new(1, 2)).World;
-        Assert.Equal((1 + 1, 1, 1 + 1, 0, 0, 0), (world.Bodies, world.Dynamic, world.Colliders, world.Triggers, world.ContactWorks, world.ElectricalSources));
+        Assert.Equal((1 + 1, 1, 3 + 1, 0, 0, 0), (world.Bodies, world.Dynamic, world.Colliders, world.Triggers, world.ContactWorks, world.ElectricalSources));
         Assert.Equal(PartAllowance.Unlimited, WorkbenchCapacityTests.FreePalette[PartId.Domino]);
     }
 

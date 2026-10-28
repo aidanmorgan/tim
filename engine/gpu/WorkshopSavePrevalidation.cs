@@ -21,7 +21,7 @@ internal static class WorkshopSavePrevalidation
         var record = saved.Construction ?? throw Refuse(WorkshopSaveRejection.MissingField, "The save holds no construction.");
         if (record.Revision == 0) throw Refuse(WorkshopSaveRejection.OutOfRange, "The saved construction revision is zero.");
         CheckSettings(record);
-        var parts = new Dictionary<GpuBodyId, PartId>();
+        var parts = new Dictionary<GpuBodyId, PartId>(16);
         for (var i = 0; i < record.InstancesLength; i++)
         {
             var instance = record.Instances(i)!.Value;
@@ -194,9 +194,9 @@ internal static class WorkshopSavePrevalidation
         // The named-goal rule (WorkshopGoal), over the fields the decoder maps into each goal kind.
         var admitted = (WorkshopGoalKind)p.GoalKind switch
         {
-            WorkshopGoalKind.None => p.GoalBody == 0 && p.GoalTarget == 0 && p.GoalEventSource == 0 && minimumGoalSeconds == 0f,
-            WorkshopGoalKind.Captured => p.GoalBody != 0 && p.GoalTarget != 0 && p.GoalBody != p.GoalTarget && p.GoalEventSource != 0 && minimumGoalSeconds == 0f,
-            _ => p.GoalEventSource == 0 && p.GoalBody != 0 && p.GoalTarget != 0 && p.GoalBody != p.GoalTarget,
+            WorkshopGoalKind.None => p.GoalBody == 0 && p.GoalTarget == 0 && minimumGoalSeconds == 0f,
+            WorkshopGoalKind.Captured => p.GoalBody != 0 && p.GoalTarget != 0 && p.GoalBody != p.GoalTarget && minimumGoalSeconds == 0f,
+            _ => p.GoalBody != 0 && p.GoalTarget != 0 && p.GoalBody != p.GoalTarget,
         };
         // A Captured goal may name a part the bench no longer holds: a lesson saved after its receiver was deleted keeps its goal
         // (CAT-062b, MissingReceiver), so the goal's identities are not saved-part references.

@@ -30,9 +30,17 @@ internal sealed class WorkshopDynamicBvh
         _root = -1;
     }
 
+    public void Reset() { _nodes = new BvhNode[64]; Clear(); }
+
     private int AllocateNode()
     {
-        if (_count == _nodes.Length) Array.Resize(ref _nodes, _nodes.Length * 2);
+        if (_count + 1L > 3L * _nodes.Length / 4)
+        {
+            var required = checked(_count + 1);
+            if (required > Array.MaxLength) throw new CuriousContraptions.Gpu.WorkshopStorageException("BVH demand exceeds representable array storage.");
+            var capacity = (int)Math.Min(Array.MaxLength, Math.Max((4L * required + 2) / 3, 2L * _nodes.Length));
+            if (capacity != _nodes.Length) Array.Resize(ref _nodes, capacity);
+        }
         var id = _count++;
         _nodes[id] = new BvhNode { Id = -1, Parent = -1, Left = -1, Right = -1, FatMin = Vector3.Zero, FatMax = Vector3.Zero, Height = 0 };
         return id;

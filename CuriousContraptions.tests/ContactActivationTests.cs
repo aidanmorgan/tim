@@ -1,3 +1,4 @@
+using CuriousContraptions.Abstractions;
 using System.Buffers.Binary;
 using CuriousContraptions.Gpu;
 
@@ -26,16 +27,16 @@ public sealed class ContactActivationTests
         var colliders = scene.Colliders.ToArray().Where(c => c.Body == new GpuBodyId(2)).ToArray();
         // The base and the button, then (elements-visible-solid) the two terminal spheres and the activation socket sphere.
         Assert.Equal(5, colliders.Length);
-        Assert.Equal(ColliderShapeKind.Box, colliders[0].Shape);
+        Assert.Equal(CuriousContraptions.Gpu.ColliderShapeKind.Box, colliders[0].Shape);
         Assert.Equal(new MetreVector(0f, -.15f, 0f), colliders[0].Pose.Translation);
         Assert.Equal(new MetreVector(.55f, .125f, .5f), colliders[0].HalfExtents);
         // The drawn button (elements-visible-solid): a cylinder of radius 0.38 and height 0.18 at y 0.06, axis local +Y.
-        Assert.Equal(ColliderShapeKind.Cylinder, colliders[1].Shape);
+        Assert.Equal(CuriousContraptions.Gpu.ColliderShapeKind.Cylinder, colliders[1].Shape);
         Assert.Equal(new MetreVector(0f, .06f, 0f), colliders[1].Pose.Translation);
         Assert.Equal((.38f, new MetreVector(0f, .09f, 0f)), (colliders[1].Radius.Value, colliders[1].HalfExtents));
         // The terminals (spheres r 0.08 at x ∓0.58) and the ActivationOut socket (sphere r 0.09 at (0.45, 0, 0.4)), as drawn.
-        Assert.Equal([(ColliderShapeKind.Sphere, new MetreVector(-.58f, 0f, 0f), .08f), (ColliderShapeKind.Sphere, new MetreVector(.58f, 0f, 0f), .08f),
-                (ColliderShapeKind.Sphere, new MetreVector(.45f, 0f, .4f), .09f)],
+        Assert.Equal([(CuriousContraptions.Gpu.ColliderShapeKind.Sphere, new MetreVector(-.58f, 0f, 0f), .08f), (CuriousContraptions.Gpu.ColliderShapeKind.Sphere, new MetreVector(.58f, 0f, 0f), .08f),
+                (CuriousContraptions.Gpu.ColliderShapeKind.Sphere, new MetreVector(.45f, 0f, .4f), .09f)],
             colliders[2..].Select(c => (c.Shape, c.Pose.Translation, c.Radius.Value)));
         // Every collider of the switch takes the inherited static material.
         Assert.All(colliders, collider =>
@@ -47,18 +48,18 @@ public sealed class ContactActivationTests
         var trigger = Assert.Single(scene.Triggers.ToArray());
         Assert.Equal(new GpuBodyId(2), trigger.Owner);
         Assert.Equal(new BodyTargetSet(BodyTargetKind.AllDynamic, default), trigger.Targets);
-        Assert.True(trigger.Targets.Contains(new(1)));
+        Assert.True(trigger.Targets.Contains(new(1), scene.Bodies.ToArray().Single(body => body.Id == new GpuBodyId(1)).Payload));
         Assert.Equal(new ContactSpeed(.8f), trigger.Threshold);
         // The lamp's base box, bulb sphere and stem cylinder (elements-visible-solid).
         Assert.Equal(3, scene.Colliders.ToArray().Count(c => c.Body == new GpuBodyId(3)));
     }
 
     [Fact]
-    public void TriggerHeaderDeclarationsPaddingAndOldStateVersionReject()
+    public void TriggerHeaderDeclarationsPaddingAndReservedFieldsReject()
     {
         var scene = WorkshopPhysicsCompiler.Compile(Construction(), new(1, 2));
         var bytes = PhysicsGpuAbi.Admission(scene, new(1), new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1)));
-        PhysicsGpuAbi.ValidateCandidate(bytes, bytes, new(0));
+        PhysicsGpuAbi.ValidateCandidate(bytes, bytes, new(0), PhysicsInteractionSnapshot.Empty, PhysicsInteractionSnapshot.Empty);
         Assert.Equal(0u, PhysicsGpuAbi.ReadTrigger(bytes, 0).OccurrenceCount);
         // Story 9R.5b: the trigger table is exactly its population, so there is no unused trigger slot to corrupt.
         var trigger = scene.World.TriggerOffset(0);
@@ -66,7 +67,7 @@ public sealed class ContactActivationTests
             trigger + 18, trigger + 36, trigger + 48 })
         {
             var changed = (byte[])bytes.Clone(); changed[offset] ^= 128;
-            Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ValidateCandidate(changed, bytes, new(0)));
+            Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ValidateCandidate(changed, bytes, new(0), PhysicsInteractionSnapshot.Empty, PhysicsInteractionSnapshot.Empty));
         }
         var old = (byte[])bytes.Clone(); BinaryPrimitives.WriteUInt32LittleEndian(old, 4);
         Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ReadFailure(old));
@@ -186,7 +187,7 @@ public sealed class ContactActivationTests
         var bytes = WorkshopSaveCodec.Encode(saved);
         var loaded = WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes);
         Assert.Equal(saved, loaded);
-        Assert.Equal(bytes, WorkshopSaveCodec.Encode(loaded));
+        Assert.Equal(loaded, WorkshopSaveCodec.Decode(SaveFixture.Elements, WorkshopSaveCodec.Encode(loaded)));
         var (built, reads, reset) = await NoFixedCapacityTests.RunAndReset(loaded.Construction, 120);
         Assert.Equal(lampOn, reads.Any(read => read.Activations[1].Phase == ActivationPhase.Latched));
         Assert.Equal(!miss, reads.Any(read => read.Activations[0].Phase == ActivationPhase.Latched));
@@ -197,20 +198,31 @@ public sealed class ContactActivationTests
     }
 
     [Fact]
-    public void CurrentLayoutIdentityRejectsOldOrForeignStatesBeforeWorkerMutation()
+    public void NonzeroReservedHeaderRejectsUnsupportedStatesBeforeWorkerMutation()
     {
         var scene = WorkshopPhysicsCompiler.Compile(Construction(), new(1, 2));
         var bytes = PhysicsGpuAbi.Admission(scene, new(1), new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1)));
-        foreach (var tag in new[] { 0u, PhysicsGpuAbi.CurrentLayoutTag ^ 1u })
+        foreach (var tag in new[] { 1u, uint.MaxValue })
         {
             var old = (byte[])bytes.Clone();
-            BinaryPrimitives.WriteUInt32LittleEndian(old.AsSpan(PhysicsGpuAbi.HeaderLayoutTagOffset), tag);
-            var candidate = Enumerable.Repeat((byte)123, old.Length).ToArray();
-            var untouched = (byte[])candidate.Clone();
+            BinaryPrimitives.WriteUInt32LittleEndian(old.AsSpan(PhysicsGpuAbi.HeaderReservedOffset), tag);
+            var candidate = (byte[])bytes.Clone();
+            var engine = new CuriousContraptions.Simulation.WorkshopPhysicsEngine();
+            var initial = PhysicsGpuAbi.ValidateCandidate(bytes, bytes, new(0), PhysicsInteractionSnapshot.Empty, PhysicsInteractionSnapshot.Empty);
+
             Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ReadTrigger(old, 0));
-            Assert.Throws<ArgumentException>(() => new CuriousContraptions.Simulation.WorkshopPhysicsEngine().Advance(old, candidate, new([], [])));
-            Assert.Equal(untouched, candidate);
-            Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ValidateCandidate(old, bytes, new(0)));
+            Assert.Throws<ArgumentException>(() => engine.Advance(old, candidate, new([], []), PhysicsInteractionSnapshot.Empty));
+            var unchanged = PhysicsGpuAbi.ValidateCandidate(candidate, bytes, new(0), PhysicsInteractionSnapshot.Empty, PhysicsInteractionSnapshot.Empty);
+            Assert.Equal(initial.Bodies.Count, unchanged.Bodies.Count);
+            for (var i = 0; i < initial.Bodies.Count; i++)
+                Assert.Equal(initial.Bodies[i], unchanged.Bodies[i]);
+            Assert.Equal(PhysicsGpuAbi.ReadTrigger(bytes, 0), PhysicsGpuAbi.ReadTrigger(candidate, 0));
+            var interactions = engine.Advance(bytes, candidate, new([], []), PhysicsInteractionSnapshot.Empty);
+            var advanced = PhysicsGpuAbi.ValidateCandidate(candidate, bytes, new(1), interactions, PhysicsInteractionSnapshot.Empty);
+            Assert.Equal(initial.Bodies.Count, advanced.Bodies.Count);
+            Assert.Equal(initial.Bodies[0].Body.Id, advanced.Bodies[0].Body.Id);
+            Assert.True(advanced.Bodies[0].Body.Velocity.Y < initial.Bodies[0].Body.Velocity.Y);
+            Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ValidateCandidate(old, bytes, new(0), PhysicsInteractionSnapshot.Empty, PhysicsInteractionSnapshot.Empty));
         }
         foreach (var padding in new[] { PhysicsGpuAbi.TriggerThresholdPaddingOffset, PhysicsGpuAbi.TriggerNamedPaddingOffset, PhysicsGpuAbi.TriggerPaddingOffset })
         {
@@ -240,7 +252,7 @@ public sealed class ContactActivationTests
             bytes.AsSpan(body + PhysicsGpuAbi.BodyGravityOffset, 6).Clear();
             bytes.AsSpan(body + PhysicsGpuAbi.BodyDragOffset, 2).Clear();
             ContactTriggerRead observed = default;
-            WorkshopPhysicsEngineTests.StepWorld(bytes, 1, (_, world) => observed = PhysicsGpuAbi.ReadTrigger(world, 0));
+            WorkshopPhysicsEngineTests.StepWorld(bytes, 1, (_, world, interactions) => observed = PhysicsGpuAbi.ReadTrigger(world, 0));
             Assert.Equal(speed >= threshold ? 1u : 0u, observed.OccurrenceCount);
             if (observed.OccurrenceCount == 0) continue;
             Assert.Equal(speed, observed.ApproachSpeed.Value);

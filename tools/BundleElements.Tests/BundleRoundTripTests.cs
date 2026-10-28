@@ -40,7 +40,7 @@ public sealed class BundleRoundTripTests
         {
             Colliders = [new(ColliderShapeKind.Box, new(-0f, subnormal, .1f), new(float.MaxValue, -subnormal, float.Epsilon),
                 new(-0f, 0f, 0f, 1f), new(-0f, subnormal, 0f, 1e-7f), 0f)],
-            MassProperties = new(-0f, new(subnormal, -0f, 3.4028235e38f), new(1f / 3f, 0.1f, 16777217f), -subnormal, new(0, -9.81f, 0))
+            MassFrame = MassFrameDeclaration.Constant(-0f, new(subnormal, -0f, 3.4028235e38f), new(1f / 3f, 0.1f, 16777217f), Quaternion.Identity, -subnormal, new(0, -9.81f, 0))
         };
         var json = BundleSchema.Write([fixture]);
         Assert.Contains("-0", json, StringComparison.Ordinal);
@@ -144,14 +144,12 @@ public sealed class BundleRoundTripTests
         if (declaration is IMechanicalElement mechanical)
         {
             Assert.Equal(mechanical.KinematicMode, entry.Mechanical!.KinematicMode);
-            AssertSame(mechanical.MassProperties, entry.Mechanical.MassProperties, "MassProperties");
+            AssertSame(mechanical.MassFrame, entry.Mechanical.MassFrame, "MassFrame");
             AssertSame(mechanical.AnchorPoints, entry.Mechanical.AnchorPoints, "AnchorPoints");
             AssertSame(mechanical is ISliderElement slider ? slider.Sliders : [], entry.Mechanical.Sliders, "Sliders");
             Assert.Equal(mechanical is IContactWorkElement, entry.Mechanical.ContactWork is not null);
             if (mechanical is IContactWorkElement work) AssertSame(work.ContactWork, entry.Mechanical.ContactWork!.Value, "ContactWork");
-            // The body mass bound to a parameter (Story 10.2a).
-            Assert.Equal(mechanical is IParameterizedMassElement, entry.Mechanical.MassParameter is not null);
-            if (mechanical is IParameterizedMassElement bound) Assert.Equal(bound.Mass, entry.Mechanical.MassParameter!.Value);
+            Assert.Equal(mechanical.Payload, entry.Mechanical.Payload);
         }
         Assert.Equal(declaration is IElectricalElement, entry.Electrical is not null);
         if (declaration is IElectricalElement electrical) AssertSame(electrical.ElectricalNodes, entry.Electrical!.Nodes, "ElectricalNodes");

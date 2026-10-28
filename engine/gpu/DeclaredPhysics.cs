@@ -14,20 +14,14 @@ public static class DeclaredPhysics
     private static string? _identity;
     private static readonly object Gate = new();
 
+    public static IReadOnlyDictionary<PartId, BundleEntry> Entries => _entries ??
+        throw new InvalidOperationException("The physical element bundle is not installed.");
+
     public static void Install(IReadOnlyList<BundleEntry> entries)
     {
         ArgumentNullException.ThrowIfNull(entries);
         var errors = BundleValidator.Validate(entries.Select(entry => new NamedEntry(entry.Metadata.Id, entry)).ToArray());
         if (errors.Count != 0) throw new ArgumentException(string.Join("; ", errors));
-        // A package whose colliders would take an identity one of its own rows holds is a package defect, refused here, once, when
-        // the bundle loads.
-        var conflicts = entries.Select(entry => (entry.Metadata.Id, Conflict: WorkshopPhysicsCompiler.ColliderSlots(entry)))
-            .Where(item => item.Conflict is not null).Select(item => (item.Id, Conflict: item.Conflict!.Value)).ToArray();
-        if (conflicts.Length != 0)
-            throw new ArgumentException(string.Join("; ", conflicts.Select(item =>
-                $"'{item.Id}': colliders at part base + {item.Conflict.FirstCollider} to + {item.Conflict.LastCollider}" +
-                (item.Conflict.MovingBody is { } slider ? $" (slider {slider}'s moving body)" : "") +
-                $" reach its {item.Conflict.Row} row at + {item.Conflict.Slot}")));
         var identity = BundleSchema.WriteEntries(entries);
         var admitted = entries.ToImmutableDictionary(entry => new PartId(entry.Metadata.Id));
         lock (Gate)
@@ -94,15 +88,8 @@ public static class DeclaredPhysics
         entry.Metadata.Parameters.Any(parameter => parameter.Key == store.Enable &&
             parameter.RunEdit == CuriousContraptions.Abstractions.ParameterRunEdit.RunControl);
 
-    /// <summary>The payload: the rolling thing the player delivers, which a capture owner guides and captures and a lesson's contact
-    /// triggers and finite-work storage act on. Derived from the admitted declaration, never declared: a dynamic body of exactly one
-    /// sphere collider and no slider. A dynamic box (the domino tile) or a slider body is dynamic but no payload.</summary>
-    public static bool IsPayload(PartId part)
-    {
-        var entry = Of(part);
-        return entry.Mechanical is { KinematicMode: KinematicMode.Dynamic, Sliders.Count: 0 } && entry.Colliders.Count == 1 &&
-            entry.Colliders[0].ShapeKind == CuriousContraptions.Abstractions.ColliderShapeKind.Sphere;
-    }
+    /// <summary>Explicit package capability; collision geometry never determines capture eligibility.</summary>
+    public static bool IsPayload(PartId part) => Of(part).Mechanical?.Payload == PayloadPolicy.CaptureTarget;
 
     public static BundleEntry Of(PartId part) =>
         _entries is { } entries && entries.TryGetValue(part, out var entry) ? entry

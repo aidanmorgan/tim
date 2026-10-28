@@ -47,7 +47,7 @@ public static partial class Program
         var session = RuntimeSessionId.Read(bytes);
         var origin = WorkshopNativeClock.FromMilliseconds(NativeMilliseconds());
         var peer = new WorkshopClockPeer(session, new(1), origin, new(1), new(100_000), WorkshopRuntimeRole.Browser);
-        _device = new(new BrowserGpuTransport(), new(session.Low, session.High));
+        _device = new(new BrowserGpuTransport(new WorkerEventPublication()), new(session.Low, session.High));
         _reads = new(session);
         _peer = peer;
         return WorkshopClockWire.EncodePeer(peer);
@@ -78,10 +78,25 @@ public static partial class Program
     /// the slot into the ring verbatim and the browser echoes the identity, so no script parses the read.</summary>
     [JSImport("publish", "workshopGpu")]
     private static partial void Publish(byte[] read, byte[] readIdentity, byte[] poseSlot, bool observationPending);
-    /// <summary>Story 9A.22: copies one event ring publication (the C#-composed header, then each committed record with its sequence)
-    /// into the session's event ring; the worker allocates a fresh ring, posted before any later message, when the epoch or capacity
-    /// changes. Called before every read and acknowledgement, so each committed record is published exactly once and in order.</summary>
-    [JSImport("publishEvents", "workshopGpu")] private static partial void PublishEvents(byte[] batch);
+    [JSImport("prepareEvents", "workshopGpu")] private static partial int PrepareEvents(byte[] batch);
+    [JSImport("commitEvents", "workshopGpu")] private static partial void CommitEvents();
+    [JSImport("discardEvents", "workshopGpu")] private static partial void DiscardEvents();
+    [JSImport("publishEvents", "workshopGpu")] private static partial void PublishEvents();
+    [JSImport("disposeEvents", "workshopGpu")] private static partial void DisposeEvents();
+
+    private sealed class WorkerEventPublication : CuriousContraptions.Abstractions.IEventRingPublication
+    {
+        public CuriousContraptions.Abstractions.EventPublicationPreparation Prepare(byte[] batch)
+        {
+            var result = (CuriousContraptions.Abstractions.EventPublicationPreparation)PrepareEvents(batch);
+            if (!Enum.IsDefined(result)) throw new ArgumentException("Undefined event preparation result.");
+            return result;
+        }
+        public void Commit() => CommitEvents();
+        public void Discard() => DiscardEvents();
+        public void Publish() => PublishEvents();
+        public void Dispose() => DisposeEvents();
+    }
 
     /// <summary>Acknowledges one command with its response and its 8-byte little-endian sequence (the browser's receipt key).</summary>
     [JSImport("acknowledge", "workshopGpu")]
@@ -129,7 +144,7 @@ public static partial class Program
         var response = await routed.Response;
         var sequence = new byte[sizeof(ulong)];
         BinaryPrimitives.WriteUInt64LittleEndian(sequence, routed.Sequence.Value);
-        PublishEvents(Device.DrainEvents());
+        _ = Device.DrainEvents();
         Acknowledge(response, sequence, Trace.CanFlush(Simulation.Phase));
     }
 
@@ -374,7 +389,7 @@ public static partial class Program
         {
             Console.WriteLine("CCGPU_RETAINED " + Convert.ToBase64String(encoded));
         }
-        PublishEvents(Device.DrainEvents());
+        _ = Device.DrainEvents();
         Publish(encoded, WorkshopWireFlatBuffers.ReadIdentity(readResponse), WorkshopPoseRing.ComposeSlot(readResponse.Read.Capture?.Time.Value ?? 0, readResponse.Read.Bodies),
             Trace.CanFlush(Simulation.Phase));
     }

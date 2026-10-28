@@ -1,5 +1,16 @@
 # Project rules
 
+## Game fidelity — owner policy, 28 October 2026
+
+This is a physics-based puzzle game. Correct puzzle outcomes, meaningful causal event order, plausible motion, stable resting behaviour and reliable lifecycle are the acceptance targets. This policy applies immediately, including the current slice, and supersedes older instructions that preserve historical simulation ticks, substep ordinals, trajectories or migration-era position deltas without a current gameplay requirement.
+
+- Every strict numerical assertion must name the gameplay failure or defined-interface invariant it excludes. Choose tolerances by quantity, functional clearance and observation duration; floating-point ULPs, solver residuals and fractions of slop alone do not establish gameplay significance. Tight local mathematical tests remain valid when they test that mathematical contract.
+- Lesson deadlines are finite, generous stall guards. Preserve intended timers/delays/cadence, but do not equate incidental arrival timing with a timing feature. Verify causal order and required occurrences, not every incidental contact or every-tick monotonic trajectory.
+- Assert decoded semantic outputs. No simulation/event/trace/render/save hash or byte-identity acceptance, including one-off proof used to block a slice. Exact IDs, counts where specified, typed refusals, authored Reset state and canonical serialized field values remain valid; identical whole buffers are not their substitute.
+- Before a second attempt to repair a numerical-only test failure, state the observable gameplay defect. If none is established, inspect and correct the test contract under this policy rather than escalating solver complexity or preserving obsolete goldens. Do not widen a bound to fit observed output; justify the revised behavioural test independently.
+- Implementers and reviewers must flag unnecessarily precise tests. Historical evidence is not a source of new acceptance obligations. See [testing guidance](docs/testing-guidance.md) and [delivery rules](docs/delivery-workflow.md#game-fidelity).
+
+
 Read [TODO.md](TODO.md) for the current outcome, blocker and next check. Read only the linked current contract, affected requirements and element rows needed for the slice. Current documents must contain complete intended behavior and agent rules; archives record obsolete approaches and past results, never additional task prerequisites. Do not load the full requirements file or history by default. Requirement IDs and acceptance live in docs/planning/requirements.md; element identities in docs/planning/invest/named-elements.md; the roadmap in docs/planning/invest/vertical-delivery.md governs order. The former register/source-scope ledgers were deleted on 5 October 2026 and remain in git history as evidence only.
 
 **Current delivery priority:** The owner's [4 October playable-first decision](docs/delivery-workflow.md#playable-first) governs enforcing stages, including inherited performance/audit and publication wording below. Deliver working existing interactions now; retain detailed profiling, injected faults, retention/device and global qualification at their named later gates. Basic correctness, ordinary lifecycle, typed general engines and production builds remain required. The owner's [21 October fast-test and native C# simulation-first policy](docs/delivery-workflow.md#fast-test-cadence) supersedes earlier per-slice browser enforcement: use fast affected native checks now; actual Chrome proof is accumulated and enforced after all named puzzle elements are implemented and at subsequent named release gates.
@@ -79,8 +90,8 @@ For required publication, independent SnapshotApproval first verifies every pre-
 - **Hard rule — unit tests follow [docs/testing-guidance.md](docs/testing-guidance.md) (owner, 24 October 2026).** Tests prove behaviour through defined interfaces, run the real production code, and derive their expectations and tolerances independently. They cover positive, control and boundary cases, assert the changed result directly so that a plausible defect would fail them, and are deterministic. Mutation runs are deferred to the post-catalogue E2E phase. Architecture guards are a small, named category. Reviewers apply the guidance's checklist, and any failure is a finding.
 - **Hard rule — tests assert behaviour, not hashes (owner, 24 October 2026).**
   - Committed tests must not assert hashes, digests or byte-identity of simulation, trace, event, render or save output, including "unchanged bytes" and golden-hash pins.
-  - Assert the observable behaviour explicitly: counts, kinds, ticks, owners, states and positions or speeds within a derived tolerance.
-  - Refactor byte-identity remains welcome as one-off review evidence. It is not a committed test.
+  - Assert the observable behaviour explicitly: counts, kinds, owners, states, feature-defined timing and positions or speeds within a gameplay-justified tolerance.
+  - Refactor byte-identity is not gameplay acceptance or a publication prerequisite. Use decoded semantic behaviour; existing historical byte comparisons remain historical evidence only.
   - Allowed:
     - integrity checks of vendored or third-party files;
     - fixed test inputs kept as committed fixture files. Do not pin them by hash.

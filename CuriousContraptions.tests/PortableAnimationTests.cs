@@ -1,4 +1,3 @@
-using System.Reflection;
 using CuriousContraptions.Presentation;
 
 namespace CuriousContraptions.Tests;
@@ -17,7 +16,7 @@ public sealed class PortableAnimationTests(ITestOutputHelper output)
         _ => throw new ArgumentOutOfRangeException(nameof(property))
     };
     private static void Equal(double expected,AnimationValue actual) =>
-        Assert.Equal(BitConverter.SingleToUInt32Bits((float)expected),actual.CanonicalBits);
+        Assert.Equal((float)expected,BitConverter.UInt32BitsToSingle(actual.CanonicalBits));
     private static AnimationBinding Binding(ulong id=1,AnimationProperty property=AnimationProperty.Opacity) => new(new(id),property);
     private static AnimationDefinition Clip(AnimationProperty property=AnimationProperty.Opacity,
         AnimationCurve curve=AnimationCurve.Linear,AnimationRepeat repeat=AnimationRepeat.Once,
@@ -26,8 +25,8 @@ public sealed class PortableAnimationTests(ITestOutputHelper output)
     private static AnimationImpulseDefinition Impulse(AnimationImpulseCurve curve=AnimationImpulseCurve.LinearDecay,
         AnimationImpulseOverlap overlap=AnimationImpulseOverlap.Maximum,
         AnimationImpulseVisibility visibility=AnimationImpulseVisibility.AdvanceWhileHidden,
-        AnimationImpulseTiming timing=AnimationImpulseTiming.EventTime,int capacity=4) =>
-        new(new(1f),curve,overlap,visibility,AnimationClock.Presentation,capacity,timing,
+        AnimationImpulseTiming timing=AnimationImpulseTiming.EventTime) =>
+        new(new(1f),curve,overlap,visibility,AnimationClock.Presentation,timing,
             new((float)(curve is AnimationImpulseCurve.LinearDecay or AnimationImpulseCurve.SmoothDecay?0:.5)));
     private static AnimationOscillationDefinition Oscillator(float? decay=null,float? frequency=null,float? velocity=null) =>
         new(new(decay??1f),new(frequency??2f),
@@ -45,7 +44,7 @@ public sealed class PortableAnimationTests(ITestOutputHelper output)
     public void AllExistingPropertiesCurvesRepeatsAndClocksRetainMathematics(
         AnimationProperty property,AnimationCurve curve,AnimationRepeat repeat,AnimationClock clock)
     {
-        var batch=new AnimationBatch(1);
+        var batch=new AnimationBatch();
         var handle=batch.Register(Binding(property:property),Clip(property,curve,repeat,clock));
         batch.Start(handle);batch.Advance(1,0,0);Equal(.25,batch.Read(handle).Value);
         var quarterAmount=curve switch
@@ -68,7 +67,7 @@ public sealed class PortableAnimationTests(ITestOutputHelper output)
     [Fact]
     public void EndpointReversalRateHoldRestoreAndCycleLegRemainCanonical()
     {
-        var batch=new AnimationBatch(2);
+        var batch=new AnimationBatch();
         var once=batch.Register(Binding(),Clip());batch.Start(once);
         batch.DriveTo(once,AnimationEndpoint.From,.75);
         batch.Advance(1,1,0);Equal(.5,batch.Read(once).Value);
@@ -98,7 +97,7 @@ public sealed class PortableAnimationTests(ITestOutputHelper output)
     {
         foreach(var duration in new[]{float.Epsilon,float.MaxValue})
         {
-            var batch=new AnimationBatch(1);var handle=batch.Register(Binding(),Clip(repeat:repeat,duration:duration));
+            var batch=new AnimationBatch();var handle=batch.Register(Binding(),Clip(repeat:repeat,duration:duration));
             batch.Start(handle);batch.Advance(1,double.MaxValue,0);
             // Exact integer remainder is an independent oracle for the largest finite external clock.
             var period = new System.Numerics.BigInteger(float.MaxValue) * (repeat == AnimationRepeat.PingPong ? 2 : 1);
@@ -115,7 +114,7 @@ public sealed class PortableAnimationTests(ITestOutputHelper output)
     [Fact]
     public void LaterInvalidLoopProductCannotMutateEarlierSlotsClocksSamplesOrPendingOccurrences()
     {
-        var batch=new AnimationBatch(3);
+        var batch=new AnimationBatch();
         var valid=batch.Register(Binding(),Clip());batch.Start(valid);
         var impulse=batch.RegisterImpulses(Binding(2),Impulse(),Value(AnimationProperty.Opacity,0),Value(AnimationProperty.Opacity,1));
         batch.EnqueueImpulse(impulse,new(1),new(1f),0);
@@ -132,7 +131,7 @@ public sealed class PortableAnimationTests(ITestOutputHelper output)
     [Fact]
     public void LaterInvalidOccurrenceSubtractionCannotConsumeEarlierPlayback()
     {
-        var batch=new AnimationBatch(2);var clip=batch.Register(Binding(),Clip());batch.Start(clip);
+        var batch=new AnimationBatch();var clip=batch.Register(Binding(),Clip());batch.Start(clip);
         var impulse=batch.RegisterImpulses(Binding(2),Impulse(),Value(AnimationProperty.Opacity,0),Value(AnimationProperty.Opacity,1));
         batch.EnqueueImpulse(impulse,new(1),new(1f),-double.MaxValue);
         var before=batch.Read(clip);var pending=batch.ReadImpulses(impulse);
@@ -144,7 +143,7 @@ public sealed class PortableAnimationTests(ITestOutputHelper output)
     [Fact]
     public void FollowUsesCanonicalControlAnchorsAndIndependentClock()
     {
-        var batch=new AnimationBatch(1);
+        var batch=new AnimationBatch();
         var handle=batch.RegisterFollow(Binding(),new(Value(AnimationProperty.Opacity,0),Value(AnimationProperty.Opacity,1),
             Value(AnimationProperty.Opacity,.125),new(2f),AnimationClock.Presentation));
         batch.FollowValue(handle,Value(AnimationProperty.Opacity,.875),0);
@@ -167,7 +166,7 @@ public sealed class PortableAnimationTests(ITestOutputHelper output)
     public void EveryImpulseModePreservesOccurrenceLifetimeAndCanonicalOutput(AnimationImpulseCurve curve,
         AnimationImpulseOverlap overlap,AnimationImpulseVisibility visibility,AnimationImpulseTiming timing)
     {
-        var batch=new AnimationBatch(1);
+        var batch=new AnimationBatch();
         var handle=batch.RegisterImpulses(Binding(),Impulse(curve,overlap,visibility,timing),
             Value(AnimationProperty.Opacity,0),Value(AnimationProperty.Opacity,1));
         batch.EnqueueImpulse(handle,new(1),new(.5f),0);
@@ -202,7 +201,7 @@ public sealed class PortableAnimationTests(ITestOutputHelper output)
     [InlineData(AnimationImpulseVisibility.AdvanceWhileHidden)]
     public void HiddenImpulseVisibilityAndFirstFrameRetentionRemainDistinct(AnimationImpulseVisibility visibility)
     {
-        var batch=new AnimationBatch(1);var handle=batch.RegisterImpulses(Binding(),
+        var batch=new AnimationBatch();var handle=batch.RegisterImpulses(Binding(),
             Impulse(visibility:visibility,timing:AnimationImpulseTiming.EventTimeRetainFirstFrame),
             Value(AnimationProperty.Opacity,0),Value(AnimationProperty.Opacity,1));
         batch.SetVisible(handle,false);batch.EnqueueImpulse(handle,new(1),new(.5f),0);
@@ -216,7 +215,7 @@ public sealed class PortableAnimationTests(ITestOutputHelper output)
     public void OscillationGoldenSampleAndRoundedZeroCrossingDoNotRetireFutureMotion()
     {
         var binding=Binding(property:AnimationProperty.LocalRotationAngle);
-        var batch=new AnimationBatch(1);var handle=batch.RegisterOscillation(binding,Oscillator());
+        var batch=new AnimationBatch();var handle=batch.RegisterOscillation(binding,Oscillator());
         batch.KickOscillation(handle,new(1),new(1f),0);batch.Advance(1,.25,0);
         var read=batch.ReadOscillation(handle);Equal(Math.Exp(-.25) * Math.Sin(.5),read.Position);
         Assert.Equal((float)(Math.Exp(-.25) * (2 * Math.Cos(.5) - Math.Sin(.5))),read.Velocity.RadiansPerSecond.Value);
@@ -234,7 +233,7 @@ public sealed class PortableAnimationTests(ITestOutputHelper output)
     [Fact]
     public void OscillationAdmissionChecksRoundedAnchorsBeforeChangingIdentity()
     {
-        var batch=new AnimationBatch(1);
+        var batch=new AnimationBatch();
         var handle=batch.RegisterOscillation(Binding(property:AnimationProperty.LocalRotationAngle),
             Oscillator(1f,1f,float.MaxValue));
         var before=batch.ReadOscillation(handle);
@@ -246,16 +245,19 @@ public sealed class PortableAnimationTests(ITestOutputHelper output)
     }
 
     [Fact]
-    public void WriterCapacityUnitsStaleHandlesAndGenerationRemainExact()
+    public void WriterOwnershipUnitsStaleHandlesAndGenerationRemainExact()
     {
-        var batch=new AnimationBatch(1);var handle=batch.Register(Binding(),Clip());
+        var batch=new AnimationBatch();var handle=batch.Register(Binding(),Clip());
         Assert.Throws<InvalidOperationException>(()=>batch.Register(Binding(),Clip()));
-        Assert.Throws<InvalidOperationException>(()=>batch.Register(Binding(2),Clip()));
-        Assert.Throws<ArgumentException>(()=>new AnimationBatch(1).Read(handle));
+        var second=batch.Register(Binding(2),Clip());
+        Assert.Equal(2,batch.RegisteredCount);
+        Assert.Throws<ArgumentException>(()=>new AnimationBatch().Read(handle));
         batch.Remove(handle);Assert.Throws<ArgumentException>(()=>batch.Read(handle));
         var next=batch.Register(Binding(),Clip());Assert.NotEqual(handle.Version,next.Version);
         batch.Reset();Assert.Throws<ArgumentException>(()=>batch.Read(next));Assert.Equal(2UL,batch.Generation.Value);
-        Assert.Single(batch.Samples.ToArray());Equal(.25,batch.Samples[0].Value);
+        Assert.Throws<ArgumentException>(()=>batch.Read(second));
+        Assert.Equal(2,batch.Samples.Length);
+        foreach(var sample in batch.Samples)Equal(.25,sample.Value);
         Assert.Throws<ArgumentException>(()=>batch.Register(Binding(),Clip(AnimationProperty.LocalTranslation)));
         Assert.Throws<ArgumentException>(()=>batch.Register(default,Clip()));
         Assert.Equal(0,batch.RegisteredCount);
@@ -273,10 +275,10 @@ public sealed class PortableAnimationTests(ITestOutputHelper output)
         Assert.Throws<ArgumentOutOfRangeException>(()=>new AnimationFrequencyRadiansPerSecond(float.Epsilon));
         Assert.Throws<ArgumentOutOfRangeException>(()=>new AnimationImpulseDefinition(new(1f),
             AnimationImpulseCurve.SmoothRiseFall,AnimationImpulseOverlap.Maximum,
-            AnimationImpulseVisibility.AdvanceWhileHidden,AnimationClock.Presentation,1,
+            AnimationImpulseVisibility.AdvanceWhileHidden,AnimationClock.Presentation,
             AnimationImpulseTiming.EventTime,new(1f)));
         var positive=new AnimationValue(new AnimationScale(float.Epsilon));
-        var batch=new AnimationBatch(1);
+        var batch=new AnimationBatch();
         batch.Register(Binding(property:AnimationProperty.UniformScale),new(positive,positive,new(float.MaxValue),
             AnimationCurve.Linear,AnimationRepeat.PingPong,AnimationClock.Presentation));
         Assert.Throws<InvalidOperationException>(()=>positive.Metres);
@@ -290,7 +292,7 @@ public sealed class PortableAnimationTests(ITestOutputHelper output)
         Assert.DoesNotContain(assembly.GetReferencedAssemblies(),r=>
             r.Name!.Contains("Godot",StringComparison.OrdinalIgnoreCase)||
             r.Name.Contains("2dog",StringComparison.OrdinalIgnoreCase));
-        var batch=new AnimationBatch(1);var handle=batch.Register(Binding(),Clip(repeat:AnimationRepeat.Loop));
+        var batch=new AnimationBatch();var handle=batch.Register(Binding(),Clip(repeat:AnimationRepeat.Loop));
         batch.Start(handle);
         for(ulong i=1;i<=1000;i++)batch.Advance(i,i/60.0,0);
         var before=GC.GetAllocatedBytesForCurrentThread();
@@ -304,7 +306,7 @@ public sealed class PortableAnimationTests(ITestOutputHelper output)
     [Fact]
     public void SubF32ImpulseContributionCannotConsumeRetainedFirstFrame()
     {
-        var batch=new AnimationBatch(1);var handle=batch.RegisterImpulses(Binding(),
+        var batch=new AnimationBatch();var handle=batch.RegisterImpulses(Binding(),
             Impulse(AnimationImpulseCurve.SineSquaredPulse,timing:AnimationImpulseTiming.EventTimeRetainFirstFrame),
             Value(AnimationProperty.Opacity,0),Value(AnimationProperty.Opacity,1));
         batch.EnqueueImpulse(handle,new(1),new(1f),0);
@@ -320,7 +322,7 @@ public sealed class PortableAnimationTests(ITestOutputHelper output)
     [InlineData(true)]
     public void PositiveCanonicalImpulseIsLogicalObservationEvenWithNoMappedChange(bool flat)
     {
-        var batch=new AnimationBatch(1);var handle=batch.RegisterImpulses(Binding(property:AnimationProperty.UniformScale),
+        var batch=new AnimationBatch();var handle=batch.RegisterImpulses(Binding(property:AnimationProperty.UniformScale),
             Impulse(timing:AnimationImpulseTiming.EventTimeRetainFirstFrame),
             Value(AnimationProperty.UniformScale,1),Value(AnimationProperty.UniformScale,flat?1:1.0009765625));
         batch.EnqueueImpulse(handle,new(1),new(float.Epsilon),0);
@@ -333,7 +335,7 @@ public sealed class PortableAnimationTests(ITestOutputHelper output)
     [Fact]
     public void MaximumMaskedPositiveCanonicalOccurrenceStillCompletes()
     {
-        var batch=new AnimationBatch(1);var handle=batch.RegisterImpulses(Binding(),
+        var batch=new AnimationBatch();var handle=batch.RegisterImpulses(Binding(),
             Impulse(timing:AnimationImpulseTiming.EventTimeRetainFirstFrame),
             Value(AnimationProperty.Opacity,0),Value(AnimationProperty.Opacity,1));
         batch.EnqueueImpulse(handle,new(1),new(1f),0);
@@ -365,7 +367,7 @@ public sealed class PortableAnimationTests(ITestOutputHelper output)
         Assert.Throws<ArgumentOutOfRangeException>(()=>Impulse(overlap:(AnimationImpulseOverlap)255));
         Assert.Throws<ArgumentOutOfRangeException>(()=>Impulse(visibility:(AnimationImpulseVisibility)255));
         Assert.Throws<ArgumentOutOfRangeException>(()=>Impulse(timing:(AnimationImpulseTiming)255));
-        var batch=new AnimationBatch(1);var handle=batch.Register(Binding(),Clip());batch.Start(handle);
+        var batch=new AnimationBatch();var handle=batch.Register(Binding(),Clip());batch.Start(handle);
         var before=batch.Read(handle);
         Assert.Throws<ArgumentOutOfRangeException>(()=>batch.DriveTo(handle,(AnimationEndpoint)255,0));
         Assert.Throws<ArgumentOutOfRangeException>(()=>batch.Stop(handle,(AnimationStop)255,0));
@@ -378,7 +380,7 @@ public sealed class PortableAnimationTests(ITestOutputHelper output)
     [Fact]
     public void OpaqueUlongTargetsAndDistinctPropertyWritersCannotAlias()
     {
-        var batch=new AnimationBatch(4);
+        var batch=new AnimationBatch();
         var ids=new[]{1UL<<53,(1UL<<53)+1,ulong.MaxValue};
         var handles=ids.Select(id=>batch.Register(Binding(id),Clip())).ToArray();
         var channel=batch.Register(Binding(ids[0],AnimationProperty.ColourRed),Clip(AnimationProperty.ColourRed));
@@ -398,11 +400,11 @@ public sealed class PortableAnimationTests(ITestOutputHelper output)
         var belowTwo=(double)BitConverter.UInt32BitsToSingle(0x3fffffff);
         foreach(var phase in new[]{0.0,belowOne,1,aboveOne,belowTwo,2.0})
         {
-            var batch=new AnimationBatch(1);var handle=batch.Register(Binding(),Clip(repeat:AnimationRepeat.PingPong));
+            var batch=new AnimationBatch();var handle=batch.Register(Binding(),Clip(repeat:AnimationRepeat.PingPong));
             batch.Start(handle);batch.Stop(handle,AnimationStop.Hold,phase);
             Equal(.25+.5*(phase<=1?phase:2-phase),batch.Read(handle).Value);
         }
-        var looping=new AnimationBatch(1);var loop=looping.Register(Binding(),Clip(repeat:AnimationRepeat.Loop));
+        var looping=new AnimationBatch();var loop=looping.Register(Binding(),Clip(repeat:AnimationRepeat.Loop));
         looping.Start(loop);
         looping.SetLoopRate(loop,new(0f),(1 - 1e-9)); // Stored float phase rounds to period, explicitly normalizes0.
         Equal(.25,looping.Read(loop).Value);
@@ -413,7 +415,7 @@ public sealed class PortableAnimationTests(ITestOutputHelper output)
     [Fact]
     public void HiddenFollowAndOscillatorMatchSkippedCadenceAndRetireOnlyTrueCompletion()
     {
-        var visible=new AnimationBatch(2);var hidden=new AnimationBatch(2);
+        var visible=new AnimationBatch();var hidden=new AnimationBatch();
         var follow=new AnimationFollowDefinition(Value(AnimationProperty.Opacity,0),Value(AnimationProperty.Opacity,1),
             Value(AnimationProperty.Opacity,0),new(2f),AnimationClock.Presentation);
         var vf=visible.RegisterFollow(Binding(),follow);var hf=hidden.RegisterFollow(Binding(),follow);
@@ -439,7 +441,7 @@ public sealed class PortableAnimationTests(ITestOutputHelper output)
     [Fact]
     public void OscillatorZeroCrossingFrameDoesNotChangeLaterSample()
     {
-        var a=new AnimationBatch(1);var b=new AnimationBatch(1);var slow=1e-6f;
+        var a=new AnimationBatch();var b=new AnimationBatch();var slow=1e-6f;
         var ha=a.RegisterOscillation(Binding(property:AnimationProperty.LocalRotationAngle),Oscillator(slow,slow,float.Epsilon));
         var hb=b.RegisterOscillation(Binding(property:AnimationProperty.LocalRotationAngle),Oscillator(slow,slow,float.Epsilon));
         a.KickOscillation(ha,new(1),new(1f),0);b.KickOscillation(hb,new(1),new(1f),0);
@@ -451,38 +453,116 @@ public sealed class PortableAnimationTests(ITestOutputHelper output)
     }
 
     [Fact]
-    public void ExactCounterExhaustionRejectsBeforeChangingOwnerState()
+    public void MaximumOccurrenceIdentityRejectsReplayAndResetInvalidatesOldHandles()
     {
-        var batch=new AnimationBatch(1);
-        typeof(AnimationBatch).GetProperty(nameof(AnimationBatch.Generation))!.SetValue(batch,new AnimationGeneration(ulong.MaxValue));
-        var handle=batch.Register(Binding(),Clip());var before=batch.Read(handle);
-        Assert.Throws<OverflowException>(()=>batch.Reset());Assert.Equal(before,batch.Read(handle));Assert.Equal(1,batch.RegisteredCount);
-        batch.Remove(handle);
-        var versions=(ulong[])typeof(AnimationBatch).GetField("_versions",BindingFlags.Instance|BindingFlags.NonPublic)!.GetValue(batch)!;
-        versions[handle.Slot]=ulong.MaxValue;
-        Assert.Throws<OverflowException>(()=>batch.Register(Binding(),Clip()));Assert.Equal(0,batch.RegisteredCount);
+        var batch = new AnimationBatch();
+        var impulse = batch.RegisterImpulses(Binding(), Impulse(), Value(AnimationProperty.Opacity, 0), Value(AnimationProperty.Opacity, 1));
+        batch.EnqueueImpulse(impulse, new(ulong.MaxValue), new(1), 0);
+        var before = batch.ReadImpulses(impulse);
+        Assert.Throws<ArgumentException>(() => batch.EnqueueImpulse(impulse, new(ulong.MaxValue), new(1), 0));
+        Assert.Throws<ArgumentException>(() => batch.EnqueueImpulse(impulse, new(ulong.MaxValue - 1), new(1), 0));
+        Assert.Equal(before, batch.ReadImpulses(impulse));
+        batch.Advance(1, .25, 0); Equal(.75, batch.Read(impulse).Value);
+        var oscillation = batch.RegisterOscillation(Binding(2, AnimationProperty.LocalRotationAngle), Oscillator());
+        batch.KickOscillation(oscillation, new(ulong.MaxValue), new(1), .25);
+        var prior = batch.ReadOscillation(oscillation);
+        Assert.Throws<ArgumentException>(() => batch.KickOscillation(oscillation, new(ulong.MaxValue), new(1), .25));
+        Assert.Equal(prior, batch.ReadOscillation(oscillation));
+        batch.Reset();
+        Assert.Equal(16, batch.Capacity); Assert.Equal(0, batch.RegisteredCount);
+        Assert.Throws<ArgumentException>(() => batch.Read(impulse));
+        Assert.Throws<ArgumentException>(() => batch.Read(oscillation));
+        var current = batch.RegisterImpulses(Binding(), Impulse(), Value(AnimationProperty.Opacity, 0), Value(AnimationProperty.Opacity, 1));
+        batch.EnqueueImpulse(current, new(1), new(1), 0); batch.Advance(1, .25, 0);
+        Equal(.75, batch.Read(current).Value);
+    }
 
-        var impulses=new AnimationBatch(1);var ih=impulses.RegisterImpulses(Binding(),Impulse(),Value(AnimationProperty.Opacity,0),Value(AnimationProperty.Opacity,1));
-        var slots=(Array)typeof(AnimationBatch).GetField("_slots",BindingFlags.Instance|BindingFlags.NonPublic)!.GetValue(impulses)!;
-        var slot=slots.GetValue(ih.Slot)!;var state=slot.GetType().GetField("Impulses")!.GetValue(slot)!;
-        state.GetType().GetField("_accepted",BindingFlags.Instance|BindingFlags.NonPublic)!.SetValue(state,ulong.MaxValue);
-        var prior=impulses.ReadImpulses(ih);
-        Assert.Throws<InvalidOperationException>(()=>impulses.EnqueueImpulse(ih,new(1),new(1f),0));
-        Assert.Equal(prior,impulses.ReadImpulses(ih));
+    [Fact]
+    public void RegistryGrowsFromCommonReserveKeepsHandlesAndResetsToCommonStorage()
+    {
+        var batch = new AnimationBatch(); Assert.Equal(16, batch.Capacity);
+        var handles = Enumerable.Range(1, 65).Select(i => batch.Register(Binding((ulong)i), Clip())).ToArray();
+        Assert.Equal(65, batch.RegisteredCount); Assert.InRange(batch.Capacity, 65, 130);
+        foreach (var handle in handles) batch.Start(handle);
+        batch.Remove(handles[0]);
+        var replacement = batch.Register(Binding(66), Clip()); batch.Start(replacement);
+        Assert.Equal(handles[0].Slot, replacement.Slot);
+        Assert.True(replacement.Version > handles[0].Version);
+        Assert.Throws<ArgumentException>(() => batch.Read(handles[0]));
+        batch.Advance(1, .25, 0);
+        Assert.Equal(65, batch.Samples.Length);
+        foreach (var handle in handles.Skip(1)) Equal(.375, batch.Read(handle).Value);
+        Equal(.375, batch.Read(replacement).Value);
+        var before = batch.Read(replacement); var capacity = batch.Capacity;
+        Assert.Throws<AnimationStorageException>(() => batch.EnsureCapacity(int.MaxValue));
+        Assert.Equal(before, batch.Read(replacement)); Assert.Equal(capacity, batch.Capacity);
+        batch.Reset();
+        Assert.Equal(16, batch.Capacity); Assert.Equal(0, batch.RegisteredCount);
+        Assert.Equal(65, batch.Samples.Length);
+        foreach (var sample in batch.Samples) Equal(.25, sample.Value);
+        Assert.Throws<ArgumentException>(() => batch.Read(replacement));
+        var next = batch.Register(Binding(1), Clip()); batch.Start(next); batch.Advance(1, .5, 0);
+        Equal(.5, batch.Read(next).Value);
+    }
 
-        var oscillation=new AnimationBatch(1);var oh=oscillation.RegisterOscillation(Binding(property:AnimationProperty.LocalRotationAngle),Oscillator());
-        slots=(Array)typeof(AnimationBatch).GetField("_slots",BindingFlags.Instance|BindingFlags.NonPublic)!.GetValue(oscillation)!;
-        slot=slots.GetValue(oh.Slot)!;state=slot.GetType().GetField("Oscillation")!.GetValue(slot)!;
-        state.GetType().GetField("_accepted",BindingFlags.Instance|BindingFlags.NonPublic)!.SetValue(state,ulong.MaxValue);
-        var priorOscillation=oscillation.ReadOscillation(oh);
-        Assert.Throws<InvalidOperationException>(()=>oscillation.KickOscillation(oh,new(1),new(1f),0));
-        Assert.Equal(priorOscillation,oscillation.ReadOscillation(oh));
+    [Fact]
+    public void RegistryAndImpulseWatermarksReserveOnceAndPreserveValues()
+    {
+        var batch = new AnimationBatch();
+        var handles = Enumerable.Range(1, 12).Select(i => batch.Register(Binding((ulong)i), Clip())).ToArray();
+        Assert.Equal(16, batch.Capacity);
+        var thirteenth = batch.Register(Binding(13), Clip());
+        Assert.Equal(32, batch.Capacity);
+        batch.EnsureCapacity(100);
+        Assert.Equal(134, batch.Capacity);
+        batch.EnsureCapacity(100);
+        Assert.Equal(134, batch.Capacity);
+        foreach (var handle in handles.Append(thirteenth)) { batch.Start(handle); Equal(.25, batch.Read(handle).Value); }
+        var impulse = batch.RegisterImpulses(Binding(14), Impulse(), Value(AnimationProperty.Opacity, 0), Value(AnimationProperty.Opacity, 1));
+        Assert.Equal(8, batch.ReadImpulses(impulse).Capacity);
+        for (ulong id = 1; id <= 6; id++) batch.EnqueueImpulse(impulse, new(id), new(1), 0);
+        Assert.Equal(8, batch.ReadImpulses(impulse).Capacity);
+        batch.EnqueueImpulse(impulse, new(7), new(1), 0);
+        Assert.Equal(16, batch.ReadImpulses(impulse).Capacity);
+        batch.ReserveImpulses(impulse, 93);
+        Assert.Equal(134, batch.ReadImpulses(impulse).Capacity);
+        for (ulong id = 8; id <= 100; id++) batch.EnqueueImpulse(impulse, new(id), new(1), 0);
+        Assert.Equal(134, batch.ReadImpulses(impulse).Capacity);
+        Assert.Equal(100UL, batch.ReadImpulses(impulse).Accepted);
+        batch.Advance(1, .25, 0);
+        Equal(.75, batch.Read(impulse).Value);
+        Assert.Equal(100, batch.ReadImpulses(impulse).Playing);
+        batch.Advance(2, 1, 0);
+        Assert.Equal(100UL, batch.ReadImpulses(impulse).Completed);
+        batch.Reset(); Assert.Equal(16, batch.Capacity);
+        Assert.Throws<ArgumentException>(() => batch.Read(impulse));
+    }
+
+    [Theory]
+    [InlineData(65)]
+    [InlineData(65537)]
+    public void ImpulseStorageTracksRealDemandBeyondFormerLimits(int occurrences)
+    {
+        var batch = new AnimationBatch();
+        var handle = batch.RegisterImpulses(Binding(), Impulse(), Value(AnimationProperty.Opacity, 0), Value(AnimationProperty.Opacity, 1));
+        Assert.Equal(8, batch.ReadImpulses(handle).Capacity);
+        for (var i = 1; i <= occurrences; i++) batch.EnqueueImpulse(handle, new((ulong)i), new(1), 0);
+        var pending = batch.ReadImpulses(handle);
+        Assert.Equal(occurrences, pending.Pending); Assert.Equal((ulong)occurrences, pending.Accepted);
+        Assert.InRange(pending.Capacity, occurrences, 2 * occurrences);
+        batch.Advance(1, .25, 0); Equal(.75, batch.Read(handle).Value);
+        Assert.Equal(occurrences, batch.ReadImpulses(handle).Playing);
+        batch.Advance(2, 1, 0); Equal(0, batch.Read(handle).Value);
+        Assert.Equal((ulong)occurrences, batch.ReadImpulses(handle).Completed);
+        batch.EnqueueImpulse(handle, new((ulong)occurrences + 1), new(1), 1);
+        batch.CancelImpulses(handle); Assert.Equal(1UL, batch.ReadImpulses(handle).Cancelled);
+        batch.Reset(); Assert.Equal(16, batch.Capacity);
     }
 
     [Fact]
     public void WarmedFollowImpulseAndOscillationControlsAllocateNoScratch()
     {
-        var batch=new AnimationBatch(3);
+        var batch=new AnimationBatch();
         var follow=batch.RegisterFollow(Binding(),new(Value(AnimationProperty.Opacity,0),Value(AnimationProperty.Opacity,1),
             Value(AnimationProperty.Opacity,0),new(2f),AnimationClock.Presentation));
         var impulse=batch.RegisterImpulses(Binding(2),Impulse(),Value(AnimationProperty.Opacity,0),Value(AnimationProperty.Opacity,1));
@@ -510,7 +590,7 @@ public sealed class PortableAnimationTests(ITestOutputHelper output)
         const ulong iterations=100000;
         foreach(var mode in Enum.GetValues<NativeWorkMode>())
         {
-            var batch=new AnimationBatch(1);
+            var batch=new AnimationBatch();
             var handle=batch.Register(Binding(),Clip(curve:AnimationCurve.SinePulse,repeat:AnimationRepeat.Loop));
             batch.Start(handle);
             if(mode==NativeWorkMode.Hidden)batch.SetVisible(handle,false);
@@ -542,7 +622,7 @@ public sealed class PortableAnimationTests(ITestOutputHelper output)
     [InlineData(AnimationCurve.SinePulse)]
     public void AUnitClipEndsOnExactlyItsF32Endpoint(AnimationCurve curve)
     {
-        var batch = new AnimationBatch(1);
+        var batch = new AnimationBatch();
         var handle = batch.Register(Binding(property: AnimationProperty.ColourBlend), new AnimationDefinition(
             Value(AnimationProperty.ColourBlend, 0), Value(AnimationProperty.ColourBlend, 1), new(.25f), curve, AnimationRepeat.Once,
             AnimationClock.Presentation));
@@ -553,8 +633,8 @@ public sealed class PortableAnimationTests(ITestOutputHelper output)
         var end = At(4, .25);
         var completed = At(5, 1);
         var endpoint = curve == AnimationCurve.SinePulse ? 0f : 1f;
-        Assert.Equal(BitConverter.SingleToUInt32Bits(endpoint), BitConverter.SingleToUInt32Bits(end));
-        Assert.Equal(BitConverter.SingleToUInt32Bits(endpoint), BitConverter.SingleToUInt32Bits(completed));
+        Assert.Equal(endpoint, end);
+        Assert.Equal(endpoint, completed);
         Assert.Equal(AnimationPlayback.Completed, batch.Read(handle).Playback);
         Assert.InRange(last, 0f, 1f);
         if (curve != AnimationCurve.SinePulse) Assert.True(mid is > 0f and < 1f, $"mid-clip is partial: {mid}");

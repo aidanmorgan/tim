@@ -901,9 +901,23 @@ public sealed class WorkshopWireTests
     private static PhysicsSceneDeclaration GenericScene => WorkshopPhysicsCompiler.Compile(
         Construction.WithoutInstance(OnlyBall(Construction).Id).WithInstance(OnlyBall(Construction) with { Id = new(1) }), new(101, 206));
     [Fact]
-    public void AuthoredCompilerRejectsWideBodyIdentityWithoutChangingWireIdentityDomain()
+    public void AuthoredCompilerAndWirePreserveRepresentableWideBodyIdentity()
     {
-        EditRefusal.Is(WorkshopEditRejection.IdentityExhausted, () => WorkshopPhysicsCompiler.Compile(Construction, new(101, 206)));
+        var scene = WorkshopPhysicsCompiler.Compile(Construction, new(101, 206));
+        var admitted = PhysicsGpuAbi.Admission(scene, new(1), Profile);
+        Assert.True(PhysicsGpuAbi.ReadDynamicBodies(admitted).TryGet(OnlyBall(Construction).Id, out var body));
+        Assert.Equal(OnlyBall(Construction).Cell, body.Body.Cell);
+        Assert.Equal(OnlyBall(Construction).Local, body.Body.Local);
+        var physical = Stamped(new(new(1), new(0), PhysicsGpuAbi.ReadDynamicBodies(admitted)));
+        var response = new WorkshopResponse(new(1), WorkshopResponseKind.Acknowledgement,
+            new(WorkshopCommandOutcome.Applied, WorkshopRejection.None), WorkshopSimulationPhase.Building,
+            physical, Session, default, new(1), new(1), new(1));
+        var decoded = WorkshopWireFlatBuffers.DecodeResponse(WorkshopWireFlatBuffers.EncodeResponse(response)).Read;
+        Assert.True(decoded.Bodies.TryGet(body.Body.Id, out var received));
+        Assert.Equal(body, received);
+        var owned = scene.Colliders.ToArray().Where(collider => collider.Body == received.Body.Id).ToArray();
+        Assert.Equal(2, owned.Length);
+        Assert.All(owned, collider => Assert.Equal(OnlyBall(Construction).Id, collider.Body));
         var command = new WorkshopCommand(new(1), WorkshopCommandKind.Construct, new(1), new(1),
             Construction, Session: Session, Cadence: new(1), Projection: new(1));
         Assert.Equal(OnlyBall(Construction).Id, OnlyBall(WorkshopWireFlatBuffers.DecodeCommand(WorkshopWireFlatBuffers.EncodeCommand(command)).Construction!.Value).Id);
@@ -927,7 +941,7 @@ public sealed class WorkshopWireTests
     public void CurrentGenericDescriptorPreservesConstructionAndRejectsRetiredShapes()
     {
         var bytes = GenericAdmission();
-        PhysicsGpuAbi.ValidateCandidate(bytes, bytes, new(0));
+        PhysicsGpuAbi.ValidateCandidate(bytes, bytes, new(0), PhysicsInteractionSnapshot.Empty, PhysicsInteractionSnapshot.Empty);
         var body = NamedBody(bytes, new(1));
         Assert.Equal(OnlyBall(Construction).Cell, body.Body.Cell);
         Assert.Equal(OnlyBall(Construction).Rotation, body.Rotation);
@@ -954,24 +968,24 @@ public sealed class WorkshopWireTests
         Assert.Equal(1, scene.Guides.Length);
         var guide = scene.Guides[0];
         var knot = construction.Puzzle.TargetAssistance.Evaluate(construction.Puzzle.Precision);
-        Assert.Equal(construction.Puzzle.Goal.Body, guide.Target);
+        Assert.True(guide.Targets.Contains(construction.Puzzle.Goal.Body, scene.Bodies.ToArray().Single(body => body.Id == construction.Puzzle.Goal.Body).Payload));
         Assert.Equal(construction.Puzzle.Goal.Target, guide.Frame);
         Assert.Equal(knot.GuideAcceleration, guide.MaximumAcceleration);
         Assert.Equal(knot.CaptureMargin, guide.SupportMargin);
         Assert.Equal(new MetreVector(-1.1f, .5f, -1.1f), guide.Minimum);
         Assert.Equal(new MetreVector(1.1f, 1.5f, 1.1f), guide.Maximum);
         var bytes = PhysicsGpuAbi.Admission(scene, new(2), Profile);
-        PhysicsGpuAbi.ValidateCandidate(bytes, bytes, new(0));
-        // Only the current layout tag is admitted; a retired state version remains unsupported.
-        Assert.Equal(PhysicsGpuAbi.CurrentLayoutTag, BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(PhysicsGpuAbi.HeaderLayoutTagOffset)));
-        var versioned = (byte[])bytes.Clone(); BinaryPrimitives.WriteUInt32LittleEndian(versioned.AsSpan(PhysicsGpuAbi.HeaderLayoutTagOffset), 13);
-        Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ValidateCandidate(versioned, versioned, new(0)));
+        PhysicsGpuAbi.ValidateCandidate(bytes, bytes, new(0), PhysicsInteractionSnapshot.Empty, PhysicsInteractionSnapshot.Empty);
+        // The current header reserves zero; unsupported nonzero fields are refused structurally.
+        Assert.Equal(0u, BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(PhysicsGpuAbi.HeaderReservedOffset)));
+        var versioned = (byte[])bytes.Clone(); BinaryPrimitives.WriteUInt32LittleEndian(versioned.AsSpan(PhysicsGpuAbi.HeaderReservedOffset), 13);
+        Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ValidateCandidate(versioned, versioned, new(0), PhysicsInteractionSnapshot.Empty, PhysicsInteractionSnapshot.Empty));
         Assert.Equal(1u, BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(PhysicsGpuAbi.HeaderGuideCountOffset)));
         var layout = PhysicsGpuAbi.Layout(bytes);
         for (var offset = layout.GuidesOffset; offset < layout.MotionOffset; offset++)
         {
             var changed = (byte[])bytes.Clone(); changed[offset] ^= 1;
-            Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ValidateCandidate(changed, bytes, new(0)));
+            Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ValidateCandidate(changed, bytes, new(0), PhysicsInteractionSnapshot.Empty, PhysicsInteractionSnapshot.Empty));
         }
     }
 
@@ -984,9 +998,9 @@ public sealed class WorkshopWireTests
             scene.Bodies, scene.Colliders, scene.Materials, scene.Sensors, values);
         Assert.Throws<ArgumentException>(() => Replace(guide with { MaximumAcceleration = new(13f) }));
         Assert.Throws<ArgumentException>(() => Replace(guide with { SupportMargin = new(float.NaN) }));
-        Assert.Throws<ArgumentException>(() => Replace(guide with { Frame = guide.Target }));
-        Assert.Throws<ArgumentException>(() => Replace(guide with { Target = guide.Frame }));
-        Assert.Throws<ArgumentException>(() => Replace(guide with { Target = new(99) }));
+        Assert.Throws<ArgumentException>(() => Replace(guide with { Frame = scene.Bodies.ToArray().Single(body => body.Motion == RigidMotionKind.Dynamic).Id }));
+        Assert.Throws<ArgumentException>(() => Replace(guide with { Targets = new(BodyTargetKind.NamedBody, guide.Frame) }));
+        Assert.Throws<ArgumentException>(() => Replace(guide with { Targets = new(BodyTargetKind.NamedBody, new(99)) }));
         Assert.Throws<ArgumentException>(() => Replace(guide, guide with { Id = new(guide.Id.Value + 1) }));
         var input = new[] { guide }; var copied = Replace(input); input[0] = default;
         Assert.Equal(guide, copied.Guides[0]);
@@ -999,7 +1013,7 @@ public sealed class WorkshopWireTests
         }
         // Story 9R.5b: no table has a capacity; a header that claims one more row than the world holds no longer fits its length.
         foreach (var offset in new[] { PhysicsGpuAbi.HeaderGuideCountOffset, PhysicsGpuAbi.HeaderTriggerCountOffset,
-            PhysicsGpuAbi.HeaderContactWorkCountOffset, PhysicsGpuAbi.HeaderWorkOccurrenceCountOffset, PhysicsGpuAbi.HeaderPrismaticCountOffset,
+            PhysicsGpuAbi.HeaderContactWorkCountOffset, PhysicsGpuAbi.HeaderPrismaticCountOffset,
             PhysicsGpuAbi.HeaderOrientationSensorCountOffset, PhysicsGpuAbi.HeaderElectricalSourceCountOffset,
             PhysicsGpuAbi.HeaderElectricalBindingCountOffset, PhysicsGpuAbi.HeaderContactLoadCountOffset })
         {
@@ -1007,26 +1021,19 @@ public sealed class WorkshopWireTests
             BinaryPrimitives.WriteUInt32LittleEndian(changed.AsSpan(offset), BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(offset)) + 1);
             Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ReadDynamicBodies(changed));
         }
-        // Story 9R.5b: insert one zeroed occurrence row so the world's length still matches its header; the row is then rejected
-        // because no contact work owns it, not because the length disagrees.
-        var occurrences = PhysicsGpuAbi.Layout(bytes).WorkOccurrencesOffset;
-        Assert.Equal(0, PhysicsGpuAbi.Layout(bytes).ContactWorks);
-        var unownedEvent = new byte[bytes.Length + PhysicsGpuAbi.WorkOccurrenceBytes];
-        bytes.AsSpan(0, occurrences).CopyTo(unownedEvent);
-        bytes.AsSpan(occurrences).CopyTo(unownedEvent.AsSpan(occurrences + PhysicsGpuAbi.WorkOccurrenceBytes));
-        BinaryPrimitives.WriteUInt32LittleEndian(unownedEvent.AsSpan(PhysicsGpuAbi.HeaderWorkOccurrenceCountOffset), 1);
-        Assert.Equal(unownedEvent.Length, PhysicsGpuAbi.ByteLength(unownedEvent));
-        Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ReadContactWorks(unownedEvent));
-        Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ValidateCandidate(unownedEvent, bytes, new(0)));
+        // Sparse actual state cannot claim an undeclared work policy even when its value is structurally valid.
+        var unowned = new PhysicsInteractionSnapshot(PhysicsInteractionSnapshot.Empty.Captures,
+            PhysicsInteractionSnapshot.Empty.Works.Add(new(new(99), new(1)),
+                new(new(0), new(0), new(1), 1, 1, 0, new(1), new(0), ContactWorkEffect.Passive)));
+        Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ReadContactWorks(bytes, unowned));
+        Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ValidateCandidate(bytes, bytes, new(0), unowned, PhysicsInteractionSnapshot.Empty));
     }
 
     [Theory]
-    [InlineData(0, 13u)] // retired physics state version is not the current layout tag
+    [InlineData(0, 13u)] // nonzero reserved header field
     [InlineData(0, 2u)]
     [InlineData(4, 1u)]
     [InlineData(8, uint.MaxValue)]
-    [InlineData(12, uint.MaxValue)]
-    [InlineData(28, uint.MaxValue)]
     [InlineData(32, 3u)]
     [InlineData(48, uint.MaxValue)]
     [InlineData(56, 2u)]
@@ -1037,8 +1044,22 @@ public sealed class WorkshopWireTests
     {
         var source = GenericAdmission(); var candidate = (byte[])source.Clone();
         BinaryPrimitives.WriteUInt32LittleEndian(candidate.AsSpan(offset), value);
-        Assert.ThrowsAny<ArgumentException>(() => PhysicsGpuAbi.ValidateCandidate(candidate, source, new(0)));
-        PhysicsGpuAbi.ValidateCandidate(source, source, new(0));
+        Assert.ThrowsAny<ArgumentException>(() => PhysicsGpuAbi.ValidateCandidate(candidate, source, new(0), PhysicsInteractionSnapshot.Empty, PhysicsInteractionSnapshot.Empty));
+        PhysicsGpuAbi.ValidateCandidate(source, source, new(0), PhysicsInteractionSnapshot.Empty, PhysicsInteractionSnapshot.Empty);
+    }
+
+    [Theory]
+    [InlineData(12)]
+    [InlineData(28)]
+    [InlineData(PhysicsGpuAbi.HeaderColliderCountOffset)]
+    public void UnrepresentablePopulationHasTypedStorageRefusalAndValidRetry(int offset)
+    {
+        var source = GenericAdmission(); var candidate = (byte[])source.Clone();
+        BinaryPrimitives.WriteUInt32LittleEndian(candidate.AsSpan(offset), uint.MaxValue);
+        Assert.Throws<WorkshopStorageException>(() => PhysicsGpuAbi.ValidateCandidate(candidate, source, new(0),
+            PhysicsInteractionSnapshot.Empty, PhysicsInteractionSnapshot.Empty));
+        var valid = PhysicsGpuAbi.ValidateCandidate(source, source, new(0), PhysicsInteractionSnapshot.Empty, PhysicsInteractionSnapshot.Empty);
+        Assert.Equal(GenericScene.World.Dynamic, valid.Bodies.Count);
     }
 
     // Story 9R.2 / 9R.5b: the world is exactly as long as its own header's population counts say, the collider table is its
@@ -1054,14 +1075,14 @@ public sealed class WorkshopWireTests
         Assert.Equal(source.Length, PhysicsGpuAbi.ByteLength(source));
         Assert.All(source.AsSpan(PhysicsGpuAbi.HeaderPaddingOffset, PhysicsGpuAbi.HeaderBytes - PhysicsGpuAbi.HeaderPaddingOffset).ToArray(),
             value => Assert.Equal((byte)0, value));
-        PhysicsGpuAbi.ValidateCandidate(source, source, new(0));
+        PhysicsGpuAbi.ValidateCandidate(source, source, new(0), PhysicsInteractionSnapshot.Empty, PhysicsInteractionSnapshot.Empty);
         // One collider record more or less, one byte more or less, or a header that claims another count: rejected.
         foreach (var length in new[] { source.Length - PhysicsGpuAbi.ColliderBytes, source.Length - 1, source.Length + 1, source.Length + PhysicsGpuAbi.ColliderBytes })
         {
             var resized = new byte[length]; source.AsSpan(0, Math.Min(length, source.Length)).CopyTo(resized);
             Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ReadFailure(resized));
         }
-        foreach (var count in new[] { (uint)colliders - 1, (uint)colliders + 1, uint.MaxValue })
+        foreach (var count in new[] { (uint)colliders - 1, (uint)colliders + 1 })
         {
             var claimed = (byte[])source.Clone();
             BinaryPrimitives.WriteUInt32LittleEndian(claimed.AsSpan(PhysicsGpuAbi.HeaderColliderCountOffset), count);
@@ -1081,7 +1102,7 @@ public sealed class WorkshopWireTests
         Assert.Equal(colliders + 1, PhysicsGpuAbi.Layout(longer).Colliders);
         Assert.Equal(PhysicsGpuAbi.Layout(longer).ByteLength, longer.Length);
         Assert.True(longer.Length > source.Length);
-        Assert.ThrowsAny<ArgumentException>(() => PhysicsGpuAbi.ValidateCandidate(longer, source, new(0)));
+        Assert.ThrowsAny<ArgumentException>(() => PhysicsGpuAbi.ValidateCandidate(longer, source, new(0), PhysicsInteractionSnapshot.Empty, PhysicsInteractionSnapshot.Empty));
     }
 
     // Story 9R.2: the collider tail is immutable during a Run; every byte of every collider record is bound to its source.
@@ -1092,7 +1113,7 @@ public sealed class WorkshopWireTests
         for (var offset = PhysicsGpuAbi.Layout(source).CollidersOffset; offset < source.Length; offset++)
         {
             var changed = (byte[])source.Clone(); changed[offset] ^= 1;
-            Assert.ThrowsAny<ArgumentException>(() => PhysicsGpuAbi.ValidateCandidate(changed, source, new(0)));
+            Assert.ThrowsAny<ArgumentException>(() => PhysicsGpuAbi.ValidateCandidate(changed, source, new(0), PhysicsInteractionSnapshot.Empty, PhysicsInteractionSnapshot.Empty));
         }
     }
 
@@ -1106,7 +1127,7 @@ public sealed class WorkshopWireTests
             PhysicsGpuAbi.Layout(source).CollidersOffset + 40, PhysicsGpuAbi.Layout(source).MaterialsOffset + 8 })
         {
             var changed = (byte[])source.Clone(); changed[offset] ^= 1;
-            Assert.ThrowsAny<ArgumentException>(() => PhysicsGpuAbi.ValidateCandidate(changed, source, new(0)));
+            Assert.ThrowsAny<ArgumentException>(() => PhysicsGpuAbi.ValidateCandidate(changed, source, new(0), PhysicsInteractionSnapshot.Empty, PhysicsInteractionSnapshot.Empty));
         }
         // Committed velocity is f32 m/s: inside the envelope it commits, beyond 64 m/s (vector), 128 rad/s or non-finite it is rejected.
         var vOffset = DynamicOffset(source) + PhysicsGpuAbi.BodyVelocityOffset; var wOffset = DynamicOffset(source) + PhysicsGpuAbi.BodyAngularVelocityOffset;
@@ -1116,23 +1137,23 @@ public sealed class WorkshopWireTests
         Assert.Equal(new LinearVelocity(45f, 45f, 0f), admittedBody.Body.Velocity);
         Assert.Equal(new AngularVelocity(0f, 0f, -128f), admittedBody.AngularVelocity);
         // The commit path itself accepts in-envelope f32 velocity and binds the exact committed bits, up to the bounds themselves.
-        Assert.True(PhysicsGpuAbi.ValidateCandidate(admitted, source, new(0)).Bodies.TryGet(new(1), out var committed));
+        Assert.True(PhysicsGpuAbi.ValidateCandidate(admitted, source, new(0), PhysicsInteractionSnapshot.Empty, PhysicsInteractionSnapshot.Empty).Bodies.TryGet(new(1), out var committed));
         Assert.True(committed.Body.Velocity.HasSameBits(new(45f, 45f, 0f)) && committed.AngularVelocity.HasSameBits(new(0f, 0f, -128f)));
         var edge = (byte[])source.Clone();
         WriteSingle(edge, vOffset + 8, -64f); WriteSingle(edge, wOffset, 128f);
-        Assert.True(PhysicsGpuAbi.ValidateCandidate(edge, source, new(0)).Bodies.TryGet(new(1), out var bound));
+        Assert.True(PhysicsGpuAbi.ValidateCandidate(edge, source, new(0), PhysicsInteractionSnapshot.Empty, PhysicsInteractionSnapshot.Empty).Bodies.TryGet(new(1), out var bound));
         Assert.True(bound.Body.Velocity.HasSameBits(new(0f, 0f, -64f)) && bound.AngularVelocity.HasSameBits(new(128f, 0f, 0f)));
         foreach (var (offset, value) in new[] { (vOffset, 50f), (vOffset + 8, float.NaN), (wOffset, 128.0001f), (wOffset + 4, float.NegativeInfinity) })
         {
             var velocity = (byte[])source.Clone();
             if (offset == vOffset) WriteSingle(velocity, vOffset + 4, 50f);
             WriteSingle(velocity, offset, value);
-            Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ValidateCandidate(velocity, source, new(0)));
+            Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ValidateCandidate(velocity, source, new(0), PhysicsInteractionSnapshot.Empty, PhysicsInteractionSnapshot.Empty));
         }
         var segment = (byte[])source.Clone();
         WriteSingle(segment, DynamicOffset(source) + PhysicsGpuAbi.BodyPrincipalFrameOffset, 2f);
         WriteSingle(segment, DynamicOffset(source) + PhysicsGpuAbi.BodyPrincipalFrameOffset + 4, 2f);
-        Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ValidateCandidate(segment, source, new(0)));
+        Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ValidateCandidate(segment, source, new(0), PhysicsInteractionSnapshot.Empty, PhysicsInteractionSnapshot.Empty));
     }
 
     private static byte[] GenericEndpoint(ulong tick, uint origin, float phase)
@@ -1165,29 +1186,29 @@ public sealed class WorkshopWireTests
     public void GenericMotionAnchorKeepsCanonicalPhaseAndBoundedAge(ulong tick, uint origin, int phase, bool accepted)
     {
         var source = GenericAdmission(); var candidate = GenericEndpoint(tick, origin, (float)phase);
-        if (accepted) PhysicsGpuAbi.ValidateCandidate(candidate, source, new(tick));
-        else Assert.ThrowsAny<ArgumentException>(() => PhysicsGpuAbi.ValidateCandidate(candidate, source, new(tick)));
+        if (accepted) PhysicsGpuAbi.ValidateCandidate(candidate, source, new(tick), PhysicsInteractionSnapshot.Empty, PhysicsInteractionSnapshot.Empty);
+        else Assert.ThrowsAny<ArgumentException>(() => PhysicsGpuAbi.ValidateCandidate(candidate, source, new(tick), PhysicsInteractionSnapshot.Empty, PhysicsInteractionSnapshot.Empty));
     }
 
     [Fact]
     public void GenericMotionMustMatchWorldProfileAndCoverItsWholeCommit()
     {
         var source = GenericAdmission(); var candidate = GenericEndpoint(1, 0, 0f);
-        PhysicsGpuAbi.ValidateCandidate(candidate, source, new(1));
+        PhysicsGpuAbi.ValidateCandidate(candidate, source, new(1), PhysicsInteractionSnapshot.Empty, PhysicsInteractionSnapshot.Empty);
         var motion = PhysicsGpuAbi.Layout(candidate).MotionOffset;
         // Internally valid two-substep motion cannot describe this four-substep world.
         var wrongProfile = (byte[])candidate.Clone();
         BinaryPrimitives.WriteUInt32LittleEndian(wrongProfile.AsSpan(motion + 4), 2);
         BinaryPrimitives.WriteUInt32LittleEndian(wrongProfile.AsSpan(motion + 12), 2);
         BinaryPrimitives.WriteUInt32LittleEndian(wrongProfile.AsSpan(motion + PhysicsMotionRead.HeaderBytes + PhysicsMotionRead.EndOrdinalOffset), 2);
-        Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ValidateCandidate(wrongProfile, source, new(1)));
+        Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ValidateCandidate(wrongProfile, source, new(1), PhysicsInteractionSnapshot.Empty, PhysicsInteractionSnapshot.Empty));
         foreach (var offset in new[] { motion + PhysicsMotionRead.HeaderBytes + PhysicsMotionRead.StartOrdinalOffset, // missing beginning
             motion + PhysicsMotionRead.HeaderBytes + PhysicsMotionRead.OwnerOffset, // wrong body
             motion + PhysicsMotionRead.HeaderBytes + PhysicsMotionRead.FlaggedVectorOffset + 1, // an unflagged vector lane
             motion + PhysicsMotionRead.HeaderBytes + checked((int)Profile.Substeps) * PhysicsMotionRead.PieceBytes }) // unused tail
         {
             var changed = (byte[])candidate.Clone(); changed[offset] ^= 1;
-            Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ValidateCandidate(changed, source, new(1)));
+            Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ValidateCandidate(changed, source, new(1), PhysicsInteractionSnapshot.Empty, PhysicsInteractionSnapshot.Empty));
         }
     }
 
@@ -1267,42 +1288,51 @@ public sealed class WorkshopWireTests
             _ => throw new ArgumentOutOfRangeException(nameof(region))
         };
         Assert.True(length > 0);
-        var originalMotion = PhysicsGpuAbi.ValidateCandidate(candidate, source, new(1));
+        var originalMotion = PhysicsGpuAbi.ValidateCandidate(candidate, source, new(1), PhysicsInteractionSnapshot.Empty, PhysicsInteractionSnapshot.Empty);
         foreach (var offset in new[] { start, start + length / 2, start + length - 1 })
         foreach (var value in new byte[] { 1, 0x80, 0xff })
         {
             var changed = (byte[])candidate.Clone();
             changed[offset] = value; // 0x80 also exercises a negative-zero sign bit in raw-zero storage.
-            Assert.ThrowsAny<ArgumentException>(() => PhysicsGpuAbi.ValidateCandidate(changed, source, new(1)));
+            Assert.ThrowsAny<ArgumentException>(() => PhysicsGpuAbi.ValidateCandidate(changed, source, new(1), PhysicsInteractionSnapshot.Empty, PhysicsInteractionSnapshot.Empty));
         }
-        Assert.True(originalMotion.Motion.Bytes.SequenceEqual(PhysicsGpuAbi.ValidateCandidate(candidate, source, new(1)).Motion.Bytes));
+        var repeated = PhysicsGpuAbi.ValidateCandidate(candidate, source, new(1), PhysicsInteractionSnapshot.Empty, PhysicsInteractionSnapshot.Empty);
+        Assert.Equal(originalMotion.Motion.Count, repeated.Motion.Count);
+        Assert.Equal(originalMotion.Motion.FirstOrdinal, repeated.Motion.FirstOrdinal);
+        Assert.Equal(originalMotion.Motion.LastOrdinal, repeated.Motion.LastOrdinal);
+        for (var ordinal = 0; ordinal < 4; ordinal++)
+        {
+            Assert.True(originalMotion.Motion.TrySample(new(1), ordinal, out var expected));
+            Assert.True(repeated.Motion.TrySample(new(1), ordinal, out var actual));
+            Assert.Equal(expected, actual);
+        }
     }
 
     // Story 9A.44: every fixed row's zero padding (a body's tail, a collider's shape gap and tail, a material's tail) is checked in the
     // world itself, at admission (tick 0) and on every tick. The same nonzero byte in the source and the candidate passes the
     // unchanged-row comparison, so only the padding rule can refuse it.
-    public enum FixedRowPadding { BodyMotionGap, BodyTail, ColliderShapeGap, ColliderTail, MaterialTail }
+    public enum FixedRowPadding { BodyMotionGap, BodyTail, UnownedColliderSensingRegion, ColliderTail, MaterialTail }
 
     [Theory]
     [InlineData(FixedRowPadding.BodyMotionGap)]
     [InlineData(FixedRowPadding.BodyTail)]
-    [InlineData(FixedRowPadding.ColliderShapeGap)]
+    [InlineData(FixedRowPadding.UnownedColliderSensingRegion)]
     [InlineData(FixedRowPadding.ColliderTail)]
     [InlineData(FixedRowPadding.MaterialTail)]
     public void FixedRowPaddingMustBeZeroAtAdmissionAndWhenUnchanged(FixedRowPadding region)
     {
         var source = GenericAdmission();
         var candidate = GenericEndpoint(1, 0, 0f);
-        PhysicsGpuAbi.ValidateCandidate(source, source, new(0)); // controls: the zero tails admit and commit
-        PhysicsGpuAbi.ValidateCandidate(candidate, source, new(1));
+        PhysicsGpuAbi.ValidateCandidate(source, source, new(0), PhysicsInteractionSnapshot.Empty, PhysicsInteractionSnapshot.Empty); // controls: the zero tails admit and commit
+        PhysicsGpuAbi.ValidateCandidate(candidate, source, new(1), PhysicsInteractionSnapshot.Empty, PhysicsInteractionSnapshot.Empty);
         var layout = PhysicsGpuAbi.Layout(candidate);
         var (start, length) = region switch
         {
             FixedRowPadding.BodyMotionGap => (layout.BodyOffset(0) + PhysicsGpuAbi.BodyMotionPaddingOffset,
                 PhysicsGpuAbi.BodyCellOffset - PhysicsGpuAbi.BodyMotionPaddingOffset),
             FixedRowPadding.BodyTail => (layout.BodyOffset(0) + PhysicsGpuAbi.BodyPaddingOffset, PhysicsGpuAbi.BodyBytes - PhysicsGpuAbi.BodyPaddingOffset),
-            FixedRowPadding.ColliderShapeGap => (layout.ColliderOffset(0) + PhysicsGpuAbi.ColliderShapePaddingOffset,
-                PhysicsGpuAbi.ColliderPoseOffset - PhysicsGpuAbi.ColliderShapePaddingOffset),
+            FixedRowPadding.UnownedColliderSensingRegion => (layout.ColliderOffset(0) + PhysicsGpuAbi.ColliderContactLoadOffset,
+                PhysicsGpuAbi.ColliderPoseOffset - PhysicsGpuAbi.ColliderContactLoadOffset),
             FixedRowPadding.ColliderTail => (layout.ColliderOffset(0) + PhysicsGpuAbi.ColliderPaddingOffset, PhysicsGpuAbi.ColliderBytes - PhysicsGpuAbi.ColliderPaddingOffset),
             FixedRowPadding.MaterialTail => (layout.MaterialOffset(0) + PhysicsGpuAbi.MaterialPaddingOffset, PhysicsGpuAbi.MaterialBytes - PhysicsGpuAbi.MaterialPaddingOffset),
             _ => throw new ArgumentOutOfRangeException(nameof(region))
@@ -1311,8 +1341,8 @@ public sealed class WorkshopWireTests
         {
             var (paddedSource, paddedCandidate) = ((byte[])source.Clone(), (byte[])candidate.Clone());
             paddedSource[offset] = paddedCandidate[offset] = 1;
-            Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ValidateCandidate(paddedSource, paddedSource, new(0)));
-            Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ValidateCandidate(paddedCandidate, paddedSource, new(1)));
+            Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ValidateCandidate(paddedSource, paddedSource, new(0), PhysicsInteractionSnapshot.Empty, PhysicsInteractionSnapshot.Empty));
+            Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ValidateCandidate(paddedCandidate, paddedSource, new(1), PhysicsInteractionSnapshot.Empty, PhysicsInteractionSnapshot.Empty));
         }
     }
 
@@ -1322,14 +1352,14 @@ public sealed class WorkshopWireTests
     public void UnknownFullWidthCaptureDiscriminantRejects(uint phase)
     {
         const ulong sensor = 0x0123456789ABCDEFUL; // a distinctive identity to find the capture row on the wire
-        var read = Stamped(new(new(2), new(0), default, Captures: new([CaptureLatch.Clear(new(sensor))])));
+        var read = Stamped(new(new(2), new(0), Bodies(new(new(1), 2, 0, default, default, default)), Captures: new([CaptureLatch.Clear(new(sensor), new(1))])));
         var response = new WorkshopResponse(new(1), WorkshopResponseKind.Acknowledgement,
             new(WorkshopCommandOutcome.Applied, WorkshopRejection.None), WorkshopSimulationPhase.Building,
             read, Session, default, new(1), new(1), new(1));
         var bytes = WorkshopWireFlatBuffers.EncodeResponse(response);
         var row = bytes.AsSpan().IndexOf(BitConverter.GetBytes(sensor));
         Assert.True(row > 0, "the capture row");
-        BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(row + 8), phase);
+        BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(row + 16), phase);
         Assert.Throws<ArgumentException>(() => WorkshopWireFlatBuffers.DecodeResponse(bytes));
     }
 

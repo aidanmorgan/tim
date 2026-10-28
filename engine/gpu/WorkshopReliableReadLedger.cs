@@ -45,7 +45,7 @@ public sealed class WorkshopReliableReadLedger
     public const long StallNanoseconds = 500_000_000;
 
     private readonly RuntimeSessionId _session;
-    private readonly Queue<UnreceiptedRead> _unreceipted = new();
+    private readonly Queue<UnreceiptedRead> _unreceipted = new(16);
     private PublicationSequence _published, _retired;
 
     public WorkshopReliableReadLedger(RuntimeSessionId session)

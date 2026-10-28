@@ -11,7 +11,7 @@ namespace CuriousContraptions.Elements.Springboard;
 public sealed class SpringboardElementDeclaration : ISliderElement, ISceneGeometryElement
 {
     public ElementPresentation Presentation => new(.9f, PresentationAxes.None,
-        [], [new("Visual/Plate", PresentationBody.Secondary, Vector3.Zero)], [new("Visual/Plate", new(0, -.075f, 0), "Visual/Coil", new(0, -.3f, 0), .365f)], []);
+        [], [new("Visual/Plate", new PackageBodyIndex(1), Vector3.Zero)], [new("Visual/Plate", new(0, -.075f, 0), "Visual/Coil", new(0, -.3f, 0), .365f)], []);
 
     public ElementMetadata Metadata => new(
         Id: "spring",
@@ -48,12 +48,15 @@ public sealed class SpringboardElementDeclaration : ISliderElement, ISceneGeomet
 
     public KinematicMode KinematicMode => KinematicMode.Static;
 
-    public RigidBodyMassProperties MassProperties => new(
-        Mass: 0f,
-        CentreOfMass: Vector3.Zero,
-        InertiaTensor: Vector3.Zero,
-        LinearDrag: 0f,
-        Gravity: Vector3.Zero);
+    public PayloadPolicy Payload => PayloadPolicy.None;
+
+    public MassFrameDeclaration MassFrame => MassFrameDeclaration.Constant(
+        mass: 0f,
+        centreOfMass: Vector3.Zero,
+        principalMoments: Vector3.Zero,
+        principalFrame: Quaternion.Identity,
+        linearDrag: 0f,
+        gravity: Vector3.Zero);
 
     public IReadOnlyList<AnchorPointDescriptor> AnchorPoints => [];
 
@@ -69,9 +72,11 @@ public sealed class SpringboardElementDeclaration : ISliderElement, ISceneGeomet
             Compression: MechanicalValue.FromParameter("initial_compression"),
             BodiesCollide: false,
             MovingBody: new(
-                Mass: 0.25f,
-                Gravity: new Vector3(0f, -9.81f, 0f),
-                LinearDrag: 0f,
+                MassFrame: MassFrameDeclaration.Constant(.25f, Vector3.Zero,
+                    new Vector3((.25f / 3f) * (.075f * .075f + .6f * .6f),
+                        (.25f / 3f) * (.65f * .65f + .6f * .6f),
+                        (.25f / 3f) * (.65f * .65f + .075f * .075f)),
+                    Quaternion.Identity, 0f, new Vector3(0f, -9.81f, 0f)),
                 Colliders: []),
             Drive: null)
     ];

@@ -165,14 +165,17 @@ public sealed class PoweredGateTests(NativeSceneFixture godot)
         var gateFrame = scene.Bodies.ToArray().Single(b => b.Id == gate.Id);
         Assert.Equal(RigidMotionKind.Static, gateFrame.Motion);
 
-        var bladeId = WorkshopPhysicsCompiler.SliderBody(gate.Id, 0);
+        var bladeId = scene.Prismatics.ToArray().Single(joint => joint.BodyA == gate.Id).BodyB;
         var gateBlade = scene.Bodies.ToArray().Single(b => b.Id == bladeId);
         Assert.Equal(RigidMotionKind.Dynamic, gateBlade.Motion);
         Assert.Equal(1f, gateBlade.Mass.Value);
         Assert.Equal(0f, gateBlade.LinearDrag.Value); // Unwired -> 0 drag
 
-        // Colliders: plane (1) + ball (1) + blade (1) + frame (8) = 11 colliders
-        Assert.Equal(11, scene.Colliders.Length);
+        // Plane + Basketball sphere/seam + blade + eight frame boxes.
+        Assert.Equal(12, scene.Colliders.Length);
+        var payloadShapes = scene.Colliders.ToArray().Where(c => c.Body == ball.Id).ToArray();
+        Assert.Single(payloadShapes, c => c.Shape == ColliderShapeKind.Sphere);
+        Assert.Single(payloadShapes, c => c.Shape == ColliderShapeKind.Torus);
         var bladeCollider = scene.Colliders.ToArray().Single(c => c.Body == bladeId);
         Assert.Equal(ColliderShapeKind.Box, bladeCollider.Shape);
         Assert.Equal(new MetreVector(0.06f, 0.72f, 0.72f), bladeCollider.HalfExtents);
@@ -215,7 +218,7 @@ public sealed class PoweredGateTests(NativeSceneFixture godot)
         Assert.True(PhysicsTickInputs.Compose(scene.SupplyGraph,scene.Prismatics.Length,new([ElectricalEnable.Enabled]),NoContact).SupplyClosed[0]);
         Assert.False(PhysicsTickInputs.Compose(scene.SupplyGraph,scene.Prismatics.Length,new([ElectricalEnable.Disabled]),NoContact).SupplyClosed[0]);
         Assert.Empty(scene.Electrical.Bindings.ToArray());
-        Assert.Equal(0f,scene.Bodies.ToArray().Single(body=>body.Id==WorkshopPhysicsCompiler.SliderBody(gate.Id, 0)).LinearDrag.Value);
+        Assert.Equal(0f,scene.Bodies.ToArray().Single(body=>body.Id==scene.Prismatics.ToArray().Single(joint => joint.BodyA == gate.Id).BodyB).LinearDrag.Value);
     }
 
     [Fact]
@@ -260,13 +263,13 @@ public sealed class PoweredGateTests(NativeSceneFixture godot)
         CompiledSupplyGraph Admit(SupplyNodeDeclaration[] nodes,params SupplyEdge[] edges)=>new(nodes,edges,
             scene.Electrical.Sources,scene.Prismatics,scene.PrismaticDrives,scene.Bodies);
         var source=new SupplyNodeDeclaration(battery.Id,SupplyNodeKind.Source,scene.Electrical.Sources[0].Id);
-        var consumer=new SupplyNodeDeclaration(gate.Id,SupplyNodeKind.Consumer,Consumer:scene.Prismatics[0].Id);
+        var consumer=new SupplyNodeDeclaration(gate.Id,SupplyNodeKind.Consumer,Consumers:[scene.Prismatics[0].Id]);
         Assert.Equal(2,Admit([source,consumer],new SupplyEdge(battery.Id,gate.Id,WorkshopSocket.PowerIn)).Nodes.Length);
         Assert.Throws<ArgumentException>(()=>Admit([source with {Kind=(SupplyNodeKind)99}]));
         Assert.Throws<ArgumentException>(()=>Admit([source with {Source=default}]));
         Assert.Throws<ArgumentException>(()=>Admit([source,source]));
-        Assert.Throws<ArgumentException>(()=>Admit([consumer with {Consumer=new(999)}]));
-        Assert.Throws<ArgumentException>(()=>Admit([new(WorkshopPhysicsCompiler.SliderBody(gate.Id, 0),SupplyNodeKind.Contact)]));
+        Assert.Throws<ArgumentException>(()=>Admit([consumer with {Consumers=[new(999)]}]));
+        Assert.Throws<ArgumentException>(()=>Admit([new(scene.Prismatics.ToArray().Single(joint => joint.BodyA == gate.Id).BodyB,SupplyNodeKind.Contact)]));
         Assert.Throws<ArgumentException>(()=>Admit([source,consumer],new SupplyEdge(gate.Id,battery.Id,WorkshopSocket.PowerIn)));
         Assert.Throws<ArgumentException>(()=>Admit([source,consumer],new SupplyEdge(battery.Id,gate.Id,WorkshopSocket.PowerIn),new(battery.Id,gate.Id,WorkshopSocket.PowerIn)));
         Assert.Throws<ArgumentException>(()=>Admit([source,consumer],new SupplyEdge(battery.Id,new(999),WorkshopSocket.PowerIn)));
@@ -277,7 +280,7 @@ public sealed class PoweredGateTests(NativeSceneFixture godot)
     {
         var gate = WorkshopInput.Generic(PartId.PoweredGate, new(1), 0, 0, 0, 0, 0, 0, 1);
         IWorkshopInstance[] instances = [gate];
-        WorkbenchCapacity.Validate(instances);
+        new WorkshopInstances([.. instances]).Validate();
 
         // Story 9R.5b: the compiled scene is the footprint authority; the workbench plane adds one static body and collider.
         var world = WorkshopPhysicsCompiler.Compile(new WorkshopConstruction(new ConstructionRevision(1), WorkshopCadenceSettings.Default(),

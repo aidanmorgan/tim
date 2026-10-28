@@ -63,12 +63,15 @@ public sealed class PressurePlateElementDeclaration : IMechanicalElement, ISuppl
 
     public KinematicMode KinematicMode => KinematicMode.Static;
 
-    public RigidBodyMassProperties MassProperties => new(
-        Mass: 0f,
-        CentreOfMass: Vector3.Zero,
-        InertiaTensor: Vector3.Zero,
-        LinearDrag: 0f,
-        Gravity: Vector3.Zero);
+    public PayloadPolicy Payload => PayloadPolicy.None;
+
+    public MassFrameDeclaration MassFrame => MassFrameDeclaration.Constant(
+        mass: 0f,
+        centreOfMass: Vector3.Zero,
+        principalMoments: Vector3.Zero,
+        principalFrame: Quaternion.Identity,
+        linearDrag: 0f,
+        gravity: Vector3.Zero);
 
     public IReadOnlyList<AnchorPointDescriptor> AnchorPoints => [];
 
@@ -83,5 +86,5 @@ public sealed class PressurePlateElementDeclaration : IMechanicalElement, ISuppl
 
     /// <summary>CAT-052 §2: the top face (baked collider 1) senses resting mass along its +Y normal (alignment 1 − 10⁻⁶, contact distance
     /// 10⁻⁴ m, z margin 10⁻⁶ m) against <c>minimum_mass</c>; the level is held 0.1 s after the last qualifying contact (Q3).</summary>
-    public SignalContactLoadDescriptor ContactLoad => new("minimum_mass", 1, Vector3.UnitY, 1f - 1e-6f, 1e-4f, 1e-6f, .1f);
+    public SignalContactLoadDescriptor ContactLoad => new("minimum_mass", 1, Vector3.UnitY, 1f - 1e-6f, 1e-4f, 1e-6f, .1f, [1, 7]);
 }

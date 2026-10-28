@@ -11,26 +11,26 @@ namespace CuriousContraptions.Gpu;
 /// </summary>
 public sealed class CompiledMemoryLayout
 {
-    private readonly Dictionary<GpuBodyId, int> _bodySlots = [];
-    private readonly Dictionary<GpuBodyId, int> _bodyOffsets = [];
-    private readonly Dictionary<GpuColliderId, int> _colliderSlots = [];
-    private readonly Dictionary<GpuColliderId, int> _colliderOffsets = [];
-    private readonly Dictionary<GpuMaterialId, int> _materialSlots = [];
-    private readonly Dictionary<GpuMaterialId, int> _materialOffsets = [];
-    private readonly Dictionary<GpuSensorId, int> _sensorSlots = [];
-    private readonly Dictionary<GpuSensorId, int> _sensorOffsets = [];
-    private readonly Dictionary<GpuForceId, int> _guideSlots = [];
-    private readonly Dictionary<GpuForceId, int> _guideOffsets = [];
-    private readonly Dictionary<GpuContactTriggerId, int> _triggerSlots = [];
-    private readonly Dictionary<GpuContactTriggerId, int> _triggerOffsets = [];
-    private readonly Dictionary<GpuContactWorkId, int> _contactWorkSlots = [];
-    private readonly Dictionary<GpuContactWorkId, int> _contactWorkOffsets = [];
-    private readonly Dictionary<GpuOrientationSensorId, int> _orientationSensorSlots = [];
-    private readonly Dictionary<GpuOrientationSensorId, int> _orientationSensorOffsets = [];
-    private readonly Dictionary<ElectricalSourceId, int> _electricalSourceSlots = [];
-    private readonly Dictionary<ElectricalSourceId, int> _electricalSourceOffsets = [];
-    private readonly Dictionary<ulong, int> _prismaticSlots = [];
-    private readonly Dictionary<ulong, int> _prismaticOffsets = [];
+    private readonly Dictionary<GpuBodyId, int> _bodySlots = new(16);
+    private readonly Dictionary<GpuBodyId, int> _bodyOffsets = new(16);
+    private readonly Dictionary<GpuColliderId, int> _colliderSlots = new(32);
+    private readonly Dictionary<GpuColliderId, int> _colliderOffsets = new(32);
+    private readonly Dictionary<GpuMaterialId, int> _materialSlots = new(32);
+    private readonly Dictionary<GpuMaterialId, int> _materialOffsets = new(32);
+    private readonly Dictionary<GpuSensorId, int> _sensorSlots = new(4);
+    private readonly Dictionary<GpuSensorId, int> _sensorOffsets = new(4);
+    private readonly Dictionary<GpuForceId, int> _guideSlots = new(4);
+    private readonly Dictionary<GpuForceId, int> _guideOffsets = new(4);
+    private readonly Dictionary<GpuContactTriggerId, int> _triggerSlots = new(4);
+    private readonly Dictionary<GpuContactTriggerId, int> _triggerOffsets = new(4);
+    private readonly Dictionary<GpuContactWorkId, int> _contactWorkSlots = new(4);
+    private readonly Dictionary<GpuContactWorkId, int> _contactWorkOffsets = new(4);
+    private readonly Dictionary<GpuOrientationSensorId, int> _orientationSensorSlots = new(4);
+    private readonly Dictionary<GpuOrientationSensorId, int> _orientationSensorOffsets = new(4);
+    private readonly Dictionary<ElectricalSourceId, int> _electricalSourceSlots = new(4);
+    private readonly Dictionary<ElectricalSourceId, int> _electricalSourceOffsets = new(4);
+    private readonly Dictionary<ulong, int> _prismaticSlots = new(4);
+    private readonly Dictionary<ulong, int> _prismaticOffsets = new(4);
 
     public IReadOnlyDictionary<GpuBodyId, int> BodySlots => _bodySlots;
     public IReadOnlyDictionary<GpuBodyId, int> BodyOffsets => _bodyOffsets;

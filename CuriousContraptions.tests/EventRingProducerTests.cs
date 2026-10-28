@@ -36,9 +36,10 @@ public sealed class EventRingProducerTests
     /// <summary>The production simulation with the worker's publication path: every command and tick is followed by one drain.</summary>
     internal sealed class Ring : IAsyncDisposable
     {
-        public WorkshopGpuDevice Device { get; } = new(new CuriousContraptions.Simulation.BrowserGpuTransport(), new(101, 206));
+        public EventRingPublication Publication { get; } = new();
+        public WorkshopGpuDevice Device { get; }
         public WorkshopSimulation Simulation { get; }
-        public EventRingMemory? Shared { get; private set; }
+        public EventRingMemory? Shared => Publication.Memory;
         public List<SimulationEventRecord> Records { get; } = [];
         public List<byte[]> Publications { get; } = [];
         public List<WorkshopRead> Reads { get; } = [];
@@ -49,6 +50,7 @@ public sealed class EventRingProducerTests
 
         private Ring(WorkshopCadenceSettings settings)
         {
+            Device = new(new CuriousContraptions.Simulation.BrowserGpuTransport(Publication), new(101, 206));
             _installation = new();
             Simulation = new(Device, new WorkshopPhysicsEngineTests.StepClock(), settings, new(1), _installation, GpuDeviceOwnership.Borrowed);
         }
@@ -88,9 +90,8 @@ public sealed class EventRingProducerTests
         public byte[] Publish()
         {
             var batch = Device.DrainEvents();
-            Publications.Add(batch);
             if (batch.Length == 0) return batch;
-            Shared = EventRingBuffer.Append(Shared, batch);
+            Publications.Add(batch);
             Records.AddRange(Decode(batch));
             return batch;
         }
@@ -225,13 +226,13 @@ public sealed class EventRingProducerTests
         await ring.Advance(480);
         // The production passage tracker replayed over the committed bodies gives the expected passes (its sensor law is unchanged).
         var network = WorkshopActivationCompiler.Compile(bench);
-        var colliders = WorkshopPhysicsCompiler.Compile(bench, new(1, 2)).Colliders.ToArray();
-        var tracker = PassageSensorTracker.Create(network.PassageSensors, colliders, ring.Reads[0].Bodies);
+        var scene = WorkshopPhysicsCompiler.Compile(bench, new(1, 2));
+        var tracker = PassageSensorTracker.Create(network.PassageSensors, scene, ring.Reads[0].Bodies);
         var outputs = new PassageSensorRead[8];
         var expected = new List<(ulong Tick, uint Ordinal)>();
         foreach (var read in ring.Reads.Skip(1))
         {
-            tracker = tracker.Advance(read.Tick, read.Bodies, read.Motion, outputs, out _);
+            tracker = tracker.Advance(read.Tick, read.Bodies, Assert.IsType<PhysicsMotionRead>(read.Motion), outputs, out _);
             expected.AddRange(tracker.Fired.Select(pass => (read.Tick.Value, pass.EventOrdinal)));
         }
         Assert.Equal(2, expected.Count);
@@ -502,18 +503,18 @@ public sealed class EventRingProducerTests
         ring.Device.Discard(new(999_999));
         Assert.Empty(ring.Device.Events.Pending);
         Assert.Equal(0UL, ring.Device.Events.WriteSequence);
-        Assert.Equal(EventRingBuffer.HeaderBytes, ring.Publish().Length);
+        Assert.Empty(ring.Publish());
         // Paused: no tick commits, so nothing is published.
         Assert.Equal(WorkshopCommandOutcome.Applied, (await ring.Simulation.Pause()).Outcome);
-        Assert.Equal(EventRingBuffer.HeaderBytes, ring.Publish().Length);
+        Assert.Empty(ring.Publish());
         Assert.NotEqual(WorkshopCommandOutcome.Applied, (await ring.Simulation.Advance()).Outcome);
-        Assert.Equal(EventRingBuffer.HeaderBytes, ring.Publish().Length);
+        Assert.Empty(ring.Publish());
         // A Step whose installation fails is discarded: tick 120's pulse is not published and no sequence is consumed.
         ring.FailNextStep = true;
         Assert.NotEqual(WorkshopCommandOutcome.Applied, (await ring.Simulation.Step()).Outcome);
         Assert.Equal(119UL, ring.Simulation.Committed.Tick.Value);
         Assert.Equal((0, 0UL), (ring.Device.Events.Pending.Count, ring.Device.Events.WriteSequence));
-        Assert.Equal(EventRingBuffer.HeaderBytes, ring.Publish().Length);
+        Assert.Empty(ring.Publish());
         Assert.Empty(ring.Records);
     }
 
@@ -575,45 +576,39 @@ public sealed class EventRingProducerTests
         await using var original = await Ring.Running(bench);
         await original.Advance(600);
         var loaded = WorkshopSaveCodec.Decode(SaveFixture.Elements, before);
-        Assert.Equal(before, WorkshopSaveCodec.Encode(new WorkshopSavedConstruction(original.Simulation.Construction, new(7))));
+        Assert.Equal(saved, WorkshopSaveCodec.Decode(SaveFixture.Elements, WorkshopSaveCodec.Encode(new WorkshopSavedConstruction(original.Simulation.Construction, new(7)))));
         await using var replay = await Ring.Running(loaded.Construction);
         await replay.Advance(600);
         Assert.Equal(original.Records, replay.Records);
     }
 
-    // ---------- capacity: sized from the compiled scene's rows over a 0.5 s horizon ----------
+    // ---------- actual demand, retention and representation boundaries ----------
 
     [Theory]
-    [InlineData(SimulationCadence.Hz60, 128u)]   // 3 rows × 30 ticks = 90
-    [InlineData(SimulationCadence.Hz120, 256u)]  // 3 rows × 60 ticks = 180
-    [InlineData(SimulationCadence.Hz240, 512u)]  // 3 rows × 120 ticks = 360
-    public async Task TheRingIsSizedFromTheScenesRowsOverHalfASecond(SimulationCadence cadence, uint capacity)
+    [InlineData(SimulationCadence.Hz60)]
+    [InlineData(SimulationCadence.Hz120)]
+    [InlineData(SimulationCadence.Hz240)]
+    public async Task IdleProducerRowsDoNotReserveEventCapacity(SimulationCadence cadence)
     {
         await using var ring = await Ring.Building(Periodic(1f, 9, cadence: cadence));
-        Assert.Equal([new EventRow(new(1), SimulationEventKind.ElectricalPowered), new EventRow(new(2), SimulationEventKind.TriggerActivated),
-            new EventRow(new(3), SimulationEventKind.ThresholdReached)], ring.Device.EventRows!.Rows.OrderBy(row => row.Owner.Value));
-        Assert.Equal(capacity, ring.Device.Events.Capacity);
-        Assert.Equal(capacity, ring.Shared!.Header.Capacity);
-        Assert.Equal(EventRingBuffer.ByteLength(capacity), ring.Shared!.Snapshot().Length);
+        Assert.Equal(32u, ring.Device.Events.Capacity);
+        Assert.Equal(32u, ring.Shared!.Capacity);
+        Assert.Equal(0UL, ring.Shared.LoadWriteSequence());
+        Assert.Equal(0, ring.Device.Events.RetainedCount);
     }
 
     [Fact]
-    public async Task AnEmptyBenchHasAOneSlotRing()
+    public async Task AnEmptyBenchHasTheCommonThirtyTwoSlotReserve()
     {
         await using var ring = await Ring.Building(Bench([], []));
-        Assert.Empty(ring.Device.EventRows!.Rows);
-        Assert.Equal(1u, ring.Shared!.Header.Capacity);
+        Assert.Equal(32u, ring.Shared!.Capacity);
     }
 
-    // ---------- linear sizing and the hard limit (coordinator decision, 24 Oct 2026) ----------
-
-    // N balls and N bumpers: N Impact producers (one per contact-work owner, never one per owner × ball pair), so the ring grows
-    // linearly: nextPow2(N × 1 record per tick × 60 ticks) at 120 Hz.
     [Theory]
-    [InlineData(1, 64u)]
-    [InlineData(10, 1024u)]
-    [InlineData(40, 4096u)]
-    public async Task NBallsAndNBumpersSizeTheRingLinearlyInProducers(int n, uint capacity)
+    [InlineData(1)]
+    [InlineData(10)]
+    [InlineData(40)]
+    public async Task BumperPoliciesReserveNoPotentialPairOrEventRows(int n)
     {
         var parts = new List<IWorkshopInstance>();
         for (var i = 0; i < n; i++)
@@ -622,59 +617,70 @@ public sealed class EventRingProducerTests
             parts.Add(WorkshopInput.Generic(PartId.Basketball, new((ulong)(2 * i + 2)), -60 + 3 * i, 6, 0, 0, 0, 0, 1));
         }
         await using var ring = await Ring.Building(Bench([.. parts], []));
-        Assert.Equal(n, ring.Device.EventRows!.Rows.Count);
-        Assert.All(ring.Device.EventRows!.Rows, row => Assert.Equal(SimulationEventKind.Impact, row.Kind));
-        Assert.Equal(capacity, ring.Device.Events.Capacity);
-        Assert.Equal(capacity, EventRingBuffer.Capacity((ulong)n * 60));
+        Assert.Equal(n, ring.Device.CommittedContactWork.Count);
+        Assert.Equal(0, ring.Device.CommittedContactWork.OccurrenceCount);
+        Assert.Equal(32u, ring.Device.Events.Capacity);
+        await ring.Run();
+        await ring.Advance(90);
+        Assert.Equal(n, ring.Of(SimulationEventKind.Impact).Count());
+        Assert.Equal(n, ring.Device.CommittedContactWork.OccurrenceCount);
+        Assert.InRange(ring.Device.Events.Capacity, (uint)Math.Max(32, n), (uint)Math.Max(32, (8 * n + 2) / 3));
     }
 
-    // The limit: 2^20 slots (64 MiB). It is checked at the fastest cadence (240 Hz, 120 ticks per 0.5 s), so at most 8738 records per
-    // tick are admitted at every cadence and 8739 are refused with the typed admission rejection; every admitted ring's byte length is
-    // representable.
-    [Theory]
-    [InlineData(SimulationCadence.Hz60, 1u << 18)]
-    [InlineData(SimulationCadence.Hz120, 1u << 19)]
-    [InlineData(SimulationCadence.Hz240, 1u << 20)]
-    public void TheLimitAdmitsEightThousandSevenHundredThirtyEightRecordsPerTickAndRefusesOneMoreTyped(SimulationCadence cadence, uint capacity)
+    [Fact]
+    public void RingSizingAcceptsEveryRepresentableDemandWithoutAllocatingIt()
     {
-        Assert.Equal(8738UL, EventRingBuffer.MaximumCapacity / 120);
-        Assert.Equal(capacity, EventRecordProducer.RingCapacity(8738, cadence));
-        Assert.Equal(64 + (1 << 26), EventRingBuffer.ByteLength(EventRingBuffer.MaximumCapacity));
-        Assert.Throws<GpuAdmissionException>(() => EventRecordProducer.RingCapacity(8739, cadence));
-        Assert.Throws<ArgumentOutOfRangeException>(() => EventRingBuffer.Capacity(EventRingBuffer.MaximumCapacity + 1UL));
-        Assert.Equal(1u, EventRecordProducer.RingCapacity(0, cadence));
+        var limit = (uint)((Array.MaxLength - EventRingBuffer.HeaderBytes) / EventRingBuffer.SlotBytes);
+        Assert.Equal(32u, EventRingBuffer.Capacity(32, 0));
+        Assert.Equal(32u, EventRingBuffer.Capacity(32, 24));
+        Assert.Equal(64u, EventRingBuffer.Capacity(32, 25));
+        Assert.Equal(limit, EventRingBuffer.Capacity(32, limit));
+        Assert.Equal(limit, EventRingBuffer.Capacity(32, limit - 1));
+        Assert.Equal(limit, EventRingBuffer.Capacity(limit, limit));
+        Assert.Equal(EventRingBuffer.HeaderBytes + (long)limit * EventRingBuffer.SlotBytes, EventRingBuffer.ByteLength(limit));
+        Assert.Equal(EventPublicationPreparation.StorageUnavailable, Assert.Throws<EventPreparationException>(() => EventRingBuffer.Capacity(32, (ulong)limit + 1)).Reason);
+        Assert.Equal(EventPublicationPreparation.StorageUnavailable, Assert.Throws<EventPreparationException>(() => EventRingBuffer.ByteLength(limit + 1)).Reason);
+        Assert.Equal(EventPublicationPreparation.StorageUnavailable, Assert.Throws<EventPreparationException>(() => EventRingBuffer.Capacity(32, ulong.MaxValue)).Reason);
+        Assert.Equal(ulong.MaxValue, EventRingBuffer.LastSequence(ulong.MaxValue - 2, 2));
+        Assert.Equal(EventPublicationPreparation.SequenceExhausted,
+            Assert.Throws<EventPreparationException>(() => EventRingBuffer.LastSequence(ulong.MaxValue, 1)).Reason);
+        Assert.Throws<ArgumentOutOfRangeException>(() => EventRingBuffer.LastSequence(0, -1));
+        Assert.Throws<ArgumentOutOfRangeException>(() => new EventPreparationException((EventPublicationPreparation)99));
+        Assert.Throws<ArgumentOutOfRangeException>(() => new EventPreparationException(EventPublicationPreparation.Ready));
+        // Modulo indexing is the same rule for a small non-power-of-two ring.
+        var ring = new EventRingMemory(3, 1);
+        for (ulong sequence = 1; sequence <= 5; sequence++)
+        {
+            var record = new SimulationEventRecord(sequence, sequence, SimulationEventKind.Impact, 1, 2, (uint)sequence, 0, 0, 0, 0);
+            ring = EventRingBuffer.Append(ring, EventRingBuffer.Batch(new(3, 64, 1, sequence), [record]));
+        }
+        var consumer = new EventRingConsumer();
+        var seen = new List<ulong>();
+        while (consumer.TryRead(ring, SimulationDomain.None, out var record)) seen.Add(record.Sequence);
+        Assert.Equal([3UL, 4UL, 5UL], seen);
+        Assert.Equal(2UL, consumer.Lapped);
     }
 
-    // Through the production admission path: 8738 supply sources (8738 ElectricalPowered producers) are admitted; 8739 are refused as
-    // GpuAdmission with the session kept in Building, no fault, and a smaller construction is then admitted.
     [Theory]
-    [InlineData(8738, true)]
-    [InlineData(8739, false)]
-    public async Task AConstructionBeyondTheLimitIsRefusedTypedAndTheSessionStaysBuilding(int producers, bool admitted)
+    [InlineData(8738)]
+    [InlineData(8739)]
+    public async Task FormerProducerLimitAdmitsWithoutAllocatingHypotheticalEvents(int producers)
     {
         var sources = Enumerable.Range(0, producers)
             .Select(i => (IWorkshopInstance)PlacedParts.Battery(new((ulong)i + 1), -63 + i % 127, 3, -63 + i / 127)).ToArray();
         await using var ring = await Ring.Initialized(WorkshopCadenceSettings.Default());
-        var result = await ring.Simulation.Construct(Bench(sources, []));
-        if (admitted)
-        {
-            Assert.Equal(WorkshopCommandOutcome.Applied, result.Outcome);
-            Assert.Equal(producers, ring.Device.EventRows!.Rows.Count);
-            Assert.Equal(1u << 19, ring.Device.Events.Capacity);
-            return;
-        }
-        Assert.Equal((WorkshopCommandOutcome.Rejected, WorkshopRejection.GpuAdmission), (result.Outcome, result.Reason));
-        Assert.Equal((WorkshopSimulationPhase.Building, WorkshopRejection.None), (ring.Simulation.Phase, ring.Simulation.Fault));
-        Assert.Equal(EventRingBuffer.HeaderBytes, ring.Publish().Length); // the empty bench's ring is kept
-        Assert.Equal(WorkshopCommandOutcome.Applied, (await ring.Simulation.Construct(Periodic(1f, 9))).Outcome);
-        Assert.Equal(256u, ring.Device.Events.Capacity);
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await ring.Simulation.Construct(Bench(sources, []))).Outcome);
+        ring.Publish();
+        Assert.Equal(producers, ring.Simulation.Committed.Electrical.Count);
+        Assert.Equal(32u, ring.Device.Events.Capacity);
+        Assert.Equal(0UL, ring.Shared!.LoadWriteSequence());
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await ring.Simulation.Construct(Periodic(1f, 9) with { Revision = new(3) })).Outcome);
+        ring.Publish();
+        Assert.Equal(32u, ring.Device.Events.Capacity);
     }
 
-    // A burst exceeding the ring: 3588 committed ticks (299 pulses and one threshold) published at once (as when no read follows them). Every tick commits; the
-    // publication advances the sequence by every record, writes the newest 256 and counts the rest in Lapped; the consumer reads the
-    // newest 256 and reports the lap. A control run publishing every tick produces the same records.
     [Fact]
-    public async Task ABurstLargerThanTheRingCommitsEveryTickAndCountsTheExcessInLapped()
+    public async Task AnUndrainedBurstGrowsBeforeCommitAndPublishesEveryRecord()
     {
         await using var control = await Ring.Running(Periodic(.1f, 9));
         await control.Advance(3588);
@@ -682,88 +688,107 @@ public sealed class EventRingProducerTests
         var publication = await burst.AdvanceUndrained(3588);
         Assert.Equal(3588UL, burst.Simulation.Committed.Tick.Value);
         var all = control.Records;
-        Assert.True(all.Count > 256, $"{all.Count} records");
+        Assert.True(all.Count > 256);
         var header = EventRingHeader.Read(publication);
-        Assert.Equal((256u, (ulong)all.Count, (ulong)all.Count - 256), (header.Capacity, header.WriteSequence, header.Lapped));
-        Assert.Equal(all.TakeLast(256), Decode(publication));
+        Assert.Equal(((ulong)all.Count, 0UL), (header.WriteSequence, 0UL));
+        Assert.InRange(header.Capacity, (uint)all.Count, (uint)((8 * all.Count + 2) / 3));
+        Assert.Equal(all, Decode(publication));
         var consumer = new EventRingConsumer();
         var read = new List<SimulationEventRecord>();
         while (consumer.TryRead(burst.Shared!, SimulationDomain.None, out var record)) read.Add(record);
-        Assert.Equal(all.TakeLast(256), read);
-        Assert.Equal((ulong)all.Count - 256, consumer.Lapped);
-        // The run continues: the next tick's records follow the burst's sequence.
+        Assert.Equal(all, read);
+        Assert.Equal(0UL, consumer.Lapped);
         await burst.Advance(12);
         Assert.Equal((ulong)all.Count + 1, burst.Records[^1].Sequence);
     }
 
-    // ---------- overflow: the tick commits, the sequence advances by the whole batch, Lapped counts the excess ----------
-
     [Fact]
-    public void ABatchLargerThanTheRingAdvancesTheSequenceCountsLappedAndTheConsumerReportsTheLap()
+    public void PreparedGrowthDiscardAndSameEpochPublicationPreserveIndependentCursors()
     {
         var outbox = new EventRingOutbox();
-        outbox.Restart(new(5), 4);
-        var batch = Enumerable.Range(1, 6).Select(i => new SimulationEventRecord(0, 9, SimulationEventKind.Impact, 1, 2, (uint)i, 0f, 1f, (uint)i, 0))
-            .ToArray();
-        outbox.Commit(batch);
-        var publication = outbox.Drain();
-        var header = EventRingHeader.Read(publication);
-        Assert.Equal((4u, 5UL, 6UL, 2UL), (header.Capacity, header.Epoch, header.WriteSequence, header.Lapped));
-        Assert.Equal([3UL, 4UL, 5UL, 6UL], Decode(publication).Select(record => record.Sequence));
-        var ring = EventRingBuffer.Append(null, publication);
-        var consumer = new EventRingConsumer();
-        var read = new List<ulong>();
-        while (consumer.TryRead(ring, SimulationDomain.Mechanical, out var record)) read.Add(record.Sequence);
-        Assert.Equal([3UL, 4UL, 5UL, 6UL], read);
-        Assert.Equal(2UL, consumer.Lapped);
-        Assert.Equal(2UL, ring.Header.Lapped);
-        // The next tick continues the sequence; nothing is re-published.
-        outbox.Commit(batch.AsSpan(0, 1));
-        Assert.Equal([7UL], Decode(outbox.Drain()).Select(record => record.Sequence));
-        Assert.Empty(Decode(outbox.Drain()));
+        var host = new EventRingPublication();
+        outbox.PrepareAdmission(new(5)); Assert.Equal(EventPublicationPreparation.Ready, host.Prepare(outbox.PreparedBatch));
+        outbox.Commit(); host.Commit(); host.Publish(); outbox.Drain();
+        var original = host.Memory!;
+        var first = Enumerable.Range(1, 25).Select(i => new SimulationEventRecord(0, 2, SimulationEventKind.Impact, 1, 2, (uint)i, 0, 1, (uint)i, 0)).ToArray();
+        outbox.PrepareAdvance(32, first); Assert.Equal(EventPublicationPreparation.Ready, host.Prepare(outbox.PreparedBatch));
+        Assert.Same(original, host.Memory);
+        Assert.Equal(0UL, original.LoadWriteSequence());
+        outbox.Discard(); host.Discard();
+        Assert.Equal((32u, 0UL), (outbox.Capacity, outbox.WriteSequence));
+        outbox.PrepareAdvance(32, first); Assert.Equal(EventPublicationPreparation.Ready, host.Prepare(outbox.PreparedBatch));
+        outbox.Commit(); host.Commit();
+        Assert.Same(original, host.Memory);
+        host.Publish(); outbox.Drain();
+        Assert.Equal(64u, host.Memory!.Capacity);
+        var fast = new EventRingConsumer(); var slow = new EventRingConsumer();
+        var firstSeen = new List<ulong>();
+        while (fast.TryRead(host.Memory, SimulationDomain.None, out var record)) firstSeen.Add(record.Sequence);
+        Assert.Equal(Enumerable.Range(1, 25).Select(i => (ulong)i), firstSeen);
+        var previous = host.Memory;
+        var second = Enumerable.Range(33, 24).Select(i => new SimulationEventRecord(0, 3, SimulationEventKind.Impact, 1, 2, (uint)i, 0, 1, (uint)i, 0)).ToArray();
+        outbox.PrepareAdvance(56, second); Assert.Equal(EventPublicationPreparation.Ready, host.Prepare(outbox.PreparedBatch));
+        Assert.Equal(25UL, previous.LoadWriteSequence());
+        outbox.Commit(); host.Commit(); host.Publish(); outbox.Drain();
+        Assert.Equal(128u, host.Memory!.Capacity);
+        var fastSeen = new List<ulong>(); var slowSeen = new List<ulong>();
+        while (fast.TryRead(host.Memory, SimulationDomain.None, out var record)) fastSeen.Add(record.Sequence);
+        while (slow.TryRead(host.Memory, SimulationDomain.None, out var record)) slowSeen.Add(record.Sequence);
+        Assert.Equal(Enumerable.Range(26, 24).Select(i => (ulong)i), fastSeen);
+        Assert.Equal(Enumerable.Range(1, 49).Select(i => (ulong)i), slowSeen);
+        Assert.Equal(0UL, fast.Lapped); Assert.Equal(0UL, slow.Lapped);
+        Assert.Empty(outbox.Drain());
+        outbox.PrepareAdmission(new(6)); Assert.Equal(EventPublicationPreparation.Ready, host.Prepare(outbox.PreparedBatch));
+        outbox.Discard(); host.Discard(); host.Publish();
+        Assert.Equal(5UL, host.Memory.Epoch);
+        outbox.PrepareAdmission(new(6)); Assert.Equal(EventPublicationPreparation.Ready, host.Prepare(outbox.PreparedBatch));
+        outbox.Commit(); host.Commit(); host.Publish();
+        Assert.Equal((6UL, 32u, 0UL), (host.Memory!.Epoch, host.Memory.Capacity, host.Memory.LoadWriteSequence()));
+        Assert.False(fast.TryRead(host.Memory, SimulationDomain.None, out _));
+        Assert.Equal(0UL, fast.Cursor);
+        host.Dispose(); outbox.Dispose();
+        Assert.Null(host.Memory); Assert.Empty(outbox.Pending);
+        Assert.Throws<ObjectDisposedException>(() => host.Prepare(EventRingBuffer.Batch(new(1, 64, 7, 0), [])));
+        Assert.Throws<ObjectDisposedException>(() => host.Commit());
+    }
+
+    [Theory]
+    [InlineData(2u)]
+    [InlineData(4u)]
+    [InlineData(8u)]
+    public void HalfSecondRetentionUsesPhysicalOrdinalsAcrossCadenceAndEmptyTicks(uint substeps)
+    {
+        var outbox = new EventRingOutbox();
+        outbox.PrepareAdmission(new(1)); outbox.Commit(); outbox.Drain();
+        var atWatermark = Enumerable.Range(1, 24).Select(i => new SimulationEventRecord(0, 1, SimulationEventKind.Impact, 1, (ulong)i, 8, 0, 1, (uint)i, 0)).ToArray();
+        outbox.PrepareAdvance(8, atWatermark); outbox.Commit(); outbox.Drain();
+        Assert.Equal(32u, outbox.Capacity);
+        for (uint ordinal = 8 + substeps; ordinal <= 248; ordinal += substeps)
+        { outbox.PrepareAdvance(ordinal, []); outbox.Commit(); outbox.Drain(); }
+        Assert.Equal(24, outbox.RetainedCount); // inclusive physical half-second boundary
+        outbox.PrepareAdvance(248 + substeps, []); outbox.Commit(); outbox.Drain();
+        Assert.Equal(0, outbox.RetainedCount);
+        outbox.PrepareAdvance(1000, []); outbox.Commit(); outbox.Drain();
+        Assert.Equal(32u, outbox.Capacity);
+        var afterIdle = atWatermark.Select(record => record with { Ordinal = 1001 }).ToArray();
+        outbox.PrepareAdvance(1002, afterIdle); outbox.Commit();
+        Assert.Equal(32u, outbox.Capacity); Assert.Equal(24, outbox.RetainedCount);
+        Assert.Equal(Enumerable.Range(25, 24).Select(i => (ulong)i), Decode(outbox.Drain()).Select(record => record.Sequence));
+        outbox.PrepareAdvance(1004, [new(0, 2, SimulationEventKind.Impact, 1, 25, 1003, 0, 1, 25, 0)]);
+        outbox.Commit();
+        Assert.Equal(64u, outbox.Capacity); Assert.Equal(25, outbox.RetainedCount);
+        Assert.Equal(49UL, Assert.Single(Decode(outbox.Drain())).Sequence);
     }
 
     // ---------- round trip through the shipped worker's writeEventRing ----------
 
-    private const string WorkerScript = """
-        import vm from 'node:vm';
-        import fs from 'node:fs/promises';
-        let text = ''; for await (const chunk of process.stdin) text += chunk;
-        const request = JSON.parse(text);
-        const source = await fs.readFile(new URL(process.env.WORKER_URL), 'utf8');
-        const rings = [];
-        class Channel { constructor() { this.port1 = { close() {} }; this.port2 = { postMessage() {}, close() {} }; } }
-        const context = vm.createContext({ self: { postMessage(message) { if (message?.eventRing) rings.push(message.eventRing); } }, console,
-            Uint8Array, Uint32Array, Float32Array, Float64Array, ArrayBuffer, SharedArrayBuffer, BigInt64Array, BigUint64Array, DataView, Atomics,
-            MessageChannel: Channel });
-        const host = { ScheduleRoles: () => [1, 2] };
-        const runtime = { setModuleImports() {}, getAssemblyExports: async () => ({ CuriousContraptions: { Simulation: { Program: host } } }),
-            getConfig: () => ({ mainAssemblyName: 'EventRingRoundTrip' }) };
-        const worker = new vm.SourceTextModule(source + '\nexport { writeEventRing };', { context });
-        // The ring's memory is the shipped EventRingMemory (the writer's one way into the ring).
-        const { EventRingMemory } = await import(new URL('../../CuriousContraptions.web/wwwroot/event-ring-cursor.js', process.env.WORKER_URL).href);
-        await worker.link(async name => {
-            if (name === '../event-ring-cursor.js')
-                return new vm.SyntheticModule(['EventRingMemory'], function () { this.setExport('EventRingMemory', EventRingMemory); }, { context });
-            const names = name.includes('dotnet') ? ['dotnet'] : name.includes('clock-ring')
-                ? ['attachClockRing', 'deriveExchange', 'qualifyDerivation', 'writeDerivation', 'beat'] : ['admitNativeClock', 'nativeNow', 'nativeClockEvidence'];
-            return new vm.SyntheticModule(names, function () {
-                for (const name of names) this.setExport(name, name === 'dotnet' ? { create: async () => runtime }
-                    : name === 'admitNativeClock' ? async () => {} : () => { throw new Error('unused'); });
-            }, { context });
-        });
-        await worker.evaluate();
-        for (const hex of request.batches) worker.namespace.writeEventRing(Uint8Array.from(Buffer.from(hex, 'hex')));
-        process.stdout.write(JSON.stringify({ rings: rings.length, ring: Buffer.from(new Uint8Array(rings.at(-1))).toString('hex') }));
-        """;
 
     private static (int Rings, byte[] Ring) RunWorker(IReadOnlyList<byte[]> batches)
     {
-        var path = Path.Combine(twodog.Engine.ResolveProjectDir(), "CuriousContraptions.Simulation/wwwroot/worker.js");
-        var start = new ProcessStartInfo("node") { RedirectStandardInput = true, RedirectStandardOutput = true, RedirectStandardError = true, UseShellExecute = false };
+        var path = Path.Combine(twodog.Engine.ResolveProjectDir(), ".runtime-build/tools/runtime/event-roundtrip.js");
+        var start = new ProcessStartInfo("node") { RedirectStandardInput = true, RedirectStandardOutput = true, RedirectStandardError = true, UseShellExecute = false, WorkingDirectory = twodog.Engine.ResolveProjectDir() };
         start.ArgumentList.Add("--experimental-vm-modules"); start.ArgumentList.Add("--no-warnings");
-        start.ArgumentList.Add("--input-type=module"); start.ArgumentList.Add("-e"); start.ArgumentList.Add(WorkerScript);
-        start.Environment["WORKER_URL"] = new Uri(path).AbsoluteUri;
+        start.ArgumentList.Add(path);
         using var node = Process.Start(start) ?? throw new InvalidOperationException("Node could not be started; the event ring round trip needs it.");
         node.StandardInput.Write(JsonSerializer.Serialize(new { batches = batches.Select(Convert.ToHexString) }));
         node.StandardInput.Close();
@@ -778,7 +803,7 @@ public sealed class EventRingProducerTests
     // then an overflowing one, through the shipped worker.js writer and through the C# reference: the same ring bytes, header and
     // records, and a fresh ring exactly at each epoch or capacity change.
     [Fact]
-    public async Task TheShippedWorkerWritesTheSameRingAsTheReferenceForARealRunAndAnOverflow()
+    public async Task TheShippedWorkerPreservesRecordsAcrossRealRunAndDemandGrowth()
     {
         await using var ring = await Ring.Running(Memory());
         await ring.Advance(600);
@@ -786,8 +811,10 @@ public sealed class EventRingProducerTests
         await ring.Run();
         await ring.Advance(250);
         var outbox = new EventRingOutbox();
-        outbox.Restart(new(99), 4);
-        outbox.Commit(ring.Records.Take(6).ToArray());
+        outbox.PrepareAdmission(new(99)); outbox.Commit(); outbox.Drain();
+        var selected = Enumerable.Range(1, 25).Select(i => new SimulationEventRecord(0, 8, SimulationEventKind.Impact,
+            1, (ulong)i + 1, (uint)i, 0, 1, (uint)i, 0)).ToArray();
+        outbox.PrepareAdvance(selected.Max(record => record.Ordinal) + 1, selected); outbox.Commit();
         var batches = ring.Publications.Append(outbox.Drain()).ToList();
         EventRingMemory? reference = null;
         var fresh = 0;
@@ -799,13 +826,13 @@ public sealed class EventRingProducerTests
         }
         var (rings, written) = RunWorker(batches);
         Assert.Equal(fresh, rings);
-        Assert.Equal(reference!.Snapshot(), written);
-        Assert.Equal(new EventRingHeader(4, 64, 99, 6, 2), EventRingHeader.Read(written));
+        Assert.Equal(reference!.Header, EventRingHeader.Read(written));
+        Assert.Equal(new EventRingHeader(64, 64, 99, 25), EventRingHeader.Read(written));
         var shipped = EventRingMemory.Load(written);
         var consumer = new EventRingConsumer();
         var read = new List<SimulationEventRecord>();
         while (consumer.TryRead(shipped, SimulationDomain.None, out var record)) read.Add(record);
-        Assert.Equal(ring.Records.Take(6).Skip(2).Select((record, i) => record with { Sequence = (ulong)i + 3 }), read);
+        Assert.Equal(selected.Select((record, i) => record with { Sequence = (ulong)i + 1 }), read);
     }
 
     // ---------- conformance: each package declares exactly the kinds its compiled rows produce ----------
@@ -826,7 +853,16 @@ public sealed class EventRingProducerTests
                 links = [Signal(part.Id, new(3))];
             }
             await using var ring = await Ring.Building(Bench(parts, links));
-            var produced = ring.Device.EventRows!.Rows.Where(row => row.Owner == part.Id).Select(row => row.Kind).Distinct().Order().ToArray();
+            var scene = WorkshopPhysicsCompiler.Compile(Bench(parts, links), new(1, 2));
+            var network = WorkshopActivationCompiler.Compile(Bench(parts, links));
+            SimulationEventKind[] Produced(GpuBodyId owner) =>
+                scene.ContactWorks.ToArray().Where(row => row.Owner == owner).Select(_ => SimulationEventKind.Impact)
+                    .Concat(scene.Sensors.ToArray().Where(row => row.Frame == owner).Select(_ => SimulationEventKind.Captured))
+                    .Concat(scene.Electrical.Sources.ToArray().Where(row => row.Owner == owner).Select(_ => SimulationEventKind.ElectricalPowered))
+                    .Concat(network.PassageSensors.ToArray().Where(row => row.Frame == owner).Select(_ => SimulationEventKind.Passage))
+                    .Concat(network.Nodes.ToArray().Where(row => row.Owner == owner).Select(row => EventRecordProducer.KindOf(row.Kind, row.Completion)))
+                    .Where(kind => kind != SimulationEventKind.None).Distinct().Order().ToArray();
+            var produced = Produced(part.Id);
             var declared = entry.Events.Select(descriptor => descriptor.Kind).Order().ToArray();
             Assert.True(declared.SequenceEqual(produced),
                 $"{entry.Metadata.Id}: declares [{string.Join(", ", declared)}], its compiled rows produce [{string.Join(", ", produced)}]");
@@ -834,7 +870,7 @@ public sealed class EventRingProducerTests
             // first-input indicator (fed by a pulse) both declare and produce nothing.
             if (links.Length == 0) continue;
             lampKinds.Add(WorkshopActivationCompiler.Compile(Bench(parts, links)).Nodes.ToArray().Single(node => node.Owner == new GpuBodyId(3)).Kind);
-            Assert.True(ring.Device.EventRows!.Rows.Where(row => row.Owner == new GpuBodyId(3)).Select(row => row.Kind)
+            Assert.True(Produced(new(3))
                 .SequenceEqual(TestBundle.Entry(PartId.SignalLamp).Events.Select(descriptor => descriptor.Kind)), $"{entry.Metadata.Id}: the wired lamp produces a record kind");
         }
         Assert.Equal([ActivationNodeKind.StickyFirstInput, ActivationNodeKind.LevelIndicator], lampKinds.Order());
@@ -857,13 +893,13 @@ public sealed class EventRingProducerTests
         var sources = listed
             .Where(path => path.EndsWith(".cs", StringComparison.Ordinal) || path.EndsWith(".js", StringComparison.Ordinal) || path.EndsWith(".ts", StringComparison.Ordinal))
             .Where(path => !excluded.Contains(path.Split('/')[0]) && File.Exists(Path.Combine(root, path)))
+            .Where(path => !path.EndsWith(".js", StringComparison.Ordinal) || !File.Exists(Path.ChangeExtension(Path.Combine(root, path), ".ts")))
             .ToArray();
         Assert.Contains("engine/gpu/EventRecordProducer.cs", sources);
         string[] Hits(string pattern) => sources.Where(path => File.ReadAllText(Path.Combine(root, path)).Contains(pattern, StringComparison.Ordinal)).Order().ToArray();
         Assert.Equal(["CuriousContraptions.Simulation/WorkshopGpuDevice.cs", "engine/gpu/EventRecordProducer.cs"], Hits("EventRingOutbox"));
         Assert.Empty(Hits("EventRingBuffer.Append")); // the C# reference writer is the tests' only; production publishes through the worker
-        // The worker defines and calls it; the C# reference names it as its twin.
-        Assert.Equal(["CuriousContraptions.Abstractions/EventRingBuffer.cs", "CuriousContraptions.Simulation/wwwroot/worker.js"], Hits("writeEventRing"));
+        Assert.Equal(["CuriousContraptions.Simulation/wwwroot/worker.ts"], Hits("function prepareEvents("));
         Assert.Equal(["CuriousContraptions.Simulation/Program.cs", "CuriousContraptions.Simulation/WorkshopGpuDevice.cs"], Hits("DrainEvents"));
         foreach (var retired in new[] { "readEventRing", "createEventConsumer", "WorkshopEventRing", "eventBuffer" }) Assert.Empty(Hits(retired));
         // Story 9A.23 + 9A.25b: the occurrence-carrying reliable reads, the main-thread one-shot relay and the one-shot relay drivers.
@@ -874,7 +910,7 @@ public sealed class EventRingProducerTests
             Assert.Empty(Hits(retired));
         // One shared event ring reader, imported by both consumers (the C# reference reader names it as its twin).
         Assert.Equal(["CuriousContraptions.Abstractions/EventRingBuffer.cs", "CuriousContraptions.Animation.Worker/wwwroot/worker.js",
-            "CuriousContraptions.web/wwwroot/event-ring-cursor.js",
-            "CuriousContraptions.web/wwwroot/workshop-client.js"], Hits("EventRingCursor"));
+            "CuriousContraptions.web/wwwroot/event-ring-cursor.ts",
+            "CuriousContraptions.web/wwwroot/workshop-client.ts"], Hits("EventRingCursor"));
     }
 }

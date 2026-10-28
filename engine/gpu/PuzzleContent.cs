@@ -30,8 +30,8 @@ internal static class PuzzleContentReader
         using var document = JsonDocument.Parse(json);
         if (document.RootElement.ValueKind != JsonValueKind.Array)
             throw new InvalidDataException("Puzzle content must be an array.");
-        var entries = new List<PuzzleContentEntry>();
-        var identities = new HashSet<PuzzleId>();
+        var entries = new List<PuzzleContentEntry>(16);
+        var identities = new HashSet<PuzzleId>(16);
         foreach (var row in document.RootElement.EnumerateArray())
         {
             var fields = Fields(row, "puzzle");
@@ -54,7 +54,7 @@ internal static class PuzzleContentReader
     internal static Dictionary<string, JsonElement> Fields(JsonElement value, string where)
     {
         if (value.ValueKind != JsonValueKind.Object) throw Invalid(where, "", "expected object");
-        var fields = new Dictionary<string, JsonElement>(StringComparer.Ordinal);
+        var fields = new Dictionary<string, JsonElement>(4, StringComparer.Ordinal);
         foreach (var field in value.EnumerateObject())
             if (!fields.TryAdd(field.Name, field.Value)) throw Invalid(where, field.Name, "duplicate field");
         return fields;

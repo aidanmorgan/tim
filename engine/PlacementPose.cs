@@ -21,8 +21,8 @@ public readonly record struct ComposedPlacement(Vector3 Position, Quaternion Rot
 /// <summary>The pose a new part takes at a bench point (F.6 F-1), one pure main-thread composition shared by the preview, the click
 /// and the native tests: the 0.1 m grid, then a typed tube-mouth snap when one exists (Story 9R.6), otherwise rest. Rest lifts a
 /// Dynamic part that truly overlaps a Static part's collider whose top is flat and horizontal (a box face or an upright cylinder's
-/// cap), lies within the part's vertical extent and lies under the part's x–z centre, so its lowest point rests on the highest such
-/// top; x, z and the rotation are unchanged. A lifted pose is admitted only when it is clear of every Static part (beyond a 10⁻⁴ m
+/// cap), lies within the part's vertical extent and lies under the part's x–z centre. The highest such top selects its owner; the
+/// complete owner union supplies the vertical rest height. x, z and rotation are unchanged. A lifted pose is admitted only when it is clear of every Static part (beyond a 10⁻⁴ m
 /// contact slop; coordinator decision B1, 23 Oct 2026). Every final pose (snap, grid or rest) is admitted only when the part's
 /// world-space extent lies in the bench volume (x ∈ [−7, 7], y from the bench surface to 9, z ∈ [−4, 4] m; coordinator decisions on
 /// 10.2a F3, 24 Oct 2026: the body, not its origin, on every placement path); otherwise it is refused. Geometry is the declared f32
@@ -69,6 +69,20 @@ public static class PlacementPose
         public float HalfAlong(int i) => i switch { 0 => HalfExtent.X, 1 => HalfExtent.Y, _ => HalfExtent.Z };
         /// <summary>The shape's world vertical half-extent: its centre to its top.</summary>
         public float Height => SupportDistance(Vector3.Up);
+        public float Reach => Kind == Shape.Hollow ? Solid.Reach : Kind == Shape.Sphere ? Radius : HalfExtent.Length();
+        public Posed Lift(float distance)
+        {
+            var centre = Centre + Vector3.Up * distance;
+            return this with { Centre = centre, Solid = Kind == Shape.Hollow
+                ? new(Solid.Kind, Numeric(centre), Solid.X, Solid.Y, Solid.Z, Solid.Radius, Solid.LaneX, Solid.LaneY, Solid.LaneZ)
+                : default };
+        }
+        public HollowPartner Partner => Kind == Shape.Hollow
+            ? new(Solid.Kind, Solid.Position, Solid.X, Solid.Y, Solid.Z, Solid.Radius, Solid.LaneX, Solid.LaneY, Solid.LaneZ)
+            : new(Kind switch { Shape.Sphere => Gpu.ColliderShapeKind.Sphere, Shape.Box => Gpu.ColliderShapeKind.Box,
+                    Shape.Cylinder => Gpu.ColliderShapeKind.Cylinder, _ => throw new InvalidOperationException() },
+                Numeric(Centre), Numeric(X), Numeric(Y), Numeric(Z), Kind == Shape.Sphere ? Radius : HalfExtent.X,
+                HalfExtent.X, HalfExtent.Y, HalfExtent.Z);
         /// <summary>The signed support distance from the collider origin along a unit direction: a box's projected half-extents, a cylinder's h·|a·n| + r·√(1 − (a·n)²).</summary>
         public float SupportDistance(Vector3 direction) => Kind switch
         {
@@ -112,39 +126,49 @@ public static class PlacementPose
         float bottom = float.PositiveInfinity, top = float.NegativeInfinity;
         foreach (var shape in shapes)
         {
-            bottom = MathF.Min(bottom, shape.Centre.Y - shape.Height);
+            bottom = MathF.Min(bottom, shape.Centre.Y - shape.SupportDistance(Vector3.Down));
             top = MathF.Max(top, shape.Centre.Y + shape.Height);
         }
-        var statics = new List<Posed>();
+        var statics = new List<(GpuBodyId Owner, Posed Shape)>(32);
         foreach (var instance in placed)
         {
             if (instance.Id == candidate.Body) continue;
             var other = DeclaredPhysics.Of(instance.PartId);
             if ((other.Mechanical?.KinematicMode ?? KinematicMode.Static) != KinematicMode.Static) continue;
             var (position, turn) = TubeMouthSnap.Pose(instance);
-            statics.AddRange(Pose(BundleGeometry.Colliders(other, DeclaredPhysics.Parameters(instance)), position, turn));
+            foreach (var shape in Pose(BundleGeometry.Colliders(other, DeclaredPhysics.Parameters(instance)), position, turn))
+                statics.Add((instance.Id, shape));
         }
         float? rest = null;
-        foreach (var support in statics)
+        var owner = default(GpuBodyId);
+        foreach (var item in statics)
         {
+            var support = item.Shape;
             if (Vertical(support) is not { } up) continue;
             var surface = support.Centre.Y + support.Height;
             if (surface < bottom || surface > top || !Over(support, up, at) || !Array.Exists(shapes, shape => Overlaps(shape, support, 0f))) continue;
-            if (rest is not { } highest || surface > highest) rest = surface;
+            if (rest is not { } highest || surface > highest || surface == highest && item.Owner.Value < owner.Value)
+                (rest, owner) = (surface, item.Owner);
         }
         if (rest is not { } y)
         {
             foreach (var hollowCollider in statics)
-                if (hollowCollider.Kind == Shape.Hollow && Array.Exists(shapes, shape => OverlapsHollow(shape, hollowCollider.Solid, ContactSlop)))
+                if (hollowCollider.Shape.Kind == Shape.Hollow && Array.Exists(shapes, shape => OverlapsHollow(shape, hollowCollider.Shape.Solid, ContactSlop)))
                     return (at, PlacementRefusal.IntoPart);
             return (at, PlacementRefusal.None);
         }
         // The lifted pose must stay in the bench volume and clear every Static part (B1).
-        var lifted = at with { Y = at.Y + (y - bottom) };
+        var lift = y - bottom;
+        var intervals = new Stack<(float Low, float High)>(32);
+        foreach (var item in statics)
+            if (item.Owner == owner)
+                foreach (var shape in shapes)
+                    lift = RestAbove(shape, item.Shape, lift, intervals);
+        var lifted = at with { Y = at.Y + lift };
         var raised = Pose(BundleGeometry.Colliders(entry), lifted, rotation);
         if (!Within(raised)) return (lifted, PlacementRefusal.RestOutsideBench);
         foreach (var other in statics)
-            if (Array.Exists(raised, shape => Overlaps(shape, other, ContactSlop))) return (lifted, PlacementRefusal.IntoPart);
+            if (Array.Exists(raised, shape => Overlaps(shape, other.Shape, ContactSlop))) return (lifted, PlacementRefusal.IntoPart);
         return (lifted, PlacementRefusal.None);
     }
 
@@ -279,17 +303,62 @@ public static class PlacementPose
     /// <summary>Uses the production hollow contact measurements for placement admission.</summary>
     private static bool OverlapsHollow(Posed shape, HollowSolid hollow, float slop)
     {
-        var kind = shape.Kind switch
+        return HollowContactQuery.Overlaps(shape.Partner, hollow, slop);
+    }
+
+    /// <summary>Highest occupied vertical interval for one pair, without assuming a hollow union is monotone.
+    /// Analytic enclosing-volume rejection only; sampled contact minima are never clearance bounds.</summary>
+    private static float RestAbove(Posed moving, Posed support, float minimum, Stack<(float Low, float High)> intervals)
+    {
+        var low = MathF.Max(minimum, support.Centre.Y - support.SupportDistance(Vector3.Down) - moving.Centre.Y - moving.Height);
+        var high = support.Centre.Y + support.Height - moving.Centre.Y + moving.SupportDistance(Vector3.Down);
+        if (!(high > low)) return minimum;
+        intervals.Clear();
+        intervals.Push((low, high));
+        while (intervals.TryPop(out var interval))
         {
-            Shape.Sphere => Gpu.ColliderShapeKind.Sphere,
-            Shape.Box => Gpu.ColliderShapeKind.Box,
-            Shape.Cylinder => Gpu.ColliderShapeKind.Cylinder,
-            _ => throw new ArgumentException("A placed hollow partner must be convex.")
-        };
-        var partner = new HollowPartner(kind, Numeric(shape.Centre), Numeric(shape.X), Numeric(shape.Y), Numeric(shape.Z),
-            shape.Kind == Shape.Sphere ? shape.Radius : shape.HalfExtent.X,
-            shape.HalfExtent.X, shape.HalfExtent.Y, shape.HalfExtent.Z);
-        return HollowContactQuery.Overlaps(partner, hollow, slop);
+            var middle = interval.Low + (interval.High - interval.Low) * .5f;
+            var half = (interval.High - interval.Low) * .5f;
+            var posed = moving.Lift(middle);
+            if (ClearInterval(posed, support, half)) continue;
+            if (interval.High - interval.Low <= ContactSlop || middle == interval.Low || middle == interval.High)
+            {
+                if (Overlaps(moving.Lift(interval.High), support, 0f)) return interval.High;
+                var occupied = Overlaps(posed, support, 0f) ? middle : interval.Low;
+                if (!Overlaps(moving.Lift(occupied), support, 0f)) continue;
+                var clear = interval.High;
+                // Refine the discovered surface boundary, keeping the clear side. The same36-step
+                // budget as the hollow query ends early when f32 has no interior parameter.
+                for (var step = 0; step < 36; step++)
+                {
+                    var probe = occupied + (clear - occupied) * .5f;
+                    if (probe == occupied || probe == clear) break;
+                    if (Overlaps(moving.Lift(probe), support, 0f)) occupied = probe;
+                    else clear = probe;
+                }
+                return clear;
+            }
+            // LIFO: visit upper intervals first, retaining disconnected lower intervals until they are ruled out.
+            intervals.Push((interval.Low, middle));
+            intervals.Push((middle, interval.High));
+        }
+        return minimum;
+    }
+
+    private static bool ClearInterval(Posed moving, Posed support, float halfTranslation)
+    {
+        for (var index = 0; index < 3; index++)
+        {
+            var axis = index switch { 0 => Vector3.Right, 1 => Vector3.Up, _ => Vector3.Back };
+            var travel = MathF.Abs(axis.Y) * halfTranslation;
+            var delta = (moving.Centre - support.Centre).Dot(axis);
+            if (delta > support.SupportDistance(axis) + moving.SupportDistance(-axis) + travel + ContactSlop ||
+                -delta > moving.SupportDistance(axis) + support.SupportDistance(-axis) + travel + ContactSlop) return true;
+        }
+        var distance = HollowContactQuery.SurfaceDistance(support.Partner, Numeric(moving.Centre), out _, out _);
+        if (distance > moving.Reach + halfTranslation + ContactSlop) return true;
+        distance = HollowContactQuery.SurfaceDistance(moving.Partner, Numeric(support.Centre), out _, out _);
+        return distance > support.Reach + halfTranslation + ContactSlop;
     }
 
     /// <summary>The point of a box or cylinder nearest a world point.</summary>

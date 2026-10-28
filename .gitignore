@@ -28,3 +28,10 @@ plans/
 
 # Owner-retained Story 7.1 recovery archive; never a publication input.
 /archives/story-7-1-20261009/
+
+# Pinned TypeScript build outputs; source files live beside the shipped paths.
+/.runtime-build/
+/CuriousContraptions.Simulation/wwwroot/worker.js
+/CuriousContraptions.web/wwwroot/event-ring-cursor.js
+
+CuriousContraptions.web/wwwroot/workshop-client.js

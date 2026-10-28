@@ -31,10 +31,10 @@ public sealed class WorkshopPhysicsLawCylinderTests
     public void CompiledMomentsAreTheSolidCylinderMomentsOfTheDeclaredGeometry(double radius, double width, double mass)
     {
         var body = new RigidBodyDeclaration(new(1), RigidMotionKind.Dynamic, default, default, CanonicalRotation.Identity, default, default,
-            new((float)mass), default, default);
+            new((float)mass), default, default, new(default, CanonicalRotation.Identity, new(1f), new(1f), new(1f)));
         var collider = new ColliderDeclaration(new(2), new(1), new(3), ColliderShapeKind.Cylinder, RigidLocalPose.Identity,
             new((float)radius), new(0f, (float)(width / 2), 0f));
-        var properties = RigidMassProperties.Compile(body, collider);
+        var properties = MassFixtures.AdmitPrimitive(body, collider);
         double m = (double)(float)mass, r = (double)(float)radius, h = (double)(float)(width / 2);
         // Six f32 roundings at most (r², h², the division by 3, the sum, the two products): 6 x 2^-24 relative to the exact
         // moment of the declared f32 inputs.
@@ -75,7 +75,8 @@ public sealed class WorkshopPhysicsLawCylinderTests
         var world = valid.Admit();
         var engine = new WorkshopPhysicsEngine();
         var (source, candidate, inputs) = Start(engine, world);
-        for (var tick = 0; tick < 30; tick++) { engine.Advance(source, candidate, inputs); (source, candidate) = (candidate, source); }
+        var interactions = PhysicsInteractionSnapshot.Empty;
+        for (var tick = 0; tick < 30; tick++) { interactions = engine.Advance(source, candidate, inputs, interactions); (source, candidate) = (candidate, source); }
         var before = (byte[])source.Clone();
 
         var invalid = new LawScene();
@@ -90,7 +91,7 @@ public sealed class WorkshopPhysicsLawCylinderTests
         }
 
         Assert.Equal(before, source);
-        engine.Advance(source, candidate, inputs);
+        interactions = engine.Advance(source, candidate, inputs, interactions);
         Assert.Equal(world.Step(31).World, candidate);
         Assert.True(LawState.Read(world.Scene, candidate, drum).Finite);
     }
@@ -131,10 +132,11 @@ public sealed class WorkshopPhysicsLawCylinderTests
 
         var engine = new WorkshopPhysicsEngine();
         var (source, candidate, inputs) = Start(engine, world);
+        var interactions = PhysicsInteractionSnapshot.Empty;
         // The first discriminant past the closed set (Sphere 0 … Frustum 6, engine-hollow-shapes).
         BinaryPrimitives.WriteUInt32LittleEndian(source.AsSpan(shapeOffset), (uint)ColliderShapeKind.Frustum + 1);
         var original = (byte[])source.Clone();
-        engine.Advance(source, candidate, inputs);
+        engine.Advance(source, candidate, inputs, interactions);
         Assert.Equal(PhysicsFailure.InvalidDeclaration, PhysicsGpuAbi.ReadFailure(candidate));
         Assert.Equal(original, source);
         var expected = (byte[])original.Clone();
@@ -144,7 +146,7 @@ public sealed class WorkshopPhysicsLawCylinderTests
 
         // Control: the same world with its admitted Cylinder shape commits.
         var (good, next, goodInputs) = Start(engine, world);
-        engine.Advance(good, next, goodInputs);
+        engine.Advance(good, next, goodInputs, PhysicsInteractionSnapshot.Empty);
         Assert.Equal(PhysicsFailure.None, PhysicsGpuAbi.ReadFailure(next));
     }
 
@@ -307,7 +309,7 @@ public sealed class WorkshopPhysicsLawCylinderTests
 
     private static float WeightSize(CuriousContraptions.Abstractions.GeometryComponent component)
     {
-        var binding = WeightPackage.ColliderBindings.Single(binding => binding.Component == component);
+        var binding = WeightPackage.ColliderBindings.Single(binding => binding.Collider == 0 && binding.Component == component);
         return binding.Multiplier * WeightMass + binding.Offset;
     }
 
@@ -1904,10 +1906,11 @@ public sealed class WorkshopPhysicsLawCylinderTests
     private static List<byte[]> Run(WorkshopPhysicsEngine engine, LawWorld world, int ticks)
     {
         var (source, candidate, inputs) = Start(engine, world);
+        var interactions = PhysicsInteractionSnapshot.Empty;
         var frames = new List<byte[]>(ticks);
         for (var tick = 0; tick < ticks; tick++)
         {
-            engine.Advance(source, candidate, inputs);
+            interactions = engine.Advance(source, candidate, inputs, interactions);
             (source, candidate) = (candidate, source);
             frames.Add((byte[])source.Clone());
         }

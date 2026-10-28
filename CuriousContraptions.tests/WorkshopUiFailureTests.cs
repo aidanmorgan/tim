@@ -26,7 +26,7 @@ public sealed class WorkshopUiFailureTests
     public static TheoryData<Exception> Refusals() => new()
     {
         new WorkshopEditRejectedException(WorkshopEditRejection.FixedPart, "Fixed puzzle instances cannot be edited."),
-        new WorkbenchFullException(WorkbenchTable.Guides),
+        new WorkshopEditRejectedException(WorkshopEditRejection.IdentityExhausted, "Compiled identity storage is exhausted."),
         new WorkshopTransportException(new(new(1), new(1), default, default, default), WorkshopTransportState.TimedOut, new TimeoutException("late")),
     };
 

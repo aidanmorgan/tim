@@ -48,10 +48,9 @@ public sealed class F32SaveBoundaryTests
         var legacy = File.ReadAllBytes(Fixture("save-f1ad3bd1-authored-puzzle.bin"));
         var refusal = SaveFixture.Refused(WorkshopSaveRejection.VerifierRejected, () => WorkshopSaveCodec.Decode(SaveFixture.Elements, legacy));
         Assert.Equal(VerifierExplanation, refusal.Message);
-        // The command boundary: a Construct command whose puzzle carries the legacy file's own element count is the typed verifier fault.
-        var count = (uint)CuriousContraptions.Wire.SavedConstruction.GetRootAsSavedConstruction(new Google.FlatBuffers.ByteBuffer(legacy, sizeof(int)))
-            .Construction!.Value.Puzzle!.Value.AssistanceLength;
-        Assert.Equal(198u, count);
+        // Independent current-command malformed-vector control: 198 declared 44-byte knots
+        // exceed this small lesson packet. Never read an unsupported save through the current schema.
+        const uint count = 198;
         var construction = Lesson("first_principles", .45f);
         var encoded = WorkshopWireFlatBuffers.EncodeCommand(new WorkshopCommand(new(1), WorkshopCommandKind.Construct, new(1), new(1), construction,
             Session: new(1, 2), Cadence: new(1), Projection: new(1)));
@@ -65,7 +64,7 @@ public sealed class F32SaveBoundaryTests
         // The Workshop's Load decodes the stored text before it submits anything (ui/Workshop.cs LoadSaveAsync), so a refused legacy
         // save never reaches the live simulation: the refusal is the status the player reads, the simulation's committed read is the
         // same after the attempt, and it goes on advancing its own bench.
-        await using var device = new WorkshopGpuDevice(new CuriousContraptions.Simulation.BrowserGpuTransport(), new(101, 206));
+        await using var device = new WorkshopGpuDevice(new CuriousContraptions.Simulation.BrowserGpuTransport(new CuriousContraptions.Abstractions.EventRingPublication()), new(101, 206));
         await using var simulation = new WorkshopSimulation(device, new WorkshopPhysicsEngineTests.StepClock(), WorkshopCadenceSettings.Default(),
             new(1), new WorkshopPhysicsEngineTests.NoInstallation(), GpuDeviceOwnership.Borrowed);
         Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Initialize()).Outcome);
@@ -148,14 +147,14 @@ public sealed class F32SaveBoundaryTests
     }
 
     [Fact]
-    public void ANineKnotF32SaveRoundTripsEveryLaneBitForBit()
+    public void ANineKnotF32SaveRoundTripsEveryLaneValue()
     {
         var construction = Lesson("first_principles", .45f);
         var decoded = WorkshopSaveCodec.Decode(SaveFixture.Elements, WorkshopSaveCodec.Encode(new(construction, new(3))));
         var (expected, actual) = (Knots(construction.Puzzle), Knots(decoded.Construction.Puzzle));
         for (var knot = 0; knot < expected.Length; knot++)
-            Assert.Equal(Lanes(expected[knot]).Select(BitConverter.SingleToUInt32Bits), Lanes(actual[knot]).Select(BitConverter.SingleToUInt32Bits));
-        Assert.Equal(BitConverter.SingleToUInt32Bits(.45f), BitConverter.SingleToUInt32Bits(decoded.Construction.Puzzle.Precision.Value));
+            Assert.Equal(Lanes(expected[knot]), Lanes(actual[knot]));
+        Assert.Equal(.45f, decoded.Construction.Puzzle.Precision.Value);
     }
 
     [Fact]

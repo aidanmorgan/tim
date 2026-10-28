@@ -47,7 +47,7 @@ public static class PuzzleCatalogue
         var result = construction with { Instances = construction.Instances.With(instance) };
         if (row.GoalTarget)
             result = result with { Puzzle = result.Puzzle with { Goal = result.Puzzle.Goal with
-            { Target = instance.Id, EventSource = WorkshopPhysicsCompiler.CaptureSensor(instance.Id) } } };
+            { Target = instance.Id } } };
         return result;
     }
 
@@ -133,7 +133,7 @@ public static class PuzzleCatalogue
     internal static Dictionary<PuzzleId, PuzzleDefinition> ReadDefinitions(string json)
     {
         var entries = PuzzleContentReader.ReadIndex(json);
-        var definitions = new Dictionary<PuzzleId, PuzzleDefinition>();
+        var definitions = new Dictionary<PuzzleId, PuzzleDefinition>(16);
         foreach (var entry in entries.Where(entry => entry.Availability == PuzzleAvailability.Playable))
         {
             try { definitions.Add(entry.Id, PuzzleDefinitionReader.Parse(entry)); }

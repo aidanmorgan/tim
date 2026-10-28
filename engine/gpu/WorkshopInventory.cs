@@ -8,7 +8,7 @@ namespace CuriousContraptions.Gpu;
 
 public enum PartAllowanceKind : uint { Counted, Unlimited }
 
-/// <summary>How many more parts of one kind the palette may place. Unlimited defers to WorkbenchCapacity alone.</summary>
+/// <summary>How many more parts of one kind the palette may place. Unlimited permits any representable, valid scene population.</summary>
 public readonly record struct PartAllowance(PartAllowanceKind Kind, int Count)
 {
     public static PartAllowance Unlimited => new(PartAllowanceKind.Unlimited, 0);

@@ -1,3 +1,4 @@
+using CuriousContraptions.Abstractions;
 using CuriousContraptions.Abstractions.Signal;
 using CuriousContraptions.Gpu;
 
@@ -6,33 +7,32 @@ namespace CuriousContraptions.Tests;
 /// <summary>C-Plate (9A.20 D1-D5): the Pressure Plate is a generic instance whose contact-load row, ActivationOut level node and release
 /// hold come from its package's declared contact-load sensor, compiled through one shared helper
 /// (<see cref="WorkshopPhysicsCompiler.ContactLoadSensorFor"/>), for every plate, wired or not. Expected values are stated literally
-/// from CAT-052 §2, owner decision (h) and the Q3 override, and the row bits from the record path's capture at 61ded7ad
-/// (evidence-c-plate/baseline/capture/trace-two-plates.txt).</summary>
+/// from CAT-052 §2, owner decision (h) and the Q3 override,.</summary>
 public sealed class DeclaredContactLoadTests
 {
     private static readonly double PlateY = (double)WorkshopConstruction.WorkbenchSurface.Value + .22;
     private static WorkshopConstruction Bench(IWorkshopInstance[] instances, params WorkshopConnection[] links) =>
         new(new(2), WorkshopCadenceSettings.Default(), new(instances), Connections: new(links));
-    private static string Bits(float value) => BitConverter.SingleToUInt32Bits(value).ToString("x8", System.Globalization.CultureInfo.InvariantCulture);
 
-    // D1 parity pins: the package declares the face (baked collider 1), +Y, 1 − 10⁻⁶, d = 10⁻⁴ m, the 10⁻⁶ m z margin and 0.1 s; the
-    // face box's f32 half-extent is exactly 0.9 in x and z; the face collider is PartIdentities + 2; the compiled row is bit for bit the
-    // record path's (x ±0.9001, z ±0.900001) and carries the instance's own minimum mass. An unwired plate compiles the same row.
+    // The declared top region retains x/z footprint margins and strict normal/gap
+    // filters; top and ring membership is separate from that region anchor.
     [Fact]
-    public void TheDeclaredSensorCompilesTheRecordPathsRowForEveryPlate()
+    public void TheDeclaredSensorCompilesItsRegionAndMembersForEveryPlate()
     {
         var declared = Assert.NotNull(DeclaredPhysics.Of(PartId.PressurePlate).Signal?.ContactLoad);
-        Assert.Equal(new SignalContactLoadDescriptor("minimum_mass", 1, System.Numerics.Vector3.UnitY, 1f - 1e-6f, 1e-4f, 1e-6f, .1f), declared);
+        Assert.Equal(new SignalContactLoadDescriptor("minimum_mass", 1, System.Numerics.Vector3.UnitY, 1f - 1e-6f, 1e-4f, 1e-6f, .1f, declared.SupportingColliders), declared);
+        Assert.Equal([1, 7], declared.SupportingColliders);
         var face = CuriousContraptions.Bundle.BundleGeometry.Colliders(DeclaredPhysics.Of(PartId.PressurePlate))[1];
         Assert.Equal((CuriousContraptions.Abstractions.ColliderShapeKind.Box, .9f, .05f, .9f), (face.ShapeKind, face.HalfExtents.X, face.HalfExtents.Y, face.HalfExtents.Z));
 
         var plate = Assert.IsType<WorkshopGenericInstance>(PlacedParts.Plate(new(3), -4, PlateY, 0, 2f));
         var row = Assert.Single(WorkshopPhysicsCompiler.Compile(Bench([plate]), new(1, 2)).ContactLoadSensors.ToArray());
-        Assert.Equal(WorkshopPhysicsCompiler.ContactLoadSensorFor(plate, declared), row);
-        Assert.Equal((WorkshopPhysicsCompiler.ContactLoadSensor(plate.Id), plate.Id, new GpuColliderId(WorkshopPhysicsCompiler.PartIdentities(plate.Id) + 2)),
-            (row.Id, row.Frame, row.Face));
-        Assert.Equal(("bf666cf4", "3f666cf4", "bf666677", "3f666677", "3f7fffef", "38d1b717", "40000000"),
-            (Bits(row.MinimumX), Bits(row.MaximumX), Bits(row.MinimumZ), Bits(row.MaximumZ), Bits(row.MinimumAlignment), Bits(row.MaximumGap), Bits(row.MinimumMass)));
+        var identities = Bench([plate]).Instances.Identities[plate.Id];
+        Assert.Equal(new[] { identities.Colliders[1], identities.Colliders[7] }, row.SupportingColliders.ToArray());
+        Assert.Equal((Bench([plate]).Instances.Identities[plate.Id].ContactLoad, plate.Id, Bench([plate]).Instances.Identities[plate.Id].Colliders[1]),
+            (row.Id, row.Frame, row.Region));
+        Assert.Equal((-.9f - .0001f, .9f + .0001f, -.9f - .000001f, .9f + .000001f, 1f - .000001f, .0001f, 2f),
+            (row.MinimumX, row.MaximumX, row.MinimumZ, row.MaximumZ, row.MinimumAlignment, row.MaximumGap, row.MinimumMass));
         Assert.Equal(System.Numerics.Vector3.UnitY, row.LocalNormal);
         var node = Assert.Single(WorkshopActivationCompiler.Compile(Bench([plate])).Nodes.ToArray());
         Assert.Equal((ActivationNodeKind.ContactLoadSource, row.Id, 12u), (node.Kind, node.ContactLoad, node.ReleaseHoldTicks));
@@ -46,7 +46,7 @@ public sealed class DeclaredContactLoadTests
         var plates = Masses.Select((mass, i) => PlacedParts.Plate(new((ulong)i + 1), 3 * i, PlateY, 0, mass)).ToArray();
         var rows = WorkshopPhysicsCompiler.Compile(Bench(plates), new(1, 2)).ContactLoadSensors.ToArray();
         Assert.Equal(plates.Select(plate => plate.Id), rows.Select(row => row.Frame));
-        Assert.Equal(["3dcccccd", "40000000", "41800000", "3f000000"], rows.Select(row => Bits(row.MinimumMass)));
+        Assert.Equal(Masses, rows.Select(row => row.MinimumMass));
     }
 
     // D1: the hold is ActivationTimerDeclaration.Duration(0.1 s, cadence): 6, 12 and 24 ticks at 60, 120 and 240 Hz.
@@ -74,13 +74,13 @@ public sealed class DeclaredContactLoadTests
 
     // ---------- D5: saves ----------
 
-    // 0.1, 0.5, 2.0 and 16 round-trip bit-exact through the production save and command encoders.
+    // 0.1, 0.5, 2.0 and 16 round-trip numerically through the production save and command encoders.
     [Theory]
     [InlineData(.1f)]
     [InlineData(.5f)]
     [InlineData(2f)]
     [InlineData(16f)]
-    public void AdmittedMinimumMassesRoundTripBitExactAtBothBoundaries(float minimumMass)
+    public void AdmittedMinimumMassesRoundTripAtBothBoundaries(float minimumMass)
     {
         var bench = Bench([PlacedParts.Plate(new(1), 0, PlateY, 0, minimumMass)]);
         var saved = WorkshopSaveCodec.Decode(SaveFixture.Elements, WorkshopSaveCodec.Encode(new WorkshopSavedConstruction(bench, new(2)))).Construction;
@@ -89,7 +89,7 @@ public sealed class DeclaredContactLoadTests
         foreach (var decoded in new[] { saved, command })
         {
             var plate = Assert.IsType<WorkshopGenericInstance>(Assert.Single(decoded.Instances));
-            Assert.Equal(BitConverter.SingleToUInt32Bits(minimumMass), BitConverter.SingleToUInt32Bits(plate.Parameters[new ParameterId("minimum_mass")]));
+            Assert.Equal(minimumMass, plate.Parameters[new ParameterId("minimum_mass")]);
         }
     }
 

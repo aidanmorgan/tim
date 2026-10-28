@@ -1,3 +1,4 @@
+using CuriousContraptions.Abstractions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -63,25 +64,25 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
 
             // The base, the sensing top (collider 1, which the contact load names), then the three sockets that stand proud of the
             // base (visible = solid), each at its port.
-            Assert.Equal(5, colliders.Count);
+            Assert.Equal(10, colliders.Count);
 
             var baseCol = colliders[0];
-            Assert.Equal(ColliderShapeKind.Box, baseCol.ShapeKind);
+            Assert.Equal(CuriousContraptions.Gpu.ColliderShapeKind.Box, baseCol.ShapeKind);
             Assert.Equal(new MetreVector(1.1f, 0.1f, 1.1f), baseCol.HalfExtents);
             Assert.Equal(0f, baseCol.LocalPose.Translation.X);
             Assert.Equal(-0.12f, baseCol.LocalPose.Translation.Y);
             Assert.Equal(0f, baseCol.LocalPose.Translation.Z);
 
             var topCol = colliders[1];
-            Assert.Equal(ColliderShapeKind.Box, topCol.ShapeKind);
+            Assert.Equal(CuriousContraptions.Gpu.ColliderShapeKind.Box, topCol.ShapeKind);
             Assert.Equal(new MetreVector(0.9f, 0.05f, 0.9f), topCol.HalfExtents);
             Assert.Equal(0f, topCol.LocalPose.Translation.X);
             Assert.Equal(0.03f, topCol.LocalPose.Translation.Y);
             Assert.Equal(0f, topCol.LocalPose.Translation.Z);
 
             TestBundle.AssertCollider(colliders[2], Gpu.ColliderShapeKind.Sphere, 0.075f, default, new(-1.18f, -0.08f, 0f));
-            TestBundle.AssertCollider(colliders[3], Gpu.ColliderShapeKind.Sphere, 0.075f, default, new(1.18f, -0.08f, 0f));
-            TestBundle.AssertCollider(colliders[4], Gpu.ColliderShapeKind.Sphere, 0.075f, default, new(0f, -0.08f, 1.18f));
+            TestBundle.AssertCollider(colliders[8], Gpu.ColliderShapeKind.Sphere, 0.075f, default, new(1.18f, -0.08f, 0f));
+            TestBundle.AssertCollider(colliders[9], Gpu.ColliderShapeKind.Sphere, 0.075f, default, new(0f, -0.08f, 1.18f));
 
             Assert.Equal(3, ports.Count);
             Assert.Equal(new Godot.Vector3(-1.18f, -0.08f, 0), ports["PowerIn"].Position);
@@ -149,7 +150,7 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
     /// <summary>CAT-052 §2: the contact distance d (the x margin and largest resting gap), the z margin and the alignment.</summary>
     private const float ContactDistance = .0001f, DepthMargin = 1e-6f, Alignment = 1f - 1e-6f;
     private static ContactLoadSensorDeclaration Row(float minimum = .5f) => new(new(1), new(10), new(11),
-        -.9f - ContactDistance, .9f + ContactDistance, -.9f - DepthMargin, .9f + DepthMargin, Up, Alignment, ContactDistance, minimum);
+        -.9f - ContactDistance, .9f + ContactDistance, -.9f - DepthMargin, .9f + DepthMargin, Up, Alignment, ContactDistance, minimum, [new(11)]);
     /// <summary>A resting contact on the row's face (frame 10, collider 11) at local (x, 0.08, z), gap −0.00027 m as the engine reports.</summary>
     private static ContactPointRecord On(ulong body, float mass, float x = 0, float z = 0, float gap = -.00027f, ulong collider = 11,
         Vector3? normal = null, bool pressed = false) => new(new(10), new(collider), new(body), mass, new(x, .08f, z), normal ?? Up, gap, pressed);
@@ -168,7 +169,7 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
 
         Assert.Throws<ArgumentException>(() => (row with { Id = default }).Validate());
         Assert.Throws<ArgumentException>(() => (row with { Frame = default }).Validate());
-        Assert.Throws<ArgumentException>(() => (row with { Face = default }).Validate());
+        Assert.Throws<ArgumentException>(() => (row with { Region = default }).Validate());
         Assert.Throws<ArgumentOutOfRangeException>(() => (row with { MinimumX = row.MaximumX }).Validate());
         Assert.Throws<ArgumentOutOfRangeException>(() => (row with { MaximumZ = float.NaN }).Validate());
         Assert.Throws<ArgumentOutOfRangeException>(() => (row with { LocalNormal = new(0, 2, 0) }).Validate());
@@ -268,13 +269,13 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
         var scene = WorkshopPhysicsCompiler.Compile(new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(),
             new([battery, plate, gate, heavy]), Connections: new([Supply(battery.Id, plate.Id), Supply(plate.Id, gate.Id)])), new(1, 1));
 
-        Assert.Equal(5, scene.Colliders.ToArray().Count(c => c.Body == plate.Id));
+        Assert.Equal(10, scene.Colliders.ToArray().Count(c => c.Body == plate.Id));
         var rows = scene.ContactLoadSensors.ToArray();
         Assert.Equal(2, rows.Length);
         foreach (var (instance, minimum, row) in new[] { (plate, .5f, rows.Single(r => r.Frame == plate.Id)), (heavy, 2f, rows.Single(r => r.Frame == heavy.Id)) })
         {
-            Assert.Equal(WorkshopPhysicsCompiler.ContactLoadSensor(instance.Id), row.Id);
-            var face = scene.Colliders.ToArray().Single(c => c.Id == row.Face);
+            Assert.Equal(new WorkshopInstances(battery, plate, gate, heavy).Identities[instance.Id].ContactLoad, row.Id);
+            var face = scene.Colliders.ToArray().Single(c => c.Id == row.Region);
             Assert.Equal((instance.Id, .03f, new MetreVector(.9f, .05f, .9f)), (face.Body, face.Pose.Translation.Y, face.HalfExtents));
             Assert.Equal((-.9001f, .9001f, -.900001f, .900001f), (row.MinimumX, row.MaximumX, row.MinimumZ, row.MaximumZ));
             Assert.Equal((Up, 1f - 1e-6f, .0001f), (row.LocalNormal, row.MinimumAlignment, row.MaximumGap));
@@ -284,7 +285,7 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
         Assert.Equal(battery.Id,scene.Electrical.Sources[0].Owner);
         Assert.Equal(gate.Id,scene.Prismatics[0].BodyA);
         // The deleted drag encoding: the blade declares no drag whatever feeds it.
-        Assert.Equal(0f, scene.Bodies.ToArray().Single(b => b.Id == WorkshopPhysicsCompiler.SliderBody(gate.Id, 0)).LinearDrag.Value);
+        Assert.Equal(0f, scene.Bodies.ToArray().Single(b => b.Id == scene.Prismatics.ToArray().Single(joint => joint.BodyA == gate.Id).BodyB).LinearDrag.Value);
     }
 
     [Fact]
@@ -294,7 +295,9 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
         var scene = WorkshopPhysicsCompiler.Compile(new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new([plate])), new(1, 1));
         var world = PhysicsGpuAbi.Admission(scene, new(1), new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1)));
         Assert.Equal(1, PhysicsGpuAbi.ReadContactLoadCount(world));
-        Assert.Equal(scene.ContactLoadSensors[0], PhysicsGpuAbi.ReadContactLoadDeclaration(world, 0));
+        var declaration = PhysicsGpuAbi.ReadContactLoadDeclaration(world, 0);
+        Assert.Equal(scene.ContactLoadSensors[0].SupportingColliders.ToArray(), declaration.SupportingColliders.ToArray());
+        Assert.Equal(scene.ContactLoadSensors[0] with { SupportingColliders = declaration.SupportingColliders }, declaration);
         var read = PhysicsGpuAbi.ReadContactLoadSensor(world, 0);
         Assert.Equal((ContactLoadPhase.Empty, 0f, plate.Id), (read.Phase, read.MeasuredMass, read.Frame));
         // Story 9R.5b: the contact-load table is exactly its population, directly before the colliders.
@@ -321,23 +324,23 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
         var cmd = new WorkshopCommand(new(1), WorkshopCommandKind.Construct, new(0), new(1), construction, Session: new(1, 2), Cadence: new(1), Projection: new(1));
         var decoded = Assert.IsType<WorkshopGenericInstance>(Assert.Single(WorkshopWireFlatBuffers.DecodeCommand(WorkshopWireFlatBuffers.EncodeCommand(cmd)).Construction!.Value.Instances));
         Assert.Equal(plate, decoded);
-        Assert.Equal((PartId.PressurePlate, locked, BitConverter.SingleToUInt32Bits(minimumMass)),
-            (decoded.PartId, decoded.Locked, BitConverter.SingleToUInt32Bits(decoded.Parameters[new ParameterId("minimum_mass")])));
+        Assert.Equal((PartId.PressurePlate, locked, minimumMass),
+            (decoded.PartId, decoded.Locked, decoded.Parameters[new ParameterId("minimum_mass")]));
     }
 
     [Fact]
-    public void WorkbenchCapacity_ValidatesPressurePlateFootprint()
+    public void ConstructionValidationAndCompilerPreservePressurePlateFootprint()
     {
         var plate = PlacedParts.Plate(new(1), 0, 0, 0, .5f);
         IWorkshopInstance[] instances = [plate];
-        WorkbenchCapacity.Validate(instances);
+        new WorkshopInstances([.. instances]).Validate();
 
         // Story 9R.5b: the compiled scene is the footprint authority; the workbench plane adds one static body and collider.
         var world = WorkshopPhysicsCompiler.Compile(new WorkshopConstruction(new ConstructionRevision(1), WorkshopCadenceSettings.Default(),
             new WorkshopInstances(plate)), new(1, 2)).World;
         Assert.Equal(1 + 1, world.Bodies);
         Assert.Equal(0, world.Dynamic);
-        Assert.Equal(5 + 1, world.Colliders);
+        Assert.Equal(10 + 1, world.Colliders);
         Assert.Equal(0, world.Triggers);
         Assert.Equal(0, world.ContactWorks);
         Assert.Equal(0, world.ElectricalSources);
@@ -363,10 +366,10 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
     private static IWorkshopInstance Plate(ulong id, double x, double z, float minimum) =>
         PlacedParts.Plate(new(id), x, PlateY, z, minimum);
     private static WorkshopGenericInstance BallOn(ulong id, double x, double z) => WorkshopInput.Generic(PartId.Basketball,new(id), x, Face + .35, z, 0, 0, 0, 1);
-    private static IWorkshopInstance StandingOn(ulong id, double x, double z) => PlacedParts.Domino(new(id), x, Face + .551, z, 0, 0, 0, 1);
+    private static IWorkshopInstance StandingOn(ulong id, double x, double z) => PlacedParts.Domino(new(id), x, Face + .574, z, 0, 0, 0, 1);
     /// <summary>A Domino lying on its broad face (1.1 m along x, 0.65 m along z, 0.25 m tall) with its underside at <paramref name="under"/>.</summary>
     private static IWorkshopInstance FlatOn(ulong id, double x, double under, double z) =>
-        PlacedParts.Domino(new(id), x, under + .126, z, 0, 0, Math.Sqrt(.5), Math.Sqrt(.5));
+        PlacedParts.Domino(new(id), x, under + .15, z, 0, 0, Math.Sqrt(.5), Math.Sqrt(.5));
     private static WorkshopConnection[] Circuit(WorkshopGenericInstance battery, IWorkshopInstance plate, WorkshopGenericInstance gate) =>
         [Supply(battery.Id, plate.Id), Supply(plate.Id, gate.Id)];
     private static WorkshopConstruction Bench(IWorkshopInstance[] instances, params WorkshopConnection[] connections) =>
@@ -376,8 +379,7 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
 
     private static float Travel(WorkshopRead read, WorkshopGenericInstance gate)
     {
-        Assert.True(read.Bodies.TryGet(WorkshopPhysicsCompiler.SliderBody(gate.Id, 0), out var blade));
-        return (blade.Body.Cell.Y + blade.Body.Local.Y) / 16f - (float)GateHeight;
+        return read.Presentation.Actuators.ToArray().Single(row => row.Owner == gate.Id).Coordinate;
     }
     /// <summary>The plate's committed contact (its ContactLoadSource level): closed exactly while the committed phase is Loaded.</summary>
     private static bool ContactClosed(WorkshopRead read, IWorkshopInstance plate)
@@ -428,10 +430,10 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
         var gate = Gate(1, 0); var battery = Battery(2, 0); var plate = Plate(3, -4, 0, .5f);
         var bench = Bench([gate, battery, plate, BallOn(4, -4, 0)], Circuit(battery, plate, gate));
         var scene = WorkshopPhysicsCompiler.Compile(bench, new(1, 2));
-        var face = scene.Colliders.ToArray().Single(collider => collider.Id == Assert.Single(scene.ContactLoadSensors.ToArray()).Face);
+        var face = scene.Colliders.ToArray().Single(collider => collider.Id == Assert.Single(scene.ContactLoadSensors.ToArray()).Region);
         Assert.Equal((Gpu.ColliderShapeKind.Box, new MetreVector(0f, .03f, 0f), new MetreVector(.9f, .05f, .9f)),
             (face.Shape, face.Pose.Translation, face.HalfExtents));
-        Assert.Equal(3, scene.Colliders.ToArray().Count(collider => collider.Body == plate.Id && collider.Shape == Gpu.ColliderShapeKind.Sphere));
+        Assert.Equal(3, scene.Colliders.ToArray().Count(collider => collider.Body == plate.Id && collider.Shape == Gpu.ColliderShapeKind.Sphere && collider.Radius.Value == .075f));
         AssertGateOpened(await RunBench(bench), plate, gate, "a 1 kg ball on the sensing top beside the socket colliders");
     }
 
@@ -451,7 +453,7 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
     public async Task OneDominoIsUnderweightAndTwoDominoesSum(int dominoes, bool opens)
     {
         var gate = Gate(1, 0); var battery = Battery(2, 0); var plate = Plate(3, -4, 0, .5f);
-        IWorkshopInstance[] load = dominoes == 1 ? [StandingOn(4, -4, 0)] : [StandingOn(4, -4.4, 0), StandingOn(5, -3.6, 0)];
+        IWorkshopInstance[] load = dominoes == 1 ? [StandingOn(4, -4, 0)] : [StandingOn(4, -4.6, 0), StandingOn(5, -3.4, 0)];
         var reads = await RunBench(Bench([gate, battery, plate, .. load], Circuit(battery, plate, gate)));
         if (opens) AssertGateOpened(reads, plate, gate, $"{dominoes} domino(es)");
         else AssertGateClosedThroughout(reads, plate, gate, $"{dominoes} domino(es)");
@@ -462,7 +464,7 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
     public async Task OnlyDirectContactCountsForAStack()
     {
         var gate = Gate(1, 0); var battery = Battery(2, 0); var plate = Plate(3, -4, 0, .5f);
-        var reads = await RunBench(Bench([gate, battery, plate, FlatOn(4, -4, Face, 0), FlatOn(5, -4, Face + .251, 0)],
+        var reads = await RunBench(Bench([gate, battery, plate, FlatOn(4, -4, Face, 0), FlatOn(5, -4, Face + .312, 0)],
             Circuit(battery, plate, gate)));
         AssertGateClosedThroughout(reads, plate, gate, "two stacked dominoes");
     }
@@ -522,7 +524,10 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
         const double plateHeight = 2;
         var plate = PlacedParts.Plate(new(3), -4, plateHeight, 0, .5f, 0, 0, Math.Sin(half), Math.Cos(half));
         var rotation = new System.Numerics.Quaternion(0, 0, (float)Math.Sin(half), (float)Math.Cos(half));
-        var drop = System.Numerics.Vector3.Transform(new System.Numerics.Vector3(-.2f, .08f + .345f, 0), rotation);
+        // At local x=-.2 the ring centreline is .1 m away. Its y=.084,
+        // tube .018 and ball union reach .35 give the conservative contact
+        // height .084+sqrt((.35+.018)^2-.1^2)=.4382 m; .448 m clears it.
+        var drop = System.Numerics.Vector3.Transform(new System.Numerics.Vector3(-.2f, .08f + .368f, 0), rotation);
         var ball = WorkshopInput.Generic(PartId.Basketball,new(4), -4 + drop.X, plateHeight + drop.Y, drop.Z, 0, 0, 0, 1);
         var lamp = LampAt(5);
         var reads = await RunBench(Bench([gate, battery, plate, ball, lamp], [.. Circuit(battery, plate, gate), Signal(plate.Id, lamp.Id)]), 4 * 120);
@@ -577,7 +582,7 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
         var prismatic=Array.FindIndex(scene.Prismatics.ToArray(),joint=>joint.BodyA==gate.Id);
         var state = new ActivationCheckpoint(network.Clear(), network.ClearTimers(), network.ClearMemory());
         ActivationCheckpoint Step(ulong tick, ContactLoadPhase phase, float mass) => network.Consume(state.Activations, state.Timers, [],
-            new(tick), [], memory: state.Memory, contactLoads: [new(row.Id, row.Frame, row.Face, mass, phase)]);
+            new(tick), [], memory: state.Memory, contactLoads: [new(row.Id, row.Frame, row.Region, mass, phase)]);
         bool Next(ActivationCheckpoint committed) => PhysicsTickInputs.Compose(scene.SupplyGraph, scene.Prismatics.Length,
             new([ElectricalEnable.Enabled]), owner => network.ContactClosed(committed.Activations, network.ClearTimers(), owner)).SupplyClosed[prismatic];
         ActivationLatch Level(ActivationCheckpoint committed)
@@ -591,7 +596,7 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
         state = Step(2, ContactLoadPhase.Loaded, 1);
         Assert.True(network.ContactClosed(state.Activations, network.ClearTimers(), plate.Id)); Assert.True(Next(state));
         var onset = Level(state);
-        Assert.Equal((ActivationOccurrenceKind.ContactLoad, row.Face, plate.Id), (onset.Kind, onset.Collider, onset.Body));
+        Assert.Equal((ActivationOccurrenceKind.ContactLoad, row.Region, plate.Id), (onset.Kind, onset.Collider, onset.Body));
         state = Step(3, ContactLoadPhase.Loaded, 1);
         Assert.Equal(onset, Level(state)); // the level holds its onset while Loaded
         // Story 9R.5: after the last qualifying tick (3) the level is held through n = 11 (tick 14) and released at n = 12 (tick 15).
@@ -634,7 +639,7 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
 
     internal static async Task<(WorkshopRead Built, List<WorkshopRead> Run, WorkshopRead Reset)> RunAndReset(WorkshopConstruction construction, int ticks)
     {
-        await using var device = new WorkshopGpuDevice(new CuriousContraptions.Simulation.BrowserGpuTransport(), new(101, 206));
+        await using var device = new WorkshopGpuDevice(new CuriousContraptions.Simulation.BrowserGpuTransport(new CuriousContraptions.Abstractions.EventRingPublication()), new(101, 206));
         await using var simulation = new WorkshopSimulation(device, new WorkshopPhysicsEngineTests.StepClock(), WorkshopCadenceSettings.Default(),
             new(1), new WorkshopPhysicsEngineTests.NoInstallation(), GpuDeviceOwnership.Borrowed);
         Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Initialize()).Outcome);
@@ -828,7 +833,7 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
         for (var i = 0; i < loaded.Length; i++)
         {
             state = network.Consume(state.Activations, state.Timers, [], new((ulong)i + 1), [], memory: state.Memory,
-                contactLoads: [new(row.Id, row.Frame, row.Face, loaded[i] ? 1f : 0f, loaded[i] ? ContactLoadPhase.Loaded : ContactLoadPhase.Empty)]);
+                contactLoads: [new(row.Id, row.Frame, row.Region, loaded[i] ? 1f : 0f, loaded[i] ? ContactLoadPhase.Loaded : ContactLoadPhase.Empty)]);
             var committed = state;
             var next = PhysicsTickInputs.Compose(scene.SupplyGraph, scene.Prismatics.Length, new([ElectricalEnable.Enabled]),
                 owner => network.ContactClosed(committed.Activations, network.ClearTimers(), owner)).SupplyClosed[prismatic];
@@ -893,10 +898,10 @@ public sealed class PressurePlateTests(NativeSceneFixture godot)
             var loaded = tick == 1;
             var network = networks[tick % 2];
             var candidate = network.Consume(state.Activations, state.Timers, [], new(tick), [], memory: state.Memory,
-                contactLoads: [new(row.Id, row.Frame, row.Face, loaded ? 1f : 0f, loaded ? ContactLoadPhase.Loaded : ContactLoadPhase.Empty)]);
+                contactLoads: [new(row.Id, row.Frame, row.Region, loaded ? 1f : 0f, loaded ? ContactLoadPhase.Loaded : ContactLoadPhase.Empty)]);
             // A superseded candidate (a Loaded read never committed) leaves the committed hold unchanged.
             _ = network.Consume(state.Activations, state.Timers, [], new(tick), [], memory: state.Memory,
-                contactLoads: [new(row.Id, row.Frame, row.Face, 1f, ContactLoadPhase.Loaded)]);
+                contactLoads: [new(row.Id, row.Frame, row.Region, 1f, ContactLoadPhase.Loaded)]);
             state = candidate;
             lit.Add(Latched(state.Activations, lamp.Id));
             Assert.Equal(lit[^1] ? 1ul + HoldTicks : 0ul, Hold(state.Memory, plate).DueTick);

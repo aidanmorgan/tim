@@ -17,7 +17,7 @@ public sealed class ActivationTimerTests
         if (bypass) links = links.With(Link(5,3));
         var construction = new WorkshopConstruction(new(1),WorkshopCadenceSettings.Default(),instances,Connections:links);
         var scene = WorkshopPhysicsCompiler.Compile(construction,new(1,2));
-        ContactTriggerRead Event(ulong owner,uint ordinal) => new(WorkshopPhysicsCompiler.ContactTrigger(new(owner)),
+        ContactTriggerRead Event(ulong owner,uint ordinal) => new(instances.Identities[new(owner)].Trigger,
             new(owner),new(1),1,scene.Colliders.ToArray().First(c=>c.Body.Value==owner).Id,ordinal,0f,new(1f));
         return (WorkshopActivationCompiler.Compile(construction),scene,Event(2,10),Event(5,20));
     }

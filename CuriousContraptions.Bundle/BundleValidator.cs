@@ -52,7 +52,7 @@ public static class BundleValidator
     public static IReadOnlyList<BundleError> Validate(IReadOnlyList<NamedEntry> entries)
     {
         ArgumentNullException.ThrowIfNull(entries);
-        var errors = new List<BundleError>();
+        var errors = new List<BundleError>(4);
         foreach (var duplicate in entries.GroupBy(entry => entry.Entry.Metadata.Id, StringComparer.Ordinal)
                      .Where(group => group.Count() > 1).OrderBy(group => group.Key, StringComparer.Ordinal))
             errors.Add(new(BundleErrorCode.DuplicateId,
@@ -80,7 +80,7 @@ public static class BundleValidator
             // Any entry with a body (a declared footprint body, or a mechanical payload) needs a collider, whatever its domains.
             if ((footprint.Bodies > 0 || entry.Mechanical is not null) && entry.Colliders.Count == 0)
                 errors.Add(new(BundleErrorCode.BodyWithoutCollider, $"{source}.Colliders: a body declares no collider"));
-            var sockets = new HashSet<PortSocket>();
+            var sockets = new HashSet<PortSocket>(4);
             for (var i = 0; i < entry.Ports.Count; i++)
             {
                 Port($"Ports[{i}]", entry.Ports[i]);
@@ -89,9 +89,9 @@ public static class BundleValidator
             }
             for (var i = 0; i < entry.Colliders.Count; i++) Collider($"Colliders[{i}]", entry.Colliders[i]);
             Geometry(entry);
-            Presentation(entry.Presentation, entry.Metadata.Parameters, entry.Ports, entry.Electrical, entry.Signal, entry.Events);
+            Presentation(entry.Presentation, entry.Metadata.Parameters, entry.Ports, entry.Electrical, entry.Signal, entry.Events, entry.Mechanical?.Sliders.Count ?? 0);
             // Story 9A.22: each declared event kind is a defined record kind (None is no record), declared once.
-            var kinds = new HashSet<SimulationEventKind>();
+            var kinds = new HashSet<SimulationEventKind>(4);
             for (var i = 0; i < entry.Events.Count; i++)
             {
                 if (entry.Events[i].Kind == SimulationEventKind.None) Undefined($"Events[{i}].Kind");
@@ -110,7 +110,7 @@ public static class BundleValidator
         }
 
         private void Presentation(ElementPresentation value, IReadOnlyList<ParameterDescriptor> parameters, IReadOnlyList<PortDescriptor> ports, ElectricalPayload? electrical,
-            SignalPayload? signal, IReadOnlyList<EventDescriptor> events)
+            SignalPayload? signal, IReadOnlyList<EventDescriptor> events, int childBodies)
         {
             if (!Finite("Presentation.PickRadius", value.PickRadius) || value.PickRadius <= 0)
                 OutOfRange("Presentation.PickRadius");
@@ -133,7 +133,7 @@ public static class BundleValidator
                 }
                 if (axes != value.ResizeAxes) OutOfRange("Presentation.Sizing.Axes");
             }
-            var writers = new HashSet<(string, PresentationProperty, PresentationTimerPhase)>();
+            var writers = new HashSet<(string, PresentationProperty, PresentationTimerPhase)>(4);
             foreach (var binding in value.Bindings)
             {
                 Text("Presentation.Node", binding.Node);
@@ -208,13 +208,16 @@ public static class BundleValidator
                 if (binding.Phase != PresentationTimerPhase.None && binding.Driver != PresentationDriver.CommittedTimerPhase)
                     OutOfRange("Presentation.Phase");
             }
-            var bodies = new HashSet<PresentationBody>();
+            var bodies = new HashSet<PackageBodyIndex>(4);
+            var bodyNodes = new HashSet<string>(4, StringComparer.Ordinal);
             foreach (var body in value.Bodies)
             {
-                Text("Presentation.Body.Node", body.Node); Defined("Presentation.Body", body.Body);
+                Text("Presentation.Body.Node", body.Node);
+                if (body.Body.Value < 1 || body.Body.Value > childBodies || !bodyNodes.Add(body.Node)) OutOfRange("Presentation.Body");
                 Finite("Presentation.Body.RestOffset", body.RestOffset);
                 if (!bodies.Add(body.Body)) OutOfRange("Presentation.Body");
             }
+            if (bodies.Count != childBodies) OutOfRange("Presentation.Body.Missing");
             foreach (var span in value.Spans)
             {
                 Text("Presentation.Span.MovingNode", span.MovingNode); Text("Presentation.Span.Node", span.SpanNode);
@@ -234,7 +237,7 @@ public static class BundleValidator
 
         private void Geometry(BundleEntry entry)
         {
-            var targets = new HashSet<(int, GeometryComponent)>();
+            var targets = new HashSet<(int, GeometryComponent)>(4);
             foreach (var binding in entry.ColliderBindings)
             {
                 const string path = "ColliderBindings";
@@ -248,7 +251,7 @@ public static class BundleValidator
                 foreach (var value in new[] { parameter.Minimum, parameter.Maximum })
                 {
                     var evaluated = value * binding.Multiplier + binding.Offset;
-                    if (!float.IsFinite(evaluated) || (binding.Component is GeometryComponent.HalfExtentX or
+                    if (!float.IsFinite(evaluated) || (binding.Component is GeometryComponent.Radius or GeometryComponent.HalfExtentX or
                         GeometryComponent.HalfExtentY or GeometryComponent.HalfExtentZ && evaluated <= 0f))
                         OutOfRange(path + ".EvaluatedBoundary");
                 }
@@ -263,7 +266,7 @@ public static class BundleValidator
                     .Select(binding => (binding.Parameter, binding.Multiplier, binding.Offset)).ToArray();
                 if (!x.SequenceEqual(z)) OutOfRange($"ColliderBindings[{i}].CylinderRadius");
             }
-            var ends = new HashSet<TubeEnd>();
+            var ends = new HashSet<TubeEnd>(4);
             foreach (var mouth in entry.TubeMouths)
             {
                 Defined("TubeMouths.End", mouth.End);
@@ -273,7 +276,7 @@ public static class BundleValidator
                 if (MathF.Abs(mouth.Rotation.LengthSquared() - 1f) > 1e-5f) OutOfRange("TubeMouths.Rotation");
                 if (Finite("TubeMouths.BoreRadius", mouth.BoreRadius) && mouth.BoreRadius <= 0f) OutOfRange("TubeMouths.BoreRadius");
             }
-            var boundEnds = new HashSet<TubeEnd>();
+            var boundEnds = new HashSet<TubeEnd>(4);
             foreach (var binding in entry.TubeMouthBindings)
             {
                 Defined("TubeMouthBindings.End", binding.End);
@@ -378,12 +381,10 @@ public static class BundleValidator
         private void Mechanical(MechanicalPayload mechanical, IReadOnlyList<ParameterDescriptor> parameters, IReadOnlyList<PortDescriptor> ports)
         {
             Defined("KinematicMode", mechanical.KinematicMode);
-            var mass = mechanical.MassProperties;
-            Finite("MassProperties.Mass", mass.Mass);
-            Finite("MassProperties.CentreOfMass", mass.CentreOfMass);
-            Finite("MassProperties.InertiaTensor", mass.InertiaTensor);
-            Finite("MassProperties.LinearDrag", mass.LinearDrag);
-            Finite("MassProperties.Gravity", mass.Gravity);
+            Defined("Payload", mechanical.Payload);
+            if (mechanical.Payload != PayloadPolicy.None && mechanical.KinematicMode != KinematicMode.Dynamic)
+                OutOfRange("Payload.Owner");
+            MassFrame("MassFrame", mechanical.MassFrame, mechanical.KinematicMode, parameters);
             for (var i = 0; i < mechanical.AnchorPoints.Count; i++)
             {
                 var anchor = mechanical.AnchorPoints[i];
@@ -392,9 +393,8 @@ public static class BundleValidator
                 Finite($"AnchorPoints[{i}].Axis", anchor.Axis);
             }
             for (var i = 0; i < mechanical.Sliders.Count; i++) Slider($"Sliders[{i}]", mechanical.Sliders[i], parameters);
-            // A supplied drive is enabled by the element's one PowerIn route, so it needs that input, and one route drives one slider.
+            // The owner's PowerIn route enables every declared drive; each retains its own physical limits.
             var driven = mechanical.Sliders.Select((slider, index) => (slider, index)).Where(pair => pair.slider.Drive is not null).ToArray();
-            if (driven.Length > 1) OutOfRange($"Sliders[{driven[1].index}].Drive");
             if (driven.Length > 0 && !ports.Any(port => port.Socket == PortSocket.PowerIn && port.Domain == SimulationDomain.Electrical &&
                     port.Direction == PortDirection.Input))
                 errors.Add(new(BundleErrorCode.UnresolvedReference,
@@ -436,25 +436,91 @@ public static class BundleValidator
                 if (mechanical.KinematicMode != KinematicMode.Static || mechanical.Sliders.Count != 0)
                     OutOfRange("ContactWork.Owner");
             }
-            if (mechanical.MassParameter is { } bound) MassParameter(bound, mechanical, parameters);
         }
 
-        /// <summary>A body mass bound to a parameter: the dynamic body's mass is one declared Real kilogram parameter whose whole range
-        /// lies inside the compiled mass domain [1/1024, 1024] kg, and the fixed declared mass is that parameter's default (one truth
-        /// at defaults).</summary>
-        private void MassParameter(MechanicalValue bound, MechanicalPayload mechanical, IReadOnlyList<ParameterDescriptor> parameters)
+        private void MassFrame(string path, MassFrameDeclaration frame, KinematicMode mode, IReadOnlyList<ParameterDescriptor> parameters)
         {
-            const string path = "MassParameter";
-            Value(path, bound, parameters);
-            if (bound.Source != MechanicalValueSource.Parameter) { OutOfRange(path + ".Source"); return; }
-            if (mechanical.KinematicMode != KinematicMode.Dynamic) OutOfRange(path + ".Owner");
-            var named = parameters.Where(parameter => parameter.Key == bound.Parameter).ToArray();
-            if (named.Length != 1) { OutOfRange(path + ".Parameter"); return; }
-            var mass = named[0];
-            if (mass.Kind != ParameterKind.Real || mass.Unit != ParameterUnit.Kilogram) OutOfRange(path + ".Parameter");
-            if (!(mass.Minimum >= 1f / 1024f && mass.Maximum <= 1024f)) OutOfRange(path + ".Range");
-            if (BitConverter.SingleToUInt32Bits(mechanical.MassProperties.Mass) != BitConverter.SingleToUInt32Bits(mass.Default))
-                OutOfRange(path + ".Default");
+            var scalars = new[] { frame.Mass, frame.CentreOfMass.X, frame.CentreOfMass.Y, frame.CentreOfMass.Z,
+                frame.PrincipalMoments.X, frame.PrincipalMoments.Y, frame.PrincipalMoments.Z };
+            foreach (var scalar in scalars)
+                if (scalar.Parameter is { } key && !parameters.Any(p => p.Key == key.Value && p.Kind == ParameterKind.Real))
+                    OutOfRange(path + ".Parameter");
+            try
+            {
+                var values = parameters.ToDictionary(p => new ParameterId(p.Key), p => p.Default);
+                frame.Evaluate(values).Validate(mode);
+                // Every constraint is a sum of univariate cubics. Group shared parameters before
+                // finding extrema, then sum independent domain minima/maxima (no Cartesian sampling).
+                (float Min, float Max) Bounds(params (MassScalar Value, float Sign)[] terms)
+                {
+                    float minimum = 0, maximum = 0;
+                    foreach (var group in terms.GroupBy(term => term.Value.Parameter))
+                    {
+                        var polynomial = new MassScalar(group.Key,
+                            group.Sum(t => t.Sign * t.Value.C0), group.Sum(t => t.Sign * t.Value.C1),
+                            group.Sum(t => t.Sign * t.Value.C2), group.Sum(t => t.Sign * t.Value.C3));
+                        var domain = group.Key is { } key ? parameters.Single(p => p.Key == key.Value) : default;
+                        float low = float.PositiveInfinity, high = float.NegativeInfinity;
+                        foreach (var x in MassExtrema(polynomial, domain.Minimum, domain.Maximum))
+                        {
+                            if (group.Key is { } parameter) values[parameter] = x;
+                            float value = 0;
+                            foreach (var term in group) value += term.Sign * term.Value.Evaluate(values);
+                            if (!float.IsFinite(value)) throw new ArgumentException("Mass-domain overflow.");
+                            low = MathF.Min(low, value); high = MathF.Max(high, value);
+                        }
+                        minimum += low; maximum += high;
+                    }
+                    if (!float.IsFinite(minimum) || !float.IsFinite(maximum)) throw new ArgumentException("Mass-domain overflow.");
+                    return (minimum, maximum);
+                }
+                void Range(MassScalar scalar, float minimum, float maximum, bool exclusiveMaximum = false)
+                {
+                    var bounds = Bounds((scalar, 1));
+                    if (bounds.Min < minimum || (exclusiveMaximum ? bounds.Max >= maximum : bounds.Max > maximum))
+                        throw new ArgumentException("Mass polynomial leaves its physical domain.");
+                }
+                if (mode == KinematicMode.Static)
+                {
+                    foreach (var scalar in scalars) Range(scalar, 0, 0);
+                }
+                else
+                {
+                    Range(frame.Mass, 1f / 1024, 1024);
+                    foreach (var scalar in new[] { frame.CentreOfMass.X, frame.CentreOfMass.Y, frame.CentreOfMass.Z }) Range(scalar, -16, 16);
+                    var moments = new[] { frame.PrincipalMoments.X, frame.PrincipalMoments.Y, frame.PrincipalMoments.Z };
+                    foreach (var scalar in moments) Range(scalar, 1f / 4294967296, 524288, true);
+                    for (var i = 0; i < 3; i++)
+                        if (Bounds((moments[(i + 1) % 3], 1), (moments[(i + 2) % 3], 1), (moments[i], -1)).Min < 0)
+                            throw new ArgumentException("Principal moments are nonphysical inside the parameter domain.");
+                }
+            }
+            catch (ArgumentException) { OutOfRange(path); }
+        }
+
+        // Degree <= 3 has at most two interior stationary points. Inspect their adjacent f32
+        // inputs too; admission still validates the actual evaluated frame at every supplied value.
+        private static List<float> MassExtrema(MassScalar polynomial, float minimum, float maximum)
+        {
+            var points = new List<float>(8) { minimum, maximum };
+            var scale = MathF.Max(MathF.Abs(polynomial.C1), MathF.Max(MathF.Abs(polynomial.C2), MathF.Abs(polynomial.C3)));
+            if (!float.IsFinite(scale)) throw new ArgumentException("Invalid mass coefficients.");
+            if (scale == 0) return points;
+            var a = 3 * (polynomial.C3 / scale); var b = 2 * (polynomial.C2 / scale); var c = polynomial.C1 / scale;
+            void Add(float x)
+            {
+                if (!float.IsFinite(x) || x < minimum || x > maximum) return;
+                points.Add(x);
+                if (float.BitDecrement(x) >= minimum) points.Add(float.BitDecrement(x));
+                if (float.BitIncrement(x) <= maximum) points.Add(float.BitIncrement(x));
+            }
+            if (a == 0) { if (b != 0) Add(-c / b); return points; }
+            var discriminant = b * b - 4 * a * c;
+            if (discriminant < 0) return points;
+            var q = -.5f * (b + MathF.CopySign(MathF.Sqrt(discriminant), b));
+            if (q == 0) Add(-b / (2 * a));
+            else { Add(q / a); Add(c / q); }
+            return points;
         }
 
         private void Volume(string path,Vector3 minimum,Vector3 maximum)
@@ -494,9 +560,7 @@ public static class BundleValidator
             Value(path + ".Damping", slider.Damping, parameters);
             Value(path + ".Compression", slider.Compression, parameters);
             var body = slider.MovingBody;
-            if (Finite(path + ".MovingBody.Mass", body.Mass) && body.Mass <= 0f) OutOfRange(path + ".MovingBody.Mass");
-            Finite(path + ".MovingBody.Gravity", body.Gravity);
-            Finite(path + ".MovingBody.LinearDrag", body.LinearDrag);
+            MassFrame(path + ".MovingBody.MassFrame", body.MassFrame, KinematicMode.Dynamic, parameters);
             for (var i = 0; i < body.Colliders.Count; i++) Collider($"{path}.MovingBody.Colliders[{i}]", body.Colliders[i]);
             if (body.Colliders.Count == 0)
                 errors.Add(new(BundleErrorCode.BodyWithoutCollider, $"{source}.{path}.MovingBody.Colliders: a body declares no collider"));
@@ -681,7 +745,7 @@ public static class BundleValidator
                 if (!ports.Any(port => port.Socket == PortSocket.PowerIn && port.Domain == SimulationDomain.Electrical && port.Direction == PortDirection.Input) ||
                         electrical?.Nodes.Any(node => node.Role == ElectricalRole.Consumer) != true)
                     OutOfRange("Oscillator.Supply");
-                // A Static frame without sliders and with a collider: each pulse names the frame's first collider (PartIdentities + 1).
+                // A Static frame without sliders and with a collider: each pulse names the frame's first declared collider through its compiled identity map.
                 if ((mechanical is { } frame && (frame.KinematicMode != KinematicMode.Static || frame.Sliders.Count != 0)) || colliders.Count == 0)
                     OutOfRange("Oscillator.Body");
             }
@@ -692,9 +756,13 @@ public static class BundleValidator
                         parameter.Unit == ParameterUnit.Kilogram && parameter.Minimum > 0f))
                     OutOfRange("ContactLoad.MinimumMassParameter");
                 // The face is one of the element's own baked Box colliders, unrotated in the frame.
-                if (load.FaceCollider < 0 || load.FaceCollider >= colliders.Count || colliders[load.FaceCollider].ShapeKind != ColliderShapeKind.Box ||
-                        colliders[load.FaceCollider].Rotation != Quaternion.Identity)
-                    OutOfRange("ContactLoad.FaceCollider");
+                if (load.RegionCollider < 0 || load.RegionCollider >= colliders.Count || colliders[load.RegionCollider].ShapeKind != ColliderShapeKind.Box ||
+                        colliders[load.RegionCollider].Rotation != Quaternion.Identity)
+                    OutOfRange("ContactLoad.RegionCollider");
+                if (load.SupportingColliders is null || load.SupportingColliders.Count == 0 ||
+                    load.SupportingColliders.Distinct().Count() != load.SupportingColliders.Count ||
+                    load.SupportingColliders.Any(index => index < 0 || index >= colliders.Count))
+                    OutOfRange("ContactLoad.SupportingColliders");
                 // The compiled row's own admission (ContactLoadSensorDeclaration): a unit normal, an alignment in (0, 1], a gap in
                 // [0, 0.01] m; the z margin shares the gap's range, and the hold is positive and at most 1 s.
                 var normal = load.LocalNormal;

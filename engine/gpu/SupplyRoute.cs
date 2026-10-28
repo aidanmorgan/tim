@@ -1,12 +1,13 @@
 using System;
 using System.Linq;
+using System.Collections.Immutable;
 using CuriousContraptions.Abstractions.Electrical;
 
 namespace CuriousContraptions.Gpu;
 
 public enum SupplyNodeKind { Source, Contact, Consumer, LogicGate }
 public readonly record struct SupplyNodeDeclaration(GpuBodyId Owner, SupplyNodeKind Kind,
-    ElectricalSourceId Source = default, PrismaticConstraintId Consumer = default, LogicGateOperation? Operation = null);
+    ElectricalSourceId Source = default, ImmutableArray<PrismaticConstraintId> Consumers = default, LogicGateOperation? Operation = null);
 public readonly record struct SupplyEdge(GpuBodyId Source, GpuBodyId Target, WorkshopSocket Input);
 public readonly record struct SupplyResolution(bool[] Consumers, ElectricalLogicRead[] Logic);
 
@@ -16,13 +17,13 @@ public sealed record SupplyTopology(SupplyNodeDeclaration[] Nodes, SupplyEdge[] 
     internal static SupplyTopology Create(WorkshopConstruction construction,
         Func<PartId, CuriousContraptions.Bundle.BundleEntry> declaration)
     {
-        var nodes=new System.Collections.Generic.List<SupplyNodeDeclaration>();
+        var nodes=new System.Collections.Generic.List<SupplyNodeDeclaration>(16);
         foreach(var instance in construction.Instances)
         {
             var entry=declaration(instance.PartId);
             var kind=entry.Electrical?.Supply?.Kind;
             if(kind==CuriousContraptions.Abstractions.Electrical.SupplyCapabilityKind.Source)
-                nodes.Add(new(instance.Id,SupplyNodeKind.Source,WorkshopPhysicsCompiler.ElectricalSource(instance.Id)));
+                nodes.Add(new(instance.Id,SupplyNodeKind.Source,construction.Instances.Identities[instance.Id].Source));
             else if(kind==CuriousContraptions.Abstractions.Electrical.SupplyCapabilityKind.SwitchedContact)
                 nodes.Add(new(instance.Id,SupplyNodeKind.Contact));
             else if(kind==SupplyCapabilityKind.LogicGate)
@@ -39,8 +40,8 @@ public sealed record SupplyTopology(SupplyNodeDeclaration[] Nodes, SupplyEdge[] 
     }
     public GpuBodyId[] UpstreamSources(GpuBodyId target)
     {
-        var seen=new System.Collections.Generic.HashSet<GpuBodyId>();
-        var pending=new System.Collections.Generic.Queue<GpuBodyId>(); pending.Enqueue(target);
+        var seen=new System.Collections.Generic.HashSet<GpuBodyId>(16);
+        var pending=new System.Collections.Generic.Queue<GpuBodyId>(16); pending.Enqueue(target);
         while(pending.TryDequeue(out var current))
             if(seen.Add(current)) foreach(var edge in Edges) if(edge.Target==current && edge.Input==WorkshopSocket.PowerIn) pending.Enqueue(edge.Source);
         return Nodes.Where(node=>node.Kind==SupplyNodeKind.Source && seen.Contains(node.Owner))
@@ -53,7 +54,7 @@ public sealed class CompiledSupplyGraph
 {
     private readonly SupplyNodeDeclaration[] _nodes;
     private readonly int[] _sources;
-    private readonly int[] _consumers;
+    private readonly int[][] _consumers;
     private readonly (int Source, WorkshopSocket Input)[][] _inputs;
     private readonly int[][] _components;
     private readonly bool[] _cyclic;
@@ -63,14 +64,14 @@ public sealed class CompiledSupplyGraph
         ReadOnlySpan<PrismaticDriveDeclaration> drives, ReadOnlySpan<RigidBodyDeclaration> bodies)
     {
         _nodes = nodes.ToArray();
-        _sources = new int[nodes.Length]; _consumers = new int[nodes.Length];
-        Array.Fill(_sources, -1); Array.Fill(_consumers, -1);
-        var slots = new System.Collections.Generic.Dictionary<GpuBodyId,int>();
+        _sources = new int[nodes.Length]; _consumers = new int[nodes.Length][];
+        Array.Fill(_sources, -1);
+        var slots = new System.Collections.Generic.Dictionary<GpuBodyId,int>(16);
         var inputs = new System.Collections.Generic.List<(int Source, WorkshopSocket Input)>[nodes.Length];
-        var seenConsumers = new System.Collections.Generic.HashSet<PrismaticConstraintId>();
+        var seenConsumers = new System.Collections.Generic.HashSet<PrismaticConstraintId>(4);
         for (var i=0;i<nodes.Length;i++)
         {
-            var node=nodes[i]; inputs[i]=[];
+            var node=nodes[i]; inputs[i]=new(4); _consumers[i]=[];
             if (!Enum.IsDefined(node.Kind) || !slots.TryAdd(node.Owner,i) ||
                 !bodies.ToArray().Any(body=>body.Id==node.Owner))
                 throw new ArgumentException("Electrical graph node requires a unique admitted owner and defined kind.");
@@ -80,24 +81,32 @@ public sealed class CompiledSupplyGraph
             if (node.Kind==SupplyNodeKind.Source)
             {
                 for(var s=0;s<sources.Length;s++) if(sources[s].Id==node.Source && sources[s].Owner==node.Owner) _sources[i]=s;
-                if(_sources[i]<0 || node.Consumer!=default) throw new ArgumentException("Electrical source node is not admitted.");
+                if(_sources[i]<0 || !node.Consumers.IsDefaultOrEmpty) throw new ArgumentException("Electrical source node is not admitted.");
             }
             else if(node.Kind is SupplyNodeKind.Contact or SupplyNodeKind.LogicGate)
             {
-                if(node.Source!=default || node.Consumer!=default || !bodies.ToArray().Any(body=>body.Id==node.Owner && body.Motion==RigidMotionKind.Static))
+                if(node.Source!=default || !node.Consumers.IsDefaultOrEmpty || !bodies.ToArray().Any(body=>body.Id==node.Owner && body.Motion==RigidMotionKind.Static))
                     throw new ArgumentException("Electrical contact requires one static owner.");
             }
             else
             {
-                for(var c=0;c<consumers.Length;c++) if(consumers[c].Id==node.Consumer && consumers[c].BodyA==node.Owner) _consumers[i]=c;
-                var supplied=false;
-                foreach(var drive in drives) if(drive.Joint==node.Consumer) supplied=true;
-                // A route drives exactly a prismatic that declares a supplied drive; a passive joint is never a consumer.
-                if((node.Consumer!=default && (_consumers[i]<0 || !supplied || !seenConsumers.Add(node.Consumer))) || node.Source!=default)
-                    throw new ArgumentException("Electrical consumer requires one admitted driven actuator.");
+                if (node.Source != default) throw new ArgumentException("Electrical consumer cannot declare a source.");
+                var admitted = new System.Collections.Generic.List<int>(4);
+                if (!node.Consumers.IsDefaultOrEmpty) foreach (var joint in node.Consumers)
+                {
+                    var slot = -1;
+                    for (var c=0;c<consumers.Length;c++)
+                        if (consumers[c].Id==joint && consumers[c].BodyA==node.Owner) slot=c;
+                    var supplied=false;
+                    foreach(var drive in drives) if(drive.Joint==joint) supplied=true;
+                    if (slot<0 || !supplied || !seenConsumers.Add(joint))
+                        throw new ArgumentException("Electrical consumer requires unique admitted driven actuators.");
+                    admitted.Add(slot);
+                }
+                _consumers[i]=admitted.ToArray();
             }
         }
-        var seenEdges=new System.Collections.Generic.HashSet<SupplyEdge>();
+        var seenEdges=new System.Collections.Generic.HashSet<SupplyEdge>(16);
         foreach(var edge in edges)
         {
             if(!slots.TryGetValue(edge.Source,out var from) || !slots.TryGetValue(edge.Target,out var to) || from==to ||
@@ -145,10 +154,10 @@ public sealed class CompiledSupplyGraph
             }
         }
         var closed=new bool[consumers];
-        var logic=new System.Collections.Generic.List<ElectricalLogicRead>();
+        var logic=new System.Collections.Generic.List<ElectricalLogicRead>(4);
         for(var i=0;i<_nodes.Length;i++)
         {
-            if(_consumers[i]>=0) closed[_consumers[i]]=powered[i];
+            foreach (var consumer in _consumers[i]) closed[consumer]=powered[i];
             if(_nodes[i].Kind==SupplyNodeKind.LogicGate)
                 logic.Add(new(_nodes[i].Owner,
                     (Input(i,WorkshopSocket.FirstIn) ? ElectricalInputState.FirstOnly : ElectricalInputState.Neither) |
@@ -205,9 +214,9 @@ public static class SupplyCycles
         var count=predecessors.Length;
         var index=new int[count]; var low=new int[count]; var onStack=new bool[count];
         Array.Fill(index,-1);
-        var stack=new System.Collections.Generic.Stack<int>();
-        var work=new System.Collections.Generic.Stack<(int Node,int Edge)>();
-        var components=new System.Collections.Generic.List<int[]>();
+        var stack=new System.Collections.Generic.Stack<int>(4);
+        var work=new System.Collections.Generic.Stack<(int Node,int Edge)>(16);
+        var components=new System.Collections.Generic.List<int[]>(4);
         var next=0;
         for(var root=0;root<count;root++)
         {
@@ -226,7 +235,7 @@ public static class SupplyCycles
                 }
                 if(work.TryPeek(out var parent)) low[parent.Node]=Math.Min(low[parent.Node],low[node]);
                 if(low[node]!=index[node]) continue;
-                var members=new System.Collections.Generic.List<int>();
+                var members=new System.Collections.Generic.List<int>(4);
                 int member;
                 do { member=stack.Pop(); onStack[member]=false; members.Add(member); } while(member!=node);
                 members.Sort();

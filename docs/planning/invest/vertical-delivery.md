@@ -1,5 +1,7 @@
 # Build the game through thin vertical slices
 
+**Acceptance policy — owner, 28 October 2026:** apply the [game-fidelity policy](../../delivery-workflow.md#game-fidelity) and [testing guidance](../../testing-guidance.md) to every criterion below. Preserve gameplay outcomes, meaningful causal order, stability and lifecycle. Historical tick/ordinal/trajectory or migration-era pose matching is not acceptance; numerical precision needs a gameplay or defined-interface justification. Exact authored data, typed ownership and deliberate timing features retain their contracts. Replay is checked through decoded semantic behaviour, never simulation-output hashes or whole-buffer identity. This supersedes conflicting older acceptance wording without removing requirement identities or intended element behaviour.
+
 ## Current programme — stabilization, every element, then browsers
 
 The owner's 24 October 2026 instruction adopts every actual named element. [Current execution order](../../../_bmad-output/planning-artifacts/epics.md#current-execution-plan) and [individual CAT children](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership) refine this roadmap. The [named identity contracts](named-elements.md#execution-contract--complete-named-catalogue-24-october-2026) cover all 276 named specifications and explicitly dispose all 293 source identities; the 72 CAT specs overlap them. Every source mode/variant remains required, including thermal/radiation identities formerly called potential.

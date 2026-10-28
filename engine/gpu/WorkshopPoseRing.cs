@@ -3,6 +3,8 @@ using System.Buffers.Binary;
 
 namespace CuriousContraptions.Gpu;
 
+public enum PosePublicationPreparation { Ready = 0, StorageUnavailable = 1 }
+
 public readonly record struct PoseRingBody(
     GpuBodyId Id,
     float Px, float Py, float Pz,
@@ -19,17 +21,24 @@ public readonly record struct PoseRingSlot(
 /// <summary>
 /// Lock-free zero-copy triple-buffered SharedArrayBuffer pose ring layout and codecs. Each of the three slots has a 16-byte header
 /// followed by one 64-byte record per moving body. Story 9R.5b: the ring's body capacity is its own length (no fixed capacity);
-/// the browser allocates <see cref="InitialBodyCapacity"/> records at bootstrap and the Simulation worker replaces the ring with
-/// a larger one at Run when a world holds more moving bodies, posting it to the browser before the read that needs it.
+/// bootstrap reserves sixteen bodies. Installation prepares default-or-grown backing before commit; logical population remains actual.
 /// </summary>
 public static class WorkshopPoseRing
 {
     /// <summary>Triple buffering (AGENTS.md: "triple-buffered pose ring"): structural, not a population.</summary>
     public const int SlotCount = 3;
+    public const int DefaultBodyCapacity = 16;
     public const int HeaderBytes = 16;
     public const int BodyBytes = 64; // four SIMD vectors; full body identity at byte48
-    /// <summary>The bootstrap ring's records: a starting allocation the worker grows, never a limit.</summary>
-    public const int InitialBodyCapacity = 16;
+
+    public static int Capacity(int bodies)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegative(bodies);
+        var limit = (Array.MaxLength / SlotCount - HeaderBytes) / BodyBytes;
+        if (bodies > limit) throw new WorkshopStorageException("Pose storage is not representable.");
+        if (bodies <= 3 * DefaultBodyCapacity / 4) return DefaultBodyCapacity;
+        return (int)Math.Min(limit, Math.Max(2L * DefaultBodyCapacity, (4L * bodies + 2) / 3));
+    }
 
     public static int SlotBytes(int bodyCapacity) => bodyCapacity >= 0
         ? checked(HeaderBytes + bodyCapacity * BodyBytes)
@@ -60,7 +69,7 @@ public static class WorkshopPoseRing
 
     /// <summary>One committed read's slot, composed in C# (Story 9A.2): the 16-byte header (sequence 0, the read's capture time in
     /// nanoseconds) and one record per committed body. The Simulation worker copies it into the ring verbatim under its sequence
-    /// lock, growing the ring first when the read holds more bodies, and clears the records past it; no script reads a body layout.</summary>
+    /// lock into the already admitted epoch storage; no script reads a body layout.</summary>
     public static byte[] ComposeSlot(long timestampNanoseconds, PhysicsBodyReadSet bodies)
     {
         var slot = new byte[SlotBytes(bodies.Count)];

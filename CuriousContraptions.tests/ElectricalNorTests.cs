@@ -16,12 +16,8 @@ public sealed class ElectricalNorTests
     private static WorkshopGenericInstance Battery(ulong id,float x,bool enabled)=>PlacedParts.Battery(new(id), x, 3, 0, enabled: enabled?ElectricalEnable.Enabled:ElectricalEnable.Disabled);
     private static ElectricalLogicRead Logic(WorkshopRead read,ulong owner=Gate)=>BothGateTests.Logic(read,owner);
     private static bool Powered(WorkshopRead read)=>read.Presentation.Actuators.ToArray().Single(row=>row.Owner.Value==Consumer).SupplyClosed;
-    private static float BladeY(WorkshopRead read)
-    {
-        var body=Enumerable.Range(0,read.Bodies.Count).Select(i=>read.Bodies[i].Body)
-            .Single(row=>row.Id==WorkshopPhysicsCompiler.SliderBody(new(Consumer), 0));
-        return (body.Cell.Y+body.Local.Y)/16f;
-    }
+    private static float BladeY(WorkshopRead read) =>
+        3f + read.Presentation.Actuators.ToArray().Single(row => row.Owner.Value == Consumer).Coordinate;
     /// <summary>The consumer blade has not left its rest height: the output never powered it, not even for one tick.</summary>
     private static void AssertBladeStill(WorkshopRead read,float rest)=>
         Assert.True(MathF.Abs(BladeY(read)-rest)<.01f,$"blade moved to {BladeY(read)} from {rest} at tick {read.Tick}");
@@ -255,7 +251,7 @@ public sealed class ElectricalNorTests
         Assert.Equal(WorkshopEditRejection.NonmonotoneFeedback,Assert.IsType<WorkshopEditRejectedException>(saveRefusal.InnerException).Reason);
         Assert.Equal(open,WorkshopSaveCodec.Decode(SaveFixture.Elements,SaveFixture.Forged(open,10)).Construction); // control
         // The simulation refuses the candidate and keeps its construction.
-        await using var device=new WorkshopGpuDevice(new CuriousContraptions.Simulation.BrowserGpuTransport(),new(101,206));
+        await using var device=new WorkshopGpuDevice(new CuriousContraptions.Simulation.BrowserGpuTransport(new CuriousContraptions.Abstractions.EventRingPublication()),new(101,206));
         await using var simulation=new WorkshopSimulation(device,new WorkshopPhysicsEngineTests.StepClock(),WorkshopCadenceSettings.Default(),
             new(1),new WorkshopPhysicsEngineTests.NoInstallation(),GpuDeviceOwnership.Borrowed);
         Assert.Equal(WorkshopCommandOutcome.Applied,(await simulation.Initialize()).Outcome);

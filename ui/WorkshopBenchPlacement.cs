@@ -24,8 +24,12 @@ public static class WorkshopBenchPlacement
         ArgumentNullException.ThrowIfNull(world);
         ArgumentNullException.ThrowIfNull(pushUndo);
         WorkshopConstruction proposed;
-        try { proposed = world.Construction.WithInstance(world.CaptureInstance(part, body, position, rotation, dimensions)); }
-        catch (Exception error) when (error is WorkshopEditRejectedException or WorkbenchFullException)
+        try
+        {
+            proposed = world.Construction.WithInstance(world.CaptureInstance(part, body, position, rotation, dimensions));
+            proposed.Validate();
+        }
+        catch (Exception error) when (error is WorkshopEditRejectedException)
         {
             // A part that a declared rule refuses to capture or compose is refused here, before any undo entry exists, and
             // logged as a UI rejection on the standard stream. Any other exception is a defect and reaches the handler

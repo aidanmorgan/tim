@@ -1,3 +1,4 @@
+using CuriousContraptions.Abstractions;
 // Story 9.4b D4 regression, carried onto the one codec by Story 9A.2: the construction decode boundary for every declared
 // Pressure Plate / Counter / Clock setting.
 //

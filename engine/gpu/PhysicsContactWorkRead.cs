@@ -65,8 +65,8 @@ public readonly struct PhysicsContactWorkRead
     }
 }
 
-/// <summary>Story 9A.23 D9: the device-private contact-work ledger of one candidate or committed world state: the owners' stores and one
-/// occurrence row per (owner, eligible dynamic target), the last qualified hit of that pair. It is read from the device's world bytes and
+/// <summary>Story 9A.23 D9: the device-private contact-work ledger of one candidate or committed world state: the owners' stores and actual
+/// occurrence rows, the last qualified hit of each encountered pair. It is read from the world and its interaction snapshot and
 /// is the only input of the Impact records (<see cref="EventRecordProducer.Stage"/>) and of the reservoir accounting
 /// (<see cref="ValidateAdvance"/>); it never leaves the Simulation worker.</summary>
 public readonly struct ContactWorkLedger
@@ -103,21 +103,31 @@ public readonly struct ContactWorkLedger
     public ContactWorkOccurrence Occurrence(int index) => index >= 0 && index < OccurrenceCount ? _occurrences![index] :
         throw new ArgumentOutOfRangeException(nameof(index));
 
+    public bool TryOccurrence(ContactWorkSlot work,GpuBodyId target,out ContactWorkOccurrence occurrence)
+    {
+        for(var i=0;i<OccurrenceCount;i++)
+            if(_occurrences![i].Work==work && _occurrences[i].Target==target) { occurrence=_occurrences[i]; return true; }
+        occurrence=default; return false;
+    }
+
     /// <summary>Every owner's count increment is exactly its new occurrence rows, each later than the row it replaces, and the reservoir
     /// moved by exactly their debits (and any recharge in the same commit).</summary>
     public void ValidateAdvance(ContactWorkLedger previous)
     {
         Stores.ValidateAdvance(previous.Stores);
-        if (OccurrenceCount != previous.OccurrenceCount) throw new ArgumentException("Work population changed within an epoch.");
+        for(var i=0;i<previous.OccurrenceCount;i++)
+        {
+            var prior=previous.Occurrence(i);
+            if(!TryOccurrence(prior.Work,prior.Target,out _)) throw new ArgumentException("Earned work state was lost.");
+        }
         for (var owner=0; owner<Count; owner++)
         {
             var before=previous[owner]; var after=this[owner];
             uint changed=0; double debit=0;
             for (var i=0; i<OccurrenceCount; i++)
             {
-                var first=previous.Occurrence(i); var last=Occurrence(i);
-                if (first.Work != last.Work || first.Target != last.Target)
-                    throw new ArgumentException("Work target identity changed.");
+                var last=Occurrence(i);
+                previous.TryOccurrence(last.Work,last.Target,out var first);
                 if (last.Work.Value != owner) continue;
                 if (last.Sequence == first.Sequence)
                 {
@@ -150,30 +160,23 @@ public readonly struct ContactWorkLedger
     public void ValidateScene(PhysicsSceneDeclaration scene, PhysicsBodyReadSet bodies)
     {
         Stores.ValidateScene(scene);
-        var occurrence=0;
-        for (var i=0; i<Count; i++)
+        for(var i=0;i<OccurrenceCount;i++)
         {
-            var declared=scene.ContactWorks[i];
-            for (var body=0; body<bodies.Count; body++)
-            {
-                var id=bodies[body].Body.Id;
-                if (!declared.Targets.Contains(id)) continue;
-                if (occurrence >= OccurrenceCount || _occurrences![occurrence].Work.Value != i ||
-                    _occurrences![occurrence].Target != id)
-                    throw new ArgumentException("Contact target population differs from declaration.");
-                var value=_occurrences![occurrence++];
-                if (value.Sequence != 0 && (value.Collider.Value >= (uint)scene.Colliders.Length ||
-                    scene.Colliders[(int)value.Collider.Value].Body != declared.Owner || value.ApproachSpeed.Value < declared.Threshold.Value))
-                    throw new ArgumentException("Contact occurrence collider or approach speed violates its declaration.");
-            }
+            var value=Occurrence(i);
+            var declared=scene.ContactWorks[(int)value.Work.Value];
+            if(!bodies.TryGet(value.Target,out _)) throw new ArgumentException("Work target is absent from the read.");
+            var admitted=false;
+            foreach(var body in scene.Bodies)
+                if(body.Id==value.Target && body.Motion==RigidMotionKind.Dynamic && declared.Targets.Contains(body.Id,body.Payload)) admitted=true;
+            if(!admitted || value.Collider.Value>=(uint)scene.Colliders.Length ||
+                scene.Colliders[(int)value.Collider.Value].Body!=declared.Owner || value.ApproachSpeed.Value<declared.Threshold.Value)
+                throw new ArgumentException("Contact occurrence violates its declared ownership or threshold.");
         }
-        if (occurrence != OccurrenceCount) throw new ArgumentException("Contact read contains a foreign target.");
     }
 
     /// <summary>An admitted world has hit nothing yet.</summary>
     public void ValidateAdmission()
     {
-        for (var i=0; i<OccurrenceCount; i++)
-            if (_occurrences![i].Sequence != 0) throw new ArgumentException("Admission retained contact occurrence.");
+        if(OccurrenceCount!=0) throw new ArgumentException("Admission retained contact occurrence.");
     }
 }

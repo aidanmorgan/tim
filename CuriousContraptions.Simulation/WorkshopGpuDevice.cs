@@ -2,11 +2,15 @@ using System.Buffers.Binary;
 using System.Runtime.ExceptionServices;
 using CuriousContraptions.Gpu;
 
+internal readonly record struct WorkshopTransportCandidate(ReadOnlyMemory<byte> World, PhysicsInteractionSnapshot Interactions);
+
 internal interface IWorkshopGpuTransport
 {
     Task Initialize();
-    Task Stage(byte[] input, WorkshopGpuOperation operation, PhysicsTickInputs inputs);
-    byte[] Read();
+    Task Stage(ReadOnlyMemory<byte> input, WorkshopGpuOperation operation, PhysicsTickInputs inputs);
+    WorkshopTransportCandidate Read();
+    void PrepareEvents(byte[] batch);
+    void PublishEvents();
     void Commit();
     void Discard();
     bool DeviceReady();
@@ -22,21 +26,26 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
     private WorkshopGpuProfile _committedProfile;
     private WorkshopGpuProfile _candidateProfile;
     private bool _disposed;
-    private byte[] _committedWorld = [];
-    private byte[] _candidateWorld = [];
-    private PhysicsCaptureRead _committedCaptures;
+    private ReadOnlyMemory<byte> _committedWorld;
+    private ReadOnlyMemory<byte> _candidateWorld;
+    private PhysicsInteractionSnapshot _committedInteractions=PhysicsInteractionSnapshot.Empty;
+    private PhysicsInteractionSnapshot _candidateInteractions=PhysicsInteractionSnapshot.Empty;
     private PhysicsCaptureRead _candidateCaptures;
     // Story 9R.5b: read scratch sized from the admitted world's populations, reallocated only when a world needs more (per Run).
-    private CaptureLatch[] _captureScratch = [];
-    private ContactTriggerRead[] _triggerScratch = [];
-    private OrientationSensorRead[] _orientationScratch = [];
-    private PassageSensorRead[] _passageScratch = [];
-    private ContactLoadSensorRead[] _loadScratch = [];
+    private ContactTriggerRead[] _triggerScratch = new ContactTriggerRead[4];
+    private OrientationSensorRead[] _orientationScratch = new OrientationSensorRead[4];
+    private PassageSensorRead[] _passageScratch = new PassageSensorRead[4];
+    private ContactLoadSensorRead[] _loadScratch = new ContactLoadSensorRead[4];
 
     /// <summary>A cleared span of exactly <paramref name="count"/> rows, growing the owned array only when it is too short.</summary>
     private static Span<T> Scratch<T>(ref T[] array, int count)
     {
-        if (array.Length < count) array = new T[count];
+        if (count > Array.MaxLength) throw new WorkshopStorageException("Read scratch storage is not representable.");
+        if (count > 3L * array.Length / 4)
+        {
+            var capacity = (int)Math.Min(Array.MaxLength, Math.Max(2L * array.Length, (4L * count + 2) / 3));
+            if (capacity != array.Length) array = new T[capacity];
+        }
         var span = array.AsSpan(0, count); span.Clear();
         return span;
     }
@@ -53,18 +62,18 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
     // A candidate's records are staged here and sequenced only by Commit; Discard and any failure drop them.
     private EventRecordProducer? _committedEvents, _candidateEvents;
     private EventSourceRows _committedSources, _candidateSources;
-    private CuriousContraptions.Abstractions.SimulationEventRecord[] _candidateRecords = [];
-    private SimulationEpoch _candidateEpoch;
-    private bool _candidateAdmitted;
     private readonly EventRingOutbox _outbox = new();
     /// <summary>The committed records awaiting publication, with the ring's epoch, capacity and sequence.</summary>
     internal EventRingOutbox Events => _outbox;
     /// <summary>The committed world's compiled event rows.</summary>
-    internal EventRecordProducer? EventRows => _committedEvents;
     /// <summary>The committed world's device-private contact-work ledger (Story 9A.23 D9): the occurrence rows behind its Impact records.</summary>
     internal ContactWorkLedger CommittedContactWork => _committedSources.ContactWorks;
     /// <summary>The publication of every committed record not yet published (the worker copies it into the event ring).</summary>
-    internal byte[] DrainEvents() => _outbox.Drain();
+    internal byte[] DrainEvents()
+    {
+        transport.PublishEvents();
+        return _outbox.Drain();
+    }
 #if PLAYTEST
     private byte[] _diagnosticCandidate = [];
     internal byte[] DiagnosticCommitted { get; private set; } = [];
@@ -106,20 +115,20 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
     public ValueTask<WorkshopGpuCandidate> Advance(WorkshopRead committed, CommandSequence sequence, WorkshopTickControls controls)
     {
         ArgumentNullException.ThrowIfNull(controls);
-        if (_committedWorld.Length < PhysicsGpuAbi.HeaderBytes || _committedWorld.Length != PhysicsGpuAbi.ByteLength(_committedWorld) ||
-            BinaryPrimitives.ReadUInt64LittleEndian(_committedWorld.AsSpan(PhysicsGpuAbi.HeaderEpochOffset)) != committed.Epoch.Value ||
-            BinaryPrimitives.ReadUInt64LittleEndian(_committedWorld.AsSpan(PhysicsGpuAbi.HeaderTickOffset)) != committed.Tick.Value)
+        if (_committedWorld.Length < PhysicsGpuAbi.HeaderBytes || _committedWorld.Length != PhysicsGpuAbi.ByteLength(_committedWorld.Span) ||
+            BinaryPrimitives.ReadUInt64LittleEndian(_committedWorld.Span.Slice(PhysicsGpuAbi.HeaderEpochOffset)) != committed.Epoch.Value ||
+            BinaryPrimitives.ReadUInt64LittleEndian(_committedWorld.Span.Slice(PhysicsGpuAbi.HeaderTickOffset)) != committed.Tick.Value)
             throw new ArgumentException("Advance does not own the committed physical world.");
         var network = _committedNetwork ?? throw new InvalidOperationException("No committed activation declarations.");
         var supply = _committedSupply ?? throw new InvalidOperationException("No committed supply-route table.");
         controls.Validate(supply.Sources);
         // One-way: committed discrete switch state and the player's source enables decide this step's supply routes.
         var targetTick = new SimulationTick(checked(committed.Tick.Value + 1));
-        return Stage([], WorkshopGpuOperation.Advance, _committedProfile, targetTick, sequence,
+        return Stage(ReadOnlyMemory<byte>.Empty, WorkshopGpuOperation.Advance, _committedProfile, targetTick, sequence,
             network, supply, PhysicsTickInputs.Admission, controls: controls);
     }
 
-    private async ValueTask<WorkshopGpuCandidate> Stage(byte[] input, WorkshopGpuOperation operation, WorkshopGpuProfile profile, SimulationTick expectedTick, CommandSequence sequence, ActivationNetwork network,
+    private async ValueTask<WorkshopGpuCandidate> Stage(ReadOnlyMemory<byte> input, WorkshopGpuOperation operation, WorkshopGpuProfile profile, SimulationTick expectedTick, CommandSequence sequence, ActivationNetwork network,
         CompiledSupply supply, PhysicsTickInputs inputs, PhysicsSceneDeclaration? scene = null, WorkshopTickControls? controls = null)
     {
         profile.Validate();
@@ -139,72 +148,67 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
                     owner => network.ContactClosed(checkpoint.Activations, checkpoint.Timers, owner));
             }
             if(operation==WorkshopGpuOperation.Admit)
+            {
+                _triggerScratch = new ContactTriggerRead[4]; _orientationScratch = new OrientationSensorRead[4]; _passageScratch = new PassageSensorRead[4]; _loadScratch = new ContactLoadSensorRead[4];
                 inputs=new([],[],supply.Graph.NeutralReads());
+            }
             await EnsureInitialized();
             await transport.Stage(input, operation, inputs);
             ObjectDisposedException.ThrowIf(_disposed, this);
-            var bytes = transport.Read();
-            if (bytes.Length < PhysicsGpuAbi.HeaderBytes || bytes.Length != PhysicsGpuAbi.ByteLength(bytes))
+            var candidate=transport.Read();
+            var bytes=candidate.World;
+            _candidateInteractions=candidate.Interactions;
+            if (bytes.Length < PhysicsGpuAbi.HeaderBytes || bytes.Length != PhysicsGpuAbi.ByteLength(bytes.Span))
                 throw new ArgumentException("Invalid GPU candidate length.");
-            var failure = PhysicsGpuAbi.ReadFailure(bytes);
+            var failure = PhysicsGpuAbi.ReadFailure(bytes.Span);
             if (failure != PhysicsFailure.None)
             {
                 if (operation == WorkshopGpuOperation.Admit)
                     throw new GpuAdmissionException("Construction is outside the admitted generic mechanical capability.");
                 throw new PhysicsNumericalException(failure);
             }
-            if (operation == WorkshopGpuOperation.Admit && !bytes.AsSpan().SequenceEqual(input))
+            if (operation == WorkshopGpuOperation.Admit && !bytes.Span.SequenceEqual(input.Span))
                 throw new ArgumentException("GPU admission changed canonical declaration bytes.");
             var source = operation == WorkshopGpuOperation.Admit ? input : _committedWorld;
-            var validated = PhysicsGpuAbi.ValidateCandidate(bytes, source, expectedTick);
-            if (PhysicsGpuAbi.ReadProfile(bytes) != profile)
+            var validated = PhysicsGpuAbi.ValidateCandidate(bytes.Span, source.Span, expectedTick,_candidateInteractions,
+                operation==WorkshopGpuOperation.Admit ? PhysicsInteractionSnapshot.Empty : _committedInteractions);
+            if (PhysicsGpuAbi.ReadProfile(bytes.Span) != profile)
                 throw new ArgumentException("GPU candidate changed the admitted cadence identity.");
             var bodies = validated.Bodies;
-            var sensorCount = checked((int)BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(PhysicsGpuAbi.HeaderSensorCountOffset)));
-            // Story 9R.5b: the read scratch is sized from this world's own populations and kept for the Run (no fixed table).
-            var layout = PhysicsGpuAbi.Layout(bytes);
-            Span<CaptureLatch> captures = Scratch(ref _captureScratch, sensorCount);
-            if (operation == WorkshopGpuOperation.Advance && _committedCaptures.Count != sensorCount)
-                throw new ArgumentException("The discrete controller population changed.");
-            for (var i = 0; i < sensorCount; i++)
-            {
-                var sensor = PhysicsGpuAbi.ReadSensor(bytes, i);
-                var previous = operation == WorkshopGpuOperation.Admit ? CaptureLatch.Clear(sensor.Id) : _committedCaptures[i];
-                captures[i] = previous.Consume(sensor);
-            }
-            _candidateCaptures = new(captures[..sensorCount]);
+            var layout=PhysicsGpuAbi.Layout(bytes.Span);
+            _candidateCaptures=PhysicsGpuAbi.ReadCaptures(_candidateInteractions);
             // Every physical byte/event is validated before discrete evaluation. Neither
             // candidate is visible until the existing ownership-checked Commit below.
-            var triggerCount = checked((int)BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(PhysicsGpuAbi.HeaderTriggerCountOffset)));
+            var triggerCount = checked((int)BinaryPrimitives.ReadUInt32LittleEndian(bytes.Span.Slice(PhysicsGpuAbi.HeaderTriggerCountOffset)));
             Span<ContactTriggerRead> triggers = Scratch(ref _triggerScratch, triggerCount);
-            for (var i = 0; i < triggerCount; i++) triggers[i] = PhysicsGpuAbi.ReadTrigger(bytes, i);
+            for (var i = 0; i < triggerCount; i++) triggers[i] = PhysicsGpuAbi.ReadTrigger(bytes.Span, i);
             var orientationCount = layout.OrientationSensors;
             Span<OrientationSensorRead> orientations = Scratch(ref _orientationScratch, orientationCount);
-            for (var i = 0; i < orientationCount; i++) orientations[i] = PhysicsGpuAbi.ReadOrientationSensor(bytes, i);
+            for (var i = 0; i < orientationCount; i++) orientations[i] = PhysicsGpuAbi.ReadOrientationSensor(bytes.Span, i);
             // One read per declared passage sensor (no fixed table).
             Span<PassageSensorRead> passages = Scratch(ref _passageScratch, network.PassageSensors.Length);
             int passageCount = 0;
             if (operation == WorkshopGpuOperation.Admit)
             {
                 _candidatePassageTracker = PassageSensorTracker.Create(network.PassageSensors,
-                    (scene ?? throw new ArgumentException("Admission requires its compiled scene.")).Colliders.ToArray(), bodies);
+                    scene ?? throw new ArgumentException("Admission requires its compiled scene."), bodies);
             }
             else
             {
                 _candidatePassageTracker = _committedPassageTracker.Advance(expectedTick, bodies, validated.Motion, passages, out passageCount);
             }
-            var electrical = PhysicsGpuAbi.ReadElectrical(bytes);
+            var electrical = PhysicsGpuAbi.ReadElectrical(bytes.Span);
             // Story 9R.4: every contact-load row's committed phase (tick N) feeds its plate's level; its route closes at tick N+1.
-            var loadCount = PhysicsGpuAbi.ReadContactLoadCount(bytes);
+            var loadCount = PhysicsGpuAbi.ReadContactLoadCount(bytes.Span);
             Span<ContactLoadSensorRead> loads = Scratch(ref _loadScratch, loadCount);
-            for (var i = 0; i < loadCount; i++) loads[i] = PhysicsGpuAbi.ReadContactLoadSensor(bytes, i);
+            for (var i = 0; i < loadCount; i++) loads[i] = PhysicsGpuAbi.ReadContactLoadSensor(bytes.Span, i);
             var logical = operation == WorkshopGpuOperation.Admit ? new ActivationCheckpoint(network.Clear(), network.ClearTimers(), network.ClearMemory()) :
                 network.ConsumeScheduled(scheduled ?? throw new InvalidOperationException("Scheduled checkpoint missing."),
                     triggers[..triggerCount], expectedTick, orientations[..orientationCount], passages[..passageCount], electrical, loads[..loadCount]);
             _candidateActivations = logical.Activations; _candidateTimers = logical.Timers; _candidateMemory = logical.Memory;            _candidateNetwork = network; _candidateSupply = supply;
             // Story 9A.23 D9: the contact-work occurrence rows are device-private. They feed only the Impact records and the reservoir
             // accounting (ValidateCandidate checks the ledger's advance); the read carries the owners' stores.
-            var contactWorks=PhysicsGpuAbi.ReadContactWorks(bytes);
+            var contactWorks=PhysicsGpuAbi.ReadContactWorks(bytes.Span,_candidateInteractions);
             // Story 9A.22: admission compiles the world's event rows and publishes nothing; an Advance stages its tick's records from
             // the committed and candidate row states and the network's transitions. Nothing is sequenced before Commit.
             var sources = new EventSourceRows(_candidateCaptures, contactWorks, electrical, _candidatePassageTracker);
@@ -213,21 +217,21 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
                 contactWorks.ValidateScene(scene!, bodies);
                 contactWorks.ValidateAdmission();
                 _candidateEvents = EventRecordProducer.Compile(scene!, network, _candidatePassageTracker, profile);
-                _candidateRecords = [];
-                _candidateEpoch = new(BinaryPrimitives.ReadUInt64LittleEndian(bytes.AsSpan(PhysicsGpuAbi.HeaderEpochOffset)));
-                _candidateAdmitted = true;
+                _outbox.PrepareAdmission(new(BinaryPrimitives.ReadUInt64LittleEndian(bytes.Span.Slice(PhysicsGpuAbi.HeaderEpochOffset))));
             }
             else
             {
                 _candidateEvents = _committedEvents ?? throw new InvalidOperationException("No committed event rows.");
-                _candidateRecords = _candidateEvents.Stage(expectedTick, _committedSources, sources, logical.Transitions, loads[..loadCount]);                _candidateAdmitted = false;
+                var records = _candidateEvents.Stage(expectedTick, _committedSources, sources, logical.Transitions, loads[..loadCount]);
+                _outbox.PrepareAdvance(BinaryPrimitives.ReadUInt32LittleEndian(bytes.Span.Slice(PhysicsGpuAbi.HeaderSourceOrdinalOffset)), records);
             }
+            transport.PrepareEvents(_outbox.PreparedBatch);
             _candidateSources = sources;
-            var read = new WorkshopRead(new(BinaryPrimitives.ReadUInt64LittleEndian(bytes.AsSpan(PhysicsGpuAbi.HeaderEpochOffset))),
+            var read = new WorkshopRead(new(BinaryPrimitives.ReadUInt64LittleEndian(bytes.Span.Slice(PhysicsGpuAbi.HeaderEpochOffset))),
                 expectedTick, bodies,
                 Captures: _candidateCaptures, Activations: _candidateActivations, Timers: _candidateTimers,
                 Motion: validated.Motion, ContactWorks: contactWorks.Stores, Electrical: electrical, Memory: _candidateMemory,
-                Presentation: PhysicsGpuAbi.ReadPresentation(bytes, inputs, operation == WorkshopGpuOperation.Admit));
+                Presentation: PhysicsGpuAbi.ReadPresentation(bytes.Span, inputs, operation == WorkshopGpuOperation.Admit));
             _candidateWorld = bytes;
             _candidateProfile = profile;
 #if PLAYTEST
@@ -241,7 +245,7 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
         {
             _initialized = !_disposed && transport.DeviceReady();
             _active = default;
-            _candidateWorld = []; _candidateCaptures = default;
+            _candidateWorld = default; _candidateCaptures = default; _candidateInteractions=PhysicsInteractionSnapshot.Empty;
             _candidateActivations = default; _candidateTimers = default; _candidateMemory = default; _candidateNetwork = null; _candidateSupply = null; _candidatePassageTracker = _committedPassageTracker;
             DropCandidateEvents();
             transport.Discard();
@@ -255,11 +259,12 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
             throw new InvalidOperationException("GPU candidate is not owned by this command.");
         transport.Commit();
         _committedProfile = _candidateProfile;
-        _committedWorld = _candidateWorld; _committedCaptures = _candidateCaptures;
+        _committedWorld = _candidateWorld;
+        _committedInteractions=_candidateInteractions;
         _committedActivations = _candidateActivations; _committedTimers = _candidateTimers; _committedMemory = _candidateMemory; _committedNetwork = _candidateNetwork; _committedSupply = _candidateSupply; _committedPassageTracker = _candidatePassageTracker;
         // The commit point of the event ring: an admission restarts it under its epoch, a tick sequences its staged records.
         _committedEvents = _candidateEvents; _committedSources = _candidateSources;
-        if (_candidateAdmitted) _outbox.Restart(_candidateEpoch, _committedEvents!.Capacity); else _outbox.Commit(_candidateRecords);
+        _outbox.Commit();
         DropCandidateEvents();
 #if PLAYTEST
         DiagnosticCommitted = _diagnosticCandidate;
@@ -267,13 +272,13 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
     }
     private void DropCandidateEvents()
     {
-        _candidateEvents = null; _candidateSources = default; _candidateRecords = []; _candidateEpoch = default; _candidateAdmitted = false;
+        _candidateEvents = null; _candidateSources = default; _outbox.Discard();
     }
     public void Discard(CommandSequence sequence)
     {
         if (_active != sequence || sequence.Value == 0) return;
         _active = default;
-        _candidateWorld = []; _candidateCaptures = default;
+        _candidateWorld = default; _candidateCaptures = default; _candidateInteractions=PhysicsInteractionSnapshot.Empty;
         _candidateActivations = default; _candidateTimers = default; _candidateMemory = default; _candidateNetwork = null; _candidateSupply = null; _candidatePassageTracker = _committedPassageTracker;        DropCandidateEvents();
 #if PLAYTEST
         _diagnosticCandidate = [];
@@ -299,13 +304,15 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
         if (_disposed) return ValueTask.CompletedTask;
         _disposed = true;
         DisposeGateIfIdle();
-        _committedWorld = []; _candidateWorld = [];
-        _committedCaptures = default; _candidateCaptures = default;
+        _committedWorld = default; _candidateWorld = default;
+        _triggerScratch = []; _orientationScratch = []; _passageScratch = []; _loadScratch = [];
+        _candidateCaptures = default;
+        _committedInteractions=PhysicsInteractionSnapshot.Empty; _candidateInteractions=PhysicsInteractionSnapshot.Empty;
         _committedActivations = default; _candidateActivations = default;
         _committedTimers = default; _candidateTimers = default;
         _committedMemory = default; _candidateMemory = default;
         _committedNetwork = null; _candidateNetwork = null; _committedSupply = null; _candidateSupply = null; _committedPassageTracker = PassageSensorTracker.Empty; _candidatePassageTracker = PassageSensorTracker.Empty;
-        _committedEvents = null; _committedSources = default; DropCandidateEvents(); _outbox.Restart(default, 1);
+        _committedEvents = null; _committedSources = default; DropCandidateEvents(); _outbox.Dispose();
         transport.Dispose();
         return ValueTask.CompletedTask;
     }

@@ -11,7 +11,7 @@ namespace CuriousContraptions.Gpu;
 /// </summary>
 public sealed class WorkshopTurnRegistry
 {
-    private readonly Dictionary<int, TaskCompletionSource> _turns = [];
+    private readonly Dictionary<int, TaskCompletionSource> _turns = new(16);
     private int _last;
 
     public WorkshopTurnRegistry() : this(0) { }

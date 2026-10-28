@@ -7,8 +7,7 @@ namespace CuriousContraptions.Simulation;
 
 // ---- engine-hollow-shapes: the true hollow kinds (owner decision "true hollow shapes", 25 Oct 2026) ----
 // A Tube, Frustum or Torus collider is read only through its posed HollowSolid (engine/gpu/HollowGeometry.cs): its exact signed
-// distance field, its support point and its rim circles. Hollow colliders are static (admission), so each pair rule here meets a
-// dynamic sphere, box or cylinder; one rule per pair.
+// distance field, its support point and its rim circles. The query is independent of either body's motion mode.
 internal static partial class WorkshopCollisionKernels
 {
     internal static bool IsHollow(ShapeKind shape) => shape is ShapeKind.Tube or ShapeKind.Torus or ShapeKind.Frustum;
@@ -76,6 +75,10 @@ internal static partial class WorkshopCollisionKernels
             ShapeKind.Sphere => ColliderShapeKind.Sphere,
             ShapeKind.Box => ColliderShapeKind.Box,
             ShapeKind.Cylinder => ColliderShapeKind.Cylinder,
+            ShapeKind.Plane => ColliderShapeKind.Plane,
+            ShapeKind.Tube => ColliderShapeKind.Tube,
+            ShapeKind.Frustum => ColliderShapeKind.Frustum,
+            ShapeKind.Torus => ColliderShapeKind.Torus,
             _ => throw new ArgumentException("Unsupported hollow partner.")
         };
         var shape = new HollowPartner(kind, partner.Position, partner.U0, partner.U1, partner.U2,
@@ -86,6 +89,7 @@ internal static partial class WorkshopCollisionKernels
         for (var i = 0; i < count; i++)
         {
             var point = candidates[i];
+            if (point.Support == HollowContactSupport.DistanceOnly) continue;
             contacts.Add(kind == ColliderShapeKind.Sphere
                 ? MakeContact(partner.Body, collider.Body, partner, collider, point.Normal, point.Point, point.Gap, point.Feature)
                 : CylinderContact(partner, collider, point.Normal, point.Point, point.Gap, point.Feature,
@@ -97,50 +101,108 @@ internal static partial class WorkshopCollisionKernels
     /// <summary>A hollow point lying within this distance of another hollow collider's surface lies on their shared seam (m).</summary>
     internal const float SeamTolerance = 1e-3f;
 
-    /// <summary>Internal-feature removal where hollow colliders meet (the enhanced internal-edge rule of modern engines, applied to the
-    /// hollow kinds). Where two hollow colliders meet (snapped mouths, a bend's stub and arc, a collar torus whose inner equator lies
-    /// on its pipe's bore), a feature of one lies on, or inside, the other's surface. A body rolling along that surface, sunk into it by
-    /// its soft contact, meets the buried feature as a bump of that depth with a normal tilted against its motion, which brakes it and
-    /// kicks it off the wall. So a contact of a body with one hollow collider is removed when the collider's nearest surface point to it
-    /// lies on or inside another hollow collider the same body touches in this substep (within <see cref="SeamTolerance"/>) and its gap
-    /// exceeds that collider's smallest gap to the body: the other collider's own nearer contact supports the body there. A rim with no
-    /// hollow collider on it (a free pipe end) keeps its contact, so a ball still pivots over a free lip. Manifolds left empty are
-    /// dropped and the contact list is rebuilt in manifold order.</summary>
-    public static void RemoveInternalHollowEdges(List<ContactManifold> manifolds, List<ContactPoint> contacts)
+
+    /// <summary>A surface feature buried in another rigidly co-owned surface is not a boundary of their union.
+    /// Static surfaces share the world frame, including snapped parts with different authored owners.
+    /// Independent moving bodies never share this union. The nearer supporting contact must remain.</summary>
+    public static void RemoveInternalFeatures(List<ContactManifold> manifolds, List<ContactPoint> contacts)
     {
         var removed = false;
         for (var m = 0; m < manifolds.Count; m++)
         {
             var points = manifolds[m].Points;
-            if (points.Count == 0) continue;
-            var (hollow, body) = HollowSide(points[0]);
-            if (hollow is null) continue;
-            var solid = Hollow(hollow);
             for (var i = points.Count - 1; i >= 0; i--)
             {
-                solid.Distance(points[i].Point, out var onHollow, out _, out _);
-                for (var o = 0; o < manifolds.Count; o++)
+                var current = points[i];
+                var buried = false;
+                for (var side = 0; side < 2 && !buried; side++)
                 {
-                    if (o == m || manifolds[o].Points.Count == 0) continue;
-                    var (other, otherBody) = HollowSide(manifolds[o].Points[0]);
-                    if (other is null || other == hollow || otherBody != body) continue;
-                    var nearest = float.PositiveInfinity;
-                    foreach (var point in manifolds[o].Points) nearest = MathF.Min(nearest, point.Gap);
-                    if (!(points[i].Gap > nearest + 1e-6f) || Hollow(other).Distance(onHollow) > SeamTolerance) continue;
-                    points.RemoveAt(i);
-                    removed = true;
-                    break;
+                    var surface = side == 0 ? current.ColA : current.ColB;
+                    var partner = side == 0 ? current.B : current.A;
+                    if (surface.Shape == ShapeKind.Plane) continue;
+                    HollowContactQuery.SurfaceDistance(Partner(surface), current.Point, out var witness, out _);
+                    for (var o = 0; o < manifolds.Count && !buried; o++)
+                    {
+                        if (o == m || manifolds[o].Points.Count == 0) continue;
+                        var otherPoints = manifolds[o].Points;
+                        var first = otherPoints[0];
+                        var other = first.A == partner ? first.ColB : first.B == partner ? first.ColA : null;
+                        if (other is null || other == surface || other.Shape == ShapeKind.Plane) continue;
+                        if (other.Body != surface.Body &&
+                            !(other.Body.Motion == RigidMotionKind.Static && surface.Body.Motion == RigidMotionKind.Static)) continue;
+                        var nearest = float.PositiveInfinity;
+                        foreach (var point in otherPoints) nearest = MathF.Min(nearest, point.Gap);
+                        if (!(current.Gap > nearest + 1e-6f)) continue;
+                        if (HollowContactQuery.SurfaceDistance(Partner(other), witness, out _, out _) > SeamTolerance) continue;
+                        buried = true;
+                    }
                 }
+                if (!buried) continue;
+                points.RemoveAt(i);
+                removed = true;
             }
         }
         if (!removed) return;
         manifolds.RemoveAll(manifold => manifold.Points.Count == 0);
         contacts.Clear();
         foreach (var manifold in manifolds) contacts.AddRange(manifold.Points);
-
-        // The hollow collider of a contact and the body on its other side (null when neither collider is hollow).
-        static (SimCollider? Hollow, SimBody? Body) HollowSide(ContactPoint point) =>
-            IsHollow(point.ColB.Shape) ? (point.ColB, point.A) : IsHollow(point.ColA.Shape) ? (point.ColA, point.B) : (null, null);
     }
+
+    /// <summary>One rigid pair's same-material witnesses share a coupled normal support set.</summary>
+    public static void GroupRigidSupports(List<ContactManifold> manifolds, List<ContactPoint> contacts, List<ContactManifold> pool)
+    {
+        foreach (var point in contacts)
+        {
+            if (point.A.Id <= point.B.Id) continue;
+            (point.A, point.B) = (point.B, point.A);
+            (point.ColA, point.ColB) = (point.ColB, point.ColA);
+            (point.SupportA, point.SupportB) = (point.SupportB, point.SupportA);
+            point.Nx = -point.Nx; point.Ny = -point.Ny; point.Nz = -point.Nz;
+        }
+        manifolds.Clear();
+        foreach (var point in contacts)
+        {
+            ContactManifold? match = null;
+            foreach (var manifold in manifolds)
+            {
+                var first = manifold.Points[0];
+                if (point.A != first.A || point.B != first.B ||
+                    point.ColA.MaterialSlot != first.ColA.MaterialSlot || point.ColB.MaterialSlot != first.ColB.MaterialSlot) continue;
+                match = manifold;
+                break;
+            }
+            if (match is null)
+            {
+                while (pool.Count <= manifolds.Count) pool.Add(new ContactManifold());
+                match = pool[manifolds.Count];
+                match.Points.Clear();
+                manifolds.Add(match);
+            }
+            match.Points.Add(point);
+        }
+        foreach (var manifold in manifolds)
+        {
+            var group = manifold.Points;
+            group.Sort((a, b) =>
+            {
+                var x = a.Px.CompareTo(b.Px); if (x != 0) return x;
+                var y = a.Py.CompareTo(b.Py); if (y != 0) return y;
+                return a.Pz.CompareTo(b.Pz);
+            });
+        }
+        contacts.Clear();
+        foreach (var manifold in manifolds) contacts.AddRange(manifold.Points);
+    }
+
+    private static HollowPartner Partner(SimCollider collider) => new(collider.Shape switch
+    {
+        ShapeKind.Sphere => ColliderShapeKind.Sphere,
+        ShapeKind.Box => ColliderShapeKind.Box,
+        ShapeKind.Cylinder => ColliderShapeKind.Cylinder,
+        ShapeKind.Tube => ColliderShapeKind.Tube,
+        ShapeKind.Frustum => ColliderShapeKind.Frustum,
+        ShapeKind.Torus => ColliderShapeKind.Torus,
+        _ => throw new ArgumentException("A rigid union requires finite collider surfaces.")
+    }, collider.Position, collider.U0, collider.U1, collider.U2, collider.Radius, collider.Hx, collider.Hy, collider.Hz);
 
 }

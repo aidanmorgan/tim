@@ -10,8 +10,8 @@ public sealed class EventRingBufferTests
     private static SimulationEventRecord Record(ulong sequence, SimulationEventKind kind = SimulationEventKind.Impact, ulong source = 1) =>
         new(sequence, 7, kind, source, 2, 28, .25f, 1.5f, 3, 0);
 
-    private static byte[] Publication(ulong epoch, uint capacity, ulong lapped, params SimulationEventRecord[] records) =>
-        EventRingBuffer.Batch(new(capacity, EventRingBuffer.SlotBytes, epoch, records.Length == 0 ? 0 : records[^1].Sequence, lapped), records);
+    private static byte[] Publication(ulong epoch, uint capacity, params SimulationEventRecord[] records) =>
+        EventRingBuffer.Batch(new(capacity, EventRingBuffer.SlotBytes, epoch, records.Length == 0 ? 0 : records[^1].Sequence), records);
 
     [Fact]
     public void ARecordWritesEveryFieldAtItsOffsetAndReadsBackExactly()
@@ -67,26 +67,27 @@ public sealed class EventRingBufferTests
     }
 
     [Theory]
-    [InlineData(0UL, 1UL)]
-    [InlineData(1UL, 1UL)]
-    [InlineData(180UL, 256UL)]
-    [InlineData(256UL, 256UL)]
-    [InlineData(257UL, 512UL)]
-    public void TheCapacityIsTheNextPowerOfTwoOfTheSlotsAtLeastOne(ulong slots, ulong capacity) =>
-        Assert.Equal((uint)capacity, EventRingBuffer.Capacity(slots));
+    [InlineData(32u, 0UL, 32u)]
+    [InlineData(32u, 24UL, 32u)]
+    [InlineData(32u, 25UL, 64u)]
+    [InlineData(64u, 48UL, 64u)]
+    [InlineData(64u, 49UL, 128u)]
+    [InlineData(32u, 180UL, 240u)]
+    public void CapacityReservesAtWatermarkOrOnceForBulkDemand(uint current, ulong slots, uint capacity) =>
+        Assert.Equal(capacity, EventRingBuffer.Capacity(current, slots));
 
     [Fact]
-    public void AHeaderWithoutAPowerOfTwoCapacityOrEpochOrWithStrayBytesIsRefused()
+    public void AHeaderWithoutCapacityOrEpochOrWithReservedBytesIsRefused()
     {
-        foreach (var header in new EventRingHeader[] { new(0, 64, 1, 0, 0), new(3, 64, 1, 0, 0), new(4, 32, 1, 0, 0), new(4, 64, 0, 0, 0) })
+        foreach (var header in new EventRingHeader[] { new(0, 64, 1, 0), new(4, 32, 1, 0), new(4, 64, 0, 0) })
         {
             var bytes = new byte[EventRingBuffer.HeaderBytes];
             header.Write(bytes);
             Assert.Throws<ArgumentException>(() => EventRingHeader.Read(bytes));
         }
         var stray = new byte[EventRingBuffer.HeaderBytes];
-        new EventRingHeader(4, 64, 1, 0, 0).Write(stray);
-        stray[40] = 1;
+        new EventRingHeader(4, 64, 1, 0).Write(stray);
+        stray[24] = 1;
         Assert.Throws<ArgumentException>(() => EventRingHeader.Read(stray));
     }
 
@@ -94,8 +95,8 @@ public sealed class EventRingBufferTests
     [Fact]
     public void IndependentConsumersReadEachRecordOnceThroughTheirOwnFilters()
     {
-        var ring = EventRingBuffer.Append(null, Publication(3, 8, 0, Record(1), Record(2, SimulationEventKind.ElectricalPowered)));
-        ring = EventRingBuffer.Append(ring, Publication(3, 8, 0, Record(3, SimulationEventKind.MemoryChanged)));
+        var ring = EventRingBuffer.Append(null, Publication(3, 8, Record(1), Record(2, SimulationEventKind.ElectricalPowered)));
+        ring = EventRingBuffer.Append(ring, Publication(3, 8, Record(3, SimulationEventKind.MemoryChanged)));
         List<ulong> Read(SimulationDomain filter)
         {
             var consumer = new EventRingConsumer();
@@ -115,7 +116,7 @@ public sealed class EventRingBufferTests
     [Fact]
     public void ASlotBeingWrittenIsSkippedAndCountedNeverRead()
     {
-        var ring = EventRingBuffer.Append(null, Publication(3, 4, 0, Record(1), Record(2), Record(3)));
+        var ring = EventRingBuffer.Append(null, Publication(3, 4, Record(1), Record(2), Record(3)));
         ring.PublishSequence(2, 0); // the writer's first step on record 2's slot: its sequence word is 0 while the slot is written
         var consumer = new EventRingConsumer();
         var read = new List<ulong>();
@@ -128,23 +129,23 @@ public sealed class EventRingBufferTests
     [Fact]
     public void ANewEpochReplacesTheRingAndRestartsEveryCursor()
     {
-        var first = EventRingBuffer.Append(null, Publication(3, 4, 0, Record(1), Record(2)));
+        var first = EventRingBuffer.Append(null, Publication(3, 4, Record(1), Record(2)));
         var consumer = new EventRingConsumer();
         while (consumer.TryRead(first, SimulationDomain.None, out _)) { }
         Assert.Equal((3UL, 2UL), (consumer.Epoch, consumer.Cursor));
-        var second = EventRingBuffer.Append(first, Publication(4, 4, 0, Record(1, SimulationEventKind.Passage)));
+        var second = EventRingBuffer.Append(first, Publication(4, 4, Record(1, SimulationEventKind.Passage)));
         Assert.NotSame(first, second);
         Assert.True(consumer.TryRead(second, SimulationDomain.None, out var record));
         Assert.Equal((4UL, 1UL, SimulationEventKind.Passage), (consumer.Epoch, record.Sequence, record.Kind));
-        Assert.Same(second, EventRingBuffer.Append(second, Publication(4, 4, 0, Record(2))));
-        Assert.NotSame(second, EventRingBuffer.Append(second, Publication(4, 8, 0, Record(3))));
+        Assert.Same(second, EventRingBuffer.Append(second, Publication(4, 4, Record(2))));
+        Assert.NotSame(second, EventRingBuffer.Append(second, Publication(4, 8, Record(3))));
     }
 
     [Fact]
     public void APublicationOfMoreRecordsThanItsRingOrOfPartialRecordsIsRefused()
     {
-        Assert.Throws<ArgumentException>(() => Publication(3, 2, 0, Record(1), Record(2), Record(3)));
-        var partial = Publication(3, 4, 0, Record(1));
+        Assert.Throws<ArgumentException>(() => Publication(3, 2, Record(1), Record(2), Record(3)));
+        var partial = Publication(3, 4, Record(1));
         Assert.Throws<ArgumentException>(() => EventRingBuffer.Append(null, partial.AsSpan(0, partial.Length - 1)));
     }
 }

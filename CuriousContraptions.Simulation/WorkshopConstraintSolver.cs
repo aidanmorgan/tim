@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Numerics;
 using CuriousContraptions.Gpu;
+using CuriousContraptions.Abstractions;
 
 namespace CuriousContraptions.Simulation;
 
@@ -26,7 +27,7 @@ internal enum ManifoldSoftness { NoSoftPoint, SoftPoint }
 internal static class WorkshopConstraintSolver
 {
     public const float SubstepSeconds = 1.0f / 480.0f;
-    public const float ContactSlop = 0.0002f;
+    public const float ContactSlop = PhysicalTolerance.ContactSeparationMetres;
     public const float SpeculativeSlop = 0.004f;
     public const float MaxLinearSpeed = 64f;
     public const float MaxAngularSpeed = 128f;
@@ -95,7 +96,7 @@ internal static class WorkshopConstraintSolver
         return k > 0f ? 1f / k : 0f;
     }
 
-    public static void PrepareContact(ContactPoint c, Dictionary<ulong, float> cache)
+    public static void PrepareContact(ContactPoint c, Dictionary<ContactFeatureIdentity, float> cache)
     {
         var A = c.A;
         var B = c.B;
@@ -123,9 +124,7 @@ internal static class WorkshopConstraintSolver
         c.Threshold = MathF.Max(c.ColA.BounceThreshold, c.ColB.BounceThreshold);
         c.Friction = MathF.Sqrt(c.ColA.Friction * c.ColB.Friction);
 
-        var lo = Math.Min(c.ColA.Index, c.ColB.Index);
-        var hi = Math.Max(c.ColA.Index, c.ColB.Index);
-        c.Key = ((ulong)(uint)lo << 40) | ((ulong)(uint)hi << 20) | (ulong)(uint)c.Feature;
+        c.Key = new(c.ColA.Index, c.ColB.Index, c.Feature);
 
         c.LambdaN = cache.TryGetValue(c.Key, out var warm) ? warm : 0f;
 
@@ -168,6 +167,30 @@ internal static class WorkshopConstraintSolver
     {
         if (collider.Shape == ShapeKind.Sphere)
             return AnchorDisplacement(b, new Vector3(collider.Px, collider.Py, collider.Pz) - b.Cm0);
+        if (WorkshopCollisionKernels.IsHollow(collider.Shape) && b.Motion == RigidMotionKind.Dynamic)
+        {
+            var initial = WorkshopCollisionKernels.Hollow(collider);
+            initial.Distance(b.Cm0 + anchor, out var witness, out var outward, out var feature);
+            if (feature is HollowSurface.Outer or HollowSurface.Bore)
+            {
+                var offset = witness - initial.Position;
+                var axial = Vector3.Dot(offset, initial.Y);
+                var radial = offset - axial * initial.Y;
+                var radius = radial.Length();
+                if (radius > 0f)
+                {
+                    radial /= radius;
+                    var sign = Vector3.Dot(outward, radial) < 0f ? -1f : 1f;
+                    var turn = Quaternion.Multiply(b.Rotation, Quaternion.Conjugate(b.Q0));
+                    var centre = initial.Position + AnchorDisplacement(b, initial.Position - b.Cm0);
+                    var moved = new HollowSolid(initial.Kind, centre, Vector3.Transform(initial.X, turn),
+                        Vector3.Transform(initial.Y, turn), Vector3.Transform(initial.Z, turn),
+                        initial.Radius, initial.LaneX, initial.LaneY, initial.LaneZ);
+                    return moved.CurvedSupport(facing, radial, sign, axial, radius, feature) -
+                        initial.CurvedSupport(facing, radial, sign, axial, radius, feature);
+                }
+            }
+        }
         if (support == ContactSupport.Axis && b.Motion == RigidMotionKind.Dynamic)
         {
             var centre = new Vector3(collider.Px, collider.Py, collider.Pz);
@@ -198,57 +221,123 @@ internal static class WorkshopConstraintSolver
         return c.Gap + Vector3.Dot(dA - dB, n);
     }
 
-    public static void PrepareRolling(ContactManifold m)
-    {
-        var c = m.Points[0];
-        var (radiusA, sideA) = RollingArm(m, c.ColA, true);
-        var (radiusB, sideB) = RollingArm(m, c.ColB, false);
-        m.Rolling = MathF.Max(c.ColA.RollingResistance, c.ColB.RollingResistance) * MathF.Max(radiusA, radiusB);
-        var line = RollingAxis(c, sideA, sideB);
-        m.Roll1 = line ?? c.T1;
-        m.Roll2 = line is null ? c.T2 : Vector3.Zero;
-        m.RollingMass1 = m.Rolling > 0f ? AngularMass(c, m.Roll1) : 0f;
-        m.RollingMass2 = m.Rolling > 0f && line is null ? AngularMass(c, m.Roll2) : 0f;
-        m.LambdaR1 = 0f;
-        m.LambdaR2 = 0f;
-    }
+    private enum RollingSupport : byte { Flat, Line, Point }
+    private readonly record struct RollingSurface(float Arm, Vector3 Axis, RollingSupport Support);
 
-    /// <summary>The single rolling axis of a manifold whose curved supports roll about one line, or null when it rolls about both
-    /// tangents. A sphere rolls about every tangent direction. A curved cylinder side (an axis-support side, <see cref="RollingArm"/>)
-    /// rolls only about its own axis, projected into the tangent plane of an axis-support point: the other tangent is pitch, a rocking of
-    /// the line contact that its normal rows carry. Two curved sides whose raw axes are parallel within the narrowphase's 2°
-    /// (<see cref="WorkshopCollisionKernels.LineAlignment"/>, the same test) roll about their common axis, the sign-aligned bisector;
-    /// crossed sides touch at a point and roll about both tangents.</summary>
-    private static Vector3? RollingAxis(ContactPoint c, ContactPoint? sideA, ContactPoint? sideB)
+    public static void PrepareRolling(ContactManifold manifold, float h)
     {
-        if (c.ColA.Shape == ShapeKind.Sphere || c.ColB.Shape == ShapeKind.Sphere) return null;
-        Vector3 axis, n;
-        if (sideA is { } a && sideB is not null)
+        foreach (var patch in manifold.Patches)
         {
-            var dot = Vector3.Dot(c.ColA.U1, c.ColB.U1);
-            if (MathF.Abs(dot) < WorkshopCollisionKernels.LineAlignment) return null;
-            (axis, n) = (Vector3.Normalize(dot >= 0f ? c.ColA.U1 + c.ColB.U1 : c.ColA.U1 - c.ColB.U1), a.Normal);
+            var supporting = patch.Supporting;
+            supporting.Clear();
+            var surface = default(RollingSurface);
+            var maximumCoefficient = 0f;
+            for (var i = 0; i < patch.Points.Count; i++)
+            {
+                var point = patch.Points[i];
+                var local = CombineRolling(RollingGeometry(point, point.ColA, true), RollingGeometry(point, point.ColB, false));
+                surface = CombineRolling(surface, local);
+                var coefficient = MathF.Max(point.ColA.RollingResistance, point.ColB.RollingResistance) * local.Arm;
+                patch.RollingCoefficients[i] = coefficient;
+                maximumCoefficient = MathF.Max(maximumCoefficient, coefficient);
+                if (point.Gap <= 0f || point.Gap + h * Vector3.Dot(RelativeVelocity(point), point.Normal) <= 0f)
+                    supporting.Add(point);
+            }
+            var footprint = SupportFootprint(supporting, patch.Normal, patch.ProjectedSupport.AsSpan(0, supporting.Count));
+            if (footprint.Support == RollingSupport.Flat) surface = default;
+            else if (footprint.Support == RollingSupport.Line && surface.Support != RollingSupport.Flat)
+                surface = surface.Support == RollingSupport.Line &&
+                    MathF.Abs(Vector3.Dot(surface.Axis, footprint.Axis)) < WorkshopCollisionKernels.LineAlignment
+                    ? default : new(surface.Arm, footprint.Axis, RollingSupport.Line);
+            var c = patch.Points[0];
+            Vector3? line = surface.Support == RollingSupport.Line ? surface.Axis : null;
+            patch.Roll1 = line is { } axis ? Vector3.Normalize(axis - Vector3.Dot(axis, patch.Normal) * patch.Normal) : patch.T1;
+            patch.Roll2 = line is null ? patch.T2 : Vector3.Zero;
+            var active = maximumCoefficient > 0f && surface.Support != RollingSupport.Flat;
+            patch.RollingMass1 = active ? AngularMass(c, patch.Roll1) : 0f;
+            patch.RollingMass2 = active && line is null ? AngularMass(c, patch.Roll2) : 0f;
+            patch.LambdaR1 = 0f;
+            patch.LambdaR2 = 0f;
         }
-        else if (sideA is { } onlyA) (axis, n) = (c.ColA.U1, onlyA.Normal);
-        else if (sideB is { } onlyB) (axis, n) = (c.ColB.U1, onlyB.Normal);
-        else return null;
-        // Every axis-support point's normal is within the side tolerance of its axis's perpendicular plane (|n·a| ≤ 0.199: the pair
-        // normal the narrowphase classified it by, or a radial normal of that cylinder's own axis), so the projection keeps at least
-        // √(1 − 0.199²) = 0.98 of one side's axis, and of two parallel sides' bisector (within 1° of each axis: |n·b| ≤ sin(asin 0.199 +
-        // 1°) = 0.216) at least 0.976.
-        return Vector3.Normalize(axis - Vector3.Dot(axis, n) * n);
     }
 
-    /// <summary>The rolling arm one side brings to its manifold, with its curved-side support: a sphere's radius at every contact (no
-    /// side), a cylinder's radius and its first axis-support point when the manifold rolls on its curved side (as the narrowphase
-    /// classified it), otherwise none (flat faces, rims and caps do not roll).</summary>
-    private static (float Arm, ContactPoint? Side) RollingArm(ContactManifold m, SimCollider collider, bool sideA)
+    private static RollingSurface SupportFootprint(List<ContactPoint> points, Vector3 normal, Span<Vector3> projected)
     {
-        if (collider.Shape == ShapeKind.Sphere) return (collider.Radius, null);
-        if (collider.Shape != ShapeKind.Cylinder) return (0f, null);
-        foreach (var p in m.Points)
-            if ((sideA ? p.SupportA : p.SupportB) == ContactSupport.Axis) return (collider.Radius, p);
-        return (0f, null);
+        if (points.Count == 0) return new(0, Vector3.Zero, RollingSupport.Point);
+        var scale = 0f;
+        for (var i = 0; i < points.Count; i++)
+        {
+            var point = points[i];
+            var p = Vector3.Abs(point.Point);
+            scale = MathF.Max(scale, MathF.Max(p.X + p.Y + p.Z,
+                MathF.Max(WorkshopCollisionKernels.ColliderExtent(point.ColA), WorkshopCollisionKernels.ColliderExtent(point.ColB))));
+            var offset = point.Point - points[0].Point;
+            projected[i] = offset - Vector3.Dot(offset, normal) * normal;
+        }
+        var resolution = PhysicalTolerance.ContactSupportResolutionMetres(scale, ContactSlop);
+        var squaredResolution = resolution * resolution;
+        var longest = 0f; var first = 0; var second = 0;
+        for (var i = 0; i < projected.Length; i++)
+            for (var j = i + 1; j < projected.Length; j++)
+            {
+                var squared = Vector3.DistanceSquared(projected[i], projected[j]);
+                if (squared <= longest) continue;
+                longest = squared; first = i; second = j;
+            }
+        if (longest <= squaredResolution) return new(0, Vector3.Zero, RollingSupport.Point);
+        var axis = Vector3.Normalize(projected[second] - projected[first]);
+        foreach (var point in projected)
+        {
+            var offset = point - projected[first];
+            var across = offset - Vector3.Dot(offset, axis) * axis;
+            if (across.LengthSquared() > squaredResolution) return default;
+        }
+        return new(0, axis, RollingSupport.Line);
+    }
+
+    private static RollingSurface CombineRolling(RollingSurface a, RollingSurface b)
+    {
+        if (a.Support == RollingSupport.Flat) return b;
+        if (b.Support == RollingSupport.Flat) return a;
+        var arm = MathF.Max(a.Arm, b.Arm);
+        if (a.Support == RollingSupport.Point || b.Support == RollingSupport.Point)
+            return new(arm, Vector3.Zero, RollingSupport.Point);
+        var dot = Vector3.Dot(a.Axis, b.Axis);
+        return MathF.Abs(dot) >= WorkshopCollisionKernels.LineAlignment
+            ? new(arm, Vector3.Normalize(dot >= 0f ? a.Axis + b.Axis : a.Axis - b.Axis), RollingSupport.Line)
+            : new(arm, Vector3.Zero, RollingSupport.Point);
+    }
+
+    // One geometry rule: a point support rolls about both tangents, a line about
+    // its curved direction's perpendicular axis, and a flat support contributes none.
+    private static RollingSurface RollingGeometry(ContactPoint p, SimCollider collider, bool sideA)
+    {
+        if (collider.Shape == ShapeKind.Sphere) return new(collider.Radius, Vector3.Zero, RollingSupport.Point);
+        if (collider.Shape == ShapeKind.Cylinder)
+            return (sideA ? p.SupportA : p.SupportB) == ContactSupport.Axis
+                ? new(collider.Radius, collider.U1, RollingSupport.Line) : default;
+        if (!WorkshopCollisionKernels.IsHollow(collider.Shape)) return default;
+        var hollow = WorkshopCollisionKernels.Hollow(collider);
+        hollow.Distance(p.Point, out var surface, out var outward, out var feature);
+        if (feature is HollowSurface.Start or HollowSurface.End) return default;
+        var delta = surface - collider.Position;
+        var radial = delta - Vector3.Dot(delta, collider.U1) * collider.U1;
+        var rho = radial.Length();
+        if (!(rho > 0f)) return default;
+        radial /= rho;
+        var azimuth = Vector3.Cross(collider.U1, radial);
+        var meridian = Vector3.Cross(outward, azimuth);
+        var circumferential = Vector3.Dot(outward, radial) / rho;
+        var tubeRadius = feature == HollowSurface.Bore ? collider.Hx : collider.Hy;
+        var meridional = collider.Shape == ShapeKind.Torus ? (feature == HollowSurface.Bore ? -1f : 1f) / tubeRadius : 0f;
+        if (circumferential < 0f || meridional < 0f) return default;
+        float Arm(float curvature) => !(curvature > 0f) ? 0f :
+            curvature * hollow.Reach <= 1f ? hollow.Reach : 1f / curvature;
+        var first = Arm(circumferential); var second = Arm(meridional);
+        if (first > 0f && second > 0f) return new(MathF.Max(first, second), Vector3.Zero, RollingSupport.Point);
+        if (first > 0f) return new(first, collider.U1, RollingSupport.Line);
+        if (second > 0f) return new(second, Vector3.Normalize(Vector3.Cross(meridian, p.Normal)), RollingSupport.Line);
+        return default;
     }
 
     private static float AngularMass(ContactPoint c, Vector3 t)
@@ -265,18 +354,23 @@ internal static class WorkshopConstraintSolver
         return k > 0f ? 1f / k : 0f;
     }
 
-    public static void SolveRolling(ContactManifold m)
+    public static void SolveRolling(ContactManifold manifold)
+    {
+        foreach (var patch in manifold.Patches) SolveRollingPatch(patch);
+    }
+
+    private static void SolveRollingPatch(ContactPatch m)
     {
         if (m.RollingMass1 == 0f && m.RollingMass2 == 0f) return;
         var c = m.Points[0];
-        var normal = 0f;
-        foreach (var p in m.Points) normal += p.LambdaN;
+        var maxRolling = 0f;
+        for (var i = 0; i < m.Points.Count; i++)
+            maxRolling += MathF.Max(m.Points[i].LambdaN, 0f) * m.RollingCoefficients[i];
 
         var w = new Vector3(c.A.Wx - c.B.Wx, c.A.Wy - c.B.Wy, c.A.Wz - c.B.Wz);
         var n1 = m.LambdaR1 - m.RollingMass1 * Vector3.Dot(w, m.Roll1);
         var n2 = m.LambdaR2 - m.RollingMass2 * Vector3.Dot(w, m.Roll2);
 
-        var maxRolling = m.Rolling * normal;
         var length = MathF.Sqrt(n1 * n1 + n2 * n2);
         if (length > maxRolling)
         {
@@ -478,6 +572,42 @@ internal static class WorkshopConstraintSolver
         WorkshopCollisionKernels.ApplyImpulse(c.B, -p, new Vector3(c.RBx, c.RBy, c.RBz));
     }
 
+    public static void PrepareNormalBlocks(ContactManifold manifold, float h, HashSet<ContactFeatureSetKey> cache)
+    {
+        manifold.NormalBlockCount = 0;
+        manifold.NormalWarmStartKey = new(manifold.Points);
+        var closed = manifold.ClosedScratch;
+        var speculative = manifold.SpeculativeScratch;
+        closed.Clear(); speculative.Clear();
+        foreach (var point in manifold.Points)
+            (point.Gap <= 0f || point.Gap + h * Vector3.Dot(RelativeVelocity(point), point.Normal) <= 0f
+                ? closed : speculative).Add(point);
+        var changed = !cache.Contains(manifold.NormalWarmStartKey);
+        Partition(closed);
+        Partition(speculative);
+        // A changed block must not inherit only part of a formerly coupled load.
+        if (changed)
+            foreach (var point in manifold.Points) point.LambdaN = 0f;
+
+        void Partition(List<ContactPoint> pending)
+        {
+            while (pending.Count != 0)
+            {
+                if (manifold.NormalBlocks.Count == manifold.NormalBlockCount)
+                    manifold.NormalBlocks.Add(new NormalContactBlock());
+                var block = manifold.NormalBlocks[manifold.NormalBlockCount++];
+                block.Points.Clear();
+                var selected = manifold.SelectionScratch;
+                selected.Clear(); selected.AddRange(pending);
+                WorkshopCollisionKernels.ReduceSideManifold(selected, 0);
+                block.Points.AddRange(selected);
+                block.Key = new(block.Points);
+                changed |= !cache.Contains(block.Key);
+                foreach (var point in block.Points) pending.Remove(point);
+            }
+        }
+    }
+
     public static void SolveNormalBlock(List<ContactPoint> group, ContactPass pass, in SoftCoefficients soft, float h)
     {
         var n = group.Count;
@@ -520,7 +650,8 @@ internal static class WorkshopConstraintSolver
         foreach (var m in manifolds)
         {
             WorkshopFrictionSolver.Solve(m);
-            SolveNormalBlock(m.Points, pass, soft, h);
+            for (var block = 0; block < m.NormalBlockCount; block++)
+                SolveNormalBlock(m.NormalBlocks[block].Points, pass, soft, h);
             SolveRolling(m);
         }
     }
@@ -538,7 +669,8 @@ internal static class WorkshopConstraintSolver
         var any = false;
         foreach (var c in m.Points) any |= Bounces(c);
         if (!any) return;
-        ApplyRestitution(m.Points);
+        for (var block = 0; block < m.NormalBlockCount; block++)
+            ApplyRestitution(m.NormalBlocks[block].Points);
         WorkshopFrictionSolver.Solve(m);
         SolveRolling(m);
     }

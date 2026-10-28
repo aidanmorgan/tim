@@ -56,14 +56,18 @@ public sealed class WorkshopBowlingTests
         Assert.Equal(new RollingResistance(.03f), material.RollingResistance);
         // The Basketball keeps its declared values through the same generic loop; friction and threshold are its material data, not constants.
         var basketball = Assert.Single(scene.Bodies.ToArray(), b => b.Id == new GpuBodyId(3));
-        var basketballMaterial = Assert.Single(scene.Materials.ToArray(), m => m.Id == Assert.Single(scene.Colliders.ToArray(), c => c.Body == basketball.Id).Material);
+        var basketballChildren = scene.Colliders.ToArray().Where(c => c.Body == basketball.Id).ToArray();
+        var basketballSphere = Assert.Single(basketballChildren, c => c.Shape == ColliderShapeKind.Sphere);
+        Assert.Single(basketballChildren, c => c.Shape == ColliderShapeKind.Torus);
+        Assert.All(basketballChildren, c => Assert.Equal(basketballSphere.Material, c.Material));
+        var basketballMaterial = Assert.Single(scene.Materials.ToArray(), m => m.Id == basketballSphere.Material);
         Assert.Equal(new Kilograms(1f), basketball.Mass);
         Assert.Equal(new Restitution(.55f), basketballMaterial.Restitution);
         Assert.Equal(new FrictionCoefficient(.3f), basketballMaterial.Friction);
         Assert.Equal(new LinearSpeed(.1f), basketballMaterial.BounceThreshold);
         Assert.Equal(new RollingResistance(.035f), basketballMaterial.RollingResistance);
         // Solid sphere 0.4·m·r² of the declared f32 values, within its f32 roundings (the 6 · 2^-24 relative inertia bound).
-        var properties = RigidMassProperties.Compile(body, sphere);
+        var properties = body.MassProperties;
         var expected = .4 * 4 * (double).28f * (double).28f;
         foreach (var moment in new[] { properties.X, properties.Y, properties.Z })
             Assert.InRange(Math.Abs(moment.Moment - expected) / expected, 0, 6.0 / (1 << 24));
@@ -109,10 +113,14 @@ public sealed class WorkshopBowlingTests
             var slot = Array.FindIndex(bodies, b => b.Id == new GpuBodyId(id));
             Assert.Equal(BitConverter.SingleToUInt32Bits(drag),
                 BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(scene.World.BodyOffset(slot) + PhysicsGpuAbi.BodyDragOffset)));
-            var collider = Assert.Single(colliders, c => c.Body == new GpuBodyId(id));
-            var material = Array.FindIndex(materials, m => m.Id == collider.Material);
-            Assert.Equal(BitConverter.SingleToUInt32Bits(rolling),
-                BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(scene.World.MaterialOffset(material) + PhysicsGpuAbi.MaterialRollingResistanceOffset)));
+            var owned = colliders.Where(c => c.Body == new GpuBodyId(id)).ToArray();
+            Assert.NotEmpty(owned);
+            foreach (var collider in owned)
+            {
+                var material = Array.FindIndex(materials, m => m.Id == collider.Material);
+                Assert.Equal(rolling, BinaryPrimitives.ReadSingleLittleEndian(bytes.AsSpan(
+                    scene.World.MaterialOffset(material) + PhysicsGpuAbi.MaterialRollingResistanceOffset)));
+            }
         }
         // The bench plane (the first material record) declares zero.
         Assert.Equal(0u, BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(scene.World.MaterialOffset(0) + PhysicsGpuAbi.MaterialRollingResistanceOffset)));
@@ -148,14 +156,16 @@ public sealed class WorkshopBowlingTests
         Assert.Contains(PartId.Battery, WorkbenchCapacityTests.FreePalette.Keys);
         Assert.Contains(PartId.Springboard, WorkbenchCapacityTests.FreePalette.Keys);
 
-        // One Receiver declares a residence sensor and a guide per ball of either kind, with the shared capture settings.
+        // One Receiver declares policies selecting both payload kinds, with the shared capture settings.
         var receiver = WorkshopInput.Generic(PartId.Receiver, new(5), 0, 1, 0, 0, 0, 0, 1);
         var scene = WorkshopPhysicsCompiler.Compile(TwoLanes().WithInstance(receiver), new(1, 2));
-        Assert.Equal([new GpuBodyId(3), new GpuBodyId(4)], scene.Sensors.ToArray().Select(s => s.Target).OrderBy(id => id.Value).ToArray());
-        Assert.Equal([new GpuBodyId(3), new GpuBodyId(4)], scene.Guides.ToArray().Select(g => g.Target).OrderBy(id => id.Value).ToArray());
+        Assert.Equal(BodyTargetKind.AllPayloads, Assert.Single(scene.Sensors.ToArray()).Targets.Kind);
+        Assert.Equal(BodyTargetKind.AllPayloads, Assert.Single(scene.Guides.ToArray()).Targets.Kind);
         Assert.All(scene.Sensors.ToArray(), s => Assert.Equal(new LinearSpeed(1.5f), s.SpeedLimit));
         var second = WorkshopInput.Generic(PartId.Receiver, new(6), 4, 1, 0, 0, 0, 0, 1);
-        Assert.Equal(WorkbenchTable.Guides, Assert.Throws<WorkbenchFullException>(() => TwoLanes().WithInstance(receiver).WithInstance(second).Validate()).Table);
+        var multiple = WorkshopPhysicsCompiler.Compile(TwoLanes().WithInstance(receiver).WithInstance(second), new(1, 2));
+        Assert.Equal(2, multiple.Sensors.Length);
+        Assert.Equal(2, multiple.Guides.Length);
     }
 
     [Fact]

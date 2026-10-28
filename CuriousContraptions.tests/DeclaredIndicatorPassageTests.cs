@@ -43,7 +43,7 @@ public sealed class DeclaredIndicatorPassageTests
         Assert.Equal(ActivationNodeKind.LevelIndicator, Node(network, level.Id).Kind);
         var sensor = Assert.Single(network.PassageSensors.ToArray());
         Assert.Equal((ActivationNodeKind.PassageSource, sensor.Id), (Node(network, detector.Id).Kind, Node(network, detector.Id).Passage));
-        Assert.Equal(WorkshopActivationCompiler.PassageSensorFor(detector, DeclaredPhysics.Of(PartId.BallDetector).Signal!.Passage!.Value), sensor);
+        Assert.Equal(WorkshopActivationCompiler.PassageSensorFor(detector, DeclaredPhysics.Of(PartId.BallDetector).Signal!.Passage!.Value, bench.Instances.Identities), sensor);
         Assert.Equal((detector.Id, detector.Cell, detector.Local, detector.Rotation), (sensor.Frame, sensor.Cell, sensor.Local, sensor.Rotation));
         Assert.DoesNotContain(network.Nodes.ToArray(), node => node.Owner == wall.Id);
     }
@@ -73,8 +73,8 @@ public sealed class DeclaredIndicatorPassageTests
     {
         var detector = PlacedParts.Detector(new(10), 0, detectorY, 0, 0, 0, 0, 1);
         var ball = new GpuBodyId(2);
-        var colliders = WorkshopPhysicsCompiler.Compile(Bench([detector, WorkshopInput.Generic(PartId.Basketball, ball, from, detectorY + y, 0, 0, 0, 0, 1)]),
-            new(1, 2)).Colliders.ToArray();
+        var scene = WorkshopPhysicsCompiler.Compile(Bench([detector, WorkshopInput.Generic(PartId.Basketball, ball, from, detectorY + y, 0, 0, 0, 0, 1)]),
+            new(1, 2));
         PhysicsBodyReadSet At(float x)
         {
             var px = WorkshopInput.Position(x); var py = WorkshopInput.Position(detectorY + y);
@@ -83,20 +83,21 @@ public sealed class DeclaredIndicatorPassageTests
                 new PhysicsBodyRead(new CanonicalBody(detector.Id, 0, 0, detector.Cell, detector.Local, default), CanonicalRotation.Identity, default, default)
             ]);
         }
-        var tracker = PassageSensorTracker.Create([sensor with { Frame = detector.Id }], colliders, At(from));
+        var tracker = PassageSensorTracker.Create([sensor with { Frame = detector.Id }], scene, At(from));
+        var motion = new PassageMotionFixture(At(from));
         var outputs = new PassageSensorRead[4];
         var fired = 0;
         var steps = (int)MathF.Round((to - from) / .01f);
         for (var step = 1; step <= steps; step++)
         {
-            tracker = tracker.Advance(new SimulationTick((ulong)step), At(from + step * .01f), null, outputs, out var count);
+            tracker = tracker.Advance(new SimulationTick((ulong)step), At(from + step * .01f), motion.Create(At(from + step * .01f)), outputs, out var count);
             fired += count;
         }
         return fired;
     }
 
     private static PassageSensorDeclaration Shipped => WorkshopActivationCompiler.PassageSensorFor(PlacedParts.Detector(new(10), 0, 3, 0, 0, 0, 0, 1),
-        DeclaredPhysics.Of(PartId.BallDetector).Signal!.Passage!.Value);
+        DeclaredPhysics.Of(PartId.BallDetector).Signal!.Passage!.Value, new WorkshopInstances(PlacedParts.Detector(new(10), 0, 3, 0, 0, 0, 0, 1)).Identities);
 
     // C-Lamp F3 (Story 9A.44 T12), on the production tracker over ticks: a detector placed off the cell grid at y = 3.03 m (cell 48,
     // remainder 0.48 cells = 0.03 m) compiles its aperture at that placed pose, so a ball crossing 0.64 m above the placed axis is inside
@@ -128,13 +129,13 @@ public sealed class DeclaredIndicatorPassageTests
     public void ASyntheticApertureCompilesItsOwnRadiusAndClearance()
     {
         var detector = PlacedParts.Detector(new(10), 0, 3, 0, 0, 0, 0, 1);
-        var narrow = WorkshopActivationCompiler.PassageSensorFor(detector, new SignalPassageDescriptor(.3f, .5f));
-        Assert.Equal((WorkshopPhysicsCompiler.PassageSensor(detector.Id), detector.Id, .3f, .5f),
+        var narrow = WorkshopActivationCompiler.PassageSensorFor(detector, new SignalPassageDescriptor(.3f, .5f), new WorkshopInstances(detector).Identities);
+        Assert.Equal((new WorkshopInstances(detector).Identities[detector.Id].Passage, detector.Id, .3f, .5f),
             (narrow.Id, narrow.Frame, narrow.Radius.Value, narrow.RearmClearance.Value));
         // The sensor sits at its owner's placed pose: a detector off the cell grid keeps its exact cell, f32 remainder and rotation
         // (C-Lamp F3: a compile that dropped the owner's local remainder would put the aperture at the cell origin).
         var offGrid = PlacedParts.Detector(new(11), .03, 3.01, -.02, 0, 0, .38268343236, .92387953251);
-        var placed = WorkshopActivationCompiler.PassageSensorFor(offGrid, new SignalPassageDescriptor(.3f, .5f));
+        var placed = WorkshopActivationCompiler.PassageSensorFor(offGrid, new SignalPassageDescriptor(.3f, .5f), new WorkshopInstances(offGrid).Identities);
         Assert.NotEqual(default, offGrid.Local);
         Assert.Equal((offGrid.Cell, offGrid.Local, offGrid.Rotation), (placed.Cell, placed.Local, placed.Rotation));
         Assert.Equal(1, Crossings(Shipped, -1f, 1f, .5f));
@@ -223,7 +224,7 @@ public sealed class DeclaredIndicatorPassageTests
     [Fact]
     public async Task ResetRestoresThePassageCursorPulseLatchAndCountInOneSimulation()
     {
-        await using var device = new WorkshopGpuDevice(new CuriousContraptions.Simulation.BrowserGpuTransport(), new(101, 206));
+        await using var device = new WorkshopGpuDevice(new CuriousContraptions.Simulation.BrowserGpuTransport(new CuriousContraptions.Abstractions.EventRingPublication()), new(101, 206));
         await using var simulation = new WorkshopSimulation(device, new WorkshopPhysicsEngineTests.StepClock(), WorkshopCadenceSettings.Default(),
             new(1), new WorkshopPhysicsEngineTests.NoInstallation(), GpuDeviceOwnership.Borrowed);
         Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Initialize()).Outcome);
@@ -301,4 +302,47 @@ public sealed class DeclaredIndicatorPassageTests
         Assert.Equal("A lamp that follows a level output takes no other signal.", EditRefusal.Is(WorkshopEditRejection.LevelInputFollowsOneLevel,
             () => new WorkshopConnections(Signal(latch.Id, lamp.Id), Signal(counter.Id, lamp.Id)).Validate(instances)).Message);
     }
+}
+
+/// <summary>Canonical 60Hz motion inputs for the tracker's external read boundary. Each step
+/// is eight contiguous constant-velocity pieces, decoded by the production motion validator.</summary>
+internal sealed class PassageMotionFixture(PhysicsBodyReadSet previous)
+{
+    private ulong _tick;
+    public PhysicsMotionRead Create(PhysicsBodyReadSet current)
+    {
+        var tick = ++_tick;
+        var bytes = new byte[PhysicsMotionRead.ByteLength(current.Count)];
+        void U(int at, uint value) => System.Buffers.Binary.BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(at), value);
+        void F(int at, float value) => System.Buffers.Binary.BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(at), value);
+        void I(int at, int value) => System.Buffers.Binary.BinaryPrimitives.WriteInt32LittleEndian(bytes.AsSpan(at), value);
+        U(0, (uint)current.Count * 8); U(4, 8); U(8, checked((uint)(tick - 1) * 8)); U(12, checked((uint)tick * 8));
+        for (var b = 0; b < current.Count; b++)
+        {
+            var body = current[b];
+            Assert.True(previous.TryGet(body.Body.Id, out var from));
+            var start = Position(from); var end = Position(body);
+            var velocity = (end - start) * 60;
+            Assert.True(velocity.Length() <= 64.001f, "fixture must stay in the admitted speed domain");
+            for (var step = 0; step < 8; step++)
+            {
+                var at = PhysicsMotionRead.HeaderBytes + (b * 8 + step) * PhysicsMotionRead.PieceBytes;
+                var ordinal = checked((uint)((tick - 1) * 8 + (ulong)step));
+                U(at, (uint)PhysicsMotionKind.FreePolynomial); U(at + 4, ordinal); U(at + 8, ordinal + 1); U(at + 12, ordinal);
+                U(at + PhysicsMotionRead.FrequencyOffset, 480);
+                System.Buffers.Binary.BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(at + PhysicsMotionRead.OwnerOffset), body.Body.Id.Value);
+                var point = start + (end - start) * (step / 8f);
+                var x = WorkshopInput.Position(point.X); var y = WorkshopInput.Position(point.Y); var z = WorkshopInput.Position(point.Z);
+                I(at + PhysicsMotionRead.CellOffset, x.Cell); I(at + PhysicsMotionRead.CellOffset + 4, y.Cell); I(at + PhysicsMotionRead.CellOffset + 8, z.Cell);
+                F(at + PhysicsMotionRead.CentreRemainderOffset, x.Local); F(at + PhysicsMotionRead.CentreRemainderOffset + 4, y.Local); F(at + PhysicsMotionRead.CentreRemainderOffset + 8, z.Local);
+                F(at + PhysicsMotionRead.RotationOffset + 12, 1);
+                F(at + PhysicsMotionRead.VelocityOffset, velocity.X); F(at + PhysicsMotionRead.VelocityOffset + 4, velocity.Y); F(at + PhysicsMotionRead.VelocityOffset + 8, velocity.Z);
+            }
+        }
+        var motion = PhysicsMotionRead.Decode(bytes, current, new(tick));
+        previous = current;
+        return motion;
+    }
+    private static System.Numerics.Vector3 Position(PhysicsBodyRead body) => new(
+        (body.Body.Cell.X + body.Body.Local.X) / 16, (body.Body.Cell.Y + body.Body.Local.Y) / 16, (body.Body.Cell.Z + body.Body.Local.Z) / 16);
 }

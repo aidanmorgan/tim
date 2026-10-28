@@ -1,3 +1,4 @@
+using CuriousContraptions.Abstractions;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -46,7 +47,7 @@ internal sealed record AuthoredInstanceTemplate(PartId Part, CellOrigin Cell, Lo
             throw new ArgumentException("Missing, undefined or nonfinite authored scalar.");
         Rotation.Validate();
         Parameters.Validate(Part);
-        var targets = new HashSet<(AuthoredScalar?, ParameterId)>();
+        var targets = new HashSet<(AuthoredScalar?, ParameterId)>(4);
         foreach (var binding in AssistanceBindings)
         {
             if (!Enum.IsDefined(binding.Value) || (binding.Scalar is null) == (binding.Parameter == default) ||

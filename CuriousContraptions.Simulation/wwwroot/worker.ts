@@ -1,3 +1,5 @@
+import { PosePublicationPreparation, EventPublicationPreparation, type ManagedHost } from '../../tools/runtime/worker-contracts.js';
+declare const self: { postMessage(message: unknown, transfer?: Transferable[]): void; close(): void; onmessage: ((event: MessageEvent<unknown>) => void) | null; };
 import { dotnet } from './_framework/dotnet.js';
 import { admitNativeClock, nativeNow, nativeClockEvidence } from '../native-clock.js';
 import { attachClockRing, deriveExchange, qualifyDerivation, writeDerivation, beat } from '../clock-ring.js';
@@ -5,100 +7,188 @@ import { EventRingMemory } from '../event-ring-cursor.js';
 
 await admitNativeClock();
 const runtime = await dotnet.create();
-let host, activeRequests = 0, observationPending = false;
-let animationPort, clockMaster, derivationCheck, roles, lifetime = 0, disposed = false;
+let host: ManagedHost;
+let activeRequests = 0, observationPending = false;
+let animationPort: MessagePort | undefined, clockMaster: Worker | undefined;
+let derivationCheck: ReturnType<typeof setInterval> | undefined;
+let roles: number[], lifetime = 0, disposed = false;
 // Scheduler turns (Program.NextTurn): declared before anything that can dispose the session.
-const turnChannel = new MessageChannel(), queuedTurns = [], turnTimers = new Set();
-let poseRing, poseSeqView, poseCapacity = 0, poseSlotIndex = 0, posePublicationSequence = 0n;
+const turnChannel = new MessageChannel(), queuedTurns: number[] = [], turnTimers = new Set<ReturnType<typeof setTimeout>>();
+interface PoseStorage {
+    buffer: SharedArrayBuffer;
+    sequences: BigInt64Array<SharedArrayBuffer>;
+    slots: Uint8Array<SharedArrayBuffer>[];
+    capacity: number;
+    message: { poseRing: SharedArrayBuffer };
+}
+interface PreparedPose { owner: bigint; epoch: bigint; bodies: number; storage: PoseStorage; }
+let poseStorage: PoseStorage | undefined, candidatePose: PreparedPose | undefined;
+let poseBodies = 0;
+let poseEpoch = 0n, poseSlotIndex = 0, posePublicationSequence = 0n;
 // One read in flight and the latest behind it: reads coalesce, since every one-shot occurrence is an event ring record (Story 9A.23).
-let latestRead, readInFlight = false; // a read is { bytes, identity }
-const pendingScheduleControls = [];
+let latestRead: { bytes: Uint8Array<ArrayBuffer>; identity: Uint8Array<ArrayBuffer> } | undefined;
+let readInFlight = false; // a read is { bytes, identity }
+const pendingScheduleControls: { bytes: Uint8Array<ArrayBuffer>; recipient: number }[] = [];
 
 // The pose ring layout owned by WorkshopPoseRing; WorkerAbiTests pins every value against its C# owner. Story 9A.2: this worker
 // reads no read layout: C# composes each committed read's pose slot (WorkshopPoseRing.ComposeSlot) and the worker copies it.
+const POSE_DEFAULT_BODY_CAPACITY = 16; // WorkshopPoseRing.DefaultBodyCapacity
 const POSE_SLOT_COUNT = 3;             // WorkshopPoseRing.SlotCount
 const POSE_HEADER_BYTES = 16;          // WorkshopPoseRing.HeaderBytes
 const POSE_BODY_BYTES = 64;            // WorkshopPoseRing.BodyBytes
 
 // Story 9R.5b: a ring's body capacity is its own length (WorkshopPoseRing.BodyCapacity); there is no fixed capacity.
-function poseRingCapacity(buffer) {
+function poseRingCapacity(buffer: SharedArrayBuffer) {
     const slot = buffer.byteLength / POSE_SLOT_COUNT, capacity = (slot - POSE_HEADER_BYTES) / POSE_BODY_BYTES;
     if (!Number.isInteger(slot) || !Number.isInteger(capacity) || capacity < 0) throw new Error('The pose ring is not a whole number of slots.');
     return capacity;
 }
-function attachPoseRing(buffer) {
-    poseCapacity = poseRingCapacity(buffer);
-    poseRing = buffer;
-    poseSeqView = new BigInt64Array(buffer);
+function poseViews(buffer: SharedArrayBuffer): PoseStorage {
+    const capacity = poseRingCapacity(buffer), width = buffer.byteLength / POSE_SLOT_COUNT;
+    return { buffer, capacity, sequences: new BigInt64Array(buffer), message: { poseRing: buffer },
+        slots: Array.from({ length: POSE_SLOT_COUNT }, (_, index) => new Uint8Array(buffer, index * width, width)) };
 }
-// A world with more moving bodies than the ring holds replaces it, at Run, with one at least twice as large. The new ring is
-// posted before the read that needs it, and messages keep their order, so the browser reads it before that read arrives.
-function growPoseRing(bodyCount) {
-    const capacity = Math.max(bodyCount, poseCapacity * 2);
-    const buffer = new SharedArrayBuffer(POSE_SLOT_COUNT * (POSE_HEADER_BYTES + capacity * POSE_BODY_BYTES));
-    attachPoseRing(buffer);
-    poseSlotIndex = 0;
-    self.postMessage({ poseRing: buffer });
+function attachPoseRing(buffer: SharedArrayBuffer) {
+    if (poseStorage || poseRingCapacity(buffer) !== POSE_DEFAULT_BODY_CAPACITY) throw new Error('Pose bootstrap must have its common reserve and be unique.');
+    poseStorage = poseViews(buffer);
+}
+function poseIdentity(identity: Uint8Array) {
+    if (identity.length !== 16) throw new Error('Pose ownership requires command and epoch identities.');
+    const view = new DataView(identity.buffer, identity.byteOffset, identity.byteLength);
+    const owner = view.getBigUint64(0, true), epoch = view.getBigUint64(8, true);
+    if (owner === 0n || epoch === 0n) throw new Error('Pose ownership identities must be nonzero.');
+    return { owner, epoch };
+}
+function preparePose(identity: Uint8Array, bodies: number, capacity: number): PosePublicationPreparation {
+    const { owner, epoch } = poseIdentity(identity);
+    if (disposed || candidatePose || !Number.isSafeInteger(bodies) || bodies < 0 || !Number.isSafeInteger(capacity) || capacity < bodies || capacity < POSE_DEFAULT_BODY_CAPACITY || epoch < poseEpoch)
+        throw new Error('Invalid pose preparation ownership or population.');
+    const bytes = POSE_SLOT_COUNT * (POSE_HEADER_BYTES + capacity * POSE_BODY_BYTES);
+    if (!Number.isSafeInteger(bytes)) return PosePublicationPreparation.StorageUnavailable;
+    if (epoch === poseEpoch && (poseBodies !== bodies || poseStorage?.capacity !== capacity))
+        throw new Error('An admitted epoch cannot change its body population.');
+    let storage: PoseStorage;
+    try {
+        storage = epoch === poseEpoch ? poseStorage! : poseViews(new SharedArrayBuffer(bytes));
+    } catch (error) {
+        if (error instanceof RangeError) return PosePublicationPreparation.StorageUnavailable;
+        throw error;
+    }
+    candidatePose = { owner, epoch, bodies, storage };
+    return PosePublicationPreparation.Ready;
+}
+function commitPose(identity: Uint8Array) {
+    const { owner, epoch } = poseIdentity(identity), candidate = candidatePose;
+    if (disposed || !candidate || candidate.owner !== owner || candidate.epoch !== epoch)
+        throw new Error('Pose commit does not own the prepared storage.');
+    const replacement = poseStorage !== candidate.storage;
+    poseStorage = candidate.storage; poseBodies = candidate.bodies; poseEpoch = epoch; candidatePose = undefined;
+    if (replacement) { poseSlotIndex = 0; self.postMessage(poseStorage.message); }
+}
+function discardPose(identity: Uint8Array) {
+    const { owner, epoch } = poseIdentity(identity);
+    if (candidatePose?.owner === owner && candidatePose.epoch === epoch) candidatePose = undefined;
 }
 
 // Copies one C#-composed slot (its 16-byte header, then one record per committed body) into the next ring slot under the
 // sequence lock: odd while writing, even when complete. The records past the read are cleared, so no stale body survives.
-function writePoseRing(slot) {
-    if (!poseRing || !poseSeqView) return;
+function writePoseRing(slot: Uint8Array) {
+    if (!poseStorage) throw new Error('Missing admitted pose storage.');
     const bodyCount = (slot.length - POSE_HEADER_BYTES) / POSE_BODY_BYTES;
-    if (!Number.isInteger(bodyCount) || bodyCount < 0) throw new Error('A composed pose slot is not whole body records.');
-    if (bodyCount > poseCapacity) growPoseRing(bodyCount);
-    const slotBytes = POSE_HEADER_BYTES + poseCapacity * POSE_BODY_BYTES;
+    if (bodyCount !== poseBodies) throw new Error('A pose slot must match its admitted population.');
     poseSlotIndex = (poseSlotIndex + 1) % POSE_SLOT_COUNT;
-    const slotByteOffset = poseSlotIndex * slotBytes;
-    const seqIndex = slotByteOffset / 8;
+    const target = poseStorage.slots[poseSlotIndex], seqIndex = target.byteOffset / 8;
     const nextSeq = posePublicationSequence + 2n;
     posePublicationSequence = nextSeq;
-    Atomics.store(poseSeqView, seqIndex, nextSeq - 1n);
-    const target = new Uint8Array(poseRing, slotByteOffset, slotBytes);
+    Atomics.store(poseStorage.sequences, seqIndex, nextSeq - 1n);
     target.set(slot.subarray(8), 8);
     target.fill(0, slot.length);
-    Atomics.store(poseSeqView, seqIndex, nextSeq);
+    Atomics.store(poseStorage.sequences, seqIndex, nextSeq);
 }
 
-// The event ring layout owned by EventRingBuffer and EventRingHeader; WorkerAbiTests pins every value against its C# owner. Story 9A.22:
-// C# composes each publication (the header the ring holds after it, then each committed record with its sequence) and the worker
-// copies it, with no domain logic.
-const EVENT_HEADER_BYTES = 64;          // EventRingBuffer.HeaderBytes
-const EVENT_SLOT_BYTES = 64;            // EventRingBuffer.SlotBytes
-const EVENT_CAPACITY_OFFSET = 0;        // EventRingHeader.CapacityOffset
-const EVENT_EPOCH_OFFSET = 8;           // EventRingHeader.EpochOffset
-const EVENT_WRITE_SEQUENCE_OFFSET = 16; // EventRingHeader.WriteSequenceOffset
-const EVENT_LAPPED_OFFSET = 24;         // EventRingHeader.LappedOffset
-let eventRing; // the EventRingMemory of the current epoch and capacity: this worker never touches the ring's memory directly
+// Prepare owns private storage until the managed candidate commits. Publication
+// changes advertised memory only after Commit, through atomic whole-word accessors.
+const EVENT_HEADER_BYTES = 64;
+const EVENT_SLOT_BYTES = 64;
+const EVENT_CAPACITY_OFFSET = 0;
+const EVENT_EPOCH_OFFSET = 8;
+const EVENT_WRITE_SEQUENCE_OFFSET = 16;
+interface PreparedEvents {
+    ring: EventRingMemory;
+    words: BigUint64Array<ArrayBuffer>;
+    sequence: bigint;
+    replaces: boolean;
+}
+let eventRing: EventRingMemory | undefined;
+let candidateEvents: PreparedEvents | undefined, committedEvents: PreparedEvents | undefined;
 
-// Copies one publication slot by slot under each slot's seqlock, through EventRingMemory's atomic word accessors, then stores
-// Lapped and WriteSequence. A different epoch or capacity replaces the ring with a fresh one first; it is posted to both of its
-// readers (the browser, and the Animation worker on its master port) before any later message (the growPoseRing precedent), so each
-// holds it before the read that follows (Story 9A.23 D1). An empty publication means no world has been admitted yet.
-function writeEventRing(batch) {
-    if (batch.length === 0) return;
+function prepareEvents(batch: Uint8Array): EventPublicationPreparation {
+    if (disposed || candidateEvents) throw new Error('No available event candidate owner.');
+    if (batch.length < EVENT_HEADER_BYTES || (batch.length - EVENT_HEADER_BYTES) % EVENT_SLOT_BYTES !== 0)
+        throw new Error('An event publication requires a header and whole records.');
     const view = new DataView(batch.buffer, batch.byteOffset, batch.byteLength);
     const capacity = view.getUint32(EVENT_CAPACITY_OFFSET, true), epoch = view.getBigUint64(EVENT_EPOCH_OFFSET, true);
-    const records = (batch.length - EVENT_HEADER_BYTES) / EVENT_SLOT_BYTES;
-    if (!Number.isInteger(records) || records < 0 || records > capacity) throw new Error('An event publication is not whole records within its ring.');
-    if (!eventRing || capacity !== eventRing.capacity || epoch !== eventRing.epoch) {
-        eventRing = EventRingMemory.allocate(capacity, epoch);
+    const sequence = view.getBigUint64(EVENT_WRITE_SEQUENCE_OFFSET, true);
+    const count = (batch.length - EVENT_HEADER_BYTES) / EVENT_SLOT_BYTES;
+    if (capacity === 0 || view.getUint32(4, true) !== EVENT_SLOT_BYTES || epoch === 0n || count > capacity)
+        throw new Error('Unsupported event publication layout.');
+    for (let word = 3; word < EVENT_HEADER_BYTES / 8; word++)
+        if (view.getBigUint64(word * 8, true) !== 0n) throw new Error('Event header reserved words must be zero.');
+    const sameEpoch = eventRing !== undefined && eventRing.epoch === epoch;
+    const prior = sameEpoch ? eventRing!.loadWriteSequence() : 0n;
+    if (sameEpoch && capacity < eventRing!.capacity || sequence < prior || sequence - prior !== BigInt(count))
+        throw new Error('An event publication cannot shrink, rewind or omit records.');
+    for (let index = 0; index < count; index++)
+        if (view.getBigUint64(EVENT_HEADER_BYTES + index * EVENT_SLOT_BYTES, true) !== prior + BigInt(index) + 1n)
+            throw new Error('Event sequences must be contiguous.');
+    const replaces = !sameEpoch || eventRing!.capacity !== capacity;
+    let ring: EventRingMemory, words: BigUint64Array<ArrayBuffer>;
+    // Packet validation is complete. Only allocation failures map to storage refusal.
+    try {
+        const copy = new Uint8Array(batch);
+        words = new BigUint64Array(copy.buffer);
+        ring = replaces ? EventRingMemory.allocate(capacity, epoch) : eventRing!;
+    } catch (error) {
+        if (error instanceof RangeError) return EventPublicationPreparation.StorageUnavailable;
+        throw error;
+    }
+    if (sameEpoch && replaces) {
+        const old = eventRing!;
+        const first = prior > BigInt(old.capacity) ? prior - BigInt(old.capacity) + 1n : 1n;
+        for (let record = first; record <= prior; record++) {
+            if (old.loadSequence(record) !== record) throw new Error('Retained event history is incomplete.');
+            for (let word = 1; word < EVENT_SLOT_BYTES / 8; word++)
+                ring.storePayload(record, word, old.loadPayload(record, word));
+            if (old.loadSequence(record) !== record) throw new Error('Event history changed during preparation.');
+            ring.publishSequence(record, record);
+        }
+        ring.storeWriteSequence(prior);
+    }
+    candidateEvents = { ring, words, sequence, replaces };
+    return EventPublicationPreparation.Ready;
+}
+function commitEvents() {
+    if (!candidateEvents || disposed) throw new Error('No prepared event candidate.');
+    committedEvents = candidateEvents; candidateEvents = undefined;
+}
+function discardEvents() { candidateEvents = undefined; }
+function disposeEvents() { candidateEvents = committedEvents = undefined; eventRing = undefined; }
+function publishEvents() {
+    const ready = committedEvents;
+    if (!ready || disposed) return;
+    for (let offset = EVENT_HEADER_BYTES / 8; offset < ready.words.length; offset += EVENT_SLOT_BYTES / 8) {
+        const sequence = ready.words[offset];
+        ready.ring.publishSequence(sequence, 0n);
+        for (let word = 1; word < EVENT_SLOT_BYTES / 8; word++)
+            ready.ring.storePayload(sequence, word, ready.words[offset + word]);
+        ready.ring.publishSequence(sequence, sequence);
+    }
+    ready.ring.storeWriteSequence(ready.sequence);
+    eventRing = ready.ring; committedEvents = undefined;
+    if (ready.replaces) {
         eventRing.postTo(self);
         if (animationPort) eventRing.postTo(animationPort);
     }
-    // The publication's own words (an aligned copy when the view is not 8-byte aligned), in platform order like the ring's.
-    const aligned = batch.byteOffset % 8 === 0;
-    const source = new BigUint64Array(aligned ? batch.buffer : batch.slice().buffer, aligned ? batch.byteOffset : 0, batch.length / 8);
-    for (let offset = EVENT_HEADER_BYTES; offset < batch.length; offset += EVENT_SLOT_BYTES) {
-        // The writer's seqlock: the slot's sequence word is 0 while every payload word is stored, then the sequence is published.
-        const sequence = view.getBigUint64(offset, true);
-        eventRing.publishSequence(sequence, 0n);
-        for (let word = 1; word < EVENT_SLOT_BYTES / 8; word++) eventRing.storePayload(sequence, word, source[offset / 8 + word]);
-        eventRing.publishSequence(sequence, sequence);
-    }
-    eventRing.storeLapped(view.getBigUint64(EVENT_LAPPED_OFFSET, true));
-    eventRing.storeWriteSequence(view.getBigUint64(EVENT_WRITE_SEQUENCE_OFFSET, true));
 }
 
 function clockNow() {
@@ -115,8 +205,8 @@ function disposeOwned() {
     turnChannel.port1.onmessage = null; turnChannel.port1.close(); turnChannel.port2.close();
     for (const timer of turnTimers) clearTimeout(timer);
     turnTimers.clear(); queuedTurns.length = 0;
-    poseRing = poseSeqView = undefined; poseCapacity = 0;
-    eventRing = undefined;
+    poseStorage = undefined; candidatePose = undefined; poseEpoch = 0n;
+    disposeEvents();
     pendingScheduleControls.length = 0;
     latestRead = undefined; readInFlight = false;
 }
@@ -128,21 +218,21 @@ function disposeOwned() {
 // loop. A small measured drift is slewed under the same epoch; a large one installs a new correction under a new epoch
 // (each requester mapping recalibrates as counted telemetry); an unanswered or inconclusive check is counted. Each
 // check turn also beats the ring heartbeat the Browser's liveness check reads. Nothing falls back.
-async function startClockMaster(ringBuffer, browserPeer, animationPeer) {
+async function startClockMaster(ringBuffer: SharedArrayBuffer, browserPeer: Uint8Array<ArrayBuffer>, animationPeer: Uint8Array<ArrayBuffer>) {
     const clock = attachClockRing(ringBuffer);
     const [exchangeTimeout, checkInterval, checkExchanges] = Array.from(host.ClockDerivationProfile());
     const context = new Worker(new URL('./clock-master.js', import.meta.url), { type: 'module' });
     clockMaster = context;
-    await new Promise((resolve, reject) => {
+    await new Promise<void>((resolve, reject) => {
         context.onerror = event => reject(new Error(event.message || 'The clock master context failed to load.'));
-        context.onmessage = message => {
+        context.onmessage = (message: MessageEvent<Record<string, unknown>>) => {
             if (message.data?.awaitingBootstrap === true)
                 context.postMessage({ ring: ringBuffer, simulationOrigin: performance.timeOrigin, browserPeer, animationPeer });
             else if (message.data?.ready === true) resolve();
-            else reject(new Error(message.data?.detail ?? 'The clock master context rejected its bootstrap.'));
+            else reject(new Error(String(message.data?.detail ?? 'The clock master context rejected its bootstrap.')));
         };
     });
-    context.onmessage = message => {
+    context.onmessage = (message: MessageEvent<Record<string, unknown>>) => {
         disposeOwned();
         self.postMessage({ failure: true, detail: 'Clock master failed: ' + (message.data?.detail ?? 'unknown envelope') });
     };
@@ -192,7 +282,7 @@ async function startClockMaster(ringBuffer, browserPeer, animationPeer) {
     }, checkInterval);
 }
 
-function forwardScheduleControl(bytes, recipient) {
+function forwardScheduleControl(bytes: Uint8Array<ArrayBuffer>, recipient: number) {
     if (recipient === roles[0]) self.postMessage({ scheduleControl: bytes }, [bytes.buffer]);
     else if (recipient === roles[1] && animationPort) animationPort.postMessage({ scheduleControl: bytes }, [bytes.buffer]);
     else throw new Error('Unknown or retired schedule recipient.');
@@ -201,7 +291,7 @@ function forwardScheduleControl(bytes, recipient) {
 function flushScheduleControls() {
     if (readInFlight || latestRead) return;
     while (pendingScheduleControls.length) {
-        const item = pendingScheduleControls.shift();
+        const item = pendingScheduleControls.shift()!;
         forwardScheduleControl(item.bytes, item.recipient);
     }
 }
@@ -226,7 +316,7 @@ function flushObservation() {
 
 // Story 9A.3: C# matches every receipt in its own reliable-read accounting (WorkshopReliableReadLedger), which is how the worker
 // detects a reliable-read stall. A receipt it refuses is a typed rejection reported as a transport failure, never ignored.
-function acknowledgeRead(receipt) {
+function acknowledgeRead(receipt: Uint8Array) {
     if (disposed) return;
     try { host.AcknowledgeRead(receipt); }
     catch (error) { disposeOwned(); self.postMessage({ failure: true, detail: String(error) }); return; }
@@ -241,12 +331,12 @@ function acknowledgeRead(receipt) {
 // add to catch-up; a positive delay is the ordinary wake-up timer. Either task calls ResumeTurn itself, so the loop
 // continues inside it: one macrotask per turn, never a second runtime hop behind other queued work.
 // A turn that fails to resume is a worker fault reported through the failure envelope, never an uncaught error.
-function resumeTurn(turn) {
+function resumeTurn(turn: number) {
     if (disposed) return;
     try { host.ResumeTurn(turn); }
     catch (error) { disposeOwned(); self.postMessage({ failure: true, detail: 'Scheduler turn failed: ' + String(error) }); }
 }
-turnChannel.port1.onmessage = () => resumeTurn(queuedTurns.shift());
+turnChannel.port1.onmessage = () => { const turn = queuedTurns.shift(); if (turn !== undefined) resumeTurn(turn); };
 
 runtime.setModuleImports('workshopGpu', {
     now: clockNow,
@@ -271,7 +361,8 @@ runtime.setModuleImports('workshopGpu', {
         try { self.postMessage({ failure: true, detail }); }
         finally { self.close(); }
     },
-    publishEvents(batch) { if (!disposed) writeEventRing(new Uint8Array(batch)); },
+    preparePose, commitPose, discardPose,
+    prepareEvents, commitEvents, discardEvents, publishEvents, disposeEvents,
     publish(bytes, identity, poseSlot, pending) {
         observationPending = pending;
         const res = { bytes: new Uint8Array(bytes), identity: new Uint8Array(identity) };
@@ -293,7 +384,7 @@ roles = Array.from(host.ScheduleRoles());
 
 self.onmessage = async event => {
     try { clockNow(); } catch { return; } // a failed native clock has already retired this session and reported it
-    const data = event.data;
+    const data: Record<string, unknown> = event.data !== null && typeof event.data === 'object' ? event.data as Record<string, unknown> : {};
     const keys = data !== null && typeof data === 'object' ? Object.keys(data) : [];
     const allowed = data?.bootstrap instanceof Uint8Array ? ['bootstrap', 'captureMode', 'clockRing', 'poseRing']
         : data?.animationPort instanceof MessagePort ? ['animationPort']
@@ -305,18 +396,18 @@ self.onmessage = async event => {
         self.postMessage({ rejected: true, detail: host.RejectUnknownEnvelope(unsupported) });
         return;
     }
-    const bootstrap = event.data?.bootstrap;
+    const bootstrap = data.bootstrap;
     if (bootstrap instanceof Uint8Array) {
         try {
-            const captureMode = event.data.captureMode;
-            if (!(event.data?.poseRing instanceof SharedArrayBuffer)) throw new Error('Bootstrap requires the session pose ring.');
-            attachPoseRing(event.data.poseRing);
+            const captureMode = data.captureMode;
+            if (!(data.poseRing instanceof SharedArrayBuffer)) throw new Error('Bootstrap requires the session pose ring.');
+            attachPoseRing(data.poseRing);
             poseSlotIndex = 0;
             if ((captureMode !== 1 && captureMode !== 2) || captureMode !== host.CaptureMode())
                 throw new Error('Browser and simulation capture modes differ.');
-            if (!(event.data?.clockRing instanceof SharedArrayBuffer)) throw new Error('Bootstrap requires the session clock ring.');
+            if (!(data.clockRing instanceof SharedArrayBuffer)) throw new Error('Bootstrap requires the session clock ring.');
             const masterPeer = new Uint8Array(host.Bootstrap(bootstrap));
-            await startClockMaster(event.data.clockRing, masterPeer.slice(), new Uint8Array(host.AnimationPeer()));
+            await startClockMaster(data.clockRing, masterPeer.slice(), new Uint8Array(host.AnimationPeer()));
             const nativeClock = new Float64Array(nativeClockEvidence());
             self.postMessage({ ready: true, nativeClock, captureMode, masterPeer }, [nativeClock.buffer, masterPeer.buffer]);
             await host.PrepareGpu();
@@ -327,13 +418,13 @@ self.onmessage = async event => {
         }
         return;
     }
-    const transferredPort = event.data?.animationPort;
+    const transferredPort = data.animationPort;
     if (transferredPort instanceof MessagePort) {
         if (animationPort || disposed) { transferredPort.close(); self.postMessage({ failure: true, detail: 'Duplicate or retired Animation port.' }); return; }
         animationPort = transferredPort;
         try {
             const animationPeer = new Uint8Array(host.AnimationPeer());
-            animationPort.onmessage = incoming => {
+            animationPort.onmessage = (incoming: MessageEvent<Record<string, unknown>>) => {
                 try {
                     if (incoming.data?.scheduleControl instanceof Uint8Array) {
                         host.ScheduleResult(incoming.data.scheduleControl, roles[1]);
@@ -347,19 +438,19 @@ self.onmessage = async event => {
         } catch (error) { disposeOwned(); self.postMessage({ failure: true, detail: String(error) }); }
         return;
     }
-    if (event.data?.scheduleControl instanceof Uint8Array) {
-        try { host.ScheduleResult(event.data.scheduleControl, roles[0]); }
+    if (data.scheduleControl instanceof Uint8Array) {
+        try { host.ScheduleResult(data.scheduleControl, roles[0]); }
         catch (error) { disposeOwned(); self.postMessage({ failure: true, detail: String(error) }); }
         return;
     }
-    const receipt = event.data?.readAcknowledged;
+    const receipt = data.readAcknowledged;
     if (receipt instanceof Uint8Array) {
         acknowledgeRead(receipt);
         return;
     }
     // Every command and query (memory observation among them) is one typed buffer for the managed decoder. Any other envelope,
     // a retired channel name included, is refused by name with its typed reason and recorded in this worker's fault log.
-    const bytes = event.data?.bytes;
+    const bytes = data.bytes;
     if (!(bytes instanceof Uint8Array)) {
         const keys = event.data !== null && typeof event.data === 'object' ? Object.keys(event.data) : [];
         self.postMessage({ rejected: true, detail: host.RejectUnknownEnvelope(keys) });

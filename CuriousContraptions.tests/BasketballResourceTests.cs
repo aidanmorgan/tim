@@ -27,7 +27,7 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
     }
 
     [Fact]
-    public void TheBundleAndSceneUseCanonicalMaterialBits()
+    public void TheBundleAndSceneUseDeclaredNumericMaterials()
     {
         var registry = new PartRegistry();
         registry.Load();
@@ -38,19 +38,25 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
         var scene = WorkshopPhysicsCompiler.Compile(new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(
             WorkshopInput.Generic(PartId.Basketball, new(1), -1, 2, 0, 0, 0, 0, 1),
             WorkshopInput.Generic(PartId.BowlingBall, new(2), 1, 2, 0, 0, 0, 0, 1))), new(1, 2));
-        (uint Radius, uint Mass, uint Bounce, uint Rolling) Bits(ulong id)
+        (float Radius, float Mass, float Bounce, float Rolling) Values(ulong id)
         {
             var body = Assert.Single(scene.Bodies.ToArray(), row => row.Id == new GpuBodyId(id));
-            var sphere = Assert.Single(scene.Colliders.ToArray(), row => row.Body == body.Id);
+            var owned = scene.Colliders.ToArray().Where(row => row.Body == body.Id).ToArray();
+            var sphere = Assert.Single(owned, row => row.Shape == ColliderShapeKind.Sphere);
             var surface = Assert.Single(scene.Materials.ToArray(), row => row.Id == sphere.Material);
-            return (BitConverter.SingleToUInt32Bits(sphere.Radius.Value), BitConverter.SingleToUInt32Bits(body.Mass.Value),
-                BitConverter.SingleToUInt32Bits(surface.Restitution.Value), BitConverter.SingleToUInt32Bits(surface.RollingResistance.Value));
+            Assert.All(owned, child => Assert.Equal(surface.Id, child.Material));
+            Assert.Equal(id == 1 ? new[] { ColliderShapeKind.Sphere, ColliderShapeKind.Torus } : [ColliderShapeKind.Sphere],
+                owned.Select(child => child.Shape));
+            if (id == 1)
+            {
+                var seam = Assert.Single(owned, child => child.Shape == ColliderShapeKind.Torus);
+                Assert.Equal(.336f, seam.Radius.Value);
+                Assert.Equal(.013999999f, seam.HalfExtents.Y);
+            }
+            return (sphere.Radius.Value, body.Mass.Value, surface.Restitution.Value, surface.RollingResistance.Value);
         }
-        static (uint, uint, uint, uint) Declared(float radius, float mass, float bounce, float rolling) =>
-            (BitConverter.SingleToUInt32Bits(radius), BitConverter.SingleToUInt32Bits(mass),
-                BitConverter.SingleToUInt32Bits(bounce), BitConverter.SingleToUInt32Bits(rolling));
-        Assert.Equal(Declared(.34f, 1f, .55f, .035f), Bits(1));
-        Assert.Equal(Declared(.28f, 4f, .14f, .03f), Bits(2));
+        Assert.Equal((.34f, 1f, .55f, .035f), Values(1));
+        Assert.Equal((.28f, 4f, .14f, .03f), Values(2));
         var ball = registry.Create(PartId.Basketball);
         var bowling = registry.Create(PartId.BowlingBall);
         try
@@ -59,7 +65,7 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
             static float Radius(MachinePart part) => part.Visual.GetChildren().OfType<MeshInstance3D>()
                 .Select(n => n.Mesh).OfType<SphereMesh>().Single().Radius;
             // The committed scene art is the declared collider: its f32 mesh radius is the package's f32 sphere radius (no runtime resize).
-            Assert.Equal(Assert.Single(DeclaredPhysics.Of(PartId.Basketball).Colliders).HalfExtents.X, Radius(ball));
+            Assert.Equal(Assert.Single(DeclaredPhysics.Of(PartId.Basketball).Colliders, child => child.ShapeKind == CuriousContraptions.Abstractions.ColliderShapeKind.Sphere).HalfExtents.X, Radius(ball));
             Assert.Equal(Assert.Single(DeclaredPhysics.Of(PartId.BowlingBall).Colliders).HalfExtents.X, Radius(bowling));
             Assert.Equal((.34f, .28f), (Radius(ball), Radius(bowling)));
             Assert.Equal(new Color(0.27f, 0.39f, 0.61f), bowling.Definition.Color);

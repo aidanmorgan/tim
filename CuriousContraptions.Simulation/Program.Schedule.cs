@@ -11,6 +11,10 @@ public static partial class Program
     private static bool _earlyPresented;
     private static WorkshopResponse? _preparedEndpoint;
     private static CommandSequence _installationOwner;
+    private static byte[] _preparedPoseIdentity = [];
+    [JSImport("preparePose", "workshopGpu")] private static partial int PreparePose(byte[] identity, int bodies, int capacity);
+    [JSImport("commitPose", "workshopGpu")] private static partial void CommitPose(byte[] identity);
+    [JSImport("discardPose", "workshopGpu")] private static partial void DiscardPose(byte[] identity);
     private static WorkshopCadenceSettings _preparedSettings;
     private static ScheduleTransition _transition, _preparedTransition;
     private static ScheduleControlKind _awaiting;
@@ -81,14 +85,21 @@ public static partial class Program
             // Validate the complete endpoint before retaining a candidate or touching either recipient.
             var encoded = WorkshopWireFlatBuffers.EncodeResponse(endpoint);
             _installationOwner = owner; _preparedEndpoint = endpoint; _preparedSettings = construction.Settings; _preparedTransition = _transition;
+            _preparedPoseIdentity = new byte[16];
+            BinaryPrimitives.WriteUInt64LittleEndian(_preparedPoseIdentity, owner.Value);
+            BinaryPrimitives.WriteUInt64LittleEndian(_preparedPoseIdentity.AsSpan(8), read.Epoch.Value);
             BeginReceipts(ScheduleControlKind.Prepared);
             try
             {
+                var pose = (PosePublicationPreparation)PreparePose(_preparedPoseIdentity, read.Bodies.Count, WorkshopPoseRing.Capacity(read.Bodies.Count));
+                if (!Enum.IsDefined(pose)) throw new ArgumentException("Undefined pose preparation result.");
+                if (pose == PosePublicationPreparation.StorageUnavailable)
+                    throw new WorkshopInstallationException(WorkshopRejection.Capacity);
                 SendPrepare(WorkshopRuntimeRole.Browser, encoded);
                 SendPrepare(WorkshopRuntimeRole.Animation, encoded);
                 await RequireReceipts();
             }
-            catch (WorkshopInstallationException)
+            catch (Exception error) when (error is WorkshopInstallationException or WorkshopStorageException or OutOfMemoryException)
             {
                 // Superseded or already wrapped: keep it as it is.
                 if (owner == _installationOwner) AbortInstallation();
@@ -182,6 +193,7 @@ public static partial class Program
     private static async Task CommitInstallation()
     {
         var endpoint = _preparedEndpoint ?? throw new InvalidOperationException("Physical commit lacks a prepared schedule.");
+        CommitPose(_preparedPoseIdentity);
         var installed = MasterNow();
         var playback = endpoint.Phase switch
         {
@@ -208,12 +220,13 @@ public static partial class Program
             BeginReceipts(ScheduleControlKind.Presented);
             await RequireReceipts();
         }
-        _preparedEndpoint = null; _installationOwner = default;
+        _preparedEndpoint = null; _installationOwner = default; _preparedPoseIdentity = [];
     }
 
     private static void AbortInstallation()
     {
         if (_preparedEndpoint is null) return;
+        DiscardPose(_preparedPoseIdentity);
         foreach (var recipient in new[] { WorkshopRuntimeRole.Browser, WorkshopRuntimeRole.Animation })
         {
             var bytes = new byte[WorkshopScheduleWire.HeaderBytes + WorkshopScheduleWire.AbortBytes];
@@ -222,6 +235,6 @@ public static partial class Program
             SendScheduleControl(bytes, (int)recipient);
         }
         _receipts?.TrySetException(new WorkshopInstallationException());
-        _receipts = null; _preparedEndpoint = null; _installationOwner = default;
+        _receipts = null; _preparedEndpoint = null; _installationOwner = default; _preparedPoseIdentity = [];
     }
 }

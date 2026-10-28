@@ -25,7 +25,8 @@ public enum PresentationDriver : byte
 public enum PresentationCurve : byte { Linear, SmoothStep, SineSquaredPulse, ExponentialFollow, LinearDecay, CubicSmoothStep }
 public enum PresentationOverlap : byte { Replace, SaturatingSum, Maximum }
 public enum PresentationTimerPhase : byte { None, Ready, Counting, Finished }
-public enum PresentationBody : byte { Primary, Secondary }
+/// <summary>Package body ordinal: zero is the authored root; subsequent ordinals name declared child bodies.</summary>
+public readonly record struct PackageBodyIndex(int Value);
 /// <summary>Which records of its kind cue an event binding: any record, or only one whose Magnitude is positive (an Impact that paid
 /// energy, so an unpaid or empty-store hit leaves the cue at rest).</summary>
 public enum PresentationEventMagnitude : byte { Any, Positive }
@@ -40,7 +41,7 @@ public readonly record struct PresentationBinding(
     PresentationOverlap Overlap, float Threshold, PresentationTimerPhase Phase, float Response = 0f, float? Intermediate = null, PortSocket? Socket = null,
     SimulationEventKind Event = SimulationEventKind.None, PresentationEventMagnitude EventMagnitude = PresentationEventMagnitude.Any);
 
-public readonly record struct PresentationBodyBinding(string Node, PresentationBody Body, Vector3 RestOffset);
+public readonly record struct PresentationBodyBinding(string Node, PackageBodyIndex Body, Vector3 RestOffset);
 public readonly record struct PresentationSpanBinding(
     string MovingNode, Vector3 MovingAnchor, string SpanNode, Vector3 FixedAnchor, float RestLength);
 

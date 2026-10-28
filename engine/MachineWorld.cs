@@ -8,8 +8,8 @@ public partial class MachineWorld : Node3D
 {
     public const int Substeps = 4;
     public PartRegistry Registry { get; } = new();
-    private readonly List<MachinePart> _parts = new();
-    private readonly List<MachinePart> _bodies = new();
+    private readonly List<MachinePart> _parts = new(16);
+    private readonly List<MachinePart> _bodies = new(16);
     public IReadOnlyList<MachinePart> Parts { get; }
     public IReadOnlyList<MachinePart> Bodies { get; }
     public bool Running { get; private set; }

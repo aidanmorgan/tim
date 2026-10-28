@@ -1,13 +1,46 @@
+import type { ClockRing } from '../../tools/runtime/worker-contracts.js';
+interface AnimationSample { target: string; kind: number; ordinal: string; property: number; value: number; timestamp: number; }
+interface Client {
+    id: number; worker: Worker; animation?: Worker; animationPort?: MessagePort;
+    pending: Map<bigint, { resolve(): void; reject(error: unknown): void; started: number }>;
+    acknowledgements: Map<bigint, { bytes: Uint8Array; started: number; taken: boolean }>;
+    failure: unknown; states: { ready: number; backpressure: number; timedOut: number; indeterminate: number; recoveryBlocked: number }; state: number;
+    serviceCallback(): void; clockReplyCallback(): void;
+    service?: ReturnType<typeof setInterval>; startup?: ReturnType<typeof setTimeout>; retirement?: ReturnType<typeof setTimeout>;
+    clockRing?: SharedArrayBuffer; clock?: ClockRing; identity?: Uint8Array;
+    clockAbi: { clockProfile: number; peerBytes: number; probeBytes: number; replyBytes: number; diagnosticBytes: number; browserRole: number; masterRole: number };
+    captureMode: number; observations?: Uint8Array; observationNext: number; observationCount: number; observationSequence: bigint;
+    presentations?: Uint8Array; presentationSequence: bigint; events?: EventRingCursor;
+    poseCapacity: number; poseRing?: SharedArrayBuffer; poseSeqView?: BigInt64Array<SharedArrayBuffer>;
+    poseDataView?: DataView<SharedArrayBuffer>; poseFloatView?: Float32Array<SharedArrayBuffer>;
+    displayRate?: [number, number]; unwatchIsolation?: () => void;
+    bootstrapReject?: ((error: unknown) => void) | null; animationReady?: boolean; animationQualified?: boolean;
+    hintKinds: number[]; hintPending?: boolean; animationSampleCount?: number;
+    lastAnimationSamples?: Map<string, AnimationSample>; animationSamplesByTarget?: Map<string, AnimationSample[]>;
+    workerProfile?: Float64Array; liveness?: { beats: number; since: number; serviced: number };
+    eventBytes?: Uint8Array; eventReceived?: number;
+}
+function envelope(value: unknown): Record<string, unknown> {
+    if (value === null || typeof value !== 'object') throw new Error('Worker envelope must be an object.');
+    return value as Record<string, unknown>;
+}
+declare global {
+    var WorkshopPoseRing: { readPoseSlot: typeof readPoseSlot; readLatestPoseSlot: typeof readLatestPoseSlot; hasPoseRing: typeof hasPoseRing };
+    var WorkshopAnimation: { isAnimationQualified: typeof isAnimationQualified; readAnimationSampleCount: typeof readAnimationSampleCount;
+        readLastAnimationSample: typeof readLastAnimationSample; readAllAnimationSamples: typeof readAllAnimationSamples;
+        readAnimationSamplesForTarget: typeof readAnimationSamplesForTarget };
+}
+
 import { admitNativeClock, nativeNow, nativeProfile, nativeClockEvidence } from './native-clock.js';
 import { requireIsolation, watchIsolation, isolationQualified, isolationEvidence, stopIsolation } from './workshop-isolation.js';
 import { createClockRing, attachClockRing, requestReply, heartbeat, ClockRole } from './clock-ring.js';
 import { EventRingCursor, eventDelivery } from './event-ring-cursor.js';
 
 // The session pose ring layout, owned by WorkshopPoseRing (WorkerAbiTests pins every value against its C# owner).
+const POSE_DEFAULT_BODY_CAPACITY = 16; // WorkshopPoseRing.DefaultBodyCapacity
 const POSE_SLOT_COUNT = 3;             // WorkshopPoseRing.SlotCount
 const POSE_HEADER_BYTES = 16;          // WorkshopPoseRing.HeaderBytes
 const POSE_BODY_BYTES = 64;            // WorkshopPoseRing.BodyBytes
-const POSE_INITIAL_BODIES = 16;        // WorkshopPoseRing.InitialBodyCapacity
 // The Animation output record fields this client reads, owned by WorkshopAnimationWire (WorkerAbiTests pins each one).
 const ANIMATION_OUTPUT_BYTES = 144;            // WorkshopAnimationWire.OutputBytes
 const ANIMATION_OUTPUT_PULSE_OFFSET = 40;      // WorkshopAnimationWire.OutputPulseOffset
@@ -16,14 +49,13 @@ const ANIMATION_OUTPUT_KIND_OFFSET = 60;       // WorkshopAnimationWire.OutputKi
 const ANIMATION_OUTPUT_TARGET_OFFSET = 64;     // WorkshopAnimationWire.OutputTargetOffset
 const ANIMATION_OUTPUT_PROPERTY_OFFSET = 136;  // WorkshopAnimationWire.OutputPropertyOffset (u16)
 
-// Story 9R.5b: a ring's body capacity is its own length (no fixed capacity). The Simulation worker replaces the bootstrap ring
-// with a larger one at Run when a world holds more moving bodies; it is attached here before the read that needs it arrives.
-function poseRingCapacity(buffer) {
+// A ring exposes its logical epoch population within reserved capacity (common bootstrap: 16 bodies). Each new epoch attaches before its reads.
+function poseRingCapacity(buffer: SharedArrayBuffer) {
     const slot = buffer.byteLength / POSE_SLOT_COUNT, capacity = (slot - POSE_HEADER_BYTES) / POSE_BODY_BYTES;
     if (!Number.isInteger(slot) || !Number.isInteger(capacity) || capacity < 0) throw new Error('The pose ring is not a whole number of slots.');
     return capacity;
 }
-function attachPoseRing(client, buffer) {
+function attachPoseRing(client: Client, buffer: SharedArrayBuffer) {
     if (!(buffer instanceof SharedArrayBuffer)) throw new Error('A pose ring must be shared.');
     client.poseCapacity = poseRingCapacity(buffer);
     client.poseRing = buffer;
@@ -32,28 +64,28 @@ function attachPoseRing(client, buffer) {
     client.poseFloatView = new Float32Array(buffer);
 }
 
-const clients = new Map();
+const clients = new Map<number, Client>();
 let nextClient = 1, retiredSession = false, creating = false;
-function owner(id) {
+function owner(id: number) {
     const client = clients.get(id);
     if (!client) throw new Error('Workshop worker client is disposed.');
     return client;
 }
 // A command's receipt key: the 8-byte little-endian sequence C# hands over with the command and the worker returns with its
 // acknowledgement (Story 9A.2: no script parses a FlatBuffers buffer).
-function sequence(bytes) {
+function sequence(bytes: unknown) {
     if (!(bytes instanceof Uint8Array) || bytes.length !== 8) throw new Error('Invalid command identity.');
     return new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength).getBigUint64(0, true);
 }
 // The age of the oldest command still pending or unconsumed: the player's Backpressure and TimedOut state only. The browser posts
 // nothing about it; the Simulation worker detects a reliable-read stall in its own receipt accounting (Story 9A.3).
-function oldestCommandAge(client, current) {
+function oldestCommandAge(client: Client, current: number) {
     let oldest = 0;
     for (const pending of client.pending.values()) oldest = Math.max(oldest, current - pending.started);
     for (const receipt of client.acknowledgements.values()) oldest = Math.max(oldest, current - receipt.started);
     return oldest;
 }
-function fail(client, error, retiring = false) {
+function fail(client: Client, error: unknown, retiring = false) {
     if (client.failure) return;
     client.failure = error;
     client.state = client.states.indeterminate;
@@ -77,18 +109,18 @@ function fail(client, error, retiring = false) {
     if (!retiring) stopIsolation(error);
     client.retirement = setTimeout(() => { client.state = client.states.recoveryBlocked; }, 1000);
 }
-function deliver(client, bytes, received, callback) {
+function deliver(client: Client, bytes: Uint8Array, received: number, callback: () => void) {
     if (client.eventBytes) throw new Error('Reentrant worker delivery is unsupported.');
     client.eventBytes = bytes; client.eventReceived = received;
     try { callback(); }
     finally { client.eventBytes = undefined; client.eventReceived = undefined; }
 }
 async function admitDisplayRate() {
-    return await new Promise((resolve, reject) => {
-        const intervals = [];
-        let previous, frame;
+    return await new Promise<[number, number]>((resolve, reject) => {
+        const intervals: number[] = [];
+        let previous: number | undefined, frame = 0;
         const timeout = setTimeout(() => { cancelAnimationFrame(frame); reject(new Error('Display cadence admission timed out.')); }, 2000);
-        const sample = timestamp => {
+        const sample = (timestamp: number) => {
             if (previous !== undefined) intervals.push(timestamp - previous);
             previous = timestamp;
             if (intervals.length < 20) { frame = requestAnimationFrame(sample); return; }
@@ -106,11 +138,11 @@ async function admitDisplayRate() {
         frame = requestAnimationFrame(sample);
     });
 }
-export function displayRate(id) { return owner(id).displayRate; }
-export async function create(states, bootstrapBytes, clockAbi, captureMode, admitDisplay, clockReply, physicalRead, scheduleControl, animationOutput, service) {
+export function displayRate(id: number) { return owner(id).displayRate; }
+export async function create(states: number[], bootstrapBytes: Uint8Array, clockAbi: number[], captureMode: number, admitDisplay: boolean, clockReply: () => void, physicalRead: () => void, scheduleControl: () => void, animationOutput: () => void, service: () => void) {
     if (clients.size !== 0 || retiredSession || creating) throw new Error('RecoveryBlocked: reload the page before creating another worker.');
     creating = true;
-    let id;
+    let id: number | undefined;
     try {
         if (captureMode !== 1 && captureMode !== 2) throw new Error('Unknown Workshop capture mode.');
         requireIsolation();
@@ -126,9 +158,10 @@ export async function create(states, bootstrapBytes, clockAbi, captureMode, admi
         const [ready, backpressure, timedOut, indeterminate, recoveryBlocked] = states;
         id = nextClient++;
         // Cross-origin isolation is required before any client exists (requireIsolation), so the shared rings always exist.
-        const poseRing = new SharedArrayBuffer(POSE_SLOT_COUNT * (POSE_HEADER_BYTES + POSE_INITIAL_BODIES * POSE_BODY_BYTES));
+        const poseRing = new SharedArrayBuffer(POSE_SLOT_COUNT * (POSE_HEADER_BYTES + POSE_DEFAULT_BODY_CAPACITY * POSE_BODY_BYTES));
         const clockRing = createClockRing();
-        const client = { displayRate, worker: undefined, pending: new Map(), acknowledgements: new Map(),
+        const worker = new Worker(new URL('./simulation/worker.js', document.baseURI), { type: 'module' });
+        const client: Client = { id, poseCapacity: 0, hintKinds: [], displayRate, worker, pending: new Map(), acknowledgements: new Map(),
             failure: null, states: { ready, backpressure, timedOut, indeterminate, recoveryBlocked },
             serviceCallback: service, service: undefined, clockReplyCallback: clockReply,
             clockRing, clock: attachClockRing(clockRing),
@@ -138,18 +171,17 @@ export async function create(states, bootstrapBytes, clockAbi, captureMode, admi
             presentations: captureMode === 2 ? new Uint8Array(32 * 360) : undefined, presentationSequence: 0n,
             events: new EventRingCursor() };
         attachPoseRing(client, poseRing);
-        const worker = new Worker(new URL('./simulation/worker.js', document.baseURI), { type: 'module' });
         client.worker = worker;
         clients.set(id, client);
         client.unwatchIsolation = watchIsolation(error => fail(client, error));
-        await new Promise((resolve, reject) => {
+        await new Promise<void>((resolve, reject) => {
             client.bootstrapReject = reject;
             let readyReceived = false, simulationAwaiting = false, animationAwaiting = false;
             let bootstrapStarted = false, animationBootstrapped = false;
             const animation = new Worker(new URL('./animation/worker.js', document.baseURI), { type: 'module' });
             client.animation = animation;
             function beginBootstrap() {
-                if (client.failure || !clients.has(id) || bootstrapStarted || !simulationAwaiting || !animationAwaiting) return;
+                if (client.failure || !clients.has(client.id) || bootstrapStarted || !simulationAwaiting || !animationAwaiting) return;
                 bootstrapStarted = true;
                 // Download/runtime loading precedes qualification; the same bounded handshake starts once both can participate.
                 client.startup = setTimeout(() => fail(client, new Error('StartupFailed: usable GPU and clock qualification exceeded five seconds.')), 5000);
@@ -159,9 +191,9 @@ export async function create(states, bootstrapBytes, clockAbi, captureMode, admi
             }
             animation.onerror = error => fail(client, new Error(error.message || 'Animation worker failed.'));
             animation.onmessage = incoming => {
-                if (client.failure || !clients.has(id)) return;
+                if (client.failure || !clients.has(client.id)) return;
                 try {
-                    const item = incoming.data;
+                    const item = envelope(incoming.data);
                     if (item.awaitingBootstrap === true) {
                         if (animationAwaiting) throw new Error('Duplicate Animation runtime readiness.');
                         animationAwaiting = true;
@@ -210,13 +242,13 @@ export async function create(states, bootstrapBytes, clockAbi, captureMode, admi
                             if (!client.hintPending) throw new Error('Unsolicited hint acknowledgement.');
                             client.hintPending = false;
                         } else throw new Error('Unknown Animation output.');
-                    } else throw new Error(item.detail || 'Unknown Animation envelope.');
+                    } else throw new Error(typeof item.detail === 'string' ? item.detail : 'Unknown Animation envelope.');
                 } catch (error) { fail(client, error); }
             };
             worker.onmessage = event => {
-                if (client.failure || !clients.has(id)) return;
+                if (client.failure || !clients.has(client.id)) return;
                 try {
-                    const received = now(), message = event.data;
+                    const received = now(), message = envelope(event.data);
                     if (message.awaitingBootstrap === true) {
                         if (simulationAwaiting) throw new Error('Duplicate Simulation runtime readiness.');
                         simulationAwaiting = true;
@@ -257,13 +289,13 @@ export async function create(states, bootstrapBytes, clockAbi, captureMode, admi
                         animationBootstrapped = true;
                         animation.postMessage({ bootstrap, masterPort, clockRing: client.clockRing }, [bootstrap.buffer, masterPort]);
                     } else if (message.poseRing instanceof SharedArrayBuffer) {
-                        // The worker grew the ring for a world with more moving bodies (Story 9R.5b).
+                        // The worker committed the logical population within reserved storage for the newly admitted epoch.
                         if (!readyReceived) throw new Error('A pose ring arrived before the session was ready.');
                         attachPoseRing(client, message.poseRing);
                     } else if (message.eventRing instanceof SharedArrayBuffer) {
                         // Story 9A.23: the session's event ring for an admitted epoch, read by the main thread's own cursor.
                         if (!readyReceived) throw new Error('An event ring arrived before the session was ready.');
-                        client.events.attach(message.eventRing);
+                        client.events!.attach(message.eventRing);
                     } else if (message.scheduleControl instanceof Uint8Array) {
                         deliver(client, message.scheduleControl, received, scheduleControl);
                     } else if (message.acknowledgement instanceof Uint8Array) {
@@ -281,7 +313,7 @@ export async function create(states, bootstrapBytes, clockAbi, captureMode, admi
                             throw new Error('A physical read arrived without its receipt identity.');
                         worker.postMessage({ readAcknowledged: message.readIdentity }, [message.readIdentity.buffer]);
                     } else if (message.failure || message.rejected) {
-                        throw new Error(message.detail ?? 'Worker rejected its transport envelope.');
+                        throw new Error(typeof message.detail === 'string' ? message.detail : 'Worker rejected its transport envelope.');
                     } else throw new Error('Unknown worker transport envelope.');
                 } catch (error) { fail(client, error); }
             };
@@ -297,27 +329,27 @@ export async function create(states, bootstrapBytes, clockAbi, captureMode, admi
         throw error;
     } finally { creating = false; }
 }
-export function animationQualified(id) { return owner(id).animationQualified === true; }
-export function animationKinds(id, kinds) {
+export function animationQualified(id: number) { return owner(id).animationQualified === true; }
+export function animationKinds(id: number, kinds: number[]) {
     if (kinds.length !== 3 || new Set(kinds).size !== 3) throw new Error('Invalid Animation output ABI.');
     owner(id).hintKinds = Array.from(kinds);
 }
-export function scheduleResult(id, bytes) {
+export function scheduleResult(id: number, bytes: Uint8Array) {
     const client = owner(id);
     if (client.failure) throw client.failure;
     const scheduleControl = new Uint8Array(bytes);
     client.worker.postMessage({ scheduleControl }, [scheduleControl.buffer]);
 }
-export function animationControl(id, bytes) {
+export function animationControl(id: number, bytes: Uint8Array) {
     const client = owner(id);
     if (client.failure) throw client.failure;
     if (!client.animationQualified || client.hintPending) throw new Error('Animation control is unavailable or pending.');
     const animationControl = new Uint8Array(bytes);
     if (animationControl.length !== 144) throw new Error('Invalid animation command.');
     client.hintPending = true;
-    client.animation.postMessage({ animationControl }, [animationControl.buffer]);
+    client.animation!.postMessage({ animationControl }, [animationControl.buffer]);
 }
-export function bootstrap(id) {
+export function bootstrap(id: number) {
     const client = owner(id);
     if (!client.identity) throw new Error('Master bootstrap is not available.');
     return client.identity;
@@ -327,25 +359,25 @@ export function bootstrap(id) {
 // tick turns, worker.js) proves it is alive. The window restarts whenever this service itself was not running (a
 // blocked or throttled Browser), so only the Simulation's silence can expire it.
 const SimulationLivenessMilliseconds = 1000, BrowserServiceGapMilliseconds = 250;
-function checkSimulationLiveness(client, current) {
-    const beats = heartbeat(client.clock);
-    if (beats !== client.liveness.beats || current - client.liveness.serviced > BrowserServiceGapMilliseconds) {
-        client.liveness.beats = beats; client.liveness.since = current;
+function checkSimulationLiveness(client: Client, current: number) {
+    const beats = heartbeat(client.clock!);
+    if (beats !== client.liveness!.beats || current - client.liveness!.serviced > BrowserServiceGapMilliseconds) {
+        client.liveness!.beats = beats; client.liveness!.since = current;
     }
-    client.liveness.serviced = current;
-    if (!document.hidden && current - client.liveness.since > SimulationLivenessMilliseconds) {
+    client.liveness!.serviced = current;
+    if (!document.hidden && current - client.liveness!.since > SimulationLivenessMilliseconds) {
         const error = new Error(`The Simulation worker's event loop has not run for ${SimulationLivenessMilliseconds} ms.`);
         error.name = 'SimulationUnresponsive';
         throw error;
     }
 }
-export function activate(id) {
+export function activate(id: number) {
     const client = owner(id);
     if (client.failure) throw client.failure;
     if (!client.workerProfile || client.service !== undefined)
         throw new Error('Workshop service activation requires one ready owner.');
     const started = now();
-    client.liveness = { beats: heartbeat(client.clock), since: started, serviced: started };
+    client.liveness = { beats: heartbeat(client.clock!), since: started, serviced: started };
     client.service = setInterval(() => {
         if (client.failure) return;
         try {
@@ -360,12 +392,12 @@ export function activate(id) {
         } catch (error) { fail(client, error); }
     }, 10);
 }
-export function eventBytes(id) {
+export function eventBytes(id: number) {
     const bytes = owner(id).eventBytes;
     if (!bytes) throw new Error('No synchronous worker delivery is active.');
     return bytes;
 }
-export function eventMilliseconds(id) {
+export function eventMilliseconds(id: number) {
     const received = owner(id).eventReceived;
     if (received === undefined) throw new Error('No synchronous worker delivery is active.');
     return received;
@@ -378,21 +410,21 @@ export function now() {
         throw error;
     }
 }
-export function probe(id, bytes) {
+export function probe(id: number, bytes: Uint8Array) {
     const client = owner(id);
     if (client.failure) throw client.failure;
     // The Simulation-owned clock master answers through the clock ring, never the Simulation's busy event loop.
     // The reply is received when the wait resolves and is delivered under the same clock lease as before.
-    requestReply(client.clock, ClockRole.Browser, new Uint8Array(bytes)).then(reply => {
-        if (!reply || client.failure || !clients.has(id)) return;
+    requestReply(client.clock!, ClockRole.Browser, new Uint8Array(bytes)).then(reply => {
+        if (!reply || client.failure || !clients.has(client.id)) return;
         try { deliver(client, reply, now(), client.clockReplyCallback); }
         catch (error) { fail(client, error); }
     }, error => {
-        if (client.failure || !clients.has(id)) return;
+        if (client.failure || !clients.has(client.id)) return;
         fail(client, error);
     });
 }
-export function clockObservation(id, bytes) {
+export function clockObservation(id: number, bytes: Uint8Array) {
     const client = owner(id);
     if (!client.observations) throw new Error('Clock capture is unavailable in Production.');
     if (bytes.length !== client.clockAbi.diagnosticBytes) throw new Error('Invalid fixed clock diagnostic record.');
@@ -405,7 +437,7 @@ export function clockObservation(id, bytes) {
 }
 // Both fixed diagnostic rings total 29,952 retained payload bytes. Extraction visits at most 8 records and does
 // not copy the ring; its largest Number payload is 8*360*8=23,040 scratch bytes.
-function evidence(client, ring, total, recordBytes, capacity, afterSequence) {
+function evidence(client: Client, ring: Uint8Array | undefined, total: bigint, recordBytes: number, capacity: number, afterSequence: string) {
     if (typeof afterSequence !== 'string' || !/^(0|[1-9][0-9]{0,19})$/.test(afterSequence))
         throw new Error('Evidence cursor must be an exact unsigned decimal sequence.');
     if (!ring) throw new Error('Evidence capture is unavailable in Production.');
@@ -419,15 +451,15 @@ function evidence(client, ring, total, recordBytes, capacity, afterSequence) {
         const source = Number((first + BigInt(i) - 1n) % BigInt(capacity)) * recordBytes;
         for (let j = 0; j < recordBytes; j++) bytes[i * recordBytes + j] = ring[source + j];
     }
-    return { identity: Array.from(client.identity), first: first.toString(), count,
+    return { identity: Array.from(client.identity!), first: first.toString(), count,
         total: total.toString(), overwritten: (oldest - 1n).toString(),
         missed: (first - after - 1n).toString(), recordBytes, bytes };
 }
-export function clockEvidence(id, afterSequence = '0') {
+export function clockEvidence(id: number, afterSequence = '0') {
     const client = owner(id);
     return evidence(client, client.observations, client.observationSequence, client.clockAbi.diagnosticBytes, 128, afterSequence);
 }
-export function presentationObservation(id, bytes) {
+export function presentationObservation(id: number, bytes: Uint8Array) {
     const client = owner(id);
     if (!client.presentations) throw new Error('Presentation capture is unavailable in Production.');
     if (!(bytes instanceof Uint8Array) || bytes.length !== 360)
@@ -436,35 +468,35 @@ export function presentationObservation(id, bytes) {
     client.presentations.set(bytes, Number(client.presentationSequence % 32n) * 360);
     client.presentationSequence++;
 }
-export function presentationEvidence(id, afterSequence = '0') {
+export function presentationEvidence(id: number, afterSequence = '0') {
     const client = owner(id);
     return evidence(client, client.presentations, client.presentationSequence, 360, 32, afterSequence);
 }
-export function qualified(id) {
+export function qualified(id: number) {
     const client = owner(id);
     isolationQualified();
     clearTimeout(client.startup);
 }
-export function clockProfileEvidence(id) {
+export function clockProfileEvidence(id: number) {
     const client = owner(id);
     return { browser: nativeClockEvidence(), worker: Array.from(client.workerProfile ?? []), serving: isolationEvidence() };
 }
-export function status(id) { return owner(id).state; }
-export function captureMode(id) { return owner(id).captureMode; }
+export function status(id: number) { return owner(id).state; }
+export function captureMode(id: number) { return owner(id).captureMode; }
 
-export function send(id, bytes, sequenceBytes) {
+export function send(id: number, bytes: Uint8Array, sequenceBytes: Uint8Array) {
     const client = owner(id);
     if (client.failure) return Promise.reject(client.failure);
     const key = sequence(new Uint8Array(sequenceBytes));
     if (client.pending.size + client.acknowledgements.size >= 2 || client.pending.has(key) || client.acknowledgements.has(key))
         return Promise.reject(new Error('Workshop transport capacity or identity violation.'));
-    return new Promise((resolve, reject) => {
+    return new Promise<void>((resolve, reject) => {
         client.pending.set(key, { resolve, reject, started: now() });
         const owned = new Uint8Array(bytes);
         client.worker.postMessage({ bytes: owned }, [owned.buffer]);
     });
 }
-export function acknowledgement(id, identity) {
+export function acknowledgement(id: number, identity: Uint8Array) {
     const client = owner(id), key = sequence(identity);
     if (client.failure) throw client.failure;
     const receipt = client.acknowledgements.get(key);
@@ -472,7 +504,7 @@ export function acknowledgement(id, identity) {
     receipt.taken = true;
     return receipt.bytes;
 }
-export function completeAcknowledgement(id, identity) {
+export function completeAcknowledgement(id: number, identity: Uint8Array) {
     const client = owner(id), key = sequence(identity);
     if (client.failure) throw client.failure;
     const receipt = client.acknowledgements.get(key);
@@ -480,7 +512,7 @@ export function completeAcknowledgement(id, identity) {
     // C# has validated the complete response and its command/session identity.
     client.acknowledgements.delete(key);
 }
-export function dispose(id) {
+export function dispose(id: number) {
     const client = clients.get(id);
     if (!client) return;
     fail(client, new Error('Worker session retired; unacknowledged operations are Indeterminate.'), true);
@@ -495,7 +527,7 @@ const constructionDatabase = 'curious-contraptions-workshop';
 const constructionStore = 'construction';
 const constructionSlot = 1;
 function openConstructionStorage() {
-    return new Promise((resolve, reject) => {
+    return new Promise<IDBDatabase>((resolve, reject) => {
         const request = indexedDB.open(constructionDatabase, 1);
         let refused = false;
         request.onupgradeneeded = () => request.result.createObjectStore(constructionStore);
@@ -504,11 +536,11 @@ function openConstructionStorage() {
         request.onsuccess = () => { if (refused) request.result.close(); else resolve(request.result); };
     });
 }
-export async function saveConstruction(bytes) {
+export async function saveConstruction(bytes: Uint8Array) {
     const value = new Uint8Array(bytes);
     const database = await openConstructionStorage();
     try {
-        await new Promise((resolve, reject) => {
+        await new Promise<void>((resolve, reject) => {
             const transaction = database.transaction(constructionStore, 'readwrite');
             transaction.objectStore(constructionStore).put(value, constructionSlot);
             transaction.oncomplete = () => resolve();
@@ -516,15 +548,15 @@ export async function saveConstruction(bytes) {
         });
     } finally { database.close(); }
 }
-export async function loadConstruction(expectedBytes) {
+export async function loadConstruction(expectedBytes: number) {
     const database = await openConstructionStorage();
     try {
-        return await new Promise((resolve, reject) => {
+        return await new Promise<string>((resolve, reject) => {
             const transaction = database.transaction(constructionStore, 'readonly');
             const request = transaction.objectStore(constructionStore).get(constructionSlot);
             transaction.onabort = () => reject(transaction.error ?? new Error('Construction could not be loaded.'));
             transaction.oncomplete = () => {
-                const bytes = request.result;
+                const bytes: unknown = request.result;
                 if (bytes === undefined) { resolve(''); return; }
                 if (!(bytes instanceof Uint8Array) || (expectedBytes > 0 && bytes.length !== expectedBytes)) {
                     reject(new Error('Unsupported construction save.')); return;
@@ -535,7 +567,7 @@ export async function loadConstruction(expectedBytes) {
     } finally { database.close(); }
 }
 
-export function readPoseSlot(id, slotIndex) {
+export function readPoseSlot(id: number, slotIndex: number) {
     const client = clients.get(id);
     if (!client || !client.poseRing || !client.poseSeqView || !client.poseDataView || !client.poseFloatView) return null;
     if (!Number.isInteger(slotIndex) || slotIndex < 0 || slotIndex >= POSE_SLOT_COUNT) return null;
@@ -573,7 +605,7 @@ export function readPoseSlot(id, slotIndex) {
     return { sequence: seq2, timestamp, bodies };
 }
 
-export function readLatestPoseSlot(id) {
+export function readLatestPoseSlot(id: number) {
     const client = clients.get(id);
     if (!client || !client.poseRing || !client.poseSeqView) return null;
     let bestSlot = -1;
@@ -604,13 +636,13 @@ export function readLatestPoseSlot(id) {
 
 // Story 9A.23 D8: the main thread's event ring read, for the epoch C# has installed (the reader holds a newer ring and ignores an
 // older one). C# decodes the delivery (EventRingDelivery); this script reads no record field.
-export function readEvents(id, epoch) {
+export function readEvents(id: number, epoch: string) {
     const events = owner(id).events;
     if (!events) throw new Error('The event ring reader is retired.');
     return eventDelivery(events.read(BigInt(epoch)));
 }
 
-export function hasPoseRing(id) {
+export function hasPoseRing(id: number) {
     const client = clients.get(id);
     return Boolean(client && client.poseRing);
 }

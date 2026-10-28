@@ -5,6 +5,59 @@ namespace CuriousContraptions.Tests;
 
 public sealed class PhysicalToleranceTests
 {
+    [Fact]
+    public void IncidentNormalBudgetResolvesCurvatureAndRefusesDegenerateDirections()
+    {
+        const float u = 1f / 16777216f;
+        // One-metre reconstruction and a 1/512m tube: independently evaluate
+        // normalization perturbation with double arithmetic, then one f32 rounding.
+        var expected = (float)(128.0 / 16777216 + (8.0 / 16777216) / (1.0 / 512 - 4.0 / 16777216));
+        Assert.InRange(PhysicalTolerance.IncidentNormalAllowance(4 * u, 1f / 512),
+            MathF.BitDecrement(expected), MathF.BitIncrement(expected));
+        Assert.Equal(0f, PhysicalTolerance.IncidentNormalAllowance(.0001f, .0001f));
+        Assert.True(PhysicalTolerance.IncidentNormalAllowance(.0001f, MathF.BitIncrement(.0001f)) > 0f);
+        Assert.Equal(.0002f, PhysicalTolerance.IncidentNormalAllowance(1f, 1f));
+        Assert.Equal(0f, PhysicalTolerance.IncidentNormalAllowance(float.NaN, 1));
+        Assert.Equal(0f, PhysicalTolerance.IncidentNormalAllowance(1, 0));
+    }
+
+    [Fact]
+    public void ContactSupportRankResolutionUsesLiteralReconstructionScaleAndPhysicalCap()
+    {
+        Assert.Equal(.000003814697265625f, PhysicalTolerance.ContactSupportResolutionMetres(1, .0002f));
+        Assert.Equal(.0001220703125f, PhysicalTolerance.ContactSupportResolutionMetres(32, .0002f));
+        Assert.Equal(.0002f, PhysicalTolerance.ContactSupportResolutionMetres(64, .0002f));
+        Assert.Equal(0f, PhysicalTolerance.ContactSupportResolutionMetres(0, .0002f));
+        Assert.Throws<ArgumentOutOfRangeException>(() => PhysicalTolerance.ContactSupportResolutionMetres(float.NaN, .0002f));
+        Assert.Throws<ArgumentOutOfRangeException>(() => PhysicalTolerance.ContactSupportResolutionMetres(1, 0));
+    }
+
+    [Fact]
+    public void ContactNormalBudgetHasLiteralInclusiveComponentAndPhysicalBoundaries()
+    {
+        const float component = .00000762939453125f; // 128 * 2^-24
+        var reference = Vector3.UnitY;
+        Assert.True(PhysicalTolerance.CompatibleContactNormals(reference, new(component, 1, 0), 1, .0002f));
+        Assert.False(PhysicalTolerance.CompatibleContactNormals(reference, new(MathF.BitIncrement(component), 1, 0), 1, .0002f));
+        Assert.True(PhysicalTolerance.CompatibleContactNormals(reference, new(component, 1, 0), 32, .000244140625f));
+        Assert.False(PhysicalTolerance.CompatibleContactNormals(reference, new(component, 1, 0), MathF.BitIncrement(32f), .000244140625f));
+        Assert.False(PhysicalTolerance.CompatibleContactNormals(reference, new(component, 1, 0), 32, .0002f));
+        Assert.False(PhysicalTolerance.CompatibleContactNormals(reference, Vector3.Normalize(new Vector3(.001f, 1, 0)), 1, .0002f));
+        Assert.False(PhysicalTolerance.CompatibleContactNormals(reference, -reference, 0, .0002f));
+    }
+
+    [Fact]
+    public void ContactNormalComparisonRejectsNonfiniteNonunitAndInvalidPhysicalInputs()
+    {
+        Assert.False(PhysicalTolerance.CompatibleContactNormals(Vector3.Zero, Vector3.UnitY, 1, .0002f));
+        Assert.False(PhysicalTolerance.CompatibleContactNormals(new(float.NaN, 1, 0), Vector3.UnitY, 1, .0002f));
+        Assert.False(PhysicalTolerance.CompatibleContactNormals(Vector3.UnitY, new(0, 2, 0), 1, .0002f));
+        Assert.False(PhysicalTolerance.CompatibleContactNormals(Vector3.UnitY, Vector3.UnitY, -1, .0002f));
+        Assert.False(PhysicalTolerance.CompatibleContactNormals(Vector3.UnitY, Vector3.UnitY, float.PositiveInfinity, .0002f));
+        Assert.False(PhysicalTolerance.CompatibleContactNormals(Vector3.UnitY, Vector3.UnitY, 1, 0));
+        Assert.False(PhysicalTolerance.CompatibleContactNormals(Vector3.UnitY, Vector3.UnitY, 1, float.NaN));
+    }
+
     [Theory]
     [InlineData(.01f, .000005f)]
     [InlineData(.2f, .000020f)]

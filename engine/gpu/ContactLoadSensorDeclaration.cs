@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Immutable;
 using System.Numerics;
 
 namespace CuriousContraptions.Gpu;
@@ -13,7 +14,7 @@ public enum ContactLoadPhase : uint
 }
 
 /// <summary>One compiled contact-load row (CAT-052 §2), all f32. A contact qualifies when it touches the frame's sensing
-/// <paramref name="Face"/> collider, its normal toward the other body aligns with <paramref name="LocalNormal"/> by at least
+/// <paramref name="Region"/> collider, its normal toward the other body aligns with <paramref name="LocalNormal"/> by at least
 /// <paramref name="MinimumAlignment"/>, its gap is at most <paramref name="MaximumGap"/> (the contact distance) or it carried normal
 /// contact impulse in the substep (a bounce resolved from the speculative gap still presses the face), and its point lies
 /// inside the face's local x–z footprint. The face is identified by its collider, normal and gap, never by a y band a resting
@@ -21,7 +22,7 @@ public enum ContactLoadPhase : uint
 public readonly record struct ContactLoadSensorDeclaration(
     GpuContactLoadSensorId Id,
     GpuBodyId Frame,
-    GpuColliderId Face,
+    GpuColliderId Region,
     float MinimumX,
     float MaximumX,
     float MinimumZ,
@@ -29,12 +30,20 @@ public readonly record struct ContactLoadSensorDeclaration(
     Vector3 LocalNormal,
     float MinimumAlignment,
     float MaximumGap,
-    float MinimumMass)
+    float MinimumMass,
+    ImmutableArray<GpuColliderId> SupportingColliders)
 {
     public void Validate()
     {
-        if (Id.Value == 0 || Frame.Value == 0 || Face.Value == 0)
+        if (Id.Value == 0 || Frame.Value == 0 || Region.Value == 0)
             throw new ArgumentException("Contact-load sensor, frame and face identities are required.");
+        if (SupportingColliders.IsDefaultOrEmpty) throw new ArgumentException("A sensing region requires explicit supporting colliders.");
+        for (var i = 0; i < SupportingColliders.Length; i++)
+        {
+            if (SupportingColliders[i].Value == 0) throw new ArgumentException("A supporting collider identity is absent.");
+            for (var j = 0; j < i; j++)
+                if (SupportingColliders[i] == SupportingColliders[j]) throw new ArgumentException("Duplicate supporting collider.");
+        }
         if (!float.IsFinite(MinimumX) || !float.IsFinite(MaximumX) || !float.IsFinite(MinimumZ) || !float.IsFinite(MaximumZ) ||
             MinimumX >= MaximumX || MinimumZ >= MaximumZ || MathF.Abs(MinimumX) > 16 || MathF.Abs(MaximumX) > 16 ||
             MathF.Abs(MinimumZ) > 16 || MathF.Abs(MaximumZ) > 16)
@@ -60,7 +69,7 @@ public readonly record struct ContactLoadSensorDeclaration(
 public readonly record struct ContactLoadSensorRead(
     GpuContactLoadSensorId Sensor,
     GpuBodyId Frame,
-    GpuColliderId Face,
+    GpuColliderId Region,
     float MeasuredMass,
     ContactLoadPhase Phase);
 
@@ -91,7 +100,7 @@ public static class ContactLoadSensorTracker
         var mass = 0f;
         foreach (var contact in contacts)
         {
-            if (contact.Frame != sensor.Frame || contact.Collider != sensor.Face || contact.OtherMass <= 0 ||
+            if (contact.Frame != sensor.Frame || !sensor.SupportingColliders.Contains(contact.Collider) || contact.OtherMass <= 0 ||
                 (contact.Gap > sensor.MaximumGap && !contact.Pressed))
                 continue;
             if (Vector3.Dot(Vector3.Transform(contact.NormalTowardOther, inverse), sensor.LocalNormal) < sensor.MinimumAlignment)

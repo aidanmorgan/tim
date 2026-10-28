@@ -6,11 +6,11 @@ namespace CuriousContraptions.Gpu;
 
 public sealed partial class BrowserWorkshopClient
 {
-    private readonly Dictionary<AnimationTargetId, (GpuBodyId Owner, int Binding)> _declaredTargets = new();
-    private readonly Dictionary<AnimationTargetId, WorkshopAnimationSample> _declaredSamples = new();
-    private readonly List<DeclaredPresentationSample> _declaredFrame = new();
-    private readonly Dictionary<GpuBodyId, bool> _declaredVisibility = new();
-    private readonly Dictionary<AnimationTargetId, bool> _declaredVisibilitySent = new();
+    private readonly Dictionary<AnimationTargetId, (GpuBodyId Owner, int Binding)> _declaredTargets = new(16);
+    private readonly Dictionary<AnimationTargetId, WorkshopAnimationSample> _declaredSamples = new(16);
+    private readonly List<DeclaredPresentationSample> _declaredFrame = new(16);
+    private readonly Dictionary<GpuBodyId, bool> _declaredVisibility = new(16);
+    private readonly Dictionary<AnimationTargetId, bool> _declaredVisibilitySent = new(16);
 
     public void SetDeclaredVisible(GpuBodyId owner, bool visible)
     {

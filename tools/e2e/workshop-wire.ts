@@ -267,28 +267,33 @@ sensor():bigint {
   return this.bb!.readUint64(this.bb_pos);
 }
 
+target():bigint {
+  return this.bb!.readUint64(this.bb_pos + 8);
+}
+
 phase():number {
-  return this.bb!.readUint32(this.bb_pos + 8);
+  return this.bb!.readUint32(this.bb_pos + 16);
 }
 
 eventOrdinal():number {
-  return this.bb!.readUint32(this.bb_pos + 12);
+  return this.bb!.readUint32(this.bb_pos + 20);
 }
 
 eventPhase():number {
-  return this.bb!.readFloat32(this.bb_pos + 16);
+  return this.bb!.readFloat32(this.bb_pos + 24);
 }
 
 static sizeOf():number {
-  return 24;
+  return 32;
 }
 
-static createCaptureLatchRead(builder:flatbuffers.Builder, sensor: bigint, phase: number, event_ordinal: number, event_phase: number):flatbuffers.Offset {
-  builder.prep(8, 24);
+static createCaptureLatchRead(builder:flatbuffers.Builder, sensor: bigint, target: bigint, phase: number, event_ordinal: number, event_phase: number):flatbuffers.Offset {
+  builder.prep(8, 32);
   builder.pad(4);
   builder.writeFloat32(event_phase);
   builder.writeInt32(event_ordinal);
   builder.writeInt32(phase);
+  builder.writeInt64(BigInt(target ?? 0));
   builder.writeInt64(BigInt(sensor ?? 0));
   return builder.offset();
 }
@@ -761,7 +766,7 @@ frame():bigint {
   return this.bb!.readUint64(this.bb_pos + 8);
 }
 
-face():bigint {
+region():bigint {
   return this.bb!.readUint64(this.bb_pos + 16);
 }
 
@@ -777,11 +782,11 @@ static sizeOf():number {
   return 32;
 }
 
-static createContactLoadRecord(builder:flatbuffers.Builder, sensor: bigint, frame: bigint, face: bigint, measured_mass: number, phase: number):flatbuffers.Offset {
+static createContactLoadRecord(builder:flatbuffers.Builder, sensor: bigint, frame: bigint, region: bigint, measured_mass: number, phase: number):flatbuffers.Offset {
   builder.prep(8, 32);
   builder.writeInt32(phase);
   builder.writeFloat32(measured_mass);
-  builder.writeInt64(BigInt(face ?? 0));
+  builder.writeInt64(BigInt(region ?? 0));
   builder.writeInt64(BigInt(frame ?? 0));
   builder.writeInt64(BigInt(sensor ?? 0));
   return builder.offset();
@@ -1390,28 +1395,23 @@ goalTarget():bigint {
   return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
 }
 
-goalEventSource():bigint {
-  const offset = this.bb!.__offset(this.bb_pos, 20);
-  return offset ? this.bb!.readUint64(this.bb_pos + offset) : BigInt('0');
-}
-
 goalDelay():number {
-  const offset = this.bb!.__offset(this.bb_pos, 22);
+  const offset = this.bb!.__offset(this.bb_pos, 20);
   return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
 }
 
 assistance(index: number, obj?:AssistanceKnotRecord):AssistanceKnotRecord|null {
-  const offset = this.bb!.__offset(this.bb_pos, 24);
+  const offset = this.bb!.__offset(this.bb_pos, 22);
   return offset ? (obj || new AssistanceKnotRecord()).__init(this.bb!.__vector(this.bb_pos + offset) + index * 44, this.bb!) : null;
 }
 
 assistanceLength():number {
-  const offset = this.bb!.__offset(this.bb_pos, 24);
+  const offset = this.bb!.__offset(this.bb_pos, 22);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
 static startPuzzleRecord(builder:flatbuffers.Builder) {
-  builder.startObject(11);
+  builder.startObject(10);
 }
 
 static addId(builder:flatbuffers.Builder, idOffset:flatbuffers.Offset) {
@@ -1446,16 +1446,12 @@ static addGoalTarget(builder:flatbuffers.Builder, goalTarget:bigint) {
   builder.addFieldInt64(7, goalTarget, BigInt('0'));
 }
 
-static addGoalEventSource(builder:flatbuffers.Builder, goalEventSource:bigint) {
-  builder.addFieldInt64(8, goalEventSource, BigInt('0'));
-}
-
 static addGoalDelay(builder:flatbuffers.Builder, goalDelay:number) {
-  builder.addFieldFloat32(9, goalDelay, 0.0);
+  builder.addFieldFloat32(8, goalDelay, 0.0);
 }
 
 static addAssistance(builder:flatbuffers.Builder, assistanceOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(10, assistanceOffset, 0);
+  builder.addFieldOffset(9, assistanceOffset, 0);
 }
 
 static startAssistanceVector(builder:flatbuffers.Builder, numElems:number) {
@@ -1465,10 +1461,11 @@ static startAssistanceVector(builder:flatbuffers.Builder, numElems:number) {
 static endPuzzleRecord(builder:flatbuffers.Builder):flatbuffers.Offset {
   const offset = builder.endObject();
   builder.requiredField(offset, 4) // id
+  builder.requiredField(offset, 22) // assistance
   return offset;
 }
 
-static createPuzzleRecord(builder:flatbuffers.Builder, idOffset:flatbuffers.Offset, placement:number, precision:number, inventoryPartOffset:flatbuffers.Offset, inventoryCount:number, goalKind:number, goalBody:bigint, goalTarget:bigint, goalEventSource:bigint, goalDelay:number, assistanceOffset:flatbuffers.Offset):flatbuffers.Offset {
+static createPuzzleRecord(builder:flatbuffers.Builder, idOffset:flatbuffers.Offset, placement:number, precision:number, inventoryPartOffset:flatbuffers.Offset, inventoryCount:number, goalKind:number, goalBody:bigint, goalTarget:bigint, goalDelay:number, assistanceOffset:flatbuffers.Offset):flatbuffers.Offset {
   PuzzleRecord.startPuzzleRecord(builder);
   PuzzleRecord.addId(builder, idOffset);
   PuzzleRecord.addPlacement(builder, placement);
@@ -1478,7 +1475,6 @@ static createPuzzleRecord(builder:flatbuffers.Builder, idOffset:flatbuffers.Offs
   PuzzleRecord.addGoalKind(builder, goalKind);
   PuzzleRecord.addGoalBody(builder, goalBody);
   PuzzleRecord.addGoalTarget(builder, goalTarget);
-  PuzzleRecord.addGoalEventSource(builder, goalEventSource);
   PuzzleRecord.addGoalDelay(builder, goalDelay);
   PuzzleRecord.addAssistance(builder, assistanceOffset);
   return PuzzleRecord.endPuzzleRecord(builder);
@@ -1748,7 +1744,7 @@ bodiesLength():number {
 
 captures(index: number, obj?:CaptureLatchRead):CaptureLatchRead|null {
   const offset = this.bb!.__offset(this.bb_pos, 34);
-  return offset ? (obj || new CaptureLatchRead()).__init(this.bb!.__vector(this.bb_pos + offset) + index * 24, this.bb!) : null;
+  return offset ? (obj || new CaptureLatchRead()).__init(this.bb!.__vector(this.bb_pos + offset) + index * 32, this.bb!) : null;
 }
 
 capturesLength():number {
@@ -1946,7 +1942,7 @@ static addCaptures(builder:flatbuffers.Builder, capturesOffset:flatbuffers.Offse
 }
 
 static startCapturesVector(builder:flatbuffers.Builder, numElems:number) {
-  builder.startVector(24, numElems, 8);
+  builder.startVector(32, numElems, 8);
 }
 
 static addActivations(builder:flatbuffers.Builder, activationsOffset:flatbuffers.Offset) {
@@ -2363,6 +2359,7 @@ export interface MockResponseParams {
     }[];
     captures?: {
         sensor?: bigint;
+        target: bigint;
         phase?: number;
         eventOrdinal?: number;
         eventPhase?: number;
@@ -2435,6 +2432,7 @@ export function encodeWorkshopResponse(params: MockResponseParams): Buffer {
             CaptureLatchRead.createCaptureLatchRead(
                 builder,
                 c.sensor ?? 0n,
+                c.target,
                 c.phase ?? 0,
                 c.eventOrdinal ?? 0,
                 c.eventPhase ?? 0

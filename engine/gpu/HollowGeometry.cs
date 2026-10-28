@@ -1,5 +1,6 @@
 using System;
 using System.Numerics;
+using CuriousContraptions.Abstractions;
 
 namespace CuriousContraptions.Gpu;
 
@@ -44,6 +45,101 @@ public readonly struct HollowSolid(ColliderShapeKind kind, Vector3 position, Vec
         _ => Radius + LaneY
     };
 
+    /// <summary>Analytic incident outward feature normals at a measured surface witness.
+    /// Distances are nonnegative distances to bounded features, including end annuli.</summary>
+    internal void FeatureProjections(Vector3 point, Span<float> distances, Span<Vector3> directions, Span<Vector3> witnesses)
+    {
+        distances.Fill(float.PositiveInfinity);
+        directions.Clear(); witnesses.Clear();
+        var offset = point - Position;
+        var x = Vector3.Dot(offset, X); var y = Vector3.Dot(offset, Y); var z = Vector3.Dot(offset, Z);
+        var rho = MathF.Sqrt(x * x + z * z);
+        if (!(rho > 0f)) return;
+        if (Kind != ColliderShapeKind.Torus)
+        {
+            var top = Kind == ColliderShapeKind.Frustum ? LaneZ : Radius;
+            var innerBottom = Kind == ColliderShapeKind.Frustum ? Radius - LaneX : LaneX;
+            var innerTop = Kind == ColliderShapeKind.Frustum ? top - LaneX : LaneX;
+            Span<Vector2> vertices = [new(innerBottom, -LaneY), new(Radius, -LaneY), new(top, LaneY), new(innerTop, LaneY)];
+            var p = new Vector2(rho, y);
+            var radial = (x * X + z * Z) / rho;
+            for (var i = 0; i < 4; i++)
+            {
+                var a = vertices[i]; var edge = vertices[(i + 1) & 3] - a;
+                var t = Math.Clamp(Vector2.Dot(p - a, edge) / edge.LengthSquared(), 0f, 1f);
+                var projected = a + t * edge;
+                witnesses[i] = Position + projected.X * radial + projected.Y * Y;
+                distances[i] = Vector3.Distance(point, witnesses[i]);
+                var n = Vector2.Normalize(new(edge.Y, -edge.X));
+                directions[i] = n.X * radial + n.Y * Y;
+            }
+        }
+        else
+        {
+            var phi = MathF.Atan2(z, x);
+            if (!Full && !InSweep(phi, LaneZ)) phi = phi > LaneZ || phi < .5f * LaneZ - MathF.PI ? LaneZ : 0f;
+            var radial = MathF.Cos(phi) * X + MathF.Sin(phi) * Z;
+            var meridian = new Vector2(Vector3.Dot(offset, radial) - Radius, y);
+            var length = meridian.Length();
+            if (length > 0f)
+            {
+                var n = (meridian.X * radial + meridian.Y * Y) / length;
+                witnesses[0] = Position + Radius * radial + LaneY * n;
+                distances[0] = Vector3.Distance(point, witnesses[0]);
+                directions[0] = n;
+                if (LaneX > 0f)
+                {
+                    witnesses[1] = Position + Radius * radial + LaneX * n;
+                    distances[1] = Vector3.Distance(point, witnesses[1]);
+                    directions[1] = -n;
+                }
+            }
+            if (!Full)
+                for (var end = 0; end < 2; end++)
+                {
+                    var angle = end == 0 ? 0f : LaneZ;
+                    var r = MathF.Cos(angle) * X + MathF.Sin(angle) * Z;
+                    var across = new Vector2(Vector3.Dot(offset, r) - Radius, y);
+                    var reach = across.Length();
+                    var projected = across;
+                    if (reach > LaneY) projected *= LaneY / reach;
+                    else if (reach < LaneX && reach > 0f) projected *= LaneX / reach;
+                    // At an annulus centre with a bore, every inner rim is equally
+                    // near; this point is not an end-face surface witness.
+                    else if (reach == 0f && LaneX > 0f) continue;
+                    witnesses[2 + end] = Position + (Radius + projected.X) * r + projected.Y * Y;
+                    distances[2 + end] = Vector3.Distance(point, witnesses[2 + end]);
+                    directions[2 + end] = end == 0 ? -Z : -MathF.Sin(angle) * X + MathF.Cos(angle) * Z;
+                }
+        }
+    }
+
+    internal int IncidentNormals(Vector3 point, float window, Span<Vector3> normals, Span<float> allowances)
+    {
+        Span<float> distances = stackalloc float[4];
+        Span<Vector3> directions = stackalloc Vector3[4];
+        Span<Vector3> witnesses = stackalloc Vector3[4];
+        FeatureProjections(point, distances, directions, witnesses);
+        var nearest = float.PositiveInfinity;
+        for (var i = 0; i < 4; i++) nearest = MathF.Min(nearest, distances[i]);
+        var offset = point - Position;
+        var x = Vector3.Dot(offset, X); var y = Vector3.Dot(offset, Y); var z = Vector3.Dot(offset, Z);
+        var radial = MathF.Sqrt(x * x + z * z);
+        var meridian = MathF.Sqrt((radial - Radius) * (radial - Radius) + y * y);
+        var count = 0;
+        for (var i = 0; i < 4; i++)
+            if (float.IsFinite(distances[i]) && distances[i] <= nearest + window && directions[i].LengthSquared() > 0f)
+            {
+                var curved = Kind == ColliderShapeKind.Torus ? i < 2 : i is 1 or 3;
+                var radius = Kind == ColliderShapeKind.Torus ? MathF.Min(radial, meridian) : radial;
+                var allowance = curved ? PhysicalTolerance.IncidentNormalAllowance(window, radius) : 128f / 16777216f;
+                if (!(allowance > 0f)) continue;
+                normals[count] = Vector3.Normalize(directions[i]);
+                allowances[count++] = allowance;
+            }
+        return count;
+    }
+
     /// <summary>Whether a torus sweeps the full turn.</summary>
     public bool Full => Kind == ColliderShapeKind.Torus && LaneZ == ColliderDeclaration.FullSweep;
 
@@ -68,6 +164,42 @@ public readonly struct HollowSolid(ColliderShapeKind kind, Vector3 position, Vec
         return Kind == ColliderShapeKind.Torus
             ? TorusDistance(x, y, z, out surface, out outward, out on)
             : ProfileDistance(x, y, z, out surface, out outward, out on);
+    }
+
+    /// <summary>A conservative smooth closest-wall domain, excluding profile/end junctions and medial ties.</summary>
+    public bool SmoothClosestWall(Vector3 point, Vector3 surface, HollowSurface on)
+    {
+        if (on is not (HollowSurface.Outer or HollowSurface.Bore)) return false;
+        var p = point - Position;
+        var x = Vector3.Dot(p, X); var y = Vector3.Dot(p, Y); var z = Vector3.Dot(p, Z);
+        var rho = MathF.Sqrt(x * x + z * z);
+        if (!(rho > 0f)) return false;
+        var s = surface - Position;
+        if (Kind != ColliderShapeKind.Torus)
+        {
+            var sy = Vector3.Dot(s, Y);
+            if (!(MathF.Abs(y) < LaneY && MathF.Abs(sy) < LaneY)) return false;
+            var slope = Kind == ColliderShapeKind.Tube ? 0f : (LaneZ - Radius) / (2f * LaneY);
+            var outer = Radius + slope * (y + LaneY);
+            var inner = Kind == ColliderShapeKind.Tube ? LaneX : outer - LaneX;
+            var divisor = MathF.Sqrt(1f + slope * slope);
+            var outerDistance = MathF.Abs(rho - outer) / divisor;
+            var innerDistance = MathF.Abs(rho - inner) / divisor;
+            var chosen = on == HollowSurface.Outer ? outerDistance : innerDistance;
+            var other = on == HollowSurface.Outer ? innerDistance : outerDistance;
+            return chosen < other && chosen < LaneY - MathF.Abs(y);
+        }
+        var radial = rho - Radius;
+        var meridian = MathF.Sqrt(radial * radial + y * y);
+        if (!(meridian > 0f)) return false;
+        var wallDistance = MathF.Abs(meridian - (on == HollowSurface.Outer ? LaneY : LaneX));
+        if (LaneX > 0f && !(wallDistance < MathF.Abs(meridian - (on == HollowSurface.Outer ? LaneX : LaneY)))) return false;
+        if (Full) return true;
+        var angle = MathF.Atan2(z, x);
+        var surfaceAngle = MathF.Atan2(Vector3.Dot(s, Z), Vector3.Dot(s, X));
+        if (!(angle > 0f && angle < LaneZ && surfaceAngle > 0f && surfaceAngle < LaneZ)) return false;
+        return wallDistance < MathF.Abs(z) &&
+            wallDistance < MathF.Abs(-x * MathF.Sin(LaneZ) + z * MathF.Cos(LaneZ));
     }
 
     public float Distance(Vector3 p) => Distance(p, out _, out _, out _);
@@ -267,6 +399,34 @@ public readonly struct HollowSolid(ColliderShapeKind kind, Vector3 position, Vec
         var bottom = Position - LaneY * Y + Radius * radial;
         var top = Position + LaneY * Y + LaneZ * radial;
         return Vector3.Dot(top - bottom, d) >= 0f ? top : bottom;
+    }
+
+    /// <summary>Reconstructs a curved feature's support from its initial profile and radial branch.
+    /// The reference radial direction is world-fixed, so pure revolution-axis spin leaves a full solid unchanged.</summary>
+    public Vector3 CurvedSupport(Vector3 facing, Vector3 referenceRadial, float radialSign, float axial, float profileRadius,
+        HollowSurface surface)
+    {
+        var reference = RadialUnit(referenceRadial, X);
+        var projected = facing - Vector3.Dot(facing, Y) * Y;
+        var length = projected.Length();
+        var radial = length > 1e-6f ? radialSign * projected / length : reference;
+        if (Kind == ColliderShapeKind.Torus)
+        {
+            if (!Full)
+            {
+                var angle = MathF.Atan2(Vector3.Dot(radial, Z), Vector3.Dot(radial, X));
+                if (!InSweep(angle, LaneZ))
+                {
+                    var end = MathF.Cos(LaneZ) * X + MathF.Sin(LaneZ) * Z;
+                    radial = Vector3.Dot(radial, X) >= Vector3.Dot(radial, end) ? X : end;
+                }
+            }
+            var meridian = Vector3.Dot(facing, radial) * radial + Vector3.Dot(facing, Y) * Y;
+            var unit = meridian.LengthSquared() > 1e-18f ? Vector3.Normalize(meridian) : Y;
+            var radius = surface == HollowSurface.Bore ? -LaneX : LaneY;
+            return Position + Radius * radial + radius * unit;
+        }
+        return Position + axial * Y + profileRadius * radial;
     }
 
     /// <summary>The unit direction of v perpendicular to the axis, or the fallback when v lies (nearly) along it.</summary>

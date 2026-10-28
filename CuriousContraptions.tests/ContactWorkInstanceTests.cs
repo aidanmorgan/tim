@@ -39,21 +39,21 @@ public sealed class ContactWorkInstanceTests
 
     // ---------- compiled store ----------
 
-    // Preload = (½·m)·s·s in f32 with the declared 1 kg reference mass, bit for bit, at both ends, the default and a full-precision
+    // Preload = (½·m)·s·s in f32 with the declared 1 kg reference mass, at both ends, the default and a full-precision
     // strength; threshold 0.05 m/s and the 72-step cooldown come with it.
     [Theory]
     [InlineData(0f)]
     [InlineData(8f)]
     [InlineData(20f)]
     [InlineData(3.3333333f)]
-    public void TheCompiledStoreHoldsTheDeclaredPreloadBits(float strength)
+    public void TheCompiledStoreHoldsTheDeclaredPreload(float strength)
     {
         var scene = WorkshopPhysicsCompiler.Compile(Drop(PartId.Basketball, 4.5, strength), new(1, 2));
         var work = Assert.Single(scene.ContactWorks.ToArray());
         var half = .5f * 1f;
-        Assert.Equal(BitConverter.SingleToUInt32Bits(half * strength * strength), BitConverter.SingleToUInt32Bits(work.InitialEnergy.Value));
-        Assert.Equal(BitConverter.SingleToUInt32Bits(strength), BitConverter.SingleToUInt32Bits(work.TargetSpeed.Value));
-        Assert.Equal((WorkshopPhysicsCompiler.ContactWork(Owner), Owner, new BodyTargetSet(BodyTargetKind.AllDynamic, default)),
+        Assert.Equal(half * strength * strength, work.InitialEnergy.Value);
+        Assert.Equal(strength, work.TargetSpeed.Value);
+        Assert.Equal((Drop(PartId.Basketball, 4.5, strength).Instances.Identities[Owner].Work, Owner, new BodyTargetSet(BodyTargetKind.AllDynamic, default)),
             (work.Id, work.Owner, work.Targets));
         Assert.Equal((.05f, 72u), (work.Threshold.Value, work.CooldownPhysicalSteps));
     }
@@ -65,10 +65,10 @@ public sealed class ContactWorkInstanceTests
     {
         var descriptor = new CuriousContraptions.Abstractions.Mechanical.ContactWorkDescriptor("speed", 2f, .5f, 100);
         var targets = new BodyTargetSet(BodyTargetKind.NamedBody, new(9));
-        var work = WorkshopPhysicsCompiler.ContactWorkFor(new(7), targets, descriptor, new([new(new("speed"), 3f)]));
-        Assert.Equal((WorkshopPhysicsCompiler.ContactWork(new(7)), new GpuBodyId(7), targets, 3f, 9f, .5f, 100u),
+        var work = WorkshopPhysicsCompiler.ContactWorkFor(new(10), new(7), targets, descriptor, new([new(new("speed"), 3f)]));
+        Assert.Equal((new GpuContactWorkId(10), new GpuBodyId(7), targets, 3f, 9f, .5f, 100u),
             (work.Id, work.Owner, work.Targets, work.TargetSpeed.Value, work.InitialEnergy.Value, work.Threshold.Value, work.CooldownPhysicalSteps));
-        Assert.ThrowsAny<KeyNotFoundException>(() => WorkshopPhysicsCompiler.ContactWorkFor(new(7), targets, descriptor,
+        Assert.ThrowsAny<KeyNotFoundException>(() => WorkshopPhysicsCompiler.ContactWorkFor(new(10), new(7), targets, descriptor,
             new([new(new("strength"), 3f)])));
     }
 

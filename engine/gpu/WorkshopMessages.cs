@@ -43,13 +43,16 @@ public static class WorkshopMessages
         for (var i = 0; i < read.Captures.Count; i++)
         {
             var value = read.Captures[i]; value.Validate();
-            if (value.EventOrdinal > WorkshopCadenceSettings.PhysicalOrdinalLimit)
+            if (!read.Bodies.TryGet(value.Target,out _) || value.EventOrdinal > WorkshopCadenceSettings.PhysicalOrdinalLimit)
                 throw new ArgumentException("Capture time exceeds the world duration.");
         }
     }
 
     internal static void ValidatePresentationOwners(WorkshopRead read, WorkshopConstruction construction)
     {
+        for(var i=0;i<read.Captures.Count;i++)
+            if(!construction.Instances.Identities.OwnsCapture(new(read.Captures[i].Sensor,read.Captures[i].Target)))
+                throw new ArgumentException("Capture observation names a foreign policy or target.");
         // Render body reads omit static bodies; ownership belongs to the authored construction.
         foreach (var actuator in read.Presentation.Actuators)
             if (!HasOwner(actuator.Owner)) throw new ArgumentException("Actuator observation names a foreign owner.");
