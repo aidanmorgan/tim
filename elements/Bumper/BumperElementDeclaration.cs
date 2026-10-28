@@ -6,7 +6,7 @@ using CuriousContraptions.Abstractions.Mechanical;
 
 namespace CuriousContraptions.Elements.Bumper;
 
-/// <summary>The Pinball Bumper (CAT-015): a static sphere whose finite contact-work store kicks a qualifying ball radially. Its one
+/// <summary>The Pinball Bumper (CAT-015): a static compound head, upper ring and cap whose finite contact-work store kicks a qualifying ball radially. Its one
 /// typed parameter, strength, is the store's target speed; the preload is a 1 kg reference mass at that speed (32 J at the default
 /// 8 m/s, 200 J at 20 m/s). The editor clamps a finite strength into 0–20 m/s.</summary>
 public sealed class BumperElementDeclaration : IContactWorkElement, IElectricalElement, ISceneGeometryElement

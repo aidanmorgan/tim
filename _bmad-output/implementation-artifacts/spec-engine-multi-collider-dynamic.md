@@ -2,7 +2,7 @@
 title: 'Declaration-owned mass and compound moving geometry'
 type: 'feature'
 created: '2026-10-27'
-status: 'in-review'
+status: 'done'
 baseline_revision: 6ed1a3e03e94786be964a429d87a6d4a25d9b90c
 review_loop_iteration: 0
 followup_review_recommended: false
@@ -472,5 +472,11 @@ Affected scoped verification passed: `CuriousContraptions.tests/TestResults/game
 
 ## Auto Run Result
 
-Status: in-review.
-The owner timing decision is resolved and the behavioral contract is implemented. Five-layer Auto review completed; four patch findings were fixed and independently re-reviewed. One pre-existing precision-test hygiene item remains deferred; the two rejected findings and their reasons remain in the Review Triage Log. Final matching compiler captures passed at `/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/tim-compound-final-gate.p5b7Ql`; full local round3 passed in coordinator session89299 (exit0): main4,331/0/0 plus tools491/0/0, total4,822/0/0. All five raw TRX receipts were independently parsed. Four patch findings (two high, two medium) passed affected independent re-review; no remaining unverified repair risk requires another code-review pass. Pre-repair round2 total4816/0/0 is retained baseline evidence. Normal hooks, exact-SHA approval, publication and terminal checks remain pending. Browser/performance qualification remains at named later gates.
+Status: done.
+The owner timing decision is resolved and the behavioral contract is implemented. Five-layer Auto review completed; four patch findings were fixed and independently re-reviewed. One pre-existing precision-test hygiene item remains deferred; the two rejected findings and their reasons remain in the Review Triage Log. Final matching compiler captures passed at `/private/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/tim-compound-final-gate.p5b7Ql`; full local round3 passed in coordinator session89299 (exit0): main4,331/0/0 plus tools491/0/0, total4,822/0/0. All five raw TRX receipts were independently parsed. Four patch findings (two high, two medium) passed affected independent re-review; no remaining unverified repair risk requires another code-review pass. Pre-repair round2 total4816/0/0 is retained baseline evidence. Normal hooks, exact-SHA approval, publication and terminal checks passed as recorded below. Browser/performance qualification remains at named later gates.
+
+## Terminal publication receipt — 28 October 2026
+
+Implementation and publication Pass at `28a2d302e6c0e1a0e361bfe62beea9b332d6b9f9`. Five-layer Auto review plus affected independent repair re-reviews passed. `/root/compound_verification_retry` approved the frozen candidate and exact committed SHA; full local4,822/0/0 (main4,331 in19m51s, tools491), normal hooks126/0/0 with zero compiler warnings/errors and zero Anvil findings. Coordinator full session89299 and normal commit session35000 both exited0. Frozen review artifact `candidate-final-round3.diff` in the compound rendered workflow matched the commit; its Anvil check used a preview because the complete diff is1.89MB. No diff/output hashes were used.
+
+`/root/compound_terminal_verifier` independently passed [production run40711318988](https://github.com/aidanmorgan/tim/actions/runs/40711318988): build122897063197, deploy122905039571, Pagesartifact12826598964 (85,645,265bytes), deployment7389275437/success status20830140780. Remote main matched; deployment logs bound artifact and SHA. Production HTTP200 and exact artifact equality: / and /index.html20,447bytes each, /404.html626, /godot.wasm47,381,824, /godot.pck5,038,036, /_framework/dotnet.js37,898. Verification used in-memory reads, no GitHub tests/browser/mutants. Browser/performance qualification remains pending. Next outcome: bumper-cap-solid from this published main.

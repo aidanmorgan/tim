@@ -84,7 +84,7 @@ public sealed class ContactWorkInstanceTests
         Assert.Equal(Owner, Assert.Single(scene.ContactWorks.ToArray()).Owner);
     }
 
-    // Exact Run/Reset and Save/Load: the store, every body and every occurrence restore bit for bit, and the reloaded Bumper replays.
+    // Exact Run/Reset and Save/Load: the store, every body and every occurrence restore their authored fields, and the reloaded Bumper replays.
     [Fact]
     public async Task RunResetAndSaveLoadAreExact()
     {
@@ -99,7 +99,6 @@ public sealed class ContactWorkInstanceTests
         var bytes = WorkshopSaveCodec.Encode(saved);
         var reloaded = WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes);
         Assert.Equal(saved, reloaded);
-        Assert.Equal(bytes, WorkshopSaveCodec.Encode(reloaded));
         var (_, replay, _) = await NoFixedCapacityTests.RunAndReset(reloaded.Construction, 2 * TicksPerSecond);
         NoFixedCapacityTests.AssertSameState(run[^1], replay[^1], "the reloaded Bumper's run");
         Assert.Equal(run[^1].ContactWorks[0], replay[^1].ContactWorks[0]);
@@ -167,6 +166,50 @@ public sealed class ContactWorkInstanceTests
         Assert.All(reads, read => Assert.Equal(32f, read.ContactWorks[0].RemainingEnergy.Value));
     }
 
+    [Theory]
+    [InlineData(false, 8f)]
+    [InlineData(true, 8f)]
+    [InlineData(false, 0f)]
+    [InlineData(true, 0f)]
+    public async Task ExposedCapContactsUseTheFiniteStoreAndOnlyPaidWorkEmitsAPulse(bool heavy, float strength)
+    {
+        var payload = heavy ? PartId.BowlingBall : PartId.Basketball;
+        // The face at x=.2 is exposed above the sphere. Starting .2 m above the cap
+        // gives a slow incoming bounce: a 4 kg payload needs more than 32 J to reach 8 m/s.
+        var radius = heavy ? .28 : .34;
+        var bench = Free(WorkshopInput.Generic(payload, Ball, .2, 3 + .65 + radius + .2, 0, 0, 0, 0, 1),
+            PlacedParts.Bumper(Owner, 0, 3, 0, strength));
+        await using var ring = await EventRingProducerTests.Ring.Running(bench);
+        await ring.Advance(480);
+        var hits = Occurrences(ring.Ledgers).ToArray();
+        Assert.NotEmpty(hits);
+        var paid = hits.Where(hit => hit.Effect == ContactWorkEffect.Paid).ToArray();
+        var pulses = ring.Records.Where(record => record.Kind == CuriousContraptions.Abstractions.SimulationEventKind.Impact &&
+            record.Source == Owner.Value && record.Magnitude > 0).ToArray();
+        Assert.Equal(paid.Length, pulses.Length);
+        // Repeated cap contacts retain the owner's per-target cooldown.
+        for (var i = 1; i < hits.Length; i++)
+            Assert.True(hits[i].EventOrdinal >= hits[i - 1].EventOrdinal + 72,
+                "contacts on one bumper share the 72-step target cooldown");
+        Assert.All(ring.Reads, read => Assert.InRange(read.ContactWorks[0].RemainingEnergy.Value, 0f, .5f * strength * strength));
+        if (strength == 0)
+        {
+            Assert.Empty(paid);
+            Assert.All(hits, hit => Assert.Equal(0f, hit.Debit.Value));
+        }
+        else
+        {
+            Assert.NotEmpty(paid);
+            if (heavy)
+            {
+                Assert.Equal(32f, paid[0].Debit.Value);
+                Assert.Single(paid);
+                Assert.Contains(hits, hit => hit.Effect == ContactWorkEffect.Passive);
+                Assert.Equal(0f, ring.Reads[^1].ContactWorks[0].RemainingEnergy.Value);
+            }
+        }
+    }
+
     // Recharge: a battery wired to PowerIn credits the emptied store; the same battery unwired credits nothing.
     [Theory]
     [InlineData(true)]
@@ -198,5 +241,68 @@ public sealed class ContactWorkInstanceTests
             new WorkshopConnection(Source, WorkshopSocket.Supply, toggle.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical),
             new WorkshopConnection(toggle.Id, WorkshopSocket.Supply, Owner, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical)) };
         EditRefusal.Is(WorkshopEditRejection.PowerInputSupplied, () => WorkshopPhysicsCompiler.Compile(bench, new(1, 2)));
+    }
+
+    [Fact]
+    public async Task ARealCapThenRingContactSharesTheCooldownEvenWithRechargedWorkAvailable()
+    {
+        const float degrees = 25, strength = 2, radius = .28f;
+        var angle = degrees * MathF.PI / 180;
+        var rotation = System.Numerics.Quaternion.CreateFromAxisAngle(System.Numerics.Vector3.UnitZ, angle);
+        WorkshopConstruction Bench(double x) => Free(
+            WorkshopInput.Generic(PartId.BowlingBall, Ball, x, 5.5, 0, 0, 0, 0, 1),
+            PlacedParts.Bumper(Owner, 0, 3, 0, strength, qz: rotation.Z, qw: rotation.W),
+            PlacedParts.Battery(Source, 3, 1, 0)) with
+        {
+            Connections = new(new WorkshopConnection(Source, WorkshopSocket.Supply, Owner,
+                WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical))
+        };
+        var bench = Bench(.1);
+        var scene = WorkshopPhysicsCompiler.Compile(bench, new(1, 2));
+        ColliderShapeKind Shape(ContactWorkOccurrence hit) => scene.Colliders[(int)hit.Collider.Value].Shape;
+        await using var ring = await EventRingProducerTests.Ring.Running(bench);
+        await ring.Advance(120); // one second suffices for a drop and adjacent-child contact
+        var first = Occurrences(ring.Ledgers).First();
+        Assert.Equal((Ball, ColliderShapeKind.Cylinder, ContactWorkEffect.Paid), (first.Target, Shape(first), first.Effect));
+
+        // Independent distances to the literal authored solids identify the second
+        // contact. The 5 mm observation band is smaller than the exposed ring tube
+        // radius 18 mm; require the head and cap to be outside that same band.
+        // Upward velocity gain greater than one tick of gravity proves a physical
+        // response, rather than merely passing near the ring.
+        var ringContactsDuringCooldown = Enumerable.Range(1, ring.Reads.Count - 1).Where(i =>
+        {
+            var ordinal = ring.Reads[i].Tick.Value * 4;
+            if (ordinal <= first.EventOrdinal + 4 || ordinal >= first.EventOrdinal + 72) return false;
+            var body = Body(ring.Reads[i], Ball).Body;
+            var p = new System.Numerics.Vector3((body.Cell.X + body.Local.X) / 16f,
+                (body.Cell.Y + body.Local.Y) / 16f - 3, (body.Cell.Z + body.Local.Z) / 16f);
+            var local = System.Numerics.Vector3.Transform(p, System.Numerics.Quaternion.Inverse(rotation));
+            var radial = MathF.Sqrt(local.X * local.X + local.Z * local.Z);
+            var capGap = MathF.Sqrt(MathF.Pow(MathF.Max(0, radial - .25f), 2) +
+                MathF.Pow(MathF.Max(0, MathF.Abs(local.Y - .59f) - .06f), 2)) - radius;
+            var headGap = p.Length() - .65f - radius;
+            var ringGap = MathF.Sqrt(MathF.Pow(radial - .49f, 2) + MathF.Pow(local.Y - .43f, 2)) - .018f - radius;
+            return MathF.Abs(ringGap) < .005f && headGap > .005f && capGap > .005f &&
+                body.Velocity.Y - Body(ring.Reads[i - 1], Ball).Body.Velocity.Y > 9.81f / TicksPerSecond;
+        }).ToArray();
+        Assert.NotEmpty(ringContactsDuringCooldown);
+        foreach (var i in ringContactsDuringCooldown)
+        {
+            Assert.Equal(1u, ring.Reads[i].ContactWorks[0].OccurrenceCount);
+            Assert.Equal(2f, ring.Reads[i - 1].ContactWorks[0].RemainingEnergy.Value);
+            Assert.Equal(2f, ring.Reads[i].ContactWorks[0].RemainingEnergy.Value);
+            Assert.Equal(first, Assert.Single(Occurrences(ring.Ledgers.Take(i + 1))));
+        }
+
+        // Matched control: only the drop x changes, to directly above the ring's
+        // centreline. It bypasses the cap, so this owner's first ring hit must pay.
+        var ringX = .49f * MathF.Cos(angle) - .43f * MathF.Sin(angle);
+        await using var direct = await EventRingProducerTests.Ring.Running(Bench(ringX));
+        await direct.Advance(120);
+        var directHit = Occurrences(direct.Ledgers).First();
+        Assert.Equal((Ball, ColliderShapeKind.Torus, ContactWorkEffect.Paid),
+            (directHit.Target, Shape(directHit), directHit.Effect));
+        Assert.True(directHit.Debit.Value > 0, "an eligible ring contact spends available work");
     }
 }

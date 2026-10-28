@@ -2,7 +2,7 @@
 # Generated and maintained via BMAD Method (bmm module)
 
 generated: 10-08-2026 00:26
-last_updated: 10-28-2026
+last_updated: 10-29-2026
 project: Curious Contraptions
 project_key: CC
 tracking_system: file-system
@@ -513,8 +513,8 @@ development_status:
   engine-cap-block: done # published6ed1a3e03e94786be964a429d87a6d4a25d9b90c; local4606/0/0, hooks126/0/0; terminal receipt in spec-engine-cap-block-game-grade.md
   elements-visible-solid: done # lamp, switch, delay, ramp, battery, detector, gate colliders as drawn; cylinder-cap placement rest; collider-vs-art test over all 29 packages
   elements-visible-solid-sweep: done # faces, lamps, indicators and sockets of logic parts, hold timer, counter, latch, clock; plate sockets; collider-slot refusal at bundle install
-  engine-multi-collider-dynamic: review # compound geometry, declaration mass and demand growth implemented; independent review repairs passed; final local4822/0/0; hooks/publication pending
-  bumper-cap-solid: backlog # make the bumper cap solid and re-author bumper_sidekick, bumper_depth, wall_and_bumper
+  engine-multi-collider-dynamic: done # published28a2d302e6c0e1a0e361bfe62beea9b332d6b9f9; local4822/0/0, hooks126/0/0; terminal receipt in spec-engine-multi-collider-dynamic.md
+  bumper-cap-solid: review # make the bumper cap solid and re-author bumper_sidekick, bumper_depth, wall_and_bumper
   face-markings-flush: backlog # move raised face markings (pictograms, truth dots, latch markers, timer track) flush so they are printed decoration
   engine-hollow-shapes: done # published eacf561d6833438c9aeaf71c85e52c2626ea33e5; CI 40239119353: 4,212 passed, 0 failed/skipped; deployment 7320169548; browser pending
   engine-single-point-penetration: done # terminal Pass at 3a633495da8868cb2536f81edecadba629da6c2d; CI 40252950208 4276/0/0; artifact 12621889117; deployment 7322234061; receipt in spec-engine-single-point-penetration.md

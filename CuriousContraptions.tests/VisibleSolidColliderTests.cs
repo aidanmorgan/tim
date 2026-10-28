@@ -54,10 +54,6 @@ public sealed class VisibleSolidColliderTests
     /// <list type="bullet">
     /// <item>engine-multi-collider-dynamic now supplies the seam, pips, Weight base/bands/eye, Plate studs/ring and Clock cap.
     /// These features appear in Solid/Hollow below and have real contact/empty controls in AssignedCompoundFeatureTests.</item>
-    /// <item>bumper-cap-solid: the Bumper's cap stands 5 cm proud of the head at its rim (the head is at y √(0.65² − 0.25²) = 0.6
-    /// there, the cap's top at 0.65). Solid, it meets a ball falling 0.3 m off the axis at its rim before the head, with a contact
-    /// normal atan(0.05 / 0.336) = 8.5° from vertical instead of the head's asin(0.3 / 0.99) = 17.6°, and the authored solutions of
-    /// bumper_sidekick, bumper_depth and wall_and_bumper no longer solve; that slice makes it solid and re-authors them;</item>
     /// <item>face-markings-flush: raised face markings (the logic parts' pictograms, path bars, marks and truth dots, the hold timer's
     /// track, the latch's set, reset and out markers) float 1–2 cm off their face and stand 1.5–8.5 cm proud of it; that slice
     /// moves the art flush, so they become printing, and owns the sphere radius minimum for the truth dots and the latch's reset
@@ -98,10 +94,9 @@ public sealed class VisibleSolidColliderTests
         // The seam is a torus on a dynamic body: engine-multi-collider-dynamic.
         [PartId.Basketball] = new(["Visual/Visual_Sphere"], ["Visual/Visual_Stripe"], [], [], null),
         [PartId.BowlingBall] = new(["Visual/Visual_Sphere"], null, [], [], null),
-        // The base lies inside the head; the impact ring is scaled by the impact cue. The cap: bumper-cap-solid. The upper ring is the
+        // The base lies inside the head; the impact ring is scaled by the impact cue. The upper ring is the
         // drawn full torus (engine-hollow-shapes).
-        [PartId.PinballBumper] = new(["Visual/BumperHead"], ["Visual/Visual_Ring2"], [], ["Visual/Visual_Base", "Visual/ImpactRing"], null,
-            Uncollided: ["Visual/Visual_Cap"]),
+        [PartId.PinballBumper] = new(["Visual/BumperHead", "Visual/Visual_Cap"], ["Visual/Visual_Ring2"], [], ["Visual/Visual_Base", "Visual/ImpactRing"], null),
         // The pips: engine-multi-collider-dynamic.
         [PartId.Domino] = new(["Visual/Visual_Body", "Visual/Visual_Pip1", "Visual/Visual_Pip2"], null, [], [], null),
         // The stripes are flush with the faces. The body is drawn at 0.998 of the thickness so the stripes do not z-fight with it; the
@@ -547,6 +542,46 @@ public sealed class VisibleSolidColliderTests
         // A torus's top is a point apex, like a sphere's: no stable rest.
         await AssertDropOnto(element, x, z, top, staticRestitution, feature.ToString(),
             OnSphereApex(part, rotation, x, z, top) || feature is Feature.PipeCollar or Feature.Bend45Collar or Feature.Bend90Collar or Feature.FunnelCollar, feature == Feature.PlateSocket ? PlateFall : .5);
+    }
+
+    // At the rim the cap is 5 cm proud of the sphere; at x=.3 the rim's first contact
+    // is .65+sqrt(.34²-.05²). A 5 mm visual clearance allowance is one tenth of that
+    // exposed feature, so deleting the cap cannot satisfy this test. The 25-degree
+    // rotation puts the cap's upper corner above the sphere and upper ring.
+    [Theory]
+    [InlineData(.2f, 0f)]
+    [InlineData(.3f, 0f)]
+    [InlineData(.25f, 25f)]
+    public async Task TheExposedCapFaceAndRimStopAndRedirectTheBall(float x, float degrees)
+    {
+        var turn = NumQuaternion.CreateFromAxisAngle(NumVector3.UnitZ, degrees * MathF.PI / 180);
+        var corner = NumVector3.Transform(new(x, .65f, 0), turn);
+        var surface = degrees == 0 ? .65 + Math.Sqrt(BallRadius * BallRadius - Math.Pow(Math.Max(0, x - .25), 2))
+            : corner.Y + BallRadius;
+        await using var ring = await EventRingProducerTests.Ring.Running(Bench([
+            Place(PartId.PinballBumper, Element, new(0, (float)Y, 0), turn),
+            BallAt(new(corner.X, (float)(Y + surface + .2), 0))]));
+        await ring.Advance(60);
+        var firstRise = ring.Reads.FindIndex(read => Velocity(read).Y > 1);
+        Assert.True(firstRise > 0, "the cap redirects the falling ball upwards");
+        var beforeRise = ring.Reads.Take(firstRise + 1).ToArray();
+        Assert.True(beforeRise.Min(read => Position(read).Y) >= Y + surface - .005,
+            "the ball must rebound at the exposed cap, not sink through to the head");
+        Assert.Contains(ring.Records, record => record.Kind == SimulationEventKind.Impact &&
+            record.Source == Element.Value && record.Magnitude > 0);
+    }
+
+    [Fact]
+    public async Task ABallOutsideTheBumperSolidsFallsPastWithoutWorkOrPulse()
+    {
+        // Head .65 + outermost basketball seam .35 = 1 m: 5 cm clear of all solids.
+        await using var ring = await EventRingProducerTests.Ring.Running(Bench([
+            Place(PartId.PinballBumper, Element, new(0, (float)Y, 0), NumQuaternion.Identity),
+            BallAt(new(1.05f, (float)Y + 1.2f, 0))]));
+        await ring.Advance(60);
+        Assert.True(Position(ring.Reads[^1]).Y < Y, "the ball passes the bumper");
+        Assert.All(ring.Reads, read => Assert.Equal(32f, read.ContactWorks[0].RemainingEnergy.Value));
+        Assert.DoesNotContain(ring.Records, record => record.Kind == SimulationEventKind.Impact && record.Source == Element.Value);
     }
 
     /// <summary>The Bumper's upper ring (engine-hollow-shapes): the drawn TorusMesh (inner 0.472, outer 0.508) at y 0.43 is a solid
