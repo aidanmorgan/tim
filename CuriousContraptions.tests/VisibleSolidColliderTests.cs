@@ -49,20 +49,10 @@ public sealed class VisibleSolidColliderTests
     /// the sweep;</item>
     /// <item><paramref name="Decorative"/>: printing flat on a face, a glow, a part inside another solid, or a part a presentation
     /// binding moves, which a static collider cannot follow;</item>
-    /// <item><paramref name="Uncollided"/>: a visible part standing proud of the body with no collider, listed so none is hidden. Each
-    /// entry names the slice that owns making it solid (coordinator scope amendment, 25 Oct 2026):
-    /// <list type="bullet">
-    /// <item>engine-multi-collider-dynamic now supplies the seam, pips, Weight base/bands/eye, Plate studs/ring and Clock cap.
-    /// These features appear in Solid/Hollow below and have real contact/empty controls in AssignedCompoundFeatureTests.</item>
-    /// <item>face-markings-flush: raised face markings (the logic parts' pictograms, path bars, marks and truth dots, the hold timer's
-    /// track, the latch's set, reset and out markers) float 1–2 cm off their face and stand 1.5–8.5 cm proud of it; that slice
-    /// moves the art flush, so they become printing, and owns the sphere radius minimum for the truth dots and the latch's reset
-    /// beads.</item>
-    /// </list></item>
     /// </list></summary>
     /// <remarks><paramref name="Fit"/> widens the dimension agreement for a stated drawing reason (m).</remarks>
     private sealed record ArtSpec(string[] Solid, string[]? Hollow, string[] Arc, string[] Decorative, string? MovingRoot,
-        string[]? Uncollided = null, float Fit = 0f);
+        float Fit = 0f);
 
     /// <summary>One drawn primitive in its body's frame. Extents: a box's half sizes, a sphere's radius, a cylinder's (r, h, r); an open
     /// cylinder's (top radius, half-height, bottom radius) as <see cref="ColliderShapeKind.Tube"/> or
@@ -125,33 +115,31 @@ public sealed class VisibleSolidColliderTests
             ["Visual/Visual_Shell/Visual_Shell_Seg_*"], [], null),
         [PartId.Funnel] = new([], ["Visual/Visual_Shell", "Visual/Visual_Stub_*", "Visual/Visual_Collar_Start", "Visual/Visual_Collar_End"], [], [],
             null),
-        // The logic parts: the pictogram, truth dots, marks and paths float 1–2 cm off the 0.37 face and stand up to 4.25 cm (the
-        // strokes, marks and paths) and 8.5 cm (the truth dots) proud of it: face-markings-flush.
+        // Static control labels are flat printing, independently checked in FaceMarkingTests.
         [new PartId("both_gate")] = Logic(["Visual/UpperPath", "Visual/LowerPath"]),
         [new PartId("electrical_nand")] = Logic(["Visual/Pictogram/*", "Visual/TruthDot*"]),
         [new PartId("electrical_nor")] = Logic(["Visual/Pictogram/*", "Visual/TruthDot*"]),
         [new PartId("electrical_or")] = Logic(["Visual/Pictogram/*", "Visual/TruthDot*"]),
         [new PartId("electrical_xor")] = Logic(["Visual/Pictogram/*", "Visual/TruthDot*"]),
-        // The remaining-time bar is driven by the timer. The track stands 3 cm proud of the face: face-markings-flush.
+        // The remaining-time bar is driven by the timer; its static track is printed.
         [new PartId("hold_timer")] = new(["Visual/Body", "Visual/Foot", "Visual/Face", "Visual/Indicator", "Visual/PortTrigger",
-            "Visual/PortInput", "Visual/PortOutput"], null, [], ["Visual/Remaining/*"], null, Uncollided: ["Visual/Track"]),
+            "Visual/PortInput", "Visual/PortOutput"], null, [], ["Visual/Remaining/*", "Visual/Track"], null),
         // The ActivationOut socket (r 0.075 at (0, −0.72, 0.1)) lies wholly inside the foot (|y + 0.72| ≤ 0.08, z ≤ 0.425).
         [PartId.Counter] = new(["Visual/Housing", "Visual/Foot", "Visual/Face", .. Enumerable.Range(0, 9).Select(i => $"Visual/DotLamp_{i}"),
             "Visual/Visual_Socket_ActivationIn", "Visual/Visual_Socket_PowerIn", "Visual/Visual_Socket_Supply"], null, [],
             ["Visual/Visual_Socket_ActivationOut"], null),
-        // The rocker turns with the latch's state. The set, reset and out markers stand 1.5–5.5 cm proud of the face:
-        // face-markings-flush.
+        // The rocker turns with state; the set, reset and output cues are printed.
         [PartId.Latch] = new(["Visual/Housing", "Visual/Foot", "Visual/Face", "Visual/IndicatorLamp", "Visual/Visual_Socket_SetIn",
             "Visual/Visual_Socket_ResetIn", "Visual/Visual_Socket_PowerIn", "Visual/Visual_Socket_Supply", "Visual/Visual_Socket_ActivationOut"],
-            null, [], ["Visual/Rocker"], null, Uncollided: ["Visual/SetMarker", "Visual/ResetMarker/*", "Visual/OutMarker/*"]),
+            null, [], ["Visual/Rocker", "Visual/SetMarker", "Visual/ResetMarker/*", "Visual/OutMarker/*"], null),
         // The pendulum swings with the clock. The recess stands 2 cm proud of the face. The pivot cap: engine-multi-collider-dynamic.
         [PartId.Clock] = new(["Visual/Housing", "Visual/Foot", "Visual/Face", "Visual/PivotCap", "Visual/Visual_Indicator", "Visual/Visual_Socket_PowerIn",
             "Visual/Visual_Socket_ActivationOut", "Visual/Recess"], null, [], ["Visual/PendulumPivot/*"], null),
     };
 
-    private static ArtSpec Logic(string[] raised) => new(["Visual/Body", "Visual/Foot", "Visual/Face", "Visual/FirstLamp", "Visual/SecondLamp",
-            "Visual/OutputLamp", "Visual/PortFirst", "Visual/PortSecond", "Visual/PortPower", "Visual/PortOutput"], null, [], [], null,
-        Uncollided: [.. raised, "Visual/FirstMark", "Visual/SecondMarkLeft", "Visual/SecondMarkRight"]);
+    private static ArtSpec Logic(string[] printed) => new(["Visual/Body", "Visual/Foot", "Visual/Face", "Visual/FirstLamp", "Visual/SecondLamp",
+            "Visual/OutputLamp", "Visual/PortFirst", "Visual/PortSecond", "Visual/PortPower", "Visual/PortOutput"], null, [],
+        [.. printed, "Visual/FirstMark", "Visual/SecondMarkLeft", "Visual/SecondMarkRight"], null);
 
     /// <summary>Whether an art path is named by a classification entry: exactly, or by its prefix when the entry ends with "*".</summary>
     private static bool Names(string entry, string path) =>
@@ -178,7 +166,7 @@ public sealed class VisibleSolidColliderTests
         foreach (var parameters in ParameterSets(entry))
         {
             var art = Art(entry, spec.MovingRoot, parameters);
-            string[] entries = [.. spec.Solid, .. spec.Hollow ?? [], .. spec.Arc, .. spec.Decorative, .. spec.Uncollided ?? []];
+            string[] entries = [.. spec.Solid, .. spec.Hollow ?? [], .. spec.Arc, .. spec.Decorative];
             Assert.All(art.Keys, path => Assert.True(entries.Count(e => Names(e, path)) == 1, $"{element}: art '{path}' is not classified once"));
             Assert.All(entries, e => Assert.True(art.Keys.Any(path => Names(e, path)), $"{element}: '{e}' names no art"));
 

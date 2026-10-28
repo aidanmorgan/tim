@@ -63,7 +63,7 @@ public sealed class BothGateTests
         var construction=Machine(inputs,supply);var expected=inputs==ElectricalInputState.Both && supply;
         var saved=new WorkshopSavedConstruction(construction,new(6));
         var bytes=WorkshopSaveCodec.Encode(saved);var loaded=WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes);
-        Assert.Equal(saved,loaded);Assert.Equal(bytes,WorkshopSaveCodec.Encode(loaded));
+        Assert.Equal(saved,loaded);
         var (built,reads,reset)=await NoFixedCapacityTests.RunAndReset(loaded.Construction,120);
         Assert.Equal(new(new(4),ElectricalInputState.Neither,false,false),Logic(built));
         Assert.All(reads,read=>

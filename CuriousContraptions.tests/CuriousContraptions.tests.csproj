@@ -66,6 +66,7 @@
         <Compile Include="ElementIsolationTests.cs" />
         <Compile Include="LampDetectorGuardTests.cs" />
         <Compile Include="VisibleSolidColliderTests.cs" />
+        <Compile Include="FaceMarkingTests.cs" />
         <Compile Include="WorkshopPhysicsLawHollowTests.cs" />
         <Compile Include="WorkshopPhysicsLawFrictionTests.cs" />
         <Compile Include="WorkshopContactBlockTests.cs" />

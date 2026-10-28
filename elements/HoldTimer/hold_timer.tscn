@@ -32,9 +32,9 @@ size = Vector3(1.6, 0.14, 0.85)
 material = SubResource("Mat_Face")
 size = Vector3(1.18, 0.72, 0.045)
 
-[sub_resource type="BoxMesh" id="Mesh_Track"]
+[sub_resource type="QuadMesh" id="Mesh_Track"]
 material = SubResource("Mat_Dark")
-size = Vector3(1, 0.14, 0.025)
+size = Vector2(1, 0.14)
 
 [sub_resource type="BoxMesh" id="Mesh_Bar"]
 material = SubResource("Mat_Gold")
@@ -83,7 +83,7 @@ transform = Transform3D(1,0,0,0,1,0,0,0,1,0,0,0.35)
 mesh = SubResource("Mesh_Face")
 
 [node name="Track" type="MeshInstance3D" parent="Visual"]
-transform = Transform3D(1,0,0,0,1,0,0,0,1,0,0.1,0.39)
+transform = Transform3D(1,0,0,0,1,0,0,0,1,0,0.1,0.37275)
 mesh = SubResource("Mesh_Track")
 
 [node name="Indicator" type="MeshInstance3D" parent="Visual"]

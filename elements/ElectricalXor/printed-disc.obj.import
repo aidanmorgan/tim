@@ -1,0 +1,25 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://duovodyg6dlb6"
+path="res://.godot/imported/printed-disc.obj-42758b9fd10e8f7bb3c4489d14de7c65.mesh"
+
+[deps]
+
+files=["res://.godot/imported/printed-disc.obj-42758b9fd10e8f7bb3c4489d14de7c65.mesh"]
+
+source_file="res://elements/ElectricalXor/printed-disc.obj"
+dest_files=["res://.godot/imported/printed-disc.obj-42758b9fd10e8f7bb3c4489d14de7c65.mesh", "res://.godot/imported/printed-disc.obj-42758b9fd10e8f7bb3c4489d14de7c65.mesh"]
+
+[params]
+
+generate_tangents=true
+generate_lods=true
+generate_shadow_mesh=true
+generate_lightmap_uv2=false
+generate_lightmap_uv2_texel_size=0.2
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+force_disable_mesh_compression=false

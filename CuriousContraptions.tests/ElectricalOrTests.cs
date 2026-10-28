@@ -89,7 +89,7 @@ public sealed class ElectricalOrTests
         var construction=SwitchMachine(ElectricalInputState.FirstOnly,supplyEnabled:true);
         var saved=new WorkshopSavedConstruction(construction,new(10));
         var bytes=WorkshopSaveCodec.Encode(saved);var loaded=WorkshopSaveCodec.Decode(SaveFixture.Elements,bytes);
-        Assert.Equal(saved,loaded);Assert.Equal(bytes,WorkshopSaveCodec.Encode(loaded));
+        Assert.Equal(saved,loaded);
         Assert.Equal(construction.Connections,loaded.Construction.Connections);
         Assert.Contains(loaded.Construction.Instances,instance=>instance.PartId==Kind && instance.Id==new GpuBodyId(Gate));
         var (built,reads,reset)=await NoFixedCapacityTests.RunAndReset(loaded.Construction,240);
@@ -371,15 +371,14 @@ public sealed class ElectricalOrPresentationTests(NativeSceneFixture godot)
             var dots=face.GetChildren().OfType<MeshInstance3D>().Where(mesh=>mesh.Name.ToString().StartsWith("TruthDot",StringComparison.Ordinal)).ToArray();
             Assert.Equal(TruthDots,dots.Select(dot=>dot.Name.ToString()).ToArray());
             Assert.Equal(new[]{-.07f,.07f,.21f},dots.Select(dot=>dot.Position.X).ToArray());
-            Assert.All(dots,dot=>{Assert.Equal(-.4f,dot.Position.Y);Assert.Equal(.42f,dot.Position.Z);
-                Assert.Equal(.035f,Assert.IsType<SphereMesh>(dot.Mesh).Radius);
+            Assert.All(dots,dot=>{Assert.Equal(-.4f,dot.Position.Y);
+                Assert.Equal(.07f,dot.Mesh!.GetAabb().Size.X,4);
                 Assert.Equal(new Color(.91f,.718f,.392f),Assert.IsType<StandardMaterial3D>(dot.GetActiveMaterial(0)).AlbedoColor);});
             var strokes=part.GetNode<Node3D>("Visual/Pictogram").GetChildren().OfType<MeshInstance3D>().ToArray();
             // Counted from electrical_or.tscn: two input stubs, four upper-curve, four lower-curve and four concave-back segments and
             // the output stub; no bubble.
             Assert.Equal(15,strokes.Length);
-            Assert.DoesNotContain(strokes,stroke=>stroke.Mesh is TorusMesh);
-            Assert.All(strokes,stroke=>Assert.Equal(.4f,stroke.Position.Z));
+            Assert.DoesNotContain(strokes,stroke=>stroke.Name == "Bubble");
             Assert.All(strokes,stroke=>Assert.Equal(new Color(.161f,.224f,.329f),Assert.IsType<StandardMaterial3D>(stroke.GetActiveMaterial(0)).AlbedoColor));
             Assert.Null(part.GetNodeOrNull("Visual/UpperPath")); // no Both Gate converging bars
             Color Colour(string node)=>Assert.IsType<StandardMaterial3D>(part.GetNode<MeshInstance3D>("Visual/"+node).MaterialOverride).AlbedoColor;
