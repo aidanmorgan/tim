@@ -20,6 +20,8 @@ The [float comparison and effort rules](testing-guidance.md#float-comparison-and
 
 ## Local tests are authoritative; GitHub builds and deploys — owner decision, 26 October 2026
 
+**Owner clarification,29 October2026:** ignore ongoing CI and continue working. Required local tests, normal hooks and independent approval still gate publication; after pushing, begin the next ready slice without monitoring or waiting for remote production build, artifact or deployment checks. Keep those results unverified unless actually established. This supersedes older per-slice terminal-verifier and CI-wait obligations; it does not claim browser or release qualification.
+
 Effective immediately, including pending publication, required local game/tool suites and normal hooks provide the test authority. Every required local run passes with zero failures and zero skipped game tests; only the existing explicit browser deferral applies. This supersedes earlier wording requiring remote tests or remote test totals, without changing gameplay requirements, independent Auto review, normal hooks or compiler warnings-as-errors.
 
 GitHub retains production compilation and publish, static artifact checks, main-only Pages artifact upload and deployment. It does not execute game/tool tests or provision dependencies used only by those tests. Terminal verification checks CI production build success on the exact committed SHA, the Pages artifact and the deployment; no remote test totals are required. Preserve original local proof and historical remote receipts, and never report a cancelled run as a Pass. Local Release worker builds and web publish remain prohibited; CI owns production publishing.

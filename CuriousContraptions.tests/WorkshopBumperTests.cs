@@ -27,8 +27,8 @@ public sealed class WorkshopBumperTests
         Assert.True(Payloads.First(construction).Locked && ((WorkshopGenericInstance)construction.Instances.Single(instance => instance.PartId == PartId.Receiver)).Locked);
         AuthoredContentAssertions.Profile(fixtures[0].GetProperty("assistance"), construction.Puzzle.PrimaryAssistance);
         AuthoredContentAssertions.Profile(fixtures[1].GetProperty("assistance"), construction.Puzzle.TargetAssistance);
-        var solution = level.GetProperty("solution").EnumerateArray().ToArray();
-        CheckProfile(solution.Single(value => value.GetProperty("kind").GetString() == "bumper").GetProperty("difficulty"),
+        var solution = level.GetProperty("solution").EnumerateArray().Select(row => row.GetProperty("instance")).ToArray();
+        AuthoredContentAssertions.Profile(solution.Single(value => value.GetProperty("part").GetString() == "bumper").GetProperty("assistance"),
             construction.Puzzle.PlacementAssistance);
         var inventory = WorkshopInventoryPolicy.Authored(construction.Puzzle);
         Assert.Equal(PartAllowance.Counted(1), inventory[PartId.PinballBumper]);
@@ -40,7 +40,7 @@ public sealed class WorkshopBumperTests
             Assert.Equal(2, inventory.Count);
             Assert.Equal(PartAllowance.Counted(1), inventory[PartId.Wall]);
             Assert.Equal(1, level.GetProperty("inventory").EnumerateArray().Single(row => row.GetProperty("part").GetString() == "wall").GetProperty("count").GetInt32());
-            CheckProfile(solution.Single(value => value.GetProperty("kind").GetString() == "wall").GetProperty("difficulty"),
+            AuthoredContentAssertions.Profile(solution.Single(value => value.GetProperty("part").GetString() == "wall").GetProperty("assistance"),
                 construction.Puzzle.SecondaryAssistance);
             placed = placed.WithInstance(wall);
             EditRefusal.Is(WorkshopEditRejection.InventoryExceeded, () => placed.WithInstance(wall with { Id = new(5) }).Validate());
@@ -116,21 +116,7 @@ public sealed class WorkshopBumperTests
 
 
 
-    private static void CheckProfile(System.Text.Json.JsonElement data, AssistanceProfile profile)
-    {
-        var values = new[] { profile.Forgiving, profile.Balanced, profile.Precise };
-        var names = new[] { "precision", "position_window", "rotation_window", "max_position_correction", "max_rotation_correction",
-            "blend_seconds", "capture_margin", "capture_speed", "capture_dwell", "guide_acceleration", "trigger_threshold" };
-        for (var i = 0; i < 3; i++)
-        {
-            var k = values[i];
-            float[] actual = [k.Precision, k.PositionWindow.Value, k.RotationWindowDegrees, k.MaximumPositionCorrection.Value,
-                k.MaximumRotationCorrectionDegrees, k.Blend.Value, k.CaptureMargin.Value, k.CaptureSpeed.Value,
-                k.CaptureDwell.Value, k.GuideAcceleration.Value, k.TriggerThreshold];
-            for (var field = 0; field < names.Length; field++)
-                Assert.Equal((float)data[i].GetProperty(names[field]).GetDouble(), actual[field]);
-        }
-    }
+
 
     [Fact]
     public void SidekickKeepsSourceProfilesAndAtomicInventory()
@@ -142,7 +128,7 @@ public sealed class WorkshopBumperTests
         Assert.Equal(WorkshopGoalKind.Captured, construction.Puzzle.Goal.Kind);
         AuthoredContentAssertions.Profile(level.GetProperty("placements")[0].GetProperty("instance").GetProperty("assistance"), construction.Puzzle.PrimaryAssistance);
         AuthoredContentAssertions.Profile(level.GetProperty("placements")[1].GetProperty("instance").GetProperty("assistance"), construction.Puzzle.TargetAssistance);
-        Check(level.GetProperty("solution")[0].GetProperty("difficulty"), construction.Puzzle.PlacementAssistance);
+        AuthoredContentAssertions.Profile(level.GetProperty("solution")[0].GetProperty("instance").GetProperty("assistance"), construction.Puzzle.PlacementAssistance);
         Assert.Equal(WorkshopInput.Generic(PartId.Basketball,new(1), -3, 5, 0, 0, 0, 0, 1) with { Locked = true }, Payloads.Find(construction));
         AuthoredContentAssertions.Placement(level.GetProperty("placements")[1].GetProperty("instance"), ((WorkshopGenericInstance)construction.Instances.Single(instance => instance.PartId == PartId.Receiver)));
         var bumper = new WorkshopGenericInstance(PartId.PinballBumper, new(3), new(-51, 24, 0), default, CanonicalRotation.Identity)
@@ -158,21 +144,7 @@ public sealed class WorkshopBumperTests
             var saved = new WorkshopSavedConstruction(next, new(4));
             Assert.Equal(saved, WorkshopSaveCodec.Decode(SaveFixture.Elements,WorkshopSaveCodec.Encode(saved)));
         }
-        static void Check(System.Text.Json.JsonElement data, AssistanceProfile profile)
-        {
-            var values = new[] { profile.Forgiving, profile.Balanced, profile.Precise };
-            var names = new[] { "precision", "position_window", "rotation_window", "max_position_correction", "max_rotation_correction",
-                "blend_seconds", "capture_margin", "capture_speed", "capture_dwell", "guide_acceleration", "trigger_threshold" };
-            for (var i = 0; i < 3; i++)
-            {
-                var k = values[i];
-                float[] actual = [k.Precision, k.PositionWindow.Value, k.RotationWindowDegrees, k.MaximumPositionCorrection.Value,
-                    k.MaximumRotationCorrectionDegrees, k.Blend.Value, k.CaptureMargin.Value, k.CaptureSpeed.Value,
-                    k.CaptureDwell.Value, k.GuideAcceleration.Value, k.TriggerThreshold];
-                for (var field = 0; field < names.Length; field++)
-                    Assert.Equal((float)data[i].GetProperty(names[field]).GetDouble(), actual[field]);
-            }
-        }
+
     }
 
     private const float Preload = 32f;

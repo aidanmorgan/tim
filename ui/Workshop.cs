@@ -357,35 +357,39 @@ public partial class Workshop : Node3D
     private void RefreshPalette()
     {
         foreach (var child in _palette.GetChildren()) { _palette.RemoveChild(child); child.QueueFree(); }
-        foreach (var key in _inventory.Keys)
+        foreach (var group in _inventory.Keys.GroupBy(key => World.Registry.Definitions[key].Category).OrderBy(group => group.Key))
         {
-            var definition = World.Registry.Definitions[key];
-            var remaining = Remaining(key);
-            var countText = remaining.Kind == PartAllowanceKind.Unlimited ? "∞" : remaining.Count.ToString(CultureInfo.CurrentCulture);
-            var button = Button(definition.Title + "  × " + countText, () => ChooseTool(key));
-            button.Disabled = remaining.Exhausted || !CanEdit;
-            button.TooltipText = ""; // Description already appears in the drawer when chosen.
-            button.Icon = WorkshopIcons.Element(definition.IconPath);
-            button.SetMeta("part_kind", definition.Id);
-            button.CustomMinimumSize = new(180, 40);
-            button.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-            button.IconAlignment = HorizontalAlignment.Left;
-            // The single button owns the whole row. Decorative labels ignore
-            // mouse input so the name/count activate the same placement preview.
-            var row = new HBoxContainer { MouseFilter = Control.MouseFilterEnum.Ignore };
-            button.AddChild(row);
-            row.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
-            row.OffsetLeft = 40;
-            row.OffsetRight = -6;
-            var name = Text(definition.Title, 14, button.Disabled ? Muted : Navy);
-            name.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-            name.ClipText = true;
-            name.MouseFilter = Control.MouseFilterEnum.Ignore;
-            row.AddChild(name);
-            var countLabel = Text(countText, 14, Muted);
-            countLabel.MouseFilter = Control.MouseFilterEnum.Ignore;
-            row.AddChild(countLabel);
-            _palette.AddChild(button);
+            _palette.AddChild(Text(group.Key.ToString(), 13, Muted));
+            foreach (var key in group)
+            {
+                var definition = World.Registry.Definitions[key];
+                var remaining = Remaining(key);
+                var countText = remaining.Kind == PartAllowanceKind.Unlimited ? "∞" : remaining.Count.ToString(CultureInfo.CurrentCulture);
+                var button = Button(definition.Title + "  × " + countText, () => ChooseTool(key));
+                button.Disabled = remaining.Exhausted || !CanEdit;
+                button.TooltipText = ""; // Description already appears in the drawer when chosen.
+                button.Icon = WorkshopIcons.Element(definition.IconPath);
+                button.SetMeta("part_kind", definition.Id);
+                button.CustomMinimumSize = new(180, 40);
+                button.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+                button.IconAlignment = HorizontalAlignment.Left;
+                // The single button owns the whole row. Decorative labels ignore
+                // mouse input so the name/count activate the same placement preview.
+                var row = new HBoxContainer { MouseFilter = Control.MouseFilterEnum.Ignore };
+                button.AddChild(row);
+                row.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
+                row.OffsetLeft = 40;
+                row.OffsetRight = -6;
+                var name = Text(definition.Title, 14, button.Disabled ? Muted : Navy);
+                name.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+                name.ClipText = true;
+                name.MouseFilter = Control.MouseFilterEnum.Ignore;
+                row.AddChild(name);
+                var countLabel = Text(countText, 14, Muted);
+                countLabel.MouseFilter = Control.MouseFilterEnum.Ignore;
+                row.AddChild(countLabel);
+                _palette.AddChild(button);
+            }
         }
     }
     private PartAllowance Remaining(PartId id) => _inventory.GetValueOrDefault(id, PartAllowance.None)

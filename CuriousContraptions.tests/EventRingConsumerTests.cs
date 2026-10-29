@@ -623,7 +623,7 @@ public sealed class EventRingConsumerTests
     {
         foreach (var solved in new[] { true, false })
         {
-            var bench = solved ? LaunchLessonSolveTests.AuthoredSolution(lesson, .45f)
+            var bench = solved ? PuzzleCatalogue.CreateSolution(new(lesson), new(2), WorkshopCadenceSettings.Default(), new(1), new(.45f))
                 : PuzzleCatalogue.Create(new PuzzleId(lesson), new(2), WorkshopCadenceSettings.Default(), new(1), new(.45f));
             var goal = bench.Puzzle.Goal;
             await using var ring = await WorkshopIntegrationHarness.Running(bench);

@@ -33,8 +33,8 @@ public sealed class ClearPipeLevelTests
         AuthoredContentAssertions.Profile(fixtures[0].GetProperty("assistance"), construction.Puzzle.PrimaryAssistance);
         AuthoredContentAssertions.Profile(fixtures[1].GetProperty("assistance"), construction.Puzzle.TargetAssistance);
 
-        var solution = level.GetProperty("solution").EnumerateArray().ToArray();
-        CheckProfile(solution.Single(v => v.GetProperty("kind").GetString() == "pipe").GetProperty("difficulty"),
+        var solution = level.GetProperty("solution").EnumerateArray().Select(row => row.GetProperty("instance")).ToArray();
+        AuthoredContentAssertions.Profile(solution.Single(v => v.GetProperty("part").GetString() == "pipe").GetProperty("assistance"),
             construction.Puzzle.PlacementAssistance);
 
         var inventory = WorkshopInventoryPolicy.Authored(construction.Puzzle);
@@ -125,19 +125,5 @@ public sealed class ClearPipeLevelTests
 
 
 
-    private static void CheckProfile(JsonElement data, AssistanceProfile profile)
-    {
-        var values = new[] { profile.Forgiving, profile.Balanced, profile.Precise };
-        var names = new[] { "precision", "position_window", "rotation_window", "max_position_correction", "max_rotation_correction",
-            "blend_seconds", "capture_margin", "capture_speed", "capture_dwell", "guide_acceleration", "trigger_threshold" };
-        for (var i = 0; i < 3; i++)
-        {
-            var k = values[i];
-            float[] actual = [k.Precision, k.PositionWindow.Value, k.RotationWindowDegrees, k.MaximumPositionCorrection.Value,
-                k.MaximumRotationCorrectionDegrees, k.Blend.Value, k.CaptureMargin.Value, k.CaptureSpeed.Value,
-                k.CaptureDwell.Value, k.GuideAcceleration.Value, k.TriggerThreshold];
-            for (var field = 0; field < names.Length; field++)
-                Assert.Equal((float)data[i].GetProperty(names[field]).GetDouble(), actual[field]);
-        }
-    }
+
 }

@@ -35,7 +35,8 @@ public sealed class NoFixedCapacityTests
         {
             case PopulationKind.Instances:
                 for (var i = 0; i < 33; i++) parts.Add(WorkshopInput.Generic(PartId.Wall, Next(), (float)(X(i)), 2, 4, 0, 0, 0, 1, WallFixture.Default));
-                return (Bench(parts), scene => Assert.Equal(34, scene.Bodies.Length));
+                parts.Add(WorkshopInput.Generic(PartId.Basketball, Next(), 0, 4, 0, 0, 0, 0, 1));
+                return (Bench(parts), scene => Assert.Equal(35, scene.Bodies.Length));
             case PopulationKind.Bodies:
                 // Seventeen Powered Gates: 35 bodies from 17 parts, below the retired part table.
                 for (var i = 0; i < 17; i++)
@@ -107,7 +108,14 @@ public sealed class NoFixedCapacityTests
         var (bench, check) = Population(table);
         bench.Validate();
         check(WorkshopPhysicsCompiler.Compile(bench, new(1, 2)));
-        var reads = await WorkshopIntegrationHarness.Observe(bench, SteppedTicks);
+        var (built, reads, reset) = await WorkshopIntegrationHarness.ObserveReset(bench, SteppedTicks);
+        if (table == PopulationKind.Instances)
+        {
+            Assert.True(reads[^1].Bodies.TryGet(new(34), out var moved));
+            Assert.True(moved.Body.Velocity.Y < -.1f && (moved.Body.Cell.Y + moved.Body.Local.Y) / 16f < 4,
+                "The beyond-capacity scene must actually move a payload before Reset.");
+        }
+        AssertSameState(built, reset, "beyond-capacity Reset");
         Assert.Equal(new SimulationTick(SteppedTicks), reads[^1].Tick);
         AssertCrossesResponseCodec(reads[^1]);
     }

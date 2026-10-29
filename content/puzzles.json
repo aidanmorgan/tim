@@ -57,130 +57,148 @@
     ],
     "solution": [
       {
-        "id": "ramp_1",
-        "kind": "ramp",
-        "difficulty": [
-          {
-            "precision": 0,
-            "position_window": 3,
-            "rotation_window": 100,
-            "max_position_correction": 0.3,
-            "max_rotation_correction": 5,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.3,
-            "capture_speed": 3,
-            "capture_dwell": 0.15,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.2
+        "slot": "ramp_1",
+        "instance": {
+          "part": "ramp",
+          "cell": [
+            -54,
+            69,
+            0
+          ],
+          "local": [
+            -0.40000152587890625,
+            -0.1999969482421875,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            -0.1736481636762619,
+            0.9848077297210693
+          ],
+          "locked": false,
+          "scalars": {
+            "Length": 0
           },
-          {
-            "precision": 0.45,
-            "position_window": 1.5,
-            "rotation_window": 45,
-            "max_position_correction": 0.12,
-            "max_rotation_correction": 2,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.174,
-            "capture_speed": 2.325,
-            "capture_dwell": 0.24,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.47
+          "parameters": {
+            "length": 3,
+            "width": 1.3
           },
-          {
-            "precision": 1,
-            "position_window": 0,
-            "rotation_window": 0,
-            "max_position_correction": 0,
-            "max_rotation_correction": 0,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.02,
-            "capture_speed": 1.5,
-            "capture_dwell": 0.35,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.8
-          }
-        ],
-        "locked": false,
-        "position": [
-          -3.4,
-          4.3,
-          0
-        ],
-        "orientation": [
-          0.9396926164627075,
-          -0.3420201241970062,
-          0,
-          0.3420201241970062,
-          0.9396926164627075,
-          0,
-          0,
-          0,
-          1
-        ],
-        "properties": {}
+          "assistance": [
+            [
+              0,
+              3,
+              100,
+              0.3,
+              5,
+              0.4,
+              0.3,
+              3,
+              0.15,
+              0,
+              0.2
+            ],
+            [
+              0.45,
+              1.5,
+              45,
+              0.12,
+              2,
+              0.4,
+              0.174,
+              2.325,
+              0.24,
+              0,
+              0.47
+            ],
+            [
+              1,
+              0,
+              0,
+              0,
+              0,
+              0.4,
+              0.02,
+              1.5,
+              0.35,
+              0,
+              0.8
+            ]
+          ],
+          "assistance_bindings": []
+        }
       },
       {
-        "id": "ramp_2",
-        "kind": "ramp",
-        "difficulty": [
-          {
-            "precision": 0,
-            "position_window": 3,
-            "rotation_window": 100,
-            "max_position_correction": 0.3,
-            "max_rotation_correction": 5,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.3,
-            "capture_speed": 3,
-            "capture_dwell": 0.15,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.2
+        "slot": "ramp_2",
+        "instance": {
+          "part": "ramp",
+          "cell": [
+            -11,
+            43,
+            0
+          ],
+          "local": [
+            -0.19999980926513672,
+            0.20000076293945312,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            -0.1736481636762619,
+            0.9848077297210693
+          ],
+          "locked": false,
+          "scalars": {
+            "Length": 0
           },
-          {
-            "precision": 0.45,
-            "position_window": 1.5,
-            "rotation_window": 45,
-            "max_position_correction": 0.12,
-            "max_rotation_correction": 2,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.174,
-            "capture_speed": 2.325,
-            "capture_dwell": 0.24,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.47
+          "parameters": {
+            "length": 3,
+            "width": 1.3
           },
-          {
-            "precision": 1,
-            "position_window": 0,
-            "rotation_window": 0,
-            "max_position_correction": 0,
-            "max_rotation_correction": 0,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.02,
-            "capture_speed": 1.5,
-            "capture_dwell": 0.35,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.8
-          }
-        ],
-        "locked": false,
-        "position": [
-          -0.7,
-          2.7,
-          0
-        ],
-        "orientation": [
-          0.9396926164627075,
-          -0.3420201241970062,
-          0,
-          0.3420201241970062,
-          0.9396926164627075,
-          0,
-          0,
-          0,
-          1
-        ],
-        "properties": {}
+          "assistance": [
+            [
+              0,
+              3,
+              100,
+              0.3,
+              5,
+              0.4,
+              0.3,
+              3,
+              0.15,
+              0,
+              0.2
+            ],
+            [
+              0.45,
+              1.5,
+              45,
+              0.12,
+              2,
+              0.4,
+              0.174,
+              2.325,
+              0.24,
+              0,
+              0.47
+            ],
+            [
+              1,
+              0,
+              0,
+              0,
+              0,
+              0.4,
+              0.02,
+              1.5,
+              0.35,
+              0,
+              0.8
+            ]
+          ],
+          "assistance_bindings": []
+        }
       }
     ],
     "solution_connections": [],
@@ -1030,67 +1048,77 @@
     ],
     "solution": [
       {
-        "id": "spring_1",
-        "kind": "spring",
-        "difficulty": [
-          {
-            "precision": 0,
-            "position_window": 3,
-            "rotation_window": 100,
-            "max_position_correction": 0.2,
-            "max_rotation_correction": 3,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.3,
-            "capture_speed": 3,
-            "capture_dwell": 0.15,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.2
+        "slot": "spring_1",
+        "instance": {
+          "part": "spring",
+          "cell": [
+            -48,
+            13,
+            0
+          ],
+          "local": [
+            0,
+            -0.19999980926513672,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            -0.1736481636762619,
+            0.9848077297210693
+          ],
+          "locked": false,
+          "scalars": {
+            "Length": 0
           },
-          {
-            "precision": 0.45,
-            "position_window": 1.5,
-            "rotation_window": 45,
-            "max_position_correction": 0.08,
-            "max_rotation_correction": 1.2,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.174,
-            "capture_speed": 2.325,
-            "capture_dwell": 0.24,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.47
+          "parameters": {
+            "stiffness": 400,
+            "damping": 0.2,
+            "initial_compression": 0
           },
-          {
-            "precision": 1,
-            "position_window": 0,
-            "rotation_window": 0,
-            "max_position_correction": 0,
-            "max_rotation_correction": 0,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.02,
-            "capture_speed": 1.5,
-            "capture_dwell": 0.35,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.8
-          }
-        ],
-        "locked": false,
-        "position": [
-          -3,
-          0.8,
-          0
-        ],
-        "orientation": [
-          0.9396926164627075,
-          -0.3420201241970062,
-          0,
-          0.3420201241970062,
-          0.9396926164627075,
-          0,
-          0,
-          0,
-          1
-        ],
-        "properties": {}
+          "assistance": [
+            [
+              0,
+              3,
+              100,
+              0.2,
+              3,
+              0.4,
+              0.3,
+              3,
+              0.15,
+              0,
+              0.2
+            ],
+            [
+              0.45,
+              1.5,
+              45,
+              0.08,
+              1.2,
+              0.4,
+              0.174,
+              2.325,
+              0.24,
+              0,
+              0.47
+            ],
+            [
+              1,
+              0,
+              0,
+              0,
+              0,
+              0.4,
+              0.02,
+              1.5,
+              0.35,
+              0,
+              0.8
+            ]
+          ],
+          "assistance_bindings": []
+        }
       }
     ],
     "solution_connections": [],
@@ -1646,7 +1674,7 @@
           -3
         ],
         "orientation": [
-          -4.371138828673793e-08,
+          -4.371138828673793e-8,
           0,
           1,
           0,
@@ -1654,7 +1682,7 @@
           0,
           -1,
           0,
-          -4.371138828673793e-08
+          -4.371138828673793e-8
         ],
         "properties": {}
       }
@@ -1719,265 +1747,289 @@
     ],
     "solution": [
       {
-        "id": "domino_0",
-        "kind": "domino",
-        "difficulty": [
-          {
-            "precision": 0,
-            "position_window": 1.2,
-            "rotation_window": 100,
-            "max_position_correction": 0.2,
-            "max_rotation_correction": 5,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.3,
-            "capture_speed": 3,
-            "capture_dwell": 0.15,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.15
+        "slot": "domino_0",
+        "instance": {
+          "part": "domino",
+          "cell": [
+            -64,
+            2,
+            0
+          ],
+          "local": [
+            0,
+            -0.3999999761581421,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "locked": false,
+          "scalars": {
+            "Length": 0
           },
-          {
-            "precision": 0.45,
-            "position_window": 0.6,
-            "rotation_window": 45,
-            "max_position_correction": 0.08,
-            "max_rotation_correction": 2,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.174,
-            "capture_speed": 2.325,
-            "capture_dwell": 0.24,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.3075
-          },
-          {
-            "precision": 1,
-            "position_window": 0,
-            "rotation_window": 0,
-            "max_position_correction": 0,
-            "max_rotation_correction": 0,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.02,
-            "capture_speed": 1.5,
-            "capture_dwell": 0.35,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.5
-          }
-        ],
-        "locked": false,
-        "position": [
-          -4,
-          0.1,
-          0
-        ],
-        "orientation": [
-          1,
-          0,
-          0,
-          0,
-          1,
-          0,
-          0,
-          0,
-          1
-        ],
-        "properties": {}
+          "parameters": {},
+          "assistance": [
+            [
+              0,
+              1.2,
+              100,
+              0.2,
+              5,
+              0.4,
+              0.3,
+              3,
+              0.15,
+              0,
+              0.15
+            ],
+            [
+              0.45,
+              0.6,
+              45,
+              0.08,
+              2,
+              0.4,
+              0.174,
+              2.325,
+              0.24,
+              0,
+              0.3075
+            ],
+            [
+              1,
+              0,
+              0,
+              0,
+              0,
+              0.4,
+              0.02,
+              1.5,
+              0.35,
+              0,
+              0.5
+            ]
+          ],
+          "assistance_bindings": []
+        }
       },
       {
-        "id": "domino_1",
-        "kind": "domino",
-        "difficulty": [
-          {
-            "precision": 0,
-            "position_window": 1.2,
-            "rotation_window": 100,
-            "max_position_correction": 0.2,
-            "max_rotation_correction": 5,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.3,
-            "capture_speed": 3,
-            "capture_dwell": 0.15,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.15
+        "slot": "domino_1",
+        "instance": {
+          "part": "domino",
+          "cell": [
+            -48,
+            2,
+            0
+          ],
+          "local": [
+            0,
+            -0.3999999761581421,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "locked": false,
+          "scalars": {
+            "Length": 0
           },
-          {
-            "precision": 0.45,
-            "position_window": 0.6,
-            "rotation_window": 45,
-            "max_position_correction": 0.08,
-            "max_rotation_correction": 2,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.174,
-            "capture_speed": 2.325,
-            "capture_dwell": 0.24,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.3075
-          },
-          {
-            "precision": 1,
-            "position_window": 0,
-            "rotation_window": 0,
-            "max_position_correction": 0,
-            "max_rotation_correction": 0,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.02,
-            "capture_speed": 1.5,
-            "capture_dwell": 0.35,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.5
-          }
-        ],
-        "locked": false,
-        "position": [
-          -3,
-          0.1,
-          0
-        ],
-        "orientation": [
-          1,
-          0,
-          0,
-          0,
-          1,
-          0,
-          0,
-          0,
-          1
-        ],
-        "properties": {}
+          "parameters": {},
+          "assistance": [
+            [
+              0,
+              1.2,
+              100,
+              0.2,
+              5,
+              0.4,
+              0.3,
+              3,
+              0.15,
+              0,
+              0.15
+            ],
+            [
+              0.45,
+              0.6,
+              45,
+              0.08,
+              2,
+              0.4,
+              0.174,
+              2.325,
+              0.24,
+              0,
+              0.3075
+            ],
+            [
+              1,
+              0,
+              0,
+              0,
+              0,
+              0.4,
+              0.02,
+              1.5,
+              0.35,
+              0,
+              0.5
+            ]
+          ],
+          "assistance_bindings": []
+        }
       },
       {
-        "id": "domino_2",
-        "kind": "domino",
-        "difficulty": [
-          {
-            "precision": 0,
-            "position_window": 1.2,
-            "rotation_window": 100,
-            "max_position_correction": 0.2,
-            "max_rotation_correction": 5,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.3,
-            "capture_speed": 3,
-            "capture_dwell": 0.15,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.15
+        "slot": "domino_2",
+        "instance": {
+          "part": "domino",
+          "cell": [
+            -32,
+            2,
+            0
+          ],
+          "local": [
+            0,
+            -0.3999999761581421,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "locked": false,
+          "scalars": {
+            "Length": 0
           },
-          {
-            "precision": 0.45,
-            "position_window": 0.6,
-            "rotation_window": 45,
-            "max_position_correction": 0.08,
-            "max_rotation_correction": 2,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.174,
-            "capture_speed": 2.325,
-            "capture_dwell": 0.24,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.3075
-          },
-          {
-            "precision": 1,
-            "position_window": 0,
-            "rotation_window": 0,
-            "max_position_correction": 0,
-            "max_rotation_correction": 0,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.02,
-            "capture_speed": 1.5,
-            "capture_dwell": 0.35,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.5
-          }
-        ],
-        "locked": false,
-        "position": [
-          -2,
-          0.1,
-          0
-        ],
-        "orientation": [
-          1,
-          0,
-          0,
-          0,
-          1,
-          0,
-          0,
-          0,
-          1
-        ],
-        "properties": {}
+          "parameters": {},
+          "assistance": [
+            [
+              0,
+              1.2,
+              100,
+              0.2,
+              5,
+              0.4,
+              0.3,
+              3,
+              0.15,
+              0,
+              0.15
+            ],
+            [
+              0.45,
+              0.6,
+              45,
+              0.08,
+              2,
+              0.4,
+              0.174,
+              2.325,
+              0.24,
+              0,
+              0.3075
+            ],
+            [
+              1,
+              0,
+              0,
+              0,
+              0,
+              0.4,
+              0.02,
+              1.5,
+              0.35,
+              0,
+              0.5
+            ]
+          ],
+          "assistance_bindings": []
+        }
       },
       {
-        "id": "domino_3",
-        "kind": "domino",
-        "difficulty": [
-          {
-            "precision": 0,
-            "position_window": 1.2,
-            "rotation_window": 100,
-            "max_position_correction": 0.2,
-            "max_rotation_correction": 5,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.3,
-            "capture_speed": 3,
-            "capture_dwell": 0.15,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.15
+        "slot": "domino_3",
+        "instance": {
+          "part": "domino",
+          "cell": [
+            -16,
+            2,
+            0
+          ],
+          "local": [
+            0,
+            -0.3999999761581421,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "locked": false,
+          "scalars": {
+            "Length": 0
           },
-          {
-            "precision": 0.45,
-            "position_window": 0.6,
-            "rotation_window": 45,
-            "max_position_correction": 0.08,
-            "max_rotation_correction": 2,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.174,
-            "capture_speed": 2.325,
-            "capture_dwell": 0.24,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.3075
-          },
-          {
-            "precision": 1,
-            "position_window": 0,
-            "rotation_window": 0,
-            "max_position_correction": 0,
-            "max_rotation_correction": 0,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.02,
-            "capture_speed": 1.5,
-            "capture_dwell": 0.35,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.5
-          }
-        ],
-        "locked": false,
-        "position": [
-          -1,
-          0.1,
-          0
-        ],
-        "orientation": [
-          1,
-          0,
-          0,
-          0,
-          1,
-          0,
-          0,
-          0,
-          1
-        ],
-        "properties": {}
+          "parameters": {},
+          "assistance": [
+            [
+              0,
+              1.2,
+              100,
+              0.2,
+              5,
+              0.4,
+              0.3,
+              3,
+              0.15,
+              0,
+              0.15
+            ],
+            [
+              0.45,
+              0.6,
+              45,
+              0.08,
+              2,
+              0.4,
+              0.174,
+              2.325,
+              0.24,
+              0,
+              0.3075
+            ],
+            [
+              1,
+              0,
+              0,
+              0,
+              0,
+              0.4,
+              0.02,
+              1.5,
+              0.35,
+              0,
+              0.5
+            ]
+          ],
+          "assistance_bindings": []
+        }
       }
     ],
     "solution_connections": [
       {
-        "from": "fixture_2",
-        "to": "fixture_3",
-        "type": "activation",
-        "from_port": "activation_out",
-        "to_port": "activation_in"
+        "source": "fixture_2",
+        "output": "ActivationOut",
+        "target": "fixture_3",
+        "input": "ActivationIn",
+        "domain": "Activation"
       }
     ],
     "placements": [
@@ -3348,67 +3400,75 @@
     ],
     "solution": [
       {
-        "id": "bumper_1",
-        "kind": "bumper",
-        "difficulty": [
-          {
-            "precision": 0,
-            "position_window": 3,
-            "rotation_window": 100,
-            "max_position_correction": 0.25,
-            "max_rotation_correction": 0,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.3,
-            "capture_speed": 3,
-            "capture_dwell": 0.15,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.2
+        "slot": "bumper_1",
+        "instance": {
+          "part": "bumper",
+          "cell": [
+            -54,
+            24,
+            0
+          ],
+          "local": [
+            0.40000152587890625,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "locked": false,
+          "scalars": {
+            "Length": 0
           },
-          {
-            "precision": 0.45,
-            "position_window": 1.5,
-            "rotation_window": 45,
-            "max_position_correction": 0.1,
-            "max_rotation_correction": 0,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.174,
-            "capture_speed": 2.325,
-            "capture_dwell": 0.24,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.47
+          "parameters": {
+            "strength": 8
           },
-          {
-            "precision": 1,
-            "position_window": 0,
-            "rotation_window": 0,
-            "max_position_correction": 0,
-            "max_rotation_correction": 0,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.02,
-            "capture_speed": 1.5,
-            "capture_dwell": 0.35,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.8
-          }
-        ],
-        "locked": false,
-        "position": [
-          -3.35,
-          1.5,
-          0
-        ],
-        "orientation": [
-          1,
-          0,
-          0,
-          0,
-          1,
-          0,
-          0,
-          0,
-          1
-        ],
-        "properties": {}
+          "assistance": [
+            [
+              0,
+              3,
+              100,
+              0.25,
+              0,
+              0.4,
+              0.3,
+              3,
+              0.15,
+              0,
+              0.2
+            ],
+            [
+              0.45,
+              1.5,
+              45,
+              0.1,
+              0,
+              0.4,
+              0.174,
+              2.325,
+              0.24,
+              0,
+              0.47
+            ],
+            [
+              1,
+              0,
+              0,
+              0,
+              0,
+              0.4,
+              0.02,
+              1.5,
+              0.35,
+              0,
+              0.8
+            ]
+          ],
+          "assistance_bindings": []
+        }
       }
     ],
     "solution_connections": [],
@@ -3825,67 +3885,75 @@
     ],
     "solution": [
       {
-        "id": "bumper_1",
-        "kind": "bumper",
-        "difficulty": [
-          {
-            "precision": 0,
-            "position_window": 3,
-            "rotation_window": 100,
-            "max_position_correction": 0.25,
-            "max_rotation_correction": 0,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.3,
-            "capture_speed": 3,
-            "capture_dwell": 0.15,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.2
+        "slot": "bumper_1",
+        "instance": {
+          "part": "bumper",
+          "cell": [
+            0,
+            24,
+            54
+          ],
+          "local": [
+            0,
+            0,
+            -0.40000152587890625
+          ],
+          "rotation": [
+            0,
+            0.7071067690849304,
+            0,
+            0.7071067690849304
+          ],
+          "locked": false,
+          "scalars": {
+            "Length": 0
           },
-          {
-            "precision": 0.45,
-            "position_window": 1.5,
-            "rotation_window": 45,
-            "max_position_correction": 0.1,
-            "max_rotation_correction": 0,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.174,
-            "capture_speed": 2.325,
-            "capture_dwell": 0.24,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.47
+          "parameters": {
+            "strength": 8
           },
-          {
-            "precision": 1,
-            "position_window": 0,
-            "rotation_window": 0,
-            "max_position_correction": 0,
-            "max_rotation_correction": 0,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.02,
-            "capture_speed": 1.5,
-            "capture_dwell": 0.35,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.8
-          }
-        ],
-        "locked": false,
-        "position": [
-          0,
-          1.5,
-          3.35
-        ],
-        "orientation": [
-          -4.371138828673793e-08,
-          0,
-          -1,
-          0,
-          1,
-          0,
-          1,
-          0,
-          -4.371138828673793e-08
-        ],
-        "properties": {}
+          "assistance": [
+            [
+              0,
+              3,
+              100,
+              0.25,
+              0,
+              0.4,
+              0.3,
+              3,
+              0.15,
+              0,
+              0.2
+            ],
+            [
+              0.45,
+              1.5,
+              45,
+              0.1,
+              0,
+              0.4,
+              0.174,
+              2.325,
+              0.24,
+              0,
+              0.47
+            ],
+            [
+              1,
+              0,
+              0,
+              0,
+              0,
+              0.4,
+              0.02,
+              1.5,
+              0.35,
+              0,
+              0.8
+            ]
+          ],
+          "assistance_bindings": []
+        }
       }
     ],
     "solution_connections": [],
@@ -4628,133 +4696,147 @@
     ],
     "solution": [
       {
-        "id": "bumper_1",
-        "kind": "bumper",
-        "difficulty": [
-          {
-            "precision": 0,
-            "position_window": 3,
-            "rotation_window": 100,
-            "max_position_correction": 0.25,
-            "max_rotation_correction": 0,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.3,
-            "capture_speed": 3,
-            "capture_dwell": 0.15,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.2
+        "slot": "bumper_1",
+        "instance": {
+          "part": "bumper",
+          "cell": [
+            -54,
+            24,
+            0
+          ],
+          "local": [
+            0.40000152587890625,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "locked": false,
+          "scalars": {
+            "Length": 0
           },
-          {
-            "precision": 0.45,
-            "position_window": 1.5,
-            "rotation_window": 45,
-            "max_position_correction": 0.1,
-            "max_rotation_correction": 0,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.174,
-            "capture_speed": 2.325,
-            "capture_dwell": 0.24,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.47
+          "parameters": {
+            "strength": 8
           },
-          {
-            "precision": 1,
-            "position_window": 0,
-            "rotation_window": 0,
-            "max_position_correction": 0,
-            "max_rotation_correction": 0,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.02,
-            "capture_speed": 1.5,
-            "capture_dwell": 0.35,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.8
-          }
-        ],
-        "locked": false,
-        "position": [
-          -3.35,
-          1.5,
-          0
-        ],
-        "orientation": [
-          1,
-          0,
-          0,
-          0,
-          1,
-          0,
-          0,
-          0,
-          1
-        ],
-        "properties": {}
+          "assistance": [
+            [
+              0,
+              3,
+              100,
+              0.25,
+              0,
+              0.4,
+              0.3,
+              3,
+              0.15,
+              0,
+              0.2
+            ],
+            [
+              0.45,
+              1.5,
+              45,
+              0.1,
+              0,
+              0.4,
+              0.174,
+              2.325,
+              0.24,
+              0,
+              0.47
+            ],
+            [
+              1,
+              0,
+              0,
+              0,
+              0,
+              0.4,
+              0.02,
+              1.5,
+              0.35,
+              0,
+              0.8
+            ]
+          ],
+          "assistance_bindings": []
+        }
       },
       {
-        "id": "wall_1",
-        "kind": "wall",
-        "difficulty": [
-          {
-            "precision": 0,
-            "position_window": 3,
-            "rotation_window": 100,
-            "max_position_correction": 0.25,
-            "max_rotation_correction": 5,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.3,
-            "capture_speed": 3,
-            "capture_dwell": 0.15,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.2
+        "slot": "wall_1",
+        "instance": {
+          "part": "wall",
+          "cell": [
+            -28,
+            64,
+            0
+          ],
+          "local": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "locked": false,
+          "scalars": {
+            "Length": 0
           },
-          {
-            "precision": 0.45,
-            "position_window": 1.5,
-            "rotation_window": 45,
-            "max_position_correction": 0.1,
-            "max_rotation_correction": 2,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.174,
-            "capture_speed": 2.325,
-            "capture_dwell": 0.24,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.47
+          "parameters": {
+            "width": 0.4,
+            "height": 6,
+            "thickness": 1.5
           },
-          {
-            "precision": 1,
-            "position_window": 0,
-            "rotation_window": 0,
-            "max_position_correction": 0,
-            "max_rotation_correction": 0,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.02,
-            "capture_speed": 1.5,
-            "capture_dwell": 0.35,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.8
-          }
-        ],
-        "locked": false,
-        "position": [
-          -1.75,
-          4,
-          0
-        ],
-        "orientation": [
-          1,
-          0,
-          0,
-          0,
-          1,
-          0,
-          0,
-          0,
-          1
-        ],
-        "properties": {
-          "width": 0.4,
-          "height": 6,
-          "thickness": 1.5
+          "assistance": [
+            [
+              0,
+              3,
+              100,
+              0.25,
+              5,
+              0.4,
+              0.3,
+              3,
+              0.15,
+              0,
+              0.2
+            ],
+            [
+              0.45,
+              1.5,
+              45,
+              0.1,
+              2,
+              0.4,
+              0.174,
+              2.325,
+              0.24,
+              0,
+              0.47
+            ],
+            [
+              1,
+              0,
+              0,
+              0,
+              0,
+              0.4,
+              0.02,
+              1.5,
+              0.35,
+              0,
+              0.8
+            ]
+          ],
+          "assistance_bindings": []
         }
       }
     ],
@@ -7020,9 +7102,9 @@
         ],
         "orientation": [
           -1,
-          -8.742277657347586e-08,
+          -8.742277657347586e-8,
           0,
-          8.742277657347586e-08,
+          8.742277657347586e-8,
           -1,
           0,
           0,
@@ -7395,9 +7477,9 @@
         ],
         "orientation": [
           -1,
-          -8.742277657347586e-08,
+          -8.742277657347586e-8,
           0,
-          8.742277657347586e-08,
+          8.742277657347586e-8,
           -1,
           0,
           0,
@@ -7705,11 +7787,11 @@
         "orientation": [
           -1,
           0,
-          8.742277657347586e-08,
+          8.742277657347586e-8,
           0,
           1,
           0,
-          -8.742277657347586e-08,
+          -8.742277657347586e-8,
           0,
           -1
         ],
@@ -7768,11 +7850,11 @@
         "orientation": [
           -1,
           0,
-          8.742277657347586e-08,
+          8.742277657347586e-8,
           0,
           1,
           0,
-          -8.742277657347586e-08,
+          -8.742277657347586e-8,
           0,
           -1
         ],
@@ -7831,11 +7913,11 @@
         "orientation": [
           -1,
           0,
-          8.742277657347586e-08,
+          8.742277657347586e-8,
           0,
           1,
           0,
-          -8.742277657347586e-08,
+          -8.742277657347586e-8,
           0,
           -1
         ],
@@ -7903,11 +7985,11 @@
         "orientation": [
           -1,
           0,
-          8.742277657347586e-08,
+          8.742277657347586e-8,
           0,
           1,
           0,
-          -8.742277657347586e-08,
+          -8.742277657347586e-8,
           0,
           -1
         ],
@@ -7988,11 +8070,11 @@
         "orientation": [
           -1,
           0,
-          8.742277657347586e-08,
+          8.742277657347586e-8,
           0,
           1,
           0,
-          -8.742277657347586e-08,
+          -8.742277657347586e-8,
           0,
           -1
         ],
@@ -8051,11 +8133,11 @@
         "orientation": [
           -1,
           0,
-          8.742277657347586e-08,
+          8.742277657347586e-8,
           0,
           1,
           0,
-          -8.742277657347586e-08,
+          -8.742277657347586e-8,
           0,
           -1
         ],
@@ -8114,11 +8196,11 @@
         "orientation": [
           -1,
           0,
-          8.742277657347586e-08,
+          8.742277657347586e-8,
           0,
           1,
           0,
-          -8.742277657347586e-08,
+          -8.742277657347586e-8,
           0,
           -1
         ],
@@ -8175,7 +8257,7 @@
           0
         ],
         "orientation": [
-          1.3113415775478643e-07,
+          1.3113415775478643e-7,
           0,
           1,
           0,
@@ -8183,7 +8265,7 @@
           0,
           -1,
           0,
-          1.3113415775478643e-07
+          1.3113415775478643e-7
         ],
         "properties": {
           "width": 3,
@@ -8253,11 +8335,11 @@
         "orientation": [
           -1,
           0,
-          8.742277657347586e-08,
+          8.742277657347586e-8,
           0,
           1,
           0,
-          -8.742277657347586e-08,
+          -8.742277657347586e-8,
           0,
           -1
         ],
@@ -8332,83 +8414,91 @@
     ],
     "solution": [
       {
-        "id": "delay_1",
-        "kind": "delay",
-        "difficulty": [
-          {
-            "precision": 0,
-            "position_window": 3,
-            "rotation_window": 100,
-            "max_position_correction": 0.25,
-            "max_rotation_correction": 5,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.3,
-            "capture_speed": 3,
-            "capture_dwell": 0.15,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.2
+        "slot": "delay_1",
+        "instance": {
+          "part": "delay",
+          "cell": [
+            0,
+            16,
+            0
+          ],
+          "local": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "locked": false,
+          "scalars": {
+            "Length": 0
           },
-          {
-            "precision": 0.45,
-            "position_window": 1.5,
-            "rotation_window": 45,
-            "max_position_correction": 0.1,
-            "max_rotation_correction": 2,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.174,
-            "capture_speed": 2.325,
-            "capture_dwell": 0.24,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.47
+          "parameters": {
+            "delay_seconds": 1
           },
-          {
-            "precision": 1,
-            "position_window": 0,
-            "rotation_window": 0,
-            "max_position_correction": 0,
-            "max_rotation_correction": 0,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.02,
-            "capture_speed": 1.5,
-            "capture_dwell": 0.35,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.8
-          }
-        ],
-        "locked": false,
-        "position": [
-          0,
-          1,
-          0
-        ],
-        "orientation": [
-          1,
-          0,
-          0,
-          0,
-          1,
-          0,
-          0,
-          0,
-          1
-        ],
-        "properties": {}
+          "assistance": [
+            [
+              0,
+              3,
+              100,
+              0.25,
+              5,
+              0.4,
+              0.3,
+              3,
+              0.15,
+              0,
+              0.2
+            ],
+            [
+              0.45,
+              1.5,
+              45,
+              0.1,
+              2,
+              0.4,
+              0.174,
+              2.325,
+              0.24,
+              0,
+              0.47
+            ],
+            [
+              1,
+              0,
+              0,
+              0,
+              0,
+              0.4,
+              0.02,
+              1.5,
+              0.35,
+              0,
+              0.8
+            ]
+          ],
+          "assistance_bindings": []
+        }
       }
     ],
     "solution_connections": [
       {
-        "from": "switch",
-        "to": "delay_1",
-        "type": "activation",
-        "from_port": "activation_out",
-        "to_port": "activation_in"
+        "source": "fixture_2",
+        "output": "ActivationOut",
+        "target": "delay_1",
+        "input": "ActivationIn",
+        "domain": "Activation"
       },
       {
-        "from": "delay_1",
-        "to": "lamp",
-        "type": "activation",
-        "from_port": "activation_out",
-        "to_port": "activation_in"
+        "source": "delay_1",
+        "output": "ActivationOut",
+        "target": "fixture_3",
+        "input": "ActivationIn",
+        "domain": "Activation"
       }
     ],
     "placements": [
@@ -8875,11 +8965,11 @@
         "orientation": [
           -1,
           0,
-          8.742277657347586e-08,
+          8.742277657347586e-8,
           0,
           1,
           0,
-          -8.742277657347586e-08,
+          -8.742277657347586e-8,
           0,
           -1
         ],
@@ -8938,11 +9028,11 @@
         "orientation": [
           -1,
           0,
-          8.742277657347586e-08,
+          8.742277657347586e-8,
           0,
           1,
           0,
-          -8.742277657347586e-08,
+          -8.742277657347586e-8,
           0,
           -1
         ],
@@ -9001,11 +9091,11 @@
         "orientation": [
           -1,
           0,
-          8.742277657347586e-08,
+          8.742277657347586e-8,
           0,
           1,
           0,
-          -8.742277657347586e-08,
+          -8.742277657347586e-8,
           0,
           -1
         ],
@@ -9064,11 +9154,11 @@
         "orientation": [
           -1,
           0,
-          8.742277657347586e-08,
+          8.742277657347586e-8,
           0,
           1,
           0,
-          -8.742277657347586e-08,
+          -8.742277657347586e-8,
           0,
           -1
         ],
@@ -9142,11 +9232,11 @@
         "orientation": [
           -1,
           0,
-          8.742277657347586e-08,
+          8.742277657347586e-8,
           0,
           1,
           0,
-          -8.742277657347586e-08,
+          -8.742277657347586e-8,
           0,
           -1
         ],
@@ -9205,11 +9295,11 @@
         "orientation": [
           1,
           0,
-          -1.7484555314695172e-07,
+          -1.7484555314695172e-7,
           0,
           1,
           0,
-          1.7484555314695172e-07,
+          1.7484555314695172e-7,
           0,
           1
         ],
@@ -9298,68 +9388,72 @@
     ],
     "solution": [
       {
-        "id": "pipe_1",
-        "kind": "pipe",
-        "difficulty": [
-          {
-            "precision": 0,
-            "position_window": 3,
-            "rotation_window": 100,
-            "max_position_correction": 0.25,
-            "max_rotation_correction": 5,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.3,
-            "capture_speed": 3,
-            "capture_dwell": 0.15,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.2
+        "slot": "pipe_1",
+        "instance": {
+          "part": "pipe",
+          "cell": [
+            3,
+            50,
+            0
+          ],
+          "local": [
+            0.20000004768371582,
+            -0.40000152587890625,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            -0.3214394748210907,
+            0.9469301104545593
+          ],
+          "locked": false,
+          "scalars": {
+            "Length": 3.6
           },
-          {
-            "precision": 0.45,
-            "position_window": 1.5,
-            "rotation_window": 45,
-            "max_position_correction": 0.1,
-            "max_rotation_correction": 2,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.174,
-            "capture_speed": 2.325,
-            "capture_dwell": 0.24,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.47
-          },
-          {
-            "precision": 1,
-            "position_window": 0,
-            "rotation_window": 0,
-            "max_position_correction": 0,
-            "max_rotation_correction": 0,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.02,
-            "capture_speed": 1.5,
-            "capture_dwell": 0.35,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.8
-          }
-        ],
-        "locked": false,
-        "position": [
-          0.2,
-          3.1,
-          0
-        ],
-        "orientation": [
-          0.7933533402912352,
-          -0.6087614290087207,
-          0,
-          0.6087614290087207,
-          0.7933533402912352,
-          0,
-          0,
-          0,
-          1
-        ],
-        "properties": {
-          "length": 3.6
+          "parameters": {},
+          "assistance": [
+            [
+              0,
+              3,
+              100,
+              0.25,
+              5,
+              0.4,
+              0.3,
+              3,
+              0.15,
+              0,
+              0.2
+            ],
+            [
+              0.45,
+              1.5,
+              45,
+              0.1,
+              2,
+              0.4,
+              0.174,
+              2.325,
+              0.24,
+              0,
+              0.47
+            ],
+            [
+              1,
+              0,
+              0,
+              0,
+              0,
+              0.4,
+              0.02,
+              1.5,
+              0.35,
+              0,
+              0.8
+            ]
+          ],
+          "assistance_bindings": []
         }
       }
     ],
@@ -9777,67 +9871,73 @@
     ],
     "solution": [
       {
-        "id": "bend_1",
-        "kind": "pipe_bend_45",
-        "difficulty": [
-          {
-            "precision": 0,
-            "position_window": 0.6,
-            "rotation_window": 5,
-            "max_position_correction": 0.6,
-            "max_rotation_correction": 5,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.3,
-            "capture_speed": 3,
-            "capture_dwell": 0.15,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.2
+        "slot": "bend_1",
+        "instance": {
+          "part": "pipe_bend_45",
+          "cell": [
+            0,
+            64,
+            0
+          ],
+          "local": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            -0.7071067690849304,
+            0.7071067690849304
+          ],
+          "locked": false,
+          "scalars": {
+            "Length": 0
           },
-          {
-            "precision": 0.45,
-            "position_window": 0.5,
-            "rotation_window": 2,
-            "max_position_correction": 0.5,
-            "max_rotation_correction": 2,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.174,
-            "capture_speed": 2.325,
-            "capture_dwell": 0.24,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.47
-          },
-          {
-            "precision": 1,
-            "position_window": 0,
-            "rotation_window": 0,
-            "max_position_correction": 0,
-            "max_rotation_correction": 0,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.02,
-            "capture_speed": 1.5,
-            "capture_dwell": 0.35,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.8
-          }
-        ],
-        "locked": false,
-        "position": [
-          0,
-          4,
-          0
-        ],
-        "orientation": [
-          -4.371138828673793e-08,
-          -1,
-          0,
-          1,
-          -4.371138828673793e-08,
-          0,
-          0,
-          0,
-          1
-        ],
-        "properties": {}
+          "parameters": {},
+          "assistance": [
+            [
+              0,
+              0.6,
+              5,
+              0.6,
+              5,
+              0.4,
+              0.3,
+              3,
+              0.15,
+              0,
+              0.2
+            ],
+            [
+              0.45,
+              0.5,
+              2,
+              0.5,
+              2,
+              0.4,
+              0.174,
+              2.325,
+              0.24,
+              0,
+              0.47
+            ],
+            [
+              1,
+              0,
+              0,
+              0,
+              0,
+              0.4,
+              0.02,
+              1.5,
+              0.35,
+              0,
+              0.8
+            ]
+          ],
+          "assistance_bindings": []
+        }
       }
     ],
     "solution_connections": [],
@@ -10254,67 +10354,73 @@
     ],
     "solution": [
       {
-        "id": "bend_1",
-        "kind": "pipe_bend_90",
-        "difficulty": [
-          {
-            "precision": 0,
-            "position_window": 0.6,
-            "rotation_window": 5,
-            "max_position_correction": 0.6,
-            "max_rotation_correction": 5,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.3,
-            "capture_speed": 3,
-            "capture_dwell": 0.15,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.2
+        "slot": "bend_1",
+        "instance": {
+          "part": "pipe_bend_90",
+          "cell": [
+            0,
+            64,
+            0
+          ],
+          "local": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            -0.7071067690849304,
+            0.7071067690849304
+          ],
+          "locked": false,
+          "scalars": {
+            "Length": 0
           },
-          {
-            "precision": 0.45,
-            "position_window": 0.5,
-            "rotation_window": 2,
-            "max_position_correction": 0.5,
-            "max_rotation_correction": 2,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.174,
-            "capture_speed": 2.325,
-            "capture_dwell": 0.24,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.47
-          },
-          {
-            "precision": 1,
-            "position_window": 0,
-            "rotation_window": 0,
-            "max_position_correction": 0,
-            "max_rotation_correction": 0,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.02,
-            "capture_speed": 1.5,
-            "capture_dwell": 0.35,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.8
-          }
-        ],
-        "locked": false,
-        "position": [
-          0,
-          4,
-          0
-        ],
-        "orientation": [
-          -4.371138828673793e-08,
-          -1,
-          0,
-          1,
-          -4.371138828673793e-08,
-          0,
-          0,
-          0,
-          1
-        ],
-        "properties": {}
+          "parameters": {},
+          "assistance": [
+            [
+              0,
+              0.6,
+              5,
+              0.6,
+              5,
+              0.4,
+              0.3,
+              3,
+              0.15,
+              0,
+              0.2
+            ],
+            [
+              0.45,
+              0.5,
+              2,
+              0.5,
+              2,
+              0.4,
+              0.174,
+              2.325,
+              0.24,
+              0,
+              0.47
+            ],
+            [
+              1,
+              0,
+              0,
+              0,
+              0,
+              0.4,
+              0.02,
+              1.5,
+              0.35,
+              0,
+              0.8
+            ]
+          ],
+          "assistance_bindings": []
+        }
       }
     ],
     "solution_connections": [],
@@ -10398,7 +10504,7 @@
             0
           ],
           "local": [
-            0.0,
+            0,
             -0.4,
             0
           ],
@@ -10731,68 +10837,72 @@
     ],
     "solution": [
       {
-        "id": "pipe_1",
-        "kind": "pipe",
-        "difficulty": [
-          {
-            "precision": 0,
-            "position_window": 0.6,
-            "rotation_window": 5,
-            "max_position_correction": 0.6,
-            "max_rotation_correction": 5,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.3,
-            "capture_speed": 3,
-            "capture_dwell": 0.15,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.2
+        "slot": "pipe_1",
+        "instance": {
+          "part": "pipe",
+          "cell": [
+            -9,
+            97,
+            0
+          ],
+          "local": [
+            0.4032001495361328,
+            -0.49692535400390625,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            -0.3826834261417389,
+            0.9238795042037964
+          ],
+          "locked": false,
+          "scalars": {
+            "Length": 2
           },
-          {
-            "precision": 0.45,
-            "position_window": 0.5,
-            "rotation_window": 2,
-            "max_position_correction": 0.5,
-            "max_rotation_correction": 2,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.174,
-            "capture_speed": 2.325,
-            "capture_dwell": 0.24,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.47
-          },
-          {
-            "precision": 1,
-            "position_window": 0,
-            "rotation_window": 0,
-            "max_position_correction": 0,
-            "max_rotation_correction": 0,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.02,
-            "capture_speed": 1.5,
-            "capture_dwell": 0.35,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.8
-          }
-        ],
-        "locked": false,
-        "position": [
-          -0.5373,
-          6.031442,
-          0
-        ],
-        "orientation": [
-          0.7071067690849304,
-          -0.7071067690849304,
-          0,
-          0.7071067690849304,
-          0.7071067690849304,
-          0,
-          0,
-          0,
-          1
-        ],
-        "properties": {
-          "length": 2
+          "parameters": {},
+          "assistance": [
+            [
+              0,
+              0.6,
+              5,
+              0.6,
+              5,
+              0.4,
+              0.3,
+              3,
+              0.15,
+              0,
+              0.2
+            ],
+            [
+              0.45,
+              0.5,
+              2,
+              0.5,
+              2,
+              0.4,
+              0.174,
+              2.325,
+              0.24,
+              0,
+              0.47
+            ],
+            [
+              1,
+              0,
+              0,
+              0,
+              0,
+              0.4,
+              0.02,
+              1.5,
+              0.35,
+              0,
+              0.8
+            ]
+          ],
+          "assistance_bindings": []
         }
       }
     ],
@@ -17018,7 +17128,7 @@
           4
         ],
         "orientation": [
-          -4.371138828673793e-08,
+          -4.371138828673793e-8,
           0,
           -1,
           0,
@@ -17026,7 +17136,7 @@
           0,
           1,
           0,
-          -4.371138828673793e-08
+          -4.371138828673793e-8
         ],
         "properties": {}
       },
@@ -17081,7 +17191,7 @@
           -2.5
         ],
         "orientation": [
-          -4.371138828673793e-08,
+          -4.371138828673793e-8,
           0,
           -1,
           0,
@@ -17089,7 +17199,7 @@
           0,
           1,
           0,
-          -4.371138828673793e-08
+          -4.371138828673793e-8
         ],
         "properties": {}
       },
@@ -17144,7 +17254,7 @@
           -4
         ],
         "orientation": [
-          -4.371138828673793e-08,
+          -4.371138828673793e-8,
           0,
           1,
           0,
@@ -17152,7 +17262,7 @@
           0,
           -1,
           0,
-          -4.371138828673793e-08
+          -4.371138828673793e-8
         ],
         "properties": {}
       },
@@ -17207,7 +17317,7 @@
           2.5
         ],
         "orientation": [
-          -4.371138828673793e-08,
+          -4.371138828673793e-8,
           0,
           1,
           0,
@@ -17215,7 +17325,7 @@
           0,
           -1,
           0,
-          -4.371138828673793e-08
+          -4.371138828673793e-8
         ],
         "properties": {}
       }
@@ -17284,15 +17394,15 @@
           3.4
         ],
         "orientation": [
-          -4.10752676316406e-08,
+          -4.10752676316406e-8,
           -0.3420201241970062,
           -0.9396926164627075,
-          -1.4950174431760388e-08,
+          -1.4950174431760388e-8,
           0.9396926164627075,
           -0.3420201241970062,
           1,
           0,
-          -4.371138828673793e-08
+          -4.371138828673793e-8
         ],
         "properties": {}
       },
@@ -17347,15 +17457,15 @@
           0.7
         ],
         "orientation": [
-          -4.10752676316406e-08,
+          -4.10752676316406e-8,
           -0.3420201241970062,
           -0.9396926164627075,
-          -1.4950174431760388e-08,
+          -1.4950174431760388e-8,
           0.9396926164627075,
           -0.3420201241970062,
           1,
           0,
-          -4.371138828673793e-08
+          -4.371138828673793e-8
         ],
         "properties": {}
       },
@@ -17410,15 +17520,15 @@
           -3.4
         ],
         "orientation": [
-          -4.10752676316406e-08,
+          -4.10752676316406e-8,
           -0.3420201241970062,
           0.9396926164627075,
-          -1.4950174431760388e-08,
+          -1.4950174431760388e-8,
           0.9396926164627075,
           0.3420201241970062,
           -1,
           0,
-          -4.371138828673793e-08
+          -4.371138828673793e-8
         ],
         "properties": {}
       },
@@ -17473,15 +17583,15 @@
           -0.7
         ],
         "orientation": [
-          -4.10752676316406e-08,
+          -4.10752676316406e-8,
           -0.3420201241970062,
           0.9396926164627075,
-          -1.4950174431760388e-08,
+          -1.4950174431760388e-8,
           0.9396926164627075,
           0.3420201241970062,
           -1,
           0,
-          -4.371138828673793e-08
+          -4.371138828673793e-8
         ],
         "properties": {}
       }
@@ -17550,7 +17660,7 @@
           3
         ],
         "orientation": [
-          -4.371138828673793e-08,
+          -4.371138828673793e-8,
           0,
           -1,
           0,
@@ -17558,7 +17668,7 @@
           0,
           1,
           0,
-          -4.371138828673793e-08
+          -4.371138828673793e-8
         ],
         "properties": {}
       },
@@ -17613,7 +17723,7 @@
           -1.7
         ],
         "orientation": [
-          -4.371138828673793e-08,
+          -4.371138828673793e-8,
           0,
           -1,
           0,
@@ -17621,7 +17731,7 @@
           0,
           1,
           0,
-          -4.371138828673793e-08
+          -4.371138828673793e-8
         ],
         "properties": {}
       },
@@ -17676,7 +17786,7 @@
           -3
         ],
         "orientation": [
-          -4.371138828673793e-08,
+          -4.371138828673793e-8,
           0,
           1,
           0,
@@ -17684,7 +17794,7 @@
           0,
           -1,
           0,
-          -4.371138828673793e-08
+          -4.371138828673793e-8
         ],
         "properties": {}
       },
@@ -17739,7 +17849,7 @@
           1.7
         ],
         "orientation": [
-          -4.371138828673793e-08,
+          -4.371138828673793e-8,
           0,
           1,
           0,
@@ -17747,7 +17857,7 @@
           0,
           -1,
           0,
-          -4.371138828673793e-08
+          -4.371138828673793e-8
         ],
         "properties": {}
       }
@@ -17816,7 +17926,7 @@
           4
         ],
         "orientation": [
-          -4.371138828673793e-08,
+          -4.371138828673793e-8,
           0,
           -1,
           0,
@@ -17824,7 +17934,7 @@
           0,
           1,
           0,
-          -4.371138828673793e-08
+          -4.371138828673793e-8
         ],
         "properties": {}
       },
@@ -17879,7 +17989,7 @@
           -4
         ],
         "orientation": [
-          -4.371138828673793e-08,
+          -4.371138828673793e-8,
           0,
           1,
           0,
@@ -17887,7 +17997,7 @@
           0,
           -1,
           0,
-          -4.371138828673793e-08
+          -4.371138828673793e-8
         ],
         "properties": {}
       }
@@ -17956,7 +18066,7 @@
           3
         ],
         "orientation": [
-          -4.371138828673793e-08,
+          -4.371138828673793e-8,
           0,
           -1,
           0,
@@ -17964,7 +18074,7 @@
           0,
           1,
           0,
-          -4.371138828673793e-08
+          -4.371138828673793e-8
         ],
         "properties": {}
       },
@@ -18019,7 +18129,7 @@
           0.7
         ],
         "orientation": [
-          -4.371138828673793e-08,
+          -4.371138828673793e-8,
           0,
           -1,
           0,
@@ -18027,7 +18137,7 @@
           0,
           1,
           0,
-          -4.371138828673793e-08
+          -4.371138828673793e-8
         ],
         "properties": {}
       },
@@ -18082,7 +18192,7 @@
           -3
         ],
         "orientation": [
-          -4.371138828673793e-08,
+          -4.371138828673793e-8,
           0,
           1,
           0,
@@ -18090,7 +18200,7 @@
           0,
           -1,
           0,
-          -4.371138828673793e-08
+          -4.371138828673793e-8
         ],
         "properties": {}
       },
@@ -18145,7 +18255,7 @@
           -0.7
         ],
         "orientation": [
-          -4.371138828673793e-08,
+          -4.371138828673793e-8,
           0,
           1,
           0,
@@ -18153,7 +18263,7 @@
           0,
           -1,
           0,
-          -4.371138828673793e-08
+          -4.371138828673793e-8
         ],
         "properties": {}
       }
@@ -18222,15 +18332,15 @@
           3
         ],
         "orientation": [
-          -4.10752676316406e-08,
+          -4.10752676316406e-8,
           -0.3420201241970062,
           -0.9396926164627075,
-          -1.4950174431760388e-08,
+          -1.4950174431760388e-8,
           0.9396926164627075,
           -0.3420201241970062,
           1,
           0,
-          -4.371138828673793e-08
+          -4.371138828673793e-8
         ],
         "properties": {}
       },
@@ -18285,15 +18395,15 @@
           -3
         ],
         "orientation": [
-          -4.10752676316406e-08,
+          -4.10752676316406e-8,
           -0.3420201241970062,
           0.9396926164627075,
-          -1.4950174431760388e-08,
+          -1.4950174431760388e-8,
           0.9396926164627075,
           0.3420201241970062,
           -1,
           0,
-          -4.371138828673793e-08
+          -4.371138828673793e-8
         ],
         "properties": {}
       }
@@ -18363,7 +18473,7 @@
           4
         ],
         "orientation": [
-          -4.371138828673793e-08,
+          -4.371138828673793e-8,
           0,
           -1,
           0,
@@ -18371,7 +18481,7 @@
           0,
           1,
           0,
-          -4.371138828673793e-08
+          -4.371138828673793e-8
         ],
         "properties": {}
       },
@@ -18426,7 +18536,7 @@
           -3.2
         ],
         "orientation": [
-          -4.371138828673793e-08,
+          -4.371138828673793e-8,
           0,
           -1,
           0,
@@ -18434,7 +18544,7 @@
           0,
           1,
           0,
-          -4.371138828673793e-08
+          -4.371138828673793e-8
         ],
         "properties": {}
       },
@@ -18489,7 +18599,7 @@
           -4.5
         ],
         "orientation": [
-          -4.371138828673793e-08,
+          -4.371138828673793e-8,
           0,
           -1,
           0,
@@ -18497,7 +18607,7 @@
           0,
           1,
           0,
-          -4.371138828673793e-08
+          -4.371138828673793e-8
         ],
         "properties": {}
       },
@@ -18552,7 +18662,7 @@
           -3
         ],
         "orientation": [
-          -4.371138828673793e-08,
+          -4.371138828673793e-8,
           0,
           1,
           0,
@@ -18560,7 +18670,7 @@
           0,
           -1,
           0,
-          -4.371138828673793e-08
+          -4.371138828673793e-8
         ],
         "properties": {}
       },
@@ -18615,7 +18725,7 @@
           1.7
         ],
         "orientation": [
-          -4.371138828673793e-08,
+          -4.371138828673793e-8,
           0,
           1,
           0,
@@ -18623,7 +18733,7 @@
           0,
           -1,
           0,
-          -4.371138828673793e-08
+          -4.371138828673793e-8
         ],
         "properties": {}
       },
@@ -18678,7 +18788,7 @@
           4.5
         ],
         "orientation": [
-          -4.371138828673793e-08,
+          -4.371138828673793e-8,
           0,
           1,
           0,
@@ -18686,7 +18796,7 @@
           0,
           -1,
           0,
-          -4.371138828673793e-08
+          -4.371138828673793e-8
         ],
         "properties": {}
       }
@@ -18755,15 +18865,15 @@
           3.4
         ],
         "orientation": [
-          -4.10752676316406e-08,
+          -4.10752676316406e-8,
           -0.3420201241970062,
           -0.9396926164627075,
-          -1.4950174431760388e-08,
+          -1.4950174431760388e-8,
           0.9396926164627075,
           -0.3420201241970062,
           1,
           0,
-          -4.371138828673793e-08
+          -4.371138828673793e-8
         ],
         "properties": {}
       },
@@ -18818,15 +18928,15 @@
           0.7
         ],
         "orientation": [
-          -4.10752676316406e-08,
+          -4.10752676316406e-8,
           -0.3420201241970062,
           -0.9396926164627075,
-          -1.4950174431760388e-08,
+          -1.4950174431760388e-8,
           0.9396926164627075,
           -0.3420201241970062,
           1,
           0,
-          -4.371138828673793e-08
+          -4.371138828673793e-8
         ],
         "properties": {}
       },
@@ -18881,7 +18991,7 @@
           -4
         ],
         "orientation": [
-          -4.371138828673793e-08,
+          -4.371138828673793e-8,
           0,
           1,
           0,
@@ -18889,7 +18999,7 @@
           0,
           -1,
           0,
-          -4.371138828673793e-08
+          -4.371138828673793e-8
         ],
         "properties": {}
       }
@@ -28309,7 +28419,7 @@
           4
         ],
         "orientation": [
-          -4.371138828673793e-08,
+          -4.371138828673793e-8,
           0,
           -1,
           0,
@@ -28317,7 +28427,7 @@
           0,
           1,
           0,
-          -4.371138828673793e-08
+          -4.371138828673793e-8
         ],
         "properties": {}
       },
@@ -28372,7 +28482,7 @@
           -2.5
         ],
         "orientation": [
-          -4.371138828673793e-08,
+          -4.371138828673793e-8,
           0,
           -1,
           0,
@@ -28380,7 +28490,7 @@
           0,
           1,
           0,
-          -4.371138828673793e-08
+          -4.371138828673793e-8
         ],
         "properties": {}
       },
@@ -28435,7 +28545,7 @@
           3
         ],
         "orientation": [
-          -4.371138828673793e-08,
+          -4.371138828673793e-8,
           0,
           -1,
           0,
@@ -28443,7 +28553,7 @@
           0,
           1,
           0,
-          -4.371138828673793e-08
+          -4.371138828673793e-8
         ],
         "properties": {}
       },
@@ -28498,7 +28608,7 @@
           -2
         ],
         "orientation": [
-          -4.371138828673793e-08,
+          -4.371138828673793e-8,
           0,
           -1,
           0,
@@ -28506,7 +28616,7 @@
           0,
           1,
           0,
-          -4.371138828673793e-08
+          -4.371138828673793e-8
         ],
         "properties": {}
       },
@@ -28561,7 +28671,7 @@
           3.4
         ],
         "orientation": [
-          -4.371138828673793e-08,
+          -4.371138828673793e-8,
           0,
           -1,
           0,
@@ -28569,7 +28679,7 @@
           0,
           1,
           0,
-          -4.371138828673793e-08
+          -4.371138828673793e-8
         ],
         "properties": {}
       },
@@ -28624,7 +28734,7 @@
           2
         ],
         "orientation": [
-          -4.371138828673793e-08,
+          -4.371138828673793e-8,
           0,
           -1,
           0,
@@ -28632,7 +28742,7 @@
           0,
           1,
           0,
-          -4.371138828673793e-08
+          -4.371138828673793e-8
         ],
         "properties": {}
       },
@@ -28687,7 +28797,7 @@
           -3
         ],
         "orientation": [
-          -4.371138828673793e-08,
+          -4.371138828673793e-8,
           0,
           1,
           0,
@@ -28695,7 +28805,7 @@
           0,
           -1,
           0,
-          -4.371138828673793e-08
+          -4.371138828673793e-8
         ],
         "properties": {}
       },
@@ -28750,7 +28860,7 @@
           -0.7
         ],
         "orientation": [
-          -4.371138828673793e-08,
+          -4.371138828673793e-8,
           0,
           1,
           0,
@@ -28758,7 +28868,7 @@
           0,
           -1,
           0,
-          -4.371138828673793e-08
+          -4.371138828673793e-8
         ],
         "properties": {}
       }
@@ -28832,15 +28942,15 @@
           3.4
         ],
         "orientation": [
-          -4.10752676316406e-08,
+          -4.10752676316406e-8,
           -0.3420201241970062,
           -0.9396926164627075,
-          -1.4950174431760388e-08,
+          -1.4950174431760388e-8,
           0.9396926164627075,
           -0.3420201241970062,
           1,
           0,
-          -4.371138828673793e-08
+          -4.371138828673793e-8
         ],
         "properties": {}
       },
@@ -28895,15 +29005,15 @@
           0.7
         ],
         "orientation": [
-          -4.10752676316406e-08,
+          -4.10752676316406e-8,
           -0.3420201241970062,
           -0.9396926164627075,
-          -1.4950174431760388e-08,
+          -1.4950174431760388e-8,
           0.9396926164627075,
           -0.3420201241970062,
           1,
           0,
-          -4.371138828673793e-08
+          -4.371138828673793e-8
         ],
         "properties": {}
       },
@@ -28958,7 +29068,7 @@
           2
         ],
         "orientation": [
-          -4.371138828673793e-08,
+          -4.371138828673793e-8,
           0,
           -1,
           0,
@@ -28966,7 +29076,7 @@
           0,
           1,
           0,
-          -4.371138828673793e-08
+          -4.371138828673793e-8
         ],
         "properties": {}
       },
@@ -29021,15 +29131,15 @@
           -3
         ],
         "orientation": [
-          -4.10752676316406e-08,
+          -4.10752676316406e-8,
           -0.3420201241970062,
           0.9396926164627075,
-          -1.4950174431760388e-08,
+          -1.4950174431760388e-8,
           0.9396926164627075,
           0.3420201241970062,
           -1,
           0,
-          -4.371138828673793e-08
+          -4.371138828673793e-8
         ],
         "properties": {}
       }
@@ -29115,7 +29225,7 @@
           4
         ],
         "orientation": [
-          -4.371138828673793e-08,
+          -4.371138828673793e-8,
           0,
           -1,
           0,
@@ -29123,7 +29233,7 @@
           0,
           1,
           0,
-          -4.371138828673793e-08
+          -4.371138828673793e-8
         ],
         "properties": {}
       },
@@ -29178,7 +29288,7 @@
           -3.2
         ],
         "orientation": [
-          -4.371138828673793e-08,
+          -4.371138828673793e-8,
           0,
           -1,
           0,
@@ -29186,7 +29296,7 @@
           0,
           1,
           0,
-          -4.371138828673793e-08
+          -4.371138828673793e-8
         ],
         "properties": {}
       },
@@ -29241,7 +29351,7 @@
           -4.5
         ],
         "orientation": [
-          -4.371138828673793e-08,
+          -4.371138828673793e-8,
           0,
           -1,
           0,
@@ -29249,7 +29359,7 @@
           0,
           1,
           0,
-          -4.371138828673793e-08
+          -4.371138828673793e-8
         ],
         "properties": {}
       },
@@ -29304,7 +29414,7 @@
           3
         ],
         "orientation": [
-          -4.371138828673793e-08,
+          -4.371138828673793e-8,
           0,
           -1,
           0,
@@ -29312,7 +29422,7 @@
           0,
           1,
           0,
-          -4.371138828673793e-08
+          -4.371138828673793e-8
         ],
         "properties": {}
       },
@@ -29367,7 +29477,7 @@
           0.7
         ],
         "orientation": [
-          -4.371138828673793e-08,
+          -4.371138828673793e-8,
           0,
           -1,
           0,
@@ -29375,7 +29485,7 @@
           0,
           1,
           0,
-          -4.371138828673793e-08
+          -4.371138828673793e-8
         ],
         "properties": {}
       },
@@ -29430,7 +29540,7 @@
           -4.5
         ],
         "orientation": [
-          -4.371138828673793e-08,
+          -4.371138828673793e-8,
           0,
           -1,
           0,
@@ -29438,7 +29548,7 @@
           0,
           1,
           0,
-          -4.371138828673793e-08
+          -4.371138828673793e-8
         ],
         "properties": {}
       },
@@ -29493,7 +29603,7 @@
           -3
         ],
         "orientation": [
-          -4.371138828673793e-08,
+          -4.371138828673793e-8,
           0,
           1,
           0,
@@ -29501,7 +29611,7 @@
           0,
           -1,
           0,
-          -4.371138828673793e-08
+          -4.371138828673793e-8
         ],
         "properties": {}
       },
@@ -29556,7 +29666,7 @@
           1.7
         ],
         "orientation": [
-          -4.371138828673793e-08,
+          -4.371138828673793e-8,
           0,
           1,
           0,
@@ -29564,7 +29674,7 @@
           0,
           -1,
           0,
-          -4.371138828673793e-08
+          -4.371138828673793e-8
         ],
         "properties": {}
       },
@@ -29619,7 +29729,7 @@
           4.5
         ],
         "orientation": [
-          -4.371138828673793e-08,
+          -4.371138828673793e-8,
           0,
           1,
           0,
@@ -29627,7 +29737,7 @@
           0,
           -1,
           0,
-          -4.371138828673793e-08
+          -4.371138828673793e-8
         ],
         "properties": {}
       }
@@ -29701,15 +29811,15 @@
           3.4
         ],
         "orientation": [
-          -4.10752676316406e-08,
+          -4.10752676316406e-8,
           -0.3420201241970062,
           -0.9396926164627075,
-          -1.4950174431760388e-08,
+          -1.4950174431760388e-8,
           0.9396926164627075,
           -0.3420201241970062,
           1,
           0,
-          -4.371138828673793e-08
+          -4.371138828673793e-8
         ],
         "properties": {}
       },
@@ -29764,15 +29874,15 @@
           0.7
         ],
         "orientation": [
-          -4.10752676316406e-08,
+          -4.10752676316406e-8,
           -0.3420201241970062,
           -0.9396926164627075,
-          -1.4950174431760388e-08,
+          -1.4950174431760388e-8,
           0.9396926164627075,
           -0.3420201241970062,
           1,
           0,
-          -4.371138828673793e-08
+          -4.371138828673793e-8
         ],
         "properties": {}
       },
@@ -29827,15 +29937,15 @@
           3
         ],
         "orientation": [
-          -4.10752676316406e-08,
+          -4.10752676316406e-8,
           -0.3420201241970062,
           -0.9396926164627075,
-          -1.4950174431760388e-08,
+          -1.4950174431760388e-8,
           0.9396926164627075,
           -0.3420201241970062,
           1,
           0,
-          -4.371138828673793e-08
+          -4.371138828673793e-8
         ],
         "properties": {}
       },
@@ -29890,7 +30000,7 @@
           -4
         ],
         "orientation": [
-          -4.371138828673793e-08,
+          -4.371138828673793e-8,
           0,
           1,
           0,
@@ -29898,7 +30008,7 @@
           0,
           -1,
           0,
-          -4.371138828673793e-08
+          -4.371138828673793e-8
         ],
         "properties": {}
       }
@@ -35981,73 +36091,106 @@
     ],
     "solution": [
       {
-        "id": "basket_1",
-        "kind": "basket",
-        "difficulty": [
-          {
-            "precision": 0,
-            "position_window": 0.2,
-            "rotation_window": 5,
-            "max_position_correction": 0.2,
-            "max_rotation_correction": 5,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.3,
-            "capture_speed": 3,
-            "capture_dwell": 0.15,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.8
+        "slot": "placed_goal",
+        "instance": {
+          "part": "basket",
+          "cell": [
+            29,
+            21,
+            0
+          ],
+          "local": [
+            -0.20000076293945312,
+            -0.20000076293945312,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "locked": false,
+          "scalars": {
+            "Length": 0
           },
-          {
-            "precision": 0.45,
-            "position_window": 0.1,
-            "rotation_window": 2,
-            "max_position_correction": 0.1,
-            "max_rotation_correction": 2,
-            "blend_seconds": 0.4,
-            "capture_margin": 0.174,
-            "capture_speed": 2.325,
-            "capture_dwell": 0.24,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.8
-          },
-          {
-            "precision": 1,
-            "position_window": 0,
-            "rotation_window": 0,
-            "max_position_correction": 0,
-            "max_rotation_correction": 0,
-            "blend_seconds": 0.4,
+          "parameters": {
             "capture_margin": 0.02,
-            "capture_speed": 1.5,
+            "capture_speed_limit": 1.5,
             "capture_dwell": 0.35,
-            "guide_acceleration": 0,
-            "trigger_threshold": 0.8
-          }
-        ],
-        "locked": false,
-        "position": [
-          1.8,
-          1.3,
-          0
-        ],
-        "orientation": [
-          1,
-          0,
-          0,
-          0,
-          1,
-          0,
-          0,
-          0,
-          1
-        ],
-        "initial_velocity": [
-          0,
-          0,
-          0
-        ],
-        "internal_bodies": [],
-        "properties": {}
+            "force_support_margin": 0.02,
+            "force_maximum_acceleration": 0,
+            "capture_participation": 1
+          },
+          "assistance": [
+            [
+              0,
+              0.2,
+              5,
+              0.2,
+              5,
+              0.4,
+              0.3,
+              3,
+              0.15,
+              0,
+              0.8
+            ],
+            [
+              0.45,
+              0.1,
+              2,
+              0.1,
+              2,
+              0.4,
+              0.174,
+              2.325,
+              0.24,
+              0,
+              0.8
+            ],
+            [
+              1,
+              0,
+              0,
+              0,
+              0,
+              0.4,
+              0.02,
+              1.5,
+              0.35,
+              0,
+              0.8
+            ]
+          ],
+          "assistance_bindings": [
+            {
+              "value": "CaptureMargin",
+              "scalar": null,
+              "parameter": "capture_margin"
+            },
+            {
+              "value": "CaptureSpeed",
+              "scalar": null,
+              "parameter": "capture_speed_limit"
+            },
+            {
+              "value": "CaptureDwell",
+              "scalar": null,
+              "parameter": "capture_dwell"
+            },
+            {
+              "value": "CaptureMargin",
+              "scalar": null,
+              "parameter": "force_support_margin"
+            },
+            {
+              "value": "GuideAcceleration",
+              "scalar": null,
+              "parameter": "force_maximum_acceleration"
+            }
+          ]
+        }
       }
     ],
     "solution_connections": [],

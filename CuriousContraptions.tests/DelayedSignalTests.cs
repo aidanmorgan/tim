@@ -134,18 +134,8 @@ public sealed class DelayedSignalTests
             Assert.True(part.GetProperty("locked").GetBoolean());
             AuthoredContentAssertions.Profile(part.GetProperty("assistance"),PuzzleCatalogue.Definition(new("delayed_signal")).Placements[1].Instance.Assistance);
         }
-        Check(level.GetProperty("solution")[0].GetProperty("difficulty"),PuzzleCatalogue.Definition(new("delayed_signal")).Inventory[0].Assistance);
-        static void Check(JsonElement data,AssistanceProfile profile)
-        {
-            var knots=new[]{profile.Forgiving,profile.Balanced,profile.Precise};
-            string[] names=["precision","position_window","rotation_window","max_position_correction","max_rotation_correction","blend_seconds","capture_margin","capture_speed","capture_dwell","guide_acceleration","trigger_threshold"];
-            for(var i=0;i<3;i++)
-            {
-                var k=knots[i];
-                float[] values=[k.Precision,k.PositionWindow.Value,k.RotationWindowDegrees,k.MaximumPositionCorrection.Value,k.MaximumRotationCorrectionDegrees,k.Blend.Value,k.CaptureMargin.Value,k.CaptureSpeed.Value,k.CaptureDwell.Value,k.GuideAcceleration.Value,k.TriggerThreshold];
-                for(var j=0;j<values.Length;j++) Assert.Equal((float)data[i].GetProperty(names[j]).GetDouble(),values[j]);
-            }
-        }
+        AuthoredContentAssertions.Profile(level.GetProperty("solution")[0].GetProperty("instance").GetProperty("assistance"),PuzzleCatalogue.Definition(new("delayed_signal")).Inventory[0].Assistance);
+
     }
 
     [Fact]

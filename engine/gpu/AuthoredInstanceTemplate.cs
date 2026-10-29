@@ -46,7 +46,7 @@ internal sealed record AuthoredInstanceTemplate(PartId Part, CellOrigin Cell, Lo
             Scalars.Any(pair => !Enum.IsDefined(pair.Key) || !float.IsFinite(pair.Value)))
             throw new ArgumentException("Missing, undefined or nonfinite authored scalar.");
         Rotation.Validate();
-        Parameters.Validate(Part);
+        // The current wire instance constructor validates typed scalars or the complete generic parameter set.
         var targets = new HashSet<(AuthoredScalar?, ParameterId)>(4);
         foreach (var binding in AssistanceBindings)
         {
@@ -120,6 +120,7 @@ internal static class AuthoredInstanceReader
         try
         {
             result.Validate();
+            WorkshopWireFlatBuffers.MapAuthoredInstance(result, new(1)).Validate();
             foreach (var precision in new[] { 0f, .45f, 1f }) result.Create(new(1), new(precision));
         }
         catch (ArgumentException error) { throw PuzzleContentReader.Invalid(where, "instance", error.Message); }

@@ -151,10 +151,15 @@ public sealed class BothGateTests
         NoFixedCapacityTests.AssertSameState(built,reset,"contact-opening cycle Reset");
     }
 
-    [Fact]
-    public async Task CommittedLatchSetResetAndSupplyRestorationDriveBothGate()
+    [Theory]
+    [InlineData(SimulationCadence.Hz60)]
+    [InlineData(SimulationCadence.Hz120)]
+    [InlineData(SimulationCadence.Hz240)]
+    public async Task CommittedLatchSetResetAndSupplyRestorationDriveBothGate(SimulationCadence cadence)
     {
         var construction=Machine();
+        construction = construction with { Settings = construction.Settings with { Simulation = cadence } };
+        var rate = (ulong)construction.Settings.SimulationRate.Numerator;
         construction=construction with {Instances=new(construction.Instances.Concat(new IWorkshopInstance[]{
             PlacedParts.Latch(new(6),-9,3,3,0,0,0,1),
             PlacedParts.Clock(new(7),-6,3,3,0,0,0,1,1f),
@@ -163,16 +168,16 @@ public sealed class BothGateTests
                 .With(Link(1,7)).With(Link(1,8))
                 .With(new(new(7),WorkshopSocket.ActivationOut,new(6),WorkshopSocket.SetIn,WorkshopConnectionDomain.Activation))
                 .With(new(new(8),WorkshopSocket.ActivationOut,new(6),WorkshopSocket.ResetIn,WorkshopConnectionDomain.Activation))};
-        var phases=await WorkshopIntegrationHarness.ObservePhases(construction,([],140),
-            ([new(new(3),ElectricalEnable.Disabled)],10),([new(new(3),ElectricalEnable.Enabled)],40));
+        var phases=await WorkshopIntegrationHarness.ObservePhases(construction,([],(int)(rate + rate / 6)),
+            ([new(new(3),ElectricalEnable.Disabled)],(int)(rate / 12)),([new(new(3),ElectricalEnable.Enabled)],(int)(rate / 3)));
         var reads=phases.SelectMany(rows=>rows).ToArray();
         WorkshopRead At(ulong tick)=>reads.Single(read=>read.Tick.Value==tick);
-        Assert.False(Drive(At(120)).SupplyClosed);Assert.True(Drive(At(121)).SupplyClosed);
-        Assert.True(BladeY(At(140))>BladeY(At(120))+.02f);
+        Assert.False(Drive(At(rate)).SupplyClosed);Assert.True(Drive(At(rate + 1)).SupplyClosed);
+        Assert.True(BladeY(At(rate + rate / 6))>BladeY(At(rate))+.02f);
         Assert.All(phases[1],read=>{Assert.Equal(ElectricalInputState.Both,Logic(read).Inputs);Assert.False(Drive(read).SupplyClosed);});
-        Assert.True(Drive(At(151)).SupplyClosed);
-        Assert.True(Drive(At(180)).SupplyClosed);Assert.False(Drive(At(181)).SupplyClosed);
-        Assert.All(reads.Where(read=>read.Tick.Value>=181),read=>Assert.False(Logic(read).Active));
+        Assert.True(Drive(At(rate + rate / 4 + 1)).SupplyClosed);
+        Assert.True(Drive(At(rate * 3 / 2)).SupplyClosed);Assert.False(Drive(At(rate * 3 / 2 + 1)).SupplyClosed);
+        Assert.All(reads.Where(read=>read.Tick.Value>=rate * 3 / 2 + 1),read=>Assert.False(Logic(read).Active));
     }
 
     [Fact]

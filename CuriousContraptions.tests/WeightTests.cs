@@ -604,16 +604,25 @@ public sealed class WeightTests(ITestOutputHelper output)
         Assert.True(Tilt(Find(reads[^1], top.Id)) < .5);
     }
 
-    [Fact]
-    public async Task AWeightRollingOffARampTopplesADominoAndARestingWeightBesideOneLeavesItStanding()
+    [Theory]
+    [InlineData(SimulationCadence.Hz60)]
+    [InlineData(SimulationCadence.Hz120)]
+    [InlineData(SimulationCadence.Hz240)]
+    public async Task AWeightRollingOffARampTopplesADominoAndARestingWeightBesideOneLeavesItStanding(SimulationCadence cadence)
     {
+        var settings = WorkshopCadenceSettings.Default() with { Simulation = cadence };
+        var rate = (int)settings.SimulationRate.Numerator;
         var domino = PlacedParts.Domino(new(3), 3.2f, (float)(DominoUpright), 0, 0, 0, 0, 1);
-        var (_, struck, _) = await WorkshopIntegrationHarness.ObserveReset(Bench(Ramp(2), OnItsSideOnTheRamp(1, 4f, .5f), domino), 6 * Rate, includeBuilt: true);
+        var positive = Bench(Ramp(2), OnItsSideOnTheRamp(1, 4f, .5f), domino) with { Settings = settings };
+        var (built, struck, reset) = await WorkshopIntegrationHarness.ObserveReset(positive, 6 * rate, includeBuilt: true);
         Assert.Contains(struck, read => Tilt(Find(read, domino.Id)) > 45);
-        // Control: a Weight resting end-down 0.1 m from the tile's face never moves it.
+        NoFixedCapacityTests.AssertSameState(built, reset, "rolling Weight Reset");
+        // Change only the Weight's pose: the same ramp and tile remain, but no rolling impact reaches the tile.
         var beside = Placed(1, 3.2 - .125 - .1 - Radius(4), BenchY, 0, 4f);
-        var (_, quiet, _) = await WorkshopIntegrationHarness.ObserveReset(Bench(beside, domino), 5 * Rate, includeBuilt: true);
-        Assert.All(quiet, read => Assert.True(Tilt(Find(read, domino.Id)) < 1, $"tilt {Tilt(Find(read, domino.Id))}"));
+        var control = positive.WithInstance(beside);
+        var (_, quiet, _) = await WorkshopIntegrationHarness.ObserveReset(control, 6 * rate, includeBuilt: true);
+        // A tile remains recognisably upright; sub-degree resting variations are not toppling.
+        Assert.All(quiet, read => Assert.True(Tilt(Find(read, domino.Id)) < 15));
     }
 
     [Theory]

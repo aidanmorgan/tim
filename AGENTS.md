@@ -1,5 +1,7 @@
 # Project rules
 
+**Owner instruction,29 October2026 — do not wait for CI:** after passing required local tests, normal hooks and independent review, publish the approved commit and continue the backlog. Do not monitor or investigate CI/deployment as a prerequisite to the next slice. Record remote build/artifact/deployment qualification as unverified unless independently established; this supersedes per-slice terminal-verifier and CI-wait wording below. Browser/release qualification is not implied.
+
 ## Game fidelity — owner policy, 28 October 2026
 
 This is a physics-based puzzle game. Correct puzzle outcomes, meaningful causal event order, plausible motion, stable resting behaviour and reliable lifecycle are the acceptance targets. This policy applies immediately, including the current slice, and supersedes older instructions that preserve historical simulation ticks, substep ordinals, trajectories or migration-era position deltas without a current gameplay requirement.

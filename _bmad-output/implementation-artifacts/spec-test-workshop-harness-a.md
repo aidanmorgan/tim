@@ -227,3 +227,11 @@ Review:9 reported observations became five medium patch groups and three rejecte
 Final local round4: **4,901 passed,0 failed,0 skipped** (main4,410; tools491), main20m52s. All17 matrix cases executed and passed. Raw results: each project's `TestResults/native-harness-a-full-round4.trx`. Matching playtest/solution captures passed0 warnings/errors (23.47s/16.30s); unchanged web/file-tool captures were reused and verified by the static gates. Affected repair checks183/0/0 and earlier failed/cancelled attempts remain above. No additional full run is needed for these unchanged inputs.
 
 Residual boundaries: harness B owns the complete current-catalogue matrix and production authored-solution parsing. Native host controls do not claim worker scheduling/read-ledger, browser UI-animation or release/device qualification. Normal commit hooks, exact-commit SnapshotApproval and production artifact/deployment checks remain publication-dependent work; this Auto implementation result is not terminal publication Pass.
+
+## Publication receipt — 29 October 2026
+
+Published to main: `db90de9b231e218025ef72a1007f953e214baee6`, parent `6e0e0ee1799d31211e1769b8883f6bedb3fae396`. Final local4901/0/0; normal hooks126/0/0 and zero compiler warnings/errors. All five Auto layers and affected re-review closed. Independent reviewer `/root/harness_a_intent` verified clean worktree, exact committed code/tests against v5, actual TRXs and hook evidence, and gave exact-SHA SnapshotApproval:Pass.
+
+Evidence correction: the earlier unstaged `git diff --check` passed, but the committed-diff check reports one extra EOF blank line in `engine/gpu/WorkshopCommandExecutor.cs:93`. The reviewer explicitly treated it as nonblocking cosmetic whitespace; no clean committed-diff claim is made.
+
+Production CI run40784555293/build job123154369473 was in progress when the owner instructed: “you can ignore whats happening in CI and continue working”. Terminal monitoring stopped. Remote production artifact/deployment qualification is **unverified**, not Pass. Local implementation/review and main publication are complete; proceed to harness B under that explicit owner instruction. Browser qualification remains pending.

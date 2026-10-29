@@ -36,6 +36,15 @@ public static class PuzzleCatalogue
         return construction;
     }
 
+    /// <summary>The canonical authored solution, using the same instance and connection admission as playable construction.</summary>
+    public static WorkshopConstruction CreateSolution(PuzzleId id, ConstructionRevision revision,
+        WorkshopCadenceSettings settings, GpuBodyId first, PuzzlePrecision precision)
+    {
+        var construction = Definition(id).CreateSolution(revision, settings, first, precision);
+        construction.Validate();
+        return construction;
+    }
+
     public static WorkshopConstruction WithInstance(WorkshopConstruction construction, IWorkshopInstance instance)
     {
         if (!construction.Puzzle.Id.IsAuthored)
@@ -137,7 +146,7 @@ public static class PuzzleCatalogue
         foreach (var entry in entries.Where(entry => entry.Availability == PuzzleAvailability.Playable))
         {
             try { definitions.Add(entry.Id, PuzzleDefinitionReader.Parse(entry)); }
-            catch (Exception error) when (error is ArgumentException or InvalidOperationException or KeyNotFoundException or FormatException or OverflowException)
+            catch (Exception error) when (error is ArgumentException or InvalidOperationException or KeyNotFoundException or FormatException or OverflowException or WireFaultException)
             {
                 throw PuzzleContentReader.Invalid(entry.Id.Value, "declaration", error.Message);
             }

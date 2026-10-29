@@ -27,8 +27,8 @@ public sealed class F32BehaviourIdentityTests(ITestOutputHelper output)
     public static TheoryData<string, float> Lessons()
     {
         var data = new TheoryData<string, float>();
-        foreach (var row in LaunchLessonSolveTests.AuthoredLessons())
-            foreach (var precision in new[] { 0f, .45f, 1f }) data.Add(row.Data, precision);
+        foreach (var lesson in LaunchLessonSolveTests.Lessons)
+            foreach (var precision in new[] { 0f, .45f, 1f }) data.Add(lesson.Value, precision);
         return data;
     }
 
@@ -49,7 +49,7 @@ public sealed class F32BehaviourIdentityTests(ITestOutputHelper output)
     {
         var expected = Baseline.Value["Lessons"]!.AsArray().Single(row =>
             (string)row!["Id"]! == lesson && Math.Abs((double)row["Precision"]! - precision) <= 1.0 / 2048)!;
-        var bench = LaunchLessonSolveTests.AuthoredSolution(lesson, precision);
+        var bench = PuzzleCatalogue.CreateSolution(new(lesson), new(2), WorkshopCadenceSettings.Default(), new(1), new(precision));
         var (built, run, reset) = await WorkshopIntegrationHarness.ObserveReset(bench, LessonTicks);
         var (goalTick, events) = Outcome(run, bench);
         Assert.Equal((bool)expected["GoalMet"]!, goalTick is not null);

@@ -7,32 +7,6 @@ namespace CuriousContraptions.Tests;
 public sealed class WorkshopIntegrationHarnessTests
 {
 
-    [Theory]
-    [InlineData(SimulationCadence.Hz60)]
-    [InlineData(SimulationCadence.Hz120)]
-    [InlineData(SimulationCadence.Hz240)]
-    public async Task AuthoredReceiverRouteSolvesAndMissingReceiverControlCannot(SimulationCadence cadence)
-    {
-        foreach (var hasReceiver in new[] { true, false })
-        {
-            var scene = LaunchLessonSolveTests.Bench(hasReceiver ? LaunchLessonSolveTests.Route.ReadyReceiver :
-                LaunchLessonSolveTests.Route.ReadyMissingReceiver);
-            scene = scene with { Settings = scene.Settings with { Simulation = cadence } };
-            await using var harness = await WorkshopIntegrationHarness.Running(scene);
-            var solved = false;
-            var limit = 10 * (int)scene.Settings.SimulationRate.Numerator;
-            for (var tick = 0; tick < limit && !solved; tick++)
-            {
-                await harness.Advance(1);
-                solved = WorkshopGoalEvaluator.Evaluate(scene.Puzzle.Goal, harness.Committed,
-                    harness.Committed.Epoch, scene.Instances.Identities) == WorkshopGoalPhase.Solved;
-            }
-            Assert.Equal(hasReceiver, solved);
-            if (hasReceiver) Assert.Contains(harness.Records, record => record.Kind == SimulationEventKind.Captured);
-        }
-    }
-
-
     [Fact]
     public async Task SuccessiveCadenceCommandsPublishNewAuthorityAndDriveTheRealWorld()
     {
@@ -280,6 +254,43 @@ public sealed class WorkshopIntegrationStartupTests(NativeSceneFixture godot)
     }
     private static bool HasLabel(Workshop scene, string text) => Descendants(scene).OfType<Label>().Any(label => label.Text == text);
     private static Workshop Scene() => GD.Load<PackedScene>(NativeTestBoundary.WorkshopResource).Instantiate<Workshop>();
+
+    [Fact]
+    public async Task NativePaletteGroupsDeclaredCategoriesAndPreservesTheirDisplayOrder()
+    {
+        var scene = Scene();
+        await using var harness = await WorkshopIntegrationHarness.Initialized(WorkshopCadenceSettings.Default());
+        scene.ClientFactory = () => Task.FromResult<IWorkshopClient>(new WorkshopIntegrationClient(harness));
+        godot.Tree.Root.AddChild(scene);
+        try
+        {
+            await scene.Startup;
+            var buttons = Descendants(scene).OfType<Button>().Where(button => button.HasMeta("part_kind")).ToArray();
+            var first = Assert.Single(buttons, button => button.GetMeta("part_kind").AsString() == "ball");
+            var children = first.GetParent().GetChildren();
+            var rows = children.Select(node => node is Label label ? label.Text :
+                node is Button button ? button.GetMeta("part_kind").AsString() : throw new InvalidOperationException("Unexpected palette row.")).ToArray();
+            string[] expected =
+            [
+                "Motion", "ball", "bumper", "domino", "bowling", "spring", "pipe", "pipe_bend_45",
+                "pipe_bend_90", "funnel", "powered_gate", "weight",
+                "Goals", "basket", "lamp", "Power", "switch", "battery",
+                "Control", "delay", "ball_detector", "pressure_plate", "counter", "clock", "latch",
+                "hold_timer", "both_gate", "electrical_nand", "electrical_nor", "electrical_or", "electrical_xor",
+                "Structure", "wall", "ramp"
+            ];
+            Assert.Equal(expected, rows);
+            var impact = scene.World.Registry.Definitions[PartId.ImpactSwitch];
+            Assert.Equal("Impact switch", impact.Title);
+            Assert.Equal("A qualifying impact sends one activation and closes the independently supplied electrical contact.", impact.Description);
+            Assert.Equal(new Color(.94f, .43f, .33f, 1), impact.Color);
+            Assert.Equal("res://elements/ImpactSwitch/icon.svg", impact.IconPath);
+            var control = Assert.Single(buttons, button => button.GetMeta("part_kind").AsString() == "switch");
+            Assert.Contains(Descendants(control).OfType<Label>(), label => label.Text == "Impact switch");
+            Assert.Same(WorkshopIcons.Element("res://elements/ImpactSwitch/icon.svg"), control.Icon);
+        }
+        finally { scene.Free(); godot.Engine.Iteration(); }
+    }
 
     [Theory]
     [InlineData("res://elements/missing-integration-bundle.json")]

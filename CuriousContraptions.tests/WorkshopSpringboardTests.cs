@@ -60,7 +60,7 @@ public sealed class WorkshopSpringboardTests(NativeSceneFixture godot)
             });
         }
         var ready = lesson == new PuzzleId("ready_to_rebound");
-        Profile(level.GetProperty("solution")[0].GetProperty("difficulty"),
+        AuthoredContentAssertions.Profile(level.GetProperty("solution")[0].GetProperty("instance").GetProperty("assistance"),
             ready ? initial.Puzzle.TargetAssistance : initial.Puzzle.PlacementAssistance);
         var inventory = WorkshopInventoryPolicy.Authored(initial.Puzzle);
         Assert.Single(inventory);
@@ -89,21 +89,7 @@ public sealed class WorkshopSpringboardTests(NativeSceneFixture godot)
             Assert.Equal(new GpuBodyId(4), replaced.Puzzle.Goal.Target);
             EditRefusal.Is(WorkshopEditRejection.InventoryExceeded, () => replaced.WithInstance(WorkshopInput.Generic(PartId.Receiver, new(5), 2, 1, 0, 0, 0, 0, 1)).Validate());
         }
-        static void Profile(System.Text.Json.JsonElement data, AssistanceProfile expected)
-        {
-            var knots = new[] { expected.Forgiving, expected.Balanced, expected.Precise };
-            string[] names = ["precision", "position_window", "rotation_window", "max_position_correction",
-                "max_rotation_correction", "blend_seconds", "capture_margin", "capture_speed", "capture_dwell",
-                "guide_acceleration", "trigger_threshold"];
-            for (var i = 0; i < 3; i++)
-            {
-                var k = knots[i];
-                float[] values = [k.Precision,k.PositionWindow.Value,k.RotationWindowDegrees,k.MaximumPositionCorrection.Value,
-                    k.MaximumRotationCorrectionDegrees,k.Blend.Value,k.CaptureMargin.Value,k.CaptureSpeed.Value,k.CaptureDwell.Value,
-                    k.GuideAcceleration.Value,k.TriggerThreshold];
-                for (var j = 0; j < names.Length; j++) Assert.Equal((float)data[i].GetProperty(names[j]).GetDouble(), values[j]);
-            }
-        }
+
     }
 
 

@@ -54,106 +54,125 @@ public sealed class LaunchLessonSolveTests
     internal static bool Solved(WorkshopConstruction construction, IEnumerable<WorkshopRead> run) =>
         run.Any(read => WorkshopGoalEvaluator.Occurrence(construction.Puzzle.Goal, read.Captures, read.Activations, construction.Instances.Identities) is not null);
 
-    /// <summary>The lesson's authored `solution` rows (content/puzzles.json), each part placed at its authored pose through the lesson's
-    /// production placement. The orientation is the Basis column-major array the content stores (as JoinedPipeTests reads it).</summary>
-    private static readonly string[] WallKeys = ["width", "height", "thickness"];
-
-    internal static WorkshopConstruction AuthoredSolution(string lesson, float precision)
-    {
-        using var source = System.Text.Json.JsonDocument.Parse(File.ReadAllText(Path.Combine(twodog.Engine.ResolveProjectDir(), "content/puzzles.json")));
-        var level = source.RootElement.EnumerateArray().Single(value => value.GetProperty("id").GetString() == lesson);
-        var construction = PuzzleCatalogue.Create(new PuzzleId(lesson), new(2), WorkshopCadenceSettings.Default(), new(1), new(precision));
-        // Each authored placement slot names the fixture built from it, in placement order; solution parts follow the fixtures.
-        var slots = level.GetProperty("placements").EnumerateArray().Select((row, index) =>
-        {
-            var fixture = construction.Instances[index];
-            Assert.Equal(row.GetProperty("instance").GetProperty("part").GetString(), fixture.PartId.Value);
-            return KeyValuePair.Create(row.GetProperty("slot").GetString()!, fixture.Id);
-        }).ToDictionary();
-        // Content wiring may name a fixture by its part ("switch", "lamp") when that part is unique among the fixtures.
-        foreach (var group in construction.Instances.GroupBy(instance => instance.PartId.Value).Where(group => group.Count() == 1))
-            slots.TryAdd(group.Key, group.Single().Id);
-        var next = construction.Instances.Max(instance => instance.Id.Value) + 1;
-        foreach (var row in level.GetProperty("solution").EnumerateArray())
-        {
-            var p = row.GetProperty("position").EnumerateArray().Select(value => value.GetDouble()).ToArray();
-            var o = row.GetProperty("orientation").EnumerateArray().Select(value => (float)value.GetDouble()).ToArray();
-            var q = new Godot.Basis(new Godot.Vector3(o[0], o[1], o[2]), new Godot.Vector3(o[3], o[4], o[5]), new Godot.Vector3(o[6], o[7], o[8]))
-                .GetRotationQuaternion();
-            var id = new GpuBodyId(next++);
-            var properties = row.GetProperty("properties");
-            IWorkshopInstance part = row.GetProperty("kind").GetString() switch
-            {
-                "bumper" => PlacedParts.Bumper(id, (float)(p[0]), (float)(p[1]), (float)(p[2]), qx: q.X, qy: q.Y, qz: q.Z, qw: q.W),
-                "spring" => PlacedParts.Springboard(id, (float)(p[0]), (float)(p[1]), (float)(p[2]), (float)(q.X), (float)(q.Y), (float)(q.Z), (float)(q.W)),
-                "wall" => WorkshopInput.Generic(PartId.Wall, id, (float)(p[0]), (float)(p[1]), (float)(p[2]), (float)(q.X), (float)(q.Y), (float)(q.Z), (float)(q.W), new(
-                    WallKeys.Select(key => KeyValuePair.Create(new ParameterId(key), (float)properties.GetProperty(key).GetDouble())))),
-                "domino" => PlacedParts.Domino(id, (float)(p[0]), (float)(p[1]), (float)(p[2]), (float)(q.X), (float)(q.Y), (float)(q.Z), (float)(q.W)),
-                "ramp" => WorkshopInput.Generic(PartId.Ramp, id, (float)(p[0]), (float)(p[1]), (float)(p[2]), (float)(q.X), (float)(q.Y), (float)(q.Z), (float)(q.W)),
-                "delay" => WorkshopInput.Generic(PartId.Delay, id, (float)(p[0]), (float)(p[1]), (float)(p[2]), (float)(q.X), (float)(q.Y), (float)(q.Z), (float)(q.W)),
-                "basket" => WorkshopInput.Generic(PartId.Receiver, id, (float)(p[0]), (float)(p[1]), (float)(p[2]), (float)(q.X), (float)(q.Y), (float)(q.Z), (float)(q.W)),
-                "pipe_bend_45" => WorkshopInput.Generic(PartId.PipeBend45, id, (float)(p[0]), (float)(p[1]), (float)(p[2]), (float)(q.X), (float)(q.Y), (float)(q.Z), (float)(q.W)),
-                "pipe_bend_90" => WorkshopInput.Generic(PartId.PipeBend90, id, (float)(p[0]), (float)(p[1]), (float)(p[2]), (float)(q.X), (float)(q.Y), (float)(q.Z), (float)(q.W)),
-                "pipe" => WorkshopInput.Pipe(id, (float)(p[0]), (float)(p[1]), (float)(p[2]), (float)(q.X), (float)(q.Y), (float)(q.Z), (float)(q.W), new((float)properties.GetProperty("length").GetDouble())),
-                var kind => throw new ArgumentException($"No authored-solution placement for '{kind}'.")
-            };
-            slots.Add(row.GetProperty("id").GetString()!, id);
-            construction = construction.WithInstance(part);
-        }
-        // The authored solution wiring: activation links between named slots.
-        var links = new List<WorkshopConnection>();
-        foreach (var row in level.GetProperty("solution_connections").EnumerateArray())
-        {
-            Assert.Equal(("activation", "activation_out", "activation_in"), (row.GetProperty("type").GetString(),
-                row.GetProperty("from_port").GetString(), row.GetProperty("to_port").GetString()));
-            links.Add(new(slots[row.GetProperty("from").GetString()!], WorkshopSocket.ActivationOut, slots[row.GetProperty("to").GetString()!],
-                WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation));
-        }
-        return links.Count == 0 ? construction : construction with { Connections = new([.. links]) };
-    }
-
     // The authored solution of every placement-launch lesson solves at every precision (the bumper rows were corrected from x/z 3.2 to
     // 3.3 on 22 Oct 2026: at 3.2 the 0.2 m offset under the falling ball misses the Receiver on main 55ee05b9 and here alike,
     // evidence-c-bumper-spring/lesson-pose/). domino_effect's rows were corrected on 23 Oct 2026 (9A.32): the legacy tiles at
     // x = -2.4…0, y = 1 lay 2 m from the falling Basketball and the last overlapped the end tile, so the chain never started; the four
     // tiles now stand at x = -4…-1 on the bench and the end tile is wired to the lamp (evidence-9a-32/candidate/domino-effect-solution/).
     // The restitution slice (24 Oct 2026) extends the guard to every Playable lesson whose content has an authored solution.
-    public static TheoryData<string> AuthoredLessons()
+    internal static readonly PuzzleId[] Lessons =
+    [
+        new("first_principles"), new("spring_forward"), new("domino_effect"), new("bumper_sidekick"),
+        new("bumper_depth"), new("wall_and_bumper"), new("delayed_signal"), new("clear_pipe"),
+        new("gentle_bend"), new("quarter_bend"), new("joined_pipe"), new("ready_to_rebound")
+    ];
+
+    [Fact]
+    public void EveryPlayableLessonHasAnExplicitExecutedScenario() =>
+        Assert.Equal(PuzzleCatalogue.Playable.OrderBy(id => id.Value), Lessons.OrderBy(id => id.Value));
+
+    public static TheoryData<string, SimulationCadence> LessonCadences()
     {
-        using var source = System.Text.Json.JsonDocument.Parse(File.ReadAllText(Path.Combine(twodog.Engine.ResolveProjectDir(), "content/puzzles.json")));
-        var authored = source.RootElement.EnumerateArray()
-            .Where(level => level.TryGetProperty("solution", out var rows) && rows.GetArrayLength() > 0)
-            .Select(level => level.GetProperty("id").GetString()!).ToHashSet();
-        var data = new TheoryData<string>();
-        foreach (var lesson in PuzzleCatalogue.Playable.Where(id => authored.Contains(id.Value))) data.Add(lesson.Value);
+        var data = new TheoryData<string, SimulationCadence>();
+        foreach (var lesson in Lessons)
+            foreach (var cadence in new[] { SimulationCadence.Hz60, SimulationCadence.Hz120, SimulationCadence.Hz240 })
+                data.Add(lesson.Value, cadence);
         return data;
     }
 
-    [Fact]
-    public void EveryPlayableLessonHasAnAuthoredSolutionUnderTheGuard() =>
-        Assert.Equal(PuzzleCatalogue.Playable.Count, AuthoredLessons().Count);
-
     [Theory]
-    [MemberData(nameof(AuthoredLessons))]
-    public async Task TheAuthoredSolutionSolvesAtEveryPrecision(string lesson)
+    [MemberData(nameof(LessonCadences))]
+    public async Task AuthoredLessonSolvesAndOneMissingCausePreventsTheGoal(string lesson, SimulationCadence cadence)
     {
-        foreach (var precision in new[] { 0f, .45f, 1f })
+        var settings = WorkshopCadenceSettings.Default() with { Simulation = cadence };
+        var positive = PuzzleCatalogue.CreateSolution(new(lesson), new(2), settings, new(1), new(.45f));
+        // One connection or one granted part is necessary; fixtures and all other inputs stay.
+        var control = positive.Connections.Count > 0
+            ? positive with { Connections = positive.Connections.Without(positive.Connections[0]) }
+            : positive.WithoutInstance((new PuzzleId(lesson) == new PuzzleId("wall_and_bumper")
+                ? positive.Instances.Single(instance => instance.PartId == PartId.Wall)
+                : positive.Instances.First(instance => !instance.Locked)).Id);
+        control.Validate();
+        var limit = 10 * (int)settings.SimulationRate.Numerator;
+        foreach (var solves in new[] { true, false })
         {
-            var bench = AuthoredSolution(lesson, precision);
-            bench.Validate();
-            var (built, run, reset) = await WorkshopIntegrationHarness.ObserveReset(bench, RunTicks);
-            Assert.True(Solved(bench, run), $"{lesson} at precision {precision}");
-            NoFixedCapacityTests.AssertSameState(built, reset, "Reset");
-            // Save/load (Story 9A.44): the lesson's f32 puzzle record and its nine f32 assistance knots round-trip exactly, and the
-            // reloaded bench reaches the same goal. Incidental flight timing is not a save/load contract.
-            var saved = new WorkshopSavedConstruction(bench, new(bench.Instances.Max(instance => instance.Id.Value) + 1));
-            var bytes = WorkshopSaveCodec.Encode(saved);
-            var reloaded = WorkshopSaveCodec.Decode(SaveFixture.Elements, bytes);
-            Assert.Equal(saved, reloaded);
-            var (_, replay, _) = await WorkshopIntegrationHarness.ObserveReset(reloaded.Construction, RunTicks);
-            Assert.True(Solved(reloaded.Construction, replay), $"{lesson} reloaded at precision {precision}");
-            // Both runs reach the authored goal; incidental trajectories are not a save/load contract.
+            var bench = solves ? positive : control;
+            await using var harness = await WorkshopIntegrationHarness.Building(bench);
+            var built = harness.Committed;
+            AssertGoalCue(harness, lit: false);
+            await harness.Run();
+            await harness.Advance(1);
+            Assert.Contains(Enumerable.Range(0, harness.Committed.Bodies.Count).Select(i => harness.Committed.Bodies[i]),
+                body => body.Body.Velocity.X != 0 || body.Body.Velocity.Y != 0 || body.Body.Velocity.Z != 0);
+            var pausedAt = harness.Committed.Tick;
+            await harness.Require(WorkshopCommandKind.Pause);
+            Assert.Equal(pausedAt, harness.Committed.Tick);
+            await harness.Require(WorkshopCommandKind.Step);
+            Assert.Equal(pausedAt.Value + 1, harness.Committed.Tick.Value);
+            await harness.Require(WorkshopCommandKind.Resume);
+            var solved = Solved(bench, [harness.Committed]);
+            for (var tick = 0; tick < limit && !solved; tick++)
+            {
+                await harness.Advance(1);
+                solved = Solved(bench, [harness.Committed]);
+            }
+            Assert.Equal(solves, solved);
+            // Let the declared half-second capture halo or activation bulb reach a plainly visible outcome.
+            await harness.Advance((int)settings.SimulationRate.Numerator);
+            AssertGoalCue(harness, lit: solves);
+            if (solves && bench.Puzzle.Goal.Kind == WorkshopGoalKind.Captured)
+                Assert.Contains(harness.Records, row => row.Kind == SimulationEventKind.Captured &&
+                    row.Source == bench.Puzzle.Goal.Target.Value && row.Other == bench.Puzzle.Goal.Body.Value);
+            if (solves && bench.Puzzle.Goal.Kind == WorkshopGoalKind.ActivatedAfter)
+            {
+                var goal = bench.Puzzle.Goal;
+                var activations = Enumerable.Range(0, harness.Committed.Activations.Count).Select(i => harness.Committed.Activations[i]).ToArray();
+                var source = Assert.Single(activations, row => row.Node == goal.SourceNode);
+                var target = Assert.Single(activations, row => row.Node == goal.TargetNode);
+                var delayed = new PuzzleId(lesson) == new PuzzleId("delayed_signal");
+                Assert.Equal(delayed ? ActivationOccurrenceKind.Contact : ActivationOccurrenceKind.Orientation, source.Kind);
+                Assert.Equal(delayed ? ActivationOccurrenceKind.TimerElapsed : ActivationOccurrenceKind.Orientation, target.Kind);
+                Assert.Equal(source.Occurrence.Cause, target.Occurrence.Cause);
+                Assert.True(WorkshopGoalEvaluator.ElapsedAtLeast(source.Occurrence.Time, target.Occurrence.Time, goal.MinimumDuration));
+            }
+            Assert.Equal(WorkshopRejection.WrongPhase, (await harness.Execute(WorkshopCommandKind.Save)).Result.Reason);
+            await harness.Reset();
+            NoFixedCapacityTests.AssertSameState(built, harness.Committed, lesson + " Reset");
+            AssertGoalCue(harness, lit: false);
+            Assert.Equal(bench, harness.Construction);
+            if (!solves) continue;
+            await harness.Require(WorkshopCommandKind.Save);
+            var saved = new WorkshopSavedConstruction(bench, new(bench.Instances.Max(row => row.Id.Value) + 1));
+            var loaded = WorkshopSaveCodec.Decode(SaveFixture.Elements, WorkshopSaveCodec.Encode(saved));
+            Assert.Equal(saved, loaded);
+            await using var fresh = await WorkshopIntegrationHarness.Running(loaded.Construction);
+            var replaySolved = false;
+            for (var tick = 0; tick < limit && !replaySolved; tick++)
+            {
+                await fresh.Advance(1);
+                replaySolved = Solved(loaded.Construction, [fresh.Committed]);
+            }
+            Assert.True(replaySolved, lesson + " fresh Load solves");
         }
+    }
+
+    private static void AssertGoalCue(WorkshopIntegrationHarness harness, bool lit)
+    {
+        var goal = harness.Construction.Puzzle.Goal;
+        var capture = goal.Kind == WorkshopGoalKind.Captured;
+        var owner = capture ? goal.Target : new GpuBodyId(goal.TargetNode.Value);
+        var samples = harness.Presentation!.Advance(harness.Schedule, PhysicalTime.FromNanoseconds(harness.Time.Nanoseconds));
+        if (!harness.Construction.Instances.Any(part => part.Id == owner))
+        {
+            Assert.False(lit);
+            Assert.DoesNotContain(samples, sample => sample.Owner == owner);
+            return;
+        }
+        // Receiver halo red is binding 1 (neutral mint); lamp bulb red is binding 0 (neutral dark grey).
+        var cue = Assert.Single(samples, sample => sample.Owner == owner && sample.Binding == (capture ? 1 : 0));
+        var red = cue.Value.ColourChannel.Value;
+        if (lit) Assert.True(red > .9f, "The captured receiver halo / activated lamp must visibly brighten.");
+        else Assert.InRange(red, capture ? .7f : .3f, capture ? .8f : .4f);
     }
 
     [Theory]

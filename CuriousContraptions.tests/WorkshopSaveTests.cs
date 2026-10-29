@@ -27,6 +27,88 @@ public sealed class WorkshopSaveTests
         Assert.Equal(value, instance.Parameters[new(parameter)]);
     }
 
+    public enum SolutionDamage
+    {
+        DuplicateSlot, FixtureSlot, UnknownPart, UnknownParameter, MissingParameter, Nonfinite,
+        Locked, UnsupportedInventory, InventoryCount, ExcessPart, UnknownEndpoint, UndefinedDomain,
+        WrongSocket, DuplicateConnection, OldShape, ForeignGoal, NonSignalGoal, NonPayloadGoal, CaptureDuration
+    }
+    public static TheoryData<SolutionDamage> SolutionDamages() => new(Enum.GetValues<SolutionDamage>());
+
+    [Theory]
+    [MemberData(nameof(SolutionDamages))]
+    public void CanonicalSolutionsRefuseMalformedInputAtomically(SolutionDamage damage)
+    {
+        _ = SaveFixture.Elements;
+        var id = new PuzzleId("delayed_signal");
+        var before = PuzzleCatalogue.CreateSolution(id, new(1), WorkshopCadenceSettings.Default(), new(1), new(.45f));
+        var content = System.Text.Json.Nodes.JsonNode.Parse(File.ReadAllText(Path.Combine(twodog.Engine.ResolveProjectDir(), "content/puzzles.json")))!.AsArray();
+        var entry = content.Single(row => row!["id"]!.GetValue<string>() == id.Value)!;
+        var solution = entry["solution"]!.AsArray();
+        var row = solution[0]!;
+        var instance = row["instance"]!;
+        var links = entry["solution_connections"]!.AsArray();
+        switch (damage)
+        {
+            case SolutionDamage.DuplicateSlot: solution.Add(row.DeepClone()); break;
+            case SolutionDamage.FixtureSlot: row["slot"] = "fixture_1"; break;
+            case SolutionDamage.UnknownPart: instance["part"] = "unknown"; break;
+            case SolutionDamage.UnknownParameter: instance["parameters"]!["unknown"] = 1; break;
+            case SolutionDamage.MissingParameter: instance["parameters"]!.AsObject().Remove("delay_seconds"); break;
+            case SolutionDamage.Nonfinite: instance["parameters"]!["delay_seconds"] = double.MaxValue; break;
+            case SolutionDamage.Locked: instance["locked"] = true; break;
+            case SolutionDamage.UnsupportedInventory: entry["inventory"]![0]!["part"] = "ramp"; break;
+            case SolutionDamage.InventoryCount: entry["inventory"]![0]!["count"] = 0; break;
+            case SolutionDamage.ExcessPart:
+                var extra = row.DeepClone(); extra["slot"] = "extra"; solution.Add(extra); break;
+            case SolutionDamage.UnknownEndpoint: links[0]!["source"] = "switch"; break;
+            case SolutionDamage.UndefinedDomain: links[0]!["domain"] = "Unknown"; break;
+            case SolutionDamage.WrongSocket: links[0]!["output"] = "Supply"; break;
+            case SolutionDamage.DuplicateConnection: links.Add(links[0]!.DeepClone()); break;
+            case SolutionDamage.OldShape:
+                solution[0] = System.Text.Json.Nodes.JsonNode.Parse("""{"id":"delay_1","kind":"delay","position":[0,1,0],"orientation":[1,0,0,0,1,0,0,0,1],"properties":{}}"""); break;
+            case SolutionDamage.ForeignGoal: entry["goal"]!["target"] = "unknown"; break;
+            case SolutionDamage.NonSignalGoal: entry["goal"]!["source"] = "fixture_1"; break;
+            case SolutionDamage.NonPayloadGoal:
+                entry["goal"]!["kind"] = "Captured"; entry["goal"]!["minimum_seconds"] = 0; break;
+            case SolutionDamage.CaptureDuration:
+                entry["goal"]!["kind"] = "Captured"; break;
+            default: throw new ArgumentOutOfRangeException(nameof(damage));
+        }
+        Assert.Throws<InvalidDataException>(() => PuzzleCatalogue.ReadDefinitions(content.ToJsonString()));
+        Assert.Equal(before, PuzzleCatalogue.CreateSolution(id, new(1), WorkshopCadenceSettings.Default(), new(1), new(.45f)));
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void AValidReceiverSolutionMustMatchItsInventoryAtEveryPrecisionKnot(bool forgivingKnotOnly)
+    {
+        _ = SaveFixture.Elements;
+        var id = new PuzzleId("ready_to_rebound");
+        var before = PuzzleCatalogue.CreateSolution(id, new(1), WorkshopCadenceSettings.Default(), new(1), new(.45f));
+        var content = System.Text.Json.Nodes.JsonNode.Parse(File.ReadAllText(Path.Combine(twodog.Engine.ResolveProjectDir(), "content/puzzles.json")))!.AsArray();
+        var entry = content.Single(row => row!["id"]!.GetValue<string>() == id.Value)!;
+        var instance = entry["solution"]![0]!["instance"]!;
+        if (forgivingKnotOnly) instance["assistance"]![0]![6] = .25f; // Valid forgiving capture margin; balanced/precise unchanged.
+        else instance["parameters"]!["capture_participation"] = 0; // Valid parameter, but not the granted configuration.
+        using var json = System.Text.Json.JsonDocument.Parse(instance.ToJsonString());
+        var template = AuthoredInstanceReader.Parse(json.RootElement, "independently valid receiver");
+        var receiver = before.Instances.Single(row => row.PartId == PartId.Receiver);
+        template.Create(receiver.Id, new(0)).Validate();
+        var balanced = template.Create(receiver.Id, new(.45f));
+        balanced.Validate();
+        if (forgivingKnotOnly)
+        {
+            Assert.Equal(receiver, balanced);
+            var forgiving = PuzzleCatalogue.CreateSolution(id, new(1), WorkshopCadenceSettings.Default(), new(1), new(0));
+            Assert.NotEqual(forgiving.Instances.Single(row => row.PartId == PartId.Receiver), template.Create(receiver.Id, new(0)));
+        }
+        var refusal = Assert.Throws<InvalidDataException>(() => PuzzleCatalogue.ReadDefinitions(content.ToJsonString()));
+        Assert.Contains("inventory configuration differs", refusal.Message, StringComparison.Ordinal);
+        Assert.Equal(before, PuzzleCatalogue.CreateSolution(id, new(1), WorkshopCadenceSettings.Default(), new(1), new(.45f)));
+    }
+
     public enum ContentDamage { UnknownPart, UnknownParameter, MissingParameter, OutOfRange, MissingField, WrongBoolean, ForeignGoal, UnknownField, UndefinedState }
 
     [Theory]
@@ -550,22 +632,8 @@ public sealed class WorkshopSaveTests
         Assert.Equal("first_principles", level.GetProperty("id").GetString());
         AuthoredContentAssertions.Profile(level.GetProperty("placements")[0].GetProperty("instance").GetProperty("assistance"), PuzzleCatalogue.Definition(new("first_principles")).Primary);
         AuthoredContentAssertions.Profile(level.GetProperty("placements")[1].GetProperty("instance").GetProperty("assistance"), PuzzleCatalogue.Definition(new("first_principles")).Target);
-        foreach (var ramp in level.GetProperty("solution").EnumerateArray()) Check(ramp.GetProperty("difficulty"), PuzzleCatalogue.Definition(new("first_principles")).Placement);
-        static void Check(System.Text.Json.JsonElement data, AssistanceProfile profile)
-        {
-            var values = new[] { profile.Forgiving, profile.Balanced, profile.Precise };
-            var names = new[] { "precision", "position_window", "rotation_window", "max_position_correction", "max_rotation_correction",
-                "blend_seconds", "capture_margin", "capture_speed", "capture_dwell", "guide_acceleration", "trigger_threshold" };
-            for (var i = 0; i < 3; i++)
-            {
-                var k = values[i];
-                float[] actual = [k.Precision, k.PositionWindow.Value, k.RotationWindowDegrees, k.MaximumPositionCorrection.Value,
-                    k.MaximumRotationCorrectionDegrees, k.Blend.Value, k.CaptureMargin.Value, k.CaptureSpeed.Value,
-                    k.CaptureDwell.Value, k.GuideAcceleration.Value, k.TriggerThreshold];
-                for (var field = 0; field < names.Length; field++)
-                    Assert.Equal(BitConverter.SingleToUInt32Bits((float)data[i].GetProperty(names[field]).GetDouble()), BitConverter.SingleToUInt32Bits(actual[field]));
-            }
-        }
+        foreach (var ramp in level.GetProperty("solution").EnumerateArray()) AuthoredContentAssertions.Profile(ramp.GetProperty("instance").GetProperty("assistance"), PuzzleCatalogue.Definition(new("first_principles")).Placement);
+
     }
 
     private static WorkshopSavedConstruction ActivationSaved()

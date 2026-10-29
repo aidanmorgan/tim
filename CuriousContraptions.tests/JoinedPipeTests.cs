@@ -108,24 +108,53 @@ public sealed class JoinedPipeTests
         // The fixed bend is the ball's knots exactly (the content repeats them).
         Assert.Equal(puzzle.PrimaryAssistance, PuzzleCatalogue.Definition(new("joined_pipe")).Primary);
 
-        var solution = Assert.Single(level.GetProperty("solution").EnumerateArray());
-        Assert.Equal(("pipe", false), (solution.GetProperty("kind").GetString(), solution.GetProperty("locked").GetBoolean()));
-        Assert.Equal(2, solution.GetProperty("properties").GetProperty("length").GetDouble());
-        CheckProfile(solution.GetProperty("difficulty"), puzzle.PlacementAssistance);
+        var solution = Assert.Single(level.GetProperty("solution").EnumerateArray()).GetProperty("instance");
+        Assert.Equal(("pipe", false), (solution.GetProperty("part").GetString(), solution.GetProperty("locked").GetBoolean()));
+        Assert.Equal(2, solution.GetProperty("scalars").GetProperty("Length").GetDouble());
+        AuthoredContentAssertions.Profile(solution.GetProperty("assistance"), puzzle.PlacementAssistance);
         Assert.Empty(level.GetProperty("solution_connections").EnumerateArray());
     }
 
     [Fact]
-    public void TheSnappedTwoMetrePipeIsTheContentSolution()
+    public void SnappedAndAuthoredPipesLeaveRoomForTheBallAtBothMouths()
     {
-        var level = Content();
-        var solution = Assert.Single(level.GetProperty("solution").EnumerateArray());
-        var pipe = Snapped(Lesson(1f), 2);
-        CheckSourcePose(solution, pipe, .0002);
-        // Its upper mouth lies on the ball's drop line.
-        var at = new Vector3((float)((pipe.Cell.X + (double)pipe.Local.X) / 16), (float)((pipe.Cell.Y + (double)pipe.Local.Y) / 16), 0);
-        var upper = at + new Quaternion(pipe.Rotation.X, pipe.Rotation.Y, pipe.Rotation.Z, pipe.Rotation.W) * new Vector3(-pipe.Length.MouthOffset, 0, 0);
-        Assert.InRange(upper.X, -1.3081f - .001f, -1.3081f + .001f);
+        var lesson = Lesson(1f);
+        var authored = PuzzleCatalogue.CreateSolution(new("joined_pipe"), new(2), WorkshopCadenceSettings.Default(), BallId, new(1));
+        var definitions = Definitions();
+        var ball = lesson.Instances.Single(row => row.Id == BallId);
+        var ballShapes = definitions[ball.PartId].Colliders;
+        // The bounding radius includes the basketball's raised seam, not just its spherical body.
+        var seam = ballShapes.Single(shape => shape.ShapeKind == ColliderShapeKind.Torus);
+        var ballRadius = MathF.Max(ballShapes.Single(shape => shape.ShapeKind == ColliderShapeKind.Sphere).Radius,
+            seam.Radius + seam.HalfExtents.Y);
+        var bend = lesson.Instances.Single(row => row.Id == BendId);
+        var bendMouth = definitions[bend.PartId].Mouths(null).Values.Single(row => row.Mouth == TubeMouthEnd.Start);
+        static Vector3 Position(IWorkshopInstance part) => new((part.Cell.X + part.Local.X) / 16,
+            (part.Cell.Y + part.Local.Y) / 16, (part.Cell.Z + part.Local.Z) / 16);
+        static Quaternion Rotation(IWorkshopInstance part) => new(part.Rotation.X, part.Rotation.Y, part.Rotation.Z, part.Rotation.W);
+        var joint = Position(bend) + Rotation(bend) * bendMouth.Position;
+        var intoBend = -(Rotation(bend) * bendMouth.Rotation * Vector3.Right);
+        foreach (var pipe in new[] { Snapped(lesson, 2), Assert.IsType<WorkshopPipe>(authored.Instances.Single(row => row.Id == PipeId)) })
+        {
+            var mouths = definitions[pipe.PartId].Mouths(pipe.Length).Values;
+            var lower = mouths.Single(row => row.Mouth == TubeMouthEnd.End);
+            var upper = mouths.Single(row => row.Mouth == TubeMouthEnd.Start);
+            var lowerAt = Position(pipe) + Rotation(pipe) * lower.Position;
+            var upperAt = Position(pipe) + Rotation(pipe) * upper.Position;
+            var direction = Rotation(pipe) * lower.Rotation * Vector3.Right;
+            var clearance = MathF.Min(lower.BoreRadius!.Value, bendMouth.BoreRadius!.Value) - ballRadius;
+            Assert.True(clearance > 0);
+            // Centre mismatch plus axis displacement over one ball diameter must fit inside the available bore clearance.
+            Assert.True(lowerAt.DistanceTo(joint) + 2 * ballRadius * (direction - intoBend).Length() < clearance);
+            Assert.True(upperAt.Y > lowerAt.Y && Position(ball).Y > upperAt.Y);
+            // Intersect the actual vertical drop line with the mouth plane, then allow the ball's projected footprint.
+            var entryNormal = Rotation(pipe) * upper.Rotation * Vector3.Right;
+            Assert.True(entryNormal.Y > 0);
+            var drop = Position(ball);
+            drop.Y = upperAt.Y - ((drop.X - upperAt.X) * entryNormal.X + (drop.Z - upperAt.Z) * entryNormal.Z) / entryNormal.Y;
+            Assert.True(drop.DistanceTo(upperAt) + ballRadius / entryNormal.Y < upper.BoreRadius!.Value,
+                "The falling ball's footprint must fit through the upper mouth.");
+        }
     }
 
     // ---------- Validation ----------
@@ -276,33 +305,7 @@ public sealed class JoinedPipeTests
         return unsnapped;
     }
 
-    private static void CheckSourcePose(JsonElement source, WorkshopPipe instance, double tolerance = .001)
-    {
-        var position = source.GetProperty("position");
-        Assert.InRange(Math.Abs((instance.Cell.X + (double)instance.Local.X) / 16 - position[0].GetDouble()), 0, tolerance);
-        Assert.InRange(Math.Abs((instance.Cell.Y + (double)instance.Local.Y) / 16 - position[1].GetDouble()), 0, tolerance);
-        Assert.InRange(Math.Abs((instance.Cell.Z + (double)instance.Local.Z) / 16 - position[2].GetDouble()), 0, tolerance);
-        var basis = new Basis(new Quaternion(instance.Rotation.X, instance.Rotation.Y, instance.Rotation.Z, instance.Rotation.W).Normalized());
-        var orientation = source.GetProperty("orientation");
-        for (var column = 0; column < 3; column++)
-            for (var row = 0; row < 3; row++)
-                Assert.InRange(Math.Abs(basis[column][row] - orientation[column * 3 + row].GetDouble()), 0, .002);
-    }
 
-    private static void CheckProfile(JsonElement data, AssistanceProfile profile)
-    {
-        var values = new[] { profile.Forgiving, profile.Balanced, profile.Precise };
-        var names = new[] { "precision", "position_window", "rotation_window", "max_position_correction", "max_rotation_correction",
-            "blend_seconds", "capture_margin", "capture_speed", "capture_dwell", "guide_acceleration", "trigger_threshold" };
-        Assert.Equal(3, data.GetArrayLength());
-        for (var i = 0; i < 3; i++)
-        {
-            var k = values[i];
-            float[] actual = [k.Precision, k.PositionWindow.Value, k.RotationWindowDegrees, k.MaximumPositionCorrection.Value,
-                k.MaximumRotationCorrectionDegrees, k.Blend.Value, k.CaptureMargin.Value, k.CaptureSpeed.Value,
-                k.CaptureDwell.Value, k.GuideAcceleration.Value, k.TriggerThreshold];
-            for (var field = 0; field < names.Length; field++)
-                Assert.Equal((float)data[i].GetProperty(names[field]).GetDouble(), actual[field]);
-        }
-    }
+
+
 }

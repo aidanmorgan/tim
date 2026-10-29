@@ -116,6 +116,7 @@
         <Compile Include="PayloadInstanceTests.cs" />
         <Compile Include="PlacedParts.cs" />
         <Compile Include="LaunchLessonSolveTests.cs" />
+        <Compile Include="CatalogueIntegrationTests.cs" />
         <Compile Include="ContactWorkInstanceTests.cs" />
         <Compile Include="SliderInstanceTests.cs" />
         <Compile Include="OldLayoutSaves.cs" />
