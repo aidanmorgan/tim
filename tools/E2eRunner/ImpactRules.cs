@@ -98,7 +98,7 @@ internal static class ImpactRules
         new("tools/e2e/<suite>.test.ts", ImpactKind.Suite, path => SuiteCatalogue.TryParsePath(path) is not null),
         new("tools/e2e/*.ts (shared module)", ImpactKind.SharedTestModule,
             path => TopLevelIn(path, "tools/e2e", ".ts") && !SuiteCatalogue.IsSuitePath(path)),
-        new("tools/*.mjs (shared module)", ImpactKind.SharedTestModule, path => TopLevelIn(path, "tools", ".mjs")),
+        new("tools/*.ts (shared module)", ImpactKind.SharedTestModule, path => TopLevelIn(path, "tools", ".ts")),
         new("elements/<package>/**", ImpactKind.Element, path => ElementDirectory(path) is { } directory && ElementPackages.ContainsKey(directory) && !path.EndsWith(".csproj", StringComparison.Ordinal)),
         new("known package and solution build", ImpactKind.PackageBuild, path => path == BuildImpact.Solution || (PackagePart(path) is not null && path.EndsWith(".csproj", StringComparison.Ordinal))),
         new("suite catalogue rows", ImpactKind.Catalogue, path => path == "tools/E2eRunner/SuiteCatalogue.cs"),

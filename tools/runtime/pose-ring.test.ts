@@ -1,3 +1,6 @@
+import { readFileSync } from 'node:fs';
+import vm from 'node:vm';
+import { PoseProducer, PoseReader, createPoseRing } from '../../CuriousContraptions.web/wwwroot/pose-ring.js';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { eventWorker } from './event-worker-harness.js';
@@ -13,7 +16,11 @@ function slot(ids: bigint[], publication: number) {
     view.setBigInt64(8, BigInt(publication * 100), true);
     ids.forEach((id, index) => {
         const offset = 16 + index * 64;
-        view.setFloat32(offset, publication, true); view.setFloat32(offset + 28, 1, true);
+        view.setFloat32(offset, publication, true);
+        view.setFloat32(offset + 4, -2.5, true); view.setFloat32(offset + 8, 3.25, true);
+        view.setFloat32(offset + 16, 0.125, true); view.setFloat32(offset + 20, -0.25, true);
+        view.setFloat32(offset + 24, 0.5, true); view.setFloat32(offset + 28, 0.75, true);
+        view.setFloat32(offset + 32, -4.5, true); view.setFloat32(offset + 36, 5.75, true); view.setFloat32(offset + 40, -6.25, true);
         view.setUint32(offset + 44, 1, true); view.setBigUint64(offset + 48, id, true);
     });
     return bytes;
@@ -39,7 +46,12 @@ test('common bootstrap and reserved committed epochs preserve full-width identit
                 const observed = client.api.readLatestPoseSlot(client.id)!;
                 assert.equal(observed.timestamp, BigInt(publication * 100));
                 assert.deepEqual(Array.from(observed.bodies, body => body.id), ids.map(String));
-                for (const body of observed.bodies) assert.equal(body.px, publication);
+                for (const body of observed.bodies) {
+                    assert.equal(body.px, publication);
+                    assert.deepEqual([body.py, body.pz], [-2.5, 3.25]);
+                    assert.deepEqual([body.qx, body.qy, body.qz, body.qw], [0.125, -0.25, 0.5, 0.75]);
+                    assert.deepEqual([body.vx, body.vy, body.vz], [-4.5, 5.75, -6.25]);
+                }
             }
         }
     } finally { worker.imports.dispose(); client.dispose(); }
@@ -99,11 +111,54 @@ test('malformed ownership and population refuse before publishing; valid retry s
         assert.throws(() => worker.imports.publish(new Uint8Array(0), new Uint8Array(24), slot([1n], 1), false), /match its admitted/);
     } finally { worker.imports.dispose(); }
 });
-test('malformed shared pose layout retires the public client without replacing its prior readable ring', async () => {
+test('malformed shared pose layout retires the public client and its reader', async () => {
     const client = await poseClient();
     try {
         client.deliverRing(new SharedArrayBuffer(51));
         assert.equal(client.api.status(client.id), 4);
-        assert.equal(client.api.readLatestPoseSlot(client.id)!.bodies.length, 0);
+        assert.equal(client.api.readLatestPoseSlot(client.id), null);
     } finally { client.dispose(); }
+});
+
+test('disposed pose APIs expose no stale sample and refuse new publication ownership', () => {
+    let ring = createPoseRing();
+    const producer = new PoseProducer(message => { ring = message.poseRing; });
+    producer.attach(ring); const owned = identity(1n, 1n);
+    producer.prepare(owned, 1, 16); producer.commit(owned); producer.publish(slot([42n], 3));
+    const reader = new PoseReader(ring);
+    assert.equal(reader.latest()!.bodies[0].id, '42');
+    reader.dispose(); producer.dispose();
+    assert.equal(reader.latest(), null); assert.equal(reader.read(1), null);
+    assert.throws(() => producer.attach(createPoseRing()), /bootstrap/);
+    assert.throws(() => producer.prepare(identity(2n, 2n), 0, 16), /preparation/);
+    assert.throws(() => producer.publish(slot([42n], 4)), /Missing admitted/);
+});
+
+test('publication during sampling rejects the invalidated candidate and returns the stable pose', async () => {
+    let ring = createPoseRing();
+    const producer = new PoseProducer(message => { ring = message.poseRing; });
+    producer.attach(ring); const owned = identity(1n, 1n);
+    producer.prepare(owned, 1, 16); producer.commit(owned);
+    producer.publish(slot([11n], 1)); producer.publish(slot([22n], 2));
+    // External atomic boundary controls the interleaving. The ABI sequence word for
+    // slot 2 is selected, then read once to begin sampling. Before its verification
+    // read, a concurrent producer begins writing (odd publication sequence).
+    const candidateWord = 2 * 1040 / 8;
+    let candidateReads = 0, invalidated = false;
+    const context = vm.createContext({ SharedArrayBuffer, Uint8Array, BigInt64Array, DataView, Float32Array,
+        Atomics: Object.create(Atomics, { load: { value(words: BigInt64Array, index: number) {
+            if (words.buffer === ring && index === candidateWord && ++candidateReads === 3) {
+                Atomics.store(words, index, 5n); invalidated = true;
+            }
+            return Atomics.load(words, index);
+        } } }) });
+    const module = new vm.SourceTextModule(readFileSync('CuriousContraptions.web/wwwroot/pose-ring.js', 'utf8'), { context });
+    await module.link(() => { throw Error('Unexpected pose dependency'); }); await module.evaluate();
+    const api = module.namespace as unknown as typeof import('../../CuriousContraptions.web/wwwroot/pose-ring.js');
+    const reader = new api.PoseReader(ring), observed = reader.latest();
+    assert.equal(invalidated, true);
+    assert.ok(observed); assert.equal(observed.timestamp, 100n);
+    assert.equal(observed.bodies[0].id, '11'); assert.equal(observed.bodies[0].px, 1);
+    assert.equal(reader.read(2), null, 'the invalidated publication cannot escape as a stable sample');
+    reader.dispose(); producer.dispose();
 });

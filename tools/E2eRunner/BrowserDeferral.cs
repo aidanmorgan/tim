@@ -42,12 +42,12 @@ internal static class BrowserDeferral
         new(DeferredRunner.NodeTest, "tools/e2e/unit/run-reset-snapshot.test.ts",
             "Browserless checks of the Chrome suites' Run/Reset snapshot comparator; needs the tsx 4.23.15 loader and flatbuffers, the "
             + "browser-suite toolchain, which no required run provisions.", ReEnableGate.PostCatalogueBrowserPhase, Owner),
-        new(DeferredRunner.NodeTest, "tools/workshop-close-findings.test.mjs",
-            "Checks the Chrome suites' session close-finding module (tools/workshop-close-findings.mjs, used by WorkshopDriver) through "
+        new(DeferredRunner.NodeTest, "tools/workshop-close-findings.test.ts",
+            "Checks the Chrome suites' session close-finding module (tools/workshop-close-findings.ts, used by WorkshopDriver) through "
             + "node:test's own hook reporting, which differs by Node version (22.23.4 does not fail a file for a suite after-hook "
             + "error): browser-suite toolchain, not game runtime code.", ReEnableGate.PostCatalogueBrowserPhase, Owner),
-        new(DeferredRunner.NodeTest, "tools/workshop-console.test.mjs",
-            "Checks the Chrome suites' console boundary (tools/workshop-console.mjs, which classifies browser console lines): "
+        new(DeferredRunner.NodeTest, "tools/workshop-console.test.ts",
+            "Checks the Chrome suites' console boundary (tools/workshop-console.ts, which classifies browser console lines): "
             + "browser-suite toolchain, not game runtime code.", ReEnableGate.PostCatalogueBrowserPhase, Owner),
         new(DeferredRunner.ChromeSuites, "tools/e2e/*.test.ts",
             "Chrome/Playwright UI suites, run by tools/E2eRunner against the production preview.", ReEnableGate.PostCatalogueBrowserPhase, Owner),

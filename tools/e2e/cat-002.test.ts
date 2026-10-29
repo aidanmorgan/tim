@@ -11,7 +11,7 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, test } from 'node:test';
 import type { ConsoleMessage } from 'playwright';
-import { isWorkshopConsoleFailure } from '../workshop-console.mjs';
+import { isWorkshopConsoleFailure } from '../workshop-console.ts';
 import { WorkshopDriver, type AnimationSampleRecord, type RunResetSnapshot } from './workshop-driver.ts';
 import { assertLoadRestores } from './run-reset-snapshot.ts';
 

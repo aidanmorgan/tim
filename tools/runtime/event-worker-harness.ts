@@ -1,3 +1,4 @@
+import * as poseRing from '../../CuriousContraptions.web/wwwroot/pose-ring.js';
 import * as clockRing from '../../CuriousContraptions.web/wwwroot/clock-ring.js';
 import fs from 'node:fs/promises';
 import path from 'node:path';
@@ -48,6 +49,7 @@ export async function eventWorker() {
     const source = await fs.readFile(path.join(process.cwd(), 'CuriousContraptions.Simulation/wwwroot/worker.js'), 'utf8');
     const worker = new vm.SourceTextModule(source, { context });
     await worker.link(async name => {
+        if (name.includes('pose-ring')) return new vm.SyntheticModule(Object.keys(poseRing), function () { for (const [key, value] of Object.entries(poseRing)) this.setExport(key, value); }, { context });
         if (name === '../event-ring-cursor.js')
             return new vm.SyntheticModule(['EventRingMemory'], function () { this.setExport('EventRingMemory', EventRingMemory); }, { context });
         if (name === '../clock-ring.js') return new vm.SyntheticModule(Object.keys(clockRing), function () {

@@ -1,3 +1,4 @@
+import * as poseRing from '../../CuriousContraptions.web/wwwroot/pose-ring.js';
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import vm from 'node:vm';
@@ -47,6 +48,7 @@ export async function poseClient() {
     const source = await fs.readFile('CuriousContraptions.web/wwwroot/workshop-client.js', 'utf8');
     const module = new vm.SourceTextModule(source, { context });
     await module.link(async specifier => {
+        if (specifier.includes('pose-ring')) return new vm.SyntheticModule(Object.keys(poseRing), function () { for (const [key, value] of Object.entries(poseRing)) this.setExport(key, value); }, { context });
         const exports: Record<string, unknown> = specifier.includes('event-ring-cursor')
             ? { EventRingCursor, eventDelivery }
             : specifier.includes('native-clock')

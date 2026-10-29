@@ -19,7 +19,7 @@ import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
 import { after, before, describe, test } from 'node:test';
 import type { ConsoleMessage } from 'playwright';
-import { isWorkshopConsoleFailure } from '../workshop-console.mjs';
+import { isWorkshopConsoleFailure } from '../workshop-console.ts';
 import { WorkshopDriver } from './workshop-driver.ts';
 import { decodeSavedConstruction } from './workshop-wire.ts';
 

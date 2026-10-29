@@ -10,10 +10,10 @@ import { after, afterEach } from 'node:test';
 
 /** The session faults a Workshop session can raise (OD7, Story 9R.0a). Every observed fault is a close finding, except the one fault a
  *  test declares it provokes (WorkshopDriver.closeExpecting): that one must occur, and must be the only finding. */
-export const SessionFault = Object.freeze({ DebtFault: 1, ClockRecalibration: 2, ClockReplyRejected: 3 });
-const FaultName = new Map(Object.entries(SessionFault).map(([name, value]) => [value, name]));
+export enum SessionFault { DebtFault = 1, ClockRecalibration = 2, ClockReplyRejected = 3 }
+const FaultName = new Map<SessionFault, string>([[SessionFault.DebtFault, 'DebtFault'], [SessionFault.ClockRecalibration, 'ClockRecalibration'], [SessionFault.ClockReplyRejected, 'ClockReplyRejected']]);
 
-function faultFinding(fault, records) {
+function faultFinding(fault: SessionFault, records: readonly unknown[]) {
     const first = String(records[0]).slice(0, 400);
     switch (fault) {
         case SessionFault.DebtFault: return new Error(`The simulation stopped on ${records.length} debt fault(s); first: ${first}`);
@@ -25,7 +25,7 @@ function faultFinding(fault, records) {
 
 /** The findings for a session's observed faults. `observed` maps SessionFault values to the session's records of each; `expected` is
  *  undefined, or the one SessionFault the test declared: it is then required to have occurred, and it alone is not a finding. */
-export function sessionFaultFindings(observed, expected) {
+export function sessionFaultFindings(observed: ReadonlyMap<SessionFault, readonly unknown[]>, expected?: SessionFault) {
     if (!(observed instanceof Map)) throw new TypeError('Observed session faults must be a Map of SessionFault to records.');
     if (expected !== undefined && !FaultName.has(expected)) throw new TypeError(`Unknown expected session fault ${expected}.`);
     const findings = [];
@@ -33,20 +33,20 @@ export function sessionFaultFindings(observed, expected) {
         if (!FaultName.has(fault) || !Array.isArray(records)) throw new TypeError(`Unknown session fault ${fault}.`);
         if (records.length > 0 && fault !== expected) findings.push(faultFinding(fault, records));
     }
-    if (expected !== undefined && !(observed.get(expected)?.length > 0))
+    if (expected !== undefined && !((observed.get(expected)?.length ?? 0) > 0))
         findings.push(new Error(`The session was expected to raise ${FaultName.get(expected)}, but it did not`));
     return findings;
 }
 
-const pending = [];
+const pending: Error[] = [];
 
-export function recordCloseFinding(error) {
+export function recordCloseFinding(error: Error) {
     if (!(error instanceof Error)) throw new TypeError('A session close finding must be an Error.');
     pending.push(error);
 }
 
 /** Prints every finding and throws them as one error (or an AggregateError); returns quietly when there are none. */
-export function raiseCloseFindings(findings, scope) {
+export function raiseCloseFindings(findings: Error[], scope: string) {
     if (!Array.isArray(findings) || !findings.every(finding => finding instanceof Error))
         throw new TypeError('Session close findings must be Errors.');
     if (findings.length === 0) return;

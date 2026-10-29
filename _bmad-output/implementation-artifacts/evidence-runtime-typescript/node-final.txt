@@ -1,0 +1,167 @@
+Command: node --experimental-vm-modules --test --test-reporter=spec .runtime-build/tools/runtime/*.test.js
+Node: v26.12.1
+Exit: 0
+(node:39438) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ prepared rings are advertised to browser and Animation only after commit and publication (4.218292ms)
+✔ growth copies history and preserves two different cursors across successive replacements (1.436084ms)
+✔ discard never overwrites unread live slots, both without growth and with growth (0.91925ms)
+✔ malformed packets and removed producer-loss header fields refuse before publication (0.804375ms)
+✔ new epoch resets sequence; a replacement waits for matching installed epoch (0.772875ms)
+✔ dispose releases prepared storage and a fresh host starts its own epoch (1.853542ms)
+✔ a reader keeping pace receives every record exactly once with no torn payload (1.588416ms)
+✔ slow readers account for ordinary overwritten history without replay (0.958375ms)
+✔ uncommitted slots are skipped through the defined atomic accessor (0.796ms)
+✔ an older attached ring is ignored without moving its cursor (0.794625ms)
+✔ memory exposes only atomic accessors and its posted adoption message (0.129917ms)
+✔ delivery carries its epoch and skipped count before the records (0.041625ms)
+✔ concurrent smoke: over a million records through shipped writer never deliver a torn payload (550.831958ms)
+(node:39439) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ common bootstrap and reserved committed epochs preserve full-width identities across wraps and shrink (5.729834ms)
+✔ prepare and stale discard preserve advertised storage; same epoch reuses it and population changes reject (2.436417ms)
+✔ actual reader ignores in-progress slots and rejects invalid slot indices (1.942708ms)
+✔ malformed ownership and population refuse before publishing; valid retry succeeds (0.782166ms)
+CCGPU_TRANSPORT_FAILURE 4 Error: The pose ring is not a whole number of slots.
+    at poseRingCapacity (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-runtime-typescript/.runtime-build/CuriousContraptions.web/wwwroot/pose-ring.js:11:15)
+    at new PoseReader (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-runtime-typescript/.runtime-build/CuriousContraptions.web/wwwroot/pose-ring.js:114:26)
+    at worker.onmessage (vm:module(0):308:40)
+    at PlatformWorker.emit (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-runtime-typescript/.runtime-build/tools/runtime/pose-client-harness.js:23:38)
+    at Object.deliverRing (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-runtime-typescript/.runtime-build/tools/runtime/pose-client-harness.js:78:71)
+    at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/story-runtime-typescript/.runtime-build/tools/runtime/pose-ring.test.js:133:16)
+    at async Test.run (node:internal/test_runner/test:1409:7)
+    at async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+✔ malformed shared pose layout retires the public client and its reader (1.956084ms)
+✔ disposed pose APIs expose no stale sample and refuse new publication ownership (0.172291ms)
+(node:39440) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ a served Animation probe reaches the host (control) (2.722417ms)
+✔ a disposed Animation worker holds no clock ring and refuses to probe it (1.260125ms)
+✔ a clock reply landing after the Animation worker was disposed never reaches the host (0.922958ms)
+✔ each Service turn first delivers the new records of the installed epoch, once (1.042125ms)
+✔ a ring older than the installed epoch is ignored: no delivery, no foreign-epoch fault, and the turn still services (0.5215ms)
+✔ owned master-port accepts exactly one scheduleControl payload (0.421333ms)
+✔ owned master-port accepts exactly one committedRead payload (0.396459ms)
+✔ mixed or unknown master-port envelope calls neither managed entry (0.408083ms)
+✔ mixed or unknown master-port envelope calls neither managed entry (0.447625ms)
+✔ mixed or unknown master-port envelope calls neither managed entry (0.445292ms)
+✔ mixed or unknown master-port envelope calls neither managed entry (0.384541ms)
+{"passed":true,"targets":40,"controls":["unboundedTargets","heldReceipt","latestReplacement","orderedDrain","renamedControl","disposedLateOutput"]}
+(node:39441) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ every admitted target publishes its latest sample in order, holding one receipt, and a disposed worker publishes nothing (2.737041ms)
+(node:39442) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ actual bootstrap isolates before start, renders progress and hides after qualification (1.972125ms)
+✔ actual bootstrap displays isolation refusal 1 (0.805291ms)
+✔ actual bootstrap displays isolation refusal 2 (0.622625ms)
+✔ engine failure retires startup and displays the cause (0.763833ms)
+(node:39443) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ normal publication activates exactly one service and retains startup qualification (3.266708ms)
+✔ a master peer whose leading padding holds the retired clock wire version 4 is refused (1.31925ms)
+✔ a master peer whose leading padding holds a non-zero high padding byte is refused (1.10625ms)
+✔ delayed managed publication has no callback until explicit activation (1.126833ms)
+✔ default and missing IDs reject without scheduling or changing the ready owner (1.176458ms)
+✔ pre-ready activation rejects atomically and subsequent legitimate activation succeeds (1.119708ms)
+✔ duplicate activation preserves the one original timer and owner state (1.081084ms)
+✔ startup timeout before worker readiness rejects creation and activation (0.991792ms)
+✔ startup timeout after JS return remains anchored to both runtime readiness (1.051042ms)
+✔ worker failure rejects activation without invoking managed service (1.244666ms)
+✔ disposal before managed publication prevents later activation (1.230666ms)
+✔ disposal after activation makes a captured late callback inert (1.694041ms)
+✔ failure after activation makes a captured late callback inert (1.147291ms)
+✔ a failed client detaches its clock ring (1.103417ms)
+✔ a clock reply landing after the client failed is never delivered (3.965ms)
+✔ a clock reply landing after disposal is never delivered (1.346167ms)
+✔ a clock reply missing beyond 1000ms never faults the session and the service keeps probing (1.235875ms)
+✔ a Simulation heartbeat silent for 1000ms of running service faults the session as SimulationUnresponsive (3.122125ms)
+✔ a Browser that was itself blocked never mistakes the Simulation for hung (1.800667ms)
+✔ both runtimes must be ready before the one qualification deadline (0,1) (1.20725ms)
+✔ both runtimes must be ready before the one qualification deadline (1,0) (0.98ms)
+✔ duplicate runtime readiness rejects worker 0 (0.867958ms)
+✔ early ready rejects worker 0 (0.868792ms)
+✔ duplicate runtime readiness rejects worker 1 (0.82125ms)
+✔ early ready rejects worker 1 (0.772667ms)
+✔ early Animation qualification rejects before bootstrap (0.765958ms)
+✔ duplicate authoritative Animation peer rejects without a second transfer (0.8875ms)
+✔ disposal during asset loading prevents late readiness from rearming (0.815167ms)
+✔ Animation constructor failure closes the already owned Simulation worker (0.721291ms)
+✔ premature Animation output fails without delivering to the managed consumer (0.747417ms)
+✔ delayed valid ACK keeps Backpressure until managed validation completes, and posts no stall flag (1.088959ms)
+✔ a command older than two seconds is TimedOut for the player, still without a stall flag (1.024292ms)
+✔ completing an older ACK cannot clear another aged request or exceed two leases (1.057708ms)
+✔ taken but invalid ACK cannot release capacity or report healthy without completion (1.060834ms)
+✔ unmatched or duplicate ACK faults the session (false) (0.976208ms)
+✔ unmatched or duplicate ACK faults the session (true) (0.945292ms)
+✔ the deleted worker channel memoryResult is an unknown envelope that faults the session (0.8915ms)
+✔ the deleted worker channel candidateTimedOut is an unknown envelope that faults the session (1.593667ms)
+✔ two animation owners send sequential controls only after managed ACK delivery returns (1.1115ms)
+✔ an Animation sample records the f32 channel value at 56 and the u16 property at 136 (1.012791ms)
+✔ presentation diagnostics retain the integral timestamp and bounded f32 phase in the current record (1.068458ms)
+✔ nanoseconds is the exact round-half-even port of WorkshopNativeClock.FromMilliseconds (0.591459ms)
+✔ a valid probe is answered with itself followed by the two master stamps and their derivation epoch (0.380208ms)
+✔ the master rejects every probe, stamp or epoch WorkshopClockWire.EncodeReply rejects (0.14825ms)
+✔ a blocking master thread answers each requester through its own slot; a foreign probe is rejected explicitly (8.198875ms)
+✔ a drifted master is re-derived: the next exchange and every reply carry the new correction and epoch (6.885125ms)
+✔ a slew installs the new correction under the same epoch, so requester mappings keep their calibration (6.68675ms)
+✔ the Simulation heartbeat advances only when the Simulation beats, and a ring of another layout is refused (0.159666ms)
+✔ a newer probe of the same requester supersedes an unconsumed answer, which resolves to null (0.340458ms)
+(node:39444) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ a probe the master has not served is never overwritten: the next probe resolves null and the session continues (0.231584ms)
+✔ an unanswered derivation exchange returns null, a check while it is pending never blocks, and its late answer is consumed (7.211083ms)
+✔ a reply wait ends after the probe lifetime when the master never answers (0.663958ms)
+✔ startup qualification waits out a stalled master instead of burning its attempt budget (0.536083ms)
+✔ signed nanosecond envelopes and ring corrections preserve adjacent large integers atomically (1.441875ms)
+(node:39445) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ established isolation permits delayed runtime loading and records actual usable time (1.485916ms)
+✔ incomplete isolation handshake still fails at the existing deadline (0.728417ms)
+✔ controller replacement retires booting ownership (0.91925ms)
+✔ controller replacement retires qualified ownership (0.645458ms)
+✔ at most one isolation reload remains permitted (1.609291ms)
+✔ manual navigation after slow runtime loading starts a fresh isolation attempt (0.941041ms)
+✔ another deploy's changed isolation worker waiting behind the controller is refused (0.462958ms)
+✔ a controller answering the handshake in another shape (the retired numbered reply) is refused (0.485041ms)
+✔ the isolation worker answers only the structural policy request from an eligible client (0.725542ms)
+✔ unexpected controller identifies ownership without claiming an update is waiting (0.515958ms)
+✔ an update becoming waiting during handshake refuses startup (0.507083ms)
+✔ first uncontrolled navigation claims the policy and spends one isolated reload (0.445958ms)
+{"captureMode":1,"passed":true,"controls":["preparationClockOverlap","noEarlyWorld","pending","receiptsToLedger","queuedTerminal","activeCommand","matchingReceipt","outputFailureLogged","ordinaryReadNoExport","acknowledgementOnlyReset","retiredEnvelopesRejected","dispose"]}
+{"captureMode":2,"passed":true,"controls":["preparationClockOverlap","noEarlyWorld","pending","receiptsToLedger","queuedTerminal","activeCommand","matchingReceipt","outputFailureLogged","ordinaryReadNoExport","acknowledgementOnlyReset","retiredEnvelopesRejected","dispose"]}
+{"slowMasterMissesAreCounted":true}
+{"refusedReceiptIsAFailure":true}
+{"memoryQueryOnCommandTransport":true}
+{"startupControl":0,"passed":true}
+{"startupControl":1,"passed":true}
+{"commandsReachTheManagedDecoder":true,"dispatched":[0,7,72,70000],"rejected":["array"]}
+{"schedulerTurnFailureEnvelope":true}
+{"disposalCancelsSchedulerTurns":true}
+{"mixedEnvelopesRejectedAtomically":true}
+(node:39446) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ capture mode 1: preparation, receipts, queued terminal, output failure, retired envelopes and disposal (4.437542ms)
+✔ capture mode 2: preparation, receipts, queued terminal, output failure, retired envelopes and disposal (1.852792ms)
+✔ a slow clock master costs counted missed checks, never a failure, and the session continues (3.952375ms)
+✔ a receipt the managed ledger refuses is a failure and retires the session (1.237334ms)
+✔ the memory query travels the command transport and a third outstanding command is refused (0.935917ms)
+✔ startup control 0: a rejected preparation (1.283708ms)
+✔ startup control 1: a rejected preparation (1.129625ms)
+✔ every byte buffer reaches the one managed decoder (0.749541ms)
+✔ a scheduler turn that cannot resume is a failure envelope (1.177333ms)
+✔ disposal cancels the timed and the queued scheduler turn (0.925791ms)
+✔ a mixed envelope is rejected atomically (0.843541ms)
+(node:39447) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ request success cannot complete Save; transaction abort preserves prior values (1.739833ms)
+✔ committed Save owns caller input and Load returns independent values (0.933416ms)
+✔ missing save is empty and incompatible width refuses without replacement (1.709959ms)
+ℹ tests 115
+ℹ suites 0
+ℹ pass 115
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 628.814708

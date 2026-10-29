@@ -4,7 +4,7 @@
 // the CCGPU command acknowledgement console line, pose-ring publications, the IndexedDB save slot and the CCGOAL_SOLVED console line.
 import { createRequire } from 'node:module';
 import { appendFileSync } from 'node:fs';
-import { raiseCloseFindings, recordCloseFinding, SessionFault, sessionFaultFindings } from '../workshop-close-findings.mjs';
+import { raiseCloseFindings, recordCloseFinding, SessionFault, sessionFaultFindings } from '../workshop-close-findings.ts';
 import type { Browser, BrowserContext, ConsoleMessage, Page, Worker } from 'playwright';
 import { decodeWorkshopResponse, decodeSavedConstruction, ResponseKind } from './workshop-wire.ts';
 import { assertRunAdvanced, assertSnapshotEqual, readSnapshot, snapshotFrom, type RunResetSnapshot } from './run-reset-snapshot.ts';
@@ -47,7 +47,6 @@ export interface AnimationSampleRecord {
 
 /** The session faults a test may declare it provokes (WorkshopDriver.closeExpecting); every other observed fault fails the suite. */
 export { SessionFault };
-export type SessionFaultKind = typeof SessionFault[keyof typeof SessionFault];
 
 // The console signals the driver reports as `E2E_OBSERVED <signal> <record>` lines, which tools/E2eRunner counts per file
 // (TapResult's ObservedSignal names). A record matches the first entry whose test it passes.
@@ -463,7 +462,7 @@ export class WorkshopDriver {
 
     // Closing the page is where every suite proves its session never recalibrated a clock mapping. Suites close in
     // `finally`, so close() never throws (blind hunter 13): each finding is recorded and fails the test from a root
-    // hook without replacing a failure the test already threw (tools/workshop-close-findings.mjs).
+    // hook without replacing a failure the test already threw (tools/workshop-close-findings.ts).
     async close(): Promise<void> {
         for (const finding of await this.shutdown()) recordCloseFinding(finding);
     }
@@ -476,11 +475,11 @@ export class WorkshopDriver {
 
     /** OD7 (Story 9R.0a): for a test that deliberately provokes exactly one session fault. Closes now and fails the test at once
      *  unless that fault occurred and nothing else did; every undeclared fault still fails the suite through close(). */
-    async closeExpecting(fault: SessionFaultKind): Promise<void> {
+    async closeExpecting(fault: SessionFault): Promise<void> {
         raiseCloseFindings(await this.shutdown(fault), 'closing a session that declared its fault');
     }
 
-    private async shutdown(expected?: SessionFaultKind): Promise<Error[]> {
+    private async shutdown(expected?: SessionFault): Promise<Error[]> {
         const findings: Error[] = [];
         try { await this.browser.close(); }
         catch (error) { findings.push(error instanceof Error ? error : new Error(`The browser did not close: ${String(error)}`)); }
@@ -493,7 +492,7 @@ export class WorkshopDriver {
                 this.clockLateRenewals[0].slice(0, 400));
         // Session faults: a debt fault, a malformed clock reply and (unless the probe allows them) a recalibration each fail the
         // suite, except the one fault a test declared through closeExpecting, which must then have occurred.
-        findings.push(...sessionFaultFindings(new Map<SessionFaultKind, string[]>([
+        findings.push(...sessionFaultFindings(new Map<SessionFault, string[]>([
             [SessionFault.DebtFault, this.debtFaults],
             [SessionFault.ClockRecalibration, this.allowClockRecalibrations ? [] : this.clockRecalibrations],
             [SessionFault.ClockReplyRejected, this.clockReplyRejections],

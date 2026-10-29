@@ -11,7 +11,7 @@ import assert from 'node:assert/strict';
 import { after, before, describe, test } from 'node:test';
 import type { ConsoleMessage } from 'playwright';
 import { WorkshopDriver } from './workshop-driver.ts';
-import { reportsNaN } from '../workshop-console.mjs';
+import { reportsNaN } from '../workshop-console.ts';
 
 describe('ENGINE-CORE-2b4: Guide Horizon & Departure Ownership Removal (Declarative Spatial Force Regions)', () => {
     let driver: WorkshopDriver;

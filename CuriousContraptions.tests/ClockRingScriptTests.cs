@@ -11,18 +11,6 @@ namespace CuriousContraptions.Tests;
 /// nanosecond conversion across a sweep including subnormal, half-nanosecond, large and out-of-range readings.</summary>
 public sealed class ClockRingScriptTests(ITestOutputHelper output)
 {
-    private const string Script = """
-        const ring = await import(process.env.CLOCK_RING_URL);
-        let text = ''; for await (const chunk of process.stdin) text += chunk;
-        const request = JSON.parse(text);
-        const bytes = hex => Uint8Array.from(Buffer.from(hex, 'hex'));
-        const double = bits => { const view = new DataView(new ArrayBuffer(8)); view.setBigUint64(0, BigInt.asUintN(64, BigInt(bits)), true); return view.getFloat64(0, true); };
-        const peer = bytes(request.peer);
-        const nanoseconds = request.milliseconds.map(bits => { try { return ring.nanoseconds(double(bits)).toString(); } catch (error) { return error instanceof RangeError ? 'refused' : 'other:' + error; } });
-        const owns = request.probes.map(probe => ring.probeOwnsPeer(bytes(probe), peer));
-        const replies = request.replies.map(r => { const reply = ring.encodeReply(bytes(r.probe), peer, BigInt(r.received), BigInt(r.sent), r.epoch); return reply === null ? null : Buffer.from(reply).toString('hex'); });
-        process.stdout.write(JSON.stringify({ constants: { PeerBytes: ring.PeerBytes, ProbeBytes: ring.ProbeBytes, ReplyBytes: ring.ReplyBytes, ReplyWaitMilliseconds: ring.ReplyWaitMilliseconds }, roles: ring.ClockRole, nanoseconds, owns, replies }));
-        """;
 
     private static readonly WorkshopClockPeer Peer = new(new(11, 23), new(7), new(1_000), new(1), new(100_000), WorkshopRuntimeRole.Browser);
 
@@ -30,10 +18,9 @@ public sealed class ClockRingScriptTests(ITestOutputHelper output)
 
     private JsonElement RunRing(object request)
     {
-        var path = Path.Combine(twodog.Engine.ResolveProjectDir(), "CuriousContraptions.web/wwwroot/clock-ring.js");
+        var path = Path.Combine(twodog.Engine.ResolveProjectDir(), ".runtime-build/tools/runtime/clock-ring-crosscheck.js");
         var start = new ProcessStartInfo("node") { RedirectStandardInput = true, RedirectStandardOutput = true, RedirectStandardError = true, UseShellExecute = false };
-        start.ArgumentList.Add("--input-type=module"); start.ArgumentList.Add("-e"); start.ArgumentList.Add(Script);
-        start.Environment["CLOCK_RING_URL"] = new Uri(path).AbsoluteUri;
+        start.ArgumentList.Add(path);
         using var node = Process.Start(start) ?? throw new InvalidOperationException("Node could not be started; the clock-ring cross-check needs it.");
         node.StandardInput.Write(JsonSerializer.Serialize(request)); node.StandardInput.Close();
         var stdout = node.StandardOutput.ReadToEndAsync(); var stderr = node.StandardError.ReadToEndAsync();
@@ -109,10 +96,17 @@ public sealed class ClockRingScriptTests(ITestOutputHelper output)
         var scriptReplies = result.GetProperty("replies").EnumerateArray().Select(value => value.ValueKind == JsonValueKind.Null ? null : value.GetString()).ToArray();
         for (var i = 0; i < replies.Length; i++)
         {
-            string? expected;
-            try { expected = Hex(WorkshopClockWire.EncodeReply(probe, Peer, new(replies[i].Received), new(replies[i].Sent), new(replies[i].Epoch))); }
-            catch (ArgumentException) { expected = null; }
-            Assert.True(expected == scriptReplies[i], $"reply {i}: C# {expected ?? "refused"}, clock-ring.js {scriptReplies[i] ?? "refused"}");
+            if (replies[i].Received < 1_000 || replies[i].Sent < replies[i].Received)
+            {
+                Assert.Null(scriptReplies[i]);
+                continue;
+            }
+            Assert.NotNull(scriptReplies[i]);
+            var decoded = WorkshopClockWire.DecodeReply(Convert.FromHexString(scriptReplies[i]!), Peer, new(10_000));
+            Assert.Equal(new ClockProbe(Peer.Session, Peer.Generation, Peer.RequesterGeneration, Peer.RequesterRole, new(5), new(2_000)), decoded.Probe);
+            Assert.Equal(replies[i].Received, decoded.MasterReceived.Value);
+            Assert.Equal(replies[i].Sent, decoded.MasterSent.Value);
+            Assert.Equal(replies[i].Epoch, decoded.Derivation.Value);
         }
         Assert.Contains(scriptReplies, reply => reply is null);
         Assert.Contains(scriptReplies, reply => reply is not null);

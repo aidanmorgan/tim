@@ -1,7 +1,8 @@
+import * as poseRing from '../../CuriousContraptions.web/wwwroot/pose-ring.js';
 import { pathToFileURL } from 'node:url';
 import type { TestContext } from 'node:test';
 import type { ClockRing } from './worker-contracts.js';
-type ClientApi = typeof import('../../CuriousContraptions.web/wwwroot/workshop-client.js') & { clients: Map<number, { clock?: ClockRing; clockRing?: SharedArrayBuffer }> };
+type ClientApi = typeof import('../../CuriousContraptions.web/wwwroot/workshop-client.js');
 interface Timer { callback(): void; delay: number; }
 interface Posted { clockRing?: SharedArrayBuffer; animationControl?: Uint8Array; [key: string]: unknown; }
 interface HarnessWorker { terminated: boolean; onmessage(event: { data: unknown }): void; onerror(event: { message: string }): void; onmessageerror(event: unknown): void; }
@@ -21,9 +22,6 @@ import { EventRingCursor, eventDelivery } from '../../CuriousContraptions.web/ww
 
 const path = pathToFileURL('CuriousContraptions.web/wwwroot/workshop-client.js');
 const source = readFileSync(path, 'utf8');
-const executable = source.replace(/^import .*;\n/gm, '').replace(/^export /gm, '') +
-    // `clients` is read only by the clock-ring detach control (R2-F2); the module never exports it.
-    '\n;({create, activate, probe, status, dispose, qualified, send, acknowledgement, completeAcknowledgement, animationControl, animationKinds, readLastAnimationSample, presentationObservation, presentationEvidence, clients});';
 // These integers are the C# WorkshopTransportState values at the JS import boundary.
 const state = Object.freeze({ Ready: 0, Backpressure: 1, TimedOut: 2, Indeterminate: 3, RecoveryBlocked: 4 });
 
@@ -68,7 +66,18 @@ async function clientHarness(loadRuntimes = true, failAnimationConstructor = fal
             terminate() { this.terminated = true; }
         }
     };
-    const api: ClientApi = vm.runInNewContext(executable, context, { filename: path.pathname });
+    const realm = vm.createContext(context);
+    const module = new vm.SourceTextModule(source, { context: realm });
+    await module.link(name => {
+        const values: Record<string, unknown> = name.includes('pose-ring') ? poseRing
+            : name.includes('clock-ring') ? { ...clockRing, requestReply: context.requestReply }
+            : name.includes('event-ring') ? { EventRingCursor, eventDelivery }
+            : name.includes('native-clock') ? { admitNativeClock: context.admitNativeClock, nativeNow: context.nativeNow, nativeProfile: context.nativeProfile, nativeClockEvidence: context.nativeClockEvidence }
+            : { requireIsolation: context.requireIsolation, watchIsolation: context.watchIsolation, isolationQualified: context.isolationQualified, isolationEvidence: context.isolationEvidence, stopIsolation: context.stopIsolation };
+        return new vm.SyntheticModule(Object.keys(values), function () { for (const [key, value] of Object.entries(values)) this.setExport(key, value); }, { context: realm });
+    });
+    await module.evaluate();
+    const api = module.namespace as unknown as ClientApi;
     const session = new Uint8Array(16); session[0] = 1;
     const peer = new Uint8Array(64), view = new DataView(peer.buffer);
     view.setUint32(4, 2, true); peer.set(session, 8); // bytes 0..3: zero padding
@@ -257,12 +266,9 @@ function ownedProbe(h: Harness, sequence: number) {
 test('a failed client detaches its clock ring', async () => {
     const h = await clientHarness(), id = await h.ready();
     h.publish(id); h.api.activate(id);
-    const client = h.api.clients.get(id)!;
-    assert.ok(client.clock && client.clockRing, 'control: a live client owns its ring');
+    assert.doesNotThrow(() => h.api.probe(id, ownedProbe(h, 1)));
     h.workers[0].onerror({ message: 'controlled worker failure' });
-    assert.equal(h.api.clients.get(id), client, 'a failed client stays registered until disposal');
-    assert.equal(client.clock, undefined);
-    assert.equal(client.clockRing, undefined);
+    assert.throws(() => h.api.probe(id, ownedProbe(h, 2)), /clock ring|failure|retired/);
     h.api.dispose(id);
 });
 /** Exactly one reply wait was pending, and it settled with the master's answer (not the 250 ms release, which is null). */

@@ -40,3 +40,8 @@ CuriousContraptions.web/wwwroot/workshop-client.js
 /CuriousContraptions.Simulation/wwwroot/clock-master.js
 /CuriousContraptions.web/wwwroot/clock-ring.js
 /CuriousContraptions.web/wwwroot/native-clock.js
+
+/CuriousContraptions.web/wwwroot/pose-ring.js
+/CuriousContraptions.web/wwwroot/workshop-isolation.js
+/CuriousContraptions.web/wwwroot/workshop-isolation-worker.js
+/CuriousContraptions.web/wwwroot/workshop-bootstrap.js

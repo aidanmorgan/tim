@@ -29,6 +29,14 @@
     "CuriousContraptions.Simulation/wwwroot/clock-master.ts",
     "CuriousContraptions.Animation.Worker/wwwroot/worker.ts",
     "CuriousContraptions.web/wwwroot/clock-ring.ts",
-    "CuriousContraptions.web/wwwroot/native-clock.ts"
+    "CuriousContraptions.web/wwwroot/native-clock.ts",
+    "CuriousContraptions.web/wwwroot/pose-ring.ts",
+    "CuriousContraptions.web/wwwroot/workshop-isolation.ts",
+    "CuriousContraptions.web/wwwroot/workshop-isolation-worker.ts",
+    "CuriousContraptions.web/wwwroot/workshop-bootstrap.ts",
+    "tools/workshop-console.ts",
+    "tools/workshop-console.test.ts",
+    "tools/workshop-close-findings.ts",
+    "tools/workshop-close-findings.test.ts"
   ]
 }

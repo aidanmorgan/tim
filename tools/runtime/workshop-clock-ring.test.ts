@@ -1,3 +1,5 @@
+import vm from 'node:vm';
+import { readFileSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 // Story 9.4b R5/P10 and Murdoch-2 H1/M1/M2: the session clock ring, its master-side reply checks (the JS port
 // of WorkshopClockWire.EncodeReply), the Simulation heartbeat and the Simulation's derivation exchange, slew and
@@ -10,6 +12,13 @@ import { Worker } from 'node:worker_threads';
 import * as clockRing from '../../CuriousContraptions.web/wwwroot/clock-ring.js';
 
 const { ClockRole, ProbeBytes, ReplyBytes } = clockRing;
+async function controlledClock(overrides: PropertyDescriptorMap) {
+    const context = vm.createContext({ SharedArrayBuffer, ArrayBuffer, Uint8Array, Int32Array, BigInt64Array, DataView,
+        Atomics: Object.create(Atomics, overrides) });
+    const module = new vm.SourceTextModule(readFileSync('CuriousContraptions.web/wwwroot/clock-ring.js', 'utf8'), { context });
+    await module.link(() => { throw Error('Unexpected clock import'); }); await module.evaluate();
+    return module.namespace as unknown as typeof clockRing;
+}
 
 // A pending Atomics.waitAsync is not a handle that keeps a Node process alive, so a test awaiting a ring reply with no other
 // pending work could end with the process instead of with the reply's timeout or answer. A page's event loop always runs the
@@ -78,17 +87,8 @@ test('the master rejects every probe, stamp or epoch WorkshopClockWire.EncodeRep
     assert.ok(clockRing.encodeReply(probe(owner), owner, 1_000_000n, 1_000_000n, 0), 'control: the origin itself is admitted');
 });
 
-const masterScript = `
-const { parentPort, workerData } = require('node:worker_threads');
-import(workerData.ringModule).then(ring => {
-    const clock = ring.attachClockRing(workerData.buffer);
-    let now = 1_500_000n;
-    parentPort.postMessage('ready');
-    for (;;) ring.awaitRequest(clock, ring.serveRequests(clock, workerData.peers, () => (now += 1000n)));
-});`;
 function startMaster(buffer: SharedArrayBuffer, peers: Record<number, Uint8Array>) {
-    const worker = new Worker(masterScript, { eval: true, workerData: { buffer, peers,
-        ringModule: pathToFileURL('CuriousContraptions.web/wwwroot/clock-ring.js').href } });
+    const worker = new Worker(new URL('./clock-master-thread.js', import.meta.url), { workerData: { buffer, peers } });
     const failed = watch(worker);
     return Promise.race([new Promise<Worker>(resolve => worker.once('message', () => resolve(worker))), failed]);
 }
@@ -215,23 +215,22 @@ test('a probe the master has not served is never overwritten: the next probe res
 
 test('an unanswered derivation exchange returns null, a check while it is pending never blocks, and its late answer is consumed', async () => {
     const buffer = clockRing.createClockRing(), clock = clockRing.attachClockRing(buffer);
-    assert.equal(clockRing.deriveExchange(clock, () => 1.5, 1), null, 'no master: the bounded wait times out');
+    let waits = 0;
+    const controlled = await controlledClock({ wait: { value() { waits++; return 'timed-out'; } } });
+    assert.equal(controlled.deriveExchange(clock, () => 1.5, 1), null, 'no master: the bounded wait times out');
     // Murdoch-2 M2: the slot still holds the unserved exchange, so the next check returns at once instead of
     // blocking the Simulation event loop for another timeout.
-    const started = performance.now();
-    assert.equal(clockRing.deriveExchange(clock, () => 1.5, 500), null, 'a pending exchange is not re-posted');
-    assert.ok(performance.now() - started < 100, 'the pending check did not wait for its timeout');
-    const master = await startMaster(buffer, {});
-    try {
-        // The master serves the stale request once it starts; the following exchange consumes that late answer
-        // unread and posts its own.
-        let exchange = null;
-        for (let attempt = 0; attempt < 200 && !exchange; attempt++) {
-            exchange = clockRing.deriveExchange(clock, () => 1.5, 50);
-            if (!exchange) await new Promise(resolve => setTimeout(resolve, 5));
-        }
-        assert.ok(exchange && exchange.master > 1_500_000n && exchange.epoch === 0, 'the next exchange is answered for itself');
-    } finally { await stop(master); }
+    assert.equal(controlled.deriveExchange(clock, () => 1.5, 500), null, 'a pending exchange is not re-posted');
+    assert.equal(waits, 1, 'the pending check does not enter a second blocking wait');
+    clockRing.serveRequests(clock, {}, () => 1_501_000n); // answer the original, timed-out request
+    const continuing = await controlledClock({ wait: { value() {
+        clockRing.serveRequests(clock, {}, () => 2_501_000n); // answer only the newly posted request
+        return 'ok';
+    } } });
+    const exchange = continuing.deriveExchange(clock, () => 1.5, 50);
+    assert.ok(exchange);
+    assert.equal(exchange.master, 2_501_000n, 'the stale 1,501,000 reply was discarded, not returned for the new request');
+    assert.equal(exchange.epoch, 0);
 });
 
 // Blind hunter 10 (Story 9.4b final round): a requester's wait for its reply is bounded by the mapping's probe lifetime,
@@ -240,10 +239,12 @@ test('a reply wait ends after the probe lifetime when the master never answers',
     const clock = clockRing.attachClockRing(clockRing.createClockRing());
     const browser = peer(ClockRole.Browser);
     assert.equal(clockRing.ReplyWaitMilliseconds, 250);
-    const started = performance.now();
-    assert.equal(await clockRing.requestReply(clock, ClockRole.Browser, probe(browser, 1n)), null);
-    const waited = performance.now() - started;
-    assert.ok(waited >= 240 && waited < 1000, `released after the lifetime (${waited} ms)`);
+    let timeout = 0;
+    const controlled = await controlledClock({ waitAsync: { value(_words: unknown, _index: number, _expected: number, milliseconds: number) {
+        timeout = milliseconds; return { async: true, value: Promise.resolve('timed-out') };
+    } } });
+    assert.equal(await controlled.requestReply(clock, ClockRole.Browser, probe(browser, 1n)), null);
+    assert.equal(timeout, 250);
     // The unserved request still owns the slot; once the master serves it the next probe proceeds.
     clockRing.serveRequests(clock, { [ClockRole.Browser]: browser }, () => 2_000_000n);
     const next = clockRing.requestReply(clock, ClockRole.Browser, probe(browser, 2n));
@@ -255,28 +256,21 @@ test('a reply wait ends after the probe lifetime when the master never answers',
 // must wait for that stale request rather than count an attempt at once, so a master stalled for 40 ms costs about
 // 40 ms / timeout attempts, never the whole 500-attempt budget in microseconds.
 test('startup qualification waits out a stalled master instead of burning its attempt budget', async () => {
-    const buffer = clockRing.createClockRing(), clock = clockRing.attachClockRing(buffer);
-    const stalled = new Worker(`
-const { workerData } = require('node:worker_threads');
-import(workerData.ringModule).then(ring => {
-    const clock = ring.attachClockRing(workerData.buffer);
-    let now = 1_500_000n;
-    setTimeout(() => { for (;;) ring.awaitRequest(clock, ring.serveRequests(clock, {}, () => (now += 1000n))); }, 40);
-});`, { eval: true, workerData: { buffer, ringModule: pathToFileURL('CuriousContraptions.web/wwwroot/clock-ring.js').href } });
-    watch(stalled);
-    try {
-        let qualified = 0, missed = 0;
-        const started = performance.now();
-        clockRing.qualifyDerivation(clock, () => performance.now(), 2, {
-            qualified: () => qualified >= 3,
-            qualify: exchange => { assert.ok(exchange.master > 1_500_000n); qualified++; },
-            missed: () => { if (++missed > 500) throw new Error('the attempt budget burned'); },
-        });
-        const elapsed = performance.now() - started;
-        assert.equal(qualified, 3);
-        assert.ok(elapsed >= 30, `the stall was waited out (${elapsed} ms)`);
-        assert.ok(missed <= elapsed / 2 + 2, `${missed} missed attempts in ${elapsed} ms: each cost a full timeout`);
-    } finally { await stop(stalled); }
+    const clock = clockRing.attachClockRing(clockRing.createClockRing());
+    let stalledOutcomes = 0, qualified = 0, missed = 0;
+    const controlled = await controlledClock({ wait: { value(_words: unknown, _index: number, _expected: number, timeout: number) {
+        assert.equal(timeout, 2);
+        if (stalledOutcomes < 20) { stalledOutcomes++; return 'timed-out'; }
+        clockRing.serveRequests(clock, {}, () => 1_501_000n);
+        return 'ok';
+    } } });
+    controlled.qualifyDerivation(clock, () => 1.5, 2, {
+        qualified: () => qualified >= 3,
+        qualify: exchange => { assert.equal(exchange.master, 1_501_000n); qualified++; },
+        missed: () => { if (++missed > stalledOutcomes) throw Error('the attempt budget burned without a stalled wait outcome'); }
+    });
+    assert.equal(missed, stalledOutcomes, 'only controlled timeouts consume the missed-attempt budget');
+    assert.equal(qualified, 3, 'qualification eventually completes once the master serves requests');
 });
 
 test('signed nanosecond envelopes and ring corrections preserve adjacent large integers atomically', () => {

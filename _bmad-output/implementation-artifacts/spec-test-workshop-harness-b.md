@@ -246,3 +246,11 @@ Files changed:
 Review: seven findings, four medium patches applied and independently re-reviewed; three false findings rejected with individual evidence in the triage log. No deferred findings. Forward-only audit passed. Follow-up review recommendation: false after affected independent re-review established all four repairs; no specific unverified repair risk remains. First-pass patched entry counts: high0, medium4, low0.
 
 Verification: affected53/0/0 after repairs; final full4,982/0/0; matching compiler captures zero warnings/errors; actual matrix execution audit passed; `git diff --check` passed. Normal hooks and exact-SHA approval are the remaining publication checks. Browser/device/release and remote artifact/deployment qualification remain unverified, as required by the current stage and owner's nonblocking CI instruction.
+
+## Publication receipt — 29 October 2026
+
+Published main commit **318d514fba18eae71fa3f9663edb2d13a3cde016**, parent db90de9b231e218025ef72a1007f953e214baee6. Final local round2 **4,982/0/0** (main4,491 in20m49s; tools491), raw per-project native-harness-b-full-round2.trx. Normal commit hooks **126/0/0**, matching builds zero warnings/errors, execution receipt33071. Commit includes all29 reviewed files; committed diff check and worktree cleanliness passed.
+
+Independent reviewer harness_b_intent granted SnapshotApproval Pass for the exact committed SHA after confirming the reviewed repairs, actual TRXs and hook receipt. Push execution43085 succeeded: origin main advanced from db90de9b to318d514f. Earlier pending-hook/publication wording records the pre-publication stage; these checks are now complete.
+
+Per the owner's29October instruction, no CI monitoring or wait was performed. Remote production artifact/deployment, browser/device and release qualification remain unverified. Next slice: runtime-typescript-conversion from this published commit.

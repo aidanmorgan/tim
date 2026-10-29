@@ -9,7 +9,7 @@ namespace CuriousContraptions.Tests;
 /// misreading committed bodies or poses, and no declared-but-dead layout survives (Story 9.4b deleted twenty).</summary>
 public sealed class WorkerAbiTests(ITestOutputHelper output)
 {
-    public enum Script { SimulationWorker, WorkshopClient, EventRingCursor }
+    public enum Script { SimulationWorker, WorkshopClient, EventRingCursor, PoseRing }
 
     // Story 9R.5b: the ring's body capacity is its own length, so no script declares a capacity or a ring width; the browser
     // alone declares the bootstrap ring's starting allocation.
@@ -35,8 +35,9 @@ public sealed class WorkerAbiTests(ITestOutputHelper output)
     private static Dictionary<string, int> Owned(Script script) => script switch
     {
         // Story 9A.2: the worker reads no read layout; it copies the C#-composed pose slot, so it declares only the ring's own.
-        Script.SimulationWorker => new Dictionary<string, int>(PoseRing.Concat(EventRing)),
-        Script.WorkshopClient => new Dictionary<string, int>(PoseRing)
+        Script.SimulationWorker => new Dictionary<string, int>(EventRing),
+        Script.PoseRing => new Dictionary<string, int>(PoseRing),
+        Script.WorkshopClient => new Dictionary<string, int>()
         {
             // Story 9A.44 D7: the Animation output fields the client decodes (the f32 value at 56, the u16 property at 136).
             ["ANIMATION_OUTPUT_BYTES"] = WorkshopAnimationWire.OutputBytes,
@@ -63,6 +64,7 @@ public sealed class WorkerAbiTests(ITestOutputHelper output)
         Script.SimulationWorker => "CuriousContraptions.Simulation/wwwroot/worker.js",
         Script.WorkshopClient => "CuriousContraptions.web/wwwroot/workshop-client.js",
         Script.EventRingCursor => "CuriousContraptions.web/wwwroot/event-ring-cursor.js",
+        Script.PoseRing => "CuriousContraptions.web/wwwroot/pose-ring.js",
         _ => throw new ArgumentOutOfRangeException(nameof(script), script, "Unknown browser script."),
     });
 
@@ -70,6 +72,7 @@ public sealed class WorkerAbiTests(ITestOutputHelper output)
     [InlineData(Script.SimulationWorker)]
     [InlineData(Script.WorkshopClient)]
     [InlineData(Script.EventRingCursor)]
+    [InlineData(Script.PoseRing)]
     public void EveryScriptLayoutConstantEqualsItsCSharpOwnerAndIsUsed(Script script)
     {
         var path = Path(script);

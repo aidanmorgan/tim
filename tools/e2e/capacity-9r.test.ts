@@ -9,7 +9,7 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, test } from 'node:test';
 import type { ConsoleMessage, Worker } from 'playwright';
-import { isWorkshopConsoleFailure } from '../workshop-console.mjs';
+import { isWorkshopConsoleFailure } from '../workshop-console.ts';
 import { WorkshopDriver, type RunResetSnapshot } from './workshop-driver.ts';
 import { assertLoadRestores, assertSnapshotEqual, readSnapshot } from './run-reset-snapshot.ts';
 import { decodeSavedConstruction } from './workshop-wire.ts';

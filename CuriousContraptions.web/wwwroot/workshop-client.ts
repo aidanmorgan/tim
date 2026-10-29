@@ -1,3 +1,4 @@
+import { PoseReader, createPoseRing } from './pose-ring.js';
 import type { ClockRing } from '../../tools/runtime/worker-contracts.js';
 interface AnimationSample { target: string; kind: number; ordinal: string; property: number; value: number; timestamp: number; }
 interface Client {
@@ -11,8 +12,7 @@ interface Client {
     clockAbi: { clockProfile: number; peerBytes: number; probeBytes: number; replyBytes: number; diagnosticBytes: number; browserRole: number; masterRole: number };
     captureMode: number; observations?: Uint8Array; observationNext: number; observationCount: number; observationSequence: bigint;
     presentations?: Uint8Array; presentationSequence: bigint; events?: EventRingCursor;
-    poseCapacity: number; poseRing?: SharedArrayBuffer; poseSeqView?: BigInt64Array<SharedArrayBuffer>;
-    poseDataView?: DataView<SharedArrayBuffer>; poseFloatView?: Float32Array<SharedArrayBuffer>;
+    poses?: PoseReader;
     displayRate?: [number, number]; unwatchIsolation?: () => void;
     bootstrapReject?: ((error: unknown) => void) | null; animationReady?: boolean; animationQualified?: boolean;
     hintKinds: number[]; hintPending?: boolean; animationSampleCount?: number;
@@ -36,11 +36,6 @@ import { requireIsolation, watchIsolation, isolationQualified, isolationEvidence
 import { createClockRing, attachClockRing, requestReply, heartbeat, ClockRole } from './clock-ring.js';
 import { EventRingCursor, eventDelivery } from './event-ring-cursor.js';
 
-// The session pose ring layout, owned by WorkshopPoseRing (WorkerAbiTests pins every value against its C# owner).
-const POSE_DEFAULT_BODY_CAPACITY = 16; // WorkshopPoseRing.DefaultBodyCapacity
-const POSE_SLOT_COUNT = 3;             // WorkshopPoseRing.SlotCount
-const POSE_HEADER_BYTES = 16;          // WorkshopPoseRing.HeaderBytes
-const POSE_BODY_BYTES = 64;            // WorkshopPoseRing.BodyBytes
 // The Animation output record fields this client reads, owned by WorkshopAnimationWire (WorkerAbiTests pins each one).
 const ANIMATION_OUTPUT_BYTES = 144;            // WorkshopAnimationWire.OutputBytes
 const ANIMATION_OUTPUT_PULSE_OFFSET = 40;      // WorkshopAnimationWire.OutputPulseOffset
@@ -48,21 +43,6 @@ const ANIMATION_OUTPUT_VALUE_OFFSET = 56;      // WorkshopAnimationWire.OutputVa
 const ANIMATION_OUTPUT_KIND_OFFSET = 60;       // WorkshopAnimationWire.OutputKindOffset
 const ANIMATION_OUTPUT_TARGET_OFFSET = 64;     // WorkshopAnimationWire.OutputTargetOffset
 const ANIMATION_OUTPUT_PROPERTY_OFFSET = 136;  // WorkshopAnimationWire.OutputPropertyOffset (u16)
-
-// A ring exposes its logical epoch population within reserved capacity (common bootstrap: 16 bodies). Each new epoch attaches before its reads.
-function poseRingCapacity(buffer: SharedArrayBuffer) {
-    const slot = buffer.byteLength / POSE_SLOT_COUNT, capacity = (slot - POSE_HEADER_BYTES) / POSE_BODY_BYTES;
-    if (!Number.isInteger(slot) || !Number.isInteger(capacity) || capacity < 0) throw new Error('The pose ring is not a whole number of slots.');
-    return capacity;
-}
-function attachPoseRing(client: Client, buffer: SharedArrayBuffer) {
-    if (!(buffer instanceof SharedArrayBuffer)) throw new Error('A pose ring must be shared.');
-    client.poseCapacity = poseRingCapacity(buffer);
-    client.poseRing = buffer;
-    client.poseSeqView = new BigInt64Array(buffer);
-    client.poseDataView = new DataView(buffer);
-    client.poseFloatView = new Float32Array(buffer);
-}
 
 const clients = new Map<number, Client>();
 let nextClient = 1, retiredSession = false, creating = false;
@@ -102,6 +82,7 @@ function fail(client: Client, error: unknown, retiring = false) {
     // The session clock ring is detached with its workers (dispose goes through here): nothing probes or reads it again.
     client.clock = client.clockRing = undefined;
     client.events = undefined;
+    client.poses?.dispose(); client.poses = undefined;
     for (const pending of client.pending.values()) pending.reject(error);
     client.pending.clear();
     client.bootstrapReject?.(error);
@@ -158,10 +139,10 @@ export async function create(states: number[], bootstrapBytes: Uint8Array, clock
         const [ready, backpressure, timedOut, indeterminate, recoveryBlocked] = states;
         id = nextClient++;
         // Cross-origin isolation is required before any client exists (requireIsolation), so the shared rings always exist.
-        const poseRing = new SharedArrayBuffer(POSE_SLOT_COUNT * (POSE_HEADER_BYTES + POSE_DEFAULT_BODY_CAPACITY * POSE_BODY_BYTES));
+        const poseRing = createPoseRing();
         const clockRing = createClockRing();
         const worker = new Worker(new URL('./simulation/worker.js', document.baseURI), { type: 'module' });
-        const client: Client = { id, poseCapacity: 0, hintKinds: [], displayRate, worker, pending: new Map(), acknowledgements: new Map(),
+        const client: Client = { id, hintKinds: [], displayRate, worker, pending: new Map(), acknowledgements: new Map(),
             failure: null, states: { ready, backpressure, timedOut, indeterminate, recoveryBlocked },
             serviceCallback: service, service: undefined, clockReplyCallback: clockReply,
             clockRing, clock: attachClockRing(clockRing),
@@ -170,7 +151,7 @@ export async function create(states: number[], bootstrapBytes: Uint8Array, clock
             observations: captureMode === 2 ? new Uint8Array(128 * diagnosticBytes) : undefined, observationNext: 0, observationCount: 0, observationSequence: 0n,
             presentations: captureMode === 2 ? new Uint8Array(32 * 364) : undefined, presentationSequence: 0n,
             events: new EventRingCursor() };
-        attachPoseRing(client, poseRing);
+        client.poses = new PoseReader(poseRing);
         client.worker = worker;
         clients.set(id, client);
         client.unwatchIsolation = watchIsolation(error => fail(client, error));
@@ -186,7 +167,7 @@ export async function create(states: number[], bootstrapBytes: Uint8Array, clock
                 // Download/runtime loading precedes qualification; the same bounded handshake starts once both can participate.
                 client.startup = setTimeout(() => fail(client, new Error('StartupFailed: usable GPU and clock qualification exceeded five seconds.')), 5000);
                 const bootstrap = new Uint8Array(bootstrapBytes);
-                const postData = { bootstrap, captureMode, clockRing: client.clockRing, poseRing: client.poseRing };
+                const postData = { bootstrap, captureMode, clockRing: client.clockRing, poseRing };
                 worker.postMessage(postData, [bootstrap.buffer]);
             }
             animation.onerror = error => fail(client, new Error(error.message || 'Animation worker failed.'));
@@ -291,7 +272,8 @@ export async function create(states: number[], bootstrapBytes: Uint8Array, clock
                     } else if (message.poseRing instanceof SharedArrayBuffer) {
                         // The worker committed the logical population within reserved storage for the newly admitted epoch.
                         if (!readyReceived) throw new Error('A pose ring arrived before the session was ready.');
-                        attachPoseRing(client, message.poseRing);
+                        const reader = new PoseReader(message.poseRing);
+                        client.poses?.dispose(); client.poses = reader;
                     } else if (message.eventRing instanceof SharedArrayBuffer) {
                         // Story 9A.23: the session's event ring for an admitted epoch, read by the main thread's own cursor.
                         if (!readyReceived) throw new Error('An event ring arrived before the session was ready.');
@@ -567,72 +549,8 @@ export async function loadConstruction(expectedBytes: number) {
     } finally { database.close(); }
 }
 
-export function readPoseSlot(id: number, slotIndex: number) {
-    const client = clients.get(id);
-    if (!client || !client.poseRing || !client.poseSeqView || !client.poseDataView || !client.poseFloatView) return null;
-    if (!Number.isInteger(slotIndex) || slotIndex < 0 || slotIndex >= POSE_SLOT_COUNT) return null;
-    const s = slotIndex;
-    const slotBytes = POSE_HEADER_BYTES + client.poseCapacity * POSE_BODY_BYTES;
-    const seqIndex = s * (slotBytes / 8);
-    const seq1 = Atomics.load(client.poseSeqView, seqIndex);
-    if ((seq1 & 1n) !== 0n) return null;
-    const slotByteOffset = s * slotBytes;
-    const timestamp = client.poseDataView.getBigInt64(slotByteOffset + 8, true);
-    const bodyFloatOffset = (slotByteOffset + POSE_HEADER_BYTES) / 4;
-    const bodies = [];
-    for (let i = 0; i < client.poseCapacity; i++) {
-        const b = bodyFloatOffset + i * (POSE_BODY_BYTES / 4);
-        const bodyId = client.poseDataView.getBigUint64((b + 12) * 4, true);
-        const flags = client.poseDataView.getUint32((b + 11) * 4, true);
-        if (bodyId === 0n || (flags & 1) === 0) continue;
-        bodies.push({
-            id: bodyId.toString(), // lossless external observation boundary
-            px: client.poseFloatView[b + 0],
-            py: client.poseFloatView[b + 1],
-            pz: client.poseFloatView[b + 2],
-            qx: client.poseFloatView[b + 4],
-            qy: client.poseFloatView[b + 5],
-            qz: client.poseFloatView[b + 6],
-            qw: client.poseFloatView[b + 7],
-            vx: client.poseFloatView[b + 8],
-            vy: client.poseFloatView[b + 9],
-            vz: client.poseFloatView[b + 10],
-            flags
-        });
-    }
-    const seq2 = Atomics.load(client.poseSeqView, seqIndex);
-    if (seq1 !== seq2) return null;
-    return { sequence: seq2, timestamp, bodies };
-}
-
-export function readLatestPoseSlot(id: number) {
-    const client = clients.get(id);
-    if (!client || !client.poseRing || !client.poseSeqView) return null;
-    let bestSlot = -1;
-    let bestSeq = -1n;
-    for (let s = 0; s < POSE_SLOT_COUNT; s++) {
-        const seq = Atomics.load(client.poseSeqView, s * ((POSE_HEADER_BYTES + client.poseCapacity * POSE_BODY_BYTES) / 8));
-        if ((seq & 1n) === 0n && seq > bestSeq) {
-            bestSeq = seq;
-            bestSlot = s;
-        }
-    }
-    if (bestSlot < 0) return null;
-    const sample = readPoseSlot(id, bestSlot);
-    if (sample) return sample;
-    let altSlot = -1;
-    let altSeq = -1n;
-    for (let s = 0; s < POSE_SLOT_COUNT; s++) {
-        if (s === bestSlot) continue;
-        const seq = Atomics.load(client.poseSeqView, s * ((POSE_HEADER_BYTES + client.poseCapacity * POSE_BODY_BYTES) / 8));
-        if ((seq & 1n) === 0n && seq > altSeq) {
-            altSeq = seq;
-            altSlot = s;
-        }
-    }
-    if (altSlot < 0) return null;
-    return readPoseSlot(id, altSlot);
-}
+export function readPoseSlot(id: number, slotIndex: number) { return clients.get(id)?.poses?.read(slotIndex) ?? null; }
+export function readLatestPoseSlot(id: number) { return clients.get(id)?.poses?.latest() ?? null; }
 
 // Story 9A.23 D8: the main thread's event ring read, for the epoch C# has installed (the reader holds a newer ring and ignores an
 // older one). C# decodes the delivery (EventRingDelivery); this script reads no record field.
@@ -644,7 +562,7 @@ export function readEvents(id: number, epoch: string) {
 
 export function hasPoseRing(id: number) {
     const client = clients.get(id);
-    return Boolean(client && client.poseRing);
+    return Boolean(client && client.poses);
 }
 
 export function isAnimationQualified(id = 1) {

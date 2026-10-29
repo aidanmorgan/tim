@@ -206,7 +206,9 @@ public sealed class ElementIsolationTests
     private static bool Included(string file)
     {
         // Exact outputs of the pinned RuntimeTypeScript target; their .ts sources remain scanned.
-        if (file is "CuriousContraptions.Animation.Worker/wwwroot/worker.js" or "CuriousContraptions.Simulation/wwwroot/clock-master.js" or
+        if (file is "CuriousContraptions.web/wwwroot/pose-ring.js" or "CuriousContraptions.web/wwwroot/workshop-isolation.js" or
+            "CuriousContraptions.web/wwwroot/workshop-isolation-worker.js" or "CuriousContraptions.web/wwwroot/workshop-bootstrap.js" or
+            "CuriousContraptions.Animation.Worker/wwwroot/worker.js" or "CuriousContraptions.Simulation/wwwroot/clock-master.js" or
             "CuriousContraptions.web/wwwroot/clock-ring.js" or "CuriousContraptions.web/wwwroot/native-clock.js" or
             "CuriousContraptions.Simulation/wwwroot/worker.js" or
             "CuriousContraptions.web/wwwroot/event-ring-cursor.js" or "CuriousContraptions.web/wwwroot/workshop-client.js") return false;

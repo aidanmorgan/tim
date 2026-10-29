@@ -13,7 +13,11 @@ import * as clockRing from '../../CuriousContraptions.web/wwwroot/clock-ring.js'
 import * as eventRingCursor from '../../CuriousContraptions.web/wwwroot/event-ring-cursor.js';
 
 const source = await readFile('CuriousContraptions.Animation.Worker/wwwroot/worker.js', 'utf8');
-const settle = () => new Promise(resolve => setTimeout(resolve, 20));
+class ControlledPort {
+    onmessage: ((event: { data: unknown }) => void) | null = null;
+    start() {} close() { this.onmessage = null; }
+}
+
 
 // The Animation peer as the master expects it: requester role Animation (3) at 56, master role Simulation (2) at 60.
 const peer = new Uint8Array(clockRing.PeerBytes);
@@ -27,10 +31,11 @@ function probe(sequence: number) {
 
 async function animationWorker() {
     let imports!: AnimationImports, service!: () => void;
-    const replies: Uint8Array[] = [], controls: Uint8Array[] = [], reads: Uint8Array[] = [], messages: Posted[] = [], turns: (string | Uint8Array)[] = [], channel = new MessageChannel(), ring = clockRing.createClockRing();
+    const replies: Uint8Array[] = [], controls: Uint8Array[] = [], reads: Uint8Array[] = [], messages: Posted[] = [], turns: (string | Uint8Array)[] = [], channel = { port1: new ControlledPort() }, ring = clockRing.createClockRing();
     // Story 9A.23: the installed epoch the reader may consume, and each turn's managed calls in order. EventRecords refuses a delivery of
     // another epoch exactly as WorkshopDeclaredPresentation.AcceptEvents does ("Foreign event ring epoch."), so a leak faults the worker.
     const installed = { epoch: 0 };
+    const waits: Promise<Uint8Array | null>[] = [];
     const host = {
         OutputKinds: () => [1, 2, 3], Bootstrap: () => {}, AnimationControl: () => {}, Service: () => turns.push('Service'),
         Reply: (bytes: Uint8Array) => replies.push(bytes),
@@ -47,7 +52,7 @@ async function animationWorker() {
         getConfig: () => ({ mainAssemblyName: 'AnimationClockControl' })
     };
     const self: WorkerSelf = { onmessage: () => {}, postMessage: (value, transfer = []) => messages.push(structuredClone(value, { transfer })), close: () => {} };
-    const context = vm.createContext({ self, Uint8Array, Float64Array, DataView, ArrayBuffer, MessagePort, SharedArrayBuffer,
+    const context = vm.createContext({ self, Uint8Array, Float64Array, DataView, ArrayBuffer, MessagePort: ControlledPort, SharedArrayBuffer,
         Number, Error, Map, BigInt, console, setInterval: (callback: () => void) => { service = callback; return 1; }, clearInterval: () => {} });
     const module = new vm.SourceTextModule(source, { context });
     const synthetic = (names: string[], values: Record<string, unknown>) => new vm.SyntheticModule(names, function () { for (const name of names) this.setExport(name, values[name]); }, { context });
@@ -55,7 +60,7 @@ async function animationWorker() {
         if (name === './_framework/dotnet.js') return synthetic(['dotnet'], { dotnet: { create: async () => runtime } });
         if (name === '../native-clock.js') return synthetic(['admitNativeClock', 'nativeNow', 'nativeClockEvidence'],
             { admitNativeClock: async () => {}, nativeNow: () => 1, nativeClockEvidence: () => [2, 1, 1, 1, .005, 1, 1] });
-        if (name === '../clock-ring.js') return synthetic(['attachClockRing', 'requestReply', 'ClockRole'], clockRing);
+        if (name === '../clock-ring.js') return synthetic(['attachClockRing', 'requestReply', 'ClockRole'], { ...clockRing, requestReply: (...args: Parameters<typeof clockRing.requestReply>) => { const pending = clockRing.requestReply(...args); waits.push(pending); return pending; } });
         if (name === '../event-ring-cursor.js') return synthetic(['EventRingCursor', 'eventDelivery'], eventRingCursor);
         throw Error('Unexpected import ' + name);
     });
@@ -64,16 +69,17 @@ async function animationWorker() {
     const master = clockRing.attachClockRing(ring);
     return {
         imports, replies, controls, reads, messages, self, turns, installed, turn: () => service(),
-        send: (message: unknown) => channel.port2.postMessage(message),
+        send: (message: unknown) => channel.port1.onmessage?.({ data: message }),
+        settled: () => Promise.all(waits),
         serve: () => clockRing.serveRequests(master, { [clockRing.ClockRole.Animation]: peer }, () => 1_000_000n),
-        close: () => channel.port2.close()
+        close: () => channel.port1.close()
     };
 }
 
 test('a served Animation probe reaches the host (control)', async () => {
     const worker = await animationWorker();
     worker.imports.probe(probe(1));
-    worker.serve(); await settle();
+    worker.serve(); await worker.settled();
     assert.equal(worker.replies.length, 1);
     worker.close();
 });
@@ -89,7 +95,7 @@ test('a clock reply landing after the Animation worker was disposed never reache
     const worker = await animationWorker();
     worker.imports.probe(probe(1)); // the master has not answered it yet
     worker.self.onmessage({ data: { dispose: true } });
-    worker.serve(); await settle();  // the master answers the waiting probe after disposal
+    worker.serve(); await worker.settled();  // the master answers the waiting probe after disposal
     assert.equal(worker.replies.length, 0);
     assert.equal(worker.messages.filter(message => message.failure).length, 0, 'a late reply is discarded, not a failure');
     worker.close();
@@ -106,7 +112,7 @@ function eventRing(epoch: bigint, sequences: bigint[]) {
 }
 test('each Service turn first delivers the new records of the installed epoch, once', async () => {
     const worker = await animationWorker();
-    worker.send({ eventRing: eventRing(5n, [1n, 2n]) }); await settle();
+    worker.send({ eventRing: eventRing(5n, [1n, 2n]) }); await worker.settled();
     assert.equal(worker.messages.filter(message => message.failure).length, 0, 'the ring envelope is the master port\'s own');
     worker.turn();
     assert.deepEqual(worker.turns, ['Service'], 'no world installed (epoch 0): the ring is held unread');
@@ -126,7 +132,7 @@ test('each Service turn first delivers the new records of the installed epoch, o
 // worker: nothing reaches EventRecords, so AcceptEvents never sees a foreign epoch, and every turn still services.
 test('a ring older than the installed epoch is ignored: no delivery, no foreign-epoch fault, and the turn still services', async () => {
     const worker = await animationWorker();
-    worker.send({ eventRing: eventRing(5n, [1n, 2n]) }); await settle();
+    worker.send({ eventRing: eventRing(5n, [1n, 2n]) }); await worker.settled();
     worker.installed.epoch = 6;
     worker.turn(); worker.turn();
     assert.deepEqual(worker.turns, ['Service', 'Service'], 'no delivery of the older epoch, and the turn still services');
@@ -137,7 +143,7 @@ test('a ring older than the installed epoch is ignored: no delivery, no foreign-
 for (const name of ['scheduleControl', 'committedRead']) {
     test('owned master-port accepts exactly one ' + name + ' payload', async () => {
         const worker = await animationWorker();
-        worker.send({ [name]: new Uint8Array([1, 2, 3]) }); await settle();
+        worker.send({ [name]: new Uint8Array([1, 2, 3]) }); await worker.settled();
         assert.equal(worker.controls.length, name === 'scheduleControl' ? 1 : 0);
         assert.equal(worker.reads.length, name === 'committedRead' ? 1 : 0);
         assert.equal(worker.messages.filter(message => message.failure).length, 0);
@@ -152,7 +158,7 @@ for (const envelope of [
 ]) {
     test('mixed or unknown master-port envelope calls neither managed entry', async () => {
         const worker = await animationWorker();
-        worker.send(envelope); await settle();
+        worker.send(envelope); await worker.settled();
         assert.equal(worker.controls.length, 0); assert.equal(worker.reads.length, 0);
         assert.equal(worker.messages.filter(message => message.failure).length, 1);
         worker.close();

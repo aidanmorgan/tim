@@ -8,7 +8,7 @@
 import assert from 'node:assert/strict';
 import { after, before, beforeEach, describe, test } from 'node:test';
 import type { ConsoleMessage } from 'playwright';
-import { isWorkshopConsoleFailure } from '../workshop-console.mjs';
+import { isWorkshopConsoleFailure } from '../workshop-console.ts';
 import { WorkshopDriver, type AnimationSampleRecord, type WorkshopBodyPose } from './workshop-driver.ts';
 import { decodeWorkshopResponse, type BodyRead, type WorkshopResponse } from './workshop-wire.ts';
 

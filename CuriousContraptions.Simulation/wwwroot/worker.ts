@@ -1,4 +1,5 @@
-import { PosePublicationPreparation, EventPublicationPreparation, type ManagedHost } from '../../tools/runtime/worker-contracts.js';
+import { PoseProducer } from '../pose-ring.js';
+import { EventPublicationPreparation, type ManagedHost } from '../../tools/runtime/worker-contracts.js';
 declare const self: { postMessage(message: unknown, transfer?: Transferable[]): void; close(): void; onmessage: ((event: MessageEvent<unknown>) => void) | null; };
 import { dotnet } from './_framework/dotnet.js';
 import { admitNativeClock, nativeNow, nativeClockEvidence } from '../native-clock.js';
@@ -14,97 +15,11 @@ let derivationCheck: ReturnType<typeof setInterval> | undefined;
 let roles: number[], lifetime = 0, disposed = false;
 // Scheduler turns (Program.NextTurn): declared before anything that can dispose the session.
 const turnChannel = new MessageChannel(), queuedTurns: number[] = [], turnTimers = new Set<ReturnType<typeof setTimeout>>();
-interface PoseStorage {
-    buffer: SharedArrayBuffer;
-    sequences: BigInt64Array<SharedArrayBuffer>;
-    slots: Uint8Array<SharedArrayBuffer>[];
-    capacity: number;
-    message: { poseRing: SharedArrayBuffer };
-}
-interface PreparedPose { owner: bigint; epoch: bigint; bodies: number; storage: PoseStorage; }
-let poseStorage: PoseStorage | undefined, candidatePose: PreparedPose | undefined;
-let poseBodies = 0;
-let poseEpoch = 0n, poseSlotIndex = 0, posePublicationSequence = 0n;
+const poses = new PoseProducer(message => self.postMessage(message));
 // One read in flight and the latest behind it: reads coalesce, since every one-shot occurrence is an event ring record (Story 9A.23).
 let latestRead: { bytes: Uint8Array<ArrayBuffer>; identity: Uint8Array<ArrayBuffer> } | undefined;
 let readInFlight = false; // a read is { bytes, identity }
 const pendingScheduleControls: { bytes: Uint8Array<ArrayBuffer>; recipient: number }[] = [];
-
-// The pose ring layout owned by WorkshopPoseRing; WorkerAbiTests pins every value against its C# owner. Story 9A.2: this worker
-// reads no read layout: C# composes each committed read's pose slot (WorkshopPoseRing.ComposeSlot) and the worker copies it.
-const POSE_DEFAULT_BODY_CAPACITY = 16; // WorkshopPoseRing.DefaultBodyCapacity
-const POSE_SLOT_COUNT = 3;             // WorkshopPoseRing.SlotCount
-const POSE_HEADER_BYTES = 16;          // WorkshopPoseRing.HeaderBytes
-const POSE_BODY_BYTES = 64;            // WorkshopPoseRing.BodyBytes
-
-// Story 9R.5b: a ring's body capacity is its own length (WorkshopPoseRing.BodyCapacity); there is no fixed capacity.
-function poseRingCapacity(buffer: SharedArrayBuffer) {
-    const slot = buffer.byteLength / POSE_SLOT_COUNT, capacity = (slot - POSE_HEADER_BYTES) / POSE_BODY_BYTES;
-    if (!Number.isInteger(slot) || !Number.isInteger(capacity) || capacity < 0) throw new Error('The pose ring is not a whole number of slots.');
-    return capacity;
-}
-function poseViews(buffer: SharedArrayBuffer): PoseStorage {
-    const capacity = poseRingCapacity(buffer), width = buffer.byteLength / POSE_SLOT_COUNT;
-    return { buffer, capacity, sequences: new BigInt64Array(buffer), message: { poseRing: buffer },
-        slots: Array.from({ length: POSE_SLOT_COUNT }, (_, index) => new Uint8Array(buffer, index * width, width)) };
-}
-function attachPoseRing(buffer: SharedArrayBuffer) {
-    if (poseStorage || poseRingCapacity(buffer) !== POSE_DEFAULT_BODY_CAPACITY) throw new Error('Pose bootstrap must have its common reserve and be unique.');
-    poseStorage = poseViews(buffer);
-}
-function poseIdentity(identity: Uint8Array) {
-    if (identity.length !== 16) throw new Error('Pose ownership requires command and epoch identities.');
-    const view = new DataView(identity.buffer, identity.byteOffset, identity.byteLength);
-    const owner = view.getBigUint64(0, true), epoch = view.getBigUint64(8, true);
-    if (owner === 0n || epoch === 0n) throw new Error('Pose ownership identities must be nonzero.');
-    return { owner, epoch };
-}
-function preparePose(identity: Uint8Array, bodies: number, capacity: number): PosePublicationPreparation {
-    const { owner, epoch } = poseIdentity(identity);
-    if (disposed || candidatePose || !Number.isSafeInteger(bodies) || bodies < 0 || !Number.isSafeInteger(capacity) || capacity < bodies || capacity < POSE_DEFAULT_BODY_CAPACITY || epoch < poseEpoch)
-        throw new Error('Invalid pose preparation ownership or population.');
-    const bytes = POSE_SLOT_COUNT * (POSE_HEADER_BYTES + capacity * POSE_BODY_BYTES);
-    if (!Number.isSafeInteger(bytes)) return PosePublicationPreparation.StorageUnavailable;
-    if (epoch === poseEpoch && (poseBodies !== bodies || poseStorage?.capacity !== capacity))
-        throw new Error('An admitted epoch cannot change its body population.');
-    let storage: PoseStorage;
-    try {
-        storage = epoch === poseEpoch ? poseStorage! : poseViews(new SharedArrayBuffer(bytes));
-    } catch (error) {
-        if (error instanceof RangeError) return PosePublicationPreparation.StorageUnavailable;
-        throw error;
-    }
-    candidatePose = { owner, epoch, bodies, storage };
-    return PosePublicationPreparation.Ready;
-}
-function commitPose(identity: Uint8Array) {
-    const { owner, epoch } = poseIdentity(identity), candidate = candidatePose;
-    if (disposed || !candidate || candidate.owner !== owner || candidate.epoch !== epoch)
-        throw new Error('Pose commit does not own the prepared storage.');
-    const replacement = poseStorage !== candidate.storage;
-    poseStorage = candidate.storage; poseBodies = candidate.bodies; poseEpoch = epoch; candidatePose = undefined;
-    if (replacement) { poseSlotIndex = 0; self.postMessage(poseStorage.message); }
-}
-function discardPose(identity: Uint8Array) {
-    const { owner, epoch } = poseIdentity(identity);
-    if (candidatePose?.owner === owner && candidatePose.epoch === epoch) candidatePose = undefined;
-}
-
-// Copies one C#-composed slot (its 16-byte header, then one record per committed body) into the next ring slot under the
-// sequence lock: odd while writing, even when complete. The records past the read are cleared, so no stale body survives.
-function writePoseRing(slot: Uint8Array) {
-    if (!poseStorage) throw new Error('Missing admitted pose storage.');
-    const bodyCount = (slot.length - POSE_HEADER_BYTES) / POSE_BODY_BYTES;
-    if (bodyCount !== poseBodies) throw new Error('A pose slot must match its admitted population.');
-    poseSlotIndex = (poseSlotIndex + 1) % POSE_SLOT_COUNT;
-    const target = poseStorage.slots[poseSlotIndex], seqIndex = target.byteOffset / 8;
-    const nextSeq = posePublicationSequence + 2n;
-    posePublicationSequence = nextSeq;
-    Atomics.store(poseStorage.sequences, seqIndex, nextSeq - 1n);
-    target.set(slot.subarray(8), 8);
-    target.fill(0, slot.length);
-    Atomics.store(poseStorage.sequences, seqIndex, nextSeq);
-}
 
 // Prepare owns private storage until the managed candidate commits. Publication
 // changes advertised memory only after Commit, through atomic whole-word accessors.
@@ -205,7 +120,7 @@ function disposeOwned() {
     turnChannel.port1.onmessage = null; turnChannel.port1.close(); turnChannel.port2.close();
     for (const timer of turnTimers) clearTimeout(timer);
     turnTimers.clear(); queuedTurns.length = 0;
-    poseStorage = undefined; candidatePose = undefined; poseEpoch = 0n;
+    poses.dispose();
     disposeEvents();
     pendingScheduleControls.length = 0;
     latestRead = undefined; readInFlight = false;
@@ -364,13 +279,14 @@ runtime.setModuleImports('workshopGpu', {
         try { self.postMessage({ failure: true, detail }); }
         finally { self.close(); }
     },
-    preparePose, commitPose, discardPose,
+    preparePose: (identity: Uint8Array, bodies: number, capacity: number) => poses.prepare(identity, bodies, capacity),
+    commitPose: (identity: Uint8Array) => poses.commit(identity), discardPose: (identity: Uint8Array) => poses.discard(identity),
     prepareEvents, commitEvents, discardEvents, publishEvents, disposeEvents,
     publish(bytes, identity, poseSlot, pending) {
         observationPending = pending;
         const res = { bytes: new Uint8Array(bytes), identity: new Uint8Array(identity) };
         if (res.identity.length !== 24) throw new Error('A physical read requires its 24-byte receipt identity.');
-        writePoseRing(new Uint8Array(poseSlot));
+        poses.publish(new Uint8Array(poseSlot));
         if (animationPort) {
             const committed = res.bytes.slice();
             animationPort.postMessage({ committedRead: committed }, [committed.buffer]);
@@ -404,8 +320,7 @@ self.onmessage = async event => {
         try {
             const captureMode = data.captureMode;
             if (!(data.poseRing instanceof SharedArrayBuffer)) throw new Error('Bootstrap requires the session pose ring.');
-            attachPoseRing(data.poseRing);
-            poseSlotIndex = 0;
+            poses.attach(data.poseRing);
             if ((captureMode !== 1 && captureMode !== 2) || captureMode !== host.CaptureMode())
                 throw new Error('Browser and simulation capture modes differ.');
             if (!(data.clockRing instanceof SharedArrayBuffer)) throw new Error('Bootstrap requires the session clock ring.');

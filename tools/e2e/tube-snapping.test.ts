@@ -16,7 +16,7 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, test } from 'node:test';
 import type { ConsoleMessage } from 'playwright';
-import { isWorkshopConsoleFailure } from '../workshop-console.mjs';
+import { isWorkshopConsoleFailure } from '../workshop-console.ts';
 import { WorkshopDriver, type RunResetSnapshot } from './workshop-driver.ts';
 import { assertLoadRestores, snapshotEntries } from './run-reset-snapshot.ts';
 import { assertAt, assertJoined, assertNotJoined, dot, hasInstance, instanceCount, length, mouth, screen, sub, type Vec3 } from './tube-mouths.ts';

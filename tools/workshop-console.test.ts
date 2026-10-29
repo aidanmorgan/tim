@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { isWorkshopConsoleFailure, reportsNaN } from './workshop-console.mjs';
+import { isWorkshopConsoleFailure, reportsNaN } from './workshop-console.js';
 
 const trace = 'CCGPU_TRACE_CHUNK 1 0 1 0 1 NaNA';
 // Murdoch-2 F1 (Story 9.4b): the exact acknowledgement that failed cat-051 test 4 in his cumulative run 1; its base64
@@ -29,7 +29,7 @@ test('a typed base64 envelope never fails on a NaN substring of its payload (Mur
 
 test('no Chrome suite checks a raw NaN substring of console text; each goes through reportsNaN (whole class of F1)', async () => {
     const { readdir, readFile } = await import('node:fs/promises');
-    const directory = new URL('./e2e/', import.meta.url);
+    const directory = new URL('../../tools/e2e/', import.meta.url);
     const offenders = [];
     for (const name of (await readdir(directory)).filter(file => file.endsWith('.ts')))
         if (/\.includes\(\s*['"]NaN['"]\s*\)/.test(await readFile(new URL(name, directory), 'utf8'))) offenders.push(name);

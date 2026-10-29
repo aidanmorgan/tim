@@ -3,7 +3,7 @@ using System.Text;
 namespace CuriousContraptions.E2eRunner;
 
 /// <summary>The source identity a run records (spec D7): HEAD, the porcelain status digest, the digest of every suite source
-/// (tools/e2e/**, tools/*.mjs, tools/E2eRunner/**) and the runner's own source digest. The suite digest is compared at start and end.</summary>
+/// (tools/e2e/**, tools/*.ts, tools/E2eRunner/**) and the runner's own source digest. The suite digest is compared at start and end.</summary>
 internal sealed record SourceIdentity(string Head, string StatusDigest, string SuiteSourceDigest, string RunnerSourceDigest)
 {
     public static SourceIdentity Capture(string root) => new(
@@ -17,7 +17,7 @@ internal sealed record SourceIdentity(string Head, string StatusDigest, string S
 
     private static bool IsSuiteSource(string path) =>
         path.StartsWith("tools/e2e/", StringComparison.Ordinal) || path.StartsWith("tools/E2eRunner/", StringComparison.Ordinal) ||
-        (path.StartsWith("tools/", StringComparison.Ordinal) && path.IndexOf('/', "tools/".Length) < 0 && path.EndsWith(".mjs", StringComparison.Ordinal));
+        (path.StartsWith("tools/", StringComparison.Ordinal) && path.IndexOf('/', "tools/".Length) < 0 && path.EndsWith(".ts", StringComparison.Ordinal));
 
     private static IEnumerable<string> Files(string root) =>
         Processes.Git(root, "ls-files", "-z", "--cached", "--others", "--exclude-standard", "--", "tools")

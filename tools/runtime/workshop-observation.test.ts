@@ -1,3 +1,4 @@
+import * as poseRing from '../../CuriousContraptions.web/wwwroot/pose-ring.js';
 import type { ManagedHost, ManagedImports, ClockRing } from './worker-contracts.js';
 // Supplemental control of the actual shipped worker module; no gameplay outcomes are fabricated.
 import assert from 'node:assert/strict';
@@ -53,14 +54,6 @@ function clockMaster() {
     };
     return master;
 }
-// until() counts attempts of at least 1 ms each, and the worker's blocking waits share its thread, so its deadline can only
-// stretch; it always outlasts ten check intervals with their whole exchange budgets.
-const UntilAttempts = 2000;
-assert.ok(UntilAttempts >= 10 * (CheckIntervalMilliseconds + ExchangeTimeoutMilliseconds));
-async function until(predicate: () => boolean, label: string) {
-    for (let attempt = 0; attempt < UntilAttempts && !predicate(); attempt++) await new Promise<void>(resolve => setTimeout(resolve, 1));
-    assert.ok(predicate(), label);
-}
 // The worker's managed derivation check (WorkshopClockDerivation), recorded. Every check's installation is empty, so no
 // correction beyond the startup one is ever adopted.
 function derivationHost() {
@@ -108,6 +101,9 @@ async function loadWorker(host: Partial<ManagedHost>, additionalGlobals: Record<
     let imports: ManagedImports | undefined;
     const master = clockMaster();
     const messages: Posted[] = [];
+    let signalReady!: () => void;
+    const ready = new Promise<void>(resolve => { signalReady = resolve; });
+    const intervals = new Map<number, () => void>(); let nextInterval = 0;
     const runtime = {
         setModuleImports: (_: string, methods: ManagedImports) => { imports = methods; },
         getAssemblyExports: async () => ({ CuriousContraptions: { Simulation: { Program: host } } }),
@@ -115,13 +111,13 @@ async function loadWorker(host: Partial<ManagedHost>, additionalGlobals: Record<
     };
     const self: { onmessage: (event: { data: unknown }) => Promise<void>; postMessage(message: Posted, transfer?: Transferable[]): void; close(): void } = {
         onmessage: async () => { throw new Error('Worker has not installed its message handler.'); },
-        postMessage: (message, transfer = []) => messages.push(structuredClone(message, { transfer })),
+        postMessage: (message, transfer = []) => { messages.push(structuredClone(message, { transfer })); if (message.ready) signalReady(); },
         close: () => {}
     };
     const context = vm.createContext({ self, Uint8Array, Float64Array, ArrayBuffer, DataView,
         MessagePort, MessageChannel: HarnessMessageChannel, console, setTimeout, clearTimeout, Promise, Error, URL, SharedArrayBuffer, Atomics: master.atomics, performance,
         // The derivation check interval, unreferenced so the harness process can exit.
-        setInterval: (callback: () => void, milliseconds: number) => setInterval(callback, milliseconds).unref(), clearInterval,
+        setInterval: (callback: () => void) => { const id = ++nextInterval; intervals.set(id, callback); return id; }, clearInterval: (id: number) => intervals.delete(id),
         Worker: master.Worker, ...additionalGlobals });
     const dotnet = new vm.SyntheticModule(['dotnet'], function () {
         this.setExport('dotnet', { create: async () => runtime });
@@ -136,6 +132,7 @@ async function loadWorker(host: Partial<ManagedHost>, additionalGlobals: Record<
     const eventRing = new vm.SyntheticModule(['EventRingMemory'], function () { this.setExport('EventRingMemory', EventRingMemory); }, { context });
     const module = new vm.SourceTextModule(source, { context, initializeImportMeta: meta => { meta.url = workerUrl; } });
     await module.link(name => {
+        if (name === '../pose-ring.js') return new vm.SyntheticModule(Object.keys(poseRing), function () { for (const [key, value] of Object.entries(poseRing)) this.setExport(key, value); }, { context });
         if (name === './_framework/dotnet.js') return dotnet;
         if (name === '../native-clock.js') return clock;
         if (name === '../clock-ring.js') return ring;
@@ -143,7 +140,7 @@ async function loadWorker(host: Partial<ManagedHost>, additionalGlobals: Record<
         throw Error('Unexpected worker import');
     });
     await module.evaluate();
-    return { self, messages, master, get imports() { assert.ok(imports); return imports; } };
+    return { self, messages, master, ready, tick: () => { for (const callback of intervals.values()) callback(); }, get imports() { assert.ok(imports); return imports; } };
 }
 
 // Story 9A.3: the worker refuses every envelope no handler owns through the managed typed rejection, which names its keys
@@ -184,9 +181,9 @@ for (const captureMode of [1, 2]) test(`capture mode ${captureMode}: preparation
     const sessionClock = clockRing.createClockRing();
     const preparing = self.onmessage({ data: { bootstrap: new Uint8Array(16), captureMode, clockRing: sessionClock,
         poseRing: new SharedArrayBuffer(3 * (16 + 16 * 64)) } });
-    await until(() => messages.some(message => message.ready === true), 'the worker is ready once its clock master qualified');
+    await boundary.ready;
     assert.equal(derivation.record.qualified, 16, 'every startup exchange qualified the derivation before ready');
-    await until(() => derivation.record.checks > 0, 'the running derivation check runs between turns of the worker loop');
+    boundary.tick(); assert.ok(derivation.record.checks > 0);
     // One adoption: the startup correction installed under the initial epoch; no running check needed another.
     assert.deepEqual([derivation.record.missed, derivation.record.adopted], [0, 1]);
     assert.equal(derivation.record.retried, derivation.record.checks,
@@ -324,8 +321,8 @@ test('a slow clock master costs counted missed checks, never a failure, and the 
     master.answering = () => derivation.record.qualified < 16;
     const sessionClock = clockRing.createClockRing(), beats = () => clockRing.heartbeat(clockRing.attachClockRing(sessionClock));
     self.onmessage({ data: { bootstrap: new Uint8Array(16), captureMode: 1, clockRing: sessionClock, poseRing: new SharedArrayBuffer(3 * (16 + 16 * 64)) } });
-    await until(() => messages.some(message => message.ready === true), 'ready: the master answered every startup exchange');
-    await until(() => derivation.record.missed >= 2, 'running checks the master does not answer are counted as missed');
+    await boundary.ready;
+    boundary.tick(); boundary.tick(); assert.equal(derivation.record.missed, 2);
     assert.ok(derivation.record.missed > 0);
     assert.equal(derivation.record.checks, 0, 'no check completed without its master');
     assert.equal(messages.filter(message => message.failure).length, 0, 'a missed check is never a session failure');
@@ -333,7 +330,7 @@ test('a slow clock master costs counted missed checks, never a failure, and the 
     assert.ok(beatsWhileSlow >= derivation.record.missed, 'every missed check turn still beats the heartbeat');
     master.answering = () => true;
     master.serve();
-    await until(() => derivation.record.checks > 0, 'the session continues: a later check completes');
+    boundary.tick(); assert.ok(derivation.record.checks > 0);
     assert.ok(beats() > beatsWhileSlow, 'the worker loop kept running its check turns');
     assert.equal(messages.filter(message => message.failure).length, 0);
     boundary.imports.dispose();
@@ -406,7 +403,7 @@ for (const control of [StartupControl.Reject, StartupControl.DisposeThenReject])
     const boundary = await loadWorker(host);
     const pending = boundary.self.onmessage({ data: { bootstrap: new Uint8Array(16), captureMode: 1, clockRing: clockRing.createClockRing(),
         poseRing: new SharedArrayBuffer(3 * (16 + 16 * 64)) } });
-    await until(() => boundary.messages.some(item => item.ready), 'ready after clock qualification');
+    await boundary.ready;
     assert.equal(boundary.messages.filter(item => item.ready).length, 1);
     if (control === StartupControl.DisposeThenReject) boundary.imports.dispose();
     rejectPreparation(Error('fixture preparation rejection'));

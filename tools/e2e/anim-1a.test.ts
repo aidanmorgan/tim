@@ -7,7 +7,7 @@ import assert from 'node:assert/strict';
 import { after, before, describe, test } from 'node:test';
 import type { ConsoleMessage } from 'playwright';
 import { WorkshopDriver } from './workshop-driver.ts';
-import { reportsNaN } from '../workshop-console.mjs';
+import { reportsNaN } from '../workshop-console.ts';
 
 // ANIM-1c moved the Receiver halo onto the declared Capture cosmetic path: target 3·2^32 + receiver body (First principles
 // authors ball 1, receiver 2), ColourBlend (property 5) ramping over the declared 0.5 s SmoothStep curve to the f32 value 1.

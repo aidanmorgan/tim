@@ -1,0 +1,11 @@
+export {};
+const ring = await import('../../CuriousContraptions.web/wwwroot/clock-ring.js');
+let text = ''; for await (const chunk of process.stdin) text += chunk;
+const request = JSON.parse(text) as { peer: string; milliseconds: string[]; probes: string[]; replies: { probe: string; received: string; sent: string; epoch: number }[] };
+const bytes = (hex: string) => Uint8Array.from(Buffer.from(hex, 'hex'));
+const double = (bits: string) => { const view = new DataView(new ArrayBuffer(8)); view.setBigUint64(0, BigInt.asUintN(64, BigInt(bits)), true); return view.getFloat64(0, true); };
+const peer = bytes(request.peer);
+const nanoseconds = request.milliseconds.map(bits => { try { return ring.nanoseconds(double(bits)).toString(); } catch (error) { return error instanceof RangeError ? 'refused' : 'other:' + error; } });
+const owns = request.probes.map(probe => ring.probeOwnsPeer(bytes(probe), peer));
+const replies = request.replies.map(r => { const reply = ring.encodeReply(bytes(r.probe), peer, BigInt(r.received), BigInt(r.sent), r.epoch); return reply === null ? null : Buffer.from(reply).toString('hex'); });
+process.stdout.write(JSON.stringify({ constants: { PeerBytes: ring.PeerBytes, ProbeBytes: ring.ProbeBytes, ReplyBytes: ring.ReplyBytes, ReplyWaitMilliseconds: ring.ReplyWaitMilliseconds }, roles: ring.ClockRole, nanoseconds, owns, replies }));

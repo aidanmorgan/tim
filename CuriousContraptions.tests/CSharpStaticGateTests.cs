@@ -1113,7 +1113,7 @@ public sealed class CSharpStaticGateTests
     {
         // Pinned strict TypeScript build: restore and generated runtime output; no Csc changes.
         ["tools/runtime/RuntimeTypeScript.targets:RestoreRuntimeTypeScript"] = "31c65cfd3d114862701641af1a1379edd6e09d5d0f8037e19340902c182befed",
-        ["tools/runtime/RuntimeTypeScript.targets:BuildRuntimeTypeScript"] = "8df9140e17e7d781bd15ceed0af1cc22a3c12d64790c328a099359cdcffbc4ad",
+        ["tools/runtime/RuntimeTypeScript.targets:BuildRuntimeTypeScript"] = "189b783742adf103060f39c611267d3125f9f4661434378eb0a7aaedf81a2fd6",
         // The 2dog.xunit package-source analyzer exclusion (CA1711, CA1001).
         ["Directory.Build.targets:ExcludePackageCompileSourcesFromAnalyzers"] = "add02e050a6440638d100c9ae07e742391968e2d16e8c6bb8c6c120f58b12425",
         // The worker publish bundles and the web host's bundle assembly (no compile settings).

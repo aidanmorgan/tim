@@ -1,15 +1,19 @@
 // The policy handshake is structural: one bundle ships the page and its worker, and the browser re-fetches the worker script on
 // every update (updateViaCache 'none'), so another deploy's changed worker installs as a waiting worker, which is refused below,
 // and a controller answering in any other shape is refused by the handshake.
-const Phase = Object.freeze({ waiting: 0, booting: 1, qualified: 2, failed: 3 });
+enum Phase { waiting, booting, qualified, failed }
 const scope = new URL('./', document.baseURI);
 const script = new URL('workshop-isolation-worker.js', scope);
+const waitingUpdateMessage = 'A waiting isolation policy requires closing all game tabs and windows, including this one, then reopening the game.';
 const markerKey = 'workshop-isolation:' + scope.pathname;
-let phase = Phase.waiting, controller, deadline = 0, lastNavigation = 0, timer, pendingCleanup, showFailure, retire;
-let navigationToUsableMilliseconds;
-let resolveQualified, rejectQualified, rejectFailure;
-const qualification = new Promise((resolve, reject) => { resolveQualified = resolve; rejectQualified = reject; });
-const failure = new Promise((_, reject) => { rejectFailure = reject; });
+let phase = Phase.waiting, controller: ServiceWorker | undefined, deadline = 0, lastNavigation = 0;
+let timer: ReturnType<typeof setTimeout> | undefined;
+let pendingCleanup: ((error?: unknown) => void) | undefined;
+let showFailure: ((error: unknown) => void) | undefined, retire: ((error: unknown) => void) | undefined;
+let navigationToUsableMilliseconds: number | undefined;
+let resolveQualified!: () => void, rejectQualified!: (error: unknown) => void, rejectFailure!: (error: unknown) => void;
+const qualification = new Promise<void>((resolve, reject) => { resolveQualified = resolve; rejectQualified = reject; });
+const failure = new Promise<never>((_, reject) => { rejectFailure = reject; });
 qualification.catch(() => {}); failure.catch(() => {});
 function navigationTime() {
     const value = performance.timeOrigin + performance.now();
@@ -18,7 +22,7 @@ function navigationTime() {
     lastNavigation = value;
     return value;
 }
-export function stopIsolation(error) {
+export function stopIsolation(error: unknown) {
     if (phase === Phase.failed) return;
     phase = Phase.failed;
     clearTimeout(timer);
@@ -37,14 +41,14 @@ function changedController() {
     if (phase !== Phase.waiting && navigator.serviceWorker.controller !== controller)
         stopIsolation(new Error('Workshop isolation controller changed; reload is required.'));
 }
-function bounded(operation) { return Promise.race([operation, failure]); }
+function bounded<T>(operation: Promise<T>) { return Promise.race([operation, failure]); }
 function waitForController() {
-    if (navigator.serviceWorker.controller) return Promise.resolve(navigator.serviceWorker.controller);
-    return new Promise((resolve, reject) => {
-        const finish = error => {
+    if (navigator.serviceWorker.controller) return Promise.resolve(navigator.serviceWorker.controller!);
+    return new Promise<ServiceWorker>((resolve, reject) => {
+        const finish = (error?: unknown) => {
             navigator.serviceWorker.removeEventListener('controllerchange', changed);
             pendingCleanup = undefined;
-            if (error) reject(error); else resolve(navigator.serviceWorker.controller);
+            if (error) reject(error); else resolve(navigator.serviceWorker.controller!);
         };
         const changed = () => { if (navigator.serviceWorker.controller) finish(); };
         pendingCleanup = finish;
@@ -52,10 +56,10 @@ function waitForController() {
         changed();
     });
 }
-function waitForInstall(worker) {
+function waitForInstall(worker: ServiceWorker | null) {
     if (!worker || worker.state === 'installed' || worker.state === 'activated') return Promise.resolve();
-    return new Promise((resolve, reject) => {
-        const finish = error => {
+    return new Promise<void>((resolve, reject) => {
+        const finish = (error?: unknown) => {
             worker.removeEventListener('statechange', changed);
             pendingCleanup = undefined;
             if (error) reject(error); else resolve();
@@ -69,10 +73,10 @@ function waitForInstall(worker) {
         changed();
     });
 }
-function handshake(expected) {
-    return new Promise((resolve, reject) => {
+function handshake(expected: ServiceWorker) {
+    return new Promise<void>((resolve, reject) => {
         const channel = new MessageChannel();
-        const finish = error => {
+        const finish = (error?: unknown) => {
             channel.port1.onmessage = null;
             channel.port1.onmessageerror = null;
             channel.port1.close(); channel.port2.close();
@@ -80,15 +84,15 @@ function handshake(expected) {
             if (error) reject(error); else resolve();
         };
         pendingCleanup = finish;
-        channel.port1.onmessage = event => finish(
-            event.data?.policyReady !== true || navigator.serviceWorker.controller !== expected
+        channel.port1.onmessage = (event: MessageEvent<unknown>) => finish(
+            (event.data === null || typeof event.data !== 'object' || !('policyReady' in event.data) || event.data.policyReady !== true) || navigator.serviceWorker.controller !== expected
                 ? new Error('Unsupported Workshop isolation policy.') : undefined);
         channel.port1.onmessageerror = () => finish(new Error('Invalid isolation policy response.'));
         try { expected.postMessage({ policyRequest: true }, [channel.port2]); }
         catch (error) { finish(error); }
     });
 }
-export async function prepareIsolation(displayFailure) {
+export async function prepareIsolation(displayFailure: (error: unknown) => void) {
     showFailure = displayFailure;
     try {
         if (!globalThis.isSecureContext || !navigator.serviceWorker)
@@ -116,11 +120,12 @@ export async function prepareIsolation(displayFailure) {
             await bounded(waitForInstall(registration.installing));
         }
         controller = await bounded(waitForController());
-        if (controller.scriptURL !== script.href || registration.waiting)
-            throw new Error('A different or waiting isolation policy requires closing all game tabs and reopening.');
+        if (controller.scriptURL !== script.href)
+            throw new Error('An unexpected service worker controls this game. Close all game tabs and windows, including this one, then reopen the game.');
+        if (registration.waiting) throw new Error(waitingUpdateMessage);
         await bounded(handshake(controller));
         checkDeadline();
-        if (registration.waiting) throw new Error('A waiting isolation policy requires closing all game tabs and reopening.');
+        if (registration.waiting) throw new Error(waitingUpdateMessage);
         if (!globalThis.crossOriginIsolated) {
             if (attempt[1] !== 0) throw new Error('Unsupported: the isolated reload did not establish isolation.');
             sessionStorage.setItem(markerKey, JSON.stringify([attempt[0], 1, lastNavigation]));
@@ -139,7 +144,7 @@ export function requireIsolation() {
         navigator.serviceWorker.controller !== controller)
         throw new Error('Workshop isolation policy is unavailable or changed.');
 }
-export function watchIsolation(callback) {
+export function watchIsolation(callback: (error: unknown) => void) {
     requireIsolation();
     if (retire) throw new Error('Workshop isolation already has a transport owner.');
     retire = callback;

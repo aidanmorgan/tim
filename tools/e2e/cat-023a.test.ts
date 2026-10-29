@@ -8,7 +8,7 @@ import assert from 'node:assert/strict';
 import { after, before, describe, test } from 'node:test';
 import type { ConsoleMessage } from 'playwright';
 import { WorkshopDriver, type WorkshopBodyPose } from './workshop-driver.ts';
-import { reportsNaN } from '../workshop-console.mjs';
+import { reportsNaN } from '../workshop-console.ts';
 
 const BENCH_Y = -0.46;
 const HALF_HEIGHT = 0.55;
